@@ -7,8 +7,8 @@ import org.junit.Test;
 
 import com.google.common.collect.Sets;
 import com.hotpads.datarouter.storage.field.enums.StringEnum;
-import com.hotpads.util.core.ArrayTool;
-import com.hotpads.util.core.StringTool;
+import com.hotpads.datarouter.util.core.DrArrayTool;
+import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.util.core.collections.Pair;
 import com.hotpads.util.domain.InternetTopLevelDomain;
 
@@ -105,7 +105,7 @@ public enum EmailDomain implements StringEnum<EmailDomain>{
 		if(s==null) return null;
 		for(EmailDomain domain : values()){
 			if(domain.getPersistentString().equals(s)) return domain;
-			for(String alternativeDomain : ArrayTool.nullSafe(domain.getAlternativeDomains())){
+			for(String alternativeDomain : DrArrayTool.nullSafe(domain.getAlternativeDomains())){
 				if(alternativeDomain.equals(s)){
 					return domain;
 				}
@@ -193,7 +193,7 @@ public enum EmailDomain implements StringEnum<EmailDomain>{
 		Pair<String,EmailDomain> domainAndEmailDomain = normalizeAndMatchDomain(originalDomain);
 		if(domainAndEmailDomain==null) return null;
 		String localPart = email.substring(0, email.length()-originalDomain.length()-1);
-		if(StringTool.isEmpty(localPart)) return null;
+		if(DrStringTool.isEmpty(localPart)) return null;
 		localPart = localPart.toLowerCase();
 		
 		EmailDomain emailDomain = domainAndEmailDomain.getRight();
@@ -214,7 +214,7 @@ public enum EmailDomain implements StringEnum<EmailDomain>{
 		return domainAndEmailDomain.getLeft();
 	}
 	public static Pair<String,EmailDomain> normalizeAndMatchDomain(String domain){
-		if(StringTool.isEmpty(domain)) return null;
+		if(DrStringTool.isEmpty(domain)) return null;
 		domain = domain.toLowerCase();
 		EmailDomain emailDomain = EmailDomain.fromFullDomain(domain);
 		if(emailDomain == null) return Pair.create(domain,null);
@@ -226,7 +226,7 @@ public enum EmailDomain implements StringEnum<EmailDomain>{
 	}
 	
 	public static String normalizeDomain(String domain){
-		if(StringTool.isEmpty(domain)){
+		if(DrStringTool.isEmpty(domain)){
 			return null;
 		}
 		if ("yahoocom".equalsIgnoreCase(domain) 
@@ -241,7 +241,7 @@ public enum EmailDomain implements StringEnum<EmailDomain>{
 		while(domain.length()>0 && domain.endsWith(".")){
 			domain = domain.substring(0, domain.length()-1);
 		}
-		int tld = domain.lastIndexOf((int) '.');
+		int tld = domain.lastIndexOf('.');
 		if (tld <= 0) {
 			return null;// localhost email domain fails here
 		}

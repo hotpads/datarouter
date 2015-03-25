@@ -1,9 +1,7 @@
 package com.hotpads.datarouter.routing;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.List;
-import java.util.SortedSet;
 
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.ClientId;
@@ -13,7 +11,6 @@ import com.hotpads.datarouter.connection.ConnectionPools;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.op.TxnOp;
 import com.hotpads.datarouter.storage.databean.Databean;
-import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
 /**
@@ -49,7 +46,6 @@ public interface Datarouter{
 	
 	void registerWithContext() throws IOException;
 
-	SortedSet<Node> getNodes();
 	DatarouterContext getContext();
 
 	/************************************** app wrappers **************************************/
@@ -63,17 +59,6 @@ public interface Datarouter{
 	Client getClient(String clientName);
 	ClientType getClientType(String clientName);
 	List<Client> getAllClients();
-
-	<K extends Key<K>>List<String> getClientNamesForKeys(Collection<? extends Key<K>> keys);
-
-	<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>List<String>
-			getClientNamesForDatabeans(Collection<D> databeans);
-
-	<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>List<Client> getClientsForDatabeanType(Class<D> databeanType);
-
-	<K extends Key<K>>List<Client> getClientsForKeys(Collection<? extends Key<K>> keys);
-
-	<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>List<Client> getClientsForDatabeans(Collection<D> databeans);
 
 	/***************** overexposed accessors *******************************/
 	ConnectionPools getConnectionPools();

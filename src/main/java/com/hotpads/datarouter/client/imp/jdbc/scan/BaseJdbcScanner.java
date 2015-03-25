@@ -3,12 +3,10 @@ package com.hotpads.datarouter.client.imp.jdbc.scan;
 import java.util.List;
 
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseReaderNode;
-import com.hotpads.datarouter.client.imp.jdbc.node.JdbcReaderNode;
 import com.hotpads.datarouter.config.Config;
-import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.util.core.CollectionTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.iterable.scanner.batch.BaseBatchingSortedScanner;
 
@@ -18,15 +16,10 @@ public abstract class BaseJdbcScanner<
 		T extends Comparable<? super T>>//T should be either PK or D
 extends BaseBatchingSortedScanner<T,T>{
 	
-	protected JdbcReaderNode<PK,D,?> node;
-	protected DatabeanFieldInfo<PK,D,?> fieldInfo;
 	protected Range<PK> range;
 	protected Config config;
 	
-	public BaseJdbcScanner(JdbcReaderNode<PK,D,?> node, DatabeanFieldInfo<PK,D,?> fieldInfo, Range<PK> range,
-			Config pConfig){
-		this.node = node;
-		this.fieldInfo = node.getFieldInfo();
+	public BaseJdbcScanner(Range<PK> range, Config pConfig){
 		this.range = range;
 		this.config = pConfig == null ? new Config() : pConfig.getDeepCopy();
 		this.config.setIterateBatchSizeIfNull(HBaseReaderNode.DEFAULT_ITERATE_BATCH_SIZE);//why is this necessary?
@@ -42,7 +35,7 @@ extends BaseBatchingSortedScanner<T,T>{
 		PK lastRowOfPreviousBatch = range.getStart();
 		boolean isStartInclusive = range.getStartInclusive();//only on the first load
 		if(currentBatch != null){
-			T endOfLastBatch = CollectionTool.getLast(currentBatch);
+			T endOfLastBatch = DrCollectionTool.getLast(currentBatch);
 			if(endOfLastBatch==null){
 				currentBatch = null;
 				return;
@@ -56,7 +49,7 @@ extends BaseBatchingSortedScanner<T,T>{
 		//unfortunately we need to overwrite the limit.  the original pConfig should be unaffected
 		config.setLimit(config.getIterateBatchSize());
 		currentBatch = doLoad(batchRange, config);
-		if(CollectionTool.size(currentBatch) < config.getIterateBatchSize()){
+		if(DrCollectionTool.size(currentBatch) < config.getIterateBatchSize()){
 			noMoreBatches = true;//tell the advance() method not to call this method again
 		}
 	}

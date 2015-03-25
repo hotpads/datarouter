@@ -20,7 +20,7 @@ import com.hotpads.datarouter.test.client.insert.PutOpTestBeanKey;
 import com.hotpads.datarouter.test.client.pool.PoolTestBean;
 import com.hotpads.datarouter.test.client.pool.PoolTestBean.PoolTestBeanFielder;
 import com.hotpads.datarouter.test.client.pool.PoolTestBeanKey;
-import com.hotpads.util.core.ListTool;
+import com.hotpads.datarouter.util.core.DrListTool;
 
 @Singleton
 public class BasicClientTestRouterImp
@@ -56,7 +56,7 @@ implements BasicClientTestRouter{
 
 	/********************************** config **********************************/
 
-	public static final List<ClientId> CLIENT_IDS = ListTool.create(
+	public static final List<ClientId> CLIENT_IDS = DrListTool.create(
 			new ClientId(DRTestConstants.CLIENT_drTestJdbc0, true),
 			new ClientId(DRTestConstants.CLIENT_drTestHibernate0, true),
 			new ClientId(DRTestConstants.CLIENT_drTestHBase, true));

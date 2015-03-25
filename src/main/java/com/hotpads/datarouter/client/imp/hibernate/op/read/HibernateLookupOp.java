@@ -18,8 +18,7 @@ import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.multi.Lookup;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.datarouter.util.DRCounters;
-import com.hotpads.util.core.CollectionTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
 
 public class HibernateLookupOp<
 		PK extends PrimaryKey<PK>,
@@ -27,17 +26,15 @@ public class HibernateLookupOp<
 		F extends DatabeanFielder<PK,D>> 
 extends BaseHibernateOp<List<D>>{
 		
-	private HibernateReaderNode<PK,D,F> node;
-	private String opName;
-	private Collection<? extends Lookup<PK>> lookups;
-	private boolean wildcardLastField;
-	private Config config;
+	private final HibernateReaderNode<PK,D,F> node;
+	private final Collection<? extends Lookup<PK>> lookups;
+	private final boolean wildcardLastField;
+	private final Config config;
 	
-	public HibernateLookupOp(HibernateReaderNode<PK,D,F> node, String opName, 
-			Collection<? extends Lookup<PK>> lookups, boolean wildcardLastField, Config config) {
+	public HibernateLookupOp(HibernateReaderNode<PK,D,F> node, Collection<? extends Lookup<PK>> lookups, 
+			boolean wildcardLastField, Config config) {
 		super(node.getDatarouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
 		this.node = node;
-		this.opName = opName;
 		this.lookups = lookups;
 		this.wildcardLastField = wildcardLastField;
 		this.config = config;
@@ -45,8 +42,7 @@ extends BaseHibernateOp<List<D>>{
 	
 	@Override
 	public List<D> runOnce(){
-		if(CollectionTool.isEmpty(lookups)){ return new LinkedList<D>(); }
-		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
+		if(DrCollectionTool.isEmpty(lookups)){ return new LinkedList<D>(); }
 		Session session = getSession(node.getClientName());
 		//TODO undefined behavior on trailing nulls
 		Criteria criteria = node.getCriteriaForConfig(config, session);

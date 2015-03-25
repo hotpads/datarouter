@@ -2,6 +2,7 @@ package com.hotpads.datarouter.connection;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableSet;
@@ -20,10 +21,9 @@ import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.client.Clients;
 import com.hotpads.datarouter.util.ApplicationPaths;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.MapTool;
-import com.hotpads.util.core.PropertiesTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrMapTool;
+import com.hotpads.datarouter.util.core.DrPropertiesTool;
 
 @Singleton
 public class ConnectionPools {
@@ -57,17 +57,17 @@ public class ConnectionPools {
 	
 	public void registerClientIds(Collection<ClientId> clientIdsToAdd, String configFilePath) {
 		Preconditions.checkNotNull(configFilePath);
-		clientIds.addAll(CollectionTool.nullSafe(clientIdsToAdd));
+		clientIds.addAll(DrCollectionTool.nullSafe(clientIdsToAdd));
 		if(!configFilePaths.contains(configFilePath)){
 			configFilePaths.add(configFilePath);
-			multiProperties.add(PropertiesTool.parse(configFilePath));
+			multiProperties.add(DrPropertiesTool.parse(configFilePath));
 		}
 	}
 
 	/****************** shutdown ************************************/
 	
 	public void shutdown(){
-		for(JdbcConnectionPool pool : MapTool.nullSafe(this.connectionPoolByName).values()){
+		for(JdbcConnectionPool pool : DrMapTool.nullSafe(this.connectionPoolByName).values()){
 			pool.shutdown();
 		}
 	}
@@ -87,8 +87,8 @@ public class ConnectionPools {
 	}
 	
 	public List<JdbcConnectionPool> getConnectionPools(Collection<String> connectionPoolNames){
-		List<JdbcConnectionPool> connectionPools = ListTool.createLinkedList();
-		for(String connectionPoolName : CollectionTool.nullSafe(connectionPoolNames)){
+		List<JdbcConnectionPool> connectionPools = new LinkedList<>();
+		for(String connectionPoolName : DrCollectionTool.nullSafe(connectionPoolNames)){
 			connectionPools.add(this.getConnectionPool(connectionPoolName));
 		}
 		return connectionPools;

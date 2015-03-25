@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.client.imp.hbase.op.write;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -19,9 +20,8 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt63Field;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
-import com.hotpads.util.core.ClassTool;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ListTool;
+import com.hotpads.datarouter.util.core.DrClassTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 
 
@@ -47,7 +47,7 @@ extends HBaseTask<Void>{
 	
 	public Void hbaseCall(HTable hTable, HBaseClient client, ResultScanner managedResultScanner) throws Exception{
 		if(countByColumnByKey==null){ return null; }
-		List<Row> actions = ListTool.createArrayList();
+		List<Row> actions = new ArrayList<>();
 		int numCellsIncremented = 0, numRowsIncremented = 0;
 		for(Map.Entry<PK,Map<String,Long>> row : countByColumnByKey.entrySet()){//TODO obey Config.commitBatchSize
 			byte[] keyBytes = node.getKeyBytesWithScatteringPrefix(null, row.getKey(), false);
@@ -56,16 +56,16 @@ extends HBaseTask<Void>{
 				String columnName = columnCount.getKey();
 				assertColumnIsUInt63Field(columnName);
 				byte[] columnNameBytes = StringByteTool.getUtf8Bytes(columnName);
-				increment.addColumn(node.FAM, columnNameBytes, columnCount.getValue());
+				increment.addColumn(HBaseNode.FAM, columnNameBytes, columnCount.getValue());
 				++numCellsIncremented;
 			}
 			increment.setWriteToWAL(config.getPersistentPut());
 			actions.add(increment);
 			++numRowsIncremented;
 		}
-		DRCounters.incSuffixClientNode(client.getType(), "cells incremented", node.getClientName(), node.getName(), numCellsIncremented);
-		DRCounters.incSuffixClientNode(client.getType(), "rows incremented", node.getClientName(), node.getName(), numRowsIncremented);
-		if(CollectionTool.notEmpty(actions)){
+		DRCounters.incClientNodeCustom(client.getType(), "cells incremented", node.getClientName(), node.getName(), numCellsIncremented);
+		DRCounters.incClientNodeCustom(client.getType(), "rows incremented", node.getClientName(), node.getName(), numRowsIncremented);
+		if(DrCollectionTool.notEmpty(actions)){
 			hTable.batch(actions);
 			hTable.flushCommits();
 		}
@@ -75,7 +75,7 @@ extends HBaseTask<Void>{
 	//try to prevent making a mistake with columnName and incrementing a non-counter column
 	private void assertColumnIsUInt63Field(String columnName){
 		Class<? extends Field> columnType = node.getFieldInfo().getFieldTypeForColumn(columnName);
-		if(ClassTool.differentClass(columnType, UInt63Field.class)){
+		if(DrClassTool.differentClass(columnType, UInt63Field.class)){
 			throw new IllegalArgumentException(columnName+" is a "+columnType.getClass()
 					+", but you can only increment a LongField");
 		}

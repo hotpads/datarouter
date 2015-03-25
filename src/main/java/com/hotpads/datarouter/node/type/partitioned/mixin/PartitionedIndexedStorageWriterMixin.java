@@ -11,8 +11,8 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.multi.Lookup;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.IterableTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrIterableTool;
 
 public class PartitionedIndexedStorageWriterMixin<
 		PK extends PrimaryKey<PK>,
@@ -29,21 +29,21 @@ implements IndexedStorageWriter<PK,D>{
 
 	@Override
 	public void delete(Lookup<PK> lookup, Config config){
-		for(N node : IterableTool.nullSafe(target.getPhysicalNodes())){
+		for(N node : DrIterableTool.nullSafe(target.getPhysicalNodes())){
 			node.delete(lookup, config);
 		}
 	}
 
 	@Override
 	public void deleteMultiUnique(Collection<? extends UniqueKey<PK>> uniqueKeys, Config config){
-		for(N node : IterableTool.nullSafe(target.getPhysicalNodes())){
+		for(N node : DrIterableTool.nullSafe(target.getPhysicalNodes())){
 			node.deleteMultiUnique(uniqueKeys, config);
 		}
 	}
 
 	@Override
 	public void deleteUnique(UniqueKey<PK> uniqueKey, Config config){
-		for(N node : IterableTool.nullSafe(target.getPhysicalNodes())){
+		for(N node : DrIterableTool.nullSafe(target.getPhysicalNodes())){
 			node.deleteUnique(uniqueKey, config);
 		}
 	}

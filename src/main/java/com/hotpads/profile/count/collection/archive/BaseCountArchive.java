@@ -1,7 +1,7 @@
 package com.hotpads.profile.count.collection.archive;
 
-import com.hotpads.util.core.ClassTool;
-import com.hotpads.util.core.ComparableTool;
+import com.hotpads.datarouter.util.core.DrClassTool;
+import com.hotpads.datarouter.util.core.DrComparableTool;
 
 public abstract class BaseCountArchive implements CountArchive{
 
@@ -19,8 +19,8 @@ public abstract class BaseCountArchive implements CountArchive{
 
 	@Override
 	public int compareTo(CountArchive that){
-		if(ClassTool.differentClass(this, that)){ 
-			return ComparableTool.nullFirstCompareTo(this.getClass().getName(), that.getClass().getName()); 
+		if(DrClassTool.differentClass(this, that)){ 
+			return DrComparableTool.nullFirstCompareTo(this.getClass().getName(), that.getClass().getName()); 
 		}
 		return (int)(this.getPeriodMs() - that.getPeriodMs());
 	}

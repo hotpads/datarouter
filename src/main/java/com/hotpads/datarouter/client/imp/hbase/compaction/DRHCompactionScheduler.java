@@ -7,17 +7,17 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.client.imp.hbase.cluster.DRHRegionInfo;
-import com.hotpads.util.core.DateTool;
-import com.hotpads.util.core.ExceptionTool;
-import com.hotpads.util.core.HashMethods;
-import com.hotpads.util.core.date.DailyCalendarTool;
+import com.hotpads.datarouter.util.core.DrDailyCalendarTool;
+import com.hotpads.datarouter.util.core.DrDateTool;
+import com.hotpads.datarouter.util.core.DrExceptionTool;
+import com.hotpads.datarouter.util.core.DrHashMethods;
 
 public class DRHCompactionScheduler
 implements DRHCompactionInfo{
 	static Logger logger = LoggerFactory.getLogger(DRHCompactionScheduler.class);
 	
 	public static final Long COMPACTION_EPOCH = 
-		DailyCalendarTool.parseYYYYMMDDEastern("20110301").getTimeInMillis();
+		DrDailyCalendarTool.parseYYYYMMDDEastern("20110301").getTimeInMillis();
 	
 	protected Long now = System.currentTimeMillis();
 	protected DRHCompactionInfo compactionInfo;
@@ -34,14 +34,14 @@ implements DRHCompactionInfo{
 		//these can apparently be null for some reason.  implementation should handle it
 //		Preconditions.checkNotNull(regionInfo.getLoad(), regionInfo.getTableName()+" "+regionInfo.getName());
 		String startKeyString = regionInfo.getRegion().getEncodedName();
-		this.regionHash = Math.abs(HashMethods.longDJBHash(startKeyString));
+		this.regionHash = Math.abs(DrHashMethods.longDJBHash(startKeyString));
 		calculateNextCompactTime();
 	}
 	
 	public String getNextCompactTimeFormatted(){
 		Date date = new Date(nextCompactTimeMs);
-		return DateTool.getYYYYMMDDHHMMWithPunctuation(date) + ", "
-				+ DateTool.getDayAbbreviation(date);
+		return DrDateTool.getYYYYMMDDHHMMWithPunctuation(date) + ", "
+				+ DrDateTool.getDayAbbreviation(date);
 	}
 	
 	public Long getNextCompactTimeMs(){
@@ -92,7 +92,7 @@ implements DRHCompactionInfo{
 		}
 
 		//calculate an offset into the current period
-		Double offsetIntoCompactionPeriodPct = 1d * (double)regionHash / (double)Long.MAX_VALUE;
+		Double offsetIntoCompactionPeriodPct = 1d * (double)regionHash / Long.MAX_VALUE;
 		Long offsetIntoCompactionPeriodMs = (long)(offsetIntoCompactionPeriodPct * getPeriodMs());
 		nextCompactTimeMs = periodStartSeekerMs + offsetIntoCompactionPeriodMs;
 		if(nextCompactTimeMs < windowStartMs){ nextCompactTimeMs += regionCompactionPeriodMs; }

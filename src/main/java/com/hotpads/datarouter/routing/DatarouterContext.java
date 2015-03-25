@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.routing;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NavigableSet;
 import java.util.Properties;
@@ -7,12 +8,10 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.SynchronousQueue;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ScheduledExecutorService;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.inject.Singleton;
 
 import org.slf4j.Logger;
@@ -26,14 +25,13 @@ import com.hotpads.datarouter.node.Nodes;
 import com.hotpads.datarouter.node.op.raw.write.SortedStorageWriter;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.util.ApplicationPaths;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.IterableTool;
-import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.ObjectTool;
-import com.hotpads.util.core.PropertiesTool;
-import com.hotpads.util.core.SetTool;
-import com.hotpads.util.core.StringTool;
-import com.hotpads.util.core.concurrent.NamedThreadFactory;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrIterableTool;
+import com.hotpads.datarouter.util.core.DrListTool;
+import com.hotpads.datarouter.util.core.DrObjectTool;
+import com.hotpads.datarouter.util.core.DrPropertiesTool;
+import com.hotpads.datarouter.util.core.DrStringTool;
+import com.hotpads.guice.DatarouterExecutorGuiceModule;
 
 /**
  * DatarouterContext is the top-level scope through which various components can share things like clients,
@@ -55,13 +53,13 @@ public class DatarouterContext{
 	/*************************** fields *****************************/
 
 	//injected
-	private ApplicationPaths applicationPaths;
-	private ConnectionPools connectionPools;
-	private Clients clients;
-	private Nodes nodes;
-	
-	//not injected
-	private ExecutorService executorService;//for async client init and monitoring
+	private final ApplicationPaths applicationPaths;
+	private final ConnectionPools connectionPools;
+	private final Clients clients;
+	private final Nodes nodes;
+	private final ExecutorService executorService;//for async client init and monitoring
+	private final ScheduledExecutorService writeBehindScheduler;
+	private final ExecutorService writeBehindExecutor;
 
 	private List<Datarouter> routers;
 	private Set<String> configFilePaths;
@@ -71,29 +69,28 @@ public class DatarouterContext{
 	
 
 	/************************** constructors ***************************/
-	
-	/*
-	 * for some reason, trying to inject an ExecutorService throws guice into an endless loop of ComputationExceptions.
-	 * Google doesn't turn up many questions about it.
-	 */
-	@Inject
-	public DatarouterContext(/*@DatarouterExecutorService ExecutorService executorService,*/
-			ApplicationPaths applicationPaths, ConnectionPools connectionPools, Clients clients, Nodes nodes){
-		int id = System.identityHashCode(this);
-		ThreadGroup threadGroup = new ThreadGroup("Datarouter-ThreadGroup-"+id);
-		ThreadFactory threadFactory = new NamedThreadFactory(threadGroup, "Datarouter-ThreadFactory-"+id, true);
-		this.executorService = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS,
-	            new SynchronousQueue<Runnable>(), threadFactory);
 
-//		this.executorService = executorService;
+	@Inject
+	public DatarouterContext(
+			ApplicationPaths applicationPaths,
+			ConnectionPools connectionPools,
+			Clients clients,
+			Nodes nodes,
+			@Named(DatarouterExecutorGuiceModule.POOL_datarouterContextExecutor) ExecutorService executorService,
+			@Named(DatarouterExecutorGuiceModule.POOL_writeBehindExecutor) ExecutorService writeBehindExecutor,
+			@Named(DatarouterExecutorGuiceModule.POOL_writeBehindScheduler) ScheduledExecutorService 
+				writeBehindScheduler){
+		this.executorService = executorService;
 		this.applicationPaths = applicationPaths;
 		this.connectionPools = connectionPools;
 		this.clients = clients;
 		this.nodes = nodes;
+		this.writeBehindExecutor = writeBehindExecutor;
+		this.writeBehindScheduler = writeBehindScheduler;
 		
-		this.configFilePaths = SetTool.createTreeSet();
-		this.multiProperties = ListTool.createArrayList();
-		this.routers = ListTool.createArrayList();
+		this.configFilePaths = new TreeSet<>();
+		this.multiProperties = new ArrayList<>();
+		this.routers = new ArrayList<>();
 //		createDefaultMemoryClient();//do after this.clients and this.nodes have been instantiated
 	}
 	
@@ -113,23 +110,25 @@ public class DatarouterContext{
 	
 	private void addConfigIfNew(Datarouter router){
 		String configPath = router.getConfigLocation();
-		if(configFilePaths.contains(configPath)){ return; }
+		if(configFilePaths.contains(configPath)){
+			return;
+		}
 		
 		logger.warn("adding datarouter config from "+configPath+", currentRouters:"+routers);
 		configFilePaths.add(configPath);
-		multiProperties.add(PropertiesTool.parse(configPath));
+		multiProperties.add(DrPropertiesTool.parse(configPath));
 		
-		String newServerName = PropertiesTool.getFirstOccurrence(multiProperties, CONFIG_SERVER_NAME);
-		if(StringTool.isEmpty(serverName)){
+		String newServerName = DrPropertiesTool.getFirstOccurrence(multiProperties, CONFIG_SERVER_NAME);
+		if(DrStringTool.isEmpty(serverName)){
 			serverName = newServerName;
-		}else if(ObjectTool.notEquals(serverName, newServerName)){
+		}else if(DrObjectTool.notEquals(serverName, newServerName)){
 			logger.warn("not replacing existing serverName "+serverName+" with "+newServerName+" from "+configPath);
 		}
 		
-		String newAdministratorEmail = PropertiesTool.getFirstOccurrence(multiProperties, CONFIG_ADMINISTRATOR_EMAIL);
-		if(StringTool.isEmpty(administratorEmail)){
+		String newAdministratorEmail = DrPropertiesTool.getFirstOccurrence(multiProperties, CONFIG_ADMINISTRATOR_EMAIL);
+		if(DrStringTool.isEmpty(administratorEmail)){
 			administratorEmail = newAdministratorEmail;
-		}else if(ObjectTool.notEquals(administratorEmail, newAdministratorEmail)){
+		}else if(DrObjectTool.notEquals(administratorEmail, newAdministratorEmail)){
 			logger.warn("not replacing existing administratorEmail "+administratorEmail+" with "+newAdministratorEmail
 					+" from "+configPath);
 		}
@@ -148,7 +147,7 @@ public class DatarouterContext{
 	/********************* methods **********************************/
 
 	public Datarouter getRouter(String name){
-		for(Datarouter router : CollectionTool.nullSafe(this.routers)){
+		for(Datarouter router : DrCollectionTool.nullSafe(this.routers)){
 			if(name.equals(router.getName())){
 				return router;
 			}
@@ -157,13 +156,13 @@ public class DatarouterContext{
 	}
 	
 	public List<Client> getClients(){
-		SortedSet<Client> clients = SetTool.createTreeSet();
-		for(Datarouter router : IterableTool.nullSafe(getRouters())){
-			for(Client client : IterableTool.nullSafe(router.getAllClients())){
+		SortedSet<Client> clients = new TreeSet<>();
+		for(Datarouter router : DrIterableTool.nullSafe(getRouters())){
+			for(Client client : DrIterableTool.nullSafe(router.getAllClients())){
 				clients.add(client);
 			}
 		}
-		return ListTool.createArrayList(clients);
+		return DrListTool.createArrayList(clients);
 	}
 	
 	public Datarouter getRouterForClient(Client client){
@@ -224,6 +223,14 @@ public class DatarouterContext{
 		return executorService;
 	}
 
+	public ExecutorService getWriteBehindExecutor(){
+		return writeBehindExecutor;
+	}
+	
+	public ScheduledExecutorService getWriteBehindScheduler(){
+		return writeBehindScheduler;
+	}
+	
 	public Set<String> getConfigFilePaths(){
 		return configFilePaths;
 	}

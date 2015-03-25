@@ -13,10 +13,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.util.callsite.CallsiteStatX.CallsiteCountComparator;
-import com.hotpads.util.core.ComparableTool;
-import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.NumberFormatter;
-import com.hotpads.util.core.StringTool;
+import com.hotpads.datarouter.util.core.DrComparableTool;
+import com.hotpads.datarouter.util.core.DrListTool;
+import com.hotpads.datarouter.util.core.DrNumberFormatter;
+import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.util.core.io.ReaderTool;
 import com.hotpads.util.core.iterable.scanner.Scanner;
 
@@ -67,8 +67,8 @@ public class CallsiteAnalyzer implements Callable<String>{
 			for(String line : batch){
 				++numLines;
 				CallsiteRecord record = CallsiteRecord.fromLogLine(line);
-				if(ComparableTool.lt(record.getTimestamp(), firstDate)){ firstDate = record.getTimestamp(); }
-				if(ComparableTool.gt(record.getTimestamp(), lastDate)){ lastDate = record.getTimestamp(); }
+				if(DrComparableTool.lt(record.getTimestamp(), firstDate)){ firstDate = record.getTimestamp(); }
+				if(DrComparableTool.gt(record.getTimestamp(), lastDate)){ lastDate = record.getTimestamp(); }
 				CallsiteStatX stat = new CallsiteStatX(record.getCallsite(), record.getNodeName(), record
 						.getDatarouterMethodName(), 1L, record.getDurationNs(), record.getNumItems());
 				if(!aggregateStatByKey.containsKey(stat.getKey())){
@@ -76,13 +76,13 @@ public class CallsiteAnalyzer implements Callable<String>{
 				}
 				aggregateStatByKey.get(stat.getKey()).addMetrics(stat);
 				if(numLines % 100000 == 0){
-					logger.warn("scanned "+NumberFormatter.addCommas(numLines)+" in "+logPath);
+					logger.warn("scanned "+DrNumberFormatter.addCommas(numLines)+" in "+logPath);
 				}
 			}
 		}
 		
 		//sort
-		List<CallsiteStatX> stats = ListTool.createArrayList(aggregateStatByKey.values());
+		List<CallsiteStatX> stats = DrListTool.createArrayList(aggregateStatByKey.values());
 		Collections.sort(stats, Collections.reverseOrder(COMPARATOR));
 		
 		//build report
@@ -91,23 +91,23 @@ public class CallsiteAnalyzer implements Callable<String>{
 		long numSeconds = (lastDate.getTime() - firstDate.getTime()) / 1000;
 		double callsPerSec = (double)numLines / (double)numSeconds;
 		sb.append("          path: "+logPath+"\n");
-		sb.append(" file size (B): "+NumberFormatter.addCommas(new File(logPath).length())+"\n");
-		sb.append("         lines: "+NumberFormatter.addCommas(numLines)+"\n");
-		sb.append("     callsites: "+NumberFormatter.addCommas(stats.size())+"\n");
-		sb.append(" dao callsites: "+NumberFormatter.addCommas(numDaoCallsites)+"\n");
+		sb.append(" file size (B): "+DrNumberFormatter.addCommas(new File(logPath).length())+"\n");
+		sb.append("         lines: "+DrNumberFormatter.addCommas(numLines)+"\n");
+		sb.append("     callsites: "+DrNumberFormatter.addCommas(stats.size())+"\n");
+		sb.append(" dao callsites: "+DrNumberFormatter.addCommas(numDaoCallsites)+"\n");
 		sb.append("    first date: "+firstDate.toString()+"\n");
 		sb.append("     last date: "+lastDate.toString()+"\n");
-		sb.append("       seconds: "+NumberFormatter.addCommas(numSeconds)+"\n");
-		sb.append("     calls/sec: "+NumberFormatter.format(callsPerSec, 2)+"\n");
+		sb.append("       seconds: "+DrNumberFormatter.addCommas(numSeconds)+"\n");
+		sb.append("     calls/sec: "+DrNumberFormatter.format(callsPerSec, 2)+"\n");
 		sb.append("\n");
 		int rankWidth = 5;
-		sb.append(StringTool.pad("rank", ' ', rankWidth) + CallsiteStatX.getReportHeader()+"\n");
+		sb.append(DrStringTool.pad("rank", ' ', rankWidth) + CallsiteStatX.getReportHeader()+"\n");
 		//print top N
 		int row = 0;
 		for(CallsiteStatX stat : stats){
 			++row;
 			if(row > maxResults){ break; }
-			sb.append(StringTool.pad(row+"", ' ', rankWidth) + stat.getReportLine() + "\n");
+			sb.append(DrStringTool.pad(row+"", ' ', rankWidth) + stat.getReportLine() + "\n");
 		}
 		return sb.toString();
 	}

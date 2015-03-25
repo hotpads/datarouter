@@ -1,8 +1,6 @@
 package com.hotpads.datarouter.routing;
 
-import java.util.Collection;
 import java.util.List;
-import java.util.SortedSet;
 
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.ClientId;
@@ -14,19 +12,16 @@ import com.hotpads.datarouter.node.op.NodeOps;
 import com.hotpads.datarouter.op.TxnOp;
 import com.hotpads.datarouter.op.executor.impl.SessionExecutorImpl;
 import com.hotpads.datarouter.storage.databean.Databean;
-import com.hotpads.datarouter.storage.key.Key;
-import com.hotpads.datarouter.storage.key.KeyTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.trace.TraceContext;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ListTool;
 
 public abstract class BaseDatarouter
 implements Datarouter{
 
 	public static final String
 		MODE_development = "development",
-		MODE_production = "production";
+		MODE_production = "production"
+		;
 	
 	/********************************* fields **********************************/
 	
@@ -57,24 +52,20 @@ implements Datarouter{
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,N extends Node<PK,D>> N register(N node){
 		this.context.getNodes().register(name, node);
 		return node;
 	}
 	
 	/*
-	 * be careful that this gets called after the nodes are registered, otherwise you get SessionFactories
-	 *  without databean configs, and Hibernate will silently return empty results (when called with entityName instead of class)
+	 * be careful that this gets called after the nodes are registered,
+	 * otherwise you get SessionFactories without databean configs, and
+	 * Hibernate will silently return empty results (when called with entityName
+	 * instead of class)
 	 */
 	@Override
 	public void registerWithContext(){
 		context.register(this);
-	}
-
-	@Override
-	public SortedSet<Node> getNodes() {
-		return context.getNodes().getNodesForRouterName(getName());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -88,14 +79,14 @@ implements Datarouter{
 	@Override
 	public <T> T run(TxnOp<T> parallelTxnOp){
 		TraceContext.startSpan(parallelTxnOp.getClass().getSimpleName());
-		T t;
+		T trace;
 		try{
-			t = new SessionExecutorImpl<T>(parallelTxnOp).call();
+			trace = new SessionExecutorImpl<T>(parallelTxnOp).call();
 		}catch(Exception e){
 			throw new RuntimeException(e);
 		}
 		TraceContext.finishSpan();
-		return t;
+		return trace;
 	}
 	
 	/************************************** getting clients *************************/
@@ -125,45 +116,6 @@ implements Datarouter{
 //		return context.getClientPool().getClients(clientNames);
 //	}
 
-	@Override
-	@SuppressWarnings("unchecked")
-	public <K extends Key<K>>List<String> getClientNamesForKeys(Collection<? extends Key<K>> keys){
-		List<String> clientNames = context.getNodes().getClientNamesForKeys(keys);
-		return clientNames;
-	}
-
-	@Override
-	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>List<String> getClientNamesForDatabeans(
-			Collection<D> databeans){
-		return getClientNamesForKeys(KeyTool.getKeys(databeans));
-	}
-
-	@Override
-	@SuppressWarnings("unchecked")
-	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>> List<Client> 
-	getClientsForDatabeanType(Class<D> databeanType){
-		List<String> clientNames = context.getNodes().getClientNamesForDatabeanType(databeanType);
-		if(CollectionTool.isEmpty(clientNames)){ return null; }
-		return context.getClientPool().getClients(context, clientNames);
-	}
-
-	@Override
-	public <K extends Key<K>>List<Client> getClientsForKeys(Collection<? extends Key<K>> keys){
-		List<Client> clientsForKeys = ListTool.createLinkedList();
-		List<String> clientNames = getClientNamesForKeys(keys);
-		for(String clientName : CollectionTool.nullSafe(clientNames)){
-			Client client = getClient(clientName);
-			clientsForKeys.add(client);
-		}
-		return clientsForKeys;
-	}
-
-	@Override
-	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>List<Client> getClientsForDatabeans(
-			Collection<D> databeans){
-		return getClientsForKeys(KeyTool.getKeys(databeans));
-	}
-	
 	/***************** overexposed accessors *******************************/
 	
 	@Override

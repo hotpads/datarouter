@@ -1,9 +1,12 @@
 package com.hotpads.datarouter.node.type.caching.map.base;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.TreeSet;
 
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.BaseNode;
@@ -14,9 +17,10 @@ import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.SetTool;
+import com.hotpads.datarouter.util.core.DrClassTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrListTool;
+import com.hotpads.datarouter.util.core.DrSetTool;
 
 public abstract class BaseMapCachingNode<
 		PK extends PrimaryKey<PK>,
@@ -41,7 +45,7 @@ extends BaseNode<PK,D,F>{
 		this.cachingNode = cacheNode;
 		this.backingNode = backingNode;
 		//use the inputs to make a unique name.  randomness will not place nicely with the counters
-		this.setId(new NodeId<PK,D,F>((Class<Node<PK,D>>)getClass(), backingNode.getDatabeanType(), 
+		this.setId(new NodeId<PK,D,F>(DrClassTool.getClass(this), backingNode.getDatabeanType(), 
 				backingNode.getRouter().getName(), null, null, backingNode.getName()+".cache"));
 //		this.name = fieldInfo.getDatabeanClass().getSimpleName()+"."+getClass().getSimpleName()+"."+System.identityHashCode(this);
 	}
@@ -67,10 +71,10 @@ extends BaseNode<PK,D,F>{
 	
 	@Override
 	public List<String> getClientNames() {
-		SortedSet<String> clientNames = SetTool.createTreeSet();
-		SetTool.nullSafeSortedAddAll(clientNames, cachingNode.getClientNames());
-		SetTool.nullSafeSortedAddAll(clientNames, backingNode.getClientNames());
-		return ListTool.createArrayList(clientNames);
+		SortedSet<String> clientNames = new TreeSet<>();
+		DrSetTool.nullSafeSortedAddAll(clientNames, cachingNode.getClientNames());
+		DrSetTool.nullSafeSortedAddAll(clientNames, backingNode.getClientNames());
+		return DrListTool.createArrayList(clientNames);
 	}
 
 	@Override
@@ -90,8 +94,8 @@ extends BaseNode<PK,D,F>{
 	
 	@Override
 	public List<? extends Node<PK,D>> getChildNodes(){
-		if(backingNode==null){ return ListTool.create(); }
-		return ListTool.wrap(backingNode);
+		if(backingNode==null){ return new ArrayList<>(); }
+		return DrListTool.wrap(backingNode);
 	}
 
 //	@Override
@@ -101,10 +105,10 @@ extends BaseNode<PK,D,F>{
 
 	@Override
 	public Set<String> getAllNames(){
-		Set<String> names = SetTool.createHashSet();
+		Set<String> names = new HashSet<>();
 		names.add(getName());
-		names.addAll(CollectionTool.nullSafe(cachingNode.getAllNames()));
-		names.addAll(CollectionTool.nullSafe(backingNode.getAllNames()));
+		names.addAll(DrCollectionTool.nullSafe(cachingNode.getAllNames()));
+		names.addAll(DrCollectionTool.nullSafe(backingNode.getAllNames()));
 		return names;
 	}
 

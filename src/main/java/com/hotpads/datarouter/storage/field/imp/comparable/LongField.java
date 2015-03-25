@@ -10,7 +10,7 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.BasePrimitiveField;
-import com.hotpads.util.core.StringTool;
+import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.util.core.bytes.LongByteTool;
 
 public class LongField extends BasePrimitiveField<Long>{
@@ -34,7 +34,7 @@ public class LongField extends BasePrimitiveField<Long>{
 	
 	@Override
 	public Long parseStringEncodedValueButDoNotSet(String s){
-		if(StringTool.isEmpty(s) || s.equals("null")){ return null; }
+		if(DrStringTool.isEmpty(s) || s.equals("null")){ return null; }
 		return Long.valueOf(s);
 	}
 	

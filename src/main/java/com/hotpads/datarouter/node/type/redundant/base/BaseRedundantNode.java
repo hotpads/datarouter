@@ -2,9 +2,12 @@ package com.hotpads.datarouter.node.type.redundant.base;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.TreeSet;
 
 import com.hotpads.datarouter.node.BaseNode;
 import com.hotpads.datarouter.node.Node;
@@ -14,10 +17,10 @@ import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.IterableTool;
-import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.SetTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrIterableTool;
+import com.hotpads.datarouter.util.core.DrListTool;
+import com.hotpads.datarouter.util.core.DrSetTool;
 
 public abstract class BaseRedundantNode<
 		PK extends PrimaryKey<PK>,
@@ -31,11 +34,11 @@ extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
 	public BaseRedundantNode(Class<D> databeanClass, Datarouter router, Collection<N> writeNodes, N readNode){
 		super(new NodeParamsBuilder<PK,D,DatabeanFielder<PK,D>>(router, databeanClass).build());
 		
-		if(CollectionTool.isEmpty(writeNodes)){ throw new IllegalArgumentException("writeNodes cannont be empty."); }
+		if(DrCollectionTool.isEmpty(writeNodes)){ throw new IllegalArgumentException("writeNodes cannont be empty."); }
 		if(readNode==null){ throw new IllegalArgumentException("readNode cannont be null."); }
 		if(!writeNodes.contains(readNode)){ throw new IllegalArgumentException("readNode must be in writeNodes."); }
 		
-		this.writeNodes = ListTool.createArrayList(writeNodes);
+		this.writeNodes = DrListTool.createArrayList(writeNodes);
 		this.readNode = readNode;
 	}
 
@@ -43,29 +46,29 @@ extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
 
 	@Override
 	public Set<String> getAllNames(){
-		Set<String> names = SetTool.createHashSet();
+		Set<String> names = new HashSet<>();
 		names.add(getName());
-		names.addAll(CollectionTool.nullSafe(readNode.getAllNames()));
-		for(N backingNode : IterableTool.nullSafe(writeNodes)){
-			names.addAll(CollectionTool.nullSafe(backingNode.getAllNames()));
+		names.addAll(DrCollectionTool.nullSafe(readNode.getAllNames()));
+		for(N backingNode : DrIterableTool.nullSafe(writeNodes)){
+			names.addAll(DrCollectionTool.nullSafe(backingNode.getAllNames()));
 		}
 		return names;
 	}
 	
 	@Override
 	public List<PhysicalNode<PK,D>> getPhysicalNodes(){
-		List<PhysicalNode<PK,D>> all = ListTool.createLinkedList();
-		for(N backingNode : CollectionTool.nullSafe(writeNodes)){
-			all.addAll(ListTool.nullSafe(backingNode.getPhysicalNodes()));
+		List<PhysicalNode<PK,D>> all = new LinkedList<>();
+		for(N backingNode : DrCollectionTool.nullSafe(writeNodes)){
+			all.addAll(DrListTool.nullSafe(backingNode.getPhysicalNodes()));
 		}
 		return all;
 	}
 
 	@Override
 	public List<PhysicalNode<PK,D>> getPhysicalNodesForClient(String clientName) {
-		List<PhysicalNode<PK,D>> all = ListTool.createLinkedList();
-		for(N backingNode : CollectionTool.nullSafe(writeNodes)){
-			all.addAll(ListTool.nullSafe(backingNode.getPhysicalNodesForClient(clientName)));
+		List<PhysicalNode<PK,D>> all = new LinkedList<>();
+		for(N backingNode : DrCollectionTool.nullSafe(writeNodes)){
+			all.addAll(DrListTool.nullSafe(backingNode.getPhysicalNodesForClient(clientName)));
 		}
 		return all;
 	}
@@ -73,16 +76,16 @@ extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
 
 	@Override
 	public List<String> getClientNames() {
-		SortedSet<String> clientNames = SetTool.createTreeSet();
+		SortedSet<String> clientNames = new TreeSet<>();
 		for(N backingNode : writeNodes){
-			SetTool.nullSafeSortedAddAll(clientNames, backingNode.getClientNames());
+			DrSetTool.nullSafeSortedAddAll(clientNames, backingNode.getClientNames());
 		}
-		return ListTool.createArrayList(clientNames);
+		return DrListTool.createArrayList(clientNames);
 	}
 
 	@Override
 	public boolean usesClient(String clientName){
-		for(N backingNode : CollectionTool.nullSafe(writeNodes)){
+		for(N backingNode : DrCollectionTool.nullSafe(writeNodes)){
 			if(backingNode.usesClient(clientName)){ return true; }
 		}
 		return false;
@@ -90,11 +93,11 @@ extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
 
 	@Override
 	public List<String> getClientNamesForPrimaryKeysForSchemaUpdate(Collection<PK> keys) {
-		Set<String> clientNames = SetTool.createHashSet();
+		Set<String> clientNames = new HashSet<>();
 		for(N backingNode : writeNodes){
-			clientNames.addAll(CollectionTool.nullSafe(backingNode.getClientNamesForPrimaryKeysForSchemaUpdate(keys)));
+			clientNames.addAll(DrCollectionTool.nullSafe(backingNode.getClientNamesForPrimaryKeysForSchemaUpdate(keys)));
 		}
-		return ListTool.createArrayList(clientNames);
+		return DrListTool.createArrayList(clientNames);
 	}
 	
 	@Override

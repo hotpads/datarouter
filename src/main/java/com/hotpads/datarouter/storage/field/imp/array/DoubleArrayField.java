@@ -3,14 +3,15 @@ package com.hotpads.datarouter.storage.field.imp.array;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.BaseListField;
-import com.hotpads.util.core.ArrayTool;
-import com.hotpads.util.core.ListTool;
+import com.hotpads.datarouter.util.core.DrArrayTool;
+import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.bytes.DoubleByteTool;
 import com.hotpads.util.core.exception.NotImplementedException;
 
@@ -82,7 +83,7 @@ public class DoubleArrayField extends BaseListField<Double,List<Double>>{
 	public List<Double> fromJdbcResultSetButDoNotSet(ResultSet rs){
 		try{
 			byte[] bytes = rs.getBytes(columnName);
-			if(ArrayTool.isEmpty(bytes)){ return ListTool.create(); }
+			if(DrArrayTool.isEmpty(bytes)){ return new ArrayList<>(); }
 			return DoubleByteTool.fromDoubleByteArray(bytes, 0);
 		}catch(SQLException e){
 			throw new DataAccessException(e);
@@ -99,7 +100,7 @@ public class DoubleArrayField extends BaseListField<Double,List<Double>>{
 	}
 	
 	public static void main(String[] args){
-		DoubleArrayField testField = new DoubleArrayField("stuff", ListTool.create(new Double(-5.00001), new Double(203920.555),  null));
+		DoubleArrayField testField = new DoubleArrayField("stuff", DrListTool.create(new Double(-5.00001), new Double(203920.555),  null));
 		for(Double num : testField.value){
 			System.out.println(num);
 		}

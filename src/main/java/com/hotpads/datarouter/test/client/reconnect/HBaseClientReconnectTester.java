@@ -15,11 +15,11 @@ import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage;
 import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.test.DRTestConstants;
-import com.hotpads.datarouter.test.DatarouterTestInjectorProvider;
+import com.hotpads.datarouter.test.TestDatarouterInjectorProvider;
 import com.hotpads.datarouter.test.client.txn.TxnBean;
 import com.hotpads.datarouter.test.client.txn.TxnBeanKey;
 import com.hotpads.datarouter.test.client.txn.TxnTestRouter;
-import com.hotpads.util.core.IterableTool;
+import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.util.core.profile.PhaseTimer;
 
 //you must run this manually, starting and stopping hbase to verify it reconnects, at least for now
@@ -37,7 +37,7 @@ public class HBaseClientReconnectTester {
 	
 	@BeforeClass
 	public static void beforeClass() throws IOException{
-		Injector injector = new DatarouterTestInjectorProvider().get();
+		Injector injector = new TestDatarouterInjectorProvider().get();
 		datarouterContext = injector.getInstance(DatarouterContext.class);
 		NodeFactory nodeFactory = injector.getInstance(NodeFactory.class);
 		router = new TxnTestRouter(datarouterContext, nodeFactory, DRTestConstants.CLIENT_drTestHBase, true);
@@ -50,7 +50,7 @@ public class HBaseClientReconnectTester {
 //		Assert.assertEquals(0, CollectionTool.size(node.getAll(null)));
 		TxnBean txnBean = new TxnBean(testReconnectBeanKey.getId());
 		node.put(txnBean, null);
-		Assert.assertEquals(1, IterableTool.count(node.scan(null, null)).intValue());
+		Assert.assertEquals(1, DrIterableTool.count(node.scan(null, null)).intValue());
 	}
 
 	@Test 

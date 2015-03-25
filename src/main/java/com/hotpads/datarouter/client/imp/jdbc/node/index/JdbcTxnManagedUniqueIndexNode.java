@@ -5,8 +5,8 @@ import java.util.Collections;
 import java.util.List;
 
 import com.hotpads.datarouter.client.imp.jdbc.op.BaseJdbcOp;
-import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcGetByIndexOp;
-import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcGetIndexOp;
+import com.hotpads.datarouter.client.imp.jdbc.op.read.index.JdbcGetByIndexOp;
+import com.hotpads.datarouter.client.imp.jdbc.op.read.index.JdbcGetIndexOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.write.JdbcDeleteByIndexOp;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.NodeParams;
@@ -19,10 +19,10 @@ import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.view.index.unique.UniqueIndexEntry;
-import com.hotpads.util.core.CollectionTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
 
-public class JdbcTxnManagedUniqueIndexNode
-		<PK extends PrimaryKey<PK>,
+public class JdbcTxnManagedUniqueIndexNode<
+		PK extends PrimaryKey<PK>,
 		D extends Databean<PK, D>,
 		IK extends PrimaryKey<IK>, 
 		IE extends UniqueIndexEntry<IK, IE, PK, D>,
@@ -36,25 +36,25 @@ implements ManagedUniqueIndexNode<PK, D, IK, IE, IF>{
 
 	@Override
 	public D lookupUnique(IK indexKey, Config config){
-		return CollectionTool.getFirst(lookupMultiUnique(Collections.singleton(indexKey), config));
+		return DrCollectionTool.getFirst(lookupMultiUnique(Collections.singleton(indexKey), config));
 	}
 
 	@Override
 	public List<D> lookupMultiUnique(Collection<IK> uniqueKeys, Config config){
 		String opName = UniqueIndexReader.OP_lookupMultiUnique;
-		BaseJdbcOp<List<D>> op = new JdbcGetByIndexOp<>(node, uniqueKeys, false, opName, config);
+		BaseJdbcOp<List<D>> op = new JdbcGetByIndexOp<>(node, uniqueKeys, false, config);
 		return new SessionExecutorImpl<List<D>>(op, opName).call();
 	}
 	
 	@Override
 	public IE get(IK uniqueKey, Config config){
-		return CollectionTool.getFirst(getMulti(Collections.singleton(uniqueKey), config));
+		return DrCollectionTool.getFirst(getMulti(Collections.singleton(uniqueKey), config));
 	}
 
 	@Override
 	public List<IE> getMulti(Collection<IK> uniqueKeys, Config config){
 		String opName = ManagedUniqueIndexNode.OP_lookupMultiUniqueIndex;
-		BaseJdbcOp<List<IE>> op = new JdbcGetIndexOp<>(node, opName, config, fieldInfo.getDatabeanClass(),
+		BaseJdbcOp<List<IE>> op = new JdbcGetIndexOp<>(node, config, fieldInfo.getDatabeanClass(),
 				fieldInfo.getFielderClass(), uniqueKeys);
 		return new SessionExecutorImpl<List<IE>>(op, opName).call();
 	}
@@ -67,7 +67,7 @@ implements ManagedUniqueIndexNode<PK, D, IK, IE, IF>{
 	@Override
 	public void deleteMultiUnique(Collection<IK> uniqueKeys, Config config){
 		String opName = UniqueIndexWriter.OP_deleteMultiUnique;
-		BaseJdbcOp<Long> op = new JdbcDeleteByIndexOp<>(node, uniqueKeys, config, opName);
+		BaseJdbcOp<Long> op = new JdbcDeleteByIndexOp<>(node, uniqueKeys, config);
 		new SessionExecutorImpl<Long>(op, opName).call();
 	}
 

@@ -29,7 +29,7 @@ import net.spy.SpyObject;
 import net.spy.memcached.ops.Operation;
 import net.spy.memcached.ops.OperationState;
 
-import com.hotpads.util.core.ExceptionTool;
+import com.hotpads.datarouter.util.core.DrExceptionTool;
 import com.hotpads.util.core.collections.Triple;
 
 /**
@@ -141,7 +141,6 @@ public final class MemcachedConnection extends SpyObject {
 	/**
 	 * MemcachedClient calls this method to handle IO over the connections.
 	 */
-	@SuppressWarnings("unchecked")
 	public void handleIO() throws IOException {
 		if(shutDown) {
 			throw new IOException("No IO while shut down");
@@ -196,7 +195,7 @@ public final class MemcachedConnection extends SpyObject {
 				try {
 					handleIO(sk);
 				} catch (CancelledKeyException e) {
-					getLogger().error(ExceptionTool.getStackTraceAsString(e));
+					getLogger().error(DrExceptionTool.getStackTraceAsString(e));
 				}
 			} // for each selector
 			selectedKeys.clear();

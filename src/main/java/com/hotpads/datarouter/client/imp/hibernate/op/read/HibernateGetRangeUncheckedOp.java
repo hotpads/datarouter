@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.client.imp.hibernate.op.read;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.hibernate.Criteria;
@@ -18,9 +19,8 @@ import com.hotpads.datarouter.storage.field.FieldSet;
 import com.hotpads.datarouter.storage.field.FieldSetTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.IterableTool;
-import com.hotpads.util.core.ListTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.util.core.collections.Range;
 
 //TODO this is the jdbc implementation, so extend or abstract it
@@ -30,11 +30,11 @@ public class HibernateGetRangeUncheckedOp<
 		F extends DatabeanFielder<PK,D>> 
 extends BaseHibernateOp<List<? extends FieldSet<?>>>{
 		
-	private HibernateReaderNode<PK,D,F> node;
-	private String opName;
-	private Range<PK> range;
-	private boolean keysOnly;
-	private Config config;
+	private final HibernateReaderNode<PK,D,F> node;
+	private final String opName;
+	private final Range<PK> range;
+	private final boolean keysOnly;
+	private final Config config;
 	
 	public HibernateGetRangeUncheckedOp(HibernateReaderNode<PK,D,F> node, String opName, Range<PK> range, 
 			boolean keysOnly, Config config) {
@@ -48,7 +48,7 @@ extends BaseHibernateOp<List<? extends FieldSet<?>>>{
 	
 	@Override
 	public List<? extends FieldSet<?>> runOnce(){
-		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
+		DRCounters.incClientNodeCustom(node.getClient().getType(), opName, node.getClientName(), node.getName());
 		Session session = getSession(node.getClientName());
 		Criteria criteria = node.getCriteriaForConfig(config, session);
 		if(keysOnly){
@@ -62,8 +62,8 @@ extends BaseHibernateOp<List<? extends FieldSet<?>>>{
 		CriteriaTool.addRangesToCriteria(criteria, range, node.getFieldInfo());
 		if(keysOnly){
 			List<Object[]> rows = criteria.list();
-			List<PK> result = ListTool.createArrayList(CollectionTool.size(rows));
-			for(Object row : IterableTool.nullSafe(rows)){
+			List<PK> result = new ArrayList<>(DrCollectionTool.size(rows));
+			for(Object row : DrIterableTool.nullSafe(rows)){
 				// hibernate will return a plain Object if it's a single col PK
 				Object[] rowCells;
 				if(row instanceof Object[]){
@@ -75,15 +75,14 @@ extends BaseHibernateOp<List<? extends FieldSet<?>>>{
 						node.getFieldInfo().getPrimaryKeyClass(), node.getFieldInfo().getPrimaryKeyFields(), 
 						rowCells));
 			}
-			DRCounters.incSuffixClientNode(node.getClient().getType(), opName+" rows", node.getClientName(), node.getName(), 
-					CollectionTool.size(result));
-			return result;
-		}else{
-			List<? extends FieldSet<?>> result = (List<? extends FieldSet<?>>)criteria.list();
-			DRCounters.incSuffixClientNode(node.getClient().getType(), opName+" rows", node.getClientName(), node.getName(), 
-					CollectionTool.size(result));
+			DRCounters.incClientNodeCustom(node.getClient().getType(), opName+" rows", node.getClientName(), node.getName(), 
+					DrCollectionTool.size(result));
 			return result;
 		}
+		List<? extends FieldSet<?>> result = criteria.list();
+		DRCounters.incClientNodeCustom(node.getClient().getType(), opName+" rows", node.getClientName(), node.getName(), 
+				DrCollectionTool.size(result));
+		return result;
 	}
 	
 }

@@ -5,9 +5,8 @@ import java.util.List;
 import java.util.Map;
 
 import com.google.common.collect.Maps;
-
-import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.StringTool;
+import com.hotpads.datarouter.util.core.DrListTool;
+import com.hotpads.datarouter.util.core.DrStringTool;
 
 public enum MySqlColumnType{
 
@@ -63,6 +62,8 @@ public enum MySqlColumnType{
 	/**************************** static **********************************/
 	
 	public static final int 
+		MAX_KEY_LENGTH = 767,//ERROR 1071 (42000): Specified key was too long; max key length is 767 bytes
+		LENGTH_50 = 50,
 		MAX_LENGTH_VARCHAR = (1 << 8) - 1,
 		MAX_LENGTH_TEXT = (1 << 16) - 1,
 		MAX_LENGTH_MEDIUMTEXT = (1 << 24) - 1,
@@ -87,7 +88,7 @@ public enum MySqlColumnType{
 	/************************ static methods ******************************************/
 	
 	public static MySqlColumnType parse(String a){
-		String upperCase = StringTool.nullSafe(a).toUpperCase();
+		String upperCase = DrStringTool.nullSafe(a).toUpperCase();
 		for(MySqlColumnType type : values()){
 			if(type.toString().equals(upperCase)){
 				return type;
@@ -101,7 +102,7 @@ public enum MySqlColumnType{
 	}
 	
 	public static List<String> getAllColumnTypeNames(){
-		ArrayList<String> list = ListTool.createArrayList();
+		ArrayList<String> list = new ArrayList<>();
 		for(MySqlColumnType type : values()){
 			list.add(type.toString());
 		}
@@ -119,7 +120,7 @@ public enum MySqlColumnType{
 	/************************ main ***********************************************/
 
 	public static void main(String[] args){
-		System.out.println(MAX_LENGTH_VARCHAR + " " + MAX_LENGTH_TEXT + " " + " " + MAX_LENGTH_MEDIUMTEXT + " " + MAX_LENGTH_LONGTEXT);
+		System.out.println(LENGTH_50 + " " +MAX_LENGTH_VARCHAR + " " + MAX_LENGTH_TEXT + " " + " " + MAX_LENGTH_MEDIUMTEXT + " " + MAX_LENGTH_LONGTEXT);
 	}
 	
 }

@@ -5,6 +5,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.ClusterStatus;
@@ -16,10 +18,8 @@ import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.imp.hbase.factory.HBaseSimpleClientFactory;
 import com.hotpads.datarouter.exception.DataAccessException;
-import com.hotpads.util.core.IterableTool;
-import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.MapTool;
-import com.hotpads.util.core.SetTool;
+import com.hotpads.datarouter.util.core.DrIterableTool;
+import com.hotpads.datarouter.util.core.DrListTool;
 
 public class DRHServerList{
 	Logger logger = LoggerFactory.getLogger(DRHServerList.class);
@@ -33,11 +33,11 @@ public class DRHServerList{
 		try{
 			HBaseAdmin admin = HBaseSimpleClientFactory.ADMIN_BY_CONFIG.get(config);
 			ClusterStatus clusterStatus = admin.getClusterStatus();
-			serverNames = ListTool.createArrayList(clusterStatus.getServers());
+			serverNames = DrListTool.createArrayList(clusterStatus.getServers());
 			Collections.sort(serverNames);
-			this.servers = ListTool.createArrayListWithSize(serverNames);
-			this.drhServerInfoByServerName = MapTool.createTreeMap();
-			for(ServerName serverName : IterableTool.nullSafe(serverNames)){
+			this.servers = DrListTool.createArrayListWithSize(serverNames);
+			this.drhServerInfoByServerName = new TreeMap<>();
+			for(ServerName serverName : DrIterableTool.nullSafe(serverNames)){
 				DRHServerInfo info = new DRHServerInfo(serverName, clusterStatus.getLoad(serverName));
 				this.servers.add(info);
 				this.drhServerInfoByServerName.put(serverName, info);
@@ -57,7 +57,7 @@ public class DRHServerList{
 	}
 	
 	public SortedSet<String> getServerNameStrings(){
-		SortedSet<String> serverNames = SetTool.createTreeSet();
+		SortedSet<String> serverNames = new TreeSet<>();
 		for(DRHServerInfo server : servers){
 			serverNames.add(server.getName());
 		}
@@ -65,7 +65,7 @@ public class DRHServerList{
 	}
 
 	public SortedSet<String> getServerHostnames(){
-		SortedSet<String> serverNames = SetTool.createTreeSet();
+		SortedSet<String> serverNames = new TreeSet<>();
 		for(DRHServerInfo server : servers){
 			serverNames.add(server.getHostname());
 		}

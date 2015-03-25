@@ -1,8 +1,11 @@
 package com.hotpads.guice;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
 import com.google.inject.name.Names;
+import com.hotpads.util.core.concurrent.NamedThreadFactory;
 
 
 public class DatarouterExecutorGuiceModule extends BaseExecutorGuiceModule{
@@ -12,16 +15,22 @@ public class DatarouterExecutorGuiceModule extends BaseExecutorGuiceModule{
 		POOL_countArchiveFlushSchedulerMemory = "countArchiveFlushSchedulerMemory",
 		POOL_countArchiveFlushSchedulerDb = "countArchiveFlushSchedulerDb",
 		POOL_countArchiveFlusherMemory = "countArchiveFlusherMemory",
-		POOL_countArchiveFlusherDb = "countArchiveFlusherDb";
+		POOL_countArchiveFlusherDb = "countArchiveFlusherDb",
+		POOL_writeBehindScheduler = "writeBehindScheduler",
+		POOL_writeBehindExecutor = "writeBehindExecutor",
+		POOL_datarouterContextExecutor = "datarouterContextExecutor"
+		;
 	
 	private static final ThreadGroup
 		datarouter = new ThreadGroup("datarouter"),
-		flushers = new ThreadGroup(datarouter, "flushers");
+		flushers = new ThreadGroup(datarouter, "flushers")
+		;
 	
 	@Override
 	protected void configure(){
-		bindScheduled(datarouter, POOL_datarouterJobExecutor, 10);
-		
+		bind(ScheduledExecutorService.class)
+			.annotatedWith(Names.named(POOL_datarouterJobExecutor))
+			.toInstance(createDatarouterJobExecutor());
 		bind(ScheduledExecutorService.class)
 			.annotatedWith(Names.named(POOL_countArchiveFlushSchedulerMemory))
 			.toInstance(createCountArchiveFlushSchedulerMemory());
@@ -34,6 +43,15 @@ public class DatarouterExecutorGuiceModule extends BaseExecutorGuiceModule{
 		bind(ScheduledExecutorService.class)
 			.annotatedWith(Names.named(POOL_countArchiveFlusherDb))
 			.toInstance(createCountArchiveFlusherDb());
+		bind(ScheduledExecutorService.class)
+			.annotatedWith(Names.named(POOL_writeBehindScheduler))
+			.toInstance(createWriteBehindScheduler());
+		bind(ExecutorService.class)
+			.annotatedWith(Names.named(POOL_writeBehindExecutor))
+			.toInstance(createWriteBehindExecutor());
+		bind(ExecutorService.class)
+			.annotatedWith(Names.named(POOL_datarouterContextExecutor))
+			.toInstance(createDatarouterContextExecutor());
 	}
 	
 	//The following factory methods are for Spring
@@ -53,4 +71,19 @@ public class DatarouterExecutorGuiceModule extends BaseExecutorGuiceModule{
 		return createScheduled(flushers, POOL_countArchiveFlusherDb, 1);
 	}
 
+	private ScheduledExecutorService createDatarouterJobExecutor(){
+		return createScheduled(datarouter, POOL_datarouterJobExecutor, 10);
+	}
+	
+	private ScheduledExecutorService createWriteBehindScheduler(){
+		return createScheduled(datarouter, POOL_writeBehindScheduler, 10);
+	}
+	
+	private ExecutorService createWriteBehindExecutor(){
+		return Executors.newCachedThreadPool(new NamedThreadFactory(datarouter, POOL_writeBehindExecutor, true));
+	}
+	
+	private ExecutorService createDatarouterContextExecutor(){
+		return Executors.newCachedThreadPool(new NamedThreadFactory(datarouter, POOL_datarouterContextExecutor, true));
+	}
 }

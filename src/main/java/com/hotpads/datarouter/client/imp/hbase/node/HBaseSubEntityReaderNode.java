@@ -32,12 +32,10 @@ import com.hotpads.datarouter.storage.entity.Entity;
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
 import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.IterableTool;
-import com.hotpads.util.core.ListTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrIterableTool;
+import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.collections.Range;
-import com.hotpads.util.core.exception.NotImplementedException;
-import com.hotpads.util.core.iterable.PeekableIterable;
 import com.hotpads.util.core.iterable.scanner.batch.BatchingSortedScanner;
 import com.hotpads.util.core.iterable.scanner.collate.Collator;
 import com.hotpads.util.core.iterable.scanner.collate.PriorityQueueCollator;
@@ -100,24 +98,24 @@ implements HBasePhysicalNode<PK,D>,
 	public D get(final PK key, final Config pConfig){
 		if(key==null){ return null; }
 		final Config config = Config.nullSafe(pConfig);
-		return CollectionTool.getFirst(getMulti(ListTool.wrap(key), config));
+		return DrCollectionTool.getFirst(getMulti(DrListTool.wrap(key), config));
 	}
 	
 	
 	@Override
 	public List<D> getMulti(final Collection<PK> pks, final Config pConfig){	
-		if(CollectionTool.isEmpty(pks)){ return new LinkedList<D>(); }
+		if(DrCollectionTool.isEmpty(pks)){ return new LinkedList<D>(); }
 		final Config config = Config.nullSafe(pConfig);
 		return new HBaseMultiAttemptTask<List<D>>(new HBaseTask<List<D>>(getDatarouterContext(), getTaskNameParams(), 
 				"getMulti", config){
 				public List<D> hbaseCall(HTable hTable, HBaseClient client, ResultScanner managedResultScanner) throws Exception{
-					DRCounters.incSuffixClientNode(client.getType(), "getMulti requested", getClientName(), getNodeName(), 
-							CollectionTool.size(pks));
+					DRCounters.incClientNodeCustom(client.getType(), "getMulti requested", getClientName(), getNodeName(), 
+							DrCollectionTool.size(pks));
 					List<Get> gets = queryBuilder.getGets(pks, false);
 					Result[] hBaseResults = hTable.get(gets);
 					List<D> databeans = resultParser.getDatabeansWithMatchingQualifierPrefix(hBaseResults);
-					DRCounters.incSuffixClientNode(client.getType(), "getMulti found", getClientName(), getNodeName(), 
-							CollectionTool.size(pks));
+					DRCounters.incClientNodeCustom(client.getType(), "getMulti found", getClientName(), getNodeName(), 
+							DrCollectionTool.size(pks));
 					return databeans;
 				}
 			}).call();
@@ -126,18 +124,18 @@ implements HBasePhysicalNode<PK,D>,
 	
 	@Override
 	public List<PK> getKeys(final Collection<PK> pks, final Config pConfig) {	
-		if(CollectionTool.isEmpty(pks)){ return new LinkedList<PK>(); }
+		if(DrCollectionTool.isEmpty(pks)){ return new LinkedList<PK>(); }
 		final Config config = Config.nullSafe(pConfig);
 		return new HBaseMultiAttemptTask<List<PK>>(new HBaseTask<List<PK>>(getDatarouterContext(), getTaskNameParams(), 
 				"getKeys", config){
 				public List<PK> hbaseCall(HTable hTable, HBaseClient client, ResultScanner managedResultScanner) throws Exception{
-					DRCounters.incSuffixClientNode(client.getType(), "getKeys requested", getClientName(), getNodeName(), 
-							CollectionTool.size(pks));
+					DRCounters.incClientNodeCustom(client.getType(), "getKeys requested", getClientName(), getNodeName(), 
+							DrCollectionTool.size(pks));
 					List<Get> gets = queryBuilder.getGets(pks, true);
 					Result[] hBaseResults = hTable.get(gets);
 					List<PK> pks = resultParser.getPrimaryKeysWithMatchingQualifierPrefix(hBaseResults);
-					DRCounters.incSuffixClientNode(client.getType(), "getKeys found", getClientName(), getNodeName(), 
-							CollectionTool.size(pks));
+					DRCounters.incClientNodeCustom(client.getType(), "getKeys found", getClientName(), getNodeName(), 
+							DrCollectionTool.size(pks));
 					return pks;
 				}
 			}).call();
@@ -148,30 +146,28 @@ implements HBasePhysicalNode<PK,D>,
 	
 	@Override
 	public PK getFirstKey(Config pConfig){
-		Config config = Config.nullSafe(pConfig).setLimit(1);
-		return CollectionTool.getFirst(
-				getKeysInRange(null, true, null, true, config));
+		Config config = Config.nullSafe(pConfig).setIterateBatchSize(1);
+		return DrIterableTool.first(scanKeys(null, config));
 	}
 
 	
 	@Override
 	public D getFirst(Config pConfig){
-		Config config = Config.nullSafe(pConfig).setLimit(1);
-		return CollectionTool.getFirst(
-				getRange(null, true, null, true, config));
+		Config config = Config.nullSafe(pConfig).setIterateBatchSize(1);
+		return DrIterableTool.first(scan(null, config));
 	}
 	
 	
 	@Override
 	public List<D> getWithPrefix(PK prefix, boolean wildcardLastField, Config config){
-		return getWithPrefixes(ListTool.wrap(prefix), wildcardLastField, config);
+		return getWithPrefixes(DrListTool.wrap(prefix), wildcardLastField, config);
 	}
 
 	
 	@Override
 	public List<D> getWithPrefixes(final Collection<PK> prefixes, final boolean wildcardLastField, 
 			final Config pConfig){
-		if(CollectionTool.isEmpty(prefixes)){ return new LinkedList<D>(); }
+		if(DrCollectionTool.isEmpty(prefixes)){ return new LinkedList<D>(); }
 		final Config config = Config.nullSafe(pConfig);
 
 		//segment prefixes into single vs multi-row queries
@@ -220,42 +216,9 @@ implements HBasePhysicalNode<PK,D>,
 			}
 		}
 		
-		List<D> allResults = ListTool.concatenate(singleEntityResults, multiEntityResults);
+		List<D> allResults = DrListTool.concatenate(singleEntityResults, multiEntityResults);
 		Collections.sort(allResults);
 		return allResults;
-	}
-	
-
-	@Deprecated
-	@Override
-	public List<PK> getKeysInRange(final PK start, final boolean startInclusive, 
-			final PK end, final boolean endInclusive, final Config pConfig){
-		final Config config = Config.nullSafe(pConfig);
-		PeekableIterable<PK> iter = scanKeys(Range.create(start, startInclusive, end, endInclusive), pConfig);
-		int limit = config.getLimitOrUse(Integer.MAX_VALUE);
-		List<PK> results = IterableTool.createArrayListFromIterable(iter, limit);
-		return results;
-	}
-	
-
-	@Deprecated
-	@Override
-	public List<D> getRange(final PK start, final boolean startInclusive, 
-			final PK end, final boolean endInclusive, final Config pConfig){
-		final Config config = Config.nullSafe(pConfig);
-		PeekableIterable<D> iter = scan(Range.create(start, startInclusive, end, endInclusive), pConfig);
-		int limit = config.getLimitOrUse(Integer.MAX_VALUE);
-		List<D> results = IterableTool.createArrayListFromIterable(iter, limit);
-		return results;
-		
-	}
-
-	@Deprecated
-	@Override
-	public List<D> getPrefixedRange(final PK prefix, final boolean wildcardLastField, 
-			final PK start, final boolean startInclusive, 
-			final Config pConfig){
-		throw new NotImplementedException("apologies");
 	}
 	
 	@Override
@@ -268,14 +231,13 @@ implements HBasePhysicalNode<PK,D>,
 				public List<PK> hbaseCall(HTable hTable, HBaseClient client, ResultScanner managedResultScanner) throws Exception{
 					Get get = queryBuilder.getSingleRowRange(range.getStart().getEntityKey(), range, true);
 					Result result = hTable.get(get);
-					return ListTool.createArrayList(resultParser.getPrimaryKeysWithMatchingQualifierPrefix(result));	
+					return DrListTool.createArrayList(resultParser.getPrimaryKeysWithMatchingQualifierPrefix(result));	
 				}}).call();
 			return new SortedScannerIterable<PK>(new ListBackedSortedScanner<PK>(pks));
-		}else{
-			List<BatchingSortedScanner<PK>> scanners = queryBuilder.getPkScanners(this, range, pConfig);
-			Collator<PK> collator = new PriorityQueueCollator<PK>(scanners);
-			return new SortedScannerIterable<PK>(collator);
 		}
+		List<BatchingSortedScanner<PK>> scanners = queryBuilder.getPkScanners(this, range, pConfig);
+		Collator<PK> collator = new PriorityQueueCollator<PK>(scanners);
+		return new SortedScannerIterable<PK>(collator);
 	}
 	
 	@Override
@@ -291,11 +253,10 @@ implements HBasePhysicalNode<PK,D>,
 					return resultParser.getDatabeansWithMatchingQualifierPrefix(result);	
 				}}).call();
 			return new SortedScannerIterable<D>(new ListBackedSortedScanner<D>(databeans));
-		}else{
-			List<BatchingSortedScanner<D>> scanners = queryBuilder.getDatabeanScanners(this, range, pConfig);
-			Collator<D> collator = new PriorityQueueCollator<D>(scanners);
-			return new SortedScannerIterable<D>(collator);
 		}
+		List<BatchingSortedScanner<D>> scanners = queryBuilder.getDatabeanScanners(this, range, pConfig);
+		Collator<D> collator = new PriorityQueueCollator<D>(scanners);
+		return new SortedScannerIterable<D>(collator);
 	}
 		
 	
@@ -327,8 +288,8 @@ implements HBasePhysicalNode<PK,D>,
 						if(config.getLimit()!=null && results.size()>=config.getLimit()){ break; }
 					}
 					managedResultScanner.close();
-					DRCounters.incSuffixClientNode(client.getType(), scanKeysVsRowsNumRows, getClientName(), getNodeName(),  
-							CollectionTool.size(results));
+					DRCounters.incClientNodeCustom(client.getType(), scanKeysVsRowsNumRows, getClientName(), getNodeName(),  
+							DrCollectionTool.size(results));
 					return results;
 				}
 			}).call();

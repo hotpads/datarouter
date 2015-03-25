@@ -1,40 +1,44 @@
 package com.hotpads.datarouter.test.client.insert;
 
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import javax.inject.Inject;
 
-import com.google.inject.Injector;
+import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Guice;
+import org.testng.annotations.Test;
+
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.config.PutMethod;
 import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.test.DRTestConstants;
-import com.hotpads.datarouter.test.DatarouterTestInjectorProvider;
+import com.hotpads.datarouter.test.DatarouterTestModuleFactory;
 import com.hotpads.util.core.collections.Pair;
 
+@Guice(moduleFactory=DatarouterTestModuleFactory.class)
 public class PutOpIntegrationTests{
 
-	private static DatarouterContext datarouterContext;
-	private static PutOpTestRouter router;
+	@Inject
+	private DatarouterContext datarouterContext;
+	@Inject
+	private NodeFactory nodeFactory;
+	
+	private PutOpTestRouter router;
 	
 	@BeforeClass
-	public static void beforeClass(){
-		Injector injector = new DatarouterTestInjectorProvider().get();
-		datarouterContext = injector.getInstance(DatarouterContext.class);
-		NodeFactory nodeFactory = injector.getInstance(NodeFactory.class);
+	public void beforeClass(){
 		router = new PutOpTestRouter(datarouterContext, nodeFactory, DRTestConstants.CLIENT_drTestJdbc0);
 		
 		resetTable();
 	}
 	
 	@AfterClass
-	public static void afterClass(){
+	public void afterClass(){
 		datarouterContext.shutdown();
 	}
 	
-	private static void resetTable(){
+	private void resetTable(){
 		router.putOptTest().deleteAll(null);
 	}
 	

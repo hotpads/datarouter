@@ -7,11 +7,11 @@ import java.util.List;
 
 import org.junit.Test;
 
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ComparableTool;
-import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.ObjectTool;
-import com.hotpads.util.core.StringTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrComparableTool;
+import com.hotpads.datarouter.util.core.DrListTool;
+import com.hotpads.datarouter.util.core.DrObjectTool;
+import com.hotpads.datarouter.util.core.DrStringTool;
 
 public class DatarouterEnumTool{
 	
@@ -19,31 +19,31 @@ public class DatarouterEnumTool{
 
     public static class IntegerEnumComparator<T extends IntegerEnum<T>> implements Comparator<T>{
 	    public int compare(T a, T b){
-	    	if(ObjectTool.bothNull(a, b)){ return 0; }
-	    	if(ObjectTool.isOneNullButNotTheOther(a, b)){ return a==null?-1:1; }
-	        return ComparableTool.nullFirstCompareTo(
+	    	if(DrObjectTool.bothNull(a, b)){ return 0; }
+	    	if(DrObjectTool.isOneNullButNotTheOther(a, b)){ return a==null?-1:1; }
+	        return DrComparableTool.nullFirstCompareTo(
 	        		a.getPersistentInteger(), b.getPersistentInteger());
 	    }
 	}
 
     public static <T extends IntegerEnum<T>> int compareIntegerEnums(T a, T b){
-    	if(ObjectTool.bothNull(a, b)){
+    	if(DrObjectTool.bothNull(a, b)){
     		return 0;
     	}
-    	if(ObjectTool.isOneNullButNotTheOther(a, b)){
+    	if(DrObjectTool.isOneNullButNotTheOther(a, b)){
     		return a==null?-1:1;
     	}
-        return ComparableTool.nullFirstCompareTo(a.getPersistentInteger(), b.getPersistentInteger());
+        return DrComparableTool.nullFirstCompareTo(a.getPersistentInteger(), b.getPersistentInteger());
     }
 
     public static <T extends StringEnum<T>> int compareStringEnums(T a, T b){
-    	if(ObjectTool.bothNull(a, b)){
+    	if(DrObjectTool.bothNull(a, b)){
     		return 0;
     	}
-    	if(ObjectTool.isOneNullButNotTheOther(a, b)){
+    	if(DrObjectTool.isOneNullButNotTheOther(a, b)){
     		return a==null?-1:1;
     	}
-        return ComparableTool.nullFirstCompareTo(a.getPersistentString(), b.getPersistentString());
+        return DrComparableTool.nullFirstCompareTo(a.getPersistentString(), b.getPersistentString());
     }
     
     
@@ -78,8 +78,8 @@ public class DatarouterEnumTool{
 	/***************  multiple values ****************/
 	
 	public static <E extends StringEnum<E>> List<String> getPersistentStrings(Collection<E> enums){
-		List<String> strings = ListTool.createArrayList();
-		for(E stringEnum : CollectionTool.nullSafe(enums)){
+		List<String> strings = new ArrayList<>();
+		for(E stringEnum : DrCollectionTool.nullSafe(enums)){
 			strings.add(stringEnum.getPersistentString());
 		}
 		return strings;
@@ -87,8 +87,8 @@ public class DatarouterEnumTool{
 	
 	public static <E extends StringEnum<E>> List<E> fromPersistentStrings(E enumInstance, 
 			Collection<String> persistentStrings){
-		List<E> enums = ListTool.createArrayList();
-		for(String persistentString : CollectionTool.nullSafe(persistentStrings)){
+		List<E> enums = new ArrayList<>();
+		for(String persistentString : DrCollectionTool.nullSafe(persistentStrings)){
 			enums.add(enumInstance.fromPersistentString(persistentString));
 		}
 		return enums;
@@ -98,7 +98,7 @@ public class DatarouterEnumTool{
 	@SuppressWarnings("unchecked")
 	public static <E extends StringEnum<E>> List<E> uniqueListFromCsvNames( E[] values, String csvNames, boolean defaultAll ) {
 		List<E> result = new ArrayList<E>();
-		if ( StringTool.notEmpty( csvNames ) ) {
+		if ( DrStringTool.notEmpty( csvNames ) ) {
 			String[] types = csvNames.split( "," );
 			for ( String name : types ) {
 				StringEnum<E> type = getEnumFromString(values, name.trim(), null, false);

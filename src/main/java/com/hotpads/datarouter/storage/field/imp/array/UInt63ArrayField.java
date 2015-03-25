@@ -5,7 +5,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.junit.Test;
 
@@ -14,9 +14,9 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.BaseListField;
 import com.hotpads.datarouter.storage.field.Field;
-import com.hotpads.util.core.ArrayTool;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ListTool;
+import com.hotpads.datarouter.util.core.DrArrayTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.bytes.IntegerByteTool;
 import com.hotpads.util.core.bytes.LongByteTool;
 import com.hotpads.util.core.collections.arrays.LongArray;
@@ -38,7 +38,7 @@ public class UInt63ArrayField extends BaseListField<Long,List<Long>>{
 	//TODO should we even bother?
 	@Override
 	public int compareTo(Field<List<Long>> other){
-		return ListTool.compare(this.value, other.getValue());
+		return DrListTool.compare(this.value, other.getValue());
 	}
 	
 	
@@ -66,7 +66,7 @@ public class UInt63ArrayField extends BaseListField<Long,List<Long>>{
 	
 	@Override
 	public List<Long> fromBytesButDoNotSet(byte[] bytes, int byteOffset){
-		int numBytes = ArrayTool.length(bytes) - byteOffset;
+		int numBytes = DrArrayTool.length(bytes) - byteOffset;
 		return new LongArray(LongByteTool.fromUInt63ByteArray(bytes, byteOffset, numBytes));
 	}
 	
@@ -140,23 +140,23 @@ public class UInt63ArrayField extends BaseListField<Long,List<Long>>{
 		@Test public void testByteAware(){
 			LongArray a1 = new LongArray();
 			a1.add(Long.MAX_VALUE);
-			a1.add((long)Integer.MAX_VALUE);
-			a1.add((long)Short.MAX_VALUE);
-			a1.add((long)Byte.MAX_VALUE);
-			a1.add((long)5);
-			a1.add((long)0);
+			a1.add(Integer.MAX_VALUE);
+			a1.add(Short.MAX_VALUE);
+			a1.add(Byte.MAX_VALUE);
+			a1.add(5);
+			a1.add(0);
 			UInt63ArrayField field = new UInt63ArrayField("", a1);
 			byte[] bytesNoPrefix = field.getBytes();
-			Assert.assertEquals(a1.size()*8, ArrayTool.length(bytesNoPrefix));
+			Assert.assertEquals(a1.size()*8, DrArrayTool.length(bytesNoPrefix));
 			List<Long> a2 = new UInt63ArrayField("", null).fromBytesButDoNotSet(bytesNoPrefix, 0);
-			Assert.assertTrue(CollectionTool.equalsAllElementsInIteratorOrder(a1, a2));
+			Assert.assertTrue(DrCollectionTool.equalsAllElementsInIteratorOrder(a1, a2));
 			
 			byte[] bytesWithPrefix = field.getBytesWithSeparator();
 			Assert.assertEquals(a1.size()*8, bytesWithPrefix[3]);
 			Assert.assertEquals(a1.size()*8 + 4, field.numBytesWithSeparator(bytesWithPrefix, 0));
 
 			List<Long> a3 = new UInt63ArrayField("", null).fromBytesWithSeparatorButDoNotSet(bytesWithPrefix, 0);
-			Assert.assertTrue(CollectionTool.equalsAllElementsInIteratorOrder(a1, a3));
+			Assert.assertTrue(DrCollectionTool.equalsAllElementsInIteratorOrder(a1, a3));
 			
 		}
 	}

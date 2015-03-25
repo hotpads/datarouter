@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.List;
 
 import com.hotpads.datarouter.client.imp.jdbc.op.BaseJdbcOp;
-import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcGetIndexOp;
+import com.hotpads.datarouter.client.imp.jdbc.op.read.index.JdbcGetIndexOp;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.op.raw.MapStorage.PhysicalMapStorageNode;
@@ -16,7 +16,7 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.view.index.IndexEntryTool;
 import com.hotpads.datarouter.storage.view.index.unique.UniqueIndexEntry;
-import com.hotpads.util.core.CollectionTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
 
 public class JdbcManagedUniqueIndexNode
 		<PK extends PrimaryKey<PK>,
@@ -35,14 +35,14 @@ implements ManagedUniqueIndexNode<PK, D, IK, IE, IF>{
 	@Override
 	public List<IE> getMulti(Collection<IK> uniqueKeys, final Config config){
 		String opName = ManagedUniqueIndexNode.OP_lookupMultiUniqueIndex;
-		BaseJdbcOp<List<IE>> op = new JdbcGetIndexOp<>(node, opName, config, fieldInfo.getDatabeanClass(),
+		BaseJdbcOp<List<IE>> op = new JdbcGetIndexOp<>(node, config, fieldInfo.getDatabeanClass(),
 				fieldInfo.getFielderClass(), uniqueKeys);
 		return new SessionExecutorImpl<List<IE>>(op, opName).call();
 	}
 	
 	@Override
 	public IE get(IK uniqueKey, Config config){
-		return CollectionTool.getFirst(getMulti(Collections.singleton(uniqueKey), config));
+		return DrCollectionTool.getFirst(getMulti(Collections.singleton(uniqueKey), config));
 	}
 
 	@Override

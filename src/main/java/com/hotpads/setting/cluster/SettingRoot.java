@@ -1,12 +1,11 @@
 package com.hotpads.setting.cluster;
 
+import java.util.ArrayList;
 import java.util.List;
-
-import com.hotpads.util.core.ListTool;
 
 public abstract class SettingRoot {
 
-	private List<SettingNode> rootNodes = ListTool.create();
+	private List<SettingNode> rootNodes = new ArrayList<>();
 
 	public void add(SettingNode settingNode) {
 		rootNodes.add(settingNode);

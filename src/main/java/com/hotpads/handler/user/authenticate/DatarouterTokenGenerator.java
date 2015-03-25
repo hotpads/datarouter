@@ -3,7 +3,7 @@ package com.hotpads.handler.user.authenticate;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;

@@ -1,6 +1,8 @@
 package com.hotpads.profile.count.collection.archive.imp;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -14,6 +16,9 @@ import com.google.common.collect.Iterables;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.PhysicalSortedMapStorageNode;
+import com.hotpads.datarouter.util.core.DrDateTool;
+import com.hotpads.datarouter.util.core.DrListTool;
+import com.hotpads.datarouter.util.core.DrMapTool;
 import com.hotpads.profile.count.collection.AtomicCounter;
 import com.hotpads.profile.count.collection.CountMapPeriod;
 import com.hotpads.profile.count.collection.archive.BaseCountArchive;
@@ -23,9 +28,6 @@ import com.hotpads.profile.count.databean.AvailableCounter;
 import com.hotpads.profile.count.databean.Count;
 import com.hotpads.profile.count.databean.key.AvailableCounterKey;
 import com.hotpads.profile.count.databean.key.CountKey;
-import com.hotpads.util.core.DateTool;
-import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.iterable.scanner.iterable.SortedScannerIterable;
 
@@ -48,7 +50,7 @@ public class DatabeanCountArchive extends BaseCountArchive{
 		super(sourceType, source, periodMs);
 		this.countNode = countNode;
 		this.availableCounterNode = availableCounterNode;
-		this.aggregator = new AtomicCounter(DateTool.getPeriodStart(periodMs), periodMs);
+		this.aggregator = new AtomicCounter(DrDateTool.getPeriodStart(periodMs), periodMs);
 		this.flushPeriodMs = flushPeriodMs;
 		this.lastFlushMs = System.currentTimeMillis();
 	}
@@ -75,7 +77,7 @@ public class DatabeanCountArchive extends BaseCountArchive{
 		AvailableCounterKey end = new AvailableCounterKey(webApp, this.periodMs, null, null);
 		SortedScannerIterable<AvailableCounter> counters = availableCounterNode.scan(Range.create(start, true, end, true),
 				configLongTimeout);
-		return ListTool.createArrayList(counters.iterator());
+		return DrListTool.createArrayList(counters.iterator());
 	}
 
 	
@@ -100,7 +102,7 @@ public class DatabeanCountArchive extends BaseCountArchive{
 		SortedScannerIterable<Count> scanner = physicalSortedMapStorageNode.scan(Range.create(start, true, end, true), null);
 		Predicate<Count> predicate = new FilterCountByServer(source);
 		Iterable<Count> filtered = Iterables.filter(scanner, predicate);
-		return ListTool.createArrayList(filtered);
+		return DrListTool.createArrayList(filtered);
 	}
 
 	@Override
@@ -134,10 +136,10 @@ public class DatabeanCountArchive extends BaseCountArchive{
 
 		// logger.warn("flushing "+getName());
 		AtomicCounter oldAggregator = aggregator;
-		long periodStart = DateTool.getPeriodStart(countMap.getStartTimeMs(), periodMs);
+		long periodStart = DrDateTool.getPeriodStart(countMap.getStartTimeMs(), periodMs);
 		aggregator = new AtomicCounter(periodStart, periodMs);
-		List<Count> toSave = ListTool.create();
-		for(Map.Entry<String,AtomicLong> entry : MapTool.nullSafe(oldAggregator.getCountByKey()).entrySet()){
+		List<Count> toSave = new ArrayList<>();
+		for(Map.Entry<String,AtomicLong> entry : DrMapTool.nullSafe(oldAggregator.getCountByKey()).entrySet()){
 			if(entry.getValue() == null || entry.getValue().equals(0L)){
 				continue;
 			}
@@ -155,8 +157,8 @@ public class DatabeanCountArchive extends BaseCountArchive{
 	}
 
 	protected void flushAvailableCounters(Map<String,AtomicLong> countByKey){
-		List<AvailableCounter> toSave = ListTool.createLinkedList();
-		for(Map.Entry<String,AtomicLong> entry : MapTool.nullSafe(countByKey).entrySet()){
+		List<AvailableCounter> toSave = new LinkedList<>();
+		for(Map.Entry<String,AtomicLong> entry : DrMapTool.nullSafe(countByKey).entrySet()){
 			toSave.add(new AvailableCounter(webApp, periodMs, entry.getKey(), source, System.currentTimeMillis()));
 		}
 		availableCounterNode.putMulti(toSave, new Config().setPersistentPut(false).setIgnoreNullFields(true)
@@ -176,7 +178,7 @@ public class DatabeanCountArchive extends BaseCountArchive{
 		long now = System.currentTimeMillis();
 		if(periodMs > MIN_EARLY_FLUSH_PERIOD_MS && now > nextFlushMs){
 			logger.warn("early flush of " + getName() + " nextFlush was "
-					+ DateTool.getYYYYMMDDHHMMSSMMMWithPunctuationNoSpaces(nextFlushMs));
+					+ DrDateTool.getYYYYMMDDHHMMSSMMMWithPunctuationNoSpaces(nextFlushMs));
 			return true;
 		}
 

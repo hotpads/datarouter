@@ -12,12 +12,12 @@ import org.quartz.CronExpression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.hotpads.datarouter.util.core.DrBooleanTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.setting.ClusterSettingFinderConfig;
 import com.hotpads.setting.ServerType;
 import com.hotpads.setting.cached.imp.Duration;
-import com.hotpads.util.core.BooleanTool;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.StringTool;
 
 @Singleton
 public class ClusterSettingFinder {
@@ -44,7 +44,7 @@ public class ClusterSettingFinder {
 		if(valueString==null){
 			return defaultValue;
 		}
-		return BooleanTool.isTrue(valueString);
+		return DrBooleanTool.isTrue(valueString);
 	}
 
 	public String getString(String name, String defaultValue){
@@ -91,11 +91,11 @@ public class ClusterSettingFinder {
 		//			logger.warn("found "+CollectionTool.size(settings)+":");
 		//			for(ClusterSetting setting : settings){ System.out.println(setting); }
 		//		}
-		if(CollectionTool.isEmpty(settings)){
+		if(DrCollectionTool.isEmpty(settings)){
 			return null;
 		}
 		Collections.sort(settings, new ClusterSettingScopeComparator());
-		return CollectionTool.getFirst(settings).getValue();
+		return DrCollectionTool.getFirst(settings).getValue();
 	}
 
 	//TODO should we be making combinations like serverType/instance?
@@ -137,7 +137,7 @@ public class ClusterSettingFinder {
 
 	private ClusterSettingKey getKeyForInstance(String name){
 		String instance = clusterSettingFinderConfig.getInstanceId();
-		if(StringTool.isEmpty(instance)){
+		if(DrStringTool.isEmpty(instance)){
 			return null;
 		}
 		return new ClusterSettingKey(name, ClusterSettingScope.instance, ServerType.UNKNOWN, instance, EMPTY_STRING);
@@ -145,7 +145,7 @@ public class ClusterSettingFinder {
 
 	private ClusterSettingKey getKeyForApplication(String name){
 		String application = clusterSettingFinderConfig.getApplication();
-		if(StringTool.isEmpty(application)){
+		if(DrStringTool.isEmpty(application)){
 			return null;
 		}
 		return new ClusterSettingKey(name, ClusterSettingScope.application, ServerType.UNKNOWN, application, 

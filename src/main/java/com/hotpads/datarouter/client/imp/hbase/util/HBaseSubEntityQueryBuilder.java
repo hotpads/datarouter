@@ -25,8 +25,8 @@ import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
 import com.hotpads.datarouter.storage.key.entity.EntityPartitioner;
 import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
-import com.hotpads.util.core.ByteTool;
-import com.hotpads.util.core.ListTool;
+import com.hotpads.datarouter.util.core.DrByteTool;
+import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.bytes.ByteRange;
 import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.collections.Range;
@@ -69,14 +69,14 @@ extends HBaseEntityQueryBuilder<EK,E>
 		ByteRange startBytes = new ByteRange(partitionPrefix);
 		if(pkRange.hasStart()){
 			EK startEk = pkRange.getStart().getEntityKey();
-			byte[] startByteArray = ByteTool.concatenate(partitionPrefix, getRowBytes(startEk));
+			byte[] startByteArray = DrByteTool.concatenate(partitionPrefix, getRowBytes(startEk));
 			startBytes = new ByteRange(startByteArray);
 		}
 		
 		ByteRange endBytes = null;
 		if(pkRange.hasEnd()){
 			EK endEk = pkRange.getEnd().getEntityKey();
-			byte[] endByteArray = ByteTool.concatenate(partitionPrefix, getRowBytes(endEk));
+			byte[] endByteArray = DrByteTool.concatenate(partitionPrefix, getRowBytes(endEk));
 			endBytes = new ByteRange(endByteArray);
 		}else if(!partitioner.isLastPartition(partition)){
 			byte[] nextPartitionPrefix = partitioner.getNextPrefix(partition);
@@ -88,12 +88,12 @@ extends HBaseEntityQueryBuilder<EK,E>
 	/******************** qualifiers ***********************/
 	
 	public byte[] getQualifier(PK primaryKey, String fieldName){
-		return ByteTool.concatenate(fieldInfo.getEntityColumnPrefixBytes(), getQualifierPkBytes(primaryKey, true),
+		return DrByteTool.concatenate(fieldInfo.getEntityColumnPrefixBytes(), getQualifierPkBytes(primaryKey, true),
 				StringByteTool.getUtf8Bytes(fieldName));
 	}
 	
 	public byte[] getQualifierPrefix(PK primaryKey){
-		return ByteTool.concatenate(fieldInfo.getEntityColumnPrefixBytes(), getQualifierPkBytes(primaryKey, false));
+		return DrByteTool.concatenate(fieldInfo.getEntityColumnPrefixBytes(), getQualifierPkBytes(primaryKey, false));
 	}
 	
 	public byte[] getQualifierPkBytes(PK primaryKey, boolean trailingSeparatorAfterEndingString){
@@ -119,7 +119,7 @@ extends HBaseEntityQueryBuilder<EK,E>
 	/******************* get / getMulti ***************************/
 	
 	public List<Get> getGets(Collection<PK> pks, boolean keysOnly){
-		List<Get> gets = ListTool.createArrayListWithSize(pks);
+		List<Get> gets = DrListTool.createArrayListWithSize(pks);
 		for(PK pk : pks){
 			byte[] rowBytes = getRowBytesWithPartition(pk.getEntityKey());
 			byte[] qualifierPrefix = getQualifierPrefix(pk);
@@ -141,7 +141,7 @@ extends HBaseEntityQueryBuilder<EK,E>
 	/********************* single row prefix **********************/
 	
 	public List<Get> getPrefixGets(Collection<PK> prefixes, boolean wildcardLastField, Config config){
-		List<Get> gets = ListTool.createArrayList();
+		List<Get> gets = new ArrayList<>();
 		for(PK prefix : prefixes){
 			gets.add(getPrefixGet(prefix, wildcardLastField, config));
 		}
@@ -154,7 +154,7 @@ extends HBaseEntityQueryBuilder<EK,E>
 		boolean includeTrailingSeparator = ! wildcardLastField;
 		byte[] pkQualifierBytes = FieldTool.getConcatenatedValueBytes(pkPrefix.getPostEntityKeyFields(), true, 
 				includeTrailingSeparator);
-		byte[] qualifierPrefix = ByteTool.concatenate(fieldInfo.getEntityColumnPrefixBytes(), pkQualifierBytes);
+		byte[] qualifierPrefix = DrByteTool.concatenate(fieldInfo.getEntityColumnPrefixBytes(), pkQualifierBytes);
 		Get get = new Get(rowBytes);
 		get.setFilter(new ColumnPrefixFilter(qualifierPrefix));
 		//TODO obey config.getLimit()
@@ -201,7 +201,7 @@ extends HBaseEntityQueryBuilder<EK,E>
 	}
 	
 	private ByteRange addPartitionPrefix(int partition, ByteRange in){
-		return new ByteRange(ByteTool.concatenate(partitioner.getPrefix(partition), in.copyToNewArray()));
+		return new ByteRange(DrByteTool.concatenate(partitioner.getPrefix(partition), in.copyToNewArray()));
 	}
 	
 	private Scan getScan(int partition, Twin<ByteRange> rowBounds, Config config){

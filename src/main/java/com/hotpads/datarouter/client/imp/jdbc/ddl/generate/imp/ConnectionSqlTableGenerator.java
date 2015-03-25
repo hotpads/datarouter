@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
@@ -21,8 +22,7 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlTable;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.SqlTableGenerator;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.test.node.basic.manyfield.ManyFieldBean;
-import com.hotpads.util.core.IterableTool;
-import com.hotpads.util.core.ListTool;
+import com.hotpads.datarouter.util.core.DrIterableTool;
 
 public class ConnectionSqlTableGenerator implements SqlTableGenerator{
 
@@ -68,8 +68,8 @@ public class ConnectionSqlTableGenerator implements SqlTableGenerator{
 			
 			DatabaseMetaData dbmd = connection.getMetaData();
 			ResultSet indexList = dbmd.getIndexInfo(null, null, tableName, false, false);
-			List<String> listOfIndexNames = ListTool.createArrayList();
-			List<SqlIndex> listOfIndexes = ListTool.createArrayList();
+			List<String> listOfIndexNames = new ArrayList<>();
+			List<SqlIndex> listOfIndexes = new ArrayList<>();
 			
 			while(indexList.next()){
 				String indexName = indexList.getString("INDEX_NAME");
@@ -131,7 +131,7 @@ public class ConnectionSqlTableGenerator implements SqlTableGenerator{
 
 	private void addAppropriateColumnToPrimaryKeyFromListOfColumn(SqlTable table, String string,
 			List<SqlColumn> columns){
-		for(SqlColumn col : IterableTool.nullSafe(columns)){
+		for(SqlColumn col : DrIterableTool.nullSafe(columns)){
 			if(col.getName().equals(string)){
 				table.getPrimaryKey().addColumn(col);
 			}
@@ -154,13 +154,13 @@ public class ConnectionSqlTableGenerator implements SqlTableGenerator{
 //		System.out.println("list of columns " + columns);
 //		System.out.println("string " +string );
 //		System.out.println(" index " + index);
-		for(SqlColumn col : IterableTool.nullSafe(columns)){
+		for(SqlColumn col : DrIterableTool.nullSafe(columns)){
 			if(col.getName().equals(string)){ index.addColumn(col); }
 		}
 	}
 
 	private static void addAppropriateColumnToIndexFromListOfColumn(SqlIndex index, String s1, List<SqlColumn> columns){
-		for(SqlColumn col : IterableTool.nullSafe(columns)){
+		for(SqlColumn col : DrIterableTool.nullSafe(columns)){
 			if(col.getName().equals(s1)){ index.addColumn(col); }
 		}
 	}

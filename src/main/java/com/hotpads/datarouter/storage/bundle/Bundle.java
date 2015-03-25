@@ -1,6 +1,7 @@
 package com.hotpads.datarouter.storage.bundle;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -11,15 +12,13 @@ import org.junit.Test;
 
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.test.client.pool.PoolTestBean;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.MapTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrListTool;
 
 
 public class Bundle{
 
-	protected Map<String,SingleTypeBundle<? extends Databean<?,?>>> bundleByType 
-		= MapTool.createHashMap();
+	protected Map<String,SingleTypeBundle<? extends Databean<?,?>>> bundleByType = new HashMap<>();
 	
 	protected <D extends Databean<?,?>> Bundle add(D databean){
 		if(databean==null){ return this; }
@@ -32,7 +31,7 @@ public class Bundle{
 	}
 	
 	protected <D extends Databean<?,?>> Bundle add(Collection<D> databeans){
-		for(D databean : CollectionTool.nullSafe(databeans)){
+		for(D databean : DrCollectionTool.nullSafe(databeans)){
 			this.add(databean);
 		}
 		return this;
@@ -55,7 +54,7 @@ public class Bundle{
 	}
 	
 	protected <D extends Databean<?,?>> List<D> getAllList(Class<D> clazz){
-		return ListTool.createArrayList(getAllSet(clazz));
+		return DrListTool.createArrayList(getAllSet(clazz));
 	}
 	
 	protected <D extends Databean<?,?>> void ensureSingleTypeBundleExists(D databean){

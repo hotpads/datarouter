@@ -1,16 +1,16 @@
 package com.hotpads.datarouter.storage.field;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ListTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
 
 @SuppressWarnings("serial")
 public class SimpleFieldSet<F extends FieldSet<F>> 
 extends BaseFieldSet<F>{
 
-	protected List<Field<?>> fields = ListTool.createArrayList();
+	protected List<Field<?>> fields = new ArrayList<>();
 	
 	public SimpleFieldSet(){
 	}
@@ -25,7 +25,7 @@ extends BaseFieldSet<F>{
 	}
 
 	public SimpleFieldSet<?> add(Collection<Field<?>> fields){
-		for(Field<?> field : CollectionTool.nullSafe(fields)){
+		for(Field<?> field : DrCollectionTool.nullSafe(fields)){
 			this.add(field);
 		}
 		return this;
@@ -37,7 +37,7 @@ extends BaseFieldSet<F>{
 	}
 	
 	public Field<?> getFirst(){
-		return CollectionTool.getFirst(fields);
+		return DrCollectionTool.getFirst(fields);
 	}
 	
 }

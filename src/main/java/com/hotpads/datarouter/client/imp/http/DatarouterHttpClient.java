@@ -1,6 +1,7 @@
 package com.hotpads.datarouter.client.imp.http;
 
 import java.util.NavigableSet;
+import java.util.TreeSet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,7 +9,6 @@ import org.slf4j.LoggerFactory;
 import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.BaseClient;
 import com.hotpads.datarouter.node.Node;
-import com.hotpads.util.core.SetTool;
 
 public class DatarouterHttpClient extends BaseClient{
 	protected static Logger logger = LoggerFactory.getLogger(DatarouterHttpClient.class);
@@ -17,7 +17,7 @@ public class DatarouterHttpClient extends BaseClient{
 	private String url;
 	private ApacheHttpClient apacheHttpClient;
 
-	private NavigableSet<Node<?,?>> nodes = SetTool.createTreeSet();
+	private NavigableSet<Node<?,?>> nodes = new TreeSet<>();
 	
 	
 	public DatarouterHttpClient(String name, String url){

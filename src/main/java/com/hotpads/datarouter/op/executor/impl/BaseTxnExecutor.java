@@ -12,12 +12,11 @@ import com.hotpads.datarouter.op.TxnOp;
 import com.hotpads.datarouter.op.executor.TxnExecutor;
 import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.util.DRCounters;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ExceptionTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
 
 public abstract class BaseTxnExecutor<T>
 extends BaseClientExecutor<T>
-implements TxnExecutor<T>{
+implements TxnExecutor{
 	private static Logger logger = LoggerFactory.getLogger(BaseTxnExecutor.class);
 
 	private TxnOp<T> parallelTxnOp;
@@ -36,41 +35,47 @@ implements TxnExecutor<T>{
 
 	@Override
 	public void beginTxns(){
-		for(Client client : CollectionTool.nullSafe(getClients())){
-			if( ! (client instanceof TxnClient) ){ continue; }
+		for(Client client : DrCollectionTool.nullSafe(getClients())){
+			if( ! (client instanceof TxnClient) ){
+				continue;
+			}
 			TxnClient txnClient = (TxnClient)client;
 			ConnectionHandle connectionHandle = txnClient.getExistingHandle();
 			if(connectionHandle.isOutermostHandle()){
 				txnClient.beginTxn(getIsolation(), parallelTxnOp.isAutoCommit());
 			}
 //			logger.warn("beginTxn for "+txnClient.getExistingHandle());
-			DRCounters.incSuffixClient(txnClient.getType(), "beginTxn", txnClient.getName());
+			DRCounters.incClient(txnClient.getType(), "beginTxn", txnClient.getName());
 		}
 	}
 	
 	@Override
 	public void commitTxns(){
-		for(Client client : CollectionTool.nullSafe(getClients())){
-			if( ! (client instanceof TxnClient) ){ continue; }
+		for(Client client : DrCollectionTool.nullSafe(getClients())){
+			if( ! (client instanceof TxnClient) ){
+				continue;
+			}
 			TxnClient txnClient = (TxnClient)client;
 			ConnectionHandle connectionHandle = txnClient.getExistingHandle();
 			if(connectionHandle.isOutermostHandle()){
 				txnClient.commitTxn();
 			}
 //			logger.warn("commitTxn for "+txnClient.getExistingHandle());
-			DRCounters.incSuffixClient(txnClient.getType(), "commitTxn", txnClient.getName());
+			DRCounters.incClient(txnClient.getType(), "commitTxn", txnClient.getName());
 		}
 	}
 	
 	@Override
 	public void rollbackTxns(){
-		for(Client client : CollectionTool.nullSafe(getClients())){
-			if( ! (client instanceof TxnClient) ){ continue; }
+		for(Client client : DrCollectionTool.nullSafe(getClients())){
+			if( ! (client instanceof TxnClient) ){
+				continue;
+			}
 			TxnClient txnClient = (TxnClient)client;
 			try{
 				txnClient.rollbackTxn();
 //				logger.warn("rollbackTxn for "+txnClient.getExistingHandle());
-				DRCounters.incSuffixClient(txnClient.getType(), "rollbackTxn", txnClient.getName());
+				DRCounters.incClient(txnClient.getType(), "rollbackTxn", txnClient.getName());
 			}catch(Exception e){
 				logger.warn("", e);
 				throw new DataAccessException("EXCEPTION THROWN DURING ROLLBACK OF SINGLE TXN:"

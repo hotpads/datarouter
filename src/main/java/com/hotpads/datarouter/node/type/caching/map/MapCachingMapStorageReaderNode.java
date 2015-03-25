@@ -1,6 +1,8 @@
 package com.hotpads.datarouter.node.type.caching.map;
 
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -13,10 +15,9 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.KeyTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.IterableTool;
-import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.SetTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrIterableTool;
+import com.hotpads.datarouter.util.core.DrListTool;
 
 public class MapCachingMapStorageReaderNode<
 		PK extends PrimaryKey<PK>,
@@ -86,7 +87,7 @@ implements MapStorageReaderNode<PK,D>{
 	@Override
 	public List<D> getMulti(final Collection<PK> keys, Config config) {
 		if(!useCache(config)){ return backingNode.getMulti(keys, config); }
-		List<D> resultBuilder = ListTool.createLinkedList();
+		List<D> resultBuilder = new LinkedList<>();
 		try{
 			updateLastAttemptedContact();
 			resultBuilder.addAll(cachingNode.getMulti(keys, CACHE_CONFIG));
@@ -96,12 +97,12 @@ implements MapStorageReaderNode<PK,D>{
 			return backingNode.getMulti(keys, config);
 		}
 		countHits(resultBuilder);
-		Set<PK> cachedKeys = SetTool.createHashSet(KeyTool.getKeys(resultBuilder));
-		Set<PK> uncachedKeys = SetTool.createHashSet();
-		for(PK key : IterableTool.nullSafe(keys)){
+		Set<PK> cachedKeys = new HashSet<>(KeyTool.getKeys(resultBuilder));
+		Set<PK> uncachedKeys = new HashSet<>();
+		for(PK key : DrIterableTool.nullSafe(keys)){
 			if(!cachedKeys.contains(key)){ uncachedKeys.add(key); }
 		}
-		if(CollectionTool.isEmpty(uncachedKeys)){ return resultBuilder; }
+		if(DrCollectionTool.isEmpty(uncachedKeys)){ return resultBuilder; }
 		List<D> fromBackingNode = backingNode.getMulti(uncachedKeys, config);
 		countMisses(fromBackingNode);
 		if(cacheReads){
@@ -113,14 +114,14 @@ implements MapStorageReaderNode<PK,D>{
 				countExceptions();
 			}
 		}
-		ListTool.nullSafeArrayAddAll(resultBuilder, fromBackingNode);
+		DrListTool.nullSafeArrayAddAll(resultBuilder, fromBackingNode);
 		return resultBuilder;
 	}
 
 	@Override
 	public List<PK> getKeys(Collection<PK> keys, Config config) {
 		if(!useCache(config)){ return backingNode.getKeys(keys, config); }
-		List<PK> resultBuilder = ListTool.createLinkedList();
+		List<PK> resultBuilder = new LinkedList<>();
 		try{
 			updateLastAttemptedContact();
 			resultBuilder.addAll(cachingNode.getKeys(keys, CACHE_CONFIG));
@@ -130,12 +131,12 @@ implements MapStorageReaderNode<PK,D>{
 			return backingNode.getKeys(keys, config);
 		}
 		countHits(resultBuilder);
-		Set<PK> cachedKeys = SetTool.createHashSet(resultBuilder);
-		Set<PK> uncachedKeys = SetTool.createHashSet();
-		for(PK key : IterableTool.nullSafe(keys)){
+		Set<PK> cachedKeys = new HashSet<>(resultBuilder);
+		Set<PK> uncachedKeys = new HashSet<>();
+		for(PK key : DrIterableTool.nullSafe(keys)){
 			if(!cachedKeys.contains(key)){ uncachedKeys.add(key); }
 		}
-		if(CollectionTool.isEmpty(uncachedKeys)){ return resultBuilder; }
+		if(DrCollectionTool.isEmpty(uncachedKeys)){ return resultBuilder; }
 		List<D> fromBackingNode = backingNode.getMulti(uncachedKeys, config);
 		countMisses(fromBackingNode);
 		if(cacheReads){
@@ -147,32 +148,32 @@ implements MapStorageReaderNode<PK,D>{
 				countExceptions();
 			}
 		}
-		ListTool.nullSafeArrayAddAll(resultBuilder, KeyTool.getKeys(fromBackingNode));
+		DrListTool.nullSafeArrayAddAll(resultBuilder, KeyTool.getKeys(fromBackingNode));
 		return resultBuilder;
 	}
 	
 	/************** counters ***************************************/
 	
 	protected void countHits(int num){
-		DRCounters.incSuffixOp(null, getName()+" hit");
+		DRCounters.incOp(null, getName()+" hit");
 //		logger.warn("hit");
 	}
 	
 	protected void countMisses(int num){
-		DRCounters.incSuffixOp(null, getName()+" miss");
+		DRCounters.incOp(null, getName()+" miss");
 //		logger.warn("miss");
 	}
 	
 	protected void countExceptions(){
-		DRCounters.incSuffixOp(null, getName()+" exception");
+		DRCounters.incOp(null, getName()+" exception");
 //		logger.warn("exception");
 	}
 	
 	protected void countHits(Collection<?> c){
-		countHits(CollectionTool.size(c));
+		countHits(DrCollectionTool.size(c));
 	}
 	
 	protected void countMisses(Collection<?> c){
-		countMisses(CollectionTool.size(c));
+		countMisses(DrCollectionTool.size(c));
 	}
 }

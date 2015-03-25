@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.node.type.index;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -12,8 +13,8 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.view.index.IndexEntryTool;
 import com.hotpads.datarouter.storage.view.index.multi.MultiIndexEntry;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ListTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.iterable.scanner.iterable.SortedScannerIterable;
 
@@ -42,24 +43,28 @@ implements MultiIndexNode<PK, D, IK, IE>
 	/********************* IndexReader ******************************/
 	
 	@Override
-	public List<D> lookupMulti(IK indexKey, boolean wildcardLastField, Config config){
+	public List<D> lookupMulti(IK indexKey, Config config){
 		if(indexKey==null){ return new LinkedList<D>(); }
 		//hard-coding startInclusive to true because it will usually be true on the first call, 
 		// but subsequent calls may want false, so consider adding as method param
-		List<IE> indexEntries = indexNode.getPrefixedRange(indexKey, wildcardLastField, null, true, config);
+		Range<IK> indexKeyRange = new Range<>(indexKey, true, indexKey, true);
+		List<IE> indexEntries = DrListTool.createArrayList(indexNode.scan(indexKeyRange, null));
 		List<PK> primaryKeys = IndexEntryTool.getPrimaryKeys(indexEntries);
 		List<D> databeans = mainNode.reader().getMulti(primaryKeys, config);
 		return databeans;
 	}
 	
+	
 	@Override
-	public List<D> lookupMultiMulti(Collection<IK> indexKeys, boolean wildcardLastField, Config config){
-		if(CollectionTool.isEmpty(indexKeys)){ return new LinkedList<D>(); }
-		List<IE> indexEntries = ListTool.createLinkedList();
-		for(IK indexKey : indexKeys){//TODO fetch all in one call getPrefixedRanges(...
-			indexEntries.addAll(indexNode.getPrefixedRange(indexKey, wildcardLastField, null, true, config));
+	public List<D> lookupMultiMulti(Collection<IK> indexKeys, Config config){
+		if(DrCollectionTool.isEmpty(indexKeys)){ return new LinkedList<D>(); }
+		List<IE> allIndexEntries = new ArrayList<>();
+		for(IK indexKey : indexKeys){
+			Range<IK> indexKeyRange = new Range<>(indexKey, true, indexKey, true);
+			List<IE> indexEntries = DrListTool.createArrayList(indexNode.scan(indexKeyRange, null));
+			allIndexEntries.addAll(DrCollectionTool.nullSafe(indexEntries));
 		}
-		List<PK> primaryKeys = IndexEntryTool.getPrimaryKeys(indexEntries);
+		List<PK> primaryKeys = IndexEntryTool.getPrimaryKeys(allIndexEntries);
 		List<D> databeans = mainNode.reader().getMulti(primaryKeys, config);
 		return databeans;
 	}

@@ -2,7 +2,7 @@ package com.hotpads.profile.count.databean;
 
 import java.util.HashSet;
 
-import com.hotpads.util.core.SetTool;
+import com.hotpads.datarouter.util.core.DrSetTool;
 
 public class AvailableCounterGroup{
 
@@ -14,7 +14,7 @@ public class AvailableCounterGroup{
 		super();
 		this.availableCounter = availableCounter;
 		this.name = availableCounter.getName();
-		this.servers = SetTool.createHashSet();
+		this.servers = new HashSet<>();
 		this.servers.add(availableCounter.getSource());
 	}
 
@@ -22,7 +22,7 @@ public class AvailableCounterGroup{
 		super();
 		this.availableCounter = new AvailableCounter();
 		this.availableCounter.setName(availableCounterName);
-		this.servers = SetTool.createHashSet();
+		this.servers = new HashSet<>();
 		this.servers.add(availableCounter.getSource());
 	}
 

@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import javax.persistence.Id;
 
@@ -20,7 +21,6 @@ import com.hotpads.datarouter.storage.field.imp.array.DelimitedStringArrayField;
 import com.hotpads.datarouter.storage.field.imp.comparable.BooleanField;
 import com.hotpads.datarouter.storage.key.unique.base.BaseStringUniqueKey;
 import com.hotpads.handler.user.role.DatarouterUserRole;
-import com.hotpads.util.core.MapTool;
 
 @SuppressWarnings("serial")
 public class DatarouterUser extends BaseDatabean<DatarouterUserKey, DatarouterUser> {
@@ -84,7 +84,7 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey, DatarouterUs
 		}
 		@Override
 		public Map<String, List<Field<?>>> getIndexes(DatarouterUser databean){
-			Map<String,List<Field<?>>> indexesByName = MapTool.createTreeMap();
+			Map<String,List<Field<?>>> indexesByName = new TreeMap<>();
 			indexesByName.put("index_username", new DatarouterUserByUsernameLookup(null).getFields());
 			indexesByName.put("index_userToken", new DatarouterUserByUserTokenLookup(null).getFields());
 			indexesByName.put("index_apiKey", new DatarouterUserByApiKeyLookup(null).getFields());

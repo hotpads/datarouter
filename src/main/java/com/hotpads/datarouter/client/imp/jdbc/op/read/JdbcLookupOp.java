@@ -15,8 +15,7 @@ import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.multi.Lookup;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.datarouter.util.DRCounters;
-import com.hotpads.util.core.CollectionTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.util.core.iterable.BatchingIterable;
 
 public class JdbcLookupOp<
@@ -25,17 +24,15 @@ public class JdbcLookupOp<
 		F extends DatabeanFielder<PK,D>> 
 extends BaseJdbcOp<List<D>>{
 		
-	private JdbcReaderNode<PK,D,F> node;
-	private String opName;
-	private Collection<? extends Lookup<PK>> lookups;
-	private boolean wildcardLastField;
-	private Config config;
+	private final JdbcReaderNode<PK,D,F> node;
+	private final Collection<? extends Lookup<PK>> lookups;
+	private final boolean wildcardLastField;
+	private final Config config;
 	
-	public JdbcLookupOp(JdbcReaderNode<PK,D,F> node, String opName, 
-			Collection<? extends Lookup<PK>> lookups, boolean wildcardLastField, Config config) {
+	public JdbcLookupOp(JdbcReaderNode<PK,D,F> node, Collection<? extends Lookup<PK>> lookups, 
+			boolean wildcardLastField, Config config) {
 		super(node.getDatarouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
 		this.node = node;
-		this.opName = opName;
 		this.lookups = lookups;
 		this.wildcardLastField = wildcardLastField;
 		this.config = Config.nullSafe(config);
@@ -43,10 +40,9 @@ extends BaseJdbcOp<List<D>>{
 	
 	@Override
 	public List<D> runOnce(){
-		if(CollectionTool.isEmpty(lookups)){
+		if(DrCollectionTool.isEmpty(lookups)){
 			return new LinkedList<>();
 		}
-		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
 		Integer batchSize = config.getLimit();
 		int configuredBatchSize = config.getIterateBatchSizeOverrideNull(JdbcNode.DEFAULT_ITERATE_BATCH_SIZE);
 		if (batchSize == null || batchSize > configuredBatchSize){

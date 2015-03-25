@@ -1,10 +1,10 @@
 package com.hotpads.profile.callsite;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.junit.Test;
 
-import com.hotpads.util.core.ComparableTool;
+import com.hotpads.datarouter.util.core.DrComparableTool;
 import com.hotpads.util.core.lang.StackTraceElementTool;
 
 public class LineOfCode implements Comparable<LineOfCode>{
@@ -91,13 +91,13 @@ public class LineOfCode implements Comparable<LineOfCode>{
 	
 	public int compareTo(LineOfCode that){
 		if(that==null){ return 1; }//null first
-		int d = ComparableTool.nullFirstCompareTo(this.packageName, that.packageName);
+		int d = DrComparableTool.nullFirstCompareTo(this.packageName, that.packageName);
 		if(d != 0){ return d; }
-		d = ComparableTool.nullFirstCompareTo(this.className, that.className);
+		d = DrComparableTool.nullFirstCompareTo(this.className, that.className);
 		if(d != 0){ return d; }
-		d = ComparableTool.nullFirstCompareTo(this.methodName, that.methodName);
+		d = DrComparableTool.nullFirstCompareTo(this.methodName, that.methodName);
 		if(d != 0){ return d; }
-		return ComparableTool.nullFirstCompareTo(this.lineNumber, that.lineNumber);
+		return DrComparableTool.nullFirstCompareTo(this.lineNumber, that.lineNumber);
 	}
 
 

@@ -79,7 +79,7 @@ extends BasePhysicalEntityNode<EK,E>{
 						Result hBaseResult = hTable.get(get);
 						E entity = resultParser.parseEntity(ek, hBaseResult);
 						if(entity != null){
-							DRCounters.incSuffixClientNode(client.getType(), "entity databeans", getClientName(),
+							DRCounters.incClientNodeCustom(client.getType(), "entity databeans", getClientName(),
 									getNodeName(), entity.getNumDatabeans());
 						}
 						return entity;

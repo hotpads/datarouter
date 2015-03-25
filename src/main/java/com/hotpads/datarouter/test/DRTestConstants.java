@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.test;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.hotpads.datarouter.client.ClientType;
@@ -8,7 +9,6 @@ import com.hotpads.datarouter.client.imp.hibernate.HibernateClientType;
 import com.hotpads.datarouter.client.imp.jdbc.JdbcClientType;
 import com.hotpads.datarouter.client.imp.memcached.MemcachedClientType;
 import com.hotpads.datarouter.client.imp.memory.MemoryClientType;
-import com.hotpads.util.core.ListTool;
 
 public class DRTestConstants{
 
@@ -21,8 +21,8 @@ public class DRTestConstants{
 		CLIENT_drTestHBase = "drTestHBase",
 		CLIENT_drTestMemcached = "drTestMemcached";
 
-	public static List<ClientType> ALL_CLIENT_TYPES = ListTool.create();
-	public static List<Object[]> CLIENT_TYPE_OBJECT_ARRAYS = ListTool.create();
+	public static List<ClientType> ALL_CLIENT_TYPES = new ArrayList<>();
+	public static List<Object[]> CLIENT_TYPE_OBJECT_ARRAYS = new ArrayList<>();
 	static{
 		ALL_CLIENT_TYPES.add(MemoryClientType.INSTANCE);
 		ALL_CLIENT_TYPES.add(JdbcClientType.INSTANCE);

@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.client.imp.hbase.batching.entity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.hadoop.hbase.client.Result;
@@ -14,8 +15,7 @@ import com.hotpads.datarouter.storage.entity.Entity;
 import com.hotpads.datarouter.storage.field.compare.EndOfRangeFieldSetComparator;
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
 import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
-import com.hotpads.util.core.IterableTool;
-import com.hotpads.util.core.ListTool;
+import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.iterable.scanner.batch.BatchLoader;
 
@@ -43,8 +43,8 @@ extends BaseHBaseEntityBatchLoader<EK,E,PK,D,F,D>{
 	protected List<D> parseHBaseResult(Result result){
 		//the first and last entity may include results outside the range
 		List<D> unfilteredResults = node.getResultParser().getDatabeansWithMatchingQualifierPrefix(result);
-		List<D> filteredResults = ListTool.createArrayList();
-		for(D candidate : IterableTool.nullSafe(unfilteredResults)){
+		List<D> filteredResults = new ArrayList<>();
+		for(D candidate : DrIterableTool.nullSafe(unfilteredResults)){
 			if(EndOfRangeFieldSetComparator.isCandidateIncludedForEndOfRange(candidate.getKey(), range.getEnd(), 
 					range.getEndInclusive())){
 				filteredResults.add(candidate);

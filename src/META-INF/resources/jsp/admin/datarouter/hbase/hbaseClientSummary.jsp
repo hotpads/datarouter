@@ -24,40 +24,59 @@
 		</b> ${param.clientName} <br /> <br /> <b>zookeeper.quorum: </b>
 		${address}<br /> <br /> These are not node names. They are table names
 		from HBaseAdmin.listTables();<br /> <br />
-		<table
-			class="table table-striped table-bordered table-hover table-condensed sortable">
+		<table class="table table-striped table-bordered table-hover table-condensed sortable">
 			<thead>
 				<tr>
 					<th>table name</th>
-					<th>regions</th>
-					<th>settings</th>
-					<th>servers</th>
-					<!-- 		<th>count cells</th> -->
+					<th>links</th>
+					<th>table settings</th>
+					<th>family settings</th>
 				</tr>
 			</thead>
 			<tbody>
 				<c:forEach items="${tableSummaryByName}" var="tableSummary">
 					<tr>
-						<td>${tableSummary.key}</td>
-						<td><a
-							href="hbase?submitAction=viewHBaseTableRegions&routerName=${param.routerName}
-							&clientName=${param.clientName}&tableName=${tableSummary.key}">regions</a>
-						</td>
-						<td><a
-							href="hbase?submitAction=viewHBaseTableSettings&routerName=${param.routerName}
-							&clientName=${param.clientName}&tableName=${tableSummary.key}">settings</a>
+						<td>
+							${tableSummary.key}
 						</td>
 						<td>
-						<a
-							href="hbase?submitAction=viewHBaseServers&routerName=${param.routerName}&clientName=${param.clientName}">servers</a>
+							<a href="hbase?submitAction=viewHBaseTableRegions&routerName=${param.routerName}
+								&clientName=${param.clientName}&tableName=${tableSummary.key}">regions</a>
+							<br/>
+							<a href="hbase?submitAction=viewHBaseTableSettings&routerName=${param.routerName}
+								&clientName=${param.clientName}&tableName=${tableSummary.key}">settings</a>
+							<br/>
+							<a href="hbase?submitAction=viewHBaseServers&routerName=${param.routerName}
+								&clientName=${param.clientName}">servers</a>
 						</td>
-
-				<td>
-					<c:forEach items="${tableSummary.value}" var="attributeByName">
-						${attributeByName.key}=${attributeByName.value}<br/>
-					</c:forEach>
-				</td>
-				 -->
+						<td>
+							<table class="table table-striped table-bordered table-hover table-condensed sortable">
+								<tbody>
+									<c:forEach items="${tableSummaryByName[tableSummary.key]}" var="entry">
+										<tr>
+											<td>${entry.key}</td>
+											<td>${entry.value}</td>
+										</tr>
+									</c:forEach>
+								</tbody>
+							</table>
+						</td>
+						<td>
+							<c:forEach items="${familySummaryByTableName[tableSummary.key]}" var="familyEntry">
+								family: ${familyEntry.key}<br/>
+								<table class="table table-striped table-bordered table-hover table-condensed sortable">
+									<tbody>
+										<c:forEach items="${familyEntry.value}" var="entry">
+											<tr>
+												<td>${entry.key}</td>
+												<td>${entry.value}</td>
+											</tr>
+										</c:forEach>
+									</tbody>
+								</table>
+								<br/>
+							</c:forEach>
+						</td>
 					</tr>
 				</c:forEach>
 			</tbody>

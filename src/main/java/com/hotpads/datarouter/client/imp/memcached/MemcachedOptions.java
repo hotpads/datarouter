@@ -1,10 +1,10 @@
 package com.hotpads.datarouter.client.imp.memcached;
 
 import java.net.InetSocketAddress;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 
-import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.properties.TypedProperties;
 
 public class MemcachedOptions extends TypedProperties{
@@ -21,7 +21,7 @@ public class MemcachedOptions extends TypedProperties{
 	}
 	
 	public InetSocketAddress[] getServers(){
-		List<InetSocketAddress> servers = ListTool.createLinkedList();
+		List<InetSocketAddress> servers = new LinkedList<>();
 		for(int i=0; i < getNumServers(); ++i){
 			String key = clientPrefix+"server."+i;
 			String hostNameAndPort = getString(key);

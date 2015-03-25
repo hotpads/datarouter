@@ -5,6 +5,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
@@ -12,7 +13,8 @@ import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.util.core.ComparableTool;
+import com.hotpads.datarouter.util.core.DrClassTool;
+import com.hotpads.datarouter.util.core.DrComparableTool;
 
 public abstract class BaseNode<
 		PK extends PrimaryKey<PK>,
@@ -39,7 +41,7 @@ implements Node<PK,D>{
 					"instantiated in the databean constructor.", probablyNoPkInstantiated);
 		}
 		//this default id is frequently overridden
-		this.setId(new NodeId<PK,D,F>((Class<Node<PK,D>>)getClass(), params, fieldInfo.getExplicitNodeName()));
+		this.setId(new NodeId<PK,D,F>(DrClassTool.getClass(this), params, fieldInfo.getExplicitNodeName()));
 	}
 	
 	@Override
@@ -55,6 +57,16 @@ implements Node<PK,D>{
 	@Override
 	public Class<D> getDatabeanType() {
 		return this.fieldInfo.getDatabeanClass();
+	}
+	
+	@Override
+	public boolean isPhysicalNodeOrWrapper(){
+		return false;
+	}
+	
+	@Override
+	public PhysicalNode<PK,D> getPhysicalNodeIfApplicable(){
+		return null;//let actual PhysicalNodes override this
 	}
 
 	@Override
@@ -83,7 +95,7 @@ implements Node<PK,D>{
 	
 	@Override
 	public int compareTo(Node<PK,D> o){
-		return ComparableTool.nullFirstCompareTo(getName(), o.getName());
+		return DrComparableTool.nullFirstCompareTo(getName(), o.getName());
 	}
 	
 	@Override

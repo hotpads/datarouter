@@ -1,11 +1,10 @@
 package com.hotpads.datarouter.client.imp.jdbc.op.read;
 
 import java.sql.Connection;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-
-import org.junit.Test;
 
 import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
 import com.hotpads.datarouter.client.imp.hibernate.util.SqlBuilder;
@@ -13,17 +12,15 @@ import com.hotpads.datarouter.client.imp.jdbc.node.JdbcNode;
 import com.hotpads.datarouter.client.imp.jdbc.node.JdbcReaderNode;
 import com.hotpads.datarouter.client.imp.jdbc.op.BaseJdbcOp;
 import com.hotpads.datarouter.config.Config;
-import com.hotpads.datarouter.node.op.raw.read.MapStorageReader;
-import com.hotpads.datarouter.op.executor.impl.SessionExecutorImpl;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
+import com.hotpads.datarouter.util.core.DrBatchTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.trace.TraceContext;
-import com.hotpads.util.core.BatchTool;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ListTool;
 
 public class JdbcGetKeysOp<
 		PK extends PrimaryKey<PK>,
@@ -31,10 +28,10 @@ public class JdbcGetKeysOp<
 		F extends DatabeanFielder<PK,D>> 
 extends BaseJdbcOp<List<PK>>{
 		
-	private JdbcReaderNode<PK,D,F> node;
-	private String opName;
-	private Collection<PK> keys;
-	private Config config;
+	private final JdbcReaderNode<PK,D,F> node;
+	private final String opName;
+	private final Collection<PK> keys;
+	private final Config config;
 	
 	public JdbcGetKeysOp(JdbcReaderNode<PK,D,F> node, String opName, Collection<PK> keys, Config config) {
 		super(node.getDatarouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
@@ -46,29 +43,28 @@ extends BaseJdbcOp<List<PK>>{
 	
 	@Override
 	public List<PK> runOnce(){
-		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
 		int batchSize = JdbcNode.DEFAULT_ITERATE_BATCH_SIZE;
 		if(config!=null && config.getIterateBatchSize()!=null){
 			batchSize = config.getIterateBatchSize();
 		}
-		List<? extends Key<PK>> sortedKeys = ListTool.createArrayList(keys);
+		List<? extends Key<PK>> sortedKeys = DrListTool.createArrayList(keys);
 		Collections.sort(sortedKeys);//should prob remove
-		int numBatches = BatchTool.getNumBatches(sortedKeys.size(), batchSize);
-		List<PK> result = ListTool.createArrayList(keys.size());
+		int numBatches = DrBatchTool.getNumBatches(sortedKeys.size(), batchSize);
+		List<PK> result = new ArrayList<>(keys.size());
 		Connection connection = getConnection(node.getClientName());
 		for(int batchNum=0; batchNum < numBatches; ++batchNum){
-			List<? extends Key<PK>> keyBatch = BatchTool.getBatch(sortedKeys, batchSize, batchNum);
-			String sql = SqlBuilder.getMulti(config, node.getTableName(), node.getFieldInfo().getPrimaryKeyFields(), keyBatch);
+			List<? extends Key<PK>> keyBatch = DrBatchTool.getBatch(sortedKeys, batchSize, batchNum);
+			String sql = SqlBuilder.getMulti(config, node.getTableName(), node.getFieldInfo().getPrimaryKeyFields(), 
+					keyBatch);
 			List<PK> batch = JdbcTool.selectPrimaryKeys(connection, node.getFieldInfo(), sql);
-			DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
-			DRCounters.incSuffixClientNode(node.getClient().getType(), opName+" rows", node.getClientName(), node.getName(), 
-					CollectionTool.size(batch));//count the number of hits (arbitrary decision)
-			if(CollectionTool.notEmpty(batch)){
+			DRCounters.incClientNodeCustom(node.getClient().getType(), opName + " selects", node.getClientName(), node
+					.getName());
+			if(DrCollectionTool.notEmpty(batch)){
 				Collections.sort(batch);//should prob remove
 				result.addAll(batch);
 			}
 		}
-		TraceContext.appendToSpanInfo("[got "+CollectionTool.size(result)+"/"+CollectionTool.size(keys)+"]");
+		TraceContext.appendToSpanInfo("[got "+DrCollectionTool.size(result)+"/"+DrCollectionTool.size(keys)+"]");
 		return result;
 	}
 }

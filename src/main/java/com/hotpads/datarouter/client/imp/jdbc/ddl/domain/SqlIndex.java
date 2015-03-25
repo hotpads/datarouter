@@ -1,17 +1,16 @@
 package com.hotpads.datarouter.client.imp.jdbc.ddl.domain;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.junit.Test;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn.SqlColumnNameTypeComparator;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ComparableTool;
-import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.MathTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrComparableTool;
+import com.hotpads.datarouter.util.core.DrMathTool;
 
 public class SqlIndex implements Comparable<SqlIndex>{
 	
@@ -30,7 +29,7 @@ public class SqlIndex implements Comparable<SqlIndex>{
 
 	public SqlIndex(String name){
 		this.name = name;
-		this.columns=ListTool.createArrayList();
+		this.columns=new ArrayList<>();
 	}
 
 	
@@ -107,7 +106,7 @@ public class SqlIndex implements Comparable<SqlIndex>{
 	}
 	
 	public int getNumberOfColumns(){
-		return CollectionTool.size(columns);
+		return DrCollectionTool.size(columns);
 	}
 	
 	
@@ -117,11 +116,11 @@ public class SqlIndex implements Comparable<SqlIndex>{
 
 		@Override
 		public int compare(SqlIndex index1, SqlIndex index2){
-			int c = ComparableTool.nullFirstCompareTo(index1.getName(), index2.getName());
+			int c = DrComparableTool.nullFirstCompareTo(index1.getName(), index2.getName());
 			if(c!=0){ return c; }
 			SqlColumnNameTypeComparator nameTypeColumnComparator = new SqlColumnNameTypeComparator(true);
-			for(int i=0; i<MathTool.min(index1.getColumns().size(), index2.getColumns().size()); i++){
-				c=ComparableTool.nullFirstCompareTo(index1.getColumns().get(i), index2.getColumns().get(i));
+			for(int i=0; i<DrMathTool.min(index1.getColumns().size(), index2.getColumns().size()); i++){
+				c=DrComparableTool.nullFirstCompareTo(index1.getColumns().get(i), index2.getColumns().get(i));
 				if(index1.getColumns().get(i)==null && index2.getColumns().get(i)==null){
 					c = 0;
 				}else if(index1.getColumns().get(i)==null){
@@ -140,11 +139,11 @@ public class SqlIndex implements Comparable<SqlIndex>{
 	
 	@Override
 	public int compareTo(SqlIndex o){
-			int c = ComparableTool.nullFirstCompareTo(name, o.name);
+			int c = DrComparableTool.nullFirstCompareTo(name, o.name);
 			if(c!=0){ return c; }
 			SqlColumnNameTypeComparator nameTypeColumnComparator = new SqlColumnNameTypeComparator(true);
-			for(int i=0; i < MathTool.min(columns.size(), o.columns.size()); i++){
-				c=ComparableTool.nullFirstCompareTo(columns.get(i),o.columns.get(i));
+			for(int i=0; i < DrMathTool.min(columns.size(), o.columns.size()); i++){
+				c=DrComparableTool.nullFirstCompareTo(columns.get(i),o.columns.get(i));
 				if(columns.get(i)==null && o.columns.get(i)==null){
 					c = 0;
 				}else if(columns.get(i)==null){

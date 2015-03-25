@@ -1,19 +1,19 @@
 package com.hotpads.trace.test;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import com.hotpads.trace.Trace;
 import com.hotpads.trace.TraceSpan;
 import com.hotpads.trace.TraceThread;
-import com.hotpads.util.core.ListTool;
 
 public class TraceTestDataGenerator{
 
-	public static List<Trace> traces = ListTool.createArrayList();
-	public static List<TraceThread> threads = ListTool.createArrayList();
-	public static List<TraceSpan> spans = ListTool.createArrayList();
+	public static List<Trace> traces = new ArrayList<>();
+	public static List<TraceThread> threads = new ArrayList<>();
+	public static List<TraceSpan> spans = new ArrayList<>();
 	
 	static{
 		Trace trace1 = new Trace();

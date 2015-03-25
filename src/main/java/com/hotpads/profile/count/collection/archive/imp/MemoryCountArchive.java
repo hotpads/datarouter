@@ -1,7 +1,9 @@
 package com.hotpads.profile.count.collection.archive.imp;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -10,17 +12,16 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.hotpads.datarouter.util.core.DrByteTool;
+import com.hotpads.datarouter.util.core.DrListTool;
+import com.hotpads.datarouter.util.core.DrMapTool;
+import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.profile.count.collection.AtomicCounter;
 import com.hotpads.profile.count.collection.CountMapPeriod;
 import com.hotpads.profile.count.collection.archive.BaseCountArchive;
 import com.hotpads.profile.count.collection.archive.CountPartitionedNode;
 import com.hotpads.profile.count.databean.AvailableCounter;
 import com.hotpads.profile.count.databean.Count;
-import com.hotpads.util.core.ByteTool;
-import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.MapTool;
-import com.hotpads.util.core.SetTool;
-import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 
 public class MemoryCountArchive extends BaseCountArchive{
@@ -61,12 +62,12 @@ public class MemoryCountArchive extends BaseCountArchive{
 
 	@Override
 	public List<AvailableCounter> getAvailableCounters(String nameLike){
-		Set<AvailableCounter> unsorted = SetTool.createHashSet();
+		Set<AvailableCounter> unsorted = new HashSet<>();
 		for(int i=0; i < archive.length; ++i){
 			if(archive[i]!=null){
-				Map<String,AtomicLong> map = MapTool.nullSafe(archive[i].getCountByKey());
+				Map<String,AtomicLong> map = DrMapTool.nullSafe(archive[i].getCountByKey());
 				for(Map.Entry<String,AtomicLong> entry : map.entrySet()){
-					if(StringTool.notEmpty(nameLike) && ! entry.getKey().startsWith(nameLike)){
+					if(DrStringTool.notEmpty(nameLike) && ! entry.getKey().startsWith(nameLike)){
 						continue; 
 					}
 					unsorted.add(new AvailableCounter(webApp, 
@@ -74,7 +75,7 @@ public class MemoryCountArchive extends BaseCountArchive{
 				}
 			}
 		}
-		List<AvailableCounter> sorted = ListTool.createArrayList(unsorted);
+		List<AvailableCounter> sorted = DrListTool.createArrayList(unsorted);
 		Collections.sort(sorted);
 		return sorted;
 	}
@@ -94,7 +95,7 @@ public class MemoryCountArchive extends BaseCountArchive{
 		if(getEarliestAvailableTime() > startMs){
 			startIndex = getIndexForMs(getEarliestAvailableTime());
 		}
-		List<Count> counts = ListTool.createArrayList();
+		List<Count> counts = new ArrayList<>();
 		int i = startIndex;
 		while(true){
 			CountMapPeriod period = archive[i];
@@ -125,7 +126,7 @@ public class MemoryCountArchive extends BaseCountArchive{
 			if(getEarliestAvailableTime() > startMs){
 				startIndex = getIndexForMs(getEarliestAvailableTime());
 			}
-			List<Count> counts = ListTool.createArrayList();
+			List<Count> counts = new ArrayList<>();
 			int i = startIndex;
 			while(true){
 				CountMapPeriod period = archive[i];
@@ -231,7 +232,7 @@ public class MemoryCountArchive extends BaseCountArchive{
 		long n=0;
 		for(int i=0; i < archive.length; ++i){
 			if(archive[i]!=null){
-				n+=MapTool.size(archive[i].getCountByKey());
+				n+=DrMapTool.size(archive[i].getCountByKey());
 			}
 		}
 		return n;
@@ -247,9 +248,9 @@ public class MemoryCountArchive extends BaseCountArchive{
 			//should add capacity * BYTES_PER_POINTER, but can't access capacity
 			n += AtomicCounter.INITIAL_CAPACITY;
 			for(Map.Entry<String,AtomicLong> entry : archive[i].getCountByKey().entrySet()){
-				n += ByteTool.BYTES_PER_HASH_MAP_ENTRY;
+				n += DrByteTool.BYTES_PER_HASH_MAP_ENTRY;
 				n += StringByteTool.getNumBytesInMemoryWithPointers(entry.getKey());
-				n += ByteTool.BYTES_PER_LONG_WITH_POINTER;
+				n += DrByteTool.BYTES_PER_LONG_WITH_POINTER;
 			}
 		}
 		return n;

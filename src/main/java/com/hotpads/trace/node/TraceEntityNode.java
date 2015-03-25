@@ -23,12 +23,12 @@ import com.hotpads.trace.key.TraceThreadKey;
 
 public class TraceEntityNode 
 extends HBaseEntityReaderNode<TraceEntityKey,TraceEntity>
-implements TraceNodes{
+implements TraceSubNodes{
 	
-	public static final EntityNodeParams<TraceEntityKey,TraceEntity> ENTITY_NODE_PARAMS_TraceEntity
+	public static final EntityNodeParams<TraceEntityKey,TraceEntity> ENTITY_NODE_PARAMS_TraceEntity16
 			= new EntityNodeParams<TraceEntityKey,TraceEntity>(
-			"TraceEntity", TraceEntityKey.class, TraceEntity.class, TraceEntityPartitioner.class,
-			"TraceEntity");
+			"TraceEntity16", TraceEntityKey.class, TraceEntity.class, TraceEntityPartitioner.class,
+			"TraceEntity16");
 	
 	public static final EntityNodeParams<TraceEntityKey,TraceEntity> ENTITY_NODE_PARAMS_TraceEntityTest
 			= new EntityNodeParams<TraceEntityKey,TraceEntity>(

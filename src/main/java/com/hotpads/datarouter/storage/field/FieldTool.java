@@ -3,6 +3,7 @@ package com.hotpads.datarouter.storage.field;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -10,14 +11,14 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hotpads.util.core.ArrayTool;
-import com.hotpads.util.core.ByteTool;
-import com.hotpads.util.core.CollectionTool;
+import com.hotpads.datarouter.util.core.DrArrayTool;
+import com.hotpads.datarouter.util.core.DrByteTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrIterableTool;
+import com.hotpads.datarouter.util.core.DrListTool;
+import com.hotpads.datarouter.util.core.DrObjectTool;
+import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.util.core.Functor;
-import com.hotpads.util.core.IterableTool;
-import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.ObjectTool;
-import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.java.ReflectionTool;
 import com.hotpads.util.core.number.VarLong;
@@ -26,11 +27,11 @@ public class FieldTool{
 	static Logger logger = LoggerFactory.getLogger(FieldTool.class);
 
 	public static List<Field<?>> createList(Field<?>... fields){
-		return ListTool.createArrayList(fields);
+		return DrListTool.createArrayList(fields);
 	}
 	
 	public static boolean anyFieldsNull(Iterable<Field<?>> fields){
-		for(Field<?> field : IterableTool.nullSafe(fields)){
+		for(Field<?> field : DrIterableTool.nullSafe(fields)){
 			if(field.getValue() == null){ return true; }
 		}
 		return false;
@@ -38,7 +39,7 @@ public class FieldTool{
 	
 	public static int countNonNullLeadingFields(Iterable<Field<?>> fields){
 		int count = 0;
-		for(Field<?> field : IterableTool.nullSafe(fields)){
+		for(Field<?> field : DrIterableTool.nullSafe(fields)){
 			if(field.getValue() != null){
 				++count;
 			}else{
@@ -61,14 +62,13 @@ public class FieldTool{
 		if(numFields==0){ return null; }
 		if(numFields==1){
 			if(trailingSeparatorAfterEndingString){
-				return CollectionTool.getFirst(fields).getBytesWithSeparator();
-			}else{
-				return CollectionTool.getFirst(fields).getBytes();
+				return DrCollectionTool.getFirst(fields).getBytesWithSeparator();
 			}
+			return DrCollectionTool.getFirst(fields).getBytes();
 		}
-		byte[][] fieldArraysWithSeparators = new byte[CollectionTool.size(fields)][];
+		byte[][] fieldArraysWithSeparators = new byte[DrCollectionTool.size(fields)][];
 		int fieldIdx=-1;
-		for(Field<?> field : IterableTool.nullSafe(fields)){
+		for(Field<?> field : DrIterableTool.nullSafe(fields)){
 			++fieldIdx;
 			boolean lastField = fieldIdx == numFields - 1;
 			if(!allowNulls && field.getValue()==null){
@@ -81,7 +81,7 @@ public class FieldTool{
 			}
 			if(lastField){ break; }
 		}
-		return ByteTool.concatenate(fieldArraysWithSeparators);
+		return DrByteTool.concatenate(fieldArraysWithSeparators);
 	}
 	
 	/*
@@ -91,7 +91,7 @@ public class FieldTool{
 		int numNonNullFields = countNonNullLeadingFields(fields);
 		byte[][] fieldArraysWithSeparators = new byte[numNonNullFields][];
 		int fieldIdx=-1;
-		for(Field<?> field : IterableTool.nullSafe(fields)){
+		for(Field<?> field : DrIterableTool.nullSafe(fields)){
 			++fieldIdx;
 			if(fieldIdx == numNonNullFields - 1){//last field
 				fieldArraysWithSeparators[fieldIdx] = field.getBytes();
@@ -99,7 +99,7 @@ public class FieldTool{
 			}
 			fieldArraysWithSeparators[fieldIdx] = field.getBytesWithSeparator();
 		}
-		return ByteTool.concatenate(fieldArraysWithSeparators);
+		return DrByteTool.concatenate(fieldArraysWithSeparators);
 	}
 
 	/**
@@ -110,17 +110,17 @@ public class FieldTool{
 	 */
 	public static byte[] getSerializedKeyValues(Collection<Field<?>> fields, boolean includePrefix,
 			boolean skipNullValues){
-		if(CollectionTool.isEmpty(fields)){ return new byte[0]; }
+		if(DrCollectionTool.isEmpty(fields)){ return new byte[0]; }
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		for(Field<?> field : IterableTool.nullSafe(fields)){
+		for(Field<?> field : DrIterableTool.nullSafe(fields)){
 			//prep the values
 			byte[] keyBytes = includePrefix ?
 					StringByteTool.getUtf8Bytes(field.getPrefixedName()) : field.getColumnNameBytes();
-			VarLong keyLength = new VarLong(ArrayTool.length(keyBytes));
+			VarLong keyLength = new VarLong(DrArrayTool.length(keyBytes));
 			byte[] valueBytes = field.getBytes();
-			VarLong valueLength = new VarLong(ArrayTool.length(valueBytes));
+			VarLong valueLength = new VarLong(DrArrayTool.length(valueBytes));
 			//abort if value is 0 bytes
-			if(ArrayTool.isEmpty(valueBytes) && skipNullValues){ continue; }
+			if(DrArrayTool.isEmpty(valueBytes) && skipNullValues){ continue; }
 			try{
 				//write out the bytes
 				baos.write(keyLength.getBytes());
@@ -145,7 +145,7 @@ public class FieldTool{
 	
 	public static void appendCsvColumnNames(StringBuilder sb, Iterable<Field<?>> fields){
 		int appended = 0;
-		for(Field<?> field : IterableTool.nullSafe(fields)){
+		for(Field<?> field : DrIterableTool.nullSafe(fields)){
 			if(appended > 0){ sb.append(","); }
 			sb.append(field.getColumnName());
 			++appended;
@@ -154,7 +154,7 @@ public class FieldTool{
 	
 	public static void appendCsvColumnNamesWithPrefix(String prefix, StringBuilder sb, Iterable<Field<?>> fields){
 		int appended = 0;
-		for(Field<?> field : IterableTool.nullSafe(fields)){
+		for(Field<?> field : DrIterableTool.nullSafe(fields)){
 			if(appended > 0){ sb.append(", "); }
 			sb.append(prefix + "." + field.getColumnName());
 			++appended;
@@ -167,8 +167,8 @@ public class FieldTool{
 
 	public static List<String> getCsvColumnNamesList(Iterable<Field<?>> fields,
 			Map<String, String> columnNameToCsvHeaderName) {
-		List<String> csvRow = ListTool.createLinkedList();
-		for (Field<?> field : IterableTool.nullSafe(fields)) {
+		List<String> csvRow = new LinkedList<>();
+		for (Field<?> field : DrIterableTool.nullSafe(fields)) {
 			String columnName = field.getColumnName();
 			if (columnNameToCsvHeaderName != null && columnNameToCsvHeaderName.containsKey(field.getColumnName())) {
 				columnName = columnNameToCsvHeaderName.get(field.getColumnName());
@@ -186,10 +186,10 @@ public class FieldTool{
 	
 	public static void appendCsvValues(StringBuilder sb, Iterable<Field<?>> fields){
 		int appended = 0;
-		for(Field<?> field : IterableTool.nullSafe(fields)){
+		for(Field<?> field : DrIterableTool.nullSafe(fields)){
 			if(appended > 0){ sb.append(","); }
 			String valueString = field.getValueString();
-			if(StringTool.isEmpty(valueString)){ continue; }
+			if(DrStringTool.isEmpty(valueString)){ continue; }
 			sb.append(StringEscapeUtils.escapeCsv(valueString));
 			++appended;
 		}
@@ -201,9 +201,9 @@ public class FieldTool{
 
 	public static List<String> getCsvValuesList(Iterable<Field<?>> fields,
 			Map<String, Functor<String, Object>> columnNameToCsvValueFunctor, boolean emptyForNullValue) {
-		List<String> csvRow = ListTool.createLinkedList();
-		for (Field<?> field : IterableTool.nullSafe(fields)) {
-			String value = ObjectTool.nullSafeToString(field.getValue());
+		List<String> csvRow = new LinkedList<>();
+		for (Field<?> field : DrIterableTool.nullSafe(fields)) {
+			String value = DrObjectTool.nullSafeToString(field.getValue());
 			if (columnNameToCsvValueFunctor != null && columnNameToCsvValueFunctor.containsKey(field.getColumnName())) {
 				value = columnNameToCsvValueFunctor.get(field.getColumnName()).invoke(field.getValue());
 			}
@@ -216,23 +216,23 @@ public class FieldTool{
 	}
 
 	public static List<String> getFieldNames(List<Field<?>> fields){
-		List<String> fieldNames = ListTool.createLinkedList();
-		for(Field<?> field : IterableTool.nullSafe(fields)){
+		List<String> fieldNames = new LinkedList<>();
+		for(Field<?> field : DrIterableTool.nullSafe(fields)){
 			fieldNames.add(field.getName());
 		}
 		return fieldNames;
 	}
 
 	public static List<?> getFieldValues(List<Field<?>> fields){
-		List<Object> fieldValues = ListTool.createLinkedList();
-		for(Field<?> field : IterableTool.nullSafe(fields)){
+		List<Object> fieldValues = new LinkedList<>();
+		for(Field<?> field : DrIterableTool.nullSafe(fields)){
 			fieldValues.add(field.getValue());
 		}
 		return fieldValues;
 	}
 	
 	public static Object getFieldValue(List<Field<?>> fields, String fieldName){
-		for(Field<?> field : IterableTool.nullSafe(fields)){
+		for(Field<?> field : DrIterableTool.nullSafe(fields)){
 			if(field.getName().equals(fieldName)){
 				return field.getValue();
 			}
@@ -242,8 +242,8 @@ public class FieldTool{
 	
 	//prepend a new prefix to an existing prefix
 	public static List<Field<?>> prependPrefixes(String prefixPrefix, List<Field<?>> fields){
-		for(Field<?> field : IterableTool.nullSafe(fields)){
-			if(StringTool.isEmpty(field.getPrefix())){
+		for(Field<?> field : DrIterableTool.nullSafe(fields)){
+			if(DrStringTool.isEmpty(field.getPrefix())){
 				field.setPrefix(prefixPrefix);
 			}else{
 				field.setPrefix(prefixPrefix + "." + field.getPrefix());
@@ -253,14 +253,14 @@ public class FieldTool{
 	}
 	
 	public static List<Field<?>> setPrefixes(String prefix, List<Field<?>> fields){
-		for(Field<?> field : IterableTool.nullSafe(fields)){
+		for(Field<?> field : DrIterableTool.nullSafe(fields)){
 			field.setPrefix(prefix);
 		}
 		return fields;
 	}
 	
 	public static List<Field<?>> cacheReflectionInfo(List<Field<?>> fields, Object sampleFieldSet){
-		for(Field<?> field : IterableTool.nullSafe(fields)){
+		for(Field<?> field : DrIterableTool.nullSafe(fields)){
 			field.cacheReflectionInfo(sampleFieldSet);
 		}
 		return fields;
@@ -297,9 +297,9 @@ public class FieldTool{
 //	}
 	
 	public static Object getNestedFieldSet(Object object, Field<?> field){
-		List<String> fieldNames = ListTool.createLinkedList();
-		if(StringTool.notEmpty(field.getPrefix())){
-			fieldNames = ListTool.createArrayList(field.getPrefix().split("\\."));
+		List<String> fieldNames = new LinkedList<>();
+		if(DrStringTool.notEmpty(field.getPrefix())){
+			fieldNames = DrListTool.createArrayList(field.getPrefix().split("\\."));
 		}
 		fieldNames.add(field.getName());
 		if(fieldNames.size()==1){ return object; }//no prefixes
@@ -311,9 +311,9 @@ public class FieldTool{
 	}
 	
 	public static java.lang.reflect.Field getReflectionFieldForField(Object object, Field<?> field){
-		List<String> fieldNames = ListTool.createLinkedList();
-		if(StringTool.notEmpty(field.getPrefix())){
-			fieldNames = ListTool.createArrayList(field.getPrefix().split("\\."));
+		List<String> fieldNames = new LinkedList<>();
+		if(DrStringTool.notEmpty(field.getPrefix())){
+			fieldNames = DrListTool.createArrayList(field.getPrefix().split("\\."));
 		}
 		fieldNames.add(field.getName());
 		return ReflectionTool.getNestedField(object, fieldNames);
@@ -323,16 +323,16 @@ public class FieldTool{
 	/**************************** sql ******************/
 
 	public static List<String> getSqlValuesEscaped(List<Field<?>> fields){
-		List<String> sql = ListTool.createLinkedList();
-		for(Field<?> field : IterableTool.nullSafe(fields)){
+		List<String> sql = new LinkedList<>();
+		for(Field<?> field : DrIterableTool.nullSafe(fields)){
 			sql.add(field.getSqlEscaped());
 		}
 		return sql;
 	}
 
 	public static List<String> getSqlNameValuePairsEscaped(Collection<Field<?>> fields){
-		List<String> sql = ListTool.createLinkedList();
-		for(Field<?> field : IterableTool.nullSafe(fields)){
+		List<String> sql = new LinkedList<>();
+		for(Field<?> field : DrIterableTool.nullSafe(fields)){
 			sql.add(field.getSqlNameValuePairEscaped());
 		}
 		return sql;
@@ -340,7 +340,7 @@ public class FieldTool{
 
 	public static String getSqlNameValuePairsEscapedConjunction(Collection<Field<?>> fields){
 		List<String> nameValuePairs = getSqlNameValuePairsEscaped(fields);
-		if(CollectionTool.sizeNullSafe(nameValuePairs) < 1){ return null; }
+		if(DrCollectionTool.sizeNullSafe(nameValuePairs) < 1){ return null; }
 		StringBuilder sb = new StringBuilder();
 		int numAppended = 0;
 		for(String nameValuePair : nameValuePairs){
@@ -353,7 +353,7 @@ public class FieldTool{
 	
 	public static void appendSqlUpdateClauses(StringBuilder sb, Iterable<Field<?>> fields){
 		int appended = 0;
-		for(Field<?> field : IterableTool.nullSafe(fields)){
+		for(Field<?> field : DrIterableTool.nullSafe(fields)){
 			if(appended > 0){ sb.append(","); }
 			sb.append(field.getColumnName()+"=?");
 			++appended;

@@ -2,8 +2,6 @@ package com.hotpads.datarouter.node.type.writebehind;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ScheduledExecutorService;
 
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.op.raw.read.MapStorageReader.MapStorageReaderNode;
@@ -20,12 +18,10 @@ public class WriteBehindMapStorageReaderNode<
 extends BaseWriteBehindNode<PK,D,N>
 implements MapStorageReaderNode<PK,D>{
 	
-	public WriteBehindMapStorageReaderNode(Class<D> databeanClass, Datarouter router,
-			N backingNode, ExecutorService writeExecutor, ScheduledExecutorService cancelExecutor) {
-		super(databeanClass, router, backingNode, writeExecutor, cancelExecutor);
+	public WriteBehindMapStorageReaderNode(Class<D> databeanClass, Datarouter router, N backingNode){
+		super(databeanClass, router, backingNode);
 	}
 
-	
 	@Override
 	public boolean exists(PK key, Config config){
 		return backingNode.exists(key, config);

@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.test.node.basic.prefixed;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Entity;
@@ -18,10 +19,8 @@ import com.hotpads.datarouter.storage.field.imp.comparable.SignedByteField;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt8Field;
 import com.hotpads.datarouter.storage.prefix.BaseScatteringPrefix;
 import com.hotpads.datarouter.storage.prefix.ScatteringPrefix;
-import com.hotpads.util.core.ListTool;
 
 
-@SuppressWarnings("serial")
 @Entity()
 @AccessType("field")
 public class ScatteringPrefixBean extends BaseDatabean<ScatteringPrefixBeanKey,ScatteringPrefixBean>{
@@ -57,7 +56,7 @@ public class ScatteringPrefixBean extends BaseDatabean<ScatteringPrefixBeanKey,S
 			}
 			@Override
 			public List<List<Field<?>>> getAllPossibleScatteringPrefixes() {
-				List<List<Field<?>>> all = ListTool.createArrayList(NUM_SHARDS);
+				List<List<Field<?>>> all = new ArrayList<>(NUM_SHARDS);
 				for(int i=0; i < NUM_SHARDS; ++i){
 					//DOH, probably should have used an UnsignedByteField
 					all.add(FieldTool.createList(new SignedByteField(F.prefix, (byte)i)));

@@ -1,5 +1,8 @@
 package com.hotpads.datarouter.serialize.fieldcache;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -23,12 +26,10 @@ import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.prefix.EmptyScatteringPrefix;
 import com.hotpads.datarouter.storage.prefix.ScatteringPrefix;
-import com.hotpads.util.core.ByteTool;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.IterableTool;
-import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.MapTool;
-import com.hotpads.util.core.StringTool;
+import com.hotpads.datarouter.util.core.DrByteTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrIterableTool;
+import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.java.ReflectionTool;
 
@@ -83,14 +84,14 @@ public class DatabeanFieldInfo<
 	private List<Field<?>> fields;//PK fields will have prefixes in this Collection
 	
 
-	private Map<String,Field<?>> primaryKeyFieldByName = MapTool.createHashMap();
-	private Map<String,Field<?>> nonKeyFieldByColumnName = MapTool.createHashMap();
-	private Map<String,Field<?>> fieldByColumnName = MapTool.createHashMap();
-	private Map<String,Field<?>> fieldByPrefixedName = MapTool.createHashMap();
+	private Map<String,Field<?>> primaryKeyFieldByName = new HashMap<>();
+	private Map<String,Field<?>> nonKeyFieldByColumnName = new HashMap<>();
+	private Map<String,Field<?>> fieldByColumnName = new HashMap<>();
+	private Map<String,Field<?>> fieldByPrefixedName = new HashMap<>();
 	
-	private List<String> fieldNames = ListTool.createArrayList();
-	private List<java.lang.reflect.Field> reflectionFields = ListTool.createArrayList();
-	private Map<String,java.lang.reflect.Field> reflectionFieldByName = MapTool.createHashMap();
+	private List<String> fieldNames = new ArrayList<>();
+	private List<java.lang.reflect.Field> reflectionFields = new ArrayList<>();
+	private Map<String,java.lang.reflect.Field> reflectionFieldByName = new HashMap<>();
 	
 	
 	public DatabeanFieldInfo(String nodeName, NodeParams<PK,D,F> params){
@@ -148,16 +149,16 @@ public class DatabeanFieldInfo<
 		}
 		
 		//entity stuff
-		this.entity = StringTool.notEmpty(params.getEntityNodePrefix());
+		this.entity = DrStringTool.notEmpty(params.getEntityNodePrefix());
 		if(entity){
 			//key java field is currently only used for entity keys.  won't work for databeans with a dynamically 
 			// created PK
 			this.keyJavaField = ReflectionTool.getDeclaredFieldFromHierarchy(databeanClass, keyFieldName);
-			if(StringTool.isEmpty(params.getEntityNodePrefix())){
+			if(DrStringTool.isEmpty(params.getEntityNodePrefix())){
 				throw new IllegalArgumentException("must specify entityNodePrefix for entity nodes");
 			}
 			this.entityNodePrefix = params.getEntityNodePrefix();
-			this.entityNodeColumnPrefixBytes = ByteTool.concatenate(StringByteTool.getUtf8Bytes(entityNodePrefix), 
+			this.entityNodeColumnPrefixBytes = DrByteTool.concatenate(StringByteTool.getUtf8Bytes(entityNodePrefix), 
 					new byte[]{ENTITY_PREFIX_TERMINATOR});
 			EntityPrimaryKey<?,?> sampleEntityPrimaryKey = (EntityPrimaryKey<?,?>)samplePrimaryKey;
 			this.ekFields = sampleEntityPrimaryKey.getEntityKey().getFields();
@@ -172,7 +173,7 @@ public class DatabeanFieldInfo<
 			this.tableName = params.getPhysicalName();
 			this.packagedTableName = null;//what to do here
 			this.explicitNodeName = params.getParentName()+"."+databeanClass.getSimpleName()+"."+entityNodePrefix;
-		}else if(StringTool.notEmpty(params.getPhysicalName())){
+		}else if(DrStringTool.notEmpty(params.getPhysicalName())){
 			//explicitly set tableName.  do after entity check since that also sets a table name
 			this.tableName = params.getPhysicalName();
 			this.packagedTableName = params.getQualifiedPhysicalName();
@@ -200,7 +201,7 @@ public class DatabeanFieldInfo<
 	}
 	
 	public List<Field<?>> getKeyFieldsWithScatteringPrefix(PK key){
-		List<Field<?>> fields = ListTool.createLinkedList();
+		List<Field<?>> fields = new LinkedList<>();
 		fields.addAll(sampleScatteringPrefix.getScatteringPrefixFields(key));
 		if(key==null){ return fields; }
 		fields.addAll(key.getFields());
@@ -225,19 +226,19 @@ public class DatabeanFieldInfo<
 	}
 	
 	private void addPrimaryKeyFieldsToCollections(){
-		for(Field<?> field : IterableTool.nullSafe(primaryKeyFields)){
+		for(Field<?> field : DrIterableTool.nullSafe(primaryKeyFields)){
 			this.primaryKeyFieldByName.put(field.getName(), field);
 		}
 	}
 	
 	private void addNonKeyFieldsToCollections(){
-		for(Field<?> field : IterableTool.nullSafe(nonKeyFields)){
+		for(Field<?> field : DrIterableTool.nullSafe(nonKeyFields)){
 			this.nonKeyFieldByColumnName.put(field.getColumnName(), field);
 		}
 	}
 	
 	private void addFieldsToCollections(){
-		for(Field<?> field : IterableTool.nullSafe(fields)){
+		for(Field<?> field : DrIterableTool.nullSafe(fields)){
 			this.fieldByColumnName.put(field.getColumnName(), field);
 			this.fieldByPrefixedName.put(field.getPrefixedName(), field);
 			this.fieldNames.add(field.getName());
@@ -249,7 +250,7 @@ public class DatabeanFieldInfo<
 	
 	private void assertAssertions(){
 		if(fieldAware){
-			if(CollectionTool.notEmpty(nonKeyFields)){
+			if(DrCollectionTool.notEmpty(nonKeyFields)){
 				if(!fieldAware){
 					logger.warn("found nonKeyFields on non-fieldAware databean "+databeanClass.getName());
 				}

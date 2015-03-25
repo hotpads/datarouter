@@ -1,6 +1,7 @@
 package com.hotpads.handler.admin.client.memchached;
 
 import java.net.SocketAddress;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,8 +15,6 @@ import com.hotpads.datarouter.routing.RouterParams;
 import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.admin.RoutersHandler;
 import com.hotpads.handler.mav.Mav;
-import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.MapTool;
 
 public class MemcachedHandler extends BaseHandler {
 
@@ -47,23 +46,22 @@ public class MemcachedHandler extends BaseHandler {
 
 	}
 
-	private static final List<String> NEEDS_CLIENT = ListTool.create();
+	private static final List<String> NEEDS_CLIENT = new ArrayList<>();
 	static {
 		NEEDS_CLIENT.add(RoutersHandler.ACTION_inspectClient);
 
 	}
 
-	private static final List<String> NEEDS_ROUTER = ListTool.create();
+	private static final List<String> NEEDS_ROUTER = new ArrayList<>();
 	static {
 		NEEDS_ROUTER.addAll(NEEDS_CLIENT);
 	}
 
-	private static final List<String> NEEDS_NODE = ListTool.create();
+	private static final List<String> NEEDS_NODE = new ArrayList<>();
 	static {
 	}
 
-	private static final HashMap<String, List<String>> MEMCHACHED_NEEDS = MapTool
-			.createHashMap();
+	private static final HashMap<String, List<String>> MEMCHACHED_NEEDS = new HashMap<>();
 	static {
 		MEMCHACHED_NEEDS.put(RouterParams.NEEDS_CLIENT, NEEDS_CLIENT);
 		MEMCHACHED_NEEDS.put(RouterParams.NEEDS_ROUTER, NEEDS_ROUTER);

@@ -18,14 +18,11 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt63Field;
-import com.hotpads.profile.count.databean.Count;
-import com.hotpads.profile.count.databean.key.CountKey;
+import com.hotpads.datarouter.util.core.DrComparableTool;
 import com.hotpads.trace.key.TraceThreadKey;
-import com.hotpads.util.core.ComparableTool;
 
 @Entity
 @AccessType("field")
-@SuppressWarnings("serial")
 public class TraceThread extends BaseDatabean<TraceThreadKey,TraceThread>{
 
 	public static final int DEFAULT_STRING_LENGTH = MySqlColumnType.MAX_LENGTH_VARCHAR;
@@ -123,11 +120,11 @@ public class TraceThread extends BaseDatabean<TraceThreadKey,TraceThread>{
 	public static class TraceThreadComparator implements Comparator<TraceThread>{
 		@Override
 		public int compare(TraceThread a, TraceThread b){
-			int d0 = ComparableTool.nullFirstCompareTo(a.getParentId(), b.getParentId());
+			int d0 = DrComparableTool.nullFirstCompareTo(a.getParentId(), b.getParentId());
 			if(d0 != 0){ return d0; }
-			int d1 = ComparableTool.nullFirstCompareTo(a.getCreated(), b.getCreated());
+			int d1 = DrComparableTool.nullFirstCompareTo(a.getCreated(), b.getCreated());
 			if(d1 != 0){ return d1; }
-			return ComparableTool.nullFirstCompareTo(a.getName(), b.getName());
+			return DrComparableTool.nullFirstCompareTo(a.getName(), b.getName());
 		}
 	}
 	

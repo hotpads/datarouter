@@ -45,7 +45,7 @@ public class DatarouterAnnotationTool {
 
 	private Integer getColumnLengthAnnotation(AccessibleObject annotated){
 		try{
-			Column colAn = (Column)annotated.getAnnotation(Column.class);
+			Column colAn = annotated.getAnnotation(Column.class);
 			if(colAn == null) return null;
 			return colAn.length();
 		}catch(Exception e){

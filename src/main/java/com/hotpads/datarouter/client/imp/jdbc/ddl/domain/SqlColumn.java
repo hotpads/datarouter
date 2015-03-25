@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.client.imp.jdbc.ddl.domain;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -8,15 +9,13 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.junit.Test;
 
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ComparableTool;
-import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.SetTool;
-import com.hotpads.util.core.StringTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrComparableTool;
+import com.hotpads.datarouter.util.core.DrListTool;
+import com.hotpads.datarouter.util.core.DrStringTool;
 
 public class SqlColumn implements Comparable<SqlColumn>{
 
@@ -84,15 +83,15 @@ public class SqlColumn implements Comparable<SqlColumn>{
 	
 	@Override
 	public int compareTo(SqlColumn other){
-		int c = ComparableTool.nullFirstCompareTo(name, other.name);
+		int c = DrComparableTool.nullFirstCompareTo(name, other.name);
 		if(c!=0){ return c; }
-		c = ComparableTool.nullFirstCompareTo(type, other.type);
+		c = DrComparableTool.nullFirstCompareTo(type, other.type);
 		if(c!=0){ return c; }
-		c = ComparableTool.nullFirstCompareTo(maxLength, other.maxLength);
+		c = DrComparableTool.nullFirstCompareTo(maxLength, other.maxLength);
 		if(c!=0){ return c; }
-		c = ComparableTool.nullFirstCompareTo(nullable, other.nullable);
+		c = DrComparableTool.nullFirstCompareTo(nullable, other.nullable);
 		if(c!=0){ return c; }
-		c = ComparableTool.nullFirstCompareTo(autoIncrement, other.autoIncrement);
+		c = DrComparableTool.nullFirstCompareTo(autoIncrement, other.autoIncrement);
 		return c;	
 	}
 	
@@ -107,10 +106,10 @@ public class SqlColumn implements Comparable<SqlColumn>{
 			if(a==null)	return -1;
 			if(b==null) return 1;
 			if(caseSensitive){
-				return ComparableTool.nullFirstCompareTo(a.name, b.name);
+				return DrComparableTool.nullFirstCompareTo(a.name, b.name);
 			}
-			return ComparableTool.nullFirstCompareTo(StringTool.nullSafe(a.name).toLowerCase(), 
-					StringTool.nullSafe(b.name).toLowerCase());
+			return DrComparableTool.nullFirstCompareTo(DrStringTool.nullSafe(a.name).toLowerCase(), 
+					DrStringTool.nullSafe(b.name).toLowerCase());
 		}
 	}
 	
@@ -126,13 +125,13 @@ public class SqlColumn implements Comparable<SqlColumn>{
 			if(a==null)	return -1;
 			if(b==null) return 1;
 			if(caseSensitive){
-			 c = ComparableTool.nullFirstCompareTo(a.name, b.name);
+			 c = DrComparableTool.nullFirstCompareTo(a.name, b.name);
 			}else{
-				c = ComparableTool.nullFirstCompareTo(StringTool.nullSafe(a.name).toLowerCase(), 
-						StringTool.nullSafe(b.name).toLowerCase());
+				c = DrComparableTool.nullFirstCompareTo(DrStringTool.nullSafe(a.name).toLowerCase(), 
+						DrStringTool.nullSafe(b.name).toLowerCase());
 			}
 			if(c!=0){ return c; }
-			return ComparableTool.nullFirstCompareTo(a.type, b.type);
+			return DrComparableTool.nullFirstCompareTo(a.type, b.type);
 			
 		}
 	}
@@ -149,15 +148,15 @@ public class SqlColumn implements Comparable<SqlColumn>{
 			if(a==null)	return -1;
 			if(b==null) return 1;
 			if(caseSensitive){
-			 c = ComparableTool.nullFirstCompareTo(a.name, b.name);
+			 c = DrComparableTool.nullFirstCompareTo(a.name, b.name);
 			}else{
-				c = ComparableTool.nullFirstCompareTo(StringTool.nullSafe(a.name).toLowerCase(), 
-						StringTool.nullSafe(b.name).toLowerCase());
+				c = DrComparableTool.nullFirstCompareTo(DrStringTool.nullSafe(a.name).toLowerCase(), 
+						DrStringTool.nullSafe(b.name).toLowerCase());
 			}
 			if(c!=0){ return c; }
-			c = ComparableTool.nullFirstCompareTo(a.type, b.type);
+			c = DrComparableTool.nullFirstCompareTo(a.type, b.type);
 			if(c!=0){ return c; }
-			return ComparableTool.nullFirstCompareTo(a.maxLength, b.maxLength);
+			return DrComparableTool.nullFirstCompareTo(a.maxLength, b.maxLength);
 		}
 	}
 	
@@ -173,17 +172,17 @@ public class SqlColumn implements Comparable<SqlColumn>{
 			if(a==null)	return -1;
 			if(b==null) return 1;
 			if(caseSensitive){
-			 c = ComparableTool.nullFirstCompareTo(a.name, b.name);
+			 c = DrComparableTool.nullFirstCompareTo(a.name, b.name);
 			}else{
-				c = ComparableTool.nullFirstCompareTo(StringTool.nullSafe(a.name).toLowerCase(), 
-						StringTool.nullSafe(b.name).toLowerCase());
+				c = DrComparableTool.nullFirstCompareTo(DrStringTool.nullSafe(a.name).toLowerCase(), 
+						DrStringTool.nullSafe(b.name).toLowerCase());
 			}
 			if(c!=0){ return c; }
-			c = ComparableTool.nullFirstCompareTo(a.type, b.type);
+			c = DrComparableTool.nullFirstCompareTo(a.type, b.type);
 			if(c!=0){ return c; }
-			c = ComparableTool.nullFirstCompareTo(a.maxLength, b.maxLength);
+			c = DrComparableTool.nullFirstCompareTo(a.maxLength, b.maxLength);
 			if(c!=0){return c; }
-			return ComparableTool.nullFirstCompareTo(a.autoIncrement, b.autoIncrement);
+			return DrComparableTool.nullFirstCompareTo(a.autoIncrement, b.autoIncrement);
 		}
 	}
 	
@@ -247,19 +246,19 @@ public class SqlColumn implements Comparable<SqlColumn>{
 			Assert.assertFalse(a2==a);
 			
 			//test adding to SortedSet to test compareTo method
-			SortedSet<SqlColumn> columns = SetTool.createTreeSet();
+			SortedSet<SqlColumn> columns = new TreeSet<>();
 			columns.add(b);
 			columns.add(a);//should keep this version of a/a2 since it was added first
 			columns.add(a2);
 			//			for(SqlColumn column : columns){
 			//				System.out.println(column);
 			//			}
-			List<SqlColumn> columnList = ListTool.createArrayList(columns);
+			List<SqlColumn> columnList = DrListTool.createArrayList(columns);
 			Assert.assertTrue(a==columnList.get(0));//it kept the first version
 			Assert.assertTrue(b==columnList.get(1));
 			
 			//test list sorting
-			List<SqlColumn> sortedList = ListTool.createArrayList();
+			List<SqlColumn> sortedList = new ArrayList<>();
 			sortedList.add(b);
 			sortedList.add(a);
 			Assert.assertTrue(b==sortedList.get(0));
@@ -267,14 +266,14 @@ public class SqlColumn implements Comparable<SqlColumn>{
 			Assert.assertTrue(b==sortedList.get(1));
 		}
 		@Test public void testMinus(){
-			List<SqlColumn> a = ListTool.create(
+			List<SqlColumn> a = DrListTool.create(
 					new SqlColumn("a", MySqlColumnType.VARCHAR, 255, true, false));
 					//a.add(new SqlColumn("b", MySqlColumnType.VARCHAR, 255, false));
-			List<SqlColumn> b = ListTool.create(
+			List<SqlColumn> b = DrListTool.create(
 					new SqlColumn("a", MySqlColumnType.VARCHAR, 255, true, false));
 			b.add(new SqlColumn("b", MySqlColumnType.VARCHAR, 250, false, false));			
-			Collection<SqlColumn> minus = CollectionTool.minus(a, b);
-			Assert.assertTrue(CollectionTool.isEmpty(minus));
+			Collection<SqlColumn> minus = DrCollectionTool.minus(a, b);
+			Assert.assertTrue(DrCollectionTool.isEmpty(minus));
 		}
 		@Test public void testComparators(){
 			SqlColumn a = new SqlColumn("a", MySqlColumnType.BIGINT, 19, false, false);

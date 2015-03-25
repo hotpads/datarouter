@@ -1,6 +1,7 @@
 package com.hotpads.datarouter.test.client.pool;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.Callable;
@@ -28,9 +29,7 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.imp.comparable.SignedByteField;
 import com.hotpads.datarouter.test.DRTestConstants;
 import com.hotpads.datarouter.test.client.BasicClientTestRouter;
-import com.hotpads.util.core.ArrayTool;
-import com.hotpads.util.core.ExceptionTool;
-import com.hotpads.util.core.ListTool;
+import com.hotpads.datarouter.util.core.DrArrayTool;
 import com.hotpads.util.core.bytes.LongByteTool;
 import com.hotpads.util.core.number.RandomTool;
 import com.hotpads.util.datastructs.MutableString;
@@ -77,8 +76,8 @@ public class HTableExecutorServicePoolTester {
 		int npes=0, toes=0;
 
 		Random random = new Random();
-		List<ActionUsingPool> tasks = ListTool.createArrayList();
-		List<Future<Void>> futures = ListTool.createArrayList();
+		List<ActionUsingPool> tasks = new ArrayList<>();
+		List<Future<Void>> futures = new ArrayList<>();
 		for(int i=0; i < NUM_INSERTS; ++i) {
 			long randomLong = RandomTool.nextPositiveLong(random);
 			ActionUsingPool task = new ActionUsingPool(randomLong);
@@ -181,11 +180,11 @@ public class HTableExecutorServicePoolTester {
 
 		boolean eventMod10(int... matches) {
 			int mod = (int)(randomLong % 10);
-			return ArrayTool.containsUnsorted(matches, mod);
+			return DrArrayTool.containsUnsorted(matches, mod);
 		}
 
 		void put(HTable hTable) throws InterruptedException, IOException {
-			List<Row> actions = ListTool.createArrayList();
+			List<Row> actions = new ArrayList<>();
 			Put put = new Put(LongByteTool.getComparableBytes(randomLong));
 			Field<?> dummyField = new SignedByteField(HBaseNode.DUMMY, (byte)0);
 			put.add(HBaseNode.FAM, dummyField.getColumnNameBytes(), dummyField.getBytes());

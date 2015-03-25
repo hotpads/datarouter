@@ -14,8 +14,8 @@ import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.imp.hbase.HBaseClientType;
 import com.hotpads.datarouter.util.DRCounters;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.MapTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrMapTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.datastructs.MutableString;
 
@@ -52,7 +52,7 @@ public class HTablePerTablePool implements HTablePool{
 	
 	@Override
 	public HTable checkOut(String name, MutableString progress){
-		DRCounters.incSuffixOp(HBaseClientType.INSTANCE, "connection getHTable "+name);
+		DRCounters.incOp(HBaseClientType.INSTANCE, "connection getHTable "+name);
 		LinkedList<HTable> queue = hTablesByName.get(name);
 		HTable hTable;
 		synchronized(queue){
@@ -63,7 +63,7 @@ public class HTablePerTablePool implements HTablePool{
 				String counterName = "connection create HTable "+name;
 				hTable = new HTable(this.hBaseConfiguration, name);
 				logger.warn(counterName+", size="+queue.size());
-				DRCounters.incSuffixOp(HBaseClientType.INSTANCE, counterName);
+				DRCounters.incOp(HBaseClientType.INSTANCE, counterName);
 			}catch(IOException ioe){
 				throw new RuntimeException(ioe);
 			}
@@ -84,20 +84,20 @@ public class HTablePerTablePool implements HTablePool{
 		if(possiblyTarnished){
 			addedBackToPool = false;
 			logger.warn("HTable possibly tarnished, discarding.  table:"+name);
-			DRCounters.incSuffixOp(HBaseClientType.INSTANCE, "HTable possibly tarnished "+name);	
+			DRCounters.incOp(HBaseClientType.INSTANCE, "HTable possibly tarnished "+name);	
 		}
 		synchronized(queue){
 			if(queue.size() < maxPerTableSize){
 				queue.add(hTable);
 				addedBackToPool = true;
-				DRCounters.incSuffixOp(HBaseClientType.INSTANCE, "connection HTable returned to pool "+name);
+				DRCounters.incOp(HBaseClientType.INSTANCE, "connection HTable returned to pool "+name);
 			}
 		}
 		if(!addedBackToPool){
 			try {
 				logger.warn("checkIn HTable but queue already full or possibly tarnished, so close and discard, table="+name);
 				hTable.close();//flushes write buffer, and calls ExecutorService.shutdown()
-				DRCounters.incSuffixOp(HBaseClientType.INSTANCE, "connection HTable closed "+name);
+				DRCounters.incOp(HBaseClientType.INSTANCE, "connection HTable closed "+name);
 			} catch (IOException e) {
 				logger.warn("", e);
 			}				
@@ -106,9 +106,9 @@ public class HTablePerTablePool implements HTablePool{
 	
 	public Integer getTotalPoolSize(){
 		int totalPoolSize = 0;
-		for(String tableName : MapTool.nullSafe(hTablesByName).keySet()){
+		for(String tableName : DrMapTool.nullSafe(hTablesByName).keySet()){
 			List<HTable> hTables = hTablesByName.get(tableName);
-			totalPoolSize += CollectionTool.size(hTables);
+			totalPoolSize += DrCollectionTool.size(hTables);
 		}
 		return totalPoolSize;
 	}

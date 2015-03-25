@@ -6,10 +6,9 @@ import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.view.index.unique.UniqueKeyIndexEntry;
-import com.hotpads.util.core.ListTool;
+import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.java.ReflectionTool;
 
-@SuppressWarnings("serial")
 public abstract class BaseUniqueKeyIndexEntry<
 		IK extends PrimaryKey<IK>,
 		IE extends Databean<IK,IE>,
@@ -25,9 +24,9 @@ implements UniqueKeyIndexEntry<IK,IE,PK,D>{
 
 	@SuppressWarnings("unchecked")
 	public List<IE> createFromDatabean(D target){
-		BaseUniqueKeyIndexEntry<IK,IE,PK,D> indexEntry = (BaseUniqueKeyIndexEntry<IK,IE,PK,D>)ReflectionTool.create(getClass());
+		BaseUniqueKeyIndexEntry<IK,IE,PK,D> indexEntry = ReflectionTool.create(getClass());
 		indexEntry.fromPrimaryKey(target.getKey());
-		return (List<IE>)ListTool.wrap(indexEntry);
+		return (List<IE>)DrListTool.wrap(indexEntry);
 	}
 	
 //	@Override

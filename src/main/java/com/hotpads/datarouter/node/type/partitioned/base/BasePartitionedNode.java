@@ -1,6 +1,8 @@
 package com.hotpads.datarouter.node.type.partitioned.base;
 
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -17,15 +19,16 @@ import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.IterableTool;
-import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.SetTool;
+import com.hotpads.datarouter.util.core.DrClassTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrIterableTool;
+import com.hotpads.datarouter.util.core.DrListTool;
+import com.hotpads.datarouter.util.core.DrSetTool;
 import com.hotpads.util.core.collections.Range;
 
 /*
  * current assumption is that partition can always be determined by the PrimaryKey.  should probably create a
- * new implemenatation in the more obscure case that non-PK fields determine the partition.
+ * new implementation in the more obscure case that non-PK fields determine the partition.
  */
 public abstract class BasePartitionedNode<
 		PK extends PrimaryKey<PK>,
@@ -45,15 +48,15 @@ extends BaseNode<PK,D,F>{
 				.withFielder(fielderClass)
 				.build());
 		this.partitions = new Partitions<PK,D,N>(this);
-		this.setId(new NodeId<PK,D,F>((Class<Node<PK,D>>)getClass(), databeanClass, router.getName(), null, null, null));
+		this.setId(new NodeId<PK,D,F>(DrClassTool.getClass(this), databeanClass, router.getName(), null, null, null));
 	}
 
 	/*************************** node methods *************************/
 
 	@Override
 	public Set<String> getAllNames(){
-		Set<String> names = SetTool.wrap(getName());
-		for(N physicalNode : IterableTool.nullSafe(partitions.getAll())){
+		Set<String> names = DrSetTool.wrap(getName());
+		for(N physicalNode : DrIterableTool.nullSafe(partitions.getAllNodes())){
 			names.addAll(physicalNode.getAllNames());
 		}
 		return names;
@@ -66,7 +69,7 @@ extends BaseNode<PK,D,F>{
 	
 	@Override
 	public List<? extends Node<PK,D>> getChildNodes(){
-		return partitions.getAll();
+		return partitions.getAllNodes();
 	}
 
 	@Override
@@ -76,15 +79,15 @@ extends BaseNode<PK,D,F>{
 
 	@Override
 	public boolean usesClient(String clientName){
-		return CollectionTool.notEmpty(partitions.getPhysicalNodesForClient(clientName));
+		return DrCollectionTool.notEmpty(partitions.getPhysicalNodesForClient(clientName));
 	}
 
 	@Override
 	public List<String> getClientNamesForPrimaryKeysForSchemaUpdate(Collection<PK> keys) {
 		ArrayListMultimap<N,PK> keysByPhysicalNode = getPrimaryKeysByPhysicalNode(keys);
-		List<String> clientNames = ListTool.createLinkedList();
+		List<String> clientNames = new LinkedList<>();
 		if(keysByPhysicalNode==null){ return clientNames; }
-		for(PhysicalNode<PK,D> node : IterableTool.nullSafe(keysByPhysicalNode.keySet())){
+		for(PhysicalNode<PK,D> node : DrIterableTool.nullSafe(keysByPhysicalNode.keySet())){
 			String clientName = node.getClientName();
 			clientNames.add(clientName);
 		}
@@ -94,17 +97,13 @@ extends BaseNode<PK,D,F>{
 	/************************ virtual node methods ***************************/
 	
 	public N register(N physicalNode){
-		partitions.add(physicalNode);
+		partitions.addNode(physicalNode);
 		return physicalNode;
 	}
 	
 	@Override
 	public List<N> getPhysicalNodes() {
-		return partitions.getAll();
-	}
-	
-	public N getPhysicalNode(String name){
-		return partitions.get(name);
+		return partitions.getAllNodes();
 	}
 	
 	@Override
@@ -131,27 +130,27 @@ extends BaseNode<PK,D,F>{
 	/************ common partitioning logic relying on the abstract methods above **********/
 	
 	public List<N> getPhysicalNodesForSecondaryKeys(Collection<? extends Key<PK>> keys){
-		Set<N> nodes = SetTool.createHashSet();
-		for(Key<PK> key : IterableTool.nullSafe(keys)){
+		Set<N> nodes = new HashSet<>();
+		for(Key<PK> key : DrIterableTool.nullSafe(keys)){
 			nodes.addAll(getPhysicalNodesForSecondaryKey(key));
 		}
-		return ListTool.createArrayList(nodes);
+		return DrListTool.createArrayList(nodes);
 	}
 	
 	//used when a physicalNode has keys that don't belong on it.  need to filter them out when they come back
-	public List<D> filterDatabeansForPhysicalNode(Collection<D> databeans, N targetNode){
-		List<D> filteredDatabeans = ListTool.createArrayList();
-		for(D databean : IterableTool.nullSafe(databeans)){
-			if(partitions.getPrimaryKeyFilterForNode(targetNode).include(databean.getKey())){
-				filteredDatabeans.add(databean);
-			}
-		}
-		return filteredDatabeans;
-	}
+//	public List<D> filterDatabeansForPhysicalNode(Collection<D> databeans, N targetNode){
+//		List<D> filteredDatabeans = new ArrayList<>();
+//		for(D databean : DrIterableTool.nullSafe(databeans)){
+//			if(partitions.getPrimaryKeyFilterForNode(targetNode).include(databean.getKey())){
+//				filteredDatabeans.add(databean);
+//			}
+//		}
+//		return filteredDatabeans;
+//	}
 	
 	public ArrayListMultimap<N,PK> getPrimaryKeysByPhysicalNode(Collection<PK> pks){
 		ArrayListMultimap<N,PK> primaryKeysByPhysicalNode = ArrayListMultimap.create();
-		for(PK pk : IterableTool.nullSafe(pks)){
+		for(PK pk : DrIterableTool.nullSafe(pks)){
 			N node = getPhysicalNode(pk);
 			if(node==null){ continue; }
 			primaryKeysByPhysicalNode.put(node, pk);
@@ -161,7 +160,7 @@ extends BaseNode<PK,D,F>{
 	
 	public ArrayListMultimap<N,D> getDatabeansByPhysicalNode(Collection<D> databeans){
 		ArrayListMultimap<N,D> databeansByPhysicalNode = ArrayListMultimap.create();
-		for(D databean : IterableTool.nullSafe(databeans)){
+		for(D databean : DrIterableTool.nullSafe(databeans)){
 			N node = getPhysicalNode(databean.getKey());
 			if(node==null){ continue; }
 			databeansByPhysicalNode.get(node).add(databean);

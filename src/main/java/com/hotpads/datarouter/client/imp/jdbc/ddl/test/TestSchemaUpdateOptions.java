@@ -2,12 +2,13 @@ package com.hotpads.datarouter.client.imp.jdbc.ddl.test;
 
 import java.sql.Connection;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
@@ -19,7 +20,6 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.DdlGenerator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.SqlAlterTableGenerator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.SqlCreateTableGenerator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.imp.ConnectionSqlTableGenerator;
-import com.hotpads.util.core.ListTool;
 
 public class TestSchemaUpdateOptions{
 	static Logger logger = LoggerFactory.getLogger(TestSchemaUpdateOptions.class);
@@ -37,8 +37,8 @@ public class TestSchemaUpdateOptions{
 		SqlColumn colB = new SqlColumn("B", MySqlColumnType.BINARY);
 		SqlColumn colC = new SqlColumn("C", MySqlColumnType.BOOLEAN);
 		SqlColumn colM = new SqlColumn("M", MySqlColumnType.VARCHAR);
-		List<SqlColumn> listBC = ListTool.createArrayList();
-		List<SqlColumn> listM = ListTool.createArrayList();
+		List<SqlColumn> listBC = new ArrayList<>();
+		List<SqlColumn> listM = new ArrayList<>();
 		listBC.add(colB);
 		listBC.add(colC);
 		listM.add(colM);
@@ -105,8 +105,8 @@ public class TestSchemaUpdateOptions{
 		SqlColumn colC = new SqlColumn("C", MySqlColumnType.BOOLEAN);
 		SqlColumn colM = new SqlColumn("M", MySqlColumnType.VARCHAR);
 		List<SqlColumn> 
-			listBC = ListTool.createArrayList(),
-			listM = ListTool.createArrayList();
+			listBC = new ArrayList<>(),
+			listM = new ArrayList<>();
 		listBC.add(colB);
 		listBC.add(colC);
 		listM.add(colM);

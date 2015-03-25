@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hotpads.DatarouterInjector;
+import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.handler.encoder.HandlerEncoder;
 import com.hotpads.handler.encoder.MavEncoder;
 import com.hotpads.handler.mav.Mav;
@@ -28,7 +29,6 @@ import com.hotpads.handler.types.DefaultDecoder;
 import com.hotpads.handler.types.HandlerDecoder;
 import com.hotpads.handler.types.HandlerTypingHelper;
 import com.hotpads.handler.user.authenticate.AdminEditUserHandler;
-import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.collections.Pair;
 import com.hotpads.util.core.exception.PermissionException;
 import com.hotpads.util.core.java.ReflectionTool;
@@ -76,14 +76,14 @@ public abstract class BaseHandler{
 		Class<? extends HandlerDecoder> decoder() default DefaultDecoder.class;
 	}
 	
-	void handleWrapper(){//dispatcher servlet calls this
+	protected void handleWrapper(){//dispatcher servlet calls this
 		try{
 			permitted();
 			Method method = null;
 			Object[] args = null;
 			try{
 				String methodName = handlerMethodName();
-				if (!StringTool.isNullOrEmpty(methodName)) {
+				if (!DrStringTool.isNullOrEmpty(methodName)) {
 					Pair<Method, Object[]> pair = handlerTypingHelper.findMethodByName(this, methodName);
 					method = pair.getLeft();
 					args = pair.getRight();
@@ -92,7 +92,8 @@ public abstract class BaseHandler{
 					methodName = DEFAULT_HANDLER_METHOD_NAME;
 					method = ReflectionTool.getDeclaredMethodFromHierarchy(getClass(), methodName);
 				}
-				if (method == null || !(method.isAnnotationPresent(Handler.class) || matchesDefaultHandlerMethod(methodName))) {
+				if (method == null || !(method.isAnnotationPresent(Handler.class) 
+						|| matchesDefaultHandlerMethod(methodName))) {
 					throw new PermissionException("no such handler " + handlerMethodParamName() + "=" + methodName);
 				}
 //			}catch(NoSuchMethodException e){
@@ -128,7 +129,9 @@ public abstract class BaseHandler{
 			encoder.finishRequest(result, servletContext, response, request);
 			
 		}catch(Exception e){
-			if(e instanceof RuntimeException){ throw (RuntimeException)e; }
+			if(e instanceof RuntimeException){ 
+				throw (RuntimeException)e;
+			}
 			throw new RuntimeException(e);
 		}
 	}
@@ -136,42 +139,34 @@ public abstract class BaseHandler{
 
 	/****************** optionally override these *************************/
 	
-	boolean permitted(){  
+	private boolean permitted(){  
 		//allow everyone by default
 		return true;
 		//override if necessary
 		//could also have a filter with more authentication somewhere else
 	}
 	
-	String handlerMethodName(){
+	private String handlerMethodName(){
 		return params.optional(handlerMethodParamName(), getLastPathSegment(params.request.getPathInfo()));
 	}
 	
-	String getLastPathSegment(String uri) {
+	private String getLastPathSegment(String uri) {
 		if(uri == null){
 			return "";
 		}
 		return uri.replaceAll("[^?]*/([^/?]+)[/?]?.*", "$1");
 	}
 	
-	boolean matchesDefaultHandlerMethod(String methodName){
+	private boolean matchesDefaultHandlerMethod(String methodName){
 		return DEFAULT_HANDLER_METHOD_NAME.equals(methodName);
 	}
 	
-	public String handlerMethodParamName(){
+	protected String handlerMethodParamName(){
 		return "submitAction";
 	}
-
-	Long slowMs(){ 
-		return 100L; 
-	}
 	
-	protected void p(String s){
-//		try{
-			out.write(s);
-//		}catch(IOException e){
-//			throw new RuntimeException(e);
-//		}
+	protected void p(String string){
+		out.write(string);
 	}
 	
 	/****************** get/set *******************************************/

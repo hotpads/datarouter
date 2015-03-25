@@ -5,7 +5,7 @@ import java.util.List;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.util.core.ClassTool;
+import com.hotpads.datarouter.util.core.DrClassTool;
 
 public abstract class BaseDatabean<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 //extends BaseFieldSet<D>
@@ -96,7 +96,7 @@ implements Databean<PK,D>{
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean equals(Object obj){
-		if(ClassTool.differentClass(this, obj)){ return false; }
+		if(DrClassTool.differentClass(this, obj)){ return false; }
 		Databean<PK,D> that = (Databean<PK,D>)obj;
 		return this.getKey().equals(that.getKey());
 	}	
@@ -108,7 +108,7 @@ implements Databean<PK,D>{
 	
 	@Override
 	public int compareTo(Databean<?,?> that){
-		int diff = ClassTool.compareClass(this, that);
+		int diff = DrClassTool.compareClass(this, that);
 		if(diff != 0){ return diff; }
 		//must be same class
 		return getKey().compareTo(((D)that).getKey());

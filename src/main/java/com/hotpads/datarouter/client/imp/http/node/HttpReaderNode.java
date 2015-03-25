@@ -1,6 +1,7 @@
 package com.hotpads.datarouter.client.imp.http.node;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -15,22 +16,21 @@ import com.hotpads.datarouter.client.imp.http.DatarouterHttpClient;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.config.Config.ConfigFielder;
 import com.hotpads.datarouter.node.NodeParams;
-import com.hotpads.datarouter.node.op.raw.read.MapStorageReader;
+import com.hotpads.datarouter.node.op.raw.read.MapStorageReader.PhysicalMapStorageReaderNode;
 import com.hotpads.datarouter.node.type.physical.base.BasePhysicalNode;
 import com.hotpads.datarouter.serialize.JsonDatabeanTool;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.MapTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
 
 public class HttpReaderNode<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>> 
 extends BasePhysicalNode<PK,D,F>
-implements MapStorageReader<PK,D>{
-	protected static Logger logger = LoggerFactory.getLogger(HttpReaderNode.class);
+implements PhysicalMapStorageReaderNode<PK,D>{
+	private static final Logger logger = LoggerFactory.getLogger(HttpReaderNode.class);
 	
 	/******************** static ****************************/
 	
@@ -88,7 +88,7 @@ implements MapStorageReader<PK,D>{
 //		logger.warn("client get:"+key);
 		if(key==null){ return null; }
 		
-		Map<String,String> params = MapTool.createHashMap();
+		Map<String,String> params = new HashMap<>();
 		params.put(METHOD_get_PARAM_key, JsonDatabeanTool.primaryKeyToJson(key, 
 				fieldInfo.getSampleFielder().getKeyFielder()).toString());
 		addConfigParam(params, config);
@@ -102,9 +102,9 @@ implements MapStorageReader<PK,D>{
 	
 	@Override
 	public List<D> getMulti(final Collection<PK> keys, final Config config){
-		if(CollectionTool.isEmpty(keys)){ return new LinkedList<D>(); }
+		if(DrCollectionTool.isEmpty(keys)){ return new LinkedList<D>(); }
 		
-		Map<String,String> params = MapTool.createHashMap();
+		Map<String,String> params = new HashMap<>();
 		params.put(METHOD_getMulti_PARAM_keys, JsonDatabeanTool.primaryKeysToJson(keys, 
 				fieldInfo.getSampleFielder().getKeyFielder()).toString());
 		addConfigParam(params, config);
@@ -118,9 +118,9 @@ implements MapStorageReader<PK,D>{
 	
 	@Override
 	public List<PK> getKeys(final Collection<PK> keys, final Config config) {	
-		if(CollectionTool.isEmpty(keys)){ return new LinkedList<PK>(); }
+		if(DrCollectionTool.isEmpty(keys)){ return new LinkedList<PK>(); }
 		
-		Map<String,String> params = MapTool.createHashMap();
+		Map<String,String> params = new HashMap<>();
 		params.put(METHOD_getKeys_PARAM_keys, JsonDatabeanTool.primaryKeysToJson(keys, 
 				fieldInfo.getSampleFielder().getKeyFielder()).toString());
 		addConfigParam(params, config);

@@ -13,7 +13,7 @@ import com.hotpads.datarouter.op.ClientOp;
 import com.hotpads.datarouter.op.executor.ClientExecutor;
 import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.util.DRCounters;
-import com.hotpads.util.core.CollectionTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
 
 public abstract class BaseClientExecutor<T>
 implements ClientExecutor{
@@ -48,24 +48,24 @@ implements ClientExecutor{
 
 	@Override
 	public void reserveConnections(){
-		for(Client client : CollectionTool.nullSafe(getClients())){
+		for(Client client : DrCollectionTool.nullSafe(getClients())){
 			if( ! (client instanceof ConnectionClient) ){ continue; }
 			ConnectionClient connectionClient = (ConnectionClient)client;
 			ConnectionHandle handle = connectionClient.reserveConnection();
 //			logger.warn("reserveConnection "+handle);
-			DRCounters.incSuffixClient(connectionClient.getType(), "reserveConnection", connectionClient.getName());
+			DRCounters.incClient(connectionClient.getType(), "reserveConnection", connectionClient.getName());
 		}
 	}
 
 	@Override
 	public void releaseConnections(){
-		for(Client client : CollectionTool.nullSafe(getClients())){
+		for(Client client : DrCollectionTool.nullSafe(getClients())){
 			if( ! (client instanceof ConnectionClient) ){ continue; }
 			ConnectionClient connectionClient = (ConnectionClient)client;
 			try{
 				ConnectionHandle handle = connectionClient.releaseConnection();
 //				logger.warn("releaseConnection "+handle);
-				DRCounters.incSuffixClient(connectionClient.getType(), "releaseConnection", connectionClient.getName());
+				DRCounters.incClient(connectionClient.getType(), "releaseConnection", connectionClient.getName());
 			}catch(Exception e){
 				logger.warn("", e);
 				throw new DataAccessException("EXCEPTION THROWN DURING RELEASE OF SINGLE CONNECTION, handle now=:"

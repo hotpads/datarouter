@@ -27,11 +27,10 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.FieldSetTool;
 import com.hotpads.datarouter.storage.key.KeyTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.datarouter.util.DRCounters;
+import com.hotpads.datarouter.util.core.DrArrayTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.trace.TraceContext;
-import com.hotpads.util.core.ArrayTool;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ListTool;
 
 public class MemcachedReaderNode<
 		PK extends PrimaryKey<PK>,
@@ -85,12 +84,8 @@ implements MemcachedPhysicalNode<PK,D>,
 				logger.error("", e);
 			}
 			
-			String opName = "get";
-			DRCounters.incSuffixClientNode(getClient().getType(), opName, getClientName(), getName());
-			
-			if(ArrayTool.isEmpty(bytes)){ 
+			if(DrArrayTool.isEmpty(bytes)){ 
 				TraceContext.appendToSpanInfo("miss");
-				DRCounters.incSuffixClientNode(getClient().getType(), opName+" miss", getClientName(), getName());
 				return null; 
 			}
 //					System.out.println(StringByteTool.fromUtf8Bytes(bytes));
@@ -98,7 +93,6 @@ implements MemcachedPhysicalNode<PK,D>,
 			try {
 				D databean = FieldSetTool.fieldSetFromByteStreamKnownLength(getDatabeanType(), 
 						fieldInfo.getFieldByPrefixedName(), is, bytes.length);
-				DRCounters.incSuffixClientNode(getClient().getType(), opName+" hit", getClientName(), getName());
 				return databean;
 			} catch (IOException e) {
 				logger.error("", e);
@@ -109,9 +103,9 @@ implements MemcachedPhysicalNode<PK,D>,
 	
 	@Override
 	public List<D> getMulti(final Collection<PK> keys, final Config pConfig){
-		if(CollectionTool.isEmpty(keys)){ return new LinkedList<D>(); }
+		if(DrCollectionTool.isEmpty(keys)){ return new LinkedList<D>(); }
 		final Config config = Config.nullSafe(pConfig);
-		List<D> databeans = ListTool.createArrayListWithSize(keys);
+		List<D> databeans = DrListTool.createArrayListWithSize(keys);
 		Map<String,Object> bytesByStringKey = null;
 
 		
@@ -133,7 +127,7 @@ implements MemcachedPhysicalNode<PK,D>,
 		
 		for(Map.Entry<String,Object> entry : bytesByStringKey.entrySet()){
 			byte[] bytes = (byte[])entry.getValue();
-			if(ArrayTool.isEmpty(bytes)){ return null; }
+			if(DrArrayTool.isEmpty(bytes)){ return null; }
 			ByteArrayInputStream is = new ByteArrayInputStream((byte[])entry.getValue());
 			try {
 				D databean = FieldSetTool.fieldSetFromByteStreamKnownLength(getDatabeanType(), 
@@ -143,24 +137,14 @@ implements MemcachedPhysicalNode<PK,D>,
 				logger.error("", e);
 			}
 		}
-		TraceContext.appendToSpanInfo("[got "+CollectionTool.size(databeans)+"/"+CollectionTool.size(keys)+"]");
-
-		String opName = "getMulti";
-		DRCounters.incSuffixClientNode(getClient().getType(), opName, getClientName(), getName());
-		int requested = keys.size();
-		int hit = databeans.size();
-		int miss = requested - hit;
-		DRCounters.incSuffixClientNode(getClient().getType(), opName+" requested", getClientName(), getName(), requested);
-		DRCounters.incSuffixClientNode(getClient().getType(), opName+" hit", getClientName(), getName(), hit);
-		DRCounters.incSuffixClientNode(getClient().getType(), opName+" miss", getClientName(), getName(), miss);
-				
+		TraceContext.appendToSpanInfo("[got "+DrCollectionTool.size(databeans)+"/"+DrCollectionTool.size(keys)+"]");
 		return databeans;
 	}
 	
 	
 	@Override
 	public List<PK> getKeys(final Collection<PK> keys, final Config pConfig) {	
-		if(CollectionTool.isEmpty(keys)){ return new LinkedList<PK>(); }
+		if(DrCollectionTool.isEmpty(keys)){ return new LinkedList<PK>(); }
 		return KeyTool.getKeys(getMulti(keys, pConfig));
 	}
 

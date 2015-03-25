@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.List;
 
 import com.hotpads.datarouter.client.imp.jdbc.op.BaseJdbcOp;
-import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcGetByIndexOp;
+import com.hotpads.datarouter.client.imp.jdbc.op.read.index.JdbcGetByIndexOp;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.op.index.UniqueIndexReader;
@@ -17,8 +17,8 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.view.index.multi.MultiIndexEntry;
 
-public class JdbcTxnManagedMultiIndexNode
-		<PK extends PrimaryKey<PK>, 
+public class JdbcTxnManagedMultiIndexNode<
+		PK extends PrimaryKey<PK>, 
 		D extends Databean<PK, D>, 
 		IK extends PrimaryKey<IK>,
 		IE extends MultiIndexEntry<IK, IE, PK, D>, 
@@ -31,14 +31,14 @@ implements ManagedMultiIndexNode<PK, D, IK, IE, IF>{
 	}
 
 	@Override
-	public List<D> lookupMulti(IK indexKey, boolean wildcardLastField, Config config){
-		return lookupMultiMulti(Collections.singleton(indexKey), wildcardLastField, config);
+	public List<D> lookupMulti(IK indexKey, Config config){
+		return lookupMultiMulti(Collections.singleton(indexKey), config);
 	}
 
 	@Override
-	public List<D> lookupMultiMulti(Collection<IK> indexKeys, boolean wildcardLastField, Config config){
+	public List<D> lookupMultiMulti(Collection<IK> indexKeys, Config config){
 		String opName = UniqueIndexReader.OP_lookupMultiUnique;
-		BaseJdbcOp<List<D>> op = new JdbcGetByIndexOp<>(node, indexKeys, false, opName, config);
+		BaseJdbcOp<List<D>> op = new JdbcGetByIndexOp<>(node, indexKeys, false, config);
 		return new SessionExecutorImpl<List<D>>(op, opName).call();
 	}
 

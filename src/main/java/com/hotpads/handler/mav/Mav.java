@@ -3,8 +3,8 @@ package com.hotpads.handler.mav;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.hotpads.util.core.BooleanTool;
-import com.hotpads.util.core.StringTool;
+import com.hotpads.datarouter.util.core.DrBooleanTool;
+import com.hotpads.datarouter.util.core.DrStringTool;
 
 public class Mav {
 	
@@ -76,9 +76,9 @@ public class Mav {
 	}
 	
 	public String getRedirectUrl(){
-		if(BooleanTool.isFalse(this.redirect)){ 
+		if(DrBooleanTool.isFalse(this.redirect)){ 
 			return null; 
-		}else if(StringTool.notEmpty(this.globalRedirectUrl)){
+		}else if(DrStringTool.notEmpty(this.globalRedirectUrl)){
 			return this.globalRedirectUrl;
 		}else{
 			StringBuilder sb = new StringBuilder();
@@ -95,7 +95,7 @@ public class Mav {
 	}
 	
 	public Mav setViewName(final String viewName){
-		if(StringTool.nullSafe(viewName).startsWith(REDIRECT)){
+		if(DrStringTool.nullSafe(viewName).startsWith(REDIRECT)){
 			this.redirect = true;
 			this.viewName = viewName.substring(REDIRECT.length());
 		}else{

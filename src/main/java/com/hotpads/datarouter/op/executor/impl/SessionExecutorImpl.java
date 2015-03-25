@@ -1,6 +1,7 @@
 package com.hotpads.datarouter.op.executor.impl;
 
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.concurrent.Callable;
 
 import javax.persistence.RollbackException;
@@ -14,14 +15,13 @@ import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.op.TxnOp;
 import com.hotpads.datarouter.op.executor.SessionExecutor;
 import com.hotpads.datarouter.util.DRCounters;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.trace.TraceContext;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.StringTool;
 
 public class SessionExecutorImpl<T>
 extends BaseTxnExecutor<T>
-implements SessionExecutor<T>, Callable<T>{
+implements SessionExecutor, Callable<T>{
 	private static Logger logger = LoggerFactory.getLogger(SessionExecutorImpl.class);
 
 	public static final boolean EAGER_SESSION_FLUSH = true;
@@ -46,7 +46,7 @@ implements SessionExecutor<T>, Callable<T>{
 	@Override
 	public T call(){
 		T onceResult = null;
-		Collection<T> clientResults = ListTool.createLinkedList();
+		Collection<T> clientResults = new LinkedList<>();
 		Collection<Client> clients = getClients();
 		try{
 			startTrace();
@@ -56,7 +56,7 @@ implements SessionExecutor<T>, Callable<T>{
 			
 			//begin user code
 			onceResult = parallelTxnOp.runOnce();
-			for(Client client : CollectionTool.nullSafe(clients)){  //TODO threading
+			for(Client client : DrCollectionTool.nullSafe(clients)){  //TODO threading
 				T clientResult = parallelTxnOp.runOncePerClient(client);
 				clientResults.add(clientResult);
 			}
@@ -102,34 +102,40 @@ implements SessionExecutor<T>, Callable<T>{
 	
 	@Override
 	public void openSessions(){
-		for(Client client : CollectionTool.nullSafe(getClients())){
-			if( ! (client instanceof SessionClient) ){ continue; }
+		for(Client client : DrCollectionTool.nullSafe(getClients())){
+			if( ! (client instanceof SessionClient) ){
+				continue;
+			}
 			SessionClient sessionClient = (SessionClient)client;
 			sessionClient.openSession();
 //			logger.warn("opened session on "+sessionClient.getExistingHandle());
-			DRCounters.incSuffixClient(sessionClient.getType(), "openSession", sessionClient.getName());
+			DRCounters.incClient(sessionClient.getType(), "openSession", sessionClient.getName());
 		}
 	}
 	
 	@Override
 	public void flushSessions(){
-		for(Client client : CollectionTool.nullSafe(getClients())){
-			if( ! (client instanceof SessionClient) ){ continue; }
+		for(Client client : DrCollectionTool.nullSafe(getClients())){
+			if( ! (client instanceof SessionClient) ){
+				continue;
+			}
 			SessionClient sessionClient = (SessionClient)client;
 			sessionClient.flushSession();
 //			logger.warn("flushSession on "+sessionClient.getExistingHandle());
-			DRCounters.incSuffixClient(sessionClient.getType(), "flushSession", sessionClient.getName());
+			DRCounters.incClient(sessionClient.getType(), "flushSession", sessionClient.getName());
 		}
 	}
 	
 	@Override
 	public void cleanupSessions(){
-		for(Client client : CollectionTool.nullSafe(getClients())){
-			if( ! (client instanceof SessionClient) ){ continue; }
+		for(Client client : DrCollectionTool.nullSafe(getClients())){
+			if( ! (client instanceof SessionClient) ){
+				continue;
+			}
 			SessionClient sessionClient = (SessionClient)client;
 			sessionClient.cleanupSession();
 //			logger.warn("cleanupSession on "+sessionClient.getExistingHandle());
-			DRCounters.incSuffixClient(sessionClient.getType(), "cleanupSession", sessionClient.getName());
+			DRCounters.incClient(sessionClient.getType(), "cleanupSession", sessionClient.getName());
 		}
 	}
 	
@@ -137,15 +143,19 @@ implements SessionExecutor<T>, Callable<T>{
 	/********************** helper ******************************/
 	
 	private boolean shouldTrace(){
-		return StringTool.notEmpty(traceName);
+		return DrStringTool.notEmpty(traceName);
 	}
 	
 	private void startTrace(){
-		if(shouldTrace()){ TraceContext.startSpan(traceName); }
+		if(shouldTrace()){
+			TraceContext.startSpan(traceName);
+		}
 	}
 	
 	private void finishTrace(){
-		if(shouldTrace()){ TraceContext.finishSpan(); }
+		if(shouldTrace()){
+			TraceContext.finishSpan();
+		}
 	}
 	
 }

@@ -12,7 +12,7 @@ import com.hotpads.util.core.Functor;
 public class FunctorParallelHibernateTransactionWrapper 
 extends BaseHibernateOp<Integer>{
 
-	private Functor<?,Client> func;
+	private final Functor<?,Client> func;
 
 	public FunctorParallelHibernateTransactionWrapper(DatarouterContext drContext, List<String> clientNames,
 			Functor<?,Client> func){

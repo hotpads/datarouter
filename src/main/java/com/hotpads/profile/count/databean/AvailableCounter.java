@@ -1,8 +1,10 @@
 package com.hotpads.profile.count.databean;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.SortedSet;
+import java.util.TreeSet;
 
 import javax.persistence.Id;
 
@@ -11,11 +13,9 @@ import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt63Field;
+import com.hotpads.datarouter.util.core.DrIterableTool;
+import com.hotpads.datarouter.util.core.DrXMLStringTool;
 import com.hotpads.profile.count.databean.key.AvailableCounterKey;
-import com.hotpads.util.core.IterableTool;
-import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.SetTool;
-import com.hotpads.util.core.XMLStringTool;
 
 public class AvailableCounter extends BaseDatabean<AvailableCounterKey,AvailableCounter>{
 
@@ -72,14 +72,14 @@ public class AvailableCounter extends BaseDatabean<AvailableCounterKey,Available
 	/********************************* useful ********************************************/
 
 	public String getNameHtmlEscaped(){
-		return XMLStringTool.escapeXml(getName());
+		return DrXMLStringTool.escapeXml(getName());
 	}
 
 	/********************************** static *****************************************/
 
 	public static SortedSet<String> getAllSources(Collection<AvailableCounter> counters){
-		SortedSet<String> outs = SetTool.createTreeSet();
-		for(AvailableCounter counter : IterableTool.nullSafe(counters)){
+		SortedSet<String> outs = new TreeSet<>();
+		for(AvailableCounter counter : DrIterableTool.nullSafe(counters)){
 			String source = counter.getSource();
 			if(source == null) continue;
 			outs.add(source);
@@ -88,8 +88,8 @@ public class AvailableCounter extends BaseDatabean<AvailableCounterKey,Available
 	}
 
 	public static List<AvailableCounter> filterOutArrayServers(Collection<AvailableCounter> ins){
-		List<AvailableCounter> outs = ListTool.createArrayList();
-		for(AvailableCounter in : IterableTool.nullSafe(ins)){
+		List<AvailableCounter> outs = new ArrayList<>();
+		for(AvailableCounter in : DrIterableTool.nullSafe(ins)){
 			if(in.getSource().contains("#")){
 				continue;
 			}

@@ -1,5 +1,6 @@
 package com.hotpads.notification;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -10,7 +11,6 @@ import com.hotpads.notification.databean.NotificationRequest;
 import com.hotpads.notification.databean.NotificationUserId;
 import com.hotpads.notification.databean.NotificationUserType;
 import com.hotpads.notification.type.NotificationTypeFactory;
-import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.collections.Pair;
 
 @Singleton
@@ -20,7 +20,7 @@ public class NotificationRequestDtoTool {
 	private NotificationTypeFactory notificationTypeFactory;
 	
 	public List<NotificationRequest> toDatabeans(NotificationRequestDto[] dtos) throws IllegalArgumentException {
-		List<NotificationRequest> notificationRequests = ListTool.create();
+		List<NotificationRequest> notificationRequests = new ArrayList<>();
 		NotificationUserId userId;
 		for (NotificationRequestDto request : dtos) {
 			notificationTypeFactory.create(request.getType());
@@ -32,7 +32,7 @@ public class NotificationRequestDtoTool {
 	}
 
 	public List<NotificationRequestDto> toDtos(List<Pair<NotificationRequest, ExceptionRecord>> requests) {
-		List<NotificationRequestDto> dtos = ListTool.create();
+		List<NotificationRequestDto> dtos = new ArrayList<>();
 		for (Pair<NotificationRequest, ExceptionRecord> request : requests) {
 			dtos.add(new NotificationRequestDto(
 					request.getLeft().getKey().getUserType().toString(),

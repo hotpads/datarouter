@@ -15,7 +15,7 @@
 			<div class="nav-collapse collapse">
 				<ul class="nav" role="navigation">
 					<li>
-						<a href="${contextPath}/datarouter/routers" title="List all the routers">List Routers</a>
+						<a href="${contextPath}/datarouter/routers" title="List routers">Routers</a>
 					</li>
 					<li class="dropdown">
 						<a href="#" title="Settings" id="drop" role="button" class="dropdown-toggle" data-toggle="dropdown">
@@ -24,40 +24,79 @@
 						</a>
 						<ul class="dropdown-menu" role="menu" aria-labelledby="drop">
 							<li data-role="presentation">
-								<a data-role="menuitem" href="${contextPath}/datarouter/settings?submitAction=browseSettings" title="Browse settings">Browse settings</a>
+								<a data-role="menuitem" 
+									href="${contextPath}/datarouter/settings?submitAction=browseSettings"
+									title="Browse Settings">Browse Settings</a>
 							</li>
 							<li data-role="presentation">
-								<a data-role="menuitem" href="${contextPath}/datarouter/settings" title="All settings">All settings</a>
+								<a data-role="menuitem" 
+									href="${contextPath}/datarouter/settings" 
+									title="Custom Settings">Custom Settings</a>
 							</li>
 						</ul>
 					</li>
-					<li>
-						<a href="${contextPath}/datarouter/stackTraces" title="See the strackTraces of this server">StackTraces</a>
-					</li>
-					<li>
-						<a href="${contextPath}/datarouter/databeanGenerator" title="Databean generator">Databean Generator</a>
-					</li>
-					<li>
-						<a href="${contextPath}/datarouter/logging">Logging</a>
-					</li>
-					<li>
-						<a href="${contextPath}/datarouter/memory">Memory</a>
-					</li>
-					<li>
-						<a href="${contextPath}/datarouter/callsite">Callsite</a>
+					<li class="dropdown">
+						<a href="#" id="monitoring" role="button" class="dropdown-toggle" data-toggle="dropdown">
+							Monitoring
+							<b class="caret"></b>
+						</a>
+						<ul class="dropdown-menu" role="menu" aria-labelledby="monitoring">
+							<li data-role="presentation">
+								<a data-role="menuitem"
+									href="${contextPath}/datarouter/memory">Server Status</a>
+							</li>
+							<li data-role="presentation">
+								<a data-role="menuitem"
+									href="${contextPath}/datarouter/executors">Executors</a>
+							</li>
+							<li data-role="presentation">
+								<a data-role="menuitem"
+									href="${contextPath}/datarouter/stackTraces"
+									title="See the strackTraces of this server">Stack Traces</a>
+							</li>
+							<li data-role="presentation">
+								<a data-role="menuitem"
+									href="${contextPath}/datarouter/logging"
+									title="Logging Config">Logging Config</a>
+							</li>
+							<li data-role="presentation">
+								<a data-role="menuitem"
+									href="${contextPath}/datarouter/traces"
+									title="View a Trace">Traces</a>
+							</li>
+							<li data-role="presentation">
+								<a data-role="menuitem"
+									href="${contextPath}/datarouter/callsite"
+									title="Callsite Profiling">Callsite Profiling</a>
+							</li>
+						</ul>
 					</li>
 					<li class="dropdown">
 						<a href="#" id="notification" role="button" class="dropdown-toggle" data-toggle="dropdown">
-							Notification
+							Notifications
 							<b class="caret"></b>
 						</a>
 						<ul class="dropdown-menu" role="menu" aria-labelledby="notification">
 							<li data-role="presentation">
-								<a data-role="menuitem" href="${contextPath}/datarouter/notification/alias">
-									Alias
-								</a>
+								<a data-role="menuitem" 
+									href="${contextPath}/datarouter/notification/alias">Aliases</a>
 							</li>
 						</ul>
+					</li>
+					<li class="dropdown">
+						<a href="#" title="Jobs" id="drop" role="button" class="dropdown-toggle" data-toggle="dropdown">
+							Jobs
+							<b class="caret"></b>
+						</a>
+						<ul class="dropdown-menu" role="menu" aria-labelledby="drop">
+							<li data-role="presentation">
+								<a data-role="menuitem" href="${contextPath}/datarouter/triggers" title="Triggers">Triggers</a>
+							</li>
+						</ul>
+					</li>
+					<li>
+						<a href="${contextPath}/datarouter/databeanGenerator" 
+							title="Databean Generator">Databean Generator</a>
 					</li>
 				</ul>
 			</div>

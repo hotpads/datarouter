@@ -11,6 +11,7 @@ import javax.servlet.ServletContextListener;
 
 import com.hotpads.handler.DatarouterContextLoader;
 import com.hotpads.handler.LocalWebAppNamesLoader;
+import com.hotpads.job.trigger.JobSchedulerLoader;
 import com.hotpads.logging.LoggingConfigLoader;
 import com.hotpads.util.core.concurrent.FutureTool;
 
@@ -40,6 +41,7 @@ public abstract class DatarouterLoader implements ServletContextListener{
 		classes.add(DatarouterContextLoader.class);
 		classes.add(LoggingConfigLoader.class);
 		classes.add(LocalWebAppNamesLoader.class);
+		classes.add(JobSchedulerLoader.class);
 		return classes;
 	}
 

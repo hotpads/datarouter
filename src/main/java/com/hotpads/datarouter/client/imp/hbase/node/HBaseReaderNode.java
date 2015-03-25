@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.client.imp.hbase.node;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -15,7 +16,6 @@ import org.apache.hadoop.hbase.filter.FirstKeyOnlyFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hotpads.datarouter.client.imp.hbase.scan.HBaseDatabeanScanner;
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseMultiAttemptTask;
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseTask;
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseTaskNameParams;
@@ -34,14 +34,12 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldSetTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
-import com.hotpads.util.core.ByteTool;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.IterableTool;
-import com.hotpads.util.core.ListTool;
+import com.hotpads.datarouter.util.core.DrByteTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrIterableTool;
+import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.bytes.ByteRange;
-import com.hotpads.util.core.collections.Pair;
 import com.hotpads.util.core.collections.Range;
-import com.hotpads.util.core.iterable.PeekableIterable;
 import com.hotpads.util.core.iterable.scanner.batch.BatchingSortedScanner;
 import com.hotpads.util.core.iterable.scanner.collate.Collator;
 import com.hotpads.util.core.iterable.scanner.collate.PriorityQueueCollator;
@@ -104,13 +102,11 @@ implements HBasePhysicalNode<PK,D>,
 	
 	@Override
 	public List<D> getMulti(final Collection<PK> keys, final Config pConfig){	
-		if(CollectionTool.isEmpty(keys)){ return new LinkedList<D>(); }
+		if(DrCollectionTool.isEmpty(keys)){ return new LinkedList<D>(); }
 		final Config config = Config.nullSafe(pConfig);
 		return new HBaseMultiAttemptTask<List<D>>(new HBaseTask<List<D>>(getDatarouterContext(), getTaskNameParams(), "getMulti", config){
 				public List<D> hbaseCall(HTable hTable, HBaseClient client, ResultScanner managedResultScanner) throws Exception{
-					DRCounters.incSuffixClientNode(client.getType(), "getMulti rows", getClientName(), getNodeName(), 
-							CollectionTool.size(keys));
-					List<Get> gets = ListTool.createArrayListWithSize(keys);
+					List<Get> gets = DrListTool.createArrayListWithSize(keys);
 					for(PK key : keys){
 						byte[] rowBytes = getKeyBytesWithScatteringPrefix(null, key, false);
 						gets.add(new Get(rowBytes));
@@ -124,13 +120,11 @@ implements HBasePhysicalNode<PK,D>,
 	
 	@Override
 	public List<PK> getKeys(final Collection<PK> keys, final Config pConfig) {	
-		if(CollectionTool.isEmpty(keys)){ return new LinkedList<PK>(); }
+		if(DrCollectionTool.isEmpty(keys)){ return new LinkedList<PK>(); }
 		final Config config = Config.nullSafe(pConfig);
 		return new HBaseMultiAttemptTask<List<PK>>(new HBaseTask<List<PK>>(getDatarouterContext(), getTaskNameParams(), "getKeys", config){
 				public List<PK> hbaseCall(HTable hTable, HBaseClient client, ResultScanner managedResultScanner) throws Exception{
-					DRCounters.incSuffixClientNode(client.getType(), "getKeys rows", getClientName(), getNodeName(), 
-							CollectionTool.size(keys));
-					List<Get> gets = ListTool.createArrayListWithSize(keys);
+					List<Get> gets = DrListTool.createArrayListWithSize(keys);
 					for(PK key : keys){
 						byte[] rowBytes = getKeyBytesWithScatteringPrefix(null, key, false);
 						Get get = new Get(rowBytes);
@@ -150,31 +144,29 @@ implements HBasePhysicalNode<PK,D>,
 	@Override
 	public PK getFirstKey(Config pConfig){
 		Config config = Config.nullSafe(pConfig).setLimit(1);
-		return CollectionTool.getFirst(
-				getKeysInRange(null, true, null, true, config));
+		return DrIterableTool.first(scanKeys(null, config));
 	}
 
 	
 	@Override
 	public D getFirst(Config pConfig){
 		Config config = Config.nullSafe(pConfig).setLimit(1);
-		return CollectionTool.getFirst(
-				getRange(null, true, null, true, config));
+		return DrIterableTool.first(scan(null, config));
 	}
 	
 	
 	@Override
 	public List<D> getWithPrefix(PK prefix, boolean wildcardLastField, Config config){
-		return getWithPrefixes(ListTool.wrap(prefix), wildcardLastField, config);
+		return getWithPrefixes(DrListTool.wrap(prefix), wildcardLastField, config);
 	}
 
 	
 	@Override
 	public List<D> getWithPrefixes(final Collection<PK> prefixes, final boolean wildcardLastField, 
 			final Config pConfig){
-		if(CollectionTool.isEmpty(prefixes)){ return new LinkedList<D>(); }
+		if(DrCollectionTool.isEmpty(prefixes)){ return new LinkedList<D>(); }
 		final Config config = Config.nullSafe(pConfig);
-		final List<D> results = ListTool.createArrayList();
+		final List<D> results = new ArrayList<>();
 		List<Scan> scanForEachScatteringPartition = HBaseScatteringPrefixQueryBuilder.getPrefixScanners(fieldInfo, 
 				prefixes, wildcardLastField, config);
 		for(final Scan scan : scanForEachScatteringPartition){
@@ -193,47 +185,6 @@ implements HBasePhysicalNode<PK,D>,
 				}).call();
 		}
 		sortIfScatteringPrefixExists(results);
-		return results;
-	}
-	
-
-	@Deprecated
-	@Override
-	public List<PK> getKeysInRange(final PK start, final boolean startInclusive, 
-			final PK end, final boolean endInclusive, final Config pConfig){
-		final Config config = Config.nullSafe(pConfig);
-		PeekableIterable<PK> iter = scanKeys(Range.create(start, startInclusive, end, endInclusive), pConfig);
-		int limit = config.getLimitOrUse(Integer.MAX_VALUE);
-		List<PK> results = IterableTool.createArrayListFromIterable(iter, limit);
-		return results;
-	}
-	
-
-	@Deprecated
-	@Override
-	public List<D> getRange(final PK start, final boolean startInclusive, 
-			final PK end, final boolean endInclusive, final Config pConfig){
-		final Config config = Config.nullSafe(pConfig);
-		PeekableIterable<D> iter = scan(Range.create(start, startInclusive, end, endInclusive), pConfig);
-		int limit = config.getLimitOrUse(Integer.MAX_VALUE);
-		List<D> results = IterableTool.createArrayListFromIterable(iter, limit);
-		return results;
-		
-	}
-
-	@Override
-	public List<D> getPrefixedRange(final PK prefix, final boolean wildcardLastField, 
-			final PK start, final boolean startInclusive, 
-			final Config pConfig){
-		final Config config = Config.nullSafe(pConfig);
-		List<Pair<byte[],byte[]>> prefixedRanges = HBaseScatteringPrefixQueryBuilder.getPrefixedRanges(fieldInfo,  
-				prefix, wildcardLastField, start, startInclusive, null, true, config);
-		List<HBaseDatabeanScanner<PK,D>> scanners = HBaseScatteringPrefixQueryBuilder
-				.getManualDatabeanScannersForRanges(this, fieldInfo, prefixedRanges, pConfig);
-		Collator<D> collator = new PriorityQueueCollator<D>(scanners);
-		Iterable<D> iterable = new SortedScannerIterable<D>(collator);
-		int limit = config.getLimitOrUse(Integer.MAX_VALUE);
-		List<D> results = IterableTool.createArrayListFromIterable(iterable, limit);
 		return results;
 	}
 	
@@ -274,7 +225,7 @@ implements HBasePhysicalNode<PK,D>,
 				public List<Result> hbaseCall(HTable hTable, HBaseClient client, ResultScanner managedResultScanner) throws Exception{
 					ByteRange start = range.getStart();
 					if(start!=null && !range.getStartInclusive()){//careful: this may have already been set by scatteringPrefix logic
-						start = new ByteRange(ByteTool.unsignedIncrement(start.toArray()));
+						start = new ByteRange(DrByteTool.unsignedIncrement(start.toArray()));
 					}
 					ByteRange end = range.getEnd();
 					
@@ -283,7 +234,7 @@ implements HBasePhysicalNode<PK,D>,
 					Scan scan = HBaseQueryBuilder.getScanForRange(scanRange, config);
 					if(keysOnly){ scan.setFilter(new FirstKeyOnlyFilter()); }
 					managedResultScanner = hTable.getScanner(scan);
-					List<Result> results = ListTool.createArrayList();
+					List<Result> results = new ArrayList<>();
 					for(Result row : managedResultScanner){
 						if(row.isEmpty()){ continue; }
 						results.add(row);
@@ -291,8 +242,8 @@ implements HBasePhysicalNode<PK,D>,
 						if(config.getLimit()!=null && results.size()>=config.getLimit()){ break; }
 					}
 					managedResultScanner.close();
-					DRCounters.incSuffixClientNode(client.getType(), scanKeysVsRowsNumRows, getClientName(), getNodeName(),  
-							CollectionTool.size(results));
+					DRCounters.incClientNodeCustom(client.getType(), scanKeysVsRowsNumRows, getClientName(), getNodeName(),  
+							DrCollectionTool.size(results));
 					return results;
 				}
 			}).call();
@@ -302,15 +253,15 @@ implements HBasePhysicalNode<PK,D>,
 	public byte[] getKeyBytesWithScatteringPrefix(List<Field<?>> overrideScatteringPrefixFields, PK key, boolean increment){
 		//return only scatteringPrefix bytes
 		if(key==null){
-			if(CollectionTool.isEmpty(overrideScatteringPrefixFields)){
+			if(DrCollectionTool.isEmpty(overrideScatteringPrefixFields)){
 				return new byte[]{};
 			}
 			return FieldSetTool.getConcatenatedValueBytes(overrideScatteringPrefixFields, false, false);
 		}
 		
 		//else return scatteringPrefix bytes + keyBytes + (maybe) trailing separator
-		List<Field<?>> scatteringPrefixFields = ListTool.createLinkedList();
-		if(CollectionTool.notEmpty(overrideScatteringPrefixFields)){
+		List<Field<?>> scatteringPrefixFields = new LinkedList<>();
+		if(DrCollectionTool.notEmpty(overrideScatteringPrefixFields)){
 			scatteringPrefixFields.addAll(overrideScatteringPrefixFields);
 		}else{
 			//maybe Assert the override fields match those returned for the key
@@ -319,9 +270,9 @@ implements HBasePhysicalNode<PK,D>,
 		byte[] scatteringPrefixBytes = FieldSetTool.getConcatenatedValueBytes(scatteringPrefixFields, true, false);
 		byte[] keyBytes = FieldSetTool.getConcatenatedValueBytes(key.getFields(), true, false);
 		if(increment){
-			keyBytes = ByteTool.unsignedIncrement(keyBytes);
+			keyBytes = DrByteTool.unsignedIncrement(keyBytes);
 		}
-		return ByteTool.concatenate(scatteringPrefixBytes, keyBytes);
+		return DrByteTool.concatenate(scatteringPrefixBytes, keyBytes);
 	}
 	
 	private <T extends Comparable<? super T>> void sortIfScatteringPrefixExists(List<T> ins){

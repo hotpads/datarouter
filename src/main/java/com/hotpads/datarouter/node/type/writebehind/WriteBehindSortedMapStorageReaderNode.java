@@ -2,8 +2,6 @@ package com.hotpads.datarouter.node.type.writebehind;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ScheduledExecutorService;
 
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.op.combo.reader.SortedMapStorageReader.SortedMapStorageReaderNode;
@@ -20,9 +18,8 @@ public class WriteBehindSortedMapStorageReaderNode<
 extends WriteBehindMapStorageReaderNode<PK,D,N>
 implements SortedMapStorageReaderNode<PK,D>{
 	
-	public WriteBehindSortedMapStorageReaderNode(Class<D> databeanClass, Datarouter router,
-			N backingNode, ExecutorService writeExecutor, ScheduledExecutorService cancelExecutor) {
-		super(databeanClass, router, backingNode, writeExecutor, cancelExecutor);
+	public WriteBehindSortedMapStorageReaderNode(Class<D> databeanClass, Datarouter router, N backingNode){
+		super(databeanClass, router, backingNode);
 	}
 	
 	
@@ -34,26 +31,6 @@ implements SortedMapStorageReaderNode<PK,D>{
 	@Override
 	public PK getFirstKey(Config config) {
 		return backingNode.getFirstKey(config);
-	}
-	
-	@Override
-	public List<D> getPrefixedRange(
-			PK prefix, boolean wildcardLastField,
-			PK start, boolean startInclusive, Config config) {
-		return backingNode.getPrefixedRange(
-				prefix, wildcardLastField, start, startInclusive, config);
-	}
-
-	@Override
-	public List<PK> getKeysInRange(PK start, boolean startInclusive, PK end,
-			boolean endInclusive, Config config) {
-		return backingNode.getKeysInRange(start, startInclusive, end, endInclusive, config);
-	}
-
-	@Override
-	public List<D> getRange(PK start, boolean startInclusive, PK end,
-			boolean endInclusive, Config config) {
-		return backingNode.getRange(start, startInclusive, end, endInclusive, config);
 	}
 
 	@Override

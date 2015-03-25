@@ -10,7 +10,7 @@ import com.hotpads.datarouter.node.op.raw.write.MapStorageWriter.MapStorageWrite
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.util.core.ListTool;
+import com.hotpads.datarouter.util.core.DrListTool;
 
 public class IndexingMapStorageWriterMixin<
 		PK extends PrimaryKey<PK>,
@@ -25,7 +25,7 @@ implements MapStorageWriter<PK,D>{
 	public IndexingMapStorageWriterMixin(N mainNode, 
 			List<IndexListener<PK,D>> indexNodes){
 		this.mainNode = mainNode;
-		this.indexNodes = ListTool.nullSafe(indexNodes);
+		this.indexNodes = DrListTool.nullSafe(indexNodes);
 	}
 
 	@Override

@@ -1,5 +1,6 @@
 package com.hotpads.handler.admin.client.memory;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -11,29 +12,27 @@ import com.hotpads.datarouter.routing.RouterParams;
 import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.admin.RoutersHandler;
 import com.hotpads.handler.mav.Mav;
-import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.MapTool;
 
 public class MemoryHandler extends BaseHandler {
 	
 	/**************** static **********************/
 
-	private static final List<String> NEEDS_CLIENT = ListTool.create();
+	private static final List<String> NEEDS_CLIENT = new ArrayList<>();
 	static{
 		NEEDS_CLIENT.add(RoutersHandler.ACTION_inspectClient);
 	}
 
-	private static final List<String> NEEDS_ROUTER = ListTool.create();
+	private static final List<String> NEEDS_ROUTER = new ArrayList<>();
 	static{
 		NEEDS_ROUTER.addAll(NEEDS_CLIENT);
 		NEEDS_ROUTER.add(RoutersHandler.ACTION_inspectRouter);
 	}
 
-	private static final List<String> NEEDS_NODE = ListTool.create();
+	private static final List<String> NEEDS_NODE = new ArrayList<>();
 	static{
 	}
 
-	private static final HashMap<String,List<String>> MEMORY_NEEDS = MapTool.createHashMap();
+	private static final HashMap<String,List<String>> MEMORY_NEEDS = new HashMap<>();
 	static{
 		MEMORY_NEEDS.put(RouterParams.NEEDS_CLIENT, NEEDS_CLIENT);
 		MEMORY_NEEDS.put(RouterParams.NEEDS_ROUTER, NEEDS_ROUTER);

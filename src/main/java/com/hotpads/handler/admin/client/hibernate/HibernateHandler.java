@@ -1,5 +1,6 @@
 package com.hotpads.handler.admin.client.hibernate;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -10,8 +11,6 @@ import com.hotpads.datarouter.routing.RouterParams;
 import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.admin.RoutersHandler;
 import com.hotpads.handler.mav.Mav;
-import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.MapTool;
 
 public class HibernateHandler extends BaseHandler {
 	@Inject
@@ -28,7 +27,7 @@ public class HibernateHandler extends BaseHandler {
 		mav.put("hibernateClientStats", paramsRouter.getClient().getStats());
 		String[] tokens = paramsRouter.getClient().getSessionFactory()
 				.getStatistics().toString().split(",");
-		List<String[]> sessionFactoryStats = ListTool.create();
+		List<String[]> sessionFactoryStats = new ArrayList<>();
 		for (String token : tokens) {
 			sessionFactoryStats.add(token.split("="));
 		}
@@ -45,28 +44,27 @@ public class HibernateHandler extends BaseHandler {
 	protected static String ACTION_exportNodeToHFile = "exportNodeToHFile",
 			ACTION_moveRegionsToCorrectServer = "moveRegionsToCorrectServer";
 
-	private static final List<String> NEEDS_CLIENT = ListTool.create();
+	private static final List<String> NEEDS_CLIENT = new ArrayList<>();
 	static {
 		NEEDS_CLIENT.add(ACTION_moveRegionsToCorrectServer);
 		NEEDS_CLIENT.add(RoutersHandler.ACTION_inspectClient);
 
 	}
 
-	private static final List<String> NEEDS_ROUTER = ListTool.create();
+	private static final List<String> NEEDS_ROUTER = new ArrayList<>();
 	static {
 		NEEDS_ROUTER.addAll(NEEDS_CLIENT);
 		NEEDS_ROUTER.add(RoutersHandler.ACTION_inspectRouter);
 		NEEDS_ROUTER.add(ACTION_exportNodeToHFile);
 	}
 
-	private static final List<String> NEEDS_NODE = ListTool.create();
+	private static final List<String> NEEDS_NODE = new ArrayList<>();
 	static {
 		NEEDS_NODE.add(ACTION_exportNodeToHFile);
 		NEEDS_NODE.add(ACTION_moveRegionsToCorrectServer);
 	}
 
-	private static final HashMap<String, List<String>> HIBERNATE_NEEDS = MapTool
-			.createHashMap();
+	private static final HashMap<String, List<String>> HIBERNATE_NEEDS = new HashMap<>();
 	static {
 		HIBERNATE_NEEDS.put(RouterParams.NEEDS_CLIENT, NEEDS_CLIENT);
 		HIBERNATE_NEEDS.put(RouterParams.NEEDS_ROUTER, NEEDS_ROUTER);

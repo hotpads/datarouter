@@ -16,9 +16,9 @@ import com.hotpads.datarouter.node.op.raw.read.SortedStorageReader.SortedStorage
 import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.util.core.FileUtils;
-import com.hotpads.util.core.NumberFormatter;
-import com.hotpads.util.core.io.FileIOFactory;
+import com.hotpads.datarouter.util.DrFileIOFactory;
+import com.hotpads.datarouter.util.core.DrFileUtils;
+import com.hotpads.datarouter.util.core.DrNumberFormatter;
 import com.hotpads.util.core.profile.PhaseTimer;
 
 public class BackupRegionToS3<PK extends PrimaryKey<PK>,D extends Databean<PK,D>> 
@@ -51,16 +51,16 @@ extends BackupRegion<PK,D>{
 	
 	@Override
 	public void execute(){
-		FileUtils.delete(localPath);
+		DrFileUtils.delete(localPath);
 		try{
-			os = FileIOFactory.makeFileOutputStream(localPath, true, true);
+			os = DrFileIOFactory.makeFileOutputStream(localPath, true, true);
 			if(gzip){
 				os = new GZIPOutputStream(os, BackupRegion.GZIP_BUFFER_BYTES);
 			}
 			try{
 				exportWithoutClosingOutputStream();
-				timer.add("exported "+NumberFormatter.addCommas(numRecords)+
-						", "+NumberFormatter.addCommas(rawBytes)+"b");
+				timer.add("exported "+DrNumberFormatter.addCommas(numRecords)+
+						", "+DrNumberFormatter.addCommas(rawBytes)+"b");
 			}finally{
 				try{
 					if(os!=null){ 
@@ -77,7 +77,7 @@ extends BackupRegion<PK,D>{
 			uploadToS3();
 			super.recordMeta();
 			if(deleteLocalFile){
-				FileUtils.delete(localPath);
+				DrFileUtils.delete(localPath);
 			}
 		}catch(IOException ioe){
 			throw new RuntimeException(ioe);

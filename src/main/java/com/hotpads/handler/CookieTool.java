@@ -21,8 +21,9 @@ public class CookieTool{
 	}
 	
 	public static String getCookieValue(HttpServletRequest request, String cookieName){
-		Map<String, String> cookieValuesByName = getCookieMap(request);
-		return cookieValuesByName.get(cookieName);
+		// Don't build a useless map every time we look for a cookie:
+		Cookie cookie = getCookie( request.getCookies(), cookieName );
+		return ( cookie == null ) ? null : cookie.getValue();
 	}
 	
 	public static String getCookieValue(Cookie[] cookies, String cookieName,String defaultValue) {
@@ -70,7 +71,7 @@ public class CookieTool{
 	}
 
 	public static Cookie getCookie(Cookie[] cookies, String cookieName) {
-		if (cookies != null) {
+		if (cookies != null && cookieName!=null) {
 			for (int i = 0; i < cookies.length; i++) {
 				Cookie cookie = cookies[i];
 				if (cookieName.equals(cookie.getName())){
@@ -88,19 +89,19 @@ public class CookieTool{
 		response.addCookie(cookieToKill);
 	}
 
-	public static Map<String, String> getCookieMap(HttpServletRequest request){
-		Map<String, String> map = new HashMap<String, String>();
-		Cookie[] cookies = request.getCookies();
-		if (cookies != null) {
-			Cookie cookie;
-			for (int i = 0; i < cookies.length; i++) {
-				cookie = cookies[i];
-				if(cookie==null || cookie.getName()==null){ 
-					continue;
-				}
-				map.put(cookie.getName(), cookie.getValue());
-			}
-		}
-		return map;
-	}
+//	public static Map<String, String> getCookieMap(HttpServletRequest request){
+//		Map<String, String> map = new HashMap<String, String>();
+//		Cookie[] cookies = request.getCookies();
+//		if (cookies != null) {
+//			Cookie cookie;
+//			for (int i = 0; i < cookies.length; i++) {
+//				cookie = cookies[i];
+//				if(cookie==null || cookie.getName()==null){ 
+//					continue;
+//				}
+//				map.put(cookie.getName(), cookie.getValue());
+//			}
+//		}
+//		return map;
+//	}
 }

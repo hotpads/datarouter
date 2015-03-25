@@ -4,9 +4,6 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.node.Node;
@@ -25,20 +22,18 @@ import com.hotpads.util.core.cache.Cached;
 
 @Singleton
 public class NodeFactory{
-	private static final Logger logger = LoggerFactory.getLogger(NodeFactory.class);
 	
-	private final DatarouterSettings drSettings;
-	
+	private final DatarouterSettings drSettings;	
 	
 	@Inject
 	private NodeFactory(@Nullable DatarouterSettings drSettings){
 		this.drSettings = drSettings;
 	}
 
-
 	/********************* pass any params *****************/
 	
-	public <PK extends PrimaryKey<PK>,
+	@SuppressWarnings("unchecked")
+	private <PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>,
 			N extends Node<PK,D>> 
@@ -46,11 +41,11 @@ public class NodeFactory{
 		String clientName = params.getClientName();
 		ClientType clientType = params.getRouter().getRouterOptions().getClientTypeInstance(clientName);
 		Preconditions.checkNotNull(clientType, "clientType not found for clientName:"+clientName);
-		N node = (N)clientType.createNode(params);
+		Node<PK, D> node = clientType.createNode(params);
 		if(addAdapter){
-			node = (N)clientType.createAdapter(params, node);
+			node = clientType.createAdapter(params, node);
 		}
-		return Preconditions.checkNotNull(node, "cannot build Node for clientType="+clientType);
+		return (N) Preconditions.checkNotNull(node, "cannot build Node for clientType="+clientType);
 	}
 	
 	
@@ -103,19 +98,6 @@ public class NodeFactory{
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>,
 			N extends Node<PK,D>> 
-	N create(
-			String clientName, 
-			String tableName,
-			String entityName,
-			Class<D> databeanClass, 
-			Datarouter router){
-		return create(clientName, tableName, entityName, databeanClass, null, router, true);
-	}
-	
-	public <PK extends PrimaryKey<PK>,
-			D extends Databean<PK,D>,
-			F extends DatabeanFielder<PK,D>,
-			N extends Node<PK,D>> 
 	N create(//specify tableName and entityName
 			String clientName, 
 			String tableName,
@@ -135,6 +117,7 @@ public class NodeFactory{
 	
 	/***************** entity ***************************/
 
+	@SuppressWarnings("unchecked")
 	public <EK extends EntityKey<EK>,
 			E extends Entity<EK>,
 			PK extends EntityPrimaryKey<EK,PK>,
@@ -166,8 +149,8 @@ public class NodeFactory{
 //		return create(paramsBuilder.build());
 		ClientType clientType = nodeParams.getRouter().getRouterOptions().getClientTypeInstance(clientName);
 		Preconditions.checkNotNull(clientType, "clientType not found for clientName:"+clientName);
-		N node = (N)clientType.createSubEntityNode(entityNodeParams, nodeParams);
-		return Preconditions.checkNotNull(node, "cannot build Node for clientType="+clientType);
+		Node<PK,D> node = clientType.createSubEntityNode(entityNodeParams, nodeParams);
+		return (N) Preconditions.checkNotNull(node, "cannot build Node for clientType="+clientType);
 	}	
 	
 	
@@ -175,13 +158,14 @@ public class NodeFactory{
 	
 	public <PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>,
 			N extends Node<PK,D>>
 	N createWithBaseDatabeanClass(//3 args
 			String clientName, 
 			Class<D> databeanClass, 
 			Class<? super D> baseDatabeanClass,
 			Datarouter router){
-		NodeParamsBuilder<PK,D,?> paramsBuilder = new NodeParamsBuilder(router, databeanClass)
+		NodeParamsBuilder<PK,D,?> paramsBuilder = new NodeParamsBuilder<PK,D,F>(router, databeanClass)
 				.withClientName(clientName)
 				.withBaseDatabean(baseDatabeanClass)
 				.withDiagnostics(getRecordCallsites());
@@ -192,7 +176,9 @@ public class NodeFactory{
 	/***************** private **************************/
 	
 	private Cached<Boolean> getRecordCallsites(){
-		if(drSettings==null){ return null; }
+		if(drSettings==null){
+			return null;
+		}
 		return drSettings.getRecordCallsites();
 	}
 }
