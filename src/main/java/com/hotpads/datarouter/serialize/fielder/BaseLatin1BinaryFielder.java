@@ -12,7 +12,7 @@ extends BaseDatabeanFielder<PK,D>
 	
 	@Override
 	public MySqlCollation getCollation(){
-		return MySqlCollation.binary;
+		return MySqlCollation.latin1_bin;
 	}
 	
 	@Override
