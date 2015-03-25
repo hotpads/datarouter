@@ -64,9 +64,9 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 	private Short shortField;
 	private Integer integerField;
 	private Long longField;
-	private Float floatField;
+	private Float floatField;	
 	private Double doubleField;
-	@Column(columnDefinition="bigint(20)")
+	@Column(columnDefinition="bigint(20)")	
 	private Date longDateField;
 	private Character characterField;
 	private String stringField;
@@ -94,6 +94,8 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 	private List<Double> doubleArrayField;
 	@Lob @Column(length=1<<27)
 	private List<String> delimitedStringArrayField;
+	@Lob @Column(length=1<<27)
+	private byte[] byteArrayField;
 	
 	private String testSchemaUpdateField;
 	private Long incrementField;
@@ -121,6 +123,7 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 			longArrayField = "longArrayField",
 			booleanArrayField = "booleanArrayField",
 			integerArrayField = "integerArrayField",
+			byteArrayField = "byteArrayField",
 			doubleArrayField = "doubleArrayField",
 			delimitedStringArrayField = "delimitedStringArrayField",
 			testSchemaUpdateField = "testSchemaUpdateField",
@@ -148,6 +151,7 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 		if(DrObjectTool.notEquals(longArrayField, that.longArrayField)){ return false; }
 		if(DrObjectTool.notEquals(booleanArrayField, that.booleanArrayField)){ return false; }
 		if(DrObjectTool.notEquals(integerArrayField, that.integerArrayField)){ return false; }
+		if(DrObjectTool.notEquals(byteArrayField, that.byteArrayField)){ return false; }		
 		if(DrObjectTool.notEquals(doubleArrayField, that.doubleArrayField)){ return false; }
 		if(DrObjectTool.notEquals(delimitedStringArrayField, that.delimitedStringArrayField)){ return false; }
 		if(DrObjectTool.notEquals(testSchemaUpdateField, that.testSchemaUpdateField)){ return false; }
@@ -183,6 +187,7 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 			fields.add(new UInt63ArrayField(F.longArrayField, d.longArrayField));
 			fields.add(new BooleanArrayField(F.booleanArrayField, d.booleanArrayField));
 			fields.add(new IntegerArrayField(F.integerArrayField, d.integerArrayField));
+			fields.add(new ByteArrayField(F.byteArrayField, d.byteArrayField,MySqlColumnType.MAX_LENGTH_VARBINARY));
 			fields.add(new DoubleArrayField(F.doubleArrayField, d.doubleArrayField));
 			fields.add(new DelimitedStringArrayField(F.delimitedStringArrayField, ",", d.delimitedStringArrayField));
 			fields.add(new StringField(F.testSchemaUpdateField, d.testSchemaUpdateField, DEFAULT_STRING_LENGTH));
@@ -271,6 +276,7 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 		return integerArrayField;
 	}
 	
+
 	public List<String> appendToDelimitedStringArrayField(String val){
 		if(delimitedStringArrayField==null){ delimitedStringArrayField = new ArrayList<>(); }
 		delimitedStringArrayField.add(val);
@@ -408,11 +414,22 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 		this.integerArrayField = integerArrayField;
 	}
 
-	public Date getLongDateField(){
-		return longDateField;
+	//*
+	
+	public byte[] getByteArrayField(){
+		return byteArrayField;
 	}
 
 
+	public void setByteArrayField(byte[] byteArrayField){
+		this.byteArrayField = byteArrayField;
+	}
+	
+	
+	public Date getLongDateField(){
+		return longDateField;
+	}
+	
 	public void setLongDateField(Date longDateField){
 		this.longDateField = longDateField;
 	}

@@ -19,6 +19,7 @@ import com.hotpads.datarouter.config.PutMethod;
 import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.node.op.raw.MapStorage.MapStorageNode;
 import com.hotpads.datarouter.routing.DatarouterContext;
+import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.test.DatarouterTestModuleFactory;
 import com.hotpads.datarouter.util.core.DrArrayTool;
 import com.hotpads.datarouter.util.core.DrListTool;
@@ -63,6 +64,25 @@ public abstract class BaseManyFieldIntegrationTests{
 	}
 
 	/********************** subclasses should override these ************************/
+
+	// shweta
+	
+	public void testByteArrayShweta(){
+		if(isHibernate()){ return; }
+		ManyFieldBean bean = new ManyFieldBean();
+		ManyFieldBeanKey key = new ManyFieldBeanKey(1L);
+		byte[] byteVal = FieldTool.getConcatenatedValueBytes(key.getFields(), false, false);	
+		bean.setByteArrayField(byteVal);
+		System.out.println("byte array testing");
+		mapNode.put(bean, null);
+		ManyFieldBean roundTripped = mapNode.get(bean.getKey(), null);
+		System.out.println("bean"+bean.getByteArrayField());
+		System.out.println("roundtrip"+roundTripped.getByteArrayField());
+		//AssertJUnit.assertEquals((bean.getByteArrayField(), roundTripped.getByteArrayField()));
+		AssertJUnit.assertTrue(bean.getByteArrayField()==roundTripped.getByteArrayField());
+		//AssertJUnit.assertTrue(0==DrListTool.compare(bean.getByteArrayField(), roundTripped.getByteArrayField()));
+		recordKey(bean.getKey());
+	}
 
 	public boolean isMemory(){
 		return false;
@@ -455,6 +475,24 @@ public abstract class BaseManyFieldIntegrationTests{
 		AssertJUnit.assertTrue(0==DrListTool.compare(bean.getIntegerArrayField(), roundTripped.getIntegerArrayField()));
 		recordKey(bean.getKey());
 	}
+		
+	@Test
+	public void testByteArray(){
+		if(isHibernate()){ return; }
+		ManyFieldBean bean = new ManyFieldBean();
+		ManyFieldBeanKey key = new ManyFieldBeanKey(1L);
+		byte[] byteVal = FieldTool.getConcatenatedValueBytes(key.getFields(), false, false);	
+		bean.setByteArrayField(byteVal);
+		System.out.println("byte array testing");
+		mapNode.put(bean, null);
+		ManyFieldBean roundTripped = mapNode.get(bean.getKey(), null);
+		System.out.println("bean"+bean.getByteArrayField());
+		System.out.println("roundtrip"+roundTripped.getByteArrayField());
+		//AssertJUnit.assertEquals((bean.getByteArrayField(), roundTripped.getByteArrayField()));
+		AssertJUnit.assertTrue(bean.getByteArrayField()==roundTripped.getByteArrayField());
+		//AssertJUnit.assertTrue(0==DrListTool.compare(bean.getByteArrayField(), roundTripped.getByteArrayField()));
+		recordKey(bean.getKey());
+	}
 
 	@Test
 	public void testDoubleArray(){
@@ -540,4 +578,6 @@ public abstract class BaseManyFieldIntegrationTests{
 		allKeys.add(key);
 	}
 
+	
+	
 }
