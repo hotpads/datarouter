@@ -1,0 +1,16 @@
+*.class
+*~
+.settings/*
+target/*
+bin/*
+.classpath
+.project
+test-results/
+ant-*-build.xml
+target/*
+/target
+/bin
+*.iml
+src/main/resources/git.properties
+/test-output
+.factorypath
