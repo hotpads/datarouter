@@ -96,6 +96,7 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 	private List<String> delimitedStringArrayField;
 	@Lob @Column(length=1<<27)
 	private byte[] byteArrayField;
+  //private List<Byte> byteArrayField;
 	
 	private String testSchemaUpdateField;
 	private Long incrementField;
