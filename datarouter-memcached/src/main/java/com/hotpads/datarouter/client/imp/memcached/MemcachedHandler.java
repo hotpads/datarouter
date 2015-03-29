@@ -25,7 +25,7 @@ public class MemcachedHandler extends BaseHandler {
 	protected Mav inspectClient() {
 		initialize();
 		Mav mav = new Mav(
-				"/jsp/admin/datarouter/memcached/memchachedClientSummary.jsp");
+				"/jsp/admin/datarouter/memcached/memcachedClientSummary.jsp");
 		mav.put("client", paramsRouter.getClient().getSpyClient());
 		Map<SocketAddress, Map<String, String>> stats = null;
 		try {
