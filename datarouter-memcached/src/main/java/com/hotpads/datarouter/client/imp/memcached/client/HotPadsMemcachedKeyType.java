@@ -2,7 +2,8 @@ package com.hotpads.datarouter.client.imp.memcached.client;
 
 import com.hotpads.util.core.enums.HpEnum;
 
-public enum MemcachedKeyType implements HpEnum{
+//TODO refactor this out of datarouter-memcached module
+public enum HotPadsMemcachedKeyType implements HpEnum{
 	HIB(0,"hib","Hibernate"), 
 	HIB_QUERY(2, "hibQuery", "Hibernate Query"), //HIB_QUERY and HIB_TIMESTAMP are for hibernate query cacheing
 	HIB_TIMESTAMP(3, "hibTimestamp", "Hibernate Timestamp"),
@@ -16,7 +17,7 @@ public enum MemcachedKeyType implements HpEnum{
 	private Integer value;
 	private String key;
 	private String display;
-	private MemcachedKeyType(Integer value,String key,String display){
+	private HotPadsMemcachedKeyType(Integer value,String key,String display){
 		this.value=value;
 		this.key=key;
 		this.display=display;
@@ -25,11 +26,11 @@ public enum MemcachedKeyType implements HpEnum{
 	public String getDisplay(){ return display; }
 	public String getKey(){ return key; }
 	
-	public static MemcachedKeyType fromString(String val) {
+	public static HotPadsMemcachedKeyType fromString(String val) {
 		if (val == null)
 			return HIB; //default
 		
-		for(MemcachedKeyType type  : values()){
+		for(HotPadsMemcachedKeyType type  : values()){
 			if(type.getKey().equalsIgnoreCase(val)) return type;
 		}
 		

@@ -4,7 +4,7 @@ import net.spy.memcached.HashAlgorithm;
 
 public class MemcachedKey {
 
-	private MemcachedKeyType type;
+	private HotPadsMemcachedKeyType type;
 	private String version;
 	private String key;
 	private boolean hashKey;
@@ -12,19 +12,19 @@ public class MemcachedKey {
 	
 	private MemcachedKey() { }
 
-	public MemcachedKey(MemcachedKeyType type, Integer version, String key){
+	public MemcachedKey(HotPadsMemcachedKeyType type, Integer version, String key){
 		this(type, version.toString(), key, false);
 	}
 	
-	public MemcachedKey(MemcachedKeyType type, String version, String key){
+	public MemcachedKey(HotPadsMemcachedKeyType type, String version, String key){
 		this(type, version, key, false);
 	}
 	
-	public MemcachedKey(MemcachedKeyType type, Integer version, String key, boolean hashKey) {
+	public MemcachedKey(HotPadsMemcachedKeyType type, Integer version, String key, boolean hashKey) {
 		this(type, version.toString(), key, hashKey);
 	}
 	
-	public MemcachedKey(MemcachedKeyType type, String version, String key, boolean hashKey) {
+	public MemcachedKey(HotPadsMemcachedKeyType type, String version, String key, boolean hashKey) {
 		this.type=type;
 		this.version=version;
 		this.key=key.replace(" ", "%20");
@@ -44,7 +44,7 @@ public class MemcachedKey {
 	public static MemcachedKey fromString(String str) {
 		String[] strs = str.split(":");
 		MemcachedKey key = new MemcachedKey();
-		key.type = MemcachedKeyType.fromString(strs[0]);
+		key.type = HotPadsMemcachedKeyType.fromString(strs[0]);
 		key.version = strs[1];
 		key.key = strs[2]; //nothing we can do really, if its hashed.  maybe possible to detect it and set hashKey=true, but thats it.
 		return key;
@@ -52,11 +52,11 @@ public class MemcachedKey {
 	
 	
 
-	public MemcachedKeyType getType() {
+	public HotPadsMemcachedKeyType getType() {
 		return type;
 	}
 
-	public void setType(MemcachedKeyType type) {
+	public void setType(HotPadsMemcachedKeyType type) {
 		this.type = type;
 	}
 
