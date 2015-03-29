@@ -4,6 +4,9 @@ import java.util.List;
 
 import javax.inject.Singleton;
 
+import org.junit.Assert;
+import org.junit.Test;
+
 import com.hotpads.datarouter.client.ClientFactory;
 import com.hotpads.datarouter.client.imp.BaseClientType;
 import com.hotpads.datarouter.client.imp.memcached.node.MemcachedNode;
@@ -22,11 +25,17 @@ import com.hotpads.datarouter.storage.entity.Entity;
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
 import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
+import com.hotpads.util.core.java.ReflectionTool;
 
+/**
+ * applications create this class via reflection
+ */
 @Singleton
 public class MemcachedClientType extends BaseClientType{
 	
-	public static final String NAME = "memcached";
+	public static final String 
+			NAME = "memcached",
+			CANONICAL_CLASS_NAME = "com.hotpads.datarouter.client.imp.memcached.MemcachedClientType";
 	
 	public static final MemcachedClientType INSTANCE = new MemcachedClientType();
 	
@@ -65,6 +74,19 @@ public class MemcachedClientType extends BaseClientType{
 	MapStorageNode<PK,D> createAdapter(NodeParams<PK,D,F> nodeParams, Node<PK,D> backingNode){
 		return new PhysicalMapStorageCallsiteAdapter<PK,D,F,PhysicalMapStorageNode<PK,D>>(nodeParams,
 				(PhysicalMapStorageNode<PK,D>)backingNode);
+	}
+	
+	
+	/********************** tests ****************************/
+	
+	//TODO switch to TestNG when it works on inner classes
+	public static class MemcachedClientTypeTests{
+		@Test
+		public void testClassLocation(){
+			String actualClassName = MemcachedClientType.class.getCanonicalName();
+			Assert.assertEquals(CANONICAL_CLASS_NAME, actualClassName);
+			ReflectionTool.create(CANONICAL_CLASS_NAME);//double check, why not
+		}
 	}
 	
 }
