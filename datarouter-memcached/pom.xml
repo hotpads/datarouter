@@ -136,6 +136,13 @@
 			<artifactId>spy</artifactId>
 			<version>2.4</version>
 		</dependency>
+		<!-- provided (not inherited) -->
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>javax.servlet-api</artifactId>
+			<version>3.0.1</version>
+			<scope>provided</scope>
+		</dependency>
 	</dependencies>
 	<organization>
 		<name>HotPads.com</name>
