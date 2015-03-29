@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.client.imp.memcached;
+package com.hotpads.datarouter.client.imp.memcached.web;
 
 import java.net.SocketAddress;
 import java.util.ArrayList;
@@ -8,6 +8,8 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import com.hotpads.datarouter.client.imp.memcached.client.MemcachedClientImp;
+import com.hotpads.datarouter.client.imp.memcached.client.MemcachedStateException;
 import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.routing.RouterParams;
 import com.hotpads.handler.BaseHandler;

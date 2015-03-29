@@ -1,10 +1,11 @@
-package com.hotpads.datarouter.client.imp.memcached;
+package com.hotpads.datarouter.client.imp.memcached.client;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.BaseClient;
+import com.hotpads.datarouter.client.imp.memcached.MemcachedClientType;
 import com.hotpads.util.core.concurrent.NamedThreadFactory;
 
 public class MemcachedClientImp 

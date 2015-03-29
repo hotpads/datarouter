@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.client.imp.memcached;
+package com.hotpads.datarouter.client.imp.memcached.test;
 
 import org.testng.annotations.BeforeClass;
 

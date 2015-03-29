@@ -3,8 +3,8 @@ package com.hotpads.datarouter.client.imp.memcached.node;
 import java.util.Collection;
 
 import com.hotpads.datarouter.client.imp.hbase.factory.HBaseSimpleClientFactory;
-import com.hotpads.datarouter.client.imp.memcached.DatarouterMemcachedKey;
-import com.hotpads.datarouter.client.imp.memcached.MemcachedStateException;
+import com.hotpads.datarouter.client.imp.memcached.client.DatarouterMemcachedKey;
+import com.hotpads.datarouter.client.imp.memcached.client.MemcachedStateException;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams;

@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.client.imp.memcached;
+package com.hotpads.datarouter.client.imp.memcached.web;
 
 import com.hotpads.DatarouterInjector;
 import com.hotpads.handler.BaseDispatcher;

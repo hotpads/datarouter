@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.client.imp.memcached;
+package com.hotpads.datarouter.client.imp.memcached.client;
 
 /**
  * thrown when memcached queue fills up - happens when a memcached connection dies

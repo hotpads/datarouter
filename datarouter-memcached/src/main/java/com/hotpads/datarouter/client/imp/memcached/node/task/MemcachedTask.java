@@ -3,7 +3,7 @@ package com.hotpads.datarouter.client.imp.memcached.node.task;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hotpads.datarouter.client.imp.memcached.MemcachedClient;
+import com.hotpads.datarouter.client.imp.memcached.client.MemcachedClient;
 import com.hotpads.datarouter.client.imp.memcached.node.MemcachedPhysicalNode;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.exception.DataAccessException;

@@ -9,6 +9,7 @@ import org.junit.Test;
 
 import com.hotpads.datarouter.client.ClientFactory;
 import com.hotpads.datarouter.client.imp.BaseClientType;
+import com.hotpads.datarouter.client.imp.memcached.client.MemcachedSimpleClientFactory;
 import com.hotpads.datarouter.client.imp.memcached.node.MemcachedNode;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams;

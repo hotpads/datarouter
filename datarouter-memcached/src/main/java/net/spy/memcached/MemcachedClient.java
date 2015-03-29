@@ -33,8 +33,8 @@ import net.spy.memcached.ops.OperationStatus;
 import net.spy.memcached.ops.StatsOperation;
 import net.spy.memcached.ops.StoreType;
 
-import com.hotpads.datarouter.client.imp.memcached.MemcachedKey;
-import com.hotpads.datarouter.client.imp.memcached.MemcachedStateException;
+import com.hotpads.datarouter.client.imp.memcached.client.MemcachedKey;
+import com.hotpads.datarouter.client.imp.memcached.client.MemcachedStateException;
 
 
 /**

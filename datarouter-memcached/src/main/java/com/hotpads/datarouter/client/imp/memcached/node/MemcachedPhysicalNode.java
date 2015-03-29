@@ -1,6 +1,6 @@
 package com.hotpads.datarouter.client.imp.memcached.node;
 
-import com.hotpads.datarouter.client.imp.memcached.MemcachedClient;
+import com.hotpads.datarouter.client.imp.memcached.client.MemcachedClient;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;

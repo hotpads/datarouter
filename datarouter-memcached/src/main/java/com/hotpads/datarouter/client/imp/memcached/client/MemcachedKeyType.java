@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.client.imp.memcached;
+package com.hotpads.datarouter.client.imp.memcached.client;
 
 import com.hotpads.util.core.enums.HpEnum;
 

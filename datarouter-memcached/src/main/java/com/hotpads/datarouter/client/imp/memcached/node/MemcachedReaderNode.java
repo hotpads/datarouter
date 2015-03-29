@@ -15,9 +15,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
-import com.hotpads.datarouter.client.imp.memcached.DatarouterMemcachedKey;
-import com.hotpads.datarouter.client.imp.memcached.MemcachedClient;
-import com.hotpads.datarouter.client.imp.memcached.MemcachedStateException;
+import com.hotpads.datarouter.client.imp.memcached.client.DatarouterMemcachedKey;
+import com.hotpads.datarouter.client.imp.memcached.client.MemcachedClient;
+import com.hotpads.datarouter.client.imp.memcached.client.MemcachedStateException;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.op.raw.read.MapStorageReader;
