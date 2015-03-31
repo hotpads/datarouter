@@ -33,7 +33,6 @@ import net.spy.memcached.ops.OperationStatus;
 import net.spy.memcached.ops.StatsOperation;
 import net.spy.memcached.ops.StoreType;
 
-import com.hotpads.datarouter.client.imp.memcached.client.MemcachedKey;
 import com.hotpads.datarouter.client.imp.memcached.client.MemcachedStateException;
 
 
@@ -357,9 +356,6 @@ public final class MemcachedClient extends SpyThread {
 	public Future<Boolean> set(String key, int exp, Object o) throws MemcachedStateException {
 		return asyncStore(StoreType.set, key, exp, o);
 	}
-	public Future<Boolean> set(MemcachedKey key, int exp, Object o) throws MemcachedStateException {
-		return set(key.toString(), exp, o);
-	}
 
 	/**
 	 * Replace an object with the given value iff there is already a value
@@ -389,10 +385,6 @@ public final class MemcachedClient extends SpyThread {
 	 */
 	public Future<Boolean> replace(String key, int exp, Object o) throws MemcachedStateException {
 		return asyncStore(StoreType.replace, key, exp, o);
-	}
-
-	public Future<Object> asyncGet(final MemcachedKey key) throws MemcachedStateException {
-		return asyncGet(key.toString());
 	}
 	/**
 	 * Get the given key asynchronously.
