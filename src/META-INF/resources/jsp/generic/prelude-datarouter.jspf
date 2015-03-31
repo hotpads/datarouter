@@ -1,9 +1,0 @@
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
-<%@ taglib prefix="x" uri="http://java.sun.com/jsp/jstl/xml"%>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
-<%@ taglib prefix="sql" uri="http://java.sun.com/jsp/jstl/sql"%>
-<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
-<c:set var="contextPath" value="<%=request.getContextPath()%>" scope="request" />
-<c:set var="basePathNoPort" value="<%= request.getScheme() + \"://\" + request.getServerName() %>" scope="request" />
-<c:set var="basePath" value="<%= request.getScheme() + \"://\" + request.getServerName() + \":\" + request.getServerPort() %>" scope="request" />
-<c:set var="fullPath" value="<%=request.getScheme() + \"://\" + request.getServerName() + \":\" + request.getServerPort() + request.getContextPath()%>" scope="request" />
