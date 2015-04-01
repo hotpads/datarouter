@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import com.hotpads.util.http.json.JsonSerializer;
 import com.hotpads.util.http.request.HotPadsHttpRequest;
+import com.hotpads.util.http.request.HotPadsHttpRequest.HttpRequestMethod;
 import com.hotpads.util.http.response.HotPadsHttpResponse;
 import com.hotpads.util.http.response.exception.HotPadsHttpConnectionAbortedException;
 import com.hotpads.util.http.response.exception.HotPadsHttpException;
@@ -139,19 +140,20 @@ public class HotPadsHttpClient {
 		if (apiKeyPredicate != null) {
 			params.put(SecurityParameters.API_KEY, apiKeyPredicate.getApiKey());
 		}		
+		Map<String, String> signatureParam;
 		if (request.canHaveEntity() && request.getEntity() == null) {
 			params = request.addPostParams(params).getPostParams();
 			if (signatureValidator != null && !params.isEmpty()) {
 				String signature = signatureValidator.getHexSignature(request.getPostParams());
-				Map<String, String> signatureParam = Collections.singletonMap(SecurityParameters.SIGNATURE, signature);
+				signatureParam = Collections.singletonMap(SecurityParameters.SIGNATURE, signature);
 				request.addPostParams(signatureParam);
 			}
 			request.setEntity(request.getPostParams());
-		}else if (apiKeyPredicate != null){
+		}else if (request.getMethod() == HttpRequestMethod.GET){
 			params = request.addGetParams(params).getGetParams();
 			if (signatureValidator != null && !params.isEmpty()) {
 				String signature = signatureValidator.getHexSignature(request.getGetParams());
-				Map<String, String> signatureParam = Collections.singletonMap(SecurityParameters.SIGNATURE, signature);
+				signatureParam = Collections.singletonMap(SecurityParameters.SIGNATURE, signature);
 				request.addGetParams(signatureParam);
 			}			
 		}		
