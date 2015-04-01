@@ -93,23 +93,8 @@ public class HotPadsHttpClient {
 	}
 
 	public HotPadsHttpResponse executeChecked(HotPadsHttpRequest request) throws HotPadsHttpException {
-		if (request.canHaveEntity() && request.getEntity() == null) {
-			Map<String, String> params = new HashMap<>();
-			if (csrfValidator != null) {
-				params.put(SecurityParameters.CSRF_TOKEN, csrfValidator.generateCsrfToken());
-			}
-			if (apiKeyPredicate != null) {
-				params.put(SecurityParameters.API_KEY, apiKeyPredicate.getApiKey());
-			}
-			params = request.addPostParams(params).getPostParams();
-			if (signatureValidator != null && !params.isEmpty()) {
-				String signature = signatureValidator.getHexSignature(request.getPostParams());
-				Map<String, String> signatureParam = Collections.singletonMap(SecurityParameters.SIGNATURE, signature);
-				request.addPostParams(signatureParam);
-			}
-			request.setEntity(request.getPostParams());
-		}
-
+		setSecurityProperties(request);
+		
 		HttpContext context = new BasicHttpContext();
 		context.setAttribute(HotPadsRetryHandler.RETRY_SAFE_ATTRIBUTE, request.getRetrySafe());
 
@@ -144,6 +129,32 @@ public class HotPadsHttpClient {
 			forceAbortRequestUnchecked(internalHttpRequest);
 		}
 		throw ex;
+	}
+	
+	private void setSecurityProperties(HotPadsHttpRequest request){
+		Map<String, String> params = new HashMap<>();
+		if (csrfValidator != null) {
+			params.put(SecurityParameters.CSRF_TOKEN, csrfValidator.generateCsrfToken());
+		}
+		if (apiKeyPredicate != null) {
+			params.put(SecurityParameters.API_KEY, apiKeyPredicate.getApiKey());
+		}		
+		if (request.canHaveEntity() && request.getEntity() == null) {
+			params = request.addPostParams(params).getPostParams();
+			if (signatureValidator != null && !params.isEmpty()) {
+				String signature = signatureValidator.getHexSignature(request.getPostParams());
+				Map<String, String> signatureParam = Collections.singletonMap(SecurityParameters.SIGNATURE, signature);
+				request.addPostParams(signatureParam);
+			}
+			request.setEntity(request.getPostParams());
+		}else if (apiKeyPredicate != null){
+			params = request.addGetParams(params).getGetParams();
+			if (signatureValidator != null && !params.isEmpty()) {
+				String signature = signatureValidator.getHexSignature(request.getGetParams());
+				Map<String, String> signatureParam = Collections.singletonMap(SecurityParameters.SIGNATURE, signature);
+				request.addGetParams(signatureParam);
+			}			
+		}		
 	}
 	
 	private static void forceAbortRequestUnchecked(HttpRequestBase internalHttpRequest) {

@@ -133,6 +133,10 @@ public class HotPadsHttpRequest {
 		return path + (queryParams.isEmpty() ? "" : getQueryString());
 	}
 
+	public HttpRequestMethod getMethod() {
+		return method;
+	}
+	
 	public String getUrlFragment() {
 		return fragment;
 	}
@@ -212,6 +216,10 @@ public class HotPadsHttpRequest {
 		return addEntriesToMap(this.queryParams, params);
 	}
 
+	public HotPadsHttpRequest addGetParams(HttpRequestConfig config) {
+		return config == null ? this : addGetParams(config.getParameterMap());
+	}
+	
 	private HotPadsHttpRequest addEntriesToMap(Map<String, String> map, Map<String, String> entriesToAdd) {
 		if (entriesToAdd != null) {
 			for (Map.Entry<String, String> entry : entriesToAdd.entrySet()) {
