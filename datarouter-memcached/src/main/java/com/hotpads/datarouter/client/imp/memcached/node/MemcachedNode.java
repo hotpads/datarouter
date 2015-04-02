@@ -2,7 +2,6 @@ package com.hotpads.datarouter.client.imp.memcached.node;
 
 import java.util.Collection;
 
-import com.hotpads.datarouter.client.imp.hbase.factory.HBaseSimpleClientFactory;
 import com.hotpads.datarouter.client.imp.memcached.client.DatarouterMemcachedKey;
 import com.hotpads.datarouter.client.imp.memcached.client.MemcachedStateException;
 import com.hotpads.datarouter.config.Config;
@@ -38,8 +37,6 @@ implements PhysicalMapStorageNode<PK,D>
 	
 	/************************************ MapStorageWriter methods ****************************/
 	
-	public static final byte[] FAM = HBaseSimpleClientFactory.DEFAULT_FAMILY_QUALIFIER;
-	public static final String DUMMY = HBaseSimpleClientFactory.DUMMY_COL_NAME;
 	protected static final int MEGABYTE = 1024 * 1024;
 	
 	
