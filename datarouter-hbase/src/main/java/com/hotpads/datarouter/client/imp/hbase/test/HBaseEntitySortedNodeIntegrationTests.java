@@ -31,7 +31,7 @@ public class HBaseEntitySortedNodeIntegrationTests extends BaseSortedNodeIntegra
 	@Test
 	public void testGetEntity(){
 		SortedBeanEntityKey ek1 = new SortedBeanEntityKey(SortedBeans.S_albatross, SortedBeans.S_ostrich);
-		SortedBeanEntity albatrossOstrich = entityNode.getEntity(ek1, null);
+		SortedBeanEntity albatrossOstrich = entityNode.entity().getEntity(ek1, null);
 		int numExpected = SortedBeans.NUM_ELEMENTS * SortedBeans.NUM_ELEMENTS;
 		AssertJUnit.assertEquals(numExpected, albatrossOstrich.getSortedBeans().size());
 		AssertJUnit.assertEquals(SortedBeans.S_albatross, DrCollectionTool.getFirst(albatrossOstrich.getSortedBeans()).getA());
