@@ -24,7 +24,7 @@ import com.hotpads.datarouter.storage.entity.Entity;
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
 import com.hotpads.datarouter.util.DRCounters;
 
-public abstract class HBaseEntityReaderNode<
+public class HBaseEntityReaderNode<
 		EK extends EntityKey<EK>,
 		E extends Entity<EK>>
 extends BasePhysicalEntityNode<EK,E>{
@@ -42,7 +42,7 @@ extends BasePhysicalEntityNode<EK,E>{
 		this.nodeFactory = nodeFactory;
 		this.entityNodeParams = entityNodeParams;
 		this.taskNameParams = taskNameParams;
-		initNodes(router, taskNameParams.getClientName());
+//		initNodes(router, taskNameParams.getClientName());
 		//need to call initNodes before this so nodeByQualifierPrefix gets initialized
 		this.queryBuilder = new HBaseEntityQueryBuilder<EK,E>(getEntityFieldInfo());
 		this.resultParser = new HBaseEntityResultParser<EK,E>(entityFieldInfo,
@@ -50,7 +50,7 @@ extends BasePhysicalEntityNode<EK,E>{
 	}
 	
 
-	protected abstract void initNodes(Datarouter router, String clientName);
+//	protected abstract void initNodes(Datarouter router, String clientName);
 
 	@Override
 	public HBaseClient getClient(){
