@@ -4,6 +4,9 @@ import java.util.List;
 
 import javax.inject.Singleton;
 
+import org.junit.Assert;
+import org.junit.Test;
+
 import com.hotpads.datarouter.client.ClientFactory;
 import com.hotpads.datarouter.client.imp.BaseClientType;
 import com.hotpads.datarouter.client.imp.hbase.factory.HBaseSimpleClientFactory;
@@ -29,11 +32,14 @@ import com.hotpads.datarouter.storage.entity.Entity;
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
 import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
+import com.hotpads.util.core.java.ReflectionTool;
 
 @Singleton
 public class HBaseClientType extends BaseClientType{
-	
-	public static final String NAME = "hbase";
+
+	public static final String 
+			NAME = "hbase",
+			CANONICAL_CLASS_NAME = "com.hotpads.datarouter.client.imp.hbase.HBaseClientType";
 	
 	public static final HBaseClientType INSTANCE = new HBaseClientType();
 	
@@ -84,5 +90,18 @@ public class HBaseClientType extends BaseClientType{
 	SortedMapStorageNode<PK,D> createAdapter(NodeParams<PK,D,F> nodeParams, Node<PK,D> backingNode){
 		return new PhysicalSortedMapStorageCallsiteAdapter<PK, D, F, PhysicalSortedMapStorageNode<PK, D>>(nodeParams,
 				(PhysicalSortedMapStorageNode<PK, D>) backingNode);
+	}
+	
+	
+	/********************** tests ****************************/
+	
+	//TODO switch to TestNG when it works on inner classes
+	public static class HBaseClientTypeTests{
+		@Test
+		public void testClassLocation(){
+			String actualClassName = HBaseClientType.class.getCanonicalName();
+			Assert.assertEquals(CANONICAL_CLASS_NAME, actualClassName);
+			ReflectionTool.create(CANONICAL_CLASS_NAME);//double check, why not
+		}
 	}
 }
