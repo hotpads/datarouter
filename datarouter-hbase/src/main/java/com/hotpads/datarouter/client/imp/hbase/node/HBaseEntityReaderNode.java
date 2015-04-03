@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 import com.hotpads.datarouter.client.imp.hbase.client.HBaseClient;
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseMultiAttemptTask;
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseTask;
-import com.hotpads.datarouter.client.imp.hbase.task.HBaseTaskNameParams;
+import com.hotpads.datarouter.client.imp.hbase.task.ClientTableNodeNames;
 import com.hotpads.datarouter.client.imp.hbase.util.HBaseEntityQueryBuilder;
 import com.hotpads.datarouter.client.imp.hbase.util.HBaseEntityResultParser;
 import com.hotpads.datarouter.config.Config;
@@ -32,33 +32,29 @@ extends BasePhysicalEntityNode<EK,E>{
 
 	protected NodeFactory nodeFactory;
 	protected EntityNodeParams<EK,E> entityNodeParams;
-	private HBaseTaskNameParams taskNameParams;//currently acting as a cache of superclass fields
+	private ClientTableNodeNames clientTableNodeNames;//currently acting as a cache of superclass fields
 	private HBaseEntityQueryBuilder<EK,E> queryBuilder;
 	private HBaseEntityResultParser<EK,E> resultParser;
 	
 	public HBaseEntityReaderNode(NodeFactory nodeFactory, Datarouter router, EntityNodeParams<EK,E> entityNodeParams,
-			HBaseTaskNameParams taskNameParams){
-		super(router.getContext(), entityNodeParams, taskNameParams);
+			ClientTableNodeNames clientTableNodeNames){
+		super(router.getContext(), entityNodeParams, clientTableNodeNames);
 		this.nodeFactory = nodeFactory;
 		this.entityNodeParams = entityNodeParams;
-		this.taskNameParams = taskNameParams;
-//		initNodes(router, taskNameParams.getClientName());
-		//need to call initNodes before this so nodeByQualifierPrefix gets initialized
+		this.clientTableNodeNames = clientTableNodeNames;
 		this.queryBuilder = new HBaseEntityQueryBuilder<EK,E>(getEntityFieldInfo());
 		this.resultParser = new HBaseEntityResultParser<EK,E>(entityFieldInfo,
 				(Map<String,HBaseSubEntityReaderNode<EK,E,?,?,?>>)getNodeByQualifierPrefix());
 	}
 	
 
-//	protected abstract void initNodes(Datarouter router, String clientName);
-
 	@Override
 	public HBaseClient getClient(){
 		return (HBaseClient)super.getClient();
 	}
 	
-	public HBaseTaskNameParams getTaskNameParams(){
-		return taskNameParams;
+	public ClientTableNodeNames getClientTableNodeNames(){
+		return clientTableNodeNames;
 	}
 	
 	public HBaseEntityResultParser<EK,E> getResultParser(){
@@ -66,13 +62,12 @@ extends BasePhysicalEntityNode<EK,E>{
 	}
 	
 
-	
 	@Override
 	public E getEntity(final EK ek, final Config pConfig){
 		if(ek==null){ return null; }
 		final Config config = Config.nullSafe(pConfig);
 		try{
-			return new HBaseMultiAttemptTask<E>(new HBaseTask<E>(getContext(), getTaskNameParams(), "getEntity", config){
+			return new HBaseMultiAttemptTask<E>(new HBaseTask<E>(getContext(), getClientTableNodeNames(), "getEntity", config){
 					public E hbaseCall(HTable hTable, HBaseClient client, ResultScanner managedResultScanner) throws Exception{
 						byte[] rowBytes = queryBuilder.getRowBytesWithPartition(ek);
 						Get get = new Get(rowBytes);

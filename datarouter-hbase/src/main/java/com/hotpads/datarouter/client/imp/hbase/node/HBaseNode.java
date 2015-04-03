@@ -69,7 +69,7 @@ implements PhysicalSortedMapStorageNode<PK,D>
 	public void putMulti(final Collection<D> databeans, final Config pConfig) {
 		if(DrCollectionTool.isEmpty(databeans)){ return; }
 		final Config config = Config.nullSafe(pConfig);
-		new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>(getDatarouterContext(), getTaskNameParams(), "putMulti", config){
+		new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>(getDatarouterContext(), getClientTableNodeNames(), "putMulti", config){
 				public Void hbaseCall(HTable hTable, HBaseClient client, ResultScanner managedResultScanner) throws Exception{					
 					List<Row> actions = new ArrayList<>();
 					int numCellsPut = 0, numCellsDeleted = 0, numRowsPut = 0;;
@@ -124,7 +124,7 @@ implements PhysicalSortedMapStorageNode<PK,D>
 	@Override
 	public void deleteAll(final Config pConfig) {
 		final Config config = Config.nullSafe(pConfig);
-		new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>(getDatarouterContext(), getTaskNameParams(), "deleteAll", config){
+		new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>(getDatarouterContext(), getClientTableNodeNames(), "deleteAll", config){
 				public Void hbaseCall(HTable hTable, HBaseClient client, ResultScanner managedResultScanner) throws Exception{
 					managedResultScanner = hTable.getScanner(new Scan());
 					List<Row> batchToDelete = new ArrayList<>(1000);
@@ -157,7 +157,7 @@ implements PhysicalSortedMapStorageNode<PK,D>
 	public void deleteMulti(final Collection<PK> keys, final Config pConfig){
 		if(DrCollectionTool.isEmpty(keys)){ return; }
 		final Config config = Config.nullSafe(pConfig);
-		new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>(getDatarouterContext(), getTaskNameParams(), "deleteMulti", config){
+		new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>(getDatarouterContext(), getClientTableNodeNames(), "deleteMulti", config){
 				public Void hbaseCall(HTable hTable, HBaseClient client, ResultScanner managedResultScanner) throws Exception{
 					hTable.setAutoFlush(false);
 					List<Row> deletes = DrListTool.createArrayListWithSize(keys);//api requires ArrayList

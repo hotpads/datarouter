@@ -13,7 +13,7 @@ import com.hotpads.datarouter.client.imp.hbase.factory.HBaseSimpleClientFactory;
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseEntityReaderNode;
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseNode;
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseSubEntityNode;
-import com.hotpads.datarouter.client.imp.hbase.task.HBaseTaskNameParams;
+import com.hotpads.datarouter.client.imp.hbase.task.ClientTableNodeNames;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.adapter.callsite.physical.PhysicalSortedMapStorageCallsiteAdapter;
@@ -68,9 +68,9 @@ public class HBaseClientType extends BaseClientType{
 	@Override
 	public <EK extends EntityKey<EK>,E extends Entity<EK>>EntityNode<EK,E> createEntityNode(NodeFactory nodeFactory, 
 			Datarouter router, EntityNodeParams<EK,E> entityNodeParams, String clientName){
-		HBaseTaskNameParams taskNameParams = new HBaseTaskNameParams(clientName, 
+		ClientTableNodeNames clientTableNodeNames = new ClientTableNodeNames(clientName, 
 				entityNodeParams.getEntityTableName(), entityNodeParams.getNodeName());
-		return new HBaseEntityReaderNode<EK,E>(nodeFactory, router, entityNodeParams, taskNameParams);
+		return new HBaseEntityReaderNode<EK,E>(nodeFactory, router, entityNodeParams, clientTableNodeNames);
 	}
 	
 	@Override

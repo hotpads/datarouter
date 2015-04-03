@@ -40,7 +40,7 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 	
 	/******************** constructor ****************************/
 	
-	public HBaseTask(DatarouterContext drContext, HBaseTaskNameParams names, String taskName, Config config){
+	public HBaseTask(DatarouterContext drContext, ClientTableNodeNames names, String taskName, Config config){
 		super("HBaseTask."+taskName);
 		this.drContext = drContext;
 		this.clientName = names.getClientName();
