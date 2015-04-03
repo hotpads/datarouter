@@ -13,19 +13,23 @@ import com.hotpads.datarouter.test.node.basic.sorted.BaseSortedNodeIntegrationTe
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBean;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBeanEntity;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBeanEntityKey;
+import com.hotpads.datarouter.test.node.basic.sorted.SortedBeanEntityNode;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBeans;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 
 
 public class HBaseEntitySortedNodeIntegrationTests extends BaseSortedNodeIntegrationTests{
 
+	protected SortedBeanEntityNode sortedBeanEntityNode;
+	
 	@BeforeClass
-	public static void beforeClass(){
+	public void beforeClass(){
 		setup(DRTestConstants.CLIENT_drTestHBase, true, true);
+		this.sortedBeanEntityNode = router.sortedBeanEntity();
 	}
 
 	@AfterClass
-	public static void afterClass(){
+	public void afterClass(){
 		testSortedDelete();
 		drContext.shutdown();
 	}

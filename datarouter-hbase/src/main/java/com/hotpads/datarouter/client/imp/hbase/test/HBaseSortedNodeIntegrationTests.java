@@ -10,12 +10,12 @@ import com.hotpads.datarouter.test.node.basic.sorted.BaseSortedNodeIntegrationTe
 public class HBaseSortedNodeIntegrationTests extends BaseSortedNodeIntegrationTests{
 
 	@BeforeClass
-	public static void beforeClass(){
+	public void beforeClass(){
 		setup(DRTestConstants.CLIENT_drTestHBase, true, false);
 	}
 
 	@AfterClass
-	public static void afterClass(){
+	public void afterClass(){
 		testSortedDelete();
 		drContext.shutdown();
 	}
