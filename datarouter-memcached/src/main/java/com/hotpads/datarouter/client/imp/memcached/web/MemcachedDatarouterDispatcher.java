@@ -6,8 +6,6 @@ import com.hotpads.handler.dispatcher.DatarouterDispatcher;
 
 public class MemcachedDatarouterDispatcher extends BaseDispatcher{
 
-	public static final String URL_MEMCACHED_ = "/datarouter";
-
 	public static final String
 			PREFIX = DatarouterDispatcher.URL_DATAROUTER + DatarouterDispatcher.CLIENTS,
 			MEMCACHED = "/memcached",
