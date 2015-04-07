@@ -240,7 +240,7 @@ implements ClientFactory{
 	 * 
 	 */
 	protected byte[][] getSplitPoints(PhysicalNode<?,?> node){
-		if(node instanceof HBaseSubEntityReaderNode){
+		if(node.getPhysicalNodeIfApplicable() instanceof HBaseSubEntityReaderNode){
 			HBaseSubEntityReaderNode<?,?,?,?,?> subEntityNode = (HBaseSubEntityReaderNode<?,?,?,?,?>)node;
 			EntityFieldInfo<?,?> entityFieldInfo = subEntityNode.getEntityFieldInfo(); 
 			EntityPartitioner<?> partitioner = entityFieldInfo.getEntityPartitioner();
@@ -251,7 +251,7 @@ implements ClientFactory{
 				splitPoints[i-1] = partitioner.getPrefix(i);
 			}
 			return splitPoints;
-		}else if(node instanceof HBaseReaderNode){
+		}else if(node.getPhysicalNodeIfApplicable() instanceof HBaseReaderNode){
 			DatabeanFieldInfo<?,?,?> fieldInfo = node.getFieldInfo();
 			ScatteringPrefix sampleScatteringPrefix = fieldInfo.getSampleScatteringPrefix();
 			if(sampleScatteringPrefix==null){ return null; }
