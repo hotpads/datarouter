@@ -19,7 +19,8 @@ import com.hotpads.util.core.java.ReflectionTool;
 
 public abstract class BaseHBaseRegionBalancer
 implements Callable<Map<DRHRegionInfo<?>,ServerName>>{
-	protected final Logger logger = LoggerFactory.getLogger(getClass());
+	
+	private static final Logger logger = LoggerFactory.getLogger(BaseHBaseRegionBalancer.class);
 	
 	protected DRHServerList drhServerList;
 	protected DRHRegionList drhRegionList;
