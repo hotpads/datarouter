@@ -8,7 +8,6 @@ import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.imp.hibernate.HibernateClient;
 import com.hotpads.datarouter.client.imp.jdbc.op.BaseJdbcOp;
 import com.hotpads.datarouter.config.Isolation;
-import com.hotpads.datarouter.op.aware.SessionAware;
 import com.hotpads.datarouter.routing.DatarouterContext;
 
 public abstract class BaseHibernateOp<T>
