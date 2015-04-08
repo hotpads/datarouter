@@ -8,6 +8,9 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.hotpads.datarouter.client.imp.memcached.client.MemcachedClientImp;
 import com.hotpads.datarouter.client.imp.memcached.client.MemcachedStateException;
 import com.hotpads.datarouter.routing.DatarouterContext;
@@ -18,6 +21,8 @@ import com.hotpads.handler.mav.Mav;
 
 public class MemcachedHandler extends BaseHandler {
 
+	private static final Logger logger = LoggerFactory.getLogger(MemcachedHandler.class);
+	
 	@Inject
 	private DatarouterContext datarouterContext;
 
