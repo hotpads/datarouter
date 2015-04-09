@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.routing.RouterParams;
@@ -12,20 +13,38 @@ import com.hotpads.handler.admin.RoutersHandler;
 import com.hotpads.handler.mav.Mav;
 
 public class HibernateHandler extends BaseHandler {
+	
+	/*************** constants *******************/
+
+	private static final List<String> NEEDS_CLIENT = ImmutableList.of(RoutersHandler.ACTION_inspectClient);
+	private static final List<String> NEEDS_ROUTER = NEEDS_CLIENT;
+
+	private static final HashMap<String, List<String>> HIBERNATE_NEEDS = new HashMap<>();
+	static {
+		HIBERNATE_NEEDS.put(RouterParams.NEEDS_ROUTER, NEEDS_ROUTER);
+		HIBERNATE_NEEDS.put(RouterParams.NEEDS_CLIENT, NEEDS_CLIENT);
+	}
+	
+	/***************** fields ********************/
+	
 	@Inject
 	private DatarouterContext datarouterContext;
 
 	private RouterParams<HibernateClientImp> paramsRouter;
 
+	
+	/**************** methods ********************/
+	
+	private void initialize() {
+		paramsRouter = new RouterParams<>(datarouterContext, params, HIBERNATE_NEEDS);
+	}
+
 	@Handler
-	protected Mav inspectClient() {
+	protected Mav inspectClient(){
 		initialize();
-		Mav mav = new Mav(
-				"/jsp/admin/datarouter/hibernate/hibernateClientSummary.jsp");
-		mav.put("address", "TODO");
+		Mav mav = new Mav("/jsp/admin/datarouter/hibernate/hibernateClientSummary.jsp");
 		mav.put("hibernateClientStats", paramsRouter.getClient().getStats());
-		String[] tokens = paramsRouter.getClient().getSessionFactory()
-				.getStatistics().toString().split(",");
+		String[] tokens = paramsRouter.getClient().getSessionFactory().getStatistics().toString().split(",");
 		List<String[]> sessionFactoryStats = new ArrayList<>();
 		for (String token : tokens) {
 			sessionFactoryStats.add(token.split("="));
@@ -33,41 +52,6 @@ public class HibernateHandler extends BaseHandler {
 		mav.put("sessionFactoryStats", sessionFactoryStats);
 		mav.put("nodes", paramsRouter.getContext().getNodes().getPhysicalNodesForClient(paramsRouter.getClientName()));
 		return mav;
-	}
-
-	private void initialize() {
-		paramsRouter = new RouterParams<>(datarouterContext, params, HIBERNATE_NEEDS);
-
-	}
-
-	protected static String ACTION_exportNodeToHFile = "exportNodeToHFile",
-			ACTION_moveRegionsToCorrectServer = "moveRegionsToCorrectServer";
-
-	private static final List<String> NEEDS_CLIENT = new ArrayList<>();
-	static {
-		NEEDS_CLIENT.add(ACTION_moveRegionsToCorrectServer);
-		NEEDS_CLIENT.add(RoutersHandler.ACTION_inspectClient);
-
-	}
-
-	private static final List<String> NEEDS_ROUTER = new ArrayList<>();
-	static {
-		NEEDS_ROUTER.addAll(NEEDS_CLIENT);
-		NEEDS_ROUTER.add(RoutersHandler.ACTION_inspectRouter);
-		NEEDS_ROUTER.add(ACTION_exportNodeToHFile);
-	}
-
-	private static final List<String> NEEDS_NODE = new ArrayList<>();
-	static {
-		NEEDS_NODE.add(ACTION_exportNodeToHFile);
-		NEEDS_NODE.add(ACTION_moveRegionsToCorrectServer);
-	}
-
-	private static final HashMap<String, List<String>> HIBERNATE_NEEDS = new HashMap<>();
-	static {
-		HIBERNATE_NEEDS.put(RouterParams.NEEDS_CLIENT, NEEDS_CLIENT);
-		HIBERNATE_NEEDS.put(RouterParams.NEEDS_ROUTER, NEEDS_ROUTER);
-		HIBERNATE_NEEDS.put(RouterParams.NEEDS_NODE, NEEDS_NODE);
 	}
 
 }
