@@ -22,8 +22,9 @@ import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrListTool;
 
 public class DRHServerList{
-	Logger logger = LoggerFactory.getLogger(DRHServerList.class);
-
+	
+	private static final Logger logger = LoggerFactory.getLogger(DRHServerList.class);
+	
 	protected List<DRHServerInfo> servers;
 	protected List<ServerName> serverNames;
 	protected Map<ServerName,DRHServerInfo> drhServerInfoByServerName;

@@ -56,7 +56,7 @@ extends BasePhysicalNode<PK,D,F>
 implements MapStorageReader<PK,D>,
 		SortedStorageReader<PK,D>,
 		IndexedStorageReader<PK,D>{
-	protected static Logger logger = LoggerFactory.getLogger(HibernateReaderNode.class);
+	private static Logger logger = LoggerFactory.getLogger(HibernateReaderNode.class);
 	
 	/******************************* constructors ************************************/
 
