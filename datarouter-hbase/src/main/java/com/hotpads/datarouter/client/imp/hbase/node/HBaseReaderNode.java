@@ -54,8 +54,7 @@ implements HBasePhysicalNode<PK,D>,
 		MapStorageReader<PK,D>,
 		SortedStorageReader<PK,D>
 {
-	protected Logger logger = LoggerFactory.getLogger(getClass());
-	
+		
 	private ClientTableNodeNames clientTableNodeNames;
 	
 	/******************************* constructors ************************************/
