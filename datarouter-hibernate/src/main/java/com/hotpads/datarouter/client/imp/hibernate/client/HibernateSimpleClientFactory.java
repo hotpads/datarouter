@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.client.imp.hibernate.factory;
+package com.hotpads.datarouter.client.imp.hibernate.client;
 
 import java.util.Collection;
 
@@ -8,8 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.Clients;
-import com.hotpads.datarouter.client.imp.hibernate.HibernateClientImp;
-import com.hotpads.datarouter.client.imp.hibernate.HibernateConnectionProvider;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.execute.ParallelSchemaUpdate;
 import com.hotpads.datarouter.client.imp.jdbc.factory.JdbcSimpleClientFactory;
 import com.hotpads.datarouter.connection.JdbcConnectionPool;

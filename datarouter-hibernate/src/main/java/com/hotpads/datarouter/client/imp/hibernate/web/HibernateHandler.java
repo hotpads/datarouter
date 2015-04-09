@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.client.imp.hibernate;
+package com.hotpads.datarouter.client.imp.hibernate.web;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
+import com.hotpads.datarouter.client.imp.hibernate.client.HibernateClientImp;
 import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.routing.RouterParams;
 import com.hotpads.handler.BaseHandler;

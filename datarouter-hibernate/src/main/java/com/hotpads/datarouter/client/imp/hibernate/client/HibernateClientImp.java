@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.client.imp.hibernate;
+package com.hotpads.datarouter.client.imp.hibernate.client;
 
 import java.sql.Connection;
 import java.util.Map;
@@ -14,6 +14,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
 import com.hotpads.datarouter.client.ClientType;
+import com.hotpads.datarouter.client.imp.hibernate.HibernateClientType;
 import com.hotpads.datarouter.client.imp.jdbc.JdbcClientImp;
 import com.hotpads.datarouter.client.type.SessionClient;
 import com.hotpads.datarouter.connection.ConnectionHandle;

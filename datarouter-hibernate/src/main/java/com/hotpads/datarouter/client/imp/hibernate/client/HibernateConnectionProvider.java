@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.client.imp.hibernate;
+package com.hotpads.datarouter.client.imp.hibernate.client;
 
 import java.sql.Connection;
 import java.util.Properties;

@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.client.imp.hibernate;
+package com.hotpads.datarouter.client.imp.hibernate.web;
 
 import com.hotpads.DatarouterInjector;
 import com.hotpads.handler.BaseDispatcher;

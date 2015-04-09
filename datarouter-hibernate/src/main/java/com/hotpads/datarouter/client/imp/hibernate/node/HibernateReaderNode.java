@@ -13,7 +13,7 @@ import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hotpads.datarouter.client.imp.hibernate.HibernateClientImp;
+import com.hotpads.datarouter.client.imp.hibernate.client.HibernateClientImp;
 import com.hotpads.datarouter.client.imp.hibernate.op.read.HibernateCountOp;
 import com.hotpads.datarouter.client.imp.hibernate.op.read.HibernateGetFirstKeyOp;
 import com.hotpads.datarouter.client.imp.hibernate.op.read.HibernateGetFirstOp;
