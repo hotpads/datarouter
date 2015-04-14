@@ -8,14 +8,14 @@
 		<relativePath>../..</relativePath> 
 	</parent>
 
-	<artifactId>datarouter-hibernate</artifactId>
+	<artifactId>datarouter-jdbc</artifactId>
 	<packaging>jar</packaging>
 
-	<name>datarouter-hibernate</name>
+	<name>datarouter-jdbc</name>
 	<url>http://maven.apache.org</url>
 
 	<build>
-		<finalName>datarouter-hibernate</finalName>
+		<finalName>datarouter-jdbc</finalName>
 		<plugins>
 			<plugin>
 				<groupId>pl.project13.maven</groupId>
@@ -130,38 +130,26 @@
 			<artifactId>datarouter-core</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
+		<!-- jdbc -->
 		<dependency>
-			<groupId>com.hotpads</groupId>
-			<artifactId>datarouter-jdbc</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
-		<!-- hibernate -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.hibernate</groupId> -->
-<!-- 			<artifactId>ejb3-persistence</artifactId> -->
-<!-- 			<version>1.0.2.GA</version> -->
-<!-- 		</dependency> -->
-		<dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-core</artifactId>
-			<version>3.3.2.GA</version>
-			<type>pom</type>
-		</dependency>
-		<dependency><!-- hibernate requires either javassist or cglib be present at runtime -->
-			<groupId>javassist</groupId>
-			<artifactId>javassist</artifactId>
-			<version>3.4.GA</version>
-			<scope>runtime</scope>
+			<groupId>com.googlecode.log4jdbc</groupId>
+			<artifactId>log4jdbc</artifactId>
+			<version>1.2</version>
 		</dependency>
 		<dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-annotations</artifactId>
-			<version>3.4.0.GA</version>
+			<groupId>javax.transaction</groupId>
+			<artifactId>jta</artifactId>
+			<version>1.1</version>
 		</dependency>
 		<dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-validator</artifactId>
-			<version>3.1.0.GA</version>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>5.1.34</version>
+		</dependency>
+		<dependency>
+			<groupId>com.mchange</groupId>
+			<artifactId>c3p0</artifactId>
+			<version>0.9.5</version>
 		</dependency>
 		<!-- provided (not inherited) -->
 		<dependency>
