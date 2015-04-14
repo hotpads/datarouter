@@ -112,4 +112,10 @@ public class HTablePerTablePool implements HTablePool{
 		}
 		return totalPoolSize;
 	}
+
+
+	@Override
+	public void shutdown(){
+		
+	}
 }

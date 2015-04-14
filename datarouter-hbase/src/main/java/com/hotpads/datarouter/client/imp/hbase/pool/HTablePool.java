@@ -11,4 +11,6 @@ public interface HTablePool {
 	
 	Integer getTotalPoolSize();
 	
+	void shutdown();
+	
 }

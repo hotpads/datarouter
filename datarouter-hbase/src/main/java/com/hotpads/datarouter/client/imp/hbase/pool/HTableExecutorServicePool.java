@@ -1,14 +1,14 @@
 package com.hotpads.datarouter.client.imp.hbase.pool;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.Semaphore;
 
-import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hbase.client.HBaseAdmin;
 import org.apache.hadoop.hbase.client.HConnection;
-import org.apache.hadoop.hbase.client.HConnectionManager;
 import org.apache.hadoop.hbase.client.HTable;
 import org.junit.Assert;
 import org.slf4j.Logger;
@@ -20,6 +20,7 @@ import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.datarouter.util.core.DrNumberFormatter;
 import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.concurrent.SemaphoreTool;
+import com.hotpads.util.core.concurrent.ThreadTool;
 import com.hotpads.util.datastructs.MutableString;
 
 public class HTableExecutorServicePool implements HTablePool{
@@ -30,7 +31,6 @@ public class HTableExecutorServicePool implements HTablePool{
 
 	protected Long lastLoggedWarning = 0L;
 
-	protected Configuration hBaseConfiguration;
 	protected String clientName;
 	protected Integer maxSize;
 
@@ -42,22 +42,27 @@ public class HTableExecutorServicePool implements HTablePool{
 
 	protected Map<String,Class<PrimaryKey<?>>> primaryKeyClassByName;
 
+	private boolean shutdown;
 
-	public HTableExecutorServicePool(Configuration hBaseConfiguration,
+	private HConnection hConnection;
+
+	public HTableExecutorServicePool(HBaseAdmin hBaseAdmin,
 			String clientName, int maxSize,
 			Map<String,Class<PrimaryKey<?>>> primaryKeyClassByName){
-		this.hBaseConfiguration = hBaseConfiguration;
 		this.clientName = clientName;
 		this.maxSize = maxSize;
 		this.hTableSemaphore = new Semaphore(maxSize);
-		this.executorServiceQueue = new LinkedBlockingDeque<HTableExecutorService>(maxSize);
+		this.executorServiceQueue = new LinkedBlockingDeque<>(maxSize);
 		this.activeHTables = new ConcurrentHashMap<>();
 		this.primaryKeyClassByName = primaryKeyClassByName;
+		this.hConnection = hBaseAdmin.getConnection();
 	}
-
 
 	@Override
 	public HTable checkOut(String tableName, MutableString progress){
+		if(shutdown){
+			return null;
+		}
 		long checkoutRequestStartMs = System.currentTimeMillis();
 		checkConsistencyAndAcquireSempahore(tableName);
 		setProgress(progress, "passed semaphore");
@@ -93,11 +98,7 @@ public class HTableExecutorServicePool implements HTablePool{
 				logWithPoolInfo("discarded expired HTableExecutorService", tableName);
 				hTableExecutorService = null;//release it and loop around again
 			}
-
-			HConnection hConnection = HConnectionManager.getConnection(hBaseConfiguration);
-			setProgress(progress, "got hConnection "+hConnection==null?"null":"");
-			hTable = new HTable(StringByteTool.getUtf8Bytes(tableName), hConnection,
-					hTableExecutorService.exec);
+			hTable = new HTable(StringByteTool.getUtf8Bytes(tableName), hConnection, hTableExecutorService.exec);
 			setProgress(progress, "created HTable");
 			activeHTables.put(hTable, hTableExecutorService);
 			setProgress(progress, "added to activeHTables");
@@ -214,7 +215,7 @@ public class HTableExecutorServicePool implements HTablePool{
 
 	static final int LEWAY = 0;
 
-	public boolean areCountsConsistent(boolean checkOut) {
+	public boolean areCountsConsistent() {
 		int numActivePermits = hTableSemaphoreActivePermits();
 		if(numActivePermits > maxSize) { return false; }
 		int numActiveHTables = activeHTables.size();
@@ -236,7 +237,7 @@ public class HTableExecutorServicePool implements HTablePool{
 	}
 
 	public void innerLogIfInconsistentCounts(boolean checkOut, String tableName){
-		if(!areCountsConsistent(checkOut)){
+		if(!areCountsConsistent()){
 			long msSinceLastLog = System.currentTimeMillis() - lastLoggedWarning;
 			if(msSinceLastLog < THROTTLE_INCONSISTENT_LOG_EVERY_X_MS){ return; }
 			logWithPoolInfo("inconsistent pool counts on "+(checkOut?"checkOut":"checkIn"), tableName);
@@ -270,6 +271,23 @@ public class HTableExecutorServicePool implements HTablePool{
 
 	protected int hTableSemaphoreActivePermits(){
 		return maxSize - hTableSemaphore.availablePermits();//seems to always be 1 lower?
+	}
+	
+	public void shutdown(){
+		shutdown = true;
+		if(hTableSemaphoreActivePermits() != 0){
+			logger.info("Still " + hTableSemaphoreActivePermits() + "active hTables");
+			ThreadTool.sleep(5000);
+		}
+		for(HTableExecutorService executorService : executorServiceQueue){
+			executorService.terminateAndBlockUntilFinished("shutdown");
+		}
+		try{
+			hConnection.close();
+		}catch (IOException e){
+			logger.error("Error while closing hConnection", e);
+			throw new RuntimeException(e);
+		}
 	}
 
 }
