@@ -21,7 +21,6 @@ public class JdbcConnectionPool{
 	private static final Logger logger = LoggerFactory.getLogger(JdbcConnectionPool.class);
 
 	public static final String
-		prefix = ConnectionPools.prefixPool,
 		poolDefault = "default";
 	
 	private ApplicationPaths applicationPaths;

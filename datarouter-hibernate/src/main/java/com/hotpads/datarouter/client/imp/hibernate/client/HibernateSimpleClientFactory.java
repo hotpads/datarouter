@@ -75,22 +75,22 @@ extends JdbcSimpleClientFactory{
 		addHbm2DdlSetting(sfConfig);
 		
 		// connect to the database
-		JdbcConnectionPool connectionPool = getConnectionPool(getClientName(), getMultiProperties());
+		initConnectionPool();
 		timer.add("pool");
 		
 		sfConfig.setProperty(PROVIDER_CLASS,HibernateConnectionProvider.class.getName());
-		sfConfig.setProperty(CONNECTION_POOL_NAME, connectionPool.getName());
+		sfConfig.setProperty(CONNECTION_POOL_NAME, getConnectionPool().getName());
 		// only way to get the connection pool to the ConnectionProvider is ThreadLocal or JNDI... using ThreadLocal
-		HibernateConnectionProvider.bindDataSourceToThread(connectionPool);
+		HibernateConnectionProvider.bindDataSourceToThread(getConnectionPool());
 		SessionFactory sessionFactory = sfConfig.buildSessionFactory();
 		HibernateConnectionProvider.clearConnectionPoolFromThread();
 		timer.add("connection provider");
 
-		HibernateClientImp client = new HibernateClientImp(getClientName(), connectionPool, sessionFactory);
+		HibernateClientImp client = new HibernateClientImp(getClientName(), getConnectionPool(), sessionFactory);
 		timer.add("client");
 		
 		if(doSchemaUpdate()){
-			new ParallelSchemaUpdate(getDrContext(), getClientName(), connectionPool).call();
+			new ParallelSchemaUpdate(getDrContext(), getClientName(), getConnectionPool()).call();
 			timer.add("schema update");
 		}
 

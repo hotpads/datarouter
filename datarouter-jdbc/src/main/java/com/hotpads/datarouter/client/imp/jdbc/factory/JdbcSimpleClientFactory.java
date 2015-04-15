@@ -46,7 +46,7 @@ implements ClientFactory{
 	public Client call(){
 		PhaseTimer timer = new PhaseTimer(clientName);
 		
-		connectionPool = getConnectionPool(clientName, multiProperties);
+		initConnectionPool();
 		timer.add("pool");
 		
 		client = new JdbcClientImp(clientName, connectionPool);
@@ -65,10 +65,9 @@ implements ClientFactory{
 		return ClientId.getWritableNames(drContext.getClientPool().getClientIds()).contains(clientName);
 	}
 	
-	protected JdbcConnectionPool getConnectionPool(String clientName, List<Properties> multiProperties){
-		JdbcConnectionPool connectionPool = new JdbcConnectionPool(drContext.getApplicationPaths(), clientName,
+	protected void initConnectionPool(){
+		connectionPool = new JdbcConnectionPool(drContext.getApplicationPaths(), clientName,
 				multiProperties, isWritableClient());
-		return connectionPool;
 	}
 	
 	protected boolean doSchemaUpdate(){
@@ -89,6 +88,9 @@ implements ClientFactory{
 		return drContext;
 	}
 	
+	public JdbcConnectionPool getConnectionPool(){
+		return connectionPool;
+	}
 	
 	
 }
