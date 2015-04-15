@@ -63,7 +63,7 @@ public class HibernateClientType extends BaseClientType{
 		if(nodeParams.getFielderClass() == null){
 			node = new PhysicalIndexedSortedMapStorageCounterAdapter<PK,D,F,HibernateNode<PK,D,F>>(
 					new HibernateNode<PK,D,F>(nodeParams));
-			logger.warn("creating HibernateNode "+node);
+//			logger.warn("creating HibernateNode "+node);
 		}else{
 			node = new PhysicalIndexedSortedMapStorageCounterAdapter<PK,D,F,JdbcNode<PK,D,F>>(
 					new JdbcNode<PK,D,F>(nodeParams));
