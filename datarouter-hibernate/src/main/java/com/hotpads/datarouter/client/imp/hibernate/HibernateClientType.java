@@ -4,8 +4,8 @@ import java.util.List;
 
 import javax.inject.Singleton;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.junit.Assert;
+import org.junit.Test;
 
 import com.hotpads.datarouter.client.ClientFactory;
 import com.hotpads.datarouter.client.imp.BaseClientType;
@@ -36,12 +36,14 @@ import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.view.index.multi.MultiIndexEntry;
 import com.hotpads.datarouter.storage.view.index.unique.UniqueIndexEntry;
+import com.hotpads.util.core.java.ReflectionTool;
 
 @Singleton
 public class HibernateClientType extends BaseClientType{
-	private static final Logger logger = LoggerFactory.getLogger(HibernateClientType.class);
 	
-	public static final String NAME = "hibernate";
+	public static final String 
+			NAME = "hibernate",
+			CANONICAL_CLASS_NAME = "com.hotpads.datarouter.client.imp.hibernate.HibernateClientType";
 	
 	public static final HibernateClientType INSTANCE = new HibernateClientType();
 	
@@ -123,6 +125,19 @@ public class HibernateClientType extends BaseClientType{
 			return new JdbcTxnManagedMultiIndexNode<PK, D, IK, IE, IF>(backingMapNode, params, indexName);
 		}
 		return new JdbcManagedMultiIndexNode<PK, D, IK, IE, IF>(backingMapNode, params, indexName);
+	}
+	
+	
+	/********************** tests ****************************/
+	
+	//TODO switch to TestNG when it works on inner classes
+	public static class HibernateClientTypeTests{
+		@Test
+		public void testClassLocation(){
+			String actualClassName = HibernateClientType.class.getCanonicalName();
+			Assert.assertEquals(CANONICAL_CLASS_NAME, actualClassName);
+			ReflectionTool.create(CANONICAL_CLASS_NAME);//double check, why not
+		}
 	}
 	
 }

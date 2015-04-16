@@ -4,6 +4,9 @@ import java.util.List;
 
 import javax.inject.Singleton;
 
+import org.junit.Assert;
+import org.junit.Test;
+
 import com.hotpads.datarouter.client.ClientFactory;
 import com.hotpads.datarouter.client.imp.BaseClientType;
 import com.hotpads.datarouter.client.imp.jdbc.factory.JdbcSimpleClientFactory;
@@ -32,13 +35,16 @@ import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.view.index.multi.MultiIndexEntry;
 import com.hotpads.datarouter.storage.view.index.unique.UniqueIndexEntry;
+import com.hotpads.util.core.java.ReflectionTool;
 
 @Singleton
 public class JdbcClientType extends BaseClientType{
 	
-	public static final JdbcClientType INSTANCE = new JdbcClientType();
+	public static final String 
+			NAME = "jdbc",
+			CANONICAL_CLASS_NAME = "com.hotpads.datarouter.client.imp.jdbc.JdbcClientType";
 	
-	public static final String NAME = "jdbc";
+	public static final JdbcClientType INSTANCE = new JdbcClientType();
 	
 	@Override
 	public String getName(){
@@ -106,6 +112,19 @@ public class JdbcClientType extends BaseClientType{
 			return new JdbcTxnManagedMultiIndexNode<PK, D, IK, IE, IF>(backingMapNode, params, indexName);
 		}
 		return new JdbcManagedMultiIndexNode<PK, D, IK, IE, IF>(backingMapNode, params, indexName);
+	}
+	
+	
+	/********************** tests ****************************/
+	
+	//TODO switch to TestNG when it works on inner classes
+	public static class JdbcClientTypeTests{
+		@Test
+		public void testClassLocation(){
+			String actualClassName = JdbcClientType.class.getCanonicalName();
+			Assert.assertEquals(CANONICAL_CLASS_NAME, actualClassName);
+			ReflectionTool.create(CANONICAL_CLASS_NAME);//double check, why not
+		}
 	}
 	
 }
