@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.client.imp.hibernate;
+package com.hotpads.datarouter.client.imp.jdbc;
 
 import java.util.List;
 
@@ -9,8 +9,7 @@ import org.junit.Test;
 
 import com.hotpads.datarouter.client.ClientFactory;
 import com.hotpads.datarouter.client.imp.BaseClientType;
-import com.hotpads.datarouter.client.imp.hibernate.client.HibernateSimpleClientFactory;
-import com.hotpads.datarouter.client.imp.hibernate.node.HibernateNode;
+import com.hotpads.datarouter.client.imp.jdbc.factory.JdbcSimpleClientFactory;
 import com.hotpads.datarouter.client.imp.jdbc.node.JdbcNode;
 import com.hotpads.datarouter.client.imp.jdbc.node.index.JdbcManagedMultiIndexNode;
 import com.hotpads.datarouter.client.imp.jdbc.node.index.JdbcManagedUniqueIndexNode;
@@ -39,13 +38,13 @@ import com.hotpads.datarouter.storage.view.index.unique.UniqueIndexEntry;
 import com.hotpads.util.core.java.ReflectionTool;
 
 @Singleton
-public class HibernateClientType extends BaseClientType{
+public class JdbcClientType extends BaseClientType{
 	
 	public static final String 
-			NAME = "hibernate",
-			CANONICAL_CLASS_NAME = "com.hotpads.datarouter.client.imp.hibernate.HibernateClientType";
+			NAME = "jdbc",
+			CANONICAL_CLASS_NAME = "com.hotpads.datarouter.client.imp.jdbc.JdbcClientType";
 	
-	public static final HibernateClientType INSTANCE = new HibernateClientType();
+	public static final JdbcClientType INSTANCE = new JdbcClientType();
 	
 	@Override
 	public String getName(){
@@ -55,22 +54,14 @@ public class HibernateClientType extends BaseClientType{
 	@Override
 	public ClientFactory createClientFactory(DatarouterContext drContext, String clientName,
 			List<PhysicalNode<?,?>> physicalNodes){
-		return new HibernateSimpleClientFactory(drContext, clientName); 
+		return new JdbcSimpleClientFactory(drContext, clientName);
 	}
 	
 	@Override
 	public <PK extends PrimaryKey<PK>, D extends Databean<PK, D>, F extends DatabeanFielder<PK, D>>
 	PhysicalNode<PK, D> createNode(NodeParams<PK, D, F> nodeParams){
-		PhysicalIndexedSortedMapStorageNode<PK,D> node;
-		if(nodeParams.getFielderClass() == null){
-			node = new PhysicalIndexedSortedMapStorageCounterAdapter<PK,D,F,HibernateNode<PK,D,F>>(
-					new HibernateNode<PK,D,F>(nodeParams));
-//			logger.warn("creating HibernateNode "+node);
-		}else{
-			node = new PhysicalIndexedSortedMapStorageCounterAdapter<PK,D,F,JdbcNode<PK,D,F>>(
-					new JdbcNode<PK,D,F>(nodeParams));
-		}
-		return node;
+		return new PhysicalIndexedSortedMapStorageCounterAdapter<PK,D,F,JdbcNode<PK,D,F>>(new JdbcNode<PK,D,F>(
+				nodeParams));
 	}
 	
 	//ignore the entityNodeParams
@@ -98,12 +89,10 @@ public class HibernateClientType extends BaseClientType{
 			D extends Databean<PK, D>, 
 			IK extends PrimaryKey<IK>, 
 			IE extends UniqueIndexEntry<IK, IE, PK, D>,
-			IF extends DatabeanFielder<IK, IE>> ManagedUniqueIndexNode<PK, D, IK, IE, IF> createManagedUniqueIndexNode(
+			IF extends DatabeanFielder<IK, IE>>
+	ManagedUniqueIndexNode<PK, D, IK, IE, IF> createManagedUniqueIndexNode(
 			PhysicalMapStorageNode<PK, D> backingMapNode, NodeParams<IK, IE, IF> params, String indexName, 
 			boolean manageTxn){
-		if(!(backingMapNode.getPhysicalNodeIfApplicable() instanceof JdbcNode)){
-			super.createManagedUniqueIndexNode(backingMapNode, params, indexName, manageTxn);
-		}
 		if(manageTxn){
 			return new JdbcTxnManagedUniqueIndexNode<PK, D, IK, IE, IF>(backingMapNode, params, indexName);
 		}
@@ -115,12 +104,10 @@ public class HibernateClientType extends BaseClientType{
 			D extends Databean<PK, D>, 
 			IK extends PrimaryKey<IK>, 
 			IE extends MultiIndexEntry<IK, IE, PK, D>,
-			IF extends DatabeanFielder<IK, IE>> ManagedMultiIndexNode<PK, D, IK, IE, IF> createManagedMultiIndexNode(
+			IF extends DatabeanFielder<IK, IE>> 
+	ManagedMultiIndexNode<PK, D, IK, IE, IF> createManagedMultiIndexNode(
 			PhysicalMapStorageNode<PK, D> backingMapNode, NodeParams<IK, IE, IF> params, String indexName, 
 			boolean manageTxn){
-		if(!(backingMapNode.getPhysicalNodeIfApplicable() instanceof JdbcNode)){
-			super.createManagedMultiIndexNode(backingMapNode, params, indexName, manageTxn);
-		}
 		if(manageTxn){
 			return new JdbcTxnManagedMultiIndexNode<PK, D, IK, IE, IF>(backingMapNode, params, indexName);
 		}
@@ -131,10 +118,10 @@ public class HibernateClientType extends BaseClientType{
 	/********************** tests ****************************/
 	
 	//TODO switch to TestNG when it works on inner classes
-	public static class HibernateClientTypeTests{
+	public static class JdbcClientTypeTests{
 		@Test
 		public void testClassLocation(){
-			String actualClassName = HibernateClientType.class.getCanonicalName();
+			String actualClassName = JdbcClientType.class.getCanonicalName();
 			Assert.assertEquals(CANONICAL_CLASS_NAME, actualClassName);
 			ReflectionTool.create(CANONICAL_CLASS_NAME);//double check, why not
 		}
