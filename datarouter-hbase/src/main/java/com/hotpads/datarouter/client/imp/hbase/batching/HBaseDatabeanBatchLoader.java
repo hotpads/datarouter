@@ -24,7 +24,6 @@ public class HBaseDatabeanBatchLoader<
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>> 
 extends BaseHBaseBatchLoader<PK,D,F,D>{
-	private static Logger logger = LoggerFactory.getLogger(HBaseDatabeanBatchLoader.class);
 		
 	public HBaseDatabeanBatchLoader(final HBaseReaderNode<PK,D,F> node, final List<Field<?>> scatteringPrefix,
 			final Range<PK> range, final Config pConfig, Long batchChainCounter){
