@@ -20,6 +20,7 @@ import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 import org.slf4j.Logger;
@@ -47,7 +48,7 @@ public class HotPadsHttpClient {
 	private static final int DEFAULT_REQUEST_TIMEOUT_MS = 3000;
 	private static final int EXTRA_FUTURE_TIME_MS = 1000;
 
-	private HttpClient httpClient;
+	private CloseableHttpClient httpClient;
 	private JsonSerializer jsonSerializer;
 	private SignatureValidator signatureValidator;
 	private CsrfValidator csrfValidator;
@@ -57,9 +58,10 @@ public class HotPadsHttpClient {
 	private int requestTimeoutMs;
 	private long futureTimeoutMs;
 
-	HotPadsHttpClient(HttpClient httpClient, JsonSerializer jsonSerializer, SignatureValidator signatureValidator,
-			CsrfValidator csrfValidator, ApiKeyPredicate apiKeyPredicate, HotPadsHttpClientConfig config,
-			ExecutorService executor, Integer requestTimeoutMs, Long futureTimeoutMs, Integer retryCount) {
+	HotPadsHttpClient(CloseableHttpClient httpClient, JsonSerializer jsonSerializer,
+			SignatureValidator signatureValidator, CsrfValidator csrfValidator, ApiKeyPredicate apiKeyPredicate,
+			HotPadsHttpClientConfig config, ExecutorService executor, Integer requestTimeoutMs, Long futureTimeoutMs,
+			Integer retryCount) {
 		this.httpClient = httpClient;
 		this.jsonSerializer = jsonSerializer;
 		this.signatureValidator = signatureValidator;
@@ -157,6 +159,15 @@ public class HotPadsHttpClient {
 				request.addGetParams(signatureParam);
 			}			
 		}		
+	}
+	
+	public void shutdown(){
+		executor.shutdownNow();
+		try{
+			httpClient.close();
+		}catch (IOException e){
+			throw new RuntimeException(e);
+		}
 	}
 	
 	private static void forceAbortRequestUnchecked(HttpRequestBase internalHttpRequest) {

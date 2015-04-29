@@ -10,11 +10,11 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLContextBuilder;
 import org.apache.http.conn.ssl.TrustStrategy;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.LaxRedirectStrategy;
 
@@ -36,7 +36,7 @@ public class HotPadsHttpClientBuilder{
 	private HttpClientBuilder httpClientBuilder;
 	private HotPadsRetryHandler retryHandler;
 	private JsonSerializer jsonSerializer;
-	private HttpClient customHttpClient;
+	private CloseableHttpClient customHttpClient;
 	private SignatureValidator signatureValidator;
 	private CsrfValidator csrfValidator;
 	private DefaultApiKeyPredicate apiKeyPredicate;
@@ -79,7 +79,7 @@ public class HotPadsHttpClientBuilder{
 				throw new RuntimeException(e);
 			}
 		}
-		HttpClient builtHttpClient;
+		CloseableHttpClient builtHttpClient;
 		if(customHttpClient == null){
 			builtHttpClient = httpClientBuilder.build();
 		} else {
@@ -112,7 +112,7 @@ public class HotPadsHttpClientBuilder{
 		return this;
 	}
 
-	public HotPadsHttpClientBuilder setCustomHttpClient(HttpClient httpClient){
+	public HotPadsHttpClientBuilder setCustomHttpClient(CloseableHttpClient httpClient){
 		this.customHttpClient = httpClient;
 		return this;
 	}
