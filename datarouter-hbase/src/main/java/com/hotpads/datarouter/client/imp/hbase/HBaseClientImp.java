@@ -18,6 +18,7 @@ import com.hotpads.datarouter.client.imp.hbase.client.HBaseClient;
 import com.hotpads.datarouter.client.imp.hbase.factory.HBaseOptions;
 import com.hotpads.datarouter.client.imp.hbase.pool.HTablePool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
+import com.hotpads.util.core.concurrent.FutureTool;
 import com.hotpads.util.datastructs.MutableString;
 
 public class HBaseClientImp
@@ -115,6 +116,8 @@ implements HBaseClient{
 	@Override
 	public void shutdown(){
 		logger.warn("shutting down client:"+name);
+		FutureTool.finishAndShutdown(executorService, 5L, TimeUnit.SECONDS);
+		hTablePool.shutdown();
 //		hTablePool.killOutstandingConnections();
 	}
 }

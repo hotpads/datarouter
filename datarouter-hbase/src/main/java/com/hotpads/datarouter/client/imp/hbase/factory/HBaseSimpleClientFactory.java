@@ -225,7 +225,7 @@ implements ClientFactory{
 			pool = new HTableSharedPool(hBaseConfig, clientName,
 					EXECUTOR_SERVICE_maxPoolSize, primaryKeyClassByName);
 		}else {
-			pool = new HTableExecutorServicePool(hBaseConfig, clientName,
+			pool = new HTableExecutorServicePool(hBaseAdmin, clientName,
 					EXECUTOR_SERVICE_maxPoolSize, primaryKeyClassByName);
 		}
 		
