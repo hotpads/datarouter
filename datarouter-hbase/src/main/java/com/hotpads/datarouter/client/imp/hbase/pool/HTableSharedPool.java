@@ -224,4 +224,9 @@ public class HTableSharedPool  implements HTablePool{
 	public Integer getTotalPoolSize(){
 		return executorService.exec.getActiveCount();
 	}
+
+	@Override
+	public void shutdown(){
+		
+	}
 }
