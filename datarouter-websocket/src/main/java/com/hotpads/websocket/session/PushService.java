@@ -43,7 +43,6 @@ public class PushService{
 		for(WebSocketSession webSocketSession : scan){
 			String url = "https://" + webSocketSession.getServerName() + WebSocketApiDispatcher.WEBSOCKET_COMMAND + "/"
 					+ WebSocketCommandName.PUSH.getPath();
-			System.out.println(url);
 			HotPadsHttpRequest request = new HotPadsHttpRequest(HttpRequestMethod.POST, url, false);
 			WebSocketCommand webSocketCommand = new WebSocketCommand(webSocketSession.getKey(), message);
 			httpClient.addDtoToPayload(request, webSocketCommand, null);

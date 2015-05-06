@@ -18,7 +18,7 @@ public class WebSocketTool{
 		logger.debug("connection header value: {}", connection);
 		String sec_websocket_version = req.getHeader(HttpHeaders.SEC_WEBSOCKET_VERSION);
 		logger.debug("sec_websocket_version header value: {}", sec_websocket_version);
-		return !DrStringTool.isEmpty(sec_websocket_version);
+		return DrStringTool.notEmpty(sec_websocket_version);
 	}
 
 }
