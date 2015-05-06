@@ -12,7 +12,7 @@ import javax.servlet.http.HttpSession;
 
 import com.hotpads.websocket.WebSocketTool;
 
-public abstract class WebSocketAuthentificationFilter implements Filter{
+public abstract class WebSocketAuthenticationFilter implements Filter{
 
 	public static final String WEB_SOCKET_TOKEN = "WebSocketToken";
 

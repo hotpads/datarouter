@@ -9,7 +9,7 @@ import javax.websocket.Session;
 
 import com.hotpads.websocket.ServerAddressProvider;
 import com.hotpads.websocket.WebSocketConnectionStore;
-import com.hotpads.websocket.auth.WebSocketAuthentificationFilter;
+import com.hotpads.websocket.auth.WebSocketAuthenticationFilter;
 import com.hotpads.websocket.session.PushService;
 import com.hotpads.websocket.session.WebSocketSession;
 
@@ -27,7 +27,7 @@ public abstract class BaseEndpoint extends Endpoint{
 	@Override
 	public void onOpen(Session session, EndpointConfig endpointConfig){
 		String userToken = (String)endpointConfig.getUserProperties().get(
-				WebSocketAuthentificationFilter.WEB_SOCKET_TOKEN);
+				WebSocketAuthenticationFilter.WEB_SOCKET_TOKEN);
 		String serverAddress = serverAddressProvider.get();
 		webSocketSession = new WebSocketSession(userToken, serverAddress);
 		pushService.register(webSocketSession);

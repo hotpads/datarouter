@@ -11,7 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hotpads.DatarouterInjector;
-import com.hotpads.websocket.auth.WebSocketAuthentificationFilter;
+import com.hotpads.websocket.auth.WebSocketAuthenticationFilter;
 
 public abstract class DatarouterWebSocketConfigurator extends Configurator{
 	private static final Logger logger = LoggerFactory.getLogger(DatarouterWebSocketConfigurator.class);
@@ -22,8 +22,8 @@ public abstract class DatarouterWebSocketConfigurator extends Configurator{
 	public void modifyHandshake(ServerEndpointConfig sec, HandshakeRequest request, HandshakeResponse response){
 		logger.info("WebSocket handshake intersepted");
 		HttpSession httpSession = (HttpSession)request.getHttpSession();
-		sec.getUserProperties().put(WebSocketAuthentificationFilter.WEB_SOCKET_TOKEN,
-				httpSession.getAttribute(WebSocketAuthentificationFilter.WEB_SOCKET_TOKEN));
+		sec.getUserProperties().put(WebSocketAuthenticationFilter.WEB_SOCKET_TOKEN,
+				httpSession.getAttribute(WebSocketAuthenticationFilter.WEB_SOCKET_TOKEN));
 		if(injector != null){
 			return;
 		}

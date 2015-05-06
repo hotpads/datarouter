@@ -4,7 +4,7 @@ import javax.inject.Inject;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 
-public class GuiceWebSocketAuthentificationFilter extends WebSocketAuthentificationFilter{
+public class GuiceWebSocketAuthenticationFilter extends WebSocketAuthenticationFilter{
 
 	@Inject
 	private UserTokenRetriever userTokenRetriever;
