@@ -1,7 +1,7 @@
 package com.hotpads.websocket;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.inject.Singleton;
 import javax.websocket.Session;
@@ -15,7 +15,7 @@ public class WebSocketConnectionStore{
 	private final Map<WebSocketSessionKey,Session> map;
 
 	public WebSocketConnectionStore(){
-		map = new HashMap<>();
+		map = new ConcurrentHashMap<>();
 	}
 
 	public void put(WebSocketSession webSocketSession, Session session){
