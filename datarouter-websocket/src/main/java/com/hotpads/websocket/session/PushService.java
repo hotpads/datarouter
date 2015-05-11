@@ -11,6 +11,7 @@ import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.http.client.HotPadsHttpClient;
 import com.hotpads.util.http.request.HotPadsHttpRequest;
 import com.hotpads.util.http.request.HotPadsHttpRequest.HttpRequestMethod;
+import com.hotpads.util.http.response.HotPadsHttpResponse;
 
 @Singleton
 public class PushService{
@@ -41,12 +42,7 @@ public class PushService{
 		Range<WebSocketSessionKey> range = new Range<>(prefix, true, prefix, true);
 		Iterable<WebSocketSession> scan = webSocketSessionNode.scan(range, null);
 		for(WebSocketSession webSocketSession : scan){
-			String url = "https://" + webSocketSession.getServerName() + WebSocketApiDispatcher.WEBSOCKET_COMMAND + "/"
-					+ WebSocketCommandName.PUSH.getPath();
-			HotPadsHttpRequest request = new HotPadsHttpRequest(HttpRequestMethod.POST, url, false);
-			WebSocketCommand webSocketCommand = new WebSocketCommand(webSocketSession.getKey(), message);
-			httpClient.addDtoToPayload(request, webSocketCommand, null);
-			httpClient.execute(request);
+			executeCommand(WebSocketCommandName.PUSH, webSocketSession, message);
 		}
 	}
 
@@ -54,6 +50,22 @@ public class PushService{
 		WebSocketSessionKey prefix = new WebSocketSessionKey(userToken);
 		List<WebSocketSession> activeSessions = webSocketSessionNode.getWithPrefix(prefix, false, null);
 		return activeSessions.size();
+	}
+
+	//TODO Optimization: don't do the http call if the socket is open on the current server
+	public boolean isAlive(WebSocketSession webSocketSession){
+		HotPadsHttpResponse response = executeCommand(WebSocketCommandName.IS_ALIVE, webSocketSession, null);
+		return Boolean.parseBoolean(response.getEntity());
+	}
+
+	private HotPadsHttpResponse executeCommand(WebSocketCommandName webSocketCommandName,
+			WebSocketSession webSocketSession, String message){
+		String url = "https://" + webSocketSession.getServerName() + WebSocketApiDispatcher.WEBSOCKET_COMMAND + "/"
+				+ webSocketCommandName.getPath();
+		HotPadsHttpRequest request = new HotPadsHttpRequest(HttpRequestMethod.POST, url, false);
+		WebSocketCommand webSocketCommand = new WebSocketCommand(webSocketSession.getKey(), message);
+		httpClient.addDtoToPayload(request, webSocketCommand, null);
+		return httpClient.execute(request);
 	}
 
 }

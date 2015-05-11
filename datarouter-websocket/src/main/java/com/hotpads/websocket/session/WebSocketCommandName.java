@@ -1,7 +1,8 @@
 package com.hotpads.websocket.session;
 
 public enum WebSocketCommandName{
-	PUSH("push")
+	PUSH("push"),
+	IS_ALIVE("isAlive")
 	;
 
 	private final String path;
