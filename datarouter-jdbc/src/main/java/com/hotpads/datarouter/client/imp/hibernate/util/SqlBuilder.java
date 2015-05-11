@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.client.imp.hibernate.util;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -283,6 +284,49 @@ public class SqlBuilder{
 			sql.append(" limit "+config.getLimit());
 		}else if(config.getOffset()!=null){
 			sql.append(" limit "+config.getOffset()+", "+Integer.MAX_VALUE);//stupid mysql syntax
+		}
+	}
+	
+	
+	/************** methods originall in FieldTool ***********************/
+
+	public static List<String> getSqlValuesEscaped(JdbcFieldCodecFactory codecFactory, List<Field<?>> fields){
+		List<String> sql = new ArrayList<>();
+		for(JdbcFieldCodec<?,?> codec : codecFactory.createCodecs(fields)){
+			sql.add(codec.getSqlEscaped());
+		}
+		return sql;
+	}
+
+	public static List<String> getSqlNameValuePairsEscaped(JdbcFieldCodecFactory codecFactory, 
+			Collection<Field<?>> fields){
+		List<String> sql = new ArrayList<>();
+		for(JdbcFieldCodec<?,?> codec : codecFactory.createCodecs(fields)){
+			sql.add(codec.getSqlNameValuePairEscaped());
+		}
+		return sql;
+	}
+
+	public static String getSqlNameValuePairsEscapedConjunction(JdbcFieldCodecFactory codecFactory,
+			Collection<Field<?>> fields){
+		List<String> nameValuePairs = getSqlNameValuePairsEscaped(codecFactory, fields);
+		if(DrCollectionTool.sizeNullSafe(nameValuePairs) < 1){ return null; }
+		StringBuilder sb = new StringBuilder();
+		int numAppended = 0;
+		for(String nameValuePair : nameValuePairs){
+			if(numAppended > 0){ sb.append(" and "); }
+			sb.append(nameValuePair);
+			++numAppended;
+		}
+		return sb.toString();
+	}
+	
+	public static void appendSqlUpdateClauses(StringBuilder sb, Iterable<Field<?>> fields){
+		int appended = 0;
+		for(Field<?> field : DrIterableTool.nullSafe(fields)){
+			if(appended > 0){ sb.append(","); }
+			sb.append(field.getColumnName()+"=?");
+			++appended;
 		}
 	}
 }
