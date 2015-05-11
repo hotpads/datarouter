@@ -11,6 +11,7 @@ import com.hotpads.datarouter.client.ClientFactory;
 import com.hotpads.datarouter.client.imp.BaseClientType;
 import com.hotpads.datarouter.client.imp.hibernate.client.HibernateSimpleClientFactory;
 import com.hotpads.datarouter.client.imp.hibernate.node.HibernateNode;
+import com.hotpads.datarouter.client.imp.jdbc.field.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.client.imp.jdbc.node.JdbcNode;
 import com.hotpads.datarouter.client.imp.jdbc.node.index.JdbcManagedMultiIndexNode;
 import com.hotpads.datarouter.client.imp.jdbc.node.index.JdbcManagedUniqueIndexNode;
@@ -47,6 +48,13 @@ public class HibernateClientType extends BaseClientType{
 	
 	public static final HibernateClientType INSTANCE = new HibernateClientType();
 	
+	private final JdbcFieldCodecFactory fieldCodecFactory;
+	
+	
+	public HibernateClientType(){
+		this.fieldCodecFactory = new JdbcFieldCodecFactory();//TODO inject
+	}
+	
 	@Override
 	public String getName(){
 		return NAME;
@@ -64,11 +72,11 @@ public class HibernateClientType extends BaseClientType{
 		PhysicalIndexedSortedMapStorageNode<PK,D> node;
 		if(nodeParams.getFielderClass() == null){
 			node = new PhysicalIndexedSortedMapStorageCounterAdapter<PK,D,F,HibernateNode<PK,D,F>>(
-					new HibernateNode<PK,D,F>(nodeParams));
+					new HibernateNode<PK,D,F>(nodeParams, fieldCodecFactory));
 //			logger.warn("creating HibernateNode "+node);
 		}else{
 			node = new PhysicalIndexedSortedMapStorageCounterAdapter<PK,D,F,JdbcNode<PK,D,F>>(
-					new JdbcNode<PK,D,F>(nodeParams));
+					new JdbcNode<PK,D,F>(nodeParams, fieldCodecFactory));
 		}
 		return node;
 	}
@@ -105,9 +113,10 @@ public class HibernateClientType extends BaseClientType{
 			super.createManagedUniqueIndexNode(backingMapNode, params, indexName, manageTxn);
 		}
 		if(manageTxn){
-			return new JdbcTxnManagedUniqueIndexNode<PK, D, IK, IE, IF>(backingMapNode, params, indexName);
+			return new JdbcTxnManagedUniqueIndexNode<PK, D, IK, IE, IF>(backingMapNode, fieldCodecFactory, params, 
+					indexName);
 		}
-		return new JdbcManagedUniqueIndexNode<PK, D, IK, IE, IF>(backingMapNode, params, indexName);
+		return new JdbcManagedUniqueIndexNode<PK, D, IK, IE, IF>(backingMapNode, fieldCodecFactory, params, indexName);
 	}
 	
 	@Override
@@ -122,9 +131,10 @@ public class HibernateClientType extends BaseClientType{
 			super.createManagedMultiIndexNode(backingMapNode, params, indexName, manageTxn);
 		}
 		if(manageTxn){
-			return new JdbcTxnManagedMultiIndexNode<PK, D, IK, IE, IF>(backingMapNode, params, indexName);
+			return new JdbcTxnManagedMultiIndexNode<PK, D, IK, IE, IF>(backingMapNode, fieldCodecFactory, 
+					params, indexName);
 		}
-		return new JdbcManagedMultiIndexNode<PK, D, IK, IE, IF>(backingMapNode, params, indexName);
+		return new JdbcManagedMultiIndexNode<PK, D, IK, IE, IF>(backingMapNode, fieldCodecFactory, params, indexName);
 	}
 	
 	

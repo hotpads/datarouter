@@ -2,6 +2,7 @@ package com.hotpads.datarouter.client.imp.jdbc.scan;
 
 import java.util.List;
 
+import com.hotpads.datarouter.client.imp.jdbc.field.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.client.imp.jdbc.node.JdbcReaderNode;
 import com.hotpads.datarouter.client.imp.jdbc.op.read.index.JdbcIndexScanOp;
 import com.hotpads.datarouter.config.Config;
@@ -26,11 +27,14 @@ extends BaseBatchingSortedScanner<PKLookup,PKLookup>{
 	private static final Integer BATCH_SIZE = 1000;
 	
 	private final JdbcReaderNode<PK, D, F> node;
+	private final JdbcFieldCodecFactory fieldCodecFactory;
 	private final Class<PKLookup> indexClass;
 	private final String traceName;
 
-	public JdbcIndexScanner(JdbcReaderNode<PK, D, F> node, Class<PKLookup> indexClass, String traceName){
+	public JdbcIndexScanner(JdbcReaderNode<PK, D, F> node, JdbcFieldCodecFactory fieldCodecFactory, 
+			Class<PKLookup> indexClass, String traceName){
 		this.node = node;
+		this.fieldCodecFactory = fieldCodecFactory;
 		this.indexClass = indexClass;
 		this.traceName = traceName;
 	}
@@ -65,8 +69,8 @@ extends BaseBatchingSortedScanner<PKLookup,PKLookup>{
 
 	private List<PKLookup> doLoad(Range<PKLookup> start){
 		Config config = Configs.slaveOk().setLimit(BATCH_SIZE);
-		JdbcIndexScanOp<PK, D, F, PKLookup> op = new JdbcIndexScanOp<PK, D, F, PKLookup>(node, start, indexClass, 
-				config);
+		JdbcIndexScanOp<PK,D,F,PKLookup> op = new JdbcIndexScanOp<PK,D,F,PKLookup>(node, fieldCodecFactory, start,
+				indexClass, config);
 		return new SessionExecutorImpl<List<PKLookup>>(op, traceName).call();
 	}
 	

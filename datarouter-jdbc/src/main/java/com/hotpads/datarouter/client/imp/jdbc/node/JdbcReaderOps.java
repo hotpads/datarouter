@@ -4,9 +4,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import com.hotpads.datarouter.client.imp.jdbc.field.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcCountOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcGetFirstKeyOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcGetFirstOp;
@@ -30,7 +28,6 @@ import com.hotpads.datarouter.storage.key.multi.BaseLookup;
 import com.hotpads.datarouter.storage.key.multi.Lookup;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
-import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.collections.Range;
@@ -45,14 +42,15 @@ public class JdbcReaderOps<
 
 	public static final int DEFAULT_ITERATE_BATCH_SIZE = 1000;
 	
-	
 	private final JdbcReaderNode<PK,D,F> node;
+	private final JdbcFieldCodecFactory fieldCodecFactory;
 	
 	
 	/******************************* constructors ************************************/
 
-	public JdbcReaderOps(JdbcReaderNode<PK,D,F> node){
+	public JdbcReaderOps(JdbcReaderNode<PK,D,F> node, JdbcFieldCodecFactory fieldCodecFactory){
 		this.node = node;
+		this.fieldCodecFactory = fieldCodecFactory;
 	}
 
 	
@@ -103,8 +101,8 @@ public class JdbcReaderOps<
 	//TODO pay attention to wildcardLastField
 	public List<D> lookup(final Lookup<PK> lookup, final boolean wildcardLastField, final Config config) {
 		String opName = IndexedStorageReader.OP_lookup;
-		JdbcLookupOp<PK,D,F> op = new JdbcLookupOp<PK,D,F>(node, DrListTool.wrap(lookup), wildcardLastField, 
-				config);
+		JdbcLookupOp<PK,D,F> op = new JdbcLookupOp<PK,D,F>(node, fieldCodecFactory, DrListTool.wrap(lookup),
+				wildcardLastField, config);
 		return new SessionExecutorImpl<List<D>>(op, getTraceName(opName)).call();
 	}
 	
@@ -112,13 +110,13 @@ public class JdbcReaderOps<
 	public List<D> lookup(final Collection<? extends Lookup<PK>> lookups, final Config config) {
 		String opName = IndexedStorageReader.OP_lookupMulti;
 		if(DrCollectionTool.isEmpty(lookups)){ return new LinkedList<D>(); }
-		JdbcLookupOp<PK,D,F> op = new JdbcLookupOp<PK,D,F>(node, lookups, false, config);
+		JdbcLookupOp<PK,D,F> op = new JdbcLookupOp<PK,D,F>(node, fieldCodecFactory, lookups, false, config);
 		return new SessionExecutorImpl<List<D>>(op, getTraceName(opName)).call();
 	}
 	
 	public <PKLookup extends BaseLookup<PK>> SortedScannerIterable<PKLookup> scanIndex(Class<PKLookup> indexClass){
-		SortedScanner<PKLookup> scanner = new JdbcIndexScanner<PK, D, F, PKLookup>(node, indexClass, getTraceName(
-				"scanIndex"));
+		SortedScanner<PKLookup> scanner = new JdbcIndexScanner<PK,D,F,PKLookup>(node, fieldCodecFactory, indexClass,
+				getTraceName("scanIndex"));
 		return new SortedScannerIterable<PKLookup>(scanner);
 	}
 	
@@ -140,21 +138,22 @@ public class JdbcReaderOps<
 	public List<D> getWithPrefixes(final Collection<PK> prefixes, final boolean wildcardLastField, 
 			final Config config) {
 		String opName = SortedStorageReader.OP_getWithPrefixes;
-		JdbcGetWithPrefixesOp<PK,D,F> op = new JdbcGetWithPrefixesOp<PK,D,F>(node, prefixes, wildcardLastField, 
-				config);
+		JdbcGetWithPrefixesOp<PK,D,F> op = new JdbcGetWithPrefixesOp<PK,D,F>(node, fieldCodecFactory, prefixes,
+				wildcardLastField, config);
 		return new SessionExecutorImpl<List<D>>(op, getTraceName(opName)).call();
 	}
 
 	public List<PK> getKeysInRange(Range<PK> range, final Config config) {
 		String opName = SortedStorageReader.OP_getKeysInRange;
-		JdbcGetPrimaryKeyRangeOp<PK,D,F> op = new JdbcGetPrimaryKeyRangeOp<PK,D,F>(node, range, config);
+		JdbcGetPrimaryKeyRangeOp<PK,D,F> op = new JdbcGetPrimaryKeyRangeOp<PK,D,F>(node, fieldCodecFactory, range,
+				config);
 		List<PK> result = new SessionExecutorImpl<List<PK>>(op, getTraceName(opName)).call();
 		return result;
 	}
 	
 	public List<D> getRange(final Range<PK> range, final Config config) {
 		String opName = SortedStorageReader.OP_getRange;
-		JdbcGetRangeOp<PK,D,F> op = new JdbcGetRangeOp<PK,D,F>(node, range, config);
+		JdbcGetRangeOp<PK,D,F> op = new JdbcGetRangeOp<PK,D,F>(node, fieldCodecFactory, range, config);
 		List<D> result = new SessionExecutorImpl<List<D>>(op, getTraceName(opName)).call();
 		return result;
 	}

@@ -3,6 +3,7 @@ package com.hotpads.datarouter.client.imp.hibernate.node;
 import java.util.Collection;
 
 import com.hotpads.datarouter.client.imp.hibernate.op.write.HibernatePutOp;
+import com.hotpads.datarouter.client.imp.jdbc.field.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.client.imp.jdbc.op.write.JdbcDeleteAllOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.write.JdbcDeleteOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.write.JdbcIndexDeleteOp;
@@ -32,8 +33,11 @@ extends HibernateReaderNode<PK,D,F>
 implements PhysicalIndexedSortedMapStorageNode<PK,D>
 {
 
-	public HibernateNode(NodeParams<PK,D,F> params){
+	private final JdbcFieldCodecFactory fieldCodecFactory;
+	
+	public HibernateNode(NodeParams<PK,D,F> params, JdbcFieldCodecFactory fieldCodecFactory){
 		super(params);
+		this.fieldCodecFactory = fieldCodecFactory;
 	}
 	
 	@Override
@@ -115,7 +119,8 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D>
 	@Override
 	public void deleteRangeWithPrefix(final PK prefix, final boolean wildcardLastField, final Config config) {
 		String opName = SortedStorageWriter.OP_deleteRangeWithPrefix;
-		JdbcPrefixDeleteOp<PK,D,F> op = new JdbcPrefixDeleteOp<PK,D,F>(this, prefix, wildcardLastField, config);
+		JdbcPrefixDeleteOp<PK,D,F> op = new JdbcPrefixDeleteOp<PK,D,F>(this, fieldCodecFactory, prefix, 
+				wildcardLastField, config);
 		new SessionExecutorImpl<Long>(op, getTraceName(opName)).call();
 	}
 

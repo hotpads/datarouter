@@ -10,6 +10,7 @@ import org.junit.Test;
 import com.hotpads.datarouter.client.ClientFactory;
 import com.hotpads.datarouter.client.imp.BaseClientType;
 import com.hotpads.datarouter.client.imp.jdbc.factory.JdbcSimpleClientFactory;
+import com.hotpads.datarouter.client.imp.jdbc.field.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.client.imp.jdbc.node.JdbcNode;
 import com.hotpads.datarouter.client.imp.jdbc.node.index.JdbcManagedMultiIndexNode;
 import com.hotpads.datarouter.client.imp.jdbc.node.index.JdbcManagedUniqueIndexNode;
@@ -46,6 +47,13 @@ public class JdbcClientType extends BaseClientType{
 	
 	public static final JdbcClientType INSTANCE = new JdbcClientType();
 	
+	private final JdbcFieldCodecFactory fieldCodecFactory;
+	
+	
+	public JdbcClientType(){
+		this.fieldCodecFactory = new JdbcFieldCodecFactory();//TODO inject
+	}
+	
 	@Override
 	public String getName(){
 		return NAME;
@@ -61,7 +69,7 @@ public class JdbcClientType extends BaseClientType{
 	public <PK extends PrimaryKey<PK>, D extends Databean<PK, D>, F extends DatabeanFielder<PK, D>>
 	PhysicalNode<PK, D> createNode(NodeParams<PK, D, F> nodeParams){
 		return new PhysicalIndexedSortedMapStorageCounterAdapter<PK,D,F,JdbcNode<PK,D,F>>(new JdbcNode<PK,D,F>(
-				nodeParams));
+				nodeParams, fieldCodecFactory));
 	}
 	
 	//ignore the entityNodeParams
@@ -94,9 +102,10 @@ public class JdbcClientType extends BaseClientType{
 			PhysicalMapStorageNode<PK, D> backingMapNode, NodeParams<IK, IE, IF> params, String indexName, 
 			boolean manageTxn){
 		if(manageTxn){
-			return new JdbcTxnManagedUniqueIndexNode<PK, D, IK, IE, IF>(backingMapNode, params, indexName);
+			return new JdbcTxnManagedUniqueIndexNode<PK, D, IK, IE, IF>(backingMapNode, fieldCodecFactory, params, 
+					indexName);
 		}
-		return new JdbcManagedUniqueIndexNode<PK, D, IK, IE, IF>(backingMapNode, params, indexName);
+		return new JdbcManagedUniqueIndexNode<PK, D, IK, IE, IF>(backingMapNode, fieldCodecFactory, params, indexName);
 	}
 	
 	@Override
@@ -109,9 +118,10 @@ public class JdbcClientType extends BaseClientType{
 			PhysicalMapStorageNode<PK, D> backingMapNode, NodeParams<IK, IE, IF> params, String indexName, 
 			boolean manageTxn){
 		if(manageTxn){
-			return new JdbcTxnManagedMultiIndexNode<PK, D, IK, IE, IF>(backingMapNode, params, indexName);
+			return new JdbcTxnManagedMultiIndexNode<PK, D, IK, IE, IF>(backingMapNode, fieldCodecFactory, params, 
+					indexName);
 		}
-		return new JdbcManagedMultiIndexNode<PK, D, IK, IE, IF>(backingMapNode, params, indexName);
+		return new JdbcManagedMultiIndexNode<PK, D, IK, IE, IF>(backingMapNode, fieldCodecFactory, params, indexName);
 	}
 	
 	

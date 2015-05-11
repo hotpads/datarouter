@@ -1,6 +1,8 @@
 package com.hotpads.datarouter.client.imp.jdbc.field;
 
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -16,16 +18,18 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.StandardFieldType;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.test.DatarouterTestModuleFactory;
+import com.hotpads.datarouter.util.core.DrIterableTool;
+import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.java.ReflectionTool;
 
 @Singleton
-public class JdbcCodecFactory{
+public class JdbcFieldCodecFactory{
 
 	private final Map<Class<? extends Field<?>>,Class<? extends JdbcFieldCodec<?,?>>> codecTypeByFieldType;
 	
 	
 	//@Inject
-	public JdbcCodecFactory(){
+	public JdbcFieldCodecFactory(){
 		this.codecTypeByFieldType = new HashMap<>();
 		initMappings();
 	}
@@ -48,16 +52,24 @@ public class JdbcCodecFactory{
 		return codec;
 	}
 	
+	public List<JdbcFieldCodec<?,?>> createCodecs(Collection<Field<?>> fields){
+		List<JdbcFieldCodec<?,?>> codecs = DrListTool.createArrayListWithSize(fields);
+		for(Field<?> field : DrIterableTool.nullSafe(fields)){
+			codecs.add(createCodec(field));
+		}
+		return codecs;
+	}
+	
 	
 	
 	/************************ test *****************************/
 	
 	@Guice(moduleFactory = DatarouterTestModuleFactory.class)
 	public static class JdbcCodecFactoryTests{
-		private static final Logger logger = LoggerFactory.getLogger(JdbcCodecFactory.JdbcCodecFactoryTests.class);
+		private static final Logger logger = LoggerFactory.getLogger(JdbcFieldCodecFactory.JdbcCodecFactoryTests.class);
 		
 		@Inject
-		private JdbcCodecFactory codecFactory;
+		private JdbcFieldCodecFactory codecFactory;
 		
 		@Test
 		public void testStringCodec(){

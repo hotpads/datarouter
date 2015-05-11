@@ -2,6 +2,7 @@ package com.hotpads.datarouter.client.imp.jdbc.node;
 
 import java.util.Collection;
 
+import com.hotpads.datarouter.client.imp.jdbc.field.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.client.imp.jdbc.op.write.JdbcDeleteAllOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.write.JdbcDeleteOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.write.JdbcIndexDeleteOp;
@@ -31,8 +32,11 @@ public class JdbcNode<
 extends JdbcReaderNode<PK,D,F>
 implements PhysicalIndexedSortedMapStorageNode<PK,D>{
 
-	public JdbcNode(NodeParams<PK,D,F> params){
-		super(params);
+	private final JdbcFieldCodecFactory fieldCodecFactory;
+	
+	public JdbcNode(NodeParams<PK,D,F> params, JdbcFieldCodecFactory fieldCodecFactory){
+		super(params, fieldCodecFactory);
+		this.fieldCodecFactory = fieldCodecFactory;
 	}
 	
 	@Override
@@ -113,7 +117,8 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D>{
 	@Override
 	public void deleteRangeWithPrefix(final PK prefix, final boolean wildcardLastField, final Config config) {
 		String opName = SortedStorageWriter.OP_deleteRangeWithPrefix;
-		JdbcPrefixDeleteOp<PK,D,F> op = new JdbcPrefixDeleteOp<PK,D,F>(this, prefix, wildcardLastField, config);
+		JdbcPrefixDeleteOp<PK,D,F> op = new JdbcPrefixDeleteOp<PK,D,F>(this, fieldCodecFactory, prefix,
+				wildcardLastField, config);
 		new SessionExecutorImpl<Long>(op, getTraceName(opName)).call();
 	}
 

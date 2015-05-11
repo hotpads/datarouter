@@ -7,6 +7,7 @@ import java.util.List;
 
 import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
 import com.hotpads.datarouter.client.imp.hibernate.util.SqlBuilder;
+import com.hotpads.datarouter.client.imp.jdbc.field.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.client.imp.jdbc.node.JdbcNode;
 import com.hotpads.datarouter.client.imp.jdbc.node.JdbcReaderNode;
 import com.hotpads.datarouter.client.imp.jdbc.op.BaseJdbcOp;
@@ -25,14 +26,16 @@ public class JdbcLookupOp<
 extends BaseJdbcOp<List<D>>{
 		
 	private final JdbcReaderNode<PK,D,F> node;
+	private final JdbcFieldCodecFactory fieldCodecFactory;
 	private final Collection<? extends Lookup<PK>> lookups;
 	private final boolean wildcardLastField;
 	private final Config config;
 	
-	public JdbcLookupOp(JdbcReaderNode<PK,D,F> node, Collection<? extends Lookup<PK>> lookups, 
-			boolean wildcardLastField, Config config) {
+	public JdbcLookupOp(JdbcReaderNode<PK,D,F> node, JdbcFieldCodecFactory fieldCodecFactory,
+			Collection<? extends Lookup<PK>> lookups, boolean wildcardLastField, Config config){
 		super(node.getDatarouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
 		this.node = node;
+		this.fieldCodecFactory = fieldCodecFactory;
 		this.lookups = lookups;
 		this.wildcardLastField = wildcardLastField;
 		this.config = Config.nullSafe(config);
@@ -51,8 +54,8 @@ extends BaseJdbcOp<List<D>>{
 		//TODO undefined behavior on trailing nulls
 		List<D> result = new ArrayList<>();
 		for (List<? extends Lookup<PK>> batch : new BatchingIterable<>(lookups, batchSize)){
-			String sql = SqlBuilder.getWithPrefixes(config, node.getTableName(), node.getFieldInfo().getFields(),
-					batch, wildcardLastField, node.getFieldInfo().getPrimaryKeyFields());
+			String sql = SqlBuilder.getWithPrefixes(fieldCodecFactory, config, node.getTableName(), node.getFieldInfo()
+					.getFields(), batch, wildcardLastField, node.getFieldInfo().getPrimaryKeyFields());
 			result.addAll(JdbcTool.selectDatabeans(getConnection(node.getClientName()), node.getFieldInfo(), sql));
 			if(config.getLimit() != null && result.size() >= config.getLimit()){
 				break;

@@ -6,8 +6,8 @@ import java.util.List;
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
 import com.hotpads.datarouter.client.imp.hibernate.util.SqlBuilder;
+import com.hotpads.datarouter.client.imp.jdbc.field.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.client.imp.jdbc.node.JdbcReaderNode;
-import com.hotpads.datarouter.client.imp.jdbc.op.BaseJdbcOp;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.op.util.ResultMergeTool;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
@@ -23,15 +23,18 @@ public class GetWhereTxn<
 extends BaseJdbcOp<List<D>>{
 
 	private N node;
+	private final JdbcFieldCodecFactory fieldCodecFactory;
 	private String tableName;
 	private PK startAfterKey;
 	private String whereClauseFromUser;
 	private Config config;
 	
 	
-	public GetWhereTxn(N node, String tableName, PK startAfterKey, String whereClauseFromUser, Config config){
+	public GetWhereTxn(N node, JdbcFieldCodecFactory fieldCodecFactory, String tableName, PK startAfterKey,
+			String whereClauseFromUser, Config config){
 		super(node.getDatarouterContext(), node.getClientNames());
 		this.node = node;
+		this.fieldCodecFactory = fieldCodecFactory;
 		this.tableName = tableName;
 		this.startAfterKey = startAfterKey;
 		this.whereClauseFromUser = whereClauseFromUser;
@@ -47,7 +50,7 @@ extends BaseJdbcOp<List<D>>{
 	public List<D> runOncePerClient(Client client){
 		StringBuilder whereClause = new StringBuilder();
 		if(startAfterKey != null){
-			SqlBuilder.addRangeWhereClause(whereClause, startAfterKey, false, null, true);
+			SqlBuilder.addRangeWhereClause(fieldCodecFactory, whereClause, startAfterKey, false, null, true);
 			if(DrStringTool.notEmpty(whereClauseFromUser)){
 				whereClause.append(" and ");
 			}

@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import com.hotpads.datarouter.client.imp.jdbc.field.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.client.imp.jdbc.op.BaseJdbcOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.read.index.JdbcGetIndexOp;
 import com.hotpads.datarouter.config.Config;
@@ -26,8 +27,9 @@ public class JdbcManagedMultiIndexNode<
 extends BaseJdbcManagedIndexNode<PK,D,IK,IE,IF>
 implements ManagedMultiIndexNode<PK, D, IK, IE, IF>{
 	
-	public JdbcManagedMultiIndexNode(PhysicalMapStorageNode<PK, D> node, NodeParams<IK, IE, IF> params, String name){
-		super(node, params, name);
+	public JdbcManagedMultiIndexNode(PhysicalMapStorageNode<PK, D> node, JdbcFieldCodecFactory fieldCodecFactory,
+			NodeParams<IK, IE, IF> params, String name){
+		super(node, fieldCodecFactory, params, name);
 	}
 	
 	private List<IE> lookupMultiIndexMulti(Collection<IK> indexKeys, Config config){

@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import com.hotpads.datarouter.client.imp.jdbc.field.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.client.imp.jdbc.op.BaseJdbcOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.read.index.JdbcGetIndexOp;
 import com.hotpads.datarouter.config.Config;
@@ -26,10 +27,10 @@ public class JdbcManagedUniqueIndexNode
 		IF extends DatabeanFielder<IK,IE>>
 extends BaseJdbcManagedIndexNode<PK, D, IK, IE, IF>
 implements ManagedUniqueIndexNode<PK, D, IK, IE, IF>{
-
 	
-	public JdbcManagedUniqueIndexNode(PhysicalMapStorageNode<PK, D> node, NodeParams<IK, IE, IF> params, String name){
-		super(node, params, name);
+	public JdbcManagedUniqueIndexNode(PhysicalMapStorageNode<PK, D> node, JdbcFieldCodecFactory fieldCodecFactory, 
+			NodeParams<IK, IE, IF> params, String name){
+		super(node, fieldCodecFactory, params, name);
 	}
 
 	@Override

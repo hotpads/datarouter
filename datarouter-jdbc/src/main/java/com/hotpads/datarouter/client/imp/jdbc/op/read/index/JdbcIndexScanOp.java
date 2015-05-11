@@ -8,6 +8,7 @@ import java.util.TreeSet;
 
 import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
 import com.hotpads.datarouter.client.imp.hibernate.util.SqlBuilder;
+import com.hotpads.datarouter.client.imp.jdbc.field.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.client.imp.jdbc.node.JdbcReaderNode;
 import com.hotpads.datarouter.client.imp.jdbc.op.BaseJdbcOp;
 import com.hotpads.datarouter.config.Config;
@@ -30,15 +31,17 @@ public class JdbcIndexScanOp<
 extends BaseJdbcOp<List<PKLookup>>{
 
 	private final JdbcReaderNode<PK, D, F> node;
+	private final JdbcFieldCodecFactory fieldCodecFactory;
 	private final Range<PKLookup> start;
 	private final Class<PKLookup> indexClass;
 	private final Config config;
 	
-	public JdbcIndexScanOp(JdbcReaderNode<PK, D, F> node, Range<PKLookup> start, Class<PKLookup> indexClass, 
-			Config config){
+	public JdbcIndexScanOp(JdbcReaderNode<PK,D,F> node, JdbcFieldCodecFactory fieldCodecFactory, Range<PKLookup> start,
+			Class<PKLookup> indexClass, Config config){
 		super(node.getDatarouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
 		this.start = start;
 		this.node = node;
+		this.fieldCodecFactory = fieldCodecFactory;
 		this.config = config;
 		this.indexClass = indexClass;
 	}
@@ -66,7 +69,7 @@ extends BaseJdbcOp<List<PKLookup>>{
 		};
 		
 		List<Field<?>> selectableFields = DrListTool.createArrayList(selectableFieldSet);
-		String sql = SqlBuilder.getInRange(config, node.getTableName(), selectableFields, fullStart,
+		String sql = SqlBuilder.getInRange(fieldCodecFactory, config, node.getTableName(), selectableFields, fullStart,
 				start.getStartInclusive(), start.getEnd(), start.getEndInclusive(), index.getFields());
 		Connection connection = getConnection(node.getClientName());
 		List<PKLookup> result = JdbcTool.selectLookups(connection, selectableFields, indexClass, sql, node
