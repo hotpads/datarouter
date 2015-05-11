@@ -50,7 +50,7 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D>{
 	@Override
 	public void put(final D databean, final Config config) {
 		String opName = MapStorageWriter.OP_put;
-		JdbcPutOp<PK,D,F> op = new JdbcPutOp<PK,D,F>(this, DrListTool.wrap(databean), config);
+		JdbcPutOp<PK,D,F> op = new JdbcPutOp<PK,D,F>(this, fieldCodecFactory, DrListTool.wrap(databean), config);
 		new SessionExecutorImpl<Void>(op, getTraceName(opName)).call();
 	}
 
@@ -59,7 +59,7 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D>{
 	public void putMulti(Collection<D> databeans, final Config config) {
 		String opName = MapStorageWriter.OP_putMulti;
 		if(DrCollectionTool.isEmpty(databeans)){ return; }//avoid starting txn
-		JdbcPutOp<PK,D,F> op = new JdbcPutOp<PK,D,F>(this, databeans, config);
+		JdbcPutOp<PK,D,F> op = new JdbcPutOp<PK,D,F>(this, fieldCodecFactory, databeans, config);
 		new SessionExecutorImpl<Void>(op, getTraceName(opName)).call();
 	}
 	
