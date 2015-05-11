@@ -6,16 +6,23 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.util.regex.Matcher;
 
+import org.junit.Assert;
+import org.junit.Test;
+
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
+import com.hotpads.datarouter.client.imp.jdbc.field.base.BaseJdbcFieldCodec;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.util.core.DrRegexTool;
 
 public class StringJdbcFieldCodec
 extends BaseJdbcFieldCodec<String,StringField>{
+	
+	public static final int DEFAULT_STRING_LENGTH = StringField.DEFAULT_STRING_LENGTH;
 
-	public StringJdbcFieldCodec(){
+	public StringJdbcFieldCodec(StringField field){
+		super(field);
 	}
 
 	@Override
@@ -96,6 +103,26 @@ extends BaseJdbcFieldCodec<String,StringField>{
 			return new SqlColumn(name, MySqlColumnType.LONGTEXT, null, true, false);
 		}
 		throw new IllegalArgumentException("Unknown size:"+size);
+	}
+	
+	
+	/********************************* tests **********************************************/
+	
+	public static class StringJdbcFieldCodecTests{
+		@Test 
+		public void testGetSqlEscaped(){
+			Assert.assertEquals("'bill\\'s'",
+					new StringJdbcFieldCodec(new StringField("tag","bill's", DEFAULT_STRING_LENGTH)).getSqlEscaped());
+			
+			//actual case encountered
+			Assert.assertEquals("'Renter\\\\\\\\\\\\\\'s Assurance Program'", new StringJdbcFieldCodec(
+					new StringField("tag","Renter\\\\\\'s Assurance Program", DEFAULT_STRING_LENGTH)).getSqlEscaped());
+
+
+			Assert.assertEquals("'no apostrophes'", new StringJdbcFieldCodec(
+					new StringField("tag","no apostrophes", DEFAULT_STRING_LENGTH)).getSqlEscaped());
+			
+		}
 	}
 	
 }
