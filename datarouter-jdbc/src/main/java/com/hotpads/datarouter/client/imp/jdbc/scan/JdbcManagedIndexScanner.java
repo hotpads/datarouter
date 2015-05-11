@@ -25,12 +25,12 @@ public class JdbcManagedIndexScanner<
 		IF extends DatabeanFielder<IK, IE>>
 extends BaseBatchingSortedScanner<IE,IE>{
 	
-	private PhysicalNode<PK, D> node;
+	private final PhysicalNode<PK, D> node;
 	private final JdbcFieldCodecFactory fieldCodecFactory;
-	private String traceName;
-	private ManagedNode<IK, IE, IF> managedNode;
-	private Range<IK> range;
-	private Config config;
+	private final String traceName;
+	private final ManagedNode<IK, IE, IF> managedNode;
+	private final Range<IK> range;
+	private final Config config;
 
 	public JdbcManagedIndexScanner(PhysicalNode<PK,D> node, JdbcFieldCodecFactory fieldCodecFactory,
 			ManagedNode<IK,IE,IF> managedNode, Range<IK> range, String traceName, Config config){

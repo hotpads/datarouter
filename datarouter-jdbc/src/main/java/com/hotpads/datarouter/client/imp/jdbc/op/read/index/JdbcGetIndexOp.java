@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
 import com.hotpads.datarouter.client.imp.hibernate.util.SqlBuilder;
 import com.hotpads.datarouter.client.imp.jdbc.field.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.client.imp.jdbc.node.JdbcNode;
@@ -16,7 +17,6 @@ import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
-import com.hotpads.datarouter.storage.field.FieldSetTool;
 import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.view.index.IndexEntry;
@@ -65,8 +65,8 @@ extends BaseJdbcOp<List<IE>>{
 				ps.execute();
 				ResultSet rs = ps.getResultSet();
 				while(rs.next()){
-					IE databean = FieldSetTool.fieldSetFromJdbcResultSetUsingReflection(indexEntryClass, indexFielder
-							.getFields(indexEntry), rs, false);
+					IE databean = JdbcTool.fieldSetFromJdbcResultSetUsingReflection(fieldCodecFactory,
+							indexEntryClass, indexFielder.getFields(indexEntry), rs, false);
 					databeans.add(databean);
 				}
 			}catch(Exception e){

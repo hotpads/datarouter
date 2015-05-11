@@ -42,7 +42,8 @@ extends BaseJdbcOp<List<D>>{
 		if(DrCollectionTool.isEmpty(prefixes)){ return new LinkedList<D>(); }
 		String sql = SqlBuilder.getWithPrefixes(fieldCodecFactory, config, node.getTableName(), node.getFieldInfo()
 				.getFields(), prefixes, wildcardLastField, node.getFieldInfo().getPrimaryKeyFields());
-		List<D> result = JdbcTool.selectDatabeans(getConnection(node.getClientName()), node.getFieldInfo(), sql);
+		List<D> result = JdbcTool.selectDatabeans(fieldCodecFactory, getConnection(node.getClientName()), node
+				.getFieldInfo(), sql);
 		return result;
 	}
 	

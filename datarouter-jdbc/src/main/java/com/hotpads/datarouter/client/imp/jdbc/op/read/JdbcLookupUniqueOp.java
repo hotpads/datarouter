@@ -45,7 +45,8 @@ extends BaseJdbcOp<List<D>>{
 		Collections.sort(sortedKeys);
 		String sql = SqlBuilder.getMulti(fieldCodecFactory, config, node.getTableName(), node.getFieldInfo().getFields(), 
 				uniqueKeys);
-		List<D> result = JdbcTool.selectDatabeans(getConnection(node.getClientName()), node.getFieldInfo(), sql);
+		List<D> result = JdbcTool.selectDatabeans(fieldCodecFactory, getConnection(node.getClientName()), node
+				.getFieldInfo(), sql);
 		return result;
 	}
 	

@@ -60,7 +60,7 @@ extends BaseJdbcOp<List<PK>>{
 			List<? extends Key<PK>> keyBatch = DrBatchTool.getBatch(sortedKeys, batchSize, batchNum);
 			String sql = SqlBuilder.getMulti(fieldCodecFactory, config, node.getTableName(), node.getFieldInfo()
 					.getPrimaryKeyFields(), keyBatch);
-			List<PK> batch = JdbcTool.selectPrimaryKeys(connection, node.getFieldInfo(), sql);
+			List<PK> batch = JdbcTool.selectPrimaryKeys(fieldCodecFactory, connection, node.getFieldInfo(), sql);
 			DRCounters.incClientNodeCustom(node.getClient().getType(), opName + " selects", node.getClientName(), node
 					.getName());
 			if(DrCollectionTool.notEmpty(batch)){

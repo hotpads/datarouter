@@ -56,7 +56,8 @@ extends BaseJdbcOp<List<D>>{
 		for (List<? extends Lookup<PK>> batch : new BatchingIterable<>(lookups, batchSize)){
 			String sql = SqlBuilder.getWithPrefixes(fieldCodecFactory, config, node.getTableName(), node.getFieldInfo()
 					.getFields(), batch, wildcardLastField, node.getFieldInfo().getPrimaryKeyFields());
-			result.addAll(JdbcTool.selectDatabeans(getConnection(node.getClientName()), node.getFieldInfo(), sql));
+			result.addAll(JdbcTool.selectDatabeans(fieldCodecFactory, getConnection(node.getClientName()), node
+					.getFieldInfo(), sql));
 			if(config.getLimit() != null && result.size() >= config.getLimit()){
 				break;
 			}

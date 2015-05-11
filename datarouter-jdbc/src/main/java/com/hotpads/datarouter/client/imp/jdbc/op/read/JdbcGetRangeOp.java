@@ -47,7 +47,8 @@ extends BaseJdbcOp<List<D>>{
 		List<Field<?>> fieldsToSelect = node.getFieldInfo().getFields();
 		String sql = SqlBuilder.getInRange(fieldCodecFactory, config, node.getTableName(), fieldsToSelect, range, 
 				node.getFieldInfo().getPrimaryKeyFields());
-		List<D> result = JdbcTool.selectDatabeans(getConnection(node.getClientName()), node.getFieldInfo(), sql);
+		List<D> result = JdbcTool.selectDatabeans(fieldCodecFactory, getConnection(node.getClientName()), node
+				.getFieldInfo(), sql);
 		
 		DRCounters.incClientNodeCustom(client.getType(), opName + " rows", client.getName(), node.getName(), 
 				DrCollectionTool.size(result));

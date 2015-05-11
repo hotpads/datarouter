@@ -85,15 +85,15 @@ public class JdbcTool {
 	}
 	
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>> 
-	List<PK> selectPrimaryKeys(Connection connection, DatabeanFieldInfo<PK,D,F> fieldInfo, String sql){
-//		System.out.println(sql);
+	List<PK> selectPrimaryKeys(JdbcFieldCodecFactory fieldCodecFactory, Connection connection, 
+			DatabeanFieldInfo<PK,D,F> fieldInfo, String sql){
 		try{
 			PreparedStatement ps = connection.prepareStatement(sql.toString());
 			ps.execute();
 			ResultSet rs = ps.getResultSet();
 			List<PK> primaryKeys = new ArrayList<>();
 			while(rs.next()){
-				PK primaryKey = FieldSetTool.fieldSetFromJdbcResultSetUsingReflection(
+				PK primaryKey = fieldSetFromJdbcResultSetUsingReflection(fieldCodecFactory,
 						fieldInfo.getPrimaryKeyClass(), fieldInfo.getPrimaryKeyFields(), rs, true);
 				primaryKeys.add(primaryKey);
 			}
@@ -104,15 +104,15 @@ public class JdbcTool {
 	}
 	
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>> 
-	List<D> selectDatabeans(Connection connection, DatabeanFieldInfo<PK,D,F> fieldInfo, String sql){
-//		System.out.println(sql);
+	List<D> selectDatabeans(JdbcFieldCodecFactory fieldCodecFactory, Connection connection, 
+			DatabeanFieldInfo<PK,D,F> fieldInfo, String sql){
 		try{
 			PreparedStatement ps = connection.prepareStatement(sql.toString());
 			ps.execute();
 			ResultSet rs = ps.getResultSet();
 			List<D> databeans = new ArrayList<>();
 			while(rs.next()){
-				D databean = FieldSetTool.fieldSetFromJdbcResultSetUsingReflection(
+				D databean = fieldSetFromJdbcResultSetUsingReflection(fieldCodecFactory,
 						fieldInfo.getDatabeanClass(), fieldInfo.getFields(), rs, false);
 				databeans.add(databean);
 			}
@@ -155,8 +155,8 @@ public class JdbcTool {
 	}
 	
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>> 
-	List<D> selectDatabeansCleaned(Connection connection, DatabeanFieldInfo<PK,D,F> fieldInfo, String sql, 
-			String...values){
+	List<D> selectDatabeansCleaned(JdbcFieldCodecFactory fieldCodecFactory, Connection connection, 
+			DatabeanFieldInfo<PK,D,F> fieldInfo, String sql, String...values){
 		try{
 			PreparedStatement ps = connection.prepareStatement(sql.toString());
 			for(int i = 0; i < values.length; i++){
@@ -166,7 +166,7 @@ public class JdbcTool {
 			ResultSet rs = ps.getResultSet();
 			List<D> databeans = new ArrayList<>();
 			while(rs.next()){
-				D databean = FieldSetTool.fieldSetFromJdbcResultSetUsingReflection(
+				D databean = fieldSetFromJdbcResultSetUsingReflection(fieldCodecFactory,
 						fieldInfo.getDatabeanClass(), fieldInfo.getFields(), rs, false);
 				databeans.add(databean);
 			}
@@ -257,6 +257,17 @@ public class JdbcTool {
 			if(i>0){ sb.append(","); }
 			sb.append("?");
 		}
+	}
+
+	public static <F>F fieldSetFromJdbcResultSetUsingReflection(JdbcFieldCodecFactory fieldCodecFactory,
+			Class<F> cls, List<Field<?>> fields, ResultSet rs, boolean ignorePrefix){
+		F targetFieldSet = ReflectionTool.create(cls);
+		int counter = 0;
+		for(JdbcFieldCodec<?,?> field : fieldCodecFactory.createCodecs(fields)){
+			field.fromJdbcResultSetUsingReflection(targetFieldSet, rs);
+			++counter;
+		}
+		return targetFieldSet;
 	}
 	
 	

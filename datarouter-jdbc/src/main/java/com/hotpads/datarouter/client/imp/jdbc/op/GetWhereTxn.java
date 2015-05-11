@@ -58,7 +58,7 @@ extends BaseJdbcOp<List<D>>{
 		whereClause.append(" "+whereClauseFromUser);
 		String sql = SqlBuilder.getAll(config, tableName, node.getFieldInfo().getFields(), whereClause.toString(), 
 				node.getFieldInfo().getPrimaryKeyFields());
-		return JdbcTool.selectDatabeans(getConnection(client.getName()), node.getFieldInfo(), sql);
+		return JdbcTool.selectDatabeans(fieldCodecFactory, getConnection(client.getName()), node.getFieldInfo(), sql);
 	}
 	
 }

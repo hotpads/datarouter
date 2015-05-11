@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
 import com.hotpads.datarouter.client.imp.hibernate.util.SqlBuilder;
+import com.hotpads.datarouter.client.imp.jdbc.field.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.client.imp.jdbc.node.JdbcReaderNode;
 import com.hotpads.datarouter.client.imp.jdbc.op.BaseJdbcOp;
 import com.hotpads.datarouter.config.Config;
@@ -19,10 +20,12 @@ public class JdbcGetFirstKeyOp<
 extends BaseJdbcOp<PK>{
 		
 	private final JdbcReaderNode<PK,D,F> node;
+	private final JdbcFieldCodecFactory jdbcFieldCodecFactory;
 	private final Config config;
 	
-	public JdbcGetFirstKeyOp(JdbcReaderNode<PK,D,F> node, Config config) {
+	public JdbcGetFirstKeyOp(JdbcReaderNode<PK,D,F> node, JdbcFieldCodecFactory jdbcFieldCodecFactory, Config config) {
 		super(node.getDatarouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
+		this.jdbcFieldCodecFactory = jdbcFieldCodecFactory;
 		this.node = node;
 		this.config = config;
 	}
@@ -33,7 +36,8 @@ extends BaseJdbcOp<PK>{
 		limitedConfig.setLimit(1);
 		String sql = SqlBuilder.getAll(limitedConfig, node.getTableName(), node.getFieldInfo().getPrimaryKeyFields(),
 				null, node.getFieldInfo().getPrimaryKeyFields());
-		List<PK> result = JdbcTool.selectPrimaryKeys(getConnection(node.getClientName()), node.getFieldInfo(), sql);
+		List<PK> result = JdbcTool.selectPrimaryKeys(jdbcFieldCodecFactory, getConnection(node.getClientName()), node
+				.getFieldInfo(), sql);
 		return DrCollectionTool.getFirst(result);
 	}
 	

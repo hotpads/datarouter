@@ -31,7 +31,8 @@ extends BaseJdbcOp<List<IE>>{
 	private final Config config;
 	private final DatabeanFieldInfo<IK, IE, IF> fieldInfo;
 	
-	public JdbcManagedIndexScanOp(PhysicalNode<PK,D> node, JdbcFieldCodecFactory fieldCodecFactory,
+	public JdbcManagedIndexScanOp(PhysicalNode<PK,D> node, JdbcFieldCodecFactory jdbcFieldCodecFactory, 
+			JdbcFieldCodecFactory fieldCodecFactory,
 			ManagedNode<IK,IE,IF> managedNode, Range<IK> range, Config config){
 		super(node.getDatarouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
 		this.range = range;
@@ -47,7 +48,7 @@ extends BaseJdbcOp<List<IE>>{
 				.getStart(), range.getStartInclusive(), range.getEnd(), range.getEndInclusive(), fieldInfo
 				.getPrimaryKeyFields());
 		Connection connection = getConnection(node.getClientName());
-		List<IE> result = JdbcTool.selectDatabeans(connection, fieldInfo, sql);
+		List<IE> result = JdbcTool.selectDatabeans(fieldCodecFactory, connection, fieldInfo, sql);
 		return result;
 	}
 
