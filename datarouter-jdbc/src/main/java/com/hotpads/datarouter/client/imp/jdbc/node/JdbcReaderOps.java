@@ -125,13 +125,13 @@ public class JdbcReaderOps<
 
 	public D getFirst(final Config config) {
 		String opName = SortedStorageReader.OP_getFirst;
-		JdbcGetFirstOp<PK,D,F> op = new JdbcGetFirstOp<PK,D,F>(node, config);
+		JdbcGetFirstOp<PK,D,F> op = new JdbcGetFirstOp<PK,D,F>(node, fieldCodecFactory, config);
 		return new SessionExecutorImpl<D>(op, getTraceName(opName)).call();
 	}
 	
 	public PK getFirstKey(final Config config) {
 		String opName = SortedStorageReader.OP_getFirstKey;
-		JdbcGetFirstKeyOp<PK,D,F> op = new JdbcGetFirstKeyOp<PK,D,F>(node, config);
+		JdbcGetFirstKeyOp<PK,D,F> op = new JdbcGetFirstKeyOp<PK,D,F>(node, fieldCodecFactory, config);
 		return new SessionExecutorImpl<PK>(op, getTraceName(opName)).call();
 	}
 
