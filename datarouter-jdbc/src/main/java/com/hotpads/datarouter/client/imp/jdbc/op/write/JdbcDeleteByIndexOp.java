@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
 import com.hotpads.datarouter.client.imp.hibernate.util.SqlBuilder;
+import com.hotpads.datarouter.client.imp.jdbc.field.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.client.imp.jdbc.node.JdbcNode;
 import com.hotpads.datarouter.client.imp.jdbc.op.BaseJdbcOp;
 import com.hotpads.datarouter.config.Config;
@@ -18,12 +19,15 @@ public class JdbcDeleteByIndexOp<PK extends PrimaryKey<PK>, D extends Databean<P
 		extends BaseJdbcOp<Long>{
 
 	private final PhysicalNode<PK, D> node;
+	private final JdbcFieldCodecFactory fieldCodecFactory;
 	private final Config config;
 	private final Collection<IK> entryKeys;
 
-	public JdbcDeleteByIndexOp(PhysicalNode<PK, D> node, Collection<IK> entryKeys, Config config){
+	public JdbcDeleteByIndexOp(PhysicalNode<PK,D> node, JdbcFieldCodecFactory fieldCodecFactory,
+			Collection<IK> entryKeys, Config config){
 		super(node.getDatarouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, shouldAutoCommit(entryKeys));
 		this.node = node;
+		this.fieldCodecFactory = fieldCodecFactory;
 		this.entryKeys = entryKeys;
 		this.config = config;
 	}
@@ -32,7 +36,7 @@ public class JdbcDeleteByIndexOp<PK extends PrimaryKey<PK>, D extends Databean<P
 	public Long runOnce(){
 		long numModified = 0;
 		for(List<IK> batch : new BatchingIterable<IK>(entryKeys, JdbcNode.DEFAULT_ITERATE_BATCH_SIZE)){
-			String sql = SqlBuilder.deleteMulti(config, node.getTableName(), batch);
+			String sql = SqlBuilder.deleteMulti(fieldCodecFactory, config, node.getTableName(), batch);
 			numModified += JdbcTool.update(getConnection(node.getClientName()), sql.toString());
 		}
 		

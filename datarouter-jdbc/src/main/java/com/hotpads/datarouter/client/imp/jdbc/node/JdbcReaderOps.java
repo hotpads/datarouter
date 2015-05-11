@@ -59,14 +59,14 @@ public class JdbcReaderOps<
 	
 	public List<D> getMulti(final Collection<PK> keys, final Config config) {
 		String opName = MapStorageReader.OP_getMulti;
-		JdbcGetOp<PK,D,F> op = new JdbcGetOp<PK,D,F>(node, opName, keys, config);
+		JdbcGetOp<PK,D,F> op = new JdbcGetOp<PK,D,F>(node, fieldCodecFactory, opName, keys, config);
 		List<D> results = new SessionExecutorImpl<List<D>>(op, getTraceName(opName)).call();
 		return results;
 	}
 	
 	public List<PK> getKeys(final Collection<PK> keys, final Config config) {
 		String opName = MapStorageReader.OP_getKeys;
-		JdbcGetKeysOp<PK,D,F> op = new JdbcGetKeysOp<PK,D,F>(node, opName, keys, config);
+		JdbcGetKeysOp<PK,D,F> op = new JdbcGetKeysOp<PK,D,F>(node, fieldCodecFactory, opName, keys, config);
 		List<PK> results = new SessionExecutorImpl<List<PK>>(op, getTraceName(opName)).call();
 		return results;
 	}
@@ -76,14 +76,14 @@ public class JdbcReaderOps<
 	
 	public Long count(final Lookup<PK> lookup, final Config config) {
 		String opName = IndexedStorageReader.OP_count;
-		JdbcCountOp<PK,D,F> op = new JdbcCountOp<PK,D,F>(node, lookup, config);
+		JdbcCountOp<PK,D,F> op = new JdbcCountOp<PK,D,F>(node, fieldCodecFactory, lookup, config);
 		return new SessionExecutorImpl<Long>(op, getTraceName(opName)).call();
 	}
 	
 	public D lookupUnique(final UniqueKey<PK> uniqueKey, final Config config){
 		String opName = IndexedStorageReader.OP_lookupUnique;
-		JdbcLookupUniqueOp<PK,D,F> op = new JdbcLookupUniqueOp<PK,D,F>(node, DrListTool.wrap(uniqueKey), 
-				config);
+		JdbcLookupUniqueOp<PK,D,F> op = new JdbcLookupUniqueOp<PK,D,F>(node, fieldCodecFactory, DrListTool
+				.wrap(uniqueKey), config);
 		List<D> result = new SessionExecutorImpl<List<D>>(op, getTraceName(opName)).call();
 		if(DrCollectionTool.size(result)>1){
 			throw new DataAccessException("found >1 databeans with unique index key="+uniqueKey);
@@ -94,7 +94,7 @@ public class JdbcReaderOps<
 	public List<D> lookupMultiUnique(final Collection<? extends UniqueKey<PK>> uniqueKeys, final Config config){
 		String opName = IndexedStorageReader.OP_lookupMultiUnique;
 		if(DrCollectionTool.isEmpty(uniqueKeys)){ return new LinkedList<D>(); }
-		JdbcLookupUniqueOp<PK,D,F> op = new JdbcLookupUniqueOp<PK,D,F>(node, uniqueKeys, config);
+		JdbcLookupUniqueOp<PK,D,F> op = new JdbcLookupUniqueOp<PK,D,F>(node, fieldCodecFactory, uniqueKeys, config);
 		return new SessionExecutorImpl<List<D>>(op, getTraceName(opName)).call();
 	}
 	

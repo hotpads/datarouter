@@ -23,13 +23,13 @@ public class SqlBuilder{
 	
 	/*************************** primary methods ***************************************/
 	
-	public static String getCount(Config config, String tableName, List<Field<?>> fields, 
-			Collection<? extends FieldSet<?>> keys) {
+	public static String getCount(JdbcFieldCodecFactory codecFactory, Config config, String tableName,
+			List<Field<?>> fields, Collection<? extends FieldSet<?>> keys){
 		StringBuilder sql = new StringBuilder();
 		sql.append("select count(*) from " + tableName);
 		if (fields.size() > 0) {
 			sql.append(" where ");
-			FieldSetTool.appendWhereClauseDisjunction(sql, keys);			
+			appendWhereClauseDisjunction(codecFactory, sql, keys);			
 		}
 		return sql.toString();
 	}
@@ -51,28 +51,28 @@ public class SqlBuilder{
 		return sql.toString();
 	}
 	
-	public static String getMulti(
-			Config config, String tableName, List<Field<?>> selectFields, 
-			Collection<? extends FieldSet<?>> keys){
+	public static String getMulti(JdbcFieldCodecFactory codecFactory, Config config, String tableName,
+			List<Field<?>> selectFields, Collection<? extends FieldSet<?>> keys){
 		if(DrCollectionTool.isEmpty(keys)){//getAll() passes null in for keys
 			throw new IllegalArgumentException("no keys provided... use getAll if you want the whole table.");
 		}
 		StringBuilder sql = new StringBuilder();
 		addSelectFromClause(sql, tableName, selectFields);
 		sql.append(" where ");
-		FieldSetTool.appendWhereClauseDisjunction(sql, keys);
+		appendWhereClauseDisjunction(codecFactory, sql, keys);
 		addLimitOffsetClause(sql, config);
 		return sql.toString();
 	}
 	
-	public static String deleteMulti(Config config, String tableName, Collection<? extends FieldSet<?>> keys){
+	public static String deleteMulti(JdbcFieldCodecFactory codecFactory, Config config, String tableName,
+			Collection<? extends FieldSet<?>> keys){
 		if(DrCollectionTool.isEmpty(keys)){//getAll() passes null in for keys
 			throw new IllegalArgumentException("no keys provided... use getAll if you want the whole table.");
 		}
 		StringBuilder sql = new StringBuilder();
 		addDeleteFromClause(sql, tableName);
 		sql.append(" where ");
-		FieldSetTool.appendWhereClauseDisjunction(sql, keys);
+		appendWhereClauseDisjunction(codecFactory, sql, keys);
 		addLimitOffsetClause(sql, config);
 		return sql.toString();
 	}
@@ -288,7 +288,7 @@ public class SqlBuilder{
 	}
 	
 	
-	/************** methods originall in FieldTool ***********************/
+	/************** methods originaly in FieldTool ***********************/
 
 	public static List<String> getSqlValuesEscaped(JdbcFieldCodecFactory codecFactory, List<Field<?>> fields){
 		List<String> sql = new ArrayList<>();
@@ -327,6 +327,23 @@ public class SqlBuilder{
 			if(appended > 0){ sb.append(","); }
 			sb.append(field.getColumnName()+"=?");
 			++appended;
+		}
+	}
+
+	
+	/******************** methods originally in FieldSetTool ***********************/
+
+	public static void appendWhereClauseDisjunction(JdbcFieldCodecFactory codecFactory, StringBuilder sql,
+			Collection<? extends FieldSet<?>> fieldSets){
+		if(DrCollectionTool.isEmpty(fieldSets)){ return; }
+		int counter = 0;
+		for(FieldSet<?> fieldSet : DrIterableTool.nullSafe(fieldSets)){
+			if(counter > 0){
+				sql.append(" or ");
+			}
+			//heavy on parenthesis.  optimize later
+			sql.append("("+getSqlNameValuePairsEscapedConjunction(codecFactory, fieldSet.getFields())+")");
+			++counter;
 		}
 	}
 }

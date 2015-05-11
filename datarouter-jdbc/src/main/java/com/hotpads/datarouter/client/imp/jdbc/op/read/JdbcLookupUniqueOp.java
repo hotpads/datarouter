@@ -7,6 +7,7 @@ import java.util.List;
 
 import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
 import com.hotpads.datarouter.client.imp.hibernate.util.SqlBuilder;
+import com.hotpads.datarouter.client.imp.jdbc.field.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.client.imp.jdbc.node.JdbcReaderNode;
 import com.hotpads.datarouter.client.imp.jdbc.op.BaseJdbcOp;
 import com.hotpads.datarouter.config.Config;
@@ -24,13 +25,15 @@ public class JdbcLookupUniqueOp<
 extends BaseJdbcOp<List<D>>{
 		
 	private final JdbcReaderNode<PK,D,F> node;
+	private final JdbcFieldCodecFactory fieldCodecFactory;
 	private final Collection<? extends UniqueKey<PK>> uniqueKeys;
 	private final Config config;
 	
-	public JdbcLookupUniqueOp(JdbcReaderNode<PK,D,F> node, Collection<? extends UniqueKey<PK>> uniqueKeys, 
-			Config config) {
+	public JdbcLookupUniqueOp(JdbcReaderNode<PK,D,F> node, JdbcFieldCodecFactory fieldCodecFactory,
+			Collection<? extends UniqueKey<PK>> uniqueKeys, Config config){
 		super(node.getDatarouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
 		this.node = node;
+		this.fieldCodecFactory = fieldCodecFactory;
 		this.uniqueKeys = uniqueKeys;
 		this.config = config;
 	}
@@ -40,7 +43,7 @@ extends BaseJdbcOp<List<D>>{
 		if(DrCollectionTool.isEmpty(uniqueKeys)){ return new LinkedList<D>(); }
 		List<? extends UniqueKey<PK>> sortedKeys = DrListTool.createArrayList(uniqueKeys);
 		Collections.sort(sortedKeys);
-		String sql = SqlBuilder.getMulti(config, node.getTableName(), node.getFieldInfo().getFields(), 
+		String sql = SqlBuilder.getMulti(fieldCodecFactory, config, node.getTableName(), node.getFieldInfo().getFields(), 
 				uniqueKeys);
 		List<D> result = JdbcTool.selectDatabeans(getConnection(node.getClientName()), node.getFieldInfo(), sql);
 		return result;

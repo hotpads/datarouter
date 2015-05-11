@@ -59,7 +59,7 @@ implements ManagedUniqueIndexNode<PK, D, IK, IE, IF>{
 	@Override
 	public List<IE> getMulti(Collection<IK> uniqueKeys, Config config){
 		String opName = ManagedUniqueIndexNode.OP_lookupMultiUniqueIndex;
-		BaseJdbcOp<List<IE>> op = new JdbcGetIndexOp<>(node, config, fieldInfo.getDatabeanClass(),
+		BaseJdbcOp<List<IE>> op = new JdbcGetIndexOp<>(node, fieldCodecFactory, config, fieldInfo.getDatabeanClass(),
 				fieldInfo.getFielderClass(), uniqueKeys);
 		return new SessionExecutorImpl<List<IE>>(op, opName).call();
 	}
@@ -72,7 +72,7 @@ implements ManagedUniqueIndexNode<PK, D, IK, IE, IF>{
 	@Override
 	public void deleteMultiUnique(Collection<IK> uniqueKeys, Config config){
 		String opName = UniqueIndexWriter.OP_deleteMultiUnique;
-		BaseJdbcOp<Long> op = new JdbcDeleteByIndexOp<>(node, uniqueKeys, config);
+		BaseJdbcOp<Long> op = new JdbcDeleteByIndexOp<>(node, fieldCodecFactory, uniqueKeys, config);
 		new SessionExecutorImpl<Long>(op, opName).call();
 	}
 

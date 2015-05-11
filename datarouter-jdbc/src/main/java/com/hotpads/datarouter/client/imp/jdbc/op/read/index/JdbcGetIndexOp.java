@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.List;
 
 import com.hotpads.datarouter.client.imp.hibernate.util.SqlBuilder;
+import com.hotpads.datarouter.client.imp.jdbc.field.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.client.imp.jdbc.node.JdbcNode;
 import com.hotpads.datarouter.client.imp.jdbc.op.BaseJdbcOp;
 import com.hotpads.datarouter.config.Config;
@@ -33,15 +34,17 @@ extends BaseJdbcOp<List<IE>>{
 	
 	private final Config config;
 	private final PhysicalNode<PK, D> mainNode;
+	private final JdbcFieldCodecFactory fieldCodecFactory;
 	private final Class<IE> indexEntryClass;
 	private final DatabeanFielder<IK, IE> indexFielder;
 	private final IE indexEntry;
 	private final Collection<IK> uniqueKeys;
 
-	public JdbcGetIndexOp(PhysicalNode<PK, D> node, Config config, Class<IE> indexEntryClass,
-			Class<IF> indexFielderClass, Collection<IK> uniqueKeys){
+	public JdbcGetIndexOp(PhysicalNode<PK,D> node, JdbcFieldCodecFactory fieldCodecFactory, Config config,
+			Class<IE> indexEntryClass, Class<IF> indexFielderClass, Collection<IK> uniqueKeys){
 		super(node.getDatarouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
 		this.mainNode = node;
+		this.fieldCodecFactory = fieldCodecFactory;
 		this.config = config;
 		this.indexEntryClass = indexEntryClass;
 		this.uniqueKeys = uniqueKeys;
@@ -55,7 +58,8 @@ extends BaseJdbcOp<List<IE>>{
 		List<IE> databeans = new ArrayList<>();
 		for(List<IK> batch : new BatchingIterable<>(uniqueKeys, JdbcNode.DEFAULT_ITERATE_BATCH_SIZE)){
 			List<? extends Key<IK>> keys = DrListTool.createArrayList(batch);
-			String sql = SqlBuilder.getMulti(config, mainNode.getTableName(), indexFielder.getFields(indexEntry), keys);
+			String sql = SqlBuilder.getMulti(fieldCodecFactory, config, mainNode.getTableName(), indexFielder.getFields(
+					indexEntry), keys);
 			try{
 				PreparedStatement ps = connection.prepareStatement(sql);
 				ps.execute();

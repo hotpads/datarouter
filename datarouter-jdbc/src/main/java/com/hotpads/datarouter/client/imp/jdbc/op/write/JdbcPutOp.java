@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.List;
 
 import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
+import com.hotpads.datarouter.client.imp.hibernate.util.SqlBuilder;
 import com.hotpads.datarouter.client.imp.jdbc.field.JdbcFieldCodec;
 import com.hotpads.datarouter.client.imp.jdbc.field.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.client.imp.jdbc.node.JdbcNode;
@@ -241,9 +242,9 @@ extends BaseJdbcOp<Void>{
 //		logger.warn("JDBC update");
 		StringBuilder sb = new StringBuilder();
 		sb.append("update "+node.getTableName()+" set ");
-		FieldTool.appendSqlUpdateClauses(sb, emptyNonKeyFields);
+		SqlBuilder.appendSqlUpdateClauses(sb, emptyNonKeyFields);
 		sb.append(" where ");
-		sb.append(FieldTool.getSqlNameValuePairsEscapedConjunction(databean.getKeyFields()));
+		sb.append(SqlBuilder.getSqlNameValuePairsEscapedConjunction(fieldCodecFactory, databean.getKeyFields()));
 		int numUpdated;
 		try{
 			PreparedStatement ps = connection.prepareStatement(sb.toString());

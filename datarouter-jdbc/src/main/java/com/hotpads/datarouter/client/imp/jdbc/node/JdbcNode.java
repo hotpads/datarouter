@@ -73,7 +73,7 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D>{
 	@Override
 	public void delete(PK key, Config config){
 		String opName = MapStorageWriter.OP_delete;
-		JdbcDeleteOp<PK,D,F> op = new JdbcDeleteOp<PK,D,F>(this, DrListTool.wrap(key), config);
+		JdbcDeleteOp<PK,D,F> op = new JdbcDeleteOp<PK,D,F>(this, fieldCodecFactory, DrListTool.wrap(key), config);
 		new SessionExecutorImpl<Long>(op, getTraceName(opName)).call();
 	}
 
@@ -81,7 +81,7 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D>{
 	public void deleteMulti(final Collection<PK> keys, final Config config){
 		String opName = MapStorageWriter.OP_deleteMulti;
 		if(DrCollectionTool.isEmpty(keys)){ return; }//avoid starting txn
-		JdbcDeleteOp<PK,D,F> op = new JdbcDeleteOp<PK,D,F>(this, keys, config);
+		JdbcDeleteOp<PK,D,F> op = new JdbcDeleteOp<PK,D,F>(this, fieldCodecFactory, keys, config);
 		new SessionExecutorImpl<Long>(op, getTraceName(opName)).call();
 	}
 	
@@ -91,8 +91,8 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D>{
 	@Override
 	public void deleteUnique(UniqueKey<PK> uniqueKey, Config config){
 		String opName = IndexedStorageWriter.OP_deleteUnique;
-		JdbcUniqueIndexDeleteOp<PK, D> op = new JdbcUniqueIndexDeleteOp<PK, D>(this, DrListTool.wrap(uniqueKey),
-				config);
+		JdbcUniqueIndexDeleteOp<PK,D> op = new JdbcUniqueIndexDeleteOp<PK,D>(this, fieldCodecFactory, DrListTool
+				.wrap(uniqueKey), config);
 		new SessionExecutorImpl<Long>(op, getTraceName(opName)).call();
 	}
 	
@@ -100,14 +100,15 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D>{
 	public void deleteMultiUnique(final Collection<? extends UniqueKey<PK>> uniqueKeys, final Config config){
 		String opName = IndexedStorageWriter.OP_deleteMultiUnique;
 		if(DrCollectionTool.isEmpty(uniqueKeys)){ return; }//avoid starting txn
-		JdbcUniqueIndexDeleteOp<PK, D> op = new JdbcUniqueIndexDeleteOp<PK, D>(this, uniqueKeys, config);
+		JdbcUniqueIndexDeleteOp<PK,D> op = new JdbcUniqueIndexDeleteOp<PK,D>(this, fieldCodecFactory, uniqueKeys,
+				config);
 		new SessionExecutorImpl<Long>(op, getTraceName(opName)).call();
 	}
 	
 	@Override
 	public void delete(final Lookup<PK> lookup, final Config config) {
 		String opName = IndexedStorageWriter.OP_indexDelete;
-		JdbcIndexDeleteOp<PK,D> op = new JdbcIndexDeleteOp<PK,D>(this, lookup, config);
+		JdbcIndexDeleteOp<PK,D> op = new JdbcIndexDeleteOp<PK,D>(this, fieldCodecFactory, lookup, config);
 		new SessionExecutorImpl<Long>(op, getTraceName(opName)).call();
 	}
 	

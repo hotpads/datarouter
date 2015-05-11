@@ -8,6 +8,7 @@ import java.util.List;
 
 import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
 import com.hotpads.datarouter.client.imp.hibernate.util.SqlBuilder;
+import com.hotpads.datarouter.client.imp.jdbc.field.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.client.imp.jdbc.node.JdbcNode;
 import com.hotpads.datarouter.client.imp.jdbc.node.JdbcReaderNode;
 import com.hotpads.datarouter.client.imp.jdbc.op.BaseJdbcOp;
@@ -29,13 +30,16 @@ public class JdbcGetOp<
 extends BaseJdbcOp<List<D>>{
 		
 	private final JdbcReaderNode<PK,D,F> node;
+	private final JdbcFieldCodecFactory fieldCodecFactory;
 	private final String opName;
 	private final Collection<PK> keys;
 	private final Config config;
 	
-	public JdbcGetOp(JdbcReaderNode<PK,D,F> node, String opName, Collection<PK> keys, Config config) {
+	public JdbcGetOp(JdbcReaderNode<PK,D,F> node, JdbcFieldCodecFactory fieldCodecFactory, String opName,
+			Collection<PK> keys, Config config){
 		super(node.getDatarouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
 		this.node = node;
+		this.fieldCodecFactory = fieldCodecFactory;
 		this.opName = opName;
 		this.keys = keys;
 		this.config = config;
@@ -54,7 +58,8 @@ extends BaseJdbcOp<List<D>>{
 		Connection connection = getConnection(node.getClientName());
 		for(int batchNum=0; batchNum < numBatches; ++batchNum){
 			List<? extends Key<PK>> keyBatch = DrBatchTool.getBatch(sortedKeys, batchSize, batchNum);
-			String sql = SqlBuilder.getMulti(config, node.getTableName(), node.getFieldInfo().getFields(), keyBatch);
+			String sql = SqlBuilder.getMulti(fieldCodecFactory, config, node.getTableName(), node.getFieldInfo()
+					.getFields(), keyBatch);
 			List<D> batch = JdbcTool.selectDatabeans(connection, node.getFieldInfo(), sql);
 			DRCounters.incClientNodeCustom(node.getClient().getType(), opName+" selects", node.getClientName(), 
 					node.getName());

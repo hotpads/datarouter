@@ -27,14 +27,17 @@ public class JdbcManagedMultiIndexNode<
 extends BaseJdbcManagedIndexNode<PK,D,IK,IE,IF>
 implements ManagedMultiIndexNode<PK, D, IK, IE, IF>{
 	
+	private final JdbcFieldCodecFactory fieldCodecFactory;
+	
 	public JdbcManagedMultiIndexNode(PhysicalMapStorageNode<PK, D> node, JdbcFieldCodecFactory fieldCodecFactory,
 			NodeParams<IK, IE, IF> params, String name){
 		super(node, fieldCodecFactory, params, name);
+		this.fieldCodecFactory = fieldCodecFactory;
 	}
 	
 	private List<IE> lookupMultiIndexMulti(Collection<IK> indexKeys, Config config){
 		String opName = ManagedMultiIndexNode.OP_lookupMultiIndexMulti;
-		BaseJdbcOp<List<IE>> op = new JdbcGetIndexOp<>(node, config, fieldInfo.getDatabeanClass(),
+		BaseJdbcOp<List<IE>> op = new JdbcGetIndexOp<>(node, fieldCodecFactory, config, fieldInfo.getDatabeanClass(),
 				fieldInfo.getFielderClass(), indexKeys);
 		return new SessionExecutorImpl<List<IE>>(op, opName).call();
 	}
