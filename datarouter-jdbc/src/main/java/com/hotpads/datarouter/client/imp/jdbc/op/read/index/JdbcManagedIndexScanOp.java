@@ -31,8 +31,7 @@ extends BaseJdbcOp<List<IE>>{
 	private final Config config;
 	private final DatabeanFieldInfo<IK, IE, IF> fieldInfo;
 	
-	public JdbcManagedIndexScanOp(PhysicalNode<PK,D> node, JdbcFieldCodecFactory jdbcFieldCodecFactory, 
-			JdbcFieldCodecFactory fieldCodecFactory,
+	public JdbcManagedIndexScanOp(PhysicalNode<PK,D> node, JdbcFieldCodecFactory fieldCodecFactory,
 			ManagedNode<IK,IE,IF> managedNode, Range<IK> range, Config config){
 		super(node.getDatarouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
 		this.range = range;

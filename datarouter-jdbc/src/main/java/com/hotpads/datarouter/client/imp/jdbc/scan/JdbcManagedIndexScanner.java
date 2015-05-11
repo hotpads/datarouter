@@ -30,7 +30,7 @@ extends BaseBatchingSortedScanner<IE,IE>{
 	private final String traceName;
 	private final ManagedNode<IK, IE, IF> managedNode;
 	private final Range<IK> range;
-	private final Config config;
+	private Config config;//not final - reused
 
 	public JdbcManagedIndexScanner(PhysicalNode<PK,D> node, JdbcFieldCodecFactory fieldCodecFactory,
 			ManagedNode<IK,IE,IF> managedNode, Range<IK> range, String traceName, Config config){
