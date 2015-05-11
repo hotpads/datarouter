@@ -20,5 +20,7 @@ public interface JdbcFieldCodec<T,F extends Field<T>>{
 	void setPreparedStatementValue(PreparedStatement ps, int parameterIndex);
 	
 	void fromJdbcResultSetUsingReflection(Object targetFieldSet, ResultSet resultSet);
-	
+
+	//TODO get me out of here
+	void fromHibernateResultUsingReflection(Object targetFieldSet, Object col);
 }
