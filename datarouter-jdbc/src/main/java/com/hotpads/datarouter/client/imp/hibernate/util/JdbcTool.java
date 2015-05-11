@@ -12,6 +12,8 @@ import java.util.List;
 
 import org.junit.Test;
 
+import com.hotpads.datarouter.client.imp.jdbc.field.JdbcFieldCodec;
+import com.hotpads.datarouter.client.imp.jdbc.field.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
@@ -22,6 +24,7 @@ import com.hotpads.datarouter.storage.key.multi.Lookup;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.core.DrArrayTool;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.util.core.java.ReflectionTool;
 
 public class JdbcTool {
 	
@@ -120,15 +123,16 @@ public class JdbcTool {
 		}
 	}
 	
-	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,PKLookup extends Lookup<PK>> 
-	List<PKLookup> selectLookups(Connection connection, List<Field<?>> selectedFields, Class<PKLookup> lookupClass, String sql, Class<PK> keyClass){
+	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,PKLookup extends Lookup<PK>>List<PKLookup>
+	selectLookups(JdbcFieldCodecFactory fieldCodecFactory, Connection connection, List<Field<?>> selectedFields, 
+			Class<PKLookup> lookupClass, String sql, Class<PK> keyClass){
 		try{
 			PreparedStatement ps = connection.prepareStatement(sql.toString());
 			ps.execute();
 			ResultSet rs = ps.getResultSet();
 			List<PKLookup> lookups = new ArrayList<>();
 			while(rs.next()){
-				PKLookup lookup = FieldSetTool.lookupFromJdbcResultSetUsingReflection(lookupClass,
+				PKLookup lookup = lookupFromJdbcResultSetUsingReflection(fieldCodecFactory, lookupClass,
 						selectedFields, rs, keyClass);
 				lookups.add(lookup);
 			}
@@ -137,6 +141,17 @@ public class JdbcTool {
 			String message = "error executing sql:"+sql.toString();
 			throw new DataAccessException(message, e);
 		}
+	}
+	
+	private static <PK extends PrimaryKey<PK>, PKLookup extends Lookup<PK>> 
+	PKLookup lookupFromJdbcResultSetUsingReflection(JdbcFieldCodecFactory fieldCodecFactory, Class<PKLookup> cls,
+			List<Field<?>> fields, ResultSet rs, Class<PK> keyClass){
+		PKLookup targetFieldSet = ReflectionTool.create(cls);
+		targetFieldSet.setPrimaryKey(ReflectionTool.create(keyClass));
+		for(JdbcFieldCodec<?,?> field : fieldCodecFactory.createCodecs(fields)){
+			field.fromJdbcResultSetUsingReflection(targetFieldSet, rs);
+		}
+		return targetFieldSet;
 	}
 	
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>> 

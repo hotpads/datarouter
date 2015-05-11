@@ -72,8 +72,8 @@ extends BaseJdbcOp<List<PKLookup>>{
 		String sql = SqlBuilder.getInRange(fieldCodecFactory, config, node.getTableName(), selectableFields, fullStart,
 				start.getStartInclusive(), start.getEnd(), start.getEndInclusive(), index.getFields());
 		Connection connection = getConnection(node.getClientName());
-		List<PKLookup> result = JdbcTool.selectLookups(connection, selectableFields, indexClass, sql, node
-				.getFieldInfo().getPrimaryKeyClass());
+		List<PKLookup> result = JdbcTool.selectLookups(fieldCodecFactory, connection, selectableFields, indexClass,
+				sql, node.getFieldInfo().getPrimaryKeyClass());
 		return result;
 	}
 
