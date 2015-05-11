@@ -10,28 +10,32 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCollation;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlIndex;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlTable;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.SqlTableGenerator;
+import com.hotpads.datarouter.client.imp.jdbc.field.JdbcFieldCodec;
+import com.hotpads.datarouter.client.imp.jdbc.field.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.storage.field.Field;
 
 public class FieldSqlTableGenerator implements SqlTableGenerator{
 	
-	private String tableName;
-	private List<Field<?>> primaryKeyFields;
-	private List<Field<?>> nonKeyFields;
+	private final JdbcFieldCodecFactory fieldCodecFactory;
+	private final String tableName;
+	private final List<Field<?>> primaryKeyFields;
+	private final List<Field<?>> nonKeyFields;
 	private Map<String,List<Field<?>>> indexes;
-	private MySqlCollation collation = SqlTable.getDefaultCollation();
-	private MySqlCharacterSet character_set = SqlTable.getDefaultCharacterSet();
+	private final MySqlCollation collation;
+	private final MySqlCharacterSet character_set;
 
 	
-	public FieldSqlTableGenerator(String tableName, List<Field<?>> primaryKeyFields, List<Field<?>> nonKeyFields){
-		this.tableName = tableName;
-		this.nonKeyFields = nonKeyFields;
-		this.indexes = new HashMap<>();
-		this.primaryKeyFields = primaryKeyFields;
+	public FieldSqlTableGenerator(JdbcFieldCodecFactory fieldCodecFactory, String tableName, 
+			List<Field<?>> primaryKeyFields, List<Field<?>> nonKeyFields){
+		this(fieldCodecFactory, tableName, primaryKeyFields, nonKeyFields, SqlTable.getDefaultCollation(), 
+				SqlTable.getDefaultCharacterSet());
 	}
 	
 
-	public FieldSqlTableGenerator(String tableName, List<Field<?>> primaryKeyFields, List<Field<?>> nonKeyFields,
+	public FieldSqlTableGenerator(JdbcFieldCodecFactory fieldCodecFactory, String tableName, 
+			List<Field<?>> primaryKeyFields, List<Field<?>> nonKeyFields,
 			MySqlCollation collation, MySqlCharacterSet character_set){
+		this.fieldCodecFactory = fieldCodecFactory;
 		this.tableName = tableName;
 		this.nonKeyFields = nonKeyFields;
 		this.indexes = new HashMap<>();
@@ -45,18 +49,18 @@ public class FieldSqlTableGenerator implements SqlTableGenerator{
 	public SqlTable generate(){
 		SqlTable table = new SqlTable(getTableName());
 		SqlIndex pKey = new SqlIndex(getTableName() +" primary key");
-		for(Field<?> f: getPrimaryKeyFields()){
-			pKey.addColumn(f.getSqlColumnDefinition());
-			table.addColumn(f.getSqlColumnDefinition());
+		for(JdbcFieldCodec<?,?> codec : fieldCodecFactory.createCodecs(getPrimaryKeyFields())){
+			pKey.addColumn(codec.getSqlColumnDefinition());
+			table.addColumn(codec.getSqlColumnDefinition());
 		}
 		table.setPrimaryKey(pKey);
-		for(Field<?> f: getNonKeyFields()){
-			table.addColumn(f.getSqlColumnDefinition());
+		for(JdbcFieldCodec<?,?> codec : fieldCodecFactory.createCodecs(getNonKeyFields())){
+			table.addColumn(codec.getSqlColumnDefinition());
 		}
 		for(List<Field<?>> listOfFields : indexes.values()){
 			SqlIndex index = new SqlIndex(getKeyByValue(indexes, listOfFields));
-			for(Field<?> field : listOfFields){
-				index.addColumn(field.getSqlColumnDefinition());
+			for(JdbcFieldCodec<?,?> codec : fieldCodecFactory.createCodecs(listOfFields)){
+				index.addColumn(codec.getSqlColumnDefinition());
 			}
 			table.addIndex(index);
 		}
@@ -82,24 +86,12 @@ public class FieldSqlTableGenerator implements SqlTableGenerator{
 		return tableName;
 	}
 
-	public void setTableName(String tableName){
-		this.tableName = tableName;
-	}
-
 	public List<Field<?>> getPrimaryKeyFields(){
 		return primaryKeyFields;
 	}
 
-	public void setPrimaryKeyFields(List<Field<?>> primaryKeyFields){
-		this.primaryKeyFields = primaryKeyFields;
-	}
-
 	public List<Field<?>> getNonKeyFields(){
 		return nonKeyFields;
-	}
-
-	public void setNonKeyFields(List<Field<?>> nonKeyFields){
-		this.nonKeyFields = nonKeyFields;
 	}
 
 	public Map<String,List<Field<?>>> getIndexes(){

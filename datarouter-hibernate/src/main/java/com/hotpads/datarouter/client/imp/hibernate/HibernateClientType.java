@@ -63,7 +63,7 @@ public class HibernateClientType extends BaseClientType{
 	@Override
 	public ClientFactory createClientFactory(DatarouterContext drContext, String clientName,
 			List<PhysicalNode<?,?>> physicalNodes){
-		return new HibernateSimpleClientFactory(drContext, clientName); 
+		return new HibernateSimpleClientFactory(drContext, fieldCodecFactory, clientName); 
 	}
 	
 	@Override

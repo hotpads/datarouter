@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import com.hotpads.datarouter.client.Clients;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.execute.ParallelSchemaUpdate;
 import com.hotpads.datarouter.client.imp.jdbc.factory.JdbcSimpleClientFactory;
+import com.hotpads.datarouter.client.imp.jdbc.field.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.connection.JdbcConnectionPool;
 import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.storage.databean.Databean;
@@ -33,8 +34,9 @@ extends JdbcSimpleClientFactory{
 		PARAM_hbm2ddl_auto = ".hibernate.hibernate.hbm2ddl.auto";//the double-hibernate is intentional
 	
 
-	public HibernateSimpleClientFactory(DatarouterContext drContext, String clientName){
-		super(drContext, clientName);
+	public HibernateSimpleClientFactory(DatarouterContext drContext, JdbcFieldCodecFactory fieldCodecFactory, 
+			String clientName){
+		super(drContext, fieldCodecFactory, clientName);
 	}
 
 
@@ -90,7 +92,7 @@ extends JdbcSimpleClientFactory{
 		timer.add("client");
 		
 		if(doSchemaUpdate()){
-			new ParallelSchemaUpdate(getDrContext(), getClientName(), getConnectionPool()).call();
+			new ParallelSchemaUpdate(getDrContext(), fieldCodecFactory, getClientName(), getConnectionPool()).call();
 			timer.add("schema update");
 		}
 

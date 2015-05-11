@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SchemaUpdateOptions;
+import com.hotpads.datarouter.client.imp.jdbc.field.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.connection.JdbcConnectionPool;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.routing.DatarouterContext;
@@ -40,23 +41,26 @@ implements Callable<Void>{
 	
 	/******************* fields **********************/
 
-	private DatarouterContext drContext;
-	private String clientName;
-	private JdbcConnectionPool connectionPool;
+	private final DatarouterContext drContext;
+	private final JdbcFieldCodecFactory fieldCodecFactory;
+	private final String clientName;
+	private final JdbcConnectionPool connectionPool;
 	
-	private Set<String> configFilePaths;
-	private List<Properties> multiProperties;
+	private final Set<String> configFilePaths;
+	private final List<Properties> multiProperties;
 
-	private SchemaUpdateOptions printOptions;
-	private SchemaUpdateOptions executeOptions;
-	private Set<String> updatedTables;
-	private List<String> printedSchemaUpdates;
+	private final SchemaUpdateOptions printOptions;
+	private final SchemaUpdateOptions executeOptions;
+	private final Set<String> updatedTables;
+	private final List<String> printedSchemaUpdates;
 	
 	
 	/***************** construct ***********************/
 
-	public ParallelSchemaUpdate(DatarouterContext drContext, String clientName, JdbcConnectionPool connectionPool){
+	public ParallelSchemaUpdate(DatarouterContext drContext, JdbcFieldCodecFactory fieldCodecFactory,
+			String clientName, JdbcConnectionPool connectionPool){
 		this.drContext = drContext;
+		this.fieldCodecFactory = fieldCodecFactory;
 		this.clientName = clientName;
 		this.connectionPool = connectionPool;
 		this.configFilePaths = drContext.getConfigFilePaths();
@@ -88,7 +92,7 @@ implements Callable<Void>{
 		for(PhysicalNode<?, ?> physicalNode : DrIterableTool.nullSafe(physicalNodes)){
 			DatabeanFieldInfo<?, ?, ?> fieldInfo = physicalNode.getFieldInfo();
 			if(fieldInfo.getFieldAware()){
-				SingleTableSchemaUpdate singleTableUpdate = new SingleTableSchemaUpdate(clientName,
+				SingleTableSchemaUpdate singleTableUpdate = new SingleTableSchemaUpdate(fieldCodecFactory, clientName,
 						connectionPool, existingTableNames, printOptions, executeOptions, updatedTables,
 						printedSchemaUpdates, physicalNode);
 				singleTableUpdates.add(singleTableUpdate);
