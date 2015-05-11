@@ -1,7 +1,8 @@
-package com.hotpads.datarouter.client.imp.jdbc.field;
+package com.hotpads.datarouter.client.imp.jdbc.field.base;
 
 import java.sql.ResultSet;
 
+import com.hotpads.datarouter.client.imp.jdbc.field.JdbcFieldCodec;
 import com.hotpads.datarouter.storage.field.Field;
 
 public abstract class BaseJdbcFieldCodec<T,F extends Field<T>>
@@ -9,17 +10,17 @@ implements JdbcFieldCodec<T,F>{
 
 	protected F field;
 
-	
-//	public BaseJdbcFieldCodec(F field){
-//		this.field = field;
-//	}
-	
+	public BaseJdbcFieldCodec(F field){
+		this.field = field;
+	}
+
 	@Override
 	public F getField(){
 		return field;
 	}
 	
-	public void setField(F field){
+	@Override
+	public void setField(F field){//TODO use the constructor
 		this.field = field;
 	}
 	
