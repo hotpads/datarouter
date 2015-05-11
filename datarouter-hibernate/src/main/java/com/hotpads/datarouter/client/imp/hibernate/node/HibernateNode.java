@@ -3,6 +3,7 @@ package com.hotpads.datarouter.client.imp.hibernate.node;
 import java.util.Collection;
 
 import com.hotpads.datarouter.client.imp.hibernate.op.write.HibernatePutOp;
+import com.hotpads.datarouter.client.imp.hibernate.util.HibernateResultParser;
 import com.hotpads.datarouter.client.imp.jdbc.field.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.client.imp.jdbc.op.write.JdbcDeleteAllOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.write.JdbcDeleteOp;
@@ -34,10 +35,13 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D>
 {
 
 	private final JdbcFieldCodecFactory fieldCodecFactory;
+	private final HibernateResultParser resultParser;
 	
-	public HibernateNode(NodeParams<PK,D,F> params, JdbcFieldCodecFactory fieldCodecFactory){
-		super(params);
+	public HibernateNode(NodeParams<PK,D,F> params, JdbcFieldCodecFactory fieldCodecFactory, 
+			HibernateResultParser resultParser){
+		super(params, resultParser);
 		this.fieldCodecFactory = fieldCodecFactory;
+		this.resultParser = resultParser;
 	}
 	
 	@Override

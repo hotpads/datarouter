@@ -14,8 +14,15 @@ import com.hotpads.util.core.java.ReflectionTool;
 @Singleton
 public class HibernateResultParser{
 	
+	private final JdbcFieldCodecFactory fieldCodecFactory;
+	
+
 	@Inject
-	private JdbcFieldCodecFactory fieldCodecFactory;
+	public HibernateResultParser(JdbcFieldCodecFactory fieldCodecFactory){
+		this.fieldCodecFactory = fieldCodecFactory;
+	}
+
+
 
 	public <F extends FieldSet<?>>F fieldSetFromHibernateResultUsingReflection(Class<F> cls,
 			List<Field<?>> fields, Object sqlObject){

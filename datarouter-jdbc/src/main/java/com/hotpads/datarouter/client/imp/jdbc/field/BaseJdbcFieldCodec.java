@@ -37,5 +37,11 @@ implements JdbcFieldCodec<T,F>{
 		T v = fromJdbcResultSetButDoNotSet(resultSet);
 		field.setUsingReflection(targetFieldSet, v);
 	}
+
+	@Override
+	public void fromHibernateResultUsingReflection(Object targetFieldSet, Object col){
+		T v = parseJdbcValueButDoNotSet(col);
+		field.setUsingReflection(targetFieldSet, v);
+	}
 	
 }

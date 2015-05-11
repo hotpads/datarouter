@@ -11,6 +11,7 @@ import com.hotpads.datarouter.client.ClientFactory;
 import com.hotpads.datarouter.client.imp.BaseClientType;
 import com.hotpads.datarouter.client.imp.hibernate.client.HibernateSimpleClientFactory;
 import com.hotpads.datarouter.client.imp.hibernate.node.HibernateNode;
+import com.hotpads.datarouter.client.imp.hibernate.util.HibernateResultParser;
 import com.hotpads.datarouter.client.imp.jdbc.field.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.client.imp.jdbc.node.JdbcNode;
 import com.hotpads.datarouter.client.imp.jdbc.node.index.JdbcManagedMultiIndexNode;
@@ -49,10 +50,12 @@ public class HibernateClientType extends BaseClientType{
 	public static final HibernateClientType INSTANCE = new HibernateClientType();
 	
 	private final JdbcFieldCodecFactory fieldCodecFactory;
+	private final HibernateResultParser resultParser;
 	
 	
 	public HibernateClientType(){
 		this.fieldCodecFactory = new JdbcFieldCodecFactory();//TODO inject
+		this.resultParser = new HibernateResultParser(fieldCodecFactory);
 	}
 	
 	@Override
@@ -72,7 +75,7 @@ public class HibernateClientType extends BaseClientType{
 		PhysicalIndexedSortedMapStorageNode<PK,D> node;
 		if(nodeParams.getFielderClass() == null){
 			node = new PhysicalIndexedSortedMapStorageCounterAdapter<PK,D,F,HibernateNode<PK,D,F>>(
-					new HibernateNode<PK,D,F>(nodeParams, fieldCodecFactory));
+					new HibernateNode<PK,D,F>(nodeParams, fieldCodecFactory, resultParser));
 //			logger.warn("creating HibernateNode "+node);
 		}else{
 			node = new PhysicalIndexedSortedMapStorageCounterAdapter<PK,D,F,JdbcNode<PK,D,F>>(
