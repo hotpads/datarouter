@@ -99,7 +99,8 @@ public enum StandardJdbcFieldCodec{
 //	}
 	
 	public JdbcFieldCodec<?,?> createCodec(){
-		return ReflectionTool.create(codecType);
+		Field<?> dummyField = ReflectionTool.create(fieldType);
+		return ReflectionTool.createWithArgs(codecType, dummyField);//pass a null Field object as first constructor param
 	}
 	
 }
