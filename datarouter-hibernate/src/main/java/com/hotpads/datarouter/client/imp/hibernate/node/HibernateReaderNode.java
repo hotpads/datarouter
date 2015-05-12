@@ -33,6 +33,7 @@ import com.hotpads.datarouter.node.op.raw.read.MapStorageReader;
 import com.hotpads.datarouter.node.op.raw.read.SortedStorageReader;
 import com.hotpads.datarouter.node.type.physical.base.BasePhysicalNode;
 import com.hotpads.datarouter.op.executor.impl.SessionExecutorImpl;
+import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.BasePrimitiveField;
@@ -44,10 +45,12 @@ import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.datarouter.storage.key.multi.Lookup;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
+import com.hotpads.datarouter.storage.view.index.IndexEntry;
 import com.hotpads.datarouter.util.core.DrBatchTool;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.collections.Range;
+import com.hotpads.util.core.exception.NotImplementedException;
 import com.hotpads.util.core.iterable.scanner.iterable.SortedScannerIterable;
 import com.hotpads.util.core.iterable.scanner.sorted.SortedScanner;
 
@@ -165,6 +168,22 @@ implements MapStorageReader<PK,D>,
 		if(DrCollectionTool.isEmpty(lookups)){ return new LinkedList<D>(); }
 		HibernateLookupOp<PK,D,F> op = new HibernateLookupOp<PK,D,F>(this, lookups, false, config);
 		return new SessionExecutorImpl<List<D>>(op, getTraceName(opName)).call();
+	}
+	
+	@Override
+	public <IK extends PrimaryKey<IK>, 
+			IE extends IndexEntry<IK, IE, PK, D>, 
+			IF extends DatabeanFielder<IK, IE>> 
+	List<IE> getMultiFromIndex(Collection<IK> keys, Config config, DatabeanFieldInfo<IK, IE, IF> indexEntryFieldInfo){
+		// TODO implement managed indexes for Hibernate
+		throw new NotImplementedException();
+	}
+	
+	@Override
+	public <IK extends PrimaryKey<IK>, IE extends IndexEntry<IK, IE, PK, D>> List<D> getMultiByIndex(
+			Collection<IK> keys, Config config){
+		// TODO implement managed indexes for Hibernate
+		throw new NotImplementedException();
 	}
 	
 	

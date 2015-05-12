@@ -5,14 +5,11 @@ import java.util.Collections;
 import java.util.List;
 
 import com.hotpads.datarouter.client.imp.jdbc.op.BaseJdbcOp;
-import com.hotpads.datarouter.client.imp.jdbc.op.read.index.JdbcGetByIndexOp;
-import com.hotpads.datarouter.client.imp.jdbc.op.read.index.JdbcGetIndexOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.write.JdbcDeleteByIndexOp;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.NodeParams;
-import com.hotpads.datarouter.node.op.index.UniqueIndexReader;
+import com.hotpads.datarouter.node.op.combo.IndexedMapStorage.PhysicalIndexedMapStorageNode;
 import com.hotpads.datarouter.node.op.index.UniqueIndexWriter;
-import com.hotpads.datarouter.node.op.raw.MapStorage.PhysicalMapStorageNode;
 import com.hotpads.datarouter.node.type.index.ManagedUniqueIndexNode;
 import com.hotpads.datarouter.op.executor.impl.SessionExecutorImpl;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
@@ -30,7 +27,8 @@ public class JdbcTxnManagedUniqueIndexNode<
 extends BaseJdbcManagedIndexNode<PK,D,IK,IE,IF>
 implements ManagedUniqueIndexNode<PK, D, IK, IE, IF>{
 
-	public JdbcTxnManagedUniqueIndexNode(PhysicalMapStorageNode<PK, D> node, NodeParams<IK, IE, IF> params, String name){
+	public JdbcTxnManagedUniqueIndexNode(PhysicalIndexedMapStorageNode<PK, D> node, NodeParams<IK, IE, IF> params, 
+			String name){
 		super(node, params, name);
 	}
 
@@ -41,9 +39,7 @@ implements ManagedUniqueIndexNode<PK, D, IK, IE, IF>{
 
 	@Override
 	public List<D> lookupMultiUnique(Collection<IK> uniqueKeys, Config config){
-		String opName = UniqueIndexReader.OP_lookupMultiUnique;
-		BaseJdbcOp<List<D>> op = new JdbcGetByIndexOp<>(node, uniqueKeys, false, config);
-		return new SessionExecutorImpl<List<D>>(op, opName).call();
+		return node.getMultiByIndex(uniqueKeys, config);
 	}
 	
 	@Override
@@ -53,10 +49,7 @@ implements ManagedUniqueIndexNode<PK, D, IK, IE, IF>{
 
 	@Override
 	public List<IE> getMulti(Collection<IK> uniqueKeys, Config config){
-		String opName = ManagedUniqueIndexNode.OP_lookupMultiUniqueIndex;
-		BaseJdbcOp<List<IE>> op = new JdbcGetIndexOp<>(node, config, fieldInfo.getDatabeanClass(),
-				fieldInfo.getFielderClass(), uniqueKeys);
-		return new SessionExecutorImpl<List<IE>>(op, opName).call();
+		return node.getMultiFromIndex(uniqueKeys, config, fieldInfo);
 	}
 
 	@Override
