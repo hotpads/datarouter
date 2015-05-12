@@ -34,7 +34,7 @@ public class SwedishEchoMessageHandler implements Whole<String>{
 
 	@Override
 	public void onMessage(String message){
-		pushService.forward(userToken, message + " " + message);
+		pushService.forwardToAll(userToken, message + " " + message);
 	}
 
 }

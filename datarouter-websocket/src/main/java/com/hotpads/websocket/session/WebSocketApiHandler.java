@@ -6,12 +6,16 @@ import javax.inject.Inject;
 import javax.websocket.RemoteEndpoint.Basic;
 import javax.websocket.Session;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.encoder.JsonEncoder;
 import com.hotpads.handler.types.P;
 import com.hotpads.websocket.WebSocketConnectionStore;
 
 public class WebSocketApiHandler extends BaseHandler{
+	private static final Logger logger = LoggerFactory.getLogger(WebSocketApiHandler.class);
 
 //	private static final String DTO_NAME = new HotPadsHttpClientDefaultConfig().getDtoParameterName();
 	private static final String DTO_NAME = "dataTransferObject";
@@ -22,11 +26,17 @@ public class WebSocketApiHandler extends BaseHandler{
 	/**
 	 * same name as WebSocketCommandName.PUSH.getPath()
 	 */
-	@Handler
-	private void push(@P(DTO_NAME) WebSocketCommand webSocketCommand) throws IOException{
+	@Handler(encoder=JsonEncoder.class)
+	private boolean push(@P(DTO_NAME) WebSocketCommand webSocketCommand) throws IOException{
 		Session session = webSocketConnectionStore.get(webSocketCommand.getWebSocketSessionKey());
+		if(session == null) {
+			logger.error("Trying to send a message to not anymore connected seession ({})", webSocketCommand
+					.getWebSocketSessionKey());
+			return false;
+		}
 		Basic basicRemote = session.getBasicRemote();
 		basicRemote.sendText(webSocketCommand.getMessage());
+		return true;
 	}
 
 	/**
