@@ -6,14 +6,19 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.http.client.HotPadsHttpClient;
 import com.hotpads.util.http.request.HotPadsHttpRequest;
 import com.hotpads.util.http.request.HotPadsHttpRequest.HttpRequestMethod;
+import com.hotpads.util.http.response.HotPadsHttpResponse;
 
 @Singleton
 public class PushService{
+	private static final Logger logger = LoggerFactory.getLogger(PushService.class);
 
 	public static final String PUSH_SERVICE_HTTPCLIENT = "pushServiceHtpClient";
 
@@ -36,17 +41,17 @@ public class PushService{
 	}
 
 	//TODO Optimization: don't do the http call if the socket is open on the current server
-	public void forward(String userToken, String message){
+	public void forwardToAll(String userToken, String message){
 		WebSocketSessionKey prefix = new WebSocketSessionKey(userToken);
 		Range<WebSocketSessionKey> range = new Range<>(prefix, true, prefix, true);
 		Iterable<WebSocketSession> scan = webSocketSessionNode.scan(range, null);
 		for(WebSocketSession webSocketSession : scan){
-			String url = "https://" + webSocketSession.getServerName() + WebSocketApiDispatcher.WEBSOCKET_COMMAND + "/"
-					+ WebSocketCommandName.PUSH.getPath();
-			HotPadsHttpRequest request = new HotPadsHttpRequest(HttpRequestMethod.POST, url, false);
-			WebSocketCommand webSocketCommand = new WebSocketCommand(webSocketSession.getKey(), message);
-			httpClient.addDtoToPayload(request, webSocketCommand, null);
-			httpClient.execute(request);
+			HotPadsHttpResponse response = executeCommand(WebSocketCommandName.PUSH, webSocketSession, message);
+			boolean success = Boolean.parseBoolean(response.getEntity());
+			if(!success){
+				logger.error("Forwarding to {} failed: deleting the session", webSocketSession);
+				unregister(webSocketSession.getKey());
+			}
 		}
 	}
 
@@ -54,6 +59,22 @@ public class PushService{
 		WebSocketSessionKey prefix = new WebSocketSessionKey(userToken);
 		List<WebSocketSession> activeSessions = webSocketSessionNode.getWithPrefix(prefix, false, null);
 		return activeSessions.size();
+	}
+
+	//TODO Optimization: don't do the http call if the socket is open on the current server
+	public boolean isAlive(WebSocketSession webSocketSession){
+		HotPadsHttpResponse response = executeCommand(WebSocketCommandName.IS_ALIVE, webSocketSession, null);
+		return Boolean.parseBoolean(response.getEntity());
+	}
+
+	private HotPadsHttpResponse executeCommand(WebSocketCommandName webSocketCommandName,
+			WebSocketSession webSocketSession, String message){
+		String url = "https://" + webSocketSession.getServerName() + WebSocketApiDispatcher.WEBSOCKET_COMMAND + "/"
+				+ webSocketCommandName.getPath();
+		HotPadsHttpRequest request = new HotPadsHttpRequest(HttpRequestMethod.POST, url, false);
+		WebSocketCommand webSocketCommand = new WebSocketCommand(webSocketSession.getKey(), message);
+		httpClient.addDtoToPayload(request, webSocketCommand, null);
+		return httpClient.execute(request);
 	}
 
 }
