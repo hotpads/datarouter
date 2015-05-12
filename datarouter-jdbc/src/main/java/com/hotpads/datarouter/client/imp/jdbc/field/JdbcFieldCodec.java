@@ -8,7 +8,7 @@ import com.hotpads.datarouter.storage.field.Field;
 
 public interface JdbcFieldCodec<T,F extends Field<T>>{
 
-	Class<F> getFieldType();
+//	Class<F> getFieldType();
 	
 	F getField();
 	void setField(F field);

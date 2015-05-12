@@ -5,24 +5,24 @@ import java.sql.ResultSet;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.client.imp.jdbc.field.base.BaseJdbcFieldCodec;
-import com.hotpads.datarouter.storage.field.imp.array.PrimitiveIntegerArrayField;
+import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.util.core.exception.NotImplementedException;
 
 public class PrimitiveIntegerArrayJdbcFieldCodec
-extends BaseJdbcFieldCodec<int[],PrimitiveIntegerArrayField>{
+extends BaseJdbcFieldCodec<int[],Field<int[]>>{
 	
 	public PrimitiveIntegerArrayJdbcFieldCodec(){//no-arg for reflection
 		this(null);
 	}
 	
-	public PrimitiveIntegerArrayJdbcFieldCodec(PrimitiveIntegerArrayField field){
+	public PrimitiveIntegerArrayJdbcFieldCodec(Field<int[]> field){
 		super(field);
 	}
 
-	@Override
-	public Class<PrimitiveIntegerArrayField> getFieldType(){
-		return PrimitiveIntegerArrayField.class;
-	}
+//	@Override
+//	public Class<PrimitiveIntegerArrayField> getFieldType(){
+//		return PrimitiveIntegerArrayField.class;
+//	}
 	
 	
 

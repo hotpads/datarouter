@@ -9,23 +9,23 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.client.imp.jdbc.field.base.BasePrimitiveJdbcFieldCodec;
 import com.hotpads.datarouter.exception.DataAccessException;
-import com.hotpads.datarouter.storage.field.imp.comparable.SignedByteField;
+import com.hotpads.datarouter.storage.field.Field;
 
 public class SignedByteJdbcFieldCodec
-extends BasePrimitiveJdbcFieldCodec<Byte,SignedByteField>{
+extends BasePrimitiveJdbcFieldCodec<Byte,Field<Byte>>{
 	
 	public SignedByteJdbcFieldCodec(){//no-arg for reflection
 		this(null);
 	}
 	
-	public SignedByteJdbcFieldCodec(SignedByteField field){
+	public SignedByteJdbcFieldCodec(Field<Byte> field){
 		super(field);
 	}
 
-	@Override
-	public Class<SignedByteField> getFieldType(){
-		return SignedByteField.class;
-	}
+//	@Override
+//	public Class<SignedByteField> getFieldType(){
+//		return SignedByteField.class;
+//	}
 
 	
 

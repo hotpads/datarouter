@@ -22,10 +22,10 @@ extends BaseListJdbcFieldCodec<String,List<String>,DelimitedStringArrayField>{
 		super(field);
 	}
 
-	@Override
-	public Class<DelimitedStringArrayField> getFieldType(){
-		return DelimitedStringArrayField.class;
-	}
+//	@Override
+//	public Class<DelimitedStringArrayField> getFieldType(){
+//		return DelimitedStringArrayField.class;
+//	}
 
 
 

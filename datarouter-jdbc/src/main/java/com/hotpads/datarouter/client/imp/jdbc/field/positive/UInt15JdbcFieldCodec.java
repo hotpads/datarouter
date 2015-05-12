@@ -14,7 +14,7 @@ import com.hotpads.datarouter.storage.field.imp.positive.UInt15Field;
 public class UInt15JdbcFieldCodec
 extends BasePrimitiveJdbcFieldCodec<Short,UInt15Field>{
 	
-	public PrimitiveLongArUInt15JdbcFieldCodecrayJdbcFieldCodec(){//no-arg for reflection
+	public UInt15JdbcFieldCodec(){//no-arg for reflection
 		this(null);
 	}
 	
@@ -22,10 +22,10 @@ extends BasePrimitiveJdbcFieldCodec<Short,UInt15Field>{
 		super(field);
 	}
 
-	@Override
-	public Class<UInt15Field> getFieldType(){
-		return UInt15Field.class;
-	}
+//	@Override
+//	public Class<UInt15Field> getFieldType(){
+//		return UInt15Field.class;
+//	}
 
 
 

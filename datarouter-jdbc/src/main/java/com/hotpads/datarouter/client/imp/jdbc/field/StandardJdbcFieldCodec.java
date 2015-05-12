@@ -57,7 +57,6 @@ import com.hotpads.datarouter.storage.field.imp.positive.UInt63Field;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt7Field;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt8Field;
 import com.hotpads.datarouter.storage.field.imp.positive.VarIntField;
-import com.hotpads.util.core.java.ReflectionTool;
 
 public enum StandardJdbcFieldCodec{
 
@@ -104,7 +103,7 @@ public enum StandardJdbcFieldCodec{
 	private final Class<? extends Field<?>> fieldType;
 	private final Class<? extends JdbcFieldCodec> codecType;
 	
-	private <T,F extends Field<T>,C extends JdbcFieldCodec<T,F>>
+	private <T,F extends Field<T>,C extends JdbcFieldCodec<T,? extends Field<T>>>
 	StandardJdbcFieldCodec(Class<F> fieldType, Class<C> codecType){
 		this.fieldType = fieldType;
 		this.codecType = codecType;

@@ -10,13 +10,14 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.client.imp.jdbc.field.base.BaseListJdbcFieldCodec;
 import com.hotpads.datarouter.exception.DataAccessException;
+import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.imp.array.BooleanArrayField;
 import com.hotpads.datarouter.util.core.DrArrayTool;
 import com.hotpads.util.core.bytes.BooleanByteTool;
 import com.hotpads.util.core.exception.NotImplementedException;
 
 public class BooleanArrayJdbcFieldCodec
-extends BaseListJdbcFieldCodec<Boolean,List<Boolean>,BooleanArrayField>{
+extends BaseListJdbcFieldCodec<Boolean,List<Boolean>,Field<List<Boolean>>>{
 	
 	public BooleanArrayJdbcFieldCodec(){//no-arg for reflection
 		this(null);
@@ -26,10 +27,10 @@ extends BaseListJdbcFieldCodec<Boolean,List<Boolean>,BooleanArrayField>{
 		super(field);
 	}
 
-	@Override
-	public Class<BooleanArrayField> getFieldType(){
-		return BooleanArrayField.class;
-	}
+//	@Override
+//	public Class<BooleanArrayField> getFieldType(){
+//		return BooleanArrayField.class;
+//	}
 
 
 	@Override

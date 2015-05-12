@@ -10,23 +10,23 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.client.imp.jdbc.field.base.BasePrimitiveJdbcFieldCodec;
 import com.hotpads.datarouter.exception.DataAccessException;
-import com.hotpads.datarouter.storage.field.imp.comparable.LongField;
+import com.hotpads.datarouter.storage.field.Field;
 
 public class LongJdbcFieldCodec
-extends BasePrimitiveJdbcFieldCodec<Long,LongField>{
+extends BasePrimitiveJdbcFieldCodec<Long,Field<Long>>{
 	
 	public LongJdbcFieldCodec(){//no-arg for reflection
 		this(null);
 	}
 	
-	public LongJdbcFieldCodec(LongField field){
+	public LongJdbcFieldCodec(Field<Long> field){
 		super(field);
 	}
 
-	@Override
-	public Class<LongField> getFieldType(){
-		return LongField.class;
-	}
+//	@Override
+//	public Class<LongField> getFieldType(){
+//		return LongField.class;
+//	}
 
 
 	@Override

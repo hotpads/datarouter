@@ -11,23 +11,23 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.client.imp.jdbc.field.base.BasePrimitiveJdbcFieldCodec;
 import com.hotpads.datarouter.exception.DataAccessException;
-import com.hotpads.datarouter.storage.field.imp.custom.LongDateField;
+import com.hotpads.datarouter.storage.field.Field;
 
 public class LongDateJdbcFieldCodec
-extends BasePrimitiveJdbcFieldCodec<Date,LongDateField>{
+extends BasePrimitiveJdbcFieldCodec<Date,Field<Date>>{
 	
 	public LongDateJdbcFieldCodec(){//no-arg for reflection
 		this(null);
 	}
 	
-	public LongDateJdbcFieldCodec(LongDateField field){
+	public LongDateJdbcFieldCodec(Field<Date> field){
 		super(field);
 	}
 
-	@Override
-	public Class<LongDateField> getFieldType(){
-		return LongDateField.class;
-	}
+//	@Override
+//	public Class<LongDateField> getFieldType(){
+//		return LongDateField.class;
+//	}
 
 	
 

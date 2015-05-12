@@ -24,10 +24,10 @@ extends BaseJdbcFieldCodec<byte[],ByteArrayField>{
 		super(field);
 	}
 
-	@Override
-	public Class<ByteArrayField> getFieldType(){
-		return ByteArrayField.class;
-	}
+//	@Override
+//	public Class<ByteArrayField> getFieldType(){
+//		return ByteArrayField.class;
+//	}
 
 
 	@Override

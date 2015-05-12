@@ -15,6 +15,7 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.client.imp.jdbc.field.base.BaseJdbcFieldCodec;
 import com.hotpads.datarouter.exception.DataAccessException;
+import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.imp.DateField;
 
 public class DateJdbcFieldCodec
@@ -28,10 +29,10 @@ extends BaseJdbcFieldCodec<Date,DateField>{
 		super(field);
 	}
 
-	@Override
-	public Class<DateField> getFieldType(){
-		return DateField.class;
-	}
+//	@Override
+//	public Class<DateField> getFieldType(){
+//		return DateField.class;
+//	}
 
 	@Override
 	public SqlColumn getSqlColumnDefinition(){	

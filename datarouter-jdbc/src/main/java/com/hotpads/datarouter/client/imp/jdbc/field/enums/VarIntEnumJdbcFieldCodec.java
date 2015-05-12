@@ -23,10 +23,10 @@ extends BaseJdbcFieldCodec<E,VarIntEnumField<E>>{
 		super(field);
 	}
 
-	@Override
-	public Class<VarIntEnumField<E>> getFieldType(){
-		return (Class<VarIntEnumField<E>>)field.getSampleValue().getClass();
-	}
+//	@Override
+//	public Class<VarIntEnumField<E>> getFieldType(){
+//		return (Class<VarIntEnumField<E>>)field.getSampleValue().getClass();
+//	}
 
 
 

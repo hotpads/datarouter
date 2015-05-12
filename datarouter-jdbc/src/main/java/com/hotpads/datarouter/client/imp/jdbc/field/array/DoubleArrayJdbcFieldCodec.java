@@ -10,26 +10,26 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.client.imp.jdbc.field.base.BaseListJdbcFieldCodec;
 import com.hotpads.datarouter.exception.DataAccessException;
-import com.hotpads.datarouter.storage.field.imp.array.DoubleArrayField;
+import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.util.core.DrArrayTool;
 import com.hotpads.util.core.bytes.DoubleByteTool;
 import com.hotpads.util.core.exception.NotImplementedException;
 
 public class DoubleArrayJdbcFieldCodec
-extends BaseListJdbcFieldCodec<Double,List<Double>,DoubleArrayField>{
+extends BaseListJdbcFieldCodec<Double,List<Double>,Field<List<Double>>>{
 	
 	public DoubleArrayJdbcFieldCodec(){//no-arg for reflection
 		this(null);
 	}
 	
-	public DoubleArrayJdbcFieldCodec(DoubleArrayField field){
+	public DoubleArrayJdbcFieldCodec(Field<List<Double>> field){
 		super(field);
 	}
 
-	@Override
-	public Class<DoubleArrayField> getFieldType(){
-		return DoubleArrayField.class;
-	}
+//	@Override
+//	public Class<DoubleArrayField> getFieldType(){
+//		return DoubleArrayField.class;
+//	}
 
 
 

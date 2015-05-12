@@ -9,10 +9,11 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.client.imp.jdbc.field.base.BasePrimitiveJdbcFieldCodec;
 import com.hotpads.datarouter.exception.DataAccessException;
+import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.imp.dumb.DumbDoubleField;
 
 public class DumbDoubleJdbcFieldCodec
-extends BasePrimitiveJdbcFieldCodec<Double,DumbDoubleField>{
+extends BasePrimitiveJdbcFieldCodec<Double,Field<Double>>{
 	
 	public DumbDoubleJdbcFieldCodec(){//no-arg for reflection
 		this(null);
@@ -22,10 +23,10 @@ extends BasePrimitiveJdbcFieldCodec<Double,DumbDoubleField>{
 		super(field);
 	}
 
-	@Override
-	public Class<DumbDoubleField> getFieldType(){
-		return DumbDoubleField.class;
-	}
+//	@Override
+//	public Class<DumbDoubleField> getFieldType(){
+//		return DumbDoubleField.class;
+//	}
 
 
 

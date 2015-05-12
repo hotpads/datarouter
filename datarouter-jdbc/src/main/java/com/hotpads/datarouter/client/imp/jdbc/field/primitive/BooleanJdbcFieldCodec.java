@@ -9,23 +9,23 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.client.imp.jdbc.field.base.BasePrimitiveJdbcFieldCodec;
 import com.hotpads.datarouter.exception.DataAccessException;
-import com.hotpads.datarouter.storage.field.imp.comparable.BooleanField;
+import com.hotpads.datarouter.storage.field.Field;
 
 public class BooleanJdbcFieldCodec
-extends BasePrimitiveJdbcFieldCodec<Boolean,BooleanField>{
+extends BasePrimitiveJdbcFieldCodec<Boolean,Field<Boolean>>{
 	
 	public BooleanJdbcFieldCodec(){//no-arg for reflection
 		this(null);
 	}
 	
-	public BooleanJdbcFieldCodec(BooleanField field){
+	public BooleanJdbcFieldCodec(Field<Boolean> field){
 		super(field);
 	}
 
-	@Override
-	public Class<BooleanField> getFieldType(){
-		return BooleanField.class;
-	}
+//	@Override
+//	public Class<BooleanField> getFieldType(){
+//		return BooleanField.class;
+//	}
 
 
 	@Override

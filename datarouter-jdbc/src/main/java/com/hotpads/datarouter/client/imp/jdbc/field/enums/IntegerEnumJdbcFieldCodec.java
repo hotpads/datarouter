@@ -23,10 +23,10 @@ extends BaseJdbcFieldCodec<E,IntegerEnumField<E>>{
 		super(field);
 	}
 
-	@Override
-	public Class<IntegerEnumField<E>> getFieldType(){
-		return (Class<IntegerEnumField<E>>)field.getSampleValue().getClass();
-	}
+//	@Override
+//	public Class<IntegerEnumField<E>> getFieldType(){
+//		return (Class<IntegerEnumField<E>>)field.getSampleValue().getClass();
+//	}
 
 	
 	@Override

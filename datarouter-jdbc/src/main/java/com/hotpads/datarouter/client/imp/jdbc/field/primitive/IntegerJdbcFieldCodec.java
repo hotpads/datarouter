@@ -9,23 +9,23 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.client.imp.jdbc.field.base.BasePrimitiveJdbcFieldCodec;
 import com.hotpads.datarouter.exception.DataAccessException;
-import com.hotpads.datarouter.storage.field.imp.comparable.IntegerField;
+import com.hotpads.datarouter.storage.field.Field;
 
 public class IntegerJdbcFieldCodec
-extends BasePrimitiveJdbcFieldCodec<Integer,IntegerField>{
+extends BasePrimitiveJdbcFieldCodec<Integer,Field<Integer>>{
 	
 	public IntegerJdbcFieldCodec(){//no-arg for reflection
 		this(null);
 	}
 	
-	public IntegerJdbcFieldCodec(IntegerField field){
+	public IntegerJdbcFieldCodec(Field<Integer> field){
 		super(field);
 	}
 
-	@Override
-	public Class<IntegerField> getFieldType(){
-		return IntegerField.class;
-	}
+//	@Override
+//	public Class<IntegerField> getFieldType(){
+//		return IntegerField.class;
+//	}
 
 
 	

@@ -24,6 +24,8 @@ import com.hotpads.util.core.java.ReflectionTool;
 
 @Singleton
 public class JdbcFieldCodecFactory{
+	private static final Logger logger = LoggerFactory.getLogger(JdbcFieldCodecFactory.class);
+	
 
 	private final Map<Class<? extends Field<?>>,Class<? extends JdbcFieldCodec>> codecTypeByFieldType;
 	
@@ -46,9 +48,14 @@ public class JdbcFieldCodecFactory{
 	}
 	
 	public <T,F extends Field<T>,C extends JdbcFieldCodec<T,F>> C createCodec(F field){
-		Class<C> codecType = (Class<C>)codecTypeByFieldType.get(field.getClass());
-		C codec = ReflectionTool.createWithArgs(codecType, null);
+		Class<F> fieldType = (Class<F>)field.getClass();
+		Class<C> codecType = (Class<C>)codecTypeByFieldType.get(fieldType);
+		if(codecType == null){
+			throw new RuntimeException("no codec found for " + field.getClass());
+		}
+		C codec = ReflectionTool.create(codecType);
 		codec.setField(field);
+//		logger.warn("created {} for {}={}", codecType.getSimpleName(), fieldType.getSimpleName(), field.getValue());
 		return codec;
 	}
 	
