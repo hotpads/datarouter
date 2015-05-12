@@ -10,24 +10,27 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.client.imp.jdbc.field.base.BaseJdbcFieldCodec;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.enums.IntegerEnum;
-import com.hotpads.datarouter.storage.field.imp.enums.IntegerEnumField;
+import com.hotpads.datarouter.storage.field.imp.enums.VarIntEnumField;
 
-public class IntegerEnumJdbcFieldCodec<E extends IntegerEnum<E>>
-extends BaseJdbcFieldCodec<E,IntegerEnumField<E>>{
+public class VarIntEnumJdbcFieldCodec<E extends IntegerEnum<E>>
+extends BaseJdbcFieldCodec<E,VarIntEnumField<E>>{
 
-	public IntegerEnumJdbcFieldCodec(IntegerEnumField<E> field){
+	public VarIntEnumJdbcFieldCodec(VarIntEnumField<E> field){
 		super(field);
 	}
 
 	@Override
-	public Class<IntegerEnumField<E>> getFieldType(){
-		return (Class<IntegerEnumField<E>>)field.getSampleValue().getClass();
+	public Class<VarIntEnumField<E>> getFieldType(){
+		return (Class<VarIntEnumField<E>>)field.getSampleValue().getClass();
 	}
 
+
+
+	/*********************** SqlEncodedField ***********************/
 	
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
-		return new SqlColumn(field.getColumnName(), MySqlColumnType.INT, 11, field.getNullable(), false);
+		return new SqlColumn(field.getColumnName(), MySqlColumnType.INT, 11 , field.getNullable(), false);
 	}
 
 	@Override
