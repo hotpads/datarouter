@@ -32,9 +32,23 @@ import com.hotpads.util.core.java.ReflectionTool;
 
 public enum StandardJdbcFieldCodec{
 
-	DATE(DateJdbcFieldCodec.class),
+	BOOLEAN(BooleanJdbcFieldCodec.class),
+	CHARACTER(CharacterJdbcFieldCodec.class),
+	SIGNED_BYTE(SignedByteJdbcFieldCodec.class),
+	SHORT(ShortJdbcFieldCodec.class),
+	INTEGER(IntegerJdbcFieldCodec.class),
+	LONG(LongJdbcFieldCodec.class),
+	DUMB_FLOAT(DumbFloatJdbcFieldCodec.class),
+	DUBM_DOUBLE(DumbDoubleJdbcFieldCodec.class),
+
 	STRING(StringJdbcFieldCodec.class),
+	DATE(DateJdbcFieldCodec.class),
 	LONG_DATE(LongDateJdbcFieldCodec.class),
+	
+	//enums
+	INTEGER_ENUM(IntegerEnumJdbcFieldCodec.class),
+	STRING_ENUM(StringEnumJdbcFieldCodec.class),
+	VAR_INT_ENUM(VarIntEnumJdbcFieldCodec.class),
 	
 	//BaseListJdbcFieldCodec
 	BOOLEAN_ARRAY(BooleanArrayJdbcFieldCodec.class),
@@ -44,30 +58,18 @@ public enum StandardJdbcFieldCodec{
 	UINT63_ARRAY(UInt63ArrayJdbcFieldCodec.class),
 	UINT7_ARRAY(UInt7ArrayJdbcFieldCodec.class),
 	
+	//primitive arrays
 	BYTE_ARRAY(ByteArrayJdbcFieldCodec.class),
 	PRIMITIVE_INTEGER_ARRAY(PrimitiveIntegerArrayJdbcFieldCodec.class),
 	PRIMITIVE_LONG_ARRAY(PrimitiveLongArrayJdbcFieldCodec.class),
 	
-	
-	BOOLEAN(BooleanJdbcFieldCodec.class),
-	CHARACTER(CharacterJdbcFieldCodec.class),
-	DUBM_DOUBLE(DumbDoubleJdbcFieldCodec.class),
-	DUMB_FLOAT(DumbFloatJdbcFieldCodec.class),
-	INTEGER(IntegerJdbcFieldCodec.class),
-	LONG(LongJdbcFieldCodec.class),
-	SHORT(ShortJdbcFieldCodec.class),
-	SIGNED_BYTE(SignedByteJdbcFieldCodec.class),
-	
+	//positive numbers only
 	UINT15(UInt15JdbcFieldCodec.class),
 	UINT31(UInt31JdbcFieldCodec.class),
 	UINT63(UInt63JdbcFieldCodec.class),
 	UINT7(UInt7JdbcFieldCodec.class),
 	UINT8(UInt8JdbcFieldCodec.class),
 	VAR_INT(VarIntJdbcFieldCodec.class),
-	
-	INTEGER_ENUM(IntegerEnumJdbcFieldCodec.class),
-	STRING_ENUM(StringEnumJdbcFieldCodec.class),
-	VAR_INT_ENUM(VarIntEnumJdbcFieldCodec.class),
 	;
 	
 	
