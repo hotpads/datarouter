@@ -72,11 +72,11 @@ public enum StandardJdbcFieldCodec{
 	VAR_INT(VarIntJdbcFieldCodec.class),
 	;
 	
-	
+
+	private final Class<? extends JdbcFieldCodec> codecType;
 	private final Class<? extends Field<?>> fieldType;
-	private final Class<? extends JdbcFieldCodec<?,?>> codecType;
 	
-	private StandardJdbcFieldCodec(Class<? extends JdbcFieldCodec<?,?>> codecType){
+	private StandardJdbcFieldCodec(Class<? extends JdbcFieldCodec> codecType){
 		this.codecType = codecType;
 		this.fieldType = createCodec().getFieldType();
 	}
@@ -86,7 +86,7 @@ public enum StandardJdbcFieldCodec{
 		return fieldType;
 	}
 	
-	public Class<? extends JdbcFieldCodec<?,?>> getCodecType(){
+	public Class<? extends JdbcFieldCodec> getCodecType(){
 		return codecType;
 	}
 	

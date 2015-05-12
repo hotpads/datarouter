@@ -25,7 +25,7 @@ import com.hotpads.util.core.java.ReflectionTool;
 @Singleton
 public class JdbcFieldCodecFactory{
 
-	private final Map<Class<? extends Field<?>>,Class<? extends JdbcFieldCodec<?,?>>> codecTypeByFieldType;
+	private final Map<Class<? extends Field<?>>,Class<? extends JdbcFieldCodec>> codecTypeByFieldType;
 	
 	
 	//@Inject
@@ -41,7 +41,7 @@ public class JdbcFieldCodecFactory{
 		}
 	}
 	
-	public boolean hasCodec(Class<? extends Field<?>> fieldType){
+	public boolean hasCodec(Class<? extends Field> fieldType){
 		return codecTypeByFieldType.containsKey(fieldType);
 	}
 	
@@ -81,7 +81,7 @@ public class JdbcFieldCodecFactory{
 		public void testRegistrations(){
 			boolean hasAllCodecs = true;
 			for(StandardFieldType standardFieldType : StandardFieldType.values()){
-				Class<? extends Field<?>> fieldType = standardFieldType.getFieldType();
+				Class<? extends Field> fieldType = standardFieldType.getFieldType();
 				if(!codecFactory.hasCodec(fieldType)){
 					logger.error("missing codec for {}", fieldType);
 					hasAllCodecs = false;
