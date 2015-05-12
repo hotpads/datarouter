@@ -14,6 +14,10 @@ import com.hotpads.datarouter.storage.field.imp.enums.VarIntEnumField;
 
 public class VarIntEnumJdbcFieldCodec<E extends IntegerEnum<E>>
 extends BaseJdbcFieldCodec<E,VarIntEnumField<E>>{
+	
+	public VarIntEnumJdbcFieldCodec(){//no-arg for reflection
+		this(null);
+	}
 
 	public VarIntEnumJdbcFieldCodec(VarIntEnumField<E> field){
 		super(field);

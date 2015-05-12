@@ -14,6 +14,10 @@ import com.hotpads.datarouter.storage.field.imp.positive.UInt8Field;
 public class UInt8JdbcFieldCodec
 extends BasePrimitiveJdbcFieldCodec<Byte,UInt8Field>{
 	
+	public UInt8JdbcFieldCodec(){//no-arg for reflection
+		this(null);
+	}
+	
 	public UInt8JdbcFieldCodec(UInt8Field field){
 		super(field);
 	}

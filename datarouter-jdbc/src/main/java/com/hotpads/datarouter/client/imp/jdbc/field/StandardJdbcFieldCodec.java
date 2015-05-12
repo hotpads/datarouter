@@ -28,66 +28,95 @@ import com.hotpads.datarouter.client.imp.jdbc.field.primitive.LongJdbcFieldCodec
 import com.hotpads.datarouter.client.imp.jdbc.field.primitive.ShortJdbcFieldCodec;
 import com.hotpads.datarouter.client.imp.jdbc.field.primitive.SignedByteJdbcFieldCodec;
 import com.hotpads.datarouter.storage.field.Field;
+import com.hotpads.datarouter.storage.field.imp.DateField;
+import com.hotpads.datarouter.storage.field.imp.StringField;
+import com.hotpads.datarouter.storage.field.imp.array.BooleanArrayField;
+import com.hotpads.datarouter.storage.field.imp.array.ByteArrayField;
+import com.hotpads.datarouter.storage.field.imp.array.DelimitedStringArrayField;
+import com.hotpads.datarouter.storage.field.imp.array.DoubleArrayField;
+import com.hotpads.datarouter.storage.field.imp.array.IntegerArrayField;
+import com.hotpads.datarouter.storage.field.imp.array.PrimitiveIntegerArrayField;
+import com.hotpads.datarouter.storage.field.imp.array.PrimitiveLongArrayField;
+import com.hotpads.datarouter.storage.field.imp.array.UInt63ArrayField;
+import com.hotpads.datarouter.storage.field.imp.array.UInt7ArrayField;
+import com.hotpads.datarouter.storage.field.imp.comparable.BooleanField;
+import com.hotpads.datarouter.storage.field.imp.comparable.CharacterField;
+import com.hotpads.datarouter.storage.field.imp.comparable.IntegerField;
+import com.hotpads.datarouter.storage.field.imp.comparable.LongField;
+import com.hotpads.datarouter.storage.field.imp.comparable.ShortField;
+import com.hotpads.datarouter.storage.field.imp.comparable.SignedByteField;
+import com.hotpads.datarouter.storage.field.imp.custom.LongDateField;
+import com.hotpads.datarouter.storage.field.imp.dumb.DumbDoubleField;
+import com.hotpads.datarouter.storage.field.imp.dumb.DumbFloatField;
+import com.hotpads.datarouter.storage.field.imp.enums.IntegerEnumField;
+import com.hotpads.datarouter.storage.field.imp.enums.StringEnumField;
+import com.hotpads.datarouter.storage.field.imp.enums.VarIntEnumField;
+import com.hotpads.datarouter.storage.field.imp.positive.UInt15Field;
+import com.hotpads.datarouter.storage.field.imp.positive.UInt31Field;
+import com.hotpads.datarouter.storage.field.imp.positive.UInt63Field;
+import com.hotpads.datarouter.storage.field.imp.positive.UInt7Field;
+import com.hotpads.datarouter.storage.field.imp.positive.UInt8Field;
+import com.hotpads.datarouter.storage.field.imp.positive.VarIntField;
 import com.hotpads.util.core.java.ReflectionTool;
 
 public enum StandardJdbcFieldCodec{
 
-	BOOLEAN(BooleanJdbcFieldCodec.class),
-	CHARACTER(CharacterJdbcFieldCodec.class),
-	SIGNED_BYTE(SignedByteJdbcFieldCodec.class),
-	SHORT(ShortJdbcFieldCodec.class),
-	INTEGER(IntegerJdbcFieldCodec.class),
-	LONG(LongJdbcFieldCodec.class),
-	DUMB_FLOAT(DumbFloatJdbcFieldCodec.class),
-	DUBM_DOUBLE(DumbDoubleJdbcFieldCodec.class),
+	BOOLEAN(BooleanField.class, BooleanJdbcFieldCodec.class),
+	CHARACTER(CharacterField.class, CharacterJdbcFieldCodec.class),
+	SIGNED_BYTE(SignedByteField.class, SignedByteJdbcFieldCodec.class),
+	SHORT(ShortField.class, ShortJdbcFieldCodec.class),
+	INTEGER(IntegerField.class, IntegerJdbcFieldCodec.class),
+	LONG(LongField.class, LongJdbcFieldCodec.class),
+	DUMB_FLOAT(DumbFloatField.class, DumbFloatJdbcFieldCodec.class),
+	DUBM_DOUBLE(DumbDoubleField.class, DumbDoubleJdbcFieldCodec.class),
 
-	STRING(StringJdbcFieldCodec.class),
-	DATE(DateJdbcFieldCodec.class),
-	LONG_DATE(LongDateJdbcFieldCodec.class),
+	STRING(StringField.class, StringJdbcFieldCodec.class),
+	DATE(DateField.class, DateJdbcFieldCodec.class),
+	LONG_DATE(LongDateField.class, LongDateJdbcFieldCodec.class),
 	
 	//enums
-	INTEGER_ENUM(IntegerEnumJdbcFieldCodec.class),
-	STRING_ENUM(StringEnumJdbcFieldCodec.class),
-	VAR_INT_ENUM(VarIntEnumJdbcFieldCodec.class),
+	INTEGER_ENUM(IntegerEnumField.class, IntegerEnumJdbcFieldCodec.class),
+	STRING_ENUM(StringEnumField.class, StringEnumJdbcFieldCodec.class),
+	VAR_INT_ENUM(VarIntEnumField.class, VarIntEnumJdbcFieldCodec.class),
 	
 	//BaseListJdbcFieldCodec
-	BOOLEAN_ARRAY(BooleanArrayJdbcFieldCodec.class),
-	DELIMITED_STRING_ARRAY(DelimitedStringArrayJdbcFieldCodec.class),
-	DOUBLE_ARRAY(DoubleArrayJdbcFieldCodec.class),
-	INTEGER_ARRAY(IntegerArrayJdbcFieldCodec.class),
-	UINT63_ARRAY(UInt63ArrayJdbcFieldCodec.class),
-	UINT7_ARRAY(UInt7ArrayJdbcFieldCodec.class),
+	BOOLEAN_ARRAY(BooleanArrayField.class, BooleanArrayJdbcFieldCodec.class),
+	DELIMITED_STRING_ARRAY(DelimitedStringArrayField.class, DelimitedStringArrayJdbcFieldCodec.class),
+	DOUBLE_ARRAY(DoubleArrayField.class, DoubleArrayJdbcFieldCodec.class),
+	INTEGER_ARRAY(IntegerArrayField.class, IntegerArrayJdbcFieldCodec.class),
+	UINT63_ARRAY(UInt63ArrayField.class, UInt63ArrayJdbcFieldCodec.class),
+	UINT7_ARRAY(UInt7ArrayField.class, UInt7ArrayJdbcFieldCodec.class),
 	
 	//primitive arrays
-	BYTE_ARRAY(ByteArrayJdbcFieldCodec.class),
-	PRIMITIVE_INTEGER_ARRAY(PrimitiveIntegerArrayJdbcFieldCodec.class),
-	PRIMITIVE_LONG_ARRAY(PrimitiveLongArrayJdbcFieldCodec.class),
+	BYTE_ARRAY(ByteArrayField.class, ByteArrayJdbcFieldCodec.class),
+	PRIMITIVE_INTEGER_ARRAY(PrimitiveIntegerArrayField.class, PrimitiveIntegerArrayJdbcFieldCodec.class),
+	PRIMITIVE_LONG_ARRAY(PrimitiveLongArrayField.class, PrimitiveLongArrayJdbcFieldCodec.class),
 	
 	//positive numbers only
-	UINT15(UInt15JdbcFieldCodec.class),
-	UINT31(UInt31JdbcFieldCodec.class),
-	UINT63(UInt63JdbcFieldCodec.class),
-	UINT7(UInt7JdbcFieldCodec.class),
-	UINT8(UInt8JdbcFieldCodec.class),
-	VAR_INT(VarIntJdbcFieldCodec.class),
+	UINT15(UInt15Field.class, UInt15JdbcFieldCodec.class),
+	UINT31(UInt31Field.class, UInt31JdbcFieldCodec.class),
+	UINT63(UInt63Field.class, UInt63JdbcFieldCodec.class),
+	UINT7(UInt7Field.class, UInt7JdbcFieldCodec.class),
+	UINT8(UInt8Field.class, UInt8JdbcFieldCodec.class),
+	VAR_INT(VarIntField.class, VarIntJdbcFieldCodec.class),
 	;
-	
 
-	private final Class<? extends JdbcFieldCodec> codecType;
 	private final Class<? extends Field<?>> fieldType;
+	private final Class<? extends JdbcFieldCodec> codecType;
 	
-	private StandardJdbcFieldCodec(Class<? extends JdbcFieldCodec> codecType){
+	private <T,F extends Field<T>,C extends JdbcFieldCodec<T,F>>
+	StandardJdbcFieldCodec(Class<F> fieldType, Class<C> codecType){
+		this.fieldType = fieldType;
 		this.codecType = codecType;
-		this.fieldType = createCodec().getFieldType();
 	}
 	
 	
-	public Class<? extends Field<?>> getFieldType(){
-		return fieldType;
+	public <T,F extends Field<T>> Class<F> getFieldType(){
+		return (Class<F>)fieldType;
 	}
 	
-	public Class<? extends JdbcFieldCodec> getCodecType(){
-		return codecType;
+	public <T,F extends Field<T>,C extends JdbcFieldCodec<T,F>> Class<C> getCodecType(){
+		return (Class<C>)codecType;
 	}
 	
 //	public <T> getFieldAndCodecTypes(){
@@ -98,9 +127,12 @@ public enum StandardJdbcFieldCodec{
 //		return (C)ReflectionTool.create(codecType);
 //	}
 	
-	public JdbcFieldCodec<?,?> createCodec(){
-		Field<?> dummyField = ReflectionTool.create(fieldType);
-		return ReflectionTool.createWithArgs(codecType, dummyField);//pass a null Field object as first constructor param
-	}
+//	public <T,F extends Field<T>,C extends JdbcFieldCodec<T,F>> C createEmptyCodec(){
+////		F dummyField = (F)ReflectionTool.create(getFieldType());
+//		C codec = (C)ReflectionTool.create(codecType);
+////		C codec = ReflectionTool.createWithArgs(codecType);//pass a null Field object as first constructor param
+////		codec.setField(dummyField);
+//		return codec;
+//	}
 	
 }

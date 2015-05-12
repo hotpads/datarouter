@@ -17,6 +17,10 @@ import com.hotpads.util.core.exception.NotImplementedException;
 public class UInt63ArrayJdbcFieldCodec
 extends BaseListJdbcFieldCodec<Long,List<Long>,UInt63ArrayField>{
 	
+	public UInt63ArrayJdbcFieldCodec(){//no-arg for reflection
+		this(null);
+	}
+	
 	public UInt63ArrayJdbcFieldCodec(UInt63ArrayField field){
 		super(field);
 	}

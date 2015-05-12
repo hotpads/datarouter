@@ -14,6 +14,10 @@ import com.hotpads.datarouter.storage.field.imp.dumb.DumbFloatField;
 public class DumbFloatJdbcFieldCodec
 extends BasePrimitiveJdbcFieldCodec<Float,DumbFloatField>{
 	
+	public DumbFloatJdbcFieldCodec(){//no-arg for reflection
+		this(null);
+	}
+	
 	public DumbFloatJdbcFieldCodec(DumbFloatField field){
 		super(field);
 	}

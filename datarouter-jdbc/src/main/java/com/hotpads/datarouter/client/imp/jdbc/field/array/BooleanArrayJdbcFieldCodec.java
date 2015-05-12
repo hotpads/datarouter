@@ -18,6 +18,10 @@ import com.hotpads.util.core.exception.NotImplementedException;
 public class BooleanArrayJdbcFieldCodec
 extends BaseListJdbcFieldCodec<Boolean,List<Boolean>,BooleanArrayField>{
 	
+	public BooleanArrayJdbcFieldCodec(){//no-arg for reflection
+		this(null);
+	}
+	
 	public BooleanArrayJdbcFieldCodec(BooleanArrayField field){
 		super(field);
 	}

@@ -14,6 +14,10 @@ import com.hotpads.datarouter.storage.field.imp.comparable.SignedByteField;
 public class SignedByteJdbcFieldCodec
 extends BasePrimitiveJdbcFieldCodec<Byte,SignedByteField>{
 	
+	public SignedByteJdbcFieldCodec(){//no-arg for reflection
+		this(null);
+	}
+	
 	public SignedByteJdbcFieldCodec(SignedByteField field){
 		super(field);
 	}

@@ -18,6 +18,10 @@ import com.hotpads.util.core.exception.NotImplementedException;
 public class DoubleArrayJdbcFieldCodec
 extends BaseListJdbcFieldCodec<Double,List<Double>,DoubleArrayField>{
 	
+	public DoubleArrayJdbcFieldCodec(){//no-arg for reflection
+		this(null);
+	}
+	
 	public DoubleArrayJdbcFieldCodec(DoubleArrayField field){
 		super(field);
 	}

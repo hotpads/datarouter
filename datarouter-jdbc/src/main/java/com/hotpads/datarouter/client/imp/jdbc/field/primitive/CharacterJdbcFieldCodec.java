@@ -14,6 +14,10 @@ import com.hotpads.datarouter.storage.field.imp.comparable.CharacterField;
 public class CharacterJdbcFieldCodec
 extends BasePrimitiveJdbcFieldCodec<Character,CharacterField>{
 	
+	public CharacterJdbcFieldCodec(){//no-arg for reflection
+		this(null);
+	}
+	
 	public CharacterJdbcFieldCodec(CharacterField field){
 		super(field);
 	}

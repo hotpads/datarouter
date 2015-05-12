@@ -16,6 +16,10 @@ import com.hotpads.datarouter.storage.field.imp.positive.UInt63Field;
 public class UInt63JdbcFieldCodec
 extends BasePrimitiveJdbcFieldCodec<Long,UInt63Field>{
 	
+	public UInt63JdbcFieldCodec(){//no-arg for reflection
+		this(null);
+	}
+	
 	public UInt63JdbcFieldCodec(UInt63Field field){
 		super(field);
 	}

@@ -14,6 +14,10 @@ import com.hotpads.datarouter.storage.field.imp.comparable.BooleanField;
 public class BooleanJdbcFieldCodec
 extends BasePrimitiveJdbcFieldCodec<Boolean,BooleanField>{
 	
+	public BooleanJdbcFieldCodec(){//no-arg for reflection
+		this(null);
+	}
+	
 	public BooleanJdbcFieldCodec(BooleanField field){
 		super(field);
 	}

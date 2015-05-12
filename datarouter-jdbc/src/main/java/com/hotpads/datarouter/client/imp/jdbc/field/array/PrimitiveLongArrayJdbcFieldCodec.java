@@ -11,6 +11,10 @@ import com.hotpads.util.core.exception.NotImplementedException;
 public class PrimitiveLongArrayJdbcFieldCodec
 extends BaseJdbcFieldCodec<long[],PrimitiveLongArrayField>{
 	
+	public PrimitiveLongArrayJdbcFieldCodec(){//no-arg for reflection
+		this(null);
+	}
+	
 	public PrimitiveLongArrayJdbcFieldCodec(PrimitiveLongArrayField field){
 		super(field);
 	}

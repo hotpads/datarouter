@@ -20,6 +20,10 @@ public class StringJdbcFieldCodec
 extends BaseJdbcFieldCodec<String,StringField>{
 	
 	public static final int DEFAULT_STRING_LENGTH = StringField.DEFAULT_STRING_LENGTH;
+	
+	public StringJdbcFieldCodec(){//no-arg for reflection
+		this(null);
+	}
 
 	public StringJdbcFieldCodec(StringField field){
 		super(field);

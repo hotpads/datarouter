@@ -14,6 +14,10 @@ import com.hotpads.datarouter.storage.field.imp.comparable.ShortField;
 public class ShortJdbcFieldCodec
 extends BasePrimitiveJdbcFieldCodec<Short,ShortField>{
 	
+	public ShortJdbcFieldCodec(){//no-arg for reflection
+		this(null);
+	}
+	
 	public ShortJdbcFieldCodec(ShortField field){
 		super(field);
 	}

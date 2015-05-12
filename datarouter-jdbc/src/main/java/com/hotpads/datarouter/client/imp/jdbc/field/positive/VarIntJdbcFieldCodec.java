@@ -14,6 +14,10 @@ import com.hotpads.datarouter.storage.field.imp.positive.VarIntField;
 public class VarIntJdbcFieldCodec
 extends BasePrimitiveJdbcFieldCodec<Integer,VarIntField>{
 	
+	public VarIntJdbcFieldCodec(){//no-arg for reflection
+		this(null);
+	}
+	
 	public VarIntJdbcFieldCodec(VarIntField field){
 		super(field);
 	}

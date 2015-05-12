@@ -14,6 +14,10 @@ import com.hotpads.datarouter.storage.field.imp.comparable.IntegerField;
 public class IntegerJdbcFieldCodec
 extends BasePrimitiveJdbcFieldCodec<Integer,IntegerField>{
 	
+	public IntegerJdbcFieldCodec(){//no-arg for reflection
+		this(null);
+	}
+	
 	public IntegerJdbcFieldCodec(IntegerField field){
 		super(field);
 	}

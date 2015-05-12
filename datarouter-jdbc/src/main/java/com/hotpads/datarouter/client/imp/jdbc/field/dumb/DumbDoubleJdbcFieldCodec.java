@@ -14,6 +14,10 @@ import com.hotpads.datarouter.storage.field.imp.dumb.DumbDoubleField;
 public class DumbDoubleJdbcFieldCodec
 extends BasePrimitiveJdbcFieldCodec<Double,DumbDoubleField>{
 	
+	public DumbDoubleJdbcFieldCodec(){//no-arg for reflection
+		this(null);
+	}
+	
 	public DumbDoubleJdbcFieldCodec(DumbDoubleField field){
 		super(field);
 	}

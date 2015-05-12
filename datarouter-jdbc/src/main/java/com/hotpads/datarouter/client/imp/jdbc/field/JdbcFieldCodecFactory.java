@@ -41,13 +41,13 @@ public class JdbcFieldCodecFactory{
 		}
 	}
 	
-	public boolean hasCodec(Class<? extends Field> fieldType){
+	public <T,F extends Field<T>> boolean hasCodec(Class<F> fieldType){
 		return codecTypeByFieldType.containsKey(fieldType);
 	}
 	
-	public <T,C extends JdbcFieldCodec<T,Field<T>>> C createCodec(Field<T> field){
+	public <T,F extends Field<T>,C extends JdbcFieldCodec<T,F>> C createCodec(F field){
 		Class<C> codecType = (Class<C>)codecTypeByFieldType.get(field.getClass());
-		C codec = ReflectionTool.create(codecType);
+		C codec = ReflectionTool.createWithArgs(codecType, null);
 		codec.setField(field);
 		return codec;
 	}

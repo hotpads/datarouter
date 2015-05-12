@@ -14,6 +14,10 @@ import com.hotpads.datarouter.storage.field.imp.array.DelimitedStringArrayField;
 public class DelimitedStringArrayJdbcFieldCodec
 extends BaseListJdbcFieldCodec<String,List<String>,DelimitedStringArrayField>{
 	
+	public DelimitedStringArrayJdbcFieldCodec(){//no-arg for reflection
+		this(null);
+	}
+	
 	public DelimitedStringArrayJdbcFieldCodec(DelimitedStringArrayField field){
 		super(field);
 	}

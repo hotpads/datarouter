@@ -16,6 +16,10 @@ import com.hotpads.datarouter.storage.field.imp.custom.LongDateField;
 public class LongDateJdbcFieldCodec
 extends BasePrimitiveJdbcFieldCodec<Date,LongDateField>{
 	
+	public LongDateJdbcFieldCodec(){//no-arg for reflection
+		this(null);
+	}
+	
 	public LongDateJdbcFieldCodec(LongDateField field){
 		super(field);
 	}

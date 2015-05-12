@@ -16,6 +16,10 @@ import com.hotpads.util.core.exception.NotImplementedException;
 public class ByteArrayJdbcFieldCodec
 extends BaseJdbcFieldCodec<byte[],ByteArrayField>{
 	
+	public ByteArrayJdbcFieldCodec(){//no-arg for reflection
+		this(null);
+	}
+	
 	public ByteArrayJdbcFieldCodec(ByteArrayField field){
 		super(field);
 	}

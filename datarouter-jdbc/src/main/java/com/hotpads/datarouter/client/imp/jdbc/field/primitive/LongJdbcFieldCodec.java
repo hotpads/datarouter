@@ -15,6 +15,10 @@ import com.hotpads.datarouter.storage.field.imp.comparable.LongField;
 public class LongJdbcFieldCodec
 extends BasePrimitiveJdbcFieldCodec<Long,LongField>{
 	
+	public LongJdbcFieldCodec(){//no-arg for reflection
+		this(null);
+	}
+	
 	public LongJdbcFieldCodec(LongField field){
 		super(field);
 	}

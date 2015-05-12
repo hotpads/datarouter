@@ -20,6 +20,10 @@ import com.hotpads.datarouter.storage.field.imp.DateField;
 public class DateJdbcFieldCodec
 extends BaseJdbcFieldCodec<Date,DateField>{
 	
+	public DateJdbcFieldCodec(){//no-arg for reflection
+		this(null);
+	}
+	
 	public DateJdbcFieldCodec(DateField field){
 		super(field);
 	}
