@@ -2,11 +2,14 @@ package com.hotpads.datarouter.client.imp.jdbc;
 
 import java.util.List;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.testng.Assert;
+import org.testng.annotations.Guice;
+import org.testng.annotations.Test;
 
+import com.google.inject.Injector;
 import com.hotpads.datarouter.client.ClientFactory;
 import com.hotpads.datarouter.client.imp.BaseClientType;
 import com.hotpads.datarouter.client.imp.jdbc.factory.JdbcSimpleClientFactory;
@@ -37,7 +40,8 @@ import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.view.index.multi.MultiIndexEntry;
 import com.hotpads.datarouter.storage.view.index.unique.UniqueIndexEntry;
-import com.hotpads.util.core.java.ReflectionTool;
+import com.hotpads.datarouter.test.DatarouterTestModuleFactory;
+import com.hotpads.util.core.lang.ClassTool;
 
 @Singleton
 public class JdbcClientType extends BaseClientType{
@@ -128,13 +132,17 @@ public class JdbcClientType extends BaseClientType{
 	
 	/********************** tests ****************************/
 	
-	//TODO switch to TestNG when it works on inner classes
+	@Guice(moduleFactory = DatarouterTestModuleFactory.class)
 	public static class JdbcClientTypeTests{
+		@Inject
+		private Injector injector;
+		
 		@Test
 		public void testClassLocation(){
 			String actualClassName = JdbcClientType.class.getCanonicalName();
 			Assert.assertEquals(CANONICAL_CLASS_NAME, actualClassName);
-			ReflectionTool.create(CANONICAL_CLASS_NAME);//double check, why not
+//			ReflectionTool.create(CANONICAL_CLASS_NAME);//double check, why not
+			injector.getInstance(ClassTool.forName(CANONICAL_CLASS_NAME));
 		}
 	}
 	
