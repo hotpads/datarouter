@@ -13,6 +13,7 @@ import com.hotpads.datarouter.client.imp.hibernate.client.HibernateSimpleClientF
 import com.hotpads.datarouter.client.imp.hibernate.node.HibernateNode;
 import com.hotpads.datarouter.client.imp.hibernate.util.HibernateResultParser;
 import com.hotpads.datarouter.client.imp.jdbc.field.JdbcFieldCodecFactory;
+import com.hotpads.datarouter.client.imp.jdbc.field.StandardJdbcFieldCodecFactory;
 import com.hotpads.datarouter.client.imp.jdbc.node.JdbcNode;
 import com.hotpads.datarouter.client.imp.jdbc.node.index.JdbcManagedMultiIndexNode;
 import com.hotpads.datarouter.client.imp.jdbc.node.index.JdbcManagedUniqueIndexNode;
@@ -54,7 +55,7 @@ public class HibernateClientType extends BaseClientType{
 	
 	
 	public HibernateClientType(){
-		this.fieldCodecFactory = new JdbcFieldCodecFactory();//TODO inject
+		this.fieldCodecFactory = new StandardJdbcFieldCodecFactory();//TODO inject
 		this.resultParser = new HibernateResultParser(fieldCodecFactory);
 	}
 	

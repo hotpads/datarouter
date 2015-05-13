@@ -11,6 +11,7 @@ import com.hotpads.datarouter.client.ClientFactory;
 import com.hotpads.datarouter.client.imp.BaseClientType;
 import com.hotpads.datarouter.client.imp.jdbc.factory.JdbcSimpleClientFactory;
 import com.hotpads.datarouter.client.imp.jdbc.field.JdbcFieldCodecFactory;
+import com.hotpads.datarouter.client.imp.jdbc.field.StandardJdbcFieldCodecFactory;
 import com.hotpads.datarouter.client.imp.jdbc.node.JdbcNode;
 import com.hotpads.datarouter.client.imp.jdbc.node.index.JdbcManagedMultiIndexNode;
 import com.hotpads.datarouter.client.imp.jdbc.node.index.JdbcManagedUniqueIndexNode;
@@ -51,7 +52,7 @@ public class JdbcClientType extends BaseClientType{
 	
 	
 	public JdbcClientType(){
-		this.fieldCodecFactory = new JdbcFieldCodecFactory();//TODO inject
+		this.fieldCodecFactory = new StandardJdbcFieldCodecFactory();//TODO inject
 	}
 	
 	@Override

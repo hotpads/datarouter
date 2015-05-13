@@ -118,20 +118,4 @@ public enum StandardJdbcFieldCodec{
 		return (Class<C>)codecType;
 	}
 	
-//	public <T> getFieldAndCodecTypes(){
-//		
-//	}
-	
-//	public <T,C extends JdbcFieldCodec<T>> C createCodec(){
-//		return (C)ReflectionTool.create(codecType);
-//	}
-	
-//	public <T,F extends Field<T>,C extends JdbcFieldCodec<T,F>> C createEmptyCodec(){
-////		F dummyField = (F)ReflectionTool.create(getFieldType());
-//		C codec = (C)ReflectionTool.create(codecType);
-////		C codec = ReflectionTool.createWithArgs(codecType);//pass a null Field object as first constructor param
-////		codec.setField(dummyField);
-//		return codec;
-//	}
-	
 }
