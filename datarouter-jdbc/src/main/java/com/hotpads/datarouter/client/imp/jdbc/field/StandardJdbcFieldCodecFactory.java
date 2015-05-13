@@ -83,10 +83,10 @@ public class StandardJdbcFieldCodecFactory implements JdbcFieldCodecFactory{
 	
 	@Guice(moduleFactory = DatarouterTestModuleFactory.class)
 	public static class JdbcCodecFactoryTests{
-		private static final Logger logger = LoggerFactory.getLogger(StandardJdbcFieldCodecFactory.JdbcCodecFactoryTests.class);
+		private static final Logger logger = LoggerFactory.getLogger(JdbcCodecFactoryTests.class);
 		
 		@Inject
-		private StandardJdbcFieldCodecFactory codecFactory;
+		private JdbcFieldCodecFactory codecFactory;
 		
 		@Test
 		public void testStringCodec(){
