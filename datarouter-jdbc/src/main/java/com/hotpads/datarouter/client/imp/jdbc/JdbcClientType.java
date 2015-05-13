@@ -14,7 +14,6 @@ import com.hotpads.datarouter.client.ClientFactory;
 import com.hotpads.datarouter.client.imp.BaseClientType;
 import com.hotpads.datarouter.client.imp.jdbc.factory.JdbcSimpleClientFactory;
 import com.hotpads.datarouter.client.imp.jdbc.field.JdbcFieldCodecFactory;
-import com.hotpads.datarouter.client.imp.jdbc.field.StandardJdbcFieldCodecFactory;
 import com.hotpads.datarouter.client.imp.jdbc.node.JdbcNode;
 import com.hotpads.datarouter.client.imp.jdbc.node.index.JdbcManagedMultiIndexNode;
 import com.hotpads.datarouter.client.imp.jdbc.node.index.JdbcManagedUniqueIndexNode;
@@ -50,13 +49,14 @@ public class JdbcClientType extends BaseClientType{
 			NAME = "jdbc",
 			CANONICAL_CLASS_NAME = "com.hotpads.datarouter.client.imp.jdbc.JdbcClientType";
 	
-	public static final JdbcClientType INSTANCE = new JdbcClientType();
+	public static JdbcClientType INSTANCE;//TODO get rid of
 	
+	//injected
 	private final JdbcFieldCodecFactory fieldCodecFactory;
 	
-	
-	public JdbcClientType(){
-		this.fieldCodecFactory = new StandardJdbcFieldCodecFactory();//TODO inject
+	public JdbcClientType(JdbcFieldCodecFactory fieldCodecFactory){
+		this.fieldCodecFactory = fieldCodecFactory;
+		INSTANCE = this;
 	}
 	
 	@Override
@@ -141,7 +141,6 @@ public class JdbcClientType extends BaseClientType{
 		public void testClassLocation(){
 			String actualClassName = JdbcClientType.class.getCanonicalName();
 			Assert.assertEquals(CANONICAL_CLASS_NAME, actualClassName);
-//			ReflectionTool.create(CANONICAL_CLASS_NAME);//double check, why not
 			injector.getInstance(ClassTool.forName(CANONICAL_CLASS_NAME));
 		}
 	}

@@ -2,11 +2,14 @@ package com.hotpads.datarouter.client.imp.hbase;
 
 import java.util.List;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.testng.annotations.Guice;
 
+import com.google.inject.Injector;
 import com.hotpads.datarouter.client.ClientFactory;
 import com.hotpads.datarouter.client.ClientTableNodeNames;
 import com.hotpads.datarouter.client.imp.BaseClientType;
@@ -32,7 +35,8 @@ import com.hotpads.datarouter.storage.entity.Entity;
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
 import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.util.core.java.ReflectionTool;
+import com.hotpads.datarouter.test.DatarouterTestModuleFactory;
+import com.hotpads.util.core.lang.ClassTool;
 
 @Singleton
 public class HBaseClientType extends BaseClientType{
@@ -42,6 +46,10 @@ public class HBaseClientType extends BaseClientType{
 			CANONICAL_CLASS_NAME = "com.hotpads.datarouter.client.imp.hbase.HBaseClientType";
 	
 	public static final HBaseClientType INSTANCE = new HBaseClientType();
+	
+	//@Inject
+	public HBaseClientType(){
+	}
 	
 	@Override
 	public String getName(){
@@ -94,14 +102,17 @@ public class HBaseClientType extends BaseClientType{
 	
 	
 	/********************** tests ****************************/
-	
-	//TODO switch to TestNG when it works on inner classes
+
+	@Guice(moduleFactory = DatarouterTestModuleFactory.class)
 	public static class HBaseClientTypeTests{
+		@Inject
+		private Injector injector;
+		
 		@Test
 		public void testClassLocation(){
 			String actualClassName = HBaseClientType.class.getCanonicalName();
 			Assert.assertEquals(CANONICAL_CLASS_NAME, actualClassName);
-			ReflectionTool.create(CANONICAL_CLASS_NAME);//double check, why not
+			injector.getInstance(ClassTool.forName(CANONICAL_CLASS_NAME));
 		}
 	}
 }
