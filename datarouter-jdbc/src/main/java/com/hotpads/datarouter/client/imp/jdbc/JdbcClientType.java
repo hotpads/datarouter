@@ -54,6 +54,7 @@ public class JdbcClientType extends BaseClientType{
 	//injected
 	private final JdbcFieldCodecFactory fieldCodecFactory;
 	
+	@Inject
 	public JdbcClientType(JdbcFieldCodecFactory fieldCodecFactory){
 		this.fieldCodecFactory = fieldCodecFactory;
 		INSTANCE = this;
