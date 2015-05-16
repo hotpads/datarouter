@@ -140,6 +140,13 @@
 			<version>3.0.1</version>
 			<scope>provided</scope>
 		</dependency>
+		<!-- dependency to fix JSPServletException -->
+	    <dependency>
+	        <groupId>org.apache.tomcat</groupId>
+	        <artifactId>jsp-api</artifactId>
+	        <version>6.0.32</version>
+	        <scope>provided</scope>               
+	    </dependency>
 		<!-- hdfs -->
 		<dependency><!-- hbase uses org.apache.hadoop.conf.Configuration -->
 			<groupId>org.apache.hadoop</groupId>
