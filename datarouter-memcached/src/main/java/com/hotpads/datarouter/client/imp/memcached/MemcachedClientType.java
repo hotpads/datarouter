@@ -6,8 +6,8 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import org.junit.Assert;
-import org.junit.Test;
 import org.testng.annotations.Guice;
+import org.testng.annotations.Test;
 
 import com.google.inject.Injector;
 import com.hotpads.datarouter.client.ClientFactory;
