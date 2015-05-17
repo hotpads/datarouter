@@ -6,12 +6,12 @@ import java.util.List;
 import com.google.inject.ImplementedBy;
 import com.hotpads.datarouter.storage.field.Field;
 
-@ImplementedBy(StandardJdbcFieldCodecFactory.class)
+//@ImplementedBy(StandardJdbcFieldCodecFactory.class) //having trouble overriding this
 public interface JdbcFieldCodecFactory{
 
-	<T,F extends Field<T>>boolean hasCodec(Class<F> fieldType);
+	<T,F extends Field<T>> boolean hasCodec(Class<F> fieldType);
 
-	<T,F extends Field<T>,C extends JdbcFieldCodec<T,F>>C createCodec(F field);
+	<T,F extends Field<T>,C extends JdbcFieldCodec<T,F>> C createCodec(F field);
 
 	List<JdbcFieldCodec<?,?>> createCodecs(Collection<Field<?>> fields);
 
