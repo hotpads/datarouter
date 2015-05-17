@@ -14,10 +14,10 @@ import org.testng.Assert;
 import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
+import com.hotpads.datarouter.client.imp.jdbc.DatarouterJdbcGuiceModule.DatarouterJdbcModuleFactory;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.StandardFieldType;
 import com.hotpads.datarouter.storage.field.imp.StringField;
-import com.hotpads.datarouter.test.DatarouterTestModuleFactory;
 import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.java.ReflectionTool;
@@ -81,7 +81,7 @@ public class StandardJdbcFieldCodecFactory implements JdbcFieldCodecFactory{
 	
 	/************************ test *****************************/
 	
-	@Guice(moduleFactory = DatarouterTestModuleFactory.class)
+	@Guice(moduleFactory = DatarouterJdbcModuleFactory.class)
 	public static class JdbcCodecFactoryTests{
 		private static final Logger logger = LoggerFactory.getLogger(JdbcCodecFactoryTests.class);
 		

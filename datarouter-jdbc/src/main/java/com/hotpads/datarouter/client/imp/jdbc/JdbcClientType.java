@@ -9,9 +9,10 @@ import org.testng.Assert;
 import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
-import com.google.inject.Injector;
+import com.hotpads.DatarouterInjector;
 import com.hotpads.datarouter.client.ClientFactory;
 import com.hotpads.datarouter.client.imp.BaseClientType;
+import com.hotpads.datarouter.client.imp.jdbc.DatarouterJdbcGuiceModule.DatarouterJdbcModuleFactory;
 import com.hotpads.datarouter.client.imp.jdbc.factory.JdbcSimpleClientFactory;
 import com.hotpads.datarouter.client.imp.jdbc.field.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.client.imp.jdbc.node.JdbcNode;
@@ -39,7 +40,6 @@ import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.view.index.multi.MultiIndexEntry;
 import com.hotpads.datarouter.storage.view.index.unique.UniqueIndexEntry;
-import com.hotpads.datarouter.test.DatarouterTestModuleFactory;
 import com.hotpads.util.core.lang.ClassTool;
 
 @Singleton
@@ -133,10 +133,10 @@ public class JdbcClientType extends BaseClientType{
 	
 	/********************** tests ****************************/
 	
-	@Guice(moduleFactory = DatarouterTestModuleFactory.class)
-	public static class JdbcClientTypeTests{
+	@Guice(moduleFactory = DatarouterJdbcModuleFactory.class)
+	public static class JdbcClientTypeIntegrationTests{
 		@Inject
-		private Injector injector;
+		private DatarouterInjector injector;
 		
 		@Test
 		public void testClassLocation(){

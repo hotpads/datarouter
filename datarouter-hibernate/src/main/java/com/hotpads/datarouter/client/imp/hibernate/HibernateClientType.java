@@ -9,12 +9,13 @@ import org.junit.Assert;
 import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
-import com.google.inject.Injector;
+import com.hotpads.DatarouterInjector;
 import com.hotpads.datarouter.client.ClientFactory;
 import com.hotpads.datarouter.client.imp.BaseClientType;
 import com.hotpads.datarouter.client.imp.hibernate.client.HibernateSimpleClientFactory;
 import com.hotpads.datarouter.client.imp.hibernate.node.HibernateNode;
 import com.hotpads.datarouter.client.imp.hibernate.util.HibernateResultParser;
+import com.hotpads.datarouter.client.imp.jdbc.DatarouterJdbcGuiceModule.DatarouterJdbcModuleFactory;
 import com.hotpads.datarouter.client.imp.jdbc.field.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.client.imp.jdbc.node.JdbcNode;
 import com.hotpads.datarouter.client.imp.jdbc.node.index.JdbcManagedMultiIndexNode;
@@ -41,7 +42,6 @@ import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.view.index.multi.MultiIndexEntry;
 import com.hotpads.datarouter.storage.view.index.unique.UniqueIndexEntry;
-import com.hotpads.datarouter.test.DatarouterTestModuleFactory;
 import com.hotpads.util.core.lang.ClassTool;
 
 @Singleton
@@ -148,10 +148,10 @@ public class HibernateClientType extends BaseClientType{
 	
 	/********************** tests ****************************/
 	
-	@Guice(moduleFactory = DatarouterTestModuleFactory.class)
-	public static class HibernateClientTypeTests{
+	@Guice(moduleFactory = DatarouterJdbcModuleFactory.class)
+	public static class HibernateClientTypeIntegrationTests{
 		@Inject
-		private Injector injector;
+		private DatarouterInjector injector;
 		
 		@Test
 		public void testClassLocation(){
