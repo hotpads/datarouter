@@ -15,7 +15,7 @@ import com.hotpads.datarouter.client.imp.BaseClientType;
 import com.hotpads.datarouter.client.imp.hibernate.client.HibernateSimpleClientFactory;
 import com.hotpads.datarouter.client.imp.hibernate.node.HibernateNode;
 import com.hotpads.datarouter.client.imp.hibernate.util.HibernateResultParser;
-import com.hotpads.datarouter.client.imp.jdbc.DatarouterJdbcGuiceModule.DatarouterJdbcModuleFactory;
+import com.hotpads.datarouter.client.imp.jdbc.TestDatarouterJdbcGuiceModule.TestDatarouterJdbcModuleFactory;
 import com.hotpads.datarouter.client.imp.jdbc.field.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.client.imp.jdbc.node.JdbcNode;
 import com.hotpads.datarouter.client.imp.jdbc.node.index.JdbcManagedMultiIndexNode;
@@ -148,7 +148,7 @@ public class HibernateClientType extends BaseClientType{
 	
 	/********************** tests ****************************/
 	
-	@Guice(moduleFactory = DatarouterJdbcModuleFactory.class)
+	@Guice(moduleFactory = TestDatarouterJdbcModuleFactory.class)
 	public static class HibernateClientTypeIntegrationTests{
 		@Inject
 		private DatarouterInjector injector;

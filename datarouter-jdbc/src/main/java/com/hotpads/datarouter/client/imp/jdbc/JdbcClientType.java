@@ -12,7 +12,7 @@ import org.testng.annotations.Test;
 import com.hotpads.DatarouterInjector;
 import com.hotpads.datarouter.client.ClientFactory;
 import com.hotpads.datarouter.client.imp.BaseClientType;
-import com.hotpads.datarouter.client.imp.jdbc.DatarouterJdbcGuiceModule.DatarouterJdbcModuleFactory;
+import com.hotpads.datarouter.client.imp.jdbc.TestDatarouterJdbcGuiceModule.TestDatarouterJdbcModuleFactory;
 import com.hotpads.datarouter.client.imp.jdbc.factory.JdbcSimpleClientFactory;
 import com.hotpads.datarouter.client.imp.jdbc.field.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.client.imp.jdbc.node.JdbcNode;
@@ -133,7 +133,7 @@ public class JdbcClientType extends BaseClientType{
 	
 	/********************** tests ****************************/
 	
-	@Guice(moduleFactory = DatarouterJdbcModuleFactory.class)
+	@Guice(moduleFactory = TestDatarouterJdbcModuleFactory.class)
 	public static class JdbcClientTypeIntegrationTests{
 		@Inject
 		private DatarouterInjector injector;

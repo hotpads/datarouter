@@ -8,7 +8,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
-import com.hotpads.datarouter.client.imp.jdbc.DatarouterJdbcGuiceModule.DatarouterJdbcModuleFactory;
+import com.hotpads.datarouter.client.imp.jdbc.TestDatarouterJdbcGuiceModule.TestDatarouterJdbcModuleFactory;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.config.PutMethod;
 import com.hotpads.datarouter.node.factory.NodeFactory;
@@ -19,7 +19,7 @@ import com.hotpads.datarouter.test.client.insert.PutOpTestBeanKey;
 import com.hotpads.datarouter.test.client.insert.PutOpTestRouter;
 import com.hotpads.util.core.collections.Pair;
 
-@Guice(moduleFactory=DatarouterJdbcModuleFactory.class)
+@Guice(moduleFactory=TestDatarouterJdbcModuleFactory.class)
 public class PutOpIntegrationTests{
 
 	@Inject
