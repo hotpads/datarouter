@@ -18,12 +18,6 @@ extends BaseJdbcFieldCodec<int[],Field<int[]>>{
 	public PrimitiveIntegerArrayJdbcFieldCodec(Field<int[]> field){
 		super(field);
 	}
-
-//	@Override
-//	public Class<PrimitiveIntegerArrayField> getFieldType(){
-//		return PrimitiveIntegerArrayField.class;
-//	}
-	
 	
 
 	@Override

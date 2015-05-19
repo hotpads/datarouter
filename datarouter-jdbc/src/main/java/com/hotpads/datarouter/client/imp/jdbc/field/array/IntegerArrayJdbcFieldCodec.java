@@ -26,12 +26,6 @@ extends BaseListJdbcFieldCodec<Integer,List<Integer>,IntegerArrayField>{
 		super(field);
 	}
 
-//	@Override
-//	public Class<IntegerArrayField> getFieldType(){
-//		return IntegerArrayField.class;
-//	}
-
-
 
 	@Override
 	public SqlColumn getSqlColumnDefinition(){

@@ -29,10 +29,6 @@ extends BaseJdbcFieldCodec<String,StringField>{
 		super(field);
 	}
 
-//	@Override
-//	public Class<StringField> getFieldType(){
-//		return StringField.class;
-//	}
 	
 	@Override
 	public SqlColumn getSqlColumnDefinition(){

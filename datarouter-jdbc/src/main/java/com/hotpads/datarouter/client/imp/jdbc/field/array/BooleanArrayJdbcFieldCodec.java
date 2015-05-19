@@ -27,11 +27,6 @@ extends BaseListJdbcFieldCodec<Boolean,List<Boolean>,Field<List<Boolean>>>{
 		super(field);
 	}
 
-//	@Override
-//	public Class<BooleanArrayField> getFieldType(){
-//		return BooleanArrayField.class;
-//	}
-
 
 	@Override
 	public SqlColumn getSqlColumnDefinition(){

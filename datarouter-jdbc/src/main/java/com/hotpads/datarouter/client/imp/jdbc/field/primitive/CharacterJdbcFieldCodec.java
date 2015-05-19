@@ -21,12 +21,6 @@ extends BasePrimitiveJdbcFieldCodec<Character,Field<Character>>{
 	public CharacterJdbcFieldCodec(Field<Character> field){
 		super(field);
 	}
-
-//	@Override
-//	public Class<CharacterField> getFieldType(){
-//		return CharacterField.class;
-//	}
-
 	
 	
 	@Override

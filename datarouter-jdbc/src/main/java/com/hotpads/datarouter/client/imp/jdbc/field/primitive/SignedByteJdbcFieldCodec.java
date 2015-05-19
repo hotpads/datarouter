@@ -22,13 +22,7 @@ extends BasePrimitiveJdbcFieldCodec<Byte,Field<Byte>>{
 		super(field);
 	}
 
-//	@Override
-//	public Class<SignedByteField> getFieldType(){
-//		return SignedByteField.class;
-//	}
-
 	
-
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
 		return new SqlColumn(field.getColumnName(), MySqlColumnType.TINYINT, 1 , field.getNullable(), false);

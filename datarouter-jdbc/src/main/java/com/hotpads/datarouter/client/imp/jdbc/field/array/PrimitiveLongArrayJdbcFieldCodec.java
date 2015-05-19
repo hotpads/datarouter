@@ -18,12 +18,6 @@ extends BaseJdbcFieldCodec<long[],PrimitiveLongArrayField>{
 	public PrimitiveLongArrayJdbcFieldCodec(PrimitiveLongArrayField field){
 		super(field);
 	}
-
-//	@Override
-//	public Class<PrimitiveLongArrayField> getFieldType(){
-//		return PrimitiveLongArrayField.class;
-//	}
-	
 	
 
 	@Override

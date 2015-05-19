@@ -23,12 +23,6 @@ extends BaseListJdbcFieldCodec<Byte,List<Byte>,UInt7ArrayField>{
 	public UInt7ArrayJdbcFieldCodec(UInt7ArrayField field){
 		super(field);
 	}
-
-//	@Override
-//	public Class<UInt7ArrayField> getFieldType(){
-//		return UInt7ArrayField.class;
-//	}
-
 	
 
 	@Override

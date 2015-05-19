@@ -25,11 +25,6 @@ extends BaseListJdbcFieldCodec<Long,List<Long>,UInt63ArrayField>{
 		super(field);
 	}
 
-//	@Override
-//	public Class<UInt63ArrayField> getFieldType(){
-//		return UInt63ArrayField.class;
-//	}
-
 	
 	@Override
 	public SqlColumn getSqlColumnDefinition(){

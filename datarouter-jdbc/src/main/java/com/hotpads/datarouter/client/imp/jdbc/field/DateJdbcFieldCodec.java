@@ -29,10 +29,6 @@ extends BaseJdbcFieldCodec<Date,DateField>{
 		super(field);
 	}
 
-//	@Override
-//	public Class<DateField> getFieldType(){
-//		return DateField.class;
-//	}
 
 	@Override
 	public SqlColumn getSqlColumnDefinition(){	

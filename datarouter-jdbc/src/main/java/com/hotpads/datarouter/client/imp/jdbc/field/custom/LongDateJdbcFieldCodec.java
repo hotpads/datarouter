@@ -23,12 +23,6 @@ extends BasePrimitiveJdbcFieldCodec<Date,Field<Date>>{
 	public LongDateJdbcFieldCodec(Field<Date> field){
 		super(field);
 	}
-
-//	@Override
-//	public Class<LongDateField> getFieldType(){
-//		return LongDateField.class;
-//	}
-
 	
 
 	@Override

@@ -23,11 +23,6 @@ extends BasePrimitiveJdbcFieldCodec<Long,Field<Long>>{
 		super(field);
 	}
 
-//	@Override
-//	public Class<LongField> getFieldType(){
-//		return LongField.class;
-//	}
-
 
 	@Override
 	public SqlColumn getSqlColumnDefinition(){

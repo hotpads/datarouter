@@ -22,11 +22,6 @@ extends BasePrimitiveJdbcFieldCodec<Boolean,Field<Boolean>>{
 		super(field);
 	}
 
-//	@Override
-//	public Class<BooleanField> getFieldType(){
-//		return BooleanField.class;
-//	}
-
 
 	@Override
 	public SqlColumn getSqlColumnDefinition(){

@@ -26,12 +26,6 @@ extends BaseListJdbcFieldCodec<Double,List<Double>,Field<List<Double>>>{
 		super(field);
 	}
 
-//	@Override
-//	public Class<DoubleArrayField> getFieldType(){
-//		return DoubleArrayField.class;
-//	}
-
-
 
 	@Override
 	public SqlColumn getSqlColumnDefinition(){

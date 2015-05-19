@@ -23,12 +23,6 @@ extends BasePrimitiveJdbcFieldCodec<Float,Field<Float>>{
 		super(field);
 	}
 
-//	@Override
-//	public Class<DumbFloatField> getFieldType(){
-//		return DumbFloatField.class;
-//	}
-
-
 
 	@Override
 	public SqlColumn getSqlColumnDefinition(){

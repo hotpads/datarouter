@@ -23,12 +23,6 @@ extends BasePrimitiveJdbcFieldCodec<Short,Field<Short>>{
 		super(field);
 	}
 
-//	@Override
-//	public Class<ShortField> getFieldType(){
-//		return ShortField.class;
-//	}
-
-
 
 	@Override
 	public SqlColumn getSqlColumnDefinition(){

@@ -22,12 +22,6 @@ extends BasePrimitiveJdbcFieldCodec<Byte,UInt7Field>{
 		super(field);
 	}
 
-//	@Override
-//	public Class<UInt7Field> getFieldType(){
-//		return UInt7Field.class;
-//	}
-
-
 
 	@Override
 	public SqlColumn getSqlColumnDefinition(){

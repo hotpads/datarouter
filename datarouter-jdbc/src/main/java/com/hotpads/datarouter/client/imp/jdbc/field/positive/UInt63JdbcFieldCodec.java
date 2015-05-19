@@ -24,12 +24,6 @@ extends BasePrimitiveJdbcFieldCodec<Long,UInt63Field>{
 		super(field);
 	}
 
-//	@Override
-//	public Class<UInt63Field> getFieldType(){
-//		return UInt63Field.class;
-//	}
-
-
 	
 	@Override
 	public SqlColumn getSqlColumnDefinition(){

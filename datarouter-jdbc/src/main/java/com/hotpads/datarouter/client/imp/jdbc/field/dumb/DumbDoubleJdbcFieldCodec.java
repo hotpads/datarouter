@@ -23,12 +23,6 @@ extends BasePrimitiveJdbcFieldCodec<Double,Field<Double>>{
 		super(field);
 	}
 
-//	@Override
-//	public Class<DumbDoubleField> getFieldType(){
-//		return DumbDoubleField.class;
-//	}
-
-
 
 	@Override
 	public SqlColumn getSqlColumnDefinition(){

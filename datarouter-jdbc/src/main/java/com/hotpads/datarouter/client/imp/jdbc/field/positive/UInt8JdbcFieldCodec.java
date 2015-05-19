@@ -22,12 +22,6 @@ extends BasePrimitiveJdbcFieldCodec<Byte,UInt8Field>{
 		super(field);
 	}
 
-//	@Override
-//	public Class<UInt8Field> getFieldType(){
-//		return UInt8Field.class;
-//	}
-
-
 
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
