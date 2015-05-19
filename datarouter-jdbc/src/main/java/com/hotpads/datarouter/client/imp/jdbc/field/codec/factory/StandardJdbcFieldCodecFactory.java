@@ -14,7 +14,7 @@ import org.testng.Assert;
 import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
-import com.hotpads.datarouter.client.imp.jdbc.TestDatarouterJdbcGuiceModule.TestDatarouterJdbcModuleFactory;
+import com.hotpads.datarouter.client.imp.jdbc.TestDatarouterJdbcModuleFactory;
 import com.hotpads.datarouter.client.imp.jdbc.field.JdbcFieldCodec;
 import com.hotpads.datarouter.client.imp.jdbc.field.StandardJdbcFieldCodec;
 import com.hotpads.datarouter.client.imp.jdbc.field.StringJdbcFieldCodec;
