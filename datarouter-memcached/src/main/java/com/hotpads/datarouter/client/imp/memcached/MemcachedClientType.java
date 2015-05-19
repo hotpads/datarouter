@@ -44,9 +44,6 @@ public class MemcachedClientType extends BaseClientType{
 	
 	public static final MemcachedClientType INSTANCE = new MemcachedClientType();
 	
-//	@Inject
-	public MemcachedClientType(){
-	}
 	
 	@Override
 	public String getName(){

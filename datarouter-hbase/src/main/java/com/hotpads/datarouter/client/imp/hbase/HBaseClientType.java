@@ -47,9 +47,6 @@ public class HBaseClientType extends BaseClientType{
 	
 	public static final HBaseClientType INSTANCE = new HBaseClientType();
 	
-	//@Inject
-	public HBaseClientType(){
-	}
 	
 	@Override
 	public String getName(){
