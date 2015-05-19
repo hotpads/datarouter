@@ -11,7 +11,7 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlIndex;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlTable;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.SqlTableGenerator;
 import com.hotpads.datarouter.client.imp.jdbc.field.JdbcFieldCodec;
-import com.hotpads.datarouter.client.imp.jdbc.field.JdbcFieldCodecFactory;
+import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.storage.field.Field;
 
 public class FieldSqlTableGenerator implements SqlTableGenerator{

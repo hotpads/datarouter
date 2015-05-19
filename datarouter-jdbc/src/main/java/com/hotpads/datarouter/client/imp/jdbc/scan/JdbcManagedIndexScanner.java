@@ -2,7 +2,7 @@ package com.hotpads.datarouter.client.imp.jdbc.scan;
 
 import java.util.List;
 
-import com.hotpads.datarouter.client.imp.jdbc.field.JdbcFieldCodecFactory;
+import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.client.imp.jdbc.node.JdbcNode;
 import com.hotpads.datarouter.client.imp.jdbc.op.read.index.JdbcManagedIndexScanOp;
 import com.hotpads.datarouter.config.Config;

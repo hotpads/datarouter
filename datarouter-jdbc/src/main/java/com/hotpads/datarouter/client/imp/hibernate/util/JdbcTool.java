@@ -13,7 +13,7 @@ import java.util.List;
 import org.junit.Test;
 
 import com.hotpads.datarouter.client.imp.jdbc.field.JdbcFieldCodec;
-import com.hotpads.datarouter.client.imp.jdbc.field.JdbcFieldCodecFactory;
+import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;

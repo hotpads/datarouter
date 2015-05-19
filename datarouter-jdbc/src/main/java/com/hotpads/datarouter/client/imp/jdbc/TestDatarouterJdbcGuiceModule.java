@@ -6,8 +6,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.inject.AbstractModule;
-import com.hotpads.datarouter.client.imp.jdbc.field.JdbcFieldCodecFactory;
-import com.hotpads.datarouter.client.imp.jdbc.field.StandardJdbcFieldCodecFactory;
+import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
+import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.StandardJdbcFieldCodecFactory;
 import com.hotpads.datarouter.test.DatarouterTestGuiceModule;
 import com.hotpads.test.ModuleFactory;
 

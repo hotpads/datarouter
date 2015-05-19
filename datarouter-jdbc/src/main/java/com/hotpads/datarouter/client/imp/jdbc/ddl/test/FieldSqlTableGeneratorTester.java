@@ -13,7 +13,7 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlTable;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.SqlAlterTableGenerator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.SqlCreateTableGenerator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.imp.FieldSqlTableGenerator;
-import com.hotpads.datarouter.client.imp.jdbc.field.JdbcFieldCodecFactory;
+import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.test.DatarouterTestModuleFactory;
 import com.hotpads.datarouter.test.node.basic.manyfield.ManyFieldBean;

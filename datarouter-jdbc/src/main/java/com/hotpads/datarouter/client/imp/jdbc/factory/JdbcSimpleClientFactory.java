@@ -12,7 +12,7 @@ import com.hotpads.datarouter.client.ClientFactory;
 import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.client.imp.jdbc.JdbcClientImp;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.execute.ParallelSchemaUpdate;
-import com.hotpads.datarouter.client.imp.jdbc.field.JdbcFieldCodecFactory;
+import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.client.type.JdbcClient;
 import com.hotpads.datarouter.connection.JdbcConnectionPool;
 import com.hotpads.datarouter.routing.DatarouterContext;

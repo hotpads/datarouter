@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 import com.hotpads.datarouter.client.Clients;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.execute.ParallelSchemaUpdate;
 import com.hotpads.datarouter.client.imp.jdbc.factory.JdbcSimpleClientFactory;
-import com.hotpads.datarouter.client.imp.jdbc.field.JdbcFieldCodecFactory;
+import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.connection.JdbcConnectionPool;
 import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.storage.databean.Databean;

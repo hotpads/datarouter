@@ -16,7 +16,7 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.SqlAlterTableGenerato
 import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.SqlCreateTableGenerator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.imp.ConnectionSqlTableGenerator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.imp.FieldSqlTableGenerator;
-import com.hotpads.datarouter.client.imp.jdbc.field.JdbcFieldCodecFactory;
+import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.connection.JdbcConnectionPool;
 import com.hotpads.datarouter.node.type.index.ManagedNode;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;

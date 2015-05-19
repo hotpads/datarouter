@@ -4,7 +4,7 @@ import java.util.Collection;
 
 import com.hotpads.datarouter.client.imp.hibernate.op.write.HibernatePutOp;
 import com.hotpads.datarouter.client.imp.hibernate.util.HibernateResultParser;
-import com.hotpads.datarouter.client.imp.jdbc.field.JdbcFieldCodecFactory;
+import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.client.imp.jdbc.op.write.JdbcDeleteAllOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.write.JdbcDeleteOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.write.JdbcIndexDeleteOp;

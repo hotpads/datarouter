@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.util.List;
 
 import com.hotpads.datarouter.client.imp.jdbc.field.JdbcFieldCodec;
-import com.hotpads.datarouter.client.imp.jdbc.field.JdbcFieldCodecFactory;
+import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.BasePrimitiveField;

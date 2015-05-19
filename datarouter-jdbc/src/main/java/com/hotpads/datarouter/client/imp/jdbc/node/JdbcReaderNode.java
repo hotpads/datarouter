@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.List;
 
 import com.hotpads.datarouter.client.imp.jdbc.JdbcClientImp;
-import com.hotpads.datarouter.client.imp.jdbc.field.JdbcFieldCodecFactory;
+import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.client.imp.jdbc.scan.JdbcDatabeanScanner;
 import com.hotpads.datarouter.client.imp.jdbc.scan.JdbcPrimaryKeyScanner;
 import com.hotpads.datarouter.config.Config;
