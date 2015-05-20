@@ -33,7 +33,6 @@ public class StandardJdbcFieldCodecFactory implements JdbcFieldCodecFactory{
 	private final Map<Class<? extends Field<?>>,Class<? extends JdbcFieldCodec>> codecTypeByFieldType;
 	
 	
-	//@Inject
 	public StandardJdbcFieldCodecFactory(){
 		this.codecTypeByFieldType = new HashMap<>();
 		initMappings();
