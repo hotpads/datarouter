@@ -2,6 +2,7 @@ package com.hotpads.datarouter.client.imp.jdbc.scan;
 
 import java.util.List;
 
+import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.client.imp.jdbc.node.JdbcNode;
 import com.hotpads.datarouter.client.imp.jdbc.op.read.index.JdbcManagedIndexScanOp;
 import com.hotpads.datarouter.config.Config;
@@ -24,15 +25,17 @@ public class JdbcManagedIndexScanner<
 		IF extends DatabeanFielder<IK, IE>>
 extends BaseBatchingSortedScanner<IE,IE>{
 	
-	private PhysicalNode<PK, D> node;
-	private String traceName;
-	private ManagedNode<IK, IE, IF> managedNode;
-	private Range<IK> range;
-	private Config config;
+	private final PhysicalNode<PK, D> node;
+	private final JdbcFieldCodecFactory fieldCodecFactory;
+	private final String traceName;
+	private final ManagedNode<IK, IE, IF> managedNode;
+	private final Range<IK> range;
+	private Config config;//not final - reused
 
-	public JdbcManagedIndexScanner(PhysicalNode<PK, D> node, ManagedNode<IK, IE, IF> managedNode, Range<IK> range,
-			String traceName, Config config){
+	public JdbcManagedIndexScanner(PhysicalNode<PK,D> node, JdbcFieldCodecFactory fieldCodecFactory,
+			ManagedNode<IK,IE,IF> managedNode, Range<IK> range, String traceName, Config config){
 		this.node = node;
+		this.fieldCodecFactory = fieldCodecFactory;
 		this.managedNode = managedNode;
 		this.range = Range.nullSafe(range);
 		this.traceName = traceName;
@@ -70,8 +73,8 @@ extends BaseBatchingSortedScanner<IE,IE>{
 
 	private List<IE> doLoad(Range<IK> range){
 		config = Config.nullSafe(config).setIterateBatchSizeIfNull(JdbcNode.DEFAULT_ITERATE_BATCH_SIZE);
-		JdbcManagedIndexScanOp<PK, D, IK, IE, IF> op = new JdbcManagedIndexScanOp<>(node, managedNode, range,
-				config);
+		JdbcManagedIndexScanOp<PK,D,IK,IE,IF> op = new JdbcManagedIndexScanOp<>(node, fieldCodecFactory, managedNode,
+				range, config);
 		return new SessionExecutorImpl<List<IE>>(op, traceName).call();
 	}
 	

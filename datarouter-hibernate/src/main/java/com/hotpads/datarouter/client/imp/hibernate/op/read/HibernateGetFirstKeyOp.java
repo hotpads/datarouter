@@ -7,6 +7,7 @@ import org.hibernate.criterion.Projections;
 
 import com.hotpads.datarouter.client.imp.hibernate.node.HibernateReaderNode;
 import com.hotpads.datarouter.client.imp.hibernate.op.BaseHibernateOp;
+import com.hotpads.datarouter.client.imp.hibernate.util.HibernateResultParser;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
@@ -21,10 +22,12 @@ public class HibernateGetFirstKeyOp<
 extends BaseHibernateOp<PK>{
 		
 	private final HibernateReaderNode<PK,D,F> node;
+	private final HibernateResultParser resultParser;
 	
-	public HibernateGetFirstKeyOp(HibernateReaderNode<PK,D,F> node) {
+	public HibernateGetFirstKeyOp(HibernateReaderNode<PK,D,F> node, HibernateResultParser resultParser) {
 		super(node.getDatarouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
 		this.node = node;
+		this.resultParser = resultParser;
 	}
 	
 	@Override
@@ -46,7 +49,7 @@ extends BaseHibernateOp<PK>{
 		if(numFields==1){
 			rows = new Object[]{rows};
 		}
-		PK pk = FieldSetTool.fieldSetFromHibernateResultUsingReflection(node.getFieldInfo().getPrimaryKeyClass(), node
+		PK pk = resultParser.fieldSetFromHibernateResultUsingReflection(node.getFieldInfo().getPrimaryKeyClass(), node
 				.getFieldInfo().getPrimaryKeyFields(), rows);
 		return pk;
 	}

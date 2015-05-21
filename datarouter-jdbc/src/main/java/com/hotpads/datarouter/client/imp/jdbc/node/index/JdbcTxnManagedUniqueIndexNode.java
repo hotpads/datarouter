@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.client.imp.jdbc.op.BaseJdbcOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.read.index.JdbcGetByIndexOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.read.index.JdbcGetIndexOp;
@@ -30,8 +31,12 @@ public class JdbcTxnManagedUniqueIndexNode<
 extends BaseJdbcManagedIndexNode<PK,D,IK,IE,IF>
 implements ManagedUniqueIndexNode<PK, D, IK, IE, IF>{
 
-	public JdbcTxnManagedUniqueIndexNode(PhysicalMapStorageNode<PK, D> node, NodeParams<IK, IE, IF> params, String name){
-		super(node, params, name);
+	private final JdbcFieldCodecFactory fieldCodecFactory;
+	
+	public JdbcTxnManagedUniqueIndexNode(PhysicalMapStorageNode<PK, D> node, JdbcFieldCodecFactory fieldCodecFactory, 
+			NodeParams<IK, IE, IF> params, String name){
+		super(node, fieldCodecFactory, params, name);
+		this.fieldCodecFactory = fieldCodecFactory;
 	}
 
 	@Override
@@ -42,7 +47,7 @@ implements ManagedUniqueIndexNode<PK, D, IK, IE, IF>{
 	@Override
 	public List<D> lookupMultiUnique(Collection<IK> uniqueKeys, Config config){
 		String opName = UniqueIndexReader.OP_lookupMultiUnique;
-		BaseJdbcOp<List<D>> op = new JdbcGetByIndexOp<>(node, uniqueKeys, false, config);
+		BaseJdbcOp<List<D>> op = new JdbcGetByIndexOp<>(node, fieldCodecFactory, uniqueKeys, false, config);
 		return new SessionExecutorImpl<List<D>>(op, opName).call();
 	}
 	
@@ -54,7 +59,7 @@ implements ManagedUniqueIndexNode<PK, D, IK, IE, IF>{
 	@Override
 	public List<IE> getMulti(Collection<IK> uniqueKeys, Config config){
 		String opName = ManagedUniqueIndexNode.OP_lookupMultiUniqueIndex;
-		BaseJdbcOp<List<IE>> op = new JdbcGetIndexOp<>(node, config, fieldInfo.getDatabeanClass(),
+		BaseJdbcOp<List<IE>> op = new JdbcGetIndexOp<>(node, fieldCodecFactory, config, fieldInfo.getDatabeanClass(),
 				fieldInfo.getFielderClass(), uniqueKeys);
 		return new SessionExecutorImpl<List<IE>>(op, opName).call();
 	}
@@ -67,7 +72,7 @@ implements ManagedUniqueIndexNode<PK, D, IK, IE, IF>{
 	@Override
 	public void deleteMultiUnique(Collection<IK> uniqueKeys, Config config){
 		String opName = UniqueIndexWriter.OP_deleteMultiUnique;
-		BaseJdbcOp<Long> op = new JdbcDeleteByIndexOp<>(node, uniqueKeys, config);
+		BaseJdbcOp<Long> op = new JdbcDeleteByIndexOp<>(node, fieldCodecFactory, uniqueKeys, config);
 		new SessionExecutorImpl<Long>(op, opName).call();
 	}
 

@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.client.imp.jdbc.op.BaseJdbcOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.read.index.JdbcGetByIndexOp;
 import com.hotpads.datarouter.config.Config;
@@ -26,8 +27,12 @@ public class JdbcTxnManagedMultiIndexNode<
 extends BaseJdbcManagedIndexNode<PK, D, IK, IE, IF>
 implements ManagedMultiIndexNode<PK, D, IK, IE, IF>{
 	
-	public JdbcTxnManagedMultiIndexNode(PhysicalMapStorageNode<PK, D> node, NodeParams<IK, IE, IF> params, String name){
-		super(node, params, name);
+	private final JdbcFieldCodecFactory fieldCodecFactory;
+	
+	public JdbcTxnManagedMultiIndexNode(PhysicalMapStorageNode<PK, D> node, JdbcFieldCodecFactory fieldCodecFactory,
+			NodeParams<IK, IE, IF> params, String name){
+		super(node, fieldCodecFactory, params, name);
+		this.fieldCodecFactory = fieldCodecFactory;
 	}
 
 	@Override
@@ -38,7 +43,7 @@ implements ManagedMultiIndexNode<PK, D, IK, IE, IF>{
 	@Override
 	public List<D> lookupMultiMulti(Collection<IK> indexKeys, Config config){
 		String opName = UniqueIndexReader.OP_lookupMultiUnique;
-		BaseJdbcOp<List<D>> op = new JdbcGetByIndexOp<>(node, indexKeys, false, config);
+		BaseJdbcOp<List<D>> op = new JdbcGetByIndexOp<>(node, fieldCodecFactory, indexKeys, false, config);
 		return new SessionExecutorImpl<List<D>>(op, opName).call();
 	}
 

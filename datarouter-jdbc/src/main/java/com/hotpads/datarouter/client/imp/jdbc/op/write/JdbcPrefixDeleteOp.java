@@ -2,6 +2,7 @@ package com.hotpads.datarouter.client.imp.jdbc.op.write;
 
 import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
 import com.hotpads.datarouter.client.imp.hibernate.util.SqlBuilder;
+import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.client.imp.jdbc.op.BaseJdbcOp;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
@@ -17,14 +18,16 @@ public class JdbcPrefixDeleteOp<
 extends BaseJdbcOp<Long>{
 		
 	private final PhysicalNode<PK,D> node;
+	private final JdbcFieldCodecFactory fieldCodecFactory;
 	private final PK prefix;
 	private final boolean wildcardLastField;
 	private final Config config;
 	
-	public JdbcPrefixDeleteOp(PhysicalNode<PK,D> node, PK prefix, boolean wildcardLastField,
-			Config config){
+	public JdbcPrefixDeleteOp(PhysicalNode<PK,D> node, JdbcFieldCodecFactory fieldCodecFactory, PK prefix,
+			boolean wildcardLastField, Config config){
 		super(node.getDatarouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
 		this.node = node;
+		this.fieldCodecFactory = fieldCodecFactory;
 		this.prefix = prefix;
 		this.wildcardLastField = wildcardLastField;
 		this.config = config;
@@ -32,8 +35,8 @@ extends BaseJdbcOp<Long>{
 	
 	@Override
 	public Long runOnce(){
-		String sql = SqlBuilder.deleteWithPrefixes(config, node.getTableName(), DrListTool.wrap(prefix),
-				wildcardLastField);
+		String sql = SqlBuilder.deleteWithPrefixes(fieldCodecFactory, config, node.getTableName(), DrListTool.wrap(
+				prefix), wildcardLastField);
 		long numModified = JdbcTool.update(getConnection(node.getClientName()), sql.toString());
 		return numModified;
 	}
