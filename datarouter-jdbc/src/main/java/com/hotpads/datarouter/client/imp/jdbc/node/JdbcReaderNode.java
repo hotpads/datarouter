@@ -4,10 +4,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.hotpads.datarouter.client.imp.jdbc.JdbcClientImp;
+import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.client.imp.jdbc.scan.JdbcDatabeanScanner;
 import com.hotpads.datarouter.client.imp.jdbc.scan.JdbcPrimaryKeyScanner;
 import com.hotpads.datarouter.config.Config;
@@ -41,9 +39,9 @@ implements MapStorageReader<PK,D>,
 	
 	/******************************* constructors ************************************/
 
-	public JdbcReaderNode(NodeParams<PK,D,F> params){
+	public JdbcReaderNode(NodeParams<PK,D,F> params, JdbcFieldCodecFactory fieldCodecFactory){
 		super(params);
-		this.jdbcReaderOps = new JdbcReaderOps<>(this);
+		this.jdbcReaderOps = new JdbcReaderOps<>(this, fieldCodecFactory);
 	}
 	
 	

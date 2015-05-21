@@ -11,12 +11,12 @@ import org.hibernate.criterion.Projections;
 import com.hotpads.datarouter.client.imp.hibernate.node.HibernateReaderNode;
 import com.hotpads.datarouter.client.imp.hibernate.op.BaseHibernateOp;
 import com.hotpads.datarouter.client.imp.hibernate.util.CriteriaTool;
+import com.hotpads.datarouter.client.imp.hibernate.util.HibernateResultParser;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldSet;
-import com.hotpads.datarouter.storage.field.FieldSetTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
@@ -31,15 +31,17 @@ public class HibernateGetRangeUncheckedOp<
 extends BaseHibernateOp<List<? extends FieldSet<?>>>{
 		
 	private final HibernateReaderNode<PK,D,F> node;
+	private final HibernateResultParser resultParser;
 	private final String opName;
 	private final Range<PK> range;
 	private final boolean keysOnly;
 	private final Config config;
 	
-	public HibernateGetRangeUncheckedOp(HibernateReaderNode<PK,D,F> node, String opName, Range<PK> range, 
-			boolean keysOnly, Config config) {
+	public HibernateGetRangeUncheckedOp(HibernateReaderNode<PK,D,F> node, HibernateResultParser resultParser,
+			String opName, Range<PK> range, boolean keysOnly, Config config){
 		super(node.getDatarouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
 		this.node = node;
+		this.resultParser = resultParser;
 		this.opName = opName;
 		this.range = range;
 		this.keysOnly = keysOnly;
@@ -71,7 +73,7 @@ extends BaseHibernateOp<List<? extends FieldSet<?>>>{
 				}else{
 					rowCells = new Object[]{row};
 				}
-				result.add(FieldSetTool.fieldSetFromHibernateResultUsingReflection(
+				result.add(resultParser.fieldSetFromHibernateResultUsingReflection(
 						node.getFieldInfo().getPrimaryKeyClass(), node.getFieldInfo().getPrimaryKeyFields(), 
 						rowCells));
 			}
