@@ -1,9 +1,10 @@
 package com.hotpads.datarouter.client.imp.jdbc.node.index;
 
+import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.client.imp.jdbc.scan.JdbcManagedIndexScanner;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.NodeParams;
-import com.hotpads.datarouter.node.op.raw.MapStorage.PhysicalMapStorageNode;
+import com.hotpads.datarouter.node.op.combo.IndexedMapStorage.PhysicalIndexedMapStorageNode;
 import com.hotpads.datarouter.node.type.index.ManagedMultiIndexNode;
 import com.hotpads.datarouter.node.type.index.base.BaseManagedNode;
 import com.hotpads.datarouter.op.scan.ManagedIndexDatabeanScanner;
@@ -23,18 +24,22 @@ public class BaseJdbcManagedIndexNode
 		IF extends DatabeanFielder<IK, IE>>
 extends BaseManagedNode<PK, D, IK, IE, IF>{
 
-	public BaseJdbcManagedIndexNode(PhysicalMapStorageNode<PK, D> node, NodeParams<IK, IE, IF> params, String name){
+	protected final JdbcFieldCodecFactory fieldCodecFactory;
+	
+	public BaseJdbcManagedIndexNode(PhysicalIndexedMapStorageNode<PK, D> node, JdbcFieldCodecFactory fieldCodecFactory,
+			NodeParams<IK, IE, IF> params, String name){
 		super(node, params, name);
+		this.fieldCodecFactory = fieldCodecFactory;
 	}
 
 	public SortedScannerIterable<IE> scan(Range<IK> range, Config config){
 		String opName = ManagedMultiIndexNode.OP_scanIndex;
-		return new SortedScannerIterable<IE>(new JdbcManagedIndexScanner<PK, D, IK, IE, IF>(node, this, range, opName,
+		return new SortedScannerIterable<>(new JdbcManagedIndexScanner<>(node, fieldCodecFactory, this, range, opName, 
 				config));
 	}
 
 	public SortedScannerIterable<D> scanDatabeans(Range<IK> range, Config config){
-		return new SortedScannerIterable<D>(new ManagedIndexDatabeanScanner<>(node, scan(range, config), config));
+		return new SortedScannerIterable<>(new ManagedIndexDatabeanScanner<>(node, scan(range, config), config));
 	}
 	
 	public SortedScannerIterable<IK> scanKeys(Range<IK> range, Config config){

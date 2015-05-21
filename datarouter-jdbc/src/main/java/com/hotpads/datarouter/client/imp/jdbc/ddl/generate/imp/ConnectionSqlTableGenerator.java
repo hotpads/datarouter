@@ -20,7 +20,7 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlIndex;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlTable;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.SqlTableGenerator;
-import com.hotpads.datarouter.storage.field.imp.StringField;
+import com.hotpads.datarouter.client.imp.jdbc.field.StringJdbcFieldCodec;
 import com.hotpads.datarouter.test.node.basic.manyfield.ManyFieldBean;
 import com.hotpads.datarouter.util.core.DrIterableTool;
 
@@ -57,7 +57,7 @@ public class ConnectionSqlTableGenerator implements SqlTableGenerator{
 				MySqlColumnType type = MySqlColumnType.parse(metaData.getColumnTypeName(i + 1));
 				SqlColumn col;
 				if(type.equals(MySqlColumnType.VARCHAR)){
-					col = StringField.getMySqlTypeFromSize(metaData.getColumnName(i + 1), 
+					col = StringJdbcFieldCodec.getMySqlTypeFromSize(metaData.getColumnName(i + 1), 
 									metaData.getColumnDisplaySize(i + 1), nullable);
 				}else{
 					col = new SqlColumn(metaData.getColumnName(i + 1), type,

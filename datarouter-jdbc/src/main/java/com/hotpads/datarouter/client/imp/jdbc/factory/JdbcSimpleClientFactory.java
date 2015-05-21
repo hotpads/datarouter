@@ -12,6 +12,7 @@ import com.hotpads.datarouter.client.ClientFactory;
 import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.client.imp.jdbc.JdbcClientImp;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.execute.ParallelSchemaUpdate;
+import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.client.type.JdbcClient;
 import com.hotpads.datarouter.connection.JdbcConnectionPool;
 import com.hotpads.datarouter.routing.DatarouterContext;
@@ -27,16 +28,19 @@ implements ClientFactory{
 		SCHEMA_UPDATE_ENABLE = "schemaUpdate.enable";
 	
 
-	private DatarouterContext drContext;
-	private String clientName;
-	private Set<String> configFilePaths;
-	private List<Properties> multiProperties;
+	private final DatarouterContext drContext;
+	protected final JdbcFieldCodecFactory fieldCodecFactory;
+	private final String clientName;
+	private final Set<String> configFilePaths;
+	private final List<Properties> multiProperties;
 	
 	private JdbcConnectionPool connectionPool;
 	private JdbcClient client;
 
-	public JdbcSimpleClientFactory(DatarouterContext drContext, String clientName){
+	public JdbcSimpleClientFactory(DatarouterContext drContext, JdbcFieldCodecFactory fieldCodecFactory, 
+			String clientName){
 		this.drContext = drContext;
+		this.fieldCodecFactory = fieldCodecFactory;
 		this.clientName = clientName;
 		this.configFilePaths = drContext.getConfigFilePaths();
 		this.multiProperties = DrPropertiesTool.fromFiles(configFilePaths);
@@ -53,7 +57,7 @@ implements ClientFactory{
 		timer.add("client");
 		
 		if(doSchemaUpdate()){
-			new ParallelSchemaUpdate(drContext, clientName, connectionPool).call();
+			new ParallelSchemaUpdate(drContext, fieldCodecFactory, clientName, connectionPool).call();
 			timer.add("schema update");
 		}
 

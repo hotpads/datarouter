@@ -15,11 +15,11 @@ import org.hibernate.criterion.Restrictions;
 
 import com.hotpads.datarouter.client.imp.hibernate.node.HibernateReaderNode;
 import com.hotpads.datarouter.client.imp.hibernate.op.BaseHibernateOp;
+import com.hotpads.datarouter.client.imp.hibernate.util.HibernateResultParser;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
-import com.hotpads.datarouter.storage.field.FieldSetTool;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
@@ -34,12 +34,15 @@ public class HibernateGetKeysOp<
 extends BaseHibernateOp<List<PK>>{
 		
 	private final HibernateReaderNode<PK,D,F> node;
+	private final HibernateResultParser resultParser;
 	private final Collection<PK> keys;
 	private final Config config;
 	
-	public HibernateGetKeysOp(HibernateReaderNode<PK,D,F> node, Collection<PK> keys, Config config) {
+	public HibernateGetKeysOp(HibernateReaderNode<PK,D,F> node, HibernateResultParser resultParser,
+			Collection<PK> keys, Config config) {
 		super(node.getDatarouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
 		this.node = node;
+		this.resultParser = resultParser;
 		this.keys = keys;
 		this.config = config;
 	}
@@ -72,7 +75,7 @@ extends BaseHibernateOp<List<PK>>{
 		criteria.add(orSeparatedIds);
 		List<Object[]> rows = criteria.list();
 		for(Object[] row : DrIterableTool.nullSafe(rows)){
-			result.add(FieldSetTool.fieldSetFromHibernateResultUsingReflection(
+			result.add(resultParser.fieldSetFromHibernateResultUsingReflection(
 					node.getFieldInfo().getPrimaryKeyClass(), node.getFieldInfo().getPrimaryKeyFields(), row));
 		}
 		return result;

@@ -2,14 +2,18 @@ package com.hotpads.datarouter.client.imp.jdbc;
 
 import java.util.List;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.testng.Assert;
+import org.testng.annotations.Guice;
+import org.testng.annotations.Test;
 
+import com.hotpads.DatarouterInjector;
 import com.hotpads.datarouter.client.ClientFactory;
 import com.hotpads.datarouter.client.imp.BaseClientType;
 import com.hotpads.datarouter.client.imp.jdbc.factory.JdbcSimpleClientFactory;
+import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.client.imp.jdbc.node.JdbcNode;
 import com.hotpads.datarouter.client.imp.jdbc.node.index.JdbcManagedMultiIndexNode;
 import com.hotpads.datarouter.client.imp.jdbc.node.index.JdbcManagedUniqueIndexNode;
@@ -20,9 +24,9 @@ import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.adapter.callsite.physical.PhysicalIndexedSortedMapStorageCallsiteAdapter;
 import com.hotpads.datarouter.node.adapter.counter.physical.PhysicalIndexedSortedMapStorageCounterAdapter;
 import com.hotpads.datarouter.node.entity.EntityNodeParams;
+import com.hotpads.datarouter.node.op.combo.IndexedMapStorage.PhysicalIndexedMapStorageNode;
 import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
 import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage.PhysicalIndexedSortedMapStorageNode;
-import com.hotpads.datarouter.node.op.raw.MapStorage.PhysicalMapStorageNode;
 import com.hotpads.datarouter.node.type.index.ManagedMultiIndexNode;
 import com.hotpads.datarouter.node.type.index.ManagedUniqueIndexNode;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
@@ -35,7 +39,7 @@ import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.view.index.multi.MultiIndexEntry;
 import com.hotpads.datarouter.storage.view.index.unique.UniqueIndexEntry;
-import com.hotpads.util.core.java.ReflectionTool;
+import com.hotpads.util.core.lang.ClassTool;
 
 @Singleton
 public class JdbcClientType extends BaseClientType{
@@ -44,7 +48,16 @@ public class JdbcClientType extends BaseClientType{
 			NAME = "jdbc",
 			CANONICAL_CLASS_NAME = "com.hotpads.datarouter.client.imp.jdbc.JdbcClientType";
 	
-	public static final JdbcClientType INSTANCE = new JdbcClientType();
+	public static JdbcClientType INSTANCE;//TODO get rid of
+	
+	//injected
+	private final JdbcFieldCodecFactory fieldCodecFactory;
+	
+	@Inject
+	public JdbcClientType(JdbcFieldCodecFactory fieldCodecFactory){
+		this.fieldCodecFactory = fieldCodecFactory;
+		INSTANCE = this;
+	}
 	
 	@Override
 	public String getName(){
@@ -54,14 +67,14 @@ public class JdbcClientType extends BaseClientType{
 	@Override
 	public ClientFactory createClientFactory(DatarouterContext drContext, String clientName,
 			List<PhysicalNode<?,?>> physicalNodes){
-		return new JdbcSimpleClientFactory(drContext, clientName);
+		return new JdbcSimpleClientFactory(drContext, fieldCodecFactory, clientName);
 	}
 	
 	@Override
 	public <PK extends PrimaryKey<PK>, D extends Databean<PK, D>, F extends DatabeanFielder<PK, D>>
 	PhysicalNode<PK, D> createNode(NodeParams<PK, D, F> nodeParams){
 		return new PhysicalIndexedSortedMapStorageCounterAdapter<PK,D,F,JdbcNode<PK,D,F>>(new JdbcNode<PK,D,F>(
-				nodeParams));
+				nodeParams, fieldCodecFactory));
 	}
 	
 	//ignore the entityNodeParams
@@ -91,12 +104,13 @@ public class JdbcClientType extends BaseClientType{
 			IE extends UniqueIndexEntry<IK, IE, PK, D>,
 			IF extends DatabeanFielder<IK, IE>>
 	ManagedUniqueIndexNode<PK, D, IK, IE, IF> createManagedUniqueIndexNode(
-			PhysicalMapStorageNode<PK, D> backingMapNode, NodeParams<IK, IE, IF> params, String indexName, 
+			PhysicalIndexedMapStorageNode<PK, D> backingMapNode, NodeParams<IK, IE, IF> params, String indexName, 
 			boolean manageTxn){
 		if(manageTxn){
-			return new JdbcTxnManagedUniqueIndexNode<PK, D, IK, IE, IF>(backingMapNode, params, indexName);
+			return new JdbcTxnManagedUniqueIndexNode<PK, D, IK, IE, IF>(backingMapNode, fieldCodecFactory, params, 
+					indexName);
 		}
-		return new JdbcManagedUniqueIndexNode<PK, D, IK, IE, IF>(backingMapNode, params, indexName);
+		return new JdbcManagedUniqueIndexNode<PK, D, IK, IE, IF>(backingMapNode, fieldCodecFactory, params, indexName);
 	}
 	
 	@Override
@@ -106,24 +120,28 @@ public class JdbcClientType extends BaseClientType{
 			IE extends MultiIndexEntry<IK, IE, PK, D>,
 			IF extends DatabeanFielder<IK, IE>> 
 	ManagedMultiIndexNode<PK, D, IK, IE, IF> createManagedMultiIndexNode(
-			PhysicalMapStorageNode<PK, D> backingMapNode, NodeParams<IK, IE, IF> params, String indexName, 
+			PhysicalIndexedMapStorageNode<PK, D> backingMapNode, NodeParams<IK, IE, IF> params, String indexName, 
 			boolean manageTxn){
 		if(manageTxn){
-			return new JdbcTxnManagedMultiIndexNode<PK, D, IK, IE, IF>(backingMapNode, params, indexName);
+			return new JdbcTxnManagedMultiIndexNode<PK, D, IK, IE, IF>(backingMapNode, fieldCodecFactory, params, 
+					indexName);
 		}
-		return new JdbcManagedMultiIndexNode<PK, D, IK, IE, IF>(backingMapNode, params, indexName);
+		return new JdbcManagedMultiIndexNode<PK, D, IK, IE, IF>(backingMapNode, fieldCodecFactory, params, indexName);
 	}
 	
 	
 	/********************** tests ****************************/
 	
-	//TODO switch to TestNG when it works on inner classes
-	public static class JdbcClientTypeTests{
+	@Guice(moduleFactory = TestDatarouterJdbcModuleFactory.class)
+	public static class JdbcClientTypeIntegrationTests{
+		@Inject
+		private DatarouterInjector injector;
+		
 		@Test
 		public void testClassLocation(){
 			String actualClassName = JdbcClientType.class.getCanonicalName();
 			Assert.assertEquals(CANONICAL_CLASS_NAME, actualClassName);
-			ReflectionTool.create(CANONICAL_CLASS_NAME);//double check, why not
+			injector.getInstance(ClassTool.forName(CANONICAL_CLASS_NAME));
 		}
 	}
 	

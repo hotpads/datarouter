@@ -3,6 +3,8 @@ package com.hotpads.datarouter.client.imp.hibernate.node;
 import java.util.Collection;
 
 import com.hotpads.datarouter.client.imp.hibernate.op.write.HibernatePutOp;
+import com.hotpads.datarouter.client.imp.hibernate.util.HibernateResultParser;
+import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.client.imp.jdbc.op.write.JdbcDeleteAllOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.write.JdbcDeleteOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.write.JdbcIndexDeleteOp;
@@ -23,6 +25,7 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrListTool;
+import com.hotpads.util.core.exception.NotImplementedException;
 
 public class HibernateNode<
 		PK extends PrimaryKey<PK>,
@@ -32,8 +35,14 @@ extends HibernateReaderNode<PK,D,F>
 implements PhysicalIndexedSortedMapStorageNode<PK,D>
 {
 
-	public HibernateNode(NodeParams<PK,D,F> params){
-		super(params);
+	private final JdbcFieldCodecFactory fieldCodecFactory;
+	private final HibernateResultParser resultParser;
+	
+	public HibernateNode(NodeParams<PK,D,F> params, JdbcFieldCodecFactory fieldCodecFactory, 
+			HibernateResultParser resultParser){
+		super(params, resultParser);
+		this.fieldCodecFactory = fieldCodecFactory;
+		this.resultParser = resultParser;
 	}
 	
 	@Override
@@ -71,7 +80,7 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D>
 	@Override
 	public void delete(PK key, Config config){
 		String opName = MapStorageWriter.OP_delete;
-		JdbcDeleteOp<PK,D,F> op = new JdbcDeleteOp<PK,D,F>(this, DrListTool.wrap(key), config);
+		JdbcDeleteOp<PK,D,F> op = new JdbcDeleteOp<PK,D,F>(this, fieldCodecFactory, DrListTool.wrap(key), config);
 		new SessionExecutorImpl<Long>(op, getTraceName(opName)).call();
 	}
 
@@ -79,7 +88,7 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D>
 	public void deleteMulti(final Collection<PK> keys, final Config config){
 		String opName = MapStorageWriter.OP_deleteMulti;
 		if(DrCollectionTool.isEmpty(keys)){ return; }//avoid starting txn
-		JdbcDeleteOp<PK,D,F> op = new JdbcDeleteOp<PK,D,F>(this, keys, config);
+		JdbcDeleteOp<PK,D,F> op = new JdbcDeleteOp<PK,D,F>(this, fieldCodecFactory, keys, config);
 		new SessionExecutorImpl<Long>(op, getTraceName(opName)).call();
 	}
 	
@@ -89,8 +98,8 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D>
 	@Override
 	public void deleteUnique(UniqueKey<PK> uniqueKey, Config config){
 		String opName = IndexedStorageWriter.OP_deleteUnique;
-		JdbcUniqueIndexDeleteOp<PK, D> op = new JdbcUniqueIndexDeleteOp<PK, D>(this, DrListTool.wrap(uniqueKey),
-				config);
+		JdbcUniqueIndexDeleteOp<PK,D> op = new JdbcUniqueIndexDeleteOp<PK,D>(this, fieldCodecFactory, DrListTool
+				.wrap(uniqueKey), config);
 		new SessionExecutorImpl<Long>(op, getTraceName(opName)).call();
 	}
 	
@@ -98,15 +107,22 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D>
 	public void deleteMultiUnique(final Collection<? extends UniqueKey<PK>> uniqueKeys, final Config config){
 		String opName = IndexedStorageWriter.OP_deleteMultiUnique;
 		if(DrCollectionTool.isEmpty(uniqueKeys)){ return; }//avoid starting txn
-		JdbcUniqueIndexDeleteOp<PK, D> op = new JdbcUniqueIndexDeleteOp<PK, D>(this, uniqueKeys, config);
+		JdbcUniqueIndexDeleteOp<PK,D> op = new JdbcUniqueIndexDeleteOp<PK,D>(this, fieldCodecFactory, uniqueKeys,
+				config);
 		new SessionExecutorImpl<Long>(op, getTraceName(opName)).call();
 	}
 	
 	@Override
 	public void delete(final Lookup<PK> lookup, final Config config) {
 		String opName = IndexedStorageWriter.OP_indexDelete;
-		JdbcIndexDeleteOp<PK,D> op = new JdbcIndexDeleteOp<PK,D>(this, lookup, config);
+		JdbcIndexDeleteOp<PK,D> op = new JdbcIndexDeleteOp<PK,D>(this, fieldCodecFactory, lookup, config);
 		new SessionExecutorImpl<Long>(op, getTraceName(opName)).call();
+	}
+	
+	@Override
+	public <IK extends PrimaryKey<IK>> void deleteByIndex(Collection<IK> keys, Config config){
+		// TODO implement managed indexes for Hibernate
+		throw new NotImplementedException();
 	}
 	
 
@@ -115,7 +131,8 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D>
 	@Override
 	public void deleteRangeWithPrefix(final PK prefix, final boolean wildcardLastField, final Config config) {
 		String opName = SortedStorageWriter.OP_deleteRangeWithPrefix;
-		JdbcPrefixDeleteOp<PK,D,F> op = new JdbcPrefixDeleteOp<PK,D,F>(this, prefix, wildcardLastField, config);
+		JdbcPrefixDeleteOp<PK,D,F> op = new JdbcPrefixDeleteOp<PK,D,F>(this, fieldCodecFactory, prefix, 
+				wildcardLastField, config);
 		new SessionExecutorImpl<Long>(op, getTraceName(opName)).call();
 	}
 

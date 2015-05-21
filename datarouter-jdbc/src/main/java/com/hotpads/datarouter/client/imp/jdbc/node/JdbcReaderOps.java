@@ -4,9 +4,8 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
+import com.hotpads.datarouter.client.imp.jdbc.op.BaseJdbcOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcCountOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcGetFirstKeyOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcGetFirstOp;
@@ -17,6 +16,8 @@ import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcGetRangeOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcGetWithPrefixesOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcLookupOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcLookupUniqueOp;
+import com.hotpads.datarouter.client.imp.jdbc.op.read.index.JdbcGetByIndexOp;
+import com.hotpads.datarouter.client.imp.jdbc.op.read.index.JdbcGetIndexOp;
 import com.hotpads.datarouter.client.imp.jdbc.scan.JdbcIndexScanner;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.exception.DataAccessException;
@@ -24,13 +25,14 @@ import com.hotpads.datarouter.node.op.raw.read.IndexedStorageReader;
 import com.hotpads.datarouter.node.op.raw.read.MapStorageReader;
 import com.hotpads.datarouter.node.op.raw.read.SortedStorageReader;
 import com.hotpads.datarouter.op.executor.impl.SessionExecutorImpl;
+import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.multi.BaseLookup;
 import com.hotpads.datarouter.storage.key.multi.Lookup;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
-import com.hotpads.datarouter.util.DRCounters;
+import com.hotpads.datarouter.storage.view.index.IndexEntry;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.collections.Range;
@@ -40,19 +42,19 @@ import com.hotpads.util.core.iterable.scanner.sorted.SortedScanner;
 public class JdbcReaderOps<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
-		F extends DatabeanFielder<PK,D>> 
-{
+		F extends DatabeanFielder<PK,D>>{
 
 	public static final int DEFAULT_ITERATE_BATCH_SIZE = 1000;
 	
-	
 	private final JdbcReaderNode<PK,D,F> node;
+	private final JdbcFieldCodecFactory fieldCodecFactory;
 	
 	
 	/******************************* constructors ************************************/
 
-	public JdbcReaderOps(JdbcReaderNode<PK,D,F> node){
+	public JdbcReaderOps(JdbcReaderNode<PK,D,F> node, JdbcFieldCodecFactory fieldCodecFactory){
 		this.node = node;
+		this.fieldCodecFactory = fieldCodecFactory;
 	}
 
 	
@@ -61,14 +63,14 @@ public class JdbcReaderOps<
 	
 	public List<D> getMulti(final Collection<PK> keys, final Config config) {
 		String opName = MapStorageReader.OP_getMulti;
-		JdbcGetOp<PK,D,F> op = new JdbcGetOp<PK,D,F>(node, opName, keys, config);
+		JdbcGetOp<PK,D,F> op = new JdbcGetOp<PK,D,F>(node, fieldCodecFactory, opName, keys, config);
 		List<D> results = new SessionExecutorImpl<List<D>>(op, getTraceName(opName)).call();
 		return results;
 	}
 	
 	public List<PK> getKeys(final Collection<PK> keys, final Config config) {
 		String opName = MapStorageReader.OP_getKeys;
-		JdbcGetKeysOp<PK,D,F> op = new JdbcGetKeysOp<PK,D,F>(node, opName, keys, config);
+		JdbcGetKeysOp<PK,D,F> op = new JdbcGetKeysOp<PK,D,F>(node, fieldCodecFactory, opName, keys, config);
 		List<PK> results = new SessionExecutorImpl<List<PK>>(op, getTraceName(opName)).call();
 		return results;
 	}
@@ -78,14 +80,14 @@ public class JdbcReaderOps<
 	
 	public Long count(final Lookup<PK> lookup, final Config config) {
 		String opName = IndexedStorageReader.OP_count;
-		JdbcCountOp<PK,D,F> op = new JdbcCountOp<PK,D,F>(node, lookup, config);
+		JdbcCountOp<PK,D,F> op = new JdbcCountOp<PK,D,F>(node, fieldCodecFactory, lookup, config);
 		return new SessionExecutorImpl<Long>(op, getTraceName(opName)).call();
 	}
 	
 	public D lookupUnique(final UniqueKey<PK> uniqueKey, final Config config){
 		String opName = IndexedStorageReader.OP_lookupUnique;
-		JdbcLookupUniqueOp<PK,D,F> op = new JdbcLookupUniqueOp<PK,D,F>(node, DrListTool.wrap(uniqueKey), 
-				config);
+		JdbcLookupUniqueOp<PK,D,F> op = new JdbcLookupUniqueOp<PK,D,F>(node, fieldCodecFactory, DrListTool
+				.wrap(uniqueKey), config);
 		List<D> result = new SessionExecutorImpl<List<D>>(op, getTraceName(opName)).call();
 		if(DrCollectionTool.size(result)>1){
 			throw new DataAccessException("found >1 databeans with unique index key="+uniqueKey);
@@ -96,15 +98,15 @@ public class JdbcReaderOps<
 	public List<D> lookupMultiUnique(final Collection<? extends UniqueKey<PK>> uniqueKeys, final Config config){
 		String opName = IndexedStorageReader.OP_lookupMultiUnique;
 		if(DrCollectionTool.isEmpty(uniqueKeys)){ return new LinkedList<D>(); }
-		JdbcLookupUniqueOp<PK,D,F> op = new JdbcLookupUniqueOp<PK,D,F>(node, uniqueKeys, config);
+		JdbcLookupUniqueOp<PK,D,F> op = new JdbcLookupUniqueOp<PK,D,F>(node, fieldCodecFactory, uniqueKeys, config);
 		return new SessionExecutorImpl<List<D>>(op, getTraceName(opName)).call();
 	}
 	
 	//TODO pay attention to wildcardLastField
 	public List<D> lookup(final Lookup<PK> lookup, final boolean wildcardLastField, final Config config) {
 		String opName = IndexedStorageReader.OP_lookup;
-		JdbcLookupOp<PK,D,F> op = new JdbcLookupOp<PK,D,F>(node, DrListTool.wrap(lookup), wildcardLastField, 
-				config);
+		JdbcLookupOp<PK,D,F> op = new JdbcLookupOp<PK,D,F>(node, fieldCodecFactory, DrListTool.wrap(lookup),
+				wildcardLastField, config);
 		return new SessionExecutorImpl<List<D>>(op, getTraceName(opName)).call();
 	}
 	
@@ -112,49 +114,65 @@ public class JdbcReaderOps<
 	public List<D> lookup(final Collection<? extends Lookup<PK>> lookups, final Config config) {
 		String opName = IndexedStorageReader.OP_lookupMulti;
 		if(DrCollectionTool.isEmpty(lookups)){ return new LinkedList<D>(); }
-		JdbcLookupOp<PK,D,F> op = new JdbcLookupOp<PK,D,F>(node, lookups, false, config);
+		JdbcLookupOp<PK,D,F> op = new JdbcLookupOp<PK,D,F>(node, fieldCodecFactory, lookups, false, config);
 		return new SessionExecutorImpl<List<D>>(op, getTraceName(opName)).call();
 	}
 	
 	public <PKLookup extends BaseLookup<PK>> SortedScannerIterable<PKLookup> scanIndex(Class<PKLookup> indexClass){
-		SortedScanner<PKLookup> scanner = new JdbcIndexScanner<PK, D, F, PKLookup>(node, indexClass, getTraceName(
-				"scanIndex"));
+		SortedScanner<PKLookup> scanner = new JdbcIndexScanner<PK,D,F,PKLookup>(node, fieldCodecFactory, indexClass,
+				getTraceName("scanIndex"));
 		return new SortedScannerIterable<PKLookup>(scanner);
 	}
 	
+	public <IK extends PrimaryKey<IK>,
+			IE extends IndexEntry<IK,IE,PK,D>,
+			IF extends DatabeanFielder<IK,IE>> 
+	List<IE> getMultiFromIndex(Collection<IK> keys, Config config, DatabeanFieldInfo<IK, IE, IF> indexEntryFieldInfo){
+		BaseJdbcOp<List<IE>> op = new JdbcGetIndexOp<>(node, fieldCodecFactory, config,
+				indexEntryFieldInfo.getDatabeanClass(), indexEntryFieldInfo.getFielderClass(), keys);
+		return new SessionExecutorImpl<>(op, IndexedStorageReader.OP_getFromIndex).call();
+	}
+	
+	public <IK extends PrimaryKey<IK>,
+			IE extends IndexEntry<IK,IE,PK,D>> 
+	List<D> getMultiByIndex(Collection<IK> keys, Config config){
+		BaseJdbcOp<List<D>> op = new JdbcGetByIndexOp<>(node, fieldCodecFactory, keys, false, config);
+		return new SessionExecutorImpl<>(op, IndexedStorageReader.OP_getByIndex).call();
+	}
 	
 	/************************************ SortedStorageReader methods ****************************/
 
 	public D getFirst(final Config config) {
 		String opName = SortedStorageReader.OP_getFirst;
-		JdbcGetFirstOp<PK,D,F> op = new JdbcGetFirstOp<PK,D,F>(node, config);
+		JdbcGetFirstOp<PK,D,F> op = new JdbcGetFirstOp<PK,D,F>(node, fieldCodecFactory, config);
 		return new SessionExecutorImpl<D>(op, getTraceName(opName)).call();
 	}
 	
 	public PK getFirstKey(final Config config) {
 		String opName = SortedStorageReader.OP_getFirstKey;
-		JdbcGetFirstKeyOp<PK,D,F> op = new JdbcGetFirstKeyOp<PK,D,F>(node, config);
+		JdbcGetFirstKeyOp<PK,D,F> op = new JdbcGetFirstKeyOp<PK,D,F>(node, fieldCodecFactory, config);
 		return new SessionExecutorImpl<PK>(op, getTraceName(opName)).call();
 	}
 
 	public List<D> getWithPrefixes(final Collection<PK> prefixes, final boolean wildcardLastField, 
 			final Config config) {
 		String opName = SortedStorageReader.OP_getWithPrefixes;
-		JdbcGetWithPrefixesOp<PK,D,F> op = new JdbcGetWithPrefixesOp<PK,D,F>(node, prefixes, wildcardLastField, 
-				config);
+		JdbcGetWithPrefixesOp<PK,D,F> op = new JdbcGetWithPrefixesOp<PK,D,F>(node, fieldCodecFactory, prefixes,
+				wildcardLastField, config);
 		return new SessionExecutorImpl<List<D>>(op, getTraceName(opName)).call();
 	}
 
 	public List<PK> getKeysInRange(Range<PK> range, final Config config) {
 		String opName = SortedStorageReader.OP_getKeysInRange;
-		JdbcGetPrimaryKeyRangeOp<PK,D,F> op = new JdbcGetPrimaryKeyRangeOp<PK,D,F>(node, range, config);
+		JdbcGetPrimaryKeyRangeOp<PK,D,F> op = new JdbcGetPrimaryKeyRangeOp<PK,D,F>(node, fieldCodecFactory, range,
+				config);
 		List<PK> result = new SessionExecutorImpl<List<PK>>(op, getTraceName(opName)).call();
 		return result;
 	}
 	
 	public List<D> getRange(final Range<PK> range, final Config config) {
 		String opName = SortedStorageReader.OP_getRange;
-		JdbcGetRangeOp<PK,D,F> op = new JdbcGetRangeOp<PK,D,F>(node, range, config);
+		JdbcGetRangeOp<PK,D,F> op = new JdbcGetRangeOp<PK,D,F>(node, fieldCodecFactory, range, config);
 		List<D> result = new SessionExecutorImpl<List<D>>(op, getTraceName(opName)).call();
 		return result;
 	}

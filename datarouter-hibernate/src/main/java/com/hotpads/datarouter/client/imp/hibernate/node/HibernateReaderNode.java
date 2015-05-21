@@ -25,6 +25,7 @@ import com.hotpads.datarouter.client.imp.hibernate.op.read.HibernateLookupOp;
 import com.hotpads.datarouter.client.imp.hibernate.op.read.HibernateLookupUniqueOp;
 import com.hotpads.datarouter.client.imp.hibernate.scan.HibernateDatabeanScanner;
 import com.hotpads.datarouter.client.imp.hibernate.scan.HibernatePrimaryKeyScanner;
+import com.hotpads.datarouter.client.imp.hibernate.util.HibernateResultParser;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.node.NodeParams;
@@ -33,6 +34,7 @@ import com.hotpads.datarouter.node.op.raw.read.MapStorageReader;
 import com.hotpads.datarouter.node.op.raw.read.SortedStorageReader;
 import com.hotpads.datarouter.node.type.physical.base.BasePhysicalNode;
 import com.hotpads.datarouter.op.executor.impl.SessionExecutorImpl;
+import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.BasePrimitiveField;
@@ -44,10 +46,12 @@ import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.datarouter.storage.key.multi.Lookup;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
+import com.hotpads.datarouter.storage.view.index.IndexEntry;
 import com.hotpads.datarouter.util.core.DrBatchTool;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.collections.Range;
+import com.hotpads.util.core.exception.NotImplementedException;
 import com.hotpads.util.core.iterable.scanner.iterable.SortedScannerIterable;
 import com.hotpads.util.core.iterable.scanner.sorted.SortedScanner;
 
@@ -58,10 +62,13 @@ implements MapStorageReader<PK,D>,
 		IndexedStorageReader<PK,D>{
 	private static Logger logger = LoggerFactory.getLogger(HibernateReaderNode.class);
 	
+	private final HibernateResultParser resultParser;
+	
 	/******************************* constructors ************************************/
 
-	public HibernateReaderNode(NodeParams<PK,D,F> params){
+	public HibernateReaderNode(NodeParams<PK,D,F> params, HibernateResultParser resultParser){
 		super(params);
+		this.resultParser = resultParser;
 	}
 	
 	
@@ -111,7 +118,7 @@ implements MapStorageReader<PK,D>,
 		int batchSize = config.getIterateBatchSizeOverrideNull(DEFAULT_GET_MULTI_BATCH_SIZE);
 		List<PK> result = DrListTool.createArrayListWithSize(keys);
 		for(List<PK> keyBatch : DrBatchTool.getBatches(keys, batchSize)){
-			HibernateGetKeysOp<PK,D,F> op = new HibernateGetKeysOp<PK,D,F>(this, keyBatch, config);
+			HibernateGetKeysOp<PK,D,F> op = new HibernateGetKeysOp<PK,D,F>(this, resultParser, keyBatch, config);
 			result.addAll(new SessionExecutorImpl<List<PK>>(op, getTraceName(opName)).call());
 		}
 		return result;
@@ -167,6 +174,22 @@ implements MapStorageReader<PK,D>,
 		return new SessionExecutorImpl<List<D>>(op, getTraceName(opName)).call();
 	}
 	
+	@Override
+	public <IK extends PrimaryKey<IK>, 
+			IE extends IndexEntry<IK, IE, PK, D>, 
+			IF extends DatabeanFielder<IK, IE>> 
+	List<IE> getMultiFromIndex(Collection<IK> keys, Config config, DatabeanFieldInfo<IK, IE, IF> indexEntryFieldInfo){
+		// TODO implement managed indexes for Hibernate
+		throw new NotImplementedException();
+	}
+	
+	@Override
+	public <IK extends PrimaryKey<IK>, IE extends IndexEntry<IK, IE, PK, D>> List<D> getMultiByIndex(
+			Collection<IK> keys, Config config){
+		// TODO implement managed indexes for Hibernate
+		throw new NotImplementedException();
+	}
+	
 	
 	/************************************ SortedStorageReader methods ****************************/
 
@@ -181,7 +204,7 @@ implements MapStorageReader<PK,D>,
 	@Override
 	public PK getFirstKey(final Config config) {
 		String opName = SortedStorageReader.OP_getFirstKey;
-		HibernateGetFirstKeyOp<PK,D,F> op = new HibernateGetFirstKeyOp<PK,D,F>(this);
+		HibernateGetFirstKeyOp<PK,D,F> op = new HibernateGetFirstKeyOp<PK,D,F>(this, resultParser);
 		return new SessionExecutorImpl<PK>(op, getTraceName(opName)).call();
 	}
 
@@ -225,8 +248,8 @@ implements MapStorageReader<PK,D>,
 	public List<? extends FieldSet<?>> getRangeUnchecked(final Range<PK> range, final boolean keysOnly,
 			final Config config){
 		String opName = keysOnly ? SortedStorageReader.OP_getKeysInRange : SortedStorageReader.OP_getRange;
-		HibernateGetRangeUncheckedOp<PK,D,F> op = new HibernateGetRangeUncheckedOp<PK,D,F>(this, opName, range, keysOnly,
-				config);
+		HibernateGetRangeUncheckedOp<PK,D,F> op = new HibernateGetRangeUncheckedOp<PK,D,F>(this, resultParser, opName,
+				range, keysOnly, config);
 		return new SessionExecutorImpl<List<? extends FieldSet<?>>>(op, getTraceName(opName)).call();
 	}
 
