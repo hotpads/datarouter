@@ -5,13 +5,10 @@ import java.util.Collections;
 import java.util.List;
 
 import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
-import com.hotpads.datarouter.client.imp.jdbc.op.BaseJdbcOp;
-import com.hotpads.datarouter.client.imp.jdbc.op.read.index.JdbcGetIndexOp;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.NodeParams;
-import com.hotpads.datarouter.node.op.raw.MapStorage.PhysicalMapStorageNode;
+import com.hotpads.datarouter.node.op.combo.IndexedMapStorage.PhysicalIndexedMapStorageNode;
 import com.hotpads.datarouter.node.type.index.ManagedMultiIndexNode;
-import com.hotpads.datarouter.op.executor.impl.SessionExecutorImpl;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
@@ -27,19 +24,13 @@ public class JdbcManagedMultiIndexNode<
 extends BaseJdbcManagedIndexNode<PK,D,IK,IE,IF>
 implements ManagedMultiIndexNode<PK, D, IK, IE, IF>{
 	
-	private final JdbcFieldCodecFactory fieldCodecFactory;
-	
-	public JdbcManagedMultiIndexNode(PhysicalMapStorageNode<PK, D> node, JdbcFieldCodecFactory fieldCodecFactory,
-			NodeParams<IK, IE, IF> params, String name){
+	public JdbcManagedMultiIndexNode(PhysicalIndexedMapStorageNode<PK, D> node,
+			JdbcFieldCodecFactory fieldCodecFactory, NodeParams<IK, IE, IF> params, String name){
 		super(node, fieldCodecFactory, params, name);
-		this.fieldCodecFactory = fieldCodecFactory;
 	}
 	
 	private List<IE> lookupMultiIndexMulti(Collection<IK> indexKeys, Config config){
-		String opName = ManagedMultiIndexNode.OP_lookupMultiIndexMulti;
-		BaseJdbcOp<List<IE>> op = new JdbcGetIndexOp<>(node, fieldCodecFactory, config, fieldInfo.getDatabeanClass(),
-				fieldInfo.getFielderClass(), indexKeys);
-		return new SessionExecutorImpl<List<IE>>(op, opName).call();
+		return node.getMultiFromIndex(indexKeys, config, fieldInfo);
 	}
 
 	@Override

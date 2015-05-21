@@ -25,6 +25,7 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrListTool;
+import com.hotpads.util.core.exception.NotImplementedException;
 
 public class HibernateNode<
 		PK extends PrimaryKey<PK>,
@@ -116,6 +117,12 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D>
 		String opName = IndexedStorageWriter.OP_indexDelete;
 		JdbcIndexDeleteOp<PK,D> op = new JdbcIndexDeleteOp<PK,D>(this, fieldCodecFactory, lookup, config);
 		new SessionExecutorImpl<Long>(op, getTraceName(opName)).call();
+	}
+	
+	@Override
+	public <IK extends PrimaryKey<IK>> void deleteByIndex(Collection<IK> keys, Config config){
+		// TODO implement managed indexes for Hibernate
+		throw new NotImplementedException();
 	}
 	
 
