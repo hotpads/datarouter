@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.client.imp.jdbc.op.BaseJdbcOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.write.JdbcDeleteByIndexOp;
 import com.hotpads.datarouter.config.Config;
@@ -27,9 +28,9 @@ public class JdbcTxnManagedUniqueIndexNode<
 extends BaseJdbcManagedIndexNode<PK,D,IK,IE,IF>
 implements ManagedUniqueIndexNode<PK, D, IK, IE, IF>{
 
-	public JdbcTxnManagedUniqueIndexNode(PhysicalIndexedMapStorageNode<PK, D> node, NodeParams<IK, IE, IF> params, 
-			String name){
-		super(node, params, name);
+	public JdbcTxnManagedUniqueIndexNode(PhysicalIndexedMapStorageNode<PK, D> node,
+			JdbcFieldCodecFactory fieldCodecFactory, NodeParams<IK, IE, IF> params, String name){
+		super(node, fieldCodecFactory, params, name);
 	}
 
 	@Override
@@ -60,7 +61,7 @@ implements ManagedUniqueIndexNode<PK, D, IK, IE, IF>{
 	@Override
 	public void deleteMultiUnique(Collection<IK> uniqueKeys, Config config){
 		String opName = UniqueIndexWriter.OP_deleteMultiUnique;
-		BaseJdbcOp<Long> op = new JdbcDeleteByIndexOp<>(node, uniqueKeys, config);
+		BaseJdbcOp<Long> op = new JdbcDeleteByIndexOp<>(node, fieldCodecFactory, uniqueKeys, config);
 		new SessionExecutorImpl<Long>(op, opName).call();
 	}
 

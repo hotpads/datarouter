@@ -2,11 +2,14 @@ package com.hotpads.datarouter.client.imp.memcached;
 
 import java.util.List;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import org.junit.Assert;
-import org.junit.Test;
+import org.testng.annotations.Guice;
+import org.testng.annotations.Test;
 
+import com.google.inject.Injector;
 import com.hotpads.datarouter.client.ClientFactory;
 import com.hotpads.datarouter.client.imp.BaseClientType;
 import com.hotpads.datarouter.client.imp.memcached.client.MemcachedSimpleClientFactory;
@@ -26,7 +29,8 @@ import com.hotpads.datarouter.storage.entity.Entity;
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
 import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.util.core.java.ReflectionTool;
+import com.hotpads.datarouter.test.DatarouterTestModuleFactory;
+import com.hotpads.util.core.lang.ClassTool;
 
 /**
  * applications create this class via reflection
@@ -39,6 +43,7 @@ public class MemcachedClientType extends BaseClientType{
 			CANONICAL_CLASS_NAME = "com.hotpads.datarouter.client.imp.memcached.MemcachedClientType";
 	
 	public static final MemcachedClientType INSTANCE = new MemcachedClientType();
+	
 	
 	@Override
 	public String getName(){
@@ -79,14 +84,17 @@ public class MemcachedClientType extends BaseClientType{
 	
 	
 	/********************** tests ****************************/
-	
-	//TODO switch to TestNG when it works on inner classes
+
+	@Guice(moduleFactory = DatarouterTestModuleFactory.class)
 	public static class MemcachedClientTypeTests{
+		@Inject
+		private Injector injector;
+		
 		@Test
 		public void testClassLocation(){
 			String actualClassName = MemcachedClientType.class.getCanonicalName();
 			Assert.assertEquals(CANONICAL_CLASS_NAME, actualClassName);
-			ReflectionTool.create(CANONICAL_CLASS_NAME);//double check, why not
+			injector.getInstance(ClassTool.forName(CANONICAL_CLASS_NAME));
 		}
 	}
 	

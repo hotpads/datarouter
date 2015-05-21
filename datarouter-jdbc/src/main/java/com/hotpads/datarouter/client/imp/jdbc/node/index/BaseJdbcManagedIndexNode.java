@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.client.imp.jdbc.node.index;
 
+import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.client.imp.jdbc.scan.JdbcManagedIndexScanner;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.NodeParams;
@@ -23,13 +24,18 @@ public class BaseJdbcManagedIndexNode
 		IF extends DatabeanFielder<IK, IE>>
 extends BaseManagedNode<PK, D, IK, IE, IF>{
 
-	public BaseJdbcManagedIndexNode(PhysicalIndexedMapStorageNode<PK, D> node, NodeParams<IK, IE, IF> params, String name){
+	protected final JdbcFieldCodecFactory fieldCodecFactory;
+	
+	public BaseJdbcManagedIndexNode(PhysicalIndexedMapStorageNode<PK, D> node, JdbcFieldCodecFactory fieldCodecFactory,
+			NodeParams<IK, IE, IF> params, String name){
 		super(node, params, name);
+		this.fieldCodecFactory = fieldCodecFactory;
 	}
 
 	public SortedScannerIterable<IE> scan(Range<IK> range, Config config){
 		String opName = ManagedMultiIndexNode.OP_scanIndex;
-		return new SortedScannerIterable<>(new JdbcManagedIndexScanner<>(node, this, range, opName, config));
+		return new SortedScannerIterable<>(new JdbcManagedIndexScanner<>(node, fieldCodecFactory, this, range, opName, 
+				config));
 	}
 
 	public SortedScannerIterable<D> scanDatabeans(Range<IK> range, Config config){

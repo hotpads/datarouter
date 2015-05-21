@@ -7,6 +7,10 @@ import javax.websocket.EndpointConfig;
 import javax.websocket.MessageHandler;
 import javax.websocket.Session;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.hotpads.handler.exception.ExceptionRecorder;
 import com.hotpads.websocket.ServerAddressProvider;
 import com.hotpads.websocket.WebSocketConnectionStore;
 import com.hotpads.websocket.auth.WebSocketAuthenticationFilter;
@@ -14,6 +18,7 @@ import com.hotpads.websocket.session.PushService;
 import com.hotpads.websocket.session.WebSocketSession;
 
 public abstract class BaseEndpoint extends Endpoint{
+	private static final Logger logger = LoggerFactory.getLogger(BaseEndpoint.class);
 
 	@Inject
 	private PushService pushService;
@@ -21,6 +26,8 @@ public abstract class BaseEndpoint extends Endpoint{
 	private ServerAddressProvider serverAddressProvider;
 	@Inject
 	private WebSocketConnectionStore webSocketConnectionStore;
+	@Inject
+	private ExceptionRecorder exceptionRecorder;
 
 	private WebSocketSession webSocketSession;
 
@@ -39,8 +46,15 @@ public abstract class BaseEndpoint extends Endpoint{
 	protected abstract MessageHandler getMessageHandler(String userToken);
 
 	@Override
-	public void onClose(Session session, CloseReason closeReason) {
+	public void onClose(Session session, CloseReason closeReason){
+		logger.info("Closing websocket session {} because {}", webSocketSession, closeReason);
 		pushService.unregister(webSocketSession.getKey());
+	}
+
+	@Override
+	public void onError(Session session, Throwable thr){
+		logger.error("Error on websocket session {}", webSocketSession, thr);
+		exceptionRecorder.tryRecordException((Exception)thr, getClass().getName());
 	}
 
 }

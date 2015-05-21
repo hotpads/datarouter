@@ -9,6 +9,9 @@ import java.util.Collection;
 import java.util.List;
 
 import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
+import com.hotpads.datarouter.client.imp.hibernate.util.SqlBuilder;
+import com.hotpads.datarouter.client.imp.jdbc.field.JdbcFieldCodec;
+import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.client.imp.jdbc.node.JdbcNode;
 import com.hotpads.datarouter.client.imp.jdbc.op.BaseJdbcOp;
 import com.hotpads.datarouter.config.Config;
@@ -38,13 +41,16 @@ extends BaseJdbcOp<Void>{
 	private static final int MAX_RANDOM_ID_GENERATION_ATTEMPTS = 10;
 	
 	private final JdbcNode<PK,D,F> node;
+	private final JdbcFieldCodecFactory fieldCodecFactory;
 	private final Collection<D> databeans;
 	private final Config config;
 	
-	public JdbcPutOp(JdbcNode<PK,D,F> node, Collection<D> databeans, Config config) {
+	public JdbcPutOp(JdbcNode<PK,D,F> node, JdbcFieldCodecFactory fieldCodecFactory, Collection<D> databeans, 
+			Config config) {
 		super(node.getDatarouterContext(), node.getClientNames(), getIsolation(config), 
 				shouldAutoCommit(databeans, config));
 		this.node = node;
+		this.fieldCodecFactory = fieldCodecFactory;
 		this.databeans = databeans;
 		this.config = config;
 	}
@@ -206,8 +212,8 @@ extends BaseJdbcOp<Void>{
 			PreparedStatement ps = connection.prepareStatement(sb.toString(), Statement.RETURN_GENERATED_KEYS);
 			int parameterIndex = 1;//one based
 			List<Field<?>> fields = node.getFieldInfo().getFieldsWithValues(databean);
-			for(Field<?> field : fields){
-				field.setPreparedStatementValue(ps, parameterIndex);
+			for(JdbcFieldCodec<?,?> codec : fieldCodecFactory.createCodecs(fields)){
+				codec.setPreparedStatementValue(ps, parameterIndex);
 				++parameterIndex;
 			}
 			ps.execute();
@@ -236,16 +242,16 @@ extends BaseJdbcOp<Void>{
 //		logger.warn("JDBC update");
 		StringBuilder sb = new StringBuilder();
 		sb.append("update "+node.getTableName()+" set ");
-		FieldTool.appendSqlUpdateClauses(sb, emptyNonKeyFields);
+		SqlBuilder.appendSqlUpdateClauses(sb, emptyNonKeyFields);
 		sb.append(" where ");
-		sb.append(FieldTool.getSqlNameValuePairsEscapedConjunction(databean.getKeyFields()));
+		sb.append(SqlBuilder.getSqlNameValuePairsEscapedConjunction(fieldCodecFactory, databean.getKeyFields()));
 		int numUpdated;
 		try{
 			PreparedStatement ps = connection.prepareStatement(sb.toString());
 			int parameterIndex = 1;
 			List<Field<?>> nonKeyFields = node.getFieldInfo().getNonKeyFieldsWithValues(databean);
-			for(Field<?> field : nonKeyFields){
-				field.setPreparedStatementValue(ps, parameterIndex);
+			for(JdbcFieldCodec<?,?> codec : fieldCodecFactory.createCodecs(nonKeyFields)){
+				codec.setPreparedStatementValue(ps, parameterIndex);
 				++parameterIndex;
 			}
 			numUpdated = ps.executeUpdate();

@@ -16,6 +16,7 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.SqlAlterTableGenerato
 import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.SqlCreateTableGenerator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.imp.ConnectionSqlTableGenerator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.imp.FieldSqlTableGenerator;
+import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.connection.JdbcConnectionPool;
 import com.hotpads.datarouter.node.type.index.ManagedNode;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
@@ -27,22 +28,25 @@ import com.hotpads.util.core.profile.PhaseTimer;
 public class SingleTableSchemaUpdate
 implements Callable<Void>{
 
-	protected String clientName;
-	protected JdbcConnectionPool connectionPool;
-	private String schemaName;
-	private List<String> existingTableNames;
-	protected SchemaUpdateOptions printOptions;
-	protected SchemaUpdateOptions executeOptions;
-	
-	//we write back to these 2 thread-safe collections that are passed in
-	protected Set<String> updatedTables;
-	protected List<String> printedSchemaUpdates;
-	
+	private final JdbcFieldCodecFactory fieldCodecFactory;
+	private final String clientName;
+	private final JdbcConnectionPool connectionPool;
+	private final String schemaName;
+	private final List<String> existingTableNames;
+	private final SchemaUpdateOptions printOptions;
+	private final SchemaUpdateOptions executeOptions;
 	private PhysicalNode<?,?> physicalNode;
 	
-	public SingleTableSchemaUpdate(String clientName, JdbcConnectionPool connectionPool,
-			List<String> existingTableNames, SchemaUpdateOptions printOptions, SchemaUpdateOptions executeOptions,
-			Set<String> updatedTables, List<String> printedSchemaUpdates, PhysicalNode<?,?> physicalNode){
+	//we write back to these 2 thread-safe collections that are passed in
+	private final Set<String> updatedTables;
+	private final List<String> printedSchemaUpdates;
+	
+	
+	public SingleTableSchemaUpdate(JdbcFieldCodecFactory fieldCodecFactory, String clientName,
+			JdbcConnectionPool connectionPool, List<String> existingTableNames, SchemaUpdateOptions printOptions,
+			SchemaUpdateOptions executeOptions, Set<String> updatedTables, List<String> printedSchemaUpdates,
+			PhysicalNode<?,?> physicalNode){
+		this.fieldCodecFactory = fieldCodecFactory;
 		this.clientName = clientName;
 		this.connectionPool = connectionPool;
 		this.schemaName = connectionPool.getSchemaName();
@@ -82,8 +86,8 @@ implements Callable<Void>{
 			indexes.put(managedNode.getName(), managedNode.getFieldInfo().getFields());
 		}
 		
-		FieldSqlTableGenerator generator = new FieldSqlTableGenerator(physicalNode.getTableName(), primaryKeyFields, 
-				nonKeyFields, collation, character_set);
+		FieldSqlTableGenerator generator = new FieldSqlTableGenerator(fieldCodecFactory, physicalNode.getTableName(),
+				primaryKeyFields, nonKeyFields, collation, character_set);
 		generator.setIndexes(indexes);
 
 		SqlTable requested = generator.generate();
