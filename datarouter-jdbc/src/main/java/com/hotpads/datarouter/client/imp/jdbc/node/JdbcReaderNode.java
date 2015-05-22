@@ -7,6 +7,7 @@ import java.util.List;
 import com.hotpads.datarouter.client.imp.jdbc.JdbcClientImp;
 import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.client.imp.jdbc.scan.JdbcDatabeanScanner;
+import com.hotpads.datarouter.client.imp.jdbc.scan.JdbcManagedIndexScanner;
 import com.hotpads.datarouter.client.imp.jdbc.scan.JdbcPrimaryKeyScanner;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.NodeParams;
@@ -129,6 +130,16 @@ implements MapStorageReader<PK,D>,
 		return jdbcReaderOps.getMultiByIndex(keys, config);
 	}
 	
+	@Override
+	public <IK extends PrimaryKey<IK>, 
+			IE extends IndexEntry<IK, IE, PK, D>,
+			IF extends DatabeanFielder<IK, IE>> 
+	SortedScannerIterable<IE> scanIndex(DatabeanFieldInfo<IK,IE,IF> indexEntryFieldInfo, Range<IK> range, 
+			Config config){
+		return new SortedScannerIterable<>(new JdbcManagedIndexScanner<>(jdbcReaderOps, indexEntryFieldInfo, range,
+				config));
+	}
+	
 	/************************************ SortedStorageReader methods ****************************/
 
 	@Override
@@ -155,15 +166,15 @@ implements MapStorageReader<PK,D>,
 	@Override
 	public SortedScannerIterable<PK> scanKeys(Range<PK> pRange, Config config){
 		Range<PK> range = Range.nullSafe(pRange);
-		SortedScanner<PK> scanner = new JdbcPrimaryKeyScanner<PK,D>(jdbcReaderOps, fieldInfo, range, config);
-		return new SortedScannerIterable<PK>(scanner);
+		SortedScanner<PK> scanner = new JdbcPrimaryKeyScanner<>(jdbcReaderOps, fieldInfo, range, config);
+		return new SortedScannerIterable<>(scanner);
 	}
 	
 	@Override
 	public SortedScannerIterable<D> scan(Range<PK> pRange, Config config){
 		Range<PK> range = Range.nullSafe(pRange);
-		SortedScanner<D> scanner = new JdbcDatabeanScanner<PK,D>(jdbcReaderOps, fieldInfo, range, config);
-		return new SortedScannerIterable<D>(scanner);
+		SortedScanner<D> scanner = new JdbcDatabeanScanner<>(jdbcReaderOps, range, config);
+		return new SortedScannerIterable<>(scanner);
 	}
 	
 	
