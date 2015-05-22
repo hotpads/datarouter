@@ -73,8 +73,8 @@ public class JdbcClientType extends BaseClientType{
 	@Override
 	public <PK extends PrimaryKey<PK>, D extends Databean<PK, D>, F extends DatabeanFielder<PK, D>>
 	PhysicalNode<PK, D> createNode(NodeParams<PK, D, F> nodeParams){
-		return new PhysicalIndexedSortedMapStorageCounterAdapter<PK,D,F,JdbcNode<PK,D,F>>(new JdbcNode<PK,D,F>(
-				nodeParams, fieldCodecFactory));
+		return new PhysicalIndexedSortedMapStorageCounterAdapter<PK,D,F,JdbcNode<PK,D,F>>(new JdbcNode<>(nodeParams,
+				fieldCodecFactory));
 	}
 	
 	//ignore the entityNodeParams
@@ -93,7 +93,7 @@ public class JdbcClientType extends BaseClientType{
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>> 
 	IndexedSortedMapStorageNode<PK,D> createAdapter(NodeParams<PK,D,F> nodeParams, Node<PK,D> backingNode){
-		return new PhysicalIndexedSortedMapStorageCallsiteAdapter<PK,D,F,PhysicalIndexedSortedMapStorageNode<PK,D>>(
+		return new PhysicalIndexedSortedMapStorageCallsiteAdapter<>(
 				nodeParams, (PhysicalIndexedSortedMapStorageNode<PK,D>)backingNode);
 	}
 	
@@ -107,10 +107,10 @@ public class JdbcClientType extends BaseClientType{
 			PhysicalIndexedMapStorageNode<PK, D> backingMapNode, NodeParams<IK, IE, IF> params, String indexName, 
 			boolean manageTxn){
 		if(manageTxn){
-			return new JdbcTxnManagedUniqueIndexNode<PK, D, IK, IE, IF>(backingMapNode, fieldCodecFactory, params, 
+			return new JdbcTxnManagedUniqueIndexNode<>(backingMapNode, params, 
 					indexName);
 		}
-		return new JdbcManagedUniqueIndexNode<PK, D, IK, IE, IF>(backingMapNode, fieldCodecFactory, params, indexName);
+		return new JdbcManagedUniqueIndexNode<>(backingMapNode, params, indexName);
 	}
 	
 	@Override
@@ -123,10 +123,10 @@ public class JdbcClientType extends BaseClientType{
 			PhysicalIndexedMapStorageNode<PK, D> backingMapNode, NodeParams<IK, IE, IF> params, String indexName, 
 			boolean manageTxn){
 		if(manageTxn){
-			return new JdbcTxnManagedMultiIndexNode<PK, D, IK, IE, IF>(backingMapNode, fieldCodecFactory, params, 
+			return new JdbcTxnManagedMultiIndexNode<>(backingMapNode, params, 
 					indexName);
 		}
-		return new JdbcManagedMultiIndexNode<PK, D, IK, IE, IF>(backingMapNode, fieldCodecFactory, params, indexName);
+		return new JdbcManagedMultiIndexNode<>(backingMapNode, params, indexName);
 	}
 	
 	

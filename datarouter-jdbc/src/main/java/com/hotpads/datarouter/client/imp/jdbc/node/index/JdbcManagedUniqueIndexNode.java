@@ -4,10 +4,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.NodeParams;
-import com.hotpads.datarouter.node.op.combo.IndexedMapStorage.PhysicalIndexedMapStorageNode;
+import com.hotpads.datarouter.node.op.combo.IndexedMapStorage.IndexedMapStorageNode;
 import com.hotpads.datarouter.node.type.index.ManagedUniqueIndexNode;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
@@ -25,9 +24,9 @@ public class JdbcManagedUniqueIndexNode
 extends BaseJdbcManagedIndexNode<PK, D, IK, IE, IF>
 implements ManagedUniqueIndexNode<PK, D, IK, IE, IF>{
 
-	public JdbcManagedUniqueIndexNode(PhysicalIndexedMapStorageNode<PK, D> node,
-			JdbcFieldCodecFactory fieldCodecFactory, NodeParams<IK, IE, IF> params, String name){
-		super(node, fieldCodecFactory, params, name);
+	public JdbcManagedUniqueIndexNode(IndexedMapStorageNode<PK,D> node, NodeParams<IK,IE,IF> params, 
+			String name){
+		super(node, params, name);
 	}
 
 	@Override
