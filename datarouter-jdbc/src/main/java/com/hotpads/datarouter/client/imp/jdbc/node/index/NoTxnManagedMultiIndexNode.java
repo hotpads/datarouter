@@ -14,16 +14,16 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.view.index.IndexEntryTool;
 import com.hotpads.datarouter.storage.view.index.multi.MultiIndexEntry;
 
-public class JdbcManagedMultiIndexNode<
+public class NoTxnManagedMultiIndexNode<
 		PK extends PrimaryKey<PK>, 
 		D extends Databean<PK, D>, 
 		IK extends PrimaryKey<IK>,
 		IE extends MultiIndexEntry<IK, IE, PK, D>, 
 		IF extends DatabeanFielder<IK, IE>>
-extends BaseJdbcManagedIndexNode<PK,D,IK,IE,IF>
+extends BaseManagedIndexNode<PK,D,IK,IE,IF>
 implements ManagedMultiIndexNode<PK, D, IK, IE, IF>{
 	
-	public JdbcManagedMultiIndexNode(IndexedMapStorageNode<PK, D> node, NodeParams<IK, IE, IF> params, String name){
+	public NoTxnManagedMultiIndexNode(IndexedMapStorageNode<PK, D> node, NodeParams<IK, IE, IF> params, String name){
 		super(node, params, name);
 	}
 	

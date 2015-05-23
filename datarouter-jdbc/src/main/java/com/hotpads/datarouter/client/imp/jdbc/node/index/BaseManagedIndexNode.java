@@ -13,7 +13,7 @@ import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.exception.NotImplementedException;
 import com.hotpads.util.core.iterable.scanner.iterable.SortedScannerIterable;
 
-public class BaseJdbcManagedIndexNode
+public class BaseManagedIndexNode
 		<PK extends PrimaryKey<PK>, 
 		D extends Databean<PK, D>, 
 		IK extends PrimaryKey<IK>,
@@ -22,7 +22,7 @@ public class BaseJdbcManagedIndexNode
 extends BaseManagedNode<PK, D, IK, IE, IF>{
 
 	
-	public BaseJdbcManagedIndexNode(IndexedMapStorageNode<PK, D> node, NodeParams<IK, IE, IF> params, String name){
+	public BaseManagedIndexNode(IndexedMapStorageNode<PK, D> node, NodeParams<IK, IE, IF> params, String name){
 		super(node, params, name);
 	}
 

@@ -18,10 +18,10 @@ import com.hotpads.datarouter.client.imp.hibernate.util.HibernateResultParser;
 import com.hotpads.datarouter.client.imp.jdbc.TestDatarouterJdbcModuleFactory;
 import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.client.imp.jdbc.node.JdbcNode;
-import com.hotpads.datarouter.client.imp.jdbc.node.index.JdbcManagedMultiIndexNode;
-import com.hotpads.datarouter.client.imp.jdbc.node.index.JdbcManagedUniqueIndexNode;
-import com.hotpads.datarouter.client.imp.jdbc.node.index.JdbcTxnManagedMultiIndexNode;
-import com.hotpads.datarouter.client.imp.jdbc.node.index.JdbcTxnManagedUniqueIndexNode;
+import com.hotpads.datarouter.client.imp.jdbc.node.index.NoTxnManagedMultiIndexNode;
+import com.hotpads.datarouter.client.imp.jdbc.node.index.NoTxnManagedUniqueIndexNode;
+import com.hotpads.datarouter.client.imp.jdbc.node.index.TxnManagedMultiIndexNode;
+import com.hotpads.datarouter.client.imp.jdbc.node.index.TxnManagedUniqueIndexNode;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.adapter.callsite.physical.PhysicalIndexedSortedMapStorageCallsiteAdapter;
@@ -121,10 +121,10 @@ public class HibernateClientType extends BaseClientType{
 			super.createManagedUniqueIndexNode(backingMapNode, params, indexName, manageTxn);
 		}
 		if(manageTxn){
-			return new JdbcTxnManagedUniqueIndexNode<>(backingMapNode, params, 
+			return new TxnManagedUniqueIndexNode<>(backingMapNode, params, 
 					indexName);
 		}
-		return new JdbcManagedUniqueIndexNode<>(backingMapNode, params, indexName);
+		return new NoTxnManagedUniqueIndexNode<>(backingMapNode, params, indexName);
 	}
 	
 	@Override
@@ -139,9 +139,9 @@ public class HibernateClientType extends BaseClientType{
 			super.createManagedMultiIndexNode(backingMapNode, params, indexName, manageTxn);
 		}
 		if(manageTxn){
-			return new JdbcTxnManagedMultiIndexNode<>(backingMapNode, params, indexName);
+			return new TxnManagedMultiIndexNode<>(backingMapNode, params, indexName);
 		}
-		return new JdbcManagedMultiIndexNode<>(backingMapNode, params, indexName);
+		return new NoTxnManagedMultiIndexNode<>(backingMapNode, params, indexName);
 	}
 	
 	

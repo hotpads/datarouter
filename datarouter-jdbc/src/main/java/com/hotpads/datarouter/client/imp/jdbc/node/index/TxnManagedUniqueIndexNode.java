@@ -14,16 +14,16 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.view.index.unique.UniqueIndexEntry;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 
-public class JdbcTxnManagedUniqueIndexNode<
+public class TxnManagedUniqueIndexNode<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK, D>,
 		IK extends PrimaryKey<IK>, 
 		IE extends UniqueIndexEntry<IK, IE, PK, D>,
 		IF extends DatabeanFielder<IK,IE>>
-extends BaseJdbcManagedIndexNode<PK,D,IK,IE,IF>
+extends BaseManagedIndexNode<PK,D,IK,IE,IF>
 implements ManagedUniqueIndexNode<PK, D, IK, IE, IF>{
 
-	public JdbcTxnManagedUniqueIndexNode(IndexedMapStorageNode<PK, D> node, NodeParams<IK, IE, IF> params, String name){
+	public TxnManagedUniqueIndexNode(IndexedMapStorageNode<PK, D> node, NodeParams<IK, IE, IF> params, String name){
 		super(node, params, name);
 	}
 
