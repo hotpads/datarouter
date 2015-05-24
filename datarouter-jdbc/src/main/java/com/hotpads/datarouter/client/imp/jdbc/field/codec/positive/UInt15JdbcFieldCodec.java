@@ -25,7 +25,7 @@ extends BasePrimitiveJdbcFieldCodec<Short,UInt15Field>{
 
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
-		return new SqlColumn(field.getColumnName(), MySqlColumnType.SMALLINT, 5, field.getNullable(), false);
+		return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.SMALLINT, 5, field.getNullable(), false);
 	}
 	
 	@Override
@@ -49,7 +49,7 @@ extends BasePrimitiveJdbcFieldCodec<Short,UInt15Field>{
 	@Override
 	public Short fromJdbcResultSetButDoNotSet(ResultSet rs){
 		try{
-			short value = rs.getShort(field.getColumnName());
+			short value = rs.getShort(field.getKey().getColumnName());
 			return rs.wasNull()?null:value;
 		}catch(SQLException e){
 			throw new DataAccessException(e);

@@ -32,7 +32,7 @@ extends BaseJdbcFieldCodec<Date,DateField>{
 
 	@Override
 	public SqlColumn getSqlColumnDefinition(){	
-		return new SqlColumn(field.getColumnName(), MySqlColumnType.DATETIME, field.getNumDecimalSeconds(), field
+		return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.DATETIME, field.getNumDecimalSeconds(), field
 				.getNullable(), false);
 	}
 	
@@ -57,7 +57,7 @@ extends BaseJdbcFieldCodec<Date,DateField>{
 	@Override
 	public Date fromJdbcResultSetButDoNotSet(ResultSet rs){
 		try{
-			Timestamp timeStamp = rs.getTimestamp(field.getColumnName());
+			Timestamp timeStamp = rs.getTimestamp(field.getKey().getColumnName());
 			if(rs.wasNull()){
 				return null;
 			}

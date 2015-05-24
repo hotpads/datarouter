@@ -26,7 +26,7 @@ extends BasePrimitiveJdbcFieldCodec<Double,Field<Double>>{
 
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
-		return new SqlColumn(field.getColumnName(), MySqlColumnType.DOUBLE, 22, field.getNullable(), false);
+		return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.DOUBLE, 22, field.getNullable(), false);
 	}
 	
 	@Override
@@ -50,7 +50,7 @@ extends BasePrimitiveJdbcFieldCodec<Double,Field<Double>>{
 	@Override
 	public Double fromJdbcResultSetButDoNotSet(ResultSet rs){
 		try{
-			double value = rs.getDouble(field.getColumnName());
+			double value = rs.getDouble(field.getKey().getColumnName());
 			return rs.wasNull()?null:value;
 		}catch(SQLException e){
 			throw new DataAccessException(e);

@@ -27,7 +27,7 @@ extends BasePrimitiveJdbcFieldCodec<Date,Field<Date>>{
 
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
-		return new SqlColumn(field.getColumnName(), MySqlColumnType.BIGINT, 20 , field.getNullable(), false);
+		return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.BIGINT, 20 , field.getNullable(), false);
 	}
 	@Override
 	public Date parseJdbcValueButDoNotSet(Object obj){
@@ -50,7 +50,7 @@ extends BasePrimitiveJdbcFieldCodec<Date,Field<Date>>{
 	@Override
 	public Date fromJdbcResultSetButDoNotSet(ResultSet rs){
 		try{
-			long value = rs.getLong(field.getColumnName());
+			long value = rs.getLong(field.getKey().getColumnName());
 			return rs.wasNull()?null:new Date(value);
 		}catch(SQLException e){
 			throw new DataAccessException(e);

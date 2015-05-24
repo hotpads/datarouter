@@ -26,7 +26,7 @@ extends BasePrimitiveJdbcFieldCodec<Long,Field<Long>>{
 
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
-		return new SqlColumn(field.getColumnName(), MySqlColumnType.BIGINT, 20 , field.getNullable(), false);
+		return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.BIGINT, 20 , field.getNullable(), false);
 	}
 	
 	@Override
@@ -57,7 +57,7 @@ extends BasePrimitiveJdbcFieldCodec<Long,Field<Long>>{
 	@Override
 	public Long fromJdbcResultSetButDoNotSet(ResultSet rs){
 		try{
-			long value = rs.getLong(field.getColumnName());
+			long value = rs.getLong(field.getKey().getColumnName());
 			return rs.wasNull()?null:value;
 		}catch(SQLException e){
 			throw new DataAccessException(e);

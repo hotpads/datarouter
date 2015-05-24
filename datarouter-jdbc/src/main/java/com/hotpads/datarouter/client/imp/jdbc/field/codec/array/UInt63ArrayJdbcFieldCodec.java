@@ -28,8 +28,8 @@ extends BaseListJdbcFieldCodec<Long,List<Long>,UInt63ArrayField>{
 	
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
-		return new SqlColumn(field.getColumnName(), MySqlColumnType.LONGBLOB, Integer.MAX_VALUE, field.getNullable(), 
-				false);
+		return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.LONGBLOB, Integer.MAX_VALUE, field
+				.getNullable(), false);
 	}
 	
 	@Override
@@ -52,7 +52,7 @@ extends BaseListJdbcFieldCodec<Long,List<Long>,UInt63ArrayField>{
 	@Override
 	public List<Long> fromJdbcResultSetButDoNotSet(ResultSet rs){
 		try{
-			byte[] bytes = rs.getBytes(field.getColumnName());
+			byte[] bytes = rs.getBytes(field.getKey().getColumnName());
 			return new LongArray(LongByteTool.fromUInt63ByteArray(bytes));
 		}catch(SQLException e){
 			throw new DataAccessException(e);

@@ -26,7 +26,7 @@ extends BaseJdbcFieldCodec<E,IntegerEnumField<E>>{
 	
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
-		return new SqlColumn(field.getColumnName(), MySqlColumnType.INT, 11, field.getNullable(), false);
+		return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.INT, 11, field.getNullable(), false);
 	}
 
 	@Override
@@ -56,7 +56,7 @@ extends BaseJdbcFieldCodec<E,IntegerEnumField<E>>{
 	@Override
 	public E fromJdbcResultSetButDoNotSet(ResultSet rs){
 		try{
-			int rsValue = rs.getInt(field.getColumnName());
+			int rsValue = rs.getInt(field.getKey().getColumnName());
 			return rs.wasNull()?null:field.getSampleValue().fromPersistentInteger(rsValue);
 		}catch(SQLException e){
 			throw new DataAccessException(e);

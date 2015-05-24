@@ -27,13 +27,15 @@ extends BaseJdbcFieldCodec<E,StringEnumField<E>>{
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
 		if(field.getSize() <= MySqlColumnType.MAX_LENGTH_VARCHAR){
-			return new SqlColumn(field.getColumnName(), MySqlColumnType.VARCHAR, field.getSize(), field.getNullable(), false);
+			return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.VARCHAR, field.getSize(), field
+					.getNullable(), false);
 		}else if(field.getSize() <= MySqlColumnType.MAX_LENGTH_TEXT){
-			return new SqlColumn(field.getColumnName(), MySqlColumnType.TEXT, null, field.getNullable(), false);
+			return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.TEXT, null, field.getNullable(), false);
 		}else if(field.getSize() <= MySqlColumnType.MAX_LENGTH_MEDIUMTEXT){
-			return new SqlColumn(field.getColumnName(), MySqlColumnType.MEDIUMTEXT, null, field.getNullable(), false);
-		}else if(field.getSize() <= MySqlColumnType.MAX_LENGTH_LONGTEXT){ return new SqlColumn(field.getColumnName(), MySqlColumnType.LONGTEXT,
-				null, field.getNullable(), false); }
+			return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.MEDIUMTEXT, null, field.getNullable(),
+					false);
+		}else if(field.getSize() <= MySqlColumnType.MAX_LENGTH_LONGTEXT){ return new SqlColumn(field.getKey()
+				.getColumnName(), MySqlColumnType.LONGTEXT, null, field.getNullable(), false); }
 		throw new IllegalArgumentException("Unknown size:" + field.getSize());
 	}
 
@@ -63,7 +65,7 @@ extends BaseJdbcFieldCodec<E,StringEnumField<E>>{
 	@Override
 	public E fromJdbcResultSetButDoNotSet(ResultSet rs){
 		try{
-			String s = rs.getString(field.getColumnName());
+			String s = rs.getString(field.getKey().getColumnName());
 			return s == null ? null : field.getSampleValue().fromPersistentString(s);
 		}catch(SQLException e){
 			throw new DataAccessException(e);

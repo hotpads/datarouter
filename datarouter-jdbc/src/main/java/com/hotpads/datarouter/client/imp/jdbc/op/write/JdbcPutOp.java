@@ -204,7 +204,7 @@ extends BaseJdbcOp<Void>{
 			boolean doneOne = false;
 			for(Field<?> field : node.getFieldInfo().getFields()){
 				if(doneOne) { sb.append(","); }
-				sb.append(field.getColumnName() + "=VALUES(" + field.getColumnName() + ")");
+				sb.append(field.getKey().getColumnName() + "=VALUES(" + field.getKey().getColumnName() + ")");
 				doneOne = true;
 			}
 		}

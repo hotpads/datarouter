@@ -25,7 +25,7 @@ extends BasePrimitiveJdbcFieldCodec<Character,Field<Character>>{
 	
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
-		return new SqlColumn(field.getColumnName(), MySqlColumnType.CHAR, 1, field.getNullable(), false);
+		return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.CHAR, 1, field.getNullable(), false);
 	}
 	
 	@Override
@@ -49,7 +49,7 @@ extends BasePrimitiveJdbcFieldCodec<Character,Field<Character>>{
 	@Override
 	public Character fromJdbcResultSetButDoNotSet(ResultSet rs){
 		try{
-			String value = rs.getString(field.getColumnName());
+			String value = rs.getString(field.getKey().getColumnName());
 			return rs.wasNull()?null:value.charAt(0);
 		}catch(SQLException e){
 			throw new DataAccessException(e);

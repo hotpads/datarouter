@@ -30,7 +30,7 @@ extends BaseListJdbcFieldCodec<Boolean,List<Boolean>,Field<List<Boolean>>>{
 
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
-		return new SqlColumn(field.getColumnName(), MySqlColumnType.LONGBLOB, Integer.MAX_VALUE, field.getNullable(), 
+		return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.LONGBLOB, Integer.MAX_VALUE, field.getNullable(), 
 				false);
 	}
 
@@ -45,7 +45,7 @@ extends BaseListJdbcFieldCodec<Boolean,List<Boolean>,Field<List<Boolean>>>{
 	@Override
 	public List<Boolean> fromJdbcResultSetButDoNotSet(ResultSet rs){
 		try{
-			byte[] bytes = rs.getBytes(field.getColumnName());
+			byte[] bytes = rs.getBytes(field.getKey().getColumnName());
 			if(DrArrayTool.isEmpty(bytes)){ return new ArrayList<>(); }
 			return BooleanByteTool.fromBooleanByteArray(bytes, 0);
 		}catch(SQLException e){

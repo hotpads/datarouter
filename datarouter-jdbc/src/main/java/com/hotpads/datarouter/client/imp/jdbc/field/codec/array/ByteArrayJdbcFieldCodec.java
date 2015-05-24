@@ -28,11 +28,11 @@ extends BaseJdbcFieldCodec<byte[],ByteArrayField>{
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
 		if(field.getSize() <= MySqlColumnType.MAX_LENGTH_VARBINARY){
-			return new SqlColumn(field.getColumnName(), MySqlColumnType.VARBINARY, field.getSize(),
+			return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.VARBINARY, field.getSize(),
 					field.getNullable(), false);
 		}else if(field.getSize() <= MySqlColumnType.MAX_LENGTH_LONGBLOB){ 
-			return new SqlColumn(field.getColumnName(), MySqlColumnType.LONGBLOB, Integer.MAX_VALUE, field.getNullable(), 
-					false); }
+			return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.LONGBLOB, Integer.MAX_VALUE, field
+					.getNullable(), false); }
 		throw new IllegalArgumentException("Unknown size:" + field.getSize());
 	}
 	
@@ -56,7 +56,7 @@ extends BaseJdbcFieldCodec<byte[],ByteArrayField>{
 	@Override
 	public byte[] fromJdbcResultSetButDoNotSet(ResultSet rs){	
 		try{
-			return rs.getBytes(field.getColumnName());
+			return rs.getBytes(field.getKey().getColumnName());
 		}catch(SQLException e){
 			throw new DataAccessException(e);
 		}

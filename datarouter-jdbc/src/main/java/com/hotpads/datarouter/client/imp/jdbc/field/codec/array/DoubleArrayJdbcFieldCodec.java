@@ -29,8 +29,8 @@ extends BaseListJdbcFieldCodec<Double,List<Double>,Field<List<Double>>>{
 
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
-		return new SqlColumn(field.getColumnName(), MySqlColumnType.LONGBLOB, Integer.MAX_VALUE , field.getNullable(), 
-				false);
+		return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.LONGBLOB, Integer.MAX_VALUE , field
+				.getNullable(), false);
 	}
 
 	@Override
@@ -44,7 +44,7 @@ extends BaseListJdbcFieldCodec<Double,List<Double>,Field<List<Double>>>{
 	@Override
 	public List<Double> fromJdbcResultSetButDoNotSet(ResultSet rs){
 		try{
-			byte[] bytes = rs.getBytes(field.getColumnName());
+			byte[] bytes = rs.getBytes(field.getKey().getColumnName());
 			if(DrArrayTool.isEmpty(bytes)){ return new ArrayList<>(); }
 			return DoubleByteTool.fromDoubleByteArray(bytes, 0);
 		}catch(SQLException e){

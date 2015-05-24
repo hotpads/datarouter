@@ -25,7 +25,7 @@ extends BasePrimitiveJdbcFieldCodec<Boolean,Field<Boolean>>{
 
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
-		return new SqlColumn(field.getColumnName(), MySqlColumnType.TINYINT, 1 , field.getNullable(), false);
+		return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.TINYINT, 1 , field.getNullable(), false);
 	}
 
 	@Override
@@ -49,7 +49,7 @@ extends BasePrimitiveJdbcFieldCodec<Boolean,Field<Boolean>>{
 	@Override
 	public Boolean fromJdbcResultSetButDoNotSet(ResultSet rs){
 		try{
-			boolean value = rs.getBoolean(field.getColumnName());
+			boolean value = rs.getBoolean(field.getKey().getColumnName());
 			return rs.wasNull()?null:value;
 		}catch(SQLException e){
 			throw new DataAccessException(e);

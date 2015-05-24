@@ -25,8 +25,8 @@ extends BaseListJdbcFieldCodec<String,List<String>,DelimitedStringArrayField>{
 
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
-		return new SqlColumn(field.getColumnName(), MySqlColumnType.LONGBLOB, Integer.MAX_VALUE , field.getNullable(), 
-				false);
+		return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.LONGBLOB, Integer.MAX_VALUE , field
+				.getNullable(), false);
 	}
 
 	@Override
@@ -39,7 +39,7 @@ extends BaseListJdbcFieldCodec<String,List<String>,DelimitedStringArrayField>{
 	@Override
 	public List<String> fromJdbcResultSetButDoNotSet(ResultSet rs){
 		try{
-			String dbValue = rs.getString(field.getColumnName());
+			String dbValue = rs.getString(field.getKey().getColumnName());
 			return DelimitedStringArrayField.decode(dbValue, field.getSeparator());
 		}catch(SQLException e){
 			throw new DataAccessException(e);
