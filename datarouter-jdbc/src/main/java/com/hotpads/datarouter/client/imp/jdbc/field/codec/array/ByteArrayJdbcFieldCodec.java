@@ -29,10 +29,10 @@ extends BaseJdbcFieldCodec<byte[],ByteArrayField>{
 	public SqlColumn getSqlColumnDefinition(){
 		if(field.getSize() <= MySqlColumnType.MAX_LENGTH_VARBINARY){
 			return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.VARBINARY, field.getSize(),
-					field.getNullable(), false);
+					field.getKey().getNullable(), false);
 		}else if(field.getSize() <= MySqlColumnType.MAX_LENGTH_LONGBLOB){ 
 			return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.LONGBLOB, Integer.MAX_VALUE, field
-					.getNullable(), false); }
+					.getKey().getNullable(), false); }
 		throw new IllegalArgumentException("Unknown size:" + field.getSize());
 	}
 	

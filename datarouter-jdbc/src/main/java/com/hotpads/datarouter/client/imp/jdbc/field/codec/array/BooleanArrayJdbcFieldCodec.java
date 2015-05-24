@@ -30,8 +30,8 @@ extends BaseListJdbcFieldCodec<Boolean,List<Boolean>,Field<List<Boolean>>>{
 
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
-		return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.LONGBLOB, Integer.MAX_VALUE, field.getNullable(), 
-				false);
+		return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.LONGBLOB, Integer.MAX_VALUE, field
+				.getKey().getNullable(), false);
 	}
 
 	@Override

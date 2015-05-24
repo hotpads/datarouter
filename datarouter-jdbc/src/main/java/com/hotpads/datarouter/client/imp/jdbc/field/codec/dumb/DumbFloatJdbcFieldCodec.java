@@ -26,7 +26,8 @@ extends BasePrimitiveJdbcFieldCodec<Float,Field<Float>>{
 
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
-		return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.FLOAT, 12, field.getNullable(), false);
+		return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.FLOAT, 12, field.getKey().getNullable(),
+				false);
 	}
 	
 	@Override

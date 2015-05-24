@@ -26,7 +26,7 @@ extends BaseListJdbcFieldCodec<String,List<String>,DelimitedStringArrayField>{
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
 		return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.LONGBLOB, Integer.MAX_VALUE , field
-				.getNullable(), false);
+				.getKey().getNullable(), false);
 	}
 
 	@Override

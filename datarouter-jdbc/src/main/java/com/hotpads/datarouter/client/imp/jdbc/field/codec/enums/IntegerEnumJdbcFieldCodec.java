@@ -26,7 +26,8 @@ extends BaseJdbcFieldCodec<E,IntegerEnumField<E>>{
 	
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
-		return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.INT, 11, field.getNullable(), false);
+		return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.INT, 11, field.getKey().getNullable(),
+				false);
 	}
 
 	@Override

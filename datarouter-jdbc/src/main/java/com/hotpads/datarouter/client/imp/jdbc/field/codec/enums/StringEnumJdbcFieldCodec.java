@@ -28,14 +28,15 @@ extends BaseJdbcFieldCodec<E,StringEnumField<E>>{
 	public SqlColumn getSqlColumnDefinition(){
 		if(field.getSize() <= MySqlColumnType.MAX_LENGTH_VARCHAR){
 			return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.VARCHAR, field.getSize(), field
-					.getNullable(), false);
+					.getKey().getNullable(), false);
 		}else if(field.getSize() <= MySqlColumnType.MAX_LENGTH_TEXT){
-			return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.TEXT, null, field.getNullable(), false);
+			return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.TEXT, null, field.getKey()
+					.getNullable(), false);
 		}else if(field.getSize() <= MySqlColumnType.MAX_LENGTH_MEDIUMTEXT){
-			return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.MEDIUMTEXT, null, field.getNullable(),
-					false);
+			return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.MEDIUMTEXT, null, field.getKey()
+					.getNullable(), false);
 		}else if(field.getSize() <= MySqlColumnType.MAX_LENGTH_LONGTEXT){ return new SqlColumn(field.getKey()
-				.getColumnName(), MySqlColumnType.LONGTEXT, null, field.getNullable(), false); }
+				.getColumnName(), MySqlColumnType.LONGTEXT, null, field.getKey().getNullable(), false); }
 		throw new IllegalArgumentException("Unknown size:" + field.getSize());
 	}
 
