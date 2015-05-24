@@ -58,7 +58,7 @@ extends BaseHibernateOp<List<PK>>{
 		ProjectionList projectionList = Projections.projectionList();
 		int numFields = 0;
 		for(Field<?> field : node.getFieldInfo().getPrefixedPrimaryKeyFields()){
-			projectionList.add(Projections.property(field.getPrefixedName()));
+			projectionList.add(Projections.property(field.getKey().getPrefixedName()));
 			++numFields;
 		}
 		criteria.setProjection(projectionList);
@@ -68,7 +68,7 @@ extends BaseHibernateOp<List<PK>>{
 			Conjunction possiblyCompoundId = Restrictions.conjunction();
 			List<Field<?>> fields = FieldTool.prependPrefixes(node.getFieldInfo().getKeyFieldName(), key.getFields());
 			for(Field<?> field : fields){
-				possiblyCompoundId.add(Restrictions.eq(field.getPrefixedName(), field.getValue()));
+				possiblyCompoundId.add(Restrictions.eq(field.getKey().getPrefixedName(), field.getValue()));
 			}
 			orSeparatedIds.add(possiblyCompoundId);
 		}

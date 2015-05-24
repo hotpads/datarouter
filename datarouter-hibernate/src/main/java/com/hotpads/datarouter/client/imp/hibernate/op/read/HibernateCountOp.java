@@ -39,7 +39,7 @@ extends BaseHibernateOp<Long>{
 		criteria.setProjection(Projections.rowCount());
 
 		for(Field<?> field : DrCollectionTool.nullSafe(lookup.getFields())){
-			criteria.add(Restrictions.eq(field.getPrefixedName(), field.getValue()));
+			criteria.add(Restrictions.eq(field.getKey().getPrefixedName(), field.getValue()));
 		}
 		
 		Number n = (Number)criteria.uniqueResult();						

@@ -38,7 +38,7 @@ extends BaseHibernateOp<PK>{
 		ProjectionList projectionList = Projections.projectionList();
 		int numFields = 0;
 		for(Field<?> field : node.getFieldInfo().getPrefixedPrimaryKeyFields()){
-			projectionList.add(Projections.property(field.getPrefixedName()));
+			projectionList.add(Projections.property(field.getKey().getPrefixedName()));
 			++numFields;
 		}
 		criteria.setProjection(projectionList);
