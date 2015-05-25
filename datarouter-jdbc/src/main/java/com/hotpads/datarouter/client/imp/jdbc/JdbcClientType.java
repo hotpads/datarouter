@@ -24,6 +24,7 @@ import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.adapter.callsite.physical.PhysicalIndexedSortedMapStorageCallsiteAdapter;
 import com.hotpads.datarouter.node.adapter.counter.physical.PhysicalIndexedSortedMapStorageCounterAdapter;
 import com.hotpads.datarouter.node.entity.EntityNodeParams;
+import com.hotpads.datarouter.node.op.combo.IndexedMapStorage.IndexedMapStorageNode;
 import com.hotpads.datarouter.node.op.combo.IndexedMapStorage.PhysicalIndexedMapStorageNode;
 import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
 import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage.PhysicalIndexedSortedMapStorageNode;
@@ -120,7 +121,7 @@ public class JdbcClientType extends BaseClientType{
 			IE extends MultiIndexEntry<IK, IE, PK, D>,
 			IF extends DatabeanFielder<IK, IE>> 
 	ManagedMultiIndexNode<PK, D, IK, IE, IF> createManagedMultiIndexNode(
-			PhysicalIndexedMapStorageNode<PK, D> backingMapNode, NodeParams<IK, IE, IF> params, String indexName, 
+			IndexedMapStorageNode<PK,D> backingMapNode, NodeParams<IK, IE, IF> params, String indexName, 
 			boolean manageTxn){
 		if(manageTxn){
 			return new TxnManagedMultiIndexNode<>(backingMapNode, params, 
