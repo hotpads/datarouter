@@ -18,21 +18,13 @@ import com.hotpads.datarouter.client.imp.hibernate.util.HibernateResultParser;
 import com.hotpads.datarouter.client.imp.jdbc.TestDatarouterJdbcModuleFactory;
 import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.client.imp.jdbc.node.JdbcNode;
-import com.hotpads.datarouter.client.imp.jdbc.node.index.NoTxnManagedMultiIndexNode;
-import com.hotpads.datarouter.client.imp.jdbc.node.index.NoTxnManagedUniqueIndexNode;
-import com.hotpads.datarouter.client.imp.jdbc.node.index.TxnManagedMultiIndexNode;
-import com.hotpads.datarouter.client.imp.jdbc.node.index.TxnManagedUniqueIndexNode;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.adapter.callsite.physical.PhysicalIndexedSortedMapStorageCallsiteAdapter;
 import com.hotpads.datarouter.node.adapter.counter.physical.PhysicalIndexedSortedMapStorageCounterAdapter;
 import com.hotpads.datarouter.node.entity.EntityNodeParams;
-import com.hotpads.datarouter.node.op.combo.IndexedMapStorage.IndexedMapStorageNode;
-import com.hotpads.datarouter.node.op.combo.IndexedMapStorage.PhysicalIndexedMapStorageNode;
 import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
 import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage.PhysicalIndexedSortedMapStorageNode;
-import com.hotpads.datarouter.node.type.index.ManagedMultiIndexNode;
-import com.hotpads.datarouter.node.type.index.ManagedUniqueIndexNode;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
@@ -41,8 +33,6 @@ import com.hotpads.datarouter.storage.entity.Entity;
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
 import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.datarouter.storage.view.index.multi.MultiIndexEntry;
-import com.hotpads.datarouter.storage.view.index.unique.UniqueIndexEntry;
 import com.hotpads.util.core.lang.ClassTool;
 
 @Singleton
@@ -109,42 +99,6 @@ public class HibernateClientType extends BaseClientType{
 		return new PhysicalIndexedSortedMapStorageCallsiteAdapter<>(nodeParams,
 				(PhysicalIndexedSortedMapStorageNode<PK,D>)backingNode);
 	}
-	
-	@Override
-	public <PK extends PrimaryKey<PK>, 
-			D extends Databean<PK, D>, 
-			IK extends PrimaryKey<IK>, 
-			IE extends UniqueIndexEntry<IK, IE, PK, D>,
-			IF extends DatabeanFielder<IK, IE>> ManagedUniqueIndexNode<PK, D, IK, IE, IF> createManagedUniqueIndexNode(
-			PhysicalIndexedMapStorageNode<PK, D> backingMapNode, NodeParams<IK, IE, IF> params, String indexName, 
-			boolean manageTxn){
-		if(!(backingMapNode.getPhysicalNodeIfApplicable() instanceof JdbcNode)){
-			super.createManagedUniqueIndexNode(backingMapNode, params, indexName, manageTxn);
-		}
-		if(manageTxn){
-			return new TxnManagedUniqueIndexNode<>(backingMapNode, params, 
-					indexName);
-		}
-		return new NoTxnManagedUniqueIndexNode<>(backingMapNode, params, indexName);
-	}
-	
-	@Override
-	public <PK extends PrimaryKey<PK>, 
-			D extends Databean<PK, D>, 
-			IK extends PrimaryKey<IK>, 
-			IE extends MultiIndexEntry<IK, IE, PK, D>,
-			IF extends DatabeanFielder<IK, IE>> ManagedMultiIndexNode<PK, D, IK, IE, IF> createManagedMultiIndexNode(
-			IndexedMapStorageNode<PK,D> backingMapNode, NodeParams<IK, IE, IF> params, String indexName, 
-			boolean manageTxn){
-		if(!(backingMapNode.getPhysicalNodeIfApplicable() instanceof JdbcNode)){
-			super.createManagedMultiIndexNode(backingMapNode, params, indexName, manageTxn);
-		}
-		if(manageTxn){
-			return new TxnManagedMultiIndexNode<>(backingMapNode, params, indexName);
-		}
-		return new NoTxnManagedMultiIndexNode<>(backingMapNode, params, indexName);
-	}
-	
 	
 	/********************** tests ****************************/
 	
