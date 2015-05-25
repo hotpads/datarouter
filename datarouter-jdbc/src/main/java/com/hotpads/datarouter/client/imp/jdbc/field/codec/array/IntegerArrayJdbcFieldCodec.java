@@ -30,7 +30,7 @@ extends BaseListJdbcFieldCodec<Integer,List<Integer>,IntegerArrayField>{
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
 		return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.LONGBLOB, Integer.MAX_VALUE , field
-				.getKey().getNullable(), false);
+				.getKey().isNullable(), false);
 	}
 
 	@Override

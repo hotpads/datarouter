@@ -26,7 +26,7 @@ extends BasePrimitiveJdbcFieldCodec<Long,Field<Long>>{
 
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
-		return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.BIGINT, 20, field.getKey().getNullable(),
+		return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.BIGINT, 20, field.getKey().isNullable(),
 				false);
 	}
 	

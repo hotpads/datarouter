@@ -28,7 +28,7 @@ extends BaseJdbcFieldCodec<E,VarIntEnumField<E>>{
 	
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
-		return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.INT, 11, field.getKey().getNullable(),
+		return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.INT, 11, field.getKey().isNullable(),
 				false);
 	}
 

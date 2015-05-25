@@ -33,7 +33,7 @@ extends BaseJdbcFieldCodec<Date,DateField>{
 	@Override
 	public SqlColumn getSqlColumnDefinition(){	
 		return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.DATETIME, field.getNumDecimalSeconds(),
-				field.getKey().getNullable(), false);
+				field.getKey().isNullable(), false);
 	}
 	
 	@Override
