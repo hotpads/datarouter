@@ -18,6 +18,7 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.imp.ConnectionSqlTabl
 import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.imp.FieldSqlTableGenerator;
 import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.connection.JdbcConnectionPool;
+import com.hotpads.datarouter.node.op.raw.IndexedStorage;
 import com.hotpads.datarouter.node.type.index.ManagedNode;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
@@ -82,8 +83,11 @@ implements Callable<Void>{
 		String currentTableAbsoluteName = clientName + "." + tableName;
 		if(tablesToIgnore.contains(currentTableAbsoluteName)){ return null; }
 
-		for(ManagedNode<?, ?, ?> managedNode : physicalNode.getManagedNodes()){
-			indexes.put(managedNode.getName(), managedNode.getFieldInfo().getFields());
+		if(physicalNode instanceof IndexedStorage){
+			IndexedStorage<?,?> indexedStorage = ((IndexedStorage<?,?>)physicalNode);
+			for(ManagedNode<?, ?, ?> managedNode : indexedStorage.getManagedNodes()){
+				indexes.put(managedNode.getName(), managedNode.getFieldInfo().getFields());
+			}
 		}
 		
 		FieldSqlTableGenerator generator = new FieldSqlTableGenerator(fieldCodecFactory, physicalNode.getTableName(),

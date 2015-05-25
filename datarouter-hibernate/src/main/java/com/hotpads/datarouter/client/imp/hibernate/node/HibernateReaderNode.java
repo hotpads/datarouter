@@ -30,6 +30,8 @@ import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.op.raw.read.IndexedStorageReader;
 import com.hotpads.datarouter.node.op.raw.read.MapStorageReader;
 import com.hotpads.datarouter.node.op.raw.read.SortedStorageReader;
+import com.hotpads.datarouter.node.type.index.ManagedNode;
+import com.hotpads.datarouter.node.type.index.ManagedNodesHolder;
 import com.hotpads.datarouter.node.type.physical.base.BasePhysicalNode;
 import com.hotpads.datarouter.op.executor.impl.SessionExecutorImpl;
 import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
@@ -60,12 +62,14 @@ implements MapStorageReader<PK,D>,
 		IndexedStorageReader<PK,D>{
 	
 	private final HibernateResultParser resultParser;
+	private final ManagedNodesHolder managedNodesHolder;
 	
 	/******************************* constructors ************************************/
 
 	public HibernateReaderNode(NodeParams<PK,D,F> params, HibernateResultParser resultParser){
 		super(params);
 		this.resultParser = resultParser;
+		this.managedNodesHolder = new ManagedNodesHolder();
 	}
 	
 	
@@ -195,6 +199,21 @@ implements MapStorageReader<PK,D>,
 			Config config){
 		// TODO implement managed indexes for Hibernate
 		throw new NotImplementedException();
+	}
+	
+	@Override
+	public <IK extends PrimaryKey<IK>,
+			IE extends IndexEntry<IK,IE,PK,D>,
+			IF extends DatabeanFielder<IK,IE>,
+			N extends ManagedNode<IK,IE,IF>>
+	N registerManaged(N managedNode){
+		return managedNodesHolder.registerManagedNode(managedNode);
+	}
+
+
+	@Override
+	public List<ManagedNode<?,?,?>> getManagedNodes(){
+		return managedNodesHolder.getManagedNodes();
 	}
 	
 	/************************************ SortedStorageReader methods ****************************/
@@ -343,6 +362,4 @@ implements MapStorageReader<PK,D>,
 		}
 		return conjunction;
 	}
-	
-
 }
