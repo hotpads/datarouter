@@ -40,12 +40,12 @@ public class CriteriaTool {
 				for(int j=0; j < i; ++j){
 					Field<?> startField = startFields.get(j);
 					if(j < (i-1)){
-						c.add(Restrictions.eq(startField.getKey().getPrefixedName(), startField.getValue()));
+						c.add(Restrictions.eq(startField.getPrefixedName(), startField.getValue()));
 					}else{
 						if(startInclusive && i==numNonNullStartFields){
-							c.add(Restrictions.ge(startField.getKey().getPrefixedName(), startField.getValue()));
+							c.add(Restrictions.ge(startField.getPrefixedName(), startField.getValue()));
 						}else{
-							c.add(Restrictions.gt(startField.getKey().getPrefixedName(), startField.getValue()));
+							c.add(Restrictions.gt(startField.getPrefixedName(), startField.getValue()));
 						}
 					}
 				}
@@ -65,12 +65,12 @@ public class CriteriaTool {
 					Field<?> endField = endFields.get(j);
 					if(j==i){
 						if(endInclusive && i==(numNonNullEndFields-1)){
-							c.add(Restrictions.le(endField.getKey().getPrefixedName(), endField.getValue()));
+							c.add(Restrictions.le(endField.getPrefixedName(), endField.getValue()));
 						}else{
-							c.add(Restrictions.lt(endField.getKey().getPrefixedName(), endField.getValue()));
+							c.add(Restrictions.lt(endField.getPrefixedName(), endField.getValue()));
 						}
 					}else{
-						c.add(Restrictions.eq(endField.getKey().getPrefixedName(), endField.getValue()));
+						c.add(Restrictions.eq(endField.getPrefixedName(), endField.getValue()));
 					}
 				}
 				d.add(c);

@@ -56,7 +56,7 @@ extends BaseHibernateOp<List<? extends FieldSet<?>>>{
 		if(keysOnly){
 			ProjectionList projectionList = Projections.projectionList();
 			for(Field<?> field : node.getFieldInfo().getPrefixedPrimaryKeyFields()){
-				projectionList.add(Projections.property(field.getKey().getPrefixedName()));
+				projectionList.add(Projections.property(field.getPrefixedName()));
 			}
 			criteria.setProjection(projectionList);
 		}

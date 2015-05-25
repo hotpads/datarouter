@@ -52,7 +52,7 @@ extends BaseHibernateOp<List<D>>{
 			List<Field<?>> fields = FieldTool.prependPrefixes(node.getFieldInfo().getKeyFieldName(), 
 					key.getFields());
 			for(Field<?> field : fields){
-				possiblyCompoundId.add(Restrictions.eq(field.getKey().getPrefixedName(), field.getValue()));
+				possiblyCompoundId.add(Restrictions.eq(field.getPrefixedName(), field.getValue()));
 			}
 			orSeparatedIds.add(possiblyCompoundId);
 		}

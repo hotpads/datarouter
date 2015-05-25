@@ -286,7 +286,7 @@ implements MapStorageReader<PK,D>,
 	//shouldn't need this for innodb.  not sure if it hurts or not though.  see Handler_read_rnd_next (innodb may sort anyway?)
 	public void addPrimaryKeyOrderToCriteria(Criteria criteria){
 		for(Field<?> field : fieldInfo.getPrefixedPrimaryKeyFields()){
-			criteria.addOrder(Order.asc(field.getKey().getPrefixedName()));
+			criteria.addOrder(Order.asc(field.getPrefixedName()));
 		}
 	}
 	
@@ -332,7 +332,7 @@ implements MapStorageReader<PK,D>,
 			boolean lastNonNullField = (numFullFieldsFinished == numNonNullFields-1);
 			boolean stringField = !(field instanceof BasePrimitiveField<?>);
 			boolean canDoPrefixMatchOnField = wildcardLastField && lastNonNullField && stringField;
-			String fieldNameWithPrefixIfNecessary = field.getKey().getPrefixedName();
+			String fieldNameWithPrefixIfNecessary = field.getPrefixedName();
 			if(canDoPrefixMatchOnField){
 				conjunction.add(Restrictions.like(fieldNameWithPrefixIfNecessary, 
 						field.getValue().toString(), MatchMode.START));

@@ -65,7 +65,7 @@ extends BaseHibernateOp<List<D>>{
 				Conjunction possiblyCompoundId = Restrictions.conjunction();
 				List<Field<?>> fields = key.getFields();
 				for(Field<?> field : fields){
-					possiblyCompoundId.add(Restrictions.eq(field.getKey().getPrefixedName(), field.getValue()));
+					possiblyCompoundId.add(Restrictions.eq(field.getPrefixedName(), field.getValue()));
 				}
 				orSeparatedIds.add(possiblyCompoundId);
 			}
