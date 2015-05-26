@@ -2,13 +2,10 @@ package com.hotpads.datarouter.client.imp.jdbc.scan;
 
 import java.util.List;
 
-import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.client.imp.jdbc.node.JdbcNode;
-import com.hotpads.datarouter.client.imp.jdbc.op.read.index.JdbcManagedIndexScanOp;
+import com.hotpads.datarouter.client.imp.jdbc.node.JdbcReaderOps;
 import com.hotpads.datarouter.config.Config;
-import com.hotpads.datarouter.node.type.index.ManagedNode;
-import com.hotpads.datarouter.node.type.physical.PhysicalNode;
-import com.hotpads.datarouter.op.executor.impl.SessionExecutorImpl;
+import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
@@ -20,26 +17,23 @@ import com.hotpads.util.core.iterable.scanner.batch.BaseBatchingSortedScanner;
 public class JdbcManagedIndexScanner<
 		PK extends PrimaryKey<PK>, 
 		D extends Databean<PK, D>,
+		F extends DatabeanFielder<PK,D>,
 		IK extends PrimaryKey<IK>,
 		IE extends IndexEntry<IK, IE, PK, D>,
 		IF extends DatabeanFielder<IK, IE>>
 extends BaseBatchingSortedScanner<IE,IE>{
 	
-	private final PhysicalNode<PK, D> node;
-	private final JdbcFieldCodecFactory fieldCodecFactory;
-	private final String traceName;
-	private final ManagedNode<IK, IE, IF> managedNode;
+	private final DatabeanFieldInfo<IK,IE,IF> indexEntryFieldInfo;
 	private final Range<IK> range;
-	private Config config;//not final - reused
+	private final JdbcReaderOps<PK, D, F> jdbcReaderOps;
+	private final Config config;
 
-	public JdbcManagedIndexScanner(PhysicalNode<PK,D> node, JdbcFieldCodecFactory fieldCodecFactory,
-			ManagedNode<IK,IE,IF> managedNode, Range<IK> range, String traceName, Config config){
-		this.node = node;
-		this.fieldCodecFactory = fieldCodecFactory;
-		this.managedNode = managedNode;
+	public JdbcManagedIndexScanner(JdbcReaderOps<PK, D, F> jdbcReaderOps,
+			DatabeanFieldInfo<IK, IE, IF> indexEntryFieldInfo, Range<IK> range, Config config){
+		this.jdbcReaderOps = jdbcReaderOps;
+		this.indexEntryFieldInfo = indexEntryFieldInfo;
 		this.range = Range.nullSafe(range);
-		this.traceName = traceName;
-		this.config = config;
+		this.config = Config.nullSafe(config).setIterateBatchSizeIfNull(JdbcNode.DEFAULT_ITERATE_BATCH_SIZE);
 	}
 
 	@Override
@@ -56,7 +50,7 @@ extends BaseBatchingSortedScanner<IE,IE>{
 			lastRowOfPreviousBatch = endOfLastBatch.getKey();
 			isStartInclusive = false;
 		}
-		Range<IK> batchRange = new Range<IK>(lastRowOfPreviousBatch, isStartInclusive, range.getEnd(),
+		Range<IK> batchRange = new Range<>(lastRowOfPreviousBatch, isStartInclusive, range.getEnd(),
 				range.getEndInclusive());
 
 		currentBatch = doLoad(batchRange);
@@ -72,10 +66,7 @@ extends BaseBatchingSortedScanner<IE,IE>{
 	}
 
 	private List<IE> doLoad(Range<IK> range){
-		config = Config.nullSafe(config).setIterateBatchSizeIfNull(JdbcNode.DEFAULT_ITERATE_BATCH_SIZE);
-		JdbcManagedIndexScanOp<PK,D,IK,IE,IF> op = new JdbcManagedIndexScanOp<>(node, fieldCodecFactory, managedNode,
-				range, config);
-		return new SessionExecutorImpl<List<IE>>(op, traceName).call();
+		return jdbcReaderOps.getIndexRange(range, config, indexEntryFieldInfo);
 	}
 	
 }
