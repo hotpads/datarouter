@@ -8,7 +8,6 @@ import com.hotpads.datarouter.client.imp.hibernate.util.SqlBuilder;
 import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.client.imp.jdbc.op.BaseJdbcOp;
 import com.hotpads.datarouter.config.Config;
-import com.hotpads.datarouter.node.type.index.ManagedNode;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
@@ -17,7 +16,7 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.view.index.IndexEntry;
 import com.hotpads.util.core.collections.Range;
 
-public class JdbcManagedIndexScanOp<
+public class JdbcManagedIndexGetRangeOp<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
 		IK extends PrimaryKey<IK>,
@@ -31,14 +30,14 @@ extends BaseJdbcOp<List<IE>>{
 	private final Config config;
 	private final DatabeanFieldInfo<IK, IE, IF> fieldInfo;
 	
-	public JdbcManagedIndexScanOp(PhysicalNode<PK,D> node, JdbcFieldCodecFactory fieldCodecFactory,
-			ManagedNode<IK,IE,IF> managedNode, Range<IK> range, Config config){
+	public JdbcManagedIndexGetRangeOp(PhysicalNode<PK,D> node, JdbcFieldCodecFactory fieldCodecFactory,
+			DatabeanFieldInfo<IK, IE, IF> fieldInfo, Range<IK> range, Config config){
 		super(node.getDatarouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
 		this.range = range;
 		this.node = node;
 		this.fieldCodecFactory = fieldCodecFactory;
 		this.config = config;
-		this.fieldInfo = managedNode.getFieldInfo();
+		this.fieldInfo = fieldInfo;
 	}
 	
 	@Override
