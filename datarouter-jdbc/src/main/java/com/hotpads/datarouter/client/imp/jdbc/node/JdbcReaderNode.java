@@ -41,14 +41,14 @@ implements MapStorageReader<PK,D>,
 		IndexedStorageReader<PK,D>{
 	
 	private final JdbcReaderOps<PK,D,F> jdbcReaderOps;
-	private final ManagedNodesHolder managedNodesHolder;
+	private final ManagedNodesHolder<PK,D> managedNodesHolder;
 	
 	/******************************* constructors ************************************/
 
 	public JdbcReaderNode(NodeParams<PK,D,F> params, JdbcFieldCodecFactory fieldCodecFactory){
 		super(params);
 		this.jdbcReaderOps = new JdbcReaderOps<>(this, fieldCodecFactory);
-		this.managedNodesHolder = new ManagedNodesHolder();
+		this.managedNodesHolder = new ManagedNodesHolder<>();
 	}
 	
 	
@@ -148,13 +148,13 @@ implements MapStorageReader<PK,D>,
 	public <IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK,IE,PK,D>,
 			IF extends DatabeanFielder<IK,IE>,
-			N extends ManagedNode<IK,IE,IF>>
+			N extends ManagedNode<PK,D,IK,IE,IF>>
 	N registerManaged(N managedNode){
 		return managedNodesHolder.registerManagedNode(managedNode);
 	}
 	
 	@Override
-	public List<ManagedNode<?,?,?>> getManagedNodes(){
+	public List<ManagedNode<PK,D,?,?,?>> getManagedNodes(){
 		return managedNodesHolder.getManagedNodes();
 	}
 	

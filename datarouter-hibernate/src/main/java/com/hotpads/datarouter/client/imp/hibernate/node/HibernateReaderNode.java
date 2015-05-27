@@ -66,7 +66,7 @@ implements MapStorageReader<PK,D>,
 		IndexedStorageReader<PK,D>{
 	
 	private final HibernateResultParser resultParser;
-	private final ManagedNodesHolder managedNodesHolder;
+	private final ManagedNodesHolder<PK,D> managedNodesHolder;
 	private final JdbcFieldCodecFactory fieldCodecFactory;
 	
 	/******************************* constructors ************************************/
@@ -75,7 +75,7 @@ implements MapStorageReader<PK,D>,
 			JdbcFieldCodecFactory fieldCodecFactory){
 		super(params);
 		this.resultParser = resultParser;
-		this.managedNodesHolder = new ManagedNodesHolder();
+		this.managedNodesHolder = new ManagedNodesHolder<>();
 		this.fieldCodecFactory = fieldCodecFactory; 
 	}
 	
@@ -213,14 +213,14 @@ implements MapStorageReader<PK,D>,
 	public <IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK,IE,PK,D>,
 			IF extends DatabeanFielder<IK,IE>,
-			N extends ManagedNode<IK,IE,IF>>
+			N extends ManagedNode<PK,D,IK,IE,IF>>
 	N registerManaged(N managedNode){
 		return managedNodesHolder.registerManagedNode(managedNode);
 	}
 
 
 	@Override
-	public List<ManagedNode<?,?,?>> getManagedNodes(){
+	public List<ManagedNode<PK,D,?,?,?>> getManagedNodes(){
 		return managedNodesHolder.getManagedNodes();
 	}
 	

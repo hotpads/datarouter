@@ -85,7 +85,7 @@ implements Callable<Void>{
 
 		if(physicalNode instanceof IndexedStorage){
 			IndexedStorage<?,?> indexedStorage = ((IndexedStorage<?,?>)physicalNode);
-			for(ManagedNode<?, ?, ?> managedNode : indexedStorage.getManagedNodes()){
+			for(ManagedNode<?,?,?,?,?> managedNode : indexedStorage.getManagedNodes()){
 				indexes.put(managedNode.getName(), managedNode.getFieldInfo().getFields());
 			}
 		}
