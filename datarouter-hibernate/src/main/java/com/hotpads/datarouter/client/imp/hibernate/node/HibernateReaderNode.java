@@ -27,7 +27,6 @@ import com.hotpads.datarouter.client.imp.hibernate.scan.HibernatePrimaryKeyScann
 import com.hotpads.datarouter.client.imp.hibernate.util.HibernateResultParser;
 import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.client.imp.jdbc.op.BaseJdbcOp;
-import com.hotpads.datarouter.client.imp.jdbc.op.read.index.JdbcGetByIndexOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.read.index.JdbcGetIndexOp;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.exception.DataAccessException;
@@ -56,6 +55,7 @@ import com.hotpads.datarouter.util.core.DrBatchTool;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.collections.Range;
+import com.hotpads.util.core.exception.NotImplementedException;
 import com.hotpads.util.core.iterable.scanner.iterable.SortedScannerIterable;
 import com.hotpads.util.core.iterable.scanner.sorted.SortedScanner;
 
@@ -195,8 +195,8 @@ implements MapStorageReader<PK,D>,
 	@Override
 	public <IK extends PrimaryKey<IK>, IE extends IndexEntry<IK, IE, PK, D>> List<D> getMultiByIndex(
 			Collection<IK> keys, Config config){
-		BaseJdbcOp<List<D>> op = new JdbcGetByIndexOp<>(this, fieldCodecFactory, keys, false, config);
-		return new SessionExecutorImpl<>(op, IndexedStorageReader.OP_getByIndex).call();
+		//TODO implement managed indexes for Hibernate
+		throw new NotImplementedException();
 	}
 	
 	@Override
