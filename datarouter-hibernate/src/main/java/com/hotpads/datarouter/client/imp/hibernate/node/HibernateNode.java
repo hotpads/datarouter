@@ -40,7 +40,7 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D>
 	
 	public HibernateNode(NodeParams<PK,D,F> params, JdbcFieldCodecFactory fieldCodecFactory, 
 			HibernateResultParser resultParser){
-		super(params, resultParser);
+		super(params, resultParser, fieldCodecFactory);
 		this.fieldCodecFactory = fieldCodecFactory;
 		this.resultParser = resultParser;
 	}

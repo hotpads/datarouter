@@ -22,14 +22,20 @@ import com.hotpads.datarouter.client.imp.hibernate.op.read.HibernateGetWithPrefi
 import com.hotpads.datarouter.client.imp.hibernate.op.read.HibernateLookupOp;
 import com.hotpads.datarouter.client.imp.hibernate.op.read.HibernateLookupUniqueOp;
 import com.hotpads.datarouter.client.imp.hibernate.scan.HibernateDatabeanScanner;
+import com.hotpads.datarouter.client.imp.hibernate.scan.HibernateManagedIndexScanner;
 import com.hotpads.datarouter.client.imp.hibernate.scan.HibernatePrimaryKeyScanner;
 import com.hotpads.datarouter.client.imp.hibernate.util.HibernateResultParser;
+import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
+import com.hotpads.datarouter.client.imp.jdbc.op.BaseJdbcOp;
+import com.hotpads.datarouter.client.imp.jdbc.op.read.index.JdbcGetIndexOp;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.op.raw.read.IndexedStorageReader;
 import com.hotpads.datarouter.node.op.raw.read.MapStorageReader;
 import com.hotpads.datarouter.node.op.raw.read.SortedStorageReader;
+import com.hotpads.datarouter.node.type.index.ManagedNode;
+import com.hotpads.datarouter.node.type.index.ManagedNodesHolder;
 import com.hotpads.datarouter.node.type.physical.base.BasePhysicalNode;
 import com.hotpads.datarouter.op.executor.impl.SessionExecutorImpl;
 import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
@@ -60,12 +66,17 @@ implements MapStorageReader<PK,D>,
 		IndexedStorageReader<PK,D>{
 	
 	private final HibernateResultParser resultParser;
+	private final ManagedNodesHolder<PK,D> managedNodesHolder;
+	private final JdbcFieldCodecFactory fieldCodecFactory;
 	
 	/******************************* constructors ************************************/
 
-	public HibernateReaderNode(NodeParams<PK,D,F> params, HibernateResultParser resultParser){
+	public HibernateReaderNode(NodeParams<PK,D,F> params, HibernateResultParser resultParser,
+			JdbcFieldCodecFactory fieldCodecFactory){
 		super(params);
 		this.resultParser = resultParser;
+		this.managedNodesHolder = new ManagedNodesHolder<>();
+		this.fieldCodecFactory = fieldCodecFactory; 
 	}
 	
 	
@@ -176,14 +187,15 @@ implements MapStorageReader<PK,D>,
 			IE extends IndexEntry<IK, IE, PK, D>, 
 			IF extends DatabeanFielder<IK, IE>> 
 	List<IE> getMultiFromIndex(Collection<IK> keys, Config config, DatabeanFieldInfo<IK, IE, IF> indexEntryFieldInfo){
-		// TODO implement managed indexes for Hibernate
-		throw new NotImplementedException();
+		BaseJdbcOp<List<IE>> op = new JdbcGetIndexOp<>(this, fieldCodecFactory, config,
+				indexEntryFieldInfo.getDatabeanClass(), indexEntryFieldInfo.getFielderClass(), keys);
+		return new SessionExecutorImpl<>(op, IndexedStorageReader.OP_getFromIndex).call();
 	}
 	
 	@Override
 	public <IK extends PrimaryKey<IK>, IE extends IndexEntry<IK, IE, PK, D>> List<D> getMultiByIndex(
 			Collection<IK> keys, Config config){
-		// TODO implement managed indexes for Hibernate
+		//TODO implement managed indexes for Hibernate
 		throw new NotImplementedException();
 	}
 	
@@ -193,8 +205,23 @@ implements MapStorageReader<PK,D>,
 			IF extends DatabeanFielder<IK, IE>>
 	SortedScannerIterable<IE> scanIndex(DatabeanFieldInfo<IK,IE,IF> indexEntryFieldInfo, Range<IK> range, 
 			Config config){
-		// TODO implement managed indexes for Hibernate
-		throw new NotImplementedException();
+		return new SortedScannerIterable<>(new HibernateManagedIndexScanner<>(range, config, fieldCodecFactory,
+				indexEntryFieldInfo, this));
+	}
+	
+	@Override
+	public <IK extends PrimaryKey<IK>,
+			IE extends IndexEntry<IK,IE,PK,D>,
+			IF extends DatabeanFielder<IK,IE>,
+			N extends ManagedNode<PK,D,IK,IE,IF>>
+	N registerManaged(N managedNode){
+		return managedNodesHolder.registerManagedNode(managedNode);
+	}
+
+
+	@Override
+	public List<ManagedNode<PK,D,?,?,?>> getManagedNodes(){
+		return managedNodesHolder.getManagedNodes();
 	}
 	
 	/************************************ SortedStorageReader methods ****************************/
@@ -343,6 +370,4 @@ implements MapStorageReader<PK,D>,
 		}
 		return conjunction;
 	}
-	
-
 }
