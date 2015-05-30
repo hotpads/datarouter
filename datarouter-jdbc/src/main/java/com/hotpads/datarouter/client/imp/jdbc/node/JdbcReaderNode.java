@@ -14,6 +14,8 @@ import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.op.raw.read.IndexedStorageReader;
 import com.hotpads.datarouter.node.op.raw.read.MapStorageReader;
 import com.hotpads.datarouter.node.op.raw.read.SortedStorageReader;
+import com.hotpads.datarouter.node.type.index.ManagedNode;
+import com.hotpads.datarouter.node.type.index.ManagedNodesHolder;
 import com.hotpads.datarouter.node.type.physical.base.BasePhysicalNode;
 import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
@@ -39,12 +41,14 @@ implements MapStorageReader<PK,D>,
 		IndexedStorageReader<PK,D>{
 	
 	private final JdbcReaderOps<PK,D,F> jdbcReaderOps;
+	private final ManagedNodesHolder<PK,D> managedNodesHolder;
 	
 	/******************************* constructors ************************************/
 
 	public JdbcReaderNode(NodeParams<PK,D,F> params, JdbcFieldCodecFactory fieldCodecFactory){
 		super(params);
 		this.jdbcReaderOps = new JdbcReaderOps<>(this, fieldCodecFactory);
+		this.managedNodesHolder = new ManagedNodesHolder<>();
 	}
 	
 	
@@ -138,6 +142,20 @@ implements MapStorageReader<PK,D>,
 			Config config){
 		return new SortedScannerIterable<>(new JdbcManagedIndexScanner<>(jdbcReaderOps, indexEntryFieldInfo, range,
 				config));
+	}
+	
+	@Override
+	public <IK extends PrimaryKey<IK>,
+			IE extends IndexEntry<IK,IE,PK,D>,
+			IF extends DatabeanFielder<IK,IE>,
+			N extends ManagedNode<PK,D,IK,IE,IF>>
+	N registerManaged(N managedNode){
+		return managedNodesHolder.registerManagedNode(managedNode);
+	}
+	
+	@Override
+	public List<ManagedNode<PK,D,?,?,?>> getManagedNodes(){
+		return managedNodesHolder.getManagedNodes();
 	}
 	
 	/************************************ SortedStorageReader methods ****************************/
