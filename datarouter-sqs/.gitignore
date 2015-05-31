@@ -1,6 +1,8 @@
 .classpath
 .project
-.settings/
+/.settings/
 
-target/
+/target
 src/main/resources/git.properties
+/test-output
+/bin
