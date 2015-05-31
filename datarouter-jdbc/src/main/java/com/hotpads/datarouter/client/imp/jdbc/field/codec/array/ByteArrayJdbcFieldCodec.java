@@ -32,7 +32,8 @@ extends BaseJdbcFieldCodec<byte[],ByteArrayField>{
 					field.getKey().isNullable(), false);
 		}else if(field.getSize() <= MySqlColumnType.MAX_LENGTH_LONGBLOB){ 
 			return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.LONGBLOB, Integer.MAX_VALUE, field
-					.getKey().isNullable(), false); }
+					.getKey().isNullable(), false);
+		}
 		throw new IllegalArgumentException("Unknown size:" + field.getSize());
 	}
 	
