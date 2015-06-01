@@ -2,10 +2,14 @@ package com.hotpads.datarouter.client.imp.sqs;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 import com.amazonaws.services.sqs.AmazonSQSClient;
 import com.amazonaws.services.sqs.model.CreateQueueRequest;
+import com.amazonaws.services.sqs.model.DeleteMessageBatchRequest;
+import com.amazonaws.services.sqs.model.DeleteMessageBatchRequestEntry;
 import com.amazonaws.services.sqs.model.DeleteMessageRequest;
 import com.amazonaws.services.sqs.model.Message;
 import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
@@ -66,7 +70,8 @@ implements QueueStorage<PK,D>{
 		for(List<D> databeanBatch : new BatchingIterable<>(databeans, MAX_MESSAGES_PER_BATCH)){
 			List<SendMessageBatchRequestEntry> entries = new ArrayList<>();
 			for(D databean : databeanBatch){
-				entries.add(new SendMessageBatchRequestEntry().withMessageBody(sqsEncoder.encode(databean)));
+				entries.add(new SendMessageBatchRequestEntry(UUID.randomUUID().toString(), 
+						sqsEncoder.encode(databean)));
 			}
 			SendMessageBatchRequest request = new SendMessageBatchRequest(queueUrl.get(), entries);
 			getAmazonSqsClient().sendMessageBatch(request);
@@ -84,6 +89,26 @@ implements QueueStorage<PK,D>{
 		DeleteMessageRequest deleteRequest = new DeleteMessageRequest(queueUrl.get(), message.getReceiptHandle());
 		getAmazonSqsClient().deleteMessage(deleteRequest);
 		return sqsEncoder.decode(message.getBody(), getDatabeanType());
+	}
+	
+	@Override
+	public List<D> pollMulti(Config config){
+		Integer limit = config.getLimitOrUse(MAX_MESSAGES_PER_BATCH);
+		ReceiveMessageRequest request = new ReceiveMessageRequest(queueUrl.get()).withMaxNumberOfMessages(limit);
+		ReceiveMessageResult result = getAmazonSqsClient().receiveMessage(request);
+		if(result.getMessages().size() == 0){
+			return Collections.emptyList();
+		}
+		List<D> results = new ArrayList<>(result.getMessages().size());
+		List<DeleteMessageBatchRequestEntry> deleteEntries = new ArrayList<>(result.getMessages().size());
+		for(Message message : result.getMessages()){
+			results.add(sqsEncoder.decode(message.getBody(), getDatabeanType()));
+			deleteEntries.add(new DeleteMessageBatchRequestEntry(UUID.randomUUID().toString(), message
+					.getReceiptHandle()));
+		}
+		DeleteMessageBatchRequest deleteRequest = new DeleteMessageBatchRequest(queueUrl.get(), deleteEntries);
+		getAmazonSqsClient().deleteMessageBatch(deleteRequest);
+		return results;
 	}
 
 	@Override
