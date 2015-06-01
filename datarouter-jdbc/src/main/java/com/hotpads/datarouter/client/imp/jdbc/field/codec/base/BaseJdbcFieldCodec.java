@@ -28,9 +28,9 @@ implements JdbcFieldCodec<T,F>{
 	@Override
 	public String getSqlNameValuePairEscaped(){
 		if(field.getValue() == null){
-			return field.getColumnName() + " is null";
+			return field.getKey().getColumnName() + " is null";
 		}
-		return field.getColumnName() + "=" + getSqlEscaped();
+		return field.getKey().getColumnName() + "=" + getSqlEscaped();
 	}
 	
 	@Override
