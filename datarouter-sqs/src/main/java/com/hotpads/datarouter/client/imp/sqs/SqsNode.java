@@ -101,14 +101,14 @@ implements QueueStorage<PK,D>{
 	}
 	
 	@Override
-	public void ack(QueueMessageKey key){
+	public void ack(QueueMessageKey key, Config config){
 		byte[] handle = key.getHandle();
 		DeleteMessageRequest deleteRequest = new DeleteMessageRequest(queueUrl.get(), new String(handle));
 		getAmazonSqsClient().deleteMessage(deleteRequest);
 	}
 
 	@Override
-	public void ackMulti(Collection<QueueMessageKey> keys){
+	public void ackMulti(Collection<QueueMessageKey> keys, Config config){
 		if(keys.size() == 0){
 			return;
 		}
@@ -159,14 +159,14 @@ implements QueueStorage<PK,D>{
 		if(message == null){
 			return null;
 		}
-		ack(message.getKey());
+		ack(message.getKey(), config);
 		return message.getDatabean();
 	}
 	
 	@Override
 	public List<D> pollMulti(Config config){
 		List<QueueMessage<PK,D>> results = peekMulti(config);
-		ackMulti(QueueMessage.getKeys(results));
+		ackMulti(QueueMessage.getKeys(results), config);
 		return QueueMessage.getDatabeans(results);
 	}
 
