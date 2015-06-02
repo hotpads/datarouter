@@ -17,9 +17,10 @@ import com.hotpads.datarouter.client.imp.sqs.config.DatarouterSqsTestModuleFacto
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.test.TestDatabean;
 
+//This test passes *almost* every time
 @Guice(moduleFactory = DatarouterSqsTestModuleFactory.class)
 @Test(singleThreaded=true)
-public class SqsNodeIntegrationTests{
+public class SqsNodeIntegrationTester{
 	private static final int DATABEAN_COUNT = 15;
 	
 	@Inject

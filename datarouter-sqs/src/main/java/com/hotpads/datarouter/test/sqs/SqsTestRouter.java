@@ -21,7 +21,7 @@ public class SqsTestRouter extends BaseDatarouter{
 
 	private static final String NAME = "sqsTestRouter";
 	
-	QueueStorage<TestDatabeanKey,TestDatabean> testDatabean;
+	public QueueStorage<TestDatabeanKey,TestDatabean> testDatabean;
 	
 	@Inject
 	public SqsTestRouter(DatarouterContext context, NodeFactory nodeFactory){
