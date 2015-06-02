@@ -85,17 +85,17 @@ implements PhysicalSortedMapStorageNode<PK,D>
 							byte[] fieldBytes = field.getBytes();
 							if(fieldBytes==null){
 								if(DrBooleanTool.isFalseOrNull(config.getIgnoreNullFields())){
-									delete.deleteColumn(FAM, field.getColumnNameBytes(), batchStartTime);
+									delete.deleteColumn(FAM, field.getKey().getColumnNameBytes(), batchStartTime);
 									++numCellsDeleted;
 								}
 							}else{
-								put.add(FAM, field.getColumnNameBytes(), field.getBytes());
+								put.add(FAM, field.getKey().getColumnNameBytes(), field.getBytes());
 								++numCellsPut;
 							}
 						}
 						if(put.isEmpty()){ 
 							Field<?> dummyField = new SignedByteField(DUMMY, (byte)0);
-							put.add(FAM, dummyField.getColumnNameBytes(), dummyField.getBytes());
+							put.add(FAM, dummyField.getKey().getColumnNameBytes(), dummyField.getBytes());
 						}
 						put.setWriteToWAL(config.getPersistentPut());
 						actions.add(put);

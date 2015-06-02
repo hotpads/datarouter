@@ -180,7 +180,7 @@ public class SqlBuilder{
 			if(doPrefixMatchOnField){
 				String s = codec.getSqlEscaped();
 				String sqlEscapedWithWildcard = s.substring(0, s.length()-1) + "%'";
-				sql.append(field.getColumnName()+" like "+sqlEscapedWithWildcard);
+				sql.append(field.getKey().getColumnName()+" like "+sqlEscapedWithWildcard);
 			}else{
 				sql.append(codec.getSqlNameValuePairEscaped());
 			}
@@ -218,9 +218,9 @@ public class SqlBuilder{
 							sql.append(startCodec.getSqlNameValuePairEscaped());
 						}else{
 							if(startInclusive && i==numNonNullStartFields){
-								sql.append(startField.getColumnName()+">="+startCodec.getSqlEscaped());
+								sql.append(startField.getKey().getColumnName()+">="+startCodec.getSqlEscaped());
 							}else{
-								sql.append(startField.getColumnName()+">"+startCodec.getSqlEscaped());
+								sql.append(startField.getKey().getColumnName()+">"+startCodec.getSqlEscaped());
 							}
 						}
 					}
@@ -249,9 +249,9 @@ public class SqlBuilder{
 						JdbcFieldCodec<?,?> endCodec = endCodecs.get(j);
 						if(j==i){
 							if(endInclusive && i==(numNonNullEndFields-1)){
-								sql.append(endField.getColumnName()+"<="+endCodec.getSqlEscaped());
+								sql.append(endField.getKey().getColumnName()+"<="+endCodec.getSqlEscaped());
 							}else{
-								sql.append(endField.getColumnName()+"<"+endCodec.getSqlEscaped());
+								sql.append(endField.getKey().getColumnName()+"<"+endCodec.getSqlEscaped());
 							}
 						}else{
 							sql.append(endCodec.getSqlNameValuePairEscaped());
@@ -270,7 +270,7 @@ public class SqlBuilder{
 		int counter = 0;
 		for(Field<?> field : orderByFields){
 			if(counter > 0){ sql.append(", "); }
-			sql.append(field.getColumnName()+" asc");
+			sql.append(field.getKey().getColumnName()+" asc");
 			++counter;
 		}
 	}
@@ -325,7 +325,7 @@ public class SqlBuilder{
 		int appended = 0;
 		for(Field<?> field : DrIterableTool.nullSafe(fields)){
 			if(appended > 0){ sb.append(","); }
-			sb.append(field.getColumnName()+"=?");
+			sb.append(field.getKey().getColumnName()+"=?");
 			++appended;
 		}
 	}

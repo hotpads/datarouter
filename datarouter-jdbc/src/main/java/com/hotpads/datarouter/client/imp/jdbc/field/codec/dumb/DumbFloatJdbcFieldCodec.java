@@ -26,7 +26,8 @@ extends BasePrimitiveJdbcFieldCodec<Float,Field<Float>>{
 
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
-		return new SqlColumn(field.getColumnName(), MySqlColumnType.FLOAT, 12, field.getNullable(), false);
+		return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.FLOAT, 12, field.getKey().isNullable(),
+				false);
 	}
 	
 	@Override
@@ -50,7 +51,7 @@ extends BasePrimitiveJdbcFieldCodec<Float,Field<Float>>{
 	@Override
 	public Float fromJdbcResultSetButDoNotSet(ResultSet rs){
 		try{
-			float value = rs.getFloat(field.getColumnName());
+			float value = rs.getFloat(field.getKey().getColumnName());
 			return rs.wasNull()?null:value;
 		}catch(SQLException e){
 			throw new DataAccessException(e);
