@@ -27,8 +27,8 @@ extends BaseListJdbcFieldCodec<Byte,List<Byte>,UInt7ArrayField>{
 
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
-		return new SqlColumn(field.getColumnName(), MySqlColumnType.LONGBLOB, Integer.MAX_VALUE , field.getNullable(), 
-				false);
+		return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.LONGBLOB, Integer.MAX_VALUE , field
+				.getKey().isNullable(), false);
 	}
 	
 	@Override
@@ -51,7 +51,7 @@ extends BaseListJdbcFieldCodec<Byte,List<Byte>,UInt7ArrayField>{
 	@Override
 	public List<Byte> fromJdbcResultSetButDoNotSet(ResultSet rs){
 		try{
-			byte[] bytes = rs.getBytes(field.getColumnName());
+			byte[] bytes = rs.getBytes(field.getKey().getColumnName());
 			return DrByteTool.getArrayList(bytes);
 		}catch(SQLException e){
 			throw new DataAccessException(e);

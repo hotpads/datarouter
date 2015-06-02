@@ -100,7 +100,7 @@ implements SubEntitySortedMapStorageNode<EK,PK,D,F>,
 							for(Field<?> field : fields){//TODO only put modified fields
 								didAtLeastOneField = true;
 								byte[] fullQualifierBytes = DrByteTool.concatenate(fieldInfo.getEntityColumnPrefixBytes(),
-										qualifierPkBytes, field.getColumnNameBytes());
+										qualifierPkBytes, field.getKey().getColumnNameBytes());
 								byte[] fieldValueBytes = field.getBytes();
 								if(fieldValueBytes==null){
 									if(DrBooleanTool.isFalseOrNull(config.getIgnoreNullFields())){
@@ -115,7 +115,7 @@ implements SubEntitySortedMapStorageNode<EK,PK,D,F>,
 							if(!didAtLeastOneField){ 
 								Field<?> dummyField = new SignedByteField(DUMMY, (byte)0);
 								byte[] dummyQualifierBytes = DrByteTool.concatenate(fieldInfo.getEntityColumnPrefixBytes(),
-										qualifierPkBytes, dummyField.getColumnNameBytes());
+										qualifierPkBytes, dummyField.getKey().getColumnNameBytes());
 								put.add(FAM, dummyQualifierBytes, dummyField.getBytes());
 							}
 							if(!delete.isEmpty()){ actions.add(delete); }

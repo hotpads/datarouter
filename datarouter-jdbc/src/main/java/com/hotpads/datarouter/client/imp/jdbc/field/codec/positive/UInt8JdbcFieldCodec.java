@@ -25,7 +25,8 @@ extends BasePrimitiveJdbcFieldCodec<Byte,UInt8Field>{
 
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
-		return new SqlColumn(field.getColumnName(), MySqlColumnType.SMALLINT, 5, field.getNullable(), false);
+		return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.SMALLINT, 5, field.getKey().isNullable(),
+				false);
 	}
 	
 	@Override
@@ -49,7 +50,7 @@ extends BasePrimitiveJdbcFieldCodec<Byte,UInt8Field>{
 	@Override
 	public Byte fromJdbcResultSetButDoNotSet(ResultSet rs){
 		try{
-			byte value = rs.getByte(field.getColumnName());
+			byte value = rs.getByte(field.getKey().getColumnName());
 			return rs.wasNull()?null:value;
 		}catch(SQLException e){
 			throw new DataAccessException(e);

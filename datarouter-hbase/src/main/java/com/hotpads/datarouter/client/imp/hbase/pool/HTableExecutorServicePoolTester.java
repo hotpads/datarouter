@@ -188,7 +188,7 @@ public class HTableExecutorServicePoolTester {
 			List<Row> actions = new ArrayList<>();
 			Put put = new Put(LongByteTool.getComparableBytes(randomLong));
 			Field<?> dummyField = new SignedByteField(HBaseNode.DUMMY, (byte)0);
-			put.add(HBaseNode.FAM, dummyField.getColumnNameBytes(), dummyField.getBytes());
+			put.add(HBaseNode.FAM, dummyField.getKey().getColumnNameBytes(), dummyField.getBytes());
 			actions.add(put);
 			put.setWriteToWAL(false);
 			hTable.batch(actions);
