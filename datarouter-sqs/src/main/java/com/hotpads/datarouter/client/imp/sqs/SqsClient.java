@@ -6,14 +6,16 @@ import com.hotpads.datarouter.client.imp.BaseClient;
 
 public class SqsClient extends BaseClient{
 
-	private String name;
-	private SqsClientType clientType;
-	private AmazonSQSClient amazonSqsClient;
+	private final String name;
+	private final SqsClientType clientType;
+	private final AmazonSQSClient amazonSqsClient;
+	private final SqsOptions sqsOptions;
 
-	public SqsClient(String name, SqsClientType clientType, AmazonSQSClient amazonSqsClient){
+	public SqsClient(String name, SqsClientType clientType, AmazonSQSClient amazonSqsClient, SqsOptions sqsOptions){
 		this.name = name;
 		this.clientType = clientType;
 		this.amazonSqsClient = amazonSqsClient;
+		this.sqsOptions = sqsOptions;
 	}
 
 	@Override
@@ -35,4 +37,7 @@ public class SqsClient extends BaseClient{
 		return amazonSqsClient;
 	}
 	
+	public SqsOptions getSqsOptions(){
+		return sqsOptions;
+	}
 }

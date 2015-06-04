@@ -17,7 +17,6 @@ import com.hotpads.datarouter.storage.entity.Entity;
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
 import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.datarouter.util.core.DrPropertiesTool;
 
 public class SqsClientType extends BaseClientType{
 
@@ -34,7 +33,7 @@ public class SqsClientType extends BaseClientType{
 	@Override
 	public ClientFactory createClientFactory(DatarouterContext drContext, String clientName,
 			List<PhysicalNode<?,?>> physicalNodes){
-		SqsOptions sqsOptions = new SqsOptions(DrPropertiesTool.fromFiles(drContext.getConfigFilePaths()), clientName);
+		SqsOptions sqsOptions = new SqsOptions(drContext, clientName);
 		return new SqsClientFactory(clientName, this, sqsOptions);
 	}
 

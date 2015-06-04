@@ -30,7 +30,6 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.queue.QueueMessage;
 import com.hotpads.datarouter.storage.queue.QueueMessageKey;
 import com.hotpads.util.core.concurrent.Lazy;
-import com.hotpads.util.core.iterable.BatchingIterable;
 
 public class SqsNode<
 		PK extends PrimaryKey<PK>,
@@ -41,13 +40,16 @@ implements QueueStorage<PK,D>{
 	
 	//do not raise, this is a limit from SQS
 	private static final int MAX_MESSAGES_PER_BATCH = 10;
+	public static final int MAX_BYTES_PER_MESSAGE = 256*1024;
+	public static final int MAX_BYTES_PER_PAYLOAD = 256*1024;
 	
 	private final DatarouterContext datarouterContext;
 	private final SqsEncoder sqsEncoder;
-	
+
 	private final Lazy<String> queueUrl;
 
-	SqsNode(SqsEncoder sqsEncoder, DatarouterContext datarouterContext, NodeParams<PK,D,F> params){
+	SqsNode(SqsEncoder sqsEncoder, DatarouterContext datarouterContext, 
+			NodeParams<PK,D,F> params){
 		super(params);
 		this.sqsEncoder = sqsEncoder;
 		this.datarouterContext = datarouterContext;
@@ -67,7 +69,8 @@ implements QueueStorage<PK,D>{
 	}
 	
 	private String getOrCreateQueueUrl(){
-		CreateQueueRequest createQueueRequest = new CreateQueueRequest(getTableName());
+		String queueName = getSqsClient().getSqsOptions().getNamespace() + "-" + getTableName();
+		CreateQueueRequest createQueueRequest = new CreateQueueRequest(queueName);
 		return getAmazonSqsClient().createQueue(createQueueRequest).getQueueUrl();
 	}
 	
@@ -83,21 +86,46 @@ implements QueueStorage<PK,D>{
 	
 	@Override
 	public void put(D databean, Config config){
-		SendMessageRequest request = new SendMessageRequest(queueUrl.get(), sqsEncoder.encode(databean));
+		String encodedDatabean = sqsEncoder.encode(databean);
+		if(encodedDatabean.getBytes().length > MAX_BYTES_PER_MESSAGE){
+			throw new SqsDataTooLargeException(databean);
+		}
+		SendMessageRequest request = new SendMessageRequest(queueUrl.get(), encodedDatabean);
 		getAmazonSqsClient().sendMessage(request);
 	}
 
 	@Override
 	public void putMulti(Collection<D> databeans, Config config){
-		for(List<D> databeanBatch : new BatchingIterable<>(databeans, MAX_MESSAGES_PER_BATCH)){
-			List<SendMessageBatchRequestEntry> entries = new ArrayList<>();
-			for(D databean : databeanBatch){
-				entries.add(new SendMessageBatchRequestEntry(UUID.randomUUID().toString(), 
-						sqsEncoder.encode(databean)));
+		List<SendMessageBatchRequestEntry> entries = new ArrayList<>(MAX_MESSAGES_PER_BATCH);
+		List<D> rejectedDatabeans = new ArrayList<>();
+		int currentPayloadSize = 0;
+		for(D databean : databeans){
+			String encodedDatabean = sqsEncoder.encode(databean);
+			int encodedDatabeanSize = encodedDatabean.getBytes().length;
+			if(encodedDatabeanSize > MAX_BYTES_PER_MESSAGE){
+				rejectedDatabeans.add(databean);
+				continue;
 			}
-			SendMessageBatchRequest request = new SendMessageBatchRequest(queueUrl.get(), entries);
-			getAmazonSqsClient().sendMessageBatch(request);
+			if(currentPayloadSize + encodedDatabeanSize > MAX_BYTES_PER_PAYLOAD 
+					|| entries.size() >= MAX_MESSAGES_PER_BATCH){
+				putBatch(entries);
+				entries = new ArrayList<>();
+				currentPayloadSize = 0;
+			}
+			entries.add(new SendMessageBatchRequestEntry(UUID.randomUUID().toString(), encodedDatabean));
+			currentPayloadSize += encodedDatabeanSize;
 		}
+		if(entries.size() > 0){
+			putBatch(entries);
+		}
+		if(rejectedDatabeans.size() > 0){
+			throw new SqsDataTooLargeException().withRejectedDatabeans(rejectedDatabeans);
+		}
+	}
+	
+	private void putBatch(List<SendMessageBatchRequestEntry> entries){
+		SendMessageBatchRequest request = new SendMessageBatchRequest(queueUrl.get(), entries);
+		getAmazonSqsClient().sendMessageBatch(request);
 	}
 	
 	@Override

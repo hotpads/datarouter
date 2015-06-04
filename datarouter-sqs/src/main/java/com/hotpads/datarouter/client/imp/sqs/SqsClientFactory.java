@@ -23,7 +23,7 @@ public class SqsClientFactory implements ClientFactory{
 	public Client call() throws Exception{
 		AWSCredentials credentials = new BasicAWSCredentials(sqsOptions.getAccessKey(), sqsOptions.getSecretKey());
 		AmazonSQSClient amazonSqsClient = new AmazonSQSAsyncClient(credentials);
-		return new SqsClient(clientName, clientType, amazonSqsClient);
+		return new SqsClient(clientName, clientType, amazonSqsClient, sqsOptions);
 	}
 
 }
