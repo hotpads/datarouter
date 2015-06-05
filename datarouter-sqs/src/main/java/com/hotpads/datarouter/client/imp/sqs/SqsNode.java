@@ -88,6 +88,7 @@ implements QueueStorage<PK,D>{
 	
 	@Override
 	public void put(D databean, Config config){
+		config = Config.nullSafe(config);
 		String encodedDatabean = sqsEncoder.encode(databean);
 		if(StringByteTool.getUtf8Bytes(encodedDatabean).length > MAX_BYTES_PER_MESSAGE){
 			throw new SqsDataTooLargeException(databean);
@@ -98,6 +99,7 @@ implements QueueStorage<PK,D>{
 
 	@Override
 	public void putMulti(Collection<D> databeans, Config config){
+		config = Config.nullSafe(config);
 		List<SendMessageBatchRequestEntry> entries = new ArrayList<>(MAX_MESSAGES_PER_BATCH);
 		List<D> rejectedDatabeans = new ArrayList<>();
 		int currentPayloadSize = 0;
@@ -132,6 +134,7 @@ implements QueueStorage<PK,D>{
 	
 	@Override
 	public void ack(QueueMessageKey key, Config config){
+		config = Config.nullSafe(config);
 		String handle = StringByteTool.fromUtf8Bytes(key.getHandle());
 		DeleteMessageRequest deleteRequest = new DeleteMessageRequest(queueUrl.get(), handle);
 		getAmazonSqsClient().deleteMessage(deleteRequest);
@@ -139,6 +142,7 @@ implements QueueStorage<PK,D>{
 
 	@Override
 	public void ackMulti(Collection<QueueMessageKey> keys, Config config){
+		config = Config.nullSafe(config);
 		if(keys.size() == 0){
 			return;
 		}
@@ -155,6 +159,7 @@ implements QueueStorage<PK,D>{
 	
 	@Override
 	public QueueMessage<PK,D> peek(Config config){
+		config = Config.nullSafe(config);
 		ReceiveMessageRequest request = new ReceiveMessageRequest(queueUrl.get());
 		if(config.getTimeoutMs() != null){
 			request.setWaitTimeSeconds((int)Math.max(config.getTimeoutMs() / 1000, MAX_TIMEOUT_SECONDS));
@@ -170,6 +175,7 @@ implements QueueStorage<PK,D>{
 	
 	@Override
 	public List<QueueMessage<PK,D>> peekMulti(Config config){
+		config = Config.nullSafe(config);
 		Integer limit = config.getLimitOrUse(MAX_MESSAGES_PER_BATCH);
 		ReceiveMessageRequest request = new ReceiveMessageRequest(queueUrl.get()).withMaxNumberOfMessages(limit);
 		if(config.getTimeoutMs() != null){
