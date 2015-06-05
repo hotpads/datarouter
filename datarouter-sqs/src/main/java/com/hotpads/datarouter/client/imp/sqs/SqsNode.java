@@ -23,6 +23,8 @@ import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.op.raw.QueueStorage;
 import com.hotpads.datarouter.node.type.physical.base.BasePhysicalNode;
+import com.hotpads.datarouter.op.scan.queue.PeekUntilEmptyQueueStorageScanner;
+import com.hotpads.datarouter.op.scan.queue.PollUntilEmptyQueueStorageIterable;
 import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
@@ -31,6 +33,7 @@ import com.hotpads.datarouter.storage.queue.QueueMessage;
 import com.hotpads.datarouter.storage.queue.QueueMessageKey;
 import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.concurrent.Lazy;
+import com.hotpads.util.core.iterable.scanner.iterable.ScannerIterable;
 
 public class SqsNode<
 		PK extends PrimaryKey<PK>,
@@ -161,16 +164,23 @@ implements QueueStorage<PK,D>{
 	public QueueMessage<PK,D> peek(Config config){
 		config = Config.nullSafe(config);
 		ReceiveMessageRequest request = new ReceiveMessageRequest(queueUrl.get());
-		if(config.getTimeoutMs() != null){
-			request.setWaitTimeSeconds((int)Math.max(config.getTimeoutMs() / 1000, MAX_TIMEOUT_SECONDS));
+		Long timeoutMs = config.getTimeoutMs();
+		if(timeoutMs == null){
+			timeoutMs = 0L;
 		}
-		ReceiveMessageResult result = getAmazonSqsClient().receiveMessage(request);
-		if(result.getMessages().size() == 0){
-			return null;
-		}
-		Message message = result.getMessages().get(0);
-		D databean = sqsEncoder.decode(message.getBody(), getDatabeanType());
-		return new QueueMessage<>(message.getReceiptHandle().getBytes(), databean);
+		long timeWaitedMs = 0;
+		do{
+			long waitTimeMs = Math.min(timeoutMs - timeWaitedMs, MAX_TIMEOUT_SECONDS * 1000);
+			timeWaitedMs += waitTimeMs;
+			request.setWaitTimeSeconds((int) (waitTimeMs / 1000));
+			ReceiveMessageResult result = getAmazonSqsClient().receiveMessage(request);
+			if(result.getMessages().size() != 0){
+				Message message = result.getMessages().get(0);
+				D databean = sqsEncoder.decode(message.getBody(), getDatabeanType());
+				return new QueueMessage<>(message.getReceiptHandle().getBytes(), databean);
+			}
+		}while(timeWaitedMs < timeoutMs);
+		return null;
 	}
 	
 	@Override
@@ -193,6 +203,11 @@ implements QueueStorage<PK,D>{
 		return results;
 	}
 	
+	@Override
+	public Iterable<QueueMessage<PK,D>> peekUntilEmpty(Config config){
+		return new ScannerIterable<>(new PeekUntilEmptyQueueStorageScanner<>(this, config));
+	}
+	
 	// Reader + Writer
 	
 	@Override
@@ -210,6 +225,11 @@ implements QueueStorage<PK,D>{
 		List<QueueMessage<PK,D>> results = peekMulti(config);
 		ackMulti(QueueMessage.getKeys(results), config);
 		return QueueMessage.getDatabeans(results);
+	}
+	
+	@Override
+	public Iterable<D> pollUntilEmpty(Config config){
+		return new PollUntilEmptyQueueStorageIterable<>(this, config);
 	}
 
 }
