@@ -29,6 +29,7 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.queue.QueueMessage;
 import com.hotpads.datarouter.storage.queue.QueueMessageKey;
+import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.concurrent.Lazy;
 
 public class SqsNode<
@@ -38,8 +39,9 @@ public class SqsNode<
 extends BasePhysicalNode<PK,D,F> 
 implements QueueStorage<PK,D>{
 	
-	//do not raise, this is a limit from SQS
+	//do not change, this is a limit from SQS
 	private static final int MAX_MESSAGES_PER_BATCH = 10;
+	private static final int MAX_TIMEOUT_SECONDS = 20;
 	public static final int MAX_BYTES_PER_MESSAGE = 256*1024;
 	public static final int MAX_BYTES_PER_PAYLOAD = 256*1024;
 	
@@ -48,7 +50,7 @@ implements QueueStorage<PK,D>{
 
 	private final Lazy<String> queueUrl;
 
-	SqsNode(SqsEncoder sqsEncoder, DatarouterContext datarouterContext, 
+	public SqsNode(SqsEncoder sqsEncoder, DatarouterContext datarouterContext, 
 			NodeParams<PK,D,F> params){
 		super(params);
 		this.sqsEncoder = sqsEncoder;
@@ -87,7 +89,7 @@ implements QueueStorage<PK,D>{
 	@Override
 	public void put(D databean, Config config){
 		String encodedDatabean = sqsEncoder.encode(databean);
-		if(encodedDatabean.getBytes().length > MAX_BYTES_PER_MESSAGE){
+		if(StringByteTool.getUtf8Bytes(encodedDatabean).length > MAX_BYTES_PER_MESSAGE){
 			throw new SqsDataTooLargeException(databean);
 		}
 		SendMessageRequest request = new SendMessageRequest(queueUrl.get(), encodedDatabean);
@@ -101,7 +103,7 @@ implements QueueStorage<PK,D>{
 		int currentPayloadSize = 0;
 		for(D databean : databeans){
 			String encodedDatabean = sqsEncoder.encode(databean);
-			int encodedDatabeanSize = encodedDatabean.getBytes().length;
+			int encodedDatabeanSize = StringByteTool.getUtf8Bytes(encodedDatabean).length;
 			if(encodedDatabeanSize > MAX_BYTES_PER_MESSAGE){
 				rejectedDatabeans.add(databean);
 				continue;
@@ -130,8 +132,8 @@ implements QueueStorage<PK,D>{
 	
 	@Override
 	public void ack(QueueMessageKey key, Config config){
-		byte[] handle = key.getHandle();
-		DeleteMessageRequest deleteRequest = new DeleteMessageRequest(queueUrl.get(), new String(handle));
+		String handle = StringByteTool.fromUtf8Bytes(key.getHandle());
+		DeleteMessageRequest deleteRequest = new DeleteMessageRequest(queueUrl.get(), handle);
 		getAmazonSqsClient().deleteMessage(deleteRequest);
 	}
 
@@ -154,6 +156,9 @@ implements QueueStorage<PK,D>{
 	@Override
 	public QueueMessage<PK,D> peek(Config config){
 		ReceiveMessageRequest request = new ReceiveMessageRequest(queueUrl.get());
+		if(config.getTimeoutMs() != null){
+			request.setWaitTimeSeconds((int)Math.max(config.getTimeoutMs() / 1000, MAX_TIMEOUT_SECONDS));
+		}
 		ReceiveMessageResult result = getAmazonSqsClient().receiveMessage(request);
 		if(result.getMessages().size() == 0){
 			return null;
@@ -167,6 +172,9 @@ implements QueueStorage<PK,D>{
 	public List<QueueMessage<PK,D>> peekMulti(Config config){
 		Integer limit = config.getLimitOrUse(MAX_MESSAGES_PER_BATCH);
 		ReceiveMessageRequest request = new ReceiveMessageRequest(queueUrl.get()).withMaxNumberOfMessages(limit);
+		if(config.getTimeoutMs() != null){
+			request.setWaitTimeSeconds((int)Math.max(config.getTimeoutMs() / 1000, MAX_TIMEOUT_SECONDS));
+		}
 		ReceiveMessageResult result = getAmazonSqsClient().receiveMessage(request);
 		if(result.getMessages().size() == 0){
 			return Collections.emptyList();

@@ -20,6 +20,7 @@ import com.hotpads.datarouter.client.imp.sqs.config.DatarouterSqsTestModuleFacto
 import com.hotpads.datarouter.client.imp.sqs.encode.SqsEncoder;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.test.TestDatabean;
+import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.concurrent.ThreadTool;
 
 @Guice(moduleFactory = DatarouterSqsTestModuleFactory.class)
@@ -60,14 +61,14 @@ public class SqsNodeIntegrationTests{
 	}
 	
 	private void testByteLimit(int size){
-		int emptyDatabeanSize = sqsEncoder.encode(new TestDatabean("", "", "")).getBytes().length;
+		int emptyDatabeanSize = StringByteTool.getUtf8Bytes(sqsEncoder.encode(new TestDatabean("", "", ""))).length;
 		String longString = makeStringOfByteSize(size - emptyDatabeanSize);
 		TestDatabean databean = new TestDatabean(longString, "", "");
 		router.testDatabean.put(databean, null);
 	}
 	
 	private static String makeStringOfByteSize(int requiredSize){
-		Assert.assertEquals("a".getBytes().length, 1);
+		Assert.assertEquals(StringByteTool.getUtf8Bytes("a").length, 1);
 		StringBuilder longString = new StringBuilder();
 		for(int size = 0 ; size < requiredSize ; size++){
 			longString.append("a");
