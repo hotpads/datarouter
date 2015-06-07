@@ -95,7 +95,7 @@ public class SqsNodeIntegrationTests{
 		Set<Integer> ids = new HashSet<>();
 		List<TestDatabean> retrievedDatabeans;
 		do{
-			retrievedDatabeans = router.testDatabean.pollMulti(new Config().setLimit(5));
+			retrievedDatabeans = router.testDatabean.pollMulti(new Config().setLimit(5).setTimeoutMs(5000L));
 			Assert.assertTrue(retrievedDatabeans.size() <= 5);
 			for(TestDatabean databean : retrievedDatabeans){
 				Integer id = Integer.valueOf(databean.getA());
