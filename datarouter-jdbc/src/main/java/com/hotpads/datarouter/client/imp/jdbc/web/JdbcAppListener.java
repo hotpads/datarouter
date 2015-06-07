@@ -10,12 +10,12 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hotpads.DatarouterWebAppListener;
+import com.hotpads.listener.DatarouterAppListener;
 import com.mysql.jdbc.AbandonedConnectionCleanupThread;
 
 @Singleton
-public class JdbcWebAppListener extends DatarouterWebAppListener{
-	private static final Logger logger = LoggerFactory.getLogger(JdbcWebAppListener.class);
+public class JdbcAppListener extends DatarouterAppListener{
+	private static final Logger logger = LoggerFactory.getLogger(JdbcAppListener.class);
 	
 	
 	@Override
