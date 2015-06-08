@@ -19,6 +19,7 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.queue.QueueMessage;
 import com.hotpads.datarouter.storage.queue.QueueMessageKey;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.util.core.concurrent.Lazy;
 import com.hotpads.util.core.iterable.scanner.iterable.ScannerIterable;
 
@@ -107,7 +108,8 @@ implements QueueStorage<PK,D>{
 	
 	@Override
 	public QueueMessage<PK,D> peek(Config config){
-		return sqsOpFactory.makePeekOp(config).call();
+		config = Config.nullSafe(config).setLimit(1);
+		return DrCollectionTool.getFirst(sqsOpFactory.makePeekMultiOp(config).call());
 	}
 	
 	@Override

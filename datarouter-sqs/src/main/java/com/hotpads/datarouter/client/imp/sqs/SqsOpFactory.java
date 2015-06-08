@@ -7,7 +7,6 @@ import com.hotpads.datarouter.client.imp.sqs.op.SqsAckMultiOp;
 import com.hotpads.datarouter.client.imp.sqs.op.SqsAckOp;
 import com.hotpads.datarouter.client.imp.sqs.op.SqsOp;
 import com.hotpads.datarouter.client.imp.sqs.op.SqsPeekMultiOp;
-import com.hotpads.datarouter.client.imp.sqs.op.SqsPeekOp;
 import com.hotpads.datarouter.client.imp.sqs.op.SqsPutMultiOp;
 import com.hotpads.datarouter.client.imp.sqs.op.SqsPutOp;
 import com.hotpads.datarouter.config.Config;
@@ -25,10 +24,6 @@ public class SqsOpFactory<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F e
 		this.sqsNode = sqsNode;
 	}
 
-	public SqsOp<PK,D,F,QueueMessage<PK,D>> makePeekOp(Config config){
-		return new SqsPeekOp<>(config, sqsNode);
-	}
-	
 	public SqsOp<PK,D,F,List<QueueMessage<PK,D>>> makePeekMultiOp(Config config){
 		return new SqsPeekMultiOp<>(config, sqsNode);
 	}

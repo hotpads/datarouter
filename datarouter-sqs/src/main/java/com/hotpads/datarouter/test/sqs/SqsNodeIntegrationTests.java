@@ -110,31 +110,50 @@ public class SqsNodeIntegrationTests{
 	public void testPollTimeout(){
 		TestDatabean databean = new TestDatabean(makeRandomString(), makeRandomString(), makeRandomString());
 		router.testDatabean.put(databean, null);
+		
 		Config config = new Config().setTimeoutMs(5000L);
 		long time = System.currentTimeMillis();
 		TestDatabean retrievedDatabean = router.testDatabean.poll(config);
 		Assert.assertNotNull(retrievedDatabean);
 		Assert.assertTrue((System.currentTimeMillis() - time) < 6000L);
 		
-		time = System.currentTimeMillis();
-		retrievedDatabean = router.testDatabean.poll(config);
+		testPollNullWithTimeout(5000);
+		testPollNullWithTimeout(25000);
+		testPollNullWithTimeout(45000);
+	}
+	
+	private void testPollNullWithTimeout(long timeout){
+		Config config = new Config().setTimeoutMs(timeout);
+		long time = System.currentTimeMillis();
+		TestDatabean retrievedDatabean = router.testDatabean.poll(config);
 		Assert.assertNull(retrievedDatabean);
+		Assert.assertTrue((System.currentTimeMillis() - time) < timeout + 1000);
+		Assert.assertTrue((System.currentTimeMillis() - time) >= timeout);
+	}
+	
+	@Test(enabled = false)//Too long to run for every build
+	public void testPollMultiTimeout(){
+		TestDatabean databean = new TestDatabean(makeRandomString(), makeRandomString(), makeRandomString());
+		router.testDatabean.put(databean, null);
+		
+		Config config = new Config().setTimeoutMs(5000L);
+		long time = System.currentTimeMillis();
+		List<TestDatabean> retrievedDatabeans = router.testDatabean.pollMulti(config);
 		Assert.assertTrue((System.currentTimeMillis() - time) < 6000L);
-		Assert.assertTrue((System.currentTimeMillis() - time) > 5000L);
+		Assert.assertTrue(retrievedDatabeans.size() > 0);
 		
-		config = new Config().setTimeoutMs(25000L);
-		time = System.currentTimeMillis();
-		retrievedDatabean = router.testDatabean.poll(config);
-		Assert.assertNull(retrievedDatabean);
-		Assert.assertTrue((System.currentTimeMillis() - time) < 26000L);
-		Assert.assertTrue((System.currentTimeMillis() - time) > 25000L);
-		
-		config = new Config().setTimeoutMs(45000L);
-		time = System.currentTimeMillis();
-		retrievedDatabean = router.testDatabean.poll(config);
-		Assert.assertNull(retrievedDatabean);
-		Assert.assertTrue((System.currentTimeMillis() - time) < 46000L);
-		Assert.assertTrue((System.currentTimeMillis() - time) > 45000L);
+		testPollMultiNullWithTimeout(5000);
+		testPollMultiNullWithTimeout(25000);
+		testPollMultiNullWithTimeout(45000);
+	}
+	
+	private void testPollMultiNullWithTimeout(long timeout){
+		Config config = new Config().setTimeoutMs(timeout);
+		long time = System.currentTimeMillis();
+		List<TestDatabean> retrievedDatabeans = router.testDatabean.pollMulti(config);
+		Assert.assertTrue((System.currentTimeMillis() - time) < timeout + 1000);
+		Assert.assertTrue((System.currentTimeMillis() - time) >= timeout);
+		Assert.assertTrue(retrievedDatabeans.size() == 0);
 	}
 	
 	private static String makeRandomString(){
