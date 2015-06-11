@@ -24,14 +24,14 @@ public class HTableExecutorService{
 	private final ThreadPoolExecutor exec;
 	private final Long createdMs;
 	
-	private Long lastCheckinMs;
+	private volatile long lastCheckinMs;
 
 	public HTableExecutorService(){
 		this.exec = new ThreadPoolExecutor(NUM_CORE_THREADS, Integer.MAX_VALUE, 60, TimeUnit.SECONDS,
 						new SynchronousQueue<Runnable>());
 		this.exec.allowCoreThreadTimeOut(true);// see class comment regarding killing pools
 		this.createdMs = System.currentTimeMillis();
-		this.lastCheckinMs = this.createdMs;
+		this.lastCheckinMs = createdMs;
 	}
 
 	public void markLastCheckinMs(){
@@ -69,7 +69,9 @@ public class HTableExecutorService{
 
 	// probably don't need this method, but being safe while debugging
 	public boolean waitForActiveThreadsToSettle(String tableNameForLog){
-		if(exec.getActiveCount() == 0){ return true; }
+		if(exec.getActiveCount() == 0){
+			return true;
+		}
 		ThreadTool.sleep(1);
 		if(exec.getActiveCount() == 0){
 			// logger.warn("had to sleep a little to let threads finish, table:"+tableNameForLog);
@@ -86,7 +88,9 @@ public class HTableExecutorService{
 
 	public void terminateAndBlockUntilFinished(String tableNameForLog){
 		exec.shutdownNow();// should not block
-		if(exec.getActiveCount() == 0){ return; }
+		if(exec.getActiveCount() == 0){
+			return;
+		}
 		// else we have issues... try to fix them
 		exec.shutdownNow();
 		if(exec.getActiveCount() > 0){

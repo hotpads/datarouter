@@ -26,34 +26,38 @@ import com.hotpads.util.datastructs.MutableString;
 /*
  * Despite the name HTable, this pool stores "connections" to all tables.
  */
-public class HTableExecutorServicePool implements HTablePool{
+public class HTableExecutorServicePool
+implements HTablePool{
 	private static final Logger logger = LoggerFactory.getLogger(HTableExecutorServicePool.class);
 
 	private static final boolean LOG_ACTIONS = true;
 	private static final long LOG_SEMAPHORE_ACQUISITIONS_OVER_MS = 2000L;
 	private static final long THROTTLE_INCONSISTENT_LOG_EVERY_X_MS = 500;
 
-	//final fields
+	//provided via constructor
+	private final HConnection hConnection;//one connection per cluster
 	private final String clientName;
 	private final int maxSize;
+	private final Map<String,Class<PrimaryKey<?>>> primaryKeyClassByName;
+	
+	//used for pooling connections
 	private final Semaphore hTableSemaphore;
 	private final BlockingDeque<HTableExecutorService> executorServiceQueue;
 	private final Map<HTable,HTableExecutorService> activeHTables;
-	private final Map<String,Class<PrimaryKey<?>>> primaryKeyClassByName;
-	private final HConnection hConnection;
 
 	private volatile boolean shuttingDown;
 	private volatile long lastLoggedWarning = 0L;
 	
 	public HTableExecutorServicePool(HBaseAdmin hBaseAdmin, String clientName, int maxSize,
 			Map<String,Class<PrimaryKey<?>>> primaryKeyClassByName){
+		this.hConnection = hBaseAdmin.getConnection();
 		this.clientName = clientName;
 		this.maxSize = maxSize;
+		this.primaryKeyClassByName = primaryKeyClassByName;
+		
 		this.hTableSemaphore = new Semaphore(maxSize);
 		this.executorServiceQueue = new LinkedBlockingDeque<>(maxSize);
 		this.activeHTables = new ConcurrentHashMap<>();
-		this.primaryKeyClassByName = primaryKeyClassByName;
-		this.hConnection = hBaseAdmin.getConnection();
 	}
 
 	

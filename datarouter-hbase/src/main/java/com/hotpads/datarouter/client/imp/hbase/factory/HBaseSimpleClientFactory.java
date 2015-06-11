@@ -55,8 +55,7 @@ public class HBaseSimpleClientFactory
 implements ClientFactory{
 	private static final Logger logger = LoggerFactory.getLogger(HBaseSimpleClientFactory.class);
 	
-	//client exec svc pooling
-	private static final boolean SHARED_POOL = false;
+	//client ExecSvc pooling.  could add this to HBaseOptions
 	private static final int EXECUTOR_SERVICE_MAX_POOL_SIZE = 50;
 	
 	//default table configuration settings for new tables
@@ -206,7 +205,9 @@ implements ClientFactory{
 		}else if(node.getPhysicalNodeIfApplicable() instanceof HBaseReaderNode){
 			DatabeanFieldInfo<?,?,?> fieldInfo = node.getFieldInfo();
 			ScatteringPrefix sampleScatteringPrefix = fieldInfo.getSampleScatteringPrefix();
-			if(sampleScatteringPrefix==null){ return null; }
+			if(sampleScatteringPrefix==null){
+				return null;
+			}
 			List<List<Field<?>>> allPrefixes = sampleScatteringPrefix.getAllPossibleScatteringPrefixes();
 			List<byte[]> splitPoints = new ArrayList<>();
 			for(List<Field<?>> prefixFields : allPrefixes){
@@ -223,7 +224,9 @@ implements ClientFactory{
 	
 	
 	private boolean isSingleEmptyByte(byte[] bytes){
-		if(DrArrayTool.length(bytes)!=1){ return false; }
+		if(DrArrayTool.length(bytes)!=1){
+			return false;
+		}
 		return bytes[0] == Byte.MIN_VALUE;
 	}
 	
