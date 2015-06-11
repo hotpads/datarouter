@@ -10,6 +10,10 @@ import org.slf4j.LoggerFactory;
 import com.hotpads.util.core.concurrent.ExecutorServiceTool;
 import com.hotpads.util.core.concurrent.ThreadTool;
 
+/*
+ * The HBase client uses one thread per regionserver per HTable.  This wrapper class stores a java ExecSvc with 1
+ * thread per regionserver.  It can be reused across different tables.
+ */
 public class HTableExecutorService{
 	private static final Logger logger = LoggerFactory.getLogger(HTableExecutorService.class);
 
