@@ -23,6 +23,9 @@ import com.hotpads.util.core.concurrent.SemaphoreTool;
 import com.hotpads.util.core.concurrent.ThreadTool;
 import com.hotpads.util.datastructs.MutableString;
 
+/*
+ * Despite the name HTable, this pool stores "connections" to all tables.
+ */
 public class HTableExecutorServicePool implements HTablePool{
 	private static final Logger logger = LoggerFactory.getLogger(HTableExecutorServicePool.class);
 
@@ -68,7 +71,7 @@ public class HTableExecutorServicePool implements HTablePool{
 			DRCounters.incClientTable(HBaseClientType.INSTANCE, "connection getHTable", clientName, tableName);
 			while(true){
 				hTableExecutorService = executorServiceQueue.pollFirst();
-				setProgress(progress, "polled queue "+hTableExecutorService==null?"null":"success");
+				setProgress(progress, "polled queue " + hTableExecutorService == null ? "null" : "success");
 				
 				if(hTableExecutorService==null){
 					hTableExecutorService = new HTableExecutorService();
@@ -79,10 +82,10 @@ public class HTableExecutorServicePool implements HTablePool{
 					break;
 				}
 				if( ! hTableExecutorService.isExpired()){
-	//				logger.warn("connection got pooled HTable executor");
-					DRCounters.incClientTable(HBaseClientType.INSTANCE, "got pooled HTable executor", clientName, 
+					// logger.warn("connection got pooled HTable executor");
+					DRCounters.incClientTable(HBaseClientType.INSTANCE, "got pooled HTable executor", clientName,
 							tableName);
-					break;//done.  we got an unexpired one, exit the while loop
+					break;// done. we got an unexpired one, exit the while loop
 				}
 
 				//If we get here we're draining the queue of expired ExecutorServices.  We could do this
@@ -90,11 +93,11 @@ public class HTableExecutorServicePool implements HTablePool{
 				// with fewer moving parts.  Goal is to be able to allow large queue sizes for bursts
 				// but to free up the memory of hundreds or thousands of threads in quiet times when
 				// other things might be bursting
-				hTableExecutorService.exec.shutdown();
+				hTableExecutorService.getExec().shutdown();
 				logWithPoolInfo("discarded expired HTableExecutorService", tableName);
 				hTableExecutorService = null;//release it and loop around again
 			}
-			hTable = new HTable(StringByteTool.getUtf8Bytes(tableName), hConnection, hTableExecutorService.exec);
+			hTable = new HTable(StringByteTool.getUtf8Bytes(tableName), hConnection, hTableExecutorService.getExec());
 			setProgress(progress, "created HTable");
 			activeHTables.put(hTable, hTableExecutorService);
 			setProgress(progress, "added to activeHTables");
@@ -107,7 +110,7 @@ public class HTableExecutorServicePool implements HTablePool{
 			Assert.assertNotNull(hTable);
 			return hTable;
 		}catch(Exception e){
-			if(hTable!=null){
+			if(hTable != null){
 				activeHTables.remove(hTable);
 				setProgress(progress, "removed from activeHTables");
 			}

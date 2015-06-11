@@ -17,7 +17,7 @@ public class HTableExecutorService{
 	private static final Long TIMEOUT_MS = 60 * 1000L;// 60 seconds
 
 	//final fields
-	public final ThreadPoolExecutor exec;
+	private final ThreadPoolExecutor exec;
 	private final Long createdMs;
 	
 	private Long lastCheckinMs;
@@ -90,5 +90,9 @@ public class HTableExecutorService{
 		}
 		ExecutorServiceTool.awaitTerminationForever(exec);// any better ideas? alternative is memory leak
 		logger.warn("awaitTermination finished!, table:" + tableNameForLog);
+	}
+	
+	public ThreadPoolExecutor getExec(){
+		return exec;
 	}
 }
