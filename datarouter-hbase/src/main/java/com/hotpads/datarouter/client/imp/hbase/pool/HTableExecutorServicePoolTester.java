@@ -12,14 +12,17 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import javax.inject.Inject;
+
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Row;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Guice;
+import org.testng.annotations.Test;
 
-import com.google.inject.Guice;
-import com.google.inject.Injector;
 import com.hotpads.datarouter.client.imp.hbase.HBaseClientImp;
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseNode;
 import com.hotpads.datarouter.exception.DataAccessException;
@@ -27,6 +30,7 @@ import com.hotpads.datarouter.node.op.raw.MapStorage;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.imp.comparable.SignedByteField;
 import com.hotpads.datarouter.test.DRTestConstants;
+import com.hotpads.datarouter.test.DatarouterTestModuleFactory;
 import com.hotpads.datarouter.test.client.BasicClientTestRouter;
 import com.hotpads.datarouter.test.client.pool.PoolTestBean;
 import com.hotpads.datarouter.test.client.pool.PoolTestBeanKey;
@@ -35,40 +39,42 @@ import com.hotpads.util.core.bytes.LongByteTool;
 import com.hotpads.util.core.number.RandomTool;
 import com.hotpads.util.datastructs.MutableString;
 
-public class HTableExecutorServicePoolTester {
-	private static Logger logger = LoggerFactory.getLogger(HTableExecutorServicePoolTester.class);
+//TODO this won't work yet because of a runtime JDBC dependency in BasicClientTestRouter
+@Guice(moduleFactory = DatarouterTestModuleFactory.class)
+public class HTableExecutorServicePoolTester{
+	private static final Logger logger = LoggerFactory.getLogger(HTableExecutorServicePoolTester.class);
 
-	static final int NUM_INSERTS = 200000;
-	static final int TIMEOUT_MS = 10;
+	private static final int NUM_INSERTS = 200000;
+	private static final int TIMEOUT_MS = 10;
+	private static final String TABLE_NAME = PoolTestBean.class.getSimpleName();
 	
-	static BasicClientTestRouter router;
-	static HBaseClientImp client;
-	static HTableExecutorServicePool pool;
-	static MapStorage<PoolTestBeanKey,PoolTestBean> node;
-	static String tableName;
+	@Inject
+	private BasicClientTestRouter router;
+	
+	private HBaseClientImp client;
+	private HTableExecutorServicePool pool;
+	private MapStorage<PoolTestBeanKey,PoolTestBean> node;
 
-	public static void warmUp(){
+
+	@BeforeClass
+	public void beforeClass() throws IOException{
+		client = (HBaseClientImp)router.getClient(DRTestConstants.CLIENT_drTestHBase);
+		//yes, this test will fail if we change the pool type
+		pool = (HTableExecutorServicePool)client.getHTablePool();
+		node = router.poolTestBeanHBase();
+		warmUp();
+	}
+	
+	private void warmUp(){
 //		node.deleteAll(null);
 //		Assert.assertEquals(0, CollectionTool.size(node.getAll(null)));
 		node.put(new PoolTestBean(12345L), null);
 	}
 
-	public static void init() throws IOException{
-		Injector injector = Guice.createInjector();
-		router = injector.getInstance(BasicClientTestRouter.class);
-		client = (HBaseClientImp)router.getClient(DRTestConstants.CLIENT_drTestHBase);
-		//yes, this test will fail if we change the pool type
-		pool = (HTableExecutorServicePool)client.getHTablePool();
-		node = router.poolTestBeanHBase();
-		tableName = PoolTestBean.class.getSimpleName();
-		warmUp();
-	}
-
 
 	/************ InsertRollback *********************/
-
-	public static void main(String... args) throws IOException{
-		init();
+	@Test
+	public void bigTest(){
 		ThreadPoolExecutor exec = new ThreadPoolExecutor(30, 30,
 				60, TimeUnit.SECONDS,
 				new LinkedBlockingQueue<Runnable>(Integer.MAX_VALUE),
@@ -81,7 +87,7 @@ public class HTableExecutorServicePoolTester {
 		List<Future<Void>> futures = new ArrayList<>();
 		for(int i=0; i < NUM_INSERTS; ++i) {
 			long randomLong = RandomTool.nextPositiveLong(random);
-			ActionUsingPool task = new ActionUsingPool(randomLong);
+			ActionUsingPool task = new ActionUsingPool(client, pool, randomLong);
 			tasks.add(task);
 			futures.add(exec.submit(task));
 		}
@@ -121,10 +127,16 @@ public class HTableExecutorServicePoolTester {
 	
 	/********************* inner class ****************************/
 	
-	static class ActionUsingPool implements Callable<Void>{
-		MutableString progress;
-		long randomLong;
-		public ActionUsingPool(long randomLong){
+	private static class ActionUsingPool implements Callable<Void>{
+		private final HBaseClientImp client;
+		private final HTableExecutorServicePool pool;
+		private final MutableString progress;
+		
+		private long randomLong;
+		
+		public ActionUsingPool(HBaseClientImp client, HTableExecutorServicePool pool, long randomLong){
+			this.client = client;
+			this.pool = pool;
 			this.randomLong = randomLong;
 			this.progress = new MutableString("constructing");
 		}
@@ -135,7 +147,7 @@ public class HTableExecutorServicePoolTester {
 			HTable hTable = null;
 			boolean possiblyTarnishedHTable = false;
 			try{
-				hTable = client.checkOutHTable(tableName, null);
+				hTable = client.checkOutHTable(TABLE_NAME, null);
 				return hbaseCall(hTable);
 			}catch(Exception e){
 				possiblyTarnishedHTable = true;
@@ -148,11 +160,12 @@ public class HTableExecutorServicePoolTester {
 				}else{
 					client.checkInHTable(hTable, possiblyTarnishedHTable);
 				}
-				pool.forceLogIfInconsistentCounts(false, tableName);
+				pool.forceLogIfInconsistentCounts(false, TABLE_NAME);
 			}
 		}
 
-		protected Void hbaseCall(HTable hTable) throws TimeoutException, InterruptedException, IOException{
+		
+		private Void hbaseCall(HTable hTable) throws TimeoutException, InterruptedException, IOException{
 			if(eventMod10(0)) {
 				throw new NullPointerException();
 			}
@@ -179,12 +192,14 @@ public class HTableExecutorServicePoolTester {
 			return null;
 		}
 
-		boolean eventMod10(int... matches) {
+		
+		private boolean eventMod10(int... matches) {
 			int mod = (int)(randomLong % 10);
 			return DrArrayTool.containsUnsorted(matches, mod);
 		}
 
-		void put(HTable hTable) throws InterruptedException, IOException {
+		
+		private void put(HTable hTable) throws InterruptedException, IOException {
 			List<Row> actions = new ArrayList<>();
 			Put put = new Put(LongByteTool.getComparableBytes(randomLong));
 			Field<?> dummyField = new SignedByteField(HBaseNode.DUMMY, (byte)0);
