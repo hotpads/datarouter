@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
@@ -27,6 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.ClientFactory;
 import com.hotpads.datarouter.client.imp.hbase.HBaseClientImp;
+import com.hotpads.datarouter.client.imp.hbase.HBaseStaticContext;
 import com.hotpads.datarouter.client.imp.hbase.client.HBaseClient;
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseReaderNode;
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseSubEntityReaderNode;
@@ -56,10 +56,6 @@ public class HBaseSimpleClientFactory
 implements ClientFactory{
 	private static final Logger logger = LoggerFactory.getLogger(HBaseSimpleClientFactory.class);
 	
-	//static caches
-	private static final Map<String,Configuration> CONFIG_BY_ZK_QUORUM = new ConcurrentHashMap<String,Configuration>();
-	public static final Map<Configuration,HBaseAdmin> ADMIN_BY_CONFIG = new ConcurrentHashMap<Configuration,HBaseAdmin>();
-
 	//client exec svc pooling
 	private static final boolean SHARED_POOL = false;
 	private static final int EXECUTOR_SERVICE_MAX_POOL_SIZE = 50;
@@ -85,7 +81,6 @@ implements ClientFactory{
 	//we cannot finalize these as they are created in a background thread for faster application boot time
 	private Configuration hBaseConfig;
 	private HBaseAdmin hBaseAdmin;
-	private volatile HBaseClient client;//volatile for double checked locking
 	
 	public HBaseSimpleClientFactory(DatarouterContext drContext, String clientName){
 		this.drContext = drContext;
@@ -98,32 +93,29 @@ implements ClientFactory{
 	
 	@Override 
 	public HBaseClient call(){
-		if(client != null){
-			return client;
-		}
 		HBaseClientImp newClient = null;
 		try{
 			logger.info("activating HBase client "+clientName);
 			PhaseTimer timer = new PhaseTimer(clientName);
 
 			String zkQuorum = options.zookeeperQuorum();
-			hBaseConfig = CONFIG_BY_ZK_QUORUM.get(zkQuorum);
+			hBaseConfig = HBaseStaticContext.CONFIG_BY_ZK_QUORUM.get(zkQuorum);
 			if(hBaseConfig==null){
 				hBaseConfig = HBaseConfiguration.create();
 				hBaseConfig.set(HConstants.ZOOKEEPER_QUORUM, zkQuorum);
 			}
 			hBaseAdmin = new HBaseAdmin(hBaseConfig);
 			if(hBaseAdmin.getConnection().isClosed()){
-				CONFIG_BY_ZK_QUORUM.remove(zkQuorum);
-				ADMIN_BY_CONFIG.remove(hBaseConfig);
+				HBaseStaticContext.CONFIG_BY_ZK_QUORUM.remove(zkQuorum);
+				HBaseStaticContext.ADMIN_BY_CONFIG.remove(hBaseConfig);
 				hBaseConfig = null;
 				hBaseAdmin = null;
 				String log = "couldn't open connection because hBaseAdmin.getConnection().isClosed()";
 				logger.warn(log);
 				throw new UnavailableException(log);
 			}
-			CONFIG_BY_ZK_QUORUM.put(zkQuorum, hBaseConfig);
-			ADMIN_BY_CONFIG.put(hBaseConfig, hBaseAdmin);
+			HBaseStaticContext.CONFIG_BY_ZK_QUORUM.put(zkQuorum, hBaseConfig);
+			HBaseStaticContext.ADMIN_BY_CONFIG.put(hBaseConfig, hBaseAdmin);
 	
 			//databean config
 			Pair<HTablePool,Map<String,Class<PrimaryKey<?>>>> hTablePoolAndPrimaryKeyByTableName = initTables();
