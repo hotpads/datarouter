@@ -25,15 +25,15 @@ import org.testng.annotations.Test;
 
 import com.hotpads.datarouter.client.imp.hbase.HBaseClientImp;
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseNode;
+import com.hotpads.datarouter.client.imp.hbase.test.pool.BasicClientTestRouter;
+import com.hotpads.datarouter.client.imp.hbase.test.pool.PoolTestBean;
+import com.hotpads.datarouter.client.imp.hbase.test.pool.PoolTestBeanKey;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.node.op.raw.MapStorage;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.imp.comparable.SignedByteField;
 import com.hotpads.datarouter.test.DRTestConstants;
 import com.hotpads.datarouter.test.DatarouterTestModuleFactory;
-import com.hotpads.datarouter.test.client.BasicClientTestRouter;
-import com.hotpads.datarouter.test.client.pool.PoolTestBean;
-import com.hotpads.datarouter.test.client.pool.PoolTestBeanKey;
 import com.hotpads.datarouter.util.core.DrArrayTool;
 import com.hotpads.util.core.bytes.LongByteTool;
 import com.hotpads.util.core.number.RandomTool;
