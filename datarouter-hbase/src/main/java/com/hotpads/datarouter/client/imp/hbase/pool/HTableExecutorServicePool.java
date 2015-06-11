@@ -273,6 +273,7 @@ public class HTableExecutorServicePool implements HTablePool{
 		return maxSize - hTableSemaphore.availablePermits();//seems to always be 1 lower?
 	}
 	
+	@Override
 	public void shutdown(){
 		shutdown = true;
 		if(hTableSemaphoreActivePermits() != 0){

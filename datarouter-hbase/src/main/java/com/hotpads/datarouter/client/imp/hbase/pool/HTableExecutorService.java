@@ -11,15 +11,16 @@ import com.hotpads.util.core.concurrent.ExecutorServiceTool;
 import com.hotpads.util.core.concurrent.ThreadTool;
 
 public class HTableExecutorService{
-	protected Logger logger = LoggerFactory.getLogger(getClass());
+	private static final Logger logger = LoggerFactory.getLogger(HTableExecutorService.class);
 
-	public static final Integer NUM_CORE_THREADS = 1;// see class comment regarding killing pools
+	private static final Integer NUM_CORE_THREADS = 1;// see class comment regarding killing pools
+	private static final Long TIMEOUT_MS = 60 * 1000L;// 60 seconds
 
-	public static final Long TIMEOUT_MS = 60 * 1000L;// 60 seconds
-
-	protected ThreadPoolExecutor exec;
-	protected Long createdMs;
-	protected Long lastCheckinMs;
+	//final fields
+	public final ThreadPoolExecutor exec;
+	private final Long createdMs;
+	
+	private Long lastCheckinMs;
 
 	public HTableExecutorService(){
 		this.exec = new ThreadPoolExecutor(NUM_CORE_THREADS, Integer.MAX_VALUE, 60, TimeUnit.SECONDS,
