@@ -72,7 +72,6 @@ public class HTableExecutorServicePoolTester{
 	}
 
 
-	/************ InsertRollback *********************/
 	@Test
 	public void bigTest(){
 		ThreadPoolExecutor exec = new ThreadPoolExecutor(30, 30,
@@ -80,7 +79,8 @@ public class HTableExecutorServicePoolTester{
 				new LinkedBlockingQueue<Runnable>(Integer.MAX_VALUE),
 				new ThreadPoolExecutor.CallerRunsPolicy());
 
-		int npes=0, toes=0;
+		int numNpes = 0;
+		int numTimeouts = 0;
 
 		Random random = new Random();
 		List<ActionUsingPool> tasks = new ArrayList<>();
@@ -91,7 +91,7 @@ public class HTableExecutorServicePoolTester{
 			tasks.add(task);
 			futures.add(exec.submit(task));
 		}
-		for(int i=0; i < NUM_INSERTS; ++i) {
+		for(int i=0; i < NUM_INSERTS; ++i){
 			Future<Void> future = futures.get(i);
 			try{
 //				future.get();
@@ -102,12 +102,12 @@ public class HTableExecutorServicePoolTester{
 			} catch(RuntimeException e){
 				logger.error("", e);
 			} catch(ExecutionException e){
-				if(e.getCause() instanceof DataAccessException) {
+				if(e.getCause() instanceof DataAccessException){
 					DataAccessException purposefulException = (DataAccessException)e.getCause();
 					if(purposefulException.getCause() instanceof TimeoutException) {
-						++toes;
-					}else if(purposefulException.getCause() instanceof NullPointerException) {
-						++npes;
+						++numTimeouts;
+					}else if(purposefulException.getCause() instanceof NullPointerException){
+						++numNpes;
 					}
 				}else {
 					logger.error("", e);
@@ -117,7 +117,7 @@ public class HTableExecutorServicePoolTester{
 			}
 
 			if(i % 10000 == 0) {
-				logger.warn("did "+i+", NPEs:"+npes+", TOEs:"+toes);
+				logger.warn("did {}, NPEs:{}, TOEs:{}", i, numNpes, numTimeouts);
 				
 			}
 		}
@@ -137,8 +137,8 @@ public class HTableExecutorServicePoolTester{
 		public ActionUsingPool(HBaseClientImp client, HTableExecutorServicePool pool, long randomLong){
 			this.client = client;
 			this.pool = pool;
-			this.randomLong = randomLong;
 			this.progress = new MutableString("constructing");
+			this.randomLong = randomLong;
 		}
 
 
