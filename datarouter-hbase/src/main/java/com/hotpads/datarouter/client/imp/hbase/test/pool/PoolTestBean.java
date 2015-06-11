@@ -13,17 +13,15 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
 
 
-@Entity()
-@Access(AccessType.FIELD)
 public class PoolTestBean extends BaseDatabean<PoolTestBeanKey,PoolTestBean>{
 
-	@Id
 	private PoolTestBeanKey key;
 
 	/***************************** columns ******************************/
 
 	public static class PoolTestBeanFielder extends BaseDatabeanFielder<PoolTestBeanKey,PoolTestBean>{
-		public PoolTestBeanFielder(){}
+		public PoolTestBeanFielder(){
+		}
 		@Override
 		public Class<PoolTestBeanKey> getKeyFielderClass(){
 			return PoolTestBeanKey.class;
@@ -51,7 +49,7 @@ public class PoolTestBean extends BaseDatabean<PoolTestBeanKey,PoolTestBean>{
 	@Override
 	public Class<PoolTestBeanKey> getKeyClass() {
 		return PoolTestBeanKey.class;
-	};
+	}
 
 	@Override
 	public PoolTestBeanKey getKey() {
@@ -61,22 +59,16 @@ public class PoolTestBean extends BaseDatabean<PoolTestBeanKey,PoolTestBean>{
 
 	/***************************** get/set **************************************/
 
-
 	public void setKey(PoolTestBeanKey key){
 		this.key = key;
 	}
-
-
-
 
 	public Long getId(){
 		return key.getId();
 	}
 
-
 	public void setId(Long id){
 		key.setId(id);
 	}
-
 
 }
