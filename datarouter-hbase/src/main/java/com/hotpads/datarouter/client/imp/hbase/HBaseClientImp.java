@@ -15,7 +15,6 @@ import org.slf4j.LoggerFactory;
 import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.BaseClient;
 import com.hotpads.datarouter.client.imp.hbase.client.HBaseClient;
-import com.hotpads.datarouter.client.imp.hbase.factory.HBaseOptions;
 import com.hotpads.datarouter.client.imp.hbase.pool.HTablePool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.concurrent.FutureTool;
@@ -24,24 +23,22 @@ import com.hotpads.util.datastructs.MutableString;
 public class HBaseClientImp
 extends BaseClient
 implements HBaseClient{
-	protected Logger logger = LoggerFactory.getLogger(this.getClass());
+	private static final Logger logger = LoggerFactory.getLogger(HBaseClientImp.class);
 
-	protected String name;
-	protected HBaseOptions options;
-	protected Configuration hBaseConfiguration;
-	protected HBaseAdmin hBaseAdmin;
-	protected HTablePool hTablePool;
-	protected ExecutorService executorService;
-	protected Map<String,Class<PrimaryKey<?>>> primaryKeyClassByName;
+	private final String name;
+	private final Configuration hBaseConfiguration;
+	private final HBaseAdmin hBaseAdmin;
+	private final HTablePool hTablePool;
+	private final ExecutorService executorService;
+	private final Map<String,Class<PrimaryKey<?>>> primaryKeyClassByName;
 
 
 	/**************************** constructor **********************************/
 
-	public HBaseClientImp(String name, HBaseOptions options,
+	public HBaseClientImp(String name,
 			Configuration hBaseConfiguration, HBaseAdmin hBaseAdmin, HTablePool pool,
 			Map<String,Class<PrimaryKey<?>>> primaryKeyClassByName){
 		this.name = name;
-		this.options = options;
 		this.hBaseConfiguration = hBaseConfiguration;
 		this.hBaseAdmin = hBaseAdmin;
 		this.hTablePool = pool;
@@ -80,8 +77,8 @@ implements HBaseClient{
 	}
 
 	@Override
-	public HTable checkOutHTable(String name, MutableString progress){
-		return hTablePool.checkOut(name, progress);
+	public HTable checkOutHTable(String tableName, MutableString progress){
+		return hTablePool.checkOut(tableName, progress);
 	}
 
 	@Override
@@ -118,6 +115,5 @@ implements HBaseClient{
 		logger.warn("shutting down client:"+name);
 		FutureTool.finishAndShutdown(executorService, 5L, TimeUnit.SECONDS);
 		hTablePool.shutdown();
-//		hTablePool.killOutstandingConnections();
 	}
 }

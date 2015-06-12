@@ -21,7 +21,4 @@ extends Client{
 	HBaseAdmin getHBaseAdmin();
 
 	Class<PrimaryKey<?>> getPrimaryKeyClass(String tableName);
-
-	void shutdown();
-
 }

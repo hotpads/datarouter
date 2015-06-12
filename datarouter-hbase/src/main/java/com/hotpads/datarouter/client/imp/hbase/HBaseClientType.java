@@ -56,12 +56,7 @@ public class HBaseClientType extends BaseClientType{
 	@Override
 	public ClientFactory createClientFactory(DatarouterContext drContext, String clientName,
 			List<PhysicalNode<?,?>> physicalNodes){
-		// if(USE_RECONNECTING_HBASE_CLIENT){
-		// return new HBaseDynamicClientFactory(router, clientName,
-		// configFileLocation, executorService);
-		// }else{
 		return new HBaseSimpleClientFactory(drContext, clientName);
-		// }
 	}
 	
 	@Override
