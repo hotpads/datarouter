@@ -16,7 +16,7 @@ import org.apache.hadoop.hbase.client.HBaseAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hotpads.datarouter.client.imp.hbase.factory.HBaseSimpleClientFactory;
+import com.hotpads.datarouter.client.imp.hbase.HBaseStaticContext;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrListTool;
@@ -32,7 +32,7 @@ public class DRHServerList{
 	
 	public DRHServerList(Configuration config){
 		try{
-			HBaseAdmin admin = HBaseSimpleClientFactory.ADMIN_BY_CONFIG.get(config);
+			HBaseAdmin admin = HBaseStaticContext.ADMIN_BY_CONFIG.get(config);
 			ClusterStatus clusterStatus = admin.getClusterStatus();
 			serverNames = DrListTool.createArrayList(clusterStatus.getServers());
 			Collections.sort(serverNames);
