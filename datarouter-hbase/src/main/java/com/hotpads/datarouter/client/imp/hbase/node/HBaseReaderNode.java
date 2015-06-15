@@ -40,10 +40,10 @@ import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.bytes.ByteRange;
 import com.hotpads.util.core.collections.Range;
-import com.hotpads.util.core.iterable.scanner.batch.BatchingSortedScanner;
+import com.hotpads.util.core.iterable.scanner.batch.AsyncBatchLoaderScanner;
 import com.hotpads.util.core.iterable.scanner.collate.Collator;
 import com.hotpads.util.core.iterable.scanner.collate.PriorityQueueCollator;
-import com.hotpads.util.core.iterable.scanner.iterable.SortedScannerIterable;
+import com.hotpads.util.core.iterable.scanner.iterable.ScannerIterable;
 
 public class HBaseReaderNode<
 		PK extends PrimaryKey<PK>,
@@ -186,23 +186,23 @@ implements HBasePhysicalNode<PK,D>,
 	}
 	
 	@Override
-	public SortedScannerIterable<PK> scanKeys(final Range<PK> pRange, final Config pConfig){
+	public ScannerIterable<PK> scanKeys(final Range<PK> pRange, final Config pConfig){
 		Range<PK> range = Range.nullSafe(pRange);
-		List<BatchingSortedScanner<PK>> scanners = HBaseScatteringPrefixQueryBuilder
+		List<AsyncBatchLoaderScanner<PK>> scanners = HBaseScatteringPrefixQueryBuilder
 				.getBatchingPrimaryKeyScannerForEachPrefix(getClient().getExecutorService(), this, fieldInfo, range,
 						pConfig);
 		Collator<PK> collator = new PriorityQueueCollator<PK>(scanners);
-		return new SortedScannerIterable<PK>(collator);
+		return new ScannerIterable<PK>(collator);
 	}
 	
 	@Override
-	public SortedScannerIterable<D> scan(final Range<PK> pRange, final Config pConfig){
+	public ScannerIterable<D> scan(final Range<PK> pRange, final Config pConfig){
 		Range<PK> range = Range.nullSafe(pRange);
-		List<BatchingSortedScanner<D>> scanners = HBaseScatteringPrefixQueryBuilder
+		List<AsyncBatchLoaderScanner<D>> scanners = HBaseScatteringPrefixQueryBuilder
 				.getBatchingDatabeanScannerForEachPrefix(getClient().getExecutorService(), this, fieldInfo, range,
 						pConfig);
 		Collator<D> collator = new PriorityQueueCollator<D>(scanners);
-		return new SortedScannerIterable<D>(collator);
+		return new ScannerIterable<D>(collator);
 	}
 		
 	
