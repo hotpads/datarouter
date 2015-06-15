@@ -13,7 +13,6 @@ import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.BaseClient;
 import com.hotpads.datarouter.client.type.JdbcClient;
 import com.hotpads.datarouter.client.type.JdbcConnectionClient;
-import com.hotpads.datarouter.client.type.SessionClient;
 import com.hotpads.datarouter.client.type.TxnClient;
 import com.hotpads.datarouter.config.Isolation;
 import com.hotpads.datarouter.connection.ConnectionHandle;
@@ -24,7 +23,7 @@ import com.hotpads.datarouter.util.core.DrMapTool;
 
 public class JdbcClientImp 
 extends BaseClient
-implements JdbcConnectionClient, TxnClient, SessionClient, JdbcClient{
+implements JdbcConnectionClient, TxnClient, JdbcClient{
 	private static Logger logger = LoggerFactory.getLogger(JdbcClientImp.class);
 	
 	private String name;
@@ -45,8 +44,8 @@ implements JdbcConnectionClient, TxnClient, SessionClient, JdbcClient{
 	
 	protected JdbcConnectionPool connectionPool;
 	
-	protected Map<Long,ConnectionHandle> handleByThread = new ConcurrentHashMap<Long,ConnectionHandle>();
-	protected Map<ConnectionHandle,Connection> connectionByHandle = new ConcurrentHashMap<ConnectionHandle,Connection>();
+	protected Map<Long,ConnectionHandle> handleByThread = new ConcurrentHashMap<>();
+	protected Map<ConnectionHandle,Connection> connectionByHandle = new ConcurrentHashMap<>();
 	
 	protected AtomicLong connectionCounter = new AtomicLong(-1L);
 	
@@ -124,7 +123,9 @@ implements JdbcConnectionClient, TxnClient, SessionClient, JdbcClient{
 		try {
 			Thread currentThread = Thread.currentThread();
 			ConnectionHandle handle = getExistingHandle();
-			if(handle==null){ return null; }//the connection probably was never opened successfully
+			if(handle==null){
+				return null;//the connection probably was never opened successfully
+			}
 			
 			//decrement counters
 			handle.decrementNumTickets();
@@ -163,7 +164,9 @@ implements JdbcConnectionClient, TxnClient, SessionClient, JdbcClient{
 	@Override
 	public Connection getExistingConnection(){
 		ConnectionHandle handle = getExistingHandle();
-		if(handle==null){ return null; }
+		if(handle==null){
+			return null;
+		}
 		return connectionByHandle.get(handle);
 	}
 
