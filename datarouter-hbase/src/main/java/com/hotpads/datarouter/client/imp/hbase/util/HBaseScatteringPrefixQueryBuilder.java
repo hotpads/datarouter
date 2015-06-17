@@ -29,7 +29,7 @@ import com.hotpads.util.core.collections.Pair;
 import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.collections.Twin;
 import com.hotpads.util.core.iterable.scanner.batch.BatchLoader;
-import com.hotpads.util.core.iterable.scanner.batch.BatchingSortedScanner;
+import com.hotpads.util.core.iterable.scanner.batch.AsyncBatchLoaderScanner;
 
 public class HBaseScatteringPrefixQueryBuilder {
 	private static Logger logger = LoggerFactory.getLogger(HBaseScatteringPrefixQueryBuilder.class);
@@ -100,7 +100,7 @@ public class HBaseScatteringPrefixQueryBuilder {
 	}
 	
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>> 
-	ArrayList<BatchingSortedScanner<PK>> getBatchingPrimaryKeyScannerForEachPrefix(
+	ArrayList<AsyncBatchLoaderScanner<PK>> getBatchingPrimaryKeyScannerForEachPrefix(
 			ExecutorService executorService,
 			HBaseReaderNode<PK,D,F> node,
 			DatabeanFieldInfo<PK,D,F> fieldInfo,
@@ -108,18 +108,18 @@ public class HBaseScatteringPrefixQueryBuilder {
 			final Config pConfig){
 		List<List<Field<?>>> allScatteringPrefixes = fieldInfo.getSampleScatteringPrefix()
 				.getAllPossibleScatteringPrefixes();
-		ArrayList<BatchingSortedScanner<PK>> scanners = new ArrayList<>();
+		ArrayList<AsyncBatchLoaderScanner<PK>> scanners = new ArrayList<>();
 		for(List<Field<?>> scatteringPrefix : allScatteringPrefixes){
 			BatchLoader<PK> firstBatchLoaderForPrefix = new HBasePrimaryKeyBatchLoader<PK,D,F>(node, scatteringPrefix, 
 					pkRange, pConfig, 1L);//start the counter at 1
-			BatchingSortedScanner<PK> scanner = new BatchingSortedScanner<PK>(executorService, firstBatchLoaderForPrefix);
+			AsyncBatchLoaderScanner<PK> scanner = new AsyncBatchLoaderScanner<PK>(executorService, firstBatchLoaderForPrefix);
 			scanners.add(scanner);
 		}
 		return scanners;
 	}
 	
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>> 
-	ArrayList<BatchingSortedScanner<D>> getBatchingDatabeanScannerForEachPrefix(
+	ArrayList<AsyncBatchLoaderScanner<D>> getBatchingDatabeanScannerForEachPrefix(
 			ExecutorService executorService,
 			HBaseReaderNode<PK,D,F> node,
 			DatabeanFieldInfo<PK,D,F> fieldInfo,
@@ -127,12 +127,12 @@ public class HBaseScatteringPrefixQueryBuilder {
 			final Config pConfig){
 		List<List<Field<?>>> allScatteringPrefixes = fieldInfo.getSampleScatteringPrefix()
 				.getAllPossibleScatteringPrefixes();
-		ArrayList<BatchingSortedScanner<D>> scanners = new ArrayList<>();
+		ArrayList<AsyncBatchLoaderScanner<D>> scanners = new ArrayList<>();
 		for(List<Field<?>> scatteringPrefix : allScatteringPrefixes){
 //			logger.warn("including scanner for scatteringPrefix:"+scatteringPrefix);
 			BatchLoader<D> firstBatchLoaderForPrefix = new HBaseDatabeanBatchLoader<PK,D,F>(node, scatteringPrefix, 
 					pkRange, pConfig, 1L);//start the counter at 1
-			BatchingSortedScanner<D> scanner = new BatchingSortedScanner<D>(executorService, firstBatchLoaderForPrefix);
+			AsyncBatchLoaderScanner<D> scanner = new AsyncBatchLoaderScanner<D>(executorService, firstBatchLoaderForPrefix);
 			scanners.add(scanner);
 		}
 		return scanners;
