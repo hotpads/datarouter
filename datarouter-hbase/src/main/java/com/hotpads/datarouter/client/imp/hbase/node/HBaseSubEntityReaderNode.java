@@ -36,11 +36,11 @@ import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.collections.Range;
-import com.hotpads.util.core.iterable.scanner.batch.BatchingSortedScanner;
+import com.hotpads.util.core.iterable.scanner.batch.AsyncBatchLoaderScanner;
 import com.hotpads.util.core.iterable.scanner.collate.Collator;
 import com.hotpads.util.core.iterable.scanner.collate.PriorityQueueCollator;
 import com.hotpads.util.core.iterable.scanner.imp.ListBackedSortedScanner;
-import com.hotpads.util.core.iterable.scanner.iterable.SortedScannerIterable;
+import com.hotpads.util.core.iterable.scanner.iterable.ScannerIterable;
 
 public class HBaseSubEntityReaderNode<
 		EK extends EntityKey<EK>,
@@ -222,7 +222,7 @@ implements HBasePhysicalNode<PK,D>,
 	}
 	
 	@Override
-	public SortedScannerIterable<PK> scanKeys(final Range<PK> pRange, final Config pConfig){
+	public ScannerIterable<PK> scanKeys(final Range<PK> pRange, final Config pConfig){
 		final Config config = Config.nullSafe(pConfig);
 		final Range<PK> range = Range.nullSafe(pRange);
 		if(queryBuilder.isSingleEntity(range)){//single row.  use Get.  gets all pks in entity.  no way to limit rows
@@ -233,15 +233,15 @@ implements HBasePhysicalNode<PK,D>,
 					Result result = hTable.get(get);
 					return DrListTool.createArrayList(resultParser.getPrimaryKeysWithMatchingQualifierPrefix(result));	
 				}}).call();
-			return new SortedScannerIterable<PK>(new ListBackedSortedScanner<PK>(pks));
+			return new ScannerIterable<PK>(new ListBackedSortedScanner<PK>(pks));
 		}
-		List<BatchingSortedScanner<PK>> scanners = queryBuilder.getPkScanners(this, range, pConfig);
+		List<AsyncBatchLoaderScanner<PK>> scanners = queryBuilder.getPkScanners(this, range, pConfig);
 		Collator<PK> collator = new PriorityQueueCollator<PK>(scanners);
-		return new SortedScannerIterable<PK>(collator);
+		return new ScannerIterable<PK>(collator);
 	}
 	
 	@Override
-	public SortedScannerIterable<D> scan(final Range<PK> pRange, final Config pConfig){
+	public ScannerIterable<D> scan(final Range<PK> pRange, final Config pConfig){
 		final Config config = Config.nullSafe(pConfig);
 		final Range<PK> range = Range.nullSafe(pRange);
 		if(queryBuilder.isSingleEntity(range)){//single row.  use Get.  gets all databeans in entity.  no way to limit rows
@@ -252,11 +252,11 @@ implements HBasePhysicalNode<PK,D>,
 					Result result = hTable.get(get);
 					return resultParser.getDatabeansWithMatchingQualifierPrefix(result);	
 				}}).call();
-			return new SortedScannerIterable<D>(new ListBackedSortedScanner<D>(databeans));
+			return new ScannerIterable<D>(new ListBackedSortedScanner<D>(databeans));
 		}
-		List<BatchingSortedScanner<D>> scanners = queryBuilder.getDatabeanScanners(this, range, pConfig);
+		List<AsyncBatchLoaderScanner<D>> scanners = queryBuilder.getDatabeanScanners(this, range, pConfig);
 		Collator<D> collator = new PriorityQueueCollator<D>(scanners);
-		return new SortedScannerIterable<D>(collator);
+		return new ScannerIterable<D>(collator);
 	}
 		
 	
