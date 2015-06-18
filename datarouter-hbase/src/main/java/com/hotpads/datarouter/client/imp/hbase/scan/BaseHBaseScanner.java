@@ -10,14 +10,14 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.util.core.bytes.ByteRange;
 import com.hotpads.util.core.collections.Range;
-import com.hotpads.util.core.iterable.scanner.batch.BaseBatchingSortedScanner;
+import com.hotpads.util.core.iterable.scanner.batch.BaseBatchBackedScanner;
 
 @Deprecated
 public abstract class BaseHBaseScanner<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
 		T extends Comparable<? super T>>//T should be either PK or D
-extends BaseBatchingSortedScanner<T,Result>{
+extends BaseBatchBackedScanner<T,Result>{
 	
 	//inputs
 	protected HBaseReaderNode<PK,D,?> node;
