@@ -10,23 +10,28 @@ import org.slf4j.LoggerFactory;
 import com.hotpads.util.core.concurrent.ExecutorServiceTool;
 import com.hotpads.util.core.concurrent.ThreadTool;
 
+/*
+ * The HBase client uses one thread per regionserver per HTable.  This wrapper class stores a java ExecSvc with 1
+ * thread per regionserver.  It can be reused across different tables.
+ */
 public class HTableExecutorService{
-	protected Logger logger = LoggerFactory.getLogger(getClass());
+	private static final Logger logger = LoggerFactory.getLogger(HTableExecutorService.class);
 
-	public static final Integer NUM_CORE_THREADS = 1;// see class comment regarding killing pools
+	private static final Integer NUM_CORE_THREADS = 1;// see class comment regarding killing pools
+	private static final Long TIMEOUT_MS = 60 * 1000L;// 60 seconds
 
-	public static final Long TIMEOUT_MS = 60 * 1000L;// 60 seconds
-
-	protected ThreadPoolExecutor exec;
-	protected Long createdMs;
-	protected Long lastCheckinMs;
+	//final fields
+	private final ThreadPoolExecutor exec;
+	private final Long createdMs;
+	
+	private volatile long lastCheckinMs;
 
 	public HTableExecutorService(){
 		this.exec = new ThreadPoolExecutor(NUM_CORE_THREADS, Integer.MAX_VALUE, 60, TimeUnit.SECONDS,
 						new SynchronousQueue<Runnable>());
 		this.exec.allowCoreThreadTimeOut(true);// see class comment regarding killing pools
 		this.createdMs = System.currentTimeMillis();
-		this.lastCheckinMs = this.createdMs;
+		this.lastCheckinMs = createdMs;
 	}
 
 	public void markLastCheckinMs(){
@@ -64,7 +69,9 @@ public class HTableExecutorService{
 
 	// probably don't need this method, but being safe while debugging
 	public boolean waitForActiveThreadsToSettle(String tableNameForLog){
-		if(exec.getActiveCount() == 0){ return true; }
+		if(exec.getActiveCount() == 0){
+			return true;
+		}
 		ThreadTool.sleep(1);
 		if(exec.getActiveCount() == 0){
 			// logger.warn("had to sleep a little to let threads finish, table:"+tableNameForLog);
@@ -81,7 +88,9 @@ public class HTableExecutorService{
 
 	public void terminateAndBlockUntilFinished(String tableNameForLog){
 		exec.shutdownNow();// should not block
-		if(exec.getActiveCount() == 0){ return; }
+		if(exec.getActiveCount() == 0){
+			return;
+		}
 		// else we have issues... try to fix them
 		exec.shutdownNow();
 		if(exec.getActiveCount() > 0){
@@ -89,5 +98,9 @@ public class HTableExecutorService{
 		}
 		ExecutorServiceTool.awaitTerminationForever(exec);// any better ideas? alternative is memory leak
 		logger.warn("awaitTermination finished!, table:" + tableNameForLog);
+	}
+	
+	public ThreadPoolExecutor getExec(){
+		return exec;
 	}
 }
