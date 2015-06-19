@@ -52,8 +52,7 @@ public class SqsClientType extends BaseClientType{
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>
 	Node<PK,D> createSubEntityNode(EntityNodeParams<EK,E> entityNodeParams, NodeParams<PK,D,F> nodeParams){
-		// TODO Auto-generated method stub
-		return null;
+		return createNode(nodeParams);
 	}
 
 	@Override
@@ -61,8 +60,7 @@ public class SqsClientType extends BaseClientType{
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>
 	Node<PK,D> createAdapter(NodeParams<PK,D,F> nodeParams, Node<PK,D> backingNode){
-		// TODO Auto-generated method stub
-		return null;
+		return backingNode;
 	}
 
 }
