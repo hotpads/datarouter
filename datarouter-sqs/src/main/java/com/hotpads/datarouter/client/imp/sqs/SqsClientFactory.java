@@ -9,9 +9,9 @@ import com.hotpads.datarouter.client.ClientFactory;
 
 public class SqsClientFactory implements ClientFactory{
 
-	private String clientName;
-	private SqsClientType clientType;
-	private SqsOptions sqsOptions;
+	private final String clientName;
+	private final SqsClientType clientType;
+	private final SqsOptions sqsOptions;
 
 	public SqsClientFactory(String clientName, SqsClientType clientType, SqsOptions sqsOptions){
 		this.clientName = clientName;
