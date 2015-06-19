@@ -3,6 +3,7 @@ package com.hotpads.datarouter.client.imp.sqs.op;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.amazonaws.AbortedException;
 import com.amazonaws.services.sqs.model.Message;
 import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
 import com.amazonaws.services.sqs.model.ReceiveMessageResult;
@@ -35,16 +36,20 @@ extends SqsOp<PK,D,F,List<QueueMessage<PK,D>>>{
 			long waitTimeMs = Math.min(timeoutMs - timeWaitedMs, SqsNode.MAX_TIMEOUT_SECONDS * 1000);
 			timeWaitedMs += waitTimeMs;
 			request.setWaitTimeSeconds((int) (waitTimeMs / 1000));
-			ReceiveMessageResult result = amazonSqsClient.receiveMessage(request);
-			if(result.getMessages().size() != 0){
-				List<QueueMessage<PK,D>> results = new ArrayList<>(result.getMessages().size());
-				for(Message message : result.getMessages()){
-					D databean = sqsEncoder.decode(message.getBody(), databeanType);
-					results.add(new QueueMessage<>(message.getReceiptHandle().getBytes(), databean));
+			try{
+				ReceiveMessageResult result = amazonSqsClient.receiveMessage(request);
+				if(result.getMessages().size() != 0){
+					List<QueueMessage<PK,D>> results = new ArrayList<>(result.getMessages().size());
+					for(Message message : result.getMessages()){
+						D databean = sqsEncoder.decode(message.getBody(), databeanType);
+						results.add(new QueueMessage<>(message.getReceiptHandle().getBytes(), databean));
+					}
+					return results;
 				}
-				return results;
+			}catch(AbortedException e){
+				Thread.currentThread().interrupt();
 			}
-		}while(timeWaitedMs < timeoutMs);
+		}while(timeWaitedMs < timeoutMs && !Thread.currentThread().isInterrupted());
 		return new ArrayList<>();
 	}
 
