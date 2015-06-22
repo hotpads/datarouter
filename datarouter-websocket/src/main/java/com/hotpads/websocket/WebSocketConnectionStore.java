@@ -26,4 +26,8 @@ public class WebSocketConnectionStore{
 		return map.get(webSocketSessionKey);
 	}
 
+	public Session remove(WebSocketSessionKey webSocketSessionKey){
+		return map.remove(webSocketSessionKey);
+	}
+
 }
