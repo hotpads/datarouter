@@ -8,6 +8,7 @@ import com.hotpads.datarouter.client.ClientFactory;
 import com.hotpads.datarouter.client.imp.BaseClientType;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams;
+import com.hotpads.datarouter.node.adapter.counter.PhysicalQueueStorageCounterAdapater;
 import com.hotpads.datarouter.node.entity.EntityNodeParams;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.routing.DatarouterContext;
@@ -42,7 +43,8 @@ public class SqsClientType extends BaseClientType{
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>
 	PhysicalNode<PK,D> createNode(NodeParams<PK,D,F> nodeParams){
-		return sqsNodeFactory.createNode(nodeParams);
+		SqsNode<PK,D,F> node = sqsNodeFactory.createNode(nodeParams);
+		return new PhysicalQueueStorageCounterAdapater<>(node);
 	}
 
 	@Override

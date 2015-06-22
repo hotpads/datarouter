@@ -9,7 +9,7 @@ import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.imp.sqs.encode.SqsEncoder;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.NodeParams;
-import com.hotpads.datarouter.node.op.raw.QueueStorage;
+import com.hotpads.datarouter.node.op.raw.QueueStorage.PhysicalQueueStorageNode;
 import com.hotpads.datarouter.node.type.physical.base.BasePhysicalNode;
 import com.hotpads.datarouter.op.scan.queue.PeekUntilEmptyQueueStorageScanner;
 import com.hotpads.datarouter.op.scan.queue.PollUntilEmptyQueueStorageIterable;
@@ -28,7 +28,7 @@ public class SqsNode<
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>>
 extends BasePhysicalNode<PK,D,F> 
-implements QueueStorage<PK,D>{
+implements PhysicalQueueStorageNode<PK,D>{
 	
 	//do not change, this is a limit from SQS
 	public static final int MAX_MESSAGES_PER_BATCH = 10;
