@@ -195,9 +195,9 @@ implements HTablePool{
 	public void shutdown(){
 		shuttingDown = true;
 		if(hTableSemaphoreActivePermits() != 0){
-			final int SLEEP_MS = 5000;
-			logger.warn("Still " + hTableSemaphoreActivePermits() + "active hTables.  Sleeping " + SLEEP_MS + "ms");
-			ThreadTool.sleep(SLEEP_MS);
+			final int sleepMs = 5000;
+			logger.warn("Still " + hTableSemaphoreActivePermits() + "active hTables.  Sleeping " + sleepMs + "ms");
+			ThreadTool.sleep(sleepMs);
 		}
 		for(HTableExecutorService executorService : executorServiceQueue){
 			executorService.terminateAndBlockUntilFinished("shutdown");
