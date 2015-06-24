@@ -34,7 +34,7 @@ extends SqsOp<PK,D,F,Void>{
 		List<D> rejectedDatabeans = new ArrayList<>();
 		int currentPayloadSize = 0;
 		for(D databean : databeans){
-			String encodedDatabean = sqsEncoder.encode(databean);
+			String encodedDatabean = encoder.toString(databean, fielder);
 			int encodedDatabeanSize = StringByteTool.getUtf8Bytes(encodedDatabean).length;
 			if(encodedDatabeanSize > SqsNode.MAX_BYTES_PER_MESSAGE){
 				rejectedDatabeans.add(databean);
@@ -60,6 +60,8 @@ extends SqsOp<PK,D,F,Void>{
 
 	private void putBatch(List<SendMessageBatchRequestEntry> entries){
 		SendMessageBatchRequest request = new SendMessageBatchRequest(queueUrl, entries);
+		long start = System.currentTimeMillis();
 		amazonSqsClient.sendMessageBatch(request);
+		System.out.println(System.currentTimeMillis() - start);
 	}
 }

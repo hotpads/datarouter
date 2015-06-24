@@ -17,9 +17,9 @@ import org.testng.annotations.Test;
 import com.hotpads.datarouter.client.imp.sqs.SqsDataTooLargeException;
 import com.hotpads.datarouter.client.imp.sqs.SqsNode;
 import com.hotpads.datarouter.client.imp.sqs.config.DatarouterSqsTestModuleFactory;
-import com.hotpads.datarouter.client.imp.sqs.encode.SqsEncoder;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.test.TestDatabean;
+import com.hotpads.datarouter.test.TestDatabeanFielder;
 import com.hotpads.util.core.bytes.StringByteTool;
 
 @Guice(moduleFactory = DatarouterSqsTestModuleFactory.class)
@@ -29,8 +29,6 @@ public class SqsNodeIntegrationTests{
 	
 	@Inject
 	private SqsTestRouter router;
-	@Inject
-	private SqsEncoder sqsEncoder;
 	
 	@BeforeMethod
 	public void setUp(){
@@ -59,7 +57,10 @@ public class SqsNodeIntegrationTests{
 	}
 	
 	private void testByteLimit(int size){
-		int emptyDatabeanSize = StringByteTool.getUtf8Bytes(sqsEncoder.encode(new TestDatabean("", "", ""))).length;
+		TestDatabean emptyDatabean = new TestDatabean("", "", "");
+		TestDatabeanFielder fielder = router.testDatabean.getFieldInfo().getSampleFielder();
+		String stringDatabean = fielder.getStringDatabeanEncoder().toString(emptyDatabean, fielder);
+		int emptyDatabeanSize = StringByteTool.getUtf8Bytes(stringDatabean).length;
 		String longString = makeStringOfByteSize(size - emptyDatabeanSize);
 		TestDatabean databean = new TestDatabean(longString, "", "");
 		router.testDatabean.put(databean, null);
@@ -159,5 +160,4 @@ public class SqsNodeIntegrationTests{
 	private static String makeRandomString(){
 		return UUID.randomUUID().toString();
 	}
-
 }

@@ -6,7 +6,6 @@ import java.util.List;
 import com.amazonaws.services.sqs.AmazonSQSClient;
 import com.amazonaws.services.sqs.model.CreateQueueRequest;
 import com.hotpads.datarouter.client.Client;
-import com.hotpads.datarouter.client.imp.sqs.encode.SqsEncoder;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.op.raw.QueueStorage;
@@ -37,13 +36,11 @@ implements QueueStorage<PK,D>{
 	public static final int MAX_BYTES_PER_PAYLOAD = 256*1024;
 	
 	private final DatarouterContext datarouterContext;
-	private final SqsEncoder sqsEncoder;
 	private final SqsOpFactory<PK,D,F> sqsOpFactory;
 	private final Lazy<String> queueUrl;
 
-	public SqsNode(SqsEncoder sqsEncoder, DatarouterContext datarouterContext, NodeParams<PK,D,F> params){
+	public SqsNode(DatarouterContext datarouterContext, NodeParams<PK,D,F> params){
 		super(params);
-		this.sqsEncoder = sqsEncoder;
 		this.datarouterContext = datarouterContext;
 		this.queueUrl = new Lazy<String>(){
 			
@@ -76,10 +73,6 @@ implements QueueStorage<PK,D>{
 	
 	public Lazy<String> getQueueUrl(){
 		return queueUrl;
-	}
-	
-	public SqsEncoder getSqsEncoder(){
-		return sqsEncoder;
 	}
 	
 	//Writer

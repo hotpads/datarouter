@@ -41,7 +41,7 @@ extends SqsOp<PK,D,F,List<QueueMessage<PK,D>>>{
 				if(result.getMessages().size() != 0){
 					List<QueueMessage<PK,D>> results = new ArrayList<>(result.getMessages().size());
 					for(Message message : result.getMessages()){
-						D databean = sqsEncoder.decode(message.getBody(), databeanType);
+						D databean = encoder.fromString(message.getBody(), fielder, databeanType);
 						results.add(new QueueMessage<>(message.getReceiptHandle().getBytes(), databean));
 					}
 					return results;
