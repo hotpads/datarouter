@@ -59,7 +59,7 @@ public class SqsNodeIntegrationTests{
 	private void testByteLimit(int size){
 		TestDatabean emptyDatabean = new TestDatabean("", "", "");
 		TestDatabeanFielder fielder = router.testDatabean.getFieldInfo().getSampleFielder();
-		String stringDatabean = fielder.getStringDatabeanEncoder().toString(emptyDatabean, fielder);
+		String stringDatabean = fielder.getStringDatabeanCodec().toString(emptyDatabean, fielder);
 		int emptyDatabeanSize = StringByteTool.getUtf8Bytes(stringDatabean).length;
 		String longString = makeStringOfByteSize(size - emptyDatabeanSize);
 		TestDatabean databean = new TestDatabean(longString, "", "");
