@@ -36,7 +36,8 @@ public class WebSocketServicesMessageHandler implements Whole<String>{
 
 	}
 
-	private WebSocketServicesMessageHandler(WebSocketServices services, ExceptionRecorder exceptionRecorder, String userToken){
+	private WebSocketServicesMessageHandler(WebSocketServices services, ExceptionRecorder exceptionRecorder,
+			String userToken){
 		this.services = services;
 		this.exceptionRecorder = exceptionRecorder;
 		this.userToken = userToken;
