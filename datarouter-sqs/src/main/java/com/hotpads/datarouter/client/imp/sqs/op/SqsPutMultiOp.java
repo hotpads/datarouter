@@ -60,8 +60,6 @@ extends SqsOp<PK,D,F,Void>{
 
 	private void putBatch(List<SendMessageBatchRequestEntry> entries){
 		SendMessageBatchRequest request = new SendMessageBatchRequest(queueUrl, entries);
-		long start = System.currentTimeMillis();
 		amazonSqsClient.sendMessageBatch(request);
-		System.out.println(System.currentTimeMillis() - start);
 	}
 }
