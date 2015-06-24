@@ -17,11 +17,11 @@ import com.hotpads.util.core.concurrent.ThreadTool;
 public class HTableExecutorService{
 	private static final Logger logger = LoggerFactory.getLogger(HTableExecutorService.class);
 
-	private static final Long TIMEOUT_MS = 10 * 1000L;
+	private static final long TIMEOUT_MS = 10 * 1000L;
 
 	//final fields
 	private final ThreadPoolExecutor exec;
-	private final Long createdMs;
+	private final long createdMs;
 	
 	private volatile long lastCheckinMs;
 
