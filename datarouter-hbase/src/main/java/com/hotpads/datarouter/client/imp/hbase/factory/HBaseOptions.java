@@ -26,11 +26,6 @@ public class HBaseOptions extends TypedProperties{
 		return getBoolean(clientPrefix + "createTables", false);
 	}
 
-	@Deprecated
-	public Integer minPoolSize(int def){
-		return getInteger(clientPrefix + "minPoolSize", def);
-	}
-
 	public Integer maxHTables(int defaultValue){
 		return getInteger(clientPrefix + "maxHTables", defaultValue);
 	}

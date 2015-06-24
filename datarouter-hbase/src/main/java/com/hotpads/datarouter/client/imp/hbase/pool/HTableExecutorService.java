@@ -25,8 +25,8 @@ public class HTableExecutorService{
 	
 	private volatile long lastCheckinMs;
 
-	public HTableExecutorService(int numCoreThreads, int maxThreads){
-		this.exec = new ThreadPoolExecutor(numCoreThreads, maxThreads, 60, TimeUnit.SECONDS,
+	public HTableExecutorService(int minThreads, int maxThreads){
+		this.exec = new ThreadPoolExecutor(minThreads, maxThreads, 60, TimeUnit.SECONDS,
 						new SynchronousQueue<Runnable>());
 		this.exec.allowCoreThreadTimeOut(true);// see class comment regarding killing pools
 		this.createdMs = System.currentTimeMillis();
