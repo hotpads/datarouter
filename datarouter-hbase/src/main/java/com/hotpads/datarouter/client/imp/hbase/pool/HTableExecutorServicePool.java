@@ -121,7 +121,6 @@ implements HTablePool{
 			setProgress(progress, "set HTable autoFlush false");
 			recordSlowCheckout(System.currentTimeMillis() - checkoutRequestStartMs, tableName);
 			logIfInconsistentCounts(true, tableName);
-			Assert.assertNotNull(hTable);
 			return hTable;
 		}catch(Exception e){
 			if(hTable != null){
