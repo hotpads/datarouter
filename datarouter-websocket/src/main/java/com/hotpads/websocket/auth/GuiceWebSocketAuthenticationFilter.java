@@ -2,7 +2,6 @@ package com.hotpads.websocket.auth;
 
 import javax.inject.Inject;
 import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
 
 public class GuiceWebSocketAuthenticationFilter extends WebSocketAuthenticationFilter{
 
@@ -10,7 +9,7 @@ public class GuiceWebSocketAuthenticationFilter extends WebSocketAuthenticationF
 	private UserTokenRetriever userTokenRetriever;
 
 	@Override
-	public void init(FilterConfig filterConfig) throws ServletException{}
+	public void init(FilterConfig filterConfig){}
 
 	@Override
 	protected UserTokenRetriever getUserTokenRetriever(){
