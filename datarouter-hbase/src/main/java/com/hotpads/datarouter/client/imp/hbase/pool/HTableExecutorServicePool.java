@@ -20,6 +20,7 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.datarouter.util.core.DrNumberFormatter;
 import com.hotpads.util.core.bytes.StringByteTool;
+import com.hotpads.util.core.concurrent.ExecutorServiceTool;
 import com.hotpads.util.core.concurrent.SemaphoreTool;
 import com.hotpads.util.core.concurrent.ThreadTool;
 import com.hotpads.util.datastructs.MutableString;
@@ -107,7 +108,7 @@ implements HTablePool{
 				// with fewer moving parts.  Goal is to be able to allow large queue sizes for bursts
 				// but to free up the memory of hundreds or thousands of threads in quiet times when
 				// other things might be bursting
-				hTableExecutorService.getExec().shutdown();
+				ExecutorServiceTool.shutdown(hTableExecutorService.getExec());
 				logWithPoolInfo("discarded expired HTableExecutorService", tableName);
 				hTableExecutorService = null;//release it and loop around again
 			}
