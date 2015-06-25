@@ -5,7 +5,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Guice;
 
 import com.hotpads.datarouter.client.imp.jdbc.TestDatarouterJdbcModuleFactory;
-import com.hotpads.datarouter.test.DRTestConstants;
+import com.hotpads.datarouter.test.DrTestConstants;
 import com.hotpads.datarouter.test.node.basic.sorted.BaseIndexedNodeIntegrationTests;
 
 @Guice(moduleFactory = TestDatarouterJdbcModuleFactory.class)
@@ -13,7 +13,7 @@ public class JdbcIndexedSortedNodeIntegrationTests extends BaseIndexedNodeIntegr
 
 	@BeforeClass
 	public void beforeClass(){
-		setup(DRTestConstants.CLIENT_drTestJdbc0, true, false);
+		setup(DrTestConstants.CLIENT_drTestJdbc0, true, false);
 	}
 
 	@AfterClass

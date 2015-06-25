@@ -8,7 +8,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseNode;
-import com.hotpads.datarouter.test.DRTestConstants;
+import com.hotpads.datarouter.test.DrTestConstants;
 import com.hotpads.datarouter.test.node.basic.manyfield.BaseManyFieldIntegrationTests;
 import com.hotpads.datarouter.test.node.basic.manyfield.ManyFieldBean;
 import com.hotpads.datarouter.test.node.basic.manyfield.ManyFieldBeanKey;
@@ -18,7 +18,7 @@ public class HBaseManyFieldIntegrationTests extends BaseManyFieldIntegrationTest
 
 	@BeforeClass
 	public void beforeClass(){
-		setup(DRTestConstants.CLIENT_drTestHBase, true);
+		setup(DrTestConstants.CLIENT_drTestHBase, true);
 	}
 
 	@Override

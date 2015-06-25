@@ -62,7 +62,7 @@ public class HBaseClientType extends BaseClientType{
 	@Override
 	public <PK extends PrimaryKey<PK>, D extends Databean<PK, D>, F extends DatabeanFielder<PK, D>>
 	PhysicalNode<PK, D> createNode(NodeParams<PK, D, F> nodeParams){
-		return new PhysicalSortedMapStorageCounterAdapter<PK,D,F,HBaseNode<PK,D,F>>(new HBaseNode<PK,D,F>(nodeParams));
+		return new PhysicalSortedMapStorageCounterAdapter<PK,D,F,HBaseNode<PK,D,F>>(new HBaseNode<>(nodeParams));
 	}
 	
 	@Override
@@ -70,7 +70,7 @@ public class HBaseClientType extends BaseClientType{
 			Datarouter router, EntityNodeParams<EK,E> entityNodeParams, String clientName){
 		ClientTableNodeNames clientTableNodeNames = new ClientTableNodeNames(clientName, 
 				entityNodeParams.getEntityTableName(), entityNodeParams.getNodeName());
-		return new HBaseEntityReaderNode<EK,E>(nodeFactory, router, entityNodeParams, clientTableNodeNames);
+		return new HBaseEntityReaderNode<>(nodeFactory, router, entityNodeParams, clientTableNodeNames);
 	}
 	
 	@Override
@@ -80,7 +80,7 @@ public class HBaseClientType extends BaseClientType{
 			D extends Databean<PK, D>,
 			F extends DatabeanFielder<PK, D>>
 	Node<PK,D> createSubEntityNode(EntityNodeParams<EK,E> entityNodeParams, NodeParams<PK,D,F> nodeParams){
-		return new HBaseSubEntityNode<EK, E, PK, D, F>(entityNodeParams, nodeParams);
+		return new HBaseSubEntityNode<>(entityNodeParams, nodeParams);
 	}
 	
 	@Override
@@ -88,7 +88,7 @@ public class HBaseClientType extends BaseClientType{
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>> 
 	SortedMapStorageNode<PK,D> createAdapter(NodeParams<PK,D,F> nodeParams, Node<PK,D> backingNode){
-		return new PhysicalSortedMapStorageCallsiteAdapter<PK, D, F, PhysicalSortedMapStorageNode<PK, D>>(nodeParams,
+		return new PhysicalSortedMapStorageCallsiteAdapter<>(nodeParams,
 				(PhysicalSortedMapStorageNode<PK, D>) backingNode);
 	}
 	
