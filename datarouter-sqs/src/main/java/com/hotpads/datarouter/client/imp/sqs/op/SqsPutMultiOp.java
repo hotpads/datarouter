@@ -34,7 +34,7 @@ extends SqsOp<PK,D,F,Void>{
 		List<D> rejectedDatabeans = new ArrayList<>();
 		int currentPayloadSize = 0;
 		for(D databean : databeans){
-			String encodedDatabean = sqsEncoder.encode(databean);
+			String encodedDatabean = codec.toString(databean, fielder);
 			int encodedDatabeanSize = StringByteTool.getUtf8Bytes(encodedDatabean).length;
 			if(encodedDatabeanSize > SqsNode.MAX_BYTES_PER_MESSAGE){
 				rejectedDatabeans.add(databean);

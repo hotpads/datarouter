@@ -55,9 +55,6 @@ public class HBaseSimpleClientFactory
 implements ClientFactory{
 	private static final Logger logger = LoggerFactory.getLogger(HBaseSimpleClientFactory.class);
 	
-	//client ExecSvc pooling.  could add this to HBaseOptions
-	private static final int EXECUTOR_SERVICE_MAX_POOL_SIZE = 50;
-	
 	//default table configuration settings for new tables
 	private static final long 
 			DEFAULT_MAX_FILE_SIZE_BYTES = 1024 * 1024 * 1024,
@@ -183,8 +180,7 @@ implements ClientFactory{
 			throw new RuntimeException(e);
 		}
 		
-		HTablePool pool = new HTableExecutorServicePool(hBaseAdmin, clientName, EXECUTOR_SERVICE_MAX_POOL_SIZE,
-				primaryKeyClassByName);
+		HTablePool pool = new HTableExecutorServicePool(options, hBaseAdmin, clientName, primaryKeyClassByName);
 		return Pair.create(pool, primaryKeyClassByName);
 	}
 
