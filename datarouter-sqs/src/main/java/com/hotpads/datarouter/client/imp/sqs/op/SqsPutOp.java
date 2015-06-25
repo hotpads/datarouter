@@ -24,7 +24,7 @@ extends SqsOp<PK,D,F,Void>{
 
 	@Override
 	protected Void run(){
-		String encodedDatabean = sqsEncoder.encode(databean);
+		String encodedDatabean = codec.toString(databean, fielder);
 		if(StringByteTool.getUtf8Bytes(encodedDatabean).length > SqsNode.MAX_BYTES_PER_MESSAGE){
 			throw new SqsDataTooLargeException(databean);
 		}
