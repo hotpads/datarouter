@@ -160,7 +160,8 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 					sb.append("(" +requestedCol.getMaxLength() +")");
 				}
 				if(requestedCol.getNullable()){
-					sb.append(" default null");
+					//sb.append(" default null");					
+					sb.append(" default "+requestedCol.getDefaultVal());
 				}else{
 					sb.append(" not null");
 				}
@@ -283,7 +284,8 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 				sb.append("(" + col.getMaxLength() + ")");
 			}
 			if(col.getNullable()){
-				sb.append(" default null");
+				String defaultValue = col.getDefaultVal() == null? null : "'"+col.getDefaultVal()+"'";								
+				sb.append(" default "+defaultValue);
 			}else{
 				sb.append(" not null");
 			}
