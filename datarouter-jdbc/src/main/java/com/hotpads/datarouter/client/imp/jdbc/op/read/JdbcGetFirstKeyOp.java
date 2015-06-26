@@ -36,8 +36,8 @@ extends BaseJdbcOp<PK>{
 		limitedConfig.setLimit(1);
 		String sql = SqlBuilder.getAll(limitedConfig, node.getTableName(), node.getFieldInfo().getPrimaryKeyFields(),
 				null, node.getFieldInfo().getPrimaryKeyFields());
-		List<PK> result = JdbcTool.selectPrimaryKeys(jdbcFieldCodecFactory, getConnection(node.getClientName()), node
-				.getFieldInfo(), sql);
+		List<PK> result = JdbcTool.selectPrimaryKeys(jdbcFieldCodecFactory,
+				getConnection(node.getClientId().getName()), node.getFieldInfo(), sql);
 		return DrCollectionTool.getFirst(result);
 	}
 	

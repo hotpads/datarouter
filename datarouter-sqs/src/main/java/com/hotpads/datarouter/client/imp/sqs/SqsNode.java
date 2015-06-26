@@ -67,7 +67,7 @@ implements PhysicalQueueStorageNode<PK,D>{
 	}
 	
 	private SqsClient getSqsClient(){
-		return (SqsClient) datarouterContext.getClientPool().getClient(getClientName());
+		return (SqsClient) datarouterContext.getClientPool().getClient(getClientId().getName());
 	}
 	
 	public AmazonSQSClient getAmazonSqsClient(){

@@ -11,8 +11,6 @@ import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.ClientTableNodeNames;
 import com.hotpads.datarouter.client.imp.hbase.client.HBaseClient;
@@ -50,9 +48,7 @@ public class HBaseSubEntityReaderNode<
 		F extends DatabeanFielder<PK,D>> 
 extends BasePhysicalNode<PK,D,F>
 implements HBasePhysicalNode<PK,D>,
-		SubEntitySortedMapStorageReaderNode<EK,PK,D,F>
-{
-	protected Logger logger = LoggerFactory.getLogger(getClass());
+		SubEntitySortedMapStorageReaderNode<EK,PK,D,F>{
 	
 	public static final int DEFAULT_ITERATE_BATCH_SIZE = Config.DEFAULT_ITERATE_BATCH_SIZE;
 
@@ -66,10 +62,10 @@ implements HBasePhysicalNode<PK,D>,
 	
 	public HBaseSubEntityReaderNode(EntityNodeParams<EK,E> entityNodeParams, NodeParams<PK,D,F> params){
 		super(params);
-		this.clientTableNodeNames = new ClientTableNodeNames(getClientName(), getTableName(), getName());
+		this.clientTableNodeNames = new ClientTableNodeNames(getClientId().getName(), getTableName(), getName());
 		this.entityFieldInfo = new EntityFieldInfo<>(entityNodeParams);
-		this.queryBuilder = new HBaseSubEntityQueryBuilder<EK,E,PK,D,F>(entityFieldInfo, fieldInfo);
-		this.resultParser = new HBaseSubEntityResultParser<EK,E,PK,D,F>(entityFieldInfo, fieldInfo);
+		this.queryBuilder = new HBaseSubEntityQueryBuilder<>(entityFieldInfo, fieldInfo);
+		this.resultParser = new HBaseSubEntityResultParser<>(entityFieldInfo, fieldInfo);
 	}
 	
 	
@@ -77,7 +73,7 @@ implements HBasePhysicalNode<PK,D>,
 
 	@Override
 	public HBaseClient getClient(){
-		return (HBaseClient)getRouter().getClient(getClientName());
+		return (HBaseClient)getRouter().getClient(getClientId().getName());
 	}
 	
 	@Override
@@ -95,45 +91,52 @@ implements HBasePhysicalNode<PK,D>,
 
 	
 	@Override
-	public D get(final PK key, final Config pConfig){
-		if(key==null){ return null; }
-		final Config config = Config.nullSafe(pConfig);
-		return DrCollectionTool.getFirst(getMulti(DrListTool.wrap(key), config));
+	public D get(final PK key, final Config config){
+		if(key==null){
+			return null;
+		}
+		return DrCollectionTool.getFirst(getMulti(DrListTool.wrap(key), Config.nullSafe(config)));
 	}
 	
 	
 	@Override
-	public List<D> getMulti(final Collection<PK> pks, final Config pConfig){	
-		if(DrCollectionTool.isEmpty(pks)){ return new LinkedList<D>(); }
-		final Config config = Config.nullSafe(pConfig);
-		return new HBaseMultiAttemptTask<List<D>>(new HBaseTask<List<D>>(getDatarouterContext(), getClientTableNodeNames(), 
-				"getMulti", config){
-				public List<D> hbaseCall(HTable hTable, HBaseClient client, ResultScanner managedResultScanner) throws Exception{
-					DRCounters.incClientNodeCustom(client.getType(), "getMulti requested", getClientName(), getNodeName(), 
-							DrCollectionTool.size(pks));
-					List<Get> gets = queryBuilder.getGets(pks, false);
-					Result[] hBaseResults = hTable.get(gets);
-					List<D> databeans = resultParser.getDatabeansWithMatchingQualifierPrefix(hBaseResults);
-					DRCounters.incClientNodeCustom(client.getType(), "getMulti found", getClientName(), getNodeName(), 
-							DrCollectionTool.size(pks));
-					return databeans;
-				}
-			}).call();
+	public List<D> getMulti(final Collection<PK> pks, final Config config){
+		if(DrCollectionTool.isEmpty(pks)){
+			return new LinkedList<>();
+		}
+		return new HBaseMultiAttemptTask<>(new HBaseTask<List<D>>(getDatarouterContext(), getClientTableNodeNames(),
+				"getMulti", Config.nullSafe(config)){
+			@Override
+			public List<D> hbaseCall(HTable htable, HBaseClient client, ResultScanner managedResultScanner)
+			throws Exception{
+				DRCounters.incClientNodeCustom(client.getType(), "getMulti requested", getClientName(), getNodeName(),
+						DrCollectionTool.size(pks));
+				List<Get> gets = queryBuilder.getGets(pks, false);
+				Result[] hbaseResults = htable.get(gets);
+				List<D> databeans = resultParser.getDatabeansWithMatchingQualifierPrefix(hbaseResults);
+				DRCounters.incClientNodeCustom(client.getType(), "getMulti found", getClientName(), getNodeName(),
+						DrCollectionTool.size(pks));
+				return databeans;
+			}
+		}).call();
 	}
 	
 	
 	@Override
-	public List<PK> getKeys(final Collection<PK> pks, final Config pConfig) {	
-		if(DrCollectionTool.isEmpty(pks)){ return new LinkedList<PK>(); }
-		final Config config = Config.nullSafe(pConfig);
-		return new HBaseMultiAttemptTask<List<PK>>(new HBaseTask<List<PK>>(getDatarouterContext(), getClientTableNodeNames(), 
-				"getKeys", config){
-				public List<PK> hbaseCall(HTable hTable, HBaseClient client, ResultScanner managedResultScanner) throws Exception{
-					DRCounters.incClientNodeCustom(client.getType(), "getKeys requested", getClientName(), getNodeName(), 
-							DrCollectionTool.size(pks));
+	public List<PK> getKeys(final Collection<PK> pks, final Config config) {	
+		if(DrCollectionTool.isEmpty(pks)){
+			return new LinkedList<>();
+		}
+		return new HBaseMultiAttemptTask<>(new HBaseTask<List<PK>>(getDatarouterContext(), getClientTableNodeNames(),
+				"getKeys", Config.nullSafe(config)){
+				@Override
+				public List<PK> hbaseCall(HTable htable, HBaseClient client, ResultScanner managedResultScanner)
+				throws Exception{
+				DRCounters.incClientNodeCustom(client.getType(), "getKeys requested", getClientName(), getNodeName(),
+						DrCollectionTool.size(pks));
 					List<Get> gets = queryBuilder.getGets(pks, true);
-					Result[] hBaseResults = hTable.get(gets);
-					List<PK> pks = resultParser.getPrimaryKeysWithMatchingQualifierPrefix(hBaseResults);
+					Result[] hbaseResults = htable.get(gets);
+					List<PK> pks = resultParser.getPrimaryKeysWithMatchingQualifierPrefix(hbaseResults);
 					DRCounters.incClientNodeCustom(client.getType(), "getKeys found", getClientName(), getNodeName(), 
 							DrCollectionTool.size(pks));
 					return pks;
@@ -145,16 +148,16 @@ implements HBasePhysicalNode<PK,D>,
 	/************************* sorted **********************************/
 	
 	@Override
-	public PK getFirstKey(Config pConfig){
-		Config config = Config.nullSafe(pConfig).setIterateBatchSize(1);
-		return DrIterableTool.first(scanKeys(null, config));
+	public PK getFirstKey(Config config){
+		Config nullSafeonfig = Config.nullSafe(config).setIterateBatchSize(1);
+		return DrIterableTool.first(scanKeys(null, nullSafeonfig));
 	}
 
 	
 	@Override
-	public D getFirst(Config pConfig){
-		Config config = Config.nullSafe(pConfig).setIterateBatchSize(1);
-		return DrIterableTool.first(scan(null, config));
+	public D getFirst(Config config){
+		Config nullSafeConfig = Config.nullSafe(config).setIterateBatchSize(1);
+		return DrIterableTool.first(scan(null, nullSafeConfig));
 	}
 	
 	
@@ -166,9 +169,11 @@ implements HBasePhysicalNode<PK,D>,
 	
 	@Override
 	public List<D> getWithPrefixes(final Collection<PK> prefixes, final boolean wildcardLastField, 
-			final Config pConfig){
-		if(DrCollectionTool.isEmpty(prefixes)){ return new LinkedList<D>(); }
-		final Config config = Config.nullSafe(pConfig);
+			final Config config){
+		if(DrCollectionTool.isEmpty(prefixes)){
+			return new LinkedList<>();
+		}
+		final Config nullSafeConfig = Config.nullSafe(config);
 
 		//segment prefixes into single vs multi-row queries
 		final List<PK> singleEntityPrefixes = new ArrayList<>();
@@ -182,11 +187,13 @@ implements HBasePhysicalNode<PK,D>,
 		}
 		
 		//execute the single-row queries in a big multi-Get
-		List<D> singleEntityResults = new HBaseMultiAttemptTask<List<D>>(new HBaseTask<List<D>>(
-				getDatarouterContext(), getClientTableNodeNames(), "getWithPrefixes", config){
-				public List<D> hbaseCall(HTable hTable, HBaseClient client, ResultScanner managedResultScanner) throws Exception{
+		List<D> singleEntityResults = new HBaseMultiAttemptTask<>(new HBaseTask<List<D>>(
+				getDatarouterContext(), getClientTableNodeNames(), "getWithPrefixes", nullSafeConfig){
+				@Override
+				public List<D> hbaseCall(HTable htable, HBaseClient client, ResultScanner managedResultScanner)
+				throws Exception{
 					List<Get> gets = queryBuilder.getPrefixGets(singleEntityPrefixes, wildcardLastField, config);
-					Result[] hbaseRows = hTable.get(gets);
+					Result[] hbaseRows = htable.get(gets);
 					return resultParser.getDatabeansWithMatchingQualifierPrefix(hbaseRows);
 				}
 			}).call();
@@ -196,18 +203,25 @@ implements HBasePhysicalNode<PK,D>,
 		List<D> multiEntityResults = new ArrayList<>();
 		for(final PK pkPrefix : multiEntityPrefixes){
 			EK ekPrefix = pkPrefix.getEntityKey();//we already determined prefix is confied to the EK
-			final List<Scan> allPartitionScans = queryBuilder.getPrefixScans(ekPrefix, wildcardLastField, config);
+			final List<Scan> allPartitionScans = queryBuilder.getPrefixScans(ekPrefix, wildcardLastField, 
+					nullSafeConfig);
 			for(final Scan singlePartitionScan : allPartitionScans){
-			List<D> singleScanResults = new HBaseMultiAttemptTask<List<D>>(new HBaseTask<List<D>>(
-					getDatarouterContext(), getClientTableNodeNames(), "getWithPrefixes", config){
-					public List<D> hbaseCall(HTable hTable, HBaseClient client, ResultScanner managedResultScanner) throws Exception{
+			List<D> singleScanResults = new HBaseMultiAttemptTask<>(new HBaseTask<List<D>>(
+					getDatarouterContext(), getClientTableNodeNames(), "getWithPrefixes", nullSafeConfig){
+					@Override
+					public List<D> hbaseCall(HTable htable, HBaseClient client, ResultScanner managedResultScanner)
+					throws Exception{
 						List<D> results = new ArrayList<>();
-						managedResultScanner = hTable.getScanner(singlePartitionScan);
+						managedResultScanner = htable.getScanner(singlePartitionScan);
 						for(Result row : managedResultScanner){
-							if(row.isEmpty()){ continue; }
+							if(row.isEmpty()){
+								continue;
+							}
 							List<D> singleRowResults = resultParser.getDatabeansWithMatchingQualifierPrefix(row);
 							results.addAll(singleRowResults);
-							if(config.getLimit()!=null && results.size()>=config.getLimit()){ break; }
+							if(config.getLimit()!=null && results.size()>=config.getLimit()){
+								break;
+							}
 						}
 						return results;
 					}
@@ -222,41 +236,49 @@ implements HBasePhysicalNode<PK,D>,
 	}
 	
 	@Override
-	public ScannerIterable<PK> scanKeys(final Range<PK> pRange, final Config pConfig){
-		final Config config = Config.nullSafe(pConfig);
-		final Range<PK> range = Range.nullSafe(pRange);
-		if(queryBuilder.isSingleEntity(range)){//single row.  use Get.  gets all pks in entity.  no way to limit rows
-			List<PK> pks = new HBaseMultiAttemptTask<List<PK>>(new HBaseTask<List<PK>>(getDatarouterContext(), 
-					getClientTableNodeNames(), "scanPksInEntity", config){
-				public List<PK> hbaseCall(HTable hTable, HBaseClient client, ResultScanner managedResultScanner) throws Exception{
-					Get get = queryBuilder.getSingleRowRange(range.getStart().getEntityKey(), range, true);
-					Result result = hTable.get(get);
+	public ScannerIterable<PK> scanKeys(final Range<PK> range, final Config config){
+		final Config nullSafeConfig = Config.nullSafe(config);
+		final Range<PK> nullSafeRange = Range.nullSafe(range);
+		//single row. use Get. gets all pks in entity. no way to limit rows
+		if(queryBuilder.isSingleEntity(nullSafeRange)){
+			List<PK> pks = new HBaseMultiAttemptTask<>(new HBaseTask<List<PK>>(getDatarouterContext(), 
+					getClientTableNodeNames(), "scanPksInEntity", nullSafeConfig){
+				@Override
+				public List<PK> hbaseCall(HTable htable, HBaseClient client, ResultScanner managedResultScanner)
+				throws Exception{
+					Get get = queryBuilder.getSingleRowRange(nullSafeRange.getStart().getEntityKey(), nullSafeRange,
+							true);
+					Result result = htable.get(get);
 					return DrListTool.createArrayList(resultParser.getPrimaryKeysWithMatchingQualifierPrefix(result));	
 				}}).call();
-			return new ScannerIterable<PK>(new ListBackedSortedScanner<PK>(pks));
+			return new ScannerIterable<>(new ListBackedSortedScanner<>(pks));
 		}
-		List<AsyncBatchLoaderScanner<PK>> scanners = queryBuilder.getPkScanners(this, range, pConfig);
-		Collator<PK> collator = new PriorityQueueCollator<PK>(scanners);
-		return new ScannerIterable<PK>(collator);
+		List<AsyncBatchLoaderScanner<PK>> scanners = queryBuilder.getPkScanners(this, nullSafeRange, config);
+		Collator<PK> collator = new PriorityQueueCollator<>(scanners);
+		return new ScannerIterable<>(collator);
 	}
 	
 	@Override
-	public ScannerIterable<D> scan(final Range<PK> pRange, final Config pConfig){
-		final Config config = Config.nullSafe(pConfig);
-		final Range<PK> range = Range.nullSafe(pRange);
-		if(queryBuilder.isSingleEntity(range)){//single row.  use Get.  gets all databeans in entity.  no way to limit rows
-			List<D> databeans = new HBaseMultiAttemptTask<List<D>>(new HBaseTask<List<D>>(getDatarouterContext(), 
-					getClientTableNodeNames(), "scanInEntity", config){
-				public List<D> hbaseCall(HTable hTable, HBaseClient client, ResultScanner managedResultScanner) throws Exception{
-					Get get = queryBuilder.getSingleRowRange(range.getStart().getEntityKey(), range, false);
-					Result result = hTable.get(get);
+	public ScannerIterable<D> scan(final Range<PK> range, final Config config){
+		final Config nullSafeConfig = Config.nullSafe(config);
+		final Range<PK> nullSafeRange = Range.nullSafe(range);
+		//single row. use Get. gets all databeans in entity. no way to limit rows
+		if(queryBuilder.isSingleEntity(nullSafeRange)){
+			List<D> databeans = new HBaseMultiAttemptTask<>(new HBaseTask<List<D>>(getDatarouterContext(), 
+					getClientTableNodeNames(), "scanInEntity", nullSafeConfig){
+				@Override
+				public List<D> hbaseCall(HTable htable, HBaseClient client, ResultScanner managedResultScanner)
+				throws Exception{
+					Get get = queryBuilder.getSingleRowRange(nullSafeRange.getStart().getEntityKey(), nullSafeRange,
+							false);
+					Result result = htable.get(get);
 					return resultParser.getDatabeansWithMatchingQualifierPrefix(result);	
 				}}).call();
-			return new ScannerIterable<D>(new ListBackedSortedScanner<D>(databeans));
+			return new ScannerIterable<>(new ListBackedSortedScanner<>(databeans));
 		}
-		List<AsyncBatchLoaderScanner<D>> scanners = queryBuilder.getDatabeanScanners(this, range, pConfig);
-		Collator<D> collator = new PriorityQueueCollator<D>(scanners);
-		return new ScannerIterable<D>(collator);
+		List<AsyncBatchLoaderScanner<D>> scanners = queryBuilder.getDatabeanScanners(this, nullSafeRange, config);
+		Collator<D> collator = new PriorityQueueCollator<>(scanners);
+		return new ScannerIterable<>(collator);
 	}
 		
 	
@@ -270,29 +292,36 @@ implements HBasePhysicalNode<PK,D>,
 	 * return more databeans/pks than iterateBatchSize
 	 */
 	public List<Result> getResultsInSubRange(final int partition, final Range<PK> rowRange, final boolean keysOnly, 
-			final Config pConfig){
-		final Config config = Config.nullSafe(pConfig);
+			final Config config){
+		final Config nullSafeConfig = Config.nullSafe(config);
 		final String scanKeysVsRowsNumBatches = "scan " + (keysOnly ? "pk" : "databean") + " numBatches";
 		final String scanKeysVsRowsNumRows = "scan " + (keysOnly ? "pk" : "databean") + " numRows";
-//		final String scanKeysVsRowsNumCells = "scan " + (keysOnly ? "key" : "row") + " numCells";//need a clean way to get cell count
-		return new HBaseMultiAttemptTask<List<Result>>(new HBaseTask<List<Result>>(getDatarouterContext(), 
-				getClientTableNodeNames(), scanKeysVsRowsNumBatches, config){
-				public List<Result> hbaseCall(HTable hTable, HBaseClient client, ResultScanner managedResultScanner) throws Exception{
-					Scan scan = queryBuilder.getScanForSubrange(partition, rowRange, pConfig, keysOnly);
-					managedResultScanner = hTable.getScanner(scan);
-					List<Result> results = new ArrayList<>();
-					for(Result row : managedResultScanner){
-						if(row.isEmpty()){ continue; }
-						results.add(row);
-						if(config.getIterateBatchSize()!=null && results.size()>=config.getIterateBatchSize()){ break; }
-						if(config.getLimit()!=null && results.size()>=config.getLimit()){ break; }
+		return new HBaseMultiAttemptTask<>(new HBaseTask<List<Result>>(getDatarouterContext(), 
+				getClientTableNodeNames(), scanKeysVsRowsNumBatches, nullSafeConfig){
+			@Override
+			public List<Result> hbaseCall(HTable htable, HBaseClient client, ResultScanner managedResultScanner)
+			throws Exception{
+				Scan scan = queryBuilder.getScanForSubrange(partition, rowRange, config, keysOnly);
+				managedResultScanner = htable.getScanner(scan);
+				List<Result> results = new ArrayList<>();
+				for(Result row : managedResultScanner){
+					if(row.isEmpty()){
+						continue;
 					}
-					managedResultScanner.close();
-					DRCounters.incClientNodeCustom(client.getType(), scanKeysVsRowsNumRows, getClientName(), getNodeName(),  
-							DrCollectionTool.size(results));
-					return results;
+					results.add(row);
+					if(config.getIterateBatchSize()!=null && results.size()>=config.getIterateBatchSize()){
+						break;
+					}
+					if(config.getLimit()!=null && results.size()>=config.getLimit()){
+						break;
+					}
 				}
-			}).call();
+				managedResultScanner.close();
+				DRCounters.incClientNodeCustom(client.getType(), scanKeysVsRowsNumRows, getClientName(), getNodeName(),
+						DrCollectionTool.size(results));
+				return results;
+			}
+		}).call();
 	}
 	
 	
@@ -309,6 +338,4 @@ implements HBasePhysicalNode<PK,D>,
 	public EntityFieldInfo<EK,E> getEntityFieldInfo(){
 		return entityFieldInfo;
 	}
-	
-	
 }

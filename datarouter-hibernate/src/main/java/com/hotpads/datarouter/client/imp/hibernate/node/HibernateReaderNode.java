@@ -84,7 +84,7 @@ implements MapStorageReader<PK,D>,
 
 	@Override
 	public HibernateClientImp getClient(){
-		return (HibernateClientImp)getRouter().getClient(getClientName());
+		return (HibernateClientImp)getRouter().getClient(getClientId().getName());
 	}
 	
 	/************************************ MapStorageReader methods ****************************/

@@ -33,7 +33,7 @@ extends BaseJdbcOp<Long>{
 	@Override
 	public Long runOnce(){
 		String sql = SqlBuilder.deleteMulti(fieldCodecFactory, config, node.getTableName(), DrListTool.wrap(lookup));
-		long numModified = JdbcTool.update(getConnection(node.getClientName()), sql.toString());
+		long numModified = JdbcTool.update(getConnection(node.getClientId().getName()), sql.toString());
 		return numModified;
 	}
 	

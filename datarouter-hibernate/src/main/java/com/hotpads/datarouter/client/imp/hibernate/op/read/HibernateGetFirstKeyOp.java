@@ -31,7 +31,7 @@ extends BaseHibernateOp<PK>{
 	
 	@Override
 	public PK runOnce(){
-		Session session = getSession(node.getClientName());
+		Session session = getSession(node.getClientId().getName());
 		String entityName = node.getPackagedTableName();
 		Criteria criteria = session.createCriteria(entityName);
 		ProjectionList projectionList = Projections.projectionList();
@@ -44,7 +44,9 @@ extends BaseHibernateOp<PK>{
 		node.addPrimaryKeyOrderToCriteria(criteria);
 		criteria.setMaxResults(1);
 		Object rows = criteria.uniqueResult();
-		if(rows==null){ return null; }
+		if(rows==null){
+			return null;
+		}
 		if(numFields==1){
 			rows = new Object[]{rows};
 		}

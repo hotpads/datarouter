@@ -59,7 +59,7 @@ extends BaseJdbcOp<Void>{
 	
 	@Override
 	public Void runOnce(){
-		Connection connection = getConnection(node.getClientName());
+		Connection connection = getConnection(node.getClientId().getName());
 		int batchSize = config.getIterateBatchSizeOverrideNull(DEFAULT_BATCH_SIZE);
 		for(List<D> databeanBatch : new BatchingIterable<>(databeans, batchSize)){
 			if(PutMethod.INSERT_ON_DUPLICATE_UPDATE == config.getPutMethod()

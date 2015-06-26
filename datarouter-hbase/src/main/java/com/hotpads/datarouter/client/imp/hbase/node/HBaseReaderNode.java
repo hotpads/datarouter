@@ -58,14 +58,14 @@ implements HBasePhysicalNode<PK,D>,
 	
 	public HBaseReaderNode(NodeParams<PK,D,F> params){
 		super(params);
-		this.clientTableNodeNames = new ClientTableNodeNames(getClientName(), getTableName(), getName());
+		this.clientTableNodeNames = new ClientTableNodeNames(getClientId().getName(), getTableName(), getName());
 	}
 	
 	/***************************** plumbing methods ***********************************/
 
 	@Override
 	public HBaseClient getClient(){
-		return (HBaseClient)getRouter().getClient(getClientName());
+		return (HBaseClient)getRouter().getClient(getClientId().getName());
 	}
 	
 	/************************************ MapStorageReader methods ****************************/
@@ -85,6 +85,7 @@ implements HBasePhysicalNode<PK,D>,
 		config = Config.nullSafe(config);
 		return new HBaseMultiAttemptTask<>(new HBaseTask<D>(getDatarouterContext(), getClientTableNodeNames(), "get",
 				config){
+			@Override
 			public D hbaseCall(HTable table, HBaseClient client, ResultScanner managedResultScanner) throws Exception{
 				byte[] rowBytes = getKeyBytesWithScatteringPrefix(null, key, false);
 				Result row = table.get(new Get(rowBytes));
@@ -106,6 +107,7 @@ implements HBasePhysicalNode<PK,D>,
 		config = Config.nullSafe(config);
 		return new HBaseMultiAttemptTask<>(new HBaseTask<List<D>>(getDatarouterContext(), getClientTableNodeNames(),
 				"getMulti", config){
+			@Override
 			public List<D> hbaseCall(HTable table, HBaseClient client, ResultScanner managedResultScanner)
 					throws Exception{
 				List<Get> gets = DrListTool.createArrayListWithSize(keys);
@@ -128,6 +130,7 @@ implements HBasePhysicalNode<PK,D>,
 		config = Config.nullSafe(config);
 		return new HBaseMultiAttemptTask<>(new HBaseTask<List<PK>>(getDatarouterContext(), getClientTableNodeNames(),
 				"getKeys", config){
+			@Override
 			public List<PK> hbaseCall(HTable table, HBaseClient client, ResultScanner managedResultScanner)
 					throws Exception{
 				List<Get> gets = DrListTool.createArrayListWithSize(keys);
@@ -179,6 +182,7 @@ implements HBasePhysicalNode<PK,D>,
 		for(final Scan scan : scanForEachScatteringPartition){
 			new HBaseMultiAttemptTask<>(new HBaseTask<Void>(getDatarouterContext(), getClientTableNodeNames(),
 					"getWithPrefixes", config){
+				@Override
 				public Void hbaseCall(HTable table, HBaseClient client, ResultScanner managedResultScanner)
 						throws Exception{
 					managedResultScanner = table.getScanner(scan);
@@ -236,6 +240,7 @@ implements HBasePhysicalNode<PK,D>,
 //		final String scanKeysVsRowsNumCells = "scan " + (keysOnly ? "key" : "row") + " numCells";
 		return new HBaseMultiAttemptTask<>(new HBaseTask<List<Result>>(getDatarouterContext(),
 				getClientTableNodeNames(), scanKeysVsRowsNumBatches, config){
+			@Override
 			public List<Result> hbaseCall(HTable table, HBaseClient client, ResultScanner managedResultScanner)
 					throws Exception{
 				ByteRange start = range.getStart();
