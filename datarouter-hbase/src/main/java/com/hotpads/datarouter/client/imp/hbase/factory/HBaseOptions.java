@@ -7,27 +7,35 @@ import com.hotpads.util.core.properties.TypedProperties;
 
 public class HBaseOptions extends TypedProperties{
 	
-	protected String clientPrefix;
+	private String clientPrefix;
 
 	public HBaseOptions(List<Properties> multiProperties, String clientName){
 		super(multiProperties);
-		this.clientPrefix = "client."+clientName+".hbase.";
+		this.clientPrefix = "client." + clientName + ".hbase.";
 	}
-	
+
 	public String zookeeperQuorum(){
-		return getString(clientPrefix+"zookeeper.quorum");
+		return getString(clientPrefix + "zookeeper.quorum");
 	}
-	
+
 	public boolean checkTables(){
-		return getBoolean(clientPrefix+"checkTables", false);
+		return getBoolean(clientPrefix + "checkTables", false);
 	}
 
 	public boolean createTables(){
-		return getBoolean(clientPrefix+"createTables", false);
+		return getBoolean(clientPrefix + "createTables", false);
 	}
-	
-	public Integer minPoolSize(int def){
-		return getInteger(clientPrefix+"minPoolSize", def);
+
+	public Integer maxHTables(int defaultValue){
+		return getInteger(clientPrefix + "maxHTables", defaultValue);
+	}
+
+	public Integer minThreadsPerHTable(int defaultValue){
+		return getInteger(clientPrefix + "minThreadsPerHTable", defaultValue);
+	}
+
+	public Integer maxThreadsPerHTable(int defaultValue){
+		return getInteger(clientPrefix + "maxThreadsPerHTable", defaultValue);
 	}
 	
 }
