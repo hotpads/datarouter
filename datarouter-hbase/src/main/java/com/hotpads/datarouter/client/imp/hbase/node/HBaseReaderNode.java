@@ -13,6 +13,9 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.filter.FirstKeyOnlyFilter;
+import org.apache.hadoop.hbase.util.Bytes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.ClientTableNodeNames;
 import com.hotpads.datarouter.client.imp.hbase.client.HBaseClient;
@@ -51,6 +54,7 @@ extends BasePhysicalNode<PK,D,F>
 implements HBasePhysicalNode<PK,D>,
 		MapStorageReader<PK,D>,
 		SortedStorageReader<PK,D>{
+	private static final Logger logger = LoggerFactory.getLogger(HBaseReaderNode.class);
 		
 	private ClientTableNodeNames clientTableNodeNames;
 	
@@ -89,6 +93,10 @@ implements HBasePhysicalNode<PK,D>,
 				byte[] rowBytes = getKeyBytesWithScatteringPrefix(null, key, false);
 				Result row = table.get(new Get(rowBytes));
 				if (row.isEmpty()){
+					return null;
+				}
+				if( ! Bytes.equals(rowBytes, row.getRow())){//bug in hbase 0.94.2?
+					logger.warn("hbase returned row that doesn't match our key");
 					return null;
 				}
 				D result = HBaseResultTool.getDatabean(row, fieldInfo);
