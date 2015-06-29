@@ -283,12 +283,8 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 			if(type.shouldSpecifyLength(col.getMaxLength())){
 				sb.append("(" + col.getMaxLength() + ")");
 			}
-			if(col.getNullable()){
-				String defaultValue = col.getDefaultVal() == null? null : "'"+col.getDefaultVal()+"'";								
-				sb.append(" default "+defaultValue);
-			}else{
-				sb.append(" not null");
-			}
+			String defaultValue = col.getNullable()? getDefaultValueForNotNull(col) : " not null";
+			sb.append(defaultValue);			
 			if(col.getAutoIncrement()) {
 				sb.append(" auto_increment");
 			}
@@ -310,6 +306,18 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 		sb = new StringBuilder(sb.substring(0, sb.length()-2)); // remove the last "," 
 		list.add(new SqlAlterTableClause(sb.toString(), SqlAlterTypes.DROP_COLUMN));
 		return list;
+	}
+	
+	private String getDefaultValueForNotNull(SqlColumn col){		
+		String defaultValue = null;	
+		if(col.getDefaultVal() == null || col.getType().equals(MySqlColumnType.TINYINT)){		
+			//do not need quotes around the default val
+			defaultValue = " default "+col.getDefaultVal()+""; 
+		}			
+		else{
+			defaultValue = "'"+col.getDefaultVal()+"'";
+		}	
+		return defaultValue;
 	}
 	
 	public static class SqlAlterTableGeneratorTester{
