@@ -55,7 +55,7 @@ implements MemcachedPhysicalNode<PK,D>,
 
 	@Override
 	public MemcachedClient getClient(){
-		return (MemcachedClient)getRouter().getClient(getClientName());
+		return (MemcachedClient)getRouter().getClient(getClientId().getName());
 	}
 	
 	/************************************ MapStorageReader methods ****************************/

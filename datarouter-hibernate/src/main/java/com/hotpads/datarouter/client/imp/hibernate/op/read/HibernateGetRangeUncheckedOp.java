@@ -50,8 +50,9 @@ extends BaseHibernateOp<List<? extends FieldSet<?>>>{
 	
 	@Override
 	public List<? extends FieldSet<?>> runOnce(){
-		DRCounters.incClientNodeCustom(node.getClient().getType(), opName, node.getClientName(), node.getName());
-		Session session = getSession(node.getClientName());
+		DRCounters.incClientNodeCustom(node.getClient().getType(), opName, node.getClientId().getName(),
+				node.getName());
+		Session session = getSession(node.getClientId().getName());
 		Criteria criteria = node.getCriteriaForConfig(config, session);
 		if(keysOnly){
 			ProjectionList projectionList = Projections.projectionList();
@@ -77,13 +78,13 @@ extends BaseHibernateOp<List<? extends FieldSet<?>>>{
 						node.getFieldInfo().getPrimaryKeyClass(), node.getFieldInfo().getPrimaryKeyFields(), 
 						rowCells));
 			}
-			DRCounters.incClientNodeCustom(node.getClient().getType(), opName+" rows", node.getClientName(), node.getName(), 
-					DrCollectionTool.size(result));
+			DRCounters.incClientNodeCustom(node.getClient().getType(), opName + " rows", node.getClientId().getName(),
+					node.getName(), DrCollectionTool.size(result));
 			return result;
 		}
 		List<? extends FieldSet<?>> result = criteria.list();
-		DRCounters.incClientNodeCustom(node.getClient().getType(), opName+" rows", node.getClientName(), node.getName(), 
-				DrCollectionTool.size(result));
+		DRCounters.incClientNodeCustom(node.getClient().getType(), opName + " rows", node.getClientId().getName(),
+				node.getName(), DrCollectionTool.size(result));
 		return result;
 	}
 	

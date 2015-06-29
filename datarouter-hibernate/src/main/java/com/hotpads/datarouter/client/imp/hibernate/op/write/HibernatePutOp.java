@@ -36,7 +36,7 @@ extends BaseHibernateOp<Void>{
 	
 	@Override
 	public Void runOnce(){
-		Session session = getSession(node.getClientName());
+		Session session = getSession(node.getClientId().getName());
 		final String entityName = node.getPackagedTableName();
 		for(D databean : DrCollectionTool.nullSafe(databeans)){
 			hibernatePutUsingMethod(session, entityName, databean, config, DEFAULT_PUT_METHOD);
@@ -49,7 +49,9 @@ extends BaseHibernateOp<Void>{
 	/******************** private **********************************************/
 	
 	private static Isolation getIsolation(Config config){
-		if(config==null){ return Config.DEFAULT_ISOLATION; }
+		if(config==null){
+			return Config.DEFAULT_ISOLATION;
+		}
 		return config.getIsolationOrUse(Config.DEFAULT_ISOLATION);
 	}
 	
@@ -57,7 +59,9 @@ extends BaseHibernateOp<Void>{
 	 * mirror of of above "putUsingMethod"
 	 */
 	private static boolean shouldAutoCommit(Collection<? extends Databean<?,?>> databeans, final Config config){
-		if(DrCollectionTool.size(databeans) > 1){ return false; }
+		if(DrCollectionTool.size(databeans) > 1){
+			return false;
+		}
 		PutMethod putMethod = DEFAULT_PUT_METHOD;
 		if(config!=null && config.getPutMethod()!=null){
 			putMethod = config.getPutMethod();

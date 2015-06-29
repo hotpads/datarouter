@@ -42,16 +42,18 @@ extends BaseHibernateOp<List<D>>{
 	
 	@Override
 	public List<D> runOnce(){
-		if(DrCollectionTool.isEmpty(lookups)){ return new LinkedList<D>(); }
-		Session session = getSession(node.getClientName());
+		if(DrCollectionTool.isEmpty(lookups)){
+			return new LinkedList<>();
+		}
+		Session session = getSession(node.getClientId().getName());
 		//TODO undefined behavior on trailing nulls
 		Criteria criteria = node.getCriteriaForConfig(config, session);
 		Disjunction or = Restrictions.disjunction();
 		for(Lookup<PK> lookup : lookups){
 			Conjunction prefixConjunction = node.getPrefixConjunction(false, lookup, wildcardLastField);
 			if(prefixConjunction==null){
-				throw new IllegalArgumentException("Lookup with all null fields would return entire " +
-						"table.  Please use getAll() instead.");
+				throw new IllegalArgumentException("Lookup with all null fields would return entire "
+						+ "table.  Please use getAll() instead.");
 			}
 			or.add(prefixConjunction);
 		}

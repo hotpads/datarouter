@@ -55,14 +55,14 @@ extends BaseJdbcOp<List<PK>>{
 		Collections.sort(sortedKeys);//should prob remove
 		int numBatches = DrBatchTool.getNumBatches(sortedKeys.size(), batchSize);
 		List<PK> result = new ArrayList<>(keys.size());
-		Connection connection = getConnection(node.getClientName());
+		Connection connection = getConnection(node.getClientId().getName());
 		for(int batchNum=0; batchNum < numBatches; ++batchNum){
 			List<? extends Key<PK>> keyBatch = DrBatchTool.getBatch(sortedKeys, batchSize, batchNum);
 			String sql = SqlBuilder.getMulti(fieldCodecFactory, config, node.getTableName(), node.getFieldInfo()
 					.getPrimaryKeyFields(), keyBatch);
 			List<PK> batch = JdbcTool.selectPrimaryKeys(fieldCodecFactory, connection, node.getFieldInfo(), sql);
-			DRCounters.incClientNodeCustom(node.getClient().getType(), opName + " selects", node.getClientName(), node
-					.getName());
+			DRCounters.incClientNodeCustom(node.getClient().getType(), opName + " selects", node.getClientId()
+					.getName(), node.getName());
 			if(DrCollectionTool.notEmpty(batch)){
 				Collections.sort(batch);//should prob remove
 				result.addAll(batch);

@@ -8,7 +8,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.hotpads.datarouter.node.entity.EntityNode;
-import com.hotpads.datarouter.test.DRTestConstants;
+import com.hotpads.datarouter.test.DrTestConstants;
 import com.hotpads.datarouter.test.node.basic.sorted.BaseSortedNodeIntegrationTests;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBean;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBeanEntity;
@@ -24,7 +24,7 @@ public class HBaseEntitySortedNodeIntegrationTests extends BaseSortedNodeIntegra
 	
 	@BeforeClass
 	public void beforeClass(){
-		setup(DRTestConstants.CLIENT_drTestHBase, true, true);
+		setup(DrTestConstants.CLIENT_drTestHBase, true, true);
 		this.sortedBeanEntityNode = router.sortedBeanEntity();
 	}
 

@@ -51,7 +51,7 @@ extends BaseJdbcOp<List<PKLookup>>{
 		PKLookup index = ReflectionTool.create(indexClass, indexClass.getCanonicalName() 
 				+ " must have a no-arg constructor");
 		
-		Set<Field<?>> selectableFieldSet = new TreeSet<Field<?>>(new FieldColumnNameComparator());
+		Set<Field<?>> selectableFieldSet = new TreeSet<>(new FieldColumnNameComparator());
 		selectableFieldSet.addAll(node.getFieldInfo().getPrefixedPrimaryKeyFields());
 		selectableFieldSet.addAll(index.getFields());
 		
@@ -71,7 +71,7 @@ extends BaseJdbcOp<List<PKLookup>>{
 		List<Field<?>> selectableFields = DrListTool.createArrayList(selectableFieldSet);
 		String sql = SqlBuilder.getInRange(fieldCodecFactory, config, node.getTableName(), selectableFields, fullStart,
 				start.getStartInclusive(), start.getEnd(), start.getEndInclusive(), index.getFields());
-		Connection connection = getConnection(node.getClientName());
+		Connection connection = getConnection(node.getClientId().getName());
 		List<PKLookup> result = JdbcTool.selectLookups(fieldCodecFactory, connection, selectableFields, indexClass,
 				sql, node.getFieldInfo().getPrimaryKeyClass());
 		return result;

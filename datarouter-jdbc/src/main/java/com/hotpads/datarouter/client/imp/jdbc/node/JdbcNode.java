@@ -60,7 +60,9 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D>{
 	@Override
 	public void putMulti(Collection<D> databeans, final Config config) {
 		String opName = MapStorageWriter.OP_putMulti;
-		if(DrCollectionTool.isEmpty(databeans)){ return; }//avoid starting txn
+		if(DrCollectionTool.isEmpty(databeans)){
+			return;//avoid starting txn
+		}
 		JdbcPutOp<PK,D,F> op = new JdbcPutOp<>(this, fieldCodecFactory, databeans, config);
 		new SessionExecutorImpl<>(op, getTraceName(opName)).call();
 	}
@@ -75,15 +77,17 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D>{
 	@Override
 	public void delete(PK key, Config config){
 		String opName = MapStorageWriter.OP_delete;
-		JdbcDeleteOp<PK,D,F> op = new JdbcDeleteOp<>(this, fieldCodecFactory, DrListTool.wrap(key), config);
+		JdbcDeleteOp<PK,D> op = new JdbcDeleteOp<>(this, fieldCodecFactory, DrListTool.wrap(key), config);
 		new SessionExecutorImpl<>(op, getTraceName(opName)).call();
 	}
 
 	@Override
 	public void deleteMulti(final Collection<PK> keys, final Config config){
 		String opName = MapStorageWriter.OP_deleteMulti;
-		if(DrCollectionTool.isEmpty(keys)){ return; }//avoid starting txn
-		JdbcDeleteOp<PK,D,F> op = new JdbcDeleteOp<>(this, fieldCodecFactory, keys, config);
+		if(DrCollectionTool.isEmpty(keys)){
+			return;//avoid starting txn
+		}
+		JdbcDeleteOp<PK,D> op = new JdbcDeleteOp<>(this, fieldCodecFactory, keys, config);
 		new SessionExecutorImpl<>(op, getTraceName(opName)).call();
 	}
 	
@@ -101,7 +105,9 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D>{
 	@Override
 	public void deleteMultiUnique(final Collection<? extends UniqueKey<PK>> uniqueKeys, final Config config){
 		String opName = IndexedStorageWriter.OP_deleteMultiUnique;
-		if(DrCollectionTool.isEmpty(uniqueKeys)){ return; }//avoid starting txn
+		if(DrCollectionTool.isEmpty(uniqueKeys)){
+			return;//avoid starting txn
+		}
 		JdbcUniqueIndexDeleteOp<PK,D> op = new JdbcUniqueIndexDeleteOp<>(this, fieldCodecFactory, uniqueKeys,
 				config);
 		new SessionExecutorImpl<>(op, getTraceName(opName)).call();
@@ -125,7 +131,7 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D>{
 	@Override
 	public void deleteRangeWithPrefix(final PK prefix, final boolean wildcardLastField, final Config config) {
 		String opName = SortedStorageWriter.OP_deleteRangeWithPrefix;
-		JdbcPrefixDeleteOp<PK,D,F> op = new JdbcPrefixDeleteOp<>(this, fieldCodecFactory, prefix, wildcardLastField, 
+		JdbcPrefixDeleteOp<PK,D> op = new JdbcPrefixDeleteOp<>(this, fieldCodecFactory, prefix, wildcardLastField, 
 				config);
 		new SessionExecutorImpl<>(op, getTraceName(opName)).call();
 	}
