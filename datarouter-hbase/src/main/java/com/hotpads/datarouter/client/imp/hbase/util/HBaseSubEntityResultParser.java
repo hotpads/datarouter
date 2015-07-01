@@ -13,6 +13,7 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.log4j.Logger;
 
+import com.hotpads.datarouter.client.imp.hbase.node.HBaseSubEntityNode;
 import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
 import com.hotpads.datarouter.serialize.fieldcache.EntityFieldInfo;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
@@ -117,19 +118,27 @@ public class HBaseSubEntityResultParser<
 			KeyValue kv){
 		@SuppressWarnings("unchecked") Map<PK,D> databeanByPk = (Map<PK,D>)uncheckedDatabeanByPk;
 		Pair<PK,String> pkAndFieldName = parsePrimaryKeyAndFieldName(kv);
-		Field<?> field = fieldInfo.getNonKeyFieldByColumnName().get(pkAndFieldName.getRight());//skip key fields which may have been accidenally inserted
-		if(field==null){ return; }//skip dummy fields and fields that may have existed in the past
 		PK pk = pkAndFieldName.getLeft();
+		String fieldName = pkAndFieldName.getRight();
+		Field<?> field = null;
+		final boolean isDummyField = HBaseSubEntityNode.DUMMY.equals(fieldName);
+		if(!isDummyField){
+			field = fieldInfo.getNonKeyFieldByColumnName().get(fieldName);
+			if(field == null){//field doesn't exist in the databean anymore.  skip it
+				return; 
+			}
+		}
 		D databean = databeanByPk.get(pk);
 		if(databean==null){
 			databean = ReflectionTool.create(fieldInfo.getDatabeanClass());
 			ReflectionTool.set(fieldInfo.getKeyJavaField(), databean, pk);
 			databeanByPk.put(pk, databean);
 		}
-		
-		//set the databean field value for this hbase cell
-		Object value = field.fromBytesButDoNotSet(kv.getValue(), 0);
-		field.setUsingReflection(databean, value);
+		if(!isDummyField){
+			//set the databean field value for this hbase cell
+			Object value = field.fromBytesButDoNotSet(kv.getValue(), 0);
+			field.setUsingReflection(databean, value);
+		}
 	}
 
 	

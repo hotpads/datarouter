@@ -6,15 +6,13 @@ import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodec
 import com.hotpads.datarouter.client.imp.jdbc.op.BaseJdbcOp;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
-import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.core.DrListTool;
 
 public class JdbcPrefixDeleteOp<
 		PK extends PrimaryKey<PK>,
-		D extends Databean<PK,D>,
-		F extends DatabeanFielder<PK,D>> 
+		D extends Databean<PK,D>> 
 extends BaseJdbcOp<Long>{
 		
 	private final PhysicalNode<PK,D> node;
@@ -37,7 +35,7 @@ extends BaseJdbcOp<Long>{
 	public Long runOnce(){
 		String sql = SqlBuilder.deleteWithPrefixes(fieldCodecFactory, config, node.getTableName(), DrListTool.wrap(
 				prefix), wildcardLastField);
-		long numModified = JdbcTool.update(getConnection(node.getClientName()), sql.toString());
+		long numModified = JdbcTool.update(getConnection(node.getClientId().getName()), sql.toString());
 		return numModified;
 	}
 	

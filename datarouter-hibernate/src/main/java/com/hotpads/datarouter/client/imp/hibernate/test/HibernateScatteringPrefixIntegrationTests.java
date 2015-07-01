@@ -6,7 +6,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Guice;
 
 import com.hotpads.datarouter.client.imp.jdbc.TestDatarouterJdbcModuleFactory;
-import com.hotpads.datarouter.test.DRTestConstants;
+import com.hotpads.datarouter.test.DrTestConstants;
 import com.hotpads.datarouter.test.node.basic.prefixed.test.BaseScatteringPrefixIntegrationTests;
 
 @Guice(moduleFactory = TestDatarouterJdbcModuleFactory.class)
@@ -14,7 +14,7 @@ public class HibernateScatteringPrefixIntegrationTests extends BaseScatteringPre
 
 	@BeforeClass
 	public void beforeClass() throws IOException{
-		setup(DRTestConstants.CLIENT_drTestHibernate0);
+		setup(DrTestConstants.CLIENT_drTestHibernate0);
 	}
 
 }

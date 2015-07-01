@@ -13,6 +13,9 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.filter.FirstKeyOnlyFilter;
+import org.apache.hadoop.hbase.util.Bytes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.ClientTableNodeNames;
 import com.hotpads.datarouter.client.imp.hbase.client.HBaseClient;
@@ -51,6 +54,7 @@ extends BasePhysicalNode<PK,D,F>
 implements HBasePhysicalNode<PK,D>,
 		MapStorageReader<PK,D>,
 		SortedStorageReader<PK,D>{
+	private static final Logger logger = LoggerFactory.getLogger(HBaseReaderNode.class);
 		
 	private ClientTableNodeNames clientTableNodeNames;
 	
@@ -58,14 +62,14 @@ implements HBasePhysicalNode<PK,D>,
 	
 	public HBaseReaderNode(NodeParams<PK,D,F> params){
 		super(params);
-		this.clientTableNodeNames = new ClientTableNodeNames(getClientName(), getTableName(), getName());
+		this.clientTableNodeNames = new ClientTableNodeNames(getClientId().getName(), getTableName(), getName());
 	}
 	
 	/***************************** plumbing methods ***********************************/
 
 	@Override
 	public HBaseClient getClient(){
-		return (HBaseClient)getRouter().getClient(getClientName());
+		return (HBaseClient)getRouter().getClient(getClientId().getName());
 	}
 	
 	/************************************ MapStorageReader methods ****************************/
@@ -85,10 +89,15 @@ implements HBasePhysicalNode<PK,D>,
 		config = Config.nullSafe(config);
 		return new HBaseMultiAttemptTask<>(new HBaseTask<D>(getDatarouterContext(), getClientTableNodeNames(), "get",
 				config){
+			@Override
 			public D hbaseCall(HTable table, HBaseClient client, ResultScanner managedResultScanner) throws Exception{
 				byte[] rowBytes = getKeyBytesWithScatteringPrefix(null, key, false);
 				Result row = table.get(new Get(rowBytes));
 				if (row.isEmpty()){
+					return null;
+				}
+				if( ! Bytes.equals(rowBytes, row.getRow())){//bug in hbase 0.94.2?
+					logger.warn("hbase returned row that doesn't match our key");
 					return null;
 				}
 				D result = HBaseResultTool.getDatabean(row, fieldInfo);
@@ -106,6 +115,7 @@ implements HBasePhysicalNode<PK,D>,
 		config = Config.nullSafe(config);
 		return new HBaseMultiAttemptTask<>(new HBaseTask<List<D>>(getDatarouterContext(), getClientTableNodeNames(),
 				"getMulti", config){
+			@Override
 			public List<D> hbaseCall(HTable table, HBaseClient client, ResultScanner managedResultScanner)
 					throws Exception{
 				List<Get> gets = DrListTool.createArrayListWithSize(keys);
@@ -128,6 +138,7 @@ implements HBasePhysicalNode<PK,D>,
 		config = Config.nullSafe(config);
 		return new HBaseMultiAttemptTask<>(new HBaseTask<List<PK>>(getDatarouterContext(), getClientTableNodeNames(),
 				"getKeys", config){
+			@Override
 			public List<PK> hbaseCall(HTable table, HBaseClient client, ResultScanner managedResultScanner)
 					throws Exception{
 				List<Get> gets = DrListTool.createArrayListWithSize(keys);
@@ -179,6 +190,7 @@ implements HBasePhysicalNode<PK,D>,
 		for(final Scan scan : scanForEachScatteringPartition){
 			new HBaseMultiAttemptTask<>(new HBaseTask<Void>(getDatarouterContext(), getClientTableNodeNames(),
 					"getWithPrefixes", config){
+				@Override
 				public Void hbaseCall(HTable table, HBaseClient client, ResultScanner managedResultScanner)
 						throws Exception{
 					managedResultScanner = table.getScanner(scan);
@@ -236,6 +248,7 @@ implements HBasePhysicalNode<PK,D>,
 //		final String scanKeysVsRowsNumCells = "scan " + (keysOnly ? "key" : "row") + " numCells";
 		return new HBaseMultiAttemptTask<>(new HBaseTask<List<Result>>(getDatarouterContext(),
 				getClientTableNodeNames(), scanKeysVsRowsNumBatches, config){
+			@Override
 			public List<Result> hbaseCall(HTable table, HBaseClient client, ResultScanner managedResultScanner)
 					throws Exception{
 				ByteRange start = range.getStart();

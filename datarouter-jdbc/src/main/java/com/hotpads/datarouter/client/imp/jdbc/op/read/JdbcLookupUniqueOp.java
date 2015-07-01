@@ -40,12 +40,14 @@ extends BaseJdbcOp<List<D>>{
 	
 	@Override
 	public List<D> runOnce(){
-		if(DrCollectionTool.isEmpty(uniqueKeys)){ return new LinkedList<D>(); }
+		if(DrCollectionTool.isEmpty(uniqueKeys)){
+			return new LinkedList<>();
+		}
 		List<? extends UniqueKey<PK>> sortedKeys = DrListTool.createArrayList(uniqueKeys);
 		Collections.sort(sortedKeys);
-		String sql = SqlBuilder.getMulti(fieldCodecFactory, config, node.getTableName(), node.getFieldInfo().getFields(), 
-				uniqueKeys);
-		List<D> result = JdbcTool.selectDatabeans(fieldCodecFactory, getConnection(node.getClientName()), node
+		String sql = SqlBuilder.getMulti(fieldCodecFactory, config, node.getTableName(), node.getFieldInfo()
+				.getFields(), uniqueKeys);
+		List<D> result = JdbcTool.selectDatabeans(fieldCodecFactory, getConnection(node.getClientId().getName()), node
 				.getFieldInfo(), sql);
 		return result;
 	}

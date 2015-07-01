@@ -56,7 +56,7 @@ implements MapStorageReader<PK,D>,
 
 	@Override
 	public JdbcClientImp getClient(){
-		return (JdbcClientImp)getRouter().getClient(getClientName());
+		return (JdbcClientImp)getRouter().getClient(getClientId().getName());
 	}
 	
 	/************************************ MapStorageReader methods ****************************/

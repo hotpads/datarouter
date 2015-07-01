@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.client.imp.hbase.test.pool;
 
+import java.util.Collections;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -14,8 +15,7 @@ import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.node.op.raw.MapStorage;
 import com.hotpads.datarouter.routing.BaseDatarouter;
 import com.hotpads.datarouter.routing.DatarouterContext;
-import com.hotpads.datarouter.test.DRTestConstants;
-import com.hotpads.datarouter.util.core.DrListTool;
+import com.hotpads.datarouter.test.DrTestConstants;
 
 @Singleton
 public class BasicClientTestRouter
@@ -23,8 +23,7 @@ extends BaseDatarouter{
 
 	public static final String name = "basicClientTest";
 
-	public static final List<ClientId> CLIENT_IDS = DrListTool.create(
-			new ClientId(DRTestConstants.CLIENT_drTestHBase, true));
+	public static final List<ClientId> CLIENT_IDS = Collections.singletonList(DrTestConstants.CLIENT_drTestHBase);
 
 	
 	/********************************** nodes **********************************/
@@ -37,14 +36,13 @@ extends BaseDatarouter{
 
 	@Inject
 	public BasicClientTestRouter(DatarouterContext drContext, NodeFactory nodeFactory){
-		super(drContext, DRTestConstants.CONFIG_PATH, name);
+		super(drContext, DrTestConstants.CONFIG_PATH, name);
 		
-		keepAliveHBase = cast(register(nodeFactory.create(DRTestConstants.CLIENT_drTestHBase, KeepAlive.class,
+		keepAliveHBase = cast(register(nodeFactory.create(DrTestConstants.CLIENT_drTestHBase, KeepAlive.class,
 				KeepAliveFielder.class, this, false)));
-		poolTestBeanHBase = cast(register(nodeFactory.create(DRTestConstants.CLIENT_drTestHBase, PoolTestBean.class,
+		poolTestBeanHBase = cast(register(nodeFactory.create(DrTestConstants.CLIENT_drTestHBase, PoolTestBean.class,
 				PoolTestBeanFielder.class, this, false)));
 
-		registerWithContext();//do after field inits
 	}
 
 	
@@ -65,10 +63,4 @@ extends BaseDatarouter{
 	public MapStorage<PoolTestBeanKey,PoolTestBean> poolTestBeanHBase(){
 		return poolTestBeanHBase;
 	}
-
 }
-
-
-
-
-
