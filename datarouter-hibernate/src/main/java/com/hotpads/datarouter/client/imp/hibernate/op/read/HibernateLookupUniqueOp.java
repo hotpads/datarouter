@@ -45,7 +45,7 @@ extends BaseHibernateOp<List<D>>{
 	
 	@Override
 	public List<D> runOnce(){
-		Session session = getSession(node.getClientName());
+		Session session = getSession(node.getClientId().getName());
 		
 		//i forget why we're doing this sorting.  prob not necessary
 		List<? extends UniqueKey<PK>> sortedKeys = DrListTool.createArrayList(uniqueKeys);

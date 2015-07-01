@@ -11,7 +11,7 @@ import com.hotpads.datarouter.client.imp.sqs.SqsNode;
 import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.routing.BaseDatarouter;
 import com.hotpads.datarouter.routing.DatarouterContext;
-import com.hotpads.datarouter.test.DRTestConstants;
+import com.hotpads.datarouter.test.DrTestConstants;
 import com.hotpads.datarouter.test.TestDatabean;
 import com.hotpads.datarouter.test.TestDatabeanFielder;
 import com.hotpads.datarouter.test.TestDatabeanKey;
@@ -25,17 +25,15 @@ public class SqsTestRouter extends BaseDatarouter{
 	
 	@Inject
 	public SqsTestRouter(DatarouterContext context, NodeFactory nodeFactory){
-		super(context, DRTestConstants.CONFIG_PATH, NAME);
-		
-		testDatabean = cast(register(nodeFactory.create(DRTestConstants.CLIENT_drTestSqs, TestDatabean.class,
+		super(context, DrTestConstants.CONFIG_PATH, NAME);
+
+		testDatabean = cast(register(nodeFactory.create(DrTestConstants.CLIENT_drTestSqs, TestDatabean.class,
 				TestDatabeanFielder.class, this, false)));
-		
-		registerWithContext();
 	}
 
 	@Override
 	public List<ClientId> getClientIds(){
-		return Collections.singletonList(new ClientId(DRTestConstants.CLIENT_drTestSqs, true));
+		return Collections.singletonList(DrTestConstants.CLIENT_drTestSqs);
 	}
 
 }

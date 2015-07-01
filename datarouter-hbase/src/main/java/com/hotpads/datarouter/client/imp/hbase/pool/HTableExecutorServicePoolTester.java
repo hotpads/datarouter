@@ -32,8 +32,8 @@ import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.node.op.raw.MapStorage;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.imp.comparable.SignedByteField;
-import com.hotpads.datarouter.test.DRTestConstants;
 import com.hotpads.datarouter.test.DatarouterTestModuleFactory;
+import com.hotpads.datarouter.test.DrTestConstants;
 import com.hotpads.datarouter.util.core.DrArrayTool;
 import com.hotpads.util.core.bytes.LongByteTool;
 import com.hotpads.util.core.number.RandomTool;
@@ -57,8 +57,8 @@ public class HTableExecutorServicePoolTester{
 
 
 	@BeforeClass
-	public void beforeClass() throws IOException{
-		client = (HBaseClientImp)router.getClient(DRTestConstants.CLIENT_drTestHBase);
+	public void beforeClass(){
+		client = (HBaseClientImp)router.getClient(DrTestConstants.CLIENT_drTestHBase.getName());
 		//yes, this test will fail if we change the pool type
 		pool = (HTableExecutorServicePool)client.getHTablePool();
 		node = router.poolTestBeanHBase();
@@ -144,50 +144,45 @@ public class HTableExecutorServicePoolTester{
 
 		@Override
 		public Void call(){
-			HTable hTable = null;
+			HTable table = null;
 			boolean possiblyTarnishedHTable = false;
 			try{
-				hTable = client.checkOutHTable(TABLE_NAME, null);
-				return hbaseCall(hTable);
+				table = client.checkOutHTable(TABLE_NAME, null);
+				return hbaseCall(table);
 			}catch(Exception e){
 				possiblyTarnishedHTable = true;
 				throw new DataAccessException(e);
 			}finally{
-				if(hTable==null){
+				if(table==null){
 					logger.warn("not checking in HTable because it's null");
 				}else if(client==null){
 					logger.warn("not checking in HTable because client is null");
 				}else{
-					client.checkInHTable(hTable, possiblyTarnishedHTable);
+					client.checkInHTable(table, possiblyTarnishedHTable);
 				}
 				pool.forceLogIfInconsistentCounts(false, TABLE_NAME);
 			}
 		}
 
 		
-		private Void hbaseCall(HTable hTable) throws TimeoutException, InterruptedException, IOException{
+		private Void hbaseCall(HTable table) throws TimeoutException, InterruptedException, IOException{
 			if(eventMod10(0)) {
 				throw new NullPointerException();
-			}
-			else if(eventMod10(1)) {
+			}else if(eventMod10(1)) {
 				Thread.sleep(3);
-				put(hTable);
-			}
-			else if(eventMod10(2)) {
+				put(table);
+			}else if(eventMod10(2)) {
 				Thread.sleep(11);
 				throw new TimeoutException();
-			}
-			else if(eventMod10(3)) {
-				put(hTable);
-				pool.checkIn(hTable, false);//will result in a double checkIn
-			}
-			else if(eventMod10(4)) {
+			}else if(eventMod10(3)) {
+				put(table);
+				pool.checkIn(table, false);//will result in a double checkIn
+			}else if(eventMod10(4)) {
 				int sleepForMs = 5*TIMEOUT_MS;
 				progress.set("about to sleep for "+sleepForMs);
 				Thread.sleep(sleepForMs);
-			}
-			else {
-				put(hTable);
+			}else {
+				put(table);
 			}
 			return null;
 		}
@@ -199,14 +194,14 @@ public class HTableExecutorServicePoolTester{
 		}
 
 		
-		private void put(HTable hTable) throws InterruptedException, IOException {
+		private void put(HTable table) throws InterruptedException, IOException {
 			List<Row> actions = new ArrayList<>();
 			Put put = new Put(LongByteTool.getComparableBytes(randomLong));
 			Field<?> dummyField = new SignedByteField(HBaseNode.DUMMY, (byte)0);
 			put.add(HBaseNode.FAM, dummyField.getKey().getColumnNameBytes(), dummyField.getBytes());
 			actions.add(put);
 			put.setWriteToWAL(false);
-			hTable.batch(actions);
+			table.batch(actions);
 		}
 	}
 }

@@ -3,7 +3,7 @@ package com.hotpads.datarouter.client.imp.hbase.test;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 
-import com.hotpads.datarouter.test.DRTestConstants;
+import com.hotpads.datarouter.test.DrTestConstants;
 import com.hotpads.datarouter.test.node.basic.sorted.BaseSortedNodeIntegrationTests;
 
 
@@ -11,7 +11,7 @@ public class HBaseSortedNodeIntegrationTests extends BaseSortedNodeIntegrationTe
 
 	@BeforeClass
 	public void beforeClass(){
-		setup(DRTestConstants.CLIENT_drTestHBase, true, false);
+		setup(DrTestConstants.CLIENT_drTestHBase, true, false);
 	}
 
 	@AfterClass

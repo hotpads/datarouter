@@ -29,7 +29,7 @@ extends BaseHibernateOp<List<D>>{
 	
 	@Override
 	public List<D> runOnce(){
-		Session session = getSession(node.getClientName());
+		Session session = getSession(node.getClientId().getName());
 		Criteria criteria = node.getCriteriaForConfig(config, session);
 		List<D> databeans = criteria.list();
 		return databeans;//assume they come back sorted due to innodb
