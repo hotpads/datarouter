@@ -7,9 +7,9 @@ import java.util.UUID;
 
 import com.amazonaws.services.sqs.model.SendMessageBatchRequest;
 import com.amazonaws.services.sqs.model.SendMessageBatchRequestEntry;
+import com.hotpads.datarouter.client.imp.sqs.BaseSqsNode;
 import com.hotpads.datarouter.client.imp.sqs.SqsDataTooLargeException;
 import com.hotpads.datarouter.client.imp.sqs.SqsNode;
-import com.hotpads.datarouter.client.imp.sqs.group.SqsGroupNode;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
@@ -24,7 +24,7 @@ extends SqsOp<PK,D,F,Void>{
 
 	private final Collection<D> databeans;
 
-	public SqsPutMultiOp(Collection<D> databeans, Config config, SqsGroupNode<PK,D,F> sqsNode){
+	public SqsPutMultiOp(Collection<D> databeans, Config config, BaseSqsNode<PK,D,F> sqsNode){
 		super(config, sqsNode);
 		this.databeans = databeans;
 	}

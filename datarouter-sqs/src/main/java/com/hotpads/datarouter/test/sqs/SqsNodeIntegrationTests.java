@@ -41,8 +41,8 @@ public class SqsNodeIntegrationTests{
 	}
 	
 	private void cleanUp(){
-		for(TestDatabean databean : router.testDatabean.pollUntilEmpty(null)){
-			System.out.println("Removed " + databean);
+		while(router.testDatabean.pollUntilEmpty(null) != null){
+			//do nothing
 		}
 	}
 	

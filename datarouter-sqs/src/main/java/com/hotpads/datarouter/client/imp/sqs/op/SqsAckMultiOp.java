@@ -7,7 +7,7 @@ import java.util.UUID;
 
 import com.amazonaws.services.sqs.model.DeleteMessageBatchRequest;
 import com.amazonaws.services.sqs.model.DeleteMessageBatchRequestEntry;
-import com.hotpads.datarouter.client.imp.sqs.group.SqsGroupNode;
+import com.hotpads.datarouter.client.imp.sqs.BaseSqsNode;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
@@ -22,7 +22,7 @@ extends SqsOp<PK,D,F,Void>{
 
 	private final Collection<QueueMessageKey> keys;
 
-	public SqsAckMultiOp(Collection<QueueMessageKey> keys, Config config, SqsGroupNode<PK,D,F> sqsNode){
+	public SqsAckMultiOp(Collection<QueueMessageKey> keys, Config config, BaseSqsNode<PK,D,F> sqsNode){
 		super(config, sqsNode);
 		this.keys = keys;
 	}

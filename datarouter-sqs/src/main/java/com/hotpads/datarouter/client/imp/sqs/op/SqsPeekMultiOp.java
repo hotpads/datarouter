@@ -7,8 +7,8 @@ import com.amazonaws.AbortedException;
 import com.amazonaws.services.sqs.model.Message;
 import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
 import com.amazonaws.services.sqs.model.ReceiveMessageResult;
+import com.hotpads.datarouter.client.imp.sqs.BaseSqsNode;
 import com.hotpads.datarouter.client.imp.sqs.SqsNode;
-import com.hotpads.datarouter.client.imp.sqs.group.SqsGroupNode;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
@@ -22,7 +22,7 @@ public class SqsPeekMultiOp<
 		F extends DatabeanFielder<PK,D>> 
 extends SqsOp<PK,D,F,List<QueueMessage<PK,D>>>{
 
-	public SqsPeekMultiOp(Config config, SqsGroupNode<PK,D,F> sqsNode){
+	public SqsPeekMultiOp(Config config, BaseSqsNode<PK,D,F> sqsNode){
 		super(config, sqsNode);
 	}
 	
