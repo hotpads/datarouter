@@ -1,7 +1,7 @@
 package com.hotpads.datarouter.client.imp.sqs.op;
 
 import com.amazonaws.services.sqs.model.DeleteMessageRequest;
-import com.hotpads.datarouter.client.imp.sqs.SqsNode;
+import com.hotpads.datarouter.client.imp.sqs.group.SqsGroupNode;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
@@ -17,7 +17,7 @@ extends SqsOp<PK,D,F,Void>{
 
 	private final QueueMessageKey key;
 
-	public SqsAckOp(QueueMessageKey key, Config config, SqsNode<PK,D,F> sqsNode){
+	public SqsAckOp(QueueMessageKey key, Config config, SqsGroupNode<PK,D,F> sqsNode){
 		super(config, sqsNode);
 		this.key = key;
 	}

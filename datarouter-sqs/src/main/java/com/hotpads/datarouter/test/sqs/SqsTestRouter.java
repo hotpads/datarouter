@@ -7,8 +7,8 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import com.hotpads.datarouter.client.ClientId;
-import com.hotpads.datarouter.client.imp.sqs.SqsNode;
 import com.hotpads.datarouter.node.factory.NodeFactory;
+import com.hotpads.datarouter.node.op.raw.QueueStorage;
 import com.hotpads.datarouter.routing.BaseDatarouter;
 import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.test.DrTestConstants;
@@ -21,7 +21,7 @@ public class SqsTestRouter extends BaseDatarouter{
 
 	private static final String NAME = "sqsTestRouter";
 	
-	public SqsNode<TestDatabeanKey,TestDatabean,TestDatabeanFielder> testDatabean;
+	public QueueStorage<TestDatabeanKey,TestDatabean> testDatabean;
 	
 	@Inject
 	public SqsTestRouter(DatarouterContext context, NodeFactory nodeFactory){

@@ -58,7 +58,7 @@ public class SqsNodeIntegrationTests{
 	
 	private void testByteLimit(int size){
 		TestDatabean emptyDatabean = new TestDatabean("", "", "");
-		TestDatabeanFielder fielder = router.testDatabean.getFieldInfo().getSampleFielder();
+		TestDatabeanFielder fielder = new TestDatabeanFielder();
 		String stringDatabean = fielder.getStringDatabeanCodec().toString(emptyDatabean, fielder);
 		int emptyDatabeanSize = StringByteTool.getUtf8Bytes(stringDatabean).length;
 		String longString = makeStringOfByteSize(size - emptyDatabeanSize);
@@ -73,6 +73,17 @@ public class SqsNodeIntegrationTests{
 			longString.append("a");
 		}
 		return longString.toString();
+	}
+	
+	@Test
+	public void testPeekLimit(){
+		List<TestDatabean> databeans = new ArrayList<>(DATABEAN_COUNT);
+		for(int i = 0 ; i < DATABEAN_COUNT ; i++){
+			databeans.add(new TestDatabean(String.valueOf(i), makeRandomString(), makeRandomString()));
+		}
+		router.testDatabean.putMulti(databeans, null);
+		int testLimit = 3;
+		Assert.assertTrue(router.testDatabean.peekMulti(new Config().setLimit(testLimit)).size() < testLimit);
 	}
 	
 	@Test

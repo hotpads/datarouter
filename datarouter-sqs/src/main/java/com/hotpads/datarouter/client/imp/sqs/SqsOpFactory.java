@@ -3,6 +3,9 @@ package com.hotpads.datarouter.client.imp.sqs;
 import java.util.Collection;
 import java.util.List;
 
+import com.hotpads.datarouter.client.imp.sqs.group.SqsGroupNode;
+import com.hotpads.datarouter.client.imp.sqs.group.op.SqsGroupPeekMultiOp;
+import com.hotpads.datarouter.client.imp.sqs.group.op.SqsGroupPutMultiOp;
 import com.hotpads.datarouter.client.imp.sqs.op.SqsAckMultiOp;
 import com.hotpads.datarouter.client.imp.sqs.op.SqsAckOp;
 import com.hotpads.datarouter.client.imp.sqs.op.SqsOp;
@@ -13,14 +16,15 @@ import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
+import com.hotpads.datarouter.storage.queue.GroupQueueMessage;
 import com.hotpads.datarouter.storage.queue.QueueMessage;
 import com.hotpads.datarouter.storage.queue.QueueMessageKey;
 
 public class SqsOpFactory<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>>{
 	
-	private final SqsNode<PK,D,F> sqsNode;
+	private final SqsGroupNode<PK,D,F> sqsNode;
 	
-	public SqsOpFactory(SqsNode<PK,D,F> sqsNode){
+	public SqsOpFactory(SqsGroupNode<PK,D,F> sqsNode){
 		this.sqsNode = sqsNode;
 	}
 
@@ -42,5 +46,15 @@ public class SqsOpFactory<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F e
 	
 	public SqsOp<PK,D,F,Void> makeAckOp(QueueMessageKey key, Config config){
 		return new SqsAckOp<>(key, config, sqsNode);
+	}
+	
+	//Group operations
+	
+	public SqsOp<PK,D,F,Void> makeGroupPutMultiOp(Collection<D> databeans, Config config){
+		return new SqsGroupPutMultiOp<>(databeans, config, sqsNode);
+	}
+	
+	public SqsOp<PK,D,F,GroupQueueMessage<PK,D>> makeGroupPeekMultiOp(Config config){
+		return new SqsGroupPeekMultiOp<>(config, sqsNode);
 	}
 }
