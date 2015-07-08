@@ -1,7 +1,7 @@
 package com.hotpads.datarouter.client.imp.sqs.group.op;
 
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -22,24 +22,31 @@ public class SqsGroupPutMultiOp<
 		F extends DatabeanFielder<PK,D>>
 extends SqsOp<PK,D,F,Void>{
 
-	private Collection<D> databeans;
+	private final Collection<D> databeans;
+	private final byte[] collectionPrefix;
+	private final byte[] collectionSeparator;
+	private final byte[] collectionSuffix;
 
 	public SqsGroupPutMultiOp(Collection<D> databeans, Config config, BaseSqsNode<PK,D,F> sqsNode){
 		super(config, sqsNode);
 		this.databeans = databeans;
+		this.collectionPrefix = StringByteTool.getUtf8Bytes(codec.getCollectionPrefix());
+		this.collectionSeparator = StringByteTool.getUtf8Bytes(codec.getCollectionSeparator());
+		this.collectionSuffix = StringByteTool.getUtf8Bytes(codec.getCollectionSuffix());
 	}
 
 	@Override
 	protected Void run(){
 		List<D> rejectedDatabeans = new ArrayList<>();
-		List<D> databeanGroup = new ArrayList<>();
+		ByteArrayOutputStream databeanGroup = new ByteArrayOutputStream();
+		databeanGroup.write(collectionPrefix, 0, collectionPrefix.length);
 		for(D databean : databeans){
-			String encodedDatabean = codec.toString(databean, fielder);
-			if(StringByteTool.getUtf8Bytes(encodedDatabean).length > SqsNode.MAX_BYTES_PER_MESSAGE){
+			byte[] encodedDatabean = StringByteTool.getUtf8Bytes(codec.toString(databean, fielder));
+			if(encodedDatabean.length + 2*collectionPrefix.length > SqsNode.MAX_BYTES_PER_MESSAGE){
 				rejectedDatabeans.add(databean);
 				continue;
 			}
-			databeanGroup = addOrPutGroup(databeanGroup, databean);
+			addOrPutGroup(databeanGroup, encodedDatabean);
 		}
 		putGroup(databeanGroup);
 		if(rejectedDatabeans.size() > 0){
@@ -48,20 +55,22 @@ extends SqsOp<PK,D,F,Void>{
 		return null;
 	}
 	
-	private List<D> addOrPutGroup(List<D> group, D databean){
-		List<D> newGroup = new ArrayList<>(group);
-		newGroup.add(databean);
-		String encodedNewGroup = codec.toStringMulti(newGroup, fielder);
-		if(StringByteTool.getUtf8Bytes(encodedNewGroup).length > SqsNode.MAX_BYTES_PER_MESSAGE){
+	private void addOrPutGroup(ByteArrayOutputStream group, byte[] databean){
+		if(group.size() + databean.length + collectionSuffix.length > SqsNode.MAX_BYTES_PER_MESSAGE){
 			putGroup(group);
-			return Arrays.asList(databean);
+			group.reset();
+			group.write(collectionPrefix, 0, collectionPrefix.length);
 		}
-		return newGroup;
+		if(group.size() > 1){
+			group.write(collectionSeparator, 0, collectionSeparator.length);
+		}
+		group.write(databean, 0, databean.length);
 	}
 
-	private void putGroup(List<D> databeans){
-		String encodedDatabeans = codec.toStringMulti(databeans, fielder);
-		SendMessageRequest request = new SendMessageRequest(queueUrl, encodedDatabeans);
+	private void putGroup(ByteArrayOutputStream group){
+		group.write(collectionSuffix, 0, collectionSuffix.length);
+		String stringGroup = new String(group.toByteArray(), StringByteTool.CHARSET_UTF8);
+		SendMessageRequest request = new SendMessageRequest(queueUrl, stringGroup);
 		amazonSqsClient.sendMessage(request);
 	}
 }
