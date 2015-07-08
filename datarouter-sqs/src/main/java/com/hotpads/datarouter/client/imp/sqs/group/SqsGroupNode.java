@@ -15,7 +15,6 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.queue.BaseQueueMessage;
 import com.hotpads.datarouter.storage.queue.GroupQueueMessage;
-import com.hotpads.datarouter.storage.queue.QueueMessageKey;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.util.core.iterable.scanner.iterable.ScannerIterable;
 
@@ -40,16 +39,6 @@ implements PhysicalGroupQueueStorageNode<PK,D>{
 	@Override
 	public void putMulti(Collection<D> databeans, Config config){
 		sqsOpFactory.makeGroupPutMultiOp(databeans, config).call();
-	}
-	
-	@Override
-	public void ack(QueueMessageKey key, Config config){
-		sqsOpFactory.makeAckOp(key, config).call();
-	}
-
-	@Override
-	public void ackMulti(Collection<QueueMessageKey> keys, Config config){
-		sqsOpFactory.makeAckMultiOp(keys, config).call();
 	}
 	
 	//Reader

@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.client.imp.sqs;
+package com.hotpads.datarouter.client.imp.sqs.single;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;

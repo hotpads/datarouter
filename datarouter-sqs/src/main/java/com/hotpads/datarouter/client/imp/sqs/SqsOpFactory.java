@@ -5,12 +5,12 @@ import java.util.List;
 
 import com.hotpads.datarouter.client.imp.sqs.group.op.SqsGroupPeekMultiOp;
 import com.hotpads.datarouter.client.imp.sqs.group.op.SqsGroupPutMultiOp;
-import com.hotpads.datarouter.client.imp.sqs.op.SqsAckMultiOp;
-import com.hotpads.datarouter.client.imp.sqs.op.SqsAckOp;
-import com.hotpads.datarouter.client.imp.sqs.op.SqsOp;
-import com.hotpads.datarouter.client.imp.sqs.op.SqsPeekMultiOp;
-import com.hotpads.datarouter.client.imp.sqs.op.SqsPutMultiOp;
-import com.hotpads.datarouter.client.imp.sqs.op.SqsPutOp;
+import com.hotpads.datarouter.client.imp.sqs.single.op.SqsAckMultiOp;
+import com.hotpads.datarouter.client.imp.sqs.single.op.SqsAckOp;
+import com.hotpads.datarouter.client.imp.sqs.single.op.SqsOp;
+import com.hotpads.datarouter.client.imp.sqs.single.op.SqsPeekMultiOp;
+import com.hotpads.datarouter.client.imp.sqs.single.op.SqsPutMultiOp;
+import com.hotpads.datarouter.client.imp.sqs.single.op.SqsPutOp;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;

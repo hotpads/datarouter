@@ -1,21 +1,27 @@
 package com.hotpads.datarouter.client.imp.sqs;
 
+import java.util.Collection;
+
 import com.amazonaws.services.sqs.AmazonSQSClient;
 import com.amazonaws.services.sqs.model.CreateQueueRequest;
 import com.hotpads.datarouter.client.Client;
+import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.NodeParams;
+import com.hotpads.datarouter.node.op.raw.write.QueueStorageWriter;
 import com.hotpads.datarouter.node.type.physical.base.BasePhysicalNode;
 import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
+import com.hotpads.datarouter.storage.queue.QueueMessageKey;
 import com.hotpads.util.core.concurrent.Lazy;
 
 public abstract class BaseSqsNode<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>>
-extends BasePhysicalNode<PK,D,F> {
+extends BasePhysicalNode<PK,D,F>
+implements QueueStorageWriter<PK,D>{
 	
 	//do not change, this is a limit from SQS
 	public static final int MAX_MESSAGES_PER_BATCH = 10;
@@ -62,5 +68,14 @@ extends BasePhysicalNode<PK,D,F> {
 	public AmazonSQSClient getAmazonSqsClient(){
 		return getSqsClient().getAmazonSqsClient();
 	}
+	
+	@Override
+	public void ack(QueueMessageKey key, Config config){
+		sqsOpFactory.makeAckOp(key, config).call();
+	}
 
+	@Override
+	public void ackMulti(Collection<QueueMessageKey> keys, Config config){
+		sqsOpFactory.makeAckMultiOp(keys, config).call();
+	}
 }

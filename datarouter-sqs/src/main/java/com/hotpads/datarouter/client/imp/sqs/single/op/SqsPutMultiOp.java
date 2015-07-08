@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.client.imp.sqs.op;
+package com.hotpads.datarouter.client.imp.sqs.single.op;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -9,7 +9,7 @@ import com.amazonaws.services.sqs.model.SendMessageBatchRequest;
 import com.amazonaws.services.sqs.model.SendMessageBatchRequestEntry;
 import com.hotpads.datarouter.client.imp.sqs.BaseSqsNode;
 import com.hotpads.datarouter.client.imp.sqs.SqsDataTooLargeException;
-import com.hotpads.datarouter.client.imp.sqs.SqsNode;
+import com.hotpads.datarouter.client.imp.sqs.single.SqsNode;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;

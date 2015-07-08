@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.client.imp.sqs.op;
+package com.hotpads.datarouter.client.imp.sqs.single.op;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,7 +8,7 @@ import com.amazonaws.services.sqs.model.Message;
 import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
 import com.amazonaws.services.sqs.model.ReceiveMessageResult;
 import com.hotpads.datarouter.client.imp.sqs.BaseSqsNode;
-import com.hotpads.datarouter.client.imp.sqs.SqsNode;
+import com.hotpads.datarouter.client.imp.sqs.single.SqsNode;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
@@ -33,6 +33,7 @@ extends SqsOp<PK,D,F,List<QueueMessage<PK,D>>>{
 		if(timeoutMs == null){
 			timeoutMs = 0L;
 		}
+		request.setMaxNumberOfMessages(config.getLimitOrUse(BaseSqsNode.MAX_MESSAGES_PER_BATCH));
 		long timeWaitedMs = 0;
 		do{
 			long waitTimeMs = Math.min(timeoutMs - timeWaitedMs, SqsNode.MAX_TIMEOUT_SECONDS * 1000);

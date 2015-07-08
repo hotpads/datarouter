@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.client.imp.sqs.op;
+package com.hotpads.datarouter.client.imp.sqs.single.op;
 
 import java.util.ArrayList;
 import java.util.Collection;

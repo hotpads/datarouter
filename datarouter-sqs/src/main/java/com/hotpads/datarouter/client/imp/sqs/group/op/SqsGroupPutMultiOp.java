@@ -8,8 +8,8 @@ import java.util.List;
 import com.amazonaws.services.sqs.model.SendMessageRequest;
 import com.hotpads.datarouter.client.imp.sqs.BaseSqsNode;
 import com.hotpads.datarouter.client.imp.sqs.SqsDataTooLargeException;
-import com.hotpads.datarouter.client.imp.sqs.SqsNode;
-import com.hotpads.datarouter.client.imp.sqs.op.SqsOp;
+import com.hotpads.datarouter.client.imp.sqs.single.SqsNode;
+import com.hotpads.datarouter.client.imp.sqs.single.op.SqsOp;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
@@ -60,9 +60,6 @@ extends SqsOp<PK,D,F,Void>{
 	}
 
 	private void putGroup(List<D> databeans){
-		if(databeans.size() == 0){
-			return;
-		}
 		String encodedDatabeans = codec.toStringMulti(databeans, fielder);
 		SendMessageRequest request = new SendMessageRequest(queueUrl, encodedDatabeans);
 		amazonSqsClient.sendMessage(request);

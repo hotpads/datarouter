@@ -1,8 +1,9 @@
-package com.hotpads.datarouter.client.imp.sqs;
+package com.hotpads.datarouter.client.imp.sqs.single;
 
 import java.util.Collection;
 import java.util.List;
 
+import com.hotpads.datarouter.client.imp.sqs.BaseSqsNode;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.op.raw.QueueStorage.PhysicalQueueStorageNode;
@@ -14,7 +15,6 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.queue.BaseQueueMessage;
 import com.hotpads.datarouter.storage.queue.QueueMessage;
-import com.hotpads.datarouter.storage.queue.QueueMessageKey;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.util.core.iterable.scanner.iterable.ScannerIterable;
 
@@ -57,16 +57,6 @@ implements PhysicalQueueStorageNode<PK,D>{
 	@Override
 	public void putMulti(Collection<D> databeans, Config config){
 		sqsOpFactory.makePutMultiOp(databeans, config).call();
-	}
-	
-	@Override
-	public void ack(QueueMessageKey key, Config config){
-		sqsOpFactory.makeAckOp(key, config);
-	}
-
-	@Override
-	public void ackMulti(Collection<QueueMessageKey> keys, Config config){
-		sqsOpFactory.makeAckMultiOp(keys, config);
 	}
 	
 	// Reader + Writer
