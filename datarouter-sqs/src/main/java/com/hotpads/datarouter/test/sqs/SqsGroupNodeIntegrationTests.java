@@ -4,9 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
@@ -17,17 +14,12 @@ import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
 import com.hotpads.datarouter.client.imp.sqs.BaseSqsNode;
-import com.hotpads.datarouter.client.imp.sqs.SqsDataTooLargeException;
 import com.hotpads.datarouter.client.imp.sqs.config.DatarouterSqsTestModuleFactory;
-import com.hotpads.datarouter.client.imp.sqs.single.SqsNode;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.storage.queue.GroupQueueMessage;
 import com.hotpads.datarouter.test.TestDatabean;
-import com.hotpads.datarouter.test.TestDatabeanFielder;
 import com.hotpads.datarouter.test.TestDatabeanKey;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
-import com.hotpads.util.core.bytes.StringByteTool;
-import com.hotpads.util.core.concurrent.ThreadTool;
 
 @Guice(moduleFactory = DatarouterSqsTestModuleFactory.class)
 @Test(singleThreaded=true)
@@ -35,8 +27,14 @@ public class SqsGroupNodeIntegrationTests{
 	
 	private static final int DATABEAN_COUNT = 15;
 	
+	private final SqsTestRouter router;
+	private final SqsTestHelper sqsTestHelper;
+	
 	@Inject
-	private SqsTestRouter router;
+	public SqsGroupNodeIntegrationTests(SqsTestRouter router){
+		this.router = router;
+		this.sqsTestHelper = new SqsTestHelper(router.groupTestDatabean);
+	}
 	
 	@BeforeMethod
 	public void setUp(){
@@ -54,7 +52,7 @@ public class SqsGroupNodeIntegrationTests{
 	@Test
 	public void testPutMultiAndPollMulti(){
 		List<TestDatabean> databeans = new ArrayList<>(DATABEAN_COUNT);
-		String longString = SqsTestTool.makeStringOfByteSize(BaseSqsNode.MAX_BYTES_PER_MESSAGE / (DATABEAN_COUNT - 1));
+		String longString = SqsTestHelper.makeStringOfByteSize(BaseSqsNode.MAX_BYTES_PER_MESSAGE / (DATABEAN_COUNT-1));
 		for(int i = 0 ; i < DATABEAN_COUNT ; i++){
 			databeans.add(new TestDatabean(longString, makeRandomString(), makeRandomString()));
 		}
@@ -78,20 +76,7 @@ public class SqsGroupNodeIntegrationTests{
 	
 	@Test
 	public void testByteLimitMulti(){
-		TestDatabean emptyDatabean = new TestDatabean("", "", "");
-		TestDatabeanFielder fielder = new TestDatabeanFielder();
-		String stringDatabean = fielder.getStringDatabeanCodec().toString(emptyDatabean, fielder);
-		int emptyDatabeanSize = StringByteTool.getUtf8Bytes(stringDatabean).length;
-		String longString = SqsTestTool.makeStringOfByteSize(SqsNode.MAX_BYTES_PER_MESSAGE + 1 - emptyDatabeanSize);
-		List<TestDatabean> databeans = new ArrayList<>();
-		databeans.add(new TestDatabean(longString, "", ""));
-		databeans.add(new TestDatabean(longString, "", ""));
-		databeans.add(new TestDatabean("demat", "", ""));
-		try{
-			router.groupTestDatabean.putMulti(databeans, null);
-		}catch(SqsDataTooLargeException exception){
-			Assert.assertEquals(exception.getRejectedDatabeans().size(), 2);
-		}
+		sqsTestHelper.testByteLimitMulti();
 	}
 	
 	@Test
@@ -103,9 +88,7 @@ public class SqsGroupNodeIntegrationTests{
 	
 	@Test
 	public void testInterruptPeek(){
-		ExecutorService executor = Executors.newSingleThreadExecutor();
-		long start = System.currentTimeMillis();
-		Future<Void> future = executor.submit(new Callable<Void>(){
+		SqsTestHelper.testInterruptPeek(new Callable<Void>(){
 
 			@Override
 			public Void call() throws Exception{
@@ -115,10 +98,6 @@ public class SqsGroupNodeIntegrationTests{
 			}
 			
 		});
-		ThreadTool.sleep(1000);
-		future.cancel(true);
-		executor.shutdown();
-		Assert.assertTrue((System.currentTimeMillis() - start) < 5000);
 	}
 
 	private static String makeRandomString(){

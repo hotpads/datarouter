@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.client.imp.sqs.single.op;
+package com.hotpads.datarouter.client.imp.sqs.op;
 
 import com.amazonaws.services.sqs.model.DeleteMessageRequest;
 import com.hotpads.datarouter.client.imp.sqs.BaseSqsNode;

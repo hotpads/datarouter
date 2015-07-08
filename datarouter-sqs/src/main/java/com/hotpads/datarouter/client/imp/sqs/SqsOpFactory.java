@@ -5,9 +5,9 @@ import java.util.List;
 
 import com.hotpads.datarouter.client.imp.sqs.group.op.SqsGroupPeekMultiOp;
 import com.hotpads.datarouter.client.imp.sqs.group.op.SqsGroupPutMultiOp;
-import com.hotpads.datarouter.client.imp.sqs.single.op.SqsAckMultiOp;
-import com.hotpads.datarouter.client.imp.sqs.single.op.SqsAckOp;
-import com.hotpads.datarouter.client.imp.sqs.single.op.SqsOp;
+import com.hotpads.datarouter.client.imp.sqs.op.SqsAckMultiOp;
+import com.hotpads.datarouter.client.imp.sqs.op.SqsAckOp;
+import com.hotpads.datarouter.client.imp.sqs.op.SqsOp;
 import com.hotpads.datarouter.client.imp.sqs.single.op.SqsPeekMultiOp;
 import com.hotpads.datarouter.client.imp.sqs.single.op.SqsPutMultiOp;
 import com.hotpads.datarouter.client.imp.sqs.single.op.SqsPutOp;
