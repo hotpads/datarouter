@@ -29,9 +29,9 @@ implements QueueStorageWriter<PK,D>{
 	public static final int MAX_BYTES_PER_MESSAGE = 256*1024;
 	public static final int MAX_BYTES_PER_PAYLOAD = 256*1024;
 
-	protected final DatarouterContext datarouterContext;
+	private final DatarouterContext datarouterContext;
+	private final Lazy<String> queueUrl;
 	protected final SqsOpFactory<PK,D,F> sqsOpFactory;
-	protected final Lazy<String> queueUrl;
 
 	public BaseSqsNode(DatarouterContext datarouterContext, NodeParams<PK,D,F> params){
 		super(params);
@@ -61,7 +61,7 @@ implements QueueStorageWriter<PK,D>{
 		return queueUrl;
 	}
 	
-	protected SqsClient getSqsClient(){
+	private SqsClient getSqsClient(){
 		return (SqsClient) datarouterContext.getClientPool().getClient(getClientId().getName());
 	}
 	

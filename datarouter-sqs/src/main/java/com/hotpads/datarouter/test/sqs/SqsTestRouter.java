@@ -31,7 +31,7 @@ public class SqsTestRouter extends BaseDatarouter{
 
 		testDatabean = cast(register(nodeFactory.create(DrTestConstants.CLIENT_drTestSqs, TestDatabean.class,
 				TestDatabeanFielder.class, this, true)));
-		//Use a different table name to avoid test suites to interfere
+		//Use a different table name to prevent test suites from interfering
 		groupTestDatabean = cast(register(nodeFactory.create(DrTestConstants.CLIENT_drTestSqsGroup, "groupTestDatabean",
 				null, TestDatabean.class, TestDatabeanFielder.class, this, true)));
 	}
