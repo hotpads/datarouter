@@ -78,7 +78,7 @@ public class SqsClientType extends BaseClientType implements QueueClientType{
 	
 	public <PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
-				F extends DatabeanFielder<PK,D>>
+			F extends DatabeanFielder<PK,D>>
 	PhysicalNode<PK,D> createGroupQueueNode(NodeParams<PK,D,F> nodeParams){
 		SqsGroupNode<PK,D,F> node = sqsNodeFactory.createGroupNode(nodeParams);
 		return new PhysicalGroupQueueStorageCounterAdapater<>(node);

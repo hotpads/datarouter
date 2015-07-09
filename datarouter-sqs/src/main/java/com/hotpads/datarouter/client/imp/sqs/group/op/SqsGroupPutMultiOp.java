@@ -46,18 +46,18 @@ extends SqsOp<PK,D,F,Void>{
 				rejectedDatabeans.add(databean);
 				continue;
 			}
-			addOrPutGroup(databeanGroup, encodedDatabean);
+			addToQueueAndFlushIfNecessary(databeanGroup, encodedDatabean);
 		}
-		putGroup(databeanGroup);
+		flush(databeanGroup);
 		if(rejectedDatabeans.size() > 0){
 			throw new SqsDataTooLargeException().withRejectedDatabeans(rejectedDatabeans);
 		}
 		return null;
 	}
 	
-	private void addOrPutGroup(ByteArrayOutputStream group, byte[] databean){
+	private void addToQueueAndFlushIfNecessary(ByteArrayOutputStream group, byte[] databean){
 		if(group.size() + databean.length + collectionSuffix.length > SqsNode.MAX_BYTES_PER_MESSAGE){
-			putGroup(group);
+			flush(group);
 			group.reset();
 			group.write(collectionPrefix, 0, collectionPrefix.length);
 		}
@@ -67,9 +67,9 @@ extends SqsOp<PK,D,F,Void>{
 		group.write(databean, 0, databean.length);
 	}
 
-	private void putGroup(ByteArrayOutputStream group){
+	private void flush(ByteArrayOutputStream group){
 		group.write(collectionSuffix, 0, collectionSuffix.length);
-		String stringGroup = new String(group.toByteArray(), StringByteTool.CHARSET_UTF8);
+		String stringGroup = StringByteTool.fromUtf8Bytes(group.toByteArray());
 		SendMessageRequest request = new SendMessageRequest(queueUrl, stringGroup);
 		amazonSqsClient.sendMessage(request);
 	}
