@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
 import com.hotpads.datarouter.client.imp.hibernate.util.SqlBuilder;
-import com.hotpads.datarouter.client.imp.jdbc.JdbcSettings;
 import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.client.imp.jdbc.node.JdbcNode;
 import com.hotpads.datarouter.client.imp.jdbc.node.JdbcReaderNode;
@@ -21,6 +20,7 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.multi.Lookup;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.profile.count.collection.Counters;
 import com.hotpads.util.core.iterable.BatchingIterable;
 
 public class JdbcLookupOp<
@@ -29,20 +29,20 @@ public class JdbcLookupOp<
 		F extends DatabeanFielder<PK,D>> 
 extends BaseJdbcOp<List<D>>{
 	private static final Logger logger = LoggerFactory.getLogger(JdbcLookupOp.class);
+	
+	private static final int LARGE_LOOKUP_ALERT_THRESHOLD = 10000;
 		
 	private final JdbcReaderNode<PK,D,F> node;
 	private final JdbcFieldCodecFactory fieldCodecFactory;
-	private final JdbcSettings jdbcSettings;
 	private final Collection<? extends Lookup<PK>> lookups;
 	private final boolean wildcardLastField;
 	private final Config config;
 	
-	public JdbcLookupOp(JdbcReaderNode<PK,D,F> node, JdbcFieldCodecFactory fieldCodecFactory, JdbcSettings jdbcSettings,
+	public JdbcLookupOp(JdbcReaderNode<PK,D,F> node, JdbcFieldCodecFactory fieldCodecFactory,
 			Collection<? extends Lookup<PK>> lookups, boolean wildcardLastField, Config config){
 		super(node.getDatarouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
 		this.node = node;
 		this.fieldCodecFactory = fieldCodecFactory;
-		this.jdbcSettings = jdbcSettings;
 		this.lookups = lookups;
 		this.wildcardLastField = wildcardLastField;
 		this.config = Config.nullSafe(config);
@@ -69,10 +69,10 @@ extends BaseJdbcOp<List<D>>{
 				break;
 			}
 		}
-		Integer largeLookupAlertThreshold = jdbcSettings.getLargeLookupAlertThreshold().get();
-		if(result.size() >= largeLookupAlertThreshold){
-			logger.warn("JDBC lookup exceeded alert threshold : " + result.size() + ">=" + largeLookupAlertThreshold, 
+		if(result.size() >= LARGE_LOOKUP_ALERT_THRESHOLD){
+			logger.warn("JDBC lookup exceeded alert threshold : " + result.size() + ">=" + LARGE_LOOKUP_ALERT_THRESHOLD,
 					new Exception());
+			Counters.inc("JDBC lookup exceeded alert threshold");
 		}
 		if(config.getLimit() != null && result.size() > config.getLimit()){
 			return new ArrayList<>(result.subList(0, config.getLimit()));

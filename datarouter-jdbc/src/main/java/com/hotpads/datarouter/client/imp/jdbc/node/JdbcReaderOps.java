@@ -4,7 +4,6 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
-import com.hotpads.datarouter.client.imp.jdbc.JdbcSettings;
 import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.client.imp.jdbc.op.BaseJdbcOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcCountOp;
@@ -50,15 +49,12 @@ public class JdbcReaderOps<
 	
 	private final JdbcReaderNode<PK,D,F> node;
 	private final JdbcFieldCodecFactory fieldCodecFactory;
-	private final JdbcSettings jdbcSettings;
 	
 	/******************************* constructors ************************************/
 
-	public JdbcReaderOps(JdbcReaderNode<PK,D,F> node, JdbcFieldCodecFactory fieldCodecFactory,
-			JdbcSettings jdbcSettings){
+	public JdbcReaderOps(JdbcReaderNode<PK,D,F> node, JdbcFieldCodecFactory fieldCodecFactory){
 		this.node = node;
 		this.fieldCodecFactory = fieldCodecFactory;
-		this.jdbcSettings = jdbcSettings;
 	}
 
 	/************************************ MapStorageReader methods ****************************/
@@ -108,7 +104,7 @@ public class JdbcReaderOps<
 	//TODO pay attention to wildcardLastField
 	public List<D> lookup(final Lookup<PK> lookup, final boolean wildcardLastField, final Config config) {
 		String opName = IndexedStorageReader.OP_lookup;
-		JdbcLookupOp<PK,D,F> op = new JdbcLookupOp<>(node, fieldCodecFactory, jdbcSettings, DrListTool.wrap(lookup),
+		JdbcLookupOp<PK,D,F> op = new JdbcLookupOp<>(node, fieldCodecFactory, DrListTool.wrap(lookup),
 				wildcardLastField, config);
 		return new SessionExecutorImpl<>(op, getTraceName(opName)).call();
 	}
@@ -118,7 +114,7 @@ public class JdbcReaderOps<
 		if(DrCollectionTool.isEmpty(lookups)){
 			return new LinkedList<>();
 		}
-		JdbcLookupOp<PK,D,F> op = new JdbcLookupOp<>(node, fieldCodecFactory, jdbcSettings, lookups, false, config);
+		JdbcLookupOp<PK,D,F> op = new JdbcLookupOp<>(node, fieldCodecFactory, lookups, false, config);
 		return new SessionExecutorImpl<>(op, getTraceName(opName)).call();
 	}
 	

@@ -43,12 +43,10 @@ public class JdbcClientType extends BaseClientType{
 	
 	//injected
 	private final JdbcFieldCodecFactory fieldCodecFactory;
-	private final JdbcSettings jdbcSettings;
 	
 	@Inject
-	public JdbcClientType(JdbcFieldCodecFactory fieldCodecFactory, JdbcSettings jdbcSettings){
+	public JdbcClientType(JdbcFieldCodecFactory fieldCodecFactory){
 		this.fieldCodecFactory = fieldCodecFactory;
-		this.jdbcSettings = jdbcSettings;
 		INSTANCE = this;
 	}
 	
@@ -67,7 +65,7 @@ public class JdbcClientType extends BaseClientType{
 	public <PK extends PrimaryKey<PK>, D extends Databean<PK, D>, F extends DatabeanFielder<PK, D>>
 	PhysicalNode<PK, D> createNode(NodeParams<PK, D, F> nodeParams){
 		return new PhysicalIndexedSortedMapStorageCounterAdapter<PK,D,F,JdbcNode<PK,D,F>>(new JdbcNode<>(nodeParams,
-				fieldCodecFactory, jdbcSettings));
+				fieldCodecFactory));
 	}
 	
 	//ignore the entityNodeParams

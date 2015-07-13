@@ -2,7 +2,6 @@ package com.hotpads.datarouter.client.imp.jdbc.node;
 
 import java.util.Collection;
 
-import com.hotpads.datarouter.client.imp.jdbc.JdbcSettings;
 import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.client.imp.jdbc.op.BaseJdbcOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.write.JdbcDeleteAllOp;
@@ -37,8 +36,8 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D>{
 
 	private final JdbcFieldCodecFactory fieldCodecFactory;
 	
-	public JdbcNode(NodeParams<PK,D,F> params, JdbcFieldCodecFactory fieldCodecFactory, JdbcSettings jdbcSettings){
-		super(params, fieldCodecFactory, jdbcSettings);
+	public JdbcNode(NodeParams<PK,D,F> params, JdbcFieldCodecFactory fieldCodecFactory){
+		super(params, fieldCodecFactory);
 		this.fieldCodecFactory = fieldCodecFactory;
 	}
 	
