@@ -93,7 +93,7 @@ public class HTableExecutorService{
 		// else we have issues... try to fix them
 		exec.shutdownNow();
 		if(exec.getActiveCount() > 0){
-			logger.warn("getActiveCount() still > 0 after shutdownNow(), table:" + tableNameForLog);
+			logger.warn("getActiveCount() still > 0 after shutdownNow(), table:" + tableNameForLog, new Exception());
 		}
 		ExecutorServiceTool.awaitTerminationForever(exec);// any better ideas? alternative is memory leak
 		logger.warn("awaitTermination finished!, table:" + tableNameForLog);

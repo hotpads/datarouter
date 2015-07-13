@@ -10,7 +10,6 @@ import java.util.concurrent.Semaphore;
 import org.apache.hadoop.hbase.client.HBaseAdmin;
 import org.apache.hadoop.hbase.client.HConnection;
 import org.apache.hadoop.hbase.client.HTable;
-import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,8 +32,8 @@ implements HTablePool{
 	private static final Logger logger = LoggerFactory.getLogger(HTableExecutorServicePool.class);
 
 	private static final int DEFAULT_MAX_HTABLES = 10;
-	private static final int DEFAULT_MIN_THREADS_PER_HTABLES = 1;
-	private static final int DEFAULT_MAX_THREADS_PER_HTABLES = 8;
+	private static final int DEFAULT_MIN_THREADS_PER_HTABLE = 1;
+	private static final int DEFAULT_MAX_THREADS_PER_HTABLE = 12;
 	private static final boolean LOG_ACTIONS = true;
 	private static final long LOG_SEMAPHORE_ACQUISITIONS_OVER_MS = 2000L;
 	private static final long THROTTLE_INCONSISTENT_LOG_EVERY_X_MS = 500;
@@ -63,8 +62,8 @@ implements HTablePool{
 		this.clientName = clientName;
 		this.primaryKeyClassByName = primaryKeyClassByName;
 		this.maxHTables = hBaseOptions.maxHTables(DEFAULT_MAX_HTABLES);
-		this.minThreadsPerHTable = hBaseOptions.minThreadsPerHTable(DEFAULT_MIN_THREADS_PER_HTABLES);
-		this.maxThreadsPerHTable = hBaseOptions.maxThreadsPerHTable(DEFAULT_MAX_THREADS_PER_HTABLES);
+		this.minThreadsPerHTable = hBaseOptions.minThreadsPerHTable(DEFAULT_MIN_THREADS_PER_HTABLE);
+		this.maxThreadsPerHTable = hBaseOptions.maxThreadsPerHTable(DEFAULT_MAX_THREADS_PER_HTABLE);
 		
 		this.hTableSemaphore = new Semaphore(maxHTables);
 		this.executorServiceQueue = new LinkedBlockingDeque<>(maxHTables);
