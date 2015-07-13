@@ -15,7 +15,7 @@ public class JdbcSettings extends SettingNode{
 
 	@Inject
 	public JdbcSettings(ClusterSettingFinder finder, DatarouterSettings datarouterSettings){
-		super(finder, datarouterSettings.getName() + ".jdbc.", datarouterSettings);
+		super(finder, datarouterSettings.getName() + "jdbc.", datarouterSettings);
 		registerSettings();
 	}
 

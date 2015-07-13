@@ -46,7 +46,7 @@ implements MapStorageReader<PK,D>,
 	
 	/******************************* constructors ************************************/
 
-	public JdbcReaderNode(NodeParams<PK, D, F> params, JdbcFieldCodecFactory fieldCodecFactory,
+	public JdbcReaderNode(NodeParams<PK,D,F> params, JdbcFieldCodecFactory fieldCodecFactory,
 			JdbcSettings jdbcSettings){
 		super(params);
 		this.jdbcReaderOps = new JdbcReaderOps<>(this, fieldCodecFactory, jdbcSettings);

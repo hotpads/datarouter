@@ -54,7 +54,7 @@ public class JdbcReaderOps<
 	
 	/******************************* constructors ************************************/
 
-	public JdbcReaderOps(JdbcReaderNode<PK, D, F> node, JdbcFieldCodecFactory fieldCodecFactory,
+	public JdbcReaderOps(JdbcReaderNode<PK,D,F> node, JdbcFieldCodecFactory fieldCodecFactory,
 			JdbcSettings jdbcSettings){
 		this.node = node;
 		this.fieldCodecFactory = fieldCodecFactory;
