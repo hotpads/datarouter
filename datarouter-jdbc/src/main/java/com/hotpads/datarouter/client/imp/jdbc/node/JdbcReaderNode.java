@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 
 import com.hotpads.datarouter.client.imp.jdbc.JdbcClientImp;
+import com.hotpads.datarouter.client.imp.jdbc.JdbcSettings;
 import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.client.imp.jdbc.scan.JdbcDatabeanScanner;
 import com.hotpads.datarouter.client.imp.jdbc.scan.JdbcManagedIndexScanner;
@@ -45,9 +46,10 @@ implements MapStorageReader<PK,D>,
 	
 	/******************************* constructors ************************************/
 
-	public JdbcReaderNode(NodeParams<PK,D,F> params, JdbcFieldCodecFactory fieldCodecFactory){
+	public JdbcReaderNode(NodeParams<PK, D, F> params, JdbcFieldCodecFactory fieldCodecFactory,
+			JdbcSettings jdbcSettings){
 		super(params);
-		this.jdbcReaderOps = new JdbcReaderOps<>(this, fieldCodecFactory);
+		this.jdbcReaderOps = new JdbcReaderOps<>(this, fieldCodecFactory, jdbcSettings);
 		this.managedNodesHolder = new ManagedNodesHolder<>();
 	}
 	

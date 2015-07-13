@@ -5,8 +5,12 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
 import com.hotpads.datarouter.client.imp.hibernate.util.SqlBuilder;
+import com.hotpads.datarouter.client.imp.jdbc.JdbcSettings;
 import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.client.imp.jdbc.node.JdbcNode;
 import com.hotpads.datarouter.client.imp.jdbc.node.JdbcReaderNode;
@@ -24,18 +28,21 @@ public class JdbcLookupOp<
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>> 
 extends BaseJdbcOp<List<D>>{
+	private static final Logger logger = LoggerFactory.getLogger(JdbcLookupOp.class);
 		
 	private final JdbcReaderNode<PK,D,F> node;
 	private final JdbcFieldCodecFactory fieldCodecFactory;
+	private final JdbcSettings jdbcSettings;
 	private final Collection<? extends Lookup<PK>> lookups;
 	private final boolean wildcardLastField;
 	private final Config config;
 	
-	public JdbcLookupOp(JdbcReaderNode<PK,D,F> node, JdbcFieldCodecFactory fieldCodecFactory,
+	public JdbcLookupOp(JdbcReaderNode<PK,D,F> node, JdbcFieldCodecFactory fieldCodecFactory, JdbcSettings jdbcSettings,
 			Collection<? extends Lookup<PK>> lookups, boolean wildcardLastField, Config config){
 		super(node.getDatarouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
 		this.node = node;
 		this.fieldCodecFactory = fieldCodecFactory;
+		this.jdbcSettings = jdbcSettings;
 		this.lookups = lookups;
 		this.wildcardLastField = wildcardLastField;
 		this.config = Config.nullSafe(config);
@@ -61,6 +68,11 @@ extends BaseJdbcOp<List<D>>{
 			if(config.getLimit() != null && result.size() >= config.getLimit()){
 				break;
 			}
+		}
+		Integer largeLookupAlertThreshold = jdbcSettings.getLargeLookupAlertThreshold().get();
+		if(result.size() >= largeLookupAlertThreshold){
+			logger.warn("JDBC lookup exceeded alert threshold : " + result.size() + ">=" + largeLookupAlertThreshold, 
+					new Exception());
 		}
 		if(config.getLimit() != null && result.size() > config.getLimit()){
 			return new ArrayList<>(result.subList(0, config.getLimit()));
