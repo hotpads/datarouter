@@ -2,9 +2,9 @@ package com.hotpads.datarouter.client.imp.hbase.pool;
 
 import java.io.IOException;
 import java.util.Map;
-import java.util.concurrent.BlockingDeque;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.Semaphore;
 
 import org.apache.hadoop.hbase.client.HBaseAdmin;
@@ -33,7 +33,9 @@ implements HTablePool{
 
 	private static final int DEFAULT_MAX_HTABLES = 10;
 	private static final int DEFAULT_MIN_THREADS_PER_HTABLE = 1;
-	private static final int DEFAULT_MAX_THREADS_PER_HTABLE = 12;
+	//practically, you will get only one thread per regionserver, but it doesn't hurt to have a high ceiling that won't
+	// exhaust all server threads
+	private static final int DEFAULT_MAX_THREADS_PER_HTABLE = 1024;
 	private static final boolean LOG_ACTIONS = true;
 	private static final long LOG_SEMAPHORE_ACQUISITIONS_OVER_MS = 2000L;
 	private static final long THROTTLE_INCONSISTENT_LOG_EVERY_X_MS = 500;
@@ -49,7 +51,7 @@ implements HTablePool{
 	
 	//used for pooling connections
 	private final Semaphore hTableSemaphore;
-	private final BlockingDeque<HTableExecutorService> executorServiceQueue;
+	private final BlockingQueue<HTableExecutorService> executorServiceQueue;
 	private final Map<HTable,HTableExecutorService> activeHTables;
 
 	private volatile boolean shuttingDown;
@@ -66,7 +68,7 @@ implements HTablePool{
 		this.maxThreadsPerHTable = hBaseOptions.maxThreadsPerHTable(DEFAULT_MAX_THREADS_PER_HTABLE);
 		
 		this.hTableSemaphore = new Semaphore(maxHTables);
-		this.executorServiceQueue = new LinkedBlockingDeque<>(maxHTables);
+		this.executorServiceQueue = new LinkedBlockingQueue<>(maxHTables);
 		this.activeHTables = new ConcurrentHashMap<>();
 	}
 
@@ -84,7 +86,7 @@ implements HTablePool{
 		try{
 			DRCounters.incClientTable(HBaseClientType.INSTANCE, "connection getHTable", clientName, tableName);
 			while(true){
-				hTableExecutorService = executorServiceQueue.pollFirst();
+				hTableExecutorService = executorServiceQueue.poll();
 				setProgress(progress, "polled queue " + hTableExecutorService == null ? "null" : "success");
 				
 				if(hTableExecutorService==null){
