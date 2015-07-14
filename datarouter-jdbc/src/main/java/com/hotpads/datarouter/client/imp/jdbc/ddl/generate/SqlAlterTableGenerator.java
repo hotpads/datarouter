@@ -105,7 +105,6 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 		String alterSql="";
 		if(dropTable){
 			for(SqlAlterTableClause sqlAT : list){
-				//sString s="";
 				alterSql = sqlAT.getAlterTable();
 				if(DrStringTool.containsCharactersBesidesWhitespace(alterSql)){
 					l.add(sqlAT);
@@ -166,12 +165,8 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 				if(type.shouldSpecifyLength(requestedCol.getMaxLength())){
 					sb.append("(" +requestedCol.getMaxLength() +")");
 				}
-				if(requestedCol.getNullable()){
-					//sb.append(" default null");					
-					sb.append(" default "+requestedCol.getDefaultValue());
-				}else{
-					sb.append(" not null");
-				}
+				String defaultValue = col.getNullable() ? getDefaultValueForNotNull(col) : " not null";
+				sb.append(defaultValue);
 				if(requestedCol.getAutoIncrement()) {
 					sb.append(" auto_increment");
 				}
@@ -207,8 +202,7 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 			list.add(new SqlAlterTableClause("collate "+requested.getCollation().toString().toLowerCase(), 
 					SqlAlterTypes.MODIFY_COLLATION));
 		}
-
-		//s+=");";
+		
 		return list;
 	}
 
@@ -272,11 +266,8 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 			if(col.getMaxLength()!=null){
 				sb.append("(" + col.getMaxLength() + ")");
 			}
-			if(col.getNullable()){
-				sb.append(" default null");
-			}else{
-				sb.append(" not null");
-			}
+			String defaultValue = col.getNullable() ? getDefaultValueForNotNull(col) : " not null";
+			sb.append(defaultValue);
 			if(col.getAutoIncrement()) {
 				sb.append(" auto_increment");
 			}
