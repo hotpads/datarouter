@@ -17,7 +17,7 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlTableEngine;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn.SqlColumnNameComparator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn.SqlColumnNameTypeComparator;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn.SqlColumnNameTypeLengthAutoIncrementComparator;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn.SqlColumnNameTypeLengthAutoIncrementDefaultComparator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlIndex;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlIndex.SqlIndexNameComparator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlTable;
@@ -61,7 +61,7 @@ public class SqlTableDiffGenerator{
 	}
 	
 	public List<SqlColumn> getColumnsToModify(){
-		SqlColumnNameTypeLengthAutoIncrementComparator c = new SqlColumnNameTypeLengthAutoIncrementComparator(true);
+		SqlColumnNameTypeLengthAutoIncrementDefaultComparator c = new SqlColumnNameTypeLengthAutoIncrementDefaultComparator(true);
 		Set<SqlColumn> requestedColumns = new TreeSet<SqlColumn>(c);
 		Set<SqlColumn> currentColumns = new TreeSet<SqlColumn>(c);		
 		if(requested==null || current==null){
@@ -75,7 +75,7 @@ public class SqlTableDiffGenerator{
 	
 	private List<SqlColumn> getColumnsToModifyAfterAddingColumns(Set<SqlColumn> requestedColumns,
 			Set<SqlColumn> currentColumns, 
-			List<SqlColumn> columnsToAddUsingNameComparator, SqlColumnNameTypeLengthAutoIncrementComparator c){
+			List<SqlColumn> columnsToAddUsingNameComparator, SqlColumnNameTypeLengthAutoIncrementDefaultComparator c){
 		// by getting all the modified columns (the ones we should add) and removing from them the ones
 		// we have already added (columnsToAdd)
 		List<SqlColumn> listOfColumnsToAddUsingNameTypeComparator = DrListTool.createArrayList(DrCollectionTool.minus(
@@ -443,7 +443,7 @@ public class SqlTableDiffGenerator{
 					//TODO too much on one line
 			List<SqlColumn> colsToModify = diffAB.getColumnsToModify();
 			ArrayList<SqlColumn> expected = DrListTool.createArrayList(colA2);
-			SqlColumnNameTypeLengthAutoIncrementComparator c = new SqlColumnNameTypeLengthAutoIncrementComparator(true);
+			SqlColumnNameTypeLengthAutoIncrementDefaultComparator c = new SqlColumnNameTypeLengthAutoIncrementDefaultComparator(true);
 			Assert.assertTrue(areEqual(colsToModify, expected, c));
 			
 			
@@ -504,7 +504,7 @@ public class SqlTableDiffGenerator{
 			SqlTableDiffGenerator diffAB = new SqlTableDiffGenerator(table1, table2, true);
 			List<SqlColumn> colsToModify = diffAB.getColumnsToModify();
 			ArrayList<SqlColumn> expected = DrListTool.createArrayList(col_activeTiny, col_includeInSiteMapTiny, col_useBoundedLayoutTiny);
-			SqlColumnNameTypeLengthAutoIncrementComparator c = new SqlColumnNameTypeLengthAutoIncrementComparator(true);
+			SqlColumnNameTypeLengthAutoIncrementDefaultComparator c = new SqlColumnNameTypeLengthAutoIncrementDefaultComparator(true);
 			Assert.assertTrue(areEqual(colsToModify, expected, c));
 			
 			Set<SqlColumn> requestedColumns = new TreeSet<SqlColumn>(c);
