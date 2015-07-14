@@ -19,6 +19,7 @@ import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.multi.Lookup;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
+import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.profile.count.collection.Counters;
 import com.hotpads.util.core.iterable.BatchingIterable;
@@ -73,6 +74,7 @@ extends BaseJdbcOp<List<D>>{
 			logger.warn("JDBC lookup exceeded alert threshold : " + result.size() + ">=" + LARGE_LOOKUP_ALERT_THRESHOLD,
 					new Exception());
 			Counters.inc("JDBC lookup exceeded alert threshold");
+			DRCounters.incNode("JDBC lookup exceeded alert threshold", node.getName(), 1);
 		}
 		if(config.getLimit() != null && result.size() > config.getLimit()){
 			return new ArrayList<>(result.subList(0, config.getLimit()));
