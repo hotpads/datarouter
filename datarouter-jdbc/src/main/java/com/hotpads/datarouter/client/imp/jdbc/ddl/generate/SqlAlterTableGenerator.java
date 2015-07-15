@@ -1,7 +1,9 @@
 package com.hotpads.datarouter.client.imp.jdbc.ddl.generate;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.SortedSet;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
@@ -16,11 +18,13 @@ import com.hotpads.datarouter.util.core.DrStringTool;
 public class SqlAlterTableGenerator implements DdlGenerator{
 
 	private static final int MINIMUM_ALTER_SIZE = 10;
+	private static final String NOT_NULL = " not null";
 	protected SchemaUpdateOptions options;
 	protected SqlTable current, requested;
 	protected String databaseName="";
 	protected boolean dropTable = false;
 	protected boolean willAlterTable = false;
+	private Set<SqlColumn> columnsToInitialize = new HashSet<>();
 	
 	public SqlAlterTableGenerator(SchemaUpdateOptions options, SqlTable current, SqlTable requested, 
 			String databaseName){
@@ -61,6 +65,18 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 		sb.append(";");
 		if(sb.length()>= ("alter table " +databaseName + "." +current.getName()).length()+MINIMUM_ALTER_SIZE){
 			willAlterTable=true;
+		}
+		
+		if(columnsToInitialize.size()>0){
+			sb.append("\n\n");
+			sb.append("Update "+databaseName + "." +current.getName()+ " set ");
+			sb.append("\n");			
+			for(SqlColumn col:columnsToInitialize){			
+				sb.append(col.getName()+" = "+col.getDefaultValue());
+				sb.append(",\n");
+			}	
+			sb = new StringBuilder(sb.substring(0, sb.length()-2)); // remove the last "," 
+			sb.append(";");
 		}
 		return sb.toString();
 	}
@@ -138,7 +154,7 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 		List<SqlColumn> colsToAdd = diff.getColumnsToAdd();
 		List<SqlColumn> colsToRemove = diff.getColumnsToRemove();
 		List<SqlColumn> colsToModify = diff.getColumnsToModify();
-
+		
 		// get the other modifications ( the indexes )
 		SortedSet<SqlIndex> indexesToAdd = diff.getIndexesToAdd();
 		SortedSet<SqlIndex> indexesToRemove = diff.getIndexesToRemove();
@@ -146,7 +162,9 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 		// generate the alter table statements from columns to add and to remove
 		if(colsToRemove.size()<current.getNumberOfColumns()){ 
 			list.addAll(getAlterTableForRemovingColumns(colsToRemove));
-			list.add(getAlterTableForAddingColumns(colsToAdd));
+			list.add(getAlterTableForAddingColumns(colsToAdd));				
+			getColumnsToInitialize(colsToAdd);
+			
 		}else{// cannot drop all columns, should use drop table then create it from list of columns
 			dropTable = true;
 			list.add(new SqlAlterTableClause("drop table "  +databaseName + "." +current.getName() +";", 
@@ -165,8 +183,7 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 				if(type.shouldSpecifyLength(requestedCol.getMaxLength())){
 					sb.append("(" +requestedCol.getMaxLength() +")");
 				}
-				String defaultValue = col.getNullable() ? getDefaultValueForNotNull(col) : " not null";
-				sb.append(defaultValue);
+				sb.append(getDefaultValueStatement(col));
 				if(requestedCol.getAutoIncrement()) {
 					sb.append(" auto_increment");
 				}
@@ -266,8 +283,7 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 			if(col.getMaxLength()!=null){
 				sb.append("(" + col.getMaxLength() + ")");
 			}
-			String defaultValue = col.getNullable() ? getDefaultValueForNotNull(col) : " not null";
-			sb.append(defaultValue);
+			sb.append(getDefaultValueStatement(col));
 			if(col.getAutoIncrement()) {
 				sb.append(" auto_increment");
 			}
@@ -278,7 +294,7 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 		return new SqlAlterTableClause(sb.toString(), SqlAlterTypes.CREATE_TABLE);
 	}
 
-	private SqlAlterTableClause getAlterTableForAddingColumns(List<SqlColumn> colsToAdd){
+	private SqlAlterTableClause getAlterTableForAddingColumns(List<SqlColumn> colsToAdd){		
 		if(!options.getAddColumns()){ 
 			return null; 
 		}
@@ -296,8 +312,9 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 			if(type.shouldSpecifyLength(col.getMaxLength())){
 				sb.append("(" + col.getMaxLength() + ")");
 			}
-			String defaultValue = col.getNullable()? getDefaultValueForNotNull(col) : " not null";
-			sb.append(defaultValue);			
+			
+			sb.append(getDefaultValueStatement(col));
+				
 			if(col.getAutoIncrement()) {
 				sb.append(" auto_increment");
 			}
@@ -325,15 +342,27 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 		return list;
 	}
 	
-	private String getDefaultValueForNotNull(SqlColumn col){		
-		String defaultValue = null;	
-		if(col.getDefaultValue() == null || col.getType().equals(MySqlColumnType.TINYINT)){		
-			//do not need quotes around the default val
-			defaultValue = " default "+col.getDefaultValue()+""; 
+	private String getDefaultValueStatement(SqlColumn col){
+		String defaultValue = null;
+		if(!col.getNullable()){
+			defaultValue = NOT_NULL;
 		}else{
-			defaultValue = "'"+col.getDefaultValue()+"'";
-		}	
+			if(col.getDefaultValue() == null || col.getType().equals(MySqlColumnType.TINYINT)){
+				defaultValue = " default " + col.getDefaultValue() + "";
+			}else{
+				defaultValue = "'" + col.getDefaultValue() + "'";
+			}
+		}
 		return defaultValue;
+	}
+
+	private void getColumnsToInitialize(List<SqlColumn> columnsToAdd){
+		for(SqlColumn col : columnsToAdd){
+			String defaultValue = getDefaultValueStatement(col);			
+			if(! (defaultValue.equals(NOT_NULL) || DrStringTool.isNull(col.getDefaultValue()))){			
+				columnsToInitialize.add(col);
+			}				
+		}		
 	}
 	
 	public static class SqlAlterTableGeneratorTester{
