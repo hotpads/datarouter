@@ -176,9 +176,8 @@ implements MapStorageReader<PK,D>,
 		return new SessionExecutorImpl<>(op, getTraceName(opName)).call();
 	}
 	
-	//TODO rename lookupMulti
 	@Override
-	public List<D> lookup(final Collection<? extends Lookup<PK>> lookups, final Config config) {
+	public List<D> lookupMulti(final Collection<? extends Lookup<PK>> lookups, final Config config) {
 		String opName = IndexedStorageReader.OP_lookupMulti;
 		if(DrCollectionTool.isEmpty(lookups)){
 			return new LinkedList<>();

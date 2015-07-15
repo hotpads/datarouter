@@ -5,22 +5,23 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
 import org.testng.Assert;
-import org.testng.annotations.AfterMethod;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
 import com.hotpads.datarouter.client.imp.sqs.SqsDataTooLargeException;
-import com.hotpads.datarouter.client.imp.sqs.SqsNode;
 import com.hotpads.datarouter.client.imp.sqs.config.DatarouterSqsTestModuleFactory;
+import com.hotpads.datarouter.client.imp.sqs.single.SqsNode;
 import com.hotpads.datarouter.config.Config;
+import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.test.TestDatabean;
-import com.hotpads.datarouter.test.TestDatabeanFielder;
-import com.hotpads.util.core.bytes.StringByteTool;
 
 @Guice(moduleFactory = DatarouterSqsTestModuleFactory.class)
 @Test(singleThreaded=true)
@@ -28,22 +29,37 @@ public class SqsNodeIntegrationTests{
 	private static final int DATABEAN_COUNT = 15;
 	
 	@Inject
-	private SqsTestRouter router;
+	private DatarouterContext datarouterContext;
+	
+	private final SqsTestHelper sqsTestHelper;
+	private final SqsTestRouter router;
+
+	@Inject
+	public SqsNodeIntegrationTests(SqsTestRouter router){
+		this.router = router;
+		this.sqsTestHelper = new SqsTestHelper(router.testDatabean);
+	}
+	
+	@AfterClass
+	public void shutdown(){
+		datarouterContext.shutdown();
+	}
 	
 	@BeforeMethod
 	public void setUp(){
-		cleanUp();
+		cleanUp(2);
 	}
 	
-	@AfterMethod
-	public void tearDown(){
-		cleanUp();
-	}
-	
-	private void cleanUp(){
-		for(TestDatabean databean : router.testDatabean.pollUntilEmpty(null)){
-			System.out.println("Removed " + databean);
+	private void cleanUp(int seconds){
+		Config config = new Config().setTimeout(seconds, TimeUnit.SECONDS);
+		for(TestDatabean testDatabean : router.testDatabean.pollUntilEmpty(config)){
+			System.out.println(seconds + "\t" + testDatabean);
 		}
+	}
+	
+	@Test
+	public void testByteLimitMulti(){
+		sqsTestHelper.testByteLimitMulti();
 	}
 	
 	@Test
@@ -57,22 +73,16 @@ public class SqsNodeIntegrationTests{
 	}
 	
 	private void testByteLimit(int size){
-		TestDatabean emptyDatabean = new TestDatabean("", "", "");
-		TestDatabeanFielder fielder = router.testDatabean.getFieldInfo().getSampleFielder();
-		String stringDatabean = fielder.getStringDatabeanCodec().toString(emptyDatabean, fielder);
-		int emptyDatabeanSize = StringByteTool.getUtf8Bytes(stringDatabean).length;
-		String longString = makeStringOfByteSize(size - emptyDatabeanSize);
+		String longString = SqsTestHelper.makeLongStringWithDatabeanSizeTarget(size);
 		TestDatabean databean = new TestDatabean(longString, "", "");
 		router.testDatabean.put(databean, null);
 	}
 	
-	private static String makeStringOfByteSize(int requiredSize){
-		Assert.assertEquals(StringByteTool.getUtf8Bytes("a").length, 1);
-		StringBuilder longString = new StringBuilder();
-		for(int size = 0 ; size < requiredSize ; size++){
-			longString.append("a");
-		}
-		return longString.toString();
+	@Test
+	public void testPeekLimit(){
+		putRandomDatabeans();
+		int testLimit = 3;
+		Assert.assertTrue(router.testDatabean.peekMulti(new Config().setLimit(testLimit)).size() <= testLimit);
 	}
 	
 	@Test
@@ -88,11 +98,7 @@ public class SqsNodeIntegrationTests{
 	
 	@Test
 	public void testPutMultiAndPollMulti(){
-		List<TestDatabean> databeans = new ArrayList<>(DATABEAN_COUNT);
-		for(int i = 0 ; i < DATABEAN_COUNT ; i++){
-			databeans.add(new TestDatabean(String.valueOf(i), makeRandomString(), makeRandomString()));
-		}
-		router.testDatabean.putMulti(databeans, null);
+		putRandomDatabeans();
 		Set<Integer> ids = new HashSet<>();
 		List<TestDatabean> retrievedDatabeans;
 		do{
@@ -106,9 +112,32 @@ public class SqsNodeIntegrationTests{
 			}
 		}while(retrievedDatabeans.size() > 0 || ids.size() < DATABEAN_COUNT);
 	}
+	
+	private void putRandomDatabeans(){
+		List<TestDatabean> databeans = new ArrayList<>(DATABEAN_COUNT);
+		for(int i = 0 ; i < DATABEAN_COUNT ; i++){
+			databeans.add(new TestDatabean(String.valueOf(i), makeRandomString(), makeRandomString()));
+		}
+		router.testDatabean.putMulti(databeans, null);
+	}
+	
+	@Test
+	public void testInterruptPeek(){
+		SqsTestHelper.testInterruptPeek(new Callable<Void>(){
 
-	@Test(enabled = false)//Too long to run for every build
+			@Override
+			public Void call() throws Exception{
+				Config config = new Config().setTimeoutMs(5000L);
+				Assert.assertNull(router.testDatabean.peek(config));
+				return null;
+			}
+			
+		});
+	}
+
+	@Test//Too long to run for every build
 	public void testPollTimeout(){
+		cleanUp(40);//extra cleanup
 		TestDatabean databean = new TestDatabean(makeRandomString(), makeRandomString(), makeRandomString());
 		router.testDatabean.put(databean, null);
 		
@@ -118,9 +147,8 @@ public class SqsNodeIntegrationTests{
 		Assert.assertNotNull(retrievedDatabean);
 		Assert.assertTrue((System.currentTimeMillis() - time) < 6000L);
 		
-		testPollNullWithTimeout(5000);
 		testPollNullWithTimeout(25000);
-		testPollNullWithTimeout(45000);
+		testPollNullWithTimeout(25000);
 	}
 	
 	private void testPollNullWithTimeout(long timeout){
@@ -130,31 +158,6 @@ public class SqsNodeIntegrationTests{
 		Assert.assertNull(retrievedDatabean);
 		Assert.assertTrue((System.currentTimeMillis() - time) < timeout + 1000);
 		Assert.assertTrue((System.currentTimeMillis() - time) >= timeout);
-	}
-	
-	@Test(enabled = false)//Too long to run for every build
-	public void testPollMultiTimeout(){
-		TestDatabean databean = new TestDatabean(makeRandomString(), makeRandomString(), makeRandomString());
-		router.testDatabean.put(databean, null);
-		
-		Config config = new Config().setTimeoutMs(5000L);
-		long time = System.currentTimeMillis();
-		List<TestDatabean> retrievedDatabeans = router.testDatabean.pollMulti(config);
-		Assert.assertTrue((System.currentTimeMillis() - time) < 6000L);
-		Assert.assertTrue(retrievedDatabeans.size() > 0);
-		
-		testPollMultiNullWithTimeout(5000);
-		testPollMultiNullWithTimeout(25000);
-		testPollMultiNullWithTimeout(45000);
-	}
-	
-	private void testPollMultiNullWithTimeout(long timeout){
-		Config config = new Config().setTimeoutMs(timeout);
-		long time = System.currentTimeMillis();
-		List<TestDatabean> retrievedDatabeans = router.testDatabean.pollMulti(config);
-		Assert.assertTrue((System.currentTimeMillis() - time) < timeout + 1000);
-		Assert.assertTrue((System.currentTimeMillis() - time) >= timeout);
-		Assert.assertTrue(retrievedDatabeans.size() == 0);
 	}
 	
 	private static String makeRandomString(){
