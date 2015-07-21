@@ -347,7 +347,7 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 		if(!col.getNullable()){
 			defaultValue = NOT_NULL;
 		}else{
-			if(col.getDefaultValue() == null || col.getType().equals(MySqlColumnType.TINYINT)){
+			if(col.getDefaultValue() == null || col.getType().equals(MySqlColumnType.TINYINT || col.getType() == MySqlColumnType.supportsDefaultValue)){
 				defaultValue = " default " + col.getDefaultValue() + "";
 			}else{
 				defaultValue = "'" + col.getDefaultValue() + "'";
@@ -358,8 +358,8 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 
 	private void getColumnsToInitialize(List<SqlColumn> columnsToAdd){
 		for(SqlColumn col : columnsToAdd){
-			String defaultValue = getDefaultValueStatement(col);			
-			if(! (defaultValue.equals(NOT_NULL) || DrStringTool.isNull(col.getDefaultValue()))){			
+			String defaultValueStatement = getDefaultValueStatement(col);			
+			if(! (defaultValueStatement.equals(NOT_NULL) || DrStringTool.isNull(col.getDefaultValue()))){			
 				columnsToInitialize.add(col);
 			}				
 		}		
