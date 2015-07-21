@@ -20,8 +20,8 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt63Field;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
-import com.hotpads.datarouter.util.core.DrClassTool;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrObjectTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 
 
@@ -80,9 +80,9 @@ extends HBaseTask<Void>{
 	//try to prevent making a mistake with columnName and incrementing a non-counter column
 	private void assertColumnIsUInt63Field(String columnName){
 		Class<? extends Field> columnType = node.getFieldInfo().getFieldTypeForColumn(columnName);
-		if(DrClassTool.differentClass(columnType, UInt63Field.class)){
+		if(DrObjectTool.notEquals(columnType, UInt63Field.class)){
 			throw new IllegalArgumentException(columnName+" is a "+columnType.getClass()
-					+", but you can only increment a LongField");
+					+", but you can only increment a UInt63Field");
 		}
 	}
 

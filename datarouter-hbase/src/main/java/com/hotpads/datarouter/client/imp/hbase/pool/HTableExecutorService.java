@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.client.imp.hbase.pool;
 
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -26,8 +27,12 @@ public class HTableExecutorService{
 	private volatile long lastCheckinMs;
 
 	public HTableExecutorService(int minThreads, int maxThreads){
-		this.exec = new ThreadPoolExecutor(minThreads, maxThreads, 60, TimeUnit.SECONDS,
-						new SynchronousQueue<Runnable>());
+		//it's important to use a bounded queue as the executor service won't grow past minThreads until you fill the
+		// queue.  SynchronousQueue is a special zero size queue that will cause the exec svc to grow immediately
+		BlockingQueue<Runnable> queue = new SynchronousQueue<>();
+		//having more regionservers than maxThreads will cause a RejectedExecutionException that will kill your hbase 
+		// request, so provide a high maxThreads
+		this.exec = new ThreadPoolExecutor(minThreads, maxThreads, 60, TimeUnit.SECONDS, queue);
 		this.exec.allowCoreThreadTimeOut(true);// see class comment regarding killing pools
 		this.createdMs = System.currentTimeMillis();
 		this.lastCheckinMs = createdMs;
@@ -93,7 +98,7 @@ public class HTableExecutorService{
 		// else we have issues... try to fix them
 		exec.shutdownNow();
 		if(exec.getActiveCount() > 0){
-			logger.warn("getActiveCount() still > 0 after shutdownNow(), table:" + tableNameForLog);
+			logger.warn("getActiveCount() still > 0 after shutdownNow(), table:" + tableNameForLog, new Exception());
 		}
 		ExecutorServiceTool.awaitTerminationForever(exec);// any better ideas? alternative is memory leak
 		logger.warn("awaitTermination finished!, table:" + tableNameForLog);

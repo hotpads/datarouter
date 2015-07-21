@@ -6,7 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.util.core.DrStringTool;
-import com.hotpads.exception.analysis.HttpHeaders;
+import com.hotpads.util.http.HttpHeaders;
 
 public class WebSocketTool{
 	private static final Logger logger = LoggerFactory.getLogger(WebSocketTool.class);

@@ -107,10 +107,9 @@ implements MapStorageReader<PK,D>,
 		return jdbcReaderOps.lookup(lookup, wildcardLastField, config);
 	}
 	
-	//TODO rename lookupMulti
 	@Override
-	public List<D> lookup(final Collection<? extends Lookup<PK>> lookups, final Config config) {
-		return jdbcReaderOps.lookup(lookups, config);
+	public List<D> lookupMulti(final Collection<? extends Lookup<PK>> lookups, final Config config) {
+		return jdbcReaderOps.lookupMulti(lookups, config);
 	}
 
 	//TODO add to IndexedStorageReader interface
