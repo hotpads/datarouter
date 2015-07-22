@@ -47,10 +47,10 @@ import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.admin.RoutersHandler;
 import com.hotpads.handler.mav.Mav;
 import com.hotpads.handler.mav.imp.MessageMav;
-import com.hotpads.handler.util.RequestTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.concurrent.ThreadTool;
 import com.hotpads.util.core.profile.PhaseTimer;
+import com.hotpads.util.http.RequestTool;
 
 public class HBaseHandler extends BaseHandler {
 	protected Logger logger = LoggerFactory.getLogger(getClass());

@@ -24,8 +24,8 @@ import com.hotpads.datarouter.node.op.raw.read.MapStorageReader;
 import com.hotpads.datarouter.node.type.physical.base.BasePhysicalNode;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
+import com.hotpads.datarouter.storage.databean.DatabeanTool;
 import com.hotpads.datarouter.storage.field.FieldSetTool;
-import com.hotpads.datarouter.storage.key.KeyTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.core.DrArrayTool;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
@@ -145,7 +145,7 @@ implements MemcachedPhysicalNode<PK,D>,
 	@Override
 	public List<PK> getKeys(final Collection<PK> keys, final Config pConfig) {	
 		if(DrCollectionTool.isEmpty(keys)){ return new LinkedList<PK>(); }
-		return KeyTool.getKeys(getMulti(keys, pConfig));
+		return DatabeanTool.getKeys(getMulti(keys, pConfig));
 	}
 
 	
