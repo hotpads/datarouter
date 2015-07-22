@@ -347,7 +347,7 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 		if(!col.getNullable()){
 			defaultValue = NOT_NULL;
 		}else{
-			if(col.getDefaultValue() == null || col.getType().equals(MySqlColumnType.TINYINT || col.getType() == MySqlColumnType.supportsDefaultValue)){
+			if(col.getDefaultValue() == null || col.getType() == MySqlColumnType.SUPPORTS_DEFAULT_VALUE){
 				defaultValue = " default " + col.getDefaultValue() + "";
 			}else{
 				defaultValue = "'" + col.getDefaultValue() + "'";
