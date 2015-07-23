@@ -12,7 +12,6 @@ import org.junit.Test;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SchemaUpdateOptions;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn.SqlColumnNameTypeLengthAutoIncrementDefaultComparator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlIndex;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlTable;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
@@ -299,8 +298,7 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 	}
 
 	private SqlAlterTableClause getAlterTableForAddingColumns(List<SqlColumn> colsToAdd){
-		
-		System.out.println("adding columns");
+				
 		if(!options.getAddColumns()){ 
 			return null; 
 		}
@@ -372,143 +370,28 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 	}
 	
 	public static class SqlAlterTableGeneratorTester{
-		
 		@Test
-		public void generateTest() throws IOException{
-			SqlColumn 
-			colA = new SqlColumn("A", MySqlColumnType.BIGINT),
-			colB = new SqlColumn("B", MySqlColumnType.VARCHAR,250, false, false),
-			//boolean field with default value true
-			colC = new SqlColumn("C", MySqlColumnType.BOOLEAN,0, true, false, "true");
-			
-			
-			SqlTable 
-					table1 = new SqlTable("TA").addColumn(colA).addColumn(colB).addColumn(colC),
-					table2 = new SqlTable("TB").addColumn(colA).addColumn(colB);
-			SqlColumnNameTypeLengthAutoIncrementDefaultComparator c = new SqlColumnNameTypeLengthAutoIncrementDefaultComparator(true);
-			
+		public void testDefaultValue() throws IOException{
+
+			SqlColumn colA = new SqlColumn("A", MySqlColumnType.BIGINT), colB = new SqlColumn("B",
+					MySqlColumnType.VARCHAR, 250, false, false),
+			// boolean field with default value true
+			colC = new SqlColumn("C", MySqlColumnType.BOOLEAN, 0, true, false, "true");
+
+			SqlTable table1 = new SqlTable("TA").addColumn(colA).addColumn(colB).addColumn(colC), table2 = new SqlTable(
+					"TB").addColumn(colA).addColumn(colB);
+
 			SchemaUpdateOptions options = new SchemaUpdateOptions().setAllTrue();
-			
-			//case1 : Adding a boolean field to the table with a default value (alter statement + initialize variable)			
+
+			// case1 : Adding a boolean field to the table with a default value (alter statement + initialize variable)
 			SqlAlterTableGenerator alterGenerator21 = new SqlAlterTableGenerator(options, table2, table1, "config");
 			System.out.println(alterGenerator21.generateDdl());
-			
-			//case2 : Dropping a boolean field from table with a default value specified
-			SqlAlterTableGenerator alterGenerator12 = new SqlAlterTableGenerator(options, table1, table2, "config");		
+
+			// case2 : Dropping a boolean field from table with a default value specified
+			SqlAlterTableGenerator alterGenerator12 = new SqlAlterTableGenerator(options, table1, table2, "config");
 			System.out.println(alterGenerator12.generateDdl());
-			
-			//case 3
-			SqlColumn colC2 = new SqlColumn("C", MySqlColumnType.BOOLEAN,0, true, false, "false");
-			SqlTableDiffGenerator a;
-		}
-		
-		
-	/*
-		@Test public void getAlterTableStatementsTester() throws IOException{
-			SqlColumn 
-			colA = new SqlColumn("A", MySqlColumnType.BIGINT),
-			colB = new SqlColumn("B", MySqlColumnType.VARCHAR,250,false),
-			colC = new SqlColumn("C", MySqlColumnType.BOOLEAN),
-			colM = new SqlColumn("M", MySqlColumnType.VARCHAR);
-			List<SqlColumn> 
-					listBC = ListTool.createArrayList(),
-					listM = ListTool.createArrayList();
 
-			listBC.add(colB);
-			listBC.add(colC);
-			listM.add(colM);
-			SqlTable 
-					table1 = new SqlTable("TA").addColumn(colA).addColumn(colB).addColumn(colC),
-					table2 = new SqlTable("TB").addColumn(colA).addColumn(colM);
-			//SqlColumnNameComparator nameComparator = new SqlColumnNameComparator(true);
-			//SqlColumnNameTypeComparator nameTypeComparator= new SqlColumnNameTypeComparator(true);
-			
-			
-			
-			SchemaUpdateOptions options = new SchemaUpdateOptions().setAllTrue();
-			SqlAlterTableGenerator alterGenerator21 = new SqlAlterTableGenerator(options, table2, table1);
-			SqlAlterTableGenerator alterGenerator12 = new SqlAlterTableGenerator(options, table1, table2);
-			System.out.println(alterGenerator21.getAlterTableStatements());
-			System.out.println(alterGenerator12.getAlterTableStatements());
-			
-			FileInputStream fis = new FileInputStream("src/com/hotpads/datarouter/client/imp/jdbc/ddl/test2.txt");
-			DataInputStream in = new DataInputStream(fis);
-			BufferedReader br = new BufferedReader(new InputStreamReader(in));
-			String str, phrase = "";
-			while((str = br.readLine()) != null){
-				phrase += str;
-			}
-			SqlCreateTableParser parser = new SqlCreateTableParser(phrase);
-			SqlTable tab1 = parser.parse();
-			
-			 fis = new FileInputStream("src/com/hotpads/datarouter/client/imp/jdbc/ddl/test22.txt");
-			 in = new DataInputStream(fis);
-			 br = new BufferedReader(new InputStreamReader(in));
-			 phrase = "";
-			while((str = br.readLine()) != null){
-				phrase += str;
-			}
-			parser = new SqlCreateTableParser(phrase);
-			SqlTable tab2 = parser.parse();
-			
-			//System.out.println(tab1);
-			//System.out.println(tab2);
-			SqlAlterTableGenerator alterGeneratorBis21 = new SqlAlterTableGenerator(options, tab2, tab1);
-			SqlAlterTableGenerator alterGeneratorBis12 = new SqlAlterTableGenerator(options, tab1, tab2);
-			
-			System.out.println(alterGeneratorBis21.getAlterTableStatements());
-			System.out.println(alterGeneratorBis12.getAlterTableStatements());
-			
-			
-			tab1 = new SqlTable("a"); tab2 =  new SqlTable("a");
-			SqlColumn col0 =  new SqlColumn("ab", MySqlColumnType.VARCHAR,200,true), col0clone = col0.clone();
-			tab2.addColumn(col0);
-			col0clone.setType(MySqlColumnType.BINARY);
-			tab1.addColumn(col0clone);
-			
-			// System.out.println(tab1);
-			// System.out.println(tab2);
-			alterGeneratorBis21 = new SqlAlterTableGenerator(options, tab2, tab1);
-			alterGeneratorBis12 = new SqlAlterTableGenerator(options, tab1, tab2);
-			Assert.assertTrue(CollectionTool.isEmpty(alterGeneratorBis21.getAlterTableStatements()));
-			Assert.assertTrue(CollectionTool.isEmpty(alterGeneratorBis12.getAlterTableStatements()));
-			Assert.assertFalse(CollectionTool.isEmpty(alterGeneratorBis21.getAlterTableStatements()));
-			Assert.assertFalse(CollectionTool.isEmpty(alterGeneratorBis12.getAlterTableStatements()));
-			
-	}
-	
-		@Test public void getAlterTableForIndexesTester(){
-			SqlColumn 
-			colA = new SqlColumn("A", MySqlColumnType.BIGINT),
-			colB = new SqlColumn("B", MySqlColumnType.VARCHAR,250,false),
-			colC = new SqlColumn("C", MySqlColumnType.BOOLEAN),
-			colM = new SqlColumn("M", MySqlColumnType.VARCHAR);
-			List<SqlColumn> 
-					listBC = ListTool.createArrayList(),
-					listM = ListTool.createArrayList();
-
-			listBC.add(colB);
-			listBC.add(colC);
-			listM.add(colM);
-			SqlTable 
-					table1 = new SqlTable("TA").addColumn(colA).addColumn(colB).addColumn(colC),
-					table2 = new SqlTable("TB").addColumn(colA).addColumn(colM);
-			SqlColumnNameComparator nameComparator = new SqlColumnNameComparator(true);
-			SqlColumnNameTypeComparator nameTypeComparator= new SqlColumnNameTypeComparator(true);
-			
-			SqlIndex index = new SqlIndex("1", listBC),
-						index2 = new SqlIndex("2", listM);
-			table1.addIndex(index);
-			table1.addIndex(index2);
-			
-			SchemaUpdateOptions options = new SchemaUpdateOptions().setAllTrue();
-			SqlAlterTableGenerator alterGenerator21 = new SqlAlterTableGenerator(options, table2, table1);
-			SqlAlterTableGenerator alterGenerator12 = new SqlAlterTableGenerator(options, table1, table2);
-			
-			System.out.println(alterGenerator12.getMasterAlterStatement());
-			System.out.println(alterGenerator21.getMasterAlterStatement());
 		}
-		*/
 	}
 	
 }
