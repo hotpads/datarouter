@@ -1,14 +1,18 @@
 package com.hotpads.datarouter.client.imp.jdbc.ddl.generate;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
 
+import org.junit.Test;
+
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SchemaUpdateOptions;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn.SqlColumnNameTypeLengthAutoIncrementDefaultComparator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlIndex;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlTable;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
@@ -294,7 +298,9 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 		return new SqlAlterTableClause(sb.toString(), SqlAlterTypes.CREATE_TABLE);
 	}
 
-	private SqlAlterTableClause getAlterTableForAddingColumns(List<SqlColumn> colsToAdd){		
+	private SqlAlterTableClause getAlterTableForAddingColumns(List<SqlColumn> colsToAdd){
+		
+		System.out.println("adding columns");
 		if(!options.getAddColumns()){ 
 			return null; 
 		}
@@ -342,7 +348,7 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 		return list;
 	}
 	
-	private String getDefaultValueStatement(SqlColumn col){
+	private String getDefaultValueStatement(SqlColumn col){	
 		String defaultValue = null;
 		if(!col.getNullable()){
 			defaultValue = NOT_NULL;
@@ -352,7 +358,7 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 			}else{
 				defaultValue = "'" + col.getDefaultValue() + "'";
 			}
-		}
+		}		
 		return defaultValue;
 	}
 
@@ -366,58 +372,38 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 	}
 	
 	public static class SqlAlterTableGeneratorTester{
-		 
-		/*public void generateTest() throws IOException{
+		
+		@Test
+		public void generateTest() throws IOException{
 			SqlColumn 
 			colA = new SqlColumn("A", MySqlColumnType.BIGINT),
-			colB = new SqlColumn("B", MySqlColumnType.VARCHAR,250,false),
-			colC = new SqlColumn("C", MySqlColumnType.BOOLEAN),
-			colM = new SqlColumn("M", MySqlColumnType.VARCHAR);
-			List<SqlColumn> 
-					listBC = ListTool.createArrayList(),
-					listM = ListTool.createArrayList();
-	
-			listBC.add(colB);
-			listBC.add(colC);
-			listM.add(colM);
+			colB = new SqlColumn("B", MySqlColumnType.VARCHAR,250, false, false),
+			//boolean field with default value true
+			colC = new SqlColumn("C", MySqlColumnType.BOOLEAN,0, true, false, "true");
+			
+			
 			SqlTable 
 					table1 = new SqlTable("TA").addColumn(colA).addColumn(colB).addColumn(colC),
-					table2 = new SqlTable("TB").addColumn(colA).addColumn(colM);
-			//SqlColumnNameComparator c = new SqlColumnNameComparator(true);
+					table2 = new SqlTable("TB").addColumn(colA).addColumn(colB);
+			SqlColumnNameTypeLengthAutoIncrementDefaultComparator c = new SqlColumnNameTypeLengthAutoIncrementDefaultComparator(true);
 			
 			SchemaUpdateOptions options = new SchemaUpdateOptions().setAllTrue();
-			SqlAlterTableGenerator alterGenerator21 = new SqlAlterTableGenerator(options, table2, table1);
-			SqlAlterTableGenerator alterGenerator12 = new SqlAlterTableGenerator(options, table1, table2);
-			System.out.println(alterGenerator21.generate());
-			System.out.println(alterGenerator12.generate());
 			
-			FileInputStream fis = new FileInputStream("src/com/hotpads/datarouter/client/imp/jdbc/ddl/test2.txt");
-			DataInputStream in = new DataInputStream(fis);
-			BufferedReader br = new BufferedReader(new InputStreamReader(in));
-			String str, phrase = "";
-			while((str = br.readLine()) != null){
-				phrase += str;
-			}
-			SqlCreateTableParser parser = new SqlCreateTableParser(phrase);
-			SqlTable tab1 = parser.parse();
+			//case1 : Adding a boolean field to the table with a default value (alter statement + initialize variable)			
+			SqlAlterTableGenerator alterGenerator21 = new SqlAlterTableGenerator(options, table2, table1, "config");
+			System.out.println(alterGenerator21.generateDdl());
 			
-			 fis = new FileInputStream("src/com/hotpads/datarouter/client/imp/jdbc/ddl/test22.txt");
-			 in = new DataInputStream(fis);
-			 br = new BufferedReader(new InputStreamReader(in));
-			 phrase = "";
-			while((str = br.readLine()) != null){
-				phrase += str;
-			}
-			 parser = new SqlCreateTableParser(phrase);
-			SqlTable tab2 = parser.parse();
-			//System.out.println(tab2);
+			//case2 : Dropping a boolean field from table with a default value specified
+			SqlAlterTableGenerator alterGenerator12 = new SqlAlterTableGenerator(options, table1, table2, "config");		
+			System.out.println(alterGenerator12.generateDdl());
 			
-			SqlAlterTableGenerator alterGeneratorBis21 = new SqlAlterTableGenerator(options, tab2, tab1);
-			SqlAlterTableGenerator alterGeneratorBis12 = new SqlAlterTableGenerator(options, tab1, tab2);
-			System.out.println(alterGeneratorBis21.generate());
-			System.out.println(alterGeneratorBis12.generate());
+			//case 3
+			SqlColumn colC2 = new SqlColumn("C", MySqlColumnType.BOOLEAN,0, true, false, "false");
+			SqlTableDiffGenerator a;
 		}
-	
+		
+		
+	/*
 		@Test public void getAlterTableStatementsTester() throws IOException{
 			SqlColumn 
 			colA = new SqlColumn("A", MySqlColumnType.BIGINT),
