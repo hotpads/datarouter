@@ -186,7 +186,8 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 				if(type.shouldSpecifyLength(requestedCol.getMaxLength())){
 					sb.append("(" +requestedCol.getMaxLength() +")");
 				}
-				sb.append(getDefaultValueStatement(col));
+			//	getDefaultValueStatement(col)
+				sb.append(col.getDefaultValueStatement());
 				if(requestedCol.getAutoIncrement()) {
 					sb.append(" auto_increment");
 				}
@@ -286,7 +287,7 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 			if(col.getMaxLength()!=null){
 				sb.append("(" + col.getMaxLength() + ")");
 			}
-			sb.append(getDefaultValueStatement(col));
+			sb.append(col.getDefaultValueStatement());
 			if(col.getAutoIncrement()) {
 				sb.append(" auto_increment");
 			}
@@ -317,7 +318,7 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 				sb.append("(" + col.getMaxLength() + ")");
 			}
 			
-			sb.append(getDefaultValueStatement(col));
+			sb.append(col.getDefaultValueStatement());
 				
 			if(col.getAutoIncrement()) {
 				sb.append(" auto_increment");
@@ -346,23 +347,9 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 		return list;
 	}
 	
-	private String getDefaultValueStatement(SqlColumn col){	
-		String defaultValue = null;
-		if(!col.getNullable()){
-			defaultValue = NOT_NULL;
-		}else{
-			if(col.getDefaultValue() == null || col.getType() == MySqlColumnType.SUPPORTS_DEFAULT_VALUE){
-				defaultValue = " default " + col.getDefaultValue() + "";
-			}else{
-				defaultValue = "'" + col.getDefaultValue() + "'";
-			}
-		}		
-		return defaultValue;
-	}
-
 	private void getColumnsToInitialize(List<SqlColumn> columnsToAdd){
 		for(SqlColumn col : columnsToAdd){
-			String defaultValueStatement = getDefaultValueStatement(col);			
+			String defaultValueStatement = col.getDefaultValueStatement();			
 			if(! (defaultValueStatement.equals(NOT_NULL) || DrStringTool.isNull(col.getDefaultValue()))){			
 				columnsToInitialize.add(col);
 			}				

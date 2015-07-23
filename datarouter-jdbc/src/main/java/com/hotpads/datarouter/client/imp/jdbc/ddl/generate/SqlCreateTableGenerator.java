@@ -50,9 +50,8 @@ public class SqlCreateTableGenerator implements DdlGenerator{
 			sb.append(" " + col.getName() + " " + typeString);
 			if(type.shouldSpecifyLength(col.getMaxLength())){
 				sb.append("(" + col.getMaxLength() + ")");
-			}
-			String defaultValue = col.getNullable() ? getDefaultValueForNotNull(col) : " not null";
-			sb.append(defaultValue);
+			}		
+			sb.append(col.getDefaultValueStatement());
 			if (col.getAutoIncrement()) {
 				sb.append(" auto_increment");
 			}
@@ -95,18 +94,7 @@ public class SqlCreateTableGenerator implements DdlGenerator{
 		
 	}
 	
-	private String getDefaultValueForNotNull(SqlColumn col){		
-		String defaultValue = null;	
-		if(col.getDefaultValue() == null || col.getType().equals(MySqlColumnType.TINYINT)){		
-			//do not need quotes around the default val
-			defaultValue = " default "+col.getDefaultValue()+""; 
-		}else{
-			defaultValue = "'"+col.getDefaultValue()+"'";
-		}	
-		return defaultValue;
-	}
-	
-	
+		
 	/******************** tests *************************/
 	
 	public static class  SqlCreateTableGeneratorTester{
