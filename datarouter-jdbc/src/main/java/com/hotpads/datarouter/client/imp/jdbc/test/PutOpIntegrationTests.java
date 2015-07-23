@@ -17,7 +17,7 @@ import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.config.PutMethod;
 import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.routing.DatarouterContext;
-import com.hotpads.datarouter.storage.key.KeyTool;
+import com.hotpads.datarouter.storage.databean.DatabeanTool;
 import com.hotpads.datarouter.test.DrTestConstants;
 import com.hotpads.datarouter.test.client.insert.PutOpTestBean;
 import com.hotpads.datarouter.test.client.insert.PutOpTestBeanKey;
@@ -154,7 +154,7 @@ public class PutOpIntegrationTests{
 			databeans.add(new PutOpTestBean("testMultiInsert", randomString(), randomString()));
 		}
 		router.putOptTest().putMulti(databeans, config);
-		Assert.assertEquals(router.putOptTest().getMulti(KeyTool.getKeys(databeans), null).size(), totalCount);
+		Assert.assertEquals(router.putOptTest().getMulti(DatabeanTool.getKeys(databeans), null).size(), totalCount);
 	}
 	
 	private static final String randomString(){
