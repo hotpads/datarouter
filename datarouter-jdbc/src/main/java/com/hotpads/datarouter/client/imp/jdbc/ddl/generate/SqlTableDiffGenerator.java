@@ -29,9 +29,9 @@ public class SqlTableDiffGenerator{
 
 	protected SqlTable current, requested;
 	protected boolean enforceColumnOrder = false;
-	
+
 	/******************* constructors ****************************/
-	
+
 	public SqlTableDiffGenerator(SqlTable current, SqlTable requested, boolean enforceColumnOrder){
 		this.current = current;
 		this.requested = requested;
@@ -39,15 +39,16 @@ public class SqlTableDiffGenerator{
 	}
 
 	/****************** primary method ****************************/
-	
+
 	public List<SqlColumn> getColumnsToAdd(){
+		minusColumns(requested, current);
 		return minusColumns(requested, current);
 	}
 
 	public List<SqlColumn> getColumnsToRemove(){
 		return minusColumns(current,requested);
 	}
-	
+
 	private static List<SqlColumn> minusColumns(SqlTable tableA, SqlTable tableB){
 		SqlColumnNameComparator c = new SqlColumnNameComparator(true);
 		Set<SqlColumn> tableAColumns = new TreeSet<SqlColumn>(c);
@@ -57,34 +58,34 @@ public class SqlTableDiffGenerator{
 		}
 		tableAColumns.addAll(tableA.getColumns());
 		tableBColumns.addAll(tableB.getColumns());
-		return DrListTool.createArrayList(DrCollectionTool.minus(tableAColumns, tableBColumns, c));		
+		return DrListTool.createArrayList(DrCollectionTool.minus(tableAColumns, tableBColumns, c));
 	}
-	
+
 	public List<SqlColumn> getColumnsToModify(){
 		SqlColumnNameTypeLengthAutoIncrementDefaultComparator c = new SqlColumnNameTypeLengthAutoIncrementDefaultComparator(true);
 		Set<SqlColumn> requestedColumns = new TreeSet<SqlColumn>(c);
-		Set<SqlColumn> currentColumns = new TreeSet<SqlColumn>(c);		
+		Set<SqlColumn> currentColumns = new TreeSet<SqlColumn>(c);
 		if(requested==null || current==null){
 			return new ArrayList<>();
 		}
 		requestedColumns.addAll(requested.getColumns());
-		currentColumns.addAll(current.getColumns());	
-				//TODO too much on one line.  extract the sets into their own variables
+		currentColumns.addAll(current.getColumns());
+		//TODO too much on one line.  extract the sets into their own variables
 		return getColumnsToModifyAfterAddingColumns(requestedColumns,currentColumns,getColumnsToAdd(),c);
 	}
-	
+
 	private List<SqlColumn> getColumnsToModifyAfterAddingColumns(Set<SqlColumn> requestedColumns,
-			Set<SqlColumn> currentColumns, 
+			Set<SqlColumn> currentColumns,
 			List<SqlColumn> columnsToAddUsingNameComparator, SqlColumnNameTypeLengthAutoIncrementDefaultComparator c){
 		// by getting all the modified columns (the ones we should add) and removing from them the ones
 		// we have already added (columnsToAdd)
 		List<SqlColumn> listOfColumnsToAddUsingNameTypeComparator = DrListTool.createArrayList(DrCollectionTool.minus(
 				requestedColumns, currentColumns, c));
-		Set<SqlColumn> columnsToModify = DrCollectionTool.minus(listOfColumnsToAddUsingNameTypeComparator, 
-				columnsToAddUsingNameComparator);	
+		Set<SqlColumn> columnsToModify = DrCollectionTool.minus(listOfColumnsToAddUsingNameTypeComparator,
+				columnsToAddUsingNameComparator);
 		return DrListTool.createArrayList(columnsToModify);
 	}
-	
+
 	public SortedSet<SqlIndex> getIndexesToAdd(){
 		return minusIndexes(requested, current);
 	}
@@ -92,7 +93,7 @@ public class SqlTableDiffGenerator{
 	public SortedSet<SqlIndex> getIndexesToRemove(){
 		return minusIndexes(current, requested);
 	}
-	
+
 	/**
 	 * returns tableA.indexes - tableB.indexes
 	 * @param tableA
@@ -109,20 +110,20 @@ public class SqlTableDiffGenerator{
 				new SqlIndexNameComparator());
 		return new TreeSet<>(indexesToRemove);
 	}
-	
+
 	/********************* helper methods *******************************/
-	
+
 	public boolean shouldReorderColumns(){
 		return enforceColumnOrder && ! isColumnOrderCorrect();
 	}
-	
+
 	public boolean isColumnOrderCorrect(){
 		return true;//TODO implement
 	}
 
 	public boolean isTableModified(){
 		if(isPrimaryKeyModified()){ return true; }
-				//TODO too much on one line.  extract the sets into their own variables
+		//TODO too much on one line.  extract the sets into their own variables
 		SortedSet<SqlColumn> currentColumns = new TreeSet<>(current.getColumns());
 		SortedSet<SqlColumn> requestedColumns = new TreeSet<>(requested.getColumns());
 		if(! DrSetTool.containsSameKeys(currentColumns, requestedColumns)){ return true; }
@@ -144,7 +145,7 @@ public class SqlTableDiffGenerator{
 		MySqlCharacterSet requestedCharacterSet = MySqlCharacterSet.valueOf(requested.getCharacterSet().toString());
 		return currentCharacterSet != requestedCharacterSet;
 	}
-	
+
 	public boolean isCollationModified(){
 		MySqlCollation currentCollation = MySqlCollation.valueOf(current.getCollation().toString());
 		MySqlCollation requestedCollation = MySqlCollation.valueOf(requested.getCollation().toString());
@@ -160,8 +161,8 @@ public class SqlTableDiffGenerator{
 	public boolean isPrimaryKeyModified(){
 		List<SqlColumn> currentPrimaryKeyColumns = current.getPrimaryKey().getColumns();
 		List<SqlColumn> requestedPrimaryKeyColumns = requested.getPrimaryKey().getColumns();
-		if(!haveTheSameColumnsinTheSameOrder(currentPrimaryKeyColumns, requestedPrimaryKeyColumns)){ 
-			return true; 
+		if(!haveTheSameColumnsinTheSameOrder(currentPrimaryKeyColumns, requestedPrimaryKeyColumns)){
+			return true;
 		}
 		return false;
 	}
@@ -174,18 +175,18 @@ public class SqlTableDiffGenerator{
 	public SqlTable getRequested(){
 		return requested;
 	}
-	
+
 	public SqlTable getCurrent(){
 		return current;
 	}
 
 
 	/********************* Tests *******************************/
-	
+
 	public static class SqlTableDiffGeneratorTester{
-		private SqlColumn idCol = new SqlColumn("id", MySqlColumnType.BIGINT);
-		private SqlIndex primaryKey1 = new SqlIndex("pk1").addColumn(idCol);
-		
+		private final SqlColumn idCol = new SqlColumn("id", MySqlColumnType.BIGINT);
+		private final SqlIndex primaryKey1 = new SqlIndex("pk1").addColumn(idCol);
+
 		@Test
 		public void testAutoIncrement() {
 
@@ -197,9 +198,9 @@ public class SqlTableDiffGenerator{
 			List<SqlColumn> listA2 = DrListTool.createArrayList(idCol2);
 			SqlTable tableA = new SqlTable("A", listA, primaryKey1);
 			SqlTable tableA2 = new SqlTable("A", listA2,primaryKey2);
-			
+
 			SqlTableDiffGenerator diffAA = new SqlTableDiffGenerator(tableA, tableA, true),
-								  diffAA2 = new SqlTableDiffGenerator(tableA, tableA2, true);
+					diffAA2 = new SqlTableDiffGenerator(tableA, tableA2, true);
 			Assert.assertFalse(diffAA.isTableModified());
 			Assert.assertTrue(diffAA2.isTableModified());
 			// TABLES WITH DIFFERENT NUMBER OF COLUMNS
@@ -214,20 +215,20 @@ public class SqlTableDiffGenerator{
 			tableA.addColumn(col3);
 			Assert.assertTrue(diffAA2.isTableModified());
 		}
-		
-		
+
+
 		@Test public void isTableModifiedTest(){
-					//TODO don't reuse declaration types anywhere
+			//TODO don't reuse declaration types anywhere
 			List<SqlColumn> listA = new ArrayList<>();
 			List<SqlColumn> listA2 = new ArrayList<>();
-					//listB = ListTool.createArrayList();
+			//listB = ListTool.createArrayList();
 			SqlTable tableA = new SqlTable("A", listA, primaryKey1);
 			// SqlTable tableB = new SqlTable("B", listB, primaryKey1);
 			SqlTable tableA2 = new SqlTable("A", listA2,primaryKey1);
-			
+
 			SqlTableDiffGenerator diffAA = new SqlTableDiffGenerator(tableA, tableA, true),
-								  diffAA2 = new SqlTableDiffGenerator(tableA, tableA2, true);
-								//diffAB = new SqlTableDiffGenerator(tableA, tableB, true);
+					diffAA2 = new SqlTableDiffGenerator(tableA, tableA2, true);
+			//diffAB = new SqlTableDiffGenerator(tableA, tableB, true);
 			Assert.assertFalse(diffAA.isTableModified());
 			// Assert.assertTrue(diffAB.isTableModified()); 						// WE CAN'T HAVE DIFFERENT TABLES WITH THE SAME NAME
 			// TABLES WITH DIFFERENT NUMBER OF COLUMNS
@@ -248,67 +249,67 @@ public class SqlTableDiffGenerator{
 			List<SqlColumn> list2 = new ArrayList<>();
 			SqlColumn idCol = new SqlColumn("id", MySqlColumnType.BIGINT);
 			SqlColumn col = new SqlColumn("id", MySqlColumnType.BIGINT);
-			
+
 			SqlIndex primaryKey1 = new SqlIndex("pk1").addColumn(idCol);
 			SqlIndex primaryKey2 = new SqlIndex("pk2").addColumn(idCol).addColumn(col);
-			
+
 			SqlTable A = new SqlTable("Table 1", list1, primaryKey1 );
 			SqlTable B = new SqlTable("Table 2", list2, primaryKey2 );
 			SqlTable A2 = new SqlTable("Table 1", list1, primaryKey2);
 			SqlTable A0 = new SqlTable("Table 1"); // without pKey
-			
+
 			SqlTableDiffGenerator diffAA = new SqlTableDiffGenerator(A, A, true);
 			SqlTableDiffGenerator diffAB = new SqlTableDiffGenerator(A, B, true);
-					//TODO need spaces after commas everywhere
+			//TODO need spaces after commas everywhere
 			SqlTableDiffGenerator diffAA2 = new SqlTableDiffGenerator(A, A2, true);
 			SqlTableDiffGenerator diffAA0 = new SqlTableDiffGenerator(A, A0, true);
-			
+
 			Assert.assertFalse(diffAA.isPrimaryKeyModified());
 			Assert.assertTrue(diffAB.isPrimaryKeyModified());
 			Assert.assertTrue(diffAA2.isPrimaryKeyModified());
 			Assert.assertTrue(diffAA0.isPrimaryKeyModified());
 		}
-	
+
 		@Test public void getColumnsToAddTest(){
 			SqlColumn colA = new SqlColumn("A", MySqlColumnType.BIGINT, 250, true, false);
 			SqlColumn colB = new SqlColumn("B", MySqlColumnType.BINARY);
 			SqlColumn colC = new SqlColumn("C", MySqlColumnType.BOOLEAN);
 			SqlColumn colM = new SqlColumn("M", MySqlColumnType.VARCHAR);
-			List<SqlColumn> 
-					listBC = new ArrayList<>(),
-					listM = new ArrayList<>();
-			
+			List<SqlColumn>
+			listBC = new ArrayList<>(),
+			listM = new ArrayList<>();
+
 			listBC.add(colB);
 			listBC.add(colC);
 			listM.add(colM);
-			SqlTable 
-					table1 = new SqlTable("TA").addColumn(colA).addColumn(colB).addColumn(colC),
-					table2 = new SqlTable("TB").addColumn(colA).addColumn(colM);
-			
+			SqlTable
+			table1 = new SqlTable("TA").addColumn(colA).addColumn(colB).addColumn(colC),
+			table2 = new SqlTable("TB").addColumn(colA).addColumn(colM);
+
 			SqlTableDiffGenerator diffBA = new SqlTableDiffGenerator(table2, table1, true);
 			SqlTableDiffGenerator diffAB = new SqlTableDiffGenerator(table1, table2, true);
 			SqlTableDiffGenerator diffNullNull = new SqlTableDiffGenerator(null, null, true);
 			SqlTableDiffGenerator diffANull = new SqlTableDiffGenerator(table1, null, true);
 			SqlTableDiffGenerator diffNullA = new SqlTableDiffGenerator(null, table1, true);
-			
+
 			Assert.assertTrue(DrCollectionTool.isEmpty(diffNullNull.getColumnsToAdd()));
 			Assert.assertTrue(DrCollectionTool.isEmpty(diffNullA.getColumnsToAdd()));
 			Assert.assertTrue(DrCollectionTool.isEmpty(diffANull.getColumnsToAdd()));
 			Assert.assertTrue(DrCollectionTool.isEmpty(DrCollectionTool.minus(diffBA.getColumnsToAdd(), listBC)));
 			Assert.assertTrue(DrCollectionTool.isEmpty(DrCollectionTool.minus(diffAB.getColumnsToAdd(), listM)));
-			
+
 			table1.addColumn(null);
 			diffBA = new SqlTableDiffGenerator(table2, table1, true);
 			diffAB = new SqlTableDiffGenerator(table1, table2, true);
 			Assert.assertTrue(DrCollectionTool.isEmpty(DrCollectionTool.minus(diffBA.getColumnsToAdd(), listBC)));
 			Assert.assertTrue(DrCollectionTool.isEmpty(DrCollectionTool.minus(diffAB.getColumnsToAdd(), listM)));
-			
+
 			SqlColumn ColA2 = new SqlColumn("A", MySqlColumnType.VARCHAR,200,true, false);
 			table1.addColumn(ColA2);
 			diffBA = new SqlTableDiffGenerator(table2, table1, true);
 			Assert.assertTrue(DrCollectionTool.isEmpty(DrCollectionTool.minus(diffBA.getColumnsToAdd(), listBC)));
 		}
-		
+
 		@Test public void getColumnsToRemoveTest(){
 			SqlColumn colA = new SqlColumn("A", MySqlColumnType.BIGINT);
 			SqlColumn colB = new SqlColumn("B", MySqlColumnType.BINARY);
@@ -316,13 +317,13 @@ public class SqlTableDiffGenerator{
 			SqlColumn colM = new SqlColumn("M", MySqlColumnType.VARCHAR);
 			List<SqlColumn> listBC = new ArrayList<>();
 			List<SqlColumn> listM = new ArrayList<>();
-	
+
 			listBC.add(colB);
 			listBC.add(colC);
 			listM.add(colM);
 			SqlTable table1 = new SqlTable("TA").addColumn(colA).addColumn(colB).addColumn(colC);
 			SqlTable table2 = new SqlTable("TB").addColumn(colA).addColumn(colM);
-			
+
 			SqlTableDiffGenerator diffBA = new SqlTableDiffGenerator(table2, table1, true);
 			SqlTableDiffGenerator diffAB = new SqlTableDiffGenerator(table1, table2, true);
 			SqlTableDiffGenerator diffNullNull = new SqlTableDiffGenerator(null, null, true);
@@ -334,14 +335,14 @@ public class SqlTableDiffGenerator{
 			Assert.assertTrue(DrCollectionTool.isEmpty(diffANull.getColumnsToRemove()));
 			Assert.assertTrue(DrCollectionTool.isEmpty(DrCollectionTool.minus(diffBA.getColumnsToRemove(), listM)));
 			Assert.assertTrue(DrCollectionTool.isEmpty(DrCollectionTool.minus(diffAB.getColumnsToRemove(), listBC)));
-			
+
 			table1.addColumn(null);
 			diffBA = new SqlTableDiffGenerator(table2, table1, true);
 			diffAB = new SqlTableDiffGenerator(table1, table2, true);
 			Assert.assertTrue(DrCollectionTool.isEmpty(DrCollectionTool.minus(diffBA.getColumnsToRemove(), listM)));
 			Assert.assertTrue(DrCollectionTool.isEmpty(DrCollectionTool.minus(diffAB.getColumnsToRemove(), listBC)));
 		}
-	
+
 		@Test public void getIndexesToAddTest(){
 			SqlColumn colA = new SqlColumn("A", MySqlColumnType.BIGINT,250,true, false);
 			SqlColumn colB = new SqlColumn("B", MySqlColumnType.BINARY);
@@ -349,13 +350,13 @@ public class SqlTableDiffGenerator{
 			SqlColumn colM = new SqlColumn("M", MySqlColumnType.VARCHAR);
 			List<SqlColumn> listBC = new ArrayList<>();
 			List<SqlColumn> listM = new ArrayList<>();
-			
+
 			listBC.add(colB);
 			listBC.add(colC);
 			listM.add(colM);
 			SqlIndex index = new SqlIndex("index", listBC);
 			SqlIndex index2 = new SqlIndex("index", listM);
-			
+
 			SqlTable table1 = new SqlTable("TA").addColumn(colA).addColumn(colB).addColumn(colC);
 			SqlTable table2 = new SqlTable("TB").addColumn(colA).addColumn(colM);
 
@@ -366,7 +367,7 @@ public class SqlTableDiffGenerator{
 			SqlTableDiffGenerator diffNullNull = new SqlTableDiffGenerator(null, null, true);
 			SqlTableDiffGenerator diffANull = new SqlTableDiffGenerator(table1, null, true);
 			SqlTableDiffGenerator diffNullA = new SqlTableDiffGenerator(null, table1, true);
-			
+
 			Assert.assertEquals("index", DrCollectionTool.getFirst(diffAB.getIndexesToAdd()).getName());
 			Assert.assertTrue(DrCollectionTool.isEmpty(DrCollectionTool.minus(DrCollectionTool.getFirst(diffAB
 					.getIndexesToAdd()).getColumns(), listM)));
@@ -376,7 +377,7 @@ public class SqlTableDiffGenerator{
 			Assert.assertTrue(DrCollectionTool.isEmpty(diffANull.getIndexesToAdd()));
 			Assert.assertTrue(DrCollectionTool.isEmpty(diffNullA.getIndexesToAdd()));
 		}
-	
+
 		@Test public void getIndexesToRemove(){
 			SqlColumn colA = new SqlColumn("A", MySqlColumnType.BIGINT, 250, true, false);
 			SqlColumn colB = new SqlColumn("B", MySqlColumnType.BINARY);
@@ -384,16 +385,16 @@ public class SqlTableDiffGenerator{
 			SqlColumn colM = new SqlColumn("M", MySqlColumnType.VARCHAR);
 			List<SqlColumn> listBC = new ArrayList<>();
 			List<SqlColumn> listM = new ArrayList<>();
-			
+
 			listBC.add(colB);
 			listBC.add(colC);
 			listM.add(colM);
 			SqlIndex index = new SqlIndex("index", listBC);
 			SqlIndex index2 = new SqlIndex("index", listM);
-			
+
 			SqlTable table1 = new SqlTable("TA").addColumn(colA).addColumn(colB).addColumn(colC);
 			SqlTable table2 = new SqlTable("TB").addColumn(colA).addColumn(colM);
-			
+
 			table1.addIndex(index);
 			table2.addIndex(index2);
 			SqlTableDiffGenerator diffBA = new SqlTableDiffGenerator(table2, table1, true);
@@ -411,7 +412,7 @@ public class SqlTableDiffGenerator{
 			Assert.assertTrue(DrCollectionTool.isEmpty(diffANull.getIndexesToRemove()));
 			Assert.assertTrue(DrCollectionTool.isEmpty(diffNullA.getIndexesToRemove()));
 		}
-	
+
 		@Test
 		public void getColumnsToModifyTest(){
 			SqlColumn colA = new SqlColumn("A", MySqlColumnType.BIGINT, 20, true, false);
@@ -421,16 +422,16 @@ public class SqlTableDiffGenerator{
 			SqlColumn colM = new SqlColumn("M", MySqlColumnType.VARCHAR);
 			List<SqlColumn> listBC = new ArrayList<>();
 			List<SqlColumn> listM = new ArrayList<>();
-			
+
 			listBC.add(colB);
 			listBC.add(colC);
 			listM.add(colM);
 			SqlIndex index = new SqlIndex("index", listBC),
 					index2 = new SqlIndex("index", listM);
-			
-			SqlTable table1 = new SqlTable("TA").addColumn(colA).addColumn(colB).addColumn(colC); 
+
+			SqlTable table1 = new SqlTable("TA").addColumn(colA).addColumn(colB).addColumn(colC);
 			SqlTable table2 = new SqlTable("TB").addColumn(colA2).addColumn(colM);
-			
+
 			table1.addIndex(index);
 			table2.addIndex(index2);
 			SqlTableDiffGenerator diffBA = new SqlTableDiffGenerator(table2, table1, true);
@@ -440,13 +441,13 @@ public class SqlTableDiffGenerator{
 			SqlTableDiffGenerator diffNullA = new SqlTableDiffGenerator(null, table1, true);
 
 			System.out.println(diffAB.getColumnsToModify());
-					//TODO too much on one line
+			//TODO too much on one line
 			List<SqlColumn> colsToModify = diffAB.getColumnsToModify();
 			ArrayList<SqlColumn> expected = DrListTool.createArrayList(colA2);
 			SqlColumnNameTypeLengthAutoIncrementDefaultComparator c = new SqlColumnNameTypeLengthAutoIncrementDefaultComparator(true);
 			Assert.assertTrue(areEqual(colsToModify, expected, c));
-			
-			
+
+
 			System.out.println(diffBA.getColumnsToModify());
 			//TODO too much on one line
 			Assert.assertTrue(DrCollectionTool.isEmpty(DrCollectionTool.minus(diffBA.getColumnsToModify(), DrListTool
@@ -454,7 +455,7 @@ public class SqlTableDiffGenerator{
 			Assert.assertTrue(DrCollectionTool.isEmpty(diffNullNull.getColumnsToModify()));
 			Assert.assertTrue(DrCollectionTool.isEmpty(diffANull.getColumnsToModify()));
 			Assert.assertTrue(DrCollectionTool.isEmpty(diffNullA.getColumnsToModify()));
-			
+
 
 		}
 
@@ -477,17 +478,17 @@ public class SqlTableDiffGenerator{
 			SqlColumn lastModified = new SqlColumn("lastModified", MySqlColumnType.DATETIME);
 
 			SqlTable table1 = new SqlTable("TA").addColumn(col_active)
-						.addColumn(col_includeInSiteMap)
-						.addColumn(col_type)
-						.addColumn(col_useBoundedLayout)
-						.addColumn(col_redirect)
-						.addColumn(col_body)
-						.addColumn(col_id)
-						.addColumn(col_metaKeywords)
-						.addColumn(col_title)
-						.addColumn(col_metaDescription)
-						.addColumn(col_attributes)
-						.addColumn(lastModified);
+					.addColumn(col_includeInSiteMap)
+					.addColumn(col_type)
+					.addColumn(col_useBoundedLayout)
+					.addColumn(col_redirect)
+					.addColumn(col_body)
+					.addColumn(col_id)
+					.addColumn(col_metaKeywords)
+					.addColumn(col_title)
+					.addColumn(col_metaDescription)
+					.addColumn(col_attributes)
+					.addColumn(lastModified);
 			SqlTable table2  = new SqlTable("TB").addColumn(col_activeTiny)
 					.addColumn(col_includeInSiteMapTiny)
 					.addColumn(col_type)
@@ -500,13 +501,13 @@ public class SqlTableDiffGenerator{
 					.addColumn(col_metaDescription)
 					.addColumn(col_attributes)
 					.addColumn(lastModified);
-			
+
 			SqlTableDiffGenerator diffAB = new SqlTableDiffGenerator(table1, table2, true);
 			List<SqlColumn> colsToModify = diffAB.getColumnsToModify();
 			ArrayList<SqlColumn> expected = DrListTool.createArrayList(col_activeTiny, col_includeInSiteMapTiny, col_useBoundedLayoutTiny);
 			SqlColumnNameTypeLengthAutoIncrementDefaultComparator c = new SqlColumnNameTypeLengthAutoIncrementDefaultComparator(true);
 			Assert.assertTrue(areEqual(colsToModify, expected, c));
-			
+
 			Set<SqlColumn> requestedColumns = new TreeSet<SqlColumn>(c);
 			Set<SqlColumn> currentColumns = new TreeSet<SqlColumn>(c);
 			requestedColumns.addAll(diffAB.getCurrent().getColumns());
@@ -518,7 +519,7 @@ public class SqlTableDiffGenerator{
 				Comparator<SqlColumn> c){
 			return DrCollectionTool.isEmpty(DrCollectionTool.minus(colsToModify, expected, c));
 		}
-	
+
 	}
 
 }
