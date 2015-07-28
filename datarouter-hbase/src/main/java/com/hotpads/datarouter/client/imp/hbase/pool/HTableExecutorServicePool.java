@@ -2,6 +2,7 @@ package com.hotpads.datarouter.client.imp.hbase.pool;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -9,6 +10,7 @@ import java.util.concurrent.Semaphore;
 
 import org.apache.hadoop.hbase.client.HBaseAdmin;
 import org.apache.hadoop.hbase.client.HConnection;
+import org.apache.hadoop.hbase.client.HConnectionManager;
 import org.apache.hadoop.hbase.client.HTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -203,11 +205,21 @@ implements HTablePool{
 		for(HTableExecutorService executorService : executorServiceQueue){
 			executorService.terminateAndBlockUntilFinished("shutdown");
 		}
-		try{
-			hConnection.close();
-		}catch (IOException e){
-			logger.error("Error while closing hConnection", e);
-			throw new RuntimeException(e);
+		
+		//Close HConnection and use stopProxy = true to join the HBaseClient.Connection thread.
+		HConnectionManager.deleteConnection(hConnection.getConfiguration(), true);
+		
+		//Join the SendThread - no better way as of zookeeper 3.4.3 - ZOOKEEPER-2126 hints that it won't change
+		Set<Thread> threads = Thread.getAllStackTraces().keySet();
+		for(Thread thread : threads){
+			if(!thread.getClass().getSimpleName().contains("SendThread")){
+				continue;
+			}
+			try{
+				thread.join();
+			}catch (InterruptedException e){
+				throw new RuntimeException();
+			}
 		}
 	}
 	
