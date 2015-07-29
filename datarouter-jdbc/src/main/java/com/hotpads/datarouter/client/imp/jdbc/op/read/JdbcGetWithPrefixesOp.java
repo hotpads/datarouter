@@ -39,10 +39,12 @@ extends BaseJdbcOp<List<D>>{
 	
 	@Override
 	public List<D> runOnce(){
-		if(DrCollectionTool.isEmpty(prefixes)){ return new LinkedList<D>(); }
+		if(DrCollectionTool.isEmpty(prefixes)){
+			return new LinkedList<>();
+		}
 		String sql = SqlBuilder.getWithPrefixes(fieldCodecFactory, config, node.getTableName(), node.getFieldInfo()
 				.getFields(), prefixes, wildcardLastField, node.getFieldInfo().getPrimaryKeyFields());
-		List<D> result = JdbcTool.selectDatabeans(fieldCodecFactory, getConnection(node.getClientName()), node
+		List<D> result = JdbcTool.selectDatabeans(fieldCodecFactory, getConnection(node.getClientId().getName()), node
 				.getFieldInfo(), sql);
 		return result;
 	}

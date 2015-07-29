@@ -34,7 +34,7 @@ extends BaseHibernateOp<Long>{
 	
 	@Override
 	public Long runOnce(){
-		Session session = getSession(node.getClientName());
+		Session session = getSession(node.getClientId().getName());
 		Criteria criteria = node.getCriteriaForConfig(config, session);
 		criteria.setProjection(Projections.rowCount());
 
@@ -42,8 +42,8 @@ extends BaseHibernateOp<Long>{
 			criteria.add(Restrictions.eq(field.getPrefixedName(), field.getValue()));
 		}
 		
-		Number n = (Number)criteria.uniqueResult();						
-		return n.longValue();
+		Number number = (Number)criteria.uniqueResult();
+		return number.longValue();
 	}
 	
 }

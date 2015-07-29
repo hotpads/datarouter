@@ -2,65 +2,82 @@ package com.hotpads.datarouter.client.imp.hbase.pool;
 
 import java.io.IOException;
 import java.util.Map;
-import java.util.concurrent.BlockingDeque;
+import java.util.Set;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.Semaphore;
 
 import org.apache.hadoop.hbase.client.HBaseAdmin;
 import org.apache.hadoop.hbase.client.HConnection;
+import org.apache.hadoop.hbase.client.HConnectionManager;
 import org.apache.hadoop.hbase.client.HTable;
-import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.imp.hbase.HBaseClientType;
+import com.hotpads.datarouter.client.imp.hbase.factory.HBaseOptions;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.datarouter.util.core.DrNumberFormatter;
 import com.hotpads.util.core.bytes.StringByteTool;
+import com.hotpads.util.core.concurrent.ExecutorServiceTool;
 import com.hotpads.util.core.concurrent.SemaphoreTool;
 import com.hotpads.util.core.concurrent.ThreadTool;
 import com.hotpads.util.datastructs.MutableString;
 
-public class HTableExecutorServicePool implements HTablePool{
-	protected Logger logger = LoggerFactory.getLogger(getClass());
+/*
+ * Despite the name HTable, this pool stores "connections" to all tables.
+ */
+public class HTableExecutorServicePool
+implements HTablePool{
+	private static final Logger logger = LoggerFactory.getLogger(HTableExecutorServicePool.class);
 
-	protected static Boolean LOG_ACTIONS = true;
+	private static final int DEFAULT_MAX_HTABLES = 10;
+	private static final int DEFAULT_MIN_THREADS_PER_HTABLE = 1;
+	//practically, you will get only one thread per regionserver, but it doesn't hurt to have a high ceiling that won't
+	// exhaust all server threads
+	private static final int DEFAULT_MAX_THREADS_PER_HTABLE = 1024;
+	private static final boolean LOG_ACTIONS = true;
 	private static final long LOG_SEMAPHORE_ACQUISITIONS_OVER_MS = 2000L;
+	private static final long THROTTLE_INCONSISTENT_LOG_EVERY_X_MS = 500;
 
-	protected Long lastLoggedWarning = 0L;
+	//provided via constructor
+	private final HBaseOptions hBaseOptions;
+	private final HConnection hConnection;//one connection per cluster
+	private final String clientName;
+	private final Map<String,Class<PrimaryKey<?>>> primaryKeyClassByName;
+	private final int maxHTables;
+	private final int minThreadsPerHTable;
+	private final int maxThreadsPerHTable;
+	
+	//used for pooling connections
+	private final Semaphore hTableSemaphore;
+	private final BlockingQueue<HTableExecutorService> executorServiceQueue;
+	private final Map<HTable,HTableExecutorService> activeHTables;
 
-	protected String clientName;
-	protected Integer maxSize;
-
-	//this turned out weird:
-	// using Semaphore and BlockingDequeue here.  evolutionary complexity, but possibly more flexible
-	protected Semaphore hTableSemaphore;
-	protected BlockingDeque<HTableExecutorService> executorServiceQueue;
-	protected Map<HTable,HTableExecutorService> activeHTables;
-
-	protected Map<String,Class<PrimaryKey<?>>> primaryKeyClassByName;
-
-	private boolean shutdown;
-
-	private HConnection hConnection;
-
-	public HTableExecutorServicePool(HBaseAdmin hBaseAdmin,
-			String clientName, int maxSize,
+	private volatile boolean shuttingDown;
+	private volatile long lastLoggedWarning = 0L;
+	
+	public HTableExecutorServicePool(HBaseOptions hBaseOptions, HBaseAdmin hBaseAdmin, String clientName,
 			Map<String,Class<PrimaryKey<?>>> primaryKeyClassByName){
-		this.clientName = clientName;
-		this.maxSize = maxSize;
-		this.hTableSemaphore = new Semaphore(maxSize);
-		this.executorServiceQueue = new LinkedBlockingDeque<>(maxSize);
-		this.activeHTables = new ConcurrentHashMap<>();
-		this.primaryKeyClassByName = primaryKeyClassByName;
+		this.hBaseOptions = hBaseOptions;
 		this.hConnection = hBaseAdmin.getConnection();
+		this.clientName = clientName;
+		this.primaryKeyClassByName = primaryKeyClassByName;
+		this.maxHTables = hBaseOptions.maxHTables(DEFAULT_MAX_HTABLES);
+		this.minThreadsPerHTable = hBaseOptions.minThreadsPerHTable(DEFAULT_MIN_THREADS_PER_HTABLE);
+		this.maxThreadsPerHTable = hBaseOptions.maxThreadsPerHTable(DEFAULT_MAX_THREADS_PER_HTABLE);
+		
+		this.hTableSemaphore = new Semaphore(maxHTables);
+		this.executorServiceQueue = new LinkedBlockingQueue<>(maxHTables);
+		this.activeHTables = new ConcurrentHashMap<>();
 	}
 
+	
 	@Override
 	public HTable checkOut(String tableName, MutableString progress){
-		if(shutdown){
+		if(shuttingDown){
 			return null;
 		}
 		long checkoutRequestStartMs = System.currentTimeMillis();
@@ -71,11 +88,11 @@ public class HTableExecutorServicePool implements HTablePool{
 		try{
 			DRCounters.incClientTable(HBaseClientType.INSTANCE, "connection getHTable", clientName, tableName);
 			while(true){
-				hTableExecutorService = executorServiceQueue.pollFirst();
-				setProgress(progress, "polled queue "+hTableExecutorService==null?"null":"success");
+				hTableExecutorService = executorServiceQueue.poll();
+				setProgress(progress, "polled queue " + hTableExecutorService == null ? "null" : "success");
 				
 				if(hTableExecutorService==null){
-					hTableExecutorService = new HTableExecutorService();
+					hTableExecutorService = new HTableExecutorService(minThreadsPerHTable, maxThreadsPerHTable);
 					setProgress(progress, "new HTableExecutorService()");
 					String counterName = "connection create HTable";
 					DRCounters.incClientTable(HBaseClientType.INSTANCE, counterName, clientName, tableName);
@@ -83,10 +100,10 @@ public class HTableExecutorServicePool implements HTablePool{
 					break;
 				}
 				if( ! hTableExecutorService.isExpired()){
-	//				logger.warn("connection got pooled HTable executor");
-					DRCounters.incClientTable(HBaseClientType.INSTANCE, "got pooled HTable executor", clientName, 
+					// logger.warn("connection got pooled HTable executor");
+					DRCounters.incClientTable(HBaseClientType.INSTANCE, "got pooled HTable executor", clientName,
 							tableName);
-					break;//done.  we got an unexpired one, exit the while loop
+					break;// done. we got an unexpired one, exit the while loop
 				}
 
 				//If we get here we're draining the queue of expired ExecutorServices.  We could do this
@@ -94,11 +111,11 @@ public class HTableExecutorServicePool implements HTablePool{
 				// with fewer moving parts.  Goal is to be able to allow large queue sizes for bursts
 				// but to free up the memory of hundreds or thousands of threads in quiet times when
 				// other things might be bursting
-				hTableExecutorService.exec.shutdown();
+				ExecutorServiceTool.shutdown(hTableExecutorService.getExec());
 				logWithPoolInfo("discarded expired HTableExecutorService", tableName);
 				hTableExecutorService = null;//release it and loop around again
 			}
-			hTable = new HTable(StringByteTool.getUtf8Bytes(tableName), hConnection, hTableExecutorService.exec);
+			hTable = new HTable(StringByteTool.getUtf8Bytes(tableName), hConnection, hTableExecutorService.getExec());
 			setProgress(progress, "created HTable");
 			activeHTables.put(hTable, hTableExecutorService);
 			setProgress(progress, "added to activeHTables");
@@ -108,10 +125,9 @@ public class HTableExecutorServicePool implements HTablePool{
 			setProgress(progress, "set HTable autoFlush false");
 			recordSlowCheckout(System.currentTimeMillis() - checkoutRequestStartMs, tableName);
 			logIfInconsistentCounts(true, tableName);
-			Assert.assertNotNull(hTable);
 			return hTable;
 		}catch(Exception e){
-			if(hTable!=null){
+			if(hTable != null){
 				activeHTables.remove(hTable);
 				setProgress(progress, "removed from activeHTables");
 			}
@@ -119,11 +135,6 @@ public class HTableExecutorServicePool implements HTablePool{
 			setProgress(progress, "released sempahore");
 			throw new RuntimeException(e);
 		}
-	}
-	
-	protected void setProgress(MutableString progress, String s) {
-		if(progress==null) { return; }
-		progress.set(s);
 	}
 
 
@@ -178,8 +189,45 @@ public class HTableExecutorServicePool implements HTablePool{
 		}
 	}
 
-	//for some reason, synchronizing this method wreaks and stops all progress
-	protected /*synchronized*/ void checkConsistencyAndAcquireSempahore(String tableName){
+	@Override
+	public Integer getTotalPoolSize(){
+		return executorServiceQueue.size();
+	}
+	
+	@Override
+	public void shutdown(){
+		shuttingDown = true;
+		if(hTableSemaphoreActivePermits() != 0){
+			final int sleepMs = 5000;
+			logger.warn("Still " + hTableSemaphoreActivePermits() + "active hTables.  Sleeping " + sleepMs + "ms");
+			ThreadTool.sleep(sleepMs);
+		}
+		for(HTableExecutorService executorService : executorServiceQueue){
+			executorService.terminateAndBlockUntilFinished("shutdown");
+		}
+		
+		//Close HConnection and use stopProxy = true to join the HBaseClient.Connection thread.
+		HConnectionManager.deleteConnection(hConnection.getConfiguration(), true);
+		
+		//Join the SendThread - no better way as of zookeeper 3.4.3 - ZOOKEEPER-2126 hints that it won't change
+		Set<Thread> threads = Thread.getAllStackTraces().keySet();
+		for(Thread thread : threads){
+			if(!thread.getClass().getSimpleName().contains("SendThread")){
+				continue;
+			}
+			try{
+				thread.join();
+			}catch (InterruptedException e){
+				throw new RuntimeException();
+			}
+		}
+	}
+	
+	
+	/********************** private ****************************/
+
+	//for some reason, synchronizing this method wreaks havoc and stops all progress
+	private /*synchronized*/ void checkConsistencyAndAcquireSempahore(String tableName){
 		logIfInconsistentCounts(true, tableName);
 		long startAquireMs = System.currentTimeMillis();
 		SemaphoreTool.acquire(hTableSemaphore);
@@ -189,7 +237,7 @@ public class HTableExecutorServicePool implements HTablePool{
 		}
 	}
 
-	protected synchronized void releaseSempahoreAndCheckConsistency(String tableName){
+	private synchronized void releaseSempahoreAndCheckConsistency(String tableName){
 		hTableSemaphore.release();
 		logIfInconsistentCounts(false, tableName);
 	}
@@ -198,96 +246,94 @@ public class HTableExecutorServicePool implements HTablePool{
 		return primaryKeyClassByName.get(tableName);
 	}
 
-	@Override
-	public Integer getTotalPoolSize(){
-		return executorServiceQueue.size();
+	private int hTableSemaphoreActivePermits(){
+		return maxHTables - hTableSemaphore.availablePermits();//seems to always be 1 lower?
+	}
+	
+	private void setProgress(MutableString progress, String s){
+		if(progress == null){
+			return;
+		}
+		progress.set(s);
 	}
 
+	
 	/*********************** logging ************************************/
 
-	protected void recordSlowCheckout(long checkOutDurationMs, String tableName){
-		if(!LOG_ACTIONS) { return; }
+	private void recordSlowCheckout(long checkOutDurationMs, String tableName){
+		if(!LOG_ACTIONS) {
+			return;
+		}
 		if(checkOutDurationMs > 1){
 			DRCounters.incClientTable(HBaseClientType.INSTANCE, "connection open > 1ms", clientName, tableName);
 //			logger.warn("slow reserveConnection:"+checkOutDurationMs+"ms on "+clientName);
 		}
 	}
 
-	static final int LEWAY = 0;
 
-	public boolean areCountsConsistent() {
+	private boolean areCountsConsistent(){
 		int numActivePermits = hTableSemaphoreActivePermits();
-		if(numActivePermits > maxSize) { return false; }
+		if(numActivePermits > maxHTables){
+			return false;
+		}
 		int numActiveHTables = activeHTables.size();
-		if(numActiveHTables > maxSize) { return false; }
-		if(numActiveHTables > numActivePermits) { return false; }
+		if(numActiveHTables > maxHTables){
+			return false;
+		}
+		if(numActiveHTables > numActivePermits){
+			return false;
+		}
 		return true;
 	}
 
-	static final long THROTTLE_INCONSISTENT_LOG_EVERY_X_MS = 500;
 
 	public void forceLogIfInconsistentCounts(boolean checkOut, String tableName){
 		//ignore the LOG_ACTIONS variable
 		innerLogIfInconsistentCounts(checkOut, tableName);
 	}
 
-	public void logIfInconsistentCounts(boolean checkOut, String tableName){
-		if(!LOG_ACTIONS) { return; }
+	private void logIfInconsistentCounts(boolean checkOut, String tableName){
+		if(!LOG_ACTIONS){
+			return;
+		}
 		innerLogIfInconsistentCounts(checkOut, tableName);
 	}
 
-	public void innerLogIfInconsistentCounts(boolean checkOut, String tableName){
+	private void innerLogIfInconsistentCounts(boolean checkOut, String tableName){
 		if(!areCountsConsistent()){
 			long msSinceLastLog = System.currentTimeMillis() - lastLoggedWarning;
-			if(msSinceLastLog < THROTTLE_INCONSISTENT_LOG_EVERY_X_MS){ return; }
+			if(msSinceLastLog < THROTTLE_INCONSISTENT_LOG_EVERY_X_MS){
+				return;
+			}
 			logWithPoolInfo("inconsistent pool counts on "+(checkOut?"checkOut":"checkIn"), tableName);
 		}
 		lastLoggedWarning = System.currentTimeMillis();
 	}
 
-	public void forceLogWithPoolInfo(String message, String tableName) {
+	private void forceLogWithPoolInfo(String message, String tableName) {
 		//ignore the LOG_ACTIONS variable
 		innerLogWithPoolInfo(message, tableName);
 	}
 
-	protected void logWithPoolInfo(String message, String tableName){
-		if(!LOG_ACTIONS) { return; }
+	private void logWithPoolInfo(String message, String tableName){
+		if(!LOG_ACTIONS){ 
+			return;
+		}
 		innerLogWithPoolInfo(message, tableName);
 	}
 
-	protected void innerLogWithPoolInfo(String message, String tableName) {
+	private void innerLogWithPoolInfo(String message, String tableName) {
 		logger.warn(getPoolInfoLogMessage(tableName)+", "+message);
 	}
 
-	protected String getPoolInfoLogMessage(String tableName){
-		return "max="+maxSize
+	private String getPoolInfoLogMessage(String tableName){
+		return "max="+maxHTables
 				+", blocked="+hTableSemaphore.getQueueLength()
 				+", idle="+executorServiceQueue.size()
 				+", permits="+hTableSemaphoreActivePermits()
 				+", HTables="+activeHTables.size()
 				+", client="+clientName
 				+", table="+tableName;
-	}
-
-	protected int hTableSemaphoreActivePermits(){
-		return maxSize - hTableSemaphore.availablePermits();//seems to always be 1 lower?
-	}
-	
-	public void shutdown(){
-		shutdown = true;
-		if(hTableSemaphoreActivePermits() != 0){
-			logger.info("Still " + hTableSemaphoreActivePermits() + "active hTables");
-			ThreadTool.sleep(5000);
-		}
-		for(HTableExecutorService executorService : executorServiceQueue){
-			executorService.terminateAndBlockUntilFinished("shutdown");
-		}
-		try{
-			hConnection.close();
-		}catch (IOException e){
-			logger.error("Error while closing hConnection", e);
-			throw new RuntimeException(e);
-		}
 	}
 
 }

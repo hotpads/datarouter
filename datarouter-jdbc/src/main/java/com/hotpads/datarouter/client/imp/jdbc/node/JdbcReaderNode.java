@@ -28,8 +28,8 @@ import com.hotpads.datarouter.storage.view.index.IndexEntry;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.collections.Range;
-import com.hotpads.util.core.iterable.scanner.iterable.SortedScannerIterable;
-import com.hotpads.util.core.iterable.scanner.sorted.SortedScanner;
+import com.hotpads.util.core.iterable.scanner.Scanner;
+import com.hotpads.util.core.iterable.scanner.iterable.ScannerIterable;
 
 public class JdbcReaderNode<
 		PK extends PrimaryKey<PK>,
@@ -56,7 +56,7 @@ implements MapStorageReader<PK,D>,
 
 	@Override
 	public JdbcClientImp getClient(){
-		return (JdbcClientImp)getRouter().getClient(getClientName());
+		return (JdbcClientImp)getRouter().getClient(getClientId().getName());
 	}
 	
 	/************************************ MapStorageReader methods ****************************/
@@ -107,16 +107,25 @@ implements MapStorageReader<PK,D>,
 		return jdbcReaderOps.lookup(lookup, wildcardLastField, config);
 	}
 	
-	//TODO rename lookupMulti
 	@Override
-	public List<D> lookup(final Collection<? extends Lookup<PK>> lookups, final Config config) {
-		return jdbcReaderOps.lookup(lookups, config);
+	public List<D> lookupMulti(final Collection<? extends Lookup<PK>> lookups, final Config config) {
+		return jdbcReaderOps.lookupMulti(lookups, config);
 	}
 
 	//TODO add to IndexedStorageReader interface
 	//@Override
-	public <PKLookup extends BaseLookup<PK>> SortedScannerIterable<PKLookup> scanIndex(Class<PKLookup> indexClass){
+	public <L extends BaseLookup<PK>> ScannerIterable<L> scanIndex(Class<L> indexClass){
 		return jdbcReaderOps.scanIndex(indexClass);
+	}
+	
+	@Override
+	public <IK extends PrimaryKey<IK>, 
+			IE extends IndexEntry<IK, IE, PK, D>,
+			IF extends DatabeanFielder<IK, IE>> 
+	ScannerIterable<IE> scanIndex(DatabeanFieldInfo<IK,IE,IF> indexEntryFieldInfo, Range<IK> range, 
+			Config config){
+		return new ScannerIterable<>(new JdbcManagedIndexScanner<>(jdbcReaderOps, indexEntryFieldInfo, range,
+				config));
 	}
 	
 	@Override
@@ -132,16 +141,6 @@ implements MapStorageReader<PK,D>,
 			IE extends IndexEntry<IK,IE,PK,D>> 
 	List<D> getMultiByIndex(Collection<IK> keys, Config config){
 		return jdbcReaderOps.getMultiByIndex(keys, config);
-	}
-	
-	@Override
-	public <IK extends PrimaryKey<IK>, 
-			IE extends IndexEntry<IK, IE, PK, D>,
-			IF extends DatabeanFielder<IK, IE>> 
-	SortedScannerIterable<IE> scanIndex(DatabeanFieldInfo<IK,IE,IF> indexEntryFieldInfo, Range<IK> range, 
-			Config config){
-		return new SortedScannerIterable<>(new JdbcManagedIndexScanner<>(jdbcReaderOps, indexEntryFieldInfo, range,
-				config));
 	}
 	
 	@Override
@@ -182,17 +181,17 @@ implements MapStorageReader<PK,D>,
 	}
 
 	@Override
-	public SortedScannerIterable<PK> scanKeys(Range<PK> pRange, Config config){
-		Range<PK> range = Range.nullSafe(pRange);
-		SortedScanner<PK> scanner = new JdbcPrimaryKeyScanner<>(jdbcReaderOps, fieldInfo, range, config);
-		return new SortedScannerIterable<>(scanner);
+	public ScannerIterable<PK> scanKeys(Range<PK> range, Config config){
+		range = Range.nullSafe(range);
+		Scanner<PK> scanner = new JdbcPrimaryKeyScanner<>(jdbcReaderOps, fieldInfo, range, config);
+		return new ScannerIterable<>(scanner);
 	}
 	
 	@Override
-	public SortedScannerIterable<D> scan(Range<PK> pRange, Config config){
-		Range<PK> range = Range.nullSafe(pRange);
-		SortedScanner<D> scanner = new JdbcDatabeanScanner<>(jdbcReaderOps, range, config);
-		return new SortedScannerIterable<>(scanner);
+	public ScannerIterable<D> scan(Range<PK> range, Config config){
+		range = Range.nullSafe(range);
+		Scanner<D> scanner = new JdbcDatabeanScanner<>(jdbcReaderOps, range, config);
+		return new ScannerIterable<>(scanner);
 	}
 	
 	

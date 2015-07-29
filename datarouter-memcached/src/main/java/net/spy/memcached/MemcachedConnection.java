@@ -160,6 +160,9 @@ public final class MemcachedConnection extends SpyObject {
 		getLogger().debug("Selecting with delay of %sms", delay);
 		assert selectorsMakeSense() : "Selectors don't make sense.";
 		int selected=selector.select(delay);
+		if(shutDown && !selector.isOpen()){
+			return;
+		}
 		Set<SelectionKey> selectedKeys=selector.selectedKeys();
 
 		if(selectedKeys.isEmpty()) {
@@ -546,6 +549,7 @@ public final class MemcachedConnection extends SpyObject {
 	 * Shut down all of the connections.
 	 */
 	public void shutdown() throws IOException {
+		shutDown = true;
 		for(MemcachedNode qa : locator.getAll()) {
 			if(qa.getChannel() != null) {
 				qa.getChannel().close();

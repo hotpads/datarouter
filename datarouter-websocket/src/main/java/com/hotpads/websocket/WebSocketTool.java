@@ -6,7 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.util.core.DrStringTool;
-import com.hotpads.exception.analysis.HttpHeaders;
+import com.hotpads.util.http.HttpHeaders;
 
 public class WebSocketTool{
 	private static final Logger logger = LoggerFactory.getLogger(WebSocketTool.class);
@@ -16,9 +16,9 @@ public class WebSocketTool{
 		logger.debug("upgrade header value: {}", upgrade);
 		String connection = req.getHeader(HttpHeaders.CONNECTION);
 		logger.debug("connection header value: {}", connection);
-		String sec_websocket_version = req.getHeader(HttpHeaders.SEC_WEBSOCKET_VERSION);
-		logger.debug("sec_websocket_version header value: {}", sec_websocket_version);
-		return DrStringTool.notEmpty(sec_websocket_version);
+		String secWebSocketVersion = req.getHeader(HttpHeaders.SEC_WEBSOCKET_VERSION);
+		logger.debug("sec_websocket_version header value: {}", secWebSocketVersion);
+		return DrStringTool.notEmpty(secWebSocketVersion);
 	}
 
 }

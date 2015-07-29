@@ -49,17 +49,15 @@ extends BaseHibernateOp<List<PK>>{
 	
 	@Override
 	public List<PK> runOnce(){
-		Session session = getSession(node.getClientName());
+		Session session = getSession(node.getClientId().getName());
 		List<? extends Key<PK>> sortedKeys = DrListTool.createArrayList(keys);
 		Collections.sort(sortedKeys);//is this sorting at all beneficial?
 		List<PK> result = new ArrayList<>(keys.size());
 		Criteria criteria = node.getCriteriaForConfig(config, session);
 		//projection list
 		ProjectionList projectionList = Projections.projectionList();
-		int numFields = 0;
 		for(Field<?> field : node.getFieldInfo().getPrefixedPrimaryKeyFields()){
 			projectionList.add(Projections.property(field.getPrefixedName()));
-			++numFields;
 		}
 		criteria.setProjection(projectionList);
 		//where clause

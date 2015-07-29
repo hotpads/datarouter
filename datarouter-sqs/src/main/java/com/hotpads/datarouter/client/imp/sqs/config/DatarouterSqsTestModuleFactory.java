@@ -12,7 +12,6 @@ public class DatarouterSqsTestModuleFactory extends DatarouterTestModuleFactory{
 	protected List<Module> getOverriders(){
 		List<Module> overrides = super.getOverriders();
 		overrides.add(new ChildInjectorInjectionFixModule());
-		overrides.add(new SqsGuiceModule());
 		return overrides;
 	}
 	

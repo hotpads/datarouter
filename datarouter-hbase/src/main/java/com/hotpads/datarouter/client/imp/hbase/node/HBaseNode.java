@@ -25,9 +25,9 @@ import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.PhysicalSortedMapStorageNode;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
+import com.hotpads.datarouter.storage.databean.DatabeanTool;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.imp.comparable.SignedByteField;
-import com.hotpads.datarouter.storage.key.KeyTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.datarouter.util.core.DrBooleanTool;
@@ -182,7 +182,7 @@ implements PhysicalSortedMapStorageNode<PK,D>
 		//TODO need a method getKeysWithPrefix	
 		List<D> databeansToDelete = getWithPrefix(prefix, wildcardLastField, config);
 		if(DrCollectionTool.notEmpty(databeansToDelete)){
-			deleteMulti(KeyTool.getKeys(databeansToDelete), null);
+			deleteMulti(DatabeanTool.getKeys(databeansToDelete), null);
 		}
 	}
 	

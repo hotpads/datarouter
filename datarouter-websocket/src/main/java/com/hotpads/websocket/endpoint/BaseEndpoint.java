@@ -49,6 +49,7 @@ public abstract class BaseEndpoint extends Endpoint{
 	public void onClose(Session session, CloseReason closeReason){
 		logger.info("Closing websocket session {} because {}", webSocketSession, closeReason);
 		pushService.unregister(webSocketSession.getKey());
+		webSocketConnectionStore.remove(webSocketSession.getKey());
 	}
 
 	@Override

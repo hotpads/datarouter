@@ -32,7 +32,7 @@ import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.collections.Twin;
 import com.hotpads.util.core.iterable.scanner.batch.BatchLoader;
-import com.hotpads.util.core.iterable.scanner.batch.BatchingSortedScanner;
+import com.hotpads.util.core.iterable.scanner.batch.AsyncBatchLoaderScanner;
 
 public class HBaseSubEntityQueryBuilder<
 		EK extends EntityKey<EK>,
@@ -215,28 +215,28 @@ extends HBaseEntityQueryBuilder<EK,E>
 	
 	/***************** batching scanners *******************/
 
-	public List<BatchingSortedScanner<PK>> getPkScanners(HBaseSubEntityReaderNode<EK,E,PK,D,F> node, 
+	public List<AsyncBatchLoaderScanner<PK>> getPkScanners(HBaseSubEntityReaderNode<EK,E,PK,D,F> node, 
 			Range<PK> range, Config pConfig){
 		EntityPartitioner<EK> partitioner = entityFieldInfo.getEntityPartitioner();
-		List<BatchingSortedScanner<PK>> scanners = new ArrayList<>();
+		List<AsyncBatchLoaderScanner<PK>> scanners = new ArrayList<>();
 		for(int partition=0; partition < partitioner.getNumPartitions(); ++partition){
 			BatchLoader<PK> firstBatchLoader = new HBaseEntityPrimaryKeyBatchLoader<EK,E,PK,D,F>(node, partition, 
 					range, pConfig, 1L);//start the counter at 1
-			BatchingSortedScanner<PK> scanner = new BatchingSortedScanner<PK>(node.getClient().getExecutorService(), 
+			AsyncBatchLoaderScanner<PK> scanner = new AsyncBatchLoaderScanner<PK>(node.getClient().getExecutorService(), 
 					firstBatchLoader);
 			scanners.add(scanner);
 		}
 		return scanners;
 	}
 
-	public List<BatchingSortedScanner<D>> getDatabeanScanners(HBaseSubEntityReaderNode<EK,E,PK,D,F> node, 
+	public List<AsyncBatchLoaderScanner<D>> getDatabeanScanners(HBaseSubEntityReaderNode<EK,E,PK,D,F> node, 
 			Range<PK> range, Config pConfig){
 		EntityPartitioner<EK> partitioner = entityFieldInfo.getEntityPartitioner();
-		List<BatchingSortedScanner<D>> scanners = new ArrayList<>();
+		List<AsyncBatchLoaderScanner<D>> scanners = new ArrayList<>();
 		for(int partition=0; partition < partitioner.getNumPartitions(); ++partition){
 			BatchLoader<D> firstBatchLoader = new HBaseEntityDatabeanBatchLoader<EK,E,PK,D,F>(node, partition, 
 					range, pConfig, 1L);//start the counter at 1
-			BatchingSortedScanner<D> scanner = new BatchingSortedScanner<D>(node.getClient().getExecutorService(), 
+			AsyncBatchLoaderScanner<D> scanner = new AsyncBatchLoaderScanner<D>(node.getClient().getExecutorService(), 
 					firstBatchLoader);
 			scanners.add(scanner);
 		}

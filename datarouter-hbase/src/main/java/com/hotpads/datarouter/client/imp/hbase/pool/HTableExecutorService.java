@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.client.imp.hbase.pool;
 
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -10,23 +11,31 @@ import org.slf4j.LoggerFactory;
 import com.hotpads.util.core.concurrent.ExecutorServiceTool;
 import com.hotpads.util.core.concurrent.ThreadTool;
 
+/*
+ * The HBase client uses one thread per regionserver per HTable.  This wrapper class stores a java ExecSvc with 1
+ * thread per regionserver.  It can be reused across different tables.
+ */
 public class HTableExecutorService{
-	protected Logger logger = LoggerFactory.getLogger(getClass());
+	private static final Logger logger = LoggerFactory.getLogger(HTableExecutorService.class);
 
-	public static final Integer NUM_CORE_THREADS = 1;// see class comment regarding killing pools
+	private static final long TIMEOUT_MS = 10 * 1000L;
 
-	public static final Long TIMEOUT_MS = 60 * 1000L;// 60 seconds
+	//final fields
+	private final ThreadPoolExecutor exec;
+	private final long createdMs;
+	
+	private volatile long lastCheckinMs;
 
-	protected ThreadPoolExecutor exec;
-	protected Long createdMs;
-	protected Long lastCheckinMs;
-
-	public HTableExecutorService(){
-		this.exec = new ThreadPoolExecutor(NUM_CORE_THREADS, Integer.MAX_VALUE, 60, TimeUnit.SECONDS,
-						new SynchronousQueue<Runnable>());
+	public HTableExecutorService(int minThreads, int maxThreads){
+		//it's important to use a bounded queue as the executor service won't grow past minThreads until you fill the
+		// queue.  SynchronousQueue is a special zero size queue that will cause the exec svc to grow immediately
+		BlockingQueue<Runnable> queue = new SynchronousQueue<>();
+		//having more regionservers than maxThreads will cause a RejectedExecutionException that will kill your hbase 
+		// request, so provide a high maxThreads
+		this.exec = new ThreadPoolExecutor(minThreads, maxThreads, 60, TimeUnit.SECONDS, queue);
 		this.exec.allowCoreThreadTimeOut(true);// see class comment regarding killing pools
 		this.createdMs = System.currentTimeMillis();
-		this.lastCheckinMs = this.createdMs;
+		this.lastCheckinMs = createdMs;
 	}
 
 	public void markLastCheckinMs(){
@@ -64,7 +73,9 @@ public class HTableExecutorService{
 
 	// probably don't need this method, but being safe while debugging
 	public boolean waitForActiveThreadsToSettle(String tableNameForLog){
-		if(exec.getActiveCount() == 0){ return true; }
+		if(exec.getActiveCount() == 0){
+			return true;
+		}
 		ThreadTool.sleep(1);
 		if(exec.getActiveCount() == 0){
 			// logger.warn("had to sleep a little to let threads finish, table:"+tableNameForLog);
@@ -81,13 +92,19 @@ public class HTableExecutorService{
 
 	public void terminateAndBlockUntilFinished(String tableNameForLog){
 		exec.shutdownNow();// should not block
-		if(exec.getActiveCount() == 0){ return; }
+		if(exec.getActiveCount() == 0){
+			return;
+		}
 		// else we have issues... try to fix them
 		exec.shutdownNow();
 		if(exec.getActiveCount() > 0){
-			logger.warn("getActiveCount() still > 0 after shutdownNow(), table:" + tableNameForLog);
+			logger.warn("getActiveCount() still > 0 after shutdownNow(), table:" + tableNameForLog, new Exception());
 		}
 		ExecutorServiceTool.awaitTerminationForever(exec);// any better ideas? alternative is memory leak
 		logger.warn("awaitTermination finished!, table:" + tableNameForLog);
+	}
+	
+	public ThreadPoolExecutor getExec(){
+		return exec;
 	}
 }

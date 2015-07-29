@@ -33,7 +33,7 @@ public abstract class DatarouterWebSocketConfigurator extends Configurator{
 	}
 
 	@Override
-	public <T>T getEndpointInstance(Class<T> endpointClass) throws InstantiationException{
+	public <T>T getEndpointInstance(Class<T> endpointClass){
 		return injector.getInstance(endpointClass);
 	}
 

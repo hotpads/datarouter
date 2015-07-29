@@ -9,8 +9,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.TreeSet;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
@@ -28,13 +26,12 @@ import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.ClientFactory;
 import com.hotpads.datarouter.client.imp.hbase.HBaseClientImp;
+import com.hotpads.datarouter.client.imp.hbase.HBaseStaticContext;
 import com.hotpads.datarouter.client.imp.hbase.client.HBaseClient;
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseReaderNode;
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseSubEntityReaderNode;
 import com.hotpads.datarouter.client.imp.hbase.pool.HTableExecutorServicePool;
-import com.hotpads.datarouter.client.imp.hbase.pool.HTablePerTablePool;
 import com.hotpads.datarouter.client.imp.hbase.pool.HTablePool;
-import com.hotpads.datarouter.client.imp.hbase.pool.HTableSharedPool;
 import com.hotpads.datarouter.client.imp.hbase.util.HBaseQueryBuilder;
 import com.hotpads.datarouter.exception.UnavailableException;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
@@ -56,39 +53,33 @@ import com.hotpads.util.core.profile.PhaseTimer;
 
 public class HBaseSimpleClientFactory 
 implements ClientFactory{
-	Logger logger = LoggerFactory.getLogger(getClass());
+	private static final Logger logger = LoggerFactory.getLogger(HBaseSimpleClientFactory.class);
 	
-	public static final Boolean PER_TABLE_POOL = false;//per table is less efficient
-	public static final Boolean SHARED_POOL = false;//per table is less efficient
-
-	//static caches
-	public static Map<String,Configuration> CONFIG_BY_ZK_QUORUM = new ConcurrentHashMap<String,Configuration>();
-	public static Map<Configuration,HBaseAdmin> ADMIN_BY_CONFIG = new ConcurrentHashMap<Configuration,HBaseAdmin>();
+	//default table configuration settings for new tables
+	private static final long 
+			DEFAULT_MAX_FILE_SIZE_BYTES = 4 * 1024 * 1024 * 1024,
+			DEFAULT_MEMSTORE_FLUSH_SIZE_BYTES = 256 * 1024 * 1024;
 	
-	static final Integer CREATE_CLIENT_TIMEOUT_MS = 20*1000;//Integer.MAX_VALUE;
+	//these are used for databeans with no values outside the PK.  we fake a value as we need at least 1 cell in a row
+	public static final byte[] DEFAULT_FAMILY_QUALIFIER = new byte[]{(byte)'a'};
+	public static final String DUMMY_COL_NAME = new String(new byte[]{0});
 	
 	
 	/********************* fields *******************************/
 	
-	protected DatarouterContext drContext;
-//	protected List<PhysicalNode<?,?>> physicalNodes = ListTool.createArrayList();
-	protected String clientName;
-	protected Set<String> configFilePaths = new TreeSet<>();
-	protected List<Properties> multiProperties = new ArrayList<>();
-	protected HBaseOptions options;
-	protected volatile HBaseClient client;//volatile for double checked locking
-	protected Configuration hBaseConfig;
-	protected HBaseAdmin hBaseAdmin;
+	private final DatarouterContext drContext;
+	private final String clientName;
+	private final Set<String> configFilePaths;
+	private final List<Properties> multiProperties;
+	private final HBaseOptions options;
 	
-	protected List<String> historicClientIds = new ArrayList<>();
-
+	//we cannot finalize these as they are created in a background thread for faster application boot time
+	private Configuration hBaseConfig;
+	private HBaseAdmin hBaseAdmin;
 	
-	public HBaseSimpleClientFactory(
-			DatarouterContext drContext,
-			String clientName){
+	public HBaseSimpleClientFactory(DatarouterContext drContext, String clientName){
 		this.drContext = drContext;
 		this.clientName = clientName;
-
 		this.configFilePaths = drContext.getConfigFilePaths();
 		this.multiProperties = DrPropertiesTool.fromFiles(configFilePaths);
 		this.options = new HBaseOptions(multiProperties, clientName);
@@ -97,40 +88,37 @@ implements ClientFactory{
 	
 	@Override 
 	public HBaseClient call(){
-		if(client!=null){ return client; }
 		HBaseClientImp newClient = null;
 		try{
 			logger.info("activating HBase client "+clientName);
 			PhaseTimer timer = new PhaseTimer(clientName);
 
 			String zkQuorum = options.zookeeperQuorum();
-			hBaseConfig = CONFIG_BY_ZK_QUORUM.get(zkQuorum);
+			hBaseConfig = HBaseStaticContext.CONFIG_BY_ZK_QUORUM.get(zkQuorum);
 			if(hBaseConfig==null){
 				hBaseConfig = HBaseConfiguration.create();
 				hBaseConfig.set(HConstants.ZOOKEEPER_QUORUM, zkQuorum);
 			}
 			hBaseAdmin = new HBaseAdmin(hBaseConfig);
 			if(hBaseAdmin.getConnection().isClosed()){
-				CONFIG_BY_ZK_QUORUM.remove(zkQuorum);
-				ADMIN_BY_CONFIG.remove(hBaseConfig);
+				HBaseStaticContext.CONFIG_BY_ZK_QUORUM.remove(zkQuorum);
+				HBaseStaticContext.ADMIN_BY_CONFIG.remove(hBaseConfig);
 				hBaseConfig = null;
 				hBaseAdmin = null;
 				String log = "couldn't open connection because hBaseAdmin.getConnection().isClosed()";
 				logger.warn(log);
 				throw new UnavailableException(log);
 			}
-			CONFIG_BY_ZK_QUORUM.put(zkQuorum, hBaseConfig);
-			ADMIN_BY_CONFIG.put(hBaseConfig, hBaseAdmin);
+			HBaseStaticContext.CONFIG_BY_ZK_QUORUM.put(zkQuorum, hBaseConfig);
+			HBaseStaticContext.ADMIN_BY_CONFIG.put(hBaseConfig, hBaseAdmin);
 	
 			//databean config
-			Pair<HTablePool,Map<String,Class<PrimaryKey<?>>>> result = initTables();
+			Pair<HTablePool,Map<String,Class<PrimaryKey<?>>>> hTablePoolAndPrimaryKeyByTableName = initTables();
 			timer.add("init HTables");
 			
-			newClient = new HBaseClientImp(clientName, options, hBaseConfig, hBaseAdmin, 
-					result.getLeft(), result.getRight());
+			newClient = new HBaseClientImp(clientName, hBaseConfig, hBaseAdmin, hTablePoolAndPrimaryKeyByTableName
+					.getLeft(), hTablePoolAndPrimaryKeyByTableName.getRight());
 			logger.warn(timer.add("done").toString());
-//					historicClientIds.add(System.identityHashCode(newClient)+"");
-//					logger.warn("historicClientIds"+historicClientIds);
 		}catch(ZooKeeperConnectionException e){
 			throw new UnavailableException(e);
 		}catch(MasterNotRunningException e){
@@ -140,19 +128,9 @@ implements ClientFactory{
 	}
 	
 	
-	public static final int 
-		PER_TABLE_minPoolSize = 1,//these are per-table
-		PER_TABLE_maxPoolSize = 5,
-		EXECUTOR_SERVICE_maxPoolSize = 50;
+	/********************** private ***************************/
 	
-	public static final long 
-			DEFAULT_MAX_FILE_SIZE_BYTES = 1024 * 1024 * 1024,
-			DEFAULT_MEMSTORE_FLUSH_SIZE_BYTES = 256 * 1024 * 1024;
-	
-	public static final byte[] DEFAULT_FAMILY_QUALIFIER = new byte[]{(byte)'a'};
-	public static final String DUMMY_COL_NAME = new String(new byte[]{0});
-	
-	protected Pair<HTablePool,Map<String,Class<PrimaryKey<?>>>> initTables(){
+	private Pair<HTablePool,Map<String,Class<PrimaryKey<?>>>> initTables(){
 		List<String> tableNames = new ArrayList<>();
 		Map<String,Class<PrimaryKey<?>>> primaryKeyClassByName = new HashMap<>();
 		Map<String,PhysicalNode<?,?>> nodeByTableName = new TreeMap<>();
@@ -164,20 +142,6 @@ implements ClientFactory{
 		}
 
 		try{		    
-			//manually delete tables here
-//		    if(admin.tableExists("Trace")){
-//		    	admin.disableTable("Trace");
-//		    	admin.deleteTable("Trace");
-//		    }
-//		    if(admin.tableExists("TraceThread")){
-//		    	admin.disableTable("TraceThread");
-//		    	admin.deleteTable("TraceThread");
-//		    }
-//		    if(admin.tableExists("TraceSpan")){
-//		    	admin.disableTable("TraceSpan");
-//		    	admin.deleteTable("TraceSpan");
-//		    }
-		
 			boolean checkTables = options.checkTables();
 			boolean createTables = options.createTables();
 			if(checkTables || createTables){
@@ -216,30 +180,13 @@ implements ClientFactory{
 			throw new RuntimeException(e);
 		}
 		
-		HTablePool pool = null;
-		if (PER_TABLE_POOL) {
-			pool = new HTablePerTablePool(hBaseConfig, tableNames,
-					options.minPoolSize(PER_TABLE_minPoolSize),
-					PER_TABLE_maxPoolSize);
-		}else if(SHARED_POOL){
-			pool = new HTableSharedPool(hBaseConfig, clientName,
-					EXECUTOR_SERVICE_maxPoolSize, primaryKeyClassByName);
-		}else {
-			pool = new HTableExecutorServicePool(hBaseAdmin, clientName,
-					EXECUTOR_SERVICE_maxPoolSize, primaryKeyClassByName);
-		}
-		
-		return Pair.create(pool,primaryKeyClassByName);
+		HTablePool pool = new HTableExecutorServicePool(options, hBaseAdmin, clientName, primaryKeyClassByName);
+		return Pair.create(pool, primaryKeyClassByName);
 	}
 
 	
-	
-	/*
-	 * this currently gets ignored on an empty table since there are no regions to split
-	 * 
-	 * 
-	 */
-	protected byte[][] getSplitPoints(PhysicalNode<?,?> node){
+	// this currently gets ignored on an empty table since there are no regions to split
+	private byte[][] getSplitPoints(PhysicalNode<?,?> node){
 		if(node.getPhysicalNodeIfApplicable() instanceof HBaseSubEntityReaderNode){
 			HBaseSubEntityReaderNode<?,?,?,?,?> subEntityNode = (HBaseSubEntityReaderNode<?,?,?,?,?>)node;
 			EntityFieldInfo<?,?> entityFieldInfo = subEntityNode.getEntityFieldInfo(); 
@@ -254,12 +201,12 @@ implements ClientFactory{
 		}else if(node.getPhysicalNodeIfApplicable() instanceof HBaseReaderNode){
 			DatabeanFieldInfo<?,?,?> fieldInfo = node.getFieldInfo();
 			ScatteringPrefix sampleScatteringPrefix = fieldInfo.getSampleScatteringPrefix();
-			if(sampleScatteringPrefix==null){ return null; }
+			if(sampleScatteringPrefix==null){
+				return null;
+			}
 			List<List<Field<?>>> allPrefixes = sampleScatteringPrefix.getAllPossibleScatteringPrefixes();
-			int counter = 0;
 			List<byte[]> splitPoints = new ArrayList<>();
 			for(List<Field<?>> prefixFields : allPrefixes){
-				++counter;
 				Twin<ByteRange> range = HBaseQueryBuilder.getStartEndBytesForPrefix(prefixFields, false);
 				if( ! isSingleEmptyByte(range.getLeft().toArray())){
 					splitPoints.add(range.getLeft().toArray());
@@ -271,33 +218,12 @@ implements ClientFactory{
 		}
 	}
 	
-	protected boolean isSingleEmptyByte(byte[] bytes){
-		if(DrArrayTool.length(bytes)!=1){ return false; }
+	
+	private boolean isSingleEmptyByte(byte[] bytes){
+		if(DrArrayTool.length(bytes)!=1){
+			return false;
+		}
 		return bytes[0] == Byte.MIN_VALUE;
 	}
 	
-	
-//	public static void main(String... args){
-//		List<String> emptyList = new ArrayList<>();
-//		for(String s : IterableTool.nullSafe(emptyList)){
-//			System.out.println("asdf");
-//		}
-//	}
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

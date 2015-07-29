@@ -25,7 +25,8 @@ public class JdbcDeleteByIndexOp<PK extends PrimaryKey<PK>, D extends Databean<P
 
 	public JdbcDeleteByIndexOp(PhysicalNode<PK,D> node, JdbcFieldCodecFactory fieldCodecFactory,
 			Collection<IK> entryKeys, Config config){
-		super(node.getDatarouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, shouldAutoCommit(entryKeys));
+		super(node.getDatarouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION,
+				shouldAutoCommit(entryKeys));
 		this.node = node;
 		this.fieldCodecFactory = fieldCodecFactory;
 		this.entryKeys = entryKeys;
@@ -35,9 +36,9 @@ public class JdbcDeleteByIndexOp<PK extends PrimaryKey<PK>, D extends Databean<P
 	@Override
 	public Long runOnce(){
 		long numModified = 0;
-		for(List<IK> batch : new BatchingIterable<IK>(entryKeys, JdbcNode.DEFAULT_ITERATE_BATCH_SIZE)){
+		for(List<IK> batch : new BatchingIterable<>(entryKeys, JdbcNode.DEFAULT_ITERATE_BATCH_SIZE)){
 			String sql = SqlBuilder.deleteMulti(fieldCodecFactory, config, node.getTableName(), batch);
-			numModified += JdbcTool.update(getConnection(node.getClientName()), sql.toString());
+			numModified += JdbcTool.update(getConnection(node.getClientId().getName()), sql.toString());
 		}
 		
 		return numModified;

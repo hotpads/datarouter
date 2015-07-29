@@ -37,8 +37,8 @@ import com.hotpads.datarouter.storage.view.index.IndexEntry;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.collections.Range;
-import com.hotpads.util.core.iterable.scanner.iterable.SortedScannerIterable;
-import com.hotpads.util.core.iterable.scanner.sorted.SortedScanner;
+import com.hotpads.util.core.iterable.scanner.Scanner;
+import com.hotpads.util.core.iterable.scanner.iterable.ScannerIterable;
 
 public class JdbcReaderOps<
 		PK extends PrimaryKey<PK>,
@@ -50,7 +50,6 @@ public class JdbcReaderOps<
 	private final JdbcReaderNode<PK,D,F> node;
 	private final JdbcFieldCodecFactory fieldCodecFactory;
 	
-	
 	/******************************* constructors ************************************/
 
 	public JdbcReaderOps(JdbcReaderNode<PK,D,F> node, JdbcFieldCodecFactory fieldCodecFactory){
@@ -58,9 +57,7 @@ public class JdbcReaderOps<
 		this.fieldCodecFactory = fieldCodecFactory;
 	}
 
-	
 	/************************************ MapStorageReader methods ****************************/
-	
 	
 	public List<D> getMulti(final Collection<PK> keys, final Config config) {
 		String opName = MapStorageReader.OP_getMulti;
@@ -76,7 +73,6 @@ public class JdbcReaderOps<
 		return results;
 	}
 
-	
 	/************************************ IndexedStorageReader methods ****************************/
 	
 	public Long count(final Lookup<PK> lookup, final Config config) {
@@ -98,7 +94,9 @@ public class JdbcReaderOps<
 
 	public List<D> lookupMultiUnique(final Collection<? extends UniqueKey<PK>> uniqueKeys, final Config config){
 		String opName = IndexedStorageReader.OP_lookupMultiUnique;
-		if(DrCollectionTool.isEmpty(uniqueKeys)){ return new LinkedList<>(); }
+		if(DrCollectionTool.isEmpty(uniqueKeys)){
+			return new LinkedList<>();
+		}
 		JdbcLookupUniqueOp<PK,D,F> op = new JdbcLookupUniqueOp<>(node, fieldCodecFactory, uniqueKeys, config);
 		return new SessionExecutorImpl<>(op, getTraceName(opName)).call();
 	}
@@ -111,18 +109,19 @@ public class JdbcReaderOps<
 		return new SessionExecutorImpl<>(op, getTraceName(opName)).call();
 	}
 	
-	//TODO rename lookupMulti
-	public List<D> lookup(final Collection<? extends Lookup<PK>> lookups, final Config config) {
+	public List<D> lookupMulti(final Collection<? extends Lookup<PK>> lookups, final Config config) {
 		String opName = IndexedStorageReader.OP_lookupMulti;
-		if(DrCollectionTool.isEmpty(lookups)){ return new LinkedList<>(); }
+		if(DrCollectionTool.isEmpty(lookups)){
+			return new LinkedList<>();
+		}
 		JdbcLookupOp<PK,D,F> op = new JdbcLookupOp<>(node, fieldCodecFactory, lookups, false, config);
 		return new SessionExecutorImpl<>(op, getTraceName(opName)).call();
 	}
 	
-	public <PKLookup extends BaseLookup<PK>> SortedScannerIterable<PKLookup> scanIndex(Class<PKLookup> indexClass){
-		SortedScanner<PKLookup> scanner = new JdbcIndexScanner<>(node, fieldCodecFactory, indexClass,
+	public <L extends BaseLookup<PK>> ScannerIterable<L> scanIndex(Class<L> indexClass){
+		Scanner<L> scanner = new JdbcIndexScanner<>(node, fieldCodecFactory, indexClass,
 				getTraceName("scanIndex"));
-		return new SortedScannerIterable<>(scanner);
+		return new ScannerIterable<>(scanner);
 	}
 	
 	public <IK extends PrimaryKey<IK>,
@@ -187,11 +186,9 @@ public class JdbcReaderOps<
 		return result;
 	}
 	
-	
 	/*********************** helper ******************************/
 	
-	protected String getTraceName(String opName){
+	public String getTraceName(String opName){
 		return node.getName() + " " + opName;
 	}
-
 }

@@ -23,11 +23,11 @@ extends BaseJdbcOp<D>{
 	private final JdbcFieldCodecFactory jdbcFieldCodecFactory;
 	private final Config config;
 	
-	public JdbcGetFirstOp(JdbcReaderNode<PK,D,F> node, JdbcFieldCodecFactory jdbcFieldCodecFactory, Config pConfig) {
+	public JdbcGetFirstOp(JdbcReaderNode<PK,D,F> node, JdbcFieldCodecFactory jdbcFieldCodecFactory, Config config) {
 		super(node.getDatarouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
 		this.jdbcFieldCodecFactory = jdbcFieldCodecFactory;
 		this.node = node;
-		this.config = Config.nullSafe(pConfig);
+		this.config = Config.nullSafe(config);
 	}
 	
 	@Override
@@ -35,8 +35,8 @@ extends BaseJdbcOp<D>{
 		config.setLimit(1);
 		String sql = SqlBuilder.getAll(config, node.getTableName(), node.getFieldInfo().getFields(), null, 
 				node.getFieldInfo().getPrimaryKeyFields());
-		List<D> result = JdbcTool.selectDatabeans(jdbcFieldCodecFactory, getConnection(node.getClientName()), node
-				.getFieldInfo(), sql);
+		List<D> result = JdbcTool.selectDatabeans(jdbcFieldCodecFactory, getConnection(node.getClientId().getName()),
+				node.getFieldInfo(), sql);
 		return DrCollectionTool.getFirst(result);
 	}
 	

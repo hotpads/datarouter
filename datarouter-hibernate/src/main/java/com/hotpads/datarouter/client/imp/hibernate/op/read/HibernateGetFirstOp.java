@@ -27,7 +27,7 @@ extends BaseHibernateOp<D>{
 	
 	@Override
 	public D runOnce(){
-		Session session = getSession(node.getClientName());
+		Session session = getSession(node.getClientId().getName());
 		Criteria criteria = node.getCriteriaForConfig(config, session);
 		criteria.setMaxResults(1);
 		D result = (D)criteria.uniqueResult();

@@ -12,7 +12,7 @@ import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
 import com.hotpads.datarouter.routing.DatarouterContext;
-import com.hotpads.datarouter.storage.key.KeyTool;
+import com.hotpads.datarouter.storage.databean.DatabeanTool;
 import com.hotpads.datarouter.test.DatarouterTestModuleFactory;
 import com.hotpads.datarouter.test.TestDatabean;
 import com.hotpads.datarouter.test.TestDatabeanKey;
@@ -174,7 +174,7 @@ public class JdbcManagedIndexIntegrationTests{
 		List<TestDatabean> databeans = DrListTool.createLinkedList(
 				new TestDatabean("tri", "martolod", "yaouank"),
 				new TestDatabean("i vonet", "da", "veajiñ"));
-		List<TestDatabeanKey> keys = KeyTool.getKeys(databeans);
+		List<TestDatabeanKey> keys = DatabeanTool.getKeys(databeans);
 		List<TestDatabeanWithManagedIndexByBKey> entryKeys = new LinkedList<>();
 		for(TestDatabean databean : databeans){
 			entryKeys.add(new TestDatabeanWithManagedIndexByBKey(databean.getB()));

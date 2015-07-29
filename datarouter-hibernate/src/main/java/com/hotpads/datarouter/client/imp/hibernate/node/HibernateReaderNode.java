@@ -56,8 +56,8 @@ import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.exception.NotImplementedException;
-import com.hotpads.util.core.iterable.scanner.iterable.SortedScannerIterable;
-import com.hotpads.util.core.iterable.scanner.sorted.SortedScanner;
+import com.hotpads.util.core.iterable.scanner.Scanner;
+import com.hotpads.util.core.iterable.scanner.iterable.ScannerIterable;
 
 public class HibernateReaderNode<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>> 
 extends BasePhysicalNode<PK,D,F>
@@ -84,14 +84,15 @@ implements MapStorageReader<PK,D>,
 
 	@Override
 	public HibernateClientImp getClient(){
-		return (HibernateClientImp)getRouter().getClient(getClientName());
+		return (HibernateClientImp)getRouter().getClient(getClientId().getName());
 	}
 	
 	/************************************ MapStorageReader methods ****************************/
 	
 	public static final int 
 		DEFAULT_GET_MULTI_BATCH_SIZE = 200,
-		DEFAULT_ITERATE_BATCH_SIZE = 1000;
+		DEFAULT_ITERATE_BATCH_SIZE = 1000
+		;
 	
 	@Override
 	public boolean exists(PK key, Config config) {
@@ -106,10 +107,10 @@ implements MapStorageReader<PK,D>,
 	}
 	
 	@Override
-	public List<D> getMulti(final Collection<PK> keys, final Config pConfig){
+	public List<D> getMulti(final Collection<PK> keys, Config config){
 		String opName = MapStorageReader.OP_getMulti;
 		List<D> result = DrListTool.createArrayListWithSize(keys);
-		Config config = Config.nullSafe(pConfig);
+		config = Config.nullSafe(config);
 		int batchSize = config.getIterateBatchSizeOverrideNull(DEFAULT_GET_MULTI_BATCH_SIZE);
 		for(List<PK> keyBatch : DrBatchTool.getBatches(keys, batchSize)){
 			HibernateGetOp<PK,D,F> op = new HibernateGetOp<>(this, keyBatch, config);
@@ -120,9 +121,9 @@ implements MapStorageReader<PK,D>,
 	}
 	
 	@Override
-	public List<PK> getKeys(final Collection<PK> keys, final Config pConfig){
+	public List<PK> getKeys(final Collection<PK> keys, Config config){
 		String opName = MapStorageReader.OP_getKeys;
-		Config config = Config.nullSafe(pConfig);
+		config = Config.nullSafe(config);
 		int batchSize = config.getIterateBatchSizeOverrideNull(DEFAULT_GET_MULTI_BATCH_SIZE);
 		List<PK> result = DrListTool.createArrayListWithSize(keys);
 		for(List<PK> keyBatch : DrBatchTool.getBatches(keys, batchSize)){
@@ -158,7 +159,9 @@ implements MapStorageReader<PK,D>,
 	@Override
 	public List<D> lookupMultiUnique(final Collection<? extends UniqueKey<PK>> uniqueKeys, final Config config){
 		String opName = IndexedStorageReader.OP_lookupMultiUnique;
-		if(DrCollectionTool.isEmpty(uniqueKeys)){ return new LinkedList<>(); }
+		if(DrCollectionTool.isEmpty(uniqueKeys)){
+			return new LinkedList<>();
+		}
 		HibernateLookupUniqueOp<PK,D,F> op = new HibernateLookupUniqueOp<>(this, uniqueKeys,
 				config);
 		return new SessionExecutorImpl<>(op, getTraceName(opName)).call();
@@ -173,11 +176,12 @@ implements MapStorageReader<PK,D>,
 		return new SessionExecutorImpl<>(op, getTraceName(opName)).call();
 	}
 	
-	//TODO rename lookupMulti
 	@Override
-	public List<D> lookup(final Collection<? extends Lookup<PK>> lookups, final Config config) {
+	public List<D> lookupMulti(final Collection<? extends Lookup<PK>> lookups, final Config config) {
 		String opName = IndexedStorageReader.OP_lookupMulti;
-		if(DrCollectionTool.isEmpty(lookups)){ return new LinkedList<>(); }
+		if(DrCollectionTool.isEmpty(lookups)){
+			return new LinkedList<>();
+		}
 		HibernateLookupOp<PK,D,F> op = new HibernateLookupOp<>(this, lookups, false, config);
 		return new SessionExecutorImpl<>(op, getTraceName(opName)).call();
 	}
@@ -203,9 +207,9 @@ implements MapStorageReader<PK,D>,
 	public <IK extends PrimaryKey<IK>, 
 			IE extends IndexEntry<IK, IE, PK, D>, 
 			IF extends DatabeanFielder<IK, IE>>
-	SortedScannerIterable<IE> scanIndex(DatabeanFieldInfo<IK,IE,IF> indexEntryFieldInfo, Range<IK> range, 
+	ScannerIterable<IE> scanIndex(DatabeanFieldInfo<IK,IE,IF> indexEntryFieldInfo, Range<IK> range, 
 			Config config){
-		return new SortedScannerIterable<>(new HibernateManagedIndexScanner<>(range, config, fieldCodecFactory,
+		return new ScannerIterable<>(new HibernateManagedIndexScanner<>(range, config, fieldCodecFactory,
 				indexEntryFieldInfo, this));
 	}
 	
@@ -287,17 +291,17 @@ implements MapStorageReader<PK,D>,
 	}
 
 	@Override
-	public SortedScannerIterable<PK> scanKeys(Range<PK> pRange, Config config){
-		Range<PK> range = Range.nullSafe(pRange);
-		SortedScanner<PK> scanner = new HibernatePrimaryKeyScanner<>(this, fieldInfo, range, config);
-		return new SortedScannerIterable<>(scanner);
+	public ScannerIterable<PK> scanKeys(Range<PK> range, Config config){
+		range = Range.nullSafe(range);
+		Scanner<PK> scanner = new HibernatePrimaryKeyScanner<>(this, fieldInfo, range, config);
+		return new ScannerIterable<>(scanner);
 	}
 	
 	@Override
-	public SortedScannerIterable<D> scan(Range<PK> pRange, Config config){
-		Range<PK> range = Range.nullSafe(pRange);
-		SortedScanner<D> scanner = new HibernateDatabeanScanner<>(this, fieldInfo, range, config);
-		return new SortedScannerIterable<>(scanner);
+	public ScannerIterable<D> scan(Range<PK> range, Config config){
+		range = Range.nullSafe(range);
+		Scanner<D> scanner = new HibernateDatabeanScanner<>(this, fieldInfo, range, config);
+		return new ScannerIterable<>(scanner);
 	}
 	
 	
@@ -310,7 +314,8 @@ implements MapStorageReader<PK,D>,
 	
 	/********************************* hibernate helpers ***********************************************/
 	
-	//shouldn't need this for innodb.  not sure if it hurts or not though.  see Handler_read_rnd_next (innodb may sort anyway?)
+	//shouldn't need this for innodb.  not sure if it hurts or not though.  
+	//see Handler_read_rnd_next (innodb may sort anyway?)
 	public void addPrimaryKeyOrderToCriteria(Criteria criteria){
 		for(Field<?> field : fieldInfo.getPrefixedPrimaryKeyFields()){
 			criteria.addOrder(Order.asc(field.getPrefixedName()));
@@ -343,7 +348,9 @@ implements MapStorageReader<PK,D>,
 	public Conjunction getPrefixConjunction(boolean usePrefixedFieldNames,
 			Key<PK> prefix, final boolean wildcardLastField){
 		int numNonNullFields = FieldSetTool.getNumNonNullLeadingFields(prefix);
-		if(numNonNullFields==0){ return null; }
+		if(numNonNullFields==0){
+			return null;
+		}
 		Conjunction conjunction = Restrictions.conjunction();
 		int numFullFieldsFinished = 0;
 		List<Field<?>> fields = prefix.getFields();
@@ -351,12 +358,14 @@ implements MapStorageReader<PK,D>,
 			fields = FieldTool.prependPrefixes(fieldInfo.getKeyFieldName(), fields);
 		}
 		for(Field<?> field : fields){
-			if(numFullFieldsFinished >= numNonNullFields){ break; }
-			if(field.getValue()==null) {
-				throw new DataAccessException("Prefix query on "+
-						prefix.getClass()+" cannot contain intermediate nulls.");
+			if(numFullFieldsFinished >= numNonNullFields){
+				break;
 			}
-			boolean lastNonNullField = (numFullFieldsFinished == numNonNullFields-1);
+			if(field.getValue()==null) {
+				throw new DataAccessException("Prefix query on " + prefix.getClass()
+						+ " cannot contain intermediate nulls.");
+			}
+			boolean lastNonNullField = numFullFieldsFinished == numNonNullFields-1;
 			boolean stringField = !(field instanceof BasePrimitiveField<?>);
 			boolean canDoPrefixMatchOnField = wildcardLastField && lastNonNullField && stringField;
 			String fieldNameWithPrefixIfNecessary = field.getPrefixedName();
