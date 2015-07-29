@@ -16,7 +16,7 @@ import org.testng.annotations.Test;
 import com.hotpads.datarouter.client.imp.jdbc.TestDatarouterJdbcModuleFactory;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.type.writebehind.WriteBehindSortedMapStorageNode;
-import com.hotpads.datarouter.storage.key.KeyTool;
+import com.hotpads.datarouter.storage.databean.DatabeanTool;
 import com.hotpads.datarouter.test.TestDatabean;
 import com.hotpads.datarouter.test.TestDatabeanKey;
 import com.hotpads.util.core.iterable.BatchingIterable;
@@ -78,7 +78,7 @@ public class JdbcBatchSizeOptimizerIntegrationTests{
 			databeans.add(new TestDatabean(randomString(), randomString(), randomString()));
 		}
 		router.testDatabean.putMulti(databeans, null);
-		List<TestDatabeanKey> keys = KeyTool.getKeys(databeans);
+		List<TestDatabeanKey> keys = DatabeanTool.getKeys(databeans);
 		//warm up
 		router.testDatabean.getMulti(keys, 
 				new Config().setIterateBatchSize(
