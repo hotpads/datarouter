@@ -44,12 +44,6 @@
 			<groupId>com.hotpads</groupId>
 			<artifactId>datarouter-core</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
-			<exclusions>
-				<exclusion>
-					<groupId>com.amazonaws</groupId>
-					<artifactId>aws-java-sdk</artifactId>
-				</exclusion>
-			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>com.amazonaws</groupId>
