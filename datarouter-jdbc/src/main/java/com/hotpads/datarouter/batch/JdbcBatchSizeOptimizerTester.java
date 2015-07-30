@@ -2,7 +2,6 @@ package com.hotpads.datarouter.batch;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 import java.util.UUID;
 
 import javax.inject.Inject;
@@ -24,8 +23,6 @@ import com.hotpads.util.core.profile.PhaseTimer;
 @Guice(moduleFactory=TestDatarouterJdbcModuleFactory.class)
 public class JdbcBatchSizeOptimizerTester{
 	
-	private static final Random random = new Random();
-	
 	@Inject
 	private BatchSizeOptimizer batchSizeOptimizer;
 	@Inject
@@ -38,23 +35,6 @@ public class JdbcBatchSizeOptimizerTester{
 	public void cleanUp(){
 		nodes.getOpPerformanceRecordNode().deleteAll(null);
 		((WriteBehindSortedMapStorageNode<?,?,?>) nodes.getOpPerformanceRecordNode()).flush();
-	}
-	
-	@Test(enabled = false)
-	public void testRecordOpPerformance(){
-		String opName = "";
-		int targetOptimal = 210;
-		int rowCount = 10000;
-		while(batchSizeOptimizer.getOptimalBatchSize(opName) != targetOptimal){
-			for(int count = 0 ; count < 1000 ; count++){
-				int batchSize = batchSizeOptimizer.getRecommendedBatchSize(opName, Integer.MAX_VALUE);
-				int timeSpent = random.nextInt(10 * (1 + Math.abs(batchSize - targetOptimal)));
-				batchSizeOptimizer.recordBatchSizeAndTime(opName, batchSize, rowCount, timeSpent);
-			}
-			((WriteBehindSortedMapStorageNode<?,?,?>) nodes.getOpPerformanceRecordNode()).flush();
-			batchSizeOptimizer.computeAndCacheRecommendedBatchSize(opName);
-			System.out.println(batchSizeOptimizer.getOptimalBatchSize(opName));
-		}
 	}
 	
 	@Test(enabled=false)
@@ -79,7 +59,6 @@ public class JdbcBatchSizeOptimizerTester{
 				batchSizeOptimizer.recordBatchSizeAndTime(opName, batchSize, keys.size(), timeSpent);
 			}
 			batchSizeOptimizer.computeAndCacheRecommendedBatchSize(opName);
-			System.out.println(batchSizeOptimizer.getOptimalBatchSize(opName));
 		}
 		
 	}
@@ -105,8 +84,6 @@ public class JdbcBatchSizeOptimizerTester{
 			timer.add("record");
 			batchSizeOptimizer.computeAndCacheRecommendedBatchSize(opName);
 			timer.add("analyse");
-			System.out.println(batchSizeOptimizer.getOptimalBatchSize(opName) + " "
-					+ batchSizeOptimizer.getCuriosity(opName));
 			System.out.println(timer.toString());
 		}
 	}
