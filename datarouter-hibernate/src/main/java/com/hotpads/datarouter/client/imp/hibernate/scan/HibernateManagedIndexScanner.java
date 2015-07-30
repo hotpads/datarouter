@@ -2,7 +2,6 @@ package com.hotpads.datarouter.client.imp.hibernate.scan;
 
 import java.util.List;
 
-import com.hotpads.datarouter.client.imp.hibernate.node.HibernateNode;
 import com.hotpads.datarouter.client.imp.hibernate.node.HibernateReaderNode;
 import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.client.imp.jdbc.op.read.index.JdbcManagedIndexGetRangeOp;
@@ -26,18 +25,16 @@ public class HibernateManagedIndexScanner<
 		IF extends DatabeanFielder<IK, IE>>
 extends BaseManagedIndexScanner<PK,D,IK,IE>{
 
-	private final Config config;
 	private final DatabeanFieldInfo<IK,IE,IF> indexEntryFieldInfo;
 	private final JdbcFieldCodecFactory fieldCodecFactory;
 	private final HibernateReaderNode<PK,D,F> node;
 	
 	public HibernateManagedIndexScanner(Range<IK> range, Config config, JdbcFieldCodecFactory fieldCodecFactory,
 			DatabeanFieldInfo<IK,IE,IF> indexEntryFieldInfo, HibernateReaderNode<PK,D,F> node){
-		super(range);
+		super(range, config);
 		this.fieldCodecFactory = fieldCodecFactory;
 		this.indexEntryFieldInfo = indexEntryFieldInfo;
 		this.node = node;
-		this.config = Config.nullSafe(config).setIterateBatchSizeIfNull(HibernateNode.DEFAULT_ITERATE_BATCH_SIZE);
 	}
 
 	@Override
