@@ -16,6 +16,7 @@ import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.filter.ColumnPrefixFilter;
 
 import com.hotpads.datarouter.client.imp.hbase.client.HBaseClient;
+import com.hotpads.datarouter.client.imp.hbase.op.write.HBaseSubEntityIncrementOp;
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseMultiAttemptTask;
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseTask;
 import com.hotpads.datarouter.config.Config;
@@ -40,7 +41,6 @@ import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.datarouter.util.core.DrMapTool;
-import com.hotpads.util.core.profile.PhaseTimer;
 
 public class HBaseSubEntityNode<
 		EK extends EntityKey<EK>,
@@ -142,7 +142,12 @@ implements SubEntitySortedMapStorageNode<EK,PK,D,F>,
 			}).call();
 	}
 	
-
+	public void increment(Map<PK,Map<String,Long>> countByColumnByKey, Config pConfig){
+		final Config config = Config.nullSafe(pConfig);
+		new HBaseMultiAttemptTask<Void>(new HBaseSubEntityIncrementOp<EK, E, PK, D, F>(this, countByColumnByKey, config,
+				queryBuilder)).call();
+	}
+	
 	@Override
 	public void deleteAll(final Config pConfig) {
 		final Config config = Config.nullSafe(pConfig);
