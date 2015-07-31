@@ -138,7 +138,7 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 		SortedSet<SqlIndex> indexesToRemove = diff.getIndexesToRemove();
 		
 		// generate the alter table statements from columns to add and to remove
-		if(colsToRemove.size()<current.getNumberOfColumns()){ 
+		if(colsToRemove.size()<current.getNumberOfColumns()+colsToAdd.size()){
 			list.addAll(getAlterTableForRemovingColumns(colsToRemove));
 			list.add(getAlterTableForAddingColumns(colsToAdd));
 		}else{// cannot drop all columns, should use drop table then create it from list of columns
