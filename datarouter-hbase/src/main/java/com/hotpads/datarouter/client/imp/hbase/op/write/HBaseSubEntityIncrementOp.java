@@ -31,11 +31,11 @@ import com.hotpads.datarouter.util.core.DrObjectTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 
 public class HBaseSubEntityIncrementOp<
-	EK extends EntityKey<EK>,
-	E extends Entity<EK>,
-	PK extends EntityPrimaryKey<EK,PK>,
-	D extends Databean<PK,D>,
-	F extends DatabeanFielder<PK,D>> 
+		EK extends EntityKey<EK>,
+		E extends Entity<EK>,
+		PK extends EntityPrimaryKey<EK,PK>,
+		D extends Databean<PK,D>,
+		F extends DatabeanFielder<PK,D>> 
 extends HBaseTask<Void>{
 
 	public static final String OP_increment = "increment";
