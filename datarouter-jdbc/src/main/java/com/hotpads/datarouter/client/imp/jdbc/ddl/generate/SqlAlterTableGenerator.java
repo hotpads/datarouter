@@ -157,7 +157,6 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 		List<SqlColumn> colsToAdd = diff.getColumnsToAdd();
 		List<SqlColumn> colsToRemove = diff.getColumnsToRemove();
 		List<SqlColumn> colsToModify = diff.getColumnsToModify();
-
 		// get the other modifications ( the indexes )
 		SortedSet<SqlIndex> indexesToAdd = diff.getIndexesToAdd();
 		SortedSet<SqlIndex> indexesToRemove = diff.getIndexesToRemove();
@@ -187,7 +186,7 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 					sb.append("(" +requestedCol.getMaxLength() +")");
 				}
 				//	getDefaultValueStatement(col)
-				sb.append(col.getDefaultValueStatement());
+				sb.append(requestedCol.getDefaultValueStatement());
 				if(requestedCol.getAutoIncrement()) {
 					sb.append(" auto_increment");
 				}
