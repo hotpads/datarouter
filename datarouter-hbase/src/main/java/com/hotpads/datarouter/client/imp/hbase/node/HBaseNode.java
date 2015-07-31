@@ -23,6 +23,7 @@ import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.PhysicalSortedMapStorageNode;
+import com.hotpads.datarouter.node.op.index.HBaseIncrement;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.databean.DatabeanTool;
@@ -39,7 +40,7 @@ public class HBaseNode<
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>> 
 extends HBaseReaderNode<PK,D,F>
-implements PhysicalSortedMapStorageNode<PK,D>
+implements PhysicalSortedMapStorageNode<PK,D>, HBaseIncrement<PK>
 {
 	
 	public HBaseNode(NodeParams<PK,D,F> params){
