@@ -40,10 +40,10 @@ extends HBaseTask<Void>{
 
 	public static final String OP_increment = "increment";
 	
-	private HBaseSubEntityNode<EK, E, PK, D, F> node;
-	private Map<PK,Map<String,Long>> countByColumnByKey;
-	private Config config;
-	private HBaseSubEntityQueryBuilder<EK,E,PK,D,F> queryBuilder;
+	private final HBaseSubEntityNode<EK, E, PK, D, F> node;
+	private final Map<PK,Map<String,Long>> countByColumnByKey;
+	private final Config config;
+	private final HBaseSubEntityQueryBuilder<EK,E,PK,D,F> queryBuilder;
 	
 	public HBaseSubEntityIncrementOp(HBaseSubEntityNode<EK, E, PK, D, F> node, Map<PK,Map<String,Long>> 
 		countByColumnByKey, Config config, HBaseSubEntityQueryBuilder<EK, E, PK, D, F> queryBuilder){
