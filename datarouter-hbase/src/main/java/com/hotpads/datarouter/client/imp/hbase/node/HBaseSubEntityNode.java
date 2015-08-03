@@ -16,6 +16,7 @@ import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.filter.ColumnPrefixFilter;
 
 import com.hotpads.datarouter.client.imp.hbase.client.HBaseClient;
+import com.hotpads.datarouter.client.imp.hbase.op.write.HBaseSubEntityIncrementOp;
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseMultiAttemptTask;
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseTask;
 import com.hotpads.datarouter.config.Config;
@@ -24,6 +25,7 @@ import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.entity.EntityNodeParams;
 import com.hotpads.datarouter.node.entity.SubEntitySortedMapStorageNode;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.PhysicalSortedMapStorageNode;
+import com.hotpads.datarouter.node.op.index.HBaseIncrement;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.databean.DatabeanTool;
@@ -40,7 +42,6 @@ import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.datarouter.util.core.DrMapTool;
-import com.hotpads.util.core.profile.PhaseTimer;
 
 public class HBaseSubEntityNode<
 		EK extends EntityKey<EK>,
@@ -50,7 +51,7 @@ public class HBaseSubEntityNode<
 		F extends DatabeanFielder<PK,D>> 
 extends HBaseSubEntityReaderNode<EK,E,PK,D,F>
 implements SubEntitySortedMapStorageNode<EK,PK,D,F>,
-		PhysicalSortedMapStorageNode<PK,D>
+		PhysicalSortedMapStorageNode<PK,D>, HBaseIncrement<PK>
 {
 	
 	public HBaseSubEntityNode(EntityNodeParams<EK,E> entityNodeParams, NodeParams<PK,D,F> params){
@@ -142,7 +143,12 @@ implements SubEntitySortedMapStorageNode<EK,PK,D,F>,
 			}).call();
 	}
 	
-
+	public void increment(Map<PK,Map<String,Long>> countByColumnByKey, Config pConfig){
+		final Config config = Config.nullSafe(pConfig);
+		new HBaseMultiAttemptTask<Void>(new HBaseSubEntityIncrementOp<EK, E, PK, D, F>(this, countByColumnByKey, config,
+				queryBuilder)).call();
+	}
+	
 	@Override
 	public void deleteAll(final Config pConfig) {
 		final Config config = Config.nullSafe(pConfig);
