@@ -208,19 +208,6 @@ implements HTablePool{
 		
 		//Close HConnection and use stopProxy = true to join the HBaseClient.Connection thread.
 		HConnectionManager.deleteConnection(hConnection.getConfiguration(), true);
-		
-		//Join the SendThread - no better way as of zookeeper 3.4.3 - ZOOKEEPER-2126 hints that it won't change
-		Set<Thread> threads = Thread.getAllStackTraces().keySet();
-		for(Thread thread : threads){
-			if(!thread.getClass().getSimpleName().contains("SendThread")){
-				continue;
-			}
-			try{
-				thread.join();
-			}catch (InterruptedException e){
-				throw new RuntimeException();
-			}
-		}
 	}
 	
 	
