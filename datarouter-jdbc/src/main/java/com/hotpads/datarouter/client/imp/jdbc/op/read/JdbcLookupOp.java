@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
 import com.hotpads.datarouter.client.imp.hibernate.util.SqlBuilder;
 import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
-import com.hotpads.datarouter.client.imp.jdbc.node.JdbcNode;
 import com.hotpads.datarouter.client.imp.jdbc.node.JdbcReaderNode;
 import com.hotpads.datarouter.client.imp.jdbc.op.BaseJdbcOp;
 import com.hotpads.datarouter.config.Config;
@@ -55,7 +54,7 @@ extends BaseJdbcOp<List<D>>{
 			return new LinkedList<>();
 		}
 		Integer batchSize = config.getLimit();
-		int configuredBatchSize = config.getIterateBatchSizeOverrideNull(JdbcNode.DEFAULT_ITERATE_BATCH_SIZE);
+		int configuredBatchSize = config.getIterateBatchSize();
 		if (batchSize == null || batchSize > configuredBatchSize){
 			batchSize = configuredBatchSize;
 		}
