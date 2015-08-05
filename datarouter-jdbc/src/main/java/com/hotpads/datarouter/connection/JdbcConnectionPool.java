@@ -75,7 +75,6 @@ public class JdbcConnectionPool{
 		urlParams.add("useLocalSessionState=true");
 
 		String urlWithParams = url + "?" + Joiner.on("&").join(urlParams);
-		Joiner.on("&").join(urlParams);
 		try {
 			String jdbcUrl;
 			if(logging){

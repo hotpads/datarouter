@@ -22,46 +22,30 @@ import com.hotpads.datarouter.storage.key.multi.Lookup;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.core.DrArrayTool;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.util.core.java.ReflectionTool;
 
 public class JdbcTool {
 
-	static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
+	private static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
+	private static final String TABLE_CATALOG = "TABLE_CAT";
 
 	public static Connection openConnection(String hostname, int port, String database, String user,
 			String password){
 		Connection conn = null;
 		try {
 			Class.forName(JDBC_DRIVER).newInstance();//not quite sure why we need this
-			String url = "jdbc:mysql://"+hostname+":"+port+"/"+database+"?user="+user+"&password="+password;
+			String url = "jdbc:mysql://"+hostname+":"+port+"/";
+			if(!DrStringTool.isEmpty(database)){
+				url += database;
+			}
+			url += "?user="+user+"&password="+password;
 			conn = DriverManager.getConnection(url);
 		}catch(Exception e) {
 			throw new RuntimeException(e);
 		}
 		return conn;
 	}
-
-	public static Connection openConnectionNotSpecifyingDb(String genericUrl, String user,
-			String password){
-		Connection conn = null;
-		try {
-			Class.forName(JDBC_DRIVER).newInstance();//not quite sure why we need this
-			//	String url = "jdbc:mysql://"+hostname+":"+port+"/"+"?user="+user+"&password="+password;
-			String url = "jdbc:mysql://"+genericUrl+"?user="+user+"&password="+password;
-			conn = DriverManager.getConnection(url);
-		}catch(Exception e) {
-			throw new RuntimeException(e);
-		}
-		return conn;
-	}
-
-	//	public static Connection checkOutConnectionFromPool(JdbcConnectionPool connectionPool){
-	//		try {
-	//			return connectionPool.getDataSource().getConnection();
-	//		} catch (SQLException e) {
-	//			throw new RuntimeException(e);
-	//		}
-	//	}
 
 	public static void closeConnection(Connection connection){
 		try {
@@ -75,18 +59,12 @@ public class JdbcTool {
 	public static List<String> showTables(Connection connection){
 		try {
 			connection.createStatement();
-			//			ResultSet resultSet = statement.executeQuery("show tables");
 			List<String> tableNames = new ArrayList<>();
-			//			while(resultSet.next()){
-			//				tableNames.add(resultSet.getString(0));
-			//			}
 			String tableName;
 			ResultSet rs = connection.getMetaData().getTables(null, null, "%", null);
 			while(rs.next()){
 				tableName = rs.getString(3);
-				//if(StringTool.containsCharactersBesidesWhitespace(tableName)){
 				tableNames.add(tableName);
-				//}
 			}
 			return tableNames;
 		} catch (SQLException e) {
@@ -100,11 +78,10 @@ public class JdbcTool {
 			ResultSet rs = connection.getMetaData().getCatalogs();
 			List<String> catalogs = new ArrayList<>();
 			while(rs.next()){
-				catalogs.add(rs.getString("TABLE_CAT"));
+				catalogs.add(rs.getString(TABLE_CATALOG));
 			}
 			return catalogs;
 		}catch(SQLException e){
-			// TODO Auto-generated catch block
 			throw new RuntimeException(e);
 		}
 
@@ -218,7 +195,6 @@ public class JdbcTool {
 	}
 
 	public static int update(Connection conn, String sql){
-		//		System.out.println(sql);
 		try{
 			PreparedStatement stmt = conn.prepareStatement(sql);
 			return stmt.executeUpdate();

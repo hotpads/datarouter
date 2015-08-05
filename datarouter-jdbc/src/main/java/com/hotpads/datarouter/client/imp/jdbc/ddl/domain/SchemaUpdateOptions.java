@@ -8,24 +8,25 @@ import com.hotpads.datarouter.util.core.DrPropertiesTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
 
 public class SchemaUpdateOptions{
-	
-	public static final String 
-		SUFFIX_createTables = ".createTables", 
-		SUFFIX_dropTables = ".dropTables",
-		SUFFIX_addColumns = ".addColumns", 
-		SUFFIX_deleteColumns = ".deleteColumns",
-		/*SUFFIX_modifyColumnLengths = ".modifyColumnLengths",*/
-		SUFFIX_modifyColumns = ".modifyColumns",
-		SUFFIX_addIndexes = ".addIndexes",
-		SUFFIX_dropIndexes = ".dropIndexes",
-		SUFFIX_modifyEngine = ".modifyEngine",
-		SUFFIX_ignoreClients = ".ignoreClients",
-		SUFFIX_ignoreTables = ".ignoreTables",
-		SUFFIX_modifyCharacterSet = ".modifyCharacterSet",
-		SUFFIX_modifyCollation = ".modifyCollation";
 
-	 
-	
+	public static final String
+	SUFFIX_createDatabases = ".createDatabases",
+	SUFFIX_createTables = ".createTables",
+	SUFFIX_dropTables = ".dropTables",
+	SUFFIX_addColumns = ".addColumns",
+	SUFFIX_deleteColumns = ".deleteColumns",
+	/*SUFFIX_modifyColumnLengths = ".modifyColumnLengths",*/
+	SUFFIX_modifyColumns = ".modifyColumns",
+	SUFFIX_addIndexes = ".addIndexes",
+	SUFFIX_dropIndexes = ".dropIndexes",
+	SUFFIX_modifyEngine = ".modifyEngine",
+	SUFFIX_ignoreClients = ".ignoreClients",
+	SUFFIX_ignoreTables = ".ignoreTables",
+	SUFFIX_modifyCharacterSet = ".modifyCharacterSet",
+	SUFFIX_modifyCollation = ".modifyCollation";
+
+
+	protected Boolean createDatabases;
 	protected Boolean createTables;
 	protected Boolean dropTables;
 	protected Boolean addColumns;
@@ -45,62 +46,66 @@ public class SchemaUpdateOptions{
 		super();
 	}
 
-	public SchemaUpdateOptions(List<Properties> multiProperties, String prefix, boolean printVsExecute){	
+	public SchemaUpdateOptions(List<Properties> multiProperties, String prefix, boolean printVsExecute){
 		if(printVsExecute){
 			SetSchemaUpdateWithPrintOptions(multiProperties,  prefix);
 		}else{
 			SetSchemaUpdateWithExecuteOptions(multiProperties,  prefix);
 		}
-		
+
 	}
 
 	private SchemaUpdateOptions SetSchemaUpdateWithPrintOptions(List<Properties> multiProperties, String prefix){
-		this.createTables = DrBooleanTool.isTrueOrNull(DrPropertiesTool.getFirstOccurrence(multiProperties, 
+		this.createDatabases = DrBooleanTool.isTrueOrNull(DrPropertiesTool.getFirstOccurrence(multiProperties,
+				prefix+SUFFIX_createDatabases));
+		this.createTables = DrBooleanTool.isTrueOrNull(DrPropertiesTool.getFirstOccurrence(multiProperties,
 				prefix+SUFFIX_createTables));
-		this.dropTables = DrBooleanTool.isTrueOrNull(DrPropertiesTool.getFirstOccurrence(multiProperties, 
+		this.dropTables = DrBooleanTool.isTrueOrNull(DrPropertiesTool.getFirstOccurrence(multiProperties,
 				prefix+SUFFIX_dropTables));
-		this.addColumns = DrBooleanTool.isTrueOrNull(DrPropertiesTool.getFirstOccurrence(multiProperties, 
+		this.addColumns = DrBooleanTool.isTrueOrNull(DrPropertiesTool.getFirstOccurrence(multiProperties,
 				prefix+SUFFIX_addColumns));
-		this.deleteColumns = DrBooleanTool.isTrueOrNull(DrPropertiesTool.getFirstOccurrence(multiProperties, 
+		this.deleteColumns = DrBooleanTool.isTrueOrNull(DrPropertiesTool.getFirstOccurrence(multiProperties,
 				prefix+SUFFIX_deleteColumns));
-		/*this.printModifyColumnLengths = BooleanTool.isTrueOrNull(PropertiesTool.getFirstOccurrence(multiProperties, 
+		/*this.printModifyColumnLengths = BooleanTool.isTrueOrNull(PropertiesTool.getFirstOccurrence(multiProperties,
 				prefix+SUFFIX_printModifyColumnLengths));*/
-		this.modifyColumns = DrBooleanTool.isTrueOrNull(DrPropertiesTool.getFirstOccurrence(multiProperties, 
+		this.modifyColumns = DrBooleanTool.isTrueOrNull(DrPropertiesTool.getFirstOccurrence(multiProperties,
 				prefix+SUFFIX_modifyColumns));
-		this.addIndexes = DrBooleanTool.isTrueOrNull(DrPropertiesTool.getFirstOccurrence(multiProperties, 
+		this.addIndexes = DrBooleanTool.isTrueOrNull(DrPropertiesTool.getFirstOccurrence(multiProperties,
 				prefix+SUFFIX_addIndexes));
-		this.dropIndexes = DrBooleanTool.isTrueOrNull(DrPropertiesTool.getFirstOccurrence(multiProperties, 
+		this.dropIndexes = DrBooleanTool.isTrueOrNull(DrPropertiesTool.getFirstOccurrence(multiProperties,
 				prefix+SUFFIX_dropIndexes));
-		this.modifyEngine = DrBooleanTool.isTrueOrNull(DrPropertiesTool.getFirstOccurrence(multiProperties, 
+		this.modifyEngine = DrBooleanTool.isTrueOrNull(DrPropertiesTool.getFirstOccurrence(multiProperties,
 				prefix+SUFFIX_modifyEngine));
-		this.modifyCharacterSet = DrBooleanTool.isTrueOrNull(DrPropertiesTool.getFirstOccurrence(multiProperties, 
+		this.modifyCharacterSet = DrBooleanTool.isTrueOrNull(DrPropertiesTool.getFirstOccurrence(multiProperties,
 				prefix+SUFFIX_modifyCharacterSet));
-		this.modifyCollation = DrBooleanTool.isTrueOrNull(DrPropertiesTool.getFirstOccurrence(multiProperties, 
+		this.modifyCollation = DrBooleanTool.isTrueOrNull(DrPropertiesTool.getFirstOccurrence(multiProperties,
 				prefix+SUFFIX_modifyCollation));
 		return this;
 	}
 
 	private SchemaUpdateOptions SetSchemaUpdateWithExecuteOptions(List<Properties> multiProperties, String prefix){
-		this.createTables = DrBooleanTool.isTrueOrNull(DrPropertiesTool.getFirstOccurrence(multiProperties, 
+		this.createDatabases = DrBooleanTool.isTrueOrNull(DrPropertiesTool.getFirstOccurrence(multiProperties,
+				prefix+SUFFIX_createDatabases));
+		this.createTables = DrBooleanTool.isTrueOrNull(DrPropertiesTool.getFirstOccurrence(multiProperties,
 				prefix+SUFFIX_createTables));
 		this.dropTables = false;
-		this.addColumns = DrBooleanTool.isTrue(DrPropertiesTool.getFirstOccurrence(multiProperties, 
+		this.addColumns = DrBooleanTool.isTrue(DrPropertiesTool.getFirstOccurrence(multiProperties,
 				prefix+SUFFIX_addColumns));
-		this.deleteColumns = DrBooleanTool.isTrue(DrPropertiesTool.getFirstOccurrence(multiProperties, 
+		this.deleteColumns = DrBooleanTool.isTrue(DrPropertiesTool.getFirstOccurrence(multiProperties,
 				prefix+SUFFIX_deleteColumns));
-		/*this.printModifyColumnLengths = BooleanTool.isTrueOrNull(PropertiesTool.getFirstOccurrence(multiProperties, 
+		/*this.printModifyColumnLengths = BooleanTool.isTrueOrNull(PropertiesTool.getFirstOccurrence(multiProperties,
 				prefix+SUFFIX_printModifyColumnLengths));*/
-		this.modifyColumns = DrBooleanTool.isTrue(DrPropertiesTool.getFirstOccurrence(multiProperties, 
+		this.modifyColumns = DrBooleanTool.isTrue(DrPropertiesTool.getFirstOccurrence(multiProperties,
 				prefix+SUFFIX_modifyColumns));
-		this.addIndexes = DrBooleanTool.isTrue(DrPropertiesTool.getFirstOccurrence(multiProperties, 
+		this.addIndexes = DrBooleanTool.isTrue(DrPropertiesTool.getFirstOccurrence(multiProperties,
 				prefix+SUFFIX_addIndexes));
-		this.dropIndexes = DrBooleanTool.isTrue(DrPropertiesTool.getFirstOccurrence(multiProperties, 
+		this.dropIndexes = DrBooleanTool.isTrue(DrPropertiesTool.getFirstOccurrence(multiProperties,
 				prefix+SUFFIX_dropIndexes));
-		this.modifyEngine = DrBooleanTool.isTrue(DrPropertiesTool.getFirstOccurrence(multiProperties, 
+		this.modifyEngine = DrBooleanTool.isTrue(DrPropertiesTool.getFirstOccurrence(multiProperties,
 				prefix+SUFFIX_modifyEngine));
-		this.modifyCharacterSet = DrBooleanTool.isTrue(DrPropertiesTool.getFirstOccurrence(multiProperties, 
+		this.modifyCharacterSet = DrBooleanTool.isTrue(DrPropertiesTool.getFirstOccurrence(multiProperties,
 				prefix+SUFFIX_modifyCharacterSet));
-		this.modifyCollation = DrBooleanTool.isTrue(DrPropertiesTool.getFirstOccurrence(multiProperties, 
+		this.modifyCollation = DrBooleanTool.isTrue(DrPropertiesTool.getFirstOccurrence(multiProperties,
 				prefix+SUFFIX_modifyCollation));
 		String schemaUpdatePrefix = prefix.substring(0, prefix.indexOf('.'));
 		String clientsToIgnore = DrPropertiesTool.getFirstOccurrence(multiProperties, schemaUpdatePrefix + SUFFIX_ignoreClients);
@@ -110,17 +115,17 @@ public class SchemaUpdateOptions{
 		return this;
 	}
 
-	
+
 	/****************************** methods ******************************/
 
 	//	public boolean anyTrue(){
 	//		return createTables | anyAlterTrue();
 	//	}
-	//	
+	//
 	//	public boolean anyAlterTrue(){
 	//		return dropTables | addColumns | deleteColumns | modify;
 	//	}
-	
+
 	public SchemaUpdateOptions setAllTrue(){
 		createTables = true;
 		dropTables = true;
@@ -133,7 +138,7 @@ public class SchemaUpdateOptions{
 		modifyEngine = true;
 		return this;
 	}
-	
+
 	public SchemaUpdateOptions setAllFalse(){
 		createTables = false;
 		dropTables = false;
@@ -150,8 +155,18 @@ public class SchemaUpdateOptions{
 
 	/******************************* get/set *****************************/
 
+
+
 	public Boolean getCreateTables(){
 		return createTables;
+	}
+
+	public Boolean getCreateDatabases(){
+		return createDatabases;
+	}
+
+	public void setCreateDatabases(Boolean createDatabases){
+		this.createDatabases = createDatabases;
 	}
 
 	public SchemaUpdateOptions setCreateTables(Boolean createTables){
@@ -245,7 +260,7 @@ public class SchemaUpdateOptions{
 		// TODO Auto-generated method stub
 		return modifyCharacterSet;
 	}
-	
-	
+
+
 
 }

@@ -8,21 +8,14 @@ import com.hotpads.util.core.properties.TypedProperties;
 public class JdbcOptions extends TypedProperties{
 
 	protected String clientPrefix;
-	private final String clientGenericPrefix;
 
 	public JdbcOptions(Iterable<Properties> multiProperties, String clientName){
 		super(DrListTool.createArrayList(multiProperties));
 		this.clientPrefix = "client."+clientName+".";
-		this.clientGenericPrefix = "client.generic.";
 	}
-
 
 	public String url(){
 		return getRequiredString(clientPrefix+"url");
-	}
-
-	public String getGenericUrl(){
-		return getRequiredString(clientGenericPrefix+"url");
 	}
 
 	public String user(String def){
