@@ -31,22 +31,22 @@ extends BaseBatchLoader<T>{
 	protected final Config config;
 	protected final Integer iterateBatchSize;//break this out of config for safety
 	protected Long batchChainCounter;
-	
+
 	public BaseHBaseEntityBatchLoader(final HBaseSubEntityReaderNode<EK,E,PK,D,F> node, int partition,
 			final Range<PK> range, final Config config, Long batchChainCounter){
 		this.node = node;
 		this.partition = partition;
 		this.range = range;
 		this.config = Config.nullSafe(config);
-		this.iterateBatchSize = config.getIterateBatchSize();
-		config.setIterateBatchSize(iterateBatchSize);
+		this.iterateBatchSize = this.config.getIterateBatchSize();
+		this.config.setIterateBatchSize(iterateBatchSize);
 		this.batchChainCounter = batchChainCounter;
 	}
 
 	abstract boolean isKeysOnly();
 	abstract List<T> parseHBaseResult(Result result);
 	abstract PK getLastPrimaryKeyFromBatch();
-	
+
 
 	@Override
 	public BaseHBaseEntityBatchLoader<EK,E,PK,D,F,T> call(){
@@ -64,13 +64,13 @@ extends BaseBatchLoader<T>{
 
 		return this;
 	}
-	
+
 	protected Range<PK> getNextRange(){
 		PK lastPkFromPreviousBatch = getLastPrimaryKeyFromBatch();
 		Range<PK> nextRange = Range.create(lastPkFromPreviousBatch, false, range.getEnd(), range.getEndInclusive());
 		return nextRange;
 	}
-	
+
 	@Override
 	public boolean isLastBatch(){
 		//refer to the dedicated iterateBatchSize field in case someone changed Config down the line

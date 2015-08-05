@@ -31,7 +31,7 @@ extends BaseBatchLoader<T>{
 	protected final Config config;
 	protected final Integer iterateBatchSize;//break this out of config for safety
 	protected Long batchChainCounter;
-	
+
 	public BaseHBaseBatchLoader(final HBaseReaderNode<PK,D,F> node, final List<Field<?>> scatteringPrefix,
 			final Range<PK> range, final Config config, Long batchChainCounter){
 		this.node = node;
@@ -39,18 +39,18 @@ extends BaseBatchLoader<T>{
 		this.scatteringPrefixBytes = FieldTool.getConcatenatedValueBytes(scatteringPrefix, false, false);
 		this.range = range;
 		this.config = Config.nullSafe(config);
-		this.iterateBatchSize = config.getIterateBatchSize();
-		config.setIterateBatchSize(iterateBatchSize);
+		this.iterateBatchSize = this.config.getIterateBatchSize();
+		this.config.setIterateBatchSize(iterateBatchSize);
 		this.batchChainCounter = batchChainCounter;
 	}
 
 	abstract boolean isKeysOnly();
 	abstract T parseHBaseResult(Result result);
 	abstract PK getLastPrimaryKeyFromBatch();
-	
+
 
 	@Override
-	public BaseHBaseBatchLoader<PK,D,F,T> call(){	
+	public BaseHBaseBatchLoader<PK,D,F,T> call(){
 		//these should handle null scattering prefixes and null pks
 		boolean incrementStartBytes = !range.getStartInclusive();
 		ByteRange startBytes = new ByteRange(node.getKeyBytesWithScatteringPrefix(scatteringPrefix, range.getStart(),
@@ -64,13 +64,13 @@ extends BaseBatchLoader<T>{
 		}else{
 			//TODO stop at the next scatteringPrefix.  we may be way overshooting short scans
 		}
-		
+
 		//startInclusive=true because we already adjusted for it above
 		Range<ByteRange> byteRange = Range.create(startBytes, true, endBytes, range.getEndInclusive());
-		
+
 		//do the RPC
 		List<Result> hbaseRows = node.getResultsInSubRange(byteRange, isKeysOnly(), config);
-		
+
 		List<T> outs = DrListTool.createArrayListWithSize(hbaseRows);
 		for(Result row : hbaseRows){
 			if (row == null || row.isEmpty()){
@@ -86,26 +86,26 @@ extends BaseBatchLoader<T>{
 
 		return this;
 	}
-	
+
 	protected Range<PK> getNextRange(){
 		PK lastPkFromPreviousBatch = getLastPrimaryKeyFromBatch();
 		Range<PK> nextRange = Range.create(lastPkFromPreviousBatch, false, range.getEnd(), range.getEndInclusive());
 		return nextRange;
 	}
-	
+
 	@Override
 	public boolean isLastBatch(){
 		//refer to the dedicated iterateBatchSize field in case someone changed Config down the line
 		return isBatchHasBeenLoaded() && isBatchSmallerThan(iterateBatchSize);
 	}
 
-	
+
 	//TODO same as PrimaryKeyBatchLoader.differentScatteringPrefix
 	protected boolean differentScatteringPrefix(Result row){
 		if (scatteringPrefixBytes == null || row == null){
 			return false;
 		}
-		return ! DrByteTool.equals(scatteringPrefixBytes, 0, scatteringPrefixBytes.length, 
+		return ! DrByteTool.equals(scatteringPrefixBytes, 0, scatteringPrefixBytes.length,
 				row.getRow(), 0, scatteringPrefixBytes.length);
 	}
 }
