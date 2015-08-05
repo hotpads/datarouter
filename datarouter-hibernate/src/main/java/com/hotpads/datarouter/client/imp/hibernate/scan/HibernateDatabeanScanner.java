@@ -4,7 +4,6 @@ import java.util.List;
 
 import com.hotpads.datarouter.client.imp.hibernate.node.HibernateReaderNode;
 import com.hotpads.datarouter.config.Config;
-import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.collections.Range;
@@ -12,9 +11,8 @@ import com.hotpads.util.core.collections.Range;
 public class HibernateDatabeanScanner<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 extends BaseHibernateScanner<PK,D,D>{
 	
-	public HibernateDatabeanScanner(HibernateReaderNode<PK,D,?> node, DatabeanFieldInfo<PK,D,?> fieldInfo,
-			Range<PK> range, Config pConfig){
-		super(node, fieldInfo, range, pConfig);
+	public HibernateDatabeanScanner(HibernateReaderNode<PK,D,?> node, Range<PK> range, Config config){
+		super(node, range, config);
 	}
 
 	@Override
