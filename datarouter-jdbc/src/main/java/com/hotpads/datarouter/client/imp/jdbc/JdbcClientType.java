@@ -34,22 +34,22 @@ import com.hotpads.util.core.lang.ClassTool;
 
 @Singleton
 public class JdbcClientType extends BaseClientType{
-	
-	public static final String 
-			NAME = "jdbc",
-			CANONICAL_CLASS_NAME = "com.hotpads.datarouter.client.imp.jdbc.JdbcClientType";
-	
+
+	public static final String
+	NAME = "jdbc",
+	CANONICAL_CLASS_NAME = "com.hotpads.datarouter.client.imp.jdbc.JdbcClientType";
+
 	public static JdbcClientType INSTANCE;//TODO get rid of
-	
+
 	//injected
 	private final JdbcFieldCodecFactory fieldCodecFactory;
-	
+
 	@Inject
 	public JdbcClientType(JdbcFieldCodecFactory fieldCodecFactory){
 		this.fieldCodecFactory = fieldCodecFactory;
 		INSTANCE = this;
 	}
-	
+
 	@Override
 	public String getName(){
 		return NAME;
@@ -60,41 +60,41 @@ public class JdbcClientType extends BaseClientType{
 			List<PhysicalNode<?,?>> physicalNodes){
 		return new JdbcSimpleClientFactory(drContext, fieldCodecFactory, clientName);
 	}
-	
+
 	@Override
 	public <PK extends PrimaryKey<PK>, D extends Databean<PK, D>, F extends DatabeanFielder<PK, D>>
 	PhysicalNode<PK, D> createNode(NodeParams<PK, D, F> nodeParams){
 		return new PhysicalIndexedSortedMapStorageCounterAdapter<PK,D,F,JdbcNode<PK,D,F>>(new JdbcNode<>(nodeParams,
 				fieldCodecFactory));
 	}
-	
+
 	//ignore the entityNodeParams
 	@Override
 	public <EK extends EntityKey<EK>,
-			E extends Entity<EK>,
-			PK extends EntityPrimaryKey<EK,PK>,
-			D extends Databean<PK, D>,
-			F extends DatabeanFielder<PK, D>>
+	E extends Entity<EK>,
+	PK extends EntityPrimaryKey<EK,PK>,
+	D extends Databean<PK, D>,
+	F extends DatabeanFielder<PK, D>>
 	Node<PK,D> createSubEntityNode(EntityNodeParams<EK,E> entityNodeParams, NodeParams<PK,D,F> nodeParams){
 		return createNode(nodeParams);
 	}
-	
+
 	@Override
 	public <PK extends PrimaryKey<PK>,
-			D extends Databean<PK,D>,
-			F extends DatabeanFielder<PK,D>> 
+	D extends Databean<PK,D>,
+	F extends DatabeanFielder<PK,D>>
 	IndexedSortedMapStorageNode<PK,D> createAdapter(NodeParams<PK,D,F> nodeParams, Node<PK,D> backingNode){
 		return new PhysicalIndexedSortedMapStorageCallsiteAdapter<>(
 				nodeParams, (PhysicalIndexedSortedMapStorageNode<PK,D>)backingNode);
-	}	
-	
+	}
+
 	/********************** tests ****************************/
-	
+
 	@Guice(moduleFactory = TestDatarouterJdbcModuleFactory.class)
 	public static class JdbcClientTypeIntegrationTests{
 		@Inject
 		private DatarouterInjector injector;
-		
+
 		@Test
 		public void testClassLocation(){
 			String actualClassName = JdbcClientType.class.getCanonicalName();
@@ -102,5 +102,5 @@ public class JdbcClientType extends BaseClientType{
 			injector.getInstance(ClassTool.forName(CANONICAL_CLASS_NAME));
 		}
 	}
-	
+
 }

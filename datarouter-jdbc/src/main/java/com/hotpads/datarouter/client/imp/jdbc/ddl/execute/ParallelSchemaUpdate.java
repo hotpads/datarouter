@@ -26,26 +26,26 @@ import com.hotpads.datarouter.util.core.DrPropertiesTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.util.core.concurrent.FutureTool;
 
-public class ParallelSchemaUpdate 
+public class ParallelSchemaUpdate
 implements Callable<Void>{
 	private static Logger logger = LoggerFactory.getLogger(ParallelSchemaUpdate.class);
-	
+
 	/************ static fields *******************/
-	
-	public static final String 
-		SERVER_NAME = "server.name",
-		ADMINISTRATOR_EMAIL = "administrator.email",
-		PRINT_PREFIX = "schemaUpdate.print",
-		EXECUTE_PREFIX = "schemaUpdate.execute";
-	
-	
+
+	public static final String
+	SERVER_NAME = "server.name",
+	ADMINISTRATOR_EMAIL = "administrator.email",
+	PRINT_PREFIX = "schemaUpdate.print",
+	EXECUTE_PREFIX = "schemaUpdate.execute";
+
+
 	/******************* fields **********************/
 
 	private final DatarouterContext drContext;
 	private final JdbcFieldCodecFactory fieldCodecFactory;
 	private final String clientName;
 	private final JdbcConnectionPool connectionPool;
-	
+
 	private final Set<String> configFilePaths;
 	private final List<Properties> multiProperties;
 
@@ -53,8 +53,8 @@ implements Callable<Void>{
 	private final SchemaUpdateOptions executeOptions;
 	private final Set<String> updatedTables;
 	private final List<String> printedSchemaUpdates;
-	
-	
+
+
 	/***************** construct ***********************/
 
 	public ParallelSchemaUpdate(DatarouterContext drContext, JdbcFieldCodecFactory fieldCodecFactory,
@@ -70,10 +70,10 @@ implements Callable<Void>{
 		this.updatedTables = Collections.synchronizedSet(new TreeSet<String>());
 		this.printedSchemaUpdates = Collections.synchronizedList(new ArrayList<String>());
 	}
-	
-	
+
+
 	/************** methods **********************/
-	
+
 	@Override
 	public Void call(){
 		//get the existing table names
@@ -82,10 +82,10 @@ implements Callable<Void>{
 		try{
 			connection = connectionPool.checkOut();
 			existingTableNames = JdbcTool.showTables(connection);
-			} finally{
-				connectionPool.checkIn(connection);// is this how you return it to the pool?
-			}
-		
+		} finally{
+			connectionPool.checkIn(connection);// is this how you return it to the pool?
+		}
+
 		//run an update for each PhysicalNode
 		List<? extends PhysicalNode<?, ?>> physicalNodes = drContext.getNodes().getPhysicalNodesForClient(clientName);
 		List<Callable<Void>> singleTableUpdates = new ArrayList<>();
@@ -99,25 +99,25 @@ implements Callable<Void>{
 			}
 		}
 		FutureTool.submitAndGetAll(singleTableUpdates, drContext.getExecutorService());
-		
+
 		sendEmail();
 		return null;
 	}
 
-	
+
 	private void sendEmail(){
 		if(DrCollectionTool.isEmpty(printedSchemaUpdates)){ return; }
-		if(DrStringTool.isEmpty(drContext.getAdministratorEmail()) || DrStringTool.isEmpty(drContext.getServerName())){ 
+		if(DrStringTool.isEmpty(drContext.getAdministratorEmail()) || DrStringTool.isEmpty(drContext.getServerName())){
 			//note: this can be caused by not calling drContext.activate().  need to fix this startup flaw.
 			logger.warn("please set your datarouter administratorEmail and serverName");
-			return; 
+			return;
 		}
 		String subject = "SchemaUpdate request from "+drContext.getServerName();
 		StringBuilder body = new StringBuilder();
 		for(String update : DrIterableTool.nullSafe(printedSchemaUpdates)){
 			body.append(update + "\n\n");
 		}
-		DatarouterEmailTool.sendEmail("noreply@hotpads.com", drContext.getAdministratorEmail(), subject, 
+		DatarouterEmailTool.sendEmail("noreply@hotpads.com", drContext.getAdministratorEmail(), subject,
 				body.toString());
 	}
 }
