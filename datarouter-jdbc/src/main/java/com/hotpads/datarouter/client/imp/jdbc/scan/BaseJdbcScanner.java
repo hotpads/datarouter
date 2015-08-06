@@ -15,14 +15,17 @@ public abstract class BaseJdbcScanner<
 		T extends Comparable<? super T>>//T should be either PK or D
 extends BaseBatchBackedScanner<T,T>{
 	
-	protected Range<PK> range;
-	protected Config config;
+	private long resultCount;
+	private Range<PK> range;
+	private Config config;
+	private Config batchConfig;
 	
-	public BaseJdbcScanner(Range<PK> range, Config pConfig){
+	public BaseJdbcScanner(Range<PK> range, Config config){
 		this.range = range;
-		this.config = pConfig == null ? new Config() : pConfig.getDeepCopy();
-		this.config.setIterateBatchSizeIfNull(Config.DEFAULT_ITERATE_BATCH_SIZE);//why is this necessary?
+		this.config = Config.nullSafe(config);
 		this.noMoreBatches = false;
+		this.resultCount = 0;
+		this.batchConfig = this.config.getDeepCopy();
 	}
 	
 	protected abstract PK getPrimaryKey(T fieldSet);
@@ -45,10 +48,17 @@ extends BaseBatchBackedScanner<T,T>{
 		Range<PK> batchRange = Range.create(lastRowOfPreviousBatch, isStartInclusive, range.getEnd(), 
 				range.getEndInclusive());
 		
-		//unfortunately we need to overwrite the limit.  the original pConfig should be unaffected
-		config.setLimit(config.getIterateBatchSize());
-		currentBatch = doLoad(batchRange, config);
-		if(DrCollectionTool.size(currentBatch) < config.getIterateBatchSize()){
+
+		int batchConfigLimit = this.config.getIterateBatchSize();
+		if(this.config.getLimit() != null && this.config.getLimit() - resultCount < batchConfigLimit){
+			batchConfigLimit = (int) (this.config.getLimit() - resultCount);
+		}
+		batchConfig.setLimit(batchConfigLimit);
+		
+		currentBatch = doLoad(batchRange, batchConfig);
+		resultCount += currentBatch.size();
+		if(DrCollectionTool.size(currentBatch) < batchConfig.getLimit()
+				|| (config.getLimit() != null && resultCount >= config.getLimit())){
 			noMoreBatches = true;//tell the advance() method not to call this method again
 		}
 	}

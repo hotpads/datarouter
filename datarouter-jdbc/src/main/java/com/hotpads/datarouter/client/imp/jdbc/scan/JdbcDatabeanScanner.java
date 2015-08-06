@@ -13,8 +13,8 @@ extends BaseJdbcScanner<PK,D,D>{
 	
 	private final JdbcReaderOps<PK,D,?> jdbcReaderOps;
 	
-	public JdbcDatabeanScanner(JdbcReaderOps<PK,D,?> jdbcReaderOps, Range<PK> range, Config pConfig){
-		super(range, pConfig);
+	public JdbcDatabeanScanner(JdbcReaderOps<PK,D,?> jdbcReaderOps, Range<PK> range, Config config){
+		super(range, config);
 		this.jdbcReaderOps = jdbcReaderOps;
 	}
 

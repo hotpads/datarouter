@@ -26,13 +26,11 @@ extends BaseBatchBackedScanner<T,T>{
 	protected Range<PK> range;
 	protected Config config;
 	
-	public BaseHibernateScanner(HibernateReaderNode<PK,D,?> node, DatabeanFieldInfo<PK,D,?> fieldInfo, Range<PK> range,
-			Config pConfig){
+	public BaseHibernateScanner(HibernateReaderNode<PK,D,?> node, Range<PK> range, Config config){
 		this.node = node;
 		this.fieldInfo = node.getFieldInfo();
 		this.range = range;
-		this.config = pConfig == null ? new Config() : pConfig.getDeepCopy();
-		this.config.setIterateBatchSizeIfNull(Config.DEFAULT_ITERATE_BATCH_SIZE);//why is this necessary?
+		this.config = Config.nullSafe(config).getDeepCopy();
 		this.noMoreBatches = false;
 	}
 	
