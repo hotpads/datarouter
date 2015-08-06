@@ -89,10 +89,7 @@ implements MapStorageReader<PK,D>,
 	
 	/************************************ MapStorageReader methods ****************************/
 	
-	public static final int 
-		DEFAULT_GET_MULTI_BATCH_SIZE = 200,
-		DEFAULT_ITERATE_BATCH_SIZE = 1000
-		;
+	public static final int DEFAULT_ITERATE_BATCH_SIZE = 1000;
 	
 	@Override
 	public boolean exists(PK key, Config config) {
@@ -111,7 +108,7 @@ implements MapStorageReader<PK,D>,
 		String opName = MapStorageReader.OP_getMulti;
 		List<D> result = DrListTool.createArrayListWithSize(keys);
 		config = Config.nullSafe(config);
-		int batchSize = config.getIterateBatchSizeOverrideNull(DEFAULT_GET_MULTI_BATCH_SIZE);
+		int batchSize = config.getIterateBatchSize();
 		for(List<PK> keyBatch : DrBatchTool.getBatches(keys, batchSize)){
 			HibernateGetOp<PK,D,F> op = new HibernateGetOp<>(this, keyBatch, config);
 			List<D> resultBatch = new SessionExecutorImpl<>(op, getTraceName(opName)).call();
@@ -124,7 +121,7 @@ implements MapStorageReader<PK,D>,
 	public List<PK> getKeys(final Collection<PK> keys, Config config){
 		String opName = MapStorageReader.OP_getKeys;
 		config = Config.nullSafe(config);
-		int batchSize = config.getIterateBatchSizeOverrideNull(DEFAULT_GET_MULTI_BATCH_SIZE);
+		int batchSize = config.getIterateBatchSize();
 		List<PK> result = DrListTool.createArrayListWithSize(keys);
 		for(List<PK> keyBatch : DrBatchTool.getBatches(keys, batchSize)){
 			HibernateGetKeysOp<PK,D,F> op = new HibernateGetKeysOp<>(this, resultParser, keyBatch, config);
@@ -293,14 +290,14 @@ implements MapStorageReader<PK,D>,
 	@Override
 	public ScannerIterable<PK> scanKeys(Range<PK> range, Config config){
 		range = Range.nullSafe(range);
-		Scanner<PK> scanner = new HibernatePrimaryKeyScanner<>(this, fieldInfo, range, config);
+		Scanner<PK> scanner = new HibernatePrimaryKeyScanner<>(this, range, config);
 		return new ScannerIterable<>(scanner);
 	}
 	
 	@Override
 	public ScannerIterable<D> scan(Range<PK> range, Config config){
 		range = Range.nullSafe(range);
-		Scanner<D> scanner = new HibernateDatabeanScanner<>(this, fieldInfo, range, config);
+		Scanner<D> scanner = new HibernateDatabeanScanner<>(this, range, config);
 		return new ScannerIterable<>(scanner);
 	}
 	
