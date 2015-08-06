@@ -165,10 +165,6 @@ public class SchemaUpdateOptions{
 		return createDatabases;
 	}
 
-	public void setCreateDatabases(Boolean createDatabases){
-		this.createDatabases = createDatabases;
-	}
-
 	public SchemaUpdateOptions setCreateTables(Boolean createTables){
 		this.createTables = createTables;
 		return this;

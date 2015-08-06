@@ -75,11 +75,7 @@ implements ClientFactory{
 	}
 
 	protected void initConnectionPool(){
-		try{
-			checkDatabaseExist();
-		}catch(SQLException e){
-			throw new RuntimeException(e);
-		}
+		checkDatabaseExist();
 		connectionPool = new JdbcConnectionPool(drContext.getApplicationPaths(), clientName,
 				multiProperties, isWritableClient());
 	}
@@ -91,7 +87,7 @@ implements ClientFactory{
 		return isWritableClient() && schemaUpdateEnabled;
 	}
 
-	private void checkDatabaseExist() throws SQLException{
+	private void checkDatabaseExist() {
 		JdbcOptions jdbcOption = new JdbcOptions(multiProperties, clientName);
 		String url =  jdbcOption.url();
 		String user = jdbcOption.user("root");

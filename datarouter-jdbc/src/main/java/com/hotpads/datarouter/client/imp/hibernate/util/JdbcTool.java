@@ -36,7 +36,7 @@ public class JdbcTool {
 		try {
 			Class.forName(JDBC_DRIVER).newInstance();//not quite sure why we need this
 			String url = "jdbc:mysql://"+hostname+":"+port+"/";
-			if(!DrStringTool.isEmpty(database)){
+			if(DrStringTool.notEmpty(database)){
 				url += database;
 			}
 			url += "?user="+user+"&password="+password;
