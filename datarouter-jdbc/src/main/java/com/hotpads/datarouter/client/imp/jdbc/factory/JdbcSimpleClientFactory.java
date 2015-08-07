@@ -88,10 +88,10 @@ implements ClientFactory{
 	}
 
 	private void checkDatabaseExist() {
-		JdbcOptions jdbcOption = new JdbcOptions(multiProperties, clientName);
-		String url =  jdbcOption.url();
-		String user = jdbcOption.user("root");
-		String password = jdbcOption.password("");
+		JdbcOptions jdbcOptions = new JdbcOptions(multiProperties, clientName);
+		String url =  jdbcOptions.url();
+		String user = jdbcOptions.user("root");
+		String password = jdbcOptions.password("");
 		String hostname = DrStringTool.getStringBeforeLastOccurrence(':',url);
 		String portDatabaseString = DrStringTool.getStringAfterLastOccurrence(':',url);
 		int port = Integer.parseInt(DrStringTool.getStringBeforeLastOccurrence('/',portDatabaseString));
