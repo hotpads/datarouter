@@ -95,11 +95,12 @@ implements ClientFactory{
 		String hostname = DrStringTool.getStringBeforeLastOccurrence(':',url);
 		String portDatabaseString = DrStringTool.getStringAfterLastOccurrence(':',url);
 		int port = Integer.parseInt(DrStringTool.getStringBeforeLastOccurrence('/',portDatabaseString));
+		String databaseName = DrStringTool.getStringAfterLastOccurrence('/',portDatabaseString);
 
 		Connection connection = JdbcTool.openConnection(hostname, port, null, user, password);
 		List<String> existingDatabases = JdbcTool.showDatabases(connection);
 		//if database does not exist, create database
-		if(!existingDatabases.contains(clientName)){
+		if(!existingDatabases.contains(databaseName)){
 			if(isWritableClient()){
 				generateCreateDatabaseSchema(connection, clientName);
 			}
@@ -107,16 +108,16 @@ implements ClientFactory{
 	}
 
 	private void generateCreateDatabaseSchema(Connection connection, String databaseName){
-		SchemaUpdateOptions executeOptions = new SchemaUpdateOptions(multiProperties, "schemaUpdate.execute", false);
+		SchemaUpdateOptions executeOptions = new SchemaUpdateOptions(multiProperties, ParallelSchemaUpdate.EXECUTE_PREFIX, false);
 		System.out.println("========================================== Creating the database " +databaseName
 				+" ============================");
 		String sql = "Create database "+ databaseName +" ;";
 		if(!executeOptions.getCreateDatabases()){
 			System.out.println("Please execute: "+sql);
 		}else{
-			System.out.println(sql);
-			Statement statement;
 			try{
+				System.out.println(sql);
+				Statement statement;
 				statement = connection.createStatement();
 				statement.execute(sql);
 			}catch(SQLException e){

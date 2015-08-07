@@ -33,10 +33,10 @@ implements Callable<Void>{
 	/************ static fields *******************/
 
 	public static final String
-	SERVER_NAME = "server.name",
-	ADMINISTRATOR_EMAIL = "administrator.email",
-	PRINT_PREFIX = "schemaUpdate.print",
-	EXECUTE_PREFIX = "schemaUpdate.execute";
+		SERVER_NAME = "server.name",
+		ADMINISTRATOR_EMAIL = "administrator.email",
+		PRINT_PREFIX = "schemaUpdate.print",
+		EXECUTE_PREFIX = "schemaUpdate.execute";
 
 
 	/******************* fields **********************/
