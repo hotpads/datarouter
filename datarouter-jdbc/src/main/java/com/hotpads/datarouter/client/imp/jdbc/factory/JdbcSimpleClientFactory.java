@@ -117,8 +117,7 @@ implements ClientFactory{
 		}else{
 			try{
 				System.out.println(sql);
-				Statement statement;
-				statement = connection.createStatement();
+				Statement statement = connection.createStatement();
 				statement.execute(sql);
 			}catch(SQLException e){
 				throw new RuntimeException(e);
