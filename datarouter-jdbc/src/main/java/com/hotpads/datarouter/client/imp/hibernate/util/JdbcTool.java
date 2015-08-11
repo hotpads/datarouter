@@ -35,11 +35,8 @@ public class JdbcTool {
 		Connection conn = null;
 		try {
 			Class.forName(JDBC_DRIVER).newInstance();//not quite sure why we need this
-			String url = "jdbc:mysql://"+hostname+":"+port+"/";
-			if(DrStringTool.notEmpty(database)){
-				url += database;
-			}
-			url += "?user="+user+"&password="+password;
+			String url = "jdbc:mysql://" + hostname + ":" + port + "/"
+			+ DrStringTool.nullSafe(database) + "?user=" + user + "&password=" + password;
 			conn = DriverManager.getConnection(url);
 		}catch(Exception e) {
 			throw new RuntimeException(e);

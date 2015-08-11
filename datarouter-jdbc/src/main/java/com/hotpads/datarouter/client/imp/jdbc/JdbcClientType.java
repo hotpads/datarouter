@@ -36,8 +36,8 @@ import com.hotpads.util.core.lang.ClassTool;
 public class JdbcClientType extends BaseClientType{
 
 	public static final String
-	NAME = "jdbc",
-	CANONICAL_CLASS_NAME = "com.hotpads.datarouter.client.imp.jdbc.JdbcClientType";
+		NAME = "jdbc",
+		CANONICAL_CLASS_NAME = "com.hotpads.datarouter.client.imp.jdbc.JdbcClientType";
 
 	public static JdbcClientType INSTANCE;//TODO get rid of
 
