@@ -55,7 +55,6 @@ public class JdbcTool {
 
 	public static List<String> showTables(Connection connection){
 		try {
-			connection.createStatement();
 			List<String> tableNames = new ArrayList<>();
 			String tableName;
 			ResultSet rs = connection.getMetaData().getTables(null, null, "%", null);
