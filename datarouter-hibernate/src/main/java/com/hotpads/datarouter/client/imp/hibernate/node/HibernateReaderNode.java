@@ -327,10 +327,12 @@ implements MapStorageReader<PK,D>,
 		if(config == null){
 			return criteria;
 		}
-		
 		if(config.getLimit()!=null){
 			criteria.setMaxResults(config.getLimit());
 			criteria.setFetchSize(config.getLimit());
+		}
+		if(config.getIterateBatchSize()!=null){
+			criteria.setFetchSize(config.getIterateBatchSize());
 		}
 		if(config.getOffset()!=null){
 			criteria.setFirstResult(config.getOffset());
