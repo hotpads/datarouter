@@ -327,10 +327,7 @@ implements MapStorageReader<PK,D>,
 		if(config == null){
 			return criteria;
 		}
-		//need clearer spec on how to handle limit and iterateBatchSize
-		if(config.getIterateBatchSize()!=null){
-			config.setLimit(config.getIterateBatchSize());
-		}
+		
 		if(config.getLimit()!=null){
 			criteria.setMaxResults(config.getLimit());
 			criteria.setFetchSize(config.getLimit());
