@@ -36,6 +36,7 @@ extends JdbcReaderNode<PK,D,F>
 implements PhysicalIndexedSortedMapStorageNode<PK,D>{
 	
 	private static final int DEFAULT_NUM_ATTEMPTS = 3;
+	private static final long DEFAULT_BACKOFF_MS = 10;
 
 	
 	private final JdbcFieldCodecFactory fieldCodecFactory;
@@ -146,6 +147,6 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D>{
 	
 	private <T> T tryNTimes(SessionExecutorImpl<T> opCallable, Config config){
 		int numAttempts = config.getNumAttemptsOrUse(DEFAULT_NUM_ATTEMPTS);
-		return CallableTool.tryNTimesUnchecked(opCallable, numAttempts);
+		return CallableTool.tryNTimesWithBackoffUnchecked(opCallable, numAttempts, DEFAULT_BACKOFF_MS);
 	}
 }
