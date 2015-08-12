@@ -75,7 +75,8 @@ implements ClientFactory{
 	}
 
 	protected void initConnectionPool(){
-		checkDatabaseExist();
+		//temporarily turning off the database check code
+		//checkDatabaseExist();
 		connectionPool = new JdbcConnectionPool(drContext.getApplicationPaths(), clientName,
 				multiProperties, isWritableClient());
 	}
