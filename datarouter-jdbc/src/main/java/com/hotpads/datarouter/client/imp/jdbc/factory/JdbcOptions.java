@@ -6,7 +6,7 @@ import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.properties.TypedProperties;
 
 public class JdbcOptions extends TypedProperties{
-	
+
 	protected String clientPrefix;
 
 	public JdbcOptions(Iterable<Properties> multiProperties, String clientName){
@@ -14,7 +14,6 @@ public class JdbcOptions extends TypedProperties{
 		this.clientPrefix = "client."+clientName+".";
 	}
 
-	
 	public String url(){
 		return getRequiredString(clientPrefix+"url");
 	}
@@ -26,15 +25,15 @@ public class JdbcOptions extends TypedProperties{
 	public String password(String def){
 		return getString(clientPrefix+"password", def);
 	}
-	
+
 	public Integer minPoolSize(Integer def){
 		return getInteger(clientPrefix+"minPoolSize", def);
 	}
-	
+
 	public Integer maxPoolSize(Integer def){
 		return getInteger(clientPrefix+"maxPoolSize", def);
 	}
-	
+
 	public Boolean logging(Boolean def){
 		return getBoolean(clientPrefix+"logging", def);
 	}

@@ -5,7 +5,6 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -19,38 +18,32 @@ import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
-import com.hotpads.datarouter.storage.field.FieldSetTool;
 import com.hotpads.datarouter.storage.key.multi.Lookup;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.core.DrArrayTool;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.util.core.java.ReflectionTool;
 
 public class JdbcTool {
-	
-	static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";  
-	
-	public static Connection openConnection(String hostname, int port, String database, String user, 
+
+	private static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
+	private static final String TABLE_CATALOG = "TABLE_CAT";
+
+	public static Connection openConnection(String hostname, int port, String database, String user,
 			String password){
 		Connection conn = null;
 		try {
 			Class.forName(JDBC_DRIVER).newInstance();//not quite sure why we need this
-			String url = "jdbc:mysql://"+hostname+":"+port+"/"+database+"?user="+user+"&password="+password;
+			String url = "jdbc:mysql://" + hostname + ":" + port + "/"
+			+ DrStringTool.nullSafe(database) + "?user=" + user + "&password=" + password;
 			conn = DriverManager.getConnection(url);
 		}catch(Exception e) {
 			throw new RuntimeException(e);
 		}
 		return conn;
 	}
-	
-//	public static Connection checkOutConnectionFromPool(JdbcConnectionPool connectionPool){
-//		try {
-//			return connectionPool.getDataSource().getConnection();
-//		} catch (SQLException e) {
-//			throw new RuntimeException(e);
-//		}
-//	}
-	
+
 	public static void closeConnection(Connection connection){
 		try {
 			if(connection==null){ return; }
@@ -59,33 +52,39 @@ public class JdbcTool {
 			throw new RuntimeException(e);
 		}
 	}
-	
+
 	public static List<String> showTables(Connection connection){
-		Statement statement;
 		try {
-			statement = connection.createStatement();
-//			ResultSet resultSet = statement.executeQuery("show tables");
 			List<String> tableNames = new ArrayList<>();
-//			while(resultSet.next()){
-//				tableNames.add(resultSet.getString(0));
-//			}
 			String tableName;
 			ResultSet rs = connection.getMetaData().getTables(null, null, "%", null);
 			while(rs.next()){
 				tableName = rs.getString(3);
-				//if(StringTool.containsCharactersBesidesWhitespace(tableName)){
-					tableNames.add(tableName);
-				//}
+				tableNames.add(tableName);
 			}
 			return tableNames;
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}
-		
+
 	}
-	
-	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>> 
-	List<PK> selectPrimaryKeys(JdbcFieldCodecFactory fieldCodecFactory, Connection connection, 
+
+	public static List<String> showDatabases(Connection connection){
+		try{
+			ResultSet rs = connection.getMetaData().getCatalogs();
+			List<String> catalogs = new ArrayList<>();
+			while(rs.next()){
+				catalogs.add(rs.getString(TABLE_CATALOG));
+			}
+			return catalogs;
+		}catch(SQLException e){
+			throw new RuntimeException(e);
+		}
+
+	}
+
+	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>>
+	List<PK> selectPrimaryKeys(JdbcFieldCodecFactory fieldCodecFactory, Connection connection,
 			DatabeanFieldInfo<PK,D,F> fieldInfo, String sql){
 		try{
 			PreparedStatement ps = connection.prepareStatement(sql.toString());
@@ -102,9 +101,9 @@ public class JdbcTool {
 			throw new DataAccessException(e);
 		}
 	}
-	
-	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>> 
-	List<D> selectDatabeans(JdbcFieldCodecFactory fieldCodecFactory, Connection connection, 
+
+	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>>
+	List<D> selectDatabeans(JdbcFieldCodecFactory fieldCodecFactory, Connection connection,
 			DatabeanFieldInfo<PK,D,F> fieldInfo, String sql){
 		try{
 			PreparedStatement ps = connection.prepareStatement(sql.toString());
@@ -122,9 +121,9 @@ public class JdbcTool {
 			throw new DataAccessException(message, e);
 		}
 	}
-	
+
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,PKLookup extends Lookup<PK>>List<PKLookup>
-	selectLookups(JdbcFieldCodecFactory fieldCodecFactory, Connection connection, List<Field<?>> selectedFields, 
+	selectLookups(JdbcFieldCodecFactory fieldCodecFactory, Connection connection, List<Field<?>> selectedFields,
 			Class<PKLookup> lookupClass, String sql, Class<PK> keyClass){
 		try{
 			PreparedStatement ps = connection.prepareStatement(sql.toString());
@@ -142,8 +141,8 @@ public class JdbcTool {
 			throw new DataAccessException(message, e);
 		}
 	}
-	
-	private static <PK extends PrimaryKey<PK>, PKLookup extends Lookup<PK>> 
+
+	private static <PK extends PrimaryKey<PK>, PKLookup extends Lookup<PK>>
 	PKLookup lookupFromJdbcResultSetUsingReflection(JdbcFieldCodecFactory fieldCodecFactory, Class<PKLookup> cls,
 			List<Field<?>> fields, ResultSet rs, Class<PK> keyClass){
 		PKLookup targetFieldSet = ReflectionTool.create(cls);
@@ -153,9 +152,9 @@ public class JdbcTool {
 		}
 		return targetFieldSet;
 	}
-	
-	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>> 
-	List<D> selectDatabeansCleaned(JdbcFieldCodecFactory fieldCodecFactory, Connection connection, 
+
+	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>>
+	List<D> selectDatabeansCleaned(JdbcFieldCodecFactory fieldCodecFactory, Connection connection,
 			DatabeanFieldInfo<PK,D,F> fieldInfo, String sql, String...values){
 		try{
 			PreparedStatement ps = connection.prepareStatement(sql.toString());
@@ -176,7 +175,7 @@ public class JdbcTool {
 			throw new DataAccessException(message, e);
 		}
 	}
-	
+
 	public static Long count(Connection connection, String sql) {
 		try {
 			PreparedStatement ps = connection.prepareStatement(sql);
@@ -187,12 +186,11 @@ public class JdbcTool {
 			return count;
 		} catch (Exception e) {
 			String message = "error executing sql:"+sql.toString();
-			throw new DataAccessException(message, e);			
+			throw new DataAccessException(message, e);
 		}
 	}
-		
+
 	public static int update(Connection conn, String sql){
-//		System.out.println(sql);
 		try{
 			PreparedStatement stmt = conn.prepareStatement(sql);
 			return stmt.executeUpdate();
@@ -200,7 +198,7 @@ public class JdbcTool {
 			throw new DataAccessException(e);
 		}
 	}
-	
+
 	public static int tryUpdate(Connection conn, String sql){
 		try{
 			PreparedStatement stmt = conn.prepareStatement(sql);
@@ -210,11 +208,11 @@ public class JdbcTool {
 			return 0;
 		}
 	}
-	
+
 	public static int updateAndInsertIfMissing(Connection conn, List<String> updates, List<String> inserts){
 		if(DrCollectionTool.isEmpty(updates)){ return 0; }
 		if(DrCollectionTool.differentSize(updates, inserts)){ throw new IllegalArgumentException("updates vs inserts size mismatch"); }
-		
+
 		int[] updateSuccessFlags = bulkUpdate(conn, updates);
 		List<String> neededInserts = new LinkedList<>();
 		int index = -1;
@@ -232,7 +230,7 @@ public class JdbcTool {
 		if(conn==null || DrCollectionTool.isEmpty(sql)){ return new int[]{}; }
 		return bulkUpdate(conn, sql.toArray(new String[sql.size()]));
 	}
-	
+
 	public static int[] bulkUpdate(Connection conn, String[] sql){
 		try{
 			if(conn==null || DrArrayTool.isEmpty(sql)){ return new int[]{}; }
@@ -251,7 +249,7 @@ public class JdbcTool {
 			throw new DataAccessException(e);
 		}
 	}
-	
+
 	public static void appendCsvQuestionMarks(StringBuilder sb, int num){
 		for(int i=0; i < num; ++i){
 			if(i>0){ sb.append(","); }
@@ -262,17 +260,15 @@ public class JdbcTool {
 	public static <F>F fieldSetFromJdbcResultSetUsingReflection(JdbcFieldCodecFactory fieldCodecFactory,
 			Class<F> cls, List<Field<?>> fields, ResultSet rs, boolean ignorePrefix){
 		F targetFieldSet = ReflectionTool.create(cls);
-		int counter = 0;
 		for(JdbcFieldCodec<?,?> field : fieldCodecFactory.createCodecs(fields)){
 			field.fromJdbcResultSetUsingReflection(targetFieldSet, rs);
-			++counter;
 		}
 		return targetFieldSet;
 	}
-	
-	
+
+
 	/********************** tests ***************************/
-	
+
 	public static class TestJdbcTool{
 		@Test public void showTablesTest(){
 			Connection conn = JdbcTool.openConnection("localhost", 3306, "property", "root", "");
