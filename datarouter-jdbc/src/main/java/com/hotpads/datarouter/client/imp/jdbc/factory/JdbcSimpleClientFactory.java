@@ -31,7 +31,7 @@ implements ClientFactory{
 	private static Logger logger = LoggerFactory.getLogger(JdbcSimpleClientFactory.class);
 
 	private static final String SCHEMA_UPDATE_ENABLE = "schemaUpdate.enable";
-
+	private static final String SCHEMA_UPDATE_CHECK_DB = "schemaUpdate.checkDatabase";
 
 	private final DatarouterContext drContext;
 	protected final JdbcFieldCodecFactory fieldCodecFactory;
@@ -75,8 +75,11 @@ implements ClientFactory{
 	}
 
 	protected void initConnectionPool(){
-		//temporarily turning off the database check code
-		//checkDatabaseExist();
+		boolean checkDatabaseEnabled = DrBooleanTool.isTrue(DrPropertiesTool.getFirstOccurrence(multiProperties,
+				SCHEMA_UPDATE_CHECK_DB));
+		if(checkDatabaseEnabled){
+			checkDatabaseExist();
+		}
 		connectionPool = new JdbcConnectionPool(drContext.getApplicationPaths(), clientName,
 				multiProperties, isWritableClient());
 	}
