@@ -26,6 +26,7 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrListTool;
+import com.hotpads.util.core.concurrent.CallableTool;
 
 public class JdbcNode<
 		PK extends PrimaryKey<PK>,
@@ -33,7 +34,10 @@ public class JdbcNode<
 		F extends DatabeanFielder<PK,D>> 
 extends JdbcReaderNode<PK,D,F>
 implements PhysicalIndexedSortedMapStorageNode<PK,D>{
+	
+	private static final int DEFAULT_NUM_ATTEMPTS = 3;
 
+	
 	private final JdbcFieldCodecFactory fieldCodecFactory;
 	
 	public JdbcNode(NodeParams<PK,D,F> params, JdbcFieldCodecFactory fieldCodecFactory){
@@ -53,7 +57,7 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D>{
 	public void put(final D databean, final Config config) {
 		String opName = MapStorageWriter.OP_put;
 		JdbcPutOp<PK,D,F> op = new JdbcPutOp<>(this, fieldCodecFactory, DrListTool.wrap(databean), config);
-		new SessionExecutorImpl<>(op, getTraceName(opName)).call();
+		tryNTimes(new SessionExecutorImpl<>(op, getTraceName(opName)), config);
 	}
 
 	
@@ -64,21 +68,21 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D>{
 			return;//avoid starting txn
 		}
 		JdbcPutOp<PK,D,F> op = new JdbcPutOp<>(this, fieldCodecFactory, databeans, config);
-		new SessionExecutorImpl<>(op, getTraceName(opName)).call();
+		tryNTimes(new SessionExecutorImpl<>(op, getTraceName(opName)), config);
 	}
 	
 	@Override
 	public void deleteAll(final Config config) {
 		String opName = MapStorageWriter.OP_deleteAll;
 		JdbcDeleteAllOp<PK,D,F> op = new JdbcDeleteAllOp<>(this, config);
-		new SessionExecutorImpl<>(op, getTraceName(opName)).call();
+		tryNTimes(new SessionExecutorImpl<>(op, getTraceName(opName)), config);
 	}
 
 	@Override
 	public void delete(PK key, Config config){
 		String opName = MapStorageWriter.OP_delete;
 		JdbcDeleteOp<PK,D> op = new JdbcDeleteOp<>(this, fieldCodecFactory, DrListTool.wrap(key), config);
-		new SessionExecutorImpl<>(op, getTraceName(opName)).call();
+		tryNTimes(new SessionExecutorImpl<>(op, getTraceName(opName)), config);
 	}
 
 	@Override
@@ -88,7 +92,7 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D>{
 			return;//avoid starting txn
 		}
 		JdbcDeleteOp<PK,D> op = new JdbcDeleteOp<>(this, fieldCodecFactory, keys, config);
-		new SessionExecutorImpl<>(op, getTraceName(opName)).call();
+		tryNTimes(new SessionExecutorImpl<>(op, getTraceName(opName)), config);
 	}
 	
 	
@@ -99,7 +103,7 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D>{
 		String opName = IndexedStorageWriter.OP_deleteUnique;
 		JdbcUniqueIndexDeleteOp<PK,D> op = new JdbcUniqueIndexDeleteOp<>(this, fieldCodecFactory, DrListTool
 				.wrap(uniqueKey), config);
-		new SessionExecutorImpl<>(op, getTraceName(opName)).call();
+		tryNTimes(new SessionExecutorImpl<>(op, getTraceName(opName)), config);
 	}
 	
 	@Override
@@ -110,21 +114,22 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D>{
 		}
 		JdbcUniqueIndexDeleteOp<PK,D> op = new JdbcUniqueIndexDeleteOp<>(this, fieldCodecFactory, uniqueKeys,
 				config);
-		new SessionExecutorImpl<>(op, getTraceName(opName)).call();
+		tryNTimes(new SessionExecutorImpl<>(op, getTraceName(opName)), config);
 	}
 	
 	@Override
 	public void delete(final Lookup<PK> lookup, final Config config) {
 		String opName = IndexedStorageWriter.OP_indexDelete;
 		JdbcIndexDeleteOp<PK,D> op = new JdbcIndexDeleteOp<>(this, fieldCodecFactory, lookup, config);
-		new SessionExecutorImpl<>(op, getTraceName(opName)).call();
+		tryNTimes(new SessionExecutorImpl<>(op, getTraceName(opName)), config);
 	}
 	
 	@Override
 	public <IK extends PrimaryKey<IK>> void deleteByIndex(Collection<IK> keys, Config config){
 		BaseJdbcOp<Long> op = new JdbcDeleteByIndexOp<>(this, fieldCodecFactory, keys, config);
-		new SessionExecutorImpl<>(op, IndexedStorageWriter.OP_deleteMultiUnique).call();
+		tryNTimes(new SessionExecutorImpl<>(op, IndexedStorageWriter.OP_deleteMultiUnique), config);
 	}
+	
 	
 	/************************************ SortedStorageWriter methods ****************************/
 
@@ -133,6 +138,14 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D>{
 		String opName = SortedStorageWriter.OP_deleteRangeWithPrefix;
 		JdbcPrefixDeleteOp<PK,D> op = new JdbcPrefixDeleteOp<>(this, fieldCodecFactory, prefix, wildcardLastField, 
 				config);
-		new SessionExecutorImpl<>(op, getTraceName(opName)).call();
+		tryNTimes(new SessionExecutorImpl<>(op, getTraceName(opName)), config);
+	}
+	
+	
+	/********************************** private **************************************************/
+	
+	private <T> T tryNTimes(SessionExecutorImpl<T> opCallable, Config config){
+		int numAttempts = config.getNumAttemptsOrUse(DEFAULT_NUM_ATTEMPTS);
+		return CallableTool.tryNTimesUnchecked(opCallable, numAttempts);
 	}
 }
