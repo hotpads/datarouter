@@ -6,7 +6,6 @@ import java.util.List;
 
 import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.client.imp.jdbc.op.BaseJdbcOp;
-import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcCountOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcGetFirstKeyOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcGetFirstOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcGetKeysOp;
@@ -74,12 +73,6 @@ public class JdbcReaderOps<
 	}
 
 	/************************************ IndexedStorageReader methods ****************************/
-	
-	public Long count(final Lookup<PK> lookup, final Config config) {
-		String opName = IndexedStorageReader.OP_count;
-		JdbcCountOp<PK,D,F> op = new JdbcCountOp<>(node, fieldCodecFactory, lookup, config);
-		return new SessionExecutorImpl<>(op, getTraceName(opName)).call();
-	}
 	
 	public D lookupUnique(final UniqueKey<PK> uniqueKey, final Config config){
 		String opName = IndexedStorageReader.OP_lookupUnique;
