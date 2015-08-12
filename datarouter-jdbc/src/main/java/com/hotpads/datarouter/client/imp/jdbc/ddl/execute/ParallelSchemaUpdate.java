@@ -36,7 +36,8 @@ implements Callable<Void>{
 		SERVER_NAME = "server.name",
 		ADMINISTRATOR_EMAIL = "administrator.email",
 		PRINT_PREFIX = "schemaUpdate.print",
-		EXECUTE_PREFIX = "schemaUpdate.execute";
+		EXECUTE_PREFIX = "schemaUpdate.execute"
+		;
 
 
 	/******************* fields **********************/
@@ -87,9 +88,8 @@ implements Callable<Void>{
 		}
 
 		//run an update for each PhysicalNode
-		List<? extends PhysicalNode<?, ?>> physicalNodes = drContext.getNodes().getPhysicalNodesForClient(clientName);
 		List<Callable<Void>> singleTableUpdates = new ArrayList<>();
-		for(PhysicalNode<?, ?> physicalNode : DrIterableTool.nullSafe(physicalNodes)){
+		for(PhysicalNode<?, ?> physicalNode : drContext.getNodes().getPhysicalNodesForClient(clientName)){
 			DatabeanFieldInfo<?, ?, ?> fieldInfo = physicalNode.getFieldInfo();
 			if(fieldInfo.getFieldAware()){
 				SingleTableSchemaUpdate singleTableUpdate = new SingleTableSchemaUpdate(fieldCodecFactory, clientName,
@@ -106,7 +106,9 @@ implements Callable<Void>{
 
 
 	private void sendEmail(){
-		if(DrCollectionTool.isEmpty(printedSchemaUpdates)){ return; }
+		if (DrCollectionTool.isEmpty(printedSchemaUpdates)){
+			return;
+		}
 		if(DrStringTool.isEmpty(drContext.getAdministratorEmail()) || DrStringTool.isEmpty(drContext.getServerName())){
 			//note: this can be caused by not calling drContext.activate().  need to fix this startup flaw.
 			logger.warn("please set your datarouter administratorEmail and serverName");
