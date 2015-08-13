@@ -83,7 +83,7 @@ implements ClientFactory{
 	}
 
 	protected void initConnectionPool(){
-		//if the schemaupdate option ofr execute and print is set to false, then do not check for Schema difference
+		//if the schemaupdate option for execute and print is set to false, then do not check for Schema difference
 		if(shouldExecuteCreateDb || shouldPrintCreateDb){
 			checkDatabaseExist();
 		}
