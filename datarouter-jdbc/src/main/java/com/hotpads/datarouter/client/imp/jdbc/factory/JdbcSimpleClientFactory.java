@@ -97,8 +97,8 @@ implements ClientFactory{
 
 	private void checkDatabaseExist() {
 		String url =  jdbcOptions.url();
-		String user = jdbcOptions.user("root");
-		String password = jdbcOptions.password("");
+		String user = jdbcOptions.user(defaultJdbcOptions.user("root"));
+		String password = jdbcOptions.password(defaultJdbcOptions.password(""));
 		String hostname = DrStringTool.getStringBeforeLastOccurrence(':',url);
 		String portDatabaseString = DrStringTool.getStringAfterLastOccurrence(':',url);
 		int port = Integer.parseInt(DrStringTool.getStringBeforeLastOccurrence('/',portDatabaseString));
