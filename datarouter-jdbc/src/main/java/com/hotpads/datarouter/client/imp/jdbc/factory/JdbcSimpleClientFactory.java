@@ -32,13 +32,16 @@ implements ClientFactory{
 
 	private static final String SCHEMA_UPDATE_ENABLE = "schemaUpdate.enable";
 	private static final String SCHEMA_UPDATE_CHECK_DB = "schemaUpdate.checkDatabase";
+	public static final String 	POOL_DEFAULT = "default";
 
 	private final DatarouterContext drContext;
 	protected final JdbcFieldCodecFactory fieldCodecFactory;
 	private final String clientName;
 	private final Set<String> configFilePaths;
 	private final List<Properties> multiProperties;
-
+	private final JdbcOptions jdbcOptions;
+	private final JdbcOptions defaultJdbcOPtions;
+	
 	private JdbcConnectionPool connectionPool;
 	private JdbcClient client;
 
@@ -49,6 +52,8 @@ implements ClientFactory{
 		this.clientName = clientName;
 		this.configFilePaths = drContext.getConfigFilePaths();
 		this.multiProperties = DrPropertiesTool.fromFiles(configFilePaths);
+		this.jdbcOptions = new JdbcOptions(multiProperties, clientName);
+		this.defaultJdbcOPtions = new JdbcOptions(multiProperties, POOL_DEFAULT);
 	}
 
 	@Override
@@ -80,8 +85,7 @@ implements ClientFactory{
 		if(checkDatabaseEnabled){
 			checkDatabaseExist();
 		}
-		connectionPool = new JdbcConnectionPool(drContext.getApplicationPaths(), clientName,
-				multiProperties, isWritableClient());
+		connectionPool = new JdbcConnectionPool(clientName,	isWritableClient(), defaultJdbcOPtions, jdbcOptions);
 	}
 
 
@@ -92,7 +96,6 @@ implements ClientFactory{
 	}
 
 	private void checkDatabaseExist() {
-		JdbcOptions jdbcOptions = new JdbcOptions(multiProperties, clientName);
 		String url =  jdbcOptions.url();
 		String user = jdbcOptions.user("root");
 		String password = jdbcOptions.password("");
