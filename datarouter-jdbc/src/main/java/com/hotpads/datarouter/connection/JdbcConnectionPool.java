@@ -20,35 +20,34 @@ import com.mchange.v2.c3p0.DataSources;
 public class JdbcConnectionPool{
 	private static final Logger logger = LoggerFactory.getLogger(JdbcConnectionPool.class);
 
-	public static final String
-		poolDefault = "default";
-	
-	private ApplicationPaths applicationPaths;
+	public static final String 	POOL_DEFAULT = "default";
+
+	private final ApplicationPaths applicationPaths;
 	private String name;
 	private ComboPooledDataSource pool;
-	private JdbcOptions defaultOptions;
+	private final JdbcOptions defaultOptions;
 	protected JdbcOptions options;
 	private boolean writable = false;
 	private String schemaName;
-	
-	
-	public JdbcConnectionPool(ApplicationPaths applicationPaths, String name, Iterable<Properties> multiProperties, 
+
+
+	public JdbcConnectionPool(ApplicationPaths applicationPaths, String name, Iterable<Properties> multiProperties,
 			Boolean writable){
 		this.applicationPaths = applicationPaths;
-		this.defaultOptions = new JdbcOptions(multiProperties, poolDefault);
+		this.defaultOptions = new JdbcOptions(multiProperties, POOL_DEFAULT);
 		this.options = new JdbcOptions(multiProperties, name);
 		this.writable = writable;
 		createFromScratch(name);
 	}
-	
+
 	@Override
 	public String toString(){
 		return name+"@"+pool.getJdbcUrl();
 	}
-	
+
 	public void createFromScratch(String name){
 		this.name = name;
-		
+
 		String url = options.url();
 		String user = options.user(defaultOptions.user("root"));
 		String password = options.password(defaultOptions.password(""));
@@ -57,26 +56,25 @@ public class JdbcConnectionPool{
 		Boolean logging = options.logging(defaultOptions.logging(false));
 
 		schemaName = DrStringTool.getStringAfterLastOccurrence('/', url);
-		
+
 		//configurable props
 		pool = new ComboPooledDataSource();
-		
+
 		try{
 			pool.setMinPoolSize(minPoolSize);
 		}catch(Exception e){
 		}
-		
+
 		try{
 			pool.setMaxPoolSize(maxPoolSize);
 		}catch(Exception e){
 		}
-		
+
 		List<String> urlParams = new ArrayList<>();
 		//avoid extra RPC on readOnly connections: http://dev.mysql.com/doc/relnotes/connector-j/en/news-5-1-23.html
 		urlParams.add("useLocalSessionState=true");
-		
+
 		String urlWithParams = url + "?" + Joiner.on("&").join(urlParams);
-		
 		try {
 			String jdbcUrl;
 			if(logging){
@@ -88,11 +86,10 @@ public class JdbcConnectionPool{
 				pool.setDriverClass("com.mysql.jdbc.Driver");
 			}
 			pool.setJdbcUrl(jdbcUrl);
-//			System.out.println(getClass()+" conecting to "+jdbcUrl);
 		}catch(PropertyVetoException pve) {
 			throw new RuntimeException(pve);
 		}
-		
+
 		pool.setUser(user);
 		pool.setPassword(password);
 		pool.setAcquireIncrement(1);
@@ -104,9 +101,9 @@ public class JdbcConnectionPool{
 		if(!writable){
 			pool.setConnectionCustomizerClassName(ReadOnlyConnectionCustomizer.class.getName());
 		}
-		
+
 	}
-	
+
 	public Connection checkOut(){
 		try{
 			return pool.getConnection();
@@ -114,7 +111,7 @@ public class JdbcConnectionPool{
 			throw new RuntimeException(e);
 		}
 	}
-	
+
 	public void checkIn(Connection connection){
 		if(connection==null){ return; }
 		try{
@@ -123,7 +120,7 @@ public class JdbcConnectionPool{
 			throw new RuntimeException(e);
 		}
 	}
-	
+
 	public void shutdown(){
 		try{
 			DataSources.destroy(getDataSource());
@@ -131,9 +128,9 @@ public class JdbcConnectionPool{
 			logger.error("", e);
 		}
 	}
-	
+
 	/******************************* get/set *****************************/
-	
+
 	public String getName() {
 		return name;
 	}
@@ -141,15 +138,16 @@ public class JdbcConnectionPool{
 	public ComboPooledDataSource getDataSource() {
 		return pool;
 	}
-	
+
 	public boolean isWritable() {
 		return writable;
 	}
-	
+
 	public String getSchemaName(){
 		return schemaName;
 	}
-	
+
+
 	/*
 
 	<bean id="dataSourcePoolSales"
@@ -166,12 +164,12 @@ public class JdbcConnectionPool{
 		<property name="maxPoolSize"><value>10</value></property>
 		<property name="idleConnectionTestPeriod"><value>300</value></property>
 		<!-- <property name="automaticTestTable"><value>c3p0TestTable</value></property>-->
-		<property name="maxIdleTime"><value>3600</value></property> 		
+		<property name="maxIdleTime"><value>3600</value></property>
 		<!-- 	<property name="maxStatements"><value>200</value></property> -->
 	</bean>
 
 
 	 */
-	
-	
+
+
 }
