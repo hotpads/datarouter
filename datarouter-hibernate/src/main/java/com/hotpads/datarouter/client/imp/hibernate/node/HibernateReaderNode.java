@@ -12,7 +12,6 @@ import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 
 import com.hotpads.datarouter.client.imp.hibernate.client.HibernateClientImp;
-import com.hotpads.datarouter.client.imp.hibernate.op.read.HibernateCountOp;
 import com.hotpads.datarouter.client.imp.hibernate.op.read.HibernateGetFirstKeyOp;
 import com.hotpads.datarouter.client.imp.hibernate.op.read.HibernateGetFirstOp;
 import com.hotpads.datarouter.client.imp.hibernate.op.read.HibernateGetKeysOp;
@@ -133,13 +132,6 @@ implements MapStorageReader<PK,D>,
 	
 	
 	/************************************ IndexedStorageReader methods ****************************/
-	
-	@Override
-	public Long count(final Lookup<PK> lookup, final Config config) {
-		String opName = IndexedStorageReader.OP_count;
-		HibernateCountOp<PK,D,F> op = new HibernateCountOp<>(this, lookup, config);
-		return new SessionExecutorImpl<>(op, getTraceName(opName)).call();
-	}
 	
 	@Override
 	public D lookupUnique(final UniqueKey<PK> uniqueKey, final Config config){
