@@ -15,7 +15,6 @@ import com.hotpads.datarouter.client.ClientFactory;
 import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
 import com.hotpads.datarouter.client.imp.jdbc.JdbcClientImp;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SchemaUpdateOptions;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.execute.ParallelSchemaUpdate;
 import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.client.type.JdbcClient;
@@ -31,7 +30,7 @@ implements ClientFactory{
 	private static Logger logger = LoggerFactory.getLogger(JdbcSimpleClientFactory.class);
 
 	private static final String SCHEMA_UPDATE_ENABLE = "schemaUpdate.enable";
-	private static final String SCHEMA_UPDATE_CHECK_DB = "schemaUpdate.checkDatabase";
+	private static final String CREATE_DATABASE = "createDatabases";
 	public static final String 	POOL_DEFAULT = "default";
 
 	private final DatarouterContext drContext;
@@ -40,7 +39,9 @@ implements ClientFactory{
 	private final Set<String> configFilePaths;
 	private final List<Properties> multiProperties;
 	private final JdbcOptions jdbcOptions;
-	private final JdbcOptions defaultJdbcOPtions;
+	private final JdbcOptions defaultJdbcOptions;
+	private final boolean shouldExecuteCreateDb;
+	private final boolean shouldPrintCreateDb;
 	
 	private JdbcConnectionPool connectionPool;
 	private JdbcClient client;
@@ -53,7 +54,9 @@ implements ClientFactory{
 		this.configFilePaths = drContext.getConfigFilePaths();
 		this.multiProperties = DrPropertiesTool.fromFiles(configFilePaths);
 		this.jdbcOptions = new JdbcOptions(multiProperties, clientName);
-		this.defaultJdbcOPtions = new JdbcOptions(multiProperties, POOL_DEFAULT);
+		this.defaultJdbcOptions = new JdbcOptions(multiProperties, POOL_DEFAULT);
+		this.shouldExecuteCreateDb = checkJdbcOption(ParallelSchemaUpdate.EXECUTE_PREFIX+"."+CREATE_DATABASE);
+		this.shouldPrintCreateDb = checkJdbcOption(ParallelSchemaUpdate.PRINT_PREFIX+"."+CREATE_DATABASE);
 	}
 
 	@Override
@@ -80,19 +83,16 @@ implements ClientFactory{
 	}
 
 	protected void initConnectionPool(){
-		boolean checkDatabaseEnabled = DrBooleanTool.isTrue(DrPropertiesTool.getFirstOccurrence(multiProperties,
-				SCHEMA_UPDATE_CHECK_DB));
-		if(checkDatabaseEnabled){
+		//if the schemaupdate option ofr execute and print is set to false, then do not check for Schema difference
+		if(shouldExecuteCreateDb || shouldPrintCreateDb){
 			checkDatabaseExist();
 		}
-		connectionPool = new JdbcConnectionPool(clientName,	isWritableClient(), defaultJdbcOPtions, jdbcOptions);
+		connectionPool = new JdbcConnectionPool(clientName,	isWritableClient(), defaultJdbcOptions, jdbcOptions);
 	}
 
 
 	protected boolean doSchemaUpdate(){
-		boolean schemaUpdateEnabled = DrBooleanTool.isTrue(DrPropertiesTool.getFirstOccurrence(multiProperties,
-				SCHEMA_UPDATE_ENABLE));
-		return isWritableClient() && schemaUpdateEnabled;
+		return isWritableClient() && checkJdbcOption(SCHEMA_UPDATE_ENABLE);
 	}
 
 	private void checkDatabaseExist() {
@@ -115,13 +115,12 @@ implements ClientFactory{
 	}
 
 	private void generateCreateDatabaseSchema(Connection connection, String databaseName){
-		SchemaUpdateOptions executeOptions = new SchemaUpdateOptions(multiProperties, ParallelSchemaUpdate.EXECUTE_PREFIX, false);
 		System.out.println("========================================== Creating the database " +databaseName
 				+" ============================");
 		String sql = "Create database "+ databaseName +" ;";
-		if(!executeOptions.getCreateDatabases()){
+		if(!shouldExecuteCreateDb){
 			System.out.println("Please execute: "+sql);
-		}else{
+		}else {
 			try{
 				System.out.println(sql);
 				Statement statement = connection.createStatement();
@@ -130,6 +129,11 @@ implements ClientFactory{
 				throw new RuntimeException(e);
 			}
 		}
+	}
+	
+	private boolean checkJdbcOption(String requiredString){
+		return DrBooleanTool.isTrue(jdbcOptions.getRequiredString(requiredString));
+		
 	}
 
 	public String getClientName(){
