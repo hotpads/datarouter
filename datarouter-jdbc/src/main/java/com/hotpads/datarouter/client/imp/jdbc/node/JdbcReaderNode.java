@@ -87,11 +87,6 @@ implements MapStorageReader<PK,D>,
 	/************************************ IndexedStorageReader methods ****************************/
 	
 	@Override
-	public Long count(final Lookup<PK> lookup, final Config config) {
-		return jdbcReaderOps.count(lookup, config);
-	}
-	
-	@Override
 	public D lookupUnique(final UniqueKey<PK> uniqueKey, final Config config){
 		return jdbcReaderOps.lookupUnique(uniqueKey, config);
 	}
