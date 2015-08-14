@@ -2,7 +2,7 @@ package com.hotpads.datarouter.client.imp.jdbc.node;
 
 import java.util.Collection;
 
-import com.hotpads.datarouter.client.imp.hibernate.util.JdbcRollbackRetryingCallableSupplier;
+import com.hotpads.datarouter.client.imp.hibernate.util.JdbcRollbackRetryingCallable;
 import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.client.imp.jdbc.op.BaseJdbcOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.write.JdbcDeleteAllOp;
@@ -36,11 +36,11 @@ public class JdbcNode<
 extends JdbcReaderNode<PK,D,F>
 implements PhysicalIndexedSortedMapStorageNode<PK,D>{
 	
-	private static final int NUM_ROLLBACK_RETRIES = 2;
+	private static final int NUM_ROLLBACK_ATTEMPTS = 5;
 	private static final long ROLLBACK_BACKOFF_MS = 4;
 	
-	private static final int DEFAULT_NUM_ATTEMPTS = 3;
-	private static final long DEFAULT_BACKOFF_MS = 10;
+	private static final int DEFAULT_NUM_ATTEMPTS = 1;
+	private static final long DEFAULT_BACKOFF_MS = 1;
 
 	
 	private final JdbcFieldCodecFactory fieldCodecFactory;
@@ -150,9 +150,9 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D>{
 	/********************************** private **************************************************/
 	
 	private <T> T tryNTimes(SessionExecutorImpl<T> opCallable, Config config){
-		JdbcRollbackRetryingCallableSupplier<T> supplier = new JdbcRollbackRetryingCallableSupplier<>(opCallable,
-				NUM_ROLLBACK_RETRIES, ROLLBACK_BACKOFF_MS);
+		JdbcRollbackRetryingCallable<T> retryingCallable = new JdbcRollbackRetryingCallable<>(opCallable,
+				NUM_ROLLBACK_ATTEMPTS, ROLLBACK_BACKOFF_MS);
 		int numAttempts = config.getNumAttemptsOrUse(DEFAULT_NUM_ATTEMPTS);
-		return CallableTool.tryNTimesWithBackoffUnchecked(supplier, numAttempts, DEFAULT_BACKOFF_MS);
+		return CallableTool.tryNTimesWithBackoffUnchecked(retryingCallable, numAttempts, DEFAULT_BACKOFF_MS);
 	}
 }

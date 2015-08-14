@@ -5,22 +5,22 @@ import java.util.concurrent.Callable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.hotpads.datarouter.op.executor.impl.SessionExecutorImpl;
 import com.hotpads.util.core.concurrent.ThreadTool;
 
-/*
- * Catch both jdbc and jdbc4 rollback exceptions since they are both in the classpath somehow.
- */
 public class JdbcRollbackRetryingCallable<T>
 implements Callable<T>{
 	private static final Logger logger = LoggerFactory.getLogger(JdbcRollbackRetryingCallable.class);
 
 	
-	private final Callable<T> callable;
+	private final SessionExecutorImpl<T> callable;
 	private final int numAttempts;
 	private final long initialDoublingBackoffMs;
 
 	
-	public JdbcRollbackRetryingCallable(Callable<T> callable, int numAttempts, long initialDoublingBackoffMs){
+	//TODO accept a callableSupplier for mutable ops
+	public JdbcRollbackRetryingCallable(SessionExecutorImpl<T> callable, int numAttempts,
+			long initialDoublingBackoffMs){
 		this.callable = callable;
 		this.numAttempts = numAttempts;
 		this.initialDoublingBackoffMs = initialDoublingBackoffMs;
@@ -28,20 +28,18 @@ implements Callable<T>{
 
 
 	@Override
-	public T call() throws Exception{//throw non-RollbackExceptions directly
+	public T call(){
 		long backoffMs = initialDoublingBackoffMs;
 		for(int attemptNum = 1; attemptNum <= numAttempts; ++attemptNum){
 			try{
 				return callable.call();
-			}catch(com.mysql.jdbc.exceptions.jdbc4.MySQLTransactionRollbackException
-					| com.mysql.jdbc.exceptions.MySQLTransactionRollbackException rollbackException){
+			}catch(javax.persistence.RollbackException e){
 				if(attemptNum < numAttempts){
-					logger.warn("rollback on attempt {}/{}, sleeping {}ms", attemptNum, numAttempts, backoffMs, 
-							rollbackException);
+					logger.warn("rollback on attempt {}/{}, sleeping {}ms", attemptNum, numAttempts, backoffMs, e);
 					ThreadTool.sleep(backoffMs);
 				}else{
-					logger.error("rollback on final attempt {}", attemptNum, rollbackException);
-					throw new RuntimeException(rollbackException);
+					logger.error("rollback on final attempt {}", attemptNum, e);
+					throw new RuntimeException(e);
 				}
 			}
 			backoffMs *= 2;
