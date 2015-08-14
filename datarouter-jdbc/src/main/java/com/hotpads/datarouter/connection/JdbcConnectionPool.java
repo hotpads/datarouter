@@ -17,8 +17,6 @@ import com.mchange.v2.c3p0.DataSources;
 
 public class JdbcConnectionPool{
 	private static final Logger logger = LoggerFactory.getLogger(JdbcConnectionPool.class);
-
-	public static final String 	POOL_DEFAULT = "default";
 	
 	private String name;
 	private ComboPooledDataSource pool;
