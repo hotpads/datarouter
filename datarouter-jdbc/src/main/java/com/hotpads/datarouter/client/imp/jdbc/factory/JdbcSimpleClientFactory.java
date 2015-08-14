@@ -30,7 +30,6 @@ implements ClientFactory{
 	private static Logger logger = LoggerFactory.getLogger(JdbcSimpleClientFactory.class);
 
 	private static final String SCHEMA_UPDATE_ENABLE = "schemaUpdate.enable";
-	private static final String CREATE_DATABASE = "createDatabases";
 	public static final String 	POOL_DEFAULT = "default";
 
 	private final DatarouterContext drContext;
@@ -40,8 +39,6 @@ implements ClientFactory{
 	private final List<Properties> multiProperties;
 	private final JdbcOptions jdbcOptions;
 	private final JdbcOptions defaultJdbcOptions;
-	private final boolean shouldExecuteCreateDb;
-	private final boolean shouldPrintCreateDb;
 	
 	private JdbcConnectionPool connectionPool;
 	private JdbcClient client;
@@ -55,8 +52,6 @@ implements ClientFactory{
 		this.multiProperties = DrPropertiesTool.fromFiles(configFilePaths);
 		this.jdbcOptions = new JdbcOptions(multiProperties, clientName);
 		this.defaultJdbcOptions = new JdbcOptions(multiProperties, POOL_DEFAULT);
-		this.shouldExecuteCreateDb = checkJdbcOption(ParallelSchemaUpdate.EXECUTE_PREFIX+"."+CREATE_DATABASE);
-		this.shouldPrintCreateDb = checkJdbcOption(ParallelSchemaUpdate.PRINT_PREFIX+"."+CREATE_DATABASE);
 	}
 
 	@Override
@@ -84,7 +79,7 @@ implements ClientFactory{
 
 	protected void initConnectionPool(){
 		//if the schemaupdate option for execute and print is set to false, then do not check for Schema difference
-		if(shouldExecuteCreateDb || shouldPrintCreateDb){
+		if(jdbcOptions.executeCreateDb() || jdbcOptions.printCreateDb()){
 			checkDatabaseExist();
 		}
 		connectionPool = new JdbcConnectionPool(clientName,	isWritableClient(), defaultJdbcOptions, jdbcOptions);
@@ -118,7 +113,7 @@ implements ClientFactory{
 		System.out.println("========================================== Creating the database " +databaseName
 				+" ============================");
 		String sql = "Create database "+ databaseName +" ;";
-		if(!shouldExecuteCreateDb){
+		if(!jdbcOptions.executeCreateDb()){
 			System.out.println("Please execute: "+sql);
 		}else {
 			try{
