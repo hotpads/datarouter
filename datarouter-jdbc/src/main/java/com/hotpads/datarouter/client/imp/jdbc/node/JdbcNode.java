@@ -149,6 +149,9 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D>{
 	
 	/********************************** private **************************************************/
 	
+	/* This executes the query config.getNumAttempts() times. Then for each attempt, it will retry rollbacks a fixed
+	 * number of times (NUM_ROLLBACK_ATTEMPTS - 1). If config.getNumAttempts() is 2 and NUM_ROLLBACK_ATTEMPTS is 3, then
+	 * we may start 6 txns */
 	private <T> T tryNTimes(SessionExecutorImpl<T> opCallable, Config config){
 		JdbcRollbackRetryingCallable<T> retryingCallable = new JdbcRollbackRetryingCallable<>(opCallable,
 				NUM_ROLLBACK_ATTEMPTS, ROLLBACK_BACKOFF_MS);
