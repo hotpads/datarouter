@@ -66,6 +66,7 @@ extends HBaseEntityQueryBuilder<EK,E>
 	
 	public Range<ByteRange> getRowRange(int partition, Range<PK> pkRange){
 		byte[] partitionPrefix = partitioner.getPrefix(partition);
+		
 		ByteRange startBytes = new ByteRange(partitionPrefix);
 		if(pkRange.hasStart()){
 			EK startEk = pkRange.getStart().getEntityKey();
@@ -74,15 +75,21 @@ extends HBaseEntityQueryBuilder<EK,E>
 		}
 		
 		ByteRange endBytes = null;
+		boolean endInclusive = pkRange.getEndInclusive();
 		if(pkRange.hasEnd()){
 			EK endEk = pkRange.getEnd().getEntityKey();
 			byte[] endByteArray = DrByteTool.concatenate(partitionPrefix, getRowBytes(endEk));
 			endBytes = new ByteRange(endByteArray);
-		}else if(!partitioner.isLastPartition(partition)){
-			byte[] nextPartitionPrefix = partitioner.getNextPrefix(partition);
-			endBytes = new ByteRange(nextPartitionPrefix);
+		}else{
+			if(!partitioner.isLastPartition(partition)){
+				byte[] nextPartitionPrefix = partitioner.getNextPrefix(partition);
+				endBytes = new ByteRange(nextPartitionPrefix);
+				//HBaseQueryBuilder.getScanForRange will increment the bytes if endInclusive==true, which would include
+				// the whole next partition.  don't want that, so set endInclusive=false
+				endInclusive = false;
+			}
 		}//else no end
-		return Range.create(startBytes, pkRange.getStartInclusive(), endBytes, pkRange.getEndInclusive());
+		return Range.create(startBytes, pkRange.getStartInclusive(), endBytes, endInclusive);
 	}
 	
 	/******************** qualifiers ***********************/
@@ -220,8 +227,9 @@ extends HBaseEntityQueryBuilder<EK,E>
 		EntityPartitioner<EK> partitioner = entityFieldInfo.getEntityPartitioner();
 		List<AsyncBatchLoaderScanner<PK>> scanners = new ArrayList<>();
 		for(int partition=0; partition < partitioner.getNumPartitions(); ++partition){
+			byte[] partitionBytes = partitioner.getPrefix(partition);
 			BatchLoader<PK> firstBatchLoader = new HBaseEntityPrimaryKeyBatchLoader<EK,E,PK,D,F>(node, partition, 
-					range, pConfig, 1L);//start the counter at 1
+					partitionBytes, range, pConfig, 1L);//start the counter at 1
 			AsyncBatchLoaderScanner<PK> scanner = new AsyncBatchLoaderScanner<PK>(node.getClient().getExecutorService(), 
 					firstBatchLoader);
 			scanners.add(scanner);
@@ -234,8 +242,9 @@ extends HBaseEntityQueryBuilder<EK,E>
 		EntityPartitioner<EK> partitioner = entityFieldInfo.getEntityPartitioner();
 		List<AsyncBatchLoaderScanner<D>> scanners = new ArrayList<>();
 		for(int partition=0; partition < partitioner.getNumPartitions(); ++partition){
+			byte[] partitionBytes = partitioner.getPrefix(partition);
 			BatchLoader<D> firstBatchLoader = new HBaseEntityDatabeanBatchLoader<EK,E,PK,D,F>(node, partition, 
-					range, pConfig, 1L);//start the counter at 1
+					partitionBytes, range, pConfig, 1L);//start the counter at 1
 			AsyncBatchLoaderScanner<D> scanner = new AsyncBatchLoaderScanner<D>(node.getClient().getExecutorService(), 
 					firstBatchLoader);
 			scanners.add(scanner);

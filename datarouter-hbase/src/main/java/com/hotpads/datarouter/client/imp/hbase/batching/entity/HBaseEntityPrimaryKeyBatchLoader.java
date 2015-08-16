@@ -29,8 +29,8 @@ extends BaseHBaseEntityBatchLoader<EK,E,PK,D,F,PK>{
 	private static Logger logger = LoggerFactory.getLogger(HBaseEntityPrimaryKeyBatchLoader.class);
 	
 	public HBaseEntityPrimaryKeyBatchLoader(final HBaseSubEntityReaderNode<EK,E,PK,D,F> node, 
-			final int partition, final Range<PK> range, final Config pConfig, Long batchChainCounter){
-		super(node, partition, range, pConfig, batchChainCounter);
+			final int partition, final byte[] partitionBytes, final Range<PK> range, final Config pConfig, Long batchChainCounter){
+		super(node, partition, partitionBytes, range, pConfig, batchChainCounter);
 	}
 	
 	@Override
@@ -55,7 +55,7 @@ extends BaseHBaseEntityBatchLoader<EK,E,PK,D,F,PK>{
 	@Override
 	public BatchLoader<PK> getNextLoader(){
 		Range<PK> nextRange = getNextRange();
-		return new HBaseEntityPrimaryKeyBatchLoader<EK,E,PK,D,F>(node, partition, nextRange, config, 
+		return new HBaseEntityPrimaryKeyBatchLoader<EK,E,PK,D,F>(node, partition, partitionBytes ,nextRange, config, 
 				batchChainCounter + 1);					
 	}
 }

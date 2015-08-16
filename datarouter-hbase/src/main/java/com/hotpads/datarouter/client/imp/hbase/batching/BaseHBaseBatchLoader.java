@@ -100,8 +100,7 @@ extends BaseBatchLoader<T>{
 	}
 
 
-	//TODO same as PrimaryKeyBatchLoader.differentScatteringPrefix
-	protected boolean differentScatteringPrefix(Result row){
+	private boolean differentScatteringPrefix(Result row){
 		if (scatteringPrefixBytes == null || row == null){
 			return false;
 		}

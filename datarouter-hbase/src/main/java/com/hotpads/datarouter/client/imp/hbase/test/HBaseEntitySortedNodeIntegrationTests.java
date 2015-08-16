@@ -14,8 +14,11 @@ import com.hotpads.datarouter.test.node.basic.sorted.SortedBean;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBeanEntity;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBeanEntityKey;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBeanEntityNode;
+import com.hotpads.datarouter.test.node.basic.sorted.SortedBeanKey;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBeans;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrIterableTool;
+import com.hotpads.util.core.collections.Range;
 
 
 public class HBaseEntitySortedNodeIntegrationTests extends BaseSortedNodeIntegrationTests{
@@ -46,5 +49,14 @@ public class HBaseEntitySortedNodeIntegrationTests extends BaseSortedNodeIntegra
 		AssertJUnit.assertEquals(numExpected, results.size());
 		AssertJUnit.assertEquals(SortedBeans.S_albatross, DrCollectionTool.getFirst(results).getA());
 		AssertJUnit.assertEquals(SortedBeans.S_ostrich, DrCollectionTool.getFirst(results).getB());
+	}
+	
+
+	@Test //regression test for HBaseSubEntityQueryBuilder.getRowRange which loaded results from the next partition
+	public void testNullEndKey(){
+		Range<SortedBeanKey> range = new Range<>(null, true, null, true);
+		Iterable<SortedBeanKey> iterable = sortedNode.scanKeys(range, null);
+		long numDatabeans = DrIterableTool.count(iterable);
+		AssertJUnit.assertEquals(SortedBeans.TOTAL_RECORDS, numDatabeans);
 	}
 }
