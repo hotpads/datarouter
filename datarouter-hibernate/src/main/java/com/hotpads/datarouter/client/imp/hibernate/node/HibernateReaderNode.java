@@ -307,7 +307,7 @@ implements MapStorageReader<PK,D>,
 
 	/*********************** helper ******************************/
 
-	protected String getTraceName(String opName){
+	public String getTraceName(String opName){
 		return getName() + " " + opName;
 	}
 
