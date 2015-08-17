@@ -28,8 +28,8 @@ public abstract class BaseHBaseEntityBatchLoader<
 		T extends Comparable<? super T>> //T will be either PK or D, but not going to express that (or think about how to)
 extends BaseBatchLoader<T>{
 	
-	private static final boolean ASSERT_PARTITION = false;
-	private static final boolean ASSERT_ORDERING = false;
+	private static final boolean ASSERT_PARTITION = true;
+	private static final boolean ASSERT_ORDERING = true;
 
 	protected final HBaseSubEntityReaderNode<EK,E,PK,D,F> node;
 	protected final int partition;
