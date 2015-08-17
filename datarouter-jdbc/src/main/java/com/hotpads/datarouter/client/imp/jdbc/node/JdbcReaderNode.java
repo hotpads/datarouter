@@ -12,9 +12,7 @@ import com.hotpads.datarouter.client.imp.jdbc.scan.JdbcManagedIndexScanner;
 import com.hotpads.datarouter.client.imp.jdbc.scan.JdbcPrimaryKeyScanner;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.NodeParams;
-import com.hotpads.datarouter.node.op.raw.read.IndexedStorageReader;
-import com.hotpads.datarouter.node.op.raw.read.MapStorageReader;
-import com.hotpads.datarouter.node.op.raw.read.SortedStorageReader;
+import com.hotpads.datarouter.node.op.combo.reader.IndexedSortedMapStorageReader.PhysicalIndexedSortedMapStorageReaderNode;
 import com.hotpads.datarouter.node.type.index.ManagedNode;
 import com.hotpads.datarouter.node.type.index.ManagedNodesHolder;
 import com.hotpads.datarouter.node.type.physical.base.BasePhysicalNode;
@@ -37,9 +35,7 @@ public class JdbcReaderNode<
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>>
 extends BasePhysicalNode<PK,D,F>
-implements MapStorageReader<PK,D>,
-		SortedStorageReader<PK,D>,
-		IndexedStorageReader<PK,D>{
+implements PhysicalIndexedSortedMapStorageReaderNode<PK,D>{
 
 	private final JdbcReaderOps<PK,D,F> jdbcReaderOps;
 	private final ManagedNodesHolder<PK,D> managedNodesHolder;
@@ -203,7 +199,7 @@ implements MapStorageReader<PK,D>,
 
 	/*********************** helper ******************************/
 
-	protected String getTraceName(String opName){
+	public String getTraceName(String opName){
 		return jdbcReaderOps.getTraceName(opName);
 	}
 
