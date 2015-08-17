@@ -12,7 +12,7 @@ public class JdbcOptions extends TypedProperties{
 	private static final String SCHEMA_UPDATE_ENABLE = "schemaUpdate.enable";
 	private static final String EXECUTE_CREATE_DB = ParallelSchemaUpdate.EXECUTE_PREFIX+"."+CREATE_DATABASE;
 	private static final String PRINT_CREATE_DB = ParallelSchemaUpdate.PRINT_PREFIX+"."+CREATE_DATABASE;
-	private static final boolean DEFAULT_BOOLEAN = false;
+	
 	protected String clientPrefix;
 
 	public JdbcOptions(Iterable<Properties> multiProperties, String clientName){
@@ -45,15 +45,15 @@ public class JdbcOptions extends TypedProperties{
 	}
 	
 	public Boolean executeCreateDb(){
-		return getBoolean(getRequiredString(EXECUTE_CREATE_DB), DEFAULT_BOOLEAN);
+		return getBoolean(EXECUTE_CREATE_DB, false);
 	}
 	
 	public boolean printCreateDb(){
-		return getBoolean(getRequiredString(PRINT_CREATE_DB), DEFAULT_BOOLEAN);
+		return getBoolean(PRINT_CREATE_DB, false);
 	}
 
 	public boolean schemaUpdateEnabled(){
-		return getBoolean(getRequiredString(SCHEMA_UPDATE_ENABLE), DEFAULT_BOOLEAN);
+		return getBoolean(SCHEMA_UPDATE_ENABLE, false);
 	}
 
 }
