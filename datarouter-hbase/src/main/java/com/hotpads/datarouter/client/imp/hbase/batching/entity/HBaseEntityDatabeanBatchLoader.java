@@ -12,7 +12,7 @@ import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.entity.Entity;
-import com.hotpads.datarouter.storage.field.compare.EndOfRangeFieldSetComparator;
+import com.hotpads.datarouter.storage.field.compare.FieldSetRangeFilter;
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
 import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
 import com.hotpads.datarouter.util.core.DrIterableTool;
@@ -45,8 +45,7 @@ extends BaseHBaseEntityBatchLoader<EK,E,PK,D,F,D>{
 		List<D> unfilteredResults = node.getResultParser().getDatabeansWithMatchingQualifierPrefix(result);
 		List<D> filteredResults = new ArrayList<>();
 		for(D candidate : DrIterableTool.nullSafe(unfilteredResults)){
-			if(EndOfRangeFieldSetComparator.isCandidateIncludedForEndOfRange(candidate.getKey(), range.getEnd(), 
-					range.getEndInclusive())){
+			if(FieldSetRangeFilter.include(candidate.getKey(), range)){
 				filteredResults.add(candidate);
 			}
 		}

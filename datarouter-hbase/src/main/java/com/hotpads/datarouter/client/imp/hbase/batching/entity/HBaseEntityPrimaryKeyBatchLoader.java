@@ -12,7 +12,7 @@ import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.entity.Entity;
-import com.hotpads.datarouter.storage.field.compare.EndOfRangeFieldSetComparator;
+import com.hotpads.datarouter.storage.field.compare.FieldSetRangeFilter;
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
 import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
 import com.hotpads.util.core.collections.Range;
@@ -43,8 +43,7 @@ extends BaseHBaseEntityBatchLoader<EK,E,PK,D,F,PK>{
 	protected List<PK> parseHBaseResult(Result result){
 		//the first and last entity may include results outside the range
 		NavigableSet<PK> unfilteredResults = node.getResultParser().getPrimaryKeysWithMatchingQualifierPrefix(result);
-		List<PK> filteredResults = EndOfRangeFieldSetComparator.filterOnEndOfRange(unfilteredResults, range.getEnd(), 
-				range.getEndInclusive());
+		List<PK> filteredResults = FieldSetRangeFilter.filter(unfilteredResults, range);
 		return filteredResults;
 	}
 	
@@ -56,7 +55,7 @@ extends BaseHBaseEntityBatchLoader<EK,E,PK,D,F,PK>{
 	@Override
 	public BatchLoader<PK> getNextLoader(){
 		Range<PK> nextRange = getNextRange();
-		return new HBaseEntityPrimaryKeyBatchLoader<EK,E,PK,D,F>(node, partition, partitionBytes ,nextRange, config, 
-				batchChainCounter + 1);					
+		return new HBaseEntityPrimaryKeyBatchLoader<EK,E,PK,D,F>(node, partition, partitionBytes, nextRange, config,
+				batchChainCounter + 1);			
 	}
 }

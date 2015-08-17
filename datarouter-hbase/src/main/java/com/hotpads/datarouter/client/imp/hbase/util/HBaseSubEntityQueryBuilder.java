@@ -67,14 +67,13 @@ extends HBaseEntityQueryBuilder<EK,E>{
 		byte[] partitionPrefix = partitioner.getPrefix(partition);
 		
 		ByteRange startBytes;
-		boolean startInclusive = pkRange.getStartInclusive();
+		final boolean startInclusive = true;//we always could have databeans in the first entity/row
 		if(pkRange.hasStart()){
 			EK startEk = pkRange.getStart().getEntityKey();
 			byte[] startByteArray = DrByteTool.concatenate(partitionPrefix, getRowBytes(startEk));
 			startBytes = new ByteRange(startByteArray);
 		}else{
 			startBytes = new ByteRange(partitionPrefix);
-			startInclusive = true;//don't want it to skip the whole partition
 		}
 		
 		ByteRange endBytes = null;
@@ -259,7 +258,8 @@ extends HBaseEntityQueryBuilder<EK,E>{
 	
 	/************* get results in sub range ********************/
 	
-	public Scan getScanForSubrange(final int partition, final Range<PK> rowRange, final Config pConfig, boolean keysOnly){
+	public Scan getScanForSubrange(final int partition, final Range<PK> rowRange, final Config pConfig, 
+			boolean keysOnly){
 		Config config = Config.nullSafe(pConfig);
 		Range<ByteRange> rowBytesRange = getRowRange(partition, rowRange);
 		//TODO Get if single row
