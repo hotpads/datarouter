@@ -20,7 +20,6 @@ import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodec
 import com.hotpads.datarouter.client.type.JdbcClient;
 import com.hotpads.datarouter.connection.JdbcConnectionPool;
 import com.hotpads.datarouter.routing.DatarouterContext;
-import com.hotpads.datarouter.util.core.DrBooleanTool;
 import com.hotpads.datarouter.util.core.DrPropertiesTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.util.core.profile.PhaseTimer;
@@ -28,8 +27,7 @@ import com.hotpads.util.core.profile.PhaseTimer;
 public class JdbcSimpleClientFactory
 implements ClientFactory{
 	private static Logger logger = LoggerFactory.getLogger(JdbcSimpleClientFactory.class);
-
-	private static final String SCHEMA_UPDATE_ENABLE = "schemaUpdate.enable";
+	
 	public static final String 	POOL_DEFAULT = "default";
 
 	private final DatarouterContext drContext;
@@ -87,7 +85,7 @@ implements ClientFactory{
 
 
 	protected boolean doSchemaUpdate(){
-		return isWritableClient() && checkJdbcOption(SCHEMA_UPDATE_ENABLE);
+		return isWritableClient() && jdbcOptions.schemaUpdateEnabled();
 	}
 
 	private void checkDatabaseExist() {
@@ -126,11 +124,6 @@ implements ClientFactory{
 		}
 	}
 	
-	private boolean checkJdbcOption(String requiredString){
-		return DrBooleanTool.isTrue(jdbcOptions.getRequiredString(requiredString));
-		
-	}
-
 	public String getClientName(){
 		return clientName;
 	}

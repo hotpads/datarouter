@@ -3,16 +3,16 @@ package com.hotpads.datarouter.client.imp.jdbc.factory;
 import java.util.Properties;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.execute.ParallelSchemaUpdate;
-import com.hotpads.datarouter.util.core.DrBooleanTool;
 import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.properties.TypedProperties;
 
 public class JdbcOptions extends TypedProperties{
 
 	private static final String CREATE_DATABASE = "createDatabases";
-	private static final String executeCreateDbString = ParallelSchemaUpdate.EXECUTE_PREFIX+"."+CREATE_DATABASE;
-	private static final String printCreateDbString = ParallelSchemaUpdate.PRINT_PREFIX+"."+CREATE_DATABASE;
-	
+	private static final String SCHEMA_UPDATE_ENABLE = "schemaUpdate.enable";
+	private static final String EXECUTE_CREATE_DB = ParallelSchemaUpdate.EXECUTE_PREFIX+"."+CREATE_DATABASE;
+	private static final String PRINT_CREATE_DB = ParallelSchemaUpdate.PRINT_PREFIX+"."+CREATE_DATABASE;
+	private static final boolean DEFAULT_BOOLEAN = false;
 	protected String clientPrefix;
 
 	public JdbcOptions(Iterable<Properties> multiProperties, String clientName){
@@ -44,12 +44,16 @@ public class JdbcOptions extends TypedProperties{
 		return getBoolean(clientPrefix+"logging", def);
 	}
 	
-	public boolean executeCreateDb(){
-		return DrBooleanTool.isTrue(getRequiredString(executeCreateDbString));
+	public Boolean executeCreateDb(){
+		return getBoolean(getRequiredString(EXECUTE_CREATE_DB), DEFAULT_BOOLEAN);
 	}
 	
 	public boolean printCreateDb(){
-		return DrBooleanTool.isTrue(getRequiredString(printCreateDbString));
+		return getBoolean(getRequiredString(PRINT_CREATE_DB), DEFAULT_BOOLEAN);
+	}
+
+	public boolean schemaUpdateEnabled(){
+		return getBoolean(getRequiredString(SCHEMA_UPDATE_ENABLE), DEFAULT_BOOLEAN);
 	}
 
 }
