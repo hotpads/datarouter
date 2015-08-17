@@ -31,8 +31,8 @@ import com.hotpads.util.core.bytes.ByteRange;
 import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.collections.Twin;
-import com.hotpads.util.core.iterable.scanner.batch.BatchLoader;
 import com.hotpads.util.core.iterable.scanner.batch.AsyncBatchLoaderScanner;
+import com.hotpads.util.core.iterable.scanner.batch.BatchLoader;
 
 public class HBaseSubEntityQueryBuilder<
 		EK extends EntityKey<EK>,
@@ -40,8 +40,7 @@ public class HBaseSubEntityQueryBuilder<
 		PK extends EntityPrimaryKey<EK,PK>,
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>>
-extends HBaseEntityQueryBuilder<EK,E>
-{
+extends HBaseEntityQueryBuilder<EK,E>{
 	
 	private DatabeanFieldInfo<PK,D,F> fieldInfo;
 	
@@ -67,11 +66,15 @@ extends HBaseEntityQueryBuilder<EK,E>
 	public Range<ByteRange> getRowRange(int partition, Range<PK> pkRange){
 		byte[] partitionPrefix = partitioner.getPrefix(partition);
 		
-		ByteRange startBytes = new ByteRange(partitionPrefix);
+		ByteRange startBytes;
+		boolean startInclusive = pkRange.getStartInclusive();
 		if(pkRange.hasStart()){
 			EK startEk = pkRange.getStart().getEntityKey();
 			byte[] startByteArray = DrByteTool.concatenate(partitionPrefix, getRowBytes(startEk));
 			startBytes = new ByteRange(startByteArray);
+		}else{
+			startBytes = new ByteRange(partitionPrefix);
+			startInclusive = true;//don't want it to skip the whole partition
 		}
 		
 		ByteRange endBytes = null;
@@ -80,16 +83,15 @@ extends HBaseEntityQueryBuilder<EK,E>
 			EK endEk = pkRange.getEnd().getEntityKey();
 			byte[] endByteArray = DrByteTool.concatenate(partitionPrefix, getRowBytes(endEk));
 			endBytes = new ByteRange(endByteArray);
-		}else{
-			if(!partitioner.isLastPartition(partition)){
-				byte[] nextPartitionPrefix = partitioner.getNextPrefix(partition);
-				endBytes = new ByteRange(nextPartitionPrefix);
-				//HBaseQueryBuilder.getScanForRange will increment the bytes if endInclusive==true, which would include
-				// the whole next partition.  don't want that, so set endInclusive=false
-				endInclusive = false;
-			}
-		}//else no end
-		return Range.create(startBytes, pkRange.getStartInclusive(), endBytes, endInclusive);
+		}else if(!partitioner.isLastPartition(partition)){
+			byte[] nextPartitionPrefix = partitioner.getNextPrefix(partition);
+			endBytes = new ByteRange(nextPartitionPrefix);
+			//HBaseQueryBuilder.getScanForRange will increment the bytes if endInclusive==true, which would include
+			// the whole next partition.  don't want that, so set endInclusive=false
+			endInclusive = false;
+		}
+		Range<ByteRange> result = new Range<>(startBytes, startInclusive, endBytes, endInclusive);
+		return result;
 	}
 	
 	/******************** qualifiers ***********************/

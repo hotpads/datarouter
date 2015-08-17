@@ -38,7 +38,6 @@ public class HBaseEntitySortedNodeIntegrationTests extends BaseSortedNodeIntegra
 	}
 	
 
-
 	@Test
 	public void testGetEntity(){
 		SortedBeanEntityKey ek1 = new SortedBeanEntityKey(SortedBeans.S_albatross, SortedBeans.S_ostrich);
@@ -51,12 +50,4 @@ public class HBaseEntitySortedNodeIntegrationTests extends BaseSortedNodeIntegra
 		AssertJUnit.assertEquals(SortedBeans.S_ostrich, DrCollectionTool.getFirst(results).getB());
 	}
 	
-
-	@Test //regression test for HBaseSubEntityQueryBuilder.getRowRange which loaded results from the next partition
-	public void testNullEndKey(){
-		Range<SortedBeanKey> range = new Range<>(null, true, null, true);
-		Iterable<SortedBeanKey> iterable = sortedNode.scanKeys(range, null);
-		long numDatabeans = DrIterableTool.count(iterable);
-		AssertJUnit.assertEquals(SortedBeans.TOTAL_RECORDS, numDatabeans);
-	}
 }
