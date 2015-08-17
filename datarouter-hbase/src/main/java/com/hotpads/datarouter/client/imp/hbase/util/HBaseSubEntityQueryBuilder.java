@@ -57,10 +57,10 @@ extends HBaseEntityQueryBuilder<EK,E>{
 		return ekRange.hasStart() && ekRange.equalsStartEnd();
 	}
 	
-	public Range<EK> getEkRange(Range<PK> pkRange){
+	private Range<EK> getEkRange(Range<PK> pkRange){
 		EK start = pkRange.hasStart() ? pkRange.getStart().getEntityKey() : null;
 		EK end = pkRange.hasEnd() ? pkRange.getEnd().getEntityKey() : null;
-		return Range.create(start, pkRange.getStartInclusive(), end, pkRange.getEndInclusive());
+		return Range.create(start, true, end, true);
 	}
 	
 	public Range<ByteRange> getRowRange(int partition, Range<PK> pkRange){
@@ -106,7 +106,9 @@ extends HBaseEntityQueryBuilder<EK,E>{
 	}
 	
 	public byte[] getQualifierPkBytes(PK primaryKey, boolean trailingSeparatorAfterEndingString){
-		if(primaryKey==null){ return new byte[]{}; }
+		if(primaryKey==null){
+			return new byte[]{};
+		}
 		return FieldTool.getConcatenatedValueBytes(primaryKey.getPostEntityKeyFields(), true, 
 				trailingSeparatorAfterEndingString);
 	}
@@ -263,7 +265,9 @@ extends HBaseEntityQueryBuilder<EK,E>{
 		//TODO Get if single row
 		Scan scan = HBaseQueryBuilder.getScanForRange(rowBytesRange, config);
 		FilterList filterList = new FilterList();
-		if(keysOnly){ filterList.addFilter(new KeyOnlyFilter()); }
+		if(keysOnly){
+			filterList.addFilter(new KeyOnlyFilter());
+		}
 		filterList.addFilter(new ColumnPrefixFilter(fieldInfo.getEntityColumnPrefixBytes()));
 		scan.setFilter(filterList);
 		return scan;
