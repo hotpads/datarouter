@@ -3,6 +3,7 @@ package com.hotpads.datarouter.client.imp.jdbc.ddl.domain;
 import java.util.List;
 import java.util.Properties;
 
+import com.hotpads.datarouter.client.imp.jdbc.ddl.execute.ParallelSchemaUpdate;
 import com.hotpads.datarouter.util.core.DrBooleanTool;
 import com.hotpads.datarouter.util.core.DrPropertiesTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
@@ -23,7 +24,9 @@ public class SchemaUpdateOptions{
 	SUFFIX_ignoreClients = ".ignoreClients",
 	SUFFIX_ignoreTables = ".ignoreTables",
 	SUFFIX_modifyCharacterSet = ".modifyCharacterSet",
-	SUFFIX_modifyCollation = ".modifyCollation";
+	SUFFIX_modifyCollation = ".modifyCollation",
+	CREATE_DATABASE = "createDatabases",
+	EXECUTE_CREATE_DB = ParallelSchemaUpdate.EXECUTE_PREFIX+"."+CREATE_DATABASE;
 
 
 	protected Boolean createDatabases;
@@ -257,6 +260,9 @@ public class SchemaUpdateOptions{
 		return modifyCharacterSet;
 	}
 
+	public Boolean executeCreateDb(){
+		return getBoolean(EXECUTE_CREATE_DB, false);
+	}
 
 
 }
