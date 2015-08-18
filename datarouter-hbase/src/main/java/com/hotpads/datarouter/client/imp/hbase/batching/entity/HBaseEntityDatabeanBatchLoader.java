@@ -12,7 +12,7 @@ import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.entity.Entity;
-import com.hotpads.datarouter.storage.field.compare.EndOfRangeFieldSetComparator;
+import com.hotpads.datarouter.storage.field.compare.FieldSetRangeFilter;
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
 import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
 import com.hotpads.datarouter.util.core.DrIterableTool;
@@ -30,8 +30,8 @@ extends BaseHBaseEntityBatchLoader<EK,E,PK,D,F,D>{
 	private static Logger logger = LoggerFactory.getLogger(HBaseEntityDatabeanBatchLoader.class);
 		
 	public HBaseEntityDatabeanBatchLoader(final HBaseSubEntityReaderNode<EK,E,PK,D,F> node, int partition,
-			final Range<PK> range, final Config pConfig, Long batchChainCounter){
-		super(node, partition, range, pConfig, batchChainCounter);
+			final byte[] partitionBytes, final Range<PK> range, final Config pConfig, Long batchChainCounter){
+		super(node, partition, partitionBytes, range, pConfig, batchChainCounter);
 	}
 	
 	@Override
@@ -45,8 +45,7 @@ extends BaseHBaseEntityBatchLoader<EK,E,PK,D,F,D>{
 		List<D> unfilteredResults = node.getResultParser().getDatabeansWithMatchingQualifierPrefix(result);
 		List<D> filteredResults = new ArrayList<>();
 		for(D candidate : DrIterableTool.nullSafe(unfilteredResults)){
-			if(EndOfRangeFieldSetComparator.isCandidateIncludedForEndOfRange(candidate.getKey(), range.getEnd(), 
-					range.getEndInclusive())){
+			if(FieldSetRangeFilter.include(candidate.getKey(), range)){
 				filteredResults.add(candidate);
 			}
 		}
@@ -62,6 +61,7 @@ extends BaseHBaseEntityBatchLoader<EK,E,PK,D,F,D>{
 	@Override
 	public BatchLoader<D> getNextLoader(){
 		Range<PK> nextRange = getNextRange();
-		return new HBaseEntityDatabeanBatchLoader<EK,E,PK,D,F>(node, partition, nextRange, config, batchChainCounter + 1);					
+		return new HBaseEntityDatabeanBatchLoader<EK,E,PK,D,F>(node, partition, partitionBytes, nextRange, config, 
+				batchChainCounter + 1);					
 	}
 }
