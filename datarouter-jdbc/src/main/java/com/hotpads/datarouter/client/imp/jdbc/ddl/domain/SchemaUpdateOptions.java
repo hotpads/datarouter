@@ -256,5 +256,5 @@ public class SchemaUpdateOptions{
 		// TODO Auto-generated method stub
 		return modifyCharacterSet;
 	}
-		
+
 }
