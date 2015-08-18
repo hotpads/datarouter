@@ -2,75 +2,51 @@ package com.hotpads.datarouter.client.imp.jdbc.field.codec.enums;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Types;
 
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
+import com.hotpads.datarouter.client.imp.jdbc.field.StringJdbcFieldCodec;
 import com.hotpads.datarouter.client.imp.jdbc.field.codec.base.BaseJdbcFieldCodec;
-import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.enums.StringEnum;
 import com.hotpads.datarouter.storage.field.imp.enums.StringEnumField;
 
 public class StringEnumJdbcFieldCodec<E extends StringEnum<E>>
 extends BaseJdbcFieldCodec<E,StringEnumField<E>>{
-	
+
+	private StringJdbcFieldCodec stringJdbcFieldCodec;
+
 	public StringEnumJdbcFieldCodec(){//no-arg for reflection
 		this(null);
 	}
 
 	public StringEnumJdbcFieldCodec(StringEnumField<E> field){
 		super(field);
+		stringJdbcFieldCodec = new StringJdbcFieldCodec(field.toStringField());
 	}
-
 
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
-		if(field.getSize() <= MySqlColumnType.MAX_LENGTH_VARCHAR){
-			return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.VARCHAR, field.getSize(), field
-					.getKey().isNullable(), false);
-		}else if(field.getSize() <= MySqlColumnType.MAX_LENGTH_TEXT){
-			return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.TEXT, null, field.getKey()
-					.isNullable(), false);
-		}else if(field.getSize() <= MySqlColumnType.MAX_LENGTH_MEDIUMTEXT){
-			return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.MEDIUMTEXT, null, field.getKey()
-					.isNullable(), false);
-		}else if(field.getSize() <= MySqlColumnType.MAX_LENGTH_LONGTEXT){ return new SqlColumn(field.getKey()
-				.getColumnName(), MySqlColumnType.LONGTEXT, null, field.getKey().isNullable(), false); }
-		throw new IllegalArgumentException("Unknown size:" + field.getSize());
+		return stringJdbcFieldCodec.getSqlColumnDefinition();
 	}
 
 	@Override
 	public String getSqlEscaped(){
-		return field.getValue() == null ? "null" : "'" + field.getValue().getPersistentString() + "'";
+		return stringJdbcFieldCodec.getSqlEscaped();
 	}
 
 	@Override
 	public E parseJdbcValueButDoNotSet(Object obj){
-		return obj == null ? null : field.getSampleValue().fromPersistentString((String)obj);
+		return field.getSampleValue().fromPersistentString(stringJdbcFieldCodec.parseJdbcValueButDoNotSet(obj));
 	}
 
 	@Override
 	public void setPreparedStatementValue(PreparedStatement ps, int parameterIndex){
-		try{
-			if(field.getValue() == null){
-				ps.setNull(parameterIndex, Types.VARCHAR);
-			}else{
-				ps.setString(parameterIndex, field.getValue().getPersistentString());
-			}
-		}catch(SQLException e){
-			throw new DataAccessException(e);
-		}
+		stringJdbcFieldCodec.setPreparedStatementValue(ps, parameterIndex);
 	}
 
 	@Override
 	public E fromJdbcResultSetButDoNotSet(ResultSet rs){
-		try{
-			String s = rs.getString(field.getKey().getColumnName());
-			return s == null ? null : field.getSampleValue().fromPersistentString(s);
-		}catch(SQLException e){
-			throw new DataAccessException(e);
-		}
+		String string = stringJdbcFieldCodec.fromJdbcResultSetButDoNotSet(rs);
+		return string == null ? null : field.getSampleValue().fromPersistentString(string);
 	}
-	
+
 }
