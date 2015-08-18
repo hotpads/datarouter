@@ -2,7 +2,6 @@ package com.hotpads.datarouter.client.imp.hibernate.op.read;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.hibernate.Criteria;
@@ -43,7 +42,7 @@ extends BaseHibernateOp<List<D>>{
 	@Override
 	public List<D> runOnce(){
 		if(DrCollectionTool.isEmpty(lookups)){
-			return new LinkedList<>();
+			return Collections.emptyList();
 		}
 		Session session = getSession(node.getClientId().getName());
 		//TODO undefined behavior on trailing nulls
@@ -58,8 +57,8 @@ extends BaseHibernateOp<List<D>>{
 			or.add(prefixConjunction);
 		}
 		criteria.add(or);
+		@SuppressWarnings("unchecked")
 		List<D> result = criteria.list();
-		Collections.sort(result);//TODO, make sure the datastore scans in order so we don't need to sort here
 		return result;
 	}
 	
