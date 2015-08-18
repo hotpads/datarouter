@@ -23,9 +23,8 @@ public class SchemaUpdateOptions{
 	SUFFIX_ignoreClients = ".ignoreClients",
 	SUFFIX_ignoreTables = ".ignoreTables",
 	SUFFIX_modifyCharacterSet = ".modifyCharacterSet",
-	SUFFIX_modifyCollation = ".modifyCollation"
-	;
-
+	SUFFIX_modifyCollation = ".modifyCollation";
+	
 	protected Boolean createDatabases;
 	protected Boolean createTables;
 	protected Boolean dropTables;
