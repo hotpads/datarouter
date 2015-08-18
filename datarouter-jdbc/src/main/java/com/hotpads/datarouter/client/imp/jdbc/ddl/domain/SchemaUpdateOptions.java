@@ -56,7 +56,7 @@ public class SchemaUpdateOptions{
 	}
 
 	private SchemaUpdateOptions SetSchemaUpdateWithPrintOptions(List<Properties> multiProperties, String prefix){
-		this.createDatabases = DrBooleanTool.isTrueOrNull(DrPropertiesTool.getFirstOccurrence(multiProperties,
+		this.createDatabases = DrBooleanTool.isTrue(DrPropertiesTool.getFirstOccurrence(multiProperties,
 				prefix+SUFFIX_createDatabases));
 		this.createTables = DrBooleanTool.isTrueOrNull(DrPropertiesTool.getFirstOccurrence(multiProperties,
 				prefix+SUFFIX_createTables));
@@ -84,7 +84,7 @@ public class SchemaUpdateOptions{
 	}
 
 	private SchemaUpdateOptions SetSchemaUpdateWithExecuteOptions(List<Properties> multiProperties, String prefix){
-		this.createDatabases = DrBooleanTool.isTrueOrNull(DrPropertiesTool.getFirstOccurrence(multiProperties,
+		this.createDatabases = DrBooleanTool.isTrue(DrPropertiesTool.getFirstOccurrence(multiProperties,
 				prefix+SUFFIX_createDatabases));
 		this.createTables = DrBooleanTool.isTrueOrNull(DrPropertiesTool.getFirstOccurrence(multiProperties,
 				prefix+SUFFIX_createTables));
@@ -162,8 +162,7 @@ public class SchemaUpdateOptions{
 	}
 
 	public Boolean getCreateDatabases(){
-		//return false as default
-		return DrBooleanTool.isTrue(createDatabases);
+		return createDatabases;
 	}
 
 	public SchemaUpdateOptions setCreateTables(Boolean createTables){
