@@ -20,7 +20,7 @@ extends BaseJdbcFieldCodec<E,StringEnumField<E>>{
 
 	public StringEnumJdbcFieldCodec(StringEnumField<E> field){
 		super(field);
-		stringJdbcFieldCodec = new StringJdbcFieldCodec(field.toStringField());
+		stringJdbcFieldCodec = new StringJdbcFieldCodec(StringEnumField.toStringField(field));
 	}
 
 	@Override
