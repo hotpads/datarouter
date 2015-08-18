@@ -3,16 +3,16 @@ package com.hotpads.datarouter.client.imp.jdbc.node;
 import java.util.Collection;
 
 import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
+import com.hotpads.datarouter.client.imp.jdbc.node.mixin.JdbcIndexedStorageWriterMixin;
+import com.hotpads.datarouter.client.imp.jdbc.node.mixin.JdbcSortedStorageWriterMixin;
 import com.hotpads.datarouter.client.imp.jdbc.op.write.JdbcDeleteAllOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.write.JdbcDeleteOp;
-import com.hotpads.datarouter.client.imp.jdbc.op.write.JdbcPrefixDeleteOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.write.JdbcPutOp;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage.PhysicalIndexedSortedMapStorageNode;
 import com.hotpads.datarouter.node.op.raw.write.MapStorageWriter;
-import com.hotpads.datarouter.node.op.raw.write.SortedStorageWriter;
 import com.hotpads.datarouter.op.executor.impl.SessionExecutorImpl;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
@@ -25,7 +25,9 @@ public class JdbcNode<
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>>
 extends JdbcReaderNode<PK,D,F>
-implements PhysicalIndexedSortedMapStorageNode<PK,D>, JdbcIndexedStorageWriterMixin<PK,D>{
+implements PhysicalIndexedSortedMapStorageNode<PK,D>,
+		JdbcIndexedStorageWriterMixin<PK,D>,
+		JdbcSortedStorageWriterMixin<PK,D>{
 
 	private final JdbcFieldCodecFactory fieldCodecFactory;
 
@@ -88,13 +90,4 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D>, JdbcIndexedStorageWriterMi
 		new SessionExecutorImpl<>(op, getTraceName(opName)).call();
 	}
 
-	/************************************ SortedStorageWriter methods ****************************/
-
-	@Override
-	public void deleteRangeWithPrefix(final PK prefix, final boolean wildcardLastField, final Config config) {
-		String opName = SortedStorageWriter.OP_deleteRangeWithPrefix;
-		JdbcPrefixDeleteOp<PK,D> op = new JdbcPrefixDeleteOp<>(this, fieldCodecFactory, prefix, wildcardLastField,
-				config);
-		new SessionExecutorImpl<>(op, getTraceName(opName)).call();
-	}
 }
