@@ -2,16 +2,12 @@ package com.hotpads.datarouter.client.imp.jdbc.factory;
 
 import java.util.Properties;
 
-import com.hotpads.datarouter.client.imp.jdbc.ddl.execute.ParallelSchemaUpdate;
 import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.properties.TypedProperties;
 
 public class JdbcOptions extends TypedProperties{
-
-	private static final String CREATE_DATABASE = "createDatabases";
+	
 	private static final String SCHEMA_UPDATE_ENABLE = "schemaUpdate.enable";
-	private static final String EXECUTE_CREATE_DB = ParallelSchemaUpdate.EXECUTE_PREFIX+"."+CREATE_DATABASE;
-	private static final String PRINT_CREATE_DB = ParallelSchemaUpdate.PRINT_PREFIX+"."+CREATE_DATABASE;
 	
 	protected String clientPrefix;
 
@@ -42,14 +38,6 @@ public class JdbcOptions extends TypedProperties{
 
 	public Boolean logging(Boolean def){
 		return getBoolean(clientPrefix+"logging", def);
-	}
-	
-	public Boolean executeCreateDb(){
-		return getBoolean(EXECUTE_CREATE_DB, false);
-	}
-	
-	public boolean printCreateDb(){
-		return getBoolean(PRINT_CREATE_DB, false);
 	}
 
 	public boolean schemaUpdateEnabled(){

@@ -15,6 +15,7 @@ import com.hotpads.datarouter.client.ClientFactory;
 import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
 import com.hotpads.datarouter.client.imp.jdbc.JdbcClientImp;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SchemaUpdateOptions;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.execute.ParallelSchemaUpdate;
 import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.client.type.JdbcClient;
@@ -28,8 +29,12 @@ public class JdbcSimpleClientFactory
 implements ClientFactory{
 	private static Logger logger = LoggerFactory.getLogger(JdbcSimpleClientFactory.class);
 	
-	public static final String 	POOL_DEFAULT = "default";
-
+	public static final String
+		POOL_DEFAULT = "default",
+		PRINT_PREFIX = "schemaUpdate.print",
+		EXECUTE_PREFIX = "schemaUpdate.execute"
+		;
+	
 	private final DatarouterContext drContext;
 	protected final JdbcFieldCodecFactory fieldCodecFactory;
 	private final String clientName;
@@ -37,6 +42,8 @@ implements ClientFactory{
 	private final List<Properties> multiProperties;
 	private final JdbcOptions jdbcOptions;
 	private final JdbcOptions defaultJdbcOptions;
+	public final SchemaUpdateOptions printOptions;
+	public final SchemaUpdateOptions executeOptions;
 	
 	private JdbcConnectionPool connectionPool;
 	private JdbcClient client;
@@ -50,6 +57,8 @@ implements ClientFactory{
 		this.multiProperties = DrPropertiesTool.fromFiles(configFilePaths);
 		this.jdbcOptions = new JdbcOptions(multiProperties, clientName);
 		this.defaultJdbcOptions = new JdbcOptions(multiProperties, POOL_DEFAULT);
+		this.printOptions = new SchemaUpdateOptions(multiProperties, PRINT_PREFIX, true	);
+		this.executeOptions = new SchemaUpdateOptions(multiProperties, EXECUTE_PREFIX, false);
 	}
 
 	@Override
@@ -77,7 +86,7 @@ implements ClientFactory{
 
 	protected void initConnectionPool(){
 		//if the schemaupdate option for execute and print is set to false, then do not check for Schema difference
-		if(jdbcOptions.executeCreateDb() || jdbcOptions.printCreateDb()){
+		if(printOptions.getCreateDatabases() || executeOptions.getCreateDatabases()){
 			checkDatabaseExist();
 		}
 		connectionPool = new JdbcConnectionPool(clientName,	isWritableClient(), defaultJdbcOptions, jdbcOptions);
@@ -111,7 +120,7 @@ implements ClientFactory{
 		System.out.println("========================================== Creating the database " +databaseName
 				+" ============================");
 		String sql = "Create database "+ databaseName +" ;";
-		if(!jdbcOptions.executeCreateDb()){
+		if(!executeOptions.getCreateDatabases()){
 			System.out.println("Please execute: "+sql);
 		}else {
 			try{
