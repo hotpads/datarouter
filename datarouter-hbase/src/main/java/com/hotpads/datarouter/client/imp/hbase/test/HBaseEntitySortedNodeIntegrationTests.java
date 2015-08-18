@@ -14,11 +14,8 @@ import com.hotpads.datarouter.test.node.basic.sorted.SortedBean;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBeanEntity;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBeanEntityKey;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBeanEntityNode;
-import com.hotpads.datarouter.test.node.basic.sorted.SortedBeanKey;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBeans;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
-import com.hotpads.datarouter.util.core.DrIterableTool;
-import com.hotpads.util.core.collections.Range;
 
 
 public class HBaseEntitySortedNodeIntegrationTests extends BaseSortedNodeIntegrationTests{
