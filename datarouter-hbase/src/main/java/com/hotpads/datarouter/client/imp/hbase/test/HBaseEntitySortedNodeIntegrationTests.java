@@ -35,7 +35,6 @@ public class HBaseEntitySortedNodeIntegrationTests extends BaseSortedNodeIntegra
 	}
 	
 
-
 	@Test
 	public void testGetEntity(){
 		SortedBeanEntityKey ek1 = new SortedBeanEntityKey(SortedBeans.S_albatross, SortedBeans.S_ostrich);
@@ -47,4 +46,5 @@ public class HBaseEntitySortedNodeIntegrationTests extends BaseSortedNodeIntegra
 		AssertJUnit.assertEquals(SortedBeans.S_albatross, DrCollectionTool.getFirst(results).getA());
 		AssertJUnit.assertEquals(SortedBeans.S_ostrich, DrCollectionTool.getFirst(results).getB());
 	}
+	
 }
