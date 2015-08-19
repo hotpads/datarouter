@@ -14,7 +14,7 @@ import com.hotpads.datarouter.storage.field.imp.enums.IntegerEnumField;
 
 public class IntegerEnumJdbcFieldCodec<E extends IntegerEnum<E>>
 extends BaseJdbcFieldCodec<E,IntegerEnumField<E>>{
-	
+
 	public IntegerEnumJdbcFieldCodec(){//no-arg for reflection
 		this(null);
 	}
@@ -23,7 +23,7 @@ extends BaseJdbcFieldCodec<E,IntegerEnumField<E>>{
 		super(field);
 	}
 
-	
+
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
 		return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.INT, 11, field.getKey().isNullable(),
@@ -32,7 +32,9 @@ extends BaseJdbcFieldCodec<E,IntegerEnumField<E>>{
 
 	@Override
 	public String getSqlEscaped(){
-		if(field.getValue()==null){ return "null"; }
+		if(field.getValue()==null){
+			return "null";
+		}
 		return field.getValue().getPersistentInteger().toString();
 	}
 
@@ -40,7 +42,7 @@ extends BaseJdbcFieldCodec<E,IntegerEnumField<E>>{
 	public E parseJdbcValueButDoNotSet(Object obj){
 		return obj==null?null:field.getSampleValue().fromPersistentInteger((Integer)obj);
 	}
-	
+
 	@Override
 	public void setPreparedStatementValue(PreparedStatement ps, int parameterIndex){
 		try{
@@ -53,7 +55,7 @@ extends BaseJdbcFieldCodec<E,IntegerEnumField<E>>{
 			throw new DataAccessException(e);
 		}
 	}
-	
+
 	@Override
 	public E fromJdbcResultSetButDoNotSet(ResultSet rs){
 		try{
@@ -63,5 +65,5 @@ extends BaseJdbcFieldCodec<E,IntegerEnumField<E>>{
 			throw new DataAccessException(e);
 		}
 	}
-	
+
 }
