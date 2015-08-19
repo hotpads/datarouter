@@ -30,7 +30,7 @@ import com.hotpads.datarouter.storage.key.entity.EntityKey;
 import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.test.DatarouterTestModuleFactory;
-import com.hotpads.util.core.lang.ClassTool;
+import com.hotpads.datarouter.util.core.DrClassTool;
 
 /**
  * applications create this class via reflection
@@ -94,7 +94,7 @@ public class MemcachedClientType extends BaseClientType{
 		public void testClassLocation(){
 			String actualClassName = MemcachedClientType.class.getCanonicalName();
 			Assert.assertEquals(CANONICAL_CLASS_NAME, actualClassName);
-			injector.getInstance(ClassTool.forName(CANONICAL_CLASS_NAME));
+			injector.getInstance(DrClassTool.forName(CANONICAL_CLASS_NAME));
 		}
 	}
 	
