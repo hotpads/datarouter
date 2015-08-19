@@ -4,9 +4,8 @@ import java.util.Collection;
 
 import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.client.imp.jdbc.node.mixin.JdbcIndexedStorageWriterMixin;
+import com.hotpads.datarouter.client.imp.jdbc.node.mixin.JdbcMapStorageWriterMixin;
 import com.hotpads.datarouter.client.imp.jdbc.node.mixin.JdbcSortedStorageWriterMixin;
-import com.hotpads.datarouter.client.imp.jdbc.op.write.JdbcDeleteAllOp;
-import com.hotpads.datarouter.client.imp.jdbc.op.write.JdbcDeleteOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.write.JdbcPutOp;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.Node;
@@ -27,7 +26,8 @@ public class JdbcNode<
 extends JdbcReaderNode<PK,D,F>
 implements PhysicalIndexedSortedMapStorageNode<PK,D>,
 		JdbcIndexedStorageWriterMixin<PK,D>,
-		JdbcSortedStorageWriterMixin<PK,D>{
+		JdbcSortedStorageWriterMixin<PK,D>,
+		JdbcMapStorageWriterMixin<PK,D>{
 
 	private final JdbcFieldCodecFactory fieldCodecFactory;
 
@@ -55,38 +55,13 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D>,
 		new SessionExecutorImpl<>(op, getTraceName(opName)).call();
 	}
 
-
 	@Override
 	public void putMulti(Collection<D> databeans, final Config config) {
 		String opName = MapStorageWriter.OP_putMulti;
 		if(DrCollectionTool.isEmpty(databeans)){
-			return;//avoid starting txn
+			return;//avoid starting txnd diff
 		}
 		JdbcPutOp<PK,D,F> op = new JdbcPutOp<>(this, fieldCodecFactory, databeans, config);
-		new SessionExecutorImpl<>(op, getTraceName(opName)).call();
-	}
-
-	@Override
-	public void deleteAll(final Config config) {
-		String opName = MapStorageWriter.OP_deleteAll;
-		JdbcDeleteAllOp<PK,D,F> op = new JdbcDeleteAllOp<>(this, config);
-		new SessionExecutorImpl<>(op, getTraceName(opName)).call();
-	}
-
-	@Override
-	public void delete(PK key, Config config){
-		String opName = MapStorageWriter.OP_delete;
-		JdbcDeleteOp<PK,D> op = new JdbcDeleteOp<>(this, fieldCodecFactory, DrListTool.wrap(key), config);
-		new SessionExecutorImpl<>(op, getTraceName(opName)).call();
-	}
-
-	@Override
-	public void deleteMulti(final Collection<PK> keys, final Config config){
-		String opName = MapStorageWriter.OP_deleteMulti;
-		if(DrCollectionTool.isEmpty(keys)){
-			return;//avoid starting txn
-		}
-		JdbcDeleteOp<PK,D> op = new JdbcDeleteOp<>(this, fieldCodecFactory, keys, config);
 		new SessionExecutorImpl<>(op, getTraceName(opName)).call();
 	}
 
