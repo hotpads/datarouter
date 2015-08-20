@@ -3,7 +3,6 @@ package com.hotpads.datarouter.client.imp.jdbc.field.codec.primitive;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Types;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
@@ -19,6 +18,7 @@ public abstract class BaseByteJdbcFieldCodec<F extends Field<Byte>> extends Base
 
 	protected abstract Integer getMaxColumnLength();
 	protected abstract MySqlColumnType getMysqlColumnType();
+	protected abstract Integer getJavaSqlType();
 
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
@@ -30,7 +30,7 @@ public abstract class BaseByteJdbcFieldCodec<F extends Field<Byte>> extends Base
 	public void setPreparedStatementValue(PreparedStatement ps, int parameterIndex){
 		try{
 			if(field.getValue()==null){
-				ps.setNull(parameterIndex, Types.TINYINT);
+				ps.setNull(parameterIndex, getJavaSqlType());
 			}else{
 				ps.setByte(parameterIndex, field.getValue());
 			}
