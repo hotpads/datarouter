@@ -1,7 +1,7 @@
 package com.hotpads.datarouter.client.imp.jdbc.op.read;
 
 import java.util.Collection;
-import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
@@ -39,7 +39,7 @@ extends BaseJdbcOp<List<D>>{
 	@Override
 	public List<D> runOnce(){
 		if(DrCollectionTool.isEmpty(uniqueKeys)){
-			return Collections.emptyList();
+			return new LinkedList<>();
 		}
 		String sql = SqlBuilder.getMulti(fieldCodecFactory, config, node.getTableName(), node.getFieldInfo()
 				.getFields(), uniqueKeys);
