@@ -32,13 +32,14 @@ implements Retryable<T>{
 		for(int attemptNum = 1; attemptNum <= numAttempts; ++attemptNum){
 			try{
 				return callable.call();
-			}catch(javax.persistence.RollbackException e){
+			}catch(javax.persistence.RollbackException e){//this is fragile.  callable must throw this exact exception
 				if(attemptNum < numAttempts){
 					logger.warn("rollback on attempt {}/{}, sleeping {}ms", attemptNum, numAttempts, backoffMs, e);
 					ThreadTool.sleep(backoffMs);
 				}else{
 					logger.error("rollback on final attempt {}", attemptNum, e);
-					throw new RuntimeException(e);
+					Throwable rollbackCause = e.getCause();
+					throw new RuntimeException(rollbackCause);
 				}
 			}
 			backoffMs *= 2;
