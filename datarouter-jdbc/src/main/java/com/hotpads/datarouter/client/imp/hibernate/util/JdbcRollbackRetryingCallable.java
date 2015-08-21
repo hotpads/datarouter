@@ -1,15 +1,14 @@
 package com.hotpads.datarouter.client.imp.hibernate.util;
 
-import java.util.concurrent.Callable;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.op.executor.impl.SessionExecutorImpl;
+import com.hotpads.util.core.concurrent.Retryable;
 import com.hotpads.util.core.concurrent.ThreadTool;
 
 public class JdbcRollbackRetryingCallable<T>
-implements Callable<T>{
+implements Retryable<T>{
 	private static final Logger logger = LoggerFactory.getLogger(JdbcRollbackRetryingCallable.class);
 
 	

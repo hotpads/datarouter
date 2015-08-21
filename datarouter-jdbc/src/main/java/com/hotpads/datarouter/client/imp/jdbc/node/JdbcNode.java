@@ -20,7 +20,7 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrListTool;
-import com.hotpads.util.core.concurrent.CallableTool;
+import com.hotpads.util.core.concurrent.RetryableTool;
 
 public class JdbcNode<
 		PK extends PrimaryKey<PK>,
@@ -117,6 +117,6 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D>, JdbcIndexedStorageWriterMi
 		JdbcRollbackRetryingCallable<T> retryingCallable = new JdbcRollbackRetryingCallable<>(opCallable,
 				NUM_ROLLBACK_ATTEMPTS, ROLLBACK_BACKOFF_MS);
 		int numAttempts = config.getNumAttemptsOrUse(DEFAULT_NUM_ATTEMPTS);
-		return CallableTool.tryNTimesWithBackoffUnchecked(retryingCallable, numAttempts, DEFAULT_BACKOFF_MS);
+		return RetryableTool.tryNTimesWithBackoffUnchecked(retryingCallable, numAttempts, DEFAULT_BACKOFF_MS);
 	}
 }
