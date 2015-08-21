@@ -114,6 +114,7 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D>, JdbcIndexedStorageWriterMi
 	 * number of times (NUM_ROLLBACK_ATTEMPTS - 1). If config.getNumAttempts() is 2 and NUM_ROLLBACK_ATTEMPTS is 3, then
 	 * we may start 6 txns */
 	private <T> T tryNTimes(SessionExecutorImpl<T> opCallable, Config config){
+		config = Config.nullSafe(config);
 		JdbcRollbackRetryingCallable<T> retryingCallable = new JdbcRollbackRetryingCallable<>(opCallable,
 				NUM_ROLLBACK_ATTEMPTS, ROLLBACK_BACKOFF_MS);
 		int numAttempts = config.getNumAttemptsOrUse(DEFAULT_NUM_ATTEMPTS);
