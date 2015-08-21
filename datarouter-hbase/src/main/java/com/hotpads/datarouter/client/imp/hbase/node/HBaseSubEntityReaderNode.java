@@ -291,7 +291,7 @@ implements HBasePhysicalNode<PK,D>,
 	 * warning: we cannot currently limit the number of databeans/pks, only hbase rows.  be aware that it will probably
 	 * return more databeans/pks than iterateBatchSize
 	 */
-	public List<Result> getResultsInSubRange(final int partition, final Range<PK> rowRange, final boolean keysOnly, 
+	public List<Result> getResultsInSubRange(final int partition, final Range<PK> pkRange, final boolean keysOnly, 
 			final Config config){
 		final Config nullSafeConfig = Config.nullSafe(config);
 		final String scanKeysVsRowsNumBatches = "scan " + (keysOnly ? "pk" : "databean") + " numBatches";
@@ -301,7 +301,7 @@ implements HBasePhysicalNode<PK,D>,
 			@Override
 			public List<Result> hbaseCall(HTable htable, HBaseClient client, ResultScanner managedResultScanner)
 			throws Exception{
-				Scan scan = queryBuilder.getScanForSubrange(partition, rowRange, config, keysOnly);
+				Scan scan = queryBuilder.getScanForSubrange(partition, pkRange, config, keysOnly);
 				managedResultScanner = htable.getScanner(scan);
 				List<Result> results = new ArrayList<>();
 				for(Result row : managedResultScanner){

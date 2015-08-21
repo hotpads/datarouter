@@ -17,6 +17,7 @@ import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcLookupOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcLookupUniqueOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.read.index.JdbcGetByIndexOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.read.index.JdbcGetIndexOp;
+import com.hotpads.datarouter.client.imp.jdbc.op.read.index.JdbcManagedIndexGetKeyRangeOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.read.index.JdbcManagedIndexGetRangeOp;
 import com.hotpads.datarouter.client.imp.jdbc.scan.JdbcIndexScanner;
 import com.hotpads.datarouter.config.Config;
@@ -140,6 +141,15 @@ public class JdbcReaderOps<
 		JdbcManagedIndexGetRangeOp<PK,D,IK,IE,IF> op = new JdbcManagedIndexGetRangeOp<>(node, fieldCodecFactory, 
 				indexEntryFieldInfo, range, config);
 		return new SessionExecutorImpl<>(op, IndexedStorageReader.OP_getIndexRange).call();
+	}
+	
+	public <IK extends PrimaryKey<IK>,
+			IE extends IndexEntry<IK,IE,PK,D>,
+			IF extends DatabeanFielder<IK,IE>> 
+	List<IK> getIndexKeyRange(Range<IK> range, Config config, DatabeanFieldInfo<IK, IE, IF> indexEntryFieldInfo){
+		JdbcManagedIndexGetKeyRangeOp<PK,D,IK,IE,IF> op = new JdbcManagedIndexGetKeyRangeOp<>(node, fieldCodecFactory, 
+				indexEntryFieldInfo, range, config);
+		return new SessionExecutorImpl<>(op, IndexedStorageReader.OP_getIndexKeyRange).call();
 	}
 	
 	/************************************ SortedStorageReader methods ****************************/
