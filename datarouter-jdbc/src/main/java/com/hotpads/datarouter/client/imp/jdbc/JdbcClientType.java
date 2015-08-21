@@ -64,8 +64,7 @@ public class JdbcClientType extends BaseClientType{
 	@Override
 	public <PK extends PrimaryKey<PK>, D extends Databean<PK, D>, F extends DatabeanFielder<PK, D>>
 	PhysicalNode<PK, D> createNode(NodeParams<PK, D, F> nodeParams){
-		return new PhysicalIndexedSortedMapStorageCounterAdapter<PK,D,F,JdbcNode<PK,D,F>>(new JdbcNode<>(nodeParams,
-				fieldCodecFactory));
+		return new PhysicalIndexedSortedMapStorageCounterAdapter<>(new JdbcNode<>(nodeParams, fieldCodecFactory));
 	}
 
 	//ignore the entityNodeParams

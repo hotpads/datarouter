@@ -41,38 +41,38 @@ import com.hotpads.datarouter.util.core.DrClassTool;
 @Singleton
 public class HBaseClientType extends BaseClientType{
 
-	public static final String 
+	public static final String
 			NAME = "hbase",
 			CANONICAL_CLASS_NAME = "com.hotpads.datarouter.client.imp.hbase.HBaseClientType";
-	
+
 	public static final HBaseClientType INSTANCE = new HBaseClientType();
-	
-	
+
+
 	@Override
 	public String getName(){
 		return NAME;
 	}
-	
+
 	@Override
 	public ClientFactory createClientFactory(DatarouterContext drContext, String clientName,
 			List<PhysicalNode<?,?>> physicalNodes){
 		return new HBaseSimpleClientFactory(drContext, clientName);
 	}
-	
+
 	@Override
 	public <PK extends PrimaryKey<PK>, D extends Databean<PK, D>, F extends DatabeanFielder<PK, D>>
 	PhysicalNode<PK, D> createNode(NodeParams<PK, D, F> nodeParams){
-		return new PhysicalSortedMapStorageCounterAdapter<PK,D,F,HBaseNode<PK,D,F>>(new HBaseNode<>(nodeParams));
+		return new PhysicalSortedMapStorageCounterAdapter<>(new HBaseNode<>(nodeParams));
 	}
-	
+
 	@Override
-	public <EK extends EntityKey<EK>,E extends Entity<EK>>EntityNode<EK,E> createEntityNode(NodeFactory nodeFactory, 
+	public <EK extends EntityKey<EK>,E extends Entity<EK>>EntityNode<EK,E> createEntityNode(NodeFactory nodeFactory,
 			Datarouter router, EntityNodeParams<EK,E> entityNodeParams, String clientName){
-		ClientTableNodeNames clientTableNodeNames = new ClientTableNodeNames(clientName, 
+		ClientTableNodeNames clientTableNodeNames = new ClientTableNodeNames(clientName,
 				entityNodeParams.getEntityTableName(), entityNodeParams.getNodeName());
 		return new HBaseEntityReaderNode<>(nodeFactory, router, entityNodeParams, clientTableNodeNames);
 	}
-	
+
 	@Override
 	public <EK extends EntityKey<EK>,
 			E extends Entity<EK>,
@@ -82,24 +82,24 @@ public class HBaseClientType extends BaseClientType{
 	Node<PK,D> createSubEntityNode(EntityNodeParams<EK,E> entityNodeParams, NodeParams<PK,D,F> nodeParams){
 		return new HBaseSubEntityNode<>(entityNodeParams, nodeParams);
 	}
-	
+
 	@Override
 	public <PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
-			F extends DatabeanFielder<PK,D>> 
+			F extends DatabeanFielder<PK,D>>
 	SortedMapStorageNode<PK,D> createAdapter(NodeParams<PK,D,F> nodeParams, Node<PK,D> backingNode){
 		return new PhysicalSortedMapStorageCallsiteAdapter<>(nodeParams,
 				(PhysicalSortedMapStorageNode<PK, D>) backingNode);
 	}
-	
-	
+
+
 	/********************** tests ****************************/
 
 	@Guice(moduleFactory = DatarouterTestModuleFactory.class)
 	public static class HBaseClientTypeTests{
 		@Inject
 		private Injector injector;
-		
+
 		@Test
 		public void testClassLocation(){
 			String actualClassName = HBaseClientType.class.getCanonicalName();

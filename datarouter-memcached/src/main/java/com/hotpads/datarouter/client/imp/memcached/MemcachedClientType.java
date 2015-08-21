@@ -37,14 +37,14 @@ import com.hotpads.datarouter.util.core.DrClassTool;
  */
 @Singleton
 public class MemcachedClientType extends BaseClientType{
-	
-	public static final String 
+
+	public static final String
 			NAME = "memcached",
 			CANONICAL_CLASS_NAME = "com.hotpads.datarouter.client.imp.memcached.MemcachedClientType";
-	
+
 	public static final MemcachedClientType INSTANCE = new MemcachedClientType();
-	
-	
+
+
 	@Override
 	public String getName(){
 		return NAME;
@@ -55,13 +55,13 @@ public class MemcachedClientType extends BaseClientType{
 			List<PhysicalNode<?,?>> physicalNodes){
 		return new MemcachedSimpleClientFactory(drContext, clientName);
 	}
-	
+
 	@Override
 	public <PK extends PrimaryKey<PK>, D extends Databean<PK, D>, F extends DatabeanFielder<PK, D>>
 	PhysicalNode<PK, D> createNode(NodeParams<PK, D, F> nodeParams){
-		return new PhysicalMapStorageCounterAdapter<PK,D,F,MemcachedNode<PK,D,F>>(new MemcachedNode<PK,D,F>(nodeParams));
+		return new PhysicalMapStorageCounterAdapter<>(new MemcachedNode<>(nodeParams));
 	}
-	
+
 	//ignore the entityNodeParams
 	@Override
 	public <EK extends EntityKey<EK>,
@@ -72,24 +72,23 @@ public class MemcachedClientType extends BaseClientType{
 	Node<PK,D> createSubEntityNode(EntityNodeParams<EK,E> entityNodeParams, NodeParams<PK,D,F> nodeParams){
 		return createNode(nodeParams);
 	}
-	
+
 	@Override
 	public <PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
-			F extends DatabeanFielder<PK,D>> 
+			F extends DatabeanFielder<PK,D>>
 	MapStorageNode<PK,D> createAdapter(NodeParams<PK,D,F> nodeParams, Node<PK,D> backingNode){
-		return new PhysicalMapStorageCallsiteAdapter<PK,D,F,PhysicalMapStorageNode<PK,D>>(nodeParams,
-				(PhysicalMapStorageNode<PK,D>)backingNode);
+		return new PhysicalMapStorageCallsiteAdapter<>(nodeParams, (PhysicalMapStorageNode<PK,D>) backingNode);
 	}
-	
-	
+
+
 	/********************** tests ****************************/
 
 	@Guice(moduleFactory = DatarouterTestModuleFactory.class)
 	public static class MemcachedClientTypeTests{
 		@Inject
 		private Injector injector;
-		
+
 		@Test
 		public void testClassLocation(){
 			String actualClassName = MemcachedClientType.class.getCanonicalName();
@@ -97,5 +96,5 @@ public class MemcachedClientType extends BaseClientType{
 			injector.getInstance(DrClassTool.forName(CANONICAL_CLASS_NAME));
 		}
 	}
-	
+
 }
