@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.op.executor.impl.SessionExecutorImpl;
+import com.hotpads.datarouter.op.executor.impl.SessionExecutorPleaseRetryException;
 import com.hotpads.util.core.concurrent.Retryable;
 import com.hotpads.util.core.concurrent.ThreadTool;
 
@@ -32,7 +33,7 @@ implements Retryable<T>{
 		for(int attemptNum = 1; attemptNum <= numAttempts; ++attemptNum){
 			try{
 				return callable.call();
-			}catch(javax.persistence.RollbackException e){//this is fragile.  callable must throw this exact exception
+			}catch(SessionExecutorPleaseRetryException e){//fragile; SessionExecutorImpl must throw this exact exception
 				if(attemptNum < numAttempts){
 					logger.warn("rollback on attempt {}/{}, sleeping {}ms", attemptNum, numAttempts, backoffMs, e);
 					ThreadTool.sleep(backoffMs);
