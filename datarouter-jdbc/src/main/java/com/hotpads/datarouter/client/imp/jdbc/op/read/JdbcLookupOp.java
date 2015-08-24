@@ -61,8 +61,9 @@ extends BaseJdbcOp<List<D>>{
 		//TODO undefined behavior on trailing nulls
 		List<D> result = new ArrayList<>();
 		for (List<? extends Lookup<PK>> batch : new BatchingIterable<>(lookups, batchSize)){
+			//for performance reasons, pass null for orderBy and sort in java if desired
 			String sql = SqlBuilder.getWithPrefixes(fieldCodecFactory, config, node.getTableName(), node.getFieldInfo()
-					.getFields(), batch, wildcardLastField, node.getFieldInfo().getPrimaryKeyFields());
+					.getFields(), batch, wildcardLastField, null);
 			result.addAll(JdbcTool.selectDatabeans(fieldCodecFactory, getConnection(node.getClientId().getName()), node
 					.getFieldInfo(), sql));
 			if(config.getLimit() != null && result.size() >= config.getLimit()){
