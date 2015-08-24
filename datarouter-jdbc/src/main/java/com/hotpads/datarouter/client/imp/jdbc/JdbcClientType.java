@@ -30,7 +30,7 @@ import com.hotpads.datarouter.storage.entity.Entity;
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
 import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.datarouter.util.core.DrClassTool;
+import com.hotpads.datarouter.util.core.ClassTool;
 
 @Singleton
 public class JdbcClientType extends BaseClientType{
@@ -98,7 +98,7 @@ public class JdbcClientType extends BaseClientType{
 		public void testClassLocation(){
 			String actualClassName = JdbcClientType.class.getCanonicalName();
 			Assert.assertEquals(CANONICAL_CLASS_NAME, actualClassName);
-			injector.getInstance(DrClassTool.forName(CANONICAL_CLASS_NAME));
+			injector.getInstance(ClassTool.forName(CANONICAL_CLASS_NAME));
 		}
 	}
 
