@@ -85,6 +85,8 @@ implements ClientFactory{
 	}
 
 	protected void initConnectionPool(){
+		
+		System.out.println("init connection"+clientName);
 		//if the schemaupdate option for execute and print is set to false, then do not check for Schema difference
 		if(printOptions.getCreateDatabases() || executeOptions.getCreateDatabases()){
 			checkDatabaseExist();
@@ -98,6 +100,7 @@ implements ClientFactory{
 	}
 
 	private void checkDatabaseExist() {
+		System.out.println("check db "+clientName);
 		String url =  jdbcOptions.url();
 		String user = jdbcOptions.user(defaultJdbcOptions.user("root"));
 		String password = jdbcOptions.password(defaultJdbcOptions.password(""));
@@ -108,6 +111,8 @@ implements ClientFactory{
 
 		Connection connection = JdbcTool.openConnection(hostname, port, null, user, password);
 		List<String> existingDatabases = JdbcTool.showDatabases(connection);
+		System.out.println("existing"+existingDatabases);
+		
 		//if database does not exist, create database
 		if(!existingDatabases.contains(databaseName)){
 			if(isWritableClient()){
