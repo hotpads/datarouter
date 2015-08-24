@@ -33,7 +33,7 @@ import com.hotpads.datarouter.storage.entity.Entity;
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
 import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.datarouter.util.core.ClassTool;
+import com.hotpads.util.core.lang.ClassTool;
 
 @Singleton
 public class HibernateClientType extends BaseClientType{

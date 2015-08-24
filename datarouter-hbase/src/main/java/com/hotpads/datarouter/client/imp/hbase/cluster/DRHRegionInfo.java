@@ -25,10 +25,10 @@ import com.hotpads.datarouter.storage.key.entity.EntityKey;
 import com.hotpads.datarouter.storage.key.entity.EntityPartitioner;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.core.DrArrayTool;
-import com.hotpads.datarouter.util.core.ClassTool;
 import com.hotpads.datarouter.util.core.DrNumberFormatter;
 import com.hotpads.datarouter.util.core.DrObjectTool;
 import com.hotpads.util.core.java.ReflectionTool;
+import com.hotpads.util.core.lang.ClassTool;
 
 public class DRHRegionInfo<PK extends PrimaryKey<PK>>
 implements Comparable<DRHRegionInfo<?>>{

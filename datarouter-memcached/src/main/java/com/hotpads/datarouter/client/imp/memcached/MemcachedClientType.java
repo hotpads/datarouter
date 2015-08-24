@@ -30,7 +30,7 @@ import com.hotpads.datarouter.storage.key.entity.EntityKey;
 import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.test.DatarouterTestModuleFactory;
-import com.hotpads.datarouter.util.core.ClassTool;
+import com.hotpads.util.core.lang.ClassTool;
 
 /**
  * applications create this class via reflection
