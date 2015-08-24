@@ -59,7 +59,7 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D>,
 	public void putMulti(Collection<D> databeans, final Config config) {
 		String opName = MapStorageWriter.OP_putMulti;
 		if(DrCollectionTool.isEmpty(databeans)){
-			return;//avoid starting txnd diff
+			return;//avoid starting txn
 		}
 		JdbcPutOp<PK,D,F> op = new JdbcPutOp<>(this, fieldCodecFactory, databeans, config);
 		new SessionExecutorImpl<>(op, getTraceName(opName)).call();
