@@ -2,7 +2,7 @@ package com.hotpads.datarouter.client.imp.jdbc.node;
 
 import java.util.Collection;
 
-import com.hotpads.datarouter.client.imp.jdbc.execution.JdbcOpRetryer;
+import com.hotpads.datarouter.client.imp.jdbc.execution.JdbcOpRetryTool;
 import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.client.imp.jdbc.op.BaseJdbcOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.write.JdbcDeleteByIndexOp;
@@ -27,7 +27,7 @@ extends PhysicalIndexedStorageWriterNode<PK,D>{
 		String opName = IndexedStorageWriter.OP_deleteUnique;
 		JdbcUniqueIndexDeleteOp<PK,D> op = new JdbcUniqueIndexDeleteOp<>(this, getFieldCodecFactory(), DrListTool
 				.wrap(uniqueKey), config);
-		JdbcOpRetryer.tryNTimes(new SessionExecutorImpl<>(op, getTraceName(opName)), config);
+		JdbcOpRetryTool.tryNTimes(new SessionExecutorImpl<>(op, getTraceName(opName)), config);
 	}
 
 	@Override
@@ -38,20 +38,20 @@ extends PhysicalIndexedStorageWriterNode<PK,D>{
 		}
 		JdbcUniqueIndexDeleteOp<PK,D> op = new JdbcUniqueIndexDeleteOp<>(this, getFieldCodecFactory(), uniqueKeys,
 				config);
-		JdbcOpRetryer.tryNTimes(new SessionExecutorImpl<>(op, getTraceName(opName)), config);
+		JdbcOpRetryTool.tryNTimes(new SessionExecutorImpl<>(op, getTraceName(opName)), config);
 	}
 
 	@Override
 	public default void delete(final Lookup<PK> lookup, final Config config) {
 		String opName = IndexedStorageWriter.OP_indexDelete;
 		JdbcIndexDeleteOp<PK,D> op = new JdbcIndexDeleteOp<>(this, getFieldCodecFactory(), lookup, config);
-		JdbcOpRetryer.tryNTimes(new SessionExecutorImpl<>(op, getTraceName(opName)), config);
+		JdbcOpRetryTool.tryNTimes(new SessionExecutorImpl<>(op, getTraceName(opName)), config);
 	}
 
 	@Override
 	public default <IK extends PrimaryKey<IK>> void deleteByIndex(Collection<IK> keys, Config config){
 		BaseJdbcOp<Long> op = new JdbcDeleteByIndexOp<>(this, getFieldCodecFactory(), keys, config);
-		JdbcOpRetryer.tryNTimes(new SessionExecutorImpl<>(op, IndexedStorageWriter.OP_deleteMultiUnique), config);
+		JdbcOpRetryTool.tryNTimes(new SessionExecutorImpl<>(op, IndexedStorageWriter.OP_deleteMultiUnique), config);
 	}
 
 	abstract String getTraceName(String opName);

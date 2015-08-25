@@ -4,7 +4,7 @@ import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.op.executor.impl.SessionExecutorImpl;
 import com.hotpads.util.core.concurrent.RetryableTool;
 
-public class JdbcOpRetryer{
+public class JdbcOpRetryTool{
 	
 	public static final int NUM_ROLLBACK_ATTEMPTS = 5;
 	public static final long ROLLBACK_BACKOFF_MS = 4;
