@@ -189,6 +189,10 @@
 					<groupId>com.google.protobuf</groupId>
 					<artifactId>protobuf-java</artifactId>
 				</exclusion>
+				<exclusion>
+					<groupId>org.jruby</groupId>
+					<artifactId>jruby-complete</artifactId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 	</dependencies>
