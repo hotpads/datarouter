@@ -32,6 +32,8 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D>, JdbcIndexedStorageWriterMi
 	private static final int NUM_ROLLBACK_ATTEMPTS = 5;
 	private static final long ROLLBACK_BACKOFF_MS = 4;
 	
+	//this defaults to 1, so you must explicitly call config.setNumAttempts(x) to get retries on 
+	// non-MySQLTransactionRollbackExceptions
 	private static final int DEFAULT_NUM_ATTEMPTS = 1;
 	private static final long DEFAULT_BACKOFF_MS = 1;
 

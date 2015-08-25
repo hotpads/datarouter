@@ -47,5 +47,4 @@ implements Retryable<T>{
 		}
 		throw new RuntimeException("shouldn't get here.  for-loop has bug?");
 	}
-	
 }
