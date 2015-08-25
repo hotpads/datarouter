@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.client.imp.hibernate.util;
+package com.hotpads.datarouter.client.imp.jdbc.execution;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
