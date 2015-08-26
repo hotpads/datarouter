@@ -48,7 +48,7 @@
 		<dependency>
 			<groupId>com.amazonaws</groupId>
 			<artifactId>aws-java-sdk-sqs</artifactId>
-			<version>1.10.0</version>
+			<version>${aws-sdk-version}</version>
 		</dependency>
 	</dependencies>
 	
