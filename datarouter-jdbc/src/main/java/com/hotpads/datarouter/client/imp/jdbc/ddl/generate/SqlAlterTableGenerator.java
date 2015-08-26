@@ -56,15 +56,10 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 		StringBuilder sb = new StringBuilder();
 		sb.append("alter table " +databaseName + "." +current.getName()+"\n");
 		int numAppended = 0;
-		String collatePrefix = "collate";
 		for(SqlAlterTableClause singleAlter : DrIterableTool.nullSafe(singleAlters)){
 			if(singleAlter!=null /*&& !StringTool.isEmptyOrWhitespace(singleAlter.getAlterTable())*/){
 				if(numAppended>0){
-					if(!singleAlter.getAlterTable().startsWith(collatePrefix)){
-						sb.append(",");
-					}
-					sb.append("\n");
-					
+					sb.append(",\n");
 				}
 				sb.append(singleAlter.getAlterTable());
 				++numAppended;
@@ -220,13 +215,12 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 					SqlAlterTypes.MODIFY_ENGINE));
 		}
 		if(options.getModifyCharacterSet() && diff.isCharacterSetModified()){
-			list.add(new SqlAlterTableClause("convert to character set "+
-					requested.getCharacterSet().toString().toLowerCase(),
+			if(options.getModifyCollation() && diff.isCollationModified()){
+			list.add(new SqlAlterTableClause
+					( "convert to character set " + requested.getCharacterSet().toString().toLowerCase()
+					+ "\ncollate "+requested.getCollation().toString().toLowerCase(),
 					SqlAlterTypes.MODIFY_CHARACTER_SET));
-		}
-		if(options.getModifyCollation() && diff.isCollationModified()){
-			list.add(new SqlAlterTableClause("collate "+requested.getCollation().toString().toLowerCase(),
-					SqlAlterTypes.MODIFY_COLLATION));
+			}
 		}
 		return list;
 	}
