@@ -47,10 +47,10 @@ public class WebSocketSession extends BaseDatabean<WebSocketSessionKey,WebSocket
 		}
 
 		@Override
-		public List<Field<?>> getNonKeyFields(WebSocketSession d){
+		public List<Field<?>> getNonKeyFields(WebSocketSession webSocketSession){
 			return FieldTool.createList(
-				new LongDateField(F.openningDate, d.openningDate),
-				new StringField(F.serverName, d.serverName, MySqlColumnType.MAX_LENGTH_VARCHAR));
+				new LongDateField(F.openningDate, webSocketSession.openningDate),
+				new StringField(F.serverName, webSocketSession.serverName, MySqlColumnType.MAX_LENGTH_VARCHAR));
 		}
 
 	}
