@@ -2,6 +2,7 @@ package com.hotpads.datarouter.client.imp.jdbc.node.mixin;
 
 import java.util.Collection;
 
+import com.hotpads.datarouter.client.imp.jdbc.execution.JdbcOpRetryTool;
 import com.hotpads.datarouter.client.imp.jdbc.op.write.JdbcDeleteAllOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.write.JdbcDeleteOp;
 import com.hotpads.datarouter.config.Config;
@@ -22,14 +23,14 @@ extends PhysicalMapStorageWriterNode<PK,D>, JdbcStorageMixin{
 	public default void deleteAll(final Config config) {
 		String opName = MapStorageWriter.OP_deleteAll;
 		JdbcDeleteAllOp<PK,D> op = new JdbcDeleteAllOp<>(this, config);
-		new SessionExecutorImpl<>(op, getTraceName(opName)).call();
+		JdbcOpRetryTool.tryNTimes(new SessionExecutorImpl<>(op, getTraceName(opName)), config);
 	}
 
 	@Override
 	public default void delete(PK key, Config config){
 		String opName = MapStorageWriter.OP_delete;
 		JdbcDeleteOp<PK,D> op = new JdbcDeleteOp<>(this, getFieldCodecFactory(), DrListTool.wrap(key), config);
-		new SessionExecutorImpl<>(op, getTraceName(opName)).call();
+		JdbcOpRetryTool.tryNTimes(new SessionExecutorImpl<>(op, getTraceName(opName)), config);
 	}
 
 	@Override
@@ -39,7 +40,7 @@ extends PhysicalMapStorageWriterNode<PK,D>, JdbcStorageMixin{
 			return;//avoid starting txn
 		}
 		JdbcDeleteOp<PK,D> op = new JdbcDeleteOp<>(this, getFieldCodecFactory(), keys, config);
-		new SessionExecutorImpl<>(op, getTraceName(opName)).call();
+		JdbcOpRetryTool.tryNTimes(new SessionExecutorImpl<>(op, getTraceName(opName)), config);
 	}
 
 }

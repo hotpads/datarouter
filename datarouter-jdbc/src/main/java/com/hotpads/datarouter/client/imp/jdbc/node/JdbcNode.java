@@ -2,6 +2,7 @@ package com.hotpads.datarouter.client.imp.jdbc.node;
 
 import java.util.Collection;
 
+import com.hotpads.datarouter.client.imp.jdbc.execution.JdbcOpRetryTool;
 import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.client.imp.jdbc.node.mixin.JdbcIndexedStorageWriterMixin;
 import com.hotpads.datarouter.client.imp.jdbc.node.mixin.JdbcMapStorageWriterMixin;
@@ -31,10 +32,12 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D>,
 
 	private final JdbcFieldCodecFactory fieldCodecFactory;
 
+
 	public JdbcNode(NodeParams<PK,D,F> params, JdbcFieldCodecFactory fieldCodecFactory){
 		super(params, fieldCodecFactory);
 		this.fieldCodecFactory = fieldCodecFactory;
 	}
+
 
 	@Override
 	public Node<PK,D> getMaster() {
@@ -52,7 +55,7 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D>,
 	public void put(final D databean, final Config config) {
 		String opName = MapStorageWriter.OP_put;
 		JdbcPutOp<PK,D,F> op = new JdbcPutOp<>(this, fieldCodecFactory, DrListTool.wrap(databean), config);
-		new SessionExecutorImpl<>(op, getTraceName(opName)).call();
+		JdbcOpRetryTool.tryNTimes(new SessionExecutorImpl<>(op, getTraceName(opName)), config);
 	}
 
 	@Override
@@ -62,7 +65,7 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D>,
 			return;//avoid starting txn
 		}
 		JdbcPutOp<PK,D,F> op = new JdbcPutOp<>(this, fieldCodecFactory, databeans, config);
-		new SessionExecutorImpl<>(op, getTraceName(opName)).call();
+		JdbcOpRetryTool.tryNTimes(new SessionExecutorImpl<>(op, getTraceName(opName)), config);
 	}
 
 }

@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.client.imp.jdbc.node.mixin;
 
+import com.hotpads.datarouter.client.imp.jdbc.execution.JdbcOpRetryTool;
 import com.hotpads.datarouter.client.imp.jdbc.op.write.JdbcPrefixDeleteOp;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.op.raw.write.SortedStorageWriter;
@@ -16,7 +17,7 @@ extends PhysicalSortedStorageWriterNode<PK,D>, JdbcStorageMixin{
 		String opName = SortedStorageWriter.OP_deleteRangeWithPrefix;
 		JdbcPrefixDeleteOp<PK,D> op = new JdbcPrefixDeleteOp<>(this, getFieldCodecFactory(), prefix, wildcardLastField,
 				config);
-		new SessionExecutorImpl<>(op, getTraceName(opName)).call();
+		JdbcOpRetryTool.tryNTimes(new SessionExecutorImpl<>(op, getTraceName(opName)), config);
 	}
 
 }
