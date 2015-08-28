@@ -18,7 +18,7 @@ com.hotpads.websocket.session.WebSocketSession{
     StringField userToken,
     StringField id
   }
-  LongDateField openningDate,
+  LongDateField openingDate,
   StringField serverName,
 }
 
@@ -27,12 +27,12 @@ public class WebSocketSession extends BaseDatabean<WebSocketSessionKey,WebSocket
 
 	private WebSocketSessionKey key;
 
-	private Date openningDate;
+	private Date openingDate;
 	private String serverName;
 
 	public static class F {
 		public static final String
-			openningDate = "openningDate",
+			openingDate = "openingDate",
 			serverName = "serverName";
 	}
 
@@ -47,10 +47,10 @@ public class WebSocketSession extends BaseDatabean<WebSocketSessionKey,WebSocket
 		}
 
 		@Override
-		public List<Field<?>> getNonKeyFields(WebSocketSession d){
+		public List<Field<?>> getNonKeyFields(WebSocketSession webSocketSession){
 			return FieldTool.createList(
-				new LongDateField(F.openningDate, d.openningDate),
-				new StringField(F.serverName, d.serverName, MySqlColumnType.MAX_LENGTH_VARCHAR));
+				new LongDateField(F.openingDate, webSocketSession.openingDate),
+				new StringField(F.serverName, webSocketSession.serverName, MySqlColumnType.MAX_LENGTH_VARCHAR));
 		}
 
 	}
@@ -62,7 +62,7 @@ public class WebSocketSession extends BaseDatabean<WebSocketSessionKey,WebSocket
 
 	public WebSocketSession(String userToken, String serverName){
 		this.key = new WebSocketSessionKey(userToken);
-		this.openningDate = new Date();
+		this.openingDate = new Date();
 		this.serverName = serverName;
 	}
 
@@ -76,8 +76,8 @@ public class WebSocketSession extends BaseDatabean<WebSocketSessionKey,WebSocket
 		return key;
 	}
 
-	public Date getOpenningDate(){
-		return openningDate;
+	public Date getOpeningDate(){
+		return openingDate;
 	}
 
 	public String getServerName(){
