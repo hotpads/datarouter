@@ -1,7 +1,6 @@
 package com.hotpads.datarouter.client.imp.jdbc.field.codec.factory;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -25,6 +24,7 @@ import com.hotpads.datarouter.storage.field.StandardFieldType;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrListTool;
+import com.hotpads.util.core.java.ReflectionTool;
 
 @Singleton
 public class StandardJdbcFieldCodecFactory implements JdbcFieldCodecFactory{
@@ -55,24 +55,11 @@ public class StandardJdbcFieldCodecFactory implements JdbcFieldCodecFactory{
 
 	@Override
 	public <T,F extends Field<T>,C extends JdbcFieldCodec<T,F>> C createCodec(F field){
-		Class<F> fieldType = (Class<F>)field.getClass();
-		Class<C> codecType = (Class<C>)codecTypeByFieldType.get(fieldType);
+		Class<C> codecType = (Class<C>)codecTypeByFieldType.get(field.getClass());
 		if(codecType == null){
 			throw new RuntimeException("no codec found for " + field.getClass());
 		}
-		try{
-			for(Constructor<?> constructor : codecType.getDeclaredConstructors()){
-				if(constructor.getParameterCount() == 1
-						&& constructor.getParameterTypes()[0].isAssignableFrom(fieldType)){
-					Object codec = constructor.newInstance(field);
-					return codecType.cast(codec);
-				}
-			}
-		}catch (SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException
-				| InvocationTargetException e){
-			throw new RuntimeException(e);
-		}
-		throw new RuntimeException("Can't create " + codecType);
+		return ReflectionTool.createWithParameters(codecType, Arrays.asList(field));
 	}
 
 
