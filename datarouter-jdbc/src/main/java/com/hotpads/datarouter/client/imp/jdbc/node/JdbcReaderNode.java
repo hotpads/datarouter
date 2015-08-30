@@ -114,7 +114,7 @@ implements PhysicalIndexedSortedMapStorageReaderNode<PK,D>{
 	public <IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK, IE, PK, D>,
 			IF extends DatabeanFielder<IK, IE>>
-	ScannerIterable<IE> scanIndex(DatabeanFieldInfo<IK,IE,IF> indexEntryFieldInfo, Range<IK> range,
+	Iterable<IE> scanIndex(DatabeanFieldInfo<IK,IE,IF> indexEntryFieldInfo, Range<IK> range,
 			Config config){
 		return new ScannerIterable<>(new JdbcManagedIndexScanner<>(jdbcReaderOps, indexEntryFieldInfo, range,
 				config));
@@ -124,7 +124,7 @@ implements PhysicalIndexedSortedMapStorageReaderNode<PK,D>{
 	public <IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK, IE, PK, D>,
 			IF extends DatabeanFielder<IK, IE>>
-	ScannerIterable<IK> scanIndexKeys(DatabeanFieldInfo<IK,IE,IF> indexEntryFieldInfo, Range<IK> range,
+	Iterable<IK> scanIndexKeys(DatabeanFieldInfo<IK,IE,IF> indexEntryFieldInfo, Range<IK> range,
 			Config config){
 		return new ScannerIterable<>(new JdbcManagedIndexKeyScanner<>(jdbcReaderOps, indexEntryFieldInfo, range,
 				config));
