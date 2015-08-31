@@ -1,9 +1,8 @@
-package com.hotpads.datarouter.client.imp.jdbc.field.codec.positive;
+package com.hotpads.datarouter.client.imp.jdbc.field.codec.primitive;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Types;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
@@ -11,36 +10,29 @@ import com.hotpads.datarouter.client.imp.jdbc.field.codec.base.BasePrimitiveJdbc
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.Field;
 
-public class UInt31JdbcFieldCodec
-extends BasePrimitiveJdbcFieldCodec<Integer,Field<Integer>>{
+public abstract class BaseByteJdbcFieldCodec<F extends Field<Byte>> extends BasePrimitiveJdbcFieldCodec<Byte,F>{
 
-	public UInt31JdbcFieldCodec(){//no-arg for reflection
-		this(null);
-	}
-
-	public UInt31JdbcFieldCodec(Field<Integer> field){
+	public BaseByteJdbcFieldCodec(F field){
 		super(field);
 	}
 
+	protected abstract Integer getMaxColumnLength();
+	protected abstract MySqlColumnType getMysqlColumnType();
+	protected abstract Integer getJavaSqlType();
 
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
-		return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.INT, 11, field.getKey().isNullable(),
-				false);
-	}
-
-	@Override
-	public Integer parseJdbcValueButDoNotSet(Object obj){
-		return obj==null?null:(Integer)obj;
+		return new SqlColumn(field.getKey().getColumnName(), getMysqlColumnType(), getMaxColumnLength(),
+				field.getKey().isNullable(), false);
 	}
 
 	@Override
 	public void setPreparedStatementValue(PreparedStatement ps, int parameterIndex){
 		try{
 			if(field.getValue()==null){
-				ps.setNull(parameterIndex, Types.INTEGER);
+				ps.setNull(parameterIndex, getJavaSqlType());
 			}else{
-				ps.setInt(parameterIndex, field.getValue());
+				ps.setByte(parameterIndex, field.getValue());
 			}
 		}catch(SQLException e){
 			throw new DataAccessException(e);
@@ -48,12 +40,18 @@ extends BasePrimitiveJdbcFieldCodec<Integer,Field<Integer>>{
 	}
 
 	@Override
-	public Integer fromJdbcResultSetButDoNotSet(ResultSet rs){
+	public Byte parseJdbcValueButDoNotSet(Object obj){
+		return obj==null?null:(Byte)obj;
+	}
+
+	@Override
+	public Byte fromJdbcResultSetButDoNotSet(ResultSet rs){
 		try{
-			int value = rs.getInt(field.getKey().getColumnName());
+			byte value = rs.getByte(field.getKey().getColumnName());
 			return rs.wasNull()?null:value;
 		}catch(SQLException e){
 			throw new DataAccessException(e);
 		}
 	}
+
 }

@@ -37,23 +37,23 @@ import com.hotpads.util.core.lang.ClassTool;
 
 @Singleton
 public class HibernateClientType extends BaseClientType{
-	
-	public static final String 
+
+	public static final String
 			NAME = "hibernate",
 			CANONICAL_CLASS_NAME = "com.hotpads.datarouter.client.imp.hibernate.HibernateClientType";
-	
+
 	public static HibernateClientType INSTANCE;
-	
+
 	private final JdbcFieldCodecFactory fieldCodecFactory;
 	private final HibernateResultParser resultParser;
-	
+
 	@Inject
 	public HibernateClientType(JdbcFieldCodecFactory fieldCodecFactory){
 		this.fieldCodecFactory = fieldCodecFactory;
 		this.resultParser = new HibernateResultParser(fieldCodecFactory);
 		INSTANCE = this;
 	}
-	
+
 	@Override
 	public String getName(){
 		return NAME;
@@ -62,24 +62,23 @@ public class HibernateClientType extends BaseClientType{
 	@Override
 	public ClientFactory createClientFactory(DatarouterContext drContext, String clientName,
 			List<PhysicalNode<?,?>> physicalNodes){
-		return new HibernateSimpleClientFactory(drContext, fieldCodecFactory, clientName); 
+		return new HibernateSimpleClientFactory(drContext, fieldCodecFactory, clientName);
 	}
-	
+
 	@Override
 	public <PK extends PrimaryKey<PK>, D extends Databean<PK, D>, F extends DatabeanFielder<PK, D>>
 	PhysicalNode<PK, D> createNode(NodeParams<PK, D, F> nodeParams){
 		PhysicalIndexedSortedMapStorageNode<PK,D> node;
 		if(nodeParams.getFielderClass() == null){
-			node = new PhysicalIndexedSortedMapStorageCounterAdapter<PK,D,F,HibernateNode<PK,D,F>>(
-					new HibernateNode<>(nodeParams, fieldCodecFactory, resultParser));
+			node = new PhysicalIndexedSortedMapStorageCounterAdapter<>(new HibernateNode<>(nodeParams,
+					fieldCodecFactory, resultParser));
 //			logger.warn("creating HibernateNode "+node);
 		}else{
-			node = new PhysicalIndexedSortedMapStorageCounterAdapter<PK,D,F,JdbcNode<PK,D,F>>(
-					new JdbcNode<>(nodeParams, fieldCodecFactory));
+			node = new PhysicalIndexedSortedMapStorageCounterAdapter<>(new JdbcNode<>(nodeParams, fieldCodecFactory));
 		}
 		return node;
 	}
-	
+
 	//ignore the entityNodeParams
 	@Override
 	public <EK extends EntityKey<EK>,
@@ -90,23 +89,23 @@ public class HibernateClientType extends BaseClientType{
 	Node<PK,D> createSubEntityNode(EntityNodeParams<EK,E> entityNodeParams, NodeParams<PK,D,F> nodeParams){
 		return createNode(nodeParams);
 	}
-	
+
 	@Override
 	public <PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
-			F extends DatabeanFielder<PK,D>> 
+			F extends DatabeanFielder<PK,D>>
 	IndexedSortedMapStorageNode<PK,D> createAdapter(NodeParams<PK,D,F> nodeParams, Node<PK,D> backingNode){
 		return new PhysicalIndexedSortedMapStorageCallsiteAdapter<>(nodeParams,
 				(PhysicalIndexedSortedMapStorageNode<PK,D>)backingNode);
 	}
-	
+
 	/********************** tests ****************************/
-	
+
 	@Guice(moduleFactory = TestDatarouterJdbcModuleFactory.class)
 	public static class HibernateClientTypeIntegrationTests{
 		@Inject
 		private DatarouterInjector injector;
-		
+
 		@Test
 		public void testClassLocation(){
 			String actualClassName = HibernateClientType.class.getCanonicalName();
@@ -114,5 +113,5 @@ public class HibernateClientType extends BaseClientType{
 			injector.getInstance(ClassTool.forName(CANONICAL_CLASS_NAME));
 		}
 	}
-	
+
 }
