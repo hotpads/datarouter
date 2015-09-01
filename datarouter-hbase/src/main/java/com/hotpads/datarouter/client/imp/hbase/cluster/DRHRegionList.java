@@ -30,9 +30,9 @@ import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.storage.key.entity.EntityPartitioner;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.prefix.ScatteringPrefix;
-import com.hotpads.datarouter.util.core.DrCallableTool;
 import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrMapTool;
+import com.hotpads.util.core.concurrent.CallableTool;
 
 public class DRHRegionList{
 	private static final Logger logger = LoggerFactory.getLogger(DRHRegionList.class);
@@ -93,7 +93,7 @@ public class DRHRegionList{
 		}
 		Collections.sort(regions);//ensure sorted for getRegionsSorted
 		this.balancerStrategy = balancerStrategy.init(scatteringPrefixClass, entityPartitioner, servers, this);
-		this.targetServerNameByRegion = DrCallableTool.callUnchecked(balancerStrategy);
+		this.targetServerNameByRegion = CallableTool.callUnchecked(balancerStrategy);
 		balancerStrategy.assertRegionCountsConsistent();
 		for(DRHRegionInfo<?> drhRegionInfo : regions){
 			drhRegionInfo.setBalancerDestinationServer(targetServerNameByRegion.get(drhRegionInfo));

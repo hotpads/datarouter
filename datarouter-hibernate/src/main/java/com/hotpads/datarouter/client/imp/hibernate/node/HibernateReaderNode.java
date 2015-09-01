@@ -197,7 +197,7 @@ implements MapStorageReader<PK,D>,
 	public <IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK, IE, PK, D>,
 			IF extends DatabeanFielder<IK, IE>>
-	ScannerIterable<IE> scanIndex(DatabeanFieldInfo<IK,IE,IF> indexEntryFieldInfo, Range<IK> range,
+	Iterable<IE> scanIndex(DatabeanFieldInfo<IK,IE,IF> indexEntryFieldInfo, Range<IK> range,
 			Config config){
 		return new ScannerIterable<>(new HibernateManagedIndexScanner<>(range, config, fieldCodecFactory,
 				indexEntryFieldInfo, this));
@@ -207,7 +207,7 @@ implements MapStorageReader<PK,D>,
 	public <IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK, IE, PK, D>,
 			IF extends DatabeanFielder<IK, IE>>
-	ScannerIterable<IK> scanIndexKeys(DatabeanFieldInfo<IK,IE,IF> indexEntryFieldInfo, Range<IK> range,
+	Iterable<IK> scanIndexKeys(DatabeanFieldInfo<IK,IE,IF> indexEntryFieldInfo, Range<IK> range,
 			Config config){
 		return new ScannerIterable<>(new HibernateManagedIndexKeyScanner<>(range, config, fieldCodecFactory,
 				indexEntryFieldInfo, this));

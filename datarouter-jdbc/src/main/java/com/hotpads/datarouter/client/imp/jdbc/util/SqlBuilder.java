@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.client.imp.hibernate.util;
+package com.hotpads.datarouter.client.imp.jdbc.util;
 
 import java.util.ArrayList;
 import java.util.Collection;
