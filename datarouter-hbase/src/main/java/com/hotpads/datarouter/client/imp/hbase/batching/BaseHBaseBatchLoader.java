@@ -3,15 +3,13 @@ package com.hotpads.datarouter.client.imp.hbase.batching;
 import java.util.List;
 
 import org.apache.hadoop.hbase.client.Result;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseReaderNode;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
-import com.hotpads.datarouter.storage.field.FieldSetTool;
+import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.core.DrByteTool;
 import com.hotpads.datarouter.util.core.DrListTool;
@@ -25,10 +23,7 @@ public abstract class BaseHBaseBatchLoader<
 		F extends DatabeanFielder<PK,D>,
 		T> //T will be either PK or D, but not going to express that (or think about how to)
 extends BaseBatchLoader<T>{
-	private static Logger logger = LoggerFactory.getLogger(BaseBatchLoader.class);
 
-	private static final int DEFAULT_iterateBatchSize = 1000;
-	
 	protected final HBaseReaderNode<PK,D,F> node;
 	protected final List<Field<?>> scatteringPrefix;//will be passed along between scanners tracking this partition
 	protected final byte[] scatteringPrefixBytes;//acts as a cache for the comparison of each result
@@ -36,49 +31,54 @@ extends BaseBatchLoader<T>{
 	protected final Config config;
 	protected final Integer iterateBatchSize;//break this out of config for safety
 	protected Long batchChainCounter;
-	
+
 	public BaseHBaseBatchLoader(final HBaseReaderNode<PK,D,F> node, final List<Field<?>> scatteringPrefix,
-			final Range<PK> range, final Config pConfig, Long batchChainCounter){
+			final Range<PK> range, final Config config, Long batchChainCounter){
 		this.node = node;
 		this.scatteringPrefix = scatteringPrefix;
-		this.scatteringPrefixBytes = FieldSetTool.getConcatenatedValueBytes(scatteringPrefix, false, false);
+		this.scatteringPrefixBytes = FieldTool.getConcatenatedValueBytes(scatteringPrefix, false, false);
 		this.range = range;
-		this.config = Config.nullSafe(pConfig);
-		this.iterateBatchSize = config.getIterateBatchSizeOverrideNull(DEFAULT_iterateBatchSize);
-		config.setIterateBatchSize(iterateBatchSize);
+		this.config = Config.nullSafe(config);
+		this.iterateBatchSize = this.config.getIterateBatchSize();
+		this.config.setIterateBatchSize(iterateBatchSize);
 		this.batchChainCounter = batchChainCounter;
 	}
 
 	abstract boolean isKeysOnly();
 	abstract T parseHBaseResult(Result result);
 	abstract PK getLastPrimaryKeyFromBatch();
-	
+
 
 	@Override
-	public BaseHBaseBatchLoader<PK,D,F,T> call(){	
+	public BaseHBaseBatchLoader<PK,D,F,T> call(){
 		//these should handle null scattering prefixes and null pks
 		boolean incrementStartBytes = !range.getStartInclusive();
 		ByteRange startBytes = new ByteRange(node.getKeyBytesWithScatteringPrefix(scatteringPrefix, range.getStart(),
 				incrementStartBytes));
 		ByteRange endBytes = null;
-		if(range.getEnd() != null){//if no end bytes, then the differentScatteringPrefix(row) below will stop the scanner
+		if(range.getEnd() != null){
+			//if no end bytes, then the differentScatteringPrefix(row) below will stop the scanner
 			//don't increment endBytes here.  it will be taken care of later.  hard to follow =(
 			endBytes = new ByteRange(node.getKeyBytesWithScatteringPrefix(scatteringPrefix, range.getEnd(), false));
 			//TODO adjust endKey for scatteringPrefix and endInclusive???
 		}else{
 			//TODO stop at the next scatteringPrefix.  we may be way overshooting short scans
 		}
-		
+
 		//startInclusive=true because we already adjusted for it above
 		Range<ByteRange> byteRange = Range.create(startBytes, true, endBytes, range.getEndInclusive());
-		
+
 		//do the RPC
-		List<Result> hBaseRows = node.getResultsInSubRange(byteRange, isKeysOnly(), config);
-		
-		List<T> outs = DrListTool.createArrayListWithSize(hBaseRows);
-		for(Result row : hBaseRows){
-			if(row==null || row.isEmpty()){ continue; }
-			if(differentScatteringPrefix(row)){ break; }//we ran into the next scattering prefix partition
+		List<Result> hbaseRows = node.getResultsInSubRange(byteRange, isKeysOnly(), config);
+
+		List<T> outs = DrListTool.createArrayListWithSize(hbaseRows);
+		for(Result row : hbaseRows){
+			if (row == null || row.isEmpty()){
+				continue;
+			}
+			if (differentScatteringPrefix(row)){
+				break;// we ran into the next scattering prefix partition
+			}
 			T result = parseHBaseResult(row);
 			outs.add(result);
 		}
@@ -86,24 +86,25 @@ extends BaseBatchLoader<T>{
 
 		return this;
 	}
-	
+
 	protected Range<PK> getNextRange(){
 		PK lastPkFromPreviousBatch = getLastPrimaryKeyFromBatch();
 		Range<PK> nextRange = Range.create(lastPkFromPreviousBatch, false, range.getEnd(), range.getEndInclusive());
 		return nextRange;
 	}
-	
+
 	@Override
 	public boolean isLastBatch(){
 		//refer to the dedicated iterateBatchSize field in case someone changed Config down the line
 		return isBatchHasBeenLoaded() && isBatchSmallerThan(iterateBatchSize);
 	}
 
-	
-	//TODO same as PrimaryKeyBatchLoader.differentScatteringPrefix
-	protected boolean differentScatteringPrefix(Result row){
-		if(scatteringPrefixBytes==null || row==null){ return false; }
-		return ! DrByteTool.equals(scatteringPrefixBytes, 0, scatteringPrefixBytes.length, 
+
+	private boolean differentScatteringPrefix(Result row){
+		if (scatteringPrefixBytes == null || row == null){
+			return false;
+		}
+		return ! DrByteTool.equals(scatteringPrefixBytes, 0, scatteringPrefixBytes.length,
 				row.getRow(), 0, scatteringPrefixBytes.length);
 	}
 }

@@ -2,7 +2,6 @@ package com.hotpads.datarouter.client.imp.hibernate.op.read;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 import org.hibernate.Criteria;
@@ -21,9 +20,8 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
-import com.hotpads.datarouter.util.core.DrBatchTool;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
-import com.hotpads.datarouter.util.core.DrListTool;
+import com.hotpads.util.core.iterable.BatchingIterable;
 
 public class HibernateLookupUniqueOp<
 		PK extends PrimaryKey<PK>,
@@ -47,18 +45,12 @@ extends BaseHibernateOp<List<D>>{
 	public List<D> runOnce(){
 		Session session = getSession(node.getClientId().getName());
 		
-		//i forget why we're doing this sorting.  prob not necessary
-		List<? extends UniqueKey<PK>> sortedKeys = DrListTool.createArrayList(uniqueKeys);
-		Collections.sort(sortedKeys);
-		
 		int batchSize = HibernateNode.DEFAULT_ITERATE_BATCH_SIZE;
 		if(config!=null && config.getIterateBatchSize()!=null){
 			batchSize = config.getIterateBatchSize();
 		}
-		int numBatches = DrBatchTool.getNumBatches(sortedKeys.size(), batchSize);
 		List<D> all = new ArrayList<>(uniqueKeys.size());
-		for(int batchNum=0; batchNum < numBatches; ++batchNum){
-			List<? extends Key<PK>> keyBatch = DrBatchTool.getBatch(sortedKeys, batchSize, batchNum);
+		for(List<? extends Key<PK>> keyBatch : new BatchingIterable<>(uniqueKeys, batchSize)){
 			Criteria criteria = node.getCriteriaForConfig(config, session);
 			Disjunction orSeparatedIds = Restrictions.disjunction();
 			for(Key<PK> key : DrCollectionTool.nullSafe(keyBatch)){
@@ -70,6 +62,7 @@ extends BaseHibernateOp<List<D>>{
 				orSeparatedIds.add(possiblyCompoundId);
 			}
 			criteria.add(orSeparatedIds);
+			@SuppressWarnings("unchecked")
 			List<D> batch = criteria.list();
 			all.addAll(DrCollectionTool.nullSafe(batch));
 		}

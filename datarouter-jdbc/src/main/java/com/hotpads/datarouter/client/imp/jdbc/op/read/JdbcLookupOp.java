@@ -8,12 +8,11 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
-import com.hotpads.datarouter.client.imp.hibernate.util.SqlBuilder;
 import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
-import com.hotpads.datarouter.client.imp.jdbc.node.JdbcNode;
 import com.hotpads.datarouter.client.imp.jdbc.node.JdbcReaderNode;
 import com.hotpads.datarouter.client.imp.jdbc.op.BaseJdbcOp;
+import com.hotpads.datarouter.client.imp.jdbc.util.JdbcTool;
+import com.hotpads.datarouter.client.imp.jdbc.util.SqlBuilder;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
@@ -55,15 +54,16 @@ extends BaseJdbcOp<List<D>>{
 			return new LinkedList<>();
 		}
 		Integer batchSize = config.getLimit();
-		int configuredBatchSize = config.getIterateBatchSizeOverrideNull(JdbcNode.DEFAULT_ITERATE_BATCH_SIZE);
+		int configuredBatchSize = config.getIterateBatchSize();
 		if (batchSize == null || batchSize > configuredBatchSize){
 			batchSize = configuredBatchSize;
 		}
 		//TODO undefined behavior on trailing nulls
 		List<D> result = new ArrayList<>();
 		for (List<? extends Lookup<PK>> batch : new BatchingIterable<>(lookups, batchSize)){
+			//for performance reasons, pass null for orderBy and sort in java if desired
 			String sql = SqlBuilder.getWithPrefixes(fieldCodecFactory, config, node.getTableName(), node.getFieldInfo()
-					.getFields(), batch, wildcardLastField, node.getFieldInfo().getPrimaryKeyFields());
+					.getFields(), batch, wildcardLastField, null);
 			result.addAll(JdbcTool.selectDatabeans(fieldCodecFactory, getConnection(node.getClientId().getName()), node
 					.getFieldInfo(), sql));
 			if(config.getLimit() != null && result.size() >= config.getLimit()){

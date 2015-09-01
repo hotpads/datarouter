@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 import com.hotpads.datarouter.client.imp.hbase.batching.HBaseDatabeanBatchLoader;
 import com.hotpads.datarouter.client.imp.hbase.batching.HBasePrimaryKeyBatchLoader;
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseReaderNode;
-import com.hotpads.datarouter.client.imp.hbase.scan.HBaseDatabeanScanner;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
@@ -25,24 +24,25 @@ import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.bytes.ByteRange;
-import com.hotpads.util.core.collections.Pair;
 import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.collections.Twin;
-import com.hotpads.util.core.iterable.scanner.batch.BatchLoader;
 import com.hotpads.util.core.iterable.scanner.batch.AsyncBatchLoaderScanner;
+import com.hotpads.util.core.iterable.scanner.batch.BatchLoader;
 
 public class HBaseScatteringPrefixQueryBuilder {
-	private static Logger logger = LoggerFactory.getLogger(HBaseScatteringPrefixQueryBuilder.class);
+	private static final Logger logger = LoggerFactory.getLogger(HBaseScatteringPrefixQueryBuilder.class);
 
 	public static List<Scan> getPrefixScanners(DatabeanFieldInfo<?,?,?> fieldInfo, FieldSet<?> prefix, 
 			boolean wildcardLastField, Config config){
-		ArrayList<FieldSet<?>> scatteringPrefixesPlusPrefix = getInstanceForAllPossibleScatteringPrefixes(fieldInfo, prefix);
+		ArrayList<FieldSet<?>> scatteringPrefixesPlusPrefix = getInstanceForAllPossibleScatteringPrefixes(fieldInfo,
+				prefix);
 		if(DrCollectionTool.isEmpty(scatteringPrefixesPlusPrefix)){ 
-			return DrListTool.wrap(HBaseQueryBuilder.getScanForRange(null, true, null, false, config)); 
+			return DrListTool.wrap(HBaseQueryBuilder.getScanForRange(new Range<>(null), config)); 
 		}
 		List<Scan> outs = new ArrayList<>();
 		for(FieldSet<?> fieldSet : scatteringPrefixesPlusPrefix){
-			Twin<ByteRange> byteRange = HBaseQueryBuilder.getStartEndBytesForPrefix(fieldSet.getFields(), wildcardLastField);
+			Twin<ByteRange> byteRange = HBaseQueryBuilder.getStartEndBytesForPrefix(fieldSet.getFields(),
+					wildcardLastField);
 			Range<ByteRange> scanRange = Range.create(byteRange.getLeft(), true, byteRange.getRight(), false);
 			Scan scan = HBaseQueryBuilder.getScanForRange(scanRange, config);
 			outs.add(scan);
@@ -50,8 +50,8 @@ public class HBaseScatteringPrefixQueryBuilder {
 		return outs;
 	}
 	
-	public static List<Scan> getPrefixScanners(DatabeanFieldInfo<?,?,?> fieldInfo, Collection<? extends FieldSet<?>> prefixes, 
-			boolean wildcardLastField, Config config){
+	public static List<Scan> getPrefixScanners(DatabeanFieldInfo<?,?,?> fieldInfo,
+			Collection<? extends FieldSet<?>> prefixes, boolean wildcardLastField, Config config){
 		List<Scan> outs = new ArrayList<>();
 		for(FieldSet<?> prefix : DrIterableTool.nullSafe(prefixes)){
 			List<Scan> scansForSinglePrefix = getPrefixScanners(fieldInfo, prefix, wildcardLastField, config);
@@ -66,13 +66,16 @@ public class HBaseScatteringPrefixQueryBuilder {
 	public static ArrayList<FieldSet<?>> getInstanceForAllPossibleScatteringPrefixes(
 			DatabeanFieldInfo<?,?,?> fieldInfo, FieldSet<?> pk){
 		ArrayList<FieldSet<?>> outs = new ArrayList<>();
-		List<List<Field<?>>> allScatteringPrefixFields = fieldInfo.getSampleScatteringPrefix().getAllPossibleScatteringPrefixes();
+		List<List<Field<?>>> allScatteringPrefixFields = fieldInfo.getSampleScatteringPrefix()
+				.getAllPossibleScatteringPrefixes();
 		for(List<Field<?>> scatteringPrefixFields : allScatteringPrefixFields){
 			if(DrCollectionTool.isEmpty(scatteringPrefixFields) && pk==null){ 
 				outs.add(null); 
 			}else{
-				SimpleFieldSet<?> scatteringPrefixPlusPk = new SimpleFieldSet(scatteringPrefixFields);
-				if(pk!=null){ scatteringPrefixPlusPk.add(pk.getFields()); }
+				SimpleFieldSet<?> scatteringPrefixPlusPk = new SimpleFieldSet<>(scatteringPrefixFields);
+				if (pk != null){
+					scatteringPrefixPlusPk.add(pk.getFields());
+				}
 				outs.add(scatteringPrefixPlusPk);
 			}
 		}
@@ -81,7 +84,7 @@ public class HBaseScatteringPrefixQueryBuilder {
 	
 	public static List<Twin<ByteRange>> getRangeForEachScatteringPrefix(DatabeanFieldInfo<?,?,?> fieldInfo,
 			final FieldSet<?> startKey, final boolean startInclusive, 
-			final FieldSet<?> endKey, final boolean endInclusive, Config config){
+			final FieldSet<?> endKey, final boolean endInclusive){
 		
 		List<Twin<ByteRange>> ranges = new ArrayList<>();		
 		ArrayList<FieldSet<?>> prefixedStartKeys = getInstanceForAllPossibleScatteringPrefixes(fieldInfo, startKey);
@@ -89,7 +92,9 @@ public class HBaseScatteringPrefixQueryBuilder {
 		
 		//null endKey should not be exclusive because it would never return results
 		boolean endInclusiveOverride = endInclusive;
-		if(endKey==null){ endInclusiveOverride = true; }
+		if(endKey == null){
+			endInclusiveOverride = true;
+		}
 		
 		for(int i=0; i < prefixedStartKeys.size(); ++i){
 			Twin<ByteRange> byteRange = HBaseQueryBuilder.getStartEndBytesForRange(
@@ -105,14 +110,15 @@ public class HBaseScatteringPrefixQueryBuilder {
 			HBaseReaderNode<PK,D,F> node,
 			DatabeanFieldInfo<PK,D,F> fieldInfo,
 			Range<PK> pkRange,
-			final Config pConfig){
+			final Config config){
 		List<List<Field<?>>> allScatteringPrefixes = fieldInfo.getSampleScatteringPrefix()
 				.getAllPossibleScatteringPrefixes();
 		ArrayList<AsyncBatchLoaderScanner<PK>> scanners = new ArrayList<>();
 		for(List<Field<?>> scatteringPrefix : allScatteringPrefixes){
-			BatchLoader<PK> firstBatchLoaderForPrefix = new HBasePrimaryKeyBatchLoader<PK,D,F>(node, scatteringPrefix, 
-					pkRange, pConfig, 1L);//start the counter at 1
-			AsyncBatchLoaderScanner<PK> scanner = new AsyncBatchLoaderScanner<PK>(executorService, firstBatchLoaderForPrefix);
+			BatchLoader<PK> firstBatchLoaderForPrefix = new HBasePrimaryKeyBatchLoader<>(node, scatteringPrefix, 
+					pkRange, config, 1L);//start the counter at 1
+			AsyncBatchLoaderScanner<PK> scanner = new AsyncBatchLoaderScanner<>(executorService,
+					firstBatchLoaderForPrefix);
 			scanners.add(scanner);
 		}
 		return scanners;
@@ -124,15 +130,16 @@ public class HBaseScatteringPrefixQueryBuilder {
 			HBaseReaderNode<PK,D,F> node,
 			DatabeanFieldInfo<PK,D,F> fieldInfo,
 			Range<PK> pkRange,
-			final Config pConfig){
+			final Config config){
 		List<List<Field<?>>> allScatteringPrefixes = fieldInfo.getSampleScatteringPrefix()
 				.getAllPossibleScatteringPrefixes();
 		ArrayList<AsyncBatchLoaderScanner<D>> scanners = new ArrayList<>();
 		for(List<Field<?>> scatteringPrefix : allScatteringPrefixes){
-//			logger.warn("including scanner for scatteringPrefix:"+scatteringPrefix);
-			BatchLoader<D> firstBatchLoaderForPrefix = new HBaseDatabeanBatchLoader<PK,D,F>(node, scatteringPrefix, 
-					pkRange, pConfig, 1L);//start the counter at 1
-			AsyncBatchLoaderScanner<D> scanner = new AsyncBatchLoaderScanner<D>(executorService, firstBatchLoaderForPrefix);
+			logger.debug("including scanner for scatteringPrefix:"+scatteringPrefix);
+			BatchLoader<D> firstBatchLoaderForPrefix = new HBaseDatabeanBatchLoader<>(node, scatteringPrefix, 
+					pkRange, config, 1L);//start the counter at 1
+			AsyncBatchLoaderScanner<D> scanner = new AsyncBatchLoaderScanner<>(executorService,
+					firstBatchLoaderForPrefix);
 			scanners.add(scanner);
 		}
 		return scanners;

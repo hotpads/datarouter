@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.client.imp.jdbc.field.codec.factory;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -27,49 +28,41 @@ import com.hotpads.util.core.java.ReflectionTool;
 
 @Singleton
 public class StandardJdbcFieldCodecFactory implements JdbcFieldCodecFactory{
-	private static final Logger logger = LoggerFactory.getLogger(StandardJdbcFieldCodecFactory.class);
-	
 
-	private final Map<Class<? extends Field<?>>,Class<? extends JdbcFieldCodec>> codecTypeByFieldType;
-	
-	
+	private final Map<Class<? extends Field<?>>,Class<? extends JdbcFieldCodec<?,?>>> codecTypeByFieldType;
+
 	public StandardJdbcFieldCodecFactory(){
 		this.codecTypeByFieldType = new HashMap<>();
 		initMappings();
 	}
 
-	
 	private void initMappings(){
 		for(StandardJdbcFieldCodec codec : StandardJdbcFieldCodec.values()){
 			addCodec(codec.getFieldType(), codec.getCodecType());
 		}
 	}
-	
-	public void addCodec(Class<? extends Field<?>> fieldType, Class<? extends JdbcFieldCodec> codecType){
+
+	public void addCodec(Class<? extends Field<?>> fieldType, Class<? extends JdbcFieldCodec<?,?>> codecType){
 		codecTypeByFieldType.put(fieldType, codecType);
 	}
-	
-	
+
+
 	@Override
 	public <T,F extends Field<T>> boolean hasCodec(Class<F> fieldType){
 		return codecTypeByFieldType.containsKey(fieldType);
 	}
-	
-	
-	@Override 
+
+
+	@Override
 	public <T,F extends Field<T>,C extends JdbcFieldCodec<T,F>> C createCodec(F field){
-		Class<F> fieldType = (Class<F>)field.getClass();
-		Class<C> codecType = (Class<C>)codecTypeByFieldType.get(fieldType);
+		Class<C> codecType = (Class<C>)codecTypeByFieldType.get(field.getClass());
 		if(codecType == null){
 			throw new RuntimeException("no codec found for " + field.getClass());
 		}
-		C codec = ReflectionTool.create(codecType);
-		codec.setField(field);
-//		logger.warn("created {} for {}={}", codecType.getSimpleName(), fieldType.getSimpleName(), field.getValue());
-		return codec;
+		return ReflectionTool.createWithParameters(codecType, Arrays.asList(field));
 	}
-	
-	
+
+
 	@Override
 	public List<JdbcFieldCodec<?,?>> createCodecs(Collection<Field<?>> fields){
 		List<JdbcFieldCodec<?,?>> codecs = DrListTool.createArrayListWithSize(fields);
@@ -78,18 +71,18 @@ public class StandardJdbcFieldCodecFactory implements JdbcFieldCodecFactory{
 		}
 		return codecs;
 	}
-	
-	
-	
+
+
+
 	/************************ test *****************************/
-	
+
 	@Guice(moduleFactory = TestDatarouterJdbcModuleFactory.class)
 	public static class JdbcCodecFactoryTests{
 		private static final Logger logger = LoggerFactory.getLogger(JdbcCodecFactoryTests.class);
-		
+
 		@Inject
 		private JdbcFieldCodecFactory codecFactory;
-		
+
 		@Test
 		public void testStringCodec(){
 			StringField field = new StringField("fName", "myValue", 23);
@@ -109,5 +102,5 @@ public class StandardJdbcFieldCodecFactory implements JdbcFieldCodecFactory{
 			Assert.assertTrue(hasAllCodecs);
 		}
 	}
-	
+
 }

@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.client.imp.hibernate.util;
+package com.hotpads.datarouter.client.imp.jdbc.util;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -265,11 +265,15 @@ public class SqlBuilder{
 	}
 	
 	public static void addOrderByClause(StringBuilder sql, List<Field<?>> orderByFields){
-		if(DrCollectionTool.isEmpty(orderByFields)){ return; }
+		if(DrCollectionTool.isEmpty(orderByFields)){
+			return;
+		}
 		sql.append(" order by ");
 		int counter = 0;
 		for(Field<?> field : orderByFields){
-			if(counter > 0){ sql.append(", "); }
+			if(counter > 0){
+				sql.append(", ");
+			}
 			sql.append(field.getKey().getColumnName()+" asc");
 			++counter;
 		}

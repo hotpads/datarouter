@@ -50,12 +50,8 @@ public class SqlCreateTableGenerator implements DdlGenerator{
 			sb.append(" " + col.getName() + " " + typeString);
 			if(type.shouldSpecifyLength(col.getMaxLength())){
 				sb.append("(" + col.getMaxLength() + ")");
-			}
-			if(col.getNullable()){
-				sb.append(" default null");
-			}else{
-				sb.append(" not null");
-			}
+			}		
+			sb.append(col.getDefaultValueStatement());
 			if (col.getAutoIncrement()) {
 				sb.append(" auto_increment");
 			}
@@ -98,7 +94,7 @@ public class SqlCreateTableGenerator implements DdlGenerator{
 		
 	}
 	
-	
+		
 	/******************** tests *************************/
 	
 	public static class  SqlCreateTableGeneratorTester{

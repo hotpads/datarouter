@@ -13,11 +13,11 @@ import com.hotpads.datarouter.storage.field.Field;
 
 public class UInt31JdbcFieldCodec
 extends BasePrimitiveJdbcFieldCodec<Integer,Field<Integer>>{
-	
+
 	public UInt31JdbcFieldCodec(){//no-arg for reflection
 		this(null);
 	}
-	
+
 	public UInt31JdbcFieldCodec(Field<Integer> field){
 		super(field);
 	}
@@ -28,7 +28,12 @@ extends BasePrimitiveJdbcFieldCodec<Integer,Field<Integer>>{
 		return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.INT, 11, field.getKey().isNullable(),
 				false);
 	}
-	
+
+	@Override
+	public Integer parseJdbcValueButDoNotSet(Object obj){
+		return obj==null?null:(Integer)obj;
+	}
+
 	@Override
 	public void setPreparedStatementValue(PreparedStatement ps, int parameterIndex){
 		try{
@@ -41,12 +46,7 @@ extends BasePrimitiveJdbcFieldCodec<Integer,Field<Integer>>{
 			throw new DataAccessException(e);
 		}
 	}
-	
-	@Override
-	public Integer parseJdbcValueButDoNotSet(Object obj){
-		return obj==null?null:(Integer)obj;
-	}
-	
+
 	@Override
 	public Integer fromJdbcResultSetButDoNotSet(ResultSet rs){
 		try{

@@ -1,6 +1,6 @@
 package com.hotpads.datarouter.client.imp.hbase.test;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.testng.AssertJUnit;
 import org.testng.annotations.AfterClass;
@@ -35,16 +35,16 @@ public class HBaseEntitySortedNodeIntegrationTests extends BaseSortedNodeIntegra
 	}
 	
 
-
 	@Test
 	public void testGetEntity(){
 		SortedBeanEntityKey ek1 = new SortedBeanEntityKey(SortedBeans.S_albatross, SortedBeans.S_ostrich);
 		EntityNode<SortedBeanEntityKey,SortedBeanEntity> entityNode = sortedBeanEntityNode.entity();
 		SortedBeanEntity albatrossOstrich = entityNode.getEntity(ek1, null);
 		int numExpected = SortedBeans.NUM_ELEMENTS * SortedBeans.NUM_ELEMENTS;
-		List<SortedBean> results = albatrossOstrich.getSortedBeans();
+		Collection<SortedBean> results = albatrossOstrich.getSortedBeans();
 		AssertJUnit.assertEquals(numExpected, results.size());
 		AssertJUnit.assertEquals(SortedBeans.S_albatross, DrCollectionTool.getFirst(results).getA());
 		AssertJUnit.assertEquals(SortedBeans.S_ostrich, DrCollectionTool.getFirst(results).getB());
 	}
+	
 }
