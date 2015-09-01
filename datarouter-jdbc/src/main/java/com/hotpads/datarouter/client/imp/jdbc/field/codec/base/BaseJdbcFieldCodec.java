@@ -18,12 +18,6 @@ implements JdbcFieldCodec<T,F>{
 	public F getField(){
 		return field;
 	}
-	
-	@Override
-	public void setField(F field){//TODO use the constructor
-		this.field = field;
-	}
-	
 
 	@Override
 	public String getSqlNameValuePairEscaped(){
@@ -32,7 +26,7 @@ implements JdbcFieldCodec<T,F>{
 		}
 		return field.getKey().getColumnName() + "=" + getSqlEscaped();
 	}
-	
+
 	@Override
 	public void fromJdbcResultSetUsingReflection(Object targetFieldSet, ResultSet resultSet){
 		T v = fromJdbcResultSetButDoNotSet(resultSet);
@@ -44,5 +38,5 @@ implements JdbcFieldCodec<T,F>{
 		T v = parseJdbcValueButDoNotSet(col);
 		field.setUsingReflection(targetFieldSet, v);
 	}
-	
+
 }

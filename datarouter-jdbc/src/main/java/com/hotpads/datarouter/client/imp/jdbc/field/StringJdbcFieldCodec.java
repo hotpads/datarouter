@@ -18,9 +18,9 @@ import com.hotpads.datarouter.util.core.DrRegexTool;
 
 public class StringJdbcFieldCodec
 extends BaseJdbcFieldCodec<String,StringField>{
-	
+
 	public static final int DEFAULT_STRING_LENGTH = StringField.DEFAULT_STRING_LENGTH;
-	
+
 	public StringJdbcFieldCodec(){//no-arg for reflection
 		this(null);
 	}
@@ -29,18 +29,18 @@ extends BaseJdbcFieldCodec<String,StringField>{
 		super(field);
 	}
 
-	
+
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
 		if(field.getSize() <= MySqlColumnType.MAX_LENGTH_VARCHAR){
 			return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.VARCHAR, field.getSize(), field
 					.getKey().isNullable(), false);
 		}else if(field.getSize() <= MySqlColumnType.MAX_LENGTH_TEXT){
-			return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.TEXT, 
+			return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.TEXT,
 					null/*MySqlColumnType.MAX_LENGTH_TEXT.intValue()*/, field.getKey().isNullable(), false);
 		}else if(field.getSize() <= MySqlColumnType.MAX_LENGTH_MEDIUMTEXT){
-			return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.MEDIUMTEXT, 
-					null/*MySqlColumnType.MAX_LENGTH_MEDIUMTEXT.intValue()*/, 
+			return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.MEDIUMTEXT,
+					null/*MySqlColumnType.MAX_LENGTH_MEDIUMTEXT.intValue()*/,
 					field.getKey().isNullable(), false);
 		}else if(field.getSize() <= MySqlColumnType.MAX_LENGTH_LONGTEXT){
 			return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.LONGTEXT, null, field.getKey()
@@ -48,17 +48,17 @@ extends BaseJdbcFieldCodec<String,StringField>{
 		}
 		throw new IllegalArgumentException("Unknown size:"+field.getSize());
 	}
-	
+
 	@Override
 	public String getSqlEscaped(){
 		return escapeString(field.getValue());
 	}
-	
-	public static String escapeString(final String s){
-		if(s==null){
+
+	public static String escapeString(final String string){
+		if(string==null){
 			return "null";
 		}
-		String stringValue = s;
+		String stringValue = string;
 		//replace \ with \\
 		stringValue = DrRegexTool.BACKSLASH_PATTERN.matcher(stringValue)
 						.replaceAll(Matcher.quoteReplacement("\\\\"));
@@ -67,7 +67,7 @@ extends BaseJdbcFieldCodec<String,StringField>{
 						.replaceAll(Matcher.quoteReplacement("\\'"));
 		return "'" + stringValue + "'";
 	}
-	
+
 	@Override
 	public void setPreparedStatementValue(PreparedStatement ps, int parameterIndex){
 		try{
@@ -85,7 +85,7 @@ extends BaseJdbcFieldCodec<String,StringField>{
 	public String parseJdbcValueButDoNotSet(Object obj){
 		return obj==null?null:(String)obj;
 	}
-	
+
 	@Override
 	public String fromJdbcResultSetButDoNotSet(ResultSet rs){
 		try{
@@ -97,27 +97,26 @@ extends BaseJdbcFieldCodec<String,StringField>{
 
 	public static SqlColumn getMySqlTypeFromSize(String name, int size, boolean nullable){
 		if(size <= MySqlColumnType.MAX_LENGTH_VARCHAR){
-			return new SqlColumn(name, MySqlColumnType.VARCHAR, size, true, false);
+			return new SqlColumn(name, MySqlColumnType.VARCHAR, size, nullable, false);
 		}else if(size <= MySqlColumnType.MAX_LENGTH_TEXT){
-			return new SqlColumn(name, MySqlColumnType.TEXT, null/*MySqlColumnType.MAX_LENGTH_TEXT.intValue()*/, true, false);
+			return new SqlColumn(name, MySqlColumnType.TEXT, null, nullable, false);
 		}else if(size <= MySqlColumnType.MAX_LENGTH_MEDIUMTEXT){
-			return new SqlColumn(name, MySqlColumnType.MEDIUMTEXT, null/*MySqlColumnType.MAX_LENGTH_MEDIUMTEXT.intValue()*/, 
-					true, false);
+			return new SqlColumn(name, MySqlColumnType.MEDIUMTEXT, null, nullable, false);
 		}else if(size <= MySqlColumnType.MAX_LENGTH_LONGTEXT){
-			return new SqlColumn(name, MySqlColumnType.LONGTEXT, null, true, false);
+			return new SqlColumn(name, MySqlColumnType.LONGTEXT, null, nullable, false);
 		}
 		throw new IllegalArgumentException("Unknown size:"+size);
 	}
-	
-	
+
+
 	/********************************* tests **********************************************/
-	
+
 	public static class StringJdbcFieldCodecTests{
-		@Test 
+		@Test
 		public void testGetSqlEscaped(){
 			Assert.assertEquals("'bill\\'s'",
 					new StringJdbcFieldCodec(new StringField("tag","bill's", DEFAULT_STRING_LENGTH)).getSqlEscaped());
-			
+
 			//actual case encountered
 			Assert.assertEquals("'Renter\\\\\\\\\\\\\\'s Assurance Program'", new StringJdbcFieldCodec(
 					new StringField("tag","Renter\\\\\\'s Assurance Program", DEFAULT_STRING_LENGTH)).getSqlEscaped());
@@ -125,8 +124,8 @@ extends BaseJdbcFieldCodec<String,StringField>{
 
 			Assert.assertEquals("'no apostrophes'", new StringJdbcFieldCodec(
 					new StringField("tag","no apostrophes", DEFAULT_STRING_LENGTH)).getSqlEscaped());
-			
+
 		}
 	}
-	
+
 }
