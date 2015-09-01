@@ -11,7 +11,6 @@ import java.util.List;
 
 import org.junit.Test;
 
-import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSet;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCollation;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
@@ -21,6 +20,7 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlIndex;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlTable;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.SqlTableGenerator;
 import com.hotpads.datarouter.client.imp.jdbc.field.StringJdbcFieldCodec;
+import com.hotpads.datarouter.client.imp.jdbc.util.JdbcTool;
 import com.hotpads.datarouter.test.node.basic.manyfield.ManyFieldBean;
 import com.hotpads.datarouter.util.core.DrIterableTool;
 
