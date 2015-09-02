@@ -126,7 +126,7 @@ implements ClientFactory{
 			System.out.println("Please execute: "+sql);
 		}else {
 			try{
-				System.out.println(sql);
+				System.out.println(" Executing "+sql);
 				Statement statement = connection.createStatement();
 				statement.execute(sql);
 			}catch(SQLException e){
