@@ -112,9 +112,14 @@ implements ClientFactory{
 		Connection connection = JdbcTool.openConnection(hostname, port, null, user, password);
 		List<String> existingDatabases = JdbcTool.showDatabases(connection);
 		System.out.println("existing"+existingDatabases);
+		System.out.println("database "+databaseName);
+		
+		boolean exist = existingDatabases.contains(databaseName);
+		System.out.println("exist? "+databaseName+"->"+exist);
 		
 		//if database does not exist, create database
 		if(!existingDatabases.contains(databaseName)){
+			System.out.println("not there"+databaseName);
 			if(isWritableClient()){
 				generateCreateDatabaseSchema(connection, clientName);
 			}
