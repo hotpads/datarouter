@@ -25,10 +25,10 @@ import com.hotpads.datarouter.storage.key.entity.EntityKey;
 import com.hotpads.datarouter.storage.key.entity.EntityPartitioner;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.core.DrArrayTool;
-import com.hotpads.datarouter.util.core.DrClassTool;
 import com.hotpads.datarouter.util.core.DrNumberFormatter;
 import com.hotpads.datarouter.util.core.DrObjectTool;
 import com.hotpads.util.core.java.ReflectionTool;
+import com.hotpads.util.core.lang.ClassTool;
 
 public class DRHRegionInfo<PK extends PrimaryKey<PK>>
 implements Comparable<DRHRegionInfo<?>>{
@@ -145,7 +145,7 @@ implements Comparable<DRHRegionInfo<?>>{
 	
 	public boolean equals(Object obj){
 		if(this==obj){ return true; }
-		if(DrClassTool.differentClass(this, obj)){ return false; }
+		if(ClassTool.differentClass(this, obj)){ return false; }
 		DRHRegionInfo<PK> that = (DRHRegionInfo<PK>)obj;
 		return DrObjectTool.equals(hRegionInfo.getEncodedName(), that.hRegionInfo.getEncodedName());
 	}
