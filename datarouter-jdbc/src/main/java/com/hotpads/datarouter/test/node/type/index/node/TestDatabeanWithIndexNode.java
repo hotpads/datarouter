@@ -5,7 +5,7 @@ import com.hotpads.datarouter.node.op.combo.IndexedMapStorage.PhysicalIndexedMap
 import com.hotpads.datarouter.node.op.raw.MapStorage.MapStorageNode;
 import com.hotpads.datarouter.node.type.index.MultiIndexNode;
 import com.hotpads.datarouter.node.type.index.UniqueIndexNode;
-import com.hotpads.datarouter.routing.BaseDatarouter;
+import com.hotpads.datarouter.routing.BaseRouter;
 import com.hotpads.datarouter.routing.Router;
 import com.hotpads.datarouter.test.DrTestConstants;
 import com.hotpads.datarouter.test.TestDatabean;
@@ -32,10 +32,10 @@ public abstract class TestDatabeanWithIndexNode{
 							TestDatabeanWithManagedIndexByC> byC;
 	
 	public TestDatabeanWithIndexNode(NodeFactory nodeFactory, Router router){
-		backingMapNode = BaseDatarouter.cast(router.register(nodeFactory.create(DrTestConstants.CLIENT_drTestJdbc0,
+		backingMapNode = BaseRouter.cast(router.register(nodeFactory.create(DrTestConstants.CLIENT_drTestJdbc0,
 				getTableName(), getTableName(), TestDatabean.class,
 				TestDatabeanFielder.class, router, false)));
-		mainNode = BaseDatarouter.cast(backingMapNode);
+		mainNode = BaseRouter.cast(backingMapNode);
 	}
 	
 	protected abstract String getTableName();

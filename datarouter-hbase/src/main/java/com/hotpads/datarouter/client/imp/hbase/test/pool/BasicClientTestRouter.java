@@ -13,13 +13,13 @@ import com.hotpads.datarouter.connection.keepalive.KeepAlive.KeepAliveFielder;
 import com.hotpads.datarouter.connection.keepalive.KeepAliveKey;
 import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.node.op.raw.MapStorage;
-import com.hotpads.datarouter.routing.BaseDatarouter;
+import com.hotpads.datarouter.routing.BaseRouter;
 import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.test.DrTestConstants;
 
 @Singleton
 public class BasicClientTestRouter
-extends BaseDatarouter{
+extends BaseRouter{
 
 	public static final String name = "basicClientTest";
 
