@@ -26,21 +26,21 @@ public class SchemaUpdateOptions{
 	SUFFIX_modifyCollation = ".modifyCollation",
 	SCHEMA_UPDATE_ENABLE = "schemaUpdate.enable";
 	
-	protected Boolean createDatabases;
-	protected Boolean createTables;
-	protected Boolean dropTables;
-	protected Boolean addColumns;
-	protected Boolean deleteColumns;
-	/*protected Boolean modifyColumnLengths;*/
-	protected Boolean modifyColumns;
-	protected Boolean addIndexes;
-	protected Boolean dropIndexes;
-	protected Boolean modifyEngine;
-	protected boolean modifyCollation;
-	protected boolean modifyCharacterSet;
-	protected Boolean schemaUpdateEnabled;
-	protected List<String> ignoreClients;
-	protected List<String> ignoreTables;
+	private Boolean createDatabases;
+	private Boolean createTables;
+	private Boolean dropTables;
+	private Boolean addColumns;
+	private Boolean deleteColumns;
+	/*private Boolean modifyColumnLengths;*/
+	private Boolean modifyColumns;
+	private Boolean addIndexes;
+	private Boolean dropIndexes;
+	private Boolean modifyEngine;
+	private boolean modifyCollation;
+	private boolean modifyCharacterSet;
+	private Boolean schemaUpdateEnabled;
+	private List<String> ignoreClients;
+	private List<String> ignoreTables;
 
 
 	public SchemaUpdateOptions(){
@@ -262,7 +262,6 @@ public class SchemaUpdateOptions{
 	}
 	
 	public boolean schemaUpdateEnabled(){
-		System.out.println("schema "+schemaUpdateEnabled);
 		return schemaUpdateEnabled;
 	}
 

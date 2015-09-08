@@ -30,9 +30,9 @@ implements ClientFactory{
 	private static Logger logger = LoggerFactory.getLogger(JdbcSimpleClientFactory.class);
 	
 	public static final String
-		POOL_DEFAULT = "default",
-		PRINT_PREFIX = "schemaUpdate.print",
-		EXECUTE_PREFIX = "schemaUpdate.execute"
+			POOL_DEFAULT = "default",
+			PRINT_PREFIX = "schemaUpdate.print",
+			EXECUTE_PREFIX = "schemaUpdate.execute"
 		;
 	
 	private final DatarouterContext drContext;
