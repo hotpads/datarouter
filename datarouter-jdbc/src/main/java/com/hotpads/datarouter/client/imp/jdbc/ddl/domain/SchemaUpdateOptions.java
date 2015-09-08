@@ -38,6 +38,7 @@ public class SchemaUpdateOptions{
 	protected Boolean modifyEngine;
 	protected boolean modifyCollation;
 	protected boolean modifyCharacterSet;
+	protected Boolean schemaUpdateEnabled;
 	protected List<String> ignoreClients;
 	protected List<String> ignoreTables;
 
@@ -80,6 +81,8 @@ public class SchemaUpdateOptions{
 				prefix+SUFFIX_modifyCharacterSet));
 		this.modifyCollation = DrBooleanTool.isTrueOrNull(DrPropertiesTool.getFirstOccurrence(multiProperties,
 				prefix+SUFFIX_modifyCollation));
+		this.schemaUpdateEnabled = DrBooleanTool.isTrue(DrPropertiesTool.getFirstOccurrence(multiProperties,
+				SCHEMA_UPDATE_ENABLE));
 		return this;
 	}
 
@@ -107,6 +110,8 @@ public class SchemaUpdateOptions{
 				prefix+SUFFIX_modifyCharacterSet));
 		this.modifyCollation = DrBooleanTool.isTrue(DrPropertiesTool.getFirstOccurrence(multiProperties,
 				prefix+SUFFIX_modifyCollation));
+		this.schemaUpdateEnabled = DrBooleanTool.isTrue(DrPropertiesTool.getFirstOccurrence(multiProperties,
+				SCHEMA_UPDATE_ENABLE));
 		String schemaUpdatePrefix = prefix.substring(0, prefix.indexOf('.'));
 		String clientsToIgnore = DrPropertiesTool.getFirstOccurrence(multiProperties, schemaUpdatePrefix + SUFFIX_ignoreClients);
 		this.ignoreClients = DrStringTool.splitOnCharNoRegex(clientsToIgnore, ',');
@@ -257,7 +262,8 @@ public class SchemaUpdateOptions{
 	}
 	
 	public boolean schemaUpdateEnabled(){
-		return DrBooleanTool.isTrue(SCHEMA_UPDATE_ENABLE);
+		System.out.println("schema "+schemaUpdateEnabled);
+		return schemaUpdateEnabled;
 	}
 
 }
