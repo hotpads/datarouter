@@ -23,7 +23,8 @@ public class SchemaUpdateOptions{
 	SUFFIX_ignoreClients = ".ignoreClients",
 	SUFFIX_ignoreTables = ".ignoreTables",
 	SUFFIX_modifyCharacterSet = ".modifyCharacterSet",
-	SUFFIX_modifyCollation = ".modifyCollation";
+	SUFFIX_modifyCollation = ".modifyCollation",
+	SCHEMA_UPDATE_ENABLE = "schemaUpdate.enable";
 	
 	protected Boolean createDatabases;
 	protected Boolean createTables;
@@ -252,8 +253,11 @@ public class SchemaUpdateOptions{
 	}
 
 	public boolean getModifyCharacterSet(){
-		// TODO Auto-generated method stub
 		return modifyCharacterSet;
+	}
+	
+	public boolean schemaUpdateEnabled(){
+		return DrBooleanTool.isTrue(SCHEMA_UPDATE_ENABLE);
 	}
 
 }

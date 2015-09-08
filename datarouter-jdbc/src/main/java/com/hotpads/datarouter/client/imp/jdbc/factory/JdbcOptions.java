@@ -7,8 +7,6 @@ import com.hotpads.util.core.properties.TypedProperties;
 
 public class JdbcOptions extends TypedProperties{
 	
-	private static final String SCHEMA_UPDATE_ENABLE = "schemaUpdate.enable";
-	
 	protected String clientPrefix;
 
 	public JdbcOptions(Iterable<Properties> multiProperties, String clientName){
@@ -39,9 +37,5 @@ public class JdbcOptions extends TypedProperties{
 	public Boolean logging(Boolean def){
 		return getBoolean(clientPrefix+"logging", def);
 	}
-
-	public boolean schemaUpdateEnabled(){
-		return getBoolean(SCHEMA_UPDATE_ENABLE, false);
-	}
-
+	
 }

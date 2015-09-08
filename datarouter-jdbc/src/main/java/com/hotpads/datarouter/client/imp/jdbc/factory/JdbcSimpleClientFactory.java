@@ -42,8 +42,8 @@ implements ClientFactory{
 	private final List<Properties> multiProperties;
 	private final JdbcOptions jdbcOptions;
 	private final JdbcOptions defaultJdbcOptions;
-	public final SchemaUpdateOptions printOptions;
-	public final SchemaUpdateOptions executeOptions;
+	private final SchemaUpdateOptions printOptions;
+	private final SchemaUpdateOptions executeOptions;
 	
 	private JdbcConnectionPool connectionPool;
 	private JdbcClient client;
@@ -57,7 +57,7 @@ implements ClientFactory{
 		this.multiProperties = DrPropertiesTool.fromFiles(configFilePaths);
 		this.jdbcOptions = new JdbcOptions(multiProperties, clientName);
 		this.defaultJdbcOptions = new JdbcOptions(multiProperties, POOL_DEFAULT);
-		this.printOptions = new SchemaUpdateOptions(multiProperties, PRINT_PREFIX, true	);
+		this.printOptions = new SchemaUpdateOptions(multiProperties, PRINT_PREFIX, true);
 		this.executeOptions = new SchemaUpdateOptions(multiProperties, EXECUTE_PREFIX, false);
 	}
 
@@ -94,7 +94,7 @@ implements ClientFactory{
 
 
 	protected boolean doSchemaUpdate(){
-		return isWritableClient() && jdbcOptions.schemaUpdateEnabled();
+		return isWritableClient() && printOptions.schemaUpdateEnabled();
 	}
 
 	private void checkDatabaseExist() {
