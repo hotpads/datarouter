@@ -86,8 +86,11 @@ implements ClientFactory{
 
 	protected void initConnectionPool(){
 		// check if the createDatabase option is set to true before checking for missing databases.
-		if(printOptions.getCreateDatabases() || executeOptions.getCreateDatabases()){		}
+		if(printOptions.getCreateDatabases() || executeOptions.getCreateDatabases()){
+			checkDatabaseExist();
+		}
 		connectionPool = new JdbcConnectionPool(clientName,	isWritableClient(), defaultJdbcOptions, jdbcOptions);
+		
 	}
 
 
