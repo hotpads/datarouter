@@ -2,7 +2,7 @@ package com.hotpads.datarouter.test.node.type.index.node;
 
 import com.hotpads.datarouter.node.factory.IndexingNodeFactory;
 import com.hotpads.datarouter.node.factory.NodeFactory;
-import com.hotpads.datarouter.routing.Datarouter;
+import com.hotpads.datarouter.routing.Router;
 import com.hotpads.datarouter.test.node.type.index.databean.TestDatabeanWithManagedIndexByB;
 import com.hotpads.datarouter.test.node.type.index.databean.TestDatabeanWithManagedIndexByC;
 import com.hotpads.datarouter.test.node.type.index.databean.TestDatabeanWithManagedIndexByB.TestDatabeanWithManagedIndexByBFielder;
@@ -10,7 +10,7 @@ import com.hotpads.datarouter.test.node.type.index.databean.TestDatabeanWithMana
 
 public class TestDatabeanWithManagedIndexNode extends TestDatabeanWithIndexNode{
 	
-	public TestDatabeanWithManagedIndexNode(NodeFactory nodeFactory, Datarouter router){
+	public TestDatabeanWithManagedIndexNode(NodeFactory nodeFactory, Router router){
 		super(nodeFactory, router);
 		
 		byB = backingMapNode.registerManaged(IndexingNodeFactory.newManagedUnique(router, backingMapNode,
