@@ -85,10 +85,8 @@ implements ClientFactory{
 	}
 
 	protected void initConnectionPool(){
-		//if the schemaupdate option for execute and print is set to false, then do not check for Schema difference
-		if(printOptions.getCreateDatabases() || executeOptions.getCreateDatabases()){
-			checkDatabaseExist();
-		}
+		// check if the createDatabase option is set to true before checking for missing databases.
+		if(printOptions.getCreateDatabases() || executeOptions.getCreateDatabases()){		}
 		connectionPool = new JdbcConnectionPool(clientName,	isWritableClient(), defaultJdbcOptions, jdbcOptions);
 	}
 
