@@ -6,7 +6,7 @@ import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.properties.TypedProperties;
 
 public class JdbcOptions extends TypedProperties{
-	
+
 	protected String clientPrefix;
 
 	public JdbcOptions(Iterable<Properties> multiProperties, String clientName){
@@ -37,5 +37,5 @@ public class JdbcOptions extends TypedProperties{
 	public Boolean logging(Boolean def){
 		return getBoolean(clientPrefix+"logging", def);
 	}
-	
+
 }
