@@ -187,7 +187,7 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 		this.timeoutMs = timeoutMs;
 	}
 
-	public Datarouter getDrContext(){
+	public Datarouter getDatarouter(){
 		return datarouter;
 	}
 

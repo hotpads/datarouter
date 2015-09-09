@@ -134,7 +134,7 @@ implements ClientFactory{
 		return multiProperties;
 	}
 
-	public Datarouter getDrContext(){
+	public Datarouter getDatarouter(){
 		return datarouter;
 	}
 

@@ -59,7 +59,7 @@ extends JdbcSimpleClientFactory{
 //			Class<? extends Databean<?, ?>> databeanClass = fieldInfo.getDatabeanClass();
 
 		//add all databeanClasses until we're sure that none are using hibernate code (like GetJobletForProcessing)
-		Collection<Class<? extends Databean<?, ?>>> relevantDatabeanTypes = getDrContext().getNodes().getTypesForClient(
+		Collection<Class<? extends Databean<?, ?>>> relevantDatabeanTypes = getDatarouter().getNodes().getTypesForClient(
 				getClientName());
 		for (Class<? extends Databean<?, ?>> databeanClass : DrCollectionTool.nullSafe(relevantDatabeanTypes)){
 
@@ -91,7 +91,7 @@ extends JdbcSimpleClientFactory{
 		timer.add("client");
 
 		if(doSchemaUpdate()){
-			new ParallelSchemaUpdate(getDrContext(), fieldCodecFactory, getClientName(), getConnectionPool()).call();
+			new ParallelSchemaUpdate(getDatarouter(), fieldCodecFactory, getClientName(), getConnectionPool()).call();
 			timer.add("schema update");
 		}
 
