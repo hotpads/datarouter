@@ -25,7 +25,7 @@ implements SessionAware {
 
 	@Override
 	public Session getSession(String clientName){
-		Client client = getDatarouterContext().getClientPool().getClient(clientName);
+		Client client = getDatarouter().getClientPool().getClient(clientName);
 		if(client==null){
 			return null;
 		}
