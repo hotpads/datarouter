@@ -10,7 +10,7 @@ import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.node.factory.QueueNodeFactory;
 import com.hotpads.datarouter.node.op.raw.GroupQueueStorage;
 import com.hotpads.datarouter.node.op.raw.QueueStorage;
-import com.hotpads.datarouter.routing.BaseDatarouter;
+import com.hotpads.datarouter.routing.BaseRouter;
 import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.test.DrTestConstants;
 import com.hotpads.datarouter.test.TestDatabean;
@@ -18,7 +18,7 @@ import com.hotpads.datarouter.test.TestDatabeanFielder;
 import com.hotpads.datarouter.test.TestDatabeanKey;
 
 @Singleton
-public class SqsTestRouter extends BaseDatarouter{
+public class SqsTestRouter extends BaseRouter{
 
 	private static final String NAME = "sqsTestRouter";
 	

@@ -8,14 +8,14 @@ import javax.inject.Singleton;
 
 import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.node.factory.NodeFactory;
-import com.hotpads.datarouter.routing.BaseDatarouter;
+import com.hotpads.datarouter.routing.BaseRouter;
 import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.test.DrTestConstants;
 import com.hotpads.datarouter.test.node.type.index.node.TestDatabeanWithManagedIndexNode;
 import com.hotpads.datarouter.test.node.type.index.node.TestDatabeanWithTxnManagedIndexNode;
 
 @Singleton
-public class ManagedIndexTestRouter extends BaseDatarouter{
+public class ManagedIndexTestRouter extends BaseRouter{
 	
 	private static final String NAME = "managedIndexTest";
 	

@@ -27,7 +27,7 @@ import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.PhysicalSortedMapStorageNode;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
-import com.hotpads.datarouter.routing.Datarouter;
+import com.hotpads.datarouter.routing.Router;
 import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
@@ -67,7 +67,7 @@ public class HBaseClientType extends BaseClientType{
 
 	@Override
 	public <EK extends EntityKey<EK>,E extends Entity<EK>>EntityNode<EK,E> createEntityNode(NodeFactory nodeFactory,
-			Datarouter router, EntityNodeParams<EK,E> entityNodeParams, String clientName){
+			Router router, EntityNodeParams<EK,E> entityNodeParams, String clientName){
 		ClientTableNodeNames clientTableNodeNames = new ClientTableNodeNames(clientName,
 				entityNodeParams.getEntityTableName(), entityNodeParams.getNodeName());
 		return new HBaseEntityReaderNode<>(nodeFactory, router, entityNodeParams, clientTableNodeNames);
