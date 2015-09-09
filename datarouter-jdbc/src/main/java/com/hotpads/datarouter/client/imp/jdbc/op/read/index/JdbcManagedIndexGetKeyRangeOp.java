@@ -32,7 +32,7 @@ extends BaseJdbcOp<List<IK>>{
 
 	public JdbcManagedIndexGetKeyRangeOp(PhysicalNode<PK,D> node, JdbcFieldCodecFactory fieldCodecFactory,
 			DatabeanFieldInfo<IK, IE, IF> fieldInfo, Range<IK> range, Config config){
-		super(node.getDatarouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
+		super(node.getDatarouter(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
 		this.range = range;
 		this.node = node;
 		this.fieldCodecFactory = fieldCodecFactory;
