@@ -24,7 +24,8 @@ public class SchemaUpdateOptions{
 	SUFFIX_ignoreTables = ".ignoreTables",
 	SUFFIX_modifyCharacterSet = ".modifyCharacterSet",
 	SUFFIX_modifyCollation = ".modifyCollation",
-	SCHEMA_UPDATE_ENABLE = "schemaUpdate.enable";
+	SCHEMA_UPDATE_ENABLE = "schemaUpdate.enable"
+	;
 	
 	private Boolean createDatabases;
 	private Boolean createTables;
