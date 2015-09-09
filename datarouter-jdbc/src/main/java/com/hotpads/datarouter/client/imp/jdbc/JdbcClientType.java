@@ -56,9 +56,9 @@ public class JdbcClientType extends BaseClientType{
 	}
 
 	@Override
-	public ClientFactory createClientFactory(Datarouter drContext, String clientName,
+	public ClientFactory createClientFactory(Datarouter datarouter, String clientName,
 			List<PhysicalNode<?,?>> physicalNodes){
-		return new JdbcSimpleClientFactory(drContext, fieldCodecFactory, clientName);
+		return new JdbcSimpleClientFactory(datarouter, fieldCodecFactory, clientName);
 	}
 
 	@Override

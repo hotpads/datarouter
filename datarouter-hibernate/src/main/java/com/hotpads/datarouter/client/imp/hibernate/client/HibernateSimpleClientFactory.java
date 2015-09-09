@@ -32,9 +32,9 @@ extends JdbcSimpleClientFactory{
 		PARAM_hbm2ddl_auto = ".hibernate.hibernate.hbm2ddl.auto";//the double-hibernate is intentional
 
 
-	public HibernateSimpleClientFactory(Datarouter drContext, JdbcFieldCodecFactory fieldCodecFactory,
+	public HibernateSimpleClientFactory(Datarouter datarouter, JdbcFieldCodecFactory fieldCodecFactory,
 			String clientName){
-		super(drContext, fieldCodecFactory, clientName);
+		super(datarouter, fieldCodecFactory, clientName);
 	}
 
 
@@ -52,7 +52,7 @@ extends JdbcSimpleClientFactory{
 		AnnotationConfiguration sfConfig = new AnnotationConfiguration();
 
 		//this code will skip all nodes with fielders, which is the desired behavior, but some jdbc nodes are still using hibernate TxnOps =(
-//		List<? extends PhysicalNode<?, ?>> physicalNodes = drContext.getNodes().getPhysicalNodesForClient(clientName);
+//		List<? extends PhysicalNode<?, ?>> physicalNodes = datarouter.getNodes().getPhysicalNodesForClient(clientName);
 //		for(PhysicalNode<?, ?> physicalNode : IterableTool.nullSafe(physicalNodes)){
 //			DatabeanFieldInfo<?, ?, ?> fieldInfo = physicalNode.getFieldInfo();
 //			if(fieldInfo.getFieldAware()){ continue; }//skip databeans with fielders

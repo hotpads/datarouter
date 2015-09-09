@@ -42,7 +42,7 @@ implements Callable<Void>{
 
 	/******************* fields **********************/
 
-	private final Datarouter drContext;
+	private final Datarouter datarouter;
 	private final JdbcFieldCodecFactory fieldCodecFactory;
 	private final String clientName;
 	private final JdbcConnectionPool connectionPool;
@@ -58,13 +58,13 @@ implements Callable<Void>{
 
 	/***************** construct ***********************/
 
-	public ParallelSchemaUpdate(Datarouter drContext, JdbcFieldCodecFactory fieldCodecFactory,
+	public ParallelSchemaUpdate(Datarouter datarouter, JdbcFieldCodecFactory fieldCodecFactory,
 			String clientName, JdbcConnectionPool connectionPool){
-		this.drContext = drContext;
+		this.datarouter = datarouter;
 		this.fieldCodecFactory = fieldCodecFactory;
 		this.clientName = clientName;
 		this.connectionPool = connectionPool;
-		this.configFilePaths = drContext.getConfigFilePaths();
+		this.configFilePaths = datarouter.getConfigFilePaths();
 		this.multiProperties = DrPropertiesTool.fromFiles(configFilePaths);
 		this.printOptions = new SchemaUpdateOptions(multiProperties, PRINT_PREFIX, true	);
 		this.executeOptions = new SchemaUpdateOptions(multiProperties, EXECUTE_PREFIX, false);
@@ -89,7 +89,7 @@ implements Callable<Void>{
 
 		//run an update for each PhysicalNode
 		List<Callable<Void>> singleTableUpdates = new ArrayList<>();
-		for(PhysicalNode<?, ?> physicalNode : drContext.getNodes().getPhysicalNodesForClient(clientName)){
+		for(PhysicalNode<?, ?> physicalNode : datarouter.getNodes().getPhysicalNodesForClient(clientName)){
 			DatabeanFieldInfo<?, ?, ?> fieldInfo = physicalNode.getFieldInfo();
 			if(fieldInfo.getFieldAware()){
 				SingleTableSchemaUpdate singleTableUpdate = new SingleTableSchemaUpdate(fieldCodecFactory, clientName,
@@ -98,7 +98,7 @@ implements Callable<Void>{
 				singleTableUpdates.add(singleTableUpdate);
 			}
 		}
-		FutureTool.submitAndGetAll(singleTableUpdates, drContext.getExecutorService());
+		FutureTool.submitAndGetAll(singleTableUpdates, datarouter.getExecutorService());
 
 		sendEmail();
 		return null;
@@ -109,17 +109,17 @@ implements Callable<Void>{
 		if (DrCollectionTool.isEmpty(printedSchemaUpdates)){
 			return;
 		}
-		if(DrStringTool.isEmpty(drContext.getAdministratorEmail()) || DrStringTool.isEmpty(drContext.getServerName())){
-			//note: this can be caused by not calling drContext.activate().  need to fix this startup flaw.
+		if(DrStringTool.isEmpty(datarouter.getAdministratorEmail()) || DrStringTool.isEmpty(datarouter.getServerName())){
+			//note: this can be caused by not calling datarouter.activate().  need to fix this startup flaw.
 			logger.warn("please set your datarouter administratorEmail and serverName");
 			return;
 		}
-		String subject = "SchemaUpdate request from "+drContext.getServerName();
+		String subject = "SchemaUpdate request from "+datarouter.getServerName();
 		StringBuilder body = new StringBuilder();
 		for(String update : DrIterableTool.nullSafe(printedSchemaUpdates)){
 			body.append(update + "\n\n");
 		}
-		DatarouterEmailTool.sendEmail("noreply@hotpads.com", drContext.getAdministratorEmail(), subject,
+		DatarouterEmailTool.sendEmail("noreply@hotpads.com", datarouter.getAdministratorEmail(), subject,
 				body.toString());
 	}
 }

@@ -14,13 +14,13 @@ public abstract class BaseHibernateOp<T>
 extends BaseJdbcOp<T> 
 implements SessionAware {
 	
-	public BaseHibernateOp(Datarouter drContext, List<String> clientNames) {
-		this(drContext, clientNames, Isolation.DEFAULT, false);
+	public BaseHibernateOp(Datarouter datarouter, List<String> clientNames) {
+		this(datarouter, clientNames, Isolation.DEFAULT, false);
 	}
 
-	public BaseHibernateOp(Datarouter drContext, List<String> clientNames, Isolation isolation,
+	public BaseHibernateOp(Datarouter datarouter, List<String> clientNames, Isolation isolation,
 			boolean autoCommit) {
-		super(drContext, clientNames, isolation, autoCommit);
+		super(datarouter, clientNames, isolation, autoCommit);
 	}
 
 	@Override

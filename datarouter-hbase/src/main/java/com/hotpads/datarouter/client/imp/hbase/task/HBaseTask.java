@@ -25,7 +25,7 @@ import com.hotpads.util.datastructs.MutableString;
 public abstract class HBaseTask<V> extends TracedCallable<V>{
 	static Logger logger = LoggerFactory.getLogger(HBaseTask.class);
 	
-	protected Datarouter drContext;
+	protected Datarouter datarouter;
 
 	//variables for TraceThreads and TraceSpans
 	// breaking encapsulation in favor of tracing
@@ -41,9 +41,9 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 	
 	/******************** constructor ****************************/
 	
-	public HBaseTask(Datarouter drContext, ClientTableNodeNames names, String taskName, Config config){
+	public HBaseTask(Datarouter datarouter, ClientTableNodeNames names, String taskName, Config config){
 		super("HBaseTask."+taskName);
-		this.drContext = drContext;
+		this.datarouter = datarouter;
 		this.clientName = names.getClientName();
 		this.nodeName = names.getNodeName();
 		this.taskName = taskName;
@@ -131,7 +131,7 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 	protected Pair<HTable, HBaseClient> prepClientAndTableEtc(MutableString progress){
 		//get a fresh copy of the client
 		//Preconditions.checkState(client==null);//make sure we cleared this from the previous attempt
-		HBaseClient client = (HBaseClient)drContext.getClientPool().getClient(clientName);//be sure to get a new client for each attempt/task in case the client was refreshed behind the scenes
+		HBaseClient client = (HBaseClient)datarouter.getClientPool().getClient(clientName);//be sure to get a new client for each attempt/task in case the client was refreshed behind the scenes
 		Preconditions.checkNotNull(client);
 		progress.set("got client attemptNumOneBased:"+attemptNumOneBased);
 		
@@ -188,7 +188,7 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 	}
 
 	public Datarouter getDrContext(){
-		return drContext;
+		return datarouter;
 	}
 
 	public String getClientName(){

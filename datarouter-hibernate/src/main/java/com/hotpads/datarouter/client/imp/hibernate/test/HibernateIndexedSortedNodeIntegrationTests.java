@@ -19,6 +19,6 @@ public class HibernateIndexedSortedNodeIntegrationTests extends BaseIndexedNodeI
 	@AfterClass
 	public void afterClass(){
 		testIndexedDelete();
-		drContext.shutdown();
+		datarouter.shutdown();
 	}
 }

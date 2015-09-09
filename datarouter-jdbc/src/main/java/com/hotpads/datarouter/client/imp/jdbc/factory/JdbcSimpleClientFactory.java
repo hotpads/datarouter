@@ -33,7 +33,7 @@ implements ClientFactory{
 	private static final String SCHEMA_UPDATE_ENABLE = "schemaUpdate.enable";
 
 
-	private final Datarouter drContext;
+	private final Datarouter datarouter;
 	protected final JdbcFieldCodecFactory fieldCodecFactory;
 	private final String clientName;
 	private final Set<String> configFilePaths;
@@ -42,12 +42,12 @@ implements ClientFactory{
 	private JdbcConnectionPool connectionPool;
 	private JdbcClient client;
 
-	public JdbcSimpleClientFactory(Datarouter drContext, JdbcFieldCodecFactory fieldCodecFactory,
+	public JdbcSimpleClientFactory(Datarouter datarouter, JdbcFieldCodecFactory fieldCodecFactory,
 			String clientName){
-		this.drContext = drContext;
+		this.datarouter = datarouter;
 		this.fieldCodecFactory = fieldCodecFactory;
 		this.clientName = clientName;
-		this.configFilePaths = drContext.getConfigFilePaths();
+		this.configFilePaths = datarouter.getConfigFilePaths();
 		this.multiProperties = DrPropertiesTool.fromFiles(configFilePaths);
 	}
 
@@ -62,7 +62,7 @@ implements ClientFactory{
 		timer.add("client");
 
 		if(doSchemaUpdate()){
-			new ParallelSchemaUpdate(drContext, fieldCodecFactory, clientName, connectionPool).call();
+			new ParallelSchemaUpdate(datarouter, fieldCodecFactory, clientName, connectionPool).call();
 			timer.add("schema update");
 		}
 
@@ -71,13 +71,13 @@ implements ClientFactory{
 	}
 
 	private boolean isWritableClient(){
-		return ClientId.getWritableNames(drContext.getClientPool().getClientIds()).contains(clientName);
+		return ClientId.getWritableNames(datarouter.getClientPool().getClientIds()).contains(clientName);
 	}
 
 	protected void initConnectionPool(){
 		//temporarily turning off the database check code
 		//checkDatabaseExist();
-		connectionPool = new JdbcConnectionPool(drContext.getApplicationPaths(), clientName,
+		connectionPool = new JdbcConnectionPool(datarouter.getApplicationPaths(), clientName,
 				multiProperties, isWritableClient());
 	}
 
@@ -135,7 +135,7 @@ implements ClientFactory{
 	}
 
 	public Datarouter getDrContext(){
-		return drContext;
+		return datarouter;
 	}
 
 	public JdbcConnectionPool getConnectionPool(){

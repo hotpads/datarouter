@@ -51,9 +51,9 @@ public class MemcachedClientType extends BaseClientType{
 	}
 
 	@Override
-	public ClientFactory createClientFactory(Datarouter drContext, String clientName,
+	public ClientFactory createClientFactory(Datarouter datarouter, String clientName,
 			List<PhysicalNode<?,?>> physicalNodes){
-		return new MemcachedSimpleClientFactory(drContext, clientName);
+		return new MemcachedSimpleClientFactory(datarouter, clientName);
 	}
 
 	@Override

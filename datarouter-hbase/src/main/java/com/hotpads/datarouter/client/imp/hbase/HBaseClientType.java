@@ -54,9 +54,9 @@ public class HBaseClientType extends BaseClientType{
 	}
 
 	@Override
-	public ClientFactory createClientFactory(Datarouter drContext, String clientName,
+	public ClientFactory createClientFactory(Datarouter datarouter, String clientName,
 			List<PhysicalNode<?,?>> physicalNodes){
-		return new HBaseSimpleClientFactory(drContext, clientName);
+		return new HBaseSimpleClientFactory(datarouter, clientName);
 	}
 
 	@Override

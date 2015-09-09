@@ -35,8 +35,8 @@ extends BaseRouter{
 	/********************************* constructor *****************************/
 
 	@Inject
-	public BasicClientTestRouter(Datarouter drContext, NodeFactory nodeFactory){
-		super(drContext, DrTestConstants.CONFIG_PATH, name);
+	public BasicClientTestRouter(Datarouter datarouter, NodeFactory nodeFactory){
+		super(datarouter, DrTestConstants.CONFIG_PATH, name);
 		
 		keepAliveHBase = cast(register(nodeFactory.create(DrTestConstants.CLIENT_drTestHBase, KeepAlive.class,
 				KeepAliveFielder.class, this, false)));

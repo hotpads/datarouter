@@ -16,8 +16,8 @@ extends BaseJdbcOp<Long>{
 	private String tableName;
 	private String where;
 	
-	public CountWhereTxn(Datarouter drContext, List<String> clientNames, String tableName, String where){
-		super(drContext, clientNames);
+	public CountWhereTxn(Datarouter datarouter, List<String> clientNames, String tableName, String where){
+		super(datarouter, clientNames);
 		this.tableName = tableName;
 		this.where = where;
 	}

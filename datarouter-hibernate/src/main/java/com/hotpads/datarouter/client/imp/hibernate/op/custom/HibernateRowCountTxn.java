@@ -20,9 +20,9 @@ public class HibernateRowCountTxn extends BaseHibernateOp<Integer>{
 	private final String colToCount;
 	private final Criterion restriction;
 	
-	public HibernateRowCountTxn(Datarouter drContext, List<String> clientNames, Class<?> bean,
+	public HibernateRowCountTxn(Datarouter datarouter, List<String> clientNames, Class<?> bean,
 			String colToCount, Criterion restriction){
-		super(drContext, clientNames);
+		super(datarouter, clientNames);
 		this.bean = bean;
 		this.colToCount = colToCount;
 		this.restriction = restriction;

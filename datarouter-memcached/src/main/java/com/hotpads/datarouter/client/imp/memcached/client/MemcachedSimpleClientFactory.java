@@ -28,9 +28,9 @@ implements ClientFactory{
 	private MemcachedOptions options;
 	
 	
-	public MemcachedSimpleClientFactory(Datarouter drContext, String clientName){
+	public MemcachedSimpleClientFactory(Datarouter datarouter, String clientName){
 		this.clientName = clientName;
-		this.configFilePaths = drContext.getConfigFilePaths();
+		this.configFilePaths = datarouter.getConfigFilePaths();
 		this.multiProperties = DrPropertiesTool.fromFiles(configFilePaths);
 		this.options = new MemcachedOptions(multiProperties, clientName);
 	}

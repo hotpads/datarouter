@@ -14,9 +14,9 @@ extends BaseHibernateOp<Integer>{
 
 	private final Functor<?,Client> func;
 
-	public FunctorParallelHibernateTransactionWrapper(Datarouter drContext, List<String> clientNames,
+	public FunctorParallelHibernateTransactionWrapper(Datarouter datarouter, List<String> clientNames,
 			Functor<?,Client> func){
-		super(drContext, clientNames);
+		super(datarouter, clientNames);
 		this.func = func;
 	}
 
