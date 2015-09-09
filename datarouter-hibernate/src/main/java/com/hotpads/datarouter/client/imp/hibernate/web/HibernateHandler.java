@@ -29,7 +29,7 @@ public class HibernateHandler extends BaseHandler {
 	/***************** fields ********************/
 	
 	@Inject
-	private Datarouter datarouterContext;
+	private Datarouter datarouter;
 
 	private RouterParams<HibernateClientImp> paramsRouter;
 
@@ -37,7 +37,7 @@ public class HibernateHandler extends BaseHandler {
 	/**************** methods ********************/
 	
 	private void initialize() {
-		paramsRouter = new RouterParams<>(datarouterContext, params, HIBERNATE_NEEDS);
+		paramsRouter = new RouterParams<>(datarouter, params, HIBERNATE_NEEDS);
 	}
 
 	@Handler

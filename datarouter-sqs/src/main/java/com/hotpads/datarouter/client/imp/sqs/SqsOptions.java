@@ -8,8 +8,8 @@ public class SqsOptions extends TypedProperties{
 	
 	private final String clientPrefix;
 	
-	public SqsOptions(Datarouter datarouterContext, String clientName){
-		super(DrPropertiesTool.fromFiles(datarouterContext.getConfigFilePaths()));
+	public SqsOptions(Datarouter datarouter, String clientName){
+		super(DrPropertiesTool.fromFiles(datarouter.getConfigFilePaths()));
 		this.clientPrefix = "client." + clientName + ".";
 	}
 

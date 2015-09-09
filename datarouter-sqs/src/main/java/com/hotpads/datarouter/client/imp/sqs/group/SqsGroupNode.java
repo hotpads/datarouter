@@ -25,8 +25,8 @@ public class SqsGroupNode<
 extends BaseSqsNode<PK,D,F> 
 implements PhysicalGroupQueueStorageNode<PK,D>{
 	
-	public SqsGroupNode(Datarouter datarouterContext, NodeParams<PK, D, F> params){
-		super(datarouterContext, params);
+	public SqsGroupNode(Datarouter datarouter, NodeParams<PK, D, F> params){
+		super(datarouter, params);
 	}
 
 	//Writer

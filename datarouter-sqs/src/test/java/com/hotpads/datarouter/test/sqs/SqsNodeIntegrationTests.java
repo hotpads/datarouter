@@ -29,7 +29,7 @@ public class SqsNodeIntegrationTests{
 	private static final int DATABEAN_COUNT = 15;
 	
 	@Inject
-	private Datarouter datarouterContext;
+	private Datarouter datarouter;
 	
 	private final SqsTestHelper sqsTestHelper;
 	private final SqsTestRouter router;
@@ -42,7 +42,7 @@ public class SqsNodeIntegrationTests{
 	
 	@AfterClass
 	public void shutdown(){
-		datarouterContext.shutdown();
+		datarouter.shutdown();
 	}
 	
 	@BeforeMethod

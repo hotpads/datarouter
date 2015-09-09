@@ -25,8 +25,8 @@ public class SqsNode<
 extends BaseSqsNode<PK,D,F>
 implements PhysicalQueueStorageNode<PK,D>{
 	
-	public SqsNode(Datarouter datarouterContext, NodeParams<PK,D,F> params){
-		super(datarouterContext, params);
+	public SqsNode(Datarouter datarouter, NodeParams<PK,D,F> params){
+		super(datarouter, params);
 	}
 	
 	// Reader

@@ -28,7 +28,7 @@ public class JdbcHandler extends BaseHandler {
 	/***************** fields ********************/
 	
 	@Inject
-	private Datarouter datarouterContext;
+	private Datarouter datarouter;
 
 	private RouterParams<JdbcClientImp> paramsRouter;
 
@@ -36,7 +36,7 @@ public class JdbcHandler extends BaseHandler {
 	/**************** methods ********************/
 	
 	private void initialize() {
-		paramsRouter = new RouterParams<>(datarouterContext, params, JDBC_NEEDS);
+		paramsRouter = new RouterParams<>(datarouter, params, JDBC_NEEDS);
 	}
 
 	@Handler

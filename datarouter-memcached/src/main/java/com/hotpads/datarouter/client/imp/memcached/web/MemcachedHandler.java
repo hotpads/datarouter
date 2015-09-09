@@ -24,7 +24,7 @@ public class MemcachedHandler extends BaseHandler {
 	private static final Logger logger = LoggerFactory.getLogger(MemcachedHandler.class);
 	
 	@Inject
-	private Datarouter datarouterContext;
+	private Datarouter datarouter;
 
 	private RouterParams<MemcachedClientImp> paramsRouter;
 
@@ -46,7 +46,7 @@ public class MemcachedHandler extends BaseHandler {
 	}
 
 	private void initialize() {
-		paramsRouter = new RouterParams<>(datarouterContext, params,
+		paramsRouter = new RouterParams<>(datarouter, params,
 				MEMCHACHED_NEEDS);
 
 	}

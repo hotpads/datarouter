@@ -30,7 +30,7 @@ import com.hotpads.datarouter.util.core.DrListTool;
 public class JdbcManagedIndexIntegrationTests{
 
 	@Inject
-	private Datarouter datarouterContext;
+	private Datarouter datarouter;
 	@Inject
 	private ManagedIndexTestRouter router;
 
@@ -61,7 +61,7 @@ public class JdbcManagedIndexIntegrationTests{
 	public void afterClass(){
 		node.mainNode.deleteAll(null);
 		nodeWithTxnManaged.mainNode.deleteAll(null);
-		datarouterContext.shutdown();
+		datarouter.shutdown();
 	}
 
 	@Test

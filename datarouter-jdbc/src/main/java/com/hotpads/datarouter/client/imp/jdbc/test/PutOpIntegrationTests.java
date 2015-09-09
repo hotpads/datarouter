@@ -28,7 +28,7 @@ import com.hotpads.util.core.collections.Pair;
 public class PutOpIntegrationTests{
 
 	@Inject
-	private Datarouter datarouterContext;
+	private Datarouter datarouter;
 	@Inject
 	private NodeFactory nodeFactory;
 	
@@ -36,14 +36,14 @@ public class PutOpIntegrationTests{
 	
 	@BeforeClass
 	public void beforeClass(){
-		router = new PutOpTestRouter(datarouterContext, nodeFactory, DrTestConstants.CLIENT_drTestJdbc0);
+		router = new PutOpTestRouter(datarouter, nodeFactory, DrTestConstants.CLIENT_drTestJdbc0);
 		
 		resetTable();
 	}
 	
 	@AfterClass
 	public void afterClass(){
-		datarouterContext.shutdown();
+		datarouter.shutdown();
 	}
 	
 	private void resetTable(){
