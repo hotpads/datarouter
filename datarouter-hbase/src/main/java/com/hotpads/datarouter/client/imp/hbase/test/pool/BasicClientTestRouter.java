@@ -14,7 +14,7 @@ import com.hotpads.datarouter.connection.keepalive.KeepAliveKey;
 import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.node.op.raw.MapStorage;
 import com.hotpads.datarouter.routing.BaseRouter;
-import com.hotpads.datarouter.routing.DatarouterContext;
+import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.test.DrTestConstants;
 
 @Singleton
@@ -35,7 +35,7 @@ extends BaseRouter{
 	/********************************* constructor *****************************/
 
 	@Inject
-	public BasicClientTestRouter(DatarouterContext drContext, NodeFactory nodeFactory){
+	public BasicClientTestRouter(Datarouter drContext, NodeFactory nodeFactory){
 		super(drContext, DrTestConstants.CONFIG_PATH, name);
 		
 		keepAliveHBase = cast(register(nodeFactory.create(DrTestConstants.CLIENT_drTestHBase, KeepAlive.class,

@@ -17,7 +17,7 @@ import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodec
 import com.hotpads.datarouter.client.imp.jdbc.util.JdbcTool;
 import com.hotpads.datarouter.connection.JdbcConnectionPool;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
-import com.hotpads.datarouter.routing.DatarouterContext;
+import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
 import com.hotpads.datarouter.util.DatarouterEmailTool;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
@@ -42,7 +42,7 @@ implements Callable<Void>{
 
 	/******************* fields **********************/
 
-	private final DatarouterContext drContext;
+	private final Datarouter drContext;
 	private final JdbcFieldCodecFactory fieldCodecFactory;
 	private final String clientName;
 	private final JdbcConnectionPool connectionPool;
@@ -58,7 +58,7 @@ implements Callable<Void>{
 
 	/***************** construct ***********************/
 
-	public ParallelSchemaUpdate(DatarouterContext drContext, JdbcFieldCodecFactory fieldCodecFactory,
+	public ParallelSchemaUpdate(Datarouter drContext, JdbcFieldCodecFactory fieldCodecFactory,
 			String clientName, JdbcConnectionPool connectionPool){
 		this.drContext = drContext;
 		this.fieldCodecFactory = fieldCodecFactory;

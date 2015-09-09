@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 import com.hotpads.datarouter.client.imp.hbase.client.HBaseClient;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.exception.DataAccessException;
-import com.hotpads.datarouter.routing.DatarouterContext;
+import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.util.DatarouterEmailTool;
 import com.hotpads.datarouter.util.core.DrDateTool;
 import com.hotpads.datarouter.util.core.DrExceptionTool;
@@ -37,7 +37,7 @@ public class HBaseMultiAttemptTask<V> extends TracedCallable<V>{
 	
 	/*************************** fields *****************************/
 	
-	protected DatarouterContext drContext;
+	protected Datarouter drContext;
 		
 	protected HBaseTask<V> task;
 	protected ExecutorService executorService;

@@ -37,7 +37,7 @@ import com.hotpads.datarouter.client.imp.hbase.cluster.DRHServerInfo;
 import com.hotpads.datarouter.client.imp.hbase.cluster.DRHServerList;
 import com.hotpads.datarouter.client.imp.hbase.cluster.DRHTableSettings;
 import com.hotpads.datarouter.client.imp.hbase.compaction.DRHCompactionInfo;
-import com.hotpads.datarouter.routing.DatarouterContext;
+import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.routing.RouterParams;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrIterableTool;
@@ -69,7 +69,7 @@ public class HBaseHandler extends BaseHandler {
 	@Inject
 	protected DRHCompactionInfo drhCompactionInfo;
 	@Inject
-	private DatarouterContext datarouterContext;
+	private Datarouter datarouterContext;
 	@Inject
 	private HBaseBalancerFactory balancerFactory;
 

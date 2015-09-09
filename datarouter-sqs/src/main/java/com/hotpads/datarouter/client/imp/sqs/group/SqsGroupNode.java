@@ -9,7 +9,7 @@ import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.op.raw.GroupQueueStorage.PhysicalGroupQueueStorageNode;
 import com.hotpads.datarouter.op.scan.queue.group.PeekGroupUntilEmptyQueueStorageScanner;
-import com.hotpads.datarouter.routing.DatarouterContext;
+import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
@@ -25,7 +25,7 @@ public class SqsGroupNode<
 extends BaseSqsNode<PK,D,F> 
 implements PhysicalGroupQueueStorageNode<PK,D>{
 	
-	public SqsGroupNode(DatarouterContext datarouterContext, NodeParams<PK, D, F> params){
+	public SqsGroupNode(Datarouter datarouterContext, NodeParams<PK, D, F> params){
 		super(datarouterContext, params);
 	}
 

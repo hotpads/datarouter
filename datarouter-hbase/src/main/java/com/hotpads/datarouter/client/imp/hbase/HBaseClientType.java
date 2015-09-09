@@ -28,7 +28,7 @@ import com.hotpads.datarouter.node.op.combo.SortedMapStorage.PhysicalSortedMapSt
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.routing.Router;
-import com.hotpads.datarouter.routing.DatarouterContext;
+import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.entity.Entity;
@@ -54,7 +54,7 @@ public class HBaseClientType extends BaseClientType{
 	}
 
 	@Override
-	public ClientFactory createClientFactory(DatarouterContext drContext, String clientName,
+	public ClientFactory createClientFactory(Datarouter drContext, String clientName,
 			List<PhysicalNode<?,?>> physicalNodes){
 		return new HBaseSimpleClientFactory(drContext, clientName);
 	}

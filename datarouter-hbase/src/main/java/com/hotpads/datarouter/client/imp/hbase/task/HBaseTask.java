@@ -10,7 +10,7 @@ import com.hotpads.datarouter.client.ClientTableNodeNames;
 import com.hotpads.datarouter.client.imp.hbase.client.HBaseClient;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.exception.DataAccessException;
-import com.hotpads.datarouter.routing.DatarouterContext;
+import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.datarouter.util.core.DrNumberTool;
 import com.hotpads.trace.TraceContext;
@@ -25,7 +25,7 @@ import com.hotpads.util.datastructs.MutableString;
 public abstract class HBaseTask<V> extends TracedCallable<V>{
 	static Logger logger = LoggerFactory.getLogger(HBaseTask.class);
 	
-	protected DatarouterContext drContext;
+	protected Datarouter drContext;
 
 	//variables for TraceThreads and TraceSpans
 	// breaking encapsulation in favor of tracing
@@ -41,7 +41,7 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 	
 	/******************** constructor ****************************/
 	
-	public HBaseTask(DatarouterContext drContext, ClientTableNodeNames names, String taskName, Config config){
+	public HBaseTask(Datarouter drContext, ClientTableNodeNames names, String taskName, Config config){
 		super("HBaseTask."+taskName);
 		this.drContext = drContext;
 		this.clientName = names.getClientName();
@@ -187,7 +187,7 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 		this.timeoutMs = timeoutMs;
 	}
 
-	public DatarouterContext getDrContext(){
+	public Datarouter getDrContext(){
 		return drContext;
 	}
 

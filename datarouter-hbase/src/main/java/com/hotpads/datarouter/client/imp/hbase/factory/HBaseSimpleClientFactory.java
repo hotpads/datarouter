@@ -35,7 +35,7 @@ import com.hotpads.datarouter.client.imp.hbase.pool.HTablePool;
 import com.hotpads.datarouter.client.imp.hbase.util.HBaseQueryBuilder;
 import com.hotpads.datarouter.exception.UnavailableException;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
-import com.hotpads.datarouter.routing.DatarouterContext;
+import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
 import com.hotpads.datarouter.serialize.fieldcache.EntityFieldInfo;
 import com.hotpads.datarouter.storage.field.Field;
@@ -67,7 +67,7 @@ implements ClientFactory{
 	
 	/********************* fields *******************************/
 	
-	private final DatarouterContext drContext;
+	private final Datarouter drContext;
 	private final String clientName;
 	private final Set<String> configFilePaths;
 	private final List<Properties> multiProperties;
@@ -77,7 +77,7 @@ implements ClientFactory{
 	private Configuration hBaseConfig;
 	private HBaseAdmin hBaseAdmin;
 	
-	public HBaseSimpleClientFactory(DatarouterContext drContext, String clientName){
+	public HBaseSimpleClientFactory(Datarouter drContext, String clientName){
 		this.drContext = drContext;
 		this.clientName = clientName;
 		this.configFilePaths = drContext.getConfigFilePaths();

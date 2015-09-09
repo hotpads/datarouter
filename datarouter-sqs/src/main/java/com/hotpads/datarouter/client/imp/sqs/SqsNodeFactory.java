@@ -6,7 +6,7 @@ import javax.inject.Singleton;
 import com.hotpads.datarouter.client.imp.sqs.group.SqsGroupNode;
 import com.hotpads.datarouter.client.imp.sqs.single.SqsNode;
 import com.hotpads.datarouter.node.NodeParams;
-import com.hotpads.datarouter.routing.DatarouterContext;
+import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
@@ -15,7 +15,7 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 public class SqsNodeFactory{
 	
 	@Inject
-	private DatarouterContext datarouterContext;
+	private Datarouter datarouterContext;
 
 	public <PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,

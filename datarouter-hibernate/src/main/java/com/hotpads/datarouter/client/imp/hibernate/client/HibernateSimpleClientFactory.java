@@ -11,7 +11,7 @@ import com.hotpads.datarouter.client.Clients;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.execute.ParallelSchemaUpdate;
 import com.hotpads.datarouter.client.imp.jdbc.factory.JdbcSimpleClientFactory;
 import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
-import com.hotpads.datarouter.routing.DatarouterContext;
+import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrPropertiesTool;
@@ -32,7 +32,7 @@ extends JdbcSimpleClientFactory{
 		PARAM_hbm2ddl_auto = ".hibernate.hibernate.hbm2ddl.auto";//the double-hibernate is intentional
 
 
-	public HibernateSimpleClientFactory(DatarouterContext drContext, JdbcFieldCodecFactory fieldCodecFactory,
+	public HibernateSimpleClientFactory(Datarouter drContext, JdbcFieldCodecFactory fieldCodecFactory,
 			String clientName){
 		super(drContext, fieldCodecFactory, clientName);
 	}

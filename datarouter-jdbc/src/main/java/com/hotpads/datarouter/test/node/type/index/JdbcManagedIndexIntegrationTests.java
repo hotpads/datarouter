@@ -12,7 +12,7 @@ import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
 import com.hotpads.datarouter.client.imp.jdbc.TestDatarouterJdbcModuleFactory;
-import com.hotpads.datarouter.routing.DatarouterContext;
+import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.storage.databean.DatabeanTool;
 import com.hotpads.datarouter.test.TestDatabean;
 import com.hotpads.datarouter.test.TestDatabeanKey;
@@ -30,7 +30,7 @@ import com.hotpads.datarouter.util.core.DrListTool;
 public class JdbcManagedIndexIntegrationTests{
 
 	@Inject
-	private DatarouterContext datarouterContext;
+	private Datarouter datarouterContext;
 	@Inject
 	private ManagedIndexTestRouter router;
 

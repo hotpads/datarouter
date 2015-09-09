@@ -20,7 +20,7 @@ import com.hotpads.datarouter.client.imp.sqs.SqsDataTooLargeException;
 import com.hotpads.datarouter.client.imp.sqs.config.DatarouterSqsTestModuleFactory;
 import com.hotpads.datarouter.client.imp.sqs.single.SqsNode;
 import com.hotpads.datarouter.config.Config;
-import com.hotpads.datarouter.routing.DatarouterContext;
+import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.test.TestDatabean;
 
 @Guice(moduleFactory = DatarouterSqsTestModuleFactory.class)
@@ -29,7 +29,7 @@ public class SqsNodeIntegrationTests{
 	private static final int DATABEAN_COUNT = 15;
 	
 	@Inject
-	private DatarouterContext datarouterContext;
+	private Datarouter datarouterContext;
 	
 	private final SqsTestHelper sqsTestHelper;
 	private final SqsTestRouter router;

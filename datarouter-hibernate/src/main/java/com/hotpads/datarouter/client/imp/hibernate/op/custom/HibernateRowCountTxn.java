@@ -12,7 +12,7 @@ import org.hibernate.criterion.Projections;
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.imp.hibernate.op.BaseHibernateOp;
 import com.hotpads.datarouter.op.util.ResultMergeTool;
-import com.hotpads.datarouter.routing.DatarouterContext;
+import com.hotpads.datarouter.routing.Datarouter;
 
 public class HibernateRowCountTxn extends BaseHibernateOp<Integer>{
 
@@ -20,7 +20,7 @@ public class HibernateRowCountTxn extends BaseHibernateOp<Integer>{
 	private final String colToCount;
 	private final Criterion restriction;
 	
-	public HibernateRowCountTxn(DatarouterContext drContext, List<String> clientNames, Class<?> bean,
+	public HibernateRowCountTxn(Datarouter drContext, List<String> clientNames, Class<?> bean,
 			String colToCount, Criterion restriction){
 		super(drContext, clientNames);
 		this.bean = bean;

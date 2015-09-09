@@ -20,7 +20,7 @@ import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodec
 import com.hotpads.datarouter.client.imp.jdbc.util.JdbcTool;
 import com.hotpads.datarouter.client.type.JdbcClient;
 import com.hotpads.datarouter.connection.JdbcConnectionPool;
-import com.hotpads.datarouter.routing.DatarouterContext;
+import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.util.core.DrBooleanTool;
 import com.hotpads.datarouter.util.core.DrPropertiesTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
@@ -33,7 +33,7 @@ implements ClientFactory{
 	private static final String SCHEMA_UPDATE_ENABLE = "schemaUpdate.enable";
 
 
-	private final DatarouterContext drContext;
+	private final Datarouter drContext;
 	protected final JdbcFieldCodecFactory fieldCodecFactory;
 	private final String clientName;
 	private final Set<String> configFilePaths;
@@ -42,7 +42,7 @@ implements ClientFactory{
 	private JdbcConnectionPool connectionPool;
 	private JdbcClient client;
 
-	public JdbcSimpleClientFactory(DatarouterContext drContext, JdbcFieldCodecFactory fieldCodecFactory,
+	public JdbcSimpleClientFactory(Datarouter drContext, JdbcFieldCodecFactory fieldCodecFactory,
 			String clientName){
 		this.drContext = drContext;
 		this.fieldCodecFactory = fieldCodecFactory;
@@ -134,7 +134,7 @@ implements ClientFactory{
 		return multiProperties;
 	}
 
-	public DatarouterContext getDrContext(){
+	public Datarouter getDrContext(){
 		return drContext;
 	}
 
