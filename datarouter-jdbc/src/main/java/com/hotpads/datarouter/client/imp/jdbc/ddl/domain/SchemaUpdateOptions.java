@@ -50,15 +50,17 @@ public class SchemaUpdateOptions{
 
 	public SchemaUpdateOptions(List<Properties> multiProperties, String prefix, boolean printVsExecute){
 		if(printVsExecute){
-			SetSchemaUpdateWithPrintOptions(multiProperties,  prefix);
+			setSchemaUpdateWithPrintOptions(multiProperties,  prefix);
 		}else{
 			SetSchemaUpdateWithExecuteOptions(multiProperties,  prefix);
 		}
 
 	}
 
-	private SchemaUpdateOptions SetSchemaUpdateWithPrintOptions(List<Properties> multiProperties, String prefix){
-		this.createDatabases = DrBooleanTool.isTrue(DrPropertiesTool.getFirstOccurrence(multiProperties,
+	private SchemaUpdateOptions setSchemaUpdateWithPrintOptions(List<Properties> multiProperties, String prefix){
+		this.schemaUpdateEnabled = DrBooleanTool.isTrue(DrPropertiesTool.getFirstOccurrence(multiProperties,
+				SCHEMA_UPDATE_ENABLE));
+		this.createDatabases = DrBooleanTool.isTrueOrNull(DrPropertiesTool.getFirstOccurrence(multiProperties,
 				prefix+SUFFIX_createDatabases));
 		this.createTables = DrBooleanTool.isTrueOrNull(DrPropertiesTool.getFirstOccurrence(multiProperties,
 				prefix+SUFFIX_createTables));
@@ -82,17 +84,25 @@ public class SchemaUpdateOptions{
 				prefix+SUFFIX_modifyCharacterSet));
 		this.modifyCollation = DrBooleanTool.isTrueOrNull(DrPropertiesTool.getFirstOccurrence(multiProperties,
 				prefix+SUFFIX_modifyCollation));
-		this.schemaUpdateEnabled = DrBooleanTool.isTrue(DrPropertiesTool.getFirstOccurrence(multiProperties,
-				SCHEMA_UPDATE_ENABLE));
 		return this;
 	}
 
 	private SchemaUpdateOptions SetSchemaUpdateWithExecuteOptions(List<Properties> multiProperties, String prefix){
-		this.createDatabases = DrBooleanTool.isTrue(DrPropertiesTool.getFirstOccurrence(multiProperties,
+		//isTrue returns false as default and isTrueOrNull returns a true as default,
+		//so on missing the setting in config, isTrueOrNull returns a default value true
+		this.schemaUpdateEnabled = DrBooleanTool.isTrue(DrPropertiesTool.getFirstOccurrence(multiProperties,
+				SCHEMA_UPDATE_ENABLE));
+		//createDatabase and createTables are set to default true to avoid confusions in developers machine
+		//due to missing databases and tables
+		this.createDatabases = DrBooleanTool.isTrueOrNull(DrPropertiesTool.getFirstOccurrence(multiProperties,
 				prefix+SUFFIX_createDatabases));
 		this.createTables = DrBooleanTool.isTrueOrNull(DrPropertiesTool.getFirstOccurrence(multiProperties,
 				prefix+SUFFIX_createTables));
+		
+		//drop tables are always set to false for obvious reasons
 		this.dropTables = false;
+		
+		//settings that modify an existing tables are returned with default true since they are less dangerous
 		this.addColumns = DrBooleanTool.isTrue(DrPropertiesTool.getFirstOccurrence(multiProperties,
 				prefix+SUFFIX_addColumns));
 		this.deleteColumns = DrBooleanTool.isTrue(DrPropertiesTool.getFirstOccurrence(multiProperties,
@@ -111,8 +121,7 @@ public class SchemaUpdateOptions{
 				prefix+SUFFIX_modifyCharacterSet));
 		this.modifyCollation = DrBooleanTool.isTrue(DrPropertiesTool.getFirstOccurrence(multiProperties,
 				prefix+SUFFIX_modifyCollation));
-		this.schemaUpdateEnabled = DrBooleanTool.isTrue(DrPropertiesTool.getFirstOccurrence(multiProperties,
-				SCHEMA_UPDATE_ENABLE));
+		
 		String schemaUpdatePrefix = prefix.substring(0, prefix.indexOf('.'));
 		String clientsToIgnore = DrPropertiesTool.getFirstOccurrence(multiProperties, schemaUpdatePrefix + SUFFIX_ignoreClients);
 		this.ignoreClients = DrStringTool.splitOnCharNoRegex(clientsToIgnore, ',');
@@ -123,15 +132,7 @@ public class SchemaUpdateOptions{
 
 
 	/****************************** methods ******************************/
-
-	//	public boolean anyTrue(){
-	//		return createTables | anyAlterTrue();
-	//	}
-	//
-	//	public boolean anyAlterTrue(){
-	//		return dropTables | addColumns | deleteColumns | modify;
-	//	}
-
+	
 	public SchemaUpdateOptions setAllTrue(){
 		createTables = true;
 		dropTables = true;

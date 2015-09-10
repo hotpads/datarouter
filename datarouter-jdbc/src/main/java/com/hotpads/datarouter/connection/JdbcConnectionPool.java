@@ -26,8 +26,7 @@ public class JdbcConnectionPool{
 	private String schemaName;
 
 
-	public JdbcConnectionPool(String name, Boolean writable,
-			JdbcOptions defaultOptions, JdbcOptions clientOptions){
+	public JdbcConnectionPool(String name, Boolean writable, JdbcOptions defaultOptions, JdbcOptions clientOptions){
 		this.defaultOptions = defaultOptions;
 		this.options = clientOptions;
 		this.writable = writable;

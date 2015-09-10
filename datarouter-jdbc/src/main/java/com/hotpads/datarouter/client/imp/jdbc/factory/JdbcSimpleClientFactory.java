@@ -42,8 +42,8 @@ implements ClientFactory{
 	private final List<Properties> multiProperties;
 	private final JdbcOptions jdbcOptions;
 	private final JdbcOptions defaultJdbcOptions;
-	private final SchemaUpdateOptions printOptions;
-	private final SchemaUpdateOptions executeOptions;
+	private final SchemaUpdateOptions schemaUpdatePrintOptions;
+	private final SchemaUpdateOptions schemaUpdateExecuteOptions;
 	
 	private JdbcConnectionPool connectionPool;
 	private JdbcClient client;
@@ -57,8 +57,8 @@ implements ClientFactory{
 		this.multiProperties = DrPropertiesTool.fromFiles(configFilePaths);
 		this.jdbcOptions = new JdbcOptions(multiProperties, clientName);
 		this.defaultJdbcOptions = new JdbcOptions(multiProperties, POOL_DEFAULT);
-		this.printOptions = new SchemaUpdateOptions(multiProperties, PRINT_PREFIX, true);
-		this.executeOptions = new SchemaUpdateOptions(multiProperties, EXECUTE_PREFIX, false);
+		this.schemaUpdatePrintOptions = new SchemaUpdateOptions(multiProperties, PRINT_PREFIX, true);
+		this.schemaUpdateExecuteOptions = new SchemaUpdateOptions(multiProperties, EXECUTE_PREFIX, false);
 	}
 
 	@Override
@@ -86,7 +86,7 @@ implements ClientFactory{
 
 	protected void initConnectionPool(){
 		// check if the createDatabase option is set to true before checking for missing databases.
-		if(printOptions.getCreateDatabases() || executeOptions.getCreateDatabases()){
+		if(schemaUpdatePrintOptions.getCreateDatabases() || schemaUpdateExecuteOptions.getCreateDatabases()){
 			checkDatabaseExist();
 		}
 		connectionPool = new JdbcConnectionPool(clientName,	isWritableClient(), defaultJdbcOptions, jdbcOptions);
@@ -95,7 +95,7 @@ implements ClientFactory{
 
 
 	protected boolean doSchemaUpdate(){
-		return isWritableClient() && printOptions.schemaUpdateEnabled();
+		return isWritableClient() && schemaUpdatePrintOptions.schemaUpdateEnabled();
 	}
 
 	private void checkDatabaseExist() {
@@ -123,7 +123,7 @@ implements ClientFactory{
 		System.out.println("========================================== Creating the database " +databaseName
 				+" ============================");
 		String sql = "Create database "+ databaseName +" ;";
-		if(!executeOptions.getCreateDatabases()){
+		if(!schemaUpdateExecuteOptions.getCreateDatabases()){
 			System.out.println("Please execute: "+sql);
 		}else {
 			try{
