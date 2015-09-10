@@ -123,7 +123,7 @@ public class SqlBuilder{
 	/*************************** secondary methods ***************************************/
 
 	public static void addSelectFromClause(StringBuilder sql, String tableName, List<Field<?>> selectFields){
-		sql.append("select SQL_NO_CACHE ");
+		sql.append("select ");
 		FieldTool.appendCsvColumnNames(sql, selectFields);
 		sql.append(" from "+tableName);
 	}
