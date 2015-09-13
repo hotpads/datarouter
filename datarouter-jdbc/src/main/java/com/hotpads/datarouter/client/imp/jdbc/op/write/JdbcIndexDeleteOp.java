@@ -23,7 +23,7 @@ extends BaseJdbcOp<Long>{
 	
 	public JdbcIndexDeleteOp(PhysicalNode<PK,D> node, JdbcFieldCodecFactory fieldCodecFactory, Lookup<PK> lookup, 
 			Config config){
-		super(node.getDatarouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
+		super(node.getDatarouter(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
 		this.node = node;
 		this.fieldCodecFactory = fieldCodecFactory;
 		this.lookup = lookup;

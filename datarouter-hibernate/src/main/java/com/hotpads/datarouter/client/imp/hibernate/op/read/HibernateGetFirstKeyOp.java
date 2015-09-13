@@ -24,7 +24,7 @@ extends BaseHibernateOp<PK>{
 	private final HibernateResultParser resultParser;
 	
 	public HibernateGetFirstKeyOp(HibernateReaderNode<PK,D,F> node, HibernateResultParser resultParser) {
-		super(node.getDatarouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
+		super(node.getDatarouter(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
 		this.node = node;
 		this.resultParser = resultParser;
 	}

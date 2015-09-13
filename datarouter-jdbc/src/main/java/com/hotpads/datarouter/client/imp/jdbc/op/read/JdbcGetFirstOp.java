@@ -24,7 +24,7 @@ extends BaseJdbcOp<D>{
 	private final Config config;
 	
 	public JdbcGetFirstOp(JdbcReaderNode<PK,D,F> node, JdbcFieldCodecFactory jdbcFieldCodecFactory, Config config) {
-		super(node.getDatarouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
+		super(node.getDatarouter(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
 		this.jdbcFieldCodecFactory = jdbcFieldCodecFactory;
 		this.node = node;
 		this.config = Config.nullSafe(config);

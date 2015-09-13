@@ -31,7 +31,7 @@ extends BaseJdbcOp<List<PK>>{
 	
 	public JdbcGetPrimaryKeyRangeOp(JdbcReaderNode<PK,D,F> node, JdbcFieldCodecFactory fieldCodecFactory,
 			Range<PK> range, Config config){
-		super(node.getDatarouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
+		super(node.getDatarouter(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
 		this.node = node;
 		this.fieldCodecFactory = fieldCodecFactory;
 		this.range = range;

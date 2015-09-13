@@ -87,7 +87,7 @@ implements HBasePhysicalNode<PK,D>,
 			return null;
 		}
 		config = Config.nullSafe(config);
-		return new HBaseMultiAttemptTask<>(new HBaseTask<D>(getDatarouterContext(), getClientTableNodeNames(), "get",
+		return new HBaseMultiAttemptTask<>(new HBaseTask<D>(getDatarouter(), getClientTableNodeNames(), "get",
 				config){
 			@Override
 			public D hbaseCall(HTable table, HBaseClient client, ResultScanner managedResultScanner) throws Exception{
@@ -113,7 +113,7 @@ implements HBasePhysicalNode<PK,D>,
 			return new LinkedList<>();
 		}
 		config = Config.nullSafe(config);
-		return new HBaseMultiAttemptTask<>(new HBaseTask<List<D>>(getDatarouterContext(), getClientTableNodeNames(),
+		return new HBaseMultiAttemptTask<>(new HBaseTask<List<D>>(getDatarouter(), getClientTableNodeNames(),
 				"getMulti", config){
 			@Override
 			public List<D> hbaseCall(HTable table, HBaseClient client, ResultScanner managedResultScanner)
@@ -136,7 +136,7 @@ implements HBasePhysicalNode<PK,D>,
 			return new LinkedList<>();
 		}
 		config = Config.nullSafe(config);
-		return new HBaseMultiAttemptTask<>(new HBaseTask<List<PK>>(getDatarouterContext(), getClientTableNodeNames(),
+		return new HBaseMultiAttemptTask<>(new HBaseTask<List<PK>>(getDatarouter(), getClientTableNodeNames(),
 				"getKeys", config){
 			@Override
 			public List<PK> hbaseCall(HTable table, HBaseClient client, ResultScanner managedResultScanner)
@@ -188,7 +188,7 @@ implements HBasePhysicalNode<PK,D>,
 		List<Scan> scanForEachScatteringPartition = HBaseScatteringPrefixQueryBuilder.getPrefixScanners(fieldInfo, 
 				prefixes, wildcardLastField, config);
 		for(final Scan scan : scanForEachScatteringPartition){
-			new HBaseMultiAttemptTask<>(new HBaseTask<Void>(getDatarouterContext(), getClientTableNodeNames(),
+			new HBaseMultiAttemptTask<>(new HBaseTask<Void>(getDatarouter(), getClientTableNodeNames(),
 					"getWithPrefixes", config){
 				@Override
 				public Void hbaseCall(HTable table, HBaseClient client, ResultScanner managedResultScanner)
@@ -246,7 +246,7 @@ implements HBasePhysicalNode<PK,D>,
 		final String scanKeysVsRowsNumRows = "scan " + (keysOnly ? "key" : "row") + " numRows";
 		//need a clean way to get cell count
 //		final String scanKeysVsRowsNumCells = "scan " + (keysOnly ? "key" : "row") + " numCells";
-		return new HBaseMultiAttemptTask<>(new HBaseTask<List<Result>>(getDatarouterContext(),
+		return new HBaseMultiAttemptTask<>(new HBaseTask<List<Result>>(getDatarouter(),
 				getClientTableNodeNames(), scanKeysVsRowsNumBatches, config){
 			@Override
 			public List<Result> hbaseCall(HTable table, HBaseClient client, ResultScanner managedResultScanner)

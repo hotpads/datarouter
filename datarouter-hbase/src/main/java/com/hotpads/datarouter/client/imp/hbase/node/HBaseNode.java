@@ -73,7 +73,7 @@ implements PhysicalSortedMapStorageNode<PK,D>, HBaseIncrement<PK>{
 			return;
 		}
 		final Config nullSafeConfig = Config.nullSafe(config);
-		new HBaseMultiAttemptTask<>(new HBaseTask<Void>(getDatarouterContext(), getClientTableNodeNames(), "putMulti",
+		new HBaseMultiAttemptTask<>(new HBaseTask<Void>(getDatarouter(), getClientTableNodeNames(), "putMulti",
 				nullSafeConfig){
 					@Override
 					public Void hbaseCall(HTable htable, HBaseClient client, ResultScanner managedResultScanner)
@@ -137,7 +137,7 @@ implements PhysicalSortedMapStorageNode<PK,D>, HBaseIncrement<PK>{
 	@Override
 	public void deleteAll(final Config config) {
 		final Config nullSafeConfig = Config.nullSafe(config);
-		new HBaseMultiAttemptTask<>(new HBaseTask<Void>(getDatarouterContext(), getClientTableNodeNames(),
+		new HBaseMultiAttemptTask<>(new HBaseTask<Void>(getDatarouter(), getClientTableNodeNames(),
 				"deleteAll", nullSafeConfig){
 					@Override
 					public Void hbaseCall(HTable htable, HBaseClient client, ResultScanner managedResultScanner)
@@ -177,7 +177,7 @@ implements PhysicalSortedMapStorageNode<PK,D>, HBaseIncrement<PK>{
 			return;
 		}
 		final Config nullSafeConfig = Config.nullSafe(config);
-		new HBaseMultiAttemptTask<>(new HBaseTask<Void>(getDatarouterContext(), getClientTableNodeNames(),
+		new HBaseMultiAttemptTask<>(new HBaseTask<Void>(getDatarouter(), getClientTableNodeNames(),
 				"deleteMulti", nullSafeConfig){
 					@Override
 					public Void hbaseCall(HTable htable, HBaseClient client, ResultScanner managedResultScanner)

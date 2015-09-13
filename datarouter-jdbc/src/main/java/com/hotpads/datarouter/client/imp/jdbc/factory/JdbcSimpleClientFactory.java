@@ -20,7 +20,7 @@ import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodec
 import com.hotpads.datarouter.client.imp.jdbc.util.JdbcTool;
 import com.hotpads.datarouter.client.type.JdbcClient;
 import com.hotpads.datarouter.connection.JdbcConnectionPool;
-import com.hotpads.datarouter.routing.DatarouterContext;
+import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.util.core.DrBooleanTool;
 import com.hotpads.datarouter.util.core.DrPropertiesTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
@@ -33,7 +33,7 @@ implements ClientFactory{
 	private static final String SCHEMA_UPDATE_ENABLE = "schemaUpdate.enable";
 
 
-	private final DatarouterContext drContext;
+	private final Datarouter datarouter;
 	protected final JdbcFieldCodecFactory fieldCodecFactory;
 	private final String clientName;
 	private final Set<String> configFilePaths;
@@ -42,12 +42,12 @@ implements ClientFactory{
 	private JdbcConnectionPool connectionPool;
 	private JdbcClient client;
 
-	public JdbcSimpleClientFactory(DatarouterContext drContext, JdbcFieldCodecFactory fieldCodecFactory,
+	public JdbcSimpleClientFactory(Datarouter datarouter, JdbcFieldCodecFactory fieldCodecFactory,
 			String clientName){
-		this.drContext = drContext;
+		this.datarouter = datarouter;
 		this.fieldCodecFactory = fieldCodecFactory;
 		this.clientName = clientName;
-		this.configFilePaths = drContext.getConfigFilePaths();
+		this.configFilePaths = datarouter.getConfigFilePaths();
 		this.multiProperties = DrPropertiesTool.fromFiles(configFilePaths);
 	}
 
@@ -62,7 +62,7 @@ implements ClientFactory{
 		timer.add("client");
 
 		if(doSchemaUpdate()){
-			new ParallelSchemaUpdate(drContext, fieldCodecFactory, clientName, connectionPool).call();
+			new ParallelSchemaUpdate(datarouter, fieldCodecFactory, clientName, connectionPool).call();
 			timer.add("schema update");
 		}
 
@@ -71,13 +71,13 @@ implements ClientFactory{
 	}
 
 	private boolean isWritableClient(){
-		return ClientId.getWritableNames(drContext.getClientPool().getClientIds()).contains(clientName);
+		return ClientId.getWritableNames(datarouter.getClientPool().getClientIds()).contains(clientName);
 	}
 
 	protected void initConnectionPool(){
 		//temporarily turning off the database check code
 		//checkDatabaseExist();
-		connectionPool = new JdbcConnectionPool(drContext.getApplicationPaths(), clientName,
+		connectionPool = new JdbcConnectionPool(datarouter.getApplicationPaths(), clientName,
 				multiProperties, isWritableClient());
 	}
 
@@ -134,8 +134,8 @@ implements ClientFactory{
 		return multiProperties;
 	}
 
-	public DatarouterContext getDrContext(){
-		return drContext;
+	public Datarouter getDatarouter(){
+		return datarouter;
 	}
 
 	public JdbcConnectionPool getConnectionPool(){

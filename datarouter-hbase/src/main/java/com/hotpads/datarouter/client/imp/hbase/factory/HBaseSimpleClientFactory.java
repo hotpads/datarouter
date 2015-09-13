@@ -35,7 +35,7 @@ import com.hotpads.datarouter.client.imp.hbase.pool.HTablePool;
 import com.hotpads.datarouter.client.imp.hbase.util.HBaseQueryBuilder;
 import com.hotpads.datarouter.exception.UnavailableException;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
-import com.hotpads.datarouter.routing.DatarouterContext;
+import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
 import com.hotpads.datarouter.serialize.fieldcache.EntityFieldInfo;
 import com.hotpads.datarouter.storage.field.Field;
@@ -67,7 +67,7 @@ implements ClientFactory{
 	
 	/********************* fields *******************************/
 	
-	private final DatarouterContext drContext;
+	private final Datarouter datarouter;
 	private final String clientName;
 	private final Set<String> configFilePaths;
 	private final List<Properties> multiProperties;
@@ -77,10 +77,10 @@ implements ClientFactory{
 	private Configuration hBaseConfig;
 	private HBaseAdmin hBaseAdmin;
 	
-	public HBaseSimpleClientFactory(DatarouterContext drContext, String clientName){
-		this.drContext = drContext;
+	public HBaseSimpleClientFactory(Datarouter datarouter, String clientName){
+		this.datarouter = datarouter;
 		this.clientName = clientName;
-		this.configFilePaths = drContext.getConfigFilePaths();
+		this.configFilePaths = datarouter.getConfigFilePaths();
 		this.multiProperties = DrPropertiesTool.fromFiles(configFilePaths);
 		this.options = new HBaseOptions(multiProperties, clientName);
 	}
@@ -134,7 +134,7 @@ implements ClientFactory{
 		List<String> tableNames = new ArrayList<>();
 		Map<String,Class<PrimaryKey<?>>> primaryKeyClassByName = new HashMap<>();
 		Map<String,PhysicalNode<?,?>> nodeByTableName = new TreeMap<>();
-		Collection<PhysicalNode<?,?>> physicalNodes = drContext.getNodes().getPhysicalNodesForClient(clientName);
+		Collection<PhysicalNode<?,?>> physicalNodes = datarouter.getNodes().getPhysicalNodesForClient(clientName);
 		for(PhysicalNode<?,?> node : physicalNodes){
 			tableNames.add(node.getTableName());
 			primaryKeyClassByName.put(node.getTableName(), (Class<PrimaryKey<?>>)node.getPrimaryKeyType());

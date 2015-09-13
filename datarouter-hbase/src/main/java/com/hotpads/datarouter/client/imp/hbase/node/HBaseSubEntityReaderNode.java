@@ -104,7 +104,7 @@ implements HBasePhysicalNode<PK,D>,
 		if(DrCollectionTool.isEmpty(pks)){
 			return new LinkedList<>();
 		}
-		return new HBaseMultiAttemptTask<>(new HBaseTask<List<D>>(getDatarouterContext(), getClientTableNodeNames(),
+		return new HBaseMultiAttemptTask<>(new HBaseTask<List<D>>(getDatarouter(), getClientTableNodeNames(),
 				"getMulti", Config.nullSafe(config)){
 			@Override
 			public List<D> hbaseCall(HTable htable, HBaseClient client, ResultScanner managedResultScanner)
@@ -127,7 +127,7 @@ implements HBasePhysicalNode<PK,D>,
 		if(DrCollectionTool.isEmpty(pks)){
 			return new LinkedList<>();
 		}
-		return new HBaseMultiAttemptTask<>(new HBaseTask<List<PK>>(getDatarouterContext(), getClientTableNodeNames(),
+		return new HBaseMultiAttemptTask<>(new HBaseTask<List<PK>>(getDatarouter(), getClientTableNodeNames(),
 				"getKeys", Config.nullSafe(config)){
 				@Override
 				public List<PK> hbaseCall(HTable htable, HBaseClient client, ResultScanner managedResultScanner)
@@ -188,7 +188,7 @@ implements HBasePhysicalNode<PK,D>,
 		
 		//execute the single-row queries in a big multi-Get
 		List<D> singleEntityResults = new HBaseMultiAttemptTask<>(new HBaseTask<List<D>>(
-				getDatarouterContext(), getClientTableNodeNames(), "getWithPrefixes", nullSafeConfig){
+				getDatarouter(), getClientTableNodeNames(), "getWithPrefixes", nullSafeConfig){
 				@Override
 				public List<D> hbaseCall(HTable htable, HBaseClient client, ResultScanner managedResultScanner)
 				throws Exception{
@@ -207,7 +207,7 @@ implements HBasePhysicalNode<PK,D>,
 					nullSafeConfig);
 			for(final Scan singlePartitionScan : allPartitionScans){
 			List<D> singleScanResults = new HBaseMultiAttemptTask<>(new HBaseTask<List<D>>(
-					getDatarouterContext(), getClientTableNodeNames(), "getWithPrefixes", nullSafeConfig){
+					getDatarouter(), getClientTableNodeNames(), "getWithPrefixes", nullSafeConfig){
 					@Override
 					public List<D> hbaseCall(HTable htable, HBaseClient client, ResultScanner managedResultScanner)
 					throws Exception{
@@ -241,7 +241,7 @@ implements HBasePhysicalNode<PK,D>,
 		final Range<PK> nullSafeRange = Range.nullSafe(range);
 		//single row. use Get. gets all pks in entity. no way to limit rows
 		if(queryBuilder.isSingleEntity(nullSafeRange)){
-			List<PK> pks = new HBaseMultiAttemptTask<>(new HBaseTask<List<PK>>(getDatarouterContext(), 
+			List<PK> pks = new HBaseMultiAttemptTask<>(new HBaseTask<List<PK>>(getDatarouter(), 
 					getClientTableNodeNames(), "scanPksInEntity", nullSafeConfig){
 				@Override
 				public List<PK> hbaseCall(HTable htable, HBaseClient client, ResultScanner managedResultScanner)
@@ -264,7 +264,7 @@ implements HBasePhysicalNode<PK,D>,
 		final Range<PK> nullSafeRange = Range.nullSafe(range);
 		//single row. use Get. gets all databeans in entity. no way to limit rows
 		if(queryBuilder.isSingleEntity(nullSafeRange)){
-			List<D> databeans = new HBaseMultiAttemptTask<>(new HBaseTask<List<D>>(getDatarouterContext(), 
+			List<D> databeans = new HBaseMultiAttemptTask<>(new HBaseTask<List<D>>(getDatarouter(), 
 					getClientTableNodeNames(), "scanInEntity", nullSafeConfig){
 				@Override
 				public List<D> hbaseCall(HTable htable, HBaseClient client, ResultScanner managedResultScanner)
@@ -296,7 +296,7 @@ implements HBasePhysicalNode<PK,D>,
 		final Config nullSafeConfig = Config.nullSafe(config);
 		final String scanKeysVsRowsNumBatches = "scan " + (keysOnly ? "pk" : "databean") + " numBatches";
 		final String scanKeysVsRowsNumRows = "scan " + (keysOnly ? "pk" : "databean") + " numRows";
-		return new HBaseMultiAttemptTask<>(new HBaseTask<List<Result>>(getDatarouterContext(), 
+		return new HBaseMultiAttemptTask<>(new HBaseTask<List<Result>>(getDatarouter(), 
 				getClientTableNodeNames(), scanKeysVsRowsNumBatches, nullSafeConfig){
 			@Override
 			public List<Result> hbaseCall(HTable htable, HBaseClient client, ResultScanner managedResultScanner)
