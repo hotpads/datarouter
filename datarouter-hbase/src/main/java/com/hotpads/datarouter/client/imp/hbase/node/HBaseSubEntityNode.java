@@ -81,7 +81,7 @@ implements SubEntitySortedMapStorageNode<EK,PK,D,F>,
 	public void putMulti(final Collection<D> databeans, final Config pConfig) {
 		if(DrCollectionTool.isEmpty(databeans)){ return; }
 		final Config config = Config.nullSafe(pConfig);
-		new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>(getDatarouterContext(), getClientTableNodeNames(), "putMulti", config){
+		new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>(getDatarouter(), getClientTableNodeNames(), "putMulti", config){
 				public Void hbaseCall(HTable hTable, HBaseClient client, ResultScanner managedResultScanner) throws Exception{
 //					PhaseTimer timer = new PhaseTimer();
 					List<Row> actions = new ArrayList<>();
@@ -152,7 +152,7 @@ implements SubEntitySortedMapStorageNode<EK,PK,D,F>,
 	@Override
 	public void deleteAll(final Config pConfig) {
 		final Config config = Config.nullSafe(pConfig);
-		new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>(getDatarouterContext(), getClientTableNodeNames(), "deleteAll", config){
+		new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>(getDatarouter(), getClientTableNodeNames(), "deleteAll", config){
 				public Void hbaseCall(HTable hTable, HBaseClient client, ResultScanner managedResultScanner) throws Exception{
 					Scan scan = new Scan();
 					scan.setFilter(new ColumnPrefixFilter(fieldInfo.getEntityColumnPrefixBytes()));
@@ -192,7 +192,7 @@ implements SubEntitySortedMapStorageNode<EK,PK,D,F>,
 	public void deleteMulti(final Collection<PK> keys, final Config pConfig){
 		if(DrCollectionTool.isEmpty(keys)){ return; }
 		final Config config = Config.nullSafe(pConfig);
-		new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>(getDatarouterContext(), getClientTableNodeNames(), "deleteMulti", config){
+		new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>(getDatarouter(), getClientTableNodeNames(), "deleteMulti", config){
 				public Void hbaseCall(HTable hTable, HBaseClient client, ResultScanner managedResultScanner) throws Exception{
 					hTable.setAutoFlush(false);
 					Collection<String> nonKeyColumnNames = fieldInfo.getNonKeyFieldByColumnName().keySet();

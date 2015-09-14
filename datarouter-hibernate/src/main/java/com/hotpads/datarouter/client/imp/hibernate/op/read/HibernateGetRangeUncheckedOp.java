@@ -39,7 +39,7 @@ extends BaseHibernateOp<List<? extends FieldSet<?>>>{
 	
 	public HibernateGetRangeUncheckedOp(HibernateReaderNode<PK,D,F> node, HibernateResultParser resultParser,
 			String opName, Range<PK> range, boolean keysOnly, Config config){
-		super(node.getDatarouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
+		super(node.getDatarouter(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
 		this.node = node;
 		this.resultParser = resultParser;
 		this.opName = opName;

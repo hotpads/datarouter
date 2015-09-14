@@ -40,7 +40,7 @@ extends BaseHibernateOp<List<PK>>{
 	
 	public HibernateGetKeysOp(HibernateReaderNode<PK,D,F> node, HibernateResultParser resultParser,
 			Collection<PK> keys, Config config) {
-		super(node.getDatarouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
+		super(node.getDatarouter(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
 		this.node = node;
 		this.resultParser = resultParser;
 		this.keys = keys;

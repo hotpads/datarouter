@@ -1,6 +1,6 @@
 package com.hotpads.datarouter.client.imp.sqs;
 
-import com.hotpads.datarouter.routing.DatarouterContext;
+import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.util.core.DrPropertiesTool;
 import com.hotpads.util.core.properties.TypedProperties;
 
@@ -8,8 +8,8 @@ public class SqsOptions extends TypedProperties{
 	
 	private final String clientPrefix;
 	
-	public SqsOptions(DatarouterContext datarouterContext, String clientName){
-		super(DrPropertiesTool.fromFiles(datarouterContext.getConfigFilePaths()));
+	public SqsOptions(Datarouter datarouter, String clientName){
+		super(DrPropertiesTool.fromFiles(datarouter.getConfigFilePaths()));
 		this.clientPrefix = "client." + clientName + ".";
 	}
 

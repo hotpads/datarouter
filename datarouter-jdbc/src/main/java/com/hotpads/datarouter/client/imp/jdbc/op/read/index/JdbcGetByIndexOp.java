@@ -29,7 +29,7 @@ extends BaseJdbcOp<List<D>>{
 
 	public JdbcGetByIndexOp(PhysicalNode<PK,D> node, JdbcFieldCodecFactory fieldCodecFactory, Collection<IK> entryKeys,
 			boolean wildcardLastField, Config config){
-		super(node.getDatarouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
+		super(node.getDatarouter(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
 		this.node = node;
 		this.fieldCodecFactory = fieldCodecFactory;
 		this.entryKeys = entryKeys;

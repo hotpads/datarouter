@@ -11,7 +11,7 @@ import com.hotpads.datarouter.client.Clients;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.execute.ParallelSchemaUpdate;
 import com.hotpads.datarouter.client.imp.jdbc.factory.JdbcSimpleClientFactory;
 import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
-import com.hotpads.datarouter.routing.DatarouterContext;
+import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrPropertiesTool;
@@ -32,9 +32,9 @@ extends JdbcSimpleClientFactory{
 		PARAM_hbm2ddl_auto = ".hibernate.hibernate.hbm2ddl.auto";//the double-hibernate is intentional
 
 
-	public HibernateSimpleClientFactory(DatarouterContext drContext, JdbcFieldCodecFactory fieldCodecFactory,
+	public HibernateSimpleClientFactory(Datarouter datarouter, JdbcFieldCodecFactory fieldCodecFactory,
 			String clientName){
-		super(drContext, fieldCodecFactory, clientName);
+		super(datarouter, fieldCodecFactory, clientName);
 	}
 
 
@@ -52,14 +52,14 @@ extends JdbcSimpleClientFactory{
 		AnnotationConfiguration sfConfig = new AnnotationConfiguration();
 
 		//this code will skip all nodes with fielders, which is the desired behavior, but some jdbc nodes are still using hibernate TxnOps =(
-//		List<? extends PhysicalNode<?, ?>> physicalNodes = drContext.getNodes().getPhysicalNodesForClient(clientName);
+//		List<? extends PhysicalNode<?, ?>> physicalNodes = datarouter.getNodes().getPhysicalNodesForClient(clientName);
 //		for(PhysicalNode<?, ?> physicalNode : IterableTool.nullSafe(physicalNodes)){
 //			DatabeanFieldInfo<?, ?, ?> fieldInfo = physicalNode.getFieldInfo();
 //			if(fieldInfo.getFieldAware()){ continue; }//skip databeans with fielders
 //			Class<? extends Databean<?, ?>> databeanClass = fieldInfo.getDatabeanClass();
 
 		//add all databeanClasses until we're sure that none are using hibernate code (like GetJobletForProcessing)
-		Collection<Class<? extends Databean<?, ?>>> relevantDatabeanTypes = getDrContext().getNodes().getTypesForClient(
+		Collection<Class<? extends Databean<?, ?>>> relevantDatabeanTypes = getDatarouter().getNodes().getTypesForClient(
 				getClientName());
 		for (Class<? extends Databean<?, ?>> databeanClass : DrCollectionTool.nullSafe(relevantDatabeanTypes)){
 
@@ -91,7 +91,7 @@ extends JdbcSimpleClientFactory{
 		timer.add("client");
 
 		if(doSchemaUpdate()){
-			new ParallelSchemaUpdate(getDrContext(), fieldCodecFactory, getClientName(), getConnectionPool()).call();
+			new ParallelSchemaUpdate(getDatarouter(), fieldCodecFactory, getClientName(), getConnectionPool()).call();
 			timer.add("schema update");
 		}
 

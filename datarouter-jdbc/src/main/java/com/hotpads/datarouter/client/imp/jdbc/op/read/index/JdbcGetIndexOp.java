@@ -42,7 +42,7 @@ extends BaseJdbcOp<List<IE>>{
 
 	public JdbcGetIndexOp(PhysicalNode<PK,D> node, JdbcFieldCodecFactory fieldCodecFactory, Config config,
 			Class<IE> indexEntryClass, Class<IF> indexFielderClass, Collection<IK> uniqueKeys){
-		super(node.getDatarouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
+		super(node.getDatarouter(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
 		this.mainNode = node;
 		this.fieldCodecFactory = fieldCodecFactory;
 		this.config = config;

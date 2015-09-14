@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.imp.memcached.client.MemcachedClientImp;
 import com.hotpads.datarouter.client.imp.memcached.client.MemcachedStateException;
-import com.hotpads.datarouter.routing.DatarouterContext;
+import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.routing.RouterParams;
 import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.admin.RoutersHandler;
@@ -24,7 +24,7 @@ public class MemcachedHandler extends BaseHandler {
 	private static final Logger logger = LoggerFactory.getLogger(MemcachedHandler.class);
 	
 	@Inject
-	private DatarouterContext datarouterContext;
+	private Datarouter datarouter;
 
 	private RouterParams<MemcachedClientImp> paramsRouter;
 
@@ -46,7 +46,7 @@ public class MemcachedHandler extends BaseHandler {
 	}
 
 	private void initialize() {
-		paramsRouter = new RouterParams<>(datarouterContext, params,
+		paramsRouter = new RouterParams<>(datarouter, params,
 				MEMCHACHED_NEEDS);
 
 	}

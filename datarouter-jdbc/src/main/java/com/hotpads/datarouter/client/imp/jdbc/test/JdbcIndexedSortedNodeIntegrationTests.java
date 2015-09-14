@@ -23,7 +23,7 @@ public class JdbcIndexedSortedNodeIntegrationTests extends BaseIndexedNodeIntegr
 	@AfterClass
 	public void afterClass(){
 		testIndexedDelete();
-		drContext.shutdown();
+		datarouter.shutdown();
 	}
 
 	@Test
