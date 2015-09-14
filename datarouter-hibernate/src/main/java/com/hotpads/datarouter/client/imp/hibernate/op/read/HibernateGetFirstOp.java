@@ -20,7 +20,7 @@ extends BaseHibernateOp<D>{
 	private final Config config;
 	
 	public HibernateGetFirstOp(HibernateReaderNode<PK,D,F> node, Config config) {
-		super(node.getDatarouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
+		super(node.getDatarouter(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
 		this.node = node;
 		this.config = config;
 	}

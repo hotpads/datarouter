@@ -26,7 +26,7 @@ extends BaseHibernateOp<Long>{
 	private final Config config;
 	
 	public HibernateCountOp(HibernateReaderNode<PK,D,F> node, Lookup<PK> lookup, Config config) {
-		super(node.getDatarouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
+		super(node.getDatarouter(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
 		this.node = node;
 		this.lookup = lookup;
 		this.config = config;

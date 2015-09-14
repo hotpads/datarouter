@@ -20,7 +20,8 @@ import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodec
 import com.hotpads.datarouter.client.imp.jdbc.util.JdbcTool;
 import com.hotpads.datarouter.client.type.JdbcClient;
 import com.hotpads.datarouter.connection.JdbcConnectionPool;
-import com.hotpads.datarouter.routing.DatarouterContext;
+import com.hotpads.datarouter.routing.Datarouter;
+import com.hotpads.datarouter.util.core.DrBooleanTool;
 import com.hotpads.datarouter.util.core.DrPropertiesTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.util.core.profile.PhaseTimer;
@@ -28,14 +29,16 @@ import com.hotpads.util.core.profile.PhaseTimer;
 public class JdbcSimpleClientFactory
 implements ClientFactory{
 	private static Logger logger = LoggerFactory.getLogger(JdbcSimpleClientFactory.class);
+
 	
 	public static final String
 			POOL_DEFAULT = "default",
 			PRINT_PREFIX = "schemaUpdate.print",
 			EXECUTE_PREFIX = "schemaUpdate.execute"
 		;
-	
-	private final DatarouterContext drContext;
+
+	private final Datarouter datarouter;
+
 	protected final JdbcFieldCodecFactory fieldCodecFactory;
 	private final String clientName;
 	private final Set<String> configFilePaths;
@@ -48,12 +51,12 @@ implements ClientFactory{
 	private JdbcConnectionPool connectionPool;
 	private JdbcClient client;
 
-	public JdbcSimpleClientFactory(DatarouterContext drContext, JdbcFieldCodecFactory fieldCodecFactory,
+	public JdbcSimpleClientFactory(Datarouter datarouter, JdbcFieldCodecFactory fieldCodecFactory,
 			String clientName){
-		this.drContext = drContext;
+		this.datarouter = datarouter;
 		this.fieldCodecFactory = fieldCodecFactory;
 		this.clientName = clientName;
-		this.configFilePaths = drContext.getConfigFilePaths();
+		this.configFilePaths = datarouter.getConfigFilePaths();
 		this.multiProperties = DrPropertiesTool.fromFiles(configFilePaths);
 		this.jdbcOptions = new JdbcOptions(multiProperties, clientName);
 		this.defaultJdbcOptions = new JdbcOptions(multiProperties, POOL_DEFAULT);
@@ -72,7 +75,7 @@ implements ClientFactory{
 		timer.add("client");
 
 		if(doSchemaUpdate()){
-			new ParallelSchemaUpdate(drContext, fieldCodecFactory, clientName, connectionPool).call();
+			new ParallelSchemaUpdate(datarouter, fieldCodecFactory, clientName, connectionPool).call();
 			timer.add("schema update");
 		}
 
@@ -81,7 +84,7 @@ implements ClientFactory{
 	}
 
 	private boolean isWritableClient(){
-		return ClientId.getWritableNames(drContext.getClientPool().getClientIds()).contains(clientName);
+		return ClientId.getWritableNames(datarouter.getClientPool().getClientIds()).contains(clientName);
 	}
 
 	protected void initConnectionPool(){
@@ -89,8 +92,8 @@ implements ClientFactory{
 		if(schemaUpdatePrintOptions.getCreateDatabases() || schemaUpdateExecuteOptions.getCreateDatabases()){
 			checkDatabaseExist();
 		}
-		connectionPool = new JdbcConnectionPool(clientName,	isWritableClient(), defaultJdbcOptions, jdbcOptions);
-		
+		connectionPool = new JdbcConnectionPool(clientName,	isWritableClient(), defaultJdbcOptions, jdbcOptions);		
+
 	}
 
 
@@ -144,8 +147,8 @@ implements ClientFactory{
 		return multiProperties;
 	}
 
-	public DatarouterContext getDrContext(){
-		return drContext;
+	public Datarouter getDatarouter(){
+		return datarouter;
 	}
 
 	public JdbcConnectionPool getConnectionPool(){

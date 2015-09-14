@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 import com.hotpads.datarouter.client.imp.hbase.client.HBaseClient;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.exception.DataAccessException;
-import com.hotpads.datarouter.routing.DatarouterContext;
+import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.util.DatarouterEmailTool;
 import com.hotpads.datarouter.util.core.DrDateTool;
 import com.hotpads.datarouter.util.core.DrExceptionTool;
@@ -37,7 +37,7 @@ public class HBaseMultiAttemptTask<V> extends TracedCallable<V>{
 	
 	/*************************** fields *****************************/
 	
-	protected DatarouterContext drContext;
+	protected Datarouter datarouter;
 		
 	protected HBaseTask<V> task;
 	protected ExecutorService executorService;
@@ -50,7 +50,7 @@ public class HBaseMultiAttemptTask<V> extends TracedCallable<V>{
 	
 	public HBaseMultiAttemptTask(HBaseTask<V> task){
 		super(HBaseMultiAttemptTask.class.getSimpleName()+"."+task.getTaskName());
-		this.drContext = task.getDrContext();
+		this.datarouter = task.getDatarouter();
 		this.task = task;
 		//temp hack.  in case of replaced client, we still use old client's exec service
 		this.config = Config.nullSafe(task.config);
@@ -64,7 +64,7 @@ public class HBaseMultiAttemptTask<V> extends TracedCallable<V>{
 		for(int i=1; i <= numAttempts; ++i){
 			try{
 				//do this client stuff here so inaccessible clients count as normal failures
-				HBaseClient client = (HBaseClient)drContext.getClientPool().getClient(task.getClientName());
+				HBaseClient client = (HBaseClient)datarouter.getClientPool().getClient(task.getClientName());
 				if(client==null){
 					Thread.sleep(timeoutMs);//otherwise will loop through numAttempts as fast as possible
 					throw new DataAccessException("client "+task.getClientName()+" not active"); 
@@ -125,12 +125,12 @@ public class HBaseMultiAttemptTask<V> extends TracedCallable<V>{
 		long throttleEmailSeconds = THROTTLE_ERROR_EMAIL_MS / 1000;
 		if(!enoughTimePassed) { return; }
 		long numFailures = NUM_FAILED_ATTEMPTS_SINCE_LAST_EMAIL.get();
-		String subject = "HBaseMultiAttempTask failure on "+drContext.getServerName();
+		String subject = "HBaseMultiAttempTask failure on "+datarouter.getServerName();
 		String body = "Message throttled for "+throttleEmailSeconds+" seconds"
 				+"\n\n"+timeoutMessage
 				+"\n\n"+numFailures+" since last email attempt "+DrDateTool.getAgoString(LAST_EMAIL_SENT_AT_MS)
 				+"\n\n"+DrExceptionTool.getStackTraceAsString(e);
-		DatarouterEmailTool.sendEmail("noreply@hotpads.com", drContext.getAdministratorEmail(), subject, body);
+		DatarouterEmailTool.sendEmail("noreply@hotpads.com", datarouter.getAdministratorEmail(), subject, body);
 		LAST_EMAIL_SENT_AT_MS = System.currentTimeMillis();
 		NUM_FAILED_ATTEMPTS_SINCE_LAST_EMAIL.set(0L);
 	}

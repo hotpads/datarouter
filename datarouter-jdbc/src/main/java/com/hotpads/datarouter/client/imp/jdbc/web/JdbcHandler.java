@@ -6,7 +6,7 @@ import java.util.List;
 import com.google.common.collect.ImmutableList;
 import javax.inject.Inject;
 import com.hotpads.datarouter.client.imp.jdbc.JdbcClientImp;
-import com.hotpads.datarouter.routing.DatarouterContext;
+import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.routing.RouterParams;
 import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.admin.RoutersHandler;
@@ -28,7 +28,7 @@ public class JdbcHandler extends BaseHandler {
 	/***************** fields ********************/
 	
 	@Inject
-	private DatarouterContext datarouterContext;
+	private Datarouter datarouter;
 
 	private RouterParams<JdbcClientImp> paramsRouter;
 
@@ -36,7 +36,7 @@ public class JdbcHandler extends BaseHandler {
 	/**************** methods ********************/
 	
 	private void initialize() {
-		paramsRouter = new RouterParams<>(datarouterContext, params, JDBC_NEEDS);
+		paramsRouter = new RouterParams<>(datarouter, params, JDBC_NEEDS);
 	}
 
 	@Handler

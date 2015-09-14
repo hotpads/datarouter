@@ -37,7 +37,7 @@ import com.hotpads.datarouter.client.imp.hbase.cluster.DRHServerInfo;
 import com.hotpads.datarouter.client.imp.hbase.cluster.DRHServerList;
 import com.hotpads.datarouter.client.imp.hbase.cluster.DRHTableSettings;
 import com.hotpads.datarouter.client.imp.hbase.compaction.DRHCompactionInfo;
-import com.hotpads.datarouter.routing.DatarouterContext;
+import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.routing.RouterParams;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrIterableTool;
@@ -69,7 +69,7 @@ public class HBaseHandler extends BaseHandler {
 	@Inject
 	protected DRHCompactionInfo drhCompactionInfo;
 	@Inject
-	private DatarouterContext datarouterContext;
+	private Datarouter datarouter;
 	@Inject
 	private HBaseBalancerFactory balancerFactory;
 
@@ -90,7 +90,7 @@ public class HBaseHandler extends BaseHandler {
 
 	private Mav initialize(){
 		mav = new Mav();
-		routerParams = new RouterParams<HBaseClientImp>(datarouterContext, params, HBASE_NEEDS);
+		routerParams = new RouterParams<HBaseClientImp>(datarouter, params, HBASE_NEEDS);
 		// mav.put(RequestTool.SUBMIT_ACTION, ACTION_viewHBaseTableRegions);
 		mav.put(RoutersHandler.PARAM_routerName, routerParams.getRouterName());
 		mav.put(RoutersHandler.PARAM_clientName, routerParams.getClientName());

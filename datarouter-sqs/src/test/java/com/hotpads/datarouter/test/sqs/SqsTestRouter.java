@@ -11,7 +11,7 @@ import com.hotpads.datarouter.node.factory.QueueNodeFactory;
 import com.hotpads.datarouter.node.op.raw.GroupQueueStorage;
 import com.hotpads.datarouter.node.op.raw.QueueStorage;
 import com.hotpads.datarouter.routing.BaseRouter;
-import com.hotpads.datarouter.routing.DatarouterContext;
+import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.test.DrTestConstants;
 import com.hotpads.datarouter.test.TestDatabean;
 import com.hotpads.datarouter.test.TestDatabeanFielder;
@@ -26,7 +26,7 @@ public class SqsTestRouter extends BaseRouter{
 	public final GroupQueueStorage<TestDatabeanKey,TestDatabean> groupTestDatabean;
 	
 	@Inject
-	public SqsTestRouter(DatarouterContext context, QueueNodeFactory nodeFactory){
+	public SqsTestRouter(Datarouter context, QueueNodeFactory nodeFactory){
 		super(context, DrTestConstants.CONFIG_PATH, NAME);
 
 		testDatabean = cast(register(nodeFactory.createSingleQueueNode(DrTestConstants.CLIENT_drTestSqs, this,

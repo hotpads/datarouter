@@ -9,7 +9,7 @@ import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.op.raw.write.QueueStorageWriter;
 import com.hotpads.datarouter.node.type.physical.base.BasePhysicalNode;
-import com.hotpads.datarouter.routing.DatarouterContext;
+import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
@@ -29,13 +29,13 @@ implements QueueStorageWriter<PK,D>{
 	public static final int MAX_BYTES_PER_MESSAGE = 256*1024;
 	public static final int MAX_BYTES_PER_PAYLOAD = 256*1024;
 
-	private final DatarouterContext datarouterContext;
+	private final Datarouter datarouter;
 	private final Lazy<String> queueUrl;
 	protected final SqsOpFactory<PK,D,F> sqsOpFactory;
 
-	public BaseSqsNode(DatarouterContext datarouterContext, NodeParams<PK,D,F> params){
+	public BaseSqsNode(Datarouter datarouter, NodeParams<PK,D,F> params){
 		super(params);
-		this.datarouterContext = datarouterContext;
+		this.datarouter = datarouter;
 		this.queueUrl = new Lazy<String>(){
 			
 			@Override
@@ -62,7 +62,7 @@ implements QueueStorageWriter<PK,D>{
 	}
 	
 	private SqsClient getSqsClient(){
-		return (SqsClient) datarouterContext.getClientPool().getClient(getClientId().getName());
+		return (SqsClient) datarouter.getClientPool().getClient(getClientId().getName());
 	}
 	
 	public AmazonSQSClient getAmazonSqsClient(){

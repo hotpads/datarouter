@@ -23,7 +23,7 @@ extends BaseJdbcOp<Long>{
 	
 	public JdbcPrefixDeleteOp(PhysicalNode<PK,D> node, JdbcFieldCodecFactory fieldCodecFactory, PK prefix,
 			boolean wildcardLastField, Config config){
-		super(node.getDatarouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
+		super(node.getDatarouter(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
 		this.node = node;
 		this.fieldCodecFactory = fieldCodecFactory;
 		this.prefix = prefix;

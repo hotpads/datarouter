@@ -8,24 +8,24 @@ import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.imp.hibernate.client.HibernateClient;
 import com.hotpads.datarouter.client.imp.jdbc.op.BaseJdbcOp;
 import com.hotpads.datarouter.config.Isolation;
-import com.hotpads.datarouter.routing.DatarouterContext;
+import com.hotpads.datarouter.routing.Datarouter;
 
 public abstract class BaseHibernateOp<T>
 extends BaseJdbcOp<T> 
 implements SessionAware {
 	
-	public BaseHibernateOp(DatarouterContext drContext, List<String> clientNames) {
-		this(drContext, clientNames, Isolation.DEFAULT, false);
+	public BaseHibernateOp(Datarouter datarouter, List<String> clientNames) {
+		this(datarouter, clientNames, Isolation.DEFAULT, false);
 	}
 
-	public BaseHibernateOp(DatarouterContext drContext, List<String> clientNames, Isolation isolation,
+	public BaseHibernateOp(Datarouter datarouter, List<String> clientNames, Isolation isolation,
 			boolean autoCommit) {
-		super(drContext, clientNames, isolation, autoCommit);
+		super(datarouter, clientNames, isolation, autoCommit);
 	}
 
 	@Override
 	public Session getSession(String clientName){
-		Client client = getDatarouterContext().getClientPool().getClient(clientName);
+		Client client = getDatarouter().getClientPool().getClient(clientName);
 		if(client==null){
 			return null;
 		}

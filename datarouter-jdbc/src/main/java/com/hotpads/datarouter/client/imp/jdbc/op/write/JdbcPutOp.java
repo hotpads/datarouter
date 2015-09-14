@@ -47,7 +47,7 @@ extends BaseJdbcOp<Void>{
 
 	public JdbcPutOp(JdbcNode<PK,D,F> node, JdbcFieldCodecFactory fieldCodecFactory, Collection<D> databeans,
 			Config config) {
-		super(node.getDatarouterContext(), node.getClientNames(), getIsolation(config),
+		super(node.getDatarouter(), node.getClientNames(), getIsolation(config),
 				shouldAutoCommit(databeans, config));
 		this.node = node;
 		this.fieldCodecFactory = fieldCodecFactory;
