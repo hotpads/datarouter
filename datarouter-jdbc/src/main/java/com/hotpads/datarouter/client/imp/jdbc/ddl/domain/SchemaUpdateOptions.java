@@ -23,23 +23,25 @@ public class SchemaUpdateOptions{
 	SUFFIX_ignoreClients = ".ignoreClients",
 	SUFFIX_ignoreTables = ".ignoreTables",
 	SUFFIX_modifyCharacterSet = ".modifyCharacterSet",
-	SUFFIX_modifyCollation = ".modifyCollation";
-
-
-	protected Boolean createDatabases;
-	protected Boolean createTables;
-	protected Boolean dropTables;
-	protected Boolean addColumns;
-	protected Boolean deleteColumns;
-	/*protected Boolean modifyColumnLengths;*/
-	protected Boolean modifyColumns;
-	protected Boolean addIndexes;
-	protected Boolean dropIndexes;
-	protected Boolean modifyEngine;
-	protected boolean modifyCollation;
-	protected boolean modifyCharacterSet;
-	protected List<String> ignoreClients;
-	protected List<String> ignoreTables;
+	SUFFIX_modifyCollation = ".modifyCollation",
+	SCHEMA_UPDATE_ENABLE = "schemaUpdate.enable"
+	;
+	
+	private Boolean createDatabases;
+	private Boolean createTables;
+	private Boolean dropTables;
+	private Boolean addColumns;
+	private Boolean deleteColumns;
+	/*private Boolean modifyColumnLengths;*/
+	private Boolean modifyColumns;
+	private Boolean addIndexes;
+	private Boolean dropIndexes;
+	private Boolean modifyEngine;
+	private boolean modifyCollation;
+	private boolean modifyCharacterSet;
+	private Boolean schemaUpdateEnabled;
+	private List<String> ignoreClients;
+	private List<String> ignoreTables;
 
 
 	public SchemaUpdateOptions(){
@@ -48,14 +50,16 @@ public class SchemaUpdateOptions{
 
 	public SchemaUpdateOptions(List<Properties> multiProperties, String prefix, boolean printVsExecute){
 		if(printVsExecute){
-			SetSchemaUpdateWithPrintOptions(multiProperties,  prefix);
+			setSchemaUpdateWithPrintOptions(multiProperties,  prefix);
 		}else{
 			SetSchemaUpdateWithExecuteOptions(multiProperties,  prefix);
 		}
 
 	}
 
-	private SchemaUpdateOptions SetSchemaUpdateWithPrintOptions(List<Properties> multiProperties, String prefix){
+	private SchemaUpdateOptions setSchemaUpdateWithPrintOptions(List<Properties> multiProperties, String prefix){
+		this.schemaUpdateEnabled = DrBooleanTool.isTrue(DrPropertiesTool.getFirstOccurrence(multiProperties,
+				SCHEMA_UPDATE_ENABLE));
 		this.createDatabases = DrBooleanTool.isTrueOrNull(DrPropertiesTool.getFirstOccurrence(multiProperties,
 				prefix+SUFFIX_createDatabases));
 		this.createTables = DrBooleanTool.isTrueOrNull(DrPropertiesTool.getFirstOccurrence(multiProperties,
@@ -84,11 +88,21 @@ public class SchemaUpdateOptions{
 	}
 
 	private SchemaUpdateOptions SetSchemaUpdateWithExecuteOptions(List<Properties> multiProperties, String prefix){
+		//isTrue returns false as default and isTrueOrNull returns a true as default,
+		//so on missing the setting in config, isTrueOrNull returns a default value true
+		this.schemaUpdateEnabled = DrBooleanTool.isTrue(DrPropertiesTool.getFirstOccurrence(multiProperties,
+				SCHEMA_UPDATE_ENABLE));
+		//createDatabase and createTables are set to default true to avoid confusions in developers machine
+		//due to missing databases and tables
 		this.createDatabases = DrBooleanTool.isTrueOrNull(DrPropertiesTool.getFirstOccurrence(multiProperties,
 				prefix+SUFFIX_createDatabases));
 		this.createTables = DrBooleanTool.isTrueOrNull(DrPropertiesTool.getFirstOccurrence(multiProperties,
 				prefix+SUFFIX_createTables));
+		
+		//drop tables are always set to false for obvious reasons
 		this.dropTables = false;
+		
+		//settings that modify an existing tables are returned with default true since they are less dangerous
 		this.addColumns = DrBooleanTool.isTrue(DrPropertiesTool.getFirstOccurrence(multiProperties,
 				prefix+SUFFIX_addColumns));
 		this.deleteColumns = DrBooleanTool.isTrue(DrPropertiesTool.getFirstOccurrence(multiProperties,
@@ -107,6 +121,7 @@ public class SchemaUpdateOptions{
 				prefix+SUFFIX_modifyCharacterSet));
 		this.modifyCollation = DrBooleanTool.isTrue(DrPropertiesTool.getFirstOccurrence(multiProperties,
 				prefix+SUFFIX_modifyCollation));
+		
 		String schemaUpdatePrefix = prefix.substring(0, prefix.indexOf('.'));
 		String clientsToIgnore = DrPropertiesTool.getFirstOccurrence(multiProperties, schemaUpdatePrefix + SUFFIX_ignoreClients);
 		this.ignoreClients = DrStringTool.splitOnCharNoRegex(clientsToIgnore, ',');
@@ -117,15 +132,7 @@ public class SchemaUpdateOptions{
 
 
 	/****************************** methods ******************************/
-
-	//	public boolean anyTrue(){
-	//		return createTables | anyAlterTrue();
-	//	}
-	//
-	//	public boolean anyAlterTrue(){
-	//		return dropTables | addColumns | deleteColumns | modify;
-	//	}
-
+	
 	public SchemaUpdateOptions setAllTrue(){
 		createTables = true;
 		dropTables = true;
@@ -253,10 +260,11 @@ public class SchemaUpdateOptions{
 	}
 
 	public boolean getModifyCharacterSet(){
-		// TODO Auto-generated method stub
 		return modifyCharacterSet;
 	}
-
-
+	
+	public boolean schemaUpdateEnabled(){
+		return schemaUpdateEnabled;
+	}
 
 }
