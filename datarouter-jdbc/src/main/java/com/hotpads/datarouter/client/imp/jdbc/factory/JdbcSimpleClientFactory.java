@@ -20,7 +20,7 @@ import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodec
 import com.hotpads.datarouter.client.imp.jdbc.util.JdbcTool;
 import com.hotpads.datarouter.client.type.JdbcClient;
 import com.hotpads.datarouter.connection.JdbcConnectionPool;
-import com.hotpads.datarouter.routing.DatarouterContext;
+import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.util.core.DrBooleanTool;
 import com.hotpads.datarouter.util.core.DrPropertiesTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
@@ -30,25 +30,38 @@ public class JdbcSimpleClientFactory
 implements ClientFactory{
 	private static Logger logger = LoggerFactory.getLogger(JdbcSimpleClientFactory.class);
 
-	private static final String SCHEMA_UPDATE_ENABLE = "schemaUpdate.enable";
+	
+	public static final String
+			POOL_DEFAULT = "default",
+			PRINT_PREFIX = "schemaUpdate.print",
+			EXECUTE_PREFIX = "schemaUpdate.execute"
+		;
 
+	private final Datarouter datarouter;
 
-	private final DatarouterContext drContext;
 	protected final JdbcFieldCodecFactory fieldCodecFactory;
 	private final String clientName;
 	private final Set<String> configFilePaths;
 	private final List<Properties> multiProperties;
-
+	private final JdbcOptions jdbcOptions;
+	private final JdbcOptions defaultJdbcOptions;
+	private final SchemaUpdateOptions schemaUpdatePrintOptions;
+	private final SchemaUpdateOptions schemaUpdateExecuteOptions;
+	
 	private JdbcConnectionPool connectionPool;
 	private JdbcClient client;
 
-	public JdbcSimpleClientFactory(DatarouterContext drContext, JdbcFieldCodecFactory fieldCodecFactory,
+	public JdbcSimpleClientFactory(Datarouter datarouter, JdbcFieldCodecFactory fieldCodecFactory,
 			String clientName){
-		this.drContext = drContext;
+		this.datarouter = datarouter;
 		this.fieldCodecFactory = fieldCodecFactory;
 		this.clientName = clientName;
-		this.configFilePaths = drContext.getConfigFilePaths();
+		this.configFilePaths = datarouter.getConfigFilePaths();
 		this.multiProperties = DrPropertiesTool.fromFiles(configFilePaths);
+		this.jdbcOptions = new JdbcOptions(multiProperties, clientName);
+		this.defaultJdbcOptions = new JdbcOptions(multiProperties, POOL_DEFAULT);
+		this.schemaUpdatePrintOptions = new SchemaUpdateOptions(multiProperties, PRINT_PREFIX, true);
+		this.schemaUpdateExecuteOptions = new SchemaUpdateOptions(multiProperties, EXECUTE_PREFIX, false);
 	}
 
 	@Override
@@ -62,7 +75,7 @@ implements ClientFactory{
 		timer.add("client");
 
 		if(doSchemaUpdate()){
-			new ParallelSchemaUpdate(drContext, fieldCodecFactory, clientName, connectionPool).call();
+			new ParallelSchemaUpdate(datarouter, fieldCodecFactory, clientName, connectionPool).call();
 			timer.add("schema update");
 		}
 
@@ -71,28 +84,27 @@ implements ClientFactory{
 	}
 
 	private boolean isWritableClient(){
-		return ClientId.getWritableNames(drContext.getClientPool().getClientIds()).contains(clientName);
+		return ClientId.getWritableNames(datarouter.getClientPool().getClientIds()).contains(clientName);
 	}
 
 	protected void initConnectionPool(){
-		//temporarily turning off the database check code
-		//checkDatabaseExist();
-		connectionPool = new JdbcConnectionPool(drContext.getApplicationPaths(), clientName,
-				multiProperties, isWritableClient());
+		// check if the createDatabase option is set to true before checking for missing databases.
+		if(schemaUpdatePrintOptions.getCreateDatabases() || schemaUpdateExecuteOptions.getCreateDatabases()){
+			checkDatabaseExist();
+		}
+		connectionPool = new JdbcConnectionPool(clientName,	isWritableClient(), defaultJdbcOptions, jdbcOptions);		
+
 	}
 
 
 	protected boolean doSchemaUpdate(){
-		boolean schemaUpdateEnabled = DrBooleanTool.isTrue(DrPropertiesTool.getFirstOccurrence(multiProperties,
-				SCHEMA_UPDATE_ENABLE));
-		return isWritableClient() && schemaUpdateEnabled;
+		return isWritableClient() && schemaUpdatePrintOptions.schemaUpdateEnabled();
 	}
 
 	private void checkDatabaseExist() {
-		JdbcOptions jdbcOptions = new JdbcOptions(multiProperties, clientName);
 		String url =  jdbcOptions.url();
-		String user = jdbcOptions.user("root");
-		String password = jdbcOptions.password("");
+		String user = jdbcOptions.user(defaultJdbcOptions.user("root"));
+		String password = jdbcOptions.password(defaultJdbcOptions.password(""));
 		String hostname = DrStringTool.getStringBeforeLastOccurrence(':',url);
 		String portDatabaseString = DrStringTool.getStringAfterLastOccurrence(':',url);
 		int port = Integer.parseInt(DrStringTool.getStringBeforeLastOccurrence('/',portDatabaseString));
@@ -100,6 +112,8 @@ implements ClientFactory{
 
 		Connection connection = JdbcTool.openConnection(hostname, port, null, user, password);
 		List<String> existingDatabases = JdbcTool.showDatabases(connection);
+		
+		
 		//if database does not exist, create database
 		if(!existingDatabases.contains(databaseName)){
 			if(isWritableClient()){
@@ -109,15 +123,14 @@ implements ClientFactory{
 	}
 
 	private void generateCreateDatabaseSchema(Connection connection, String databaseName){
-		SchemaUpdateOptions executeOptions = new SchemaUpdateOptions(multiProperties, ParallelSchemaUpdate.EXECUTE_PREFIX, false);
 		System.out.println("========================================== Creating the database " +databaseName
 				+" ============================");
 		String sql = "Create database "+ databaseName +" ;";
-		if(!executeOptions.getCreateDatabases()){
+		if(!schemaUpdateExecuteOptions.getCreateDatabases()){
 			System.out.println("Please execute: "+sql);
-		}else{
+		}else {
 			try{
-				System.out.println(sql);
+				System.out.println(" Executing "+sql);
 				Statement statement = connection.createStatement();
 				statement.execute(sql);
 			}catch(SQLException e){
@@ -125,7 +138,7 @@ implements ClientFactory{
 			}
 		}
 	}
-
+	
 	public String getClientName(){
 		return clientName;
 	}
@@ -134,8 +147,8 @@ implements ClientFactory{
 		return multiProperties;
 	}
 
-	public DatarouterContext getDrContext(){
-		return drContext;
+	public Datarouter getDatarouter(){
+		return datarouter;
 	}
 
 	public JdbcConnectionPool getConnectionPool(){

@@ -17,6 +17,6 @@ public class HBaseSortedNodeIntegrationTests extends BaseSortedNodeIntegrationTe
 	@AfterClass
 	public void afterClass(){
 		testSortedDelete();
-		drContext.shutdown();
+		datarouter.shutdown();
 	}
 }

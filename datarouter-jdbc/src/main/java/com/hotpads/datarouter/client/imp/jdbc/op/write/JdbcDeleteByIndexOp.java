@@ -25,7 +25,7 @@ public class JdbcDeleteByIndexOp<PK extends PrimaryKey<PK>, D extends Databean<P
 
 	public JdbcDeleteByIndexOp(PhysicalNode<PK,D> node, JdbcFieldCodecFactory fieldCodecFactory,
 			Collection<IK> entryKeys, Config config){
-		super(node.getDatarouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION,
+		super(node.getDatarouter(), node.getClientNames(), Config.DEFAULT_ISOLATION,
 				shouldAutoCommit(entryKeys));
 		this.node = node;
 		this.fieldCodecFactory = fieldCodecFactory;

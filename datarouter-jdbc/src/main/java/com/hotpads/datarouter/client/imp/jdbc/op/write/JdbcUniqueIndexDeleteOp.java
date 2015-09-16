@@ -22,7 +22,7 @@ public class JdbcUniqueIndexDeleteOp<PK extends PrimaryKey<PK>, D extends Databe
 	
 	public JdbcUniqueIndexDeleteOp(PhysicalNode<PK,D> node, JdbcFieldCodecFactory fieldCodecFactory,
 			Collection<? extends UniqueKey<PK>> uniqueKeys, Config config){
-		super(node.getDatarouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, shouldAutoCommit(
+		super(node.getDatarouter(), node.getClientNames(), Config.DEFAULT_ISOLATION, shouldAutoCommit(
 				uniqueKeys));
 		this.node = node;
 		this.fieldCodecFactory = fieldCodecFactory;

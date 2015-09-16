@@ -29,7 +29,7 @@ extends BaseJdbcOp<List<D>>{
 	
 	public JdbcLookupUniqueOp(JdbcReaderNode<PK,D,F> node, JdbcFieldCodecFactory fieldCodecFactory,
 			Collection<? extends UniqueKey<PK>> uniqueKeys, Config config){
-		super(node.getDatarouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
+		super(node.getDatarouter(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
 		this.node = node;
 		this.fieldCodecFactory = fieldCodecFactory;
 		this.uniqueKeys = uniqueKeys;

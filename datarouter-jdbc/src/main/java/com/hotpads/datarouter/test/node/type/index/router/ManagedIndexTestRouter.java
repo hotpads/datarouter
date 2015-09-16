@@ -9,7 +9,7 @@ import javax.inject.Singleton;
 import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.routing.BaseRouter;
-import com.hotpads.datarouter.routing.DatarouterContext;
+import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.test.DrTestConstants;
 import com.hotpads.datarouter.test.node.type.index.node.TestDatabeanWithManagedIndexNode;
 import com.hotpads.datarouter.test.node.type.index.node.TestDatabeanWithTxnManagedIndexNode;
@@ -23,7 +23,7 @@ public class ManagedIndexTestRouter extends BaseRouter{
 	public final TestDatabeanWithTxnManagedIndexNode testDatabeanWithTxnManagedIndex;
 
 	@Inject
-	public ManagedIndexTestRouter(DatarouterContext context, NodeFactory nodeFactory){
+	public ManagedIndexTestRouter(Datarouter context, NodeFactory nodeFactory){
 		super(context, DrTestConstants.CONFIG_PATH, NAME);
 		testDatabeanWithManagedIndex = new TestDatabeanWithManagedIndexNode(nodeFactory, this);
 		testDatabeanWithTxnManagedIndex = new TestDatabeanWithTxnManagedIndexNode(nodeFactory, this);

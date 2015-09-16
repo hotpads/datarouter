@@ -47,7 +47,7 @@ extends HBaseTask<Void>{
 	
 	public HBaseSubEntityIncrementOp(HBaseSubEntityNode<EK, E, PK, D, F> node, Map<PK,Map<String,Long>> 
 		countByColumnByKey, Config config, HBaseSubEntityQueryBuilder<EK, E, PK, D, F> queryBuilder){
-		super(node.getDatarouterContext(), new ClientTableNodeNames(node.getClientId().getName(), node.getTableName(),
+		super(node.getDatarouter(), new ClientTableNodeNames(node.getClientId().getName(), node.getTableName(),
 				node.getName()), "HBaseTask." + OP_increment, config);
 		this.node = node;
 		this.countByColumnByKey = countByColumnByKey;

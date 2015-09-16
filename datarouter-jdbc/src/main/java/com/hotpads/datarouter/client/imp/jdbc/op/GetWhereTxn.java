@@ -32,7 +32,7 @@ extends BaseJdbcOp<List<D>>{
 	
 	public GetWhereTxn(N node, JdbcFieldCodecFactory fieldCodecFactory, String tableName, PK startAfterKey,
 			String whereClauseFromUser, Config config){
-		super(node.getDatarouterContext(), node.getClientNames());
+		super(node.getDatarouter(), node.getClientNames());
 		this.node = node;
 		this.fieldCodecFactory = fieldCodecFactory;
 		this.tableName = tableName;

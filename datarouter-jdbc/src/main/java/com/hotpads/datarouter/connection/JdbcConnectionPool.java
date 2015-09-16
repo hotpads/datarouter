@@ -5,37 +5,30 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Joiner;
 import com.hotpads.datarouter.client.imp.jdbc.factory.JdbcOptions;
-import com.hotpads.datarouter.util.ApplicationPaths;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 import com.mchange.v2.c3p0.DataSources;
 
 public class JdbcConnectionPool{
 	private static final Logger logger = LoggerFactory.getLogger(JdbcConnectionPool.class);
-
-	public static final String 	POOL_DEFAULT = "default";
-
-	private final ApplicationPaths applicationPaths;
+	
 	private String name;
 	private ComboPooledDataSource pool;
 	private final JdbcOptions defaultOptions;
-	protected JdbcOptions options;
+	private final JdbcOptions options;
 	private boolean writable = false;
 	private String schemaName;
 
 
-	public JdbcConnectionPool(ApplicationPaths applicationPaths, String name, Iterable<Properties> multiProperties,
-			Boolean writable){
-		this.applicationPaths = applicationPaths;
-		this.defaultOptions = new JdbcOptions(multiProperties, POOL_DEFAULT);
-		this.options = new JdbcOptions(multiProperties, name);
+	public JdbcConnectionPool(String name, Boolean writable, JdbcOptions defaultOptions, JdbcOptions clientOptions){
+		this.defaultOptions = defaultOptions;
+		this.options = clientOptions;
 		this.writable = writable;
 		createFromScratch(name);
 	}

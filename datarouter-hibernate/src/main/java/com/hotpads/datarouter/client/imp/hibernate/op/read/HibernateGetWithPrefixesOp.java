@@ -33,7 +33,7 @@ extends BaseHibernateOp<List<D>>{
 	
 	public HibernateGetWithPrefixesOp(HibernateReaderNode<PK,D,F> node, Collection<PK> prefixes, 
 			boolean wildcardLastField, Config config) {
-		super(node.getDatarouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
+		super(node.getDatarouter(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
 		this.node = node;
 		this.prefixes = prefixes;
 		this.wildcardLastField = wildcardLastField;

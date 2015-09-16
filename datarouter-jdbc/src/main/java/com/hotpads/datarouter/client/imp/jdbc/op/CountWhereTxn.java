@@ -7,7 +7,7 @@ import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.imp.jdbc.op.BaseJdbcOp;
 import com.hotpads.datarouter.client.imp.jdbc.util.JdbcTool;
 import com.hotpads.datarouter.op.util.ResultMergeTool;
-import com.hotpads.datarouter.routing.DatarouterContext;
+import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.util.core.DrStringTool;
 
 public class CountWhereTxn 
@@ -16,8 +16,8 @@ extends BaseJdbcOp<Long>{
 	private String tableName;
 	private String where;
 	
-	public CountWhereTxn(DatarouterContext drContext, List<String> clientNames, String tableName, String where){
-		super(drContext, clientNames);
+	public CountWhereTxn(Datarouter datarouter, List<String> clientNames, String tableName, String where){
+		super(datarouter, clientNames);
 		this.tableName = tableName;
 		this.where = where;
 	}

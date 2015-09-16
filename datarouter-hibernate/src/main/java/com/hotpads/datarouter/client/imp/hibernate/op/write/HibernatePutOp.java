@@ -27,7 +27,7 @@ extends BaseHibernateOp<Void>{
 	private final Config config;
 	
 	public HibernatePutOp(HibernateNode<PK,D,F> node, Collection<D> databeans, Config config) {
-		super(node.getDatarouterContext(), node.getClientNames(), getIsolation(config), 
+		super(node.getDatarouter(), node.getClientNames(), getIsolation(config), 
 				shouldAutoCommit(databeans, config));
 		this.node = node;
 		this.databeans = databeans;
