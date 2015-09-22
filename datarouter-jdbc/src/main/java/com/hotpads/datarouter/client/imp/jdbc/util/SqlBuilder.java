@@ -191,15 +191,8 @@ public class SqlBuilder{
 	}
 
 	public static boolean needsRangeWhereClause(FieldSet<?> start, FieldSet<?> end){
-		if(start == null && end == null){
-			return false;
-		}
-		int numNonNullStartFields = FieldTool.countNonNullLeadingFields(start.getFields());
-		int numNonNullEndFields = FieldTool.countNonNullLeadingFields(end.getFields());
-		if(numNonNullStartFields > 0 || numNonNullEndFields > 0){
-			return true;
-		}
-		return false;
+		return start != null && FieldTool.countNonNullLeadingFields(start.getFields()) > 0
+				|| end != null && FieldTool.countNonNullLeadingFields(end.getFields()) > 0;
 	}
 
 	public static void addRangeWhereClause(JdbcFieldCodecFactory codecFactory, StringBuilder sql,
