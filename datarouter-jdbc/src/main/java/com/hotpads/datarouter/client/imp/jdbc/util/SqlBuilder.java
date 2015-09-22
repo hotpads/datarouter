@@ -2,6 +2,7 @@ package com.hotpads.datarouter.client.imp.jdbc.util;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import com.hotpads.datarouter.client.imp.jdbc.field.JdbcFieldCodec;
@@ -191,15 +192,17 @@ public class SqlBuilder{
 	}
 
 	public static boolean needsRangeWhereClause(FieldSet<?> start, FieldSet<?> end){
-		if(start == null && end == null){
-			return false;
+		List<Field<?>> startFields = Collections.emptyList();
+		if(start != null){
+			startFields = start.getFields();
 		}
-		int numNonNullStartFields = FieldTool.countNonNullLeadingFields(start.getFields());
-		int numNonNullEndFields = FieldTool.countNonNullLeadingFields(end.getFields());
-		if(numNonNullStartFields > 0 || numNonNullEndFields > 0){
-			return true;
+		List<Field<?>> endFields = Collections.emptyList();
+		if(end != null){
+			endFields = end.getFields();
 		}
-		return false;
+		int numNonNullStartFields = FieldTool.countNonNullLeadingFields(startFields);
+		int numNonNullEndFields = FieldTool.countNonNullLeadingFields(endFields);
+		return numNonNullStartFields > 0 || numNonNullEndFields > 0;
 	}
 
 	public static void addRangeWhereClause(JdbcFieldCodecFactory codecFactory, StringBuilder sql,
