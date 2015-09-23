@@ -13,14 +13,14 @@ import com.hotpads.datarouter.storage.view.index.IndexEntry;
 import com.hotpads.util.core.collections.Range;
 
 public class JdbcManagedIndexScanner<
-		PK extends PrimaryKey<PK>, 
+		PK extends PrimaryKey<PK>,
 		D extends Databean<PK, D>,
 		F extends DatabeanFielder<PK,D>,
 		IK extends PrimaryKey<IK>,
 		IE extends IndexEntry<IK, IE, PK, D>,
 		IF extends DatabeanFielder<IK, IE>>
 extends BaseManagedIndexScanner<PK,D,IK,IE>{
-	
+
 	private final DatabeanFieldInfo<IK,IE,IF> indexEntryFieldInfo;
 	private final JdbcReaderOps<PK, D, F> jdbcReaderOps;
 
@@ -32,7 +32,7 @@ extends BaseManagedIndexScanner<PK,D,IK,IE>{
 	}
 
 	@Override
-	protected List<IE> doLoad(Range<IK> batchRange){
+	protected List<IE> doLoad(Range<IK> batchRange, Config config){
 		return jdbcReaderOps.getIndexRange(batchRange, config, indexEntryFieldInfo);
 	}
 
