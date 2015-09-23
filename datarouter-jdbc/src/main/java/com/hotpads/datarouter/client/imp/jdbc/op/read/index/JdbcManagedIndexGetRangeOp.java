@@ -29,7 +29,7 @@ extends BaseJdbcOp<List<IE>>{
 	private final JdbcFieldCodecFactory fieldCodecFactory;
 	private final Config config;
 	private final DatabeanFieldInfo<IK, IE, IF> fieldInfo;
-
+	
 	public JdbcManagedIndexGetRangeOp(PhysicalNode<PK,D> node, JdbcFieldCodecFactory fieldCodecFactory,
 			DatabeanFieldInfo<IK, IE, IF> fieldInfo, Range<IK> range, Config config){
 		super(node.getDatarouter(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
@@ -39,13 +39,12 @@ extends BaseJdbcOp<List<IE>>{
 		this.config = config;
 		this.fieldInfo = fieldInfo;
 	}
-
+	
 	@Override
 	public List<IE> runOnce(){
 		String sql = SqlBuilder.getInRange(fieldCodecFactory, config, node.getTableName(), fieldInfo.getFields(), range
 				.getStart(), range.getStartInclusive(), range.getEnd(), range.getEndInclusive(), fieldInfo
 				.getPrimaryKeyFields());
-		System.err.println(sql);
 		Connection connection = getConnection(node.getClientId().getName());
 		List<IE> result = JdbcTool.selectDatabeans(fieldCodecFactory, connection, fieldInfo, sql);
 		return result;
