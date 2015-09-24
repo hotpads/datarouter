@@ -17,7 +17,7 @@ import com.hotpads.datarouter.storage.view.index.IndexEntry;
 import com.hotpads.util.core.collections.Range;
 
 public class HibernateManagedIndexScanner<
-		PK extends PrimaryKey<PK>, 
+		PK extends PrimaryKey<PK>,
 		D extends Databean<PK, D>,
 		F extends DatabeanFielder<PK,D>,
 		IK extends PrimaryKey<IK>,
@@ -28,7 +28,7 @@ extends BaseManagedIndexScanner<PK,D,IK,IE>{
 	private final DatabeanFieldInfo<IK,IE,IF> indexEntryFieldInfo;
 	private final JdbcFieldCodecFactory fieldCodecFactory;
 	private final HibernateReaderNode<PK,D,F> node;
-	
+
 	public HibernateManagedIndexScanner(Range<IK> range, Config config, JdbcFieldCodecFactory fieldCodecFactory,
 			DatabeanFieldInfo<IK,IE,IF> indexEntryFieldInfo, HibernateReaderNode<PK,D,F> node){
 		super(range, config);
@@ -38,8 +38,8 @@ extends BaseManagedIndexScanner<PK,D,IK,IE>{
 	}
 
 	@Override
-	protected List<IE> doLoad(Range<IK> batchRange){
-		JdbcManagedIndexGetRangeOp<PK,D,IK,IE,IF> op = new JdbcManagedIndexGetRangeOp<>(node, fieldCodecFactory, 
+	protected List<IE> doLoad(Range<IK> batchRange, Config config){
+		JdbcManagedIndexGetRangeOp<PK,D,IK,IE,IF> op = new JdbcManagedIndexGetRangeOp<>(node, fieldCodecFactory,
 				indexEntryFieldInfo, batchRange, config);
 		return new SessionExecutorImpl<>(op, IndexedStorageReader.OP_getIndexRange).call();
 	}
