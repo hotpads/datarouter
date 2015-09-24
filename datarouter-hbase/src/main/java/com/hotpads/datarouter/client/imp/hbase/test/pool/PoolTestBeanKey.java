@@ -1,9 +1,9 @@
 package com.hotpads.datarouter.client.imp.hbase.test.pool;
 
+import java.util.Arrays;
 import java.util.List;
 
 import com.hotpads.datarouter.storage.field.Field;
-import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt63Field;
 import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
 
@@ -22,7 +22,7 @@ public class PoolTestBeanKey extends BasePrimaryKey<PoolTestBeanKey>{
 
 	@Override
 	public List<Field<?>> getFields(){
-		return FieldTool.createList(
+		return Arrays.asList(
 				new UInt63Field(F.id, id));
 	}
 
