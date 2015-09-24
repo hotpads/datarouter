@@ -1,7 +1,5 @@
 package com.hotpads.websocket.session;
 
-import java.util.List;
-
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
@@ -10,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
+import com.hotpads.util.core.collections.KeyRangeTool;
 import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.http.client.HotPadsHttpClient;
 import com.hotpads.util.http.request.HotPadsHttpRequest;
@@ -55,10 +54,9 @@ public class PushService{
 		}
 	}
 
-	public int getNumberOfSession(String userToken){
+	public long getNumberOfSession(String userToken){
 		WebSocketSessionKey prefix = new WebSocketSessionKey(userToken);
-		List<WebSocketSession> activeSessions = webSocketSessionNode.getWithPrefix(prefix, false, null);
-		return activeSessions.size();
+		return webSocketSessionNode.streamKeys(KeyRangeTool.forPrefix(prefix), null).count();
 	}
 
 	//TODO Optimization: don't do the http call if the socket is open on the current server

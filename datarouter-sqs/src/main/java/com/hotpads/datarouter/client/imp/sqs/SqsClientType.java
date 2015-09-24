@@ -26,10 +26,10 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 public class SqsClientType extends BaseClientType implements QueueClientType{
 
 	private static final String NAME = "sqs";
-	
+
 	@Inject
 	private SqsNodeFactory sqsNodeFactory;
-	
+
 	@Override
 	public String getName(){
 		return NAME;
@@ -42,7 +42,7 @@ public class SqsClientType extends BaseClientType implements QueueClientType{
 	PhysicalNode<PK, D> createNode(NodeParams<PK, D, F> nodeParams){
 		return createSingleQueueNode(nodeParams);
 	}
-	
+
 	@Override
 	public ClientFactory createClientFactory(Datarouter datarouter, String clientName,
 			List<PhysicalNode<?, ?>> physicalNodes){
@@ -67,7 +67,8 @@ public class SqsClientType extends BaseClientType implements QueueClientType{
 	Node<PK, D> createAdapter(NodeParams<PK, D, F> nodeParams, Node<PK, D> backingNode){
 		return backingNode;
 	}
-	
+
+	@Override
 	public <PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>
@@ -75,7 +76,8 @@ public class SqsClientType extends BaseClientType implements QueueClientType{
 		SqsNode<PK,D,F> node = sqsNodeFactory.createSingleNode(nodeParams);
 		return new PhysicalQueueStorageCounterAdapater<>(node);
 	}
-	
+
+	@Override
 	public <PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>
