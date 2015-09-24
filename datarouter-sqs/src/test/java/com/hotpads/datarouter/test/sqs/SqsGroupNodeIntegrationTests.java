@@ -24,23 +24,23 @@ import com.hotpads.datarouter.util.core.DrCollectionTool;
 @Guice(moduleFactory = DatarouterSqsTestModuleFactory.class)
 @Test(singleThreaded=true)
 public class SqsGroupNodeIntegrationTests{
-	
+
 	private static final int DATABEAN_COUNT = 15;
-	
+
 	private final SqsTestRouter router;
 	private final SqsTestHelper sqsTestHelper;
-	
+
 	@Inject
 	public SqsGroupNodeIntegrationTests(SqsTestRouter router){
 		this.router = router;
 		this.sqsTestHelper = new SqsTestHelper(router.groupTestDatabean);
 	}
-	
+
 	@BeforeMethod
 	public void setUp(){
 		cleanUp();
 	}
-	
+
 	private void cleanUp(){
 		Config config = new Config().setTimeout(4, TimeUnit.SECONDS);
 		for(GroupQueueMessage<TestDatabeanKey, TestDatabean> message : router.groupTestDatabean.peekUntilEmpty(config)){
@@ -48,7 +48,7 @@ public class SqsGroupNodeIntegrationTests{
 			System.out.println("removed " + message.getDatabeans());
 		}
 	}
-	
+
 	@Test
 	public void testPutMultiAndPollMulti(){
 		List<TestDatabean> databeans = new ArrayList<>(DATABEAN_COUNT);
@@ -62,7 +62,7 @@ public class SqsGroupNodeIntegrationTests{
 		retrievedDatabeans.addAll(router.groupTestDatabean.pollMulti(config));
 		Assert.assertEquals(retrievedDatabeans.size(), DATABEAN_COUNT);
 	}
-	
+
 	@Test
 	public void testPutAndPeek(){
 		TestDatabean databean = new TestDatabean(makeRandomString(), makeRandomString(), makeRandomString());
@@ -73,30 +73,30 @@ public class SqsGroupNodeIntegrationTests{
 		Assert.assertEquals(databean, DrCollectionTool.getFirst(message.getDatabeans()));
 		Assert.assertNull(router.groupTestDatabean.peek(null));
 	}
-	
+
 	@Test
 	public void testByteLimitMulti(){
 		sqsTestHelper.testByteLimitMulti();
 	}
-	
+
 	@Test
 	public void testPeekTimeout(){
 		Assert.assertNull(router.groupTestDatabean.peek(null));
 		Config config = new Config().setTimeout(BaseSqsNode.MAX_TIMEOUT_SECONDS + 1, TimeUnit.SECONDS);
 		Assert.assertNull(router.groupTestDatabean.peek(config));
 	}
-	
+
 	@Test
 	public void testInterruptPeek(){
 		SqsTestHelper.testInterruptPeek(new Callable<Void>(){
 
 			@Override
-			public Void call() throws Exception{
+			public Void call(){
 				Config config = new Config().setTimeoutMs(5000L);
 				Assert.assertNull(router.groupTestDatabean.peek(config));
 				return null;
 			}
-			
+
 		});
 	}
 
