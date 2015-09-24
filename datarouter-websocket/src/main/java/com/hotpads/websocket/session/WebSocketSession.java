@@ -1,5 +1,6 @@
 package com.hotpads.websocket.session;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -7,7 +8,6 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
-import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.custom.LongDateField;
 
@@ -48,7 +48,7 @@ public class WebSocketSession extends BaseDatabean<WebSocketSessionKey,WebSocket
 
 		@Override
 		public List<Field<?>> getNonKeyFields(WebSocketSession webSocketSession){
-			return FieldTool.createList(
+			return Arrays.asList(
 				new LongDateField(F.openingDate, webSocketSession.openingDate),
 				new StringField(F.serverName, webSocketSession.serverName, MySqlColumnType.MAX_LENGTH_VARCHAR));
 		}
