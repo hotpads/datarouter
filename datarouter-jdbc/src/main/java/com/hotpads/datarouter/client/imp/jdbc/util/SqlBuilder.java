@@ -198,12 +198,14 @@ public class SqlBuilder{
 	public static void addRangeWhereClause(JdbcFieldCodecFactory codecFactory, StringBuilder sql,
 			FieldSet<?> start, boolean startInclusive,
 			FieldSet<?> end, boolean endInclusive){
+		boolean hasStart = false;
 
 		if(start != null && DrCollectionTool.notEmpty(start.getFields())){
 			List<Field<?>> startFields = DrListTool.createArrayList(start.getFields());
-			List<JdbcFieldCodec<?,?>> startCodecs = codecFactory.createCodecs(startFields);
 			int numNonNullStartFields = FieldTool.countNonNullLeadingFields(startFields);
 			if(numNonNullStartFields > 0){
+				hasStart = true;
+				List<JdbcFieldCodec<?,?>> startCodecs = codecFactory.createCodecs(startFields);
 				sql.append("(");
 				for(int i=numNonNullStartFields; i > 0; --i){
 					if(i<numNonNullStartFields){
@@ -232,17 +234,16 @@ public class SqlBuilder{
 			}
 		}
 
-		if(start!=null && end!=null){
-			sql.append(" and ");
-		}
-
 //		select a, b, c, d from SortedBean where ((a>='alp')) and (a<='emu' and b is null and c is null and d is null
 
 		if(end != null && DrCollectionTool.notEmpty(end.getFields())){
 			List<Field<?>> endFields = DrListTool.createArrayList(end.getFields());
-			List<JdbcFieldCodec<?,?>> endCodecs = codecFactory.createCodecs(endFields);
 			int numNonNullEndFields = FieldTool.countNonNullLeadingFields(endFields);
 			if(numNonNullEndFields > 0){
+				List<JdbcFieldCodec<?,?>> endCodecs = codecFactory.createCodecs(endFields);
+				if(hasStart){
+					sql.append(" and ");
+				}
 				sql.append("(");
 				for(int i=0; i < numNonNullEndFields; ++i){
 					if(i>0){
