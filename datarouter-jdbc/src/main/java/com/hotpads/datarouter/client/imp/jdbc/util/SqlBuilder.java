@@ -7,7 +7,6 @@ import java.util.List;
 import com.hotpads.datarouter.client.imp.jdbc.field.JdbcFieldCodec;
 import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.config.Config;
-import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.BasePrimitiveField;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldSet;
@@ -23,11 +22,12 @@ public class SqlBuilder{
 
 	/*************************** primary methods ***************************************/
 
-	public static String getCount(JdbcFieldCodecFactory codecFactory, Config config, String tableName,
-			List<Field<?>> fields, Collection<? extends FieldSet<?>> keys){
+	public static String getCount(JdbcFieldCodecFactory codecFactory, String tableName,
+			Collection<? extends FieldSet<?>> keys){
+		checkTableName(tableName);
 		StringBuilder sql = new StringBuilder();
 		sql.append("select count(*) from " + tableName);
-		if (fields.size() > 0) {
+		if (keys.size() > 0) {
 			sql.append(" where ");
 			appendWhereClauseDisjunction(codecFactory, sql, keys);
 		}
@@ -36,6 +36,7 @@ public class SqlBuilder{
 
 	public static String getAll(Config config, String tableName, List<Field<?>> selectFields,
 			String where, List<Field<?>> orderByFields){
+		checkTableName(tableName);
 		StringBuilder sql = new StringBuilder();
 		addSelectFromClause(sql, tableName, selectFields);
 		addWhereClauseWithWhere(sql, where);
@@ -45,6 +46,7 @@ public class SqlBuilder{
 	}
 
 	public static String deleteAll(Config config, String tableName){
+		checkTableName(tableName);
 		StringBuilder sql = new StringBuilder();
 		addDeleteFromClause(sql, tableName);
 		addLimitOffsetClause(sql, config);
@@ -53,26 +55,24 @@ public class SqlBuilder{
 
 	public static String getMulti(JdbcFieldCodecFactory codecFactory, Config config, String tableName,
 			List<Field<?>> selectFields, Collection<? extends FieldSet<?>> keys){
-		if(DrCollectionTool.isEmpty(keys)){//getAll() passes null in for keys
-			throw new IllegalArgumentException("no keys provided... use getAll if you want the whole table.");
-		}
 		StringBuilder sql = new StringBuilder();
 		addSelectFromClause(sql, tableName, selectFields);
-		sql.append(" where ");
-		appendWhereClauseDisjunction(codecFactory, sql, keys);
+		if(DrCollectionTool.notEmpty(keys)){
+			sql.append(" where ");
+			appendWhereClauseDisjunction(codecFactory, sql, keys);
+		}
 		addLimitOffsetClause(sql, config);
 		return sql.toString();
 	}
 
 	public static String deleteMulti(JdbcFieldCodecFactory codecFactory, Config config, String tableName,
 			Collection<? extends FieldSet<?>> keys){
-		if(DrCollectionTool.isEmpty(keys)){//getAll() passes null in for keys
-			throw new IllegalArgumentException("no keys provided... use getAll if you want the whole table.");
-		}
 		StringBuilder sql = new StringBuilder();
 		addDeleteFromClause(sql, tableName);
-		sql.append(" where ");
-		appendWhereClauseDisjunction(codecFactory, sql, keys);
+		if(DrCollectionTool.notEmpty(keys)){
+			sql.append(" where ");
+			appendWhereClauseDisjunction(codecFactory, sql, keys);
+		}
 		addLimitOffsetClause(sql, config);
 		return sql.toString();
 	}
@@ -82,8 +82,7 @@ public class SqlBuilder{
 			List<Field<?>> orderByFields){
 		StringBuilder sql = new StringBuilder();
 		addSelectFromClause(sql, tableName, selectFields);
-		sql.append(" where ");
-		addPrefixWhereClauseDisjunction(codecFactory, sql, keys, wildcardLastField);
+		addFullPrefixWhereClauseDisjunction(codecFactory, sql, keys, wildcardLastField);
 		addOrderByClause(sql, orderByFields);
 		addLimitOffsetClause(sql, config);
 		return sql.toString();
@@ -93,8 +92,7 @@ public class SqlBuilder{
 			Collection<? extends FieldSet<?>> keys, boolean wildcardLastField){
 		StringBuilder sql = new StringBuilder();
 		addDeleteFromClause(sql, tableName);
-		sql.append(" where ");
-		addPrefixWhereClauseDisjunction(codecFactory, sql, keys, wildcardLastField);
+		addFullPrefixWhereClauseDisjunction(codecFactory, sql, keys, wildcardLastField);
 		addLimitOffsetClause(sql, config);
 		return sql.toString();
 	}
@@ -124,39 +122,52 @@ public class SqlBuilder{
 
 	public static void addSelectFromClause(StringBuilder sql, String tableName, List<Field<?>> selectFields){
 		sql.append("select ");
-		FieldTool.appendCsvColumnNames(sql, selectFields);
+		if(DrCollectionTool.isEmpty(selectFields)){
+			sql.append("*");
+		}else{
+			FieldTool.appendCsvColumnNames(sql, selectFields);
+		}
 		sql.append(" from "+tableName);
 	}
 
-	public static void addDeleteFromClause(StringBuilder sql, String tableName){
+	private static void addDeleteFromClause(StringBuilder sql, String tableName){
 		sql.append("delete from "+tableName);
 	}
 
-	public static void addWhereClauseWithWhere(StringBuilder sql, String where){
+	private static void addWhereClauseWithWhere(StringBuilder sql, String where){
 		if(DrStringTool.notEmpty(where)){
 			sql.append(" where "+where);
 		}
 	}
 
-	public static void addPrefixWhereClauseDisjunction(JdbcFieldCodecFactory codecFactory, StringBuilder sql,
+	private static void addFullPrefixWhereClauseDisjunction(JdbcFieldCodecFactory codecFactory, StringBuilder sql,
+			Collection<? extends FieldSet<?>> keys, boolean wildcardLastField){
+		if(DrCollectionTool.isEmpty(keys)){
+			return;
+		}
+		StringBuilder prefixWhereClauseDisjunction = getPrefixWhereClauseDisjunction(codecFactory, keys,
+				wildcardLastField);
+		if(prefixWhereClauseDisjunction.length() > 0){
+			sql.append(" where ");
+			sql.append(prefixWhereClauseDisjunction);
+		}
+	}
+
+	private static StringBuilder getPrefixWhereClauseDisjunction(JdbcFieldCodecFactory codecFactory,
 			Collection<? extends FieldSet<?>> keys, boolean wildcardLastField){
 		int counter = 0;
-		if(keys.size()>1){
-			sql.append("(");
-		}
-		for(FieldSet<?> key : DrIterableTool.nullSafe(keys)){
+		StringBuilder sql = new StringBuilder();
+		for(FieldSet<?> key : keys){
 			if(counter>0){
-				sql.append(") or (");
+				sql.append(" or ");
 			}
 			addPrefixWhereClause(codecFactory, sql, key, wildcardLastField);
 			++counter;
 		}
-		if(counter>1){
-			sql.append(")");
-		}
+		return sql;
 	}
 
-	public static void addPrefixWhereClause(JdbcFieldCodecFactory codecFactory, StringBuilder sql, FieldSet<?> prefix,
+	private static void addPrefixWhereClause(JdbcFieldCodecFactory codecFactory, StringBuilder sql, FieldSet<?> prefix,
 			boolean wildcardLastField){
 		int numNonNullFields = FieldSetTool.getNumNonNullLeadingFields(prefix);
 		if(numNonNullFields==0){
@@ -168,10 +179,6 @@ public class SqlBuilder{
 			Field<?> field = codec.getField();
 			if(numFullFieldsFinished >= numNonNullFields) {
 				break;
-			}
-			if(field.getValue()==null) {
-				throw new DataAccessException("Prefix query on " + prefix.getClass()
-						+ " cannot contain intermediate nulls.");
 			}
 			if(numFullFieldsFinished > 0){
 				sql.append(" and ");
@@ -190,7 +197,7 @@ public class SqlBuilder{
 		}
 	}
 
-	public static boolean needsRangeWhereClause(FieldSet<?> start, FieldSet<?> end){
+	private static boolean needsRangeWhereClause(FieldSet<?> start, FieldSet<?> end){
 		return start != null && FieldTool.countNonNullLeadingFields(start.getFields()) > 0
 				|| end != null && FieldTool.countNonNullLeadingFields(end.getFields()) > 0;
 	}
@@ -200,8 +207,8 @@ public class SqlBuilder{
 			FieldSet<?> end, boolean endInclusive){
 		boolean hasStart = false;
 
-		if(start != null && DrCollectionTool.notEmpty(start.getFields())){
-			List<Field<?>> startFields = DrListTool.createArrayList(start.getFields());
+		if(start != null){
+			List<Field<?>> startFields = DrListTool.nullSafe(start.getFields());
 			int numNonNullStartFields = FieldTool.countNonNullLeadingFields(startFields);
 			if(numNonNullStartFields > 0){
 				hasStart = true;
@@ -236,8 +243,8 @@ public class SqlBuilder{
 
 //		select a, b, c, d from SortedBean where ((a>='alp')) and (a<='emu' and b is null and c is null and d is null
 
-		if(end != null && DrCollectionTool.notEmpty(end.getFields())){
-			List<Field<?>> endFields = DrListTool.createArrayList(end.getFields());
+		if(end != null){
+			List<Field<?>> endFields = DrListTool.nullSafe(end.getFields());
 			int numNonNullEndFields = FieldTool.countNonNullLeadingFields(endFields);
 			if(numNonNullEndFields > 0){
 				List<JdbcFieldCodec<?,?>> endCodecs = codecFactory.createCodecs(endFields);
@@ -303,14 +310,6 @@ public class SqlBuilder{
 
 	/************** methods originaly in FieldTool ***********************/
 
-	public static List<String> getSqlValuesEscaped(JdbcFieldCodecFactory codecFactory, List<Field<?>> fields){
-		List<String> sql = new ArrayList<>();
-		for(JdbcFieldCodec<?,?> codec : codecFactory.createCodecs(fields)){
-			sql.add(codec.getSqlEscaped());
-		}
-		return sql;
-	}
-
 	public static List<String> getSqlNameValuePairsEscaped(JdbcFieldCodecFactory codecFactory,
 			Collection<Field<?>> fields){
 		List<String> sql = new ArrayList<>();
@@ -323,9 +322,6 @@ public class SqlBuilder{
 	public static String getSqlNameValuePairsEscapedConjunction(JdbcFieldCodecFactory codecFactory,
 			Collection<Field<?>> fields){
 		List<String> nameValuePairs = getSqlNameValuePairsEscaped(codecFactory, fields);
-		if(DrCollectionTool.sizeNullSafe(nameValuePairs) < 1){
-			return null;
-		}
 		StringBuilder sb = new StringBuilder();
 		int numAppended = 0;
 		for(String nameValuePair : nameValuePairs){
@@ -354,17 +350,23 @@ public class SqlBuilder{
 
 	public static void appendWhereClauseDisjunction(JdbcFieldCodecFactory codecFactory, StringBuilder sql,
 			Collection<? extends FieldSet<?>> fieldSets){
-		if(DrCollectionTool.isEmpty(fieldSets)){
-			return;
-		}
 		int counter = 0;
 		for(FieldSet<?> fieldSet : DrIterableTool.nullSafe(fieldSets)){
 			if(counter > 0){
 				sql.append(" or ");
 			}
 			//heavy on parenthesis.  optimize later
-			sql.append("("+getSqlNameValuePairsEscapedConjunction(codecFactory, fieldSet.getFields())+")");
+			sql.append(getSqlNameValuePairsEscapedConjunction(codecFactory, fieldSet.getFields()));
 			++counter;
 		}
 	}
+
+	//Preconditions
+
+	public static void checkTableName(String tableName){
+		if(DrStringTool.isEmpty(tableName)){
+			throw new IllegalArgumentException("Please provide a table name");
+		}
+	}
+
 }
