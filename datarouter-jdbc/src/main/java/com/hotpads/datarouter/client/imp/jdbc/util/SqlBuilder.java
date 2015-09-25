@@ -36,7 +36,6 @@ public class SqlBuilder{
 
 	public static String getAll(Config config, String tableName, List<Field<?>> selectFields,
 			String where, List<Field<?>> orderByFields){
-		checkTableName(tableName);
 		StringBuilder sql = new StringBuilder();
 		addSelectFromClause(sql, tableName, selectFields);
 		addWhereClauseWithWhere(sql, where);
@@ -46,7 +45,6 @@ public class SqlBuilder{
 	}
 
 	public static String deleteAll(Config config, String tableName){
-		checkTableName(tableName);
 		StringBuilder sql = new StringBuilder();
 		addDeleteFromClause(sql, tableName);
 		addLimitOffsetClause(sql, config);
@@ -121,6 +119,7 @@ public class SqlBuilder{
 	/*************************** secondary methods ***************************************/
 
 	public static void addSelectFromClause(StringBuilder sql, String tableName, List<Field<?>> selectFields){
+		checkTableName(tableName);
 		sql.append("select ");
 		if(DrCollectionTool.isEmpty(selectFields)){
 			sql.append("*");
@@ -131,6 +130,7 @@ public class SqlBuilder{
 	}
 
 	private static void addDeleteFromClause(StringBuilder sql, String tableName){
+		checkTableName(tableName);
 		sql.append("delete from "+tableName);
 	}
 
