@@ -1,16 +1,11 @@
 package com.hotpads.datarouter.client.imp.hbase.test.pool;
 
+import java.util.Arrays;
 import java.util.List;
-
-import javax.persistence.Access;
-import javax.persistence.AccessType;
-import javax.persistence.Entity;
-import javax.persistence.Id;
 
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
-import com.hotpads.datarouter.storage.field.FieldTool;
 
 
 public class PoolTestBean extends BaseDatabean<PoolTestBeanKey,PoolTestBean>{
@@ -28,7 +23,7 @@ public class PoolTestBean extends BaseDatabean<PoolTestBeanKey,PoolTestBean>{
 		}
 		@Override
 		public List<Field<?>> getNonKeyFields(PoolTestBean d){
-			return FieldTool.createList();
+			return Arrays.asList();
 		}
 	}
 
