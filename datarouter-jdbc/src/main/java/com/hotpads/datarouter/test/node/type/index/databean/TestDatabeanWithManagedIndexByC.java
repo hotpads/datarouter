@@ -1,6 +1,5 @@
 package com.hotpads.datarouter.test.node.type.index.databean;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -9,6 +8,7 @@ import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.serialize.fielder.Fielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
+import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.view.index.multi.MultiIndexEntry;
 import com.hotpads.datarouter.test.TestDatabean;
@@ -31,7 +31,7 @@ public class TestDatabeanWithManagedIndexByC extends
 
 		@Override
 		public List<Field<?>> getNonKeyFields(TestDatabeanWithManagedIndexByC databean){
-			return Arrays.asList(new StringField("a", databean.a, MySqlColumnType.MAX_LENGTH_VARCHAR));
+			return FieldTool.createList(new StringField("a", databean.a, MySqlColumnType.MAX_LENGTH_VARCHAR));
 		}
 		
 	}
