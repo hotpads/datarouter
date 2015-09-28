@@ -49,13 +49,13 @@ public class SqlBuilderIntegrationTests{
 	public void testGetAll(){
 		String whereClause = "foo > 23";
 		Assert.assertEquals(SqlBuilder.getAll(config, "TestTable", KEY_1.getFields(), whereClause, KEY_1.getFields()),
-				"select foo,bar from TestTable where " + whereClause + " order by foo asc, bar asc limit 5, 10");
+				"select foo, bar from TestTable where " + whereClause + " order by foo asc, bar asc limit 5, 10");
 		Assert.assertEquals(SqlBuilder.getAll(config, "TestTable", KEY_1.getFields(), null, KEY_1.getFields()),
-				"select foo,bar from TestTable order by foo asc, bar asc limit 5, 10");
+				"select foo, bar from TestTable order by foo asc, bar asc limit 5, 10");
 		Assert.assertEquals(SqlBuilder.getAll(new Config().setLimit(10), "TestTable", KEY_1.getFields(), null,
-				KEY_1.getFields()), "select foo,bar from TestTable order by foo asc, bar asc limit 10");
+				KEY_1.getFields()), "select foo, bar from TestTable order by foo asc, bar asc limit 10");
 		Assert.assertEquals(SqlBuilder.getAll(new Config().setOffset(5), "TestTable", KEY_1.getFields(), null,
-				KEY_1.getFields()), "select foo,bar from TestTable order by foo asc, bar asc limit 5, "
+				KEY_1.getFields()), "select foo, bar from TestTable order by foo asc, bar asc limit 5, "
 						+ Integer.MAX_VALUE);
 	}
 
@@ -67,11 +67,11 @@ public class SqlBuilderIntegrationTests{
 	@Test
 	public void testGetMulti(){
 		Assert.assertEquals(SqlBuilder.getMulti(jdbcFieldCodecFactory, config, "TestTable", KEY_1.getFields(), ONE_KEY),
-				"select foo,bar from TestTable where foo=42 and bar='baz' limit 5, 10");
+				"select foo, bar from TestTable where foo=42 and bar='baz' limit 5, 10");
 		Assert.assertEquals(SqlBuilder.getMulti(jdbcFieldCodecFactory, config, "TestTable", KEY_1.getFields(), null),
-				"select foo,bar from TestTable limit 5, 10");
+				"select foo, bar from TestTable limit 5, 10");
 		Assert.assertEquals(SqlBuilder.getMulti(jdbcFieldCodecFactory, config, "TestTable", KEY_1.getFields(),
-				TWO_KEYS), "select foo,bar from TestTable where foo=42 and bar='baz' or foo=24 and bar='degemer' "
+				TWO_KEYS), "select foo, bar from TestTable where foo=42 and bar='baz' or foo=24 and bar='degemer' "
 						+ "limit 5, 10");
 	}
 
@@ -85,29 +85,30 @@ public class SqlBuilderIntegrationTests{
 
 	@Test
 	public void testGetWithPrefixes(){
-		Assert.assertEquals(SqlBuilder.getWithPrefixes(jdbcFieldCodecFactory, config, "TestTable", null, ONE_KEY, false,
-				KEY_1.getFields()), "select * from TestTable where foo=42 and bar='baz' order by foo asc, bar asc "
-						+ "limit 5, 10");
-		Assert.assertEquals(SqlBuilder.getWithPrefixes(jdbcFieldCodecFactory, config, "TestTable", null, TWO_KEYS,
-				false, KEY_1.getFields()), "select * from TestTable where foo=42 and bar='baz' or foo=24 and "
-						+ "bar='degemer' order by foo asc, bar asc limit 5, 10");
-		Assert.assertEquals(SqlBuilder.getWithPrefixes(jdbcFieldCodecFactory, config, "TestTable", null, null, false,
-				null), "select * from TestTable limit 5, 10");
+		Assert.assertEquals(SqlBuilder.getWithPrefixes(jdbcFieldCodecFactory, config, "TestTable", KEY_1.getFields(),
+				ONE_KEY, false, KEY_1.getFields()), "select foo, bar from TestTable where foo=42 and bar='baz' order by"
+						+ " foo asc, bar asc limit 5, 10");
+		Assert.assertEquals(SqlBuilder.getWithPrefixes(jdbcFieldCodecFactory, config, "TestTable", KEY_1.getFields(),
+				TWO_KEYS, false, KEY_1.getFields()), "select foo, bar from TestTable where foo=42 and bar='baz' "
+						+ "or foo=24 and bar='degemer' order by foo asc, bar asc limit 5, 10");
+		Assert.assertEquals(SqlBuilder.getWithPrefixes(jdbcFieldCodecFactory, config, "TestTable", KEY_1.getFields(),
+				null, false, null), "select foo, bar from TestTable limit 5, 10");
 
 		List<TestKey> oneNullPrefix = Arrays.asList(new TestKey(null, null));
-		Assert.assertEquals(SqlBuilder.getWithPrefixes(jdbcFieldCodecFactory, config, "TestTable", null, oneNullPrefix,
-				false, KEY_1.getFields()), "select * from TestTable order by foo asc, bar asc limit 5, 10");
-		List<TestKey> onePrefix = Arrays.asList(new TestKey(42, null));
-		Assert.assertEquals(SqlBuilder.getWithPrefixes(jdbcFieldCodecFactory, config, "TestTable", null, onePrefix,
-				false, KEY_1.getFields()), "select * from TestTable where foo=42 order by foo asc, bar asc "
+		Assert.assertEquals(SqlBuilder.getWithPrefixes(jdbcFieldCodecFactory, config, "TestTable", KEY_1.getFields(),
+				oneNullPrefix, false, KEY_1.getFields()), "select foo, bar from TestTable order by foo asc, bar asc "
 						+ "limit 5, 10");
-		Assert.assertEquals(SqlBuilder.getWithPrefixes(jdbcFieldCodecFactory, config, "TestTable", null, ONE_KEY, true,
-				KEY_1.getFields()), "select * from TestTable where foo=42 and bar like 'baz%' order by foo asc, "
+		List<TestKey> onePrefix = Arrays.asList(new TestKey(42, null));
+		Assert.assertEquals(SqlBuilder.getWithPrefixes(jdbcFieldCodecFactory, config, "TestTable", KEY_1.getFields(),
+				onePrefix, false, KEY_1.getFields()), "select foo, bar from TestTable where foo=42 order by foo asc, "
 						+ "bar asc limit 5, 10");
+		Assert.assertEquals(SqlBuilder.getWithPrefixes(jdbcFieldCodecFactory, config, "TestTable", KEY_1.getFields(),
+				ONE_KEY, true, KEY_1.getFields()), "select foo, bar from TestTable where foo=42 and bar like 'baz%' "
+						+ "order by foo asc, bar asc limit 5, 10");
 		List<OtherKey> oneOtherKey = Arrays.asList(new OtherKey("baz", 42));
-		Assert.assertEquals(SqlBuilder.getWithPrefixes(jdbcFieldCodecFactory, config, "TestTable", null, oneOtherKey,
-				true, KEY_1.getFields()), "select * from TestTable where bar='baz' and foo=42 order by foo asc, "
-						+ "bar asc limit 5, 10");
+		Assert.assertEquals(SqlBuilder.getWithPrefixes(jdbcFieldCodecFactory, config, "TestTable", KEY_1.getFields(),
+				oneOtherKey, true, KEY_1.getFields()), "select foo, bar from TestTable where bar='baz' and foo=42 order"
+						+ " by foo asc, bar asc limit 5, 10");
 	}
 
 	@Test
@@ -120,25 +121,26 @@ public class SqlBuilderIntegrationTests{
 
 	@Test
 	public void testGetInRange(){
-		Assert.assertEquals(SqlBuilder.getInRange(jdbcFieldCodecFactory, config, "TestTable", null, new Range<>(KEY_1),
-				null), "select * from TestTable where ((foo=42 and bar>='baz') or (foo>42)) limit 5, 10");
-		Assert.assertEquals(SqlBuilder.getInRange(jdbcFieldCodecFactory, config, "TestTable", null,
-				new Range<>(KEY_1, false, new TestKey(null, null), true), null), "select * from TestTable where "
-						+ "((foo=42 and bar>'baz') or (foo>42)) limit 5, 10");
-		Assert.assertEquals(SqlBuilder.getInRange(jdbcFieldCodecFactory, config, "TestTable", null,
-				new Range<TestKey>(null), null), "select * from TestTable limit 5, 10");
-		Assert.assertEquals(SqlBuilder.getInRange(jdbcFieldCodecFactory, config, "TestTable", null,
-				new Range<>(new TestKey(null, null), new TestKey(null, null)), null), "select * from TestTable"
+		Assert.assertEquals(SqlBuilder.getInRange(jdbcFieldCodecFactory, config, "TestTable", KEY_1.getFields(),
+				new Range<>(KEY_1), null), "select foo, bar from TestTable where ((foo=42 and bar>='baz') or (foo>42))"
 						+ " limit 5, 10");
-		Assert.assertEquals(SqlBuilder.getInRange(jdbcFieldCodecFactory, config, "TestTable", null,
-				new Range<>(new TestKey(null, null), KEY_2), null), "select * from TestTable where ((foo<24) or (foo=24"
-						+ " and bar<'degemer')) limit 5, 10");
-		Assert.assertEquals(SqlBuilder.getInRange(jdbcFieldCodecFactory, config, "TestTable", null,
-				new Range<>(null, KEY_2), null), "select * from TestTable where "
-						+ "((foo<24) or (foo=24 and bar<'degemer')) limit 5, 10");
-		Assert.assertEquals(SqlBuilder.getInRange(jdbcFieldCodecFactory, config, "TestTable", null,
-				new Range<>(KEY_1, true, KEY_2, true), null), "select * from TestTable where ((foo=42 and bar>='baz') "
-						+ "or (foo>42)) and ((foo<24) or (foo=24 and bar<='degemer')) limit 5, 10");
+		Assert.assertEquals(SqlBuilder.getInRange(jdbcFieldCodecFactory, config, "TestTable", KEY_1.getFields(),
+				new Range<>(KEY_1, false, new TestKey(null, null), true), null), "select foo, bar from TestTable where "
+						+ "((foo=42 and bar>'baz') or (foo>42)) limit 5, 10");
+		Assert.assertEquals(SqlBuilder.getInRange(jdbcFieldCodecFactory, config, "TestTable", KEY_1.getFields(),
+				new Range<TestKey>(null), null), "select foo, bar from TestTable limit 5, 10");
+		Assert.assertEquals(SqlBuilder.getInRange(jdbcFieldCodecFactory, config, "TestTable", KEY_1.getFields(),
+				new Range<>(new TestKey(null, null), new TestKey(null, null)), null), "select foo, bar from TestTable"
+						+ " limit 5, 10");
+		Assert.assertEquals(SqlBuilder.getInRange(jdbcFieldCodecFactory, config, "TestTable", KEY_1.getFields(),
+				new Range<>(new TestKey(null, null), KEY_2), null), "select foo, bar from TestTable where ((foo<24) or "
+						+ "(foo=24 and bar<'degemer')) limit 5, 10");
+		Assert.assertEquals(SqlBuilder.getInRange(jdbcFieldCodecFactory, config, "TestTable", KEY_1.getFields(),
+				new Range<>(null, KEY_2), null), "select foo, bar from TestTable where ((foo<24) or (foo=24 and "
+						+ "bar<'degemer')) limit 5, 10");
+		Assert.assertEquals(SqlBuilder.getInRange(jdbcFieldCodecFactory, config, "TestTable", KEY_1.getFields(),
+				new Range<>(KEY_1, true, KEY_2, true), null), "select foo, bar from TestTable where ((foo=42 and "
+						+ "bar>='baz') or (foo>42)) and ((foo<24) or (foo=24 and bar<='degemer')) limit 5, 10");
 	}
 
 	@Test

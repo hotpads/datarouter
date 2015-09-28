@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.client.imp.jdbc.field.JdbcFieldCodec;
 import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.config.Config;
@@ -121,11 +122,8 @@ public class SqlBuilder{
 	public static void addSelectFromClause(StringBuilder sql, String tableName, List<Field<?>> selectFields){
 		checkTableName(tableName);
 		sql.append("select ");
-		if(DrCollectionTool.isEmpty(selectFields)){
-			sql.append("*");
-		}else{
-			FieldTool.appendCsvColumnNames(sql, selectFields);
-		}
+		Preconditions.checkArgument(DrCollectionTool.notEmpty(selectFields), "Please provide select fields");
+		FieldTool.appendCsvColumnNames(sql, selectFields);
 		sql.append(" from "+tableName);
 	}
 
