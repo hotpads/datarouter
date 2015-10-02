@@ -17,6 +17,7 @@ import com.hotpads.datarouter.test.DrTestConstants;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBean;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBeanKey;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedNodeTestRouter;
+import com.hotpads.util.core.collections.Range;
 
 @Guice(moduleFactory=DatarouterTestModuleFactory.class)
 public class HBaseSubEntityReaderNodeIntegrationTests{
@@ -45,15 +46,18 @@ public class HBaseSubEntityReaderNodeIntegrationTests{
 		sortedBean.put(new SortedBean("a", "c", 2, "d", "f1", 2L, "f3", 4D), null);
 		sortedBean.put(new SortedBean("a", "c", 2, "dd", "f1", 2L, "f3", 4D), null);
 		sortedBean.put(new SortedBean("b", "b", 1, "d", "f1", 2L, "f3", 4D), null);
+		sortedBean.put(new SortedBean("c", "b", 1, "d", "f1", 2L, "f3", 4D), null);
 
-		Assert.assertEquals(sortedBean.stream(null, null).count(), 6);
+		Assert.assertEquals(sortedBean.stream(null, null).count(), 7);
+		Assert.assertEquals(sortedBean.stream(new Range<>(new SortedBeanKey("a", null, null, null), true,
+				new SortedBeanKey("b", null, null, null), true), null).count(), 6);
 //		Assert.assertEquals(sortedBean.stream(KeyRangeTool.forPrefix(new SortedBeanKey("a", null, null, null)), null)
 //				.count(), 5); // fail
 //		Assert.assertEquals(sortedBean.stream(KeyRangeTool.forPrefix(new SortedBeanKey("a", "c", null, null)), null)
 //				.count(), 3); // fail
 //		Assert.assertEquals(sortedBean.stream(KeyRangeTool.forPrefix(new SortedBeanKey("a", "c", 2, null)), null)
 //				.count(), 2); // fail
-		Assert.assertEquals(sortedBean.stream(null, null).count(), 6);
+		Assert.assertEquals(sortedBean.stream(null, null).count(), 7);
 	}
 
 	@AfterMethod
