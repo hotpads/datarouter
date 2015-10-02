@@ -52,11 +52,13 @@ public class HBaseSubEntityReaderNodeIntegrationTests{
 		Assert.assertEquals(sortedBean.stream(new Range<>(new SortedBeanKey("a", null, null, null), true,
 				new SortedBeanKey("b", null, null, null), true), null).count(), 6);
 //		Assert.assertEquals(sortedBean.stream(KeyRangeTool.forPrefix(new SortedBeanKey("a", null, null, null)), null)
-//				.count(), 5); // fail
+//				.count(), 5); // fail, return 0 databean
 //		Assert.assertEquals(sortedBean.stream(KeyRangeTool.forPrefix(new SortedBeanKey("a", "c", null, null)), null)
-//				.count(), 3); // fail
+//				.count(), 3); // fail, return 0 databean
 //		Assert.assertEquals(sortedBean.stream(KeyRangeTool.forPrefix(new SortedBeanKey("a", "c", 2, null)), null)
-//				.count(), 2); // fail
+//				.count(), 2); // fail, return 0 databean
+//		Assert.assertEquals(sortedBean.stream(KeyRangeTool.forPrefix(new SortedBeanKey("a", "c", 2, "d")), null)
+//				.count(), 2); // fail, return 0 databean
 		Assert.assertEquals(sortedBean.stream(null, null).count(), 7);
 	}
 
