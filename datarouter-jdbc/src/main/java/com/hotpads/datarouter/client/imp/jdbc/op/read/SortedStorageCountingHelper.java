@@ -1,7 +1,6 @@
 package com.hotpads.datarouter.client.imp.jdbc.op.read;
 
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.op.index.UniqueIndexReader;
@@ -40,7 +39,7 @@ public class SortedStorageCountingHelper{
 			}
 		}while(currentKey.isPresent());
 		return count += node.streamKeys(new Range<>(startKey, false, range.getEnd(), range.getEndInclusive()),
-				new Config().setIterateBatchSize(BATCH_SIZE)).collect(Collectors.counting());
+				new Config().setIterateBatchSize(BATCH_SIZE)).count();
 	}
 
 }
