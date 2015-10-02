@@ -32,12 +32,11 @@ import com.hotpads.datarouter.node.type.physical.base.BasePhysicalNode;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
-import com.hotpads.datarouter.storage.field.FieldSetTool;
+import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.datarouter.util.core.DrByteTool;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
-import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.bytes.ByteRange;
 import com.hotpads.util.core.collections.Range;
@@ -49,38 +48,38 @@ import com.hotpads.util.core.iterable.scanner.iterable.ScannerIterable;
 public class HBaseReaderNode<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
-		F extends DatabeanFielder<PK,D>> 
+		F extends DatabeanFielder<PK,D>>
 extends BasePhysicalNode<PK,D,F>
 implements HBasePhysicalNode<PK,D>,
 		MapStorageReader<PK,D>,
 		SortedStorageReader<PK,D>{
 	private static final Logger logger = LoggerFactory.getLogger(HBaseReaderNode.class);
-		
+
 	private ClientTableNodeNames clientTableNodeNames;
-	
+
 	/******************************* constructors ************************************/
-	
+
 	public HBaseReaderNode(NodeParams<PK,D,F> params){
 		super(params);
 		this.clientTableNodeNames = new ClientTableNodeNames(getClientId().getName(), getTableName(), getName());
 	}
-	
+
 	/***************************** plumbing methods ***********************************/
 
 	@Override
 	public HBaseClient getClient(){
 		return (HBaseClient)getRouter().getClient(getClientId().getName());
 	}
-	
+
 	/************************************ MapStorageReader methods ****************************/
-	
+
 	@Override
 	public boolean exists(PK key, Config config) {
 		//should probably make a getKey method
 		return get(key, config) != null;
 	}
 
-	
+
 	@Override
 	public D get(final PK key, Config config){
 		if(key==null){
@@ -105,10 +104,10 @@ implements HBasePhysicalNode<PK,D>,
 			}
 		}).call();
 	}
-	
-	
+
+
 	@Override
-	public List<D> getMulti(final Collection<PK> keys, Config config){	
+	public List<D> getMulti(final Collection<PK> keys, Config config){
 		if(DrCollectionTool.isEmpty(keys)){
 			return new LinkedList<>();
 		}
@@ -128,10 +127,10 @@ implements HBasePhysicalNode<PK,D>,
 				}
 			}).call();
 	}
-	
-	
+
+
 	@Override
-	public List<PK> getKeys(final Collection<PK> keys, Config config) {	
+	public List<PK> getKeys(final Collection<PK> keys, Config config) {
 		if(DrCollectionTool.isEmpty(keys)){
 			return new LinkedList<>();
 		}
@@ -155,29 +154,15 @@ implements HBasePhysicalNode<PK,D>,
 			}).call();
 	}
 
-	
-	/******************************* Sorted *************************************/
-	
-	@Override
-	public PK getFirstKey(Config config){
-		Config configCopy = Config.nullSafe(config).setLimit(1);
-		return DrIterableTool.first(scanKeys(null, configCopy));
-	}
 
-	
-	@Override
-	public D getFirst(Config config){
-		Config configCopy = Config.nullSafe(config).setLimit(1);
-		return DrIterableTool.first(scan(null, configCopy));
-	}
-	
-	
+	/******************************* Sorted *************************************/
+
 	@Override
 	public List<D> getWithPrefix(PK prefix, boolean wildcardLastField, Config config){
 		return getWithPrefixes(DrListTool.wrap(prefix), wildcardLastField, config);
 	}
 
-	
+
 	@Override
 	public List<D> getWithPrefixes(final Collection<PK> prefixes, final boolean wildcardLastField, Config config){
 		if(DrCollectionTool.isEmpty(prefixes)){
@@ -185,7 +170,7 @@ implements HBasePhysicalNode<PK,D>,
 		}
 		config = Config.nullSafe(config);
 		final List<D> results = new ArrayList<>();
-		List<Scan> scanForEachScatteringPartition = HBaseScatteringPrefixQueryBuilder.getPrefixScanners(fieldInfo, 
+		List<Scan> scanForEachScatteringPartition = HBaseScatteringPrefixQueryBuilder.getPrefixScanners(fieldInfo,
 				prefixes, wildcardLastField, config);
 		for(final Scan scan : scanForEachScatteringPartition){
 			new HBaseMultiAttemptTask<>(new HBaseTask<Void>(getDatarouter(), getClientTableNodeNames(),
@@ -212,7 +197,7 @@ implements HBasePhysicalNode<PK,D>,
 		sortIfScatteringPrefixExists(results);
 		return results;
 	}
-	
+
 	@Override
 	public ScannerIterable<PK> scanKeys(Range<PK> range, final Config config){
 		range = Range.nullSafe(range);
@@ -222,7 +207,7 @@ implements HBasePhysicalNode<PK,D>,
 		Collator<PK> collator = new PriorityQueueCollator<>(scanners);
 		return new ScannerIterable<>(collator);
 	}
-	
+
 	@Override
 	public ScannerIterable<D> scan(Range<PK> range, final Config config){
 		range = Range.nullSafe(range);
@@ -232,10 +217,10 @@ implements HBasePhysicalNode<PK,D>,
 		Collator<D> collator = new PriorityQueueCollator<>(scanners);
 		return new ScannerIterable<>(collator);
 	}
-		
-	
+
+
 	/***************************** helper methods **********************************/
-	
+
 	/*
 	 * internal method to fetch a single batch of hbase rows/keys.  only public so that iterators in other packages
 	 * can use it
@@ -257,7 +242,7 @@ implements HBasePhysicalNode<PK,D>,
 					start = new ByteRange(DrByteTool.unsignedIncrement(start.toArray()));
 				}
 				ByteRange end = range.getEnd();
-				
+
 				//startInclusive already adjusted for
 				Range<ByteRange> scanRange = Range.create(start, true, end, range.getEndInclusive());
 				Scan scan = HBaseQueryBuilder.getScanForRange(scanRange, config);
@@ -285,7 +270,7 @@ implements HBasePhysicalNode<PK,D>,
 			}
 		}).call();
 	}
-	
+
 	//this method is in the node because it deals with the messy primaryKeyHasUnnecessaryTrailingSeparatorByte
 	public byte[] getKeyBytesWithScatteringPrefix(List<Field<?>> overrideScatteringPrefixFields, PK key,
 			boolean increment){
@@ -294,9 +279,9 @@ implements HBasePhysicalNode<PK,D>,
 			if(DrCollectionTool.isEmpty(overrideScatteringPrefixFields)){
 				return new byte[]{};
 			}
-			return FieldSetTool.getConcatenatedValueBytes(overrideScatteringPrefixFields, false, false);
+			return FieldTool.getConcatenatedValueBytes(overrideScatteringPrefixFields, false, false);
 		}
-		
+
 		//else return scatteringPrefix bytes + keyBytes + (maybe) trailing separator
 		List<Field<?>> scatteringPrefixFields = new LinkedList<>();
 		if(DrCollectionTool.notEmpty(overrideScatteringPrefixFields)){
@@ -305,23 +290,23 @@ implements HBasePhysicalNode<PK,D>,
 			//maybe Assert the override fields match those returned for the key
 			scatteringPrefixFields.addAll(fieldInfo.getSampleScatteringPrefix().getScatteringPrefixFields(key));
 		}
-		byte[] scatteringPrefixBytes = FieldSetTool.getConcatenatedValueBytes(scatteringPrefixFields, true, false);
-		byte[] keyBytes = FieldSetTool.getConcatenatedValueBytes(key.getFields(), true, false);
+		byte[] scatteringPrefixBytes = FieldTool.getConcatenatedValueBytes(scatteringPrefixFields, true, false);
+		byte[] keyBytes = FieldTool.getConcatenatedValueBytes(key.getFields(), true, false);
 		if(increment){
 			keyBytes = DrByteTool.unsignedIncrement(keyBytes);
 		}
 		return DrByteTool.concatenate(scatteringPrefixBytes, keyBytes);
 	}
-	
+
 	private <T extends Comparable<? super T>> void sortIfScatteringPrefixExists(List<T> ins){
 		if(fieldInfo.getSampleScatteringPrefix().getNumPrefixBytes() > 0){
 			Collections.sort(ins);
 		}
 	}
-	
+
 	public ClientTableNodeNames getClientTableNodeNames(){
 		return clientTableNodeNames;
 	}
-	
-	
+
+
 }

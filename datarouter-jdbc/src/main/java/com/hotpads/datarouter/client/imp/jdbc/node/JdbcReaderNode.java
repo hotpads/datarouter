@@ -162,16 +162,6 @@ implements PhysicalIndexedSortedMapStorageReaderNode<PK,D>{
 	/************************************ SortedStorageReader methods ****************************/
 
 	@Override
-	public D getFirst(final Config config) {
-		return jdbcReaderOps.getFirst(config);
-	}
-
-	@Override
-	public PK getFirstKey(final Config config) {
-		return jdbcReaderOps.getFirstKey(config);
-	}
-
-	@Override
 	public List<D> getWithPrefix(final PK prefix, final boolean wildcardLastField, final Config config) {
 		return getWithPrefixes(DrListTool.wrap(prefix), wildcardLastField, config);
 	}
