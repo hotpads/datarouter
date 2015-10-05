@@ -12,8 +12,6 @@ import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 
 import com.hotpads.datarouter.client.imp.hibernate.client.HibernateClientImp;
-import com.hotpads.datarouter.client.imp.hibernate.op.read.HibernateGetFirstKeyOp;
-import com.hotpads.datarouter.client.imp.hibernate.op.read.HibernateGetFirstOp;
 import com.hotpads.datarouter.client.imp.hibernate.op.read.HibernateGetKeysOp;
 import com.hotpads.datarouter.client.imp.hibernate.op.read.HibernateGetOp;
 import com.hotpads.datarouter.client.imp.hibernate.op.read.HibernateGetRangeUncheckedOp;
@@ -229,21 +227,6 @@ implements MapStorageReader<PK,D>,
 	}
 
 	/************************************ SortedStorageReader methods ****************************/
-
-	@Override
-	public D getFirst(final Config config) {
-		String opName = SortedStorageReader.OP_getFirst;
-		HibernateGetFirstOp<PK,D,F> op = new HibernateGetFirstOp<>(this, config);
-		return new SessionExecutorImpl<>(op, getTraceName(opName)).call();
-	}
-
-
-	@Override
-	public PK getFirstKey(final Config config) {
-		String opName = SortedStorageReader.OP_getFirstKey;
-		HibernateGetFirstKeyOp<PK,D,F> op = new HibernateGetFirstKeyOp<>(this, resultParser);
-		return new SessionExecutorImpl<>(op, getTraceName(opName)).call();
-	}
 
 	@Override
 	public List<D> getWithPrefix(final PK prefix, final boolean wildcardLastField, final Config config) {
