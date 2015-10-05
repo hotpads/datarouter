@@ -39,9 +39,9 @@ public class MemcachedReaderNode<
 extends BasePhysicalNode<PK,D,F>
 implements MemcachedPhysicalNode<PK,D>,
 		MapStorageReader<PK,D>{
-	protected static Logger logger = LoggerFactory.getLogger(MemcachedReaderNode.class);
+	private static final Logger logger = LoggerFactory.getLogger(MemcachedReaderNode.class);
 	
-	protected Integer databeanVersion;
+	protected final Integer databeanVersion;
 	
 	/******************************* constructors ************************************/
 
@@ -67,86 +67,121 @@ implements MemcachedPhysicalNode<PK,D>,
 
 	
 	@Override
-	public D get(final PK key, final Config pConfig){
-		if(key==null){ return null; }
-		final Config config = Config.nullSafe(pConfig);
-			String memcachedKey = new DatarouterMemcachedKey<PK>(getName(), databeanVersion, key).getVersionedKeyString();
-			byte[] bytes = null;
-			
-			try {
-				Future<Object> f = this.getClient().getSpyClient().asyncGet(memcachedKey);
-				bytes = (byte[])f.get(config.getCacheTimeoutMs(), TimeUnit.MILLISECONDS); //get result asynchronously.  default CacheTimeoutMS set in MapCachingStorage.CACHE_CONFIG
-			} catch (TimeoutException e) {						
-				TraceContext.appendToSpanInfo("memcached timeout");
-			} catch (InterruptedException e) {						
-			} catch (ExecutionException e) {						
-			} catch (MemcachedStateException e) {
-				logger.error("", e);
-			}
-			
+	public D get(final PK key, final Config paramConfig){
+		if(key==null){
+			return null;
+		}
+		startTraceSpan(MapStorageReader.OP_get);
+		final Config config = Config.nullSafe(paramConfig);
+		byte[] bytes = null;
+
+		try {
+			Future<Object> future = getClient().getSpyClient().asyncGet(buildMemcachedKey(key));
+			//get result asynchronously.  default CacheTimeoutMS set in MapCachingStorage.CACHE_CONFIG
+			bytes = (byte[])future.get(config.getCacheTimeoutMs(), TimeUnit.MILLISECONDS); 
+		} catch(TimeoutException e) {						
+			TraceContext.appendToSpanInfo("memcached timeout");
+		} catch(InterruptedException | ExecutionException | MemcachedStateException e) {
+			logger.error("", e);
+		}
+
+		try {
 			if(DrArrayTool.isEmpty(bytes)){ 
 				TraceContext.appendToSpanInfo("miss");
 				return null; 
 			}
-//					System.out.println(StringByteTool.fromUtf8Bytes(bytes));
+			TraceContext.appendToSpanInfo("hit");
 			ByteArrayInputStream is = new ByteArrayInputStream(bytes);
-			try {
-				D databean = FieldSetTool.fieldSetFromByteStreamKnownLength(getDatabeanType(), 
-						fieldInfo.getFieldByPrefixedName(), is, bytes.length);
-				return databean;
-			} catch (IOException e) {
-				logger.error("", e);
-				return null;
-			}
+			D databean = FieldSetTool.fieldSetFromByteStreamKnownLength(getDatabeanType(), 
+					fieldInfo.getFieldByPrefixedName(), is, bytes.length);
+			return databean;
+		} catch (IOException e) {
+			logger.error("", e);
+			return null;
+		}finally{
+			finishTraceSpan();
+		}
 	}
 
 	
 	@Override
-	public List<D> getMulti(final Collection<PK> keys, final Config pConfig){
-		if(DrCollectionTool.isEmpty(keys)){ return new LinkedList<D>(); }
-		final Config config = Config.nullSafe(pConfig);
+	public List<D> getMulti(final Collection<PK> keys, final Config paramConfig){
+		if(DrCollectionTool.isEmpty(keys)){
+			return new LinkedList<D>();
+		}
+		startTraceSpan(MapStorageReader.OP_getMulti);
+		final Config config = Config.nullSafe(paramConfig);
 		List<D> databeans = DrListTool.createArrayListWithSize(keys);
 		Map<String,Object> bytesByStringKey = null;
 
 		
 		try {
-			Future<Map<String,Object>> f = this.getClient().getSpyClient().asyncGetBulk( //get results asynchronously.  default CacheTimeoutMS set in MapCachingStorage.CACHE_CONFIG
-				DatarouterMemcachedKey.getVersionedKeyStrings(getName(), databeanVersion, keys));
-			bytesByStringKey = f.get(config.getCacheTimeoutMs(), TimeUnit.MILLISECONDS);
-		} catch (TimeoutException e) {										
+			//get results asynchronously.  default CacheTimeoutMS set in MapCachingStorage.CACHE_CONFIG
+			Future<Map<String,Object>> future = getClient().getSpyClient().asyncGetBulk(buildMemcachedKeys(keys));
+			bytesByStringKey = future.get(config.getCacheTimeoutMs(), TimeUnit.MILLISECONDS);
+		} catch(TimeoutException e) {										
 			TraceContext.appendToSpanInfo("memcached timeout");	
-		} catch (ExecutionException e) {					
-		} catch (InterruptedException e) {					
-		} catch (MemcachedStateException e) {
+		} catch(ExecutionException | InterruptedException | MemcachedStateException e){
 			logger.error("", e);
 		}
 		
-		if (bytesByStringKey == null){
-			return null;
-		}
-		
-		for(Map.Entry<String,Object> entry : bytesByStringKey.entrySet()){
-			byte[] bytes = (byte[])entry.getValue();
-			if(DrArrayTool.isEmpty(bytes)){ return null; }
-			ByteArrayInputStream is = new ByteArrayInputStream((byte[])entry.getValue());
-			try {
-				D databean = FieldSetTool.fieldSetFromByteStreamKnownLength(getDatabeanType(), 
-						fieldInfo.getFieldByPrefixedName(), is, bytes.length);
-				databeans.add(databean);
-			} catch (IOException e) {
-				logger.error("", e);
+		try{
+			if (bytesByStringKey == null){
+				return null;
 			}
+			
+			for(Map.Entry<String,Object> entry : bytesByStringKey.entrySet()){
+				byte[] bytes = (byte[])entry.getValue();
+				if(DrArrayTool.isEmpty(bytes)){
+					return null;
+				}
+				ByteArrayInputStream is = new ByteArrayInputStream((byte[])entry.getValue());
+				try {
+					D databean = FieldSetTool.fieldSetFromByteStreamKnownLength(getDatabeanType(), 
+							fieldInfo.getFieldByPrefixedName(), is, bytes.length);
+					databeans.add(databean);
+				} catch (IOException e) {
+					logger.error("", e);
+				}
+			}
+			TraceContext.appendToSpanInfo("[got "+DrCollectionTool.size(databeans)+"/"+DrCollectionTool.size(keys)+"]");
+			return databeans;
+		}finally{
+			finishTraceSpan();
 		}
-		TraceContext.appendToSpanInfo("[got "+DrCollectionTool.size(databeans)+"/"+DrCollectionTool.size(keys)+"]");
-		return databeans;
 	}
 	
 	
 	@Override
-	public List<PK> getKeys(final Collection<PK> keys, final Config pConfig) {	
-		if(DrCollectionTool.isEmpty(keys)){ return new LinkedList<PK>(); }
-		return DatabeanTool.getKeys(getMulti(keys, pConfig));
+	public List<PK> getKeys(final Collection<PK> keys, final Config paramConfig){
+		if(DrCollectionTool.isEmpty(keys)){
+			return new LinkedList<PK>();
+		}
+		return DatabeanTool.getKeys(getMulti(keys, paramConfig));
+	}
+	
+	
+	/******************** serialization *******************/
+	
+	protected String buildMemcachedKey(PK pk){
+		return new DatarouterMemcachedKey<PK>(getName(), databeanVersion, pk).getVersionedKeyString();
+	}
+	
+	protected List<String> buildMemcachedKeys(Collection<PK> pks){
+		return DatarouterMemcachedKey.getVersionedKeyStrings(getName(), databeanVersion, pks);
+	}
+	
+	/******************* tracing ***************************/
+	
+	protected void startTraceSpan(String opName){
+		TraceContext.startSpan(getTraceName(opName));
 	}
 
-	
+	protected void finishTraceSpan(){
+		TraceContext.finishSpan();
+	}
+
+	protected String getTraceName(String opName){
+		return getName() + " " + opName;
+	}
 }
