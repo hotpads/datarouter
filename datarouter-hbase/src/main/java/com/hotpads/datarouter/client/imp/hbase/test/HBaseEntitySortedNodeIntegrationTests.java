@@ -21,7 +21,7 @@ import com.hotpads.datarouter.util.core.DrCollectionTool;
 public class HBaseEntitySortedNodeIntegrationTests extends BaseSortedNodeIntegrationTests{
 
 	protected SortedBeanEntityNode sortedBeanEntityNode;
-	
+
 	@BeforeClass
 	public void beforeClass(){
 		setup(DrTestConstants.CLIENT_drTestHBase, true, true);
@@ -33,7 +33,6 @@ public class HBaseEntitySortedNodeIntegrationTests extends BaseSortedNodeIntegra
 		testSortedDelete();
 		datarouter.shutdown();
 	}
-	
 
 	@Test
 	public void testGetEntity(){
@@ -46,5 +45,5 @@ public class HBaseEntitySortedNodeIntegrationTests extends BaseSortedNodeIntegra
 		AssertJUnit.assertEquals(SortedBeans.S_albatross, DrCollectionTool.getFirst(results).getA());
 		AssertJUnit.assertEquals(SortedBeans.S_ostrich, DrCollectionTool.getFirst(results).getB());
 	}
-	
+
 }

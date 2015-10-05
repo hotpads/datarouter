@@ -211,10 +211,18 @@ implements HBasePhysicalNode<PK,D>,
 	@Override
 	public ScannerIterable<D> scan(Range<PK> range, final Config config){
 		range = Range.nullSafe(range);
+		Config nullSafeConfig = Config.nullSafe(config);
 		List<AsyncBatchLoaderScanner<D>> scanners = HBaseScatteringPrefixQueryBuilder
 				.getBatchingDatabeanScannerForEachPrefix(getClient().getExecutorService(), this, fieldInfo, range,
-						config);
+						nullSafeConfig);
 		Collator<D> collator = new PriorityQueueCollator<>(scanners);
+		if(nullSafeConfig.getOffset() != null){
+			for(int i = 0 ; i < config.getOffset() ; i++){
+				if(!collator.advance()){
+					break;
+				}
+			}
+		}
 		return new ScannerIterable<>(collator);
 	}
 
