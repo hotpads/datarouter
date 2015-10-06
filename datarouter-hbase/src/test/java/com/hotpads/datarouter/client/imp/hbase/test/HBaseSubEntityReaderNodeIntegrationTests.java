@@ -6,7 +6,7 @@ import java.util.List;
 import javax.inject.Inject;
 
 import org.testng.Assert;
-import org.testng.annotations.AfterMethod;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
@@ -42,11 +42,8 @@ public class HBaseSubEntityReaderNodeIntegrationTests{
 		SortedNodeTestRouter router = new SortedNodeTestRouter(datarouter, entityNodeFactory, nodeFactory,
 				DrTestConstants.CLIENT_drTestHBase, true, true);
 		sortedBean = router.sortedBean();
-		sortedBeans = new ArrayList<>();
-	}
 
-	@Test
-	public void scanTest(){
+		sortedBeans = new ArrayList<>();
 		sortedBeans.add(new SortedBean("a", "b", 1, "d", "f1", 2L, "f3", 4D));
 		sortedBeans.add(new SortedBean("a", "b", 2, "d", "f1", 2L, "f3", 4D));
 		sortedBeans.add(new SortedBean("a", "b", 25, "d", "f1", 2L, "f3", 4D));
@@ -59,9 +56,12 @@ public class HBaseSubEntityReaderNodeIntegrationTests{
 		sortedBeans.add(new SortedBean("a", "c", 2, "dd", "f1", 2L, "f3", 4D));
 		sortedBeans.add(new SortedBean("b", "b", 1, "d", "f1", 2L, "f3", 4D));
 		sortedBeans.add(new SortedBean("c", "b", 1, "d", "f1", 2L, "f3", 4D));
-
 		sortedBean.putMulti(sortedBeans, null);
 
+	}
+
+	@Test
+	public void testNotDefinedEntityScan(){
 		Assert.assertEquals(sortedBean.stream(new Range<>(new SortedBeanKey("a", null, null, null), true,
 				new SortedBeanKey("b", null, null, null), true), null).count(), 11);
 
@@ -70,6 +70,10 @@ public class HBaseSubEntityReaderNodeIntegrationTests{
 
 		Assert.assertEquals(sortedBean.stream(KeyRangeTool.forPrefix(new SortedBeanKey("a", null, null, null)), null)
 				.count(), 10);
+	}
+
+	@Test
+	public void testSingleEntityScan(){
 		Assert.assertEquals(sortedBean.stream(KeyRangeTool.forPrefix(new SortedBeanKey("a", "c", null, null)), null)
 				.count(), 3);
 		Assert.assertEquals(sortedBean.stream(KeyRangeTool.forPrefix(new SortedBeanKey("a", "c", 2, null)), null)
@@ -86,7 +90,7 @@ public class HBaseSubEntityReaderNodeIntegrationTests{
 				.count(), 2);
 	}
 
-	@AfterMethod
+	@AfterClass
 	public void cleanup(){
 		sortedBean.deleteMulti(DatabeanTool.getKeys(sortedBeans), null);
 	}
