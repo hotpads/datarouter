@@ -31,7 +31,6 @@ import com.hotpads.datarouter.storage.key.entity.EntityKey;
 import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
-import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.iterable.scanner.batch.AsyncBatchLoaderScanner;
@@ -146,20 +145,6 @@ implements HBasePhysicalNode<PK,D>,
 
 
 	/************************* sorted **********************************/
-
-	@Override
-	public PK getFirstKey(Config config){
-		Config nullSafeonfig = Config.nullSafe(config).setIterateBatchSize(1);
-		return DrIterableTool.first(scanKeys(null, nullSafeonfig));
-	}
-
-
-	@Override
-	public D getFirst(Config config){
-		Config nullSafeConfig = Config.nullSafe(config).setIterateBatchSize(1);
-		return DrIterableTool.first(scan(null, nullSafeConfig));
-	}
-
 
 	@Override
 	public List<D> getWithPrefix(PK prefix, boolean wildcardLastField, Config config){
