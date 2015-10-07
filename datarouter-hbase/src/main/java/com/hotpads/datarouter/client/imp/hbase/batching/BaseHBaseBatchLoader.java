@@ -75,18 +75,25 @@ extends BaseBatchLoader<T>{
 
 		List<T> outs = DrListTool.createArrayListWithSize(hbaseRows);
 		for(Result row : hbaseRows){
-			if (row == null || row.isEmpty()){
+			if(row == null || row.isEmpty()){
 				continue;
 			}
-			if (differentScatteringPrefix(row)){
+			if(differentScatteringPrefix(row)){
 				break;// we ran into the next scattering prefix partition
 			}
 			T result = parseHBaseResult(row);
 			outs.add(result);
+			if(reachLimit(outs.size())){
+				break;
+			}
 		}
 		updateBatch(outs);
 
 		return this;
+	}
+
+	private boolean reachLimit(int added){
+		return limit != null && (batchChainCounter - 1) * iterateBatchSize + added >= limit;
 	}
 
 	protected Range<PK> getNextRange(){
@@ -98,11 +105,11 @@ extends BaseBatchLoader<T>{
 	@Override
 	public boolean isLastBatch(){
 		//refer to the dedicated iterateBatchSize field in case someone changed Config down the line
-		return isBatchHasBeenLoaded() && (isBatchSmallerThan(iterateBatchSize) || hasBatchReachedLimit());
+		return isBatchHasBeenLoaded() && (isBatchSmallerThan(iterateBatchSize) || hasReachedLimit());
 	}
 
-	private boolean hasBatchReachedLimit(){
-		return limit != null && batchChainCounter * iterateBatchSize  >= limit;
+	private boolean hasReachedLimit(){
+		return reachLimit(iterateBatchSize);
 	}
 
 	private boolean differentScatteringPrefix(Result row){
