@@ -30,6 +30,7 @@ extends BaseBatchLoader<T>{
 	protected final Range<PK> range;
 	protected final Config config;
 	protected final Integer iterateBatchSize;//break this out of config for safety
+	private final Integer limit;
 	protected Long batchChainCounter;
 
 	public BaseHBaseBatchLoader(final HBaseReaderNode<PK,D,F> node, final List<Field<?>> scatteringPrefix,
@@ -40,6 +41,7 @@ extends BaseBatchLoader<T>{
 		this.range = range;
 		this.config = Config.nullSafe(config);
 		this.iterateBatchSize = this.config.getIterateBatchSize();
+		this.limit = this.config.getLimit();
 		this.config.setIterateBatchSize(iterateBatchSize);
 		this.batchChainCounter = batchChainCounter;
 	}
@@ -96,9 +98,12 @@ extends BaseBatchLoader<T>{
 	@Override
 	public boolean isLastBatch(){
 		//refer to the dedicated iterateBatchSize field in case someone changed Config down the line
-		return isBatchHasBeenLoaded() && isBatchSmallerThan(iterateBatchSize);
+		return isBatchHasBeenLoaded() && (isBatchSmallerThan(iterateBatchSize) || hasBatchReachedLimit());
 	}
 
+	private boolean hasBatchReachedLimit(){
+		return limit != null && batchChainCounter * iterateBatchSize  >= limit;
+	}
 
 	private boolean differentScatteringPrefix(Result row){
 		if (scatteringPrefixBytes == null || row == null){
