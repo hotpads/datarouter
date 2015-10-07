@@ -17,7 +17,7 @@ import com.mchange.v2.c3p0.DataSources;
 
 public class JdbcConnectionPool{
 	private static final Logger logger = LoggerFactory.getLogger(JdbcConnectionPool.class);
-	
+
 	private String name;
 	private ComboPooledDataSource pool;
 	private final JdbcOptions defaultOptions;
@@ -66,6 +66,7 @@ public class JdbcConnectionPool{
 		List<String> urlParams = new ArrayList<>();
 		//avoid extra RPC on readOnly connections: http://dev.mysql.com/doc/relnotes/connector-j/en/news-5-1-23.html
 		urlParams.add("useLocalSessionState=true");
+		urlParams.add("zeroDateTimeBehavior=convertToNull");
 
 		String urlWithParams = url + "?" + Joiner.on("&").join(urlParams);
 		try {
