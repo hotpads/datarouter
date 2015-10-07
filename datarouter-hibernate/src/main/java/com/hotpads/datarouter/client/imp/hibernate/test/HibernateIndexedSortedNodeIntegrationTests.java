@@ -25,6 +25,7 @@ public class HibernateIndexedSortedNodeIntegrationTests extends BaseIndexedNodeI
 
 	@Test
 	public void limitedScanTest(){
+		testLimitedScanKeys();
 		testLimitedScan();
 	}
 

@@ -22,6 +22,7 @@ public class HBaseSortedNodeIntegrationTests extends BaseSortedNodeIntegrationTe
 
 	@Test
 	public void limitedScanTest(){
+		testLimitedScanKeys();
 		testLimitedScan();
 	}
 

@@ -25,6 +25,7 @@ public class JdbcIndexedSortedNodeIntegrationTests extends BaseIndexedNodeIntegr
 
 	@Test
 	public void limitedScanTest(){
+		testLimitedScanKeys();
 		testLimitedScan();
 	}
 
