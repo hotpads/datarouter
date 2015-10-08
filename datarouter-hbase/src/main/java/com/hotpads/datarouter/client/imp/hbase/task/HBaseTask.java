@@ -66,7 +66,7 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 		boolean possiblyTarnishedHTable = false;
 
 		try{
-			TraceContext.startSpan(nodeName+" "+taskName);
+			TraceTool.startSpan(TraceContext.get(), nodeName+" "+taskName);
 			recordDetailedTraceInfo();		
 			Pair<HTable, HBaseClient> pair = prepClientAndTableEtc(progress);
 			hTable = pair.getLeft();

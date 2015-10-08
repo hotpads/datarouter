@@ -175,7 +175,7 @@ implements MemcachedPhysicalNode<PK,D>,
 	/******************* tracing ***************************/
 	
 	protected void startTraceSpan(String opName){
-		TraceContext.startSpan(getTraceName(opName));
+		TraceTool.startSpan(TraceContext.get(), getTraceName(opName));
 	}
 
 	protected void finishTraceSpan(){

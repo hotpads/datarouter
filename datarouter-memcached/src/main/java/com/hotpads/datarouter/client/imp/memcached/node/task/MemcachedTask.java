@@ -45,7 +45,7 @@ extends TracedCallable<V>{
 	public V wrappedCall(){
 		try{
 			DRCounters.incClientNodeCustom(client.getType(), taskName, client.getName(), node.getName());
-			TraceContext.startSpan(node.getName()+" "+taskName);
+			TraceTool.startSpan(TraceContext.get(), node.getName()+" "+taskName);
 			if(DrNumberTool.nullSafe(numAttempts) > 1){ 
 				TraceTool.appendToThreadInfo(TraceContext.get(), "[attempt "+attemptNumOneBased+"/"+numAttempts+"]"); 
 			}
