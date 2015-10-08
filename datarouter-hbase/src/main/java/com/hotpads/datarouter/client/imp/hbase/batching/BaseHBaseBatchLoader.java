@@ -32,7 +32,7 @@ extends BaseBatchLoader<T>{
 	protected final Integer iterateBatchSize;//break this out of config for safety
 	private final Integer limit;
 	protected Long batchChainCounter;
-	private boolean hasReachedLimit;
+	private boolean limitReached;
 
 	public BaseHBaseBatchLoader(final HBaseReaderNode<PK,D,F> node, final List<Field<?>> scatteringPrefix,
 			final Range<PK> range, final Config config, Long batchChainCounter){
@@ -84,8 +84,8 @@ extends BaseBatchLoader<T>{
 			}
 			T result = parseHBaseResult(row);
 			outs.add(result);
-			if(reachLimit(outs.size())){
-				hasReachedLimit = true;
+			if(hasReachedLimit(outs.size())){
+				limitReached = true;
 				break;
 			}
 		}
@@ -94,7 +94,7 @@ extends BaseBatchLoader<T>{
 		return this;
 	}
 
-	private boolean reachLimit(int added){
+	private boolean hasReachedLimit(int added){
 		return limit != null && (batchChainCounter - 1) * iterateBatchSize + added >= limit;
 	}
 
@@ -107,7 +107,7 @@ extends BaseBatchLoader<T>{
 	@Override
 	public boolean isLastBatch(){
 		//refer to the dedicated iterateBatchSize field in case someone changed Config down the line
-		return isBatchHasBeenLoaded() && (isBatchSmallerThan(iterateBatchSize) || hasReachedLimit);
+		return isBatchHasBeenLoaded() && (isBatchSmallerThan(iterateBatchSize) || limitReached);
 	}
 
 	private boolean differentScatteringPrefix(Result row){
