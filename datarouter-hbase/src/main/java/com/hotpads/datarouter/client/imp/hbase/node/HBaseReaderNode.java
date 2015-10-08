@@ -212,6 +212,9 @@ implements HBasePhysicalNode<PK,D>,
 	public ScannerIterable<D> scan(Range<PK> range, final Config config){
 		range = Range.nullSafe(range);
 		Config nullSafeConfig = Config.nullSafe(config);
+		if(nullSafeConfig.getLimit() != null && nullSafeConfig.getOffset() != null){
+			nullSafeConfig.setLimit(nullSafeConfig.getLimit() + nullSafeConfig.getOffset());
+		}
 		List<AsyncBatchLoaderScanner<D>> scanners = HBaseScatteringPrefixQueryBuilder
 				.getBatchingDatabeanScannerForEachPrefix(getClient().getExecutorService(), this, fieldInfo, range,
 						nullSafeConfig);
