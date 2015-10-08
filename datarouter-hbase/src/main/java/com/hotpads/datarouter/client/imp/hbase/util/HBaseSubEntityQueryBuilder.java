@@ -3,6 +3,7 @@ package com.hotpads.datarouter.client.imp.hbase.util;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Scan;
@@ -41,31 +42,37 @@ public class HBaseSubEntityQueryBuilder<
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>>
 extends HBaseEntityQueryBuilder<EK,E>{
-	
+
 	private DatabeanFieldInfo<PK,D,F> fieldInfo;
-	
+
 	public HBaseSubEntityQueryBuilder(EntityFieldInfo<EK,E> entityFieldInfo, DatabeanFieldInfo<PK,D,F> fieldInfo){
 		super(entityFieldInfo);
 		this.fieldInfo = fieldInfo;
 	}
-	
-	
+
+
 	/******************* rows ****************************/
-	
+
 	public boolean isSingleEntity(Range<PK> pkRange){
 		Range<EK> ekRange = getEkRange(pkRange);
-		return ekRange.hasStart() && ekRange.equalsStartEnd();
+		return ekRange.hasStart() && ekRange.equalsStartEnd() && isEntityFullyDefined(ekRange);
 	}
-	
+
+	private boolean isEntityFullyDefined(Range<EK> ekRange){
+		return ekRange.getStart().getFields().stream()
+				.map(Field::getValue)
+				.noneMatch(Objects::isNull);
+	}
+
 	private Range<EK> getEkRange(Range<PK> pkRange){
 		EK start = pkRange.hasStart() ? pkRange.getStart().getEntityKey() : null;
 		EK end = pkRange.hasEnd() ? pkRange.getEnd().getEntityKey() : null;
 		return Range.create(start, true, end, true);
 	}
-	
+
 	public Range<ByteRange> getRowRange(int partition, Range<PK> pkRange){
 		byte[] partitionPrefix = partitioner.getPrefix(partition);
-		
+
 		ByteRange startBytes;
 		final boolean startInclusive = true;//we always could have databeans in the first entity/row
 		if(pkRange.hasStart()){
@@ -75,7 +82,7 @@ extends HBaseEntityQueryBuilder<EK,E>{
 		}else{
 			startBytes = new ByteRange(partitionPrefix);
 		}
-		
+
 		ByteRange endBytes = null;
 		boolean endInclusive = pkRange.getEndInclusive();
 		if(pkRange.hasEnd()){
@@ -92,42 +99,46 @@ extends HBaseEntityQueryBuilder<EK,E>{
 		Range<ByteRange> result = new Range<>(startBytes, startInclusive, endBytes, endInclusive);
 		return result;
 	}
-	
+
 	/******************** qualifiers ***********************/
-	
+
 	public byte[] getQualifier(PK primaryKey, String fieldName){
 		return DrByteTool.concatenate(fieldInfo.getEntityColumnPrefixBytes(), getQualifierPkBytes(primaryKey, true),
 				StringByteTool.getUtf8Bytes(fieldName));
 	}
-	
+
 	public byte[] getQualifierPrefix(PK primaryKey){
 		return DrByteTool.concatenate(fieldInfo.getEntityColumnPrefixBytes(), getQualifierPkBytes(primaryKey, false));
 	}
-	
+
 	public byte[] getQualifierPkBytes(PK primaryKey, boolean trailingSeparatorAfterEndingString){
 		if(primaryKey==null){
 			return new byte[]{};
 		}
-		return FieldTool.getConcatenatedValueBytes(primaryKey.getPostEntityKeyFields(), true, 
+		return FieldTool.getConcatenatedValueBytes(primaryKey.getPostEntityKeyFields(), true,
 				trailingSeparatorAfterEndingString);
 	}
 
-	
+
 	/********************* prefix bound logic **********************/
-	
+
 	public boolean isSingleEkPrefixQuery(PK pk, boolean wildcardLastField){
 		EK ek = pk.getEntityKey();
 		List<Field<?>> ekFields = ek.getFields();
 		List<Field<?>> pkFields = pk.getFields();
 		int numNonNullPkFields = FieldTool.countNonNullLeadingFields(pkFields);
-		if(numNonNullPkFields > ekFields.size()){ return true; }
-		if(numNonNullPkFields == ekFields.size() && ! wildcardLastField){ return true; }
+		if(numNonNullPkFields > ekFields.size()){
+			return true;
+		}
+		if(numNonNullPkFields == ekFields.size() && !wildcardLastField){
+			return true;
+		}
 		return false;//spans multiple entities
 	}
-	
-	
+
+
 	/******************* get / getMulti ***************************/
-	
+
 	public List<Get> getGets(Collection<PK> pks, boolean keysOnly){
 		List<Get> gets = DrListTool.createArrayListWithSize(pks);
 		for(PK pk : pks){
@@ -146,10 +157,10 @@ extends HBaseEntityQueryBuilder<EK,E>{
 		}
 		return gets;
 	}
-	
-	
+
+
 	/********************* single row prefix **********************/
-	
+
 	public List<Get> getPrefixGets(Collection<PK> prefixes, boolean wildcardLastField, Config config){
 		List<Get> gets = new ArrayList<>();
 		for(PK prefix : prefixes){
@@ -157,12 +168,12 @@ extends HBaseEntityQueryBuilder<EK,E>{
 		}
 		return gets;
 	}
-	
+
 	public Get getPrefixGet(PK pkPrefix, boolean wildcardLastField, Config config){
 		EK ek = pkPrefix.getEntityKey();
 		byte[] rowBytes = getRowBytesWithPartition(ek);//require all EK fields
 		boolean includeTrailingSeparator = ! wildcardLastField;
-		byte[] pkQualifierBytes = FieldTool.getConcatenatedValueBytes(pkPrefix.getPostEntityKeyFields(), true, 
+		byte[] pkQualifierBytes = FieldTool.getConcatenatedValueBytes(pkPrefix.getPostEntityKeyFields(), true,
 				includeTrailingSeparator);
 		byte[] qualifierPrefix = DrByteTool.concatenate(fieldInfo.getEntityColumnPrefixBytes(), pkQualifierBytes);
 		Get get = new Get(rowBytes);
@@ -170,7 +181,7 @@ extends HBaseEntityQueryBuilder<EK,E>{
 		//TODO obey config.getLimit()
 		return get;
 	}
-	
+
 	public Get getSingleRowRange(EK ek, Range<PK> pkRange, boolean keysOnly){
 		Get get = new Get(getRowBytesWithPartition(ek));
 		ColumnRangeFilter columnRangeFilter = getColumnRangeFilter(pkRange);
@@ -184,86 +195,88 @@ extends HBaseEntityQueryBuilder<EK,E>{
 		}
 		return get;
 	}
-	
+
 	public ColumnRangeFilter getColumnRangeFilter(Range<PK> pkRange){
 		byte[] start = getQualifierPrefix(pkRange.getStart());
 		byte[] end = getQualifierPrefix(pkRange.getEnd());
-		return new ColumnRangeFilter(start, pkRange.getStartInclusive(), end, pkRange.getEndInclusive());
+		if(pkRange.getEndInclusive()){
+			end = DrByteTool.unsignedIncrement(end);
+		}
+		return new ColumnRangeFilter(start, pkRange.getStartInclusive(), end, false);
 	}
-	
-	
+
 	/************** multi row prefix ********************/
 
 	public List<Scan> getPrefixScans(EK prefix, boolean wildcardLastField, Config config){
 		List<Scan> scans = new ArrayList<>();
 		for(int partition=0; partition < partitioner.getNumPartitions(); ++partition){
-			Twin<ByteRange> rowBounds = HBaseQueryBuilder.getStartEndBytesForPrefix(prefix.getFields(), 
+			Twin<ByteRange> rowBounds = HBaseQueryBuilder.getStartEndBytesForPrefix(prefix.getFields(),
 					wildcardLastField);
 			Scan scan = getScan(partition, rowBounds, config);
 			scans.add(scan);
 		}
 		return scans;
 	}
-		
+
 	private Twin<ByteRange> addPrefixToRowBounds(int partition, Twin<ByteRange> rowBounds){
-		return Twin.createTwin(addPartitionPrefix(partition, rowBounds.getLeft()), 
+		return Twin.createTwin(addPartitionPrefix(partition, rowBounds.getLeft()),
 				addPartitionPrefix(partition, rowBounds.getRight()));
 	}
-	
+
 	private ByteRange addPartitionPrefix(int partition, ByteRange in){
 		return new ByteRange(DrByteTool.concatenate(partitioner.getPrefix(partition), in.copyToNewArray()));
 	}
-	
+
 	private Scan getScan(int partition, Twin<ByteRange> rowBounds, Config config){
 		Twin<ByteRange> prefixedRowBounds = addPrefixToRowBounds(partition, rowBounds);
-		Range<ByteRange> prefixedRowRange = Range.create(prefixedRowBounds.getLeft(), true, prefixedRowBounds.getRight(), 
-				false);
+		Range<ByteRange> prefixedRowRange = Range.create(prefixedRowBounds.getLeft(), true,
+				prefixedRowBounds.getRight(), false);
 		Scan scan = HBaseQueryBuilder.getScanForRange(prefixedRowRange, config);
 		return scan;
 	}
-	
-	
+
+
 	/***************** batching scanners *******************/
 
-	public List<AsyncBatchLoaderScanner<PK>> getPkScanners(HBaseSubEntityReaderNode<EK,E,PK,D,F> node, 
-			Range<PK> range, Config pConfig){
+	public List<AsyncBatchLoaderScanner<PK>> getPkScanners(HBaseSubEntityReaderNode<EK,E,PK,D,F> node,
+			Range<PK> range, Config config){
 		EntityPartitioner<EK> partitioner = entityFieldInfo.getEntityPartitioner();
 		List<AsyncBatchLoaderScanner<PK>> scanners = new ArrayList<>();
 		for(int partition=0; partition < partitioner.getNumPartitions(); ++partition){
 			byte[] partitionBytes = partitioner.getPrefix(partition);
-			BatchLoader<PK> firstBatchLoader = new HBaseEntityPrimaryKeyBatchLoader<EK,E,PK,D,F>(node, partition, 
-					partitionBytes, range, pConfig, 1L);//start the counter at 1
-			AsyncBatchLoaderScanner<PK> scanner = new AsyncBatchLoaderScanner<PK>(node.getClient().getExecutorService(), 
+			BatchLoader<PK> firstBatchLoader = new HBaseEntityPrimaryKeyBatchLoader<>(node, partition, partitionBytes,
+					range, config, 1L);//start the counter at 1
+			AsyncBatchLoaderScanner<PK> scanner = new AsyncBatchLoaderScanner<>(node.getClient().getExecutorService(),
 					firstBatchLoader);
 			scanners.add(scanner);
 		}
 		return scanners;
 	}
 
-	public List<AsyncBatchLoaderScanner<D>> getDatabeanScanners(HBaseSubEntityReaderNode<EK,E,PK,D,F> node, 
-			Range<PK> range, Config pConfig){
+	public List<AsyncBatchLoaderScanner<D>> getDatabeanScanners(HBaseSubEntityReaderNode<EK,E,PK,D,F> node,
+			Range<PK> range, Config config){
 		EntityPartitioner<EK> partitioner = entityFieldInfo.getEntityPartitioner();
 		List<AsyncBatchLoaderScanner<D>> scanners = new ArrayList<>();
 		for(int partition=0; partition < partitioner.getNumPartitions(); ++partition){
 			byte[] partitionBytes = partitioner.getPrefix(partition);
-			BatchLoader<D> firstBatchLoader = new HBaseEntityDatabeanBatchLoader<EK,E,PK,D,F>(node, partition, 
-					partitionBytes, range, pConfig, 1L);//start the counter at 1
-			AsyncBatchLoaderScanner<D> scanner = new AsyncBatchLoaderScanner<D>(node.getClient().getExecutorService(), 
+			BatchLoader<D> firstBatchLoader = new HBaseEntityDatabeanBatchLoader<>(node, partition,
+					partitionBytes, range, config, 1L);//start the counter at 1
+			AsyncBatchLoaderScanner<D> scanner = new AsyncBatchLoaderScanner<>(node.getClient().getExecutorService(),
 					firstBatchLoader);
 			scanners.add(scanner);
 		}
 		return scanners;
 	}
-	
-	
+
+
 	/************* get results in sub range ********************/
-	
-	public Scan getScanForSubrange(final int partition, final Range<PK> rowRange, final Config pConfig, 
+
+	public Scan getScanForSubrange(final int partition, final Range<PK> rowRange, final Config config,
 			boolean keysOnly){
-		Config config = Config.nullSafe(pConfig);
+		Config nullSafeConfig = Config.nullSafe(config);
 		Range<ByteRange> rowBytesRange = getRowRange(partition, rowRange);
 		//TODO Get if single row
-		Scan scan = HBaseQueryBuilder.getScanForRange(rowBytesRange, config);
+		Scan scan = HBaseQueryBuilder.getScanForRange(rowBytesRange, nullSafeConfig);
 		FilterList filterList = new FilterList();
 		if(keysOnly){
 			filterList.addFilter(new KeyOnlyFilter());
@@ -272,5 +285,5 @@ extends HBaseEntityQueryBuilder<EK,E>{
 		scan.setFilter(filterList);
 		return scan;
 	}
-	
+
 }
