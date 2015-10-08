@@ -14,6 +14,7 @@ import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.datarouter.util.core.DrNumberTool;
 import com.hotpads.trace.TraceContext;
+import com.hotpads.trace.TraceTool;
 import com.hotpads.trace.TracedCallable;
 import com.hotpads.util.core.collections.Pair;
 import com.hotpads.util.datastructs.MutableString;
@@ -121,10 +122,10 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 	
 	protected void recordDetailedTraceInfo() {
 		if(DrNumberTool.nullSafe(numAttempts) > 1){ 
-			TraceContext.appendToThreadInfo("[attempt "+attemptNumOneBased+"/"+numAttempts+"]"); 
+			TraceTool.appendToThreadInfo(TraceContext.get(), "[attempt "+attemptNumOneBased+"/"+numAttempts+"]"); 
 		}
 		if( ! DrNumberTool.isMax(timeoutMs)){ 
-			TraceContext.appendToThreadInfo("[timeoutMs="+timeoutMs+"]"); 
+			TraceTool.appendToThreadInfo(TraceContext.get(), "[timeoutMs="+timeoutMs+"]"); 
 		}
 	}
 	

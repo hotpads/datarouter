@@ -10,6 +10,7 @@ import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.datarouter.util.core.DrNumberTool;
 import com.hotpads.trace.TraceContext;
+import com.hotpads.trace.TraceTool;
 import com.hotpads.trace.TracedCallable;
 
 public abstract class MemcachedTask<V> 
@@ -46,10 +47,10 @@ extends TracedCallable<V>{
 			DRCounters.incClientNodeCustom(client.getType(), taskName, client.getName(), node.getName());
 			TraceContext.startSpan(node.getName()+" "+taskName);
 			if(DrNumberTool.nullSafe(numAttempts) > 1){ 
-				TraceContext.appendToThreadInfo("[attempt "+attemptNumOneBased+"/"+numAttempts+"]"); 
+				TraceTool.appendToThreadInfo(TraceContext.get(), "[attempt "+attemptNumOneBased+"/"+numAttempts+"]"); 
 			}
 			if( ! DrNumberTool.isMax(timeoutMs)){ 
-				TraceContext.appendToThreadInfo("[timeoutMs="+timeoutMs+"]"); 
+				TraceTool.appendToThreadInfo(TraceContext.get(), "[timeoutMs="+timeoutMs+"]"); 
 			}
 			return memcachedCall();
 		}catch(Exception e){
