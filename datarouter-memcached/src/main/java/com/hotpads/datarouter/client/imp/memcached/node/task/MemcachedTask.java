@@ -56,7 +56,7 @@ extends TracedCallable<V>{
 		}catch(Exception e){
 			throw new DataAccessException(e);
 		}finally{
-			TraceContext.finishSpan();
+			TraceTool.finishSpan(TraceContext.get());
 		}
 	}
 	

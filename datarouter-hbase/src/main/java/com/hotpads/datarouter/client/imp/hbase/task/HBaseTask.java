@@ -105,7 +105,7 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 				client.checkInHTable(hTable, possiblyTarnishedHTable);
 			}
 			//hTable = null;//reset to null since this HBaseTask will get reused
-			TraceContext.finishSpan();
+			TraceTool.finishSpan(TraceContext.get());
 			progress.set("ending finally block attemptNumOneBased:"+attemptNumOneBased);
 		}
 	}

@@ -179,7 +179,7 @@ implements MemcachedPhysicalNode<PK,D>,
 	}
 
 	protected void finishTraceSpan(){
-		TraceContext.finishSpan();
+		TraceTool.finishSpan(TraceContext.get());
 	}
 
 	protected String getTraceName(String opName){
