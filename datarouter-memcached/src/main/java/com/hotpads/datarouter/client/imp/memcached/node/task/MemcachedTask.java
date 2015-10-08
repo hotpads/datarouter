@@ -9,7 +9,7 @@ import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.datarouter.util.core.DrNumberTool;
-import com.hotpads.trace.TraceContext;
+import com.hotpads.trace.DatarouterTracer;
 import com.hotpads.trace.TraceTool;
 import com.hotpads.trace.TracedCallable;
 
@@ -45,18 +45,18 @@ extends TracedCallable<V>{
 	public V wrappedCall(){
 		try{
 			DRCounters.incClientNodeCustom(client.getType(), taskName, client.getName(), node.getName());
-			TraceTool.startSpan(TraceContext.get(), node.getName()+" "+taskName);
+			TraceTool.startSpan(DatarouterTracer.get(), node.getName()+" "+taskName);
 			if(DrNumberTool.nullSafe(numAttempts) > 1){ 
-				TraceTool.appendToThreadInfo(TraceContext.get(), "[attempt "+attemptNumOneBased+"/"+numAttempts+"]"); 
+				TraceTool.appendToThreadInfo(DatarouterTracer.get(), "[attempt "+attemptNumOneBased+"/"+numAttempts+"]"); 
 			}
 			if( ! DrNumberTool.isMax(timeoutMs)){ 
-				TraceTool.appendToThreadInfo(TraceContext.get(), "[timeoutMs="+timeoutMs+"]"); 
+				TraceTool.appendToThreadInfo(DatarouterTracer.get(), "[timeoutMs="+timeoutMs+"]"); 
 			}
 			return memcachedCall();
 		}catch(Exception e){
 			throw new DataAccessException(e);
 		}finally{
-			TraceTool.finishSpan(TraceContext.get());
+			TraceTool.finishSpan(DatarouterTracer.get());
 		}
 	}
 	
