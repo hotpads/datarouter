@@ -31,6 +31,7 @@ import com.hotpads.datarouter.util.core.DrArrayTool;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.trace.TraceContext;
+import com.hotpads.trace.TraceTool;
 
 public class MemcachedReaderNode<
 		PK extends PrimaryKey<PK>,
@@ -80,17 +81,17 @@ implements MemcachedPhysicalNode<PK,D>,
 			//get result asynchronously.  default CacheTimeoutMS set in MapCachingStorage.CACHE_CONFIG
 			bytes = (byte[])future.get(config.getCacheTimeoutMs(), TimeUnit.MILLISECONDS); 
 		} catch(TimeoutException e) {						
-			TraceContext.appendToSpanInfo("memcached timeout");
+			TraceTool.appendToSpanInfo(TraceContext.get(), "memcached timeout");
 		} catch(InterruptedException | ExecutionException | MemcachedStateException e) {
 			logger.error("", e);
 		}
 
 		try {
 			if(DrArrayTool.isEmpty(bytes)){ 
-				TraceContext.appendToSpanInfo("miss");
+				TraceTool.appendToSpanInfo(TraceContext.get(), "miss");
 				return null; 
 			}
-			TraceContext.appendToSpanInfo("hit");
+			TraceTool.appendToSpanInfo(TraceContext.get(), "hit");
 			ByteArrayInputStream is = new ByteArrayInputStream(bytes);
 			D databean = FieldSetTool.fieldSetFromByteStreamKnownLength(getDatabeanType(), 
 					fieldInfo.getFieldByPrefixedName(), is, bytes.length);
@@ -120,7 +121,7 @@ implements MemcachedPhysicalNode<PK,D>,
 			Future<Map<String,Object>> future = getClient().getSpyClient().asyncGetBulk(buildMemcachedKeys(keys));
 			bytesByStringKey = future.get(config.getCacheTimeoutMs(), TimeUnit.MILLISECONDS);
 		} catch(TimeoutException e) {										
-			TraceContext.appendToSpanInfo("memcached timeout");	
+			TraceTool.appendToSpanInfo(TraceContext.get(), "memcached timeout");	
 		} catch(ExecutionException | InterruptedException | MemcachedStateException e){
 			logger.error("", e);
 		}
@@ -144,7 +145,7 @@ implements MemcachedPhysicalNode<PK,D>,
 					logger.error("", e);
 				}
 			}
-			TraceContext.appendToSpanInfo("[got "+DrCollectionTool.size(databeans)+"/"+DrCollectionTool.size(keys)+"]");
+			TraceTool.appendToSpanInfo(TraceContext.get(), "[got "+DrCollectionTool.size(databeans)+"/"+DrCollectionTool.size(keys)+"]");
 			return databeans;
 		}finally{
 			finishTraceSpan();

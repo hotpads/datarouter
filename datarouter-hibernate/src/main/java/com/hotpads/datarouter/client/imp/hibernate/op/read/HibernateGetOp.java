@@ -22,6 +22,7 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.trace.TraceContext;
+import com.hotpads.trace.TraceTool;
 
 public class HibernateGetOp<
 		PK extends PrimaryKey<PK>,
@@ -58,7 +59,7 @@ extends BaseHibernateOp<List<D>>{
 		}
 		criteria.add(orSeparatedIds);
 		List<D> result = criteria.list();
-		TraceContext.appendToSpanInfo("[got "+DrCollectionTool.size(result)+"/"+DrCollectionTool.size(keys)+"]");
+		TraceTool.appendToSpanInfo(TraceContext.get(), "[got "+DrCollectionTool.size(result)+"/"+DrCollectionTool.size(keys)+"]");
 		return result;
 	}
 	
