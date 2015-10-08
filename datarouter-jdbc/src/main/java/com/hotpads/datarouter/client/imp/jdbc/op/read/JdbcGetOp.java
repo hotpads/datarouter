@@ -21,8 +21,8 @@ import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.datarouter.util.core.DrBatchTool;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrListTool;
-import com.hotpads.trace.TracerTool;
 import com.hotpads.trace.TracerThreadLocal;
+import com.hotpads.trace.TracerTool;
 
 public class JdbcGetOp<
 		PK extends PrimaryKey<PK>,
@@ -69,7 +69,8 @@ extends BaseJdbcOp<List<D>>{
 				result.addAll(batch);
 			}
 		}
-		TracerTool.appendToSpanInfo(TracerThreadLocal.get(), "[got "+DrCollectionTool.size(result)+"/"+DrCollectionTool.size(keys)+"]");
+		TracerTool.appendToSpanInfo(TracerThreadLocal.get(), "[got " + DrCollectionTool.size(result) + "/"
+				+ DrCollectionTool.size(keys) + "]");
 		return result;
 	}
 	

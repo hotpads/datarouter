@@ -30,8 +30,8 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.core.DrArrayTool;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrListTool;
-import com.hotpads.trace.TracerTool;
 import com.hotpads.trace.TracerThreadLocal;
+import com.hotpads.trace.TracerTool;
 
 public class MemcachedReaderNode<
 		PK extends PrimaryKey<PK>,
@@ -145,7 +145,8 @@ implements MemcachedPhysicalNode<PK,D>,
 					logger.error("", e);
 				}
 			}
-			TracerTool.appendToSpanInfo(TracerThreadLocal.get(), "[got "+DrCollectionTool.size(databeans)+"/"+DrCollectionTool.size(keys)+"]");
+			TracerTool.appendToSpanInfo(TracerThreadLocal.get(), "[got " + DrCollectionTool.size(databeans) + "/"
+					+ DrCollectionTool.size(keys) + "]");
 			return databeans;
 		}finally{
 			finishTraceSpan();
