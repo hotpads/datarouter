@@ -30,8 +30,8 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.core.DrArrayTool;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrListTool;
-import com.hotpads.trace.DatarouterTracer;
 import com.hotpads.trace.TraceTool;
+import com.hotpads.trace.TracerThreadLocal;
 
 public class MemcachedReaderNode<
 		PK extends PrimaryKey<PK>,
@@ -81,17 +81,17 @@ implements MemcachedPhysicalNode<PK,D>,
 			//get result asynchronously.  default CacheTimeoutMS set in MapCachingStorage.CACHE_CONFIG
 			bytes = (byte[])future.get(config.getCacheTimeoutMs(), TimeUnit.MILLISECONDS); 
 		} catch(TimeoutException e) {						
-			TraceTool.appendToSpanInfo(DatarouterTracer.get(), "memcached timeout");
+			TraceTool.appendToSpanInfo(TracerThreadLocal.get(), "memcached timeout");
 		} catch(InterruptedException | ExecutionException | MemcachedStateException e) {
 			logger.error("", e);
 		}
 
 		try {
 			if(DrArrayTool.isEmpty(bytes)){ 
-				TraceTool.appendToSpanInfo(DatarouterTracer.get(), "miss");
+				TraceTool.appendToSpanInfo(TracerThreadLocal.get(), "miss");
 				return null; 
 			}
-			TraceTool.appendToSpanInfo(DatarouterTracer.get(), "hit");
+			TraceTool.appendToSpanInfo(TracerThreadLocal.get(), "hit");
 			ByteArrayInputStream is = new ByteArrayInputStream(bytes);
 			D databean = FieldSetTool.fieldSetFromByteStreamKnownLength(getDatabeanType(), 
 					fieldInfo.getFieldByPrefixedName(), is, bytes.length);
@@ -121,7 +121,7 @@ implements MemcachedPhysicalNode<PK,D>,
 			Future<Map<String,Object>> future = getClient().getSpyClient().asyncGetBulk(buildMemcachedKeys(keys));
 			bytesByStringKey = future.get(config.getCacheTimeoutMs(), TimeUnit.MILLISECONDS);
 		} catch(TimeoutException e) {										
-			TraceTool.appendToSpanInfo(DatarouterTracer.get(), "memcached timeout");	
+			TraceTool.appendToSpanInfo(TracerThreadLocal.get(), "memcached timeout");	
 		} catch(ExecutionException | InterruptedException | MemcachedStateException e){
 			logger.error("", e);
 		}
@@ -145,7 +145,7 @@ implements MemcachedPhysicalNode<PK,D>,
 					logger.error("", e);
 				}
 			}
-			TraceTool.appendToSpanInfo(DatarouterTracer.get(), "[got "+DrCollectionTool.size(databeans)+"/"+DrCollectionTool.size(keys)+"]");
+			TraceTool.appendToSpanInfo(TracerThreadLocal.get(), "[got "+DrCollectionTool.size(databeans)+"/"+DrCollectionTool.size(keys)+"]");
 			return databeans;
 		}finally{
 			finishTraceSpan();
@@ -175,11 +175,11 @@ implements MemcachedPhysicalNode<PK,D>,
 	/******************* tracing ***************************/
 	
 	protected void startTraceSpan(String opName){
-		TraceTool.startSpan(DatarouterTracer.get(), getTraceName(opName));
+		TraceTool.startSpan(TracerThreadLocal.get(), getTraceName(opName));
 	}
 
 	protected void finishTraceSpan(){
-		TraceTool.finishSpan(DatarouterTracer.get());
+		TraceTool.finishSpan(TracerThreadLocal.get());
 	}
 
 	protected String getTraceName(String opName){

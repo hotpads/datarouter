@@ -13,9 +13,9 @@ import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.datarouter.util.core.DrNumberTool;
-import com.hotpads.trace.DatarouterTracer;
 import com.hotpads.trace.TraceTool;
 import com.hotpads.trace.TracedCallable;
+import com.hotpads.trace.TracerThreadLocal;
 import com.hotpads.util.core.collections.Pair;
 import com.hotpads.util.datastructs.MutableString;
 
@@ -66,7 +66,7 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 		boolean possiblyTarnishedHTable = false;
 
 		try{
-			TraceTool.startSpan(DatarouterTracer.get(), nodeName+" "+taskName);
+			TraceTool.startSpan(TracerThreadLocal.get(), nodeName+" "+taskName);
 			recordDetailedTraceInfo();		
 			Pair<HTable, HBaseClient> pair = prepClientAndTableEtc(progress);
 			hTable = pair.getLeft();
@@ -105,7 +105,7 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 				client.checkInHTable(hTable, possiblyTarnishedHTable);
 			}
 			//hTable = null;//reset to null since this HBaseTask will get reused
-			TraceTool.finishSpan(DatarouterTracer.get());
+			TraceTool.finishSpan(TracerThreadLocal.get());
 			progress.set("ending finally block attemptNumOneBased:"+attemptNumOneBased);
 		}
 	}
@@ -122,10 +122,10 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 	
 	protected void recordDetailedTraceInfo() {
 		if(DrNumberTool.nullSafe(numAttempts) > 1){ 
-			TraceTool.appendToThreadInfo(DatarouterTracer.get(), "[attempt "+attemptNumOneBased+"/"+numAttempts+"]"); 
+			TraceTool.appendToThreadInfo(TracerThreadLocal.get(), "[attempt "+attemptNumOneBased+"/"+numAttempts+"]"); 
 		}
 		if( ! DrNumberTool.isMax(timeoutMs)){ 
-			TraceTool.appendToThreadInfo(DatarouterTracer.get(), "[timeoutMs="+timeoutMs+"]"); 
+			TraceTool.appendToThreadInfo(TracerThreadLocal.get(), "[timeoutMs="+timeoutMs+"]"); 
 		}
 	}
 	

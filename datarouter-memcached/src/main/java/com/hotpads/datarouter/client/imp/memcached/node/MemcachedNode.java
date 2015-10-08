@@ -19,8 +19,8 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrListTool;
-import com.hotpads.trace.DatarouterTracer;
 import com.hotpads.trace.TraceTool;
+import com.hotpads.trace.TracerThreadLocal;
 
 public class MemcachedNode<
 		PK extends PrimaryKey<PK>,
@@ -90,7 +90,7 @@ implements PhysicalMapStorageNode<PK,D>{
 					logger.error("memached error on " + key,e);
 				}
 			}
-			TraceTool.appendToSpanInfo(DatarouterTracer.get(), DrCollectionTool.size(databeans)+"");
+			TraceTool.appendToSpanInfo(TracerThreadLocal.get(), DrCollectionTool.size(databeans)+"");
 		}finally{
 			finishTraceSpan();
 		}
