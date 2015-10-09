@@ -32,6 +32,7 @@ import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrListTool;
+import com.hotpads.datarouter.util.core.DrNumberTool;
 import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.iterable.scanner.batch.AsyncBatchLoaderScanner;
 import com.hotpads.util.core.iterable.scanner.collate.Collator;
@@ -240,7 +241,8 @@ implements HBasePhysicalNode<PK,D>,
 			return new ScannerIterable<>(new ListBackedSortedScanner<>(pks));
 		}
 		List<AsyncBatchLoaderScanner<PK>> scanners = queryBuilder.getPkScanners(this, nullSafeRange, config);
-		Collator<PK> collator = new PriorityQueueCollator<>(scanners, nullSafeConfig.getLimit().longValue());
+		Collator<PK> collator = new PriorityQueueCollator<>(scanners,
+				DrNumberTool.longValue(nullSafeConfig.getLimit()));
 		return new ScannerIterable<>(collator);
 	}
 
@@ -264,7 +266,7 @@ implements HBasePhysicalNode<PK,D>,
 			return new ScannerIterable<>(new ListBackedSortedScanner<>(databeans));
 		}
 		List<AsyncBatchLoaderScanner<D>> scanners = queryBuilder.getDatabeanScanners(this, nullSafeRange, config);
-		Collator<D> collator = new PriorityQueueCollator<>(scanners, nullSafeConfig.getLimit().longValue());
+		Collator<D> collator = new PriorityQueueCollator<>(scanners, DrNumberTool.longValue(nullSafeConfig.getLimit()));
 		return new ScannerIterable<>(collator);
 	}
 
