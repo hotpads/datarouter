@@ -3,7 +3,6 @@ package com.hotpads.datarouter.client.imp.jdbc.test;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Guice;
-import org.testng.annotations.Test;
 
 import com.hotpads.datarouter.client.imp.jdbc.TestDatarouterJdbcModuleFactory;
 import com.hotpads.datarouter.test.DrTestConstants;
@@ -21,12 +20,6 @@ public class JdbcIndexedSortedNodeIntegrationTests extends BaseIndexedNodeIntegr
 	public void afterClass(){
 		testIndexedDelete();
 		datarouter.shutdown();
-	}
-
-	@Test
-	public void limitedScanTest(){
-		testLimitedScanKeys();
-		testLimitedScan();
 	}
 
 }
