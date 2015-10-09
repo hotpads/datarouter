@@ -240,7 +240,7 @@ implements HBasePhysicalNode<PK,D>,
 			return new ScannerIterable<>(new ListBackedSortedScanner<>(pks));
 		}
 		List<AsyncBatchLoaderScanner<PK>> scanners = queryBuilder.getPkScanners(this, nullSafeRange, config);
-		Collator<PK> collator = new PriorityQueueCollator<>(scanners, nullSafeConfig.getLimit());
+		Collator<PK> collator = new PriorityQueueCollator<>(scanners, nullSafeConfig.getLimit().longValue());
 		return new ScannerIterable<>(collator);
 	}
 
@@ -264,7 +264,7 @@ implements HBasePhysicalNode<PK,D>,
 			return new ScannerIterable<>(new ListBackedSortedScanner<>(databeans));
 		}
 		List<AsyncBatchLoaderScanner<D>> scanners = queryBuilder.getDatabeanScanners(this, nullSafeRange, config);
-		Collator<D> collator = new PriorityQueueCollator<>(scanners, nullSafeConfig.getLimit());
+		Collator<D> collator = new PriorityQueueCollator<>(scanners, nullSafeConfig.getLimit().longValue());
 		return new ScannerIterable<>(collator);
 	}
 
