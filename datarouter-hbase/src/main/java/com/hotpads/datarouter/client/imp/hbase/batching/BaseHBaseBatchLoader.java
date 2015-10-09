@@ -30,7 +30,9 @@ extends BaseBatchLoader<T>{
 	protected final Range<PK> range;
 	protected final Config config;
 	protected final Integer iterateBatchSize;//break this out of config for safety
+	private final Integer limit;
 	protected Long batchChainCounter;
+	private boolean limitReached;
 
 	public BaseHBaseBatchLoader(final HBaseReaderNode<PK,D,F> node, final List<Field<?>> scatteringPrefix,
 			final Range<PK> range, final Config config, Long batchChainCounter){
@@ -40,6 +42,7 @@ extends BaseBatchLoader<T>{
 		this.range = range;
 		this.config = Config.nullSafe(config);
 		this.iterateBatchSize = this.config.getIterateBatchSize();
+		this.limit = this.config.getLimit();
 		this.config.setIterateBatchSize(iterateBatchSize);
 		this.batchChainCounter = batchChainCounter;
 	}
@@ -73,18 +76,26 @@ extends BaseBatchLoader<T>{
 
 		List<T> outs = DrListTool.createArrayListWithSize(hbaseRows);
 		for(Result row : hbaseRows){
-			if (row == null || row.isEmpty()){
+			if(row == null || row.isEmpty()){
 				continue;
 			}
-			if (differentScatteringPrefix(row)){
+			if(differentScatteringPrefix(row)){
 				break;// we ran into the next scattering prefix partition
 			}
 			T result = parseHBaseResult(row);
 			outs.add(result);
+			if(hasReachedLimit(outs.size())){
+				limitReached = true;
+				break;
+			}
 		}
 		updateBatch(outs);
 
 		return this;
+	}
+
+	private boolean hasReachedLimit(int added){
+		return limit != null && (batchChainCounter - 1) * iterateBatchSize + added >= limit;
 	}
 
 	protected Range<PK> getNextRange(){
@@ -96,9 +107,8 @@ extends BaseBatchLoader<T>{
 	@Override
 	public boolean isLastBatch(){
 		//refer to the dedicated iterateBatchSize field in case someone changed Config down the line
-		return isBatchHasBeenLoaded() && isBatchSmallerThan(iterateBatchSize);
+		return isBatchHasBeenLoaded() && (isBatchSmallerThan(iterateBatchSize) || limitReached);
 	}
-
 
 	private boolean differentScatteringPrefix(Result row){
 		if (scatteringPrefixBytes == null || row == null){

@@ -17,10 +17,9 @@ import com.hotpads.datarouter.test.node.basic.sorted.SortedBeanEntityNode;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBeans;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 
-
 public class HBaseEntitySortedNodeIntegrationTests extends BaseSortedNodeIntegrationTests{
 
-	protected SortedBeanEntityNode sortedBeanEntityNode;
+	private SortedBeanEntityNode sortedBeanEntityNode;
 
 	@BeforeClass
 	public void beforeClass(){

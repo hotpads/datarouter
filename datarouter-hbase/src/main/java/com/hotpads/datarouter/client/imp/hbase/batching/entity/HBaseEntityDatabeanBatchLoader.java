@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.hadoop.hbase.client.Result;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseSubEntityReaderNode;
 import com.hotpads.datarouter.config.Config;
@@ -25,20 +23,19 @@ public class HBaseEntityDatabeanBatchLoader<
 		E extends Entity<EK>,
 		PK extends EntityPrimaryKey<EK,PK>,
 		D extends Databean<PK,D>,
-		F extends DatabeanFielder<PK,D>> 
+		F extends DatabeanFielder<PK,D>>
 extends BaseHBaseEntityBatchLoader<EK,E,PK,D,F,D>{
-	private static Logger logger = LoggerFactory.getLogger(HBaseEntityDatabeanBatchLoader.class);
-		
+
 	public HBaseEntityDatabeanBatchLoader(final HBaseSubEntityReaderNode<EK,E,PK,D,F> node, int partition,
 			final byte[] partitionBytes, final Range<PK> range, final Config pConfig, Long batchChainCounter){
 		super(node, partition, partitionBytes, range, pConfig, batchChainCounter);
 	}
-	
+
 	@Override
 	protected boolean isKeysOnly(){
 		return false;
 	}
-	
+
 	@Override
 	protected List<D> parseHBaseResult(Result result){
 		//the first and last entity may include results outside the range
@@ -51,7 +48,7 @@ extends BaseHBaseEntityBatchLoader<EK,E,PK,D,F,D>{
 		}
 		return filteredResults;
 	}
-	
+
 	@Override
 	protected PK getLastPrimaryKeyFromBatch(){
 		PK last = getLast()==null ? null : getLast().getKey();
@@ -61,7 +58,7 @@ extends BaseHBaseEntityBatchLoader<EK,E,PK,D,F,D>{
 	@Override
 	public BatchLoader<D> getNextLoader(){
 		Range<PK> nextRange = getNextRange();
-		return new HBaseEntityDatabeanBatchLoader<EK,E,PK,D,F>(node, partition, partitionBytes, nextRange, config, 
-				batchChainCounter + 1);					
+		return new HBaseEntityDatabeanBatchLoader<>(node, partition, partitionBytes, nextRange, config,
+				batchChainCounter + 1);
 	}
 }
