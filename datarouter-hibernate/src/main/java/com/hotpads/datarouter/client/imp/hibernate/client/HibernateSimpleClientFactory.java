@@ -44,7 +44,8 @@ extends JdbcSimpleClientFactory{
 		PhaseTimer timer = new PhaseTimer(getClientName());
 
 		// base config file for a SessionFactory
-		String configFileLocation = DrPropertiesTool.getFirstOccurrence(getMultiProperties(), DatarouterClients.PREFIX_client
+		String configFileLocation = DrPropertiesTool.getFirstOccurrence(getMultiProperties(), 
+				DatarouterClients.PREFIX_client
 				+ getClientName() + PARAM_configLocation);
 		if(DrStringTool.isEmpty(configFileLocation)){
 			configFileLocation = CONFIG_LOCATION_DEFAULT;
@@ -59,8 +60,8 @@ extends JdbcSimpleClientFactory{
 //			Class<? extends Databean<?, ?>> databeanClass = fieldInfo.getDatabeanClass();
 
 		//add all databeanClasses until we're sure that none are using hibernate code (like GetJobletForProcessing)
-		Collection<Class<? extends Databean<?, ?>>> relevantDatabeanTypes = getDatarouter().getNodes().getTypesForClient(
-				getClientName());
+		Collection<Class<? extends Databean<?, ?>>> relevantDatabeanTypes = getDatarouter().getNodes()
+				.getTypesForClient(getClientName());
 		for (Class<? extends Databean<?, ?>> databeanClass : DrCollectionTool.nullSafe(relevantDatabeanTypes)){
 
 			try{
