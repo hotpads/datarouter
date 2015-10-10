@@ -219,13 +219,7 @@ implements HBasePhysicalNode<PK,D>,
 				.getBatchingDatabeanScannerForEachPrefix(getClient().getExecutorService(), this, fieldInfo, range,
 						nullSafeConfig);
 		Collator<D> collator = new PriorityQueueCollator<>(scanners);
-		if(nullSafeConfig.getOffset() != null){
-			for(int i = 0 ; i < config.getOffset() ; i++){
-				if(!collator.advance()){
-					break;
-				}
-			}
-		}
+		collator.advanceBy(nullSafeConfig.getOffset());
 		return new ScannerIterable<>(collator);
 	}
 

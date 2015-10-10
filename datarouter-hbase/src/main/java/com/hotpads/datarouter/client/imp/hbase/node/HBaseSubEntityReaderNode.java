@@ -265,13 +265,7 @@ implements HBasePhysicalNode<PK,D>,
 		}
 		List<AsyncBatchLoaderScanner<D>> scanners = queryBuilder.getDatabeanScanners(this, nullSafeRange, config);
 		Collator<D> collator = new PriorityQueueCollator<>(scanners);
-		if(nullSafeConfig.getOffset() != null){
-			for(int i = 0 ; i < nullSafeConfig.getOffset() ; i++){
-				if(!collator.advance()){
-					break;
-				}
-			}
-		}
+		collator.advanceBy(nullSafeConfig.getOffset());
 		return new ScannerIterable<>(collator);
 	}
 
