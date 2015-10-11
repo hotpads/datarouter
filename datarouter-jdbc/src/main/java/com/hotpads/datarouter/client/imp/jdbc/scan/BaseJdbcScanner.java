@@ -14,12 +14,12 @@ public abstract class BaseJdbcScanner<
 		D extends Databean<PK,D>,
 		T extends Comparable<? super T>>//T should be either PK or D
 extends BaseBatchBackedScanner<T,T>{
-	
+
 	private long resultCount;
 	private Range<PK> range;
 	private Config config;
 	private Config batchConfig;
-	
+
 	public BaseJdbcScanner(Range<PK> range, Config config){
 		this.range = range;
 		this.config = Config.nullSafe(config);
@@ -27,10 +27,10 @@ extends BaseBatchBackedScanner<T,T>{
 		this.resultCount = 0;
 		this.batchConfig = this.config.getDeepCopy();
 	}
-	
+
 	protected abstract PK getPrimaryKey(T fieldSet);
 	protected abstract List<T> doLoad(Range<PK> range, Config config);
-	
+
 	@Override
 	protected void loadNextBatch(){
 		currentBatchIndex = 0;
@@ -45,22 +45,23 @@ extends BaseBatchBackedScanner<T,T>{
 			lastRowOfPreviousBatch = getPrimaryKey(endOfLastBatch);
 			isStartInclusive = false;
 		}
-		Range<PK> batchRange = Range.create(lastRowOfPreviousBatch, isStartInclusive, range.getEnd(), 
+		Range<PK> batchRange = Range.create(lastRowOfPreviousBatch, isStartInclusive, range.getEnd(),
 				range.getEndInclusive());
-		
+
 
 		int batchConfigLimit = this.config.getIterateBatchSize();
 		if(this.config.getLimit() != null && this.config.getLimit() - resultCount < batchConfigLimit){
 			batchConfigLimit = (int) (this.config.getLimit() - resultCount);
 		}
 		batchConfig.setLimit(batchConfigLimit);
-		
+
 		currentBatch = doLoad(batchRange, batchConfig);
+		batchConfig.setOffset(0);
 		resultCount += currentBatch.size();
 		if(DrCollectionTool.size(currentBatch) < batchConfig.getLimit()
-				|| (config.getLimit() != null && resultCount >= config.getLimit())){
+				|| config.getLimit() != null && resultCount >= config.getLimit()){
 			noMoreBatches = true;//tell the advance() method not to call this method again
 		}
 	}
-	
+
 }
