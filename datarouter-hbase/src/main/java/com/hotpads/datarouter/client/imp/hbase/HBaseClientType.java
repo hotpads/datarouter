@@ -9,10 +9,10 @@ import org.junit.Assert;
 import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
-import com.google.inject.Injector;
-import com.hotpads.datarouter.client.ClientAvailabilitySettings;
+import com.hotpads.DatarouterInjector;
 import com.hotpads.datarouter.client.ClientFactory;
 import com.hotpads.datarouter.client.ClientTableNodeNames;
+import com.hotpads.datarouter.client.availability.ClientAvailabilitySettings;
 import com.hotpads.datarouter.client.imp.BaseClientType;
 import com.hotpads.datarouter.client.imp.hbase.factory.HBaseSimpleClientFactory;
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseEntityReaderNode;
@@ -105,7 +105,7 @@ public class HBaseClientType extends BaseClientType{
 	@Guice(moduleFactory = DatarouterTestModuleFactory.class)
 	public static class HBaseClientTypeTests{
 		@Inject
-		private Injector injector;
+		private DatarouterInjector injector;
 
 		@Test
 		public void testClassLocation(){

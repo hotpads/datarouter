@@ -24,8 +24,8 @@ import org.apache.hadoop.hbase.regionserver.StoreFile.BloomType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hotpads.datarouter.client.ClientAvailabilitySettings;
 import com.hotpads.datarouter.client.ClientFactory;
+import com.hotpads.datarouter.client.availability.ClientAvailabilitySettings;
 import com.hotpads.datarouter.client.imp.hbase.HBaseClientImp;
 import com.hotpads.datarouter.client.imp.hbase.HBaseStaticContext;
 import com.hotpads.datarouter.client.imp.hbase.client.HBaseClient;

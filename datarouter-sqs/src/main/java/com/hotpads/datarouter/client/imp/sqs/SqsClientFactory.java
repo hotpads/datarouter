@@ -5,8 +5,8 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.sqs.AmazonSQSAsyncClient;
 import com.amazonaws.services.sqs.AmazonSQSClient;
 import com.hotpads.datarouter.client.Client;
-import com.hotpads.datarouter.client.ClientAvailabilitySettings;
 import com.hotpads.datarouter.client.ClientFactory;
+import com.hotpads.datarouter.client.availability.ClientAvailabilitySettings;
 
 public class SqsClientFactory implements ClientFactory{
 

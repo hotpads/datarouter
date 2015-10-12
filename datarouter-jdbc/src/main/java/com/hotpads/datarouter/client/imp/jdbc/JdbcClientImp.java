@@ -9,8 +9,8 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hotpads.datarouter.client.ClientAvailabilitySettings;
 import com.hotpads.datarouter.client.ClientType;
+import com.hotpads.datarouter.client.availability.ClientAvailabilitySettings;
 import com.hotpads.datarouter.client.imp.BaseClient;
 import com.hotpads.datarouter.client.type.JdbcClient;
 import com.hotpads.datarouter.client.type.JdbcConnectionClient;

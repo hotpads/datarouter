@@ -4,8 +4,8 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import com.hotpads.datarouter.client.ClientAvailabilitySettings;
 import com.hotpads.datarouter.client.ClientFactory;
+import com.hotpads.datarouter.client.availability.ClientAvailabilitySettings;
 import com.hotpads.datarouter.client.imp.BaseClientType;
 import com.hotpads.datarouter.client.imp.QueueClientType;
 import com.hotpads.datarouter.client.imp.sqs.group.SqsGroupNode;
