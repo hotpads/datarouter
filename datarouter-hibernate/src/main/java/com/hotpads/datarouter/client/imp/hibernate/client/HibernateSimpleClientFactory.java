@@ -7,6 +7,7 @@ import org.hibernate.cfg.AnnotationConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.hotpads.datarouter.client.ClientAvailabilitySettings;
 import com.hotpads.datarouter.client.Clients;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.execute.ParallelSchemaUpdate;
 import com.hotpads.datarouter.client.imp.jdbc.factory.JdbcSimpleClientFactory;
@@ -24,8 +25,10 @@ extends JdbcSimpleClientFactory{
 
 	private static final String
 		HIBERNATE_CONNECTION_PREFIX = "hibernate.connection.",
-		PROVIDER_CLASS = HIBERNATE_CONNECTION_PREFIX + "provider_class", // from org.hibernate.cfg.Environment.CONNECTION_PROVIDER
-		CONNECTION_POOL_NAME = HIBERNATE_CONNECTION_PREFIX + "connectionPoolName", // any name... SessionFactory simply passes them through
+		// from org.hibernate.cfg.Environment.CONNECTION_PROVIDER
+		PROVIDER_CLASS = HIBERNATE_CONNECTION_PREFIX + "provider_class",
+		// any name... SessionFactory simply passes them through
+		CONNECTION_POOL_NAME = HIBERNATE_CONNECTION_PREFIX + "connectionPoolName",
 		PARAM_configLocation = ".configLocation",
 		CONFIG_LOCATION_DEFAULT = "hib-default.cfg.xml",
 		PARAM_show_sql = ".hibernate.show_sql",
@@ -33,8 +36,8 @@ extends JdbcSimpleClientFactory{
 
 
 	public HibernateSimpleClientFactory(Datarouter datarouter, JdbcFieldCodecFactory fieldCodecFactory,
-			String clientName){
-		super(datarouter, fieldCodecFactory, clientName);
+			String clientName, ClientAvailabilitySettings clientAvailabilitySettings){
+		super(datarouter, fieldCodecFactory, clientName, clientAvailabilitySettings);
 	}
 
 
@@ -51,18 +54,10 @@ extends JdbcSimpleClientFactory{
 		}
 		AnnotationConfiguration sfConfig = new AnnotationConfiguration();
 
-		//this code will skip all nodes with fielders, which is the desired behavior, but some jdbc nodes are still using hibernate TxnOps =(
-//		List<? extends PhysicalNode<?, ?>> physicalNodes = datarouter.getNodes().getPhysicalNodesForClient(clientName);
-//		for(PhysicalNode<?, ?> physicalNode : IterableTool.nullSafe(physicalNodes)){
-//			DatabeanFieldInfo<?, ?, ?> fieldInfo = physicalNode.getFieldInfo();
-//			if(fieldInfo.getFieldAware()){ continue; }//skip databeans with fielders
-//			Class<? extends Databean<?, ?>> databeanClass = fieldInfo.getDatabeanClass();
-
 		//add all databeanClasses until we're sure that none are using hibernate code (like GetJobletForProcessing)
-		Collection<Class<? extends Databean<?, ?>>> relevantDatabeanTypes = getDatarouter().getNodes().getTypesForClient(
-				getClientName());
+		Collection<Class<? extends Databean<?, ?>>> relevantDatabeanTypes = getDatarouter().getNodes()
+				.getTypesForClient(getClientName());
 		for (Class<? extends Databean<?, ?>> databeanClass : DrCollectionTool.nullSafe(relevantDatabeanTypes)){
-
 			try{
 				sfConfig.addClass(databeanClass);
 			} catch (org.hibernate.MappingNotFoundException mnfe){
@@ -87,7 +82,8 @@ extends JdbcSimpleClientFactory{
 		HibernateConnectionProvider.clearConnectionPoolFromThread();
 		timer.add("connection provider");
 
-		HibernateClientImp client = new HibernateClientImp(getClientName(), getConnectionPool(), sessionFactory);
+		HibernateClientImp client = new HibernateClientImp(getClientName(), getConnectionPool(), sessionFactory,
+				clientAvailabilitySettings);
 		timer.add("client");
 
 		if(doSchemaUpdate()){

@@ -10,6 +10,7 @@ import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
 import com.google.inject.Injector;
+import com.hotpads.datarouter.client.ClientAvailabilitySettings;
 import com.hotpads.datarouter.client.ClientFactory;
 import com.hotpads.datarouter.client.imp.BaseClientType;
 import com.hotpads.datarouter.client.imp.memcached.client.MemcachedSimpleClientFactory;
@@ -42,8 +43,14 @@ public class MemcachedClientType extends BaseClientType{
 			NAME = "memcached",
 			CANONICAL_CLASS_NAME = "com.hotpads.datarouter.client.imp.memcached.MemcachedClientType";
 
-	public static final MemcachedClientType INSTANCE = new MemcachedClientType();
+	public static MemcachedClientType INSTANCE;
+	private final ClientAvailabilitySettings clientAvailabilitySettings;
 
+	@Inject
+	public MemcachedClientType(ClientAvailabilitySettings clientAvailabilitySettings){
+		this.clientAvailabilitySettings = clientAvailabilitySettings;
+		INSTANCE = this;
+	}
 
 	@Override
 	public String getName(){
@@ -53,7 +60,7 @@ public class MemcachedClientType extends BaseClientType{
 	@Override
 	public ClientFactory createClientFactory(Datarouter datarouter, String clientName,
 			List<PhysicalNode<?,?>> physicalNodes){
-		return new MemcachedSimpleClientFactory(datarouter, clientName);
+		return new MemcachedSimpleClientFactory(datarouter, clientName, clientAvailabilitySettings);
 	}
 
 	@Override

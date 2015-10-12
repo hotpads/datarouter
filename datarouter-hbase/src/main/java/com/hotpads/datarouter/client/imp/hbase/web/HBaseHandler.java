@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
 import com.hotpads.datarouter.client.imp.hbase.HBaseClientImp;
 import com.hotpads.datarouter.client.imp.hbase.balancer.HBaseBalancerFactory;
 import com.hotpads.datarouter.client.imp.hbase.cluster.DRHRegionInfo;
-import com.hotpads.datarouter.client.imp.hbase.cluster.DRHRegionList;
+import com.hotpads.datarouter.client.imp.hbase.cluster.DrhRegionList;
 import com.hotpads.datarouter.client.imp.hbase.cluster.DRHServerInfo;
 import com.hotpads.datarouter.client.imp.hbase.cluster.DRHServerList;
 import com.hotpads.datarouter.client.imp.hbase.cluster.DRHTableSettings;
@@ -80,7 +80,7 @@ public class HBaseHandler extends BaseHandler {
 	protected int numRegions;
 	protected List<String> encodedRegionNameStrings;
 	protected DRHServerList drhServerList;
-	protected DRHRegionList regionList;
+	protected DrhRegionList regionList;
 	private Mav mav;
 
 	private Configuration hbaseConfig = null;
@@ -110,7 +110,7 @@ public class HBaseHandler extends BaseHandler {
 		numRegions = DrCollectionTool.size(encodedRegionNameStrings);
 		drhServerList = new DRHServerList(hbaseConfig);
 		if(routerParams.getNode() != null){
-			regionList = new DRHRegionList(routerParams.getClient(), drhServerList, routerParams.getTableName(),
+			regionList = new DrhRegionList(routerParams.getClient(), drhServerList, routerParams.getTableName(),
 					hbaseConfig, routerParams.getNode(), balancerFactory.getBalancerForTable(routerParams.getTableName()),
 					drhCompactionInfo);
 		}

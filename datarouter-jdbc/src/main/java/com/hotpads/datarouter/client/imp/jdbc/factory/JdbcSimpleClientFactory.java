@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.Client;
+import com.hotpads.datarouter.client.ClientAvailabilitySettings;
 import com.hotpads.datarouter.client.ClientFactory;
 import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.client.imp.jdbc.JdbcClientImp;
@@ -21,7 +22,6 @@ import com.hotpads.datarouter.client.imp.jdbc.util.JdbcTool;
 import com.hotpads.datarouter.client.type.JdbcClient;
 import com.hotpads.datarouter.connection.JdbcConnectionPool;
 import com.hotpads.datarouter.routing.Datarouter;
-import com.hotpads.datarouter.util.core.DrBooleanTool;
 import com.hotpads.datarouter.util.core.DrPropertiesTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.util.core.profile.PhaseTimer;
@@ -30,7 +30,7 @@ public class JdbcSimpleClientFactory
 implements ClientFactory{
 	private static Logger logger = LoggerFactory.getLogger(JdbcSimpleClientFactory.class);
 
-	
+
 	public static final String
 			POOL_DEFAULT = "default",
 			PRINT_PREFIX = "schemaUpdate.print",
@@ -38,6 +38,7 @@ implements ClientFactory{
 		;
 
 	private final Datarouter datarouter;
+	protected final ClientAvailabilitySettings clientAvailabilitySettings;
 
 	protected final JdbcFieldCodecFactory fieldCodecFactory;
 	private final String clientName;
@@ -47,13 +48,14 @@ implements ClientFactory{
 	private final JdbcOptions defaultJdbcOptions;
 	private final SchemaUpdateOptions schemaUpdatePrintOptions;
 	private final SchemaUpdateOptions schemaUpdateExecuteOptions;
-	
+
 	private JdbcConnectionPool connectionPool;
 	private JdbcClient client;
 
 	public JdbcSimpleClientFactory(Datarouter datarouter, JdbcFieldCodecFactory fieldCodecFactory,
-			String clientName){
+			String clientName, ClientAvailabilitySettings clientAvailabilitySettings){
 		this.datarouter = datarouter;
+		this.clientAvailabilitySettings = clientAvailabilitySettings;
 		this.fieldCodecFactory = fieldCodecFactory;
 		this.clientName = clientName;
 		this.configFilePaths = datarouter.getConfigFilePaths();
@@ -71,7 +73,7 @@ implements ClientFactory{
 		initConnectionPool();
 		timer.add("pool");
 
-		client = new JdbcClientImp(clientName, connectionPool);
+		client = new JdbcClientImp(clientName, connectionPool, clientAvailabilitySettings);
 		timer.add("client");
 
 		if(doSchemaUpdate()){
@@ -92,7 +94,7 @@ implements ClientFactory{
 		if(schemaUpdatePrintOptions.getCreateDatabases() || schemaUpdateExecuteOptions.getCreateDatabases()){
 			checkDatabaseExist();
 		}
-		connectionPool = new JdbcConnectionPool(clientName,	isWritableClient(), defaultJdbcOptions, jdbcOptions);		
+		connectionPool = new JdbcConnectionPool(clientName,	isWritableClient(), defaultJdbcOptions, jdbcOptions);
 
 	}
 
@@ -112,8 +114,8 @@ implements ClientFactory{
 
 		Connection connection = JdbcTool.openConnection(hostname, port, null, user, password);
 		List<String> existingDatabases = JdbcTool.showDatabases(connection);
-		
-		
+
+
 		//if database does not exist, create database
 		if(!existingDatabases.contains(databaseName)){
 			if(isWritableClient()){
@@ -138,7 +140,7 @@ implements ClientFactory{
 			}
 		}
 	}
-	
+
 	public String getClientName(){
 		return clientName;
 	}
