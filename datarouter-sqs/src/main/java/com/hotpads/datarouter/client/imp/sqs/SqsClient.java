@@ -13,7 +13,7 @@ public class SqsClient extends BaseClient{
 
 	public SqsClient(String name, SqsClientType clientType, AmazonSQSClient amazonSqsClient, SqsOptions sqsOptions,
 			ClientAvailabilitySettings clientAvailabilitySettings){
-		super(clientAvailabilitySettings, name);
+		super(name, clientAvailabilitySettings);
 		this.clientType = clientType;
 		this.amazonSqsClient = amazonSqsClient;
 		this.sqsOptions = sqsOptions;

@@ -38,7 +38,7 @@ implements JdbcConnectionClient, TxnClient, JdbcClient{
 
 	public JdbcClientImp(String name, JdbcConnectionPool connectionPool,
 			ClientAvailabilitySettings clientAvailabilitySettings){
-		super(clientAvailabilitySettings, name);
+		super(name, clientAvailabilitySettings);
 		this.connectionPool = connectionPool;
 	}
 

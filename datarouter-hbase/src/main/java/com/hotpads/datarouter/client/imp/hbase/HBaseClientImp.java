@@ -37,7 +37,7 @@ implements HBaseClient{
 	public HBaseClientImp(String name, Configuration hbaseConfiguration, HBaseAdmin hbaseAdmin, HTablePool pool,
 			Map<String,Class<? extends PrimaryKey<?>>> primaryKeyClassByName, ClientAvailabilitySettings
 			clientAvailabilitySettings){
-		super(clientAvailabilitySettings, name);
+		super(name, clientAvailabilitySettings);
 		this.hbaseConfiguration = hbaseConfiguration;
 		this.hbaseAdmin = hbaseAdmin;
 		this.htablePool = pool;

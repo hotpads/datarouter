@@ -19,7 +19,7 @@ implements MemcachedClient{
 
 	public MemcachedClientImp(String name, net.spy.memcached.MemcachedClient spyClient, ClientAvailabilitySettings
 			clientAvailabilitySettings){
-		super(clientAvailabilitySettings, name);
+		super(name, clientAvailabilitySettings);
 		this.spyClient = spyClient;
 		NamedThreadFactory threadFactory = new NamedThreadFactory(null, "HTablePool", true);
 		this.executorService = Executors.newCachedThreadPool(threadFactory);
