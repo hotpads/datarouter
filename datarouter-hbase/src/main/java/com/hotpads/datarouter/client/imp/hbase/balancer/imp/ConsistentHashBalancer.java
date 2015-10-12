@@ -18,7 +18,12 @@ extends BaseHBaseRegionBalancer{
 	
 	public static final Integer BUCKETS_PER_NODE = 1000;
 
+	private final String tableName;
 	
+	public ConsistentHashBalancer(String tableName){
+		this.tableName = tableName;
+	}
+
 	@Override
 	public Map<DRHRegionInfo<?>,ServerName> call(){
 		//set up the ring of servers
@@ -35,7 +40,7 @@ extends BaseHBaseRegionBalancer{
 		
 		//level out any imbalances from the hashing
 		BalanceLeveler<DRHRegionInfo<?>,ServerName> leveler = new BalanceLeveler<DRHRegionInfo<?>,ServerName>(
-				drhServerList.getServerNames(), serverByRegion);
+				drhServerList.getServerNames(), serverByRegion, tableName);
 		serverByRegion = leveler.getBalancedDestinationByItem();
 
 //		logger.warn(getServerByRegionStringForDebug());
