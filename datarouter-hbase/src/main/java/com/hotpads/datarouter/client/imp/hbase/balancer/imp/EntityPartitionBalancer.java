@@ -18,13 +18,12 @@ import com.hotpads.datarouter.client.imp.hbase.cluster.DRHRegionInfo;
 public class EntityPartitionBalancer
 extends BaseHBaseRegionBalancer{
 	
-	private final String tableName;
 	private Map<Integer,List<DRHRegionInfo<?>>> regionsByPartition;
 	
 	/******************* constructor ***************************/
 	
 	public EntityPartitionBalancer(String tableName){
-		this.tableName = tableName;
+		super(tableName);
 	}
 	
 	@Override

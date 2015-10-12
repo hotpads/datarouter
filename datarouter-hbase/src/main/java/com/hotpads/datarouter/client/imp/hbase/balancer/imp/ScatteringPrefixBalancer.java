@@ -23,13 +23,12 @@ import com.hotpads.util.core.bytes.ByteRange;
 public class ScatteringPrefixBalancer
 extends BaseHBaseRegionBalancer{
 	
-	private final String tableName;
 	private Map<ByteRange,List<DRHRegionInfo<?>>> regionsByPrefix;
 	
 	/******************* constructor ***************************/
 	
 	public ScatteringPrefixBalancer(String tableName){
-		this.tableName = tableName;
+		super(tableName);
 	}
 	
 	@Override

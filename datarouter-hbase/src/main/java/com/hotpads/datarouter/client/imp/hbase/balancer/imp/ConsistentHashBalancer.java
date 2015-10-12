@@ -17,11 +17,9 @@ public class ConsistentHashBalancer
 extends BaseHBaseRegionBalancer{
 	
 	public static final Integer BUCKETS_PER_NODE = 1000;
-
-	private final String tableName;
 	
 	public ConsistentHashBalancer(String tableName){
-		this.tableName = tableName;
+		super(tableName);
 	}
 
 	@Override
