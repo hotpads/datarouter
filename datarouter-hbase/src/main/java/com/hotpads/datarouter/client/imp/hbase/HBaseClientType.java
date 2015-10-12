@@ -10,6 +10,7 @@ import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
 import com.google.inject.Injector;
+import com.hotpads.datarouter.client.ClientAvailabilitySettings;
 import com.hotpads.datarouter.client.ClientFactory;
 import com.hotpads.datarouter.client.ClientTableNodeNames;
 import com.hotpads.datarouter.client.imp.BaseClientType;
@@ -27,8 +28,8 @@ import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.PhysicalSortedMapStorageNode;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
-import com.hotpads.datarouter.routing.Router;
 import com.hotpads.datarouter.routing.Datarouter;
+import com.hotpads.datarouter.routing.Router;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.entity.Entity;
@@ -45,8 +46,14 @@ public class HBaseClientType extends BaseClientType{
 			NAME = "hbase",
 			CANONICAL_CLASS_NAME = "com.hotpads.datarouter.client.imp.hbase.HBaseClientType";
 
-	public static final HBaseClientType INSTANCE = new HBaseClientType();
+	public static HBaseClientType INSTANCE;
 
+	private final ClientAvailabilitySettings clientAvailabilitySettings;
+
+	@Inject
+	public HBaseClientType(ClientAvailabilitySettings clientAvailabilitySettings){
+		this.clientAvailabilitySettings = clientAvailabilitySettings;
+	}
 
 	@Override
 	public String getName(){
@@ -56,7 +63,7 @@ public class HBaseClientType extends BaseClientType{
 	@Override
 	public ClientFactory createClientFactory(Datarouter datarouter, String clientName,
 			List<PhysicalNode<?,?>> physicalNodes){
-		return new HBaseSimpleClientFactory(datarouter, clientName);
+		return new HBaseSimpleClientFactory(datarouter, clientName, clientAvailabilitySettings);
 	}
 
 	@Override

@@ -14,11 +14,11 @@ public interface HBaseClient
 extends Client{
 
 	HTable checkOutHTable(String name, MutableString progress);
-	void checkInHTable(HTable hTable, boolean possiblyTarnished);
+	void checkInHTable(HTable htable, boolean possiblyTarnished);
 	HTablePool getHTablePool();
 	Integer getTotalPoolSize();
 	ExecutorService getExecutorService();
 	HBaseAdmin getHBaseAdmin();
 
-	Class<PrimaryKey<?>> getPrimaryKeyClass(String tableName);
+	Class<? extends PrimaryKey<?>> getPrimaryKeyClass(String tableName);
 }

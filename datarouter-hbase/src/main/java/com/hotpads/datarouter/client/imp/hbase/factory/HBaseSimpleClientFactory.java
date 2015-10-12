@@ -24,6 +24,7 @@ import org.apache.hadoop.hbase.regionserver.StoreFile.BloomType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.hotpads.datarouter.client.ClientAvailabilitySettings;
 import com.hotpads.datarouter.client.ClientFactory;
 import com.hotpads.datarouter.client.imp.hbase.HBaseClientImp;
 import com.hotpads.datarouter.client.imp.hbase.HBaseStaticContext;
@@ -51,42 +52,45 @@ import com.hotpads.util.core.collections.Pair;
 import com.hotpads.util.core.collections.Twin;
 import com.hotpads.util.core.profile.PhaseTimer;
 
-public class HBaseSimpleClientFactory 
+public class HBaseSimpleClientFactory
 implements ClientFactory{
 	private static final Logger logger = LoggerFactory.getLogger(HBaseSimpleClientFactory.class);
-	
+
 	//default table configuration settings for new tables
-	private static final long 
+	private static final long
 			DEFAULT_MAX_FILE_SIZE_BYTES = 4 * 1024 * 1024 * 1024,
 			DEFAULT_MEMSTORE_FLUSH_SIZE_BYTES = 256 * 1024 * 1024;
-	
+
 	//these are used for databeans with no values outside the PK.  we fake a value as we need at least 1 cell in a row
 	public static final byte[] DEFAULT_FAMILY_QUALIFIER = new byte[]{(byte)'a'};
 	public static final String DUMMY_COL_NAME = new String(new byte[]{0});
-	
-	
+
+
 	/********************* fields *******************************/
-	
+
 	private final Datarouter datarouter;
 	private final String clientName;
 	private final Set<String> configFilePaths;
 	private final List<Properties> multiProperties;
 	private final HBaseOptions options;
-	
+	private final ClientAvailabilitySettings clientAvailabilitySettings;
+
 	//we cannot finalize these as they are created in a background thread for faster application boot time
-	private Configuration hBaseConfig;
-	private HBaseAdmin hBaseAdmin;
-	
-	public HBaseSimpleClientFactory(Datarouter datarouter, String clientName){
+	private Configuration hbaseConfig;
+	private HBaseAdmin hbaseAdmin;
+
+	public HBaseSimpleClientFactory(Datarouter datarouter, String clientName, ClientAvailabilitySettings
+			clientAvailabilitySettings){
+		this.clientAvailabilitySettings = clientAvailabilitySettings;
 		this.datarouter = datarouter;
 		this.clientName = clientName;
 		this.configFilePaths = datarouter.getConfigFilePaths();
 		this.multiProperties = DrPropertiesTool.fromFiles(configFilePaths);
 		this.options = new HBaseOptions(multiProperties, clientName);
 	}
-	
-	
-	@Override 
+
+
+	@Override
 	public HBaseClient call(){
 		HBaseClientImp newClient = null;
 		try{
@@ -94,30 +98,31 @@ implements ClientFactory{
 			PhaseTimer timer = new PhaseTimer(clientName);
 
 			String zkQuorum = options.zookeeperQuorum();
-			hBaseConfig = HBaseStaticContext.CONFIG_BY_ZK_QUORUM.get(zkQuorum);
-			if(hBaseConfig==null){
-				hBaseConfig = HBaseConfiguration.create();
-				hBaseConfig.set(HConstants.ZOOKEEPER_QUORUM, zkQuorum);
+			hbaseConfig = HBaseStaticContext.CONFIG_BY_ZK_QUORUM.get(zkQuorum);
+			if(hbaseConfig==null){
+				hbaseConfig = HBaseConfiguration.create();
+				hbaseConfig.set(HConstants.ZOOKEEPER_QUORUM, zkQuorum);
 			}
-			hBaseAdmin = new HBaseAdmin(hBaseConfig);
-			if(hBaseAdmin.getConnection().isClosed()){
+			hbaseAdmin = new HBaseAdmin(hbaseConfig);
+			if(hbaseAdmin.getConnection().isClosed()){
 				HBaseStaticContext.CONFIG_BY_ZK_QUORUM.remove(zkQuorum);
-				HBaseStaticContext.ADMIN_BY_CONFIG.remove(hBaseConfig);
-				hBaseConfig = null;
-				hBaseAdmin = null;
+				HBaseStaticContext.ADMIN_BY_CONFIG.remove(hbaseConfig);
+				hbaseConfig = null;
+				hbaseAdmin = null;
 				String log = "couldn't open connection because hBaseAdmin.getConnection().isClosed()";
 				logger.warn(log);
 				throw new UnavailableException(log);
 			}
-			HBaseStaticContext.CONFIG_BY_ZK_QUORUM.put(zkQuorum, hBaseConfig);
-			HBaseStaticContext.ADMIN_BY_CONFIG.put(hBaseConfig, hBaseAdmin);
-	
+			HBaseStaticContext.CONFIG_BY_ZK_QUORUM.put(zkQuorum, hbaseConfig);
+			HBaseStaticContext.ADMIN_BY_CONFIG.put(hbaseConfig, hbaseAdmin);
+
 			//databean config
-			Pair<HTablePool,Map<String,Class<PrimaryKey<?>>>> hTablePoolAndPrimaryKeyByTableName = initTables();
+			Pair<HTablePool,Map<String,Class<? extends PrimaryKey<?>>>> htablePoolAndPrimaryKeyByTableName
+					= initTables();
 			timer.add("init HTables");
-			
-			newClient = new HBaseClientImp(clientName, hBaseConfig, hBaseAdmin, hTablePoolAndPrimaryKeyByTableName
-					.getLeft(), hTablePoolAndPrimaryKeyByTableName.getRight());
+
+			newClient = new HBaseClientImp(clientName, hbaseConfig, hbaseAdmin, htablePoolAndPrimaryKeyByTableName
+					.getLeft(), htablePoolAndPrimaryKeyByTableName.getRight(), clientAvailabilitySettings);
 			logger.warn(timer.add("done").toString());
 		}catch(ZooKeeperConnectionException e){
 			throw new UnavailableException(e);
@@ -126,50 +131,50 @@ implements ClientFactory{
 		}
 		return newClient;
 	}
-	
-	
+
+
 	/********************** private ***************************/
-	
-	private Pair<HTablePool,Map<String,Class<PrimaryKey<?>>>> initTables(){
+
+	private Pair<HTablePool,Map<String,Class<? extends PrimaryKey<?>>>> initTables(){
 		List<String> tableNames = new ArrayList<>();
-		Map<String,Class<PrimaryKey<?>>> primaryKeyClassByName = new HashMap<>();
+		Map<String,Class<? extends PrimaryKey<?>>> primaryKeyClassByName = new HashMap<>();
 		Map<String,PhysicalNode<?,?>> nodeByTableName = new TreeMap<>();
 		Collection<PhysicalNode<?,?>> physicalNodes = datarouter.getNodes().getPhysicalNodesForClient(clientName);
 		for(PhysicalNode<?,?> node : physicalNodes){
 			tableNames.add(node.getTableName());
-			primaryKeyClassByName.put(node.getTableName(), (Class<PrimaryKey<?>>)node.getPrimaryKeyType());
+			primaryKeyClassByName.put(node.getTableName(), node.getPrimaryKeyType());
 			nodeByTableName.put(node.getTableName(), node);
 		}
 
-		try{		    
+		try{
 			boolean checkTables = options.checkTables();
 			boolean createTables = options.createTables();
 			if(checkTables || createTables){
 				for(String tableName : DrIterableTool.nullSafe(tableNames)){
 					byte[] tableNameBytes = StringByteTool.getUtf8Bytes(tableName);
-					if(createTables && !hBaseAdmin.tableExists(tableName)){
+					if(createTables && !hbaseAdmin.tableExists(tableName)){
 						logger.warn("table " + tableName + " not found, creating it");
-						HTableDescriptor hTable = new HTableDescriptor(tableName);
-						hTable.setMaxFileSize(DEFAULT_MAX_FILE_SIZE_BYTES);
-						hTable.setMemStoreFlushSize(DEFAULT_MEMSTORE_FLUSH_SIZE_BYTES);
+						HTableDescriptor htable = new HTableDescriptor(tableName);
+						htable.setMaxFileSize(DEFAULT_MAX_FILE_SIZE_BYTES);
+						htable.setMemStoreFlushSize(DEFAULT_MEMSTORE_FLUSH_SIZE_BYTES);
 						HColumnDescriptor family = new HColumnDescriptor(DEFAULT_FAMILY_QUALIFIER);
 						family.setMaxVersions(1);
 						family.setBloomFilterType(BloomType.NONE);
 						family.setDataBlockEncoding(DataBlockEncoding.FAST_DIFF);
 						family.setCompressionType(Algorithm.GZ);
-						hTable.addFamily(family);
+						htable.addFamily(family);
 						byte[][] splitPoints = getSplitPoints(nodeByTableName.get(tableName));
 						if(DrArrayTool.isEmpty(splitPoints)
 								|| DrArrayTool.isEmpty(splitPoints[0])){//a single empty byte array
-							hBaseAdmin.createTable(hTable);
+							hbaseAdmin.createTable(htable);
 						}else{
 							//careful, as throwing strange split points in here can crash master
 							// and corrupt meta table
-							hBaseAdmin.createTable(hTable, splitPoints);
+							hbaseAdmin.createTable(htable, splitPoints);
 						}
 						logger.warn("created table " + tableName);
 					}else if(checkTables){
-						if(!hBaseAdmin.tableExists(tableNameBytes)){
+						if(!hbaseAdmin.tableExists(tableNameBytes)){
 							logger.warn("table " + tableName + " not found");
 							break;
 						}
@@ -179,17 +184,17 @@ implements ClientFactory{
 		}catch(IOException e){
 			throw new RuntimeException(e);
 		}
-		
-		HTablePool pool = new HTableExecutorServicePool(options, hBaseAdmin, clientName, primaryKeyClassByName);
+
+		HTablePool pool = new HTableExecutorServicePool(options, hbaseAdmin, clientName, primaryKeyClassByName);
 		return Pair.create(pool, primaryKeyClassByName);
 	}
 
-	
+
 	// this currently gets ignored on an empty table since there are no regions to split
 	private byte[][] getSplitPoints(PhysicalNode<?,?> node){
 		if(node.getPhysicalNodeIfApplicable() instanceof HBaseSubEntityReaderNode){
 			HBaseSubEntityReaderNode<?,?,?,?,?> subEntityNode = (HBaseSubEntityReaderNode<?,?,?,?,?>)node;
-			EntityFieldInfo<?,?> entityFieldInfo = subEntityNode.getEntityFieldInfo(); 
+			EntityFieldInfo<?,?> entityFieldInfo = subEntityNode.getEntityFieldInfo();
 			EntityPartitioner<?> partitioner = entityFieldInfo.getEntityPartitioner();
 			//remember to skip the first partition
 			int numSplitPoints = partitioner.getNumPartitions() - 1;
@@ -217,13 +222,13 @@ implements ClientFactory{
 			throw new IllegalArgumentException("Node should be one of the above two types");
 		}
 	}
-	
-	
+
+
 	private boolean isSingleEmptyByte(byte[] bytes){
 		if(DrArrayTool.length(bytes)!=1){
 			return false;
 		}
 		return bytes[0] == Byte.MIN_VALUE;
 	}
-	
+
 }

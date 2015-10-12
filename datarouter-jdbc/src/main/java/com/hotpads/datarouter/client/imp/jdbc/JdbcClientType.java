@@ -10,6 +10,7 @@ import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
 import com.hotpads.DatarouterInjector;
+import com.hotpads.datarouter.client.ClientAvailabilitySettings;
 import com.hotpads.datarouter.client.ClientFactory;
 import com.hotpads.datarouter.client.imp.BaseClientType;
 import com.hotpads.datarouter.client.imp.jdbc.factory.JdbcSimpleClientFactory;
@@ -43,10 +44,13 @@ public class JdbcClientType extends BaseClientType{
 
 	//injected
 	private final JdbcFieldCodecFactory fieldCodecFactory;
+	private final ClientAvailabilitySettings clientAvailabilitySettings;
 
 	@Inject
-	public JdbcClientType(JdbcFieldCodecFactory fieldCodecFactory){
+	public JdbcClientType(JdbcFieldCodecFactory fieldCodecFactory,
+			ClientAvailabilitySettings clientAvailabilitySettings){
 		this.fieldCodecFactory = fieldCodecFactory;
+		this.clientAvailabilitySettings = clientAvailabilitySettings;
 		INSTANCE = this;
 	}
 
@@ -58,7 +62,7 @@ public class JdbcClientType extends BaseClientType{
 	@Override
 	public ClientFactory createClientFactory(Datarouter datarouter, String clientName,
 			List<PhysicalNode<?,?>> physicalNodes){
-		return new JdbcSimpleClientFactory(datarouter, fieldCodecFactory, clientName);
+		return new JdbcSimpleClientFactory(datarouter, fieldCodecFactory, clientName, clientAvailabilitySettings);
 	}
 
 	@Override

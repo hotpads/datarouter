@@ -6,60 +6,60 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.persistence.RollbackException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.hibernate.CacheMode;
 import org.hibernate.FlushMode;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import com.hotpads.datarouter.client.ClientAvailabilitySettings;
 import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.hibernate.HibernateClientType;
 import com.hotpads.datarouter.client.imp.jdbc.JdbcClientImp;
-import com.hotpads.datarouter.client.type.SessionClient;
 import com.hotpads.datarouter.connection.ConnectionHandle;
 import com.hotpads.datarouter.connection.JdbcConnectionPool;
-import com.hotpads.datarouter.util.core.DrExceptionTool;
 import com.hotpads.datarouter.util.core.DrMapTool;
 
-public class HibernateClientImp 
+public class HibernateClientImp
 extends JdbcClientImp
-implements SessionClient, HibernateClient{
+implements HibernateClient{
 	private static Logger logger = LoggerFactory.getLogger(HibernateClientImp.class);
 
 	private SessionFactory sessionFactory;
 
-	private Map<ConnectionHandle,Session> sessionByConnectionHandle = new ConcurrentHashMap<ConnectionHandle,Session>();
-	
+	private Map<ConnectionHandle,Session> sessionByConnectionHandle = new ConcurrentHashMap<>();
+
 	@Override
 	public ClientType getType(){
 		return HibernateClientType.INSTANCE;
 	}
-	
-	
+
+
 	/**************************** constructor **********************************/
-	
-	public HibernateClientImp(String name, JdbcConnectionPool connectionPool, SessionFactory sessionFactory){
-		super(name, connectionPool);
+
+	public HibernateClientImp(String name, JdbcConnectionPool connectionPool, SessionFactory sessionFactory,
+			ClientAvailabilitySettings clientAvailabilitySettings){
+		super(name, connectionPool, clientAvailabilitySettings);
 		this.sessionFactory = sessionFactory;
 	}
-	
-	/******************************** methods **********************************/
-	
-	/****************************** ConnectionClient methods *************************/
-	
 
-	
+	/******************************** methods **********************************/
+
+	/****************************** ConnectionClient methods *************************/
+
+
+
 	/****************************** JdbcConnectionClient methods *************************/
 
 
-	
+
 	/****************************** JdbcTxnClient methods *************************/
 
 
-	
+
 	/****************************** SessionClient methods *************************/
-	
+
 	@Override
 	public ConnectionHandle openSession(){
 		Connection connection = getExistingConnection();
@@ -69,11 +69,13 @@ implements SessionClient, HibernateClient{
 		sessionByConnectionHandle.put(getExistingHandle(), session);
 		return this.getExistingHandle();
 	}
-	
+
 	@Override
 	public ConnectionHandle flushSession(){
 		ConnectionHandle handle = getExistingHandle();
-		if(handle==null){ return handle; }
+		if(handle==null){
+			return handle;
+		}
 		Session session = sessionByConnectionHandle.get(handle);
 		if(session!=null){
 			try{
@@ -95,39 +97,43 @@ implements SessionClient, HibernateClient{
 		}
 		return handle;
 	}
-	
+
 	@Override
 	public ConnectionHandle cleanupSession(){
 		ConnectionHandle handle = getExistingHandle();
-		if(handle==null){ return handle; }
+		if(handle==null){
+			return handle;
+		}
 		Session session = sessionByConnectionHandle.get(handle);
 		if(session != null){
 			try{
 				session.clear();// otherwise things get left in the session factory??
 			}catch(Exception e){
-				logger.warn("problem clearing session.  clear() threw exception.  handle=" + getExistingHandle(), e);
+				logger.warn("problem clearing session. clear() threw exception. handle=" + getExistingHandle(), e);
 			}
 			try{
 				session.disconnect();
 			}catch(Exception e){
-				logger.warn("problem closing session.  disconnect() threw exception.  handle=" + getExistingHandle(), e);
+				logger.warn("problem closing session. disconnect() threw exception. handle=" + getExistingHandle(), e);
 			}
 			try{
 				session.close();// should not be necessary, but best to be safe
 			}catch(Exception e){
-				logger.warn("problem closing session.  close() threw exception.  handle=" + getExistingHandle(), e);
+				logger.warn("problem closing session. close() threw exception. handle=" + getExistingHandle(), e);
 			}
 		}
 		sessionByConnectionHandle.remove(handle);
 		return handle;
 	}
 
-	
+
 	/****************************** HibernateClient methods *************************/
-	
+
 	@Override
 	public Session getExistingSession(){
-		if(getExistingHandle()==null){ return null; }
+		if(getExistingHandle()==null){
+			return null;
+		}
 		return this.sessionByConnectionHandle.get(getExistingHandle());
 	}
 
@@ -135,14 +141,14 @@ implements SessionClient, HibernateClient{
 	public SessionFactory getSessionFactory() {
 		return sessionFactory;
 	}
-	
-	
+
+
 	/************************** private *********************************/
 
+	@Override
 	public String getStats(){
-		return super.getStats()
-				+","+DrMapTool.size(sessionByConnectionHandle)+" sessionHandles";
+		return super.getStats() + "," + DrMapTool.size(sessionByConnectionHandle)+" sessionHandles";
 	}
-	
-	
+
+
 }

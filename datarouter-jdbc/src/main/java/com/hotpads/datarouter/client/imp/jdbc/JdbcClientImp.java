@@ -9,6 +9,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.hotpads.datarouter.client.ClientAvailabilitySettings;
 import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.BaseClient;
 import com.hotpads.datarouter.client.type.JdbcClient;
@@ -21,46 +22,40 @@ import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.datarouter.util.core.DrMapTool;
 
-public class JdbcClientImp 
+public class JdbcClientImp
 extends BaseClient
 implements JdbcConnectionClient, TxnClient, JdbcClient{
-	private static Logger logger = LoggerFactory.getLogger(JdbcClientImp.class);
-	
-	private String name;
-	
-	public String getName(){
-		return name;
+	private static final Logger logger = LoggerFactory.getLogger(JdbcClientImp.class);
+
+	private Map<Long,ConnectionHandle> handleByThread = new ConcurrentHashMap<>();
+	private Map<ConnectionHandle,Connection> connectionByHandle = new ConcurrentHashMap<>();
+
+	private AtomicLong connectionCounter = new AtomicLong(-1L);
+
+	private final JdbcConnectionPool connectionPool;
+
+	/**************************** constructor **********************************/
+
+	public JdbcClientImp(String name, JdbcConnectionPool connectionPool,
+			ClientAvailabilitySettings clientAvailabilitySettings){
+		super(name, clientAvailabilitySettings);
+		this.connectionPool = connectionPool;
 	}
-	
+
+	/******************************** methods **********************************/
+
 	@Override
 	public ClientType getType(){
 		return JdbcClientType.INSTANCE;
 	}
-	
+
 	@Override
 	public String toString(){
-		return this.name;
+		return getName();
 	}
-	
-	protected JdbcConnectionPool connectionPool;
-	
-	protected Map<Long,ConnectionHandle> handleByThread = new ConcurrentHashMap<>();
-	protected Map<ConnectionHandle,Connection> connectionByHandle = new ConcurrentHashMap<>();
-	
-	protected AtomicLong connectionCounter = new AtomicLong(-1L);
-	
-	
-	/**************************** constructor **********************************/
-	
-	public JdbcClientImp(String name, JdbcConnectionPool connectionPool){
-		this.name = name;
-		this.connectionPool = connectionPool;
-	}
-	
-	/******************************** methods **********************************/
-	
+
 	/****************************** ConnectionClient methods *************************/
-	
+
 	@Override
 	public ConnectionHandle getExistingHandle(){
 		Thread currentThread = Thread.currentThread();
@@ -83,10 +78,10 @@ implements JdbcConnectionClient, TxnClient, JdbcClient{
 			long requestTimeNs = System.nanoTime();
 			Connection newConnection = connectionPool.getDataSource().getConnection();
 			logIfSlowReserveConnection(requestTimeNs);
-			
+
 			long threadId = Thread.currentThread().getId();
 			long connNumber = connectionCounter.incrementAndGet();
-			ConnectionHandle handle = new ConnectionHandle(Thread.currentThread(), name, 
+			ConnectionHandle handle = new ConnectionHandle(Thread.currentThread(), getName(),
 					connNumber, ConnectionHandle.OUTERMOST_TICKET_NUMBER);
 			if(handleByThread.get(threadId)==null){
 				handleByThread.put(threadId, handle);
@@ -100,8 +95,8 @@ implements JdbcConnectionClient, TxnClient, JdbcClient{
 			throw new DataAccessException(e);
 		}
 	}
-	
-	protected void logIfSlowReserveConnection(long requestTimeNs){
+
+	private void logIfSlowReserveConnection(long requestTimeNs){
 		long elapsedUs = (System.nanoTime() - requestTimeNs) / 1000;
 		if(elapsedUs > 1000){
 			DRCounters.incClient(getType(), "connection open > 1ms", getName());
@@ -126,23 +121,23 @@ implements JdbcConnectionClient, TxnClient, JdbcClient{
 			if(handle==null){
 				return null;//the connection probably was never opened successfully
 			}
-			
+
 			//decrement counters
 			handle.decrementNumTickets();
 			if(handle.getNumTickets() > 0){
 //				logger.warn("KEEPING CONNECTION OPEN for "+handle+", "+this.getStats());
 				return handle;  //others are still using this connection
 			}
-			
+
 			//cleanup session
 			cleanupSession();
-			
+
 			//release connection
 			Connection connection = connectionByHandle.get(handle);
 			//on close, there will be a network round trip if isolation needs to be set back to default
 			//on close, there will be another network round trip if autocommit needs to be disabled
 			connection.close();
-			
+
 			connectionByHandle.remove(handle);
 			handleByThread.remove(currentThread.getId());
 			return handle;
@@ -151,16 +146,16 @@ implements JdbcConnectionClient, TxnClient, JdbcClient{
 		}
 	}
 
-	
+
 	/****************************** JdbcConnectionClient methods *************************/
 
-	
+
 	@Override
 	public Connection acquireConnection(){
 		reserveConnection();
 		return getExistingConnection();
 	}
-	
+
 	@Override
 	public Connection getExistingConnection(){
 		ConnectionHandle handle = getExistingHandle();
@@ -170,7 +165,7 @@ implements JdbcConnectionClient, TxnClient, JdbcClient{
 		return connectionByHandle.get(handle);
 	}
 
-	
+
 	/****************************** JdbcTxnClient methods *************************/
 
 	@Override
@@ -226,47 +221,37 @@ implements JdbcConnectionClient, TxnClient, JdbcClient{
 		}
 	}
 
-	
+
 	/****************************** SessionClient methods *************************/
 
 	@Override
 	public ConnectionHandle openSession(){
 		return null;
 	}
-	
+
 	@Override
 	public ConnectionHandle flushSession(){
 		return null;
 	}
-	
+
 	@Override
 	public ConnectionHandle cleanupSession(){
 		return null;
 	}
 
-	
+
 	/****************************** shutdown *************************/
-	
+
 	@Override
 	public void shutdown(){
 		connectionPool.shutdown();
-		
 	}
-	
-	/************************** private *********************************/
-	
-	public String getStats(){
-		return "client:"+name+" has "
-		+DrMapTool.size(handleByThread)+" threadHandles"
-		+","+DrMapTool.size(connectionByHandle)+" connectionHandles";
-	}
-	
-	
-	/**************************** get/set ***************************************/
 
-//	public void setConnectionPool(JdbcConnectionPool connectionPool){
-//		this.connectionPool = connectionPool;
-//	}
-	
-	
+	/************************** private *********************************/
+
+	public String getStats(){
+		return "client:" + getName() + " has " + DrMapTool.size(handleByThread) + " threadHandles" + ","
+				+ DrMapTool.size(connectionByHandle)+" connectionHandles";
+	}
+
 }

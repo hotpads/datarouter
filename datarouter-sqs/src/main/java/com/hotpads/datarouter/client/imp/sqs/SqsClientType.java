@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import com.hotpads.datarouter.client.ClientAvailabilitySettings;
 import com.hotpads.datarouter.client.ClientFactory;
 import com.hotpads.datarouter.client.imp.BaseClientType;
 import com.hotpads.datarouter.client.imp.QueueClientType;
@@ -29,6 +30,8 @@ public class SqsClientType extends BaseClientType implements QueueClientType{
 
 	@Inject
 	private SqsNodeFactory sqsNodeFactory;
+	@Inject
+	private ClientAvailabilitySettings clientAvailabilitySettings;
 
 	@Override
 	public String getName(){
@@ -47,7 +50,7 @@ public class SqsClientType extends BaseClientType implements QueueClientType{
 	public ClientFactory createClientFactory(Datarouter datarouter, String clientName,
 			List<PhysicalNode<?, ?>> physicalNodes){
 		SqsOptions sqsOptions = new SqsOptions(datarouter, clientName);
-		return new SqsClientFactory(clientName, this, sqsOptions);
+		return new SqsClientFactory(clientName, this, sqsOptions, clientAvailabilitySettings);
 	}
 
 	@Override
