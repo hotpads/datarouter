@@ -8,7 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.ClientAvailabilitySettings;
-import com.hotpads.datarouter.client.Clients;
+import com.hotpads.datarouter.client.DatarouterClients;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.execute.ParallelSchemaUpdate;
 import com.hotpads.datarouter.client.imp.jdbc.factory.JdbcSimpleClientFactory;
 import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
@@ -47,7 +47,8 @@ extends JdbcSimpleClientFactory{
 		PhaseTimer timer = new PhaseTimer(getClientName());
 
 		// base config file for a SessionFactory
-		String configFileLocation = DrPropertiesTool.getFirstOccurrence(getMultiProperties(), Clients.PREFIX_client
+		String configFileLocation = DrPropertiesTool.getFirstOccurrence(getMultiProperties(),
+				DatarouterClients.PREFIX_client
 				+ getClientName() + PARAM_configLocation);
 		if(DrStringTool.isEmpty(configFileLocation)){
 			configFileLocation = CONFIG_LOCATION_DEFAULT;
@@ -97,7 +98,7 @@ extends JdbcSimpleClientFactory{
 
 	//this one doesn't wanna take
 	private void addShowSqlSetting(AnnotationConfiguration sfConfig){
-		 String showSqlPropertyKey = Clients.PREFIX_client + getClientName() + PARAM_show_sql;
+		 String showSqlPropertyKey = DatarouterClients.PREFIX_client + getClientName() + PARAM_show_sql;
 		 String showSql = DrPropertiesTool.getFirstOccurrence(getMultiProperties(), showSqlPropertyKey);
 		 if(DrStringTool.notEmpty(showSql)){
 			 sfConfig.setProperty("show_sql", showSql);
@@ -105,7 +106,7 @@ extends JdbcSimpleClientFactory{
 	}
 
 	private void addHbm2DdlSetting(AnnotationConfiguration sfConfig){
-		 String hbm2ddlPropertyKey = Clients.PREFIX_client + getClientName() + PARAM_hbm2ddl_auto;
+		 String hbm2ddlPropertyKey = DatarouterClients.PREFIX_client + getClientName() + PARAM_hbm2ddl_auto;
 		 String hbm2ddl = DrPropertiesTool.getFirstOccurrence(getMultiProperties(), hbm2ddlPropertyKey);
 		 if(DrStringTool.notEmpty(hbm2ddl)){
 			 sfConfig.setProperty("hibernate.hbm2ddl.auto", hbm2ddl);
