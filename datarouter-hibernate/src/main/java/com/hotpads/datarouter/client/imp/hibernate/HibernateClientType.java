@@ -11,6 +11,7 @@ import org.testng.annotations.Test;
 
 import com.hotpads.DatarouterInjector;
 import com.hotpads.datarouter.client.ClientFactory;
+import com.hotpads.datarouter.client.availability.ClientAvailabilitySettings;
 import com.hotpads.datarouter.client.imp.BaseClientType;
 import com.hotpads.datarouter.client.imp.hibernate.client.HibernateSimpleClientFactory;
 import com.hotpads.datarouter.client.imp.hibernate.node.HibernateNode;
@@ -46,9 +47,12 @@ public class HibernateClientType extends BaseClientType{
 
 	private final JdbcFieldCodecFactory fieldCodecFactory;
 	private final HibernateResultParser resultParser;
+	private final ClientAvailabilitySettings clientAvailabilitySettings;
 
 	@Inject
-	public HibernateClientType(JdbcFieldCodecFactory fieldCodecFactory){
+	public HibernateClientType(JdbcFieldCodecFactory fieldCodecFactory, ClientAvailabilitySettings
+			clientAvailabilitySettings){
+		this.clientAvailabilitySettings = clientAvailabilitySettings;
 		this.fieldCodecFactory = fieldCodecFactory;
 		this.resultParser = new HibernateResultParser(fieldCodecFactory);
 		INSTANCE = this;
@@ -62,7 +66,7 @@ public class HibernateClientType extends BaseClientType{
 	@Override
 	public ClientFactory createClientFactory(Datarouter datarouter, String clientName,
 			List<PhysicalNode<?,?>> physicalNodes){
-		return new HibernateSimpleClientFactory(datarouter, fieldCodecFactory, clientName);
+		return new HibernateSimpleClientFactory(datarouter, fieldCodecFactory, clientName, clientAvailabilitySettings);
 	}
 
 	@Override

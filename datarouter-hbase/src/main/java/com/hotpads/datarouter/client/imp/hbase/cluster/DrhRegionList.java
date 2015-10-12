@@ -34,38 +34,32 @@ import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrMapTool;
 import com.hotpads.util.core.concurrent.CallableTool;
 
-public class DRHRegionList{
-	private static final Logger logger = LoggerFactory.getLogger(DRHRegionList.class);
+public class DrhRegionList{
+	private static final Logger logger = LoggerFactory.getLogger(DrhRegionList.class);
 
 	public static final Integer BUCKETS_PER_NODE = 1000;
 
-	private DRHServerList servers;
 	private String tableName;
 	private Node<?,?> node;
 	private List<DRHRegionInfo<?>> regions;
 	private Class<? extends ScatteringPrefix> scatteringPrefixClass;
 	private EntityPartitioner<?> entityPartitioner;
-	private BaseHBaseRegionBalancer balancerStrategy;
 	private Map<DRHRegionInfo<?>,ServerName> targetServerNameByRegion;
-	private DRHCompactionInfo compactionInfo;
 
-	@SuppressWarnings("unchecked")
-	public DRHRegionList(HBaseClient client, DRHServerList servers, String tableName, Configuration config,
+	public DrhRegionList(HBaseClient client, DRHServerList servers, String tableName, Configuration config,
 			Node<?,?> node, BaseHBaseRegionBalancer balancerStrategy, DRHCompactionInfo compactionInfo){
-		this.servers = servers;
 		this.tableName = tableName;
 		this.node = node;
-		this.compactionInfo = compactionInfo;
 		this.regions = new ArrayList<>();
 		this.scatteringPrefixClass = node.getFieldInfo().getScatteringPrefixClass();
 		if(node.getFieldInfo().isEntity()){
-			HBaseSubEntityReaderNode subEntityNode = (HBaseSubEntityReaderNode)node;
+			HBaseSubEntityReaderNode<?,?,?,?,?> subEntityNode = (HBaseSubEntityReaderNode<?,?,?,?,?>)node;
 			this.entityPartitioner = subEntityNode.getEntityFieldInfo().getEntityPartitioner();
 		}
-		
+
 		//TODO do less in constructor
-		Class<PrimaryKey<?>> primaryKeyClass = client.getPrimaryKeyClass(tableName);
-		Map<HRegionInfo,ServerName> serverNameByHRegionInfo = getServerNameByHRegionInfo(client, config, tableName);
+		Class<? extends PrimaryKey<?>> primaryKeyClass = client.getPrimaryKeyClass(tableName);
+		Map<HRegionInfo,ServerName> serverNameByHRegionInfo = getServerNameByHRegionInfo(config, tableName);
 		//this got reorganized in hbase 0.92... just making quick fix for now
 		Map<String,RegionLoad> regionLoadByName = new TreeMap<>();
 		for(DRHServerInfo server : DrIterableTool.nullSafe(servers.getServers())){
@@ -78,50 +72,49 @@ public class DRHRegionList{
 			}
 		}
 		int regionNum = 0;
-		for(HRegionInfo hRegionInfo : DrMapTool.nullSafe(serverNameByHRegionInfo).keySet()){
+		for(HRegionInfo hregionInfo : DrMapTool.nullSafe(serverNameByHRegionInfo).keySet()){
 			try{
-				RegionLoad regionLoad = regionLoadByName.get(hRegionInfo.getEncodedName());
-				ServerName serverName = serverNameByHRegionInfo.get(hRegionInfo);
-				HServerLoad hServerLoad = servers.getHServerLoad(serverName);
-				regions.add(new DRHRegionInfo(regionNum++, tableName, primaryKeyClass, 
-						hRegionInfo, serverName, hServerLoad,
+				RegionLoad regionLoad = regionLoadByName.get(hregionInfo.getEncodedName());
+				ServerName serverName = serverNameByHRegionInfo.get(hregionInfo);
+				HServerLoad hserverLoad = servers.getHServerLoad(serverName);
+				regions.add(new DRHRegionInfo(regionNum++, tableName, primaryKeyClass,
+						hregionInfo, serverName, hserverLoad,
 						node, regionLoad, compactionInfo));
 			}catch(RuntimeException e){
-				logger.warn("couldn't build DRHRegionList for region:"+hRegionInfo.getEncodedName());
+				logger.warn("couldn't build DRHRegionList for region:"+hregionInfo.getEncodedName());
 				throw e;
 			}
 		}
 		Collections.sort(regions);//ensure sorted for getRegionsSorted
-		this.balancerStrategy = balancerStrategy.init(scatteringPrefixClass, entityPartitioner, servers, this);
+		balancerStrategy.init(scatteringPrefixClass, entityPartitioner, servers, this);
 		this.targetServerNameByRegion = CallableTool.callUnchecked(balancerStrategy);
 		balancerStrategy.assertRegionCountsConsistent();
 		for(DRHRegionInfo<?> drhRegionInfo : regions){
 			drhRegionInfo.setBalancerDestinationServer(targetServerNameByRegion.get(drhRegionInfo));
 		}
 	}
-	
-	private Map<HRegionInfo,ServerName> getServerNameByHRegionInfo(HBaseClient client, Configuration config, 
-			String tableName){
-		HTable hTable = null;
+
+	private Map<HRegionInfo,ServerName> getServerNameByHRegionInfo(Configuration config, String tableName){
+		HTable htable = null;
 		try{
-			hTable = new HTable(config, tableName);
+			htable = new HTable(config, tableName);
 //			logger.warn("got table "+tableName);
-			Map<HRegionInfo,ServerName> serverNameByHRegionInfo = hTable.getRegionLocations();
+			Map<HRegionInfo,ServerName> serverNameByHRegionInfo = htable.getRegionLocations();
 //			logger.warn("got hTable.getRegionLocations()");
 			return serverNameByHRegionInfo;
 		}catch(IOException e){
 			throw new DataAccessException(e);
 		}finally{
-			if(hTable != null){
+			if(htable != null){
 				try{
-					hTable.close();
+					htable.close();
 				}catch(IOException e){
 					throw new DataAccessException(e);
 				}
 			}
 		}
 	}
-	
+
 
 	public SortedSet<String> getServerNames(){
 		SortedSet<String> serverNames = new TreeSet<>();
@@ -145,7 +138,9 @@ public class DRHRegionList{
 
 	public DRHRegionInfo<?> getRegionByEncodedName(String encodedName){
 		for(DRHRegionInfo<?> region : regions){
-			if(region.getRegion().getEncodedName().equals(encodedName)){ return region; }
+			if(region.getRegion().getEncodedName().equals(encodedName)){
+				return region;
+			}
 		}
 		return null;
 	}
@@ -153,8 +148,12 @@ public class DRHRegionList{
 	public DRHRegionInfo<?> getRegionAfter(String encodedName){
 		boolean foundFirstRegion = false;
 		for(DRHRegionInfo<?> region : regions){
-			if(foundFirstRegion){ return region; }
-			if(region.getRegion().getEncodedName().equals(encodedName)){ foundFirstRegion = true; }
+			if(foundFirstRegion){
+				return region;
+			}
+			if(region.getRegion().getEncodedName().equals(encodedName)){
+				foundFirstRegion = true;
+			}
 		}
 		return null;
 	}
@@ -172,7 +171,7 @@ public class DRHRegionList{
 	}
 
 	public LinkedHashMap<String,List<DRHRegionInfo<?>>> getRegionsGroupedBy(String groupBy){
-		LinkedHashMap<String,List<DRHRegionInfo<?>>> regionsByGroup = new LinkedHashMap<String,List<DRHRegionInfo<?>>>();
+		LinkedHashMap<String,List<DRHRegionInfo<?>>> regionsByGroup = new LinkedHashMap<>();
 		if(null == groupBy){
 			regionsByGroup.put("all", regions);
 		}else if("serverName".equals(groupBy)){
@@ -183,16 +182,6 @@ public class DRHRegionList{
 		return regionsByGroup;
 	}
 
-//	public DRHServerInfo getServerForRegion(byte[] regionConsistentHashInput){
-//		long hash = HashMethods.longMD5DJBHash(regionConsistentHashInput);
-//		if(consistentHashRing.isEmpty()){ return null; }
-//		if(!consistentHashRing.containsKey(hash)){
-//			SortedMap<Long,DRHServerInfo> tail = consistentHashRing.tailMap(hash);
-//			hash = tail.isEmpty() ? consistentHashRing.firstKey() : tail.firstKey();
-//		}
-//		return consistentHashRing.get(hash);
-//	}
-	
 	public ServerName getServerForRegion(DRHRegionInfo drhRegionInfo){
 		return targetServerNameByRegion.get(drhRegionInfo);
 	}
@@ -200,6 +189,5 @@ public class DRHRegionList{
 	public Node<?, ?> getNode() {
 		return node;
 	}
-	
-	
+
 }
