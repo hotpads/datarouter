@@ -1,8 +1,8 @@
 package com.hotpads.datarouter.client.imp.sqs;
 
 import com.amazonaws.services.sqs.AmazonSQSClient;
-import com.hotpads.datarouter.client.ClientAvailabilitySettings;
 import com.hotpads.datarouter.client.ClientType;
+import com.hotpads.datarouter.client.availability.ClientAvailabilitySettings;
 import com.hotpads.datarouter.client.imp.BaseClient;
 
 public class SqsClient extends BaseClient{
