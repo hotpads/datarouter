@@ -32,6 +32,7 @@ import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrListTool;
+import com.hotpads.datarouter.util.core.DrNumberTool;
 import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.iterable.scanner.batch.AsyncBatchLoaderScanner;
 import com.hotpads.util.core.iterable.scanner.collate.Collator;
@@ -223,6 +224,9 @@ implements HBasePhysicalNode<PK,D>,
 	@Override
 	public ScannerIterable<PK> scanKeys(final Range<PK> range, final Config config){
 		final Config nullSafeConfig = Config.nullSafe(config);
+		if(nullSafeConfig.getLimit() != null && nullSafeConfig.getOffset() != null){
+			nullSafeConfig.setLimit(nullSafeConfig.getLimit() + nullSafeConfig.getOffset());
+		}
 		final Range<PK> nullSafeRange = Range.nullSafe(range);
 		//single row. use Get. gets all pks in entity. no way to limit rows
 		if(queryBuilder.isSingleEntity(nullSafeRange)){
@@ -240,13 +244,18 @@ implements HBasePhysicalNode<PK,D>,
 			return new ScannerIterable<>(new ListBackedSortedScanner<>(pks));
 		}
 		List<AsyncBatchLoaderScanner<PK>> scanners = queryBuilder.getPkScanners(this, nullSafeRange, config);
-		Collator<PK> collator = new PriorityQueueCollator<>(scanners);
+		Collator<PK> collator = new PriorityQueueCollator<>(scanners,
+				DrNumberTool.longValue(nullSafeConfig.getLimit()));
+		collator.advanceBy(nullSafeConfig.getOffset());
 		return new ScannerIterable<>(collator);
 	}
 
 	@Override
 	public ScannerIterable<D> scan(final Range<PK> range, final Config config){
 		final Config nullSafeConfig = Config.nullSafe(config);
+		if(nullSafeConfig.getLimit() != null && nullSafeConfig.getOffset() != null){
+			nullSafeConfig.setLimit(nullSafeConfig.getLimit() + nullSafeConfig.getOffset());
+		}
 		final Range<PK> nullSafeRange = Range.nullSafe(range);
 		//single row. use Get. gets all databeans in entity. no way to limit rows
 		if(queryBuilder.isSingleEntity(nullSafeRange)){
@@ -264,7 +273,7 @@ implements HBasePhysicalNode<PK,D>,
 			return new ScannerIterable<>(new ListBackedSortedScanner<>(databeans));
 		}
 		List<AsyncBatchLoaderScanner<D>> scanners = queryBuilder.getDatabeanScanners(this, nullSafeRange, config);
-		Collator<D> collator = new PriorityQueueCollator<>(scanners);
+		Collator<D> collator = new PriorityQueueCollator<>(scanners, DrNumberTool.longValue(nullSafeConfig.getLimit()));
 		collator.advanceBy(nullSafeConfig.getOffset());
 		return new ScannerIterable<>(collator);
 	}

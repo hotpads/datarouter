@@ -27,8 +27,8 @@ public class HBaseEntityDatabeanBatchLoader<
 extends BaseHBaseEntityBatchLoader<EK,E,PK,D,F,D>{
 
 	public HBaseEntityDatabeanBatchLoader(final HBaseSubEntityReaderNode<EK,E,PK,D,F> node, int partition,
-			final byte[] partitionBytes, final Range<PK> range, final Config pConfig, Long batchChainCounter){
-		super(node, partition, partitionBytes, range, pConfig, batchChainCounter);
+			final byte[] partitionBytes, final Range<PK> range, final Config config, Long batchChainCounter){
+		super(node, partition, partitionBytes, range, config, batchChainCounter);
 	}
 
 	@Override
