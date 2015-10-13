@@ -34,14 +34,11 @@ public class CsrfValidator{
 	}
 
 	public boolean check(String token){
-		try{
-			Cipher aes = getCipher(Cipher.DECRYPT_MODE);
-			Long requestTime = Long.parseLong(new String(aes.doFinal(Base64.decodeBase64(token))));
-			return System.currentTimeMillis() < requestTime + REQUEST_TIMEOUT_IN_MS;
-		}catch (Exception e){
-			log(e);
+		Long requestTime = getRequestTimeMs(token);
+		if(requestTime == null){
 			return false;
 		}
+		return System.currentTimeMillis() < requestTime + REQUEST_TIMEOUT_IN_MS;
 	}
 	
 	public String generateCsrfToken(){
@@ -53,20 +50,31 @@ public class CsrfValidator{
 			return null;
 		}
 	}
+	
+	public Long getRequestTimeMs(String token){
+		try{
+			Cipher aes = getCipher(Cipher.DECRYPT_MODE);
+			return Long.parseLong(new String(aes.doFinal(Base64.decodeBase64(token))));
+		}catch (Exception e){
+			log(e);
+			return null;
+		}
+	}
 
-	private SecretKeySpec computeKey(String key) throws NoSuchAlgorithmException{
+	private SecretKeySpec computeKey(String cipherKey) throws NoSuchAlgorithmException{
 		MessageDigest digest = MessageDigest.getInstance(HASHING_ALGORITHM);
 		digest.update(cipherKey.getBytes());
 		return new SecretKeySpec(digest.digest(), 0, 16, MAIN_CIPHER_ALGORITHM);
 	}
 	
-	private void log(Exception e){
+	private void log(Exception exception){
 		StringWriter sw = new StringWriter();
-		e.printStackTrace(new PrintWriter(sw));
+		exception.printStackTrace(new PrintWriter(sw));
 		logger.warn(sw.toString());
 	}
 	
-	private Cipher getCipher(int mode) throws InvalidKeyException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchPaddingException{
+	private Cipher getCipher(int mode)
+	throws InvalidKeyException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchPaddingException{
 		Cipher aes = Cipher.getInstance(CIPHER_ALGORITHM);
 		aes.init(mode, computeKey(cipherKey), new IvParameterSpec(cipherIv.getBytes(), 0, 16));
 		return aes;
