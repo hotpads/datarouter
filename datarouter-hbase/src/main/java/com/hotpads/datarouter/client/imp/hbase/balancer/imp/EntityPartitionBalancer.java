@@ -22,7 +22,8 @@ extends BaseHBaseRegionBalancer{
 	
 	/******************* constructor ***************************/
 	
-	public EntityPartitionBalancer(){
+	public EntityPartitionBalancer(String tableName){
+		super(tableName);
 	}
 	
 	@Override
@@ -37,13 +38,14 @@ extends BaseHBaseRegionBalancer{
 		SortedMap<Integer,ServerName> serverByPartition = new TreeMap<>();
 		for(Integer partition : regionsByPartition.keySet()){
 			byte[] consistentHashInput = entityPartitioner.getPrefix(partition);
-			ServerName serverName = ConsistentHashBalancer.calcServerNameForItem(consistentHashRing, consistentHashInput);
+			ServerName serverName = ConsistentHashBalancer.calcServerNameForItem(consistentHashRing,
+					consistentHashInput);
 			serverByPartition.put(partition, serverName);//now region->server mapping is known
 		}
 		
 		//level out any imbalances from the hashing
 		BalanceLeveler<Integer,ServerName> leveler = new BalanceLeveler<Integer,ServerName>(
-				drhServerList.getServerNames(), serverByPartition);
+				drhServerList.getServerNames(), serverByPartition, tableName);
 		serverByPartition = leveler.getBalancedDestinationByItem();
 
 		//map individual regions to servers based on their prefix
@@ -66,7 +68,9 @@ extends BaseHBaseRegionBalancer{
 		}
 		for(DRHRegionInfo<?> drhRegionInfo : drhRegionList.getRegionsSorted()){
 			Integer partition = drhRegionInfo.getPartition();
-			if(partition == null){ partition = 0; }
+			if(partition == null) {
+				partition = 0;
+			}
 			regionsByPartition.get(partition).add(drhRegionInfo);
 		}
 	}

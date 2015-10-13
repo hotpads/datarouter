@@ -1,34 +1,42 @@
 package com.hotpads.datarouter.client.imp.hbase.balancer;
 
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import org.apache.hadoop.hbase.ServerName;
+
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrComparableTool;
+import com.hotpads.datarouter.util.core.DrHashMethods;
 import com.hotpads.datarouter.util.core.DrMapTool;
 
 /*
  * I: item
  * D: destination
  */
-public class BalanceLeveler<I,D>{
+public class BalanceLeveler<I,D extends ServerName>{
 //	private static Logger logger = LoggerFactory.getLogger(BalanceLeveler.class);
 
-	private Collection<D> allDestinations;
-	private SortedMap<I,D> destinationByItem;
+	private final Collection<D> allDestinations;
+	private final SortedMap<I,D> destinationByItem;
+	
 	private long minAtDestination;
 	private long maxAtDestination;
-	private SortedMap<D,Long> countByDestination;
+	private SortedMap<D,Long> countByDestination;//this must be sorted to keep the serverNames in teh same order
 	
 	
 	/************** construct ***************************/
 	
-	public BalanceLeveler(Collection<D> allDestinations, SortedMap<I,D> unleveledDestinationByItem){
+	public BalanceLeveler(Collection<D> allDestinations, SortedMap<I,D> unleveledDestinationByItem,
+			String randomSeed){
 		this.allDestinations = DrCollectionTool.nullSafe(allDestinations);
 		this.destinationByItem = new TreeMap<I,D>(unleveledDestinationByItem);
-		this.countByDestination = new TreeMap<>();//sorted easier for debugging
+		
+		Comparator<D> randomServerNameComparator = new TablePseudoRandomComparator<>(randomSeed);
+		this.countByDestination = new TreeMap<>(randomServerNameComparator);
 		updateCountByDestination();
 	}
 	
@@ -45,6 +53,28 @@ public class BalanceLeveler<I,D>{
 			updateCountByDestination();
 		}
 		return destinationByItem;
+	}
+	
+	
+	/*************** pseudo-random comparator *********************************/
+	
+	/*
+	 * for a given table, scramble the order of ServerNames in the CountByDestinion map. this will prevent all tables
+	 * from sending their extra tables to the same servers 
+	 */
+	private static class TablePseudoRandomComparator<D extends ServerName> implements Comparator<D>{
+		private final String randomSeed;
+		
+		public TablePseudoRandomComparator(String randomSeed){
+			this.randomSeed = randomSeed;
+		}
+
+		@Override
+		public int compare(ServerName serverA, ServerName serverB){
+			long serverASort = DrHashMethods.longMD5DJBHash(randomSeed + serverA.getHostAndPort());
+			long serverBSort = DrHashMethods.longMD5DJBHash(randomSeed + serverB.getHostAndPort());
+			return (int)(serverASort - serverBSort);
+		}
 	}
 	
 	
@@ -80,7 +110,9 @@ public class BalanceLeveler<I,D>{
 	
 	private D getMostLoadedDestination(){
 		for(Map.Entry<D,Long> entry : countByDestination.entrySet()){
-			if(entry.getValue() == maxAtDestination){ return entry.getKey(); }
+			if(entry.getValue() == maxAtDestination) {
+				return entry.getKey();
+			}
 		}
 		throw new IllegalArgumentException("max values out of sync");
 	}
@@ -88,7 +120,9 @@ public class BalanceLeveler<I,D>{
 	
 	private D getLeastLoadedDestination(){
 		for(Map.Entry<D,Long> entry : countByDestination.entrySet()){
-			if(entry.getValue() == minAtDestination){ return entry.getKey(); }
+			if(entry.getValue() == minAtDestination) {
+				return entry.getKey();
+			}
 		}
 		throw new IllegalArgumentException("min values out of sync");
 	}
