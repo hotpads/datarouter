@@ -13,6 +13,11 @@ import com.hotpads.datarouter.util.core.DrCollectionTool;
 public class RoundRobinBalancer
 extends BaseHBaseRegionBalancer{
 	
+	public RoundRobinBalancer(String tableName){
+		super(tableName);
+	}
+
+	
 	@Override
 	public Map<DRHRegionInfo<?>,ServerName> call() {
 		this.serverByRegion = new TreeMap<>();

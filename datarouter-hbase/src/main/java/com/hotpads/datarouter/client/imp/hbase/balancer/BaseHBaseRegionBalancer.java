@@ -10,8 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.imp.hbase.cluster.DRHRegionInfo;
-import com.hotpads.datarouter.client.imp.hbase.cluster.DrhRegionList;
 import com.hotpads.datarouter.client.imp.hbase.cluster.DRHServerList;
+import com.hotpads.datarouter.client.imp.hbase.cluster.DrhRegionList;
 import com.hotpads.datarouter.storage.key.entity.EntityPartitioner;
 import com.hotpads.datarouter.storage.prefix.ScatteringPrefix;
 import com.hotpads.datarouter.util.core.DrStringTool;
@@ -19,9 +19,9 @@ import com.hotpads.util.core.java.ReflectionTool;
 
 public abstract class BaseHBaseRegionBalancer
 implements Callable<Map<DRHRegionInfo<?>,ServerName>>{
-	
 	private static final Logger logger = LoggerFactory.getLogger(BaseHBaseRegionBalancer.class);
-	
+
+	protected final String tableName;
 	protected DRHServerList drhServerList;
 	protected DrhRegionList drhRegionList;
 
@@ -30,6 +30,9 @@ implements Callable<Map<DRHRegionInfo<?>,ServerName>>{
 	protected EntityPartitioner<?> entityPartitioner;
 	protected ScatteringPrefix scatteringPrefix;
 	
+	protected BaseHBaseRegionBalancer(String tableName){
+		this.tableName = tableName;
+	}
 	
 	public BaseHBaseRegionBalancer init(Class<? extends ScatteringPrefix> scatteringPrefixClass,
 			EntityPartitioner<?> entityPartitioner,

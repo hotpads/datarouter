@@ -27,7 +27,8 @@ extends BaseHBaseRegionBalancer{
 	
 	/******************* constructor ***************************/
 	
-	public ScatteringPrefixBalancer(){
+	public ScatteringPrefixBalancer(String tableName){
+		super(tableName);
 	}
 	
 	@Override
@@ -49,7 +50,7 @@ extends BaseHBaseRegionBalancer{
 		
 		//level out any imbalances from the hashing
 		BalanceLeveler<ByteRange,ServerName> leveler = new BalanceLeveler<ByteRange,ServerName>(
-				drhServerList.getServerNames(), serverByPrefix);
+				drhServerList.getServerNames(), serverByPrefix, tableName);
 		serverByPrefix = leveler.getBalancedDestinationByItem();
 
 		//map individual regions to servers based on their prefix
