@@ -1,12 +1,16 @@
 package com.hotpads.datarouter.client.imp.hbase.test;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 
+import org.testng.Assert;
 import org.testng.AssertJUnit;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.entity.EntityNode;
 import com.hotpads.datarouter.test.DrTestConstants;
 import com.hotpads.datarouter.test.node.basic.sorted.BaseSortedNodeIntegrationTests;
@@ -14,8 +18,10 @@ import com.hotpads.datarouter.test.node.basic.sorted.SortedBean;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBeanEntity;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBeanEntityKey;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBeanEntityNode;
+import com.hotpads.datarouter.test.node.basic.sorted.SortedBeanKey;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBeans;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.util.core.collections.KeyRangeTool;
 
 public class HBaseEntitySortedNodeIntegrationTests extends BaseSortedNodeIntegrationTests{
 
@@ -43,6 +49,31 @@ public class HBaseEntitySortedNodeIntegrationTests extends BaseSortedNodeIntegra
 		AssertJUnit.assertEquals(numExpected, results.size());
 		AssertJUnit.assertEquals(SortedBeans.S_albatross, DrCollectionTool.getFirst(results).getA());
 		AssertJUnit.assertEquals(SortedBeans.S_ostrich, DrCollectionTool.getFirst(results).getB());
+	}
+
+	@Test
+	private void testSingleEntityScan(){
+		SortedBeanKey twoFieldsPk = new SortedBeanKey(SortedBeans.S_albatross, SortedBeans.S_ostrich, null, null);
+		SortedBeanKey threeFieldsPk = new SortedBeanKey(SortedBeans.S_albatross, SortedBeans.S_ostrich, 0, null);
+
+		final int limit = 23;
+		Assert.assertEquals(sortedNode.streamKeys(KeyRangeTool.forPrefix(threeFieldsPk), new Config().setLimit(limit))
+				.count(), SortedBeans.NUM_ELEMENTS);
+		Assert.assertEquals(sortedNode.stream(KeyRangeTool.forPrefix(threeFieldsPk), new Config().setLimit(limit))
+				.count(), SortedBeans.NUM_ELEMENTS);
+
+		Assert.assertEquals(sortedNode.streamKeys(KeyRangeTool.forPrefix(twoFieldsPk), new Config().setLimit(limit))
+				.count(), limit);
+		Assert.assertEquals(sortedNode.stream(KeyRangeTool.forPrefix(twoFieldsPk), new Config().setLimit(limit))
+				.count(), limit);
+
+		final int offset = 57;
+		List<SortedBeanKey> limitedOffset = sortedNode
+				.streamKeys(KeyRangeTool.forPrefix(twoFieldsPk), new Config().setOffset(offset).setLimit(1))
+				.collect(Collectors.toList());
+		Assert.assertEquals(limitedOffset.size(), 1);
+		Assert.assertEquals(limitedOffset.get(0), sortedNode.streamKeys(KeyRangeTool.forPrefix(twoFieldsPk),
+				new Config().setOffset(offset)).findFirst().get());
 	}
 
 }

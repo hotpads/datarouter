@@ -34,6 +34,7 @@ import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.datarouter.util.core.DrNumberTool;
 import com.hotpads.util.core.collections.Range;
+import com.hotpads.util.core.iterable.scanner.Scanner;
 import com.hotpads.util.core.iterable.scanner.batch.AsyncBatchLoaderScanner;
 import com.hotpads.util.core.iterable.scanner.collate.Collator;
 import com.hotpads.util.core.iterable.scanner.collate.PriorityQueueCollator;
@@ -132,8 +133,8 @@ implements HBasePhysicalNode<PK,D>,
 				@Override
 				public List<PK> hbaseCall(HTable htable, HBaseClient client, ResultScanner managedResultScanner)
 				throws Exception{
-				DRCounters.incClientNodeCustom(client.getType(), "getKeys requested", getClientName(), getNodeName(),
-						DrCollectionTool.size(pks));
+					DRCounters.incClientNodeCustom(client.getType(), "getKeys requested", getClientName(),
+							getNodeName() , DrCollectionTool.size(pks));
 					List<Get> gets = queryBuilder.getGets(pks, true);
 					Result[] hbaseResults = htable.get(gets);
 					List<PK> pks = resultParser.getPrimaryKeysWithMatchingQualifierPrefix(hbaseResults);
@@ -203,7 +204,8 @@ implements HBasePhysicalNode<PK,D>,
 							if(row.isEmpty()){
 								continue;
 							}
-							List<D> singleRowResults = resultParser.getDatabeansWithMatchingQualifierPrefix(row);
+							//TODO compute a limit to pass here
+							List<D> singleRowResults = resultParser.getDatabeansWithMatchingQualifierPrefix(row, null);
 							results.addAll(singleRowResults);
 							if(config.getLimit()!=null && results.size()>=config.getLimit()){
 								break;
@@ -238,15 +240,18 @@ implements HBasePhysicalNode<PK,D>,
 					Get get = queryBuilder.getSingleRowRange(nullSafeRange.getStart().getEntityKey(), nullSafeRange,
 							true);
 					Result result = htable.get(get);
-					return DrListTool.createArrayList(resultParser.getPrimaryKeysWithMatchingQualifierPrefix(result));
+					return DrListTool.createArrayList(resultParser.getPrimaryKeysWithMatchingQualifierPrefix(result,
+							nullSafeConfig.getLimit()));
 				}
 			}).call();
-			return new ScannerIterable<>(new ListBackedSortedScanner<>(pks));
+			Scanner<PK> scanner = new ListBackedSortedScanner<>(pks);
+			scanner.advanceBy(nullSafeConfig.getOffset());
+			return new ScannerIterable<>(scanner);
 		}
 		List<AsyncBatchLoaderScanner<PK>> scanners = queryBuilder.getPkScanners(this, nullSafeRange, config);
-		Collator<PK> collator = new PriorityQueueCollator<>(scanners,
-				DrNumberTool.longValue(nullSafeConfig.getLimit()));
-		collator.advanceBy(nullSafeConfig.getOffset());
+		Collator<PK> collator = new PriorityQueueCollator<>(scanners, DrNumberTool.longValue(nullSafeConfig
+				.getLimit()));
+		collator.advanceBy(nullSafeConfig.getOffset() + 1);
 		return new ScannerIterable<>(collator);
 	}
 
@@ -267,10 +272,12 @@ implements HBasePhysicalNode<PK,D>,
 					Get get = queryBuilder.getSingleRowRange(nullSafeRange.getStart().getEntityKey(), nullSafeRange,
 							false);
 					Result result = htable.get(get);
-					return resultParser.getDatabeansWithMatchingQualifierPrefix(result);
+					return resultParser.getDatabeansWithMatchingQualifierPrefix(result, nullSafeConfig.getLimit());
 				}
 			}).call();
-			return new ScannerIterable<>(new ListBackedSortedScanner<>(databeans));
+			Scanner<D> scanner = new ListBackedSortedScanner<>(databeans);
+			scanner.advanceBy(nullSafeConfig.getOffset() + 1);
+			return new ScannerIterable<>(scanner);
 		}
 		List<AsyncBatchLoaderScanner<D>> scanners = queryBuilder.getDatabeanScanners(this, nullSafeRange, config);
 		Collator<D> collator = new PriorityQueueCollator<>(scanners, DrNumberTool.longValue(nullSafeConfig.getLimit()));

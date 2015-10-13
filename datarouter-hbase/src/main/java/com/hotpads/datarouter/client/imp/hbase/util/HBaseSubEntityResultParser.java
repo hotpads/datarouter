@@ -41,17 +41,17 @@ public class HBaseSubEntityResultParser<
 	private EntityFieldInfo<EK,E> entityFieldInfo;
 	private EntityPartitioner<EK> partitioner;
 	private DatabeanFieldInfo<PK,D,F> fieldInfo;
-	
-	
+
+
 	public HBaseSubEntityResultParser(EntityFieldInfo<EK,E> entityFieldInfo, DatabeanFieldInfo<PK,D,F> fieldInfo){
 		this.entityFieldInfo = entityFieldInfo;
 		this.partitioner = entityFieldInfo.getEntityPartitioner();
 		this.fieldInfo = fieldInfo;
 	}
-	
-	
+
+
 	/***************** parse simple row bytes ************************/
-	
+
 	public EK getEkFromRowBytes(byte[] rowBytes){
 		EK ek = ReflectionTool.create(entityFieldInfo.getEntityKeyClass());
 		int byteOffset = partitioner.getNumPrefixBytes();
@@ -81,43 +81,69 @@ public class HBaseSubEntityResultParser<
 		List<D> results = new ArrayList<>();
 		for(Result row : rows){
 			if(row.isEmpty()){ continue; }
-			List<D> databeansFromSingleGet = getDatabeansWithMatchingQualifierPrefix(row);
+			List<D> databeansFromSingleGet = getDatabeansWithMatchingQualifierPrefix(row, null);
 			results.addAll(DrCollectionTool.nullSafe(databeansFromSingleGet));
 		}
 		return results;
 	}
 
-	
+
 	/****************** parse single hbase row ********************/
-	
 	public NavigableSet<PK> getPrimaryKeysWithMatchingQualifierPrefix(Result row){
-		if(row==null){ return new TreeSet<>(); }
-		NavigableSet<PK> pks = new TreeSet<>();//unfortunately, we expect a bunch of duplicate PK's, so throw them in a set
+		return getPrimaryKeysWithMatchingQualifierPrefix(row, null);
+	}
+	public NavigableSet<PK> getPrimaryKeysWithMatchingQualifierPrefix(Result row, Integer limit){
+		if(row == null) {
+			return new TreeSet<>();
+		}
+		//unfortunately, we expect a bunch of duplicate PK's, so throw them in a set
+		NavigableSet<PK> pks = new TreeSet<>();
 		for(KeyValue kv : DrIterableTool.nullSafe(row.list())){//row.list() can return null
-			if(!matchesNodePrefix(kv)){ continue; }
+			if(!matchesNodePrefix(kv)) {
+				continue;
+			}
 			Pair<PK,String> pkAndFieldName = parsePrimaryKeyAndFieldName(kv);
 			PK pk = pkAndFieldName.getLeft();
 			pks.add(pk);
+			if(limit != null && pks.size() >= limit){
+				break;
+			}
 		}
 		return pks;
 	}
-		
-	public List<D> getDatabeansWithMatchingQualifierPrefix(Result row){
-		if(row==null){ return new LinkedList<>(); }
+
+	public List<D> getDatabeansWithMatchingQualifierPrefix(Result row, Integer limit){
+		if(row == null) {
+			return new LinkedList<>();
+		}
 		Map<PK,D> databeanByKey = new TreeMap<>();
 		for(KeyValue kv : DrIterableTool.nullSafe(row.list())){//row.list() can return null
-			if(!matchesNodePrefix(kv)){ continue; }
-			addKeyValueToResultsUnchecked(databeanByKey, kv);
+			if(!matchesNodePrefix(kv)) {
+				continue;
+			}
+			Pair<PK,String> pkAndFieldName = parsePrimaryKeyAndFieldName(kv);
+			if(limit != null && databeanByKey.size() == limit){
+				if(alreadyContainsPk(databeanByKey, pkAndFieldName.getLeft())){
+					addKeyValueToResultsUnchecked(databeanByKey, pkAndFieldName, kv.getValue());
+					continue;
+				}
+				break;
+			}
+			addKeyValueToResultsUnchecked(databeanByKey, pkAndFieldName, kv.getValue());
 		}
 		return DrListTool.createArrayList(databeanByKey.values());
-	}	
-	
-	
-	public void addKeyValueToResultsUnchecked(
-			Map<? extends EntityPrimaryKey<?,?>,? extends Databean<?,?>> uncheckedDatabeanByPk, 
-			KeyValue kv){
-		@SuppressWarnings("unchecked") Map<PK,D> databeanByPk = (Map<PK,D>)uncheckedDatabeanByPk;
-		Pair<PK,String> pkAndFieldName = parsePrimaryKeyAndFieldName(kv);
+	}
+
+	private boolean alreadyContainsPk(Map<PK,D> databeanByKey, PK pk){
+		return databeanByKey.containsKey(pk);
+	}
+
+	public void addKeyValueToResultsUnchecked(Map<PK,D> databeanByPk, KeyValue kv){
+		addKeyValueToResultsUnchecked(databeanByPk, parsePrimaryKeyAndFieldName(kv), kv.getValue());
+	}
+
+	public void addKeyValueToResultsUnchecked(Map<PK,D> databeanByPk, Pair<PK,String> pkAndFieldName,
+			byte[] bytesValue){
 		PK pk = pkAndFieldName.getLeft();
 		String fieldName = pkAndFieldName.getRight();
 		Field<?> field = null;
@@ -125,7 +151,7 @@ public class HBaseSubEntityResultParser<
 		if(!isDummyField){
 			field = fieldInfo.getNonKeyFieldByColumnName().get(fieldName);
 			if(field == null){//field doesn't exist in the databean anymore.  skip it
-				return; 
+				return;
 			}
 		}
 		D databean = databeanByPk.get(pk);
@@ -136,14 +162,14 @@ public class HBaseSubEntityResultParser<
 		}
 		if(!isDummyField){
 			//set the databean field value for this hbase cell
-			Object value = field.fromBytesButDoNotSet(kv.getValue(), 0);
+			Object value = field.fromBytesButDoNotSet(bytesValue, 0);
 			field.setUsingReflection(databean, value);
 		}
 	}
 
-	
+
 	/****************** private ********************/
-	
+
 	private Pair<PK,String> parsePrimaryKeyAndFieldName(KeyValue kv){
 		PK pk = ReflectionTool.create(fieldInfo.getPrimaryKeyClass());
 		//EK
@@ -155,19 +181,19 @@ public class HBaseSubEntityResultParser<
 		String fieldName = StringByteTool.fromUtf8BytesOffset(kv.getQualifier(), fieldNameOffset);
 		return Pair.create(pk, fieldName);
 	}
-	
+
 	private boolean matchesNodePrefix(KeyValue kv){
 		byte[] qualifier = kv.getQualifier();
 		return Bytes.startsWith(qualifier, fieldInfo.getEntityColumnPrefixBytes());
 	}
-	
+
 	//parse the hbase row bytes after the partition offset
 	private int parseEkFieldsFromBytesToPk(KeyValue kv, PK targetPk){
 		int offset = partitioner.getNumPrefixBytes();
 		byte[] fromBytes = kv.getRow();
 		return parseFieldsFromBytesToPk(fieldInfo.getEkPkFields(), fromBytes, offset, targetPk);
 	}
-	
+
 	//parse the hbase qualifier bytes
 	private int parsePostEkFieldsFromBytesToPk(KeyValue kv, PK targetPk){
 		byte[] entityColumnPrefixBytes = fieldInfo.getEntityColumnPrefixBytes();
@@ -175,7 +201,7 @@ public class HBaseSubEntityResultParser<
 		byte[] fromBytes = kv.getQualifier();
 		return parseFieldsFromBytesToPk(fieldInfo.getPostEkPkKeyFields(), fromBytes, offset, targetPk);
 	}
-	
+
 	private int parseFieldsFromBytesToPk(List<Field<?>> fields, byte[] fromBytes, int offset, PK targetPk){
 		int byteOffset = offset;
 		for(Field<?> field : fields){
