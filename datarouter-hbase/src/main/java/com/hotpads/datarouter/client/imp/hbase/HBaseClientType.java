@@ -53,6 +53,7 @@ public class HBaseClientType extends BaseClientType{
 	@Inject
 	public HBaseClientType(ClientAvailabilitySettings clientAvailabilitySettings){
 		this.clientAvailabilitySettings = clientAvailabilitySettings;
+		INSTANCE = this;
 	}
 
 	@Override
