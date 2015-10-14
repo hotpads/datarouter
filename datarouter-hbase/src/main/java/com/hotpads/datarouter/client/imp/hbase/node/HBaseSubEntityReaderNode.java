@@ -275,8 +275,8 @@ implements HBasePhysicalNode<PK,D>,
 					return resultParser.getDatabeansWithMatchingQualifierPrefix(result, nullSafeConfig.getLimit());
 				}
 			}).call();
-			List<D> truncatedDatabeans = DrListTool.copyOfRange(databeans, Optional.ofNullable(nullSafeConfig.getOffset())
-					.orElse(0), databeans.size());
+			List<D> truncatedDatabeans = DrListTool.copyOfRange(databeans, Optional.ofNullable(nullSafeConfig
+					.getOffset()).orElse(0), databeans.size());
 			return new ScannerIterable<>(new ListBackedSortedScanner<>(truncatedDatabeans));
 		}
 		List<AsyncBatchLoaderScanner<D>> scanners = queryBuilder.getDatabeanScanners(this, nullSafeRange, config);
