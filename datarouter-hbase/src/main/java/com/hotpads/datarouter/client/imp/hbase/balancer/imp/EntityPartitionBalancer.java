@@ -8,7 +8,7 @@ import java.util.TreeMap;
 
 import org.apache.hadoop.hbase.ServerName;
 
-import com.hotpads.datarouter.client.imp.hbase.balancer.BalanceLeveler;
+import com.hotpads.datarouter.client.imp.hbase.balancer.HBaseBalanceLeveler;
 import com.hotpads.datarouter.client.imp.hbase.balancer.BaseHBaseRegionBalancer;
 import com.hotpads.datarouter.client.imp.hbase.cluster.DRHRegionInfo;
 
@@ -44,8 +44,8 @@ extends BaseHBaseRegionBalancer{
 		}
 		
 		//level out any imbalances from the hashing
-		BalanceLeveler<Integer,ServerName> leveler = new BalanceLeveler<Integer,ServerName>(
-				drhServerList.getServerNames(), serverByPartition, tableName);
+		HBaseBalanceLeveler<Integer> leveler = new HBaseBalanceLeveler<>(drhServerList.getServerNames(), serverByPartition,
+				tableName);
 		serverByPartition = leveler.getBalancedDestinationByItem();
 
 		//map individual regions to servers based on their prefix

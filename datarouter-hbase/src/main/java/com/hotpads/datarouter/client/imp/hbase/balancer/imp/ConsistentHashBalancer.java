@@ -6,7 +6,7 @@ import java.util.TreeMap;
 
 import org.apache.hadoop.hbase.ServerName;
 
-import com.hotpads.datarouter.client.imp.hbase.balancer.BalanceLeveler;
+import com.hotpads.datarouter.client.imp.hbase.balancer.HBaseBalanceLeveler;
 import com.hotpads.datarouter.client.imp.hbase.balancer.BaseHBaseRegionBalancer;
 import com.hotpads.datarouter.client.imp.hbase.cluster.DRHRegionInfo;
 import com.hotpads.datarouter.client.imp.hbase.cluster.DRHServerInfo;
@@ -37,8 +37,8 @@ extends BaseHBaseRegionBalancer{
 		assertRegionCountsConsistent();
 		
 		//level out any imbalances from the hashing
-		BalanceLeveler<DRHRegionInfo<?>,ServerName> leveler = new BalanceLeveler<DRHRegionInfo<?>,ServerName>(
-				drhServerList.getServerNames(), serverByRegion, tableName);
+		HBaseBalanceLeveler<DRHRegionInfo<?>> leveler = new HBaseBalanceLeveler<DRHRegionInfo<?>>(drhServerList.getServerNames(),
+				serverByRegion, tableName);
 		serverByRegion = leveler.getBalancedDestinationByItem();
 
 //		logger.warn(getServerByRegionStringForDebug());

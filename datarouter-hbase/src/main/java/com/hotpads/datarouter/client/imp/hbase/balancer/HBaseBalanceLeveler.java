@@ -17,25 +17,25 @@ import com.hotpads.datarouter.util.core.DrMapTool;
  * I: item
  * D: destination
  */
-public class BalanceLeveler<I,D extends ServerName>{
+public class HBaseBalanceLeveler<I>{
 //	private static Logger logger = LoggerFactory.getLogger(BalanceLeveler.class);
 
-	private final Collection<D> allDestinations;
-	private final SortedMap<I,D> destinationByItem;
+	private final Collection<ServerName> allDestinations;
+	private final SortedMap<I,ServerName> destinationByItem;
 	
 	private long minAtDestination;
 	private long maxAtDestination;
-	private SortedMap<D,Long> countByDestination;//this must be sorted to keep the serverNames in teh same order
+	private SortedMap<ServerName,Long> countByDestination;//must be sorted to keep the serverNames in the same order
 	
 	
 	/************** construct ***************************/
 	
-	public BalanceLeveler(Collection<D> allDestinations, SortedMap<I,D> unleveledDestinationByItem,
-			String randomSeed){
+	public HBaseBalanceLeveler(Collection<ServerName> allDestinations,
+			SortedMap<I,ServerName> unleveledDestinationByItem, String randomSeed){
 		this.allDestinations = DrCollectionTool.nullSafe(allDestinations);
-		this.destinationByItem = new TreeMap<I,D>(unleveledDestinationByItem);
+		this.destinationByItem = new TreeMap<I,ServerName>(unleveledDestinationByItem);
 		
-		Comparator<D> randomServerNameComparator = new TablePseudoRandomComparator<>(randomSeed);
+		Comparator<ServerName> randomServerNameComparator = new TablePseudoRandomComparator(randomSeed);
 		this.countByDestination = new TreeMap<>(randomServerNameComparator);
 		updateCountByDestination();
 	}
@@ -43,11 +43,11 @@ public class BalanceLeveler<I,D extends ServerName>{
 	
 	/************* public methods ***********************/
 	
-	public SortedMap<I,D> getBalancedDestinationByItem(){
+	public SortedMap<I,ServerName> getBalancedDestinationByItem(){
 		while( ! isBalanced()){
-			D mostLoadedDestination = getMostLoadedDestination();
+			ServerName mostLoadedDestination = getMostLoadedDestination();
 			I itemToMove = DrMapTool.getFirstKeyWhereValueEquals(destinationByItem, mostLoadedDestination);
-			D leastLoadedDestination = getLeastLoadedDestination();
+			ServerName leastLoadedDestination = getLeastLoadedDestination();
 			//overwrite the item's destination, thus moving it
 			destinationByItem.put(itemToMove, leastLoadedDestination);
 			updateCountByDestination();
@@ -62,7 +62,7 @@ public class BalanceLeveler<I,D extends ServerName>{
 	 * for a given table, scramble the order of ServerNames in the CountByDestinion map. this will prevent all tables
 	 * from sending their extra tables to the same servers 
 	 */
-	private static class TablePseudoRandomComparator<D extends ServerName> implements Comparator<D>{
+	private static class TablePseudoRandomComparator implements Comparator<ServerName>{
 		private final String randomSeed;
 		
 		public TablePseudoRandomComparator(String randomSeed){
@@ -71,8 +71,8 @@ public class BalanceLeveler<I,D extends ServerName>{
 
 		@Override
 		public int compare(ServerName serverA, ServerName serverB){
-			long serverASort = DrHashMethods.longMD5DJBHash(randomSeed + serverA.getHostAndPort());
-			long serverBSort = DrHashMethods.longMD5DJBHash(randomSeed + serverB.getHostAndPort());
+			long serverASort = DrHashMethods.longDJBHash(randomSeed + serverA.getHostAndPort());
+			long serverBSort = DrHashMethods.longDJBHash(randomSeed + serverB.getHostAndPort());
 			return (int)(serverASort - serverBSort);
 		}
 	}
@@ -82,7 +82,7 @@ public class BalanceLeveler<I,D extends ServerName>{
 	
 	private void updateCountByDestination(){
 		countByDestination.clear();
-		for(Map.Entry<I,D> entry : destinationByItem.entrySet()){
+		for(Map.Entry<I,ServerName> entry : destinationByItem.entrySet()){
 			DrMapTool.increment(countByDestination, entry.getValue());
 		}
 		ensureAllDestinationsInCountByDestination();
@@ -95,7 +95,7 @@ public class BalanceLeveler<I,D extends ServerName>{
 	
 	
 	private void ensureAllDestinationsInCountByDestination(){
-		for(D d : allDestinations){
+		for(ServerName d : allDestinations){
 			if(!countByDestination.containsKey(d)){
 				countByDestination.put(d, 0L);
 			}
@@ -108,8 +108,8 @@ public class BalanceLeveler<I,D extends ServerName>{
 	}
 	
 	
-	private D getMostLoadedDestination(){
-		for(Map.Entry<D,Long> entry : countByDestination.entrySet()){
+	private ServerName getMostLoadedDestination(){
+		for(Map.Entry<ServerName,Long> entry : countByDestination.entrySet()){
 			if(entry.getValue() == maxAtDestination) {
 				return entry.getKey();
 			}
@@ -118,8 +118,8 @@ public class BalanceLeveler<I,D extends ServerName>{
 	}
 	
 	
-	private D getLeastLoadedDestination(){
-		for(Map.Entry<D,Long> entry : countByDestination.entrySet()){
+	private ServerName getLeastLoadedDestination(){
+		for(Map.Entry<ServerName,Long> entry : countByDestination.entrySet()){
 			if(entry.getValue() == minAtDestination) {
 				return entry.getKey();
 			}
