@@ -37,8 +37,8 @@ extends BaseHBaseRegionBalancer{
 		assertRegionCountsConsistent();
 		
 		//level out any imbalances from the hashing
-		HBaseBalanceLeveler<DRHRegionInfo<?>> leveler = new HBaseBalanceLeveler<DRHRegionInfo<?>>(drhServerList
-				.getServerNames(), serverByRegion, tableName);
+		HBaseBalanceLeveler<DRHRegionInfo<?>> leveler = new HBaseBalanceLeveler<>(drhServerList.getServerNames(),
+				serverByRegion, tableName);
 		serverByRegion = leveler.getBalancedDestinationByItem();
 
 //		logger.warn(getServerByRegionStringForDebug());
