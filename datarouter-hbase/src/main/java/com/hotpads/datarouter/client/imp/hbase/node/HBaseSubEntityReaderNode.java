@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
 
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.HTable;
@@ -32,6 +31,7 @@ import com.hotpads.datarouter.storage.key.entity.EntityKey;
 import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.datarouter.util.core.DrNumberTool;
 import com.hotpads.util.core.collections.Range;
@@ -244,8 +244,7 @@ implements HBasePhysicalNode<PK,D>,
 							nullSafeConfig.getLimit()));
 				}
 			}).call();
-			List<PK> truncatedPks = DrListTool.copyOfRange(pks, Optional.ofNullable(nullSafeConfig.getOffset())
-					.orElse(0), pks.size());
+			List<PK> truncatedPks = DrIterableTool.skip(pks, DrNumberTool.longValue(nullSafeConfig.getOffset()));
 			return new ScannerIterable<>(new ListBackedSortedScanner<>(truncatedPks));
 		}
 		List<AsyncBatchLoaderScanner<PK>> scanners = queryBuilder.getPkScanners(this, nullSafeRange, config);
@@ -275,8 +274,8 @@ implements HBasePhysicalNode<PK,D>,
 					return resultParser.getDatabeansWithMatchingQualifierPrefix(result, nullSafeConfig.getLimit());
 				}
 			}).call();
-			List<D> truncatedDatabeans = DrListTool.copyOfRange(databeans, Optional.ofNullable(nullSafeConfig
-					.getOffset()).orElse(0), databeans.size());
+			List<D> truncatedDatabeans = DrIterableTool.skip(databeans, DrNumberTool.longValue(nullSafeConfig
+					.getOffset()));
 			return new ScannerIterable<>(new ListBackedSortedScanner<>(truncatedDatabeans));
 		}
 		List<AsyncBatchLoaderScanner<D>> scanners = queryBuilder.getDatabeanScanners(this, nullSafeRange, config);
