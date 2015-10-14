@@ -33,7 +33,7 @@ public class HBaseBalanceLeveler<I>{
 	public HBaseBalanceLeveler(Collection<ServerName> allDestinations,
 			SortedMap<I,ServerName> unleveledDestinationByItem, String randomSeed){
 		this.allDestinations = DrCollectionTool.nullSafe(allDestinations);
-		this.destinationByItem = new TreeMap<I,ServerName>(unleveledDestinationByItem);
+		this.destinationByItem = new TreeMap<>(unleveledDestinationByItem);
 		
 		Comparator<ServerName> randomServerNameComparator = new TablePseudoRandomComparator(randomSeed);
 		this.countByDestination = new TreeMap<>(randomServerNameComparator);
