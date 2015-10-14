@@ -21,7 +21,6 @@ import com.hotpads.datarouter.test.node.basic.sorted.SortedBeanEntityNode;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBeanKey;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBeans;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
-import com.hotpads.util.core.collections.KeyRangeTool;
 
 public class HBaseEntitySortedNodeIntegrationTests extends BaseSortedNodeIntegrationTests{
 
@@ -57,23 +56,21 @@ public class HBaseEntitySortedNodeIntegrationTests extends BaseSortedNodeIntegra
 		SortedBeanKey threeFieldsPk = new SortedBeanKey(SortedBeans.S_albatross, SortedBeans.S_ostrich, 0, null);
 
 		final int limit = 23;
-		Assert.assertEquals(sortedNode.streamKeys(KeyRangeTool.forPrefix(threeFieldsPk), new Config().setLimit(limit))
-				.count(), SortedBeans.NUM_ELEMENTS);
-		Assert.assertEquals(sortedNode.stream(KeyRangeTool.forPrefix(threeFieldsPk), new Config().setLimit(limit))
-				.count(), SortedBeans.NUM_ELEMENTS);
+		Assert.assertEquals(sortedNode.streamKeysWithPrefix(threeFieldsPk, new Config().setLimit(limit)).count(),
+				SortedBeans.NUM_ELEMENTS);
+		Assert.assertEquals(sortedNode.streamWithPrefix(threeFieldsPk, new Config().setLimit(limit)).count(),
+				SortedBeans.NUM_ELEMENTS);
 
-		Assert.assertEquals(sortedNode.streamKeys(KeyRangeTool.forPrefix(twoFieldsPk), new Config().setLimit(limit))
-				.count(), limit);
-		Assert.assertEquals(sortedNode.stream(KeyRangeTool.forPrefix(twoFieldsPk), new Config().setLimit(limit))
-				.count(), limit);
+		Assert.assertEquals(sortedNode.streamKeysWithPrefix(twoFieldsPk, new Config().setLimit(limit)).count(), limit);
+		Assert.assertEquals(sortedNode.streamWithPrefix(twoFieldsPk, new Config().setLimit(limit)).count(), limit);
 
 		final int offset = 57;
 		List<SortedBeanKey> limitedOffset = sortedNode
-				.streamKeys(KeyRangeTool.forPrefix(twoFieldsPk), new Config().setOffset(offset).setLimit(1))
+				.streamKeysWithPrefix(twoFieldsPk, new Config().setOffset(offset).setLimit(1))
 				.collect(Collectors.toList());
 		Assert.assertEquals(limitedOffset.size(), 1);
-		Assert.assertEquals(limitedOffset.get(0), sortedNode.streamKeys(KeyRangeTool.forPrefix(twoFieldsPk),
-				new Config().setOffset(offset)).findFirst().get());
+		Assert.assertEquals(limitedOffset.get(0), sortedNode.streamKeysWithPrefix(twoFieldsPk, new Config()
+				.setOffset(offset)).findFirst().get());
 	}
 
 }
