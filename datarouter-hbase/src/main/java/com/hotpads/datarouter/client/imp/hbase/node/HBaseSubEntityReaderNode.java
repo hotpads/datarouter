@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.HTable;
@@ -34,7 +35,6 @@ import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.datarouter.util.core.DrNumberTool;
 import com.hotpads.util.core.collections.Range;
-import com.hotpads.util.core.iterable.scanner.Scanner;
 import com.hotpads.util.core.iterable.scanner.batch.AsyncBatchLoaderScanner;
 import com.hotpads.util.core.iterable.scanner.collate.Collator;
 import com.hotpads.util.core.iterable.scanner.collate.PriorityQueueCollator;
@@ -244,14 +244,14 @@ implements HBasePhysicalNode<PK,D>,
 							nullSafeConfig.getLimit()));
 				}
 			}).call();
-			Scanner<PK> scanner = new ListBackedSortedScanner<>(pks);
-			scanner.advanceBy(nullSafeConfig.getOffset());
-			return new ScannerIterable<>(scanner);
+			List<PK> truncatedPks = DrListTool.copyOfRange(pks, Optional.ofNullable(nullSafeConfig.getOffset())
+					.orElse(0), pks.size());
+			return new ScannerIterable<>(new ListBackedSortedScanner<>(truncatedPks));
 		}
 		List<AsyncBatchLoaderScanner<PK>> scanners = queryBuilder.getPkScanners(this, nullSafeRange, config);
 		Collator<PK> collator = new PriorityQueueCollator<>(scanners, DrNumberTool.longValue(nullSafeConfig
 				.getLimit()));
-		collator.advanceBy(nullSafeConfig.getOffset() + 1);
+		collator.advanceBy(nullSafeConfig.getOffset());
 		return new ScannerIterable<>(collator);
 	}
 
@@ -275,9 +275,9 @@ implements HBasePhysicalNode<PK,D>,
 					return resultParser.getDatabeansWithMatchingQualifierPrefix(result, nullSafeConfig.getLimit());
 				}
 			}).call();
-			Scanner<D> scanner = new ListBackedSortedScanner<>(databeans);
-			scanner.advanceBy(nullSafeConfig.getOffset() + 1);
-			return new ScannerIterable<>(scanner);
+			List<D> truncatedDatabeans = DrListTool.copyOfRange(databeans, Optional.ofNullable(nullSafeConfig.getOffset())
+					.orElse(0), databeans.size());
+			return new ScannerIterable<>(new ListBackedSortedScanner<>(truncatedDatabeans));
 		}
 		List<AsyncBatchLoaderScanner<D>> scanners = queryBuilder.getDatabeanScanners(this, nullSafeRange, config);
 		Collator<D> collator = new PriorityQueueCollator<>(scanners, DrNumberTool.longValue(nullSafeConfig.getLimit()));
