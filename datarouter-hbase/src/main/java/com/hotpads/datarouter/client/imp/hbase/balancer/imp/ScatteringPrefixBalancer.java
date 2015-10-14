@@ -8,8 +8,8 @@ import java.util.TreeMap;
 
 import org.apache.hadoop.hbase.ServerName;
 
-import com.hotpads.datarouter.client.imp.hbase.balancer.HBaseBalanceLeveler;
 import com.hotpads.datarouter.client.imp.hbase.balancer.BaseHBaseRegionBalancer;
+import com.hotpads.datarouter.client.imp.hbase.balancer.HBaseBalanceLeveler;
 import com.hotpads.datarouter.client.imp.hbase.cluster.DRHRegionInfo;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldSetTool;
@@ -44,13 +44,14 @@ extends BaseHBaseRegionBalancer{
 		SortedMap<ByteRange,ServerName> serverByPrefix = new TreeMap<>();
 		for(ByteRange prefix : regionsByPrefix.keySet()){
 			byte[] consistentHashInput = prefix.copyToNewArray();
-			ServerName serverName = ConsistentHashBalancer.calcServerNameForItem(consistentHashRing, consistentHashInput);
+			ServerName serverName = ConsistentHashBalancer.calcServerNameForItem(consistentHashRing,
+					consistentHashInput);
 			serverByPrefix.put(prefix, serverName);//now region->server mapping is known
 		}
 		
 		//level out any imbalances from the hashing
-		HBaseBalanceLeveler<ByteRange> leveler = new HBaseBalanceLeveler<>(drhServerList.getServerNames(), serverByPrefix,
-				tableName);
+		HBaseBalanceLeveler<ByteRange> leveler = new HBaseBalanceLeveler<>(drhServerList.getServerNames(),
+				serverByPrefix, tableName);
 		serverByPrefix = leveler.getBalancedDestinationByItem();
 
 		//map individual regions to servers based on their prefix
