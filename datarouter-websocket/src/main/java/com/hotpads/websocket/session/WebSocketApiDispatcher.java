@@ -1,6 +1,6 @@
 package com.hotpads.websocket.session;
 
-import com.hotpads.DatarouterInjector;
+import com.hotpads.datarouter.inject.DatarouterInjector;
 import com.hotpads.handler.BaseDispatcher;
 import com.hotpads.handler.dispatcher.DatarouterDispatcher;
 import com.hotpads.util.http.security.CsrfValidator;
