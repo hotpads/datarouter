@@ -39,7 +39,7 @@ extends BaseHBaseEntityBatchLoader<EK,E,PK,D,F,D>{
 	@Override
 	protected List<D> parseHBaseResult(Result result){
 		//the first and last entity may include results outside the range
-		List<D> unfilteredResults = node.getResultParser().getDatabeansWithMatchingQualifierPrefix(result);
+		List<D> unfilteredResults = node.getResultParser().getDatabeansWithMatchingQualifierPrefix(result, null);
 		List<D> filteredResults = new ArrayList<>();
 		for(D candidate : DrIterableTool.nullSafe(unfilteredResults)){
 			if(FieldSetRangeFilter.include(candidate.getKey(), range)){

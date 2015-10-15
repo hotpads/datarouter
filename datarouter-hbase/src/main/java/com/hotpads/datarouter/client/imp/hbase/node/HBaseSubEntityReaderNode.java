@@ -31,13 +31,13 @@ import com.hotpads.datarouter.storage.key.entity.EntityKey;
 import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.datarouter.util.core.DrNumberTool;
 import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.iterable.scanner.batch.AsyncBatchLoaderScanner;
 import com.hotpads.util.core.iterable.scanner.collate.Collator;
 import com.hotpads.util.core.iterable.scanner.collate.PriorityQueueCollator;
-import com.hotpads.util.core.iterable.scanner.imp.ListBackedSortedScanner;
 import com.hotpads.util.core.iterable.scanner.iterable.ScannerIterable;
 
 public class HBaseSubEntityReaderNode<
@@ -132,8 +132,8 @@ implements HBasePhysicalNode<PK,D>,
 				@Override
 				public List<PK> hbaseCall(HTable htable, HBaseClient client, ResultScanner managedResultScanner)
 				throws Exception{
-				DRCounters.incClientNodeCustom(client.getType(), "getKeys requested", getClientName(), getNodeName(),
-						DrCollectionTool.size(pks));
+					DRCounters.incClientNodeCustom(client.getType(), "getKeys requested", getClientName(),
+							getNodeName() , DrCollectionTool.size(pks));
 					List<Get> gets = queryBuilder.getGets(pks, true);
 					Result[] hbaseResults = htable.get(gets);
 					List<PK> pks = resultParser.getPrimaryKeysWithMatchingQualifierPrefix(hbaseResults);
@@ -203,7 +203,8 @@ implements HBasePhysicalNode<PK,D>,
 							if(row.isEmpty()){
 								continue;
 							}
-							List<D> singleRowResults = resultParser.getDatabeansWithMatchingQualifierPrefix(row);
+							//TODO compute a limit to pass here
+							List<D> singleRowResults = resultParser.getDatabeansWithMatchingQualifierPrefix(row, null);
 							results.addAll(singleRowResults);
 							if(config.getLimit()!=null && results.size()>=config.getLimit()){
 								break;
@@ -222,7 +223,7 @@ implements HBasePhysicalNode<PK,D>,
 	}
 
 	@Override
-	public ScannerIterable<PK> scanKeys(final Range<PK> range, final Config config){
+	public Iterable<PK> scanKeys(final Range<PK> range, final Config config){
 		final Config nullSafeConfig = Config.nullSafe(config);
 		if(nullSafeConfig.getLimit() != null && nullSafeConfig.getOffset() != null){
 			nullSafeConfig.setLimit(nullSafeConfig.getLimit() + nullSafeConfig.getOffset());
@@ -238,20 +239,21 @@ implements HBasePhysicalNode<PK,D>,
 					Get get = queryBuilder.getSingleRowRange(nullSafeRange.getStart().getEntityKey(), nullSafeRange,
 							true);
 					Result result = htable.get(get);
-					return DrListTool.createArrayList(resultParser.getPrimaryKeysWithMatchingQualifierPrefix(result));
+					return DrListTool.createArrayList(resultParser.getPrimaryKeysWithMatchingQualifierPrefix(result,
+							nullSafeConfig.getLimit()));
 				}
 			}).call();
-			return new ScannerIterable<>(new ListBackedSortedScanner<>(pks));
+			return DrIterableTool.skip(pks, DrNumberTool.longValue(nullSafeConfig.getOffset()));
 		}
 		List<AsyncBatchLoaderScanner<PK>> scanners = queryBuilder.getPkScanners(this, nullSafeRange, config);
-		Collator<PK> collator = new PriorityQueueCollator<>(scanners,
-				DrNumberTool.longValue(nullSafeConfig.getLimit()));
+		Collator<PK> collator = new PriorityQueueCollator<>(scanners, DrNumberTool.longValue(nullSafeConfig
+				.getLimit()));
 		collator.advanceBy(nullSafeConfig.getOffset());
 		return new ScannerIterable<>(collator);
 	}
 
 	@Override
-	public ScannerIterable<D> scan(final Range<PK> range, final Config config){
+	public Iterable<D> scan(final Range<PK> range, final Config config){
 		final Config nullSafeConfig = Config.nullSafe(config);
 		if(nullSafeConfig.getLimit() != null && nullSafeConfig.getOffset() != null){
 			nullSafeConfig.setLimit(nullSafeConfig.getLimit() + nullSafeConfig.getOffset());
@@ -267,10 +269,10 @@ implements HBasePhysicalNode<PK,D>,
 					Get get = queryBuilder.getSingleRowRange(nullSafeRange.getStart().getEntityKey(), nullSafeRange,
 							false);
 					Result result = htable.get(get);
-					return resultParser.getDatabeansWithMatchingQualifierPrefix(result);
+					return resultParser.getDatabeansWithMatchingQualifierPrefix(result, nullSafeConfig.getLimit());
 				}
 			}).call();
-			return new ScannerIterable<>(new ListBackedSortedScanner<>(databeans));
+			return DrIterableTool.skip(databeans, DrNumberTool.longValue(nullSafeConfig.getOffset()));
 		}
 		List<AsyncBatchLoaderScanner<D>> scanners = queryBuilder.getDatabeanScanners(this, nullSafeRange, config);
 		Collator<D> collator = new PriorityQueueCollator<>(scanners, DrNumberTool.longValue(nullSafeConfig.getLimit()));
