@@ -20,6 +20,7 @@ import com.hotpads.datarouter.client.imp.hbase.node.HBaseNode;
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseSubEntityNode;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams;
+import com.hotpads.datarouter.node.adapter.availability.PhysicalSortedMapStorageAvailabilityAdapter;
 import com.hotpads.datarouter.node.adapter.callsite.physical.PhysicalSortedMapStorageCallsiteAdapter;
 import com.hotpads.datarouter.node.adapter.counter.physical.PhysicalSortedMapStorageCounterAdapter;
 import com.hotpads.datarouter.node.entity.EntityNode;
@@ -70,7 +71,8 @@ public class HBaseClientType extends BaseClientType{
 	@Override
 	public <PK extends PrimaryKey<PK>, D extends Databean<PK, D>, F extends DatabeanFielder<PK, D>>
 	PhysicalNode<PK, D> createNode(NodeParams<PK, D, F> nodeParams){
-		return new PhysicalSortedMapStorageCounterAdapter<>(new HBaseNode<>(nodeParams));
+		return new PhysicalSortedMapStorageAvailabilityAdapter<>(new PhysicalSortedMapStorageCounterAdapter<>(
+				new HBaseNode<>(nodeParams)));
 	}
 
 	@Override
