@@ -3,7 +3,7 @@ package com.hotpads.websocket.endpoint;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.hotpads.DatarouterInjector;
+import com.hotpads.datarouter.inject.DatarouterInjector;
 
 public abstract class WebSocketServices{
 

@@ -10,7 +10,7 @@ import javax.websocket.server.ServerEndpointConfig.Configurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hotpads.DatarouterInjector;
+import com.hotpads.datarouter.inject.DatarouterInjector;
 import com.hotpads.websocket.auth.WebSocketAuthenticationFilter;
 
 public abstract class DatarouterWebSocketConfigurator extends Configurator{
