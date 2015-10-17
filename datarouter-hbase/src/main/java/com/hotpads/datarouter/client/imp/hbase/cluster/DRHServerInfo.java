@@ -24,7 +24,7 @@ public class DRHServerInfo{
 	
 	/************** comparator ******************/
 	
-	public static class DRHServerInfoHigherLoadComparator implements Comparator<DRHServerInfo>{
+	public static class DrhServerInfoHigherLoadComparator implements Comparator<DRHServerInfo>{
 		@Override
 		public int compare(DRHServerInfo serverA, DRHServerInfo serverB){
 			int numARegions = serverA.gethServerLoad().getLoad();

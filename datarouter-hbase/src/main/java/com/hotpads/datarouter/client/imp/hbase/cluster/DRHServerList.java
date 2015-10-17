@@ -17,7 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.imp.hbase.HBaseStaticContext;
-import com.hotpads.datarouter.client.imp.hbase.cluster.DRHServerInfo.DRHServerInfoHigherLoadComparator;
+import com.hotpads.datarouter.client.imp.hbase.cluster.DRHServerInfo.DrhServerInfoHigherLoadComparator;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrListTool;
@@ -39,7 +39,7 @@ public class DRHServerList{
 			serverNames = DrListTool.createArrayList(clusterStatus.getServers());
 			Collections.sort(serverNames);
 			this.servers = DrListTool.createArrayListWithSize(serverNames);
-			this.serversSortedByDescendingLoad = new TreeSet<>(new DRHServerInfoHigherLoadComparator());
+			this.serversSortedByDescendingLoad = new TreeSet<>(new DrhServerInfoHigherLoadComparator());
 			this.drhServerInfoByServerName = new TreeMap<>();
 			for(ServerName serverName : DrIterableTool.nullSafe(serverNames)){
 				DRHServerInfo info = new DRHServerInfo(serverName, clusterStatus.getLoad(serverName));
