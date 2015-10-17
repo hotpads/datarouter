@@ -1,5 +1,7 @@
 package com.hotpads.datarouter.client.imp.hbase.cluster;
 
+import java.util.Comparator;
+
 import org.apache.hadoop.hbase.HServerLoad;
 import org.apache.hadoop.hbase.ServerName;
 
@@ -18,6 +20,21 @@ public class DRHServerInfo{
 		this.name = serverName.getServerName();
 		this.hostname = serverName.getHostname();
 	}
+	
+	
+	/************** comparator ******************/
+	
+	public static class DRHServerInfoHigherLoadComparator implements Comparator<DRHServerInfo>{
+		@Override
+		public int compare(DRHServerInfo serverA, DRHServerInfo serverB){
+			int numARegions = serverA.gethServerLoad().getLoad();
+			int numBRegions = serverB.gethServerLoad().getLoad();
+			return numBRegions - numARegions;
+		}
+	}
+	
+	
+	/************** get/set ***************************/
 
 	public String getName(){
 		return name;
