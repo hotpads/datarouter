@@ -87,7 +87,7 @@ public class DrhRegionList{
 		}
 		Collections.sort(regions);//ensure sorted for getRegionsSorted
 		balancerStrategy.init(scatteringPrefixClass, entityPartitioner, servers, this);
-		logger.warn("starting balancerStrategy for {} with {} regions", tableName, regions.size());
+		logger.info("starting balancerStrategy for {} with {} regions", tableName, regions.size());
 		this.targetServerNameByRegion = CallableTool.callUnchecked(balancerStrategy);
 		balancerStrategy.assertRegionCountsConsistent();
 		for(DRHRegionInfo<?> drhRegionInfo : regions){
