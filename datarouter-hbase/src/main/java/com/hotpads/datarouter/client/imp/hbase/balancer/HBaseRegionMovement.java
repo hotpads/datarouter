@@ -28,7 +28,8 @@ public class HBaseRegionMovement{
 			Collection<HBaseRegionMovement> movements){
 		Map<ServerName,List<HBaseRegionMovement>> movementsByCurrentServer = new TreeMap<>();
 		for(HBaseRegionMovement movement : movements){
-			movementsByCurrentServer.putIfAbsent(movement.currentServer, new ArrayList<>()).add(movement);
+			movementsByCurrentServer.putIfAbsent(movement.currentServer, new ArrayList<>());
+			movementsByCurrentServer.get(movement.currentServer).add(movement);
 		}
 		return movementsByCurrentServer;
 	}
