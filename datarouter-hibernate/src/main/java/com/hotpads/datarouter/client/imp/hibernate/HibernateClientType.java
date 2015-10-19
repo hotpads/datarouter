@@ -21,6 +21,7 @@ import com.hotpads.datarouter.client.imp.jdbc.node.JdbcNode;
 import com.hotpads.datarouter.inject.DatarouterInjector;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams;
+import com.hotpads.datarouter.node.adapter.availability.PhysicalIndexedSortedMapStorageAvailabilityAdapter;
 import com.hotpads.datarouter.node.adapter.callsite.physical.PhysicalIndexedSortedMapStorageCallsiteAdapter;
 import com.hotpads.datarouter.node.adapter.counter.physical.PhysicalIndexedSortedMapStorageCounterAdapter;
 import com.hotpads.datarouter.node.entity.EntityNodeParams;
@@ -74,13 +75,12 @@ public class HibernateClientType extends BaseClientType{
 	PhysicalNode<PK, D> createNode(NodeParams<PK, D, F> nodeParams){
 		PhysicalIndexedSortedMapStorageNode<PK,D> node;
 		if(nodeParams.getFielderClass() == null){
-			node = new PhysicalIndexedSortedMapStorageCounterAdapter<>(new HibernateNode<>(nodeParams,
-					fieldCodecFactory, resultParser));
-//			logger.warn("creating HibernateNode "+node);
+			node = new HibernateNode<>(nodeParams, fieldCodecFactory, resultParser);
 		}else{
-			node = new PhysicalIndexedSortedMapStorageCounterAdapter<>(new JdbcNode<>(nodeParams, fieldCodecFactory));
+			node = new JdbcNode<>(nodeParams, fieldCodecFactory);
 		}
-		return node;
+		return new PhysicalIndexedSortedMapStorageAvailabilityAdapter<>(
+				new PhysicalIndexedSortedMapStorageCounterAdapter<>(node));
 	}
 
 	//ignore the entityNodeParams

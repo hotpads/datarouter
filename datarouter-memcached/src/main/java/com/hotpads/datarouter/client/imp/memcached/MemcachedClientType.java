@@ -17,6 +17,7 @@ import com.hotpads.datarouter.client.imp.memcached.node.MemcachedNode;
 import com.hotpads.datarouter.inject.DatarouterInjector;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams;
+import com.hotpads.datarouter.node.adapter.availability.PhysicalMapStorageAvailabilityAdapter;
 import com.hotpads.datarouter.node.adapter.callsite.physical.PhysicalMapStorageCallsiteAdapter;
 import com.hotpads.datarouter.node.adapter.counter.physical.PhysicalMapStorageCounterAdapter;
 import com.hotpads.datarouter.node.entity.EntityNodeParams;
@@ -66,7 +67,8 @@ public class MemcachedClientType extends BaseClientType{
 	@Override
 	public <PK extends PrimaryKey<PK>, D extends Databean<PK, D>, F extends DatabeanFielder<PK, D>>
 	PhysicalNode<PK, D> createNode(NodeParams<PK, D, F> nodeParams){
-		return new PhysicalMapStorageCounterAdapter<>(new MemcachedNode<>(nodeParams));
+		return new PhysicalMapStorageAvailabilityAdapter<>(new PhysicalMapStorageCounterAdapter<>(new MemcachedNode<>(
+				nodeParams)));
 	}
 
 	//ignore the entityNodeParams
