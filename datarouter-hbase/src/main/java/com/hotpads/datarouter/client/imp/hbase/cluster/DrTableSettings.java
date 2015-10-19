@@ -6,7 +6,7 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-public class DRHTableSettings{
+public class DrTableSettings{
 	
 	public static final String
 		BLOCKCACHE = "BLOCKCACHE",
@@ -45,43 +45,36 @@ public class DRHTableSettings{
 	public static void validateColumnFamilySetting(String setting, String value) {
 		if(BLOCKCACHE.equals(setting)) {
 			if(!validBoolean(value)) {
-				throw new IllegalArgumentException("invalid "+BLOCKCACHE);
+				throw new IllegalArgumentException("invalid " + BLOCKCACHE);
 			}
-		}
-		else if(BLOCKSIZE.equals(setting)) {
+		}else if(BLOCKSIZE.equals(setting)) {
 			Long.valueOf(value);
-		}
-		else if(BLOOMFILTER.equals(setting)) {
+		}else if(BLOOMFILTER.equals(setting)) {
 			if(!SET_BLOOMFILTER.contains(value)) {
-				throw new IllegalArgumentException("invalid "+BLOOMFILTER+" "+value);
+				throw new IllegalArgumentException("invalid " + BLOOMFILTER + " " + value);
 			}
-		}
-		else if(COMPRESSION.equals(setting)) {
+		}else if(COMPRESSION.equals(setting)) {
 			if(!SET_COMPRESSION.contains(value)) {
-				throw new IllegalArgumentException("invalid "+COMPRESSION+" "+value);
+				throw new IllegalArgumentException("invalid " + COMPRESSION + " " + value);
 			}
-		}
-		else if(DATA_BLOCK_ENCODING.equals(setting)) {
+		}else if(DATA_BLOCK_ENCODING.equals(setting)) {
 			if(!SET_DATA_BLOCK_ENCODING.contains(value)) {
-				throw new IllegalArgumentException("invalid "+DATA_BLOCK_ENCODING+" "+value);
+				throw new IllegalArgumentException("invalid " + DATA_BLOCK_ENCODING + " " + value);
 			}
-		}
-		else if(ENCODE_ON_DISK.equals(setting)) {
+		}else if(ENCODE_ON_DISK.equals(setting)) {
 			if(!validBoolean(value)) {
-				throw new IllegalArgumentException("invalid "+ENCODE_ON_DISK);
+				throw new IllegalArgumentException("invalid " + ENCODE_ON_DISK);
 			}
-		}
-		else if(IN_MEMORY.equals(setting)) {
+		}else if(IN_MEMORY.equals(setting)) {
 			if(!validBoolean(value)) {
-				throw new IllegalArgumentException("invalid "+IN_MEMORY);
+				throw new IllegalArgumentException("invalid " + IN_MEMORY);
 			}
-		}
-		else if(TTL.equals(setting)) {
+		}else if(TTL.equals(setting)) {
 			Long.valueOf(value);
-		}
-		else if(VERSIONS.equals(setting)) {
+		}else if(VERSIONS.equals(setting)) {
 			Integer.valueOf(value);
 		}
+		throw new IllegalArgumentException("unknown setting " + setting);
 	}
 	
 	

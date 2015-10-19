@@ -5,16 +5,16 @@ import java.util.Comparator;
 import org.apache.hadoop.hbase.HServerLoad;
 import org.apache.hadoop.hbase.ServerName;
 
-public class DRHServerInfo{
+public class DrServerInfo{
 	
-	protected ServerName serverName;
-	protected HServerLoad hServerLoad;
+	private final ServerName serverName;
+	private final HServerLoad hServerLoad;
 
-	protected String name;
-	protected String hostname;
+	private final String name;
+	private final String hostname;
 	
 	
-	public DRHServerInfo(ServerName serverName, HServerLoad hServerLoad){
+	public DrServerInfo(ServerName serverName, HServerLoad hServerLoad){
 		this.serverName = serverName;
 		this.hServerLoad = hServerLoad;
 		this.name = serverName.getServerName();
@@ -24,9 +24,9 @@ public class DRHServerInfo{
 	
 	/************** comparator ******************/
 	
-	public static class DrhServerInfoHigherLoadComparator implements Comparator<DRHServerInfo>{
+	public static class DrhServerInfoHigherLoadComparator implements Comparator<DrServerInfo>{
 		@Override
-		public int compare(DRHServerInfo serverA, DRHServerInfo serverB){
+		public int compare(DrServerInfo serverA, DrServerInfo serverB){
 			int numARegions = serverA.gethServerLoad().getLoad();
 			int numBRegions = serverB.gethServerLoad().getLoad();
 			return numBRegions - numARegions;

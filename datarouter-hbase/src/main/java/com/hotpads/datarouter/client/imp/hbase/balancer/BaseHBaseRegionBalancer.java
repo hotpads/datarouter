@@ -9,23 +9,23 @@ import org.apache.hadoop.hbase.ServerName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hotpads.datarouter.client.imp.hbase.cluster.DRHRegionInfo;
-import com.hotpads.datarouter.client.imp.hbase.cluster.DRHServerList;
-import com.hotpads.datarouter.client.imp.hbase.cluster.DrhRegionList;
+import com.hotpads.datarouter.client.imp.hbase.cluster.DrRegionInfo;
+import com.hotpads.datarouter.client.imp.hbase.cluster.DrServerList;
+import com.hotpads.datarouter.client.imp.hbase.cluster.DrRegionList;
 import com.hotpads.datarouter.storage.key.entity.EntityPartitioner;
 import com.hotpads.datarouter.storage.prefix.ScatteringPrefix;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.util.core.java.ReflectionTool;
 
 public abstract class BaseHBaseRegionBalancer
-implements Callable<Map<DRHRegionInfo<?>,ServerName>>{
+implements Callable<Map<DrRegionInfo<?>,ServerName>>{
 	private static final Logger logger = LoggerFactory.getLogger(BaseHBaseRegionBalancer.class);
 
 	protected final String tableName;
-	protected DRHServerList drhServerList;
-	protected DrhRegionList drhRegionList;
+	protected DrServerList drhServerList;
+	protected DrRegionList drhRegionList;
 
-	protected SortedMap<DRHRegionInfo<?>,ServerName> serverByRegion;//fill and return this in the call() method
+	protected SortedMap<DrRegionInfo<?>,ServerName> serverByRegion;//fill and return this in the call() method
 	protected Class<? extends ScatteringPrefix> scatteringPrefixClass;
 	protected EntityPartitioner<?> entityPartitioner;
 	protected ScatteringPrefix scatteringPrefix;
@@ -36,7 +36,7 @@ implements Callable<Map<DRHRegionInfo<?>,ServerName>>{
 	
 	public BaseHBaseRegionBalancer init(Class<? extends ScatteringPrefix> scatteringPrefixClass,
 			EntityPartitioner<?> entityPartitioner,
-			DRHServerList drhServerList, DrhRegionList drhRegionList){
+			DrServerList drhServerList, DrRegionList drhRegionList){
 		// passed-in
 		this.scatteringPrefixClass = scatteringPrefixClass;
 		this.entityPartitioner = entityPartitioner;
@@ -47,7 +47,6 @@ implements Callable<Map<DRHRegionInfo<?>,ServerName>>{
 		if(scatteringPrefixClass != null){
 			this.scatteringPrefix = ReflectionTool.create(scatteringPrefixClass);
 		}
-//		logger.warn("init complete, scatteringPrefixClass:"+scatteringPrefixClass);
 		return this;
 	}
 
@@ -63,7 +62,7 @@ implements Callable<Map<DRHRegionInfo<?>,ServerName>>{
 	protected String getServerByRegionStringForDebug(){
 		int i = 0;
 		StringBuilder sb = new StringBuilder();
-		for(Map.Entry<DRHRegionInfo<?>,ServerName> entry : serverByRegion.entrySet()){
+		for(Map.Entry<DrRegionInfo<?>,ServerName> entry : serverByRegion.entrySet()){
 			sb.append("\n"
 					+DrStringTool.pad(i+"", ' ', 3)
 					+" "+entry.getKey().getRegion().getEncodedName()

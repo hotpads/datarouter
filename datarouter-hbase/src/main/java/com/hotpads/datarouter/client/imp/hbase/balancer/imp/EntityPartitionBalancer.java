@@ -10,7 +10,7 @@ import org.apache.hadoop.hbase.ServerName;
 
 import com.hotpads.datarouter.client.imp.hbase.balancer.BaseHBaseRegionBalancer;
 import com.hotpads.datarouter.client.imp.hbase.balancer.HBaseBalanceLeveler;
-import com.hotpads.datarouter.client.imp.hbase.cluster.DRHRegionInfo;
+import com.hotpads.datarouter.client.imp.hbase.cluster.DrRegionInfo;
 
 /*
  * assign each partition in full to a server, and hard-level the number of regions
@@ -18,7 +18,7 @@ import com.hotpads.datarouter.client.imp.hbase.cluster.DRHRegionInfo;
 public class EntityPartitionBalancer
 extends BaseHBaseRegionBalancer{
 	
-	private Map<Integer,List<DRHRegionInfo<?>>> regionsByPartition;
+	private Map<Integer,List<DrRegionInfo<?>>> regionsByPartition;
 	
 	/******************* constructor ***************************/
 	
@@ -27,7 +27,7 @@ extends BaseHBaseRegionBalancer{
 	}
 	
 	@Override
-	public SortedMap<DRHRegionInfo<?>,ServerName> call(){
+	public SortedMap<DrRegionInfo<?>,ServerName> call(){
 		initRegionByPartitionMap();
 		
 		//set up the ring of servers
@@ -50,8 +50,8 @@ extends BaseHBaseRegionBalancer{
 
 		//map individual regions to servers based on their prefix
 		for(Map.Entry<Integer,ServerName> entry : serverByPartition.entrySet()){
-			List<DRHRegionInfo<?>> regionsInPartition = regionsByPartition.get(entry.getKey());
-			for(DRHRegionInfo<?> region : regionsInPartition){
+			List<DrRegionInfo<?>> regionsInPartition = regionsByPartition.get(entry.getKey());
+			for(DrRegionInfo<?> region : regionsInPartition){
 				serverByRegion.put(region, entry.getValue());
 			}
 		}
@@ -64,9 +64,9 @@ extends BaseHBaseRegionBalancer{
 	private void initRegionByPartitionMap(){
 		regionsByPartition = new TreeMap<>();
 		for(Integer partition : entityPartitioner.getAllPartitions()){
-			regionsByPartition.put(partition, new ArrayList<DRHRegionInfo<?>>()); 
+			regionsByPartition.put(partition, new ArrayList<DrRegionInfo<?>>()); 
 		}
-		for(DRHRegionInfo<?> drhRegionInfo : drhRegionList.getRegionsSorted()){
+		for(DrRegionInfo<?> drhRegionInfo : drhRegionList.getRegionsSorted()){
 			Integer partition = drhRegionInfo.getPartition();
 			if(partition == null) {
 				partition = 0;

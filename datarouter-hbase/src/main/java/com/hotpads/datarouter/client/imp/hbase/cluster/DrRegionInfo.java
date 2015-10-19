@@ -30,9 +30,9 @@ import com.hotpads.datarouter.util.core.DrObjectTool;
 import com.hotpads.util.core.java.ReflectionTool;
 import com.hotpads.util.core.lang.ClassTool;
 
-public class DRHRegionInfo<PK extends PrimaryKey<PK>>
-implements Comparable<DRHRegionInfo<?>>{
-	private static final Logger logger = LoggerFactory.getLogger(DRHRegionInfo.class);
+public class DrRegionInfo<PK extends PrimaryKey<PK>>
+implements Comparable<DrRegionInfo<?>>{
+	private static final Logger logger = LoggerFactory.getLogger(DrRegionInfo.class);
 	
 	private Integer regionNum;
 	private String tableName;
@@ -50,7 +50,7 @@ implements Comparable<DRHRegionInfo<?>>{
 	private DRHCompactionScheduler compactionScheduler;
 	
 	
-	public DRHRegionInfo(Integer regionNum, String tableName, Class<PK> primaryKeyClass, 
+	public DrRegionInfo(Integer regionNum, String tableName, Class<PK> primaryKeyClass, 
 			HRegionInfo hRegionInfo, ServerName serverName, HServerLoad hServerLoad, 
 			Node<?,?> node, RegionLoad load, DRHCompactionInfo compactionInfo){
 		this.regionNum = regionNum;
@@ -154,7 +154,7 @@ implements Comparable<DRHRegionInfo<?>>{
 	public boolean equals(Object obj){
 		if(this==obj){ return true; }
 		if(ClassTool.differentClass(this, obj)){ return false; }
-		DRHRegionInfo<PK> that = (DRHRegionInfo<PK>)obj;
+		DrRegionInfo<PK> that = (DrRegionInfo<PK>)obj;
 		return DrObjectTool.equals(hRegionInfo.getEncodedName(), that.hRegionInfo.getEncodedName());
 	}
 	
@@ -164,7 +164,7 @@ implements Comparable<DRHRegionInfo<?>>{
 	}
 	
 	@Override
-	public int compareTo(DRHRegionInfo<?> o) {
+	public int compareTo(DrRegionInfo<?> o) {
 		return Bytes.compareTo(hRegionInfo.getStartKey(), o.getRegion().getStartKey());
 	}
 

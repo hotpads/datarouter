@@ -6,7 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
-import com.hotpads.datarouter.client.imp.hbase.cluster.DRHRegionInfo;
+import com.hotpads.datarouter.client.imp.hbase.cluster.DrRegionInfo;
 import com.hotpads.datarouter.util.core.DrDailyCalendarTool;
 import com.hotpads.datarouter.util.core.DrDateTool;
 import com.hotpads.datarouter.util.core.DrExceptionTool;
@@ -22,11 +22,11 @@ implements DRHCompactionInfo{
 	protected Long now = System.currentTimeMillis();
 	protected DRHCompactionInfo compactionInfo;
 	protected Long windowStartMs, windowEndMs;//start inclusive, end exclusive
-	protected DRHRegionInfo regionInfo;
+	protected DrRegionInfo regionInfo;
 	protected Long regionHash;
 	protected Long nextCompactTimeMs;
 	
-	public DRHCompactionScheduler(DRHCompactionInfo compactionInfo, DRHRegionInfo regionInfo){
+	public DRHCompactionScheduler(DRHCompactionInfo compactionInfo, DrRegionInfo regionInfo){
 		this.compactionInfo = compactionInfo;
 		this.windowStartMs = now - (now % compactionInfo.getCompactionTriggerPeriodMs());
 		this.windowEndMs = windowStartMs + compactionInfo.getCompactionTriggerPeriodMs();
@@ -109,7 +109,7 @@ implements DRHCompactionInfo{
 	}
 	
 	@Override
-	public Long getPeriodMinutes(DRHRegionInfo regionInfo){
+	public Long getPeriodMinutes(DrRegionInfo regionInfo){
 		return compactionInfo.getPeriodMinutes(regionInfo);
 	}
 }

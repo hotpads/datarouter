@@ -1,6 +1,6 @@
 package com.hotpads.datarouter.client.imp.hbase.compaction.imp;
 
-import com.hotpads.datarouter.client.imp.hbase.cluster.DRHRegionInfo;
+import com.hotpads.datarouter.client.imp.hbase.cluster.DrRegionInfo;
 import com.hotpads.datarouter.client.imp.hbase.compaction.DRHCompactionInfo;
 
 public class CompactionInfo implements DRHCompactionInfo{
@@ -15,7 +15,7 @@ public class CompactionInfo implements DRHCompactionInfo{
 	}
 
 	@Override
-	public Long getPeriodMinutes(DRHRegionInfo regionInfo){
+	public Long getPeriodMinutes(DrRegionInfo regionInfo){
 		return RUN_EVERY_X_MINUTES;
 	}
 

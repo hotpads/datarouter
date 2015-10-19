@@ -10,7 +10,7 @@ import org.apache.hadoop.hbase.ServerName;
 
 import com.hotpads.datarouter.client.imp.hbase.balancer.BaseHBaseRegionBalancer;
 import com.hotpads.datarouter.client.imp.hbase.balancer.HBaseBalanceLeveler;
-import com.hotpads.datarouter.client.imp.hbase.cluster.DRHRegionInfo;
+import com.hotpads.datarouter.client.imp.hbase.cluster.DrRegionInfo;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldSetTool;
 import com.hotpads.datarouter.util.core.DrArrayTool;
@@ -23,7 +23,7 @@ import com.hotpads.util.core.bytes.ByteRange;
 public class ScatteringPrefixBalancer
 extends BaseHBaseRegionBalancer{
 	
-	private Map<ByteRange,List<DRHRegionInfo<?>>> regionsByPrefix;
+	private Map<ByteRange,List<DrRegionInfo<?>>> regionsByPrefix;
 	
 	/******************* constructor ***************************/
 	
@@ -32,7 +32,7 @@ extends BaseHBaseRegionBalancer{
 	}
 	
 	@Override
-	public SortedMap<DRHRegionInfo<?>,ServerName> call(){
+	public SortedMap<DrRegionInfo<?>,ServerName> call(){
 		initRegionByPrefixMap();
 		groupRegionsByPrefix();
 		
@@ -56,8 +56,8 @@ extends BaseHBaseRegionBalancer{
 
 		//map individual regions to servers based on their prefix
 		for(Map.Entry<ByteRange,ServerName> entry : serverByPrefix.entrySet()){
-			List<DRHRegionInfo<?>> regionsInPrefix = regionsByPrefix.get(entry.getKey());
-			for(DRHRegionInfo<?> region : regionsInPrefix){
+			List<DrRegionInfo<?>> regionsInPrefix = regionsByPrefix.get(entry.getKey());
+			for(DrRegionInfo<?> region : regionsInPrefix){
 				serverByRegion.put(region, entry.getValue());
 			}
 		}
@@ -71,14 +71,14 @@ extends BaseHBaseRegionBalancer{
 		regionsByPrefix = new TreeMap<>();
 		for(List<Field<?>> prefixFields : scatteringPrefix.getAllPossibleScatteringPrefixes()){
 			ByteRange prefix = new ByteRange(FieldSetTool.getConcatenatedValueBytes(prefixFields, false, false));
-			regionsByPrefix.put(prefix, new ArrayList<DRHRegionInfo<?>>()); 
+			regionsByPrefix.put(prefix, new ArrayList<DrRegionInfo<?>>()); 
 		}
 	}
 	
 	
 	private void groupRegionsByPrefix(){
 		//group the regions by prefix
-		for(DRHRegionInfo<?> drhRegionInfo : drhRegionList.getRegionsSorted()){
+		for(DrRegionInfo<?> drhRegionInfo : drhRegionList.getRegionsSorted()){
 			byte[] startKey = drhRegionInfo.getRegion().getStartKey();
 			if(DrArrayTool.isEmpty(startKey)){//use first prefix (is there a more robust way?)
 				List<Field<?>> firstPrefix = scatteringPrefix.getAllPossibleScatteringPrefixes().get(0);
