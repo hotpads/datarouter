@@ -48,6 +48,4 @@ public class HBaseRegionMovement{
 				+ currentServer + ", destinationServer=" + destinationServer + "]";
 	}
 	
-	
-	
 }
