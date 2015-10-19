@@ -26,19 +26,18 @@
 		<table class="table table-striped table-bordered table-hover table-condensed sortable">
 			<thead>
 				<tr>
-					<th>host</th>
-					<th>coprocessors</th>
-					<th>load</th>
+					<th>serverName</th>
+					<th>regions</th>
 					<th>maxHeapMB</th>
 					<th>memStoreSizeInMB</th>
-					<th>numberOfRegions</th>
-					<th>numberOfRequests</th>
+					<th>requests</th>
 					<th>storefileIndexSizeInMB</th>
 					<th>storefiles</th>
 					<th>storefileSizeInMB</th>
-					<th>totalNumberOfRequests</th>
+					<th>totalRequests</th>
 					<th>usedHeapMB</th>
 					<th>version</th>
+					<th>coprocessors</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -47,12 +46,10 @@
 						<%
 							/*<td>${fn:replace(server.hostname,'HadoopNode','')}</td>*/
 						%>
-						<td class="right">${server.hostname}</td>
-						<td class="right">${fn:length(server.hServerLoad.coprocessors)}</td>
-						<td class="right">${server.hServerLoad.load}</td>
+						<td class="right">${server.serverName}</td>
+						<td class="right">${server.hServerLoad.numberOfRegions}</td>
 						<td class="right">${server.hServerLoad.maxHeapMB}</td>
 						<td class="right">${server.hServerLoad.memStoreSizeInMB}</td>
-						<td class="right">${server.hServerLoad.numberOfRegions}</td>
 						<td class="right">${server.hServerLoad.numberOfRequests}</td>
 						<td class="right">${server.hServerLoad.storefileIndexSizeInMB}</td>
 						<td class="right">${server.hServerLoad.storefiles}</td>
@@ -60,6 +57,7 @@
 						<td class="right">${server.hServerLoad.totalNumberOfRequests}</td>
 						<td class="right">${server.hServerLoad.usedHeapMB}</td>
 						<td class="right">${server.hServerLoad.version}</td>
+						<td class="right">${fn:length(server.hServerLoad.coprocessors)}</td>
 					</tr>
 				</c:forEach>
 			</tbody>

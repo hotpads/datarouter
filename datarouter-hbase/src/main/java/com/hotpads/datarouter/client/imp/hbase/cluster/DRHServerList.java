@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.imp.hbase.HBaseStaticContext;
+import com.hotpads.datarouter.client.imp.hbase.cluster.DRHServerInfo.DrhServerInfoHigherLoadComparator;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrListTool;
@@ -25,9 +26,10 @@ public class DRHServerList{
 	
 	private static final Logger logger = LoggerFactory.getLogger(DRHServerList.class);
 	
-	protected List<DRHServerInfo> servers;
-	protected List<ServerName> serverNames;
-	protected Map<ServerName,DRHServerInfo> drhServerInfoByServerName;
+	private final List<DRHServerInfo> servers;
+	private final List<ServerName> serverNames;
+	private final Map<ServerName,DRHServerInfo> drhServerInfoByServerName;
+	private final SortedSet<DRHServerInfo> serversSortedByDescendingLoad;
 	
 	
 	public DRHServerList(Configuration config){
@@ -37,10 +39,12 @@ public class DRHServerList{
 			serverNames = DrListTool.createArrayList(clusterStatus.getServers());
 			Collections.sort(serverNames);
 			this.servers = DrListTool.createArrayListWithSize(serverNames);
+			this.serversSortedByDescendingLoad = new TreeSet<>(new DrhServerInfoHigherLoadComparator());
 			this.drhServerInfoByServerName = new TreeMap<>();
 			for(ServerName serverName : DrIterableTool.nullSafe(serverNames)){
 				DRHServerInfo info = new DRHServerInfo(serverName, clusterStatus.getLoad(serverName));
 				this.servers.add(info);
+				this.serversSortedByDescendingLoad.add(info);
 				this.drhServerInfoByServerName.put(serverName, info);
 			}
 		}catch(IOException e){
@@ -81,8 +85,16 @@ public class DRHServerList{
 		}
 		return drhServerInfo.gethServerLoad();
 	}
+	
+	public int getNumServers(){
+		return servers.size();
+	}
 
 	public List<DRHServerInfo> getServers(){
 		return servers;
+	}
+	
+	public SortedSet<DRHServerInfo> getServersSortedByDescendingLoad(){
+		return serversSortedByDescendingLoad;
 	}
 }

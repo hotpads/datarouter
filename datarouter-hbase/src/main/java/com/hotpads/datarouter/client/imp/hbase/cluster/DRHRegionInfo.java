@@ -109,6 +109,14 @@ implements Comparable<DRHRegionInfo<?>>{
 	
 	private static Random random = new Random();
 	
+	public ServerName getHBaseServerName(){
+		return serverName;
+	}
+	
+	public ServerName getBalancerDestinationHBaseServerName(){
+		return balancerDestinationServer;
+	}
+	
 	public String getServerName(){
 		String name = serverName.getServerName();
 //		if("manimal".equals(name)){ name += random.nextInt(3); }
