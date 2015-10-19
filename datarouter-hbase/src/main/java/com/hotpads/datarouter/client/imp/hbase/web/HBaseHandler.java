@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import javax.inject.Inject;
 
@@ -32,10 +33,10 @@ import org.slf4j.LoggerFactory;
 import com.hotpads.datarouter.client.imp.hbase.HBaseClientImp;
 import com.hotpads.datarouter.client.imp.hbase.balancer.HBaseBalancerFactory;
 import com.hotpads.datarouter.client.imp.hbase.cluster.DRHRegionInfo;
-import com.hotpads.datarouter.client.imp.hbase.cluster.DrhRegionList;
 import com.hotpads.datarouter.client.imp.hbase.cluster.DRHServerInfo;
 import com.hotpads.datarouter.client.imp.hbase.cluster.DRHServerList;
 import com.hotpads.datarouter.client.imp.hbase.cluster.DRHTableSettings;
+import com.hotpads.datarouter.client.imp.hbase.cluster.DrhRegionList;
 import com.hotpads.datarouter.client.imp.hbase.compaction.DRHCompactionInfo;
 import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.routing.RouterParams;
@@ -171,7 +172,7 @@ public class HBaseHandler extends BaseHandler {
 		if (master != null) {
 			ClusterStatus clusterStatus = master.getClusterStatus();
 			mav.put("clusterStatus", clusterStatus);
-			Collection<ServerName> serverNames = clusterStatus.getServers();
+			Collection<ServerName> serverNames = new TreeSet<>(clusterStatus.getServers());
 			List<DRHServerInfo> servers = new ArrayList<>();
 			for (ServerName serverName : DrIterableTool.nullSafe(serverNames)) {
 				HServerLoad hServerLoad = clusterStatus.getLoad(serverName);
