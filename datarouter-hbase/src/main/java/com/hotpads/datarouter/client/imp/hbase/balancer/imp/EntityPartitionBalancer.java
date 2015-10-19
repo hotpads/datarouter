@@ -64,7 +64,7 @@ extends BaseHBaseRegionBalancer{
 	private void initRegionByPartitionMap(){
 		regionsByPartition = new TreeMap<>();
 		for(Integer partition : entityPartitioner.getAllPartitions()){
-			regionsByPartition.put(partition, new ArrayList<DrRegionInfo<?>>()); 
+			regionsByPartition.put(partition, new ArrayList<>()); 
 		}
 		for(DrRegionInfo<?> drhRegionInfo : drhRegionList.getRegionsSorted()){
 			Integer partition = drhRegionInfo.getPartition();

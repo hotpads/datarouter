@@ -162,7 +162,7 @@ public class DrRegionList{
 		for(DrRegionInfo<?> region : regions){
 			String serverName = region.getServerName();
 			if(out.get(serverName) == null){
-				out.put(serverName, new LinkedList<DrRegionInfo<?>>());
+				out.put(serverName, new LinkedList<>());
 			}
 			out.get(serverName).add(region);
 		}
