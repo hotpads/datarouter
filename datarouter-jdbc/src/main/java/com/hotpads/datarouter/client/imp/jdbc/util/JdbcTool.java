@@ -280,10 +280,7 @@ public class JdbcTool {
 		@Test
 		public void showTablesTest(){
 			Connection conn = JdbcTool.openConnection("localhost", 3306, "property", "root", "");
-			List<String> tables = showTables(conn);
-			for(String s : tables){
-				System.out.println(s);
-			}
+			showTables(conn).forEach(System.out::println);
 		}
 	}
 
