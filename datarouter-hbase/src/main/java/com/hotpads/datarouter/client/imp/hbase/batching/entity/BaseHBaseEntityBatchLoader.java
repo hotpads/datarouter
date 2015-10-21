@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.client.imp.hbase.batching.entity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.hadoop.hbase.client.Result;
@@ -15,7 +16,6 @@ import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
 import com.hotpads.datarouter.util.core.DrByteTool;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrComparableTool;
-import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.iterable.scanner.batch.BaseBatchLoader;
 
@@ -27,7 +27,7 @@ public abstract class BaseHBaseEntityBatchLoader<
 		F extends DatabeanFielder<PK,D>,
 		T extends Comparable<? super T>> //T will be either PK or D, but not going to express that (or think about how to)
 extends BaseBatchLoader<T>{
-	
+
 	private static final boolean ASSERT_PARTITION = true;
 	private static final boolean ASSERT_ORDERING = true;
 
@@ -60,7 +60,7 @@ extends BaseBatchLoader<T>{
 	public BaseHBaseEntityBatchLoader<EK,E,PK,D,F,T> call(){
 		//do the RPC
 		List<Result> hbaseRows = node.getResultsInSubRange(partition, range, isKeysOnly(), config);
-		List<T> outs = DrListTool.createArrayListWithSize(hbaseRows);
+		List<T> outs = new ArrayList<>();
 		for(Result row : hbaseRows){
 			if (row == null || row.isEmpty()){
 				continue;
@@ -90,10 +90,10 @@ extends BaseBatchLoader<T>{
 		//refer to the dedicated iterateBatchSize field in case someone changed Config down the line
 		return isBatchHasBeenLoaded() && isBatchSmallerThan(iterateBatchSize);
 	}
-	
-	
+
+
 	/********************* private *****************************/
-	
+
 	private void assertPartition(Result row){
 		int length = partitionBytes.length;
 		if(!DrByteTool.equals(partitionBytes, 0, length, row.getRow(), 0, length)){
@@ -104,7 +104,7 @@ extends BaseBatchLoader<T>{
 			throw new RuntimeException(message);
 		}
 	}
-	
+
 	private void assertOrdering(List<T> existingResults, List<T> newResults){
 		if(DrCollectionTool.notEmpty(existingResults) && DrCollectionTool.notEmpty(newResults)){
 			T existingResult = DrCollectionTool.getLast(existingResults);
