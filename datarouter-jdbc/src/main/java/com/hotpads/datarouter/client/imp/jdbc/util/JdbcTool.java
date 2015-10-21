@@ -18,7 +18,6 @@ import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
-import com.hotpads.datarouter.storage.key.multi.Lookup;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.view.index.IndexEntry;
 import com.hotpads.datarouter.util.core.DrArrayTool;
@@ -47,7 +46,9 @@ public class JdbcTool {
 
 	public static void closeConnection(Connection connection){
 		try {
-			if(connection==null){ return; }
+			if(connection==null){
+				return;
+			}
 			connection.close();
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
@@ -94,7 +95,7 @@ public class JdbcTool {
 			List<PK> primaryKeys = new ArrayList<>();
 			while(rs.next()){
 				PK primaryKey = fieldSetFromJdbcResultSetUsingReflection(fieldCodecFactory,
-						fieldInfo.getPrimaryKeyClass(), fieldInfo.getPrimaryKeyFields(), rs, true);
+						fieldInfo.getPrimaryKeyClass(), fieldInfo.getPrimaryKeyFields(), rs);
 				primaryKeys.add(primaryKey);
 			}
 			return primaryKeys;
@@ -113,7 +114,7 @@ public class JdbcTool {
 			List<D> databeans = new ArrayList<>();
 			while(rs.next()){
 				D databean = fieldSetFromJdbcResultSetUsingReflection(fieldCodecFactory,
-						fieldInfo.getDatabeanClass(), fieldInfo.getFields(), rs, false);
+						fieldInfo.getDatabeanClass(), fieldInfo.getFields(), rs);
 				databeans.add(databean);
 			}
 			return databeans;
@@ -137,7 +138,7 @@ public class JdbcTool {
 			List<IK> keys = new ArrayList<>();
 			while(rs.next()){
 				IK key = fieldSetFromJdbcResultSetUsingReflection(fieldCodecFactory,
-						fieldInfo.getPrimaryKeyClass(), fieldInfo.getPrimaryKeyFields(), rs, false);
+						fieldInfo.getPrimaryKeyClass(), fieldInfo.getPrimaryKeyFields(), rs);
 				keys.add(key);
 			}
 			return keys;
@@ -145,37 +146,6 @@ public class JdbcTool {
 			String message = "error executing sql:"+sql.toString();
 			throw new DataAccessException(message, e);
 		}
-	}
-
-	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,PKLookup extends Lookup<PK>>List<PKLookup>
-	selectLookups(JdbcFieldCodecFactory fieldCodecFactory, Connection connection, List<Field<?>> selectedFields,
-			Class<PKLookup> lookupClass, String sql, Class<PK> keyClass){
-		try{
-			PreparedStatement ps = connection.prepareStatement(sql.toString());
-			ps.execute();
-			ResultSet rs = ps.getResultSet();
-			List<PKLookup> lookups = new ArrayList<>();
-			while(rs.next()){
-				PKLookup lookup = lookupFromJdbcResultSetUsingReflection(fieldCodecFactory, lookupClass,
-						selectedFields, rs, keyClass);
-				lookups.add(lookup);
-			}
-			return lookups;
-		}catch(Exception e){
-			String message = "error executing sql:"+sql.toString();
-			throw new DataAccessException(message, e);
-		}
-	}
-
-	private static <PK extends PrimaryKey<PK>, PKLookup extends Lookup<PK>>
-	PKLookup lookupFromJdbcResultSetUsingReflection(JdbcFieldCodecFactory fieldCodecFactory, Class<PKLookup> cls,
-			List<Field<?>> fields, ResultSet rs, Class<PK> keyClass){
-		PKLookup targetFieldSet = ReflectionTool.create(cls);
-		targetFieldSet.setPrimaryKey(ReflectionTool.create(keyClass));
-		for(JdbcFieldCodec<?,?> field : fieldCodecFactory.createCodecs(fields)){
-			field.fromJdbcResultSetUsingReflection(targetFieldSet, rs);
-		}
-		return targetFieldSet;
 	}
 
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>>
@@ -191,7 +161,7 @@ public class JdbcTool {
 			List<D> databeans = new ArrayList<>();
 			while(rs.next()){
 				D databean = fieldSetFromJdbcResultSetUsingReflection(fieldCodecFactory,
-						fieldInfo.getDatabeanClass(), fieldInfo.getFields(), rs, false);
+						fieldInfo.getDatabeanClass(), fieldInfo.getFields(), rs);
 				databeans.add(databean);
 			}
 			return databeans;
@@ -235,8 +205,12 @@ public class JdbcTool {
 	}
 
 	public static int updateAndInsertIfMissing(Connection conn, List<String> updates, List<String> inserts){
-		if(DrCollectionTool.isEmpty(updates)){ return 0; }
-		if(DrCollectionTool.differentSize(updates, inserts)){ throw new IllegalArgumentException("updates vs inserts size mismatch"); }
+		if(DrCollectionTool.isEmpty(updates)){
+			return 0;
+		}
+		if(DrCollectionTool.differentSize(updates, inserts)){
+			throw new IllegalArgumentException("updates vs inserts size mismatch");
+		}
 
 		int[] updateSuccessFlags = bulkUpdate(conn, updates);
 		List<String> neededInserts = new LinkedList<>();
@@ -252,15 +226,21 @@ public class JdbcTool {
 	}
 
 	public static int[] bulkUpdate(Connection conn, List<String> sql){
-		if(conn==null || DrCollectionTool.isEmpty(sql)){ return new int[]{}; }
+		if(conn==null || DrCollectionTool.isEmpty(sql)){
+			return new int[]{};
+		}
 		return bulkUpdate(conn, sql.toArray(new String[sql.size()]));
 	}
 
 	public static int[] bulkUpdate(Connection conn, String[] sql){
 		try{
-			if(conn==null || DrArrayTool.isEmpty(sql)){ return new int[]{}; }
+			if(conn==null || DrArrayTool.isEmpty(sql)){
+				return new int[]{};
+			}
 			int numStatements = DrArrayTool.nullSafeLength(sql);
-			if(numStatements < 1){ return null; }
+			if(numStatements < 1){
+				return null;
+			}
 			PreparedStatement stmt = conn.prepareStatement(sql[0]);
 			stmt.addBatch();
 			if(numStatements > 1){
@@ -277,13 +257,15 @@ public class JdbcTool {
 
 	public static void appendCsvQuestionMarks(StringBuilder sb, int num){
 		for(int i=0; i < num; ++i){
-			if(i>0){ sb.append(","); }
+			if(i>0){
+				sb.append(",");
+			}
 			sb.append("?");
 		}
 	}
 
 	public static <F>F fieldSetFromJdbcResultSetUsingReflection(JdbcFieldCodecFactory fieldCodecFactory,
-			Class<F> cls, List<Field<?>> fields, ResultSet rs, boolean ignorePrefix){
+			Class<F> cls, List<Field<?>> fields, ResultSet rs){
 		F targetFieldSet = ReflectionTool.create(cls);
 		for(JdbcFieldCodec<?,?> field : fieldCodecFactory.createCodecs(fields)){
 			field.fromJdbcResultSetUsingReflection(targetFieldSet, rs);
@@ -294,13 +276,11 @@ public class JdbcTool {
 
 	/********************** tests ***************************/
 
-	public static class TestJdbcTool{
-		@Test public void showTablesTest(){
+	public static class JdbcToolTester{
+		@Test
+		public void showTablesTest(){
 			Connection conn = JdbcTool.openConnection("localhost", 3306, "property", "root", "");
-			List<String> l = showTables(conn);
-			for(String s : l){
-				System.out.println(s);
-			}
+			showTables(conn).forEach(System.out::println);
 		}
 	}
 

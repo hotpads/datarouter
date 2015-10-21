@@ -19,7 +19,6 @@ import com.hotpads.datarouter.node.type.physical.base.BasePhysicalNode;
 import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
-import com.hotpads.datarouter.storage.key.multi.BaseLookup;
 import com.hotpads.datarouter.storage.key.multi.Lookup;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
@@ -102,12 +101,6 @@ implements PhysicalIndexedSortedMapStorageReaderNode<PK,D>{
 	@Override
 	public List<D> lookupMulti(final Collection<? extends Lookup<PK>> lookups, final Config config) {
 		return jdbcReaderOps.lookupMulti(lookups, config);
-	}
-
-	//TODO remove
-	//@Override
-	public <L extends BaseLookup<PK>> ScannerIterable<L> scanIndex(Class<L> indexClass){
-		return jdbcReaderOps.scanIndex(indexClass);
 	}
 
 	@Override
