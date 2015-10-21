@@ -31,7 +31,7 @@ public class JdbcGetIndexOp<
 		IE extends IndexEntry<IK, IE, PK, D>,
 		IF extends DatabeanFielder<IK,IE>>
 extends BaseJdbcOp<List<IE>>{
-	
+
 	private final Config config;
 	private final PhysicalNode<PK, D> mainNode;
 	private final JdbcFieldCodecFactory fieldCodecFactory;
@@ -66,7 +66,7 @@ extends BaseJdbcOp<List<IE>>{
 				ResultSet rs = ps.getResultSet();
 				while(rs.next()){
 					IE databean = JdbcTool.fieldSetFromJdbcResultSetUsingReflection(fieldCodecFactory,
-							indexEntryClass, indexFielder.getFields(indexEntry), rs, false);
+							indexEntryClass, indexFielder.getFields(indexEntry), rs);
 					databeans.add(databean);
 				}
 			}catch(Exception e){
