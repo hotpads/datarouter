@@ -17,7 +17,6 @@ import com.hotpads.datarouter.client.imp.jdbc.op.read.index.JdbcGetByIndexOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.read.index.JdbcGetIndexOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.read.index.JdbcManagedIndexGetKeyRangeOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.read.index.JdbcManagedIndexGetRangeOp;
-import com.hotpads.datarouter.client.imp.jdbc.scan.JdbcIndexScanner;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.node.op.raw.read.IndexedStorageReader;
@@ -27,7 +26,6 @@ import com.hotpads.datarouter.op.executor.impl.SessionExecutorImpl;
 import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
-import com.hotpads.datarouter.storage.key.multi.BaseLookup;
 import com.hotpads.datarouter.storage.key.multi.Lookup;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
@@ -35,8 +33,6 @@ import com.hotpads.datarouter.storage.view.index.IndexEntry;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.collections.Range;
-import com.hotpads.util.core.iterable.scanner.Scanner;
-import com.hotpads.util.core.iterable.scanner.iterable.ScannerIterable;
 
 public class JdbcReaderOps<
 		PK extends PrimaryKey<PK>,
@@ -108,12 +104,6 @@ public class JdbcReaderOps<
 		}
 		JdbcLookupOp<PK,D,F> op = new JdbcLookupOp<>(node, fieldCodecFactory, lookups, false, config);
 		return new SessionExecutorImpl<>(op, getTraceName(opName)).call();
-	}
-
-	public <L extends BaseLookup<PK>> ScannerIterable<L> scanIndex(Class<L> indexClass){
-		Scanner<L> scanner = new JdbcIndexScanner<>(node, fieldCodecFactory, indexClass,
-				getTraceName("scanIndex"));
-		return new ScannerIterable<>(scanner);
 	}
 
 	public <IK extends PrimaryKey<IK>,
