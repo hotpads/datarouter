@@ -24,7 +24,6 @@ import com.hotpads.datarouter.storage.entity.Entity;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
-import com.hotpads.datarouter.storage.key.entity.EntityPartitioner;
 import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
 import com.hotpads.datarouter.util.core.DrByteTool;
 import com.hotpads.datarouter.util.core.DrListTool;
@@ -74,6 +73,7 @@ extends HBaseEntityQueryBuilder<EK,E>{
 		byte[] partitionPrefix = partitioner.getPrefix(partition);
 
 		ByteRange startBytes;
+		// this doesn't fix the aimed bug (we are not able to scan with a starting key across multiple entity)
 		final boolean startInclusive = true;//we always could have databeans in the first entity/row
 		if(pkRange.hasStart()){
 			EK startEk = pkRange.getStart().getEntityKey();
@@ -198,11 +198,14 @@ extends HBaseEntityQueryBuilder<EK,E>{
 
 	public ColumnRangeFilter getColumnRangeFilter(Range<PK> pkRange){
 		byte[] start = getQualifierPrefix(pkRange.getStart());
+		if(!pkRange.getStartInclusive()){
+			start = DrByteTool.unsignedIncrement(start);
+		}
 		byte[] end = getQualifierPrefix(pkRange.getEnd());
 		if(pkRange.getEndInclusive()){
 			end = DrByteTool.unsignedIncrement(end);
 		}
-		return new ColumnRangeFilter(start, pkRange.getStartInclusive(), end, false);
+		return new ColumnRangeFilter(start, true, end, false);
 	}
 
 	/************** multi row prefix ********************/
@@ -240,7 +243,6 @@ extends HBaseEntityQueryBuilder<EK,E>{
 
 	public List<AsyncBatchLoaderScanner<PK>> getPkScanners(HBaseSubEntityReaderNode<EK,E,PK,D,F> node,
 			Range<PK> range, Config config){
-		EntityPartitioner<EK> partitioner = entityFieldInfo.getEntityPartitioner();
 		List<AsyncBatchLoaderScanner<PK>> scanners = new ArrayList<>();
 		for(int partition=0; partition < partitioner.getNumPartitions(); ++partition){
 			byte[] partitionBytes = partitioner.getPrefix(partition);
@@ -255,7 +257,6 @@ extends HBaseEntityQueryBuilder<EK,E>{
 
 	public List<AsyncBatchLoaderScanner<D>> getDatabeanScanners(HBaseSubEntityReaderNode<EK,E,PK,D,F> node,
 			Range<PK> range, Config config){
-		EntityPartitioner<EK> partitioner = entityFieldInfo.getEntityPartitioner();
 		List<AsyncBatchLoaderScanner<D>> scanners = new ArrayList<>();
 		for(int partition=0; partition < partitioner.getNumPartitions(); ++partition){
 			byte[] partitionBytes = partitioner.getPrefix(partition);
