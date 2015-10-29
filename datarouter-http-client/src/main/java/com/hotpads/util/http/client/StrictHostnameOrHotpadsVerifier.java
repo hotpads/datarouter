@@ -1,21 +1,29 @@
 package com.hotpads.util.http.client;
 
-import javax.net.ssl.SSLException;
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLSession;
 
-import org.apache.http.conn.ssl.AbstractVerifier;
+import org.apache.http.conn.ssl.DefaultHostnameVerifier;
 
-public class StrictHostnameOrHotpadsVerifier extends AbstractVerifier{
+public class StrictHostnameOrHotpadsVerifier implements HostnameVerifier{
 
-	@Override
-	public void verify(String host, String[] cns, String[] subjectAlts) throws SSLException {
-		if(!host.equals("hotpads.com") && !host.endsWith(".hotpads.com")){
-			verify(host, cns, subjectAlts, true);
-		}
+	private HostnameVerifier defaultHostnameVerifier;
+
+	public StrictHostnameOrHotpadsVerifier(){
+		this.defaultHostnameVerifier = new DefaultHostnameVerifier();
 	}
-	
+
 	@Override
     public final String toString() {
         return "STRICT_OR_HOTPADS";
     }
-	
+
+	@Override
+	public boolean verify(String host, SSLSession session){
+		if(!"hotpads.com".equals(host) && !host.endsWith(".hotpads.com")){
+			return defaultHostnameVerifier.verify(host, session);
+		}
+		return true;
+	}
+
 }

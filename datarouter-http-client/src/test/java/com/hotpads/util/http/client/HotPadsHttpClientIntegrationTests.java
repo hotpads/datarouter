@@ -52,8 +52,10 @@ public class HotPadsHttpClientIntegrationTests {
 					sleep(100);
 				}
 			} catch (IOException | InterruptedException e) {
+				e.printStackTrace();
 				throw new RuntimeException(e);
 			}
+			System.out.println("WHAT");
 		}
 
 		private synchronized void done() {
@@ -85,6 +87,7 @@ public class HotPadsHttpClientIntegrationTests {
 				out.flush();
 				logger.debug("flushed response");
 			}
+			System.out.println("YOLO");
 			// NOTE if removing the try-with-resources clause, don't forget the out.close() !!
 		}
 	}
@@ -166,7 +169,7 @@ public class HotPadsHttpClientIntegrationTests {
 		Assert.assertEquals(expectedResponse, response.getEntity());
 		Assert.assertEquals(status, response.getStatusCode());
 	}
-	
+
 	@Test(expected = HotPadsHttpResponseException.class)
 	public void testBadRequestFailure() throws HotPadsHttpException {
 		try {
@@ -222,7 +225,7 @@ public class HotPadsHttpClientIntegrationTests {
 		client = new HotPadsHttpClientBuilder().setSignatureValidator(signatureValidator)
 				.setCsrfValidator(csrfValidator).setApiKeyPredicate(apiKeyPredicate).build();
 
-		Map<String, String> params = new HashMap<String, String>();
+		Map<String, String> params = new HashMap<>();
 		params.put("1", UUID.randomUUID().toString());
 		params.put("2", Integer.toString(RANDOM.nextInt()));
 		params.put("3", "Everything is awesome! Everything is cool when you're part of a team!");

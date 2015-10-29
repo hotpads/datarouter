@@ -2,10 +2,10 @@ package com.hotpads.util.http.response.exception;
 
 @SuppressWarnings("serial")
 public class HotPadsHttpRuntimeException extends RuntimeException {
-	public HotPadsHttpRuntimeException(Exception e) {
-		super(e);
+	public HotPadsHttpRuntimeException(Exception exception) {
+		super(exception);
 	}
-	public HotPadsHttpRuntimeException(HotPadsHttpException e) {
-		super(e.getMessage(), e.getCause());
+	public HotPadsHttpRuntimeException(HotPadsHttpException exception) {
+		super(exception.getMessage(), exception.getCause());
 	}
 }
