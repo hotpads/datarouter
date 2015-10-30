@@ -3,7 +3,6 @@ package com.hotpads.util.http.client;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -68,7 +67,7 @@ public class HotPadsHttpClientBuilder{
 				builder.loadTrustMaterial(null, new TrustStrategy() {
 
 					@Override
-					public boolean isTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {
+					public boolean isTrusted(X509Certificate[] arg0, String arg1){
 						return true;
 					}
 
