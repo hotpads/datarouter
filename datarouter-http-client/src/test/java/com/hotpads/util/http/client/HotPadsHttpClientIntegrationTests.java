@@ -51,10 +51,8 @@ public class HotPadsHttpClientIntegrationTests {
 					sleep(100);
 				}
 			} catch (IOException | InterruptedException e) {
-				e.printStackTrace();
 				throw new RuntimeException(e);
 			}
-			System.out.println("WHAT");
 		}
 
 		private synchronized void done() {
