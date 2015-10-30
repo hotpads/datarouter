@@ -22,7 +22,6 @@ import com.hotpads.util.http.request.HotPadsHttpRequest.HttpRequestMethod;
 import com.hotpads.util.http.response.HotPadsHttpResponse;
 import com.hotpads.util.http.response.exception.HotPadsHttpConnectionAbortedException;
 import com.hotpads.util.http.response.exception.HotPadsHttpException;
-import com.hotpads.util.http.response.exception.HotPadsHttpRequestExecutionException;
 import com.hotpads.util.http.response.exception.HotPadsHttpRequestFutureTimeoutException;
 import com.hotpads.util.http.response.exception.HotPadsHttpResponseException;
 import com.hotpads.util.http.response.exception.HotPadsHttpRuntimeException;
@@ -87,7 +86,6 @@ public class HotPadsHttpClientIntegrationTests {
 				out.flush();
 				logger.debug("flushed response");
 			}
-			System.out.println("YOLO");
 			// NOTE if removing the try-with-resources clause, don't forget the out.close() !!
 		}
 	}
@@ -131,7 +129,7 @@ public class HotPadsHttpClientIntegrationTests {
 		}
 	}
 
-	@Test(expected = HotPadsHttpRequestExecutionException.class, timeout = 1000)
+	@Test(expected = HotPadsHttpConnectionAbortedException.class, timeout = 1000)
 	public void testInvalidLocation() throws HotPadsHttpException {
 		HotPadsHttpClient client = new HotPadsHttpClientBuilder().build();
 		HotPadsHttpRequest request = new HotPadsHttpRequest(HttpRequestMethod.GET, "invalidLocation", false);
@@ -243,6 +241,9 @@ public class HotPadsHttpClientIntegrationTests {
 		Assert.assertNull(postParams.get(SecurityParameters.API_KEY));
 		Assert.assertNull(postParams.get(SecurityParameters.SIGNATURE));
 
+		client = new HotPadsHttpClientBuilder().setSignatureValidator(signatureValidator)
+				.setCsrfValidator(csrfValidator).setApiKeyPredicate(apiKeyPredicate).build();
+
 		// entity enclosing request with no entity or params cannot be signed
 		request = new HotPadsHttpRequest(HttpRequestMethod.POST, URL, false);
 		response = client.execute(request);
@@ -253,6 +254,9 @@ public class HotPadsHttpClientIntegrationTests {
 		Assert.assertNotNull(postParams.get(SecurityParameters.API_KEY));
 		Assert.assertNotNull(postParams.get(SecurityParameters.SIGNATURE));
 
+		client = new HotPadsHttpClientBuilder().setSignatureValidator(signatureValidator)
+				.setCsrfValidator(csrfValidator).setApiKeyPredicate(apiKeyPredicate).build();
+
 		// entity enclosing request already with an entity cannot be signed, even with params
 		request = new HotPadsHttpRequest(HttpRequestMethod.PATCH, URL, false).setEntity(params).addPostParams(params);
 		response = client.execute(request);
@@ -262,6 +266,9 @@ public class HotPadsHttpClientIntegrationTests {
 		Assert.assertNull(postParams.get(SecurityParameters.CSRF_TOKEN));
 		Assert.assertNull(postParams.get(SecurityParameters.API_KEY));
 		Assert.assertNull(postParams.get(SecurityParameters.SIGNATURE));
+
+		client = new HotPadsHttpClientBuilder().setSignatureValidator(signatureValidator)
+				.setCsrfValidator(csrfValidator).setApiKeyPredicate(apiKeyPredicate).build();
 
 		// entity enclosing request is signed with entity from post params
 		request = new HotPadsHttpRequest(HttpRequestMethod.POST, URL, false).addPostParams(params);
