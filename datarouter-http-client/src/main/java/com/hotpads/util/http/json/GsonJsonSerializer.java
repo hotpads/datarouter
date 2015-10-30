@@ -30,10 +30,10 @@ public class GsonJsonSerializer implements JsonSerializer{
 	}
 
 	@Override
-	public <T> T deserialize(String toDeserialize, Type classOfT) throws JsonSyntaxException{
+	public <T> T deserialize(String toDeserialize, Type returnType) throws JsonSyntaxException{
 		try{
-			T g = gson.fromJson(toDeserialize, classOfT);
-			return g;
+			T deserializedValue = gson.fromJson(toDeserialize, returnType);
+			return deserializedValue;
 		}catch(Exception e){
 			logger.error("toDeserialize=" + toDeserialize, e);
 			throw e;

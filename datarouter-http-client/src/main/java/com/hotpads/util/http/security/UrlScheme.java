@@ -35,7 +35,7 @@ public enum UrlScheme {
 	}
 
 
-	protected static Set<Integer> STANDARD_PORTS = new HashSet<>();
+	private static Set<Integer> STANDARD_PORTS = new HashSet<>();
 	static{
 		STANDARD_PORTS.add(PORT_HTTP_STANDARD);
 		STANDARD_PORTS.add(PORT_HTTPS_STANDARD);
