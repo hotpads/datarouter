@@ -8,10 +8,12 @@ public class DefaultApiKeyPredicate implements ApiKeyPredicate{
 		this.apiKey = apiKey;
 	}
 
+	@Override
 	public boolean check(String apiKeyCandidate){
 		return apiKey.equals(apiKeyCandidate);
 	}
 
+	@Override
 	public String getApiKey(){
 		return apiKey;
 	}

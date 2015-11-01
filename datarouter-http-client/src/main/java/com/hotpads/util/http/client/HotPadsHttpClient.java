@@ -97,7 +97,7 @@ public class HotPadsHttpClient {
 
 	public HotPadsHttpResponse executeChecked(HotPadsHttpRequest request) throws HotPadsHttpException {
 		setSecurityProperties(request);
-		
+
 		HttpContext context = new BasicHttpContext();
 		context.setAttribute(HotPadsRetryHandler.RETRY_SAFE_ATTRIBUTE, request.getRetrySafe());
 
@@ -128,12 +128,12 @@ public class HotPadsHttpClient {
 				ex = new HotPadsHttpRequestExecutionException(e, requestCallable.getRequestStartTimeMs());
 			}
 		}
-		if (ex != null && internalHttpRequest != null) {
+		if (internalHttpRequest != null) {
 			forceAbortRequestUnchecked(internalHttpRequest);
 		}
 		throw ex;
 	}
-	
+
 	private void setSecurityProperties(HotPadsHttpRequest request){
 		Map<String, String> params = new HashMap<>();
 		if (csrfValidator != null) {
@@ -141,7 +141,7 @@ public class HotPadsHttpClient {
 		}
 		if (apiKeyPredicate != null) {
 			params.put(SecurityParameters.API_KEY, apiKeyPredicate.getApiKey());
-		}		
+		}
 		Map<String, String> signatureParam;
 		if (request.canHaveEntity() && request.getEntity() == null) {
 			params = request.addPostParams(params).getPostParams();
@@ -157,10 +157,10 @@ public class HotPadsHttpClient {
 				String signature = signatureValidator.getHexSignature(request.getGetParams());
 				signatureParam = Collections.singletonMap(SecurityParameters.SIGNATURE, signature);
 				request.addGetParams(signatureParam);
-			}			
-		}		
+			}
+		}
 	}
-	
+
 	public void shutdown(){
 		executor.shutdownNow();
 		try{
@@ -169,11 +169,8 @@ public class HotPadsHttpClient {
 			throw new RuntimeException(e);
 		}
 	}
-	
+
 	private static void forceAbortRequestUnchecked(HttpRequestBase internalHttpRequest) {
-		if (internalHttpRequest == null) {
-			return;
-		}
 		try {
 			internalHttpRequest.abort();
 		} catch (Exception e) {
@@ -212,7 +209,7 @@ public class HotPadsHttpClient {
 			return requestStartTimeMs;
 		}
 	}
-	
+
 	public <T> HotPadsHttpClient addDtoToPayload(HotPadsHttpRequest request, T dto, String dtoType) {
 		String serializedDto = jsonSerializer.serialize(dto);
 		String dtoTypeNullSafe = dtoType;

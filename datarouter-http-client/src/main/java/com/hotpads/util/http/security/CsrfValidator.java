@@ -6,18 +6,18 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
 
 import javax.crypto.Cipher;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
-import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class CsrfValidator{
-	
+
 	private static Logger logger = LoggerFactory.getLogger(CsrfValidator.class.getCanonicalName());
 	private static final String HASHING_ALGORITHM = "SHA-256";
 	private static final String MAIN_CIPHER_ALGORITHM = "AES";
@@ -27,7 +27,7 @@ public class CsrfValidator{
 
 	private String cipherKey;
 	private String cipherIv;
-	
+
 	public CsrfValidator(String cipherKey, String cipherIv){
 		this.cipherIv = cipherIv;
 		this.cipherKey = cipherKey;
@@ -40,21 +40,22 @@ public class CsrfValidator{
 		}
 		return System.currentTimeMillis() < requestTime + REQUEST_TIMEOUT_IN_MS;
 	}
-	
+
 	public String generateCsrfToken(){
 		try{
 			Cipher aes = getCipher(Cipher.ENCRYPT_MODE);
-			return Base64.encodeBase64String(aes.doFinal(String.valueOf(System.currentTimeMillis()).getBytes()));
+			return Base64.getEncoder().encodeToString(aes.doFinal(String.valueOf(System.currentTimeMillis())
+					.getBytes()));
 		}catch (Exception e){
 			log(e);
 			return null;
 		}
 	}
-	
+
 	public Long getRequestTimeMs(String token){
 		try{
 			Cipher aes = getCipher(Cipher.DECRYPT_MODE);
-			return Long.parseLong(new String(aes.doFinal(Base64.decodeBase64(token))));
+			return Long.parseLong(new String(aes.doFinal(Base64.getDecoder().decode(token))));
 		}catch (Exception e){
 			log(e);
 			return null;
@@ -66,18 +67,18 @@ public class CsrfValidator{
 		digest.update(cipherKey.getBytes());
 		return new SecretKeySpec(digest.digest(), 0, 16, MAIN_CIPHER_ALGORITHM);
 	}
-	
+
 	private void log(Exception exception){
 		StringWriter sw = new StringWriter();
 		exception.printStackTrace(new PrintWriter(sw));
 		logger.warn(sw.toString());
 	}
-	
+
 	private Cipher getCipher(int mode)
 	throws InvalidKeyException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchPaddingException{
 		Cipher aes = Cipher.getInstance(CIPHER_ALGORITHM);
 		aes.init(mode, computeKey(cipherKey), new IvParameterSpec(cipherIv.getBytes(), 0, 16));
 		return aes;
 	}
-	
+
 }

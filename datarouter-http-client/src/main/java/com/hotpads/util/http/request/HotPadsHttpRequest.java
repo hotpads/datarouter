@@ -48,7 +48,7 @@ public class HotPadsHttpRequest {
 	private Map<String, String> postParams;
 	private HotPadsHttpClientConfig config;
 	private HttpHost proxy;
-	
+
 	public enum HttpRequestMethod {
 		DELETE, GET, HEAD, PATCH, POST, PUT
 	}
@@ -122,23 +122,11 @@ public class HotPadsHttpRequest {
 			if(proxy != null){
 				builder.setProxy(proxy);
 			}
-						
+
 			RequestConfig requestConfig = builder.build();
 			request.setConfig(requestConfig);
 		}
 		return request;
-	}
-
-	public String getUrl() {
-		return path + (queryParams.isEmpty() ? "" : getQueryString());
-	}
-
-	public HttpRequestMethod getMethod() {
-		return method;
-	}
-	
-	public String getUrlFragment() {
-		return fragment;
 	}
 
 	private HttpRequestBase getRequest(HttpRequestMethod method, String url) {
@@ -158,6 +146,18 @@ public class HotPadsHttpRequest {
 		default:
 			throw new IllegalArgumentException("Invalid or null HttpMethod: " + method);
 		}
+	}
+
+	public String getUrl() {
+		return path + (queryParams.isEmpty() ? "" : getQueryString());
+	}
+
+	public HttpRequestMethod getMethod() {
+		return method;
+	}
+
+	public String getUrlFragment() {
+		return fragment;
 	}
 
 	/** Entities only exist in HttpPut, HttpPatch, HttpPost */
@@ -219,7 +219,7 @@ public class HotPadsHttpRequest {
 	public HotPadsHttpRequest addGetParams(HttpRequestConfig config) {
 		return config == null ? this : addGetParams(config.getParameterMap());
 	}
-	
+
 	private HotPadsHttpRequest addEntriesToMap(Map<String, String> map, Map<String, String> entriesToAdd) {
 		if (entriesToAdd != null) {
 			for (Map.Entry<String, String> entry : entriesToAdd.entrySet()) {
@@ -277,14 +277,14 @@ public class HotPadsHttpRequest {
 		}
 		return params;
 	}
-	
+
 	public HotPadsHttpClientConfig getRequestConfig(HotPadsHttpClientConfig clientConfig){
 		if(config != null){
 			return config;
 		}
 		return clientConfig;
 	}
-	
+
 	public HotPadsHttpRequest overrideConfig(HotPadsHttpClientConfig config){
 		this.config = config;
 		return this;
