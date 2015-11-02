@@ -1,6 +1,8 @@
 package com.hotpads.datarouter.client.imp.jdbc.op.write;
 
+import java.sql.Connection;
 import java.util.Collection;
+import java.util.List;
 
 import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.client.imp.jdbc.op.BaseJdbcOp;
@@ -11,34 +13,38 @@ import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.util.core.iterable.BatchingIterable;
 
 public class JdbcDeleteOp<
 		PK extends PrimaryKey<PK>,
-		D extends Databean<PK,D>> 
+		D extends Databean<PK,D>>
 extends BaseJdbcOp<Long>{
-		
+
 	private final PhysicalNode<PK,D> node;
 	private final JdbcFieldCodecFactory fieldCodecFactory;
 	private final Collection<PK> keys;
 	private final Config config;
-	
-	public JdbcDeleteOp(PhysicalNode<PK,D> node, JdbcFieldCodecFactory fieldCodecFactory, Collection<PK> keys, 
+
+	public JdbcDeleteOp(PhysicalNode<PK,D> node, JdbcFieldCodecFactory fieldCodecFactory, Collection<PK> keys,
 			Config config) {
 		super(node.getDatarouter(), node.getClientNames(), Config.DEFAULT_ISOLATION, shouldAutoCommit(keys));
 		this.node = node;
 		this.fieldCodecFactory = fieldCodecFactory;
 		this.keys = keys;
-		this.config = config;
+		this.config = Config.nullSafe(config);
 	}
-	
+
 	@Override
 	public Long runOnce(){
-		String sql = SqlBuilder.deleteMulti(fieldCodecFactory, config, node.getTableName(), keys);
-		long numModified = JdbcTool.update(getConnection(node.getClientId().getName()), sql.toString());
+		Connection connection = getConnection(node.getClientId().getName());
+		long numModified = 0;
+		for(List<PK> keyBatch : new BatchingIterable<>(keys, config.getIterateBatchSize())){
+			String sql = SqlBuilder.deleteMulti(fieldCodecFactory, config, node.getTableName(), keyBatch);
+			numModified += JdbcTool.update(connection, sql);
+		}
 		return numModified;
 	}
-	
-	
+
 	private static boolean shouldAutoCommit(Collection<?> keys){
 		return DrCollectionTool.size(keys) <= 1;
 	}
