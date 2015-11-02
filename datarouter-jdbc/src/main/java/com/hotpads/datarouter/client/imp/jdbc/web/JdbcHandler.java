@@ -3,9 +3,11 @@ package com.hotpads.datarouter.client.imp.jdbc.web;
 import java.util.HashMap;
 import java.util.List;
 
-import com.google.common.collect.ImmutableList;
 import javax.inject.Inject;
+
+import com.google.common.collect.ImmutableList;
 import com.hotpads.datarouter.client.imp.jdbc.JdbcClientImp;
+import com.hotpads.datarouter.node.DatarouterNodes;
 import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.routing.RouterParams;
 import com.hotpads.handler.BaseHandler;
@@ -13,7 +15,7 @@ import com.hotpads.handler.admin.RoutersHandler;
 import com.hotpads.handler.mav.Mav;
 
 public class JdbcHandler extends BaseHandler {
-	
+
 	/*************** constants *******************/
 
 	private static final List<String> NEEDS_CLIENT = ImmutableList.of(RoutersHandler.ACTION_inspectClient);
@@ -24,17 +26,19 @@ public class JdbcHandler extends BaseHandler {
 		JDBC_NEEDS.put(RouterParams.NEEDS_ROUTER, NEEDS_ROUTER);
 		JDBC_NEEDS.put(RouterParams.NEEDS_CLIENT, NEEDS_CLIENT);
 	}
-	
+
 	/***************** fields ********************/
-	
+
 	@Inject
 	private Datarouter datarouter;
+	@Inject
+	private DatarouterNodes nodes;
 
 	private RouterParams<JdbcClientImp> paramsRouter;
 
-	
+
 	/**************** methods ********************/
-	
+
 	private void initialize() {
 		paramsRouter = new RouterParams<>(datarouter, params, JDBC_NEEDS);
 	}
@@ -44,7 +48,7 @@ public class JdbcHandler extends BaseHandler {
 		initialize();
 		Mav mav = new Mav("/jsp/admin/datarouter/jdbc/jdbcClientSummary.jsp");
 		mav.put("clientStats", paramsRouter.getClient().getStats());
-		mav.put("nodes", paramsRouter.getContext().getNodes().getPhysicalNodesForClient(paramsRouter.getClientName()));
+		mav.put("nodes", nodes.getPhysicalNodesForClient(paramsRouter.getClientName()));
 		return mav;
 	}
 

@@ -4,9 +4,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import com.google.common.collect.ImmutableList;
 import javax.inject.Inject;
+
+import com.google.common.collect.ImmutableList;
 import com.hotpads.datarouter.client.imp.hibernate.client.HibernateClientImp;
+import com.hotpads.datarouter.node.DatarouterNodes;
 import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.routing.RouterParams;
 import com.hotpads.handler.BaseHandler;
@@ -14,7 +16,7 @@ import com.hotpads.handler.admin.RoutersHandler;
 import com.hotpads.handler.mav.Mav;
 
 public class HibernateHandler extends BaseHandler {
-	
+
 	/*************** constants *******************/
 
 	private static final List<String> NEEDS_CLIENT = ImmutableList.of(RoutersHandler.ACTION_inspectClient);
@@ -25,17 +27,19 @@ public class HibernateHandler extends BaseHandler {
 		HIBERNATE_NEEDS.put(RouterParams.NEEDS_ROUTER, NEEDS_ROUTER);
 		HIBERNATE_NEEDS.put(RouterParams.NEEDS_CLIENT, NEEDS_CLIENT);
 	}
-	
+
 	/***************** fields ********************/
-	
+
 	@Inject
 	private Datarouter datarouter;
+	@Inject
+	private DatarouterNodes nodes;
 
 	private RouterParams<HibernateClientImp> paramsRouter;
 
-	
+
 	/**************** methods ********************/
-	
+
 	private void initialize() {
 		paramsRouter = new RouterParams<>(datarouter, params, HIBERNATE_NEEDS);
 	}
@@ -51,7 +55,7 @@ public class HibernateHandler extends BaseHandler {
 			sessionFactoryStats.add(token.split("="));
 		}
 		mav.put("sessionFactoryStats", sessionFactoryStats);
-		mav.put("nodes", paramsRouter.getContext().getNodes().getPhysicalNodesForClient(paramsRouter.getClientName()));
+		mav.put("nodes", nodes.getPhysicalNodesForClient(paramsRouter.getClientName()));
 		return mav;
 	}
 
