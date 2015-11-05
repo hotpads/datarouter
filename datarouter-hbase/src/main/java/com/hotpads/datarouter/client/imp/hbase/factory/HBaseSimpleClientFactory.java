@@ -18,9 +18,9 @@ import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.MasterNotRunningException;
 import org.apache.hadoop.hbase.ZooKeeperConnectionException;
 import org.apache.hadoop.hbase.client.HBaseAdmin;
+import org.apache.hadoop.hbase.io.compress.Compression.Algorithm;
 import org.apache.hadoop.hbase.io.encoding.DataBlockEncoding;
-import org.apache.hadoop.hbase.io.hfile.Compression.Algorithm;
-import org.apache.hadoop.hbase.regionserver.StoreFile.BloomType;
+import org.apache.hadoop.hbase.regionserver.BloomType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -127,6 +127,8 @@ implements ClientFactory{
 		}catch(ZooKeeperConnectionException e){
 			throw new UnavailableException(e);
 		}catch(MasterNotRunningException e){
+			throw new UnavailableException(e);
+		}catch(IOException e){
 			throw new UnavailableException(e);
 		}
 		return newClient;

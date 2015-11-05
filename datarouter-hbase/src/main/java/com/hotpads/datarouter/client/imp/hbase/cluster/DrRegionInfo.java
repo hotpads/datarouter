@@ -2,13 +2,12 @@ package com.hotpads.datarouter.client.imp.hbase.cluster;
 
 import java.util.Random;
 
-import org.junit.Assert;
-
 import org.apache.hadoop.hbase.HRegionInfo;
-import org.apache.hadoop.hbase.HServerLoad;
-import org.apache.hadoop.hbase.HServerLoad.RegionLoad;
+import org.apache.hadoop.hbase.RegionLoad;
+import org.apache.hadoop.hbase.ServerLoad;
 import org.apache.hadoop.hbase.ServerName;
 import org.apache.hadoop.hbase.util.Bytes;
+import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,13 +32,13 @@ import com.hotpads.util.core.lang.ClassTool;
 public class DrRegionInfo<PK extends PrimaryKey<PK>>
 implements Comparable<DrRegionInfo<?>>{
 	private static final Logger logger = LoggerFactory.getLogger(DrRegionInfo.class);
-	
+
 	private Integer regionNum;
 	private String tableName;
 	private String name;
 	private HRegionInfo hRegionInfo;
 	private ServerName serverName;
-	private HServerLoad hServerLoad;
+	private ServerLoad hServerLoad;
 	private Node<?,?> node;
 	private DatabeanFieldInfo<?,?,?> fieldInfo;
 	private Integer partition;
@@ -48,10 +47,10 @@ implements Comparable<DrRegionInfo<?>>{
 	private byte[] consistentHashInput;
 	private ServerName balancerDestinationServer;
 	private DRHCompactionScheduler compactionScheduler;
-	
-	
-	public DrRegionInfo(Integer regionNum, String tableName, Class<PK> primaryKeyClass, 
-			HRegionInfo hRegionInfo, ServerName serverName, HServerLoad hServerLoad, 
+
+
+	public DrRegionInfo(Integer regionNum, String tableName, Class<PK> primaryKeyClass,
+			HRegionInfo hRegionInfo, ServerName serverName, ServerLoad hServerLoad,
 			Node<?,?> node, RegionLoad load, DRHCompactionInfo compactionInfo){
 		this.regionNum = regionNum;
 		this.tableName = tableName;
@@ -68,10 +67,10 @@ implements Comparable<DrRegionInfo<?>>{
 		this.consistentHashInput = hRegionInfo.getEncodedNameAsBytes();
 		this.compactionScheduler = new DRHCompactionScheduler(compactionInfo, this);
 	}
-	
-	
+
+
 	/******************************* methods *****************************************/
-	
+
 	public FieldSet<?> getKey(Class<PK> primaryKeyClass, byte[] bytes){
 		PK sampleKey = ReflectionTool.create(primaryKeyClass);
 		if(DrArrayTool.isEmpty(bytes)){ return sampleKey; }
@@ -82,7 +81,7 @@ implements Comparable<DrRegionInfo<?>>{
 		}
 		return HBaseResultTool.getPrimaryKeyUnchecked(bytes, fieldInfo);
 	}
-	
+
 	private Integer calculatePartition(byte[] bytes){
 		if(fieldInfo.isEntity()){
 			if(DrArrayTool.isEmpty(bytes)){ return 0; }
@@ -92,11 +91,11 @@ implements Comparable<DrRegionInfo<?>>{
 		}
 		return null;
 	}
-	
+
 	public ServerName getConsistentHashServerName(){
 		return balancerDestinationServer;
 	}
-	
+
 	public boolean isOnCorrectServer(){
 		try{
 			return DrObjectTool.equals(serverName, balancerDestinationServer);
@@ -106,33 +105,33 @@ implements Comparable<DrRegionInfo<?>>{
 		}
 		return true;//default: leave it where it is
 	}
-	
+
 	private static Random random = new Random();
-	
+
 	public ServerName getHBaseServerName(){
 		return serverName;
 	}
-	
+
 	public ServerName getBalancerDestinationHBaseServerName(){
 		return balancerDestinationServer;
 	}
-	
+
 	public String getServerName(){
 		String name = serverName.getServerName();
 //		if("manimal".equals(name)){ name += random.nextInt(3); }
 		return name;
 	}
-	
+
 	public String getDisplayServerName(){
 		//doesn't account for multiple servers per node
 		return getDisplayServerName(serverName.getHostname());//hServerInfo.getHostname();
 	}
-	
+
 	public String getConsistentHashDisplayServerName(){
 		//doesn't account for multiple servers per node
 		return getDisplayServerName(balancerDestinationServer.getHostname());//hServerInfo.getHostname();
 	}
-	
+
 	public String getNumKeyValuesWithCompactionPercent(){
 		if(load==null){ return "?"; }
 		long totalKvs = load.getTotalCompactingKVs();
@@ -142,33 +141,34 @@ implements Comparable<DrRegionInfo<?>>{
 		int percentCompacted = (int)((double)100 * (double)compactingKvs / totalKvs);
 		return totalKvsString + " ["+percentCompacted+"%]";
 	}
-	
-	
+
+
 	/******************* Object, Comparable *******************************/
-	
+
 	@Override
 	public String toString(){
 		return hRegionInfo.getEncodedName();
 	}
-	
+
+	@Override
 	public boolean equals(Object obj){
 		if(this==obj){ return true; }
 		if(ClassTool.differentClass(this, obj)){ return false; }
 		DrRegionInfo<PK> that = (DrRegionInfo<PK>)obj;
 		return DrObjectTool.equals(hRegionInfo.getEncodedName(), that.hRegionInfo.getEncodedName());
 	}
-	
+
 	@Override
 	public int hashCode(){
 		return hRegionInfo.getEncodedName().hashCode();
 	}
-	
+
 	@Override
 	public int compareTo(DrRegionInfo<?> o) {
 		return Bytes.compareTo(hRegionInfo.getStartKey(), o.getRegion().getStartKey());
 	}
 
-	
+
 	/********************************** get/set ******************************************/
 
 	public Integer getRegionNum(){
@@ -190,7 +190,7 @@ implements Comparable<DrRegionInfo<?>>{
 	public FieldSet<?> getEndKey(){
 		return endKey;
 	}
-	
+
 	public Integer getPartition(){
 		return partition;
 	}
@@ -202,7 +202,7 @@ implements Comparable<DrRegionInfo<?>>{
 	public RegionLoad getLoad(){
 		return load;
 	}
-	
+
 	public DRHCompactionScheduler getCompactionScheduler(){
 		return compactionScheduler;
 	}
@@ -210,24 +210,24 @@ implements Comparable<DrRegionInfo<?>>{
 //	public byte[] getConsistentHashInput(){
 //		return consistentHashInput;
 //	}
-	
+
 	public void setBalancerDestinationServer(ServerName balancerDestinationServer){
 		this.balancerDestinationServer = Preconditions.checkNotNull(balancerDestinationServer);
 	}
 
 
 	/********************************* static *************************************/
-	
+
 	public static String getDisplayServerName(String name){
 		name = name.trim();
 		name = name.replace("HadoopNode", "");
 		name = name.replace(".hotpads.srv", "");
 		return name;
 	}
-	
-	
+
+
 	/********************************* tests ******************************************/
-	
+
 	public static class DRHRegionInfoTests{
 		@Test public void testGetDisplayServerName(){
 			String name = "HadoopNode101.hotpads.srv";
@@ -235,5 +235,5 @@ implements Comparable<DrRegionInfo<?>>{
 			Assert.assertEquals("101", name);
 		}
 	}
-	
+
 }

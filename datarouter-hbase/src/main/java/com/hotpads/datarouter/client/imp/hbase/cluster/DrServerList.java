@@ -10,7 +10,7 @@ import java.util.TreeSet;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.ClusterStatus;
-import org.apache.hadoop.hbase.HServerLoad;
+import org.apache.hadoop.hbase.ServerLoad;
 import org.apache.hadoop.hbase.ServerName;
 import org.apache.hadoop.hbase.client.HBaseAdmin;
 import org.slf4j.Logger;
@@ -23,15 +23,14 @@ import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrListTool;
 
 public class DrServerList{
-	
 	private static final Logger logger = LoggerFactory.getLogger(DrServerList.class);
-	
+
 	private final List<DrServerInfo> servers;
 	private final List<ServerName> serverNames;
 	private final Map<ServerName,DrServerInfo> drhServerInfoByServerName;
 	private final SortedSet<DrServerInfo> serversSortedByDescendingLoad;
-	
-	
+
+
 	public DrServerList(Configuration config){
 		try{
 			HBaseAdmin admin = HBaseStaticContext.ADMIN_BY_CONFIG.get(config);
@@ -51,16 +50,16 @@ public class DrServerList{
 			throw new DataAccessException(e);
 		}
 	}
-	
+
 	public List<ServerName> getServerNames(){
 		return serverNames;
 	}
 
-	
+
 	public List<ServerName> getServerNamesSorted(){
 		return serverNames;
 	}
-	
+
 	public SortedSet<String> getServerNameStrings(){
 		SortedSet<String> serverNames = new TreeSet<>();
 		for(DrServerInfo server : servers){
@@ -76,16 +75,16 @@ public class DrServerList{
 		}
 		return serverNames;
 	}
-	
-	public HServerLoad getHServerLoad(ServerName serverName){
+
+	public ServerLoad getHServerLoad(ServerName serverName){
 		DrServerInfo drhServerInfo = drhServerInfoByServerName.get(serverName);
-		if(drhServerInfo==null){ 
+		if(drhServerInfo==null){
 			logger.warn("unexpected DRHServerInfo null for "+serverName.getHostAndPort());
-			return null; 
+			return null;
 		}
-		return drhServerInfo.gethServerLoad();
+		return drhServerInfo.getServerLoad();
 	}
-	
+
 	public int getNumServers(){
 		return servers.size();
 	}
@@ -93,7 +92,7 @@ public class DrServerList{
 	public List<DrServerInfo> getServers(){
 		return servers;
 	}
-	
+
 	public SortedSet<DrServerInfo> getServersSortedByDescendingLoad(){
 		return serversSortedByDescendingLoad;
 	}
