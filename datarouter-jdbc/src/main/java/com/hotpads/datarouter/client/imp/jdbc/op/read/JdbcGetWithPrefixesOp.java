@@ -1,6 +1,9 @@
 package com.hotpads.datarouter.client.imp.jdbc.op.read;
 
+import java.sql.Connection;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -18,15 +21,20 @@ import com.hotpads.datarouter.util.core.DrCollectionTool;
 public class JdbcGetWithPrefixesOp<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
-		F extends DatabeanFielder<PK,D>> 
+		F extends DatabeanFielder<PK,D>>
 extends BaseJdbcOp<List<D>>{
-		
+
 	private final JdbcReaderNode<PK,D,F> node;
 	private final JdbcFieldCodecFactory fieldCodecFactory;
 	private final Collection<PK> prefixes;
 	private final boolean wildcardLastField;
 	private final Config config;
-	
+	private Iterator<PK> iterator;
+	private int count;
+	private Connection connection;
+	private List<D> result = new LinkedList<>();
+	private static final int MAX_PREFIXES = 100;
+
 	public JdbcGetWithPrefixesOp(JdbcReaderNode<PK,D,F> node, JdbcFieldCodecFactory fieldCodecFactory,
 			Collection<PK> prefixes, boolean wildcardLastField, Config config){
 		super(node.getDatarouter(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
@@ -35,18 +43,41 @@ extends BaseJdbcOp<List<D>>{
 		this.prefixes = prefixes;
 		this.wildcardLastField = wildcardLastField;
 		this.config = config;
+		this.count = DrCollectionTool.sizeNullSafe(prefixes);
 	}
-	
+
 	@Override
 	public List<D> runOnce(){
-		if(DrCollectionTool.isEmpty(prefixes)){
-			return new LinkedList<>();
+		if(count == 0) {
+			return result;
 		}
-		String sql = SqlBuilder.getWithPrefixes(fieldCodecFactory, config, node.getTableName(), node.getFieldInfo()
-				.getFields(), prefixes, wildcardLastField, node.getFieldInfo().getPrimaryKeyFields());
-		List<D> result = JdbcTool.selectDatabeans(fieldCodecFactory, getConnection(node.getClientId().getName()), node
-				.getFieldInfo(), sql);
+		iterator = prefixes.iterator();
+		connection = getConnection(node.getClientId().getName());
+		// TODO may run batches on threads... but not this commit.
+		if(count < MAX_PREFIXES) {
+			return runBatch(prefixes);
+		}
+		while(iterator.hasNext()){
+			addBatch();
+		}
 		return result;
 	}
-	
+
+	private void addBatch() {
+		List<PK> batch = new ArrayList<>();
+		while(iterator.hasNext()){
+			batch.add(iterator.next());
+			if(batch.size() >= MAX_PREFIXES) {
+				break;
+			}
+		}
+		result.addAll(runBatch(batch));
+	}
+
+	private List<D> runBatch( Collection<PK> batch ) {
+		String sql = SqlBuilder.getWithPrefixes(fieldCodecFactory, config, node.getTableName(), node.getFieldInfo()
+				.getFields(), batch, wildcardLastField, node.getFieldInfo().getPrimaryKeyFields());
+		List<D> batchResult = JdbcTool.selectDatabeans(fieldCodecFactory, connection, node.getFieldInfo(), sql);
+		return batchResult;
+	}
 }
