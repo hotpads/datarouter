@@ -74,7 +74,9 @@ public class DrTableSettings{
 		}else if(VERSIONS.equals(setting)) {
 			Integer.valueOf(value);
 		}
-		throw new IllegalArgumentException("unknown setting " + setting);
+		else{
+			throw new IllegalArgumentException("unknown setting " + setting);
+		}
 	}
 	
 	
