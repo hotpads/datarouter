@@ -8,7 +8,6 @@ import java.util.concurrent.Semaphore;
 
 import org.apache.hadoop.hbase.client.HBaseAdmin;
 import org.apache.hadoop.hbase.client.HConnection;
-import org.apache.hadoop.hbase.client.HConnectionManager;
 import org.apache.hadoop.hbase.client.HTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -209,7 +208,8 @@ implements HTablePool{
 		}
 
 		//Close HConnection and use stopProxy = true to join the HBaseClient.Connection thread.
-		HConnectionManager.deleteConnection(hconnection.getConfiguration(), true);
+		//TODO what is the hbase-1 replacement for this?
+//		HConnectionManager.deleteConnection(hconnection.getConfiguration(), true);
 	}
 
 
