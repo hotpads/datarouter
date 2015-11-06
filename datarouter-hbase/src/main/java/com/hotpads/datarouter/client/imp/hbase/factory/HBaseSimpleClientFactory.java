@@ -58,8 +58,8 @@ implements ClientFactory{
 
 	//default table configuration settings for new tables
 	private static final long
-			DEFAULT_MAX_FILE_SIZE_BYTES = 4 * 1024 * 1024 * 1024,
-			DEFAULT_MEMSTORE_FLUSH_SIZE_BYTES = 256 * 1024 * 1024;
+			DEFAULT_MAX_FILE_SIZE_BYTES = 1L * 4 * 1024 * 1024 * 1024,//cast to long before overflowing int
+			DEFAULT_MEMSTORE_FLUSH_SIZE_BYTES = 1L * 256 * 1024 * 1024;//cast to long before overflowing int
 
 	//these are used for databeans with no values outside the PK.  we fake a value as we need at least 1 cell in a row
 	public static final byte[] DEFAULT_FAMILY_QUALIFIER = new byte[]{(byte)'a'};
