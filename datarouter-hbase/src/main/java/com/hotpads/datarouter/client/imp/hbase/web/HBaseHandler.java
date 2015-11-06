@@ -16,12 +16,9 @@ import org.apache.hadoop.hbase.ClusterStatus;
 import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HConstants;
 import org.apache.hadoop.hbase.HTableDescriptor;
-import org.apache.hadoop.hbase.MasterNotRunningException;
 import org.apache.hadoop.hbase.ServerLoad;
 import org.apache.hadoop.hbase.ServerName;
 import org.apache.hadoop.hbase.TableNotFoundException;
-import org.apache.hadoop.hbase.UnknownRegionException;
-import org.apache.hadoop.hbase.ZooKeeperConnectionException;
 import org.apache.hadoop.hbase.client.HBaseAdmin;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 import org.apache.hadoop.hbase.util.Bytes;
@@ -36,6 +33,7 @@ import com.hotpads.datarouter.client.imp.hbase.cluster.DrServerInfo;
 import com.hotpads.datarouter.client.imp.hbase.cluster.DrServerList;
 import com.hotpads.datarouter.client.imp.hbase.cluster.DrTableSettings;
 import com.hotpads.datarouter.client.imp.hbase.compaction.DRHCompactionInfo;
+import com.hotpads.datarouter.client.imp.hbase.util.ServerNameTool;
 import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.routing.RouterParams;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
@@ -322,23 +320,19 @@ public class HBaseHandler extends BaseHandler {
 	}
 
 	@Handler
-	private Mav moveHBaseTableRegions() {
+	private Mav moveHBaseTableRegions() throws IOException {
 		initialize();
 		String tableName = params.required(PARAM_tableName);
 		String destinationServer = params.required(PARAM_destinationServerName);
-		ServerName serverName = new ServerName(destinationServer);
+		ServerName serverName = ServerNameTool.create(destinationServer);
 		if(DrCollectionTool.doesNotContain(drServerList.getServerNames(), serverName)){
 			throw new IllegalArgumentException(serverName + " not found");
 		}
 		for(int i = 0; i < numRegions; ++i){
 			String encodedRegionNameString = encodedRegionNameStrings.get(i);
 			PhaseTimer timer = new PhaseTimer("move " + i + "/" + numRegions + " of " + tableName);
-			try{
-				routerParams.getClient().getHBaseAdmin().move(Bytes.toBytes(encodedRegionNameString), Bytes.toBytes(
-						destinationServer));
-			}catch(UnknownRegionException | MasterNotRunningException | ZooKeeperConnectionException e){
-				throw new RuntimeException(e);
-			}
+			routerParams.getClient().getHBaseAdmin().move(Bytes.toBytes(encodedRegionNameString), Bytes.toBytes(
+					destinationServer));
 			logger.warn(timer.add("HBase moved region " + encodedRegionNameString + " to server "
 					+ serverName).toString());
 		}

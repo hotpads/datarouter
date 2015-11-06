@@ -15,6 +15,11 @@ public class ServerNameTool{
 		return ReflectionTool.createWithParameters(ServerName.class, constructorParams);
 	}
 
+	public static ServerName create(final String serverName){
+		Collection<?> constructorParams = Arrays.asList(serverName);
+		return ReflectionTool.createWithParameters(ServerName.class, constructorParams);
+	}
+
 
 	/******************* Tests *****************************/
 
@@ -22,6 +27,7 @@ public class ServerNameTool{
 		@Test
 		public void testCreateViaReflection(){
 			create("theHostname", 12345, 9876543);
+			create("theHostname,12345,9876543");
 		}
 	}
 
