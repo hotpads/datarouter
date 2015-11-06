@@ -16,7 +16,7 @@ import com.hotpads.util.core.bytes.StringByteTool;
 public class SqsGroupPeekMultiOp<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
-		F extends DatabeanFielder<PK,D>> 
+		F extends DatabeanFielder<PK,D>>
 extends BaseSqsPeekMultiOp<PK,D,F,GroupQueueMessage<PK,D>>{
 
 	public SqsGroupPeekMultiOp(Config config, BaseSqsNode<PK,D,F> sqsNode){

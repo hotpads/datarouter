@@ -21,10 +21,10 @@ import com.hotpads.datarouter.test.TestDatabeanKey;
 public class SqsTestRouter extends BaseRouter{
 
 	private static final String NAME = "sqsTestRouter";
-	
+
 	public final QueueStorage<TestDatabeanKey,TestDatabean> testDatabean;
 	public final GroupQueueStorage<TestDatabeanKey,TestDatabean> groupTestDatabean;
-	
+
 	@Inject
 	public SqsTestRouter(Datarouter context, QueueNodeFactory nodeFactory){
 		super(context, DrTestConstants.CONFIG_PATH, NAME);
