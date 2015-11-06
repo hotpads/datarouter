@@ -54,7 +54,7 @@ extends SqsOp<PK,D,F,Void>{
 		}
 		return null;
 	}
-	
+
 	private void addToQueueAndFlushIfNecessary(ByteArrayOutputStream group, byte[] databean){
 		if(group.size() + databean.length + collectionSuffix.length > SqsNode.MAX_BYTES_PER_MESSAGE){
 			flush(group);

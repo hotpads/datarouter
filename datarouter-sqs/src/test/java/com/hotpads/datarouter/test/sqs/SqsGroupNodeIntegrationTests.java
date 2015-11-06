@@ -8,6 +8,8 @@ import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Guice;
@@ -24,6 +26,7 @@ import com.hotpads.datarouter.util.core.DrCollectionTool;
 @Guice(moduleFactory = DatarouterSqsTestModuleFactory.class)
 @Test(singleThreaded=true)
 public class SqsGroupNodeIntegrationTests{
+	private static final Logger logger = LoggerFactory.getLogger(SqsGroupNodeIntegrationTests.class);
 
 	private static final int DATABEAN_COUNT = 15;
 
@@ -45,7 +48,7 @@ public class SqsGroupNodeIntegrationTests{
 		Config config = new Config().setTimeout(4, TimeUnit.SECONDS);
 		for(GroupQueueMessage<TestDatabeanKey, TestDatabean> message : router.groupTestDatabean.peekUntilEmpty(config)){
 			router.groupTestDatabean.ack(message.getKey(), config);
-			System.out.println("removed " + message.getDatabeans());
+			logger.debug("removed " + message.getDatabeans());
 		}
 	}
 
