@@ -1,9 +1,7 @@
 package com.hotpads.datarouter.client.imp.jdbc.op.read;
 
 import java.sql.Connection;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -17,6 +15,7 @@ import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.util.core.iterable.BatchingIterable;
 
 public class JdbcGetWithPrefixesOp<
 		PK extends PrimaryKey<PK>,
@@ -29,11 +28,10 @@ extends BaseJdbcOp<List<D>>{
 	private final Collection<PK> prefixes;
 	private final boolean wildcardLastField;
 	private final Config config;
-	private Iterator<PK> iterator;
 	private int count;
 	private Connection connection;
 	private List<D> result = new LinkedList<>();
-	private static final int MAX_PREFIXES = 100;
+	private static final int MAX_PREFIXES = 400;
 
 	public JdbcGetWithPrefixesOp(JdbcReaderNode<PK,D,F> node, JdbcFieldCodecFactory fieldCodecFactory,
 			Collection<PK> prefixes, boolean wildcardLastField, Config config){
@@ -51,33 +49,19 @@ extends BaseJdbcOp<List<D>>{
 		if(count == 0) {
 			return result;
 		}
-		iterator = prefixes.iterator();
 		connection = getConnection(node.getClientId().getName());
-		// TODO may run batches on threads... but not this commit.
 		if(count < MAX_PREFIXES) {
 			return runBatch(prefixes);
 		}
-		while(iterator.hasNext()){
-			addBatch();
+		for(List<PK> batch : new BatchingIterable<>(prefixes, MAX_PREFIXES)){
+			result.addAll(runBatch(batch));
 		}
 		return result;
 	}
 
-	private void addBatch() {
-		List<PK> batch = new ArrayList<>();
-		while(iterator.hasNext()){
-			batch.add(iterator.next());
-			if(batch.size() >= MAX_PREFIXES) {
-				break;
-			}
-		}
-		result.addAll(runBatch(batch));
-	}
-
-	private List<D> runBatch( Collection<PK> batch ) {
+	private List<D> runBatch(Collection<PK> batch) {
 		String sql = SqlBuilder.getWithPrefixes(fieldCodecFactory, config, node.getTableName(), node.getFieldInfo()
 				.getFields(), batch, wildcardLastField, node.getFieldInfo().getPrimaryKeyFields());
-		List<D> batchResult = JdbcTool.selectDatabeans(fieldCodecFactory, connection, node.getFieldInfo(), sql);
-		return batchResult;
+		return JdbcTool.selectDatabeans(fieldCodecFactory, connection, node.getFieldInfo(), sql);
 	}
 }
