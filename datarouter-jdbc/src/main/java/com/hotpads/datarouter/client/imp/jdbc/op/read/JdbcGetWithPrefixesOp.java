@@ -28,7 +28,6 @@ extends BaseJdbcOp<List<D>>{
 	private final Collection<PK> prefixes;
 	private final boolean wildcardLastField;
 	private final Config config;
-	private Connection connection;
 	private static final int MAX_PREFIXES = 400;
 
 	public JdbcGetWithPrefixesOp(JdbcReaderNode<PK,D,F> node, JdbcFieldCodecFactory fieldCodecFactory,
@@ -44,21 +43,17 @@ extends BaseJdbcOp<List<D>>{
 	@Override
 	public List<D> runOnce(){
 		List<D> result = new LinkedList<>();
-		int count = DrCollectionTool.sizeNullSafe(prefixes);
-		if(count == 0) {
+		if (DrCollectionTool.isEmpty(prefixes)) {
 			return result;
 		}
-		connection = getConnection(node.getClientId().getName());
-		if(count < MAX_PREFIXES) {
-			return runBatch(prefixes);
-		}
+		Connection connection = getConnection(node.getClientId().getName());
 		for(List<PK> batch : new BatchingIterable<>(prefixes, MAX_PREFIXES)){
-			result.addAll(runBatch(batch));
+			result.addAll(runBatch(connection, batch));
 		}
 		return result;
 	}
 
-	private List<D> runBatch(Collection<PK> batch) {
+	private List<D> runBatch(Connection connection, Collection<PK> batch) {
 		String sql = SqlBuilder.getWithPrefixes(fieldCodecFactory, config, node.getTableName(), node.getFieldInfo()
 				.getFields(), batch, wildcardLastField, node.getFieldInfo().getPrimaryKeyFields());
 		return JdbcTool.selectDatabeans(fieldCodecFactory, connection, node.getFieldInfo(), sql);
