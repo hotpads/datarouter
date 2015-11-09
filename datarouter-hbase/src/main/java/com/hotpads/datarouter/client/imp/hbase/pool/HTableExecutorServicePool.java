@@ -6,9 +6,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.Semaphore;
 
+import org.apache.hadoop.hbase.TableName;
+import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.HBaseAdmin;
-import org.apache.hadoop.hbase.client.HConnection;
-import org.apache.hadoop.hbase.client.HTable;
+import org.apache.hadoop.hbase.client.Table;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,7 +18,6 @@ import com.hotpads.datarouter.client.imp.hbase.factory.HBaseOptions;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.datarouter.util.core.DrNumberFormatter;
-import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.concurrent.ExecutorServiceTool;
 import com.hotpads.util.core.concurrent.SemaphoreTool;
 import com.hotpads.util.core.concurrent.ThreadTool;
@@ -40,7 +40,7 @@ implements HTablePool{
 	private static final long THROTTLE_INCONSISTENT_LOG_EVERY_X_MS = 500;
 
 	//provided via constructor
-	private final HConnection hconnection;//one connection per cluster
+	private final Connection connection;
 	private final String clientName;
 	private final Map<String,Class<? extends PrimaryKey<?>>> primaryKeyClassByName;
 	private final int maxHTables;
@@ -50,14 +50,14 @@ implements HTablePool{
 	//used for pooling connections
 	private final Semaphore htableSemaphore;
 	private final BlockingQueue<HTableExecutorService> executorServiceQueue;
-	private final Map<HTable,HTableExecutorService> activeHTables;
+	private final Map<Table,HTableExecutorService> activeHTables;
 
 	private volatile boolean shuttingDown;
 	private volatile long lastLoggedWarning = 0L;
 
-	public HTableExecutorServicePool(HBaseOptions hbaseOptions, HBaseAdmin hbaseAdmin, String clientName,
-			Map<String,Class<? extends PrimaryKey<?>>> primaryKeyClassByName){
-		this.hconnection = hbaseAdmin.getConnection();
+	public HTableExecutorServicePool(HBaseOptions hbaseOptions, Connection connection, HBaseAdmin hbaseAdmin,
+			String clientName, Map<String,Class<? extends PrimaryKey<?>>> primaryKeyClassByName){
+		this.connection = connection;
 		this.clientName = clientName;
 		this.primaryKeyClassByName = primaryKeyClassByName;
 		this.maxHTables = hbaseOptions.maxHTables(DEFAULT_MAX_HTABLES);
@@ -71,7 +71,7 @@ implements HTablePool{
 
 
 	@Override
-	public HTable checkOut(String tableName, MutableString progress){
+	public Table checkOut(String tableName, MutableString progress){
 		if(shuttingDown){
 			return null;
 		}
@@ -79,7 +79,7 @@ implements HTablePool{
 		checkConsistencyAndAcquireSempahore(tableName);
 		setProgress(progress, "passed semaphore");
 		HTableExecutorService htableExecutorService = null;
-		HTable htable = null;
+		Table htable = null;
 		try{
 			DRCounters.incClientTable(HBaseClientType.INSTANCE, "connection getHTable", clientName, tableName);
 			while(true){
@@ -110,14 +110,10 @@ implements HTablePool{
 				logWithPoolInfo("discarded expired HTableExecutorService", tableName);
 				htableExecutorService = null;//release it and loop around again
 			}
-			htable = new HTable(StringByteTool.getUtf8Bytes(tableName), hconnection, htableExecutorService.getExec());
+			htable = connection.getTable(TableName.valueOf(tableName), htableExecutorService.getExec());
 			setProgress(progress, "created HTable");
 			activeHTables.put(htable, htableExecutorService);
 			setProgress(progress, "added to activeHTables");
-			htable.getWriteBuffer().clear();
-			setProgress(progress, "cleared HTable write buffer");
-			htable.setAutoFlush(false);
-			setProgress(progress, "set HTable autoFlush false");
 			recordSlowCheckout(System.currentTimeMillis() - checkoutRequestStartMs, tableName);
 			logIfInconsistentCounts(true, tableName);
 			return htable;
@@ -134,13 +130,12 @@ implements HTablePool{
 
 
 	@Override
-	public void checkIn(HTable htable, boolean possiblyTarnished){
+	public void checkIn(Table htable, boolean possiblyTarnished){
 		//do this first otherwise things may get hung up in the "active" map
-		String tableName = StringByteTool.fromUtf8Bytes(htable.getTableName());
+		String tableName = htable.getName().getNameAsString();
 		HTableExecutorService htableExecutorService;
 		try {
 			htableExecutorService = activeHTables.remove(htable);
-			htable.getWriteBuffer().clear();
 			if(htableExecutorService==null){
 				logWithPoolInfo("HTable returned to pool but HTableExecutorService not found", tableName);
 				DRCounters.incClientTable(HBaseClientType.INSTANCE, "HTable returned to pool but HTableExecutorService"

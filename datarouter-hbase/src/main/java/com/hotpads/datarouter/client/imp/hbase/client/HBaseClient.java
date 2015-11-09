@@ -9,12 +9,13 @@ import org.apache.hadoop.hbase.client.Table;
 
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
+import com.hotpads.util.datastructs.MutableString;
 
 public interface HBaseClient
 extends Client{
 
-	Table checkOutTable(String name) throws IOException;
-	void checkInTable(Table table) throws IOException;
+	Table checkOutTable(String name, MutableString progress) throws IOException;
+	void checkInTable(Table table, boolean possiblyTarnished) throws IOException;
 	ExecutorService getExecutorService();
 	@Deprecated
 	HBaseAdmin getHBaseAdmin();

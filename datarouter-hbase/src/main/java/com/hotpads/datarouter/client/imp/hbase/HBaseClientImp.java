@@ -8,7 +8,6 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Admin;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.HBaseAdmin;
@@ -23,6 +22,7 @@ import com.hotpads.datarouter.client.imp.hbase.client.HBaseClient;
 import com.hotpads.datarouter.client.imp.hbase.pool.HTablePool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.concurrent.FutureTool;
+import com.hotpads.util.datastructs.MutableString;
 
 public class HBaseClientImp
 extends BaseClient
@@ -31,6 +31,7 @@ implements HBaseClient{
 
 	private final Configuration hbaseConfiguration;
 	private final Connection connection;
+	private final HTablePool pool;
 	private final HBaseAdmin hbaseAdmin;
 	private final Admin admin;
 	private final ExecutorService executorService;
@@ -38,12 +39,14 @@ implements HBaseClient{
 
 	/**************************** constructor **********************************/
 
-	public HBaseClientImp(String name, Configuration hbaseConfiguration, Connection connection, HBaseAdmin hbaseAdmin,
-			Admin admin, HTablePool pool, Map<String,Class<? extends PrimaryKey<?>>> primaryKeyClassByName,
+	public HBaseClientImp(String name, Configuration hbaseConfiguration, Connection connection,
+			HTablePool pool, HBaseAdmin hbaseAdmin, Admin admin,
+			Map<String,Class<? extends PrimaryKey<?>>> primaryKeyClassByName,
 			ClientAvailabilitySettings clientAvailabilitySettings){
 		super(name, clientAvailabilitySettings);
 		this.hbaseConfiguration = hbaseConfiguration;
 		this.connection = connection;
+		this.pool = pool;
 		this.hbaseAdmin = hbaseAdmin;
 		this.admin = admin;
 		this.executorService = new ThreadPoolExecutor(
@@ -81,13 +84,13 @@ implements HBaseClient{
 	}
 
 	@Override
-	public Table checkOutTable(String name) throws IOException{
-		return connection.getTable(TableName.valueOf(name), executorService);
+	public Table checkOutTable(String name, MutableString progress){
+		return pool.checkOut(name, progress);
 	}
 
 	@Override
-	public void checkInTable(Table table) throws IOException{
-		table.close();
+	public void checkInTable(Table table, boolean possiblyTarnished){
+		pool.checkIn(table, possiblyTarnished);
 	}
 
 	@Override

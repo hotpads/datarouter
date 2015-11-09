@@ -106,7 +106,7 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 				}
 			}else{
 				try{
-					client.checkInTable(hTable);
+					client.checkInTable(hTable, possiblyTarnishedHTable);
 				}catch(IOException e){
 					logger.warn("", e);
 				}
@@ -145,7 +145,7 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 
 		//get a fresh htable
 		//Preconditions.checkState(hTable==null);//make sure we cleared this from the previous attempt
-		Table hTable = client.checkOutTable(tableName);
+		Table hTable = client.checkOutTable(tableName, progress);
 		Preconditions.checkNotNull(hTable);
 		progress.set("got HTable attemptNumOneBased:"+attemptNumOneBased);
 
