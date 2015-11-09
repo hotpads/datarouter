@@ -17,6 +17,9 @@ import org.apache.hadoop.hbase.HConstants;
 import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.MasterNotRunningException;
 import org.apache.hadoop.hbase.ZooKeeperConnectionException;
+import org.apache.hadoop.hbase.client.Admin;
+import org.apache.hadoop.hbase.client.Connection;
+import org.apache.hadoop.hbase.client.ConnectionFactory;
 import org.apache.hadoop.hbase.client.HBaseAdmin;
 import org.apache.hadoop.hbase.io.compress.Compression.Algorithm;
 import org.apache.hadoop.hbase.io.encoding.DataBlockEncoding;
@@ -77,7 +80,9 @@ implements ClientFactory{
 
 	//we cannot finalize these as they are created in a background thread for faster application boot time
 	private Configuration hbaseConfig;
+	private Connection connection;
 	private HBaseAdmin hbaseAdmin;
+	private Admin admin;
 
 	public HBaseSimpleClientFactory(Datarouter datarouter, String clientName, ClientAvailabilitySettings
 			clientAvailabilitySettings){
@@ -103,7 +108,12 @@ implements ClientFactory{
 				hbaseConfig = HBaseConfiguration.create();
 				hbaseConfig.set(HConstants.ZOOKEEPER_QUORUM, zkQuorum);
 			}
+			if(connection == null){
+				connection = ConnectionFactory.createConnection(hbaseConfig);
+			}
 			hbaseAdmin = new HBaseAdmin(hbaseConfig);
+			admin = connection.getAdmin();
+
 			if(hbaseAdmin.getConnection().isClosed()){
 				HBaseStaticContext.CONFIG_BY_ZK_QUORUM.remove(zkQuorum);
 				HBaseStaticContext.ADMIN_BY_CONFIG.remove(hbaseConfig);
@@ -121,8 +131,9 @@ implements ClientFactory{
 					= initTables();
 			timer.add("init HTables");
 
-			newClient = new HBaseClientImp(clientName, hbaseConfig, hbaseAdmin, htablePoolAndPrimaryKeyByTableName
-					.getLeft(), htablePoolAndPrimaryKeyByTableName.getRight(), clientAvailabilitySettings);
+			newClient = new HBaseClientImp(clientName, hbaseConfig, connection, hbaseAdmin, admin,
+					htablePoolAndPrimaryKeyByTableName.getLeft(), htablePoolAndPrimaryKeyByTableName.getRight(),
+					clientAvailabilitySettings);
 			logger.warn(timer.add("done").toString());
 		}catch(ZooKeeperConnectionException e){
 			throw new UnavailableException(e);

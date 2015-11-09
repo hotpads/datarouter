@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.client.imp.hbase;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -7,8 +8,12 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hbase.TableName;
+import org.apache.hadoop.hbase.client.Admin;
+import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.HBaseAdmin;
 import org.apache.hadoop.hbase.client.HTable;
+import org.apache.hadoop.hbase.client.Table;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,19 +32,23 @@ implements HBaseClient{
 	private static final Logger logger = LoggerFactory.getLogger(HBaseClientImp.class);
 
 	private final Configuration hbaseConfiguration;
+	private final Connection connection;
 	private final HBaseAdmin hbaseAdmin;
+	private final Admin admin;
 	private final HTablePool htablePool;
 	private final ExecutorService executorService;
 	private final Map<String,Class<? extends PrimaryKey<?>>> primaryKeyClassByName;
 
 	/**************************** constructor **********************************/
 
-	public HBaseClientImp(String name, Configuration hbaseConfiguration, HBaseAdmin hbaseAdmin, HTablePool pool,
-			Map<String,Class<? extends PrimaryKey<?>>> primaryKeyClassByName, ClientAvailabilitySettings
-			clientAvailabilitySettings){
+	public HBaseClientImp(String name, Configuration hbaseConfiguration, Connection connection, HBaseAdmin hbaseAdmin,
+			Admin admin, HTablePool pool, Map<String,Class<? extends PrimaryKey<?>>> primaryKeyClassByName,
+			ClientAvailabilitySettings clientAvailabilitySettings){
 		super(name, clientAvailabilitySettings);
 		this.hbaseConfiguration = hbaseConfiguration;
+		this.connection = connection;
 		this.hbaseAdmin = hbaseAdmin;
+		this.admin = admin;
 		this.htablePool = pool;
 		this.executorService = new ThreadPoolExecutor(
 				pool.getTotalPoolSize()+10,
@@ -71,13 +80,28 @@ implements HBaseClient{
 	}
 
 	@Override
+	public Admin getAdmin(){
+		return admin;
+	}
+
+	@Override
 	public HTable checkOutHTable(String tableName, MutableString progress){
 		return htablePool.checkOut(tableName, progress);
 	}
 
 	@Override
+	public Table checkOutTable(String name) throws IOException{
+		return connection.getTable(TableName.valueOf(name), executorService);
+	}
+
+	@Override
 	public void checkInHTable(HTable htable, boolean possiblyTarnished){
 		htablePool.checkIn(htable, possiblyTarnished);
+	}
+
+	@Override
+	public void checkInTable(Table table) throws IOException{
+		table.close();
 	}
 
 	@Override
