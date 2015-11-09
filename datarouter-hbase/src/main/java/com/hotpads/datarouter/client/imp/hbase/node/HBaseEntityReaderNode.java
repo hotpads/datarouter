@@ -3,9 +3,9 @@ package com.hotpads.datarouter.client.imp.hbase.node;
 import java.util.Map;
 
 import org.apache.hadoop.hbase.client.Get;
-import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
+import org.apache.hadoop.hbase.client.Table;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +35,7 @@ extends BasePhysicalEntityNode<EK,E>{
 	private ClientTableNodeNames clientTableNodeNames;//currently acting as a cache of superclass fields
 	private HBaseEntityQueryBuilder<EK,E> queryBuilder;
 	private HBaseEntityResultParser<EK,E> resultParser;
-	
+
 	public HBaseEntityReaderNode(NodeFactory nodeFactory, Router router, EntityNodeParams<EK,E> entityNodeParams,
 			ClientTableNodeNames clientTableNodeNames){
 		super(router.getContext(), entityNodeParams, clientTableNodeNames);
@@ -46,29 +46,34 @@ extends BasePhysicalEntityNode<EK,E>{
 		this.resultParser = new HBaseEntityResultParser<EK,E>(entityFieldInfo,
 				(Map<String,HBaseSubEntityReaderNode<EK,E,?,?,?>>)getNodeByQualifierPrefix());
 	}
-	
+
 
 	@Override
 	public HBaseClient getClient(){
 		return (HBaseClient)super.getClient();
 	}
-	
+
 	public ClientTableNodeNames getClientTableNodeNames(){
 		return clientTableNodeNames;
 	}
-	
+
 	public HBaseEntityResultParser<EK,E> getResultParser(){
 		return resultParser;
 	}
-	
+
 
 	@Override
 	public E getEntity(final EK ek, final Config pConfig){
-		if(ek==null){ return null; }
+		if(ek == null) {
+			return null;
+		}
 		final Config config = Config.nullSafe(pConfig);
 		try{
-			return new HBaseMultiAttemptTask<E>(new HBaseTask<E>(getContext(), getClientTableNodeNames(), "getEntity", config){
-					public E hbaseCall(HTable hTable, HBaseClient client, ResultScanner managedResultScanner) throws Exception{
+			return new HBaseMultiAttemptTask<E>(new HBaseTask<E>(getContext(), getClientTableNodeNames(), "getEntity",
+					config){
+					@Override
+				public E hbaseCall(Table hTable, HBaseClient client, ResultScanner managedResultScanner)
+				throws Exception{
 						byte[] rowBytes = queryBuilder.getRowBytesWithPartition(ek);
 						Get get = new Get(rowBytes);
 						Result hBaseResult = hTable.get(get);
@@ -85,5 +90,5 @@ extends BasePhysicalEntityNode<EK,E>{
 			throw e;
 		}
 	}
-	
+
 }

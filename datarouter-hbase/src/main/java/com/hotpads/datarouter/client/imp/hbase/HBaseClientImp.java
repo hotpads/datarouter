@@ -12,7 +12,6 @@ import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Admin;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.HBaseAdmin;
-import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Table;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +23,6 @@ import com.hotpads.datarouter.client.imp.hbase.client.HBaseClient;
 import com.hotpads.datarouter.client.imp.hbase.pool.HTablePool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.concurrent.FutureTool;
-import com.hotpads.util.datastructs.MutableString;
 
 public class HBaseClientImp
 extends BaseClient
@@ -35,7 +33,6 @@ implements HBaseClient{
 	private final Connection connection;
 	private final HBaseAdmin hbaseAdmin;
 	private final Admin admin;
-	private final HTablePool htablePool;
 	private final ExecutorService executorService;
 	private final Map<String,Class<? extends PrimaryKey<?>>> primaryKeyClassByName;
 
@@ -49,7 +46,6 @@ implements HBaseClient{
 		this.connection = connection;
 		this.hbaseAdmin = hbaseAdmin;
 		this.admin = admin;
-		this.htablePool = pool;
 		this.executorService = new ThreadPoolExecutor(
 				pool.getTotalPoolSize()+10,
 				pool.getTotalPoolSize()+10,
@@ -85,28 +81,13 @@ implements HBaseClient{
 	}
 
 	@Override
-	public HTable checkOutHTable(String tableName, MutableString progress){
-		return htablePool.checkOut(tableName, progress);
-	}
-
-	@Override
 	public Table checkOutTable(String name) throws IOException{
 		return connection.getTable(TableName.valueOf(name), executorService);
 	}
 
 	@Override
-	public void checkInHTable(HTable htable, boolean possiblyTarnished){
-		htablePool.checkIn(htable, possiblyTarnished);
-	}
-
-	@Override
 	public void checkInTable(Table table) throws IOException{
 		table.close();
-	}
-
-	@Override
-	public HTablePool getHTablePool(){
-		return htablePool;
 	}
 
 	@Override
@@ -124,14 +105,13 @@ implements HBaseClient{
 	}
 
 	@Override
-	public Integer getTotalPoolSize(){
-		return htablePool.getTotalPoolSize();
-	}
-
-	@Override
 	public void shutdown(){
 		logger.warn("shutting down client:"+getName());
 		FutureTool.finishAndShutdown(executorService, 5L, TimeUnit.SECONDS);
-		htablePool.shutdown();
+		try{
+			connection.close();
+		}catch(IOException e){
+			throw new RuntimeException(e);
+		}
 	}
 }

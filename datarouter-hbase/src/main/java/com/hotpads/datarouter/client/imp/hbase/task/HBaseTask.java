@@ -1,7 +1,10 @@
 package com.hotpads.datarouter.client.imp.hbase.task;
 
+import java.io.IOException;
+
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.ResultScanner;
+import org.apache.hadoop.hbase.client.Table;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,9 +16,9 @@ import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.datarouter.util.core.DrNumberTool;
-import com.hotpads.trace.TracerTool;
 import com.hotpads.trace.TracedCallable;
 import com.hotpads.trace.TracerThreadLocal;
+import com.hotpads.trace.TracerTool;
 import com.hotpads.util.core.collections.Pair;
 import com.hotpads.util.datastructs.MutableString;
 
@@ -25,7 +28,7 @@ import com.hotpads.util.datastructs.MutableString;
  */
 public abstract class HBaseTask<V> extends TracedCallable<V>{
 	static Logger logger = LoggerFactory.getLogger(HBaseTask.class);
-	
+
 	protected Datarouter datarouter;
 
 	//variables for TraceThreads and TraceSpans
@@ -36,12 +39,12 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 	protected Integer attemptNumOneBased;
 	protected Integer numAttempts;
 	protected Long timeoutMs;
-	
+
 	protected String tableName;
 	protected Config config;
-	
+
 	/******************** constructor ****************************/
-	
+
 	public HBaseTask(Datarouter datarouter, ClientTableNodeNames names, String taskName, Config config){
 		super("HBaseTask."+taskName);
 		this.datarouter = datarouter;
@@ -52,32 +55,32 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 		this.tableName = names.getTableName();
 		this.config = Config.nullSafe(config);
 	}
-	
-	
+
+
 	@Override
 	public V wrappedCall(){
 		//clearPreviousAttemptState();
 		MutableString progress = new MutableString("");
 		progress.set("starting attemptNumOneBased:"+attemptNumOneBased);
 		ResultScanner managedResultScanner = null;
-		HTable hTable = null;
+		Table hTable = null;
 		HBaseClient client = null;
 
 		boolean possiblyTarnishedHTable = false;
 
 		try{
 			TracerTool.startSpan(TracerThreadLocal.get(), nodeName+" "+taskName);
-			recordDetailedTraceInfo();		
-			Pair<HTable, HBaseClient> pair = prepClientAndTableEtc(progress);
+			recordDetailedTraceInfo();
+			Pair<Table, HBaseClient> pair = prepClientAndTableEtc(progress);
 			hTable = pair.getLeft();
 			client = pair.getRight();
 			//do this after prepClientAndTableEtc, because client is set in there (null beforehand)
 			DRCounters.incClientNodeCustom(client.getType(), taskName, client.getName(), nodeName);
-			
+
 			/******************/
 			return hbaseCall(hTable, client, managedResultScanner); //override this method in subclasses
 			/******************/
-			
+
 		}catch(Exception e){
 			possiblyTarnishedHTable = true;
 			logger.warn("rethrowing "+e.getClass().getSimpleName()+" as DataAccessException", e);
@@ -102,60 +105,62 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 							+ possiblyTarnishedHTable);
 				}
 			}else{
-				client.checkInHTable(hTable, possiblyTarnishedHTable);
+				try{
+					client.checkInTable(hTable);
+				}catch(IOException e){
+					logger.warn("", e);
+				}
 			}
 			//hTable = null;//reset to null since this HBaseTask will get reused
 			TracerTool.finishSpan(TracerThreadLocal.get());
 			progress.set("ending finally block attemptNumOneBased:"+attemptNumOneBased);
 		}
 	}
-	
-	public abstract V hbaseCall(HTable hTable, HBaseClient client, ResultScanner managedResultScanner) throws Exception;
 
-	
+	public abstract V hbaseCall(Table hTable, HBaseClient client, ResultScanner managedResultScanner) throws Exception;
+
+
 	protected void clearPreviousAttemptState(HTable hTable, HBaseClient client, ResultScanner managedResultScanner){
 		if(attemptNumOneBased == 1){ return; }//first attempt
 		client = null;
 		hTable = null;
 		managedResultScanner = null;
 	}
-	
+
 	protected void recordDetailedTraceInfo() {
-		if(DrNumberTool.nullSafe(numAttempts) > 1){ 
-			TracerTool.appendToThreadInfo(TracerThreadLocal.get(), "[attempt "+attemptNumOneBased+"/"+numAttempts+"]"); 
+		if(DrNumberTool.nullSafe(numAttempts) > 1){
+			TracerTool.appendToThreadInfo(TracerThreadLocal.get(), "[attempt "+attemptNumOneBased+"/"+numAttempts+"]");
 		}
-		if( ! DrNumberTool.isMax(timeoutMs)){ 
-			TracerTool.appendToThreadInfo(TracerThreadLocal.get(), "[timeoutMs="+timeoutMs+"]"); 
+		if( ! DrNumberTool.isMax(timeoutMs)){
+			TracerTool.appendToThreadInfo(TracerThreadLocal.get(), "[timeoutMs="+timeoutMs+"]");
 		}
 	}
-	
-	protected Pair<HTable, HBaseClient> prepClientAndTableEtc(MutableString progress){
+
+	protected Pair<Table, HBaseClient> prepClientAndTableEtc(MutableString progress) throws IOException{
 		//get a fresh copy of the client
 		//Preconditions.checkState(client==null);//make sure we cleared this from the previous attempt
 		HBaseClient client = (HBaseClient)datarouter.getClientPool().getClient(clientName);//be sure to get a new client for each attempt/task in case the client was refreshed behind the scenes
 		Preconditions.checkNotNull(client);
 		progress.set("got client attemptNumOneBased:"+attemptNumOneBased);
-		
+
 		//get a fresh htable
 		//Preconditions.checkState(hTable==null);//make sure we cleared this from the previous attempt
-		HTable hTable = client.checkOutHTable(tableName, progress);
+		Table hTable = client.checkOutTable(tableName);
 		Preconditions.checkNotNull(hTable);
 		progress.set("got HTable attemptNumOneBased:"+attemptNumOneBased);
-		
-		hTable.setOperationTimeout((int)Math.min(timeoutMs, Integer.MAX_VALUE));
-		
+
 		return new Pair(hTable, client);
 		//assert null
 		//Preconditions.checkState(managedResultScanner==null);//make sure we cleared this from the previous attempt
 	}
-	
-	
+
+
 	/******************************* get/set ********************************************/
-	
+
 	public String getNodeName(){
 		return nodeName;
 	}
-	
+
 	public String getTaskName(){
 		return taskName;
 	}
@@ -195,6 +200,6 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 	public String getClientName(){
 		return clientName;
 	}
-	
-	
+
+
 }

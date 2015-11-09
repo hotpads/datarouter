@@ -5,10 +5,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Increment;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Row;
+import org.apache.hadoop.hbase.client.Table;
 
 import com.hotpads.datarouter.client.ClientTableNodeNames;
 import com.hotpads.datarouter.client.imp.hbase.client.HBaseClient;
@@ -35,17 +35,17 @@ public class HBaseSubEntityIncrementOp<
 		E extends Entity<EK>,
 		PK extends EntityPrimaryKey<EK,PK>,
 		D extends Databean<PK,D>,
-		F extends DatabeanFielder<PK,D>> 
+		F extends DatabeanFielder<PK,D>>
 extends HBaseTask<Void>{
 
 	public static final String OP_increment = "increment";
-	
+
 	private final HBaseSubEntityNode<EK, E, PK, D, F> node;
 	private final Map<PK,Map<String,Long>> countByColumnByKey;
 	private final Config config;
 	private final HBaseSubEntityQueryBuilder<EK,E,PK,D,F> queryBuilder;
-	
-	public HBaseSubEntityIncrementOp(HBaseSubEntityNode<EK, E, PK, D, F> node, Map<PK,Map<String,Long>> 
+
+	public HBaseSubEntityIncrementOp(HBaseSubEntityNode<EK, E, PK, D, F> node, Map<PK,Map<String,Long>>
 		countByColumnByKey, Config config, HBaseSubEntityQueryBuilder<EK, E, PK, D, F> queryBuilder){
 		super(node.getDatarouter(), new ClientTableNodeNames(node.getClientId().getName(), node.getTableName(),
 				node.getName()), "HBaseTask." + OP_increment, config);
@@ -56,7 +56,7 @@ extends HBaseTask<Void>{
 	}
 
 	@Override
-	public Void hbaseCall(HTable hTable, HBaseClient client, ResultScanner managedResultScanner) throws Exception{
+	public Void hbaseCall(Table hTable, HBaseClient client, ResultScanner managedResultScanner) throws Exception{
 		List<Row> actions = new ArrayList<>();
 		int numCellsIncremented = 0, numRowsIncremented = 0;
 		Map<EK,List<PK>> keysByEntityKey = EntityTool.getPrimaryKeysByEntityKey(countByColumnByKey.keySet());
@@ -79,7 +79,6 @@ extends HBaseTask<Void>{
 		}
 		if (DrCollectionTool.notEmpty(actions)){
 			hTable.batch(actions);
-			hTable.flushCommits();
 		}
 		DRCounters.incClientNodeCustom(client.getType(), "cells incremented", node.getClientId().getName(),
 				node.getName(), numCellsIncremented);
@@ -87,7 +86,7 @@ extends HBaseTask<Void>{
 				node.getName(), numRowsIncremented);
 		return null;
 	}
-	
+
 	//try to prevent making a mistake with columnName and incrementing a non-counter column
 	private void assertColumnIsUInt63Field(String columnName){
 		Class<? extends Field> columnType = node.getFieldInfo().getFieldTypeForColumn(columnName);

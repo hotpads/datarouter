@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Increment;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Row;
+import org.apache.hadoop.hbase.client.Table;
 
 import com.hotpads.datarouter.client.ClientTableNodeNames;
 import com.hotpads.datarouter.client.imp.hbase.client.HBaseClient;
@@ -30,13 +30,13 @@ public class HBaseIncrementOp<
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>>
 extends HBaseTask<Void>{
-	
+
 	public static final String OP_increment = "increment";
-	
+
 	private HBaseNode<PK,D,F> node;
 	private Map<PK,Map<String,Long>> countByColumnByKey;
 	private Config config;
-	
+
 	public HBaseIncrementOp(HBaseNode<PK,D,F> node, Map<PK,Map<String,Long>> countByColumnByKey, Config config){
 		super(node.getDatarouter(), new ClientTableNodeNames(node.getClientId().getName(), node.getTableName(),
 				node.getName()), "HBaseTask." + OP_increment, config);
@@ -44,9 +44,9 @@ extends HBaseTask<Void>{
 		this.countByColumnByKey = countByColumnByKey;
 		this.config = Config.nullSafe(config);
 	}
-	
+
 	@Override
-	public Void hbaseCall(HTable table, HBaseClient client, ResultScanner managedResultScanner) throws Exception{
+	public Void hbaseCall(Table table, HBaseClient client, ResultScanner managedResultScanner) throws Exception{
 		if(countByColumnByKey==null){
 			return null;
 		}
@@ -72,11 +72,10 @@ extends HBaseTask<Void>{
 				node.getName(), numRowsIncremented);
 		if (DrCollectionTool.notEmpty(actions)){
 			table.batch(actions);
-			table.flushCommits();
 		}
 		return null;
 	}
-	
+
 	//try to prevent making a mistake with columnName and incrementing a non-counter column
 	private void assertColumnIsUInt63Field(String columnName){
 		Class<? extends Field> columnType = node.getFieldInfo().getFieldTypeForColumn(columnName);
