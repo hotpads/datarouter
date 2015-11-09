@@ -10,6 +10,8 @@ import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeMethod;
@@ -26,6 +28,8 @@ import com.hotpads.datarouter.test.TestDatabean;
 @Guice(moduleFactory = DatarouterSqsTestModuleFactory.class)
 @Test(singleThreaded=true)
 public class SqsNodeIntegrationTests{
+	private static final Logger logger = LoggerFactory.getLogger(SqsNodeIntegrationTests.class);
+
 	private static final int DATABEAN_COUNT = 15;
 
 	@Inject
@@ -53,7 +57,7 @@ public class SqsNodeIntegrationTests{
 	private void cleanUp(int seconds){
 		Config config = new Config().setTimeout(seconds, TimeUnit.SECONDS);
 		for(TestDatabean testDatabean : router.testDatabean.pollUntilEmpty(config)){
-			System.out.println(seconds + "\t" + testDatabean);
+			logger.debug(seconds + "\t" + testDatabean);
 		}
 	}
 

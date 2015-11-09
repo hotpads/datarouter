@@ -49,6 +49,6 @@ extends SqsOp<PK,D,F,List<T>>{
 		}while(!Thread.currentThread().isInterrupted() && timeWaitedMs < timeoutMs);
 		return new ArrayList<>();
 	}
-	
+
 	protected abstract List<T> extractDatabeans(List<Message> messages);
 }
