@@ -16,11 +16,11 @@ import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HConstants;
 import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.MasterNotRunningException;
+import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.ZooKeeperConnectionException;
 import org.apache.hadoop.hbase.client.Admin;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.ConnectionFactory;
-import org.apache.hadoop.hbase.client.HBaseAdmin;
 import org.apache.hadoop.hbase.io.compress.Compression.Algorithm;
 import org.apache.hadoop.hbase.io.encoding.DataBlockEncoding;
 import org.apache.hadoop.hbase.regionserver.BloomType;
@@ -81,7 +81,6 @@ implements ClientFactory{
 	//we cannot finalize these as they are created in a background thread for faster application boot time
 	private Configuration hbaseConfig;
 	private Connection connection;
-	private HBaseAdmin hbaseAdmin;
 	private Admin admin;
 
 	public HBaseSimpleClientFactory(Datarouter datarouter, String clientName, ClientAvailabilitySettings
@@ -111,20 +110,18 @@ implements ClientFactory{
 			if(connection == null){
 				connection = ConnectionFactory.createConnection(hbaseConfig);
 			}
-			hbaseAdmin = new HBaseAdmin(hbaseConfig);
 			admin = connection.getAdmin();
 
-			if(hbaseAdmin.getConnection().isClosed()){
+			if(connection.isClosed()){
 				HBaseStaticContext.CONFIG_BY_ZK_QUORUM.remove(zkQuorum);
 				HBaseStaticContext.ADMIN_BY_CONFIG.remove(hbaseConfig);
 				hbaseConfig = null;
-				hbaseAdmin = null;
 				String log = "couldn't open connection because hBaseAdmin.getConnection().isClosed()";
 				logger.warn(log);
 				throw new UnavailableException(log);
 			}
 			HBaseStaticContext.CONFIG_BY_ZK_QUORUM.put(zkQuorum, hbaseConfig);
-			HBaseStaticContext.ADMIN_BY_CONFIG.put(hbaseConfig, hbaseAdmin);
+			HBaseStaticContext.ADMIN_BY_CONFIG.put(hbaseConfig, admin);
 
 			//databean config
 			Pair<HTablePool,Map<String,Class<? extends PrimaryKey<?>>>> htablePoolAndPrimaryKeyByTableName
@@ -132,7 +129,7 @@ implements ClientFactory{
 			timer.add("init HTables");
 
 			newClient = new HBaseClientImp(clientName, hbaseConfig, htablePoolAndPrimaryKeyByTableName.getLeft(),
-					hbaseAdmin, admin, htablePoolAndPrimaryKeyByTableName.getRight(), clientAvailabilitySettings);
+					admin, htablePoolAndPrimaryKeyByTableName.getRight(), clientAvailabilitySettings);
 			logger.warn(timer.add("done").toString());
 		}catch(ZooKeeperConnectionException e){
 			throw new UnavailableException(e);
@@ -164,7 +161,7 @@ implements ClientFactory{
 			if(checkTables || createTables){
 				for(String tableName : DrIterableTool.nullSafe(tableNames)){
 					byte[] tableNameBytes = StringByteTool.getUtf8Bytes(tableName);
-					if(createTables && !hbaseAdmin.tableExists(tableName)){
+					if(createTables && !admin.tableExists(TableName.valueOf(tableName))){
 						logger.warn("table " + tableName + " not found, creating it");
 						HTableDescriptor htable = new HTableDescriptor(tableName);
 						htable.setMaxFileSize(DEFAULT_MAX_FILE_SIZE_BYTES);
@@ -178,15 +175,15 @@ implements ClientFactory{
 						byte[][] splitPoints = getSplitPoints(nodeByTableName.get(tableName));
 						if(DrArrayTool.isEmpty(splitPoints)
 								|| DrArrayTool.isEmpty(splitPoints[0])){//a single empty byte array
-							hbaseAdmin.createTable(htable);
+							admin.createTable(htable);
 						}else{
 							//careful, as throwing strange split points in here can crash master
 							// and corrupt meta table
-							hbaseAdmin.createTable(htable, splitPoints);
+							admin.createTable(htable, splitPoints);
 						}
 						logger.warn("created table " + tableName);
 					}else if(checkTables){
-						if(!hbaseAdmin.tableExists(tableNameBytes)){
+						if(!admin.tableExists(TableName.valueOf(tableNameBytes))){
 							logger.warn("table " + tableName + " not found");
 							break;
 						}

@@ -8,7 +8,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.client.Admin;
-import org.apache.hadoop.hbase.client.HBaseAdmin;
 import org.apache.hadoop.hbase.client.Table;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,20 +28,18 @@ implements HBaseClient{
 
 	private final Configuration hbaseConfiguration;
 	private final HTablePool pool;
-	private final HBaseAdmin hbaseAdmin;
 	private final Admin admin;
 	private final ExecutorService executorService;
 	private final Map<String,Class<? extends PrimaryKey<?>>> primaryKeyClassByName;
 
 	/**************************** constructor **********************************/
 
-	public HBaseClientImp(String name, Configuration hbaseConfiguration, HTablePool pool, HBaseAdmin hbaseAdmin,
-			Admin admin, Map<String,Class<? extends PrimaryKey<?>>> primaryKeyClassByName,
+	public HBaseClientImp(String name, Configuration hbaseConfiguration, HTablePool pool, Admin admin,
+			Map<String,Class<? extends PrimaryKey<?>>> primaryKeyClassByName,
 			ClientAvailabilitySettings clientAvailabilitySettings){
 		super(name, clientAvailabilitySettings);
 		this.hbaseConfiguration = hbaseConfiguration;
 		this.pool = pool;
-		this.hbaseAdmin = hbaseAdmin;
 		this.admin = admin;
 		this.executorService = new ThreadPoolExecutor(
 				pool.getTotalPoolSize()+10,
@@ -67,11 +64,6 @@ implements HBaseClient{
 
 
 	/****************************** HBaseClient methods *************************/
-
-	@Override
-	public HBaseAdmin getHBaseAdmin(){
-		return hbaseAdmin;
-	}
 
 	@Override
 	public Admin getAdmin(){

@@ -12,7 +12,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.ClusterStatus;
 import org.apache.hadoop.hbase.ServerLoad;
 import org.apache.hadoop.hbase.ServerName;
-import org.apache.hadoop.hbase.client.HBaseAdmin;
+import org.apache.hadoop.hbase.client.Admin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +33,7 @@ public class DrServerList{
 
 	public DrServerList(Configuration config){
 		try{
-			HBaseAdmin admin = HBaseStaticContext.ADMIN_BY_CONFIG.get(config);
+			Admin admin = HBaseStaticContext.ADMIN_BY_CONFIG.get(config);
 			ClusterStatus clusterStatus = admin.getClusterStatus();
 			serverNames = DrListTool.createArrayList(clusterStatus.getServers());
 			Collections.sort(serverNames);
