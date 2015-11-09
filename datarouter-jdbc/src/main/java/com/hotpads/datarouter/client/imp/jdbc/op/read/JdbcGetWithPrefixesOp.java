@@ -28,9 +28,7 @@ extends BaseJdbcOp<List<D>>{
 	private final Collection<PK> prefixes;
 	private final boolean wildcardLastField;
 	private final Config config;
-	private int count;
 	private Connection connection;
-	private List<D> result = new LinkedList<>();
 	private static final int MAX_PREFIXES = 400;
 
 	public JdbcGetWithPrefixesOp(JdbcReaderNode<PK,D,F> node, JdbcFieldCodecFactory fieldCodecFactory,
@@ -41,11 +39,12 @@ extends BaseJdbcOp<List<D>>{
 		this.prefixes = prefixes;
 		this.wildcardLastField = wildcardLastField;
 		this.config = config;
-		this.count = DrCollectionTool.sizeNullSafe(prefixes);
 	}
 
 	@Override
 	public List<D> runOnce(){
+		List<D> result = new LinkedList<>();
+		int count = DrCollectionTool.sizeNullSafe(prefixes);
 		if(count == 0) {
 			return result;
 		}
