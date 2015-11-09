@@ -131,9 +131,8 @@ implements ClientFactory{
 					= initTables();
 			timer.add("init HTables");
 
-			newClient = new HBaseClientImp(clientName, hbaseConfig, connection, htablePoolAndPrimaryKeyByTableName
-					.getLeft(), hbaseAdmin, admin, htablePoolAndPrimaryKeyByTableName.getRight(),
-					clientAvailabilitySettings);
+			newClient = new HBaseClientImp(clientName, hbaseConfig, htablePoolAndPrimaryKeyByTableName.getLeft(),
+					hbaseAdmin, admin, htablePoolAndPrimaryKeyByTableName.getRight(), clientAvailabilitySettings);
 			logger.warn(timer.add("done").toString());
 		}catch(ZooKeeperConnectionException e){
 			throw new UnavailableException(e);
@@ -198,8 +197,7 @@ implements ClientFactory{
 			throw new RuntimeException(e);
 		}
 
-		HTablePool pool = new HTableExecutorServicePool(options, connection, hbaseAdmin, clientName,
-				primaryKeyClassByName);
+		HTablePool pool = new HTableExecutorServicePool(options, connection, clientName, primaryKeyClassByName);
 		return Pair.create(pool, primaryKeyClassByName);
 	}
 

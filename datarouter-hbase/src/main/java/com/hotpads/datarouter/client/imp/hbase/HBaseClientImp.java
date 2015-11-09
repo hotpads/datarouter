@@ -1,6 +1,5 @@
 package com.hotpads.datarouter.client.imp.hbase;
 
-import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -9,7 +8,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.client.Admin;
-import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.HBaseAdmin;
 import org.apache.hadoop.hbase.client.Table;
 import org.slf4j.Logger;
@@ -30,7 +28,6 @@ implements HBaseClient{
 	private static final Logger logger = LoggerFactory.getLogger(HBaseClientImp.class);
 
 	private final Configuration hbaseConfiguration;
-	private final Connection connection;
 	private final HTablePool pool;
 	private final HBaseAdmin hbaseAdmin;
 	private final Admin admin;
@@ -39,13 +36,11 @@ implements HBaseClient{
 
 	/**************************** constructor **********************************/
 
-	public HBaseClientImp(String name, Configuration hbaseConfiguration, Connection connection,
-			HTablePool pool, HBaseAdmin hbaseAdmin, Admin admin,
-			Map<String,Class<? extends PrimaryKey<?>>> primaryKeyClassByName,
+	public HBaseClientImp(String name, Configuration hbaseConfiguration, HTablePool pool, HBaseAdmin hbaseAdmin,
+			Admin admin, Map<String,Class<? extends PrimaryKey<?>>> primaryKeyClassByName,
 			ClientAvailabilitySettings clientAvailabilitySettings){
 		super(name, clientAvailabilitySettings);
 		this.hbaseConfiguration = hbaseConfiguration;
-		this.connection = connection;
 		this.pool = pool;
 		this.hbaseAdmin = hbaseAdmin;
 		this.admin = admin;
@@ -94,6 +89,11 @@ implements HBaseClient{
 	}
 
 	@Override
+	public HTablePool getHTablePool(){
+		return pool;
+	}
+
+	@Override
 	public ExecutorService getExecutorService(){
 		return executorService;
 	}
@@ -111,10 +111,6 @@ implements HBaseClient{
 	public void shutdown(){
 		logger.warn("shutting down client:"+getName());
 		FutureTool.finishAndShutdown(executorService, 5L, TimeUnit.SECONDS);
-		try{
-			connection.close();
-		}catch(IOException e){
-			throw new RuntimeException(e);
-		}
+		pool.shutdown();
 	}
 }

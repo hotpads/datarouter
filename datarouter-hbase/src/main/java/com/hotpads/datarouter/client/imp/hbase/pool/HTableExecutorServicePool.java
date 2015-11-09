@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.client.imp.hbase.pool;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
@@ -8,7 +9,6 @@ import java.util.concurrent.Semaphore;
 
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Connection;
-import org.apache.hadoop.hbase.client.HBaseAdmin;
 import org.apache.hadoop.hbase.client.Table;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,8 +55,8 @@ implements HTablePool{
 	private volatile boolean shuttingDown;
 	private volatile long lastLoggedWarning = 0L;
 
-	public HTableExecutorServicePool(HBaseOptions hbaseOptions, Connection connection, HBaseAdmin hbaseAdmin,
-			String clientName, Map<String,Class<? extends PrimaryKey<?>>> primaryKeyClassByName){
+	public HTableExecutorServicePool(HBaseOptions hbaseOptions, Connection connection, String clientName,
+			Map<String,Class<? extends PrimaryKey<?>>> primaryKeyClassByName){
 		this.connection = connection;
 		this.clientName = clientName;
 		this.primaryKeyClassByName = primaryKeyClassByName;
@@ -201,10 +201,11 @@ implements HTablePool{
 		for(HTableExecutorService executorService : executorServiceQueue){
 			executorService.terminateAndBlockUntilFinished("shutdown");
 		}
-
-		//Close HConnection and use stopProxy = true to join the HBaseClient.Connection thread.
-		//TODO what is the hbase-1 replacement for this?
-//		HConnectionManager.deleteConnection(hconnection.getConfiguration(), true);
+		try{
+			connection.close();
+		}catch(IOException e){
+			logger.warn("", e);
+		}
 	}
 
 

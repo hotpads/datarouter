@@ -33,15 +33,15 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 
 	//variables for TraceThreads and TraceSpans
 	// breaking encapsulation in favor of tracing
-	protected String clientName;
-	protected String nodeName;
-	protected String taskName;
+	protected final String clientName;
+	protected final String nodeName;
+	protected final String taskName;
 	protected Integer attemptNumOneBased;
 	protected Integer numAttempts;
 	protected Long timeoutMs;
 
-	protected String tableName;
-	protected Config config;
+	protected final String tableName;
+	protected final Config config;
 
 	/******************** constructor ****************************/
 
@@ -105,11 +105,7 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 							+ possiblyTarnishedHTable);
 				}
 			}else{
-				try{
-					client.checkInTable(hTable, possiblyTarnishedHTable);
-				}catch(IOException e){
-					logger.warn("", e);
-				}
+				client.checkInTable(hTable, possiblyTarnishedHTable);
 			}
 			//hTable = null;//reset to null since this HBaseTask will get reused
 			TracerTool.finishSpan(TracerThreadLocal.get());
