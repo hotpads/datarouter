@@ -22,9 +22,9 @@ public class SqsGroupNode<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>>
-extends BaseSqsNode<PK,D,F> 
+extends BaseSqsNode<PK,D,F>
 implements PhysicalGroupQueueStorageNode<PK,D>{
-	
+
 	public SqsGroupNode(Datarouter datarouter, NodeParams<PK, D, F> params){
 		super(datarouter, params);
 	}
@@ -35,32 +35,32 @@ implements PhysicalGroupQueueStorageNode<PK,D>{
 	public void put(D databean, Config config){
 		sqsOpFactory.makeGroupPutMultiOp(Collections.singleton(databean), config).call();
 	}
-	
+
 	@Override
 	public void putMulti(Collection<D> databeans, Config config){
 		sqsOpFactory.makeGroupPutMultiOp(databeans, config).call();
 	}
-	
+
 	//Reader
-	
+
 	@Override
 	public GroupQueueMessage<PK, D> peek(Config config){
 		Config nullSafeConfig = Config.nullSafe(config).setLimit(1);
 		return DrCollectionTool.getFirst(peekMulti(nullSafeConfig));
 	}
-	
+
 	@Override
 	public List<GroupQueueMessage<PK,D>> peekMulti(Config config){
 		return sqsOpFactory.makeGroupPeekMultiOp(config).call();
 	}
-	
+
 	@Override
 	public Iterable<GroupQueueMessage<PK,D>> peekUntilEmpty(Config config){
 		return new ScannerIterable<>(new PeekGroupUntilEmptyQueueStorageScanner<>(this, config));
 	}
-	
+
 	//Reader + Writer
-	
+
 	@Override
 	public List<D> pollMulti(Config config){
 		List<GroupQueueMessage<PK,D>> results = peekMulti(config);
