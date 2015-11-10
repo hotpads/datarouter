@@ -16,14 +16,14 @@ public abstract class SqsOp<
 		F extends DatabeanFielder<PK,D>,
 		V>
 implements Callable<V>{
-	
+
 	protected final Config config;
 	protected final AmazonSQSClient amazonSqsClient;
 	protected final String queueUrl;
 	protected final Class<D> databeanType;
 	protected final F fielder;
 	protected final StringDatabeanCodec codec;
-	
+
 	public SqsOp(Config config, BaseSqsNode<PK,D,F> sqsNode){
 		this.config = Config.nullSafe(config);
 		this.amazonSqsClient = sqsNode.getAmazonSqsClient();
@@ -38,7 +38,7 @@ implements Callable<V>{
 		//count
 		return run();
 	}
-	
+
 	protected abstract V run();
-	
+
 }

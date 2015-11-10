@@ -24,19 +24,19 @@ public class SqsNode<
 		F extends DatabeanFielder<PK,D>>
 extends BaseSqsNode<PK,D,F>
 implements PhysicalQueueStorageNode<PK,D>{
-	
+
 	public SqsNode(Datarouter datarouter, NodeParams<PK,D,F> params){
 		super(datarouter, params);
 	}
-	
+
 	// Reader
-	
+
 	@Override
 	public QueueMessage<PK,D> peek(Config config){
 		config = Config.nullSafe(config).setLimit(1);
 		return DrCollectionTool.getFirst(sqsOpFactory.makePeekMultiOp(config).call());
 	}
-	
+
 	@Override
 	public List<QueueMessage<PK, D>> peekMulti(Config config){
 		return sqsOpFactory.makePeekMultiOp(config).call();
@@ -46,21 +46,21 @@ implements PhysicalQueueStorageNode<PK,D>{
 	public Iterable<QueueMessage<PK, D>> peekUntilEmpty(Config config){
 		return new ScannerIterable<>(new PeekUntilEmptyQueueStorageScanner<>(this, config));
 	}
-	
+
 	// Writer
-	
+
 	@Override
 	public void put(D databean, Config config){
 		sqsOpFactory.makePutOp(databean, config).call();
 	}
-	
+
 	@Override
 	public void putMulti(Collection<D> databeans, Config config){
 		sqsOpFactory.makePutMultiOp(databeans, config).call();
 	}
-	
+
 	// Reader + Writer
-	
+
 	@Override
 	public D poll(Config config){
 		QueueMessage<PK,D> message = peek(config);

@@ -13,7 +13,7 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
 @Singleton
 public class SqsNodeFactory{
-	
+
 	@Inject
 	private Datarouter datarouter;
 
@@ -23,12 +23,12 @@ public class SqsNodeFactory{
 	SqsNode<PK,D,F> createSingleNode(NodeParams<PK,D,F> params){
 		return new SqsNode<>(datarouter, params);
 	}
-	
+
 	public <PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>
 	SqsGroupNode<PK,D,F> createGroupNode(NodeParams<PK,D,F> params){
 		return new SqsGroupNode<>(datarouter, params);
 	}
-	
+
 }
