@@ -195,7 +195,7 @@ implements HBaseTablePool{
 		shuttingDown = true;
 		if(htableSemaphoreActivePermits() != 0){
 			final int sleepMs = 5000;
-			logger.warn("Still " + htableSemaphoreActivePermits() + "active hTables.  Sleeping " + sleepMs + "ms");
+			logger.warn("Still " + htableSemaphoreActivePermits() + "active tables.  Sleeping " + sleepMs + "ms");
 			ThreadTool.sleep(sleepMs);
 		}
 		for(HTableExecutorService executorService : executorServiceQueue){

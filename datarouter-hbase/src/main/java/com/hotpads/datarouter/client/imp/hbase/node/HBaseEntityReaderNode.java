@@ -72,11 +72,11 @@ extends BasePhysicalEntityNode<EK,E>{
 			return new HBaseMultiAttemptTask<E>(new HBaseTask<E>(getContext(), getClientTableNodeNames(), "getEntity",
 					config){
 					@Override
-				public E hbaseCall(Table hTable, HBaseClient client, ResultScanner managedResultScanner)
+				public E hbaseCall(Table table, HBaseClient client, ResultScanner managedResultScanner)
 				throws Exception{
 						byte[] rowBytes = queryBuilder.getRowBytesWithPartition(ek);
 						Get get = new Get(rowBytes);
-						Result hBaseResult = hTable.get(get);
+						Result hBaseResult = table.get(get);
 						E entity = resultParser.parseEntity(ek, hBaseResult);
 						if(entity != null){
 							DRCounters.incClientNodeCustom(client.getType(), "entity databeans", getClientName(),

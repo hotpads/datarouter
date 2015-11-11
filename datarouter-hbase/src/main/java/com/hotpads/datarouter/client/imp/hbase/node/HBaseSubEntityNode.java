@@ -83,7 +83,7 @@ implements SubEntitySortedMapStorageNode<EK,PK,D,F>,
 		final Config config = Config.nullSafe(pConfig);
 		new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>(getDatarouter(), getClientTableNodeNames(), "putMulti", config){
 				@Override
-				public Void hbaseCall(Table hTable, HBaseClient client, ResultScanner managedResultScanner) throws Exception{
+				public Void hbaseCall(Table table, HBaseClient client, ResultScanner managedResultScanner) throws Exception{
 //					PhaseTimer timer = new PhaseTimer();
 					List<Row> actions = new ArrayList<>();
 					int numCellsPut = 0, numCellsDeleted = 0;
@@ -133,7 +133,7 @@ implements SubEntitySortedMapStorageNode<EK,PK,D,F>,
 					DRCounters.incClientNodeCustom(client.getType(), "entities put", getClientName(), getNodeName(), numEntitiesPut);
 //					timer.add("built puts "+CollectionTool.size(actions));
 					if(DrCollectionTool.notEmpty(actions)){
-						hTable.batch(actions);
+						table.batch(actions);
 //						timer.add("batch");
 //						timer.add("flush");
 					}
@@ -155,10 +155,10 @@ implements SubEntitySortedMapStorageNode<EK,PK,D,F>,
 		final Config config = Config.nullSafe(pConfig);
 		new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>(getDatarouter(), getClientTableNodeNames(), "deleteAll", config){
 				@Override
-				public Void hbaseCall(Table hTable, HBaseClient client, ResultScanner managedResultScanner) throws Exception{
+				public Void hbaseCall(Table table, HBaseClient client, ResultScanner managedResultScanner) throws Exception{
 					Scan scan = new Scan();
 					scan.setFilter(new ColumnPrefixFilter(fieldInfo.getEntityColumnPrefixBytes()));
-					managedResultScanner = hTable.getScanner(scan);
+					managedResultScanner = table.getScanner(scan);
 					List<Row> batchToDelete = new ArrayList<>(1000);
 					for(Result row : managedResultScanner){
 						if(row.isEmpty()){ continue; }
@@ -168,12 +168,12 @@ implements SubEntitySortedMapStorageNode<EK,PK,D,F>,
 						}
 						batchToDelete.add(delete);
 						if(batchToDelete.size() % 100 == 0){
-							hTable.batch(batchToDelete);
+							table.batch(batchToDelete);
 							batchToDelete.clear();
 						}
 					}
 					if(DrCollectionTool.notEmpty(batchToDelete)){
-						hTable.batch(batchToDelete);
+						table.batch(batchToDelete);
 					}
 					return null;
 				}
@@ -195,7 +195,7 @@ implements SubEntitySortedMapStorageNode<EK,PK,D,F>,
 		new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>(getDatarouter(), getClientTableNodeNames(), "deleteMulti",
 				config){
 				@Override
-				public Void hbaseCall(Table hTable, HBaseClient client, ResultScanner managedResultScanner)
+				public Void hbaseCall(Table table, HBaseClient client, ResultScanner managedResultScanner)
 				throws Exception{
 					Collection<String> nonKeyColumnNames = fieldInfo.getNonKeyFieldByColumnName().keySet();
 					Map<EK,List<PK>> pksByEk = EntityTool.getPrimaryKeysByEntityKey(keys);
@@ -211,7 +211,7 @@ implements SubEntitySortedMapStorageNode<EK,PK,D,F>,
 							}
 						}
 					}
-					hTable.batch(deletes);
+					table.batch(deletes);
 					return null;
 				}
 			}).call();

@@ -56,7 +56,7 @@ extends HBaseTask<Void>{
 	}
 
 	@Override
-	public Void hbaseCall(Table hTable, HBaseClient client, ResultScanner managedResultScanner) throws Exception{
+	public Void hbaseCall(Table table, HBaseClient client, ResultScanner managedResultScanner) throws Exception{
 		List<Row> actions = new ArrayList<>();
 		int numCellsIncremented = 0, numRowsIncremented = 0;
 		Map<EK,List<PK>> keysByEntityKey = EntityTool.getPrimaryKeysByEntityKey(countByColumnByKey.keySet());
@@ -78,7 +78,7 @@ extends HBaseTask<Void>{
 			actions.add(increment);
 		}
 		if (DrCollectionTool.notEmpty(actions)){
-			hTable.batch(actions);
+			table.batch(actions);
 		}
 		DRCounters.incClientNodeCustom(client.getType(), "cells incremented", node.getClientId().getName(),
 				node.getName(), numCellsIncremented);
