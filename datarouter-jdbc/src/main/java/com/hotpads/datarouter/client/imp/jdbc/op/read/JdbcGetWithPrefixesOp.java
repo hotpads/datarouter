@@ -23,12 +23,13 @@ public class JdbcGetWithPrefixesOp<
 		F extends DatabeanFielder<PK,D>>
 extends BaseJdbcOp<List<D>>{
 
+	private static final int BATCH_SIZE = 400;
+
 	private final JdbcReaderNode<PK,D,F> node;
 	private final JdbcFieldCodecFactory fieldCodecFactory;
 	private final Collection<PK> prefixes;
 	private final boolean wildcardLastField;
 	private final Config config;
-	private static final int MAX_PREFIXES = 400;
 
 	public JdbcGetWithPrefixesOp(JdbcReaderNode<PK,D,F> node, JdbcFieldCodecFactory fieldCodecFactory,
 			Collection<PK> prefixes, boolean wildcardLastField, Config config){
@@ -47,7 +48,7 @@ extends BaseJdbcOp<List<D>>{
 			return result;
 		}
 		Connection connection = getConnection(node.getClientId().getName());
-		for(List<PK> batch : new BatchingIterable<>(prefixes, MAX_PREFIXES)){
+		for(List<PK> batch : new BatchingIterable<>(prefixes, BATCH_SIZE)){
 			result.addAll(runBatch(connection, batch));
 		}
 		return result;
