@@ -152,9 +152,10 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 			list.add(new SqlAlterTableClause("engine="+requested.getEngine().toString().toLowerCase(),
 					SqlAlterTypes.MODIFY_ENGINE));
 		}
-		if(options.getModifyCharacterSet() && diff.isCharacterSetModified()
-				|| options.getModifyCollation() && diff.isCollationModified()
-				|| diff.getColumnsWithCharsetOrCollationToConvert().size() > 0){
+		if(options.getModifyCharacterSetOrCollation()
+				&& (diff.isCharacterSetModified()
+						|| diff.isCollationModified()
+						|| diff.getColumnsWithCharsetOrCollationToConvert().size() > 0)){
 
 			list.add(new SqlAlterTableClause(
 					"convert to character set " + requested.getCharacterSet().toString().toLowerCase()

@@ -22,11 +22,10 @@ public class SchemaUpdateOptions{
 	SUFFIX_modifyEngine = ".modifyEngine",
 	SUFFIX_ignoreClients = ".ignoreClients",
 	SUFFIX_ignoreTables = ".ignoreTables",
-	SUFFIX_modifyCharacterSet = ".modifyCharacterSet",
-	SUFFIX_modifyCollation = ".modifyCollation",
+	SUFFIX_modifyCharacterSetOrCollation = ".modifyCharacterSetOrCollation",
 	SCHEMA_UPDATE_ENABLE = "schemaUpdate.enable"
 	;
-	
+
 	private Boolean createDatabases;
 	private Boolean createTables;
 	private Boolean dropTables;
@@ -37,8 +36,7 @@ public class SchemaUpdateOptions{
 	private Boolean addIndexes;
 	private Boolean dropIndexes;
 	private Boolean modifyEngine;
-	private boolean modifyCollation;
-	private boolean modifyCharacterSet;
+	private boolean modifyCharacterSetOrCollation;
 	private Boolean schemaUpdateEnabled;
 	private List<String> ignoreClients;
 	private List<String> ignoreTables;
@@ -52,7 +50,7 @@ public class SchemaUpdateOptions{
 		if(printVsExecute){
 			setSchemaUpdateWithPrintOptions(multiProperties,  prefix);
 		}else{
-			SetSchemaUpdateWithExecuteOptions(multiProperties,  prefix);
+			setSchemaUpdateWithExecuteOptions(multiProperties,  prefix);
 		}
 
 	}
@@ -80,14 +78,12 @@ public class SchemaUpdateOptions{
 				prefix+SUFFIX_dropIndexes));
 		this.modifyEngine = DrBooleanTool.isTrueOrNull(DrPropertiesTool.getFirstOccurrence(multiProperties,
 				prefix+SUFFIX_modifyEngine));
-		this.modifyCharacterSet = DrBooleanTool.isTrueOrNull(DrPropertiesTool.getFirstOccurrence(multiProperties,
-				prefix+SUFFIX_modifyCharacterSet));
-		this.modifyCollation = DrBooleanTool.isTrueOrNull(DrPropertiesTool.getFirstOccurrence(multiProperties,
-				prefix+SUFFIX_modifyCollation));
+		this.modifyCharacterSetOrCollation = DrBooleanTool.isTrueOrNull(DrPropertiesTool.getFirstOccurrence(
+				multiProperties, prefix+SUFFIX_modifyCharacterSetOrCollation));
 		return this;
 	}
 
-	private SchemaUpdateOptions SetSchemaUpdateWithExecuteOptions(List<Properties> multiProperties, String prefix){
+	private SchemaUpdateOptions setSchemaUpdateWithExecuteOptions(List<Properties> multiProperties, String prefix){
 		//isTrue returns false as default and isTrueOrNull returns a true as default,
 		//so on missing the setting in config, isTrueOrNull returns a default value true
 		this.schemaUpdateEnabled = DrBooleanTool.isTrue(DrPropertiesTool.getFirstOccurrence(multiProperties,
@@ -98,10 +94,10 @@ public class SchemaUpdateOptions{
 				prefix+SUFFIX_createDatabases));
 		this.createTables = DrBooleanTool.isTrueOrNull(DrPropertiesTool.getFirstOccurrence(multiProperties,
 				prefix+SUFFIX_createTables));
-		
+
 		//drop tables are always set to false for obvious reasons
 		this.dropTables = false;
-		
+
 		//settings that modify an existing tables are returned with default true since they are less dangerous
 		this.addColumns = DrBooleanTool.isTrue(DrPropertiesTool.getFirstOccurrence(multiProperties,
 				prefix+SUFFIX_addColumns));
@@ -117,22 +113,22 @@ public class SchemaUpdateOptions{
 				prefix+SUFFIX_dropIndexes));
 		this.modifyEngine = DrBooleanTool.isTrue(DrPropertiesTool.getFirstOccurrence(multiProperties,
 				prefix+SUFFIX_modifyEngine));
-		this.modifyCharacterSet = DrBooleanTool.isTrue(DrPropertiesTool.getFirstOccurrence(multiProperties,
-				prefix+SUFFIX_modifyCharacterSet));
-		this.modifyCollation = DrBooleanTool.isTrue(DrPropertiesTool.getFirstOccurrence(multiProperties,
-				prefix+SUFFIX_modifyCollation));
-		
+		this.modifyCharacterSetOrCollation = DrBooleanTool.isTrue(DrPropertiesTool.getFirstOccurrence(multiProperties,
+				prefix+SUFFIX_modifyCharacterSetOrCollation));
+
 		String schemaUpdatePrefix = prefix.substring(0, prefix.indexOf('.'));
-		String clientsToIgnore = DrPropertiesTool.getFirstOccurrence(multiProperties, schemaUpdatePrefix + SUFFIX_ignoreClients);
+		String clientsToIgnore = DrPropertiesTool.getFirstOccurrence(multiProperties, schemaUpdatePrefix
+				+ SUFFIX_ignoreClients);
 		this.ignoreClients = DrStringTool.splitOnCharNoRegex(clientsToIgnore, ',');
-		String tablesToIgnore = DrPropertiesTool.getFirstOccurrence(multiProperties, schemaUpdatePrefix  + SUFFIX_ignoreTables);
+		String tablesToIgnore = DrPropertiesTool.getFirstOccurrence(multiProperties, schemaUpdatePrefix
+				+ SUFFIX_ignoreTables);
 		this.ignoreTables = DrStringTool.splitOnCharNoRegex(tablesToIgnore, ',');
 		return this;
 	}
 
 
 	/****************************** methods ******************************/
-	
+
 	public SchemaUpdateOptions setAllTrue(){
 		createTables = true;
 		dropTables = true;
@@ -255,14 +251,10 @@ public class SchemaUpdateOptions{
 		this.ignoreTables = ignoreTables;
 	}
 
-	public boolean getModifyCollation(){
-		return modifyCollation;
+	public boolean getModifyCharacterSetOrCollation(){
+		return modifyCharacterSetOrCollation;
 	}
 
-	public boolean getModifyCharacterSet(){
-		return modifyCharacterSet;
-	}
-	
 	public boolean schemaUpdateEnabled(){
 		return schemaUpdateEnabled;
 	}
