@@ -16,7 +16,7 @@ import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.availability.ClientAvailabilitySettings;
 import com.hotpads.datarouter.client.imp.BaseClient;
 import com.hotpads.datarouter.client.imp.hbase.client.HBaseClient;
-import com.hotpads.datarouter.client.imp.hbase.pool.HTablePool;
+import com.hotpads.datarouter.client.imp.hbase.pool.HBaseTablePool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.concurrent.FutureTool;
 import com.hotpads.util.datastructs.MutableString;
@@ -27,14 +27,14 @@ implements HBaseClient{
 	private static final Logger logger = LoggerFactory.getLogger(HBaseClientImp.class);
 
 	private final Configuration hbaseConfiguration;
-	private final HTablePool pool;
+	private final HBaseTablePool pool;
 	private final Admin admin;
 	private final ExecutorService executorService;
 	private final Map<String,Class<? extends PrimaryKey<?>>> primaryKeyClassByName;
 
 	/**************************** constructor **********************************/
 
-	public HBaseClientImp(String name, Configuration hbaseConfiguration, HTablePool pool, Admin admin,
+	public HBaseClientImp(String name, Configuration hbaseConfiguration, HBaseTablePool pool, Admin admin,
 			Map<String,Class<? extends PrimaryKey<?>>> primaryKeyClassByName,
 			ClientAvailabilitySettings clientAvailabilitySettings){
 		super(name, clientAvailabilitySettings);
@@ -81,7 +81,7 @@ implements HBaseClient{
 	}
 
 	@Override
-	public HTablePool getHTablePool(){
+	public HBaseTablePool getHTablePool(){
 		return pool;
 	}
 

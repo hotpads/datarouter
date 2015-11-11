@@ -35,7 +35,7 @@ import com.hotpads.datarouter.client.imp.hbase.client.HBaseClient;
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseReaderNode;
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseSubEntityReaderNode;
 import com.hotpads.datarouter.client.imp.hbase.pool.HTableExecutorServicePool;
-import com.hotpads.datarouter.client.imp.hbase.pool.HTablePool;
+import com.hotpads.datarouter.client.imp.hbase.pool.HBaseTablePool;
 import com.hotpads.datarouter.client.imp.hbase.util.HBaseQueryBuilder;
 import com.hotpads.datarouter.exception.UnavailableException;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
@@ -124,7 +124,7 @@ implements ClientFactory{
 			HBaseStaticContext.ADMIN_BY_CONFIG.put(hbaseConfig, admin);
 
 			//databean config
-			Pair<HTablePool,Map<String,Class<? extends PrimaryKey<?>>>> htablePoolAndPrimaryKeyByTableName
+			Pair<HBaseTablePool,Map<String,Class<? extends PrimaryKey<?>>>> htablePoolAndPrimaryKeyByTableName
 					= initTables();
 			timer.add("init HTables");
 
@@ -144,7 +144,7 @@ implements ClientFactory{
 
 	/********************** private ***************************/
 
-	private Pair<HTablePool,Map<String,Class<? extends PrimaryKey<?>>>> initTables(){
+	private Pair<HBaseTablePool,Map<String,Class<? extends PrimaryKey<?>>>> initTables(){
 		List<String> tableNames = new ArrayList<>();
 		Map<String,Class<? extends PrimaryKey<?>>> primaryKeyClassByName = new HashMap<>();
 		Map<String,PhysicalNode<?,?>> nodeByTableName = new TreeMap<>();
@@ -194,7 +194,7 @@ implements ClientFactory{
 			throw new RuntimeException(e);
 		}
 
-		HTablePool pool = new HTableExecutorServicePool(options, connection, clientName, primaryKeyClassByName);
+		HBaseTablePool pool = new HTableExecutorServicePool(options, connection, clientName, primaryKeyClassByName);
 		return Pair.create(pool, primaryKeyClassByName);
 	}
 

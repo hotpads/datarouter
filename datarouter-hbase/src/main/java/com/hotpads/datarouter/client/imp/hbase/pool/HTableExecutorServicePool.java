@@ -27,7 +27,7 @@ import com.hotpads.util.datastructs.MutableString;
  * Despite the name HTable, this pool stores "connections" to all tables.
  */
 public class HTableExecutorServicePool
-implements HTablePool{
+implements HBaseTablePool{
 	private static final Logger logger = LoggerFactory.getLogger(HTableExecutorServicePool.class);
 
 	private static final int DEFAULT_MAX_HTABLES = 10;

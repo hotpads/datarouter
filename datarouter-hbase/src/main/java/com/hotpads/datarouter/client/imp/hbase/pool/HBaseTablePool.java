@@ -4,10 +4,10 @@ import org.apache.hadoop.hbase.client.Table;
 
 import com.hotpads.util.datastructs.MutableString;
 
-public interface HTablePool {
+public interface HBaseTablePool {
 
 	Table checkOut(String tableName, MutableString progress);
-	void checkIn(Table hTable, boolean possiblyTarnished);
+	void checkIn(Table table, boolean possiblyTarnished);
 
 	Integer getTotalPoolSize();
 
