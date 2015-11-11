@@ -14,9 +14,9 @@ public class DrServerInfo{
 	private final String hostname;
 
 
-	public DrServerInfo(ServerName serverName, ServerLoad hServerLoad){
+	public DrServerInfo(ServerName serverName, ServerLoad serverLoad){
 		this.serverName = serverName;
-		this.serverLoad = hServerLoad;
+		this.serverLoad = serverLoad;
 		this.name = serverName.getServerName();
 		this.hostname = serverName.getHostname();
 	}

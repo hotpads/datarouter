@@ -36,9 +36,9 @@ implements Comparable<DrRegionInfo<?>>{
 	private Integer regionNum;
 	private String tableName;
 	private String name;
-	private HRegionInfo hRegionInfo;
+	private HRegionInfo regionInfo;
 	private ServerName serverName;
-	private ServerLoad hServerLoad;
+	private ServerLoad serverLoad;
 	private Node<?,?> node;
 	private DatabeanFieldInfo<?,?,?> fieldInfo;
 	private Integer partition;
@@ -50,21 +50,21 @@ implements Comparable<DrRegionInfo<?>>{
 
 
 	public DrRegionInfo(Integer regionNum, String tableName, Class<PK> primaryKeyClass,
-			HRegionInfo hRegionInfo, ServerName serverName, ServerLoad hServerLoad,
+			HRegionInfo regionInfo, ServerName serverName, ServerLoad serverLoad,
 			Node<?,?> node, RegionLoad load, DRHCompactionInfo compactionInfo){
 		this.regionNum = regionNum;
 		this.tableName = tableName;
-		this.name = new String(hRegionInfo.getRegionName());
-		this.hRegionInfo = hRegionInfo;
+		this.name = new String(regionInfo.getRegionName());
+		this.regionInfo = regionInfo;
 		this.serverName = serverName;
-		this.hServerLoad = hServerLoad;
+		this.serverLoad = serverLoad;
 		this.node = node;
 		this.fieldInfo = node.getFieldInfo();//set before calling getKey
-		this.startKey = getKey(primaryKeyClass, hRegionInfo.getStartKey());
-		this.endKey = getKey(primaryKeyClass, hRegionInfo.getEndKey());
-		this.partition = calculatePartition(hRegionInfo.getStartKey());
+		this.startKey = getKey(primaryKeyClass, regionInfo.getStartKey());
+		this.endKey = getKey(primaryKeyClass, regionInfo.getEndKey());
+		this.partition = calculatePartition(regionInfo.getStartKey());
 		this.load = load;
-		this.consistentHashInput = hRegionInfo.getEncodedNameAsBytes();
+		this.consistentHashInput = regionInfo.getEncodedNameAsBytes();
 		this.compactionScheduler = new DRHCompactionScheduler(compactionInfo, this);
 	}
 
@@ -147,7 +147,7 @@ implements Comparable<DrRegionInfo<?>>{
 
 	@Override
 	public String toString(){
-		return hRegionInfo.getEncodedName();
+		return regionInfo.getEncodedName();
 	}
 
 	@Override
@@ -155,17 +155,17 @@ implements Comparable<DrRegionInfo<?>>{
 		if(this==obj){ return true; }
 		if(ClassTool.differentClass(this, obj)){ return false; }
 		DrRegionInfo<PK> that = (DrRegionInfo<PK>)obj;
-		return DrObjectTool.equals(hRegionInfo.getEncodedName(), that.hRegionInfo.getEncodedName());
+		return DrObjectTool.equals(regionInfo.getEncodedName(), that.regionInfo.getEncodedName());
 	}
 
 	@Override
 	public int hashCode(){
-		return hRegionInfo.getEncodedName().hashCode();
+		return regionInfo.getEncodedName().hashCode();
 	}
 
 	@Override
 	public int compareTo(DrRegionInfo<?> o) {
-		return Bytes.compareTo(hRegionInfo.getStartKey(), o.getRegion().getStartKey());
+		return Bytes.compareTo(regionInfo.getStartKey(), o.getRegion().getStartKey());
 	}
 
 
@@ -196,7 +196,7 @@ implements Comparable<DrRegionInfo<?>>{
 	}
 
 	public HRegionInfo getRegion(){
-		return hRegionInfo;
+		return regionInfo;
 	}
 
 	public RegionLoad getLoad(){
@@ -228,7 +228,7 @@ implements Comparable<DrRegionInfo<?>>{
 
 	/********************************* tests ******************************************/
 
-	public static class DRHRegionInfoTests{
+	public static class DrRegionInfoTests{
 		@Test public void testGetDisplayServerName(){
 			String name = "HadoopNode101.hotpads.srv";
 			name = getDisplayServerName(name);

@@ -83,7 +83,8 @@ implements SubEntitySortedMapStorageNode<EK,PK,D,F>,
 		final Config config = Config.nullSafe(pConfig);
 		new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>(getDatarouter(), getClientTableNodeNames(), "putMulti", config){
 				@Override
-				public Void hbaseCall(Table table, HBaseClient client, ResultScanner managedResultScanner) throws Exception{
+				public Void hbaseCall(Table table, HBaseClient client, ResultScanner managedResultScanner)
+				throws Exception{
 //					PhaseTimer timer = new PhaseTimer();
 					List<Row> actions = new ArrayList<>();
 					int numCellsPut = 0, numCellsDeleted = 0;
@@ -153,7 +154,8 @@ implements SubEntitySortedMapStorageNode<EK,PK,D,F>,
 	@Override
 	public void deleteAll(final Config pConfig) {
 		final Config config = Config.nullSafe(pConfig);
-		new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>(getDatarouter(), getClientTableNodeNames(), "deleteAll", config){
+		new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>(getDatarouter(), getClientTableNodeNames(), "deleteAll",
+				config){
 				@Override
 				public Void hbaseCall(Table table, HBaseClient client, ResultScanner managedResultScanner) throws Exception{
 					Scan scan = new Scan();

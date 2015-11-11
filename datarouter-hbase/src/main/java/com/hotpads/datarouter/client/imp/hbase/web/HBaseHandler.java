@@ -160,8 +160,8 @@ public class HBaseHandler extends BaseHandler {
 		Collection<ServerName> serverNames = new TreeSet<>(clusterStatus.getServers());
 		List<DrServerInfo> servers = new ArrayList<>();
 		for (ServerName serverName : DrIterableTool.nullSafe(serverNames)) {
-			ServerLoad hServerLoad = clusterStatus.getLoad(serverName);
-			servers.add(new DrServerInfo(serverName, hServerLoad));
+			ServerLoad serverLoad = clusterStatus.getLoad(serverName);
+			servers.add(new DrServerInfo(serverName, serverLoad));
 		}
 		mav.put("servers", servers);
 		return mav;

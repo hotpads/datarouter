@@ -76,8 +76,8 @@ extends BasePhysicalEntityNode<EK,E>{
 				throws Exception{
 						byte[] rowBytes = queryBuilder.getRowBytesWithPartition(ek);
 						Get get = new Get(rowBytes);
-						Result hBaseResult = table.get(get);
-						E entity = resultParser.parseEntity(ek, hBaseResult);
+						Result hbaseResult = table.get(get);
+						E entity = resultParser.parseEntity(ek, hbaseResult);
 						if(entity != null){
 							DRCounters.incClientNodeCustom(client.getType(), "entity databeans", getClientName(),
 									getNodeName(), entity.getNumDatabeans());
