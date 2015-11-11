@@ -67,7 +67,7 @@ public class PushService{
 
 	private HotPadsHttpResponse executeCommand(WebSocketCommandName webSocketCommandName,
 			WebSocketSession webSocketSession, String message){
-		String url = "https://" + webSocketSession.getServerName() + WebSocketApiDispatcher.WEBSOCKET_COMMAND + "/"
+		String url = "http://" + webSocketSession.getServerName() + WebSocketApiDispatcher.WEBSOCKET_COMMAND + "/"
 				+ webSocketCommandName.getPath();
 		HotPadsHttpRequest request = new HotPadsHttpRequest(HttpRequestMethod.POST, url, false);
 		WebSocketCommand webSocketCommand = new WebSocketCommand(webSocketSession.getKey(), message);
