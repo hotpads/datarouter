@@ -9,6 +9,8 @@ import java.util.regex.Matcher;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSet;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCollation;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.client.imp.jdbc.field.codec.base.BaseJdbcFieldCodec;
@@ -95,15 +97,16 @@ extends BaseJdbcFieldCodec<String,StringField>{
 		}
 	}
 
-	public static SqlColumn getMySqlTypeFromSize(String name, int size, boolean nullable){
+	public static SqlColumn getMySqlTypeFromSize(String name, int size, boolean nullable,
+			MySqlCharacterSet characterSet, MySqlCollation collation){
 		if(size <= MySqlColumnType.MAX_LENGTH_VARCHAR){
-			return new SqlColumn(name, MySqlColumnType.VARCHAR, size, nullable, false);
+			return new SqlColumn(name, MySqlColumnType.VARCHAR, size, nullable, false, characterSet, collation);
 		}else if(size <= MySqlColumnType.MAX_LENGTH_TEXT){
-			return new SqlColumn(name, MySqlColumnType.TEXT, null, nullable, false);
+			return new SqlColumn(name, MySqlColumnType.TEXT, null, nullable, false, characterSet, collation);
 		}else if(size <= MySqlColumnType.MAX_LENGTH_MEDIUMTEXT){
-			return new SqlColumn(name, MySqlColumnType.MEDIUMTEXT, null, nullable, false);
+			return new SqlColumn(name, MySqlColumnType.MEDIUMTEXT, null, nullable, false, characterSet, collation);
 		}else if(size <= MySqlColumnType.MAX_LENGTH_LONGTEXT){
-			return new SqlColumn(name, MySqlColumnType.LONGTEXT, null, nullable, false);
+			return new SqlColumn(name, MySqlColumnType.LONGTEXT, null, nullable, false, characterSet, collation);
 		}
 		throw new IllegalArgumentException("Unknown size:"+size);
 	}
