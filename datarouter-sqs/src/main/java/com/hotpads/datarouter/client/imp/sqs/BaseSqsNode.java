@@ -36,13 +36,7 @@ implements QueueStorageWriter<PK,D>{
 	public BaseSqsNode(Datarouter datarouter, NodeParams<PK,D,F> params){
 		super(params);
 		this.datarouter = datarouter;
-		this.queueUrl = new Lazy<String>(){
-
-			@Override
-			protected String load(){
-				return getOrCreateQueueUrl();
-			}
-		};
+		this.queueUrl = Lazy.of(this::getOrCreateQueueUrl);
 		this.sqsOpFactory = new SqsOpFactory<>(this);
 	}
 
