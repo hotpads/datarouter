@@ -98,7 +98,8 @@ public class SqlTableDiffGenerator{
 		List<SqlColumn> columnsWithCharsetOrCollationToConvert = new ArrayList<>();
 		for(SqlColumn column : current.getColumns()){
 			SqlColumn requestedColum = requestedColumnsByName.get(column.getName());
-			if(column.getCharacterSet() == null
+			if(requestedColum == null
+					|| column.getCharacterSet() == null
 					|| column.getCollation() == null
 					|| column.getCharacterSet().equals(requestedColum.getCharacterSet())
 							&& column.getCollation().equals(requestedColum.getCollation())){
