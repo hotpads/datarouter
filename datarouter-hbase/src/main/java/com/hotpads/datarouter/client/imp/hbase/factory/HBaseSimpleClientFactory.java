@@ -34,7 +34,7 @@ import com.hotpads.datarouter.client.imp.hbase.HBaseStaticContext;
 import com.hotpads.datarouter.client.imp.hbase.client.HBaseClient;
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseReaderNode;
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseSubEntityReaderNode;
-import com.hotpads.datarouter.client.imp.hbase.pool.HTableExecutorServicePool;
+import com.hotpads.datarouter.client.imp.hbase.pool.HBaseTableExecutorServicePool;
 import com.hotpads.datarouter.client.imp.hbase.pool.HBaseTablePool;
 import com.hotpads.datarouter.client.imp.hbase.util.HBaseQueryBuilder;
 import com.hotpads.datarouter.exception.UnavailableException;
@@ -194,7 +194,7 @@ implements ClientFactory{
 			throw new RuntimeException(e);
 		}
 
-		HBaseTablePool pool = new HTableExecutorServicePool(options, connection, clientName, primaryKeyClassByName);
+		HBaseTablePool pool = new HBaseTableExecutorServicePool(options, connection, clientName, primaryKeyClassByName);
 		return Pair.create(pool, primaryKeyClassByName);
 	}
 

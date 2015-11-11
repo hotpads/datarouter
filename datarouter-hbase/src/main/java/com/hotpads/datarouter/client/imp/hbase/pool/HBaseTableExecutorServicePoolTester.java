@@ -41,8 +41,8 @@ import com.hotpads.util.datastructs.MutableString;
 
 //TODO this won't work yet because of a runtime JDBC dependency in BasicClientTestRouter
 @Guice(moduleFactory = DatarouterTestModuleFactory.class)
-public class HTableExecutorServicePoolTester{
-	private static final Logger logger = LoggerFactory.getLogger(HTableExecutorServicePoolTester.class);
+public class HBaseTableExecutorServicePoolTester{
+	private static final Logger logger = LoggerFactory.getLogger(HBaseTableExecutorServicePoolTester.class);
 
 	private static final int NUM_INSERTS = 200000;
 	private static final int TIMEOUT_MS = 10;
@@ -52,7 +52,7 @@ public class HTableExecutorServicePoolTester{
 	private BasicClientTestRouter router;
 
 	private HBaseClientImp client;
-	private HTableExecutorServicePool pool;
+	private HBaseTableExecutorServicePool pool;
 	private MapStorage<PoolTestBeanKey,PoolTestBean> node;
 
 
@@ -60,7 +60,7 @@ public class HTableExecutorServicePoolTester{
 	public void beforeClass(){
 		client = (HBaseClientImp)router.getClient(DrTestConstants.CLIENT_drTestHBase.getName());
 		//yes, this test will fail if we change the pool type
-		pool = (HTableExecutorServicePool)client.getHTablePool();
+		pool = (HBaseTableExecutorServicePool)client.getHTablePool();
 		node = router.poolTestBeanHBase();
 		warmUp();
 	}
@@ -129,12 +129,12 @@ public class HTableExecutorServicePoolTester{
 
 	private static class ActionUsingPool implements Callable<Void>{
 		private final HBaseClientImp client;
-		private final HTableExecutorServicePool pool;
+		private final HBaseTableExecutorServicePool pool;
 		private final MutableString progress;
 
 		private long randomLong;
 
-		public ActionUsingPool(HBaseClientImp client, HTableExecutorServicePool pool, long randomLong){
+		public ActionUsingPool(HBaseClientImp client, HBaseTableExecutorServicePool pool, long randomLong){
 			this.client = client;
 			this.pool = pool;
 			this.progress = new MutableString("constructing");

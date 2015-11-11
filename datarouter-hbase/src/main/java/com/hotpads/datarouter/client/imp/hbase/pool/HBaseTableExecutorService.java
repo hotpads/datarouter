@@ -15,8 +15,8 @@ import com.hotpads.util.core.concurrent.ThreadTool;
  * The HBase client uses one thread per regionserver per HTable.  This wrapper class stores a java ExecSvc with 1
  * thread per regionserver.  It can be reused across different tables.
  */
-public class HTableExecutorService{
-	private static final Logger logger = LoggerFactory.getLogger(HTableExecutorService.class);
+public class HBaseTableExecutorService{
+	private static final Logger logger = LoggerFactory.getLogger(HBaseTableExecutorService.class);
 
 	private static final long TIMEOUT_MS = 10 * 1000L;
 
@@ -26,7 +26,7 @@ public class HTableExecutorService{
 	
 	private volatile long lastCheckinMs;
 
-	public HTableExecutorService(int minThreads, int maxThreads){
+	public HBaseTableExecutorService(int minThreads, int maxThreads){
 		//it's important to use a bounded queue as the executor service won't grow past minThreads until you fill the
 		// queue.  SynchronousQueue is a special zero size queue that will cause the exec svc to grow immediately
 		BlockingQueue<Runnable> queue = new SynchronousQueue<>();
