@@ -15,9 +15,7 @@ import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HConstants;
 import org.apache.hadoop.hbase.HTableDescriptor;
-import org.apache.hadoop.hbase.MasterNotRunningException;
 import org.apache.hadoop.hbase.TableName;
-import org.apache.hadoop.hbase.ZooKeeperConnectionException;
 import org.apache.hadoop.hbase.client.Admin;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.ConnectionFactory;
@@ -131,10 +129,6 @@ implements ClientFactory{
 			newClient = new HBaseClientImp(clientName, hbaseConfig, htablePoolAndPrimaryKeyByTableName.getLeft(),
 					admin, htablePoolAndPrimaryKeyByTableName.getRight(), clientAvailabilitySettings);
 			logger.warn(timer.add("done").toString());
-		}catch(ZooKeeperConnectionException e){
-			throw new UnavailableException(e);
-		}catch(MasterNotRunningException e){
-			throw new UnavailableException(e);
 		}catch(IOException e){
 			throw new UnavailableException(e);
 		}
