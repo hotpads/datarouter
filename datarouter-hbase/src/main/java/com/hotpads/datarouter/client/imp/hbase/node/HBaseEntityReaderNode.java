@@ -71,20 +71,20 @@ extends BasePhysicalEntityNode<EK,E>{
 		try{
 			return new HBaseMultiAttemptTask<E>(new HBaseTask<E>(getContext(), getClientTableNodeNames(), "getEntity",
 					config){
-					@Override
+				@Override
 				public E hbaseCall(Table table, HBaseClient client, ResultScanner managedResultScanner)
 				throws Exception{
-						byte[] rowBytes = queryBuilder.getRowBytesWithPartition(ek);
-						Get get = new Get(rowBytes);
-						Result hbaseResult = table.get(get);
-						E entity = resultParser.parseEntity(ek, hbaseResult);
-						if(entity != null){
-							DRCounters.incClientNodeCustom(client.getType(), "entity databeans", getClientName(),
-									getNodeName(), entity.getNumDatabeans());
-						}
-						return entity;
+					byte[] rowBytes = queryBuilder.getRowBytesWithPartition(ek);
+					Get get = new Get(rowBytes);
+					Result hbaseResult = table.get(get);
+					E entity = resultParser.parseEntity(ek, hbaseResult);
+					if(entity != null){
+						DRCounters.incClientNodeCustom(client.getType(), "entity databeans", getClientName(),
+								getNodeName(), entity.getNumDatabeans());
 					}
-				}).call();
+					return entity;
+				}
+			}).call();
 		}catch(RuntimeException e){
 			logger.warn("", e);//debugging missing stack traces
 			throw e;
