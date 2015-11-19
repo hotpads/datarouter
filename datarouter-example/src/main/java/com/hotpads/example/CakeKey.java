@@ -13,7 +13,7 @@ public class CakeKey extends BasePrimaryKey<CakeKey>{
 
 	private String name;
 
-	public static class F{
+	public static class FieldKeys{
 		public static final StringFieldKey name = new StringFieldKey("name");
 	}
 
@@ -25,7 +25,7 @@ public class CakeKey extends BasePrimaryKey<CakeKey>{
 
 	@Override
 	public List<Field<?>> getFields(){
-		return Arrays.asList(new StringField(F.name, name));
+		return Arrays.asList(new StringField(FieldKeys.name, name));
 	}
 
 	public String getName(){

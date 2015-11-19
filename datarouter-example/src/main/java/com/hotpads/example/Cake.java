@@ -14,7 +14,7 @@ import com.hotpads.datarouter.storage.field.imp.comparable.IntegerFieldKey;
 
 public class Cake extends BaseDatabean<CakeKey,Cake>{
 
-	public static class F{
+	public static class FieldKeys{
 		public static final DelimitedStringArrayFieldKey INGREDIENTS = new DelimitedStringArrayFieldKey("ingredients",
 				",");
 		public static final IntegerFieldKey PREPARATION_TIME_MIN = new IntegerFieldKey("preparationTimeMin");
@@ -39,10 +39,10 @@ public class Cake extends BaseDatabean<CakeKey,Cake>{
 		@Override
 		public List<Field<?>> getNonKeyFields(Cake cake){
 			return Arrays.asList(
-					new DelimitedStringArrayField(F.INGREDIENTS, cake.ingredients),
-					new IntegerField(F.PREPARATION_TIME_MIN, cake.preparationTimeMin),
-					new IntegerField(F.COOKING_TIME_MIN, cake.cookingTimeMin),
-					new IntegerField(F.CALORIE, cake.calorie));
+					new DelimitedStringArrayField(FieldKeys.INGREDIENTS, cake.ingredients),
+					new IntegerField(FieldKeys.PREPARATION_TIME_MIN, cake.preparationTimeMin),
+					new IntegerField(FieldKeys.COOKING_TIME_MIN, cake.cookingTimeMin),
+					new IntegerField(FieldKeys.CALORIE, cake.calorie));
 		}
 
 	}
