@@ -156,7 +156,7 @@ public class HBaseSubEntityResultParser<
 		}
 		D databean = databeanByPk.get(pk);
 		if(databean==null){
-			databean = ReflectionTool.create(fieldInfo.getDatabeanClass());
+			databean = fieldInfo.getDatabeanSupplier().get();
 			ReflectionTool.set(fieldInfo.getKeyJavaField(), databean, pk);
 			databeanByPk.put(pk, databean);
 		}
