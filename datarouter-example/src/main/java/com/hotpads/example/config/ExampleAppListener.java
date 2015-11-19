@@ -29,8 +29,8 @@ public class ExampleAppListener extends DatarouterAppListener{
 		Cake kouignAmann = new Cake("Kouign-amann", Arrays.asList("Butter", "Suggar", "Flour", "Salt"), 60, 30, 308);
 		exampleRouter.cake.put(kouignAmann, null);
 		Cake theBestCakeIntheWorld = exampleRouter.cake.get(new CakeKey("Kouign-amann"), null);
-		logger.warn("The best cake in the world is the {}, it contains {} cal", theBestCakeIntheWorld.getKey().getName(),
-				theBestCakeIntheWorld.getCalorie());
+		logger.warn("The best cake in the world is the {}, it contains {} cal", theBestCakeIntheWorld.getKey()
+				.getName(), theBestCakeIntheWorld.getCalorie());
 	}
 
 	@Override
