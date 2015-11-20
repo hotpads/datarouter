@@ -21,19 +21,19 @@ import com.hotpads.datarouter.test.TestDatabeanKey;
 public class SqsTestRouter extends BaseRouter{
 
 	private static final String NAME = "sqsTestRouter";
-	
+
 	public final QueueStorage<TestDatabeanKey,TestDatabean> testDatabean;
 	public final GroupQueueStorage<TestDatabeanKey,TestDatabean> groupTestDatabean;
-	
+
 	@Inject
 	public SqsTestRouter(Datarouter context, QueueNodeFactory nodeFactory){
 		super(context, DrTestConstants.CONFIG_PATH, NAME);
 
-		testDatabean = cast(register(nodeFactory.createSingleQueueNode(DrTestConstants.CLIENT_drTestSqs, this,
-				TestDatabean.class, null, TestDatabeanFielder.class, true)));
+		testDatabean = register(nodeFactory.createSingleQueueNode(DrTestConstants.CLIENT_drTestSqs, this,
+				TestDatabean.class, null, TestDatabeanFielder.class, true));
 		//Use a different table name to prevent test suites from interfering
-		groupTestDatabean = cast(register(nodeFactory.createGroupQueueNode(DrTestConstants.CLIENT_drTestSqs, this,
-				TestDatabean.class, "groupTestDatabean", TestDatabeanFielder.class, true)));
+		groupTestDatabean = register(nodeFactory.createGroupQueueNode(DrTestConstants.CLIENT_drTestSqs, this,
+				TestDatabean.class, "groupTestDatabean", TestDatabeanFielder.class, true));
 	}
 
 	@Override

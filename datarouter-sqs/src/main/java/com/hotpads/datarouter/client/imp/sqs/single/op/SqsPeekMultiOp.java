@@ -16,18 +16,18 @@ import com.hotpads.util.core.bytes.StringByteTool;
 public class SqsPeekMultiOp<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
-		F extends DatabeanFielder<PK,D>> 
+		F extends DatabeanFielder<PK,D>>
 extends BaseSqsPeekMultiOp<PK,D,F,QueueMessage<PK,D>>{
 
 	public SqsPeekMultiOp(Config config, BaseSqsNode<PK,D,F> sqsNode){
 		super(config, sqsNode);
 	}
-	
+
 	@Override
 	protected List<QueueMessage<PK, D>> extractDatabeans(List<Message> messages){
 		List<QueueMessage<PK,D>> results = new ArrayList<>(messages.size());
 		for(Message message : messages){
-			D databean = codec.fromString(message.getBody(), fielder, databeanType);
+			D databean = codec.fromString(message.getBody(), fielder, databeanSupplier);
 			byte[] receiptHandle = StringByteTool.getUtf8Bytes(message.getReceiptHandle());
 			results.add(new QueueMessage<>(receiptHandle , databean));
 		}

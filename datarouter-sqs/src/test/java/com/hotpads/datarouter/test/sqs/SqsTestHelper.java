@@ -19,13 +19,13 @@ import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.concurrent.ThreadTool;
 
 public class SqsTestHelper{
-	
+
 	private QueueStorageWriter<TestDatabeanKey,TestDatabean> queueStorageWriter;
-	
+
 	public SqsTestHelper(QueueStorageWriter<TestDatabeanKey,TestDatabean> queueStorageWriter){
 		this.queueStorageWriter = queueStorageWriter;
 	}
-	
+
 	public void testByteLimitMulti(){
 		String longString = makeLongStringWithDatabeanSizeTarget(SqsNode.MAX_BYTES_PER_MESSAGE + 1);
 		List<TestDatabean> databeans = new ArrayList<>();
@@ -38,7 +38,7 @@ public class SqsTestHelper{
 			Assert.assertEquals(exception.getRejectedDatabeans().size(), 2);
 		}
 	}
-	
+
 	public static void testInterruptPeek(Callable<Void> longPeekCallable){
 		ExecutorService executor = Executors.newSingleThreadExecutor();
 		long start = System.currentTimeMillis();
@@ -46,9 +46,9 @@ public class SqsTestHelper{
 		ThreadTool.sleep(1000);
 		future.cancel(true);
 		executor.shutdown();
-		Assert.assertTrue((System.currentTimeMillis() - start) < 5000);
+		Assert.assertTrue(System.currentTimeMillis() - start < 5000);
 	}
-	
+
 	public static String makeStringOfByteSize(int requiredSize){
 		Assert.assertEquals(StringByteTool.getUtf8Bytes("a").length, 1);
 		StringBuilder longString = new StringBuilder();
@@ -57,7 +57,7 @@ public class SqsTestHelper{
 		}
 		return longString.toString();
 	}
-	
+
 	public static String makeLongStringWithDatabeanSizeTarget(int size){
 		TestDatabean emptyDatabean = new TestDatabean("", "", "");
 		TestDatabeanFielder fielder = new TestDatabeanFielder();

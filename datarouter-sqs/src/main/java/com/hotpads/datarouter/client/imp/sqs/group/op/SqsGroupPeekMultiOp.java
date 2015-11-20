@@ -16,7 +16,7 @@ import com.hotpads.util.core.bytes.StringByteTool;
 public class SqsGroupPeekMultiOp<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
-		F extends DatabeanFielder<PK,D>> 
+		F extends DatabeanFielder<PK,D>>
 extends BaseSqsPeekMultiOp<PK,D,F,GroupQueueMessage<PK,D>>{
 
 	public SqsGroupPeekMultiOp(Config config, BaseSqsNode<PK,D,F> sqsNode){
@@ -27,7 +27,7 @@ extends BaseSqsPeekMultiOp<PK,D,F,GroupQueueMessage<PK,D>>{
 	protected List<GroupQueueMessage<PK, D>> extractDatabeans(List<Message> messages){
 		List<GroupQueueMessage<PK,D>> groupQueueMessages = new ArrayList<>();
 		for(Message message : messages){
-			List<D> databeans = codec.fromStringMulti(message.getBody(), fielder, databeanType);
+			List<D> databeans = codec.fromStringMulti(message.getBody(), fielder, databeanSupplier);
 			byte[] receiptHandle = StringByteTool.getUtf8Bytes(message.getReceiptHandle());
 			groupQueueMessages.add(new GroupQueueMessage<>(receiptHandle, databeans));
 		}

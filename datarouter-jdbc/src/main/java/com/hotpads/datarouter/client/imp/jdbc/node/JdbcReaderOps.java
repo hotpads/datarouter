@@ -111,7 +111,7 @@ public class JdbcReaderOps<
 			IF extends DatabeanFielder<IK,IE>>
 	List<IE> getMultiFromIndex(Collection<IK> keys, Config config, DatabeanFieldInfo<IK, IE, IF> indexEntryFieldInfo){
 		BaseJdbcOp<List<IE>> op = new JdbcGetIndexOp<>(node, fieldCodecFactory, config,
-				indexEntryFieldInfo.getDatabeanClass(), indexEntryFieldInfo.getFielderClass(), keys);
+				indexEntryFieldInfo.getDatabeanSupplier(), indexEntryFieldInfo.getFielderClass(), keys);
 		return new SessionExecutorImpl<>(op, IndexedStorageReader.OP_getFromIndex).call();
 	}
 

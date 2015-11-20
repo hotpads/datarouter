@@ -3,12 +3,17 @@ package com.hotpads.datarouter.client.imp.jdbc.ddl.generate;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSet;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCollation;
@@ -26,6 +31,7 @@ import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.datarouter.util.core.DrSetTool;
 
 public class SqlTableDiffGenerator{
+	private static final Logger logger = LoggerFactory.getLogger(SqlTableDiffGenerator.class);
 
 	protected SqlTable current, requested;
 	protected boolean enforceColumnOrder = false;
@@ -41,7 +47,6 @@ public class SqlTableDiffGenerator{
 	/****************** primary method ****************************/
 
 	public List<SqlColumn> getColumnsToAdd(){
-		minusColumns(requested, current);
 		return minusColumns(requested, current);
 	}
 
@@ -85,6 +90,24 @@ public class SqlTableDiffGenerator{
 		Set<SqlColumn> columnsToModify = DrCollectionTool.minus(listOfColumnsToAddUsingNameTypeComparator,
 				columnsToAddUsingNameComparator);
 		return DrListTool.createArrayList(columnsToModify);
+	}
+
+	public List<SqlColumn> getColumnsWithCharsetOrCollationToConvert(){
+		Map<String,SqlColumn> requestedColumnsByName = requested.getColumns().stream()
+				.collect(Collectors.toMap(SqlColumn::getName, Function.identity()));
+		List<SqlColumn> columnsWithCharsetOrCollationToConvert = new ArrayList<>();
+		for(SqlColumn column : current.getColumns()){
+			SqlColumn requestedColum = requestedColumnsByName.get(column.getName());
+			if(requestedColum == null
+					|| column.getCharacterSet() == null
+					|| column.getCollation() == null
+					|| column.getCharacterSet().equals(requestedColum.getCharacterSet())
+							&& column.getCollation().equals(requestedColum.getCollation())){
+				continue;
+			}
+			columnsWithCharsetOrCollationToConvert.add(column);
+		}
+		return columnsWithCharsetOrCollationToConvert;
 	}
 
 	public SortedSet<SqlIndex> getIndexesToAdd(){
@@ -196,6 +219,18 @@ public class SqlTableDiffGenerator{
 	public static class SqlTableDiffGeneratorTester{
 		private final SqlColumn idCol = new SqlColumn("id", MySqlColumnType.BIGINT);
 		private final SqlIndex primaryKey1 = new SqlIndex("pk1").addColumn(idCol);
+
+		@Test
+		public void testCollation(){
+			SqlTable tableWithUtf8BinCollation = new SqlTable("A");
+			tableWithUtf8BinCollation.setCollation(MySqlCollation.utf8_bin);
+			SqlTable tableWithUtf8GeneralCiCollation = new SqlTable("B");
+			tableWithUtf8GeneralCiCollation.setCollation(MySqlCollation.utf8_general_ci);
+			SqlTableDiffGenerator generator = new SqlTableDiffGenerator(tableWithUtf8BinCollation,
+					tableWithUtf8GeneralCiCollation, true);
+			Assert.assertTrue(generator.isCollationModified());
+			Assert.assertFalse(generator.isCharacterSetModified());
+		}
 
 		@Test
 		public void testAutoIncrement(){
@@ -459,7 +494,7 @@ public class SqlTableDiffGenerator{
 			SqlTableDiffGenerator diffANull = new SqlTableDiffGenerator(table1, null, true);
 			SqlTableDiffGenerator diffNullA = new SqlTableDiffGenerator(null, table1, true);
 
-			System.out.println(diffAWithB.getColumnsToModify());
+			logger.warn(diffAWithB.getColumnsToModify().toString());
 			//TODO too much on one line
 			List<SqlColumn> colsToModify = diffAWithB.getColumnsToModify();
 			ArrayList<SqlColumn> expected = DrListTool.createArrayList(colA2);
@@ -468,7 +503,7 @@ public class SqlTableDiffGenerator{
 			Assert.assertTrue(areEqual(colsToModify, expected, comparator));
 
 
-			System.out.println(diffBWithA.getColumnsToModify());
+			logger.warn(diffBWithA.getColumnsToModify().toString());
 			//TODO too much on one line
 			Assert.assertTrue(DrCollectionTool.isEmpty(DrCollectionTool.minus(diffBWithA.getColumnsToModify(),
 					DrListTool.createArrayList(colA2), new SqlColumnNameTypeComparator(true))));

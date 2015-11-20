@@ -14,5 +14,5 @@ public class DatarouterSqsTestModuleFactory extends DatarouterTestModuleFactory{
 		overrides.add(new ChildInjectorInjectionFixModule());
 		return overrides;
 	}
-	
+
 }

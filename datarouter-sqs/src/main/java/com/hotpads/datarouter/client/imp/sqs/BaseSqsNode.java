@@ -22,7 +22,7 @@ public abstract class BaseSqsNode<
 		F extends DatabeanFielder<PK,D>>
 extends BasePhysicalNode<PK,D,F>
 implements QueueStorageWriter<PK,D>{
-	
+
 	//do not change, this is a limit from SQS
 	public static final int MAX_MESSAGES_PER_BATCH = 10;
 	public static final int MAX_TIMEOUT_SECONDS = 20;
@@ -36,39 +36,33 @@ implements QueueStorageWriter<PK,D>{
 	public BaseSqsNode(Datarouter datarouter, NodeParams<PK,D,F> params){
 		super(params);
 		this.datarouter = datarouter;
-		this.queueUrl = new Lazy<String>(){
-			
-			@Override
-			protected String load(){
-				return getOrCreateQueueUrl();
-			}
-		};
+		this.queueUrl = Lazy.of(this::getOrCreateQueueUrl);
 		this.sqsOpFactory = new SqsOpFactory<>(this);
 	}
-	
+
 	@Override
 	public Client getClient(){
 		return getSqsClient();
 	}
-	
+
 	private String getOrCreateQueueUrl(){
 		String queueName = getSqsClient().getSqsOptions().getNamespace() + "-" + getTableName();
 		CreateQueueRequest createQueueRequest = new CreateQueueRequest(queueName);
 		return getAmazonSqsClient().createQueue(createQueueRequest).getQueueUrl();
 	}
-	
+
 	public Lazy<String> getQueueUrl(){
 		return queueUrl;
 	}
-	
+
 	private SqsClient getSqsClient(){
 		return (SqsClient) datarouter.getClientPool().getClient(getClientId().getName());
 	}
-	
+
 	public AmazonSQSClient getAmazonSqsClient(){
 		return getSqsClient().getAmazonSqsClient();
 	}
-	
+
 	@Override
 	public void ack(QueueMessageKey key, Config config){
 		sqsOpFactory.makeAckOp(key, config).call();

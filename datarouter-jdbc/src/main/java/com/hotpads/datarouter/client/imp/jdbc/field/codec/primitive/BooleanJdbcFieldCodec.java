@@ -13,28 +13,28 @@ import com.hotpads.datarouter.storage.field.Field;
 
 public class BooleanJdbcFieldCodec
 extends BasePrimitiveJdbcFieldCodec<Boolean,Field<Boolean>>{
-	
+
 	public BooleanJdbcFieldCodec(){//no-arg for reflection
 		this(null);
 	}
-	
+
 	public BooleanJdbcFieldCodec(Field<Boolean> field){
 		super(field);
 	}
 
 
 	@Override
-	public SqlColumn getSqlColumnDefinition(){	
+	public SqlColumn getSqlColumnDefinition(){
 		String defaultValue = field.getKey().getDefaultValue() == null ? null : field.getKey().getDefaultValue().toString();
 		return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.TINYINT, 1, field.getKey().isNullable(),
-				false, defaultValue );
+				false, defaultValue, null, null);
 	}
 
 	@Override
 	public Boolean parseJdbcValueButDoNotSet(Object obj){
 		return obj==null?null:(Boolean)obj;
 	}
-	
+
 	@Override
 	public void setPreparedStatementValue(PreparedStatement ps, int parameterIndex){
 		try{
@@ -47,7 +47,7 @@ extends BasePrimitiveJdbcFieldCodec<Boolean,Field<Boolean>>{
 			throw new DataAccessException(e);
 		}
 	}
-	
+
 	@Override
 	public Boolean fromJdbcResultSetButDoNotSet(ResultSet rs){
 		try{

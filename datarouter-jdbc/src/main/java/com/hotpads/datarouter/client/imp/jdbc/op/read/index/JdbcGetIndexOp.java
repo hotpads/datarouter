@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Supplier;
 
 import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.client.imp.jdbc.node.JdbcNode;
@@ -35,21 +36,21 @@ extends BaseJdbcOp<List<IE>>{
 	private final Config config;
 	private final PhysicalNode<PK, D> mainNode;
 	private final JdbcFieldCodecFactory fieldCodecFactory;
-	private final Class<IE> indexEntryClass;
 	private final DatabeanFielder<IK, IE> indexFielder;
 	private final IE indexEntry;
 	private final Collection<IK> uniqueKeys;
+	private final Supplier<IE> indexEntrySupplier;
 
 	public JdbcGetIndexOp(PhysicalNode<PK,D> node, JdbcFieldCodecFactory fieldCodecFactory, Config config,
-			Class<IE> indexEntryClass, Class<IF> indexFielderClass, Collection<IK> uniqueKeys){
+			Supplier<IE> indexEntrySupplier, Class<IF> indexFielderClass, Collection<IK> uniqueKeys){
 		super(node.getDatarouter(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
 		this.mainNode = node;
 		this.fieldCodecFactory = fieldCodecFactory;
 		this.config = config;
-		this.indexEntryClass = indexEntryClass;
+		this.indexEntrySupplier = indexEntrySupplier;
 		this.uniqueKeys = uniqueKeys;
 		this.indexFielder = ReflectionTool.create(indexFielderClass);
-		this.indexEntry = ReflectionTool.create(indexEntryClass);
+		this.indexEntry = indexEntrySupplier.get();
 	}
 
 	@Override
@@ -66,7 +67,7 @@ extends BaseJdbcOp<List<IE>>{
 				ResultSet rs = ps.getResultSet();
 				while(rs.next()){
 					IE databean = JdbcTool.fieldSetFromJdbcResultSetUsingReflection(fieldCodecFactory,
-							indexEntryClass, indexFielder.getFields(indexEntry), rs);
+							indexEntrySupplier, indexFielder.getFields(indexEntry), rs);
 					databeans.add(databean);
 				}
 			}catch(Exception e){

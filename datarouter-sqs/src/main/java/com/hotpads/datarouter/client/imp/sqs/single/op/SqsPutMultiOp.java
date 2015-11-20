@@ -42,7 +42,7 @@ extends SqsOp<PK,D,F,Void>{
 				rejectedDatabeans.add(databean);
 				continue;
 			}
-			if(currentPayloadSize + encodedDatabeanSize > SqsNode.MAX_BYTES_PER_PAYLOAD 
+			if(currentPayloadSize + encodedDatabeanSize > SqsNode.MAX_BYTES_PER_PAYLOAD
 					|| entries.size() >= SqsNode.MAX_MESSAGES_PER_BATCH){
 				putBatch(entries);
 				entries = new ArrayList<>();

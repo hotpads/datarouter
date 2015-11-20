@@ -1,13 +1,15 @@
 package com.hotpads.datarouter.client.imp.jdbc.ddl.generate;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.stream.Collectors;
 
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SchemaUpdateOptions;
@@ -19,14 +21,15 @@ import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
 
 public class SqlAlterTableGenerator implements DdlGenerator{
+	private static final Logger logger = LoggerFactory.getLogger(SqlAlterTableGenerator.class);
 
 	private static final int MINIMUM_ALTER_SIZE = 10;
 	private static final String NOT_NULL = " not null";
-	protected SchemaUpdateOptions options;
-	protected SqlTable current, requested;
-	protected String databaseName="";
-	protected boolean dropTable = false;
-	protected boolean willAlterTable = false;
+	private SchemaUpdateOptions options;
+	private SqlTable current, requested;
+	private String databaseName="";
+	private boolean dropTable = false;
+	private boolean willAlterTable = false;
 	private final Set<SqlColumn> columnsToInitialize = new HashSet<>();
 
 	public SqlAlterTableGenerator(SchemaUpdateOptions options, SqlTable current, SqlTable requested,
@@ -44,20 +47,16 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 			return null;
 		}
 		if(dropTable){
-			String s="";
-			for(SqlAlterTableClause singleAlter : DrIterableTool.nullSafe(singleAlters)){
-				String alterSql = singleAlter.getAlterTable();
-				if(DrStringTool.containsCharactersBesidesWhitespace(alterSql)){
-					s += alterSql+ "\n";
-				}
-			}
-			return s;
+			return singleAlters.stream()
+					.map(SqlAlterTableClause::getAlterTable)
+					.filter(DrStringTool::containsCharactersBesidesWhitespace)
+					.collect(Collectors.joining("\n", "", "\n"));
 		}
 		StringBuilder sb = new StringBuilder();
 		sb.append("alter table " +databaseName + "." +current.getName()+"\n");
 		int numAppended = 0;
 		for(SqlAlterTableClause singleAlter : DrIterableTool.nullSafe(singleAlters)){
-			if(singleAlter!=null /*&& !StringTool.isEmptyOrWhitespace(singleAlter.getAlterTable())*/){
+			if(singleAlter!=null){
 				if(numAppended>0){
 					sb.append(",\n");
 				}
@@ -83,70 +82,13 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 		}
 		return sb.toString();
 	}
-	
+
 	public boolean willAlterTable(){
 		generateDdl();
 		return willAlterTable;
 	}
 
-	public List<String> getAlterTableStatementsStrings(){
-		List<SqlAlterTableClause> list =  generate();
-		List<String> alterStmt = new ArrayList<>();
-		String alterSql="";
-		if(dropTable){
-			for(SqlAlterTableClause sqlAT : list){
-				String s="";
-				alterSql = sqlAT.getAlterTable();
-				if(DrStringTool.containsCharactersBesidesWhitespace(alterSql)){
-					s += alterSql;
-					alterStmt.add(s);
-				}
-			}
-		}else{
-			for(SqlAlterTableClause sqlAT : list){
-				String s = "";
-				alterSql = sqlAT.getAlterTable();
-				if(DrStringTool.containsCharactersBesidesWhitespace(alterSql)){
-					s += "alter table `" + current.getName() + "` \n";
-					s += alterSql;
-					alterStmt.add(s);
-				}
-			}
-			//s+="\n";
-		}
-
-		return alterStmt;
-	}
-
-	public List<SqlAlterTableClause> getAlterTableStatements(){
-		List<SqlAlterTableClause> list =  generate();
-		List<SqlAlterTableClause> l = new ArrayList<>();
-		String alterSql="";
-		if(dropTable){
-			for(SqlAlterTableClause sqlAT : list){
-				alterSql = sqlAT.getAlterTable();
-				if(DrStringTool.containsCharactersBesidesWhitespace(alterSql)){
-					l.add(sqlAT);
-				}
-			}
-		}else{
-			for(SqlAlterTableClause sqlAT : list){
-				StringBuilder sb= new StringBuilder();
-				alterSql = sqlAT.getAlterTable();
-				if(DrStringTool.containsCharactersBesidesWhitespace(alterSql)){
-					sb.append("alter table `" + current.getName() + "` \n");
-					sb.append(alterSql);
-					sqlAT.setAlterTable(sb.toString());
-					l.add(sqlAT);
-				}
-			}
-			//s+="\n";
-		}
-
-		return l;
-	}
-
-	public List<SqlAlterTableClause> generate(){
+	private List<SqlAlterTableClause> generate(){
 		List<SqlAlterTableClause> list = new ArrayList<>();
 		// creating the sqlTableDiffGenerator
 		SqlTableDiffGenerator diff = new SqlTableDiffGenerator(current, requested, true);
@@ -199,12 +141,8 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 				list.add(new SqlAlterTableClause("drop primary key", SqlAlterTypes.DROP_INDEX));
 			}
 			List<SqlColumn> listOfColumnsInPkey = requested.getPrimaryKey().getColumns();
-			String s = "add primary key (" ;
-			for(SqlColumn col: listOfColumnsInPkey){
-				s+= col.getName() + ",";
-			}
-			s=s.substring(0, s.length()-1)+")";
-			list.add(new SqlAlterTableClause(s, SqlAlterTypes.ADD_INDEX));
+			list.add(new SqlAlterTableClause(listOfColumnsInPkey.stream().map(SqlColumn::getName)
+					.collect(Collectors.joining(",", "add primary key (", ")")), SqlAlterTypes.ADD_INDEX));
 		}
 		if(diff.isIndexesModified()){
 			list.addAll(getAlterTableForRemovingIndexes(indexesToRemove));
@@ -214,14 +152,16 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 			list.add(new SqlAlterTableClause("engine="+requested.getEngine().toString().toLowerCase(),
 					SqlAlterTypes.MODIFY_ENGINE));
 		}
-		if(options.getModifyCharacterSet() && diff.isCharacterSetModified()
-				|| options.getModifyCollation() && diff.isCollationModified()){
-			
+		if(options.getModifyCharacterSetOrCollation()
+				&& (diff.isCharacterSetModified()
+						|| diff.isCollationModified()
+						|| diff.getColumnsWithCharsetOrCollationToConvert().size() > 0)){
+
 			list.add(new SqlAlterTableClause(
 					"convert to character set " + requested.getCharacterSet().toString().toLowerCase()
 					+ "\ncollate "+requested.getCollation().toString().toLowerCase(),
 					SqlAlterTypes.MODIFY_CHARACTER_SET));
-			
+
 		}
 		return list;
 	}
@@ -357,12 +297,12 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 
 	public static class SqlAlterTableGeneratorTester{
 		@Test
-		public void testDefaultValue() throws IOException{
+		public void testDefaultValue(){
 
 			SqlColumn colA = new SqlColumn("A", MySqlColumnType.BIGINT), colB = new SqlColumn("B",
 					MySqlColumnType.VARCHAR, 250, false, false),
 					// boolean field with default value true
-					colC = new SqlColumn("C", MySqlColumnType.BOOLEAN, 0, true, false, "true");
+					colC = new SqlColumn("C", MySqlColumnType.BOOLEAN, 0, true, false, "true", null, null);
 
 			SqlTable table1 = new SqlTable("TA").addColumn(colA).addColumn(colB).addColumn(colC), table2 = new SqlTable(
 					"TB").addColumn(colA).addColumn(colB);
@@ -371,11 +311,11 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 
 			// case1 : Adding a boolean field to the table with a default value (alter statement + initialize variable)
 			SqlAlterTableGenerator alterGenerator21 = new SqlAlterTableGenerator(options, table2, table1, "config");
-			System.out.println(alterGenerator21.generateDdl());
+			logger.warn(alterGenerator21.generateDdl());
 
 			// case2 : Dropping a boolean field from table with a default value specified
 			SqlAlterTableGenerator alterGenerator12 = new SqlAlterTableGenerator(options, table1, table2, "config");
-			System.out.println(alterGenerator12.generateDdl());
+			logger.warn(alterGenerator12.generateDdl());
 
 		}
 	}
