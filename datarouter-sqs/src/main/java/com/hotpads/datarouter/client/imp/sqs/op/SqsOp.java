@@ -1,6 +1,7 @@
 package com.hotpads.datarouter.client.imp.sqs.op;
 
 import java.util.concurrent.Callable;
+import java.util.function.Supplier;
 
 import com.amazonaws.services.sqs.AmazonSQSClient;
 import com.hotpads.datarouter.client.imp.sqs.BaseSqsNode;
@@ -20,7 +21,7 @@ implements Callable<V>{
 	protected final Config config;
 	protected final AmazonSQSClient amazonSqsClient;
 	protected final String queueUrl;
-	protected final Class<D> databeanType;
+	protected final Supplier<D> databeanSupplier;
 	protected final F fielder;
 	protected final StringDatabeanCodec codec;
 
@@ -28,7 +29,7 @@ implements Callable<V>{
 		this.config = Config.nullSafe(config);
 		this.amazonSqsClient = sqsNode.getAmazonSqsClient();
 		this.queueUrl = sqsNode.getQueueUrl().get();
-		this.databeanType = sqsNode.getDatabeanType();
+		this.databeanSupplier = sqsNode.getFieldInfo().getDatabeanSupplier();
 		this.fielder = sqsNode.getFieldInfo().getSampleFielder();
 		this.codec = fielder.getStringDatabeanCodec();
 	}
