@@ -23,7 +23,6 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.view.index.IndexEntry;
 import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.iterable.BatchingIterable;
-import com.hotpads.util.core.java.ReflectionTool;
 
 public class JdbcGetIndexOp<
 		PK extends PrimaryKey<PK>,
@@ -42,14 +41,14 @@ extends BaseJdbcOp<List<IE>>{
 	private final Supplier<IE> indexEntrySupplier;
 
 	public JdbcGetIndexOp(PhysicalNode<PK,D> node, JdbcFieldCodecFactory fieldCodecFactory, Config config,
-			Supplier<IE> indexEntrySupplier, Class<IF> indexFielderClass, Collection<IK> uniqueKeys){
+			Supplier<IE> indexEntrySupplier, Supplier<IF> indexFielderSupplier, Collection<IK> uniqueKeys){
 		super(node.getDatarouter(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
 		this.mainNode = node;
 		this.fieldCodecFactory = fieldCodecFactory;
 		this.config = config;
 		this.indexEntrySupplier = indexEntrySupplier;
 		this.uniqueKeys = uniqueKeys;
-		this.indexFielder = ReflectionTool.create(indexFielderClass);
+		this.indexFielder = indexFielderSupplier.get();
 		this.indexEntry = indexEntrySupplier.get();
 	}
 

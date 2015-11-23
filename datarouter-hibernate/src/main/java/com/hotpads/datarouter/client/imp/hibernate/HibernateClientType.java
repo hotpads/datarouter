@@ -74,7 +74,7 @@ public class HibernateClientType extends BaseClientType{
 	public <PK extends PrimaryKey<PK>, D extends Databean<PK, D>, F extends DatabeanFielder<PK, D>>
 	PhysicalNode<PK, D> createNode(NodeParams<PK, D, F> nodeParams){
 		PhysicalIndexedSortedMapStorageNode<PK,D> node;
-		if(nodeParams.getFielderClass() == null){
+		if(nodeParams.getFielderSupplier() == null){
 			node = new HibernateNode<>(nodeParams, fieldCodecFactory, resultParser);
 		}else{
 			node = new JdbcNode<>(nodeParams, fieldCodecFactory);
