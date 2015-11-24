@@ -15,7 +15,6 @@ import com.hotpads.datarouter.client.imp.jdbc.factory.JdbcSimpleClientFactory;
 import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.connection.JdbcConnectionPool;
 import com.hotpads.datarouter.routing.Datarouter;
-import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrPropertiesTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
@@ -56,9 +55,8 @@ extends JdbcSimpleClientFactory{
 		AnnotationConfiguration sfConfig = new AnnotationConfiguration();
 
 		//add all databeanClasses until we're sure that none are using hibernate code (like GetJobletForProcessing)
-		Collection<Class<? extends Databean<?, ?>>> relevantDatabeanTypes = datarouter.getNodes()
-				.getTypesForClient(clientName);
-		for(Class<? extends Databean<?, ?>> databeanClass : DrCollectionTool.nullSafe(relevantDatabeanTypes)){
+		Collection<Class<?>> relevantDatabeanTypes = datarouter.getNodes().getTypesForClient(clientName);
+		for(Class<?> databeanClass : DrCollectionTool.nullSafe(relevantDatabeanTypes)){
 			try{
 				sfConfig.addClass(databeanClass);
 			}catch(MappingNotFoundException mnfe){

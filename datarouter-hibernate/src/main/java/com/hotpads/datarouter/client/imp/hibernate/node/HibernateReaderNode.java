@@ -128,8 +128,6 @@ implements MapStorageReader<PK,D>,
 		return result;
 	}
 
-
-
 	/************************************ IndexedStorageReader methods ****************************/
 
 	@Override
@@ -180,7 +178,7 @@ implements MapStorageReader<PK,D>,
 			IF extends DatabeanFielder<IK, IE>>
 	List<IE> getMultiFromIndex(Collection<IK> keys, Config config, DatabeanFieldInfo<IK, IE, IF> indexEntryFieldInfo){
 		BaseJdbcOp<List<IE>> op = new JdbcGetIndexOp<>(this, fieldCodecFactory, config,
-				indexEntryFieldInfo.getDatabeanClass(), indexEntryFieldInfo.getFielderClass(), keys);
+				indexEntryFieldInfo.getDatabeanSupplier(), indexEntryFieldInfo.getFielderSupplier(), keys);
 		return new SessionExecutorImpl<>(op, IndexedStorageReader.OP_getFromIndex).call();
 	}
 
