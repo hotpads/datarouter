@@ -25,7 +25,7 @@ extends BaseRouter{
 
 	public static final List<ClientId> CLIENT_IDS = Collections.singletonList(DrTestConstants.CLIENT_drTestHBase);
 
-	
+
 	/********************************** nodes **********************************/
 
 	private final MapStorage<KeepAliveKey,KeepAlive> keepAliveHBase;
@@ -37,17 +37,17 @@ extends BaseRouter{
 	@Inject
 	public BasicClientTestRouter(Datarouter datarouter, NodeFactory nodeFactory){
 		super(datarouter, DrTestConstants.CONFIG_PATH, name);
-		
-		keepAliveHBase = cast(register(nodeFactory.create(DrTestConstants.CLIENT_drTestHBase, KeepAlive.class,
-				KeepAliveFielder.class, this, false)));
-		poolTestBeanHBase = cast(register(nodeFactory.create(DrTestConstants.CLIENT_drTestHBase, PoolTestBean.class,
-				PoolTestBeanFielder.class, this, false)));
+
+		keepAliveHBase = register(nodeFactory.create(DrTestConstants.CLIENT_drTestHBase, KeepAlive.class,
+				KeepAliveFielder.class, this, false));
+		poolTestBeanHBase = register(nodeFactory.create(DrTestConstants.CLIENT_drTestHBase, PoolTestBean.class,
+				PoolTestBeanFielder.class, this, false));
 
 	}
 
-	
+
 	/********************************** config **********************************/
-	
+
 	@Override
 	public List<ClientId> getClientIds(){
 		return CLIENT_IDS;

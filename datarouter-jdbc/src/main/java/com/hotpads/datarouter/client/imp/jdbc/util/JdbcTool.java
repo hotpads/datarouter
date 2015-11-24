@@ -8,8 +8,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-
-import org.junit.Test;
+import java.util.function.Supplier;
 
 import com.hotpads.datarouter.client.imp.jdbc.field.JdbcFieldCodec;
 import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
@@ -94,8 +93,8 @@ public class JdbcTool {
 			ResultSet rs = ps.getResultSet();
 			List<PK> primaryKeys = new ArrayList<>();
 			while(rs.next()){
-				PK primaryKey = fieldSetFromJdbcResultSetUsingReflection(fieldCodecFactory,
-						fieldInfo.getPrimaryKeyClass(), fieldInfo.getPrimaryKeyFields(), rs);
+				PK primaryKey = fieldSetFromJdbcResultSetUsingReflection(fieldCodecFactory, ReflectionTool
+						.supplier(fieldInfo.getPrimaryKeyClass()), fieldInfo.getPrimaryKeyFields(), rs);
 				primaryKeys.add(primaryKey);
 			}
 			return primaryKeys;
@@ -114,7 +113,7 @@ public class JdbcTool {
 			List<D> databeans = new ArrayList<>();
 			while(rs.next()){
 				D databean = fieldSetFromJdbcResultSetUsingReflection(fieldCodecFactory,
-						fieldInfo.getDatabeanClass(), fieldInfo.getFields(), rs);
+						fieldInfo.getDatabeanSupplier(), fieldInfo.getFields(), rs);
 				databeans.add(databean);
 			}
 			return databeans;
@@ -137,8 +136,8 @@ public class JdbcTool {
 			ResultSet rs = ps.getResultSet();
 			List<IK> keys = new ArrayList<>();
 			while(rs.next()){
-				IK key = fieldSetFromJdbcResultSetUsingReflection(fieldCodecFactory,
-						fieldInfo.getPrimaryKeyClass(), fieldInfo.getPrimaryKeyFields(), rs);
+				IK key = fieldSetFromJdbcResultSetUsingReflection(fieldCodecFactory, ReflectionTool.supplier(
+						fieldInfo.getPrimaryKeyClass()), fieldInfo.getPrimaryKeyFields(), rs);
 				keys.add(key);
 			}
 			return keys;
@@ -161,7 +160,7 @@ public class JdbcTool {
 			List<D> databeans = new ArrayList<>();
 			while(rs.next()){
 				D databean = fieldSetFromJdbcResultSetUsingReflection(fieldCodecFactory,
-						fieldInfo.getDatabeanClass(), fieldInfo.getFields(), rs);
+						fieldInfo.getDatabeanSupplier(), fieldInfo.getFields(), rs);
 				databeans.add(databean);
 			}
 			return databeans;
@@ -265,24 +264,12 @@ public class JdbcTool {
 	}
 
 	public static <F>F fieldSetFromJdbcResultSetUsingReflection(JdbcFieldCodecFactory fieldCodecFactory,
-			Class<F> cls, List<Field<?>> fields, ResultSet rs){
-		F targetFieldSet = ReflectionTool.create(cls);
+			Supplier<F> supplier, List<Field<?>> fields, ResultSet rs){
+		F targetFieldSet = supplier.get();
 		for(JdbcFieldCodec<?,?> field : fieldCodecFactory.createCodecs(fields)){
 			field.fromJdbcResultSetUsingReflection(targetFieldSet, rs);
 		}
 		return targetFieldSet;
 	}
 
-
-	/********************** tests ***************************/
-
-	public static class JdbcToolTester{
-		@Test
-		public void showTablesTest(){
-			Connection conn = JdbcTool.openConnection("localhost", 3306, "property", "root", "");
-			showTables(conn).forEach(System.out::println);
-		}
-	}
-
 }
-
