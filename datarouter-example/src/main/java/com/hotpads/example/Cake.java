@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
-import com.hotpads.datarouter.serialize.fielder.Fielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.imp.array.DelimitedStringArrayField;
@@ -31,9 +30,8 @@ public class Cake extends BaseDatabean<CakeKey,Cake>{
 
 	public static class CakeFielder extends BaseDatabeanFielder<CakeKey,Cake>{
 
-		@Override
-		public Class<? extends Fielder<CakeKey>> getKeyFielderClass(){
-			return CakeKey.class;
+		public CakeFielder(){
+			super(CakeKey.class);
 		}
 
 		@Override
