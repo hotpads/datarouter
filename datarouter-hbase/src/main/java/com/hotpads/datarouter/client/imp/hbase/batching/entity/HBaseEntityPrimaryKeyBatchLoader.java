@@ -13,6 +13,8 @@ import com.hotpads.datarouter.storage.entity.Entity;
 import com.hotpads.datarouter.storage.field.compare.FieldSetRangeFilter;
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
 import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
+import com.hotpads.datarouter.util.DRCounters;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.iterable.scanner.batch.BatchLoader;
 
@@ -40,7 +42,11 @@ extends BaseHBaseEntityBatchLoader<EK,E,PK,D,F,PK>{
 	protected List<PK> parseHBaseResult(Result result){
 		//the first and last entity may include results outside the range
 		NavigableSet<PK> unfilteredResults = node.getResultParser().getPrimaryKeysWithMatchingQualifierPrefix(result);
+		DRCounters.incClientNodeCustom(node.getClient().getType(), "scan pk numRows unfiltered", node.getClient()
+				.getName(), node.getName(), DrCollectionTool.size(unfilteredResults));
 		List<PK> filteredResults = FieldSetRangeFilter.filter(unfilteredResults, range);
+		DRCounters.incClientNodeCustom(node.getClient().getType(), "scan pk numRows filtered", node.getClient()
+				.getName(), node.getName(), DrCollectionTool.size(filteredResults));
 		return filteredResults;
 	}
 
