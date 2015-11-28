@@ -1,6 +1,7 @@
 package com.hotpads.datarouter.client.imp.hbase.util;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,9 +52,9 @@ public class HBaseEntityResultParser<
 		return entity;
 	}
 	
-	public Map<String,List<? extends Databean<?,?>>> getDatabeansByQualifierPrefix(Result row){
+	private Map<String,List<? extends Databean<?,?>>> getDatabeansByQualifierPrefix(Result row){
 		if(row == null) {
-			return new HashMap<>();
+			return Collections.emptyMap();
 		}
 		Map<String,ArrayList<KeyValue>> kvsByQp = getKvsByQualifierPrefix(row);
 		Map<String,List<? extends Databean<?,?>>> databeansByQp = new HashMap<>();
@@ -80,6 +81,7 @@ public class HBaseEntityResultParser<
 			if(DrObjectTool.notEquals(previousQp, qp)){
 				kvsForQp = new ArrayList<>();
 				kvsByQp.put(qp, kvsForQp);
+				previousQp = qp;
 			}
 			kvsForQp.add(kv);
 		}
