@@ -137,6 +137,7 @@ public class HBaseSubEntityResultParser<
 					break;
 				}
 				databean = fieldInfo.getDatabeanSupplier().get();
+				ReflectionTool.set(fieldInfo.getKeyJavaField(), databean, pkAndFieldName.getLeft());
 				databeans.add(databean);
 			}
 			setDatabeanField(databean, pkAndFieldName.getRight(), kv.getValue());
