@@ -97,6 +97,7 @@ public class HBaseSubEntityResultParser<
 			return new TreeSet<>();
 		}
 		//unfortunately, we expect a bunch of duplicate PK's, so throw them in a set
+		//TODO stop using a Set
 		NavigableSet<PK> pks = new TreeSet<>();
 		for(KeyValue kv : DrIterableTool.nullSafe(row.list())){//row.list() can return null
 			if(!matchesNodePrefix(kv)) {
@@ -116,10 +117,16 @@ public class HBaseSubEntityResultParser<
 		if(row == null) {
 			return Collections.emptyList();
 		}
+		return getDatabeansForKvsWithMatchingQualifierPrefix(row.list(), limit);
+	}
+
+	public List<D> getDatabeansForKvsWithMatchingQualifierPrefix(List<KeyValue> kvs, Integer limit){
+		if(DrCollectionTool.isEmpty(kvs)) {
+			return Collections.emptyList();
+		}
 		List<D> databeans = new ArrayList<>();
-//		PK previousPk = null;
 		D databean = null;
-		for(KeyValue kv : DrIterableTool.nullSafe(row.list())){//row.list() can return null
+		for(KeyValue kv : kvs){//row.list() can return null
 			if(!matchesNodePrefix(kv)) {
 				continue;
 			}
