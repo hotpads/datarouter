@@ -1,7 +1,7 @@
 package com.hotpads.datarouter.client.imp.hbase.util;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableSet;
@@ -25,7 +25,7 @@ import com.hotpads.datarouter.storage.key.entity.EntityPartitioner;
 import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrIterableTool;
-import com.hotpads.datarouter.util.core.DrListTool;
+import com.hotpads.datarouter.util.core.DrObjectTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.collections.Pair;
 import com.hotpads.util.core.java.ReflectionTool;
@@ -114,57 +114,41 @@ public class HBaseSubEntityResultParser<
 
 	public List<D> getDatabeansWithMatchingQualifierPrefix(Result row, Integer limit){
 		if(row == null) {
-			return new LinkedList<>();
+			return Collections.emptyList();
 		}
-		Map<PK,D> databeanByKey = new TreeMap<>();
+		List<D> databeans = new ArrayList<>();
+//		PK previousPk = null;
+		D databean = null;
 		for(KeyValue kv : DrIterableTool.nullSafe(row.list())){//row.list() can return null
 			if(!matchesNodePrefix(kv)) {
 				continue;
 			}
 			Pair<PK,String> pkAndFieldName = parsePrimaryKeyAndFieldName(kv);
-			if(limit != null && databeanByKey.size() == limit){
-				if(alreadyContainsPk(databeanByKey, pkAndFieldName.getLeft())){
-					addKeyValueToResultsUnchecked(databeanByKey, pkAndFieldName, kv.getValue());
-					continue;
+			if(databean == null || DrObjectTool.notEquals(databean.getKey(), pkAndFieldName.getLeft())){
+				//we're about to start a new databean
+				if(limit != null && databeans.size() == limit){
+					break;
 				}
-				break;
+				databean = fieldInfo.getDatabeanSupplier().get();
+				databeans.add(databean);
 			}
-			addKeyValueToResultsUnchecked(databeanByKey, pkAndFieldName, kv.getValue());
+			setDatabeanField(databean, pkAndFieldName.getRight(), kv.getValue());
 		}
-		return DrListTool.createArrayList(databeanByKey.values());
+		return databeans;
 	}
 
-	private boolean alreadyContainsPk(Map<PK,D> databeanByKey, PK pk){
-		return databeanByKey.containsKey(pk);
-	}
-
-	public void addKeyValueToResultsUnchecked(Map<PK,D> databeanByPk, KeyValue kv){
-		addKeyValueToResultsUnchecked(databeanByPk, parsePrimaryKeyAndFieldName(kv), kv.getValue());
-	}
-
-	public void addKeyValueToResultsUnchecked(Map<PK,D> databeanByPk, Pair<PK,String> pkAndFieldName,
-			byte[] bytesValue){
-		PK pk = pkAndFieldName.getLeft();
-		String fieldName = pkAndFieldName.getRight();
+	public void setDatabeanField(D databean, String fieldName, byte[] bytesValue){
 		Field<?> field = null;
-		final boolean isDummyField = HBaseSubEntityNode.DUMMY.equals(fieldName);
-		if(!isDummyField){
-			field = fieldInfo.getNonKeyFieldByColumnName().get(fieldName);
-			if(field == null){//field doesn't exist in the databean anymore.  skip it
-				return;
-			}
+		if(HBaseSubEntityNode.DUMMY.equals(fieldName)){
+			return;
 		}
-		D databean = databeanByPk.get(pk);
-		if(databean==null){
-			databean = fieldInfo.getDatabeanSupplier().get();
-			ReflectionTool.set(fieldInfo.getKeyJavaField(), databean, pk);
-			databeanByPk.put(pk, databean);
+		field = fieldInfo.getNonKeyFieldByColumnName().get(fieldName);
+		if(field == null){//field doesn't exist in the databean anymore.  skip it
+			return;
 		}
-		if(!isDummyField){
-			//set the databean field value for this hbase cell
-			Object value = field.fromBytesButDoNotSet(bytesValue, 0);
-			field.setUsingReflection(databean, value);
-		}
+		//set the databean field value for this hbase cell
+		Object value = field.fromBytesButDoNotSet(bytesValue, 0);
+		field.setUsingReflection(databean, value);
 	}
 
 
