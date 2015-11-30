@@ -3,11 +3,11 @@ package com.hotpads.example.config;
 import java.util.Arrays;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.inject.Singleton;
 import com.hotpads.example.Cake;
 import com.hotpads.example.CakeKey;
 import com.hotpads.example.ExampleRouter;
