@@ -89,10 +89,12 @@ public class LazyReaderIntegrationTests{
 				new TestDatabeanByCLookup(baz),
 				new TestDatabeanByCLookup(foo));
 		List<TestDatabean> expectedDatabeans = Arrays.asList(
-				databeans.get(2),
-				databeans.get(1));
+				databeans.get(1),
+				databeans.get(2));
 		List<TestDatabean> fromBlockingNode = router.testDatabean.lookupMultiUnique(lookups, null);
 		List<TestDatabean> fromLazyNode = router.lazyTestDatabean.lookupMultiUnique(lookups, null).get();
+		Collections.sort(fromBlockingNode);
+		Collections.sort(fromLazyNode);
 		Assert.assertEquals(fromBlockingNode, fromLazyNode);
 		Assert.assertEquals(expectedDatabeans, fromBlockingNode);
 	}
@@ -109,13 +111,15 @@ public class LazyReaderIntegrationTests{
 	@Test
 	public void testLookupMulti(){
 		List<TestDatabeanByCLookup> lookups = Arrays.asList(
-				new TestDatabeanByCLookup(foo),
-				new TestDatabeanByCLookup(baz));
+				new TestDatabeanByCLookup(baz),
+				new TestDatabeanByCLookup(foo));
 		List<TestDatabean> expectedDatabeans = Arrays.asList(
-				databeans.get(2),
-				databeans.get(1));
+				databeans.get(1),
+				databeans.get(2));
 		List<TestDatabean> fromBlockingNode = router.testDatabean.lookupMulti(lookups, null);
 		List<TestDatabean> fromLazyNode = router.lazyTestDatabean.lookupMulti(lookups, null).get();
+		Collections.sort(fromBlockingNode);
+		Collections.sort(fromLazyNode);
 		Assert.assertEquals(fromBlockingNode, fromLazyNode);
 		Assert.assertEquals(expectedDatabeans, fromBlockingNode);
 	}
