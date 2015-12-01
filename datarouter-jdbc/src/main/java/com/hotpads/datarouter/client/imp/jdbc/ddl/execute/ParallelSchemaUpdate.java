@@ -4,7 +4,6 @@ import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.Callable;
@@ -22,23 +21,12 @@ import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
 import com.hotpads.datarouter.util.DatarouterEmailTool;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrIterableTool;
-import com.hotpads.datarouter.util.core.DrPropertiesTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.util.core.concurrent.FutureTool;
 
 public class ParallelSchemaUpdate
 implements Callable<Void>{
-	private static Logger logger = LoggerFactory.getLogger(ParallelSchemaUpdate.class);
-
-	/************ static fields *******************/
-
-	public static final String
-		SERVER_NAME = "server.name",
-		ADMINISTRATOR_EMAIL = "administrator.email",
-		PRINT_PREFIX = "schemaUpdate.print",
-		EXECUTE_PREFIX = "schemaUpdate.execute"
-		;
-
+	private static final Logger logger = LoggerFactory.getLogger(ParallelSchemaUpdate.class);
 
 	/******************* fields **********************/
 
@@ -47,31 +35,25 @@ implements Callable<Void>{
 	private final String clientName;
 	private final JdbcConnectionPool connectionPool;
 
-	private final Set<String> configFilePaths;
-	private final List<Properties> multiProperties;
-
 	private final SchemaUpdateOptions printOptions;
 	private final SchemaUpdateOptions executeOptions;
 	private final Set<String> updatedTables;
 	private final List<String> printedSchemaUpdates;
 
-
 	/***************** construct ***********************/
 
 	public ParallelSchemaUpdate(Datarouter datarouter, JdbcFieldCodecFactory fieldCodecFactory,
-			String clientName, JdbcConnectionPool connectionPool){
+			String clientName, JdbcConnectionPool connectionPool, SchemaUpdateOptions printOptions,
+			SchemaUpdateOptions executeOptions){
 		this.datarouter = datarouter;
 		this.fieldCodecFactory = fieldCodecFactory;
 		this.clientName = clientName;
 		this.connectionPool = connectionPool;
-		this.configFilePaths = datarouter.getConfigFilePaths();
-		this.multiProperties = DrPropertiesTool.fromFiles(configFilePaths);
-		this.printOptions = new SchemaUpdateOptions(multiProperties, PRINT_PREFIX, true	);
-		this.executeOptions = new SchemaUpdateOptions(multiProperties, EXECUTE_PREFIX, false);
-		this.updatedTables = Collections.synchronizedSet(new TreeSet<String>());
-		this.printedSchemaUpdates = Collections.synchronizedList(new ArrayList<String>());
+		this.printOptions = printOptions;
+		this.executeOptions = executeOptions;
+		this.updatedTables = Collections.synchronizedSet(new TreeSet<>());
+		this.printedSchemaUpdates = Collections.synchronizedList(new ArrayList<>());
 	}
-
 
 	/************** methods **********************/
 
@@ -83,7 +65,7 @@ implements Callable<Void>{
 		try{
 			connection = connectionPool.checkOut();
 			existingTableNames = JdbcTool.showTables(connection);
-		} finally{
+		}finally{
 			connectionPool.checkIn(connection);// is this how you return it to the pool?
 		}
 
@@ -109,7 +91,8 @@ implements Callable<Void>{
 		if (DrCollectionTool.isEmpty(printedSchemaUpdates)){
 			return;
 		}
-		if(DrStringTool.isEmpty(datarouter.getAdministratorEmail()) || DrStringTool.isEmpty(datarouter.getServerName())){
+		if(DrStringTool.isEmpty(datarouter.getAdministratorEmail()) || DrStringTool.isEmpty(datarouter
+				.getServerName())) {
 			//note: this can be caused by not calling datarouter.activate().  need to fix this startup flaw.
 			logger.warn("please set your datarouter administratorEmail and serverName");
 			return;
@@ -122,4 +105,5 @@ implements Callable<Void>{
 		DatarouterEmailTool.sendEmail("noreply@hotpads.com", datarouter.getAdministratorEmail(), subject,
 				body.toString());
 	}
+
 }
