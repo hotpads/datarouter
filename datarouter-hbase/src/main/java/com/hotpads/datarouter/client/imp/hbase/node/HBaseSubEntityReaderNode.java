@@ -113,7 +113,7 @@ implements HBasePhysicalNode<PK,D>,
 						DrCollectionTool.size(pks));
 				List<Get> gets = queryBuilder.getGets(pks, false);
 				Result[] hbaseResults = htable.get(gets);
-				List<D> databeans = resultParser.getDatabeansWithMatchingQualifierPrefix(hbaseResults);
+				List<D> databeans = resultParser.getDatabeansWithMatchingQualifierPrefixMulti(hbaseResults);
 				DRCounters.incClientNodeCustom(client.getType(), "getMulti found", getClientName(), getNodeName(),
 						DrCollectionTool.size(pks));
 				return databeans;
@@ -136,7 +136,7 @@ implements HBasePhysicalNode<PK,D>,
 							getNodeName() , DrCollectionTool.size(pks));
 					List<Get> gets = queryBuilder.getGets(pks, true);
 					Result[] hbaseResults = htable.get(gets);
-					List<PK> pks = resultParser.getPrimaryKeysWithMatchingQualifierPrefix(hbaseResults);
+					List<PK> pks = resultParser.getPrimaryKeysWithMatchingQualifierPrefixMulti(hbaseResults);
 					DRCounters.incClientNodeCustom(client.getType(), "getKeys found", getClientName(), getNodeName(),
 							DrCollectionTool.size(pks));
 					return pks;
@@ -180,7 +180,7 @@ implements HBasePhysicalNode<PK,D>,
 				throws Exception{
 					List<Get> gets = queryBuilder.getPrefixGets(singleEntityPrefixes, wildcardLastField, config);
 					Result[] hbaseRows = htable.get(gets);
-					return resultParser.getDatabeansWithMatchingQualifierPrefix(hbaseRows);
+					return resultParser.getDatabeansWithMatchingQualifierPrefixMulti(hbaseRows);
 				}
 			}).call();
 

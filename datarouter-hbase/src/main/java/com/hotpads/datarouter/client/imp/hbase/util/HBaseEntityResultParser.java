@@ -26,15 +26,15 @@ public class HBaseEntityResultParser<
 		E extends Entity<EK>>{
 
 
-	private EntityFieldInfo<EK,E> entityFieldInfo;
-	private Map<String,HBaseSubEntityReaderNode<EK,E,?,?,?>> nodeByQualifierPrefix;
+	private final EntityFieldInfo<EK,E> entityFieldInfo;
+	private final Map<String,HBaseSubEntityReaderNode<EK,E,?,?,?>> nodeByQualifierPrefix;
 
 	public HBaseEntityResultParser(EntityFieldInfo<EK,E> entityFieldInfo,
 			Map<String,HBaseSubEntityReaderNode<EK,E,?,?,?>> nodeByQualifierPrefix){
 		this.entityFieldInfo = entityFieldInfo;
 		this.nodeByQualifierPrefix = nodeByQualifierPrefix;
 	}
-	
+
 	public E parseEntity(EK ek, Result row){
 		if(row == null) {
 			return null;
@@ -51,7 +51,7 @@ public class HBaseEntityResultParser<
 		//TODO add empty collections for empty prefixes since we were supposed to get all sub-entities
 		return entity;
 	}
-	
+
 	private Map<String,List<? extends Databean<?,?>>> getDatabeansByQualifierPrefix(Result row){
 		if(row == null) {
 			return Collections.emptyMap();
@@ -71,7 +71,7 @@ public class HBaseEntityResultParser<
 		}
 		return databeansByQp;
 	}
-	
+
 	private Map<String,ArrayList<KeyValue>> getKvsByQualifierPrefix(Result row){
 		Map<String,ArrayList<KeyValue>> kvsByQp = new HashMap<>();
 		ArrayList<KeyValue> kvsForQp = null;
@@ -87,13 +87,13 @@ public class HBaseEntityResultParser<
 		}
 		return kvsByQp;
 	}
-	
+
 	private String getQualifierPrefix(KeyValue kv){
 		int backingArrayOffset = kv.getQualifierOffset();
 		int qualifierPrefixLength = getQualifierPrefixLength(kv);
 		return StringByteTool.fromUtf8Bytes(kv.getBuffer(), backingArrayOffset, qualifierPrefixLength);
 	}
-	
+
 	private int getQualifierPrefixLength(KeyValue kv){
 		int qualifierOffset = kv.getQualifierOffset();
 		int qualifierLength = kv.getQualifierLength();
@@ -105,5 +105,5 @@ public class HBaseEntityResultParser<
 		}
 		throw new IllegalArgumentException("couldn't find entity prefix termination byte");
 	}
-	
+
 }
