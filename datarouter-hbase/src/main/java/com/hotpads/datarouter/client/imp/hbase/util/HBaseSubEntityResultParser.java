@@ -120,6 +120,7 @@ public class HBaseSubEntityResultParser<
 			if(limit != null && pks.size() >= limit){
 				break;
 			}
+			previousPk = pk;
 		}
 		return pks;
 	}
