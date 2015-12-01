@@ -1,7 +1,6 @@
 package com.hotpads.datarouter.client.imp.hbase.batching.entity;
 
 import java.util.List;
-import java.util.NavigableSet;
 
 import org.apache.hadoop.hbase.client.Result;
 
@@ -39,7 +38,7 @@ extends BaseHBaseEntityBatchLoader<EK,E,PK,D,F,PK>{
 	@Override
 	protected List<PK> parseHBaseResult(Result result){
 		//the first and last entity may include results outside the range
-		NavigableSet<PK> unfilteredResults = node.getResultParser().getPrimaryKeysWithMatchingQualifierPrefix(result);
+		List<PK> unfilteredResults = node.getResultParser().getPrimaryKeysWithMatchingQualifierPrefix(result);
 		List<PK> filteredResults = FieldSetRangeFilter.filter(unfilteredResults, range);
 		return filteredResults;
 	}

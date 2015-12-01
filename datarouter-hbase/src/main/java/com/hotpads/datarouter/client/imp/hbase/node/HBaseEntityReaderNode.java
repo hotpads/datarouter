@@ -35,7 +35,7 @@ extends BasePhysicalEntityNode<EK,E>{
 	private ClientTableNodeNames clientTableNodeNames;//currently acting as a cache of superclass fields
 	private HBaseEntityQueryBuilder<EK,E> queryBuilder;
 	private HBaseEntityResultParser<EK,E> resultParser;
-	
+
 	public HBaseEntityReaderNode(NodeFactory nodeFactory, Router router, EntityNodeParams<EK,E> entityNodeParams,
 			ClientTableNodeNames clientTableNodeNames){
 		super(router.getContext(), entityNodeParams, clientTableNodeNames);
@@ -46,33 +46,37 @@ extends BasePhysicalEntityNode<EK,E>{
 		this.resultParser = new HBaseEntityResultParser<EK,E>(entityFieldInfo,
 				(Map<String,HBaseSubEntityReaderNode<EK,E,?,?,?>>)getNodeByQualifierPrefix());
 	}
-	
+
 
 	@Override
 	public HBaseClient getClient(){
 		return (HBaseClient)super.getClient();
 	}
-	
+
 	public ClientTableNodeNames getClientTableNodeNames(){
 		return clientTableNodeNames;
 	}
-	
+
 	public HBaseEntityResultParser<EK,E> getResultParser(){
 		return resultParser;
 	}
-	
 
 	@Override
-	public E getEntity(final EK ek, final Config pConfig){
-		if(ek==null){ return null; }
-		final Config config = Config.nullSafe(pConfig);
+	public E getEntity(final EK ek, final Config paramConfig){
+		if(ek == null) {
+			return null;
+		}
+		final Config config = Config.nullSafe(paramConfig);
 		try{
-			return new HBaseMultiAttemptTask<E>(new HBaseTask<E>(getContext(), getClientTableNodeNames(), "getEntity", config){
-					public E hbaseCall(HTable hTable, HBaseClient client, ResultScanner managedResultScanner) throws Exception{
+			return new HBaseMultiAttemptTask<E>(new HBaseTask<E>(getContext(), getClientTableNodeNames(), "getEntity",
+					config){
+					@Override
+					public E hbaseCall(HTable hTable, HBaseClient client, ResultScanner managedResultScanner)
+					throws Exception{
 						byte[] rowBytes = queryBuilder.getRowBytesWithPartition(ek);
 						Get get = new Get(rowBytes);
-						Result hBaseResult = hTable.get(get);
-						E entity = resultParser.parseEntity(ek, hBaseResult);
+						Result hbaseResult = hTable.get(get);
+						E entity = resultParser.parseEntity(ek, hbaseResult);
 						if(entity != null){
 							DRCounters.incClientNodeCustom(client.getType(), "entity databeans", getClientName(),
 									getNodeName(), entity.getNumDatabeans());
@@ -85,5 +89,5 @@ extends BasePhysicalEntityNode<EK,E>{
 			throw e;
 		}
 	}
-	
+
 }
