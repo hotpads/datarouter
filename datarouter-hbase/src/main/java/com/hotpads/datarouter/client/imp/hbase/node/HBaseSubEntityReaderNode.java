@@ -36,9 +36,9 @@ import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.datarouter.util.core.DrNumberTool;
 import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.iterable.scanner.batch.AsyncBatchLoaderScanner;
-import com.hotpads.util.core.iterable.scanner.collate.Collator;
 import com.hotpads.util.core.iterable.scanner.collate.PriorityQueueCollator;
 import com.hotpads.util.core.iterable.scanner.iterable.ScannerIterable;
+import com.hotpads.util.core.iterable.scanner.sorted.SortedScanner;
 
 public class HBaseSubEntityReaderNode<
 		EK extends EntityKey<EK>,
@@ -246,7 +246,7 @@ implements HBasePhysicalNode<PK,D>,
 			return DrIterableTool.skip(pks, DrNumberTool.longValue(nullSafeConfig.getOffset()));
 		}
 		List<AsyncBatchLoaderScanner<PK>> scanners = queryBuilder.getPkScanners(this, nullSafeRange, config);
-		Collator<PK> collator = new PriorityQueueCollator<>(scanners, DrNumberTool.longValue(nullSafeConfig
+		SortedScanner<PK> collator = new PriorityQueueCollator<>(scanners, DrNumberTool.longValue(nullSafeConfig
 				.getLimit()));
 		collator.advanceBy(nullSafeConfig.getOffset());
 		return new ScannerIterable<>(collator);
@@ -275,7 +275,8 @@ implements HBasePhysicalNode<PK,D>,
 			return DrIterableTool.skip(databeans, DrNumberTool.longValue(nullSafeConfig.getOffset()));
 		}
 		List<AsyncBatchLoaderScanner<D>> scanners = queryBuilder.getDatabeanScanners(this, nullSafeRange, config);
-		Collator<D> collator = new PriorityQueueCollator<>(scanners, DrNumberTool.longValue(nullSafeConfig.getLimit()));
+		SortedScanner<D> collator = new PriorityQueueCollator<>(scanners, DrNumberTool.longValue(nullSafeConfig
+				.getLimit()));
 		collator.advanceBy(nullSafeConfig.getOffset());
 		return new ScannerIterable<>(collator);
 	}
@@ -293,8 +294,8 @@ implements HBasePhysicalNode<PK,D>,
 	public List<Result> getResultsInSubRange(final int partition, final Range<PK> pkRange, final boolean keysOnly,
 			final Config config){
 		final Config nullSafeConfig = Config.nullSafe(config);
-		final String scanKeysVsRowsNumBatches = "scan " + (keysOnly ? "pk" : "databean") + " numBatches";
-		final String scanKeysVsRowsNumRows = "scan " + (keysOnly ? "pk" : "databean") + " numRows";
+		final String scanKeysVsRowsNumBatches = "scan " + (keysOnly ? "pk" : "entity") + " numBatches";
+		final String scanKeysVsRowsNumRows = "scan " + (keysOnly ? "pk" : "entity") + " numRows";
 		return new HBaseMultiAttemptTask<>(new HBaseTask<List<Result>>(getDatarouter(),
 				getClientTableNodeNames(), scanKeysVsRowsNumBatches, nullSafeConfig){
 			@Override
