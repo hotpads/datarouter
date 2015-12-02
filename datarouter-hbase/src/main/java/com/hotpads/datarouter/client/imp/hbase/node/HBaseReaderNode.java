@@ -41,9 +41,9 @@ import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.bytes.ByteRange;
 import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.iterable.scanner.batch.AsyncBatchLoaderScanner;
-import com.hotpads.util.core.iterable.scanner.collate.Collator;
 import com.hotpads.util.core.iterable.scanner.collate.PriorityQueueCollator;
 import com.hotpads.util.core.iterable.scanner.iterable.ScannerIterable;
+import com.hotpads.util.core.iterable.scanner.sorted.SortedScanner;
 
 public class HBaseReaderNode<
 		PK extends PrimaryKey<PK>,
@@ -208,7 +208,7 @@ implements HBasePhysicalNode<PK,D>,
 		List<AsyncBatchLoaderScanner<PK>> scanners = HBaseScatteringPrefixQueryBuilder
 				.getBatchingPrimaryKeyScannerForEachPrefix(getClient().getExecutorService(), this, fieldInfo, range,
 						nullSafeConfig);
-		Collator<PK> collator = new PriorityQueueCollator<>(scanners);
+		SortedScanner<PK> collator = new PriorityQueueCollator<>(scanners);
 		collator.advanceBy(nullSafeConfig.getOffset());
 		return new ScannerIterable<>(collator);
 	}
@@ -223,7 +223,7 @@ implements HBasePhysicalNode<PK,D>,
 		List<AsyncBatchLoaderScanner<D>> scanners = HBaseScatteringPrefixQueryBuilder
 				.getBatchingDatabeanScannerForEachPrefix(getClient().getExecutorService(), this, fieldInfo, range,
 						nullSafeConfig);
-		Collator<D> collator = new PriorityQueueCollator<>(scanners);
+		SortedScanner<D> collator = new PriorityQueueCollator<>(scanners);
 		collator.advanceBy(nullSafeConfig.getOffset());
 		return new ScannerIterable<>(collator);
 	}
