@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app
+	version="3.0"
+	xmlns="http://java.sun.com/xml/ns/javaee"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://www.oracle.com/webfolder/technetwork/jsc/xml/ns/javaee/web-app_3_0.xsd"
+	>
+	<listener>
+		<listener-class>com.hotpads.example.config.guice.ExampleGuiceServletContextListener</listener-class>
+	</listener>
+	<listener>
+		<listener-class>com.hotpads.example.config.ExampleServletContextListener</listener-class>
+	</listener>
+</web-app>

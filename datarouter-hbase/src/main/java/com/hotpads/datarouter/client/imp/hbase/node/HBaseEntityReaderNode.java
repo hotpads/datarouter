@@ -61,13 +61,12 @@ extends BasePhysicalEntityNode<EK,E>{
 		return resultParser;
 	}
 
-
 	@Override
-	public E getEntity(final EK ek, final Config pConfig){
+	public E getEntity(final EK ek, final Config paramConfig){
 		if(ek == null) {
 			return null;
 		}
-		final Config config = Config.nullSafe(pConfig);
+		final Config config = Config.nullSafe(paramConfig);
 		try{
 			return new HBaseMultiAttemptTask<E>(new HBaseTask<E>(getContext(), getClientTableNodeNames(), "getEntity",
 					config){

@@ -13,6 +13,8 @@ import com.hotpads.datarouter.storage.entity.Entity;
 import com.hotpads.datarouter.storage.field.compare.FieldSetRangeFilter;
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
 import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
+import com.hotpads.datarouter.util.DRCounters;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.iterable.scanner.batch.BatchLoader;
@@ -40,12 +42,16 @@ extends BaseHBaseEntityBatchLoader<EK,E,PK,D,F,D>{
 	protected List<D> parseHBaseResult(Result result){
 		//the first and last entity may include results outside the range
 		List<D> unfilteredResults = node.getResultParser().getDatabeansWithMatchingQualifierPrefix(result, null);
+		DRCounters.incClientNodeCustom(node.getClient().getType(), "scan databean numRows unfiltered", node.getClient()
+				.getName(), node.getName(), DrCollectionTool.size(unfilteredResults));
 		List<D> filteredResults = new ArrayList<>();
 		for(D candidate : DrIterableTool.nullSafe(unfilteredResults)){
 			if(FieldSetRangeFilter.include(candidate.getKey(), range)){
 				filteredResults.add(candidate);
 			}
 		}
+		DRCounters.incClientNodeCustom(node.getClient().getType(), "scan databean numRows filtered", node.getClient()
+				.getName(), node.getName(), DrCollectionTool.size(filteredResults));
 		return filteredResults;
 	}
 

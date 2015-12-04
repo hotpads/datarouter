@@ -157,9 +157,10 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 						|| diff.isCollationModified()
 						|| diff.getColumnsWithCharsetOrCollationToConvert().size() > 0)){
 
-			list.add(new SqlAlterTableClause(
-					"convert to character set " + requested.getCharacterSet().toString().toLowerCase()
-					+ "\ncollate "+requested.getCollation().toString().toLowerCase(),
+			String collation = requested.getCollation().toString().toLowerCase();
+			String characterSet = requested.getCharacterSet().toString().toLowerCase();
+			list.add(new SqlAlterTableClause("convert to character set " + characterSet + " collate " + collation
+					+ ",\n" + "character set " + characterSet + " collate " + collation,
 					SqlAlterTypes.MODIFY_CHARACTER_SET));
 
 		}

@@ -1,18 +1,15 @@
 package com.hotpads.datarouter.client.imp.hbase.util;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.NavigableSet;
-import java.util.TreeMap;
-import java.util.TreeSet;
 
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.log4j.Logger;
 
+import com.google.common.base.Objects;
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseSubEntityNode;
 import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
 import com.hotpads.datarouter.serialize.fieldcache.EntityFieldInfo;
@@ -25,11 +22,14 @@ import com.hotpads.datarouter.storage.key.entity.EntityPartitioner;
 import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrIterableTool;
-import com.hotpads.datarouter.util.core.DrListTool;
+import com.hotpads.datarouter.util.core.DrObjectTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.collections.Pair;
 import com.hotpads.util.core.java.ReflectionTool;
 
+/*
+ * TODO This class needs work to remove intermediate objects to reduce GC pressure.
+ */
 public class HBaseSubEntityResultParser<
 		EK extends EntityKey<EK>,
 		E extends Entity<EK>,
@@ -38,9 +38,9 @@ public class HBaseSubEntityResultParser<
 		F extends DatabeanFielder<PK,D>>{
 	private static final Logger logger = Logger.getLogger(HBaseSubEntityResultParser.class);
 
-	private EntityFieldInfo<EK,E> entityFieldInfo;
-	private EntityPartitioner<EK> partitioner;
-	private DatabeanFieldInfo<PK,D,F> fieldInfo;
+	private final EntityFieldInfo<EK,E> entityFieldInfo;
+	private final EntityPartitioner<EK> partitioner;
+	private final DatabeanFieldInfo<PK,D,F> fieldInfo;
 
 
 	public HBaseSubEntityResultParser(EntityFieldInfo<EK,E> entityFieldInfo, DatabeanFieldInfo<PK,D,F> fieldInfo){
@@ -56,7 +56,9 @@ public class HBaseSubEntityResultParser<
 		EK ek = ReflectionTool.create(entityFieldInfo.getEntityKeyClass());
 		int byteOffset = partitioner.getNumPrefixBytes();
 		for(Field<?> field : fieldInfo.getEkFields()){
-			if(byteOffset==rowBytes.length){ break; }//ran out of bytes.  leave remaining fields blank
+			if(byteOffset == rowBytes.length) {// ran out of bytes. leave remaining fields blank
+				break;
+			}
 			Object value = field.fromBytesWithSeparatorButDoNotSet(rowBytes, byteOffset);
 			field.setUsingReflection(ek, value);
 			byteOffset += field.numBytesWithSeparator(rowBytes, byteOffset);
@@ -67,20 +69,24 @@ public class HBaseSubEntityResultParser<
 
 	/****************** parse multiple hbase rows ********************/
 
-	public List<PK> getPrimaryKeysWithMatchingQualifierPrefix(Result[] rows){
+	public List<PK> getPrimaryKeysWithMatchingQualifierPrefixMulti(Result[] rows){
 		List<PK> results = new ArrayList<>();
 		for(Result row : rows){
-			if(row.isEmpty()){ continue; }
-			NavigableSet<PK> pksFromSingleGet = getPrimaryKeysWithMatchingQualifierPrefix(row);
+			if(row.isEmpty()) {
+				continue;
+			}
+			ArrayList<PK> pksFromSingleGet = getPrimaryKeysWithMatchingQualifierPrefix(row);
 			results.addAll(DrCollectionTool.nullSafe(pksFromSingleGet));
 		}
 		return results;
 	}
 
-	public List<D> getDatabeansWithMatchingQualifierPrefix(Result[] rows){
+	public List<D> getDatabeansWithMatchingQualifierPrefixMulti(Result[] rows){
 		List<D> results = new ArrayList<>();
 		for(Result row : rows){
-			if(row.isEmpty()){ continue; }
+			if(row.isEmpty()) {
+				continue;
+			}
 			List<D> databeansFromSingleGet = getDatabeansWithMatchingQualifierPrefix(row, null);
 			results.addAll(DrCollectionTool.nullSafe(databeansFromSingleGet));
 		}
@@ -89,82 +95,80 @@ public class HBaseSubEntityResultParser<
 
 
 	/****************** parse single hbase row ********************/
-	public NavigableSet<PK> getPrimaryKeysWithMatchingQualifierPrefix(Result row){
+
+	public ArrayList<PK> getPrimaryKeysWithMatchingQualifierPrefix(Result row){
 		return getPrimaryKeysWithMatchingQualifierPrefix(row, null);
 	}
-	public NavigableSet<PK> getPrimaryKeysWithMatchingQualifierPrefix(Result row, Integer limit){
+
+	public ArrayList<PK> getPrimaryKeysWithMatchingQualifierPrefix(Result row, Integer limit){
 		if(row == null) {
-			return new TreeSet<>();
+			return new ArrayList<>(0);
 		}
-		//unfortunately, we expect a bunch of duplicate PK's, so throw them in a set
-		NavigableSet<PK> pks = new TreeSet<>();
+		//unfortunately, we expect a bunch of duplicate PK's
+		ArrayList<PK> pks = new ArrayList<>();
+		PK previousPk = null;
 		for(KeyValue kv : DrIterableTool.nullSafe(row.list())){//row.list() can return null
 			if(!matchesNodePrefix(kv)) {
 				continue;
 			}
 			Pair<PK,String> pkAndFieldName = parsePrimaryKeyAndFieldName(kv);
 			PK pk = pkAndFieldName.getLeft();
+			if(Objects.equal(previousPk, pk)){
+				continue;
+			}
 			pks.add(pk);
 			if(limit != null && pks.size() >= limit){
 				break;
 			}
+			previousPk = pk;
 		}
 		return pks;
 	}
 
 	public List<D> getDatabeansWithMatchingQualifierPrefix(Result row, Integer limit){
 		if(row == null) {
-			return new LinkedList<>();
+			return Collections.emptyList();
 		}
-		Map<PK,D> databeanByKey = new TreeMap<>();
-		for(KeyValue kv : DrIterableTool.nullSafe(row.list())){//row.list() can return null
+		return getDatabeansForKvsWithMatchingQualifierPrefix(row.list(), limit);
+	}
+
+	public List<D> getDatabeansForKvsWithMatchingQualifierPrefix(List<KeyValue> kvs, Integer limit){
+		if(DrCollectionTool.isEmpty(kvs)) {
+			return Collections.emptyList();
+		}
+		List<D> databeans = new ArrayList<>();
+		D databean = null;
+		for(KeyValue kv : kvs){
 			if(!matchesNodePrefix(kv)) {
 				continue;
 			}
 			Pair<PK,String> pkAndFieldName = parsePrimaryKeyAndFieldName(kv);
-			if(limit != null && databeanByKey.size() == limit){
-				if(alreadyContainsPk(databeanByKey, pkAndFieldName.getLeft())){
-					addKeyValueToResultsUnchecked(databeanByKey, pkAndFieldName, kv.getValue());
-					continue;
+			if(databean == null || DrObjectTool.notEquals(databean.getKey(), pkAndFieldName.getLeft())){
+				//we're about to start a new databean
+				if(limit != null && databeans.size() == limit){
+					break;
 				}
-				break;
+				databean = fieldInfo.getDatabeanSupplier().get();
+				ReflectionTool.set(fieldInfo.getKeyJavaField(), databean, pkAndFieldName.getLeft());
+				databeans.add(databean);
 			}
-			addKeyValueToResultsUnchecked(databeanByKey, pkAndFieldName, kv.getValue());
+			setDatabeanField(databean, pkAndFieldName.getRight(), kv.getValue());
 		}
-		return DrListTool.createArrayList(databeanByKey.values());
+		return databeans;
 	}
 
-	private boolean alreadyContainsPk(Map<PK,D> databeanByKey, PK pk){
-		return databeanByKey.containsKey(pk);
-	}
-
-	public void addKeyValueToResultsUnchecked(Map<PK,D> databeanByPk, KeyValue kv){
-		addKeyValueToResultsUnchecked(databeanByPk, parsePrimaryKeyAndFieldName(kv), kv.getValue());
-	}
-
-	public void addKeyValueToResultsUnchecked(Map<PK,D> databeanByPk, Pair<PK,String> pkAndFieldName,
-			byte[] bytesValue){
-		PK pk = pkAndFieldName.getLeft();
-		String fieldName = pkAndFieldName.getRight();
+	public void setDatabeanField(D databean, String fieldName, byte[] bytesValue){
 		Field<?> field = null;
-		final boolean isDummyField = HBaseSubEntityNode.DUMMY.equals(fieldName);
-		if(!isDummyField){
-			field = fieldInfo.getNonKeyFieldByColumnName().get(fieldName);
-			if(field == null){//field doesn't exist in the databean anymore.  skip it
-				return;
-			}
+		if(HBaseSubEntityNode.DUMMY.equals(fieldName)){
+			return;
 		}
-		D databean = databeanByPk.get(pk);
-		if(databean==null){
-			databean = ReflectionTool.create(fieldInfo.getDatabeanClass());
-			ReflectionTool.set(fieldInfo.getKeyJavaField(), databean, pk);
-			databeanByPk.put(pk, databean);
+		field = fieldInfo.getNonKeyFieldByColumnName().get(fieldName);
+		if(field == null){//field doesn't exist in the databean anymore.  skip it
+			return;
 		}
-		if(!isDummyField){
-			//set the databean field value for this hbase cell
-			Object value = field.fromBytesButDoNotSet(bytesValue, 0);
-			field.setUsingReflection(databean, value);
-		}
+		//set the databean field value for this hbase cell
+		Object value = field.fromBytesButDoNotSet(bytesValue, 0);
+		field.setUsingReflection(databean, value);
 	}
 
 
@@ -183,8 +187,11 @@ public class HBaseSubEntityResultParser<
 	}
 
 	private boolean matchesNodePrefix(KeyValue kv){
-		byte[] qualifier = kv.getQualifier();
-		return Bytes.startsWith(qualifier, fieldInfo.getEntityColumnPrefixBytes());
+		byte[] prefix = fieldInfo.getEntityColumnPrefixBytes();
+		if(kv.getQualifierLength() < prefix.length){
+			return false;
+		}
+		return Bytes.equals(kv.getBuffer(), kv.getQualifierOffset(), prefix.length, prefix, 0, prefix.length);
 	}
 
 	//parse the hbase row bytes after the partition offset
@@ -205,7 +212,9 @@ public class HBaseSubEntityResultParser<
 	private int parseFieldsFromBytesToPk(List<Field<?>> fields, byte[] fromBytes, int offset, PK targetPk){
 		int byteOffset = offset;
 		for(Field<?> field : fields){
-			if(byteOffset==fromBytes.length){ break; }//ran out of bytes.  leave remaining fields blank
+			if(byteOffset == fromBytes.length){// ran out of bytes. leave remaining fields blank
+				break;
+			}
 			Object value = field.fromBytesWithSeparatorButDoNotSet(fromBytes, byteOffset);
 			field.setUsingReflection(targetPk, value);
 			byteOffset += field.numBytesWithSeparator(fromBytes, byteOffset);
