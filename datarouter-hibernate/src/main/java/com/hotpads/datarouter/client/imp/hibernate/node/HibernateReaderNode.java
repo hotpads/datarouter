@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.client.imp.hibernate.node;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -247,27 +248,19 @@ implements MapStorageReader<PK,D>,
 			final PK end, final boolean endInclusive,
 			final Config config) {
 		Range<PK> range = Range.create(start, startInclusive, end, endInclusive);
-		return (List<PK>)getRangeUnchecked(range, true, config);
+		return (List<PK>)getRangesUnchecked(Arrays.asList(range), true, config);
 	}
 
-
-	//used by HibernateDatabeanScanner
-	@SuppressWarnings("unchecked")
-	public List<D> getRange(
-			final PK start, final boolean startInclusive,
-			final PK end, final boolean endInclusive,
-			final Config config) {
-		Range<PK> range = Range.create(start, startInclusive, end, endInclusive);
-		return (List<D>)getRangeUnchecked(range, false, config);
+	public List<D> getRanges(Collection<Range<PK>> ranges, Config config){
+		return (List<D>)getRangesUnchecked(ranges, false, config);
 	}
-
 
 	//this gets ugly because we are dealing with PrimaryKeys/Databeans and Jdbc/Hibernate
-	public List<? extends FieldSet<?>> getRangeUnchecked(final Range<PK> range, final boolean keysOnly,
+	public List<? extends FieldSet<?>> getRangesUnchecked(final Collection<Range<PK>> ranges, final boolean keysOnly,
 			final Config config){
 		String opName = keysOnly ? SortedStorageReader.OP_getKeysInRange : SortedStorageReader.OP_getRange;
 		HibernateGetRangeUncheckedOp<PK,D,F> op = new HibernateGetRangeUncheckedOp<>(this, resultParser, opName,
-				range, keysOnly, config);
+				ranges, keysOnly, config);
 		return new SessionExecutorImpl<>(op, getTraceName(opName)).call();
 	}
 
@@ -279,9 +272,13 @@ implements MapStorageReader<PK,D>,
 	}
 
 	@Override
-	public SingleUseScannerIterable<D> scan(Range<PK> range, Config config){
-		range = Range.nullSafe(range);
-		Scanner<D> scanner = new HibernateDatabeanScanner<>(this, range, config);
+	public Iterable<D> scan(Range<PK> range, Config config){
+		return scanMulti(Arrays.asList(Range.nullSafe(range)), config);
+	}
+
+	@Override
+	public Iterable<D> scanMulti(Collection<Range<PK>> ranges, Config config){
+		Scanner<D> scanner = new HibernateDatabeanScanner<>(this, ranges, config);
 		return new SingleUseScannerIterable<>(scanner);
 	}
 

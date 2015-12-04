@@ -1,6 +1,7 @@
 package com.hotpads.datarouter.client.imp.jdbc.util;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -96,26 +97,32 @@ public class SqlBuilder{
 		return sql.toString();
 	}
 
-	public static <T extends FieldSet<T>>String getInRange(JdbcFieldCodecFactory codecFactory, Config config,
-			String tableName, List<Field<?>> selectFields, Range<T> range, List<Field<?>> orderByFields){
-		return getInRange(codecFactory, config, tableName, selectFields, range.getStart(), range.getStartInclusive(),
-				range.getEnd(), range.getEndInclusive(), orderByFields);
-	}
-
-	public static String getInRange(JdbcFieldCodecFactory codecFactory, Config config, String tableName,
-			List<Field<?>> selectFields, FieldSet<?> start, boolean startInclusive, FieldSet<?> end,
-			boolean endInclusive, List<Field<?>> orderByFields){
+	public static <T extends FieldSet<T>> String getInRanges(JdbcFieldCodecFactory codecFactory, Config config,
+			String tableName, List<Field<?>> selectFields, Iterable<Range<T>> ranges, List<Field<?>> orderByFields){
 		StringBuilder sql = new StringBuilder();
 		addSelectFromClause(sql, tableName, selectFields);
-		if(needsRangeWhereClause(start, end)){
-			sql.append(" where ");
-			addRangeWhereClause(codecFactory, sql, start, startInclusive, end, endInclusive);
+		boolean hasWhereClause = false;
+		for(Range<T> range : ranges){
+			if(needsRangeWhereClause(range.getStart(), range.getEnd())){
+				if(hasWhereClause){
+					sql.append(" or ");
+				}else{
+					sql.append(" where ");
+					hasWhereClause = true;
+				}
+				addRangeWhereClause(codecFactory, sql, range.getStart(), range.getStartInclusive(), range.getEnd(),
+						range.getEndInclusive());
+			}
 		}
 		addOrderByClause(sql, orderByFields);
 		addLimitOffsetClause(sql, config);
 		return sql.toString();
 	}
 
+	public static <T extends FieldSet<T>> String getInRange(JdbcFieldCodecFactory codecFactory, Config config,
+			String tableName, List<Field<?>> selectFields, Range<T> range, List<Field<?>> orderByFields){
+		return getInRanges(codecFactory, config, tableName, selectFields, Arrays.asList(range), orderByFields);
+	}
 
 	/*************************** secondary methods ***************************************/
 

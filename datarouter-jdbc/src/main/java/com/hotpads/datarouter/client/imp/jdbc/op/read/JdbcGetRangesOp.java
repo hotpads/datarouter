@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.client.imp.jdbc.op.read;
 
+import java.util.Collection;
 import java.util.List;
 
 import com.hotpads.datarouter.client.Client;
@@ -18,41 +19,41 @@ import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.util.core.collections.Range;
 
-public class JdbcGetPrimaryKeyRangeOp<
+public class JdbcGetRangesOp<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
-		F extends DatabeanFielder<PK,D>> 
-extends BaseJdbcOp<List<PK>>{
-		
+		F extends DatabeanFielder<PK,D>>
+extends BaseJdbcOp<List<D>>{
+
 	private final JdbcReaderNode<PK,D,F> node;
 	private final JdbcFieldCodecFactory fieldCodecFactory;
-	private final Range<PK> range;
+	private final Collection<Range<PK>> ranges;
 	private final Config config;
-	
-	public JdbcGetPrimaryKeyRangeOp(JdbcReaderNode<PK,D,F> node, JdbcFieldCodecFactory fieldCodecFactory,
-			Range<PK> range, Config config){
+
+	public JdbcGetRangesOp(JdbcReaderNode<PK,D,F> node, JdbcFieldCodecFactory fieldCodecFactory,
+			Collection<Range<PK>> ranges, Config config) {
 		super(node.getDatarouter(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
 		this.node = node;
 		this.fieldCodecFactory = fieldCodecFactory;
-		this.range = range;
+		this.ranges = ranges;
 		this.config = config;
 	}
-	
+
 	@Override
-	public List<PK> runOnce(){
+	public List<D> runOnce(){
 		Client client = node.getClient();
-		String opName = SortedStorageReader.OP_getKeysInRange;
+		String opName = SortedStorageReader.OP_getRange;
 		DRCounters.incClientNodeCustom(client.getType(), opName, client.getName(), node.getName());
-		
-		List<Field<?>> fieldsToSelect = node.getFieldInfo().getPrimaryKeyFields();
-		String sql = SqlBuilder.getInRange(fieldCodecFactory, config, node.getTableName(), fieldsToSelect, range, 
+
+		List<Field<?>> fieldsToSelect = node.getFieldInfo().getFields();
+		String sql = SqlBuilder.getInRanges(fieldCodecFactory, config, node.getTableName(), fieldsToSelect, ranges,
 				node.getFieldInfo().getPrimaryKeyFields());
-		List<PK> result = JdbcTool.selectPrimaryKeys(fieldCodecFactory, getConnection(node.getClientId().getName()),
-				node.getFieldInfo(), sql);
-		
-		DRCounters.incClientNodeCustom(client.getType(), opName + " rows", client.getName(), node.getName(), 
+		List<D> result = JdbcTool.selectDatabeans(fieldCodecFactory, getConnection(node.getClientId().getName()), node
+				.getFieldInfo(), sql);
+
+		DRCounters.incClientNodeCustom(client.getType(), opName + " rows", client.getName(), node.getName(),
 				DrCollectionTool.size(result));
 		return result;
 	}
-	
+
 }

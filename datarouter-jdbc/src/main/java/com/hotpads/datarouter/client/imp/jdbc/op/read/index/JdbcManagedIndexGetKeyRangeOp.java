@@ -43,8 +43,7 @@ extends BaseJdbcOp<List<IK>>{
 	@Override
 	public List<IK> runOnce(){
 		String sql = SqlBuilder.getInRange(fieldCodecFactory, config, node.getTableName(),
-				fieldInfo.getPrimaryKeyFields(), range.getStart(), range.getStartInclusive(), range.getEnd(),
-				range.getEndInclusive(), fieldInfo.getPrimaryKeyFields());
+				fieldInfo.getPrimaryKeyFields(), range, fieldInfo.getPrimaryKeyFields());
 		Connection connection = getConnection(node.getClientId().getName());
 		return JdbcTool.selectIndexEntryKeys(fieldCodecFactory, connection, fieldInfo, sql);
 	}

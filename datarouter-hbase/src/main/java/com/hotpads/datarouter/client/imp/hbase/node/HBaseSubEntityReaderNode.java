@@ -281,6 +281,11 @@ implements HBasePhysicalNode<PK,D>,
 		return new SingleUseScannerIterable<>(collator);
 	}
 
+	@Override
+	public Iterable<D> scanMulti(Collection<Range<PK>> ranges, Config config){
+		return () -> ranges.stream().flatMap(range -> stream(range, config)).iterator();
+	}
+
 
 	/***************************** helper methods **********************************/
 

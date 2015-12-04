@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.client.imp.hibernate.scan;
 
+import java.util.Collection;
 import java.util.List;
 
 import com.hotpads.datarouter.client.imp.hibernate.node.HibernateReaderNode;
@@ -14,15 +15,14 @@ extends BaseJdbcScanner<PK,D,D>{
 
 	private HibernateReaderNode<PK,D,?> node;
 
-	public HibernateDatabeanScanner(HibernateReaderNode<PK,D,?> node, Range<PK> range, Config config){
-		super(range, config);
+	public HibernateDatabeanScanner(HibernateReaderNode<PK,D,?> node, Collection<Range<PK>> ranges, Config config){
+		super(ranges, config);
 		this.node = node;
 	}
 
 	@Override
-	protected List<D> doLoad(Range<PK> range, Config config){
-		return node.getRange(range.getStart(), range.getStartInclusive(), range.getEnd(),
-				range.getEndInclusive(), config);
+	protected List<D> doLoad(Collection<Range<PK>> ranges, Config config){
+		return node.getRanges(ranges, config);
 	}
 
 	@Override
