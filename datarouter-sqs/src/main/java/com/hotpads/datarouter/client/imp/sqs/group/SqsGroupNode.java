@@ -16,7 +16,7 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.queue.BaseQueueMessage;
 import com.hotpads.datarouter.storage.queue.GroupQueueMessage;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
-import com.hotpads.util.core.iterable.scanner.iterable.ScannerIterable;
+import com.hotpads.util.core.iterable.scanner.iterable.SingleUseScannerIterable;
 
 public class SqsGroupNode<
 		PK extends PrimaryKey<PK>,
@@ -56,7 +56,7 @@ implements PhysicalGroupQueueStorageNode<PK,D>{
 
 	@Override
 	public Iterable<GroupQueueMessage<PK,D>> peekUntilEmpty(Config config){
-		return new ScannerIterable<>(new PeekGroupUntilEmptyQueueStorageScanner<>(this, config));
+		return new SingleUseScannerIterable<>(new PeekGroupUntilEmptyQueueStorageScanner<>(this, config));
 	}
 
 	//Reader + Writer

@@ -16,7 +16,7 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.queue.BaseQueueMessage;
 import com.hotpads.datarouter.storage.queue.QueueMessage;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
-import com.hotpads.util.core.iterable.scanner.iterable.ScannerIterable;
+import com.hotpads.util.core.iterable.scanner.iterable.SingleUseScannerIterable;
 
 public class SqsNode<
 		PK extends PrimaryKey<PK>,
@@ -44,7 +44,7 @@ implements PhysicalQueueStorageNode<PK,D>{
 
 	@Override
 	public Iterable<QueueMessage<PK, D>> peekUntilEmpty(Config config){
-		return new ScannerIterable<>(new PeekUntilEmptyQueueStorageScanner<>(this, config));
+		return new SingleUseScannerIterable<>(new PeekUntilEmptyQueueStorageScanner<>(this, config));
 	}
 
 	// Writer
