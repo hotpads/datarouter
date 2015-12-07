@@ -37,7 +37,7 @@ import com.hotpads.datarouter.util.core.DrNumberTool;
 import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.iterable.scanner.batch.AsyncBatchLoaderScanner;
 import com.hotpads.util.core.iterable.scanner.collate.PriorityQueueCollator;
-import com.hotpads.util.core.iterable.scanner.iterable.ScannerIterable;
+import com.hotpads.util.core.iterable.scanner.iterable.SingleUseScannerIterable;
 import com.hotpads.util.core.iterable.scanner.sorted.SortedScanner;
 
 public class HBaseSubEntityReaderNode<
@@ -249,7 +249,7 @@ implements HBasePhysicalNode<PK,D>,
 		SortedScanner<PK> collator = new PriorityQueueCollator<>(scanners, DrNumberTool.longValue(nullSafeConfig
 				.getLimit()));
 		collator.advanceBy(nullSafeConfig.getOffset());
-		return new ScannerIterable<>(collator);
+		return new SingleUseScannerIterable<>(collator);
 	}
 
 	@Override
@@ -278,7 +278,7 @@ implements HBasePhysicalNode<PK,D>,
 		SortedScanner<D> collator = new PriorityQueueCollator<>(scanners, DrNumberTool.longValue(nullSafeConfig
 				.getLimit()));
 		collator.advanceBy(nullSafeConfig.getOffset());
-		return new ScannerIterable<>(collator);
+		return new SingleUseScannerIterable<>(collator);
 	}
 
 

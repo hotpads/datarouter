@@ -55,7 +55,7 @@ import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.exception.NotImplementedException;
 import com.hotpads.util.core.iterable.scanner.Scanner;
-import com.hotpads.util.core.iterable.scanner.iterable.ScannerIterable;
+import com.hotpads.util.core.iterable.scanner.iterable.SingleUseScannerIterable;
 
 public class HibernateReaderNode<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>>
 extends BasePhysicalNode<PK,D,F>
@@ -195,7 +195,7 @@ implements MapStorageReader<PK,D>,
 			IF extends DatabeanFielder<IK, IE>>
 	Iterable<IE> scanIndex(DatabeanFieldInfo<IK,IE,IF> indexEntryFieldInfo, Range<IK> range,
 			Config config){
-		return new ScannerIterable<>(new HibernateManagedIndexScanner<>(range, config, fieldCodecFactory,
+		return new SingleUseScannerIterable<>(new HibernateManagedIndexScanner<>(range, config, fieldCodecFactory,
 				indexEntryFieldInfo, this));
 	}
 
@@ -205,7 +205,7 @@ implements MapStorageReader<PK,D>,
 			IF extends DatabeanFielder<IK, IE>>
 	Iterable<IK> scanIndexKeys(DatabeanFieldInfo<IK,IE,IF> indexEntryFieldInfo, Range<IK> range,
 			Config config){
-		return new ScannerIterable<>(new HibernateManagedIndexKeyScanner<>(range, config, fieldCodecFactory,
+		return new SingleUseScannerIterable<>(new HibernateManagedIndexKeyScanner<>(range, config, fieldCodecFactory,
 				indexEntryFieldInfo, this));
 	}
 
@@ -272,17 +272,17 @@ implements MapStorageReader<PK,D>,
 	}
 
 	@Override
-	public ScannerIterable<PK> scanKeys(Range<PK> range, Config config){
+	public SingleUseScannerIterable<PK> scanKeys(Range<PK> range, Config config){
 		range = Range.nullSafe(range);
 		Scanner<PK> scanner = new HibernatePrimaryKeyScanner<>(this, range, config);
-		return new ScannerIterable<>(scanner);
+		return new SingleUseScannerIterable<>(scanner);
 	}
 
 	@Override
-	public ScannerIterable<D> scan(Range<PK> range, Config config){
+	public SingleUseScannerIterable<D> scan(Range<PK> range, Config config){
 		range = Range.nullSafe(range);
 		Scanner<D> scanner = new HibernateDatabeanScanner<>(this, range, config);
-		return new ScannerIterable<>(scanner);
+		return new SingleUseScannerIterable<>(scanner);
 	}
 
 
