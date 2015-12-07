@@ -42,7 +42,7 @@ import com.hotpads.util.core.bytes.ByteRange;
 import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.iterable.scanner.batch.AsyncBatchLoaderScanner;
 import com.hotpads.util.core.iterable.scanner.collate.PriorityQueueCollator;
-import com.hotpads.util.core.iterable.scanner.iterable.ScannerIterable;
+import com.hotpads.util.core.iterable.scanner.iterable.SingleUseScannerIterable;
 import com.hotpads.util.core.iterable.scanner.sorted.SortedScanner;
 
 public class HBaseReaderNode<
@@ -199,7 +199,7 @@ implements HBasePhysicalNode<PK,D>,
 	}
 
 	@Override
-	public ScannerIterable<PK> scanKeys(Range<PK> range, final Config config){
+	public SingleUseScannerIterable<PK> scanKeys(Range<PK> range, final Config config){
 		range = Range.nullSafe(range);
 		Config nullSafeConfig = Config.nullSafe(config);
 		if(nullSafeConfig.getLimit() != null && nullSafeConfig.getOffset() != null){
@@ -210,11 +210,11 @@ implements HBasePhysicalNode<PK,D>,
 						nullSafeConfig);
 		SortedScanner<PK> collator = new PriorityQueueCollator<>(scanners);
 		collator.advanceBy(nullSafeConfig.getOffset());
-		return new ScannerIterable<>(collator);
+		return new SingleUseScannerIterable<>(collator);
 	}
 
 	@Override
-	public ScannerIterable<D> scan(Range<PK> range, final Config config){
+	public SingleUseScannerIterable<D> scan(Range<PK> range, final Config config){
 		range = Range.nullSafe(range);
 		Config nullSafeConfig = Config.nullSafe(config);
 		if(nullSafeConfig.getLimit() != null && nullSafeConfig.getOffset() != null){
@@ -225,7 +225,7 @@ implements HBasePhysicalNode<PK,D>,
 						nullSafeConfig);
 		SortedScanner<D> collator = new PriorityQueueCollator<>(scanners);
 		collator.advanceBy(nullSafeConfig.getOffset());
-		return new ScannerIterable<>(collator);
+		return new SingleUseScannerIterable<>(collator);
 	}
 
 

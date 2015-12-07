@@ -18,6 +18,7 @@ public class ExampleInjectorProvider extends InjectorProvider{
 		List<Module> modules = new ArrayList<>();
 		modules.add(new DatarouterGuiceModule());
 		modules.add(new ExampleGuiceModule());
+		modules.add(new ExampleWebGuiceModule());
 		return modules;
 	}
 

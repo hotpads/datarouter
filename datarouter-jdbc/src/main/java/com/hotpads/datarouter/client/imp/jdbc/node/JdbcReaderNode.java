@@ -27,7 +27,7 @@ import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.iterable.scanner.Scanner;
-import com.hotpads.util.core.iterable.scanner.iterable.ScannerIterable;
+import com.hotpads.util.core.iterable.scanner.iterable.SingleUseScannerIterable;
 
 public class JdbcReaderNode<
 		PK extends PrimaryKey<PK>,
@@ -109,7 +109,7 @@ implements PhysicalIndexedSortedMapStorageReaderNode<PK,D>{
 			IF extends DatabeanFielder<IK, IE>>
 	Iterable<IE> scanIndex(DatabeanFieldInfo<IK,IE,IF> indexEntryFieldInfo, Range<IK> range,
 			Config config){
-		return new ScannerIterable<>(new JdbcManagedIndexScanner<>(jdbcReaderOps, indexEntryFieldInfo, range,
+		return new SingleUseScannerIterable<>(new JdbcManagedIndexScanner<>(jdbcReaderOps, indexEntryFieldInfo, range,
 				config));
 	}
 
@@ -119,7 +119,7 @@ implements PhysicalIndexedSortedMapStorageReaderNode<PK,D>{
 			IF extends DatabeanFielder<IK, IE>>
 	Iterable<IK> scanIndexKeys(DatabeanFieldInfo<IK,IE,IF> indexEntryFieldInfo, Range<IK> range,
 			Config config){
-		return new ScannerIterable<>(new JdbcManagedIndexKeyScanner<>(jdbcReaderOps, indexEntryFieldInfo, range,
+		return new SingleUseScannerIterable<>(new JdbcManagedIndexKeyScanner<>(jdbcReaderOps, indexEntryFieldInfo, range,
 				config));
 	}
 
@@ -166,17 +166,17 @@ implements PhysicalIndexedSortedMapStorageReaderNode<PK,D>{
 	}
 
 	@Override
-	public ScannerIterable<PK> scanKeys(Range<PK> range, Config config){
+	public SingleUseScannerIterable<PK> scanKeys(Range<PK> range, Config config){
 		range = Range.nullSafe(range);
 		Scanner<PK> scanner = new JdbcPrimaryKeyScanner<>(jdbcReaderOps, fieldInfo, range, config);
-		return new ScannerIterable<>(scanner);
+		return new SingleUseScannerIterable<>(scanner);
 	}
 
 	@Override
-	public ScannerIterable<D> scan(Range<PK> range, Config config){
+	public SingleUseScannerIterable<D> scan(Range<PK> range, Config config){
 		range = Range.nullSafe(range);
 		Scanner<D> scanner = new JdbcDatabeanScanner<>(jdbcReaderOps, range, config);
-		return new ScannerIterable<>(scanner);
+		return new SingleUseScannerIterable<>(scanner);
 	}
 
 
