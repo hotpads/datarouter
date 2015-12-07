@@ -197,6 +197,10 @@
 					<groupId>org.jruby</groupId>
 					<artifactId>jruby-complete</artifactId>
 				</exclusion>
+				<exclusion>
+					<groupId>org.apache.httpcomponents</groupId>
+					<artifactId>httpcore</artifactId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 	</dependencies>
