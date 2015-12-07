@@ -3,6 +3,7 @@ package com.hotpads.example.config;
 import java.util.List;
 
 import com.hotpads.datarouter.inject.guice.GuiceInjectorRetriever;
+import com.hotpads.example.ExampleAppListener;
 import com.hotpads.listener.BaseDatarouterServletContextListener;
 import com.hotpads.listener.DatarouterAppListener;
 

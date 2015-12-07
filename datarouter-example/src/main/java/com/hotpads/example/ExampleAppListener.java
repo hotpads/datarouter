@@ -1,4 +1,4 @@
-package com.hotpads.example.config;
+package com.hotpads.example;
 
 import java.util.Arrays;
 
@@ -8,9 +8,6 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hotpads.example.Cake;
-import com.hotpads.example.CakeKey;
-import com.hotpads.example.ExampleRouter;
 import com.hotpads.listener.DatarouterAppListener;
 
 @Singleton
