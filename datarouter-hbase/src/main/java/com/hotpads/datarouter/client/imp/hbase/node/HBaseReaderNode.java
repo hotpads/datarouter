@@ -199,7 +199,7 @@ implements HBasePhysicalNode<PK,D>,
 	}
 
 	@Override
-	public SingleUseScannerIterable<PK> scanKeys(Range<PK> range, final Config config){
+	public Iterable<PK> scanKeys(Range<PK> range, final Config config){
 		range = Range.nullSafe(range);
 		Config nullSafeConfig = Config.nullSafe(config);
 		if(nullSafeConfig.getLimit() != null && nullSafeConfig.getOffset() != null){
@@ -214,7 +214,7 @@ implements HBasePhysicalNode<PK,D>,
 	}
 
 	@Override
-	public SingleUseScannerIterable<D> scan(Range<PK> range, final Config config){
+	public Iterable<D> scan(Range<PK> range, final Config config){
 		range = Range.nullSafe(range);
 		Config nullSafeConfig = Config.nullSafe(config);
 		if(nullSafeConfig.getLimit() != null && nullSafeConfig.getOffset() != null){

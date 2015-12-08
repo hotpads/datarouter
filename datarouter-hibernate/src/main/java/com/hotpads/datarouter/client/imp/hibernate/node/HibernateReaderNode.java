@@ -272,11 +272,6 @@ implements MapStorageReader<PK,D>,
 	}
 
 	@Override
-	public Iterable<D> scan(Range<PK> range, Config config){
-		return scanMulti(Arrays.asList(Range.nullSafe(range)), config);
-	}
-
-	@Override
 	public Iterable<D> scanMulti(Collection<Range<PK>> ranges, Config config){
 		Scanner<D> scanner = new HibernateDatabeanScanner<>(this, ranges, config);
 		return new SingleUseScannerIterable<>(scanner);
