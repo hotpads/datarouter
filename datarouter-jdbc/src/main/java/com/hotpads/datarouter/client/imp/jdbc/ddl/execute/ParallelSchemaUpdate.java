@@ -102,7 +102,7 @@ implements Callable<Void>{
 		for(String update : DrIterableTool.nullSafe(printedSchemaUpdates)){
 			body.append(update + "\n\n");
 		}
-		DatarouterEmailTool.sendEmail("noreply@hotpads.com", datarouter.getAdministratorEmail(), subject,
+		DatarouterEmailTool.trySendEmail("noreply@hotpads.com", datarouter.getAdministratorEmail(), subject,
 				body.toString());
 	}
 
