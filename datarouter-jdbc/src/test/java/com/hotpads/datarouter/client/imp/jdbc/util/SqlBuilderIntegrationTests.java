@@ -120,27 +120,34 @@ public class SqlBuilderIntegrationTests{
 	}
 
 	@Test
-	public void testGetInRange(){
-		Assert.assertEquals(SqlBuilder.getInRange(jdbcFieldCodecFactory, config, "TestTable", KEY_1.getFields(),
-				new Range<>(KEY_1), null), "select foo, bar from TestTable where ((foo=42 and bar>='baz') or (foo>42))"
-						+ " limit 5, 10");
-		Assert.assertEquals(SqlBuilder.getInRange(jdbcFieldCodecFactory, config, "TestTable", KEY_1.getFields(),
-				new Range<>(KEY_1, false, new TestKey(null, null), true), null), "select foo, bar from TestTable where "
-						+ "((foo=42 and bar>'baz') or (foo>42)) limit 5, 10");
-		Assert.assertEquals(SqlBuilder.getInRange(jdbcFieldCodecFactory, config, "TestTable", KEY_1.getFields(),
-				new Range<TestKey>(null), null), "select foo, bar from TestTable limit 5, 10");
-		Assert.assertEquals(SqlBuilder.getInRange(jdbcFieldCodecFactory, config, "TestTable", KEY_1.getFields(),
-				new Range<>(new TestKey(null, null), new TestKey(null, null)), null), "select foo, bar from TestTable"
-						+ " limit 5, 10");
-		Assert.assertEquals(SqlBuilder.getInRange(jdbcFieldCodecFactory, config, "TestTable", KEY_1.getFields(),
-				new Range<>(new TestKey(null, null), KEY_2), null), "select foo, bar from TestTable where ((foo<24) or "
+	public void testGetInRanges(){
+		Assert.assertEquals(SqlBuilder.getInRanges(jdbcFieldCodecFactory, config, "TestTable", KEY_1.getFields(), Arrays
+				.asList(new Range<>(KEY_1)), null), "select foo, bar from TestTable where ((foo=42 and "
+						+ "bar>='baz') or (foo>42)) limit 5, 10");
+		Assert.assertEquals(SqlBuilder.getInRanges(jdbcFieldCodecFactory, config, "TestTable", KEY_1.getFields(), Arrays
+				.asList(new Range<>(KEY_1, false, new TestKey(null, null), true)), null), "select foo, bar from "
+						+ "TestTable where ((foo=42 and bar>'baz') or (foo>42)) limit 5, 10");
+		Assert.assertEquals(SqlBuilder.getInRanges(jdbcFieldCodecFactory, config, "TestTable", KEY_1.getFields(), Arrays
+				.asList(new Range<TestKey>(null)), null), "select foo, bar from TestTable limit 5, 10");
+		Assert.assertEquals(SqlBuilder.getInRanges(jdbcFieldCodecFactory, config, "TestTable", KEY_1.getFields(), Arrays
+				.asList(new Range<>(new TestKey(null, null), new TestKey(null, null))), null), "select foo, bar "
+						+ "from TestTable limit 5, 10");
+		Assert.assertEquals(SqlBuilder.getInRanges(jdbcFieldCodecFactory, config, "TestTable", KEY_1.getFields(), Arrays
+				.asList(new Range<>(new TestKey(null, null), KEY_2)), null), "select foo, bar from TestTable "
+						+ "where ((foo<24) or (foo=24 and bar<'degemer')) limit 5, 10");
+		Assert.assertEquals(SqlBuilder.getInRanges(jdbcFieldCodecFactory, config, "TestTable", KEY_1.getFields(), Arrays
+				.asList(new Range<>(null, KEY_2)), null), "select foo, bar from TestTable where ((foo<24) or "
 						+ "(foo=24 and bar<'degemer')) limit 5, 10");
-		Assert.assertEquals(SqlBuilder.getInRange(jdbcFieldCodecFactory, config, "TestTable", KEY_1.getFields(),
-				new Range<>(null, KEY_2), null), "select foo, bar from TestTable where ((foo<24) or (foo=24 and "
-						+ "bar<'degemer')) limit 5, 10");
-		Assert.assertEquals(SqlBuilder.getInRange(jdbcFieldCodecFactory, config, "TestTable", KEY_1.getFields(),
-				new Range<>(KEY_1, true, KEY_2, true), null), "select foo, bar from TestTable where ((foo=42 and "
-						+ "bar>='baz') or (foo>42)) and ((foo<24) or (foo=24 and bar<='degemer')) limit 5, 10");
+		Assert.assertEquals(SqlBuilder.getInRanges(jdbcFieldCodecFactory, config, "TestTable", KEY_1.getFields(), Arrays
+				.asList(new Range<>(KEY_1, true, KEY_2, true)), null), "select foo, bar from TestTable where "
+						+ "((foo=42 and bar>='baz') or (foo>42)) and ((foo<24) or (foo=24 and bar<='degemer')) limit 5,"
+						+ " 10");
+		List<Range<TestKey>> ranges = Arrays.asList(new Range<>(new TestKey(4, "a"), new TestKey(6, "c")), new Range<>(
+				new TestKey(8, "a"), new TestKey(10, "c")));
+		Assert.assertEquals(SqlBuilder.getInRanges(jdbcFieldCodecFactory, config, "TestTable", KEY_1.getFields(),
+				ranges, null), "select foo, bar from TestTable where ((foo=4 and bar>='a') or (foo>4)) and ((foo<6) or"
+						+ " (foo=6 and bar<'c')) or ((foo=8 and bar>='a') or (foo>8)) and ((foo<10) or (foo=10 and "
+						+ "bar<'c')) limit 5," + " 10");
 	}
 
 	@Test
