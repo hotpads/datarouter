@@ -56,7 +56,7 @@ extends BaseBatchBackedScanner<T,T>{
 				previousRange = range;
 			}
 			ranges = remainingRanges;
-			Range<PK> firstRange = ranges.first().copy();
+			Range<PK> firstRange = ranges.first().clone();
 			firstRange.setStart(lastRowOfPreviousBatch);
 			firstRange.setStartInclusive(false);
 			ranges.remove(ranges.first());
