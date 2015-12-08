@@ -1,6 +1,5 @@
 package com.hotpads.datarouter.client.imp.jdbc.node;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -167,9 +166,8 @@ implements PhysicalIndexedSortedMapStorageReaderNode<PK,D>{
 	}
 
 	@Override
-	public Iterable<PK> scanKeys(Range<PK> range, Config config){
-		range = Range.nullSafe(range);
-		Scanner<PK> scanner = new JdbcPrimaryKeyScanner<>(jdbcReaderOps, fieldInfo, Arrays.asList(range), config);
+	public Iterable<PK> scanKeysMulti(Collection<Range<PK>> ranges, Config config){
+		Scanner<PK> scanner = new JdbcPrimaryKeyScanner<>(jdbcReaderOps, fieldInfo, ranges, config);
 		return new SingleUseScannerIterable<>(scanner);
 	}
 

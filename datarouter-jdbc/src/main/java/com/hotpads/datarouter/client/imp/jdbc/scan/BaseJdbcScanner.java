@@ -48,11 +48,10 @@ extends BaseBatchBackedScanner<T,T>{
 			SortedSet<Range<PK>> remainingRanges = new TreeSet<>(ranges);
 			for(Range<PK> range : ranges){
 				if(previousRange != null){
-					if(range.getStart() != null && range.getStart().compareTo(lastRowOfPreviousBatch) <= 0){
-						remainingRanges.remove(previousRange);
-					}else{
+					if(range.getStart() == null || range.getStart().compareTo(lastRowOfPreviousBatch) > 0){
 						break;
 					}
+					remainingRanges.remove(previousRange);
 				}
 				previousRange = range;
 			}

@@ -1,6 +1,5 @@
 package com.hotpads.datarouter.client.imp.hibernate.node;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -241,14 +240,8 @@ implements MapStorageReader<PK,D>,
 		return new SessionExecutorImpl<>(op, getTraceName(opName)).call();
 	}
 
-	//used by HibernatePrimaryKeyScanner
-	@SuppressWarnings("unchecked")
-	public List<PK> getKeysInRange(
-			final PK start, final boolean startInclusive,
-			final PK end, final boolean endInclusive,
-			final Config config) {
-		Range<PK> range = Range.create(start, startInclusive, end, endInclusive);
-		return (List<PK>)getRangesUnchecked(Arrays.asList(range), true, config);
+	public List<PK> getKeysInRanges(Collection<Range<PK>> ranges, final Config config) {
+		return (List<PK>)getRangesUnchecked(ranges, true, config);
 	}
 
 	public List<D> getRanges(Collection<Range<PK>> ranges, Config config){
@@ -265,9 +258,8 @@ implements MapStorageReader<PK,D>,
 	}
 
 	@Override
-	public SingleUseScannerIterable<PK> scanKeys(Range<PK> range, Config config){
-		range = Range.nullSafe(range);
-		Scanner<PK> scanner = new HibernatePrimaryKeyScanner<>(this, range, config);
+	public Iterable<PK> scanKeysMulti(Collection<Range<PK>> ranges, Config config){
+		Scanner<PK> scanner = new HibernatePrimaryKeyScanner<>(this, ranges, config);
 		return new SingleUseScannerIterable<>(scanner);
 	}
 

@@ -253,6 +253,11 @@ implements HBasePhysicalNode<PK,D>,
 	}
 
 	@Override
+	public Iterable<PK> scanKeysMulti(Collection<Range<PK>> ranges, Config config){
+		return () -> ranges.stream().flatMap(range -> streamKeys(range, config)).iterator();
+	}
+
+	@Override
 	public Iterable<D> scan(final Range<PK> range, final Config config){
 		final Config nullSafeConfig = Config.nullSafe(config);
 		if(nullSafeConfig.getLimit() != null && nullSafeConfig.getOffset() != null){
