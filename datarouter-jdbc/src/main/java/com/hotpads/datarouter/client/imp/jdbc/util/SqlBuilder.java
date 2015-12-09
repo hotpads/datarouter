@@ -252,75 +252,67 @@ public class SqlBuilder{
 			}
 		}
 
-		if(start != null){
-			if(numNonNullStartFields > 0){
-				if(numNonNullStartFields - numEqualsLeadingFields > 0){
-					hasStart = true;
-					if(numEqualsLeadingFields > 0){
+		if(start != null && numNonNullStartFields > 0 && numNonNullStartFields > numEqualsLeadingFields){
+			hasStart = true;
+			if(numEqualsLeadingFields > 0){
+				sql.append(" and ");
+			}
+			sql.append("(");
+			for(int i=numNonNullStartFields; i > numEqualsLeadingFields; --i){
+				if(i<numNonNullStartFields){
+					sql.append(" or ");
+				}
+				sql.append("(");
+				for(int j=numEqualsLeadingFields; j < i; ++j){
+					if(j>numEqualsLeadingFields){
 						sql.append(" and ");
 					}
-					sql.append("(");
-					for(int i=numNonNullStartFields; i > numEqualsLeadingFields; --i){
-						if(i<numNonNullStartFields){
-							sql.append(" or ");
+					Field<?> startField = startFields.get(j);
+					JdbcFieldCodec<?,?> startCodec = startCodecs.get(j);
+					if(j < i-1){
+						sql.append(startCodec.getSqlNameValuePairEscaped());
+					}else{
+						if(startInclusive && i==numNonNullStartFields){
+							sql.append(startField.getKey().getColumnName()+">="+startCodec.getSqlEscaped());
+						}else{
+							sql.append(startField.getKey().getColumnName()+">"+startCodec.getSqlEscaped());
 						}
-						sql.append("(");
-						for(int j=numEqualsLeadingFields; j < i; ++j){
-							if(j>numEqualsLeadingFields){
-								sql.append(" and ");
-							}
-							Field<?> startField = startFields.get(j);
-							JdbcFieldCodec<?,?> startCodec = startCodecs.get(j);
-							if(j < i-1){
-								sql.append(startCodec.getSqlNameValuePairEscaped());
-							}else{
-								if(startInclusive && i==numNonNullStartFields){
-									sql.append(startField.getKey().getColumnName()+">="+startCodec.getSqlEscaped());
-								}else{
-									sql.append(startField.getKey().getColumnName()+">"+startCodec.getSqlEscaped());
-								}
-							}
-						}
-						sql.append(")");
 					}
-					sql.append(")");
 				}
+				sql.append(")");
 			}
+			sql.append(")");
 		}
 
-		if(end != null){
-			if(numNonNullEndFields > 0){
-				if(numNonNullEndFields - numEqualsLeadingFields > 0){
-					if(numEqualsLeadingFields > 0 || hasStart){
+		if(end != null && numNonNullEndFields > 0 && numNonNullEndFields > numEqualsLeadingFields){
+			if(numEqualsLeadingFields > 0 || hasStart){
+				sql.append(" and ");
+			}
+			sql.append("(");
+			for(int i=numEqualsLeadingFields; i < numNonNullEndFields; ++i){
+				if(i>numEqualsLeadingFields){
+					sql.append(" or ");
+				}
+				sql.append("(");
+				for(int j=numEqualsLeadingFields; j <= i; ++j){
+					if(j>numEqualsLeadingFields){
 						sql.append(" and ");
 					}
-					sql.append("(");
-					for(int i=numEqualsLeadingFields; i < numNonNullEndFields; ++i){
-						if(i>numEqualsLeadingFields){
-							sql.append(" or ");
+					Field<?> endField = endFields.get(j);
+					JdbcFieldCodec<?,?> endCodec = endCodecs.get(j);
+					if(j==i){
+						if(endInclusive && i==numNonNullEndFields-1){
+							sql.append(endField.getKey().getColumnName()+"<="+endCodec.getSqlEscaped());
+						}else{
+							sql.append(endField.getKey().getColumnName()+"<"+endCodec.getSqlEscaped());
 						}
-						sql.append("(");
-						for(int j=numEqualsLeadingFields; j <= i; ++j){
-							if(j>numEqualsLeadingFields){
-								sql.append(" and ");
-							}
-							Field<?> endField = endFields.get(j);
-							JdbcFieldCodec<?,?> endCodec = endCodecs.get(j);
-							if(j==i){
-								if(endInclusive && i==numNonNullEndFields-1){
-									sql.append(endField.getKey().getColumnName()+"<="+endCodec.getSqlEscaped());
-								}else{
-									sql.append(endField.getKey().getColumnName()+"<"+endCodec.getSqlEscaped());
-								}
-							}else{
-								sql.append(endCodec.getSqlNameValuePairEscaped());
-							}
-						}
-						sql.append(")");
+					}else{
+						sql.append(endCodec.getSqlNameValuePairEscaped());
 					}
-					sql.append(")");
 				}
+				sql.append(")");
 			}
+			sql.append(")");
 		}
 
 		if(numEqualsLeadingFields > 0){
