@@ -196,6 +196,9 @@ public class HBaseHandler extends BaseHandler {
 			mav.put("columnSummaryByName", columnSummaryByName);
 		}
 
+		mav.put("compressionOptions", DrTableSettings.COMPRESSION_STRINGS);
+		mav.put("dataBlockEncodingOptions", DrTableSettings.DATA_BLOCK_ENCODING_STRINGS);
+		mav.put("bloomOptions", DrTableSettings.BLOOMFILTER_STRINGS);
 		return mav;
 	}
 
