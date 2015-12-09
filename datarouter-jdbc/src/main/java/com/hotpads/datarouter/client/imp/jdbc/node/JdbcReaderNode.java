@@ -167,7 +167,7 @@ implements PhysicalIndexedSortedMapStorageReaderNode<PK,D>{
 
 	@Override
 	public Iterable<PK> scanKeysMulti(Collection<Range<PK>> ranges, Config config){
-		Scanner<PK> scanner = new JdbcPrimaryKeyScanner<>(jdbcReaderOps, fieldInfo, ranges, config);
+		Scanner<PK> scanner = new JdbcPrimaryKeyScanner<>(jdbcReaderOps, ranges, config);
 		return new SingleUseScannerIterable<>(scanner);
 	}
 
