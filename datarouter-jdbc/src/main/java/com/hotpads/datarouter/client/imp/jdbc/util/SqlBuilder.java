@@ -110,8 +110,7 @@ public class SqlBuilder{
 					sql.append(" where ");
 					hasWhereClause = true;
 				}
-				addRangeWhereClause(codecFactory, sql, range.getStart(), range.getStartInclusive(), range.getEnd(),
-						range.getEndInclusive());
+				addRangeWhereClause(codecFactory, sql, range);
 			}
 		}
 		addOrderByClause(sql, orderByFields);
@@ -208,15 +207,14 @@ public class SqlBuilder{
 	}
 
 	public static void addRangeWhereClause(JdbcFieldCodecFactory codecFactory, StringBuilder sql,
-			FieldSet<?> start, boolean startInclusive,
-			FieldSet<?> end, boolean endInclusive){
+			Range<? extends FieldSet<?>> range){
 		boolean hasStart = false;
 
 		List<Field<?>> startFields = null;
 		int numNonNullStartFields = 0;
 		List<JdbcFieldCodec<?,?>> startCodecs = null;
-		if(start != null){
-			startFields = DrListTool.nullSafe(start.getFields());
+		if(range.getStart() != null){
+			startFields = DrListTool.nullSafe(range.getStart().getFields());
 			numNonNullStartFields = FieldTool.countNonNullLeadingFields(startFields);
 			if(numNonNullStartFields > 0){
 				startCodecs = codecFactory.createCodecs(startFields);
@@ -226,8 +224,8 @@ public class SqlBuilder{
 		List<Field<?>> endFields = null;
 		int numNonNullEndFields = 0;
 		List<JdbcFieldCodec<?,?>> endCodecs = null;
-		if(end != null){
-			endFields = DrListTool.nullSafe(end.getFields());
+		if(range.getEnd() != null){
+			endFields = DrListTool.nullSafe(range.getEnd().getFields());
 			numNonNullEndFields = FieldTool.countNonNullLeadingFields(endFields);
 			if(numNonNullEndFields > 0){
 				endCodecs = codecFactory.createCodecs(endFields);
@@ -235,7 +233,7 @@ public class SqlBuilder{
 		}
 
 		int numEqualsLeadingFields = 0;
-		if(start != null && end != null){
+		if(range.getStart() != null && range.getEnd() != null){
 			int numNonNullLeadingFields = Math.min(numNonNullStartFields, numNonNullEndFields);
 			for(int i = 0 ; i < numNonNullLeadingFields ; i++){
 				if(startFields.get(i).getValue().equals(endFields.get(i).getValue())){
@@ -252,7 +250,7 @@ public class SqlBuilder{
 			}
 		}
 
-		if(start != null && numNonNullStartFields > 0 && numNonNullStartFields > numEqualsLeadingFields){
+		if(range.getStart() != null && numNonNullStartFields > 0 && numNonNullStartFields > numEqualsLeadingFields){
 			hasStart = true;
 			if(numEqualsLeadingFields > 0){
 				sql.append(" and ");
@@ -272,7 +270,7 @@ public class SqlBuilder{
 					if(j < i-1){
 						sql.append(startCodec.getSqlNameValuePairEscaped());
 					}else{
-						if(startInclusive && i==numNonNullStartFields){
+						if(range.getStartInclusive() && i==numNonNullStartFields){
 							sql.append(startField.getKey().getColumnName()+">="+startCodec.getSqlEscaped());
 						}else{
 							sql.append(startField.getKey().getColumnName()+">"+startCodec.getSqlEscaped());
@@ -284,7 +282,7 @@ public class SqlBuilder{
 			sql.append(")");
 		}
 
-		if(end != null && numNonNullEndFields > 0 && numNonNullEndFields > numEqualsLeadingFields){
+		if(range.getEnd() != null && numNonNullEndFields > 0 && numNonNullEndFields > numEqualsLeadingFields){
 			if(numEqualsLeadingFields > 0 || hasStart){
 				sql.append(" and ");
 			}
@@ -301,7 +299,7 @@ public class SqlBuilder{
 					Field<?> endField = endFields.get(j);
 					JdbcFieldCodec<?,?> endCodec = endCodecs.get(j);
 					if(j==i){
-						if(endInclusive && i==numNonNullEndFields-1){
+						if(range.getEndInclusive() && i==numNonNullEndFields-1){
 							sql.append(endField.getKey().getColumnName()+"<="+endCodec.getSqlEscaped());
 						}else{
 							sql.append(endField.getKey().getColumnName()+"<"+endCodec.getSqlEscaped());
