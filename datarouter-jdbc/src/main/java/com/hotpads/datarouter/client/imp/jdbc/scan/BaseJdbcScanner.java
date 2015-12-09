@@ -2,6 +2,7 @@ package com.hotpads.datarouter.client.imp.jdbc.scan;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.NavigableSet;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -18,13 +19,20 @@ public abstract class BaseJdbcScanner<
 		T extends Comparable<? super T>>//T should be either PK or D
 extends BaseBatchBackedScanner<T,T>{
 
+	private static final int RANGE_BATCH_SIZE = 10;
+
 	private long resultCount;
-	private SortedSet<Range<PK>> ranges;
+	private NavigableSet<Range<PK>> ranges;
+	private SortedSet<Range<PK>> currentRanges;
 	private Config config;
 	private Config batchConfig;
 
 	public BaseJdbcScanner(Collection<Range<PK>> ranges, Config config){
 		this.ranges = new TreeSet<>(ranges);
+		this.currentRanges = new TreeSet<>();
+		for(int i = 0 ; i < RANGE_BATCH_SIZE && !this.ranges.isEmpty() ; i++){
+			currentRanges.add(this.ranges.pollFirst());
+		}
 		this.config = Config.nullSafe(config);
 		this.noMoreBatches = false;
 		this.resultCount = 0;
@@ -45,22 +53,25 @@ extends BaseBatchBackedScanner<T,T>{
 			}
 			PK lastRowOfPreviousBatch = getPrimaryKey(endOfLastBatch);
 			Range<PK> previousRange = null;
-			SortedSet<Range<PK>> remainingRanges = new TreeSet<>(ranges);
-			for(Range<PK> range : ranges){
+			SortedSet<Range<PK>> remainingRanges = new TreeSet<>(currentRanges);
+			for(Range<PK> range : currentRanges){
 				if(previousRange != null){
 					if(range.getStart() == null || range.getStart().compareTo(lastRowOfPreviousBatch) > 0){
 						break;
 					}
 					remainingRanges.remove(previousRange);
+					if(!ranges.isEmpty()){
+						remainingRanges.add(ranges.pollFirst());
+					}
 				}
 				previousRange = range;
 			}
-			ranges = remainingRanges;
-			Range<PK> firstRange = ranges.first().clone();
+			currentRanges = remainingRanges;
+			Range<PK> firstRange = currentRanges.first().clone();
 			firstRange.setStart(lastRowOfPreviousBatch);
 			firstRange.setStartInclusive(false);
-			ranges.remove(ranges.first());
-			ranges.add(firstRange);
+			currentRanges.remove(currentRanges.first());
+			currentRanges.add(firstRange);
 		}
 
 		int batchConfigLimit = this.config.getIterateBatchSize();
@@ -69,10 +80,10 @@ extends BaseBatchBackedScanner<T,T>{
 		}
 		batchConfig.setLimit(batchConfigLimit);
 
-		currentBatch = doLoad(ranges, batchConfig);
+		currentBatch = doLoad(currentRanges, batchConfig);
 		batchConfig.setOffset(0);
 		resultCount += currentBatch.size();
-		if(DrCollectionTool.size(currentBatch) < batchConfig.getLimit()
+		if(ranges.size() == 0 && DrCollectionTool.size(currentBatch) < batchConfig.getLimit()
 				|| config.getLimit() != null && resultCount >= config.getLimit()){
 			noMoreBatches = true;//tell the advance() method not to call this method again
 		}
