@@ -24,6 +24,7 @@ public class SqlBuilderIntegrationTests{
 
 	private static final TestKey KEY_1 = new TestKey(42, "baz");
 	private static final TestKey KEY_2 = new TestKey(24, "degemer");
+	private static final TestKey KEY_3 = new TestKey(42, "mat");
 	private static final List<TestKey> ONE_KEY = Arrays.asList(KEY_1);
 	private static final List<TestKey> TWO_KEYS = Arrays.asList(KEY_1, KEY_2);
 	private static final Config config  = new Config().setLimit(10).setOffset(5);
@@ -141,6 +142,15 @@ public class SqlBuilderIntegrationTests{
 		Assert.assertEquals(SqlBuilder.getInRange(jdbcFieldCodecFactory, config, "TestTable", KEY_1.getFields(),
 				new Range<>(KEY_1, true, KEY_2, true), null), "select foo, bar from TestTable where ((foo=42 and "
 						+ "bar>='baz') or (foo>42)) and ((foo<24) or (foo=24 and bar<='degemer')) limit 5, 10");
+		Assert.assertEquals(SqlBuilder.getInRange(jdbcFieldCodecFactory, config, "TestTable", KEY_1.getFields(),
+				new Range<>(KEY_1, true, KEY_3, true), null), "select foo, bar from TestTable where (foo=42 and "
+						+ "((bar>='baz')) and ((bar<='mat'))) limit 5, 10");
+		Assert.assertEquals(SqlBuilder.getInRange(jdbcFieldCodecFactory, config, "TestTable", KEY_1.getFields(),
+				new Range<>(KEY_1, true, KEY_1, true), null), "select foo, bar from TestTable where (foo=42 and "
+						+ "bar='baz') limit 5, 10");
+		Assert.assertEquals(SqlBuilder.getInRange(jdbcFieldCodecFactory, config, "TestTable", KEY_1.getFields(),
+				new Range<>(new TestKey(KEY_1.foo, null), true, KEY_1, true), null), "select foo, bar from TestTable "
+						+ "where (foo=42 and ((bar<='baz'))) limit 5, 10");
 	}
 
 	@Test
