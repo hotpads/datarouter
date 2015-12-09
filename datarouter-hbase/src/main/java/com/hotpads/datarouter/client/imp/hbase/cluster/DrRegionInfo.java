@@ -33,20 +33,21 @@ public class DrRegionInfo<PK extends PrimaryKey<PK>>
 implements Comparable<DrRegionInfo<?>>{
 	private static final Logger logger = LoggerFactory.getLogger(DrRegionInfo.class);
 
-	private Integer regionNum;
-	private String tableName;
-	private String name;
-	private HRegionInfo regionInfo;
-	private ServerName serverName;
-	private ServerLoad serverLoad;
-	private Node<?,?> node;
-	private DatabeanFieldInfo<?,?,?> fieldInfo;
-	private Integer partition;
-	private FieldSet<?> startKey, endKey;
-	private RegionLoad load;
-	private byte[] consistentHashInput;
+	private final Integer regionNum;
+	private final String tableName;
+	private final Class<PK> primaryKeyClass;
+	private final String name;
+	private final HRegionInfo regionInfo;
+	private final ServerName serverName;
+	private final ServerLoad serverLoad;
+	private final Node<?,?> node;
+	private final DatabeanFieldInfo<?,?,?> fieldInfo;
+	private final Integer partition;
+	private final RegionLoad load;
+	private final byte[] consistentHashInput;
+	private final DRHCompactionScheduler compactionScheduler;
+
 	private ServerName balancerDestinationServer;
-	private DRHCompactionScheduler compactionScheduler;
 
 
 	public DrRegionInfo(Integer regionNum, String tableName, Class<PK> primaryKeyClass,
@@ -54,14 +55,13 @@ implements Comparable<DrRegionInfo<?>>{
 			Node<?,?> node, RegionLoad load, DRHCompactionInfo compactionInfo){
 		this.regionNum = regionNum;
 		this.tableName = tableName;
+		this.primaryKeyClass = primaryKeyClass;
 		this.name = new String(regionInfo.getRegionName());
 		this.regionInfo = regionInfo;
 		this.serverName = serverName;
 		this.serverLoad = serverLoad;
 		this.node = node;
 		this.fieldInfo = node.getFieldInfo();//set before calling getKey
-		this.startKey = getKey(primaryKeyClass, regionInfo.getStartKey());
-		this.endKey = getKey(primaryKeyClass, regionInfo.getEndKey());
 		this.partition = calculatePartition(regionInfo.getStartKey());
 		this.load = load;
 		this.consistentHashInput = regionInfo.getEncodedNameAsBytes();
@@ -73,13 +73,21 @@ implements Comparable<DrRegionInfo<?>>{
 
 	public FieldSet<?> getKey(Class<PK> primaryKeyClass, byte[] bytes){
 		PK sampleKey = ReflectionTool.create(primaryKeyClass);
-		if(DrArrayTool.isEmpty(bytes)){ return sampleKey; }
-		if(fieldInfo.isEntity()){
-			HBaseSubEntityReaderNode subEntityNode = (HBaseSubEntityReaderNode)node;
-			EntityKey<?> ek = subEntityNode.getResultParser().getEkFromRowBytes(bytes);
-			return ek;
+		if(DrArrayTool.isEmpty(bytes)) {
+			return sampleKey;
 		}
-		return HBaseResultTool.getPrimaryKeyUnchecked(bytes, fieldInfo);
+		try{
+			if(fieldInfo.isEntity()){
+				HBaseSubEntityReaderNode subEntityNode = (HBaseSubEntityReaderNode)node;
+				EntityKey<?> ek = subEntityNode.getResultParser().getEkFromRowBytes(bytes);
+				return ek;
+			}
+			return HBaseResultTool.getPrimaryKeyUnchecked(bytes, fieldInfo);
+		}catch(RuntimeException e){
+			logger.warn("error on {}, {}", primaryKeyClass.getName(), Bytes.toStringBinary(bytes));
+//			throw e;
+			return null;
+		}
 	}
 
 	private Integer calculatePartition(byte[] bytes){
@@ -184,11 +192,11 @@ implements Comparable<DrRegionInfo<?>>{
 	}
 
 	public FieldSet<?> getStartKey(){
-		return startKey;
+		return getKey(primaryKeyClass, regionInfo.getStartKey());
 	}
 
 	public FieldSet<?> getEndKey(){
-		return endKey;
+		return getKey(primaryKeyClass, regionInfo.getEndKey());
 	}
 
 	public Integer getPartition(){
