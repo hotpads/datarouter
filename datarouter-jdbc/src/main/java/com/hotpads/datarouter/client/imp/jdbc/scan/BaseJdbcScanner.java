@@ -81,6 +81,13 @@ extends BaseBatchBackedScanner<T,T>{
 		batchConfig.setLimit(batchConfigLimit);
 
 		currentBatch = doLoad(currentRanges, batchConfig);
+		while(currentBatch.isEmpty() && !ranges.isEmpty()){
+			currentRanges.clear();
+			for(int i = 0 ; i < RANGE_BATCH_SIZE && !ranges.isEmpty() ; i++){
+				currentRanges.add(ranges.pollFirst());
+			}
+			currentBatch = doLoad(currentRanges, batchConfig);
+		}
 		batchConfig.setOffset(0);
 		resultCount += currentBatch.size();
 		if(ranges.size() == 0 && DrCollectionTool.size(currentBatch) < batchConfig.getLimit()
