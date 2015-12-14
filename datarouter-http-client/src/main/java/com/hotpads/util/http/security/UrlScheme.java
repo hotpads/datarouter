@@ -23,6 +23,7 @@ public enum UrlScheme {
 			+ PORT_HTTP_DEV;
 	public static final String LOCAL_DEV_SERVER_HTTPS_URL = HTTPS.stringRepresentation + "://" + LOCAL_HOST + ":"
 			+ PORT_HTTPS_DEV;
+	public static final String DOMAIN_NAME_HTTPS_URL = HTTPS.stringRepresentation + "://" + DOMAIN_NAME;
 
 	private final String stringRepresentation;
 
