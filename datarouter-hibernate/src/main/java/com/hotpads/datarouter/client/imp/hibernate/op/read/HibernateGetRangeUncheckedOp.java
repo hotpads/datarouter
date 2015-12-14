@@ -67,7 +67,7 @@ extends BaseHibernateOp<List<? extends FieldSet<?>>>{
 		node.addPrimaryKeyOrderToCriteria(criteria);
 		Disjunction rangesDisjunction = Restrictions.disjunction();
 		for(Range<PK> range : ranges){
-			rangesDisjunction.add(CriteriaTool.makeRangeConjonction(range, node.getFieldInfo()));
+			rangesDisjunction.add(CriteriaTool.makeRangeConjunction(range, node.getFieldInfo()));
 		}
 		criteria.add(rangesDisjunction);
 		if(keysOnly){

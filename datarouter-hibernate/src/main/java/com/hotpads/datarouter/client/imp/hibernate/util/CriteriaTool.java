@@ -17,13 +17,13 @@ import com.hotpads.util.core.collections.Range;
 
 public class CriteriaTool {
 
-	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>> Conjunction makeRangeConjonction(Range<PK> range,
+	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>> Conjunction makeRangeConjunction(Range<PK> range,
 			DatabeanFieldInfo<PK,D,?> fieldInfo){
-		return makeRangeConjonction(range.getStart(), range.getStartInclusive(), range.getEnd(), range
+		return makeRangeConjunction(range.getStart(), range.getStartInclusive(), range.getEnd(), range
 				.getEndInclusive(), fieldInfo);
 	}
 
-	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>> Conjunction makeRangeConjonction(
+	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>> Conjunction makeRangeConjunction(
 			final PK start, final boolean startInclusive,
 			final PK end, final boolean endInclusive,
 			DatabeanFieldInfo<PK,D,?> fieldInfo){
