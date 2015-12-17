@@ -26,14 +26,15 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.SqlTableGenerator;
 import com.hotpads.datarouter.client.imp.jdbc.field.StringJdbcFieldCodec;
 import com.hotpads.datarouter.client.imp.jdbc.util.JdbcTool;
 import com.hotpads.datarouter.test.node.basic.manyfield.ManyFieldBean;
+import com.hotpads.datarouter.util.core.DrBooleanTool;
 import com.hotpads.datarouter.util.core.DrIterableTool;
 
 public class ConnectionSqlTableGenerator implements SqlTableGenerator{
 	private static final Logger logger = LoggerFactory.getLogger(ConnectionSqlTableGenerator.class);
 
-	private Connection connection;
-	private String tableName;
-	private String schemaName;
+	private final Connection connection;
+	private final String tableName;
+	private final String schemaName;
 
 	public ConnectionSqlTableGenerator(Connection connection, String tableName, String schemaName){
 		super();
@@ -88,23 +89,29 @@ public class ConnectionSqlTableGenerator implements SqlTableGenerator{
 			}
 
 			DatabaseMetaData dbmd = connection.getMetaData();
+
 			ResultSet indexList = dbmd.getIndexInfo(null, null, tableName, false, false);
 			List<String> listOfIndexNames = new ArrayList<>();
 			List<SqlIndex> listOfIndexes = new ArrayList<>();
+			List<SqlIndex> listOfUniqueIndexes = new ArrayList<>();
 
 			while(indexList.next()){
 				String indexName = indexList.getString("INDEX_NAME");
+				boolean uniqueName = DrBooleanTool.isFalse(indexList.getString("NON_UNIQUE"));
 				if(!listOfIndexNames.contains(indexName)){
 					listOfIndexNames.add(indexName);
 					SqlIndex index = new SqlIndex(indexName);
 					if(indexName.toUpperCase().equals("PRIMARY")){
 						addAppropriateColumnToPrimaryKeyFromListOfColumn(table, indexList
 								.getString("COLUMN_NAME"), table.getColumns());
-						// listOfIndexes.add(index);
 					}else{
-						addAppropriateColumnToIndexFromListOfColumn(index, indexList.getString("COLUMN_NAME"), table
-								.getColumns());
-						listOfIndexes.add(index);
+						if(uniqueName){
+							listOfUniqueIndexes.add(index);
+						}else{
+							addAppropriateColumnToIndexFromListOfColumn(index, indexList.getString("COLUMN_NAME"), table
+									.getColumns());
+							listOfIndexes.add(index);
+						}
 					}
 
 				}else{ // already created this index, just add a column to it
@@ -120,6 +127,10 @@ public class ConnectionSqlTableGenerator implements SqlTableGenerator{
 
 			for(SqlIndex i : listOfIndexes){
 				table.addIndex(i);
+			}
+
+			for(SqlIndex i : listOfUniqueIndexes){
+				table.addUniqueIndex(i);
 			}
 			indexList.close();
 

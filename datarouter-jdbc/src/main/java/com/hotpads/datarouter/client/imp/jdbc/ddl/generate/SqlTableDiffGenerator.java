@@ -118,6 +118,14 @@ public class SqlTableDiffGenerator{
 		return minusIndexes(current, requested);
 	}
 
+	public SortedSet<SqlIndex> getUniqueIndexesToAdd(){
+		return minusUniqueIndexes(requested, current);
+	}
+
+	public SortedSet<SqlIndex> getUniqueIndexesToRemove(){
+		return minusUniqueIndexes(current, requested);
+	}
+
 	/**
 	 * returns tableA.indexes - tableB.indexes
 	 */
@@ -130,6 +138,17 @@ public class SqlTableDiffGenerator{
 		TreeSet<SqlIndex> indexesToRemove = DrCollectionTool.minus(tableAIndexes, tableBIndexes,
 				new SqlIndexNameComparator());
 		return new TreeSet<>(indexesToRemove);
+	}
+
+	private static SortedSet<SqlIndex> minusUniqueIndexes(SqlTable tableA, SqlTable tableB){
+		if(tableA == null || tableB == null){
+			return new TreeSet<>();
+		}
+		SortedSet<SqlIndex> tableAUniqueIndexes = tableA.getUniqueIndexes();
+		SortedSet<SqlIndex> tableBUniqueIndexes = tableB.getUniqueIndexes();
+		TreeSet<SqlIndex> uniqueIndexesToRemove = DrCollectionTool.minus(tableAUniqueIndexes, tableBUniqueIndexes,
+				new SqlIndexNameComparator());
+		return new TreeSet<>(uniqueIndexesToRemove);
 	}
 
 	/********************* helper methods *******************************/
@@ -189,6 +208,12 @@ public class SqlTableDiffGenerator{
 		SortedSet<SqlIndex> currentIndexes = new TreeSet<>(current.getIndexes());
 		SortedSet<SqlIndex> requestedIndexes = new TreeSet<>(requested.getIndexes());
 		return !DrSetTool.containsSameKeys(currentIndexes, requestedIndexes);
+	}
+
+	public boolean isUniqueIndexesModified(){
+		SortedSet<SqlIndex> currentUniqueIndexes = new TreeSet<>(current.getUniqueIndexes());
+		SortedSet<SqlIndex> requestedUniqueIndexes = new TreeSet<>(requested.getUniqueIndexes());
+		return !DrSetTool.containsSameKeys(currentUniqueIndexes, requestedUniqueIndexes);
 	}
 
 	public boolean isPrimaryKeyModified(){

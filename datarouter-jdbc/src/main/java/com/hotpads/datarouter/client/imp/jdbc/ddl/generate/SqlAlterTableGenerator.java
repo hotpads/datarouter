@@ -25,8 +25,8 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 
 	private static final int MINIMUM_ALTER_SIZE = 10;
 	private static final String NOT_NULL = " not null";
-	private SchemaUpdateOptions options;
-	private SqlTable current, requested;
+	private final SchemaUpdateOptions options;
+	private final SqlTable current, requested;
 	private String databaseName="";
 	private boolean dropTable = false;
 	private boolean willAlterTable = false;
@@ -102,6 +102,8 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 		// get the other modifications ( the indexes )
 		SortedSet<SqlIndex> indexesToAdd = diff.getIndexesToAdd();
 		SortedSet<SqlIndex> indexesToRemove = diff.getIndexesToRemove();
+		SortedSet<SqlIndex> uniqueIndexesToAdd = diff.getUniqueIndexesToAdd();
+		SortedSet<SqlIndex> uniqueIndexesToRemove = diff.getUniqueIndexesToRemove();
 
 		// generate the alter table statements from columns to add and to remove
 		if(colsToRemove.size()<current.getNumberOfColumns()+colsToAdd.size()){
@@ -147,6 +149,10 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 		if(diff.isIndexesModified()){
 			list.addAll(getAlterTableForRemovingIndexes(indexesToRemove));
 			list.addAll(getAlterTableForAddingIndexes(indexesToAdd));
+		}
+		if(diff.isUniqueIndexesModified()){
+			list.addAll(getAlterTableForRemovingIndexes(uniqueIndexesToRemove));
+			list.addAll(getAlterTableForAddingUniqueIndexes(uniqueIndexesToAdd));
 		}
 		if(options.getModifyEngine() && diff.isEngineModified()){
 			list.add(new SqlAlterTableClause("engine="+requested.getEngine().toString().toLowerCase(),
@@ -204,6 +210,28 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 		StringBuilder sb = new StringBuilder();
 		for(SqlIndex index : indexesToAdd){
 			sb.append("add index " + index.getName() + "(");
+			for(SqlColumn col : index.getColumns()){
+				sb.append( col.getName() + ", ");
+			}
+			sb = new StringBuilder(sb.substring(0, sb.length()-2));
+			sb.append("),\n");
+		}
+		sb = new StringBuilder(sb.substring(0, sb.length()-2));
+		list.add(new SqlAlterTableClause(sb.toString(), SqlAlterTypes.ADD_INDEX));
+		return list;
+	}
+
+	private List<SqlAlterTableClause> getAlterTableForAddingUniqueIndexes(SortedSet<SqlIndex> uniqueIndexesToAdd){
+		List<SqlAlterTableClause> list = new ArrayList<>();
+		if(!options.getAddIndexes()){
+			return list;
+		}
+		if(DrCollectionTool.isEmpty(uniqueIndexesToAdd)){
+			return list;
+		}
+		StringBuilder sb = new StringBuilder();
+		for(SqlIndex index : uniqueIndexesToAdd){
+			sb.append("add unique index " + index.getName() + "(");
 			for(SqlColumn col : index.getColumns()){
 				sb.append( col.getName() + ", ");
 			}
