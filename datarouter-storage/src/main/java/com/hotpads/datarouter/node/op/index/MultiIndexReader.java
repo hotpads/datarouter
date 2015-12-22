@@ -2,14 +2,11 @@ package com.hotpads.datarouter.node.op.index;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Stream;
 
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.view.index.multi.MultiIndexEntry;
-import com.hotpads.util.core.collections.Range;
-import com.hotpads.util.core.stream.StreamTool;
 
 /**
  * Methods for reading from storage systems that provide secondary indexing. This interface provides powerful iterators
@@ -31,11 +28,5 @@ extends IndexReader<PK,D,IK,IE>{
 
 	List<D> lookupMulti(IK indexKey, Config config);
 	List<D> lookupMultiMulti(Collection<IK> indexKeys, Config config);
-
-	Iterable<D> scanDatabeans(Range<IK> range, Config config);
-
-	default Stream<D> streamDatabeans(Range<IK> range, Config config){
-		return StreamTool.stream(scanDatabeans(range, config));
-	}
 
 }
