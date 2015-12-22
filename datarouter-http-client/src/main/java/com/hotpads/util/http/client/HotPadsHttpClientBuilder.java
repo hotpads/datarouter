@@ -161,7 +161,7 @@ public class HotPadsHttpClientBuilder{
 	}
 
 	public HotPadsHttpClientBuilder setLogOnRetry(boolean logOnRetry){
-		retryHandler.serLogOnRetry(logOnRetry);
+		retryHandler.setLogOnRetry(logOnRetry);
 		return this;
 	}
 

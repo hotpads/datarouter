@@ -43,7 +43,7 @@ public class HotPadsRetryHandler implements HttpRequestRetryHandler{
 		this.retryCount = retryCount;
 	}
 
-	public void serLogOnRetry(boolean logOnRetry){
+	public void setLogOnRetry(boolean logOnRetry){
 		this.logOnRetry = logOnRetry;
 	}
 
