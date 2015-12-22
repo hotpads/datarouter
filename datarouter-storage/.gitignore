@@ -1,0 +1,6 @@
+.classpath
+.project
+.settings
+src/main/resources/git.properties
+src/main/webapp/META-INF/*
+target

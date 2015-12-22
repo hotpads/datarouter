@@ -1,0 +1,86 @@
+package com.hotpads.datarouter.backup.imp.s3;
+
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.function.Supplier;
+import java.util.zip.GZIPInputStream;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.hotpads.datarouter.backup.BackupRegion;
+import com.hotpads.datarouter.backup.RestoreRegion;
+import com.hotpads.datarouter.client.imp.s3.S3GetTool;
+import com.hotpads.datarouter.node.op.raw.MapStorage.MapStorageNode;
+import com.hotpads.datarouter.routing.Router;
+import com.hotpads.datarouter.storage.databean.Databean;
+import com.hotpads.datarouter.storage.field.Field;
+import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
+import com.hotpads.datarouter.util.core.DrFileUtils;
+import com.hotpads.datarouter.util.core.DrIterableTool;
+
+public class RestoreRegionFromS3<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
+extends RestoreRegion<PK,D>{
+	private static final Logger logger = LoggerFactory.getLogger(RestoreRegionFromS3.class);
+
+	protected String s3Bucket;
+	protected String s3Key;
+	protected boolean gzip;
+	protected boolean deleteLocalFile;
+	protected boolean downloadNewestCopy;
+
+	protected String localPath;
+
+	public RestoreRegionFromS3(String s3Bucket, String s3Key, Supplier<D> supplier, Router router,
+			MapStorageNode<PK,D> node, Integer putBatchSize, Boolean ignoreNullFields, Boolean downloadNewestCopy,
+			boolean gzip, boolean deleteLocalFile){
+		super(supplier, router, node, putBatchSize, ignoreNullFields);
+		this.s3Bucket = s3Bucket;
+		this.s3Key = s3Key;
+		this.localPath = BackupRegionToS3.makeLocalPath(s3Key);
+		this.fieldByPrefixedName = new HashMap<>();
+		for(Field<?> field : DrIterableTool.nullSafe(node.getFields())){
+			this.fieldByPrefixedName.put(field.getPrefixedName(), field);
+		}
+		this.gzip = gzip;
+		this.deleteLocalFile = deleteLocalFile;
+		this.downloadNewestCopy = downloadNewestCopy;
+	}
+
+	@Override
+	public Void call(){
+		try{
+			logger.warn("starting restore of "+s3Key);
+			if(downloadNewestCopy){
+				downloadFromS3();
+			}
+			is = new FileInputStream(localPath);
+			if(gzip){
+				is = new GZIPInputStream(is, BackupRegion.GZIP_BUFFER_BYTES);
+			}
+			/*
+			 *
+			 * WARNING - without buffering the GZIPInputStream, it sometimes returns invalid bytes!!!  no idea why =(
+			 *
+			 */
+			is = new BufferedInputStream(is, 1<<20);
+			importAndCloseInputStream();
+			if(deleteLocalFile){
+				DrFileUtils.delete(localPath);
+			}
+			logger.warn("completed restore of "+s3Key);
+		}catch(IOException ioe){
+			throw new RuntimeException(ioe);
+		}
+		return null;
+	}
+
+	protected void downloadFromS3(){
+		DrFileUtils.createFileParents(localPath);
+		File localFile = new File(localPath);
+		S3GetTool.getFile(s3Bucket, s3Key, localFile);
+	}
+}
