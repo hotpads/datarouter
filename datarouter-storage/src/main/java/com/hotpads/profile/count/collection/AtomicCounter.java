@@ -7,16 +7,15 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import com.hotpads.datarouter.util.core.DrDateTool;
 import com.hotpads.datarouter.util.core.DrMapTool;
-import com.hotpads.profile.count.collection.archive.CountPartitionedNode;
 
-public class AtomicCounter implements CountCollectorPeriod{	
+public class AtomicCounter implements CountCollectorPeriod{
 	public static final Integer INITIAL_CAPACITY = 512;//try to set higher than est num counters
-	
+
 	private final long startTimeMs;
 	private final long lengthMs;
 	private final ConcurrentMap<String,AtomicLong> countByKey;
 	private final String createdByThreadId;
-	
+
 	public AtomicCounter(long startTimeMs, long lengthMs){
 		this.startTimeMs = startTimeMs;
 		this.lengthMs = lengthMs;
@@ -28,10 +27,10 @@ public class AtomicCounter implements CountCollectorPeriod{
 	@Override
 	public String toString(){
 		String time = DrDateTool.getYYYYMMDDHHMMSSMMMWithPunctuationNoSpaces(startTimeMs);
-		return getClass().getSimpleName()+"["+time+","+CountPartitionedNode.getSuffix(lengthMs)
+		return getClass().getSimpleName()+"["+time+","+Counters.getSuffix(lengthMs)
 				+","+System.identityHashCode(this)+","+createdByThreadId+"]";
 	}
-	
+
 	@Override
 	public long getPeriodMs(){
 		return lengthMs;
@@ -41,7 +40,7 @@ public class AtomicCounter implements CountCollectorPeriod{
 	public long getStartTimeMs(){
 		return startTimeMs;
 	}
-	
+
 	@Override
 	public long getNextStartTimeMs(){
 		return startTimeMs + lengthMs;
@@ -61,7 +60,7 @@ public class AtomicCounter implements CountCollectorPeriod{
 	public long increment(String key, long delta){
 		return getOrCreate(key).getAndAdd(delta);
 	}
-	
+
 	public void merge(CountCollector other){
 		for(Map.Entry<String,AtomicLong> otherEntry : DrMapTool.nullSafe(other.getCountByKey()).entrySet()){
 			AtomicLong existingValue = countByKey.get(otherEntry.getKey());
@@ -82,12 +81,12 @@ public class AtomicCounter implements CountCollectorPeriod{
 		AtomicLong existingVal = countByKey.putIfAbsent(key, newVal);
 		return existingVal == null ? newVal : existingVal;
 	}
-	
+
 	@Override
 	public AtomicCounter getCounter(){
 		return this;
 	}
-	
+
 	public AtomicCounter deepCopy(){
 		AtomicCounter copy = new AtomicCounter(startTimeMs, lengthMs);
 		for(Map.Entry<String,AtomicLong> entry : DrMapTool.nullSafe(countByKey).entrySet()){
@@ -95,7 +94,7 @@ public class AtomicCounter implements CountCollectorPeriod{
 		}
 		return copy;
 	}
-	
+
 	@Override
 	public void stopAndFlushAll(){
 		//no-op
