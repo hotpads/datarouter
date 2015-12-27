@@ -5,7 +5,7 @@ import com.hotpads.datarouter.client.availability.ClientAvailabilityClusterSetti
 import com.hotpads.datarouter.client.availability.ClientAvailabilitySettings;
 import com.hotpads.datarouter.inject.DatarouterInjector;
 import com.hotpads.datarouter.inject.guice.GuiceInjector;
-import com.hotpads.guice.DatarouterExecutorGuiceModule;
+import com.hotpads.datarouter.inject.guice.executor.DatarouterExecutorGuiceModule;
 
 public class DatarouterStorageGuiceModule extends ServletModule{
 

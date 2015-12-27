@@ -1,4 +1,4 @@
-package com.hotpads.guice;
+package com.hotpads.datarouter.inject.guice.executor;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
