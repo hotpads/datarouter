@@ -14,17 +14,10 @@ import org.apache.logging.log4j.core.config.ConfigurationSource;
 import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.apache.logging.log4j.core.config.Order;
 import org.apache.logging.log4j.core.config.plugins.Plugin;
-import org.apache.logging.log4j.status.StatusLogger;
 
 @Plugin(category = "ConfigurationFactory", name = "StartupConfigurationFactory")
 @Order(10)
 public class StartupConfigurationFactory extends ConfigurationFactory{
-
-	/**
-	 * One logger to rule them all, one logger to find them,
-	 * One logger to bring them all and in the darkness bind them.
-	 */
-	private static final StatusLogger LOGGER = StatusLogger.getLogger();
 
 	public static final Collection<Appender> staticAppenders = new LinkedList<>();
 	public static final Collection<LoggerConfig> staticLoggerConfigs = new LinkedList<>();
