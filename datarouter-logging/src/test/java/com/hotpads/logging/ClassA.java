@@ -5,10 +5,10 @@ import org.slf4j.LoggerFactory;
 
 public abstract class ClassA{
 
-	protected Logger mLogger;
+	protected Logger logger;
 
 	public void logYourName() {
-		doAllLog(mLogger, getClass() + ".logYourName()");
+		doAllLog(logger, getClass() + ".logYourName()");
 	}
 
 	public static void doAllLog(Logger logger, String message){
@@ -21,12 +21,12 @@ public abstract class ClassA{
 
 	public static class Class1 extends ClassA{
 		{
-			mLogger = LoggerFactory.getLogger(Class1.class);
+			logger = LoggerFactory.getLogger(Class1.class);
 		}
 
 		public static class Class11 extends ClassA{
 			{
-				mLogger = LoggerFactory.getLogger(Class11.class);
+				logger = LoggerFactory.getLogger(Class11.class);
 			}
 		}
 
@@ -34,7 +34,7 @@ public abstract class ClassA{
 
 	public static class Class2 extends ClassA{
 		{
-			mLogger = LoggerFactory.getLogger(Class2.class);
+			logger = LoggerFactory.getLogger(Class2.class);
 		}
 	}
 
