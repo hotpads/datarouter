@@ -6,7 +6,7 @@ import java.util.List;
 import com.google.inject.Module;
 import com.hotpads.datarouter.client.imp.jdbc.ChildInjectorInjectionFixModule;
 import com.hotpads.datarouter.config.DatarouterStorageGuiceModule;
-import com.hotpads.test.ModuleFactory;
+import com.hotpads.datarouter.test.testng.ModuleFactory;
 
 public class DatarouterStorageTestModuleFactory extends ModuleFactory{
 

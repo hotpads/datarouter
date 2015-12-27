@@ -1,4 +1,4 @@
-package com.hotpads.test;
+package com.hotpads.datarouter.test.testng;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -5,7 +5,7 @@ import javax.inject.Singleton;
 
 import com.hotpads.datarouter.batch.config.BatchSizeOptimizerSettings;
 import com.hotpads.datarouter.client.availability.ClientAvailabilityClusterSettings;
-import com.hotpads.profile.ProfilingSettings;
+import com.hotpads.datarouter.profile.ProfilingSettings;
 import com.hotpads.setting.cached.imp.BooleanCachedSetting;
 import com.hotpads.setting.cached.imp.IntegerCachedSetting;
 import com.hotpads.setting.cluster.SettingFinder;

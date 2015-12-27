@@ -1,4 +1,4 @@
-package com.hotpads.profile;
+package com.hotpads.datarouter.profile;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
