@@ -3,9 +3,9 @@ package com.hotpads.datarouter.profile;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import com.hotpads.setting.Setting;
-import com.hotpads.setting.cluster.SettingFinder;
-import com.hotpads.setting.cluster.SettingNode;
+import com.hotpads.datarouter.setting.Setting;
+import com.hotpads.datarouter.setting.SettingFinder;
+import com.hotpads.datarouter.setting.SettingNode;
 
 @Singleton
 public class ProfilingSettings extends SettingNode{

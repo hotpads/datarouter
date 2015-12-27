@@ -1,8 +1,8 @@
-package com.hotpads.setting.cluster;
+package com.hotpads.datarouter.setting;
 
 import org.quartz.CronExpression;
 
-import com.hotpads.setting.cached.imp.Duration;
+import com.hotpads.datarouter.setting.cached.impl.Duration;
 
 public interface SettingFinder{
 

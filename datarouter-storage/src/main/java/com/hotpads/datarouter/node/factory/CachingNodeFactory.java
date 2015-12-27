@@ -6,6 +6,7 @@ import javax.inject.Singleton;
 import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.DatarouterClients;
+import com.hotpads.datarouter.config.DatarouterSettings;
 import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.NodeParams.NodeParamsBuilder;
 import com.hotpads.datarouter.node.adapter.callsite.MapStorageCallsiteAdapter;
@@ -16,7 +17,6 @@ import com.hotpads.datarouter.routing.Router;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.setting.DatarouterSettings;
 
 @Singleton
 public class CachingNodeFactory{

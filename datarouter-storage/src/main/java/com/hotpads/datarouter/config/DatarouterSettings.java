@@ -1,4 +1,4 @@
-package com.hotpads.setting;
+package com.hotpads.datarouter.config;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -6,10 +6,10 @@ import javax.inject.Singleton;
 import com.hotpads.datarouter.batch.config.BatchSizeOptimizerSettings;
 import com.hotpads.datarouter.client.availability.ClientAvailabilityClusterSettings;
 import com.hotpads.datarouter.profile.ProfilingSettings;
-import com.hotpads.setting.cached.imp.BooleanCachedSetting;
-import com.hotpads.setting.cached.imp.IntegerCachedSetting;
-import com.hotpads.setting.cluster.SettingFinder;
-import com.hotpads.setting.cluster.SettingNode;
+import com.hotpads.datarouter.setting.SettingFinder;
+import com.hotpads.datarouter.setting.SettingNode;
+import com.hotpads.datarouter.setting.cached.impl.BooleanCachedSetting;
+import com.hotpads.datarouter.setting.cached.impl.IntegerCachedSetting;
 
 @Singleton
 public class DatarouterSettings extends SettingNode {

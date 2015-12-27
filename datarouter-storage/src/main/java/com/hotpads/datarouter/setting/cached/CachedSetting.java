@@ -1,10 +1,10 @@
-package com.hotpads.setting.cached;
+package com.hotpads.datarouter.setting.cached;
 
 import java.util.concurrent.TimeUnit;
 
+import com.hotpads.datarouter.setting.Setting;
+import com.hotpads.datarouter.setting.SettingFinder;
 import com.hotpads.datarouter.util.core.DrObjectTool;
-import com.hotpads.setting.Setting;
-import com.hotpads.setting.cluster.SettingFinder;
 import com.hotpads.util.core.cache.Cached;
 
 //object hierarchy is weird here.  consider using composition

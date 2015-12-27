@@ -1,4 +1,4 @@
-package com.hotpads.setting;
+package com.hotpads.datarouter.setting;
 
 
 public interface Setting<T>{

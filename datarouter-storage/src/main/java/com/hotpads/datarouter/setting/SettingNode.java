@@ -1,4 +1,4 @@
-package com.hotpads.setting.cluster;
+package com.hotpads.datarouter.setting;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -6,15 +6,14 @@ import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import com.hotpads.datarouter.setting.cached.impl.BooleanCachedSetting;
+import com.hotpads.datarouter.setting.cached.impl.DoubleCachedSetting;
+import com.hotpads.datarouter.setting.cached.impl.Duration;
+import com.hotpads.datarouter.setting.cached.impl.DurationCachedSetting;
+import com.hotpads.datarouter.setting.cached.impl.IntegerCachedSetting;
+import com.hotpads.datarouter.setting.cached.impl.LongCachedSetting;
+import com.hotpads.datarouter.setting.cached.impl.StringCachedSetting;
 import com.hotpads.datarouter.util.core.DrListTool;
-import com.hotpads.setting.Setting;
-import com.hotpads.setting.cached.imp.BooleanCachedSetting;
-import com.hotpads.setting.cached.imp.DoubleCachedSetting;
-import com.hotpads.setting.cached.imp.Duration;
-import com.hotpads.setting.cached.imp.DurationCachedSetting;
-import com.hotpads.setting.cached.imp.IntegerCachedSetting;
-import com.hotpads.setting.cached.imp.LongCachedSetting;
-import com.hotpads.setting.cached.imp.StringCachedSetting;
 
 public abstract class SettingNode {
 

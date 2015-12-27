@@ -1,8 +1,8 @@
-package com.hotpads.setting.constant;
+package com.hotpads.datarouter.setting.constant;
 
+import com.hotpads.datarouter.setting.Setting;
 import com.hotpads.datarouter.util.core.DrBooleanTool;
 import com.hotpads.datarouter.util.core.DrObjectTool;
-import com.hotpads.setting.Setting;
 
 public class ConstantBooleanSetting implements Setting<Boolean>{
 

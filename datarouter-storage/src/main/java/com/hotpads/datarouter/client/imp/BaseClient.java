@@ -2,8 +2,8 @@ package com.hotpads.datarouter.client.imp;
 
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.availability.ClientAvailabilitySettings;
+import com.hotpads.datarouter.setting.Setting;
 import com.hotpads.datarouter.util.core.DrComparableTool;
-import com.hotpads.setting.Setting;
 
 public abstract class BaseClient
 implements Client{

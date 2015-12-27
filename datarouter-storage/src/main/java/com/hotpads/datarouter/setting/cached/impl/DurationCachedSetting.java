@@ -1,7 +1,7 @@
-package com.hotpads.setting.cached.imp;
+package com.hotpads.datarouter.setting.cached.impl;
 
-import com.hotpads.setting.cached.CachedSetting;
-import com.hotpads.setting.cluster.SettingFinder;
+import com.hotpads.datarouter.setting.SettingFinder;
+import com.hotpads.datarouter.setting.cached.CachedSetting;
 
 public class DurationCachedSetting extends CachedSetting<Duration>{
 

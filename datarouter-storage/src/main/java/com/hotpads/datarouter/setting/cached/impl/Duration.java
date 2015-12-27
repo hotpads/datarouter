@@ -1,4 +1,4 @@
-package com.hotpads.setting.cached.imp;
+package com.hotpads.datarouter.setting.cached.impl;
 
 import java.util.Arrays;
 import java.util.List;
