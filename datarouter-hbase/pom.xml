@@ -75,7 +75,6 @@
 									<directory>${project.basedir}/src/</directory>
 									<filtering>false</filtering>
 									<includes>
-										<!-- <include>log4j.properties</include> -->
 									</includes>
 								</resource>
 							</resources>

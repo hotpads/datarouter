@@ -1,0 +1,7 @@
+target
+.settings
+.classpath
+.project
+test-output
+.factorypath
+git.properties
