@@ -86,4 +86,10 @@
 			<scope>runtime</scope>
 		</dependency>
 	</dependencies>
+	
+	
+	<organization>
+		<name>HotPads</name>
+		<url>http://hotpads.com</url>
+	</organization>
 </project>
