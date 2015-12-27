@@ -7,7 +7,11 @@ import java.util.TreeMap;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import org.testng.annotations.Guice;
+import org.testng.annotations.Test;
+
 import com.hotpads.datarouter.inject.DatarouterInjector;
+import com.hotpads.datarouter.test.DatarouterStorageTestModuleFactory;
 import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.lang.ClassTool;
 
@@ -51,5 +55,21 @@ public class DefaultClientTypes{
 
 	public ClientType create(String name){
 		return (ClientType)injector.getInstance(ClassTool.forName(CLASS_BY_NAME.get(name)));
+	}
+
+
+	/*************** tests ************************/
+
+	@Guice(moduleFactory = DatarouterStorageTestModuleFactory.class)
+	public static class DefaultClientTypeTests{
+		@Inject
+		private DefaultClientTypes defaultClientTypes;
+
+		@Test
+		public void testFragileStrings(){
+			for(String className : DefaultClientTypes.CLIENTS_IN_CORE_MODULE){
+				defaultClientTypes.create(className);
+			}
+		}
 	}
 }
