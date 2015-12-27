@@ -9,7 +9,6 @@ import com.hotpads.datarouter.node.op.NodeOps;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.handler.mav.Mav;
 
 /**
  * Methods for reading from simple key/value storage systems, supporting similar methods to a HashMap.
@@ -50,15 +49,5 @@ extends NodeOps<PK,D>{
 			PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>>
 	extends PhysicalNode<PK,D>, MapStorageReaderNode<PK,D>{
-	}
-	
-	
-	/*************** http methods *******************/
-	
-	public interface MapStorageReaderHttpNode<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>{
-		Mav exists();
-		Mav get();
-		Mav getMulti();
-		Mav getKeys();
 	}
 }
