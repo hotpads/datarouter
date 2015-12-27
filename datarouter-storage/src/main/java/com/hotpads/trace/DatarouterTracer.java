@@ -5,9 +5,9 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.hotpads.datarouter.profile.counter.Counters;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
-import com.hotpads.profile.count.collection.Counters;
 
 
 public class DatarouterTracer implements Tracer{

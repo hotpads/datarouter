@@ -3,8 +3,8 @@ package com.hotpads.datarouter.util;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.hotpads.datarouter.profile.counter.Counters;
 import com.hotpads.datarouter.util.core.DrStringTool;
-import com.hotpads.profile.count.collection.Counters;
 
 public class ImportCounters {
 	private static final String PREFIX_Import = "Import";

@@ -1,4 +1,4 @@
-package com.hotpads.profile.count.collection;
+package com.hotpads.datarouter.profile.counter;
 
 public interface CountCollectorPeriod extends CountCollector{
 
