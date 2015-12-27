@@ -1,11 +1,10 @@
-package com.hotpads.profile.callsite;
+package com.hotpads.util.core.lang;
 
 import org.junit.Assert;
 
 import org.junit.Test;
 
 import com.hotpads.datarouter.util.core.DrComparableTool;
-import com.hotpads.util.core.lang.StackTraceElementTool;
 
 public class LineOfCode implements Comparable<LineOfCode>{
 	

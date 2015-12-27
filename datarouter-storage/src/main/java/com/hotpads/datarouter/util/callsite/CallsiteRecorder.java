@@ -5,7 +5,7 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hotpads.profile.callsite.LineOfCode;
+import com.hotpads.util.core.lang.LineOfCode;
 
 @Singleton
 public class CallsiteRecorder{

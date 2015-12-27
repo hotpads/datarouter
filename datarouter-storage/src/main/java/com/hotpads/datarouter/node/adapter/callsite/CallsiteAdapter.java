@@ -3,7 +3,7 @@ package com.hotpads.datarouter.node.adapter.callsite;
 import java.util.Collection;
 
 import com.hotpads.datarouter.config.Config;
-import com.hotpads.profile.callsite.LineOfCode;
+import com.hotpads.util.core.lang.LineOfCode;
 
 public interface CallsiteAdapter{
 

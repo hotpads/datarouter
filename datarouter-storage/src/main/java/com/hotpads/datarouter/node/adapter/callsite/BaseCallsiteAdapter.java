@@ -12,8 +12,8 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.callsite.CallsiteRecorder;
 import com.hotpads.datarouter.util.core.DrBooleanTool;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
-import com.hotpads.profile.callsite.LineOfCode;
 import com.hotpads.util.core.cache.Cached;
+import com.hotpads.util.core.lang.LineOfCode;
 
 public abstract class BaseCallsiteAdapter<
 		PK extends PrimaryKey<PK>,
