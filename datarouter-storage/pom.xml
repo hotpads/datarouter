@@ -173,30 +173,6 @@
 			<version>${log4j2Version}</version>
 			<scope>runtime</scope>
 		</dependency>
-		<!-- servlet -->
-		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>jsp-api</artifactId>
-			<version>2.0</version>
-			<scope>provided</scope>
-			<exclusions>
-				<exclusion><!-- this will pull in servlet-api 2.4, but we need 3.0.1 -->
-					<groupId>javax.servlet</groupId>
-					<artifactId>servlet-api</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>javax.servlet-api</artifactId>
-			<version>3.0.1</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>jstl</artifactId>
-			<version>1.2</version>
-		</dependency>
 		<!-- utils -->
 		<!-- guava 15 removes the public Stopwatch() constructor which causes errors in hbase-1.1.2 -->
 		<dependency>
