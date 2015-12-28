@@ -95,13 +95,7 @@
 		</plugins>
 	</build>
 
-	<dependencies>
-		<!-- internal -->
-		<dependency>
-			<groupId>com.hotpads</groupId>
-			<artifactId>http-client</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-		</dependency>		
+	<dependencies>	
 		<!-- javax.persistence annotations used in some datarouter-storage tests -->
 		<!-- there is no official Oracle release of these annotations, so use hibernate's -->
 		<dependency>

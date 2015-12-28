@@ -6,7 +6,6 @@ import javax.inject.Singleton;
 import com.hotpads.datarouter.setting.Setting;
 import com.hotpads.datarouter.setting.SettingFinder;
 import com.hotpads.datarouter.setting.SettingNode;
-import com.hotpads.util.http.security.UrlScheme;
 
 @Singleton
 public class DatarouterNotificationSettings extends SettingNode{
@@ -22,7 +21,7 @@ public class DatarouterNotificationSettings extends SettingNode{
 	}
 
 	private void register(){
-		apiEndPoint = registerString("apiEndPoint", UrlScheme.LOCAL_DEV_SERVER_HTTPS_URL + "/job/api/notification");
+		apiEndPoint = registerString("apiEndPoint", "https://localhost:8443/job/api/notification");
 		forceHideStackTrace = registerBoolean("forceHideStackTrace", false);
 		ignoreSsl = registerBoolean("ignoreSsl", false);
 	}
