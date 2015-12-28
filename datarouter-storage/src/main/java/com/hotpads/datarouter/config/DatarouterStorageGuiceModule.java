@@ -11,7 +11,6 @@ public class DatarouterStorageGuiceModule extends ServletModule{
 
 	@Override
 	protected void configureServlets(){
-		bind(ServletContextProvider.class).toInstance(new ServletContextProvider(getServletContext()));
 		bind(DatarouterInjector.class).to(GuiceInjector.class);
 		bind(ClientAvailabilitySettings.class).to(ClientAvailabilityClusterSettings.class);
 		install(new DatarouterExecutorGuiceModule());
