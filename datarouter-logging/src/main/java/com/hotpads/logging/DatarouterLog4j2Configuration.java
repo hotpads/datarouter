@@ -2,7 +2,7 @@ package com.hotpads.logging;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.Appender;
-import org.apache.logging.log4j.core.appender.ConsoleAppender;
+import org.apache.logging.log4j.core.appender.ConsoleAppender.Target;
 
 import com.hotpads.util.core.logging.HotPadsLog4j2Configuration;
 import com.hotpads.util.core.logging.Log4j2Configurator;
@@ -12,8 +12,8 @@ public final class DatarouterLog4j2Configuration extends HotPadsLog4j2Configurat
 	public static final String CONSOLE_APPENDER_NAME = "Console";
 
 	public DatarouterLog4j2Configuration(){
-		Appender out = Log4j2Configurator.createConsoleAppender(CONSOLE_APPENDER_NAME, ConsoleAppender.Target.SYSTEM_OUT
-				.name(), defaultPattern);
+		Appender out = Log4j2Configurator.createConsoleAppender(CONSOLE_APPENDER_NAME, Target.SYSTEM_OUT,
+				defaultPattern);
 
 		addAppender(out);
 
