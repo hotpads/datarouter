@@ -26,15 +26,14 @@ import com.hotpads.datarouter.node.DatarouterNodes;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.op.TxnOp;
 import com.hotpads.datarouter.op.executor.impl.SessionExecutorImpl;
-import com.hotpads.datarouter.util.ApplicationPaths;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.datarouter.util.core.DrObjectTool;
 import com.hotpads.datarouter.util.core.DrPropertiesTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
-import com.hotpads.trace.TracerTool;
 import com.hotpads.trace.TracerThreadLocal;
+import com.hotpads.trace.TracerTool;
 
 /**
  * Datarouter is the top-level scope through which various components can share things like clients,
@@ -53,7 +52,6 @@ public class Datarouter{
 	/*************************** fields *****************************/
 
 	//injected
-	private final ApplicationPaths applicationPaths;
 	private final DatarouterClients clients;
 	private final DatarouterNodes nodes;
 	private final ExecutorService executorService;//for async client init and monitoring
@@ -71,7 +69,6 @@ public class Datarouter{
 
 	@Inject
 	public Datarouter(
-			ApplicationPaths applicationPaths,
 			DatarouterClients clients,
 			DatarouterNodes nodes,
 			@Named(DatarouterExecutorGuiceModule.POOL_datarouterExecutor) ExecutorService executorService,
@@ -79,7 +76,6 @@ public class Datarouter{
 			@Named(DatarouterExecutorGuiceModule.POOL_writeBehindScheduler) ScheduledExecutorService
 				writeBehindScheduler){
 		this.executorService = executorService;
-		this.applicationPaths = applicationPaths;
 		this.clients = clients;
 		this.nodes = nodes;
 		this.writeBehindExecutor = writeBehindExecutor;
@@ -240,9 +236,5 @@ public class Datarouter{
 
 	public String getAdministratorEmail(){
 		return administratorEmail;
-	}
-
-	public ApplicationPaths getApplicationPaths(){
-		return applicationPaths;
 	}
 }
