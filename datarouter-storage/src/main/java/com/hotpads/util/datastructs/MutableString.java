@@ -13,8 +13,9 @@ public class MutableString implements Comparable<MutableString>{
 
 	@Override
 	public boolean equals(Object object){
-		if(object instanceof MutableString)
+		if(object instanceof MutableString){
 			return string.equals(((MutableString)object).getString());
+		}
 		return false;
 	}
 
