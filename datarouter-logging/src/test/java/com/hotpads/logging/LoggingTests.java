@@ -51,8 +51,8 @@ public class LoggingTests{
 		log4j2Configurator.getRootLoggerConfig().setLevel(Level.DEBUG);
 		logOneOfEachLevel();
 
-		log4j2Configurator.updateOrCreateLoggerConfig(Class11.class, Level.INFO, false, new String[]{
-				TestDatarouterLog4j2Configuration.CONSOLE_ERR_REF});
+		log4j2Configurator.updateOrCreateLoggerConfig(Class11.class, Level.INFO, false,
+				TestDatarouterLog4j2Configuration.CONSOLE_ERR_REF);
 		new Class11().logYourName();
 	}
 

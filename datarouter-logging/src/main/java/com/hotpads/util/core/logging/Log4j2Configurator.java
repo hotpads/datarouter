@@ -11,6 +11,7 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.Appender;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.appender.ConsoleAppender;
+import org.apache.logging.log4j.core.appender.ConsoleAppender.Target;
 import org.apache.logging.log4j.core.appender.FileAppender;
 import org.apache.logging.log4j.core.config.AbstractConfiguration;
 import org.apache.logging.log4j.core.config.Configuration;
@@ -29,9 +30,9 @@ public class Log4j2Configurator{
 				.build();
 	}
 
-	public static ConsoleAppender createConsoleAppender(String name, String targetStr, String pattern){
+	public static ConsoleAppender createConsoleAppender(String name, Target target, String pattern){
 		PatternLayout layout = createLayout(pattern);
-		return ConsoleAppender.createAppender(layout, null, targetStr, name, null, null);
+		return ConsoleAppender.createAppender(layout, null, target, name, false, true);
 	}
 
 	public static FileAppender createFileAppender(String name, String fileName, String pattern){
@@ -121,8 +122,8 @@ public class Log4j2Configurator{
 		config.addAppender(appender);
 	}
 
-	public void addConsoleAppender(String name, String targetStr, String pattern){
-		Appender appender = Log4j2Configurator.createConsoleAppender(name, targetStr, pattern);
+	public void addConsoleAppender(String name, Target target, String pattern){
+		Appender appender = Log4j2Configurator.createConsoleAppender(name, target, pattern);
 		addAppender(appender);
 	}
 

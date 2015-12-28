@@ -38,6 +38,7 @@ public abstract class HotPadsLog4j2Configuration{
 	protected final void addLoggerConfig(String name, Level level, boolean additive, Appender... appenders){
 		addLoggerConfig(name, level, additive, Arrays.asList(appenders));
 	}
+
 	private final void addLoggerConfig(String name, Level level, boolean additive, Iterable<Appender> appenders){
 		LoggerConfig loggerConfig = new LoggerConfig(name, level, additive);
 		for(Appender appender : appenders){
