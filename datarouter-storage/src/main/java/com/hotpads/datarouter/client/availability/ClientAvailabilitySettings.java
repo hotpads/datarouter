@@ -1,6 +1,6 @@
 package com.hotpads.datarouter.client.availability;
 
-import com.hotpads.setting.Setting;
+import com.hotpads.datarouter.setting.Setting;
 
 public interface ClientAvailabilitySettings{
 

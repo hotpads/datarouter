@@ -10,6 +10,7 @@ import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.DatarouterClients;
+import com.hotpads.datarouter.config.DatarouterSettings;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.NodeParams.NodeParamsBuilder;
@@ -21,7 +22,6 @@ import com.hotpads.datarouter.storage.entity.Entity;
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
 import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.setting.DatarouterSettings;
 import com.hotpads.util.core.cache.Cached;
 
 @Singleton

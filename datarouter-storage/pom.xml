@@ -96,42 +96,17 @@
 	</build>
 
 	<dependencies>
-		<!-- internal -->
 		<dependency>
 			<groupId>com.hotpads</groupId>
-			<artifactId>http-client</artifactId>
+			<artifactId>datarouter-logging</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
-		</dependency>		
+		</dependency>
 		<!-- javax.persistence annotations used in some datarouter-storage tests -->
 		<!-- there is no official Oracle release of these annotations, so use hibernate's -->
 		<dependency>
 			<groupId>org.hibernate.javax.persistence</groupId>
 			<artifactId>hibernate-jpa-2.0-api</artifactId>
 			<version>1.0.1.Final</version>
-		</dependency>
-		<!-- servlet -->
-		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>jsp-api</artifactId>
-			<version>2.0</version>
-			<scope>provided</scope>
-			<exclusions>
-				<exclusion><!-- this will pull in servlet-api 2.4, but we need 3.0.1 -->
-					<groupId>javax.servlet</groupId>
-					<artifactId>servlet-api</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>javax.servlet-api</artifactId>
-			<version>3.0.1</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>jstl</artifactId>
-			<version>1.2</version>
 		</dependency>
 		<!-- utils -->
 		<!-- guava 15 removes the public Stopwatch() constructor which causes errors in hbase-1.1.2 -->
@@ -229,12 +204,7 @@
 			<version>3.3</version>
 		</dependency>
 		<!-- other -->
-		<dependency><!-- used by StackTracesManagerHandler -->
-			<groupId>com.hp.gagawa</groupId>
-			<artifactId>gagawa</artifactId>
-			<version>1.0.1</version>
-		</dependency>
-		<dependency><!-- for CronExpression -->
+		<dependency><!-- for CronExpression, used by SettingFinder -->
 			<groupId>org.quartz-scheduler</groupId>
 			<artifactId>quartz</artifactId>
 			<version>2.2.2</version>

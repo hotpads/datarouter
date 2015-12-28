@@ -13,7 +13,7 @@ import com.hotpads.datarouter.storage.field.imp.comparable.BooleanField;
 import com.hotpads.datarouter.storage.field.imp.enums.StringEnumField;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt31Field;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt63Field;
-import com.hotpads.profile.callsite.LineOfCode;
+import com.hotpads.util.core.lang.LineOfCode;
 
 
 public class Config

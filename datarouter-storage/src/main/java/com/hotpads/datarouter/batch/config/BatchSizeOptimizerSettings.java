@@ -2,8 +2,8 @@ package com.hotpads.datarouter.batch.config;
 
 import javax.inject.Inject;
 
-import com.hotpads.setting.cluster.SettingFinder;
-import com.hotpads.setting.cluster.SettingNode;
+import com.hotpads.datarouter.setting.SettingFinder;
+import com.hotpads.datarouter.setting.SettingNode;
 import com.hotpads.util.core.cache.Cached;
 
 public class BatchSizeOptimizerSettings extends SettingNode{

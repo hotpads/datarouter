@@ -2,7 +2,7 @@ package com.hotpads.datarouter.util;
 
 import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
-import com.hotpads.profile.count.collection.Counters;
+import com.hotpads.datarouter.profile.counter.Counters;
 
 public class DRCounters{
 	

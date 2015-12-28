@@ -8,10 +8,10 @@ import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 
 import com.hotpads.datarouter.config.ServletContextProvider;
+import com.hotpads.datarouter.setting.cached.impl.Duration;
 import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.MemoryMonitoringHandler.MemoryUsageForDisplay;
 import com.hotpads.handler.encoder.JsonEncoder;
-import com.hotpads.setting.cached.imp.Duration;
 
 public class SystemApiHandler extends BaseHandler{
 

@@ -8,6 +8,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import com.hotpads.datarouter.client.ClientId;
+import com.hotpads.datarouter.config.DatarouterSettings;
 import com.hotpads.datarouter.node.BaseNode;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams;
@@ -28,7 +29,6 @@ import com.hotpads.datarouter.storage.StorageType;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
-import com.hotpads.setting.DatarouterSettings;
 
 @Singleton
 public class MasterSlaveNodeFactory{
