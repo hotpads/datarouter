@@ -95,7 +95,12 @@
 		</plugins>
 	</build>
 
-	<dependencies>	
+	<dependencies>
+		<dependency>
+			<groupId>com.hotpads</groupId>
+			<artifactId>datarouter-logging</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
 		<!-- javax.persistence annotations used in some datarouter-storage tests -->
 		<!-- there is no official Oracle release of these annotations, so use hibernate's -->
 		<dependency>
