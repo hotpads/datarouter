@@ -199,12 +199,7 @@
 			<version>3.3</version>
 		</dependency>
 		<!-- other -->
-		<dependency><!-- used by StackTracesManagerHandler -->
-			<groupId>com.hp.gagawa</groupId>
-			<artifactId>gagawa</artifactId>
-			<version>1.0.1</version>
-		</dependency>
-		<dependency><!-- for CronExpression -->
+		<dependency><!-- for CronExpression, used by SettingFinder -->
 			<groupId>org.quartz-scheduler</groupId>
 			<artifactId>quartz</artifactId>
 			<version>2.2.2</version>
