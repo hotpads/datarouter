@@ -12,9 +12,9 @@ public class MutableString implements Comparable<MutableString>{
 	}
 
 	@Override
-	public boolean equals(Object o){
-		if(o instanceof MutableString)
-			return string.equals(((MutableString)o).getString());
+	public boolean equals(Object object){
+		if(object instanceof MutableString)
+			return string.equals(((MutableString)object).getString());
 		return false;
 	}
 
@@ -29,8 +29,8 @@ public class MutableString implements Comparable<MutableString>{
 	}
 
 	@Override
-	public int compareTo(MutableString s){
-		return string.compareTo(s.string);
+	public int compareTo(MutableString otherString){
+		return string.compareTo(otherString.string);
 	}
 
 	public String get(){
