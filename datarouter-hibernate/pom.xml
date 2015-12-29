@@ -75,6 +75,7 @@
 									<directory>${project.basedir}/src/</directory>
 									<filtering>false</filtering>
 									<includes>
+										<include>hib-default.cfg.xml</include>
 									</includes>
 								</resource>
 							</resources>
