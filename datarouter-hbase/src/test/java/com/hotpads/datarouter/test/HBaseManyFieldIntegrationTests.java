@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.client.imp.hbase.test;
+package com.hotpads.datarouter.test;
 
 import java.util.HashMap;
 import java.util.Map;

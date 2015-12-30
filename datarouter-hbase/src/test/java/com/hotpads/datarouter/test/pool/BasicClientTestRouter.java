@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.client.imp.hbase.test.pool;
+package com.hotpads.datarouter.test.pool;
 
 import java.util.Collections;
 import java.util.List;
@@ -7,7 +7,6 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import com.hotpads.datarouter.client.ClientId;
-import com.hotpads.datarouter.client.imp.hbase.test.pool.PoolTestBean.PoolTestBeanFielder;
 import com.hotpads.datarouter.connection.keepalive.KeepAlive;
 import com.hotpads.datarouter.connection.keepalive.KeepAlive.KeepAliveFielder;
 import com.hotpads.datarouter.connection.keepalive.KeepAliveKey;
@@ -16,6 +15,7 @@ import com.hotpads.datarouter.node.op.raw.MapStorage;
 import com.hotpads.datarouter.routing.BaseRouter;
 import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.test.DrTestConstants;
+import com.hotpads.datarouter.test.pool.PoolTestBean.PoolTestBeanFielder;
 
 @Singleton
 public class BasicClientTestRouter

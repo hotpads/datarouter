@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.client.imp.hbase.pool;
+package com.hotpads.datarouter.test.pool;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -25,9 +25,7 @@ import org.testng.annotations.Test;
 
 import com.hotpads.datarouter.client.imp.hbase.HBaseClientImp;
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseNode;
-import com.hotpads.datarouter.client.imp.hbase.test.pool.BasicClientTestRouter;
-import com.hotpads.datarouter.client.imp.hbase.test.pool.PoolTestBean;
-import com.hotpads.datarouter.client.imp.hbase.test.pool.PoolTestBeanKey;
+import com.hotpads.datarouter.client.imp.hbase.pool.HTableExecutorServicePool;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.node.op.raw.MapStorage;
 import com.hotpads.datarouter.storage.field.Field;

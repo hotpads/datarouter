@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.client.imp.hbase.test;
+package com.hotpads.datarouter.test;
 
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;

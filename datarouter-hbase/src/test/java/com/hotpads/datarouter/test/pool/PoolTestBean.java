@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.client.imp.hbase.test.pool;
+package com.hotpads.datarouter.test.pool;
 
 import java.util.List;
 
