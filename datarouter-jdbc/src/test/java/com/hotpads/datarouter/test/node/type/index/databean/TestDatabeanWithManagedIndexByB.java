@@ -14,15 +14,19 @@ import com.hotpads.datarouter.storage.view.index.unique.UniqueIndexEntry;
 import com.hotpads.datarouter.test.TestDatabean;
 import com.hotpads.datarouter.test.TestDatabeanKey;
 
-public class TestDatabeanWithManagedIndexByB extends
-		BaseDatabean<TestDatabeanWithManagedIndexByBKey, TestDatabeanWithManagedIndexByB>
-		implements
-		UniqueIndexEntry<TestDatabeanWithManagedIndexByBKey, TestDatabeanWithManagedIndexByB, TestDatabeanKey, TestDatabean>{
+public class TestDatabeanWithManagedIndexByB
+extends BaseDatabean<TestDatabeanWithManagedIndexByBKey, TestDatabeanWithManagedIndexByB>
+implements UniqueIndexEntry<
+		TestDatabeanWithManagedIndexByBKey,
+		TestDatabeanWithManagedIndexByB,
+		TestDatabeanKey,
+		TestDatabean>{
 
 	private TestDatabeanWithManagedIndexByBKey key;
 	private String a;
-	
-	public static class TestDatabeanWithManagedIndexByBFielder extends BaseDatabeanFielder<TestDatabeanWithManagedIndexByBKey, TestDatabeanWithManagedIndexByB>{
+
+	public static class TestDatabeanWithManagedIndexByBFielder
+	extends BaseDatabeanFielder<TestDatabeanWithManagedIndexByBKey,TestDatabeanWithManagedIndexByB>{
 
 		@Override
 		public Class<? extends Fielder<TestDatabeanWithManagedIndexByBKey>> getKeyFielderClass(){
@@ -33,13 +37,12 @@ public class TestDatabeanWithManagedIndexByB extends
 		public List<Field<?>> getNonKeyFields(TestDatabeanWithManagedIndexByB databean){
 			return FieldTool.createList(new StringField("a", databean.a, MySqlColumnType.MAX_LENGTH_VARCHAR));
 		}
-		
 	}
-	
+
 	public TestDatabeanWithManagedIndexByB(){
 		this.key = new TestDatabeanWithManagedIndexByBKey();
 	}
-	
+
 	public TestDatabeanWithManagedIndexByB(String b, String a){
 		this.key = new TestDatabeanWithManagedIndexByBKey(b);
 		this.a = a;
@@ -65,11 +68,11 @@ public class TestDatabeanWithManagedIndexByB extends
 		TestDatabeanWithManagedIndexByB entry = new TestDatabeanWithManagedIndexByB(target.getB(), target.getA());
 		return Collections.singletonList(entry);
 	}
-	
+
 	public String getA(){
 		return a;
 	}
-	
+
 	public String getB(){
 		return key.getB();
 	}

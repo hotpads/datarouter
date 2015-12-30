@@ -14,15 +14,19 @@ import com.hotpads.datarouter.storage.view.index.multi.MultiIndexEntry;
 import com.hotpads.datarouter.test.TestDatabean;
 import com.hotpads.datarouter.test.TestDatabeanKey;
 
-public class TestDatabeanWithManagedIndexByC extends
-		BaseDatabean<TestDatabeanWithManagedIndexByCKey, TestDatabeanWithManagedIndexByC>
-		implements
-		MultiIndexEntry<TestDatabeanWithManagedIndexByCKey, TestDatabeanWithManagedIndexByC, TestDatabeanKey, TestDatabean>{
+public class TestDatabeanWithManagedIndexByC
+extends BaseDatabean<TestDatabeanWithManagedIndexByCKey, TestDatabeanWithManagedIndexByC>
+implements MultiIndexEntry<
+		TestDatabeanWithManagedIndexByCKey,
+		TestDatabeanWithManagedIndexByC,
+		TestDatabeanKey,
+		TestDatabean>{
 
 	private TestDatabeanWithManagedIndexByCKey key;
 	private String a;
-	
-	public static class TestDatabeanWithManagedIndexByCFielder extends BaseDatabeanFielder<TestDatabeanWithManagedIndexByCKey, TestDatabeanWithManagedIndexByC>{
+
+	public static class TestDatabeanWithManagedIndexByCFielder
+	extends BaseDatabeanFielder<TestDatabeanWithManagedIndexByCKey, TestDatabeanWithManagedIndexByC>{
 
 		@Override
 		public Class<? extends Fielder<TestDatabeanWithManagedIndexByCKey>> getKeyFielderClass(){
@@ -33,13 +37,13 @@ public class TestDatabeanWithManagedIndexByC extends
 		public List<Field<?>> getNonKeyFields(TestDatabeanWithManagedIndexByC databean){
 			return FieldTool.createList(new StringField("a", databean.a, MySqlColumnType.MAX_LENGTH_VARCHAR));
 		}
-		
+
 	}
-	
+
 	public TestDatabeanWithManagedIndexByC(){
 		this.key = new TestDatabeanWithManagedIndexByCKey();
 	}
-	
+
 	public TestDatabeanWithManagedIndexByC(String c, String a){
 		this.key = new TestDatabeanWithManagedIndexByCKey(c);
 		this.a = a;
@@ -65,11 +69,11 @@ public class TestDatabeanWithManagedIndexByC extends
 		TestDatabeanWithManagedIndexByC entry = new TestDatabeanWithManagedIndexByC(target.getC(), target.getA());
 		return Collections.singletonList(entry);
 	}
-	
+
 	public String getA(){
 		return a;
 	}
-	
+
 	public String getC(){
 		return key.getC();
 	}

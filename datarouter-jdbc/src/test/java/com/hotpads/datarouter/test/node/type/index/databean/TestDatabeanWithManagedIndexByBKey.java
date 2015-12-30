@@ -12,20 +12,20 @@ import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
 public class TestDatabeanWithManagedIndexByBKey extends BasePrimaryKey<TestDatabeanWithManagedIndexByBKey>{
 
 	private String b;
-	
+
 	public TestDatabeanWithManagedIndexByBKey(){
 		this(null);
 	}
-	
+
 	public TestDatabeanWithManagedIndexByBKey(String b){
 		this.b = b;
 	}
-	
+
 	@Override
 	public List<Field<?>> getFields(){
 		return FieldTool.createList(new StringField("b", b, MySqlColumnType.MAX_LENGTH_VARCHAR));
 	}
-	
+
 	public String getB(){
 		return b;
 	}

@@ -16,9 +16,9 @@ import com.hotpads.datarouter.test.node.type.index.node.TestDatabeanWithTxnManag
 
 @Singleton
 public class ManagedIndexTestRouter extends BaseRouter{
-	
+
 	private static final String NAME = "managedIndexTest";
-	
+
 	public final TestDatabeanWithManagedIndexNode testDatabeanWithManagedIndex;
 	public final TestDatabeanWithTxnManagedIndexNode testDatabeanWithTxnManagedIndex;
 
