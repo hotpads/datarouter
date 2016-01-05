@@ -9,8 +9,6 @@ import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt31Field;
 import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
 
-/********************************* indexes ***********************************/
-
 @SuppressWarnings("serial")
 public class CaseEnforcingDatabeanUpdateTestBeanKey extends BasePrimaryKey<CaseEnforcingDatabeanUpdateTestBeanKey>{
 
@@ -47,7 +45,6 @@ public class CaseEnforcingDatabeanUpdateTestBeanKey extends BasePrimaryKey<CaseE
 				new UInt31Field(COL_c, cc),
 				new StringField(COL_d, dd, DEFAULT_STRING_LENGTH));
 	}
-
 
 
 	/***************************** get/set *******************************/
