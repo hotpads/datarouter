@@ -4,11 +4,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import javax.persistence.Access;
-import javax.persistence.AccessType;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.content.ContentHolder;
@@ -19,15 +14,12 @@ import com.hotpads.datarouter.storage.field.imp.comparable.LongField;
 import com.hotpads.datarouter.storage.field.imp.dumb.DumbDoubleField;
 
 
-@Entity()
-@Access(AccessType.FIELD)
 public class CaseEnforcingDatabeanUpdateTestBean
 extends BaseDatabean<CaseEnforcingDatabeanUpdateTestBeanKey,CaseEnforcingDatabeanUpdateTestBean>
 implements ContentHolder<CaseEnforcingDatabeanUpdateTestBeanKey, CaseEnforcingDatabeanUpdateTestBean>{
 
 	public static final int DEFAULT_STRING_LENGTH = MySqlColumnType.MAX_LENGTH_VARCHAR;
 
-	@Id
 	private CaseEnforcingDatabeanUpdateTestBeanKey key;
 
 	private String f1;
