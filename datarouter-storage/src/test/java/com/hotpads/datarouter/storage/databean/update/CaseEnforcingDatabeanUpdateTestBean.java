@@ -51,12 +51,12 @@ implements ContentHolder<CaseEnforcingDatabeanUpdateTestBeanKey, CaseEnforcingDa
 			super(CaseEnforcingDatabeanUpdateTestBeanKey.class);
 		}
 		@Override
-		public List<Field<?>> getNonKeyFields(CaseEnforcingDatabeanUpdateTestBean d){
+		public List<Field<?>> getNonKeyFields(CaseEnforcingDatabeanUpdateTestBean databean){
 			return Arrays.asList(
-					new StringField(COL_f1, d.f1, DEFAULT_STRING_LENGTH),
-					new LongField(COL_f2, d.f2),
-					new StringField(COL_f3, d.f3, DEFAULT_STRING_LENGTH),
-					new DumbDoubleField(COL_f4, d.f4));
+					new StringField(COL_f1, databean.f1, DEFAULT_STRING_LENGTH),
+					new LongField(COL_f2, databean.f2),
+					new StringField(COL_f3, databean.f3, DEFAULT_STRING_LENGTH),
+					new DumbDoubleField(COL_f4, databean.f4));
 		}
 	}
 
