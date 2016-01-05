@@ -84,5 +84,4 @@ public class CaseEnforcingDatabeanUpdateTestBeanKey extends BasePrimaryKey<CaseE
 		this.dd = dd;
 	}
 
-
 }
