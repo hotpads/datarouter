@@ -16,36 +16,36 @@ public class CaseEnforcingDatabeanUpdateTestBeanKey extends BasePrimaryKey<CaseE
 
 	public static final int DEFAULT_STRING_LENGTH = MySqlColumnType.MAX_LENGTH_VARCHAR;
 
-	protected String a;
-	protected String b;
-	protected Integer c;
-	protected String d;
+	protected String aa;
+	protected String bb;
+	protected Integer cc;
+	protected String dd;
 
 	CaseEnforcingDatabeanUpdateTestBeanKey(){
 	}
 
 
-	public CaseEnforcingDatabeanUpdateTestBeanKey(String a, String b, Integer c, String d){
-		this.a = a;
-		this.b = b;
-		this.c = c;
-		this.d = d;
+	public CaseEnforcingDatabeanUpdateTestBeanKey(String aa, String bb, Integer cc, String dd){
+		this.aa = aa;
+		this.bb = bb;
+		this.cc = cc;
+		this.dd = dd;
 	}
 
 	public static final String
-		COL_a = "a",
-		COL_b = "b",
-		COL_c = "c",
-		COL_d = "d";
+		COL_a = "aa",
+		COL_b = "bb",
+		COL_c = "cc",
+		COL_d = "dd";
 
 
 	@Override
 	public List<Field<?>> getFields(){
 		return Arrays.asList(
-				new StringField(COL_a, a, DEFAULT_STRING_LENGTH),
-				new StringField(COL_b, b, DEFAULT_STRING_LENGTH),
-				new UInt31Field(COL_c, c),
-				new StringField(COL_d, d, DEFAULT_STRING_LENGTH));
+				new StringField(COL_a, aa, DEFAULT_STRING_LENGTH),
+				new StringField(COL_b, bb, DEFAULT_STRING_LENGTH),
+				new UInt31Field(COL_c, cc),
+				new StringField(COL_d, dd, DEFAULT_STRING_LENGTH));
 	}
 
 
@@ -53,35 +53,35 @@ public class CaseEnforcingDatabeanUpdateTestBeanKey extends BasePrimaryKey<CaseE
 	/***************************** get/set *******************************/
 
 	public String getA(){
-		return a;
+		return aa;
 	}
 
-	public void setA(String a){
-		this.a = a;
+	public void setA(String aa){
+		this.aa = aa;
 	}
 
 	public String getB(){
-		return b;
+		return bb;
 	}
 
-	public void setB(String b){
-		this.b = b;
+	public void setB(String bb){
+		this.bb = bb;
 	}
 
 	public Integer getC(){
-		return c;
+		return cc;
 	}
 
-	public void setC(Integer c){
-		this.c = c;
+	public void setC(Integer cc){
+		this.cc = cc;
 	}
 
 	public String getD(){
-		return d;
+		return dd;
 	}
 
-	public void setD(String d){
-		this.d = d;
+	public void setD(String dd){
+		this.dd = dd;
 	}
 
 

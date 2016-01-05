@@ -67,9 +67,9 @@ implements ContentHolder<CaseEnforcingDatabeanUpdateTestBeanKey, CaseEnforcingDa
 		this.key = new CaseEnforcingDatabeanUpdateTestBeanKey();
 	}
 
-	public CaseEnforcingDatabeanUpdateTestBean(String a, String b, Integer c, String d, String f1, Long f2, String f3,
-			Double f4){
-		this.key = new CaseEnforcingDatabeanUpdateTestBeanKey(a, b, c, d);
+	public CaseEnforcingDatabeanUpdateTestBean(String aa, String bb, Integer cc, String dd, String f1, Long f2,
+			String f3, Double f4){
+		this.key = new CaseEnforcingDatabeanUpdateTestBeanKey(aa, bb, cc, dd);
 		this.f1 = f1;
 		this.f2 = f2;
 		this.f3 = f3;
@@ -89,7 +89,9 @@ implements ContentHolder<CaseEnforcingDatabeanUpdateTestBeanKey, CaseEnforcingDa
 		return key;
 	}
 
+
 	/** ContentHolder ********************************************************/
+
 	@Override
 	public List<Field<?>> getMetaFields() {
 		return Collections.emptyList();
