@@ -16,10 +16,10 @@ public class CaseEnforcingDatabeanUpdateTestBeanKey extends BasePrimaryKey<CaseE
 
 	public static final int DEFAULT_STRING_LENGTH = MySqlColumnType.MAX_LENGTH_VARCHAR;
 
-	protected String aa;
-	protected String bb;
-	protected Integer cc;
-	protected String dd;
+	private String aa;
+	private String bb;
+	private Integer cc;
+	private String dd;
 
 	CaseEnforcingDatabeanUpdateTestBeanKey(){
 	}
