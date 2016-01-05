@@ -4,16 +4,19 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
+import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.comparable.LongField;
 
 
 public class BackupRecord extends BaseDatabean<BackupRecordKey,BackupRecord>{
 
-	private BackupRecordKey key;
+	private final BackupRecordKey key;
 
+	private String bucketName;
 	private Long rawBytes;
 	private Long compressedBytes;
 	private Long numRecords;
@@ -21,6 +24,7 @@ public class BackupRecord extends BaseDatabean<BackupRecordKey,BackupRecord>{
 	public static class Fields{
 		public static final String
 			KEY_NAME = "key",
+			bucketName = "bucketName",
 			rawBytes = "rawBytes",
 			compressedBytes = "compressedBytes",
 			numRecords = "numRecords";
@@ -37,6 +41,7 @@ public class BackupRecord extends BaseDatabean<BackupRecordKey,BackupRecord>{
 		@Override
 		public List<Field<?>> getNonKeyFields(BackupRecord databean){
 			return Arrays.asList(
+					new StringField(Fields.bucketName, databean.bucketName, MySqlColumnType.MAX_LENGTH_VARCHAR),
 					new LongField(Fields.rawBytes, databean.rawBytes),
 					new LongField(Fields.compressedBytes, databean.compressedBytes),
 					new LongField(Fields.numRecords, databean.numRecords));
@@ -51,12 +56,14 @@ public class BackupRecord extends BaseDatabean<BackupRecordKey,BackupRecord>{
 	}
 
 	public BackupRecord(String clientName, String tableName, String subEntityPrefix, List<Field<?>> startKey,
-			List<Field<?>> endKey, Long rawBytes, Long compressedBytes, Long numRecords){
+			List<Field<?>> endKey, String bucketName, Long rawBytes, Long compressedBytes, Long numRecords){
 		this.key = new BackupRecordKey(clientName, tableName, subEntityPrefix, startKey, endKey);
+		this.bucketName = bucketName;
 		this.rawBytes = rawBytes;
 		this.compressedBytes = compressedBytes;
 		this.numRecords = numRecords;
 	}
+
 
 	/************************** databean *******************************************/
 
@@ -119,6 +126,10 @@ public class BackupRecord extends BaseDatabean<BackupRecordKey,BackupRecord>{
 
 	public byte[] getStartKey(){
 		return key.getStartKey();
+	}
+
+	public String getBucketName(){
+		return bucketName;
 	}
 
 	public void setCreated(Date created){

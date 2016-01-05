@@ -39,7 +39,7 @@ public class BackupRecordKey extends BasePrimaryKey<BackupRecordKey>{
 	public List<Field<?>> getFields(){
 		return Arrays.asList(
 				new StringField(COL_clientName, clientName, MySqlColumnType.LENGTH_50),
-				new StringField(COL_tableName, tableName, MySqlColumnType.LENGTH_50),
+				new StringField(COL_tableName, tableName, MySqlColumnType.MAX_LENGTH_VARCHAR),
 				new StringField(COL_subEntityPrefix, subEntityPrefix, MySqlColumnType.LENGTH_50),
 				new ByteArrayField(COL_startKey, startKey, MySqlColumnType.MAX_LENGTH_VARBINARY),
 				new ByteArrayField(COL_endKey, endKey, MySqlColumnType.MAX_LENGTH_VARBINARY),
