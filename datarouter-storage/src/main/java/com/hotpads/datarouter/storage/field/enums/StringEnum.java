@@ -4,6 +4,6 @@ public interface StringEnum<E>
 extends Comparable<E>{
 
 	String getPersistentString();
-	E fromPersistentString(String s);
-	
+	E fromPersistentString(String string);
+
 }
