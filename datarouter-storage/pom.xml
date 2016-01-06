@@ -161,7 +161,7 @@
 			<artifactId>quartz</artifactId>
 			<version>2.2.2</version>
 		</dependency>
-		<dependency><!-- used by HttpReaderNode -->
+		<dependency><!-- used by JsonDatabeanTool -->
 			<groupId>net.sf.json-lib</groupId>
 			<artifactId>json-lib</artifactId>
 			<version>2.3</version>
