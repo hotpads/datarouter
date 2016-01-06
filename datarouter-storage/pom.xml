@@ -101,6 +101,18 @@
 			<artifactId>guice</artifactId>
 			<version>4.0</version>
 		</dependency>
+		<!-- http client, need to switch to hotpads http client -->
+		<dependency>
+			<groupId>commons-httpclient</groupId>
+			<artifactId>commons-httpclient</artifactId>
+			<version>3.0.1</version>
+			<exclusions>
+				<exclusion><!-- comes with 1.2. we want 1.6 -->
+					<groupId>commons-codec</groupId>
+					<artifactId>commons-codec</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
 		<!-- apache commons -->
 		<dependency>
 			<groupId>commons-beanutils</groupId>
