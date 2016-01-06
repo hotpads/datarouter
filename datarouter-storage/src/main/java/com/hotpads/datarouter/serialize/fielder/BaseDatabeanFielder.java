@@ -42,6 +42,10 @@ implements DatabeanFielder<PK,D>{
 		this.stringDatabeanCodec = ReflectionTool.create(getStringDatabeanCodecClass());
 	}
 
+	/**
+	 * @deprecated pass the primaryKeyFieldClass to the super(..) constructor
+	 */
+	@Deprecated
 	@Override
 	public Class<? extends Fielder<PK>> getKeyFielderClass(){
 		return primaryKeyFielderClass;
