@@ -101,62 +101,37 @@
 			<artifactId>guice</artifactId>
 			<version>4.0</version>
 		</dependency>
-		<!-- aws -->
-		<dependency>
-			<groupId>com.amazonaws</groupId>
-			<artifactId>aws-java-sdk-sts</artifactId>
-			<version>${aws-sdk-version}</version>
-		</dependency>
-		<!-- http client, need to switch to hotpads http client -->
-		<dependency>
-			<groupId>commons-httpclient</groupId>
-			<artifactId>commons-httpclient</artifactId>
-			<version>3.0.1</version>
-			<exclusions>
-				<exclusion><!-- comes with 1.2. we want 1.6 -->
-					<groupId>commons-codec</groupId>
-					<artifactId>commons-codec</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<!-- hbase (can move to datarouter-hbase? -->
-		<dependency><!-- need newer version for google apis, so override hbase's 2.4 -->
-			<groupId>com.google.protobuf</groupId>
-			<artifactId>protobuf-java</artifactId>
-			<version>2.6.1</version>
-		</dependency>
-		<dependency><!-- used by org.apache.hadoop.hbase.HBaseConfiguration.checkDefaultsVersion -->
-			<groupId>xerces</groupId>
-			<artifactId>xercesImpl</artifactId>
-			<version>2.9.0</version>
-			<scope>runtime</scope>
-		</dependency>
 		<!-- apache commons -->
+<!-- 		<dependency> -->
+<!-- 			<groupId>commons-beanutils</groupId> -->
+<!-- 			<artifactId>commons-beanutils-core</artifactId> -->
+<!-- 			<version>1.8.3</version> -->
+<!-- 		</dependency> -->
 		<dependency>
-			<groupId>commons-beanutils</groupId>
-			<artifactId>commons-beanutils-core</artifactId>
-			<version>1.8.3</version>
+			<groupId>commons-codec</groupId>
+			<artifactId>commons-codec</artifactId>
+			<version>1.9</version>
 		</dependency>
-		<dependency>
-			<groupId>commons-collections</groupId>
-			<artifactId>commons-collections</artifactId>
-			<version>3.1</version>
-		</dependency>
-		<dependency>
-			<groupId>commons-configuration</groupId>
-			<artifactId>commons-configuration</artifactId>
-			<version>1.1</version>
-			<exclusions>
-				<exclusion><!-- omit v2.0 in favor of newer versions -->
-					<groupId>commons-lang</groupId>
-					<artifactId>commons-lang</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>javax.servlet</groupId>
-					<artifactId>servlet-api</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>commons-collections</groupId> -->
+<!-- 			<artifactId>commons-collections</artifactId> -->
+<!-- 			<version>3.1</version> -->
+<!-- 		</dependency> -->
+<!-- 		<dependency> -->
+<!-- 			<groupId>commons-configuration</groupId> -->
+<!-- 			<artifactId>commons-configuration</artifactId> -->
+<!-- 			<version>1.1</version> -->
+<!-- 			<exclusions> -->
+<!-- 				<exclusion>omit v2.0 in favor of newer versions -->
+<!-- 					<groupId>commons-lang</groupId> -->
+<!-- 					<artifactId>commons-lang</artifactId> -->
+<!-- 				</exclusion> -->
+<!-- 				<exclusion> -->
+<!-- 					<groupId>javax.servlet</groupId> -->
+<!-- 					<artifactId>servlet-api</artifactId> -->
+<!-- 				</exclusion> -->
+<!-- 			</exclusions> -->
+<!-- 		</dependency> -->
 		<dependency><!-- used in FieldTool: StringEscapeUtils.escapeCsv -->
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
@@ -174,7 +149,7 @@
 			<artifactId>quartz</artifactId>
 			<version>2.2.2</version>
 		</dependency>
-		<dependency><!-- used by HttpReaderNode -->
+		<dependency><!-- used by JsonDatabeanTool -->
 			<groupId>net.sf.json-lib</groupId>
 			<artifactId>json-lib</artifactId>
 			<version>2.3</version>

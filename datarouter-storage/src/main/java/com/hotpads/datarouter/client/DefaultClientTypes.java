@@ -47,7 +47,7 @@ public class DefaultClientTypes{
 	public static final List<String> CLIENTS_IN_CORE_MODULE = DrListTool.createArrayList(
 //			CLIENT_TYPE_hbase,
 //			CLIENT_TYPE_hibernate,
-			CLIENT_TYPE_http,
+//			CLIENT_TYPE_http,
 //			CLIENT_TYPE_jdbc,
 //			CLIENT_TYPE_memcached,
 			CLIENT_TYPE_memory
