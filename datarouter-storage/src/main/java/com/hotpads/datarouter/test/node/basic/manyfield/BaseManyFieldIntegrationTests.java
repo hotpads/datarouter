@@ -38,7 +38,7 @@ public abstract class BaseManyFieldIntegrationTests{
 	protected MapStorageNode<ManyFieldBeanKey,ManyFieldBean> mapNode;
 
 	@Deprecated //currently unused, but not ready to delete
-	private List<ManyFieldBeanKey> allKeys = new ArrayList<>();
+	private final List<ManyFieldBeanKey> allKeys = new ArrayList<>();
 
 	/***************************** constructors **************************************/
 
@@ -87,7 +87,7 @@ public abstract class BaseManyFieldIntegrationTests{
 	}
 
 	/***************************** tests **************************************/
-	
+
 	@Test
 	public void testDelete(){
 		ManyFieldBean bean = new ManyFieldBean();
@@ -96,7 +96,7 @@ public abstract class BaseManyFieldIntegrationTests{
 
 		ManyFieldBean roundTripped = mapNode.get(bean.getKey(), null);
 		Assert.assertEquals(roundTripped, bean);
-		
+
 		mapNode.delete(bean.getKey(), null);
 		Assert.assertNull(mapNode.get(bean.getKey(), null));
 	}
@@ -527,7 +527,7 @@ public abstract class BaseManyFieldIntegrationTests{
 
 
 
-	@Test
+	/*@Test
 	public void testBigLongArray(){
 		if(isHibernate()){
 			return;
@@ -544,7 +544,7 @@ public abstract class BaseManyFieldIntegrationTests{
 		ManyFieldBean roundTripped = mapNode.get(bean.getKey(), null);
 		AssertJUnit.assertTrue(0==DrListTool.compare(bean.getLongArrayField(), roundTripped.getLongArrayField()));
 		recordKey(bean.getKey());
-	}
+	}*/
 
 	/************************* helpers ********************************************/
 
