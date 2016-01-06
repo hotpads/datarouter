@@ -78,7 +78,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>com.hotpads</groupId>
-			<artifactId>datarouter-logging</artifactId>
+			<artifactId>datarouter-util</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 		<!-- javax.persistence annotations used in some datarouter-storage tests -->
@@ -88,13 +88,6 @@
 			<artifactId>hibernate-jpa-2.0-api</artifactId>
 			<version>1.0.1.Final</version>
 		</dependency>
-		<!-- utils -->
-		<!-- guava 15 removes the public Stopwatch() constructor which causes errors in hbase-1.1.2 -->
-		<dependency>
-			<groupId>com.google.guava</groupId>
-			<artifactId>guava</artifactId>
-			<version>14.0.1</version>
-		</dependency>
 		<!-- guice -->
 		<dependency>
 			<groupId>com.google.inject</groupId>
@@ -102,36 +95,11 @@
 			<version>4.0</version>
 		</dependency>
 		<!-- apache commons -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>commons-beanutils</groupId> -->
-<!-- 			<artifactId>commons-beanutils-core</artifactId> -->
-<!-- 			<version>1.8.3</version> -->
-<!-- 		</dependency> -->
 		<dependency>
 			<groupId>commons-codec</groupId>
 			<artifactId>commons-codec</artifactId>
 			<version>1.9</version>
 		</dependency>
-<!-- 		<dependency> -->
-<!-- 			<groupId>commons-collections</groupId> -->
-<!-- 			<artifactId>commons-collections</artifactId> -->
-<!-- 			<version>3.1</version> -->
-<!-- 		</dependency> -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>commons-configuration</groupId> -->
-<!-- 			<artifactId>commons-configuration</artifactId> -->
-<!-- 			<version>1.1</version> -->
-<!-- 			<exclusions> -->
-<!-- 				<exclusion>omit v2.0 in favor of newer versions -->
-<!-- 					<groupId>commons-lang</groupId> -->
-<!-- 					<artifactId>commons-lang</artifactId> -->
-<!-- 				</exclusion> -->
-<!-- 				<exclusion> -->
-<!-- 					<groupId>javax.servlet</groupId> -->
-<!-- 					<artifactId>servlet-api</artifactId> -->
-<!-- 				</exclusion> -->
-<!-- 			</exclusions> -->
-<!-- 		</dependency> -->
 		<dependency><!-- used in FieldTool: StringEscapeUtils.escapeCsv -->
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
@@ -159,17 +127,6 @@
 			<groupId>javax.mail</groupId>
 			<artifactId>mail</artifactId>
 			<version>1.4</version>
-		</dependency>
-		<dependency><!-- used by UuidTool -->
-			<groupId>com.fasterxml.uuid</groupId>
-			<artifactId>java-uuid-generator</artifactId>
-			<version>3.1.3</version>
-			<exclusions>
-				<exclusion>
-					<groupId>log4j</groupId>
-					<artifactId>log4j</artifactId>
-				</exclusion>
-			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>javax.inject</groupId>
