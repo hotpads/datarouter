@@ -11,6 +11,7 @@ import com.hotpads.datarouter.connection.keepalive.KeepAlive;
 import com.hotpads.datarouter.connection.keepalive.KeepAlive.KeepAliveFielder;
 import com.hotpads.datarouter.connection.keepalive.KeepAliveKey;
 import com.hotpads.datarouter.node.factory.NodeFactory;
+import com.hotpads.datarouter.node.op.combo.SortedMapStorage;
 import com.hotpads.datarouter.node.op.raw.MapStorage;
 import com.hotpads.datarouter.routing.BaseRouter;
 import com.hotpads.datarouter.routing.Datarouter;
@@ -28,7 +29,7 @@ extends BaseRouter{
 
 	/********************************** nodes **********************************/
 
-	private final MapStorage<KeepAliveKey,KeepAlive> keepAliveHBase;
+	private final SortedMapStorage<KeepAliveKey,KeepAlive> keepAliveHBase;
 	private final MapStorage<PoolTestBeanKey,PoolTestBean> poolTestBeanHBase;
 
 
@@ -56,7 +57,7 @@ extends BaseRouter{
 
 	/*************************** get/set ***********************************/
 
-	public MapStorage<KeepAliveKey,KeepAlive> keepAliveHBase(){
+	public SortedMapStorage<KeepAliveKey,KeepAlive> keepAliveHBase(){
 		return keepAliveHBase;
 	}
 
