@@ -75,8 +75,8 @@ public class HBaseSubEntityReaderNodeIntegrationTests{
 		Assert.assertEquals(sortedBean.streamWithPrefix(new SortedBeanKey("a", "c", null, null), null).count(), 3);
 		Assert.assertEquals(sortedBean.streamWithPrefix(new SortedBeanKey("a", "c", 2, null), null).count(), 2);
 		Assert.assertEquals(sortedBean.streamWithPrefix(new SortedBeanKey("a", "b", 2, null), null).count(), 1);
-		// Assert.assertEquals(sortedBean.stream(KeyRangeTool.forPrefix(new SortedBeanKey("a", "b", 4, "d")), null)
-		// .count(), 1); // failed, got 2 results because it wildcardsLastField (found the "dj")
+		//below failing, got 2 results because it wildcardsLastField (found the "dj")
+		Assert.assertEquals(sortedBean.streamWithPrefix(new SortedBeanKey("a", "b", 4, "d"), null).count(), 1);
 		Assert.assertEquals(sortedBean.stream(new Range<>(new SortedBeanKey("a", "c", 1, null), new SortedBeanKey("a",
 				"c", 2, null)), null).count(), 1);
 		Assert.assertEquals(sortedBean.stream(new Range<>(new SortedBeanKey("a", "c", 1, null), true, new SortedBeanKey(
