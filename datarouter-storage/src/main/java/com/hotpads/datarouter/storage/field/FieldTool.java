@@ -62,7 +62,7 @@ public class FieldTool{
 		int fieldIdx=-1;
 		for(Field<?> field : DrIterableTool.nullSafe(fields)){
 			++fieldIdx;
-			boolean finalField = fieldIdx == totalFields;
+			boolean finalField = fieldIdx == totalFields - 1;
 			boolean lastNonNullField = fieldIdx == numNonNullFields - 1;
 			if(!allowNulls && field.getValue()==null){
 				throw new IllegalArgumentException("field:"+field.getKey().getName()+" cannot be null in");
@@ -80,7 +80,7 @@ public class FieldTool{
 					fieldArraysWithSeparators[fieldIdx] = field.getBytes();
 				}
 			}else{
-				fieldArraysWithSeparators[fieldIdx] = field.getBytes();
+				fieldArraysWithSeparators[fieldIdx] = field.getBytesWithSeparator();
 			}
 			if(lastNonNullField){
 				break;
