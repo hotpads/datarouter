@@ -8,7 +8,6 @@ import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldSet;
-import com.hotpads.datarouter.storage.field.FieldSetTool;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.util.core.DrBooleanTool;
 import com.hotpads.datarouter.util.core.DrByteTool;
@@ -69,7 +68,9 @@ public class HBaseQueryBuilder{
 		ByteRange endBytes = null;
 		if(endKey!=null){
 			endBytes = new ByteRange(FieldTool.getBytesForNonNullFieldsWithNoTrailingSeparator(endKey.getFields()));
-			if(endInclusive){ endBytes = endBytes.cloneAndIncrement(); }
+			if(endInclusive){
+				endBytes = endBytes.cloneAndIncrement();
+			}
 		}
 		return new Twin<ByteRange>(startBytes, endBytes);
 	}
@@ -79,7 +80,9 @@ public class HBaseQueryBuilder{
 		byte[][] fieldBytes = new byte[numNonNullFields][];
 		int numFullFieldsFinished = 0;
 		for(Field<?> field : DrCollectionTool.nullSafe(prefix)){
-			if(numFullFieldsFinished >= numNonNullFields){ break; }
+			if(numFullFieldsFinished >= numNonNullFields) {
+				break;
+			}
 			if(field.getValue()==null) {
 				throw new DataAccessException("Prefix query cannot contain intermediate nulls.");
 			}
@@ -106,8 +109,12 @@ public class HBaseQueryBuilder{
 	public static final int DEFAULT_ITERATE_BATCH_SIZE = 1000;
 
 	public static int getIterateBatchSize(Config config){
-		if(config==null){ return DEFAULT_ITERATE_BATCH_SIZE; }
-		if(config.getIterateBatchSize()==null){ return DEFAULT_ITERATE_BATCH_SIZE; }
+		if(config == null){
+			return DEFAULT_ITERATE_BATCH_SIZE;
+		}
+		if(config.getIterateBatchSize() == null){
+			return DEFAULT_ITERATE_BATCH_SIZE;
+		}
 		return config.getIterateBatchSize();
 	}
 }
