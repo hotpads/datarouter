@@ -255,7 +255,6 @@ implements HBasePhysicalNode<PK,D>,
 
 				//startInclusive already adjusted for
 				Range<ByteRange> scanRange = Range.create(start, true, end, range.getEndInclusive());
-				System.out.println("scan for range:" + range);
 				Scan scan = HBaseQueryBuilder.getScanForRange(scanRange, config);
 				if(keysOnly){
 					scan.setFilter(new FirstKeyOnlyFilter());
