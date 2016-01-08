@@ -90,7 +90,7 @@ implements HBasePhysicalNode<PK,D>,
 				config){
 			@Override
 			public D hbaseCall(HTable table, HBaseClient client, ResultScanner managedResultScanner) throws Exception{
-				byte[] rowBytes = getKeyBytesWithScatteringPrefix(null, key, false);
+				byte[] rowBytes = getKeyBytesWithScatteringPrefix(null, key);
 				Result row = table.get(new Get(rowBytes));
 				if (row.isEmpty()){
 					return null;
@@ -119,7 +119,7 @@ implements HBasePhysicalNode<PK,D>,
 					throws Exception{
 				List<Get> gets = DrListTool.createArrayListWithSize(keys);
 					for(PK key : keys){
-						byte[] rowBytes = getKeyBytesWithScatteringPrefix(null, key, false);
+						byte[] rowBytes = getKeyBytesWithScatteringPrefix(null, key);
 						gets.add(new Get(rowBytes));
 					}
 					Result[] resultArray = table.get(gets);
@@ -142,7 +142,7 @@ implements HBasePhysicalNode<PK,D>,
 					throws Exception{
 				List<Get> gets = DrListTool.createArrayListWithSize(keys);
 					for(PK key : keys){
-						byte[] rowBytes = getKeyBytesWithScatteringPrefix(null, key, false);
+						byte[] rowBytes = getKeyBytesWithScatteringPrefix(null, key);
 						Get get = new Get(rowBytes);
 						//FirstKeyOnlyFilter returns value too, so it's better if value in each row is not large
 						get.setFilter(new FirstKeyOnlyFilter());
@@ -282,8 +282,7 @@ implements HBasePhysicalNode<PK,D>,
 	}
 
 	//this method is in the node because it deals with the messy primaryKeyHasUnnecessaryTrailingSeparatorByte
-	public byte[] getKeyBytesWithScatteringPrefix(List<Field<?>> overrideScatteringPrefixFields, PK key,
-			boolean increment){
+	public byte[] getKeyBytesWithScatteringPrefix(List<Field<?>> overrideScatteringPrefixFields, PK key){
 		//return only scatteringPrefix bytes
 		if(key==null){
 			if(DrCollectionTool.isEmpty(overrideScatteringPrefixFields)){
@@ -302,9 +301,6 @@ implements HBasePhysicalNode<PK,D>,
 		}
 		byte[] scatteringPrefixBytes = FieldTool.getConcatenatedValueBytes(scatteringPrefixFields, true, false);
 		byte[] keyBytes = FieldTool.getConcatenatedValueBytes(key.getFields(), true, false);
-		if(increment){
-			keyBytes = DrByteTool.unsignedIncrement(keyBytes);
-		}
 		return DrByteTool.concatenate(scatteringPrefixBytes, keyBytes);
 	}
 

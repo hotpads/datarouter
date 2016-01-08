@@ -13,6 +13,7 @@ import com.hotpads.datarouter.client.imp.hbase.balancer.HBaseBalanceLeveler;
 import com.hotpads.datarouter.client.imp.hbase.cluster.DrRegionInfo;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldSetTool;
+import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.util.core.DrArrayTool;
 import com.hotpads.datarouter.util.core.DrByteTool;
 import com.hotpads.util.core.bytes.ByteRange;
@@ -70,7 +71,7 @@ extends BaseHBaseRegionBalancer{
 	private void initRegionByPrefixMap(){
 		regionsByPrefix = new TreeMap<>();
 		for(List<Field<?>> prefixFields : scatteringPrefix.getAllPossibleScatteringPrefixes()){
-			ByteRange prefix = new ByteRange(FieldSetTool.getConcatenatedValueBytes(prefixFields, false, false));
+			ByteRange prefix = new ByteRange(FieldTool.getConcatenatedValueBytes(prefixFields, false, false));
 			regionsByPrefix.put(prefix, new ArrayList<DrRegionInfo<?>>()); 
 		}
 	}
@@ -82,7 +83,7 @@ extends BaseHBaseRegionBalancer{
 			byte[] startKey = drhRegionInfo.getRegion().getStartKey();
 			if(DrArrayTool.isEmpty(startKey)){//use first prefix (is there a more robust way?)
 				List<Field<?>> firstPrefix = scatteringPrefix.getAllPossibleScatteringPrefixes().get(0);
-				startKey = FieldSetTool.getConcatenatedValueBytes(firstPrefix, false, false);
+				startKey = FieldTool.getConcatenatedValueBytes(firstPrefix, false, false);
 			}
 			ByteRange regionPrefixBytes = new ByteRange(DrByteTool.copyOfRange(startKey, 0, scatteringPrefix
 					.getNumPrefixBytes()));

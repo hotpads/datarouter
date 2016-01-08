@@ -61,14 +61,14 @@ public class HBaseQueryBuilder{
 			final FieldSet<?> endKey, final boolean endInclusive){
 		ByteRange startBytes = null;
 		if(startKey!=null){
-			startBytes = new ByteRange(FieldSetTool.getBytesForNonNullFieldsWithNoTrailingSeparator(startKey));
+			startBytes = new ByteRange(FieldTool.getBytesForNonNullFieldsWithNoTrailingSeparator(startKey.getFields()));
 			if( ! startInclusive){
 				startBytes = startBytes.cloneAndIncrement();
 			}
 		}
 		ByteRange endBytes = null;
 		if(endKey!=null){
-			endBytes = new ByteRange(FieldSetTool.getBytesForNonNullFieldsWithNoTrailingSeparator(endKey));
+			endBytes = new ByteRange(FieldTool.getBytesForNonNullFieldsWithNoTrailingSeparator(endKey.getFields()));
 			if(endInclusive){ endBytes = endBytes.cloneAndIncrement(); }
 		}
 		return new Twin<ByteRange>(startBytes, endBytes);

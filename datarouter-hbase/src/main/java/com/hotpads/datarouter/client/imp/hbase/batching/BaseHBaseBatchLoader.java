@@ -55,14 +55,16 @@ extends BaseBatchLoader<T>{
 	@Override
 	public BaseHBaseBatchLoader<PK,D,F,T> call(){
 		//these should handle null scattering prefixes and null pks
+		ByteRange startBytes = new ByteRange(node.getKeyBytesWithScatteringPrefix(scatteringPrefix, range.getStart()));
 		boolean incrementStartBytes = !range.getStartInclusive();
-		ByteRange startBytes = new ByteRange(node.getKeyBytesWithScatteringPrefix(scatteringPrefix, range.getStart(),
-				incrementStartBytes));
+		if(incrementStartBytes){
+			startBytes = new ByteRange(startBytes.copyToArrayNewArrayAndIncrement());
+		}
 		ByteRange endBytes = null;
 		if(range.getEnd() != null){
 			//if no end bytes, then the differentScatteringPrefix(row) below will stop the scanner
 			//don't increment endBytes here.  it will be taken care of later.  hard to follow =(
-			endBytes = new ByteRange(node.getKeyBytesWithScatteringPrefix(scatteringPrefix, range.getEnd(), false));
+			endBytes = new ByteRange(node.getKeyBytesWithScatteringPrefix(scatteringPrefix, range.getEnd()));
 			//TODO adjust endKey for scatteringPrefix and endInclusive???
 		}else{
 			//TODO stop at the next scatteringPrefix.  we may be way overshooting short scans
