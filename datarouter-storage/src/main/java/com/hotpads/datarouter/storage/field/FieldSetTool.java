@@ -196,8 +196,9 @@ public class FieldSetTool{
 					new UInt31Field("someInt", someInt),
 					new StringField("someStringA", someStringA, MySqlColumnType.MAX_LENGTH_VARCHAR),
 					new StringField("someStringB", someStringB, MySqlColumnType.MAX_LENGTH_VARCHAR));
-			ByteRange withTrailingByte = new ByteRange(FieldTool.getConcatenatedValueBytes(fields, false, true));
-			ByteRange withoutTrailingByte = new ByteRange(FieldTool.getConcatenatedValueBytes(fields, false, false));
+			ByteRange withTrailingByte = new ByteRange(FieldTool.getConcatenatedValueBytes(fields, false, true, true));
+			ByteRange withoutTrailingByte = new ByteRange(FieldTool.getConcatenatedValueBytes(fields, false, true,
+					false));
 			int lengthWithout = 4 + 3 + 1 + 3;
 			int lengthWith = lengthWithout + 1;
 			Assert.assertEquals(lengthWith, withTrailingByte.getLength());

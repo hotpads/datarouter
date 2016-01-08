@@ -38,7 +38,7 @@ extends BaseBatchLoader<T>{
 			final Range<PK> range, final Config config, Long batchChainCounter){
 		this.node = node;
 		this.scatteringPrefix = scatteringPrefix;
-		this.scatteringPrefixBytes = FieldTool.getConcatenatedValueBytes(scatteringPrefix, false, false);
+		this.scatteringPrefixBytes = FieldTool.getConcatenatedValueBytes(scatteringPrefix, false, true, false);
 		this.range = range;
 		this.config = Config.nullSafe(config);
 		this.iterateBatchSize = this.config.getIterateBatchSize();

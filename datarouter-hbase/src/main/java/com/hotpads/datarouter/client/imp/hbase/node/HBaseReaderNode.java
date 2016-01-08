@@ -255,6 +255,7 @@ implements HBasePhysicalNode<PK,D>,
 
 				//startInclusive already adjusted for
 				Range<ByteRange> scanRange = Range.create(start, true, end, range.getEndInclusive());
+				System.out.println("scan for range:" + range);
 				Scan scan = HBaseQueryBuilder.getScanForRange(scanRange, config);
 				if(keysOnly){
 					scan.setFilter(new FirstKeyOnlyFilter());
@@ -288,7 +289,7 @@ implements HBasePhysicalNode<PK,D>,
 			if(DrCollectionTool.isEmpty(overrideScatteringPrefixFields)){
 				return new byte[]{};
 			}
-			return FieldTool.getConcatenatedValueBytes(overrideScatteringPrefixFields, false, false);
+			return FieldTool.getConcatenatedValueBytes(overrideScatteringPrefixFields, false, true, false);
 		}
 
 		//else return scatteringPrefix bytes + keyBytes + (maybe) trailing separator
@@ -299,8 +300,8 @@ implements HBasePhysicalNode<PK,D>,
 			//maybe Assert the override fields match those returned for the key
 			scatteringPrefixFields.addAll(fieldInfo.getSampleScatteringPrefix().getScatteringPrefixFields(key));
 		}
-		byte[] scatteringPrefixBytes = FieldTool.getConcatenatedValueBytes(scatteringPrefixFields, true, false);
-		byte[] keyBytes = FieldTool.getConcatenatedValueBytes(key.getFields(), true, false);
+		byte[] scatteringPrefixBytes = FieldTool.getConcatenatedValueBytes(scatteringPrefixFields, true, true, false);
+		byte[] keyBytes = FieldTool.getConcatenatedValueBytes(key.getFields(), true, true, false);
 		return DrByteTool.concatenate(scatteringPrefixBytes, keyBytes);
 	}
 
