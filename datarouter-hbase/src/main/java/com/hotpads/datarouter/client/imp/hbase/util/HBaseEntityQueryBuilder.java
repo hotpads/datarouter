@@ -13,7 +13,7 @@ public class HBaseEntityQueryBuilder<
 
 	protected EntityFieldInfo<EK,E> entityFieldInfo;
 	protected EntityPartitioner<EK> partitioner;
-	
+
 	public HBaseEntityQueryBuilder(EntityFieldInfo<EK,E> entityFieldInfo){
 		this.entityFieldInfo = entityFieldInfo;
 		this.partitioner = entityFieldInfo.getEntityPartitioner();
@@ -21,15 +21,17 @@ public class HBaseEntityQueryBuilder<
 
 
 	/************** methods *******************/
-	
+
 	public byte[] getRowBytes(EK ek){
-		if(ek==null){ throw new IllegalArgumentException("no nulls"); }
+		if(ek == null) {
+			throw new IllegalArgumentException("no nulls");
+		}
 		return FieldTool.getConcatenatedValueBytes(ek.getFields(), true, false);
 	}
-	
+
 	public byte[] getRowBytesWithPartition(EK ek){
 		byte[] partitionPrefix = entityFieldInfo.getEntityPartitioner().getPrefix(ek);
 		return DrByteTool.concatenate(partitionPrefix, getRowBytes(ek));
 	}
-	
+
 }
