@@ -53,7 +53,7 @@ public class FieldTool{
 	 */
 	public static byte[] getConcatenatedValueBytes(Collection<Field<?>> fields, boolean allowNulls,
 			boolean terminateIntermediateString, boolean terminateFinalString){
-		int totalFields = fields.size();
+		int totalFields = DrCollectionTool.size(fields);
 		int numNonNullFields = FieldTool.countNonNullLeadingFields(fields);
 		if(numNonNullFields==0){
 			return null;
