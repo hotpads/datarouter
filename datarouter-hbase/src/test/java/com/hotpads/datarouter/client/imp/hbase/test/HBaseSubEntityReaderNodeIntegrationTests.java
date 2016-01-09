@@ -80,7 +80,10 @@ public class HBaseSubEntityReaderNodeIntegrationTests{
 				"c", 2, null)), null).count(), 1);
 		Assert.assertEquals(sortedBean.stream(new Range<>(new SortedBeanKey("a", "c", 1, null), true, new SortedBeanKey(
 				"a", "c", 2, null), true), null).count(), 3);
-		Assert.assertEquals(sortedBean.streamWithPrefix(new SortedBeanKey("a", "c", 2, "d"), null).count(), 2);
+
+		//test wildcardLastField
+		Assert.assertEquals(sortedBean.getWithPrefix(new SortedBeanKey("a", "b", 4, "d"), false, null).size(), 1);
+		Assert.assertEquals(sortedBean.getWithPrefix(new SortedBeanKey("a", "b", 4, "d"), true, null).size(), 2);
 	}
 
 	@AfterClass
