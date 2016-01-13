@@ -1,8 +1,7 @@
 package com.hotpads.datarouter.setting;
 
-import org.quartz.CronExpression;
-
 import com.hotpads.datarouter.setting.cached.impl.Duration;
+import com.hotpads.util.core.date.CronExpression;
 
 public interface SettingFinder{
 
