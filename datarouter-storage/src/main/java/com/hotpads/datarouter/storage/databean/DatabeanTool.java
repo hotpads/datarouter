@@ -57,11 +57,11 @@ public class DatabeanTool {
 
 	protected static byte[] getBytes(List<Field<?>> keyFields, List<Field<?>> nonKeyFields){
 		//always include zero-length fields in key bytes
-		byte[] keyBytes = FieldSetTool.getSerializedKeyValues(keyFields, true, false);
+		byte[] keyBytes = FieldTool.getSerializedKeyValues(keyFields, true, false);
 
 		//skip zero-length fields in non-key bytes
 		//TODO should this distinguish between null and empty Strings?
-		byte[] nonKeyBytes = FieldSetTool.getSerializedKeyValues(nonKeyFields, true, true);
+		byte[] nonKeyBytes = FieldTool.getSerializedKeyValues(nonKeyFields, true, true);
 		byte[] allBytes = DrArrayTool.concatenate(keyBytes, nonKeyBytes);
 		return allBytes;
 	}
