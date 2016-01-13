@@ -6,7 +6,7 @@
 		<artifactId>hotpads</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
-	<artifactId>http-client</artifactId>
+	<artifactId>datarouter-http-client</artifactId>
 	<build>
 		<plugins>
 			<plugin>
