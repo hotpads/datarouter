@@ -1,6 +1,7 @@
 package com.hotpads.datarouter.client.imp.jdbc.scan;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.NavigableSet;
 import java.util.SortedSet;
@@ -67,6 +68,11 @@ extends BaseBatchBackedScanner<T,T>{
 				previousRange = range;
 			}
 			currentRanges = remainingRanges;
+			if(currentRanges.isEmpty()){
+				noMoreBatches = true;
+				currentBatch = Collections.emptyList();
+				return;
+			}
 			Range<PK> firstRange = currentRanges.first().clone();
 			firstRange.setStart(lastRowOfPreviousBatch);
 			firstRange.setStartInclusive(false);
