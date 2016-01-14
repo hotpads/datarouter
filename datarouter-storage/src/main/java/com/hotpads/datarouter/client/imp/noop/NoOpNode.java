@@ -16,7 +16,6 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 import com.hotpads.datarouter.storage.view.index.IndexEntry;
 import com.hotpads.util.core.collections.Range;
-import com.hotpads.util.core.iterable.scanner.iterable.SingleUseScannerIterable;
 
 public class NoOpNode<PK extends PrimaryKey<PK>, D extends Databean<PK, D>> implements IndexedSortedMapStorage<PK, D>{
 
@@ -81,12 +80,12 @@ public class NoOpNode<PK extends PrimaryKey<PK>, D extends Databean<PK, D>> impl
 	}
 
 	@Override
-	public SingleUseScannerIterable<PK> scanKeys(Range<PK> range, Config config){
+	public Iterable<PK> scanKeysMulti(Collection<Range<PK>> ranges, Config config){
 		return new EmptySortedScannerIterable<>();
 	}
 
 	@Override
-	public SingleUseScannerIterable<D> scan(Range<PK> range, Config config){
+	public Iterable<D> scanMulti(Collection<Range<PK>> ranges, Config config){
 		return new EmptySortedScannerIterable<>();
 	}
 

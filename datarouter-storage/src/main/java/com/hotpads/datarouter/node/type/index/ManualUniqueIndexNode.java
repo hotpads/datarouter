@@ -88,13 +88,13 @@ implements UniqueIndexNode<PK, D, IK, IE>{
 	}
 
 	@Override
-	public Iterable<IE> scan(Range<IK> range, Config config){
-		return indexNode.scan(range, config);
+	public Iterable<IE> scanMulti(Collection<Range<IK>> ranges, Config config){
+		return indexNode.scanMulti(ranges, config);
 	}
 
 	@Override
-	public Iterable<IK> scanKeys(Range<IK> range, Config config){
-		return indexNode.scanKeys(range, config);
+	public Iterable<IK> scanKeysMulti(Collection<Range<IK>> ranges, Config config){
+		return indexNode.scanKeysMulti(ranges, config);
 	}
 
 	@Override

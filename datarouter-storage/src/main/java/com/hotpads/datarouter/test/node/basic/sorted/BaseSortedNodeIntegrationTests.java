@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.inject.Inject;
 
@@ -353,7 +354,7 @@ public abstract class BaseSortedNodeIntegrationTests{
 	}
 
 	@Test
-	private void testExclusiveStartKey(){
+	public void testExclusiveStartKey(){
 		// signle entity case
 		SortedBeanKey startKey = new SortedBeanKey(SortedBeans.S_alpaca, SortedBeans.S_ostrich, 7, SortedBeans.S_emu);
 		SortedBeanKey endKey = new SortedBeanKey(SortedBeans.S_alpaca, SortedBeans.S_ostrich, null, null);
@@ -363,6 +364,25 @@ public abstract class BaseSortedNodeIntegrationTests{
 				SortedBeans.S_gopher));
 		Assert.assertEquals(result.size(), 3); // because 7 is the last and gopher+strich+pelican
 		// TODO multiple entity case DATAROUTER-259
+	}
+
+	@Test
+	public void testScanMulti(){
+		SortedBeanKey startKey1 = new SortedBeanKey(SortedBeans.S_albatross, SortedBeans.S_ostrich, 0,
+				SortedBeans.S_albatross);
+		SortedBeanKey endKey1 = new SortedBeanKey(SortedBeans.S_albatross, SortedBeans.S_ostrich, 0,
+				SortedBeans.S_ostrich);
+		Range<SortedBeanKey> range1 = new Range<>(startKey1, endKey1);
+		SortedBeanKey startKey2 = new SortedBeanKey(SortedBeans.S_albatross, SortedBeans.S_ostrich, 3,
+				SortedBeans.S_aardvark);
+		SortedBeanKey endKey2 = new SortedBeanKey(SortedBeans.S_albatross, SortedBeans.S_ostrich, 3, SortedBeans.S_emu);
+		Range<SortedBeanKey> range2 = new Range<>(startKey2, endKey2);
+		Set<SortedBean> beans = sortedNode.streamMulti(Arrays.asList(range1, range2),
+				new Config().setIterateBatchSize(4)).collect(Collectors.toSet());
+		Set<SortedBean> expected = Stream.of(range1, range2).flatMap(range -> sortedNode.stream(range, null))
+				.collect(Collectors.toSet());
+		Assert.assertTrue(expected.size() > 0);
+		Assert.assertEquals(beans, expected);
 	}
 
 }

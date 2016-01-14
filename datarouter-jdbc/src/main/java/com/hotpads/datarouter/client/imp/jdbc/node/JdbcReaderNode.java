@@ -119,8 +119,8 @@ implements PhysicalIndexedSortedMapStorageReaderNode<PK,D>{
 			IF extends DatabeanFielder<IK, IE>>
 	Iterable<IK> scanIndexKeys(DatabeanFieldInfo<IK,IE,IF> indexEntryFieldInfo, Range<IK> range,
 			Config config){
-		return new SingleUseScannerIterable<>(new JdbcManagedIndexKeyScanner<>(jdbcReaderOps, indexEntryFieldInfo, range,
-				config));
+		return new SingleUseScannerIterable<>(new JdbcManagedIndexKeyScanner<>(jdbcReaderOps, indexEntryFieldInfo,
+				range, config));
 	}
 
 	@Override
@@ -166,16 +166,14 @@ implements PhysicalIndexedSortedMapStorageReaderNode<PK,D>{
 	}
 
 	@Override
-	public SingleUseScannerIterable<PK> scanKeys(Range<PK> range, Config config){
-		range = Range.nullSafe(range);
-		Scanner<PK> scanner = new JdbcPrimaryKeyScanner<>(jdbcReaderOps, fieldInfo, range, config);
+	public Iterable<PK> scanKeysMulti(Collection<Range<PK>> ranges, Config config){
+		Scanner<PK> scanner = new JdbcPrimaryKeyScanner<>(jdbcReaderOps, ranges, config);
 		return new SingleUseScannerIterable<>(scanner);
 	}
 
 	@Override
-	public SingleUseScannerIterable<D> scan(Range<PK> range, Config config){
-		range = Range.nullSafe(range);
-		Scanner<D> scanner = new JdbcDatabeanScanner<>(jdbcReaderOps, range, config);
+	public Iterable<D> scanMulti(Collection<Range<PK>> ranges, Config config){
+		Scanner<D> scanner = new JdbcDatabeanScanner<>(jdbcReaderOps, ranges, config);
 		return new SingleUseScannerIterable<>(scanner);
 	}
 
