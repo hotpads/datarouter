@@ -12,12 +12,12 @@ public class JdbcRollbackRetryingCallable<T>
 implements Retryable<T>{
 	private static final Logger logger = LoggerFactory.getLogger(JdbcRollbackRetryingCallable.class);
 
-	
+
 	private final SessionExecutorImpl<T> callable;
 	private final int numAttempts;
 	private final long initialDoublingBackoffMs;
 
-	
+
 	//TODO accept a callableSupplier for mutable ops
 	public JdbcRollbackRetryingCallable(SessionExecutorImpl<T> callable, int numAttempts,
 			long initialDoublingBackoffMs){

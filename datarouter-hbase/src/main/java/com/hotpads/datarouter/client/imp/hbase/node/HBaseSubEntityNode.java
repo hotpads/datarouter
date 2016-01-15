@@ -81,7 +81,8 @@ implements SubEntitySortedMapStorageNode<EK,PK,D,F>,
 	public void putMulti(final Collection<D> databeans, final Config pConfig) {
 		if(DrCollectionTool.isEmpty(databeans)){ return; }
 		final Config config = Config.nullSafe(pConfig);
-		new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>(getDatarouter(), getClientTableNodeNames(), "putMulti", config){
+		new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>(getDatarouter(), getClientTableNodeNames(), "putMulti",
+				config){
 				@Override
 				public Void hbaseCall(Table table, HBaseClient client, ResultScanner managedResultScanner)
 				throws Exception{
@@ -154,8 +155,7 @@ implements SubEntitySortedMapStorageNode<EK,PK,D,F>,
 	@Override
 	public void deleteAll(final Config pConfig) {
 		final Config config = Config.nullSafe(pConfig);
-		new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>(getDatarouter(), getClientTableNodeNames(), "deleteAll",
-				config){
+		new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>(getDatarouter(), getClientTableNodeNames(), "deleteAll", config){
 				@Override
 				public Void hbaseCall(Table table, HBaseClient client, ResultScanner managedResultScanner) throws Exception{
 					Scan scan = new Scan();
@@ -194,11 +194,9 @@ implements SubEntitySortedMapStorageNode<EK,PK,D,F>,
 	public void deleteMulti(final Collection<PK> keys, final Config pConfig){
 		if(DrCollectionTool.isEmpty(keys)){ return; }
 		final Config config = Config.nullSafe(pConfig);
-		new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>(getDatarouter(), getClientTableNodeNames(), "deleteMulti",
-				config){
+		new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>(getDatarouter(), getClientTableNodeNames(), "deleteMulti", config){
 				@Override
-				public Void hbaseCall(Table table, HBaseClient client, ResultScanner managedResultScanner)
-				throws Exception{
+				public Void hbaseCall(Table table, HBaseClient client, ResultScanner managedResultScanner) throws Exception{
 					Collection<String> nonKeyColumnNames = fieldInfo.getNonKeyFieldByColumnName().keySet();
 					Map<EK,List<PK>> pksByEk = EntityTool.getPrimaryKeysByEntityKey(keys);
 					ArrayList<Row> deletes = new ArrayList<>();//api requires ArrayList

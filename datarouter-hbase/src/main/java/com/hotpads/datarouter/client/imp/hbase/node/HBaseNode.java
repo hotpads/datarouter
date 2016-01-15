@@ -86,7 +86,7 @@ implements PhysicalSortedMapStorageNode<PK,D>, HBaseIncrement<PK>{
 								continue;
 							}
 							PK key = databean.getKey();
-							byte[] keyBytes = getKeyBytesWithScatteringPrefix(null, key, false);
+							byte[] keyBytes = getKeyBytesWithScatteringPrefix(null, key);
 							Put put = new Put(keyBytes);
 							Delete delete = new Delete(keyBytes);
 							List<Field<?>> fields = fieldInfo.getNonKeyFieldsWithValues(databean);
@@ -181,7 +181,7 @@ implements PhysicalSortedMapStorageNode<PK,D>, HBaseIncrement<PK>{
 					throws Exception{
 						List<Row> deletes = DrListTool.createArrayListWithSize(keys);//api requires ArrayList
 						for(PK key : keys){
-							byte[] keyBytes = getKeyBytesWithScatteringPrefix(null, key, false);
+							byte[] keyBytes = getKeyBytesWithScatteringPrefix(null, key);
 							Delete delete = new Delete(keyBytes);
 							deletes.add(delete);
 						}

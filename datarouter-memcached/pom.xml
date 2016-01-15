@@ -61,26 +61,6 @@
 							</resources>
 						</configuration>
 					</execution>
-					<!-- Is needed to copy the configuration to the root of datarouter jar -->
-					<execution>
-						<id>copy-resources-datarouter</id>
-						<phase>validate</phase>
-						<goals>
-							<goal>copy-resources</goal>
-						</goals>
-						<configuration>
-							<outputDirectory>${project.build.directory}/classes/</outputDirectory>
-							<resources>
-								<resource>
-									<directory>${project.basedir}/src/</directory>
-									<filtering>false</filtering>
-									<includes>
-										<!-- <include>log4j.properties</include> -->
-									</includes>
-								</resource>
-							</resources>
-						</configuration>
-					</execution>
 				</executions>
 			</plugin>
 			<plugin>
