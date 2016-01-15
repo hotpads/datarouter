@@ -35,13 +35,13 @@ implements SortedMapStorageReaderNode<PK,D>{
 	}
 
 	@Override
-	public Iterable<PK> scanKeys(Range<PK> range, Config config){
-		return backingNode.scanKeys(range, config);
+	public Iterable<PK> scanKeysMulti(Collection<Range<PK>> ranges, Config config){
+		return backingNode.scanKeysMulti(ranges, config);
 	}
 
 	@Override
-	public Iterable<D> scan(Range<PK> range, Config config){
-		return backingNode.scan(range, config);
+	public Iterable<D> scanMulti(Collection<Range<PK>> ranges, Config config){
+		return backingNode.scanMulti(ranges, config);
 	}
 
 }

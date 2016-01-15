@@ -37,12 +37,12 @@ extends SortedStorage<PK,D>, RedundantNode<PK,D,N>{
 	}
 
 	@Override
-	default Iterable<PK> scanKeys(Range<PK> range, Config config){
-		return getReadNode().scanKeys(range, config);
+	default Iterable<PK> scanKeysMulti(Collection<Range<PK>> ranges, Config config){
+		return getReadNode().scanKeysMulti(ranges, config);
 	}
 
 	@Override
-	default Iterable<D> scan(Range<PK> range, Config config){
-		return getReadNode().scan(range, config);
+	default Iterable<D> scanMulti(Collection<Range<PK>> ranges, Config config){
+		return getReadNode().scanMulti(ranges, config);
 	}
 }

@@ -33,13 +33,13 @@ extends SortedStorage<PK,D>{
 	}
 
 	@Override
-	default Iterable<PK> scanKeys(Range<PK> range, Config config){
-		return getBackingNode().scanKeys(range, config);
+	default Iterable<PK> scanKeysMulti(Collection<Range<PK>> ranges, Config config){
+		return getBackingNode().scanKeysMulti(ranges, config);
 	}
 
 	@Override
-	default Iterable<D> scan(Range<PK> range, Config config){
-		return getBackingNode().scan(range, config);
+	default Iterable<D> scanMulti(Collection<Range<PK>> ranges, Config config){
+		return getBackingNode().scanMulti(ranges, config);
 	}
 
 	@Override

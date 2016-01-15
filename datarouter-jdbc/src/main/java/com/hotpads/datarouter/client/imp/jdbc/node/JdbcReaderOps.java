@@ -8,8 +8,8 @@ import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodec
 import com.hotpads.datarouter.client.imp.jdbc.op.BaseJdbcOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcGetKeysOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcGetOp;
-import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcGetPrimaryKeyRangeOp;
-import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcGetRangeOp;
+import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcGetPrimaryKeyRangesOp;
+import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcGetRangesOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcGetWithPrefixesOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcLookupOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcLookupUniqueOp;
@@ -150,19 +150,17 @@ public class JdbcReaderOps<
 		return new SessionExecutorImpl<>(op, getTraceName(opName)).call();
 	}
 
-	public List<PK> getKeysInRange(Range<PK> range, final Config config) {
+	public List<PK> getKeysInRanges(Collection<Range<PK>> ranges, final Config config) {
 		String opName = SortedStorageReader.OP_getKeysInRange;
-		JdbcGetPrimaryKeyRangeOp<PK,D,F> op = new JdbcGetPrimaryKeyRangeOp<>(node, fieldCodecFactory, range,
-				config);
+		JdbcGetPrimaryKeyRangesOp<PK,D,F> op = new JdbcGetPrimaryKeyRangesOp<>(node, fieldCodecFactory, ranges, config);
 		List<PK> result = new SessionExecutorImpl<>(op, getTraceName(opName)).call();
 		return result;
 	}
 
-	public List<D> getRange(final Range<PK> range, final Config config) {
+	public List<D> getRanges(final Collection<Range<PK>> ranges, final Config config) {
 		String opName = SortedStorageReader.OP_getRange;
-		JdbcGetRangeOp<PK,D,F> op = new JdbcGetRangeOp<>(node, fieldCodecFactory, range, config);
-		List<D> result = new SessionExecutorImpl<>(op, getTraceName(opName)).call();
-		return result;
+		JdbcGetRangesOp<PK,D,F> op = new JdbcGetRangesOp<>(node, fieldCodecFactory, ranges, config);
+		return new SessionExecutorImpl<>(op, getTraceName(opName)).call();
 	}
 
 	/*********************** helper ******************************/

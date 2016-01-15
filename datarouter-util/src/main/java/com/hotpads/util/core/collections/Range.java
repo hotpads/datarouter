@@ -22,7 +22,6 @@ public class Range<T extends Comparable<? super T>> implements Comparable<Range<
 	private T end;
 	private boolean endInclusive;
 
-
 	/** constructors ****************************************************/
 
 	public Range(T start){
@@ -118,6 +117,10 @@ public class Range<T extends Comparable<? super T>> implements Comparable<Range<
 		return outs;
 	}
 
+	@Override
+	public Range<T> clone(){
+		return new Range<>(start, startInclusive, end, endInclusive);
+	}
 
 	/** standard ********************************************************/
 
@@ -202,7 +205,6 @@ public class Range<T extends Comparable<? super T>> implements Comparable<Range<
 		sb.append(endInclusive ? "]" : ")");
 		return sb.toString();
 	}
-
 
 	/** get/set ****************************************************/
 
