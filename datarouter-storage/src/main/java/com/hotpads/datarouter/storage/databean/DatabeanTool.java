@@ -22,33 +22,32 @@ import com.hotpads.datarouter.util.core.DrArrayTool;
 import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.iterable.ConverterIterator;
+import com.hotpads.util.core.java.ReflectionTool;
 import com.hotpads.util.core.stream.StreamTool;
 
+public class DatabeanTool{
 
-public class DatabeanTool {
-
-	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
-	D create(Class<D> databeanClass){
+	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>> D create(Class<D> databeanClass){
 		try{
-			//use getDeclaredConstructor to access non-public constructors
+			// use getDeclaredConstructor to access non-public constructors
 			Constructor<D> constructor = databeanClass.getDeclaredConstructor();
 			constructor.setAccessible(true);
 			D databeanInstance = constructor.newInstance();
 			return databeanInstance;
 		}catch(Exception e){
-			throw new DataAccessException(e.getClass().getSimpleName()+" on "+databeanClass.getSimpleName()
-					+".  Is there a no-arg constructor?");
+			throw new DataAccessException(e.getClass().getSimpleName() + " on " + databeanClass.getSimpleName()
+					+ ".  Is there a no-arg constructor?");
 		}
 	}
 
-//	@Deprecated//should specify fielder using below method
-//	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>> byte[] getBytes(D databean){
-//		//always include zero-length fields in key bytes
-//		byte[] keyBytes = FieldSetTool.getSerializedKeyValues(databean.getKeyFields(), true, false);
-//		byte[] nonKeyBytes = FieldSetTool.getSerializedKeyValues(databean.getNonKeyFields(), true, true);
-//		byte[] allBytes = ArrayTool.concatenate(keyBytes, nonKeyBytes);
-//		return allBytes;
-//	}
+	// @Deprecated//should specify fielder using below method
+	// public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>> byte[] getBytes(D databean){
+	// //always include zero-length fields in key bytes
+	// byte[] keyBytes = FieldSetTool.getSerializedKeyValues(databean.getKeyFields(), true, false);
+	// byte[] nonKeyBytes = FieldSetTool.getSerializedKeyValues(databean.getNonKeyFields(), true, true);
+	// byte[] allBytes = ArrayTool.concatenate(keyBytes, nonKeyBytes);
+	// return allBytes;
+	// }
 
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>> byte[] getBytes(D databean,
 			DatabeanFielder<PK,D> fielder){
@@ -56,14 +55,33 @@ public class DatabeanTool {
 	}
 
 	protected static byte[] getBytes(List<Field<?>> keyFields, List<Field<?>> nonKeyFields){
-		//always include zero-length fields in key bytes
+		// always include zero-length fields in key bytes
 		byte[] keyBytes = FieldSetTool.getSerializedKeyValues(keyFields, true, false);
 
-		//skip zero-length fields in non-key bytes
-		//TODO should this distinguish between null and empty Strings?
+		// skip zero-length fields in non-key bytes
+		// TODO should this distinguish between null and empty Strings?
 		byte[] nonKeyBytes = FieldSetTool.getSerializedKeyValues(nonKeyFields, true, true);
 		byte[] allBytes = DrArrayTool.concatenate(keyBytes, nonKeyBytes);
 		return allBytes;
+	}
+
+	@SuppressWarnings("rawtypes")
+	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>> String getColumnNames(Class<D> databean,
+			Class<?> basedataBeanFielder){
+		if(!DatabeanFielder.class.isAssignableFrom(basedataBeanFielder)) {
+			throw new IllegalArgumentException("The parameter" + basedataBeanFielder
+					+ "is not an instance of DatabeanFielder");
+		}
+		String columns = "";
+		D emptyDatabean = DatabeanTool.create(databean);
+		DatabeanFielder<PK,D> databeanFielder = (DatabeanFielder)ReflectionTool.create(basedataBeanFielder);
+		List<Field<?>> dataBeanFields = databeanFielder.getFields(emptyDatabean);
+		for(int i = 0; i < dataBeanFields.size(); i++){
+			Field<?> field = dataBeanFields.get(i);
+			columns = columns + field.getKey().getColumnName() + ",";
+		}
+		columns = columns.substring(0, columns.length()-1);
+		return columns;
 	}
 
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>> String getCsvColumnNames(D databean,
@@ -76,8 +94,7 @@ public class DatabeanTool {
 		return FieldTool.getCsvValues(fielder.getFields(databean));
 	}
 
-	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
-	List<PK> getKeys(Iterable<D> databeans){
+	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>> List<PK> getKeys(Iterable<D> databeans){
 		List<PK> keys = new LinkedList<>();
 		for(D databean : DrIterableTool.nullSafe(databeans)){
 			keys.add(databean.getKey());
@@ -89,8 +106,7 @@ public class DatabeanTool {
 		return new ConverterIterator<>(databeans, (databean) -> databean.getKey());
 	}
 
-	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
-	Map<PK,D> getByKey(Iterable<D> databeans){
+	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>> Map<PK,D> getByKey(Iterable<D> databeans){
 		Map<PK,D> map = new HashMap<>();
 		for(D databean : DrIterableTool.nullSafe(databeans)){
 			map.put(databean.getKey(), databean);
@@ -98,8 +114,8 @@ public class DatabeanTool {
 		return map;
 	}
 
-	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
-	SortedMap<PK,D> getByKeySorted(Iterable<D> databeans){
+	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>> SortedMap<PK,D> getByKeySorted(
+			Iterable<D> databeans){
 		SortedMap<PK,D> map = new TreeMap<>();
 		for(D databean : DrIterableTool.nullSafe(databeans)){
 			map.put(databean.getKey(), databean);
@@ -107,13 +123,12 @@ public class DatabeanTool {
 		return map;
 	}
 
-	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
-	Range<PK> getKeyRange(Range<D> databeanRange){
+	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>> Range<PK> getKeyRange(Range<D> databeanRange){
 		PK startKey = databeanRange.hasStart() ? databeanRange.getStart().getKey() : null;
 		PK endKey = databeanRange.hasEnd() ? databeanRange.getEnd().getKey() : null;
 		return new Range<>(startKey, databeanRange.getStartInclusive(), endKey, databeanRange.getEndInclusive());
 	}
-	
+
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>> Set<PK> getKeySet(Collection<D> databeans){
 		return StreamTool.nullItemSafeStream(databeans).map(Databean::getKey).collect(Collectors.toSet());
 	}
