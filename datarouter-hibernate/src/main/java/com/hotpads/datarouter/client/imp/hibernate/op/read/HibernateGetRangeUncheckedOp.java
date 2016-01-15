@@ -1,12 +1,15 @@
 package com.hotpads.datarouter.client.imp.hibernate.op.read;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.hibernate.Criteria;
 import org.hibernate.Session;
+import org.hibernate.criterion.Disjunction;
 import org.hibernate.criterion.ProjectionList;
 import org.hibernate.criterion.Projections;
+import org.hibernate.criterion.Restrictions;
 
 import com.hotpads.datarouter.client.imp.hibernate.node.HibernateReaderNode;
 import com.hotpads.datarouter.client.imp.hibernate.op.BaseHibernateOp;
@@ -27,27 +30,27 @@ import com.hotpads.util.core.collections.Range;
 public class HibernateGetRangeUncheckedOp<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
-		F extends DatabeanFielder<PK,D>> 
+		F extends DatabeanFielder<PK,D>>
 extends BaseHibernateOp<List<? extends FieldSet<?>>>{
-		
+
 	private final HibernateReaderNode<PK,D,F> node;
 	private final HibernateResultParser resultParser;
 	private final String opName;
-	private final Range<PK> range;
+	private final Collection<Range<PK>> ranges;
 	private final boolean keysOnly;
 	private final Config config;
-	
+
 	public HibernateGetRangeUncheckedOp(HibernateReaderNode<PK,D,F> node, HibernateResultParser resultParser,
-			String opName, Range<PK> range, boolean keysOnly, Config config){
+			String opName, Collection<Range<PK>> ranges, boolean keysOnly, Config config){
 		super(node.getDatarouter(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
 		this.node = node;
 		this.resultParser = resultParser;
 		this.opName = opName;
-		this.range = range;
+		this.ranges = ranges;
 		this.keysOnly = keysOnly;
 		this.config = config;
 	}
-	
+
 	@Override
 	public List<? extends FieldSet<?>> runOnce(){
 		DRCounters.incClientNodeCustom(node.getClient().getType(), opName, node.getClientId().getName(),
@@ -62,7 +65,11 @@ extends BaseHibernateOp<List<? extends FieldSet<?>>>{
 			criteria.setProjection(projectionList);
 		}
 		node.addPrimaryKeyOrderToCriteria(criteria);
-		CriteriaTool.addRangesToCriteria(criteria, range, node.getFieldInfo());
+		Disjunction rangesDisjunction = Restrictions.disjunction();
+		for(Range<PK> range : ranges){
+			rangesDisjunction.add(CriteriaTool.makeRangeConjunction(range, node.getFieldInfo()));
+		}
+		criteria.add(rangesDisjunction);
 		if(keysOnly){
 			List<Object[]> rows = criteria.list();
 			List<PK> result = new ArrayList<>(DrCollectionTool.size(rows));
@@ -75,7 +82,7 @@ extends BaseHibernateOp<List<? extends FieldSet<?>>>{
 					rowCells = new Object[]{row};
 				}
 				result.add(resultParser.fieldSetFromHibernateResultUsingReflection(
-						node.getFieldInfo().getPrimaryKeyClass(), node.getFieldInfo().getPrimaryKeyFields(), 
+						node.getFieldInfo().getPrimaryKeyClass(), node.getFieldInfo().getPrimaryKeyFields(),
 						rowCells));
 			}
 			DRCounters.incClientNodeCustom(node.getClient().getType(), opName + " rows", node.getClientId().getName(),
@@ -87,5 +94,5 @@ extends BaseHibernateOp<List<? extends FieldSet<?>>>{
 				node.getName(), DrCollectionTool.size(result));
 		return result;
 	}
-	
+
 }

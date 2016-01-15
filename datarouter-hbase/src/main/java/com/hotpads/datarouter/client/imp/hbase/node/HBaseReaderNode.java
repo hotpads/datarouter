@@ -199,7 +199,7 @@ implements HBasePhysicalNode<PK,D>,
 	}
 
 	@Override
-	public SingleUseScannerIterable<PK> scanKeys(Range<PK> range, final Config config){
+	public Iterable<PK> scanKeys(Range<PK> range, final Config config){
 		range = Range.nullSafe(range);
 		Config nullSafeConfig = Config.nullSafe(config);
 		if(nullSafeConfig.getLimit() != null && nullSafeConfig.getOffset() != null){
@@ -214,7 +214,12 @@ implements HBasePhysicalNode<PK,D>,
 	}
 
 	@Override
-	public SingleUseScannerIterable<D> scan(Range<PK> range, final Config config){
+	public Iterable<PK> scanKeysMulti(Collection<Range<PK>> ranges, final Config config){
+		return () -> ranges.stream().flatMap(range -> streamKeys(range, config)).iterator();
+	}
+
+	@Override
+	public Iterable<D> scan(Range<PK> range, final Config config){
 		range = Range.nullSafe(range);
 		Config nullSafeConfig = Config.nullSafe(config);
 		if(nullSafeConfig.getLimit() != null && nullSafeConfig.getOffset() != null){
@@ -228,6 +233,10 @@ implements HBasePhysicalNode<PK,D>,
 		return new SingleUseScannerIterable<>(collator);
 	}
 
+	@Override
+	public Iterable<D> scanMulti(Collection<Range<PK>> ranges, Config config){
+		return () -> ranges.stream().flatMap(range -> stream(range, config)).iterator();
+	}
 
 	/***************************** helper methods **********************************/
 

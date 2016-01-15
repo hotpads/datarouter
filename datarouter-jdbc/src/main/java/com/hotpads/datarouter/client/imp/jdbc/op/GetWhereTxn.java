@@ -14,6 +14,7 @@ import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.core.DrStringTool;
+import com.hotpads.util.core.collections.Range;
 
 public class GetWhereTxn<
 		PK extends PrimaryKey<PK>,
@@ -28,8 +29,8 @@ extends BaseJdbcOp<List<D>>{
 	private PK startAfterKey;
 	private String whereClauseFromUser;
 	private Config config;
-	
-	
+
+
 	public GetWhereTxn(N node, JdbcFieldCodecFactory fieldCodecFactory, String tableName, PK startAfterKey,
 			String whereClauseFromUser, Config config){
 		super(node.getDatarouter(), node.getClientNames());
@@ -45,20 +46,21 @@ extends BaseJdbcOp<List<D>>{
 	public List<D> mergeResults(List<D> fromOnce, Collection<List<D>> fromEachClient){
 		return ResultMergeTool.mergeIntoListAndSort(fromOnce, fromEachClient);
 	}
-	
+
 	@Override
 	public List<D> runOncePerClient(Client client){
 		StringBuilder whereClause = new StringBuilder();
 		if(startAfterKey != null){
-			SqlBuilder.addRangeWhereClause(fieldCodecFactory, whereClause, startAfterKey, false, null, true);
+			Range<PK> range = new Range<>(startAfterKey, false, null, true);
+			SqlBuilder.addRangeWhereClause(fieldCodecFactory, whereClause, range);
 			if(DrStringTool.notEmpty(whereClauseFromUser)){
 				whereClause.append(" and ");
 			}
 		}
 		whereClause.append(" "+whereClauseFromUser);
-		String sql = SqlBuilder.getAll(config, tableName, node.getFieldInfo().getFields(), whereClause.toString(), 
+		String sql = SqlBuilder.getAll(config, tableName, node.getFieldInfo().getFields(), whereClause.toString(),
 				node.getFieldInfo().getPrimaryKeyFields());
 		return JdbcTool.selectDatabeans(fieldCodecFactory, getConnection(client.getName()), node.getFieldInfo(), sql);
 	}
-	
+
 }

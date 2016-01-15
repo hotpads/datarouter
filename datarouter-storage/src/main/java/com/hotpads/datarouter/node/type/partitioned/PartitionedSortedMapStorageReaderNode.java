@@ -15,7 +15,6 @@ import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
-import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.iterable.scanner.Scanner;
@@ -64,12 +63,10 @@ implements SortedMapStorageReaderNode<PK,D>{
 
 	//TODO add option to the BasePartitionedNode to skip filtering when not needed
 	@Override
-	public SingleUseScannerIterable<PK> scanKeys(Range<PK> range, Config config){
-		range = Range.nullSafe(range);
+	public SingleUseScannerIterable<PK> scanKeysMulti(Collection<Range<PK>> ranges, Config config){
 		List<SortedScanner<PK>> subScanners = new ArrayList<>();
-		List<N> nodes = getPhysicalNodesForRange(range);
-		for(N node : DrIterableTool.nullSafe(nodes)){
-			Scanner<PK> scanner = new IteratorScanner<>(node.scanKeys(range, config).iterator());
+		for(N node : getPhysicalNodesForRanges(ranges)){
+			Scanner<PK> scanner = new IteratorScanner<>(node.scanKeysMulti(ranges, config).iterator());
 			Filter<PK> filter = partitions.getPrimaryKeyFilterForNode(node);
 			FilteringSortedScanner<PK> filteredScanner = new FilteringSortedScanner<>(scanner, filter);
 			subScanners.add(filteredScanner);
@@ -79,13 +76,11 @@ implements SortedMapStorageReaderNode<PK,D>{
 	}
 
 	@Override
-	public SingleUseScannerIterable<D> scan(Range<PK> range, Config config){
-		final Range<PK> nullSaferange = Range.nullSafe(range);
+	public Iterable<D> scanMulti(Collection<Range<PK>> ranges, Config config){
 		List<SortedScanner<D>> subScanners = new ArrayList<>();
-		List<N> nodes = getPhysicalNodesForRange(nullSaferange);
-		for(N node : DrIterableTool.nullSafe(nodes)){
+		for(N node : getPhysicalNodesForRanges(ranges)){
 			//the scanners are wrapped in a SortedScannerIterable, so we need to unwrap them for the collator
-			Scanner<D> scanner = new IteratorScanner<>(node.scan(nullSaferange, config).iterator());
+			Scanner<D> scanner = new IteratorScanner<>(node.scanMulti(ranges, config).iterator());
 			Filter<D> filter = partitions.getDatabeanFilterForNode(node);
 			FilteringSortedScanner<D> filteredScanner = new FilteringSortedScanner<>(scanner, filter);
 			subScanners.add(filteredScanner);

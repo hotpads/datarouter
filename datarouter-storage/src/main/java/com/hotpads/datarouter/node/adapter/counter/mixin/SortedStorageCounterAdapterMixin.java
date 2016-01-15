@@ -24,7 +24,7 @@ extends SortedStorage<PK,D>, CounterAdapter<PK,D,N>{
 
 	@Override
 	@Deprecated
-	public default List<D> getWithPrefix(PK prefix, boolean wildcardLastField, Config config){
+	default List<D> getWithPrefix(PK prefix, boolean wildcardLastField, Config config){
 		String opName = SortedStorageReader.OP_getWithPrefix;
 		getCounter().count(opName);
 		List<D> results = getBackingNode().getWithPrefix(prefix, wildcardLastField, config);
@@ -34,7 +34,7 @@ extends SortedStorage<PK,D>, CounterAdapter<PK,D,N>{
 
 	@Override
 	@Deprecated
-	public default List<D> getWithPrefixes(Collection<PK> prefixes, boolean wildcardLastField, Config config){
+	default List<D> getWithPrefixes(Collection<PK> prefixes, boolean wildcardLastField, Config config){
 		String opName = SortedStorageReader.OP_getWithPrefixes;
 		getCounter().count(opName);
 		getCounter().count(opName + " prefixes", DrCollectionTool.size(prefixes));
@@ -45,23 +45,23 @@ extends SortedStorage<PK,D>, CounterAdapter<PK,D,N>{
 	}
 
 	@Override
-	public default Iterable<PK> scanKeys(Range<PK> range, Config config){
+	default Iterable<PK> scanKeysMulti(Collection<Range<PK>> range, Config config){
 		String opName = SortedStorageReader.OP_scanKeys;
 		getCounter().count(opName);
-		return getBackingNode().scanKeys(range, config);
+		return getBackingNode().scanKeysMulti(range, config);
 	}
 
 	@Override
-	public default Iterable<D> scan(Range<PK> range, Config config){
+	default Iterable<D> scanMulti(Collection<Range<PK>> ranges, Config config){
 		String opName = SortedStorageReader.OP_scan;
 		getCounter().count(opName);
-		return getBackingNode().scan(range, config);
+		return getBackingNode().scanMulti(ranges, config);
 	}
 
 	//Writer
 
 	@Override
-	public default void deleteRangeWithPrefix(PK prefix, boolean wildcardLastField, Config config){
+	default void deleteRangeWithPrefix(PK prefix, boolean wildcardLastField, Config config){
 		String opName = SortedStorageWriter.OP_deleteRangeWithPrefix;
 		getCounter().count(opName);
 		getBackingNode().deleteRangeWithPrefix(prefix, wildcardLastField, config);

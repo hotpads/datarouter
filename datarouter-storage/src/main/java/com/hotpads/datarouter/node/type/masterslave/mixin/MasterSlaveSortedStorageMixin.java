@@ -39,16 +39,16 @@ extends MasterSlaveNode<PK,D,N>, SortedStorage<PK,D>{
 	}
 
 	@Override
-	default Iterable<PK> scanKeys(Range<PK> range, Config config){
+	default Iterable<PK> scanKeysMulti(Collection<Range<PK>> ranges, Config config){
 		boolean slaveOk = Config.nullSafe(config).getSlaveOk();
 		N node = slaveOk ? chooseSlave(config) : getMaster();
-		return node.scanKeys(range, config);
+		return node.scanKeysMulti(ranges, config);
 	}
 
 	@Override
-	default Iterable<D> scan(Range<PK> range, Config config){
+	default Iterable<D> scanMulti(Collection<Range<PK>> ranges, Config config){
 		boolean slaveOk = Config.nullSafe(config).getSlaveOk();
 		N node = slaveOk ? chooseSlave(config) : getMaster();
-		return node.scan(range, config);
+		return node.scanMulti(ranges, config);
 	}
 }

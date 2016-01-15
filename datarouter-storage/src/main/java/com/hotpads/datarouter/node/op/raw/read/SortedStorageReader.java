@@ -1,11 +1,11 @@
 package com.hotpads.datarouter.node.op.raw.read;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.google.common.collect.Iterables;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.op.NodeOps;
@@ -38,27 +38,46 @@ extends NodeOps<PK,D>{
 
 
 	/**
-	 * @deprecated use stream(KeyRangeTool.forPrefix(prefix), config) or scan
-	 * If you want to wildcard the last field, use KeyRangeTool.forPrefixWithWildCard
+	 * @deprecated If wildcardLastField is false, use {@link #streamWithPrefix(PK, Config)}
+	 * or {@link #scanWithPrefix(PK, Config)}. If wildcardLastField is true, use {@link #stream(Range, Config)} or
+	 * {@link #scan(Range, Config)} with
+	 * {@link KeyRangeTool#forPrefixWithWildcard(String,
+	 * com.hotpads.util.core.collections.KeyRangeTool.KeyWithStringFieldSuffixProvider)} to make the Range
 	 */
 	@Deprecated
 	List<D> getWithPrefix(PK prefix, boolean wildcardLastField, Config config);
 
 	/**
-	 * @deprecated iterate on the prefixes and see getWithPrefix
+	 * @deprecated use {@link #streamWithPrefixes(Collection, Config)} or {@link #scanWithPrefixes(Collection, Config)}
 	 */
 	@Deprecated
 	List<D> getWithPrefixes(Collection<PK> prefixes, boolean wildcardLastField, Config config);
 
-	Iterable<PK> scanKeys(final Range<PK> range, final Config config);
-	Iterable<D> scan(final Range<PK> range, final Config config);
+	Iterable<D> scanMulti(Collection<Range<PK>> ranges, Config config);
+	Iterable<PK> scanKeysMulti(Collection<Range<PK>> ranges, Config config);
+
+	default Iterable<D> scan(final Range<PK> range, final Config config){
+		return scanMulti(Arrays.asList(Range.nullSafe(range)), config);
+	}
+
+	default Iterable<PK> scanKeys(final Range<PK> range, final Config config){
+		return scanKeysMulti(Arrays.asList(Range.nullSafe(range)), config);
+	}
+
+	default Stream<D> stream(Range<PK> range, Config config){
+		return StreamTool.stream(scan(range, config));
+	}
+
+	default Stream<D> streamMulti(Collection<Range<PK>> ranges, Config config){
+		return StreamTool.stream(scanMulti(ranges, config));
+	}
 
 	default Stream<PK> streamKeys(Range<PK> range, Config config){
 		return StreamTool.stream(scanKeys(range, config));
 	}
 
-	default Stream<D> stream(Range<PK> range, Config config){
-		return StreamTool.stream(scan(range, config));
+	default Stream<PK> streamKeysMulti(Collection<Range<PK>> ranges, Config config){
+		return StreamTool.stream(scanKeysMulti(ranges, config));
 	}
 
 	default Long count(Range<PK> range){
@@ -82,23 +101,23 @@ extends NodeOps<PK,D>{
 	}
 
 	default Stream<PK> streamKeysWithPrefixes(Collection<PK> prefixes, Config config){
-		return prefixes.stream().flatMap(prefix -> streamKeysWithPrefix(prefix, config));
+		return streamKeysMulti(getRangesFromPrefixes(prefixes), config);
 	}
 
 	default Stream<D> streamWithPrefixes(Collection<PK> prefixes, Config config){
-		return getWithPrefixes(prefixes, false, config).stream();
+		return StreamTool.stream(scanWithPrefixes(prefixes, config));
 	}
 
 	default Iterable<PK> scanKeysWithPrefixes(Collection<PK> prefixes, Config config){
-		return Iterables.concat(prefixes.stream()
-				.map(prefix -> scanKeysWithPrefix(prefix, config))
-				.collect(Collectors.toList()));
+		return scanKeysMulti(getRangesFromPrefixes(prefixes), config);
 	}
 
 	default Iterable<D> scanWithPrefixes(Collection<PK> prefixes, Config config){
-		return Iterables.concat(prefixes.stream()
-				.map(prefix -> scanWithPrefix(prefix, config))
-				.collect(Collectors.toList()));
+		return scanMulti(getRangesFromPrefixes(prefixes), config);
+	}
+
+	static <PK extends PrimaryKey<PK>> List<Range<PK>> getRangesFromPrefixes(Collection<PK> prefixes){
+		return prefixes.stream().map(KeyRangeTool::forPrefix).collect(Collectors.toList());
 	}
 
 	/*************** sub-interfaces ***********************/

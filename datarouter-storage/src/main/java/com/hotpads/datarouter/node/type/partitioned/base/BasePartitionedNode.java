@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
@@ -128,6 +129,10 @@ extends BaseNode<PK,D,F> implements PartitionedNode<PK,D,N>{
 	public abstract Multimap<N,PK> getPrefixesByPhysicalNode(Collection<PK> prefixes, boolean wildcardLastField);
 
 	/************ common partitioning logic relying on the abstract methods above **********/
+
+	public Set<N> getPhysicalNodesForRanges(Collection<Range<PK>> ranges){
+		return ranges.stream().map(this::getPhysicalNodesForRange).flatMap(List::stream).collect(Collectors.toSet());
+	}
 
 	@Override
 	public <IK extends Key<?>> List<N> getPhysicalNodesForSecondaryKeys(Collection<IK> keys){
