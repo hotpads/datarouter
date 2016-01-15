@@ -48,11 +48,33 @@ extends SortedStorageReader<PK,D>, CallsiteAdapter{
 	}
 
 	@Override
+	default Iterable<PK> scanKeys(Range<PK> range, Config config){
+		Config nullSafeConfig = Config.nullSafe(config).clone().setCallsite(getCallsite());
+		long startNs = System.nanoTime();
+		try{
+			return getBackingNode().scanKeys(range, nullSafeConfig);
+		}finally{
+			recordCallsite(nullSafeConfig, startNs, 1);
+		}
+	}
+
+	@Override
 	default Iterable<PK> scanKeysMulti(Collection<Range<PK>> ranges, Config config){
 		Config nullSafeConfig = Config.nullSafe(config).clone().setCallsite(getCallsite());
 		long startNs = System.nanoTime();
 		try{
 			return getBackingNode().scanKeysMulti(ranges, nullSafeConfig);
+		}finally{
+			recordCallsite(nullSafeConfig, startNs, 1);
+		}
+	}
+
+	@Override
+	default Iterable<D> scan(Range<PK> range, Config config){
+		Config nullSafeConfig = Config.nullSafe(config).clone().setCallsite(getCallsite());
+		long startNs = System.nanoTime();
+		try{
+			return getBackingNode().scan(range, nullSafeConfig);
 		}finally{
 			recordCallsite(nullSafeConfig, startNs, 1);
 		}

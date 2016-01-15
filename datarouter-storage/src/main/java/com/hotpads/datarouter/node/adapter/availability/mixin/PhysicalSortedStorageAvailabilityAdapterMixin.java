@@ -47,9 +47,25 @@ extends SortedStorage<PK,D>{
 	}
 
 	@Override
+	default Iterable<PK> scanKeys(Range<PK> range, Config config){
+		if(getBackingNode().getClient().isAvailable()){
+			return getBackingNode().scanKeys(range, config);
+		}
+		throw makeUnavailableException();
+	}
+
+	@Override
 	default Iterable<D> scanMulti(Collection<Range<PK>> ranges, Config config){
 		if(getBackingNode().getClient().isAvailable()){
 			return getBackingNode().scanMulti(ranges, config);
+		}
+		throw makeUnavailableException();
+	}
+
+	@Override
+	default Iterable<D> scan(Range<PK> range, Config config){
+		if(getBackingNode().getClient().isAvailable()){
+			return getBackingNode().scan(range, config);
 		}
 		throw makeUnavailableException();
 	}

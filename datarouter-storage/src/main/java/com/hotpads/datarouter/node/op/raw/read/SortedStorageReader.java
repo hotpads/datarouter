@@ -34,7 +34,9 @@ extends NodeOps<PK,D>{
 		OP_getRange = "getRange",
 		OP_getPrefixedRange = "getPrefixedRange",
 		OP_scanKeys = "scanKeys",
-		OP_scan = "scan";
+		OP_scanKeysMulti = "scanKeysMulti",
+		OP_scan = "scan",
+		OP_scanMulti = "scanMulti";
 
 
 	/**
