@@ -72,6 +72,11 @@
 
 	<dependencies>
 		<!-- internal -->
+		<dependency><!-- included in datarouter-core, but we need to pull it higher in the dependency tree -->
+			<groupId>com.hotpads</groupId>
+			<artifactId>datarouter-logging</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
 		<dependency>
 			<groupId>com.hotpads</groupId>
 			<artifactId>datarouter-core</artifactId>
