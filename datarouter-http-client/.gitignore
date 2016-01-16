@@ -1,0 +1,10 @@
+.project
+.classpath
+.settings/*
+target/
+test-results/
+ant-*-build.xml
+/bin/*
+/bin/
+*.iml
+src/main/resources/git.properties

@@ -1,5 +1,7 @@
 package com.hotpads.datarouter.client.imp.jdbc.node.index;
 
+import java.util.Collection;
+
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.op.combo.IndexedMapStorage;
@@ -11,6 +13,7 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.view.index.IndexEntry;
 import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.iterable.scanner.iterable.SingleUseScannerIterable;
+import com.hotpads.util.core.stream.StreamTool;
 
 public class BaseManagedIndexNode
 		<PK extends PrimaryKey<PK>,
@@ -35,6 +38,14 @@ extends BaseManagedNode<PK, D, IK, IE, IF>{
 
 	public Iterable<D> scanDatabeans(Range<IK> range, Config config){
 		return new SingleUseScannerIterable<>(new ManagedIndexDatabeanScanner<>(node, scan(range, config), config));
+	}
+
+	public Iterable<IE> scanMulti(Collection<Range<IK>> ranges, Config config){
+		return () -> ranges.stream().map(range -> scan(range, config)).flatMap(StreamTool::stream).iterator();
+	}
+
+	public Iterable<IK> scanKeysMulti(Collection<Range<IK>> ranges, Config config){
+		return () -> ranges.stream().map(range -> scanKeys(range, config)).flatMap(StreamTool::stream).iterator();
 	}
 
 }

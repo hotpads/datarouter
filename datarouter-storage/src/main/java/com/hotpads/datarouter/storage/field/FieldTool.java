@@ -52,31 +52,37 @@ public class FieldTool{
 	 * that appended a trailing 0 to the byte[] even though it wasn't necessary
 	 */
 	public static byte[] getConcatenatedValueBytes(Collection<Field<?>> fields, boolean allowNulls,
-			boolean trailingSeparatorAfterEndingString){
-		int numFields = FieldTool.countNonNullLeadingFields(fields);
-		if(numFields==0){
+			boolean terminateIntermediateString, boolean terminateFinalString){
+		int totalFields = DrCollectionTool.size(fields);
+		int numNonNullFields = FieldTool.countNonNullLeadingFields(fields);
+		if(numNonNullFields==0){
 			return null;
-		}
-		if(numFields==1){
-			if(trailingSeparatorAfterEndingString){
-				return DrCollectionTool.getFirst(fields).getBytesWithSeparator();
-			}
-			return DrCollectionTool.getFirst(fields).getBytes();
 		}
 		byte[][] fieldArraysWithSeparators = new byte[DrCollectionTool.size(fields)][];
 		int fieldIdx=-1;
 		for(Field<?> field : DrIterableTool.nullSafe(fields)){
 			++fieldIdx;
-			boolean lastField = fieldIdx == numFields - 1;
+			boolean finalField = fieldIdx == totalFields - 1;
+			boolean lastNonNullField = fieldIdx == numNonNullFields - 1;
 			if(!allowNulls && field.getValue()==null){
 				throw new IllegalArgumentException("field:"+field.getKey().getName()+" cannot be null in");
 			}
-			if(!lastField || trailingSeparatorAfterEndingString){
-				fieldArraysWithSeparators[fieldIdx] = field.getBytesWithSeparator();
+			if(finalField){
+				if(terminateFinalString){
+					fieldArraysWithSeparators[fieldIdx] = field.getBytesWithSeparator();
+				}else{
+					fieldArraysWithSeparators[fieldIdx] = field.getBytes();
+				}
+			}else if(lastNonNullField){
+				if(terminateIntermediateString){
+					fieldArraysWithSeparators[fieldIdx] = field.getBytesWithSeparator();
+				}else{
+					fieldArraysWithSeparators[fieldIdx] = field.getBytes();
+				}
 			}else{
-				fieldArraysWithSeparators[fieldIdx] = field.getBytes();
+				fieldArraysWithSeparators[fieldIdx] = field.getBytesWithSeparator();
 			}
-			if(lastField){
+			if(lastNonNullField){
 				break;
 			}
 		}

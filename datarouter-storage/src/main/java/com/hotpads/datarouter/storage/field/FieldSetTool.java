@@ -3,6 +3,7 @@ package com.hotpads.datarouter.storage.field;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -120,21 +121,6 @@ public class FieldSetTool{
 		return fieldsByKey;
 	}
 
-//	public static String getCsv(FieldSet<?> fieldSet){
-//		StringBuilder sb = new StringBuilder();
-//		for(Field<?> field : fieldSet.getFields()){
-//			if(sb.length() > 0){ sb.append(","); }
-//			String value = field.getSqlEscaped();
-//			boolean containsQuotes = value.contains("\"");
-//			if(containsQuotes){
-//				sb.append("\""+value+"\"");
-//			}else{
-//				sb.append(value);
-//			}
-//		}
-//		return sb.toString();
-//	}
-
 
 	/***************************** construct fieldsets using reflection ***************************/
 
@@ -197,38 +183,6 @@ public class FieldSetTool{
 	}
 
 
-	/**************************** bytes ******************/
-
-	/*
-	 * the trailingSeparatorAfterEndingString is for backwards compatibility with some early tables
-	 * that appended a trailing 0 to the byte[] even though it wasn't necessary
-	 */
-	@Deprecated//inline me
-	public static byte[] getConcatenatedValueBytes(Collection<Field<?>> fields, boolean allowNulls,
-			boolean trailingSeparatorAfterEndingString){
-		return FieldTool.getConcatenatedValueBytes(fields, allowNulls, trailingSeparatorAfterEndingString);
-	}
-
-	/*
-	 * should combine this with getConcatenatedValueBytes
-	 */
-	@Deprecated//inline me
-	public static byte[] getBytesForNonNullFieldsWithNoTrailingSeparator(FieldSet<?> fieldSet){
-		return FieldTool.getBytesForNonNullFieldsWithNoTrailingSeparator(fieldSet.getFields());
-	}
-
-	/**
-	 * @param fields
-	 * @param includePrefix usually refers to the "key." prefix before a PK
-	 * @param skipNullValues important to include nulls in PK's, but usually skip them in normal fields
-	 * @return
-	 */
-	@Deprecated//inline me
-	public static byte[] getSerializedKeyValues(Collection<Field<?>> fields, boolean includePrefix,
-			boolean skipNullValues){
-		return FieldTool.getSerializedKeyValues(fields, includePrefix, skipNullValues);
-	}
-
 	/*************************** tests *********************************/
 
 	public static class FieldSetToolTests{
@@ -238,12 +192,13 @@ public class FieldSetTool{
 			int someInt = 55;
 			String someStringA = "abc";
 			String someStringB = "xyz";
-			List<Field<?>> fields = FieldTool.createList(
+			List<Field<?>> fields = Arrays.asList(
 					new UInt31Field("someInt", someInt),
 					new StringField("someStringA", someStringA, MySqlColumnType.MAX_LENGTH_VARCHAR),
 					new StringField("someStringB", someStringB, MySqlColumnType.MAX_LENGTH_VARCHAR));
-			ByteRange withTrailingByte = new ByteRange(getConcatenatedValueBytes(fields, false, true));
-			ByteRange withoutTrailingByte = new ByteRange(getConcatenatedValueBytes(fields, false, false));
+			ByteRange withTrailingByte = new ByteRange(FieldTool.getConcatenatedValueBytes(fields, false, true, true));
+			ByteRange withoutTrailingByte = new ByteRange(FieldTool.getConcatenatedValueBytes(fields, false, true,
+					false));
 			int lengthWithout = 4 + 3 + 1 + 3;
 			int lengthWith = lengthWithout + 1;
 			Assert.assertEquals(lengthWith, withTrailingByte.getLength());
@@ -255,7 +210,7 @@ public class FieldSetTool{
 			int testInt = 127;
 			String someStr0 = "first", someStr1 = "second";
 
-			List<Field<?>> fields = FieldTool.createList(
+			List<Field<?>> fields = Arrays.asList(
 					new StringField("hahah", someStr0, MySqlColumnType.MAX_LENGTH_VARCHAR),
 					new StringField("moose", someStr1, MySqlColumnType.MAX_LENGTH_VARCHAR),
 					new UInt31Field("integ", testInt));
@@ -270,7 +225,7 @@ public class FieldSetTool{
 			String one = "one", two = "two", three = "three", four = "four", five = "five", six = "six";
 			Long sameRefLong = new Long(123456789000l);
 
-			List<Field<?>> left = FieldTool.createList(
+			List<Field<?>> left = Arrays.asList(
 					new StringField(one, "help", MySqlColumnType.MAX_LENGTH_VARCHAR),
 					new StringField(two, "smite", MySqlColumnType.MAX_LENGTH_VARCHAR),
 					new BooleanField(three, true),
@@ -278,7 +233,7 @@ public class FieldSetTool{
 					new DumbDoubleField(five, 5e6));
 					// omitted six
 
-			List<Field<?>> right = FieldTool.createList(
+			List<Field<?>> right = Arrays.asList(
 					new StringField(one, "help", MySqlColumnType.MAX_LENGTH_VARCHAR),
 					new StringField(two, two, MySqlColumnType.MAX_LENGTH_VARCHAR),
 					new BooleanField(three, null),
@@ -317,8 +272,5 @@ public class FieldSetTool{
 
 		}
 	}
-
-	/************************** field to byte helpers *****************************************/
-
 
 }

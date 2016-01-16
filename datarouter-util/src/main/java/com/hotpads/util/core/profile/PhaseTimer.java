@@ -8,8 +8,8 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrNumberFormatter;
+import com.hotpads.util.core.collections.Pair;
 
 /*
  * create one of these when you want timing to start
@@ -21,8 +21,7 @@ import com.hotpads.datarouter.util.core.DrNumberFormatter;
 public class PhaseTimer{
 
 	private long lastMarker = System.currentTimeMillis();
-	private List<String> phaseNames = new ArrayList<>();
-	private List<Long> phaseTimes = new ArrayList<>();
+	private List<Pair<String,Long>> phaseNamesAndTimes = new ArrayList<>();
 	private String name;
 
 	public PhaseTimer(){}
@@ -45,34 +44,43 @@ public class PhaseTimer{
 	}
 
 	public PhaseTimer add(String eventName){
-		phaseNames.add(eventName);
 		long newMarker = System.currentTimeMillis();
-		phaseTimes.add(newMarker - lastMarker);
+		phaseNamesAndTimes.add(new Pair<>(eventName, newMarker - lastMarker));
 		lastMarker = newMarker;
 		return this;
 	}
 
 	public PhaseTimer sum(String eventName){
-		int phaseIndex = phaseNames.indexOf(eventName);
+		int phaseIndex = getIndexOf(eventName);
 		if(phaseIndex == -1){
 			return add(eventName);
 		}
 		long newMarker = System.currentTimeMillis();
-		phaseTimes.set(phaseIndex, phaseTimes.get(phaseIndex) + newMarker - lastMarker);
+		phaseNamesAndTimes.get(phaseIndex).setRight(phaseNamesAndTimes.get(phaseIndex).getRight() + newMarker
+				- lastMarker);
 		lastMarker = newMarker;
 		return this;
 	}
 
 	public Long getPhaseTime(String eventName){
-		int phaseIndex = phaseNames.indexOf(eventName);
+		int phaseIndex = getIndexOf(eventName);
 		if(phaseIndex>=0){
-			return phaseTimes.get(phaseIndex);
+			return phaseNamesAndTimes.get(phaseIndex).getRight();
 		}
 		return null;
 	}
 
+	private int getIndexOf(String eventName){
+		for(int i = 0; i < phaseNamesAndTimes.size(); ++i){
+			if(phaseNamesAndTimes.get(i).getLeft().equals(eventName)){
+				return i;
+			}
+		}
+		return -1;
+	}
+
 	public int numEvents(){
-		return this.phaseNames.size();
+		return phaseNamesAndTimes.size();
 	}
 
 	public String toString(int showPhasesAtLeastThisMsLong){
@@ -94,19 +102,20 @@ public class PhaseTimer{
 		if(name != null){
 			sb.append("<" + name + ">");
 		}
-		for(int i = 0; i < phaseNames.size(); ++i){
-			if(phaseTimes.get(i) < showPhasesAtLeastThisMsLong){
+		for(int i = 0; i < phaseNamesAndTimes.size(); ++i){
+			Pair<String,Long> nameAndTime = phaseNamesAndTimes.get(i);
+			if(nameAndTime.getRight() < showPhasesAtLeastThisMsLong){
 				continue;
 			}
-			sb.append(delimiter + "[" + phaseNames.get(i) + ":" + DrNumberFormatter.addCommas(phaseTimes.get(i))
-					+ "ms]");
+			sb.append(delimiter + "[" + nameAndTime.getLeft() + ":" + DrNumberFormatter.addCommas(nameAndTime
+					.getRight()) + "ms]");
 		}
 		return sb.toString();
 	}
 
 	public Long getElapsedTimeBetweenFirstAndLastEvent(){
-		if(phaseTimes.size() > 0){
-			return DrCollectionTool.getSumOfLongs(phaseTimes);
+		if(phaseNamesAndTimes.size() > 0){
+			return phaseNamesAndTimes.stream().map(Pair::getRight).mapToLong(Long::longValue).sum();
 		}
 		return 0L;
 	}
@@ -121,9 +130,9 @@ public class PhaseTimer{
 	}
 
 	public Map<String,Long> asMap(){
-		Map<String,Long> resultMap = new HashMap<>(phaseNames.size());
-		for(int i = 0; i < phaseNames.size(); i++){
-			resultMap.put(phaseNames.get(i), phaseTimes.get(i));
+		Map<String,Long> resultMap = new HashMap<>(phaseNamesAndTimes.size());
+		for(int i = 0; i < phaseNamesAndTimes.size(); i++){
+			resultMap.put(phaseNamesAndTimes.get(i).getLeft(), phaseNamesAndTimes.get(i).getRight());
 		}
 		return resultMap;
 	}
@@ -134,14 +143,6 @@ public class PhaseTimer{
 
 	public String getName(){
 		return name;
-	}
-
-	public List<String> getPhaseNames(){
-		return phaseNames;
-	}
-
-	public List<Long> getPhaseTimes(){
-		return phaseTimes;
 	}
 
 	public static class Tests{
