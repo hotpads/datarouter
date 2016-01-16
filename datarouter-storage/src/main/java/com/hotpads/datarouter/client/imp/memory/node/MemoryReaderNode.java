@@ -31,7 +31,7 @@ import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.util.core.collections.KeyRangeTool;
 import com.hotpads.util.core.collections.Range;
 
-public class HashMapReaderNode<
+public class MemoryReaderNode<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>>
@@ -40,7 +40,7 @@ implements SortedMapStorageReader<PK,D>{
 
 	protected Map<UniqueKey<PK>,D> backingMap = new ConcurrentSkipListMap<>();
 
-	public HashMapReaderNode(NodeParams<PK,D,F> params){
+	public MemoryReaderNode(NodeParams<PK,D,F> params){
 		super(params);
 	}
 

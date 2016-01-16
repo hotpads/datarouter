@@ -8,7 +8,7 @@ import javax.inject.Singleton;
 import com.hotpads.datarouter.client.ClientFactory;
 import com.hotpads.datarouter.client.availability.ClientAvailabilitySettings;
 import com.hotpads.datarouter.client.imp.BaseClientType;
-import com.hotpads.datarouter.client.imp.memory.node.HashMapNode;
+import com.hotpads.datarouter.client.imp.memory.node.MemoryNode;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.adapter.availability.PhysicalSortedMapStorageAvailabilityAdapter;
@@ -56,7 +56,7 @@ public class MemoryClientType extends BaseClientType{
 	public <PK extends PrimaryKey<PK>, D extends Databean<PK, D>, F extends DatabeanFielder<PK, D>>
 	PhysicalNode<PK,D> createNode(NodeParams<PK, D, F> nodeParams){
 		return new PhysicalSortedMapStorageAvailabilityAdapter<>(
-				new PhysicalSortedMapStorageCounterAdapter<>(new HashMapNode<>(nodeParams)));
+				new PhysicalSortedMapStorageCounterAdapter<>(new MemoryNode<>(nodeParams)));
 	}
 
 	//ignore the entityNodeParams

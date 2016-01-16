@@ -12,11 +12,11 @@ import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 
-public class HashMapNode<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>>
-extends HashMapReaderNode<PK,D,F>
+public class MemoryNode<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>>
+extends MemoryReaderNode<PK,D,F>
 implements PhysicalSortedMapStorageNode<PK,D>{
 
-	public HashMapNode(NodeParams<PK,D,F> params){
+	public MemoryNode(NodeParams<PK,D,F> params){
 		super(params);
 	}
 
