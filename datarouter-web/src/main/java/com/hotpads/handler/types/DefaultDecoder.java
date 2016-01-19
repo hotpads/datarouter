@@ -16,7 +16,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import com.google.gson.JsonSyntaxException;
-import com.hotpads.datarouter.config.DatarouterGuiceModule;
+import com.hotpads.handler.encoder.HandlerEncoder;
 import com.hotpads.util.core.java.ReflectionTool;
 import com.hotpads.util.http.json.JsonSerializer;
 
@@ -27,7 +27,7 @@ public class DefaultDecoder implements HandlerDecoder{
 	private JsonSerializer deserializer;
 
 	@Inject
-	public DefaultDecoder(@Named(DatarouterGuiceModule.DEFAULT_HANDLER_SERIALIZER) JsonSerializer deserializer){
+	public DefaultDecoder(@Named(HandlerEncoder.DEFAULT_HANDLER_SERIALIZER) JsonSerializer deserializer){
 		this.deserializer = deserializer;
 	}
 
