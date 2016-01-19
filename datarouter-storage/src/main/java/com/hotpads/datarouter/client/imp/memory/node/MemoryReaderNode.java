@@ -38,7 +38,7 @@ public class MemoryReaderNode<
 extends BasePhysicalNode<PK,D,F>
 implements SortedMapStorageReader<PK,D>{
 
-	protected Map<UniqueKey<PK>,D> backingMap = new ConcurrentSkipListMap<>();
+	protected final Map<UniqueKey<PK>,D> backingMap = new ConcurrentSkipListMap<>();
 
 	public MemoryReaderNode(NodeParams<PK,D,F> params){
 		super(params);
