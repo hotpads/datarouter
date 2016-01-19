@@ -20,11 +20,11 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
 @Singleton
 public class CachingNodeFactory{
-	
+
 	private final DatarouterClients clients;
 	private final DatarouterSettings drSettings;
-	
-	
+
+
 	@Inject
 	private CachingNodeFactory(DatarouterClients clients, DatarouterSettings drSettings){
 		this.clients = clients;
@@ -33,15 +33,15 @@ public class CachingNodeFactory{
 
 
 	/********************* pass any params *****************/
-	
+
 	public <PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>,
-			N extends MapStorageNode<PK,D>> 
-	MapStorageNode<PK,D> create(NodeParams<PK,D,F> params, 
-			N cacheNode, 
-			N backingNode, 
-			boolean cacheReads, 
+			N extends MapStorageNode<PK,D>>
+	MapStorageNode<PK,D> create(NodeParams<PK,D,F> params,
+			N cacheNode,
+			N backingNode,
+			boolean cacheReads,
 			boolean cacheWrites,
 			boolean addAdapter){
 		String clientName = params.getClientName();
@@ -55,22 +55,22 @@ public class CachingNodeFactory{
 		}
 		return Preconditions.checkNotNull(node, "cannot build Node for clientType="+clientType);
 	}
-	
-	
+
+
 	/*************** simple helpers *********************/
-	
+
 	// +fielderClass
 	public <PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>,
-			N extends MapStorageNode<PK,D>> 
+			N extends MapStorageNode<PK,D>>
 	MapStorageNode<PK,D> create(
-			Class<D> databeanClass, 
+			Class<D> databeanClass,
 			Router router,
 			Class<F> fielderClass,
-			N cacheNode, 
-			N backingNode, 
-			boolean cacheReads, 
+			N cacheNode,
+			N backingNode,
+			boolean cacheReads,
 			boolean cacheWrites,
 			boolean addAdapter){
 		NodeParamsBuilder<PK,D,F> paramsBuilder = new NodeParamsBuilder<PK,D,F>(router, databeanClass)

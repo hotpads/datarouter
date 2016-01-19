@@ -12,6 +12,7 @@ public class DatarouterStorageGuiceModule extends AbstractModule{
 	@Override
 	protected void configure(){
 		bind(DatarouterInjector.class).to(GuiceInjector.class);
+		bind(DatarouterSettings.class).to(DatarouterClusterSettings.class);
 		bind(ClientAvailabilitySettings.class).to(ClientAvailabilityClusterSettings.class);
 		install(new DatarouterExecutorGuiceModule());
 	}

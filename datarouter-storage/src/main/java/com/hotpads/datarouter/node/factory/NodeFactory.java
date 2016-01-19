@@ -2,7 +2,6 @@ package com.hotpads.datarouter.node.factory;
 
 import java.util.function.Supplier;
 
-import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -28,12 +27,12 @@ import com.hotpads.util.core.cache.Cached;
 public class NodeFactory{
 
 	private final DatarouterClients clients;
-	private final DatarouterSettings drSettings;
+	private final DatarouterSettings datarouterSettings;
 
 	@Inject
-	private NodeFactory(DatarouterClients clients, @Nullable DatarouterSettings drSettings){
+	private NodeFactory(DatarouterClients clients, DatarouterSettings datarouterSettings){
 		this.clients = clients;
-		this.drSettings = drSettings;
+		this.datarouterSettings = datarouterSettings;
 	}
 
 	/********************* pass any params *****************/
@@ -201,9 +200,6 @@ public class NodeFactory{
 	/***************** private **************************/
 
 	private Cached<Boolean> getRecordCallsites(){
-		if(drSettings==null){
-			return null;
-		}
-		return drSettings.getRecordCallsites();
+		return datarouterSettings.getRecordCallsites();
 	}
 }
