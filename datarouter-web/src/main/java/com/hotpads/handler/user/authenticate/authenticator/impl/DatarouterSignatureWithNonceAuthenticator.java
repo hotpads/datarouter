@@ -9,7 +9,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.hotpads.datarouter.client.imp.http.ApacheHttpClient;
 import com.hotpads.datarouter.util.core.DrDateTool;
 import com.hotpads.datarouter.util.core.DrObjectTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
@@ -20,6 +19,7 @@ import com.hotpads.handler.user.authenticate.api.ApiRequestKey;
 import com.hotpads.handler.user.authenticate.config.DatarouterAuthenticationConfig;
 import com.hotpads.handler.user.session.DatarouterSession;
 import com.hotpads.util.core.exception.InvalidApiCallException;
+import com.hotpads.util.http.HttpSignatureTool;
 import com.hotpads.util.http.RequestTool;
 
 public class DatarouterSignatureWithNonceAuthenticator extends DatarouterSignatureAuthenticator{
@@ -47,7 +47,7 @@ public class DatarouterSignatureWithNonceAuthenticator extends DatarouterSignatu
 		String uri = request.getRequestURI();
 		Map<String, String> params = RequestTool.getMapOfParameters(request);
 		params.remove("signature");
-		String expectedSignature = ApacheHttpClient.generateSignature(uri, params, user.getSecretKey());
+		String expectedSignature = HttpSignatureTool.generateSignature(uri, params, user.getSecretKey());
 		if(DrObjectTool.notEquals(expectedSignature, signature)){
 			throw new InvalidApiCallException("invalid signature specified");
 		}
