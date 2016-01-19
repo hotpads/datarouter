@@ -11,9 +11,11 @@ import com.hotpads.handler.HandledException;
 
 public interface HandlerEncoder{
 
+	public static final String DEFAULT_HANDLER_SERIALIZER = "defaultHandlerSerializer";
+
 	void finishRequest(Object result, ServletContext servletContext, HttpServletResponse response,
 			HttpServletRequest request) throws ServletException, IOException;
-	
+
 	void sendExceptionResponse(HandledException exception, ServletContext servletContext, HttpServletResponse response,
 			HttpServletRequest request) throws ServletException, IOException;
 
