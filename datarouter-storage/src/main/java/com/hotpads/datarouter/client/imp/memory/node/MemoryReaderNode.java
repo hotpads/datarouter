@@ -124,6 +124,18 @@ implements SortedMapStorageReader<PK,D>{
 	}
 
 	private SortedSet<D> filter(Range<PK> range, boolean wildcardLastField, Config config){
+		int nonNullLeadingStartFields = 0;
+		int nonNullLeadingEndFields = 0;
+		List<Field<?>> startFields = null;
+		List<Field<?>> endFields = null;
+		if(range.getStart() != null){
+			nonNullLeadingStartFields = FieldSetTool.getNumNonNullLeadingFields(range.getStart());
+			startFields = range.getStart().getFields();
+		}
+		if(range.getEnd() != null){
+			nonNullLeadingEndFields = FieldSetTool.getNumNonNullLeadingFields(range.getEnd());
+			endFields = range.getEnd().getFields();
+		}
 		SortedSet<D> results = new TreeSet<>();
 		int offset = 0;
 		entryLoop : for(Entry<UniqueKey<PK>,D> entry : backingMap.entrySet()){
@@ -132,38 +144,30 @@ implements SortedMapStorageReader<PK,D>{
 				continue;
 			}
 			List<Field<?>> keyFields = entry.getValue().getKey().getFields();
-			if(range.getStart() != null){
-				int nonNullLeadingStartFields = FieldSetTool.getNumNonNullLeadingFields(range.getStart());
-				List<Field<?>> startFields = range.getStart().getFields();
-				for(int i = 0 ; i < nonNullLeadingStartFields ; i++){
-					if(i == nonNullLeadingStartFields - 1
-							&& wildcardLastField
-							&& startFields.get(i) instanceof StringField
-							&& keyFields.get(i).getValueString().startsWith(startFields.get(i).getValueString())){
-						break;
-					}
-					@SuppressWarnings({"unchecked", "rawtypes"})
-					int diff = startFields.get(i).compareTo((Field)keyFields.get(i));
-					if(diff > 0 || diff == 0 && !range.getStartInclusive() && i == nonNullLeadingStartFields - 1){
-						continue entryLoop;
-					}
+			for(int i = 0 ; i < nonNullLeadingStartFields ; i++){
+				if(i == nonNullLeadingStartFields - 1
+						&& wildcardLastField
+						&& startFields.get(i) instanceof StringField
+						&& keyFields.get(i).getValueString().startsWith(startFields.get(i).getValueString())){
+					break;
+				}
+				@SuppressWarnings({"unchecked", "rawtypes"})
+				int diff = startFields.get(i).compareTo((Field)keyFields.get(i));
+				if(diff > 0 || diff == 0 && !range.getStartInclusive() && i == nonNullLeadingStartFields - 1){
+					continue entryLoop;
 				}
 			}
-			if(range.getEnd() != null){
-				int nonNullLeadingEndFields = FieldSetTool.getNumNonNullLeadingFields(range.getEnd());
-				List<Field<?>> endFields = range.getEnd().getFields();
-				for(int j = 0 ; j < nonNullLeadingEndFields ; j++){
-					if(j == nonNullLeadingEndFields - 1
-							&& wildcardLastField
-							&& endFields.get(j) instanceof StringField
-							&& keyFields.get(j).getValueString().startsWith(endFields.get(j).getValueString())){
-						break;
-					}
-					@SuppressWarnings({"unchecked", "rawtypes"})
-					int diff = endFields.get(j).compareTo((Field)keyFields.get(j));
-					if(diff < 0 || diff == 0 && !range.getEndInclusive() && j == nonNullLeadingEndFields - 1){
-						continue entryLoop;
-					}
+			for(int j = 0 ; j < nonNullLeadingEndFields ; j++){
+				if(j == nonNullLeadingEndFields - 1
+						&& wildcardLastField
+						&& endFields.get(j) instanceof StringField
+						&& keyFields.get(j).getValueString().startsWith(endFields.get(j).getValueString())){
+					break;
+				}
+				@SuppressWarnings({"unchecked", "rawtypes"})
+				int diff = endFields.get(j).compareTo((Field)keyFields.get(j));
+				if(diff < 0 || diff == 0 && !range.getEndInclusive() && j == nonNullLeadingEndFields - 1){
+					continue entryLoop;
 				}
 			}
 			results.add(entry.getValue());
