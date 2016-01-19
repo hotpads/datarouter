@@ -115,7 +115,10 @@ implements SortedMapStorageReader<PK,D>{
 
 	@Override
 	public Iterable<D> scanMulti(Collection<Range<PK>> ranges, Config config){
-		return ranges.stream().map(range -> filter(range, false, config)).flatMap(Set::stream).collect(Collectors.toList());
+		return ranges.stream()
+				.map(range -> filter(range, false, config))
+				.flatMap(Set::stream)
+				.collect(Collectors.toList());
 	}
 
 	@Override
