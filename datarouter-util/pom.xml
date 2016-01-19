@@ -54,11 +54,6 @@
 			<artifactId>datarouter-logging</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
-		<dependency>
-			<groupId>com.google.code.findbugs</groupId>
-			<artifactId>jsr305</artifactId>
-			<version>3.0.1</version>
-		</dependency>
 		<!-- guava 15 removes the public Stopwatch() constructor which causes errors in hbase-1.1.2 -->
 		<dependency>
 			<groupId>com.google.guava</groupId>

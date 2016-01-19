@@ -39,11 +39,6 @@ extends SortedStorageReader<IK,IE>{
 		throw new NotImplementedException();
 	}
 
-	@Override
-	default Stream<IE> streamWithPrefixes(Collection<IK> prefixes, Config config){
-		return prefixes.stream().flatMap(prefix -> streamWithPrefix(prefix, config));
-	}
-
 	Iterable<D> scanDatabeans(Range<IK> range, Config config);
 
 	default Stream<D> streamDatabeans(Range<IK> range, Config config){

@@ -44,6 +44,7 @@ import com.hotpads.util.core.iterable.scanner.batch.AsyncBatchLoaderScanner;
 import com.hotpads.util.core.iterable.scanner.collate.PriorityQueueCollator;
 import com.hotpads.util.core.iterable.scanner.iterable.SingleUseScannerIterable;
 import com.hotpads.util.core.iterable.scanner.sorted.SortedScanner;
+import com.hotpads.util.core.stream.StreamTool;
 
 public class HBaseReaderNode<
 		PK extends PrimaryKey<PK>,
@@ -215,7 +216,7 @@ implements HBasePhysicalNode<PK,D>,
 
 	@Override
 	public Iterable<PK> scanKeysMulti(Collection<Range<PK>> ranges, final Config config){
-		return () -> ranges.stream().flatMap(range -> streamKeys(range, config)).iterator();
+		return () -> StreamTool.flatten(ranges.stream().map(range -> streamKeys(range, config))).iterator();
 	}
 
 	@Override
@@ -235,7 +236,7 @@ implements HBasePhysicalNode<PK,D>,
 
 	@Override
 	public Iterable<D> scanMulti(Collection<Range<PK>> ranges, Config config){
-		return () -> ranges.stream().flatMap(range -> stream(range, config)).iterator();
+		return () -> StreamTool.flatten(ranges.stream().map(range -> stream(range, config))).iterator();
 	}
 
 	/***************************** helper methods **********************************/
