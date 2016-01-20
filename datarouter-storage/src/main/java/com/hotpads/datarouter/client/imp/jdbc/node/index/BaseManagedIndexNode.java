@@ -41,11 +41,17 @@ extends BaseManagedNode<PK, D, IK, IE, IF>{
 	}
 
 	public Iterable<IE> scanMulti(Collection<Range<IK>> ranges, Config config){
-		return () -> ranges.stream().map(range -> scan(range, config)).flatMap(StreamTool::stream).iterator();
+		return () -> StreamTool.flatten(ranges.stream()
+				.map(range -> scan(range, config))
+				.map(StreamTool::stream))
+				.iterator();
 	}
 
 	public Iterable<IK> scanKeysMulti(Collection<Range<IK>> ranges, Config config){
-		return () -> ranges.stream().map(range -> scanKeys(range, config)).flatMap(StreamTool::stream).iterator();
+		return () -> StreamTool.flatten(ranges.stream()
+				.map(range -> scanKeys(range, config))
+				.map(StreamTool::stream))
+				.iterator();
 	}
 
 }
