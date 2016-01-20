@@ -210,111 +210,76 @@ public class SqlBuilder{
 			Range<? extends FieldSet<?>> range){
 		boolean hasStart = false;
 
-		List<Field<?>> startFields = null;
-		int numNonNullStartFields = 0;
-		List<JdbcFieldCodec<?,?>> startCodecs = null;
 		if(range.getStart() != null){
-			startFields = DrListTool.nullSafe(range.getStart().getFields());
-			numNonNullStartFields = FieldTool.countNonNullLeadingFields(startFields);
+			List<Field<?>> startFields = DrListTool.nullSafe(range.getStart().getFields());
+			int numNonNullStartFields = FieldTool.countNonNullLeadingFields(startFields);
 			if(numNonNullStartFields > 0){
-				startCodecs = codecFactory.createCodecs(startFields);
+				hasStart = true;
+				List<JdbcFieldCodec<?,?>> startCodecs = codecFactory.createCodecs(startFields);
+				sql.append("(");
+				for(int i=numNonNullStartFields; i > 0; --i){
+					if(i<numNonNullStartFields){
+						sql.append(" or ");
+					}
+					sql.append("(");
+					for(int j=0; j < i; ++j){
+						if(j>0){
+							sql.append(" and ");
+						}
+						Field<?> startField = startFields.get(j);
+						JdbcFieldCodec<?,?> startCodec = startCodecs.get(j);
+						if(j < i-1){
+							sql.append(startCodec.getSqlNameValuePairEscaped());
+						}else{
+							if(range.getStartInclusive() && i==numNonNullStartFields){
+								sql.append(startField.getKey().getColumnName()+">="+startCodec.getSqlEscaped());
+							}else{
+								sql.append(startField.getKey().getColumnName()+">"+startCodec.getSqlEscaped());
+							}
+						}
+					}
+					sql.append(")");
+				}
+				sql.append(")");
 			}
 		}
 
-		List<Field<?>> endFields = null;
-		int numNonNullEndFields = 0;
-		List<JdbcFieldCodec<?,?>> endCodecs = null;
+//		select a, b, c, d from SortedBean where ((a>='alp')) and (a<='emu' and b is null and c is null and d is null
+
 		if(range.getEnd() != null){
-			endFields = DrListTool.nullSafe(range.getEnd().getFields());
-			numNonNullEndFields = FieldTool.countNonNullLeadingFields(endFields);
+			List<Field<?>> endFields = DrListTool.nullSafe(range.getEnd().getFields());
+			int numNonNullEndFields = FieldTool.countNonNullLeadingFields(endFields);
 			if(numNonNullEndFields > 0){
-				endCodecs = codecFactory.createCodecs(endFields);
-			}
-		}
-
-		int numEqualsLeadingFields = 0;
-		if(range.getStart() != null && range.getEnd() != null){
-			int numNonNullLeadingFields = Math.min(numNonNullStartFields, numNonNullEndFields);
-			for(int i = 0 ; i < numNonNullLeadingFields ; i++){
-				if(startFields.get(i).getValue().equals(endFields.get(i).getValue())){
-					if(i > 0){
-						sql.append(" and ");
-					}else{
-						sql.append("(");
-					}
-					sql.append(startFields.get(i).getKey().getColumnName() + "=" + startCodecs.get(i).getSqlEscaped());
-					numEqualsLeadingFields++;
-				}else{
-					break;
-				}
-			}
-		}
-
-		if(range.getStart() != null && numNonNullStartFields > 0 && numNonNullStartFields > numEqualsLeadingFields){
-			hasStart = true;
-			if(numEqualsLeadingFields > 0){
-				sql.append(" and ");
-			}
-			sql.append("(");
-			for(int i=numNonNullStartFields; i > numEqualsLeadingFields; --i){
-				if(i<numNonNullStartFields){
-					sql.append(" or ");
+				List<JdbcFieldCodec<?,?>> endCodecs = codecFactory.createCodecs(endFields);
+				if(hasStart){
+					sql.append(" and ");
 				}
 				sql.append("(");
-				for(int j=numEqualsLeadingFields; j < i; ++j){
-					if(j>numEqualsLeadingFields){
-						sql.append(" and ");
+				for(int i=0; i < numNonNullEndFields; ++i){
+					if(i>0){
+						sql.append(" or ");
 					}
-					Field<?> startField = startFields.get(j);
-					JdbcFieldCodec<?,?> startCodec = startCodecs.get(j);
-					if(j < i-1){
-						sql.append(startCodec.getSqlNameValuePairEscaped());
-					}else{
-						if(range.getStartInclusive() && i==numNonNullStartFields){
-							sql.append(startField.getKey().getColumnName()+">="+startCodec.getSqlEscaped());
+					sql.append("(");
+					for(int j=0; j <= i; ++j){
+						if(j>0){
+							sql.append(" and ");
+						}
+						Field<?> endField = endFields.get(j);
+						JdbcFieldCodec<?,?> endCodec = endCodecs.get(j);
+						if(j==i){
+							if(range.getEndInclusive() && i==numNonNullEndFields-1){
+								sql.append(endField.getKey().getColumnName()+"<="+endCodec.getSqlEscaped());
+							}else{
+								sql.append(endField.getKey().getColumnName()+"<"+endCodec.getSqlEscaped());
+							}
 						}else{
-							sql.append(startField.getKey().getColumnName()+">"+startCodec.getSqlEscaped());
+							sql.append(endCodec.getSqlNameValuePairEscaped());
 						}
 					}
+					sql.append(")");
 				}
 				sql.append(")");
 			}
-			sql.append(")");
-		}
-
-		if(range.getEnd() != null && numNonNullEndFields > 0 && numNonNullEndFields > numEqualsLeadingFields){
-			if(numEqualsLeadingFields > 0 || hasStart){
-				sql.append(" and ");
-			}
-			sql.append("(");
-			for(int i=numEqualsLeadingFields; i < numNonNullEndFields; ++i){
-				if(i>numEqualsLeadingFields){
-					sql.append(" or ");
-				}
-				sql.append("(");
-				for(int j=numEqualsLeadingFields; j <= i; ++j){
-					if(j>numEqualsLeadingFields){
-						sql.append(" and ");
-					}
-					Field<?> endField = endFields.get(j);
-					JdbcFieldCodec<?,?> endCodec = endCodecs.get(j);
-					if(j==i){
-						if(range.getEndInclusive() && i==numNonNullEndFields-1){
-							sql.append(endField.getKey().getColumnName()+"<="+endCodec.getSqlEscaped());
-						}else{
-							sql.append(endField.getKey().getColumnName()+"<"+endCodec.getSqlEscaped());
-						}
-					}else{
-						sql.append(endCodec.getSqlNameValuePairEscaped());
-					}
-				}
-				sql.append(")");
-			}
-			sql.append(")");
-		}
-
-		if(numEqualsLeadingFields > 0){
-			sql.append(")");
 		}
 	}
 
