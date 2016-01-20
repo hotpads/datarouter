@@ -11,8 +11,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import javax.annotation.Nullable;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -122,7 +120,7 @@ public class FutureTool {
 		return get(future, null);
 	}
 
-	public static <T> T get(Future<T> future, @Nullable Long timeoutMilliseconds){
+	public static <T> T get(Future<T> future, Long timeoutMilliseconds){
 		try{
 			if(timeoutMilliseconds==null){
 				return future.get();
