@@ -15,10 +15,10 @@ import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.storage.databean.DatabeanTool;
 import com.hotpads.datarouter.test.TestDatabean;
 import com.hotpads.datarouter.test.TestDatabeanKey;
-import com.hotpads.datarouter.test.node.type.index.databean.TestDatabeanWithManagedIndexByB;
-import com.hotpads.datarouter.test.node.type.index.databean.TestDatabeanWithManagedIndexByBKey;
-import com.hotpads.datarouter.test.node.type.index.databean.TestDatabeanWithManagedIndexByC;
-import com.hotpads.datarouter.test.node.type.index.databean.TestDatabeanWithManagedIndexByCKey;
+import com.hotpads.datarouter.test.node.type.index.databean.TestDatabeanWithManagedIndexByBar;
+import com.hotpads.datarouter.test.node.type.index.databean.TestDatabeanWithManagedIndexByBarKey;
+import com.hotpads.datarouter.test.node.type.index.databean.TestDatabeanWithManagedIndexByBaz;
+import com.hotpads.datarouter.test.node.type.index.databean.TestDatabeanWithManagedIndexByBazKey;
 import com.hotpads.datarouter.test.node.type.index.node.TestDatabeanWithIndexNode;
 import com.hotpads.datarouter.test.node.type.index.node.TestDatabeanWithManagedIndexNode;
 import com.hotpads.datarouter.test.node.type.index.node.TestDatabeanWithTxnManagedIndexNode;
@@ -77,12 +77,12 @@ public abstract class BaseManagedIndexIntegrationTests{
 	}
 
 	private void testLookupUnique(TestDatabeanWithIndexNode node){
-		TestDatabean databean = node.byB.lookupUnique(new TestDatabeanWithManagedIndexByBKey("martolod"), null);
+		TestDatabean databean = node.byB.lookupUnique(new TestDatabeanWithManagedIndexByBarKey("martolod"), null);
 		Assert.assertNull(databean);
-		databean = node.byB.lookupUnique(new TestDatabeanWithManagedIndexByBKey("tra"), null);
-		Assert.assertEquals(databean.getA(), "alarc'h");
-		Assert.assertEquals(databean.getB(), "tra");
-		Assert.assertEquals(databean.getC(), "mor");
+		databean = node.byB.lookupUnique(new TestDatabeanWithManagedIndexByBarKey("tra"), null);
+		Assert.assertEquals(databean.getFoo(), "alarc'h");
+		Assert.assertEquals(databean.getBar(), "tra");
+		Assert.assertEquals(databean.getBaz(), "mor");
 	}
 
 	@Test
@@ -92,21 +92,21 @@ public abstract class BaseManagedIndexIntegrationTests{
 	}
 
 	private void testLookupMultiUnique(TestDatabeanWithIndexNode node){
-		LinkedList<TestDatabeanWithManagedIndexByBKey> keys = DrListTool.createLinkedList(
-				new TestDatabeanWithManagedIndexByBKey("martolod"),
-				new TestDatabeanWithManagedIndexByBKey("kastell"),
-				new TestDatabeanWithManagedIndexByBKey("lein"));
+		LinkedList<TestDatabeanWithManagedIndexByBarKey> keys = DrListTool.createLinkedList(
+				new TestDatabeanWithManagedIndexByBarKey("martolod"),
+				new TestDatabeanWithManagedIndexByBarKey("kastell"),
+				new TestDatabeanWithManagedIndexByBarKey("lein"));
 		List<TestDatabean> databeans = node.byB.lookupMultiUnique(keys, null);
 		Assert.assertEquals(2, databeans.size());
 		for(TestDatabean d : databeans){
-			Assert.assertTrue("moal".equals(d.getA()) || "war".equals(d.getA()));
-			if("moal".equals(d.getA())){
-				Assert.assertEquals(d.getB(), "kastell");
-				Assert.assertEquals(d.getC(), "Arvor");
+			Assert.assertTrue("moal".equals(d.getFoo()) || "war".equals(d.getFoo()));
+			if("moal".equals(d.getFoo())){
+				Assert.assertEquals(d.getBar(), "kastell");
+				Assert.assertEquals(d.getBaz(), "Arvor");
 			}
-			if("war".equals(d.getA())){
-				Assert.assertEquals(d.getB(), "lein");
-				Assert.assertEquals(d.getC(), "tour");
+			if("war".equals(d.getFoo())){
+				Assert.assertEquals(d.getBar(), "lein");
+				Assert.assertEquals(d.getBaz(), "tour");
 			}
 		}
 	}
@@ -118,13 +118,13 @@ public abstract class BaseManagedIndexIntegrationTests{
 	}
 
 	private void testLookupIndex(TestDatabeanWithIndexNode node){
-		TestDatabeanWithManagedIndexByB entry = node.byB.get(new TestDatabeanWithManagedIndexByBKey(
+		TestDatabeanWithManagedIndexByBar entry = node.byB.get(new TestDatabeanWithManagedIndexByBarKey(
 				"martolod"), null);
 		Assert.assertNull(entry);
-		entry = node.byB.get(new TestDatabeanWithManagedIndexByBKey("tra"), null);
+		entry = node.byB.get(new TestDatabeanWithManagedIndexByBarKey("tra"), null);
 		Assert.assertNotNull(entry);
-		Assert.assertEquals(entry.getA(), "alarc'h");
-		Assert.assertEquals(entry.getB(), "tra");
+		Assert.assertEquals(entry.getFoo(), "alarc'h");
+		Assert.assertEquals(entry.getBar(), "tra");
 	}
 
 	@Test
@@ -134,19 +134,19 @@ public abstract class BaseManagedIndexIntegrationTests{
 	}
 
 	private void testLookupMultiIndex(TestDatabeanWithIndexNode node){
-		LinkedList<TestDatabeanWithManagedIndexByBKey> keys = DrListTool.createLinkedList(
-				new TestDatabeanWithManagedIndexByBKey("martolod"),
-				new TestDatabeanWithManagedIndexByBKey("kastell"),
-				new TestDatabeanWithManagedIndexByBKey("lein"));
-		List<TestDatabeanWithManagedIndexByB> entries = node.byB.getMulti(keys, null);
+		LinkedList<TestDatabeanWithManagedIndexByBarKey> keys = DrListTool.createLinkedList(
+				new TestDatabeanWithManagedIndexByBarKey("martolod"),
+				new TestDatabeanWithManagedIndexByBarKey("kastell"),
+				new TestDatabeanWithManagedIndexByBarKey("lein"));
+		List<TestDatabeanWithManagedIndexByBar> entries = node.byB.getMulti(keys, null);
 		Assert.assertEquals(2, entries.size());
-		for(TestDatabeanWithManagedIndexByB entry : entries){
-			Assert.assertTrue("moal".equals(entry.getA()) || "war".equals(entry.getA()));
-			if("moal".equals(entry.getA())){
-				Assert.assertEquals(entry.getB(), "kastell");
+		for(TestDatabeanWithManagedIndexByBar entry : entries){
+			Assert.assertTrue("moal".equals(entry.getFoo()) || "war".equals(entry.getFoo()));
+			if("moal".equals(entry.getFoo())){
+				Assert.assertEquals(entry.getBar(), "kastell");
 			}
-			if("war".equals(entry.getA())){
-				Assert.assertEquals(entry.getB(), "lein");
+			if("war".equals(entry.getFoo())){
+				Assert.assertEquals(entry.getBar(), "lein");
 			}
 		}
 	}
@@ -159,7 +159,7 @@ public abstract class BaseManagedIndexIntegrationTests{
 
 	private void testDeleteUnique(TestDatabeanWithIndexNode node){
 		TestDatabean databean = new TestDatabean("tri", "martolod", "yaouank");
-		TestDatabeanWithManagedIndexByBKey databeanIndexKey = new TestDatabeanWithManagedIndexByBKey("martolod");
+		TestDatabeanWithManagedIndexByBarKey databeanIndexKey = new TestDatabeanWithManagedIndexByBarKey("martolod");
 		Assert.assertNull(node.mainNode.get(databean.getKey(), null));
 		Assert.assertNull(node.byB.lookupUnique(databeanIndexKey, null));
 		node.mainNode.put(databean, null);
@@ -181,9 +181,9 @@ public abstract class BaseManagedIndexIntegrationTests{
 				new TestDatabean("tri", "martolod", "yaouank"),
 				new TestDatabean("i vonet", "da", "veajiñ"));
 		List<TestDatabeanKey> keys = DatabeanTool.getKeys(databeans);
-		List<TestDatabeanWithManagedIndexByBKey> entryKeys = new LinkedList<>();
+		List<TestDatabeanWithManagedIndexByBarKey> entryKeys = new LinkedList<>();
 		for(TestDatabean databean : databeans){
-			entryKeys.add(new TestDatabeanWithManagedIndexByBKey(databean.getB()));
+			entryKeys.add(new TestDatabeanWithManagedIndexByBarKey(databean.getBar()));
 		}
 		Assert.assertEquals(0, node.mainNode.getMulti(keys, null).size());
 		Assert.assertEquals(0, node.byB.lookupMultiUnique(entryKeys, null).size());
@@ -203,10 +203,10 @@ public abstract class BaseManagedIndexIntegrationTests{
 
 	private void testLookupMulti(TestDatabeanWithIndexNode node){
 		List<TestDatabean> databeans = node.byC.lookupMulti(
-				new TestDatabeanWithManagedIndexByCKey("lala"), null);
+				new TestDatabeanWithManagedIndexByBazKey("lala"), null);
 		Assert.assertEquals(databeans.size(), 0);
 		databeans = node.byC.lookupMulti(
-				new TestDatabeanWithManagedIndexByCKey("ed"), null);
+				new TestDatabeanWithManagedIndexByBazKey("ed"), null);
 		Assert.assertEquals(databeans.size(), 2);
 		List<TestDatabean> expected = DrListTool.create(
 				new TestDatabean("Neventi vad", "d'ar Vreton", "ed"),
@@ -223,9 +223,9 @@ public abstract class BaseManagedIndexIntegrationTests{
 	}
 
 	private void testLookupMultiMulti(TestDatabeanWithIndexNode node){
-		List<TestDatabeanWithManagedIndexByCKey> keys = DrListTool.create(
-				new TestDatabeanWithManagedIndexByCKey("ed"),
-				new TestDatabeanWithManagedIndexByCKey("or"));
+		List<TestDatabeanWithManagedIndexByBazKey> keys = DrListTool.create(
+				new TestDatabeanWithManagedIndexByBazKey("ed"),
+				new TestDatabeanWithManagedIndexByBazKey("or"));
 		List<TestDatabean> databeans = node.byC.lookupMultiMulti(keys, null);
 		Assert.assertEquals(databeans.size(), 4);
 		List<TestDatabean> expected = DrListTool.create(
@@ -248,9 +248,9 @@ public abstract class BaseManagedIndexIntegrationTests{
 	}
 
 	private void testScanUniqueIndex(TestDatabeanWithIndexNode node){
-		TestDatabeanWithManagedIndexByB previous = null;
+		TestDatabeanWithManagedIndexByBar previous = null;
 		int count = 0;
-		for(TestDatabeanWithManagedIndexByB indexEntry : node.byB.scan(null, null)){
+		for(TestDatabeanWithManagedIndexByBar indexEntry : node.byB.scan(null, null)){
 			if(previous != null){
 				Assert.assertTrue(indexEntry.getKey().compareTo(previous.getKey()) >= 0);
 			}
@@ -261,9 +261,9 @@ public abstract class BaseManagedIndexIntegrationTests{
 	}
 
 	private void testScanMultiIndex(TestDatabeanWithIndexNode node){
-		TestDatabeanWithManagedIndexByC previous = null;
+		TestDatabeanWithManagedIndexByBaz previous = null;
 		int count = 0;
-		for(TestDatabeanWithManagedIndexByC indexEntry : node.byC.scan(null, null)){
+		for(TestDatabeanWithManagedIndexByBaz indexEntry : node.byC.scan(null, null)){
 			if(previous != null){
 				Assert.assertTrue(indexEntry.getKey().compareTo(previous.getKey()) >= 0);
 			}
@@ -287,7 +287,7 @@ public abstract class BaseManagedIndexIntegrationTests{
 		int count = 0;
 		for(TestDatabean databean : node.byB.scanDatabeans(null, null)){
 			if(previous != null){
-				Assert.assertTrue(databean.getB().compareTo(previous.getB()) >= 0);
+				Assert.assertTrue(databean.getBar().compareTo(previous.getBar()) >= 0);
 			}
 			previous = databean;
 			count++;
@@ -300,7 +300,7 @@ public abstract class BaseManagedIndexIntegrationTests{
 		int count = 0;
 		for(TestDatabean databean : node.byC.scanDatabeans(null, null)){
 			if(previous != null){
-				Assert.assertTrue(databean.getC().compareTo(previous.getC()) >= 0);
+				Assert.assertTrue(databean.getBaz().compareTo(previous.getBaz()) >= 0);
 			}
 			previous = databean;
 			count++;
@@ -321,11 +321,11 @@ public abstract class BaseManagedIndexIntegrationTests{
 
 	@Test
 	public void testScanKeys(){
-		TestDatabeanWithManagedIndexByBKey previous = null;
+		TestDatabeanWithManagedIndexByBarKey previous = null;
 		int count = 0;
-		for(TestDatabeanWithManagedIndexByBKey key : router.testDatabeanWithManagedIndex.byB.scanKeys(null, null)){
+		for(TestDatabeanWithManagedIndexByBarKey key : router.testDatabeanWithManagedIndex.byB.scanKeys(null, null)){
 			if(previous != null){
-				Assert.assertTrue(key.getB().compareTo(previous.getB()) > 0);
+				Assert.assertTrue(key.getBar().compareTo(previous.getBar()) > 0);
 			}
 			previous = key;
 			count++;

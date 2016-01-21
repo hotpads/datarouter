@@ -4,10 +4,10 @@ import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.node.factory.IndexingNodeFactory;
 import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.routing.Router;
-import com.hotpads.datarouter.test.node.type.index.databean.TestDatabeanWithManagedIndexByB;
-import com.hotpads.datarouter.test.node.type.index.databean.TestDatabeanWithManagedIndexByB.TestDatabeanWithManagedIndexByBFielder;
-import com.hotpads.datarouter.test.node.type.index.databean.TestDatabeanWithManagedIndexByC;
-import com.hotpads.datarouter.test.node.type.index.databean.TestDatabeanWithManagedIndexByC.TestDatabeanWithManagedIndexByCFielder;
+import com.hotpads.datarouter.test.node.type.index.databean.TestDatabeanWithManagedIndexByBar;
+import com.hotpads.datarouter.test.node.type.index.databean.TestDatabeanWithManagedIndexByBar.TestDatabeanWithManagedIndexByBFielder;
+import com.hotpads.datarouter.test.node.type.index.databean.TestDatabeanWithManagedIndexByBaz;
+import com.hotpads.datarouter.test.node.type.index.databean.TestDatabeanWithManagedIndexByBaz.TestDatabeanWithManagedIndexByCFielder;
 
 public class TestDatabeanWithTxnManagedIndexNode extends TestDatabeanWithIndexNode {
 
@@ -15,9 +15,9 @@ public class TestDatabeanWithTxnManagedIndexNode extends TestDatabeanWithIndexNo
 		super(nodeFactory, router, clientId);
 
 		byB = backingMapNode.registerManaged(IndexingNodeFactory.newManagedUnique(router, backingMapNode,
-				TestDatabeanWithManagedIndexByBFielder.class, TestDatabeanWithManagedIndexByB.class, true));
+				TestDatabeanWithManagedIndexByBFielder.class, TestDatabeanWithManagedIndexByBar.class, true));
 		byC = backingMapNode.registerManaged(IndexingNodeFactory.newManagedMulti(router, backingMapNode,
-				TestDatabeanWithManagedIndexByCFielder.class, TestDatabeanWithManagedIndexByC.class, true));
+				TestDatabeanWithManagedIndexByCFielder.class, TestDatabeanWithManagedIndexByBaz.class, true));
 	}
 
 	@Override

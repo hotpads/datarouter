@@ -5,19 +5,19 @@ import com.hotpads.datarouter.storage.databean.BaseDatabean;
 public class TestDatabean extends BaseDatabean<TestDatabeanKey, TestDatabean>{
 
 	private TestDatabeanKey key;
-	private String b;
-	private String c;
+	private String bar;
+	private String baz;
 
 	public TestDatabean(){
 		this.key = new TestDatabeanKey();
 	}
-	
-	public TestDatabean(String a, String b, String c){
-		this.key = new TestDatabeanKey(a);
-		this.b = b;
-		this.c = c;
+
+	public TestDatabean(String foo, String bar, String baz){
+		this.key = new TestDatabeanKey(foo);
+		this.bar = bar;
+		this.baz = baz;
 	}
-	
+
 	@Override
 	public Class<TestDatabeanKey> getKeyClass(){
 		return TestDatabeanKey.class;
@@ -28,16 +28,16 @@ public class TestDatabean extends BaseDatabean<TestDatabeanKey, TestDatabean>{
 		return key;
 	}
 
-	public String getB(){
-		return b;
+	public String getBar(){
+		return bar;
 	}
 
-	public String getC(){
-		return c;
+	public String getBaz(){
+		return baz;
 	}
 
-	public String getA(){
-		return key.getA();
+	public String getFoo(){
+		return key.getFoo();
 	}
 
 }

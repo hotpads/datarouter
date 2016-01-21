@@ -10,10 +10,10 @@ import com.hotpads.datarouter.routing.Router;
 import com.hotpads.datarouter.test.TestDatabean;
 import com.hotpads.datarouter.test.TestDatabeanFielder;
 import com.hotpads.datarouter.test.TestDatabeanKey;
-import com.hotpads.datarouter.test.node.type.index.databean.TestDatabeanWithManagedIndexByB;
-import com.hotpads.datarouter.test.node.type.index.databean.TestDatabeanWithManagedIndexByBKey;
-import com.hotpads.datarouter.test.node.type.index.databean.TestDatabeanWithManagedIndexByC;
-import com.hotpads.datarouter.test.node.type.index.databean.TestDatabeanWithManagedIndexByCKey;
+import com.hotpads.datarouter.test.node.type.index.databean.TestDatabeanWithManagedIndexByBar;
+import com.hotpads.datarouter.test.node.type.index.databean.TestDatabeanWithManagedIndexByBarKey;
+import com.hotpads.datarouter.test.node.type.index.databean.TestDatabeanWithManagedIndexByBaz;
+import com.hotpads.datarouter.test.node.type.index.databean.TestDatabeanWithManagedIndexByBazKey;
 
 public abstract class TestDatabeanWithIndexNode{
 
@@ -23,12 +23,12 @@ public abstract class TestDatabeanWithIndexNode{
 
 	public UniqueIndexNode<TestDatabeanKey,
 							TestDatabean,
-							TestDatabeanWithManagedIndexByBKey,
-							TestDatabeanWithManagedIndexByB> byB;
+							TestDatabeanWithManagedIndexByBarKey,
+							TestDatabeanWithManagedIndexByBar> byB;
 	public MultiIndexNode<TestDatabeanKey,
 							TestDatabean,
-							TestDatabeanWithManagedIndexByCKey,
-							TestDatabeanWithManagedIndexByC> byC;
+							TestDatabeanWithManagedIndexByBazKey,
+							TestDatabeanWithManagedIndexByBaz> byC;
 
 	public TestDatabeanWithIndexNode(NodeFactory nodeFactory, Router router, ClientId clientId){
 		backingMapNode = router.register(nodeFactory.create(clientId, getTableName(), getTableName(),
