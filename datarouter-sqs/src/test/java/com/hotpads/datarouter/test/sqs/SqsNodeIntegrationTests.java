@@ -94,9 +94,9 @@ public class SqsNodeIntegrationTests{
 		TestDatabean databean = new TestDatabean(makeRandomString(), makeRandomString(), makeRandomString());
 		router.testDatabean.put(databean, null);
 		TestDatabean retrievedDatabean = router.testDatabean.poll(new Config().setTimeoutMs(Long.MAX_VALUE));
-		Assert.assertEquals(retrievedDatabean.getA(), databean.getA());
-		Assert.assertEquals(retrievedDatabean.getB(), databean.getB());
-		Assert.assertEquals(retrievedDatabean.getC(), databean.getC());
+		Assert.assertEquals(retrievedDatabean.getFoo(), databean.getFoo());
+		Assert.assertEquals(retrievedDatabean.getBar(), databean.getBar());
+		Assert.assertEquals(retrievedDatabean.getBaz(), databean.getBaz());
 		Assert.assertNull(router.testDatabean.poll(null));
 	}
 
@@ -109,7 +109,7 @@ public class SqsNodeIntegrationTests{
 			retrievedDatabeans = router.testDatabean.pollMulti(new Config().setLimit(5).setTimeoutMs(5000L));
 			Assert.assertTrue(retrievedDatabeans.size() <= 5);
 			for(TestDatabean databean : retrievedDatabeans){
-				Integer id = Integer.valueOf(databean.getA());
+				Integer id = Integer.valueOf(databean.getFoo());
 				Assert.assertTrue(id < DATABEAN_COUNT);
 				Assert.assertTrue(id >= 0);
 				ids.add(id);

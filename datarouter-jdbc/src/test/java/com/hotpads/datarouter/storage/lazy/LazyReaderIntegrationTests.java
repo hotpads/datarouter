@@ -18,7 +18,7 @@ import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.storage.databean.DatabeanTool;
 import com.hotpads.datarouter.test.TestDatabean;
 import com.hotpads.datarouter.test.TestDatabeanKey;
-import com.hotpads.datarouter.test.TestIndexedDatabeanFielder.TestDatabeanByCLookup;
+import com.hotpads.datarouter.test.TestIndexedDatabeanFielder.TestDatabeanByBazLookup;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 
 @Guice(moduleFactory=TestDatarouterJdbcModuleFactory.class)
@@ -76,7 +76,7 @@ public class LazyReaderIntegrationTests{
 
 	@Test
 	public void testLookupUnique(){
-		TestDatabeanByCLookup lookup = new TestDatabeanByCLookup(baz);
+		TestDatabeanByBazLookup lookup = new TestDatabeanByBazLookup(baz);
 		TestDatabean fromBlockingNode = router.testDatabean.lookupUnique(lookup, null);
 		TestDatabean fromLazyNode = router.lazyTestDatabean.lookupUnique(lookup, null).get();
 		Assert.assertEquals(fromBlockingNode, fromLazyNode);
@@ -85,9 +85,9 @@ public class LazyReaderIntegrationTests{
 
 	@Test
 	public void testLookupMultiUnique(){
-		List<TestDatabeanByCLookup> lookups = Arrays.asList(
-				new TestDatabeanByCLookup(baz),
-				new TestDatabeanByCLookup(foo));
+		List<TestDatabeanByBazLookup> lookups = Arrays.asList(
+				new TestDatabeanByBazLookup(baz),
+				new TestDatabeanByBazLookup(foo));
 		List<TestDatabean> expectedDatabeans = Arrays.asList(
 				databeans.get(1),
 				databeans.get(2));
@@ -101,7 +101,7 @@ public class LazyReaderIntegrationTests{
 
 	@Test
 	public void testLookup(){
-		TestDatabeanByCLookup lookup = new TestDatabeanByCLookup(baz);
+		TestDatabeanByBazLookup lookup = new TestDatabeanByBazLookup(baz);
 		List<TestDatabean> fromBlockingNode = router.testDatabean.lookup(lookup, false, null);
 		List<TestDatabean> fromLazyNode = router.lazyTestDatabean.lookup(lookup, false, null).get();
 		Assert.assertEquals(fromBlockingNode, fromLazyNode);
@@ -110,9 +110,9 @@ public class LazyReaderIntegrationTests{
 
 	@Test
 	public void testLookupMulti(){
-		List<TestDatabeanByCLookup> lookups = Arrays.asList(
-				new TestDatabeanByCLookup(baz),
-				new TestDatabeanByCLookup(foo));
+		List<TestDatabeanByBazLookup> lookups = Arrays.asList(
+				new TestDatabeanByBazLookup(baz),
+				new TestDatabeanByBazLookup(foo));
 		List<TestDatabean> expectedDatabeans = Arrays.asList(
 				databeans.get(1),
 				databeans.get(2));

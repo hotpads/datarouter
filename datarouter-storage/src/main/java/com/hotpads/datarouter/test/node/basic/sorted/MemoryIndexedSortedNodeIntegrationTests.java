@@ -5,7 +5,7 @@ import org.testng.annotations.BeforeClass;
 
 import com.hotpads.datarouter.test.DrTestConstants;
 
-public class MemorySortedNodeIntegrationTests extends BaseSortedNodeIntegrationTests{
+public class MemoryIndexedSortedNodeIntegrationTests extends BaseIndexedNodeIntegrationTests{
 
 	@BeforeClass
 	public void beforeClass(){
