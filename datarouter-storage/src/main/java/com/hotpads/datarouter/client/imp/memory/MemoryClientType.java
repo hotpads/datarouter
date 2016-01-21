@@ -11,9 +11,9 @@ import com.hotpads.datarouter.client.imp.BaseClientType;
 import com.hotpads.datarouter.client.imp.memory.node.MemoryNode;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams;
-import com.hotpads.datarouter.node.adapter.availability.PhysicalSortedMapStorageAvailabilityAdapter;
+import com.hotpads.datarouter.node.adapter.availability.PhysicalIndexedSortedMapStorageAvailabilityAdapter;
 import com.hotpads.datarouter.node.adapter.callsite.physical.PhysicalMapStorageCallsiteAdapter;
-import com.hotpads.datarouter.node.adapter.counter.physical.PhysicalSortedMapStorageCounterAdapter;
+import com.hotpads.datarouter.node.adapter.counter.physical.PhysicalIndexedSortedMapStorageCounterAdapter;
 import com.hotpads.datarouter.node.entity.EntityNodeParams;
 import com.hotpads.datarouter.node.op.raw.MapStorage.MapStorageNode;
 import com.hotpads.datarouter.node.op.raw.MapStorage.PhysicalMapStorageNode;
@@ -55,8 +55,8 @@ public class MemoryClientType extends BaseClientType{
 	@Override
 	public <PK extends PrimaryKey<PK>, D extends Databean<PK, D>, F extends DatabeanFielder<PK, D>>
 	PhysicalNode<PK,D> createNode(NodeParams<PK, D, F> nodeParams){
-		return new PhysicalSortedMapStorageAvailabilityAdapter<>(
-				new PhysicalSortedMapStorageCounterAdapter<>(new MemoryNode<>(nodeParams)));
+		return new PhysicalIndexedSortedMapStorageAvailabilityAdapter<>(
+				new PhysicalIndexedSortedMapStorageCounterAdapter<>(new MemoryNode<>(nodeParams)));
 	}
 
 	//ignore the entityNodeParams
