@@ -1,12 +1,12 @@
 package com.hotpads.datarouter.test.node.type.index.node;
 
+import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.node.op.combo.IndexedMapStorage.PhysicalIndexedMapStorageNode;
 import com.hotpads.datarouter.node.op.raw.MapStorage.MapStorageNode;
 import com.hotpads.datarouter.node.type.index.MultiIndexNode;
 import com.hotpads.datarouter.node.type.index.UniqueIndexNode;
 import com.hotpads.datarouter.routing.Router;
-import com.hotpads.datarouter.test.DrTestConstants;
 import com.hotpads.datarouter.test.TestDatabean;
 import com.hotpads.datarouter.test.TestDatabeanFielder;
 import com.hotpads.datarouter.test.TestDatabeanKey;
@@ -30,9 +30,9 @@ public abstract class TestDatabeanWithIndexNode{
 							TestDatabeanWithManagedIndexByCKey,
 							TestDatabeanWithManagedIndexByC> byC;
 
-	public TestDatabeanWithIndexNode(NodeFactory nodeFactory, Router router){
-		backingMapNode = router.register(nodeFactory.create(DrTestConstants.CLIENT_drTestJdbc0, getTableName(),
-				getTableName(), TestDatabean.class, TestDatabeanFielder.class, router, false));
+	public TestDatabeanWithIndexNode(NodeFactory nodeFactory, Router router, ClientId clientId){
+		backingMapNode = router.register(nodeFactory.create(clientId, getTableName(), getTableName(),
+				TestDatabean.class, TestDatabeanFielder.class, router, false));
 		mainNode = backingMapNode;
 	}
 

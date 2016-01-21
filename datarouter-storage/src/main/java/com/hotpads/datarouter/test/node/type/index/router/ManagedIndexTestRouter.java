@@ -14,24 +14,39 @@ import com.hotpads.datarouter.test.DrTestConstants;
 import com.hotpads.datarouter.test.node.type.index.node.TestDatabeanWithManagedIndexNode;
 import com.hotpads.datarouter.test.node.type.index.node.TestDatabeanWithTxnManagedIndexNode;
 
-@Singleton
 public class ManagedIndexTestRouter extends BaseRouter{
+
+	@Singleton
+	public static class ManagedIndexTestRouterFactory{
+
+		private final Datarouter datarouter;
+		private final NodeFactory nodeFactory;
+
+		@Inject
+		public ManagedIndexTestRouterFactory(Datarouter context, NodeFactory nodeFactory){
+			this.datarouter = context;
+			this.nodeFactory = nodeFactory;
+		}
+
+		public ManagedIndexTestRouter createWithClientId(ClientId clientId){
+			return new ManagedIndexTestRouter(datarouter, nodeFactory, clientId);
+		}
+	}
 
 	private static final String NAME = "managedIndexTest";
 
 	public final TestDatabeanWithManagedIndexNode testDatabeanWithManagedIndex;
 	public final TestDatabeanWithTxnManagedIndexNode testDatabeanWithTxnManagedIndex;
 
-	@Inject
-	public ManagedIndexTestRouter(Datarouter context, NodeFactory nodeFactory){
+	private ManagedIndexTestRouter(Datarouter context, NodeFactory nodeFactory, ClientId clientId){
 		super(context, DrTestConstants.CONFIG_PATH, NAME);
-		testDatabeanWithManagedIndex = new TestDatabeanWithManagedIndexNode(nodeFactory, this);
-		testDatabeanWithTxnManagedIndex = new TestDatabeanWithTxnManagedIndexNode(nodeFactory, this);
+		testDatabeanWithManagedIndex = new TestDatabeanWithManagedIndexNode(nodeFactory, this, clientId);
+		testDatabeanWithTxnManagedIndex = new TestDatabeanWithTxnManagedIndexNode(nodeFactory, this, clientId);
 	}
 
 	@Override
 	public List<ClientId> getClientIds(){
-		return Collections.singletonList(DrTestConstants.CLIENT_drTestJdbc0);
+		return Collections.emptyList();
 	}
 
 }
