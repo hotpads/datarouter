@@ -113,7 +113,7 @@ public class TypedProperties{
 	public String getString(String key){
 		return DrPropertiesTool.getFirstOccurrence(propertiesList, key);
 	}
-	
+
 	public List<Properties> getUnModifiablePropertiesList(){
 		return Collections.unmodifiableList(propertiesList);
 	}

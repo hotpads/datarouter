@@ -63,16 +63,15 @@ public class DatabeanTool{
 		return allBytes;
 	}
 
-	@SuppressWarnings("rawtypes")
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>> String getColumnNames(Class<D> databean,
-			Class<?> basedataBeanFielder){
+			Class<? extends DatabeanFielder<PK,D>> basedataBeanFielder){
 		if(!DatabeanFielder.class.isAssignableFrom(basedataBeanFielder)) {
 			throw new IllegalArgumentException("The parameter" + basedataBeanFielder
 					+ "is not an instance of DatabeanFielder");
 		}
 		String columns = "";
 		D emptyDatabean = DatabeanTool.create(databean);
-		DatabeanFielder<PK,D> databeanFielder = (DatabeanFielder)ReflectionTool.create(basedataBeanFielder);
+		DatabeanFielder<PK,D> databeanFielder = ReflectionTool.create(basedataBeanFielder);
 		List<Field<?>> dataBeanFields = databeanFielder.getFields(emptyDatabean);
 		for(int i = 0; i < dataBeanFields.size(); i++){
 			Field<?> field = dataBeanFields.get(i);
