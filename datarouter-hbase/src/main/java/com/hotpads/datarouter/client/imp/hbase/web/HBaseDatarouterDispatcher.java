@@ -2,12 +2,12 @@ package com.hotpads.datarouter.client.imp.hbase.web;
 
 import com.hotpads.datarouter.inject.DatarouterInjector;
 import com.hotpads.handler.BaseDispatcher;
-import com.hotpads.handler.dispatcher.DatarouterDispatcher;
+import com.hotpads.handler.dispatcher.DatarouterWebDispatcher;
 
 public class HBaseDatarouterDispatcher extends BaseDispatcher{
 
 	public static final String
-			PREFIX = DatarouterDispatcher.URL_DATAROUTER + DatarouterDispatcher.CLIENTS,
+			PREFIX = DatarouterWebDispatcher.URL_DATAROUTER + DatarouterWebDispatcher.CLIENTS,
 			HBASE = "/hbase",
 			PATH = PREFIX + HBASE;
 
