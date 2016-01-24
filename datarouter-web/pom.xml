@@ -111,6 +111,12 @@
 			<artifactId>guice-servlet</artifactId>
 			<version>4.0</version>
 		</dependency>
+		<!-- other -->
+		<dependency><!-- used by StackTracesManagerHandler -->
+			<groupId>com.hp.gagawa</groupId>
+			<artifactId>gagawa</artifactId>
+			<version>1.0.1</version>
+		</dependency>
 	</dependencies>
 	
 	<organization>
