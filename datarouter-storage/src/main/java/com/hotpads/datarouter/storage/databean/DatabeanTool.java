@@ -13,6 +13,7 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import com.hotpads.datarouter.exception.DataAccessException;
+import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
@@ -54,21 +55,18 @@ public class DatabeanTool{
 	}
 
 	protected static byte[] getBytes(List<Field<?>> keyFields, List<Field<?>> nonKeyFields){
-		//always include zero-length fields in key bytes
+		// always include zero-length fields in key bytes
 		byte[] keyBytes = FieldTool.getSerializedKeyValues(keyFields, true, false);
-		//skip zero-length fields in non-key bytes
-		//TODO should this distinguish between null and empty Strings?
+		// skip zero-length fields in non-key bytes
+		// TODO should this distinguish between null and empty Strings?
 		byte[] nonKeyBytes = FieldTool.getSerializedKeyValues(nonKeyFields, true, true);
 		byte[] allBytes = DrArrayTool.concatenate(keyBytes, nonKeyBytes);
 		return allBytes;
 	}
 
+	@SuppressWarnings("unchecked")
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>> String getColumnNames(Class<D> databean,
-			Class<? extends DatabeanFielder<PK,D>> basedataBeanFielder){
-		if(!DatabeanFielder.class.isAssignableFrom(basedataBeanFielder)) {
-			throw new IllegalArgumentException("The parameter" + basedataBeanFielder
-					+ "is not an instance of DatabeanFielder");
-		}
+			Class<? extends BaseDatabeanFielder> basedataBeanFielder){
 		String columns = "";
 		D emptyDatabean = DatabeanTool.create(databean);
 		DatabeanFielder<PK,D> databeanFielder = ReflectionTool.create(basedataBeanFielder);
@@ -77,7 +75,7 @@ public class DatabeanTool{
 			Field<?> field = dataBeanFields.get(i);
 			columns = columns + field.getKey().getColumnName() + ",";
 		}
-		columns = columns.substring(0, columns.length()-1);
+		columns = columns.substring(0, columns.length() - 1);
 		return columns;
 	}
 
