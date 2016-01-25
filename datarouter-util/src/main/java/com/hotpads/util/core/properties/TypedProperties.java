@@ -114,7 +114,7 @@ public class TypedProperties{
 		return DrPropertiesTool.getFirstOccurrence(propertiesList, key);
 	}
 
-	public List<Properties> getUnModifiablePropertiesList(){
+	public List<Properties> getUnmodifiablePropertiesList(){
 		return Collections.unmodifiableList(propertiesList);
 	}
 }
