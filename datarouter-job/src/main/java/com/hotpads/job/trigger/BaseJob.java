@@ -15,7 +15,6 @@ import com.hotpads.datarouter.setting.Setting;
 import com.hotpads.datarouter.util.core.DrBooleanTool;
 import com.hotpads.datarouter.util.core.DrComparableTool;
 import com.hotpads.handler.exception.ExceptionRecorder;
-import com.hotpads.handler.exception.NotificationServiceExceptionCategory;
 import com.hotpads.job.record.JobExecutionStatus;
 import com.hotpads.job.record.LongRunningTaskTracker;
 import com.hotpads.job.record.LongRunningTaskType;
@@ -366,7 +365,7 @@ public abstract class BaseJob implements Job{
 	}
 
 	public void tryRecordException(Exception exception){
-		exceptionRecorder.tryRecordException(exception, getClass().getName(), NotificationServiceExceptionCategory.JOB);
+		exceptionRecorder.tryRecordException(exception, getClass().getName(), JobExceptionCategory.JOB);
 	}
 
 }
