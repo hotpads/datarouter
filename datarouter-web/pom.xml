@@ -14,7 +14,6 @@
 	<name>datarouter-web</name>
 
 	<build>
-		<finalName>datarouter</finalName>
 		<plugins>
 			<plugin>
 				<groupId>pl.project13.maven</groupId>
