@@ -14,7 +14,6 @@
 	<name>datarouter-hbase</name>
 
 	<build>
-		<finalName>datarouter-hbase</finalName>
 		<plugins>
 			<plugin>
 				<groupId>pl.project13.maven</groupId>

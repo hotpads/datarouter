@@ -14,7 +14,6 @@
 	<name>datarouter-memcached</name>
 
 	<build>
-		<finalName>datarouter-memcached</finalName>
 		<plugins>
 			<plugin>
 				<groupId>pl.project13.maven</groupId>
