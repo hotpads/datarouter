@@ -14,7 +14,6 @@
 	<name>datarouter-hbase</name>
 
 	<build>
-		<finalName>datarouter-hbase</finalName>
 		<plugins>
 			<plugin>
 				<groupId>pl.project13.maven</groupId>
@@ -61,26 +60,6 @@
 							</resources>
 						</configuration>
 					</execution>
-					<!-- Is needed to copy the configuration to the root of datarouter jar -->
-					<execution>
-						<id>copy-resources-datarouter</id>
-						<phase>validate</phase>
-						<goals>
-							<goal>copy-resources</goal>
-						</goals>
-						<configuration>
-							<outputDirectory>${project.build.directory}/classes/</outputDirectory>
-							<resources>
-								<resource>
-									<directory>${project.basedir}/src/</directory>
-									<filtering>false</filtering>
-									<includes>
-										<!-- <include>log4j.properties</include> -->
-									</includes>
-								</resource>
-							</resources>
-						</configuration>
-					</execution>
 				</executions>
 			</plugin>
 			<plugin>
@@ -92,9 +71,14 @@
 
 	<dependencies>
 		<!-- internal -->
+		<dependency><!-- included in datarouter-core, but we need to pull it higher in the dependency tree -->
+			<groupId>com.hotpads</groupId>
+			<artifactId>datarouter-logging</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
 		<dependency>
 			<groupId>com.hotpads</groupId>
-			<artifactId>datarouter-core</artifactId>
+			<artifactId>datarouter-web</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 		<!-- provided (not inherited) -->
@@ -152,6 +136,16 @@
 			</exclusions>
 		</dependency>
 		<!-- hbase -->
+		<dependency><!-- need newer version for google apis, so override hbase's 2.4 -->
+			<groupId>com.google.protobuf</groupId>
+			<artifactId>protobuf-java</artifactId>
+			<version>2.6.1</version>
+		</dependency>
+		<dependency><!-- used by org.apache.hadoop.hbase.HBaseConfiguration.checkDefaultsVersion -->
+			<groupId>xerces</groupId>
+			<artifactId>xercesImpl</artifactId>
+			<version>2.9.0</version>
+		</dependency>
 		<dependency>
 			<groupId>org.apache.hbase</groupId>
 			<artifactId>hbase</artifactId>
@@ -176,6 +170,10 @@
 				<exclusion>
 					<groupId>tomcat</groupId>
 					<artifactId>jasper-runtime</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-api</artifactId>
 				</exclusion>
 				<exclusion>
 					<groupId>org.slf4j</groupId>

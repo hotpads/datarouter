@@ -1,12 +1,12 @@
 package com.hotpads.example.config.guice;
 
 import com.google.inject.AbstractModule;
+import com.hotpads.datarouter.setting.SettingFinder;
 import com.hotpads.example.config.ExampleSettingFinder;
 import com.hotpads.handler.exception.ExceptionHandlingConfig;
 import com.hotpads.handler.exception.ExceptionNodes;
 import com.hotpads.handler.exception.NoOpExceptionHandlingConfig;
 import com.hotpads.handler.exception.NoOpExceptionNodes;
-import com.hotpads.setting.cluster.SettingFinder;
 import com.hotpads.util.core.logging.LoggingConfigDao;
 import com.hotpads.util.core.logging.NonPersistentLoggingConfigDao;
 

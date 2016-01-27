@@ -107,8 +107,8 @@ extends HBaseEntityQueryBuilder<EK,E>{
 				StringByteTool.getUtf8Bytes(fieldName));
 	}
 
-	public byte[] getQualifierPrefix(PK primaryKey){
-		return DrByteTool.concatenate(fieldInfo.getEntityColumnPrefixBytes(), getQualifierPkBytes(primaryKey, false));
+	private byte[] getQualifierPrefix(PK primaryKey){
+		return DrByteTool.concatenate(fieldInfo.getEntityColumnPrefixBytes(), getQualifierPkBytes(primaryKey, true));
 	}
 
 	public byte[] getQualifierPkBytes(PK primaryKey, boolean trailingSeparatorAfterEndingString){
@@ -116,7 +116,7 @@ extends HBaseEntityQueryBuilder<EK,E>{
 			return new byte[]{};
 		}
 		return FieldTool.getConcatenatedValueBytes(primaryKey.getPostEntityKeyFields(), true,
-				trailingSeparatorAfterEndingString);
+				trailingSeparatorAfterEndingString, trailingSeparatorAfterEndingString);
 	}
 
 
@@ -174,7 +174,7 @@ extends HBaseEntityQueryBuilder<EK,E>{
 		byte[] rowBytes = getRowBytesWithPartition(ek);//require all EK fields
 		boolean includeTrailingSeparator = ! wildcardLastField;
 		byte[] pkQualifierBytes = FieldTool.getConcatenatedValueBytes(pkPrefix.getPostEntityKeyFields(), true,
-				includeTrailingSeparator);
+				includeTrailingSeparator, includeTrailingSeparator);
 		byte[] qualifierPrefix = DrByteTool.concatenate(fieldInfo.getEntityColumnPrefixBytes(), pkQualifierBytes);
 		Get get = new Get(rowBytes);
 		get.setFilter(new ColumnPrefixFilter(qualifierPrefix));

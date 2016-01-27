@@ -14,7 +14,6 @@
 	<name>datarouter-hibernate</name>
 
 	<build>
-		<finalName>datarouter-hibernate</finalName>
 		<plugins>
 			<plugin>
 				<groupId>pl.project13.maven</groupId>
@@ -75,7 +74,7 @@
 									<directory>${project.basedir}/src/</directory>
 									<filtering>false</filtering>
 									<includes>
-										<!-- <include>log4j.properties</include> -->
+										<include>hib-default.cfg.xml</include>
 									</includes>
 								</resource>
 							</resources>
@@ -94,20 +93,15 @@
 		<!-- internal -->
 		<dependency>
 			<groupId>com.hotpads</groupId>
-			<artifactId>datarouter-core</artifactId>
+			<artifactId>datarouter-jdbc</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.hotpads</groupId>
-			<artifactId>datarouter-jdbc</artifactId>
+			<artifactId>datarouter-web</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 		<!-- hibernate -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.hibernate</groupId> -->
-<!-- 			<artifactId>ejb3-persistence</artifactId> -->
-<!-- 			<version>1.0.2.GA</version> -->
-<!-- 		</dependency> -->
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-core</artifactId>

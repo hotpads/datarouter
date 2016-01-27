@@ -1,6 +1,7 @@
 package com.hotpads.datarouter.client.imp.jdbc.util;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -96,26 +97,31 @@ public class SqlBuilder{
 		return sql.toString();
 	}
 
-	public static <T extends FieldSet<T>>String getInRange(JdbcFieldCodecFactory codecFactory, Config config,
-			String tableName, List<Field<?>> selectFields, Range<T> range, List<Field<?>> orderByFields){
-		return getInRange(codecFactory, config, tableName, selectFields, range.getStart(), range.getStartInclusive(),
-				range.getEnd(), range.getEndInclusive(), orderByFields);
-	}
-
-	public static String getInRange(JdbcFieldCodecFactory codecFactory, Config config, String tableName,
-			List<Field<?>> selectFields, FieldSet<?> start, boolean startInclusive, FieldSet<?> end,
-			boolean endInclusive, List<Field<?>> orderByFields){
+	public static <T extends FieldSet<T>> String getInRanges(JdbcFieldCodecFactory codecFactory, Config config,
+			String tableName, List<Field<?>> selectFields, Iterable<Range<T>> ranges, List<Field<?>> orderByFields){
 		StringBuilder sql = new StringBuilder();
 		addSelectFromClause(sql, tableName, selectFields);
-		if(needsRangeWhereClause(start, end)){
-			sql.append(" where ");
-			addRangeWhereClause(codecFactory, sql, start, startInclusive, end, endInclusive);
+		boolean hasWhereClause = false;
+		for(Range<T> range : ranges){
+			if(needsRangeWhereClause(range.getStart(), range.getEnd())){
+				if(hasWhereClause){
+					sql.append(" or ");
+				}else{
+					sql.append(" where ");
+					hasWhereClause = true;
+				}
+				addRangeWhereClause(codecFactory, sql, range);
+			}
 		}
 		addOrderByClause(sql, orderByFields);
 		addLimitOffsetClause(sql, config);
 		return sql.toString();
 	}
 
+	public static <T extends FieldSet<T>> String getInRange(JdbcFieldCodecFactory codecFactory, Config config,
+			String tableName, List<Field<?>> selectFields, Range<T> range, List<Field<?>> orderByFields){
+		return getInRanges(codecFactory, config, tableName, selectFields, Arrays.asList(range), orderByFields);
+	}
 
 	/*************************** secondary methods ***************************************/
 
@@ -201,12 +207,11 @@ public class SqlBuilder{
 	}
 
 	public static void addRangeWhereClause(JdbcFieldCodecFactory codecFactory, StringBuilder sql,
-			FieldSet<?> start, boolean startInclusive,
-			FieldSet<?> end, boolean endInclusive){
+			Range<? extends FieldSet<?>> range){
 		boolean hasStart = false;
 
-		if(start != null){
-			List<Field<?>> startFields = DrListTool.nullSafe(start.getFields());
+		if(range.getStart() != null){
+			List<Field<?>> startFields = DrListTool.nullSafe(range.getStart().getFields());
 			int numNonNullStartFields = FieldTool.countNonNullLeadingFields(startFields);
 			if(numNonNullStartFields > 0){
 				hasStart = true;
@@ -226,7 +231,7 @@ public class SqlBuilder{
 						if(j < i-1){
 							sql.append(startCodec.getSqlNameValuePairEscaped());
 						}else{
-							if(startInclusive && i==numNonNullStartFields){
+							if(range.getStartInclusive() && i==numNonNullStartFields){
 								sql.append(startField.getKey().getColumnName()+">="+startCodec.getSqlEscaped());
 							}else{
 								sql.append(startField.getKey().getColumnName()+">"+startCodec.getSqlEscaped());
@@ -241,8 +246,8 @@ public class SqlBuilder{
 
 //		select a, b, c, d from SortedBean where ((a>='alp')) and (a<='emu' and b is null and c is null and d is null
 
-		if(end != null){
-			List<Field<?>> endFields = DrListTool.nullSafe(end.getFields());
+		if(range.getEnd() != null){
+			List<Field<?>> endFields = DrListTool.nullSafe(range.getEnd().getFields());
 			int numNonNullEndFields = FieldTool.countNonNullLeadingFields(endFields);
 			if(numNonNullEndFields > 0){
 				List<JdbcFieldCodec<?,?>> endCodecs = codecFactory.createCodecs(endFields);
@@ -262,7 +267,7 @@ public class SqlBuilder{
 						Field<?> endField = endFields.get(j);
 						JdbcFieldCodec<?,?> endCodec = endCodecs.get(j);
 						if(j==i){
-							if(endInclusive && i==numNonNullEndFields-1){
+							if(range.getEndInclusive() && i==numNonNullEndFields-1){
 								sql.append(endField.getKey().getColumnName()+"<="+endCodec.getSqlEscaped());
 							}else{
 								sql.append(endField.getKey().getColumnName()+"<"+endCodec.getSqlEscaped());

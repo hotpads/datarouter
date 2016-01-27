@@ -21,7 +21,6 @@ import com.hotpads.datarouter.test.DrTestConstants;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBean;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBeanKey;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedNodeTestRouter;
-import com.hotpads.util.core.collections.KeyRangeTool;
 import com.hotpads.util.core.collections.Range;
 
 @Guice(moduleFactory=DatarouterTestModuleFactory.class)
@@ -65,29 +64,26 @@ public class HBaseSubEntityReaderNodeIntegrationTests{
 		Assert.assertEquals(sortedBean.stream(new Range<>(new SortedBeanKey("a", null, null, null), true,
 				new SortedBeanKey("b", null, null, null), true), null).count(), 11);
 
-		Assert.assertEquals(sortedBean.stream(new Range<>(new SortedBeanKey("a", null, null, null),
-				new SortedBeanKey("a", "c", null, null)), null).count(), 7);
+		Assert.assertEquals(sortedBean.stream(new Range<>(new SortedBeanKey("a", null, null, null), new SortedBeanKey(
+				"a", "c", null, null)), null).count(), 7);
 
-		Assert.assertEquals(sortedBean.stream(KeyRangeTool.forPrefix(new SortedBeanKey("a", null, null, null)), null)
-				.count(), 10);
+		Assert.assertEquals(sortedBean.streamWithPrefix(new SortedBeanKey("a", null, null, null), null).count(), 10);
 	}
 
 	@Test
 	public void testSingleEntityScan(){
-		Assert.assertEquals(sortedBean.stream(KeyRangeTool.forPrefix(new SortedBeanKey("a", "c", null, null)), null)
-				.count(), 3);
-		Assert.assertEquals(sortedBean.stream(KeyRangeTool.forPrefix(new SortedBeanKey("a", "c", 2, null)), null)
-				.count(), 2);
-		Assert.assertEquals(sortedBean.stream(KeyRangeTool.forPrefix(new SortedBeanKey("a", "b", 2, null)), null)
-				.count(), 1);
-//		Assert.assertEquals(sortedBean.stream(KeyRangeTool.forPrefix(new SortedBeanKey("a", "b", 4, "d")), null)
-//				.count(), 1); // failed, got 2 results because it wildcardsLastField (found the "dj")
-		Assert.assertEquals(sortedBean.stream(new Range<>(new SortedBeanKey("a", "c", 1, null),
-				new SortedBeanKey("a", "c", 2, null)), null).count(), 1);
-		Assert.assertEquals(sortedBean.stream(new Range<>(new SortedBeanKey("a", "c", 1, null), true,
-				new SortedBeanKey("a", "c", 2, null), true), null).count(), 3);
-		Assert.assertEquals(sortedBean.stream(KeyRangeTool.forPrefix(new SortedBeanKey("a", "c", 2, "d")), null)
-				.count(), 2);
+		Assert.assertEquals(sortedBean.streamWithPrefix(new SortedBeanKey("a", "c", null, null), null).count(), 3);
+		Assert.assertEquals(sortedBean.streamWithPrefix(new SortedBeanKey("a", "c", 2, null), null).count(), 2);
+		Assert.assertEquals(sortedBean.streamWithPrefix(new SortedBeanKey("a", "b", 2, null), null).count(), 1);
+		Assert.assertEquals(sortedBean.streamWithPrefix(new SortedBeanKey("a", "b", 4, "d"), null).count(), 1);
+		Assert.assertEquals(sortedBean.stream(new Range<>(new SortedBeanKey("a", "c", 1, null), new SortedBeanKey("a",
+				"c", 2, null)), null).count(), 1);
+		Assert.assertEquals(sortedBean.stream(new Range<>(new SortedBeanKey("a", "c", 1, null), true, new SortedBeanKey(
+				"a", "c", 2, null), true), null).count(), 3);
+
+		//test wildcardLastField
+		Assert.assertEquals(sortedBean.getWithPrefix(new SortedBeanKey("a", "b", 4, "d"), false, null).size(), 1);
+		Assert.assertEquals(sortedBean.getWithPrefix(new SortedBeanKey("a", "b", 4, "d"), true, null).size(), 2);
 	}
 
 	@AfterClass

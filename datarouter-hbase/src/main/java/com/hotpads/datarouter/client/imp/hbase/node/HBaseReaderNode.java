@@ -44,6 +44,7 @@ import com.hotpads.util.core.iterable.scanner.batch.AsyncBatchLoaderScanner;
 import com.hotpads.util.core.iterable.scanner.collate.PriorityQueueCollator;
 import com.hotpads.util.core.iterable.scanner.iterable.SingleUseScannerIterable;
 import com.hotpads.util.core.iterable.scanner.sorted.SortedScanner;
+import com.hotpads.util.core.stream.StreamTool;
 
 public class HBaseReaderNode<
 		PK extends PrimaryKey<PK>,
@@ -90,7 +91,7 @@ implements HBasePhysicalNode<PK,D>,
 				config){
 			@Override
 			public D hbaseCall(HTable table, HBaseClient client, ResultScanner managedResultScanner) throws Exception{
-				byte[] rowBytes = getKeyBytesWithScatteringPrefix(null, key, false);
+				byte[] rowBytes = getKeyBytesWithScatteringPrefix(null, key);
 				Result row = table.get(new Get(rowBytes));
 				if (row.isEmpty()){
 					return null;
@@ -119,7 +120,7 @@ implements HBasePhysicalNode<PK,D>,
 					throws Exception{
 				List<Get> gets = DrListTool.createArrayListWithSize(keys);
 					for(PK key : keys){
-						byte[] rowBytes = getKeyBytesWithScatteringPrefix(null, key, false);
+						byte[] rowBytes = getKeyBytesWithScatteringPrefix(null, key);
 						gets.add(new Get(rowBytes));
 					}
 					Result[] resultArray = table.get(gets);
@@ -142,7 +143,7 @@ implements HBasePhysicalNode<PK,D>,
 					throws Exception{
 				List<Get> gets = DrListTool.createArrayListWithSize(keys);
 					for(PK key : keys){
-						byte[] rowBytes = getKeyBytesWithScatteringPrefix(null, key, false);
+						byte[] rowBytes = getKeyBytesWithScatteringPrefix(null, key);
 						Get get = new Get(rowBytes);
 						//FirstKeyOnlyFilter returns value too, so it's better if value in each row is not large
 						get.setFilter(new FirstKeyOnlyFilter());
@@ -199,7 +200,7 @@ implements HBasePhysicalNode<PK,D>,
 	}
 
 	@Override
-	public SingleUseScannerIterable<PK> scanKeys(Range<PK> range, final Config config){
+	public Iterable<PK> scanKeys(Range<PK> range, final Config config){
 		range = Range.nullSafe(range);
 		Config nullSafeConfig = Config.nullSafe(config);
 		if(nullSafeConfig.getLimit() != null && nullSafeConfig.getOffset() != null){
@@ -214,7 +215,12 @@ implements HBasePhysicalNode<PK,D>,
 	}
 
 	@Override
-	public SingleUseScannerIterable<D> scan(Range<PK> range, final Config config){
+	public Iterable<PK> scanKeysMulti(Collection<Range<PK>> ranges, final Config config){
+		return () -> StreamTool.flatten(ranges.stream().map(range -> streamKeys(range, config))).iterator();
+	}
+
+	@Override
+	public Iterable<D> scan(Range<PK> range, final Config config){
 		range = Range.nullSafe(range);
 		Config nullSafeConfig = Config.nullSafe(config);
 		if(nullSafeConfig.getLimit() != null && nullSafeConfig.getOffset() != null){
@@ -228,6 +234,10 @@ implements HBasePhysicalNode<PK,D>,
 		return new SingleUseScannerIterable<>(collator);
 	}
 
+	@Override
+	public Iterable<D> scanMulti(Collection<Range<PK>> ranges, Config config){
+		return () -> StreamTool.flatten(ranges.stream().map(range -> stream(range, config))).iterator();
+	}
 
 	/***************************** helper methods **********************************/
 
@@ -282,14 +292,13 @@ implements HBasePhysicalNode<PK,D>,
 	}
 
 	//this method is in the node because it deals with the messy primaryKeyHasUnnecessaryTrailingSeparatorByte
-	public byte[] getKeyBytesWithScatteringPrefix(List<Field<?>> overrideScatteringPrefixFields, PK key,
-			boolean increment){
+	public byte[] getKeyBytesWithScatteringPrefix(List<Field<?>> overrideScatteringPrefixFields, PK key){
 		//return only scatteringPrefix bytes
 		if(key==null){
 			if(DrCollectionTool.isEmpty(overrideScatteringPrefixFields)){
 				return new byte[]{};
 			}
-			return FieldTool.getConcatenatedValueBytes(overrideScatteringPrefixFields, false, false);
+			return FieldTool.getConcatenatedValueBytes(overrideScatteringPrefixFields, false, true, false);
 		}
 
 		//else return scatteringPrefix bytes + keyBytes + (maybe) trailing separator
@@ -300,11 +309,8 @@ implements HBasePhysicalNode<PK,D>,
 			//maybe Assert the override fields match those returned for the key
 			scatteringPrefixFields.addAll(fieldInfo.getSampleScatteringPrefix().getScatteringPrefixFields(key));
 		}
-		byte[] scatteringPrefixBytes = FieldTool.getConcatenatedValueBytes(scatteringPrefixFields, true, false);
-		byte[] keyBytes = FieldTool.getConcatenatedValueBytes(key.getFields(), true, false);
-		if(increment){
-			keyBytes = DrByteTool.unsignedIncrement(keyBytes);
-		}
+		byte[] scatteringPrefixBytes = FieldTool.getConcatenatedValueBytes(scatteringPrefixFields, true, true, false);
+		byte[] keyBytes = FieldTool.getConcatenatedValueBytes(key.getFields(), true, true, false);
 		return DrByteTool.concatenate(scatteringPrefixBytes, keyBytes);
 	}
 

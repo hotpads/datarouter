@@ -48,41 +48,44 @@ public class HBaseSubEntityNode<
 		E extends Entity<EK>,
 		PK extends EntityPrimaryKey<EK,PK>,
 		D extends Databean<PK,D>,
-		F extends DatabeanFielder<PK,D>> 
+		F extends DatabeanFielder<PK,D>>
 extends HBaseSubEntityReaderNode<EK,E,PK,D,F>
 implements SubEntitySortedMapStorageNode<EK,PK,D,F>,
 		PhysicalSortedMapStorageNode<PK,D>, HBaseIncrement<PK>
 {
-	
+
 	public HBaseSubEntityNode(EntityNodeParams<EK,E> entityNodeParams, NodeParams<PK,D,F> params){
 		super(entityNodeParams, params);
 	}
-	
+
 	@Override
 	public Node<PK,D> getMaster() {
 		return this;
 	}
-	
-	
+
+
 	/************************************ MapStorageWriter methods ****************************/
-	
+
 	public static final byte[] FAM = HBaseNode.FAM;
 	public static final String DUMMY = HBaseNode.DUMMY;
-	
-	
+
+
 	@Override
 	public void put(final D databean, final Config config) {
 		if(databean==null){ return; }
 		putMulti(DrListTool.wrap(databean), config);
 	}
 
-	
+
 	@Override
 	public void putMulti(final Collection<D> databeans, final Config pConfig) {
 		if(DrCollectionTool.isEmpty(databeans)){ return; }
 		final Config config = Config.nullSafe(pConfig);
-		new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>(getDatarouter(), getClientTableNodeNames(), "putMulti", config){
-				public Void hbaseCall(HTable hTable, HBaseClient client, ResultScanner managedResultScanner) throws Exception{
+		new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>(getDatarouter(), getClientTableNodeNames(), "putMulti",
+				config){
+				@Override
+				public Void hbaseCall(HTable hTable, HBaseClient client, ResultScanner managedResultScanner)
+				throws Exception{
 //					PhaseTimer timer = new PhaseTimer();
 					List<Row> actions = new ArrayList<>();
 					int numCellsPut = 0, numCellsDeleted = 0;
@@ -113,7 +116,7 @@ implements SubEntitySortedMapStorageNode<EK,PK,D,F>,
 									++numCellsPut;
 								}
 							}
-							if(!didAtLeastOneField){ 
+							if(!didAtLeastOneField){
 								Field<?> dummyField = new SignedByteField(DUMMY, (byte)0);
 								byte[] dummyQualifierBytes = DrByteTool.concatenate(fieldInfo.getEntityColumnPrefixBytes(),
 										qualifierPkBytes, dummyField.getKey().getColumnNameBytes());
@@ -142,17 +145,19 @@ implements SubEntitySortedMapStorageNode<EK,PK,D,F>,
 				}
 			}).call();
 	}
-	
+
+	@Override
 	public void increment(Map<PK,Map<String,Long>> countByColumnByKey, Config pConfig){
 		final Config config = Config.nullSafe(pConfig);
 		new HBaseMultiAttemptTask<Void>(new HBaseSubEntityIncrementOp<EK, E, PK, D, F>(this, countByColumnByKey, config,
 				queryBuilder)).call();
 	}
-	
+
 	@Override
 	public void deleteAll(final Config pConfig) {
 		final Config config = Config.nullSafe(pConfig);
 		new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>(getDatarouter(), getClientTableNodeNames(), "deleteAll", config){
+				@Override
 				public Void hbaseCall(HTable hTable, HBaseClient client, ResultScanner managedResultScanner) throws Exception{
 					Scan scan = new Scan();
 					scan.setFilter(new ColumnPrefixFilter(fieldInfo.getEntityColumnPrefixBytes()));
@@ -180,19 +185,20 @@ implements SubEntitySortedMapStorageNode<EK,PK,D,F>,
 			}).call();
 	}
 
-	
+
 	@Override
 	public void delete(PK key, Config pConfig) {
 		deleteMulti(DrListTool.wrap(key), pConfig);
 	}
 
-	
+
 	//TODO this only deletes columns known to the current fielder.  could leave orphan columns from an old fielder
 	@Override
 	public void deleteMulti(final Collection<PK> keys, final Config pConfig){
 		if(DrCollectionTool.isEmpty(keys)){ return; }
 		final Config config = Config.nullSafe(pConfig);
 		new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>(getDatarouter(), getClientTableNodeNames(), "deleteMulti", config){
+				@Override
 				public Void hbaseCall(HTable hTable, HBaseClient client, ResultScanner managedResultScanner) throws Exception{
 					hTable.setAutoFlush(false);
 					Collection<String> nonKeyColumnNames = fieldInfo.getNonKeyFieldByColumnName().keySet();
@@ -215,18 +221,18 @@ implements SubEntitySortedMapStorageNode<EK,PK,D,F>,
 				}
 			}).call();
 	}
-	
-	
+
+
 	/************************** Sorted ************************************/
 
 	@Override
 	public void deleteRangeWithPrefix(PK prefix, boolean wildcardLastField, Config config){
-		//TODO need a method getKeysWithPrefix	
+		//TODO need a method getKeysWithPrefix
 		List<D> databeansToDelete = getWithPrefix(prefix, wildcardLastField, config);
 		if(DrCollectionTool.notEmpty(databeansToDelete)){
 			deleteMulti(DatabeanTool.getKeys(databeansToDelete), null);
 		}
 	}
-	
+
 
 }

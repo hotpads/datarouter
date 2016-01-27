@@ -39,6 +39,7 @@ import com.hotpads.util.core.iterable.scanner.batch.AsyncBatchLoaderScanner;
 import com.hotpads.util.core.iterable.scanner.collate.PriorityQueueCollator;
 import com.hotpads.util.core.iterable.scanner.iterable.SingleUseScannerIterable;
 import com.hotpads.util.core.iterable.scanner.sorted.SortedScanner;
+import com.hotpads.util.core.stream.StreamTool;
 
 public class HBaseSubEntityReaderNode<
 		EK extends EntityKey<EK>,
@@ -253,6 +254,11 @@ implements HBasePhysicalNode<PK,D>,
 	}
 
 	@Override
+	public Iterable<PK> scanKeysMulti(Collection<Range<PK>> ranges, Config config){
+		return () -> StreamTool.flatten(ranges.stream().map(range -> streamKeys(range, config))).iterator();
+	}
+
+	@Override
 	public Iterable<D> scan(final Range<PK> range, final Config config){
 		final Config nullSafeConfig = Config.nullSafe(config);
 		if(nullSafeConfig.getLimit() != null && nullSafeConfig.getOffset() != null){
@@ -279,6 +285,11 @@ implements HBasePhysicalNode<PK,D>,
 				.getLimit()));
 		collator.advanceBy(nullSafeConfig.getOffset());
 		return new SingleUseScannerIterable<>(collator);
+	}
+
+	@Override
+	public Iterable<D> scanMulti(Collection<Range<PK>> ranges, Config config){
+		return () -> StreamTool.flatten(ranges.stream().map(range -> stream(range, config))).iterator();
 	}
 
 

@@ -53,7 +53,7 @@ extends HBaseTask<Void>{
 		List<Row> actions = new ArrayList<>();
 		int numCellsIncremented = 0, numRowsIncremented = 0;
 		for(Map.Entry<PK,Map<String,Long>> row : countByColumnByKey.entrySet()){//TODO obey Config.commitBatchSize
-			byte[] keyBytes = node.getKeyBytesWithScatteringPrefix(null, row.getKey(), false);
+			byte[] keyBytes = node.getKeyBytesWithScatteringPrefix(null, row.getKey());
 			Increment increment = new Increment(keyBytes);
 			for(Map.Entry<String,Long> columnCount : row.getValue().entrySet()){
 				String columnName = columnCount.getKey();
