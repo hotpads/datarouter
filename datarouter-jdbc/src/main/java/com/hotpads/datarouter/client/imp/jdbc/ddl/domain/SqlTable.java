@@ -5,9 +5,11 @@ import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.testng.Assert;
+import org.testng.annotations.Guice;
+import org.testng.annotations.Test;
 
+import com.hotpads.datarouter.client.imp.jdbc.TestDatarouterJdbcModuleFactory;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.SqlCreateTableGenerator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.SqlTableDiffGenerator;
 
@@ -238,7 +240,7 @@ public class SqlTable{
 
 
 	/******************** tests *********************************/
-
+	@Guice(moduleFactory = TestDatarouterJdbcModuleFactory.class)
 	public static class SqlTableTests{
 		@Test
 		public void testGetHeader(){
@@ -255,17 +257,5 @@ public class SqlTable{
 			Assert.assertEquals("blabla(blob())", getColumnDefinitionSection("Header(blabla(blob()))trail"));
 		}
 
-//		@Test
-//		public void testParseCreateTable() throws IOException{
-		//need to get filepath correct somehow
-//			FileInputStream fis = new FileInputStream("src/com/hotpads/datarouter/client/imp/jdbc/ddl/test3.txt");
-//			DataInputStream in = new DataInputStream(fis);
-//			BufferedReader br = new BufferedReader(new InputStreamReader(in));
-//			String str, phrase = "";
-//			while((str = br.readLine()) != null){
-//				phrase += str;
-//			}
-//			System.out.println(parseCreateTable(phrase));
-//		}
 	}
 }
