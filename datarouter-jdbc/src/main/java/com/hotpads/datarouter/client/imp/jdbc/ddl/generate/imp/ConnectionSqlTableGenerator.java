@@ -97,7 +97,6 @@ public class ConnectionSqlTableGenerator implements SqlTableGenerator{
 
 			while(indexList.next()){
 				String indexName = indexList.getString("INDEX_NAME");
-				boolean uniqueName = DrBooleanTool.isFalse(indexList.getString("NON_UNIQUE"));
 				if(!listOfIndexNames.contains(indexName)){
 					listOfIndexNames.add(indexName);
 					SqlIndex index = new SqlIndex(indexName);
@@ -105,7 +104,7 @@ public class ConnectionSqlTableGenerator implements SqlTableGenerator{
 						addAppropriateColumnToPrimaryKeyFromListOfColumn(table, indexList
 								.getString("COLUMN_NAME"), table.getColumns());
 					}else{
-						if(uniqueName){
+						if(DrBooleanTool.isFalse(indexList.getString("NON_UNIQUE"))){
 							listOfUniqueIndexes.add(index);
 						}else{
 							addAppropriateColumnToIndexFromListOfColumn(index, indexList.getString("COLUMN_NAME"), table

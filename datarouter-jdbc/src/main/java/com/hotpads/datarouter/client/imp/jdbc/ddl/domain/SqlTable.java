@@ -31,33 +31,14 @@ public class SqlTable{
 
 	/*************** constructors ****************************/
 
-	public SqlTable(String name, List<SqlColumn> columns, SqlIndex primaryKey, SortedSet<SqlIndex> indexes){
-		this.name = name;
-		this.columns = columns;
-		this.primaryKey = primaryKey;
-		this.indexes = indexes;
+	public SqlTable(String name){
+		this(name, new ArrayList<>(), new SqlIndex("PRIMARY"));
 	}
 
 	public SqlTable(String name, List<SqlColumn> columns, SqlIndex primaryKey){
 		this.name = name;
 		this.columns = columns;
 		this.primaryKey = primaryKey;
-		this.indexes = new TreeSet<>();
-		this.uniqueIndexes = new TreeSet<>();
-	}
-
-	public SqlTable(String name, List<SqlColumn> columns){
-		this.name = name;
-		this.columns = columns;
-		this.primaryKey = new SqlIndex("PRIMARY");
-		this.indexes = new TreeSet<>();
-		this.uniqueIndexes = new TreeSet<>();
-	}
-
-	public SqlTable(String name){
-		this.name = name;
-		this.columns = new ArrayList<>();
-		this.primaryKey = new SqlIndex("PRIMARY");
 		this.indexes = new TreeSet<>();
 		this.uniqueIndexes = new TreeSet<>();
 	}
