@@ -14,7 +14,6 @@
 	<name>datarouter-websocket</name>
 
 	<build>
-		<finalName>datarouter-websocket</finalName>
 		<plugins>
 			<plugin>
 				<groupId>pl.project13.maven</groupId>

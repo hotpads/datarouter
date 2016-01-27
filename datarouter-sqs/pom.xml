@@ -14,7 +14,6 @@
 	<name>datarouter-sqs</name>
 
 	<build>
-		<finalName>datarouter-sqs</finalName>
 		<plugins>
 			<plugin>
 				<groupId>pl.project13.maven</groupId>
@@ -42,7 +41,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>com.hotpads</groupId>
-			<artifactId>datarouter-core</artifactId>
+			<artifactId>datarouter-web</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
