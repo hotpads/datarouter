@@ -66,7 +66,7 @@ public class FieldSqlTableGenerator implements SqlTableGenerator{
 			}
 			table.addIndex(index);
 		}
-		
+
 		for(List<Field<?>> listOfFields : uniqueIndexes.values()){
 			SqlIndex uniqueIndex = new SqlIndex(getKeyByValue(uniqueIndexes, listOfFields));
 			for(JdbcFieldCodec<?,?> codec : fieldCodecFactory.createCodecs(listOfFields)){
@@ -74,7 +74,7 @@ public class FieldSqlTableGenerator implements SqlTableGenerator{
 			}
 			table.addUniqueIndex(uniqueIndex);
 		}
-		
+
 		table.getColumns().forEach(column -> {
 			column.setCharacterSet(characterSet);
 			column.setCollation(collation);
@@ -116,7 +116,7 @@ public class FieldSqlTableGenerator implements SqlTableGenerator{
 	public void setIndexes(Map<String,List<Field<?>>> indexes){
 		this.indexes = indexes;
 	}
-	
+
 	public void setUniqueIndexes(Map<String,List<Field<?>>> uniqueIndexes){
 		this.uniqueIndexes = uniqueIndexes;
 	}
