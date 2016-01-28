@@ -201,33 +201,39 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 
 	private List<SqlAlterTableClause> getAlterTableForAddingIndexes(SortedSet<SqlIndex> indexesToAdd){
 		List<SqlAlterTableClause> list = new ArrayList<>();
-		if(!options.getAddIndexes()){
+		if(!options.getAddIndexes() || DrCollectionTool.isEmpty(indexesToAdd)){
 			return list;
 		}
-		if(DrCollectionTool.isEmpty(indexesToAdd)){
-			return list;
-		}
+		int numIndexes = indexesToAdd.size();
+		int indexCounter = 0;
 		StringBuilder sb = new StringBuilder();
 		for(SqlIndex index : indexesToAdd){
+			int numColumns = DrCollectionTool.size(index.getColumns());
+			int columnCounter = 0;
 			sb.append("add index " + index.getName() + "(");
 			for(SqlColumn col : index.getColumns()){
-				sb.append( col.getName() + ", ");
+				sb.append(col.getName());
+				if(columnCounter != numColumns-1){
+					sb.append(",");
+				}
+				columnCounter++;
 			}
-			sb = new StringBuilder(sb.substring(0, sb.length()-2));
-			sb.append("),\n");
+			sb.append(")");
+			if(indexCounter != numIndexes -1){
+				 sb.append(",\n");
+			}
+			indexCounter++;
+			//sb.append("\n");
 		}
-		sb = new StringBuilder(sb.substring(0, sb.length()-2));
+		//sb.append(")");
 		list.add(new SqlAlterTableClause(sb.toString(), SqlAlterTypes.ADD_INDEX));
 		return list;
 	}
 
 	private List<SqlAlterTableClause> getAlterTableForAddingUniqueIndexes(SortedSet<SqlIndex> uniqueIndexesToAdd){
-		List<SqlAlterTableClause> list = new ArrayList<>();
-		if(!options.getAddIndexes()){
-			return list;
-		}
-		if(DrCollectionTool.isEmpty(uniqueIndexesToAdd)){
-			return list;
+		List<SqlAlterTableClause> alterClauses = new ArrayList<>();
+		if(!options.getAddIndexes() ||DrCollectionTool.isEmpty(uniqueIndexesToAdd)){
+			return alterClauses;
 		}
 		StringBuilder sb = new StringBuilder();
 		for(SqlIndex index : uniqueIndexesToAdd){
@@ -239,8 +245,8 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 			sb.append("),\n");
 		}
 		sb = new StringBuilder(sb.substring(0, sb.length()-2));
-		list.add(new SqlAlterTableClause(sb.toString(), SqlAlterTypes.ADD_INDEX));
-		return list;
+		alterClauses.add(new SqlAlterTableClause(sb.toString(), SqlAlterTypes.ADD_INDEX));
+		return alterClauses;
 	}
 
 	private SqlAlterTableClause getCreateTableSqlFromListOfColumnsToAdd(List<SqlColumn> colsToAdd){
