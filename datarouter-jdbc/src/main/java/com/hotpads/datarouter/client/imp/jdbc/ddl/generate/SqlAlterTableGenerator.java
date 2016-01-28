@@ -73,11 +73,15 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 			sb.append("\n\n");
 			sb.append("Update "+databaseName + "." +current.getName()+ " set ");
 			sb.append("\n");
+			int numCols= columnsToInitialize.size();
+			int columnCounter = 0;
 			for(SqlColumn col:columnsToInitialize){
 				sb.append(col.getName()+" = "+col.getDefaultValue());
-				sb.append(",\n");
+				if(columnCounter != numCols-1){
+					sb.append(",");
+				}
+				columnCounter++;
 			}
-			sb = new StringBuilder(sb.substring(0, sb.length()-2)); // remove the last ","
 			sb.append(";");
 		}
 		return sb.toString();
@@ -184,25 +188,27 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 
 	private List<SqlAlterTableClause> getAlterTableForRemovingIndexes(SortedSet<SqlIndex> indexesToAdd){
 		List<SqlAlterTableClause> list = new ArrayList<>();
-		if(!options.getDropIndexes()){
-			return list;
-		}
-		if(DrCollectionTool.isEmpty(indexesToAdd)){
+		if(!options.getDropIndexes() || DrCollectionTool.isEmpty(indexesToAdd)){
 			return list;
 		}
 		StringBuilder sb = new StringBuilder();
+		int numIndexes = indexesToAdd.size();
+		int indexCounter = 0;
 		for(SqlIndex index : indexesToAdd){
-			sb.append("drop index "+ index.getName() + ",\n");
+			sb.append("drop index "+ index.getName() );
+			if(indexCounter != numIndexes -1){
+				 sb.append(",\n");
+			}
+			indexCounter++;
 		}
-		sb = new StringBuilder(sb.substring(0, sb.length()-2));
 		list.add(new SqlAlterTableClause(sb.toString(), SqlAlterTypes.DROP_INDEX));
 		return list;
 	}
 
 	private List<SqlAlterTableClause> getAlterTableForAddingIndexes(SortedSet<SqlIndex> indexesToAdd){
-		List<SqlAlterTableClause> list = new ArrayList<>();
+		List<SqlAlterTableClause> alterClause = new ArrayList<>();
 		if(!options.getAddIndexes() || DrCollectionTool.isEmpty(indexesToAdd)){
-			return list;
+			return alterClause;
 		}
 		int numIndexes = indexesToAdd.size();
 		int indexCounter = 0;
@@ -223,11 +229,9 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 				 sb.append(",\n");
 			}
 			indexCounter++;
-			//sb.append("\n");
 		}
-		//sb.append(")");
-		list.add(new SqlAlterTableClause(sb.toString(), SqlAlterTypes.ADD_INDEX));
-		return list;
+		alterClause.add(new SqlAlterTableClause(sb.toString(), SqlAlterTypes.ADD_INDEX));
+		return alterClause;
 	}
 
 	private List<SqlAlterTableClause> getAlterTableForAddingUniqueIndexes(SortedSet<SqlIndex> uniqueIndexesToAdd){
@@ -235,16 +239,26 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 		if(!options.getAddIndexes() ||DrCollectionTool.isEmpty(uniqueIndexesToAdd)){
 			return alterClauses;
 		}
+		int numUniqueIndexes = uniqueIndexesToAdd.size();
+		int unqiueIndexCounter = 0;
 		StringBuilder sb = new StringBuilder();
 		for(SqlIndex index : uniqueIndexesToAdd){
+			int numColumns = DrCollectionTool.size(index.getColumns());
+			int columnCounter = 0;
 			sb.append("add unique index " + index.getName() + "(");
 			for(SqlColumn col : index.getColumns()){
-				sb.append( col.getName() + ", ");
+				sb.append( col.getName());
+				if(columnCounter != numColumns-1){
+					sb.append(",");
+				}
+				columnCounter++;
 			}
-			sb = new StringBuilder(sb.substring(0, sb.length()-2));
-			sb.append("),\n");
+			sb.append(")");
+			if(unqiueIndexCounter != numUniqueIndexes -1){
+				 sb.append(",\n");
+			}
+			unqiueIndexCounter++;
 		}
-		sb = new StringBuilder(sb.substring(0, sb.length()-2));
 		alterClauses.add(new SqlAlterTableClause(sb.toString(), SqlAlterTypes.ADD_INDEX));
 		return alterClauses;
 	}
@@ -252,6 +266,8 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 	private SqlAlterTableClause getCreateTableSqlFromListOfColumnsToAdd(List<SqlColumn> colsToAdd){
 		//new SqlAlterTable("CREATE TABLE " +current.getName() +";", SqlAlterTableTypes.CREATE_TABLE);
 		StringBuilder sb = new StringBuilder("create table " + current.getName());
+		int numCols = colsToAdd.size();
+		int columnCounter = 0;
 		if(DrCollectionTool.isEmpty(colsToAdd)){
 			return new SqlAlterTableClause(sb.toString(), SqlAlterTypes.CREATE_TABLE);
 		}
@@ -265,23 +281,23 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 			if(col.getAutoIncrement()) {
 				sb.append(" auto_increment");
 			}
-			sb.append(",\n");//
+			if(columnCounter != numCols -1){
+				 sb.append(",\n");
+			}
+			columnCounter++;
 		}
-		sb = new StringBuilder(sb.substring(0, sb.length()-2)); // remove the last ","
 		sb.append(");\n");
 		return new SqlAlterTableClause(sb.toString(), SqlAlterTypes.CREATE_TABLE);
 	}
 
 	private SqlAlterTableClause getAlterTableForAddingColumns(List<SqlColumn> colsToAdd){
 
-		if(!options.getAddColumns()){
+		if(!options.getAddColumns() || DrCollectionTool.isEmpty(colsToAdd)){
 			return null;
 		}
-		if(DrCollectionTool.isEmpty(colsToAdd)){
-			return null;
-		}
-
 		StringBuilder sb = new StringBuilder();
+		int numColumns = colsToAdd.size();
+		int columnCounter = 0;
 		sb.append("add (");
 		String typeString;
 		for(SqlColumn col : colsToAdd){
@@ -293,30 +309,33 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 			}
 
 			sb.append(col.getDefaultValueStatement());
-
 			if(col.getAutoIncrement()) {
 				sb.append(" auto_increment");
 			}
-			sb.append(",\n");
+			if(columnCounter != numColumns-1){
+				sb.append(",\n");
+			}
+			columnCounter++;
 		}
-		sb = new StringBuilder(sb.substring(0, sb.length()-2)); // remove the last ","
-		sb.append(")");			// sb.deleteCharAt(sb.length()-2)
+		sb.append(")");
 		return new SqlAlterTableClause(sb.toString(), SqlAlterTypes.ADD_COLUMN);
 	}
 
 	private List<SqlAlterTableClause> getAlterTableForRemovingColumns(List<SqlColumn> colsToRemove){
 		List<SqlAlterTableClause> list = new ArrayList<>();
-		if(!options.getDeleteColumns()){
-			return list;
-		}
-		if(DrCollectionTool.isEmpty(colsToRemove)){
+		if(!options.getDeleteColumns() || DrCollectionTool.isEmpty(colsToRemove)){
 			return list;
 		}
 		StringBuilder sb = new StringBuilder();
+		int numColumns = colsToRemove.size();
+		int columnCounter = 0;
 		for(SqlColumn col:colsToRemove){
-			sb.append("drop column "+ col.getName() + ",\n");
+			sb.append("drop column "+ col.getName());
+			if(columnCounter != numColumns-1){
+				 sb.append(",\n");
+			}
+			columnCounter++;
 		}
-		sb = new StringBuilder(sb.substring(0, sb.length()-2)); // remove the last ","
 		list.add(new SqlAlterTableClause(sb.toString(), SqlAlterTypes.DROP_COLUMN));
 		return list;
 	}
@@ -351,7 +370,6 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 			// case2 : Dropping a boolean field from table with a default value specified
 			SqlAlterTableGenerator alterGenerator12 = new SqlAlterTableGenerator(options, table1, table2, "config");
 			logger.warn(alterGenerator12.generateDdl());
-
 		}
 	}
 
