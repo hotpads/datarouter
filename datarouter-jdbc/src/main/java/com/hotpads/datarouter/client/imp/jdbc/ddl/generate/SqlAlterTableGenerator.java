@@ -76,7 +76,9 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 			int numCols= columnsToInitialize.size();
 			int columnCounter = 0;
 			for(SqlColumn col:columnsToInitialize){
-				sb.append(col.getName()+" = "+col.getDefaultValue());
+				sb.append(col.getName());
+				sb.append(" = ");
+				sb.append(col.getDefaultValue());
 				if(columnCounter != numCols-1){
 					sb.append(",");
 				}
@@ -132,7 +134,9 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 				typeString =  type.toString().toLowerCase();
 				StringBuilder sb = new StringBuilder("modify " +col.getName() +" " + typeString );
 				if(type.shouldSpecifyLength(requestedCol.getMaxLength())){
-					sb.append("(" +requestedCol.getMaxLength() +")");
+					sb.append("(");
+					sb.append(requestedCol.getMaxLength());
+					sb.append(")");
 				}
 				//	getDefaultValueStatement(col)
 				sb.append(requestedCol.getDefaultValueStatement());
@@ -195,7 +199,8 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 		int numIndexes = indexesToAdd.size();
 		int indexCounter = 0;
 		for(SqlIndex index : indexesToAdd){
-			sb.append("drop index "+ index.getName() );
+			sb.append("drop index ");
+			sb.append(index.getName() );
 			if(indexCounter != numIndexes -1){
 				 sb.append(",\n");
 			}
@@ -216,7 +221,9 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 		for(SqlIndex index : indexesToAdd){
 			int numColumns = DrCollectionTool.size(index.getColumns());
 			int columnCounter = 0;
-			sb.append("add index " + index.getName() + "(");
+			sb.append("add index " );
+			sb.append(index.getName());
+			sb.append("(");
 			for(SqlColumn col : index.getColumns()){
 				sb.append(col.getName());
 				if(columnCounter != numColumns-1){
@@ -245,7 +252,9 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 		for(SqlIndex index : uniqueIndexesToAdd){
 			int numColumns = DrCollectionTool.size(index.getColumns());
 			int columnCounter = 0;
-			sb.append("add unique index " + index.getName() + "(");
+			sb.append("add unique index ");
+			sb.append("index.getName()");
+			sb.append("(");
 			for(SqlColumn col : index.getColumns()){
 				sb.append( col.getName());
 				if(columnCounter != numColumns-1){
