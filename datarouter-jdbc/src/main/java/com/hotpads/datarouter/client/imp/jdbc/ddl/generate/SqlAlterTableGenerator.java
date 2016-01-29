@@ -1,6 +1,7 @@
 package com.hotpads.datarouter.client.imp.jdbc.ddl.generate;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -367,8 +368,14 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 					// boolean field with default value true
 					colC = new SqlColumn("C", MySqlColumnType.BOOLEAN, 0, true, false, "true", null, null);
 
-			SqlTable table1 = new SqlTable("TA").addColumn(colA).addColumn(colB).addColumn(colC), table2 = new SqlTable(
-					"TB").addColumn(colA).addColumn(colB);
+			List<SqlColumn> listB = new ArrayList<>(Arrays.asList(colB));
+			List<SqlColumn> listC = new ArrayList<>(Arrays.asList(colC));
+
+			SqlIndex indexB = new SqlIndex("index_b", listB);
+			SqlIndex indexC = new SqlIndex("unqiue_c", listC);
+
+			SqlTable table1 = new SqlTable("TA").addColumn(colA).addColumn(colB).addColumn(colC).addUniqueIndex(indexC),
+					table2 = new SqlTable("TB").addColumn(colA).addColumn(colB).addIndex(indexB);
 
 			SchemaUpdateOptions options = new SchemaUpdateOptions().setAllTrue();
 
@@ -378,7 +385,6 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 
 			// case2 : Dropping a boolean field from table with a default value specified
 			SqlAlterTableGenerator alterGenerator12 = new SqlAlterTableGenerator(options, table1, table2, "config");
-
 			logger.warn(alterGenerator12.generateDdl());
 		}
 	}
