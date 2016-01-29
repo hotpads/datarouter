@@ -378,7 +378,7 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 
 			// case2 : Dropping a boolean field from table with a default value specified
 			SqlAlterTableGenerator alterGenerator12 = new SqlAlterTableGenerator(options, table1, table2, "config");
-			
+
 			logger.warn(alterGenerator12.generateDdl());
 		}
 	}
