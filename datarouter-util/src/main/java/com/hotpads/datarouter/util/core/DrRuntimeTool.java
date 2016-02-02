@@ -1,10 +1,5 @@
 package com.hotpads.datarouter.util.core;
 
-import org.junit.Assert;
-
-import org.junit.Test;
-
-
 public class DrRuntimeTool {
 
 	public static boolean isWindows() {
@@ -54,20 +49,9 @@ public class DrRuntimeTool {
 	public static long getFreeMemory(){
 		return Runtime.getRuntime().freeMemory();
 	}
-	
+
 	public static long getMaxMemory(){
 		return Runtime.getRuntime().maxMemory();
 	}
-	
-	
-	
-	public static class Tests {
-		@Test public void testIsLinux(){
-			if(isLinux()) Assert.assertFalse(isWindows());
-			if(isWindows()) Assert.assertFalse(isLinux());
-			Assert.assertTrue("Can't test on "+System.getProperty("os.name"), 
-					isLinux()||isWindows());
-		}
-	}
-	
+
 }
