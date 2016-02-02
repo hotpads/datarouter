@@ -19,25 +19,30 @@ public class StringField extends BaseField<String>{
 		this.key = key;
 	}
 
+	@Deprecated
 	public StringField(String prefix, StringFieldKey key, String value){
 		super(prefix, value);
 		this.key = key;
 	}
 
+	@Deprecated
 	public StringField(String name, String value, int size){
 		this(null, name, value, size);
 	}
 
+	@Deprecated
 	public StringField(String prefix, String name, String value, int size){
 		super(prefix, value);
 		this.key = new StringFieldKey(name, size);
 	}
 
+	@Deprecated
 	public StringField(String name, boolean nullable, String value, int size){
 		super(null, value);
 		this.key = new StringFieldKey(name, nullable, size);
 	}
 
+	@Deprecated
 	public StringField(String prefix, String name, String columnName, boolean nullable, String value, int size){
 		super(prefix, value);
 		this.key = new StringFieldKey(name, columnName, nullable, size);

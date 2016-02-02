@@ -11,14 +11,17 @@ public class BooleanField extends BasePrimitiveField<Boolean>{
 		super(key, value);
 	}
 
+	@Deprecated
 	public BooleanField(String name, Boolean value){
 		this(name, value, null);
 	}
 
+	@Deprecated
 	public BooleanField(String prefix, String name, Boolean value){
 		super(prefix, name, value);
 	}
 
+	@Deprecated
 	public BooleanField(String name, Boolean value, Boolean defaultValue){
 		super(name, value, defaultValue);
 	}
