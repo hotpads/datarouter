@@ -10,7 +10,6 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import com.hotpads.datarouter.storage.field.BasePrimitiveField;
-import com.hotpads.datarouter.storage.field.PrimitiveFieldKey;
 import com.hotpads.datarouter.storage.field.encoding.FieldGeneratorType;
 import com.hotpads.datarouter.util.core.DrDateTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
@@ -26,7 +25,7 @@ public class DateField extends BasePrimitiveField<Date>{
 	private final int numDecimalSeconds;
 
 
-	public DateField(PrimitiveFieldKey<Date> key, Date value){
+	public DateField(DateFieldKey key, Date value){
 		super(key, value);
 		this.numDecimalSeconds = BACKWARDS_COMPATIBLE_NUM_DECIMAL_SECONDS;
 	}
