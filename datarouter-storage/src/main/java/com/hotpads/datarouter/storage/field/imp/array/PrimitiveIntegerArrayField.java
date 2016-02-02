@@ -9,18 +9,25 @@ import com.hotpads.util.core.bytes.IntegerByteTool;
 import com.hotpads.util.core.exception.NotImplementedException;
 
 public class PrimitiveIntegerArrayField extends BaseField<int[]>{
-	
+
 	private PrimitiveIntegerArrayFieldKey key;
 
+	public PrimitiveIntegerArrayField(PrimitiveIntegerArrayFieldKey key, int[] value){
+		super(null, value);
+		this.key = key;
+	}
+
+	@Deprecated
 	public PrimitiveIntegerArrayField(String name, int[] value){
 		this(null, name, value);
 	}
 
+	@Deprecated
 	public PrimitiveIntegerArrayField(String prefix, String name, int[] value){
 		super(prefix, value);
 		this.key = new PrimitiveIntegerArrayFieldKey(name);
 	}
-	
+
 	@Override
 	public PrimitiveIntegerArrayFieldKey getKey(){
 		return key;
@@ -63,10 +70,10 @@ public class PrimitiveIntegerArrayField extends BaseField<int[]>{
 	public int numBytesWithSeparator(byte[] bytes, int byteOffset){
 		throw new NotImplementedException();
 	}
-	
-	
+
+
 	/******************* test ************************/
-	
+
 	public static class Tests{
 		@Test
 		public void testByteSerialization(){
