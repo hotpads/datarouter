@@ -74,7 +74,6 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 			sb.append("\n\n");
 			sb.append("Update "+databaseName + "." +current.getName()+ " set ");
 			sb.append("\n");
-			columnsToInitialize.size();
 			boolean appendedAnyCol = false;
 			for(SqlColumn col:columnsToInitialize){
 				if(appendedAnyCol){
@@ -197,7 +196,6 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 			return list;
 		}
 		StringBuilder sb = new StringBuilder();
-		indexesToAdd.size();
 		boolean appendedAny = false;
 		for(SqlIndex index : indexesToAdd){
 			if(appendedAny){
@@ -216,7 +214,6 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 		if(!options.getAddIndexes() || DrCollectionTool.isEmpty(indexesToAdd)){
 			return alterClause;
 		}
-		indexesToAdd.size();
 		StringBuilder sb = new StringBuilder();
 		boolean appendedAnyIndex = false;
 		for(SqlIndex index : indexesToAdd){
@@ -247,11 +244,9 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 		if(!options.getAddIndexes() ||DrCollectionTool.isEmpty(uniqueIndexesToAdd)){
 			return alterClauses;
 		}
-		uniqueIndexesToAdd.size();
 		StringBuilder sb = new StringBuilder();
 		boolean appendedAnyIndex = false;
 		for(SqlIndex index : uniqueIndexesToAdd){
-			DrCollectionTool.size(index.getColumns());
 			if(appendedAnyIndex){
 				sb.append(",\n");
 			}
@@ -276,7 +271,6 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 	private SqlAlterTableClause getCreateTableSqlFromListOfColumnsToAdd(List<SqlColumn> colsToAdd){
 		//new SqlAlterTable("CREATE TABLE " +current.getName() +";", SqlAlterTableTypes.CREATE_TABLE);
 		StringBuilder sb = new StringBuilder("create table " + current.getName());
-		colsToAdd.size();
 		if(DrCollectionTool.isEmpty(colsToAdd)){
 			return new SqlAlterTableClause(sb.toString(), SqlAlterTypes.CREATE_TABLE);
 		}
@@ -305,12 +299,10 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 	}
 
 	private SqlAlterTableClause getAlterTableForAddingColumns(List<SqlColumn> colsToAdd){
-
 		if(!options.getAddColumns() || DrCollectionTool.isEmpty(colsToAdd)){
 			return null;
 		}
 		StringBuilder sb = new StringBuilder();
-		colsToAdd.size();
 		boolean appendedAny = false;
 		sb.append("add (");
 		String typeString;
