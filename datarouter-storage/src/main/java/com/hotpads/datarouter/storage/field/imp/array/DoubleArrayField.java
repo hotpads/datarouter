@@ -10,32 +10,38 @@ import com.hotpads.util.core.exception.NotImplementedException;
 
 public class DoubleArrayField extends BaseListField<Double,List<Double>>{
 
+	public DoubleArrayField(DoubleArrayFieldKey key, List<Double> value){
+		super(key, value);
+	}
+
+	@Deprecated
 	public DoubleArrayField(String name, List<Double> value){
 		super(name, value);
 	}
-	
+
+	@Deprecated
 	public DoubleArrayField(String prefix, String name, List<Double> value){
 		super(prefix, name, value);
 	}
-	
-	
+
+
 	/*********************** StringEncodedField ***********************/
-	
+
 	@Override
 	public String getStringEncodedValue(){
 		if(value==null){ return null; }
 		//TODO to CSV format?
 		throw new NotImplementedException();
 	}
-	
+
 	@Override
 	public List<Double> parseStringEncodedValueButDoNotSet(String s){
 		throw new NotImplementedException();
 	}
-	
+
 
 	/*********************** ByteEncodedField ***********************/
-	
+
 	@Override
 	public byte[] getBytes(){
 		if(value == null){
@@ -54,8 +60,8 @@ public class DoubleArrayField extends BaseListField<Double,List<Double>>{
 		// TODO Auto-generated method stub
 		return 0;
 	}
-	
-	
+
+
 	public static void main(String[] args){
 		DoubleArrayField testField = new DoubleArrayField("stuff", DrListTool.create(new Double(-5.00001), new Double(203920.555),  null));
 		for(Double num : testField.value){

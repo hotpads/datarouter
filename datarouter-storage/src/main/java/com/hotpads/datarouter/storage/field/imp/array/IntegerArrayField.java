@@ -3,20 +3,27 @@ package com.hotpads.datarouter.storage.field.imp.array;
 import java.util.List;
 
 import com.hotpads.datarouter.storage.field.BaseListField;
-import com.hotpads.datarouter.storage.field.ListFieldKey;
 import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.bytes.IntegerByteTool;
 import com.hotpads.util.core.exception.NotImplementedException;
 
 public class IntegerArrayField extends BaseListField<Integer, List<Integer>>{
 
-	public IntegerArrayField(ListFieldKey<Integer, List<Integer>> key, List<Integer> value){
+	public IntegerArrayField(IntegerArrayFieldKey key, List<Integer> value){
 		super(key, value);
 	}
+
+//	@Deprecated
+//	public IntegerArrayField(ListFieldKey<Integer,List<Integer>> key, List<Integer> value){
+//		super(key, value);
+//	}
+
+	@Deprecated
 	public IntegerArrayField(String name, List<Integer> value){
 		super(name, value);
 	}
 
+	@Deprecated
 	public IntegerArrayField(String prefix, String name, List<Integer> value){
 		super(prefix, name, value);
 	}
