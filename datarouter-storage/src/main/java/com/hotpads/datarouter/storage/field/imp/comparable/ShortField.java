@@ -1,13 +1,12 @@
 package com.hotpads.datarouter.storage.field.imp.comparable;
 
 import com.hotpads.datarouter.storage.field.BasePrimitiveField;
-import com.hotpads.datarouter.storage.field.PrimitiveFieldKey;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.util.core.bytes.ShortByteTool;
 
 public class ShortField extends BasePrimitiveField<Short>{
 
-	public ShortField(PrimitiveFieldKey<Short> key, Short value){
+	public ShortField(ShortFieldKey key, Short value){
 		super(key, value);
 	}
 
