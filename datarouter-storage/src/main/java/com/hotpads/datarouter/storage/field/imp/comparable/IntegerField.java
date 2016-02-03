@@ -1,13 +1,12 @@
 package com.hotpads.datarouter.storage.field.imp.comparable;
 
 import com.hotpads.datarouter.storage.field.BasePrimitiveField;
-import com.hotpads.datarouter.storage.field.PrimitiveFieldKey;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.util.core.bytes.IntegerByteTool;
 
 public class IntegerField extends BasePrimitiveField<Integer>{
 
-	public IntegerField(PrimitiveFieldKey<Integer> key, Integer value){
+	public IntegerField(IntegerFieldKey key, Integer value){
 		super(key, value);
 	}
 

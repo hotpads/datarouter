@@ -11,10 +11,10 @@ import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
-import com.hotpads.datarouter.storage.field.PrimitiveFieldKey;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.StringFieldKey;
 import com.hotpads.datarouter.storage.field.imp.comparable.LongField;
+import com.hotpads.datarouter.storage.field.imp.comparable.LongFieldKey;
 import com.hotpads.datarouter.storage.field.imp.dumb.DumbDoubleField;
 import com.hotpads.datarouter.storage.field.imp.dumb.DumbDoubleFieldKey;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt31Field;
@@ -40,7 +40,7 @@ public class SortedBean extends BaseDatabean<SortedBeanKey,SortedBean>{
 
 	public static class SortedBeanFielder extends BaseDatabeanFielder<SortedBeanKey,SortedBean>{
 		public static final StringFieldKey f1 = new StringFieldKey("f1");
-		public static final PrimitiveFieldKey<Long> f2 = new PrimitiveFieldKey<>("f2");
+		public static final LongFieldKey f2 = new LongFieldKey("f2");
 		public static final StringFieldKey f3 = new StringFieldKey("f3");
 		public static final DumbDoubleFieldKey f4 = new DumbDoubleFieldKey("f4");
 

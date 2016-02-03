@@ -1,14 +1,13 @@
 package com.hotpads.datarouter.storage.field.imp.comparable;
 
 import com.hotpads.datarouter.storage.field.BasePrimitiveField;
-import com.hotpads.datarouter.storage.field.PrimitiveFieldKey;
 import com.hotpads.datarouter.storage.field.encoding.FieldGeneratorType;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.util.core.bytes.LongByteTool;
 
 public class LongField extends BasePrimitiveField<Long>{
 
-	public LongField(PrimitiveFieldKey<Long> key, Long value){
+	public LongField(LongFieldKey key, Long value){
 		super(key, value);
 	}
 

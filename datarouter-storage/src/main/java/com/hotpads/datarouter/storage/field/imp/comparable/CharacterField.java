@@ -1,7 +1,6 @@
 package com.hotpads.datarouter.storage.field.imp.comparable;
 
 import com.hotpads.datarouter.storage.field.BasePrimitiveField;
-import com.hotpads.datarouter.storage.field.PrimitiveFieldKey;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.util.core.DrArrayTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
@@ -9,7 +8,7 @@ import com.hotpads.util.core.bytes.StringByteTool;
 
 public class CharacterField extends BasePrimitiveField<Character>{
 
-	public CharacterField(PrimitiveFieldKey<Character> key, Character value){
+	public CharacterField(CharacterFieldKey key, Character value){
 		super(key, value);
 	}
 
