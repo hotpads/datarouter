@@ -1,7 +1,6 @@
 package com.hotpads.datarouter.storage.field.imp.dumb;
 
 import com.hotpads.datarouter.storage.field.BasePrimitiveField;
-import com.hotpads.datarouter.storage.field.PrimitiveFieldKey;
 import com.hotpads.datarouter.storage.field.encoding.FieldGeneratorType;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.util.core.bytes.DoubleByteTool;
@@ -11,7 +10,7 @@ import com.hotpads.util.core.bytes.DoubleByteTool;
  */
 public class DumbDoubleField extends BasePrimitiveField<Double>{
 
-	public DumbDoubleField(PrimitiveFieldKey<Double> key, Double value){
+	public DumbDoubleField(DumbDoubleFieldKey key, Double value){
 		super(key, value);
 	}
 

@@ -1,7 +1,6 @@
 package com.hotpads.datarouter.storage.field.imp.dumb;
 
 import com.hotpads.datarouter.storage.field.BasePrimitiveField;
-import com.hotpads.datarouter.storage.field.PrimitiveFieldKey;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.util.core.bytes.FloatByteTool;
 /*
@@ -10,7 +9,7 @@ import com.hotpads.util.core.bytes.FloatByteTool;
  */
 public class DumbFloatField extends BasePrimitiveField<Float>{
 
-	public DumbFloatField(PrimitiveFieldKey<Float> key, Float value){
+	public DumbFloatField(DumbFloatFieldKey key, Float value){
 		super(key, value);
 	}
 
