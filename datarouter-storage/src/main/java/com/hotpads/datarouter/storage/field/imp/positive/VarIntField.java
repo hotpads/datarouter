@@ -3,14 +3,13 @@ package com.hotpads.datarouter.storage.field.imp.positive;
 import java.util.Random;
 
 import com.hotpads.datarouter.storage.field.BasePrimitiveField;
-import com.hotpads.datarouter.storage.field.PrimitiveFieldKey;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.util.core.number.RandomTool;
 import com.hotpads.util.core.number.VarInt;
 
 public class VarIntField extends BasePrimitiveField<Integer>{
 
-	public VarIntField(PrimitiveFieldKey<Integer> key, Integer value){
+	public VarIntField(VarIntFieldKey key, Integer value){
 		super(key, value);
 	}
 

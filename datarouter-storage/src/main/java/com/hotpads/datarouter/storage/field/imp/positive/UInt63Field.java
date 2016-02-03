@@ -11,7 +11,7 @@ import com.hotpads.util.core.number.RandomTool;
 
 public class UInt63Field extends BasePrimitiveField<Long>{
 
-	public UInt63Field(PrimitiveFieldKey<Long> key, Long value){
+	public UInt63Field(UInt63FieldKey key, Long value){
 		super(key, value);
 	}
 

@@ -6,6 +6,11 @@ import com.hotpads.datarouter.util.core.DrStringTool;
 
 public class UInt8Field extends BasePrimitiveField<Byte>{
 
+	public UInt8Field(UInt8FieldKey key, Byte value){
+		super(key, value);
+	}
+
+	@Deprecated
 	public UInt8Field(String name, Integer intValue){
 		super(name, DrByteTool.toUnsignedByte(intValue));
 	}

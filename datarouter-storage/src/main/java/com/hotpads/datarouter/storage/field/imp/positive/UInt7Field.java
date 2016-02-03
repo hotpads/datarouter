@@ -3,13 +3,12 @@ package com.hotpads.datarouter.storage.field.imp.positive;
 import java.util.Random;
 
 import com.hotpads.datarouter.storage.field.BasePrimitiveField;
-import com.hotpads.datarouter.storage.field.PrimitiveFieldKey;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.util.core.number.RandomTool;
 
 public class UInt7Field extends BasePrimitiveField<Byte>{
 
-	public UInt7Field(PrimitiveFieldKey<Byte> key, Byte value){
+	public UInt7Field(UInt7FieldKey key, Byte value){
 		super(key, value);
 	}
 

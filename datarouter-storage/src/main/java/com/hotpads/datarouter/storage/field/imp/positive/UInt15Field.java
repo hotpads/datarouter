@@ -3,14 +3,13 @@ package com.hotpads.datarouter.storage.field.imp.positive;
 import java.util.Random;
 
 import com.hotpads.datarouter.storage.field.BasePrimitiveField;
-import com.hotpads.datarouter.storage.field.PrimitiveFieldKey;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.util.core.bytes.ShortByteTool;
 import com.hotpads.util.core.number.RandomTool;
 
 public class UInt15Field extends BasePrimitiveField<Short>{
 
-	public UInt15Field(PrimitiveFieldKey<Short> key, Short value){
+	public UInt15Field(UInt15FieldKey key, Short value){
 		super(key, value);
 	}
 

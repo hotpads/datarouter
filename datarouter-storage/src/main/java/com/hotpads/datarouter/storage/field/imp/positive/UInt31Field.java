@@ -10,7 +10,7 @@ import com.hotpads.util.core.number.RandomTool;
 
 public class UInt31Field extends BasePrimitiveField<Integer>{
 
-	public UInt31Field(PrimitiveFieldKey<Integer> key, Integer value){
+	public UInt31Field(UInt31FieldKey key, Integer value){
 		super(key, value);
 	}
 

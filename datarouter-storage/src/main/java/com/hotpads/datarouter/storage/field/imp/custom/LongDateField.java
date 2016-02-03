@@ -3,13 +3,12 @@ package com.hotpads.datarouter.storage.field.imp.custom;
 import java.util.Date;
 
 import com.hotpads.datarouter.storage.field.BasePrimitiveField;
-import com.hotpads.datarouter.storage.field.PrimitiveFieldKey;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.util.core.bytes.LongByteTool;
 
 public class LongDateField extends BasePrimitiveField<Date>{
 
-	public LongDateField(PrimitiveFieldKey<Date> key, Date value){
+	public LongDateField(LongDateFieldKey key, Date value){
 		super(key, value);
 	}
 
