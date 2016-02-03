@@ -196,15 +196,8 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 			return list;
 		}
 		StringBuilder sb = new StringBuilder();
-		boolean appendedAny = false;
-		for(SqlIndex index : indexesToAdd){
-			if(appendedAny){
-				sb.append(",\n");
-			}
-			appendedAny = true;
-			sb.append("drop index ");
-			sb.append(index.getName() );
-		}
+		indexesToAdd.stream().map(index -> sb.append("drop index ").append(index.getName()))
+				.collect(Collectors.joining(","));
 		list.add(new SqlAlterTableClause(sb.toString(), SqlAlterTypes.DROP_INDEX));
 		return list;
 	}
@@ -214,27 +207,9 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 		if(!options.getAddIndexes() || DrCollectionTool.isEmpty(indexesToAdd)){
 			return alterClause;
 		}
-		StringBuilder sb = new StringBuilder();
-		boolean appendedAnyIndex = false;
-		for(SqlIndex index : indexesToAdd){
-			DrCollectionTool.size(index.getColumns());
-			if(appendedAnyIndex){
-				 sb.append(",\n");
-			}
-			appendedAnyIndex = true;
-			sb.append("add index " );
-			sb.append(index.getName());
-			sb.append("(");
-			boolean appendedAnyCol = false;
-			for(SqlColumn col : index.getColumns()){
-				if(appendedAnyCol){
-					sb.append(",");
-				}
-				appendedAnyCol = true;
-				sb.append(col.getName());
-			}
-			sb.append(")");
-		}
+		StringBuilder sb = new StringBuilder(indexesToAdd.stream().map(index->"add index "+ index.getName()
+				+"("+ getColumns(index.getColumns()) +")")
+				.collect(Collectors.joining(",\n")));
 		alterClause.add(new SqlAlterTableClause(sb.toString(), SqlAlterTypes.ADD_INDEX));
 		return alterClause;
 	}
@@ -244,26 +219,9 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 		if(!options.getAddIndexes() ||DrCollectionTool.isEmpty(uniqueIndexesToAdd)){
 			return alterClauses;
 		}
-		StringBuilder sb = new StringBuilder();
-		boolean appendedAnyIndex = false;
-		for(SqlIndex index : uniqueIndexesToAdd){
-			if(appendedAnyIndex){
-				sb.append(",\n");
-			}
-			appendedAnyIndex = true;
-			sb.append("add unique index ");
-			sb.append(index.getName());
-			sb.append("(");
-			boolean appendedAnyColumns = false;
-			for(SqlColumn col : index.getColumns()){
-				if(appendedAnyColumns){
-					sb.append(",");
-				}
-				appendedAnyColumns = true;
-				sb.append( col.getName());
-			}
-			sb.append(")");
-		}
+		StringBuilder sb = new StringBuilder(uniqueIndexesToAdd.stream().map(index->"add unique index "+ index.getName()
+			+"("+ getColumns(index.getColumns()) +")")
+				.collect(Collectors.joining(",\n")));
 		alterClauses.add(new SqlAlterTableClause(sb.toString(), SqlAlterTypes.ADD_INDEX));
 		return alterClauses;
 	}
@@ -306,6 +264,7 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 		boolean appendedAny = false;
 		sb.append("add (");
 		String typeString;
+		
 		for(SqlColumn col : colsToAdd){
 			MySqlColumnType type = col.getType();
 			typeString = col.getType().toString().toLowerCase();
@@ -336,16 +295,8 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 		if(!options.getDeleteColumns() || DrCollectionTool.isEmpty(colsToRemove)){
 			return list;
 		}
-		StringBuilder sb = new StringBuilder();
-		boolean appendedAny = false;
-		for(SqlColumn col:colsToRemove){
-			if(appendedAny){
-				 sb.append(",\n");
-			}
-			appendedAny = true;
-			sb.append("drop column ");
-			sb.append(col.getName());
-		}
+		StringBuilder sb = new StringBuilder(colsToRemove.stream().map(col->"drop column "+ col.getName())
+		.collect(Collectors.joining(",\n")));
 		list.add(new SqlAlterTableClause(sb.toString(), SqlAlterTypes.DROP_COLUMN));
 		return list;
 	}
@@ -357,6 +308,10 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 				columnsToInitialize.add(col);
 			}
 		}
+	}
+
+	private String getColumns(List<SqlColumn> columns){
+		return columns.stream().map(col -> col.getName()).collect(Collectors.joining(","));
 	}
 
 	public static class SqlAlterTableGeneratorTester{
@@ -373,9 +328,10 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 
 			SqlIndex indexB = new SqlIndex("index_b", listB);
 			SqlIndex indexC = new SqlIndex("unique_c", listC);
-
+		
 			SqlTable table1 = new SqlTable("TA").addColumn(colA).addColumn(colB).addColumn(colC).addUniqueIndex(indexC),
 					table2 = new SqlTable("TB").addColumn(colA).addColumn(colB).addIndex(indexB);
+
 
 			SchemaUpdateOptions options = new SchemaUpdateOptions().setAllTrue();
 
