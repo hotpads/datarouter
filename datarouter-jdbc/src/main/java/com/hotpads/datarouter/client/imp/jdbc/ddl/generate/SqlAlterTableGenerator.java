@@ -218,7 +218,6 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 		StringBuilder sb = new StringBuilder();
 		boolean appendedAnyIndex = false;
 		for(SqlIndex index : indexesToAdd){
-			DrCollectionTool.size(index.getColumns());
 			if(appendedAnyIndex){
 				 sb.append(",\n");
 			}
