@@ -272,7 +272,7 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 		boolean appendedAny = false;
 		sb.append("add (");
 		String typeString;
-		
+
 		for(SqlColumn col : colsToAdd){
 			MySqlColumnType type = col.getType();
 			typeString = col.getType().toString().toLowerCase();
@@ -336,7 +336,7 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 
 			SqlIndex indexB = new SqlIndex("index_b", listB);
 			SqlIndex indexC = new SqlIndex("unique_c", listC);
-		
+
 			SqlTable table1 = new SqlTable("TA").addColumn(colA).addColumn(colB).addColumn(colC).addUniqueIndex(indexC),
 					table2 = new SqlTable("TB").addColumn(colA).addColumn(colB).addIndex(indexB);
 
