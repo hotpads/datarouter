@@ -195,9 +195,17 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 		if(!options.getDropIndexes() || DrCollectionTool.isEmpty(indexesToAdd)){
 			return list;
 		}
+
 		StringBuilder sb = new StringBuilder();
-		indexesToAdd.stream().map(index -> sb.append("drop index ").append(index.getName()))
-				.collect(Collectors.joining(","));
+		boolean appendedAny = false;
+		for(SqlIndex index : indexesToAdd){
+			if(appendedAny){
+				sb.append(",\n");
+			}
+			appendedAny = true;
+			sb.append("drop index ");
+			sb.append(index.getName() );
+		}
 		list.add(new SqlAlterTableClause(sb.toString(), SqlAlterTypes.DROP_INDEX));
 		return list;
 	}
