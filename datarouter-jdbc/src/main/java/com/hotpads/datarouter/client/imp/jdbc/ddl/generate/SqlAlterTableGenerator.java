@@ -215,9 +215,27 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 		if(!options.getAddIndexes() || DrCollectionTool.isEmpty(indexesToAdd)){
 			return alterClause;
 		}
-		StringBuilder sb = new StringBuilder(indexesToAdd.stream().map(index->"add index "+ index.getName()
-				+"("+ getColumns(index.getColumns()) +")")
-				.collect(Collectors.joining(",\n")));
+		StringBuilder sb = new StringBuilder();
+		boolean appendedAnyIndex = false;
+		for(SqlIndex index : indexesToAdd){
+			DrCollectionTool.size(index.getColumns());
+			if(appendedAnyIndex){
+				 sb.append(",\n");
+			}
+			appendedAnyIndex = true;
+			sb.append("add index " );
+			sb.append(index.getName());
+			sb.append("(");
+			boolean appendedAnyCol = false;
+			for(SqlColumn col : index.getColumns()){
+				if(appendedAnyCol){
+					sb.append(",");
+				}
+				appendedAnyCol = true;
+				sb.append(col.getName());
+			}
+			sb.append(")");
+		}
 		alterClause.add(new SqlAlterTableClause(sb.toString(), SqlAlterTypes.ADD_INDEX));
 		return alterClause;
 	}
@@ -227,9 +245,26 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 		if(!options.getAddIndexes() ||DrCollectionTool.isEmpty(uniqueIndexesToAdd)){
 			return alterClauses;
 		}
-		StringBuilder sb = new StringBuilder(uniqueIndexesToAdd.stream().map(index->"add unique index "+ index.getName()
-			+"("+ getColumns(index.getColumns()) +")")
-				.collect(Collectors.joining(",\n")));
+		StringBuilder sb = new StringBuilder();
+		boolean appendedAnyIndex = false;
+		for(SqlIndex index : uniqueIndexesToAdd){
+			if(appendedAnyIndex){
+				sb.append(",\n");
+			}
+			appendedAnyIndex = true;
+			sb.append("add unique index ");
+			sb.append(index.getName());
+			sb.append("(");
+			boolean appendedAnyColumns = false;
+			for(SqlColumn col : index.getColumns()){
+				if(appendedAnyColumns){
+					sb.append(",");
+				}
+				appendedAnyColumns = true;
+				sb.append( col.getName());
+			}
+			sb.append(")");
+		}
 		alterClauses.add(new SqlAlterTableClause(sb.toString(), SqlAlterTypes.ADD_INDEX));
 		return alterClauses;
 	}
