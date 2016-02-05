@@ -17,10 +17,12 @@ extends BaseField<E>{
 		this.key = key;
 	}
 
+	@Deprecated
 	public IntegerEnumField(Class<E> enumClass, String name, E value){
 		this(enumClass, null, name, value);
 	}
 
+	@Deprecated
 	public IntegerEnumField(Class<E> enumClass, String prefix, String name, E value){
 		super(prefix, value);
 		this.key = new IntegerEnumFieldKey<>(name, enumClass);

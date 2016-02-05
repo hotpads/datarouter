@@ -11,27 +11,32 @@ import com.hotpads.util.core.number.RandomTool;
 
 public class UInt63Field extends BasePrimitiveField<Long>{
 
+	public UInt63Field(UInt63FieldKey key, Long value){
+		super(key, value);
+	}
+
+	@Deprecated
 	public UInt63Field(String name, Long value){
 		super(name, value);
 	}
 
+	@Deprecated
 	public UInt63Field(String name, boolean nullable, Long value){
 		super(null, name, nullable, FieldGeneratorType.NONE, value);
 	}
 
+	@Deprecated
 	public UInt63Field(String prefix, String name, boolean nullable, FieldGeneratorType fieldGeneratorType, Long value){
 		super(prefix, name, nullable, fieldGeneratorType, value);
 	}
 
+	@Deprecated
 	public UInt63Field(String prefix, String name, String columnName, boolean nullable,
 			FieldGeneratorType fieldGeneratorType, Long value){
 		super(prefix, name, columnName, nullable, fieldGeneratorType, value);
 	}
 
-	public UInt63Field(PrimitiveFieldKey<Long> key, Long value){
-		super(key, value);
-	}
-
+	@Deprecated
 	public UInt63Field(String prefix, PrimitiveFieldKey<Long> key, Long value){
 		super(prefix, key, value);
 	}

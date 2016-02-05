@@ -17,13 +17,16 @@ public class DelimitedStringArrayField extends KeyedListField<String,List<String
 		super(key, values);
 	}
 
+	@Deprecated
 	public DelimitedStringArrayField(String name, String separator, List<String> values){
 		super(new DelimitedStringArrayFieldKey(name, separator), values);
 	}
 
+	@Deprecated
 	public DelimitedStringArrayField(String prefix, String name, String separator, List<String> values){
 		super(prefix, new DelimitedStringArrayFieldKey(name, separator), values);
 	}
+
 
 	public String getSeparator(){
 		return key.separator;
