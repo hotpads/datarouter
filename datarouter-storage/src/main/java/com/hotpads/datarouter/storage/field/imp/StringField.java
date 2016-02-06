@@ -19,7 +19,6 @@ public class StringField extends BaseField<String>{
 		this.key = key;
 	}
 
-	@Deprecated
 	public StringField(String prefix, StringFieldKey key, String value){
 		super(prefix, value);
 		this.key = key;
