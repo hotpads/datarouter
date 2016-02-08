@@ -10,21 +10,20 @@ import com.hotpads.datarouter.setting.SettingNode;
 @Singleton
 public class DatarouterNotificationSettings extends SettingNode{
 
-	private Setting<String> apiEndPoint;
-	private Setting<Boolean> forceHideStackTrace;
-	private Setting<Boolean> ignoreSsl;
+	private final Setting<String> apiEndPoint;
+	private final Setting<Boolean> forceHideStackTrace;
+	private final Setting<Boolean> ignoreSsl;
+
 
 	@Inject
 	public DatarouterNotificationSettings(SettingFinder finder){
 		super(finder, "datarouter.notification.", "datarouter.");
-		register();
-	}
 
-	private void register(){
 		apiEndPoint = registerString("apiEndPoint", "https://localhost:8443/job/api/notification");
 		forceHideStackTrace = registerBoolean("forceHideStackTrace", false);
 		ignoreSsl = registerBoolean("ignoreSsl", false);
 	}
+
 
 	public Setting<String> getApiEndPoint(){
 		return apiEndPoint;

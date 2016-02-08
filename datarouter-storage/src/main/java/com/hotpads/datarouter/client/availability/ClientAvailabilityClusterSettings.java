@@ -18,12 +18,14 @@ public class ClientAvailabilityClusterSettings extends SettingNode implements Cl
 	private final Map<String,Setting<Boolean>> availabilityByClientName;
 	private final DatarouterClients clients;
 
+
 	@Inject
 	public ClientAvailabilityClusterSettings(SettingFinder finder, DatarouterClients clients){
 		super(finder, "datarouter.availability.", "datarouter.");
 		this.clients = clients;
 		availabilityByClientName = new HashMap<>();
 	}
+
 
 	@Override
 	public Setting<Boolean> getAvailabilityForClientName(String clientName){
