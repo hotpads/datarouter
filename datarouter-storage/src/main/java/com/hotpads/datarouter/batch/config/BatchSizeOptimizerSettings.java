@@ -8,19 +8,18 @@ import com.hotpads.util.core.cache.Cached;
 
 public class BatchSizeOptimizerSettings extends SettingNode{
 
-	private Cached<Boolean> runBatchSizeOptimizingJob;
-	private Cached<Boolean> runOpPerformanceRecordAggregationJob;
+	private final Cached<Boolean> runBatchSizeOptimizingJob;
+	private final Cached<Boolean> runOpPerformanceRecordAggregationJob;
+
 
 	@Inject
 	public BatchSizeOptimizerSettings(SettingFinder finder){
 		super(finder, "datarouter.batch.", "datarouter.");
-		registerSettings();
-	}
 
-	private void registerSettings(){
 		runBatchSizeOptimizingJob = registerBoolean("runBatchSizeOptimizingJob", false);
 		runOpPerformanceRecordAggregationJob = registerBoolean("runOpPerformanceRecordAggregationJob", false);
 	}
+
 
 	public Cached<Boolean> getRunBatchSizeOptimizingJob(){
 		return runBatchSizeOptimizingJob;
