@@ -21,7 +21,7 @@ import com.hotpads.handler.mav.imp.StringMav;
 
 public class DataBeanViewerHandler<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>>
 		extends BaseHandler{
-	private final String URL_DATAROUTER = "/datarouter";
+	private static final String URL_DATAROUTER = "/datarouter";
 
 	@Inject
 	private Datarouter datarouter;
@@ -55,8 +55,10 @@ public class DataBeanViewerHandler<PK extends PrimaryKey<PK>,D extends Databean<
 			PK key = PrimaryKeyStringConverter.primaryKeyFromString((Class<PK>)node.getFieldInfo().getPrimaryKeyClass(),
 					(PrimaryKeyFielder<PK>)node.getFieldInfo().getSamplePrimaryKey(), pathInfo[2]);
 			key.fromPersistentString(pathInfo[2]);
-			if(!(node instanceof MapStorageReader<?,?>)){ return new MessageMav("Cannot browse non-SortedStorageReader"
-					+ node.getClass().getSimpleName()); }
+			if(!(node instanceof MapStorageReader<?,?>)){
+				return new MessageMav("Cannot browse non-SortedStorageReader"
+					+ node.getClass().getSimpleName());
+			}
 			MapStorageReader<PK,D> mapNode = (MapStorageReader<PK,D>)node;
 
 			D databean = mapNode.get(key, null);
