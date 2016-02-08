@@ -15,13 +15,14 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.handler.BaseHandler;
+import com.hotpads.handler.dispatcher.DatarouterWebDispatcher;
 import com.hotpads.handler.mav.Mav;
 import com.hotpads.handler.mav.imp.MessageMav;
 import com.hotpads.handler.mav.imp.StringMav;
 
 public class DataBeanViewerHandler<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>>
 		extends BaseHandler{
-	private static final String URL_DATAROUTER = "/datarouter";
+	private static final String NON_FIELD_AWARE = "nonFieldAware";
 
 	@Inject
 	private Datarouter datarouter;
@@ -38,38 +39,35 @@ public class DataBeanViewerHandler<PK extends PrimaryKey<PK>,D extends Databean<
 	@Override
 	protected Mav handleDefault() throws Exception{
 		Mav mav = new Mav("/jsp/admin/viewDatabean.jsp");
-		String[] pathInfo;
 		String pathInfoStr = params.getRequest().getPathInfo();
 		int offset = 1;
-		if(pathInfoStr.contains(URL_DATAROUTER)){
-			offset += URL_DATAROUTER.length();
+		if(pathInfoStr.contains(DatarouterWebDispatcher.URL_DATAROUTER)){
+			offset += DatarouterWebDispatcher.URL_DATAROUTER.length();
 		}
-		pathInfo = params.getRequest().getPathInfo().substring(offset).split("/");
+		String[] pathInfo = params.getRequest().getPathInfo().substring(offset).split("/");
+		if(pathInfo.length != 3){
+			return new StringMav("The url is not correct!");
+		}
 
 		Node<?,?> node = datarouter.getNodes().getNode(pathInfo[0] + "." + pathInfo[1]);
 		if(node != null){
-			mav.put("node", node);
-
-			List<Field<?>> fields = node.getFields();
-			mav.put("nonFieldAware", "field aware");
-
-			if(fields == null){
-				fields = new ArrayList<>();
-				fields.addAll(node.getFieldInfo().getPrimaryKeyFields());
-				mav.put("nonFieldAware", " non field aware");
-			}
-
-			mav.put("fields", fields);
-
-			PK key = PrimaryKeyStringConverter.primaryKeyFromString((Class<PK>)node.getFieldInfo().getPrimaryKeyClass(),
-					(PrimaryKeyFielder<PK>)node.getFieldInfo().getSamplePrimaryKey(), pathInfo[2]);
-			key.fromPersistentString(pathInfo[2]);
 			if(!(node instanceof MapStorageReader<?,?>)){
 				return new MessageMav("Cannot browse non-SortedStorageReader"
 					+ node.getClass().getSimpleName());
 			}
+			mav.put("node", node);
+			List<Field<?>> fields = node.getFields();
+			mav.put(NON_FIELD_AWARE, "field aware");
+			if(fields == null){
+				fields = new ArrayList<>();
+				fields.addAll(node.getFieldInfo().getPrimaryKeyFields());
+				mav.put(NON_FIELD_AWARE, "non field aware");
+			}
+			mav.put("fields", fields);
+			PK key = PrimaryKeyStringConverter.primaryKeyFromString((Class<PK>)node.getFieldInfo().getPrimaryKeyClass(),
+					(PrimaryKeyFielder<PK>)node.getFieldInfo().getSamplePrimaryKey(), pathInfo[2]);
+			key.fromPersistentString(pathInfo[2]);
 			MapStorageReader<PK,D> mapNode = (MapStorageReader<PK,D>)node;
-
 			D databean = mapNode.get(key, null);
 			if(databean != null){
 				addDatabeansToMav(mav, node, databean);
