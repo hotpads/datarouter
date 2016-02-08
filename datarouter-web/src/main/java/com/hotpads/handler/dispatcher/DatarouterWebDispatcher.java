@@ -41,7 +41,7 @@ public class DatarouterWebDispatcher extends BaseDispatcher{
 		handle(URL_DATAROUTER + "/testApi[/]?[^/]*").withHandler(TestApiHandler.class);
 		handle(URL_DATAROUTER + STACKTRACES).withHandler(StackTracesManagerHandler.class);
 		handleDir(URL_DATAROUTER + MEMORY_STATS).withHandler(MemoryMonitoringHandler.class);
-		handle(URL_DATAROUTER + "/\\w+/\\w+/.+").withHandler(DataBeanViewerHandler.class);
+		handle(URL_DATAROUTER + "/\\w+/.+/.+").withHandler(DataBeanViewerHandler.class);
 	}
 
 }

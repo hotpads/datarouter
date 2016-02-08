@@ -26,6 +26,15 @@ public class DataBeanViewerHandler<PK extends PrimaryKey<PK>,D extends Databean<
 	@Inject
 	private Datarouter datarouter;
 
+
+	/**
+	 * e.g.
+	 * https://localhost:8443/job/datarouter/RentZestimateEntity16/RentZestimate.RZ/1
+	 * https://localhost:8443/job/datarouter/place/Area/14644
+	 * https://localhost:8443/job/datarouter/search/Listing/1ParkPlace_0-130012758
+	 *
+	 */
+
 	@Override
 	protected Mav handleDefault() throws Exception{
 		Mav mav = new Mav("/jsp/admin/viewDatabean.jsp");
@@ -67,7 +76,7 @@ public class DataBeanViewerHandler<PK extends PrimaryKey<PK>,D extends Databean<
 				return mav;
 			}
 		}
-		return new StringMav("not found");
+		return new StringMav("databean not found");
 	}
 
 	private void addDatabeansToMav(Mav mav, Node node, D databean){
