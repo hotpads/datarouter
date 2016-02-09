@@ -165,6 +165,8 @@ public class DrCollectionTool{
 	public static <T> TreeSet<T> minus(final Collection<T> first, final Collection<T> second, Comparator<T> comparator){
 		TreeSet<T> result = new TreeSet<>(comparator);
 		result.addAll(DrCollectionTool.removeNulls(first));
+		// removeAll() may not use the Comparator to find object to remove and will use the .equals().
+		// And some Comparator s are not consistent with .equals(), so use remove() instead
 		second.forEach(result::remove);
 		return result;
 	}
