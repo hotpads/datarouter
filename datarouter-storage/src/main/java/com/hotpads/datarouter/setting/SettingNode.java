@@ -20,12 +20,12 @@ public abstract class SettingNode {
 
 	/*********** fields ***********/
 
-	private String parentName;
-	private String name;
-	protected SortedMap<String,SettingNode> children;
+	private final String parentName;
+	private final String name;
+	private final SortedMap<String,SettingNode> children;
 
-	protected SortedMap<String,Setting<?>> settings;
-	protected SettingFinder finder;
+	private final SortedMap<String,Setting<?>> settings;
+	private final SettingFinder finder;
 
 
 	/*********** construct ***********/
