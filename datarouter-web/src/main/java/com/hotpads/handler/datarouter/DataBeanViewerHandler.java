@@ -66,7 +66,7 @@ public class DataBeanViewerHandler
 				mav.put(NON_FIELD_AWARE, "non field aware");
 			}
 			mav.put("fields", fields);
-			PrimaryKey key = PrimaryKeyStringConverter.primaryKeyFromString((Class<PrimaryKey>)(node.getFieldInfo()
+			PrimaryKey<?> key = PrimaryKeyStringConverter.primaryKeyFromString((Class<PrimaryKey>)(node.getFieldInfo()
 					.getPrimaryKeyClass()), (PrimaryKeyFielder)(node.getFieldInfo().getSamplePrimaryKey()),
 					pathInfo[2]);
 			key.fromPersistentString(pathInfo[2]);
