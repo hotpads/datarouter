@@ -29,11 +29,11 @@ public class DataBeanViewerHandler extends BaseHandler{
 
 	/**
 	 * e.g.
-	 * https://localhost:8443/job/datarouter/RentZestimateEntity16/RentZestimate.RZ/1
-	 * https://localhost:8443/job/datarouter/place/Area/14644
-	 * https://localhost:8443/job/datarouter/search/Listing/1ParkPlace_0-130012758
-	 * https://localhost:8443/job/datarouter/hbase1/ModelIndexView16B/corporate_020121012112312100231132102_CHBO_8308
-	 * https://localhost:8443/job/datarouter/hbase1/TraceSpan/22858565159955332_0_1
+	 * https://localhost:8443/job/datarouter/data/RentZestimateEntity16/RentZestimate.RZ/1
+	 * https://localhost:8443/job/datarouter/data/place/Area/14644
+	 * https://localhost:8443/job/datarouter/data/search/Listing/1ParkPlace_0-130012758
+	 * https://localhost:8443/job/datarouter/data/hbase1/ModelIndexView16B/corporate_020121012112312100231132102_CHBO_8308
+	 * https://localhost:8443/job/datarouter/data/hbase1/TraceSpan/22858565159955332_0_1
 	 *
 	 */
 
