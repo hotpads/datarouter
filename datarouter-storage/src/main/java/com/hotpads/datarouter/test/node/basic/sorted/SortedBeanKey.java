@@ -6,10 +6,10 @@ import javax.persistence.Embeddable;
 
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
-import com.hotpads.datarouter.storage.field.PrimitiveFieldKey;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.StringFieldKey;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt31Field;
+import com.hotpads.datarouter.storage.field.imp.positive.UInt31FieldKey;
 import com.hotpads.datarouter.storage.key.primary.base.BaseEntityPrimaryKey;
 
 /********************************* indexes ***********************************/
@@ -17,24 +17,24 @@ import com.hotpads.datarouter.storage.key.primary.base.BaseEntityPrimaryKey;
 @SuppressWarnings("serial")
 @Embeddable
 public class SortedBeanKey extends BaseEntityPrimaryKey<SortedBeanEntityKey,SortedBeanKey>{
-	
+
 	private String a;
 	private String b;
 	private Integer c;
 	private String d;
-	
+
 	public static class FieldKeys{
-		public static final PrimitiveFieldKey<Integer> c = new PrimitiveFieldKey<>("c");
+		public static final UInt31FieldKey c = new UInt31FieldKey("c");
 		public static final StringFieldKey d = new StringFieldKey("d");
 	}
-	
+
 	@Override
 	public List<Field<?>> getPostEntityKeyFields(){
 		return FieldTool.createList(
 				new UInt31Field(FieldKeys.c, c),
 				new StringField(FieldKeys.d, d));
 	}
-	
+
 	@Override
 	public SortedBeanEntityKey getEntityKey(){
 		return new SortedBeanEntityKey(a, b);
@@ -49,13 +49,13 @@ public class SortedBeanKey extends BaseEntityPrimaryKey<SortedBeanEntityKey,Sort
 	public SortedBeanKey prefixFromEntityKey(SortedBeanEntityKey ek){
 		return new SortedBeanKey(ek.getA(), ek.getB(), null, null);
 	}
-	
-	
+
+
 	/************************ construct ********************************/
 
 	SortedBeanKey(){
 	}
-	
+
 	public SortedBeanKey(String a, String b, Integer c, String d){
 		this.a = a;
 		this.b = b;
@@ -63,9 +63,9 @@ public class SortedBeanKey extends BaseEntityPrimaryKey<SortedBeanEntityKey,Sort
 		this.d = d;
 	}
 
-	
+
 	/***************************** get/set *******************************/
-	
+
 	public String getA(){
 		return a;
 	}
@@ -98,5 +98,5 @@ public class SortedBeanKey extends BaseEntityPrimaryKey<SortedBeanEntityKey,Sort
 		this.d = d;
 	}
 
-	
+
 }

@@ -9,14 +9,20 @@ import com.hotpads.util.core.number.VarInt;
 
 public class VarIntField extends BasePrimitiveField<Integer>{
 
+	public VarIntField(VarIntFieldKey key, Integer value){
+		super(key, value);
+	}
+
+	@Deprecated
 	public VarIntField(String name, Integer value){
 		super(name, assertInRange(value));
 	}
 
+	@Deprecated
 	public VarIntField(String prefix, String name, Integer value){
 		super(prefix, name, assertInRange(value));
 	}
-	
+
 	/************************ static *********************************/
 
 	private static final Random random = new Random();
@@ -24,8 +30,8 @@ public class VarIntField extends BasePrimitiveField<Integer>{
 	public static int nextRandom(){
 		return RandomTool.nextPositiveInt(random);
 	}
-	
-	
+
+
 	/*********************** StringEncodedField ***********************/
 
 	@Override
@@ -33,15 +39,15 @@ public class VarIntField extends BasePrimitiveField<Integer>{
 		if(value==null){ return null; }
 		return value.toString();
 	}
-	
+
 	@Override
 	public Integer parseStringEncodedValueButDoNotSet(String s){
 		if(DrStringTool.isEmpty(s) || s.equals("null")){
-			return null; 
+			return null;
 		}
 		return assertInRange(s==null?null:Integer.valueOf(s));
 	}
-	
+
 
 	/*********************** ByteEncodedField ***********************/
 
@@ -49,20 +55,20 @@ public class VarIntField extends BasePrimitiveField<Integer>{
 	public byte[] getBytes(){
 		return value==null?null:new VarInt(value).getBytes();
 	}
-	
+
 	@Override
 	public int numBytesWithSeparator(byte[] bytes, int offset){
 		return new VarInt(bytes, offset).getNumBytes();
 	}
-	
+
 	@Override
 	public Integer fromBytesButDoNotSet(byte[] bytes, int offset){
 		return new VarInt(bytes, offset).getValue();
 	}
-	
-	
+
+
 	/***************************** validate *****************************************/
-	
+
 	public static Integer assertInRange(Integer i){
 		if(i==null){ return i; }
 		if(i >= 0){ return i; }

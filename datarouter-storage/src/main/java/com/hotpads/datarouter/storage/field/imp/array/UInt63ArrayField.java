@@ -7,7 +7,6 @@ import org.junit.Test;
 
 import com.hotpads.datarouter.storage.field.BaseListField;
 import com.hotpads.datarouter.storage.field.Field;
-import com.hotpads.datarouter.storage.field.ListFieldKey;
 import com.hotpads.datarouter.util.core.DrArrayTool;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrListTool;
@@ -18,14 +17,16 @@ import com.hotpads.util.core.exception.NotImplementedException;
 
 public class UInt63ArrayField extends BaseListField<Long,List<Long>>{
 
-	public UInt63ArrayField(ListFieldKey<Long,List<Long>> key, List<Long> value){
+	public UInt63ArrayField(UInt63ArrayFieldKey key, List<Long> value){
 		super(key, value);
 	}
 
+	@Deprecated
 	public UInt63ArrayField(String name, List<Long> value){
 		super(name, value);
 	}
 
+	@Deprecated
 	public UInt63ArrayField(String prefix, String name, List<Long> value){
 		super(prefix, name, value);
 	}
@@ -70,7 +71,7 @@ public class UInt63ArrayField extends BaseListField<Long,List<Long>>{
 
 	@Override
 	public int numBytesWithSeparator(byte[] bytes, int byteOffset){
-		return bytes==null?0:(IntegerByteTool.fromUInt31Bytes(bytes, byteOffset) + 4);
+		return bytes==null?0:IntegerByteTool.fromUInt31Bytes(bytes, byteOffset) + 4;
 	}
 
 	@Override

@@ -4,7 +4,6 @@ import java.util.List;
 
 import com.hotpads.datarouter.storage.field.BaseListField;
 import com.hotpads.datarouter.storage.field.Field;
-import com.hotpads.datarouter.storage.field.ListFieldKey;
 import com.hotpads.datarouter.util.core.DrArrayTool;
 import com.hotpads.datarouter.util.core.DrByteTool;
 import com.hotpads.datarouter.util.core.DrListTool;
@@ -13,14 +12,16 @@ import com.hotpads.util.core.exception.NotImplementedException;
 
 public class UInt7ArrayField extends BaseListField<Byte,List<Byte>>{
 
-	public UInt7ArrayField(ListFieldKey<Byte,List<Byte>> key, List<Byte> value){
+	public UInt7ArrayField(UInt7ArrayFieldKey key, List<Byte> value){
 		super(key, value);
 	}
 
+	@Deprecated
 	public UInt7ArrayField(String name, List<Byte> value){
 		super(name, value);
 	}
 
+	@Deprecated
 	public UInt7ArrayField(String prefix, String name, List<Byte> value){
 		super(prefix, name, value);
 	}

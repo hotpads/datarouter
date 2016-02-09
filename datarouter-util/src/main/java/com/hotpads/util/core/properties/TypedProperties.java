@@ -1,6 +1,7 @@
 package com.hotpads.util.core.properties;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
@@ -111,5 +112,9 @@ public class TypedProperties{
 
 	public String getString(String key){
 		return DrPropertiesTool.getFirstOccurrence(propertiesList, key);
+	}
+
+	public List<Properties> getUnmodifiablePropertiesList(){
+		return Collections.unmodifiableList(propertiesList);
 	}
 }

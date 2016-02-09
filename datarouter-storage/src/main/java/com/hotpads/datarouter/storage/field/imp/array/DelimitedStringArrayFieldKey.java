@@ -13,4 +13,6 @@ public class DelimitedStringArrayFieldKey extends ListFieldKey<String,List<Strin
 		this.separator = separator;
 	}
 
+
+	//hmm, why doesn't this override isFixedLength => false
 }

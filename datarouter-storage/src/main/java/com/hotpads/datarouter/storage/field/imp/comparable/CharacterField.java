@@ -8,15 +8,21 @@ import com.hotpads.util.core.bytes.StringByteTool;
 
 public class CharacterField extends BasePrimitiveField<Character>{
 
+	public CharacterField(CharacterFieldKey key, Character value){
+		super(key, value);
+	}
+
+	@Deprecated
 	public CharacterField(String name, Character value){
 		super(name, value);
 	}
 
+	@Deprecated
 	public CharacterField(String prefix, String name, Character value){
 		super(prefix, name, value);
 	}
-	
-	
+
+
 	/*********************** StringEncodedField ***********************/
 
 	@Override
@@ -24,21 +30,21 @@ public class CharacterField extends BasePrimitiveField<Character>{
 		if(value==null){ return null; }
 		return value.toString();
 	}
-	
+
 	@Override
 	public Character parseStringEncodedValueButDoNotSet(String s){
 		if(DrStringTool.isEmpty(s)){ return null; }
 		return s.charAt(0);
 	}
-	
+
 
 	/*********************** ByteEncodedField ***********************/
-	
+
 	@Override
 	public byte[] getBytes(){
 		return value==null?null:StringByteTool.getUtf8Bytes(value.toString());
 	}
-	
+
 	@Override
 	public byte[] getBytesWithSeparator(){
 		byte[] dataBytes = getBytes();
@@ -48,7 +54,7 @@ public class CharacterField extends BasePrimitiveField<Character>{
 		allBytes[allBytes.length-1] = StringField.SEPARATOR;
 		return allBytes;
 	}
-	
+
 	@Override
 	public int numBytesWithSeparator(byte[] bytes, int offset){
 		//TODO this should be reviewed for correctness
@@ -59,7 +65,7 @@ public class CharacterField extends BasePrimitiveField<Character>{
 		}
 		throw new IllegalArgumentException("separator not found");
 	}
-	
+
 	@Override
 	public Character fromBytesButDoNotSet(byte[] bytes, int offset){
 		int length = bytes.length - offset;
