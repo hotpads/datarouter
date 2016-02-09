@@ -212,7 +212,7 @@ public class SqlTableDiffGenerator{
 	public boolean isUniqueIndexesModified(){
 		SortedSet<SqlIndex> currentUniqueIndexes = new TreeSet<>(current.getUniqueIndexes());
 		SortedSet<SqlIndex> requestedUniqueIndexes = new TreeSet<>(requested.getUniqueIndexes());
-		return !DrSetTool.containsSameKeys(currentUniqueIndexes, requestedUniqueIndexes);
+		return !currentUniqueIndexes.equals(requestedUniqueIndexes);
 	}
 
 	public boolean isPrimaryKeyModified(){

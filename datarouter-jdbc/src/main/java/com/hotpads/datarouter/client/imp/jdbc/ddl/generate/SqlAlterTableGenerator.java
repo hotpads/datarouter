@@ -337,9 +337,8 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 		if(!options.getDeleteColumns() || DrCollectionTool.isEmpty(colsToRemove)){
 			return list;
 		}
-		StringBuilder sb = new StringBuilder(colsToRemove.stream().map(col->"drop column "+ col.getName())
-		.collect(Collectors.joining(",\n")));
-		list.add(new SqlAlterTableClause(sb.toString(), SqlAlterTypes.DROP_COLUMN));
+		list.add(new SqlAlterTableClause(colsToRemove.stream().map(col->"drop column "+ col.getName())
+				.collect(Collectors.joining(",\n")), SqlAlterTypes.DROP_COLUMN));
 		return list;
 	}
 
