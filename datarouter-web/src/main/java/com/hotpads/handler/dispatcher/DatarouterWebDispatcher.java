@@ -26,7 +26,8 @@ public class DatarouterWebDispatcher extends BaseDispatcher{
 			DATABEAN_GENERATOR = "/databeanGenerator",
 			NODE_BROWSE_DATA = "/nodes/browseData",
 			EXECUTORS_MONITORING = "/executors",
-			MEMORY = "/memory";
+			MEMORY = "/memory",
+			DATA = "/data";
 
 
 	public DatarouterWebDispatcher(DatarouterInjector injector, String servletContextPath, String urlPrefix){
@@ -41,7 +42,7 @@ public class DatarouterWebDispatcher extends BaseDispatcher{
 		handle(URL_DATAROUTER + STACKTRACES).withHandler(StackTracesManagerHandler.class);
 		handleDir(URL_DATAROUTER + MEMORY_STATS).withHandler(MemoryMonitoringHandler.class);
 		handleDir(URL_DATAROUTER + EXECUTORS_MONITORING).withHandler(ExecutorsMonitoringHandler.class);
-		handle(URL_DATAROUTER + "/\\w+/.+/.+").withHandler(DataBeanViewerHandler.class);
+		handle(URL_DATAROUTER + DATA + "/\\w+/.+/.+").withHandler(DataBeanViewerHandler.class);
 	}
 
 }

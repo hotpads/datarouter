@@ -20,8 +20,7 @@ import com.hotpads.handler.mav.Mav;
 import com.hotpads.handler.mav.imp.MessageMav;
 import com.hotpads.handler.mav.imp.StringMav;
 
-public class DataBeanViewerHandler
-		extends BaseHandler{
+public class DataBeanViewerHandler extends BaseHandler{
 	private static final String NON_FIELD_AWARE = "nonFieldAware";
 
 	@Inject
