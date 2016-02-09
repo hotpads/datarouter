@@ -9,15 +9,21 @@ import com.hotpads.util.core.bytes.FloatByteTool;
  */
 public class DumbFloatField extends BasePrimitiveField<Float>{
 
+	public DumbFloatField(DumbFloatFieldKey key, Float value){
+		super(key, value);
+	}
+
+	@Deprecated
 	public DumbFloatField(String name, Float value){
 		super(name, value);
 	}
 
+	@Deprecated
 	public DumbFloatField(String prefix, String name, Float value){
 		super(prefix, name, value);
 	}
-	
-	
+
+
 	/*********************** StringEncodedField ***********************/
 
 	@Override
@@ -25,13 +31,13 @@ public class DumbFloatField extends BasePrimitiveField<Float>{
 		if(value==null){ return null; }
 		return value.toString();
 	}
-	
+
 	@Override
 	public Float parseStringEncodedValueButDoNotSet(String s){
 		if(DrStringTool.isEmpty(s) || s.equals("null")){ return null; }
 		return Float.valueOf(s);
 	}
-	
+
 
 	/*********************** ByteEncodedField ***********************/
 
@@ -39,15 +45,15 @@ public class DumbFloatField extends BasePrimitiveField<Float>{
 	public byte[] getBytes(){
 		return value==null?null:FloatByteTool.getBytes(value);
 	}
-	
+
 	@Override
 	public int numBytesWithSeparator(byte[] bytes, int offset){
 		return 4;
 	}
-	
+
 	@Override
 	public Float fromBytesButDoNotSet(byte[] bytes, int offset){
 		return FloatByteTool.fromBytes(bytes, offset);
 	}
-	
+
 }

@@ -14,9 +14,10 @@ import com.hotpads.datarouter.setting.cached.impl.IntegerCachedSetting;
 @Singleton
 public class DatarouterClusterSettings extends SettingNode implements DatarouterSettings {
 
-	private BooleanCachedSetting loggingConfigUpdaterEnabled;
-	private BooleanCachedSetting recordCallsites;
-	private IntegerCachedSetting numThreadsForMaxThreadsTest;
+	private final BooleanCachedSetting loggingConfigUpdaterEnabled;
+	private final BooleanCachedSetting recordCallsites;
+	private final IntegerCachedSetting numThreadsForMaxThreadsTest;
+
 
 	@Inject
 	public DatarouterClusterSettings(SettingFinder finder, DatarouterNotificationSettings notificationSettings,
@@ -27,14 +28,12 @@ public class DatarouterClusterSettings extends SettingNode implements Datarouter
 		registerChild(profilingSettings);
 		registerChild(batchSizeOptimizerSettings);
 		registerChild(clientAvailabilitySettings);
-		registerSettings();
+
+		loggingConfigUpdaterEnabled = registerBoolean("loggingConfigUpdaterEnabled", true);
+		recordCallsites = registerBoolean("recordCallsites", false);
+		numThreadsForMaxThreadsTest = registerInteger("numThreadsForMaxThreadsTest", 1);
 	}
 
-	private void registerSettings(){
-		this.loggingConfigUpdaterEnabled = registerBoolean("loggingConfigUpdaterEnabled", true);
-		this.recordCallsites = registerBoolean("recordCallsites", false);
-		this.numThreadsForMaxThreadsTest = registerInteger("numThreadsForMaxThreadsTest", 1);
-	}
 
 	@Override
 	public BooleanCachedSetting getLoggingConfigUpdaterEnabled(){

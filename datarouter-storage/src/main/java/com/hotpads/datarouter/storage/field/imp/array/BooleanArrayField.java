@@ -7,31 +7,37 @@ import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.bytes.BooleanByteTool;
 import com.hotpads.util.core.exception.NotImplementedException;
 
-public class BooleanArrayField extends BaseListField<Boolean, List<Boolean>>{
+public class BooleanArrayField extends BaseListField<Boolean,List<Boolean>>{
 
+	public BooleanArrayField(BooleanArrayFieldKey key, List<Boolean> value){
+		super(key, value);
+	}
+
+	@Deprecated
 	public BooleanArrayField(String name, List<Boolean> value){
 		super(name, value);
 	}
-	
+
+	@Deprecated
 	public BooleanArrayField(String prefix, String name, List<Boolean> value){
 		super(prefix, name, value);
 	}
-	
-	
+
+
 	/*********************** StringEncodedField ***********************/
-	
+
 	@Override
 	public String getStringEncodedValue(){
 		if(value==null){ return null; }
 		//TODO to CSV format?
 		throw new NotImplementedException();
 	}
-	
+
 	@Override
 	public List<Boolean> parseStringEncodedValueButDoNotSet(String s){
 		throw new NotImplementedException();
 	}
-	
+
 
 	/*********************** ByteEncodedField ***********************/
 
@@ -53,10 +59,10 @@ public class BooleanArrayField extends BaseListField<Boolean, List<Boolean>>{
 		// TODO Auto-generated method stub
 		return 0;
 	}
-	
-	
+
+
 	/************************** main ***********************/
-	
+
 	public static void main(String[] args){
 		BooleanArrayField testField = new BooleanArrayField("stuff", DrListTool.create(new Boolean(true), null, new Boolean(false)));
 		for(Boolean num : testField.value){

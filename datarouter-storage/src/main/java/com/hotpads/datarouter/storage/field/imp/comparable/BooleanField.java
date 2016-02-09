@@ -1,24 +1,26 @@
 package com.hotpads.datarouter.storage.field.imp.comparable;
 
 import com.hotpads.datarouter.storage.field.BasePrimitiveField;
-import com.hotpads.datarouter.storage.field.PrimitiveFieldKey;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.util.core.bytes.BooleanByteTool;
 
 public class BooleanField extends BasePrimitiveField<Boolean>{
 
-	public BooleanField(PrimitiveFieldKey<Boolean> key, Boolean value){
+	public BooleanField(BooleanFieldKey key, Boolean value){
 		super(key, value);
 	}
 
+	@Deprecated
 	public BooleanField(String name, Boolean value){
 		this(name, value, null);
 	}
 
+	@Deprecated
 	public BooleanField(String prefix, String name, Boolean value){
 		super(prefix, name, value);
 	}
 
+	@Deprecated
 	public BooleanField(String name, Boolean value, Boolean defaultValue){
 		super(name, value, defaultValue);
 	}

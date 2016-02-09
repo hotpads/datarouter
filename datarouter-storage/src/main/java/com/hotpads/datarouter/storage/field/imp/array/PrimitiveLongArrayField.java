@@ -6,18 +6,26 @@ import com.hotpads.util.core.bytes.LongByteTool;
 import com.hotpads.util.core.exception.NotImplementedException;
 
 public class PrimitiveLongArrayField extends BaseField<long[]>{
-	
+
 	private PrimitiveLongArrayFieldKey key;
 
+	public PrimitiveLongArrayField(PrimitiveLongArrayFieldKey key, long[] value){
+		super(null, value);
+		this.key = key;
+	}
+
+	@Deprecated
 	public PrimitiveLongArrayField(String name, long[] value){
 		this(null, name, value);
 	}
 
+	@Deprecated
 	public PrimitiveLongArrayField(String prefix, String name, long[] value){
 		super(prefix, value);
 		this.key = new PrimitiveLongArrayFieldKey(name);
 	}
-	
+
+
 	@Override
 	public PrimitiveLongArrayFieldKey getKey(){
 		return key;
