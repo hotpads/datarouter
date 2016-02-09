@@ -187,7 +187,7 @@ public class HotPadsHttpClient {
 		return requestTimeoutMs * totalPossibleRequests + EXTRA_FUTURE_TIME_MS;
 	}
 
-	private class HttpRequestCallable implements Callable<HttpResponse> {
+	private static class HttpRequestCallable implements Callable<HttpResponse> {
 		private HttpClient httpClient;
 		private HttpUriRequest request;
 		private HttpContext context;
