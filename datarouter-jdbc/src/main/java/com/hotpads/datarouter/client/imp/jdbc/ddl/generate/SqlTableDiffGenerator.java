@@ -28,7 +28,6 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlIndex.SqlIndexNameCo
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlTable;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrListTool;
-import com.hotpads.datarouter.util.core.DrSetTool;
 
 public class SqlTableDiffGenerator{
 	private static final Logger logger = LoggerFactory.getLogger(SqlTableDiffGenerator.class);
@@ -149,7 +148,7 @@ public class SqlTableDiffGenerator{
 		// TODO too much on one line. extract the sets into their own variables
 		SortedSet<SqlColumn> currentColumns = new TreeSet<>(current.getColumns());
 		SortedSet<SqlColumn> requestedColumns = new TreeSet<>(requested.getColumns());
-		if (!DrSetTool.containsSameKeys(currentColumns, requestedColumns)){
+		if (!currentColumns.equals(requestedColumns)){
 			return true;
 		}
 		if (isIndexesModified()){
@@ -188,7 +187,7 @@ public class SqlTableDiffGenerator{
 	public boolean isIndexesModified(){
 		SortedSet<SqlIndex> currentIndexes = new TreeSet<>(current.getIndexes());
 		SortedSet<SqlIndex> requestedIndexes = new TreeSet<>(requested.getIndexes());
-		return !DrSetTool.containsSameKeys(currentIndexes, requestedIndexes);
+		return !currentIndexes.equals(requestedIndexes);
 	}
 
 	public boolean isPrimaryKeyModified(){
@@ -202,7 +201,7 @@ public class SqlTableDiffGenerator{
 
 	private boolean haveTheSameColumnsinTheSameOrder(List<SqlColumn> currentPrimaryKeyColumns,
 			List<SqlColumn> requestedPrimaryKeyColumns){
-		return DrCollectionTool.equalsAllElementsInIteratorOrder(currentPrimaryKeyColumns, requestedPrimaryKeyColumns);
+		return currentPrimaryKeyColumns.equals(requestedPrimaryKeyColumns);
 	}
 
 	public SqlTable getRequested(){
