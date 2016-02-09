@@ -5,9 +5,9 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import com.hotpads.datarouter.node.DatarouterNodes;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.op.raw.read.MapStorageReader;
-import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.serialize.PrimaryKeyStringConverter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.serialize.fielder.PrimaryKeyFielder;
@@ -20,12 +20,12 @@ import com.hotpads.handler.mav.Mav;
 import com.hotpads.handler.mav.imp.MessageMav;
 import com.hotpads.handler.mav.imp.StringMav;
 
-public class DataBeanViewerHandler<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>>
+public class DataBeanViewerHandler <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>>
 		extends BaseHandler{
 	private static final String NON_FIELD_AWARE = "nonFieldAware";
 
 	@Inject
-	private Datarouter datarouter;
+	private DatarouterNodes datarouterNodes;
 
 
 	/**
@@ -33,6 +33,8 @@ public class DataBeanViewerHandler<PK extends PrimaryKey<PK>,D extends Databean<
 	 * https://localhost:8443/job/datarouter/RentZestimateEntity16/RentZestimate.RZ/1
 	 * https://localhost:8443/job/datarouter/place/Area/14644
 	 * https://localhost:8443/job/datarouter/search/Listing/1ParkPlace_0-130012758
+	 * https://localhost:8443/job/datarouter/hbase1/ModelIndexView16B/corporate_020121012112312100231132102_CHBO_8308
+	 * https://localhost:8443/job/datarouter/hbase1/TraceSpan/22858565159955332_0_1
 	 *
 	 */
 
@@ -49,10 +51,10 @@ public class DataBeanViewerHandler<PK extends PrimaryKey<PK>,D extends Databean<
 			return new StringMav("The url is not correct!");
 		}
 
-		Node<?,?> node = datarouter.getNodes().getNode(pathInfo[0] + "." + pathInfo[1]);
+		Node<PK,D> node = (Node<PK,D>)datarouterNodes.getNode(pathInfo[0] + "." + pathInfo[1]);
 		if(node != null){
 			if(!(node instanceof MapStorageReader<?,?>)){
-				return new MessageMav("Cannot browse non-SortedStorageReader"
+				return new MessageMav("Cannot browse non-MapStorageReader "
 					+ node.getClass().getSimpleName());
 			}
 			mav.put("node", node);
@@ -64,7 +66,7 @@ public class DataBeanViewerHandler<PK extends PrimaryKey<PK>,D extends Databean<
 				mav.put(NON_FIELD_AWARE, "non field aware");
 			}
 			mav.put("fields", fields);
-			PK key = PrimaryKeyStringConverter.primaryKeyFromString((Class<PK>)node.getFieldInfo().getPrimaryKeyClass(),
+			PK key = PrimaryKeyStringConverter.primaryKeyFromString(node.getFieldInfo().getPrimaryKeyClass(),
 					(PrimaryKeyFielder<PK>)node.getFieldInfo().getSamplePrimaryKey(), pathInfo[2]);
 			key.fromPersistentString(pathInfo[2]);
 			MapStorageReader<PK,D> mapNode = (MapStorageReader<PK,D>)node;
@@ -77,9 +79,9 @@ public class DataBeanViewerHandler<PK extends PrimaryKey<PK>,D extends Databean<
 		return new StringMav("databean not found");
 	}
 
-	private void addDatabeansToMav(Mav mav, Node node, D databean){
+	private	void addDatabeansToMav(Mav mav, Node<PK,D> node, D databean){
 		List<List<Field<?>>> rowsOfFields = new ArrayList<>();
-		DatabeanFielder fielder = node.getFieldInfo().getSampleFielder();
+		DatabeanFielder<PK,D> fielder = node.getFieldInfo().getSampleFielder();
 		if(fielder != null){
 			List<Field<?>> rowOfFields = fielder.getFields(databean);
 			rowsOfFields.add(rowOfFields);
