@@ -20,7 +20,7 @@ import com.hotpads.handler.mav.Mav;
 import com.hotpads.handler.mav.imp.MessageMav;
 import com.hotpads.handler.mav.imp.StringMav;
 
-public class DataBeanViewerHandler <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>>
+public class DataBeanViewerHandler
 		extends BaseHandler{
 	private static final String NON_FIELD_AWARE = "nonFieldAware";
 
@@ -51,7 +51,7 @@ public class DataBeanViewerHandler <PK extends PrimaryKey<PK>,D extends Databean
 			return new StringMav("The url is not correct!");
 		}
 
-		Node<PK,D> node = (Node<PK,D>)datarouterNodes.getNode(pathInfo[0] + "." + pathInfo[1]);
+		Node<?,?> node = datarouterNodes.getNode(pathInfo[0] + "." + pathInfo[1]);
 		if(node != null){
 			if(!(node instanceof MapStorageReader<?,?>)){
 				return new MessageMav("Cannot browse non-MapStorageReader "
@@ -66,11 +66,12 @@ public class DataBeanViewerHandler <PK extends PrimaryKey<PK>,D extends Databean
 				mav.put(NON_FIELD_AWARE, "non field aware");
 			}
 			mav.put("fields", fields);
-			PK key = PrimaryKeyStringConverter.primaryKeyFromString(node.getFieldInfo().getPrimaryKeyClass(),
-					(PrimaryKeyFielder<PK>)node.getFieldInfo().getSamplePrimaryKey(), pathInfo[2]);
+			PrimaryKey key = PrimaryKeyStringConverter.primaryKeyFromString((Class<PrimaryKey>)(node.getFieldInfo()
+					.getPrimaryKeyClass()), (PrimaryKeyFielder)(node.getFieldInfo().getSamplePrimaryKey()),
+					pathInfo[2]);
 			key.fromPersistentString(pathInfo[2]);
-			MapStorageReader<PK,D> mapNode = (MapStorageReader<PK,D>)node;
-			D databean = mapNode.get(key, null);
+			MapStorageReader mapNode = (MapStorageReader)node;
+			Databean<?,?> databean = mapNode.get(key, null);
 			if(databean != null){
 				addDatabeansToMav(mav, node, databean);
 				return mav;
@@ -79,9 +80,9 @@ public class DataBeanViewerHandler <PK extends PrimaryKey<PK>,D extends Databean
 		return new StringMav("databean not found");
 	}
 
-	private	void addDatabeansToMav(Mav mav, Node<PK,D> node, D databean){
+	private	void addDatabeansToMav(Mav mav, Node<?,?> node, Databean<?,?> databean){
 		List<List<Field<?>>> rowsOfFields = new ArrayList<>();
-		DatabeanFielder<PK,D> fielder = node.getFieldInfo().getSampleFielder();
+		DatabeanFielder fielder = node.getFieldInfo().getSampleFielder();
 		if(fielder != null){
 			List<Field<?>> rowOfFields = fielder.getFields(databean);
 			rowsOfFields.add(rowOfFields);
