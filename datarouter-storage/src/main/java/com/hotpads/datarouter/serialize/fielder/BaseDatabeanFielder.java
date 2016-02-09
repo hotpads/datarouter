@@ -80,6 +80,11 @@ implements DatabeanFielder<PK,D>{
 	}
 
 	@Override
+	public Map<String,List<Field<?>>> getUniqueIndexes(D databean){
+		return new TreeMap<>();
+	}
+
+	@Override
 	public MySqlCollation getCollation(){
 		return MySqlCollation.utf8_bin;
 	}
