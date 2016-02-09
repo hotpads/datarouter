@@ -4,12 +4,13 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.imp.StringField;
+import com.hotpads.datarouter.storage.field.imp.StringFieldKey;
 import com.hotpads.datarouter.storage.field.imp.custom.LongDateField;
+import com.hotpads.datarouter.storage.field.imp.custom.LongDateFieldKey;
 
 
 /** CREATE SCRIPT
@@ -23,17 +24,16 @@ com.hotpads.websocket.session.WebSocketSession{
 }
 
 */
-public class WebSocketSession extends BaseDatabean<WebSocketSessionKey,WebSocketSession> {
+public class WebSocketSession extends BaseDatabean<WebSocketSessionKey,WebSocketSession>{
 
 	private WebSocketSessionKey key;
 
 	private Date openingDate;
 	private String serverName;
 
-	public static class F {
-		public static final String
-			openingDate = "openingDate",
-			serverName = "serverName";
+	public static class FieldKeys{
+		public static final LongDateFieldKey openingDate = new LongDateFieldKey("openingDate");
+		public static final StringFieldKey serverName = new StringFieldKey("serverName");
 	}
 
 	public static class WebSocketSessionFielder
@@ -45,13 +45,13 @@ public class WebSocketSession extends BaseDatabean<WebSocketSessionKey,WebSocket
 		@Override
 		public List<Field<?>> getNonKeyFields(WebSocketSession webSocketSession){
 			return Arrays.asList(
-				new LongDateField(F.openingDate, webSocketSession.openingDate),
-				new StringField(F.serverName, webSocketSession.serverName, MySqlColumnType.MAX_LENGTH_VARCHAR));
+				new LongDateField(FieldKeys.openingDate, webSocketSession.openingDate),
+				new StringField(FieldKeys.serverName, webSocketSession.serverName));
 		}
 
 	}
 
-	@SuppressWarnings("unused") //used by datarouter reflection
+	@SuppressWarnings("unused") // used by datarouter reflection
 	private WebSocketSession(){
 		this.key = new WebSocketSessionKey();
 	}
@@ -63,12 +63,12 @@ public class WebSocketSession extends BaseDatabean<WebSocketSessionKey,WebSocket
 	}
 
 	@Override
-	public Class<WebSocketSessionKey> getKeyClass() {
+	public Class<WebSocketSessionKey> getKeyClass(){
 		return WebSocketSessionKey.class;
 	}
 
 	@Override
-	public WebSocketSessionKey getKey() {
+	public WebSocketSessionKey getKey(){
 		return key;
 	}
 
