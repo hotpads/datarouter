@@ -14,9 +14,9 @@ import com.hotpads.datarouter.storage.prefix.ScatteringPrefix;
 public interface DatabeanFielder<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>>{
-	
+
 	Class<? extends ScatteringPrefix> getScatteringPrefixClass();
-	
+
 	//TODO require PrimaryKeyFielder (requires find/replace in all Databeans
 	Class<? extends Fielder<PK>> getKeyFielderClass();
 	Fielder<PK> getKeyFielder();
@@ -24,11 +24,13 @@ public interface DatabeanFielder<
 	public List<Field<?>> getFields(D fieldSet);
 	List<Field<?>> getKeyFields(D databean);
 	List<Field<?>> getNonKeyFields(D databean);
-	
+
 	Map<String,List<Field<?>>> getIndexes(D databean);
+	Map<String,List<Field<?>>> getUniqueIndexes(D databean);
+
 	MySqlCollation getCollation();
 	MySqlCharacterSet getCharacterSet();
-	
+
 	Class<? extends StringDatabeanCodec> getStringDatabeanCodecClass();
 	StringDatabeanCodec getStringDatabeanCodec();
 }

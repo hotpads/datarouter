@@ -40,7 +40,7 @@ implements Callable<Void>{
 	private final List<String> existingTableNames;
 	private final SchemaUpdateOptions printOptions;
 	private final SchemaUpdateOptions executeOptions;
-	private PhysicalNode<?,?> physicalNode;
+	private final PhysicalNode<?,?> physicalNode;
 
 	//we write back to these 2 thread-safe collections that are passed in
 	private final Set<String> updatedTables;
@@ -73,7 +73,8 @@ implements Callable<Void>{
 		DatabeanFieldInfo<?, ?, ?> fieldInfo = physicalNode.getFieldInfo();
 		List<Field<?>> primaryKeyFields = fieldInfo.getPrimaryKeyFields();
 		List<Field<?>> nonKeyFields = fieldInfo.getNonKeyFields();
-		Map<String, List<Field<?>>>  indexes = DrMapTool.nullSafe(fieldInfo.getIndexes());
+		Map<String, List<Field<?>>> indexes = DrMapTool.nullSafe(fieldInfo.getIndexes());
+		Map<String, List<Field<?>>> uniqueIndexes = DrMapTool.nullSafe(fieldInfo.getUniqueIndexes());
 		MySqlCollation collation = fieldInfo.getCollation();
 		MySqlCharacterSet characterSet = fieldInfo.getCharacterSet();
 
@@ -97,6 +98,7 @@ implements Callable<Void>{
 		FieldSqlTableGenerator generator = new FieldSqlTableGenerator(fieldCodecFactory, physicalNode.getTableName(),
 				primaryKeyFields, nonKeyFields, collation, characterSet);
 		generator.setIndexes(indexes);
+		generator.setUniqueIndexes(uniqueIndexes);
 
 		SqlTable requested = generator.generate();
 		Connection connection = null;
