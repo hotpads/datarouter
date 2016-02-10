@@ -9,7 +9,7 @@ public class UInt63FieldKey extends PrimitiveFieldKey<Long>{
 		super(name);
 	}
 
-	public UInt63FieldKey(String name, String columnName, boolean nullable, FieldGeneratorType fieldGeneratorType,
+	private UInt63FieldKey(String name, String columnName, boolean nullable, FieldGeneratorType fieldGeneratorType,
 			Long defaultValue){
 		super(name, columnName, nullable, fieldGeneratorType, defaultValue);
 	}
