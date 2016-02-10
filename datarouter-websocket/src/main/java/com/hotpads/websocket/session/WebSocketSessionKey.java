@@ -19,7 +19,8 @@ public class WebSocketSessionKey extends BasePrimaryKey<WebSocketSessionKey> {
 
 	public static class FieldKeys{
 		public static final StringFieldKey userToken = new StringFieldKey("userToken");
-		public static final UInt63FieldKey id = new UInt63FieldKey("id", FieldGeneratorType.RANDOM);
+		public static final UInt63FieldKey id = new UInt63FieldKey("id").withFieldGeneratorType(
+				FieldGeneratorType.RANDOM);
 	}
 
 	@Override
