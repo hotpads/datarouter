@@ -21,6 +21,7 @@ public class FieldSqlTableGenerator implements SqlTableGenerator{
 	private final List<Field<?>> primaryKeyFields;
 	private final List<Field<?>> nonKeyFields;
 	private Map<String,List<Field<?>>> indexes;
+	private Map<String,List<Field<?>>> uniqueIndexes;
 	private final MySqlCollation collation;
 	private final MySqlCharacterSet characterSet;
 
@@ -39,6 +40,7 @@ public class FieldSqlTableGenerator implements SqlTableGenerator{
 		this.tableName = tableName;
 		this.nonKeyFields = nonKeyFields;
 		this.indexes = new HashMap<>();
+		this.uniqueIndexes = new HashMap<>();
 		this.primaryKeyFields = primaryKeyFields;
 		this.collation = collation;
 		this.characterSet = characterSet;
@@ -64,6 +66,15 @@ public class FieldSqlTableGenerator implements SqlTableGenerator{
 			}
 			table.addIndex(index);
 		}
+
+		for(List<Field<?>> listOfFields : uniqueIndexes.values()){
+			SqlIndex uniqueIndex = new SqlIndex(getKeyByValue(uniqueIndexes, listOfFields));
+			for(JdbcFieldCodec<?,?> codec : fieldCodecFactory.createCodecs(listOfFields)){
+				uniqueIndex.addColumn(codec.getSqlColumnDefinition());
+			}
+			table.addUniqueIndex(uniqueIndex);
+		}
+
 		table.getColumns().forEach(column -> {
 			column.setCharacterSet(characterSet);
 			column.setCollation(collation);
@@ -104,6 +115,10 @@ public class FieldSqlTableGenerator implements SqlTableGenerator{
 
 	public void setIndexes(Map<String,List<Field<?>>> indexes){
 		this.indexes = indexes;
+	}
+
+	public void setUniqueIndexes(Map<String,List<Field<?>>> uniqueIndexes){
+		this.uniqueIndexes = uniqueIndexes;
 	}
 
 }

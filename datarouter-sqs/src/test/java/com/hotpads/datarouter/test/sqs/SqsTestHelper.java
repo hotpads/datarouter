@@ -9,8 +9,8 @@ import java.util.concurrent.Future;
 
 import org.testng.Assert;
 
+import com.hotpads.datarouter.client.imp.sqs.BaseSqsNode;
 import com.hotpads.datarouter.client.imp.sqs.SqsDataTooLargeException;
-import com.hotpads.datarouter.client.imp.sqs.single.SqsNode;
 import com.hotpads.datarouter.node.op.raw.write.QueueStorageWriter;
 import com.hotpads.datarouter.test.TestDatabean;
 import com.hotpads.datarouter.test.TestDatabeanFielder;
@@ -27,7 +27,7 @@ public class SqsTestHelper{
 	}
 
 	public void testByteLimitMulti(){
-		String longString = makeLongStringWithDatabeanSizeTarget(SqsNode.MAX_BYTES_PER_MESSAGE + 1);
+		String longString = makeLongStringWithDatabeanSizeTarget(BaseSqsNode.MAX_BYTES_PER_MESSAGE + 1);
 		List<TestDatabean> databeans = new ArrayList<>();
 		databeans.add(new TestDatabean(longString, "", ""));
 		databeans.add(new TestDatabean(longString, "", ""));

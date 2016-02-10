@@ -54,7 +54,8 @@ public class DatabeanFieldInfo<
 	private D sampleDatabean;
 	private String keyFieldName;
 	private java.lang.reflect.Field keyJavaField;
-	private Map<String,List<Field<?>>>  indexes;
+	private Map<String,List<Field<?>>> indexes;
+	private Map<String,List<Field<?>>> uniqueIndexes;
 	private MySqlCollation collation;
 	private MySqlCharacterSet characterSet;
 
@@ -133,6 +134,7 @@ public class DatabeanFieldInfo<
 				this.nonKeyFields = sampleFielder.getNonKeyFields(sampleDatabean);
 				addNonKeyFieldsToCollections();
 				this.indexes = sampleFielder.getIndexes(sampleDatabean);
+				this.uniqueIndexes = sampleFielder.getUniqueIndexes(sampleDatabean);
 				this.characterSet = sampleFielder.getCharacterSet();
 				this.collation = sampleFielder.getCollation();
 				this.scatteringPrefixClass = sampleFielder.getScatteringPrefixClass();
@@ -353,6 +355,10 @@ public class DatabeanFieldInfo<
 
 	public Map<String,List<Field<?>>> getIndexes(){
 		return indexes;
+	}
+
+	public Map<String,List<Field<?>>> getUniqueIndexes(){
+		return uniqueIndexes;
 	}
 
 	public MySqlCollation getCollation(){

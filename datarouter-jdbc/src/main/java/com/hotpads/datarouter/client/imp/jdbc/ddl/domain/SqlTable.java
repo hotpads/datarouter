@@ -5,36 +5,36 @@ import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.testng.Assert;
+import org.testng.annotations.Guice;
+import org.testng.annotations.Test;
 
+import com.hotpads.datarouter.client.imp.jdbc.TestDatarouterJdbcModuleFactory;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.SqlCreateTableGenerator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.SqlTableDiffGenerator;
 
 public class SqlTable{
-	
+
 	private static final MySqlCharacterSet DEFAULT_CHARACTER_SET = MySqlCharacterSet.utf8;
 	private static final MySqlCollation DEFAULT_COLLATION = MySqlCollation.utf8_bin;
-	
-	
+
+
 	/***************** fields *****************************/
-	
+
 	private String name;
 	private List<SqlColumn> columns;
 	private SqlIndex primaryKey;
 	private SortedSet<SqlIndex> indexes;
+	private SortedSet<SqlIndex> uniqueIndexes;
 	private MySqlTableEngine engine = MySqlTableEngine.INNODB;
 	private MySqlCollation collation = DEFAULT_COLLATION;
 	private MySqlCharacterSet charSet = DEFAULT_CHARACTER_SET;
-	
-	
+
+
 	/*************** constructors ****************************/
-	
-	public SqlTable(String name, List<SqlColumn> columns, SqlIndex primaryKey, SortedSet<SqlIndex> indexes){
-		this.name = name;
-		this.columns = columns;
-		this.primaryKey = primaryKey;
-		this.indexes = indexes;		
+
+	public SqlTable(String name){
+		this(name, new ArrayList<>(), new SqlIndex("PRIMARY"));
 	}
 
 	public SqlTable(String name, List<SqlColumn> columns, SqlIndex primaryKey){
@@ -42,29 +42,15 @@ public class SqlTable{
 		this.columns = columns;
 		this.primaryKey = primaryKey;
 		this.indexes = new TreeSet<>();
+		this.uniqueIndexes = new TreeSet<>();
 	}
 
-	public SqlTable(String name, List<SqlColumn> columns){
-		this.name = name;
-		this.columns = columns;
-		this.primaryKey = new SqlIndex("PRIMARY");
-		this.indexes = new TreeSet<>();
-	}
-
-	public SqlTable(String name){
-		this.name = name;
-		this.columns = new ArrayList<>();
-		this.primaryKey = new SqlIndex("PRIMARY");
-		this.indexes = new TreeSet<>();
-	}
-	
-	
 	/*************** methods *********************************/
-	
+
 	public String getCreateTable(){
 		return null;
 	}
-	
+
 	public void setPrimaryKey(String primaryKeyColumnName){
 		for(SqlColumn col : columns){
 			//System.out.println(" col " + col +" pkeyColumnName " + primaryKeyColumnName);
@@ -80,7 +66,13 @@ public class SqlTable{
 			}
 		}
 	}
-	
+
+	public SqlTable setPrimaryKey(SqlIndex primaryKey){
+		this.primaryKey = primaryKey;
+		return this;
+	}
+
+
 	public SqlTable addColumn(SqlColumn column){
 		columns.add(column);
 		return this;
@@ -90,25 +82,34 @@ public class SqlTable{
 		indexes.add(tableIndex);
 		return this;
 	}
-	
+
+	public SqlTable addUniqueIndex(SqlIndex tableUniqueIndex){
+		uniqueIndexes.add(tableUniqueIndex);
+		return this;
+	}
+
 	public boolean hasPrimaryKey(){
 		return getPrimaryKey()!=null && getPrimaryKey().getColumns().size()>0;
 	}
 
 	public boolean containsColumn(String columnName){
 		for(SqlColumn col : getColumns()){
-			if(col.getName().equals(columnName)) return true;
+			if(col.getName().equals(columnName)){
+				return true;
+			}
 		}
 		return false;
 	}
-	
+
 	public boolean containsIndex(String string){
 		for(SqlIndex index : getIndexes()){
-			if(index.getName().equals(string)) return true;
+			if(index.getName().equals(string)){
+				return true;
+			}
 		}
 		return false;
 	}
-	
+
 	public static MySqlCharacterSet getDefaultCharacterSet(){
 		return DEFAULT_CHARACTER_SET;
 	}
@@ -116,7 +117,7 @@ public class SqlTable{
 	public static MySqlCollation getDefaultCollation(){
 		return DEFAULT_COLLATION;
 	}
-	
+
 
 	/******************* static methods ***************************/
 
@@ -125,7 +126,7 @@ public class SqlTable{
 		int index = phrase.indexOf('(');
 		return phrase.substring(0, index);
 	}
-	 
+
 	//text inside the parentheses which is a csv separated list of column definitions
 	public static String getColumnDefinitionSection(String phrase){
 		int index1 = phrase.indexOf('('), index2 = phrase.lastIndexOf(')');
@@ -142,8 +143,8 @@ public class SqlTable{
 	private static boolean hasAMaxValue(String columnDefinitioin){
 		return columnDefinitioin.contains("(");
 	}
-	
-	
+
+
 	/********************** Object methods ****************************/
 
 	@Override
@@ -155,20 +156,21 @@ public class SqlTable{
 //		}
 //		sb.append("PK=" + primaryKey + "\nindexes=" + indexes );
 //		sb.append("\nEngine : " +getEngine());
-		
+
 		//sb.append("The create table statement :\n");
 		sb.append(new SqlCreateTableGenerator(this).generateDdl());
 		return sb.toString();
 	}
-	
+
 	@Override
 	public boolean equals(Object otherObject){
-		if(!(otherObject instanceof SqlTable)){ return false; }
+		if(!(otherObject instanceof SqlTable)){
+			return false;
+		}
 		SqlTable other = (SqlTable)otherObject;
 		return ! new SqlTableDiffGenerator(this, other,true).isTableModified();
 	}
-	
-	
+
 	/*************************** get/set ********************************/
 
 	public String getName(){
@@ -199,10 +201,14 @@ public class SqlTable{
 		this.indexes = indexes;
 	}
 
-	public SqlTable setPrimaryKey(SqlIndex primaryKey){
-		this.primaryKey = primaryKey;
-		return this;
+	public SortedSet<SqlIndex> getUniqueIndexes(){
+		return uniqueIndexes;
 	}
+
+	public void setUniqueIndexes(SortedSet<SqlIndex> uniqueIndexes){
+		this.uniqueIndexes = uniqueIndexes;
+	}
+
 
 	public int getNumberOfColumns(){
 		return getColumns().size();
@@ -234,7 +240,7 @@ public class SqlTable{
 
 
 	/******************** tests *********************************/
-
+	@Guice(moduleFactory = TestDatarouterJdbcModuleFactory.class)
 	public static class SqlTableTests{
 		@Test
 		public void testGetHeader(){
@@ -250,18 +256,6 @@ public class SqlTable{
 		public void testGetFullBody(){
 			Assert.assertEquals("blabla(blob())", getColumnDefinitionSection("Header(blabla(blob()))trail"));
 		}
-		
-//		@Test
-//		public void testParseCreateTable() throws IOException{
-		//need to get filepath correct somehow
-//			FileInputStream fis = new FileInputStream("src/com/hotpads/datarouter/client/imp/jdbc/ddl/test3.txt");
-//			DataInputStream in = new DataInputStream(fis);
-//			BufferedReader br = new BufferedReader(new InputStreamReader(in));
-//			String str, phrase = "";
-//			while((str = br.readLine()) != null){
-//				phrase += str;
-//			}
-//			System.out.println(parseCreateTable(phrase));
-//		}
+
 	}
 }

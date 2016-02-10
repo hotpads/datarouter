@@ -41,6 +41,10 @@ implements FieldKey<T>{
 		this.defaultValue = defaultValue;
 	}
 
+	public BaseFieldKey(String name, FieldGeneratorType fieldGeneratorType){
+		this(name, true, fieldGeneratorType);
+	}
+
 	/******************************** methods *******************************/
 
 	@Override
