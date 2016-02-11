@@ -9,7 +9,7 @@ import com.hotpads.handler.admin.DatabeanGeneratorHandler;
 import com.hotpads.handler.admin.RoutersHandler;
 import com.hotpads.handler.admin.StackTracesManagerHandler;
 import com.hotpads.handler.admin.client.memory.MemoryHandler;
-import com.hotpads.handler.datarouter.DataBeanViewerHandler;
+import com.hotpads.handler.datarouter.DatabeanViewerHandler;
 import com.hotpads.handler.datarouter.ViewNodeDataHandler;
 
 public class DatarouterWebDispatcher extends BaseDispatcher{
@@ -42,7 +42,7 @@ public class DatarouterWebDispatcher extends BaseDispatcher{
 		handle(URL_DATAROUTER + STACKTRACES).withHandler(StackTracesManagerHandler.class);
 		handleDir(URL_DATAROUTER + MEMORY_STATS).withHandler(MemoryMonitoringHandler.class);
 		handleDir(URL_DATAROUTER + EXECUTORS_MONITORING).withHandler(ExecutorsMonitoringHandler.class);
-		handle(URL_DATAROUTER + DATA + "/\\w+/.+/.+").withHandler(DataBeanViewerHandler.class);
+		handle(URL_DATAROUTER + DATA + "/\\w+/.+/.+").withHandler(DatabeanViewerHandler.class);
 	}
 
 }
