@@ -183,10 +183,10 @@ public class SqlColumn implements Comparable<SqlColumn>{
 				if(colA.type != MySqlColumnType.DATETIME ){
 					return diff;
 				}
-				if(colB.maxLength < MAX_DATETIME_LENGTH){
+				if(colA.maxLength < MAX_DATETIME_LENGTH && colB.maxLength == 0){
 					return diff;
 				}
-				if(colA.maxLength != 0){
+				if(colB.maxLength < MAX_DATETIME_LENGTH && colA.maxLength == 0){
 					return diff;
 				}
 			}
@@ -332,6 +332,24 @@ public class SqlColumn implements Comparable<SqlColumn>{
 		}
 
 		//TODO Test the auto-increment !
+
+		@Test
+		public void testDateTime(){
+			SqlColumnNameTypeLengthAutoIncrementDefaultComparator comparator =
+					new SqlColumnNameTypeLengthAutoIncrementDefaultComparator(true);
+
+			SqlColumn dateTimeRequested = new SqlColumn("a", MySqlColumnType.DATETIME, 0, true, false);
+			SqlColumn dateTimeCurrent = new SqlColumn("a", MySqlColumnType.DATETIME, 19, true, false);
+			SqlColumn newCol = new SqlColumn("b", MySqlColumnType.VARCHAR, 120, true, false);
+			TreeSet<SqlColumn> minus = DrCollectionTool.minus(Arrays.asList(dateTimeRequested), Arrays.asList(
+					dateTimeCurrent), comparator);
+			Assert.assertEquals(0, minus.size());
+			minus = DrCollectionTool.minus(Arrays.asList(dateTimeRequested, newCol), Arrays.asList(dateTimeCurrent),
+					comparator);
+			Assert.assertEquals(1, minus.size());
+			Assert.assertEquals(newCol, minus.iterator().next());
+		}
+
 	}
 
 }

@@ -11,21 +11,20 @@ import com.hotpads.datarouter.setting.SettingNode;
 @Singleton
 public class JobSettings extends SettingNode{
 
-	private Setting<Boolean> saveLongRunningTasks;
-	private Setting<Boolean> scheduleMissedJobsOnStartup;
-	private Setting<Boolean> processJobs;
-	
+	private final Setting<Boolean> saveLongRunningTasks;
+	private final Setting<Boolean> scheduleMissedJobsOnStartup;
+	private final Setting<Boolean> processJobs;
+
+
 	@Inject
 	public JobSettings(SettingFinder finder, WebAppName webAppName){
 		super(finder, webAppName + ".job.", webAppName + ".");
-		registerSettings();
-	}
-	
-	private void registerSettings(){
+
 		saveLongRunningTasks = registerBoolean("saveLongRunningTasks", false);
 		scheduleMissedJobsOnStartup = registerBoolean("scheduleMissedJobsOnStartup", false);
 		processJobs = registerBoolean("processJobs", true);
 	}
+
 
 	public Setting<Boolean> getSaveLongRunningTasks(){
 		return saveLongRunningTasks;

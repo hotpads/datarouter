@@ -14,14 +14,23 @@ public class ByteArrayField extends BaseField<byte[]>{
 
 	private ByteArrayFieldKey key;
 
+
+	public ByteArrayField(ByteArrayFieldKey key, byte[] value){
+		super(null, value);
+		this.key = key;
+	}
+
+	@Deprecated
 	public ByteArrayField(String name, byte[] value, int size){
 		this(null, name, value, size);
 	}
 
+	@Deprecated
 	public ByteArrayField(String prefix, String name, byte[] value, int size){
 		super(prefix, value);
 		this.key = new ByteArrayFieldKey(name, size);
 	}
+
 
 	@Override
 	public ByteArrayFieldKey getKey(){

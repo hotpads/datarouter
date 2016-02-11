@@ -18,9 +18,9 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
+import com.hotpads.datarouter.client.imp.sqs.BaseSqsNode;
 import com.hotpads.datarouter.client.imp.sqs.SqsDataTooLargeException;
 import com.hotpads.datarouter.client.imp.sqs.config.DatarouterSqsTestModuleFactory;
-import com.hotpads.datarouter.client.imp.sqs.single.SqsNode;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.test.TestDatabean;
@@ -68,12 +68,12 @@ public class SqsNodeIntegrationTests{
 
 	@Test
 	public void testUnderByteLimit(){
-		testByteLimit(SqsNode.MAX_BYTES_PER_MESSAGE);
+		testByteLimit(BaseSqsNode.MAX_BYTES_PER_MESSAGE);
 	}
 
 	@Test(expectedExceptions={SqsDataTooLargeException.class})
 	public void testOverByteLimit(){
-		testByteLimit(SqsNode.MAX_BYTES_PER_MESSAGE + 1);
+		testByteLimit(BaseSqsNode.MAX_BYTES_PER_MESSAGE + 1);
 	}
 
 	private void testByteLimit(int size){
