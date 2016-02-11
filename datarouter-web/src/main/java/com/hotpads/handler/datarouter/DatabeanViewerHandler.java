@@ -1,6 +1,8 @@
 package com.hotpads.handler.datarouter;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -29,11 +31,11 @@ public class DatabeanViewerHandler extends BaseHandler{
 
 	/**
 	 * e.g.
-	 * https://localhost:8443/job/datarouter/data/RentZestimateEntity16/RentZestimate.RZ/1
+	 * https://localhost:8443/job/datarouter/data/stat/RentZestimate/1
 	 * https://localhost:8443/job/datarouter/data/place/Area/14644
 	 * https://localhost:8443/job/datarouter/data/search/Listing/1ParkPlace_0-130012758
-	 * https://localhost:8443/job/datarouter/data/hbase1/ModelIndexView16B/corporate_020121012112312100231132102_CHBO_8308
-	 * https://localhost:8443/job/datarouter/data/hbase1/TraceSpan/22858565159955332_0_1
+	 * https://localhost:8443/job/datarouter/data/view/ModelIndexView16B/corporate_020121012112312100231132102_CHBO_8308
+	 * https://localhost:8443/job/datarouter/data/event/TraceSpan/22858565159955332_0_1
 	 *
 	 */
 
@@ -41,40 +43,58 @@ public class DatabeanViewerHandler extends BaseHandler{
 	protected Mav handleDefault() throws Exception{
 		Mav mav = new Mav("/jsp/admin/viewDatabean.jsp");
 		String pathInfoStr = params.getRequest().getPathInfo();
-		int offset = 1;
+		int offset = DatarouterWebDispatcher.DATA.length() + 1;
 		if(pathInfoStr.contains(DatarouterWebDispatcher.URL_DATAROUTER)){
 			offset += DatarouterWebDispatcher.URL_DATAROUTER.length();
 		}
 		String[] pathInfo = params.getRequest().getPathInfo().substring(offset).split("/");
 		if(pathInfo.length != 3){
-			return new StringMav("The url is not correct!");
+			return new StringMav("The url is not correct! "
+					+ "The correct url is: /datarouter/data/{datarouter}/{table}/{databeanKey}");
 		}
 
-		Node<?,?> node = datarouterNodes.getNode(pathInfo[0] + "." + pathInfo[1]);
-		if(node != null){
-			if(!(node instanceof MapStorageReader<?,?>)){
-				return new MessageMav("Cannot browse non-MapStorageReader "
-					+ node.getClass().getSimpleName());
+		String dataRouterName = pathInfo[0];
+		String tableName = pathInfo[1];
+		String databeanKey = pathInfo[2];
+		Collection<Node<?,?>> topLevelNodes = datarouterNodes.getTopLevelNodesByRouterName().get(dataRouterName);
+		for(Node<?,?> topLevelNode : topLevelNodes){
+			List<Node<?,?>> allTreeNodes = new ArrayList<>();
+			allTreeNodes.add(topLevelNode);
+			allTreeNodes.addAll(topLevelNode.getChildNodes());
+
+			for(Node<?,?> node : allTreeNodes){
+				String [] nodeNameSplit = node.getName().split("\\.");
+				if(nodeNameSplit.length < 2){
+					return new StringMav(
+						"There might be some problem with the nodeName, where nodeName = " + node.getName());
+				}
+				if(tableName.equalsIgnoreCase(nodeNameSplit[1])){
+					if(!(node instanceof MapStorageReader<?,?>)){
+						return new MessageMav("Cannot browse non-MapStorageReader "
+							+ node.getClass().getSimpleName());
+					}
+					mav.put("node", node);
+					List<Field<?>> fields = node.getFields();
+					mav.put(NON_FIELD_AWARE, "field aware");
+					if(fields == null){
+						fields = new ArrayList<>();
+						fields.addAll(node.getFieldInfo().getPrimaryKeyFields());
+						mav.put(NON_FIELD_AWARE, "non field aware");
+					}
+					mav.put("fields", fields);
+					PrimaryKey<?> key = PrimaryKeyStringConverter.primaryKeyFromString((Class<PrimaryKey>)(node.getFieldInfo()
+							.getPrimaryKeyClass()), (PrimaryKeyFielder)(node.getFieldInfo().getSamplePrimaryKey()),
+							databeanKey);
+					key.fromPersistentString(databeanKey);
+					MapStorageReader mapNode = (MapStorageReader)node;
+					Databean<?,?> databean = mapNode.get(key, null);
+					if(databean != null){
+						addDatabeansToMav(mav, node, databean);
+						return mav;
+					}
+				}
 			}
-			mav.put("node", node);
-			List<Field<?>> fields = node.getFields();
-			mav.put(NON_FIELD_AWARE, "field aware");
-			if(fields == null){
-				fields = new ArrayList<>();
-				fields.addAll(node.getFieldInfo().getPrimaryKeyFields());
-				mav.put(NON_FIELD_AWARE, "non field aware");
-			}
-			mav.put("fields", fields);
-			PrimaryKey<?> key = PrimaryKeyStringConverter.primaryKeyFromString((Class<PrimaryKey>)(node.getFieldInfo()
-					.getPrimaryKeyClass()), (PrimaryKeyFielder)(node.getFieldInfo().getSamplePrimaryKey()),
-					pathInfo[2]);
-			key.fromPersistentString(pathInfo[2]);
-			MapStorageReader mapNode = (MapStorageReader)node;
-			Databean<?,?> databean = mapNode.get(key, null);
-			if(databean != null){
-				addDatabeansToMav(mav, node, databean);
-				return mav;
-			}
+
 		}
 		return new StringMav("databean not found");
 	}
@@ -87,6 +107,12 @@ public class DatabeanViewerHandler extends BaseHandler{
 			rowsOfFields.add(rowOfFields);
 		}
 		mav.put("rowsOfFields", rowsOfFields);
+	}
+
+
+	public static void main(String[] args){
+		String a = "searchSlave01.ListingPhoto";
+		System.out.println(Arrays.asList(a.split("\\.")));
 	}
 
 }
