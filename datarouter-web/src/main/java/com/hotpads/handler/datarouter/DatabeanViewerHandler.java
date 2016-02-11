@@ -6,9 +6,13 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.hotpads.datarouter.node.DatarouterNodes;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.op.raw.read.MapStorageReader;
+import com.hotpads.datarouter.node.op.raw.read.MapStorageReader.MapStorageReaderNode;
 import com.hotpads.datarouter.serialize.PrimaryKeyStringConverter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.serialize.fielder.PrimaryKeyFielder;
@@ -18,10 +22,11 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.dispatcher.DatarouterWebDispatcher;
 import com.hotpads.handler.mav.Mav;
-import com.hotpads.handler.mav.imp.MessageMav;
 import com.hotpads.handler.mav.imp.StringMav;
 
 public class DatabeanViewerHandler extends BaseHandler{
+	private static final Logger logger = LoggerFactory.getLogger(DatabeanViewerHandler.class);
+
 	private static final String NON_FIELD_AWARE = "nonFieldAware";
 
 	@Inject
@@ -48,53 +53,32 @@ public class DatabeanViewerHandler extends BaseHandler{
 		}
 		String[] pathInfo = params.getRequest().getPathInfo().substring(offset).split("/");
 		if(pathInfo.length != 3){
-			return new StringMav("The url is not correct! "
+			throw new IllegalArgumentException("The url is not correct! "
 					+ "The correct url is: /datarouter/data/{datarouter}/{table}/{databeanKey}");
 		}
 
 		String dataRouterName = pathInfo[0];
 		String tableName = pathInfo[1];
 		String databeanKey = pathInfo[2];
-		Collection<Node<?,?>> topLevelNodes = datarouterNodes.getTopLevelNodesByRouterName().get(dataRouterName);
-		for(Node<?,?> topLevelNode : topLevelNodes){
-			List<Node<?,?>> allTreeNodes = new ArrayList<>();
-			allTreeNodes.add(topLevelNode);
-			allTreeNodes.addAll(topLevelNode.getChildNodes());
+		MapStorageReaderNode node = getNode(dataRouterName, tableName);
+		mav.put("node", node);
 
-			for(Node<?,?> node : allTreeNodes){
-				String [] nodeNameSplit = node.getName().split("\\.");
-				if(nodeNameSplit.length < 2){
-					return new StringMav(
-						"There might be some problem with the nodeName, where nodeName = " + node.getName());
-				}
-				if(tableName.equalsIgnoreCase(nodeNameSplit[1])){
-					if(!(node instanceof MapStorageReader<?,?>)){
-						return new MessageMav("Cannot browse non-MapStorageReader "
-							+ node.getClass().getSimpleName());
-					}
-					mav.put("node", node);
-					List<Field<?>> fields = node.getFields();
-					mav.put(NON_FIELD_AWARE, "field aware");
-					if(fields == null){
-						fields = new ArrayList<>();
-						fields.addAll(node.getFieldInfo().getPrimaryKeyFields());
-						mav.put(NON_FIELD_AWARE, "non field aware");
-					}
-					mav.put("fields", fields);
-					PrimaryKey<?> key = PrimaryKeyStringConverter.primaryKeyFromString((Class<PrimaryKey>)(node
-							.getFieldInfo().getPrimaryKeyClass()), (PrimaryKeyFielder)(node.getFieldInfo()
-									.getSamplePrimaryKey()), databeanKey);
-					key.fromPersistentString(databeanKey);
-					MapStorageReader mapNode = (MapStorageReader)node;
-					Databean<?,?> databean = mapNode.get(key, null);
-					if(databean != null){
-						addDatabeansToMav(mav, node, databean);
-						return mav;
-					}
-				}
-			}
-
+		List<Field<?>> fields = node.getFields();
+		mav.put(NON_FIELD_AWARE, "field aware");
+		if(fields == null){
+			fields = new ArrayList<>();
+			fields.addAll(node.getFieldInfo().getPrimaryKeyFields());
+			mav.put(NON_FIELD_AWARE, "non field aware");
 		}
+		mav.put("fields", fields);
+
+		PrimaryKey<?> key = decodePrimaryKey(node, databeanKey);
+		Databean<?,?> databean = node.get(key, null);
+		if(databean != null){
+			addDatabeansToMav(mav, node, databean);
+			return mav;
+		}
+
 		return new StringMav("databean not found");
 	}
 
@@ -107,4 +91,38 @@ public class DatabeanViewerHandler extends BaseHandler{
 		}
 		mav.put("rowsOfFields", rowsOfFields);
 	}
+
+	private MapStorageReaderNode<?,?> getNode(String dataRouterName, String tableName){
+		Collection<Node<?,?>> topLevelNodes = datarouterNodes.getTopLevelNodesByRouterName().get(dataRouterName);
+		for(Node<?,?> topLevelNode : topLevelNodes){
+			List<Node<?,?>> allTreeNodes = new ArrayList<>();
+			allTreeNodes.add(topLevelNode);
+			allTreeNodes.addAll(topLevelNode.getChildNodes());
+
+			for(Node<?,?> node : allTreeNodes){
+				String [] nodeNameSplit = node.getName().split("\\.");
+				if(nodeNameSplit.length < 2){
+					logger.error("There might be some problem with the nodeName, where nodeName = " + node.getName());
+				}
+				if(tableName.equalsIgnoreCase(nodeNameSplit[1])){
+					if(!(node instanceof MapStorageReader<?,?>)){
+						logger.error("Cannot browse non-MapStorageReader "
+							+ node.getClass().getSimpleName());
+						return null;
+					}
+					return (MapStorageReaderNode<?,?>)node;
+				}
+			}
+		}
+		return null;
+	}
+
+	private PrimaryKey<?> decodePrimaryKey(Node<?,?>node, String pkStrings){
+		PrimaryKey<?> key = PrimaryKeyStringConverter.primaryKeyFromString((Class<PrimaryKey>)(node
+				.getFieldInfo().getPrimaryKeyClass()), (PrimaryKeyFielder)(node.getFieldInfo()
+						.getSamplePrimaryKey()), pkStrings);
+		key.fromPersistentString(pkStrings);
+		return key;
+	}
+
 }
