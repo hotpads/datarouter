@@ -15,6 +15,8 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSet;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCollation;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
@@ -203,6 +205,16 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 					new StringField(F.stringField, d.stringField, DEFAULT_STRING_LENGTH),
 					new StringField(F.testSchemaUpdateField, d.testSchemaUpdateField, DEFAULT_STRING_LENGTH)));
 			return indexesByName;
+		}
+
+		@Override
+		public MySqlCharacterSet getCharacterSet(){
+			return MySqlCharacterSet.utf8mb4;
+		}
+
+		@Override
+		public MySqlCollation getCollation(){
+			return MySqlCollation.utf8mb4_bin;
 		}
 	}
 
