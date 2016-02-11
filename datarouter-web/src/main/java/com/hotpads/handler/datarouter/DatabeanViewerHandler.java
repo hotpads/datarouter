@@ -1,7 +1,6 @@
 package com.hotpads.handler.datarouter;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -82,9 +81,9 @@ public class DatabeanViewerHandler extends BaseHandler{
 						mav.put(NON_FIELD_AWARE, "non field aware");
 					}
 					mav.put("fields", fields);
-					PrimaryKey<?> key = PrimaryKeyStringConverter.primaryKeyFromString((Class<PrimaryKey>)(node.getFieldInfo()
-							.getPrimaryKeyClass()), (PrimaryKeyFielder)(node.getFieldInfo().getSamplePrimaryKey()),
-							databeanKey);
+					PrimaryKey<?> key = PrimaryKeyStringConverter.primaryKeyFromString((Class<PrimaryKey>)(node
+							.getFieldInfo().getPrimaryKeyClass()), (PrimaryKeyFielder)(node.getFieldInfo()
+									.getSamplePrimaryKey()), databeanKey);
 					key.fromPersistentString(databeanKey);
 					MapStorageReader mapNode = (MapStorageReader)node;
 					Databean<?,?> databean = mapNode.get(key, null);
@@ -108,11 +107,4 @@ public class DatabeanViewerHandler extends BaseHandler{
 		}
 		mav.put("rowsOfFields", rowsOfFields);
 	}
-
-
-	public static void main(String[] args){
-		String a = "searchSlave01.ListingPhoto";
-		System.out.println(Arrays.asList(a.split("\\.")));
-	}
-
 }
