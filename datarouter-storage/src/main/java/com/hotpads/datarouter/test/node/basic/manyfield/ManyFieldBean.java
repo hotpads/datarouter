@@ -49,24 +49,24 @@ import com.hotpads.util.core.collections.arrays.LongArray;
 @Entity()
 @Access(AccessType.FIELD)
 public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
-
+	
 	public static final int DEFAULT_STRING_LENGTH = MySqlColumnType.MAX_LENGTH_VARCHAR;
 
 	private static final int LEN_STRING_ENUM_FIELD = 20;
-
+	
 	/***************************** fields ********************************/
-
+	
 	@Id
 	private ManyFieldBeanKey key;
-
+	
 	private Boolean booleanField;
 	private Byte byteField;
 	private Short shortField;
 	private Integer integerField;
 	private Long longField;
-	private Float floatField;
+	private Float floatField;	
 	private Double doubleField;
-	@Column(columnDefinition="bigint(20)")
+	@Column(columnDefinition="bigint(20)")	
 	private Date longDateField;
 	private Character characterField;
 	private String stringField;
@@ -80,10 +80,10 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 
 	@Lob @Column(length=1024)
 	private byte[] stringByteField;
-
+	
 	@Lob @Column(length=1<<27)
 	private byte[] data;
-
+	
 	@Lob @Column(length=1<<27)
 	private List<Long> longArrayField;
 	@Lob @Column(length=1<<27)
@@ -95,11 +95,11 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 	@Lob @Column(length=1<<27)
 	private List<String> delimitedStringArrayField;
 	@Lob @Column(length=1<<27)
-	private byte[] byteArrayField;
+	private byte[] byteArrayField;	
 	private String testSchemaUpdateField;
 	private Long incrementField;
-
-
+	
+	
 	public static class F{
 		public static final String
 			KEY_NAME = "key",
@@ -128,7 +128,7 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 			testSchemaUpdateField = "testSchemaUpdateField",
 			incrementField = "incrementField";
 	}
-
+	
 	public boolean equalsAllPersistentFields(ManyFieldBean that){
 		if(DrObjectTool.notEquals(key, that.key)){ return false; }
 		if(DrObjectTool.notEquals(booleanField, that.booleanField)){ return false; }
@@ -150,14 +150,14 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 		if(DrObjectTool.notEquals(longArrayField, that.longArrayField)){ return false; }
 		if(DrObjectTool.notEquals(booleanArrayField, that.booleanArrayField)){ return false; }
 		if(DrObjectTool.notEquals(integerArrayField, that.integerArrayField)){ return false; }
-		if(DrObjectTool.notEquals(byteArrayField, that.byteArrayField)){ return false; }
+		if(DrObjectTool.notEquals(byteArrayField, that.byteArrayField)){ return false; }		
 		if(DrObjectTool.notEquals(doubleArrayField, that.doubleArrayField)){ return false; }
 		if(DrObjectTool.notEquals(delimitedStringArrayField, that.delimitedStringArrayField)){ return false; }
 		if(DrObjectTool.notEquals(testSchemaUpdateField, that.testSchemaUpdateField)){ return false; }
 		if(DrObjectTool.notEquals(incrementField, that.incrementField)){ return false; }
 		return true;
 	}
-
+	
 	public static class ManyFieldTypeBeanFielder extends BaseDatabeanFielder<ManyFieldBeanKey,ManyFieldBean>{
 		public ManyFieldTypeBeanFielder(){}
 		@Override
@@ -206,38 +206,38 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 		}
 	}
 
-
+	
 	/***************************** constructor **************************************/
-
+		
 	public ManyFieldBean(){//no-arg and public
 		this.key = new ManyFieldBeanKey();//let the key generate a random value
 	}
-
+	
 	public ManyFieldBean(Long id){
 		this.key = new ManyFieldBeanKey(id);
 	}
-
-
+	
+	
 	/************************* databean *********************************************/
-
+	
 	@Override
 	public Class<ManyFieldBeanKey> getKeyClass() {
 		return ManyFieldBeanKey.class;
 	};
-
+	
 	@Override
 	public ManyFieldBeanKey getKey(){
 		return key;
 	}
-
+	
 //	@Override
 //	public String getKeyFieldName(){
 //		//same as default, so not necssary to override
 //	}
-
-
+	
+	
 	/***************************** static methods *****************************/
-
+	
 	public static List<ManyFieldBean> filterForStringValue(Collection<ManyFieldBean> ins, String value){
 		List<ManyFieldBean> outs = new LinkedList<>();
 		for(ManyFieldBean in : DrIterableTool.nullSafe(ins)){
@@ -247,10 +247,10 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 		}
 		return outs;
 	}
-
-
+	
+	
 	/***************************** methods ************************************/
-
+	
 	public List<Long> appendToLongArrayField(long val){
 		if(longArrayField==null){ longArrayField = new LongArray(); }
 		longArrayField.add(val);
@@ -262,28 +262,28 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 		booleanArrayField.add(val);
 		return booleanArrayField;
 	}
-
+	
 	public List<Double> appendToDoubleArrayField(Double val){
 		if(doubleArrayField==null){ doubleArrayField = new ArrayList<>(); }
 		doubleArrayField.add(val);
 		return doubleArrayField;
 	}
-
+	
 	public List<Integer> appendToIntegerArrayField(Integer val){
 		if(integerArrayField==null){ integerArrayField = new ArrayList<>(); }
 		integerArrayField.add(val);
 		return integerArrayField;
 	}
-
+	
 
 	public List<String> appendToDelimitedStringArrayField(String val){
 		if(delimitedStringArrayField==null){ delimitedStringArrayField = new ArrayList<>(); }
 		delimitedStringArrayField.add(val);
 		return delimitedStringArrayField;
 	}
-
+	
 	/***************************** get/set **************************************/
-
+	
 	public byte[] getData(){
 		return data;
 	}
@@ -394,7 +394,7 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 	public void setBooleanArrayField(List<Boolean> booleanArrayField){
 		this.booleanArrayField = booleanArrayField;
 	}
-
+	
 	public List<Double> getDoubleArrayField(){
 		return doubleArrayField;
 	}
@@ -403,7 +403,7 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 	public void setDoubleArrayField(List<Double> doubleArrayField){
 		this.doubleArrayField = doubleArrayField;
 	}
-
+	
 	public List<Integer> getIntegerArrayField(){
 		return integerArrayField;
 	}
@@ -412,7 +412,7 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 	public void setIntegerArrayField(List<Integer> integerArrayField){
 		this.integerArrayField = integerArrayField;
 	}
-
+		
 	public byte[] getByteArrayField(){
 		return byteArrayField;
 	}
@@ -421,12 +421,12 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 	public void setByteArrayField(byte[] byteArrayField){
 		this.byteArrayField = byteArrayField;
 	}
-
-
+	
+	
 	public Date getLongDateField(){
 		return longDateField;
 	}
-
+	
 	public void setLongDateField(Date longDateField){
 		this.longDateField = longDateField;
 	}
@@ -500,5 +500,5 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 	public void setIncrementField(Long incrementField){
 		this.incrementField = incrementField;
 	}
-
+	
 }
