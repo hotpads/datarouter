@@ -42,7 +42,7 @@ public class DatarouterWebDispatcher extends BaseDispatcher{
 		handle(URL_DATAROUTER + STACKTRACES).withHandler(StackTracesManagerHandler.class);
 		handleDir(URL_DATAROUTER + MEMORY_STATS).withHandler(MemoryMonitoringHandler.class);
 		handleDir(URL_DATAROUTER + EXECUTORS_MONITORING).withHandler(ExecutorsMonitoringHandler.class);
-		handle(URL_DATAROUTER + DATA + "/\\w+/.+/.+").withHandler(DatabeanViewerHandler.class);
+		handle(URL_DATAROUTER + DATA + "/\\w+/\\w+/.+").withHandler(DatabeanViewerHandler.class);
 	}
 
 }
