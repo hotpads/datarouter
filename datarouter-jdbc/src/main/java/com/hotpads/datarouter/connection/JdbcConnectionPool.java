@@ -14,88 +14,70 @@ import com.hotpads.datarouter.client.imp.jdbc.factory.JdbcOptions;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 import com.mchange.v2.c3p0.DataSources;
+import com.mysql.jdbc.Driver;
+
+import net.sf.log4jdbc.DriverSpy;
 
 public class JdbcConnectionPool{
 	private static final Logger logger = LoggerFactory.getLogger(JdbcConnectionPool.class);
 
-	private String name;
-	private ComboPooledDataSource pool;
-	private final JdbcOptions defaultOptions;
-	private final JdbcOptions options;
-	private boolean writable = false;
-	private String schemaName;
+	private final String name;
+	private final ComboPooledDataSource pool;
+	private final boolean writable;
+	private final String schemaName;
 
 
 	public JdbcConnectionPool(String name, Boolean writable, JdbcOptions defaultOptions, JdbcOptions clientOptions){
-		this.defaultOptions = defaultOptions;
-		this.options = clientOptions;
 		this.writable = writable;
-		createFromScratch(name);
-	}
-
-	@Override
-	public String toString(){
-		return name+"@"+pool.getJdbcUrl();
-	}
-
-	public void createFromScratch(String name){
 		this.name = name;
 
-		String url = options.url();
-		String user = options.user(defaultOptions.user("root"));
-		String password = options.password(defaultOptions.password(""));
-		Integer minPoolSize = options.minPoolSize(defaultOptions.minPoolSize(1));
-		Integer maxPoolSize = options.maxPoolSize(defaultOptions.maxPoolSize(20));
-		Boolean logging = options.logging(defaultOptions.logging(false));
+		String url = clientOptions.url();
+		String user = clientOptions.user(defaultOptions.user("root"));
+		String password = clientOptions.password(defaultOptions.password(""));
+		Integer minPoolSize = clientOptions.minPoolSize(defaultOptions.minPoolSize(1));
+		Integer maxPoolSize = clientOptions.maxPoolSize(defaultOptions.maxPoolSize(20));
+		Boolean logging = clientOptions.logging(defaultOptions.logging(false));
 
-		schemaName = DrStringTool.getStringAfterLastOccurrence('/', url);
+		this.schemaName = DrStringTool.getStringAfterLastOccurrence('/', url);
 
-		//configurable props
-		pool = new ComboPooledDataSource();
-
-		try{
-			pool.setMinPoolSize(minPoolSize);
-		}catch(Exception e){
-		}
-
-		try{
-			pool.setMaxPoolSize(maxPoolSize);
-		}catch(Exception e){
-		}
+		// configurable props
+		this.pool = new ComboPooledDataSource();
+		this.pool.setInitialPoolSize(minPoolSize);
+		this.pool.setMinPoolSize(minPoolSize);
+		this.pool.setMaxPoolSize(maxPoolSize);
 
 		List<String> urlParams = new ArrayList<>();
-		//avoid extra RPC on readOnly connections: http://dev.mysql.com/doc/relnotes/connector-j/en/news-5-1-23.html
+		// avoid extra RPC on readOnly connections: http://dev.mysql.com/doc/relnotes/connector-j/en/news-5-1-23.html
 		urlParams.add("useLocalSessionState=true");
 		urlParams.add("zeroDateTimeBehavior=convertToNull");
 
 		String urlWithParams = url + "?" + Joiner.on("&").join(urlParams);
-		try {
+		try{
 			String jdbcUrl;
 			if(logging){
-				//log4jdbc - see http://code.google.com/p/log4jdbc/
-				pool.setDriverClass(net.sf.log4jdbc.DriverSpy.class.getName());
-				jdbcUrl = "jdbc:log4jdbc:mysql://"+urlWithParams;
+				// log4jdbc - see http://code.google.com/p/log4jdbc/
+				this.pool.setDriverClass(DriverSpy.class.getName());
+				jdbcUrl = "jdbc:log4jdbc:mysql://" + urlWithParams;
 			}else{
-				jdbcUrl = "jdbc:mysql://"+urlWithParams;
-				pool.setDriverClass("com.mysql.jdbc.Driver");
+				jdbcUrl = "jdbc:mysql://" + urlWithParams;
+				this.pool.setDriverClass(Driver.class.getName());
 			}
-			pool.setJdbcUrl(jdbcUrl);
-		}catch(PropertyVetoException pve) {
+			this.pool.setJdbcUrl(jdbcUrl);
+		}catch(PropertyVetoException pve){
 			throw new RuntimeException(pve);
 		}
 
-		pool.setUser(user);
-		pool.setPassword(password);
-		pool.setAcquireIncrement(1);
-		pool.setAcquireRetryAttempts(30);
-		pool.setAcquireRetryDelay(500);
-		pool.setIdleConnectionTestPeriod(30);
-		pool.setMaxIdleTime(300);
+		this.pool.setUser(user);
+		this.pool.setPassword(password);
+		this.pool.setAcquireIncrement(1);
+		this.pool.setAcquireRetryAttempts(30);
+		this.pool.setAcquireRetryDelay(500);
+		this.pool.setIdleConnectionTestPeriod(30);
+		this.pool.setMaxIdleTime(300);
 
 		if(!writable){
-			pool.setConnectionCustomizerClassName(ReadOnlyConnectionCustomizer.class.getName());
+			this.pool.setConnectionCustomizerClassName(ReadOnlyConnectionCustomizer.class.getName());
 		}
-
 	}
 
 	public Connection checkOut(){
@@ -107,7 +89,9 @@ public class JdbcConnectionPool{
 	}
 
 	public void checkIn(Connection connection){
-		if(connection==null){ return; }
+		if(connection == null){
+			return;
+		}
 		try{
 			connection.close();
 		}catch(SQLException e){
@@ -117,7 +101,7 @@ public class JdbcConnectionPool{
 
 	public void shutdown(){
 		try{
-			DataSources.destroy(getDataSource());
+			DataSources.destroy(pool);
 		}catch(SQLException e){
 			logger.error("", e);
 		}
@@ -125,15 +109,15 @@ public class JdbcConnectionPool{
 
 	/******************************* get/set *****************************/
 
-	public String getName() {
+	public String getName(){
 		return name;
 	}
 
-	public ComboPooledDataSource getDataSource() {
+	public ComboPooledDataSource getDataSource(){
 		return pool;
 	}
 
-	public boolean isWritable() {
+	public boolean isWritable(){
 		return writable;
 	}
 
@@ -141,6 +125,10 @@ public class JdbcConnectionPool{
 		return schemaName;
 	}
 
+	@Override
+	public String toString(){
+		return name + "@" + pool.getJdbcUrl();
+	}
 
 	/*
 
@@ -162,8 +150,6 @@ public class JdbcConnectionPool{
 		<!-- 	<property name="maxStatements"><value>200</value></property> -->
 	</bean>
 
-
 	 */
-
 
 }
