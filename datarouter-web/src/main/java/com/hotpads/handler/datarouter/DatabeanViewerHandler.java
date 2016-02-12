@@ -54,46 +54,49 @@ public class DatabeanViewerHandler extends BaseHandler{
 		String[] pathInfo = params.getRequest().getPathInfo().substring(offset).split("/");
 		if(pathInfo.length != 3){
 			throw new IllegalArgumentException("The url is not correct! "
-					+ "The correct url is: /datarouter/data/{datarouter}/{table}/{databeanKey}");
+					+ "The correct url is: /datarouter/data/{router}/{table}/{databeanKey}");
 		}
 
-		String dataRouterName = pathInfo[0];
+		String routerName = pathInfo[0];
 		String tableName = pathInfo[1];
 		String databeanKey = pathInfo[2];
-		MapStorageReaderNode node = getNode(dataRouterName, tableName);
-		mav.put("node", node);
+		List<MapStorageReaderNode<?,?>> nodes = getNodes(routerName, tableName);
+		mav.put("nodes", nodes);
+		List<DatabeanWrapper> databeanWrappers = new ArrayList<>();
+		for(MapStorageReaderNode node : nodes){
+			boolean fieldAware = true;
+			List<Field<?>> fields = node.getFields();
+			if(fields == null){
+				fieldAware = false;
+				fields = node.getFieldInfo().getPrimaryKeyFields();
+			}
 
-		List<Field<?>> fields = node.getFields();
-		mav.put(NON_FIELD_AWARE, "field aware");
-		if(fields == null){
-			fields = new ArrayList<>();
-			fields.addAll(node.getFieldInfo().getPrimaryKeyFields());
-			mav.put(NON_FIELD_AWARE, "non field aware");
+			PrimaryKey<?> key = decodePrimaryKey(node, databeanKey);
+			Databean<?,?> databean = node.get(key, null);
+			if(databean != null){
+				databeanWrappers.add(new DatabeanWrapper(fields, getRowsOfFields(node, databean), node,
+						fieldAware));
+			}
 		}
-		mav.put("fields", fields);
-
-		PrimaryKey<?> key = decodePrimaryKey(node, databeanKey);
-		Databean<?,?> databean = node.get(key, null);
-		if(databean != null){
-			addDatabeansToMav(mav, node, databean);
+		if(databeanWrappers.size() > 0){
+			mav.put("databeanWrappers", databeanWrappers);
 			return mav;
 		}
 
 		return new StringMav("databean not found");
 	}
 
-	private	void addDatabeansToMav(Mav mav, Node<?,?> node, Databean<?,?> databean){
-		List<List<Field<?>>> rowsOfFields = new ArrayList<>();
+	private	List<Field<?>> getRowsOfFields(Node<?,?> node, Databean<?,?> databean){
 		DatabeanFielder fielder = node.getFieldInfo().getSampleFielder();
 		if(fielder != null){
-			List<Field<?>> rowOfFields = fielder.getFields(databean);
-			rowsOfFields.add(rowOfFields);
+			return fielder.getFields(databean);
 		}
-		mav.put("rowsOfFields", rowsOfFields);
+		return null;
 	}
 
-	private MapStorageReaderNode<?,?> getNode(String dataRouterName, String tableName){
-		Collection<Node<?,?>> topLevelNodes = datarouterNodes.getTopLevelNodesByRouterName().get(dataRouterName);
+	private List<MapStorageReaderNode<?,?>> getNodes(String routerName, String tableName){
+		Collection<Node<?,?>> topLevelNodes = datarouterNodes.getTopLevelNodesByRouterName().get(routerName);
+		List<MapStorageReaderNode<?,?>> nodes = new ArrayList<>();
 		for(Node<?,?> topLevelNode : topLevelNodes){
 			List<Node<?,?>> allTreeNodes = new ArrayList<>();
 			allTreeNodes.add(topLevelNode);
@@ -108,13 +111,13 @@ public class DatabeanViewerHandler extends BaseHandler{
 					if(!(node instanceof MapStorageReader<?,?>)){
 						logger.error("Cannot browse non-MapStorageReader "
 							+ node.getClass().getSimpleName());
-						return null;
+					}else{
+						nodes.add((MapStorageReaderNode<?,?>)node);
 					}
-					return (MapStorageReaderNode<?,?>)node;
 				}
 			}
 		}
-		return null;
+		return nodes;
 	}
 
 	private PrimaryKey<?> decodePrimaryKey(Node<?,?>node, String pkStrings){
@@ -123,6 +126,38 @@ public class DatabeanViewerHandler extends BaseHandler{
 						.getSamplePrimaryKey()), pkStrings);
 		key.fromPersistentString(pkStrings);
 		return key;
+	}
+
+	public static void main(String[] args){
+		MapStorageReaderNode node = null;
+		PrimaryKey<?> key = null;
+		Databean<?,?> databean = node.get(key, null);
+	}
+
+	public static class DatabeanWrapper{
+		private final List<Field<?>> fields;
+		private final List<Field<?>> rowOfFields;
+		private final Node<?,?> node;
+		private final boolean fieldAware;
+
+		public DatabeanWrapper(List<Field<?>> fields, List<Field<?>> rowOfFields, Node<?,?> node, boolean fieldAware){
+			this.fields = fields;
+			this.rowOfFields = rowOfFields;
+			this.node = node;
+			this.fieldAware = fieldAware;
+		}
+		public List<Field<?>> getFields(){
+			return fields;
+		}
+		public List<Field<?>> getRowOfFields(){
+			return rowOfFields;
+		}
+		public Node<?,?> getNode(){
+			return node;
+		}
+		public boolean getFieldAware(){
+			return fieldAware;
+		}
 	}
 
 }
