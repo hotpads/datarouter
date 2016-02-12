@@ -15,6 +15,7 @@
 	<h2 class="container">Databean viewer</h2>
 	<div class="wide-container">
 		<a href="${contextPath}/datarouter/routers">Datarouter Home</a>
+		<p>
 		<c:forEach items="${databeanWrappers}" var="databeanWrapper">
 			<form method="get" action="?">
 				<div class="label-above row-fluid">
@@ -36,9 +37,7 @@
 					</ul>
 				</div>
 			</form>
-			
-			<br />
-			
+						
 			<table class="viewNodeDataTable data sortable table table-condensed table-bordered table-hover">
 				<thead>
 					<tr>
