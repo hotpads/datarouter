@@ -1,5 +1,0 @@
-cp /home/atalkowski/datarouter1/./datarouter-storage/src/main/java/com/hotpads/datarouter/storage/field/enums/StringEnum.java ./datarouter-storage/src/main/java/com/hotpads/datarouter/storage/field/enums/StringEnum.java
-cp /home/atalkowski/datarouter1/./datarouter-storage/src/main/java/com/hotpads/util/core/enums/EnumTool.java ./datarouter-storage/src/main/java/com/hotpads/util/core/enums/EnumTool.java
-cp /home/atalkowski/datarouter1/./datarouter-util/src/main/java/com/hotpads/util/core/enums/StringPersistedEnum.java ./datarouter-util/src/main/java/com/hotpads/util/core/enums/StringPersistedEnum.java
-cp /home/atalkowski/datarouter1/./datarouter-util/src/main/java/com/hotpads/util/core/enums/PersistentString.java ./datarouter-util/src/main/java/com/hotpads/util/core/enums/PersistentString.java
-
