@@ -21,8 +21,6 @@ import com.hotpads.util.core.stream.StreamTool;
  * Methods for reading from storage mechanisms that keep databeans sorted by PrimaryKey.  Similar to java's TreeMap.
  *
  * Possible implementations include TreeMap, RDBMS, HBase, LevelDB, Google Cloud Datastore, Google Cloud BigTable, etc
- *
- *
  */
 public interface SortedStorageReader<
 		PK extends PrimaryKey<PK>,
@@ -70,15 +68,15 @@ extends NodeOps<PK,D>{
 	/**
 	 * The scan method accepts a Range<PK> which identifies the startKey and endKey, and returns all of the rows between
 	 * those keys without skipping any. Implementations will generally query the database in batches to avoid long
-	 * transactions and huge result sets.
-	 *
+	 * transactions and huge result sets. <br/>
+	 * <br/>
 	 * When providing startKey and endKey, implementations will ignore fields after the first null.  For example, when
 	 * scanning a phone book with startKey: <br/>
 	 * * (null, null) is valid and will start at the beginning of the book<br/>
 	 * * (Corgan, null) is valid and will start at the first Corgan <br/>
 	 * * (Corgan, Matt) is valid and will start at Corgan, Matt <br/>
 	 * * (null, Matt) is invalid.  The Matt is ignored, so it is equivalent to (null, null) <br/>
-	 *
+	 * <br/>
 	 * Note that (null, Matt) will NOT do any filtering for rows with firstName=Matt. To avoid tablescans we are
 	 * returning all rows in the range to the client where the client can then filter. A predicate push-down feature may
 	 * be added, but it will likely use a separate interface method.
