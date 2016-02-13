@@ -21,6 +21,8 @@ import com.hotpads.util.core.stream.StreamTool;
  * Methods for reading from storage mechanisms that keep databeans sorted by PrimaryKey.  Similar to java's TreeMap.
  *
  * Possible implementations include TreeMap, RDBMS, HBase, LevelDB, Google Cloud Datastore, Google Cloud BigTable, etc
+ *
+ *
  */
 public interface SortedStorageReader<
 		PK extends PrimaryKey<PK>,
@@ -58,6 +60,29 @@ extends NodeOps<PK,D>{
 	Iterable<D> scanMulti(Collection<Range<PK>> ranges, Config config);
 	Iterable<PK> scanKeysMulti(Collection<Range<PK>> ranges, Config config);
 
+
+	/*******************************************************
+	 * default interface methods
+	 *******************************************************/
+
+	/****************** scan *************************/
+
+	/**
+	 * The scan method accepts a Range<PK> which identifies the startKey and endKey, and returns all of the rows between
+	 * those keys without skipping any. Implementations will generally query the database in batches to avoid long
+	 * transactions and huge result sets.
+	 *
+	 * When providing startKey and endKey, implementations will ignore fields after the first null.  For example, when
+	 * scanning a phone book with startKey: <br/>
+	 * * (null, null) is valid and will start at the beginning of the book<br/>
+	 * * (Corgan, null) is valid and will start at the first Corgan <br/>
+	 * * (Corgan, Matt) is valid and will start at Corgan, Matt <br/>
+	 * * (null, Matt) is invalid.  The Matt is ignored, so it is equivalent to (null, null) <br/>
+	 *
+	 * Note that (null, Matt) will NOT do any filtering for rows with firstName=Matt. To avoid tablescans we are
+	 * returning all rows in the range to the client where the client can then filter. A predicate push-down feature may
+	 * be added, but it will likely use a separate interface method.
+	 */
 	default Iterable<D> scan(final Range<PK> range, final Config config){
 		return scanMulti(Arrays.asList(Range.nullSafe(range)), config);
 	}
@@ -65,6 +90,8 @@ extends NodeOps<PK,D>{
 	default Iterable<PK> scanKeys(final Range<PK> range, final Config config){
 		return scanKeysMulti(Arrays.asList(Range.nullSafe(range)), config);
 	}
+
+	/****************** stream *************************/
 
 	default Stream<D> stream(Range<PK> range, Config config){
 		return StreamTool.stream(scan(range, config));
@@ -82,9 +109,13 @@ extends NodeOps<PK,D>{
 		return StreamTool.stream(scanKeysMulti(ranges, config));
 	}
 
+	/****************** count  *************************/
+
 	default Long count(Range<PK> range){
 		return SortedStorageCountingTool.count(this, range);
 	}
+
+	/****************** prefix *************************/
 
 	default Stream<PK> streamKeysWithPrefix(PK prefix, Config config){
 		return streamKeys(KeyRangeTool.forPrefix(prefix), config);
@@ -117,6 +148,8 @@ extends NodeOps<PK,D>{
 	default Iterable<D> scanWithPrefixes(Collection<PK> prefixes, Config config){
 		return scanMulti(getRangesFromPrefixes(prefixes), config);
 	}
+
+	/************** static methods *************************/
 
 	static <PK extends PrimaryKey<PK>> List<Range<PK>> getRangesFromPrefixes(Collection<PK> prefixes){
 		return prefixes.stream().map(KeyRangeTool::forPrefix).collect(Collectors.toList());
