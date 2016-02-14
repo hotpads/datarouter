@@ -66,9 +66,9 @@ extends NodeOps<PK,D>{
 	/****************** scan *************************/
 
 	/**
-	 * The scan method accepts a Range<PK> which identifies the startKey and endKey, and returns all of the rows between
-	 * those keys without skipping any. Implementations will generally query the database in batches to avoid long
-	 * transactions and huge result sets. <br/>
+	 * The scan method accepts a Range<PK> which identifies the startKey and endKey, and returns all contiguous rows
+	 * between them, not skipping or filtering any. Implementations will generally query the database in batches to
+	 * avoid long transactions and huge result sets. <br/>
 	 * <br/>
 	 * When providing startKey and endKey, implementations will ignore fields after the first null.  For example, when
 	 * scanning a phone book with startKey: <br/>
