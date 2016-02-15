@@ -35,7 +35,7 @@ import com.hotpads.datarouter.client.imp.hbase.cluster.DrRegionList;
 import com.hotpads.datarouter.client.imp.hbase.cluster.DrServerInfo;
 import com.hotpads.datarouter.client.imp.hbase.cluster.DrServerList;
 import com.hotpads.datarouter.client.imp.hbase.cluster.DrTableSettings;
-import com.hotpads.datarouter.client.imp.hbase.compaction.CompactionInfo;
+import com.hotpads.datarouter.client.imp.hbase.compaction.HBaseCompactionInfo;
 import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.routing.RouterParams;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
@@ -68,7 +68,7 @@ public class HBaseHandler extends BaseHandler {
 
 	// injected
 	@Inject
-	private CompactionInfo compactionInfo;
+	private HBaseCompactionInfo compactionInfo;
 	@Inject
 	private Datarouter datarouter;
 	@Inject
@@ -123,7 +123,7 @@ public class HBaseHandler extends BaseHandler {
 
 		mav.setViewName(PATH_JSP_HBASE + "/hbaseClientSummary.jsp");
 		mav.put("address", hbaseConfig.get(HConstants.ZOOKEEPER_QUORUM));
-		List<HTableDescriptor> tables = null;
+		List<HTableDescriptor> tables;
 		try{
 			tables = DrListTool.create(routerParams.getClient().getHBaseAdmin().listTables());
 		}catch(IOException e){
@@ -179,28 +179,26 @@ public class HBaseHandler extends BaseHandler {
 		initialize();
 		mav.setViewName(PATH_JSP_HBASE + "hbaseTableSettings.jsp");
 
-		HTableDescriptor table = null;
+		HTableDescriptor table;
 		try{
 			table = routerParams.getClient().getHBaseAdmin().getTableDescriptor(routerParams.getTableName().getBytes());
 		}catch(Exception e){
 			throw new RuntimeException(e);
 		}
-		if(table != null){
-			// table level settings
-			Map<String,String> tableParamByName = new TreeMap<>();
-			tableParamByName.put(HBASE_TABLE_PARAM_MAX_FILESIZE, table.getMaxFileSize() / 1024 / 1024 + "");
-			tableParamByName.put(HBASE_TABLE_PARAM_MEMSTORE_FLUSHSIZE, table.getMemStoreFlushSize() / 1024 / 1024 + "");
-			mav.put("tableParamByName", tableParamByName);
+		// table level settings
+		Map<String,String> tableParamByName = new TreeMap<>();
+		tableParamByName.put(HBASE_TABLE_PARAM_MAX_FILESIZE, table.getMaxFileSize() / 1024 / 1024 + "");
+		tableParamByName.put(HBASE_TABLE_PARAM_MEMSTORE_FLUSHSIZE, table.getMemStoreFlushSize() / 1024 / 1024 + "");
+		mav.put("tableParamByName", tableParamByName);
 
-			// column family level settings
-			List<HColumnDescriptor> columnFamilies = DrListTool.create(table.getColumnFamilies());
-			Map<String,Map<String,String>> columnSummaryByName = new TreeMap<>();
-			for(HColumnDescriptor column : DrIterableTool.nullSafe(columnFamilies)){
-				Map<String,String> attributeByName = parseFamilyAttributeMap(column.getValues());
-				columnSummaryByName.put(column.getNameAsString(), attributeByName);
-			}
-			mav.put("columnSummaryByName", columnSummaryByName);
+		// column family level settings
+		List<HColumnDescriptor> columnFamilies = DrListTool.create(table.getColumnFamilies());
+		Map<String,Map<String,String>> columnSummaryByName = new TreeMap<>();
+		for(HColumnDescriptor column : DrIterableTool.nullSafe(columnFamilies)){
+			Map<String,String> attributeByName = parseFamilyAttributeMap(column.getValues());
+			columnSummaryByName.put(column.getNameAsString(), attributeByName);
 		}
+		mav.put("columnSummaryByName", columnSummaryByName);
 
 		return mav;
 	}
@@ -224,39 +222,36 @@ public class HBaseHandler extends BaseHandler {
 	private Mav updateHBaseTableAttribute(){
 		initialize();
 		HBaseAdmin admin = routerParams.getClient().getHBaseAdmin();
-		HTableDescriptor table = null;
+		HTableDescriptor table;
 		try{
 			table = admin.getTableDescriptor(routerParams.getTableName().getBytes());
 		}catch(IOException e){
 			throw new RuntimeException(e);
 		}
-
-		if(table != null){
-			try{
-				admin.disableTable(routerParams.getTableName());
-				logger.warn("table disabled");
-				Long maxFileSizeMb = RequestTool.getLong(request, PARAM_maxFileSizeMb, null);
-				if(maxFileSizeMb != null){
-					table.setMaxFileSize(maxFileSizeMb * 1024 * 1024);
-				}
-				Long memstoreFlushSizeMb = RequestTool.getLong(request, PARAM_memstoreFlushSizeMb,
-						null);
-				if(memstoreFlushSizeMb != null){
-					table.setMemStoreFlushSize(memstoreFlushSizeMb * 1024 * 1024);
-				}
-				admin.modifyTable(StringByteTool.getUtf8Bytes(routerParams.getTableName()), table);
-			}catch(Exception e){
-				logger.warn("", e);
-			}finally{
-				try{
-					admin.enableTable(routerParams.getTableName());
-				}catch(IOException e){
-					throw new RuntimeException(e);
-				}
+		try{
+			admin.disableTable(routerParams.getTableName());
+			logger.warn("table disabled");
+			Long maxFileSizeMb = RequestTool.getLong(request, PARAM_maxFileSizeMb, null);
+			if(maxFileSizeMb != null){
+				table.setMaxFileSize(maxFileSizeMb * 1024 * 1024);
 			}
-			logger.warn("table enabled");
-
+			Long memstoreFlushSizeMb = RequestTool.getLong(request, PARAM_memstoreFlushSizeMb,
+					null);
+			if(memstoreFlushSizeMb != null){
+				table.setMemStoreFlushSize(memstoreFlushSizeMb * 1024 * 1024);
+			}
+			admin.modifyTable(StringByteTool.getUtf8Bytes(routerParams.getTableName()), table);
+		}catch(Exception e){
+			logger.warn("", e);
+		}finally{
+			try{
+				admin.enableTable(routerParams.getTableName());
+			}catch(IOException e){
+				throw new RuntimeException(e);
+			}
 		}
+		logger.warn("table enabled");
+
 		mav = new MessageMav("HBase table attributes updated");
 		return mav;
 

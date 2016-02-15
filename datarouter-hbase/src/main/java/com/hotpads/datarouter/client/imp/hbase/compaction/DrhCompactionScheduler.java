@@ -15,13 +15,13 @@ import com.hotpads.datarouter.util.core.DrHashMethods;
 public class DrhCompactionScheduler<PK extends PrimaryKey<PK>>{
 	private static final Logger logger = LoggerFactory.getLogger(DrhCompactionScheduler.class);
 
-	private static final Long COMPACTION_EPOCH = DrDailyCalendarTool.parseYYYYMMDDEastern("20110301").getTimeInMillis();
+	private static final long COMPACTION_EPOCH = DrDailyCalendarTool.parseYYYYMMDDEastern("20110301").getTimeInMillis();
 
 	private Long windowStartMs, windowEndMs;//start inclusive, end exclusive
 	private DrRegionInfo<PK> regionInfo;
 	private Long nextCompactTimeMs;
 
-	public DrhCompactionScheduler(CompactionInfo compactionInfo, DrRegionInfo<PK> regionInfo){
+	public DrhCompactionScheduler(HBaseCompactionInfo compactionInfo, DrRegionInfo<PK> regionInfo){
 		long now = System.currentTimeMillis();
 		this.windowStartMs = now - now % compactionInfo.getCompactionTriggerPeriodMs();
 		this.windowEndMs = windowStartMs + compactionInfo.getCompactionTriggerPeriodMs();
@@ -51,17 +51,12 @@ public class DrhCompactionScheduler<PK extends PrimaryKey<PK>>{
 		return true;
 	}
 
-	private void computeAndSetNextCompactTime(CompactionInfo compactionInfo){
+	private void computeAndSetNextCompactTime(HBaseCompactionInfo compactionInfo){
 		//find the current period
 		long regionCompactionPeriodMs = compactionInfo.getPeriodMs(regionInfo);
-		long periodStartSeekerMs = COMPACTION_EPOCH;
-		while(true){
-			long nextPeriodStartMs = periodStartSeekerMs + regionCompactionPeriodMs;
-			if(nextPeriodStartMs > windowStartMs){
-				break;
-			}
-			periodStartSeekerMs = nextPeriodStartMs;
-		}
+		//careful, the division includes a floor because we're dealing with integers
+		long periodStartSeekerMs = COMPACTION_EPOCH
+				+ regionCompactionPeriodMs * ((windowStartMs - COMPACTION_EPOCH) / regionCompactionPeriodMs);
 
 		String startKeyString = regionInfo.getRegion().getEncodedName();
 		long regionHash = Math.abs(DrHashMethods.longDJBHash(startKeyString));
@@ -74,7 +69,7 @@ public class DrhCompactionScheduler<PK extends PrimaryKey<PK>>{
 		if(nextCompactTimeMs < windowStartMs){
 			nextCompactTimeMs += regionCompactionPeriodMs;
 		}
-		nextCompactTimeMs = nextCompactTimeMs - (nextCompactTimeMs % compactionInfo.getCompactionTriggerPeriodMs());
+		nextCompactTimeMs = nextCompactTimeMs - nextCompactTimeMs % compactionInfo.getCompactionTriggerPeriodMs();
 	}
 
 	//used in hbaseTableRegions.jsp

@@ -4,13 +4,11 @@ import org.apache.hadoop.hbase.HRegionInfo;
 import org.apache.hadoop.hbase.HServerLoad.RegionLoad;
 import org.apache.hadoop.hbase.ServerName;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.junit.Assert;
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
-import com.hotpads.datarouter.client.imp.hbase.compaction.CompactionInfo;
+import com.hotpads.datarouter.client.imp.hbase.compaction.HBaseCompactionInfo;
 import com.hotpads.datarouter.client.imp.hbase.compaction.DrhCompactionScheduler;
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseSubEntityReaderNode;
 import com.hotpads.datarouter.client.imp.hbase.util.HBaseResultTool;
@@ -41,11 +39,13 @@ public class DrRegionInfo<PK extends PrimaryKey<PK>> implements Comparable<DrReg
 	private RegionLoad load;
 	private ServerName balancerDestinationServer;
 	private DrhCompactionScheduler<PK> compactionScheduler;
+	private HBaseCompactionInfo compactionInfo;
 
 	public DrRegionInfo(Integer regionNum, String tableName, Class<PK> primaryKeyClass, HRegionInfo regionInfo,
-			ServerName serverName, Node<PK,?> node, RegionLoad load, CompactionInfo compactionInfo){
+			ServerName serverName, Node<PK,?> node, RegionLoad load, HBaseCompactionInfo compactionInfo){
 		this.regionNum = regionNum;
 		this.tableName = tableName;
+		this.compactionInfo = compactionInfo;
 		this.name = new String(regionInfo.getRegionName());
 		this.regionInfo = regionInfo;
 		this.serverName = serverName;
@@ -117,20 +117,13 @@ public class DrRegionInfo<PK extends PrimaryKey<PK>> implements Comparable<DrReg
 	//used in hbaseTableRegions.jsp
 	public String getDisplayServerName(){
 		//doesn't account for multiple servers per node
-		return getDisplayServerName(serverName.getHostname());//hServerInfo.getHostname();
-	}
-
-	private static String getDisplayServerName(String name){
-		name = name.trim();
-		name = name.replace("HadoopNode", "");
-		name = name.replace(".hotpads.srv", "");
-		return name;
+		return compactionInfo.getDisplayServerName(serverName.getHostname());//hServerInfo.getHostname();
 	}
 
 	//used in hbaseTableRegions.jsp
 	public String getConsistentHashDisplayServerName(){
 		//doesn't account for multiple servers per node
-		return getDisplayServerName(balancerDestinationServer.getHostname());//hServerInfo.getHostname();
+		return compactionInfo.getDisplayServerName(balancerDestinationServer.getHostname());//hServerInfo.getHostname();
 	}
 
 	//used in hbaseTableRegions.jsp
@@ -222,18 +215,6 @@ public class DrRegionInfo<PK extends PrimaryKey<PK>> implements Comparable<DrReg
 
 	public void setBalancerDestinationServer(ServerName balancerDestinationServer){
 		this.balancerDestinationServer = Preconditions.checkNotNull(balancerDestinationServer);
-	}
-
-
-	/********************************* tests ******************************************/
-
-	public static class DrhRegionInfoTests{
-		@Test
-		public void testGetDisplayServerName(){
-			String name = "HadoopNode101.hotpads.srv";
-			name = getDisplayServerName(name);
-			Assert.assertEquals("101", name);
-		}
 	}
 
 }

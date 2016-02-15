@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.imp.hbase.balancer.BaseHBaseRegionBalancer;
 import com.hotpads.datarouter.client.imp.hbase.client.HBaseClient;
-import com.hotpads.datarouter.client.imp.hbase.compaction.CompactionInfo;
+import com.hotpads.datarouter.client.imp.hbase.compaction.HBaseCompactionInfo;
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseSubEntityReaderNode;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.node.Node;
@@ -41,7 +41,7 @@ public class DrRegionList{
 	private final Map<DrRegionInfo<?>,ServerName> targetServerNameByRegion;
 
 	public DrRegionList(HBaseClient client, DrServerList servers, String tableName, Configuration config,
-			Node<?,?> node, BaseHBaseRegionBalancer balancerStrategy, CompactionInfo compactionInfo){
+			Node<?,?> node, BaseHBaseRegionBalancer balancerStrategy, HBaseCompactionInfo compactionInfo){
 		this.regions = new ArrayList<>();
 		this.scatteringPrefixClass = node.getFieldInfo().getScatteringPrefixClass();
 		if(node.getFieldInfo().isEntity()){

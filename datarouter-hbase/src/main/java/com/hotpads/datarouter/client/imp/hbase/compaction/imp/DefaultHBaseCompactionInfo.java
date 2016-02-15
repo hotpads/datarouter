@@ -6,10 +6,10 @@ import java.time.temporal.ChronoUnit;
 import javax.inject.Singleton;
 
 import com.hotpads.datarouter.client.imp.hbase.cluster.DrRegionInfo;
-import com.hotpads.datarouter.client.imp.hbase.compaction.CompactionInfo;
+import com.hotpads.datarouter.client.imp.hbase.compaction.HBaseCompactionInfo;
 
 @Singleton
-public class DefaultCompactionInfo implements CompactionInfo{
+public class DefaultHBaseCompactionInfo implements HBaseCompactionInfo{
 
 	private static final long DEFAULT_TRIGGER_PERIOD_MS = Duration.ofMinutes(10L).toMillis();
 	private static final long DEFAULT_PERIOD_MS = ChronoUnit.WEEKS.getDuration().toMillis();
@@ -22,6 +22,11 @@ public class DefaultCompactionInfo implements CompactionInfo{
 	@Override
 	public long getPeriodMs(DrRegionInfo<?> regionInfo){
 		return DEFAULT_PERIOD_MS;
+	}
+
+	@Override
+	public String getDisplayServerName(String serverName){
+		return serverName;
 	}
 
 }
