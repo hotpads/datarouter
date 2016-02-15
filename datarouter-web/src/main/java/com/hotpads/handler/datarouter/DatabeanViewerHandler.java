@@ -20,14 +20,13 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.handler.BaseHandler;
+import com.hotpads.handler.Params;
 import com.hotpads.handler.dispatcher.DatarouterWebDispatcher;
 import com.hotpads.handler.mav.Mav;
 import com.hotpads.handler.mav.imp.StringMav;
 
 public class DatabeanViewerHandler extends BaseHandler{
 	private static final Logger logger = LoggerFactory.getLogger(DatabeanViewerHandler.class);
-
-	private static final String NON_FIELD_AWARE = "nonFieldAware";
 
 	@Inject
 	private DatarouterNodes datarouterNodes;
@@ -46,21 +45,8 @@ public class DatabeanViewerHandler extends BaseHandler{
 	@Override
 	protected Mav handleDefault() throws Exception{
 		Mav mav = new Mav("/jsp/admin/viewDatabean.jsp");
-		String pathInfoStr = params.getRequest().getPathInfo();
-		int offset = DatarouterWebDispatcher.DATA.length() + 1;
-		if(pathInfoStr.contains(DatarouterWebDispatcher.URL_DATAROUTER)){
-			offset += DatarouterWebDispatcher.URL_DATAROUTER.length();
-		}
-		String[] pathInfo = params.getRequest().getPathInfo().substring(offset).split("/");
-		if(pathInfo.length != 3){
-			throw new IllegalArgumentException("The url is not correct! "
-					+ "The correct url is: /datarouter/data/{router}/{table}/{databeanKey}");
-		}
-
-		String routerName = pathInfo[0];
-		String tableName = pathInfo[1];
-		String databeanKey = pathInfo[2];
-		List<MapStorageReaderNode<?,?>> nodes = getNodes(routerName, tableName);
+		PathSegments pathSegments = PathSegments.parsePathSegments(params);
+		List<MapStorageReaderNode<?,?>> nodes = getNodes(pathSegments.getDatarouterName(), pathSegments.getTableName());
 		mav.put("nodes", nodes);
 		List<DatabeanWrapper> databeanWrappers = new ArrayList<>();
 		for(MapStorageReaderNode node : nodes){
@@ -70,8 +56,7 @@ public class DatabeanViewerHandler extends BaseHandler{
 				fieldAware = false;
 				fields = node.getFieldInfo().getPrimaryKeyFields();
 			}
-
-			PrimaryKey<?> key = decodePrimaryKey(node, databeanKey);
+			PrimaryKey<?> key = decodePrimaryKey(node, pathSegments.getDatabeanKey());
 			Databean<?,?> databean = node.get(key, null);
 			if(databean != null){
 				databeanWrappers.add(new DatabeanWrapper(fields, getRowsOfFields(node, databean), node,
@@ -82,7 +67,6 @@ public class DatabeanViewerHandler extends BaseHandler{
 			mav.put("databeanWrappers", databeanWrappers);
 			return mav;
 		}
-
 		return new StringMav("databean not found");
 	}
 
@@ -101,7 +85,6 @@ public class DatabeanViewerHandler extends BaseHandler{
 			List<Node<?,?>> allTreeNodes = new ArrayList<>();
 			allTreeNodes.add(topLevelNode);
 			allTreeNodes.addAll(topLevelNode.getChildNodes());
-
 			for(Node<?,?> node : allTreeNodes){
 				String [] nodeNameSplit = node.getName().split("\\.");
 				if(nodeNameSplit.length < 2){
@@ -128,12 +111,6 @@ public class DatabeanViewerHandler extends BaseHandler{
 		return key;
 	}
 
-	public static void main(String[] args){
-		MapStorageReaderNode node = null;
-		PrimaryKey<?> key = null;
-		Databean<?,?> databean = node.get(key, null);
-	}
-
 	public static class DatabeanWrapper{
 		private final List<Field<?>> fields;
 		private final List<Field<?>> rowOfFields;
@@ -157,6 +134,46 @@ public class DatabeanViewerHandler extends BaseHandler{
 		}
 		public boolean getFieldAware(){
 			return fieldAware;
+		}
+	}
+
+	private static class PathSegments{
+		private final String datarouterName;
+		private final String tableName;
+		private final String databeanKey;
+
+		public PathSegments(String datarouterName, String tableName, String databeanKey){
+			this.datarouterName = datarouterName;
+			this.tableName = tableName;
+			this.databeanKey = databeanKey;
+		}
+
+		public static PathSegments parsePathSegments(Params params){
+			String pathInfoStr = params.getRequest().getPathInfo();
+			int offset = DatarouterWebDispatcher.DATA.length() + 1;
+			if(pathInfoStr.contains(DatarouterWebDispatcher.URL_DATAROUTER)){
+				offset += DatarouterWebDispatcher.URL_DATAROUTER.length();
+			}
+			String[] pathInfo = params.getRequest().getPathInfo().substring(offset).split("/");
+			if(pathInfo.length != 3){
+				throw new IllegalArgumentException("The url is not correct! "
+						+ "The correct url is: /datarouter/data/{router}/{table}/{databeanKey}");
+			}
+
+			return new PathSegments(pathInfo[0], pathInfo[1],  pathInfo[2]);
+
+		}
+
+		public String getDatarouterName(){
+			return datarouterName;
+		}
+
+		public String getTableName(){
+			return tableName;
+		}
+
+		public String getDatabeanKey(){
+			return databeanKey;
 		}
 	}
 
