@@ -8,8 +8,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -137,11 +137,11 @@ public class EnumTool {
 		return defaultEnum;
 	}
 
-	public static <T extends StringPersistedEnum> T fromPersistentString(
+	public static <T extends PersistentString> T fromPersistentString(
 			T[] types, String name){
 		return fromPersistentString(types, name, true);
 	}
-	public static <T extends StringPersistedEnum> T fromPersistentString(
+	public static <T extends PersistentString> T fromPersistentString(
 			T[] types, String name, boolean caseSensitive){
 		if(name == null) {
 			return null;
