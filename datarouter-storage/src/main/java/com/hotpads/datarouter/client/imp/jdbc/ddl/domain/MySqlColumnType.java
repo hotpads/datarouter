@@ -12,44 +12,44 @@ public enum MySqlColumnType{
 	/*
 	 * NOT TAKING INTO ACCOUNT OPTIONS AVAILABLE FOR THE DIFFERENT TYPES
 	 */
-	 //  Numeric Type Overview 
-	BIT(true, false), 
-	TINYINT(true, true), 
-	BOOL(true, false), 
-	BOOLEAN(true, true), 
-	SMALLINT(true, false), 
-	MEDIUMINT(false, false), 
-	INT(true, false), 
-	INTEGER(true, false), 
-	BIGINT(true, false), 
+	 //  Numeric Type Overview
+	BIT(true, false),
+	TINYINT(true, true),
+	BOOL(true, false),
+	BOOLEAN(true, true),
+	SMALLINT(true, false),
+	MEDIUMINT(false, false),
+	INT(true, false),
+	INTEGER(true, false),
+	BIGINT(true, false),
 	DECIMAL(true, false),
-	DEC(true, false) /* SIMILAR TO DECIMAL, HAS 'FIXED' FOR COMPATIBILITY */, 
-	FLOAT(false, false), 
-	DOUBLE(false, false), 
-	DOUBLE_PRECISION(false, false), /* FLOAT(P) */	
+	DEC(true, false) /* SIMILAR TO DECIMAL, HAS 'FIXED' FOR COMPATIBILITY */,
+	FLOAT(false, false),
+	DOUBLE(false, false),
+	DOUBLE_PRECISION(false, false), /* FLOAT(P) */
 	// Date and Time Type Overview
-	DATE(false, false), 
+	DATE(false, false),
 	DATETIME(true, false),
-	TIMESTAMP(false, false), 
-	TIME(false, false), 
+	TIMESTAMP(false, false),
+	TIME(false, false),
 	YEAR(false, false),
-	
+
 	// String Type Overview
-	CHAR(true, false), 
-	VARCHAR(true, false), 
-	BINARY(true, false), 
-	VARBINARY(true, false), 
-	TINYBLOB(false, false), 
-	TINYTEXT(false, false), 
+	CHAR(true, false),
+	VARCHAR(true, false),
+	BINARY(true, false),
+	VARBINARY(true, false),
+	TINYBLOB(false, false),
+	TINYTEXT(false, false),
 	BLOB(false, false), //"Binary Long Array of Bytes"
-	TEXT(false, false), 
-	MEDIUMBLOB(false, false), 
-	MEDIUMTEXT(false, false), 
-	LONGBLOB(false, false), 
-	LONGTEXT(false, false), 
-	ENUM(true, false), 
+	TEXT(false, false),
+	MEDIUMBLOB(false, false),
+	MEDIUMTEXT(false, false),
+	LONGBLOB(false, false),
+	LONGTEXT(false, false),
+	ENUM(true, false),
 	SET(true, false);
-	
+
 	private static Map<String,MySqlColumnType> OTHER_NAME_TO_TYPE = Maps.newHashMap();
 	static{
 		OTHER_NAME_TO_TYPE.put("INT UNSIGNED", BIGINT);
@@ -58,10 +58,11 @@ public enum MySqlColumnType{
 
 
 	/**************************** static **********************************/
-	
-	public static final int 
-		
+
+	public static final int
+
 		MAX_KEY_LENGTH = 767,//ERROR 1071 (42000): Specified key was too long; max key length is 767 bytes
+		MAX_KEY_LENGTH_UTF8MB4 = 191, // 767 / 4
 		NUM_DECIMAL_SECONDS = 3, //setting the Fractional Seconds Precision to 3 for Datetime datatype
 		LENGTH_50 = 50,
 		MAX_LENGTH_VARCHAR = (1 << 8) - 1,
@@ -73,24 +74,24 @@ public enum MySqlColumnType{
 
 	public static final long
 		MAX_LENGTH_LONGTEXT = (1L << 32) - 1;
-	
-	
+
+
 	/**************************** fields ***********************************/
-	
+
 	private boolean specifyLength;
 	private boolean supportsDefaultValue;
-	
-	
+
+
 	/*********************** constructors *************************************/
-	
-	private MySqlColumnType(boolean specifyLength, boolean supportsDefaultValue){		
+
+	private MySqlColumnType(boolean specifyLength, boolean supportsDefaultValue){
 		this.specifyLength=specifyLength;
 		this.supportsDefaultValue = supportsDefaultValue;
 	}
-	
-	
+
+
 	/************************ static methods ******************************************/
-	
+
 	public static MySqlColumnType parse(String a){
 		String upperCase = DrStringTool.nullSafe(a).toUpperCase();
 		for(MySqlColumnType type : values()){
@@ -104,7 +105,7 @@ public enum MySqlColumnType{
 		}
 		return type;
 	}
-	
+
 	public static List<String> getAllColumnTypeNames(){
 		ArrayList<String> list = new ArrayList<>();
 		for(MySqlColumnType type : values()){
@@ -112,29 +113,29 @@ public enum MySqlColumnType{
 		}
 		return list;
 	}
-	
-	
+
+
 	/*************************** get/set *******************************************/
-	
-	public boolean shouldSpecifyLength(Integer specifiedLength){	
+
+	public boolean shouldSpecifyLength(Integer specifiedLength){
 		if(specifiedLength == null){
 			return false;
 		}
-		if(this.equals(DATETIME) && specifiedLength == 0){			
+		if(this.equals(DATETIME) && specifiedLength == 0){
 			return false;
-		}		
+		}
 		return specifyLength;
 	}
-	
+
 	public boolean isDefaultValueSupported(){
 		return supportsDefaultValue;
 	}
-	
-	
+
+
 	/************************ main ***********************************************/
 
 	public static void main(String[] args){
 		System.out.println(LENGTH_50 + " " +MAX_LENGTH_VARCHAR + " " + MAX_LENGTH_TEXT + " " + " " + MAX_LENGTH_MEDIUMTEXT + " " + MAX_LENGTH_LONGTEXT);
 	}
-	
+
 }
