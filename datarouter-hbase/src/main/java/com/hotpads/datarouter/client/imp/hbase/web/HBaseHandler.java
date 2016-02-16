@@ -19,12 +19,10 @@ import org.apache.hadoop.hbase.HServerLoad;
 import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.MasterNotRunningException;
 import org.apache.hadoop.hbase.ServerName;
-import org.apache.hadoop.hbase.TableNotFoundException;
 import org.apache.hadoop.hbase.UnknownRegionException;
 import org.apache.hadoop.hbase.ZooKeeperConnectionException;
 import org.apache.hadoop.hbase.client.HBaseAdmin;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
-import org.apache.hadoop.hbase.ipc.HMasterInterface;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.hbase.util.Merge;
 import org.slf4j.Logger;
@@ -33,11 +31,11 @@ import org.slf4j.LoggerFactory;
 import com.hotpads.datarouter.client.imp.hbase.HBaseClientImp;
 import com.hotpads.datarouter.client.imp.hbase.balancer.HBaseBalancerFactory;
 import com.hotpads.datarouter.client.imp.hbase.cluster.DrRegionInfo;
+import com.hotpads.datarouter.client.imp.hbase.cluster.DrRegionList;
 import com.hotpads.datarouter.client.imp.hbase.cluster.DrServerInfo;
 import com.hotpads.datarouter.client.imp.hbase.cluster.DrServerList;
 import com.hotpads.datarouter.client.imp.hbase.cluster.DrTableSettings;
-import com.hotpads.datarouter.client.imp.hbase.cluster.DrRegionList;
-import com.hotpads.datarouter.client.imp.hbase.compaction.DRHCompactionInfo;
+import com.hotpads.datarouter.client.imp.hbase.compaction.HBaseCompactionInfo;
 import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.routing.RouterParams;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
@@ -55,11 +53,11 @@ import com.hotpads.util.http.RequestTool;
 
 public class HBaseHandler extends BaseHandler {
 	private static final Logger logger = LoggerFactory.getLogger(HBaseHandler.class);
-	
+
 	private static final String PATH_JSP_HBASE = "/jsp/admin/datarouter/hbase/";
 
 	public static final String
-		PARAM_tableName = "tableName", 
+		PARAM_tableName = "tableName",
 		PARAM_destinationTableName = "destinationTableName",
 		PARAM_PREFIX_encodedRegionName_ = "encodedRegionName_",
 		PARAM_destinationServerName = "destinationServerName",
@@ -70,7 +68,7 @@ public class HBaseHandler extends BaseHandler {
 
 	// injected
 	@Inject
-	private DRHCompactionInfo drhCompactionInfo;
+	private HBaseCompactionInfo compactionInfo;
 	@Inject
 	private Datarouter datarouter;
 	@Inject
@@ -85,12 +83,12 @@ public class HBaseHandler extends BaseHandler {
 	private Mav mav;
 	private Configuration hbaseConfig = null;
 
-	
+
 	/*********** Useful methods ********************/
 
 	private Mav initialize(){
 		mav = new Mav();
-		routerParams = new RouterParams<HBaseClientImp>(datarouter, params, HBASE_NEEDS);
+		routerParams = new RouterParams<>(datarouter, params, HBASE_NEEDS);
 		mav.put(RoutersHandler.PARAM_routerName, routerParams.getRouterName());
 		mav.put(RoutersHandler.PARAM_clientName, routerParams.getClientName());
 		mav.put(RoutersHandler.PARAM_tableName, routerParams.getTableName());
@@ -109,7 +107,7 @@ public class HBaseHandler extends BaseHandler {
 		if(routerParams.getNode() != null){
 			regionList = new DrRegionList(routerParams.getClient(), drServerList, routerParams.getTableName(),
 					hbaseConfig, routerParams.getNode(), balancerFactory.getBalancerForTable(routerParams
-					.getTableName()), drhCompactionInfo);
+					.getTableName()), compactionInfo);
 		}
 	}
 
@@ -125,7 +123,7 @@ public class HBaseHandler extends BaseHandler {
 
 		mav.setViewName(PATH_JSP_HBASE + "/hbaseClientSummary.jsp");
 		mav.put("address", hbaseConfig.get(HConstants.ZOOKEEPER_QUORUM));
-		List<HTableDescriptor> tables = null;
+		List<HTableDescriptor> tables;
 		try{
 			tables = DrListTool.create(routerParams.getClient().getHBaseAdmin().listTables());
 		}catch(IOException e){
@@ -145,7 +143,8 @@ public class HBaseHandler extends BaseHandler {
 			tableAttributeByName.put("memStoreFlushSize", table.getMemStoreFlushSize() + "");
 			tableAttributeByName.put("readOnly", table.isReadOnly() + "");
 			tableSummaryByName.put(tableName, tableAttributeByName);
-			Map<String,Map<String,String>> familyAttributeByNameByFamilyName = parseTableAttributeMap(table.getFamilies());
+			Map<String,Map<String,String>> familyAttributeByNameByFamilyName = parseTableAttributeMap(table
+					.getFamilies());
 			familySummaryByTableName.put(table.getNameAsString(), familyAttributeByNameByFamilyName);
 			logger.warn(familySummaryByTableName.toString());
 		}
@@ -158,23 +157,20 @@ public class HBaseHandler extends BaseHandler {
 	private Mav viewHBaseServers() {
 		initialize();
 		mav.setViewName(PATH_JSP_HBASE + "hbaseServers.jsp");
-		HMasterInterface master = null;
-		try {
-			master = routerParams.getClient().getHBaseAdmin().getMaster();
-		} catch (Exception e) {
+		ClusterStatus clusterStatus;
+		try{
+			clusterStatus = routerParams.getClient().getHBaseAdmin().getClusterStatus();
+		}catch(IOException e){
 			throw new RuntimeException(e);
 		}
-		if (master != null) {
-			ClusterStatus clusterStatus = master.getClusterStatus();
-			mav.put("clusterStatus", clusterStatus);
-			Collection<ServerName> serverNames = new TreeSet<>(clusterStatus.getServers());
-			List<DrServerInfo> servers = new ArrayList<>();
-			for (ServerName serverName : DrIterableTool.nullSafe(serverNames)) {
-				HServerLoad hServerLoad = clusterStatus.getLoad(serverName);
-				servers.add(new DrServerInfo(serverName, hServerLoad));
-			}
-			mav.put("servers", servers);
+		mav.put("clusterStatus", clusterStatus);
+		Collection<ServerName> serverNames = new TreeSet<>(clusterStatus.getServers());
+		List<DrServerInfo> servers = new ArrayList<>();
+		for (ServerName serverName : DrIterableTool.nullSafe(serverNames)) {
+			HServerLoad serverLoad = clusterStatus.getLoad(serverName);
+			servers.add(new DrServerInfo(serverName, serverLoad));
 		}
+		mav.put("servers", servers);
 		return mav;
 	}
 
@@ -183,28 +179,26 @@ public class HBaseHandler extends BaseHandler {
 		initialize();
 		mav.setViewName(PATH_JSP_HBASE + "hbaseTableSettings.jsp");
 
-		HTableDescriptor table = null;
+		HTableDescriptor table;
 		try{
 			table = routerParams.getClient().getHBaseAdmin().getTableDescriptor(routerParams.getTableName().getBytes());
 		}catch(Exception e){
 			throw new RuntimeException(e);
 		}
-		if(table != null){
-			// table level settings
-			Map<String,String> tableParamByName = new TreeMap<>();
-			tableParamByName.put(HBASE_TABLE_PARAM_MAX_FILESIZE, table.getMaxFileSize() / 1024 / 1024 + "");
-			tableParamByName.put(HBASE_TABLE_PARAM_MEMSTORE_FLUSHSIZE, table.getMemStoreFlushSize() / 1024 / 1024 + "");
-			mav.put("tableParamByName", tableParamByName);
+		// table level settings
+		Map<String,String> tableParamByName = new TreeMap<>();
+		tableParamByName.put(HBASE_TABLE_PARAM_MAX_FILESIZE, table.getMaxFileSize() / 1024 / 1024 + "");
+		tableParamByName.put(HBASE_TABLE_PARAM_MEMSTORE_FLUSHSIZE, table.getMemStoreFlushSize() / 1024 / 1024 + "");
+		mav.put("tableParamByName", tableParamByName);
 
-			// column family level settings
-			List<HColumnDescriptor> columnFamilies = DrListTool.create(table.getColumnFamilies());
-			Map<String,Map<String,String>> columnSummaryByName = new TreeMap<>();
-			for(HColumnDescriptor column : DrIterableTool.nullSafe(columnFamilies)){
-				Map<String,String> attributeByName = parseFamilyAttributeMap(column.getValues());
-				columnSummaryByName.put(column.getNameAsString(), attributeByName);
-			}
-			mav.put("columnSummaryByName", columnSummaryByName);
+		// column family level settings
+		List<HColumnDescriptor> columnFamilies = DrListTool.create(table.getColumnFamilies());
+		Map<String,Map<String,String>> columnSummaryByName = new TreeMap<>();
+		for(HColumnDescriptor column : DrIterableTool.nullSafe(columnFamilies)){
+			Map<String,String> attributeByName = parseFamilyAttributeMap(column.getValues());
+			columnSummaryByName.put(column.getNameAsString(), attributeByName);
 		}
+		mav.put("columnSummaryByName", columnSummaryByName);
 
 		return mav;
 	}
@@ -228,38 +222,36 @@ public class HBaseHandler extends BaseHandler {
 	private Mav updateHBaseTableAttribute(){
 		initialize();
 		HBaseAdmin admin = routerParams.getClient().getHBaseAdmin();
-		HTableDescriptor table = null;
+		HTableDescriptor table;
 		try{
 			table = admin.getTableDescriptor(routerParams.getTableName().getBytes());
-
-			if(table != null){
-				try{
-					admin.disableTable(routerParams.getTableName());
-					logger.warn("table disabled");
-					Long maxFileSizeMb = RequestTool.getLong(request, PARAM_maxFileSizeMb, null);
-					if(maxFileSizeMb != null){
-						table.setMaxFileSize(maxFileSizeMb * 1024 * 1024);
-					}
-					Long memstoreFlushSizeMb = RequestTool.getLong(request, PARAM_memstoreFlushSizeMb,
-							null);
-					if(memstoreFlushSizeMb != null){
-						table.setMemStoreFlushSize(memstoreFlushSizeMb * 1024 * 1024);
-					}
-					admin.modifyTable(StringByteTool.getUtf8Bytes(routerParams.getTableName()), table);
-				}catch(Exception e){
-					logger.warn("", e);
-				}finally{
-					admin.enableTable(routerParams.getTableName());
-				}
-				logger.warn("table enabled");
-
-			}
-		}catch(TableNotFoundException e1){
-			e1.printStackTrace();
-		}catch(IOException e1){
-			e1.printStackTrace();
+		}catch(IOException e){
+			throw new RuntimeException(e);
 		}
-		// initializeMav();
+		try{
+			admin.disableTable(routerParams.getTableName());
+			logger.warn("table disabled");
+			Long maxFileSizeMb = RequestTool.getLong(request, PARAM_maxFileSizeMb, null);
+			if(maxFileSizeMb != null){
+				table.setMaxFileSize(maxFileSizeMb * 1024 * 1024);
+			}
+			Long memstoreFlushSizeMb = RequestTool.getLong(request, PARAM_memstoreFlushSizeMb,
+					null);
+			if(memstoreFlushSizeMb != null){
+				table.setMemStoreFlushSize(memstoreFlushSizeMb * 1024 * 1024);
+			}
+			admin.modifyTable(StringByteTool.getUtf8Bytes(routerParams.getTableName()), table);
+		}catch(Exception e){
+			logger.warn("", e);
+		}finally{
+			try{
+				admin.enableTable(routerParams.getTableName());
+			}catch(IOException e){
+				throw new RuntimeException(e);
+			}
+		}
+		logger.warn("table enabled");
+
 		mav = new MessageMav("HBase table attributes updated");
 		return mav;
 
@@ -272,31 +264,33 @@ public class HBaseHandler extends BaseHandler {
 		HTableDescriptor table;
 		try{
 			table = admin.getTableDescriptor(routerParams.getTableName().getBytes());
+		}catch(IOException e){
+			throw new RuntimeException(e);
+		}
 
-			String columnName = RequestTool.get(request, RoutersHandler.PARAM_columnName);
-			HColumnDescriptor column = table.getFamily(columnName.getBytes());
-			try{
-				// validate all settings before disabling table
-				for(String colParam : DrIterableTool.nullSafe(DrTableSettings.COLUMN_SETTINGS)){
-					String value = RequestTool.get(request, colParam);
-					DrTableSettings.validateColumnFamilySetting(colParam, value);
-				}
-				admin.disableTable(routerParams.getTableName());
-				logger.warn("table disabled");
-				for(String colParam : DrIterableTool.nullSafe(DrTableSettings.COLUMN_SETTINGS)){
-					String value = RequestTool.get(request, colParam);
-					column.setValue(colParam, value.trim());
-				}
-				admin.modifyColumn(routerParams.getTableName(), column);
-			}catch(Exception e){
-				logger.warn("", e);
-			}finally{
-				admin.enableTable(routerParams.getTableName());
+		String columnName = RequestTool.get(request, RoutersHandler.PARAM_columnName);
+		HColumnDescriptor column = table.getFamily(columnName.getBytes());
+		try{
+			// validate all settings before disabling table
+			for(String colParam : DrIterableTool.nullSafe(DrTableSettings.COLUMN_SETTINGS)){
+				String value = RequestTool.get(request, colParam);
+				DrTableSettings.validateColumnFamilySetting(colParam, value);
 			}
-		}catch(TableNotFoundException e1){
-			e1.printStackTrace();
-		}catch(IOException e1){
-			e1.printStackTrace();
+			admin.disableTable(routerParams.getTableName());
+			logger.warn("table disabled");
+			for(String colParam : DrIterableTool.nullSafe(DrTableSettings.COLUMN_SETTINGS)){
+				String value = RequestTool.get(request, colParam);
+				column.setValue(colParam, value.trim());
+			}
+			admin.modifyColumn(routerParams.getTableName(), column);
+		}catch(Exception e){
+			logger.warn("", e);
+		}finally{
+			try{
+				admin.enableTable(routerParams.getTableName());
+			}catch(IOException e){
+				throw new RuntimeException(e);
+			}
 		}
 		// initializeMav();
 		mav = new MessageMav("HBase column attributes updated");
@@ -340,8 +334,8 @@ public class HBaseHandler extends BaseHandler {
 		String tableName = params.required(PARAM_tableName);
 		String destinationServer = params.required(PARAM_destinationServerName);
 		ServerName serverName = new ServerName(destinationServer);
-		if(DrCollectionTool.doesNotContain(drServerList.getServerNames(), serverName)){ 
-			throw new IllegalArgumentException(serverName + " not found"); 
+		if(DrCollectionTool.doesNotContain(drServerList.getServerNames(), serverName)){
+			throw new IllegalArgumentException(serverName + " not found");
 		}
 		for(int i = 0; i < numRegions; ++i){
 			String encodedRegionNameString = encodedRegionNameStrings.get(i);
@@ -422,7 +416,6 @@ public class HBaseHandler extends BaseHandler {
 		initialize();
 		for(int i = 0; i < encodedRegionNameStrings.size(); ++i){
 			String encodedRegionNameString = encodedRegionNameStrings.get(i);
-			PhaseTimer timer = new PhaseTimer("flush " + i + "/" + numRegions + " on " + routerParams.getTableName());
 			DrRegionInfo<?> region = regionList.getRegionByEncodedName(encodedRegionNameString);
 			try{
 				routerParams.getClient().getHBaseAdmin().flush(region.getRegion().getRegionName());
@@ -444,9 +437,9 @@ public class HBaseHandler extends BaseHandler {
 		return new MessageMav("Flushed all table regions ");
 	}
 
-	
+
 	/********************** Merge Handlers ***************/
-	
+
 	@Handler
 	private Mav mergeFollowingHBaseTableRegions() {
 		initialize();
@@ -506,8 +499,7 @@ public class HBaseHandler extends BaseHandler {
 		return outs;
 	}
 
-	private static String 
-			ACTION_countHBaseTableCells = "countHBaseTableCells",
+	private static String
 			ACTION_copyHBaseTable = "copyHBaseTable",
 			ACTION_exportNodeToHFile = "exportNodeToHFile",
 			ACTION_viewHBaseServers = "viewHBaseServers",
