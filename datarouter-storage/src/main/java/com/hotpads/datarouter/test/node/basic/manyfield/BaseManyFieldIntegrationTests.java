@@ -300,11 +300,7 @@ public abstract class BaseManyFieldIntegrationTests{
 		mapNode.put(bean, null);
 
 		ManyFieldBean roundTripped = mapNode.get(bean.getKey(), null);
-		if(isJdbcOrHibernate()){//we're expecting the db to be in ASCII mode and strip out that weird character
-			AssertJUnit.assertFalse(bean.getStringField().equals(roundTripped.getStringField()));
-		}else{//byte arrays should handle any string
-			AssertJUnit.assertEquals(bean.getStringField(), roundTripped.getStringField());
-		}
+		AssertJUnit.assertEquals(bean.getStringField(), roundTripped.getStringField());
 		String roundTrippedByteString = new String(roundTripped.getStringByteField(), StringByteTool.CHARSET_UTF8);
 		AssertJUnit.assertEquals(val, roundTrippedByteString);
 		recordKey(bean.getKey());

@@ -8,9 +8,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
-import java.util.SortedSet;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HRegionInfo;
@@ -23,7 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.imp.hbase.balancer.BaseHBaseRegionBalancer;
 import com.hotpads.datarouter.client.imp.hbase.client.HBaseClient;
-import com.hotpads.datarouter.client.imp.hbase.compaction.DRHCompactionInfo;
+import com.hotpads.datarouter.client.imp.hbase.compaction.HBaseCompactionInfo;
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseSubEntityReaderNode;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.node.Node;
@@ -37,19 +35,13 @@ import com.hotpads.util.core.concurrent.CallableTool;
 public class DrRegionList{
 	private static final Logger logger = LoggerFactory.getLogger(DrRegionList.class);
 
-	public static final Integer BUCKETS_PER_NODE = 1000;
-
-	private final String tableName;
-	private final Node<?,?> node;
 	private final List<DrRegionInfo<?>> regions;
 	private final Class<? extends ScatteringPrefix> scatteringPrefixClass;
 	private final EntityPartitioner<?> entityPartitioner;
 	private final Map<DrRegionInfo<?>,ServerName> targetServerNameByRegion;
 
 	public DrRegionList(HBaseClient client, DrServerList servers, String tableName, Configuration config,
-			Node<?,?> node, BaseHBaseRegionBalancer balancerStrategy, DRHCompactionInfo compactionInfo){
-		this.tableName = tableName;
-		this.node = node;
+			Node<?,?> node, BaseHBaseRegionBalancer balancerStrategy, HBaseCompactionInfo compactionInfo){
 		this.regions = new ArrayList<>();
 		this.scatteringPrefixClass = node.getFieldInfo().getScatteringPrefixClass();
 		if(node.getFieldInfo().isEntity()){
@@ -77,10 +69,8 @@ public class DrRegionList{
 			try{
 				RegionLoad regionLoad = regionLoadByName.get(hregionInfo.getEncodedName());
 				ServerName serverName = serverNameByHRegionInfo.get(hregionInfo);
-				ServerLoad hserverLoad = servers.getHServerLoad(serverName);
-				regions.add(new DrRegionInfo(regionNum++, tableName, primaryKeyClass,
-						hregionInfo, serverName, hserverLoad,
-						node, regionLoad, compactionInfo));
+				regions.add(new DrRegionInfo(regionNum++, tableName, primaryKeyClass, hregionInfo, serverName, node,
+						regionLoad, compactionInfo));
 			}catch(RuntimeException e){
 				logger.warn("couldn't build DRHRegionList for region:"+hregionInfo.getEncodedName());
 				throw e;
@@ -115,18 +105,6 @@ public class DrRegionList{
 		}
 	}
 
-	public SortedSet<String> getServerNames(){
-		SortedSet<String> serverNames = new TreeSet<>();
-		for(DrRegionInfo<?> region : regions){
-			serverNames.add(region.getServerName());
-		}
-		return serverNames;
-	}
-
-	public String getTableName(){
-		return tableName;
-	}
-
 	public List<DrRegionInfo<?>> getRegions(){
 		return regions;
 	}
@@ -157,7 +135,7 @@ public class DrRegionList{
 		return null;
 	}
 
-	public SortedMap<String,List<DrRegionInfo<?>>> getRegionsByServerName(){
+	private SortedMap<String,List<DrRegionInfo<?>>> getRegionsByServerName(){
 		SortedMap<String,List<DrRegionInfo<?>>> out = new TreeMap<>();
 		for(DrRegionInfo<?> region : regions){
 			String serverName = region.getServerName();
@@ -179,14 +157,6 @@ public class DrRegionList{
 			}
 		}
 		return regionsByGroup;
-	}
-
-	public ServerName getServerForRegion(DrRegionInfo<?> drhRegionInfo){
-		return targetServerNameByRegion.get(drhRegionInfo);
-	}
-
-	public Node<?, ?> getNode() {
-		return node;
 	}
 
 }

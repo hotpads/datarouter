@@ -10,7 +10,6 @@ import com.amazonaws.services.sqs.model.SendMessageBatchRequestEntry;
 import com.hotpads.datarouter.client.imp.sqs.BaseSqsNode;
 import com.hotpads.datarouter.client.imp.sqs.SqsDataTooLargeException;
 import com.hotpads.datarouter.client.imp.sqs.op.SqsOp;
-import com.hotpads.datarouter.client.imp.sqs.single.SqsNode;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
@@ -32,18 +31,18 @@ extends SqsOp<PK,D,F,Void>{
 
 	@Override
 	protected Void run(){
-		List<SendMessageBatchRequestEntry> entries = new ArrayList<>(SqsNode.MAX_MESSAGES_PER_BATCH);
+		List<SendMessageBatchRequestEntry> entries = new ArrayList<>(BaseSqsNode.MAX_MESSAGES_PER_BATCH);
 		List<D> rejectedDatabeans = new ArrayList<>();
 		int currentPayloadSize = 0;
 		for(D databean : databeans){
 			String encodedDatabean = codec.toString(databean, fielder);
 			int encodedDatabeanSize = StringByteTool.getUtf8Bytes(encodedDatabean).length;
-			if(encodedDatabeanSize > SqsNode.MAX_BYTES_PER_MESSAGE){
+			if(encodedDatabeanSize > BaseSqsNode.MAX_BYTES_PER_MESSAGE){
 				rejectedDatabeans.add(databean);
 				continue;
 			}
-			if(currentPayloadSize + encodedDatabeanSize > SqsNode.MAX_BYTES_PER_PAYLOAD
-					|| entries.size() >= SqsNode.MAX_MESSAGES_PER_BATCH){
+			if(currentPayloadSize + encodedDatabeanSize > BaseSqsNode.MAX_BYTES_PER_PAYLOAD
+					|| entries.size() >= BaseSqsNode.MAX_MESSAGES_PER_BATCH){
 				putBatch(entries);
 				entries = new ArrayList<>();
 				currentPayloadSize = 0;

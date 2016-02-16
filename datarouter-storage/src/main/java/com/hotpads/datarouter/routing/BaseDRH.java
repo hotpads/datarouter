@@ -27,13 +27,14 @@ import com.hotpads.datarouter.util.core.DrCollectionTool;
 @Deprecated//try to replace with combination of Datarouter and Guice
 public abstract class BaseDRH{
 
-	protected Datarouter datarouter;
-	protected List<Router> routers = new ArrayList<>();
+	protected final Datarouter datarouter;
+	protected final List<Router> routers;
 
 	/************************ constructors ************************/
 
 	protected BaseDRH(Datarouter datarouter){
 		this.datarouter = datarouter;
+		this.routers = new ArrayList<>();
 	}
 
 	/************************ methods ************************/

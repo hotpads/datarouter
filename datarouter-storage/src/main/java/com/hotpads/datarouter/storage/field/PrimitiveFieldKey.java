@@ -22,4 +22,9 @@ extends BaseFieldKey<T>{
 		super(name, columnName, nullable, fieldGeneratorType);
 	}
 
+	protected PrimitiveFieldKey(String name, String columnName, boolean nullable,
+			FieldGeneratorType fieldGeneratorType, T defaultValue){
+		super(name, columnName, nullable, fieldGeneratorType, defaultValue);
+	}
+
 }

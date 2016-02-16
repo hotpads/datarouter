@@ -9,7 +9,6 @@ import com.amazonaws.services.sqs.model.SendMessageRequest;
 import com.hotpads.datarouter.client.imp.sqs.BaseSqsNode;
 import com.hotpads.datarouter.client.imp.sqs.SqsDataTooLargeException;
 import com.hotpads.datarouter.client.imp.sqs.op.SqsOp;
-import com.hotpads.datarouter.client.imp.sqs.single.SqsNode;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
@@ -42,7 +41,7 @@ extends SqsOp<PK,D,F,Void>{
 		databeanGroup.write(collectionPrefix, 0, collectionPrefix.length);
 		for(D databean : databeans){
 			byte[] encodedDatabean = StringByteTool.getUtf8Bytes(codec.toString(databean, fielder));
-			if(encodedDatabean.length + 2*collectionPrefix.length > SqsNode.MAX_BYTES_PER_MESSAGE){
+			if(encodedDatabean.length + 2*collectionPrefix.length > BaseSqsNode.MAX_BYTES_PER_MESSAGE){
 				rejectedDatabeans.add(databean);
 				continue;
 			}
@@ -56,7 +55,7 @@ extends SqsOp<PK,D,F,Void>{
 	}
 
 	private void addToQueueAndFlushIfNecessary(ByteArrayOutputStream group, byte[] databean){
-		if(group.size() + databean.length + collectionSuffix.length > SqsNode.MAX_BYTES_PER_MESSAGE){
+		if(group.size() + databean.length + collectionSuffix.length > BaseSqsNode.MAX_BYTES_PER_MESSAGE){
 			flush(group);
 			group.reset();
 			group.write(collectionPrefix, 0, collectionPrefix.length);
