@@ -8,7 +8,9 @@ import com.hotpads.util.http.response.HotPadsHttpResponse;
 @SuppressWarnings("serial")
 public class HotPadsHttpResponseException extends HotPadsHttpException {
 
-	private HotPadsHttpResponse response;
+	public static final String X_EXCEPTION_ID = "x-eid";
+
+	private final HotPadsHttpResponse response;
 
 	public HotPadsHttpResponseException(HotPadsHttpResponse response, long requestStartTimeMs) {
 		super(buildMessage(response, requestStartTimeMs), null);
@@ -17,7 +19,7 @@ public class HotPadsHttpResponseException extends HotPadsHttpException {
 
 	private static String buildMessage(HotPadsHttpResponse response, long requestStartTimeMs){
 		String message = "HTTP response returned with status code " + response.getStatusCode();
-		Header header = response.getFirstHeader("x-eid");
+		Header header = response.getFirstHeader(X_EXCEPTION_ID);
 		if(header != null){
 			message += " and exception id " + header.getValue();
 		}
