@@ -26,22 +26,22 @@ import com.hotpads.handler.user.role.DatarouterUserRole;
  * such session
  */
 @SuppressWarnings("serial")
-public class DatarouterSession 
-extends BaseDatarouterSessionDatabean<DatarouterSessionKey, DatarouterSession> 
-implements Serializable {	
+public class DatarouterSession
+extends BaseDatarouterSessionDatabean<DatarouterSessionKey, DatarouterSession>
+implements Serializable {
 //	private static Logger logger = LoggerFactory.getLogger(DatarouterSession.class);
 
 	/****************** fields **************************/
-	
+
 	private Long userId;//needed to map back to the DatarouterUser
-	
+
 	//cached fields from DatarouterUser
 	private String userToken;
 	private String username;
 	private Date userCreated;
 	private List<String> roles;
 	private Boolean persistent = true;
-	
+
 	public class F {
 		public static final String
 				KEY_NAME = "key",
@@ -51,42 +51,39 @@ implements Serializable {
 				userCreated = "userCreated",
 				roles = "roles";
 	}
-	
-	
+
+
 	public static class DatarouterSessionFielder extends BaseLatin1Fielder<DatarouterSessionKey,DatarouterSession>{
-		public DatarouterSessionFielder(){}
+		public DatarouterSessionFielder(){
+		}
 		@Override
 		public Class<DatarouterSessionKey> getKeyFielderClass(){
 			return DatarouterSessionKey.class;
 		}
 		@Override
-		public List<Field<?>> getNonKeyFields(DatarouterSession d){
-			List<Field<?>> nonKeyFields = new ArrayList<>();
-//			fields.add(new DateField(BaseDatarouterSessionDatabean.F.created, getCreated()));
-			nonKeyFields.add(new DateField(BaseDatarouterSessionDatabean.F.updated, d.getUpdated()));
-			
-//			List<Field<?>> nonKeyFields = super.getNonKeyFields();
-			nonKeyFields.add(new UInt63Field(F.userId, d.userId));
-			nonKeyFields.add(new StringField(F.userToken, d.userToken, MySqlColumnType.MAX_LENGTH_VARCHAR));
-			nonKeyFields.add(new StringField(F.username, d.username, MySqlColumnType.MAX_LENGTH_VARCHAR));
-			nonKeyFields.add(new DelimitedStringArrayField(F.roles, ",", d.roles));
-			nonKeyFields.add(new DateField(F.userCreated, d.userCreated));
+		public List<Field<?>> getNonKeyFields(DatarouterSession databean){
+			List<Field<?>> nonKeyFields = new ArrayList<>(databean.getNonKeyFields());
+			nonKeyFields.add(new UInt63Field(F.userId, databean.userId));
+			nonKeyFields.add(new StringField(F.userToken, databean.userToken, MySqlColumnType.MAX_LENGTH_VARCHAR));
+			nonKeyFields.add(new StringField(F.username, databean.username, MySqlColumnType.MAX_LENGTH_VARCHAR));
+			nonKeyFields.add(new DelimitedStringArrayField(F.roles, ",", databean.roles));
+			nonKeyFields.add(new DateField(F.userCreated, databean.userCreated));
 			return nonKeyFields;
 		}
-		
+
 	}
-	
+
 	@Override
 	public Class<DatarouterSessionKey> getKeyClass() {
 		return DatarouterSessionKey.class;
 	}
 
 	/************************** construct *************************/
-	
+
 	DatarouterSession(){
 		super(new DatarouterSessionKey(null));
 	}
-	
+
 	public static DatarouterSession createAnonymousSession(String userToken){
 		DatarouterSession session = new DatarouterSession();
 		session.setUserToken(userToken);
@@ -97,7 +94,7 @@ implements Serializable {
 		session.setRoles(null);
 		return session;
 	}
-	
+
 	public static DatarouterSession createFromUser(DatarouterUser user){
 		DatarouterSession session = createAnonymousSession(user.getUserToken());
 		session.setUserId(user.getId());
@@ -106,69 +103,69 @@ implements Serializable {
 		session.setRoles(user.getRoles());
 		return session;
 	}
-	
-	
+
+
 	/*********************** static methods ************************************/
-	
+
 	public static DatarouterSession nullSafe(DatarouterSession in){
 		return in==null ? new DatarouterSession() : in;
 	}
 
-	
+
 	/********************** methods *************************************/
-		
+
 	public DatarouterUserKey getUserKey(){
 		if(userId==null){ return null; }
 		return new DatarouterUserKey(userId);
 	}
-	
-	
+
+
 	/************** DatarouterUserRole methods *****************************/
-	
+
 	public Collection<DatarouterUserRole> getRoles(){
 		return DatarouterEnumTool.fromPersistentStrings(DatarouterUserRole.user, roles);
 	}
-	
+
 	public void setRoles(Collection<DatarouterUserRole> roleEnums){
 		roles = DatarouterEnumTool.getPersistentStrings(roleEnums);
 		Collections.sort(roles);
 	}
-	
+
 	public boolean doesUserHaveRole(DatarouterUserRole requiredRole) {
 		return getRoles().contains(requiredRole);
 	}
-	
+
 	public boolean isAnonymous(){
 		return DrCollectionTool.isEmpty(roles);
 	}
-	
+
 	public boolean isDatarouterAdmin(){
 		return getRoles().contains(DatarouterUserRole.datarouterAdmin);
 	}
-	
+
 	public boolean isAdmin() {
 		Collection<DatarouterUserRole> rolesNullSafe = getRoles();
 		return rolesNullSafe.contains(DatarouterUserRole.datarouterAdmin) ||
 				rolesNullSafe.contains(DatarouterUserRole.admin);
 	}
-	
+
 	public boolean isApiUser() {
 		return getRoles().contains(DatarouterUserRole.apiUser);
 	}
-	
-	
+
+
 	/*********************** get/set ************************************/
-	
+
 	@Override
 	public DatarouterSessionKey getKey() {
 		return key;
 	}
-	
+
 	@Override
 	public void setKey(DatarouterSessionKey key) {
 		this.key = key;
 	}
-	
+
 	public String getUsername() {
 		return username;
 	}
@@ -176,15 +173,15 @@ implements Serializable {
 	public void setUsername(String username) {
 		this.username = username;
 	}
-	
+
 	public Long getId() {
 		return userId;
 	}
-	
+
 	public void setId(Long id) {
 		this.userId = id;
 	}
-	
+
 	public String getUserToken(){
 		return userToken;
 	}
@@ -212,7 +209,7 @@ implements Serializable {
 	public Boolean getPersistent() {
 		return persistent;
 	}
-	
+
 	public void setPersistent(Boolean persistent) {
 		this.persistent = persistent;
 	}
