@@ -26,18 +26,18 @@ import com.hotpads.util.core.iterable.BatchingIterable;
 public class JdbcLookupOp<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
-		F extends DatabeanFielder<PK,D>> 
+		F extends DatabeanFielder<PK,D>>
 extends BaseJdbcOp<List<D>>{
 	private static final Logger logger = LoggerFactory.getLogger(JdbcLookupOp.class);
-	
-	private static final int LARGE_LOOKUP_ALERT_THRESHOLD = 10000;
-		
+
+	private static final int LARGE_LOOKUP_ALERT_THRESHOLD = 5000;
+
 	private final JdbcReaderNode<PK,D,F> node;
 	private final JdbcFieldCodecFactory fieldCodecFactory;
 	private final Collection<? extends Lookup<PK>> lookups;
 	private final boolean wildcardLastField;
 	private final Config config;
-	
+
 	public JdbcLookupOp(JdbcReaderNode<PK,D,F> node, JdbcFieldCodecFactory fieldCodecFactory,
 			Collection<? extends Lookup<PK>> lookups, boolean wildcardLastField, Config config){
 		super(node.getDatarouter(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
@@ -47,7 +47,7 @@ extends BaseJdbcOp<List<D>>{
 		this.wildcardLastField = wildcardLastField;
 		this.config = Config.nullSafe(config);
 	}
-	
+
 	@Override
 	public List<D> runOnce(){
 		if(DrCollectionTool.isEmpty(lookups)){
@@ -81,5 +81,5 @@ extends BaseJdbcOp<List<D>>{
 		}
 		return result;
 	}
-	
+
 }

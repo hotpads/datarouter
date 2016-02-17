@@ -1,7 +1,6 @@
 package com.hotpads.util.core.enums;
 
 
-public interface StringPersistedEnum {
+public interface StringPersistedEnum extends PersistentString{
 	public String getDisplay();
-	public String getPersistentString();
 }
