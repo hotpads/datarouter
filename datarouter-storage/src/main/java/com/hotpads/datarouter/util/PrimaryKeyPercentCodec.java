@@ -12,18 +12,20 @@ public class PrimaryKeyPercentCodec{
 
 	public static <PK extends PrimaryKey<PK>> PK decode(Class<PK> pkClass, PrimaryKeyFielder<PK> fielder,
 			String pkEncoded){
-		if(pkEncoded == null){ return null; }
+		if(pkEncoded == null){
+			return null;
+		}
 		PK pk = ReflectionTool.create(pkClass);
 		String[] tokens = PercentFieldCodec.deCode(pkEncoded);
-		int i = 0;
+		int index = 0;
 		for(Field<?> field : fielder.getFields(pk)){
-			if(i > tokens.length - 1){
+			if(index > tokens.length - 1){
 				break;
 			}
-			field.fromString(tokens[i]);
+			field.fromString(tokens[index]);
 			field.setUsingReflection(pk, field.getValue());
 			field.setValue(null);// to be safe until Field logic is cleaned up
-			++i;
+			++index;
 		}
 		return pk;
 	}
