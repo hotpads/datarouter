@@ -46,7 +46,7 @@ public class DatabeanViewerHandler extends BaseHandler{
 	protected Mav handleDefault() throws Exception{
 		Mav mav = new Mav("/jsp/admin/viewDatabean.jsp");
 		PathSegments pathSegments = PathSegments.parsePathSegments(params);
-		List<MapStorageReaderNode<?,?>> nodes = getNodes(pathSegments.getDatarouterName(), pathSegments.getTableName());
+		List<MapStorageReaderNode<?,?>> nodes = getNodes(pathSegments.datarouterName, pathSegments.tableName);
 		mav.put("nodes", nodes);
 		List<DatabeanWrapper> databeanWrappers = new ArrayList<>();
 		for(MapStorageReaderNode node : nodes){
@@ -56,7 +56,7 @@ public class DatabeanViewerHandler extends BaseHandler{
 				fieldAware = false;
 				fields = node.getFieldInfo().getPrimaryKeyFields();
 			}
-			PrimaryKey<?> key = decodePrimaryKey(node, pathSegments.getDatabeanKey());
+			PrimaryKey<?> key = decodePrimaryKey(node, pathSegments.databeanKey);
 			Databean<?,?> databean = node.get(key, null);
 			if(databean != null){
 				databeanWrappers.add(new DatabeanWrapper(fields, getRowsOfFields(node, databean), node,
@@ -117,7 +117,7 @@ public class DatabeanViewerHandler extends BaseHandler{
 		private final Node<?,?> node;
 		private final boolean fieldAware;
 
-		public DatabeanWrapper(List<Field<?>> fields, List<Field<?>> rowOfFields, Node<?,?> node, boolean fieldAware){
+		private DatabeanWrapper(List<Field<?>> fields, List<Field<?>> rowOfFields, Node<?,?> node, boolean fieldAware){
 			this.fields = fields;
 			this.rowOfFields = rowOfFields;
 			this.node = node;
@@ -142,7 +142,7 @@ public class DatabeanViewerHandler extends BaseHandler{
 		private final String tableName;
 		private final String databeanKey;
 
-		public PathSegments(String datarouterName, String tableName, String databeanKey){
+		private PathSegments(String datarouterName, String tableName, String databeanKey){
 			this.datarouterName = datarouterName;
 			this.tableName = tableName;
 			this.databeanKey = databeanKey;
@@ -162,18 +162,6 @@ public class DatabeanViewerHandler extends BaseHandler{
 
 			return new PathSegments(pathInfo[0], pathInfo[1],  pathInfo[2]);
 
-		}
-
-		public String getDatarouterName(){
-			return datarouterName;
-		}
-
-		public String getTableName(){
-			return tableName;
-		}
-
-		public String getDatabeanKey(){
-			return databeanKey;
 		}
 	}
 
