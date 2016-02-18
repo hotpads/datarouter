@@ -14,13 +14,13 @@ import com.hotpads.datarouter.util.core.DrStringTool;
 public class SqlCreateTableGenerator implements DdlGenerator{
 
 	/************************** fields *************************/
-	
+
 	protected SqlTable table;
 	protected String databaseName="";
-	
-	
+
+
 	/******************* construct ****************************/
-	
+
 	public SqlCreateTableGenerator(SqlTable table){
 		this.table = table;
 	}
@@ -28,8 +28,8 @@ public class SqlCreateTableGenerator implements DdlGenerator{
 		this.table = table;
 		this.databaseName = databaseName;
 	}
-	
-	
+
+
 	/****************** primary method ****************************/
 
 	@Override
@@ -50,17 +50,17 @@ public class SqlCreateTableGenerator implements DdlGenerator{
 			sb.append(" " + col.getName() + " " + typeString);
 			if(type.shouldSpecifyLength(col.getMaxLength())){
 				sb.append("(" + col.getMaxLength() + ")");
-			}		
+			}
 			sb.append(col.getDefaultValueStatement());
 			if (col.getAutoIncrement()) {
 				sb.append(" auto_increment");
 			}
 			if(i < numberOfColumns-1){ sb.append(",\n"); }
 		}
-		
+
 		if(table.hasPrimaryKey()){
 			sb.append(",\n");
-			sb.append(" primary key ("); 
+			sb.append(" primary key (");
 			int numberOfColumnsInPrimaryKey=table.getPrimaryKey().getColumns().size();
 			for(int i=0; i< numberOfColumnsInPrimaryKey; i++){
 				col = table.getPrimaryKey().getColumns().get(i);
@@ -69,7 +69,7 @@ public class SqlCreateTableGenerator implements DdlGenerator{
 			}
 			sb.append(")");
 		}
-		
+
 		int numIndexes = DrCollectionTool.size(table.getIndexes());
 		if(numIndexes > 0){ sb.append(",\n"); }
 		int indexCounter = -1;
@@ -90,13 +90,14 @@ public class SqlCreateTableGenerator implements DdlGenerator{
 		sb.append(")");
 		sb.append(" engine=" + table.getEngine() + " character set = " + table.getCharacterSet() + " collate "
 				+ table.getCollation());
+		sb.append(";");
 		return sb.toString();
-		
+
 	}
-	
-		
+
+
 	/******************** tests *************************/
-	
+
 	public static class  SqlCreateTableGeneratorTester{
 		@Test
 		public void testAutoIncrement() {
@@ -109,14 +110,14 @@ public class SqlCreateTableGenerator implements DdlGenerator{
 					.addColumn(colString)
 					.setPrimaryKey(primaryKey);
 			SqlCreateTableGenerator generator = new SqlCreateTableGenerator(sqlTable);
-			String expected = "create table AutoIncrement (\n" + 
-					 " id bigint(8) not null auto_increment,\n" + 
+			String expected = "create table AutoIncrement (\n" +
+					 " id bigint(8) not null auto_increment,\n" +
 					 " string varchar(100) default null,\n" +
 					 " primary key (id)) engine=INNODB character set = latin1 collate latin1_swedish_ci";
 			System.out.println(generator.generateDdl());
 			Assert.assertEquals(expected, generator.generateDdl());
 		}
-		
+
 		@Test
 		public void testGenerate(){
 			String nameOfTable="Model";
