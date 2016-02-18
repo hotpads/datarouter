@@ -70,16 +70,8 @@ public class SqlCreateTableGenerator implements DdlGenerator{
 			sb.append(")");
 		}
 
-		int numUniqueIndexes = DrCollectionTool.size(table.getUniqueIndexes());
-		if(numUniqueIndexes > 0){
-			sb.append(",\n");
-		}
-		boolean appendedAny = false;
 		for(SqlIndex index : DrIterableTool.nullSafe(table.getUniqueIndexes())){
-			if(appendedAny){
-				sb.append(",\n");
-			}
-			appendedAny = true;
+			sb.append(",\n");
 			sb.append(" unique index "+ index.getName() +" (");
 			boolean appendedAnyCol = false;
 			for(SqlColumn column : DrIterableTool.nullSafe(index.getColumns())){
