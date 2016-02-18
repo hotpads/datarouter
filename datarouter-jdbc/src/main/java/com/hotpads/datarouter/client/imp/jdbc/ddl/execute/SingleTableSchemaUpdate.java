@@ -114,7 +114,6 @@ implements Callable<Void>{
 			Statement statement = connection.createStatement();
 			boolean exists = existingTableNames.contains(tableName);
 			if(!exists){
-
 				String sql = new SqlCreateTableGenerator(requested, schemaName).generateDdl();
 				if(!executeOptions.getCreateTables()){
 					logger.info("========================================== Please Execute SchemaUpdate"
