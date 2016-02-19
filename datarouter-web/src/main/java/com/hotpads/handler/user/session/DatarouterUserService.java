@@ -20,7 +20,6 @@ public class DatarouterUserService{
 	private static final Logger logger = LoggerFactory.getLogger(DatarouterUserService.class);
 
 	public static final long ADMIN_ID = 1L;
-	private static final String ADMIN_USERNAME =  "admin@hotpads.com";
 	private static final String DEFAULT_PASSWORD = "tempAdminPassword";
 	private static final List<DatarouterUserRole> DEFAULT_ADMIN_ROLES = DrListTool.create(
 			DatarouterUserRole.datarouterAdmin, DatarouterUserRole.admin, DatarouterUserRole.user,
