@@ -55,7 +55,9 @@ public class SqlCreateTableGenerator implements DdlGenerator{
 			if (col.getAutoIncrement()) {
 				sb.append(" auto_increment");
 			}
-			if(i < numberOfColumns-1){ sb.append(",\n"); }
+			if(i < numberOfColumns-1){
+				sb.append(",\n");
+			}
 		}
 
 		if(table.hasPrimaryKey()){
@@ -65,27 +67,48 @@ public class SqlCreateTableGenerator implements DdlGenerator{
 			for(int i=0; i< numberOfColumnsInPrimaryKey; i++){
 				col = table.getPrimaryKey().getColumns().get(i);
 				sb.append(col.getName());
-				if(i != numberOfColumnsInPrimaryKey -1){ sb.append(","); }
+				if(i != numberOfColumnsInPrimaryKey -1){
+					sb.append(",");
+				}
+			}
+			sb.append(")");
+		}
+		for(SqlIndex index : DrIterableTool.nullSafe(table.getUniqueIndexes())){
+			sb.append(",\n");
+			sb.append(" unique index "+ index.getName() +" (");
+			boolean appendedAnyCol = false;
+			for(SqlColumn column : DrIterableTool.nullSafe(index.getColumns())){
+				if(appendedAnyCol){
+					 sb.append(", ");
+				}
+				appendedAnyCol = true;
+				sb.append(column.getName());
 			}
 			sb.append(")");
 		}
 
 		int numIndexes = DrCollectionTool.size(table.getIndexes());
-		if(numIndexes > 0){ sb.append(",\n"); }
-		int indexCounter = -1;
+		if(numIndexes > 0){
+			sb.append(",");
+		}
+		sb.append("\n");
+		boolean appendedAnyIndex = false;
 		for(SqlIndex index : DrIterableTool.nullSafe(table.getIndexes())){
-			++indexCounter;
+			if(appendedAnyIndex){
+				sb.append(",\n");
+			}
+			appendedAnyIndex = true;
 			sb.append(" index "+ index.getName() +" (");
-			int numColumns = DrCollectionTool.size(index.getColumns());
-			int columnCounter = -1;
+
+			boolean appendedAnyIndexCol = false;
 			for(SqlColumn column : DrIterableTool.nullSafe(index.getColumns())){
-				++columnCounter;
+				if(appendedAnyIndexCol){
+					sb.append(", ");
+				}
+				appendedAnyIndexCol= true;
 				sb.append(column.getName());
-				if(columnCounter != numColumns -1){ sb.append(", "); }
 			}
 			sb.append(")");
-			if(indexCounter != numIndexes - 1){ sb.append(","); }
-			sb.append("\n");
 		}
 		sb.append(")");
 		sb.append(" engine=" + table.getEngine() + " character set = " + table.getCharacterSet() + " collate "
@@ -114,6 +137,7 @@ public class SqlCreateTableGenerator implements DdlGenerator{
 					 + " id bigint(8) not null auto_increment,\n"
 					 + " string varchar(100) default null,\n"
 					 + " primary key (id)) engine=INNODB character set = latin1 collate latin1_swedish_ci";
+				
 			System.out.println(generator.generateDdl());
 			Assert.assertEquals(expected, generator.generateDdl());
 		}
@@ -124,6 +148,7 @@ public class SqlCreateTableGenerator implements DdlGenerator{
 			SqlColumn col1 = new SqlColumn("includeInSummary", MySqlColumnType.TINYINT, 1, true, false);
 			SqlColumn col2 = new SqlColumn("feedModelId", MySqlColumnType.VARCHAR, 100, false, false);
 			SqlColumn col3 = new SqlColumn("feedListingId", MySqlColumnType.DATETIME, 19, true,false);
+
 			SqlIndex primaryKey = new SqlIndex("PKey")
 					.addColumn(col1)
 					.addColumn(col2)
