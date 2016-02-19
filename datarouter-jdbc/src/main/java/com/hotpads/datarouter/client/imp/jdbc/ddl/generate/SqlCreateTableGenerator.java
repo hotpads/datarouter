@@ -110,10 +110,10 @@ public class SqlCreateTableGenerator implements DdlGenerator{
 					.addColumn(colString)
 					.setPrimaryKey(primaryKey);
 			SqlCreateTableGenerator generator = new SqlCreateTableGenerator(sqlTable);
-			String expected = "create table AutoIncrement (\n" +
-					 " id bigint(8) not null auto_increment,\n" +
-					 " string varchar(100) default null,\n" +
-					 " primary key (id)) engine=INNODB character set = latin1 collate latin1_swedish_ci";
+			String expected = "create table AutoIncrement (\n"
+					 + " id bigint(8) not null auto_increment,\n"
+					 + " string varchar(100) default null,\n"
+					 + " primary key (id)) engine=INNODB character set = latin1 collate latin1_swedish_ci";
 			System.out.println(generator.generateDdl());
 			Assert.assertEquals(expected, generator.generateDdl());
 		}
@@ -123,7 +123,7 @@ public class SqlCreateTableGenerator implements DdlGenerator{
 			String nameOfTable="Model";
 			SqlColumn col1 = new SqlColumn("includeInSummary", MySqlColumnType.TINYINT, 1, true, false);
 			SqlColumn col2 = new SqlColumn("feedModelId", MySqlColumnType.VARCHAR, 100, false, false);
-			SqlColumn col3 = new SqlColumn("feedListingId", MySqlColumnType.DATETIME, 19, true,false);//new SqlColumn("feedListingId", MySqlColumnType.VARCHAR, 100, false);
+			SqlColumn col3 = new SqlColumn("feedListingId", MySqlColumnType.DATETIME, 19, true,false);
 			SqlIndex primaryKey = new SqlIndex("PKey")
 					.addColumn(col1)
 					.addColumn(col2)
@@ -137,7 +137,6 @@ public class SqlCreateTableGenerator implements DdlGenerator{
 					.addColumn(col2));
 			SqlCreateTableGenerator generator = new SqlCreateTableGenerator(myTable);
 			System.out.println(generator.generateDdl());
-			//Assert.assertEquals(expected, actual);
 		}
 	}
 }
