@@ -9,6 +9,7 @@ import com.hotpads.handler.admin.DatabeanGeneratorHandler;
 import com.hotpads.handler.admin.RoutersHandler;
 import com.hotpads.handler.admin.StackTracesManagerHandler;
 import com.hotpads.handler.admin.client.memory.MemoryHandler;
+import com.hotpads.handler.datarouter.DatabeanViewerHandler;
 import com.hotpads.handler.datarouter.ViewNodeDataHandler;
 
 public class DatarouterWebDispatcher extends BaseDispatcher{
@@ -25,7 +26,8 @@ public class DatarouterWebDispatcher extends BaseDispatcher{
 			DATABEAN_GENERATOR = "/databeanGenerator",
 			NODE_BROWSE_DATA = "/nodes/browseData",
 			EXECUTORS_MONITORING = "/executors",
-			MEMORY = "/memory";
+			MEMORY = "/memory",
+			DATA = "/data";
 
 
 	public DatarouterWebDispatcher(DatarouterInjector injector, String servletContextPath, String urlPrefix){
@@ -40,6 +42,7 @@ public class DatarouterWebDispatcher extends BaseDispatcher{
 		handle(URL_DATAROUTER + STACKTRACES).withHandler(StackTracesManagerHandler.class);
 		handleDir(URL_DATAROUTER + MEMORY_STATS).withHandler(MemoryMonitoringHandler.class);
 		handleDir(URL_DATAROUTER + EXECUTORS_MONITORING).withHandler(ExecutorsMonitoringHandler.class);
+		handle(URL_DATAROUTER + DATA + "/\\w+/\\w+/.+").withHandler(DatabeanViewerHandler.class);
 	}
 
 }
