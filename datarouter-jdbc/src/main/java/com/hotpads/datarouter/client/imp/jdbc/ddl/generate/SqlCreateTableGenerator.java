@@ -137,7 +137,6 @@ public class SqlCreateTableGenerator implements DdlGenerator{
 					 + " id bigint(8) not null auto_increment,\n"
 					 + " string varchar(100) default null,\n"
 					 + " primary key (id)) engine=INNODB character set = latin1 collate latin1_swedish_ci";
-				
 			System.out.println(generator.generateDdl());
 			Assert.assertEquals(expected, generator.generateDdl());
 		}
