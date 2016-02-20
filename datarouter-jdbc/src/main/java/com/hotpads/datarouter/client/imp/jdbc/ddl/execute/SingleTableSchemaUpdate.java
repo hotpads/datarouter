@@ -114,17 +114,19 @@ implements Callable<Void>{
 			Statement statement = connection.createStatement();
 			boolean exists = existingTableNames.contains(tableName);
 			if(!exists){
-				logger.info("========================================== Creating the table " +tableName
-						+" ============================");
 				String sql = new SqlCreateTableGenerator(requested, schemaName).generateDdl();
-				if(!executeOptions.getCreateTables()){
-					logger.info("Please execute: "+sql);
-				}else{
+				if(executeOptions.getCreateTables()){
+					logger.info("========================================== Creating the table " +tableName
+							+" ============================");
 					logger.info(sql);
 					statement.execute(sql);
 					logger.info("============================================================================="
 					+"=======================");
-
+				}else{
+					logger.info("========================================== Please Execute SchemaUpdate"
+							+" ============================");
+					logger.info(sql);
+					printedSchemaUpdates.add(sql);
 				}
 			} else{
 				//execute the alter table
