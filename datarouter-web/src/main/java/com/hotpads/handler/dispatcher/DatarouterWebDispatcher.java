@@ -30,9 +30,10 @@ public class DatarouterWebDispatcher extends BaseDispatcher{
 			DATA = "/data";
 
 
-	public DatarouterWebDispatcher(DatarouterInjector injector, String servletContextPath, String urlPrefix){
-		super(injector, servletContextPath, urlPrefix);
+	public DatarouterWebDispatcher(DatarouterInjector injector, String servletContextPath){
+		super(injector, servletContextPath, URL_DATAROUTER);
 
+		//All urls must start with URL_DATAROUTER
 		handle(URL_DATAROUTER + "*").withHandler(RoutersHandler.class);
 		handle(URL_DATAROUTER + ROUTERS).withHandler(RoutersHandler.class);
 		handle(URL_DATAROUTER + NODE_BROWSE_DATA).withHandler(ViewNodeDataHandler.class);

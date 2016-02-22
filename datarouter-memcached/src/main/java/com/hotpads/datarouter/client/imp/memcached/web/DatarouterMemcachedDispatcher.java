@@ -11,8 +11,10 @@ public class DatarouterMemcachedDispatcher extends BaseDispatcher{
 			MEMCACHED = "/memcached",
 			PATH = PREFIX + MEMCACHED;
 
-	public DatarouterMemcachedDispatcher(DatarouterInjector injector, String servletContextPath, String urlPrefix){
-		super(injector, servletContextPath, urlPrefix);
+	public DatarouterMemcachedDispatcher(DatarouterInjector injector, String servletContextPath){
+		super(injector, servletContextPath, PATH);
+
+		//All urls must start with PATH
 		handle(PATH).withHandler(MemcachedHandler.class);
 	}
 

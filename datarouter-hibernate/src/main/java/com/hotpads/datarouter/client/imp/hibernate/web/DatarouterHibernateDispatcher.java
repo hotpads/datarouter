@@ -11,8 +11,10 @@ public class DatarouterHibernateDispatcher extends BaseDispatcher{
 			HIBERNATE = "/hibernate",
 			PATH = PREFIX + HIBERNATE;
 
-	public DatarouterHibernateDispatcher(DatarouterInjector injector, String servletContextPath, String urlPrefix){
-		super(injector, servletContextPath, urlPrefix);
+	public DatarouterHibernateDispatcher(DatarouterInjector injector, String servletContextPath){
+		super(injector, servletContextPath, PATH);
+
+		//All urls must start with PATH
 		handle(PATH).withHandler(HibernateHandler.class);
 	}
 
