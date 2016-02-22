@@ -46,12 +46,12 @@ public abstract class BaseDispatcher{
 		return rule;
 	}
 
-	protected DispatchRule handleAnySuffix(String regex){
-		return handle(MATCHING_ANY + regex);
+	protected DispatchRule handleAnySuffix(String suffix){
+		return handle(MATCHING_ANY + suffix);
 	}
 
-	protected DispatchRule handleAnyPrefix(String regex){
-		return handle(regex + MATCHING_ANY);
+	protected DispatchRule handleAnyPrefix(String prefix){
+		return handle(prefix + MATCHING_ANY);
 	}
 
 	public boolean handleRequestIfUrlMatch(ServletContext servletContext, HttpServletRequest request,
