@@ -102,7 +102,7 @@ public abstract class BaseDispatcher{
 			String prefix = "fjalfdja";
 			String suffix = "dfadfqeq";
 
-			Pattern prefixPattern = Pattern.compile(prefix + ".*");
+			Pattern prefixPattern = Pattern.compile(prefix + MATCHING_ANY);
 			Assert.assertTrue(prefixPattern.matcher(prefix + "qefadfaf").matches());
 			Assert.assertTrue(prefixPattern.matcher(prefix + "/qefadfaf").matches());
 			Assert.assertTrue(prefixPattern.matcher(prefix + "/qef/adfaf").matches());
@@ -111,7 +111,7 @@ public abstract class BaseDispatcher{
 			Assert.assertFalse(prefixPattern.matcher("/asae/" + prefix + "/qef/adfaf").matches());
 
 
-			Pattern suffixPattern = Pattern.compile(".*" + suffix);
+			Pattern suffixPattern = Pattern.compile(MATCHING_ANY + suffix);
 			Assert.assertTrue(suffixPattern.matcher("fjalfdja" + suffix).matches());
 			Assert.assertTrue(suffixPattern.matcher("/fjalfdja" + suffix).matches());
 			Assert.assertTrue(suffixPattern.matcher("/fjalfdja/" + suffix).matches());
