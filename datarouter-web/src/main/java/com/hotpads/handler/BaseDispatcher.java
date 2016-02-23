@@ -96,7 +96,7 @@ public abstract class BaseDispatcher{
 		return this.dispatchRules;
 	}
 
-	public static class BaseDispatcherTester{
+	public static class BaseDispatcherTests{
 		@Test
 		public void testMatches(){
 			String prefix = "fjalfdja";
