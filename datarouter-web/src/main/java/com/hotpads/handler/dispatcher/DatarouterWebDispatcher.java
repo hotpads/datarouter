@@ -35,15 +35,21 @@ public class DatarouterWebDispatcher extends BaseDispatcher{
 
 		//All urls must start with URL_DATAROUTER
 		handle(URL_DATAROUTER + "*").withHandler(RoutersHandler.class);
+		//exmaple: /datarouterrrrrrr
+
 		handle(URL_DATAROUTER + ROUTERS).withHandler(RoutersHandler.class);
 		handle(URL_DATAROUTER + NODE_BROWSE_DATA).withHandler(ViewNodeDataHandler.class);
 		handle(URL_DATAROUTER + DATABEAN_GENERATOR).withHandler(DatabeanGeneratorHandler.class);
 		handle(URL_DATAROUTER + CLIENTS + MEMORY).withHandler(MemoryHandler.class);
 		handle(URL_DATAROUTER + "/testApi[/]?[^/]*").withHandler(TestApiHandler.class);
+		//example: /testApi or /testApidfadfa  or /testApi/ or /testApi/adfafa
+
 		handle(URL_DATAROUTER + STACKTRACES).withHandler(StackTracesManagerHandler.class);
 		handleDir(URL_DATAROUTER + MEMORY_STATS).withHandler(MemoryMonitoringHandler.class);
 		handleDir(URL_DATAROUTER + EXECUTORS_MONITORING).withHandler(ExecutorsMonitoringHandler.class);
 		handle(URL_DATAROUTER + DATA + "/\\w+/\\w+/.+").withHandler(DatabeanViewerHandler.class);
+		// example: /datarouter/data/fadafa/adfadfafqe/abc or /datarouter/data/fadafa/adfadfafqe/abc.1341 or
+		// /datarouter/data/fadafa/adfadfafqe/abbc_2152
 	}
 
 }
