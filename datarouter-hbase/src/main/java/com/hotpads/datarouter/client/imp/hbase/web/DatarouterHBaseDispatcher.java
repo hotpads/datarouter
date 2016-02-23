@@ -14,7 +14,7 @@ public class DatarouterHBaseDispatcher extends BaseDispatcher{
 	public DatarouterHBaseDispatcher(DatarouterInjector injector, String servletContextPath){
 		super(injector, servletContextPath, PATH);
 
-		//All urls must start with URL_DATAROUTER
+		//All urls must start with PATH
 		handle(PATH).withHandler(HBaseHandler.class);
 	}
 
