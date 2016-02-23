@@ -16,8 +16,9 @@ import com.hotpads.datarouter.inject.DatarouterInjector;
 
 public abstract class BaseDispatcher{
 
-	private static final String REGEX_ONE_DIRECTORY = "[/]?[^/]*";
-	private static final String MATCHING_ANY = ".*";
+	public static final String REGEX_ONE_DIRECTORY = "[/]?[^/]*";
+	public static final String REGEX_TWO_DIRECTORY_PLUS = "/\\w+/\\w+/.+";
+	public static final String MATCHING_ANY = ".*";
 	private DatarouterInjector injector;
 	private String servletContextPath;
 	private String combinedPrefix;
