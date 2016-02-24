@@ -14,8 +14,6 @@ import com.hotpads.handler.datarouter.ViewNodeDataHandler;
 
 public class DatarouterWebDispatcher extends BaseDispatcher{
 
-	public static final String ANYTHING = ".*";
-
 	public static final String URL_DATAROUTER = "/datarouter";
 
 	public static final String
@@ -27,22 +25,32 @@ public class DatarouterWebDispatcher extends BaseDispatcher{
 			NODE_BROWSE_DATA = "/nodes/browseData",
 			EXECUTORS_MONITORING = "/executors",
 			MEMORY = "/memory",
-			DATA = "/data";
+			DATA = "/data",
+			TEST_API = "/testApi";
 
+	public DatarouterWebDispatcher(DatarouterInjector injector, String servletContextPath){
+		super(injector, servletContextPath, URL_DATAROUTER);
 
-	public DatarouterWebDispatcher(DatarouterInjector injector, String servletContextPath, String urlPrefix){
-		super(injector, servletContextPath, urlPrefix);
+		//All urls must start with URL_DATAROUTER
 
+		//exmaple: /datarouterrrrrrr
 		handle(URL_DATAROUTER + "*").withHandler(RoutersHandler.class);
+
 		handle(URL_DATAROUTER + ROUTERS).withHandler(RoutersHandler.class);
 		handle(URL_DATAROUTER + NODE_BROWSE_DATA).withHandler(ViewNodeDataHandler.class);
 		handle(URL_DATAROUTER + DATABEAN_GENERATOR).withHandler(DatabeanGeneratorHandler.class);
 		handle(URL_DATAROUTER + CLIENTS + MEMORY).withHandler(MemoryHandler.class);
-		handle(URL_DATAROUTER + "/testApi[/]?[^/]*").withHandler(TestApiHandler.class);
+
+		//example: /testApi or /testApidfadfa  or /testApi/ or /testApi/adfafa
+		handle(URL_DATAROUTER + TEST_API + REGEX_ONE_DIRECTORY).withHandler(TestApiHandler.class);
+
 		handle(URL_DATAROUTER + STACKTRACES).withHandler(StackTracesManagerHandler.class);
 		handleDir(URL_DATAROUTER + MEMORY_STATS).withHandler(MemoryMonitoringHandler.class);
 		handleDir(URL_DATAROUTER + EXECUTORS_MONITORING).withHandler(ExecutorsMonitoringHandler.class);
-		handle(URL_DATAROUTER + DATA + "/\\w+/\\w+/.+").withHandler(DatabeanViewerHandler.class);
+
+		// example: /datarouter/data/fadafa/adfadfafqe/abc or /datarouter/data/fadafa/adfadfafqe/abc.1341 or
+		// /datarouter/data/fadafa/adfadfafqe/abbc_2152
+		handle(URL_DATAROUTER + DATA + REGEX_TWO_DIRECTORY_PLUS).withHandler(DatabeanViewerHandler.class);
 	}
 
 }
