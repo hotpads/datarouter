@@ -24,7 +24,6 @@ import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.handler.encoder.HandlerEncoder;
 import com.hotpads.handler.encoder.MavEncoder;
 import com.hotpads.handler.exception.ExceptionRecorder;
-import com.hotpads.handler.mav.Mav;
 import com.hotpads.handler.mav.imp.MessageMav;
 import com.hotpads.handler.types.DefaultDecoder;
 import com.hotpads.handler.types.HandlerDecoder;
@@ -62,7 +61,7 @@ public abstract class BaseHandler{
 	protected static final String DEFAULT_HANDLER_METHOD_NAME = "handleDefault";
 
 	@Handler
-	protected Mav handleDefault() throws Exception {
+	protected Object handleDefault() throws Exception{
 		return new MessageMav("no default handler method found, please specify " + handlerMethodParamName());
 	}
 
@@ -109,9 +108,9 @@ public abstract class BaseHandler{
 			}
 
 			HandlerEncoder encoder;
-			try{
+			if(method.isAnnotationPresent(Handler.class)){
 				encoder = injector.getInstance(method.getAnnotation(Handler.class).encoder());
-			}catch(Exception e){
+			}else{
 				encoder = new MavEncoder();
 			}
 			Object result;
