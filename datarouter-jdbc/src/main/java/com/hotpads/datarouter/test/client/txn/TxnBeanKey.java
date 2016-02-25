@@ -2,6 +2,7 @@ package com.hotpads.datarouter.test.client.txn;
 
 import java.util.List;
 
+import javax.persistence.Column;
 import javax.persistence.Embeddable;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
@@ -15,33 +16,34 @@ import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
 @Embeddable
 public class TxnBeanKey extends BasePrimaryKey<TxnBeanKey>{
 
-	
+
 	/********************************* fields ***********************************/
-	
+
+	@Column(length=MySqlColumnType.MAX_KEY_LENGTH_UTF8MB4)
 	protected String id;
 
 	public static final String
 		COL_id = "id";
-	
+
 	@Override
 	public List<Field<?>> getFields(){
 		return FieldTool.createList(
-				new StringField(COL_id, id, MySqlColumnType.MAX_LENGTH_VARCHAR));
+				new StringField(COL_id, id, MySqlColumnType.MAX_KEY_LENGTH_UTF8MB4));
 	}
-	
-	
+
+
 	/****************************** constructors *******************************/
-	
+
 	TxnBeanKey(){
 	}
-	
+
 	public TxnBeanKey(String id) {
 		this.id = id;
 	}
 
-	
+
 	/******************************* get/set **************************************/
-	
+
 	public String getId(){
 		return id;
 	}
@@ -50,7 +52,7 @@ public class TxnBeanKey extends BasePrimaryKey<TxnBeanKey>{
 		this.id = id;
 	}
 
-	
-	
-	
+
+
+
 }
