@@ -6,7 +6,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -20,38 +19,26 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.view.index.IndexEntry;
 import com.hotpads.datarouter.util.core.DrArrayTool;
-import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.util.core.java.ReflectionTool;
+import com.mysql.jdbc.Driver;
 
 public class JdbcTool {
 
-	private static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
+	private static final String JDBC_DRIVER = Driver.class.getName();
 	private static final String TABLE_CATALOG = "TABLE_CAT";
 
-	public static Connection openConnection(String hostname, int port, String database, String user,
-			String password){
-		Connection conn = null;
-		try {
-			Class.forName(JDBC_DRIVER).newInstance();//not quite sure why we need this
-			String url = "jdbc:mysql://" + hostname + ":" + port + "/"
-			+ DrStringTool.nullSafe(database) + "?user=" + user + "&password=" + password;
+	public static Connection openConnection(String hostname, int port, String database, String user, String password){
+		Connection conn;
+		try{
+			Class.forName(JDBC_DRIVER).newInstance();// not quite sure why we need this
+			String url = "jdbc:mysql://" + hostname + ":" + port + "/" + DrStringTool.nullSafe(database) + "?user="
+					+ user + "&password=" + password;
 			conn = DriverManager.getConnection(url);
-		}catch(Exception e) {
+		}catch(Exception e){
 			throw new RuntimeException(e);
 		}
 		return conn;
-	}
-
-	public static void closeConnection(Connection connection){
-		try {
-			if(connection==null){
-				return;
-			}
-			connection.close();
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
-		}
 	}
 
 	public static List<String> showTables(Connection connection){
@@ -191,44 +178,6 @@ public class JdbcTool {
 		}catch(SQLException e){
 			throw new DataAccessException(e);
 		}
-	}
-
-	public static int tryUpdate(Connection conn, String sql){
-		try{
-			PreparedStatement stmt = conn.prepareStatement(sql);
-			return stmt.executeUpdate();
-		}catch(SQLException e){
-			//System.out.println(e.getMessage());
-			return 0;
-		}
-	}
-
-	public static int updateAndInsertIfMissing(Connection conn, List<String> updates, List<String> inserts){
-		if(DrCollectionTool.isEmpty(updates)){
-			return 0;
-		}
-		if(DrCollectionTool.differentSize(updates, inserts)){
-			throw new IllegalArgumentException("updates vs inserts size mismatch");
-		}
-
-		int[] updateSuccessFlags = bulkUpdate(conn, updates);
-		List<String> neededInserts = new LinkedList<>();
-		int index = -1;
-		for(String insert : inserts){
-			++index;
-			if(updateSuccessFlags[index]==0){
-				neededInserts.add(insert);
-			}
-		}
-		bulkUpdate(conn, neededInserts);
-		return neededInserts.size();
-	}
-
-	public static int[] bulkUpdate(Connection conn, List<String> sql){
-		if(conn==null || DrCollectionTool.isEmpty(sql)){
-			return new int[]{};
-		}
-		return bulkUpdate(conn, sql.toArray(new String[sql.size()]));
 	}
 
 	public static int[] bulkUpdate(Connection conn, String[] sql){

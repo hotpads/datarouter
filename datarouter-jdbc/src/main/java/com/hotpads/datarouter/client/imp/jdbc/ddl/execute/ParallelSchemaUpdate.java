@@ -1,6 +1,7 @@
 package com.hotpads.datarouter.client.imp.jdbc.ddl.execute;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -65,8 +66,10 @@ implements Callable<Void>{
 		try{
 			connection = connectionPool.checkOut();
 			existingTableNames = JdbcTool.showTables(connection);
+		}catch(SQLException e){
+			throw new RuntimeException(e);
 		}finally{
-			connectionPool.checkIn(connection);// is this how you return it to the pool?
+			connectionPool.checkIn(connection);
 		}
 
 		//run an update for each PhysicalNode
