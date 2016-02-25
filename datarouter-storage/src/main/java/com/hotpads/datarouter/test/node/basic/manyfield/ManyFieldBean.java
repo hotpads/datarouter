@@ -177,7 +177,7 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 			fields.add(new DumbDoubleField(F.doubleField, d.doubleField));
 			fields.add(new LongDateField(F.longDateField, d.longDateField));
 			fields.add(new CharacterField(F.characterField, d.characterField));
-			fields.add(new StringField(F.stringField, d.stringField, DEFAULT_STRING_LENGTH));
+			fields.add(new StringField(F.stringField, d.stringField, MySqlColumnType.MAX_KEY_LENGTH_UTF8MB4));
 			fields.add(new VarIntField(F.varIntField, d.varIntField));
 			fields.add(new IntegerEnumField<TestEnum>(TestEnum.class, F.intEnumField, d.intEnumField));
 			fields.add(new VarIntEnumField<TestEnum>(TestEnum.class, F.varIntEnumField, d.varIntEnumField));
@@ -190,7 +190,8 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 			fields.add(new ByteArrayField(F.byteArrayField, d.byteArrayField,MySqlColumnType.MAX_LENGTH_VARBINARY));
 			fields.add(new DoubleArrayField(F.doubleArrayField, d.doubleArrayField));
 			fields.add(new DelimitedStringArrayField(F.delimitedStringArrayField, ",", d.delimitedStringArrayField));
-			fields.add(new StringField(F.testSchemaUpdateField, d.testSchemaUpdateField, DEFAULT_STRING_LENGTH));
+			fields.add(new StringField(F.testSchemaUpdateField, d.testSchemaUpdateField,
+					MySqlColumnType.MAX_KEY_LENGTH_UTF8MB4));
 			fields.add(new UInt63Field(F.incrementField, d.incrementField));
 			return fields;
 		}
@@ -202,8 +203,9 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 					new ShortField(F.shortField, d.shortField),
 					new IntegerField(F.integerField, d.integerField)));
 			indexesByName.put("index_stringTestUpdate", FieldTool.createList(
-					new StringField(F.stringField, d.stringField, DEFAULT_STRING_LENGTH),
-					new StringField(F.testSchemaUpdateField, d.testSchemaUpdateField, DEFAULT_STRING_LENGTH)));
+					new StringField(F.stringField, d.stringField, MySqlColumnType.MAX_KEY_LENGTH_UTF8MB4),
+					new StringField(F.testSchemaUpdateField, d.testSchemaUpdateField,
+							MySqlColumnType.MAX_KEY_LENGTH_UTF8MB4)));
 			return indexesByName;
 		}
 
