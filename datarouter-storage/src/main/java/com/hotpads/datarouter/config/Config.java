@@ -1,5 +1,7 @@
 package com.hotpads.datarouter.config;
 
+import java.time.Duration;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -7,7 +9,6 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
-import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.comparable.BooleanField;
 import com.hotpads.datarouter.storage.field.imp.enums.StringEnumField;
@@ -19,7 +20,7 @@ import com.hotpads.util.core.lang.LineOfCode;
 public class Config
 extends BaseDatabean<ConfigKey,Config>
 implements Cloneable{
-	
+
 	/****************** static vars *******************************/
 
 	public static final int DEFAULT_ITERATE_BATCH_SIZE = 100;
@@ -27,23 +28,23 @@ implements Cloneable{
 	public static final Isolation DEFAULT_ISOLATION = Isolation.readCommitted;
 	public static final Boolean DEFAULT_AUTO_COMMIT = false;
 	public static final Integer LENGTH_CALLSITE = MySqlColumnType.INT_LENGTH_LONGTEXT;
-	
-	
+
+
 	/*************** fields ********************************/
 
 	private ConfigKey key;
-	
+
 	//i am trying to move away from setting any values here, so please don't add anything to the defaults!
 
 	private ConnectMethod connectMethod = ConnectMethod.tryExisting;
 	private Boolean useSession = true;
-	
+
 	//transactions
 	private Isolation isolation = DEFAULT_ISOLATION;
-	
+
 	//slaves
 	private Boolean slaveOk = false;
-	
+
 	//put options
 	private PutMethod putMethod = PutMethod.DEFAULT_PUT_METHOD;
 	private Boolean ignoreNullFields = false;
@@ -53,29 +54,29 @@ implements Cloneable{
 	//table scans
 	private Boolean scannerCaching = true;
 	private Integer iterateBatchSize = DEFAULT_ITERATE_BATCH_SIZE;
-	
+
 	//retrying
-	private Long timeoutMs;
+	private Long timeoutMs = Duration.ofMinutes(10).toMillis();
 	private Integer numAttempts;//do not set default here.  do it per-client
 
 	//paging
 	private Integer limit;
 	private Integer offset;
-	
+
 	//caching
 	private Boolean cacheOk = DEFAULT_CACHE_OK;
-	private Long cacheTimeoutMs = Long.MAX_VALUE;
-	
+	private Long ttlMs = 0L;//infinite
+
 	//callsite tracing
 	private LineOfCode callsite;
 	private LineOfCode customCallsite;
-	
-	
+
+
 	/**************************** columns *******************************/
-	
+
 	public static final Integer
 		LEN_default = StringField.DEFAULT_STRING_LENGTH;
-	
+
 	public static class F{
 		public static final String
 			KEY_key = "key",
@@ -94,21 +95,21 @@ implements Cloneable{
 			limit = "limit",
 			offset = "offset",
 			cacheOk = "cacheOk",
-			cacheTimeoutMs = "cacheTimeoutMs",
+			ttlMs = "ttlMs",
 			callsite = "callsite",
 			customCallsite = "customCallsite"
 			;
 	}
-	
+
 	public static class ConfigFielder extends BaseDatabeanFielder<ConfigKey,Config>{
-		public ConfigFielder(){}
-		@Override
-		public Class<ConfigKey> getKeyFielderClass(){
-			return ConfigKey.class;
+
+		public ConfigFielder(){
+			super(ConfigKey.class);
 		}
+
 		@Override
 		public List<Field<?>> getNonKeyFields(Config config){
-			return FieldTool.createList(
+			return Arrays.asList(
 					new StringEnumField<>(ConnectMethod.class, F.connectMethod, config.connectMethod, LEN_default),
 					new BooleanField(F.useSession, config.useSession),
 					new StringEnumField<>(Isolation.class, F.isolation, config.isolation, LEN_default),
@@ -124,89 +125,89 @@ implements Cloneable{
 					new UInt31Field(F.limit, config.limit),
 					new UInt31Field(F.offset, config.offset),
 					new BooleanField(F.cacheOk, config.cacheOk),
-					new UInt63Field(F.cacheTimeoutMs, config.cacheTimeoutMs),
+					new UInt63Field(F.ttlMs, config.ttlMs),
 					new StringField(F.callsite, config.callsite.getPersistentString(), LENGTH_CALLSITE),
 					new StringField(F.customCallsite, config.customCallsite.getPersistentString(), LENGTH_CALLSITE)
 					);
 		}
 	}
-	
-	
+
+
 	/******************* clone ******************************************/
-	
+
 	@Override
 	public Config clone(){
 		return getDeepCopy();
 	}
-	
+
 	public Config getDeepCopy(){//get rid of the checked exception in the clone method
 		Config clone = new Config();
 		clone
 			.setConnectMethod(connectMethod)
 			.setUseSession(useSession)
-			
+
 			.setIsolation(isolation)
-			
+
 			.setSlaveOk(slaveOk)
-			
+
 			.setPutMethod(putMethod)
 			.setIgnoreNullFields(ignoreNullFields)
 			.setCommitBatchSize(commitBatchSize)
 			.setPersistentPut(persistentPut)
-			
+
 			.setScannerCaching(scannerCaching)
 			.setIterateBatchSize(iterateBatchSize)
-			
+
 			.setTimeoutMs(timeoutMs)
 			.setNumAttempts(numAttempts)
-			
+
 			.setLimit(limit)
 			.setOffset(offset)
-			
+
 			.setCacheOk(cacheOk)
-			.setCacheTimeoutMs(cacheTimeoutMs)
-			
+			.setTtlMs(ttlMs)
+
 			.setCallsite(callsite)
 			.setCustomCallsite(customCallsite);
-		
+
 		return clone;
 	}
-	
-	
+
+
 	/************************** databean **************************************/
-	
+
 	@Override
 	public Class<ConfigKey> getKeyClass() {
 		return ConfigKey.class;
 	};
-	
+
 	@Override
 	public ConfigKey getKey() {
 		return key;
 	}
-	
-	
+
+
 	/***************** constructors ********************************/
-	
+
 	public Config(){
 		this.key = new ConfigKey();
 	}
-	
+
 	public static Config create(){
 		Config config = new Config();
 		return config;
 	}
-	
+
 	public static Config nullSafe(Config in){
 		if (in != null) {
 			return in;
 		}
 		return new Config();
 	}
-	
-	
+
+
 	/********************* accessors **************************************/
-	
+
 
 	public Isolation getIsolationOrUse(Isolation theDefault) {
 		if (isolation == null) {
@@ -214,16 +215,16 @@ implements Cloneable{
 		}
 		return isolation;
 	}
-	
+
 	public Isolation getIsolation() {
 		return isolation;
 	}
-	
+
 	public Config setIsolation(Isolation isolation) {
 		this.isolation = isolation;
 		return this;
 	}
-	
+
 
 	/**************** connectMethod **********************/
 
@@ -242,7 +243,7 @@ implements Cloneable{
 	public Integer getLimit() {
 		return limit;
 	}
-	
+
 	public Integer getLimitOrUse(int alternative){
 		if (limit != null) {
 			return limit;
@@ -255,7 +256,7 @@ implements Cloneable{
 		return this;
 	}
 
-	
+
 	/**************** offset **********************/
 
 	public Integer getOffset() {
@@ -267,20 +268,20 @@ implements Cloneable{
 		return this;
 	}
 
-	
+
 	/**************** iterateBatchSize **********************/
 
 	public Integer getIterateBatchSize() {
 		return iterateBatchSize;
 	}
-	
+
 	public Config setIterateBatchSize(Integer iterateBatchSize) {
 		this.iterateBatchSize = iterateBatchSize;
 		return this;
 	}
 
 	/************** commitBatchSize *************************/
-	
+
 	public Integer getCommitBatchSize() {
 		return commitBatchSize;
 	}
@@ -314,7 +315,7 @@ implements Cloneable{
 		return this;
 	}
 
-	
+
 	/************** useSession *************************/
 
 	public Boolean getUseSession() {
@@ -331,7 +332,7 @@ implements Cloneable{
 	public Integer getNumAttempts() {
 		return numAttempts;
 	}
-	
+
 	public Integer getNumAttemptsOrUse(int alternative){
 		if (numAttempts != null){
 			return numAttempts;
@@ -344,9 +345,9 @@ implements Cloneable{
 		return this;
 	}
 
-	
+
 	/************** timeoutMs *************************/
-	
+
 	public Long getTimeoutMs() {
 		return timeoutMs;
 	}
@@ -355,20 +356,20 @@ implements Cloneable{
 		this.timeoutMs = timeoutMs;
 		return this;
 	}
-	
+
 	public Config setTimeout(Integer timeout, TimeUnit timeUnit){
 		setTimeoutMs(timeUnit.toMillis(timeout));
 		return this;
 	}
-	
+
 	public Config setNoTimeout(){
 		setTimeoutMs(Long.MAX_VALUE);
 		return this;
 	}
 
-	
+
 	/************** putMethod *************************/
-	
+
 	public PutMethod getPutMethod() {
 		return putMethod;
 	}
@@ -380,7 +381,7 @@ implements Cloneable{
 
 
 	/************** ignoreNullFields *************************/
-	
+
 	public Boolean getIgnoreNullFields() {
 		return ignoreNullFields;
 	}
@@ -392,7 +393,7 @@ implements Cloneable{
 
 
 	/************** scannerCaching *************************/
-	
+
 	public Boolean getScannerCaching() {
 		return scannerCaching;
 	}
@@ -404,7 +405,7 @@ implements Cloneable{
 
 
 	/************** persistentPut *************************/
-	
+
 	public Boolean getPersistentPut(){
 		return persistentPut;
 	}
@@ -415,33 +416,33 @@ implements Cloneable{
 	}
 
 
-	/************** cacheTimeoutMs *************************/
-	
-	public Long getCacheTimeoutMs(){
-		return cacheTimeoutMs;
+	/************** ttlMs *************************/
+
+	public Long getTtlMs(){
+		return ttlMs;
 	}
 
-	public Config setCacheTimeoutMs(Long cacheTimeoutMs){
-		this.cacheTimeoutMs = cacheTimeoutMs;
+	public Config setTtlMs(Long ttlMs){
+		this.ttlMs = ttlMs;
 		return this;
 	}
-	
-	
+
+
 	/************* callsite ******************************/
-	
+
 	public LineOfCode getCallsite(){
 		return callsite;
 	}
-	
+
 	public Config setCallsite(LineOfCode callsite){
 		this.callsite = callsite;
 		return this;
 	}
-	
+
 	public LineOfCode getCustomCallsite(){
 		return customCallsite;
 	}
-	
+
 	public Config setCustomCallsite(LineOfCode customCallsite){
 		this.customCallsite = customCallsite;
 		return this;
