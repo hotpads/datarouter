@@ -29,7 +29,7 @@ public class SortedBean extends BaseDatabean<SortedBeanKey,SortedBean>{
 	private static final String KEY_NAME = "key";
 
 	@Id
-	private final SortedBeanKey key;
+	private SortedBeanKey key;
 
 	private String f1;
 	private Long f2;

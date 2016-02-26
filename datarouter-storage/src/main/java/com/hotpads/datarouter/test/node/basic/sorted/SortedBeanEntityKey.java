@@ -1,12 +1,12 @@
 package com.hotpads.datarouter.test.node.basic.sorted;
 
+import java.util.Arrays;
 import java.util.List;
 
 import javax.persistence.Column;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.storage.field.Field;
-import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.StringFieldKey;
 import com.hotpads.datarouter.storage.key.entity.base.BaseEntityKey;
@@ -31,7 +31,7 @@ extends BaseEntityKey<SortedBeanEntityKey>{
 
 	@Override
 	public List<Field<?>> getFields(){
-		return FieldTool.createList(
+		return Arrays.asList(
 				new StringField(FieldKeys.a, a),
 				new StringField(FieldKeys.b, b));
 	}
