@@ -65,7 +65,7 @@ implements Cloneable{
 
 	//caching
 	private Boolean cacheOk = DEFAULT_CACHE_OK;
-	private Long cacheTimeoutMs = 0L;//infinite
+	private Long ttlMs = 0L;//infinite
 
 	//callsite tracing
 	private LineOfCode callsite;
@@ -95,7 +95,7 @@ implements Cloneable{
 			limit = "limit",
 			offset = "offset",
 			cacheOk = "cacheOk",
-			cacheTimeoutMs = "cacheTimeoutMs",
+			ttlMs = "ttlMs",
 			callsite = "callsite",
 			customCallsite = "customCallsite"
 			;
@@ -125,7 +125,7 @@ implements Cloneable{
 					new UInt31Field(F.limit, config.limit),
 					new UInt31Field(F.offset, config.offset),
 					new BooleanField(F.cacheOk, config.cacheOk),
-					new UInt63Field(F.cacheTimeoutMs, config.cacheTimeoutMs),
+					new UInt63Field(F.ttlMs, config.ttlMs),
 					new StringField(F.callsite, config.callsite.getPersistentString(), LENGTH_CALLSITE),
 					new StringField(F.customCallsite, config.customCallsite.getPersistentString(), LENGTH_CALLSITE)
 					);
@@ -165,7 +165,7 @@ implements Cloneable{
 			.setOffset(offset)
 
 			.setCacheOk(cacheOk)
-			.setCacheTimeoutMs(cacheTimeoutMs)
+			.setTtlMs(ttlMs)
 
 			.setCallsite(callsite)
 			.setCustomCallsite(customCallsite);
@@ -416,14 +416,14 @@ implements Cloneable{
 	}
 
 
-	/************** cacheTimeoutMs *************************/
+	/************** ttlMs *************************/
 
-	public Long getCacheTimeoutMs(){
-		return cacheTimeoutMs;
+	public Long getTtlMs(){
+		return ttlMs;
 	}
 
-	public Config setCacheTimeoutMs(Long cacheTimeoutMs){
-		this.cacheTimeoutMs = cacheTimeoutMs;
+	public Config setTtlMs(Long ttlMs){
+		this.ttlMs = ttlMs;
 		return this;
 	}
 

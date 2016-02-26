@@ -71,9 +71,9 @@ implements PhysicalMapStorageNode<PK,D>{
 				byte[] bytes = DatabeanTool.getBytes(databean, fieldInfo.getSampleFielder());
 				String key = buildMemcachedKey(databean.getKey());
 				//memcachedClient uses an integer for cache timeout
-				Long timeoutLong = config.getCacheTimeoutMs() == null
+				Long timeoutLong = config.getTtlMs() == null
 						? Long.MAX_VALUE
-						: config.getCacheTimeoutMs() / 1000;
+						: config.getTtlMs() / 1000;
 				Integer expiration = timeoutLong > new Long(Integer.MAX_VALUE)
 						? Integer.MAX_VALUE
 						: timeoutLong.intValue();

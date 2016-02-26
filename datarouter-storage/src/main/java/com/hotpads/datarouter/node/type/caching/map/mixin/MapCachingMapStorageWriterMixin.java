@@ -20,7 +20,7 @@ public class MapCachingMapStorageWriterMixin<
 		N extends MapStorageWriterNode<PK,D>>
 implements MapStorageWriter<PK,D>{
 	
-	public static Config CACHE_CONFIG = MapCachingMapStorageNode.CACHE_CONFIG;
+	public static Config CACHE_CONFIG = MapCachingMapStorageNode.CONFIG;
 	
 	protected BaseMapCachingNode<PK,D,F,N> target;
 	protected boolean cacheWrites = false;
