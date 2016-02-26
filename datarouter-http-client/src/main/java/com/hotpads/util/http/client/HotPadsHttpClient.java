@@ -137,10 +137,9 @@ public class HotPadsHttpClient {
 	private void setSecurityProperties(HotPadsHttpRequest request){
 		Map<String, String> params = new HashMap<>();
 		if (csrfValidator != null) {
-			// TODO enable this when all server support the new inputs
-//			String csrfIv = CsrfValidator.generateCsrfIv();
-//			params.put(SecurityParameters.CSRF_IV, csrfIv);
-			params.put(SecurityParameters.CSRF_TOKEN, csrfValidator.generateCsrfToken());
+			String csrfIv = CsrfValidator.generateCsrfIv();
+			params.put(SecurityParameters.CSRF_IV, csrfIv);
+			params.put(SecurityParameters.CSRF_TOKEN, csrfValidator.generateCsrfToken(csrfIv));
 		}
 		if (apiKeyPredicate != null) {
 			params.put(SecurityParameters.API_KEY, apiKeyPredicate.getApiKey());
