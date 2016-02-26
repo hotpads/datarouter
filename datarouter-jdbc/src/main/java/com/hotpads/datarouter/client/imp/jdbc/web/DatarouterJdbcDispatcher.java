@@ -11,8 +11,10 @@ public class DatarouterJdbcDispatcher extends BaseDispatcher{
 			JDBC = "/jdbc",
 			PATH = PREFIX + JDBC;
 
-	public DatarouterJdbcDispatcher(DatarouterInjector injector, String servletContextPath, String urlPrefix){
-		super(injector, servletContextPath, urlPrefix);
+	public DatarouterJdbcDispatcher(DatarouterInjector injector, String servletContextPath){
+		super(injector, servletContextPath, PATH);
+
+		//All urls must start with PATH
 		handle(PATH).withHandler(JdbcHandler.class);
 	}
 

@@ -29,6 +29,12 @@ import com.hotpads.util.http.json.GsonJsonSerializer;
 
 public class TestApiHandler extends BaseHandler{
 
+	@Override
+	@Handler(encoder=JsonEncoder.class)
+	protected String handleDefault(){
+		return "This is not a mav";
+	}
+
 	@Handler
 	public Mav before(){
 		return new MessageMav("Before !");
