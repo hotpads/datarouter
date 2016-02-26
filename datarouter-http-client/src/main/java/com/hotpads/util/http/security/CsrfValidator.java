@@ -45,8 +45,8 @@ public class CsrfValidator{
 		return Base64.getEncoder().encodeToString(salt);
 	}
 
-	public boolean check(String token){
-		Long requestTime = getRequestTimeMs(token);
+	public boolean check(String token, String cipherIv){
+		Long requestTime = getRequestTimeMs(token, cipherIv);
 		if(requestTime == null){
 			return false;
 		}
@@ -63,7 +63,12 @@ public class CsrfValidator{
 		}
 	}
 
-	public Long getRequestTimeMs(String token){
+	public Long getRequestTimeMs(String token, String cipherIv){
+		// compatibility with old system, use the cipher from the object
+		// TODO remove when all client send the cipher as param
+		if(cipherIv == null){
+			cipherIv = this.cipherIv;
+		}
 		try{
 			Cipher aes = getCipher(Cipher.DECRYPT_MODE, cipherIv);
 			return Long.parseLong(new String(aes.doFinal(Base64.getDecoder().decode(token))));
