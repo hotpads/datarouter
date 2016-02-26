@@ -29,7 +29,7 @@ implements MapStorageReaderNode<PK,D>{
 
 	public static final Long CACHE_TIMEOUT_MS = 100L;
 
-	public static final Config CACHE_CONFIG = new Config().setCacheTimeoutMs(CACHE_TIMEOUT_MS);
+	public static final Config CACHE_CONFIG = new Config().setTimeoutMs(CACHE_TIMEOUT_MS);
 
 	protected boolean cacheReads = true;
 
