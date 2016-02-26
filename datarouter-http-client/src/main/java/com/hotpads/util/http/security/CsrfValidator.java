@@ -1,7 +1,5 @@
 package com.hotpads.util.http.security;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
@@ -15,12 +13,7 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public class CsrfValidator{
-
-	private static Logger logger = LoggerFactory.getLogger(CsrfValidator.class.getCanonicalName());
 	private static final String HASHING_ALGORITHM = "SHA-256";
 	// AES/CBC requires IV to be generated for every encrypted message!!
 	// More details here:  https://tools.ietf.org/html/rfc3602
@@ -33,9 +26,11 @@ public class CsrfValidator{
 	private static final Long REQUEST_TIMEOUT_IN_MS = 10000L;
 
 	private final String cipherKey;
+	private final String cipherIv;
 
-	public CsrfValidator(String cipherKey){
+	public CsrfValidator(String cipherKey, String cipherIv){
 		this.cipherKey = cipherKey;
+		this.cipherIv = cipherIv;
 	}
 
 	public static String generateCsrfIv(){
@@ -50,32 +45,30 @@ public class CsrfValidator{
 		return Base64.getEncoder().encodeToString(salt);
 	}
 
-	public boolean check(String token, String cipherIv){
-		Long requestTime = getRequestTimeMs(token, cipherIv);
+	public boolean check(String token){
+		Long requestTime = getRequestTimeMs(token);
 		if(requestTime == null){
 			return false;
 		}
 		return System.currentTimeMillis() < requestTime + REQUEST_TIMEOUT_IN_MS;
 	}
 
-	public String generateCsrfToken(String cipherIv){
+	public String generateCsrfToken(){
 		try{
 			Cipher aes = getCipher(Cipher.ENCRYPT_MODE, cipherIv);
 			return Base64.getEncoder().encodeToString(aes.doFinal(String.valueOf(System.currentTimeMillis())
 					.getBytes()));
 		}catch (Exception e){
-			log(e);
-			return null;
+			throw new RuntimeException(e);
 		}
 	}
 
-	public Long getRequestTimeMs(String token, String cipherIv){
+	public Long getRequestTimeMs(String token){
 		try{
 			Cipher aes = getCipher(Cipher.DECRYPT_MODE, cipherIv);
 			return Long.parseLong(new String(aes.doFinal(Base64.getDecoder().decode(token))));
 		}catch (Exception e){
-			log(e);
-			return null;
+			throw new RuntimeException(e);
 		}
 	}
 
@@ -83,12 +76,6 @@ public class CsrfValidator{
 		MessageDigest digest = MessageDigest.getInstance(HASHING_ALGORITHM);
 		digest.update(cipherKey.getBytes());
 		return new SecretKeySpec(digest.digest(), 0, 16, MAIN_CIPHER_ALGORITHM);
-	}
-
-	private void log(Exception exception){
-		StringWriter sw = new StringWriter();
-		exception.printStackTrace(new PrintWriter(sw));
-		logger.warn(sw.toString());
 	}
 
 	private Cipher getCipher(int mode, String cipherIv)

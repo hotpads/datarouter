@@ -16,7 +16,8 @@ public class WebSocketApiDispatcher extends BaseDispatcher{
 		handleDir(urlPrefix + WEBSOCKET_COMMAND)
 				.withHandler(WebSocketApiHandler.class)
 				.withApiKey(new DefaultApiKeyPredicate(PushServiceHttpClientProvider.API_KEY))
-				.withCsrfToken(new CsrfValidator(PushServiceHttpClientProvider.CIPHER_KEY))
+				.withCsrfToken(new CsrfValidator(PushServiceHttpClientProvider.CIPHER_KEY,
+				PushServiceHttpClientProvider.CIPHER_IV))
 				.withSignature(new SignatureValidator(PushServiceHttpClientProvider.SALT));
 	}
 

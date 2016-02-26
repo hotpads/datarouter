@@ -139,7 +139,7 @@ public class HotPadsHttpClient {
 		if (csrfValidator != null) {
 			String csrfIv = CsrfValidator.generateCsrfIv();
 			params.put(SecurityParameters.CSRF_IV, csrfIv);
-			params.put(SecurityParameters.CSRF_TOKEN, csrfValidator.generateCsrfToken(csrfIv));
+			params.put(SecurityParameters.CSRF_TOKEN, csrfValidator.generateCsrfToken());
 		}
 		if (apiKeyPredicate != null) {
 			params.put(SecurityParameters.API_KEY, apiKeyPredicate.getApiKey());
