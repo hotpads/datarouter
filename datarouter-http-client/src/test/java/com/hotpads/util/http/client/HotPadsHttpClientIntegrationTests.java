@@ -211,11 +211,10 @@ public class HotPadsHttpClientIntegrationTests {
 
 		String salt = "some super secure salty salt " + UUID.randomUUID().toString();
 		String cipherKey = "kirg king kind " + UUID.randomUUID().toString();
-		String cipherIv = "iv independent variable https://en.wikipedia.org/wiki/IV " + UUID.randomUUID().toString();
 		String apiKey = "apiKey advanced placement incremental key " + UUID.randomUUID().toString();
 
 		SignatureValidator signatureValidator = new SignatureValidator(salt);
-		CsrfValidator csrfValidator = new CsrfValidator(cipherKey, cipherIv);
+		CsrfValidator csrfValidator = new CsrfValidator(cipherKey);
 		DefaultApiKeyPredicate apiKeyPredicate = new DefaultApiKeyPredicate(apiKey);
 
 		client = new HotPadsHttpClientBuilder().setSignatureValidator(signatureValidator)
