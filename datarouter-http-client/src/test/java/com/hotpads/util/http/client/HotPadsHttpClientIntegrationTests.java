@@ -248,7 +248,8 @@ public class HotPadsHttpClientIntegrationTests {
 		response = client.execute(request);
 		postParams = request.getPostParams();
 		Assert.assertEquals(expectedResponse, response.getEntity());
-		Assert.assertEquals(3, request.getPostParams().size());
+		Assert.assertEquals(4, request.getPostParams().size());
+		Assert.assertNotNull(postParams.get(SecurityParameters.CSRF_IV));
 		Assert.assertNotNull(postParams.get(SecurityParameters.CSRF_TOKEN));
 		Assert.assertNotNull(postParams.get(SecurityParameters.API_KEY));
 		Assert.assertNotNull(postParams.get(SecurityParameters.SIGNATURE));
@@ -275,7 +276,8 @@ public class HotPadsHttpClientIntegrationTests {
 		response = client.execute(request);
 		postParams = request.getPostParams();
 		Assert.assertEquals(expectedResponse, response.getEntity());
-		Assert.assertEquals(params.size() + 3, postParams.size());
+		Assert.assertEquals(params.size() + 4, postParams.size());
+		Assert.assertNotNull(postParams.get(SecurityParameters.CSRF_IV));
 		Assert.assertNotNull(postParams.get(SecurityParameters.CSRF_TOKEN));
 		Assert.assertNotNull(postParams.get(SecurityParameters.API_KEY));
 		Assert.assertNotNull(postParams.get(SecurityParameters.SIGNATURE));
@@ -287,7 +289,8 @@ public class HotPadsHttpClientIntegrationTests {
 		response = client.execute(request);
 		postParams = request.getPostParams();
 		Assert.assertEquals(expectedResponse, response.getEntity());
-		Assert.assertEquals(params.size() + 1, postParams.size());
+		Assert.assertEquals(params.size() + 2, postParams.size());
+		Assert.assertNotNull(postParams.get(SecurityParameters.CSRF_IV));
 		Assert.assertNotNull(postParams.get(SecurityParameters.CSRF_TOKEN));
 		Assert.assertNull(postParams.get(SecurityParameters.API_KEY));
 		Assert.assertNull(postParams.get(SecurityParameters.SIGNATURE));

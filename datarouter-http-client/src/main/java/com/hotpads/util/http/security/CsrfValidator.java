@@ -53,7 +53,7 @@ public class CsrfValidator{
 		return System.currentTimeMillis() < requestTime + REQUEST_TIMEOUT_IN_MS;
 	}
 
-	public String generateCsrfToken(){
+	public String generateCsrfToken(String cipherIv){
 		try{
 			Cipher aes = getCipher(Cipher.ENCRYPT_MODE, cipherIv);
 			return Base64.getEncoder().encodeToString(aes.doFinal(String.valueOf(System.currentTimeMillis())
