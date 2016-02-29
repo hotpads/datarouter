@@ -293,7 +293,7 @@ public abstract class BaseManyFieldIntegrationTests{
 	@Test
 	public void testString(){
 		ManyFieldBean bean = new ManyFieldBean();
-		char multiByteUtf8Char = (char)555;
+		String multiByteUtf8Char = "😀";
 		String val = "abcdef"+multiByteUtf8Char;
 		bean.setStringField(val);
 		bean.setStringByteField(StringByteTool.getByteArray(val, StringByteTool.CHARSET_UTF8));

@@ -27,9 +27,7 @@ public class MapCachingMapStorageReaderNode<
 extends BaseMapCachingNode<PK,D,F,N>
 implements MapStorageReaderNode<PK,D>{
 
-	public static final Long CACHE_TIMEOUT_MS = 100L;
-
-	public static final Config CACHE_CONFIG = new Config().setCacheTimeoutMs(CACHE_TIMEOUT_MS);
+	public static final Config CONFIG = new Config().setTimeoutMs(100L);
 
 	protected boolean cacheReads = true;
 
@@ -47,7 +45,7 @@ implements MapStorageReaderNode<PK,D>{
 		}
 		try{
 			updateLastAttemptedContact();
-			if(cachingNode.exists(key, CACHE_CONFIG)){
+			if(cachingNode.exists(key, CONFIG)){
 				countHits();
 				return true;
 			}
@@ -68,7 +66,7 @@ implements MapStorageReaderNode<PK,D>{
 		D cachedObject = null;
 		try{
 			updateLastAttemptedContact();
-			cachedObject = cachingNode.get(key, CACHE_CONFIG);
+			cachedObject = cachingNode.get(key, CONFIG);
 			updateLastContact();
 		}catch(Exception e){
 			countExceptions();
@@ -84,7 +82,7 @@ implements MapStorageReaderNode<PK,D>{
 			if(cacheReads){
 				try{
 					updateLastAttemptedContact();
-					cachingNode.put(realObject, CACHE_CONFIG);
+					cachingNode.put(realObject, CONFIG);
 					updateLastContact();
 				}catch(Exception e){
 					countExceptions();
@@ -102,7 +100,7 @@ implements MapStorageReaderNode<PK,D>{
 		List<D> resultBuilder = new LinkedList<>();
 		try{
 			updateLastAttemptedContact();
-			resultBuilder.addAll(cachingNode.getMulti(keys, CACHE_CONFIG));
+			resultBuilder.addAll(cachingNode.getMulti(keys, CONFIG));
 			updateLastContact();
 		}catch(Exception e){
 			countExceptions();
@@ -132,7 +130,7 @@ implements MapStorageReaderNode<PK,D>{
 		List<PK> resultBuilder = new LinkedList<>();
 		try{
 			updateLastAttemptedContact();
-			resultBuilder.addAll(cachingNode.getKeys(keys, CACHE_CONFIG));
+			resultBuilder.addAll(cachingNode.getKeys(keys, CONFIG));
 			updateLastContact();
 		}catch(Exception e){
 			countExceptions();
@@ -160,7 +158,7 @@ implements MapStorageReaderNode<PK,D>{
 		if(cacheReads){
 			try{
 				updateLastAttemptedContact();
-				cachingNode.putMulti(fromBackingNode, CACHE_CONFIG);
+				cachingNode.putMulti(fromBackingNode, CONFIG);
 				updateLastContact();
 			}catch(Exception e){
 				countExceptions();

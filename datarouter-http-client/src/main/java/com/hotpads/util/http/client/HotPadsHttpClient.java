@@ -48,15 +48,15 @@ public class HotPadsHttpClient {
 	private static final int DEFAULT_REQUEST_TIMEOUT_MS = 3000;
 	private static final int EXTRA_FUTURE_TIME_MS = 1000;
 
-	private CloseableHttpClient httpClient;
-	private JsonSerializer jsonSerializer;
-	private SignatureValidator signatureValidator;
-	private CsrfValidator csrfValidator;
-	private ApiKeyPredicate apiKeyPredicate;
-	private HotPadsHttpClientConfig config;
-	private ExecutorService executor;
-	private int requestTimeoutMs;
-	private long futureTimeoutMs;
+	private final CloseableHttpClient httpClient;
+	private final JsonSerializer jsonSerializer;
+	private final SignatureValidator signatureValidator;
+	private final CsrfValidator csrfValidator;
+	private final ApiKeyPredicate apiKeyPredicate;
+	private final HotPadsHttpClientConfig config;
+	private final ExecutorService executor;
+	private final int requestTimeoutMs;
+	private final long futureTimeoutMs;
 
 	HotPadsHttpClient(CloseableHttpClient httpClient, JsonSerializer jsonSerializer,
 			SignatureValidator signatureValidator, CsrfValidator csrfValidator, ApiKeyPredicate apiKeyPredicate,
@@ -137,7 +137,9 @@ public class HotPadsHttpClient {
 	private void setSecurityProperties(HotPadsHttpRequest request){
 		Map<String, String> params = new HashMap<>();
 		if (csrfValidator != null) {
-			params.put(SecurityParameters.CSRF_TOKEN, csrfValidator.generateCsrfToken());
+			String csrfIv = CsrfValidator.generateCsrfIv();
+			params.put(SecurityParameters.CSRF_IV, csrfIv);
+			params.put(SecurityParameters.CSRF_TOKEN, csrfValidator.generateCsrfToken(csrfIv));
 		}
 		if (apiKeyPredicate != null) {
 			params.put(SecurityParameters.API_KEY, apiKeyPredicate.getApiKey());
@@ -188,9 +190,9 @@ public class HotPadsHttpClient {
 	}
 
 	private static class HttpRequestCallable implements Callable<HttpResponse> {
-		private HttpClient httpClient;
-		private HttpUriRequest request;
-		private HttpContext context;
+		private final HttpClient httpClient;
+		private final HttpUriRequest request;
+		private final HttpContext context;
 		private long requestStartTimeMs;
 
 		HttpRequestCallable(HttpClient httpClient, HttpUriRequest request, HttpContext context) {

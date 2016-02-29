@@ -11,8 +11,10 @@ public class DatarouterHBaseDispatcher extends BaseDispatcher{
 			HBASE = "/hbase",
 			PATH = PREFIX + HBASE;
 
-	public DatarouterHBaseDispatcher(DatarouterInjector injector, String servletContextPath, String urlPrefix){
-		super(injector, servletContextPath, urlPrefix);
+	public DatarouterHBaseDispatcher(DatarouterInjector injector, String servletContextPath){
+		super(injector, servletContextPath, PATH);
+
+		//All urls must start with PATH
 		handle(PATH).withHandler(HBaseHandler.class);
 	}
 

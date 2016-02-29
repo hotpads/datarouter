@@ -20,18 +20,22 @@ extends BaseFieldKey<E>{
 		this.sampleValue = ReflectionTool.create(enumClass);
 	}
 
-	public StringEnumFieldKey(String name, int size, Class<E> enumClass){
-		super(name);
-		this.size = size;
-		this.sampleValue = ReflectionTool.create(enumClass);
-	}
-
 	public StringEnumFieldKey(String name, String columnName, int size, Class<E> enumClass){
 		super(name, columnName, true, FieldGeneratorType.NONE);
 		this.size = size;
 		this.sampleValue = ReflectionTool.create(enumClass);
 	}
 
+	private StringEnumFieldKey(String name, E sampleValue, String columnName, boolean nullable,
+			FieldGeneratorType fieldGeneratorType, E defaultValue, int size){
+		super(name, columnName, nullable, fieldGeneratorType, defaultValue);
+		this.size = size;
+		this.sampleValue = sampleValue;
+	}
+
+	public StringEnumFieldKey<E> withSize(int size){
+		return new StringEnumFieldKey<>(name, sampleValue, columnName, nullable, fieldGeneratorType, sampleValue, size);
+	}
 
 	/*********************** ByteEncodedField ***********************/
 

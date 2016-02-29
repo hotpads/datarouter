@@ -19,31 +19,31 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrListTool;
-import com.hotpads.trace.TracerTool;
 import com.hotpads.trace.TracerThreadLocal;
+import com.hotpads.trace.TracerTool;
 
 public class MemcachedNode<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
-		F extends DatabeanFielder<PK,D>> 
+		F extends DatabeanFielder<PK,D>>
 extends MemcachedReaderNode<PK,D,F>
 implements PhysicalMapStorageNode<PK,D>{
 	private static final Logger logger = LoggerFactory.getLogger(MemcachedNode.class);
-	
+
 	protected static final int MEGABYTE = 1024 * 1024;
-	
+
 	public MemcachedNode(NodeParams<PK,D,F> params){
 		super(params);
 	}
-	
+
 	@Override
 	public Node<PK,D> getMaster() {
 		return this;
 	}
-	
-	
+
+
 	/************************************ MapStorageWriter methods ****************************/
-	
+
 	@Override
 	public void put(final D databean, final Config config) {
 		if(databean==null){
@@ -52,7 +52,7 @@ implements PhysicalMapStorageNode<PK,D>{
 		putMulti(DrListTool.wrap(databean), config);
 	}
 
-	
+
 	//TODO does spy client not do batched puts?
 	@Override
 	public void putMulti(final Collection<D> databeans, final Config paramConfig) {
@@ -71,21 +71,21 @@ implements PhysicalMapStorageNode<PK,D>{
 				byte[] bytes = DatabeanTool.getBytes(databean, fieldInfo.getSampleFielder());
 				String key = buildMemcachedKey(databean.getKey());
 				//memcachedClient uses an integer for cache timeout
-				Long timeoutLong = config.getCacheTimeoutMs() == null 
-						? Long.MAX_VALUE 
-						: config.getCacheTimeoutMs() / 1000;
-				Integer expiration = timeoutLong > new Long(Integer.MAX_VALUE) 
-						? Integer.MAX_VALUE 
+				Long timeoutLong = config.getTtlMs() == null
+						? Long.MAX_VALUE
+						: config.getTtlMs() / 1000;
+				Integer expiration = timeoutLong > new Long(Integer.MAX_VALUE)
+						? Integer.MAX_VALUE
 						: timeoutLong.intValue();
 				if (bytes.length > 2 * MEGABYTE) {
 					//memcached max size is 1mb for a compressed object, so don't PUT things that won't compress well
 					String json = JsonDatabeanTool.fieldsToJson(databean.getKey().getFields()).toString();
-					logger.error("memcached object too big for memcached!" + databean.getDatabeanName() + ", key:" 
+					logger.error("memcached object too big for memcached!" + databean.getDatabeanName() + ", key:"
 							+ json);
 					return;
 				}
 				try {
-					this.getClient().getSpyClient().set(key, expiration, bytes); 
+					this.getClient().getSpyClient().set(key, expiration, bytes);
 				} catch (MemcachedStateException e) {
 					logger.error("memached error on " + key,e);
 				}
@@ -95,14 +95,14 @@ implements PhysicalMapStorageNode<PK,D>{
 			finishTraceSpan();
 		}
 	}
-	
-	
+
+
 	@Override
 	public void deleteAll(final Config paramConfig){
 		throw new UnsupportedOperationException();
 	}
 
-	
+
 	@Override
 	public void delete(PK key, Config paramConfig){
 		if(key == null){
@@ -120,14 +120,12 @@ implements PhysicalMapStorageNode<PK,D>{
 		}
 	}
 
-	
+
 	@Override
 	public void deleteMulti(final Collection<PK> keys, final Config paramConfig){
 		for(PK pk : DrIterableTool.nullSafe(keys)){
 			delete(pk, paramConfig);
 		}
 	}
-	
-	
 
 }
