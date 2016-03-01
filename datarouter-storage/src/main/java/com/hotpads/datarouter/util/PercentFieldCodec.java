@@ -30,11 +30,4 @@ public class PercentFieldCodec{
 			throw new RuntimeException("pkEncoded=" + pkEncoded, e);
 		}
 	}
-//
-//	public static class PercentFieldCodecTests{
-//		public void testEncode(){
-//			Assert.assertEqual("", encode());
-//		}
-//
-//	}
 }
