@@ -4,6 +4,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.hotpads.datarouter.storage.field.Field;
 
@@ -13,15 +14,7 @@ public class PercentFieldCodec{
 
 	public static String encode(List<Field<?>> fields){
 		StringBuilder sb = new StringBuilder();
-		boolean doneOne = false;
-		for(Field<?> field : fields){
-			if(doneOne){
-				sb.append(FORWARD_SLASH);
-			}else{
-				doneOne = true;
-			}
-			sb.append(field.getValueString());
-		}
+		fields.stream().map(Field::getValueString).collect(Collectors.joining(FORWARD_SLASH));
 		try{
 			return URLEncoder.encode(sb.toString(), CHARACTER_ENCODING);
 		}catch(UnsupportedEncodingException e){
@@ -29,7 +22,7 @@ public class PercentFieldCodec{
 		}
 	}
 
-	public static String[] deCode(String pkEncoded){
+	public static String[] decode(String pkEncoded){
 		try{
 			String decodedString = URLDecoder.decode(pkEncoded, CHARACTER_ENCODING);
 			return decodedString.split(FORWARD_SLASH);
@@ -37,4 +30,11 @@ public class PercentFieldCodec{
 			throw new RuntimeException("pkEncoded=" + pkEncoded, e);
 		}
 	}
+//
+//	public static class PercentFieldCodecTests{
+//		public void testEncode(){
+//			Assert.assertEqual("", encode());
+//		}
+//
+//	}
 }

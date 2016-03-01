@@ -13,12 +13,12 @@ import com.hotpads.datarouter.node.DatarouterNodes;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.op.raw.read.MapStorageReader;
 import com.hotpads.datarouter.node.op.raw.read.MapStorageReader.MapStorageReaderNode;
-import com.hotpads.datarouter.serialize.PrimaryKeyStringConverter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.serialize.fielder.PrimaryKeyFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
+import com.hotpads.datarouter.util.PrimaryKeyPercentCodec;
 import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.Params;
 import com.hotpads.handler.dispatcher.DatarouterWebDispatcher;
@@ -56,7 +56,12 @@ public class DatabeanViewerHandler extends BaseHandler{
 				fieldAware = false;
 				fields = node.getFieldInfo().getPrimaryKeyFields();
 			}
-			PrimaryKey<?> key = decodePrimaryKey(node, pathSegments.databeanKey);
+//			PrimaryKey<?> key = decodePrimaryKey(node, pathSegments.databeanKey);
+
+			PrimaryKey<?> key = PrimaryKeyPercentCodec.decode((Class<PrimaryKey>)(node
+					.getFieldInfo().getPrimaryKeyClass()), (PrimaryKeyFielder)(node.getFieldInfo()
+							.getSamplePrimaryKey()), pathSegments.databeanKey);
+
 			Databean<?,?> databean = node.get(key, null);
 			if(databean != null){
 				databeanWrappers.add(new DatabeanWrapper(fields, getRowsOfFields(node, databean), node,
@@ -103,13 +108,13 @@ public class DatabeanViewerHandler extends BaseHandler{
 		return nodes;
 	}
 
-	private PrimaryKey<?> decodePrimaryKey(Node<?,?>node, String pkStrings){
-		PrimaryKey<?> key = PrimaryKeyStringConverter.primaryKeyFromString((Class<PrimaryKey>)(node
-				.getFieldInfo().getPrimaryKeyClass()), (PrimaryKeyFielder)(node.getFieldInfo()
-						.getSamplePrimaryKey()), pkStrings);
-		key.fromPersistentString(pkStrings);
-		return key;
-	}
+//	private PrimaryKey<?> decodePrimaryKey(Node<?,?>node, String pkStrings){
+//		PrimaryKey<?> key = PrimaryKeyStringConverter.primaryKeyFromString((Class<PrimaryKey>)(node
+//				.getFieldInfo().getPrimaryKeyClass()), (PrimaryKeyFielder)(node.getFieldInfo()
+//						.getSamplePrimaryKey()), pkStrings);
+//		key.fromPersistentString(pkStrings);
+//		return key;
+//	}
 
 	public static class DatabeanWrapper{
 		private final List<Field<?>> fields;

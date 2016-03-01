@@ -16,7 +16,7 @@ public class PrimaryKeyPercentCodec{
 			return null;
 		}
 		PK pk = ReflectionTool.create(pkClass);
-		String[] tokens = PercentFieldCodec.deCode(pkEncoded);
+		String[] tokens = PercentFieldCodec.decode(pkEncoded);
 		int index = 0;
 		for(Field<?> field : fielder.getFields(pk)){
 			if(index > tokens.length - 1){
