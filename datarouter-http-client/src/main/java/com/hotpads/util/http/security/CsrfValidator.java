@@ -16,7 +16,7 @@ import javax.crypto.spec.SecretKeySpec;
 public class CsrfValidator{
 	private static final String HASHING_ALGORITHM = "SHA-256";
 	// AES/CBC requires IV to be generated for every encrypted message!!
-	// More details here:  https://tools.ietf.org/html/rfc3602
+	// More details here: https://tools.ietf.org/html/rfc3602
 	// The Encapsulating Security Payload (ESP) payload is made up of the IV and the raw cipher-text.
 	// The IV field MUST be the same size as the block size of the cipher algorithm being used.
 	// The IV MUST be chosen at random, and MUST be unpredictable.
@@ -26,11 +26,9 @@ public class CsrfValidator{
 	private static final Long REQUEST_TIMEOUT_IN_MS = 10000L;
 
 	private final String cipherKey;
-	private final String cipherIv;
 
-	public CsrfValidator(String cipherKey, String cipherIv){
+	public CsrfValidator(String cipherKey){
 		this.cipherKey = cipherKey;
-		this.cipherIv = cipherIv;
 	}
 
 	public static String generateCsrfIv(){
@@ -58,21 +56,16 @@ public class CsrfValidator{
 			Cipher aes = getCipher(Cipher.ENCRYPT_MODE, cipherIv);
 			return Base64.getEncoder().encodeToString(aes.doFinal(String.valueOf(System.currentTimeMillis())
 					.getBytes()));
-		}catch (Exception e){
+		}catch(Exception e){
 			throw new RuntimeException(e);
 		}
 	}
 
 	public Long getRequestTimeMs(String token, String cipherIv){
-		// compatibility with old system, use the cipher from the object
-		// TODO remove when all client send the cipher as param
-		if(cipherIv == null){
-			cipherIv = this.cipherIv;
-		}
 		try{
 			Cipher aes = getCipher(Cipher.DECRYPT_MODE, cipherIv);
 			return Long.parseLong(new String(aes.doFinal(Base64.getDecoder().decode(token))));
-		}catch (Exception e){
+		}catch(Exception e){
 			throw new RuntimeException(e);
 		}
 	}
