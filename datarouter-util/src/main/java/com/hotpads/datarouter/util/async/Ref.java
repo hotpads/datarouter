@@ -6,8 +6,15 @@ import java.util.concurrent.Future;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import javax.inject.Provider;
+
 import com.hotpads.util.core.stream.StreamTool;
 
+/**
+ * Ref is a layer of indirection around an object, accessed via the get() method.  It is just a Supplier with some
+ * added utils.  These concise util methods convert Ref-like objects into Refs so that everything can implement the
+ * Supplier interface.
+ */
 public interface Ref<T> extends Supplier<T>{
 
 	public static <T> List<T> getAll(Iterable<? extends Ref<T>> refs){
@@ -66,6 +73,32 @@ public interface Ref<T> extends Supplier<T>{
 			}catch(InterruptedException | ExecutionException e){
 				throw new RuntimeException(e);
 			}
+		}
+	}
+
+
+	/************ Provider Refs **************/
+
+	public static <T> List<Ref<T>> ofProviders(Iterable<Provider<T>> providers){
+		return StreamTool.stream(providers)
+				.map(Ref::ofProvider)
+				.collect(Collectors.toList());
+	}
+
+	public static <T> Ref<T> ofProvider(Provider<T> provider){
+		return new ProviderRef<>(provider);
+	}
+
+	public static class ProviderRef<T> implements Ref<T>{
+		private final Provider<T> provider;
+
+		public ProviderRef(Provider<T> provider){
+			this.provider = provider;
+		}
+
+		@Override
+		public T get(){
+			return provider.get();
 		}
 	}
 }
