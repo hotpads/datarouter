@@ -52,7 +52,7 @@
 										<td>${field.valueString}</td>
 									</c:if>
 									<c:if test="${field.key.collection}">
-										<td><c:forEach items="${field.values}" var="v">
+										<td><c:forEach items="${field.value}" var="v">
 												${valueString}${v}<br />
 											</c:forEach></td>
 									</c:if>
