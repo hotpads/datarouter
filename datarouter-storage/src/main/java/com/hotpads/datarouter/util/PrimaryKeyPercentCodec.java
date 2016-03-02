@@ -12,8 +12,8 @@ public class PrimaryKeyPercentCodec{
 		return PercentFieldCodec.encode(pk.getFields());
 	}
 
-	public static <PK extends PrimaryKey<PK>> PK parseKeyFromKeyFieldMap(Class<PK> pkClass, PrimaryKeyFielder<PK> fielder,
-			Map<String, String> keyFieldMap){
+	public static <PK extends PrimaryKey<PK>> PK parseKeyFromKeyFieldMap(Class<PK> pkClass,
+			PrimaryKeyFielder<PK> fielder, Map<String,String> keyFieldMap){
 		if(keyFieldMap == null || keyFieldMap.isEmpty()){
 			return null;
 		}
