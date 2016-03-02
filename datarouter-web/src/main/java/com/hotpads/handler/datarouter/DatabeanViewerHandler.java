@@ -51,6 +51,11 @@ public class DatabeanViewerHandler extends BaseHandler{
 		Mav mav = new Mav("/jsp/admin/viewDatabean.jsp");
 		PathSegments pathSegments = PathSegments.parsePathSegments(params);
 		List<MapStorageReaderNode<?,?>> nodes = getNodes(pathSegments.datarouterName, pathSegments.tableName);
+		if(nodes == null || nodes.size() < 1){
+			throw new IllegalArgumentException("Can not find a matching table."
+				+ "The correct url is: /datarouter/data/{router}/{table}/{databeanKey}"
+				+ " or like: /datarouter/data/{router}/{table}?feedId=HotPads&feedListingId=FAL010091L");
+		}
 		mav.put("nodes", nodes);
 		List<DatabeanWrapper> databeanWrappers = new ArrayList<>();
 		for(MapStorageReaderNode node : nodes){
