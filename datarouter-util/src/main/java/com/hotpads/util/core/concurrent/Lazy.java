@@ -20,7 +20,7 @@ public abstract class Lazy<R> implements Callable<R>, Ref<R>{
 
 	//allow another thread to trigger the Lazy
 	@Override
-	public R call() throws Exception{
+	public R call(){
 		return get();
 	}
 
