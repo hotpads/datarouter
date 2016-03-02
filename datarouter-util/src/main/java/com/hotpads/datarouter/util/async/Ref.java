@@ -1,6 +1,7 @@
 package com.hotpads.datarouter.util.async;
 
 import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.function.Supplier;
@@ -21,9 +22,10 @@ public interface Ref<T> extends Supplier<T>{
 		return StreamTool.map(refs, Ref::get);
 	}
 
+
 	/************ Objects Refs **************/
 
-	public static <T> List<Ref<T>> ofMulti(Iterable<T> objs){
+	public static <T> List<Ref<T>> ofEach(Iterable<T> objs){
 		return StreamTool.stream(objs)
 				.map(Ref::of)
 				.collect(Collectors.toList());
@@ -47,9 +49,39 @@ public interface Ref<T> extends Supplier<T>{
 	}
 
 
+	/************ Callable Refs **************/
+
+	public static <T> List<Ref<T>> ofEachCallable(Iterable<Callable<T>> callables){
+		return StreamTool.stream(callables)
+				.map(Ref::ofCallable)
+				.collect(Collectors.toList());
+	}
+
+	public static <T> Ref<T> ofCallable(Callable<T> callable){
+		return new CallableRef<>(callable);
+	}
+
+	public static class CallableRef<T> implements Ref<T>{
+		private final Callable<T> callable;
+
+		public CallableRef(Callable<T> callable){
+			this.callable = callable;
+		}
+
+		@Override
+		public T get(){
+			try{
+				return callable.call();
+			}catch(Exception e){
+				throw new RuntimeException(e);
+			}
+		}
+	}
+
+
 	/************ Future Refs **************/
 
-	public static <T> List<Ref<T>> ofFutures(Iterable<Future<T>> futures){
+	public static <T> List<Ref<T>> ofEachFuture(Iterable<Future<T>> futures){
 		return StreamTool.stream(futures)
 				.map(Ref::ofFuture)
 				.collect(Collectors.toList());
@@ -79,7 +111,7 @@ public interface Ref<T> extends Supplier<T>{
 
 	/************ Provider Refs **************/
 
-	public static <T> List<Ref<T>> ofProviders(Iterable<Provider<T>> providers){
+	public static <T> List<Ref<T>> ofEachProvider(Iterable<Provider<T>> providers){
 		return StreamTool.stream(providers)
 				.map(Ref::ofProvider)
 				.collect(Collectors.toList());
