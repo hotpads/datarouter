@@ -13,12 +13,11 @@ public class PercentFieldCodec{
 	private static final String CHARACTER_ENCODING = "UTF-8";
 
 	public static String encode(List<Field<?>> fields){
-		StringBuilder sb = new StringBuilder();
-		fields.stream().map(Field::getValueString).collect(Collectors.joining(FORWARD_SLASH));
+		String fieldsJoin = fields.stream().map(Field::getValueString).collect(Collectors.joining(FORWARD_SLASH));
 		try{
-			return URLEncoder.encode(sb.toString(), CHARACTER_ENCODING);
+			return URLEncoder.encode(fieldsJoin, CHARACTER_ENCODING);
 		}catch(UnsupportedEncodingException e){
-			throw new RuntimeException("fields=" + sb.toString(), e);
+			throw new RuntimeException("fields=" + fieldsJoin, e);
 		}
 	}
 
