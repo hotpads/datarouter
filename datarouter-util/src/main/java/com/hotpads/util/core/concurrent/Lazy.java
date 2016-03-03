@@ -33,7 +33,7 @@ public abstract class Lazy<R> implements Callable<R>, Ref<R>{
 			if(value != null){
 				return value;
 			}
-			return load();
+			return value = load();
 		}
 	}
 
