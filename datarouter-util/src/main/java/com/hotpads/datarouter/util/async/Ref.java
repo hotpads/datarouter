@@ -23,7 +23,7 @@ public interface Ref<T> extends Supplier<T>{
 	}
 
 
-	/************ Objects Refs **************/
+	/*---------- Objects Refs ----------*/
 
 	public static <T> List<Ref<T>> ofEach(Iterable<T> objs){
 		return StreamTool.stream(objs)
@@ -49,7 +49,7 @@ public interface Ref<T> extends Supplier<T>{
 	}
 
 
-	/************ Callable Refs **************/
+	/*---------- Callable Refs ----------*/
 
 	public static <T> List<Ref<T>> ofEachCallable(Iterable<Callable<T>> callables){
 		return StreamTool.stream(callables)
@@ -79,7 +79,7 @@ public interface Ref<T> extends Supplier<T>{
 	}
 
 
-	/************ Future Refs **************/
+	/*---------- Future Refs ----------*/
 
 	public static <T> List<Ref<T>> ofEachFuture(Iterable<Future<T>> futures){
 		return StreamTool.stream(futures)
@@ -109,7 +109,7 @@ public interface Ref<T> extends Supplier<T>{
 	}
 
 
-	/************ Provider Refs **************/
+	/*---------- Provider Refs ----------*/
 
 	public static <T> List<Ref<T>> ofEachProvider(Iterable<Provider<T>> providers){
 		return StreamTool.stream(providers)

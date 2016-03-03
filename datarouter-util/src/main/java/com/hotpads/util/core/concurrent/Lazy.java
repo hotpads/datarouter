@@ -18,12 +18,6 @@ public abstract class Lazy<R> implements Callable<R>, Ref<R>{
 	//work done in load will only happen once
 	protected abstract R load();
 
-	//allow another thread to trigger the Lazy
-	@Override
-	public R call(){
-		return get();
-	}
-
 	@Override
 	public R get(){
 		if(value != null){
@@ -33,9 +27,20 @@ public abstract class Lazy<R> implements Callable<R>, Ref<R>{
 			if(value != null){
 				return value;
 			}
-			return value = load();
+			value = load();
+			return value;
 		}
 	}
+
+	/*-------------- Callable -----------------*/
+
+	//allow another thread to trigger the Lazy
+	@Override
+	public R call(){
+		return get();
+	}
+
+	/*----------- LazyFunctional ---------------*/
 
 	public static <R> Lazy<R> of(Supplier<R> supplier){
 		return new LazyFunctional<>(supplier);
