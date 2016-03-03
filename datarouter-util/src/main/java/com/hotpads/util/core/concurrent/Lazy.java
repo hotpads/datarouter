@@ -50,7 +50,7 @@ public abstract class Lazy<R> implements Callable<R>, Ref<R>{
 		}
 
 		@Override
-		public R load(){
+		protected R load(){
 			return supplier.get();
 		}
 
