@@ -18,20 +18,20 @@ import com.hotpads.util.core.stream.StreamTool;
  */
 public interface Ref<T> extends Supplier<T>{
 
-	public static <T> List<T> getAll(Iterable<? extends Ref<T>> refs){
+	static <T> List<T> getAll(Iterable<? extends Ref<T>> refs){
 		return StreamTool.map(refs, Ref::get);
 	}
 
 
 	/*---------- Objects Refs ----------*/
 
-	public static <T> List<Ref<T>> ofEach(Iterable<T> objs){
+	static <T> List<Ref<T>> ofEach(Iterable<T> objs){
 		return StreamTool.stream(objs)
 				.map(Ref::of)
 				.collect(Collectors.toList());
 	}
 
-	public static <T> Ref<T> of(T obj){
+	static <T> Ref<T> of(T obj){
 		return new SingletonRef<>(obj);
 	}
 
@@ -51,13 +51,13 @@ public interface Ref<T> extends Supplier<T>{
 
 	/*---------- Callable Refs ----------*/
 
-	public static <T> List<Ref<T>> ofEachCallable(Iterable<Callable<T>> callables){
+	static <T> List<Ref<T>> ofEachCallable(Iterable<Callable<T>> callables){
 		return StreamTool.stream(callables)
 				.map(Ref::ofCallable)
 				.collect(Collectors.toList());
 	}
 
-	public static <T> Ref<T> ofCallable(Callable<T> callable){
+	static <T> Ref<T> ofCallable(Callable<T> callable){
 		return new CallableRef<>(callable);
 	}
 
@@ -87,11 +87,11 @@ public interface Ref<T> extends Supplier<T>{
 				.collect(Collectors.toList());
 	}
 
-	public static <T> Ref<T> ofFuture(Future<T> future){
+	static <T> Ref<T> ofFuture(Future<T> future){
 		return new FutureRef<>(future);
 	}
 
-	public static class FutureRef<T> implements Ref<T>{
+	static class FutureRef<T> implements Ref<T>{
 		private final Future<T> future;
 
 		private FutureRef(Future<T> future){
@@ -111,13 +111,13 @@ public interface Ref<T> extends Supplier<T>{
 
 	/*---------- Provider Refs ----------*/
 
-	public static <T> List<Ref<T>> ofEachProvider(Iterable<Provider<T>> providers){
+	static <T> List<Ref<T>> ofEachProvider(Iterable<Provider<T>> providers){
 		return StreamTool.stream(providers)
 				.map(Ref::ofProvider)
 				.collect(Collectors.toList());
 	}
 
-	public static <T> Ref<T> ofProvider(Provider<T> provider){
+	static <T> Ref<T> ofProvider(Provider<T> provider){
 		return new ProviderRef<>(provider);
 	}
 
