@@ -35,10 +35,10 @@ public interface Ref<T> extends Supplier<T>{
 		return new SingletonRef<>(obj);
 	}
 
-	public static class SingletonRef<T> implements Ref<T>{
+	static class SingletonRef<T> implements Ref<T>{
 		private final T object;
 
-		public SingletonRef(T obj){
+		private SingletonRef(T obj){
 			this.object = obj;
 		}
 
@@ -61,10 +61,10 @@ public interface Ref<T> extends Supplier<T>{
 		return new CallableRef<>(callable);
 	}
 
-	public static class CallableRef<T> implements Ref<T>{
+	static class CallableRef<T> implements Ref<T>{
 		private final Callable<T> callable;
 
-		public CallableRef(Callable<T> callable){
+		private CallableRef(Callable<T> callable){
 			this.callable = callable;
 		}
 
@@ -81,7 +81,7 @@ public interface Ref<T> extends Supplier<T>{
 
 	/*---------- Future Refs ----------*/
 
-	public static <T> List<Ref<T>> ofEachFuture(Iterable<Future<T>> futures){
+	static <T> List<Ref<T>> ofEachFuture(Iterable<Future<T>> futures){
 		return StreamTool.stream(futures)
 				.map(Ref::ofFuture)
 				.collect(Collectors.toList());
@@ -94,7 +94,7 @@ public interface Ref<T> extends Supplier<T>{
 	public static class FutureRef<T> implements Ref<T>{
 		private final Future<T> future;
 
-		public FutureRef(Future<T> future){
+		private FutureRef(Future<T> future){
 			this.future = future;
 		}
 
@@ -121,10 +121,10 @@ public interface Ref<T> extends Supplier<T>{
 		return new ProviderRef<>(provider);
 	}
 
-	public static class ProviderRef<T> implements Ref<T>{
+	static class ProviderRef<T> implements Ref<T>{
 		private final Provider<T> provider;
 
-		public ProviderRef(Provider<T> provider){
+		private ProviderRef(Provider<T> provider){
 			this.provider = provider;
 		}
 
