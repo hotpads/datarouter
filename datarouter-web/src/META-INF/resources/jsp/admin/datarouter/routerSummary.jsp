@@ -25,6 +25,7 @@
 				<tr>
 					<th>node name</th>
 					<th>data</th>
+					<th>data chart</th>
 					<th>count keys</th>
 					<th>count txn</th>
 					<th>node type</th>
@@ -39,6 +40,7 @@
 						<td><a style="color: black;" href="${contextPath}/datarouter/nodes/browseData?submitAction=browseData&routerName=${param.routerName}
 							&nodeName=${nodeWrapper.node.name}"> ${nodeWrapper.indentHtml}${nodeWrapper.node.name}</a></td>
 						<td><a href="${contextPath}/datarouter/nodes/browseData?submitAction=browseData&routerName=${param.routerName}&nodeName=${nodeWrapper.node.name}"> data</a></td>
+						<td><a href="${contextPath}/datarouter/dataChart?submitAction=viewDataChart&routerName=${param.routerName}&nodeName=${nodeWrapper.node.name}"> data Chart</a></td>
 						<td><c:if test="${nodeWrapper.sorted}">
 								<a href="${contextPath}/datarouter/nodes/browseData?submitAction=countKeys&routerName=${param.routerName}&nodeName=${nodeWrapper.node.name}"> count keys</a>
 							</c:if></td>
