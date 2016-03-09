@@ -41,18 +41,70 @@
 				</ul>
 			</div>
 			
+			
+			<br/>
+				<div class="label-above row-fluid">				
+				<li><input name="nodeName" value="dataCsv()" type="text" /></li>
+			<button onclick="dataCsv()">Try it</button> 								
+			</div>
+			
 		<br />
+		
+		 <div>
+		   <table>
+		     <c:forEach items="${data}" var="item">
+		      <tr>
+		       <td><input name="nodeName" value="${item}" type="text" /></td>
+		         <td><input name="nodeName" value="${item.getNumRows()}" type="text" /></td>		    
+		      </tr>
+		     </c:forEach>
+	    	</table>
+    	 </div>
+		
 			
 		<div id="graphdiv" style="width:500px; height:300px;"></div>
-		 	<script type="text/javascript">
+		<script type="text/javascript">
 				   g = new Dygraph(
 				    document.getElementById("graphdiv"),
-				    "Date,Temperature\n" +
-				"2008-05-07,75\n" +
-				"2008-05-08,70\n" +
-				"2008-05-09,80\n",{}
-				 );
-			</script>
+				    data_showzerovalues,
+				{}
+			);
+				   
+				   
+
+
+				   
+	    function data_showzerovalues() {
+		return "" +
+		"20070101,0,39\n" +
+		"20070102,62,0\n" +
+		"20070103,0,42\n" +
+		"20070104,57,0\n" +
+		"20070105,65,44\n" +
+		"20070106,55,44\n" +
+		"20070107,0,45\n" +
+		"20070108,66,0\n" +
+		"20070109,0,39\n";
+		}
+	    
+	    
+	    
+		   
+	    function dataCsv() {
+		return "" +
+		"DateCreated","numRecords"+
+		"20070101,0,39\n" +
+		"20070102,62,0\n" +
+		"20070103,0,42\n" +
+		"20070104,57,0\n" +
+		"20070105,65,44\n" +
+		"20070106,55,44\n" +
+		"20070107,0,45\n" +
+		"20070108,66,0\n" +
+		"20070109,0,39\n";
+		}
+	    
+		</script>
 		</div>
 		
 		</form>		
