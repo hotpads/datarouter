@@ -1,6 +1,6 @@
 package com.hotpads.handler.dispatcher;
 
-import com.hotpads.datarouter.ViewDataChartHandler;
+
 import com.hotpads.datarouter.inject.DatarouterInjector;
 import com.hotpads.datarouter.test.TestApiHandler;
 import com.hotpads.handler.BaseDispatcher;
@@ -27,7 +27,6 @@ public class DatarouterWebDispatcher extends BaseDispatcher{
 			EXECUTORS_MONITORING = "/executors",
 			MEMORY = "/memory",
 			DATA = "/data",
-			DATA_CHART = "/dataChart",
 			TEST_API = "/testApi";
 
 	public DatarouterWebDispatcher(DatarouterInjector injector, String servletContextPath){
@@ -42,7 +41,6 @@ public class DatarouterWebDispatcher extends BaseDispatcher{
 		handle(URL_DATAROUTER + NODE_BROWSE_DATA).withHandler(ViewNodeDataHandler.class);
 		handle(URL_DATAROUTER + DATABEAN_GENERATOR).withHandler(DatabeanGeneratorHandler.class);
 		handle(URL_DATAROUTER + CLIENTS + MEMORY).withHandler(MemoryHandler.class);
-		handle(URL_DATAROUTER + DATA_CHART).withHandler(ViewDataChartHandler.class);
 
 		//example: /testApi or /testApidfadfa  or /testApi/ or /testApi/adfafa
 		handle(URL_DATAROUTER + TEST_API + REGEX_ONE_DIRECTORY).withHandler(TestApiHandler.class);

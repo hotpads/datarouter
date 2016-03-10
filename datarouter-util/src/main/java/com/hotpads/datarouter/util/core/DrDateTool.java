@@ -120,6 +120,12 @@ public final class DrDateTool {
 		return null;
 	}
 
+
+	public static String getNumericDate(Date date){
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
+		return sdf.format(date);
+	}
+
 	public static Calendar dateToCalendar(Date d){
 		Calendar c = Calendar.getInstance();
 		c.setTime(d);

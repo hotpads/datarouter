@@ -43,11 +43,11 @@
 			
 			
 			<br/>
-				<div class="label-above row-fluid">				
-				<li><input name="nodeName" value="dataCsv()" type="text" /></li>
-			<button onclick="dataCsv()">Try it</button> 								
-			</div>
-			
+			<p id = "demo"> </p>
+
+
+<br/>
+			<p id = "test"> </p>			
 		<br />
 		
 		 <div>
@@ -61,21 +61,28 @@
 	    	</table>
     	 </div>
 		
+		<div id="javaValues" style="display: none;">
+    		<div id="test">${test}</div>
+    		<div id="csvData">${csvData}</div>
+    		<div id="data">${data}</div>
+		</div>
+		
 			
-		<div id="graphdiv" style="width:500px; height:300px;"></div>
-		<script type="text/javascript">
+	  	<div id="graphdiv" style="width:500px; height:300px;"></div>		
+		<script type="text/javascript">		 
 				   g = new Dygraph(
 				    document.getElementById("graphdiv"),
 				    data_showzerovalues,
 				{}
 			);
-				   
-				   
+			
 
 
 				   
 	    function data_showzerovalues() {
-		return "" +
+	     /* return ""+"Date,Temperature\n"+ "2014/01/02,2000\n"+ "2014/01/02,2000\n"+ "2014/01/03,2003\n"+ "2014/01/07,2015\n"+ "2014/01/05,2005\n"; */ 
+	     return "Date,Temperature\n"+"2014/01/02,2000\n"+"2014/01/02,2000\n"+"2014/01/03,2003\n"+"2014/01/07,2015\n"+"2014/01/05,2005\n";
+	 	/* return "" +
 		"20070101,0,39\n" +
 		"20070102,62,0\n" +
 		"20070103,0,42\n" +
@@ -84,27 +91,42 @@
 		"20070106,55,44\n" +
 		"20070107,0,45\n" +
 		"20070108,66,0\n" +
-		"20070109,0,39\n";
+		"20070109,0,39\n";  */
 		}
 	    
+	    </script> 
 	    
-	    
-		   
-	    function dataCsv() {
-		return "" +
-		"DateCreated","numRecords"+
-		"20070101,0,39\n" +
-		"20070102,62,0\n" +
-		"20070103,0,42\n" +
-		"20070104,57,0\n" +
-		"20070105,65,44\n" +
-		"20070106,55,44\n" +
-		"20070107,0,45\n" +
-		"20070108,66,0\n" +
-		"20070109,0,39\n";
+		</div> 
+		
+	 <!-- 	<div id="graphdiv2" style="width:500px; height:300px;"></div>		
+			<script type="text/javascript">		 
+					   g = new Dygraph(
+					    document.getElementById("graphdiv2"),
+					    dataCsv,
+					{}
+				);
+					   
+		function dataCsv() {
+		 	var x =  $("#csvData").html().trim(); 			
+		 		return  x;		 
+	/* 	return ${csvData}; */
 		}
-	    
+		document.getElementById("graphdiv2").innerHTML = dataCsv(); 
+		</script> -->
+		
+		<script>
+		function data() {
+			var vals =  $("#data").html().trim();
+			var text="";
+			for(i=0;i<vals.length;i++){
+				text+= vals[i];
+			}
+		return text;
+		}
+		document.getElementById("test").innerHTML = data(); 
 		</script>
+		
+		
 		</div>
 		
 		</form>		
