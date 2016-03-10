@@ -122,7 +122,7 @@ public final class DrDateTool {
 
 
 	public static String getNumericDate(Date date){
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		return sdf.format(date);
 	}
 

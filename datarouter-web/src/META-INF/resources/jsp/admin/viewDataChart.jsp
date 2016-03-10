@@ -40,31 +40,13 @@
 					<li>${node['class'].simpleName}</li>
 				</ul>
 			</div>
+		<br/>
 			
-			
-			<br/>
-			<p id = "demo"> </p>
-
-
-<br/>
-			<p id = "test"> </p>			
 		<br />
-		
-		 <div>
-		   <table>
-		     <c:forEach items="${data}" var="item">
-		      <tr>
-		       <td><input name="nodeName" value="${item}" type="text" /></td>
-		         <td><input name="nodeName" value="${item.getNumRows()}" type="text" /></td>		    
-		      </tr>
-		     </c:forEach>
-	    	</table>
-    	 </div>
+				
 		
 		<div id="javaValues" style="display: none;">
-    		<div id="test">${test}</div>
-    		<div id="csvData">${csvData}</div>
-    		<div id="data">${data}</div>
+    		<div id="jsonData">${jsonData}</div>
 		</div>
 		
 			
@@ -72,7 +54,7 @@
 		<script type="text/javascript">		 
 				   g = new Dygraph(
 				    document.getElementById("graphdiv"),
-				    data_showzerovalues,
+				    data_showzerovalues2,
 				{}
 			);
 			
@@ -94,40 +76,28 @@
 		"20070109,0,39\n";  */
 		}
 	    
+	    
+	    function data_showzerovalues2() {	   	
+	    	 
+	    	 var dataArray = []; 	    
+	    	  var jsonData = ${jsonData};
+	    	  for(var i =0; i< jsonData.length; i++){	    		 
+	    		  var rows = jsonData[i].rows;
+	    		  var date = jsonData[i].date;
+	    			//var base = new Date();
+	    	        dataArray.push([new Date(date),rows]);
+	    	  }
+
+		      return dataArray;
+		     
+		 	
+			}	
+	    
 	    </script> 
 	    
-		</div> 
+		</div> 		
 		
-	 <!-- 	<div id="graphdiv2" style="width:500px; height:300px;"></div>		
-			<script type="text/javascript">		 
-					   g = new Dygraph(
-					    document.getElementById("graphdiv2"),
-					    dataCsv,
-					{}
-				);
-					   
-		function dataCsv() {
-		 	var x =  $("#csvData").html().trim(); 			
-		 		return  x;		 
-	/* 	return ${csvData}; */
-		}
-		document.getElementById("graphdiv2").innerHTML = dataCsv(); 
-		</script> -->
-		
-		<script>
-		function data() {
-			var vals =  $("#data").html().trim();
-			var text="";
-			for(i=0;i<vals.length;i++){
-				text+= vals[i];
-			}
-		return text;
-		}
-		document.getElementById("test").innerHTML = data(); 
-		</script>
-		
-		
-		</div>
+	
 		
 		</form>		
 		
