@@ -19,91 +19,42 @@
 	<div class="wide-container">
 		<a href="${contextPath}/datarouter/routers">Datarouter Home</a> &nbsp;&nbsp;&#62;&#62;&nbsp;&nbsp; <a href="${contextPath}/datarouter/routers?submitAction=inspectRouter&routerName=${param.routerName}">Router: ${param.routerName}</a> &nbsp;&nbsp;&#62;&#62; &nbsp;&nbsp;
 		node: <b>${node.name}</b><br /> <br />
-		<form method="get" action="?">
-			<div class="label-above row-fluid">
-				<ul class="span6">
-					<li><b>RouterName:</b></li>
-					<li><input name="routerName" value="${param.routerName}" type="text" /></li>
-				</ul>
-				<ul class="span5">
-					<li><b>NodeName:</b></li>
-					<li><input name="nodeName" value="${node.name}" type="text" /></li>
-				</ul>
-			</div>
-			<div class="label-above row-fluid">
- 				<ul class="span6">
-					<li><b>DatabeanType:</b></li>
-					<li>${node.fieldInfo.sampleDatabean['class']}</li>
-				</ul>
-				<ul class="span5">
-					<li><b>NodeType:</b></li>
-					<li>${node['class'].simpleName}</li>
-				</ul>
-			</div>
+		<form method="get" action="?">					
 		<br/>
-			
-		<br />
-				
 		
 		<div id="javaValues" style="display: none;">
     		<div id="jsonData">${jsonData}</div>
 		</div>
-		
-			
-	  	<div id="graphdiv" style="width:500px; height:300px;"></div>		
+		</form>		
+				
+	  	<div id="graphdiv" style="width:1500px; height:350px;"></div>		
 		<script type="text/javascript">		 
 				   g = new Dygraph(
 				    document.getElementById("graphdiv"),
-				    data_showzerovalues2,
-				{}
+				    get_data,
+					{  height : 500,
+			            titleHeight : 25,			            				    	
+	                    title: 'Table Count chart'
+	                }
 			);
 			
-
-
-				   
-	    function data_showzerovalues() {
-	     /* return ""+"Date,Temperature\n"+ "2014/01/02,2000\n"+ "2014/01/02,2000\n"+ "2014/01/03,2003\n"+ "2014/01/07,2015\n"+ "2014/01/05,2005\n"; */ 
-	     return "Date,Temperature\n"+"2014/01/02,2000\n"+"2014/01/02,2000\n"+"2014/01/03,2003\n"+"2014/01/07,2015\n"+"2014/01/05,2005\n";
-	 	/* return "" +
-		"20070101,0,39\n" +
-		"20070102,62,0\n" +
-		"20070103,0,42\n" +
-		"20070104,57,0\n" +
-		"20070105,65,44\n" +
-		"20070106,55,44\n" +
-		"20070107,0,45\n" +
-		"20070108,66,0\n" +
-		"20070109,0,39\n";  */
-		}
 	    
-	    
-	    function data_showzerovalues2() {	   	
+	    function get_data() {	   	
 	    	 
 	    	 var dataArray = []; 	    
 	    	  var jsonData = ${jsonData};
 	    	  for(var i =0; i< jsonData.length; i++){	    		 
 	    		  var rows = jsonData[i].rows;
 	    		  var date = jsonData[i].date;
-	    			//var base = new Date();
-	    	        dataArray.push([new Date(date),rows]);
+	    		  dataArray.push([new Date(date),rows]);
 	    	  }
 
-		      return dataArray;
-		     
-		 	
-			}	
+		      return dataArray;     
+		 }	
 	    
 	    </script> 
 	    
-		</div> 		
-		
-	
-		
-		</form>		
-		
-		
-		<br />
-
+		</div>
 		
 		<br />
 	
