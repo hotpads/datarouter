@@ -23,12 +23,18 @@ public class CsrfValidator{
 	private static final String MAIN_CIPHER_ALGORITHM = "AES";
 	private static final String SUB_CIPHER_ALGORITHM = "CBC/PKCS5Padding";
 	private static final String CIPHER_ALGORITHM = MAIN_CIPHER_ALGORITHM + "/" + SUB_CIPHER_ALGORITHM;
-	private static final Long REQUEST_TIMEOUT_IN_MS = 10000L;
+	private static final Long DEFAULT_REQUEST_TIMEOUT_IN_MS = 10000L;
 
 	private final String cipherKey;
+	private final long requestTimeoutMs;
 
 	public CsrfValidator(String cipherKey){
+		this(cipherKey, DEFAULT_REQUEST_TIMEOUT_IN_MS);
+	}
+
+	public CsrfValidator(String cipherKey, Long requestTimeoutMs){
 		this.cipherKey = cipherKey;
+		this.requestTimeoutMs = requestTimeoutMs;
 	}
 
 	public static String generateCsrfIv(){
@@ -48,7 +54,7 @@ public class CsrfValidator{
 		if(requestTime == null){
 			return false;
 		}
-		return System.currentTimeMillis() < requestTime + REQUEST_TIMEOUT_IN_MS;
+		return System.currentTimeMillis() < requestTime + requestTimeoutMs;
 	}
 
 	public String generateCsrfToken(String cipherIv){
