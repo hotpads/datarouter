@@ -27,13 +27,23 @@
 		</div>
 		</form>		
 				
-	  	<div id="graphdiv" style="width:1500px; height:350px;"></div>		
+	  	<div id="graphdiv" style="width:1250px; height:350px;"></div>		
 		<script type="text/javascript">		 
 				   g = new Dygraph(
 				    document.getElementById("graphdiv"),
 				    get_data,
-					{  height : 500,
-			            titleHeight : 25,			            				    	
+					{   height : 500,
+			            titleHeight : 25,
+			            showRangeSelector : true,
+			            showRoller : true,
+			            connectSeparatedPoints : true,
+			            drawPoints : true,
+			            drawGapEdgePoints : true,
+			            pointSize : 2,
+			            fillGraph : true,
+			            maxNumberWidth : 10,
+			            axisLabelWidth : 70,
+			            axisLabelFontSize : 11,
 	                    title: 'Table Count chart'
 	                }
 			);
