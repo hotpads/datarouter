@@ -2,26 +2,18 @@ package com.hotpads.datarouter.serialize;
 
 import com.hotpads.datarouter.serialize.fielder.PrimaryKeyFielder;
 import com.hotpads.datarouter.storage.field.Field;
+import com.hotpads.datarouter.storage.field.FieldSetTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.java.ReflectionTool;
 
 public class PrimaryKeyStringConverter{
-	
-	public static <PK extends PrimaryKey<PK>> 
+
+	public static <PK extends PrimaryKey<PK>>
 	String primaryKeyToString(PK pk, PrimaryKeyFielder<PK> fielder){
 		if(pk==null){ return null; }
-		StringBuilder sb = new StringBuilder();
-		boolean doneOne = false;
-		for(Field<?> field : fielder.getFields(pk)){
-			if(doneOne){ 
-				sb.append("_");
-			}
-			sb.append(field.getValueString());
-			doneOne = true;
-		}
-		return sb.toString();
+		return FieldSetTool.getPersistentString(fielder.getFields(pk));
 	}
-	
+
 	public static <PK extends PrimaryKey<PK>>
 	PK primaryKeyFromString(Class<PK> pkClass, PrimaryKeyFielder<PK> fielder, String s){
 		if(s==null){ return null; }
@@ -37,5 +29,5 @@ public class PrimaryKeyStringConverter{
 		}
 		return pk;
 	}
-	
+
 }

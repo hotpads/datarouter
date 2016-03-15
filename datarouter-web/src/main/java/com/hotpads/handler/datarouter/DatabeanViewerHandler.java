@@ -3,6 +3,7 @@ package com.hotpads.handler.datarouter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -19,6 +20,7 @@ import com.hotpads.datarouter.serialize.fielder.PrimaryKeyFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
+import com.hotpads.datarouter.util.PrimaryKeyPercentCodec;
 import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.Params;
 import com.hotpads.handler.dispatcher.DatarouterWebDispatcher;
@@ -39,7 +41,9 @@ public class DatabeanViewerHandler extends BaseHandler{
 	 * https://localhost:8443/job/datarouter/data/search/Listing/1ParkPlace_0-130012758
 	 * https://localhost:8443/job/datarouter/data/view/ModelIndexView16B/corporate_020121012112312100231132102_CHBO_8308
 	 * https://localhost:8443/job/datarouter/data/event/TraceSpan/22858565159955332_0_1
-	 *
+	 * https://localhost:8443/datarouter/data/userToken/UserItemSnapshot?userToken=nw6CbRpNHFKkZ_vt0eXYJftVsPHESiwmcPQ-OeO2QOs
+	 * https://localhost:8443/job/datarouter/data/place/Area?id=14644
+	 * https://localhost:8443/job/datarouter/data/search/Listing?feedId=HomeRentals&feedListingId=AL010091L
 	 */
 
 	@Override
@@ -47,6 +51,11 @@ public class DatabeanViewerHandler extends BaseHandler{
 		Mav mav = new Mav("/jsp/admin/viewDatabean.jsp");
 		PathSegments pathSegments = PathSegments.parsePathSegments(params);
 		List<MapStorageReaderNode<?,?>> nodes = getNodes(pathSegments.datarouterName, pathSegments.tableName);
+		if(nodes == null || nodes.size() < 1){
+			throw new IllegalArgumentException("Can not find a matching table."
+				+ "The correct url is: /datarouter/data/{router}/{table}/{databeanKey}"
+				+ " or like: /datarouter/data/{router}/{table}?feedId=HotPads&feedListingId=FAL010091L");
+		}
 		mav.put("nodes", nodes);
 		List<DatabeanWrapper> databeanWrappers = new ArrayList<>();
 		for(MapStorageReaderNode node : nodes){
@@ -56,7 +65,17 @@ public class DatabeanViewerHandler extends BaseHandler{
 				fieldAware = false;
 				fields = node.getFieldInfo().getPrimaryKeyFields();
 			}
-			PrimaryKey<?> key = decodePrimaryKey(node, pathSegments.databeanKey);
+
+			PrimaryKey<?> key;
+			if(pathSegments.databeanKey == null || pathSegments.databeanKey.length() < 1){
+				Map<String,String> keyFieldMap = params.toMap();
+				key = PrimaryKeyPercentCodec.parseKeyFromKeyFieldMap((Class<PrimaryKey>)(node
+						.getFieldInfo().getPrimaryKeyClass()), (PrimaryKeyFielder)(node.getFieldInfo()
+								.getSamplePrimaryKey()), keyFieldMap);
+			}else{
+				key = decodePrimaryKey(node, pathSegments.databeanKey);
+			}
+
 			Databean<?,?> databean = node.get(key, null);
 			if(databean != null){
 				databeanWrappers.add(new DatabeanWrapper(fields, getRowsOfFields(node, databean), node,
@@ -155,13 +174,15 @@ public class DatabeanViewerHandler extends BaseHandler{
 				offset += DatarouterWebDispatcher.URL_DATAROUTER.length();
 			}
 			String[] pathInfo = params.getRequest().getPathInfo().substring(offset).split("/");
-			if(pathInfo.length != 3){
-				throw new IllegalArgumentException("The url is not correct! "
-						+ "The correct url is: /datarouter/data/{router}/{table}/{databeanKey}");
+			if(pathInfo.length == 3){
+				return new PathSegments(pathInfo[0], pathInfo[1],  pathInfo[2]);
 			}
-
-			return new PathSegments(pathInfo[0], pathInfo[1],  pathInfo[2]);
-
+			if(pathInfo.length != 2){
+				throw new IllegalArgumentException("The url is not correct! "
+						+ "The correct url is: /datarouter/data/{router}/{table}/{databeanKey}"
+						+ " or like: /datarouter/data/{router}/{table}?feedId=HotPads&feedListingId=FAL010091L");
+			}
+			return new PathSegments(pathInfo[0], pathInfo[1],  null);
 		}
 	}
 

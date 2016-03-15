@@ -78,20 +78,19 @@ implements MemcachedPhysicalNode<PK,D>,
 
 		try {
 			Future<Object> future = getClient().getSpyClient().asyncGet(buildMemcachedKey(key));
-			//get result asynchronously.  default CacheTimeoutMS set in MapCachingStorage.CACHE_CONFIG
-			bytes = (byte[])future.get(config.getCacheTimeoutMs(), TimeUnit.MILLISECONDS);
+			bytes = (byte[])future.get(config.getTimeoutMs(), TimeUnit.MILLISECONDS);
 		} catch(TimeoutException e) {
 			TracerTool.appendToSpanInfo(TracerThreadLocal.get(), "memcached timeout");
 		} catch(InterruptedException | ExecutionException | MemcachedStateException e) {
 			logger.error("", e);
 		}
 
+		if(bytes == null){
+			TracerTool.appendToSpanInfo(TracerThreadLocal.get(), "miss");
+			return null;
+		}
+		TracerTool.appendToSpanInfo(TracerThreadLocal.get(), "hit");
 		try {
-			if(DrArrayTool.isEmpty(bytes)){
-				TracerTool.appendToSpanInfo(TracerThreadLocal.get(), "miss");
-				return null;
-			}
-			TracerTool.appendToSpanInfo(TracerThreadLocal.get(), "hit");
 			ByteArrayInputStream is = new ByteArrayInputStream(bytes);
 			D databean = FieldSetTool.fieldSetFromByteStreamKnownLength(getFieldInfo().getDatabeanSupplier(),
 					fieldInfo.getFieldByPrefixedName(), is, bytes.length);
@@ -108,7 +107,7 @@ implements MemcachedPhysicalNode<PK,D>,
 	@Override
 	public List<D> getMulti(final Collection<PK> keys, final Config paramConfig){
 		if(DrCollectionTool.isEmpty(keys)){
-			return new LinkedList<D>();
+			return new LinkedList<>();
 		}
 		startTraceSpan(MapStorageReader.OP_getMulti);
 		final Config config = Config.nullSafe(paramConfig);
@@ -119,7 +118,7 @@ implements MemcachedPhysicalNode<PK,D>,
 		try {
 			//get results asynchronously.  default CacheTimeoutMS set in MapCachingStorage.CACHE_CONFIG
 			Future<Map<String,Object>> future = getClient().getSpyClient().asyncGetBulk(buildMemcachedKeys(keys));
-			bytesByStringKey = future.get(config.getCacheTimeoutMs(), TimeUnit.MILLISECONDS);
+			bytesByStringKey = future.get(config.getTimeoutMs(), TimeUnit.MILLISECONDS);
 		} catch(TimeoutException e) {
 			TracerTool.appendToSpanInfo(TracerThreadLocal.get(), "memcached timeout");
 		} catch(ExecutionException | InterruptedException | MemcachedStateException e){
@@ -157,7 +156,7 @@ implements MemcachedPhysicalNode<PK,D>,
 	@Override
 	public List<PK> getKeys(final Collection<PK> keys, final Config paramConfig){
 		if(DrCollectionTool.isEmpty(keys)){
-			return new LinkedList<PK>();
+			return new LinkedList<>();
 		}
 		return DatabeanTool.getKeys(getMulti(keys, paramConfig));
 	}
@@ -166,7 +165,7 @@ implements MemcachedPhysicalNode<PK,D>,
 	/******************** serialization *******************/
 
 	protected String buildMemcachedKey(PK pk){
-		return new DatarouterMemcachedKey<PK>(getName(), databeanVersion, pk).getVersionedKeyString();
+		return new DatarouterMemcachedKey<>(getName(), databeanVersion, pk).getVersionedKeyString();
 	}
 
 	protected List<String> buildMemcachedKeys(Collection<PK> pks){

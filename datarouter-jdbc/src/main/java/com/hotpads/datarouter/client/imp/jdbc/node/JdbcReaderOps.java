@@ -55,7 +55,7 @@ public class JdbcReaderOps<
 
 	public List<D> getMulti(final Collection<PK> keys, final Config config) {
 		String opName = MapStorageReader.OP_getMulti;
-		JdbcGetOp<PK,D,F> op = new JdbcGetOp<>(node, fieldCodecFactory, opName, keys, config);
+		JdbcGetOp<PK,D,F> op = new JdbcGetOp<>(node, fieldCodecFactory, opName, keys, Config.nullSafe(config));
 		List<D> results = new SessionExecutorImpl<>(op, getTraceName(opName)).call();
 		return results;
 	}
