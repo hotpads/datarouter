@@ -23,19 +23,6 @@ public class TraceTestRouter extends BaseRouter{
 			NODE_TraceEntity = "TraceEntity",
 			NODE_TraceCompound = "TraceCompound";
 
-	private final EntityNodeFactory entityNodeFactory;
-	private final NodeFactory nodeFactory;
-	private final Datarouter datarouter;
-
-	@Inject
-	public TraceTestRouter(Datarouter datarouter, EntityNodeFactory entityNodeFactory, NodeFactory nodeFactory){
-		super(datarouter, DrTestConstants.CONFIG_PATH, NAME);
-		this.datarouter = datarouter;
-		this.entityNodeFactory = entityNodeFactory;
-		this.nodeFactory = nodeFactory;
-		createNodes();
-	}
-
 	/********************************** config **********************************/
 
 	public static final List<ClientId> CLIENT_IDS = Arrays.asList(DrTestConstants.CLIENT_drTestHBase);
@@ -47,11 +34,13 @@ public class TraceTestRouter extends BaseRouter{
 
 	/********************************** nodes **********************************/
 
-	private TraceCompoundNode traceCompound;
-	private TraceEntityNode traceEntity;
+	private final TraceCompoundNode traceCompound;
+	private final TraceEntityNode traceEntity;
 
+	@Inject
+	public TraceTestRouter(Datarouter datarouter, EntityNodeFactory entityNodeFactory, NodeFactory nodeFactory){
+		super(datarouter, DrTestConstants.CONFIG_PATH, NAME);
 
-	private void createNodes(){
 		traceEntity = new TraceEntityNode(entityNodeFactory, nodeFactory, this, DrTestConstants.CLIENT_drTestHBase,
 				TraceEntityNode.ENTITY_NODE_PARAMS_TraceEntityTest);
 		traceCompound = new TraceCompoundNode(nodeFactory, this, datarouter, DrTestConstants.CLIENT_drTestHBase,
