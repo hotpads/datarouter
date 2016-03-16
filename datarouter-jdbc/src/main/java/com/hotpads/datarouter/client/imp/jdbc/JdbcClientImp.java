@@ -76,7 +76,7 @@ implements JdbcConnectionClient, TxnClient, JdbcClient{
 			}
 			//jdbc triggers network round trip when getting connection to set autocommit=true
 			long requestTimeNs = System.nanoTime();
-			Connection newConnection = connectionPool.getDataSource().getConnection();
+			Connection newConnection = connectionPool.checkOut();
 			logIfSlowReserveConnection(requestTimeNs);
 
 			long threadId = Thread.currentThread().getId();

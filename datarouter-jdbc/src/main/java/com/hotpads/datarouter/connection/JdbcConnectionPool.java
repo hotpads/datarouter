@@ -1,6 +1,7 @@
 package com.hotpads.datarouter.connection;
 
 import java.beans.PropertyVetoException;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -20,6 +21,10 @@ import net.sf.log4jdbc.DriverSpy;
 
 public class JdbcConnectionPool{
 	private static final Logger logger = LoggerFactory.getLogger(JdbcConnectionPool.class);
+
+	public static final String UTF8MB4_CHARSET = "utf8mb4";
+	private static final String UTF8MB4_COLLATION = UTF8MB4_CHARSET + "_bin";
+	private static final String UTF8 = StandardCharsets.UTF_8.name();
 
 	private final String name;
 	private final ComboPooledDataSource pool;
@@ -50,6 +55,8 @@ public class JdbcConnectionPool{
 		// avoid extra RPC on readOnly connections: http://dev.mysql.com/doc/relnotes/connector-j/en/news-5-1-23.html
 		urlParams.add("useLocalSessionState=true");
 		urlParams.add("zeroDateTimeBehavior=convertToNull");
+		urlParams.add("connectionCollation=" + UTF8MB4_COLLATION);
+		urlParams.add("characterEncoding=" + UTF8);
 
 		String urlWithParams = url + "?" + Joiner.on("&").join(urlParams);
 		try{
@@ -75,17 +82,15 @@ public class JdbcConnectionPool{
 		this.pool.setIdleConnectionTestPeriod(30);
 		this.pool.setMaxIdleTime(300);
 
-		if(!writable){
-			this.pool.setConnectionCustomizerClassName(ReadOnlyConnectionCustomizer.class.getName());
+		if(writable){
+			this.pool.setConnectionCustomizerClassName(Utf8mb4ConnectionCustomizer.class.getName());
+		}else{
+			this.pool.setConnectionCustomizerClassName(ReadOnlyUtf8mb4ConnectionCustomizer.class.getName());
 		}
 	}
 
-	public Connection checkOut(){
-		try{
-			return pool.getConnection();
-		}catch(SQLException e){
-			throw new RuntimeException(e);
-		}
+	public Connection checkOut() throws SQLException{
+		return pool.getConnection();
 	}
 
 	public void checkIn(Connection connection){
@@ -111,10 +116,6 @@ public class JdbcConnectionPool{
 
 	public String getName(){
 		return name;
-	}
-
-	public ComboPooledDataSource getDataSource(){
-		return pool;
 	}
 
 	public boolean isWritable(){

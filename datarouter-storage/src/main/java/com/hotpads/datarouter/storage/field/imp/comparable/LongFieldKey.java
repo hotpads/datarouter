@@ -9,9 +9,13 @@ public class LongFieldKey extends PrimitiveFieldKey<Long>{
 		super(name);
 	}
 
-	public LongFieldKey(String name, String columnName, boolean nullable,
-			FieldGeneratorType fieldGeneratorType){
-		super(name, columnName, nullable, fieldGeneratorType);
+	private LongFieldKey(String name, String columnName, boolean nullable, FieldGeneratorType fieldGeneratorType,
+			Long defaultValue){
+		super(name, columnName, nullable, fieldGeneratorType, defaultValue);
+	}
+
+	public LongFieldKey withColumnName(String columnName){
+		return new LongFieldKey(name, columnName, nullable, fieldGeneratorType, defaultValue);
 	}
 
 }

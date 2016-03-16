@@ -2,25 +2,26 @@ package com.hotpads.handler;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Pattern;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.testng.Assert;
+import org.testng.annotations.Test;
+
 import com.hotpads.datarouter.inject.DatarouterInjector;
 
 public abstract class BaseDispatcher{
-		
-	private static final String REGEX_ONE_DIRECTORY = "[/]?[^/]*";
 
+	public static final String REGEX_ONE_DIRECTORY = "[/]?[^/]*";
+	public static final String REGEX_TWO_DIRECTORY_PLUS = "/\\w+/\\w+[/]?.*";
+	public static final String MATCHING_ANY = ".*";
 	private DatarouterInjector injector;
 	private String servletContextPath;
 	private String combinedPrefix;
-	private Map<Pattern, Class<? extends BaseHandler>> handlerByClass;
 	private Class<? extends BaseHandler> defaultHandlerClass;
 	private List<DispatchRule> dispatchRules;
 
@@ -28,7 +29,6 @@ public abstract class BaseDispatcher{
 		this.injector = injector;
 		this.servletContextPath = servletContextPath;
 		this.combinedPrefix = servletContextPath + urlPrefix;
-		this.handlerByClass = new HashMap<>();
 		this.dispatchRules = new ArrayList<>();
 	}
 
@@ -36,7 +36,7 @@ public abstract class BaseDispatcher{
 		this.defaultHandlerClass = defaultHandlerClass;
 		return this;
 	}
-	
+
 	protected DispatchRule handleDir(String regex){
 		return handle(regex + REGEX_ONE_DIRECTORY);
 	}
@@ -47,6 +47,14 @@ public abstract class BaseDispatcher{
 		return rule;
 	}
 
+	protected DispatchRule handleAnySuffix(String suffix){
+		return handle(MATCHING_ANY + suffix);
+	}
+
+	protected DispatchRule handleAnyPrefix(String prefix){
+		return handle(prefix + MATCHING_ANY);
+	}
+
 	public boolean handleRequestIfUrlMatch(ServletContext servletContext, HttpServletRequest request,
 			HttpServletResponse response){
 		String uri = request.getRequestURI();
@@ -54,15 +62,8 @@ public abstract class BaseDispatcher{
 			return false;
 		}
 		BaseHandler handler = null;
-		for (Map.Entry<Pattern, Class<? extends BaseHandler>> entry : handlerByClass.entrySet()){
-			String afterPrefix = uri.substring(servletContextPath.length());
-			if (entry.getKey().matcher(afterPrefix).matches()){
-				handler = injector.getInstance(entry.getValue());
-				break;
-			}
-		}
+		String afterPrefix = uri.substring(servletContextPath.length());
 		for (DispatchRule rule : dispatchRules){
-			String afterPrefix = uri.substring(servletContextPath.length());
 			if (rule.getPattern().matcher(afterPrefix).matches()){
 				if (!rule.apply(request)){
 					return false;
@@ -71,14 +72,14 @@ public abstract class BaseDispatcher{
 				break;
 			}
 		}
-		
+
 		if (handler == null){
 			if (defaultHandlerClass == null){
 				return false;// url not found
 			}
 			handler = injector.getInstance(defaultHandlerClass);
 		}
-		
+
 		handler.setRequest(request);
 		handler.setResponse(response);
 		try{
@@ -91,8 +92,46 @@ public abstract class BaseDispatcher{
 		handler.handleWrapper();
 		return true;
 	}
-	
+
 	public List<DispatchRule> getDispatchRules(){
 		return this.dispatchRules;
+	}
+
+	public static class BaseDispatcherTests{
+		@Test
+		public void testMatches(){
+			String prefix = "fjalfdja";
+			String suffix = "dfadfqeq";
+
+			Pattern prefixPattern = Pattern.compile(prefix + MATCHING_ANY);
+			Assert.assertTrue(prefixPattern.matcher(prefix + "qefadfaf").matches());
+			Assert.assertTrue(prefixPattern.matcher(prefix + "/qefadfaf").matches());
+			Assert.assertTrue(prefixPattern.matcher(prefix + "/qef/adfaf").matches());
+
+			Assert.assertFalse(prefixPattern.matcher("/asae" + prefix + "/qef/adfaf").matches());
+			Assert.assertFalse(prefixPattern.matcher("/asae/" + prefix + "/qef/adfaf").matches());
+
+
+			Pattern suffixPattern = Pattern.compile(MATCHING_ANY + suffix);
+			Assert.assertTrue(suffixPattern.matcher("fjalfdja" + suffix).matches());
+			Assert.assertTrue(suffixPattern.matcher("/fjalfdja" + suffix).matches());
+			Assert.assertTrue(suffixPattern.matcher("/fjalfdja/" + suffix).matches());
+			Assert.assertTrue(suffixPattern.matcher("/fjal/fdja" + suffix).matches());
+
+			Assert.assertFalse(suffixPattern.matcher(suffix +"adfa").matches());
+			Assert.assertFalse(suffixPattern.matcher("fjalfdja"+ suffix +"adfa").matches());
+
+
+			Pattern oneDirectoryPattern = Pattern.compile(REGEX_ONE_DIRECTORY);
+			Assert.assertTrue(oneDirectoryPattern.matcher("").matches());
+			Assert.assertTrue(oneDirectoryPattern.matcher("abcd").matches());
+			Assert.assertTrue(oneDirectoryPattern.matcher("/").matches());
+			Assert.assertTrue(oneDirectoryPattern.matcher("/abcd").matches());
+
+			Assert.assertFalse(oneDirectoryPattern.matcher("//abcd").matches());
+			Assert.assertFalse(oneDirectoryPattern.matcher("/abcd/").matches());
+			Assert.assertFalse(oneDirectoryPattern.matcher("/abc/efg").matches());
+
+		}
 	}
 }

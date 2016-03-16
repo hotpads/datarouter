@@ -15,9 +15,10 @@ public class DatarouterJobDispatcher extends BaseDispatcher{
 			LONG_RUNNING_TASKS = "/longRunningTasks";
 
 
-	public DatarouterJobDispatcher(DatarouterInjector injector, String servletContextPath, String urlPrefix){
-		super(injector, servletContextPath, urlPrefix);
+	public DatarouterJobDispatcher(DatarouterInjector injector, String servletContextPath){
+		super(injector, servletContextPath, URL_DATAROUTER);
 
+		//All urls must start with URL_DATAROUTER
 		handle(URL_DATAROUTER + TRIGGERS).withHandler(JobToTriggerHandler.class);
 		handle(URL_DATAROUTER + LONG_RUNNING_TASKS).withHandler(LongRunningTasksHandler.class);
 	}

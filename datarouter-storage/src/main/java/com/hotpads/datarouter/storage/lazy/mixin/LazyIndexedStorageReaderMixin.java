@@ -19,40 +19,20 @@ public interface LazyIndexedStorageReaderMixin<
 extends LazyReader<PK,D,S>{
 
 	public default Lazy<D> lookupUnique(final UniqueKey<PK> uniqueKey, final Config config){
-		return new Lazy<D>(){
-			@Override
-			protected D load(){
-				return getBackingStorage().lookupUnique(uniqueKey, config);
-			}
-		};
+		return Lazy.of(() -> getBackingStorage().lookupUnique(uniqueKey, config));
 	}
 
 	public default Lazy<List<D>> lookupMultiUnique(final Collection<? extends UniqueKey<PK>> uniqueKeys,
 			final Config config){
-		return new Lazy<List<D>>(){
-			@Override
-			protected List<D> load(){
-				return getBackingStorage().lookupMultiUnique(uniqueKeys, config);
-			}
-		};
+		return Lazy.of(() -> getBackingStorage().lookupMultiUnique(uniqueKeys, config));
 	}
 
 	public default Lazy<List<D>> lookup(final Lookup<PK> lookup, final boolean wildcardLastField, final Config config){
-		return new Lazy<List<D>>(){
-			@Override
-			protected List<D> load(){
-				return getBackingStorage().lookup(lookup, wildcardLastField, config);
-			}
-		};
+		return Lazy.of(() -> getBackingStorage().lookup(lookup, wildcardLastField, config));
 	}
 
 	public default Lazy<List<D>> lookupMulti(final Collection<? extends Lookup<PK>> lookup, final Config config){
-		return new Lazy<List<D>>(){
-			@Override
-			protected List<D> load(){
-				return getBackingStorage().lookupMulti(lookup, config);
-			}
-		};
+		return Lazy.of(() -> getBackingStorage().lookupMulti(lookup, config));
 	}
 
 }

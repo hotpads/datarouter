@@ -8,10 +8,11 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import com.google.common.base.Joiner;
+import com.hotpads.util.http.response.exception.HotPadsHttpResponseException;
 
 public class HttpHeaders{
 
-	public static String
+	public static final String
 			ACCEPT_CHARSET = "accept-charset",
 			ACCEPT_ENCODING = "accept-encoding",
 			ACCEPT_LANGUAGE = "accept-language",
@@ -35,7 +36,7 @@ public class HttpHeaders{
 			X_CLIENT_IP = "x-client-ip", //custom header that node servers send with the client's ip
 			X_FORWARDED_FOR = "x-forwarded-for",
 			X_REQUESTED_WITH = "x-requested-with",
-			X_EXCEPTION_ID = "x-eid";
+			X_EXCEPTION_ID = HotPadsHttpResponseException.X_EXCEPTION_ID;
 
 	private static final String[] recordedHeaders = {
 		ACCEPT_CHARSET,

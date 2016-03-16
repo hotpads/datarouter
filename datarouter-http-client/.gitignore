@@ -8,3 +8,4 @@ ant-*-build.xml
 /bin/
 *.iml
 src/main/resources/git.properties
+test-output

@@ -19,7 +19,6 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.SqlCreateTableGenerat
 import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.imp.ConnectionSqlTableGenerator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.imp.FieldSqlTableGenerator;
 import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
-import com.hotpads.datarouter.client.imp.jdbc.util.JdbcTool;
 import com.hotpads.datarouter.connection.JdbcConnectionPool;
 import com.hotpads.datarouter.node.op.raw.IndexedStorage;
 import com.hotpads.datarouter.node.type.index.ManagedNode;
@@ -110,21 +109,23 @@ implements Callable<Void>{
 				return null;
 			}
 			updatedTables.add(tableName);
-			connection = connectionPool.getDataSource().getConnection();
+			connection = connectionPool.checkOut();
 			Statement statement = connection.createStatement();
 			boolean exists = existingTableNames.contains(tableName);
 			if(!exists){
-				logger.info("========================================== Creating the table " +tableName
-						+" ============================");
 				String sql = new SqlCreateTableGenerator(requested, schemaName).generateDdl();
-				if(!executeOptions.getCreateTables()){
-					logger.info("Please execute: "+sql);
-				}else{
+				if(executeOptions.getCreateTables()){
+					logger.info("========================================== Creating the table " +tableName
+							+" ============================");
 					logger.info(sql);
 					statement.execute(sql);
 					logger.info("============================================================================="
 					+"=======================");
-
+				}else{
+					logger.info("========================================== Please Execute SchemaUpdate"
+							+" ============================");
+					logger.info(sql);
+					printedSchemaUpdates.add(sql);
 				}
 			} else{
 				//execute the alter table
@@ -163,7 +164,7 @@ implements Callable<Void>{
 		} catch (Exception e){
 			throw new RuntimeException(e);
 		} finally{
-			JdbcTool.closeConnection(connection);
+			connectionPool.checkIn(connection);
 		}
 		return null;
 	}
