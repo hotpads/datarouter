@@ -77,8 +77,9 @@ implements MultiIndexNode<PK, D, IK, IE>{
 	}
 
 	@Override
-	public Iterable<D> scanDatabeans(Range<IK> range, Config config){
-		return new SingleUseScannerIterable<>(new ManagedIndexDatabeanScanner<>(mainNode, scan(range, config), config));
+	public Iterable<D> scanDatabeansMulti(Collection<Range<IK>> ranges, Config config){
+		return new SingleUseScannerIterable<>(new ManagedIndexDatabeanScanner<>(mainNode, scanMulti(ranges, config),
+				config));
 	}
 
 	@Override

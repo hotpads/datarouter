@@ -36,8 +36,9 @@ extends BaseManagedNode<PK, D, IK, IE, IF>{
 		return node.scanIndexKeys(fieldInfo, range, config);
 	}
 
-	public Iterable<D> scanDatabeans(Range<IK> range, Config config){
-		return new SingleUseScannerIterable<>(new ManagedIndexDatabeanScanner<>(node, scan(range, config), config));
+	public Iterable<D> scanDatabeansMulti(Collection<Range<IK>> ranges, Config config){
+		return new SingleUseScannerIterable<>(new ManagedIndexDatabeanScanner<>(node, scanMulti(ranges, config),
+				config));
 	}
 
 	public Iterable<IE> scanMulti(Collection<Range<IK>> ranges, Config config){
