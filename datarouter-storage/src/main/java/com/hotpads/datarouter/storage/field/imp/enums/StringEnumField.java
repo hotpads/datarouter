@@ -19,6 +19,12 @@ public class StringEnumField<E extends StringEnum<E>> extends BaseField<E>{
 		this.stringField = toStringField(this);
 	}
 
+	public StringEnumField(StringEnumFieldKey<E> key, E value, String prefix){
+		super(prefix, value);
+		this.key = key;
+		this.stringField = toStringField(this);
+	}
+
 	public StringEnumField(Class<E> enumClass, String name, E value, int size){
 		this(enumClass, null, name, value, size);
 	}
