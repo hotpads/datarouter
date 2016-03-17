@@ -98,8 +98,8 @@ implements UniqueIndexNode<PK, D, IK, IE>{
 	}
 
 	@Override
-	public SingleUseScannerIterable<D> scanDatabeans(Range<IK> range, Config config){
-		return new SingleUseScannerIterable<>(new ManagedIndexDatabeanScanner<>(mainNode, scan(range, config),
+	public SingleUseScannerIterable<D> scanDatabeansMulti(Collection<Range<IK>> ranges, Config config){
+		return new SingleUseScannerIterable<>(new ManagedIndexDatabeanScanner<>(mainNode, scanMulti(ranges, config),
 				config));
 	}
 

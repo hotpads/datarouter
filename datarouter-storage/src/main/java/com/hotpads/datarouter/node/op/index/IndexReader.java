@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.node.op.index;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Stream;
@@ -39,7 +40,15 @@ extends SortedStorageReader<IK,IE>{
 		throw new NotImplementedException();
 	}
 
-	Iterable<D> scanDatabeans(Range<IK> range, Config config);
+	Iterable<D> scanDatabeansMulti(Collection<Range<IK>> ranges, Config config);
+
+	default Stream<D> streamDatabeansMulti(Collection<Range<IK>> ranges, Config config){
+		return StreamTool.stream(scanDatabeansMulti(ranges, config));
+	}
+
+	default Iterable<D> scanDatabeans(Range<IK> range, Config config){
+		return scanDatabeansMulti(Arrays.asList(range), config);
+	}
 
 	default Stream<D> streamDatabeans(Range<IK> range, Config config){
 		return StreamTool.stream(scanDatabeans(range, config));
@@ -51,6 +60,14 @@ extends SortedStorageReader<IK,IE>{
 
 	default Stream<D> streamDatabeansWithPrefix(IK prefix, Config config){
 		return streamDatabeans(KeyRangeTool.forPrefix(prefix), config);
+	}
+
+	default Iterable<D> scanDatabeansWithPrefixes(Collection<IK> prefixes, Config config){
+		return scanDatabeansMulti(SortedStorageReader.getRangesFromPrefixes(prefixes), config);
+	}
+
+	default Stream<D> streamDatabeansWithPrefixes(Collection<IK> prefixes, Config config){
+		return streamDatabeansMulti(SortedStorageReader.getRangesFromPrefixes(prefixes), config);
 	}
 
 }
