@@ -76,6 +76,11 @@
 	
 	<dependencies>
 		<!-- internal -->
+		<dependency><!-- temporary for joblets -->
+			<groupId>com.hotpads</groupId>
+			<artifactId>datarouter-hibernate</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
 		<dependency>
 			<groupId>com.hotpads</groupId>
 			<artifactId>datarouter-web</artifactId>
