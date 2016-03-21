@@ -89,6 +89,13 @@ public class DrCollectionTool{
 		return counter;
 	}
 
+	/****************************** chaining **********************************/
+
+	public static <T> T addAndGet(Collection<T> collection, T item){
+		collection.add(item);
+		return item;
+	}
+
 	/********************************* equals *********************************/
 
 	public static <T> boolean equalsAllElementsInIteratorOrder(Collection<T> collectionA, Collection<T> collectionB){
