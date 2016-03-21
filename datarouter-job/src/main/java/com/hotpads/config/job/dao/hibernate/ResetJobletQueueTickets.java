@@ -8,12 +8,12 @@ import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.imp.hibernate.op.BaseHibernateOp;
 import com.hotpads.datarouter.op.util.ResultMergeTool;
 import com.hotpads.datarouter.routing.Datarouter;
-import com.hotpads.job.JobRouter;
+import com.hotpads.job.joblet.JobletNodes;
 
 public class ResetJobletQueueTickets extends BaseHibernateOp<Integer>{
 
-	public ResetJobletQueueTickets(Datarouter datarouter, JobRouter jobRouter) {
-		super(datarouter, jobRouter.joblet.getMaster().getClientNames());
+	public ResetJobletQueueTickets(Datarouter datarouter, JobletNodes jobletNodes) {
+		super(datarouter, jobletNodes.joblet().getMaster().getClientNames());
 	}
 
 	@Override

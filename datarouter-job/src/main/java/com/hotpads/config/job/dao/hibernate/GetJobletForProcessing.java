@@ -9,16 +9,12 @@ import org.slf4j.Logger;
 import com.hotpads.config.job.databean.Joblet;
 import com.hotpads.config.job.databean.JobletQueue;
 import com.hotpads.config.job.enums.JobletStatus;
-import com.hotpads.config.job.enums.JobletType;
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.imp.hibernate.op.BaseHibernateOp;
 import com.hotpads.datarouter.config.Isolation;
 import com.hotpads.datarouter.op.util.ResultMergeTool;
 import com.hotpads.datarouter.routing.Datarouter;
-import com.hotpads.job.JobRouter;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.NumberTool;
-import com.hotpads.util.core.StringTool;
+import com.hotpads.job.joblet.JobletNodes;
 
 public class GetJobletForProcessing extends BaseHibernateOp<Joblet>{
 
@@ -29,8 +25,8 @@ public class GetJobletForProcessing extends BaseHibernateOp<Joblet>{
 	private final boolean rateLimited;
 
 	public GetJobletForProcessing(Long reservationTimeout, int maxRetries, String reservedBy, JobletType jobletType,
-			Datarouter datarouter, JobRouter jobRouter, boolean rateLimited) {
-		super(datarouter, jobRouter.joblet.getMaster().getClientNames(), Isolation.repeatableRead, false);
+			Datarouter datarouter, JobletNodes jobletNodes, boolean rateLimited) {
+		super(datarouter, jobletNodes.joblet().getMaster().getClientNames(), Isolation.repeatableRead, false);
 		this.reservationTimeout = reservationTimeout;
 		this.reservedBy = reservedBy;
 		this.jobletType = jobletType;

@@ -10,7 +10,7 @@ import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.imp.hibernate.op.BaseHibernateOp;
 import com.hotpads.datarouter.op.util.ResultMergeTool;
 import com.hotpads.datarouter.routing.Datarouter;
-import com.hotpads.job.JobRouter;
+import com.hotpads.job.joblet.JobletNodes;
 
 public class UpdateJobletAndQueue extends BaseHibernateOp<Integer>{
 
@@ -19,8 +19,8 @@ public class UpdateJobletAndQueue extends BaseHibernateOp<Integer>{
 	private Boolean rateLimited;
 
 	public UpdateJobletAndQueue(Joblet joblet, boolean decrementQueueIfRateLimited, Datarouter datarouter,
-			JobRouter jobRouter, Boolean rateLimited){
-		super(datarouter, jobRouter.joblet.getMaster().getClientNames());
+			JobletNodes jobletNodes, Boolean rateLimited){
+		super(datarouter, jobletNodes.joblet().getMaster().getClientNames());
 		this.joblet = joblet;
 		this.decrementQueueIfRateLimited = decrementQueueIfRateLimited;
 		this.rateLimited = rateLimited;

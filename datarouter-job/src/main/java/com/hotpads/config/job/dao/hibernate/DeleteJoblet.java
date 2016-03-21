@@ -12,19 +12,19 @@ import com.hotpads.datarouter.client.imp.hibernate.op.BaseHibernateOp;
 import com.hotpads.datarouter.config.Isolation;
 import com.hotpads.datarouter.op.util.ResultMergeTool;
 import com.hotpads.datarouter.routing.Datarouter;
-import com.hotpads.job.JobRouter;
+import com.hotpads.job.joblet.JobletNodes;
 
 public class DeleteJoblet extends BaseHibernateOp<Joblet>{
 	private static final Logger logger = LoggerFactory.getLogger(DeleteJoblet.class);
 
 	private Joblet  joblet;
-	private JobRouter jobRouter;
+	private JobletNodes jobletNodes;
 	private Boolean rateLimited;
 
-	public DeleteJoblet(Datarouter datarouter, Joblet joblet, JobRouter jobRouter, Boolean rateLimited) {
-		super(datarouter, jobRouter.joblet.getMaster().getClientNames(), Isolation.repeatableRead, false);
+	public DeleteJoblet(Datarouter datarouter, Joblet joblet, JobletNodes jobletNodes, Boolean rateLimited) {
+		super(datarouter, jobletNodes.joblet().getMaster().getClientNames(), Isolation.repeatableRead, false);
 		this.joblet = joblet;
-		this.jobRouter = jobRouter;
+		this.jobletNodes = jobletNodes;
 		this.rateLimited = rateLimited;
 	}
 
@@ -40,8 +40,8 @@ public class DeleteJoblet extends BaseHibernateOp<Joblet>{
 			//}
 		}
 
-		jobRouter.joblet.delete(joblet.getKey(), null);
-		jobRouter.jobletData.delete(joblet.getJobletDataKey(), null);
+		jobletNodes.joblet().delete(joblet.getKey(), null);
+		jobletNodes.jobletData().delete(joblet.getJobletDataKey(), null);
 
 		return null;
 	}

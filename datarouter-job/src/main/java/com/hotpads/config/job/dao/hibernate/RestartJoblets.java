@@ -10,14 +10,14 @@ import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.imp.hibernate.op.BaseHibernateOp;
 import com.hotpads.datarouter.op.util.ResultMergeTool;
 import com.hotpads.datarouter.routing.Datarouter;
-import com.hotpads.job.JobRouter;
+import com.hotpads.job.joblet.JobletNodes;
 
 public class RestartJoblets extends BaseHibernateOp<Integer>{
 
 	private JobletStatus currentStatus;
 
-	public RestartJoblets(Datarouter datarouter, JobRouter jobRouter, JobletStatus currentStatus) {
-		super(datarouter, jobRouter.joblet.getMaster().getClientNames());
+	public RestartJoblets(Datarouter datarouter, JobletNodes jobletNodes, JobletStatus currentStatus) {
+		super(datarouter, jobletNodes.joblet().getMaster().getClientNames());
 		this.currentStatus = currentStatus;
 	}
 

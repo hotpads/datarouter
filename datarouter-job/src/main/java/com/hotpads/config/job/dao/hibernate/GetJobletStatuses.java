@@ -12,10 +12,7 @@ import com.hotpads.datarouter.client.imp.hibernate.op.BaseHibernateOp;
 import com.hotpads.datarouter.config.Isolation;
 import com.hotpads.datarouter.op.util.ResultMergeTool;
 import com.hotpads.datarouter.routing.Datarouter;
-import com.hotpads.job.JobRouter;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.StringTool;
+import com.hotpads.job.joblet.JobletNodes;
 
 @Deprecated
 public class GetJobletStatuses extends BaseHibernateOp<List<JobletSummary>>{
@@ -23,8 +20,8 @@ public class GetJobletStatuses extends BaseHibernateOp<List<JobletSummary>>{
 	private final String whereStatus;
 	private final boolean includeQueueId;
 
-	public GetJobletStatuses(String whereStatus, boolean includeQueueId, Datarouter datarouter, JobRouter jobRouter) {
-		super(datarouter, jobRouter.joblet.getMaster().getClientNames(), Isolation.readUncommitted, false);
+	public GetJobletStatuses(String whereStatus, boolean includeQueueId, Datarouter datarouter, JobletNodes jobletNodes) {
+		super(datarouter, jobletNodes.joblet().getMaster().getClientNames(), Isolation.readUncommitted, false);
 		this.whereStatus = whereStatus;
 		this.includeQueueId = includeQueueId;
 	}
