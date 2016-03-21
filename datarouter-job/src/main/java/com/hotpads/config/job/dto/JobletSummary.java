@@ -3,9 +3,8 @@ package com.hotpads.config.job.dto;
 import java.math.BigInteger;
 import java.util.Date;
 
-import com.hotpads.config.job.enums.JobletType;
-import com.hotpads.util.core.DateTool;
-import com.hotpads.util.core.NumberTool;
+import com.hotpads.datarouter.util.core.DrDateTool;
+import com.hotpads.datarouter.util.core.DrNumberTool;
 
 /*************** inner class ********************************/
 
@@ -23,7 +22,7 @@ public class JobletSummary{
 	public Date firstCreated;
 	public Date firstReserved;
 	public boolean expandable = false;
-	
+
 	public JobletSummary(JobletType type, Integer sumItems, Long created){
 		this.type = type;
 		this.sumItems = sumItems;
@@ -31,7 +30,7 @@ public class JobletSummary{
 			this.firstCreated = new Date(created);
 		}
 	}
-	
+
 	@Deprecated
 	public JobletSummary(Object[] cols){
 		try{
@@ -53,19 +52,19 @@ public class JobletSummary{
 			throw new IllegalArgumentException(e);
 		}
 	}
-	
+
 	public boolean isEmpty(){
-		return NumberTool.isEmpty(numType);
+		return DrNumberTool.isEmpty(numType);
 	}
-	
+
 	public String getFirstCreatedAgo(){
 		if(this.firstCreated==null){ return ""; }
-		return DateTool.getAgoString(this.firstCreated);
+		return DrDateTool.getAgoString(this.firstCreated);
 	}
-	
+
 	public String getFirstReservedAgo(){
 		if(this.firstReserved==null){ return ""; }
-		return DateTool.getAgoString(this.firstReserved);
+		return DrDateTool.getAgoString(this.firstReserved);
 	}
 
 	@Override
@@ -78,12 +77,12 @@ public class JobletSummary{
 				+ ", status=" + status + ", sumItems=" + sumItems
 				+ ", sumTasks=" + sumTasks + ", type=" + type.getPersistentString() + "]";
 	}
-	
-	
+
+
 	/****************************** get/set **********************************/
-	
-	
-	
+
+
+
 	public Integer getExecutionOrder() {
 		return executionOrder;
 	}
@@ -95,7 +94,7 @@ public class JobletSummary{
 	public String getStatus() {
 		return status;
 	}
-	
+
 	public void setStatus(String status) {
 		this.status = status;
 	}
@@ -115,11 +114,11 @@ public class JobletSummary{
 	public void setNumFailures(Integer numFailures){
 		this.numFailures = numFailures;
 	}
-	
+
 	public Integer getNumType() {
 		return numType;
 	}
-	
+
 	public void setNumType(Integer numType) {
 		this.numType = numType;
 	}
@@ -127,7 +126,7 @@ public class JobletSummary{
 	public Integer getSumItems() {
 		return sumItems;
 	}
-	
+
 	public void setSumItems(Integer sumItems) {
 		this.sumItems = sumItems;
 	}
@@ -135,7 +134,7 @@ public class JobletSummary{
 	public Float getAvgItems() {
 		return avgItems;
 	}
-	
+
 	public void setAvgItems(Float avgItems) {
 		this.avgItems = avgItems;
 	}
@@ -143,7 +142,7 @@ public class JobletSummary{
 	public Integer getSumTasks() {
 		return sumTasks;
 	}
-	
+
 	public void setSumTasks(Integer sumTasks) {
 		this.sumTasks = sumTasks;
 	}
@@ -151,7 +150,7 @@ public class JobletSummary{
 	public Float getAvgTasks() {
 		return avgTasks;
 	}
-	
+
 	public void setAvgTasks(Float avgTasks) {
 		this.avgTasks = avgTasks;
 	}
@@ -159,7 +158,7 @@ public class JobletSummary{
 	public Date getFirstCreated() {
 		return firstCreated;
 	}
-	
+
 	public void setFirstCreated(Date firstCreated) {
 		this.firstCreated = firstCreated;
 	}
@@ -167,15 +166,15 @@ public class JobletSummary{
 	public Date getFirstReserved() {
 		return firstReserved;
 	}
-	
+
 	public void setFirstReserved(Date firstReserved) {
 		this.firstReserved = firstReserved;
 	}
-	
+
 	public void setQueueId(String queueId){
 		this.queueId = queueId;
 	}
-	
+
 	public boolean getExpandable() {
 		return expandable;
 	}

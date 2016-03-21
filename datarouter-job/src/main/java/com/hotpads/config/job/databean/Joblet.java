@@ -15,10 +15,8 @@ import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.TypeDefs;
 
-import com.hotpads.config.job.dao.JobletService;
 import com.hotpads.config.job.dto.JobletSummary;
 import com.hotpads.config.job.enums.JobletStatus;
-import com.hotpads.config.job.enums.JobletType;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.serialize.fielder.Fielder;
@@ -30,10 +28,10 @@ import com.hotpads.datarouter.storage.field.imp.comparable.BooleanField;
 import com.hotpads.datarouter.storage.field.imp.comparable.IntegerField;
 import com.hotpads.datarouter.storage.field.imp.comparable.LongField;
 import com.hotpads.datarouter.storage.field.imp.enums.StringEnumField;
+import com.hotpads.datarouter.util.core.DrDateTool;
+import com.hotpads.datarouter.util.core.DrIterableTool;
+import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.handler.exception.ExceptionRecordKey;
-import com.hotpads.util.core.DateTool;
-import com.hotpads.util.core.IterableTool;
-import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.profile.PhaseTimer;
 import com.hotpads.util.core.stream.StreamTool;
 import com.hotpads.util.datastructs.MutableBoolean;
@@ -215,21 +213,21 @@ public class Joblet extends BaseDatabean<JobletKey,Joblet>{
 	public static ArrayList<Joblet> filterByTypeStatusReservedByPrefix(Iterable<Joblet> ins, JobletType type,
 			JobletStatus status, String reservedByPrefix){
 		ArrayList<Joblet> outs = new ArrayList<>();
-		for(Joblet in : IterableTool.nullSafe(ins)){
+		for(Joblet in : DrIterableTool.nullSafe(ins)){
 			if(type != in.getType()){ continue; }
 			if(status != in.getStatus()){ continue; }
-			String reservedBy = StringTool.nullSafe(in.getReservedBy());
+			String reservedBy = DrStringTool.nullSafe(in.getReservedBy());
 			if(!reservedBy.startsWith(reservedByPrefix)){ continue; }
 			outs.add(in);
 		}
 		return outs;
-	}	
-	
+	}
+
 	public static Joblet getOldestForTypesAndStatuses(Iterable<Joblet> joblets, Collection<JobletType> types,
 			Collection<JobletStatus> statuses){
 		Joblet oldest = null;
 		long now = System.currentTimeMillis();
-		for(Joblet joblet : IterableTool.nullSafe(joblets)){
+		for(Joblet joblet : DrIterableTool.nullSafe(joblets)){
 			if(types.contains(joblet.getType()) && statuses.contains(joblet.getStatus())){
 				if(oldest == null){
 					oldest = joblet;
@@ -248,9 +246,9 @@ public class Joblet extends BaseDatabean<JobletKey,Joblet>{
 		if(this.getKey().getCreated() == null){
 			return "";
 		}
-		return DateTool.getAgoString(this.getKey().getCreated());
+		return DrDateTool.getAgoString(this.getKey().getCreated());
 	}
-	
+
 	public static List<JobletDataKey> getJobletDataKeys(List<Joblet> joblets){
 		return StreamTool.stream(joblets)
 				.map( joblet -> new JobletDataKey(joblet.getJobletDataId()))

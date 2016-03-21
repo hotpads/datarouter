@@ -11,11 +11,12 @@ import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.imp.hibernate.op.BaseHibernateOp;
 import com.hotpads.datarouter.op.util.ResultMergeTool;
 import com.hotpads.datarouter.routing.Datarouter;
+import com.hotpads.datarouter.util.core.DrDateTool;
 import com.hotpads.job.joblet.JobletNodes;
 
 public class TimeoutStuckRunningJoblets extends BaseHibernateOp<Integer>{
 
-	public static final long DELETE_JOBLETS_BEFORE = System.currentTimeMillis() - (DateTool.MILLISECONDS_IN_DAY * 2);
+	public static final long DELETE_JOBLETS_BEFORE = System.currentTimeMillis() - (DrDateTool.MILLISECONDS_IN_DAY * 2);
 
 	public TimeoutStuckRunningJoblets(Datarouter datarouter, JobletNodes jobletNodes) {
 		super(datarouter, jobletNodes.joblet().getMaster().getClientNames());

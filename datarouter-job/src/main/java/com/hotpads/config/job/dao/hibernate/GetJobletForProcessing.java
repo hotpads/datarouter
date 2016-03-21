@@ -14,6 +14,9 @@ import com.hotpads.datarouter.client.imp.hibernate.op.BaseHibernateOp;
 import com.hotpads.datarouter.config.Isolation;
 import com.hotpads.datarouter.op.util.ResultMergeTool;
 import com.hotpads.datarouter.routing.Datarouter;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrNumberTool;
+import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.job.joblet.JobletNodes;
 
 public class GetJobletForProcessing extends BaseHibernateOp<Joblet>{
@@ -57,9 +60,9 @@ public class GetJobletForProcessing extends BaseHibernateOp<Joblet>{
 			return null;
 		}
 
-		boolean alreadyRunning = NumberTool.nullSafe(joblet.getNumTimeouts())>0;
+		boolean alreadyRunning = DrNumberTool.nullSafe(joblet.getNumTimeouts())>0;
 		// increment the numTickets on the JobletQueue
-		if( ! alreadyRunning && enforceRateLimit && StringTool.notEmpty(joblet.getQueueId())){
+		if( ! alreadyRunning && enforceRateLimit && DrStringTool.notEmpty(joblet.getQueueId())){
 			updateQueueTickets(session, joblet.getQueueId(), 1, getLogger());
 		}
 		return joblet;
@@ -114,18 +117,18 @@ public class GetJobletForProcessing extends BaseHibernateOp<Joblet>{
 		}
 		Joblet joblet;
 		if(rateLimit){//will return a list of rows, where each row is an Object[], and each array element is an entity
-			Object[] row = (Object[])CollectionTool.getFirst(reserveQuery.list());
+			Object[] row = (Object[])DrCollectionTool.getFirst(reserveQuery.list());
 			if(row==null){ return null; }
 			joblet = (Joblet)row[0];
 		}else{
-			joblet = (Joblet)CollectionTool.getFirst(reserveQuery.list());
+			joblet = (Joblet)DrCollectionTool.getFirst(reserveQuery.list());
 			if(joblet==null){ return null; }
 		}
 
 		//update the joblet
 		if(joblet.getStatus().isRunning()){
 			//this was a timed out joblet. increment # timeouts
-			joblet.setNumTimeouts(NumberTool.nullSafe(joblet.getNumTimeouts())+1);
+			joblet.setNumTimeouts(DrNumberTool.nullSafe(joblet.getNumTimeouts())+1);
 			if(joblet.getNumTimeouts()>maxRetries){
 				//exceeded max retries. time out the joblet
 				joblet.setStatus(JobletStatus.timedOut);

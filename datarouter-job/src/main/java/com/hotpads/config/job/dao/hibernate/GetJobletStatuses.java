@@ -1,5 +1,6 @@
 package com.hotpads.config.job.dao.hibernate;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -12,6 +13,8 @@ import com.hotpads.datarouter.client.imp.hibernate.op.BaseHibernateOp;
 import com.hotpads.datarouter.config.Isolation;
 import com.hotpads.datarouter.op.util.ResultMergeTool;
 import com.hotpads.datarouter.routing.Datarouter;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.job.joblet.JobletNodes;
 
 @Deprecated
@@ -32,10 +35,10 @@ public class GetJobletStatuses extends BaseHibernateOp<List<JobletSummary>>{
 	public List<JobletSummary> runOncePerClient(Client client){
 
 		String where = "";
-		if(StringTool.notEmpty(whereStatus)){
+		if(DrStringTool.notEmpty(whereStatus)){
 			where += " status='"+whereStatus+"'";
 		}
-		if(StringTool.notEmpty(where)){
+		if(DrStringTool.notEmpty(where)){
 			where = " where "+where;
 		}
 
@@ -57,8 +60,8 @@ public class GetJobletStatuses extends BaseHibernateOp<List<JobletSummary>>{
 		SQLQuery sqlQuery = getSession(client.getName()).createSQLQuery(sql);
 		List<Object[]> rows = sqlQuery.list();
 
-		List<JobletSummary> summaries = ListTool.create();
-		for(Object[] row : CollectionTool.nullSafe(rows)){
+		List<JobletSummary> summaries = new ArrayList<>();
+		for(Object[] row : DrCollectionTool.nullSafe(rows)){
 			summaries.add(new JobletSummary(row));
 		}
 
