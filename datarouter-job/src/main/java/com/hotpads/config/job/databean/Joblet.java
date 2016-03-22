@@ -164,24 +164,6 @@ public class Joblet extends BaseDatabean<JobletKey,Joblet>{
 		return new JobletDataKey(this.jobletDataId);
 	}
 
-	/**
-	 * @deprecated Use JobletDataDao.get()
-	 */
-	@Deprecated//get this out of here
-	public JobletData getJobletData() {
-		if(jobletData == null && jobletDataId != null){
-			jobletData = JobletService.getJobletData(this.jobletDataId);
-		}
-		if(jobletData == null){
-			jobletData = new JobletData();
-			this.setJobletData(jobletData);
-			if(this.jobletDataId != null){
-				System.out.println("expected to find JobletData with id=" + this.jobletDataId + ", but does not exist");
-				jobletDataId = null;
-			}
-		}
-		return jobletData;
-	}
 
 	public static List<JobletSummary> getJobletCountsCreatedByType(Iterable<Joblet> scanner){
 		List<JobletSummary> summaries = new ArrayList<>();
@@ -192,14 +174,14 @@ public class Joblet extends BaseDatabean<JobletKey,Joblet>{
 		for(Joblet joblet : scanner){
 			if(joblet.getStatus() == JobletStatus.created){
 				atLeastOnecreatedJoblet = true;
-				if((currentType != null) && (joblet.getType() != currentType)){
+				if(currentType != null && joblet.getType() != currentType){
 					summaries.add(new JobletSummary(currentType, sumItems, oldestCreatedDate));
 					oldestCreatedDate = null;
 					sumItems = 0;
 				}
 				currentType = joblet.getType();
 				sumItems = sumItems + joblet.getNumItems();
-				if((oldestCreatedDate == null) || (joblet.getKey().getCreated() < oldestCreatedDate)){
+				if(oldestCreatedDate == null || joblet.getKey().getCreated() < oldestCreatedDate){
 					oldestCreatedDate = joblet.getKey().getCreated();
 				}
 			}
@@ -271,19 +253,6 @@ public class Joblet extends BaseDatabean<JobletKey,Joblet>{
 
 	public void setReservedAt(Long reservedAt) {
 		this.reservedAt = reservedAt;
-	}
-
-	/**
-	 * @deprecated Use JobletDataDao.get()
-	 */
-	@Deprecated
-	public String getData() {
-		return this.getJobletData().getData();
-	}
-
-	@Deprecated
-	public void setData(String data) {
-		this.getJobletData().setData(data);
 	}
 
 	public JobletStatus getStatus() {
