@@ -3,6 +3,7 @@ package com.hotpads.config.job.dto;
 import java.math.BigInteger;
 import java.util.Date;
 
+import com.hotpads.config.job.enums.JobletType;
 import com.hotpads.datarouter.util.core.DrDateTool;
 import com.hotpads.datarouter.util.core.DrNumberTool;
 
@@ -11,7 +12,7 @@ import com.hotpads.datarouter.util.core.DrNumberTool;
 public class JobletSummary{
 	public Integer executionOrder;
 	public String status;
-	public JobletType type;
+	public JobletType<?> type;
 	public String queueId;
 	public Integer numFailures;
 	public Integer numType;
@@ -23,7 +24,7 @@ public class JobletSummary{
 	public Date firstReserved;
 	public boolean expandable = false;
 
-	public JobletSummary(JobletType type, Integer sumItems, Long created){
+	public JobletSummary(JobletType<?> type, Integer sumItems, Long created){
 		this.type = type;
 		this.sumItems = sumItems;
 		if(created != null){

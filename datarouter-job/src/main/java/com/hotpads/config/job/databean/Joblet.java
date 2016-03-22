@@ -17,6 +17,7 @@ import org.hibernate.annotations.TypeDefs;
 
 import com.hotpads.config.job.dto.JobletSummary;
 import com.hotpads.config.job.enums.JobletStatus;
+import com.hotpads.config.job.enums.JobletType;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.serialize.fielder.Fielder;
@@ -109,7 +110,7 @@ public class Joblet extends BaseDatabean<JobletKey,Joblet>{
 		this.key = new JobletKey(null, null, null);
 	}
 
-	public Joblet(JobletType type, Integer executionOrder, Integer batchSequence, boolean restartable){
+	public Joblet(JobletType<?> type, Integer executionOrder, Integer batchSequence, boolean restartable){
 		this.key = new JobletKey(type, executionOrder, batchSequence);
 		this.restartable = restartable;
 	}
@@ -167,7 +168,7 @@ public class Joblet extends BaseDatabean<JobletKey,Joblet>{
 
 	public static List<JobletSummary> getJobletCountsCreatedByType(Iterable<Joblet> scanner){
 		List<JobletSummary> summaries = new ArrayList<>();
-		JobletType currentType = null;
+		JobletType<?> currentType = null;
 		Long oldestCreatedDate = null;
 		Integer sumItems = 0;
 		boolean atLeastOnecreatedJoblet = false;
@@ -314,11 +315,11 @@ public class Joblet extends BaseDatabean<JobletKey,Joblet>{
 	public void setExecutionOrder(Integer executionOrder){
 		this.key.setExecutionOrder(executionOrder);
 	}
-	public JobletType getType() {
-		return JobletType.fromString(this.key.getType());
+	public JobletType<?> getType() {
+		return JobletType.fromString(key.getType());
 	}
 
-	public void setType(JobletType type) {
+	public void setType(JobletType<?> type) {
 		this.key.setType(type==null?null:type.getVarName());
 	}
 
