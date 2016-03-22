@@ -206,7 +206,7 @@ public class Joblet extends BaseDatabean<JobletKey,Joblet>{
 		return outs;
 	}
 
-	public static Joblet getOldestForTypesAndStatuses(Iterable<Joblet> joblets, Collection<JobletType> types,
+	public static Joblet getOldestForTypesAndStatuses(Iterable<Joblet> joblets, Collection<JobletType<?>> types,
 			Collection<JobletStatus> statuses){
 		Joblet oldest = null;
 		long now = System.currentTimeMillis();
