@@ -165,13 +165,11 @@ public abstract class BaseJob implements Job{
 			if(new Date().after(nextJobTriggerTime)) {
 				jobCompletionLog += ", missed next trigger";
 			}
-			if(getElapsedRunningTimeMs() > 100) {
+			if(getElapsedRunningTimeMs() > 400) {
 				logger.warn(jobCompletionLog);
 			}else{
 				logger.debug(jobCompletionLog);
 			}
-		}else{
-//			logger.warn(getClass()+" shouldRun=false");
 		}
 	}
 
