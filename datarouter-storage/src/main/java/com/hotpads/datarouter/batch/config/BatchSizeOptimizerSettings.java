@@ -15,7 +15,6 @@ public class BatchSizeOptimizerSettings extends SettingNode{
 	@Inject
 	public BatchSizeOptimizerSettings(SettingFinder finder){
 		super(finder, "datarouter.batch.", "datarouter.");
-
 		runBatchSizeOptimizingJob = registerBoolean("runBatchSizeOptimizingJob", false);
 		runOpPerformanceRecordAggregationJob = registerBoolean("runOpPerformanceRecordAggregationJob", false);
 	}
