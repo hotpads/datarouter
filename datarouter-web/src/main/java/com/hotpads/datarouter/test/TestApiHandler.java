@@ -1,17 +1,11 @@
 package com.hotpads.datarouter.test;
 
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
-import java.util.Scanner;
 
 import javax.inject.Singleton;
-import javax.servlet.http.HttpServletRequest;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -21,8 +15,8 @@ import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.encoder.JsonEncoder;
 import com.hotpads.handler.mav.Mav;
 import com.hotpads.handler.mav.imp.MessageMav;
+import com.hotpads.handler.types.BodyDecoder;
 import com.hotpads.handler.types.DefaultDecoder;
-import com.hotpads.handler.types.HandlerDecoder;
 import com.hotpads.handler.types.P;
 import com.hotpads.handler.types.TypeProvider;
 import com.hotpads.util.http.json.GsonJsonSerializer;
@@ -154,32 +148,7 @@ public class TestApiHandler extends BaseHandler{
 		return fooBars.size();
 	}
 
-	public static class RawStreamDecoder implements HandlerDecoder{
-
-		@Override
-		public Object[] decode(HttpServletRequest request, Method method){
-			if(method.getParameterTypes().length != 1){
-				return null;
-			}
-			String entity;
-			try{
-				entity = streamToString(request.getInputStream());
-			}catch (IOException e){
-				throw new RuntimeException(e);
-			}
-			return new Object[]{entity};
-
-		}
-
-		private String streamToString(InputStream input){
-			try(Scanner s = new Scanner(input);){
-				s.useDelimiter("\\A");
-				return s.hasNext() ? s.next() : "";
-			}
-		}
-	}
-
-	@Handler(encoder=JsonEncoder.class, decoder=RawStreamDecoder.class)
+	@Handler(encoder=JsonEncoder.class, decoder=BodyDecoder.class)
 	public int length(String string){
 		return string.length();
 	}
