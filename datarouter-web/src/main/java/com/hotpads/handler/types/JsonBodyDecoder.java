@@ -11,12 +11,12 @@ import com.hotpads.handler.encoder.HandlerEncoder;
 import com.hotpads.util.http.RequestTool;
 import com.hotpads.util.http.json.JsonSerializer;
 
-public class BodyDecoder implements HandlerDecoder{
+public class JsonBodyDecoder implements HandlerDecoder{
 
 	private final JsonSerializer deserializer;
 
 	@Inject
-	public BodyDecoder(@Named(HandlerEncoder.DEFAULT_HANDLER_SERIALIZER) JsonSerializer deserializer){
+	public JsonBodyDecoder(@Named(HandlerEncoder.DEFAULT_HANDLER_SERIALIZER) JsonSerializer deserializer){
 		this.deserializer = deserializer;
 	}
 

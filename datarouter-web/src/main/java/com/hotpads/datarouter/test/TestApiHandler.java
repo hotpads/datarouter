@@ -15,7 +15,7 @@ import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.encoder.JsonEncoder;
 import com.hotpads.handler.mav.Mav;
 import com.hotpads.handler.mav.imp.MessageMav;
-import com.hotpads.handler.types.BodyDecoder;
+import com.hotpads.handler.types.JsonBodyDecoder;
 import com.hotpads.handler.types.DefaultDecoder;
 import com.hotpads.handler.types.P;
 import com.hotpads.handler.types.TypeProvider;
@@ -148,7 +148,7 @@ public class TestApiHandler extends BaseHandler{
 		return fooBars.size();
 	}
 
-	@Handler(encoder=JsonEncoder.class, decoder=BodyDecoder.class)
+	@Handler(encoder=JsonEncoder.class, decoder=JsonBodyDecoder.class)
 	public int length(String string){
 		return string.length();
 	}
