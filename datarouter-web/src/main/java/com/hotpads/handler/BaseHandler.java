@@ -30,8 +30,10 @@ import com.hotpads.handler.types.HandlerDecoder;
 import com.hotpads.handler.types.HandlerTypingHelper;
 import com.hotpads.handler.user.authenticate.AdminEditUserHandler;
 import com.hotpads.util.core.collections.Pair;
+import com.hotpads.util.core.concurrent.Lazy;
 import com.hotpads.util.core.exception.PermissionException;
 import com.hotpads.util.core.java.ReflectionTool;
+import com.hotpads.util.http.ResponseTool;
 
 /*
  * a dispatcher servlet sets necessary parameters and then calls "handle()"
@@ -52,7 +54,11 @@ public abstract class BaseHandler{
 	protected HttpServletRequest request;
 	protected HttpServletResponse response;
 	protected Params params;
-	protected PrintWriter out;
+	/**
+	 * @deprecated instead return a Object that will be serialized by the {@link HandlerEncoder}.
+	 */
+	@Deprecated
+	protected Lazy<PrintWriter> out;
 
 	//returns url match regex.  dispatcher servlet calls this on container startup to build url mappings
 	//..could also map the url's externally so they're in a centralized place
@@ -177,7 +183,7 @@ public abstract class BaseHandler{
 	}
 
 	protected void p(String string){
-		out.write(string);
+		out.get().write(string);
 	}
 
 	/****************** get/set *******************************************/
@@ -190,10 +196,6 @@ public abstract class BaseHandler{
 		this.params = params;
 	}
 
-	public void setOut(PrintWriter out){
-		this.out = out;
-	}
-
 	public void setServletContext(ServletContext context){
 		this.servletContext = context;
 	}
@@ -204,6 +206,7 @@ public abstract class BaseHandler{
 
 	public void setResponse(HttpServletResponse response){
 		this.response = response;
+		this.out = Lazy.of(() -> ResponseTool.getWriter(response));
 	}
 
 	public static class BaseHandlerTests {
