@@ -504,18 +504,15 @@ public class RequestTool {
 	}
 
 	public static String partialyTryGetBodyAsString(ServletRequest request){
-		StringBuilder builder = new StringBuilder();
-		try(BufferedReader reader = request.getReader()){
-			String line;
-			while((line = reader.readLine()) != null){
-				builder.append(line);
+		try{
+			return getBodyAsString(request);
+		}catch(RuntimeException e){
+			Throwable cause = e.getCause();
+			if(cause instanceof IllegalStateException){
+				return INACCESSIBLE_BODY + cause.getMessage();
 			}
-		}catch(IllegalStateException e){
-			return INACCESSIBLE_BODY + e.getMessage();
-		}catch(IOException e){
-			throw new RuntimeException(e);
+			throw e;
 		}
-		return builder.toString();
 	}
 
 	/** tests *****************************************************************/
