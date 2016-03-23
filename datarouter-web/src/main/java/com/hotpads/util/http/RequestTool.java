@@ -497,12 +497,22 @@ public class RequestTool {
 			while((line = reader.readLine()) != null){
 				builder.append(line);
 			}
-		}catch(IllegalStateException e){
-			return INACCESSIBLE_BODY + e.getMessage();
 		}catch(IOException e){
 			throw new RuntimeException(e);
 		}
 		return builder.toString();
+	}
+
+	public static String partiallyTryGetBodyAsString(ServletRequest request){
+		try{
+			return getBodyAsString(request);
+		}catch(RuntimeException e){
+			Throwable cause = e.getCause();
+			if(cause instanceof IllegalStateException){
+				return INACCESSIBLE_BODY + cause.getMessage();
+			}
+			throw e;
+		}
 	}
 
 	/** tests *****************************************************************/

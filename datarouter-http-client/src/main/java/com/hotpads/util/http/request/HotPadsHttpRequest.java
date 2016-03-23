@@ -165,13 +165,24 @@ public class HotPadsHttpRequest {
 		return entity;
 	}
 
-	/** Entities only exist in HttpPut, HttpPatch, HttpPost */
+	/**
+	 * Entities only exist in HttpPut, HttpPatch, HttpPost
+	 * @deprecated use {@link #setEntity(String, ContentType)} instead
+	 */
+	@Deprecated
 	public HotPadsHttpRequest setEntity(String entity) {
 		try {
 			this.entity = new StringEntity(entity);
 		} catch (UnsupportedEncodingException e) {
 			throw new HotPadsHttpRuntimeException(e);
 		}
+		return this;
+	}
+
+	/** Entities only exist in HttpPut, HttpPatch, HttpPost */
+	public HotPadsHttpRequest setEntity(String entity, ContentType contentType) {
+		this.entity = new StringEntity(entity, contentType);
+		this.setContentType(contentType);
 		return this;
 	}
 
@@ -191,7 +202,7 @@ public class HotPadsHttpRequest {
 
 	public HotPadsHttpRequest setContentType(ContentType contentType) {
 		if (contentType != null) {
-			headers.put(CONTENT_TYPE, contentType.getMimeType());
+			headers.put(CONTENT_TYPE, contentType.toString());
 		}
 		return this;
 	}
