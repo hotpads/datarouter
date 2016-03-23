@@ -51,7 +51,6 @@ public abstract class DispatcherServlet extends HttpServlet implements InjectorR
 			out.print("path not found");
 		}
 
-		out.flush();
 		out.close();
 	}
 
