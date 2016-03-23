@@ -54,6 +54,10 @@ public abstract class BaseHandler{
 	protected HttpServletRequest request;
 	protected HttpServletResponse response;
 	protected Params params;
+	/**
+	 * @deprecated instead return a Object that will be serialized by the {@link HandlerEncoder}.
+	 */
+	@Deprecated
 	protected Lazy<PrintWriter> out;
 
 	//returns url match regex.  dispatcher servlet calls this on container startup to build url mappings
