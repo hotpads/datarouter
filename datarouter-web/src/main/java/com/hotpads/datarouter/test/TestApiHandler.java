@@ -150,13 +150,13 @@ public class TestApiHandler extends BaseHandler{
 	}
 
 	@Handler(decoder=JsonBodyDecoder.class, encoder=JsonEncoder.class)
-	public int length(String string){
-		return string.length();
+	public int size(List<Object> list){
+		return list.size();
 	}
 
 	@Handler(decoder=JsonBodyDecoder.class, encoder=JsonEncoder.class)
-	public int size(List<Object> list){
-		return list.size();
+	public int length(String string){
+		return string.length();
 	}
 
 	@Singleton
