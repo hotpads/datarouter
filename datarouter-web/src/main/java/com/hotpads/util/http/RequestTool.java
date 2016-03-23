@@ -503,7 +503,7 @@ public class RequestTool {
 		return builder.toString();
 	}
 
-	public static String partialyTryGetBodyAsString(ServletRequest request){
+	public static String partiallyTryGetBodyAsString(ServletRequest request){
 		try{
 			return getBodyAsString(request);
 		}catch(RuntimeException e){
