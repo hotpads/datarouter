@@ -165,7 +165,11 @@ public class HotPadsHttpRequest {
 		return entity;
 	}
 
-	/** Entities only exist in HttpPut, HttpPatch, HttpPost */
+	/**
+	 * Entities only exist in HttpPut, HttpPatch, HttpPost
+	 * @deprecated use {@link #setEntity(String, ContentType)} instead
+	 */
+	@Deprecated
 	public HotPadsHttpRequest setEntity(String entity) {
 		try {
 			this.entity = new StringEntity(entity);
