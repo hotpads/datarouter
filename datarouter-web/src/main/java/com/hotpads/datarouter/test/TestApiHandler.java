@@ -148,7 +148,7 @@ public class TestApiHandler extends BaseHandler{
 		return fooBars.size();
 	}
 
-	@Handler(encoder=JsonEncoder.class, decoder=JsonBodyDecoder.class)
+	@Handler(decoder=JsonBodyDecoder.class, encoder=JsonEncoder.class)
 	public int length(String string){
 		return string.length();
 	}
