@@ -76,17 +76,6 @@
 	
 	<dependencies>
 		<!-- internal -->
-		<dependency><!-- temporary for joblets -->
-			<groupId>com.hotpads</groupId>
-			<artifactId>datarouter-hibernate</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-			<exclusions>
-				<exclusion>
-					<artifactId>slf4j-api</artifactId>
-					<groupId>org.slf4j</groupId>
-				</exclusion>
-			</exclusions>
-		</dependency>
 		<dependency>
 			<groupId>com.hotpads</groupId>
 			<artifactId>datarouter-web</artifactId>
