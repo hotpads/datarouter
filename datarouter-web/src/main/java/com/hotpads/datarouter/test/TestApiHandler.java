@@ -4,6 +4,7 @@ import java.lang.reflect.Type;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 
 import javax.inject.Singleton;
 
@@ -15,8 +16,8 @@ import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.encoder.JsonEncoder;
 import com.hotpads.handler.mav.Mav;
 import com.hotpads.handler.mav.imp.MessageMav;
-import com.hotpads.handler.types.JsonBodyDecoder;
 import com.hotpads.handler.types.DefaultDecoder;
+import com.hotpads.handler.types.JsonBodyDecoder;
 import com.hotpads.handler.types.P;
 import com.hotpads.handler.types.TypeProvider;
 import com.hotpads.util.http.json.GsonJsonSerializer;
@@ -151,6 +152,11 @@ public class TestApiHandler extends BaseHandler{
 	@Handler(decoder=JsonBodyDecoder.class, encoder=JsonEncoder.class)
 	public int length(String string){
 		return string.length();
+	}
+
+	@Handler(decoder=JsonBodyDecoder.class, encoder=JsonEncoder.class)
+	public int size(List<Object> list){
+		return list.size();
 	}
 
 	@Singleton
