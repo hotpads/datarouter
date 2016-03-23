@@ -6,21 +6,25 @@ import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 
 import com.hotpads.config.job.databean.Joblet;
+import com.hotpads.config.job.enums.JobletType;
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.imp.hibernate.op.BaseHibernateOp;
 import com.hotpads.datarouter.op.util.ResultMergeTool;
 import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.job.joblet.JobletNodes;
+import com.hotpads.job.joblet.JobletTypeFactory;
 
 public class UpdateJobletAndQueue extends BaseHibernateOp<Integer>{
 
-	private Joblet joblet;
-	private boolean decrementQueueIfRateLimited = true;
-	private Boolean rateLimited;
+	private final JobletTypeFactory<?> jobletTypeFactory;
+	private final Joblet joblet;
+	private final boolean decrementQueueIfRateLimited;
+	private final Boolean rateLimited;
 
-	public UpdateJobletAndQueue(Joblet joblet, boolean decrementQueueIfRateLimited, Datarouter datarouter,
-			JobletNodes jobletNodes, Boolean rateLimited){
+	public UpdateJobletAndQueue(JobletTypeFactory<?> jobletTypeFactory, Joblet joblet,
+			boolean decrementQueueIfRateLimited, Datarouter datarouter, JobletNodes jobletNodes, Boolean rateLimited){
 		super(datarouter, jobletNodes.joblet().getMaster().getClientNames());
+		this.jobletTypeFactory = jobletTypeFactory;
 		this.joblet = joblet;
 		this.decrementQueueIfRateLimited = decrementQueueIfRateLimited;
 		this.rateLimited = rateLimited;
@@ -36,7 +40,8 @@ public class UpdateJobletAndQueue extends BaseHibernateOp<Integer>{
 		Session session = getSession(client.getName());
 
 		session.update(joblet);
-		boolean enforceRateLimit = rateLimited && joblet.getType().getRateLimited();
+		JobletType<?> jobletType = jobletTypeFactory.fromJoblet(joblet);
+		boolean enforceRateLimit = rateLimited && jobletType.getRateLimited();
 
 		if(this.decrementQueueIfRateLimited && enforceRateLimit){
 			String queueSql = "update JobletQueue set numTickets = numTickets - 1 where id=:id";

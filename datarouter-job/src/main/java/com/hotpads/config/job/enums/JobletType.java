@@ -13,4 +13,5 @@ public interface JobletType<T> extends StringEnum<T>{
 
 	String getVarName();
 	String getDisplay();
+
 }

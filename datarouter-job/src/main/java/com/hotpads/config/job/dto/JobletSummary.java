@@ -3,7 +3,6 @@ package com.hotpads.config.job.dto;
 import java.math.BigInteger;
 import java.util.Date;
 
-import com.hotpads.config.job.enums.JobletType;
 import com.hotpads.datarouter.util.core.DrDateTool;
 import com.hotpads.datarouter.util.core.DrNumberTool;
 
@@ -12,7 +11,7 @@ import com.hotpads.datarouter.util.core.DrNumberTool;
 public class JobletSummary{
 	public Integer executionOrder;
 	public String status;
-	public JobletType<?> type;
+	public String typeString;
 	public String queueId;
 	public Integer numFailures;
 	public Integer numType;
@@ -24,8 +23,8 @@ public class JobletSummary{
 	public Date firstReserved;
 	public boolean expandable = false;
 
-	public JobletSummary(JobletType<?> type, Integer sumItems, Long created){
-		this.type = type;
+	public JobletSummary(String typeString, Integer sumItems, Long created){
+		this.typeString = typeString;
 		this.sumItems = sumItems;
 		if(created != null){
 			this.firstCreated = new Date(created);
@@ -37,7 +36,7 @@ public class JobletSummary{
 		try{
 			this.executionOrder = cols[0]==null?null:Integer.valueOf(cols[0].toString());
 			this.status = cols[1]==null?null:cols[1].toString();
-			this.type = cols[2]==null?null:JobletType.fromPersistentStringStatic(cols[2].toString());
+			this.typeString = cols[2]==null?null: cols[2].toString();
 			this.numFailures = cols[3]==null?null:Integer.valueOf(cols[3].toString());
 			this.numType = cols[4]==null?null:Integer.valueOf(cols[4].toString());
 			this.sumItems = cols[5]==null?null:Integer.valueOf(cols[5].toString());
@@ -76,7 +75,7 @@ public class JobletSummary{
 				+ firstReserved + ", numFailures=" + numFailures
 				+ ", numType=" + numType + ", queueId=" + queueId
 				+ ", status=" + status + ", sumItems=" + sumItems
-				+ ", sumTasks=" + sumTasks + ", type=" + type.getPersistentString() + "]";
+				+ ", sumTasks=" + sumTasks + ", type=" + typeString + "]";
 	}
 
 
@@ -100,8 +99,8 @@ public class JobletSummary{
 		this.status = status;
 	}
 
-	public JobletType getType() {
-		return type;
+	public String getTypeString() {
+		return typeString;
 	}
 
 	public String getQueueId() {

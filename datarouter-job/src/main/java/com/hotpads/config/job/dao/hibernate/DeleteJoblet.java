@@ -3,26 +3,28 @@ package com.hotpads.config.job.dao.hibernate;
 import java.util.Collection;
 
 import org.hibernate.Session;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.hotpads.config.job.databean.Joblet;
+import com.hotpads.config.job.enums.JobletType;
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.imp.hibernate.op.BaseHibernateOp;
 import com.hotpads.datarouter.config.Isolation;
 import com.hotpads.datarouter.op.util.ResultMergeTool;
 import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.job.joblet.JobletNodes;
+import com.hotpads.job.joblet.JobletTypeFactory;
 
 public class DeleteJoblet extends BaseHibernateOp<Joblet>{
-	private static final Logger logger = LoggerFactory.getLogger(DeleteJoblet.class);
 
-	private Joblet  joblet;
-	private JobletNodes jobletNodes;
-	private Boolean rateLimited;
+	private final JobletTypeFactory<?> jobletTypeFactory;
+	private final Joblet  joblet;
+	private final JobletNodes jobletNodes;
+	private final Boolean rateLimited;
 
-	public DeleteJoblet(Datarouter datarouter, Joblet joblet, JobletNodes jobletNodes, Boolean rateLimited) {
+	public DeleteJoblet(Datarouter datarouter, JobletTypeFactory<?> jobletTypeFactory, Joblet joblet,
+			JobletNodes jobletNodes, Boolean rateLimited) {
 		super(datarouter, jobletNodes.joblet().getMaster().getClientNames(), Isolation.repeatableRead, false);
+		this.jobletTypeFactory = jobletTypeFactory;
 		this.joblet = joblet;
 		this.jobletNodes = jobletNodes;
 		this.rateLimited = rateLimited;
@@ -31,7 +33,8 @@ public class DeleteJoblet extends BaseHibernateOp<Joblet>{
 	@Override
 	public Joblet runOncePerClient(Client client){
 		Session session = this.getSession(client.getName());
-		boolean enforceRateLimit = rateLimited && joblet.getType().getRateLimited();
+		JobletType<?> jobletType = jobletTypeFactory.fromJoblet(joblet);
+		boolean enforceRateLimit = rateLimited && jobletType.getRateLimited();
 
 		if(enforceRateLimit){
 		//	if(jobRouter.jobletQueue.get(new JobletQueueKey(joblet.getQueueId()), Configs.SLAVE_OK).getNumTickets() > 0){

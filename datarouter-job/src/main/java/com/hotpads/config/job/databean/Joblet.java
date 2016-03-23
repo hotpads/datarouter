@@ -1,6 +1,7 @@
 package com.hotpads.config.job.databean;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,10 +21,8 @@ import com.hotpads.config.job.enums.JobletStatus;
 import com.hotpads.config.job.enums.JobletType;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
-import com.hotpads.datarouter.serialize.fielder.Fielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
-import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.comparable.BooleanField;
 import com.hotpads.datarouter.storage.field.imp.comparable.IntegerField;
@@ -33,6 +32,7 @@ import com.hotpads.datarouter.util.core.DrDateTool;
 import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.handler.exception.ExceptionRecordKey;
+import com.hotpads.job.joblet.JobletTypeFactory;
 import com.hotpads.util.core.profile.PhaseTimer;
 import com.hotpads.util.core.stream.StreamTool;
 import com.hotpads.util.datastructs.MutableBoolean;
@@ -119,15 +119,12 @@ public class Joblet extends BaseDatabean<JobletKey,Joblet>{
 
 	public static class JobletFielder extends BaseDatabeanFielder<JobletKey, Joblet> {
 		public JobletFielder() {
-		}
-		@Override
-		public Class<? extends Fielder<JobletKey>> getKeyFielderClass() {
-			return JobletKey.class;
+			super(JobletKey.class);
 		}
 
 		@Override
 		public List<Field<?>> getNonKeyFields(Joblet d) {
-			return FieldTool.createList(
+			return Arrays.asList(
 					new StringField(F.queueId, d.queueId, MySqlColumnType.MAX_LENGTH_VARCHAR),
 					new StringEnumField<JobletStatus>(JobletStatus.class, F.status, d.status,
 							MySqlColumnType.MAX_LENGTH_VARCHAR),
@@ -165,22 +162,23 @@ public class Joblet extends BaseDatabean<JobletKey,Joblet>{
 		return new JobletDataKey(this.jobletDataId);
 	}
 
-
-	public static List<JobletSummary> getJobletCountsCreatedByType(Iterable<Joblet> scanner){
+	public static List<JobletSummary> getJobletCountsCreatedByType(JobletTypeFactory<?> jobletTypeFactory,
+			Iterable<Joblet> scanner){
 		List<JobletSummary> summaries = new ArrayList<>();
 		JobletType<?> currentType = null;
 		Long oldestCreatedDate = null;
 		Integer sumItems = 0;
 		boolean atLeastOnecreatedJoblet = false;
 		for(Joblet joblet : scanner){
+			JobletType<?> type = jobletTypeFactory.fromJoblet(joblet);
 			if(joblet.getStatus() == JobletStatus.created){
 				atLeastOnecreatedJoblet = true;
-				if(currentType != null && joblet.getType() != currentType){
-					summaries.add(new JobletSummary(currentType, sumItems, oldestCreatedDate));
+				if(currentType != null && type != currentType){
+					summaries.add(new JobletSummary(currentType.getPersistentString(), sumItems, oldestCreatedDate));
 					oldestCreatedDate = null;
 					sumItems = 0;
 				}
-				currentType = joblet.getType();
+				currentType = jobletTypeFactory.fromJoblet(joblet);
 				sumItems = sumItems + joblet.getNumItems();
 				if(oldestCreatedDate == null || joblet.getKey().getCreated() < oldestCreatedDate){
 					oldestCreatedDate = joblet.getKey().getCreated();
@@ -188,16 +186,16 @@ public class Joblet extends BaseDatabean<JobletKey,Joblet>{
 			}
 		}
         if(atLeastOnecreatedJoblet){
-            summaries.add(new JobletSummary(currentType, sumItems, oldestCreatedDate));
+            summaries.add(new JobletSummary(currentType.getPersistentString(), sumItems, oldestCreatedDate));
         }
 		return summaries;
 	}
 
-	public static ArrayList<Joblet> filterByTypeStatusReservedByPrefix(Iterable<Joblet> ins, JobletType type,
+	public static ArrayList<Joblet> filterByTypeStatusReservedByPrefix(Iterable<Joblet> ins, JobletType<?> type,
 			JobletStatus status, String reservedByPrefix){
 		ArrayList<Joblet> outs = new ArrayList<>();
 		for(Joblet in : DrIterableTool.nullSafe(ins)){
-			if(type != in.getType()){ continue; }
+			if(type.getPersistentString() != in.getTypeString()){ continue; }
 			if(status != in.getStatus()){ continue; }
 			String reservedBy = DrStringTool.nullSafe(in.getReservedBy());
 			if(!reservedBy.startsWith(reservedByPrefix)){ continue; }
@@ -206,12 +204,13 @@ public class Joblet extends BaseDatabean<JobletKey,Joblet>{
 		return outs;
 	}
 
-	public static Joblet getOldestForTypesAndStatuses(Iterable<Joblet> joblets, Collection<JobletType<?>> types,
-			Collection<JobletStatus> statuses){
+	public static Joblet getOldestForTypesAndStatuses(JobletTypeFactory<?> jobletTypeFactory, Iterable<Joblet> joblets,
+			Collection<JobletType<?>> types, Collection<JobletStatus> statuses){
 		Joblet oldest = null;
 		long now = System.currentTimeMillis();
 		for(Joblet joblet : DrIterableTool.nullSafe(joblets)){
-			if(types.contains(joblet.getType()) && statuses.contains(joblet.getStatus())){
+			JobletType<?> jobletType = jobletTypeFactory.fromJoblet(joblet);
+			if(types.contains(jobletType) && statuses.contains(joblet.getStatus())){
 				if(oldest == null){
 					oldest = joblet;
 				}
@@ -315,8 +314,12 @@ public class Joblet extends BaseDatabean<JobletKey,Joblet>{
 	public void setExecutionOrder(Integer executionOrder){
 		this.key.setExecutionOrder(executionOrder);
 	}
-	public JobletType<?> getType() {
-		return JobletType.fromString(key.getType());
+//	public JobletType<?> getType() {
+//		return JobletType.fromString(key.getType());
+//	}
+
+	public String getTypeString(){
+		return key.getType();
 	}
 
 	public void setType(JobletType<?> type) {
