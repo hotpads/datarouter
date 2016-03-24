@@ -21,7 +21,7 @@ public abstract class DispatcherServlet extends HttpServlet implements InjectorR
 	protected DatarouterInjector injector;
 
 	protected List<BaseDispatcher> dispatchers = new ArrayList<>();
-	//...add more dispatchers
+	// ...add more dispatchers
 
 	@Override
 	public void init(){
@@ -33,10 +33,9 @@ public abstract class DispatcherServlet extends HttpServlet implements InjectorR
 	public abstract void registerDispatchers();
 
 	@Override
-	protected void service(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	protected void service(HttpServletRequest request, HttpServletResponse response) throws IOException{
 
 		response.setContentType("text/plain");
-		PrintWriter out = response.getWriter();
 
 		boolean handled = false;
 		for(BaseDispatcher dispatcher : dispatchers){
@@ -46,12 +45,12 @@ public abstract class DispatcherServlet extends HttpServlet implements InjectorR
 			}
 		}
 
+		PrintWriter out = response.getWriter();
 		if(!handled){
 			response.setStatus(404);
 			out.print("path not found");
 		}
 
-		out.flush();
 		out.close();
 	}
 

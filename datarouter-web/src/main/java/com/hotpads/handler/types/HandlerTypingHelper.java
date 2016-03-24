@@ -14,7 +14,7 @@ import com.hotpads.util.core.java.ReflectionTool;
 
 @Singleton
 public class HandlerTypingHelper{
-	
+
 	@Inject
 	private DatarouterInjector injector;
 
@@ -49,7 +49,7 @@ public class HandlerTypingHelper{
 				continue;
 			}
 		}
-		return new Pair<Method, Object[]>(method, args);
+		return new Pair<>(method, args);
 	}
 
 }

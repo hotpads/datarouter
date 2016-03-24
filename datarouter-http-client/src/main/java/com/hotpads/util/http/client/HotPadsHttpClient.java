@@ -20,6 +20,7 @@ import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.entity.ContentType;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
@@ -212,7 +213,7 @@ public class HotPadsHttpClient {
 		}
 	}
 
-	public <T> HotPadsHttpClient addDtoToPayload(HotPadsHttpRequest request, T dto, String dtoType) {
+	public HotPadsHttpClient addDtoToPayload(HotPadsHttpRequest request, Object dto, String dtoType) {
 		String serializedDto = jsonSerializer.serialize(dto);
 		String dtoTypeNullSafe = dtoType;
 		if(dtoType == null) {
@@ -230,4 +231,11 @@ public class HotPadsHttpClient {
 		request.addPostParams(params);
 		return this;
 	}
+
+	public HotPadsHttpClient setEntityDto(HotPadsHttpRequest request, Object dto){
+		String serializedDto = jsonSerializer.serialize(dto);
+		request.setEntity(serializedDto, ContentType.APPLICATION_JSON);
+		return this;
+	}
+
 }
