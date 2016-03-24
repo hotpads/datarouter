@@ -1,6 +1,5 @@
 package com.hotpads.handler;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -58,14 +57,14 @@ public abstract class BaseDispatcher{
 	public boolean handleRequestIfUrlMatch(ServletContext servletContext, HttpServletRequest request,
 			HttpServletResponse response){
 		String uri = request.getRequestURI();
-		if (!uri.startsWith(combinedPrefix)){
+		if(!uri.startsWith(combinedPrefix)){
 			return false;
 		}
 		BaseHandler handler = null;
 		String afterPrefix = uri.substring(servletContextPath.length());
-		for (DispatchRule rule : dispatchRules){
-			if (rule.getPattern().matcher(afterPrefix).matches()){
-				if (!rule.apply(request)){
+		for(DispatchRule rule : dispatchRules){
+			if(rule.getPattern().matcher(afterPrefix).matches()){
+				if(!rule.apply(request)){
 					return false;
 				}
 				handler = injector.getInstance(rule.getHandlerClass());
@@ -73,8 +72,8 @@ public abstract class BaseDispatcher{
 			}
 		}
 
-		if (handler == null){
-			if (defaultHandlerClass == null){
+		if(handler == null){
+			if(defaultHandlerClass == null){
 				return false;// url not found
 			}
 			handler = injector.getInstance(defaultHandlerClass);
@@ -82,11 +81,6 @@ public abstract class BaseDispatcher{
 
 		handler.setRequest(request);
 		handler.setResponse(response);
-		try{
-			handler.setOut(response.getWriter());
-		}catch (IOException e){
-			throw new RuntimeException(e);
-		}
 		handler.setServletContext(servletContext);
 		handler.setParams(new Params(request, response));
 		handler.handleWrapper();
@@ -111,16 +105,14 @@ public abstract class BaseDispatcher{
 			Assert.assertFalse(prefixPattern.matcher("/asae" + prefix + "/qef/adfaf").matches());
 			Assert.assertFalse(prefixPattern.matcher("/asae/" + prefix + "/qef/adfaf").matches());
 
-
 			Pattern suffixPattern = Pattern.compile(MATCHING_ANY + suffix);
 			Assert.assertTrue(suffixPattern.matcher("fjalfdja" + suffix).matches());
 			Assert.assertTrue(suffixPattern.matcher("/fjalfdja" + suffix).matches());
 			Assert.assertTrue(suffixPattern.matcher("/fjalfdja/" + suffix).matches());
 			Assert.assertTrue(suffixPattern.matcher("/fjal/fdja" + suffix).matches());
 
-			Assert.assertFalse(suffixPattern.matcher(suffix +"adfa").matches());
-			Assert.assertFalse(suffixPattern.matcher("fjalfdja"+ suffix +"adfa").matches());
-
+			Assert.assertFalse(suffixPattern.matcher(suffix + "adfa").matches());
+			Assert.assertFalse(suffixPattern.matcher("fjalfdja" + suffix + "adfa").matches());
 
 			Pattern oneDirectoryPattern = Pattern.compile(REGEX_ONE_DIRECTORY);
 			Assert.assertTrue(oneDirectoryPattern.matcher("").matches());
