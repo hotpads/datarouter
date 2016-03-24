@@ -9,22 +9,22 @@ public class DrNumberTool {
 
 	/************************* is this or that methods ************************/
 
-	public static boolean isEmpty(Number n){
-		return isNullOrZero(n);
+	public static boolean isEmpty(Number number){
+		return isNullOrZero(number);
 	}
 
-	public static boolean notEmpty(Number n){
-		return !isEmpty(n);
+	public static boolean notEmpty(Number number){
+		return !isEmpty(number);
 	}
 
-	public static boolean isNullOrZero(Number n){
+	public static boolean isNullOrZero(Number number){
 		//careful, this method is fragile and not even sure if works with BigInteger stuff now
-		return n==null || n.equals(0L) || n.equals(0F) || n.equals(0D) || n.intValue()==0;
+		return number==null || number.equals(0L) || number.equals(0F) || number.equals(0D) || number.intValue()==0;
 	}
 
-	public static boolean isMax(Long v){
-		if(v==null){ return false; }
-		return v==Long.MAX_VALUE;
+	public static boolean isMax(Long number){
+		if(number==null){ return false; }
+		return number==Long.MAX_VALUE;
 	}
 
 	public static Long max(Long n1, Long n2){
