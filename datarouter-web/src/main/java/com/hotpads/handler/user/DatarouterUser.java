@@ -39,7 +39,7 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey, DatarouterUs
 
 	private Date created;
 	private Date lastLoggedIn;
-	
+
 	private Boolean apiEnabled;
 	private String apiKey;
 	private String secretKey;
@@ -66,7 +66,7 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey, DatarouterUs
 		@Override
 		public Class<DatarouterUserKey> getKeyFielderClass() {
 			return DatarouterUserKey.class;
-		} 
+		}
 		@Override
 		public List<Field<?>> getNonKeyFields(DatarouterUser d) {
 			return FieldTool.createList(
@@ -91,7 +91,7 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey, DatarouterUs
 			indexesByName.put("index_secretKey", new DatarouterUserBySecretKeyLookup(null).getFields());
 			return indexesByName;
 		}
-		
+
 	}
 
 	/******************  constructors **************************/
@@ -103,7 +103,7 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey, DatarouterUs
 	public DatarouterUser(Long id){
 		this.key = new DatarouterUserKey(id);
 	}
-	
+
 	public static DatarouterUser create(Long id, String userToken, String email, String passwordSalt,
 			String passwordDigest, Collection<DatarouterUserRole> roles, String apiKey, String secretKey){
 		DatarouterUser user = new DatarouterUser();
@@ -112,13 +112,13 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey, DatarouterUs
 		user.setCreated(now);
 		user.setLastLoggedIn(null);
 		user.setEnabled(true);
-		
+
 		user.setUserToken(userToken);
 		user.setUsername(email);
 		user.setPasswordSalt(passwordSalt);
 		user.setPasswordDigest(passwordDigest);
 		user.setRoles(roles);
-		
+
 		user.setApiEnabled(true);
 		user.setApiKey(apiKey);
 		user.setSecretKey(secretKey);
@@ -150,7 +150,7 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey, DatarouterUs
 				new StringField(F.username, id, MySqlColumnType.MAX_LENGTH_VARCHAR));
 		}
 	}
-	
+
 	public static class DatarouterUserByApiKeyLookup extends BaseStringUniqueKey<DatarouterUserKey>{
 		public DatarouterUserByApiKeyLookup(String apiKey){
 			super(apiKey);
@@ -172,7 +172,7 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey, DatarouterUs
 				new StringField(F.userToken, id, MySqlColumnType.MAX_LENGTH_VARCHAR));
 		}
 	}
-						
+
 	public static class DatarouterUserBySecretKeyLookup extends BaseStringUniqueKey<DatarouterUserKey>{
 		public DatarouterUserBySecretKeyLookup(String secretKey){
 			super(secretKey);
@@ -183,13 +183,13 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey, DatarouterUs
 				new StringField(F.secretKey, id, MySqlColumnType.MAX_LENGTH_VARCHAR));
 		}
 	}
-	
+
 	/***************** methods *****************/
-	
+
 	public List<DatarouterUserRole> getRoles(){
 		return DatarouterEnumTool.fromPersistentStrings(DatarouterUserRole.user, roles);
 	}
-	
+
 	public void setRoles(Collection<DatarouterUserRole> roleEnums) {
 		roles = DatarouterEnumTool.getPersistentStrings(roleEnums);
 		Collections.sort(roles);
@@ -280,7 +280,7 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey, DatarouterUs
 	public void setApiKey(String apiKey) {
 		this.apiKey = apiKey;
 	}
-	
+
 	public String getSecretKey() {
 		return secretKey;
 	}

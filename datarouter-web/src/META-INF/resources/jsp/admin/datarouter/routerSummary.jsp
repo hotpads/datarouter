@@ -1,15 +1,7 @@
-<%@ include file="/WEB-INF/prelude.jspf"%>
 <%@ include file="../../generic/prelude-datarouter.jspf"%><html>
 <head>
-<title>Datarouter</title>
-<%@ include file="/jsp/generic/head.jsp" %>
-<script type="text/javascript" data-main="${contextPath}/js/core-common" src="${contextPath}/js/require-jquery.js"></script>
-<script type="text/javascript">
-	require([
-            "plugin/sorttable", "bootstrap/bootstrap"
-    ], function($) {});
-</script>
-<%@ include file="/jsp/css/css-import.jspf" %>
+	<title>Datarouter</title>
+	<%@ include file="/jsp/generic/datarouterHead.jsp" %>
 </head>
 <body>
 	<%@ include file="/jsp/menu/common-navbar.jsp" %>

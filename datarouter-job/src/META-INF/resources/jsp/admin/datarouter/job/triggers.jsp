@@ -1,21 +1,16 @@
 <%@page import="com.hotpads.util.core.web.HTMLSelectOptionBean"%>
 <%@ include file="/WEB-INF/prelude.jspf"%>
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>Job Triggers | Job | HotPads</title>
-<%@ include file="/jsp/css/css-import.jspf" %>
-<link rel="stylesheet" href="${pageContext.request.contextPath}/css/job.css" />
-<script type="text/javascript" data-main="${contextPath}/js/core-common" src="${contextPath}/js/require-jquery.js"></script>
-<script>require(["bootstrap/bootstrap"]);</script>
-<script type="text/javascript">
-	function confirmRunJob(jobName, shouldRun, serverName) {
-		var displayText = "shouldRun is " + shouldRun +  ". Are you sure you want to run "+jobName+" on "+serverName+"?";
-		return confirm(displayText);
-	}
-</script>
+	<title>Job Triggers | Job | HotPads</title>
+	<%@ include file="/jsp/generic/datarouterHead.jsp" %>
+	<script type="text/javascript">
+		function confirmRunJob(jobName, shouldRun, serverName) {
+			var displayText = "shouldRun is " + shouldRun +  ". Are you sure you want to run "+jobName+" on "+serverName+"?";
+			return confirm(displayText);
+		}
+	</script>
 </head>
 <body>
 	<%@ include file="/jsp/menu/common-navbar.jsp"%>

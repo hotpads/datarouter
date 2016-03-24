@@ -1,20 +1,9 @@
 <%@ include file="/WEB-INF/prelude.jspf" %>
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"%>
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE html>
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>Currently Running LongRunningTasks</title>
-<%@ include file="/jsp/css/css-import.jspf" %>
-<%@ include file="/jsp/generic/head.jsp" %>
-<script type="text/javascript" data-main="${contextPath}/js/core-common" src="${contextPath}/js/require-jquery.js"></script>
-<script type="text/javascript">
- 		require([
-               "bootstrap/bootstrap", "plugin/sorttable"
-         ], function($) {});
-</script>
-<link rel="stylesheet" href="${contextPath}/css/job.css"/>
+	<title>Currently Running LongRunningTasks</title>
+	<%@ include file="/jsp/generic/datarouterHead.jsp" %>
 </head>
 <body>
 	<%@ include file="/jsp/menu/common-navbar.jsp"%>
