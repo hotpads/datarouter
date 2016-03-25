@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.batch.config;
+package com.hotpads.datarouter.config;
 
 import javax.inject.Inject;
 
