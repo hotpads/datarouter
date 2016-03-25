@@ -17,14 +17,14 @@ public class ExecutorsMonitoringHandler extends BaseHandler{
 
 	@Inject
 	private DatarouterInjector injector;
-	
+
 	@Override
-	protected Mav handleDefault() throws Exception{
+	protected Mav handleDefault(){
 		Mav mav = new Mav("/jsp/admin/datarouter/executorsMonitoring/executors.jsp");
 		mav.put("executors", getExecutors());
 		return mav;
 	}
-	
+
 	@Handler(encoder = JsonEncoder.class)
 	public Collection<TextExecutor> getExecutors(){
 		Collection<ExecutorService> executors = injector.getInstancesOfType(ExecutorService.class);
@@ -38,7 +38,7 @@ public class ExecutorsMonitoringHandler extends BaseHandler{
 	}
 
 	public static class TextExecutor{
-		
+
 		private int poolSize;
 		private int activeCount;
 		private int maxPoolSize;
@@ -46,7 +46,7 @@ public class ExecutorsMonitoringHandler extends BaseHandler{
 		private String name;
 		private int remainingQueueCapacity;
 		private long completedTaskCount;
-		
+
 		public TextExecutor(ThreadPoolExecutor executor){
 			this.poolSize = executor.getPoolSize();
 			this.activeCount = executor.getActiveCount();
@@ -55,7 +55,7 @@ public class ExecutorsMonitoringHandler extends BaseHandler{
 			this.remainingQueueCapacity = executor.getQueue().remainingCapacity();
 			this.completedTaskCount = executor.getCompletedTaskCount();
 			if(executor.getThreadFactory() instanceof NamedThreadFactory){
-				this.name = ((NamedThreadFactory) executor.getThreadFactory()).getGroupName();
+				this.name = ((NamedThreadFactory)executor.getThreadFactory()).getGroupName();
 			}
 		}
 
@@ -78,15 +78,15 @@ public class ExecutorsMonitoringHandler extends BaseHandler{
 		public String getName(){
 			return name;
 		}
-		
+
 		public int getRemainingQueueCapacity(){
 			return remainingQueueCapacity;
 		}
-		
+
 		public long getCompletedTaskCount(){
 			return completedTaskCount;
 		}
-	
+
 	}
-	
+
 }
