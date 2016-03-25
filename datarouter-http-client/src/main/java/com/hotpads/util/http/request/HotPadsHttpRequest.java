@@ -202,7 +202,7 @@ public class HotPadsHttpRequest {
 
 	public HotPadsHttpRequest setContentType(ContentType contentType) {
 		if (contentType != null) {
-			headers.put(CONTENT_TYPE, contentType.toString());
+			headers.put(CONTENT_TYPE, contentType.getMimeType());
 		}
 		return this;
 	}
