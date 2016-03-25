@@ -66,6 +66,7 @@ public abstract class BaseHandler{
 
 	protected static final String DEFAULT_HANDLER_METHOD_NAME = "handleDefault";
 
+	@SuppressWarnings("unused") // throws Exception for subclasses
 	@Handler
 	protected Object handleDefault() throws Exception{
 		return new MessageMav("no default handler method found, please specify " + handlerMethodParamName());
