@@ -506,12 +506,8 @@ public class RequestTool {
 	public static String partiallyTryGetBodyAsString(ServletRequest request){
 		try{
 			return getBodyAsString(request);
-		}catch(RuntimeException e){
-			Throwable cause = e.getCause();
-			if(cause instanceof IllegalStateException){
-				return INACCESSIBLE_BODY + cause.getMessage();
-			}
-			throw e;
+		}catch(IllegalStateException e){
+			return INACCESSIBLE_BODY + e.getMessage();
 		}
 	}
 
