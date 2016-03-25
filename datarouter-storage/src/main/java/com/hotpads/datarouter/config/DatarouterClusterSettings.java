@@ -4,6 +4,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import com.hotpads.datarouter.batch.config.BatchSizeOptimizerSettings;
+import com.hotpads.datarouter.batch.config.NodeWatchSettings;
 import com.hotpads.datarouter.client.availability.ClientAvailabilityClusterSettings;
 import com.hotpads.datarouter.profile.ProfilingSettings;
 import com.hotpads.datarouter.setting.SettingFinder;
@@ -22,12 +23,13 @@ public class DatarouterClusterSettings extends SettingNode implements Datarouter
 	@Inject
 	public DatarouterClusterSettings(SettingFinder finder, DatarouterNotificationSettings notificationSettings,
 			ProfilingSettings profilingSettings, BatchSizeOptimizerSettings batchSizeOptimizerSettings,
-			ClientAvailabilityClusterSettings clientAvailabilitySettings){
+			NodeWatchSettings nodeWatchSettings, ClientAvailabilityClusterSettings clientAvailabilitySettings){
 		super(finder, "datarouter.", "");
 		registerChild(notificationSettings);
 		registerChild(profilingSettings);
 		registerChild(batchSizeOptimizerSettings);
 		registerChild(clientAvailabilitySettings);
+		registerChild(nodeWatchSettings);
 
 		loggingConfigUpdaterEnabled = registerBoolean("loggingConfigUpdaterEnabled", true);
 		recordCallsites = registerBoolean("recordCallsites", false);
