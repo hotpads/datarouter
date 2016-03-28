@@ -2,6 +2,7 @@ package com.hotpads.joblet;
 
 import java.util.EnumSet;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -11,12 +12,11 @@ import org.testng.annotations.Test;
 
 import com.hotpads.datarouter.config.Configs;
 import com.hotpads.joblet.databean.Joblet;
-import com.hotpads.util.core.DateTool;
 
 @Singleton
 public class JobletScaler {
 
-	private static final long BACKUP_PERIOD_MS = 5 * DateTool.MILLISECONDS_IN_MINUTE;
+	private static final long BACKUP_PERIOD_MS = TimeUnit.MINUTES.toMillis(5);
 
 	private static final int NUM_EXTRA_SERVERS_PER_BACKUP_PERIOD = 2;
 
@@ -80,8 +80,8 @@ public class JobletScaler {
 			int maxServers = 11;
 			Assert.assertEquals(3, getNumServersForQueueAge(minServers, maxServers, 0));
 			Assert.assertEquals(3, getNumServersForQueueAge(minServers, maxServers, 3000));
-			Assert.assertEquals(5, getNumServersForQueueAge(minServers, maxServers, 6 * DateTool.MILLISECONDS_IN_MINUTE));
-			Assert.assertEquals(11, getNumServersForQueueAge(minServers, maxServers, 2 * DateTool.MILLISECONDS_IN_HOUR));
+			Assert.assertEquals(5, getNumServersForQueueAge(minServers, maxServers, TimeUnit.MINUTES.toMillis(6)));
+			Assert.assertEquals(11, getNumServersForQueueAge(minServers, maxServers, TimeUnit.HOURS.toMillis(2)));
 		}
 	}
 
