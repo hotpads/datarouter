@@ -75,6 +75,12 @@
 	</build>
 	
 	<dependencies>
+		<!-- temporary for joblet hibernate ops -->
+		<dependency>
+			<groupId>com.hotpads</groupId>
+			<artifactId>datarouter-hibernate</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
 		<!-- internal -->
 		<dependency>
 			<groupId>com.hotpads</groupId>
