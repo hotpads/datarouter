@@ -1,4 +1,4 @@
-package com.hotpads.analytics.profiling;
+package com.hotpads.joblet.profiling;
 
 import java.util.Deque;
 import java.util.Queue;
@@ -9,24 +9,24 @@ import com.hotpads.util.core.profile.PhaseTimer;
 public abstract class StratifiedStatistics implements Statistics{
 
 	protected final int NUMBER_OF_STRATA;
-	
+
 	protected TimerGroup currentStratum;
-	
+
 	protected Deque<TimerGroup> stratifiedEvents;
 	protected Deque<String> stratumNames;
 
 	public StratifiedStatistics(int numStrata) {
 		this.NUMBER_OF_STRATA = numStrata;
 	}
-	
+
 	public Queue<String> getStratumNames() {
 		return stratumNames;
 	}
-	
+
 	public Queue<TimerGroup> getStratifiedEvents() {
 		return stratifiedEvents;
 	}
-	
+
 	@Override
 	public long getAverageExecutionTimeMillis() {
 		if(getNumEvents() == 0){
@@ -34,7 +34,7 @@ public abstract class StratifiedStatistics implements Statistics{
 		}
 		return getExecutionTimeSum() / getNumEvents();
 	}
-	
+
 	@Override
 	public long getExecutionTimeSum() {
 		long sum = 0;
@@ -43,7 +43,7 @@ public abstract class StratifiedStatistics implements Statistics{
 		}
 		return sum;
 	}
-	
+
 	@Override
 	public int getNumEvents() {
 		int numEvents = 0;
@@ -52,7 +52,7 @@ public abstract class StratifiedStatistics implements Statistics{
 		}
 		return numEvents;
 	}
-	
+
 	@Override
 	public void logEvent(PhaseTimer timer) {
 		createNewStrataIfNeeded(timer);
@@ -60,5 +60,5 @@ public abstract class StratifiedStatistics implements Statistics{
 	}
 
 	protected abstract void createNewStrataIfNeeded(PhaseTimer timer);
-	
+
 }
