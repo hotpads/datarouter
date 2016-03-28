@@ -1,7 +1,6 @@
 package com.hotpads.joblet;
 
 import java.util.Collection;
-import java.util.Date;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -10,11 +9,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.routing.Datarouter;
+import com.hotpads.datarouter.util.core.DrDateTool;
 import com.hotpads.job.trigger.JobSettings;
 import com.hotpads.joblet.JobletExecutorThreadPool.JobletExecutorThreadPoolFactory;
 import com.hotpads.joblet.databean.Joblet;
 import com.hotpads.joblet.databean.JobletData;
-import com.hotpads.util.core.DateTool;
 import com.hotpads.util.core.profile.PhaseTimer;
 import com.hotpads.util.datastructs.MutableBoolean;
 
@@ -160,8 +159,8 @@ public class ParallelJobletProcessor{
 	}
 
 	private String getReservedByString(int counter){
-		return datarouter.getServerName() + "_" + DateTool.getYYYYMMDDHHMMSSMMMWithPunctuationNoSpaces(
-				new Date()) + "_" + Thread.currentThread().getId() + "_" + counter;
+		return datarouter.getServerName() + "_" + DrDateTool.getYYYYMMDDHHMMSSMMMWithPunctuationNoSpaces(
+				System.currentTimeMillis()) + "_" + Thread.currentThread().getId() + "_" + counter;
 	}
 
 	public JobletScheduler getJobletScheduler(){
