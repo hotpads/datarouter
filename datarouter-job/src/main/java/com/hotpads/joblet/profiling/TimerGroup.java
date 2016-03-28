@@ -4,7 +4,6 @@ import com.hotpads.util.core.profile.PhaseTimer;
 
 public class TimerGroup implements Statistics{
 
-
 	//private final StratifiedStatistics stratifiedStatistics;
 
 	//private List<PhaseTimer> timers;

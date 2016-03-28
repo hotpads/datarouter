@@ -8,7 +8,7 @@ import com.hotpads.util.core.profile.PhaseTimer;
 
 public abstract class StratifiedStatistics implements Statistics{
 
-	protected final int NUMBER_OF_STRATA;
+	protected final int numStrata;
 
 	protected TimerGroup currentStratum;
 
@@ -16,7 +16,7 @@ public abstract class StratifiedStatistics implements Statistics{
 	protected Deque<String> stratumNames;
 
 	public StratifiedStatistics(int numStrata) {
-		this.NUMBER_OF_STRATA = numStrata;
+		this.numStrata = numStrata;
 	}
 
 	public Queue<String> getStratumNames() {

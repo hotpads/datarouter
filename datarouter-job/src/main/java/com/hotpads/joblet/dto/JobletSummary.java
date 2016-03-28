@@ -58,12 +58,16 @@ public class JobletSummary{
 	}
 
 	public String getFirstCreatedAgo(){
-		if(this.firstCreated==null){ return ""; }
+		if(this.firstCreated == null) {
+			return "";
+		}
 		return DrDateTool.getAgoString(this.firstCreated);
 	}
 
 	public String getFirstReservedAgo(){
-		if(this.firstReserved==null){ return ""; }
+		if(this.firstReserved == null) {
+			return "";
+		}
 		return DrDateTool.getAgoString(this.firstReserved);
 	}
 
@@ -80,8 +84,6 @@ public class JobletSummary{
 
 
 	/****************************** get/set **********************************/
-
-
 
 	public Integer getExecutionOrder() {
 		return executionOrder;

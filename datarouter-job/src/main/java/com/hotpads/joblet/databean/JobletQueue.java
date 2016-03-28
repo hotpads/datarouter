@@ -70,8 +70,8 @@ public class JobletQueue extends BaseDatabean<JobletQueueKey,JobletQueue>{
     	}
 
     	@Override
-    	public int compare(JobletQueue a, JobletQueue b) {
-    		int compare = DrComparableTool.nullFirstCompareTo(a.getNumTickets(), b.getNumTickets());
+    	public int compare(JobletQueue left, JobletQueue right) {
+    		int compare = DrComparableTool.nullFirstCompareTo(left.getNumTickets(), right.getNumTickets());
     		if(ascending){
     			return compare;
     		}

@@ -30,9 +30,9 @@ public class RestartJoblets extends BaseHibernateOp<Integer>{
 	public Integer runOncePerClient(Client client){
 		String sql;
 		if(currentStatus.getPersistentString().equals(JobletStatus.timedOut.getPersistentString())){
-			sql = "update Joblet set status=:status, numFailures=0 where status=:currentStatus and type != 'FeedImport'";
-		}
-		else{
+			sql = "update Joblet set status=:status, numFailures=0"
+					+ " where status=:currentStatus and type != 'FeedImport'";
+		}else{
 			sql = "update Joblet set status=:status, numFailures=0 where status=:currentStatus";
 		}
 

@@ -10,9 +10,9 @@ import com.hotpads.util.core.number.RandomTool;
 
 @SuppressWarnings("serial")
 public class JobletDataKey extends BasePrimaryKey<JobletDataKey>{
-	
+
 	private Long id;
-	
+
 	public static class F{
 		public static final String
 			id = "id";
@@ -23,21 +23,21 @@ public class JobletDataKey extends BasePrimaryKey<JobletDataKey>{
 		return FieldTool.createList(
 				new UInt63Field(F.id, id));
 	}
-	
-	
+
+
 	/******************** construct *************************/
-	
+
 	public JobletDataKey(Long id){
 		this.id = id;
 	}
-	
+
 	public JobletDataKey(){
 		this(RandomTool.nextPositiveLong());
 	}
-	
-	
+
+
 	/******************* get/set *******************************/
-	
+
 	public Long getId(){
 		return id;
 	}

@@ -11,29 +11,29 @@ public enum JobletStatus implements StringEnum<JobletStatus>{
 	complete("complete",false),
 	failed("failed",false),
 	timedOut("timedOut",false);
-	
+
 	private String varName;
 	private boolean isRunning=false;
-	
+
 	private JobletStatus(String varName, boolean isRunning){
 		this.isRunning = isRunning;
 		this.varName = varName;
 	}
-	
+
 	@Override
 	public String getPersistentString(){
 		return varName;
 	}
-	
+
 	public static JobletStatus fromPersistentStringStatic(String s){
 		return DatarouterEnumTool.getEnumFromString(values(), s, null);
 	}
-	
+
 	@Override
 	public JobletStatus fromPersistentString(String s) {
 		return fromPersistentStringStatic(s);
 	}
-	
+
 	public boolean isRunning(){
 		return isRunning;
 	}

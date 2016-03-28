@@ -109,21 +109,27 @@ public class GetJobletForProcessing extends BaseHibernateOp<Joblet>{
 			+ typeClause
 			+ readyClause
 //			+ orderByClause //already ordered by PK, explicit ordering will trigger a filesort (bad)
-			+ " limit 1 for update";//apparently can't use a limit clause on a multi-table update statement, so do select first
+			//apparently can't use a limit clause on a multi-table update statement, so do select first
+			+ " limit 1 for update";
 
 		SQLQuery reserveQuery = session.createSQLQuery(reserveSql);
 		reserveQuery.addEntity("j", Joblet.class);
 		if(rateLimit){
-			reserveQuery.addEntity("q", JobletQueue.class);//don't need the data in this one, but need to aquire the "for update" lock
+			//don't need the data in this one, but need to aquire the "for update" lock
+			reserveQuery.addEntity("q", JobletQueue.class);
 		}
 		Joblet joblet;
-		if(rateLimit){//will return a list of rows, where each row is an Object[], and each array element is an entity
+		if(rateLimit) {// will return a list of rows, where each row is an Object[], and each array element is an entity
 			Object[] row = (Object[])DrCollectionTool.getFirst(reserveQuery.list());
-			if(row==null){ return null; }
+			if(row == null) {
+				return null;
+			}
 			joblet = (Joblet)row[0];
 		}else{
 			joblet = (Joblet)DrCollectionTool.getFirst(reserveQuery.list());
-			if(joblet==null){ return null; }
+			if(joblet == null) {
+				return null;
+			}
 		}
 
 		//update the joblet
@@ -159,18 +165,10 @@ public class GetJobletForProcessing extends BaseHibernateOp<Joblet>{
 	}
 
 	protected Long getReservedBeforeMs(){
-		if(reservationTimeout==null){ return null; }
+		if(reservationTimeout == null) {
+			return null;
+		}
 		return System.currentTimeMillis() - reservationTimeout;
 	}
+
 }
-
-
-
-
-
-
-
-
-
-
-

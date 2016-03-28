@@ -36,11 +36,8 @@ public class DeleteJoblet extends BaseHibernateOp<Joblet>{
 		JobletType<?> jobletType = jobletTypeFactory.fromJoblet(joblet);
 		boolean enforceRateLimit = rateLimited && jobletType.getRateLimited();
 
-		if(enforceRateLimit){
-		//	if(jobRouter.jobletQueue.get(new JobletQueueKey(joblet.getQueueId()), Configs.SLAVE_OK).getNumTickets() > 0){
-				GetJobletForProcessing.updateQueueTickets(session, joblet.getQueueId(), -1,
-						getLogger());
-			//}
+		if(enforceRateLimit) {
+			GetJobletForProcessing.updateQueueTickets(session, joblet.getQueueId(), -1, getLogger());
 		}
 
 		jobletNodes.joblet().delete(joblet.getKey(), null);
