@@ -8,22 +8,15 @@ import javax.inject.Singleton;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.testng.Assert;
-import org.testng.annotations.Guice;
-import org.testng.annotations.Test;
 
 import com.google.inject.Injector;
-import com.hotpads.analytics.profiling.FixedTimeSpanStatistics;
-import com.hotpads.analytics.profiling.StratifiedStatistics;
-import com.hotpads.config.guice.ServicesInjectorProvider.ServicesModuleFactory;
-import com.hotpads.config.job.enums.HotPadsJobletType;
-import com.hotpads.exception.JobInterruptedException;
-import com.hotpads.job.JobRouter;
-import com.hotpads.joblet.JobletExecutorThreadPool.JobletExecutorThreadPoolFactory;
+import com.hotpads.datarouter.util.core.DrNumberFormatter;
+import com.hotpads.datarouter.util.core.DrStringTool;
+import com.hotpads.job.JobInterruptedException;
 import com.hotpads.joblet.databean.Joblet;
 import com.hotpads.joblet.databean.JobletData;
-import com.hotpads.util.core.NumberFormatter;
-import com.hotpads.util.core.StringTool;
+import com.hotpads.joblet.profiling.FixedTimeSpanStatistics;
+import com.hotpads.joblet.profiling.StratifiedStatistics;
 import com.hotpads.util.core.profile.PhaseTimer;
 
 public class JobletExecutorThread extends Thread{
@@ -38,7 +31,7 @@ public class JobletExecutorThread extends Thread{
 		@Inject
 		private JobletThrottle jobletThrottle;
 		@Inject
-		private JobRouter jobRouter;
+		private JobletNodes jobletNodes;
 		@Inject
 		private JobletSettings jobletSettings;
 		@Inject
@@ -46,7 +39,7 @@ public class JobletExecutorThread extends Thread{
 
 		public JobletExecutorThread create(JobletExecutorThreadPool jobletExecutorThreadPool, ThreadGroup threadGroup){
 			return new JobletExecutorThread(jobletExecutorThreadPool, threadGroup, injector, jobletTypeFactory,
-					jobletThrottle, jobRouter, jobletSettings, jobletService);
+					jobletThrottle, jobletNodes, jobletSettings, jobletService);
 		}
 	}
 
@@ -187,7 +180,7 @@ public class JobletExecutorThread extends Thread{
 		return process;
 	}
 
-	private JobletProcess createUninitializedJobletProcessFromJoblet(JobletPackage jobletPackage){
+	JobletProcess createUninitializedJobletProcessFromJoblet(JobletPackage jobletPackage){
 		JobletType<?> jobletType = jobletTypeFactory.fromJobletPackage(jobletPackage);
 		Joblet joblet = jobletPackage.getJoblet();
 		Class<? extends JobletProcess> cls = jobletType.getAssociatedClass();
@@ -213,18 +206,18 @@ public class JobletExecutorThread extends Thread{
 		long endTimeMs = System.currentTimeMillis();
 		long durationMs = endTimeMs - startTimeMs;
 //			int numItems = ;
-		String itemsPerSecond = NumberFormatter.format((double)joblet.getNumItems() / ((double)durationMs
+		String itemsPerSecond = DrNumberFormatter.format((double)joblet.getNumItems() / ((double)durationMs
 				/ (double)1000), 1);
-		String tasksPerSecond = NumberFormatter.format((double)joblet.getNumTasks() / ((double)durationMs
+		String tasksPerSecond = DrNumberFormatter.format((double)joblet.getNumTasks() / ((double)durationMs
 				/ (double)1000), 1);
 		String typeAndQueue = jobletType.getPersistentString();
-		if(StringTool.notEmpty(joblet.getQueueId())){
+		if(DrStringTool.notEmpty(joblet.getQueueId())){
 			typeAndQueue += " " + joblet.getQueueId();
 		}
 		logger.info("Finished " + typeAndQueue
 				+ " with " + joblet.getNumItems() + " items"
 				+ " and " + joblet.getNumTasks() + " tasks"
-				+ " in " + NumberFormatter.addCommas(durationMs)+"ms"
+				+ " in " + DrNumberFormatter.addCommas(durationMs)+"ms"
 				+ " at "+itemsPerSecond+" items/sec"
 				+ " and "+tasksPerSecond+" tasks/sec"
 				+ " after waiting " + semaphoreWaitTime+"ms");
@@ -316,31 +309,6 @@ public class JobletExecutorThread extends Thread{
 		}finally{
 			jobletExecutorThreadPool.jobAssignmentLock.unlock();
 		}
-	}
-
-	@Guice(moduleFactory=ServicesModuleFactory.class)
-	public static class JobletExecutorThreadIntegrationTests{
-		@Inject
-		private JobletExecutorThreadFactory jobletExecutorThreadFactory;
-		@Inject
-		private JobletExecutorThreadPoolFactory jobletExecutorThreadPoolFactory;
-		@Inject
-		private JobletTypeFactory jobletTypeFactory;
-
-		@Test
-		public void testJobletConstructors(){
-			HotPadsJobletType testJobletType = HotPadsJobletType.AreaBorderRendering;
-			ThreadGroup testThreadGroup = new ThreadGroup(testJobletType.getPersistentString());
-			JobletExecutorThreadPool pool = jobletExecutorThreadPoolFactory.create(0, testJobletType);
-			JobletExecutorThread thread = jobletExecutorThreadFactory.create(pool, testThreadGroup);
-			for(HotPadsJobletType jobletType : HotPadsJobletType.values()){
-				Joblet joblet = new Joblet(jobletType, 0, 0, false);
-				JobletPackage jobletPackage = new JobletPackage(joblet, null);
-				JobletProcess jobletProcess = thread.createUninitializedJobletProcessFromJoblet(jobletPackage);
-				Assert.assertEquals(jobletType, jobletTypeFactory.fromJobletProcess(jobletProcess));
-			}
-		}
-
 	}
 
 }
