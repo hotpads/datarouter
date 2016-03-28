@@ -3,15 +3,16 @@ package com.hotpads.joblet;
 import javax.inject.Inject;
 
 import org.testng.Assert;
-import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
 import com.hotpads.joblet.JobletExecutorThread.JobletExecutorThreadFactory;
 import com.hotpads.joblet.JobletExecutorThreadPool.JobletExecutorThreadPoolFactory;
 import com.hotpads.joblet.databean.Joblet;
 
-@Guice(moduleFactory=ServicesModuleFactory.class)
-public class JobletExecutorThreadIntegrationTests{
+/**
+ * Extend and bind your own JobletTypeFactory
+ */
+public abstract class BaseJobletConstructorIntegrationTests{
 	@Inject
 	private JobletExecutorThreadFactory jobletExecutorThreadFactory;
 	@Inject
@@ -21,11 +22,11 @@ public class JobletExecutorThreadIntegrationTests{
 
 	@Test
 	public void testJobletConstructors(){
-		HotPadsJobletType testJobletType = HotPadsJobletType.AreaBorderRendering;
+		JobletType<?> testJobletType = jobletTypeFactory.getSampleType();
 		ThreadGroup testThreadGroup = new ThreadGroup(testJobletType.getPersistentString());
 		JobletExecutorThreadPool pool = jobletExecutorThreadPoolFactory.create(0, testJobletType);
 		JobletExecutorThread thread = jobletExecutorThreadFactory.create(pool, testThreadGroup);
-		for(HotPadsJobletType jobletType : HotPadsJobletType.values()){
+		for(JobletType<?> jobletType : jobletTypeFactory.getAllTypes()){
 			Joblet joblet = new Joblet(jobletType, 0, 0, false);
 			JobletPackage jobletPackage = new JobletPackage(joblet, null);
 			JobletProcess jobletProcess = thread.createUninitializedJobletProcessFromJoblet(jobletPackage);

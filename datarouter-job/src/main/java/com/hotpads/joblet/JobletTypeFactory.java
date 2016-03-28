@@ -1,6 +1,7 @@
 package com.hotpads.joblet;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -10,11 +11,13 @@ import com.hotpads.joblet.databean.JobletKey;
 
 public class JobletTypeFactory{
 
-	private final JobletType<? extends JobletType<?>> sampleJobletType;
+	private final List<JobletType<?>> allTypes;
+	private final JobletType<? extends JobletType<?>> sampleType;
 	private final Set<JobletType<?>> typesCausingScaling;
 
 	public JobletTypeFactory(JobletType<? extends JobletType<?>>[] types){
-		this.sampleJobletType = DrArrayTool.getFirst(types);
+		this.allTypes = Arrays.asList(types);
+		this.sampleType = DrArrayTool.getFirst(types);
 		this.typesCausingScaling = Arrays.stream(types)
 				.filter(JobletType::causesScaling)
 				.collect(Collectors.toSet());
@@ -22,9 +25,20 @@ public class JobletTypeFactory{
 
 	/*------------------ methods ---------------------*/
 
+	public List<JobletType<?>> getAllTypes(){
+		return allTypes;
+	}
+
+	public JobletType<?> getSampleType(){
+		return sampleType;
+	}
+
 	public Set<JobletType<?>> getTypesCausingScaling(){
 		return typesCausingScaling;
 	}
+
+
+	/*--------------------- parse persistent string ----------------*/
 
 	public JobletType<?> fromJobletProcess(JobletProcess jobletProcess){
 		return jobletProcess == null ? null : fromJoblet(jobletProcess.getJoblet());
@@ -43,6 +57,6 @@ public class JobletTypeFactory{
 	}
 
 	public JobletType<?> fromPersistentString(String string){
-		return sampleJobletType.fromPersistentString(string);
+		return sampleType.fromPersistentString(string);
 	}
 }
