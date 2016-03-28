@@ -9,14 +9,13 @@ import javax.inject.Singleton;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.inject.DatarouterInjector;
 import com.hotpads.datarouter.routing.Datarouter;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.handler.exception.ExceptionRecord;
 import com.hotpads.handler.exception.ExceptionRecorder;
-import com.hotpads.job.JobRouter;
 import com.hotpads.job.trigger.JobExceptionCategory;
 import com.hotpads.joblet.databean.Joblet;
 import com.hotpads.joblet.databean.JobletData;
@@ -27,12 +26,10 @@ import com.hotpads.joblet.hibernate.DeleteJoblet;
 import com.hotpads.joblet.hibernate.GetJobletForProcessing;
 import com.hotpads.joblet.hibernate.GetJobletStatuses;
 import com.hotpads.joblet.hibernate.UpdateJobletAndQueue;
-import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.stream.StreamTool;
 
 @Singleton
-@Component
 public class JobletService{
 	private static Logger logger = LoggerFactory.getLogger(JobletService.class);
 
@@ -42,17 +39,15 @@ public class JobletService{
 	private final Datarouter datarouter;
 	private final JobletTypeFactory jobletTypeFactory;
 	private final JobletNodes jobletNodes;
-	private final JobRouter jobRouter;
 	private final ExceptionRecorder exceptionRecorder;
 
 	@Inject
 	public JobletService(DatarouterInjector injector, Datarouter datarouter, JobletTypeFactory jobletTypeFactory,
-			JobletNodes jobletNodes, JobRouter jobRouter, ExceptionRecorder exceptionRecorder){
+			JobletNodes jobletNodes, ExceptionRecorder exceptionRecorder){
 		this.injector = injector;
 		this.datarouter = datarouter;
 		this.jobletTypeFactory = jobletTypeFactory;
 		this.jobletNodes = jobletNodes;
-		this.jobRouter = jobRouter;
 		this.exceptionRecorder = exceptionRecorder;
 	}
 
@@ -90,7 +85,7 @@ public class JobletService{
 		if(jobletDataId == null){
 			return null;
 		}// avoid querying for null
-		return jobRouter.jobletData().get(new JobletDataKey(jobletDataId), null);
+		return jobletNodes.jobletData().get(new JobletDataKey(jobletDataId), null);
 	}
 
 	public void handleJobletInterruption(Joblet joblet, boolean rateLimited){
@@ -133,7 +128,7 @@ public class JobletService{
 		String serverNamePrefix = serverName + "_";//don't want joblet1 to include joblet10
 		List<Joblet> jobletsToReset = Joblet.filterByTypeStatusReservedByPrefix(joblets, jobletType,
 				JobletStatus.running, serverNamePrefix);
-		logger.warn("found "+CollectionTool.size(jobletsToReset)+" joblets to reset");
+		logger.warn("found "+DrCollectionTool.size(jobletsToReset)+" joblets to reset");
 
 		for(Joblet j : jobletsToReset){
 			handleJobletInterruption(j, rateLimited);
@@ -146,7 +141,7 @@ public class JobletService{
 	}
 
 	public List<JobletSummary> getJobletSummariesForTable(String whereStatus, boolean includeQueueId){
-		return datarouter.run(new GetJobletStatuses(whereStatus, includeQueueId, datarouter, jobRouter));
+		return datarouter.run(new GetJobletStatuses(whereStatus, includeQueueId, datarouter, jobletNodes));
 	}
 
 	public boolean jobletExistsWithTypeAndStatus(JobletType<?> jobletType, JobletStatus jobletStatus){
