@@ -25,13 +25,13 @@ public enum JobletStatus implements StringEnum<JobletStatus>{
 		return varName;
 	}
 
-	public static JobletStatus fromPersistentStringStatic(String s){
-		return DatarouterEnumTool.getEnumFromString(values(), s, null);
+	public static JobletStatus fromPersistentStringStatic(String string){
+		return DatarouterEnumTool.getEnumFromString(values(), string, null);
 	}
 
 	@Override
-	public JobletStatus fromPersistentString(String s) {
-		return fromPersistentStringStatic(s);
+	public JobletStatus fromPersistentString(String string){
+		return fromPersistentStringStatic(string);
 	}
 
 	public boolean isRunning(){

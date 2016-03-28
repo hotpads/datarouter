@@ -30,10 +30,10 @@ public class JobletData extends BaseDatabean<JobletDataKey,JobletData>{
 		}
 
 		@Override
-		public List<Field<?>> getNonKeyFields(JobletData d){
+		public List<Field<?>> getNonKeyFields(JobletData databean){
 			return FieldTool.createList(
-					new StringField(F.data, d.data, MySqlColumnType.INT_LENGTH_LONGTEXT),
-					new LongField(F.created, d.created));
+					new StringField(F.data, databean.data, MySqlColumnType.INT_LENGTH_LONGTEXT),
+					new LongField(F.created, databean.created));
 		}
 	}
 

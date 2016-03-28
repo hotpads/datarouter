@@ -121,21 +121,21 @@ public class Joblet extends BaseDatabean<JobletKey,Joblet>{
 		}
 
 		@Override
-		public List<Field<?>> getNonKeyFields(Joblet d) {
+		public List<Field<?>> getNonKeyFields(Joblet databean) {
 			return Arrays.asList(
-					new StringField(F.queueId, d.queueId, MySqlColumnType.MAX_LENGTH_VARCHAR),
-					new StringEnumField<JobletStatus>(JobletStatus.class, F.status, d.status,
+					new StringField(F.queueId, databean.queueId, MySqlColumnType.MAX_LENGTH_VARCHAR),
+					new StringEnumField<JobletStatus>(JobletStatus.class, F.status, databean.status,
 							MySqlColumnType.MAX_LENGTH_VARCHAR),
-					new IntegerField(F.numFailures, d.numFailures),
-					new IntegerField(F.numTimeouts, d.numTimeouts),
-					new StringField(F.reservedBy, d.reservedBy, MySqlColumnType.MAX_LENGTH_VARCHAR),
-					new LongField(F.reservedAt, d.reservedAt),
-					new BooleanField(F.restartable, d.restartable),
-					new StringField(F.exceptionRecordId, d.exceptionRecordId, ExceptionRecordKey.LENGTH_id),
-					new LongField(F.jobletDataId, d.jobletDataId),
-					new IntegerField(F.numItems, d.numItems),
-					new IntegerField(F.numTasks, d.numTasks),
-					new StringField(F.debug, d.debug, MySqlColumnType.MAX_LENGTH_VARCHAR));
+					new IntegerField(F.numFailures, databean.numFailures),
+					new IntegerField(F.numTimeouts, databean.numTimeouts),
+					new StringField(F.reservedBy, databean.reservedBy, MySqlColumnType.MAX_LENGTH_VARCHAR),
+					new LongField(F.reservedAt, databean.reservedAt),
+					new BooleanField(F.restartable, databean.restartable),
+					new StringField(F.exceptionRecordId, databean.exceptionRecordId, ExceptionRecordKey.LENGTH_id),
+					new LongField(F.jobletDataId, databean.jobletDataId),
+					new IntegerField(F.numItems, databean.numItems),
+					new IntegerField(F.numTasks, databean.numTasks),
+					new StringField(F.debug, databean.debug, MySqlColumnType.MAX_LENGTH_VARCHAR));
 		}
 
 	}
