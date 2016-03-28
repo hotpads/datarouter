@@ -11,20 +11,26 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hotpads.config.job.enums.HotPadsJobletType;
+import com.hotpads.joblet.ParallelJobletProcessor.ParallelJobletProcessorFactory;
 
 //static map to hold a ParallelJobletProcessor for each joblet type
 @Singleton
 public class ParallelJobletProcessors {
 	private static final Logger logger = LoggerFactory.getLogger(ParallelJobletProcessors.class);
 
-	private final Map<JobletType<?>,ParallelJobletProcessor> processorsByJobletType = new ConcurrentHashMap<>();
+	//injected
 	private final ParallelJobletProcessorFactory parallelJobletProcessorFactory;
+	private final JobletTypeFactory jobletTypeFactory;
+
+	private final Map<JobletType<?>,ParallelJobletProcessor> processorsByJobletType = new ConcurrentHashMap<>();
+
 
 	@Inject
-	public ParallelJobletProcessors(ParallelJobletProcessorFactory parallelJobletProcessorFactory){
+	public ParallelJobletProcessors(ParallelJobletProcessorFactory parallelJobletProcessorFactory,
+			JobletTypeFactory jobletTypeFactory){
 		this.parallelJobletProcessorFactory = parallelJobletProcessorFactory;
-		for(JobletType<?> jobletType : HotPadsJobletType.values()){
+		this.jobletTypeFactory = jobletTypeFactory;
+		for(JobletType<?> jobletType : jobletTypeFactory.getAllTypes()){
 			processorsByJobletType.put(jobletType, parallelJobletProcessorFactory.create(jobletType));
 		}
 		logger.info("created ParallelJobletProcessors singleton with " + processorsByJobletType.keySet());
@@ -60,7 +66,7 @@ public class ParallelJobletProcessors {
 	}
 
 	public void restartExecutor(String jobletTypeString){
-		JobletType<?> jobletType = HotPadsJobletType.fromString(jobletTypeString);
+		JobletType<?> jobletType = jobletTypeFactory.fromPersistentString(jobletTypeString);
 		getMap().get(jobletType).stop();
 		getMap().put(jobletType, parallelJobletProcessorFactory.create(jobletType));
 	}
