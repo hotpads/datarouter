@@ -4,9 +4,9 @@ import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.hotpads.datarouter.util.core.DrArrayTool;
 import com.hotpads.joblet.databean.Joblet;
 import com.hotpads.joblet.databean.JobletKey;
-import com.hotpads.util.core.ArrayTool;
 
 public class JobletTypeFactory{
 
@@ -14,7 +14,7 @@ public class JobletTypeFactory{
 	private final Set<JobletType<?>> typesCausingScaling;
 
 	public JobletTypeFactory(JobletType<? extends JobletType<?>>[] types){
-		this.sampleJobletType = ArrayTool.getFirst(types);
+		this.sampleJobletType = DrArrayTool.getFirst(types);
 		this.typesCausingScaling = Arrays.stream(types)
 				.filter(JobletType::causesScaling)
 				.collect(Collectors.toSet());
