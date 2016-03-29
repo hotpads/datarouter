@@ -9,14 +9,15 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
-import com.hotpads.config.server.enums.HotPadsServerType;
 import com.hotpads.datarouter.routing.Datarouter;
+import com.hotpads.datarouter.util.core.DrListTool;
+import com.hotpads.datarouter.util.core.DrNumberTool;
+import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.mav.Mav;
 import com.hotpads.handler.mav.imp.InContextRedirectMav;
 import com.hotpads.handler.mav.imp.MessageMav;
-import com.hotpads.job.config.JobUrls;
-import com.hotpads.job.trigger.generic.ParallelJobletProcessors;
+import com.hotpads.job.dispatcher.DatarouterJobDispatcher;
 import com.hotpads.joblet.JobletExecutorThread;
 import com.hotpads.joblet.JobletNodes;
 import com.hotpads.joblet.JobletPackage;
@@ -25,6 +26,7 @@ import com.hotpads.joblet.JobletSettings;
 import com.hotpads.joblet.JobletStatus;
 import com.hotpads.joblet.JobletType;
 import com.hotpads.joblet.JobletTypeFactory;
+import com.hotpads.joblet.ParallelJobletProcessors;
 import com.hotpads.joblet.databean.Joblet;
 import com.hotpads.joblet.databean.JobletData;
 import com.hotpads.joblet.databean.JobletQueue;
@@ -34,12 +36,6 @@ import com.hotpads.joblet.hibernate.DeleteTimedOutJoblets;
 import com.hotpads.joblet.hibernate.ResetJobletQueueTickets;
 import com.hotpads.joblet.hibernate.RestartJoblets;
 import com.hotpads.joblet.hibernate.TimeoutStuckRunningJoblets;
-import com.hotpads.search.data.dao.InstanceDao;
-import com.hotpads.util.ExternalConfig;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.NumberTool;
-import com.hotpads.util.core.StringTool;
 
 public class JobletHandler extends BaseHandler{
 
@@ -53,29 +49,29 @@ public class JobletHandler extends BaseHandler{
 		PARAM_threadStatus = "threadStatus",
 		PARAM_expanded = "expanded",
 
-		URL_joblets = JobUrls.CONTEXT + JobUrls.PATH_joblets,
+		URL_JOBLETS_IN_CONTEXT = DatarouterJobDispatcher.URL_DATAROUTER + DatarouterJobDispatcher.JOBLETS,
 		JSP_joblets = "/WEB-INF/jsp/joblet/joblets.jsp",
 		JSP_queueSummary = "/WEB-INF/jsp/joblet/queueSummary.jsp",
 		JSP_threads = "/WEB-INF/jsp/joblet/threads.jsp",
 	 	JSP_exceptions = "/WEB-INF/jsp/jobletExceptions.jsp";
 
-	@Inject
-	private Datarouter datarouter;
-	@Inject
-	private JobletTypeFactory jobletTypeFactory;
-	@Inject
-	private JobletNodes jobletNodes;
-	@Inject
-	private ExternalConfig externalConfig;
-	@Inject
-	private ParallelJobletProcessors parallelJobletProcessors;
-	@Inject
-	private InstanceDao instanceDao;
-	@Inject
-	private JobletService jobletDao;
-	@Inject
-	private JobletSettings jobletSettings;
+	private final Datarouter datarouter;
+	private final JobletTypeFactory jobletTypeFactory;
+	private final JobletNodes jobletNodes;
+	private final ParallelJobletProcessors parallelJobletProcessors;
+	private final JobletService jobletDao;
+	private final JobletSettings jobletSettings;
 
+	@Inject
+	public JobletHandler(Datarouter datarouter, JobletTypeFactory jobletTypeFactory, JobletNodes jobletNodes,
+			ParallelJobletProcessors parallelJobletProcessors, JobletService jobletDao, JobletSettings jobletSettings){
+		this.datarouter = datarouter;
+		this.jobletTypeFactory = jobletTypeFactory;
+		this.jobletNodes = jobletNodes;
+		this.parallelJobletProcessors = parallelJobletProcessors;
+		this.jobletDao = jobletDao;
+		this.jobletSettings = jobletSettings;
+	}
 
 	@Override
 	@Handler
@@ -89,7 +85,7 @@ public class JobletHandler extends BaseHandler{
 		mav = populateMav(mav);
 		String whereStatus = params.optional(PARAM_whereStatus, null);
 		boolean expanded = params.optionalBoolean(PARAM_expanded, false);
-		if(StringTool.notEmpty(whereStatus)){
+		if(DrStringTool.notEmpty(whereStatus)){
 			mav.put(PARAM_whereStatus, whereStatus);
 		}
 		mav.put("whereStatus", whereStatus);
@@ -159,9 +155,8 @@ public class JobletHandler extends BaseHandler{
 	private Mav populateMav(Mav mav){
 		mav.put("minServers", jobletSettings.getMinJobletServers().getValue());
 		mav.put("maxServers", jobletSettings.getMaxJobletServers().getValue());
-		mav.put("numServers", CollectionTool.size(instanceDao.getInstancesWithType(HotPadsServerType.JOBLET)));
 		mav.put("jobletStatuses", JobletStatus.values());
-		List<JobletQueue> queues = ListTool.createArrayList(jobletNodes.jobletQueue().scan(null, null));
+		List<JobletQueue> queues = DrListTool.createArrayList(jobletNodes.jobletQueue().scan(null, null));
 		Collections.sort(queues, new JobletQueue.NumTicketsComparator());
 		mav.put("queues", queues);
 		int totalTickets = JobletQueue.sumNumTickets(queues);
@@ -170,8 +165,6 @@ public class JobletHandler extends BaseHandler{
 		mav.put("queuesById", queuesById);
 		mav.put("runningJobletThreads", getRunningJobletThreads());
 		mav.put("waitingJobletThreads", getWaitingJobletThreads());
-		mav.put("isRealServer", externalConfig.getServerType().isLive());
-		//mav.addObject(jobletThrottle.get, value)
 		return mav;
 	}
 
@@ -221,7 +214,7 @@ public class JobletHandler extends BaseHandler{
 	@Handler
 	protected Mav showQueues(){
 		Mav mav = new Mav(JSP_queueSummary);
-		List<JobletQueue> queues = ListTool.createArrayList(jobletNodes.jobletQueue().scan(null, null));
+		List<JobletQueue> queues = DrListTool.createArrayList(jobletNodes.jobletQueue().scan(null, null));
 		Collections.sort(queues, new JobletQueue.NumTicketsComparator());
 		mav.put("queues", queues);
 		int totalTickets = JobletQueue.sumNumTickets(queues);
@@ -253,9 +246,10 @@ public class JobletHandler extends BaseHandler{
 		}
 		jobletNodes.jobletQueue().put(queue, null);
 		if(ACTION_showJoblets.equals(ref)){
-			mav.setViewName(Mav.REDIRECT+URL_joblets);
+			mav.setViewName(Mav.REDIRECT + params.getContextPath() + URL_JOBLETS_IN_CONTEXT);
 		}else{
-			mav.setViewName(Mav.REDIRECT+URL_joblets+"?submitAction=showQueues");
+			mav.setViewName(Mav.REDIRECT + params.getContextPath() + URL_JOBLETS_IN_CONTEXT
+					+ "?submitAction=showQueues");
 		}
 		return mav;
 	}
@@ -264,23 +258,23 @@ public class JobletHandler extends BaseHandler{
 	protected Mav killJobletThread(){
 		long threadId = params.requiredLong("threadId");
 		parallelJobletProcessors.killThread(threadId);
-		return new Mav(Mav.REDIRECT+URL_joblets);
+		return new InContextRedirectMav(params, URL_JOBLETS_IN_CONTEXT);
 	}
 
 	@Handler
 	protected Mav restartExecutor(){
 		String jobletType = params.optional("jobletType", null);
 		parallelJobletProcessors.restartExecutor(jobletType);
-		return new Mav(Mav.REDIRECT+URL_joblets);
+		return new InContextRedirectMav(params, URL_JOBLETS_IN_CONTEXT);
 	}
 
 	@Handler
 	protected Mav runOrDeleteJobletByDataId(){
 		//scan the Joblet table to get the matching joblet
-		Long jobletDataId = NumberTool.getLongNullSafe(params.optional("jobletDataId", ""),null);
+		Long jobletDataId = DrNumberTool.getLongNullSafe(params.optional("jobletDataId", ""),null);
 		boolean delete = params.optionalBoolean("delete", false);
 
-		List<Joblet> joblets = ListTool.createArrayList(jobletNodes.joblet().scan(null, null));
+		List<Joblet> joblets = DrListTool.createArrayList(jobletNodes.joblet().scan(null, null));
 		Joblet joblet = findJobletWithId(joblets, jobletDataId);
 		if(delete){
 			jobletNodes.joblet().delete(joblet.getKey(), null);
@@ -291,7 +285,7 @@ public class JobletHandler extends BaseHandler{
 			JobletPackage jobletPackage = new JobletPackage(joblet, jobletData);
 			parallelJobletProcessors.getMap().get(jobletType).getJobletScheduler().submitJoblet(jobletPackage);
 		}
-		return new InContextRedirectMav(params, URL_joblets);
+		return new InContextRedirectMav(params, URL_JOBLETS_IN_CONTEXT);
 	}
 
 	private Joblet findJobletWithId(Collection<Joblet> joblets, Long jobletDataId){
