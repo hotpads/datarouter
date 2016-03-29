@@ -1,11 +1,13 @@
 package com.hotpads.datarouter.test.node.basic.sorted;
 
+import java.util.Arrays;
 import java.util.List;
 
+import javax.persistence.Column;
 import javax.persistence.Embeddable;
 
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.storage.field.Field;
-import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.StringFieldKey;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt31Field;
@@ -21,16 +23,17 @@ public class SortedBeanKey extends BaseEntityPrimaryKey<SortedBeanEntityKey,Sort
 	private String a;
 	private String b;
 	private Integer c;
+	@Column(length=MySqlColumnType.MAX_KEY_LENGTH_UTF8MB4)
 	private String d;
 
 	public static class FieldKeys{
 		public static final UInt31FieldKey c = new UInt31FieldKey("c");
-		public static final StringFieldKey d = new StringFieldKey("d");
+		public static final StringFieldKey d = new StringFieldKey("d").withSize(MySqlColumnType.MAX_KEY_LENGTH_UTF8MB4);
 	}
 
 	@Override
 	public List<Field<?>> getPostEntityKeyFields(){
-		return FieldTool.createList(
+		return Arrays.asList(
 				new UInt31Field(FieldKeys.c, c),
 				new StringField(FieldKeys.d, d));
 	}
