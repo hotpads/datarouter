@@ -5,14 +5,18 @@ import com.hotpads.handler.BaseDispatcher;
 import com.hotpads.handler.dispatcher.DatarouterWebDispatcher;
 import com.hotpads.job.record.LongRunningTasksHandler;
 import com.hotpads.job.web.JobToTriggerHandler;
+import com.hotpads.joblet.handler.JobletHandler;
+import com.hotpads.joblet.handler.JobletScalingHandler;
 
 public class DatarouterJobDispatcher extends BaseDispatcher{
 
-	private static final String URL_DATAROUTER = DatarouterWebDispatcher.URL_DATAROUTER;
+	public static final String URL_DATAROUTER = DatarouterWebDispatcher.URL_DATAROUTER;
 
 	public static final String
 			TRIGGERS = "/triggers",
-			LONG_RUNNING_TASKS = "/longRunningTasks";
+			LONG_RUNNING_TASKS = "/longRunningTasks",
+			JOBLETS = "/joblets",
+			JOBLET_SCALING = "/jobletScaling";
 
 
 	public DatarouterJobDispatcher(DatarouterInjector injector, String servletContextPath){
@@ -21,6 +25,8 @@ public class DatarouterJobDispatcher extends BaseDispatcher{
 		//All urls must start with URL_DATAROUTER
 		handle(URL_DATAROUTER + TRIGGERS).withHandler(JobToTriggerHandler.class);
 		handle(URL_DATAROUTER + LONG_RUNNING_TASKS).withHandler(LongRunningTasksHandler.class);
+		handle(URL_DATAROUTER + JOBLETS).withHandler(JobletHandler.class);
+		handle(URL_DATAROUTER + JOBLET_SCALING).withHandler(JobletScalingHandler.class);
 	}
 
 }
