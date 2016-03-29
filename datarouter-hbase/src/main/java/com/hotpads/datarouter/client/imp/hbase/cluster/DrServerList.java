@@ -1,6 +1,7 @@
 package com.hotpads.datarouter.client.imp.hbase.cluster;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -36,7 +37,7 @@ public class DrServerList{
 		try{
 			HBaseAdmin admin = HBaseStaticContext.ADMIN_BY_CONFIG.get(config);
 			ClusterStatus clusterStatus = admin.getClusterStatus();
-			serverNames = DrListTool.createArrayList(clusterStatus.getServers());
+			serverNames = new ArrayList<>(clusterStatus.getServers());
 			Collections.sort(serverNames);
 			this.servers = DrListTool.createArrayListWithSize(serverNames);
 			this.serversSortedByDescendingLoad = new TreeSet<>(new DrhServerInfoHigherLoadComparator());

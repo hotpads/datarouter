@@ -57,7 +57,7 @@ extends BaseJdbcOp<List<IE>>{
 		Connection connection = getConnection(mainNode.getClientId().getName());
 		List<IE> databeans = new ArrayList<>();
 		for(List<IK> batch : new BatchingIterable<>(uniqueKeys, JdbcNode.DEFAULT_ITERATE_BATCH_SIZE)){
-			List<? extends Key<IK>> keys = DrListTool.createArrayList(batch);
+			List<? extends Key<IK>> keys = new ArrayList<>(batch);
 			String sql = SqlBuilder.getMulti(fieldCodecFactory, config, mainNode.getTableName(), indexFielder.getFields(
 					indexEntry), keys);
 			try{

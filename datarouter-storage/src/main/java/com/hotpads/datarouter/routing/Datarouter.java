@@ -157,7 +157,7 @@ public class Datarouter{
 				clients.add(client);
 			}
 		}
-		return DrListTool.createArrayList(clients);
+		return new ArrayList<>(clients);
 	}
 
 	public Router getRouterForClient(Client client){

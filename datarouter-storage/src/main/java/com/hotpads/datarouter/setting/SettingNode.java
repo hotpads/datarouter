@@ -103,7 +103,7 @@ public abstract class SettingNode {
 	}
 
 	public ArrayList<Setting<?>> getListSettings(){
-		return DrListTool.createArrayList(settings.values());
+		return new ArrayList<>(settings.values());
 	}
 
 	public String getShortName(){

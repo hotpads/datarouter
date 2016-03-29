@@ -74,7 +74,7 @@ extends BaseNode<PK,D,F>{
 		SortedSet<String> clientNames = new TreeSet<>();
 		DrSetTool.nullSafeSortedAddAll(clientNames, cachingNode.getClientNames());
 		DrSetTool.nullSafeSortedAddAll(clientNames, backingNode.getClientNames());
-		return DrListTool.createArrayList(clientNames);
+		return new ArrayList<>(clientNames);
 	}
 
 	@Override

@@ -1,5 +1,6 @@
 package com.hotpads.util.core.properties;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -14,7 +15,7 @@ public class TypedProperties{
 	private List<Properties> propertiesList;
 	
 	public TypedProperties(Collection<Properties> propertiesList){
-		this.propertiesList = DrListTool.createArrayList(propertiesList);
+		this.propertiesList = new ArrayList<>(propertiesList);
 	}
 	
 	public TypedProperties(String path){

@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.node.type.partitioned.mixin;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -62,7 +63,7 @@ extends IndexedStorageReader<PK,D>, PartitionedNode<PK,D,N>{
 			List<D> singleNodeResults = node.lookupMultiUnique(uniqueKeys, config);
 			sortedDedupedResults.addAll(DrCollectionTool.nullSafe(singleNodeResults));
 		}
-		return DrListTool.createArrayList(sortedDedupedResults);
+		return new ArrayList<>(sortedDedupedResults);
 	}
 
 
@@ -78,7 +79,7 @@ extends IndexedStorageReader<PK,D>, PartitionedNode<PK,D,N>{
 			List<D> singleNodeResults = node.lookup(lookup, wildcardLastField, config);
 			sortedDedupedResults.addAll(DrCollectionTool.nullSafe(singleNodeResults));
 		}
-		return DrListTool.createArrayList(sortedDedupedResults);
+		return new ArrayList<>(sortedDedupedResults);
 	}
 
 
@@ -96,7 +97,7 @@ extends IndexedStorageReader<PK,D>, PartitionedNode<PK,D,N>{
 				sortedDedupedResults.addAll(DrCollectionTool.nullSafe(singleNodeResults));
 			}
 		}
-		return DrListTool.createArrayList(sortedDedupedResults);
+		return new ArrayList<>(sortedDedupedResults);
 	}
 
 
