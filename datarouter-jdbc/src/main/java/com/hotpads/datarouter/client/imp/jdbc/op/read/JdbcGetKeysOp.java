@@ -52,7 +52,7 @@ extends BaseJdbcOp<List<PK>>{
 		if(config!=null && config.getIterateBatchSize()!=null){
 			batchSize = config.getIterateBatchSize();
 		}
-		List<? extends Key<PK>> sortedKeys = DrListTool.createArrayList(keys);
+		List<? extends Key<PK>> sortedKeys = new ArrayList<>(keys);
 		Collections.sort(sortedKeys);//should prob remove
 		int numBatches = DrBatchTool.getNumBatches(sortedKeys.size(), batchSize);
 		List<PK> result = new ArrayList<>(keys.size());

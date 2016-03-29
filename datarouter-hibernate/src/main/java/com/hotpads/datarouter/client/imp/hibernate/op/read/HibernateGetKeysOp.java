@@ -50,7 +50,7 @@ extends BaseHibernateOp<List<PK>>{
 	@Override
 	public List<PK> runOnce(){
 		Session session = getSession(node.getClientId().getName());
-		List<? extends Key<PK>> sortedKeys = DrListTool.createArrayList(keys);
+		List<? extends Key<PK>> sortedKeys = new ArrayList<>(keys);
 		Collections.sort(sortedKeys);//is this sorting at all beneficial?
 		List<PK> result = new ArrayList<>(keys.size());
 		Criteria criteria = node.getCriteriaForConfig(config, session);

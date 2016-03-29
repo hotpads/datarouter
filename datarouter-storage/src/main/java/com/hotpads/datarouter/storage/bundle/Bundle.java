@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.storage.bundle;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -54,7 +55,7 @@ public class Bundle{
 	}
 	
 	protected <D extends Databean<?,?>> List<D> getAllList(Class<D> clazz){
-		return DrListTool.createArrayList(getAllSet(clazz));
+		return new ArrayList<>(getAllSet(clazz));
 	}
 	
 	protected <D extends Databean<?,?>> void ensureSingleTypeBundleExists(D databean){

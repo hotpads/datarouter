@@ -290,7 +290,7 @@ public class SqlColumn implements Comparable<SqlColumn>{
 			columns.add(columnB);
 			columns.add(columnA);//should keep this version of a/a2 since it was added first
 			columns.add(a2);
-			List<SqlColumn> columnList = DrListTool.createArrayList(columns);
+			List<SqlColumn> columnList = new ArrayList<>(columns);
 			Assert.assertTrue(columnA==columnList.get(0));//it kept the first version
 			Assert.assertTrue(columnB==columnList.get(1));
 

@@ -62,7 +62,7 @@ public class SqlTableDiffGenerator{
 		}
 		tableAColumns.addAll(tableA.getColumns());
 		tableBColumns.addAll(tableB.getColumns());
-		return DrListTool.createArrayList(DrCollectionTool.minus(tableAColumns, tableBColumns, comparator));
+		return new ArrayList<>(DrCollectionTool.minus(tableAColumns, tableBColumns, comparator));
 	}
 
 	public List<SqlColumn> getColumnsToModify(){
@@ -84,11 +84,11 @@ public class SqlTableDiffGenerator{
 			SqlColumnNameTypeLengthAutoIncrementDefaultComparator comparator){
 		// by getting all the modified columns (the ones we should add) and removing from them the ones
 		// we have already added (columnsToAdd)
-		List<SqlColumn> listOfColumnsToAddUsingNameTypeComparator = DrListTool.createArrayList(DrCollectionTool.minus(
-				requestedColumns, currentColumns, comparator));
+		List<SqlColumn> listOfColumnsToAddUsingNameTypeComparator = new ArrayList<>(DrCollectionTool.minus(
+		requestedColumns, currentColumns, comparator));
 		Set<SqlColumn> columnsToModify = DrCollectionTool.minus(listOfColumnsToAddUsingNameTypeComparator,
 				columnsToAddUsingNameComparator);
-		return DrListTool.createArrayList(columnsToModify);
+		return new ArrayList<>(columnsToModify);
 	}
 
 	public List<SqlColumn> getColumnsWithCharsetOrCollationToConvert(){

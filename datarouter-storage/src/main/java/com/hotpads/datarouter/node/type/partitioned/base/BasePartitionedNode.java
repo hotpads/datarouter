@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.node.type.partitioned.base;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -140,7 +141,7 @@ extends BaseNode<PK,D,F> implements PartitionedNode<PK,D,N>{
 		for(IK key : DrIterableTool.nullSafe(keys)){
 			nodes.addAll(getPhysicalNodesForSecondaryKey(key));
 		}
-		return DrListTool.createArrayList(nodes);
+		return new ArrayList<>(nodes);
 	}
 
 	@Override

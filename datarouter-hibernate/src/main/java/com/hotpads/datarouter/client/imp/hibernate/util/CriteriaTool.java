@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.client.imp.hibernate.util;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.hibernate.criterion.Conjunction;
@@ -31,8 +32,7 @@ public class CriteriaTool {
 		Conjunction conjunction = Restrictions.conjunction();
 
 		if(start != null && DrCollectionTool.notEmpty(start.getFields())){
-			List<Field<?>> startFields = DrListTool.createArrayList(
-					FieldTool.prependPrefixes(fieldInfo.getKeyFieldName(), start.getFields()));
+			List<Field<?>> startFields = new ArrayList<>(FieldTool.prependPrefixes(fieldInfo.getKeyFieldName(), start.getFields()));
 			int numNonNullStartFields = FieldTool.countNonNullLeadingFields(startFields);
 			Disjunction d = Restrictions.disjunction();
 			for(int i=numNonNullStartFields; i > 0; --i){
@@ -55,8 +55,7 @@ public class CriteriaTool {
 		}
 
 		if(end != null && DrCollectionTool.notEmpty(end.getFields())){
-			List<Field<?>> endFields = DrListTool.createArrayList(
-					FieldTool.prependPrefixes(fieldInfo.getKeyFieldName(), end.getFields()));
+			List<Field<?>> endFields = new ArrayList<>(FieldTool.prependPrefixes(fieldInfo.getKeyFieldName(), end.getFields()));
 			int numNonNullEndFields = FieldTool.countNonNullLeadingFields(endFields);
 			Disjunction d = Restrictions.disjunction();
 			for(int i=0; i < numNonNullEndFields; ++i){

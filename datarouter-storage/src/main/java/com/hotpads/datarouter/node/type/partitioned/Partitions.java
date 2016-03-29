@@ -107,7 +107,7 @@ public class Partitions<
 	}
 	
 	public List<String> getClientNames(){
-		return DrListTool.createArrayList(clientNames);
+		return new ArrayList<>(clientNames);
 	}
 	
 	public List<ClientId> getClientIds(){
