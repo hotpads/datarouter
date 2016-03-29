@@ -3,7 +3,7 @@
 <html>
 <head>
 	<title>Joblets</title>
-	<%@ include file="/WEB-INF/jsp/generic/jobHead.jsp" %>
+	<%@ include file="/jsp/generic/datarouterHead.jsp" %>
 	<script>
 	require(['jquery'], function(){
 		$(document).ready(function() {
@@ -51,8 +51,8 @@
 	</script>
 </head>
 <body>
-	<%@ include file="/jsp/menu/common-navbar.jsp" %>
-	<%@ include file="/WEB-INF/jsp/generic/navBar.jsp" %>
+	<%@ include file="/jsp/menu/common-navbar.jsp"%>
+	<%@ include file="/jsp/menu/dr-navbar.jsp"%>
 	<div class="container" id="jobletsTable">
 		<h2 class="page-header">Joblets</h2>
 		<div class="page-content-container page-content-thicktop page-single-column">

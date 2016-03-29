@@ -33,7 +33,7 @@ th,td{
 </head>
 <body>
 	<%@ include file="/jsp/menu/common-navbar.jsp" %>
-	<%@ include file="/WEB-INF/jsp/generic/navBar.jsp" %>
+	<%@ include file="/jsp/menu/dr-navbar.jsp"%>
 	<div class="container">
 		<h2 class="page-title">Joblet Queues</h2>
 		<div class="clearfix"></div>

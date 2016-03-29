@@ -1,24 +1,16 @@
 <%@ include file="/WEB-INF/prelude.jspf" %>
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"%>
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE html>
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>Joblet Exception Records</title>
-<%@ include file="/jsp/css/css-import.jspf" %>
-<%@ include file="/WEB-INF/jsp/generic/jobHead.jsp" %>
-<script type="text/javascript" data-main="${contextPath}/js/core-common" src="${contextPath}/js/require-jquery.js"></script>
-<script type="text/javascript">
- 		require([
-               "bootstrap/bootstrap", "plugin/sorttable"
-         ], function($) {});
-</script>
-<link rel="stylesheet" href="${contextPath}/css/job.css"/>
+	<title>Joblet Exception Records</title>
+	<%@ include file="/jsp/generic/datarouterHead.jsp" %>
+	<script type="text/javascript">
+		require(['sorttable']);
+	</script>
 </head>
 <body>
 	<%@ include file="/jsp/menu/common-navbar.jsp" %>
-	<%@ include file="/WEB-INF/jsp/generic/navBar.jsp" %>
+	<%@ include file="/jsp/menu/dr-navbar.jsp"%>
 	<div class="container" id="exceptionsTable">
 		<h2 class="page-header">Joblet Exception Records</h2>
 		<div class="page-content-container page-content-thicktop page-single-column">
