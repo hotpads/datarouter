@@ -12,7 +12,7 @@ import com.hotpads.joblet.JobletScaler;
  */
 public class JobletScalingHandler extends BaseHandler {
 
-	public static final String JSP = "/WEB-INF/jsp/joblet/jobletScaling.jsp";
+	public static final String JSP = "/jsp/joblet/jobletScaling.jsp";
 
 	@Inject
 	private JobletScaler jobletScaler;
@@ -30,9 +30,6 @@ public class JobletScalingHandler extends BaseHandler {
 		final Mav mav = new Mav(JSP);
 		int numServers = jobletScaler.getNumJobletServers();
 		mav.put("serverCount", numServers);
-//		String time = RequestTool.get(request, "time", "");
-//		time = XMLStringTool.removeMarkup(time);
-//		mav.put("time",time);
 		mav.put("serverName", datarouter.getServerName());
 		return mav;
 	}

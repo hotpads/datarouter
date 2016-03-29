@@ -50,10 +50,10 @@ public class JobletHandler extends BaseHandler{
 		PARAM_expanded = "expanded",
 
 		URL_JOBLETS_IN_CONTEXT = DatarouterJobDispatcher.URL_DATAROUTER + DatarouterJobDispatcher.JOBLETS,
-		JSP_joblets = "/WEB-INF/jsp/joblet/joblets.jsp",
-		JSP_queueSummary = "/WEB-INF/jsp/joblet/queueSummary.jsp",
-		JSP_threads = "/WEB-INF/jsp/joblet/threads.jsp",
-	 	JSP_exceptions = "/WEB-INF/jsp/jobletExceptions.jsp";
+		JSP_joblets = "/jsp/joblet/joblets.jsp",
+		JSP_queueSummary = "/jsp/joblet/queueSummary.jsp",
+		JSP_threads = "/jsp/joblet/threads.jsp",
+	 	JSP_exceptions = "/jsp/joblet/jobletExceptions.jsp";
 
 	private final Datarouter datarouter;
 	private final JobletTypeFactory jobletTypeFactory;
