@@ -1,42 +1,28 @@
 <%@ include file="/WEB-INF/prelude.jspf"%>
 <%@ include file="../generic/prelude-datarouter.jspf"%>
+<!DOCTYPE html>
 <html>
 <head>
-<title>${node.name} databean</title>
-<%@ include file="/jsp/generic/head.jsp" %>
-<%@ include file="/jsp/css/css-import.jspf" %>
-<script type="text/javascript" data-main="${contextPath}/js/core-common" src="${contextPath}/js/require-jquery.js"></script>
-<style>
-</style>
+	<title>${node.name} databean</title>
+	<%@ include file="/jsp/generic/datarouterHead.jsp" %>
 </head>
 <body>
 	<%@ include file="/jsp/menu/common-navbar.jsp" %>
 	<%@ include file="/jsp/menu/dr-navbar.jsp"%>
-	<h2 class="container">Databean viewer</h2>
-	<div class="wide-container">
+	<div class="container-fluid">
+		<h2 class="page-header">Databean viewer</h2>
 		<c:forEach items="${databeanWrappers}" var="databeanWrapper">
-			<form method="get" action="?">
-				<div class="label-above row-fluid">
-					<ul class="span3">
-						<li><b>NodeName:</b></li>
-						<li>${databeanWrapper.node.name}</li>
-					</ul>
-					<ul class="span3">
-						<li><b>NodeType:</b></li>
-						<li>${databeanWrapper.node['class'].simpleName}</li>
-					</ul>
-	 				<ul class="span3">
-						<li><b>DatabeanType:</b></li>
-						<li>${databeanWrapper.node.fieldInfo.sampleDatabean['class']}</li>
-					</ul>
-					<ul class="span3">
-						<li><b>Field Aware:</b></li>
-						<li>${databeanWrapper.fieldAware ? "True" : "False"}</li>
-					</ul>
-				</div>
-			</form>
-						
-			<table class="viewNodeDataTable data sortable table table-condensed table-bordered table-hover">
+			<dl>
+				<dt>NodeName</dt>
+				<dd>${databeanWrapper.node.name}</dd>
+				<dt>NodeType</dt>
+				<dd>${databeanWrapper.node['class'].simpleName}</dd>
+				<dt>DatabeanType</dt>
+				<dd>${databeanWrapper.node.fieldInfo.sampleDatabean['class']}</dd>
+				<dt>Field Aware</dt>
+				<dd>${databeanWrapper.fieldAware ? "True" : "False"}</dd>
+			</dl>
+			<table class="table table-condensed table-bordered">
 				<thead>
 					<tr>
 						<c:forEach items="${databeanWrapper.fields}" var="field">
@@ -46,28 +32,24 @@
 				</thead>
 				<tbody>
 					<c:if test="${not empty databeanWrapper.rowOfFields}">
-							<tr>
-								<c:forEach items="${databeanWrapper.rowOfFields}" var="field">
-									<c:if test="${! field.key.collection}">
-										<td>${field.valueString}</td>
-									</c:if>
-									<c:if test="${field.key.collection}">
-										<td><c:forEach items="${field.value}" var="v">
-												${valueString}${v}<br />
-											</c:forEach></td>
-									</c:if>
-								</c:forEach>
-							</tr>
-							<c:set var="valueString" value="" />
+						<tr>
+							<c:forEach items="${databeanWrapper.rowOfFields}" var="field">
+								<c:if test="${! field.key.collection}">
+									<td>${field.valueString}</td>
+								</c:if>
+								<c:if test="${field.key.collection}">
+									<td>
+										<c:forEach items="${field.value}" var="v">
+											${v}<br />
+										</c:forEach>
+									</td>
+								</c:if>
+							</c:forEach>
+						</tr>
 					</c:if>
 				</tbody>
 			</table>
-			<br />
-			<p>
 		</c:forEach>
 	</div>
-	<script type="text/javascript">
-		require([ "bootstrap/bootstrap" ], function() {});
-	</script>
 </body>
 </html>
