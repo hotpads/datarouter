@@ -2,9 +2,7 @@ package com.hotpads.datarouter.node.factory;
 
 import java.util.function.Supplier;
 
-import com.hotpads.datarouter.client.imp.jdbc.node.index.NoTxnManagedMultiIndexNode;
 import com.hotpads.datarouter.client.imp.jdbc.node.index.NoTxnManagedUniqueIndexNode;
-import com.hotpads.datarouter.client.imp.jdbc.node.index.TxnManagedMultiIndexNode;
 import com.hotpads.datarouter.client.imp.jdbc.node.index.TxnManagedUniqueIndexNode;
 import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.NodeParams.NodeParamsBuilder;
@@ -14,7 +12,6 @@ import com.hotpads.datarouter.node.op.raw.MapStorage;
 import com.hotpads.datarouter.node.op.raw.MapStorage.MapStorageNode;
 import com.hotpads.datarouter.node.op.raw.index.IndexListener;
 import com.hotpads.datarouter.node.type.index.IndexMapStorageWriterListener;
-import com.hotpads.datarouter.node.type.index.ManagedMultiIndexNode;
 import com.hotpads.datarouter.node.type.index.ManagedUniqueIndexNode;
 import com.hotpads.datarouter.node.type.index.ManualMultiIndexNode;
 import com.hotpads.datarouter.node.type.index.ManualUniqueIndexNode;
@@ -145,31 +142,4 @@ public class IndexingNodeFactory {
 				indexEntryClass), manageTxn, indexEntryClass.getSimpleName());
 	}
 
-	public static <PK extends PrimaryKey<PK>,
-					D extends Databean<PK,D>,
-					IK extends PrimaryKey<IK>,
-					IE extends MultiIndexEntry<IK,IE,PK,D>,
-					IF extends DatabeanFielder<IK,IE>>
-	ManagedMultiIndexNode<PK, D, IK, IE, IF> newManagedMulti(Router router,
-			IndexedMapStorage<PK, D> backingNode, Class<IF> indexFielder, Class<IE> indexEntryClass,
-			boolean manageTxn, String indexName){
-		NodeParams<IK, IE, IF> params = new NodeParamsBuilder<IK, IE, IF>(router, ReflectionTool.supplier(
-				indexEntryClass)).withFielder(indexFielder).build();
-		if(manageTxn){
-			return new TxnManagedMultiIndexNode<>(backingNode, params, indexName);
-		}
-		return new NoTxnManagedMultiIndexNode<>(backingNode, params, indexName);
-	}
-
-	public static <PK extends PrimaryKey<PK>,
-					D extends Databean<PK,D>,
-					IK extends PrimaryKey<IK>,
-					IE extends MultiIndexEntry<IK,IE,PK,D>,
-					IF extends DatabeanFielder<IK,IE>>
-	ManagedMultiIndexNode<PK, D, IK, IE, IF> newManagedMulti(Router router,
-			IndexedMapStorage<PK, D> backingNode, Class<IF> indexFielder, Class<IE> indexEntryClass,
-			boolean manageTxn){
-		return newManagedMulti(router, backingNode, indexFielder, indexEntryClass, manageTxn,
-			indexEntryClass.getSimpleName());
-	}
 }
