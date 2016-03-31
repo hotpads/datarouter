@@ -17,8 +17,6 @@ import com.hotpads.datarouter.test.TestDatabean;
 import com.hotpads.datarouter.test.TestDatabeanKey;
 import com.hotpads.datarouter.test.node.type.index.databean.TestDatabeanWithManagedIndexByBar;
 import com.hotpads.datarouter.test.node.type.index.databean.TestDatabeanWithManagedIndexByBarKey;
-import com.hotpads.datarouter.test.node.type.index.databean.TestDatabeanWithManagedIndexByBaz;
-import com.hotpads.datarouter.test.node.type.index.databean.TestDatabeanWithManagedIndexByBazKey;
 import com.hotpads.datarouter.test.node.type.index.node.TestDatabeanWithIndexNode;
 import com.hotpads.datarouter.test.node.type.index.node.TestDatabeanWithManagedIndexNode;
 import com.hotpads.datarouter.test.node.type.index.node.TestDatabeanWithTxnManagedIndexNode;
@@ -196,55 +194,9 @@ public abstract class BaseManagedIndexIntegrationTests{
 	}
 
 	@Test
-	public void testLookupMulti(){
-		testLookupMulti(node);
-		testLookupMulti(nodeWithTxnManaged);
-	}
-
-	private void testLookupMulti(TestDatabeanWithIndexNode node){
-		List<TestDatabean> databeans = node.byC.lookupMulti(
-				new TestDatabeanWithManagedIndexByBazKey("lala"), null);
-		Assert.assertEquals(databeans.size(), 0);
-		databeans = node.byC.lookupMulti(
-				new TestDatabeanWithManagedIndexByBazKey("ed"), null);
-		Assert.assertEquals(databeans.size(), 2);
-		List<TestDatabean> expected = DrListTool.create(
-				new TestDatabean("Neventi vad", "d'ar Vreton", "ed"),
-				new TestDatabean("Ha malloz-ru", "d'ar C'hallaou", "ed"));
-		for(TestDatabean d : databeans){
-			Assert.assertTrue(expected.remove(d));
-		}
-	}
-
-	@Test
-	public void testLookupMultiMulti(){
-		testLookupMultiMulti(node);
-		testLookupMultiMulti(nodeWithTxnManaged);
-	}
-
-	private void testLookupMultiMulti(TestDatabeanWithIndexNode node){
-		List<TestDatabeanWithManagedIndexByBazKey> keys = DrListTool.create(
-				new TestDatabeanWithManagedIndexByBazKey("ed"),
-				new TestDatabeanWithManagedIndexByBazKey("or"));
-		List<TestDatabean> databeans = node.byC.lookupMultiMulti(keys, null);
-		Assert.assertEquals(databeans.size(), 4);
-		List<TestDatabean> expected = DrListTool.create(
-				new TestDatabean("Neventi vad", "d'ar Vreton", "ed"),
-				new TestDatabean("Ha malloz-ru", "d'ar C'hallaou", "ed"),
-				new TestDatabean("Erru eul lestr", "e pleg ar m", "or"),
-				new TestDatabean("He weliou gwenn", "gant han dig", "or"));
-		for(TestDatabean d : databeans){
-			Assert.assertTrue(expected.remove(d));
-		}
-	}
-
-	@Test
 	public void testScanIndex(){
 		testScanUniqueIndex(node);
 		testScanUniqueIndex(nodeWithTxnManaged);
-
-		testScanMultiIndex(node);
-		testScanMultiIndex(nodeWithTxnManaged);
 	}
 
 	private void testScanUniqueIndex(TestDatabeanWithIndexNode node){
@@ -260,26 +212,10 @@ public abstract class BaseManagedIndexIntegrationTests{
 		Assert.assertEquals(testDatabeans.size(), count);
 	}
 
-	private void testScanMultiIndex(TestDatabeanWithIndexNode node){
-		TestDatabeanWithManagedIndexByBaz previous = null;
-		int count = 0;
-		for(TestDatabeanWithManagedIndexByBaz indexEntry : node.byC.scan(null, null)){
-			if(previous != null){
-				Assert.assertTrue(indexEntry.getKey().compareTo(previous.getKey()) >= 0);
-			}
-			previous = indexEntry;
-			count++;
-		}
-		Assert.assertEquals(testDatabeans.size(), count);
-	}
-
 	@Test
 	public void testScan(){
 		testScanUnique(node);
 		testScanUnique(nodeWithTxnManaged);
-
-		testScanMulti(node);
-		testScanMulti(nodeWithTxnManaged);
 	}
 
 	private void testScanUnique(TestDatabeanWithIndexNode node){
@@ -288,19 +224,6 @@ public abstract class BaseManagedIndexIntegrationTests{
 		for(TestDatabean databean : node.byB.scanDatabeans(null, null)){
 			if(previous != null){
 				Assert.assertTrue(databean.getBar().compareTo(previous.getBar()) >= 0);
-			}
-			previous = databean;
-			count++;
-		}
-		Assert.assertEquals(testDatabeans.size(), count);
-	}
-
-	private void testScanMulti(TestDatabeanWithIndexNode node){
-		TestDatabean previous = null;
-		int count = 0;
-		for(TestDatabean databean : node.byC.scanDatabeans(null, null)){
-			if(previous != null){
-				Assert.assertTrue(databean.getBaz().compareTo(previous.getBaz()) >= 0);
 			}
 			previous = databean;
 			count++;
