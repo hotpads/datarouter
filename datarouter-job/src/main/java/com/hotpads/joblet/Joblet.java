@@ -7,7 +7,7 @@ import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.databean.JobletData;
 import com.hotpads.util.core.stream.StreamTool;
 
-public interface JobletProcess{
+public interface Joblet{
 
 	JobletRequest getJoblet();
 	void setJoblet(JobletRequest joblet);
@@ -34,12 +34,12 @@ public interface JobletProcess{
 
 	/*-------------- static -----------------*/
 
-	static List<JobletRequest> getJoblets(Collection<? extends JobletProcess> jobletProcesses){
-		return StreamTool.map(jobletProcesses, JobletProcess::getJoblet);
+	static List<JobletRequest> getJoblets(Collection<? extends Joblet> jobletProcesses){
+		return StreamTool.map(jobletProcesses, Joblet::getJoblet);
 	}
 
-	static List<JobletData> getJobletDatas(Collection<? extends JobletProcess> jobletProcesses){
-		return StreamTool.map(jobletProcesses, JobletProcess::getJobletData);
+	static List<JobletData> getJobletDatas(Collection<? extends Joblet> jobletProcesses){
+		return StreamTool.map(jobletProcesses, Joblet::getJobletData);
 	}
 
 }

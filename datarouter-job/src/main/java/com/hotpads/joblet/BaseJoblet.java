@@ -3,7 +3,7 @@ package com.hotpads.joblet;
 import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.databean.JobletData;
 
-public abstract class BaseJobletProcess implements JobletProcess{
+public abstract class BaseJoblet implements Joblet{
 
 	protected JobletRequest joblet;
 	protected JobletData jobletData = new JobletData();

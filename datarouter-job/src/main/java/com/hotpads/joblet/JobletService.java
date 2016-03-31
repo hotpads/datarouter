@@ -52,17 +52,17 @@ public class JobletService{
 	}
 
 
-	public List<JobletProcess> getJobletProcessesOfType(JobletType<?> jobletType){
+	public List<Joblet> getJobletProcessesOfType(JobletType<?> jobletType){
 		JobletKey prefix = new JobletKey(jobletType, null, null, null);
 		return jobletNodes.joblet().streamWithPrefix(prefix, null)
 				.map(this::getJobletProcessForJoblet)
 				.collect(Collectors.toList());
 	}
 
-	public JobletProcess getJobletProcessForJoblet(JobletRequest joblet){
+	public Joblet getJobletProcessForJoblet(JobletRequest joblet){
 		JobletData jobletData = jobletNodes.jobletData().get(joblet.getJobletDataKey(), null);
 		JobletType<?> jobletType = jobletTypeFactory.fromJoblet(joblet);
-		JobletProcess jobletProcess = injector.getInstance(jobletType.getAssociatedClass());
+		Joblet jobletProcess = injector.getInstance(jobletType.getAssociatedClass());
 		jobletProcess.setJoblet(joblet);
 		jobletProcess.setJobletData(jobletData);
 		return jobletProcess;
@@ -117,10 +117,10 @@ public class JobletService{
 		datarouter.run(new DeleteJoblet(datarouter, jobletTypeFactory, joblet, jobletNodes, rateLimited));
 	}
 
-	public void submitJoblets(Collection<? extends JobletProcess> jobletProcesses){
-		jobletNodes.jobletData().putMulti(JobletProcess.getJobletDatas(jobletProcesses), null);
+	public void submitJoblets(Collection<? extends Joblet> jobletProcesses){
+		jobletNodes.jobletData().putMulti(Joblet.getJobletDatas(jobletProcesses), null);
 		jobletProcesses.forEach(jobletProcess -> jobletProcess.updateJobletDataIdReference());
-		jobletNodes.joblet().putMulti(JobletProcess.getJoblets(jobletProcesses), null);
+		jobletNodes.joblet().putMulti(Joblet.getJoblets(jobletProcesses), null);
 	}
 
 	public void setJobletsRunningOnServerToCreated(JobletType<?> jobletType, String serverName, boolean rateLimited){

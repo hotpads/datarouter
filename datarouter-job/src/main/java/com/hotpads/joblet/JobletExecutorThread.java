@@ -174,20 +174,20 @@ public class JobletExecutorThread extends Thread{
 		}
 	}
 
-	private JobletProcess createProcessFromJoblet(JobletPackage jobletPackage){
-		JobletProcess process = createUninitializedJobletProcessFromJoblet(jobletPackage);
+	private Joblet createProcessFromJoblet(JobletPackage jobletPackage){
+		Joblet process = createUninitializedJobletProcessFromJoblet(jobletPackage);
 		process.unmarshallDataIfNotAlready();
 		return process;
 	}
 
-	JobletProcess createUninitializedJobletProcessFromJoblet(JobletPackage jobletPackage){
+	Joblet createUninitializedJobletProcessFromJoblet(JobletPackage jobletPackage){
 		JobletType<?> jobletType = jobletTypeFactory.fromJobletPackage(jobletPackage);
 		JobletRequest joblet = jobletPackage.getJoblet();
-		Class<? extends JobletProcess> cls = jobletType.getAssociatedClass();
+		Class<? extends Joblet> cls = jobletType.getAssociatedClass();
 		if(cls == null){
 			throw new NullPointerException("No class associated with " + jobletType);
 		}
-		JobletProcess process = injector.getInstance(cls);
+		Joblet process = injector.getInstance(cls);
 		process.setJoblet(joblet);
 		process.setJobletData(jobletPackage.getJobletData());
 		return process;
@@ -197,7 +197,7 @@ public class JobletExecutorThread extends Thread{
 		JobletType<?> jobletType = jobletTypeFactory.fromJobletPackage(jobletPackage);
 		JobletRequest joblet = jobletPackage.getJoblet();
 		long startTimeMs = System.currentTimeMillis();
-		JobletProcess jobletProcess = createProcessFromJoblet(jobletPackage);
+		Joblet jobletProcess = createProcessFromJoblet(jobletPackage);
 		jobletProcess.process();
 		int numItemsProcessed = Math.max(1, joblet.getNumItems());
 		JobletCounters.incItemsProcessed(jobletType.getPersistentString(), numItemsProcessed);

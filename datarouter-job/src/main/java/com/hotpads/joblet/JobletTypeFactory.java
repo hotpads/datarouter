@@ -40,7 +40,7 @@ public class JobletTypeFactory{
 
 	/*--------------------- parse persistent string ----------------*/
 
-	public JobletType<?> fromJobletProcess(JobletProcess jobletProcess){
+	public JobletType<?> fromJobletProcess(Joblet jobletProcess){
 		return jobletProcess == null ? null : fromJoblet(jobletProcess.getJoblet());
 	}
 
