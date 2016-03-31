@@ -17,11 +17,12 @@ import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.joblet.JobletNodes;
 import com.hotpads.joblet.JobletStatus;
 import com.hotpads.joblet.JobletType;
-import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.databean.JobletQueue;
+import com.hotpads.joblet.databean.JobletRequest;
 
 public class GetJobletForProcessing extends BaseHibernateOp<JobletRequest>{
 
+	private final String tableName;
 	private final Long reservationTimeout;
 	private final String reservedBy;
 	private final JobletType<?> jobletType;
@@ -31,6 +32,7 @@ public class GetJobletForProcessing extends BaseHibernateOp<JobletRequest>{
 	public GetJobletForProcessing(Long reservationTimeout, int maxRetries, String reservedBy, JobletType<?> jobletType,
 			Datarouter datarouter, JobletNodes jobletNodes, boolean rateLimited) {
 		super(datarouter, jobletNodes.joblet().getMaster().getClientNames(), Isolation.repeatableRead, false);
+		this.tableName = jobletNodes.joblet().getMaster().getPhysicalNodeIfApplicable().getTableName();
 		this.reservationTimeout = reservationTimeout;
 		this.reservedBy = reservedBy;
 		this.jobletType = jobletType;
@@ -39,11 +41,9 @@ public class GetJobletForProcessing extends BaseHibernateOp<JobletRequest>{
 	}
 
 	@Override
-	public JobletRequest mergeResults(JobletRequest fromOnce,
-			Collection<JobletRequest> fromEachClient) {
+	public JobletRequest mergeResults(JobletRequest fromOnce, Collection<JobletRequest> fromEachClient){
 		return ResultMergeTool.first(fromOnce, fromEachClient);
 	}
-
 
 	@Override
 	public JobletRequest runOncePerClient(Client client){
@@ -104,7 +104,7 @@ public class GetJobletForProcessing extends BaseHibernateOp<JobletRequest>{
 			+", "+JobletRequest.F.created+", "+JobletRequest.F.batchSequence+" ";
 
 		String reserveSql = "select "+projectionClause
-			+" from Joblet j"+ jobletQueueTable
+			+ " from " + tableName + " j" + jobletQueueTable
 			+" where "
 			+ typeClause
 			+ readyClause

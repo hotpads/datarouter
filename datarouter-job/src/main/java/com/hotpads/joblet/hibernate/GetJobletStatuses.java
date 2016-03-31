@@ -20,12 +20,14 @@ import com.hotpads.joblet.dto.JobletSummary;
 @Deprecated
 public class GetJobletStatuses extends BaseHibernateOp<List<JobletSummary>>{
 
+	private final String tableName;
 	private final String whereStatus;
 	private final boolean includeQueueId;
 
 	public GetJobletStatuses(String whereStatus, boolean includeQueueId, Datarouter datarouter,
 			JobletNodes jobletNodes){
 		super(datarouter, jobletNodes.joblet().getMaster().getClientNames(), Isolation.readUncommitted, false);
+		this.tableName = jobletNodes.joblet().getMaster().getPhysicalNodeIfApplicable().getTableName();
 		this.whereStatus = whereStatus;
 		this.includeQueueId = includeQueueId;
 	}
@@ -50,7 +52,7 @@ public class GetJobletStatuses extends BaseHibernateOp<List<JobletSummary>>{
 		if(includeQueueId) {
 			sql = sql + ", " + JobletRequest.F.queueId;
 		}
-		sql = sql + " from Joblet " + where + " group by " + JobletRequest.F.status + ", " + JobletRequest.F.type + ", "
+		sql = sql + " from " + tableName + " " + where + " group by " + JobletRequest.F.status + ", " + JobletRequest.F.type + ", "
 				+ JobletRequest.F.executionOrder + ", ";
 		if(includeQueueId){
 			sql = sql + JobletRequest.F.queueId + ", ";
