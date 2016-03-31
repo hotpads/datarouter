@@ -35,7 +35,8 @@ public class TimeoutStuckRunningJoblets extends BaseHibernateOp<Integer>{
 	@Override
 	public Integer runOncePerClient(Client client){
 		String tableName = jobletNodes.joblet().getMaster().getPhysicalNodeIfApplicable().getTableName();
-		String statusTimedOutFragment = JobletRequest.F.status + "='" + JobletStatus.timedOut.getPersistentString() + "'";
+		String statusTimedOutFragment = JobletRequest.F.status + "='" + JobletStatus.timedOut.getPersistentString()
+				+ "'";
 		String statusRunningFragment = JobletRequest.F.status + "='" + JobletStatus.running.getPersistentString() + "'";
 		String restartableFalseFragment = JobletRequest.F.restartable + "=false";
 		String reservedAtFragment = JobletRequest.F.reservedAt + "<" + deleteJobletsBefore;

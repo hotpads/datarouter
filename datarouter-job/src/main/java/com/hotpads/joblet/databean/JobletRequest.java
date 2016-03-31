@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Table;
 import javax.persistence.Transient;
 
 import org.hibernate.annotations.AccessType;
@@ -38,6 +39,7 @@ import com.hotpads.util.core.stream.StreamTool;
 import com.hotpads.util.datastructs.MutableBoolean;
 
 @Entity
+@Table(name="Joblet")//TODO change to JobletRequest
 @AccessType("field")
 @TypeDefs({
 	@TypeDef(name="status", typeClass=com.hotpads.databean.GenericEnumUserType.class, parameters={
