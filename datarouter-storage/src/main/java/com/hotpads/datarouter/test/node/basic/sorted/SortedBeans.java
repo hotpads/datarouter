@@ -59,10 +59,10 @@ public class SortedBeans{
 	public static final int TOTAL_RECORDS = NUM_ELEMENTS*NUM_ELEMENTS*NUM_ELEMENTS*NUM_ELEMENTS;
 	
 	public static List<SortedBean> generatedSortedBeans(){
-		List<String> as = DrListTool.createArrayList(STRINGS);
-		List<String> bs = DrListTool.createArrayList(STRINGS);
-		List<Integer> cs = DrListTool.createArrayList(INTEGERS);
-		List<String> ds = DrListTool.createArrayList(STRINGS);
+		List<String> as = new ArrayList<>(STRINGS);
+		List<String> bs = new ArrayList<>(STRINGS);
+		List<Integer> cs = new ArrayList<>(INTEGERS);
+		List<String> ds = new ArrayList<>(STRINGS);
 		//shuffle them for fun.  they should end up sorted in the table
 		Collections.shuffle(as);
 		Collections.shuffle(bs);

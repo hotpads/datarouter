@@ -103,7 +103,7 @@ implements WriteBehindNode<PK,D,N>{
 	public List<String> getClientNames() {
 		SortedSet<String> clientNames = new TreeSet<>();
 		DrSetTool.nullSafeSortedAddAll(clientNames, backingNode.getClientNames());
-		return DrListTool.createArrayList(clientNames);
+		return new ArrayList<>(clientNames);
 	}
 
 	@Override
@@ -123,7 +123,7 @@ implements WriteBehindNode<PK,D,N>{
 	public List<String> getClientNamesForPrimaryKeysForSchemaUpdate(Collection<PK> keys) {
 		Set<String> clientNames = new HashSet<>();
 		clientNames.addAll(DrCollectionTool.nullSafe(backingNode.getClientNamesForPrimaryKeysForSchemaUpdate(keys)));
-		return DrListTool.createArrayList(clientNames);
+		return new ArrayList<>(clientNames);
 	}
 
 	@Override

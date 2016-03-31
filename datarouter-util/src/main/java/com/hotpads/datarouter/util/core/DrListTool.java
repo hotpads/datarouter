@@ -10,19 +10,14 @@ import java.util.RandomAccess;
 import org.junit.Assert;
 import org.junit.Test;
 
+public class DrListTool{
 
-public class DrListTool {
-
-	public static <T> List<T> nullSafeWrap(T item){
-		List<T> list = new LinkedList<T>();
-		if(item!=null){
+	public static <T> List<T> wrap(T item){
+		List<T> list = new LinkedList<>();
+		if(item != null){
 			list.add(item);
 		}
 		return list;
-	}
-
-	public static <T> List<T> wrap(T item){
-		return nullSafeWrap(item);
 	}
 
 	public static <T> ArrayList<T> createArrayListWithSize(Collection<?> collection){
@@ -30,8 +25,8 @@ public class DrListTool {
 	}
 
 	public static <T> ArrayList<T> createArrayListAndInitialize(int size){
-		ArrayList<T> out = new ArrayList<T>(size);
-		for(int i=0; i < size; ++i){
+		ArrayList<T> out = new ArrayList<>(size);
+		for(int i = 0; i < size; ++i){
 			out.add(null);
 		}
 		return out;
@@ -42,42 +37,29 @@ public class DrListTool {
 	}
 
 	public static <T> LinkedList<T> createLinkedList(T... in){
-		LinkedList<T> out = new LinkedList<T>();
+		LinkedList<T> out = new LinkedList<>();
 		if(DrArrayTool.isEmpty(in)){
 			return out;
 		}
-		for (T element : in){
+		for(T element : in){
 			out.add(element);
 		}
 		return out;
 	}
 
 	public static <T> ArrayList<T> createArrayList(T... in){
-		ArrayList<T> out = new ArrayList<T>(DrArrayTool.nullSafeLength(in));
+		ArrayList<T> out = new ArrayList<>(DrArrayTool.nullSafeLength(in));
 		if(DrArrayTool.isEmpty(in)){
 			return out;
 		}
-		for (T element : in){
+		for(T element : in){
 			out.add(element);
 		}
 		return out;
 	}
 
 	public static <T> List<T> createLinkedList(Collection<T> in){
-		List<T> out = new LinkedList<T>();
-		if(DrCollectionTool.isEmpty(in)){
-			return out;
-		}
-		out.addAll(in);
-		return out;
-	}
-
-	public static <T> ArrayList<T> createArrayList(Iterator<T> ins){
-		ArrayList<T> outs = new ArrayList<>();
-		while(ins.hasNext()){
-			outs.add(ins.next());
-		}
-		return outs;
+		return new LinkedList<>(in);
 	}
 
 	public static <T> ArrayList<T> createArrayList(Iterable<T> ins){
@@ -85,8 +67,8 @@ public class DrListTool {
 	}
 
 	public static <T> ArrayList<T> createArrayList(Iterable<T> ins, int limit){
-		ArrayList<T> outs = new ArrayList<T>();//don't pre-size array in case limit is huge
-		for(T in : DrIterableTool.nullSafe(ins)) {
+		ArrayList<T> outs = new ArrayList<>();// don't pre-size array in case limit is huge
+		for(T in : DrIterableTool.nullSafe(ins)){
 			outs.add(in);
 			if(outs.size() >= limit){
 				break;
@@ -95,38 +77,29 @@ public class DrListTool {
 		return outs;
 	}
 
-	public static <T> ArrayList<T> createArrayList(Collection<T> in){
-		ArrayList<T> out = new ArrayList<T>(DrCollectionTool.sizeNullSafe(in));
-		if(DrCollectionTool.isEmpty(in)){
-			return out;
-		}
-		out.addAll(in);
-		return out;
-	}
-
 	public static <T> List<T> nullSafe(List<T> in){
-		if(in == null) {
-			return new LinkedList<T>();
+		if(in == null){
+			return new LinkedList<>();
 		}
 		return in;
 	}
 
-	public static <T> List<T> nullSafeLinked(List<T> in){
-		if(in == null) {
-			return new LinkedList<T>();
+	private static <T> List<T> nullSafeLinked(List<T> in){
+		if(in == null){
+			return new LinkedList<>();
 		}
 		return in;
 	}
 
-	public static <T> List<T> nullSafeArray(List<T> in){
-		if(in == null) {
-			return new ArrayList<T>();
+	private static <T> List<T> nullSafeArray(List<T> in){
+		if(in == null){
+			return new ArrayList<>();
 		}
 		return in;
 	}
 
-	public static <T>List<T> asList(Collection<T> coll){
-		if(coll == null) {
+	public static <T> List<T> asList(Collection<T> coll){
+		if(coll == null){
 			return new LinkedList<>();
 		}
 		if(coll instanceof List){
@@ -134,7 +107,6 @@ public class DrListTool {
 		}
 		return new LinkedList<>(coll);
 	}
-
 
 	/*********************** concatenate ********************************/
 
@@ -151,31 +123,30 @@ public class DrListTool {
 		return outs;
 	}
 
-
 	/**************************** compare **************************/
 
 	public static <T extends Comparable<T>> int compare(List<T> as, List<T> bs){
-		if(as == null) {
+		if(as == null){
 			return bs == null ? 0 : -1;
 		}
-		if(bs == null) {
-			return as == null ? 0 : 1;
+		if(bs == null){
+			return 1;
 		}
 		Iterator<T> bi = bs.iterator();
 		for(T a : as){
-			if(!bi.hasNext()) {
+			if(!bi.hasNext()){
 				return 1;
 			} // as are longer than bs
 			int comp = DrComparableTool.nullFirstCompareTo(a, bi.next());
-			if(comp != 0) {
+			if(comp != 0){
 				return comp;
 			}
 		}
-		return bi.hasNext()?-1:0;  //bs are longer than as
+		return bi.hasNext() ? -1 : 0; // bs are longer than as
 	}
 
 	public static <T extends Comparable<? super T>> boolean isSorted(List<T> as){
-		if(as == null) {
+		if(as == null){
 			return true;
 		}
 		T last = null;
@@ -188,13 +159,12 @@ public class DrListTool {
 		return true;
 	}
 
-
 	/************************** modify *******************************/
 
 	public static <T> List<T> nullSafeLinkedAddAll(List<T> list, T... newItems){
 		list = nullSafeLinked(list);
 		if(DrArrayTool.notEmpty(newItems)){
-			for (T newItem : newItems){
+			for(T newItem : newItems){
 				list.add(newItem);
 			}
 		}
@@ -207,14 +177,11 @@ public class DrListTool {
 		return list;
 	}
 
-	public static <T> List<T> copyOfRange(
-			List<T> in, int startInclusive, int endExclusive){
-		if(DrCollectionTool.isEmpty(in)) {
+	public static <T> List<T> copyOfRange(List<T> in, int startInclusive, int endExclusive){
+		if(DrCollectionTool.isEmpty(in)){
 			return create();
 		}
-		if(startInclusive >= in.size()
-				|| endExclusive<=startInclusive
-				|| startInclusive<0){
+		if(startInclusive >= in.size() || endExclusive <= startInclusive || startInclusive < 0){
 			return create();
 		}
 		if(endExclusive > in.size()){
@@ -222,9 +189,9 @@ public class DrListTool {
 		}
 		int rangeSize = endExclusive - startInclusive;
 
-		List<T> copy = new ArrayList<T>(rangeSize);
+		List<T> copy = new ArrayList<>(rangeSize);
 		if(in instanceof RandomAccess){
-			for(int i=startInclusive; i < endExclusive; ++i){
+			for(int i = startInclusive; i < endExclusive; ++i){
 				copy.add(in.get(i));
 			}
 		}else{
@@ -239,27 +206,25 @@ public class DrListTool {
 		return copy;
 	}
 
-
 	/****************** tests *********************/
 
-	public static class Tests {
+	public static class Tests{
 		@Test
 		public void copyOfRange(){
-			List<Integer> resultA = DrListTool.createLinkedList(1,2,3,4,5);
+			List<Integer> resultA = DrListTool.createLinkedList(1, 2, 3, 4, 5);
 			List<Integer> resultB = DrListTool.copyOfRange(resultA, 1, 3);
-			Assert.assertArrayEquals(new Integer[]{2,3}, resultB.toArray());
+			Assert.assertArrayEquals(new Integer[]{2, 3}, resultB.toArray());
 			List<Integer> resultC = DrListTool.copyOfRange(resultA, 4, 27);
 			Assert.assertArrayEquals(new Integer[]{5}, resultC.toArray());
 
 			List<Integer> one = DrListTool.createLinkedList(1);
-			Assert.assertEquals(0,DrListTool.copyOfRange(one,0,0).size());
-			Assert.assertEquals(0,DrListTool.copyOfRange(one,0,-1).size());
-			Assert.assertEquals(1,DrListTool.copyOfRange(one,0,1).size());
-			Assert.assertEquals(1,DrListTool.copyOfRange(one,0,2).size());
-			Assert.assertEquals(0,DrListTool.copyOfRange(one,-1,2).size());
+			Assert.assertEquals(0, DrListTool.copyOfRange(one, 0, 0).size());
+			Assert.assertEquals(0, DrListTool.copyOfRange(one, 0, -1).size());
+			Assert.assertEquals(1, DrListTool.copyOfRange(one, 0, 1).size());
+			Assert.assertEquals(1, DrListTool.copyOfRange(one, 0, 2).size());
+			Assert.assertEquals(0, DrListTool.copyOfRange(one, -1, 2).size());
 		}
 
 	}
-
 
 }

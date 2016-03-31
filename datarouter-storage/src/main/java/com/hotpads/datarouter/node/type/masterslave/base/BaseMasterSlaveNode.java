@@ -92,7 +92,7 @@ extends BaseNode<PK,D,F> implements MasterSlaveNode<PK,D,N>{
 		for(N slave : this.slaves){
 			DrSetTool.nullSafeSortedAddAll(clientNames, slave.getClientNames());
 		}
-		return DrListTool.createArrayList(clientNames);
+		return new ArrayList<>(clientNames);
 	}
 
 	@Override
