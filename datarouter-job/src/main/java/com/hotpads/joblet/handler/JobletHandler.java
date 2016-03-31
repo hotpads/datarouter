@@ -113,8 +113,10 @@ public class JobletHandler extends BaseHandler{
 					condensedSummary.setNumType(condensedSummary.getNumType() + summary.getNumType());
 					condensedSummary.setSumItems(condensedSummary.getSumItems() + summary.getSumItems());
 					condensedSummary.setSumTasks(condensedSummary.getSumTasks() + summary.getSumTasks());
-					condensedSummary.setAvgItems(condensedSummary.getSumItems().floatValue() / condensedSummary.getNumType());
-					condensedSummary.setAvgTasks(condensedSummary.getSumTasks().floatValue() / condensedSummary.getNumType());
+					condensedSummary.setAvgItems(condensedSummary.getSumItems().floatValue() / condensedSummary
+							.getNumType());
+					condensedSummary.setAvgTasks(condensedSummary.getSumTasks().floatValue() / condensedSummary
+							.getNumType());
 					if(condensedSummary.getFirstCreated().after(summary.getFirstCreated())){
 						condensedSummary.setFirstCreated(summary.getFirstCreated());
 					}
