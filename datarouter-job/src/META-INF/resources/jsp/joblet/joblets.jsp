@@ -8,15 +8,14 @@
 	require(['jquery'], function(){
 		$(document).ready(function() {
 			$(".jobletTable tr[class^='aggregatedSummaryRow']").each(function() {
-			    //add function to tr
-			    $(this).click(function() {
-			        //toggle all elements to next Level1 class
-			        $(this).nextUntil("[class^='aggregatedSummaryRow']").toggle();
-			    });
+				//add function to tr
+				$(this).click(function() {
+					//toggle all elements to next Level1 class
+					$(this).nextUntil("[class^='aggregatedSummaryRow']").toggle();
+				});
 			});
 			$(".jobletTable tr[class^='detailedSummaryRow']").each(function() {
-			    //add function to tr
-			    $(this).hide();
+				$(this).hide();
 			});
 		});
 		var eventData = {
@@ -49,43 +48,24 @@
 		}
 	});
 	</script>
+	<style>
+		.includesMultipleQueues{
+			background-color: #F0F8FF;
+			cursor: pointer;
+		}
+	</style>
 </head>
 <body>
-	<%@ include file="/jsp/menu/common-navbar.jsp"%>
-	<%@ include file="/jsp/menu/dr-navbar.jsp"%>
-	<div class="container" id="jobletsTable">
-		<h2 class="page-header">Joblets</h2>
+	<%@ include file="/jsp/menu/common-navbar.jsp" %>
+	<%@ include file="/jsp/menu/dr-navbar.jsp" %>
+	<%@ include file="/jsp/joblet/jobletsNavbar.jspf" %>
+	<div class="container-fluid" id="jobletsTable">
 		<div class="page-content-container page-content-thicktop page-single-column">
 			servers: min=${minServers}, max=${maxServers}, target=
 				<a href="${contextPath}/datarouter/jobletScaling">view</a></p>
-
-			<p><%@ include file="/jsp/joblet/monitoringLinkBar.jsp" %></p>
-			<p>
-			<a	class="<c:if test="${empty whereStatus}">selected</c:if> btn btn-mini"
-				href="?submitAction=showJoblets">all</a>&nbsp;
-			<c:forEach items="${jobletStatuses}" var="status">
-				<a class="<c:if test="${whereStatus==status.persistentString}">selected</c:if> btn btn-mini"
-				href="?submitAction=showJoblets&expanded=${expanded}&whereStatus=${status.persistentString}"
-				>${status.persistentString}</a>
-			</c:forEach>
-			</p>
-				<p>
-				<a href="?submitAction=restartFailed" class="btn btn-mini" 
-					onclick="return confirm('Are you sure you want to restart failed joblets?');">restart failed joblets</a>
-				<a href="?submitAction=timeoutStuckRunning" class="btn btn-mini" 
-					onclick="return confirm('Are you sure you want to timeout stuck running joblets?');">timeout stuck running joblets</a>
-				<a href="?submitAction=deleteTimedOutJoblets" class="btn btn-mini" 
-					onclick="return confirm('Are you sure you want to delete timed out joblets?');">delete timed out joblets</a>
-				<a href="?submitAction=resetQueueTickets" class="btn btn-mini" 
-					onclick="return confirm('Are you sure you want to reset queue tickets?');">reset queue tickets</a>
-				<a href="?submitAction=restartTimedOut" class="btn btn-mini" 
-					onclick="return confirm('Are you sure you want to restart timedOut joblets?');">restart timedOut joblets</a>
-				<br/>
-				<br/>
-				<a href="?submitAction=showJoblets&expanded=true" class="btn btn-mini">expand queues</a>
 				<br/> <br/>totalTickets:${totalTickets}</p>
 
-			<table class="jobletTable sortable table table-bordered table-striped table-condensed" style="border-collapse:collapse;">
+			<table class="jobletTable sortable table table-bordered table-condensed" style="border-collapse:collapse;">
 				<tr>
 					<th>numFailures</th>
 					<th>executionOrder</th>
@@ -162,49 +142,6 @@
 				<h4>${jobletThreads.key} (waiting)</h4>
 				<%@ include file="/jsp/joblet/jobletThreadTable.jspf"%>
 			</c:forEach>
-
-			<p>
-			<a	href="?submitAction=restartExecutor&jobletType=AreaLookup" class="btn btn-mini" 
-				onclick="return confirm('Are you sure you want to restart AreaLookup executor?')">Restart
-				AreaLookup Executor</a>
-				
-			<a	href="?submitAction=restartExecutor&jobletType=AreaListingsLookup" class="btn btn-mini" 
-				onclick="return confirm('Are you sure you want to restart AreaListingsLookup executor?')">Restart
-				AreaListingsLookup Executor</a>
-				
-			<a	href="?submitAction=restartExecutor&jobletType=AreaRelationshipLookup" class="btn btn-mini" 
-				onclick="return confirm('Are you sure you want to restart AreaRelationshipLookup executor?')">Restart
-				AreaRelationshipLookup Executor</a>
-
-			<a	href="?submitAction=restartExecutor&jobletType=AreaBorderRendering" class="btn btn-mini" 
-				onclick="return confirm('Are you sure you want to restart AreaBorderRendering executor?')">Restart
-				AreaBorderRendering Executor</a>					
-					
-			<a href="?submitAction=restartExecutor&jobletType=FeedImport" class="btn btn-mini" 
-				onclick="return confirm('Are you sure you want to restart FeedImport executor?')">Restart
-				FeedImport Executor</a>
-			<a href="?submitAction=restartExecutor&jobletType=ListingDeletion" class="btn btn-mini" 
-				onclick="return confirm('Are you sure you want to restart ListingDeletion executor?')">Restart
-				ListingDeletion Executor</a>
-			<a href="?submitAction=restartExecutor&jobletType=ListingViewRendering" class="btn btn-mini" 
-				onclick="return confirm('Are you sure you want to restart ListingViewRendering executor?')">Restart
-				ListingViewRendering Executor</a>
-			<a href="?submitAction=restartExecutor&jobletType=Geocoding" class="btn btn-mini" 
-				onclick="return confirm('Are you sure you want to restart Geocoding executor?')">Restart
-				Geocoding Executor</a>
-			<a href="?submitAction=restartExecutor&jobletType=ListingDupeCheck" class="btn btn-mini" 
-				onclick="return confirm('Are you sure you want to restart ListingDupeCheck executor?')">Restart
-				ListingDupeCheck Executor</a>
-			<a href="?submitAction=restartExecutor&jobletType=PhotoDownload" class="btn btn-mini" 
-				onclick="return confirm('Are you sure you want to restart PhotoDownload executor?')">Restart
-				PhotoDownload Executor</a>
-			<a href="?submitAction=restartExecutor&jobletType=DailyPricingStats" class="btn btn-mini" 
-				onclick="return confirm('Are you sure you want to restart DailyPricingStats executor?')">Restart
-				DailyPricingStats Executor</a>
-			<a href="?submitAction=restartExecutor&jobletType=ImageCaching" class="btn btn-mini" 
-				onclick="return confirm('Are you sure you want to restart ImageCaching executor?')">Restart
-				ImageCaching Executor</a>
-			</p>
 		</div>
 	</div>
 </body>

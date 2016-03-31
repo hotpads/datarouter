@@ -1,0 +1,73 @@
+<nav class="navbar navbar-default">
+	<div class="container-fluid">
+		<div class="navbar-header">
+			<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#joblets-navbar">
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+			</button>
+			<a class="navbar-brand" href="?submitAction=showJoblets">Joblets</a>
+		</div>
+		<div class="collapse navbar-collapse" id="joblets-navbar">
+			<ul class="nav navbar-nav">
+				<li class="dropdown">
+					<a href="#" class="dropdown-toggle" data-toggle="dropdown">Monitoring <span class="caret"></span></a>
+					<ul class="dropdown-menu">
+						<li><a href="?submitAction=showQueues"">Queues</a></li>
+						<li><a href="?submitAction=showThreads">Threads</a></li>
+						<li><a href="?submitAction=listExceptions">Exceptions</a></li>
+					</ul>
+				</li>
+				<li class="dropdown">
+					<a href="#" class="dropdown-toggle" data-toggle="dropdown">Counters <span class="caret"></span></a>
+					<ul class="dropdown-menu">
+						<li><a href="/analytics/counters?submitAction=listCounters&webApps=All&servers=ALL&periods=300000&archive=databean+300000&nameLike=Joblet+queue+length">Queue Length Counts</a></li>
+						<li><a href="/analytics/counters?submitAction=listCounters&webApps=All&servers=ALL&periods=300000&archive=databean+300000&nameLike=Joblet+items+processed">Items Processed Counts</a></li>
+						<li><a href="/analytics/counters?submitAction=listCounters&webApps=All&servers=ALL&periods=300000&archive=databean+300000&nameLike=Joblet+tasks+processed">Tasks Processed Counts</a></li>
+						<li><a href="/analytics/counters?submitAction=listCounters&webApps=All&servers=ALL&periods=300000&archive=databean+300000&nameLike=Joblet+first+created">First Created Counts</a></li>
+						<li><a href="/analytics/counters?counters=Joblet%20target%20servers&submitAction=viewCounters&webApps=All&servers=All&periods=300000&frequency=second&rollPeriod=1">Target Servers Counts</a></li>
+						<li><a href="/analytics/counters?counters=Joblet%20num%20servers&submitAction=viewCounters&webApps=All&servers=All&periods=300000&frequency=second&rollPeriod=1">Num Servers Counts</a></li>
+					</ul>
+				</li>
+				<li class="dropdown">
+					<a href="#" class="dropdown-toggle" data-toggle="dropdown">Status <span class="caret"></span></a>
+					<ul class="dropdown-menu">
+						<li><a href="?submitAction=showJoblets">all</a></li>
+						<c:forEach items="${jobletStatuses}" var="status">
+							<li><a href="?submitAction=showJoblets&expanded=${expanded}&whereStatus=${status.persistentString}">${status.persistentString}</a></li>
+						</c:forEach>
+					</ul>
+				</li>
+				<li class="dropdown">
+					<a href="#" class="dropdown-toggle" data-toggle="dropdown">Actions <span class="caret"></span></a>
+					<ul class="dropdown-menu">
+						<li><a href="?submitAction=restartFailed" onclick="return confirm('Are you sure you want to restart failed joblets?');">restart failed joblets</a></li>
+						<li><a href="?submitAction=timeoutStuckRunning" onclick="return confirm('Are you sure you want to timeout stuck running joblets?');">timeout stuck running joblets</a></li>
+						<li><a href="?submitAction=deleteTimedOutJoblets" onclick="return confirm('Are you sure you want to delete timed out joblets?');">delete timed out joblets</a></li>
+						<li><a href="?submitAction=resetQueueTickets" onclick="return confirm('Are you sure you want to reset queue tickets?');">reset queue tickets</a></li>
+						<li><a href="?submitAction=restartTimedOut" onclick="return confirm('Are you sure you want to restart timedOut joblets?');">restart timedOut joblets</a></li>
+					</ul>
+				</li>
+				<li class="dropdown">
+					<a href="#" class="dropdown-toggle" data-toggle="dropdown">Executor restart <span class="caret"></span></a>
+					<ul class="dropdown-menu">
+						<c:forEach items="${jobletTypes}" var="jobletType">
+							<li>
+								<a href="?submitAction=restartExecutor&jobletType=${jobletType.persistentString}" 
+									onclick="return confirm('Are you sure you want to restart ${jobletType.display} executor?');">
+									${jobletType.display}
+								</a>
+							</li>
+						</c:forEach>
+					</ul>
+				</li>
+			</ul>
+			<ul class="nav navbar-nav navbar-right">
+				<c:if test="${expanded}">
+					<c:set var="expandBtnClass" value="active" />
+				</c:if>
+				<li class="${expandBtnClass}"><a href="?submitAction=showJoblets&expanded=${!expanded}">Expand queues</a></li>
+			</ul>
+		</div>
+	</div>
+</nav>
