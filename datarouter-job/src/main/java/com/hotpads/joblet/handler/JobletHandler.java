@@ -100,9 +100,8 @@ public class JobletHandler extends BaseHandler{
 					combinedSummaries.add(summary);
 					continue;
 				}
-				if(condensedSummary.getTypeString() != summary.getTypeString()
-						|| condensedSummary.getExecutionOrder().intValue()
-						!= summary.getExecutionOrder().intValue()){
+				if(!condensedSummary.getTypeString().equals(summary.getTypeString())
+						|| condensedSummary.getExecutionOrder().intValue() != summary.getExecutionOrder().intValue()){
 					if(condensedSummary.getNumType() != combinedSummaries.get(combinedIndex).getNumType()){
 						combinedSummaries.add(combinedIndex, condensedSummary);
 					}
@@ -114,8 +113,10 @@ public class JobletHandler extends BaseHandler{
 					condensedSummary.setNumType(condensedSummary.getNumType() + summary.getNumType());
 					condensedSummary.setSumItems(condensedSummary.getSumItems() + summary.getSumItems());
 					condensedSummary.setSumTasks(condensedSummary.getSumTasks() + summary.getSumTasks());
-					condensedSummary.setAvgItems(condensedSummary.getSumItems().floatValue() / summary.getNumType());
-					condensedSummary.setAvgTasks(condensedSummary.getSumTasks().floatValue() / summary.getNumType());
+					condensedSummary.setAvgItems(condensedSummary.getSumItems().floatValue() / condensedSummary
+							.getNumType());
+					condensedSummary.setAvgTasks(condensedSummary.getSumTasks().floatValue() / condensedSummary
+							.getNumType());
 					if(condensedSummary.getFirstCreated().after(summary.getFirstCreated())){
 						condensedSummary.setFirstCreated(summary.getFirstCreated());
 					}
@@ -126,11 +127,16 @@ public class JobletHandler extends BaseHandler{
 					combinedSummaries.add(summary);
 				}
 			}
+			if(condensedSummary!= null
+					&& condensedSummary.getNumType() != combinedSummaries.get(combinedIndex).getNumType()){
+				combinedSummaries.add(combinedIndex, condensedSummary);
+			}
 			mav.put("summaries", combinedSummaries);
 		}else{
 			mav.put("summaries", summaries);
 		}
 		mav.put("expanded", expanded);
+		mav.put("jobletTypes", jobletTypeFactory.getAllTypes());
 		//mav.addObject(jobletThrottle.get, value)
 		return mav;
 	}
