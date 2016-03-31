@@ -3,11 +3,12 @@ package com.hotpads.joblet;
 import java.util.Collection;
 import java.util.List;
 
-import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.databean.JobletData;
+import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.util.core.stream.StreamTool;
 
-public interface Joblet{
+public interface Joblet
+extends JobletCodec{
 
 	JobletRequest getJoblet();
 	void setJoblet(JobletRequest joblet);
@@ -21,13 +22,6 @@ public interface Joblet{
 	default void updateJobletDataIdReference(){
 		getJoblet().setJobletDataId(getJobletData().getId());
 	}
-
-    void marshallData();
-    void unmarshallData();
-    void unmarshallDataIfNotAlready();
-
-    int calculateNumItems();
-    int calculateNumTasks();
 
 	Long process();
 
