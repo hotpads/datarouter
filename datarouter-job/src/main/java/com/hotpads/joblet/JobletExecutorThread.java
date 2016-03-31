@@ -13,7 +13,7 @@ import com.google.inject.Injector;
 import com.hotpads.datarouter.util.core.DrNumberFormatter;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.job.JobInterruptedException;
-import com.hotpads.joblet.databean.Joblet;
+import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.databean.JobletData;
 import com.hotpads.joblet.profiling.FixedTimeSpanStatistics;
 import com.hotpads.joblet.profiling.StratifiedStatistics;
@@ -146,7 +146,7 @@ public class JobletExecutorThread extends Thread{
 	}
 
 	private void executeJoblet(){
-		Joblet joblet = jobletPackage.getJoblet();
+		JobletRequest joblet = jobletPackage.getJoblet();
 		PhaseTimer pt = joblet.getTimer();
 		pt.add("waited for processing");
 		boolean rateLimited = jobletSettings.getRateLimited().getValue();
@@ -182,7 +182,7 @@ public class JobletExecutorThread extends Thread{
 
 	JobletProcess createUninitializedJobletProcessFromJoblet(JobletPackage jobletPackage){
 		JobletType<?> jobletType = jobletTypeFactory.fromJobletPackage(jobletPackage);
-		Joblet joblet = jobletPackage.getJoblet();
+		JobletRequest joblet = jobletPackage.getJoblet();
 		Class<? extends JobletProcess> cls = jobletType.getAssociatedClass();
 		if(cls == null){
 			throw new NullPointerException("No class associated with " + jobletType);
@@ -195,7 +195,7 @@ public class JobletExecutorThread extends Thread{
 
 	private final void runJoblet(JobletPackage jobletPackage) throws JobInterruptedException{
 		JobletType<?> jobletType = jobletTypeFactory.fromJobletPackage(jobletPackage);
-		Joblet joblet = jobletPackage.getJoblet();
+		JobletRequest joblet = jobletPackage.getJoblet();
 		long startTimeMs = System.currentTimeMillis();
 		JobletProcess jobletProcess = createProcessFromJoblet(jobletPackage);
 		jobletProcess.process();
@@ -286,7 +286,7 @@ public class JobletExecutorThread extends Thread{
 	}
 
 	//used by jobletThreadTable.jspf
-	public Joblet getJoblet(){
+	public JobletRequest getJoblet(){
 		return jobletPackage == null ? null : jobletPackage.getJoblet();
 	}
 

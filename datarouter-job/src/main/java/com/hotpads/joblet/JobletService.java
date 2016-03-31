@@ -17,7 +17,7 @@ import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.handler.exception.ExceptionRecord;
 import com.hotpads.handler.exception.ExceptionRecorder;
 import com.hotpads.job.trigger.JobExceptionCategory;
-import com.hotpads.joblet.databean.Joblet;
+import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.databean.JobletData;
 import com.hotpads.joblet.databean.JobletDataKey;
 import com.hotpads.joblet.databean.JobletKey;
@@ -59,7 +59,7 @@ public class JobletService{
 				.collect(Collectors.toList());
 	}
 
-	public JobletProcess getJobletProcessForJoblet(Joblet joblet){
+	public JobletProcess getJobletProcessForJoblet(JobletRequest joblet){
 		JobletData jobletData = jobletNodes.jobletData().get(joblet.getJobletDataKey(), null);
 		JobletType<?> jobletType = jobletTypeFactory.fromJoblet(joblet);
 		JobletProcess jobletProcess = injector.getInstance(jobletType.getAssociatedClass());
@@ -68,13 +68,13 @@ public class JobletService{
 		return jobletProcess;
 	}
 
-	public Joblet getJobletForProcessing(JobletType<?> type, String reservedBy, long jobletTimeoutMs,
+	public JobletRequest getJobletForProcessing(JobletType<?> type, String reservedBy, long jobletTimeoutMs,
 			boolean rateLimited){
 		return datarouter.run(new GetJobletForProcessing(jobletTimeoutMs, MAX_JOBLET_RETRIES, reservedBy, type,
 				datarouter, jobletNodes, rateLimited));
 	}
 
-	public JobletData getJobletData(Joblet joblet){
+	public JobletData getJobletData(JobletRequest joblet){
 		Long jobletDataId = joblet.getJobletDataId();
 		JobletData jobletData = getJobletData(jobletDataId);
 		return jobletData;
@@ -88,7 +88,7 @@ public class JobletService{
 		return jobletNodes.jobletData().get(new JobletDataKey(jobletDataId), null);
 	}
 
-	public void handleJobletInterruption(Joblet joblet, boolean rateLimited){
+	public void handleJobletInterruption(JobletRequest joblet, boolean rateLimited){
 		joblet.setStatus(JobletStatus.created);
 		joblet.setReservedBy(null);
 		joblet.setReservedAt(null);
@@ -97,7 +97,7 @@ public class JobletService{
 		logger.warn("interrupted "+joblet.getKey()+", set status=created, reservedBy=null, reservedAt=null");
 	}
 
-	public void handleJobletError(Joblet joblet, boolean rateLimited, Exception exception, String location){
+	public void handleJobletError(JobletRequest joblet, boolean rateLimited, Exception exception, String location){
 		joblet.setNumFailures(joblet.getNumFailures() + 1);
 		if(joblet.getNumFailures() < joblet.getMaxFailures()){
 			joblet.setStatus(JobletStatus.created);
@@ -113,7 +113,7 @@ public class JobletService{
 				rateLimited));
 	}
 
-	public void handleJobletCompletion(Joblet joblet, boolean decrementQueueIfRateLimited, boolean rateLimited){
+	public void handleJobletCompletion(JobletRequest joblet, boolean decrementQueueIfRateLimited, boolean rateLimited){
 		datarouter.run(new DeleteJoblet(datarouter, jobletTypeFactory, joblet, jobletNodes, rateLimited));
 	}
 
@@ -124,20 +124,20 @@ public class JobletService{
 	}
 
 	public void setJobletsRunningOnServerToCreated(JobletType<?> jobletType, String serverName, boolean rateLimited){
-		Iterable<Joblet> joblets = jobletNodes.joblet().scan(null, null);
+		Iterable<JobletRequest> joblets = jobletNodes.joblet().scan(null, null);
 		String serverNamePrefix = serverName + "_";//don't want joblet1 to include joblet10
-		List<Joblet> jobletsToReset = Joblet.filterByTypeStatusReservedByPrefix(joblets, jobletType,
+		List<JobletRequest> jobletsToReset = JobletRequest.filterByTypeStatusReservedByPrefix(joblets, jobletType,
 				JobletStatus.running, serverNamePrefix);
 		logger.warn("found "+DrCollectionTool.size(jobletsToReset)+" joblets to reset");
 
-		for(Joblet j : jobletsToReset){
+		for(JobletRequest j : jobletsToReset){
 			handleJobletInterruption(j, rateLimited);
 		}
 	}
 
 	public List<JobletSummary> getJobletSummaries(boolean slaveOk){
-		Iterable<Joblet> scanner = jobletNodes.joblet().scan(null, new Config().setSlaveOk(slaveOk));
-		return Joblet.getJobletCountsCreatedByType(jobletTypeFactory, scanner);
+		Iterable<JobletRequest> scanner = jobletNodes.joblet().scan(null, new Config().setSlaveOk(slaveOk));
+		return JobletRequest.getJobletCountsCreatedByType(jobletTypeFactory, scanner);
 	}
 
 	public List<JobletSummary> getJobletSummariesForTable(String whereStatus, boolean includeQueueId){
@@ -148,7 +148,7 @@ public class JobletService{
 		JobletKey key = new JobletKey(jobletType, null, null, null);
 		Range<JobletKey> range = new Range<>(key, true, key, true);
 		Config config = new Config().setIterateBatchSize(50);
-		for(Joblet joblet : jobletNodes.joblet().scan(range, config)){
+		for(JobletRequest joblet : jobletNodes.joblet().scan(range, config)){
 			if(jobletStatus == joblet.getStatus()){
 				return true;
 			}
@@ -156,8 +156,8 @@ public class JobletService{
 		return false;
 	}
 
-	public void deleteJobletDatasForJoblets(Collection<Joblet> joblets){
-		List<JobletDataKey> jobletDataKeys = StreamTool.map(joblets, Joblet::getJobletDataKey);
+	public void deleteJobletDatasForJoblets(Collection<JobletRequest> joblets){
+		List<JobletDataKey> jobletDataKeys = StreamTool.map(joblets, JobletRequest::getJobletDataKey);
 		jobletNodes.jobletData().deleteMulti(jobletDataKeys, null);
 	}
 }

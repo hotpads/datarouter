@@ -6,7 +6,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.hotpads.datarouter.util.core.DrArrayTool;
-import com.hotpads.joblet.databean.Joblet;
+import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.databean.JobletKey;
 
 public class JobletTypeFactory{
@@ -48,7 +48,7 @@ public class JobletTypeFactory{
 		return jobletPackage == null ? null : fromJoblet(jobletPackage.getJoblet());
 	}
 
-	public JobletType<?> fromJoblet(Joblet joblet){
+	public JobletType<?> fromJoblet(JobletRequest joblet){
 		return joblet == null ? null : fromJobletKey(joblet.getKey());
 	}
 

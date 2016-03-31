@@ -51,10 +51,10 @@ public class JobletKey extends BasePrimaryKey<JobletKey>{
 	@Override
 	public List<Field<?>> getFields() {
 		return Arrays.asList(
-				new StringField(Joblet.F.type, this.type,DEFAULT_STRING_LENGTH),
-				new IntegerField(Joblet.F.executionOrder, this.executionOrder),
-				new LongField(Joblet.F.created, this.created),
-				new IntegerField(Joblet.F.batchSequence, this.batchSequence));
+				new StringField(JobletRequest.F.type, this.type,DEFAULT_STRING_LENGTH),
+				new IntegerField(JobletRequest.F.executionOrder, this.executionOrder),
+				new LongField(JobletRequest.F.created, this.created),
+				new IntegerField(JobletRequest.F.batchSequence, this.batchSequence));
 	}
 
 

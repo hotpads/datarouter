@@ -12,7 +12,7 @@ import com.hotpads.datarouter.op.util.ResultMergeTool;
 import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.joblet.JobletNodes;
 import com.hotpads.joblet.JobletStatus;
-import com.hotpads.joblet.databean.Joblet;
+import com.hotpads.joblet.databean.JobletRequest;
 
 public class TimeoutStuckRunningJoblets extends BaseHibernateOp<Integer>{
 
@@ -35,10 +35,10 @@ public class TimeoutStuckRunningJoblets extends BaseHibernateOp<Integer>{
 	@Override
 	public Integer runOncePerClient(Client client){
 		String tableName = jobletNodes.joblet().getMaster().getPhysicalNodeIfApplicable().getTableName();
-		String statusTimedOutFragment = Joblet.F.status + "='" + JobletStatus.timedOut.getPersistentString() + "'";
-		String statusRunningFragment = Joblet.F.status + "='" + JobletStatus.running.getPersistentString() + "'";
-		String restartableFalseFragment = Joblet.F.restartable + "=false";
-		String reservedAtFragment = Joblet.F.reservedAt + "<" + deleteJobletsBefore;
+		String statusTimedOutFragment = JobletRequest.F.status + "='" + JobletStatus.timedOut.getPersistentString() + "'";
+		String statusRunningFragment = JobletRequest.F.status + "='" + JobletStatus.running.getPersistentString() + "'";
+		String restartableFalseFragment = JobletRequest.F.restartable + "=false";
+		String reservedAtFragment = JobletRequest.F.reservedAt + "<" + deleteJobletsBefore;
 
 		String sql = "update " + tableName + " set"
 				+ " " + statusTimedOutFragment

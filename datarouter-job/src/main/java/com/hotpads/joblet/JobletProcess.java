@@ -3,14 +3,14 @@ package com.hotpads.joblet;
 import java.util.Collection;
 import java.util.List;
 
-import com.hotpads.joblet.databean.Joblet;
+import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.databean.JobletData;
 import com.hotpads.util.core.stream.StreamTool;
 
 public interface JobletProcess{
 
-	Joblet getJoblet();
-	void setJoblet(Joblet joblet);
+	JobletRequest getJoblet();
+	void setJoblet(JobletRequest joblet);
 
 	void setJobletData(JobletData jobletData);
 	JobletData getJobletData();
@@ -34,7 +34,7 @@ public interface JobletProcess{
 
 	/*-------------- static -----------------*/
 
-	static List<Joblet> getJoblets(Collection<? extends JobletProcess> jobletProcesses){
+	static List<JobletRequest> getJoblets(Collection<? extends JobletProcess> jobletProcesses){
 		return StreamTool.map(jobletProcesses, JobletProcess::getJoblet);
 	}
 
