@@ -7,11 +7,11 @@ import com.hotpads.joblet.databean.JobletData;
 import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.util.core.stream.StreamTool;
 
-public interface Joblet
-extends JobletCodec{
+public interface Joblet<T>
+extends JobletCodec<T>{
 
-	JobletRequest getJoblet();
-	void setJoblet(JobletRequest joblet);
+	JobletRequest getJobletRequest();
+	void setJoblet(JobletRequest jobletRequest);
 
 	void setJobletData(JobletData jobletData);
 	JobletData getJobletData();
@@ -20,7 +20,7 @@ extends JobletCodec{
 	String getData();
 
 	default void updateJobletDataIdReference(){
-		getJoblet().setJobletDataId(getJobletData().getId());
+		getJobletRequest().setJobletDataId(getJobletData().getId());
 	}
 
 	Long process();
@@ -29,7 +29,7 @@ extends JobletCodec{
 	/*-------------- static -----------------*/
 
 	static List<JobletRequest> getJoblets(Collection<? extends Joblet> jobletProcesses){
-		return StreamTool.map(jobletProcesses, Joblet::getJoblet);
+		return StreamTool.map(jobletProcesses, Joblet::getJobletRequest);
 	}
 
 	static List<JobletData> getJobletDatas(Collection<? extends Joblet> jobletProcesses){

@@ -1,9 +1,9 @@
 package com.hotpads.joblet;
 
-import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.databean.JobletData;
+import com.hotpads.joblet.databean.JobletRequest;
 
-public abstract class BaseJoblet implements Joblet{
+public abstract class BaseJoblet<T> implements Joblet<T>{
 
 	protected JobletRequest joblet;
 	protected JobletData jobletData = new JobletData();
@@ -35,7 +35,7 @@ public abstract class BaseJoblet implements Joblet{
 	}
 
 	@Override
-	public JobletRequest getJoblet(){
+	public JobletRequest getJobletRequest(){
 		return joblet;
 	}
 

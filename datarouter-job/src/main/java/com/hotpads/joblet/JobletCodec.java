@@ -1,6 +1,6 @@
 package com.hotpads.joblet;
 
-public interface JobletCodec{
+public interface JobletCodec<T>{
 
     void marshallData();
     void unmarshallData();
