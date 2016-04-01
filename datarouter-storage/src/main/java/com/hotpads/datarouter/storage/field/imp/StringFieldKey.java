@@ -44,6 +44,11 @@ public class StringFieldKey extends BaseFieldKey<String>{
 		return new StringFieldKey(name, columnName, nullable, fieldGeneratorType, defaultValue, size);
 	}
 
+	public StringFieldKey withColumnName(String columnName){
+		return new StringFieldKey(name, columnName, nullable, fieldGeneratorType, defaultValue, size);
+	}
+
+
 	/*********************** ByteEncodedField ***********************/
 
 	public static final byte SEPARATOR = 0;
