@@ -4,7 +4,7 @@ import com.hotpads.datarouter.storage.field.enums.StringEnum;
 
 public interface JobletType<T> extends StringEnum<T>{
 
-	Class<? extends JobletProcess> getAssociatedClass();
+	Class<? extends Joblet> getAssociatedClass();
 	boolean getRateLimited();
 	Integer getBatchSize();
 	Integer getCpuPermits();

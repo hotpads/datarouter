@@ -12,16 +12,16 @@ import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.joblet.JobletNodes;
 import com.hotpads.joblet.JobletType;
 import com.hotpads.joblet.JobletTypeFactory;
-import com.hotpads.joblet.databean.Joblet;
+import com.hotpads.joblet.databean.JobletRequest;
 
-public class DeleteJoblet extends BaseHibernateOp<Joblet>{
+public class DeleteJoblet extends BaseHibernateOp<JobletRequest>{
 
 	private final JobletTypeFactory jobletTypeFactory;
-	private final Joblet  joblet;
+	private final JobletRequest  joblet;
 	private final JobletNodes jobletNodes;
 	private final Boolean rateLimited;
 
-	public DeleteJoblet(Datarouter datarouter, JobletTypeFactory jobletTypeFactory, Joblet joblet,
+	public DeleteJoblet(Datarouter datarouter, JobletTypeFactory jobletTypeFactory, JobletRequest joblet,
 			JobletNodes jobletNodes, Boolean rateLimited) {
 		super(datarouter, jobletNodes.joblet().getMaster().getClientNames(), Isolation.repeatableRead, false);
 		this.jobletTypeFactory = jobletTypeFactory;
@@ -31,7 +31,7 @@ public class DeleteJoblet extends BaseHibernateOp<Joblet>{
 	}
 
 	@Override
-	public Joblet runOncePerClient(Client client){
+	public JobletRequest runOncePerClient(Client client){
 		Session session = this.getSession(client.getName());
 		JobletType<?> jobletType = jobletTypeFactory.fromJoblet(joblet);
 		boolean enforceRateLimit = rateLimited && jobletType.getRateLimited();
@@ -47,7 +47,7 @@ public class DeleteJoblet extends BaseHibernateOp<Joblet>{
 	}
 
 	@Override
-	public Joblet mergeResults(Joblet fromOnce, Collection<Joblet> fromEachClient) {
+	public JobletRequest mergeResults(JobletRequest fromOnce, Collection<JobletRequest> fromEachClient) {
 		return ResultMergeTool.first(fromOnce, fromEachClient);
 	}
 

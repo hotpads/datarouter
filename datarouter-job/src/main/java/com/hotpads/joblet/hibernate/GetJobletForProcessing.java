@@ -17,11 +17,12 @@ import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.joblet.JobletNodes;
 import com.hotpads.joblet.JobletStatus;
 import com.hotpads.joblet.JobletType;
-import com.hotpads.joblet.databean.Joblet;
 import com.hotpads.joblet.databean.JobletQueue;
+import com.hotpads.joblet.databean.JobletRequest;
 
-public class GetJobletForProcessing extends BaseHibernateOp<Joblet>{
+public class GetJobletForProcessing extends BaseHibernateOp<JobletRequest>{
 
+	private final String tableName;
 	private final Long reservationTimeout;
 	private final String reservedBy;
 	private final JobletType<?> jobletType;
@@ -31,6 +32,7 @@ public class GetJobletForProcessing extends BaseHibernateOp<Joblet>{
 	public GetJobletForProcessing(Long reservationTimeout, int maxRetries, String reservedBy, JobletType<?> jobletType,
 			Datarouter datarouter, JobletNodes jobletNodes, boolean rateLimited) {
 		super(datarouter, jobletNodes.joblet().getMaster().getClientNames(), Isolation.repeatableRead, false);
+		this.tableName = jobletNodes.joblet().getMaster().getPhysicalNodeIfApplicable().getTableName();
 		this.reservationTimeout = reservationTimeout;
 		this.reservedBy = reservedBy;
 		this.jobletType = jobletType;
@@ -39,18 +41,16 @@ public class GetJobletForProcessing extends BaseHibernateOp<Joblet>{
 	}
 
 	@Override
-	public Joblet mergeResults(Joblet fromOnce,
-			Collection<Joblet> fromEachClient) {
+	public JobletRequest mergeResults(JobletRequest fromOnce, Collection<JobletRequest> fromEachClient){
 		return ResultMergeTool.first(fromOnce, fromEachClient);
 	}
 
-
 	@Override
-	public Joblet runOncePerClient(Client client){
+	public JobletRequest runOncePerClient(Client client){
 		boolean enforceRateLimit = rateLimited && jobletType.getRateLimited();
 		Session session = getSession(client.getName());
 
-		Joblet joblet = getOneJoblet(enforceRateLimit, session);
+		JobletRequest joblet = getOneJoblet(enforceRateLimit, session);
 		while(joblet!=null && ! joblet.getStatus().isRunning()){
 			joblet = getOneJoblet(enforceRateLimit,session);
 
@@ -70,7 +70,7 @@ public class GetJobletForProcessing extends BaseHibernateOp<Joblet>{
 	}
 
 	@SuppressWarnings("unchecked")
-	public Joblet getOneJoblet(boolean rateLimit, Session session){
+	public JobletRequest getOneJoblet(boolean rateLimit, Session session){
 
 		//reserve a joblet:  (type AND ((status AND rateLimit) OR timedOut))
 		String typeClause = " type='" + jobletType.getPersistentString() + "' and ";
@@ -100,11 +100,11 @@ public class GetJobletForProcessing extends BaseHibernateOp<Joblet>{
 		}
 
 		@SuppressWarnings("unused")
-		String orderByClause = " order by "+Joblet.F.type+", "+Joblet.F.executionOrder
-			+", "+Joblet.F.created+", "+Joblet.F.batchSequence+" ";
+		String orderByClause = " order by "+JobletRequest.F.type+", "+JobletRequest.F.executionOrder
+			+", "+JobletRequest.F.created+", "+JobletRequest.F.batchSequence+" ";
 
 		String reserveSql = "select "+projectionClause
-			+" from Joblet j"+ jobletQueueTable
+			+ " from " + tableName + " j" + jobletQueueTable
 			+" where "
 			+ typeClause
 			+ readyClause
@@ -113,20 +113,20 @@ public class GetJobletForProcessing extends BaseHibernateOp<Joblet>{
 			+ " limit 1 for update";
 
 		SQLQuery reserveQuery = session.createSQLQuery(reserveSql);
-		reserveQuery.addEntity("j", Joblet.class);
+		reserveQuery.addEntity("j", JobletRequest.class);
 		if(rateLimit){
 			//don't need the data in this one, but need to aquire the "for update" lock
 			reserveQuery.addEntity("q", JobletQueue.class);
 		}
-		Joblet joblet;
+		JobletRequest joblet;
 		if(rateLimit) {// will return a list of rows, where each row is an Object[], and each array element is an entity
 			Object[] row = (Object[])DrCollectionTool.getFirst(reserveQuery.list());
 			if(row == null) {
 				return null;
 			}
-			joblet = (Joblet)row[0];
+			joblet = (JobletRequest)row[0];
 		}else{
-			joblet = (Joblet)DrCollectionTool.getFirst(reserveQuery.list());
+			joblet = (JobletRequest)DrCollectionTool.getFirst(reserveQuery.list());
 			if(joblet == null) {
 				return null;
 			}

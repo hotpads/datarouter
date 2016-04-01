@@ -13,8 +13,11 @@ import com.hotpads.joblet.JobletStatus;
 
 public class DeleteTimedOutJoblets extends BaseHibernateOp<Integer>{
 
+	private final String tableName;
+
 	public DeleteTimedOutJoblets(Datarouter datarouter, JobletNodes jobletNodes) {
 		super(datarouter, jobletNodes.joblet().getMaster().getClientNames());
+		this.tableName = jobletNodes.joblet().getMaster().getPhysicalNodeIfApplicable().getTableName();
 	}
 
 	@Override
@@ -24,7 +27,7 @@ public class DeleteTimedOutJoblets extends BaseHibernateOp<Integer>{
 
 	@Override
 	public Integer runOncePerClient(Client client){
-		String sql = "delete from Joblet where status='"+JobletStatus.timedOut.getPersistentString()+"'";
+		String sql = "delete from " + tableName + " where status='" + JobletStatus.timedOut.getPersistentString() + "'";
 		SQLQuery query = getSession(client.getName()).createSQLQuery(sql);
 		return query.executeUpdate();
 	}

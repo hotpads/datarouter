@@ -27,7 +27,7 @@ import com.hotpads.joblet.JobletStatus;
 import com.hotpads.joblet.JobletType;
 import com.hotpads.joblet.JobletTypeFactory;
 import com.hotpads.joblet.ParallelJobletProcessors;
-import com.hotpads.joblet.databean.Joblet;
+import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.databean.JobletData;
 import com.hotpads.joblet.databean.JobletQueue;
 import com.hotpads.joblet.databean.JobletQueueKey;
@@ -177,8 +177,8 @@ public class JobletHandler extends BaseHandler{
 	@Handler
 	protected Mav listExceptions(){
 		Mav mav = new Mav(JSP_exceptions);
-		List<Joblet> failedJoblets = new ArrayList<>();
-		for(Joblet joblet : jobletNodes.joblet().scan(null, null)){
+		List<JobletRequest> failedJoblets = new ArrayList<>();
+		for(JobletRequest joblet : jobletNodes.joblet().scan(null, null)){
 			if(joblet.getStatus() == JobletStatus.failed){
 				failedJoblets.add(joblet);
 			}
@@ -280,8 +280,8 @@ public class JobletHandler extends BaseHandler{
 		Long jobletDataId = DrNumberTool.getLongNullSafe(params.optional("jobletDataId", ""),null);
 		boolean delete = params.optionalBoolean("delete", false);
 
-		List<Joblet> joblets = DrListTool.createArrayList(jobletNodes.joblet().scan(null, null));
-		Joblet joblet = findJobletWithId(joblets, jobletDataId);
+		List<JobletRequest> joblets = DrListTool.createArrayList(jobletNodes.joblet().scan(null, null));
+		JobletRequest joblet = findJobletWithId(joblets, jobletDataId);
 		if(delete){
 			jobletNodes.joblet().delete(joblet.getKey(), null);
 		}else{
@@ -294,8 +294,8 @@ public class JobletHandler extends BaseHandler{
 		return new InContextRedirectMav(params, URL_JOBLETS_IN_CONTEXT);
 	}
 
-	private Joblet findJobletWithId(Collection<Joblet> joblets, Long jobletDataId){
-		for(Joblet joblet : joblets){
+	private JobletRequest findJobletWithId(Collection<JobletRequest> joblets, Long jobletDataId){
+		for(JobletRequest joblet : joblets){
 			if(joblet.getJobletDataId().equals(jobletDataId)){
 				return joblet;
 			}
