@@ -19,7 +19,7 @@ public class AtomicCounter implements CountCollectorPeriod{
 	public AtomicCounter(long startTimeMs, long lengthMs){
 		this.startTimeMs = startTimeMs;
 		this.lengthMs = lengthMs;
-		this.countByKey = new ConcurrentHashMap<String,AtomicLong>(INITIAL_CAPACITY);
+		this.countByKey = new ConcurrentHashMap<>(INITIAL_CAPACITY);
 		Thread createdByThread = Thread.currentThread();
 		this.createdByThreadId = createdByThread.getId()+"-"+createdByThread.getName();
 	}
@@ -85,14 +85,6 @@ public class AtomicCounter implements CountCollectorPeriod{
 	@Override
 	public AtomicCounter getCounter(){
 		return this;
-	}
-
-	public AtomicCounter deepCopy(){
-		AtomicCounter copy = new AtomicCounter(startTimeMs, lengthMs);
-		for(Map.Entry<String,AtomicLong> entry : DrMapTool.nullSafe(countByKey).entrySet()){
-			copy.countByKey.put(entry.getKey(), new AtomicLong(entry.getValue().longValue()));
-		}
-		return copy;
 	}
 
 	@Override
