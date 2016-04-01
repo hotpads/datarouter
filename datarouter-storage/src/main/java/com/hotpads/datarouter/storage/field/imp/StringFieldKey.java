@@ -40,12 +40,12 @@ public class StringFieldKey extends BaseFieldKey<String>{
 		this.size = size;
 	}
 
-	public StringFieldKey withSize(int size){
-		return new StringFieldKey(name, columnName, nullable, fieldGeneratorType, defaultValue, size);
+	public StringFieldKey withSize(int sizeOverride){
+		return new StringFieldKey(name, columnName, nullable, fieldGeneratorType, defaultValue, sizeOverride);
 	}
 
-	public StringFieldKey withColumnName(String columnName){
-		return new StringFieldKey(name, columnName, nullable, fieldGeneratorType, defaultValue, size);
+	public StringFieldKey withColumnName(String columnNameOverride){
+		return new StringFieldKey(name, columnNameOverride, nullable, fieldGeneratorType, defaultValue, size);
 	}
 
 
