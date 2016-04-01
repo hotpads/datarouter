@@ -47,7 +47,6 @@ public class Counters{
 
 	private static final ArrayList<CountCollector> collectors = new ArrayList<>();
 
-
 	/************* admin ******************/
 
 	public static void addCollector(CountCollector collector){
@@ -59,7 +58,6 @@ public class Counters{
 			collectors.get(i).stopAndFlushAll();
 		}
 	}
-
 
 	/************* couting ********************/
 
