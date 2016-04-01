@@ -2,7 +2,7 @@ package com.hotpads.joblet;
 
 public interface JobletCodec<T>{
 
-    void marshallData();
+    String marshallData();
     T unmarshallData();
     void unmarshallDataIfNotAlready();
 
