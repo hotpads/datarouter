@@ -13,7 +13,7 @@ import com.google.inject.Injector;
 import com.hotpads.datarouter.util.core.DrNumberFormatter;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.job.JobInterruptedException;
-import com.hotpads.joblet.databean.Joblet;
+import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.databean.JobletData;
 import com.hotpads.joblet.profiling.FixedTimeSpanStatistics;
 import com.hotpads.joblet.profiling.StratifiedStatistics;
@@ -146,7 +146,7 @@ public class JobletExecutorThread extends Thread{
 	}
 
 	private void executeJoblet(){
-		Joblet joblet = jobletPackage.getJoblet();
+		JobletRequest joblet = jobletPackage.getJoblet();
 		PhaseTimer pt = joblet.getTimer();
 		pt.add("waited for processing");
 		boolean rateLimited = jobletSettings.getRateLimited().getValue();
@@ -174,20 +174,20 @@ public class JobletExecutorThread extends Thread{
 		}
 	}
 
-	private JobletProcess createProcessFromJoblet(JobletPackage jobletPackage){
-		JobletProcess process = createUninitializedJobletProcessFromJoblet(jobletPackage);
+	private Joblet createProcessFromJoblet(JobletPackage jobletPackage){
+		Joblet process = createUninitializedJobletProcessFromJoblet(jobletPackage);
 		process.unmarshallDataIfNotAlready();
 		return process;
 	}
 
-	JobletProcess createUninitializedJobletProcessFromJoblet(JobletPackage jobletPackage){
+	Joblet createUninitializedJobletProcessFromJoblet(JobletPackage jobletPackage){
 		JobletType<?> jobletType = jobletTypeFactory.fromJobletPackage(jobletPackage);
-		Joblet joblet = jobletPackage.getJoblet();
-		Class<? extends JobletProcess> cls = jobletType.getAssociatedClass();
+		JobletRequest joblet = jobletPackage.getJoblet();
+		Class<? extends Joblet> cls = jobletType.getAssociatedClass();
 		if(cls == null){
 			throw new NullPointerException("No class associated with " + jobletType);
 		}
-		JobletProcess process = injector.getInstance(cls);
+		Joblet process = injector.getInstance(cls);
 		process.setJoblet(joblet);
 		process.setJobletData(jobletPackage.getJobletData());
 		return process;
@@ -195,9 +195,9 @@ public class JobletExecutorThread extends Thread{
 
 	private final void runJoblet(JobletPackage jobletPackage) throws JobInterruptedException{
 		JobletType<?> jobletType = jobletTypeFactory.fromJobletPackage(jobletPackage);
-		Joblet joblet = jobletPackage.getJoblet();
+		JobletRequest joblet = jobletPackage.getJoblet();
 		long startTimeMs = System.currentTimeMillis();
-		JobletProcess jobletProcess = createProcessFromJoblet(jobletPackage);
+		Joblet jobletProcess = createProcessFromJoblet(jobletPackage);
 		jobletProcess.process();
 		int numItemsProcessed = Math.max(1, joblet.getNumItems());
 		JobletCounters.incItemsProcessed(jobletType.getPersistentString(), numItemsProcessed);
@@ -286,7 +286,7 @@ public class JobletExecutorThread extends Thread{
 	}
 
 	//used by jobletThreadTable.jspf
-	public Joblet getJoblet(){
+	public JobletRequest getJoblet(){
 		return jobletPackage == null ? null : jobletPackage.getJoblet();
 	}
 

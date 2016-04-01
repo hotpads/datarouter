@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Table;
 import javax.persistence.Transient;
 
 import org.hibernate.annotations.AccessType;
@@ -38,6 +39,7 @@ import com.hotpads.util.core.stream.StreamTool;
 import com.hotpads.util.datastructs.MutableBoolean;
 
 @Entity
+@Table(name="Joblet")//TODO change to JobletRequest
 @AccessType("field")
 @TypeDefs({
 	@TypeDef(name="status", typeClass=com.hotpads.databean.GenericEnumUserType.class, parameters={
@@ -45,7 +47,7 @@ import com.hotpads.util.datastructs.MutableBoolean;
 		@Parameter(name="identifierMethod", value="getPersistentString"),
 		@Parameter(name="valueOfMethod", value="fromPersistentStringStatic")}),
 })
-public class Joblet extends BaseDatabean<JobletKey,Joblet>{
+public class JobletRequest extends BaseDatabean<JobletKey,JobletRequest>{
 
 	/************************** enums **************************************/
 
@@ -104,24 +106,24 @@ public class Joblet extends BaseDatabean<JobletKey,Joblet>{
 
 	/************************* constructors ********************************/
 
-	Joblet(){
+	JobletRequest(){
 		this.key = new JobletKey(null, null, null);
 	}
 
-	public Joblet(JobletType<?> type, Integer executionOrder, Integer batchSequence, boolean restartable){
+	public JobletRequest(JobletType<?> type, Integer executionOrder, Integer batchSequence, boolean restartable){
 		this.key = new JobletKey(type, executionOrder, batchSequence);
 		this.restartable = restartable;
 	}
 
 	/******************** databean ************************************/
 
-	public static class JobletFielder extends BaseDatabeanFielder<JobletKey, Joblet> {
+	public static class JobletFielder extends BaseDatabeanFielder<JobletKey, JobletRequest> {
 		public JobletFielder() {
 			super(JobletKey.class);
 		}
 
 		@Override
-		public List<Field<?>> getNonKeyFields(Joblet databean) {
+		public List<Field<?>> getNonKeyFields(JobletRequest databean) {
 			return Arrays.asList(
 					new StringField(F.queueId, databean.queueId, MySqlColumnType.MAX_LENGTH_VARCHAR),
 					new StringEnumField<JobletStatus>(JobletStatus.class, F.status, databean.status,
@@ -161,13 +163,13 @@ public class Joblet extends BaseDatabean<JobletKey,Joblet>{
 	}
 
 	public static List<JobletSummary> getJobletCountsCreatedByType(JobletTypeFactory jobletTypeFactory,
-			Iterable<Joblet> scanner){
+			Iterable<JobletRequest> scanner){
 		List<JobletSummary> summaries = new ArrayList<>();
 		JobletType<?> currentType = null;
 		Long oldestCreatedDate = null;
 		Integer sumItems = 0;
 		boolean atLeastOnecreatedJoblet = false;
-		for(Joblet joblet : scanner){
+		for(JobletRequest joblet : scanner){
 			JobletType<?> type = jobletTypeFactory.fromJoblet(joblet);
 			if(joblet.getStatus() == JobletStatus.created){
 				atLeastOnecreatedJoblet = true;
@@ -189,10 +191,10 @@ public class Joblet extends BaseDatabean<JobletKey,Joblet>{
 		return summaries;
 	}
 
-	public static ArrayList<Joblet> filterByTypeStatusReservedByPrefix(Iterable<Joblet> ins, JobletType<?> type,
+	public static ArrayList<JobletRequest> filterByTypeStatusReservedByPrefix(Iterable<JobletRequest> ins, JobletType<?> type,
 			JobletStatus status, String reservedByPrefix){
-		ArrayList<Joblet> outs = new ArrayList<>();
-		for(Joblet in : DrIterableTool.nullSafe(ins)){
+		ArrayList<JobletRequest> outs = new ArrayList<>();
+		for(JobletRequest in : DrIterableTool.nullSafe(ins)){
 			if(type.getPersistentString() != in.getTypeString()) {
 				continue;
 			}
@@ -208,11 +210,11 @@ public class Joblet extends BaseDatabean<JobletKey,Joblet>{
 		return outs;
 	}
 
-	public static Joblet getOldestForTypesAndStatuses(JobletTypeFactory jobletTypeFactory, Iterable<Joblet> joblets,
+	public static JobletRequest getOldestForTypesAndStatuses(JobletTypeFactory jobletTypeFactory, Iterable<JobletRequest> joblets,
 			Collection<JobletType<?>> types, Collection<JobletStatus> statuses){
-		Joblet oldest = null;
+		JobletRequest oldest = null;
 		long now = System.currentTimeMillis();
-		for(Joblet joblet : DrIterableTool.nullSafe(joblets)){
+		for(JobletRequest joblet : DrIterableTool.nullSafe(joblets)){
 			JobletType<?> jobletType = jobletTypeFactory.fromJoblet(joblet);
 			if(types.contains(jobletType) && statuses.contains(joblet.getStatus())){
 				if(oldest == null){
@@ -235,7 +237,7 @@ public class Joblet extends BaseDatabean<JobletKey,Joblet>{
 		return DrDateTool.getAgoString(this.getKey().getCreated());
 	}
 
-	public static List<JobletDataKey> getJobletDataKeys(List<Joblet> joblets){
+	public static List<JobletDataKey> getJobletDataKeys(List<JobletRequest> joblets){
 		return StreamTool.stream(joblets)
 				.map( joblet -> new JobletDataKey(joblet.getJobletDataId()))
 				.collect(Collectors.toList());

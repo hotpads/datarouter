@@ -12,16 +12,16 @@ import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.joblet.JobletNodes;
 import com.hotpads.joblet.JobletType;
 import com.hotpads.joblet.JobletTypeFactory;
-import com.hotpads.joblet.databean.Joblet;
+import com.hotpads.joblet.databean.JobletRequest;
 
 public class UpdateJobletAndQueue extends BaseHibernateOp<Integer>{
 
 	private final JobletTypeFactory jobletTypeFactory;
-	private final Joblet joblet;
+	private final JobletRequest joblet;
 	private final boolean decrementQueueIfRateLimited;
 	private final Boolean rateLimited;
 
-	public UpdateJobletAndQueue(JobletTypeFactory jobletTypeFactory, Joblet joblet,
+	public UpdateJobletAndQueue(JobletTypeFactory jobletTypeFactory, JobletRequest joblet,
 			boolean decrementQueueIfRateLimited, Datarouter datarouter, JobletNodes jobletNodes, Boolean rateLimited){
 		super(datarouter, jobletNodes.joblet().getMaster().getClientNames());
 		this.jobletTypeFactory = jobletTypeFactory;

@@ -12,7 +12,7 @@ import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.util.core.DrDateTool;
 import com.hotpads.job.trigger.JobSettings;
 import com.hotpads.joblet.JobletExecutorThreadPool.JobletExecutorThreadPoolFactory;
-import com.hotpads.joblet.databean.Joblet;
+import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.databean.JobletData;
 import com.hotpads.util.core.profile.PhaseTimer;
 import com.hotpads.util.datastructs.MutableBoolean;
@@ -139,7 +139,7 @@ public class ParallelJobletProcessor{
 			jobletScheduler.blockUntilReadyForNewJoblet();
 			JobletPackage jobletPackage = getJoblet(counter++);
 			pt.add("acquired");
-			Joblet joblet = jobletPackage.getJoblet();
+			JobletRequest joblet = jobletPackage.getJoblet();
 			if(joblet == null){
 				return;
 			}
@@ -177,7 +177,7 @@ public class ParallelJobletProcessor{
 
 	private final JobletPackage getJoblet(int counter){
 		String reservedBy = getReservedByString(counter);
-		Joblet joblet = null;
+		JobletRequest joblet = null;
 		jobletThrottle.acquirePermits(jobletType.getCpuPermits(), jobletType.getMemoryPermits());
 		try{
 			joblet = jobletService.getJobletForProcessing(jobletType, reservedBy, RUNNING_JOBLET_TIMEOUT_MS,

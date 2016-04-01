@@ -11,7 +11,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import com.hotpads.datarouter.config.Configs;
-import com.hotpads.joblet.databean.Joblet;
+import com.hotpads.joblet.databean.JobletRequest;
 
 @Singleton
 public class JobletScaler {
@@ -45,15 +45,15 @@ public class JobletScaler {
 	/****************** methods *************************/
 
 	public int getNumJobletServers(){
-		Iterable<Joblet> joblets = jobletNodes.joblet().scan(null, Configs.slaveOk());
+		Iterable<JobletRequest> joblets = jobletNodes.joblet().scan(null, Configs.slaveOk());
 		return calcNumJobletServers(joblets);
 	}
 
 
-	private int calcNumJobletServers(Iterable<Joblet> joblets){
+	private int calcNumJobletServers(Iterable<JobletRequest> joblets){
 		int minServers = jobletSettings.getMinJobletServers().getValue();
 		int maxServers = jobletSettings.getMaxJobletServers().getValue();
-		Joblet oldestJoblet = Joblet.getOldestForTypesAndStatuses(jobletTypeFactory, joblets, jobletTypeFactory
+		JobletRequest oldestJoblet = JobletRequest.getOldestForTypesAndStatuses(jobletTypeFactory, joblets, jobletTypeFactory
 				.getTypesCausingScaling(), STATUSES_TO_CONSIDER);
 		if(oldestJoblet == null){
 			return minServers;
