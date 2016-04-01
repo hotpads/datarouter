@@ -20,9 +20,9 @@ import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.entity.ContentType;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -99,7 +99,7 @@ public class HotPadsHttpClient {
 	public HotPadsHttpResponse executeChecked(HotPadsHttpRequest request) throws HotPadsHttpException {
 		setSecurityProperties(request);
 
-		HttpContext context = new BasicHttpContext();
+		HttpClientContext context = new HttpClientContext();
 		context.setAttribute(HotPadsRetryHandler.RETRY_SAFE_ATTRIBUTE, request.getRetrySafe());
 
 		HotPadsHttpException ex;
@@ -113,7 +113,7 @@ public class HotPadsHttpClient {
 			requestCallable = new HttpRequestCallable(httpClient, internalHttpRequest, context);
 			Future<HttpResponse> httpResponseFuture = executor.submit(requestCallable);
 			HttpResponse httpResponse = httpResponseFuture.get(futureTimeoutMs, TimeUnit.MILLISECONDS);
-			HotPadsHttpResponse response = new HotPadsHttpResponse(httpResponse);
+			HotPadsHttpResponse response = new HotPadsHttpResponse(httpResponse, context);
 			if (response.getStatusCode() >= HttpStatus.SC_BAD_REQUEST) {
 				throw new HotPadsHttpResponseException(response, requestCallable.getRequestStartTimeMs());
 			}
