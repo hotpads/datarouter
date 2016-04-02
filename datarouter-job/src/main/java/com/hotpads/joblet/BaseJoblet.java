@@ -6,7 +6,7 @@ import com.hotpads.joblet.databean.JobletRequest;
 public abstract class BaseJoblet<T> implements Joblet<T>{
 
 	protected JobletRequest joblet;
-	protected JobletData jobletData = new JobletData();
+	protected JobletData jobletData = new JobletData(null);
 
 	public void marshallDataAndCounts(){
 		marshallData();

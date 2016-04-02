@@ -17,10 +17,10 @@ import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.handler.exception.ExceptionRecord;
 import com.hotpads.handler.exception.ExceptionRecorder;
 import com.hotpads.job.trigger.JobExceptionCategory;
-import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.databean.JobletData;
 import com.hotpads.joblet.databean.JobletDataKey;
 import com.hotpads.joblet.databean.JobletKey;
+import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.dto.JobletSummary;
 import com.hotpads.joblet.hibernate.DeleteJoblet;
 import com.hotpads.joblet.hibernate.GetJobletForProcessing;
@@ -52,17 +52,17 @@ public class JobletService{
 	}
 
 
-	public List<Joblet> getJobletProcessesOfType(JobletType<?> jobletType){
+	public List<Joblet<?>> getJobletProcessesOfType(JobletType<?> jobletType){
 		JobletKey prefix = new JobletKey(jobletType, null, null, null);
 		return jobletNodes.joblet().streamWithPrefix(prefix, null)
 				.map(this::getJobletProcessForJoblet)
 				.collect(Collectors.toList());
 	}
 
-	public Joblet getJobletProcessForJoblet(JobletRequest joblet){
+	public Joblet<?> getJobletProcessForJoblet(JobletRequest joblet){
 		JobletData jobletData = jobletNodes.jobletData().get(joblet.getJobletDataKey(), null);
 		JobletType<?> jobletType = jobletTypeFactory.fromJoblet(joblet);
-		Joblet jobletProcess = injector.getInstance(jobletType.getAssociatedClass());
+		Joblet<?> jobletProcess = injector.getInstance(jobletType.getAssociatedClass());
 		jobletProcess.setJoblet(joblet);
 		jobletProcess.setJobletData(jobletData);
 		return jobletProcess;
@@ -117,10 +117,10 @@ public class JobletService{
 		datarouter.run(new DeleteJoblet(datarouter, jobletTypeFactory, joblet, jobletNodes, rateLimited));
 	}
 
-	public void submitJoblets(Collection<? extends Joblet> jobletProcesses){
-		jobletNodes.jobletData().putMulti(Joblet.getJobletDatas(jobletProcesses), null);
-		jobletProcesses.forEach(jobletProcess -> jobletProcess.updateJobletDataIdReference());
-		jobletNodes.joblet().putMulti(Joblet.getJoblets(jobletProcesses), null);
+	public void submitJoblets(Collection<? extends Joblet<?>> joblets){
+		jobletNodes.jobletData().putMulti(Joblet.getJobletDatas(joblets), null);
+		joblets.forEach(Joblet::updateJobletDataIdReference);
+		jobletNodes.joblet().putMulti(Joblet.getJoblets(joblets), null);
 	}
 
 	public void setJobletsRunningOnServerToCreated(JobletType<?> jobletType, String serverName, boolean rateLimited){
