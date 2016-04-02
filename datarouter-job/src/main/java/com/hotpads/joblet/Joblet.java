@@ -23,16 +23,17 @@ extends JobletCodec<T>{
 		getJobletRequest().setJobletDataId(getJobletData().getId());
 	}
 
+	T getJobletParams();
 	Long process();
 
 
 	/*-------------- static -----------------*/
 
-	static List<JobletRequest> getJoblets(Collection<? extends Joblet> jobletProcesses){
+	static List<JobletRequest> getJoblets(Collection<? extends Joblet<?>> jobletProcesses){
 		return StreamTool.map(jobletProcesses, Joblet::getJobletRequest);
 	}
 
-	static List<JobletData> getJobletDatas(Collection<? extends Joblet> jobletProcesses){
+	static List<JobletData> getJobletDatas(Collection<? extends Joblet<?>> jobletProcesses){
 		return StreamTool.map(jobletProcesses, Joblet::getJobletData);
 	}
 
