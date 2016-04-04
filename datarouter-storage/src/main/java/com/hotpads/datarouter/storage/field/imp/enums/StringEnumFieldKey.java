@@ -33,12 +33,14 @@ extends BaseFieldKey<E>{
 		this.sampleValue = sampleValue;
 	}
 
-	public StringEnumFieldKey<E> withSize(int size){
-		return new StringEnumFieldKey<>(name, sampleValue, columnName, nullable, fieldGeneratorType, sampleValue, size);
+	public StringEnumFieldKey<E> withSize(int sizeOverride){
+		return new StringEnumFieldKey<>(name, sampleValue, columnName, nullable, fieldGeneratorType, sampleValue
+				, sizeOverride);
 	}
 
-	public StringEnumFieldKey<E> withColumnName(String columnName){
-		return new StringEnumFieldKey<>(name, sampleValue, columnName, nullable, fieldGeneratorType, sampleValue, size);
+	public StringEnumFieldKey<E> withColumnName(String columnNameOverride){
+		return new StringEnumFieldKey<>(name, sampleValue, columnNameOverride, nullable, fieldGeneratorType
+				, sampleValue, size);
 	}
 
 
