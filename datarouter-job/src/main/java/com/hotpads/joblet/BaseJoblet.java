@@ -20,9 +20,9 @@ public abstract class BaseJoblet<T> implements Joblet<T>{
 	}
 
 	@Override
-    public void unmarshallDataIfNotAlready() {
+    public void unmarshallDataIfNotAlready(String encodedParams) {
 		if(!getUnmarshalled()){
-			unmarshallData();
+			unmarshallData(encodedParams);
 		}
 	}
 
