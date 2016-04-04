@@ -19,13 +19,6 @@ public abstract class BaseJoblet<T> implements Joblet<T>{
 		return calculateNumItems(params);//usually the same, but feel free to override
 	}
 
-	@Override
-    public void unmarshallDataIfNotAlready(String encodedParams) {
-		if(!getUnmarshalled()){
-			unmarshallData(encodedParams);
-		}
-	}
-
 	public boolean getUnmarshalled(){
 		return joblet.getUnmarshalled();
 	}
