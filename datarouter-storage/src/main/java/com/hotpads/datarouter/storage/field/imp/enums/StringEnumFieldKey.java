@@ -34,13 +34,13 @@ extends BaseFieldKey<E>{
 	}
 
 	public StringEnumFieldKey<E> withSize(int sizeOverride){
-		return new StringEnumFieldKey<>(name, sampleValue, columnName, nullable, fieldGeneratorType, sampleValue
-				, sizeOverride);
+		return new StringEnumFieldKey<>(name, sampleValue, columnName, nullable, fieldGeneratorType, sampleValue,
+				sizeOverride);
 	}
 
 	public StringEnumFieldKey<E> withColumnName(String columnNameOverride){
-		return new StringEnumFieldKey<>(name, sampleValue, columnNameOverride, nullable, fieldGeneratorType
-				, sampleValue, size);
+		return new StringEnumFieldKey<>(name, sampleValue, columnNameOverride, nullable, fieldGeneratorType,
+				sampleValue, size);
 	}
 
 
