@@ -170,7 +170,7 @@ public class JobletRequest extends BaseDatabean<JobletKey,JobletRequest>{
 		Integer sumItems = 0;
 		boolean atLeastOnecreatedJoblet = false;
 		for(JobletRequest joblet : scanner){
-			JobletType<?> type = jobletTypeFactory.fromJoblet(joblet);
+			JobletType<?> type = jobletTypeFactory.fromJobletRequest(joblet);
 			if(joblet.getStatus() == JobletStatus.created){
 				atLeastOnecreatedJoblet = true;
 				if(currentType != null && type != currentType){
@@ -178,7 +178,7 @@ public class JobletRequest extends BaseDatabean<JobletKey,JobletRequest>{
 					oldestCreatedDate = null;
 					sumItems = 0;
 				}
-				currentType = jobletTypeFactory.fromJoblet(joblet);
+				currentType = jobletTypeFactory.fromJobletRequest(joblet);
 				sumItems = sumItems + joblet.getNumItems();
 				if(oldestCreatedDate == null || joblet.getKey().getCreated() < oldestCreatedDate){
 					oldestCreatedDate = joblet.getKey().getCreated();
@@ -215,7 +215,7 @@ public class JobletRequest extends BaseDatabean<JobletKey,JobletRequest>{
 		JobletRequest oldest = null;
 		long now = System.currentTimeMillis();
 		for(JobletRequest joblet : DrIterableTool.nullSafe(joblets)){
-			JobletType<?> jobletType = jobletTypeFactory.fromJoblet(joblet);
+			JobletType<?> jobletType = jobletTypeFactory.fromJobletRequest(joblet);
 			if(types.contains(jobletType) && statuses.contains(joblet.getStatus())){
 				if(oldest == null){
 					oldest = joblet;

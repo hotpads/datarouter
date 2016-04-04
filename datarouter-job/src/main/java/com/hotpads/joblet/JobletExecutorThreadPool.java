@@ -21,13 +21,12 @@ public class JobletExecutorThreadPool {
 
 	@Singleton
 	public static class JobletExecutorThreadPoolFactory{
-
 		@Inject
 		private JobletThrottle jobletThrottle;
 		@Inject
 		private JobletExecutorThreadFactory jobletExecutorThreadFactory;
 
-		public JobletExecutorThreadPool create(Integer threadPoolSize, JobletType jobletType){
+		public JobletExecutorThreadPool create(Integer threadPoolSize, JobletType<?> jobletType){
 			return new JobletExecutorThreadPool(threadPoolSize, jobletType, jobletThrottle,
 					jobletExecutorThreadFactory);
 		}
@@ -46,12 +45,12 @@ public class JobletExecutorThreadPool {
 	private int numThreads;
 	private ThreadGroup threadGroup;
 
-	private final JobletType jobletType;
+	private final JobletType<?> jobletType;
 
 	private final JobletThrottle jobletThrottle;
 	private final JobletExecutorThreadFactory jobletExecutorThreadFactory;
 
-	private JobletExecutorThreadPool(Integer threadPoolSize, JobletType jobletType, JobletThrottle jobletThrottle,
+	private JobletExecutorThreadPool(Integer threadPoolSize, JobletType<?> jobletType, JobletThrottle jobletThrottle,
 			JobletExecutorThreadFactory jobletExecutorThreadFactory) {
 		this.jobletType = jobletType;
 		this.jobletThrottle = jobletThrottle;
@@ -181,9 +180,6 @@ public class JobletExecutorThreadPool {
 	}
 
 	public List<JobletExecutorThread> getRunningJobletExecutorThreads() {
-		//List<JobletExecutorThread> runningJobletThreads = new ArrayList<JobletExecutorThread>(allExecutorThreads);
-		//return runningJobletThreads;
-
 		List<JobletExecutorThread> runningJobletThreads = new ArrayList<>(runningExecutorThreads);
 		return runningJobletThreads;
 	}

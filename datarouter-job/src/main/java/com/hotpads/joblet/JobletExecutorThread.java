@@ -13,8 +13,8 @@ import com.google.inject.Injector;
 import com.hotpads.datarouter.util.core.DrNumberFormatter;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.job.JobInterruptedException;
-import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.databean.JobletData;
+import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.profiling.FixedTimeSpanStatistics;
 import com.hotpads.joblet.profiling.StratifiedStatistics;
 import com.hotpads.util.core.profile.PhaseTimer;
@@ -174,20 +174,20 @@ public class JobletExecutorThread extends Thread{
 		}
 	}
 
-	private Joblet createProcessFromJoblet(JobletPackage jobletPackage){
-		Joblet process = createUninitializedJobletProcessFromJoblet(jobletPackage);
+	private Joblet<?> createProcessFromJoblet(JobletPackage jobletPackage){
+		Joblet<?> process = createUninitializedJobletProcessFromJoblet(jobletPackage);
 		process.unmarshallDataIfNotAlready();
 		return process;
 	}
 
-	Joblet createUninitializedJobletProcessFromJoblet(JobletPackage jobletPackage){
+	public Joblet<?> createUninitializedJobletProcessFromJoblet(JobletPackage jobletPackage){
 		JobletType<?> jobletType = jobletTypeFactory.fromJobletPackage(jobletPackage);
 		JobletRequest joblet = jobletPackage.getJoblet();
 		Class<? extends Joblet> cls = jobletType.getAssociatedClass();
 		if(cls == null){
 			throw new NullPointerException("No class associated with " + jobletType);
 		}
-		Joblet process = injector.getInstance(cls);
+		Joblet<?> process = injector.getInstance(cls);
 		process.setJoblet(joblet);
 		process.setJobletData(jobletPackage.getJobletData());
 		return process;
@@ -197,7 +197,7 @@ public class JobletExecutorThread extends Thread{
 		JobletType<?> jobletType = jobletTypeFactory.fromJobletPackage(jobletPackage);
 		JobletRequest joblet = jobletPackage.getJoblet();
 		long startTimeMs = System.currentTimeMillis();
-		Joblet jobletProcess = createProcessFromJoblet(jobletPackage);
+		Joblet<?> jobletProcess = createProcessFromJoblet(jobletPackage);
 		jobletProcess.process();
 		int numItemsProcessed = Math.max(1, joblet.getNumItems());
 		JobletCounters.incItemsProcessed(jobletType.getPersistentString(), numItemsProcessed);

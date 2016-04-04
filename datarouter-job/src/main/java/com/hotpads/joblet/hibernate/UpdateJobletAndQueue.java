@@ -40,7 +40,7 @@ public class UpdateJobletAndQueue extends BaseHibernateOp<Integer>{
 		Session session = getSession(client.getName());
 
 		session.update(joblet);
-		JobletType<?> jobletType = jobletTypeFactory.fromJoblet(joblet);
+		JobletType<?> jobletType = jobletTypeFactory.fromJobletRequest(joblet);
 		boolean enforceRateLimit = rateLimited && jobletType.getRateLimited();
 
 		if(this.decrementQueueIfRateLimited && enforceRateLimit){

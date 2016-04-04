@@ -33,7 +33,7 @@ public class DeleteJoblet extends BaseHibernateOp<JobletRequest>{
 	@Override
 	public JobletRequest runOncePerClient(Client client){
 		Session session = this.getSession(client.getName());
-		JobletType<?> jobletType = jobletTypeFactory.fromJoblet(joblet);
+		JobletType<?> jobletType = jobletTypeFactory.fromJobletRequest(joblet);
 		boolean enforceRateLimit = rateLimited && jobletType.getRateLimited();
 
 		if(enforceRateLimit) {

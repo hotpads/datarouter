@@ -61,7 +61,7 @@ public class JobletService{
 
 	public Joblet<?> getJobletProcessForJoblet(JobletRequest joblet){
 		JobletData jobletData = jobletNodes.jobletData().get(joblet.getJobletDataKey(), null);
-		JobletType<?> jobletType = jobletTypeFactory.fromJoblet(joblet);
+		JobletType<?> jobletType = jobletTypeFactory.fromJobletRequest(joblet);
 		Joblet<?> jobletProcess = injector.getInstance(jobletType.getAssociatedClass());
 		jobletProcess.setJoblet(joblet);
 		jobletProcess.setJobletData(jobletData);

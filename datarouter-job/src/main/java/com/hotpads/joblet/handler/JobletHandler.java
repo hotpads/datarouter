@@ -287,7 +287,7 @@ public class JobletHandler extends BaseHandler{
 		}else{
 			// parallelJobletProcessors.restartExecutor(joblet.getTypedPersistentString());
 			JobletData jobletData = jobletDao.getJobletData(joblet);
-			JobletType<?> jobletType = jobletTypeFactory.fromJoblet(joblet);
+			JobletType<?> jobletType = jobletTypeFactory.fromJobletRequest(joblet);
 			JobletPackage jobletPackage = new JobletPackage(joblet, jobletData);
 			parallelJobletProcessors.getMap().get(jobletType).getJobletScheduler().submitJoblet(jobletPackage);
 		}
