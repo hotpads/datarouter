@@ -182,13 +182,7 @@ public class JobletExecutorThread extends Thread{
 		}
 	}
 
-	private Joblet<?> createProcessFromJoblet(JobletPackage jobletPackage){
-		Joblet<?> process = createUninitializedJobletProcessFromJoblet(jobletPackage);
-		process.unmarshallDataIfNotAlready();
-		return process;
-	}
-
-	public Joblet<?> createUninitializedJobletProcessFromJoblet(JobletPackage jobletPackage){
+	public Joblet<?> createProcessFromJoblet(JobletPackage jobletPackage){
 		JobletType<?> jobletType = jobletTypeFactory.fromJobletPackage(jobletPackage);
 		JobletRequest joblet = jobletPackage.getJoblet();
 		Class<? extends Joblet> cls = jobletType.getAssociatedClass();

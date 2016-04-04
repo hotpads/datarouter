@@ -33,7 +33,7 @@ public abstract class BaseJobletConstructorIntegrationTests{
 		for(JobletType<?> jobletType : jobletTypeFactory.getAllTypes()){
 			JobletRequest joblet = new JobletRequest(jobletType, 0, 0, false);
 			JobletPackage jobletPackage = new JobletPackage(joblet, null);
-			Joblet<?> jobletProcess = thread.createUninitializedJobletProcessFromJoblet(jobletPackage);
+			Joblet<?> jobletProcess = thread.createProcessFromJoblet(jobletPackage);
 			Assert.assertEquals(jobletType, jobletTypeFactory.fromJoblet(jobletProcess));
 		}
 	}

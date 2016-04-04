@@ -10,13 +10,13 @@ public abstract class BaseJoblet<T> implements Joblet<T>{
 
 	public void marshallDataAndCounts(T params){
 		marshallData(params);
-		joblet.setNumItems(calculateNumItems());
-		joblet.setNumTasks(calculateNumTasks());
+		joblet.setNumItems(calculateNumItems(params));
+		joblet.setNumTasks(calculateNumTasks(params));
 	}
 
 	@Override
-	public int calculateNumTasks(){
-		return calculateNumItems();//usually the same, but feel free to override
+	public int calculateNumTasks(T params){
+		return calculateNumItems(params);//usually the same, but feel free to override
 	}
 
 	@Override
