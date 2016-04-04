@@ -8,8 +8,8 @@ public abstract class BaseJoblet<T> implements Joblet<T>{
 	protected JobletRequest joblet;
 	protected JobletData jobletData = new JobletData(null);
 
-	public void marshallDataAndCounts(){
-		marshallData();
+	public void marshallDataAndCounts(T params){
+		marshallData(params);
 		joblet.setNumItems(calculateNumItems());
 		joblet.setNumTasks(calculateNumTasks());
 	}
