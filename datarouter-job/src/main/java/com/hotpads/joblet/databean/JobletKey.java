@@ -14,7 +14,7 @@ import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.comparable.IntegerField;
 import com.hotpads.datarouter.storage.field.imp.comparable.LongField;
 import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
-import com.hotpads.joblet.JobletType;
+import com.hotpads.joblet.enums.JobletType;
 
 
 @SuppressWarnings("serial")

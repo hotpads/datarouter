@@ -1,4 +1,4 @@
-package com.hotpads.joblet;
+package com.hotpads.joblet.execute;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +11,9 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hotpads.joblet.ParallelJobletProcessor.ParallelJobletProcessorFactory;
+import com.hotpads.joblet.enums.JobletType;
+import com.hotpads.joblet.enums.JobletTypeFactory;
+import com.hotpads.joblet.execute.ParallelJobletProcessor.ParallelJobletProcessorFactory;
 
 //static map to hold a ParallelJobletProcessor for each joblet type
 @Singleton

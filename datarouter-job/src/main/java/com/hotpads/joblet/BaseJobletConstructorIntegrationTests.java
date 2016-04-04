@@ -5,9 +5,13 @@ import javax.inject.Inject;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import com.hotpads.joblet.JobletExecutorThread.JobletExecutorThreadFactory;
-import com.hotpads.joblet.JobletExecutorThreadPool.JobletExecutorThreadPoolFactory;
 import com.hotpads.joblet.databean.JobletRequest;
+import com.hotpads.joblet.enums.JobletType;
+import com.hotpads.joblet.enums.JobletTypeFactory;
+import com.hotpads.joblet.execute.JobletExecutorThread;
+import com.hotpads.joblet.execute.JobletExecutorThread.JobletExecutorThreadFactory;
+import com.hotpads.joblet.execute.JobletExecutorThreadPool;
+import com.hotpads.joblet.execute.JobletExecutorThreadPool.JobletExecutorThreadPoolFactory;
 
 /**
  * Extend and bind your own JobletTypeFactory
@@ -29,7 +33,7 @@ public abstract class BaseJobletConstructorIntegrationTests{
 		for(JobletType<?> jobletType : jobletTypeFactory.getAllTypes()){
 			JobletRequest joblet = new JobletRequest(jobletType, 0, 0, false);
 			JobletPackage jobletPackage = new JobletPackage(joblet, null);
-			Joblet jobletProcess = thread.createUninitializedJobletProcessFromJoblet(jobletPackage);
+			Joblet<?> jobletProcess = thread.createUninitializedJobletProcessFromJoblet(jobletPackage);
 			Assert.assertEquals(jobletType, jobletTypeFactory.fromJoblet(jobletProcess));
 		}
 	}

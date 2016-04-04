@@ -15,10 +15,10 @@ import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrNumberTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.joblet.JobletNodes;
-import com.hotpads.joblet.JobletStatus;
-import com.hotpads.joblet.JobletType;
 import com.hotpads.joblet.databean.JobletQueue;
 import com.hotpads.joblet.databean.JobletRequest;
+import com.hotpads.joblet.enums.JobletStatus;
+import com.hotpads.joblet.enums.JobletType;
 
 public class GetJobletForProcessing extends BaseHibernateOp<JobletRequest>{
 

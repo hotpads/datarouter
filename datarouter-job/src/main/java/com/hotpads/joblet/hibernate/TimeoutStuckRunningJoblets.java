@@ -11,8 +11,8 @@ import com.hotpads.datarouter.client.imp.hibernate.op.BaseHibernateOp;
 import com.hotpads.datarouter.op.util.ResultMergeTool;
 import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.joblet.JobletNodes;
-import com.hotpads.joblet.JobletStatus;
 import com.hotpads.joblet.databean.JobletRequest;
+import com.hotpads.joblet.enums.JobletStatus;
 
 public class TimeoutStuckRunningJoblets extends BaseHibernateOp<Integer>{
 
