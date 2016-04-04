@@ -8,7 +8,7 @@ import org.apache.http.impl.cookie.BasicClientCookie;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-public class CookieToolTests {
+public class ApacheCookieToolTests {
 
 	private final Cookie shortBreadCookie = new BasicClientCookie("shortBreadCookie", "ThumbPrint");
 	private final Cookie sandwichCookie = new BasicClientCookie("sandwichCookie", "Oreo");
