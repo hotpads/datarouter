@@ -19,7 +19,7 @@ import com.hotpads.handler.exception.ExceptionRecorder;
 import com.hotpads.job.trigger.JobExceptionCategory;
 import com.hotpads.joblet.databean.JobletData;
 import com.hotpads.joblet.databean.JobletDataKey;
-import com.hotpads.joblet.databean.JobletKey;
+import com.hotpads.joblet.databean.JobletRequestKey;
 import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.dto.JobletSummary;
 import com.hotpads.joblet.enums.JobletStatus;
@@ -56,7 +56,7 @@ public class JobletService{
 
 
 	public List<Joblet<?>> getJobletProcessesOfType(JobletType<?> jobletType){
-		JobletKey prefix = new JobletKey(jobletType, null, null, null);
+		JobletRequestKey prefix = new JobletRequestKey(jobletType, null, null, null);
 		return jobletNodes.joblet().streamWithPrefix(prefix, null)
 				.map(this::getJobletProcessForJoblet)
 				.collect(Collectors.toList());
@@ -148,8 +148,8 @@ public class JobletService{
 	}
 
 	public boolean jobletExistsWithTypeAndStatus(JobletType<?> jobletType, JobletStatus jobletStatus){
-		JobletKey key = new JobletKey(jobletType, null, null, null);
-		Range<JobletKey> range = new Range<>(key, true, key, true);
+		JobletRequestKey key = new JobletRequestKey(jobletType, null, null, null);
+		Range<JobletRequestKey> range = new Range<>(key, true, key, true);
 		Config config = new Config().setIterateBatchSize(50);
 		for(JobletRequest joblet : jobletNodes.joblet().scan(range, config)){
 			if(jobletStatus == joblet.getStatus()){

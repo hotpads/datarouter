@@ -47,7 +47,7 @@ import com.hotpads.util.datastructs.MutableBoolean;
 		@Parameter(name="identifierMethod", value="getPersistentString"),
 		@Parameter(name="valueOfMethod", value="fromPersistentStringStatic")}),
 })
-public class JobletRequest extends BaseDatabean<JobletKey,JobletRequest>{
+public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 
 	/************************** enums **************************************/
 
@@ -55,7 +55,7 @@ public class JobletRequest extends BaseDatabean<JobletKey,JobletRequest>{
 	/*********************************** fields **************************/
 
 	@Id
-	protected JobletKey key;
+	protected JobletRequestKey key;
 	protected String queueId;
 	@Type(type="status")
 	protected JobletStatus status = JobletStatus.created;
@@ -107,19 +107,19 @@ public class JobletRequest extends BaseDatabean<JobletKey,JobletRequest>{
 	/************************* constructors ********************************/
 
 	JobletRequest(){
-		this.key = new JobletKey(null, null, null);
+		this.key = new JobletRequestKey(null, null, null);
 	}
 
 	public JobletRequest(JobletType<?> type, Integer executionOrder, Integer batchSequence, boolean restartable){
-		this.key = new JobletKey(type, executionOrder, batchSequence);
+		this.key = new JobletRequestKey(type, executionOrder, batchSequence);
 		this.restartable = restartable;
 	}
 
 	/******************** databean ************************************/
 
-	public static class JobletFielder extends BaseDatabeanFielder<JobletKey, JobletRequest> {
+	public static class JobletFielder extends BaseDatabeanFielder<JobletRequestKey, JobletRequest> {
 		public JobletFielder() {
-			super(JobletKey.class);
+			super(JobletRequestKey.class);
 		}
 
 		@Override
@@ -143,12 +143,12 @@ public class JobletRequest extends BaseDatabean<JobletKey,JobletRequest>{
 	}
 
 	@Override
-	public Class<JobletKey> getKeyClass(){
-		return JobletKey.class;
+	public Class<JobletRequestKey> getKeyClass(){
+		return JobletRequestKey.class;
 	}
 
 	@Override
-	public JobletKey getKey() {
+	public JobletRequestKey getKey() {
 		return key;
 	}
 
@@ -381,7 +381,7 @@ public class JobletRequest extends BaseDatabean<JobletKey,JobletRequest>{
 		return interrupted;
 	}
 
-	public void setKey(JobletKey key){
+	public void setKey(JobletRequestKey key){
 		this.key = key;
 	}
 

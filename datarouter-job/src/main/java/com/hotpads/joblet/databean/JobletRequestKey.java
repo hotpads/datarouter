@@ -20,7 +20,7 @@ import com.hotpads.joblet.enums.JobletType;
 @SuppressWarnings("serial")
 @Entity
 @Embeddable
-public class JobletKey extends BasePrimaryKey<JobletKey>{
+public class JobletRequestKey extends BasePrimaryKey<JobletRequestKey>{
 
 	public static final int DEFAULT_STRING_LENGTH = MySqlColumnType.MAX_LENGTH_VARCHAR;
 
@@ -34,14 +34,14 @@ public class JobletKey extends BasePrimaryKey<JobletKey>{
 
 	/****************************** constructor ********************************/
 
-	JobletKey(){
+	JobletRequestKey(){
 	}
 
-	public JobletKey(JobletType<?> type, Integer executionOrder, Integer batchSequence){
+	public JobletRequestKey(JobletType<?> type, Integer executionOrder, Integer batchSequence){
 		this(type, executionOrder, new Date(), batchSequence);
 	}
 
-	public JobletKey(JobletType<?> type, Integer executionOrder, Date created, Integer batchSequence){
+	public JobletRequestKey(JobletType<?> type, Integer executionOrder, Date created, Integer batchSequence){
 		this.type = type==null?null:type.getPersistentString();
 		this.executionOrder = executionOrder;
 		this.created = created == null ? null : created.getTime();
