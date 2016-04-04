@@ -9,6 +9,10 @@ public class DumbDoubleFieldKey extends PrimitiveFieldKey<Double>{
 		super(name);
 	}
 
+	public DumbDoubleFieldKey(String name, String columnName, boolean nullable){
+		super(name, columnName, nullable, FieldGeneratorType.NONE);
+	}
+
 	public DumbDoubleFieldKey(String name, String columnName, boolean nullable, FieldGeneratorType fieldGeneratorType){
 		super(name, columnName, nullable, fieldGeneratorType);
 	}
