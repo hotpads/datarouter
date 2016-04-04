@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.apache.http.cookie.Cookie;
 
-public class CookieTool {
+public class ApacheCookieTool {
 
 	public static String getCookieValue(List<Cookie> cookies, String cookieName) {
 		Cookie cookie = getCookie(cookies, cookieName);

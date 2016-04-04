@@ -19,7 +19,7 @@ public class CookieToolTests {
 		cookies.add(shortBreadCookie);
 		cookies.add(sandwichCookie);
 
-		Cookie cookie = CookieTool.getCookie(cookies, shortBreadCookie.getName());
+		Cookie cookie = ApacheCookieTool.getCookie(cookies, shortBreadCookie.getName());
 		Assert.assertTrue(shortBreadCookie.getName().equals(cookie.getName()));
 	}
 
@@ -28,7 +28,7 @@ public class CookieToolTests {
 		List<Cookie> cookies = new ArrayList<>();
 		cookies.add(shortBreadCookie);
 
-		String cookieValue = CookieTool.getCookieValue(cookies, shortBreadCookie.getName());
+		String cookieValue = ApacheCookieTool.getCookieValue(cookies, shortBreadCookie.getName());
 		Assert.assertTrue(shortBreadCookie.getValue().equals(cookieValue));
 	}
 
