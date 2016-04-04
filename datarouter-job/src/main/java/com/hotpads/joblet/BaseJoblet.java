@@ -5,6 +5,7 @@ import com.hotpads.joblet.databean.JobletRequest;
 
 public abstract class BaseJoblet<T> implements Joblet<T>{
 
+	protected T params;
 	protected JobletRequest joblet;
 	protected JobletData jobletData = new JobletData(null);
 
@@ -57,4 +58,8 @@ public abstract class BaseJoblet<T> implements Joblet<T>{
 		return jobletData.getData();
 	}
 
+	@Override
+	public void setJobletParams(T params){
+		this.params = params;
+	}
 }

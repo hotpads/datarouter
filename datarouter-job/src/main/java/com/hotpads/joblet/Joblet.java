@@ -23,6 +23,7 @@ extends JobletCodec<T>{
 		getJobletRequest().setJobletDataId(getJobletData().getId());
 	}
 
+	void setJobletParams(T params);
 	T getJobletParams();
 	Long process();
 
