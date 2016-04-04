@@ -24,7 +24,7 @@ extends JobletCodec<T>{
 	}
 
 	void setJobletParams(T params);
-	T getJobletParams();
+//	T getJobletParams();
 	Long process();
 
 
