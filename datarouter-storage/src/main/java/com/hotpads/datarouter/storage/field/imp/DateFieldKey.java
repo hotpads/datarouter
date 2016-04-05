@@ -11,12 +11,13 @@ public class DateFieldKey extends PrimitiveFieldKey<Date>{
 		super(name);
 	}
 
-	private DateFieldKey(String name, String columnName, boolean nullable, FieldGeneratorType fieldGeneratorType){
-		super(name, columnName, nullable, fieldGeneratorType, null);
+	private DateFieldKey(String name, String columnName, boolean nullable, FieldGeneratorType fieldGeneratorType,
+			Date defaultValue){
+		super(name, columnName, nullable, fieldGeneratorType, defaultValue);
 	}
 
-	public DateFieldKey withColumnName(String columnName){
-		return new DateFieldKey(name, columnName, nullable, fieldGeneratorType);
+	public DateFieldKey withColumnName(String columnNameOverride){
+		return new DateFieldKey(name, columnNameOverride, nullable, fieldGeneratorType, defaultValue);
 	}
 
 }
