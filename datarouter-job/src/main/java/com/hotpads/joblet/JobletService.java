@@ -38,18 +38,18 @@ public class JobletService{
 
 	public static final int MAX_JOBLET_RETRIES = 10;
 
-	private final DatarouterInjector injector;
 	private final Datarouter datarouter;
 	private final JobletTypeFactory jobletTypeFactory;
+	private final JobletFactory jobletFactory;
 	private final JobletNodes jobletNodes;
 	private final ExceptionRecorder exceptionRecorder;
 
 	@Inject
 	public JobletService(DatarouterInjector injector, Datarouter datarouter, JobletTypeFactory jobletTypeFactory,
-			JobletNodes jobletNodes, ExceptionRecorder exceptionRecorder){
-		this.injector = injector;
+			JobletFactory jobletFactory, JobletNodes jobletNodes, ExceptionRecorder exceptionRecorder){
 		this.datarouter = datarouter;
 		this.jobletTypeFactory = jobletTypeFactory;
+		this.jobletFactory = jobletFactory;
 		this.jobletNodes = jobletNodes;
 		this.exceptionRecorder = exceptionRecorder;
 	}
@@ -64,14 +64,7 @@ public class JobletService{
 
 	public <T> Joblet<T> getJobletProcessForJoblet(JobletRequest jobletRequest){
 		JobletData jobletData = jobletNodes.jobletData().get(jobletRequest.getJobletDataKey(), null);
-		JobletType<?> jobletType = jobletTypeFactory.fromJobletRequest(jobletRequest);
-		//can't seem to remove this cast while HotPadsJobletType is an enum
-		Joblet<T> joblet = (Joblet<T>)injector.getInstance(jobletType.getAssociatedClass());
-		joblet.setJoblet(jobletRequest);
-		joblet.setJobletData(jobletData);
-		T params = joblet.unmarshallData(jobletData.getData());
-		joblet.setJobletParams(params);
-		return joblet;
+		return jobletFactory.create(jobletRequest, jobletData);
 	}
 
 	public JobletRequest getJobletForProcessing(JobletType<?> type, String reservedBy, long jobletTimeoutMs,
