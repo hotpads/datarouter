@@ -11,8 +11,8 @@ public class DateFieldKey extends PrimitiveFieldKey<Date>{
 		super(name);
 	}
 
-	public DateFieldKey(String name, String columnName, boolean nullable, FieldGeneratorType fieldGeneratorType){
-		super(name, columnName, nullable, fieldGeneratorType);
+	private DateFieldKey(String name, String columnName, boolean nullable, FieldGeneratorType fieldGeneratorType){
+		super(name, columnName, nullable, fieldGeneratorType, null);
 	}
 
 	public DateFieldKey withColumnName(String columnName){
