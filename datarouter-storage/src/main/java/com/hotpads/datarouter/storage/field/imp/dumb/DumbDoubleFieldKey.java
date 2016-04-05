@@ -17,8 +17,4 @@ public class DumbDoubleFieldKey extends PrimitiveFieldKey<Double>{
 		return new DumbDoubleFieldKey(name, columnName, nullable, fieldGeneratorType);
 	}
 
-	public DumbDoubleFieldKey withNullable( boolean nullable){
-		return new DumbDoubleFieldKey(name, columnName, nullable, fieldGeneratorType);
-	}
-
 }

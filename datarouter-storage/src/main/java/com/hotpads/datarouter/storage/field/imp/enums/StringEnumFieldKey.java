@@ -37,10 +37,6 @@ extends BaseFieldKey<E>{
 		return new StringEnumFieldKey<>(name, sampleValue, columnName, nullable, fieldGeneratorType, sampleValue, size);
 	}
 
-	public StringEnumFieldKey<E> withNullable(boolean nullable){
-		return new StringEnumFieldKey<>(name, sampleValue, columnName, nullable, fieldGeneratorType, sampleValue, size);
-	}
-
 	/*********************** ByteEncodedField ***********************/
 
 	@Override
