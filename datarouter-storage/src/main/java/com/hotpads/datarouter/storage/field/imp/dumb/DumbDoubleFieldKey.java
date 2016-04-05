@@ -9,12 +9,16 @@ public class DumbDoubleFieldKey extends PrimitiveFieldKey<Double>{
 		super(name);
 	}
 
-	public DumbDoubleFieldKey(String name, String columnName, boolean nullable){
-		super(name, columnName, nullable, FieldGeneratorType.NONE);
-	}
-
 	public DumbDoubleFieldKey(String name, String columnName, boolean nullable, FieldGeneratorType fieldGeneratorType){
 		super(name, columnName, nullable, fieldGeneratorType);
+	}
+
+	public DumbDoubleFieldKey withColumnName(String columnName){
+		return new DumbDoubleFieldKey(name, columnName, nullable, fieldGeneratorType);
+	}
+
+	public DumbDoubleFieldKey withNullable( boolean nullable){
+		return new DumbDoubleFieldKey(name, columnName, nullable, fieldGeneratorType);
 	}
 
 }

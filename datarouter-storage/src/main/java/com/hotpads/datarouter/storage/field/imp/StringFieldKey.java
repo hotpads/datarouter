@@ -34,11 +34,6 @@ public class StringFieldKey extends BaseFieldKey<String>{
 		this.size = size;
 	}
 
-	public StringFieldKey(String name, String columnName, boolean nullable){
-		super(name, columnName, nullable, FieldGeneratorType.NONE);
-		this.size = DEFAULT_MAX_SIZE;
-	}
-
 	public StringFieldKey(String name, String columnName, boolean nullable, int size){
 		super(name, columnName, nullable, FieldGeneratorType.NONE);
 		this.size = size;
@@ -51,6 +46,14 @@ public class StringFieldKey extends BaseFieldKey<String>{
 	}
 
 	public StringFieldKey withSize(int size){
+		return new StringFieldKey(name, columnName, nullable, fieldGeneratorType, defaultValue, size);
+	}
+
+	public StringFieldKey withColumnName(String columnName){
+		return new StringFieldKey(name, columnName, nullable, fieldGeneratorType, defaultValue, size);
+	}
+
+	public StringFieldKey withNullable(boolean nullable){
 		return new StringFieldKey(name, columnName, nullable, fieldGeneratorType, defaultValue, size);
 	}
 

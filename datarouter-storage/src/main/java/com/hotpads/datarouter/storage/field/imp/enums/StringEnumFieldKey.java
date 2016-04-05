@@ -20,12 +20,6 @@ extends BaseFieldKey<E>{
 		this.sampleValue = ReflectionTool.create(enumClass);
 	}
 
-	public StringEnumFieldKey(String name, boolean nullable, Class<E> enumClass){
-		super(name, nullable, FieldGeneratorType.NONE);
-		this.size = DEFAULT_MAX_SIZE;
-		this.sampleValue = ReflectionTool.create(enumClass);
-	}
-
 	public StringEnumFieldKey(String name, String columnName, int size, Class<E> enumClass){
 		super(name, columnName, true, FieldGeneratorType.NONE);
 		this.size = size;
@@ -40,6 +34,10 @@ extends BaseFieldKey<E>{
 	}
 
 	public StringEnumFieldKey<E> withSize(int size){
+		return new StringEnumFieldKey<>(name, sampleValue, columnName, nullable, fieldGeneratorType, sampleValue, size);
+	}
+
+	public StringEnumFieldKey<E> withNullable(boolean nullable){
 		return new StringEnumFieldKey<>(name, sampleValue, columnName, nullable, fieldGeneratorType, sampleValue, size);
 	}
 
