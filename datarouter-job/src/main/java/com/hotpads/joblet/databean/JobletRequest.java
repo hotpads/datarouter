@@ -43,7 +43,7 @@ import com.hotpads.util.datastructs.MutableBoolean;
 @AccessType("field")
 @TypeDefs({
 	@TypeDef(name="status", typeClass=com.hotpads.databean.GenericEnumUserType.class, parameters={
-		@Parameter(name="enumClass", value="com.hotpads.joblet.JobletStatus"),
+		@Parameter(name="enumClass", value="com.hotpads.joblet.enums.JobletStatus"),
 		@Parameter(name="identifierMethod", value="getPersistentString"),
 		@Parameter(name="valueOfMethod", value="fromPersistentStringStatic")}),
 })
