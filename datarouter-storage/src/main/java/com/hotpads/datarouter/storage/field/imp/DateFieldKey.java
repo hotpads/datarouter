@@ -19,8 +19,4 @@ public class DateFieldKey extends PrimitiveFieldKey<Date>{
 		return new DateFieldKey(name, columnName, nullable, FieldGeneratorType.NONE);
 	}
 
-	public DateFieldKey withNullable(boolean nullable){
-		return new DateFieldKey(name, columnName, nullable, FieldGeneratorType.NONE);
-	}
-
 }
