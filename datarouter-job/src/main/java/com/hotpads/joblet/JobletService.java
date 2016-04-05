@@ -19,8 +19,8 @@ import com.hotpads.handler.exception.ExceptionRecorder;
 import com.hotpads.job.trigger.JobExceptionCategory;
 import com.hotpads.joblet.databean.JobletData;
 import com.hotpads.joblet.databean.JobletDataKey;
-import com.hotpads.joblet.databean.JobletRequestKey;
 import com.hotpads.joblet.databean.JobletRequest;
+import com.hotpads.joblet.databean.JobletRequestKey;
 import com.hotpads.joblet.dto.JobletSummary;
 import com.hotpads.joblet.enums.JobletStatus;
 import com.hotpads.joblet.enums.JobletType;
@@ -62,13 +62,16 @@ public class JobletService{
 				.collect(Collectors.toList());
 	}
 
-	public Joblet<?> getJobletProcessForJoblet(JobletRequest joblet){
-		JobletData jobletData = jobletNodes.jobletData().get(joblet.getJobletDataKey(), null);
-		JobletType<?> jobletType = jobletTypeFactory.fromJobletRequest(joblet);
-		Joblet<?> jobletProcess = injector.getInstance(jobletType.getAssociatedClass());
-		jobletProcess.setJoblet(joblet);
-		jobletProcess.setJobletData(jobletData);
-		return jobletProcess;
+	public <T> Joblet<T> getJobletProcessForJoblet(JobletRequest jobletRequest){
+		JobletData jobletData = jobletNodes.jobletData().get(jobletRequest.getJobletDataKey(), null);
+		JobletType<?> jobletType = jobletTypeFactory.fromJobletRequest(jobletRequest);
+		//can't seem to remove this cast while HotPadsJobletType is an enum
+		Joblet<T> joblet = (Joblet<T>)injector.getInstance(jobletType.getAssociatedClass());
+		joblet.setJoblet(jobletRequest);
+		joblet.setJobletData(jobletData);
+		T params = joblet.unmarshallData(jobletData.getData());
+		joblet.setJobletParams(params);
+		return joblet;
 	}
 
 	public JobletRequest getJobletForProcessing(JobletType<?> type, String reservedBy, long jobletTimeoutMs,

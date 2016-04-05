@@ -5,7 +5,7 @@ import com.hotpads.joblet.Joblet;
 
 public interface JobletType<T> extends StringEnum<T>{
 
-	Class<? extends Joblet> getAssociatedClass();
+	Class<? extends Joblet<T>> getAssociatedClass();
 	boolean getRateLimited();
 	Integer getBatchSize();
 	Integer getCpuPermits();
