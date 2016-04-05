@@ -16,7 +16,7 @@ public class DateFieldKey extends PrimitiveFieldKey<Date>{
 	}
 
 	public DateFieldKey withColumnName(String columnName){
-		return new DateFieldKey(name, columnName, nullable, FieldGeneratorType.NONE);
+		return new DateFieldKey(name, columnName, nullable, fieldGeneratorType);
 	}
 
 }
