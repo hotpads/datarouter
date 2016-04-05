@@ -13,15 +13,19 @@ import com.hotpads.datarouter.test.node.basic.sorted.SortedBeanEntityKey.SortedB
 
 public class SortedBeanEntityNode{
 
-	private static EntityNodeParams<SortedBeanEntityKey,SortedBeanEntity> entityNodeParams
+	public static EntityNodeParams<SortedBeanEntityKey,SortedBeanEntity> ENTITY_NODE_PARAMS_1
 			= new EntityNodeParams<>("SortedBeanEntity", SortedBeanEntityKey.class, SortedBeanEntity.class,
 			SortedBeanEntityPartitioner4.class, "SortedBeanEntity");
+
+	public static EntityNodeParams<SortedBeanEntityKey,SortedBeanEntity> ENTITY_NODE_PARAMS_2
+			= new EntityNodeParams<>("SortedBeanEntity2", SortedBeanEntityKey.class, SortedBeanEntity.class,
+			SortedBeanEntityPartitioner4.class, "SortedBeanEntity2");
 
 	private EntityNode<SortedBeanEntityKey,SortedBeanEntity> entity;
 	private SubEntitySortedMapStorageNode<SortedBeanEntityKey,SortedBeanKey,SortedBean,SortedBeanFielder> sortedBean;
 
 	public SortedBeanEntityNode(EntityNodeFactory entityNodeFactory, NodeFactory nodeFactory, Router router,
-			ClientId clientId){
+			ClientId clientId, EntityNodeParams<SortedBeanEntityKey,SortedBeanEntity> entityNodeParams){
 		this.entity = entityNodeFactory.create(clientId.getName(), router, entityNodeParams);
 		this.sortedBean = router.register(nodeFactory.subEntityNode(router, entityNodeParams, clientId,
 				SortedBean.class, SortedBeanFielder.class, SortedBeanEntity.QUALIFIER_PREFIX_SortedBean));
