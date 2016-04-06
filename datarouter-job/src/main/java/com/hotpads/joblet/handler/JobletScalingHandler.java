@@ -5,7 +5,7 @@ import javax.inject.Inject;
 import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.mav.Mav;
-import com.hotpads.joblet.JobletScaler;
+import com.hotpads.joblet.execute.JobletScaler;
 
 /*
  * note: this is a standalone controller since it requires public access

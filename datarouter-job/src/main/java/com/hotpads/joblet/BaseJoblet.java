@@ -5,25 +5,19 @@ import com.hotpads.joblet.databean.JobletRequest;
 
 public abstract class BaseJoblet<T> implements Joblet<T>{
 
+	protected T params;
 	protected JobletRequest joblet;
-	protected JobletData jobletData = new JobletData();
+	protected JobletData jobletData = new JobletData(null);
 
-	public void marshallDataAndCounts(){
-		marshallData();
-		joblet.setNumItems(calculateNumItems());
-		joblet.setNumTasks(calculateNumTasks());
+	public void marshallDataAndCounts(T params){
+		marshallData(params);
+		joblet.setNumItems(calculateNumItems(params));
+		joblet.setNumTasks(calculateNumTasks(params));
 	}
 
 	@Override
-	public int calculateNumTasks(){
-		return calculateNumItems();//usually the same, but feel free to override
-	}
-
-	@Override
-    public void unmarshallDataIfNotAlready() {
-		if(!getUnmarshalled()){
-			unmarshallData();
-		}
+	public int calculateNumTasks(T params){
+		return calculateNumItems(params);//usually the same, but feel free to override
 	}
 
 	public boolean getUnmarshalled(){
@@ -64,4 +58,8 @@ public abstract class BaseJoblet<T> implements Joblet<T>{
 		return jobletData.getData();
 	}
 
+	@Override
+	public void setJobletParams(T params){
+		this.params = params;
+	}
 }
