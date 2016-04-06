@@ -49,7 +49,8 @@ public abstract class BaseSortedNodeIntegrationTests{
 	/***************************** setup/teardown **************************************/
 
 	protected void setup(ClientId clientId, boolean useFielder, boolean entity){
-		router = new SortedNodeTestRouter(datarouter, entityNodeFactory, nodeFactory, clientId, useFielder, entity);
+		router = new SortedNodeTestRouter(datarouter, entityNodeFactory, SortedBeanEntityNode.ENTITY_NODE_PARAMS_1,
+				nodeFactory, clientId, useFielder, entity);
 		sortedNode = router.sortedBean();
 
 		resetTable(true);
