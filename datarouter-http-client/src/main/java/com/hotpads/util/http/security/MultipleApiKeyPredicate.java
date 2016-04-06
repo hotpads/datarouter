@@ -3,12 +3,12 @@ package com.hotpads.util.http.security;
 import java.util.Collection;
 import java.util.HashSet;
 
-public class MultipleKeyPredicate implements ApiKeyPredicate{
+public class MultipleApiKeyPredicate implements ApiKeyPredicate{
 
 	private String hotpadsApiKey;
 	private final HashSet<String> keys;
 
-	public MultipleKeyPredicate(String hotpadsApiKey, Collection<String> otherApiKeys){
+	public MultipleApiKeyPredicate(String hotpadsApiKey, Collection<String> otherApiKeys){
 		this.hotpadsApiKey = hotpadsApiKey;
 		this.keys = new HashSet<>(otherApiKeys.size() + 1);
 		this.keys.add(hotpadsApiKey);
