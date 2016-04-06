@@ -5,7 +5,7 @@ import java.util.HashSet;
 
 public class MultipleApiKeyPredicate implements ApiKeyPredicate{
 
-	private String hotpadsApiKey;
+	private final String hotpadsApiKey;
 	private final HashSet<String> keys;
 
 	public MultipleApiKeyPredicate(String hotpadsApiKey, Collection<String> otherApiKeys){
