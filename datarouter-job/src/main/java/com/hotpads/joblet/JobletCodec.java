@@ -1,11 +1,11 @@
 package com.hotpads.joblet;
 
-public interface JobletCodec<T>{
+public interface JobletCodec<P>{
 
-    String marshallData(T params);
-    T unmarshallData(String encodedParams);
+    String marshallData(P params);
+    P unmarshallData(String encodedParams);
 
-    int calculateNumItems(T params);
-    int calculateNumTasks(T params);
+    int calculateNumItems(P params);
+    int calculateNumTasks(P params);
 
 }

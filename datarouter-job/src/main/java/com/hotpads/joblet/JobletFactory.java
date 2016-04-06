@@ -18,13 +18,13 @@ public class JobletFactory{
 	private JobletTypeFactory jobletTypeFactory;
 
 
-	@SuppressWarnings("unchecked")//can't seem to remove these casts while HotPadsJobletType is an enum
-	public <T> Joblet<T> create(JobletRequest jobletRequest, JobletData jobletData){
-		JobletType<T> jobletType = (JobletType<T>)jobletTypeFactory.fromJobletRequest(jobletRequest);
-		Joblet<T> joblet = (Joblet<T>)injector.getInstance(jobletType.getAssociatedClass());
+	@SuppressWarnings("unchecked")//can't seem to remove the cast while HotPadsJobletType is an enum
+	public <P> Joblet<P> create(JobletRequest jobletRequest, JobletData jobletData){
+		JobletType<?> jobletType = jobletTypeFactory.fromJobletRequest(jobletRequest);
+		Joblet<P> joblet = (Joblet<P>)injector.getInstance(jobletType.getAssociatedClass());
 		joblet.setJoblet(jobletRequest);
 		joblet.setJobletData(jobletData);
-		T params = joblet.unmarshallData(jobletData.getData());
+		P params = joblet.unmarshallData(jobletData.getData());
 		joblet.setJobletParams(params);
 		return joblet;
 	}
