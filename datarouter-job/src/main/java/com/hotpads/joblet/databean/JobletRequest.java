@@ -30,10 +30,10 @@ import com.hotpads.datarouter.util.core.DrDateTool;
 import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.handler.exception.ExceptionRecordKey;
-import com.hotpads.joblet.JobletStatus;
-import com.hotpads.joblet.JobletType;
-import com.hotpads.joblet.JobletTypeFactory;
 import com.hotpads.joblet.dto.JobletSummary;
+import com.hotpads.joblet.enums.JobletStatus;
+import com.hotpads.joblet.enums.JobletType;
+import com.hotpads.joblet.enums.JobletTypeFactory;
 import com.hotpads.util.core.profile.PhaseTimer;
 import com.hotpads.util.core.stream.StreamTool;
 import com.hotpads.util.datastructs.MutableBoolean;
@@ -43,11 +43,11 @@ import com.hotpads.util.datastructs.MutableBoolean;
 @AccessType("field")
 @TypeDefs({
 	@TypeDef(name="status", typeClass=com.hotpads.databean.GenericEnumUserType.class, parameters={
-		@Parameter(name="enumClass", value="com.hotpads.joblet.JobletStatus"),
+		@Parameter(name="enumClass", value="com.hotpads.joblet.enums.JobletStatus"),
 		@Parameter(name="identifierMethod", value="getPersistentString"),
 		@Parameter(name="valueOfMethod", value="fromPersistentStringStatic")}),
 })
-public class JobletRequest extends BaseDatabean<JobletKey,JobletRequest>{
+public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 
 	/************************** enums **************************************/
 
@@ -55,7 +55,7 @@ public class JobletRequest extends BaseDatabean<JobletKey,JobletRequest>{
 	/*********************************** fields **************************/
 
 	@Id
-	protected JobletKey key;
+	protected JobletRequestKey key;
 	protected String queueId;
 	@Type(type="status")
 	protected JobletStatus status = JobletStatus.created;
@@ -107,19 +107,19 @@ public class JobletRequest extends BaseDatabean<JobletKey,JobletRequest>{
 	/************************* constructors ********************************/
 
 	JobletRequest(){
-		this.key = new JobletKey(null, null, null);
+		this.key = new JobletRequestKey(null, null, null);
 	}
 
 	public JobletRequest(JobletType<?> type, Integer executionOrder, Integer batchSequence, boolean restartable){
-		this.key = new JobletKey(type, executionOrder, batchSequence);
+		this.key = new JobletRequestKey(type, executionOrder, batchSequence);
 		this.restartable = restartable;
 	}
 
 	/******************** databean ************************************/
 
-	public static class JobletFielder extends BaseDatabeanFielder<JobletKey, JobletRequest> {
+	public static class JobletFielder extends BaseDatabeanFielder<JobletRequestKey, JobletRequest> {
 		public JobletFielder() {
-			super(JobletKey.class);
+			super(JobletRequestKey.class);
 		}
 
 		@Override
@@ -143,12 +143,12 @@ public class JobletRequest extends BaseDatabean<JobletKey,JobletRequest>{
 	}
 
 	@Override
-	public Class<JobletKey> getKeyClass(){
-		return JobletKey.class;
+	public Class<JobletRequestKey> getKeyClass(){
+		return JobletRequestKey.class;
 	}
 
 	@Override
-	public JobletKey getKey() {
+	public JobletRequestKey getKey() {
 		return key;
 	}
 
@@ -170,7 +170,7 @@ public class JobletRequest extends BaseDatabean<JobletKey,JobletRequest>{
 		Integer sumItems = 0;
 		boolean atLeastOnecreatedJoblet = false;
 		for(JobletRequest joblet : scanner){
-			JobletType<?> type = jobletTypeFactory.fromJoblet(joblet);
+			JobletType<?> type = jobletTypeFactory.fromJobletRequest(joblet);
 			if(joblet.getStatus() == JobletStatus.created){
 				atLeastOnecreatedJoblet = true;
 				if(currentType != null && type != currentType){
@@ -178,7 +178,7 @@ public class JobletRequest extends BaseDatabean<JobletKey,JobletRequest>{
 					oldestCreatedDate = null;
 					sumItems = 0;
 				}
-				currentType = jobletTypeFactory.fromJoblet(joblet);
+				currentType = jobletTypeFactory.fromJobletRequest(joblet);
 				sumItems = sumItems + joblet.getNumItems();
 				if(oldestCreatedDate == null || joblet.getKey().getCreated() < oldestCreatedDate){
 					oldestCreatedDate = joblet.getKey().getCreated();
@@ -215,7 +215,7 @@ public class JobletRequest extends BaseDatabean<JobletKey,JobletRequest>{
 		JobletRequest oldest = null;
 		long now = System.currentTimeMillis();
 		for(JobletRequest joblet : DrIterableTool.nullSafe(joblets)){
-			JobletType<?> jobletType = jobletTypeFactory.fromJoblet(joblet);
+			JobletType<?> jobletType = jobletTypeFactory.fromJobletRequest(joblet);
 			if(types.contains(jobletType) && statuses.contains(joblet.getStatus())){
 				if(oldest == null){
 					oldest = joblet;
@@ -381,7 +381,7 @@ public class JobletRequest extends BaseDatabean<JobletKey,JobletRequest>{
 		return interrupted;
 	}
 
-	public void setKey(JobletKey key){
+	public void setKey(JobletRequestKey key){
 		this.key = key;
 	}
 

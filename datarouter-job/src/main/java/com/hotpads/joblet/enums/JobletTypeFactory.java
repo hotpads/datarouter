@@ -1,4 +1,4 @@
-package com.hotpads.joblet;
+package com.hotpads.joblet.enums;
 
 import java.util.Arrays;
 import java.util.List;
@@ -6,8 +6,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.hotpads.datarouter.util.core.DrArrayTool;
+import com.hotpads.joblet.Joblet;
+import com.hotpads.joblet.JobletPackage;
+import com.hotpads.joblet.databean.JobletRequestKey;
 import com.hotpads.joblet.databean.JobletRequest;
-import com.hotpads.joblet.databean.JobletKey;
 
 public class JobletTypeFactory{
 
@@ -40,19 +42,19 @@ public class JobletTypeFactory{
 
 	/*--------------------- parse persistent string ----------------*/
 
-	public JobletType<?> fromJobletProcess(Joblet jobletProcess){
-		return jobletProcess == null ? null : fromJoblet(jobletProcess.getJobletRequest());
+	public JobletType<?> fromJoblet(Joblet<?> joblet){
+		return joblet == null ? null : fromJobletRequest(joblet.getJobletRequest());
 	}
 
 	public JobletType<?> fromJobletPackage(JobletPackage jobletPackage){
-		return jobletPackage == null ? null : fromJoblet(jobletPackage.getJoblet());
+		return jobletPackage == null ? null : fromJobletRequest(jobletPackage.getJoblet());
 	}
 
-	public JobletType<?> fromJoblet(JobletRequest joblet){
-		return joblet == null ? null : fromJobletKey(joblet.getKey());
+	public JobletType<?> fromJobletRequest(JobletRequest jobletRequest){
+		return jobletRequest == null ? null : fromJobletKey(jobletRequest.getKey());
 	}
 
-	public JobletType<?> fromJobletKey(JobletKey jobletKey){
+	public JobletType<?> fromJobletKey(JobletRequestKey jobletKey){
 		return jobletKey == null ? null : fromPersistentString(jobletKey.getType());
 	}
 

@@ -37,9 +37,15 @@ public class JobletData extends BaseDatabean<JobletDataKey,JobletData>{
 		}
 	}
 
-	public JobletData() {
-		this.created = System.currentTimeMillis();
+
+	public JobletData(){
+		this(null);
+	}
+
+	public JobletData(String data){
 		this.key = new JobletDataKey();
+		this.created = System.currentTimeMillis();
+		this.data = data;
 	}
 
 	@Override

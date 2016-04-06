@@ -1,4 +1,4 @@
-package com.hotpads.joblet;
+package com.hotpads.joblet.enums;
 
 public enum JobletPriority{
 	HIGH(10),

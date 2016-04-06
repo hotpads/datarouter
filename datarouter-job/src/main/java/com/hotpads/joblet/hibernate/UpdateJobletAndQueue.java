@@ -10,9 +10,9 @@ import com.hotpads.datarouter.client.imp.hibernate.op.BaseHibernateOp;
 import com.hotpads.datarouter.op.util.ResultMergeTool;
 import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.joblet.JobletNodes;
-import com.hotpads.joblet.JobletType;
-import com.hotpads.joblet.JobletTypeFactory;
 import com.hotpads.joblet.databean.JobletRequest;
+import com.hotpads.joblet.enums.JobletType;
+import com.hotpads.joblet.enums.JobletTypeFactory;
 
 public class UpdateJobletAndQueue extends BaseHibernateOp<Integer>{
 
@@ -40,7 +40,7 @@ public class UpdateJobletAndQueue extends BaseHibernateOp<Integer>{
 		Session session = getSession(client.getName());
 
 		session.update(joblet);
-		JobletType<?> jobletType = jobletTypeFactory.fromJoblet(joblet);
+		JobletType<?> jobletType = jobletTypeFactory.fromJobletRequest(joblet);
 		boolean enforceRateLimit = rateLimited && jobletType.getRateLimited();
 
 		if(this.decrementQueueIfRateLimited && enforceRateLimit){

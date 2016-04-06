@@ -10,9 +10,9 @@ import com.hotpads.datarouter.config.Isolation;
 import com.hotpads.datarouter.op.util.ResultMergeTool;
 import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.joblet.JobletNodes;
-import com.hotpads.joblet.JobletType;
-import com.hotpads.joblet.JobletTypeFactory;
 import com.hotpads.joblet.databean.JobletRequest;
+import com.hotpads.joblet.enums.JobletType;
+import com.hotpads.joblet.enums.JobletTypeFactory;
 
 public class DeleteJoblet extends BaseHibernateOp<JobletRequest>{
 
@@ -33,7 +33,7 @@ public class DeleteJoblet extends BaseHibernateOp<JobletRequest>{
 	@Override
 	public JobletRequest runOncePerClient(Client client){
 		Session session = this.getSession(client.getName());
-		JobletType<?> jobletType = jobletTypeFactory.fromJoblet(joblet);
+		JobletType<?> jobletType = jobletTypeFactory.fromJobletRequest(joblet);
 		boolean enforceRateLimit = rateLimited && jobletType.getRateLimited();
 
 		if(enforceRateLimit) {

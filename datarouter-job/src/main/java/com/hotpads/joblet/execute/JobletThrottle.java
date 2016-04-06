@@ -1,4 +1,4 @@
-package com.hotpads.joblet;
+package com.hotpads.joblet.execute;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -6,6 +6,7 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.hotpads.joblet.JobletSettings;
 import com.hotpads.util.core.concurrent.MutableSemaphore;
 
 @Singleton

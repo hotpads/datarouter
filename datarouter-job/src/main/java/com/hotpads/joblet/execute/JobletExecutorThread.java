@@ -1,4 +1,4 @@
-package com.hotpads.joblet;
+package com.hotpads.joblet.execute;
 
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
@@ -9,12 +9,20 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.inject.Injector;
 import com.hotpads.datarouter.util.core.DrNumberFormatter;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.job.JobInterruptedException;
-import com.hotpads.joblet.databean.JobletRequest;
+import com.hotpads.joblet.Joblet;
+import com.hotpads.joblet.JobletCounters;
+import com.hotpads.joblet.JobletFactory;
+import com.hotpads.joblet.JobletNodes;
+import com.hotpads.joblet.JobletPackage;
+import com.hotpads.joblet.JobletService;
+import com.hotpads.joblet.JobletSettings;
 import com.hotpads.joblet.databean.JobletData;
+import com.hotpads.joblet.databean.JobletRequest;
+import com.hotpads.joblet.enums.JobletType;
+import com.hotpads.joblet.enums.JobletTypeFactory;
 import com.hotpads.joblet.profiling.FixedTimeSpanStatistics;
 import com.hotpads.joblet.profiling.StratifiedStatistics;
 import com.hotpads.util.core.profile.PhaseTimer;
@@ -25,9 +33,9 @@ public class JobletExecutorThread extends Thread{
 	@Singleton
 	public static class JobletExecutorThreadFactory{
 		@Inject
-		private Injector injector;
-		@Inject
 		private JobletTypeFactory jobletTypeFactory;
+		@Inject
+		private JobletFactory jobletFactory;
 		@Inject
 		private JobletThrottle jobletThrottle;
 		@Inject
@@ -38,16 +46,16 @@ public class JobletExecutorThread extends Thread{
 		private JobletService jobletService;
 
 		public JobletExecutorThread create(JobletExecutorThreadPool jobletExecutorThreadPool, ThreadGroup threadGroup){
-			return new JobletExecutorThread(jobletExecutorThreadPool, threadGroup, injector, jobletTypeFactory,
-					jobletThrottle, jobletNodes, jobletSettings, jobletService);
+			return new JobletExecutorThread(jobletExecutorThreadPool, threadGroup, jobletTypeFactory,
+					jobletFactory, jobletThrottle, jobletNodes, jobletSettings, jobletService);
 		}
 	}
 
 	private final JobletExecutorThreadPool jobletExecutorThreadPool;
 	private final String jobletName;
 
-	private final Injector injector;
 	private final JobletTypeFactory jobletTypeFactory;
+	private final JobletFactory jobletFactory;
 	private final JobletThrottle jobletThrottle;
 	private final JobletNodes jobletNodes;
 	private final JobletSettings jobletSettings;
@@ -64,12 +72,12 @@ public class JobletExecutorThread extends Thread{
 	private long semaphoreWaitTime = 0;
 
 	private JobletExecutorThread(JobletExecutorThreadPool jobletExecutorThreadPool, ThreadGroup threadGroup,
-			Injector injector, JobletTypeFactory jobletTypeFactory, JobletThrottle jobletThrottle,
+			JobletTypeFactory jobletTypeFactory, JobletFactory jobletFactory, JobletThrottle jobletThrottle,
 			JobletNodes jobletNodes, JobletSettings jobletSettings, JobletService jobletService){
 		super(threadGroup, threadGroup.getName() + " - idle");
 		this.jobletExecutorThreadPool = jobletExecutorThreadPool;
-		this.injector = injector;
 		this.jobletTypeFactory = jobletTypeFactory;
+		this.jobletFactory = jobletFactory;
 		this.jobletName = threadGroup.getName();
 		this.jobletThrottle = jobletThrottle;
 		this.jobletNodes = jobletNodes;
@@ -174,49 +182,30 @@ public class JobletExecutorThread extends Thread{
 		}
 	}
 
-	private Joblet createProcessFromJoblet(JobletPackage jobletPackage){
-		Joblet process = createUninitializedJobletProcessFromJoblet(jobletPackage);
-		process.unmarshallDataIfNotAlready();
-		return process;
-	}
-
-	Joblet createUninitializedJobletProcessFromJoblet(JobletPackage jobletPackage){
-		JobletType<?> jobletType = jobletTypeFactory.fromJobletPackage(jobletPackage);
-		JobletRequest joblet = jobletPackage.getJoblet();
-		Class<? extends Joblet> cls = jobletType.getAssociatedClass();
-		if(cls == null){
-			throw new NullPointerException("No class associated with " + jobletType);
-		}
-		Joblet process = injector.getInstance(cls);
-		process.setJoblet(joblet);
-		process.setJobletData(jobletPackage.getJobletData());
-		return process;
-	}
-
 	private final void runJoblet(JobletPackage jobletPackage) throws JobInterruptedException{
 		JobletType<?> jobletType = jobletTypeFactory.fromJobletPackage(jobletPackage);
-		JobletRequest joblet = jobletPackage.getJoblet();
+		JobletRequest jobletRequest = jobletPackage.getJoblet();
 		long startTimeMs = System.currentTimeMillis();
-		Joblet jobletProcess = createProcessFromJoblet(jobletPackage);
+		Joblet<?> jobletProcess = jobletFactory.create(jobletRequest, jobletPackage.getJobletData());
 		jobletProcess.process();
-		int numItemsProcessed = Math.max(1, joblet.getNumItems());
+		int numItemsProcessed = Math.max(1, jobletRequest.getNumItems());
 		JobletCounters.incItemsProcessed(jobletType.getPersistentString(), numItemsProcessed);
-		int numTasksProcessed = Math.max(1, joblet.getNumTasks());
+		int numTasksProcessed = Math.max(1, jobletRequest.getNumTasks());
 		JobletCounters.incTasksProcessed(jobletType.getPersistentString(), numTasksProcessed);
 		long endTimeMs = System.currentTimeMillis();
 		long durationMs = endTimeMs - startTimeMs;
 //			int numItems = ;
-		String itemsPerSecond = DrNumberFormatter.format((double)joblet.getNumItems() / ((double)durationMs
+		String itemsPerSecond = DrNumberFormatter.format((double)jobletRequest.getNumItems() / ((double)durationMs
 				/ (double)1000), 1);
-		String tasksPerSecond = DrNumberFormatter.format((double)joblet.getNumTasks() / ((double)durationMs
+		String tasksPerSecond = DrNumberFormatter.format((double)jobletRequest.getNumTasks() / ((double)durationMs
 				/ (double)1000), 1);
 		String typeAndQueue = jobletType.getPersistentString();
-		if(DrStringTool.notEmpty(joblet.getQueueId())){
-			typeAndQueue += " " + joblet.getQueueId();
+		if(DrStringTool.notEmpty(jobletRequest.getQueueId())){
+			typeAndQueue += " " + jobletRequest.getQueueId();
 		}
 		logger.info("Finished " + typeAndQueue
-				+ " with " + joblet.getNumItems() + " items"
-				+ " and " + joblet.getNumTasks() + " tasks"
+				+ " with " + jobletRequest.getNumItems() + " items"
+				+ " and " + jobletRequest.getNumTasks() + " tasks"
 				+ " in " + DrNumberFormatter.addCommas(durationMs)+"ms"
 				+ " at "+itemsPerSecond+" items/sec"
 				+ " and "+tasksPerSecond+" tasks/sec"

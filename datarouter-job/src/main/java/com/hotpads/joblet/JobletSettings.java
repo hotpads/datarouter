@@ -1,6 +1,7 @@
 package com.hotpads.joblet;
 
 import com.hotpads.datarouter.setting.Setting;
+import com.hotpads.joblet.enums.JobletType;
 
 public interface JobletSettings{
 
