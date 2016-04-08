@@ -34,7 +34,7 @@ public class JobletPackage {
 
 	/*-------------- static -----------------*/
 
-	public static <T,P> JobletPackage create(JobletType<T> jobletType, Supplier<JobletCodec<P>> codecSupplier,
+	public static <T,P> JobletPackage create(JobletType<T> jobletType, Supplier<? extends JobletCodec<P>> codecSupplier,
 			int executionOrder, boolean restartable, P params){
 		int batchSequence = RandomTool.nextPositiveInt();
 		JobletRequest request = new JobletRequest(jobletType, executionOrder, batchSequence, restartable);
