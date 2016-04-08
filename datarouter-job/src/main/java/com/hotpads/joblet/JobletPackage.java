@@ -35,20 +35,21 @@ public class JobletPackage {
 	/*-------------- static -----------------*/
 
 	public static <T,P> JobletPackage create(JobletType<T> jobletType, Supplier<? extends JobletCodec<P>> codecSupplier,
-			int executionOrder, boolean restartable, P params){
+			int executionOrder, boolean restartable, String queueId, P params){
 		int batchSequence = RandomTool.nextPositiveInt();
 		JobletRequest request = new JobletRequest(jobletType, executionOrder, batchSequence, restartable);
+		request.setQueueId(queueId);
 		JobletCodec<P> codec = codecSupplier.get();
 		String encodedParams = codec.marshallData(params);
 		JobletData data = new JobletData(encodedParams);
 		return new JobletPackage(request, data);
 	}
 
-	static List<JobletRequest> getJoblets(Collection<JobletPackage> jobletPackages){
+	public static List<JobletRequest> getJoblets(Collection<JobletPackage> jobletPackages){
 		return StreamTool.map(jobletPackages, JobletPackage::getJoblet);
 	}
 
-	static List<JobletData> getJobletDatas(Collection<JobletPackage> jobletProcesses){
+	public static List<JobletData> getJobletDatas(Collection<JobletPackage> jobletProcesses){
 		return StreamTool.map(jobletProcesses, JobletPackage::getJobletData);
 	}
 
