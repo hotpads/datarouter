@@ -36,12 +36,19 @@ public class JobletPackage {
 
 	public static <T,P> JobletPackage create(JobletType<T> jobletType, Supplier<? extends JobletCodec<P>> codecSupplier,
 			int executionOrder, boolean restartable, String queueId, P params){
+		JobletCodec<P> codec = codecSupplier.get();
+
+		//build JobletRequest
 		int batchSequence = RandomTool.nextPositiveInt();
 		JobletRequest request = new JobletRequest(jobletType, executionOrder, batchSequence, restartable);
 		request.setQueueId(queueId);
-		JobletCodec<P> codec = codecSupplier.get();
+		request.setNumItems(codec.calculateNumItems(params));
+		request.setNumTasks(codec.calculateNumTasks(params));
+
+		//build JobletData
 		String encodedParams = codec.marshallData(params);
 		JobletData data = new JobletData(encodedParams);
+
 		return new JobletPackage(request, data);
 	}
 
