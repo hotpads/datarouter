@@ -4,9 +4,9 @@ import java.util.List;
 
 import com.google.inject.Module;
 import com.hotpads.datarouter.client.imp.jdbc.ChildInjectorInjectionFixModule;
-import com.hotpads.datarouter.test.DatarouterTestModuleFactory;
+import com.hotpads.datarouter.test.DatarouterStorageTestModuleFactory;
 
-public class DatarouterSqsTestModuleFactory extends DatarouterTestModuleFactory{
+public class DatarouterSqsTestModuleFactory extends DatarouterStorageTestModuleFactory{
 
 	@Override
 	protected List<Module> getOverriders(){

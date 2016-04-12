@@ -165,7 +165,7 @@ public final class DrDateTool {
 		return getPeriodStart(System.currentTimeMillis(), periodMs);
 	}
 
-	public static Long getPeriodStart(long timeMs, long periodMs){
+	public static long getPeriodStart(long timeMs, long periodMs){
 		return timeMs - timeMs % periodMs;
 	}
 

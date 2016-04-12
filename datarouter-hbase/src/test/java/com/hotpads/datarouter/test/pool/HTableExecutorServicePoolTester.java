@@ -30,7 +30,7 @@ import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.node.op.raw.MapStorage;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.imp.comparable.SignedByteField;
-import com.hotpads.datarouter.test.DatarouterTestModuleFactory;
+import com.hotpads.datarouter.test.DatarouterStorageTestModuleFactory;
 import com.hotpads.datarouter.test.DrTestConstants;
 import com.hotpads.datarouter.util.core.DrArrayTool;
 import com.hotpads.util.core.bytes.LongByteTool;
@@ -38,7 +38,7 @@ import com.hotpads.util.core.number.RandomTool;
 import com.hotpads.util.datastructs.MutableString;
 
 //TODO this won't work yet because of a runtime JDBC dependency in BasicClientTestRouter
-@Guice(moduleFactory = DatarouterTestModuleFactory.class)
+@Guice(moduleFactory = DatarouterStorageTestModuleFactory.class)
 public class HTableExecutorServicePoolTester{
 	private static final Logger logger = LoggerFactory.getLogger(HTableExecutorServicePoolTester.class);
 

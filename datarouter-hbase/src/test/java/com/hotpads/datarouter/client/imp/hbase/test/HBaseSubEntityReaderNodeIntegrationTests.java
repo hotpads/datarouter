@@ -16,14 +16,14 @@ import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage;
 import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.storage.databean.DatabeanTool;
-import com.hotpads.datarouter.test.DatarouterTestModuleFactory;
+import com.hotpads.datarouter.test.DatarouterStorageTestModuleFactory;
 import com.hotpads.datarouter.test.DrTestConstants;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBean;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBeanKey;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedNodeTestRouter;
 import com.hotpads.util.core.collections.Range;
 
-@Guice(moduleFactory=DatarouterTestModuleFactory.class)
+@Guice(moduleFactory=DatarouterStorageTestModuleFactory.class)
 public class HBaseSubEntityReaderNodeIntegrationTests{
 
 	@Inject

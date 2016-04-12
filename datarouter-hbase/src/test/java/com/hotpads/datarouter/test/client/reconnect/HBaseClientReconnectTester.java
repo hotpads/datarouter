@@ -16,13 +16,13 @@ import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage;
 import com.hotpads.datarouter.routing.Datarouter;
-import com.hotpads.datarouter.test.DatarouterTestModuleFactory;
+import com.hotpads.datarouter.test.DatarouterStorageTestModuleFactory;
 import com.hotpads.datarouter.test.pool.BasicClientTestRouter;
 import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.util.core.profile.PhaseTimer;
 
 //you must run this manually, starting and stopping hbase to verify it reconnects, at least for now
-@Guice(moduleFactory=DatarouterTestModuleFactory.class)
+@Guice(moduleFactory=DatarouterStorageTestModuleFactory.class)
 public class HBaseClientReconnectTester {
 	private static final Logger logger = LoggerFactory.getLogger(HBaseClientReconnectTester.class);
 
