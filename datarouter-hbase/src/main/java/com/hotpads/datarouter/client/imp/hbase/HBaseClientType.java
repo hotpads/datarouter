@@ -37,7 +37,7 @@ import com.hotpads.datarouter.storage.entity.Entity;
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
 import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.datarouter.test.DatarouterTestModuleFactory;
+import com.hotpads.datarouter.test.DatarouterStorageTestModuleFactory;
 import com.hotpads.util.core.lang.ClassTool;
 
 @Singleton
@@ -105,7 +105,7 @@ public class HBaseClientType extends BaseClientType{
 
 	/********************** tests ****************************/
 
-	@Guice(moduleFactory = DatarouterTestModuleFactory.class)
+	@Guice(moduleFactory = DatarouterStorageTestModuleFactory.class)
 	public static class HBaseClientTypeTests{
 		@Inject
 		private DatarouterInjector injector;
