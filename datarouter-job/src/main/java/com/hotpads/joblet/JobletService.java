@@ -116,13 +116,6 @@ public class JobletService{
 		datarouter.run(new DeleteJoblet(datarouter, jobletTypeFactory, joblet, jobletNodes, rateLimited));
 	}
 
-	@Deprecated
-	public void submitJoblets(Collection<? extends Joblet<?>> joblets){
-		jobletNodes.jobletData().putMulti(Joblet.getJobletDatas(joblets), null);
-		joblets.forEach(Joblet::updateJobletDataIdReference);
-		jobletNodes.joblet().putMulti(Joblet.getJoblets(joblets), null);
-	}
-
 	public void submitJobletPackages(Collection<JobletPackage> jobletPackages){
 		jobletNodes.jobletData().putMulti(JobletPackage.getJobletDatas(jobletPackages), null);
 		jobletPackages.forEach(JobletPackage::updateJobletDataIdReference);
