@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.hotpads.datarouter.client.ClientId;
+import com.hotpads.datarouter.node.entity.EntityNodeParams;
 import com.hotpads.datarouter.node.factory.EntityNodeFactory;
 import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
@@ -30,6 +31,7 @@ public class SortedNodeTestRouter extends BaseRouter{
 
 
 	public SortedNodeTestRouter(Datarouter datarouter, EntityNodeFactory entityNodeFactory,
+			EntityNodeParams<SortedBeanEntityKey,SortedBeanEntity> entityNodeParams,
 			NodeFactory nodeFactory, ClientId clientId, boolean useFielder, boolean entity){
 		super(datarouter, DrTestConstants.CONFIG_PATH, NAME);
 
@@ -39,7 +41,8 @@ public class SortedNodeTestRouter extends BaseRouter{
 		String tableName = TABLE_NAME_SortedBean;
 		String entityName = SortedBean.class.getCanonicalName();
 		if(entity){
-			sortedBeanEntityNode = new SortedBeanEntityNode(entityNodeFactory, nodeFactory, this, clientId);
+			sortedBeanEntityNode = new SortedBeanEntityNode(entityNodeFactory, nodeFactory, this, clientId,
+					entityNodeParams);
 			sortedBeanNode = sortedBeanEntityNode.sortedBean();
 		}else{
 			if(useFielder){

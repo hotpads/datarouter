@@ -17,11 +17,14 @@ import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.handler.exception.ExceptionRecord;
 import com.hotpads.handler.exception.ExceptionRecorder;
 import com.hotpads.job.trigger.JobExceptionCategory;
-import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.databean.JobletData;
 import com.hotpads.joblet.databean.JobletDataKey;
-import com.hotpads.joblet.databean.JobletKey;
+import com.hotpads.joblet.databean.JobletRequest;
+import com.hotpads.joblet.databean.JobletRequestKey;
 import com.hotpads.joblet.dto.JobletSummary;
+import com.hotpads.joblet.enums.JobletStatus;
+import com.hotpads.joblet.enums.JobletType;
+import com.hotpads.joblet.enums.JobletTypeFactory;
 import com.hotpads.joblet.hibernate.DeleteJoblet;
 import com.hotpads.joblet.hibernate.GetJobletForProcessing;
 import com.hotpads.joblet.hibernate.GetJobletStatuses;
@@ -35,37 +38,33 @@ public class JobletService{
 
 	public static final int MAX_JOBLET_RETRIES = 10;
 
-	private final DatarouterInjector injector;
 	private final Datarouter datarouter;
 	private final JobletTypeFactory jobletTypeFactory;
+	private final JobletFactory jobletFactory;
 	private final JobletNodes jobletNodes;
 	private final ExceptionRecorder exceptionRecorder;
 
 	@Inject
 	public JobletService(DatarouterInjector injector, Datarouter datarouter, JobletTypeFactory jobletTypeFactory,
-			JobletNodes jobletNodes, ExceptionRecorder exceptionRecorder){
-		this.injector = injector;
+			JobletFactory jobletFactory, JobletNodes jobletNodes, ExceptionRecorder exceptionRecorder){
 		this.datarouter = datarouter;
 		this.jobletTypeFactory = jobletTypeFactory;
+		this.jobletFactory = jobletFactory;
 		this.jobletNodes = jobletNodes;
 		this.exceptionRecorder = exceptionRecorder;
 	}
 
 
-	public List<Joblet> getJobletProcessesOfType(JobletType<?> jobletType){
-		JobletKey prefix = new JobletKey(jobletType, null, null, null);
+	public List<Joblet<?>> getJobletProcessesOfType(JobletType<?> jobletType){
+		JobletRequestKey prefix = new JobletRequestKey(jobletType, null, null, null);
 		return jobletNodes.joblet().streamWithPrefix(prefix, null)
 				.map(this::getJobletProcessForJoblet)
 				.collect(Collectors.toList());
 	}
 
-	public Joblet getJobletProcessForJoblet(JobletRequest joblet){
-		JobletData jobletData = jobletNodes.jobletData().get(joblet.getJobletDataKey(), null);
-		JobletType<?> jobletType = jobletTypeFactory.fromJoblet(joblet);
-		Joblet jobletProcess = injector.getInstance(jobletType.getAssociatedClass());
-		jobletProcess.setJoblet(joblet);
-		jobletProcess.setJobletData(jobletData);
-		return jobletProcess;
+	public <T> Joblet<T> getJobletProcessForJoblet(JobletRequest jobletRequest){
+		JobletData jobletData = jobletNodes.jobletData().get(jobletRequest.getJobletDataKey(), null);
+		return jobletFactory.create(jobletRequest, jobletData);
 	}
 
 	public JobletRequest getJobletForProcessing(JobletType<?> type, String reservedBy, long jobletTimeoutMs,
@@ -117,10 +116,10 @@ public class JobletService{
 		datarouter.run(new DeleteJoblet(datarouter, jobletTypeFactory, joblet, jobletNodes, rateLimited));
 	}
 
-	public void submitJoblets(Collection<? extends Joblet> jobletProcesses){
-		jobletNodes.jobletData().putMulti(Joblet.getJobletDatas(jobletProcesses), null);
-		jobletProcesses.forEach(jobletProcess -> jobletProcess.updateJobletDataIdReference());
-		jobletNodes.joblet().putMulti(Joblet.getJoblets(jobletProcesses), null);
+	public void submitJoblets(Collection<? extends Joblet<?>> joblets){
+		jobletNodes.jobletData().putMulti(Joblet.getJobletDatas(joblets), null);
+		joblets.forEach(Joblet::updateJobletDataIdReference);
+		jobletNodes.joblet().putMulti(Joblet.getJoblets(joblets), null);
 	}
 
 	public void setJobletsRunningOnServerToCreated(JobletType<?> jobletType, String serverName, boolean rateLimited){
@@ -145,8 +144,8 @@ public class JobletService{
 	}
 
 	public boolean jobletExistsWithTypeAndStatus(JobletType<?> jobletType, JobletStatus jobletStatus){
-		JobletKey key = new JobletKey(jobletType, null, null, null);
-		Range<JobletKey> range = new Range<>(key, true, key, true);
+		JobletRequestKey key = new JobletRequestKey(jobletType, null, null, null);
+		Range<JobletRequestKey> range = new Range<>(key, true, key, true);
 		Config config = new Config().setIterateBatchSize(50);
 		for(JobletRequest joblet : jobletNodes.joblet().scan(range, config)){
 			if(jobletStatus == joblet.getStatus()){

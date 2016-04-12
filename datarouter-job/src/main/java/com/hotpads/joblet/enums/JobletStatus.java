@@ -1,4 +1,4 @@
-package com.hotpads.joblet;
+package com.hotpads.joblet.enums;
 
 import com.hotpads.datarouter.storage.field.enums.DatarouterEnumTool;
 import com.hotpads.datarouter.storage.field.enums.StringEnum;

@@ -1,4 +1,4 @@
-package com.hotpads.joblet;
+package com.hotpads.joblet.execute;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,20 +14,21 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hotpads.joblet.JobletExecutorThread.JobletExecutorThreadFactory;
+import com.hotpads.joblet.JobletPackage;
+import com.hotpads.joblet.enums.JobletType;
+import com.hotpads.joblet.execute.JobletExecutorThread.JobletExecutorThreadFactory;
 
 public class JobletExecutorThreadPool {
 	private static final Logger logger = LoggerFactory.getLogger(JobletExecutorThreadPool.class);
 
 	@Singleton
 	public static class JobletExecutorThreadPoolFactory{
-
 		@Inject
 		private JobletThrottle jobletThrottle;
 		@Inject
 		private JobletExecutorThreadFactory jobletExecutorThreadFactory;
 
-		public JobletExecutorThreadPool create(Integer threadPoolSize, JobletType jobletType){
+		public JobletExecutorThreadPool create(Integer threadPoolSize, JobletType<?> jobletType){
 			return new JobletExecutorThreadPool(threadPoolSize, jobletType, jobletThrottle,
 					jobletExecutorThreadFactory);
 		}
@@ -46,12 +47,12 @@ public class JobletExecutorThreadPool {
 	private int numThreads;
 	private ThreadGroup threadGroup;
 
-	private final JobletType jobletType;
+	private final JobletType<?> jobletType;
 
 	private final JobletThrottle jobletThrottle;
 	private final JobletExecutorThreadFactory jobletExecutorThreadFactory;
 
-	private JobletExecutorThreadPool(Integer threadPoolSize, JobletType jobletType, JobletThrottle jobletThrottle,
+	private JobletExecutorThreadPool(Integer threadPoolSize, JobletType<?> jobletType, JobletThrottle jobletThrottle,
 			JobletExecutorThreadFactory jobletExecutorThreadFactory) {
 		this.jobletType = jobletType;
 		this.jobletThrottle = jobletThrottle;
@@ -181,9 +182,6 @@ public class JobletExecutorThreadPool {
 	}
 
 	public List<JobletExecutorThread> getRunningJobletExecutorThreads() {
-		//List<JobletExecutorThread> runningJobletThreads = new ArrayList<JobletExecutorThread>(allExecutorThreads);
-		//return runningJobletThreads;
-
 		List<JobletExecutorThread> runningJobletThreads = new ArrayList<>(runningExecutorThreads);
 		return runningJobletThreads;
 	}

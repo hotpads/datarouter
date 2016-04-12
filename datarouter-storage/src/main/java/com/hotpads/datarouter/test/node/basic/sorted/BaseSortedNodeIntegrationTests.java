@@ -8,6 +8,8 @@ import java.util.stream.Stream;
 
 import javax.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Guice;
@@ -29,9 +31,11 @@ import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.iterable.BatchingIterable;
+import com.hotpads.util.core.profile.PhaseTimer;
 
 @Guice(moduleFactory=DatarouterStorageTestModuleFactory.class)
 public abstract class BaseSortedNodeIntegrationTests{
+	private static final Logger logger = LoggerFactory.getLogger(BaseSortedNodeIntegrationTests.class);
 
 	/***************************** fields **************************************/
 
@@ -44,12 +48,14 @@ public abstract class BaseSortedNodeIntegrationTests{
 
 	protected SortedNodeTestRouter router;
 	protected SortedMapStorage<SortedBeanKey,SortedBean> sortedNode;
+	protected List<SortedBean> allBeans = SortedBeans.generatedSortedBeans();
 
 
 	/***************************** setup/teardown **************************************/
 
 	protected void setup(ClientId clientId, boolean useFielder, boolean entity){
-		router = new SortedNodeTestRouter(datarouter, entityNodeFactory, nodeFactory, clientId, useFielder, entity);
+		router = new SortedNodeTestRouter(datarouter, entityNodeFactory, SortedBeanEntityNode.ENTITY_NODE_PARAMS_1,
+				nodeFactory, clientId, useFielder, entity);
 		sortedNode = router.sortedBean();
 
 		resetTable(true);
@@ -65,7 +71,6 @@ public abstract class BaseSortedNodeIntegrationTests{
 		List<SortedBean> remainingAfterDelete = DrListTool.createArrayList(sortedNode.scan(null, null));
 		AssertJUnit.assertEquals(0, DrCollectionTool.size(remainingAfterDelete));
 
-		List<SortedBean> allBeans = SortedBeans.generatedSortedBeans();
 		for(List<SortedBean> batch : new BatchingIterable<>(allBeans, 1000)){
 			sortedNode.putMulti(batch, new Config().setPutMethod(PutMethod.INSERT_OR_BUST));
 		}
@@ -246,8 +251,10 @@ public abstract class BaseSortedNodeIntegrationTests{
 
 	@Test
 	public void testGet(){
-		Iterable<SortedBean> iterable = sortedNode.scan(null, null);
-		for(SortedBean sortedBeanFromScan : iterable){
+		List<SortedBean> all = sortedNode.stream(null, null).collect(Collectors.toList());
+		final int sampleEveryN = 29;
+		for(int i = 0; i < all.size(); i += sampleEveryN){
+			SortedBean sortedBeanFromScan = all.get(i);
 			SortedBean sortedBeanFromGet = sortedNode.get(sortedBeanFromScan.getKey(), null);
 			AssertJUnit.assertEquals(sortedBeanFromScan, sortedBeanFromGet);
 		}
@@ -281,13 +288,13 @@ public abstract class BaseSortedNodeIntegrationTests{
 
 	@Test
 	protected void testLimitedScanKeys(){
-		long count = scanKeysAndCountWithConfig(null);
+		long count = SortedBeans.TOTAL_RECORDS;
 		Assert.assertNotEquals(0, count);
-		Assert.assertEquals(scanKeysAndCountWithConfig(new Config().setIterateBatchSize(10)), count);
+		Assert.assertEquals(scanKeysAndCountWithConfig(new Config().setIterateBatchSize(555)), count);
 		Assert.assertEquals(scanKeysAndCountWithConfig(new Config().setLimit((int)count)), count);
 		Assert.assertEquals(scanKeysAndCountWithConfig(new Config().setLimit(10)), 10);
 		Assert.assertEquals(scanKeysAndCountWithConfig(new Config().setLimit((int)(2*count))), count);
-		Assert.assertEquals(scanKeysAndCountWithConfig(new Config().setIterateBatchSize(10).setLimit(100)), 100);
+		Assert.assertEquals(scanKeysAndCountWithConfig(new Config().setIterateBatchSize(25).setLimit(100)), 100);
 		Assert.assertEquals(scanKeysAndCountWithConfig(new Config().setIterateBatchSize(15).setLimit(23)), 23);
 	}
 
@@ -297,14 +304,23 @@ public abstract class BaseSortedNodeIntegrationTests{
 
 	@Test
 	protected void testLimitedScan(){
-		long count = scanAndCountWithConfig(null);
+		long count = SortedBeans.TOTAL_RECORDS;
 		Assert.assertNotEquals(0, count);
-		Assert.assertEquals(scanAndCountWithConfig(new Config().setIterateBatchSize(10)), count);
+		PhaseTimer timer = new PhaseTimer("testLimitedScan");
+		Assert.assertEquals(scanAndCountWithConfig(new Config().setIterateBatchSize(555)), count);
+		timer.add("1");
 		Assert.assertEquals(scanAndCountWithConfig(new Config().setLimit((int)count)), count);
+		timer.add("2");
 		Assert.assertEquals(scanAndCountWithConfig(new Config().setLimit(10)), 10);
+		timer.add("3");
 		Assert.assertEquals(scanAndCountWithConfig(new Config().setLimit((int)(2*count))), count);
-		Assert.assertEquals(scanAndCountWithConfig(new Config().setIterateBatchSize(10).setLimit(100)), 100);
+		timer.add("4");
+		Assert.assertEquals(scanAndCountWithConfig(new Config().setIterateBatchSize(25).setLimit(100)), 100);
+		timer.add("5");
 		Assert.assertEquals(scanAndCountWithConfig(new Config().setIterateBatchSize(15).setLimit(23)), 23);
+		timer.add("6");
+		logger.warn(timer.toString());
+		//[total:633ms]<testLimitedScan>[1:112ms][2:107ms][3:90ms][4:143ms][5:74ms][6:107ms]
 	}
 
 	private long scanAndCountWithConfig(Config config){
