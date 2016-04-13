@@ -36,11 +36,6 @@ public abstract class BaseJoblet<T> implements Joblet<T>{
 	}
 
 	@Override
-	public String getData(){
-		return jobletData.getData();
-	}
-
-	@Override
 	public void setJobletParams(T params){
 		this.params = params;
 	}
