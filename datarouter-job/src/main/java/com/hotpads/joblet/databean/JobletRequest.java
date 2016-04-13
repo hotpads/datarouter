@@ -70,8 +70,6 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 	protected Integer numTasks = 0;
 	protected String debug;
 	@Transient
-	protected boolean deleted = false;
-	@Transient
 	protected PhaseTimer timer = new PhaseTimer();
 	@Transient
 	protected MutableBoolean interrupted;
@@ -337,14 +335,6 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 
 	public void setExceptionRecordId(String exceptionRecordId){
 		this.exceptionRecordId = exceptionRecordId;
-	}
-
-	public boolean isDeleted(){
-		return deleted;
-	}
-
-	public void setDeleted(boolean deleted){
-		this.deleted = deleted;
 	}
 
 	public String getDebug(){
