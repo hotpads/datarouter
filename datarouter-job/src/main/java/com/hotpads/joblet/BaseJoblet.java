@@ -1,13 +1,11 @@
 package com.hotpads.joblet;
 
-import com.hotpads.joblet.databean.JobletData;
 import com.hotpads.joblet.databean.JobletRequest;
 
 public abstract class BaseJoblet<T> implements Joblet<T>{
 
 	protected T params;
 	protected JobletRequest joblet;
-	protected JobletData jobletData = new JobletData(null);
 
 	public void marshallDataAndCounts(T params){
 		marshallData(params);
@@ -28,11 +26,6 @@ public abstract class BaseJoblet<T> implements Joblet<T>{
 	@Override
 	public void setJoblet(JobletRequest joblet){
 		this.joblet = joblet;
-	}
-
-	@Override
-	public void setJobletData(JobletData jobletData){
-		this.jobletData = jobletData;
 	}
 
 	@Override
