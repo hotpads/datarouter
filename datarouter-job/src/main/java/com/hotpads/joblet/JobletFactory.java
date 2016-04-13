@@ -17,6 +17,9 @@ public class JobletFactory{
 	@Inject
 	private JobletTypeFactory jobletTypeFactory;
 
+	public <P> Joblet<P> create(JobletPackage jobletPackage){
+		return create(jobletPackage.getJoblet(), jobletPackage.getJobletData());
+	}
 
 	@SuppressWarnings("unchecked")//can't seem to remove the cast while HotPadsJobletType is an enum
 	public <P> Joblet<P> create(JobletRequest jobletRequest, JobletData jobletData){
