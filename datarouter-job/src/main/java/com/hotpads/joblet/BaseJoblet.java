@@ -41,11 +41,6 @@ public abstract class BaseJoblet<T> implements Joblet<T>{
 	}
 
 	@Override
-	public void setData(String data){
-		jobletData.setData(data);
-	}
-
-	@Override
 	public String getData(){
 		return jobletData.getData();
 	}

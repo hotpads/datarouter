@@ -12,7 +12,6 @@ extends JobletCodec<P>{
 	void setJobletData(JobletData jobletData);
 	JobletData getJobletData();
 
-	void setData(String data);
 	String getData();
 
 	void setJobletParams(P params);
