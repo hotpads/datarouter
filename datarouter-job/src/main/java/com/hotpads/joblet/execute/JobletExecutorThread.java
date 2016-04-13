@@ -183,10 +183,10 @@ public class JobletExecutorThread extends Thread{
 	}
 
 	private final void runJoblet(JobletPackage jobletPackage) throws JobInterruptedException{
+		Joblet<?> jobletProcess = jobletFactory.createForPackage(jobletPackage);
 		JobletType<?> jobletType = jobletTypeFactory.fromJobletPackage(jobletPackage);
 		JobletRequest jobletRequest = jobletPackage.getJoblet();
 		long startTimeMs = System.currentTimeMillis();
-		Joblet<?> jobletProcess = jobletFactory.create(jobletRequest, jobletPackage.getJobletData());
 		jobletProcess.process();
 		int numItemsProcessed = Math.max(1, jobletRequest.getNumItems());
 		JobletCounters.incItemsProcessed(jobletType.getPersistentString(), numItemsProcessed);
