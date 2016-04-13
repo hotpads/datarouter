@@ -55,16 +55,16 @@ public class JobletService{
 	}
 
 
-	public List<Joblet<?>> getJobletProcessesOfType(JobletType<?> jobletType){
+	public List<JobletPackage> getJobletPackagesOfType(JobletType<?> jobletType){
 		JobletRequestKey prefix = new JobletRequestKey(jobletType, null, null, null);
 		return jobletNodes.joblet().streamWithPrefix(prefix, null)
-				.map(this::getJobletProcessForJoblet)
+				.map(this::getJobletPackageForJoblet)
 				.collect(Collectors.toList());
 	}
 
-	public <T> Joblet<T> getJobletProcessForJoblet(JobletRequest jobletRequest){
+	public JobletPackage getJobletPackageForJoblet(JobletRequest jobletRequest){
 		JobletData jobletData = jobletNodes.jobletData().get(jobletRequest.getJobletDataKey(), null);
-		return jobletFactory.create(jobletRequest, jobletData);
+		return new JobletPackage(jobletRequest, jobletData);
 	}
 
 	public JobletRequest getJobletForProcessing(JobletType<?> type, String reservedBy, long jobletTimeoutMs,
