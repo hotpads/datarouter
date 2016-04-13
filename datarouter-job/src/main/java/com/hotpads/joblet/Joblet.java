@@ -19,12 +19,7 @@ extends JobletCodec<P>{
 	void setData(String data);
 	String getData();
 
-	default void updateJobletDataIdReference(){
-		getJobletRequest().setJobletDataId(getJobletData().getId());
-	}
-
 	void setJobletParams(P params);
-//	T getJobletParams();
 	Long process();
 
 
