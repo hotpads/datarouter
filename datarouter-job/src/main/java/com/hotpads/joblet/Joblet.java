@@ -10,7 +10,6 @@ extends JobletCodec<P>{
 	void setJoblet(JobletRequest jobletRequest);
 
 	void setJobletData(JobletData jobletData);
-	JobletData getJobletData();
 
 	String getData();
 
