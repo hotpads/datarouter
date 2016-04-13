@@ -7,10 +7,6 @@ public abstract class BaseJoblet<T> implements Joblet<T>{
 	protected T params;
 	protected JobletRequest joblet;
 
-	@Override
-	public int calculateNumTasks(T params){
-		return calculateNumItems(params);//usually the same, but feel free to override
-	}
 
 	@Override
 	public JobletRequest getJobletRequest(){
