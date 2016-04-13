@@ -20,14 +20,6 @@ public abstract class BaseJoblet<T> implements Joblet<T>{
 		return calculateNumItems(params);//usually the same, but feel free to override
 	}
 
-	public boolean getUnmarshalled(){
-		return joblet.getUnmarshalled();
-	}
-
-	public void setUnmarshalled(boolean unmarshalled){
-		joblet.setUnmarshalled(unmarshalled);
-	}
-
 	@Override
 	public JobletRequest getJobletRequest(){
 		return joblet;

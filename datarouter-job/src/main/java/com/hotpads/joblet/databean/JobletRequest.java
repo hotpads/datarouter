@@ -70,8 +70,6 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 	protected Integer numTasks = 0;
 	protected String debug;
 	@Transient
-	protected Boolean unmarshalled = false;
-	@Transient
 	protected boolean deleted = false;
 	@Transient
 	protected PhaseTimer timer = new PhaseTimer();
@@ -267,14 +265,6 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 
 	public void setStatus(JobletStatus status) {
 		this.status = status;
-	}
-
-	public Boolean getUnmarshalled(){
-		return unmarshalled;
-	}
-
-	public void setUnmarshalled(Boolean unmarshalled){
-		this.unmarshalled = unmarshalled;
 	}
 
 	public Integer getNumItems(){
