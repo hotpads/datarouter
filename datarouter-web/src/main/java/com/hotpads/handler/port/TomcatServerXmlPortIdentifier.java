@@ -45,7 +45,7 @@ public class TomcatServerXmlPortIdentifier implements PortIdentifier{
 	private Integer getHttpPortFromServerXml(String severXmlPath){
 		String content = getServerXmlContent(severXmlPath);
 		if(content != null){
-			String stringToSearch = " port=\"";
+			String stringToSearch = "port=\"";
 			content = DrStringTool.getStringSurroundedWith(content, "<Service", "</Service>");
 			String connectorTag = getConnectorTag(content, stringToSearch);
 			String result = DrStringTool.getStringSurroundedWith(connectorTag, stringToSearch, "\"");
