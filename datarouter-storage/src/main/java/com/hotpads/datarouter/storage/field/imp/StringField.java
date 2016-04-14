@@ -1,5 +1,7 @@
 package com.hotpads.datarouter.storage.field.imp;
 
+import java.util.Arrays;
+
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.storage.field.BaseField;
 import com.hotpads.datarouter.storage.field.Field;
@@ -97,7 +99,8 @@ public class StringField extends BaseField<String>{
 		//TODO someday don't put the separator after the last field, but that would break all currently persisted keys
 		byte[] dataBytes = getBytes();
 		if(DrArrayTool.containsUnsorted(dataBytes, SEPARATOR)){
-			throw new IllegalArgumentException("String cannot contain separator byteVal="+SEPARATOR);
+			throw new IllegalArgumentException("String cannot contain separator byteVal=" + SEPARATOR + ", stringBytes="
+					+ Arrays.toString(dataBytes) + ", string=" + value);
 		}
 		if(DrArrayTool.isEmpty(dataBytes)){
 			return new byte[]{SEPARATOR};
