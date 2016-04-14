@@ -97,7 +97,8 @@ public class StringField extends BaseField<String>{
 		//TODO someday don't put the separator after the last field, but that would break all currently persisted keys
 		byte[] dataBytes = getBytes();
 		if(DrArrayTool.containsUnsorted(dataBytes, SEPARATOR)){
-			throw new IllegalArgumentException("String cannot contain separator byteVal="+SEPARATOR);
+			throw new IllegalArgumentException("String cannot contain separator byteVal=" + SEPARATOR + ", stringBytes="
+					+ dataBytes + ", string=" + value);
 		}
 		if(DrArrayTool.isEmpty(dataBytes)){
 			return new byte[]{SEPARATOR};
