@@ -18,7 +18,6 @@ import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
-import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.datarouter.util.core.DrMapTool;
 import com.hotpads.util.core.iterable.scanner.filter.Filter;
 
@@ -36,7 +35,7 @@ public class Partitions<
 	private final Map<String,List<String>> clientNamesByNodeName;
 	private final Map<N,Filter<PK>> primaryKeyFilterByNode;
 	private final Map<N,Filter<D>> databeanFilterByNode;
-	
+
 	public Partitions(BasePartitionedNode<PK,D,?,N> basePartitionedNode){
 		this.basePartitionedNode = basePartitionedNode;
 		this.clientNames = new TreeSet<>();
@@ -48,8 +47,8 @@ public class Partitions<
 		this.primaryKeyFilterByNode = new HashMap<>();
 		this.databeanFilterByNode = new HashMap<>();
 	}
-	
-	public void addNode(N node){		
+
+	public void addNode(N node){
 		String nodeName = node.getName();
 		if(nodeByName.keySet().contains(nodeName)){//enforce global node name uniqueness
 			throw new IllegalArgumentException("node already exists:"+nodeName);
@@ -57,25 +56,25 @@ public class Partitions<
 		String clientName = node.getClientId().getName();
 		clientNames.add(clientName);
 		clientIds.add(node.getClientId());
-		
+
 		//array list
 		nodes.add(node);
-		
+
 		//nodeByName
 		nodeByName.put(nodeName, node);
-		
+
 		//nodeNamesByClientName
 		if(nodeNamesByClientName.get(clientName)==null){
 			nodeNamesByClientName.put(clientName, new ArrayList<String>());
 		}
 		nodeNamesByClientName.get(clientName).add(nodeName);
-		
+
 		//clientNamesByNodeName
 		if(clientNamesByNodeName.get(nodeName)==null){
 			clientNamesByNodeName.put(nodeName, new ArrayList<String>());
 		}
 		clientNamesByNodeName.get(nodeName).add(clientName);
-		
+
 		primaryKeyFilterByNode.put(node, new PartitionedNodePrimaryKeyFilter<>(basePartitionedNode, node));
 		databeanFilterByNode.put(node, new PartitionedNodeDatabeanFilter<>(basePartitionedNode, node));
 	}
@@ -85,15 +84,15 @@ public class Partitions<
 			addNode(node);
 		}
 	}
-	
+
 	public N getNodeAtIndex(int index){
 		return nodes.get(index);
 	}
-	
+
 	public List<N> getAllNodes(){
 		return nodes;
 	}
-	
+
 	public List<N> getPhysicalNodesForClient(String clientName){
 		if(clientName==null){
 			return getAllNodes();
@@ -105,19 +104,19 @@ public class Partitions<
 		}
 		return nodes;
 	}
-	
+
 	public List<String> getClientNames(){
 		return new ArrayList<>(clientNames);
 	}
-	
+
 	public List<ClientId> getClientIds(){
 		return new ArrayList<>(clientIds);
 	}
-	
+
 	public Filter<PK> getPrimaryKeyFilterForNode(N node){
 		return primaryKeyFilterByNode.get(node);
 	}
-	
+
 	public Filter<D> getDatabeanFilterForNode(N node){
 		return databeanFilterByNode.get(node);
 	}
