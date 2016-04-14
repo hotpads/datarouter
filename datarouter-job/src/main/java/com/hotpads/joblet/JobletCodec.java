@@ -6,6 +6,9 @@ public interface JobletCodec<P>{
     P unmarshallData(String encodedParams);
 
     int calculateNumItems(P params);
-    int calculateNumTasks(P params);
+
+    default int calculateNumTasks(P params){
+    	return calculateNumItems(params);//usually the same, but feel free to override
+    }
 
 }
