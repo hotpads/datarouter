@@ -2,10 +2,8 @@
 <%@ include file="../generic/prelude-datarouter.jspf"%>
 <html>
 <head>
-<title>Datarouter</title>
-<%@ include file="/jsp/generic/head.jsp" %>
-<%@ include file="/jsp/css/css-import.jspf" %>
-<script type="text/javascript" data-main="${contextPath}/js/core-common" src="${contextPath}/js/require-jquery.js"></script>
+	<title>Datarouter</title>
+	<%@ include file="/jsp/generic/datarouterHead.jsp" %>
 <style>
 </style>
 </head>
@@ -146,8 +144,5 @@
 			</tbody>
 		</table>
 	</div>
-	<script type="text/javascript">
-		require([ "bootstrap/bootstrap" ], function() {});
-	</script>
 </body>
 </html>

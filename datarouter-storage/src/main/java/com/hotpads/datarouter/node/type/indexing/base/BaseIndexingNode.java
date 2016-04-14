@@ -77,7 +77,7 @@ extends BaseNode<PK,D,F>{
 	public List<String> getClientNames() {
 		SortedSet<String> clientNames = new TreeSet<>();
 		DrSetTool.nullSafeSortedAddAll(clientNames, mainNode.getClientNames());
-		return DrListTool.createArrayList(clientNames);
+		return new ArrayList<>(clientNames);
 	}
 
 	@Override
@@ -94,7 +94,7 @@ extends BaseNode<PK,D,F>{
 	public List<String> getClientNamesForPrimaryKeysForSchemaUpdate(Collection<PK> keys) {
 		Set<String> clientNames = new HashSet<>();
 		clientNames.addAll(DrCollectionTool.nullSafe(mainNode.getClientNamesForPrimaryKeysForSchemaUpdate(keys)));
-		return DrListTool.createArrayList(clientNames);
+		return new ArrayList<>(clientNames);
 	}
 
 	@Override

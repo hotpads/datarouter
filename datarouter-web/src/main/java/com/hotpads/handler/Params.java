@@ -23,85 +23,85 @@ public class Params{
 		this.request = request;
 		this.response = response;
 	}
-	
+
 	public String required(String key){
 		return Preconditions.checkNotNull(request.getParameter(key));
 	}
-	
+
 	public String optional(String key, String defaultValue){
 		String value = request.getParameter(key);
 		return value==null?defaultValue:value;
 	}
-	
+
 	public String optionalNotEmpty(String key, String defaultValue) {
 		String value = optional(key, defaultValue);
 		return value.equals("") ? defaultValue : value;
 	}
-	
+
 	public Boolean requiredBoolean(String key){
 		return DrBooleanTool.isTrue(
 				Preconditions.checkNotNull(request.getParameter(key)));
 	}
-	
+
 	public Boolean optionalBoolean(String key, Boolean defaultValue){
 		String value = request.getParameter(key);
-		if(value==null){ 
-			return defaultValue; 
+		if(value==null){
+			return defaultValue;
 		}
 		return DrBooleanTool.isTrue(value);
 	}
-	
+
 	public Long requiredLong(String key){
 		return Long.valueOf(
 				Preconditions.checkNotNull(request.getParameter(key)));
 	}
-	
+
 	public Long optionalLong(String key, Long defaultValue){
 		String value = request.getParameter(key);
-		if(value==null){ 
-			return defaultValue; 
+		if(value==null){
+			return defaultValue;
 		}
 		return Long.valueOf(value);
 	}
 
 	public Long optionalLongEmptySafe(String key, Long defaultValue){
 		String value = request.getParameter(key);
-		if(DrStringTool.isNullOrEmptyOrWhitespace(value)){ 
-			return defaultValue; 
+		if(DrStringTool.isNullOrEmptyOrWhitespace(value)){
+			return defaultValue;
 		}
 		return Long.valueOf(value);
 	}
-	
+
 	public Integer requiredInteger(String key){
 		return Integer.valueOf(
 				Preconditions.checkNotNull(request.getParameter(key)));
 	}
-	
+
 	public Integer optionalInteger(String key, Integer defaultValue){
 		String value = request.getParameter(key);
-		if(value==null){ 
-			return defaultValue; 
+		if(DrStringTool.isNullOrEmptyOrWhitespace(value)){
+			return defaultValue;
 		}
 		return Integer.valueOf(value);
 	}
-	
+
 	public Double optionalDouble(String key, Double defaultValue){
 		String value = request.getParameter(key);
 		if(value==null){
-			return defaultValue; 
+			return defaultValue;
 		}
 		return Double.valueOf(value);
-	} 
-	
+	}
+
 	public Double requiredDouble(String key){
 		return Double.valueOf(
 				Preconditions.checkNotNull(request.getParameter(key)));
 	}
-	
+
 	public List<String> optionalCsvList(String key, List<String> defaultValue){
 		return optionalList(key, ",", defaultValue);
 	}
-	
+
 	public List<String> optionalList(String key, String delimiter, List<String> defaultValue){
 		String stringVal = request.getParameter(key);
 		if(DrStringTool.isEmpty(stringVal)){
@@ -109,7 +109,7 @@ public class Params{
 		}
 		return DrListTool.nullSafeLinkedAddAll(null, stringVal.split(delimiter));
 	}
-	
+
 	public Integer tryGetInteger(String key, Integer defaultValue) {
 		Integer value = defaultValue;
 		try {
@@ -119,7 +119,7 @@ public class Params{
 		}
 		return value;
 	}
-	
+
 	public Long tryGetLong(String key, Long defaultValue) {
 		Long value = defaultValue;
 		try {
@@ -138,20 +138,20 @@ public class Params{
 	public Map<String, String> toMap(){
 		return RequestTool.getParamMap(request);
 	}
-	
+
 	//etc, etc...
-	
+
 	/**************************** fancier methods *************************/
-	
+
 	public String getContextPath(){
 		return request.getContextPath();
 	}
-	
+
 	public DatarouterSession getSession() {
 		return (DatarouterSession) request.getAttribute("datarouterSession");
 	}
-	
-	
+
+
 	/***************************** get/set **********************************/
 
 	public HttpServletRequest getRequest(){
@@ -161,6 +161,6 @@ public class Params{
 	public HttpServletResponse getResponse(){
 		return response;
 	}
-	
-	
+
+
 }

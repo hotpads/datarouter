@@ -47,7 +47,7 @@ implements RedundantNode<PK,D,N>{
 			throw new IllegalArgumentException("readNode must be in writeNodes.");
 		}
 
-		this.writeNodes = DrListTool.createArrayList(writeNodes);
+		this.writeNodes = new ArrayList<>(writeNodes);
 		this.readNode = readNode;
 	}
 
@@ -88,7 +88,7 @@ implements RedundantNode<PK,D,N>{
 		for(N backingNode : writeNodes){
 			DrSetTool.nullSafeSortedAddAll(clientNames, backingNode.getClientNames());
 		}
-		return DrListTool.createArrayList(clientNames);
+		return new ArrayList<>(clientNames);
 	}
 
 	@Override
@@ -117,7 +117,7 @@ implements RedundantNode<PK,D,N>{
 			clientNames.addAll(DrCollectionTool.nullSafe(
 					backingNode.getClientNamesForPrimaryKeysForSchemaUpdate(keys)));
 		}
-		return DrListTool.createArrayList(clientNames);
+		return new ArrayList<>(clientNames);
 	}
 
 	@Override

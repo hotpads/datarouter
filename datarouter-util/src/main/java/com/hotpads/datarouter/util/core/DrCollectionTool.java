@@ -89,6 +89,13 @@ public class DrCollectionTool{
 		return counter;
 	}
 
+	/****************************** chaining **********************************/
+
+	public static <T> T addAndGet(Collection<T> collection, T item){
+		collection.add(item);
+		return item;
+	}
+
 	/********************************* equals *********************************/
 
 	public static <T> boolean equalsAllElementsInIteratorOrder(Collection<T> collectionA, Collection<T> collectionB){
@@ -98,8 +105,8 @@ public class DrCollectionTool{
 		if(isEmpty(collectionA)){
 			return true;
 		}
-		List<T> listOfA = DrListTool.createArrayList(collectionA);
-		List<T> listOfB = DrListTool.createArrayList(collectionB);
+		List<T> listOfA = new ArrayList<>(collectionA);
+		List<T> listOfB = new ArrayList<>(collectionB);
 		for(int i = 0; i < listOfA.size(); ++i){
 			if(DrObjectTool.nullSafeNotEquals(listOfA.get(i), listOfB.get(i))){
 				return false;

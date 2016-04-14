@@ -240,8 +240,8 @@ implements HBasePhysicalNode<PK,D>,
 					Get get = queryBuilder.getSingleRowRange(nullSafeRange.getStart().getEntityKey(), nullSafeRange,
 							true);
 					Result result = htable.get(get);
-					return DrListTool.createArrayList(resultParser.getPrimaryKeysWithMatchingQualifierPrefix(result,
-							nullSafeConfig.getLimit()));
+					return new ArrayList<>(resultParser.getPrimaryKeysWithMatchingQualifierPrefix(result,
+					nullSafeConfig.getLimit()));
 				}
 			}).call();
 			return DrIterableTool.skip(pks, DrNumberTool.longValue(nullSafeConfig.getOffset()));

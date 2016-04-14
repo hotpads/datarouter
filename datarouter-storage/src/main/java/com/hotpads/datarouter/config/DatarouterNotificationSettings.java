@@ -12,7 +12,6 @@ public class DatarouterNotificationSettings extends SettingNode{
 
 	private final Setting<String> apiEndPoint;
 	private final Setting<Boolean> forceHideStackTrace;
-	private final Setting<Boolean> ignoreSsl;
 
 
 	@Inject
@@ -21,7 +20,6 @@ public class DatarouterNotificationSettings extends SettingNode{
 
 		apiEndPoint = registerString("apiEndPoint", "https://localhost:8443/job/api/notification");
 		forceHideStackTrace = registerBoolean("forceHideStackTrace", false);
-		ignoreSsl = registerBoolean("ignoreSsl", false);
 	}
 
 
@@ -31,10 +29,6 @@ public class DatarouterNotificationSettings extends SettingNode{
 
 	public Setting<Boolean> getForceHideStackTrace(){
 		return forceHideStackTrace;
-	}
-
-	public Setting<Boolean> getIgnoreSsl(){
-		return ignoreSsl;
 	}
 
 }

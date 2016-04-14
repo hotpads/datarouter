@@ -243,7 +243,7 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 				request.getContextPath(),
 				request.getRequestURI().substring(request.getContextPath().length()),
 				request.getQueryString(),
-				RequestTool.getBodyAsString(request),
+				RequestTool.partiallyTryGetBodyAsString(request),
 				RequestTool.getIpAddress(request),
 				sessionRoles,
 				userId,

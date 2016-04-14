@@ -17,8 +17,7 @@ extends BaseFieldKey<T>{
 		super(name, nullable, fieldGeneratorType);
 	}
 
-	public PrimitiveFieldKey(String name, String columnName, boolean nullable,
-			FieldGeneratorType fieldGeneratorType){
+	public PrimitiveFieldKey(String name, String columnName, boolean nullable, FieldGeneratorType fieldGeneratorType){
 		super(name, columnName, nullable, fieldGeneratorType);
 	}
 

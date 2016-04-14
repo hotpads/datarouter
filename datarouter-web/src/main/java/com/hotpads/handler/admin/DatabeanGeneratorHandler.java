@@ -125,11 +125,11 @@ public class DatabeanGeneratorHandler extends BaseHandler {
 			DataBeanParams databeanParams = new DataBeanParams();
 			collectParams(databeanParams);
 			String javaCode = databeanParams.getJavaCode();
-			out.write(javaCode);
+			out.get().write(javaCode);
 			//logger.warn(javaCode);
 		} catch (Exception e) {
 			logger.error("",e);
-			out.write("failed");
+			out.get().write("failed");
 		}
 		return null;
 	}
@@ -163,11 +163,11 @@ public class DatabeanGeneratorHandler extends BaseHandler {
 				g.addIndex((g.getCsvFieldNames() +", " + g.getCsvKeyFieldNames()).split(","));
 			g.generateCreateScript();
 			String demoScript  = g.getCreateScript();
-			out.write(demoScript);
+			out.get().write(demoScript);
 			//logger.warn(demoScript);
 		} catch (Exception e) {
 			logger.error("",e);
-			out.write("failed");
+			out.get().write("failed");
 		}
 		return null;
 	}

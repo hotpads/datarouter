@@ -75,6 +75,18 @@
 	</build>
 	
 	<dependencies>
+		<!-- temporary for joblet hibernate ops -->
+		<dependency>
+			<groupId>com.hotpads</groupId>
+			<artifactId>datarouter-hibernate</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>slf4j-api</artifactId>
+					<groupId>org.slf4j</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
 		<!-- internal -->
 		<dependency>
 			<groupId>com.hotpads</groupId>

@@ -13,36 +13,32 @@ import com.hotpads.handler.util.node.NodeWrapper;
 
 public class RoutersHandler extends BaseHandler {
 
-	/************************************** Constants **********************************/
 	public static final String
 		ACTION_listRouters = "listRouters",
 		ACTION_inspectRouter = "inspectRouter",
 		ACTION_inspectClient = "inspectClient";
 
-	public static final String PARAM_routerName = "routerName";
-	public static final String PARAM_clientName = "clientName";
-	public static final String PARAM_nodeName = "nodeName";
-	public static final String PARAM_tableName = "tableName";
-	public static final String PARAM_columnName = "columnName";
+	public static final String
+		PARAM_routerName = "routerName",
+		PARAM_clientName = "clientName",
+		PARAM_nodeName = "nodeName",
+		PARAM_tableName = "tableName",
+		PARAM_columnName = "columnName";
 
-	/******************* fields ********************/
+	public static final String
+		JSP_datarouterMenu = "/jsp/admin/datarouter/datarouterMenu.jsp",
+		JSP_routerSummary = "/jsp/admin/datarouter/routerSummary.jsp";
 
-	// injected
+
 	@Inject
 	private Datarouter datarouter;
 
-	// not injected
-	private Router router;
-	private Mav mav;
-	private String routerName = null;
 
-	/************* Handler methods ********************/
 	@Override
 	@Handler
-	protected Mav handleDefault() {
-		mav = new Mav("/jsp/admin/datarouter/datarouterMenu.jsp");
+	protected Mav handleDefault(){
+		Mav mav = new Mav(JSP_datarouterMenu);
 		SortedSet<Router> routers = datarouter.getRouters();
-//		initClients(routers);
 		mav.put("serverName", datarouter.getServerName());
 		mav.put("administratorEmail", datarouter.getAdministratorEmail());
 		mav.put("routers", routers);
@@ -50,12 +46,13 @@ public class RoutersHandler extends BaseHandler {
 	}
 
 	@Handler
-	Mav inspectRouter() {
-		routerName = params.required(PARAM_routerName);
-		router = datarouter.getRouter(routerName);
-		mav = new Mav("/jsp/admin/datarouter/routerSummary.jsp");
+	private Mav inspectRouter(){
+		Mav mav = new Mav(JSP_routerSummary);
+		String routerName = params.required(PARAM_routerName);
+		Router router = datarouter.getRouter(routerName);
 		List<NodeWrapper> nodeWrappers = NodeWrapper.getNodeWrappers(router);
 		mav.put("nodeWrappers", nodeWrappers);
 		return mav;
 	}
+
 }

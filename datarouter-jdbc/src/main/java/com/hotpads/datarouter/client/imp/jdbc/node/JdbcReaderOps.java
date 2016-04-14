@@ -110,34 +110,38 @@ public class JdbcReaderOps<
 			IE extends IndexEntry<IK,IE,PK,D>,
 			IF extends DatabeanFielder<IK,IE>>
 	List<IE> getMultiFromIndex(Collection<IK> keys, Config config, DatabeanFieldInfo<IK, IE, IF> indexEntryFieldInfo){
+		String opName = IndexedStorageReader.OP_getFromIndex;
 		BaseJdbcOp<List<IE>> op = new JdbcGetIndexOp<>(node, fieldCodecFactory, config,
 				indexEntryFieldInfo.getDatabeanSupplier(), indexEntryFieldInfo.getFielderSupplier(), keys);
-		return new SessionExecutorImpl<>(op, IndexedStorageReader.OP_getFromIndex).call();
+		return new SessionExecutorImpl<>(op, getTraceName(opName)).call();
 	}
 
 	public <IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK,IE,PK,D>>
 	List<D> getMultiByIndex(Collection<IK> keys, Config config){
+		String opName = IndexedStorageReader.OP_getByIndex;
 		BaseJdbcOp<List<D>> op = new JdbcGetByIndexOp<>(node, fieldCodecFactory, keys, false, config);
-		return new SessionExecutorImpl<>(op, IndexedStorageReader.OP_getByIndex).call();
+		return new SessionExecutorImpl<>(op, getTraceName(opName)).call();
 	}
 
 	public <IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK,IE,PK,D>,
 			IF extends DatabeanFielder<IK,IE>>
 	List<IE> getIndexRange(Range<IK> range, Config config, DatabeanFieldInfo<IK, IE, IF> indexEntryFieldInfo){
+		String opName = IndexedStorageReader.OP_getIndexRange;
 		JdbcManagedIndexGetRangeOp<PK,D,IK,IE,IF> op = new JdbcManagedIndexGetRangeOp<>(node, fieldCodecFactory,
 				indexEntryFieldInfo, range, config);
-		return new SessionExecutorImpl<>(op, IndexedStorageReader.OP_getIndexRange).call();
+		return new SessionExecutorImpl<>(op, getTraceName(opName)).call();
 	}
 
 	public <IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK,IE,PK,D>,
 			IF extends DatabeanFielder<IK,IE>>
 	List<IK> getIndexKeyRange(Range<IK> range, Config config, DatabeanFieldInfo<IK, IE, IF> indexEntryFieldInfo){
+		String opName = IndexedStorageReader.OP_getIndexKeyRange;
 		JdbcManagedIndexGetKeyRangeOp<PK,D,IK,IE,IF> op = new JdbcManagedIndexGetKeyRangeOp<>(node, fieldCodecFactory,
 				indexEntryFieldInfo, range, config);
-		return new SessionExecutorImpl<>(op, IndexedStorageReader.OP_getIndexKeyRange).call();
+		return new SessionExecutorImpl<>(op, getTraceName(opName)).call();
 	}
 
 	/************************************ SortedStorageReader methods ****************************/

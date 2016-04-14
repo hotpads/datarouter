@@ -1,20 +1,11 @@
 <%@ include file="/jsp/generic/prelude-datarouter.jspf"%>
 <html>
 <head>
-<title>DR ${param.clientName}</title>
-<%@ include file="/jsp/generic/head.jsp"%>
-<script type="text/javascript" data-main="${contextPath}/js/core-common"
-	src="${contextPath}/js/require-jquery.js"></script>
-<script type="text/javascript">
-	require([ "bootstrap/bootstrap", "plugin/sorttable" ], function($) {
-	});
-</script>
-
-<%@ include file="/jsp/css/css-import.jspf"%>
+	<title>DR ${param.clientName}</title>
+	<%@ include file="/jsp/generic/datarouterHead.jsp"%>
 </head>
 <body>
 	<%@ include file="/jsp/menu/dr-navbar.jsp"%>
-<body>
 	<div class="container">
 		<h2>DR ${param.clientName}</h2>
 		<a href="${contextPath}/datarouter/routers">Datarouter Home</a>
@@ -81,7 +72,6 @@
 				</c:forEach>
 			</tbody>
 		</table>
-
 	</div>
 </body>
 </html>

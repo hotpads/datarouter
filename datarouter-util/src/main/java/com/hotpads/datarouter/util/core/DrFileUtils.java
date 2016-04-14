@@ -1,17 +1,26 @@
 package com.hotpads.datarouter.util.core;
 
 import java.io.File;
+import java.util.Arrays;
+import java.util.List;
 
 public final class DrFileUtils{
+
+	private static final List<String> staticFilesExtensions = Arrays.asList("ttf", "css", "js", "html", "pdf", "png",
+			"jpg", "jpeg", "swf", "woff", "woff2");
 
 	public static boolean createFileParents(String path){
 		return createFileParents(new File(path));
 	}
 
-	public static boolean createFileParents(File aFile){
-		if(aFile.exists()) return true;
-		File parent = new File(aFile.getParent());
-		if(parent.exists()) return true;
+	public static boolean createFileParents(File file){
+		if(file.exists()){
+			return true;
+		}
+		File parent = new File(file.getParent());
+		if(parent.exists()){
+			return true;
+		}
 		try{
 			parent.mkdirs();
 		}catch(Exception e){
@@ -21,15 +30,19 @@ public final class DrFileUtils{
 	}
 
 	public static void delete(String path){
-		if(DrStringTool.isEmpty(path) || "/".equals(path)){ throw new IllegalArgumentException(
-				"cannot delete empty or root path"); }
+		if(DrStringTool.isEmpty(path) || "/".equals(path)){
+			throw new IllegalArgumentException("cannot delete empty or root path");
+		}
 		File file = new File(path);
 		file.delete();
 	}
-	
+
 	public static boolean hasAStaticFileExtension(String path){
-		if(path.endsWith(".css") || path.endsWith(".js") || path.endsWith(".html") || path.endsWith(".pdf")
-				|| path.endsWith(".png") || path.endsWith(".jpg") || path.endsWith(".jpeg") || path.endsWith(".swf")){ return true; }
+		for(String extension : staticFilesExtensions){
+			if(path.endsWith(extension)){
+				return true;
+			}
+		}
 		return false;
 	}
 

@@ -65,6 +65,7 @@ public enum MySqlCollation{
 	utf8_esperanto_ci,
 	utf8_hungarian_ci,
 	utf8mb4_bin,
+	utf8mb4_unicode_ci,
 	cp866_general_ci,
 	cp866_bin,
 	keybcs2_general_ci,

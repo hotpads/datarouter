@@ -3,11 +3,7 @@
 <html>
 <head>
 	<title>Memory Statistic</title>
-	<meta charset="utf-8">
-	<%@ include file="/jsp/generic/head.jsp" %>
-	<%@ include file="/jsp/css/css-import.jspf"%>
-	<script data-main="${contextPath}/js/core-common" src="${contextPath}/js/require-jquery.js"></script>
-	<script>require(["bootstrap/bootstrap"]);</script>
+	<%@ include file="/jsp/generic/datarouterHead.jsp" %>
 	<style type="text/css">
 		body {
 			padding-right: 0;
@@ -56,6 +52,26 @@
 			width: 255px;
 		}
 	</style>
+	<script>
+	require(['jquery'], function(){
+		$(document).ready(function(){
+			$('#loading-example-btn').click(function () {
+				var answer = confirm('Do you really to run the garbage collector on ${serverName}');
+				if(!answer){
+					return false;
+				}
+				var btn = $(this);
+				btn.button('loading');
+				var start = new Date().getTime();
+				setInterval(function() {
+					var now = new Date().getTime();
+					var diff = now - start;
+					btn.text('In progress ' + Math.round(diff/100)/10 + 's');
+				}, 100);
+			});
+		});
+	});
+	</script>
 </head>
 <body class="input-no-margin">
 <%@ include file="/jsp/menu/common-navbar.jsp"%>
@@ -179,23 +195,6 @@
 			href="${contextPath}/datarouter/memory/garbageCollector?serverName=${serverName}">
 				Run garbage collector
 			</a>
-			<script>
-				$('#loading-example-btn').click(function () {
-					var answer = confirm('Do you really to run the garbage collector on ${serverName}');
-					if(!answer){
-						return false;
-					}
-					var btn = $(this);
-					btn.button('loading');
-					var start = new Date().getTime();
-					setInterval(function() {
-						var now = new Date().getTime();
-						var diff = now - start;
-						console.log();
-						btn.text('In progress ' + Math.round(diff/100)/10 + 's');
-					}, 100);
-				});
-			</script>
 			<c:if test="${not empty duration}">
 				<div style="text-align: right;">
 					<h3>Previous manual run</h3>

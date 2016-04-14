@@ -6,7 +6,6 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -26,14 +25,15 @@ public class JsonEncoder implements HandlerEncoder{
 
 	@Override
 	public void finishRequest(Object result, ServletContext servletContext, HttpServletResponse response,
-			HttpServletRequest request) throws ServletException, IOException{
+			HttpServletRequest request) throws IOException{
 		response.setContentType(ResponseTool.CONTENT_TYPE_APPLICATION_JSON);
 		response.getWriter().append(jsonSerializer.serialize(result));
 	}
 
 	@Override
 	public void sendExceptionResponse(HandledException exception, ServletContext servletContext,
-			HttpServletResponse response, HttpServletRequest request) throws ServletException, IOException{
+			HttpServletResponse response, HttpServletRequest request){
 		ResponseTool.sendErrorInJson(response, HttpServletResponse.SC_BAD_REQUEST, exception.getMessage());
 	}
+
 }

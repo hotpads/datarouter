@@ -1,6 +1,7 @@
 package com.hotpads.datarouter.util.callsite;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -69,7 +70,7 @@ public class CallsiteAnalyzer implements Callable<String>{
 		}
 
 		//sort
-		List<CallsiteStatX> stats = DrListTool.createArrayList(aggregateStatByKey.values());
+		List<CallsiteStatX> stats = new ArrayList<>(aggregateStatByKey.values());
 		Collections.sort(stats, Collections.reverseOrder(comparatorEnum.getComparator()));
 
 		//build report
