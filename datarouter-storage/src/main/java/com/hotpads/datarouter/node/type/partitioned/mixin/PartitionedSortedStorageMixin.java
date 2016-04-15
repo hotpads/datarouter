@@ -1,17 +1,15 @@
-package com.hotpads.datarouter.node.type.partitioned;
+package com.hotpads.datarouter.node.type.partitioned.mixin;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.function.Supplier;
 
 import com.google.common.collect.Multimap;
 import com.hotpads.datarouter.config.Config;
-import com.hotpads.datarouter.node.op.combo.reader.SortedMapStorageReader.PhysicalSortedMapStorageReaderNode;
-import com.hotpads.datarouter.node.op.combo.reader.SortedMapStorageReader.SortedMapStorageReaderNode;
-import com.hotpads.datarouter.routing.Router;
-import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
+import com.hotpads.datarouter.node.op.raw.SortedStorage;
+import com.hotpads.datarouter.node.op.raw.SortedStorage.PhysicalSortedStorageNode;
+import com.hotpads.datarouter.node.type.partitioned.PartitionedNode;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
@@ -25,29 +23,27 @@ import com.hotpads.util.core.iterable.scanner.iterable.IteratorScanner;
 import com.hotpads.util.core.iterable.scanner.iterable.SingleUseScannerIterable;
 import com.hotpads.util.core.iterable.scanner.sorted.SortedScanner;
 
-public abstract class PartitionedSortedMapStorageReaderNode<
+public interface PartitionedSortedStorageMixin<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
-		F extends DatabeanFielder<PK,D>,
-		N extends PhysicalSortedMapStorageReaderNode<PK,D>>
-extends PartitionedMapStorageReaderNode<PK,D,F,N>
-implements SortedMapStorageReaderNode<PK,D>{
-
-	public PartitionedSortedMapStorageReaderNode(Supplier<D> databeanSupplier, Supplier<F> fielderSupplier,
-			Router router) {
-		super(databeanSupplier, fielderSupplier, router);
-	}
-
-	/************************* sorted storage methods *****************************/
+		N extends PhysicalSortedStorageNode<PK,D>>
+extends SortedStorage<PK,D>, PartitionedNode<PK,D,N>{
 
 	@Override
-	public List<D> getWithPrefix(PK prefix, boolean wildcardLastField, Config config) {
+	default void deleteRangeWithPrefix(PK prefix, boolean wildcardLastField, Config config){
+		for(N node : DrCollectionTool.nullSafe(getPhysicalNodes())){
+			node.deleteRangeWithPrefix(prefix, wildcardLastField, config);
+		}
+	}
+
+	@Override
+	default List<D> getWithPrefix(PK prefix, boolean wildcardLastField, Config config) {
 		return getWithPrefixes(DrListTool.wrap(prefix), wildcardLastField, config);
 	}
 
 	@Override
 	@Deprecated
-	public List<D> getWithPrefixes(Collection<PK> prefixes, boolean wildcardLastField, Config config) {
+	default List<D> getWithPrefixes(Collection<PK> prefixes, boolean wildcardLastField, Config config) {
 		List<D> all = new ArrayList<>();
 		Multimap<N,PK>	prefixesByNode = getPrefixesByPhysicalNode(prefixes, wildcardLastField);
 		for(N node : prefixesByNode.keySet()){
@@ -63,11 +59,11 @@ implements SortedMapStorageReaderNode<PK,D>{
 
 	//TODO add option to the BasePartitionedNode to skip filtering when not needed
 	@Override
-	public SingleUseScannerIterable<PK> scanKeysMulti(Collection<Range<PK>> ranges, Config config){
+	default SingleUseScannerIterable<PK> scanKeysMulti(Collection<Range<PK>> ranges, Config config){
 		List<SortedScanner<PK>> subScanners = new ArrayList<>();
 		for(N node : getPhysicalNodesForRanges(ranges)){
 			Scanner<PK> scanner = new IteratorScanner<>(node.scanKeysMulti(ranges, config).iterator());
-			Filter<PK> filter = partitions.getPrimaryKeyFilterForNode(node);
+			Filter<PK> filter = getPartitions().getPrimaryKeyFilterForNode(node);
 			FilteringSortedScanner<PK> filteredScanner = new FilteringSortedScanner<>(scanner, filter);
 			subScanners.add(filteredScanner);
 		}
@@ -76,12 +72,12 @@ implements SortedMapStorageReaderNode<PK,D>{
 	}
 
 	@Override
-	public Iterable<D> scanMulti(Collection<Range<PK>> ranges, Config config){
+	default Iterable<D> scanMulti(Collection<Range<PK>> ranges, Config config){
 		List<SortedScanner<D>> subScanners = new ArrayList<>();
 		for(N node : getPhysicalNodesForRanges(ranges)){
 			//the scanners are wrapped in a SortedScannerIterable, so we need to unwrap them for the collator
 			Scanner<D> scanner = new IteratorScanner<>(node.scanMulti(ranges, config).iterator());
-			Filter<D> filter = partitions.getDatabeanFilterForNode(node);
+			Filter<D> filter = getPartitions().getDatabeanFilterForNode(node);
 			FilteringSortedScanner<D> filteredScanner = new FilteringSortedScanner<>(scanner, filter);
 			subScanners.add(filteredScanner);
 		}
@@ -92,7 +88,7 @@ implements SortedMapStorageReaderNode<PK,D>{
 
 	/************************* helpers ******************************/
 
-	protected <T> List<T> getLimitedCopyOfResultIfNecessary(Config config, List<T> result){
+	static <T> List<T> getLimitedCopyOfResultIfNecessary(Config config, List<T> result){
 		if(config==null){
 			return result;
 		}
@@ -101,5 +97,4 @@ implements SortedMapStorageReaderNode<PK,D>{
 		}
 		return DrListTool.copyOfRange(result, 0, config.getLimit());
 	}
-
 }

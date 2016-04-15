@@ -11,9 +11,8 @@ import java.util.stream.Collectors;
 
 import com.google.common.collect.Iterators;
 import com.hotpads.datarouter.config.Config;
-import com.hotpads.datarouter.node.op.IndexedOps;
-import com.hotpads.datarouter.node.op.raw.read.IndexedStorageReader;
-import com.hotpads.datarouter.node.op.raw.read.IndexedStorageReader.PhysicalIndexedStorageReaderNode;
+import com.hotpads.datarouter.node.op.raw.IndexedStorage;
+import com.hotpads.datarouter.node.op.raw.IndexedStorage.PhysicalIndexedStorageNode;
 import com.hotpads.datarouter.node.type.index.ManagedNode;
 import com.hotpads.datarouter.node.type.partitioned.PartitionedNode;
 import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
@@ -25,17 +24,64 @@ import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 import com.hotpads.datarouter.storage.view.index.IndexEntry;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrIterableTool;
-import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.collections.Range;
 
-public interface PartitionedIndexedStorageReaderMixin<
+public interface PartitionedIndexedStorageMixin<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
-		N extends PhysicalIndexedStorageReaderNode<PK,D>>
-extends IndexedStorageReader<PK,D>, PartitionedNode<PK,D,N>{
+		N extends PhysicalIndexedStorageNode<PK,D>>
+extends IndexedStorage<PK,D>, PartitionedNode<PK,D,N>{
 
 	@Override
-	public default D lookupUnique(UniqueKey<PK> uniqueKey, Config config) {
+	default void delete(Lookup<PK> lookup, Config config){
+		for(N node : DrIterableTool.nullSafe(getPhysicalNodes())){
+			node.delete(lookup, config);
+		}
+	}
+
+	@Override
+	default void deleteMultiUnique(Collection<? extends UniqueKey<PK>> uniqueKeys, Config config){
+		for(N node : DrIterableTool.nullSafe(getPhysicalNodes())){
+			node.deleteMultiUnique(uniqueKeys, config);
+		}
+	}
+
+	@Override
+	default void deleteUnique(UniqueKey<PK> uniqueKey, Config config){
+		for(N node : DrIterableTool.nullSafe(getPhysicalNodes())){
+			node.deleteUnique(uniqueKey, config);
+		}
+	}
+
+	@Override
+	default <IK extends PrimaryKey<IK>> void deleteByIndex(Collection<IK> keys, Config config){
+		for(N node : DrIterableTool.nullSafe(getPhysicalNodes())){
+			node.deleteByIndex(keys, config);
+		}
+	}
+
+	@Override
+	default <IK extends PrimaryKey<IK>,
+			IE extends IndexEntry<IK,IE,PK,D>,
+			IF extends DatabeanFielder<IK,IE>,
+			MN extends ManagedNode<PK,D,IK,IE,IF>>
+	MN registerManaged(MN managedNode){
+		for(N node : DrIterableTool.nullSafe(getPhysicalNodes())){
+			node.registerManaged(managedNode);
+		}
+		return managedNode;
+	}
+
+	@Override
+	default List<ManagedNode<PK,D,?,?,?>> getManagedNodes(){
+		for(N node : DrIterableTool.nullSafe(getPhysicalNodes())){
+			return node.getManagedNodes();
+		}
+		return new ArrayList<>();
+	}
+
+	@Override
+	default D lookupUnique(UniqueKey<PK> uniqueKey, Config config) {
 		if(uniqueKey==null){
 			return null;
 		}
@@ -52,7 +98,7 @@ extends IndexedStorageReader<PK,D>, PartitionedNode<PK,D,N>{
 
 
 	@Override
-	public default List<D> lookupMultiUnique(Collection<? extends UniqueKey<PK>> uniqueKeys, Config config) {
+	default List<D> lookupMultiUnique(Collection<? extends UniqueKey<PK>> uniqueKeys, Config config) {
 		if(DrCollectionTool.isEmpty(uniqueKeys)){
 			return null;
 		}
@@ -68,7 +114,7 @@ extends IndexedStorageReader<PK,D>, PartitionedNode<PK,D,N>{
 
 
 	@Override
-	public default List<D> lookup(Lookup<PK> lookup, boolean wildcardLastField, Config config) {
+	default List<D> lookup(Lookup<PK> lookup, boolean wildcardLastField, Config config) {
 		if(lookup==null){
 			return null;
 		}
@@ -84,7 +130,7 @@ extends IndexedStorageReader<PK,D>, PartitionedNode<PK,D,N>{
 
 
 	@Override
-	public default List<D> lookupMulti(Collection<? extends Lookup<PK>> lookups, Config config) {
+	default List<D> lookupMulti(Collection<? extends Lookup<PK>> lookups, Config config) {
 		if(DrCollectionTool.isEmpty(lookups)){
 			return null;
 		}
@@ -102,7 +148,7 @@ extends IndexedStorageReader<PK,D>, PartitionedNode<PK,D,N>{
 
 
 	@Override
-	public default <IK extends PrimaryKey<IK>,
+	default <IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK, IE, PK, D>,
 			IF extends DatabeanFielder<IK, IE>>
 	List<IE> getMultiFromIndex(Collection<IK> keys, Config config, DatabeanFieldInfo<IK, IE, IF> indexEntryFieldInfo){
@@ -113,7 +159,7 @@ extends IndexedStorageReader<PK,D>, PartitionedNode<PK,D,N>{
 	}
 
 	@Override
-	public default <IK extends PrimaryKey<IK>, IE extends IndexEntry<IK, IE, PK, D>> List<D> getMultiByIndex(
+	default <IK extends PrimaryKey<IK>, IE extends IndexEntry<IK, IE, PK, D>> List<D> getMultiByIndex(
 			Collection<IK> keys, Config config){
 		return getPhysicalNodesForSecondaryKeys(keys).stream()
 				.flatMap(physicalNode -> physicalNode.getMultiByIndex(keys, config).stream())
@@ -122,7 +168,7 @@ extends IndexedStorageReader<PK,D>, PartitionedNode<PK,D,N>{
 	}
 
 	@Override
-	public default <IK extends PrimaryKey<IK>,
+	default <IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK, IE, PK, D>,
 			IF extends DatabeanFielder<IK, IE>>
 	Iterable<IE> scanIndex(DatabeanFieldInfo<IK,IE,IF> indexEntryFieldInfo, Range<IK> range,
@@ -134,7 +180,7 @@ extends IndexedStorageReader<PK,D>, PartitionedNode<PK,D,N>{
 	}
 
 	@Override
-	public default <IK extends PrimaryKey<IK>,
+	default <IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK, IE, PK, D>,
 			IF extends DatabeanFielder<IK, IE>>
 	Iterable<IK> scanIndexKeys(DatabeanFieldInfo<IK,IE,IF> indexEntryFieldInfo, Range<IK> range,
@@ -145,21 +191,4 @@ extends IndexedStorageReader<PK,D>, PartitionedNode<PK,D,N>{
 		return DrIterableTool.dedupeSortedIterator(Iterators.mergeSorted(iterators, Comparator.naturalOrder()));
 	}
 
-	@Override
-	public default <IK extends PrimaryKey<IK>,
-			IE extends IndexEntry<IK, IE, PK, D>,
-			IF extends DatabeanFielder<IK, IE>,
-			MN extends ManagedNode<PK,D,IK,IE,IF>>
-	MN registerManaged(MN node){
-		getPhysicalNodes().stream().forEach(physicalNode -> physicalNode.registerManaged(node));
-		return node;
-	}
-
-	@Override
-	public default List<ManagedNode<PK,D,?,?,?>> getManagedNodes(){
-		return getPhysicalNodes().stream()
-				.map(IndexedOps::getManagedNodes)
-				.flatMap(Collection::stream)
-				.collect(Collectors.toList());
-	}
 }

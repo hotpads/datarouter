@@ -10,7 +10,6 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
 import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.node.BaseNode;
 import com.hotpads.datarouter.node.Node;
@@ -26,7 +25,6 @@ import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrIterableTool;
-import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.datarouter.util.core.DrSetTool;
 import com.hotpads.util.core.collections.Range;
 
@@ -87,6 +85,11 @@ extends BaseNode<PK,D,F> implements PartitionedNode<PK,D,N>{
 	}
 
 	@Override
+	public Partitions<PK,D,N> getPartitions(){
+		return partitions;
+	}
+
+	@Override
 	public boolean usesClient(String clientName){
 		return DrCollectionTool.notEmpty(partitions.getPhysicalNodesForClient(clientName));
 	}
@@ -122,15 +125,9 @@ extends BaseNode<PK,D,F> implements PartitionedNode<PK,D,N>{
 		return partitions.getPhysicalNodesForClient(clientName);
 	}
 
-
-	/******************* abstract partitioning logic methods ******************/
-
-	//for sorted nodes
-	public abstract List<N> getPhysicalNodesForRange(Range<PK> range);
-	public abstract Multimap<N,PK> getPrefixesByPhysicalNode(Collection<PK> prefixes, boolean wildcardLastField);
-
 	/************ common partitioning logic relying on the abstract methods above **********/
 
+	@Override
 	public Set<N> getPhysicalNodesForRanges(Collection<Range<PK>> ranges){
 		return ranges.stream().map(this::getPhysicalNodesForRange).flatMap(List::stream).collect(Collectors.toSet());
 	}
