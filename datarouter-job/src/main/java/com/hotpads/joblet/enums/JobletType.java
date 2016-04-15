@@ -1,7 +1,5 @@
 package com.hotpads.joblet.enums;
 
-import java.util.Objects;
-
 import com.hotpads.joblet.Joblet;
 
 public class JobletType<P>{
@@ -22,16 +20,6 @@ public class JobletType<P>{
 		this.cpuPermits = cpuPermits;
 		this.memoryPermits = memoryPermits;
 		this.causesScaling = causesScaling;
-	}
-
-	@Override
-	public boolean equals(Object other){
-		return this == other; //assumes same instance is always used
-	}
-
-	@Override
-	public int hashCode(){
-		return Objects.hashCode(this);
 	}
 
 	public String getDisplay(){
