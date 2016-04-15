@@ -2,6 +2,10 @@ package com.hotpads.datarouter.util.core;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -20,9 +24,6 @@ import com.hotpads.util.core.date.DurationWithCarriedUnits;
 public final class DrDateTool {
 
 	public static final int
-		MILLISECONDS_IN_WEEK = 7 * 24 * 60 * 60 * 1000,
-		MILLISECONDS_IN_DAY = 24 * 60 * 60 * 1000,
-		MILLISECONDS_IN_HOUR = 60 * 60 * 1000,
 		MILLISECONDS_IN_MINUTE = 60 * 1000,
 		MILLISECONDS_IN_SECOND = 1000;
 
@@ -36,8 +37,8 @@ public final class DrDateTool {
 		SATURDAY_INDEX = 7;
 
 	public static final List<String>
-		DAY_ABBREVIATIONS = new ArrayList<String>(),
-		MONTH_ABBREVIATIONS = new ArrayList<String>();
+		DAY_ABBREVIATIONS = new ArrayList<>(),
+		MONTH_ABBREVIATIONS = new ArrayList<>();
 
 	static{
 		DAY_ABBREVIATIONS.add("Sun");
@@ -67,10 +68,6 @@ public final class DrDateTool {
 	 * Parse the provided date string using a sequence of common date formats
 	 * that users might input. If minimumYear is provided, it is used to
 	 * validate the result and try alternate date formats.
-	 *
-	 * @param date
-	 * @param minimumYear
-	 * @return
 	 */
 	public static Date parseUserInputDate(String date, Integer minimumYear){
 		if(date==null){
@@ -99,18 +96,17 @@ public final class DrDateTool {
 			try{
 				Date parsed = new SimpleDateFormat(fmt).parse(date);
 				if(minimumYear != null){
-					Integer year = getYearInteger(parsed);
-					if(year!=null && fmt.contains("y")){
+					if(fmt.contains("y")){
 						if(getYearInteger(parsed) < minimumYear){
 							continue;
 						}
 						return parsed;
 					}
 					//year is null or not a result of parsing
-					Calendar c = Calendar.getInstance();
-					c.setTime(parsed);
-					c.set(Calendar.YEAR, getYearInteger());
-					parsed = c.getTime();
+					Calendar calendar = Calendar.getInstance();
+					calendar.setTime(parsed);
+					calendar.set(Calendar.YEAR, getYearInteger());
+					parsed = calendar.getTime();
 				}
 				return parsed;
 			} catch(ParseException pe){
@@ -126,34 +122,26 @@ public final class DrDateTool {
 		return sdf.format(date);
 	}
 
-	public static Calendar dateToCalendar(Date d){
-		Calendar c = Calendar.getInstance();
-		c.setTime(d);
-		return c;
+	public static Calendar dateToCalendar(Date date){
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(date);
+		return calendar;
 	}
-	public static Integer getCalendarField(Date d, int field){
-		Calendar c=dateToCalendar(d);
-		return c.get(field);
+	public static int getCalendarField(Date date, int field){
+		Calendar calendar = dateToCalendar(date);
+		return calendar.get(field);
 	}
 
-	public static Integer getYearInteger(){
+	public static int getYearInteger(){
 		return getYearInteger(new Date());
 	}
 
-	public static Integer getHourInteger(){
-		return getHourInteger(new Date());
+	public static int getYearInteger(Date date){
+		return getCalendarField(date, Calendar.YEAR);
 	}
 
-	public static Integer getYearInteger(Date d){
-		return getCalendarField(d, Calendar.YEAR);
-	}
-
-	public static Integer getDayInteger(Date d){
-		return getCalendarField(d, Calendar.DAY_OF_WEEK);
-	}
-
-	public static Integer getHourInteger(Date d){
-		return getCalendarField(d, Calendar.HOUR_OF_DAY);
+	public static int getDayInteger(Date date){
+		return getCalendarField(date, Calendar.DAY_OF_WEEK);
 	}
 
 	public static String getDayAbbreviation(Date date){
@@ -161,11 +149,11 @@ public final class DrDateTool {
 		return sdf.format(date);
 	}
 
-	public static Long getPeriodStart(long periodMs){
+	public static long getPeriodStart(long periodMs){
 		return getPeriodStart(System.currentTimeMillis(), periodMs);
 	}
 
-	public static Long getPeriodStart(long timeMs, long periodMs){
+	public static long getPeriodStart(long timeMs, long periodMs){
 		return timeMs - timeMs % periodMs;
 	}
 
@@ -190,31 +178,21 @@ public final class DrDateTool {
 	/********************* XsdDateTime *************************************/
 
     /* as specified in RFC 3339 / ISO 8601 */
-    public static String getInternetDate(Date d){
+    public static String getInternetDate(Date date){
     	TimeZone tz = TimeZone.getTimeZone("GMT+00:00");
     	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
     	sdf.setTimeZone(tz);
-    	return sdf.format(d);
+    	return sdf.format(date);
     }
 
-    public static String getYYYYMMDDHHMMSSMMMWithPunctuationNoSpaces(Long ms){
-    	SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss.SSS");
-    	return f.format(new Date(ms));
+    public static String getYyyyMmDdHhMmSsMmmWithPunctuationNoSpaces(Long ms){
+    	return format("yyyy-MM-dd_HH:mm:ss.SSS", ms);
     }
 
-    public static String getYYYYMMDDHHMMWithPunctuation(Date date){
-    	SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-    	return f.format(date);
+    public static String format(String pattern, Long ms){
+    	DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
+    	return LocalDateTime.ofInstant(Instant.ofEpochMilli(ms), ZoneId.systemDefault()).format(formatter);
     }
-
-    public static String getYYYYMMDDHHMMSSWithPunctuationNoSpaces(Long ms){
-    	return getYYYYMMDDHHMMSSWithPunctuationNoSpaces(new Date(ms));
-    }
-    public static String getYYYYMMDDHHMMSSWithPunctuationNoSpaces(Date date){
-    	SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
-    	return f.format(date);
-    }
-
 
     public static final int DEFAULT_MAX_UNITS = 2;
 
@@ -225,7 +203,6 @@ public final class DrDateTool {
      *
      * the inverse of getFromNowString
      *
-     * @param date
      * @return "XXXXdays, XX hours ago" or "XX minutes ago" or
      * 	"XX seconds ago" or "less than one second ago"
      */
@@ -241,17 +218,20 @@ public final class DrDateTool {
     }
 
     public static String getAgoString(Date date, int maxUnits) {
-    	if(date == null) { return null; }
+		if(date == null){
+			return null;
+		}
     	long timeMillis = new Date().getTime() - date.getTime();
     	String suffix = " ago";
-    	if (timeMillis < 0){ suffix = " from now"; }
+		if(timeMillis < 0){
+			suffix = " from now";
+		}
     	return getMillisAsString(timeMillis, maxUnits, DurationUnit.SECONDS) + suffix;
     }
 
     /**
      * Translates the given milliseconds into a human readable time
 	 * string to the specified precision.
-     * @param timeMillis
      * @param maxUnits - the desired maximum number of units in the returned string.
      * @return a labeled,
      */

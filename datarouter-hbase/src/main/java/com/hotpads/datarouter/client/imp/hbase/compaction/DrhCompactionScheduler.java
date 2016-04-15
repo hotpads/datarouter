@@ -75,7 +75,7 @@ public class DrhCompactionScheduler<PK extends PrimaryKey<PK>>{
 	//used in hbaseTableRegions.jsp
 	public String getNextCompactTimeFormatted(){
 		Date date = new Date(nextCompactTimeMs);
-		return DrDateTool.getYYYYMMDDHHMMWithPunctuation(date) + ", " + DrDateTool.getDayAbbreviation(date);
+		return DrDateTool.format("yyyy-MM-dd HH:mm", nextCompactTimeMs) + ", " + DrDateTool.getDayAbbreviation(date);
 	}
 
 }
