@@ -19,7 +19,7 @@ public class JobletFactory{
 	public <P> Joblet<?> createForPackage(JobletPackage jobletPackage){
 		@SuppressWarnings("unchecked")
 		JobletType<P> jobletType = (JobletType<P>)jobletTypeFactory.fromJobletRequest(jobletPackage.getJoblet());
-		Joblet<P> jobletCodec = injector.getInstance(jobletType.getAssociatedClass());
+		JobletCodec<P> jobletCodec = injector.getInstance(jobletType.getCodecClass());
 		P jobletParams = jobletCodec.unmarshallData(jobletPackage.getJobletData().getData());
 		return create(jobletType, jobletPackage.getJoblet(), jobletParams);
 	}

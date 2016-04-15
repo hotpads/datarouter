@@ -34,16 +34,16 @@ public class JobletPackage {
 
 	/*-------------- static -----------------*/
 
-	@SuppressWarnings("unchecked")
 	public static <P> JobletPackage createUnchecked(JobletType<?> uncheckedJobletType, int executionOrder,
 			boolean restartable, String queueId, P params){
+		@SuppressWarnings("unchecked")
 		JobletType<P> jobletType = (JobletType<P>)uncheckedJobletType;
 		return create(jobletType, executionOrder, restartable, queueId, params);
 	}
 
 	public static <P> JobletPackage create(JobletType<P> jobletType, int executionOrder, boolean restartable,
 			String queueId, P params){
-		JobletCodec<P> codec = ReflectionTool.create(jobletType.getAssociatedClass());
+		JobletCodec<P> codec = ReflectionTool.create(jobletType.getCodecClass());
 
 		//build JobletRequest
 		int batchSequence = RandomTool.nextPositiveInt();
