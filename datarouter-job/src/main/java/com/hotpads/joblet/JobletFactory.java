@@ -16,9 +16,10 @@ public class JobletFactory{
 	@Inject
 	private JobletTypeFactory jobletTypeFactory;
 
-	public <P> Joblet<P> createForPackage(JobletPackage jobletPackage){
-		JobletType<?> jobletType = jobletTypeFactory.fromJobletRequest(jobletPackage.getJoblet());
-		Joblet<P> jobletCodec = (Joblet<P>)injector.getInstance(jobletType.getAssociatedClass());
+	@SuppressWarnings("unchecked")
+	public <P> Joblet<?> createForPackage(JobletPackage jobletPackage){
+		JobletType<P> jobletType = (JobletType<P>)jobletTypeFactory.fromJobletRequest(jobletPackage.getJoblet());
+		Joblet<P> jobletCodec = injector.getInstance(jobletType.getAssociatedClass());
 		P jobletParams = jobletCodec.unmarshallData(jobletPackage.getJobletData().getData());
 		return createForRequestAndParams(jobletPackage.getJoblet(), jobletParams);
 	}

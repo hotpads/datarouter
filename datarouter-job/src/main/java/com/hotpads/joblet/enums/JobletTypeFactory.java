@@ -1,13 +1,14 @@
 package com.hotpads.joblet.enums;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import com.hotpads.datarouter.util.core.DrArrayTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.joblet.Joblet;
 import com.hotpads.joblet.JobletPackage;
 import com.hotpads.joblet.databean.JobletRequest;
@@ -16,16 +17,16 @@ import com.hotpads.joblet.databean.JobletRequestKey;
 public class JobletTypeFactory{
 
 	private final List<JobletType<?>> allTypes;
-	private final JobletType<? extends JobletType<?>> sampleType;
+	private final JobletType<?> sampleType;
 	private final Map<String,JobletType<?>> typeByPersistentString;
 	private final Set<JobletType<?>> typesCausingScaling;
 
-	public JobletTypeFactory(JobletType<? extends JobletType<?>>[] types){
-		this.allTypes = Arrays.asList(types);
-		this.sampleType = DrArrayTool.getFirst(types);
-		this.typeByPersistentString = Arrays.stream(types)
+	public JobletTypeFactory(Collection<JobletType<?>> types){
+		this.allTypes = new ArrayList<>(types);
+		this.sampleType = DrCollectionTool.getFirst(types);
+		this.typeByPersistentString = types.stream()
 				.collect(Collectors.toMap(JobletType::getPersistentString, Function.identity()));
-		this.typesCausingScaling = Arrays.stream(types)
+		this.typesCausingScaling = types.stream()
 				.filter(JobletType::causesScaling)
 				.collect(Collectors.toSet());
 	}

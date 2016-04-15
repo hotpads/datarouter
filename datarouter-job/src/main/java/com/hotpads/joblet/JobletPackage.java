@@ -2,11 +2,11 @@ package com.hotpads.joblet;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.function.Supplier;
 
 import com.hotpads.joblet.databean.JobletData;
 import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.enums.JobletType;
+import com.hotpads.util.core.java.ReflectionTool;
 import com.hotpads.util.core.number.RandomTool;
 import com.hotpads.util.core.stream.StreamTool;
 
@@ -34,9 +34,16 @@ public class JobletPackage {
 
 	/*-------------- static -----------------*/
 
-	public static <T,P> JobletPackage create(JobletType<T> jobletType, Supplier<? extends JobletCodec<P>> codecSupplier,
-			int executionOrder, boolean restartable, String queueId, P params){
-		JobletCodec<P> codec = codecSupplier.get();
+	@SuppressWarnings("unchecked")
+	public static <P> JobletPackage createUnchecked(JobletType<?> uncheckedJobletType, int executionOrder,
+			boolean restartable, String queueId, P params){
+		JobletType<P> jobletType = (JobletType<P>)uncheckedJobletType;
+		return create(jobletType, executionOrder, restartable, queueId, params);
+	}
+
+	public static <P> JobletPackage create(JobletType<P> jobletType, int executionOrder, boolean restartable,
+			String queueId, P params){
+		JobletCodec<P> codec = ReflectionTool.create(jobletType.getAssociatedClass());
 
 		//build JobletRequest
 		int batchSequence = RandomTool.nextPositiveInt();
