@@ -4,6 +4,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -189,7 +190,8 @@ public final class DrDateTool {
     }
 
     public static String format(String pattern, Long ms){
-    	return LocalDateTime.from(Instant.ofEpochMilli(ms)).format(DateTimeFormatter.ofPattern(pattern));
+    	DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
+    	return LocalDateTime.ofInstant(Instant.ofEpochMilli(ms), ZoneId.systemDefault()).format(formatter);
     }
 
     public static final int DEFAULT_MAX_UNITS = 2;
