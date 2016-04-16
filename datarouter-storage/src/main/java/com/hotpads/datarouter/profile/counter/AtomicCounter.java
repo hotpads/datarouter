@@ -26,7 +26,7 @@ public class AtomicCounter implements CountCollectorPeriod{
 
 	@Override
 	public String toString(){
-		String time = DrDateTool.getYYYYMMDDHHMMSSMMMWithPunctuationNoSpaces(startTimeMs);
+		String time = DrDateTool.getYyyyMmDdHhMmSsMmmWithPunctuationNoSpaces(startTimeMs);
 		return getClass().getSimpleName()+"["+time+","+Counters.getSuffix(lengthMs)
 				+","+System.identityHashCode(this)+","+createdByThreadId+"]";
 	}

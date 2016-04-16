@@ -12,5 +12,5 @@ public class PartitionedNodeTool {
 		}
 		return indexes;
 	}
-	
+
 }

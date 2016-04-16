@@ -163,7 +163,7 @@ public class ParallelJobletProcessor{
 	}
 
 	private String getReservedByString(int counter){
-		return datarouter.getServerName() + "_" + DrDateTool.getYYYYMMDDHHMMSSMMMWithPunctuationNoSpaces(
+		return datarouter.getServerName() + "_" + DrDateTool.getYyyyMmDdHhMmSsMmmWithPunctuationNoSpaces(
 				System.currentTimeMillis()) + "_" + Thread.currentThread().getId() + "_" + counter;
 	}
 
