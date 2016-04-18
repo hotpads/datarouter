@@ -7,7 +7,7 @@ import com.hotpads.joblet.JobletCodec;
 
 public class JobletType<P>{
 	private final String persistentString;
-	private final Supplier<? extends JobletCodec<P>> codecSupplier;
+	private final Supplier<JobletCodec<P>> codecSupplier;
 	private final Class<? extends Joblet<P>> clazz;
 	private final boolean rateLimited;
 	private final Integer batchSize;
@@ -15,7 +15,7 @@ public class JobletType<P>{
 	private final Integer memoryPermits;
 	private final boolean causesScaling;
 
-	public JobletType(String persistentString, Supplier<? extends JobletCodec<P>> codecSupplier,
+	public JobletType(String persistentString, Supplier<JobletCodec<P>> codecSupplier,
 			Class<? extends Joblet<P>> clazz, boolean rateLimited, Integer batchSize, Integer cpuPermits,
 			Integer memoryPermits, boolean causesScaling){
 		this.persistentString = persistentString;
