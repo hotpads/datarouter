@@ -32,12 +32,14 @@ import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.handler.mav.Mav;
 import com.hotpads.util.core.Functor;
 import com.hotpads.util.core.collections.DefaultableMap;
+import com.hotpads.util.core.profile.ThreadSafePhaseTimer;
 import com.hotpads.util.datastructs.DefaultableHashMap;
 import com.hotpads.util.http.security.UrlScheme;
 
 public class RequestTool {
 	private static final String INACCESSIBLE_BODY = "INACCESSIBLE BODY: ";
 	public static final String SUBMIT_ACTION = "submitAction";
+	public static final String API_PHASE_TIMER = "API_PHASE_TIMER";
 
 	public static String getSubmitAction(HttpServletRequest request){
 		String submitAction = request.getParameter(SUBMIT_ACTION);
@@ -509,6 +511,23 @@ public class RequestTool {
 		}catch(IllegalStateException e){
 			return INACCESSIBLE_BODY + e.getMessage();
 		}
+	}
+
+	public static ThreadSafePhaseTimer createRequestPhaseTimer(HttpServletRequest request) {
+		ThreadSafePhaseTimer result = new ThreadSafePhaseTimer();
+		if (request != null) {
+			request.setAttribute(API_PHASE_TIMER, result);
+		}
+		return result;
+	}
+
+	public static ThreadSafePhaseTimer getRequestPhaseTimer(HttpServletRequest request) {
+		ThreadSafePhaseTimer result = request == null ? null
+				: (ThreadSafePhaseTimer)request.getAttribute(API_PHASE_TIMER);
+		if (result != null) {
+			return result;
+		}
+		return createRequestPhaseTimer(null);
 	}
 
 	/** tests *****************************************************************/
