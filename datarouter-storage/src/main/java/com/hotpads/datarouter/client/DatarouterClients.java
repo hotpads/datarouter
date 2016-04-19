@@ -16,6 +16,7 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.inject.DatarouterInjector;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.routing.Datarouter;
@@ -187,6 +188,7 @@ public class DatarouterClients{
 		List<LazyClientProvider> providers = new ArrayList<>();//TODO don't create until needed
 		for(String clientName : DrCollectionTool.nullSafe(clientNames)){
 			LazyClientProvider provider = lazyClientProviderByName.get(clientName);
+			Preconditions.checkNotNull(provider, "LazyClientProvider cannot be null for clientName=" + clientName);
 			if(provider.isInitialized()){
 				clients.add(provider.call());//these can be added immediately (normal code path)
 			}else{
