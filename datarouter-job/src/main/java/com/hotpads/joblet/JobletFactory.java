@@ -16,17 +16,16 @@ public class JobletFactory{
 	@Inject
 	private JobletTypeFactory jobletTypeFactory;
 
-	public <P> Joblet<P> createForPackage(JobletPackage jobletPackage){
-		JobletType<?> jobletType = jobletTypeFactory.fromJobletRequest(jobletPackage.getJoblet());
-		Joblet<P> jobletCodec = (Joblet<P>)injector.getInstance(jobletType.getAssociatedClass());
+	public <P> Joblet<?> createForPackage(JobletPackage jobletPackage){
+		@SuppressWarnings("unchecked")
+		JobletType<P> jobletType = (JobletType<P>)jobletTypeFactory.fromJobletRequest(jobletPackage.getJoblet());
+		JobletCodec<P> jobletCodec = jobletType.getCodecSupplier().get();
 		P jobletParams = jobletCodec.unmarshallData(jobletPackage.getJobletData().getData());
-		return createForRequestAndParams(jobletPackage.getJoblet(), jobletParams);
+		return create(jobletType, jobletPackage.getJoblet(), jobletParams);
 	}
 
-	@SuppressWarnings("unchecked")//can't seem to remove the cast while HotPadsJobletType is an enum
-	public <P> Joblet<P> createForRequestAndParams(JobletRequest jobletRequest, P jobletParams){
-		JobletType<?> jobletType = jobletTypeFactory.fromJobletRequest(jobletRequest);
-		Joblet<P> joblet = (Joblet<P>)injector.getInstance(jobletType.getAssociatedClass());
+	private <P> Joblet<P> create(JobletType<P> jobletType, JobletRequest jobletRequest, P jobletParams){
+		Joblet<P> joblet = injector.getInstance(jobletType.getAssociatedClass());
 		joblet.setJoblet(jobletRequest);
 		joblet.setJobletParams(jobletParams);
 		return joblet;
