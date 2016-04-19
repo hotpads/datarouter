@@ -1,11 +1,13 @@
 package com.hotpads.joblet.enums;
 
+import java.util.function.Supplier;
+
 import com.hotpads.joblet.Joblet;
 import com.hotpads.joblet.JobletCodec;
 
 public class JobletType<P>{
 	private final String persistentString;
-	private final Class<? extends JobletCodec<P>> codecClass;
+	private final Supplier<JobletCodec<P>> codecSupplier;
 	private final Class<? extends Joblet<P>> clazz;
 	private final boolean rateLimited;
 	private final Integer batchSize;
@@ -13,11 +15,11 @@ public class JobletType<P>{
 	private final Integer memoryPermits;
 	private final boolean causesScaling;
 
-	public JobletType(String persistentString, Class<? extends JobletCodec<P>> codecClass,
+	public JobletType(String persistentString, Supplier<JobletCodec<P>> codecSupplier,
 			Class<? extends Joblet<P>> clazz, boolean rateLimited, Integer batchSize, Integer cpuPermits,
 			Integer memoryPermits, boolean causesScaling){
 		this.persistentString = persistentString;
-		this.codecClass = codecClass;
+		this.codecSupplier = codecSupplier;
 		this.clazz = clazz;
 		this.rateLimited = rateLimited;
 		this.batchSize = batchSize;
@@ -36,8 +38,8 @@ public class JobletType<P>{
 		return persistentString;
 	}
 
-	public Class<? extends JobletCodec<P>> getCodecClass(){
-		return codecClass;
+	public Supplier<? extends JobletCodec<P>> getCodecSupplier(){
+		return codecSupplier;
 	}
 
 	public Class<? extends Joblet<P>> getAssociatedClass(){

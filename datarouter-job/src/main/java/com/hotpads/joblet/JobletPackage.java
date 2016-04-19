@@ -6,7 +6,6 @@ import java.util.List;
 import com.hotpads.joblet.databean.JobletData;
 import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.enums.JobletType;
-import com.hotpads.util.core.java.ReflectionTool;
 import com.hotpads.util.core.number.RandomTool;
 import com.hotpads.util.core.stream.StreamTool;
 
@@ -43,7 +42,7 @@ public class JobletPackage {
 
 	public static <P> JobletPackage create(JobletType<P> jobletType, int executionOrder, boolean restartable,
 			String queueId, P params){
-		JobletCodec<P> codec = ReflectionTool.create(jobletType.getCodecClass());
+		JobletCodec<P> codec = jobletType.getCodecSupplier().get();
 
 		//build JobletRequest
 		int batchSequence = RandomTool.nextPositiveInt();
