@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableSet;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
@@ -187,6 +188,7 @@ public class DatarouterClients{
 		List<LazyClientProvider> providers = new ArrayList<>();//TODO don't create until needed
 		for(String clientName : DrCollectionTool.nullSafe(clientNames)){
 			LazyClientProvider provider = lazyClientProviderByName.get(clientName);
+			Objects.requireNonNull(provider, "LazyClientProvider cannot be null for clientName=" + clientName);
 			if(provider.isInitialized()){
 				clients.add(provider.call());//these can be added immediately (normal code path)
 			}else{
