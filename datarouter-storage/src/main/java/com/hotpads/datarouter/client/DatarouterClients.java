@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableSet;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
@@ -16,7 +17,6 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.inject.DatarouterInjector;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.routing.Datarouter;
@@ -188,7 +188,7 @@ public class DatarouterClients{
 		List<LazyClientProvider> providers = new ArrayList<>();//TODO don't create until needed
 		for(String clientName : DrCollectionTool.nullSafe(clientNames)){
 			LazyClientProvider provider = lazyClientProviderByName.get(clientName);
-			Preconditions.checkNotNull(provider, "LazyClientProvider cannot be null for clientName=" + clientName);
+			Objects.requireNonNull(provider, "LazyClientProvider cannot be null for clientName=" + clientName);
 			if(provider.isInitialized()){
 				clients.add(provider.call());//these can be added immediately (normal code path)
 			}else{
