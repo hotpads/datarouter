@@ -32,6 +32,11 @@ public class DrListTool{
 		return out;
 	}
 
+	public static <T> void replaceLast(List<T> list, T replacement){
+		int lastIndex = list.size() - 1;
+		list.set(lastIndex, replacement);
+	}
+
 	public static <T> ArrayList<T> create(T... in){
 		return createArrayList(in);
 	}
