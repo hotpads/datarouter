@@ -101,6 +101,7 @@ implements Callable<Void>{
 
 		SqlTable requested = generator.generate();
 		Connection connection = null;
+		String ddl = null;
 		try{
 			if(!connectionPool.isWritable()){
 				return null;
@@ -113,19 +114,19 @@ implements Callable<Void>{
 			Statement statement = connection.createStatement();
 			boolean exists = existingTableNames.contains(tableName);
 			if(!exists){
-				String sql = new SqlCreateTableGenerator(requested, schemaName).generateDdl();
+				ddl = new SqlCreateTableGenerator(requested, schemaName).generateDdl();
 				if(executeOptions.getCreateTables()){
 					logger.info("========================================== Creating the table " +tableName
 							+" ============================");
-					logger.info(sql);
-					statement.execute(sql);
+					logger.info(ddl);
+					statement.execute(ddl);
 					logger.info("============================================================================="
 					+"=======================");
 				}else{
 					logger.info("========================================== Please Execute SchemaUpdate"
 							+" ============================");
-					logger.info(sql);
-					printedSchemaUpdates.add(sql);
+					logger.info(ddl);
+					printedSchemaUpdates.add(ddl);
 				}
 			} else{
 				//execute the alter table
@@ -135,13 +136,13 @@ implements Callable<Void>{
 				SqlAlterTableGenerator executeAlterTableGenerator = new SqlAlterTableGenerator(
 						executeOptions, executeCurrent, requested, schemaName);
 				if(executeAlterTableGenerator.willAlterTable()){
-					String alterTableExecuteString = executeAlterTableGenerator.generateDdl();
+					ddl = executeAlterTableGenerator.generateDdl();
 					PhaseTimer alterTableTimer = new PhaseTimer();
 					logger.info("--------------- Executing "+getClass().getSimpleName()
 							+" SchemaUpdate ---------------");
-					logger.info(alterTableExecuteString);
+					logger.info(ddl);
 					//execute it
-					statement.execute(alterTableExecuteString);
+					statement.execute(ddl);
 					alterTableTimer.add("Completed SchemaUpdate for "+tableName);
 					logger.info("----------------- "+alterTableTimer+" -------------------");
 				}
@@ -162,6 +163,7 @@ implements Callable<Void>{
 				}
 			}
 		} catch (Exception e){
+			logger.error("error on {}", ddl, e);
 			throw new RuntimeException(e);
 		} finally{
 			connectionPool.checkIn(connection);
