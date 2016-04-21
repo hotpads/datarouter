@@ -112,7 +112,7 @@ public class SqlCreateTableGenerator implements DdlGenerator{
 		}
 		sb.append(")");
 		sb.append(" engine=" + table.getEngine() + " character set = " + table.getCharacterSet() + " collate "
-				+ table.getCollation());
+				+ table.getCollation()+ " row_format = " + table.getRowFormat());
 		sb.append(";");
 		return sb.toString();
 

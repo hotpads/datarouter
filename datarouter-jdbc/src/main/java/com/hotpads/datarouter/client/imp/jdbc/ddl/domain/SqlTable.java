@@ -17,6 +17,7 @@ public class SqlTable{
 
 	private static final MySqlCharacterSet DEFAULT_CHARACTER_SET = MySqlCharacterSet.utf8;
 	private static final MySqlCollation DEFAULT_COLLATION = MySqlCollation.utf8_bin;
+	private static final MySqlRowFormat DEFAULT_ROW_FORMAT = MySqlRowFormat.Dynamic;
 
 
 	/***************** fields *****************************/
@@ -29,6 +30,7 @@ public class SqlTable{
 	private MySqlTableEngine engine = MySqlTableEngine.INNODB;
 	private MySqlCollation collation = DEFAULT_COLLATION;
 	private MySqlCharacterSet charSet = DEFAULT_CHARACTER_SET;
+	private MySqlRowFormat rowFormat = DEFAULT_ROW_FORMAT;
 
 
 	/*************** constructors ****************************/
@@ -116,6 +118,10 @@ public class SqlTable{
 
 	public static MySqlCollation getDefaultCollation(){
 		return DEFAULT_COLLATION;
+	}
+
+	public static MySqlRowFormat getDefaultRowFormat(){
+		return DEFAULT_ROW_FORMAT;
 	}
 
 
@@ -238,6 +244,13 @@ public class SqlTable{
 		this.charSet = charSet;
 	}
 
+	public MySqlRowFormat getRowFormat(){
+		return rowFormat;
+	}
+
+	public void setRowFormat(MySqlRowFormat rowFormat){
+		this.rowFormat = rowFormat;
+	}
 
 	/******************** tests *********************************/
 	@Guice(moduleFactory = TestDatarouterJdbcModuleFactory.class)
