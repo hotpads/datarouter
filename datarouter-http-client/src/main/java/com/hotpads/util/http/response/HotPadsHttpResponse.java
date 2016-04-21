@@ -2,6 +2,7 @@ package com.hotpads.util.http.response;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.function.Consumer;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -23,7 +24,8 @@ public class HotPadsHttpResponse{
 	private int statusCode;
 	private String entity;
 
-	public HotPadsHttpResponse(HttpResponse response, HttpClientContext context){
+	public HotPadsHttpResponse(HttpResponse response, HttpClientContext context,
+			Consumer<HttpEntity> httpEntityConsumer){
 		this.response = response;
 		this.cookies = context.getCookieStore().getCookies();
 		if(response != null){
@@ -31,6 +33,10 @@ public class HotPadsHttpResponse{
 			this.entity = "";
 
 			HttpEntity httpEntity = response.getEntity();
+			if(httpEntityConsumer!=null){
+				httpEntityConsumer.accept(httpEntity);
+				return;
+			}
 			if(httpEntity != null){
 				try{
 					this.entity = EntityUtils.toString(httpEntity);

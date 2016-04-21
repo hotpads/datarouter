@@ -12,9 +12,12 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.function.Consumer;
 
 import javax.inject.Singleton;
 
+import org.apache.commons.codec.binary.Base64;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
@@ -83,6 +86,14 @@ public class HotPadsHttpClient {
 		}
 	}
 
+	public HotPadsHttpResponse execute(HotPadsHttpRequest request, Consumer<HttpEntity> httpEntityConsumer){
+		try{
+			return executeChecked(request, httpEntityConsumer);
+		}catch(HotPadsHttpException e){
+			throw new HotPadsHttpRuntimeException(e);
+		}
+	}
+
 	public <E> E execute(HotPadsHttpRequest request, Type deserializeToType) {
 		try {
 			return executeChecked(request, deserializeToType);
@@ -96,7 +107,12 @@ public class HotPadsHttpClient {
 		return jsonSerializer.deserialize(entity, deserializeToType);
 	}
 
-	public HotPadsHttpResponse executeChecked(HotPadsHttpRequest request) throws HotPadsHttpException {
+	public HotPadsHttpResponse executeChecked(HotPadsHttpRequest request) throws HotPadsHttpException{
+		return executeChecked(request, (Consumer<HttpEntity>)null);
+	}
+
+	public HotPadsHttpResponse executeChecked(HotPadsHttpRequest request,
+			Consumer<HttpEntity> httpEntityConsumer) throws HotPadsHttpException {
 		setSecurityProperties(request);
 
 		HttpClientContext context = new HttpClientContext();
@@ -113,7 +129,7 @@ public class HotPadsHttpClient {
 			requestCallable = new HttpRequestCallable(httpClient, internalHttpRequest, context);
 			Future<HttpResponse> httpResponseFuture = executor.submit(requestCallable);
 			HttpResponse httpResponse = httpResponseFuture.get(futureTimeoutMs, TimeUnit.MILLISECONDS);
-			HotPadsHttpResponse response = new HotPadsHttpResponse(httpResponse, context);
+			HotPadsHttpResponse response = new HotPadsHttpResponse(httpResponse, context, httpEntityConsumer);
 			if (response.getStatusCode() >= HttpStatus.SC_BAD_REQUEST) {
 				throw new HotPadsHttpResponseException(response, requestCallable.getRequestStartTimeMs());
 			}
@@ -235,6 +251,13 @@ public class HotPadsHttpClient {
 	public HotPadsHttpClient setEntityDto(HotPadsHttpRequest request, Object dto){
 		String serializedDto = jsonSerializer.serialize(dto);
 		request.setEntity(serializedDto, ContentType.APPLICATION_JSON);
+		return this;
+	}
+
+	public HotPadsHttpClient setBasicAuthorizationHeaders(HotPadsHttpRequest request, String username, String password){
+		String encodedCredentials = Base64.encodeBase64String((username + ":" + password).getBytes());
+		String authenticationString = "Basic " + encodedCredentials;
+		request.getHeaders().put("Authorization", authenticationString);
 		return this;
 	}
 
