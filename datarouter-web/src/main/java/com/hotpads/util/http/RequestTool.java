@@ -39,7 +39,7 @@ import com.hotpads.util.http.security.UrlScheme;
 public class RequestTool {
 	private static final String INACCESSIBLE_BODY = "INACCESSIBLE BODY: ";
 	public static final String SUBMIT_ACTION = "submitAction";
-	public static final String API_PHASE_TIMER = "API_PHASE_TIMER";
+	public static final String REQUEST_PHASE_TIMER = "requestPhaseTimer";
 
 	public static String getSubmitAction(HttpServletRequest request){
 		String submitAction = request.getParameter(SUBMIT_ACTION);
@@ -513,21 +513,16 @@ public class RequestTool {
 		}
 	}
 
-	public static ThreadSafePhaseTimer createRequestPhaseTimer(HttpServletRequest request) {
-		ThreadSafePhaseTimer result = new ThreadSafePhaseTimer();
-		if (request != null) {
-			request.setAttribute(API_PHASE_TIMER, result);
+	public static ThreadSafePhaseTimer getOrSetPhaseTimer(HttpServletRequest request) {
+		ThreadSafePhaseTimer result = request == null ? null
+				: (ThreadSafePhaseTimer)request.getAttribute(REQUEST_PHASE_TIMER);
+		if (result == null) {
+			result = new ThreadSafePhaseTimer(REQUEST_PHASE_TIMER);
+			if (request != null) {
+				request.setAttribute(REQUEST_PHASE_TIMER, result);
+			}
 		}
 		return result;
-	}
-
-	public static ThreadSafePhaseTimer getRequestPhaseTimer(HttpServletRequest request) {
-		ThreadSafePhaseTimer result = request == null ? null
-				: (ThreadSafePhaseTimer)request.getAttribute(API_PHASE_TIMER);
-		if (result != null) {
-			return result;
-		}
-		return createRequestPhaseTimer(null);
 	}
 
 	/** tests *****************************************************************/
