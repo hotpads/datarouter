@@ -29,8 +29,10 @@ import java.util.TreeMap;
 import javax.servlet.http.HttpServletRequest;
 
 import com.google.common.base.Joiner;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSet;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCollation;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
-import com.hotpads.datarouter.serialize.fielder.BaseLatin1Fielder;
+import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.serialize.fielder.Fielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
@@ -153,7 +155,7 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 		duration = "duration";
 	}
 
-	public static class HttpRequestRecordFielder extends BaseLatin1Fielder<HttpRequestRecordKey, HttpRequestRecord>{
+	public static class HttpRequestRecordFielder extends BaseDatabeanFielder<HttpRequestRecordKey, HttpRequestRecord>{
 
 		HttpRequestRecordFielder() {}
 
@@ -218,6 +220,16 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 			Map<String,List<Field<?>>> indexes = new TreeMap<>();
 			indexes.put("index_exceptionRecord", new HttpRequestRecordByExceptionRecord().getFields());
 			return indexes;
+		}
+
+		@Override
+		public MySqlCollation getCollation(){
+			return MySqlCollation.latin1_swedish_ci;
+		}
+
+		@Override
+		public MySqlCharacterSet getCharacterSet(){
+			return MySqlCharacterSet.latin1;
 		}
 	}
 
