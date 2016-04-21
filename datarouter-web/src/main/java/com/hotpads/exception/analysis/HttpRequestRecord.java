@@ -20,6 +20,7 @@ import static com.hotpads.util.http.HttpHeaders.USER_AGENT;
 import static com.hotpads.util.http.HttpHeaders.X_FORWARDED_FOR;
 import static com.hotpads.util.http.HttpHeaders.X_REQUESTED_WITH;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +31,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.google.common.base.Joiner;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
-import com.hotpads.datarouter.serialize.fielder.BaseLatin1Fielder;
+import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.serialize.fielder.Fielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
@@ -153,7 +154,7 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 		duration = "duration";
 	}
 
-	public static class HttpRequestRecordFielder extends BaseLatin1Fielder<HttpRequestRecordKey, HttpRequestRecord>{
+	public static class HttpRequestRecordFielder extends BaseDatabeanFielder<HttpRequestRecordKey, HttpRequestRecord>{
 
 		HttpRequestRecordFielder() {}
 
@@ -164,7 +165,7 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 
 		@Override
 		public List<Field<?>> getNonKeyFields(HttpRequestRecord d) {
-			return FieldTool.createList(
+			return Arrays.asList(
 					new DateField(F.created, d.created),
 					new LongDateField(F.receivedAt, d.receivedAt),
 					new LongField(F.duration, d.duration),
@@ -219,6 +220,7 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 			indexes.put("index_exceptionRecord", new HttpRequestRecordByExceptionRecord().getFields());
 			return indexes;
 		}
+
 	}
 
 	/********************** construct ********************/

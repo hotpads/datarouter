@@ -7,8 +7,10 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSet;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCollation;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
-import com.hotpads.datarouter.serialize.fielder.BaseLatin1Fielder;
+import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.enums.DatarouterEnumTool;
 import com.hotpads.datarouter.storage.field.imp.DateField;
@@ -53,7 +55,7 @@ implements Serializable {
 	}
 
 
-	public static class DatarouterSessionFielder extends BaseLatin1Fielder<DatarouterSessionKey,DatarouterSession>{
+	public static class DatarouterSessionFielder extends BaseDatabeanFielder<DatarouterSessionKey,DatarouterSession>{
 		public DatarouterSessionFielder(){
 		}
 		@Override
@@ -69,6 +71,16 @@ implements Serializable {
 			nonKeyFields.add(new DelimitedStringArrayField(F.roles, ",", databean.roles));
 			nonKeyFields.add(new DateField(F.userCreated, databean.userCreated));
 			return nonKeyFields;
+		}
+
+		@Override
+		public MySqlCollation getCollation(){
+			return MySqlCollation.latin1_swedish_ci;
+		}
+
+		@Override
+		public MySqlCharacterSet getCharacterSet(){
+			return MySqlCharacterSet.latin1;
 		}
 
 	}
