@@ -245,7 +245,8 @@ public class HotPadsHttpRequest {
 		return this;
 	}
 
-	public HotPadsHttpRequest addBasicAuthorizationHeaders(HotPadsHttpRequest request, String username, String password){
+	public HotPadsHttpRequest addBasicAuthorizationHeaders(HotPadsHttpRequest request, String username,
+			String password){
 		String encodedCredentials = Base64.encodeBase64String((username + ":" + password).getBytes());
 		String authenticationString = "Basic " + encodedCredentials;
 		request.getHeaders().put("Authorization", authenticationString);
