@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpHost;
@@ -241,6 +242,13 @@ public class HotPadsHttpRequest {
 				map.put(key.trim(), entry.getValue());
 			}
 		}
+		return this;
+	}
+
+	public HotPadsHttpRequest addBasicAuthorizationHeaders(HotPadsHttpRequest request, String username, String password){
+		String encodedCredentials = Base64.encodeBase64String((username + ":" + password).getBytes());
+		String authenticationString = "Basic " + encodedCredentials;
+		request.getHeaders().put("Authorization", authenticationString);
 		return this;
 	}
 

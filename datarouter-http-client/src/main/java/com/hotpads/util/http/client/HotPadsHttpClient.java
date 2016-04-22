@@ -16,7 +16,6 @@ import java.util.function.Consumer;
 
 import javax.inject.Singleton;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -253,12 +252,4 @@ public class HotPadsHttpClient {
 		request.setEntity(serializedDto, ContentType.APPLICATION_JSON);
 		return this;
 	}
-
-	public HotPadsHttpClient setBasicAuthorizationHeaders(HotPadsHttpRequest request, String username, String password){
-		String encodedCredentials = Base64.encodeBase64String((username + ":" + password).getBytes());
-		String authenticationString = "Basic " + encodedCredentials;
-		request.getHeaders().put("Authorization", authenticationString);
-		return this;
-	}
-
 }

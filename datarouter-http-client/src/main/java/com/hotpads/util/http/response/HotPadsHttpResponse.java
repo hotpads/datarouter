@@ -33,18 +33,19 @@ public class HotPadsHttpResponse{
 			this.entity = "";
 
 			HttpEntity httpEntity = response.getEntity();
+			if(httpEntity == null){
+				return;
+			}
 			if(httpEntityConsumer!=null){
 				httpEntityConsumer.accept(httpEntity);
 				return;
 			}
-			if(httpEntity != null){
-				try{
-					this.entity = EntityUtils.toString(httpEntity);
-				}catch(IOException e){
-					logger.error("Exception occurred while reading HTTP response entity", e);
-				}finally{
-					EntityUtils.consumeQuietly(httpEntity);
-				}
+			try{
+				this.entity = EntityUtils.toString(httpEntity);
+			}catch(IOException e){
+				logger.error("Exception occurred while reading HTTP response entity", e);
+			}finally{
+				EntityUtils.consumeQuietly(httpEntity);
 			}
 		}
 	}
