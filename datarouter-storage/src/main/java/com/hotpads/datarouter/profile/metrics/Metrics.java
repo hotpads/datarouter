@@ -4,7 +4,7 @@ public interface Metrics{
 
 	void save(String key, long value);
 
-	default void measure(String key, int value){
+	default void save(String key, int value){
 		save(key, Long.valueOf(value));
 	}
 
