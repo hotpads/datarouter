@@ -96,9 +96,7 @@ implements MapStorageReader<PK,D>,
 
 	@Override
 	public D get(final PK key, final Config config){
-		String opName = MapStorageReader.OP_get;
-		HibernateGetOp<PK,D,F> op = new HibernateGetOp<>(this, DrListTool.wrap(key), config);
-		return DrCollectionTool.getFirst(new SessionExecutorImpl<>(op, getTraceName(opName)).call());
+		return DrCollectionTool.getFirst(getMulti(DrListTool.wrap(key), config));
 	}
 
 	@Override
