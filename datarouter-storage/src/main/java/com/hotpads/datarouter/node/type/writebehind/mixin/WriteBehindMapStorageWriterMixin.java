@@ -34,7 +34,7 @@ extends MapStorageWriter<PK,D>, WriteBehindNode<PK,D,N>{
 
 	@Override
 	public default void put(D databean, Config config) {
-		getQueue().offer(new WriteWrapper<>(OP_put, DrListTool.wrap(databean), config));
+		putMulti(DrListTool.wrap(databean), config);
 	}
 
 	@Override
