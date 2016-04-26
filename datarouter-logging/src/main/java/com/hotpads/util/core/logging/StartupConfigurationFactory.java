@@ -6,7 +6,9 @@ import java.io.InputStreamReader;
 import java.util.Collection;
 import java.util.LinkedList;
 
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.Appender;
+import org.apache.logging.log4j.core.Filter;
 import org.apache.logging.log4j.core.config.AbstractConfiguration;
 import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.ConfigurationFactory;
@@ -14,6 +16,8 @@ import org.apache.logging.log4j.core.config.ConfigurationSource;
 import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.apache.logging.log4j.core.config.Order;
 import org.apache.logging.log4j.core.config.plugins.Plugin;
+import org.apache.logging.log4j.core.filter.DynamicThresholdFilter;
+import org.apache.logging.log4j.core.util.KeyValuePair;
 
 @Plugin(category = "ConfigurationFactory", name = "StartupConfigurationFactory")
 @Order(10)
@@ -32,6 +36,9 @@ public class StartupConfigurationFactory extends ConfigurationFactory{
 	public Configuration getConfiguration(ConfigurationSource source){
 		@SuppressWarnings("serial")
 		Configuration configuration = new AbstractConfiguration(ConfigurationSource.NULL_SOURCE){};
+		KeyValuePair[] keyValuePairs = {new KeyValuePair("ROLE_ADMIN", "TRACE")};
+		configuration.addFilter(DynamicThresholdFilter.createFilter("role", keyValuePairs, Level.WARN,
+				Filter.Result.ACCEPT, Filter.Result.NEUTRAL));
 		String fullyQualifiedClassName;
 		try(BufferedReader reader = new BufferedReader(new InputStreamReader(source.getInputStream()))){
 			fullyQualifiedClassName = reader.readLine();
