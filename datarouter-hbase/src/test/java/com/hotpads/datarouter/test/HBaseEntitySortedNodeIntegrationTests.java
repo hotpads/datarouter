@@ -89,12 +89,12 @@ public class HBaseEntitySortedNodeIntegrationTests extends BaseSortedNodeIntegra
 		List<SortedBean> beans = new LinkedList<>();
 		String prefix = "testScanForRowDatabean1to1";
 		for(int i = 1; i< 6; i++){
-			beans.add(new SortedBean(prefix + "_" + i, prefix + "_2_" + i, i, prefix + "_4_" + i,
+			beans.add(new SortedBean(prefix + "-" + i, prefix + "-2-" + i, i, prefix + "-4-" + i,
 					"string so hbase has at least one field", null, null, null));
 		}
 
 		//inserted 5 new rows with 1-1 mapping with datarouter databeans
-		sortedNode.putMulti(beans, new Config().setPutMethod(PutMethod.INSERT_OR_BUST));
+		sortedBeanEntityNode.sortedBean().putMulti(beans, new Config().setPutMethod(PutMethod.INSERT_OR_BUST));
 
 		//using the same config with the same batch size
 		iterable = sortedBeanEntityNode.sortedBean().scan(Range.create(null, true, null, false), config);
