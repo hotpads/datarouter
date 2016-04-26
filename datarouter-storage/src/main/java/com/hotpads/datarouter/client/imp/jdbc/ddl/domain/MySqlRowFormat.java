@@ -5,7 +5,9 @@ import com.hotpads.datarouter.util.core.DrStringTool;
 public enum MySqlRowFormat{
 	Compact,
 	Dynamic,
-	Fixed;
+	Fixed,
+	Compressed,
+	Redundant;
 
  public static MySqlRowFormat parse(String stringValue){
 	 String lowerCase = DrStringTool.toLowerCase(stringValue);

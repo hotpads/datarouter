@@ -120,10 +120,6 @@ public class SqlTable{
 		return DEFAULT_COLLATION;
 	}
 
-	public static MySqlRowFormat getDefaultRowFormat(){
-		return DEFAULT_ROW_FORMAT;
-	}
-
 
 	/******************* static methods ***************************/
 
@@ -248,9 +244,6 @@ public class SqlTable{
 		return rowFormat;
 	}
 
-	public void setRowFormat(MySqlRowFormat rowFormat){
-		this.rowFormat = rowFormat;
-	}
 
 	/******************** tests *********************************/
 	@Guice(moduleFactory = TestDatarouterJdbcModuleFactory.class)

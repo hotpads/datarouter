@@ -184,7 +184,6 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 					SqlAlterTypes.MODIFY_ROW_FORMAT));
 		}
 
-
 		return list;
 	}
 
