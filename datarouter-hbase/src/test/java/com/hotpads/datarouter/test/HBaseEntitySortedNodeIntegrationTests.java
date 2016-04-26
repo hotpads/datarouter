@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.hotpads.datarouter.config.Config;
-import com.hotpads.datarouter.config.PutMethod;
 import com.hotpads.datarouter.node.entity.EntityNode;
 import com.hotpads.datarouter.storage.databean.DatabeanTool;
 import com.hotpads.datarouter.test.node.basic.sorted.BaseSortedNodeIntegrationTests;
@@ -81,8 +80,7 @@ public class HBaseEntitySortedNodeIntegrationTests extends BaseSortedNodeIntegra
 	//this tests scan when there are hbase rows which have 1-1 mapping with datarouter databeans
 	public void testScanForRowDatabean1to1(){
 		Config config = new Config().setIterateBatchSize(2);
-		Iterable<SortedBean> iterable = sortedBeanEntityNode.sortedBean().scan(Range.create(null, true, null, false),
-				config);
+		Iterable<SortedBean> iterable = sortedBeanEntityNode.sortedBean().scan(null, config);
 		long count = DrIterableTool.count(iterable);
 		Assert.assertEquals(count, SortedBeans.TOTAL_RECORDS);
 
@@ -94,7 +92,7 @@ public class HBaseEntitySortedNodeIntegrationTests extends BaseSortedNodeIntegra
 		}
 
 		//inserted 5 new rows with 1-1 mapping with datarouter databeans
-		sortedBeanEntityNode.sortedBean().putMulti(beans, new Config().setPutMethod(PutMethod.INSERT_OR_BUST));
+		sortedBeanEntityNode.sortedBean().putMulti(beans, null);
 
 		//using the same config with the same batch size
 		iterable = sortedBeanEntityNode.sortedBean().scan(Range.create(null, true, null, false), config);
