@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSet;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCollation;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlRowFormat;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlTableEngine;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlIndex;
@@ -156,6 +157,12 @@ public class ConnectionSqlTableGenerator implements SqlTableGenerator{
 			rs = stmt.executeQuery(sql);
 			rs.next();
 			table.setCharSet(MySqlCharacterSet.parse(rs.getString(1)));
+
+			sql = "select row_format from information_schema.tables where table_name='" + tableName
+					+ "' and table_schema = '" + schemaName +"';";
+			rs = stmt.executeQuery(sql);
+			rs.next();
+			table.setRowFormat(MySqlRowFormat.fromPersistentStringStatic(rs.getString(1)));
 		}catch(SQLException e){
 			throw new RuntimeException(e);
 		}

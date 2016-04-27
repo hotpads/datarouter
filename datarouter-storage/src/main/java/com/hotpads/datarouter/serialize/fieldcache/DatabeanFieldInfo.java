@@ -14,6 +14,7 @@ import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSet;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCollation;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlRowFormat;
 import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.serialize.fielder.PrimaryKeyFielder;
@@ -58,6 +59,7 @@ public class DatabeanFieldInfo<
 	private Map<String,List<Field<?>>> uniqueIndexes;
 	private MySqlCollation collation;
 	private MySqlCharacterSet characterSet;
+	private MySqlRowFormat rowFormat;
 
 	private boolean entity = false;
 	private String entityNodePrefix;
@@ -137,6 +139,7 @@ public class DatabeanFieldInfo<
 				this.uniqueIndexes = sampleFielder.getUniqueIndexes(sampleDatabean);
 				this.characterSet = sampleFielder.getCharacterSet();
 				this.collation = sampleFielder.getCollation();
+				this.rowFormat = sampleFielder.getRowFormat();
 				this.scatteringPrefixClass = sampleFielder.getScatteringPrefixClass();
 			}
 			this.sampleScatteringPrefix = ReflectionTool.create(scatteringPrefixClass);
@@ -363,6 +366,10 @@ public class DatabeanFieldInfo<
 
 	public MySqlCollation getCollation(){
 		return collation;
+	}
+
+	public MySqlRowFormat getRowFormat(){
+		return rowFormat;
 	}
 
 	public MySqlCharacterSet getCharacterSet(){

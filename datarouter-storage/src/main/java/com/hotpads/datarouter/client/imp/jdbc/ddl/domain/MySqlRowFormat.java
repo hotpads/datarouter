@@ -4,11 +4,11 @@ import com.hotpads.datarouter.storage.field.enums.DatarouterEnumTool;
 import com.hotpads.datarouter.storage.field.enums.StringEnum;
 
 public enum MySqlRowFormat implements StringEnum<MySqlRowFormat>{
-	COMPACT("compact"),
-	DYNAMIC("dynamic"),
-	FIXED("fixed"),
-	COMPRESSED("compressed"),
-	REDUNDANT("redundant");
+	COMPACT("Compact"),
+	DYNAMIC("Dynamic"),
+	FIXED("Fixed"),
+	COMPRESSED("Compressed"),
+	REDUNDANT("Redundant");
 
 	private String value;
 
@@ -23,8 +23,13 @@ public enum MySqlRowFormat implements StringEnum<MySqlRowFormat>{
 
 	@Override
 	public MySqlRowFormat fromPersistentString(String string){
-		return DatarouterEnumTool.getEnumFromString(values(), string, null);
+		return fromPersistentStringStatic(string);
 	}
+
+	public static MySqlRowFormat fromPersistentStringStatic(String str) {
+		return DatarouterEnumTool.getEnumFromString(values(), str, null);
+	}
+
 
 }
 

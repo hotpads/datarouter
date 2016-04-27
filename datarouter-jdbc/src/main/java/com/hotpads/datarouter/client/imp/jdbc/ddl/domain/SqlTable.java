@@ -18,6 +18,7 @@ public class SqlTable{
 	private static final MySqlCharacterSet DEFAULT_CHARACTER_SET = MySqlCharacterSet.utf8;
 	private static final MySqlCollation DEFAULT_COLLATION = MySqlCollation.utf8_bin;
 	private static final MySqlRowFormat DEFAULT_ROW_FORMAT = MySqlRowFormat.DYNAMIC;
+	//private static final MySqlRowFormat DEFAULT_ROW_FORMAT = MySqlRowFormat.COMPACT;
 
 
 	/***************** fields *****************************/
@@ -118,6 +119,10 @@ public class SqlTable{
 
 	public static MySqlCollation getDefaultCollation(){
 		return DEFAULT_COLLATION;
+	}
+
+	public static MySqlRowFormat getDefaultRowFormat(){
+		return DEFAULT_ROW_FORMAT;
 	}
 
 
@@ -242,6 +247,10 @@ public class SqlTable{
 
 	public MySqlRowFormat getRowFormat(){
 		return rowFormat;
+	}
+
+	public void setRowFormat(MySqlRowFormat rowFormat){
+		this.rowFormat = rowFormat;
 	}
 
 

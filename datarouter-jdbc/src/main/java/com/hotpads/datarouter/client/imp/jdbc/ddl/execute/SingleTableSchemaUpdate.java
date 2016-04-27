@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSet;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCollation;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlRowFormat;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SchemaUpdateOptions;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlTable;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.SqlAlterTableGenerator;
@@ -76,6 +77,7 @@ implements Callable<Void>{
 		Map<String, List<Field<?>>> uniqueIndexes = DrMapTool.nullSafe(fieldInfo.getUniqueIndexes());
 		MySqlCollation collation = fieldInfo.getCollation();
 		MySqlCharacterSet characterSet = fieldInfo.getCharacterSet();
+		MySqlRowFormat rowFormat = fieldInfo.getRowFormat();
 
 
 		if(executeOptions.getIgnoreClients().contains(clientName)){
@@ -95,7 +97,7 @@ implements Callable<Void>{
 		}
 
 		FieldSqlTableGenerator generator = new FieldSqlTableGenerator(fieldCodecFactory, physicalNode.getTableName(),
-				primaryKeyFields, nonKeyFields, collation, characterSet);
+				primaryKeyFields, nonKeyFields, collation, characterSet, rowFormat);
 		generator.setIndexes(indexes);
 		generator.setUniqueIndexes(uniqueIndexes);
 
