@@ -18,7 +18,6 @@ import org.testng.annotations.Test;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSet;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCollation;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlRowFormat;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlTableEngine;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn.SqlColumnNameComparator;
@@ -205,9 +204,7 @@ public class SqlTableDiffGenerator{
 	}
 
 	public boolean isRowFormatModified(){
-		MySqlRowFormat currentRowForamt = MySqlRowFormat.valueOf(current.getRowFormat().toString());
-		MySqlRowFormat requestedFormat = MySqlRowFormat.valueOf(requested.getRowFormat().toString());
-		return currentRowForamt != requestedFormat;
+		return current.getRowFormat() != requested.getRowFormat();
 	}
 
 	public boolean isIndexesModified(){

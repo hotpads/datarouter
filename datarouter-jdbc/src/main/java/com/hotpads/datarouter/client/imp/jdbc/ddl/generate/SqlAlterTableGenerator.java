@@ -177,7 +177,7 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 					SqlAlterTypes.MODIFY_CHARACTER_SET));
 		}
 		if(options.getModifyRowFormat() && diff.isRowFormatModified()){
-			String rowFormat = requested.getRowFormat().toString().toLowerCase();
+			String rowFormat = requested.getRowFormat().getPersistentString();
 			list.add(new SqlAlterTableClause("row_format = "+ rowFormat,
 					SqlAlterTypes.MODIFY_ROW_FORMAT));
 		}

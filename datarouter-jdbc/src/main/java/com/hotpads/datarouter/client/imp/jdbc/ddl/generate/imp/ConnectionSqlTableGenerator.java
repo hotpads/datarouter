@@ -134,10 +134,11 @@ public class ConnectionSqlTableGenerator implements SqlTableGenerator{
 			}
 			indexList.close();
 
-			rs = stmt.executeQuery("select engine from information_schema.tables where table_name='" + tableName
-					+ "';");
+			rs = stmt.executeQuery("select engine, row_format from information_schema.tables where table_name='"
+					+ tableName + "' and table_schema = '" + schemaName +"';");
 			rs.next();
 			table.setEngine(MySqlTableEngine.parse(rs.getString(1)));
+			table.setRowFormat(MySqlRowFormat.fromPersistentStringStatic(rs.getString(2)));
 			sql = "SELECT T.table_collation "
 					+ "FROM information_schema.`TABLES` T, "
 					+ "information_schema.`COLLATION_CHARACTER_SET_APPLICABILITY` CCSA"
@@ -157,12 +158,6 @@ public class ConnectionSqlTableGenerator implements SqlTableGenerator{
 			rs = stmt.executeQuery(sql);
 			rs.next();
 			table.setCharSet(MySqlCharacterSet.parse(rs.getString(1)));
-
-			sql = "select row_format from information_schema.tables where table_name='" + tableName
-					+ "' and table_schema = '" + schemaName +"';";
-			rs = stmt.executeQuery(sql);
-			rs.next();
-			table.setRowFormat(MySqlRowFormat.fromPersistentStringStatic(rs.getString(1)));
 		}catch(SQLException e){
 			throw new RuntimeException(e);
 		}
