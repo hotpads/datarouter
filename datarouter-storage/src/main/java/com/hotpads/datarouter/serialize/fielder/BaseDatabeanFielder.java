@@ -97,7 +97,7 @@ implements DatabeanFielder<PK,D>{
 
 	@Override
 	public MySqlRowFormat getRowFormat(){
-		return MySqlRowFormat.Dynamic;
+		return MySqlRowFormat.DYNAMIC;
 	}
 
 	@Override

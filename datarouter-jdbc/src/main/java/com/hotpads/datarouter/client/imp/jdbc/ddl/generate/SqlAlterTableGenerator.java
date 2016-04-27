@@ -176,9 +176,8 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 			list.add(new SqlAlterTableClause("convert to character set " + characterSet + " collate " + collation
 					+ ",\n" + "character set " + characterSet + " collate " + collation,
 					SqlAlterTypes.MODIFY_CHARACTER_SET));
-
 		}
-		if(options.getModifyRowFormat()){
+		if(options.getModifyRowFormat() && diff.isRowFormatModified()){
 			String rowFormat = requested.getRowFormat().toString().toLowerCase();
 			list.add(new SqlAlterTableClause(" row_format = "+ rowFormat,
 					SqlAlterTypes.MODIFY_ROW_FORMAT));

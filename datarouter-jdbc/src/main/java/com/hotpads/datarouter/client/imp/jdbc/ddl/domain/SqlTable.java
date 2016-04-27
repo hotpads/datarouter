@@ -17,7 +17,7 @@ public class SqlTable{
 
 	private static final MySqlCharacterSet DEFAULT_CHARACTER_SET = MySqlCharacterSet.utf8;
 	private static final MySqlCollation DEFAULT_COLLATION = MySqlCollation.utf8_bin;
-	private static final MySqlRowFormat DEFAULT_ROW_FORMAT = MySqlRowFormat.Dynamic;
+	private static final MySqlRowFormat DEFAULT_ROW_FORMAT = MySqlRowFormat.DYNAMIC;
 
 
 	/***************** fields *****************************/
