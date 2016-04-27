@@ -76,7 +76,6 @@ public class DefaultDecoderTests{
 						+ createdString + "'}")
 				.build();
 		Object[] args = decoder.decode(request, method);
-		System.out.println(args);
 		Assert.assertEquals(args.length, 1);
 		Assert.assertEquals(args[0].getClass(), FooBar.class);
 		FooBar fooBar = (FooBar)args[0];
