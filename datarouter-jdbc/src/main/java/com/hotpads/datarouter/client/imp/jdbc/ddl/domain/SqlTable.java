@@ -119,11 +119,6 @@ public class SqlTable{
 		return DEFAULT_COLLATION;
 	}
 
-	public static MySqlRowFormat getDefaultRowFormat(){
-		return DEFAULT_ROW_FORMAT;
-	}
-
-
 	/******************* static methods ***************************/
 
 	//text before the first parenthesis, example "show create table Zebra"
