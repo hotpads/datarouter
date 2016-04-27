@@ -62,7 +62,12 @@ public class HBaseEntityNodeIntegrationTests{
 	}
 
 	@Test
-	//this tests scan when there are hbase rows which have 1-1 mapping with datarouter (entity) databeans
+	//This tests scan when there are hbase rows which have 1-1 mapping with datarouter (entity) databeans. 1-1
+	// mapping in this context means hbase scan results (hbaseRows) and the converted entity databeans (outs) in
+	// {@link com.hotpads.datarouter.client.imp.hbase.batching.entity.BaseHBaseEntityBatchLoader#call}
+	// have the same count. In other words, after converting hbase scan results to entities, we only got single
+	// databean entities in the converted results and the number of the converted results is <= the number of the
+	// results returned by the hbase scan.
 	public void testScanForRowDatabean1to1(){
 		Config config = new Config().setIterateBatchSize(2);
 		Iterable<SortedBean> iterable = sortedBeanEntityNode.sortedBean().scan(null, config);
