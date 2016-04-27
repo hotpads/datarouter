@@ -21,10 +21,6 @@ public class HandlerTypingHelper{
 	/**
 	 * This methods goes through all methods who are named like methodName and tries to find the one that has the
 	 * largest number of parameters. It generates the array of arguments at the same time.
-	 * @param handler
-	 * @param methodName
-	 * @param decoder
-	 * @return
 	 */
 	public Pair<Method, Object[]> findMethodByName(BaseHandler handler, String methodName){
 		Method method = null;
