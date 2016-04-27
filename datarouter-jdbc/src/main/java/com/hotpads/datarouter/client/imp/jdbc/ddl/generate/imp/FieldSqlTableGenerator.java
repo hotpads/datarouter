@@ -27,14 +27,6 @@ public class FieldSqlTableGenerator implements SqlTableGenerator{
 	private final MySqlCharacterSet characterSet;
 	private final MySqlRowFormat rowFormat;
 
-
-	public FieldSqlTableGenerator(JdbcFieldCodecFactory fieldCodecFactory, String tableName,
-			List<Field<?>> primaryKeyFields, List<Field<?>> nonKeyFields){
-		this(fieldCodecFactory, tableName, primaryKeyFields, nonKeyFields, SqlTable.getDefaultCollation(),
-				SqlTable.getDefaultCharacterSet(), SqlTable.getDefaultRowFormat());
-	}
-
-
 	public FieldSqlTableGenerator(JdbcFieldCodecFactory fieldCodecFactory, String tableName,
 			List<Field<?>> primaryKeyFields, List<Field<?>> nonKeyFields,
 			MySqlCollation collation, MySqlCharacterSet characterSet,  MySqlRowFormat rowFormat){
