@@ -2,11 +2,13 @@ package com.hotpads.util.core.logging;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.Appender;
+import org.apache.logging.log4j.core.Filter;
 import org.apache.logging.log4j.core.config.LoggerConfig;
 
 public abstract class HotPadsLog4j2Configuration{
@@ -22,6 +24,10 @@ public abstract class HotPadsLog4j2Configuration{
 
 	protected final Appender getAppender(String name){
 		return appenders.get(name);
+	}
+
+	protected Collection<Filter> getFilters(){
+		return Collections.emptyList();
 	}
 
 	protected final void addAppender(Appender appender){
