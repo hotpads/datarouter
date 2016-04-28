@@ -12,7 +12,6 @@ import org.testng.annotations.Test;
 
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.entity.EntityNode;
-import com.hotpads.datarouter.test.DrTestConstants;
 import com.hotpads.datarouter.test.node.basic.sorted.BaseSortedNodeIntegrationTests;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBean;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBeanEntity;

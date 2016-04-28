@@ -22,8 +22,9 @@ implements SortedMapStorageNode<PK,D>,
 		PartitionedMapStorageMixin<PK,D,N>,
 		PartitionedSortedStorageMixin<PK,D,N>{
 
-	public PartitionedSortedMapStorageNode(Supplier<D> databeanSupplier, Supplier<F> fielderSupplier, Router router){
-		super(databeanSupplier, fielderSupplier, router);
+	public PartitionedSortedMapStorageNode(Supplier<D> databeanSupplier, Supplier<F> fielderSupplier, Router router,
+			String name){
+		super(databeanSupplier, fielderSupplier, router, name);
 	}
 
 }

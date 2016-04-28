@@ -44,13 +44,17 @@ extends BaseNode<PK,D,F> implements PartitionedNode<PK,D,N>{
 
 	protected Partitions<PK,D,N> partitions;
 
-	public BasePartitionedNode(Supplier<D> databeanSupplier, Supplier<F> fielderSupplier, Router router){
+	public BasePartitionedNode(Supplier<D> databeanSupplier, Supplier<F> fielderSupplier, Router router, String name){
 		super(new NodeParamsBuilder<PK,D,F>(router, databeanSupplier)
 				.withFielder(fielderSupplier)
 				.build());
 		this.partitions = new Partitions<>(this);
 		this.setId(new NodeId<PK,D,F>(getClass().getSimpleName(), databeanSupplier.get().getDatabeanName(),
-				router.getName(), null, null, null));
+				router.getName(), null, null, name));
+	}
+
+	public BasePartitionedNode(Supplier<D> databeanSupplier, Supplier<F> fielderSupplier, Router router){
+		this(databeanSupplier, fielderSupplier, router, null);
 	}
 
 	/*************************** node methods *************************/
