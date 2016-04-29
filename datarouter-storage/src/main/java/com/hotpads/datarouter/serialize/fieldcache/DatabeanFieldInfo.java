@@ -173,8 +173,11 @@ public class DatabeanFieldInfo<
 			//explicitly set tableName.  do after entity check since that also sets a table name
 			this.tableName = params.getPhysicalName();
 			this.packagedTableName = params.getQualifiedPhysicalName();
-			this.explicitNodeName = clientId.getName()+"."+tableName;
-			logger.info("client:"+clientId.getName()+" "+sampleDatabean.getDatabeanName()+" overridden -> "+tableName);
+			if(clientId != null){
+				this.explicitNodeName = clientId.getName()+"."+tableName;
+				logger.info("client:" + clientId.getName() + " " + sampleDatabean.getDatabeanName() + " overridden -> "
+						+ tableName);
+			}
 		}else if(params.getBaseDatabeanClass() != null){//table-per-class-hierarchy (use superclass's table)
 			this.tableName = params.getBaseDatabeanClass().getSimpleName();
 			this.packagedTableName = sampleDatabean.getClass().getName();
