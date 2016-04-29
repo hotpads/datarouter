@@ -1,9 +1,10 @@
 package com.hotpads.util.core.logging;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.logging.log4j.Level;
@@ -16,6 +17,7 @@ public abstract class HotPadsLog4j2Configuration{
 	public static final String defaultPattern = "%d %-5level [%t] %logger{36}:%line - %msg%n%rEx";
 
 	private Map<String,Appender> appenders = new HashMap<>();
+	private List<Filter> filters = new ArrayList<>();
 	private Map<String,LoggerConfig> loggerConfigs = new HashMap<>();
 
 	public final Collection<Appender> getAppenders(){
@@ -27,7 +29,7 @@ public abstract class HotPadsLog4j2Configuration{
 	}
 
 	protected Collection<Filter> getFilters(){
-		return Collections.emptyList();
+		return filters;
 	}
 
 	protected final void addAppender(Appender appender){
@@ -35,6 +37,10 @@ public abstract class HotPadsLog4j2Configuration{
 			throw new IllegalArgumentException("Duplicate appender declaration : " + appender.getName());
 		}
 		appenders.put(appender.getName(), appender);
+	}
+
+	protected final void addFilter(Filter filter){
+		filters.add(filter);
 	}
 
 	public final Collection<LoggerConfig> getLoggerConfigs(){
