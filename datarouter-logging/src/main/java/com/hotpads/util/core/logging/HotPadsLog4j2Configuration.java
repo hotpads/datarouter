@@ -72,6 +72,9 @@ public abstract class HotPadsLog4j2Configuration{
 		for(Appender appender : configuration.getAppenders()){
 			addAppender(appender);
 		}
+		for(Filter filter : configuration.getFilters()){
+			addFilter(filter);
+		}
 		for(LoggerConfig loggerConfig : configuration.getLoggerConfigs()){
 			addLoggerConfig(loggerConfig.getName(), loggerConfig.getLevel(), loggerConfig.isAdditive(), loggerConfig
 					.getAppenders().values());
