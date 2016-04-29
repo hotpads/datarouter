@@ -88,7 +88,9 @@ extends BaseBatchLoader<T>{
 	@Override
 	public boolean isLastBatch(){
 		//refer to the dedicated iterateBatchSize field in case someone changed Config down the line
-		return isBatchHasBeenLoaded() && isBatchSmallerThan(iterateBatchSize);
+		//since we are skipping the first row, the number of results in the batch needs to be less than
+		// iterableBatchSize -1 to call it the last batch.
+		return isBatchHasBeenLoaded() && isBatchSmallerThan(iterateBatchSize - 1);
 	}
 
 

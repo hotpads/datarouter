@@ -43,6 +43,7 @@ public abstract class BaseWriteBehindNode<
 extends BaseNode<PK,D,DatabeanFielder<PK,D>>
 implements WriteBehindNode<PK,D,N>{
 
+	public static final int FLUSH_RATE_MS = 500;
 	private static final int FLUSH_BATCH_SIZE = 100;
 	private static final long DEFAULT_TIMEOUT_MS = 60*1000;
 
@@ -69,7 +70,7 @@ implements WriteBehindNode<PK,D,N>{
 		ScheduledExecutorService scheduler = router.getContext().getWriteBehindScheduler();
 		scheduler.scheduleWithFixedDelay(new OverdueWriteCanceller(this), 0, 1000, TimeUnit.MILLISECONDS);
 		queueFlusher = new QueueFlusher();
-		scheduler.scheduleWithFixedDelay(queueFlusher, 500, 500, TimeUnit.MILLISECONDS);
+		scheduler.scheduleWithFixedDelay(queueFlusher, 500, FLUSH_RATE_MS, TimeUnit.MILLISECONDS);
 
 		queue = new LinkedBlockingQueue<>();
 	}

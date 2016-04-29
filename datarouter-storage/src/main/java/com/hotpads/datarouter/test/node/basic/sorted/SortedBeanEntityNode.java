@@ -20,6 +20,9 @@ public class SortedBeanEntityNode{
 	public static EntityNodeParams<SortedBeanEntityKey,SortedBeanEntity> ENTITY_NODE_PARAMS_2
 			= new EntityNodeParams<>("SortedBeanEntity2", SortedBeanEntityKey.class, SortedBeanEntity.class,
 			SortedBeanEntityPartitioner4.class, "SortedBeanEntity2");
+	public static EntityNodeParams<SortedBeanEntityKey,SortedBeanEntity> ENTITY_NODE_PARAMS_3
+			= new EntityNodeParams<>("SortedBeanEntity3", SortedBeanEntityKey.class, SortedBeanEntity.class,
+			SortedBeanEntityPartitioner4.class, "SortedBeanEntity3");
 
 	private EntityNode<SortedBeanEntityKey,SortedBeanEntity> entity;
 	private SubEntitySortedMapStorageNode<SortedBeanEntityKey,SortedBeanKey,SortedBean,SortedBeanFielder> sortedBean;

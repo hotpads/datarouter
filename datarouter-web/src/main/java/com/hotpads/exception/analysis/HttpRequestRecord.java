@@ -176,14 +176,14 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 					new IntegerField(F.lineNumber, d.lineNumber),
 
 					new StringField(F.httpMethod, d.httpMethod, LENGTH_httpMethod),
-					new StringField(F.httpParams, d.httpParams, MySqlColumnType.MAX_LENGTH_MEDIUMTEXT),
+					new StringField(F.httpParams, d.httpParams, MySqlColumnType.INT_LENGTH_LONGTEXT),
 
 					new StringField(F.protocol, d.protocol, LENGTH_protocol),
 					new StringField(F.hostname, d.hostname, MySqlColumnType.MAX_LENGTH_VARCHAR),
 					new IntegerField(F.port, d.port),
 					new StringField(F.contextPath, d.contextPath, MySqlColumnType.MAX_LENGTH_VARCHAR),
 					new StringField(F.path, d.path, MySqlColumnType.MAX_LENGTH_VARCHAR),
-					new StringField(F.queryString, d.queryString, MySqlColumnType.MAX_LENGTH_MEDIUMTEXT),
+					new StringField(F.queryString, d.queryString, MySqlColumnType.INT_LENGTH_LONGTEXT),
 					new StringField(F.body, d.body, MySqlColumnType.INT_LENGTH_LONGTEXT),
 
 					new StringField(F.ip, d.ip, LENGTH_ip),
@@ -200,17 +200,17 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 					new StringField(F.contentLanguage, d.contentLanguage, MySqlColumnType.MAX_LENGTH_VARCHAR),
 					new StringField(F.contentLength, d.contentLength, MySqlColumnType.MAX_LENGTH_VARCHAR),
 					new StringField(F.contentType, d.contentType, MySqlColumnType.MAX_LENGTH_VARCHAR),
-					new StringField(F.cookie, d.cookie, MySqlColumnType.MAX_LENGTH_MEDIUMTEXT),
+					new StringField(F.cookie, d.cookie, MySqlColumnType.INT_LENGTH_LONGTEXT),
 					new StringField(F.dnt, d.dnt, MySqlColumnType.MAX_LENGTH_VARCHAR),
 					new StringField(F.host, d.host, MySqlColumnType.MAX_LENGTH_VARCHAR),
 					new StringField(F.ifModifiedSince, d.ifModifiedSince, MySqlColumnType.MAX_LENGTH_VARCHAR),
 					new StringField(F.origin, d.origin, MySqlColumnType.MAX_LENGTH_VARCHAR),
 					new StringField(F.pragma, d.pragma, MySqlColumnType.MAX_LENGTH_VARCHAR),
 					new StringField(F.referer, d.referer, MySqlColumnType.INT_LENGTH_LONGTEXT),
-					new StringField(F.userAgent, d.userAgent, MySqlColumnType.MAX_LENGTH_MEDIUMTEXT),
+					new StringField(F.userAgent, d.userAgent, MySqlColumnType.INT_LENGTH_LONGTEXT),
 					new StringField(F.xForwardedFor, d.xForwardedFor, MySqlColumnType.MAX_LENGTH_VARCHAR),
 					new StringField(F.xRequestedWith, d.xRequestedWith, MySqlColumnType.MAX_LENGTH_VARCHAR),
-					new StringField(F.others, d.otherHeaders, MySqlColumnType.MAX_LENGTH_MEDIUMTEXT)
+					new StringField(F.others, d.otherHeaders, MySqlColumnType.INT_LENGTH_LONGTEXT)
 					);
 		}
 

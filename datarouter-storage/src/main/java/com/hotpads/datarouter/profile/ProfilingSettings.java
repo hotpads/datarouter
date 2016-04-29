@@ -11,18 +11,22 @@ import com.hotpads.datarouter.setting.SettingNode;
 public class ProfilingSettings extends SettingNode{
 
 	private final Setting<Boolean> saveCounts;
-
+	private final Setting<Boolean> runMetricsAggregationJob;
 
 	@Inject
 	public ProfilingSettings(SettingFinder finder){
 		super(finder, "datarouter.profiling.", "datarouter.");
 
 		saveCounts = registerBoolean("saveCounts", true);
+		runMetricsAggregationJob = registerBoolean("runMetricsAggregationJob", false);
 	}
-
 
 	public Setting<Boolean> getSaveCounts(){
 		return saveCounts;
+	}
+
+	public Setting<Boolean> getRunMetricsAggregationJob(){
+		return runMetricsAggregationJob;
 	}
 
 }

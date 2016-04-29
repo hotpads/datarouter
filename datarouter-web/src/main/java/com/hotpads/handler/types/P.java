@@ -9,5 +9,5 @@ import java.lang.annotation.Target;
 @Target(ElementType.PARAMETER)
 public @interface P{
 	String value() default "";
-	Class<?> typeProvider() default Object.class;
+	Class<? extends TypeProvider> typeProvider() default TypeProvider.class;
 }

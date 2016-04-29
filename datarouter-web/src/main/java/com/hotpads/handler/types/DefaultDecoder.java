@@ -12,9 +12,6 @@ import javax.inject.Named;
 import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
-
 import com.google.gson.JsonSyntaxException;
 import com.hotpads.handler.encoder.HandlerEncoder;
 import com.hotpads.util.core.java.ReflectionTool;
@@ -71,31 +68,13 @@ public class DefaultDecoder implements HandlerDecoder{
 				if(!parameterAnnotation.value().isEmpty()){
 					parameterName = parameterAnnotation.value();
 				}
-				if(!parameterAnnotation.typeProvider().equals(Object.class)){
-					parameterType = ((TypeProvider)ReflectionTool.create(parameterAnnotation.typeProvider())).get();
+				if(!parameterAnnotation.typeProvider().equals(TypeProvider.class)){
+					parameterType = ReflectionTool.create(parameterAnnotation.typeProvider()).get();
 				}
 			}
 			parameters.put(parameterName, parameterType);
 		}
 		return parameters;
-	}
-
-	public static class DefaultDecoderTests{
-
-		/**
-		 * Used via reflection in testMethodParameterNameInclusionAtRuntime
-		 */
-		@SuppressWarnings("unused")
-		private void myMethod(String myParameter){
-
-		}
-
-		@Test
-		public void testMethodParameterNameInclusionAtRuntime() throws NoSuchMethodException, SecurityException{
-			Method method = DefaultDecoderTests.class.getDeclaredMethod("myMethod", String.class);
-			Assert.assertNotNull(method);
-			Assert.assertEquals("myParameter", method.getParameters()[0].getName());
-		}
 	}
 
 }

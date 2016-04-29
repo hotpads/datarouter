@@ -73,31 +73,20 @@ public class TestApiHandler extends BaseHandler{
 		return Calendar.getInstance().getTime();
 	}
 
-	public class FooBar{
-		private String firstField;
-		private int intField;
-		private Date created;
+	public static class FooBar{
+		public final String firstField;
+		public final int intField;
+		public final Date created;
 
 		public FooBar(String firstField, int intField, Date created){
-			super();
 			this.firstField = firstField;
 			this.intField = intField;
 			this.created = created;
 		}
 
-		public String getFirstField(){
-			return firstField;
-		}
-		public int getIntField(){
-			return intField;
-		}
-		public Date getCreated(){
-			return created;
-		}
 		public String getHello(String name){
 			return "Hello " + name;
 		}
-
 	}
 
 	@Handler(encoder=JsonEncoder.class)
@@ -122,6 +111,13 @@ public class TestApiHandler extends BaseHandler{
 			return null;
 		}
 		return fooBars[0];
+	}
+
+	// Decoding
+
+	@Handler
+	public Mav describe(FooBar fooBar){
+		return new MessageMav("I'm " + fooBar.firstField + ", on " + fooBar.created + "my int is " + fooBar.intField);
 	}
 
 	/*
