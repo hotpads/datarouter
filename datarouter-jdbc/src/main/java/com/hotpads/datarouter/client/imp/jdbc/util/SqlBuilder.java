@@ -153,7 +153,7 @@ public class SqlBuilder{
 	/*************************** secondary methods ***************************************/
 
 	public static void addForceIndexClause(StringBuilder sql, String indexName){
-		sql.append(" force index (").append(indexName).append(") ");
+		sql.append(" force index (").append(indexName).append(")");
 	}
 
 	public static void addSelectFromClause(StringBuilder sql, String tableName, List<Field<?>> selectFields){
