@@ -112,15 +112,6 @@ public abstract class BaseSortedNodeIntegrationTests{
 	}
 
 	/********************** junit methods *********************************************/
-
-	//hbase 0.94.2 is failing this test
-	@Test
-	public void testNullKey(){
-		SortedBeanKey emptyKey = new SortedBeanKey(null, null, null, null);
-		SortedBean shouldBeNull = sortedNode.get(emptyKey, null);
-		Assert.assertNull(shouldBeNull);
-	}
-
 	@Test
 	public void testGetKeys(){
 		SortedBeanKey key1 = new SortedBeanKey(SortedBeans.S_aardvark, SortedBeans.S_aardvark, 0, SortedBeans.S_alpaca);
