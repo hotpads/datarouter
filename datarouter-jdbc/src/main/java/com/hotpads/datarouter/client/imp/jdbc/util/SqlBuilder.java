@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.client.imp.jdbc.field.JdbcFieldCodec;
@@ -98,9 +99,11 @@ public class SqlBuilder{
 	}
 
 	public static <T extends FieldSet<T>> String getInRanges(JdbcFieldCodecFactory codecFactory, Config config,
-			String tableName, List<Field<?>> selectFields, Iterable<Range<T>> ranges, List<Field<?>> orderByFields){
+			String tableName, List<Field<?>> selectFields, Iterable<Range<T>> ranges, List<Field<?>> orderByFields,
+			Optional<String> indexName){
 		StringBuilder sql = new StringBuilder();
 		addSelectFromClause(sql, tableName, selectFields);
+		indexName.ifPresent(name -> addForceIndexClause(sql, name));
 		boolean hasWhereClause = false;
 		for(Range<T> range : ranges){
 			if(needsRangeWhereClause(range.getStart(), range.getEnd())){
@@ -118,12 +121,40 @@ public class SqlBuilder{
 		return sql.toString();
 	}
 
+	/**
+	 * @deprecated use {@link #getInRanges(JdbcFieldCodecFactory, Config, String, List, Iterable, List, Optional)}
+	 */
+	@Deprecated
+	public static <T extends FieldSet<T>> String getInRanges(JdbcFieldCodecFactory codecFactory, Config config,
+			String tableName, List<Field<?>> selectFields, Iterable<Range<T>> ranges, List<Field<?>> orderByFields){
+		return getInRanges(codecFactory, config, tableName, selectFields, ranges, orderByFields, Optional.empty());
+	}
+
+	/**
+	 * @deprecated use {@link #getInRanges(JdbcFieldCodecFactory, Config, String, List, Iterable, List, Optional)}
+	 */
+	@Deprecated
 	public static <T extends FieldSet<T>> String getInRange(JdbcFieldCodecFactory codecFactory, Config config,
 			String tableName, List<Field<?>> selectFields, Range<T> range, List<Field<?>> orderByFields){
-		return getInRanges(codecFactory, config, tableName, selectFields, Arrays.asList(range), orderByFields);
+		return getInRange(codecFactory, config, tableName, selectFields, range, orderByFields, Optional.empty());
+	}
+
+	/**
+	 * @deprecated use {@link #getInRanges(JdbcFieldCodecFactory, Config, String, List, Iterable, List, Optional)}
+	 */
+	@Deprecated
+	public static <T extends FieldSet<T>> String getInRange(JdbcFieldCodecFactory codecFactory, Config config,
+			String tableName, List<Field<?>> selectFields, Range<T> range, List<Field<?>> orderByFields,
+			Optional<String> indexName){
+		return getInRanges(codecFactory, config, tableName, selectFields, Arrays.asList(range), orderByFields,
+				indexName);
 	}
 
 	/*************************** secondary methods ***************************************/
+
+	public static void addForceIndexClause(StringBuilder sql, String indexName){
+		sql.append(" force index (").append(indexName).append(")");
+	}
 
 	public static void addSelectFromClause(StringBuilder sql, String tableName, List<Field<?>> selectFields){
 		checkTableName(tableName);

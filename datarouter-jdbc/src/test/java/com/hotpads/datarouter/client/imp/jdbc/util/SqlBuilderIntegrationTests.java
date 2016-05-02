@@ -3,6 +3,7 @@ package com.hotpads.datarouter.client.imp.jdbc.util;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import javax.inject.Inject;
 
@@ -149,8 +150,8 @@ public class SqlBuilderIntegrationTests{
 				new Range<>(KEY_1, true, KEY_1, true), null), "select foo, bar from TestTable where (foo=42 and "
 						+ "bar='baz') limit 5, 10");
 		Assert.assertEquals(SqlBuilder.getInRange(jdbcFieldCodecFactory, config, "TestTable", KEY_1.getFields(),
-				new Range<>(new TestKey(KEY_1.foo, null), true, KEY_1, true), null), "select foo, bar from TestTable "
-						+ "where (foo=42 and ((bar<='baz'))) limit 5, 10");
+				new Range<>(new TestKey(KEY_1.foo, null), true, KEY_1, true), null, Optional.of("SomeIndex")),
+				"select foo, bar from TestTable force index (SomeIndex) where (foo=42 and ((bar<='baz'))) limit 5, 10");
 	}
 
 	@Test
