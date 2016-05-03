@@ -17,8 +17,8 @@ import com.hotpads.handler.encoder.JsonEncoder;
 import com.hotpads.handler.mav.Mav;
 import com.hotpads.handler.mav.imp.MessageMav;
 import com.hotpads.handler.types.DefaultDecoder;
-import com.hotpads.handler.types.JsonBodyDecoder;
 import com.hotpads.handler.types.P;
+import com.hotpads.handler.types.RequestBody;
 import com.hotpads.handler.types.TypeProvider;
 import com.hotpads.util.http.json.GsonJsonSerializer;
 
@@ -120,6 +120,18 @@ public class TestApiHandler extends BaseHandler{
 		return new MessageMav("I'm " + fooBar.firstField + ", on " + fooBar.created + "my int is " + fooBar.intField);
 	}
 
+	@Handler
+	public Mav sumInBase(@RequestBody int[] numbers, int base){
+		int sum = 0;
+		for(int num : numbers){
+			while(num > 0){
+				sum = sum + num % base;
+				num = num / base;
+			}
+		}
+		return new MessageMav(Integer.toString(sum));
+	}
+
 	/*
 	 * When you want generic types like Collection as parameters, you have to define a static type provider.
 	 */
@@ -145,13 +157,13 @@ public class TestApiHandler extends BaseHandler{
 		return fooBars.size();
 	}
 
-	@Handler(decoder=JsonBodyDecoder.class, encoder=JsonEncoder.class)
-	public int size(List<Object> list){
+	@Handler(encoder=JsonEncoder.class)
+	public int size(@RequestBody List<Object> list){
 		return list.size();
 	}
 
-	@Handler(decoder=JsonBodyDecoder.class, encoder=JsonEncoder.class)
-	public int length(String string){
+	@Handler(encoder=JsonEncoder.class)
+	public int length(@RequestBody String string){
 		return string.length();
 	}
 

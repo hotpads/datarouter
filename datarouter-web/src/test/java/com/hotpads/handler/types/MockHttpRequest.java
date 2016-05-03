@@ -1,6 +1,7 @@
 package com.hotpads.handler.types;
 
 import java.io.BufferedReader;
+import java.io.Reader;
 import java.security.Principal;
 import java.util.Collection;
 import java.util.Enumeration;
@@ -23,9 +24,11 @@ import javax.servlet.http.Part;
 public class MockHttpRequest implements HttpServletRequest{
 
 	private final Map<String,String[]> parameterMap;
+	private final Reader reader;
 
-	public MockHttpRequest(Map<String,String[]> parameterMap){
+	public MockHttpRequest(Map<String,String[]> parameterMap, Reader reader){
 		this.parameterMap = parameterMap;
+		this.reader = reader;
 	}
 
 	@Override
@@ -106,7 +109,7 @@ public class MockHttpRequest implements HttpServletRequest{
 
 	@Override
 	public BufferedReader getReader(){
-		throw new UnsupportedOperationException();
+		return new BufferedReader(reader);
 	}
 
 	@Override

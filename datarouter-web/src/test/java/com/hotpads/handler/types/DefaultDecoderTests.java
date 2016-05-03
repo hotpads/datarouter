@@ -2,8 +2,10 @@ package com.hotpads.handler.types;
 
 import java.lang.reflect.Method;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -24,6 +26,9 @@ public class DefaultDecoderTests{
 	private static final int intValue = 42;
 	private static final Date created = new Date();
 	private static final String createdString = DateTimeFormatter.ISO_INSTANT.format(created.toInstant());
+	private static final String kenavo = "kenavo";
+	private static final int[] intArray = new int[]{1, 2, 3, 125};
+	private static final int base = 2;
 
 	// Used via reflection in testMethodParameterNameInclusionAtRuntime
 	@SuppressWarnings("unused")
@@ -47,7 +52,9 @@ public class DefaultDecoderTests{
 	@Test
 	public void testHello() throws NoSuchMethodException, SecurityException{
 		Method method = TestApiHandler.class.getMethod("hello", String.class);
-		HttpServletRequest request = new HttpRequestBuilder().withParameter("_first_name", firstname).build();
+		HttpServletRequest request = new HttpRequestBuilder()
+				.withParameter("_first_name", firstname)
+				.build();
 		Object[] args = decoder.decode(request, method);
 		Assert.assertEquals(args.length, 1);
 		Assert.assertEquals(args[0], firstname);
@@ -103,6 +110,43 @@ public class DefaultDecoderTests{
 		Assert.assertEquals(fooBar.firstField, firstname);
 		Assert.assertEquals(fooBar.intField, intValue);
 		Assert.assertEquals(fooBar.created, created);
+	}
+
+	@Test
+	public void testSize() throws NoSuchMethodException, SecurityException{
+		Method method = TestApiHandler.class.getMethod("size", List.class);
+		HttpServletRequest request = new HttpRequestBuilder()
+				.withBody("[{},{}]")
+				.build();
+		Object[] args = decoder.decode(request, method);
+		Assert.assertEquals(args.length, 1);
+		Assert.assertTrue(List.class.isAssignableFrom(args[0].getClass()));
+		List<?> list = (List<?>)args[0];
+		Assert.assertEquals(list.size(), 2);
+	}
+
+	@Test
+	public void testLength() throws NoSuchMethodException, SecurityException{
+		Method method = TestApiHandler.class.getMethod("length", String.class);
+		HttpServletRequest request = new HttpRequestBuilder()
+				.withBody(kenavo)
+				.build();
+		Object[] args = decoder.decode(request, method);
+		Assert.assertEquals(args.length, 1);
+		Assert.assertEquals(args[0], kenavo);
+	}
+
+	@Test
+	public void testSumInBase() throws NoSuchMethodException, SecurityException{
+		Method method = TestApiHandler.class.getMethod("sumInBase", int[].class, Integer.TYPE);
+		HttpServletRequest request = new HttpRequestBuilder()
+				.withBody(Arrays.toString(intArray))
+				.withParameter("base", Integer.toString(base))
+				.build();
+		Object[] args = decoder.decode(request, method);
+		Assert.assertEquals(args.length, 2);
+		Assert.assertEquals(args[0], intArray);
+		Assert.assertEquals(args[1], base);
 	}
 
 }
