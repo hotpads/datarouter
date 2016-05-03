@@ -3,6 +3,7 @@ package com.hotpads.joblet.databean;
 import java.util.List;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlRowFormat;
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.serialize.fielder.Fielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
@@ -35,6 +36,12 @@ public class JobletData extends BaseDatabean<JobletDataKey,JobletData>{
 					new StringField(F.data, databean.data, MySqlColumnType.INT_LENGTH_LONGTEXT),
 					new LongField(F.created, databean.created));
 		}
+
+		@Override
+		public MySqlRowFormat getRowFormat(){
+			return MySqlRowFormat.COMPACT;
+		}
+
 	}
 
 
