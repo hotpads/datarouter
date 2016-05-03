@@ -33,17 +33,21 @@ public class DefaultDecoder implements HandlerDecoder{
 	public Object[] decode(HttpServletRequest request, Method method){
 		Map<String, String[]> queryParams = request.getParameterMap();
 		Parameter[] parameters = method.getParameters();
-		String body = null;
-		int bodyParamCount = 0;
+		int bodyParamCount;
 		if(containRequestBodyParam(parameters)){
+			bodyParamCount = 1;
+		}else{
+			bodyParamCount = 0;
+		}
+		if(queryParams.size() + bodyParamCount < parameters.length){
+			return null;
+		}
+		String body = null;
+		if(bodyParamCount == 1){
 			body = RequestTool.getBodyAsString(request);
 			if(DrStringTool.isEmpty(body)){
 				return null;
 			}
-			bodyParamCount = 1;
-		}
-		if(queryParams.size() + bodyParamCount < parameters.length){
-			return null;
 		}
 		Object[] args = new Object[parameters.length];
 		for(int i = 0; i < parameters.length; i++){
