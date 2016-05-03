@@ -79,6 +79,7 @@ public class DefaultDecoder implements HandlerDecoder{
 		try{
 			return deserializer.deserialize(string, type);
 		}catch(JsonSyntaxException e){
+			//If the JSON is malformed and String is expected, just assign the string
 			if(type.equals(String.class)){
 				return string;
 			}
