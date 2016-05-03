@@ -3,9 +3,8 @@ package com.hotpads.handler.types;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
-import java.util.LinkedHashMap;
+import java.util.Arrays;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -13,8 +12,10 @@ import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 
 import com.google.gson.JsonSyntaxException;
+import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.handler.encoder.HandlerEncoder;
 import com.hotpads.util.core.java.ReflectionTool;
+import com.hotpads.util.http.RequestTool;
 import com.hotpads.util.http.json.JsonSerializer;
 
 @Singleton
@@ -30,51 +31,69 @@ public class DefaultDecoder implements HandlerDecoder{
 
 	@Override
 	public Object[] decode(HttpServletRequest request, Method method){
-		Map<String, String[]> parameters = request.getParameterMap();
-		LinkedHashMap<String, Type> expectedParameters = getMethodParameters(method);
-		if(parameters.size() < expectedParameters.size()){
+		Map<String, String[]> queryParams = request.getParameterMap();
+		Parameter[] parameters = method.getParameters();
+		int bodyParamCount;
+		if(containRequestBodyParam(parameters)){
+			bodyParamCount = 1;
+		}else{
+			bodyParamCount = 0;
+		}
+		if(queryParams.size() + bodyParamCount < parameters.length){
 			return null;
 		}
-
-		Object[] args = new Object[expectedParameters.size()];
-		int index = 0;
-		for(Entry<String, Type> expectedParameter : expectedParameters.entrySet()){
-			if(!parameters.containsKey(expectedParameter.getKey())){
+		String body = null;
+		if(bodyParamCount == 1){
+			body = RequestTool.getBodyAsString(request);
+			if(DrStringTool.isEmpty(body)){
 				return null;
 			}
-			try{
-				args[index] = deserializer.deserialize(parameters.get(expectedParameter.getKey())[0],
-						expectedParameter.getValue());
-			}catch(JsonSyntaxException e){
-				//If the JSON is malformed and String is expected, just assign the string
-				if(!expectedParameter.getValue().equals(String.class)){
-					throw e;
-				}
-				args[index] = parameters.get(expectedParameter.getKey())[0];
-			}
-			index++;
 		}
-
+		Object[] args = new Object[parameters.length];
+		for(int i = 0; i < parameters.length; i++){
+			Parameter parameter = parameters[i];
+			String parameterName = parameter.getName();
+			Type parameterType = parameter.getType();
+			{
+				P parameterAnnotation = parameter.getAnnotation(P.class);
+				if(parameterAnnotation != null){
+					if(!parameterAnnotation.value().isEmpty()){
+						parameterName = parameterAnnotation.value();
+					}
+					if(!parameterAnnotation.typeProvider().equals(TypeProvider.class)){
+						parameterType = ReflectionTool.create(parameterAnnotation.typeProvider()).get();
+					}
+				}
+			}
+			boolean isBodyParameter = parameter.isAnnotationPresent(RequestBody.class);
+			if(isBodyParameter){
+				args[i] = decode(body, parameterType);
+			}else{
+				String[] queryParam = queryParams.get(parameterName);
+				if(queryParam == null){
+					return null;
+				}
+				args[i] = decode(queryParam[0], parameterType);
+			}
+		}
 		return args;
 	}
 
-	private LinkedHashMap<String, Type> getMethodParameters(Method method){
-		LinkedHashMap<String, Type> parameters = new LinkedHashMap<>();
-		for(Parameter parameter : method.getParameters()){
-			String parameterName = parameter.getName();
-			Type parameterType = parameter.getType();
-			P parameterAnnotation = parameter.getAnnotation(P.class);
-			if(parameterAnnotation != null){
-				if(!parameterAnnotation.value().isEmpty()){
-					parameterName = parameterAnnotation.value();
-				}
-				if(!parameterAnnotation.typeProvider().equals(TypeProvider.class)){
-					parameterType = ReflectionTool.create(parameterAnnotation.typeProvider()).get();
-				}
+	private Object decode(String string, Type type){
+		try{
+			return deserializer.deserialize(string, type);
+		}catch(JsonSyntaxException e){
+			//If the JSON is malformed and String is expected, just assign the string
+			if(type.equals(String.class)){
+				return string;
 			}
-			parameters.put(parameterName, parameterType);
+			throw e;
 		}
-		return parameters;
+	}
+
+	private boolean containRequestBodyParam(Parameter[] parameters){
+		return Arrays.stream(parameters)
+				.anyMatch(parameter -> parameter.isAnnotationPresent(RequestBody.class));
 	}
 
 }
