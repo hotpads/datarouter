@@ -18,6 +18,7 @@ import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.TypeDefs;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlRowFormat;
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
@@ -134,6 +135,11 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 					new IntegerField(F.numItems, databean.numItems),
 					new IntegerField(F.numTasks, databean.numTasks),
 					new StringField(F.debug, databean.debug, MySqlColumnType.MAX_LENGTH_VARCHAR));
+		}
+
+		@Override
+		public MySqlRowFormat getRowFormat(){
+			return MySqlRowFormat.COMPACT;
 		}
 
 	}
