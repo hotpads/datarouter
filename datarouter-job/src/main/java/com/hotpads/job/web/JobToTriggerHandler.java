@@ -6,14 +6,13 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
+import java.util.Optional;
 
 import javax.inject.Inject;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.config.Configs;
 import com.hotpads.datarouter.inject.DatarouterInjector;
 import com.hotpads.datarouter.util.core.DrStringTool;
@@ -27,7 +26,8 @@ import com.hotpads.job.record.LongRunningTask;
 import com.hotpads.job.record.LongRunningTaskNodeProvider;
 import com.hotpads.job.trigger.Job;
 import com.hotpads.job.trigger.JobScheduler;
-import com.hotpads.job.trigger.TriggerGroup;
+import com.hotpads.job.web.TriggersRepository.JobPackage;
+import com.hotpads.util.core.enums.EnumTool;
 
 public class JobToTriggerHandler extends BaseHandler {
 
@@ -54,16 +54,16 @@ public class JobToTriggerHandler extends BaseHandler {
 	@Inject
 	private JobScheduler jobScheduler;
 	@Inject
-	private JobCategory defaultJobCategory;
+	private TriggersRepository triggersRepository;
 
 	@Override
 	protected Mav handleDefault() {
 		return list();
 	}
 
-	@Handler Mav list() {
+	@Handler
+	public Mav list() {
 		Mav mav = new Mav(JSP_triggers);
-
 		Iterable<LongRunningTask> tasks = longRunningTaskNodeProvider.get().scan(null, Configs.slaveOk());
 		Map<String, LongRunningTask> lastCompletions = new HashMap<>();
 		Map<String, LongRunningTask> currentlyRunningTasks = new HashMap<>();
@@ -82,20 +82,20 @@ public class JobToTriggerHandler extends BaseHandler {
 			}
 		}
 
-		String keyword = params.optional(P_keyword, null);
-		String category = params.optional(P_category, null);
+		String keyword = params.optional(P_keyword, "");
+		Optional<JobCategory> category = triggersRepository.parseJobCategory(params.optional(P_category, null));
 		List<Job> jobList = getTriggeredJobsListFiltered(keyword, category);
 		mav.put(V_jobs, jobList);
-		mav.put(V_categoryOptions, defaultJobCategory.getHtmlSelectOptions());
+		mav.put(V_categoryOptions, EnumTool.getHtmlSelectOptions(triggersRepository.getJobCategories()));
 		mav.put("lastCompletions", lastCompletions);
 		mav.put("currentlyRunningTasks", currentlyRunningTasks);
 		return mav;
 	}
 
-	@Handler Mav run() throws Exception{
-		Map<String, Job> jobMap = getTriggeredJobsMap();
+	@Handler
+	public Mav run() throws Exception{
 		String jobKey = params.required(P_name);
-		Job sampleJob = jobMap.get(jobKey);
+		Job sampleJob = injector.getInstance(Class.forName(jobKey).asSubclass(Job.class));
 		if(jobScheduler.getTracker().get(sampleJob.getClass()).isRunning()){
 			return new MessageMav("Unable to run job, it is already running on this server");
 		}
@@ -117,26 +117,26 @@ public class JobToTriggerHandler extends BaseHandler {
 		return createRedirectMav();
 	}
 
-	@Handler Mav disable(){
-		Map<String, Job> jobMap = getTriggeredJobsMap();
+	@Handler
+	public Mav disable() throws ClassNotFoundException{
 		String jobKey = params.required(P_name);
-		Job sampleJob = jobMap.get(jobKey);
+		Job sampleJob = injector.getInstance(Class.forName(jobKey).asSubclass(Job.class));
 		sampleJob.disableJob();
 		return createRedirectMav();
 	}
 
-	@Handler Mav enable(){
-		Map<String, Job> jobMap = getTriggeredJobsMap();
+	@Handler
+	public Mav enable() throws ClassNotFoundException{
 		String jobKey = params.required(P_name);
-		Job sampleJob = jobMap.get(jobKey);
+		Job sampleJob = injector.getInstance(Class.forName(jobKey).asSubclass(Job.class));
 		sampleJob.enableJob();
 		return createRedirectMav();
 	}
 
-	@Handler Mav interrupt(){
-		Map<String, Job> jobMap = getTriggeredJobsMap();
+	@Handler
+	public Mav interrupt() throws ClassNotFoundException{
 		String jobKey = params.required(P_name);
-		Job sampleJob = jobMap.get(jobKey);
+		Job sampleJob = injector.getInstance(Class.forName(jobKey).asSubclass(Job.class));
 		jobScheduler.getTracker().get(sampleJob.getClass()).getJob().getLongRunningTaskTracker().requestStop();
 		jobScheduler.getTracker().get(sampleJob.getClass()).setRunning(false);
 		return createRedirectMav();
@@ -144,46 +144,30 @@ public class JobToTriggerHandler extends BaseHandler {
 
 	/***********helper************/
 
-	public List<Job> getTriggeredJobsListFiltered(String keyword, String category) {
+	public List<Job> getTriggeredJobsListFiltered(String keyword, Optional<JobCategory> category) {
+		final boolean defaultOff = DrStringTool.equalsCaseInsensitive(params.optional(P_default, ""), "");
+		final boolean customOff = DrStringTool.equalsCaseInsensitive(params.optional(P_custom, ""), "");
+		final boolean disabledOff = DrStringTool.equalsCaseInsensitive(params.optional(P_hideDisabledJobs, ""), "");
+		final boolean enabledOff = DrStringTool.equalsCaseInsensitive(params.optional(P_hideEnabledJobs, ""), "");
+
 		List<Job> jobList = new ArrayList<>();
-		Map<Class<? extends Job>, String> jobClasses = injector.getInstance(TriggerGroup.class).getJobClasses();
-		for(Entry<Class<? extends Job>, String> entry : jobClasses.entrySet()){
-			Job sampleJob = injector.getInstance(entry.getKey());
-			Preconditions.checkNotNull(sampleJob, "injector couldn't find instance of "+entry.getKey().toString());
-			if(DrStringTool.notEmpty(keyword)
-					&& !entry.getKey().getSimpleName().toLowerCase().contains(keyword.toLowerCase())) {
+		for(JobPackage jobPackage : triggersRepository.getJobPackages()){
+			if(!jobPackage.jobClass.getSimpleName().toLowerCase().contains(keyword.toLowerCase())){
 				continue;
 			}
-			boolean defaultOff = DrStringTool.equalsCaseInsensitive(params.optional(P_default, ""), "");
-			boolean customOff = DrStringTool.equalsCaseInsensitive(params.optional(P_custom, ""), "");
-			boolean disabledOff = DrStringTool.equalsCaseInsensitive(params.optional(P_hideDisabledJobs, ""), "");
-			boolean enabledOff = DrStringTool.equalsCaseInsensitive(params.optional(P_hideEnabledJobs, ""), "");
-
-			boolean filterConditions =
-					(defaultOff && !sampleJob.getIsCustom() || customOff && sampleJob.getIsCustom())
+			if(category.isPresent() && !jobPackage.jobCategory.equals(category.get())){
+				continue;
+			}
+			Job sampleJob = injector.getInstance(jobPackage.jobClass);
+			boolean filterConditions = (defaultOff && !sampleJob.getIsCustom() || customOff && sampleJob.getIsCustom())
 					&& (disabledOff && !sampleJob.shouldRun() || enabledOff && sampleJob.shouldRun());
 			if(!filterConditions){
 				continue;
 			}
-			if (DrStringTool.isEmpty(category)
-					|| DrStringTool.equalsCaseInsensitive(category, defaultJobCategory.getPersistentString())){
-				jobList.add(sampleJob);
-			}else if (DrStringTool.equalsCaseInsensitive(sampleJob.getJobCategory(), category)){
-				jobList.add(sampleJob);
-			}
+			jobList.add(sampleJob);
 		}
 		Collections.sort(jobList);
 		return jobList;
-	}
-
-	public Map<String, Job> getTriggeredJobsMap(){
-		Map<String, Job> jobMap = new HashMap<>();
-		Map<Class<? extends Job>, String> jobClasses = injector.getInstance(TriggerGroup.class).getJobClasses();
-		for(Entry<Class<? extends Job>, String> entry : jobClasses.entrySet()){
-			Job sampleJob = injector.getInstance(entry.getKey());
-			jobMap.put(sampleJob.getClass().getName(), sampleJob);
-		}
-		return jobMap;
 	}
 
 	private Mav createRedirectMav(){
