@@ -25,9 +25,11 @@ public class KeyRangeTool{
 
 	public static <PK extends PrimaryKey<PK>> Range<PK> forPrefixWithWildcard(String prefixString,
 			KeyWithStringFieldSuffixProvider<PK> keyWithStringFieldSuffixProvider){
-		String startString = prefixString == null ? null : prefixString;
+		if(DrStringTool.isEmpty(prefixString)){
+			return forPrefix(keyWithStringFieldSuffixProvider.createWithSuffixStringField(null));
+		}
 		String endString = incrementLastChar(prefixString);
-		PK startKey = keyWithStringFieldSuffixProvider.createWithSuffixStringField(startString);
+		PK startKey = keyWithStringFieldSuffixProvider.createWithSuffixStringField(prefixString);
 		PK endKey = keyWithStringFieldSuffixProvider.createWithSuffixStringField(endString);
 		return new Range<>(startKey,endKey);
 	}
@@ -46,9 +48,10 @@ public class KeyRangeTool{
 
 	public static class KeyRangeToolTests{
 
+		private static final Integer foo = 4;
+
 		@Test
-		public void testForPrefixWithWildcard(){
-			Integer foo = 4;
+		public void testForPrefixWithRegularWildcard(){
 			String barPrefix = "degemer";
 			Range<TestKey> range = forPrefixWithWildcard(barPrefix, prefix -> new TestKey(foo, prefix, null));
 			Assert.assertTrue(range.getStartInclusive());
@@ -62,6 +65,17 @@ public class KeyRangeTool{
 			Assert.assertTrue(range.contains(new TestKey(foo, "degemer", null)));
 			Assert.assertTrue(range.contains(new TestKey(foo, "degemermat", 53L)));
 			Assert.assertFalse(range.contains(new TestKey(foo, "degemeola", null)));
+		}
+
+		@Test
+		public void testForPrefixWithNullWildcard(){
+			Assert.assertEquals(forPrefixWithWildcard(null, prefix -> new TestKey(foo, prefix, null)),
+					forPrefix(new TestKey(foo, null, null)));
+		}
+
+		@Test
+		public void testIncrementLastCharWithEmptyString(){
+			Assert.assertNull(incrementLastChar(""));
 		}
 
 		@SuppressWarnings("serial")
