@@ -21,7 +21,9 @@ public class SchemaUpdateOptions{
 			SUFFIX_modifyEngine = ".modifyEngine",
 			SUFFIX_ignoreClients = ".ignoreClients",
 			SUFFIX_ignoreTables = ".ignoreTables",
+			SUFFIX_modifyRowFormat = ".modifyRowFormat",
 			SUFFIX_modifyCharacterSetOrCollation = ".modifyCharacterSetOrCollation";
+
 
 	private boolean createDatabases;
 	private boolean createTables;
@@ -33,6 +35,7 @@ public class SchemaUpdateOptions{
 	private boolean dropIndexes;
 	private boolean modifyEngine;
 	private boolean modifyCharacterSetOrCollation;
+	private boolean modifyRowFormat;
 	private List<String> ignoreClients;
 	private List<String> ignoreTables;
 
@@ -68,6 +71,8 @@ public class SchemaUpdateOptions{
 				+ SUFFIX_modifyEngine));
 		modifyCharacterSetOrCollation = DrBooleanTool.isTrueOrNull(DrPropertiesTool.getFirstOccurrence(multiProperties,
 				prefix + SUFFIX_modifyCharacterSetOrCollation));
+		modifyRowFormat = DrBooleanTool.isTrueOrNull(DrPropertiesTool.getFirstOccurrence(multiProperties,
+				prefix + SUFFIX_modifyRowFormat));
 		return this;
 	}
 
@@ -101,6 +106,8 @@ public class SchemaUpdateOptions{
 				+ SUFFIX_modifyEngine));
 		modifyCharacterSetOrCollation = DrBooleanTool.isTrue(DrPropertiesTool.getFirstOccurrence(multiProperties, prefix
 				+ SUFFIX_modifyCharacterSetOrCollation));
+		modifyRowFormat = DrBooleanTool.isTrue(DrPropertiesTool.getFirstOccurrence(multiProperties, prefix
+				+ SUFFIX_modifyRowFormat));
 
 		String schemaUpdatePrefix = prefix.substring(0, prefix.indexOf('.'));
 		String clientsToIgnore = DrPropertiesTool.getFirstOccurrence(multiProperties, schemaUpdatePrefix
@@ -192,6 +199,10 @@ public class SchemaUpdateOptions{
 
 	public boolean getModifyCharacterSetOrCollation(){
 		return modifyCharacterSetOrCollation;
+	}
+
+	public boolean getModifyRowFormat(){
+		return modifyRowFormat;
 	}
 
 }

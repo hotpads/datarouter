@@ -170,13 +170,16 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 				&& (diff.isCharacterSetModified()
 						|| diff.isCollationModified()
 						|| diff.getColumnsWithCharsetOrCollationToConvert().size() > 0)){
-
 			String collation = requested.getCollation().toString().toLowerCase();
 			String characterSet = requested.getCharacterSet().toString().toLowerCase();
 			list.add(new SqlAlterTableClause("convert to character set " + characterSet + " collate " + collation
 					+ ",\n" + "character set " + characterSet + " collate " + collation,
 					SqlAlterTypes.MODIFY_CHARACTER_SET));
-
+		}
+		if(options.getModifyRowFormat() && diff.isRowFormatModified()){
+			String rowFormat = requested.getRowFormat().getPersistentString();
+			list.add(new SqlAlterTableClause("row_format = "+ rowFormat,
+					SqlAlterTypes.MODIFY_ROW_FORMAT));
 		}
 		return list;
 	}

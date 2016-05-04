@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSet;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCollation;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlRowFormat;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlTableEngine;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlIndex;
@@ -133,10 +134,11 @@ public class ConnectionSqlTableGenerator implements SqlTableGenerator{
 			}
 			indexList.close();
 
-			rs = stmt.executeQuery("select engine from information_schema.tables where table_name='" + tableName
-					+ "';");
+			rs = stmt.executeQuery("select engine, row_format from information_schema.tables where table_name='"
+					+ tableName + "' and table_schema = '" + schemaName +"';");
 			rs.next();
 			table.setEngine(MySqlTableEngine.parse(rs.getString(1)));
+			table.setRowFormat(MySqlRowFormat.fromPersistentStringStatic(rs.getString(2)));
 			sql = "SELECT T.table_collation "
 					+ "FROM information_schema.`TABLES` T, "
 					+ "information_schema.`COLLATION_CHARACTER_SET_APPLICABILITY` CCSA"
