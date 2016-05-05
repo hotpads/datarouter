@@ -1,7 +1,9 @@
 package com.hotpads.util.core.enums;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -11,7 +13,6 @@ import java.util.regex.Pattern;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.hotpads.datarouter.storage.field.enums.StringEnum;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
@@ -38,13 +39,20 @@ public class EnumTool{
 		return options;
 	}
 
+	public static List<HTMLSelectOptionBean> getHtmlSelectOptions(Iterable<? extends StringPersistedEnum> values){
+		return getHtmlSelectOptions(values, Collections.emptyList());
+	}
+
 	public static List<HTMLSelectOptionBean> getHtmlSelectOptions(StringPersistedEnum[] values,
 			String... ignoredValues){
+		return getHtmlSelectOptions(Arrays.asList(values), Arrays.asList(ignoredValues));
+	}
+
+	private static List<HTMLSelectOptionBean> getHtmlSelectOptions(Iterable<? extends StringPersistedEnum> values,
+			Collection<String> ignoredValues){
 		List<HTMLSelectOptionBean> options = new ArrayList<>();
-		List<String> ignoredPersistentStrings = ignoredValues.length == 0 || ignoredValues[0] == null ? null
-				: ImmutableList.copyOf(ignoredValues);
 		for(StringPersistedEnum type : values){
-			if(ignoredPersistentStrings != null && ignoredPersistentStrings.contains(type.getPersistentString())){
+			if(ignoredValues.contains(type.getPersistentString())){
 				continue;
 			}
 			options.add(new HTMLSelectOptionBean(type.getDisplay(), type.getPersistentString()));
@@ -60,12 +68,12 @@ public class EnumTool{
 		return options;
 	}
 
-	public static <T extends HpEnum> List<Integer> getIntegers(Collection<T> enums){
+	public static List<Integer> getIntegers(Collection<? extends HpEnum> enums){
 		List<Integer> ints = Lists.newArrayList();
 		if(enums == null || enums.isEmpty()){
 			return ints;
 		}
-		for(T e : enums){
+		for(HpEnum e : enums){
 			ints.add(e.getInteger());
 		}
 		return ints;

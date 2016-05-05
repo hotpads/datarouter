@@ -15,7 +15,13 @@ public interface Job extends Callable<Void>, Comparable<Job>{
 	void run() throws Exception;
 	void runInternal() throws Exception;
 
-	String getJobCategory();
+	/**
+	 * @deprecated set the job category when registering the job
+	 */
+	@Deprecated
+	default String getJobCategory(){
+		return null;
+	}
 	Date getNextScheduled();
 	Date getLastFired();
 	String getLastErrorTime();
