@@ -64,13 +64,13 @@ public abstract class BaseField<T> implements Field<T>{
 	public void setUsingReflection(Object targetFieldSet, Object fieldValue){
 		try{
 			String cacheKey = getFieldCacheKey(targetFieldSet);
-			java.lang.reflect.Field jField = columnNameToFieldMap.get(cacheKey);
+			java.lang.reflect.Field javaField = columnNameToFieldMap.get(cacheKey);
 			Object nestedFieldSet = FieldTool.getNestedFieldSet(targetFieldSet, this);
-			if(jField == null){
-				jField = cacheReflectionInfo(nestedFieldSet);
-				columnNameToFieldMap.put(cacheKey, jField);
+			if(javaField == null){
+				javaField = cacheReflectionInfo(nestedFieldSet);
+				columnNameToFieldMap.put(cacheKey, javaField);
 			}
-			jField.set(nestedFieldSet, fieldValue);
+			javaField.set(nestedFieldSet, fieldValue);
 		}catch(Exception e){
 			String message = e.getClass().getSimpleName()
 					+" on "+targetFieldSet.getClass().getSimpleName()+"."+getKey().getName();
