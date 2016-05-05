@@ -73,13 +73,6 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D>{
 	}
 
 	@Override
-	public void deleteRangeWithPrefix(PK prefix, boolean wildcardLastField, Config config){
-		for(D databean : getWithPrefix(prefix, wildcardLastField, config)){
-			delete(databean.getKey(), config);
-		}
-	}
-
-	@Override
 	public void deleteUnique(UniqueKey<PK> uniqueKey, Config config){
 		deleteMultiUnique(Collections.singleton(uniqueKey), config);
 	}

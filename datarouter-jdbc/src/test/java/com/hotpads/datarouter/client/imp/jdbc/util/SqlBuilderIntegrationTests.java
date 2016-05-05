@@ -114,14 +114,6 @@ public class SqlBuilderIntegrationTests{
 	}
 
 	@Test
-	public void testDeleteWithPrefixes(){
-		Assert.assertEquals(SqlBuilder.deleteWithPrefixes(jdbcFieldCodecFactory, config, "TestTable", ONE_KEY, false),
-				"delete from TestTable where foo=42 and bar='baz' limit 5, 10");
-		Assert.assertEquals(SqlBuilder.deleteWithPrefixes(jdbcFieldCodecFactory, config, "TestTable", null, false),
-				"delete from TestTable limit 5, 10");
-	}
-
-	@Test
 	public void testGetInRange(){
 		Assert.assertEquals(SqlBuilder.getInRange(jdbcFieldCodecFactory, config, "TestTable", KEY_1.getFields(),
 				new Range<>(KEY_1), null), "select foo, bar from TestTable where ((foo=42 and bar>='baz') or (foo>42))"

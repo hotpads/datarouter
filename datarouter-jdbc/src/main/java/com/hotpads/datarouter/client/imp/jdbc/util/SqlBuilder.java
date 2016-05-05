@@ -89,15 +89,6 @@ public class SqlBuilder{
 		return sql.toString();
 	}
 
-	public static String deleteWithPrefixes(JdbcFieldCodecFactory codecFactory, Config config, String tableName,
-			Collection<? extends FieldSet<?>> keys, boolean wildcardLastField){
-		StringBuilder sql = new StringBuilder();
-		addDeleteFromClause(sql, tableName);
-		addFullPrefixWhereClauseDisjunction(codecFactory, sql, keys, wildcardLastField);
-		addLimitOffsetClause(sql, config);
-		return sql.toString();
-	}
-
 	public static <T extends FieldSet<T>> String getInRanges(JdbcFieldCodecFactory codecFactory, Config config,
 			String tableName, List<Field<?>> selectFields, Iterable<Range<T>> ranges, List<Field<?>> orderByFields,
 			Optional<String> indexName){
