@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.hotpads.datarouter.exception.DataAccessException;
-import com.hotpads.datarouter.storage.databean.FieldlessIndexEntry;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.util.core.java.ReflectionTool;
 
@@ -63,9 +62,9 @@ public abstract class BaseField<T> implements Field<T>{
 	@Override
 	public void setUsingReflection(Object targetFieldSet, Object fieldValue){
 		try{
-			String cacheKey = getFieldCacheKey(targetFieldSet);
-			java.lang.reflect.Field javaField = columnNameToFieldMap.get(cacheKey);
 			Object nestedFieldSet = FieldTool.getNestedFieldSet(targetFieldSet, this);
+			String cacheKey = getFieldCacheKey(targetFieldSet, nestedFieldSet);
+			java.lang.reflect.Field javaField = columnNameToFieldMap.get(cacheKey);
 			if(javaField == null){
 				javaField = cacheReflectionInfo(nestedFieldSet);
 				columnNameToFieldMap.put(cacheKey, javaField);
@@ -115,11 +114,11 @@ public abstract class BaseField<T> implements Field<T>{
 		}
 	}
 
-	private String getFieldCacheKey(Object targetFieldSet){
-		Class targetFieldSetClass = targetFieldSet.getClass();
-		if(targetFieldSet instanceof FieldlessIndexEntry){
-			targetFieldSetClass = ((FieldlessIndexEntry)targetFieldSet).getKeyClass();
+	private String getFieldCacheKey(Object targetFieldSet, Object nestedFieldSet){
+		String cacheKey = targetFieldSet.getClass().getName();
+		if(DrStringTool.notEmpty(prefix)){
+			cacheKey += nestedFieldSet.getClass().getName();
 		}
-		return targetFieldSetClass.getName() + getPrefixedName();
+		return cacheKey + getPrefixedName();
 	}
 }
