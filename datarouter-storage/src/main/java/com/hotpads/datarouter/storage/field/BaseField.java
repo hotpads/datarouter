@@ -31,14 +31,14 @@ public abstract class BaseField<T> implements Field<T>{
 
 	//only call this on the actual target class after following all the prefixes
 	private java.lang.reflect.Field cacheReflectionInfo(Object nestedFieldSet){
-		java.lang.reflect.Field jField = null;
+		java.lang.reflect.Field javaField = null;
 		try{
-			jField = ReflectionTool.getDeclaredFieldFromHierarchy(nestedFieldSet.getClass(), getKey().getName());
+			javaField = ReflectionTool.getDeclaredFieldFromHierarchy(nestedFieldSet.getClass(), getKey().getName());
 		}catch(IllegalArgumentException e){
 			throw new RuntimeException(e);
 		}
 
-		return jField;
+		return javaField;
 	}
 
 	@Override
