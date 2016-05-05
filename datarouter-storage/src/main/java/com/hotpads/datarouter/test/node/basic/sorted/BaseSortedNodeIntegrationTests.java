@@ -101,13 +101,11 @@ public abstract class BaseSortedNodeIntegrationTests{
 		remainingElements -= 3;
 		AssertJUnit.assertEquals(remainingElements, DrIterableTool.count(sortedNode.scan(null, null)).intValue());
 
-
 		//deleteWithPrefix
 		AssertJUnit.assertEquals(remainingElements, DrIterableTool.count(sortedNode.scan(null, null)).intValue());
-		SortedBeanKey prefix = new SortedBeanKey(SortedBeans.PREFIX_a, null, null, null);
-		sortedNode.deleteRangeWithPrefix(prefix, true, null);
-		remainingElements -= SortedBeans.NUM_PREFIX_a * SortedBeans.NUM_ELEMENTS * SortedBeans.NUM_ELEMENTS
-				* SortedBeans.NUM_ELEMENTS;
+		SortedBeanKey prefix = new SortedBeanKey(SortedBeans.S_aardvark, null, null, null);
+		sortedNode.deleteWithPrefix(prefix, null);
+		remainingElements -= SortedBeans.NUM_ELEMENTS * SortedBeans.NUM_ELEMENTS * SortedBeans.NUM_ELEMENTS;
 		AssertJUnit.assertEquals(remainingElements, DrIterableTool.count(sortedNode.scan(null, null)).intValue());
 	}
 

@@ -70,13 +70,4 @@ extends SortedStorage<PK,D>{
 		throw makeUnavailableException();
 	}
 
-	@Override
-	default void deleteRangeWithPrefix(PK prefix, boolean wildcardLastField, Config config){
-		if(getBackingNode().getClient().isAvailable()){
-			getBackingNode().deleteRangeWithPrefix(prefix, wildcardLastField, config);
-			return;
-		}
-		throw makeUnavailableException();
-	}
-
 }

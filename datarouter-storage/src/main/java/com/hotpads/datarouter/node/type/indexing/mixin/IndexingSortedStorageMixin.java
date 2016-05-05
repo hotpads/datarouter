@@ -42,9 +42,4 @@ extends SortedStorage<PK,D>{
 		return getBackingNode().scanMulti(ranges, config);
 	}
 
-	@Override
-	default void deleteRangeWithPrefix(PK prefix, boolean wildcardLastField, Config config){
-		getBackingNode().deleteRangeWithPrefix(prefix, wildcardLastField, config);
-	}
-
 }
