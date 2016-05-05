@@ -52,7 +52,7 @@ public class EnumTool{
 			Collection<String> ignoredValues){
 		List<HTMLSelectOptionBean> options = new ArrayList<>();
 		for(StringPersistedEnum type : values){
-			if(ignoredValues != null && ignoredValues.contains(type.getPersistentString())){
+			if(ignoredValues.contains(type.getPersistentString())){
 				continue;
 			}
 			options.add(new HTMLSelectOptionBean(type.getDisplay(), type.getPersistentString()));
