@@ -14,7 +14,7 @@ public class SortedStorageCountingTool{
 
 	public static <PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>>
-	Long count(SortedStorageReader<PK,D> node, Range<PK> range){
+	long count(SortedStorageReader<PK,D> node, Range<PK> range){
 		range = Range.nullSafe(range);
 		PK startKey = null;
 		long count = 0;
