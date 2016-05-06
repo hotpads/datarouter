@@ -28,18 +28,6 @@ public abstract class BaseField<T> implements Field<T>{
 		return getPrefixedName()+":"+getValueString();
 	}
 
-	//only call this on the actual target class after following all the prefixes
-	private java.lang.reflect.Field cacheReflectionInfo(Object nestedFieldSet){
-		java.lang.reflect.Field javaField = null;
-		try{
-			javaField = ReflectionTool.getDeclaredFieldFromHierarchy(nestedFieldSet.getClass(), getKey().getName());
-		}catch(IllegalArgumentException e){
-			throw new RuntimeException(e);
-		}
-
-		return javaField;
-	}
-
 	@Override
 	public void fromString(String valueAsString){
 		this.value = parseStringEncodedValueButDoNotSet(valueAsString);
@@ -66,7 +54,7 @@ public abstract class BaseField<T> implements Field<T>{
 			String cacheKey = getFieldCacheKey(targetFieldSet, nestedFieldSet);
 			java.lang.reflect.Field javaField = columnNameToFieldMap.get(cacheKey);
 			if(javaField == null){
-				javaField = cacheReflectionInfo(nestedFieldSet);
+				javaField = ReflectionTool.getDeclaredFieldFromHierarchy(nestedFieldSet.getClass(), getKey().getName());
 				columnNameToFieldMap.put(cacheKey, javaField);
 			}
 			javaField.set(nestedFieldSet, fieldValue);
