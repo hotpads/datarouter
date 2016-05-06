@@ -48,6 +48,10 @@ public class StringFieldKey extends BaseFieldKey<String>{
 		return new StringFieldKey(name, columnNameOverride, nullable, fieldGeneratorType, defaultValue, size);
 	}
 
+	public StringFieldKey withFieldGeneratorType(FieldGeneratorType fieldGeneratorTypeOverride){
+		return new StringFieldKey(name, columnName, nullable, fieldGeneratorTypeOverride, defaultValue, size);
+	}
+
 	/*********************** ByteEncodedField ***********************/
 
 	public static final byte SEPARATOR = 0;
