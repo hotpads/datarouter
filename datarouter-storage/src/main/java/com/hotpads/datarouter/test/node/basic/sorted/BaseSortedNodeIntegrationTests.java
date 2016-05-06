@@ -356,8 +356,7 @@ public abstract class BaseSortedNodeIntegrationTests{
 
 	@Test
 	public void testSortedStorageCountingTool(){
-		Assert.assertEquals(SortedStorageCountingTool.count(sortedNode, Range.everything()).intValue(),
-				SortedBeans.TOTAL_RECORDS);
+		Assert.assertEquals(SortedStorageCountingTool.count(sortedNode, Range.everything()), SortedBeans.TOTAL_RECORDS);
 	}
 
 	@Test
