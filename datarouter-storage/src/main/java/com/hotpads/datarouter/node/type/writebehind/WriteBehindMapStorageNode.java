@@ -2,7 +2,7 @@ package com.hotpads.datarouter.node.type.writebehind;
 
 import java.util.function.Supplier;
 
-import com.hotpads.datarouter.node.op.raw.MapStorage.MapStorageNode;
+import com.hotpads.datarouter.node.op.raw.MapStorage;
 import com.hotpads.datarouter.node.type.writebehind.base.WriteWrapper;
 import com.hotpads.datarouter.node.type.writebehind.mixin.WriteBehindMapStorageWriterMixin;
 import com.hotpads.datarouter.routing.Router;
@@ -13,9 +13,9 @@ import com.hotpads.util.core.java.ReflectionTool;
 public class WriteBehindMapStorageNode<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
-		N extends MapStorageNode<PK,D>>
+		N extends MapStorage<PK,D>>
 extends WriteBehindMapStorageReaderNode<PK,D,N>
-implements MapStorageNode<PK,D>, WriteBehindMapStorageWriterMixin<PK,D,N>{
+implements MapStorage<PK,D>, WriteBehindMapStorageWriterMixin<PK,D,N>{
 
 	public WriteBehindMapStorageNode(Supplier<D> databeanSupplier, Router router, N backingNode) {
 		super(databeanSupplier, router, backingNode);

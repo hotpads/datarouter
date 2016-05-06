@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import com.hotpads.datarouter.config.Config;
-import com.hotpads.datarouter.node.op.raw.read.MapStorageReader.MapStorageReaderNode;
+import com.hotpads.datarouter.node.op.raw.read.MapStorageReader;
 import com.hotpads.datarouter.node.type.writebehind.base.BaseWriteBehindNode;
 import com.hotpads.datarouter.node.type.writebehind.base.WriteWrapper;
 import com.hotpads.datarouter.routing.Router;
@@ -15,9 +15,9 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 public class WriteBehindMapStorageReaderNode<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
-		N extends MapStorageReaderNode<PK,D>>
+		N extends MapStorageReader<PK,D>>
 extends BaseWriteBehindNode<PK,D,N>
-implements MapStorageReaderNode<PK,D>{
+implements MapStorageReader<PK,D>{
 
 	public WriteBehindMapStorageReaderNode(Supplier<D> databeanSupplier, Router router, N backingNode){
 		super(databeanSupplier, router, backingNode);

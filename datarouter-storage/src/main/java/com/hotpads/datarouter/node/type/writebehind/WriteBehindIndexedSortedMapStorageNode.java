@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.function.Supplier;
 
 import com.hotpads.datarouter.config.Config;
-import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
+import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage;
 import com.hotpads.datarouter.node.type.writebehind.base.WriteWrapper;
 import com.hotpads.datarouter.node.type.writebehind.mixin.WriteBehindIndexedStorageWriterMixin;
 import com.hotpads.datarouter.node.type.writebehind.mixin.WriteBehindMapStorageWriterMixin;
@@ -19,9 +19,9 @@ import com.hotpads.util.core.java.ReflectionTool;
 public class WriteBehindIndexedSortedMapStorageNode<
 	PK extends PrimaryKey<PK>,
 	D extends Databean<PK,D>,
-	N extends IndexedSortedMapStorageNode<PK, D>>
+	N extends IndexedSortedMapStorage<PK,D>>
 extends WriteBehindIndexedMapStorageReaderNode<PK,D,N>
-implements IndexedSortedMapStorageNode<PK,D>,
+implements IndexedSortedMapStorage<PK,D>,
 		WriteBehindMapStorageWriterMixin<PK,D,N>,
 		WriteBehindSortedStorageWriterMixin<PK,D,N>{
 

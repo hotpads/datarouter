@@ -20,15 +20,19 @@ public class OverdueWriteCanceller implements Runnable{
 	@Override
 	public void run(){
 		try{
-			if(node.outstandingWrites==null){ return; }
+			if(node.outstandingWrites == null){
+				return;
+			}
 			while(true){
 				OutstandingWriteWrapper writeWrapper = node.outstandingWrites.peek();//don't remove yet
-				if(writeWrapper==null){ break; }
+				if(writeWrapper == null){
+					break;
+				}
 				boolean overdue = writeWrapper.getAgeMs() > node.timeoutMs;
 				if(writeWrapper.getWrite().isDone() || overdue){
 					if(overdue){
-						logger.warn("cancelling overdue write on "+node.getName());
-						DRCounters.incOp(null, "writeBehind timeout on "+node.getName());
+						logger.warn("cancelling overdue write on " + node);
+						DRCounters.incOp(null, "writeBehind timeout on " + node);
 					}
 					node.outstandingWrites.poll();
 					continue;

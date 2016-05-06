@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import com.hotpads.datarouter.config.Config;
-import com.hotpads.datarouter.node.op.combo.reader.SortedMapStorageReader.SortedMapStorageReaderNode;
+import com.hotpads.datarouter.node.op.combo.reader.SortedMapStorageReader;
 import com.hotpads.datarouter.routing.Router;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
@@ -14,9 +14,9 @@ import com.hotpads.util.core.collections.Range;
 public class WriteBehindSortedMapStorageReaderNode<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
-		N extends SortedMapStorageReaderNode<PK,D>>
+		N extends SortedMapStorageReader<PK,D>>
 extends WriteBehindMapStorageReaderNode<PK,D,N>
-implements SortedMapStorageReaderNode<PK,D>{
+implements SortedMapStorageReader<PK,D>{
 
 	public WriteBehindSortedMapStorageReaderNode(Supplier<D> databeanSupplier, Router router, N backingNode){
 		super(databeanSupplier, router, backingNode);

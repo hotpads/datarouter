@@ -2,6 +2,7 @@ package com.hotpads.datarouter.node.type.writebehind;
 
 import java.util.function.Supplier;
 
+import com.hotpads.datarouter.node.op.combo.SortedMapStorage;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import com.hotpads.datarouter.node.type.writebehind.base.WriteWrapper;
 import com.hotpads.datarouter.node.type.writebehind.mixin.WriteBehindMapStorageWriterMixin;
@@ -16,7 +17,7 @@ public class WriteBehindSortedMapStorageNode<
 		D extends Databean<PK,D>,
 		N extends SortedMapStorageNode<PK,D>>
 extends WriteBehindSortedMapStorageReaderNode<PK,D,N>
-implements SortedMapStorageNode<PK,D>,
+implements SortedMapStorage<PK,D>,
 		WriteBehindMapStorageWriterMixin<PK,D,N>,
 		WriteBehindSortedStorageWriterMixin<PK,D,N>{
 
