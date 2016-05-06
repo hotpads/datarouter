@@ -2,11 +2,10 @@ package com.hotpads.datarouter.node.type.writebehind;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.function.Supplier;
 
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.op.combo.reader.SortedMapStorageReader;
-import com.hotpads.datarouter.routing.Router;
+import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.collections.Range;
@@ -18,8 +17,8 @@ public class WriteBehindSortedMapStorageReaderNode<
 extends WriteBehindMapStorageReaderNode<PK,D,N>
 implements SortedMapStorageReader<PK,D>{
 
-	public WriteBehindSortedMapStorageReaderNode(Supplier<D> databeanSupplier, Router router, N backingNode){
-		super(databeanSupplier, router, backingNode);
+	public WriteBehindSortedMapStorageReaderNode(Datarouter datarouter, N backingNode){
+		super(datarouter, backingNode);
 	}
 
 	@Override

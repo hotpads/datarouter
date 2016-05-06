@@ -20,7 +20,7 @@ implements Router{
 
 	/********************************* fields **********************************/
 
-	private final Datarouter datarouter;
+	protected final Datarouter datarouter;
 	private final String configLocation;
 	private final String name;
 	private final List<String> clientNames;

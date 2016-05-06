@@ -1,7 +1,6 @@
 package com.hotpads.datarouter.node.type.writebehind;
 
 import java.util.Collection;
-import java.util.function.Supplier;
 
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage;
@@ -9,12 +8,11 @@ import com.hotpads.datarouter.node.type.writebehind.base.WriteWrapper;
 import com.hotpads.datarouter.node.type.writebehind.mixin.WriteBehindIndexedStorageWriterMixin;
 import com.hotpads.datarouter.node.type.writebehind.mixin.WriteBehindMapStorageWriterMixin;
 import com.hotpads.datarouter.node.type.writebehind.mixin.WriteBehindSortedStorageWriterMixin;
-import com.hotpads.datarouter.routing.Router;
+import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.multi.Lookup;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
-import com.hotpads.util.core.java.ReflectionTool;
 
 public class WriteBehindIndexedSortedMapStorageNode<
 	PK extends PrimaryKey<PK>,
@@ -27,17 +25,9 @@ implements IndexedSortedMapStorage<PK,D>,
 
 	protected WriteBehindIndexedStorageWriterMixin<PK,D,N> mixinIndexedWriteOps;
 
-	public WriteBehindIndexedSortedMapStorageNode(Supplier<D> databeanSupplier, Router router, N backingNode) {
-		super(databeanSupplier, router, backingNode);
+	public WriteBehindIndexedSortedMapStorageNode(Datarouter datarouter, N backingNode) {
+		super(datarouter, backingNode);
 		mixinIndexedWriteOps = new WriteBehindIndexedStorageWriterMixin<>(this);
-	}
-
-	/**
-	 * @deprecated Use {@link #WriteBehindIndexedSortedMapStorageNode(Supplier, Router, N)}
-	 */
-	@Deprecated
-	public WriteBehindIndexedSortedMapStorageNode(Class<D> databeanClass, Router router, N backingNode) {
-		this(ReflectionTool.supplier(databeanClass), router, backingNode);
 	}
 
 	@Override

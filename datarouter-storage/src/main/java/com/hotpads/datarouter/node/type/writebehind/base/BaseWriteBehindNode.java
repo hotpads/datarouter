@@ -11,14 +11,13 @@ import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Supplier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.node.op.NodeOps;
 import com.hotpads.datarouter.node.type.writebehind.WriteBehindNode;
-import com.hotpads.datarouter.routing.Router;
+import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
@@ -43,18 +42,18 @@ implements WriteBehindNode<PK,D,N>{
 	private BaseWriteBehindNode<PK,D,N>.QueueFlusher queueFlusher;
 
 
-	public BaseWriteBehindNode(Supplier<D> databeanSupplier, Router router, N backingNode){
+	public BaseWriteBehindNode(Datarouter datarouter, N backingNode){
 		if(backingNode==null){
 			throw new IllegalArgumentException("backingNode cannot be null.");
 		}
 		this.backingNode = backingNode;
 
-		this.writeExecutor = router.getContext().getWriteBehindExecutor();
+		this.writeExecutor = datarouter.getWriteBehindExecutor();
 
 		this.timeoutMs = DEFAULT_TIMEOUT_MS;//1 min default
 		this.outstandingWrites = new ConcurrentLinkedQueue<>();
 
-		ScheduledExecutorService scheduler = router.getContext().getWriteBehindScheduler();
+		ScheduledExecutorService scheduler = datarouter.getWriteBehindScheduler();
 		scheduler.scheduleWithFixedDelay(new OverdueWriteCanceller(this), 0, 1000, TimeUnit.MILLISECONDS);
 		queueFlusher = new QueueFlusher();
 		scheduler.scheduleWithFixedDelay(queueFlusher, 500, FLUSH_RATE_MS, TimeUnit.MILLISECONDS);
