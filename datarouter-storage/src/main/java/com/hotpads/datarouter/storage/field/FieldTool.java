@@ -271,16 +271,12 @@ public class FieldTool{
 	/************************** reflection ***********************/
 
 	public static Object getNestedFieldSet(Object object, Field<?> field){
-		List<String> fieldNames = new LinkedList<>();
-		if(DrStringTool.notEmpty(field.getPrefix())){
-			fieldNames = DrListTool.createArrayList(field.getPrefix().split("\\."));
-		}
-		fieldNames.add(field.getKey().getName());
-		if(fieldNames.size()==1){
+		if(DrStringTool.isEmpty(field.getPrefix())){
 			return object;//no prefixes
 		}
+		List<String> fieldNames = DrListTool.createArrayList(field.getPrefix().split("\\."));
 		Object current = object;
-		for(int i=0; i < fieldNames.size()-1; ++i){//return the FieldSet, not the actual Integer (or whatever) field
+		for(int i=0; i < fieldNames.size(); ++i){//return the FieldSet, not the actual Integer (or whatever) field
 			current = ReflectionTool.get(fieldNames.get(i), current);
 		}
 		return current;
