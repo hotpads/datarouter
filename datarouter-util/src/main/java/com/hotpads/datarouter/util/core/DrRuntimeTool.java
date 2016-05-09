@@ -42,16 +42,4 @@ public class DrRuntimeTool {
 		return 4;
 	}
 
-	public static long getTotalMemory(){
-		return Runtime.getRuntime().totalMemory();
-	}
-
-	public static long getFreeMemory(){
-		return Runtime.getRuntime().freeMemory();
-	}
-
-	public static long getMaxMemory(){
-		return Runtime.getRuntime().maxMemory();
-	}
-
 }
