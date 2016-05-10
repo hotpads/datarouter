@@ -19,6 +19,7 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.view.index.IndexEntry;
 import com.hotpads.datarouter.util.core.DrArrayTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.util.core.java.ReflectionTool;
 import com.mysql.jdbc.Driver;
@@ -203,12 +204,13 @@ public class JdbcTool {
 		}
 	}
 
-	public static void appendCsvQuestionMarks(StringBuilder sb, int num){
-		for(int i=0; i < num; ++i){
+	public static void appendCsvQuestionMarks(StringBuilder sb, List<Field<?>> list){
+		int size = DrCollectionTool.size(list);
+		for(int i=0; i < size; ++i){
 			if(i>0){
 				sb.append(",");
 			}
-			sb.append("?");
+			sb.append(list.get(i).getPreparedStatementValue());
 		}
 	}
 

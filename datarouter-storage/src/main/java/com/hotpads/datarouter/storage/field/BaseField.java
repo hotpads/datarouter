@@ -94,6 +94,11 @@ public abstract class BaseField<T> implements Field<T>{
 	public T getValue() {
 		return value;
 	}
+	
+	@Override
+	public String getPreparedStatementValue() {
+		return "?";
+	}
 
 	public static class FieldColumnNameComparator implements Comparator<Field<?>>{
 		@Override
