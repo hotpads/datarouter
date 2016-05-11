@@ -5,17 +5,17 @@ import com.hotpads.joblet.databean.JobletRequest;
 public abstract class BaseJoblet<T> implements Joblet<T>{
 
 	protected T params;
-	protected JobletRequest joblet;
+	protected JobletRequest jobletRequest;
 
 
 	@Override
 	public JobletRequest getJobletRequest(){
-		return joblet;
+		return jobletRequest;
 	}
 
 	@Override
-	public void setJobletRequest(JobletRequest joblet){
-		this.joblet = joblet;
+	public void setJobletRequest(JobletRequest jobletRequest){
+		this.jobletRequest = jobletRequest;
 	}
 
 	@Override

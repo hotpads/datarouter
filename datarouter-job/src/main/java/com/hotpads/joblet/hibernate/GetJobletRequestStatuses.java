@@ -18,13 +18,13 @@ import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.dto.JobletSummary;
 
 @Deprecated
-public class GetJobletStatuses extends BaseHibernateOp<List<JobletSummary>>{
+public class GetJobletRequestStatuses extends BaseHibernateOp<List<JobletSummary>>{
 
 	private final String tableName;
 	private final String whereStatus;
 	private final boolean includeQueueId;
 
-	public GetJobletStatuses(String whereStatus, boolean includeQueueId, Datarouter datarouter,
+	public GetJobletRequestStatuses(String whereStatus, boolean includeQueueId, Datarouter datarouter,
 			JobletNodes jobletNodes){
 		super(datarouter, jobletNodes.joblet().getMaster().getClientNames(), Isolation.readUncommitted, false);
 		this.tableName = jobletNodes.joblet().getMaster().getPhysicalNodeIfApplicable().getTableName();

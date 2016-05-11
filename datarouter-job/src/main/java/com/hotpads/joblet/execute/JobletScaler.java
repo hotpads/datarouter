@@ -54,15 +54,15 @@ public class JobletScaler {
 	}
 
 
-	private int calcNumJobletServers(Iterable<JobletRequest> joblets){
+	private int calcNumJobletServers(Iterable<JobletRequest> jobletRequests){
 		int minServers = jobletSettings.getMinJobletServers().getValue();
 		int maxServers = jobletSettings.getMaxJobletServers().getValue();
-		JobletRequest oldestJoblet = JobletRequest.getOldestForTypesAndStatuses(jobletTypeFactory, joblets, jobletTypeFactory
-				.getTypesCausingScaling(), STATUSES_TO_CONSIDER);
-		if(oldestJoblet == null){
+		JobletRequest oldestJobletRequest = JobletRequest.getOldestForTypesAndStatuses(jobletTypeFactory,
+				jobletRequests, jobletTypeFactory.getTypesCausingScaling(), STATUSES_TO_CONSIDER);
+		if(oldestJobletRequest == null){
 			return minServers;
 		}
-		long maxAgeMs = System.currentTimeMillis() - oldestJoblet.getKey().getCreated();
+		long maxAgeMs = System.currentTimeMillis() - oldestJobletRequest.getKey().getCreated();
 		return getNumServersForQueueAge(minServers, maxServers, maxAgeMs);
 	}
 

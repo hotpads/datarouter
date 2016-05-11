@@ -20,7 +20,7 @@ import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.enums.JobletStatus;
 import com.hotpads.joblet.enums.JobletType;
 
-public class GetJobletForProcessing extends BaseHibernateOp<JobletRequest>{
+public class GetJobletRequestForProcessing extends BaseHibernateOp<JobletRequest>{
 
 	private final String tableName;
 	private final Long reservationTimeout;
@@ -29,7 +29,7 @@ public class GetJobletForProcessing extends BaseHibernateOp<JobletRequest>{
 	private final int maxRetries;
 	private final boolean rateLimited;
 
-	public GetJobletForProcessing(Long reservationTimeout, int maxRetries, String reservedBy, JobletType<?> jobletType,
+	public GetJobletRequestForProcessing(Long reservationTimeout, int maxRetries, String reservedBy, JobletType<?> jobletType,
 			Datarouter datarouter, JobletNodes jobletNodes, boolean rateLimited) {
 		super(datarouter, jobletNodes.joblet().getMaster().getClientNames(), Isolation.repeatableRead, false);
 		this.tableName = jobletNodes.joblet().getMaster().getPhysicalNodeIfApplicable().getTableName();

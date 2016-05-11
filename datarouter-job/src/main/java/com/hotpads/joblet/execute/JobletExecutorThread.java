@@ -154,18 +154,18 @@ public class JobletExecutorThread extends Thread{
 	}
 
 	private void executeJoblet(){
-		JobletRequest joblet = jobletPackage.getJoblet();
-		PhaseTimer pt = joblet.getTimer();
+		JobletRequest jobletRequest = jobletPackage.getJoblet();
+		PhaseTimer pt = jobletRequest.getTimer();
 		pt.add("waited for processing");
 		boolean rateLimited = jobletSettings.getRateLimited().getValue();
 		try{
 			runJoblet(jobletPackage);
 			pt.add("processed");
-			jobletService.handleJobletCompletion(joblet, true, rateLimited);
+			jobletService.handleJobletCompletion(jobletRequest, true, rateLimited);
 			pt.add("completed");
 		}catch(JobInterruptedException e){
 			try{
-				jobletService.handleJobletInterruption(joblet, rateLimited);
+				jobletService.handleJobletInterruption(jobletRequest, rateLimited);
 			}catch(Exception e1){
 				logger.error("", e1);
 			}
@@ -173,7 +173,8 @@ public class JobletExecutorThread extends Thread{
 		}catch(Exception e){
 			logger.error("", e);
 			try{
-				jobletService.handleJobletError(joblet, rateLimited, e, joblet.getClass().getSimpleName());
+				jobletService.handleJobletError(jobletRequest, rateLimited, e, jobletRequest.getClass()
+						.getSimpleName());
 				pt.add("failed");
 			}catch(Exception lastResort){
 				logger.error("", lastResort);

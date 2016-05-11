@@ -14,18 +14,18 @@ import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.enums.JobletType;
 import com.hotpads.joblet.enums.JobletTypeFactory;
 
-public class UpdateJobletAndQueue extends BaseHibernateOp<Integer>{
+public class UpdateJobletRequestAndQueue extends BaseHibernateOp<Integer>{
 
 	private final JobletTypeFactory jobletTypeFactory;
-	private final JobletRequest joblet;
+	private final JobletRequest jobletRequest;
 	private final boolean decrementQueueIfRateLimited;
 	private final Boolean rateLimited;
 
-	public UpdateJobletAndQueue(JobletTypeFactory jobletTypeFactory, JobletRequest joblet,
+	public UpdateJobletRequestAndQueue(JobletTypeFactory jobletTypeFactory, JobletRequest jobletRequest,
 			boolean decrementQueueIfRateLimited, Datarouter datarouter, JobletNodes jobletNodes, Boolean rateLimited){
 		super(datarouter, jobletNodes.joblet().getMaster().getClientNames());
 		this.jobletTypeFactory = jobletTypeFactory;
-		this.joblet = joblet;
+		this.jobletRequest = jobletRequest;
 		this.decrementQueueIfRateLimited = decrementQueueIfRateLimited;
 		this.rateLimited = rateLimited;
 	}
@@ -39,17 +39,17 @@ public class UpdateJobletAndQueue extends BaseHibernateOp<Integer>{
 	public Integer runOncePerClient(Client client){
 		Session session = getSession(client.getName());
 
-		session.update(joblet);
-		JobletType<?> jobletType = jobletTypeFactory.fromJobletRequest(joblet);
+		session.update(jobletRequest);
+		JobletType<?> jobletType = jobletTypeFactory.fromJobletRequest(jobletRequest);
 		boolean enforceRateLimit = rateLimited && jobletType.getRateLimited();
 
 		if(this.decrementQueueIfRateLimited && enforceRateLimit){
 			String queueSql = "update JobletQueue set numTickets = numTickets - 1 where id=:id";
 			SQLQuery queueQuery = session.createSQLQuery(queueSql);
-			queueQuery.setParameter("id", joblet.getQueueId());
+			queueQuery.setParameter("id", jobletRequest.getQueueId());
 			int numQueuesUpdated = queueQuery.executeUpdate();
 			if(numQueuesUpdated < 1){
-				getLogger().warn("JobletQueue:" + joblet.getQueueId() + " numTickets increment unsuccessful");
+				getLogger().warn("JobletQueue:" + jobletRequest.getQueueId() + " numTickets increment unsuccessful");
 			}
 			return numQueuesUpdated;
 		}

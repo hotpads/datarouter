@@ -14,14 +14,14 @@ import com.hotpads.joblet.JobletNodes;
 import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.enums.JobletStatus;
 
-public class TimeoutStuckRunningJoblets extends BaseHibernateOp<Integer>{
+public class TimeoutStuckRunningJobletRequests extends BaseHibernateOp<Integer>{
 
 	//injected
 	private final JobletNodes jobletNodes;
 
 	private final long deleteJobletsBefore;
 
-	public TimeoutStuckRunningJoblets(Datarouter datarouter, JobletNodes jobletNodes) {
+	public TimeoutStuckRunningJobletRequests(Datarouter datarouter, JobletNodes jobletNodes) {
 		super(datarouter, jobletNodes.joblet().getMaster().getClientNames());
 		this.jobletNodes = jobletNodes;
 		this.deleteJobletsBefore = System.currentTimeMillis() - TimeUnit.DAYS.toMillis(2);

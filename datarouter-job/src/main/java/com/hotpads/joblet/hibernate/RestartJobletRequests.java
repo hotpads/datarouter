@@ -12,12 +12,12 @@ import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.joblet.JobletNodes;
 import com.hotpads.joblet.enums.JobletStatus;
 
-public class RestartJoblets extends BaseHibernateOp<Integer>{
+public class RestartJobletRequests extends BaseHibernateOp<Integer>{
 
 	private final String tableName;
 	private final JobletStatus currentStatus;
 
-	public RestartJoblets(Datarouter datarouter, JobletNodes jobletNodes, JobletStatus currentStatus) {
+	public RestartJobletRequests(Datarouter datarouter, JobletNodes jobletNodes, JobletStatus currentStatus) {
 		super(datarouter, jobletNodes.joblet().getMaster().getClientNames());
 		this.tableName = jobletNodes.joblet().getMaster().getPhysicalNodeIfApplicable().getTableName();
 		this.currentStatus = currentStatus;

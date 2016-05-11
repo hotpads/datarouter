@@ -14,18 +14,18 @@ import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.enums.JobletType;
 import com.hotpads.joblet.enums.JobletTypeFactory;
 
-public class DeleteJoblet extends BaseHibernateOp<JobletRequest>{
+public class DeleteJobletRequest extends BaseHibernateOp<JobletRequest>{
 
 	private final JobletTypeFactory jobletTypeFactory;
-	private final JobletRequest  joblet;
+	private final JobletRequest  jobletRequest;
 	private final JobletNodes jobletNodes;
 	private final Boolean rateLimited;
 
-	public DeleteJoblet(Datarouter datarouter, JobletTypeFactory jobletTypeFactory, JobletRequest joblet,
+	public DeleteJobletRequest(Datarouter datarouter, JobletTypeFactory jobletTypeFactory, JobletRequest jobletRequest,
 			JobletNodes jobletNodes, Boolean rateLimited) {
 		super(datarouter, jobletNodes.joblet().getMaster().getClientNames(), Isolation.repeatableRead, false);
 		this.jobletTypeFactory = jobletTypeFactory;
-		this.joblet = joblet;
+		this.jobletRequest = jobletRequest;
 		this.jobletNodes = jobletNodes;
 		this.rateLimited = rateLimited;
 	}
@@ -33,15 +33,15 @@ public class DeleteJoblet extends BaseHibernateOp<JobletRequest>{
 	@Override
 	public JobletRequest runOncePerClient(Client client){
 		Session session = this.getSession(client.getName());
-		JobletType<?> jobletType = jobletTypeFactory.fromJobletRequest(joblet);
+		JobletType<?> jobletType = jobletTypeFactory.fromJobletRequest(jobletRequest);
 		boolean enforceRateLimit = rateLimited && jobletType.getRateLimited();
 
 		if(enforceRateLimit) {
-			GetJobletForProcessing.updateQueueTickets(session, joblet.getQueueId(), -1, getLogger());
+			GetJobletRequestForProcessing.updateQueueTickets(session, jobletRequest.getQueueId(), -1, getLogger());
 		}
 
-		jobletNodes.joblet().delete(joblet.getKey(), null);
-		jobletNodes.jobletData().delete(joblet.getJobletDataKey(), null);
+		jobletNodes.joblet().delete(jobletRequest.getKey(), null);
+		jobletNodes.jobletData().delete(jobletRequest.getJobletDataKey(), null);
 
 		return null;
 	}
