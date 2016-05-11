@@ -171,7 +171,7 @@ public class JobToTriggerHandler extends BaseHandler {
 	}
 
 	private Mav createRedirectMav(){
-		return new Mav(Mav.REDIRECT + servletContext.getContextPath() + DatarouterWebDispatcher.URL_DATAROUTER
+		return new Mav(Mav.REDIRECT + servletContext.getContextPath() + DatarouterWebDispatcher.PATH_datarouter
 				+ DatarouterJobDispatcher.TRIGGERS);
 	}
 }

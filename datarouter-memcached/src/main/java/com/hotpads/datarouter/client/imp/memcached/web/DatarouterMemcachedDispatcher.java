@@ -7,7 +7,7 @@ import com.hotpads.handler.dispatcher.DatarouterWebDispatcher;
 public class DatarouterMemcachedDispatcher extends BaseDispatcher{
 
 	public static final String
-			PREFIX = DatarouterWebDispatcher.URL_DATAROUTER + DatarouterWebDispatcher.CLIENTS,
+			PREFIX = DatarouterWebDispatcher.PATH_clients,
 			MEMCACHED = "/memcached",
 			PATH = PREFIX + MEMCACHED;
 
