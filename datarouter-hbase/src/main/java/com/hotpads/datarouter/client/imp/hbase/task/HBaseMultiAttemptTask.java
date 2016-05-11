@@ -76,9 +76,8 @@ public class HBaseMultiAttemptTask<V> extends TracedCallable<V>{
 					logger.warn("rethrowing ExecutionException as DataAccessException", e);
 					throw new DataAccessException(e);
 				}
-			}catch(InterruptedException e){
-				throw new DataAccessException(e);
 			}catch(Exception attemptException){
+				throwIfInterruped(attemptException);
 				if(isLastAttempt(i)){
 					logger.warn("attempt "+i+"/"+maxAttempts+" failed", attemptException);
 					String errorMessage = "errored "+maxAttempts+" times.  timeoutMs="+timeoutMs;
@@ -89,6 +88,15 @@ public class HBaseMultiAttemptTask<V> extends TracedCallable<V>{
 			}
 		}
 		return null; // Cannot be here
+	}
+
+	private void throwIfInterruped(Throwable throwable){
+		do{
+			if(throwable instanceof InterruptedException){
+				throw new DataAccessException(throwable);
+			}
+			throwable = throwable.getCause();
+		}while(throwable != null);
 	}
 
 	private static long getTimeoutMs(Config config){
