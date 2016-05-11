@@ -3,7 +3,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Datarouter</title>
+	<title>Routers</title>
 	<%@ include file="/jsp/generic/datarouterHead.jsp" %>
 </head>
 <body>
@@ -19,7 +19,7 @@
 		
 		<h3 class="">Routers and Clients</h3>
 		<c:if test="${not empty uninitializedClientNames}">
-			[<a href="${contextPath}/datarouter/initAllClients">init remaining clients</a>]<br/>
+			[<a href="${contextPath}/datarouter/routers/initAllClients">init remaining clients</a>]<br/>
 			<br/>
 		</c:if>
 		<c:forEach items="${routers}" var="router">
@@ -42,7 +42,7 @@
 							</c:when>
 							<c:otherwise>
 								<td style="width: 50%">
-									${clientName} [<a href="${contextPath}/datarouter/initClient?clientName=${clientName}">init</a>]
+									${clientName} [<a href="${contextPath}/datarouter/routers/initClient?clientName=${clientName}">init</a>]
 								</td>
 								<td style="width: 50%">
 									unknown
