@@ -4,12 +4,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.NavigableSet;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -179,6 +182,12 @@ public class DatarouterClients{
 		return ClientId.getNames(clientIds);
 	}
 
+	public Map<Boolean,List<String>> getClientNamesByInitialized(){
+		Function<Entry<String,LazyClientProvider>,Boolean> isInitialized = entry -> entry.getValue().isInitialized();
+		return lazyClientProviderByName.entrySet().stream()
+				.collect(Collectors.groupingBy(isInitialized, Collectors.mapping(Entry::getKey, Collectors.toList())));
+	}
+
 	public Client getClient(String clientName){
 		return lazyClientProviderByName.get(clientName).call();
 	}
@@ -203,6 +212,10 @@ public class DatarouterClients{
 
 	public List<Client> getAllClients(Datarouter context){
 		return getClients(context, ClientId.getNames(clientIds));
+	}
+
+	public Map<String,LazyClientProvider> getLazyClientProviderByName(){
+		return lazyClientProviderByName;
 	}
 
 

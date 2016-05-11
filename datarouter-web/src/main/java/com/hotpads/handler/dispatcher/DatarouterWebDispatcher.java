@@ -15,43 +15,44 @@ import com.hotpads.handler.datarouter.ViewNodeDataHandler;
 
 public class DatarouterWebDispatcher extends BaseDispatcher{
 
-	public static final String URL_DATAROUTER = "/datarouter";
+	public static final String
+			DATA = "/data";
 
 	public static final String
-			ROUTERS = "/routers",
-			STACKTRACES = "/stackTraces",
-			CLIENTS = "/clients",
-			MEMORY_STATS = "/memory",
-			DATABEAN_GENERATOR = "/databeanGenerator",
-			NODE_BROWSE_DATA = "/nodes/browseData",
-			EXECUTORS_MONITORING = "/executors",
-			MEMORY = "/memory",
-			DATA = "/data",
-			TEST_API = "/testApi";
+			PATH_datarouter = "/datarouter",
+			PATH_routers = PATH_datarouter + "/routers",
+			PATH_stackTraces = PATH_datarouter + "/stackTraces",
+			PATH_clients = PATH_datarouter + "/clients",
+			PATH_clients_memory = PATH_clients + "/memory",
+			PATH_memory = PATH_datarouter + "/memory",
+			PATH_databeanGenerator = PATH_datarouter + "/databeanGenerator",
+			PATH_nodes_browseData = PATH_datarouter + "/nodes/browseData",
+			PATH_executors = PATH_datarouter + "/executors",
+			PATH_data = PATH_datarouter + DATA,
+			PATH_testApi = PATH_datarouter + "/testApi";
 
 	public DatarouterWebDispatcher(DatarouterInjector injector, String servletContextPath){
-		super(injector, servletContextPath, URL_DATAROUTER);
+		super(injector, servletContextPath, PATH_datarouter);
 
 		//All urls must start with URL_DATAROUTER
 
-		//exmaple: /datarouterrrrrrr
-		handle(URL_DATAROUTER + "*").withHandler(RoutersHandler.class);
+		handleDir(PATH_datarouter).withHandler(RoutersHandler.class);
 
-		handle(URL_DATAROUTER + ROUTERS).withHandler(RoutersHandler.class);
-		handle(URL_DATAROUTER + NODE_BROWSE_DATA).withHandler(ViewNodeDataHandler.class);
-		handle(URL_DATAROUTER + DATABEAN_GENERATOR).withHandler(DatabeanGeneratorHandler.class);
-		handle(URL_DATAROUTER + CLIENTS + MEMORY).withHandler(MemoryHandler.class);
+		handleDir(PATH_routers).withHandler(RoutersHandler.class);
+		handle(PATH_nodes_browseData).withHandler(ViewNodeDataHandler.class);
+		handle(PATH_databeanGenerator).withHandler(DatabeanGeneratorHandler.class);
+		handle(PATH_clients_memory).withHandler(MemoryHandler.class);
 
 		//example: /testApi or /testApidfadfa  or /testApi/ or /testApi/adfafa
-		handle(URL_DATAROUTER + TEST_API + REGEX_ONE_DIRECTORY).withHandler(TestApiHandler.class);
+		handle(PATH_testApi + REGEX_ONE_DIRECTORY).withHandler(TestApiHandler.class);
 
-		handle(URL_DATAROUTER + STACKTRACES).withHandler(StackTracesManagerHandler.class);
-		handleDir(URL_DATAROUTER + MEMORY_STATS).withHandler(MemoryMonitoringHandler.class);
-		handleDir(URL_DATAROUTER + EXECUTORS_MONITORING).withHandler(ExecutorsMonitoringHandler.class);
+		handle(PATH_stackTraces).withHandler(StackTracesManagerHandler.class);
+		handleDir(PATH_memory).withHandler(MemoryMonitoringHandler.class);
+		handleDir(PATH_executors).withHandler(ExecutorsMonitoringHandler.class);
 
 		// example: /datarouter/data/fadafa/adfadfafqe/abc or /datarouter/data/fadafa/adfadfafqe/abc.1341 or
 		// /datarouter/data/fadafa/adfadfafqe/abbc_2152
-		handle(URL_DATAROUTER + DATA + REGEX_TWO_DIRECTORY_PLUS).withHandler(DatabeanViewerHandler.class);
+		handle(PATH_data + REGEX_TWO_DIRECTORY_PLUS).withHandler(DatabeanViewerHandler.class);
 	}
 
 }

@@ -38,8 +38,7 @@ public class MemoryMonitoringHandler extends BaseHandler{
 	private LoadedLibraries loadedLibraries;
 
 	private String getRedirectUrl(){
-		return Mav.REDIRECT + servletContext.getContextPath() + DatarouterWebDispatcher.URL_DATAROUTER
-				+ DatarouterWebDispatcher.MEMORY_STATS;
+		return Mav.REDIRECT + servletContext.getContextPath() + DatarouterWebDispatcher.PATH_memory;
 	}
 
 	@Override

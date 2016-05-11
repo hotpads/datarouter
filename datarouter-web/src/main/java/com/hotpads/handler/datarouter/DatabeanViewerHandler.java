@@ -170,8 +170,8 @@ public class DatabeanViewerHandler extends BaseHandler{
 		public static PathSegments parsePathSegments(Params params){
 			String pathInfoStr = params.getRequest().getPathInfo();
 			int offset = DatarouterWebDispatcher.DATA.length() + 1;
-			if(pathInfoStr.contains(DatarouterWebDispatcher.URL_DATAROUTER)){
-				offset += DatarouterWebDispatcher.URL_DATAROUTER.length();
+			if(pathInfoStr.contains(DatarouterWebDispatcher.PATH_datarouter)){
+				offset += DatarouterWebDispatcher.PATH_datarouter.length();
 			}
 			String[] pathInfo = params.getRequest().getPathInfo().substring(offset).split("/");
 			if(pathInfo.length == 3){

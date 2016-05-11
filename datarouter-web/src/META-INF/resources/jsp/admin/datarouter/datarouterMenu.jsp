@@ -18,19 +18,37 @@
 		</table>
 		
 		<h3 class="">Routers and Clients</h3>
+		<c:if test="${not empty uninitializedClientNames}">
+			[<a href="${contextPath}/datarouter/initAllClients">init remaining clients</a>]<br/>
+			<br/>
+		</c:if>
 		<c:forEach items="${routers}" var="router">
 			<a href="?submitAction=inspectRouter&routerName=${router.name}">${router.name}</a>
 			&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;&nbsp;&nbsp;
 			${router['class'].simpleName}
 			<table class="table table-striped table-bordered table-hover table-condensed">
-				<c:forEach items="${router.allClients}" var="client">
-					<tr >
-						<td style="width: 50%">
-							<a href="${contextPath}/datarouter/clients/${client.type.name}?submitAction=inspectClient&routerName=${router.name}&clientName=${client.name}">${client.name}</a>
-						</td>
-						<td style="width: 50%">
-							${client.type.name}
-						</td>
+				<c:forEach items="${router.clientNames}" var="clientName">
+					<c:set var="lazyClientProvider" value="${lazyClientProviderByName[clientName]}" />
+					<tr>
+						<c:choose>
+							<c:when test="${lazyClientProvider.initialized}">
+								<c:set var="client" value="${lazyClientProvider.client}" />
+								<td style="width: 50%">
+									<a href="${contextPath}/datarouter/clients/${client.type.name}?submitAction=inspectClient&routerName=${router.name}&clientName=${client.name}">${client.name}</a>
+								</td>
+								<td style="width: 50%">
+									${client.type.name}
+								</td>
+							</c:when>
+							<c:otherwise>
+								<td style="width: 50%">
+									${clientName} [<a href="${contextPath}/datarouter/initClient?clientName=${clientName}">init</a>]
+								</td>
+								<td style="width: 50%">
+									unknown
+								</td>
+							</c:otherwise>
+						</c:choose>
 					</tr>
 				</c:forEach>
 			</table>
