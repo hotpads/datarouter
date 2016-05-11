@@ -11,13 +11,13 @@ import org.slf4j.LoggerFactory;
 import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.util.core.DrDateTool;
 import com.hotpads.job.trigger.JobSettings;
-import com.hotpads.joblet.databean.JobletRequest;
-import com.hotpads.joblet.enums.JobletType;
-import com.hotpads.joblet.execute.JobletExecutorThreadPool.JobletExecutorThreadPoolFactory;
 import com.hotpads.joblet.JobletPackage;
 import com.hotpads.joblet.JobletService;
 import com.hotpads.joblet.JobletSettings;
 import com.hotpads.joblet.databean.JobletData;
+import com.hotpads.joblet.databean.JobletRequest;
+import com.hotpads.joblet.enums.JobletType;
+import com.hotpads.joblet.execute.JobletExecutorThreadPool.JobletExecutorThreadPoolFactory;
 import com.hotpads.util.core.profile.PhaseTimer;
 import com.hotpads.util.datastructs.MutableBoolean;
 
@@ -181,22 +181,22 @@ public class ParallelJobletProcessor{
 
 	private final JobletPackage getJoblet(int counter){
 		String reservedBy = getReservedByString(counter);
-		JobletRequest joblet = null;
+		JobletRequest jobletRequest = null;
 		jobletThrottle.acquirePermits(jobletType.getCpuPermits(), jobletType.getMemoryPermits());
 		try{
-			joblet = jobletService.getJobletForProcessing(jobletType, reservedBy, RUNNING_JOBLET_TIMEOUT_MS,
-					jobletSettings.getRateLimited().getValue());
+			jobletRequest = jobletService.getJobletRequestForProcessing(jobletType, reservedBy,
+					RUNNING_JOBLET_TIMEOUT_MS, jobletSettings.getRateLimited().getValue());
 		}catch(Exception e){
 			logger.warn("", e);
 		}
 		JobletData jobletData = null;
-		if(joblet != null){
-			joblet.setInterrupted(interrupted);
-			jobletData = jobletService.getJobletData(joblet);
+		if(jobletRequest != null){
+			jobletRequest.setInterrupted(interrupted);
+			jobletData = jobletService.getJobletData(jobletRequest);
 		}else{
 			jobletThrottle.releasePermits(jobletType.getCpuPermits(), jobletType.getMemoryPermits());
 		}
-		return new JobletPackage(joblet, jobletData);
+		return new JobletPackage(jobletRequest, jobletData);
 	}
 
 }

@@ -13,7 +13,7 @@ import com.hotpads.joblet.JobletNodes;
 public class ResetJobletQueueTickets extends BaseHibernateOp<Integer>{
 
 	public ResetJobletQueueTickets(Datarouter datarouter, JobletNodes jobletNodes) {
-		super(datarouter, jobletNodes.joblet().getMaster().getClientNames());
+		super(datarouter, jobletNodes.jobletRequest().getMaster().getClientNames());
 	}
 
 	@Override

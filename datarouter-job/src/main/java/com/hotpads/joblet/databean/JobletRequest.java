@@ -171,19 +171,19 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 		Long oldestCreatedDate = null;
 		Integer sumItems = 0;
 		boolean atLeastOnecreatedJoblet = false;
-		for(JobletRequest joblet : scanner){
-			JobletType<?> type = jobletTypeFactory.fromJobletRequest(joblet);
-			if(joblet.getStatus() == JobletStatus.created){
+		for(JobletRequest jobletRequest : scanner){
+			JobletType<?> type = jobletTypeFactory.fromJobletRequest(jobletRequest);
+			if(jobletRequest.getStatus() == JobletStatus.created){
 				atLeastOnecreatedJoblet = true;
 				if(currentType != null && type != currentType){
 					summaries.add(new JobletSummary(currentType.getPersistentString(), sumItems, oldestCreatedDate));
 					oldestCreatedDate = null;
 					sumItems = 0;
 				}
-				currentType = jobletTypeFactory.fromJobletRequest(joblet);
-				sumItems = sumItems + joblet.getNumItems();
-				if(oldestCreatedDate == null || joblet.getKey().getCreated() < oldestCreatedDate){
-					oldestCreatedDate = joblet.getKey().getCreated();
+				currentType = jobletTypeFactory.fromJobletRequest(jobletRequest);
+				sumItems = sumItems + jobletRequest.getNumItems();
+				if(oldestCreatedDate == null || jobletRequest.getKey().getCreated() < oldestCreatedDate){
+					oldestCreatedDate = jobletRequest.getKey().getCreated();
 				}
 			}
 		}
@@ -193,8 +193,8 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 		return summaries;
 	}
 
-	public static ArrayList<JobletRequest> filterByTypeStatusReservedByPrefix(Iterable<JobletRequest> ins, JobletType<?> type,
-			JobletStatus status, String reservedByPrefix){
+	public static ArrayList<JobletRequest> filterByTypeStatusReservedByPrefix(Iterable<JobletRequest> ins,
+			JobletType<?> type, JobletStatus status, String reservedByPrefix){
 		ArrayList<JobletRequest> outs = new ArrayList<>();
 		for(JobletRequest in : DrIterableTool.nullSafe(ins)){
 			if(type.getPersistentString() != in.getTypeString()) {
@@ -212,20 +212,20 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 		return outs;
 	}
 
-	public static JobletRequest getOldestForTypesAndStatuses(JobletTypeFactory jobletTypeFactory, Iterable<JobletRequest> joblets,
-			Collection<JobletType<?>> types, Collection<JobletStatus> statuses){
+	public static JobletRequest getOldestForTypesAndStatuses(JobletTypeFactory jobletTypeFactory,
+			Iterable<JobletRequest> jobletRequests, Collection<JobletType<?>> types, Collection<JobletStatus> statuses){
 		JobletRequest oldest = null;
 		long now = System.currentTimeMillis();
-		for(JobletRequest joblet : DrIterableTool.nullSafe(joblets)){
-			JobletType<?> jobletType = jobletTypeFactory.fromJobletRequest(joblet);
-			if(types.contains(jobletType) && statuses.contains(joblet.getStatus())){
+		for(JobletRequest jobletRequest : DrIterableTool.nullSafe(jobletRequests)){
+			JobletType<?> jobletType = jobletTypeFactory.fromJobletRequest(jobletRequest);
+			if(types.contains(jobletType) && statuses.contains(jobletRequest.getStatus())){
 				if(oldest == null){
-					oldest = joblet;
+					oldest = jobletRequest;
 				}
-				long ageMs = now - joblet.getKey().getCreated();
+				long ageMs = now - jobletRequest.getKey().getCreated();
 				long oldestAgeMs = now - oldest.getKey().getCreated();
 				if(ageMs > oldestAgeMs){
-					oldest = joblet;
+					oldest = jobletRequest;
 				}
 			}
 		}
@@ -239,9 +239,9 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 		return DrDateTool.getAgoString(this.getKey().getCreated());
 	}
 
-	public static List<JobletDataKey> getJobletDataKeys(List<JobletRequest> joblets){
-		return StreamTool.stream(joblets)
-				.map( joblet -> new JobletDataKey(joblet.getJobletDataId()))
+	public static List<JobletDataKey> getJobletDataKeys(List<JobletRequest> jobletRequests){
+		return StreamTool.stream(jobletRequests)
+				.map(jobletRequest -> new JobletDataKey(jobletRequest.getJobletDataId()))
 				.collect(Collectors.toList());
 	}
 
