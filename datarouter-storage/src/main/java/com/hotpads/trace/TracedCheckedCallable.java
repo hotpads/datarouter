@@ -36,7 +36,7 @@ public abstract class TracedCheckedCallable<V> implements Callable<V>{
 
 			V result = wrappedCall();
 			if(Thread.currentThread().isInterrupted()){
-				throw new RuntimeException("interrupted");
+				throw new InterruptedException();
 			}
 
 			if(shouldStartNestedTrace){

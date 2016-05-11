@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.client.imp.hbase.task;
 
+import java.nio.channels.ClosedByInterruptException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -73,6 +74,7 @@ public class HBaseMultiAttemptTask<V> extends TracedCallable<V>{
 				try{
 					return future.get();
 				}catch(ExecutionException e){
+					throwIfInterruped(e);
 					logger.warn("rethrowing ExecutionException as DataAccessException", e);
 					throw new DataAccessException(e);
 				}
@@ -92,7 +94,7 @@ public class HBaseMultiAttemptTask<V> extends TracedCallable<V>{
 
 	private void throwIfInterruped(Throwable throwable){
 		do{
-			if(throwable instanceof InterruptedException){
+			if(throwable instanceof InterruptedException || throwable instanceof ClosedByInterruptException){
 				throw new DataAccessException(throwable);
 			}
 			throwable = throwable.getCause();
