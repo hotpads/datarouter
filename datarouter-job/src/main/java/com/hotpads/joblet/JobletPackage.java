@@ -62,8 +62,8 @@ public class JobletPackage {
 		return StreamTool.map(jobletPackages, JobletPackage::getJoblet);
 	}
 
-	public static List<JobletData> getJobletDatas(Collection<JobletPackage> jobletProcesses){
-		return StreamTool.map(jobletProcesses, JobletPackage::getJobletData);
+	public static List<JobletData> getJobletDatas(Collection<JobletPackage> jobletPackages){
+		return StreamTool.map(jobletPackages, JobletPackage::getJobletData);
 	}
 
 }
