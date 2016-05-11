@@ -49,7 +49,7 @@ public class JobletScaler {
 	/****************** methods *************************/
 
 	public int getNumJobletServers(){
-		Iterable<JobletRequest> joblets = jobletNodes.joblet().scan(null, Configs.slaveOk());
+		Iterable<JobletRequest> joblets = jobletNodes.jobletRequest().scan(null, Configs.slaveOk());
 		return calcNumJobletServers(joblets);
 	}
 

@@ -16,8 +16,8 @@ public class DeleteTimedOutJobletRequests extends BaseHibernateOp<Integer>{
 	private final String tableName;
 
 	public DeleteTimedOutJobletRequests(Datarouter datarouter, JobletNodes jobletNodes) {
-		super(datarouter, jobletNodes.joblet().getMaster().getClientNames());
-		this.tableName = jobletNodes.joblet().getMaster().getPhysicalNodeIfApplicable().getTableName();
+		super(datarouter, jobletNodes.jobletRequest().getMaster().getClientNames());
+		this.tableName = jobletNodes.jobletRequest().getMaster().getPhysicalNodeIfApplicable().getTableName();
 	}
 
 	@Override

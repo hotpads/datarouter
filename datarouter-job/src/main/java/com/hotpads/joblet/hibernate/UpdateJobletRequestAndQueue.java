@@ -23,7 +23,7 @@ public class UpdateJobletRequestAndQueue extends BaseHibernateOp<Integer>{
 
 	public UpdateJobletRequestAndQueue(JobletTypeFactory jobletTypeFactory, JobletRequest jobletRequest,
 			boolean decrementQueueIfRateLimited, Datarouter datarouter, JobletNodes jobletNodes, Boolean rateLimited){
-		super(datarouter, jobletNodes.joblet().getMaster().getClientNames());
+		super(datarouter, jobletNodes.jobletRequest().getMaster().getClientNames());
 		this.jobletTypeFactory = jobletTypeFactory;
 		this.jobletRequest = jobletRequest;
 		this.decrementQueueIfRateLimited = decrementQueueIfRateLimited;

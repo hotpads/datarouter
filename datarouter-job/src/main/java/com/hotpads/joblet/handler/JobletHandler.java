@@ -178,7 +178,7 @@ public class JobletHandler extends BaseHandler{
 	protected Mav listExceptions(){
 		Mav mav = new Mav(JSP_exceptions);
 		List<JobletRequest> failedJoblets = new ArrayList<>();
-		for(JobletRequest joblet : jobletNodes.joblet().scan(null, null)){
+		for(JobletRequest joblet : jobletNodes.jobletRequest().scan(null, null)){
 			if(joblet.getStatus() == JobletStatus.failed){
 				failedJoblets.add(joblet);
 			}
@@ -280,10 +280,10 @@ public class JobletHandler extends BaseHandler{
 		Long jobletDataId = DrNumberTool.getLongNullSafe(params.optional("jobletDataId", ""),null);
 		boolean delete = params.optionalBoolean("delete", false);
 
-		List<JobletRequest> jobletRequests = DrListTool.createArrayList(jobletNodes.joblet().scan(null, null));
+		List<JobletRequest> jobletRequests = DrListTool.createArrayList(jobletNodes.jobletRequest().scan(null, null));
 		JobletRequest jobletRequest = findJobletRequestWithId(jobletRequests, jobletDataId);
 		if(delete){
-			jobletNodes.joblet().delete(jobletRequest.getKey(), null);
+			jobletNodes.jobletRequest().delete(jobletRequest.getKey(), null);
 		}else{
 			// parallelJobletProcessors.restartExecutor(joblet.getTypedPersistentString());
 			JobletData jobletData = jobletDao.getJobletData(jobletRequest);

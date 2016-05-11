@@ -31,8 +31,8 @@ public class GetJobletRequestForProcessing extends BaseHibernateOp<JobletRequest
 
 	public GetJobletRequestForProcessing(Long reservationTimeout, int maxRetries, String reservedBy, JobletType<?> jobletType,
 			Datarouter datarouter, JobletNodes jobletNodes, boolean rateLimited) {
-		super(datarouter, jobletNodes.joblet().getMaster().getClientNames(), Isolation.repeatableRead, false);
-		this.tableName = jobletNodes.joblet().getMaster().getPhysicalNodeIfApplicable().getTableName();
+		super(datarouter, jobletNodes.jobletRequest().getMaster().getClientNames(), Isolation.repeatableRead, false);
+		this.tableName = jobletNodes.jobletRequest().getMaster().getPhysicalNodeIfApplicable().getTableName();
 		this.reservationTimeout = reservationTimeout;
 		this.reservedBy = reservedBy;
 		this.jobletType = jobletType;

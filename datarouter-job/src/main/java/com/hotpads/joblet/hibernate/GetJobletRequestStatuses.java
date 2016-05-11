@@ -26,8 +26,8 @@ public class GetJobletRequestStatuses extends BaseHibernateOp<List<JobletSummary
 
 	public GetJobletRequestStatuses(String whereStatus, boolean includeQueueId, Datarouter datarouter,
 			JobletNodes jobletNodes){
-		super(datarouter, jobletNodes.joblet().getMaster().getClientNames(), Isolation.readUncommitted, false);
-		this.tableName = jobletNodes.joblet().getMaster().getPhysicalNodeIfApplicable().getTableName();
+		super(datarouter, jobletNodes.jobletRequest().getMaster().getClientNames(), Isolation.readUncommitted, false);
+		this.tableName = jobletNodes.jobletRequest().getMaster().getPhysicalNodeIfApplicable().getTableName();
 		this.whereStatus = whereStatus;
 		this.includeQueueId = includeQueueId;
 	}

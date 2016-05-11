@@ -23,7 +23,7 @@ public class DeleteJobletRequest extends BaseHibernateOp<JobletRequest>{
 
 	public DeleteJobletRequest(Datarouter datarouter, JobletTypeFactory jobletTypeFactory, JobletRequest jobletRequest,
 			JobletNodes jobletNodes, Boolean rateLimited) {
-		super(datarouter, jobletNodes.joblet().getMaster().getClientNames(), Isolation.repeatableRead, false);
+		super(datarouter, jobletNodes.jobletRequest().getMaster().getClientNames(), Isolation.repeatableRead, false);
 		this.jobletTypeFactory = jobletTypeFactory;
 		this.jobletRequest = jobletRequest;
 		this.jobletNodes = jobletNodes;
@@ -40,7 +40,7 @@ public class DeleteJobletRequest extends BaseHibernateOp<JobletRequest>{
 			GetJobletRequestForProcessing.updateQueueTickets(session, jobletRequest.getQueueId(), -1, getLogger());
 		}
 
-		jobletNodes.joblet().delete(jobletRequest.getKey(), null);
+		jobletNodes.jobletRequest().delete(jobletRequest.getKey(), null);
 		jobletNodes.jobletData().delete(jobletRequest.getJobletDataKey(), null);
 
 		return null;

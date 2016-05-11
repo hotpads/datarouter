@@ -115,7 +115,7 @@ public class JobletExecutorThread extends Thread{
 				// JobletThrottle.acquirePermits(jobletPackage.getJoblet().getType().getCpuPermits(),
 				// jobletPackage.getJoblet().getType().getMemoryPermits());
 				jobletPackage.getJoblet().setReservedAt(System.currentTimeMillis());
-				jobletNodes.joblet().put(jobletPackage.getJoblet(), null);
+				jobletNodes.jobletRequest().put(jobletPackage.getJoblet(), null);
 				setName(jobletName + " - working");
 				PhaseTimer timer = new PhaseTimer();
 				processingStartTime = System.currentTimeMillis();

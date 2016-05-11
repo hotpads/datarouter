@@ -57,7 +57,7 @@ public class JobletService{
 
 	public List<JobletPackage> getJobletPackagesOfType(JobletType<?> jobletType){
 		JobletRequestKey prefix = new JobletRequestKey(jobletType, null, null, null);
-		return jobletNodes.joblet().streamWithPrefix(prefix, null)
+		return jobletNodes.jobletRequest().streamWithPrefix(prefix, null)
 				.map(this::getJobletPackageForJoblet)
 				.collect(Collectors.toList());
 	}
@@ -121,14 +121,14 @@ public class JobletService{
 	public void submitJobletPackages(Collection<JobletPackage> jobletPackages){
 		jobletNodes.jobletData().putMulti(JobletPackage.getJobletDatas(jobletPackages), null);
 		jobletPackages.forEach(JobletPackage::updateJobletDataIdReference);
-		jobletNodes.joblet().putMulti(JobletPackage.getJobletRequests(jobletPackages), null);
+		jobletNodes.jobletRequest().putMulti(JobletPackage.getJobletRequests(jobletPackages), null);
 	}
 
 	public void setJobletRequestsRunningOnServerToCreated(JobletType<?> jobletType, String serverName,
 			boolean rateLimited){
-		Iterable<JobletRequest> joblets = jobletNodes.joblet().scan(null, null);
+		Iterable<JobletRequest> jobletRequests = jobletNodes.jobletRequest().scan(null, null);
 		String serverNamePrefix = serverName + "_";//don't want joblet1 to include joblet10
-		List<JobletRequest> jobletRequestsToReset = JobletRequest.filterByTypeStatusReservedByPrefix(joblets,
+		List<JobletRequest> jobletRequestsToReset = JobletRequest.filterByTypeStatusReservedByPrefix(jobletRequests,
 				jobletType, JobletStatus.running, serverNamePrefix);
 		logger.warn("found "+DrCollectionTool.size(jobletRequestsToReset)+" jobletRequests to reset");
 
@@ -138,7 +138,7 @@ public class JobletService{
 	}
 
 	public List<JobletSummary> getJobletSummaries(boolean slaveOk){
-		Iterable<JobletRequest> scanner = jobletNodes.joblet().scan(null, new Config().setSlaveOk(slaveOk));
+		Iterable<JobletRequest> scanner = jobletNodes.jobletRequest().scan(null, new Config().setSlaveOk(slaveOk));
 		return JobletRequest.getJobletCountsCreatedByType(jobletTypeFactory, scanner);
 	}
 
@@ -150,7 +150,7 @@ public class JobletService{
 		JobletRequestKey key = new JobletRequestKey(jobletType, null, null, null);
 		Range<JobletRequestKey> range = new Range<>(key, true, key, true);
 		Config config = new Config().setIterateBatchSize(50);
-		for(JobletRequest jobletRequest : jobletNodes.joblet().scan(range, config)){
+		for(JobletRequest jobletRequest : jobletNodes.jobletRequest().scan(range, config)){
 			if(jobletStatus == jobletRequest.getStatus()){
 				return true;
 			}
