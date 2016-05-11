@@ -58,7 +58,7 @@ public class Params{
 
 	public Long optionalLong(String key, Long defaultValue){
 		String value = request.getParameter(key);
-		if(value==null){
+		if(value==null || "".equals(value)){
 			return defaultValue;
 		}
 		return Long.valueOf(value);
