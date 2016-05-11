@@ -37,7 +37,7 @@ public class HBaseMultiAttemptTask<V> extends TracedCallable<V>{
 
 	private final Datarouter datarouter;
 
-	private HBaseTask<V> task;
+	private final HBaseTask<V> task;
 	private ExecutorService executorService;
 	private long timeoutMs;
 	private int maxAttempts;
