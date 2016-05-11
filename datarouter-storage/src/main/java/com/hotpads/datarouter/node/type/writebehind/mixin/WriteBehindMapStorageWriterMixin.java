@@ -3,7 +3,7 @@ package com.hotpads.datarouter.node.type.writebehind.mixin;
 import java.util.Collection;
 
 import com.hotpads.datarouter.config.Config;
-import com.hotpads.datarouter.node.op.raw.MapStorage.MapStorageNode;
+import com.hotpads.datarouter.node.op.raw.MapStorage;
 import com.hotpads.datarouter.node.op.raw.write.MapStorageWriter;
 import com.hotpads.datarouter.node.type.writebehind.WriteBehindNode;
 import com.hotpads.datarouter.node.type.writebehind.base.WriteWrapper;
@@ -14,7 +14,7 @@ import com.hotpads.datarouter.util.core.DrListTool;
 public interface WriteBehindMapStorageWriterMixin<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
-		N extends MapStorageNode<PK,D>>
+		N extends MapStorage<PK,D>>
 extends MapStorageWriter<PK,D>, WriteBehindNode<PK,D,N>{
 
 	@Override

@@ -4,3 +4,4 @@
 
 target/
 src/main/resources/git.properties
+*.iml
