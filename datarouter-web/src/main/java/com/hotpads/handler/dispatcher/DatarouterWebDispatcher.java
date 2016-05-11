@@ -36,7 +36,7 @@ public class DatarouterWebDispatcher extends BaseDispatcher{
 
 		//All urls must start with URL_DATAROUTER
 
-		handleDir(PATH_datarouter).withHandler(RoutersHandler.class);
+		handle(PATH_datarouter+ "*").withHandler(RoutersHandler.class);
 
 		handleDir(PATH_routers).withHandler(RoutersHandler.class);
 		handle(PATH_nodes_browseData).withHandler(ViewNodeDataHandler.class);
