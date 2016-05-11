@@ -7,6 +7,7 @@ import com.hotpads.handler.BaseDispatcher;
 import com.hotpads.handler.ExecutorsMonitoringHandler;
 import com.hotpads.handler.MemoryMonitoringHandler;
 import com.hotpads.handler.admin.DatabeanGeneratorHandler;
+import com.hotpads.handler.admin.DatarouterHandler;
 import com.hotpads.handler.admin.RoutersHandler;
 import com.hotpads.handler.admin.StackTracesManagerHandler;
 import com.hotpads.handler.admin.client.memory.MemoryHandler;
@@ -34,9 +35,7 @@ public class DatarouterWebDispatcher extends BaseDispatcher{
 	public DatarouterWebDispatcher(DatarouterInjector injector, String servletContextPath){
 		super(injector, servletContextPath, PATH_datarouter);
 
-		//All urls must start with URL_DATAROUTER
-
-		handle(PATH_datarouter+ "*").withHandler(RoutersHandler.class);
+		handle(PATH_datarouter).withHandler(DatarouterHandler.class);
 
 		handleDir(PATH_routers).withHandler(RoutersHandler.class);
 		handle(PATH_nodes_browseData).withHandler(ViewNodeDataHandler.class);
