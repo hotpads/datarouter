@@ -184,30 +184,8 @@ public class DatarouterClients{
 
 	public Map<Boolean,List<String>> getClientNamesByInitialized(){
 		Function<Entry<String,LazyClientProvider>,Boolean> isInitialized = entry -> entry.getValue().isInitialized();
-			return lazyClientProviderByName.entrySet().stream()
-					.collect(Collectors.groupingBy(isInitialized, Collectors.mapping(Entry::getKey,
-					Collectors.toList())));
-
-
-//		Map<Boolean,List<String>> result = new HashMap<>();
-//		for(Entry<String,LazyClientProvider> entry : lazyClientProviderByName.entrySet()){
-//			boolean isInitialized = entry.getValue().isInitialized();
-//			result.putIfAbsent(isInitialized, new ArrayList<>());
-//			result.get(isInitialized).add(entry.getKey());
-//		}
-//		return result;
-	}
-
-	public List<String> getInitializedClientNames(){
 		return lazyClientProviderByName.entrySet().stream()
-				.filter(entry -> entry.getValue().isInitialized())
-				.map(entry -> entry.getKey())
-				.collect(Collectors.toList());
-	}
-
-	public Map<String,Boolean> getInitializedByClientName(){
-		return lazyClientProviderByName.entrySet().stream()
-				.collect(Collectors.toMap(Entry::getKey, entry -> entry.getValue().isInitialized()));
+				.collect(Collectors.groupingBy(isInitialized, Collectors.mapping(Entry::getKey, Collectors.toList())));
 	}
 
 	public Client getClient(String clientName){
