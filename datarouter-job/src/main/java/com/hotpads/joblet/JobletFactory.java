@@ -26,7 +26,7 @@ public class JobletFactory{
 
 	private <P> Joblet<P> create(JobletType<P> jobletType, JobletRequest jobletRequest, P jobletParams){
 		Joblet<P> joblet = injector.getInstance(jobletType.getAssociatedClass());
-		joblet.setJoblet(jobletRequest);
+		joblet.setJobletRequest(jobletRequest);
 		joblet.setJobletParams(jobletParams);
 		return joblet;
 	}

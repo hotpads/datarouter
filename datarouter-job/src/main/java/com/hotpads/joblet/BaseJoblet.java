@@ -14,7 +14,7 @@ public abstract class BaseJoblet<T> implements Joblet<T>{
 	}
 
 	@Override
-	public void setJoblet(JobletRequest joblet){
+	public void setJobletRequest(JobletRequest joblet){
 		this.joblet = joblet;
 	}
 
