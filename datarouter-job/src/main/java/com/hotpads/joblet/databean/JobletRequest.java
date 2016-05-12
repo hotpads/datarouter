@@ -23,10 +23,15 @@ import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.imp.StringField;
+import com.hotpads.datarouter.storage.field.imp.StringFieldKey;
 import com.hotpads.datarouter.storage.field.imp.comparable.BooleanField;
+import com.hotpads.datarouter.storage.field.imp.comparable.BooleanFieldKey;
 import com.hotpads.datarouter.storage.field.imp.comparable.IntegerField;
+import com.hotpads.datarouter.storage.field.imp.comparable.IntegerFieldKey;
 import com.hotpads.datarouter.storage.field.imp.comparable.LongField;
+import com.hotpads.datarouter.storage.field.imp.comparable.LongFieldKey;
 import com.hotpads.datarouter.storage.field.imp.enums.StringEnumField;
+import com.hotpads.datarouter.storage.field.imp.enums.StringEnumFieldKey;
 import com.hotpads.datarouter.util.core.DrDateTool;
 import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
@@ -56,48 +61,76 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 	/*********************************** fields **************************/
 
 	@Id
-	protected JobletRequestKey key;
-	protected String queueId;
+	private JobletRequestKey key;
+	private String queueId;
 	@Type(type="status")
-	protected JobletStatus status = JobletStatus.created;
-	protected Integer numFailures = 0;
-	protected Integer numTimeouts = 0;
-	protected String reservedBy;
-	protected Long reservedAt;
-	protected Boolean restartable = false;
-	protected Long jobletDataId;
+	private JobletStatus status = JobletStatus.created;
+	private Integer numFailures = 0;
+	private Integer numTimeouts = 0;
+	private String reservedBy;
+	private Long reservedAt;
+	private Boolean restartable = false;
+	private Long jobletDataId;
 	private String exceptionRecordId;
-	protected Integer numItems = 0;
-	protected Integer numTasks = 0;
-	protected String debug;
+	private Integer numItems = 0;
+	private Integer numTasks = 0;
+	private String debug;
 	@Transient
-	protected PhaseTimer timer = new PhaseTimer();
+	private PhaseTimer timer = new PhaseTimer();
 	@Transient
-	protected MutableBoolean interrupted;
+	private MutableBoolean interrupted;
 
-    /************************** columns *******************************/
 
 	public static final String KEY_NAME = "key";
 
-	public class F{
-		public static final String
-			type = "type",
-			executionOrder = "executionOrder",
-	    	created = "created",
-			batchSequence = "batchSequence",
-	    	queueId = "queueId",
-	    	status = "status",
-	    	reservedBy = "reservedBy",
-	    	reservedAt = "reservedAt",
-	    	restartable = "restartable",
-	    	jobletDataId = "jobletDataId",
-	    	exceptionRecordId = "exceptionRecordId",
-	    	numItems = "numItems",
-	    	numTasks = "numTasks",
-	    	numFailures = "numFailures",
-	    	numTimeouts = "numTimeouts",
-	    	createdBy = "createdBy",
-	    	debug = "debug";
+
+	public static class FieldKeys{
+		public static final StringFieldKey queueId = new StringFieldKey("queueId").withSize(
+				MySqlColumnType.MAX_LENGTH_VARCHAR);
+		public static final StringEnumFieldKey<JobletStatus> status = new StringEnumFieldKey<>("status",
+				JobletStatus.class)
+				.withSize(MySqlColumnType.MAX_LENGTH_VARCHAR);
+		public static final IntegerFieldKey numFailures = new IntegerFieldKey("numFailures");
+		public static final IntegerFieldKey numTimeouts = new IntegerFieldKey("numTimeouts");
+		public static final StringFieldKey reservedBy = new StringFieldKey("reservedBy")
+				.withSize(MySqlColumnType.MAX_LENGTH_VARCHAR);
+		public static final LongFieldKey reservedAt = new LongFieldKey("reservedAt");
+		public static final BooleanFieldKey restartable = new BooleanFieldKey("restartable");
+		public static final StringFieldKey exceptionRecordId = new StringFieldKey("exceptionRecordId")
+				.withSize(ExceptionRecordKey.LENGTH_id);
+		public static final LongFieldKey jobletDataId = new LongFieldKey("jobletDataId");
+		public static final IntegerFieldKey numItems = new IntegerFieldKey("numItems");
+		public static final IntegerFieldKey numTasks = new IntegerFieldKey("numTasks");
+		public static final StringFieldKey debug = new StringFieldKey("debug")
+				.withSize(MySqlColumnType.MAX_LENGTH_VARCHAR);
+	}
+
+	public static class JobletRequestFielder extends BaseDatabeanFielder<JobletRequestKey, JobletRequest> {
+		public JobletRequestFielder() {
+			super(JobletRequestKey.class);
+		}
+
+		@Override
+		public List<Field<?>> getNonKeyFields(JobletRequest databean) {
+			return Arrays.asList(
+					new StringField(FieldKeys.queueId, databean.queueId),
+					new StringEnumField<JobletStatus>(FieldKeys.status, databean.status),
+					new IntegerField(FieldKeys.numFailures, databean.numFailures),
+					new IntegerField(FieldKeys.numTimeouts, databean.numTimeouts),
+					new StringField(FieldKeys.reservedBy, databean.reservedBy),
+					new LongField(FieldKeys.reservedAt, databean.reservedAt),
+					new BooleanField(FieldKeys.restartable, databean.restartable),
+					new StringField(FieldKeys.exceptionRecordId, databean.exceptionRecordId),
+					new LongField(FieldKeys.jobletDataId, databean.jobletDataId),
+					new IntegerField(FieldKeys.numItems, databean.numItems),
+					new IntegerField(FieldKeys.numTasks, databean.numTasks),
+					new StringField(FieldKeys.debug, databean.debug));
+		}
+
+		@Override
+		public MySqlRowFormat getRowFormat(){
+			return MySqlRowFormat.COMPACT;
+		}
 	}
 
 
@@ -113,36 +146,6 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 	}
 
 	/******************** databean ************************************/
-
-	public static class JobletFielder extends BaseDatabeanFielder<JobletRequestKey, JobletRequest> {
-		public JobletFielder() {
-			super(JobletRequestKey.class);
-		}
-
-		@Override
-		public List<Field<?>> getNonKeyFields(JobletRequest databean) {
-			return Arrays.asList(
-					new StringField(F.queueId, databean.queueId, MySqlColumnType.MAX_LENGTH_VARCHAR),
-					new StringEnumField<JobletStatus>(JobletStatus.class, F.status, databean.status,
-							MySqlColumnType.MAX_LENGTH_VARCHAR),
-					new IntegerField(F.numFailures, databean.numFailures),
-					new IntegerField(F.numTimeouts, databean.numTimeouts),
-					new StringField(F.reservedBy, databean.reservedBy, MySqlColumnType.MAX_LENGTH_VARCHAR),
-					new LongField(F.reservedAt, databean.reservedAt),
-					new BooleanField(F.restartable, databean.restartable),
-					new StringField(F.exceptionRecordId, databean.exceptionRecordId, ExceptionRecordKey.LENGTH_id),
-					new LongField(F.jobletDataId, databean.jobletDataId),
-					new IntegerField(F.numItems, databean.numItems),
-					new IntegerField(F.numTasks, databean.numTasks),
-					new StringField(F.debug, databean.debug, MySqlColumnType.MAX_LENGTH_VARCHAR));
-		}
-
-		@Override
-		public MySqlRowFormat getRowFormat(){
-			return MySqlRowFormat.COMPACT;
-		}
-
-	}
 
 	@Override
 	public Class<JobletRequestKey> getKeyClass(){

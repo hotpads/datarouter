@@ -15,6 +15,7 @@ import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.joblet.JobletNodes;
 import com.hotpads.joblet.databean.JobletRequest;
+import com.hotpads.joblet.databean.JobletRequestKey;
 import com.hotpads.joblet.dto.JobletSummary;
 
 @Deprecated
@@ -45,24 +46,39 @@ public class GetJobletRequestStatuses extends BaseHibernateOp<List<JobletSummary
 			where = " where "+where;
 		}
 
-		String sql = "select " + JobletRequest.F.executionOrder + ", " + JobletRequest.F.status + ", " + JobletRequest.F.type + ", "
-				+ JobletRequest.F.numFailures + ", count(" + JobletRequest.F.type + ")" + ", sum(" + JobletRequest.F.numItems + "), avg("
-				+ JobletRequest.F.numItems + "), sum(" + JobletRequest.F.numTasks + "), avg(" + JobletRequest.F.numTasks + "), min("
-				+ JobletRequest.F.created + "), min(" + JobletRequest.F.reservedAt + ")";
+		String sql = "select " + JobletRequestKey.FieldKeys.executionOrder.getColumnName()
+				+ ", " + JobletRequest.FieldKeys.status.getColumnName()
+				+ ", " + JobletRequestKey.FieldKeys.type.getColumnName()
+				+ ", " + JobletRequest.FieldKeys.numFailures.getColumnName()
+				+ ", count(" + JobletRequestKey.FieldKeys.type.getColumnName() + ")"
+				+ ", sum(" + JobletRequest.FieldKeys.numItems.getColumnName() + ")"
+				+ ", avg(" + JobletRequest.FieldKeys.numItems.getColumnName() + ")"
+				+ ", sum(" + JobletRequest.FieldKeys.numTasks.getColumnName() + ")"
+				+ ", avg(" + JobletRequest.FieldKeys.numTasks.getColumnName() + ")"
+				+ ", min(" + JobletRequestKey.FieldKeys.created.getColumnName() + ")"
+				+ ", min(" + JobletRequest.FieldKeys.reservedAt.getColumnName() + ")";
 		if(includeQueueId) {
-			sql = sql + ", " + JobletRequest.F.queueId;
+			sql = sql + ", " + JobletRequest.FieldKeys.queueId.getColumnName();
 		}
-		sql = sql + " from " + tableName + " " + where + " group by " + JobletRequest.F.status + ", " + JobletRequest.F.type + ", "
-				+ JobletRequest.F.executionOrder + ", ";
+		sql = sql + " from " + tableName
+				+ " " + where
+				+ " group by " + JobletRequest.FieldKeys.status.getColumnName()
+				+ ", " + JobletRequestKey.FieldKeys.type.getColumnName()
+				+ ", " + JobletRequestKey.FieldKeys.executionOrder.getColumnName()
+				+ ", ";
 		if(includeQueueId){
-			sql = sql + JobletRequest.F.queueId + ", ";
+			sql = sql + JobletRequest.FieldKeys.queueId.getColumnName()
+					+ ", ";
 		}
-		sql = sql + JobletRequest.F.numFailures + " order by " + JobletRequest.F.status + ", " + JobletRequest.F.type + ", "
-				+ JobletRequest.F.executionOrder + ", ";
+		sql = sql + JobletRequest.FieldKeys.numFailures
+				+ " order by " + JobletRequest.FieldKeys.status.getColumnName()
+				+ ", " + JobletRequestKey.FieldKeys.type.getColumnName()
+				+ ", " + JobletRequestKey.FieldKeys.executionOrder.getColumnName()
+				+ ", ";
 		if(includeQueueId){
-			sql = sql + JobletRequest.F.queueId + ", ";
+			sql = sql + JobletRequest.FieldKeys.queueId.getColumnName() + ", ";
 		}
-		sql = sql + JobletRequest.F.numFailures;
+		sql = sql + JobletRequest.FieldKeys.numFailures.getColumnName();
 		SQLQuery sqlQuery = getSession(client.getName()).createSQLQuery(sql);
 		List<Object[]> rows = sqlQuery.list();
 
@@ -76,9 +92,8 @@ public class GetJobletRequestStatuses extends BaseHibernateOp<List<JobletSummary
 
 
 	@Override
-	public List<JobletSummary> mergeResults(
-			List<JobletSummary> fromOnce,
-			Collection<List<JobletSummary>> fromEachClient) {
+	public List<JobletSummary> mergeResults(List<JobletSummary> fromOnce,
+			Collection<List<JobletSummary>> fromEachClient){
 		return ResultMergeTool.append(fromOnce, fromEachClient);
 	}
 
