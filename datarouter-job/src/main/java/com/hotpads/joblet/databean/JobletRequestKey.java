@@ -11,8 +11,11 @@ import javax.persistence.Entity;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.imp.StringField;
+import com.hotpads.datarouter.storage.field.imp.StringFieldKey;
 import com.hotpads.datarouter.storage.field.imp.comparable.IntegerField;
+import com.hotpads.datarouter.storage.field.imp.comparable.IntegerFieldKey;
 import com.hotpads.datarouter.storage.field.imp.comparable.LongField;
+import com.hotpads.datarouter.storage.field.imp.comparable.LongFieldKey;
 import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
 import com.hotpads.joblet.enums.JobletType;
 
@@ -31,6 +34,21 @@ public class JobletRequestKey extends BasePrimaryKey<JobletRequestKey>{
 	private Long created;
 	private Integer batchSequence = 0;//tie breaker for keys "created" in same millisecond
 
+	public static class FieldKeys{
+		public static final StringFieldKey type = new StringFieldKey("type").withSize(DEFAULT_STRING_LENGTH);
+		public static final IntegerFieldKey executionOrder = new IntegerFieldKey("executionOrder");
+		public static final LongFieldKey created = new LongFieldKey("created");
+		public static final IntegerFieldKey batchSequence = new IntegerFieldKey("batchSequence");
+	}
+
+	@Override
+	public List<Field<?>> getFields() {
+		return Arrays.asList(
+				new StringField(FieldKeys.type, type),
+				new IntegerField(FieldKeys.executionOrder, executionOrder),
+				new LongField(FieldKeys.created, created),
+				new IntegerField(FieldKeys.batchSequence, batchSequence));
+	}
 
 	/****************************** constructor ********************************/
 
@@ -46,15 +64,6 @@ public class JobletRequestKey extends BasePrimaryKey<JobletRequestKey>{
 		this.executionOrder = executionOrder;
 		this.created = created == null ? null : created.getTime();
 		this.batchSequence = batchSequence;
-	}
-
-	@Override
-	public List<Field<?>> getFields() {
-		return Arrays.asList(
-				new StringField(JobletRequest.F.type, this.type,DEFAULT_STRING_LENGTH),
-				new IntegerField(JobletRequest.F.executionOrder, this.executionOrder),
-				new LongField(JobletRequest.F.created, this.created),
-				new IntegerField(JobletRequest.F.batchSequence, this.batchSequence));
 	}
 
 
