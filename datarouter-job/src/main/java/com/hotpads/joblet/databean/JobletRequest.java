@@ -55,11 +55,6 @@ import com.hotpads.util.datastructs.MutableBoolean;
 })
 public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 
-	/************************** enums **************************************/
-
-
-	/*********************************** fields **************************/
-
 	@Id
 	private JobletRequestKey key;
 	private String queueId;
@@ -134,7 +129,7 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 	}
 
 
-	/************************* constructors ********************************/
+	/************************* construct ********************************/
 
 	JobletRequest(){
 		this.key = new JobletRequestKey(null, null, null);

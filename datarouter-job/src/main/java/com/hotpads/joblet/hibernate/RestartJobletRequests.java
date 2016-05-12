@@ -38,7 +38,7 @@ public class RestartJobletRequests extends BaseHibernateOp<Integer>{
 			sql = "update " + tableName + " set status=:status, numFailures=0 where status=:currentStatus";
 		}
 
-		Session session = this.getSession(client.getName());
+		Session session = getSession(client.getName());
 
 		SQLQuery query = session.createSQLQuery(sql);
 		query.setParameter("status", JobletStatus.created.getPersistentString());

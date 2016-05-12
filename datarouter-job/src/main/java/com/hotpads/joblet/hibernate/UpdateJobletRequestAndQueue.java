@@ -43,7 +43,7 @@ public class UpdateJobletRequestAndQueue extends BaseHibernateOp<Integer>{
 		JobletType<?> jobletType = jobletTypeFactory.fromJobletRequest(jobletRequest);
 		boolean enforceRateLimit = rateLimited && jobletType.getRateLimited();
 
-		if(this.decrementQueueIfRateLimited && enforceRateLimit){
+		if(decrementQueueIfRateLimited && enforceRateLimit){
 			String queueSql = "update JobletQueue set numTickets = numTickets - 1 where id=:id";
 			SQLQuery queueQuery = session.createSQLQuery(queueSql);
 			queueQuery.setParameter("id", jobletRequest.getQueueId());

@@ -50,7 +50,7 @@ public class JobletRequestKey extends BasePrimaryKey<JobletRequestKey>{
 				new IntegerField(FieldKeys.batchSequence, batchSequence));
 	}
 
-	/****************************** constructor ********************************/
+	/****************************** construct ********************************/
 
 	JobletRequestKey(){
 	}
