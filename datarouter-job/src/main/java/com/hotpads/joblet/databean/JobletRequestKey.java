@@ -35,7 +35,7 @@ public class JobletRequestKey extends BasePrimaryKey<JobletRequestKey>{
 	private Integer batchSequence = 0;//tie breaker for keys "created" in same millisecond
 
 	public static class FieldKeys{
-		public static final StringFieldKey type = new StringFieldKey("type").withSize(DEFAULT_STRING_LENGTH);
+		public static final StringFieldKey type = new StringFieldKey("type");
 		public static final IntegerFieldKey executionOrder = new IntegerFieldKey("executionOrder");
 		public static final LongFieldKey created = new LongFieldKey("created");
 		public static final IntegerFieldKey batchSequence = new IntegerFieldKey("batchSequence");

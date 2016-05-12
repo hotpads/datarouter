@@ -17,7 +17,6 @@ import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.TypeDefs;
 
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlRowFormat;
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
@@ -80,15 +79,12 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 
 
 	public static class FieldKeys{
-		public static final StringFieldKey queueId = new StringFieldKey("queueId").withSize(
-				MySqlColumnType.MAX_LENGTH_VARCHAR);
+		public static final StringFieldKey queueId = new StringFieldKey("queueId");
 		public static final StringEnumFieldKey<JobletStatus> status = new StringEnumFieldKey<>("status",
-				JobletStatus.class)
-				.withSize(MySqlColumnType.MAX_LENGTH_VARCHAR);
+				JobletStatus.class);
 		public static final IntegerFieldKey numFailures = new IntegerFieldKey("numFailures");
 		public static final IntegerFieldKey numTimeouts = new IntegerFieldKey("numTimeouts");
-		public static final StringFieldKey reservedBy = new StringFieldKey("reservedBy")
-				.withSize(MySqlColumnType.MAX_LENGTH_VARCHAR);
+		public static final StringFieldKey reservedBy = new StringFieldKey("reservedBy");
 		public static final LongFieldKey reservedAt = new LongFieldKey("reservedAt");
 		public static final BooleanFieldKey restartable = new BooleanFieldKey("restartable");
 		public static final StringFieldKey exceptionRecordId = new StringFieldKey("exceptionRecordId")
@@ -96,8 +92,7 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 		public static final LongFieldKey jobletDataId = new LongFieldKey("jobletDataId");
 		public static final IntegerFieldKey numItems = new IntegerFieldKey("numItems");
 		public static final IntegerFieldKey numTasks = new IntegerFieldKey("numTasks");
-		public static final StringFieldKey debug = new StringFieldKey("debug")
-				.withSize(MySqlColumnType.MAX_LENGTH_VARCHAR);
+		public static final StringFieldKey debug = new StringFieldKey("debug");
 	}
 
 	public static class JobletRequestFielder extends BaseDatabeanFielder<JobletRequestKey, JobletRequest> {
