@@ -117,6 +117,10 @@ public class Range<T extends Comparable<? super T>> implements Comparable<Range<
 		return outs;
 	}
 
+	public boolean isEmpty(){
+		return equalsStartEnd() && !(startInclusive && endInclusive);
+	}
+
 	@Override
 	public Range<T> clone(){
 		return new Range<>(start, startInclusive, end, endInclusive);
