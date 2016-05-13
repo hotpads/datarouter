@@ -118,7 +118,11 @@ public class Range<T extends Comparable<? super T>> implements Comparable<Range<
 	}
 
 	public boolean isEmpty(){
-		return equalsStartEnd() && !(startInclusive && endInclusive);
+		return equalsStartEnd() && start != null && !(startInclusive && endInclusive);
+	}
+
+	public boolean notEmpty(){
+		return !isEmpty();
 	}
 
 	@Override
