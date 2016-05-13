@@ -70,7 +70,7 @@ public abstract class BaseDispatcher{
 		for(DispatchRule rule : dispatchRules){
 			if(rule.getPattern().matcher(afterContextPath).matches()){
 				if(!rule.apply(request)){
-					// not good because will return 404 and log "dispatcher could not find Handler for /uri"
+					// TODO: not good because will return 404 and log "dispatcher could not find Handler for /uri"
 					return false;
 				}
 				handler = injector.getInstance(rule.getHandlerClass());
