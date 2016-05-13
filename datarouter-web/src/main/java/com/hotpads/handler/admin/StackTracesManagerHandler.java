@@ -28,16 +28,10 @@ import com.hp.gagawa.java.elements.Span;
 public class StackTracesManagerHandler extends BaseHandler{
 
 	@Override
-	@Handler
 	protected Mav handleDefault(){
-		return getStackTraces();
-	}
-
-	@Handler
-	public Mav getStackTraces(){
 		Mav mav = new Mav("/jsp/admin/stackTraces.jsp");
-		Optional<State> state = Optional.ofNullable(params.optional("state", null)).map(State::valueOf);
-		Optional<String> optWildcard = Optional.ofNullable(params.optionalNotEmpty("wildcard", null));
+		Optional<State> state = params.optional("state").map(State::valueOf);
+		Optional<String> optWildcard = params.optionalNotEmpty("wildcard");
 
 		Map<Thread,StackTraceElement[]> sts = Thread.getAllStackTraces();
 		List<Thread> orderedThreads = new ArrayList<>(sts.keySet());
