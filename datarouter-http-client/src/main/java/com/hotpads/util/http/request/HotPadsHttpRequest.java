@@ -3,6 +3,7 @@ package com.hotpads.util.http.request;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -189,11 +190,7 @@ public class HotPadsHttpRequest {
 
 	/** Entities only exist in HttpPut, HttpPatch, HttpPost */
 	public HotPadsHttpRequest setEntity(Map<String, String> entity) {
-		try {
-			this.entity = new UrlEncodedFormEntity(urlEncodeFromMap(entity));
-		} catch (UnsupportedEncodingException e) {
-			throw new HotPadsHttpRuntimeException(e);
-		}
+		this.entity = new UrlEncodedFormEntity(urlEncodeFromMap(entity), StandardCharsets.UTF_8);
 		return this;
 	}
 
