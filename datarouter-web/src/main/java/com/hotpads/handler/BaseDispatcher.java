@@ -89,7 +89,7 @@ public abstract class BaseDispatcher{
 		handler.setRequest(request);
 		handler.setResponse(response);
 		handler.setServletContext(servletContext);
-		handler.setParams(new Params(request, response));
+		handler.setParams(new Params(request));
 		handler.handleWrapper();
 		return true;
 	}
