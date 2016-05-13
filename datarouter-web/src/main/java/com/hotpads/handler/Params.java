@@ -34,8 +34,11 @@ public class Params{
 	}
 
 	public String optionalNotEmpty(String key, String defaultValue) {
-		String value = optional(key, defaultValue);
-		return value.equals("") ? defaultValue : value;
+		String value = request.getParameter(key);
+		if(DrStringTool.isEmptyOrWhitespace(value)){
+			return defaultValue;
+		}
+		return value;
 	}
 
 	public Boolean requiredBoolean(String key){
