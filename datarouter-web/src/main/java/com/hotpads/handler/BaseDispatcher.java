@@ -70,7 +70,8 @@ public abstract class BaseDispatcher{
 		for(DispatchRule rule : dispatchRules){
 			if(rule.getPattern().matcher(afterContextPath).matches()){
 				if(!rule.apply(request)){
-					// TODO: not good because will return 404 and log "dispatcher could not find Handler for /uri"
+					// TODO improve this. Right now it returns 404 and log "dispatcher could not find Handler for /uri"
+					// while it's more an "access denied"
 					return false;
 				}
 				handler = injector.getInstance(rule.getHandlerClass());
