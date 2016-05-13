@@ -144,6 +144,10 @@ public class SqlBuilderIntegrationTests{
 		Assert.assertEquals(SqlBuilder.getInRange(jdbcFieldCodecFactory, config, "TestTable", KEY_1.getFields(),
 				new Range<>(new TestKey(KEY_1.foo, null), true, KEY_1, true), null, Optional.of("SomeIndex")),
 				"select foo, bar from TestTable force index (SomeIndex) where (foo=42 and ((bar<='baz'))) limit 5, 10");
+		Assert.assertEquals(SqlBuilder.getInRange(jdbcFieldCodecFactory, config, "TestTable", KEY_1.getFields(),
+				new Range<>(KEY_1, false, KEY_1, true), null), "select foo, bar from TestTable where 0 limit 5, 10");
+		Assert.assertEquals(SqlBuilder.getInRange(jdbcFieldCodecFactory, config, "TestTable", KEY_1.getFields(),
+				new Range<>(KEY_1, true, KEY_1, false), null), "select foo, bar from TestTable where 0 limit 5, 10");
 	}
 
 	@Test
