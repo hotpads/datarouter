@@ -3,6 +3,7 @@ package com.hotpads.handler;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -28,14 +29,20 @@ public class Params{
 		return Preconditions.checkNotNull(request.getParameter(key));
 	}
 
+	public Optional<String> optional(String key){
+		return Optional.ofNullable(request.getParameter(key));
+	}
+
 	public String optional(String key, String defaultValue){
-		String value = request.getParameter(key);
-		return value==null?defaultValue:value;
+		return optional(key).orElse(defaultValue);
+	}
+
+	public Optional<String> optionalNotEmpty(String key){
+		return optional(key).map(String::trim).filter(DrStringTool::notEmpty);
 	}
 
 	public String optionalNotEmpty(String key, String defaultValue) {
-		String value = optional(key, defaultValue);
-		return value.equals("") ? defaultValue : value;
+		return optionalNotEmpty(key).orElse(defaultValue);
 	}
 
 	public Boolean requiredBoolean(String key){
