@@ -156,8 +156,7 @@ public abstract class BaseHandler{
 	}
 
 	private String handlerMethodName(){
-		String fullPath = DrStringTool.nullSafe(params.getRequest().getServletPath()) +
-				DrStringTool.nullSafe(params.getRequest().getPathInfo());
+		String fullPath = request.getServletPath() + DrStringTool.nullSafe(request.getPathInfo());
 		String lastPathSegment = getLastPathSegment(fullPath);
 		return params.optional(handlerMethodParamName()).orElse(lastPathSegment);
 	}
@@ -175,10 +174,6 @@ public abstract class BaseHandler{
 
 	protected String handlerMethodParamName(){
 		return "submitAction";
-	}
-
-	protected void p(String string){
-		out.get().write(string);
 	}
 
 	/****************** get/set *******************************************/
