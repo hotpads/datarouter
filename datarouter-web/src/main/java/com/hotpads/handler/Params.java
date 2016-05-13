@@ -1,28 +1,25 @@
 package com.hotpads.handler;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.util.core.DrBooleanTool;
-import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.handler.user.session.DatarouterSession;
 import com.hotpads.util.http.RequestTool;
 
 public class Params{
 
-	protected HttpServletRequest request;
-	protected HttpServletResponse response;
+	private final HttpServletRequest request;
 
-	public Params(HttpServletRequest request, HttpServletResponse response){
+	public Params(HttpServletRequest request){
 		this.request = request;
-		this.response = response;
 	}
 
 	public String required(String key){
@@ -33,6 +30,10 @@ public class Params{
 		return Optional.ofNullable(request.getParameter(key));
 	}
 
+	/**
+	 * @deprecated inline it
+	 */
+	@Deprecated
 	public String optional(String key, String defaultValue){
 		return optional(key).orElse(defaultValue);
 	}
@@ -41,13 +42,16 @@ public class Params{
 		return optional(key).map(String::trim).filter(DrStringTool::notEmpty);
 	}
 
+	/**
+	 * @deprecated inline it
+	 */
+	@Deprecated
 	public String optionalNotEmpty(String key, String defaultValue) {
 		return optionalNotEmpty(key).orElse(defaultValue);
 	}
 
 	public Boolean requiredBoolean(String key){
-		return DrBooleanTool.isTrue(
-				Preconditions.checkNotNull(request.getParameter(key)));
+		return DrBooleanTool.isTrue(Preconditions.checkNotNull(request.getParameter(key)));
 	}
 
 	public Boolean optionalBoolean(String key, Boolean defaultValue){
@@ -59,8 +63,7 @@ public class Params{
 	}
 
 	public Long requiredLong(String key){
-		return Long.valueOf(
-				Preconditions.checkNotNull(request.getParameter(key)));
+		return Long.valueOf(Preconditions.checkNotNull(request.getParameter(key)));
 	}
 
 	public Long optionalLong(String key, Long defaultValue){
@@ -80,8 +83,7 @@ public class Params{
 	}
 
 	public Integer requiredInteger(String key){
-		return Integer.valueOf(
-				Preconditions.checkNotNull(request.getParameter(key)));
+		return Integer.valueOf(Preconditions.checkNotNull(request.getParameter(key)));
 	}
 
 	public Integer optionalInteger(String key, Integer defaultValue){
@@ -101,8 +103,7 @@ public class Params{
 	}
 
 	public Double requiredDouble(String key){
-		return Double.valueOf(
-				Preconditions.checkNotNull(request.getParameter(key)));
+		return Double.valueOf(Preconditions.checkNotNull(request.getParameter(key)));
 	}
 
 	public List<String> optionalCsvList(String key, List<String> defaultValue){
@@ -114,27 +115,23 @@ public class Params{
 		if(DrStringTool.isEmpty(stringVal)){
 			return defaultValue;
 		}
-		return DrListTool.nullSafeLinkedAddAll(null, stringVal.split(delimiter));
+		return Arrays.asList(stringVal.split(delimiter));
 	}
 
 	public Integer tryGetInteger(String key, Integer defaultValue) {
-		Integer value = defaultValue;
 		try {
-			value = optionalInteger(key, defaultValue);
+			return optionalInteger(key, defaultValue);
 		} catch (NumberFormatException e) {
-			// no-op
+			return defaultValue;
 		}
-		return value;
 	}
 
 	public Long tryGetLong(String key, Long defaultValue) {
-		Long value = defaultValue;
 		try {
-			value = optionalLong(key, defaultValue);
+			return optionalLong(key, defaultValue);
 		} catch (NumberFormatException e) {
-			// no-op
+			return defaultValue;
 		}
-		return value;
 	}
 
 	public Date tryGetLongAsDate(String key, Long defaultValue) {
@@ -145,8 +142,6 @@ public class Params{
 	public Map<String, String> toMap(){
 		return RequestTool.getParamMap(request);
 	}
-
-	//etc, etc...
 
 	/**************************** fancier methods *************************/
 
@@ -164,10 +159,5 @@ public class Params{
 	public HttpServletRequest getRequest(){
 		return request;
 	}
-
-	public HttpServletResponse getResponse(){
-		return response;
-	}
-
 
 }

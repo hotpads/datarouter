@@ -60,12 +60,9 @@ public abstract class BaseHandler{
 	@Deprecated
 	protected Lazy<PrintWriter> out;
 
-	//returns url match regex.  dispatcher servlet calls this on container startup to build url mappings
-	//..could also map the url's externally so they're in a centralized place
-//	abstract String handles();
-
 	protected static final String DEFAULT_HANDLER_METHOD_NAME = "handleDefault";
 
+	@SuppressWarnings("unused")//throws exception to let overrides throw
 	@Handler
 	protected Object handleDefault() throws Exception{
 		return new MessageMav("no default handler method found, please specify " + handlerMethodParamName());
@@ -105,8 +102,6 @@ public abstract class BaseHandler{
 						|| matchesDefaultHandlerMethod(methodName))) {
 					throw new PermissionException("no such handler " + handlerMethodParamName() + "=" + methodName);
 				}
-//			}catch(NoSuchMethodException e){
-//				throw new RuntimeException(e);
 			}catch(IllegalArgumentException e){
 				throw new RuntimeException(e);
 			}catch(SecurityException e){
@@ -161,10 +156,10 @@ public abstract class BaseHandler{
 	}
 
 	private String handlerMethodName(){
-		String fullPath = DrStringTool.nullSafe(params.request.getServletPath()) +
-				DrStringTool.nullSafe(params.request.getPathInfo());
+		String fullPath = DrStringTool.nullSafe(params.getRequest().getServletPath()) +
+				DrStringTool.nullSafe(params.getRequest().getPathInfo());
 		String lastPathSegment = getLastPathSegment(fullPath);
-		return params.optional(handlerMethodParamName(), lastPathSegment);
+		return params.optional(handlerMethodParamName()).orElse(lastPathSegment);
 	}
 
 	private String getLastPathSegment(String uri) {
