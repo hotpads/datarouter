@@ -16,7 +16,7 @@
  */
 
 /*
- * This file copied from Quartz-2.2.2
+ * This file copied from Quartz-2.2.3
  */
 package com.hotpads.util.core.date;
 
