@@ -2,7 +2,6 @@ package com.hotpads.joblet;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.function.Supplier;
 
 import com.hotpads.joblet.databean.JobletData;
 import com.hotpads.joblet.databean.JobletRequest;
@@ -34,9 +33,16 @@ public class JobletPackage {
 
 	/*-------------- static -----------------*/
 
-	public static <T,P> JobletPackage create(JobletType<T> jobletType, Supplier<? extends JobletCodec<P>> codecSupplier,
-			int executionOrder, boolean restartable, String queueId, P params){
-		JobletCodec<P> codec = codecSupplier.get();
+	public static <P> JobletPackage createUnchecked(JobletType<?> uncheckedJobletType, int executionOrder,
+			boolean restartable, String queueId, P params){
+		@SuppressWarnings("unchecked")
+		JobletType<P> jobletType = (JobletType<P>)uncheckedJobletType;
+		return create(jobletType, executionOrder, restartable, queueId, params);
+	}
+
+	public static <P> JobletPackage create(JobletType<P> jobletType, int executionOrder, boolean restartable,
+			String queueId, P params){
+		JobletCodec<P> codec = jobletType.getCodecSupplier().get();
 
 		//build JobletRequest
 		int batchSequence = RandomTool.nextPositiveInt();
@@ -52,12 +58,12 @@ public class JobletPackage {
 		return new JobletPackage(request, data);
 	}
 
-	public static List<JobletRequest> getJoblets(Collection<JobletPackage> jobletPackages){
+	public static List<JobletRequest> getJobletRequests(Collection<JobletPackage> jobletPackages){
 		return StreamTool.map(jobletPackages, JobletPackage::getJoblet);
 	}
 
-	public static List<JobletData> getJobletDatas(Collection<JobletPackage> jobletProcesses){
-		return StreamTool.map(jobletProcesses, JobletPackage::getJobletData);
+	public static List<JobletData> getJobletDatas(Collection<JobletPackage> jobletPackages){
+		return StreamTool.map(jobletPackages, JobletPackage::getJobletData);
 	}
 
 }

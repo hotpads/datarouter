@@ -11,13 +11,13 @@ import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.joblet.JobletNodes;
 import com.hotpads.joblet.enums.JobletStatus;
 
-public class DeleteTimedOutJoblets extends BaseHibernateOp<Integer>{
+public class DeleteTimedOutJobletRequests extends BaseHibernateOp<Integer>{
 
 	private final String tableName;
 
-	public DeleteTimedOutJoblets(Datarouter datarouter, JobletNodes jobletNodes) {
-		super(datarouter, jobletNodes.joblet().getMaster().getClientNames());
-		this.tableName = jobletNodes.joblet().getMaster().getPhysicalNodeIfApplicable().getTableName();
+	public DeleteTimedOutJobletRequests(Datarouter datarouter, JobletNodes jobletNodes) {
+		super(datarouter, jobletNodes.jobletRequest().getMaster().getClientNames());
+		this.tableName = jobletNodes.jobletRequest().getMaster().getPhysicalNodeIfApplicable().getTableName();
 	}
 
 	@Override

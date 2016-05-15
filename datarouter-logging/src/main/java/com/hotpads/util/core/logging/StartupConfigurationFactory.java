@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 
 import org.apache.logging.log4j.core.Appender;
+import org.apache.logging.log4j.core.Filter;
 import org.apache.logging.log4j.core.config.AbstractConfiguration;
 import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.ConfigurationFactory;
@@ -55,6 +56,9 @@ public class StartupConfigurationFactory extends ConfigurationFactory{
 		for(LoggerConfig loggerConfig : log4j2Configuration.getLoggerConfigs()){
 			configuration.addLogger(loggerConfig.getName(), loggerConfig);
 			staticLoggerConfigs.add(loggerConfig);
+		}
+		for(Filter filter : log4j2Configuration.getFilters()){
+			configuration.addFilter(filter);
 		}
 		LOGGER.info("HotPadsConfig initiated");
 		return configuration;

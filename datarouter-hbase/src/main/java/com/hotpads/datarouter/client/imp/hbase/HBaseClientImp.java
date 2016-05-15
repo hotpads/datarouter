@@ -2,8 +2,6 @@ package com.hotpads.datarouter.client.imp.hbase;
 
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.hadoop.conf.Configuration;
@@ -27,27 +25,21 @@ implements HBaseClient{
 	private static final Logger logger = LoggerFactory.getLogger(HBaseClientImp.class);
 
 	private final Configuration hbaseConfiguration;
-	private final HBaseTablePool pool;
 	private final Admin admin;
+	private final HBaseTablePool pool;
 	private final ExecutorService executorService;
 	private final Map<String,Class<? extends PrimaryKey<?>>> primaryKeyClassByName;
 
 	/**************************** constructor **********************************/
 
-	public HBaseClientImp(String name, Configuration hbaseConfiguration, HBaseTablePool pool, Admin admin,
-			Map<String,Class<? extends PrimaryKey<?>>> primaryKeyClassByName,
-			ClientAvailabilitySettings clientAvailabilitySettings){
+	public HBaseClientImp(String name, Configuration hbaseConfiguration, Admin hbaseAdmin, HBaseTablePool pool,
+			Map<String,Class<? extends PrimaryKey<?>>> primaryKeyClassByName, ClientAvailabilitySettings
+			clientAvailabilitySettings, ExecutorService executorService){
 		super(name, clientAvailabilitySettings);
 		this.hbaseConfiguration = hbaseConfiguration;
+		this.admin = hbaseAdmin;
 		this.pool = pool;
-		this.admin = admin;
-		this.executorService = new ThreadPoolExecutor(
-				pool.getTotalPoolSize()+10,
-				pool.getTotalPoolSize()+10,
-				60, //irrelevant because our coreSize=maxSize
-				TimeUnit.SECONDS,  //irrelevant because our coreSize=maxSize
-				new LinkedBlockingQueue<Runnable>(1),
-				new ThreadPoolExecutor.CallerRunsPolicy());
+		this.executorService = executorService;
 		this.primaryKeyClassByName = primaryKeyClassByName;
 	}
 
@@ -60,8 +52,6 @@ implements HBaseClient{
 	public String toString(){
 		return getName();
 	}
-
-
 
 	/****************************** HBaseClient methods *************************/
 

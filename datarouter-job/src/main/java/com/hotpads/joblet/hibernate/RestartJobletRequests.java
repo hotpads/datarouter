@@ -12,14 +12,14 @@ import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.joblet.JobletNodes;
 import com.hotpads.joblet.enums.JobletStatus;
 
-public class RestartJoblets extends BaseHibernateOp<Integer>{
+public class RestartJobletRequests extends BaseHibernateOp<Integer>{
 
 	private final String tableName;
 	private final JobletStatus currentStatus;
 
-	public RestartJoblets(Datarouter datarouter, JobletNodes jobletNodes, JobletStatus currentStatus) {
-		super(datarouter, jobletNodes.joblet().getMaster().getClientNames());
-		this.tableName = jobletNodes.joblet().getMaster().getPhysicalNodeIfApplicable().getTableName();
+	public RestartJobletRequests(Datarouter datarouter, JobletNodes jobletNodes, JobletStatus currentStatus) {
+		super(datarouter, jobletNodes.jobletRequest().getMaster().getClientNames());
+		this.tableName = jobletNodes.jobletRequest().getMaster().getPhysicalNodeIfApplicable().getTableName();
 		this.currentStatus = currentStatus;
 	}
 
@@ -38,7 +38,7 @@ public class RestartJoblets extends BaseHibernateOp<Integer>{
 			sql = "update " + tableName + " set status=:status, numFailures=0 where status=:currentStatus";
 		}
 
-		Session session = this.getSession(client.getName());
+		Session session = getSession(client.getName());
 
 		SQLQuery query = session.createSQLQuery(sql);
 		query.setParameter("status", JobletStatus.created.getPersistentString());

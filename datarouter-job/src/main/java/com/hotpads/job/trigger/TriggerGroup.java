@@ -1,16 +1,11 @@
 package com.hotpads.job.trigger;
 
-import java.util.Map;
+import java.util.List;
 
-import com.google.common.base.Preconditions;
+import com.hotpads.job.web.TriggersRepository.JobPackage;
 
 public interface TriggerGroup{
 
-	Map<Class<? extends Job>, String> getJobClasses();
-
-	default void addAndVerifyNotDuplicate(String cronExpression, Class<? extends Job> job){
-		Preconditions.checkArgument(!getJobClasses().containsKey(job));
-		getJobClasses().put(job, cronExpression);
-	}
+	List<JobPackage> makeJobPackages();
 
 }

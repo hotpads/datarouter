@@ -32,6 +32,14 @@ public abstract class Lazy<R> implements Callable<R>, Ref<R>{
 		}
 	}
 
+	public boolean isInitialized(){
+		return value != null;
+	}
+
+	public R getIfInitialized(){
+		return value;
+	}
+
 	/*-------------- Callable -----------------*/
 
 	//allow another thread to trigger the Lazy

@@ -1,10 +1,8 @@
 package com.hotpads.job.web;
 
-import java.util.List;
-
 import com.hotpads.util.core.enums.StringPersistedEnum;
-import com.hotpads.util.core.web.HTMLSelectOptionBean;
 
+//marker interface
 public interface JobCategory extends StringPersistedEnum{
-	public List<HTMLSelectOptionBean> getHtmlSelectOptions();
+
 }

@@ -26,9 +26,9 @@ import com.hotpads.datarouter.node.op.combo.SortedMapStorage.PhysicalSortedMapSt
 import com.hotpads.datarouter.node.op.index.HBaseIncrement;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
-import com.hotpads.datarouter.storage.databean.DatabeanTool;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.imp.comparable.SignedByteField;
+import com.hotpads.datarouter.storage.field.imp.comparable.SignedByteFieldKey;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.datarouter.util.core.DrBooleanTool;
@@ -55,7 +55,7 @@ implements PhysicalSortedMapStorageNode<PK,D>, HBaseIncrement<PK>{
 	/************************************ MapStorageWriter methods ****************************/
 
 	public static final byte[] FAM = HBaseSimpleClientFactory.DEFAULT_FAMILY_QUALIFIER;
-	public static final String DUMMY = HBaseSimpleClientFactory.DUMMY_COL_NAME;
+	public static final SignedByteFieldKey DUMMY = new SignedByteFieldKey(HBaseSimpleClientFactory.DUMMY_COL_NAME);
 
 
 	@Override
@@ -190,19 +190,6 @@ implements PhysicalSortedMapStorageNode<PK,D>, HBaseIncrement<PK>{
 					}
 		}).call();
 	}
-
-
-	/************************** Sorted ************************************/
-
-	@Override
-	public void deleteRangeWithPrefix(PK prefix, boolean wildcardLastField, Config config){
-		//TODO need a method getKeysWithPrefix
-		List<D> databeansToDelete = getWithPrefix(prefix, wildcardLastField, config);
-		if(DrCollectionTool.notEmpty(databeansToDelete)){
-			deleteMulti(DatabeanTool.getKeys(databeansToDelete), null);
-		}
-	}
-
 
 	/*************************** util **************************************/
 

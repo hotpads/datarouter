@@ -1,23 +1,29 @@
 package com.hotpads.job.trigger;
 
+import java.util.Collection;
 import java.util.Map;
 
 import javax.inject.Inject;
 
+import com.hotpads.job.web.TriggersRepository;
 import com.hotpads.listener.DatarouterAppListener;
 
-public class JobSchedulerAppListener extends DatarouterAppListener{
+public abstract class BaseJobSchedulerAppListener extends DatarouterAppListener{
 
 	@Inject
+	private TriggersRepository triggersRepository;
+	@Inject
 	private JobScheduler scheduler;
-	
+
 	@Override
-	protected void onStartUp(){
-		scheduler.scheduleJavaTriggers();
+	protected final void onStartUp(){
+		for(TriggerGroup triggerGroup : getTriggerGroups()){
+			triggersRepository.install(triggerGroup);
+		}
 	}
 
 	@Override
-	protected void onShutDown(){
+	protected final void onShutDown(){
 		TriggerTracker tracker = scheduler.getTracker();
 		Map<Class<? extends Job>,TriggerInfo> jobMap = tracker.getMap();
 		scheduler.shutDownNow();
@@ -28,5 +34,7 @@ public class JobSchedulerAppListener extends DatarouterAppListener{
 			}
 		}
 	}
+
+	protected abstract Collection<TriggerGroup> getTriggerGroups();
 
 }

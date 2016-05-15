@@ -30,7 +30,7 @@ public class JdbcLookupOp<
 extends BaseJdbcOp<List<D>>{
 	private static final Logger logger = LoggerFactory.getLogger(JdbcLookupOp.class);
 
-	private static final int LARGE_LOOKUP_ALERT_THRESHOLD = 5000;
+	private static final int LARGE_LOOKUP_ALERT_THRESHOLD = 1000;
 
 	private final JdbcReaderNode<PK,D,F> node;
 	private final JdbcFieldCodecFactory fieldCodecFactory;

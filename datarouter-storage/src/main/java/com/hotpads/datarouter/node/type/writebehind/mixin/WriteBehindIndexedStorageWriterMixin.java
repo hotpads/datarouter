@@ -5,7 +5,6 @@ import java.util.List;
 
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.op.raw.write.IndexedStorageWriter;
-import com.hotpads.datarouter.node.op.raw.write.IndexedStorageWriter.IndexedStorageWriterNode;
 import com.hotpads.datarouter.node.type.index.ManagedNode;
 import com.hotpads.datarouter.node.type.writebehind.base.BaseWriteBehindNode;
 import com.hotpads.datarouter.node.type.writebehind.base.WriteWrapper;
@@ -21,7 +20,7 @@ import com.hotpads.util.core.exception.NotImplementedException;
 public class WriteBehindIndexedStorageWriterMixin<
 	PK extends PrimaryKey<PK>,
 	D extends Databean<PK,D>,
-	N extends IndexedStorageWriterNode<PK,D>>
+	N extends IndexedStorageWriter<PK,D>>
 implements IndexedStorageWriter<PK,D>{
 
 	private BaseWriteBehindNode<PK,D,N> node;
@@ -44,7 +43,7 @@ implements IndexedStorageWriter<PK,D>{
 	public void deleteMultiUnique(Collection<? extends UniqueKey<PK>> uniqueKeys, Config config) {
 		node.getQueue().offer(new WriteWrapper<>(OP_deleteUnique, uniqueKeys, config));
 	}
-	
+
 	@Override
 	public <IK extends PrimaryKey<IK>> void deleteByIndex(Collection<IK> keys, Config config){
 		node.getQueue().offer(new WriteWrapper<>(OP_deleteByIndex, keys, config));

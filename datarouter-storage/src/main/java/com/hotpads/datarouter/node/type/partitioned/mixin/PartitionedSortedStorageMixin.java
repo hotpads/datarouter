@@ -30,13 +30,6 @@ public interface PartitionedSortedStorageMixin<
 extends SortedStorage<PK,D>, PartitionedNode<PK,D,N>{
 
 	@Override
-	default void deleteRangeWithPrefix(PK prefix, boolean wildcardLastField, Config config){
-		for(N node : DrCollectionTool.nullSafe(getPhysicalNodes())){
-			node.deleteRangeWithPrefix(prefix, wildcardLastField, config);
-		}
-	}
-
-	@Override
 	default List<D> getWithPrefix(PK prefix, boolean wildcardLastField, Config config) {
 		return getWithPrefixes(DrListTool.wrap(prefix), wildcardLastField, config);
 	}

@@ -1,7 +1,9 @@
 package com.hotpads.datarouter.client.imp.jdbc.op.read.index;
 
 import java.sql.Connection;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.client.imp.jdbc.op.BaseJdbcOp;
@@ -42,8 +44,9 @@ extends BaseJdbcOp<List<IE>>{
 
 	@Override
 	public List<IE> runOnce(){
-		String sql = SqlBuilder.getInRange(fieldCodecFactory, config, node.getTableName(), fieldInfo.getFields(), range,
-				fieldInfo.getPrimaryKeyFields());
+		Optional<String> indexName = Optional.of(fieldInfo.getTableName());
+		String sql = SqlBuilder.getInRanges(fieldCodecFactory, config, node.getTableName(), fieldInfo.getFields(),
+				Arrays.asList(range), fieldInfo.getPrimaryKeyFields(), indexName);
 		Connection connection = getConnection(node.getClientId().getName());
 		List<IE> result = JdbcTool.selectDatabeans(fieldCodecFactory, connection, fieldInfo, sql);
 		return result;

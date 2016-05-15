@@ -1,6 +1,5 @@
 package com.hotpads.job.trigger;
 
-import java.text.ParseException;
 import java.util.Date;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -18,6 +17,7 @@ import com.hotpads.handler.exception.ExceptionRecorder;
 import com.hotpads.job.record.JobExecutionStatus;
 import com.hotpads.job.record.LongRunningTaskTracker;
 import com.hotpads.job.record.LongRunningTaskType;
+import com.hotpads.job.web.TriggersRepository;
 import com.hotpads.util.core.date.CronExpression;
 
 public abstract class BaseJob implements Job{
@@ -30,6 +30,7 @@ public abstract class BaseJob implements Job{
 	protected AtomicBoolean isAlreadyRunning = new AtomicBoolean(false);
 	protected LongRunningTaskTracker tracker;
 	protected Setting<Boolean> shouldSaveLongRunningTasks;
+	private final TriggersRepository triggersRepository;
 	private String serverName;
 	private Date triggerTime;
 	private String jobClass;
@@ -44,6 +45,7 @@ public abstract class BaseJob implements Job{
 
 	@Inject
 	public BaseJob(JobEnvironment jobEnvironment) {
+		this.triggersRepository = jobEnvironment.getTriggersRepository();
 		this.scheduler = jobEnvironment.getScheduler();
 		this.executor = jobEnvironment.getExecutor();
 		this.processJobsSetting = jobEnvironment.getProcessJobsSetting();
@@ -57,6 +59,7 @@ public abstract class BaseJob implements Job{
 
 	/*********************** methods ******************************/
 
+	//used in triggers.jsp
 	public String getJobClass(){
 		return jobClass;
 	}
@@ -333,21 +336,13 @@ public abstract class BaseJob implements Job{
 
 	@Override
 	public CronExpression getDefaultTrigger() {
-		try {
-			return new CronExpression(scheduler.getTriggerGroup().getJobClasses().get(getClass()));
-		} catch (ParseException e) {
-			throw new IllegalArgumentException(e);
-		}
+		return triggersRepository.getPackageForClass(getClass()).cronExpression;
 	}
 
 	@Override
 	public int compareTo(Job that){
 		if(that==null){
 			return 1;
-		}
-		int diff = DrComparableTool.nullFirstCompareTo(getJobCategory(), that.getJobCategory());
-		if(diff != 0){
-			return diff;
 		}
 		return DrComparableTool.nullFirstCompareTo(getClass().getCanonicalName(), that.getClass().getCanonicalName());
 	}

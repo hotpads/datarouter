@@ -109,7 +109,7 @@ extends NodeOps<PK,D>{
 
 	/****************** count  *************************/
 
-	default Long count(Range<PK> range){
+	default long count(Range<PK> range){
 		return SortedStorageCountingTool.count(this, range);
 	}
 

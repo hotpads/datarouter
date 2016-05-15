@@ -1,4 +1,5 @@
 <%@ include file="/jsp/generic/prelude-datarouter.jspf"%>
+<!DOCTYPE html>
 <html>
 <head>
 	<title>Datarouter</title>

@@ -3,6 +3,7 @@ package com.hotpads.datarouter.inject.guice.executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
 
 import com.google.inject.name.Names;
 import com.hotpads.util.core.concurrent.NamedThreadFactory;
@@ -10,7 +11,7 @@ import com.hotpads.util.core.concurrent.NamedThreadFactory;
 
 public class DatarouterExecutorGuiceModule extends BaseExecutorGuiceModule{
 
-	public static final String 
+	public static final String
 		POOL_datarouterJobExecutor = "datarouterJobExecutor",
 		POOL_countArchiveFlushSchedulerMemory = "countArchiveFlushSchedulerMemory",
 		POOL_countArchiveFlushSchedulerDb = "countArchiveFlushSchedulerDb",
@@ -20,14 +21,13 @@ public class DatarouterExecutorGuiceModule extends BaseExecutorGuiceModule{
 		POOL_writeBehindExecutor = "writeBehindExecutor",
 		POOL_datarouterExecutor = "datarouterExecutor",
 		POOL_parallelApiCallerFlusher = "parallelApiCallerFlusher",
-		POOL_parallelApiCallerSender = "parallelApiCallerSender"
-		;
-	
+		POOL_parallelApiCallerSender = "parallelApiCallerSender",
+		POOL_hbaseClientExecutor = "hbaseClientExecutor";
+
 	private static final ThreadGroup
 		datarouter = new ThreadGroup("datarouter"),
-		flushers = new ThreadGroup(datarouter, "flushers")
-		;
-	
+		flushers = new ThreadGroup(datarouter, "flushers");
+
 	@Override
 	protected void configure(){
 		bind(ScheduledExecutorService.class)
@@ -60,22 +60,24 @@ public class DatarouterExecutorGuiceModule extends BaseExecutorGuiceModule{
 		bind(ExecutorService.class)
 			.annotatedWith(Names.named(POOL_parallelApiCallerSender))
 			.toInstance(createParallelApiCallerSender());
-		
+		bind(ExecutorService.class)
+			.annotatedWith(Names.named(POOL_hbaseClientExecutor))
+			.toInstance(createHbaseClientExecutor());
 	}
-	
+
 	//The following factory methods are for Spring
 	private ScheduledExecutorService createCountArchiveFlushSchedulerMemory(){
 		return createScheduled(flushers, POOL_countArchiveFlushSchedulerMemory, 1);
 	}
-	
+
 	private ScheduledExecutorService createCountArchiveFlushSchedulerDb(){
 		return createScheduled(flushers, POOL_countArchiveFlushSchedulerDb, 1);
 	}
-	
+
 	private ScheduledExecutorService createCountArchiveFlusherMemory(){
 		return createScheduled(flushers, POOL_countArchiveFlusherMemory, 1);
 	}
-	
+
 	private ScheduledExecutorService createCountArchiveFlusherDb(){
 		return createScheduled(flushers, POOL_countArchiveFlusherDb, 1);
 	}
@@ -83,26 +85,30 @@ public class DatarouterExecutorGuiceModule extends BaseExecutorGuiceModule{
 	private ScheduledExecutorService createDatarouterJobExecutor(){
 		return createScheduled(datarouter, POOL_datarouterJobExecutor, 10);
 	}
-	
+
 	private ScheduledExecutorService createWriteBehindScheduler(){
 		return createScheduled(datarouter, POOL_writeBehindScheduler, 10);
 	}
-	
+
 	private ExecutorService createWriteBehindExecutor(){
 		return Executors.newCachedThreadPool(new NamedThreadFactory(datarouter, POOL_writeBehindExecutor, true));
 	}
-	
+
 	private ExecutorService createDatarouterExecutor(){
 		return Executors.newCachedThreadPool(new NamedThreadFactory(datarouter, POOL_datarouterExecutor, true));
 	}
-	
+
 	private ScheduledExecutorService createParallelApiCallerFlusher(){
 		return Executors.newScheduledThreadPool(1,
 				new NamedThreadFactory(flushers, POOL_parallelApiCallerFlusher, true));
 	}
-	
+
 	private ExecutorService createParallelApiCallerSender(){
 		return Executors.newSingleThreadExecutor(
 				new NamedThreadFactory(datarouter, POOL_parallelApiCallerSender, true));
+	}
+
+	private ExecutorService createHbaseClientExecutor(){
+		return createThreadPool(datarouter, POOL_hbaseClientExecutor, 10, 10, 1, new CallerRunsPolicy());
 	}
 }
