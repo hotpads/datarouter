@@ -40,6 +40,8 @@ public class StringFieldKey extends BaseFieldKey<String>{
 		this.size = size;
 	}
 
+	/*-------------------- with -------------------------*/
+
 	public StringFieldKey withSize(int sizeOverride){
 		return new StringFieldKey(name, columnName, nullable, fieldGeneratorType, defaultValue, sizeOverride);
 	}
