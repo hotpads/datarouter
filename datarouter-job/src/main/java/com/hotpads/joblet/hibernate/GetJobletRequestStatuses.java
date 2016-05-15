@@ -70,7 +70,7 @@ public class GetJobletRequestStatuses extends BaseHibernateOp<List<JobletSummary
 			sql = sql + JobletRequest.FieldKeys.queueId.getColumnName()
 					+ ", ";
 		}
-		sql = sql + JobletRequest.FieldKeys.numFailures
+		sql = sql + JobletRequest.FieldKeys.numFailures.getColumnName()
 				+ " order by " + JobletRequest.FieldKeys.status.getColumnName()
 				+ ", " + JobletRequestKey.FieldKeys.type.getColumnName()
 				+ ", " + JobletRequestKey.FieldKeys.executionOrder.getColumnName()
