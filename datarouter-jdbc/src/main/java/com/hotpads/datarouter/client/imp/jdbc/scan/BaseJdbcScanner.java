@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.NavigableSet;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.storage.databean.Databean;
@@ -29,7 +30,7 @@ extends BaseBatchBackedScanner<T,T>{
 	private Config batchConfig;
 
 	public BaseJdbcScanner(Collection<Range<PK>> ranges, Config config){
-		this.ranges = new TreeSet<>(ranges);
+		this.ranges = ranges.stream().filter(Range::notEmpty).collect(Collectors.toCollection(TreeSet::new));
 		this.currentRanges = new TreeSet<>();
 		for(int i = 0 ; i < RANGE_BATCH_SIZE && !this.ranges.isEmpty() ; i++){
 			currentRanges.add(this.ranges.pollFirst());
@@ -45,6 +46,11 @@ extends BaseBatchBackedScanner<T,T>{
 
 	@Override
 	protected void loadNextBatch(){
+		if(currentRanges.isEmpty()){
+			noMoreBatches = true;
+			currentBatch = Collections.emptyList();
+			return;
+		}
 		currentBatchIndex = 0;
 		if(currentBatch != null){
 			T endOfLastBatch = DrCollectionTool.getLast(currentBatch);
@@ -77,7 +83,13 @@ extends BaseBatchBackedScanner<T,T>{
 			firstRange.setStart(lastRowOfPreviousBatch);
 			firstRange.setStartInclusive(false);
 			currentRanges.remove(currentRanges.first());
-			currentRanges.add(firstRange);
+			if(!firstRange.isEmpty()){
+				currentRanges.add(firstRange);
+			}else if(currentRanges.isEmpty()){
+				noMoreBatches = true;
+				currentBatch = Collections.emptyList();
+				return;
+			}
 		}
 
 		int batchConfigLimit = this.config.getIterateBatchSize();
