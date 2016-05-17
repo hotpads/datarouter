@@ -1,16 +1,17 @@
 package com.hotpads.joblet.databean;
 
+import java.util.Arrays;
 import java.util.List;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlRowFormat;
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
-import com.hotpads.datarouter.serialize.fielder.Fielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
-import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.StringField;
+import com.hotpads.datarouter.storage.field.imp.StringFieldKey;
 import com.hotpads.datarouter.storage.field.imp.comparable.LongField;
+import com.hotpads.datarouter.storage.field.imp.comparable.LongFieldKey;
 
 public class JobletData extends BaseDatabean<JobletDataKey,JobletData>{
 
@@ -18,30 +19,30 @@ public class JobletData extends BaseDatabean<JobletDataKey,JobletData>{
 	private String data;
 	private Long created;
 
-	public static class F{
-		public static String
-			data = "data",
-			created = "created";
+
+	public static class FieldKeys{
+		public static final StringFieldKey data = new StringFieldKey("data")
+				.withSize(MySqlColumnType.INT_LENGTH_LONGTEXT);
+		public static final LongFieldKey created = new LongFieldKey("created");
 	}
 
+
 	public static class JobletDataFielder extends BaseDatabeanFielder<JobletDataKey, JobletData>{
-		@Override
-		public Class<? extends Fielder<JobletDataKey>> getKeyFielderClass(){
-			return JobletDataKey.class;
+		public JobletDataFielder(){
+			super(JobletDataKey.class);
 		}
 
 		@Override
 		public List<Field<?>> getNonKeyFields(JobletData databean){
-			return FieldTool.createList(
-					new StringField(F.data, databean.data, MySqlColumnType.INT_LENGTH_LONGTEXT),
-					new LongField(F.created, databean.created));
+			return Arrays.asList(
+					new StringField(FieldKeys.data, databean.data),
+					new LongField(FieldKeys.created, databean.created));
 		}
 
 		@Override
 		public MySqlRowFormat getRowFormat(){
 			return MySqlRowFormat.COMPACT;
 		}
-
 	}
 
 

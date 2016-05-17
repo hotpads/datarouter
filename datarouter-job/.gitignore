@@ -6,3 +6,4 @@
 src/main/resources/git.properties
 /test-output
 /bin
+*.iml

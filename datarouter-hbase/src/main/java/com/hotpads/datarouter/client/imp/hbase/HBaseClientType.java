@@ -1,8 +1,10 @@
 package com.hotpads.datarouter.client.imp.hbase;
 
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.inject.Singleton;
 
 import org.junit.Assert;
@@ -18,6 +20,7 @@ import com.hotpads.datarouter.client.imp.hbase.node.HBaseEntityReaderNode;
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseNode;
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseSubEntityNode;
 import com.hotpads.datarouter.inject.DatarouterInjector;
+import com.hotpads.datarouter.inject.guice.executor.DatarouterExecutorGuiceModule;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.adapter.availability.PhysicalSortedMapStorageAvailabilityAdapter;
@@ -50,10 +53,13 @@ public class HBaseClientType extends BaseClientType{
 	public static HBaseClientType INSTANCE;
 
 	private final ClientAvailabilitySettings clientAvailabilitySettings;
+	private final ExecutorService executor;
 
 	@Inject
-	public HBaseClientType(ClientAvailabilitySettings clientAvailabilitySettings){
+	public HBaseClientType(ClientAvailabilitySettings clientAvailabilitySettings,
+			@Named(DatarouterExecutorGuiceModule.POOL_hbaseClientExecutor) ExecutorService executor){
 		this.clientAvailabilitySettings = clientAvailabilitySettings;
+		this.executor = executor;
 		INSTANCE = this;
 	}
 
@@ -65,7 +71,7 @@ public class HBaseClientType extends BaseClientType{
 	@Override
 	public ClientFactory createClientFactory(Datarouter datarouter, String clientName,
 			List<PhysicalNode<?,?>> physicalNodes){
-		return new HBaseSimpleClientFactory(datarouter, clientName, clientAvailabilitySettings);
+		return new HBaseSimpleClientFactory(datarouter, clientName, clientAvailabilitySettings, executor);
 	}
 
 	@Override

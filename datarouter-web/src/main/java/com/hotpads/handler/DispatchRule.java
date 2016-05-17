@@ -14,10 +14,10 @@ import com.hotpads.util.http.security.SecurityParameters;
 import com.hotpads.util.http.security.SignatureValidator;
 
 public class DispatchRule{
-
 	private static final Logger logger = LoggerFactory.getLogger(DispatchRule.class);
 
-	private Pattern pattern;
+	private final String regex;
+	private final Pattern pattern;
 	private Class<? extends BaseHandler> handlerClass;
 	private ApiKeyPredicate apiKeyPredicate;
 	private CsrfValidator csrfValidator;
@@ -25,7 +25,8 @@ public class DispatchRule{
 	private boolean requireHttps;
 
 	public DispatchRule(String regex){
-		pattern = Pattern.compile(regex);
+		this.regex = regex;
+		this.pattern = Pattern.compile(regex);
 	}
 
 	/**** builder pattern methods *******/
@@ -58,7 +59,7 @@ public class DispatchRule{
 	/**** getters *****/
 
 	public Pattern getPattern(){
-		return this.pattern;
+		return pattern;
 	}
 
 	public Class<? extends BaseHandler> getHandlerClass(){
@@ -134,6 +135,13 @@ public class DispatchRule{
 				&& checkCsrfToken(request)
 				&& checkSignature(request)
 				&& checkHttps(request);
+	}
+
+	/*-------------------- Object -------------------------*/
+
+	@Override
+	public String toString(){
+		return regex + ":" + pattern.toString() + ":" + handlerClass.getCanonicalName();
 	}
 
 }

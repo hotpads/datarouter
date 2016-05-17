@@ -3,3 +3,4 @@
 .settings
 src/main/webapp/META-INF/*
 target
+*.iml

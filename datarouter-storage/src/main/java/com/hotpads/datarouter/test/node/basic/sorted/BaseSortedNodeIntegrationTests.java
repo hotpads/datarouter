@@ -353,6 +353,21 @@ public abstract class BaseSortedNodeIntegrationTests{
 	}
 
 	@Test
+	public void testEmptyLastBatchRangeScan(){
+		SortedBeanKey startKey = new SortedBeanKey(SortedBeans.S_alpaca, SortedBeans.S_ostrich, 7, SortedBeans.S_emu);
+		SortedBeanKey endKey = new SortedBeanKey(SortedBeans.S_alpaca, SortedBeans.S_ostrich, 7, SortedBeans.S_pelican);
+		Range<SortedBeanKey> rangeWithFourRows = new Range<>(startKey, true, endKey, true);
+		Assert.assertEquals(sortedNode.streamKeys(rangeWithFourRows, new Config().setIterateBatchSize(2)).count(), 4);
+	}
+
+	@Test
+	public void testEmptyRangeScan(){
+		SortedBeanKey key = new SortedBeanKey(SortedBeans.S_alpaca, SortedBeans.S_ostrich, 7, SortedBeans.S_emu);
+		Range<SortedBeanKey> emptyRange = new Range<>(key, key);
+		Assert.assertEquals(sortedNode.streamKeys(emptyRange, null).count(), 0);
+	}
+
+	@Test
 	public void testSortedStorageCountingTool(){
 		Assert.assertEquals(SortedStorageCountingTool.count(sortedNode, Range.everything()), SortedBeans.TOTAL_RECORDS);
 	}

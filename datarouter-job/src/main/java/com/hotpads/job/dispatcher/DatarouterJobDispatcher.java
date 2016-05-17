@@ -10,7 +10,7 @@ import com.hotpads.joblet.handler.JobletScalingHandler;
 
 public class DatarouterJobDispatcher extends BaseDispatcher{
 
-	public static final String URL_DATAROUTER = DatarouterWebDispatcher.URL_DATAROUTER;
+	public static final String URL_DATAROUTER = DatarouterWebDispatcher.PATH_datarouter;
 
 	public static final String
 			TRIGGERS = "/triggers",

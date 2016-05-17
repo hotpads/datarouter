@@ -7,7 +7,7 @@ import com.hotpads.handler.dispatcher.DatarouterWebDispatcher;
 public class DatarouterJdbcDispatcher extends BaseDispatcher{
 
 	public static final String
-			PREFIX = DatarouterWebDispatcher.URL_DATAROUTER + DatarouterWebDispatcher.CLIENTS,
+			PREFIX = DatarouterWebDispatcher.PATH_clients,
 			JDBC = "/jdbc",
 			PATH = PREFIX + JDBC;
 

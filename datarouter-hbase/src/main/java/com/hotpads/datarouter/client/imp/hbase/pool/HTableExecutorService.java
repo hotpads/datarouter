@@ -2,13 +2,16 @@ package com.hotpads.datarouter.client.imp.hbase.pool;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hotpads.util.core.concurrent.ExecutorServiceTool;
+import com.hotpads.util.core.concurrent.NamedThreadFactory;
 import com.hotpads.util.core.concurrent.ThreadTool;
 
 /*
@@ -19,20 +22,23 @@ public class HTableExecutorService{
 	private static final Logger logger = LoggerFactory.getLogger(HTableExecutorService.class);
 
 	private static final long TIMEOUT_MS = 10 * 1000L;
+	private static final AtomicInteger executorServiceNumber = new AtomicInteger(1);
 
 	//final fields
 	private final ThreadPoolExecutor exec;
 	private final long createdMs;
-	
+
 	private volatile long lastCheckinMs;
 
 	public HTableExecutorService(int minThreads, int maxThreads){
 		//it's important to use a bounded queue as the executor service won't grow past minThreads until you fill the
 		// queue.  SynchronousQueue is a special zero size queue that will cause the exec svc to grow immediately
 		BlockingQueue<Runnable> queue = new SynchronousQueue<>();
-		//having more regionservers than maxThreads will cause a RejectedExecutionException that will kill your hbase 
+		ThreadFactory threadFactory = new NamedThreadFactory(null, "htable-" + executorServiceNumber.incrementAndGet(),
+				false);
+		//having more regionservers than maxThreads will cause a RejectedExecutionException that will kill your hbase
 		// request, so provide a high maxThreads
-		this.exec = new ThreadPoolExecutor(minThreads, maxThreads, 60, TimeUnit.SECONDS, queue);
+		this.exec = new ThreadPoolExecutor(minThreads, maxThreads, 60, TimeUnit.SECONDS, queue, threadFactory);
 		this.exec.allowCoreThreadTimeOut(true);// see class comment regarding killing pools
 		this.createdMs = System.currentTimeMillis();
 		this.lastCheckinMs = createdMs;
@@ -103,7 +109,7 @@ public class HTableExecutorService{
 		ExecutorServiceTool.awaitTerminationForever(exec);// any better ideas? alternative is memory leak
 		logger.warn("awaitTermination finished!, table:" + tableNameForLog);
 	}
-	
+
 	public ThreadPoolExecutor getExec(){
 		return exec;
 	}

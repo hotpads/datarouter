@@ -22,20 +22,20 @@ import com.hotpads.joblet.JobletNodes;
 import com.hotpads.joblet.JobletPackage;
 import com.hotpads.joblet.JobletService;
 import com.hotpads.joblet.JobletSettings;
-import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.databean.JobletData;
 import com.hotpads.joblet.databean.JobletQueue;
 import com.hotpads.joblet.databean.JobletQueueKey;
+import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.dto.JobletSummary;
 import com.hotpads.joblet.enums.JobletStatus;
 import com.hotpads.joblet.enums.JobletType;
 import com.hotpads.joblet.enums.JobletTypeFactory;
 import com.hotpads.joblet.execute.JobletExecutorThread;
 import com.hotpads.joblet.execute.ParallelJobletProcessors;
-import com.hotpads.joblet.hibernate.DeleteTimedOutJoblets;
+import com.hotpads.joblet.hibernate.DeleteTimedOutJobletRequests;
 import com.hotpads.joblet.hibernate.ResetJobletQueueTickets;
-import com.hotpads.joblet.hibernate.RestartJoblets;
-import com.hotpads.joblet.hibernate.TimeoutStuckRunningJoblets;
+import com.hotpads.joblet.hibernate.RestartJobletRequests;
+import com.hotpads.joblet.hibernate.TimeoutStuckRunningJobletRequests;
 
 public class JobletHandler extends BaseHandler{
 
@@ -178,7 +178,7 @@ public class JobletHandler extends BaseHandler{
 	protected Mav listExceptions(){
 		Mav mav = new Mav(JSP_exceptions);
 		List<JobletRequest> failedJoblets = new ArrayList<>();
-		for(JobletRequest joblet : jobletNodes.joblet().scan(null, null)){
+		for(JobletRequest joblet : jobletNodes.jobletRequest().scan(null, null)){
 			if(joblet.getStatus() == JobletStatus.failed){
 				failedJoblets.add(joblet);
 			}
@@ -189,25 +189,25 @@ public class JobletHandler extends BaseHandler{
 
 	@Handler
 	protected Mav restartFailed(){
-		int numRestarted = datarouter.run(new RestartJoblets(datarouter, jobletNodes, JobletStatus.failed));
+		int numRestarted = datarouter.run(new RestartJobletRequests(datarouter, jobletNodes, JobletStatus.failed));
 		return new MessageMav("restarted "+numRestarted);
 	}
 
 	@Handler
 	protected Mav restartTimedOut(){
-		int numRestarted = datarouter.run(new RestartJoblets(datarouter, jobletNodes, JobletStatus.timedOut));
+		int numRestarted = datarouter.run(new RestartJobletRequests(datarouter, jobletNodes, JobletStatus.timedOut));
 		return new MessageMav("restarted "+numRestarted);
 	}
 
 	@Handler
 	protected Mav timeoutStuckRunning(){
-		int numTimedOut = datarouter.run(new TimeoutStuckRunningJoblets(datarouter, jobletNodes));
+		int numTimedOut = datarouter.run(new TimeoutStuckRunningJobletRequests(datarouter, jobletNodes));
 		return new MessageMav("timedOut "+numTimedOut);
 	}
 
 	@Handler
 	protected Mav deleteTimedOutJoblets(){
-		int numDeleted = datarouter.run(new DeleteTimedOutJoblets(datarouter, jobletNodes));
+		int numDeleted = datarouter.run(new DeleteTimedOutJobletRequests(datarouter, jobletNodes));
 		return new MessageMav("deleted "+numDeleted);
 	}
 
@@ -274,30 +274,30 @@ public class JobletHandler extends BaseHandler{
 		return new InContextRedirectMav(params, URL_JOBLETS_IN_CONTEXT);
 	}
 
-	@Handler
+	@Handler //TODO rename runOrDeleteJobletRequestByDataId
 	protected Mav runOrDeleteJobletByDataId(){
 		//scan the Joblet table to get the matching joblet
 		Long jobletDataId = DrNumberTool.getLongNullSafe(params.optional("jobletDataId", ""),null);
 		boolean delete = params.optionalBoolean("delete", false);
 
-		List<JobletRequest> joblets = DrListTool.createArrayList(jobletNodes.joblet().scan(null, null));
-		JobletRequest joblet = findJobletWithId(joblets, jobletDataId);
+		List<JobletRequest> jobletRequests = DrListTool.createArrayList(jobletNodes.jobletRequest().scan(null, null));
+		JobletRequest jobletRequest = findJobletRequestWithId(jobletRequests, jobletDataId);
 		if(delete){
-			jobletNodes.joblet().delete(joblet.getKey(), null);
+			jobletNodes.jobletRequest().delete(jobletRequest.getKey(), null);
 		}else{
 			// parallelJobletProcessors.restartExecutor(joblet.getTypedPersistentString());
-			JobletData jobletData = jobletDao.getJobletData(joblet);
-			JobletType<?> jobletType = jobletTypeFactory.fromJobletRequest(joblet);
-			JobletPackage jobletPackage = new JobletPackage(joblet, jobletData);
+			JobletData jobletData = jobletDao.getJobletData(jobletRequest);
+			JobletType<?> jobletType = jobletTypeFactory.fromJobletRequest(jobletRequest);
+			JobletPackage jobletPackage = new JobletPackage(jobletRequest, jobletData);
 			parallelJobletProcessors.getMap().get(jobletType).getJobletScheduler().submitJoblet(jobletPackage);
 		}
 		return new InContextRedirectMav(params, URL_JOBLETS_IN_CONTEXT);
 	}
 
-	private JobletRequest findJobletWithId(Collection<JobletRequest> joblets, Long jobletDataId){
-		for(JobletRequest joblet : joblets){
-			if(joblet.getJobletDataId().equals(jobletDataId)){
-				return joblet;
+	private JobletRequest findJobletRequestWithId(Collection<JobletRequest> jobletRequests, Long jobletDataId){
+		for(JobletRequest jobletRequest : jobletRequests){
+			if(jobletRequest.getJobletDataId().equals(jobletDataId)){
+				return jobletRequest;
 			}
 		}
 		return null;

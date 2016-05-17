@@ -14,15 +14,15 @@ import com.hotpads.joblet.JobletNodes;
 import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.enums.JobletStatus;
 
-public class TimeoutStuckRunningJoblets extends BaseHibernateOp<Integer>{
+public class TimeoutStuckRunningJobletRequests extends BaseHibernateOp<Integer>{
 
 	//injected
 	private final JobletNodes jobletNodes;
 
 	private final long deleteJobletsBefore;
 
-	public TimeoutStuckRunningJoblets(Datarouter datarouter, JobletNodes jobletNodes) {
-		super(datarouter, jobletNodes.joblet().getMaster().getClientNames());
+	public TimeoutStuckRunningJobletRequests(Datarouter datarouter, JobletNodes jobletNodes) {
+		super(datarouter, jobletNodes.jobletRequest().getMaster().getClientNames());
 		this.jobletNodes = jobletNodes;
 		this.deleteJobletsBefore = System.currentTimeMillis() - TimeUnit.DAYS.toMillis(2);
 	}
@@ -34,12 +34,13 @@ public class TimeoutStuckRunningJoblets extends BaseHibernateOp<Integer>{
 
 	@Override
 	public Integer runOncePerClient(Client client){
-		String tableName = jobletNodes.joblet().getMaster().getPhysicalNodeIfApplicable().getTableName();
-		String statusTimedOutFragment = JobletRequest.F.status + "='" + JobletStatus.timedOut.getPersistentString()
-				+ "'";
-		String statusRunningFragment = JobletRequest.F.status + "='" + JobletStatus.running.getPersistentString() + "'";
-		String restartableFalseFragment = JobletRequest.F.restartable + "=false";
-		String reservedAtFragment = JobletRequest.F.reservedAt + "<" + deleteJobletsBefore;
+		String tableName = jobletNodes.jobletRequest().getMaster().getPhysicalNodeIfApplicable().getTableName();
+		String statusTimedOutFragment = JobletRequest.FieldKeys.status.getColumnName()
+				+ "='" + JobletStatus.timedOut.getPersistentString() + "'";
+		String statusRunningFragment = JobletRequest.FieldKeys.status.getColumnName()
+				+ "='" + JobletStatus.running.getPersistentString() + "'";
+		String restartableFalseFragment = JobletRequest.FieldKeys.restartable.getColumnName() + "=false";
+		String reservedAtFragment = JobletRequest.FieldKeys.reservedAt.getColumnName() + "<" + deleteJobletsBefore;
 
 		String sql = "update " + tableName + " set"
 				+ " " + statusTimedOutFragment

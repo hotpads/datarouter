@@ -265,6 +265,9 @@ implements HBasePhysicalNode<PK,D>,
 
 				//startInclusive already adjusted for
 				Range<ByteRange> scanRange = Range.create(start, true, end, range.getEndInclusive());
+				if(scanRange.isEmpty()){
+					return Collections.emptyList();
+				}
 				Scan scan = HBaseQueryBuilder.getScanForRange(scanRange, config);
 				if(keysOnly){
 					scan.setFilter(new FirstKeyOnlyFilter());
@@ -323,6 +326,5 @@ implements HBasePhysicalNode<PK,D>,
 	public ClientTableNodeNames getClientTableNodeNames(){
 		return clientTableNodeNames;
 	}
-
 
 }
