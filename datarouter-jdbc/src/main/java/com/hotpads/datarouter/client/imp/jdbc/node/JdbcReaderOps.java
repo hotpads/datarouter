@@ -1,6 +1,7 @@
 package com.hotpads.datarouter.client.imp.jdbc.node;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -155,6 +156,9 @@ public class JdbcReaderOps<
 	}
 
 	public List<PK> getKeysInRanges(Collection<Range<PK>> ranges, final Config config) {
+		if(ranges.stream().allMatch(Range::isEmpty)){
+			return Collections.emptyList();
+		}
 		String opName = SortedStorageReader.OP_getKeysInRange;
 		JdbcGetPrimaryKeyRangesOp<PK,D,F> op = new JdbcGetPrimaryKeyRangesOp<>(node, fieldCodecFactory, ranges, config);
 		List<PK> result = new SessionExecutorImpl<>(op, getTraceName(opName)).call();
@@ -162,6 +166,9 @@ public class JdbcReaderOps<
 	}
 
 	public List<D> getRanges(final Collection<Range<PK>> ranges, final Config config) {
+		if(ranges.stream().allMatch(Range::isEmpty)){
+			return Collections.emptyList();
+		}
 		String opName = SortedStorageReader.OP_getRange;
 		JdbcGetRangesOp<PK,D,F> op = new JdbcGetRangesOp<>(node, fieldCodecFactory, ranges, config);
 		return new SessionExecutorImpl<>(op, getTraceName(opName)).call();

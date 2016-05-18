@@ -230,6 +230,11 @@ public class SqlBuilder{
 
 	public static void addRangeWhereClause(JdbcFieldCodecFactory codecFactory, StringBuilder sql,
 			Range<? extends FieldSet<?>> range){
+		if(range.isEmpty()){
+			sql.append("0");
+			return;
+		}
+
 		boolean hasStart = false;
 
 		List<Field<?>> startFields = null;
