@@ -9,8 +9,7 @@ import com.hotpads.util.core.number.VarInt;
 
 public class VarIntEnumField<E extends IntegerEnum<E>> extends BaseField<E>{
 
-	private VarIntEnumFieldKey<E> key;
-	private E sampleValue;
+	private final VarIntEnumFieldKey<E> key;
 
 	public VarIntEnumField(VarIntEnumFieldKey<E> key, E value){
 		super(null, value);
@@ -52,7 +51,7 @@ public class VarIntEnumField<E extends IntegerEnum<E>> extends BaseField<E>{
 		if(DrStringTool.isEmpty(string)){
 			return null;
 		}
-		return sampleValue.fromPersistentInteger(Integer.valueOf(string));
+		return key.getSampleValue().fromPersistentInteger(Integer.valueOf(string));
 	}
 
 
@@ -71,7 +70,7 @@ public class VarIntEnumField<E extends IntegerEnum<E>> extends BaseField<E>{
 	@Override
 	public E fromBytesButDoNotSet(byte[] bytes, int offset){
 		Integer intValue = new VarInt(bytes, offset).getValue();
-		return sampleValue.fromPersistentInteger(intValue);
+		return key.getSampleValue().fromPersistentInteger(intValue);
 	}
 
 	@Override
