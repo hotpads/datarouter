@@ -5,24 +5,22 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.enums.DatarouterEnumTool;
 import com.hotpads.datarouter.storage.field.enums.IntegerEnum;
 import com.hotpads.datarouter.util.core.DrStringTool;
-import com.hotpads.util.core.java.ReflectionTool;
 import com.hotpads.util.core.number.VarInt;
 
 public class VarIntEnumField<E extends IntegerEnum<E>> extends BaseField<E>{
 
 	private VarIntEnumFieldKey<E> key;
 	private E sampleValue;
-	private Class<E> enumClass;
 
-	public VarIntEnumField(Class<E> enumClass, String name, E value){
-		this(enumClass, null, name, value);
+	public VarIntEnumField(VarIntEnumFieldKey<E> key, E value){
+		super(null, value);
+		this.key = key;
+		this.value = value;
 	}
 
-	public VarIntEnumField(Class<E> enumClass, String prefix, String name, E value){
-		super(prefix, value);
-		this.key = new VarIntEnumFieldKey<>(name);
-		this.sampleValue = ReflectionTool.create(enumClass);
-		this.enumClass = enumClass;
+	@Deprecated
+	public VarIntEnumField(Class<E> enumClass, String name, E value){
+		this(new VarIntEnumFieldKey<>(name, enumClass), value);
 	}
 
 	@Override
@@ -84,11 +82,8 @@ public class VarIntEnumField<E extends IntegerEnum<E>> extends BaseField<E>{
 		return String.valueOf(value.getPersistentInteger());
 	}
 
-	public E getSampleValue(){
-		return sampleValue;
-	}
-
 	public static <E extends IntegerEnum<E>> IntegerEnumField<E> toIntegerEnumField(VarIntEnumField<E> field){
-		return new IntegerEnumField<>(field.enumClass, field.getPrefix(), field.key.getName(), field.getValue());
+		return new IntegerEnumField<>(field.getKey().getEnumClass(), field.getPrefix(), field.key.getName(),
+				field.getValue());
 	}
 }
