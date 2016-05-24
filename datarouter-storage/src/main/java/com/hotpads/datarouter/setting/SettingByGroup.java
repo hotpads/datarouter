@@ -10,6 +10,7 @@ public class SettingByGroup<T>{
 	private final String name;
 	private final Map<String, Setting<T>> settings;
 	private final BiFunction<String, T, Setting<T>> settingRegistrar;
+
 	public SettingByGroup(String name, T defaultValue, BiFunction<String, T, Setting<T>> settingRegistrar){
 		this.name = name;
 		this.settings = new ConcurrentHashMap<>();
