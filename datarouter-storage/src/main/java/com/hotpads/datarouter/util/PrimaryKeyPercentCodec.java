@@ -27,7 +27,7 @@ public class PrimaryKeyPercentCodec{
 	public static <PK extends PrimaryKey<PK>> String encodeMulti(Iterable<PK> pks, String delimiter){
 		//TODO validate delimiter
 		return StreamTool.stream(pks)
-				.map(pk -> encode(pk))
+				.map(PrimaryKeyPercentCodec::encode)
 				.collect(Collectors.joining(delimiter));
 	}
 
