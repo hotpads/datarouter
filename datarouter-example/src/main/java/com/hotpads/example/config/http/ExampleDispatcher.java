@@ -10,8 +10,8 @@ public class ExampleDispatcher extends BaseDispatcher{
 	public ExampleDispatcher(DatarouterInjector injector, String servletContextPath){
 		super(injector, servletContextPath, "");
 		handleDir("/system").withHandler(SystemApiHandler.class);
-		handle("/").withHandler(DatarouterExampleDefaultHandler.class);
-		handle("").withHandler(DatarouterExampleDefaultHandler.class);
+		handle("|/").withHandler(DatarouterExampleDefaultHandler.class);
+//		handle("").withHandler(DatarouterExampleDefaultHandler.class);
 	}
 
 }
