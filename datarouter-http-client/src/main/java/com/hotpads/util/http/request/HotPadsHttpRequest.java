@@ -194,6 +194,11 @@ public class HotPadsHttpRequest {
 		return this;
 	}
 
+	public HotPadsHttpRequest setEntity(HttpEntity httpEntity) {
+		this.entity = httpEntity;
+		return this;
+	}
+
 	public HotPadsHttpRequest addHeaders(Map<String, String> headers) {
 		return addEntriesToMap(this.headers, headers);
 	}
