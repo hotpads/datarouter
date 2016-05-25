@@ -1,5 +1,7 @@
 package com.hotpads.datarouter.client.imp.jdbc.execution;
 
+import java.util.concurrent.ThreadLocalRandom;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,7 +45,7 @@ implements Retryable<T>{
 					throw new RuntimeException(rollbackCause);
 				}
 			}
-			backoffMs *= 2;
+			backoffMs = (backoffMs * 2) + ThreadLocalRandom.current().nextLong(0, initialDoublingBackoffMs);
 		}
 		throw new RuntimeException("shouldn't get here.  for-loop has bug?");
 	}

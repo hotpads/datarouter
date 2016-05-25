@@ -1,5 +1,7 @@
 package com.hotpads.util.core.concurrent;
 
+import java.util.concurrent.ThreadLocalRandom;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,7 +24,7 @@ public class RetryableTool{
 					throw new RuntimeException(e);
 				}
 			}
-			backoffMs *= 2;
+			backoffMs = (backoffMs * 2) + ThreadLocalRandom.current().nextLong(0, initialDoublingBackoffMs);
 		}
 		throw new RuntimeException("shouldn't get here");
 	}
