@@ -150,17 +150,6 @@ public class DrListTool{
 		return bi.hasNext() ? -1 : 0; // bs are longer than as
 	}
 
-	public static <T extends Comparable<T>> boolean equals(List<T> as, List<T> bs){
-		if(DrCollectionTool.differentSize(as, bs)){
-			return false;
-		}
-		return 0 == compare(as, bs);
-	}
-
-	public static <T extends Comparable<T>> boolean notEquals(List<T> as, List<T> bs){
-		return ! equals(as, bs);
-	}
-
 	public static <T extends Comparable<? super T>> boolean isSorted(List<T> as){
 		if(as == null){
 			return true;

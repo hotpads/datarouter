@@ -11,7 +11,6 @@ import org.testng.annotations.Test;
 import com.hotpads.datarouter.serialize.fielder.PrimaryKeyFielder;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.trace.key.TraceKey;
 import com.hotpads.util.core.java.ReflectionTool;
 import com.hotpads.util.core.stream.StreamTool;
@@ -95,7 +94,7 @@ public class PrimaryKeyPercentCodec{
 			String encoded = encodeMulti(pks, delimiter);
 			List<TraceKey> decodedPks = decodeMulti(TraceKey.class, delimiter, encoded);
 			List<Long> decodedIds = StreamTool.map(decodedPks, TraceKey::getId);
-			Assert.assertTrue(DrListTool.equals(ids, decodedIds));
+			Assert.assertEquals(ids, decodedIds);
 		}
 	}
 }
