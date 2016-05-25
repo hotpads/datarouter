@@ -1,6 +1,9 @@
 package com.hotpads.datarouter.util;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -10,19 +13,31 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.trace.key.TraceKey;
 import com.hotpads.util.core.java.ReflectionTool;
+import com.hotpads.util.core.stream.StreamTool;
 
 public class PrimaryKeyPercentCodec{
+
+	/*-------------- encode --------------------*/
 
 	public static <PK extends PrimaryKey<PK>> String encode(PK pk){
 		return PercentFieldCodec.encode(pk.getFields());
 	}
 
-	public static <PK extends PrimaryKey<PK>> PK decode(Class<PK> pkClass, String pkEncoded){
-		if(pkEncoded == null){
+	public static <PK extends PrimaryKey<PK>> String encodeMulti(Iterable<PK> pks, String delimiter){
+		//TODO validate delimiter
+		return StreamTool.stream(pks)
+				.map(PrimaryKeyPercentCodec::encode)
+				.collect(Collectors.joining(delimiter));
+	}
+
+	/*-------------- decode --------------------*/
+
+	public static <PK extends PrimaryKey<PK>> PK decode(Class<PK> pkClass, String encodedPk){
+		if(encodedPk == null){
 			return null;
 		}
 		PK pk = ReflectionTool.create(pkClass);
-		String[] tokens = PercentFieldCodec.decode(pkEncoded);
+		String[] tokens = PercentFieldCodec.decode(encodedPk);
 		int index = 0;
 		for(Field<?> field : pk.getFields(pk)){
 			if(index > tokens.length - 1){
@@ -35,6 +50,15 @@ public class PrimaryKeyPercentCodec{
 		}
 		return pk;
 	}
+
+	public static <PK extends PrimaryKey<PK>> List<PK> decodeMulti(Class<PK> pkClass, String delimiter,
+			String encodedPks){
+		String[] eachEncodedPk = encodedPks.split(delimiter);
+		return Arrays.stream(eachEncodedPk)
+				.map(encodedPk -> decode(pkClass, encodedPk))
+				.collect(Collectors.toList());
+	}
+
 
 	public static <PK extends PrimaryKey<PK>> PK parseKeyFromKeyFieldMap(Class<PK> pkClass,
 			PrimaryKeyFielder<PK> fielder, Map<String,String> keyFieldMap){
@@ -51,6 +75,8 @@ public class PrimaryKeyPercentCodec{
 	}
 
 
+	/*-------------- tests --------------------*/
+
 	public static class PrimaryKeyPercentCodecTests{
 		@Test
 		public void testSimpleNumericPk(){
@@ -59,6 +85,16 @@ public class PrimaryKeyPercentCodec{
 			String encoded = encode(pk);
 			TraceKey decoded = decode(TraceKey.class, encoded);
 			Assert.assertEquals(decoded.getId(), id);
+		}
+		@Test
+		public void testMultiNumericPk(){
+			final String delimiter = ",";
+			List<Long> ids = Arrays.asList(23L, 52L, 103L);
+			List<TraceKey> pks = StreamTool.map(ids, TraceKey::new);
+			String encoded = encodeMulti(pks, delimiter);
+			List<TraceKey> decodedPks = decodeMulti(TraceKey.class, delimiter, encoded);
+			List<Long> decodedIds = StreamTool.map(decodedPks, TraceKey::getId);
+			Assert.assertEquals(ids, decodedIds);
 		}
 	}
 }
