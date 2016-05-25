@@ -4,9 +4,8 @@ import com.hotpads.setting.cluster.MemorySettingFinder;
 
 public class ExampleSettingFinder extends MemorySettingFinder{
 
-	@Override
-	protected void configureSettings(){
-		// Put your config here like this:
+	public ExampleSettingFinder(){
+		// add settings here, such as:
 		// settings.put("datarouter.numThreadsForMaxThreadsTest", 500);
 	}
 
