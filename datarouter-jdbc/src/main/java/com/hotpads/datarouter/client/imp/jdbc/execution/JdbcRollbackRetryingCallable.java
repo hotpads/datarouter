@@ -17,21 +17,20 @@ implements Retryable<T>{
 
 	private final SessionExecutorImpl<T> callable;
 	private final int numAttempts;
-	private final long initialDoublingBackoffMs;
+	private final long initialBackoffMs;
 
 
 	//TODO accept a callableSupplier for mutable ops
-	public JdbcRollbackRetryingCallable(SessionExecutorImpl<T> callable, int numAttempts,
-			long initialDoublingBackoffMs){
+	public JdbcRollbackRetryingCallable(SessionExecutorImpl<T> callable, int numAttempts, long initialBackoffMs){
 		this.callable = callable;
 		this.numAttempts = numAttempts;
-		this.initialDoublingBackoffMs = initialDoublingBackoffMs;
+		this.initialBackoffMs = initialBackoffMs;
 	}
 
 
 	@Override
 	public T call(){
-		long backoffMs = initialDoublingBackoffMs;
+		long backoffMs = initialBackoffMs;
 		for(int attemptNum = 1; attemptNum <= numAttempts; ++attemptNum){
 			try{
 				return callable.call();
@@ -45,7 +44,7 @@ implements Retryable<T>{
 					throw new RuntimeException(rollbackCause);
 				}
 			}
-			backoffMs = (backoffMs * 2) + ThreadLocalRandom.current().nextLong(0, initialDoublingBackoffMs);
+			backoffMs = (backoffMs * 2) + ThreadLocalRandom.current().nextLong(0, initialBackoffMs);
 		}
 		throw new RuntimeException("shouldn't get here.  for-loop has bug?");
 	}

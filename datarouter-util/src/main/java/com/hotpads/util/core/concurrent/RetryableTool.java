@@ -10,8 +10,8 @@ public class RetryableTool{
 	
 	
 	public static <T> T tryNTimesWithBackoffUnchecked(Retryable<T> callable, final int numAttempts,
-			final long initialDoublingBackoffMs){
-		long backoffMs = initialDoublingBackoffMs;
+			final long initialBackoffMs){
+		long backoffMs = initialBackoffMs;
 		for(int attemptNum = 1; attemptNum <= numAttempts; ++attemptNum){
 			try{
 				return callable.call();
@@ -24,7 +24,7 @@ public class RetryableTool{
 					throw new RuntimeException(e);
 				}
 			}
-			backoffMs = (backoffMs * 2) + ThreadLocalRandom.current().nextLong(0, initialDoublingBackoffMs);
+			backoffMs = (backoffMs * 2) + ThreadLocalRandom.current().nextLong(0, initialBackoffMs);
 		}
 		throw new RuntimeException("shouldn't get here");
 	}
