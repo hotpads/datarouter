@@ -5,7 +5,6 @@ import com.hotpads.setting.cluster.MemorySettingFinder;
 public class ExampleSettingFinder extends MemorySettingFinder{
 
 	public ExampleSettingFinder(){
-		super();
 		// add settings here, such as:
 		// settings.put("datarouter.numThreadsForMaxThreadsTest", 500);
 	}
