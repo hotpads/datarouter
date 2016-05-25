@@ -203,6 +203,10 @@ public class SqlTableDiffGenerator{
 		return currentCollation != requestedCollation;
 	}
 
+	public boolean isRowFormatModified(){
+		return current.getRowFormat() != requested.getRowFormat();
+	}
+
 	public boolean isIndexesModified(){
 		SortedSet<SqlIndex> currentIndexes = new TreeSet<>(current.getIndexes());
 		SortedSet<SqlIndex> requestedIndexes = new TreeSet<>(requested.getIndexes());

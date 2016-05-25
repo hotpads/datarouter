@@ -1,14 +1,16 @@
 package com.hotpads.handler.admin;
 
 import java.util.List;
-import java.util.SortedSet;
 
 import javax.inject.Inject;
 
+import com.hotpads.datarouter.client.DatarouterClients;
 import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.routing.Router;
 import com.hotpads.handler.BaseHandler;
+import com.hotpads.handler.dispatcher.DatarouterWebDispatcher;
 import com.hotpads.handler.mav.Mav;
+import com.hotpads.handler.mav.imp.InContextRedirectMav;
 import com.hotpads.handler.util.node.NodeWrapper;
 
 public class RoutersHandler extends BaseHandler {
@@ -32,17 +34,32 @@ public class RoutersHandler extends BaseHandler {
 
 	@Inject
 	private Datarouter datarouter;
+	@Inject
+	private DatarouterClients datarouterClients;
 
 
 	@Override
 	@Handler
 	protected Mav handleDefault(){
 		Mav mav = new Mav(JSP_datarouterMenu);
-		SortedSet<Router> routers = datarouter.getRouters();
 		mav.put("serverName", datarouter.getServerName());
 		mav.put("administratorEmail", datarouter.getAdministratorEmail());
-		mav.put("routers", routers);
+		mav.put("routers", datarouter.getRouters());
+		mav.put("lazyClientProviderByName", datarouterClients.getLazyClientProviderByName());
+		mav.put("uninitializedClientNames", datarouterClients.getClientNamesByInitialized().get(false));
 		return mav;
+	}
+
+	@Handler
+	private Mav initClient(String clientName){
+		datarouterClients.getClient(clientName);
+		return new InContextRedirectMav(params, DatarouterWebDispatcher.PATH_routers);
+	}
+
+	@Handler
+	private Mav initAllClients(){
+		datarouterClients.getAllClients(datarouter);
+		return new InContextRedirectMav(params, DatarouterWebDispatcher.PATH_routers);
 	}
 
 	@Handler

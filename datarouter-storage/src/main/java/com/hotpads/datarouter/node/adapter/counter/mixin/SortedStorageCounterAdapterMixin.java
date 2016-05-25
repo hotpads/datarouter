@@ -8,7 +8,6 @@ import com.hotpads.datarouter.node.adapter.counter.CounterAdapter;
 import com.hotpads.datarouter.node.op.raw.SortedStorage;
 import com.hotpads.datarouter.node.op.raw.SortedStorage.SortedStorageNode;
 import com.hotpads.datarouter.node.op.raw.read.SortedStorageReader;
-import com.hotpads.datarouter.node.op.raw.write.SortedStorageWriter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
@@ -72,12 +71,4 @@ extends SortedStorage<PK,D>, CounterAdapter<PK,D,N>{
 		return getBackingNode().scanMulti(ranges, config);
 	}
 
-	//Writer
-
-	@Override
-	default void deleteRangeWithPrefix(PK prefix, boolean wildcardLastField, Config config){
-		String opName = SortedStorageWriter.OP_deleteRangeWithPrefix;
-		getCounter().count(opName);
-		getBackingNode().deleteRangeWithPrefix(prefix, wildcardLastField, config);
-	}
 }

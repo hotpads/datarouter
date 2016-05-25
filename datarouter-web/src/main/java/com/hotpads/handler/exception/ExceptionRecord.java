@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlRowFormat;
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.serialize.fielder.Fielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
@@ -26,7 +27,7 @@ public class ExceptionRecord extends BaseDatabean<ExceptionRecordKey, ExceptionR
 		LENGTH_type = MySqlColumnType.MAX_LENGTH_VARCHAR;
 
 	/******************* fields ************************/
-	
+
 	private ExceptionRecordKey key;
 	private Date created;
 	private String serverName;
@@ -61,6 +62,11 @@ public class ExceptionRecord extends BaseDatabean<ExceptionRecordKey, ExceptionR
 					);
 		}
 
+		@Override
+		public MySqlRowFormat getRowFormat(){
+			return MySqlRowFormat.COMPACT;
+		}
+
 	}
 
 	/********************** construct ********************/
@@ -83,7 +89,7 @@ public class ExceptionRecord extends BaseDatabean<ExceptionRecordKey, ExceptionR
 	}
 
 	/*************** getters / setters ******************/
-	
+
 	@Override
 	public ExceptionRecordKey getKey() {
 		return key;

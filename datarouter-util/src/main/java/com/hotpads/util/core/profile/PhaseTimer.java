@@ -113,11 +113,11 @@ public class PhaseTimer{
 		return sb.toString();
 	}
 
-	public Long getElapsedTimeBetweenFirstAndLastEvent(){
+	public long getElapsedTimeBetweenFirstAndLastEvent(){
 		if(phaseNamesAndTimes.size() > 0){
 			return phaseNamesAndTimes.stream().map(Pair::getRight).mapToLong(Long::longValue).sum();
 		}
-		return 0L;
+		return 0;
 	}
 
 	public float getItemsPerSecond(int numItems){

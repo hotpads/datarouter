@@ -2,9 +2,9 @@ package com.hotpads.datarouter.client.imp.jdbc.ddl.generate;
 
 public enum SqlAlterTypes{
 
-	ADD_COLUMN, 
-	DROP_COLUMN, 
-	MODIFY, 
+	ADD_COLUMN,
+	DROP_COLUMN,
+	MODIFY,
 	DROP_TABLE,
 	CREATE_TABLE,
 	DROP_INDEX,
@@ -13,6 +13,7 @@ public enum SqlAlterTypes{
 	DROP_CONSTRAINT,
 	MODIFY_ENGINE,
 	MODIFY_COLLATION,
-	MODIFY_CHARACTER_SET
+	MODIFY_CHARACTER_SET,
+	MODIFY_ROW_FORMAT
 	;
 }

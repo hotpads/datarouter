@@ -25,12 +25,12 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
 
+import com.hotpads.datarouter.util.core.DrExceptionTool;
+import com.hotpads.util.core.collections.Triple;
+
 import net.spy.SpyObject;
 import net.spy.memcached.ops.Operation;
 import net.spy.memcached.ops.OperationState;
-
-import com.hotpads.datarouter.util.core.DrExceptionTool;
-import com.hotpads.util.core.collections.Triple;
 
 /**
  * Connection to a cluster of memcached servers.
@@ -56,7 +56,7 @@ public final class MemcachedConnection extends SpyObject {
 	// reconnectQueue contains the attachments that need to be reconnected
 	// The key is the time at which they are eligible for reconnect
 	private final SortedMap<Long, MemcachedNode> reconnectQueue;
-	
+
 	private final List<ServerInfo> failedServersToFix;
 	private final Queue<Triple<ServerInfo, ConnectionFactory, Integer>> addNewServerQueue;
 
@@ -96,10 +96,10 @@ public final class MemcachedConnection extends SpyObject {
 		    	|| qa.getSk().interestOps() == SelectionKey.OP_CONNECT
 		    	: "Not connected, and not wanting to connect";
 			sinfo.connection = qa;
-		}    
+		}
 		locator=f.createLocator(serverList);
 	}
-	
+
 	/**
 	 * Enable or disable get optimization.
 	 *
@@ -208,14 +208,15 @@ public final class MemcachedConnection extends SpyObject {
 		if(!failedServersToFix.isEmpty()) {
 			fixFailedServers();
 		}
-		
+
 		//try to add new server there is one to be added
 		if (!addNewServerQueue.isEmpty()) {
 			Triple<ServerInfo, ConnectionFactory, Integer> triple = addNewServerQueue.poll();
-			if (triple != null)
+			if (triple != null) {
 				addServer(triple.getFirst(), triple.getSecond(), triple.getThird());
+			}
 		}
-		
+
 		if(!reconnectQueue.isEmpty()) {
 			attemptReconnects();
 		}
@@ -238,7 +239,7 @@ public final class MemcachedConnection extends SpyObject {
 	        } catch(NoSuchElementException e) {
 	          // Found everything
 	        }
-	   
+
 	        // Now process the queue.
 	        for(MemcachedNode qa : todo) {
 	          boolean readyForIO=false;
@@ -293,7 +294,7 @@ public final class MemcachedConnection extends SpyObject {
 				handleWrites(sk, qa);
 			}
 			if(sk.isReadable()) {
-				handleReads(sk, qa);				
+				handleReads(sk, qa);
 			}
 		} catch(Exception e) {
 			// Various errors occur on Linux that wind up here. However, any
@@ -301,7 +302,7 @@ public final class MemcachedConnection extends SpyObject {
 			// reconnect to the server.
 			getLogger().info("Reconnecting due to exception on %s", qa, e);
 			queueReconnect(qa);
-		}		
+		}
 		qa.fixupOps();
 	}
 
@@ -370,9 +371,9 @@ public final class MemcachedConnection extends SpyObject {
 				qa.getSk().cancel();
 				assert !qa.getSk().isValid() : "Cancelled selection key is valid";
 			}
-						
+
 			qa.reconnecting();
-			try {        
+			try {
 				if(qa.getChannel() != null && qa.getChannel().socket() != null) {
 					qa.getChannel().socket().close();
 				} else {
@@ -387,11 +388,11 @@ public final class MemcachedConnection extends SpyObject {
 				//dont put in reconnect queue, leave him for a gonner in the failedNodes, so he'll be removed later
 				locator.removeServer(qa);
 				qa.clearAllOps();
-				return; 
+				return;
 			}
-			
+
 			long delay=Math.min((100*qa.getReconnectCount()) ^ 2, MAX_DELAY);
-			
+
 			reconnectQueue.put(System.currentTimeMillis() + delay, qa);
 
 			// Need to do a little queue management.
@@ -399,7 +400,7 @@ public final class MemcachedConnection extends SpyObject {
 		}
 	}
 
-	private void attemptReconnects() throws IOException {	
+	private void attemptReconnects() throws IOException {
 	    final long now=System.currentTimeMillis();
 	    final Map<MemcachedNode, Boolean> seen=
 	      new IdentityHashMap<MemcachedNode, Boolean>();
@@ -430,11 +431,11 @@ public final class MemcachedConnection extends SpyObject {
 
 	public void tryToFixFailedServers() {
 		failedServersToFix.addAll(locator.getFailedServers());
-		Selector s=selector.wakeup();	
+		Selector s=selector.wakeup();
 		assert s == selector : "Wakeup returned the wrong selector.";
-		
+
 	}
-	
+
 	private void fixFailedServers() {
 		synchronized(failedServersToFix) {
 			for (ServerInfo server : failedServersToFix) {
@@ -443,14 +444,14 @@ public final class MemcachedConnection extends SpyObject {
 			}
 			failedServersToFix.clear();
 		}
-		locator.moveAllFailedToGood(); //TODO should keep a single list of failed servers ,not this double list (one in connection one in locator) 
+		locator.moveAllFailedToGood(); //TODO should keep a single list of failed servers ,not this double list (one in connection one in locator)
 	}
-	
-	public void tryAddServer(ServerInfo server, ConnectionFactory f, int bufSize) {		
+
+	public void tryAddServer(ServerInfo server, ConnectionFactory f, int bufSize) {
 		addNewServerQueue.offer(Triple.create(server, f, bufSize));
 		selector.wakeup();
 	}
-	
+
 	private void addServer(ServerInfo server, ConnectionFactory f, int bufSize) {
 		try {
 			SocketChannel ch=SocketChannel.open();
@@ -478,14 +479,14 @@ public final class MemcachedConnection extends SpyObject {
 			getLogger().error("Error adding server %s", server);
 		}
 	}
-	
+
 	/**
 	 * Get the node locator used by this connection.
 	 */
 	public NodeLocator getLocator() {
 		return locator;
 	}
-	
+
 		/**
 	 * Add an operation to the given connection.
 	 *
@@ -526,7 +527,7 @@ public final class MemcachedConnection extends SpyObject {
 		addedQueue.offer(node);
 		Selector s=selector.wakeup();
 		assert s == selector : "Wakeup returned the wrong selector.";
-		getLogger().debug("Added %s to %d", o, node);
+		getLogger().debug("Added %s to %s", o, node);
 	}
 
 	/**

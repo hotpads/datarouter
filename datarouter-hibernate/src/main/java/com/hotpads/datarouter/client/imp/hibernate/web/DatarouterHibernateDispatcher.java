@@ -7,7 +7,7 @@ import com.hotpads.handler.dispatcher.DatarouterWebDispatcher;
 public class DatarouterHibernateDispatcher extends BaseDispatcher{
 
 	public static final String
-			PREFIX = DatarouterWebDispatcher.URL_DATAROUTER + DatarouterWebDispatcher.CLIENTS,
+			PREFIX = DatarouterWebDispatcher.PATH_clients,
 			HIBERNATE = "/hibernate",
 			PATH = PREFIX + HIBERNATE;
 

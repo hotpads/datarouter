@@ -124,7 +124,7 @@ public class IndexingNodeFactory {
 			IndexedMapStorage<PK, D> backingNode, Supplier<IF> indexFielderSupplier, Supplier<IE> indexEntrySupplier,
 			boolean manageTxn, String indexName){
 		NodeParams<IK, IE, IF> params = new NodeParamsBuilder<IK, IE, IF>(router, indexEntrySupplier)
-				.withFielder(indexFielderSupplier).build();
+				.withFielder(indexFielderSupplier).withTableName(indexName).build();
 		if(manageTxn){
 			return new TxnManagedUniqueIndexNode<>(backingNode, params, indexName);
 		}

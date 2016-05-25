@@ -18,11 +18,12 @@ public abstract class BaseDispatcher{
 	public static final String REGEX_ONE_DIRECTORY = "[/]?[^/]*";
 	public static final String REGEX_TWO_DIRECTORY_PLUS = "/\\w+/\\w+[/]?.*";
 	public static final String MATCHING_ANY = ".*";
-	private DatarouterInjector injector;
-	private String servletContextPath;
-	private String combinedPrefix;
+
+	private final DatarouterInjector injector;
+	private final String servletContextPath;
+	private final String combinedPrefix;
+	private final List<DispatchRule> dispatchRules;
 	private Class<? extends BaseHandler> defaultHandlerClass;
-	private List<DispatchRule> dispatchRules;
 
 	public BaseDispatcher(DatarouterInjector injector, String servletContextPath, String urlPrefix){
 		this.injector = injector;
@@ -31,19 +32,16 @@ public abstract class BaseDispatcher{
 		this.dispatchRules = new ArrayList<>();
 	}
 
-	protected BaseDispatcher handleOthers(Class<? extends BaseHandler> defaultHandlerClass){
-		this.defaultHandlerClass = defaultHandlerClass;
-		return this;
-	}
-
-	protected DispatchRule handleDir(String regex){
-		return handle(regex + REGEX_ONE_DIRECTORY);
-	}
+	/*---------------- create DispatchRules -----------------*/
 
 	protected DispatchRule handle(String regex){
 		DispatchRule rule = new DispatchRule(regex);
 		this.dispatchRules.add(rule);
 		return rule;
+	}
+
+	protected DispatchRule handleDir(String regex){
+		return handle(regex + REGEX_ONE_DIRECTORY);
 	}
 
 	protected DispatchRule handleAnySuffix(String suffix){
@@ -54,6 +52,13 @@ public abstract class BaseDispatcher{
 		return handle(prefix + MATCHING_ANY);
 	}
 
+	protected BaseDispatcher handleOthers(Class<? extends BaseHandler> defaultHandlerClass){
+		this.defaultHandlerClass = defaultHandlerClass;
+		return this;
+	}
+
+	/*------------------ handle -------------------*/
+
 	public boolean handleRequestIfUrlMatch(ServletContext servletContext, HttpServletRequest request,
 			HttpServletResponse response){
 		String uri = request.getRequestURI();
@@ -61,10 +66,12 @@ public abstract class BaseDispatcher{
 			return false;
 		}
 		BaseHandler handler = null;
-		String afterPrefix = uri.substring(servletContextPath.length());
+		String afterContextPath = uri.substring(servletContextPath.length());
 		for(DispatchRule rule : dispatchRules){
-			if(rule.getPattern().matcher(afterPrefix).matches()){
+			if(rule.getPattern().matcher(afterContextPath).matches()){
 				if(!rule.apply(request)){
+					// TODO improve this. Right now it returns 404 and log "dispatcher could not find Handler for /uri"
+					// while it's more an "access denied"
 					return false;
 				}
 				handler = injector.getInstance(rule.getHandlerClass());
@@ -82,14 +89,18 @@ public abstract class BaseDispatcher{
 		handler.setRequest(request);
 		handler.setResponse(response);
 		handler.setServletContext(servletContext);
-		handler.setParams(new Params(request, response));
+		handler.setParams(new Params(request));
 		handler.handleWrapper();
 		return true;
 	}
 
+	/*------------------ getters -------------------*/
+
 	public List<DispatchRule> getDispatchRules(){
 		return this.dispatchRules;
 	}
+
+	/*--------------------- tests -------------------*/
 
 	public static class BaseDispatcherTests{
 		@Test

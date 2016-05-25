@@ -90,11 +90,6 @@ public class NoOpNode<PK extends PrimaryKey<PK>, D extends Databean<PK, D>> impl
 	}
 
 	@Override
-	public void deleteRangeWithPrefix(PK prefix, boolean wildcardLastField, Config config){
-
-	}
-
-	@Override
 	public D lookupUnique(UniqueKey<PK> uniqueKey, Config config){
 		return null;
 	}

@@ -9,33 +9,32 @@ import com.hotpads.datarouter.profile.counter.Counters;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
 
-
 public class DatarouterTracer implements Tracer{
-	
+
 	private final String serverName;
 	private final Long traceId;
 	private final Long traceThreadParentId;
-	
+
 	private Integer nextSpanSequence = 0;
-	
+
 	private TraceThread currentThread;//should we be holding a map of current threads?  not sure yet
 	private final List<TraceThread> threads = Collections.synchronizedList(new LinkedList<>());
-	
+
 	private final List<TraceSpan> spanStack = new ArrayList<>();
 	private final List<TraceSpan> spans = Collections.synchronizedList(new LinkedList<>());
-	
-	
+
+
 	/***************** constructors **********************************/
-	
+
 	public DatarouterTracer(String serverName, Long traceId, Long traceThreadParentId){
 		this.serverName = serverName;
 		this.traceId = traceId;
 		this.traceThreadParentId = traceThreadParentId;
 	}
 
-	
+
 	/*************** TraceThread methods *************************************/
-	
+
 	@Override
 	public Long getCurrentThreadId(){
 		if(getCurrentThread() == null) {
@@ -43,13 +42,13 @@ public class DatarouterTracer implements Tracer{
 		}
 		return getCurrentThread().getId();
 	}
-	
+
 	@Override
 	public void createAndStartThread(String name){
 		createThread(name);
 		startThread();
 	}
-	
+
 	@Override
 	public void createThread(String name){
 		Long traceId = getTraceId();
@@ -63,7 +62,7 @@ public class DatarouterTracer implements Tracer{
 		thread.setName(name);
 		setCurrentThread(thread);
 	}
-	
+
 	@Override
 	public void startThread(){
 		if(getCurrentThread()==null){
@@ -71,7 +70,7 @@ public class DatarouterTracer implements Tracer{
 		}
 		getCurrentThread().markStart();
 	}
-	
+
 	@Override
 	public void appendToThreadName(String text){
 		if(getCurrentThread()==null){
@@ -81,7 +80,7 @@ public class DatarouterTracer implements Tracer{
 		boolean addSpace = DrStringTool.notEmpty(thread.getName());
 		thread.setName(DrStringTool.nullSafe(thread.getName()) + (addSpace ? " " : "") + text);
 	}
-	
+
 	@Override
 	public void appendToThreadInfo(String text){
 		if(getCurrentThread()==null){
@@ -91,7 +90,7 @@ public class DatarouterTracer implements Tracer{
 		boolean addSpace = DrStringTool.notEmpty(thread.getInfo());
 		thread.setInfo(DrStringTool.nullSafe(thread.getInfo()) + (addSpace ? " " : "") + text);
 	}
-	
+
 	@Override
 	public void finishThread(){
 		if(getCurrentThread()==null){
@@ -102,10 +101,10 @@ public class DatarouterTracer implements Tracer{
 		getThreads().add(thread);
 		setCurrentThread(null);
 	}
-	
-	
+
+
 	/********************** TraceSpan methods **********************/
-	
+
 	@Override
 	public void startSpan(String name){
 		Counters.inc(name);
@@ -118,15 +117,15 @@ public class DatarouterTracer implements Tracer{
 			parentSequence = parent.getSequence();
 		}
 		TraceSpan span = new TraceSpan(
-				currentThread.getTraceId(), 
-				currentThread.getId(), 
+				currentThread.getTraceId(),
+				currentThread.getId(),
 				nextSpanSequence,
 				parentSequence);
 		span.setName(name);
 		getSpanStack().add(span);
 		++nextSpanSequence;
 	}
-	
+
 	/*
 	 * Use this method carefully, because span names become Counter entries.  We do not want to
 	 * create new counter entries for an unbounded set of names.  Use "appendToSpanInfo" to add
@@ -134,7 +133,7 @@ public class DatarouterTracer implements Tracer{
 	 */
 	@Override
 	public void appendToSpanName(String text){
-		if(getCurrentSpan()==null){ 
+		if(getCurrentSpan()==null){
 			return;
 		}
 		TraceSpan span = getCurrentSpan();
@@ -142,7 +141,7 @@ public class DatarouterTracer implements Tracer{
 		span.setName(DrStringTool.nullSafe(span.getName()) + (addSpace ? " " : "") + text);
 		Counters.inc(span.getName());//yes, this is double-counting the span
 	}
-	
+
 	@Override
 	public void appendToSpanInfo(String text){
 		if(getCurrentSpan()==null){
@@ -152,7 +151,7 @@ public class DatarouterTracer implements Tracer{
 		boolean addSpace = DrStringTool.notEmpty(span.getInfo());
 		span.setInfo(DrStringTool.nullSafe(span.getInfo()) + (addSpace ? " " : "") + text);
 	}
-	
+
 	@Override
 	public void finishSpan(){
 		if(getCurrentSpan()==null){
@@ -162,17 +161,16 @@ public class DatarouterTracer implements Tracer{
 		getSpans().add(getCurrentSpan());
 		popSpanFromStack();
 	}
-	
-	
+
 	/*************** private TraceSpan methods ***************************************/
-	
+
 	private TraceSpan getCurrentSpan(){
 		if(DrCollectionTool.isEmpty(spanStack)) {
 			return null;
 		}
 		return spanStack.get(spanStack.size() - 1);
 	}
-	
+
 	private TraceSpan popSpanFromStack(){
 		if(DrCollectionTool.isEmpty(spanStack)) {
 			return null;
@@ -181,24 +179,15 @@ public class DatarouterTracer implements Tracer{
 		spanStack.remove(spanStack.size() - 1);
 		return span;
 	}
-	
-	
-	/****************** collectors ******************************/
-	
-	public <V> void collect(TracedCallable<V> callable){
-		threads.addAll(DrCollectionTool.nullSafe(callable.getThreads()));
-		spans.addAll(DrCollectionTool.nullSafe(callable.getSpans()));
-	}
-	
-	
+
 	/*********************** Object *********************************************/
-	
+
 	@Override
 	public String toString(){
 		return getClass().getSimpleName()+"["+currentThread.getName()+"]";
 	}
 
-	
+
 	/*********************** get/set *********************************************/
 
 	public TraceThread getCurrentThread(){
@@ -209,18 +198,22 @@ public class DatarouterTracer implements Tracer{
 		this.currentThread = currentThread;
 	}
 
+	@Override
 	public List<TraceThread> getThreads(){
 		return threads;
 	}
 
+	@Override
 	public List<TraceSpan> getSpans(){
 		return spans;
 	}
 
+	@Override
 	public String getServerName(){
 		return serverName;
 	}
 
+	@Override
 	public Long getTraceId(){
 		return traceId;
 	}
@@ -232,4 +225,5 @@ public class DatarouterTracer implements Tracer{
 	public List<TraceSpan> getSpanStack(){
 		return spanStack;
 	}
+
 }

@@ -3,6 +3,7 @@ package com.hotpads.util.http.request;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -10,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpHost;
@@ -188,11 +190,7 @@ public class HotPadsHttpRequest {
 
 	/** Entities only exist in HttpPut, HttpPatch, HttpPost */
 	public HotPadsHttpRequest setEntity(Map<String, String> entity) {
-		try {
-			this.entity = new UrlEncodedFormEntity(urlEncodeFromMap(entity));
-		} catch (UnsupportedEncodingException e) {
-			throw new HotPadsHttpRuntimeException(e);
-		}
+		this.entity = new UrlEncodedFormEntity(urlEncodeFromMap(entity), StandardCharsets.UTF_8);
 		return this;
 	}
 
@@ -241,6 +239,14 @@ public class HotPadsHttpRequest {
 				map.put(key.trim(), entry.getValue());
 			}
 		}
+		return this;
+	}
+
+	public HotPadsHttpRequest addBasicAuthorizationHeaders(HotPadsHttpRequest request, String username,
+			String password){
+		String encodedCredentials = Base64.encodeBase64String((username + ":" + password).getBytes());
+		String authenticationString = "Basic " + encodedCredentials;
+		request.getHeaders().put("Authorization", authenticationString);
 		return this;
 	}
 

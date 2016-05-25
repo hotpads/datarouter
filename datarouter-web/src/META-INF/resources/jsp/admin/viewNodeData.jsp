@@ -1,11 +1,10 @@
 <%@ include file="/WEB-INF/prelude.jspf"%>
 <%@ include file="../generic/prelude-datarouter.jspf"%>
+<!DOCTYPE html>
 <html>
 <head>
 	<title>Datarouter</title>
 	<%@ include file="/jsp/generic/datarouterHead.jsp" %>
-<style>
-</style>
 </head>
 <body>
 	<%@ include file="/jsp/menu/common-navbar.jsp" %>

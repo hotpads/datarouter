@@ -1,14 +1,9 @@
 package com.hotpads.datarouter.node.type.writebehind.base;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
@@ -16,33 +11,26 @@ import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Supplier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hotpads.datarouter.client.ClientId;
-import com.hotpads.datarouter.node.BaseNode;
-import com.hotpads.datarouter.node.Node;
-import com.hotpads.datarouter.node.NodeParams.NodeParamsBuilder;
-import com.hotpads.datarouter.node.type.physical.PhysicalNode;
+import com.hotpads.datarouter.node.op.NodeOps;
 import com.hotpads.datarouter.node.type.writebehind.WriteBehindNode;
-import com.hotpads.datarouter.routing.Router;
-import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
+import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrListTool;
-import com.hotpads.datarouter.util.core.DrSetTool;
 import com.hotpads.util.core.concurrent.FutureTool;
 
 public abstract class BaseWriteBehindNode<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
-		N extends Node<PK,D>>
-extends BaseNode<PK,D,DatabeanFielder<PK,D>>
+		N extends NodeOps<PK,D>>
 implements WriteBehindNode<PK,D,N>{
 
+	public static final int FLUSH_RATE_MS = 500;
 	private static final int FLUSH_BATCH_SIZE = 100;
 	private static final long DEFAULT_TIMEOUT_MS = 60*1000;
 
@@ -54,87 +42,27 @@ implements WriteBehindNode<PK,D,N>{
 	private BaseWriteBehindNode<PK,D,N>.QueueFlusher queueFlusher;
 
 
-	public BaseWriteBehindNode(Supplier<D> databeanSupplier, Router router, N backingNode){
-		super(new NodeParamsBuilder<>(router, databeanSupplier).build());
+	public BaseWriteBehindNode(Datarouter datarouter, N backingNode){
 		if(backingNode==null){
 			throw new IllegalArgumentException("backingNode cannot be null.");
 		}
 		this.backingNode = backingNode;
 
-		this.writeExecutor = router.getContext().getWriteBehindExecutor();
+		this.writeExecutor = datarouter.getWriteBehindExecutor();
 
 		this.timeoutMs = DEFAULT_TIMEOUT_MS;//1 min default
 		this.outstandingWrites = new ConcurrentLinkedQueue<>();
 
-		ScheduledExecutorService scheduler = router.getContext().getWriteBehindScheduler();
+		ScheduledExecutorService scheduler = datarouter.getWriteBehindScheduler();
 		scheduler.scheduleWithFixedDelay(new OverdueWriteCanceller(this), 0, 1000, TimeUnit.MILLISECONDS);
 		queueFlusher = new QueueFlusher();
-		scheduler.scheduleWithFixedDelay(queueFlusher, 500, 500, TimeUnit.MILLISECONDS);
+		scheduler.scheduleWithFixedDelay(queueFlusher, 500, FLUSH_RATE_MS, TimeUnit.MILLISECONDS);
 
 		queue = new LinkedBlockingQueue<>();
 	}
 
 
 	/*************************** node methods *************************/
-
-	@Override
-	public Set<String> getAllNames(){
-		Set<String> names = new HashSet<>();
-		names.addAll(DrCollectionTool.nullSafe(getName()));
-		names.addAll(DrCollectionTool.nullSafe(backingNode.getAllNames()));
-		return names;
-	}
-
-	@Override
-	public List<PhysicalNode<PK,D>> getPhysicalNodes(){
-		List<PhysicalNode<PK,D>> all = new LinkedList<>();
-		all.addAll(DrListTool.nullSafe(backingNode.getPhysicalNodes()));
-		return all;
-	}
-
-	@Override
-	public List<PhysicalNode<PK,D>> getPhysicalNodesForClient(String clientName) {
-		List<PhysicalNode<PK,D>> all = new LinkedList<>();
-		all.addAll(DrListTool.nullSafe(backingNode.getPhysicalNodesForClient(clientName)));
-		return all;
-	}
-
-	@Override
-	public List<String> getClientNames() {
-		SortedSet<String> clientNames = new TreeSet<>();
-		DrSetTool.nullSafeSortedAddAll(clientNames, backingNode.getClientNames());
-		return new ArrayList<>(clientNames);
-	}
-
-	@Override
-	public List<ClientId> getClientIds(){
-		Set<ClientId> clientIds = new HashSet<>();
-		clientIds.addAll(backingNode.getClientIds());
-		return new ArrayList<>(clientIds);
-	}
-
-
-	@Override
-	public boolean usesClient(String clientName){
-		return backingNode.usesClient(clientName);
-	}
-
-	@Override
-	public List<String> getClientNamesForPrimaryKeysForSchemaUpdate(Collection<PK> keys) {
-		Set<String> clientNames = new HashSet<>();
-		clientNames.addAll(DrCollectionTool.nullSafe(backingNode.getClientNamesForPrimaryKeysForSchemaUpdate(keys)));
-		return new ArrayList<>(clientNames);
-	}
-
-	@Override
-	public List<N> getChildNodes(){
-		return DrListTool.wrap(backingNode);
-	}
-
-	@Override
-	public Node<PK,D> getMaster() {
-		return this;
-	}
 
 	@Override
 	public Queue<WriteWrapper<?>> getQueue(){

@@ -18,13 +18,6 @@ public interface RedundantSortedStorageMixin<
 extends SortedStorage<PK,D>, RedundantNode<PK,D,N>{
 
 	@Override
-	default void deleteRangeWithPrefix(final PK prefix, final boolean wildcardLastField, final Config config) {
-		for(N n : getWriteNodes()){
-			n.deleteRangeWithPrefix(prefix, wildcardLastField, config);
-		}
-	}
-
-	@Override
 	@Deprecated
 	default List<D> getWithPrefix(PK prefix, boolean wildcardLastField, Config config) {
 		return getReadNode().getWithPrefix(prefix,wildcardLastField, config);

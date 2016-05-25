@@ -14,8 +14,11 @@ public class UInt63FieldKey extends PrimitiveFieldKey<Long>{
 		super(name, columnName, nullable, fieldGeneratorType, defaultValue);
 	}
 
-	public UInt63FieldKey withFieldGeneratorType(FieldGeneratorType fieldGeneratorType){
-		return new UInt63FieldKey(name, columnName, nullable, fieldGeneratorType, defaultValue);
+	public UInt63FieldKey withFieldGeneratorType(FieldGeneratorType fieldGeneratorTypeOverride){
+		return new UInt63FieldKey(name, columnName, nullable, fieldGeneratorTypeOverride, defaultValue);
 	}
 
+	public UInt63FieldKey withColumnName(String columnNameOverride){
+		return new UInt63FieldKey(name, columnNameOverride, nullable, fieldGeneratorType, defaultValue);
+	}
 }

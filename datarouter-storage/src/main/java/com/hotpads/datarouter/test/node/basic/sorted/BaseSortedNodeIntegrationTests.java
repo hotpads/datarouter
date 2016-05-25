@@ -101,26 +101,15 @@ public abstract class BaseSortedNodeIntegrationTests{
 		remainingElements -= 3;
 		AssertJUnit.assertEquals(remainingElements, DrIterableTool.count(sortedNode.scan(null, null)).intValue());
 
-
 		//deleteWithPrefix
 		AssertJUnit.assertEquals(remainingElements, DrIterableTool.count(sortedNode.scan(null, null)).intValue());
-		SortedBeanKey prefix = new SortedBeanKey(SortedBeans.PREFIX_a, null, null, null);
-		sortedNode.deleteRangeWithPrefix(prefix, true, null);
-		remainingElements -= SortedBeans.NUM_PREFIX_a * SortedBeans.NUM_ELEMENTS * SortedBeans.NUM_ELEMENTS
-				* SortedBeans.NUM_ELEMENTS;
+		SortedBeanKey prefix = new SortedBeanKey(SortedBeans.S_aardvark, null, null, null);
+		sortedNode.deleteWithPrefix(prefix, null);
+		remainingElements -= SortedBeans.NUM_ELEMENTS * SortedBeans.NUM_ELEMENTS * SortedBeans.NUM_ELEMENTS;
 		AssertJUnit.assertEquals(remainingElements, DrIterableTool.count(sortedNode.scan(null, null)).intValue());
 	}
 
 	/********************** junit methods *********************************************/
-
-	//hbase 0.94.2 is failing this test
-	@Test
-	public void testNullKey(){
-		SortedBeanKey emptyKey = new SortedBeanKey(null, null, null, null);
-		SortedBean shouldBeNull = sortedNode.get(emptyKey, null);
-		Assert.assertNull(shouldBeNull);
-	}
-
 	@Test
 	public void testGetKeys(){
 		SortedBeanKey key1 = new SortedBeanKey(SortedBeans.S_aardvark, SortedBeans.S_aardvark, 0, SortedBeans.S_alpaca);
@@ -364,9 +353,23 @@ public abstract class BaseSortedNodeIntegrationTests{
 	}
 
 	@Test
+	public void testEmptyLastBatchRangeScan(){
+		SortedBeanKey startKey = new SortedBeanKey(SortedBeans.S_alpaca, SortedBeans.S_ostrich, 7, SortedBeans.S_emu);
+		SortedBeanKey endKey = new SortedBeanKey(SortedBeans.S_alpaca, SortedBeans.S_ostrich, 7, SortedBeans.S_pelican);
+		Range<SortedBeanKey> rangeWithFourRows = new Range<>(startKey, true, endKey, true);
+		Assert.assertEquals(sortedNode.streamKeys(rangeWithFourRows, new Config().setIterateBatchSize(2)).count(), 4);
+	}
+
+	@Test
+	public void testEmptyRangeScan(){
+		SortedBeanKey key = new SortedBeanKey(SortedBeans.S_alpaca, SortedBeans.S_ostrich, 7, SortedBeans.S_emu);
+		Range<SortedBeanKey> emptyRange = new Range<>(key, key);
+		Assert.assertEquals(sortedNode.streamKeys(emptyRange, null).count(), 0);
+	}
+
+	@Test
 	public void testSortedStorageCountingTool(){
-		Assert.assertEquals(SortedStorageCountingTool.count(sortedNode, Range.everything()).intValue(),
-				SortedBeans.TOTAL_RECORDS);
+		Assert.assertEquals(SortedStorageCountingTool.count(sortedNode, Range.everything()), SortedBeans.TOTAL_RECORDS);
 	}
 
 	@Test

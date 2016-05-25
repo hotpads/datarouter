@@ -18,11 +18,6 @@ public interface MasterSlaveSortedStorageMixin<
 extends MasterSlaveNode<PK,D,N>, SortedStorage<PK,D>{
 
 	@Override
-	default void deleteRangeWithPrefix(PK prefix, boolean wildcardLastField, Config config){
-		getMaster().deleteRangeWithPrefix(prefix, wildcardLastField, config);
-	}
-
-	@Override
 	@Deprecated
 	default List<D> getWithPrefix(PK prefix, boolean wildcardLastField, Config config) {
 		boolean slaveOk = Config.nullSafe(config).getSlaveOk();

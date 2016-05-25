@@ -1,6 +1,5 @@
 package com.hotpads.datarouter.node.op.raw.write;
 
-import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.op.NodeOps;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
@@ -16,12 +15,6 @@ public interface SortedStorageWriter<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>>
 extends NodeOps<PK,D>{
-
-	public static final String
-		OP_deleteRangeWithPrefix = "deleteRangeWithPrefix";
-
-
-	void deleteRangeWithPrefix(PK prefix, boolean wildcardLastField, Config config);
 
 	/*************** sub-interfaces ***********************/
 

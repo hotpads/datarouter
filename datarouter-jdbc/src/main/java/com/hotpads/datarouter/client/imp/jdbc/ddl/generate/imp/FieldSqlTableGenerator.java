@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSet;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCollation;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlRowFormat;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlIndex;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlTable;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.SqlTableGenerator;
@@ -24,18 +25,11 @@ public class FieldSqlTableGenerator implements SqlTableGenerator{
 	private Map<String,List<Field<?>>> uniqueIndexes;
 	private final MySqlCollation collation;
 	private final MySqlCharacterSet characterSet;
-
-
-	public FieldSqlTableGenerator(JdbcFieldCodecFactory fieldCodecFactory, String tableName,
-			List<Field<?>> primaryKeyFields, List<Field<?>> nonKeyFields){
-		this(fieldCodecFactory, tableName, primaryKeyFields, nonKeyFields, SqlTable.getDefaultCollation(),
-				SqlTable.getDefaultCharacterSet());
-	}
-
+	private final MySqlRowFormat rowFormat;
 
 	public FieldSqlTableGenerator(JdbcFieldCodecFactory fieldCodecFactory, String tableName,
 			List<Field<?>> primaryKeyFields, List<Field<?>> nonKeyFields,
-			MySqlCollation collation, MySqlCharacterSet characterSet){
+			MySqlCollation collation, MySqlCharacterSet characterSet,  MySqlRowFormat rowFormat){
 		this.fieldCodecFactory = fieldCodecFactory;
 		this.tableName = tableName;
 		this.nonKeyFields = nonKeyFields;
@@ -44,6 +38,7 @@ public class FieldSqlTableGenerator implements SqlTableGenerator{
 		this.primaryKeyFields = primaryKeyFields;
 		this.collation = collation;
 		this.characterSet = characterSet;
+		this.rowFormat = rowFormat;
 	}
 
 
@@ -81,6 +76,7 @@ public class FieldSqlTableGenerator implements SqlTableGenerator{
 		});
 		table.setCharSet(characterSet);
 		table.setCollation(collation);
+		table.setRowFormat(rowFormat);
 		return table;
 
 	}

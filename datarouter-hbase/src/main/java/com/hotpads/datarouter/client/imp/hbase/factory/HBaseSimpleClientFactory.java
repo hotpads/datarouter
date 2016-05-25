@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.concurrent.ExecutorService;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
@@ -74,16 +75,18 @@ implements ClientFactory{
 	private final List<Properties> multiProperties;
 	private final HBaseOptions options;
 	private final ClientAvailabilitySettings clientAvailabilitySettings;
+	private final ExecutorService executor;
 
 	//we cannot finalize these as they are created in a background thread for faster application boot time
 	private Configuration hbaseConfig;
 	private HBaseAdmin hbaseAdmin;
 
 	public HBaseSimpleClientFactory(Datarouter datarouter, String clientName, ClientAvailabilitySettings
-			clientAvailabilitySettings){
+			clientAvailabilitySettings, ExecutorService executor){
 		this.clientAvailabilitySettings = clientAvailabilitySettings;
 		this.datarouter = datarouter;
 		this.clientName = clientName;
+		this.executor = executor;
 		this.configFilePaths = datarouter.getConfigFilePaths();
 		this.multiProperties = DrPropertiesTool.fromFiles(configFilePaths);
 		this.options = new HBaseOptions(multiProperties, clientName);
@@ -122,7 +125,7 @@ implements ClientFactory{
 			timer.add("init HTables");
 
 			newClient = new HBaseClientImp(clientName, hbaseConfig, hbaseAdmin, htablePoolAndPrimaryKeyByTableName
-					.getLeft(), htablePoolAndPrimaryKeyByTableName.getRight(), clientAvailabilitySettings);
+					.getLeft(), htablePoolAndPrimaryKeyByTableName.getRight(), clientAvailabilitySettings, executor);
 			logger.warn(timer.add("done").toString());
 		}catch(ZooKeeperConnectionException e){
 			throw new UnavailableException(e);

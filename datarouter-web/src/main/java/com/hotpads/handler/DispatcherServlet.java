@@ -48,7 +48,7 @@ public abstract class DispatcherServlet extends HttpServlet implements InjectorR
 		PrintWriter out = response.getWriter();
 		if(!handled){
 			response.setStatus(404);
-			out.print("path not found");
+			out.print(getClass().getCanonicalName() + " could not find Handler for " + request.getRequestURI());
 		}
 
 		out.close();
