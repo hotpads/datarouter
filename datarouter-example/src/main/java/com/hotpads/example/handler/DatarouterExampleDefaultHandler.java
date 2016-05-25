@@ -12,7 +12,6 @@ public class DatarouterExampleDefaultHandler extends BaseHandler {
 	@Override
 	@Handler
 	protected Mav handleDefault() throws UnknownHostException{
-//		return new InContextRedirectMav(params, "/system/times");
 		String username = System.getProperty("user.name");
 		String hostname = InetAddress.getLocalHost().getHostName();
 		return new MessageMav(hostname + ", " + username);

@@ -11,7 +11,6 @@ public class ExampleDispatcher extends BaseDispatcher{
 		super(injector, servletContextPath, "");
 		handleDir("/system").withHandler(SystemApiHandler.class);
 		handle("|/").withHandler(DatarouterExampleDefaultHandler.class);
-//		handle("").withHandler(DatarouterExampleDefaultHandler.class);
 	}
 
 }
