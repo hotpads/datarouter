@@ -11,6 +11,7 @@ import org.testng.annotations.Test;
 import com.hotpads.datarouter.serialize.fielder.PrimaryKeyFielder;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
+import com.hotpads.datarouter.test.node.basic.sorted.SortedBeanKey;
 import com.hotpads.trace.key.TraceKey;
 import com.hotpads.util.core.java.ReflectionTool;
 import com.hotpads.util.core.stream.StreamTool;
@@ -95,6 +96,21 @@ public class PrimaryKeyPercentCodec{
 			List<TraceKey> decodedPks = decodeMulti(TraceKey.class, delimiter, encoded);
 			List<Long> decodedIds = StreamTool.map(decodedPks, TraceKey::getId);
 			Assert.assertEquals(ids, decodedIds);
+		}
+		@Test
+		public void testStringPk(){
+			SortedBeanKey pk = new SortedBeanKey("abc", "def", 3, "ghi");
+			String encoded = encode(pk);
+			SortedBeanKey decoded = decode(SortedBeanKey.class, encoded);
+			Assert.assertEquals(decoded, pk);
+		}
+		@Test
+		public void testStringPkWithReservedCharacters(){
+			SortedBeanKey pk = new SortedBeanKey("%ab/", "d&^f", 3, "g_-hi");
+			String encoded = encode(pk);
+			System.out.println(encoded);
+			SortedBeanKey decoded = decode(SortedBeanKey.class, encoded);
+			Assert.assertEquals(decoded, pk);
 		}
 	}
 }
