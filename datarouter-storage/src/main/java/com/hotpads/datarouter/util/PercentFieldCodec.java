@@ -14,6 +14,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import com.hotpads.datarouter.storage.field.Field;
+import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 
 public class PercentFieldCodec{
@@ -81,8 +82,8 @@ public class PercentFieldCodec{
 	}
 
 	public static List<String> decode(String encoded){
-		String[] eachEncoded = encoded.split(INTERNAL_SEPARATOR);
-		return Arrays.stream(eachEncoded)
+		List<String> eachEncoded = DrStringTool.splitOnCharNoRegex(encoded, CHAR_INTERNAL_SEPARATOR);
+		return eachEncoded.stream()
 				.map(PercentFieldCodec::decodeFragment)
 				.collect(Collectors.toList());
 

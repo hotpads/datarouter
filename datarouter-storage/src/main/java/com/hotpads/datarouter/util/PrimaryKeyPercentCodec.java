@@ -11,6 +11,7 @@ import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBeanKey;
+import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.trace.key.TraceKey;
 import com.hotpads.util.core.java.ReflectionTool;
 import com.hotpads.util.core.stream.StreamTool;
@@ -54,8 +55,8 @@ public class PrimaryKeyPercentCodec{
 
 	public static <PK extends PrimaryKey<PK>> List<PK> decodeMulti(Class<PK> pkClass, char delimiter,
 			String encodedPks){
-		String[] eachEncodedPk = encodedPks.split(Character.toString(delimiter));
-		return Arrays.stream(eachEncodedPk)
+		List<String> eachEncodedPk = DrStringTool.splitOnCharNoRegex(encodedPks, delimiter);
+		return eachEncodedPk.stream()
 				.map(encodedPk -> decode(pkClass, encodedPk))
 				.collect(Collectors.toList());
 	}
@@ -118,4 +119,5 @@ public class PrimaryKeyPercentCodec{
 			Assert.assertEquals(decoded, SBK_MULTI);
 		}
 	}
+
 }

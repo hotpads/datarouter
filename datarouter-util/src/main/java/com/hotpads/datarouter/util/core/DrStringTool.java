@@ -28,12 +28,16 @@ public class DrStringTool{
 	}
 
 	public static boolean isEmptyOrWhitespace(String s){
-		if(s == null) return true;
+		if(s == null) {
+			return true;
+		}
 		return isEmpty(s.trim());
 	}
 
 	public static boolean isNullOrEmptyOrWhitespace(String s){
-		if(s == null) return true;
+		if(s == null) {
+			return true;
+		}
 		return isNullOrEmpty(s.trim());
 	}
 
@@ -50,7 +54,9 @@ public class DrStringTool{
 	}
 
 	public static String toLowerCase(String input){
-		if(input==null) return "";
+		if(input==null) {
+			return "";
+		}
 		return input.toLowerCase();
 	}
 
@@ -72,25 +78,29 @@ public class DrStringTool{
 	}
 
 	public static ArrayList<String> splitOnCharNoRegex(String input, char c){
-		if(isEmpty(input)){ return DrListTool.createArrayList(input); }
+		if(isEmpty(input)) {
+			return DrListTool.createArrayList(input);
+		}
 		List<Integer> indexesOfChar = new ArrayList<>();
 		for(int i = 0; i < input.length(); ++i){
-			if(input.charAt(i) == c){
+			if(input.charAt(i) == c) {
 				indexesOfChar.add(i);
 			}
 		}
-		if(indexesOfChar.size() == 0){ return DrListTool.createArrayList(input); }
+		if(indexesOfChar.size() == 0) {
+			return DrListTool.createArrayList(input);
+		}
 		indexesOfChar.add(input.length());
 		ArrayList<String> result = new ArrayList<>();
 		for(int i = 0; i < indexesOfChar.size(); ++i){
 			int startIndex;
-			if(i == 0){
+			if(i == 0) {
 				startIndex = 0;
 			}else{
 				startIndex = 1 + indexesOfChar.get(i - 1);
 			}
 			int endIndex = indexesOfChar.get(i);
-			if(endIndex > startIndex){
+			if(endIndex > startIndex) {
 				result.add(input.substring(startIndex, endIndex));
 			}
 		}
@@ -250,10 +260,14 @@ public class DrStringTool{
 
 	private static int[] getIndicesOfStringSurroundedWith(String fromString, String left, String right){
 		int textStart = fromString.indexOf(left);
-		if(textStart < 0) return null;
+		if(textStart < 0) {
+			return null;
+		}
 		textStart = textStart + left.length();
 		int textEnd = fromString.indexOf(right, textStart);
-		if(textEnd <= textStart) return null;
+		if(textEnd <= textStart) {
+			return null;
+		}
 		int lastTextStart = fromString.substring(0, textEnd).lastIndexOf(left);
 		if(lastTextStart > 0){
 			lastTextStart = lastTextStart + left.length();
@@ -267,8 +281,9 @@ public class DrStringTool{
 	public static String enforceNumeric(String number){
 		number = number.replaceAll("[^\\d\\.\\-]", "");
 		if(!number.matches("\\-?\\d*\\.?\\d+")){
-			while(number.endsWith("."))
+			while(number.endsWith(".")){
 				number = number.substring(0, number.length() - 1);
+			}
 			int secondDot = 0;
 			Pattern dot = Pattern.compile("\\.");
 			while((secondDot = number.indexOf('.', number.indexOf('.') + 1)) > 0){
@@ -300,12 +315,15 @@ public class DrStringTool{
 	}
 
 	private static String changeFirstCharacterCase(String input, boolean capitalize){
-		if(isEmpty(input)) return input;
+		if(isEmpty(input)) {
+			return input;
+		}
 		String firstLetter = input.substring(0, 1);
-		if(capitalize)
+		if(capitalize) {
 			firstLetter = firstLetter.toUpperCase();
-		else
+		}else{
 			firstLetter = firstLetter.toLowerCase();
+		}
 		return firstLetter + input.substring(1);
 	}
 
