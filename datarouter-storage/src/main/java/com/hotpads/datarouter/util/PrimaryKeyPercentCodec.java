@@ -2,14 +2,12 @@ package com.hotpads.datarouter.util;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import com.google.common.base.Preconditions;
-import com.hotpads.datarouter.serialize.fielder.PrimaryKeyFielder;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBeanKey;
@@ -63,21 +61,6 @@ public class PrimaryKeyPercentCodec{
 	}
 
 
-	public static <PK extends PrimaryKey<PK>> PK parseKeyFromKeyFieldMap(Class<PK> pkClass,
-			PrimaryKeyFielder<PK> fielder, Map<String,String> keyFieldMap){
-		if(keyFieldMap == null || keyFieldMap.isEmpty()){
-			return null;
-		}
-		PK pk = ReflectionTool.create(pkClass);
-		for(Field<?> field : fielder.getFields(pk)){
-			field.fromString(keyFieldMap.get(field.getPrefixedName()));
-			field.setUsingReflection(pk, field.getValue());
-			field.setValue(null);
-		}
-		return pk;
-	}
-
-
 	/*-------------- tests --------------------*/
 
 	public static class PrimaryKeyPercentCodecTests{
@@ -96,6 +79,7 @@ public class PrimaryKeyPercentCodec{
 			TraceKey decoded = decode(TraceKey.class, encoded);
 			Assert.assertEquals(decoded.getId(), id);
 		}
+
 		@Test
 		public void testMultiNumericPk(){
 			final char delimiter = ',';
@@ -106,22 +90,26 @@ public class PrimaryKeyPercentCodec{
 			List<Long> decodedIds = StreamTool.map(decodedPks, TraceKey::getId);
 			Assert.assertEquals(ids, decodedIds);
 		}
+
 		@Test
 		public void testStringPk(){
 			String encoded = encode(SBK_0);
 			SortedBeanKey decoded = decode(SortedBeanKey.class, encoded);
 			Assert.assertEquals(decoded, SBK_0);
 		}
+
 		@Test
 		public void testStringPkWithReservedCharacters(){
 			String encoded = encode(SBK_1);
 			SortedBeanKey decoded = decode(SortedBeanKey.class, encoded);
 			Assert.assertEquals(decoded, SBK_1);
 		}
+
 		@Test(expectedExceptions = IllegalArgumentException.class)
 		public void testInvalidDelimiter(){
 			encodeMulti(SBK_MULTI, '/');
 		}
+
 		@Test
 		public void testEncodeMulti(){
 			final char delimiter = ',';

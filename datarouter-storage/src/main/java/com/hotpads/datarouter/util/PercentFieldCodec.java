@@ -20,7 +20,7 @@ public class PercentFieldCodec{
 
 	//separates the fragments
 	private static final char CHAR_INTERNAL_SEPARATOR = '/';
-	private static final String INTERNAL_SEPARATOR = Character.toString(CHAR_INTERNAL_SEPARATOR);
+	public static final String INTERNAL_SEPARATOR = Character.toString(CHAR_INTERNAL_SEPARATOR);
 	private static final String ENCODED_INTERNAL_SEPARATOR = "%2F";//our separator must be encoded
 
 	private static final char
