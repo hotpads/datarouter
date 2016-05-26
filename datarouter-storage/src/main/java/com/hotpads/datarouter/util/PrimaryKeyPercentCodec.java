@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.serialize.fielder.PrimaryKeyFielder;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
@@ -21,14 +22,15 @@ public class PrimaryKeyPercentCodec{
 	/*-------------- encode --------------------*/
 
 	public static <PK extends PrimaryKey<PK>> String encode(PK pk){
-		return PercentFieldCodec.encode(pk.getFields());
+		return PercentFieldCodec.encodeFields(pk.getFields());
 	}
 
-	public static <PK extends PrimaryKey<PK>> String encodeMulti(Iterable<PK> pks, String delimiter){
-		//TODO validate delimiter
+	public static <PK extends PrimaryKey<PK>> String encodeMulti(Iterable<PK> pks, char delimiter){
+		Preconditions.checkArgument(PercentFieldCodec.isValidExternalSeparator(delimiter), "invalid delimiter:"
+				+ delimiter);
 		return StreamTool.stream(pks)
 				.map(PrimaryKeyPercentCodec::encode)
-				.collect(Collectors.joining(delimiter));
+				.collect(Collectors.joining(Character.toString(delimiter)));
 	}
 
 	/*-------------- decode --------------------*/
@@ -38,13 +40,13 @@ public class PrimaryKeyPercentCodec{
 			return null;
 		}
 		PK pk = ReflectionTool.create(pkClass);
-		String[] tokens = PercentFieldCodec.decode(encodedPk);
+		List<String> tokens = PercentFieldCodec.decode(encodedPk);
 		int index = 0;
 		for(Field<?> field : pk.getFields(pk)){
-			if(index > tokens.length - 1){
+			if(index > tokens.size() - 1){
 				break;
 			}
-			field.fromString(tokens[index]);
+			field.fromString(tokens.get(index));
 			field.setUsingReflection(pk, field.getValue());
 			field.setValue(null);// to be safe until Field logic is cleaned up
 			++index;
@@ -52,9 +54,9 @@ public class PrimaryKeyPercentCodec{
 		return pk;
 	}
 
-	public static <PK extends PrimaryKey<PK>> List<PK> decodeMulti(Class<PK> pkClass, String delimiter,
+	public static <PK extends PrimaryKey<PK>> List<PK> decodeMulti(Class<PK> pkClass, char delimiter,
 			String encodedPks){
-		String[] eachEncodedPk = encodedPks.split(delimiter);
+		String[] eachEncodedPk = encodedPks.split(Character.toString(delimiter));
 		return Arrays.stream(eachEncodedPk)
 				.map(encodedPk -> decode(pkClass, encodedPk))
 				.collect(Collectors.toList());
@@ -79,6 +81,13 @@ public class PrimaryKeyPercentCodec{
 	/*-------------- tests --------------------*/
 
 	public static class PrimaryKeyPercentCodecTests{
+
+		private static SortedBeanKey
+				SBK_0 = new SortedBeanKey("abc", "def", 3, "ghi"),
+				SBK_1 = new SortedBeanKey("%ab/", "d&^f", 3, "g_-hi");
+
+		private static List<SortedBeanKey> SBK_MULTI = Arrays.asList(SBK_0, SBK_1);
+
 		@Test
 		public void testSimpleNumericPk(){
 			Long id = 355L;
@@ -89,7 +98,7 @@ public class PrimaryKeyPercentCodec{
 		}
 		@Test
 		public void testMultiNumericPk(){
-			final String delimiter = ",";
+			final char delimiter = ',';
 			List<Long> ids = Arrays.asList(23L, 52L, 103L);
 			List<TraceKey> pks = StreamTool.map(ids, TraceKey::new);
 			String encoded = encodeMulti(pks, delimiter);
@@ -99,18 +108,26 @@ public class PrimaryKeyPercentCodec{
 		}
 		@Test
 		public void testStringPk(){
-			SortedBeanKey pk = new SortedBeanKey("abc", "def", 3, "ghi");
-			String encoded = encode(pk);
+			String encoded = encode(SBK_0);
 			SortedBeanKey decoded = decode(SortedBeanKey.class, encoded);
-			Assert.assertEquals(decoded, pk);
+			Assert.assertEquals(decoded, SBK_0);
 		}
 		@Test
 		public void testStringPkWithReservedCharacters(){
-			SortedBeanKey pk = new SortedBeanKey("%ab/", "d&^f", 3, "g_-hi");
-			String encoded = encode(pk);
-			System.out.println(encoded);
+			String encoded = encode(SBK_1);
 			SortedBeanKey decoded = decode(SortedBeanKey.class, encoded);
-			Assert.assertEquals(decoded, pk);
+			Assert.assertEquals(decoded, SBK_1);
+		}
+		@Test(expectedExceptions = IllegalArgumentException.class)
+		public void testInvalidDelimiter(){
+			encodeMulti(SBK_MULTI, '/');
+		}
+		@Test
+		public void testEncodeMulti(){
+			final char delimiter = ',';
+			String encoded = encodeMulti(SBK_MULTI, delimiter);
+			List<SortedBeanKey> decoded = decodeMulti(SortedBeanKey.class, delimiter, encoded);
+			Assert.assertEquals(decoded, SBK_MULTI);
 		}
 	}
 }
