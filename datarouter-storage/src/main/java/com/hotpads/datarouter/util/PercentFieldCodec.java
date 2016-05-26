@@ -103,17 +103,18 @@ public class PercentFieldCodec{
 
 		@Test
 		public void testIndividualCharacters(){
-			//slash must be encoded
+			// slash must be encoded
 			Assert.assertEquals(encodeFragment("/"), ENCODED_INTERNAL_SEPARATOR);
-			//these 5 chars should not be encoded
+			// these 5 chars should not be encoded
 			Assert.assertEquals(encodeFragment("-"), ENCODED_DASH);
 			Assert.assertEquals(encodeFragment("_"), ENCODED_UNDERSCORE);
 			Assert.assertEquals(encodeFragment("."), ENCODED_DOT);
 			Assert.assertEquals(encodeFragment("*"), ENCODED_STAR);
-			//nor should letters or digits
+			// nor should letters or digits
 			Assert.assertEquals(encodeFragment("Aa0"), "Aa0");
-			//forward slash must be encoded because it's our separator
+			// forward slash must be encoded because it's our separator
 		}
+
 		@Test
 		public void testComplexStrings(){
 			String input = "/ A-b_0/.c*m";
@@ -121,6 +122,7 @@ public class PercentFieldCodec{
 					+ ".c*m";
 			Assert.assertEquals(encodeFragment(input), expected);
 		}
+
 		@Test
 		public void testMultipleStrings(){
 			String[] inputs = new String[]{"*//a()&^$", "!~/.9"};
