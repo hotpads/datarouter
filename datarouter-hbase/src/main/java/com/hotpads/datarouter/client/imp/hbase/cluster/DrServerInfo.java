@@ -22,19 +22,20 @@ public class DrServerInfo{
 	}
 
 
-	/************** comparator ******************/
+	/*--------------- comparator ---------------*/
 
-	public static class DrhServerInfoHigherLoadComparator implements Comparator<DrServerInfo>{
-		@Override
-		public int compare(DrServerInfo serverA, DrServerInfo serverB){
-			int numARegions = serverA.getServerLoad().getLoad();
-			int numBRegions = serverB.getServerLoad().getLoad();
-			return numBRegions - numARegions;
-		}
+	public static final Comparator<DrServerInfo> COMPARATOR_DESC_SERVER_LOAD = Comparator
+			.comparing(DrServerInfo::getRegionCount)
+			.reversed()
+			.thenComparing(DrServerInfo::getName);
+
+	/*--------------- methods ------------------------*/
+
+	private int getRegionCount(){
+		return serverLoad.getLoad();
 	}
 
-
-	/************** get/set ***************************/
+	/*--------------- get/set ---------------*/
 
 	public String getName(){
 		return name;
@@ -51,6 +52,5 @@ public class DrServerInfo{
 	public ServerLoad getServerLoad(){
 		return serverLoad;
 	}
-
 
 }
