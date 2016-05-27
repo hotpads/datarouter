@@ -3,7 +3,6 @@ package com.hotpads.handler.mav;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.hotpads.datarouter.util.core.DrBooleanTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
 
 public class Mav {
@@ -12,13 +11,13 @@ public class Mav {
 
 	/********************** fields *******************************************/
 
-	protected Boolean redirect = false;
-	protected String viewName = null;
-	protected String context;
-	protected String contentType = "text/html";
-	protected Map<String,Object> model = new HashMap<>();
-	protected String globalRedirectUrl;
-	protected int statusCode = 200;
+	private boolean redirect = false;
+	private String viewName;
+	private String context;
+	private String contentType = "text/html";
+	private Map<String,Object> model = new HashMap<>();
+	private String globalRedirectUrl;
+	private int statusCode = 200;
 
 	/********************** constructors ****************************************/
 
@@ -30,37 +29,16 @@ public class Mav {
 	}
 
 	public Mav(String context, String viewName){
-		this.setContext(context);
+		this.context = context;
 		this.setViewName(viewName);
 	}
 
 	public Mav(String viewName, Map<String,Object> model) {
 		this.setViewName(viewName);
-		this.setModel(model);
+		this.model = model;
 	}
-
-//	public ModelAndView(String viewName, String key, Object value){
-//		this.setViewName(viewName);
-//		this.addObject(key, value);
-//	}
-
-//	public ModelAndView(String context, String viewName, String key, Object value){
-//		this.setContext(context);
-//		this.setViewName(viewName);
-//		this.addObject(key, value);
-//	}
-
 
 	/********************** methods *******************************************/
-
-	/**
-	 * Backwards compatible method name for Spring framework.
-	 */
-	@Deprecated
-	public Mav addObject(String key, Object value){
-		model.put(key, value);
-		return this;
-	}
 
 	/**
 	 * This method returns the value you give it to enable things like fetching an object from the database and getting
@@ -71,15 +49,20 @@ public class Mav {
 		return value;
 	}
 
+	public Map<? extends String,?> putAll(Map<? extends String,?> map){
+		model.putAll(map);
+		return map;
+	}
+
 	public boolean isRedirect(){
 		return redirect;
 	}
 
 	public String getRedirectUrl(){
-		if(DrBooleanTool.isFalse(this.redirect)){
+		if(!redirect){
 			return null;
-		}else if(DrStringTool.notEmpty(this.globalRedirectUrl)){
-			return this.globalRedirectUrl;
+		}else if(DrStringTool.notEmpty(globalRedirectUrl)){
+			return globalRedirectUrl;
 		}else{
 			StringBuilder sb = new StringBuilder();
 			sb.append(viewName);
@@ -96,46 +79,27 @@ public class Mav {
 
 	public Mav setViewName(final String viewName){
 		if(DrStringTool.nullSafe(viewName).startsWith(REDIRECT)){
-			this.redirect = true;
+			redirect = true;
 			this.viewName = viewName.substring(REDIRECT.length());
 		}else{
-			if(!viewName.contains(".")){
-				this.viewName = "/WEB-INF/jsp" + viewName + ".jsp";
-			}else{
+			if(viewName.contains(".")){
 				this.viewName = viewName;
+			}else{
+				this.viewName = "/WEB-INF/jsp" + viewName + ".jsp";
 			}
 		}
 		return this;
 	}
 
-	public Mav setViewName(String context, String viewName){
-		this.setContext(context);
-		return this.setViewName(viewName);
-	}
-
 	public void setGlobalRedirectUrl(String globalRedirectUrl) {
-		this.redirect = true;
+		redirect = true;
 		this.globalRedirectUrl = globalRedirectUrl;
 	}
 
-
 	/************************** get/set ***********************************/
-
 
 	public Map<String, Object> getModel() {
 		return model;
-	}
-
-	public void setModel(Map<String, Object> model) {
-		this.model = model;
-	}
-
-	public Boolean getRedirect() {
-		return redirect;
-	}
-
-	public void setRedirect(Boolean redirect) {
-		this.redirect = redirect;
 	}
 
 	public String getViewName() {
@@ -144,14 +108,6 @@ public class Mav {
 
 	public String getContext() {
 		return context;
-	}
-
-	public void setContext(String context) {
-		this.context = context;
-	}
-
-	public String getGlobalRedirectUrl() {
-		return globalRedirectUrl;
 	}
 
 	public String getContentType(){

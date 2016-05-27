@@ -1,9 +1,10 @@
 package com.hotpads.handler.datarouter;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
@@ -14,12 +15,11 @@ import com.hotpads.datarouter.node.DatarouterNodes;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.op.raw.read.MapStorageReader;
 import com.hotpads.datarouter.node.op.raw.read.MapStorageReader.MapStorageReaderNode;
-import com.hotpads.datarouter.serialize.PrimaryKeyStringConverter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
-import com.hotpads.datarouter.serialize.fielder.PrimaryKeyFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
+import com.hotpads.datarouter.util.PercentFieldCodec;
 import com.hotpads.datarouter.util.PrimaryKeyPercentCodec;
 import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.Params;
@@ -33,8 +33,7 @@ public class DatabeanViewerHandler extends BaseHandler{
 	@Inject
 	private DatarouterNodes datarouterNodes;
 
-
-	/**
+	/*
 	 * e.g.
 	 * https://localhost:8443/job/datarouter/data/stat/RentZestimate/1
 	 * https://localhost:8443/job/datarouter/data/place/Area/14644
@@ -50,13 +49,13 @@ public class DatabeanViewerHandler extends BaseHandler{
 	protected Mav handleDefault() throws Exception{
 		Mav mav = new Mav("/jsp/admin/viewDatabean.jsp");
 		PathSegments pathSegments = PathSegments.parsePathSegments(params);
-		List<MapStorageReaderNode<?,?>> nodes = getNodes(pathSegments.datarouterName, pathSegments.tableName);
+		List<MapStorageReaderNode<?,?>> nodes = getNodes(pathSegments.routerName, pathSegments.tableName);
 		if(nodes == null || nodes.size() < 1){
 			throw new IllegalArgumentException("Can not find a matching table."
-				+ "The correct url is: /datarouter/data/{router}/{table}/{databeanKey}"
-				+ " or like: /datarouter/data/{router}/{table}?feedId=HotPads&feedListingId=FAL010091L");
+				+ "The correct url is: /ctx/datarouter/data/{router}/{table}/{databeanKey}");
 		}
 		mav.put("nodes", nodes);
+
 		List<DatabeanWrapper> databeanWrappers = new ArrayList<>();
 		for(MapStorageReaderNode node : nodes){
 			boolean fieldAware = true;
@@ -65,28 +64,17 @@ public class DatabeanViewerHandler extends BaseHandler{
 				fieldAware = false;
 				fields = node.getFieldInfo().getPrimaryKeyFields();
 			}
-
-			PrimaryKey<?> key;
-			if(pathSegments.databeanKey == null || pathSegments.databeanKey.length() < 1){
-				Map<String,String> keyFieldMap = params.toMap();
-				key = PrimaryKeyPercentCodec.parseKeyFromKeyFieldMap((Class<PrimaryKey>)(node
-						.getFieldInfo().getPrimaryKeyClass()), (PrimaryKeyFielder)(node.getFieldInfo()
-								.getSamplePrimaryKey()), keyFieldMap);
-			}else{
-				key = decodePrimaryKey(node, pathSegments.databeanKey);
-			}
-
-			Databean<?,?> databean = node.get(key, null);
+			PrimaryKey<?> pk = PrimaryKeyPercentCodec.decode(node.getPrimaryKeyType(), pathSegments.encodedPk);
+			Databean<?,?> databean = node.get(pk, null);
 			if(databean != null){
-				databeanWrappers.add(new DatabeanWrapper(fields, getRowsOfFields(node, databean), node,
-						fieldAware));
+				databeanWrappers.add(new DatabeanWrapper(fields, getRowsOfFields(node, databean), node, fieldAware));
 			}
 		}
-		if(databeanWrappers.size() > 0){
-			mav.put("databeanWrappers", databeanWrappers);
-			return mav;
+		if(databeanWrappers.isEmpty()){
+			return new StringMav("databean not found");
 		}
-		return new StringMav("databean not found");
+		mav.put("databeanWrappers", databeanWrappers);
+		return mav;
 	}
 
 	private	List<Field<?>> getRowsOfFields(Node<?,?> node, Databean<?,?> databean){
@@ -122,13 +110,6 @@ public class DatabeanViewerHandler extends BaseHandler{
 		return nodes;
 	}
 
-	private PrimaryKey<?> decodePrimaryKey(Node<?,?>node, String pkStrings){
-		PrimaryKey<?> key = PrimaryKeyStringConverter.primaryKeyFromString((Class<PrimaryKey>)(node
-				.getFieldInfo().getPrimaryKeyClass()), (PrimaryKeyFielder)(node.getFieldInfo()
-						.getSamplePrimaryKey()), pkStrings);
-		key.fromPersistentString(pkStrings);
-		return key;
-	}
 
 	public static class DatabeanWrapper{
 		private final List<Field<?>> fields;
@@ -157,33 +138,37 @@ public class DatabeanViewerHandler extends BaseHandler{
 	}
 
 	private static class PathSegments{
-		private final String datarouterName;
-		private final String tableName;
-		private final String databeanKey;
+		public final String routerName;
+		public final String tableName;
+		public final String encodedPk;
 
-		private PathSegments(String datarouterName, String tableName, String databeanKey){
-			this.datarouterName = datarouterName;
+		private PathSegments(String routerName, String tableName, String encodedPk){
+			this.routerName = routerName;
 			this.tableName = tableName;
-			this.databeanKey = databeanKey;
+			this.encodedPk = encodedPk;
 		}
 
 		public static PathSegments parsePathSegments(Params params){
 			String pathInfoStr = params.getRequest().getPathInfo();
-			int offset = DatarouterWebDispatcher.DATA.length() + 1;
-			if(pathInfoStr.contains(DatarouterWebDispatcher.PATH_datarouter)){
-				offset += DatarouterWebDispatcher.PATH_datarouter.length();
-			}
-			String[] pathInfo = params.getRequest().getPathInfo().substring(offset).split("/");
-			if(pathInfo.length == 3){
-				return new PathSegments(pathInfo[0], pathInfo[1],  pathInfo[2]);
-			}
-			if(pathInfo.length != 2){
-				throw new IllegalArgumentException("The url is not correct! "
-						+ "The correct url is: /datarouter/data/{router}/{table}/{databeanKey}"
-						+ " or like: /datarouter/data/{router}/{table}?feedId=HotPads&feedListingId=FAL010091L");
-			}
-			return new PathSegments(pathInfo[0], pathInfo[1],  null);
+			int startTrim = pathInfoStr.indexOf(DatarouterWebDispatcher.PATH_data);
+			int endTrim = startTrim + DatarouterWebDispatcher.PATH_data.length();
+			++endTrim; //skip one more slash
+			String pathParams = pathInfoStr.substring(endTrim);
+			logger.warn(pathParams);
+			List<String> tokens = Arrays.asList(pathParams.split(PercentFieldCodec.INTERNAL_SEPARATOR));
+			List<String> pkTokens = tokens.subList(2, tokens.size());
+			String encodedPk = pkTokens.stream().collect(Collectors.joining(PercentFieldCodec.INTERNAL_SEPARATOR));
+			PathSegments pathSegments = new PathSegments(tokens.get(0), tokens.get(1), encodedPk);
+			logger.warn(pathSegments.toString());
+			return pathSegments;
 		}
+
+		@Override
+		public String toString(){
+			return "PathSegments [routerName=" + routerName + ", tableName=" + tableName + ", encodedPk=" + encodedPk
+					+ "]";
+		}
+
 	}
 
 }
