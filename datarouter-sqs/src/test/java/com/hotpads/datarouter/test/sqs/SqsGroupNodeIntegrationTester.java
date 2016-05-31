@@ -25,8 +25,8 @@ import com.hotpads.datarouter.util.core.DrCollectionTool;
 
 @Guice(moduleFactory = DatarouterSqsTestModuleFactory.class)
 @Test(singleThreaded=true)
-public class SqsGroupNodeIntegrationTests{
-	private static final Logger logger = LoggerFactory.getLogger(SqsGroupNodeIntegrationTests.class);
+public class SqsGroupNodeIntegrationTester{
+	private static final Logger logger = LoggerFactory.getLogger(SqsGroupNodeIntegrationTester.class);
 
 	private static final int DATABEAN_COUNT = 15;
 
@@ -34,7 +34,7 @@ public class SqsGroupNodeIntegrationTests{
 	private final SqsTestHelper sqsTestHelper;
 
 	@Inject
-	public SqsGroupNodeIntegrationTests(SqsTestRouter router){
+	public SqsGroupNodeIntegrationTester(SqsTestRouter router){
 		this.router = router;
 		this.sqsTestHelper = new SqsTestHelper(router.groupTestDatabean);
 	}

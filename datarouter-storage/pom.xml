@@ -1,38 +1,20 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-
+	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>com.hotpads</groupId>
 		<artifactId>hotpads</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
-		<relativePath>../..</relativePath>
+		<relativePath>../../config/maven</relativePath>
 	</parent>
-	<modelVersion>4.0.0</modelVersion>
 	<artifactId>datarouter-storage</artifactId>
-	<packaging>jar</packaging>
-
-	<name>datarouter-storage</name>
-
 	<build>
 		<plugins>
 			<plugin>
 				<groupId>pl.project13.maven</groupId>
 				<artifactId>git-commit-id-plugin</artifactId>
-				<version>2.1.13</version>
-				<executions>
-					<execution>
-						<goals>
-							<goal>revision</goal>
-						</goals>
-					</execution>
-				</executions>
 				<configuration>
 					<dotGitDirectory>${project.basedir}/../.git</dotGitDirectory>
-					<generateGitPropertiesFile>true</generateGitPropertiesFile>
-					<generateGitPropertiesFilename>src/main/resources/git.properties</generateGitPropertiesFilename>
-					<gitDescribe>
-						<tags>true</tags>
-					</gitDescribe>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -62,18 +44,8 @@
 					</execution>
 				</executions>
 			</plugin>
-			<plugin>
-				<artifactId>exec-maven-plugin</artifactId>
-				<groupId>org.codehaus.mojo</groupId>
-				<version>${exec-maven-plugin.version}</version>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-failsafe-plugin</artifactId>
-			</plugin>
 		</plugins>
 	</build>
-
 	<dependencies>
 		<dependency>
 			<groupId>com.hotpads</groupId>
@@ -128,9 +100,4 @@
 			<version>1</version>
 		</dependency>
 	</dependencies>
-	
-	<organization>
-		<name>HotPads.com</name>
-		<url>http://hotpads.com</url>
-	</organization>
 </project>
