@@ -2,6 +2,7 @@ package com.hotpads.datarouter.client;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -21,11 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.inject.DatarouterInjector;
-import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.routing.Datarouter;
-import com.hotpads.datarouter.util.core.DrCollectionTool;
-import com.hotpads.datarouter.util.core.DrIterableTool;
-import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.datarouter.util.core.DrPropertiesTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.util.core.concurrent.FutureTool;
@@ -46,12 +43,7 @@ public class DatarouterClients{
 		PREFIX_clients = "clients",
 		PREFIX_client = "client.",
 		PARAM_forceInitMode = ".forceInitMode",
-		PARAM_names = ".names",
-		PARAM_connectionPool = ".connectionPool",
-		PARAM_initMode = ".initMode",
-		PARAM_type = ".type",
-		PARAM_slave = ".slave"
-		;
+		PARAM_initMode = ".initMode";
 
 	//injected
 	private final DatarouterInjector injector;
@@ -86,13 +78,11 @@ public class DatarouterClients{
 	}
 
 	public void registerClientIds(Datarouter context, Collection<ClientId> clientIdsToAdd) {
-		clientIds.addAll(DrCollectionTool.nullSafe(clientIdsToAdd));
-		for(ClientId clientId : DrIterableTool.nullSafe(clientIds)){
+		clientIds.addAll(clientIdsToAdd);
+		for(ClientId clientId : clientIdsToAdd){
 			initClientFactoryIfNull(context, clientId.getName());
 		}
 	}
-
-
 
 	/********************************** initialize ******************************/
 
@@ -103,8 +93,7 @@ public class DatarouterClients{
 
 	public ClientType getClientTypeInstance(String clientName){
 		Class<? extends ClientType> clientTypeClass = routerOptions.getClientType(clientName);
-		ClientType clientType = injector.getInstance(clientTypeClass);
-		return clientType;
+		return injector.getInstance(clientTypeClass);
 	}
 
 	public boolean getDisableable(String clientName){
@@ -116,10 +105,7 @@ public class DatarouterClients{
 			return;
 		}
 		ClientType clientTypeInstance = getClientTypeInstance(clientName);
-		List<PhysicalNode<?,?>> physicalNodesForClient = new ArrayList<>(context.getNodes().getPhysicalNodesForClient(
-				clientName));
-		ClientFactory clientFactory = clientTypeInstance.createClientFactory(context, clientName,
-				physicalNodesForClient);
+		ClientFactory clientFactory = clientTypeInstance.createClientFactory(context, clientName);
 		lazyClientProviderByName.put(clientName, new LazyClientProvider(clientFactory));
 	}
 
@@ -152,7 +138,7 @@ public class DatarouterClients{
 			if(ClientInitMode.eager == forceInitMode){
 				return getClientNames();
 			}
-			return null;
+			return Collections.emptyList();
 		}
 
 		String defaultInitModeString = DrPropertiesTool.getFirstOccurrence(multiProperties, PREFIX_client
@@ -160,7 +146,7 @@ public class DatarouterClients{
 		ClientInitMode defaultInitMode = ClientInitMode.fromString(defaultInitModeString, ClientInitMode.lazy);
 
 		List<String> clientNamesRequiringEagerInitialization = new ArrayList<>();
-		for(String name : DrCollectionTool.nullSafe(getClientNames())){
+		for(String name : getClientNames()){
 			String clientInitModeString = DrPropertiesTool.getFirstOccurrence(multiProperties, PREFIX_client + name
 					+ PARAM_initMode);
 			ClientInitMode mode = ClientInitMode.fromString(clientInitModeString, defaultInitMode);
@@ -193,9 +179,9 @@ public class DatarouterClients{
 	}
 
 	public List<Client> getClients(Datarouter context, Collection<String> clientNames){
-		List<Client> clients = DrListTool.createArrayListWithSize(clientNames);
+		List<Client> clients = new ArrayList<>();
 		List<LazyClientProvider> providers = new ArrayList<>();//TODO don't create until needed
-		for(String clientName : DrCollectionTool.nullSafe(clientNames)){
+		for(String clientName : clientNames){
 			LazyClientProvider provider = lazyClientProviderByName.get(clientName);
 			Objects.requireNonNull(provider, "LazyClientProvider cannot be null for clientName=" + clientName);
 			if(provider.isInitialized()){
@@ -204,9 +190,7 @@ public class DatarouterClients{
 				providers.add(provider);//these must be initialized first
 			}
 		}
-		if(DrCollectionTool.notEmpty(providers)){
-			clients.addAll(FutureTool.submitAndGetAll(providers, context.getExecutorService()));
-		}
+		clients.addAll(FutureTool.submitAndGetAll(providers, context.getExecutorService()));
 		return clients;
 	}
 
@@ -218,6 +202,4 @@ public class DatarouterClients{
 		return lazyClientProviderByName;
 	}
 
-
 }
-

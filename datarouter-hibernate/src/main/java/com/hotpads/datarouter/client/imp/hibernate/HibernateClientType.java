@@ -1,7 +1,5 @@
 package com.hotpads.datarouter.client.imp.hibernate;
 
-import java.util.List;
-
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -65,8 +63,7 @@ public class HibernateClientType extends BaseClientType{
 	}
 
 	@Override
-	public ClientFactory createClientFactory(Datarouter datarouter, String clientName,
-			List<PhysicalNode<?,?>> physicalNodes){
+	public ClientFactory createClientFactory(Datarouter datarouter, String clientName){
 		return new HibernateSimpleClientFactory(datarouter, fieldCodecFactory, clientName, clientAvailabilitySettings);
 	}
 

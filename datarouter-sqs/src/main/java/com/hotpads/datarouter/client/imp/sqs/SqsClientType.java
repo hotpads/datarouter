@@ -1,7 +1,5 @@
 package com.hotpads.datarouter.client.imp.sqs;
 
-import java.util.List;
-
 import javax.inject.Inject;
 
 import com.hotpads.datarouter.client.ClientFactory;
@@ -47,8 +45,7 @@ public class SqsClientType extends BaseClientType implements QueueClientType{
 	}
 
 	@Override
-	public ClientFactory createClientFactory(Datarouter datarouter, String clientName,
-			List<PhysicalNode<?, ?>> physicalNodes){
+	public ClientFactory createClientFactory(Datarouter datarouter, String clientName){
 		SqsOptions sqsOptions = new SqsOptions(datarouter, clientName);
 		return new SqsClientFactory(clientName, this, sqsOptions, clientAvailabilitySettings);
 	}
