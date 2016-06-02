@@ -1,22 +1,25 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-
+	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>com.hotpads</groupId>
 		<artifactId>hotpads</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
-		<relativePath>../..</relativePath>
+		<relativePath>../../config/maven</relativePath>
 	</parent>
-	<modelVersion>4.0.0</modelVersion>
 	<artifactId>datarouter-logging</artifactId>
-	<packaging>jar</packaging>
-
 	<properties>
 		<log4j2Version>2.5</log4j2Version>
 	</properties>
-
 	<build>
 		<plugins>
+			<plugin>
+				<groupId>pl.project13.maven</groupId>
+				<artifactId>git-commit-id-plugin</artifactId>
+				<configuration>
+					<dotGitDirectory>${project.basedir}/../.git</dotGitDirectory>
+				</configuration>
+			</plugin>
 			<plugin>
 				<groupId>org.bsc.maven</groupId>
 				<artifactId>maven-processor-plugin</artifactId>
@@ -40,7 +43,6 @@
 			</plugin>
 		</plugins>
 	</build>
-
 	<dependencies>
 		<dependency>
 			<groupId>javax.inject</groupId>
@@ -86,10 +88,4 @@
 			<scope>runtime</scope>
 		</dependency>
 	</dependencies>
-	
-	
-	<organization>
-		<name>HotPads</name>
-		<url>http://hotpads.com</url>
-	</organization>
 </project>

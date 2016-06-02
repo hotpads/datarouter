@@ -27,8 +27,8 @@ import com.hotpads.datarouter.test.TestDatabean;
 
 @Guice(moduleFactory = DatarouterSqsTestModuleFactory.class)
 @Test(singleThreaded=true)
-public class SqsNodeIntegrationTests{
-	private static final Logger logger = LoggerFactory.getLogger(SqsNodeIntegrationTests.class);
+public class SqsNodeIntegrationTester{
+	private static final Logger logger = LoggerFactory.getLogger(SqsNodeIntegrationTester.class);
 
 	private static final int DATABEAN_COUNT = 15;
 
@@ -39,7 +39,7 @@ public class SqsNodeIntegrationTests{
 	private final SqsTestRouter router;
 
 	@Inject
-	public SqsNodeIntegrationTests(SqsTestRouter router){
+	public SqsNodeIntegrationTester(SqsTestRouter router){
 		this.router = router;
 		this.sqsTestHelper = new SqsTestHelper(router.testDatabean);
 	}
