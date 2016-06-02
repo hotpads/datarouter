@@ -1,7 +1,5 @@
 package com.hotpads.datarouter.client.imp.memcached;
 
-import java.util.List;
-
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -59,8 +57,7 @@ public class MemcachedClientType extends BaseClientType{
 	}
 
 	@Override
-	public ClientFactory createClientFactory(Datarouter datarouter, String clientName,
-			List<PhysicalNode<?,?>> physicalNodes){
+	public ClientFactory createClientFactory(Datarouter datarouter, String clientName){
 		return new MemcachedSimpleClientFactory(datarouter, clientName, clientAvailabilitySettings);
 	}
 
