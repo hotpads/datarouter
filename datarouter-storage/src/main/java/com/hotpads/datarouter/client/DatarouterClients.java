@@ -12,16 +12,19 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.inject.Singleton;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.inject.DatarouterInjector;
+import com.hotpads.datarouter.inject.guice.executor.DatarouterExecutorGuiceModule;
 import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.util.core.DrPropertiesTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
@@ -53,15 +56,17 @@ public class DatarouterClients{
 	private final Collection<Properties> multiProperties;
 	private final NavigableSet<ClientId> clientIds;
 	private final Map<String,LazyClientProvider> lazyClientProviderByName;
+	private final ExecutorService executorService;
 
 	private RouterOptions routerOptions;
-
 
 	/******************************* constructors **********************************/
 
 	@Inject
-	public DatarouterClients(DatarouterInjector injector){
+	public DatarouterClients(DatarouterInjector injector,
+			@Named(DatarouterExecutorGuiceModule.POOL_datarouterExecutor) ExecutorService executorService){
 		this.injector = injector;
+		this.executorService = executorService;
 		this.configFilePaths = new TreeSet<>();
 		this.multiProperties = new ArrayList<>();
 		this.clientIds = new TreeSet<>();
@@ -86,9 +91,8 @@ public class DatarouterClients{
 
 	/********************************** initialize ******************************/
 
-	public void initializeEagerClients(Datarouter context){
-		final List<String> eagerClientNames = getClientNamesRequiringEagerInitialization();
-		getClients(context, eagerClientNames);
+	public void initializeEagerClients(){
+		getClients(getClientNamesRequiringEagerInitialization());
 	}
 
 	public ClientType getClientTypeInstance(String clientName){
@@ -178,7 +182,7 @@ public class DatarouterClients{
 		return lazyClientProviderByName.get(clientName).call();
 	}
 
-	public List<Client> getClients(Datarouter context, Collection<String> clientNames){
+	public List<Client> getClients(Collection<String> clientNames){
 		List<Client> clients = new ArrayList<>();
 		List<LazyClientProvider> providers = new ArrayList<>();//TODO don't create until needed
 		for(String clientName : clientNames){
@@ -190,12 +194,12 @@ public class DatarouterClients{
 				providers.add(provider);//these must be initialized first
 			}
 		}
-		clients.addAll(FutureTool.submitAndGetAll(providers, context.getExecutorService()));
+		clients.addAll(FutureTool.submitAndGetAll(providers, executorService));
 		return clients;
 	}
 
-	public List<Client> getAllClients(Datarouter context){
-		return getClients(context, ClientId.getNames(clientIds));
+	public List<Client> getAllClients(){
+		return getClients(ClientId.getNames(clientIds));
 	}
 
 	public Map<String,LazyClientProvider> getLazyClientProviderByName(){

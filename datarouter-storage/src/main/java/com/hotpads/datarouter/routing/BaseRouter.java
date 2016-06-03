@@ -78,13 +78,8 @@ implements Router{
 
 	@Override
 	public List<Client> getAllClients(){
-		return datarouter.getClientPool().getClients(datarouter, getClientNames());
+		return datarouter.getClientPool().getClients(getClientNames());
 	}
-
-//	@Override
-//	public List<Client> getClients(Collection<String> clientNames){
-//		return context.getClientPool().getClients(clientNames);
-//	}
 
 	/***************** overexposed accessors *******************************/
 

@@ -29,7 +29,7 @@ implements ClientExecutor{
 
 	@Override
 	public List<Client> getClients(){
-		return datarouter.getClientPool().getClients(datarouter, parallelClientOp.getClientNames());
+		return datarouter.getClientPool().getClients(parallelClientOp.getClientNames());
 	}
 
 
@@ -48,10 +48,11 @@ implements ClientExecutor{
 	@Override
 	public void reserveConnections(){
 		for(Client client : DrCollectionTool.nullSafe(getClients())){
-			if( ! (client instanceof ConnectionClient) ){ continue; }
+			if(!(client instanceof ConnectionClient)){
+				continue;
+			}
 			ConnectionClient connectionClient = (ConnectionClient)client;
 			connectionClient.reserveConnection();
-//			logger.warn("reserveConnection "+handle);
 			DRCounters.incClient(connectionClient.getType(), "reserveConnection", connectionClient.getName());
 		}
 	}
@@ -59,11 +60,12 @@ implements ClientExecutor{
 	@Override
 	public void releaseConnections(){
 		for(Client client : DrCollectionTool.nullSafe(getClients())){
-			if( ! (client instanceof ConnectionClient) ){ continue; }
+			if(!(client instanceof ConnectionClient)){
+				continue;
+			}
 			ConnectionClient connectionClient = (ConnectionClient)client;
 			try{
 				connectionClient.releaseConnection();
-//				logger.warn("releaseConnection "+handle);
 				DRCounters.incClient(connectionClient.getType(), "releaseConnection", connectionClient.getName());
 			}catch(Exception e){
 				logger.warn("", e);
