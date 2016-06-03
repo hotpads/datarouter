@@ -58,7 +58,7 @@ public class RoutersHandler extends BaseHandler {
 
 	@Handler
 	private Mav initAllClients(){
-		datarouterClients.getAllClients(datarouter);
+		datarouterClients.getAllClients();
 		return new InContextRedirectMav(params, DatarouterWebDispatcher.PATH_routers);
 	}
 
