@@ -61,7 +61,7 @@ implements Databean<PK,D>{
 
 	@Override
 	public String toString(){
-		return getClass().getSimpleName() + "." + PrimaryKeyPercentCodec.encode(getKey());
+		return getClass().getSimpleName() + "." + getKey().getPersistentString());
 	}
 
 }
