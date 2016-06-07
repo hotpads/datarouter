@@ -15,11 +15,32 @@ extends Comparable<FieldSet<F>>,
 	List<?> getFieldValues();
 	Object getFieldValue(String fieldName);
 
-	@Deprecated //use PercentCodec
-	String getPersistentString();  //fuse multi-column field into one string, usually with "_" characters
-	@Deprecated
-	String getTypedPersistentString();  //usually getDatabeanName()+"."+getPersistentString()
-	@Deprecated
-	void fromPersistentString(String s);  //currently separated by "_"... need escaping
+
+	/**************************** serialize ******************/
+
+	@Deprecated //used in jsps.  replace with percent codec
+	default String getPersistentString(){
+		return FieldSetTool.getPersistentString(getFields());
+	}
+
+	@Deprecated //replace with percent codec
+	default String getTypedPersistentString(){
+		return getClass().getSimpleName()+"_"+getPersistentString();
+	}
+
+	@Deprecated //replace with percent codec
+	default void fromPersistentString(String in){
+		String[] tokens = in.split("_");
+		int i = 0;
+		for(Field<?> field : getFields()){
+			if(i > tokens.length - 1){
+				break;
+			}
+			field.fromString(tokens[i]);
+			field.setUsingReflection(this, field.getValue());
+			field.setValue(null);// to be safe until Field logic is cleaned up
+			++i;
+		}
+	}
 
 }

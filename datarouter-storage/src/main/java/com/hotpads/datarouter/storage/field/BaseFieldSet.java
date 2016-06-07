@@ -57,35 +57,6 @@ implements FieldSet<F>{
 		return getClass().getSimpleName() + "." + PercentFieldCodec.encodeFields(getFields());
 	}
 
-	/**************************** serialize ******************/
-
-	@Deprecated //use PercentCodec
-	@Override
-	public String getPersistentString(){
-		return FieldSetTool.getPersistentString(getFields());
-	}
-
-	@Deprecated //use PercentCodec
-	@Override
-	public String getTypedPersistentString(){
-		return getClass().getSimpleName()+"_"+getPersistentString();
-	}
-
-	@Deprecated // use PercentCodec
-	@Override
-	public void fromPersistentString(String in){
-		String[] tokens = in.split("_");
-		int i = 0;
-		for(Field<?> field : getFields()){
-			if(i > tokens.length - 1){
-				break;
-			}
-			field.fromString(tokens[i]);
-			field.setUsingReflection(this, field.getValue());
-			field.setValue(null);// to be safe until Field logic is cleaned up
-			++i;
-		}
-	}
 
 	/****************** fields ************************/
 
