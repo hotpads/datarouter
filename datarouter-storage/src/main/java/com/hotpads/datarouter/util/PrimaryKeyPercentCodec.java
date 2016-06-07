@@ -20,7 +20,7 @@ public class PrimaryKeyPercentCodec{
 
 	/*-------------- encode --------------------*/
 
-	public static <PK extends PrimaryKey<PK>> String encode(PK pk){
+	public static String encode(PrimaryKey<?> pk){
 		return PercentFieldCodec.encodeFields(pk.getFields());
 	}
 
