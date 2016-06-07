@@ -27,8 +27,6 @@ import com.hotpads.datarouter.storage.field.imp.positive.UInt31Field;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.core.DrArrayTool;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
-import com.hotpads.datarouter.util.core.DrIterableTool;
-import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.datarouter.util.core.DrObjectTool;
 import com.hotpads.util.core.bytes.ByteRange;
 import com.hotpads.util.core.bytes.StringByteTool;
@@ -56,15 +54,6 @@ public class FieldSetTool{
 			}
 		}
 		return numNonNullFields;
-	}
-
-	@Deprecated //use Percent Codecs
-	public static List<String> getPersistentStrings(Collection<? extends FieldSet<?>> keys){
-		List<String> outs = DrListTool.createArrayListWithSize(keys);
-		for(FieldSet<?> f : DrIterableTool.nullSafe(keys)){
-			outs.add(f.getPersistentString());
-		}
-		return outs;
 	}
 
 	@Deprecated //use Percent Codecs
