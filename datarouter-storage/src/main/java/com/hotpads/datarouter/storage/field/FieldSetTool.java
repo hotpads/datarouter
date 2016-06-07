@@ -58,6 +58,7 @@ public class FieldSetTool{
 		return numNonNullFields;
 	}
 
+	@Deprecated //use Percent Codecs
 	public static List<String> getPersistentStrings(Collection<? extends FieldSet<?>> keys){
 		List<String> outs = DrListTool.createArrayListWithSize(keys);
 		for(FieldSet<?> f : DrIterableTool.nullSafe(keys)){
@@ -66,6 +67,7 @@ public class FieldSetTool{
 		return outs;
 	}
 
+	@Deprecated //use Percent Codecs
 	public static String getPersistentString(List<Field<?>> fields){
 		StringBuilder sb = new StringBuilder();
 		boolean doneOne = false;
