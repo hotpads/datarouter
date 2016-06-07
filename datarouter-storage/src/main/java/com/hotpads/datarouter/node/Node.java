@@ -18,9 +18,7 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
  * a PrimaryKey type, a Databean type, a Fielder type. A Node can be a PhysicalNode or a virtual node, like
  * MasterSlaveNode, that forwards requests on to other nodes.
  */
-public interface Node<
-		PK extends PrimaryKey<PK>,
-		D extends Databean<PK,D>>
+public interface Node<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 extends Comparable<Node<PK,D>>{
 
 	Datarouter getDatarouter();
