@@ -3,7 +3,6 @@ package com.hotpads.datarouter.storage.field;
 import java.util.List;
 
 import com.hotpads.datarouter.storage.field.compare.FieldSetComparator;
-import com.hotpads.datarouter.util.PercentFieldCodec;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 
 @SuppressWarnings("serial")
@@ -54,7 +53,7 @@ implements FieldSet<F>{
 
 	@Override
 	public String toString(){
-		return getClass().getSimpleName() + "." + PercentFieldCodec.encodeFields(getFields());
+		return getClass().getSimpleName() + "." + getPersistentString();
 	}
 
 
