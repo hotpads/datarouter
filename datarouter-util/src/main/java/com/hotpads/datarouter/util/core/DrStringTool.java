@@ -1,6 +1,7 @@
 package com.hotpads.datarouter.util.core;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -100,9 +101,7 @@ public class DrStringTool{
 				startIndex = 1 + indexesOfChar.get(i - 1);
 			}
 			int endIndex = indexesOfChar.get(i);
-			if(endIndex > startIndex) {
-				result.add(input.substring(startIndex, endIndex));
-			}
+			result.add(input.substring(startIndex, endIndex));
 		}
 		return result;
 	}
@@ -392,6 +391,14 @@ public class DrStringTool{
 		}
 
 		@Test
+		public void testSplitOnCharNoRegexWithEmptyStrings(){
+			String input = "//";
+			List<String> expected = Arrays.asList("", "", "");
+			List<String> decoded = splitOnCharNoRegex(input, '/');
+			Assert.assertEquals(expected, decoded);
+		}
+
+		@Test
 		public void testSplitOnCharNoRegex(){
 			String input = "abc.def.g";
 			Object[] output = splitOnCharNoRegex(input, '.').toArray();
@@ -399,7 +406,7 @@ public class DrStringTool{
 
 			String input2 = "..def.g.";
 			Object[] output2 = splitOnCharNoRegex(input2, '.').toArray();
-			Assert.assertArrayEquals(new String[]{"def", "g"}, output2);
+			Assert.assertArrayEquals(new String[]{"", "", "def", "g", ""}, output2);
 		}
 
 		@Test
