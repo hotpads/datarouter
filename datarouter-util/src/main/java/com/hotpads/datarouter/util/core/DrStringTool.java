@@ -11,7 +11,6 @@ import org.junit.Test;
 
 public class DrStringTool{
 
-
 	public static boolean notEmpty(String input){
 		return input != null && input.length() > 0;
 	}
@@ -20,26 +19,26 @@ public class DrStringTool{
 		return input == null || input.length() <= 0;
 	}
 
-	public static boolean isNull(String s){
-		return s == null || s.equalsIgnoreCase("null");
+	public static boolean isNull(String input){
+		return input == null || "null".equalsIgnoreCase(input);
 	}
 
-	public static boolean isNullOrEmpty(String s){
-		return s == null || s.length() <= 0 || s.equalsIgnoreCase("null");
+	public static boolean isNullOrEmpty(String input){
+		return input == null || input.length() <= 0 || "null".equalsIgnoreCase(input);
 	}
 
-	public static boolean isEmptyOrWhitespace(String s){
-		if(s == null) {
+	public static boolean isEmptyOrWhitespace(String input){
+		if(input == null) {
 			return true;
 		}
-		return isEmpty(s.trim());
+		return isEmpty(input.trim());
 	}
 
-	public static boolean isNullOrEmptyOrWhitespace(String s){
-		if(s == null) {
+	public static boolean isNullOrEmptyOrWhitespace(String input){
+		if(input == null) {
 			return true;
 		}
-		return isNullOrEmpty(s.trim());
+		return isNullOrEmpty(input.trim());
 	}
 
 	public static String nullIfEmpty(String input){
@@ -50,30 +49,38 @@ public class DrStringTool{
 	}
 
 	public static int length(String input){
-		if(isEmpty(input)){ return 0; }
+		if(isEmpty(input)) {
+			return 0;
+		}
 		return input.length();
 	}
 
 	public static String toLowerCase(String input){
-		if(input==null) {
+		if(input == null) {
 			return "";
 		}
 		return input.toLowerCase();
 	}
 
-	public static boolean equalsCaseInsensitive(String a, String b){
-		if(DrObjectTool.bothNull(a, b)){ return true; }
-		if(DrObjectTool.isOneNullButNotTheOther(a, b)){ return false; }
-		return a.toLowerCase().equals(b.toLowerCase());
+	public static boolean equalsCaseInsensitive(String left, String right){
+		if(DrObjectTool.bothNull(left, right)) {
+			return true;
+		}
+		if(DrObjectTool.isOneNullButNotTheOther(left, right)) {
+			return false;
+		}
+		return left.toLowerCase().equals(right.toLowerCase());
 	}
 
-	public static boolean equalsCaseInsensitiveButNotCaseSensitive(String a, String b){
-		return !DrObjectTool.nullSafeEquals(a, b) && equalsCaseInsensitive(a, b);
+	public static boolean equalsCaseInsensitiveButNotCaseSensitive(String left, String right){
+		return !DrObjectTool.nullSafeEquals(left, right) && equalsCaseInsensitive(left, right);
 	}
 
 	public static boolean containsCharactersBesidesWhitespace(String in){
 		for(int i = 0; i < in.length(); ++i){
-			if(in.charAt(i) != ' ' && in.charAt(i) != '\n' && in.charAt(i) != '\t'){ return true; }
+			if(in.charAt(i) != ' ' && in.charAt(i) != '\n' && in.charAt(i) != '\t') {
+				return true;
+			}
 		}
 		return false;
 	}
@@ -82,9 +89,9 @@ public class DrStringTool{
 		ArrayList<String> results = new ArrayList<>();
 		int leftIndex = 0;
 		for(int rightIndex = 0; rightIndex <= input.length(); ++rightIndex){
-			if(rightIndex == input.length() || separator == input.charAt(rightIndex)){
+			if(rightIndex == input.length() || separator == input.charAt(rightIndex)) {
 				results.add(input.substring(leftIndex, rightIndex));
-				leftIndex = rightIndex + 1;//move to start of next token
+				leftIndex = rightIndex + 1;// move to start of next token
 			}
 		}
 		return results;
@@ -95,14 +102,14 @@ public class DrStringTool{
 	}
 
 	public static String nullSafe(String input){
-		if(input == null){
+		if(input == null) {
 			input = "";
 		}
 		return input;
 	}
 
 	public static String nullSafeTrim(String input){
-		if(input == null){
+		if(input == null) {
 			input = "";
 		}
 		return input.trim();
@@ -124,28 +131,35 @@ public class DrStringTool{
 		return sb.toString();
 	}
 
-	public static String pad(String pInput, char padding, int length){
-		String input = nullSafe(pInput);
-		if(input.length() > length){
-			throw new IllegalArgumentException("input \"" + input + "\" longer than maxLength=" + length); }
+	public static String pad(String paramInput, char padding, int length){
+		String input = nullSafe(paramInput);
+		if(input.length() > length) {
+			throw new IllegalArgumentException("input \"" + input + "\" longer than maxLength=" + length);
+		}
 		int charsToGo = length - input.length();
 		return repeat(padding, charsToGo) + input;
 	}
 
-	public static String padEnd(String pInput, char padding, int length){
-		String input = nullSafe(pInput);
-		if(input.length() > length){ throw new IllegalArgumentException("input longer than maxLength"); }
+	public static String padEnd(String paramInput, char padding, int length){
+		String input = nullSafe(paramInput);
+		if(input.length() > length) {
+			throw new IllegalArgumentException("input longer than maxLength");
+		}
 		int charsToGo = length - input.length();
 		return input + repeat(padding, charsToGo);
 	}
 
 	public static String concatenate(Collection<? extends Object> objects, String delimiter){
-		if(DrCollectionTool.isEmpty(objects)){ return null; }
-		if(objects.size() == 1){ return DrCollectionTool.getFirst(objects).toString(); }
+		if(DrCollectionTool.isEmpty(objects)) {
+			return null;
+		}
+		if(objects.size() == 1) {
+			return DrCollectionTool.getFirst(objects).toString();
+		}
 		StringBuilder sb = new StringBuilder();
 		boolean didFirst = false;
 		for(Object o : objects){
-			if(didFirst){
+			if(didFirst) {
 				sb.append(delimiter);
 			}
 			sb.append(o.toString());
@@ -155,12 +169,12 @@ public class DrStringTool{
 	}
 
 	public static int countDigits(String input){
-		if(input == null){
+		if(input == null) {
 			return 0;
 		}
 		int numDigits = 0;
 		for(int i = 0; i < input.length(); ++i){
-			if(Character.isDigit(input.charAt(i))){
+			if(Character.isDigit(input.charAt(i))) {
 				++numDigits;
 			}
 		}
@@ -168,10 +182,12 @@ public class DrStringTool{
 	}
 
 	public static String retainDigits(String input){
-		if(input == null){ return null; }
+		if(input == null) {
+			return null;
+		}
 		StringBuilder sb = new StringBuilder();
 		for(int i = 0; i < input.length(); ++i){
-			if(Character.isDigit(input.charAt(i))){
+			if(Character.isDigit(input.charAt(i))) {
 				sb.append(input.charAt(i));
 			}
 		}
@@ -179,10 +195,12 @@ public class DrStringTool{
 	}
 
 	public static String retainLetters(String input){
-		if(input == null){ return null; }
+		if(input == null) {
+			return null;
+		}
 		StringBuilder sb = new StringBuilder();
 		for(int i = 0; i < input.length(); ++i){
-			if(Character.isLetter(input.charAt(i))){
+			if(Character.isLetter(input.charAt(i))) {
 				sb.append(input.charAt(i));
 			}
 		}
@@ -190,12 +208,14 @@ public class DrStringTool{
 	}
 
 	public static String replaceCharsAbove126(final String input, char replacement){
-		if(input == null){ return null; }
+		if(input == null) {
+			return null;
+		}
 
 		String result = input;
 
 		for(int i = 0; i < result.length(); ++i){ // careful about strings being immutable
-			if((result.charAt(i)) > 126){
+			if((result.charAt(i)) > 126) {
 				result = result.replace(result.charAt(i), replacement);
 			}
 		}
@@ -217,11 +237,12 @@ public class DrStringTool{
 		return replacement + original;
 	}
 
-
 	public static boolean containsCharactersOutsideRange(final String input, int bottom, int top){
 		char[] chars = input.toCharArray();
 		for(int i = 0; i < chars.length; i++){
-			if((chars[i]) > top || (chars[i]) < bottom){ return true; }
+			if((chars[i]) > top || (chars[i]) < bottom) {
+				return true;
+			}
 		}
 		return false;
 	}
@@ -229,15 +250,12 @@ public class DrStringTool{
 	/**
 	 * Get the string bounded by the first occurrence of right and the nearest occurrence to right of left.
 	 * getStringSurroundedWithAndRest("|a|b||","|","|") = a getStringSurroundedWithAndRest("|a|b||","|,"||") = b
-	 *
-	 * @param fromString
-	 * @param left
-	 * @param right
-	 * @return
 	 */
 	public static String getStringSurroundedWith(String fromString, String left, String right){
 		int[] startEnd = getIndicesOfStringSurroundedWith(fromString, left, right);
-		if(startEnd == null || startEnd.length != 2){ return ""; }
+		if(startEnd == null || startEnd.length != 2) {
+			return "";
+		}
 		return fromString.substring(startEnd[0], startEnd[1]);
 	}
 
@@ -252,9 +270,9 @@ public class DrStringTool{
 			return null;
 		}
 		int lastTextStart = fromString.substring(0, textEnd).lastIndexOf(left);
-		if(lastTextStart > 0){
+		if(lastTextStart > 0) {
 			lastTextStart = lastTextStart + left.length();
-			if(lastTextStart < textEnd){
+			if(lastTextStart < textEnd) {
 				textStart = lastTextStart;
 			}
 		}
@@ -263,7 +281,7 @@ public class DrStringTool{
 
 	public static String enforceNumeric(String number){
 		number = number.replaceAll("[^\\d\\.\\-]", "");
-		if(!number.matches("\\-?\\d*\\.?\\d+")){
+		if(!number.matches("\\-?\\d*\\.?\\d+")) {
 			while(number.endsWith(".")){
 				number = number.substring(0, number.length() - 1);
 			}
@@ -281,7 +299,9 @@ public class DrStringTool{
 	}
 
 	public static String removeNonStandardCharacters(String input){
-		if(input == null){ return null; }
+		if(input == null) {
+			return null;
+		}
 		input = replaceCharsAbove126(input, ' ');
 		input = replaceCharactersInRange(input, 0, 8, ' ');
 		input = replaceCharactersInRange(input, 11, 13, '\n');
@@ -314,36 +334,35 @@ public class DrStringTool{
 		return !DrStringTool.isEmpty(data) && !DrStringTool.containsCharactersOutsideRange(data, 48, 57);
 	}
 
-	public static String getStringAfterLastOccurrence(char c, String sourceString){
-		return getStringAfterLastOccurrence(Character.toString(c), sourceString);
+	public static String getStringAfterLastOccurrence(char ch, String sourceString){
+		return getStringAfterLastOccurrence(Character.toString(ch), sourceString);
 	}
 
-	public static String getStringAfterLastOccurrence(String s, String string){
-		if(string != null){
-			int i = string.lastIndexOf(s);
-			if(i >= 0 && string.length() > s.length()){
-				return string.substring(i + s.length());
+	public static String getStringAfterLastOccurrence(String searchFor, String inString){
+		if(inString != null) {
+			int index = inString.lastIndexOf(searchFor);
+			if(index >= 0 && inString.length() > searchFor.length()) {
+				return inString.substring(index + searchFor.length());
 			}
 			return "";
 		}
 		return null;
 	}
 
-	public static String getStringBeforeLastOccurrence(char c, String sourceString){
-		return getStringBeforeLastOccurrence(Character.toString(c), sourceString);
+	public static String getStringBeforeLastOccurrence(char ch, String sourceString){
+		return getStringBeforeLastOccurrence(Character.toString(ch), sourceString);
 	}
 
-	public static String getStringBeforeLastOccurrence(String s, String string) {
-		if (string == null) {
+	public static String getStringBeforeLastOccurrence(String searchFor, String inString){
+		if(inString == null) {
 			return null;
 		}
-		int i = string.lastIndexOf(s);
-		if (i < 0) {
+		int index = inString.lastIndexOf(searchFor);
+		if(index < 0) {
 			return "";
 		}
-		return string.substring(0, i);
+		return inString.substring(0, index);
 	}
-
 
 	/** TESTS *****************************************************************/
 
@@ -395,13 +414,13 @@ public class DrStringTool{
 
 		@Test
 		public void testCaseInsensitive(){
-			String a = "dawgy";
-			String b = "dawGy";
-			String c = "dawGy";
-			Assert.assertTrue(equalsCaseInsensitive(a, b));
-			Assert.assertTrue(!DrObjectTool.nullSafeEquals(a, b));
-			Assert.assertTrue(equalsCaseInsensitiveButNotCaseSensitive(a, b));
-			Assert.assertTrue(!equalsCaseInsensitiveButNotCaseSensitive(b, c));
+			String aa = "dawgy";
+			String bb = "dawGy";
+			String cc = "dawGy";
+			Assert.assertTrue(equalsCaseInsensitive(aa, bb));
+			Assert.assertTrue(!DrObjectTool.nullSafeEquals(aa, bb));
+			Assert.assertTrue(equalsCaseInsensitiveButNotCaseSensitive(aa, bb));
+			Assert.assertTrue(!equalsCaseInsensitiveButNotCaseSensitive(bb, cc));
 		}
 
 		@Test
@@ -411,7 +430,7 @@ public class DrStringTool{
 		}
 
 		@Test
-		public void testEnforceNumeric() throws Exception{
+		public void testEnforceNumeric(){
 			Assert.assertEquals("-8473.93", enforceNumeric("-8.473.93"));
 			Assert.assertEquals("8473.93", enforceNumeric("8.473.93"));
 			Assert.assertEquals("8473.93", enforceNumeric("8473.93"));
@@ -426,26 +445,29 @@ public class DrStringTool{
 			Assert.assertEquals("400000", enforceNumeric("ABC400,000DEF"));
 		}
 
-		@Test public void testGetStringAfterLastOccurrence(){
-			Assert.assertEquals("xyz",getStringAfterLastOccurrence('/',"abc/def/xyz"));
-			Assert.assertEquals("ef/xyz",getStringAfterLastOccurrence("/d","abc/def/xyz"));
-			Assert.assertEquals("",getStringAfterLastOccurrence("/z","abc/def/xyz"));
+		@Test
+		public void testGetStringAfterLastOccurrence(){
+			Assert.assertEquals("xyz", getStringAfterLastOccurrence('/', "abc/def/xyz"));
+			Assert.assertEquals("ef/xyz", getStringAfterLastOccurrence("/d", "abc/def/xyz"));
+			Assert.assertEquals("", getStringAfterLastOccurrence("/z", "abc/def/xyz"));
 		}
 
-		@Test public void testGetStringBeforeLastOccurrence(){
-			Assert.assertEquals("abc/def.xyz",getStringBeforeLastOccurrence('.',"abc/def.xyz.xml"));
-			Assert.assertEquals("abc",getStringBeforeLastOccurrence("/d","abc/def/xyz"));
-			Assert.assertEquals(null,getStringBeforeLastOccurrence("",null));
-			Assert.assertEquals("",getStringBeforeLastOccurrence(".","no_dot"));
+		@Test
+		public void testGetStringBeforeLastOccurrence(){
+			Assert.assertEquals("abc/def.xyz", getStringBeforeLastOccurrence('.', "abc/def.xyz.xml"));
+			Assert.assertEquals("abc", getStringBeforeLastOccurrence("/d", "abc/def/xyz"));
+			Assert.assertEquals(null, getStringBeforeLastOccurrence("", null));
+			Assert.assertEquals("", getStringBeforeLastOccurrence(".", "no_dot"));
 		}
 
-		@Test public void testEnforceAlphabetic(){
+		@Test
+		public void testEnforceAlphabetic(){
 			Assert.assertEquals("abc", enforceAlphabetic("abc123"));
 			Assert.assertEquals("abc", enforceAlphabetic("1abc123,"));
 		}
 
 		@Test
-		public void testReplaceStart() throws Exception{
+		public void testReplaceStart(){
 			Assert.assertEquals("something", replaceStart("something", "something", "something"));
 			Assert.assertEquals("nothing", replaceStart("something", "some", "no"));
 			Assert.assertEquals("something", replaceStart("something", "12", "yikes"));
