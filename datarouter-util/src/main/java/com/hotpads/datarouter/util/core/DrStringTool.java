@@ -78,32 +78,16 @@ public class DrStringTool{
 		return false;
 	}
 
-	public static ArrayList<String> splitOnCharNoRegex(String input, char c){
-		if(isEmpty(input)) {
-			return DrListTool.createArrayList(input);
-		}
-		List<Integer> indexesOfChar = new ArrayList<>();
-		for(int i = 0; i < input.length(); ++i){
-			if(input.charAt(i) == c) {
-				indexesOfChar.add(i);
+	public static ArrayList<String> splitOnCharNoRegex(String input, char separator){
+		ArrayList<String> results = new ArrayList<>();
+		int leftIndex = 0;
+		for(int rightIndex = 0; rightIndex <= input.length(); ++rightIndex){
+			if(rightIndex == input.length() || separator == input.charAt(rightIndex)){
+				results.add(input.substring(leftIndex, rightIndex));
+				leftIndex = rightIndex + 1;//move to start of next token
 			}
 		}
-		if(indexesOfChar.size() == 0) {
-			return DrListTool.createArrayList(input);
-		}
-		indexesOfChar.add(input.length());
-		ArrayList<String> result = new ArrayList<>();
-		for(int i = 0; i < indexesOfChar.size(); ++i){
-			int startIndex;
-			if(i == 0) {
-				startIndex = 0;
-			}else{
-				startIndex = 1 + indexesOfChar.get(i - 1);
-			}
-			int endIndex = indexesOfChar.get(i);
-			result.add(input.substring(startIndex, endIndex));
-		}
-		return result;
+		return results;
 	}
 
 	public static boolean exceedsLength(String text, Integer allowedLength){
