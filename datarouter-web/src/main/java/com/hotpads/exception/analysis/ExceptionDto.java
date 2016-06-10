@@ -25,7 +25,7 @@ public class ExceptionDto{
 	public String body;
 
 	public String ip;
-	public String sessionRoles;
+	public String userRoles;
 	public Long userId;
 
 	public String acceptCharset;
