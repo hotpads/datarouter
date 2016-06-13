@@ -51,15 +51,15 @@ public class DrCollectionTool{
 
 	/****************************** size **************************************/
 
-	public static <A,B> boolean differentSize(Collection<A> collectionOfA, Collection<B> collectionOfB){
-		return sizeNullSafe(collectionOfA) != sizeNullSafe(collectionOfB);
+	public static boolean differentSize(Collection<?> collectionA, Collection<?> collectionB){
+		return sizeNullSafe(collectionA) != sizeNullSafe(collectionB);
 	}
 
 	public static int size(Collection<?> collection){
 		return sizeNullSafe(collection);
 	}
 
-	public static <T> int sizeNullSafe(Collection<T> collection){
+	public static int sizeNullSafe(Collection<?> collection){
 		if(collection == null){
 			return 0;
 		}

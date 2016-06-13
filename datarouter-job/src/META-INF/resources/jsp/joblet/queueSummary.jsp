@@ -32,7 +32,7 @@
 							href="?submitAction=alterQueueNumTickets&queueId=${queue.id}&diff=-1">-</a>
 						</td>
 						<td>${queue.maxTickets}&nbsp;&nbsp;&nbsp; <a
-							href="/admin/feeds/edit/${queue.id}">edit</a>
+							href="/listing-tools/feeds/edit/${queue.id}">edit</a>
 						</td>
 					</tr>
 				</c:forEach>

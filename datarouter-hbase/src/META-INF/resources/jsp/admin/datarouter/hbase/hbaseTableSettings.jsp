@@ -88,9 +88,9 @@ table: ${param.tableName}
 </tbody>
 </table>
 <br/>
-DATA_BLOCK_ENCODING in ('NONE', 'PREFIX', 'DIFF', 'FAST_DIFF')<br/>
-COMPRESSION in ('LZO', 'GZ', 'NONE')<br/>
-BLOOM in ('NONE', 'ROW', 'ROWCOL')<br/>
+DATA_BLOCK_ENCODING in ${dataBlockEncodingOptions}<br/>
+COMPRESSION in ${compressionOptions}<br/>
+BLOOM in ${bloomOptions}<br/>
 </div>
 </body>
 </html>

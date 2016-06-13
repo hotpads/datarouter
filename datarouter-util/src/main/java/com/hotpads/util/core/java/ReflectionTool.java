@@ -16,9 +16,12 @@ import java.util.function.Supplier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
+import com.hotpads.util.core.lang.ClassTool;
 
 public class ReflectionTool {
 	private static final Logger logger = LoggerFactory.getLogger(ReflectionTool.class);
@@ -39,19 +42,13 @@ public class ReflectionTool {
 		}
 	}
 
-	public static <T,U> T createWithParameters(Class<T> type, Collection<U> requiredParameters){
-		candidateConstructorLoop:
+	public static <T> T createWithParameters(Class<T> type, Collection<?> requiredParameters){
 		for(Constructor<?> constructor : type.getDeclaredConstructors()){
-			if (constructor.getParameterCount() != requiredParameters.size()) {
+			if( ! canParamsCallParamTypes(requiredParameters, Arrays.asList(constructor.getParameterTypes()))){
 				continue;
 			}
-			Iterator<U> requiredParametersIterator = requiredParameters.iterator();
-			for(Class<?> constructorParameterType : constructor.getParameterTypes()){
-				if(!constructorParameterType.isAssignableFrom(requiredParametersIterator.next().getClass())){
-					continue candidateConstructorLoop;
-				}
-			}
 			try{
+				constructor.setAccessible(true);
 				return type.cast(constructor.newInstance(requiredParameters.toArray()));
 			}catch (SecurityException | InstantiationException | IllegalAccessException
 					| IllegalArgumentException | InvocationTargetException e){
@@ -221,9 +218,9 @@ public class ReflectionTool {
 
 	/*********************** get Method ***********************************/
 
-	public static Method getDeclaredMethodFromHierarchy(Class<?> clazz, String methodName){
+	public static Method getDeclaredMethodFromHierarchy(Class<?> clazz, String methodName, Class<?>... parameterTypes){
 		try{
-			Method method = clazz.getDeclaredMethod(methodName);
+			Method method = clazz.getDeclaredMethod(methodName, parameterTypes);
 			if(method!=null){
 				method.setAccessible(true);
 				return method;
@@ -233,7 +230,7 @@ public class ReflectionTool {
 		}
 		for(Class<?> cls : getAllSuperClassesAndInterfaces(clazz)){
 			try{
-				Method superMethod = cls.getDeclaredMethod(methodName);
+				Method superMethod = cls.getDeclaredMethod(methodName, parameterTypes);
 				if(superMethod!=null){
 					return superMethod;
 				}
@@ -259,6 +256,25 @@ public class ReflectionTool {
 		return methods;
 	}
 
+	public static boolean canParamsCallParamTypes(Collection<?> params, Collection<? extends Class<?>> paramTypes){
+		if(DrCollectionTool.differentSize(params, paramTypes)){
+			return false;
+		}
+		Iterator<?> iterA = params.iterator();
+		Iterator<? extends Class<?>> iterB = paramTypes.iterator();
+		while(iterA.hasNext()){
+			Class<?> typeA = iterA.next().getClass();
+			Class<?> typeB = iterB.next();
+			if(ClassTool.isEquivalentBoxedType(typeA, typeB)){
+				continue;
+			}
+			if( ! typeB.isAssignableFrom(typeA)){
+				return false;
+			}
+		}
+		return true;
+	}
+
 	/*********************** get Value *********************************************************/
 	public static Object getObjectValueUsingGetterMethod(Object instance, Method method){
 		if(instance == null || method == null){
@@ -273,5 +289,46 @@ public class ReflectionTool {
 			logger.error("the method " + method + " or " + instance + " are not a suitable argument ", e);
 		}
 		return null;
+	}
+
+
+	/********************* Tests ******************************************/
+
+	public static class ReflectionToolTests{
+
+		public static class DummyDto{
+			Object field0;
+			int field1;
+			Double field2;
+
+			public DummyDto(Object field0, int field1, Double field2){
+				this.field0 = field0;
+				this.field1 = field1;
+				this.field2 = field2;
+			}
+		}
+
+		@Test
+		public void testCanParamsCallParamTypes(){
+			Assert.assertTrue(canParamsCallParamTypes(Arrays.asList(4), Arrays.asList(int.class)));
+			Assert.assertTrue(canParamsCallParamTypes(Arrays.asList(4), Arrays.asList(Integer.class)));
+			Assert.assertFalse(canParamsCallParamTypes(Arrays.asList("a"), Arrays.asList(int.class)));
+		}
+
+		@Test
+		public void testCreateWithParameters(){
+			Object[] params0 = new Object[]{new Object(), 3, 5.5d};
+			Assert.assertNotNull(createWithParameters(DummyDto.class, Arrays.asList(params0)));
+
+			Object[] params1 = new Object[]{"stringy", 3, 5.5d};
+			Assert.assertNotNull(createWithParameters(DummyDto.class, Arrays.asList(params1)));
+		}
+
+		@Test(expectedExceptions={Exception.class})
+		public void testCreateWithParametersInvalid(){
+			Object[] params0 = new Object[]{new Object(), "square peg", 5.5d};
+			DummyDto dummyDto = createWithParameters(DummyDto.class, Arrays.asList(params0));
+			Assert.assertNotNull(dummyDto);
+		}
 	}
 }

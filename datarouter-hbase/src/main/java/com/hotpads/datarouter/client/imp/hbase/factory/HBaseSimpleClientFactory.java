@@ -16,12 +16,13 @@ import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HConstants;
 import org.apache.hadoop.hbase.HTableDescriptor;
-import org.apache.hadoop.hbase.MasterNotRunningException;
-import org.apache.hadoop.hbase.ZooKeeperConnectionException;
-import org.apache.hadoop.hbase.client.HBaseAdmin;
+import org.apache.hadoop.hbase.TableName;
+import org.apache.hadoop.hbase.client.Admin;
+import org.apache.hadoop.hbase.client.Connection;
+import org.apache.hadoop.hbase.client.ConnectionFactory;
+import org.apache.hadoop.hbase.io.compress.Compression.Algorithm;
 import org.apache.hadoop.hbase.io.encoding.DataBlockEncoding;
-import org.apache.hadoop.hbase.io.hfile.Compression.Algorithm;
-import org.apache.hadoop.hbase.regionserver.StoreFile.BloomType;
+import org.apache.hadoop.hbase.regionserver.BloomType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,8 +33,8 @@ import com.hotpads.datarouter.client.imp.hbase.HBaseStaticContext;
 import com.hotpads.datarouter.client.imp.hbase.client.HBaseClient;
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseReaderNode;
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseSubEntityReaderNode;
-import com.hotpads.datarouter.client.imp.hbase.pool.HTableExecutorServicePool;
-import com.hotpads.datarouter.client.imp.hbase.pool.HTablePool;
+import com.hotpads.datarouter.client.imp.hbase.pool.HBaseTableExecutorServicePool;
+import com.hotpads.datarouter.client.imp.hbase.pool.HBaseTablePool;
 import com.hotpads.datarouter.client.imp.hbase.util.HBaseQueryBuilder;
 import com.hotpads.datarouter.exception.UnavailableException;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
@@ -79,7 +80,8 @@ implements ClientFactory{
 
 	//we cannot finalize these as they are created in a background thread for faster application boot time
 	private Configuration hbaseConfig;
-	private HBaseAdmin hbaseAdmin;
+	private Connection connection;
+	private Admin admin;
 
 	public HBaseSimpleClientFactory(Datarouter datarouter, String clientName, ClientAvailabilitySettings
 			clientAvailabilitySettings, ExecutorService executor){
@@ -106,30 +108,31 @@ implements ClientFactory{
 				hbaseConfig = HBaseConfiguration.create();
 				hbaseConfig.set(HConstants.ZOOKEEPER_QUORUM, zkQuorum);
 			}
-			hbaseAdmin = new HBaseAdmin(hbaseConfig);
-			if(hbaseAdmin.getConnection().isClosed()){
+			if(connection == null){
+				connection = ConnectionFactory.createConnection(hbaseConfig);
+			}
+			admin = connection.getAdmin();
+
+			if(connection.isClosed()){
 				HBaseStaticContext.CONFIG_BY_ZK_QUORUM.remove(zkQuorum);
 				HBaseStaticContext.ADMIN_BY_CONFIG.remove(hbaseConfig);
 				hbaseConfig = null;
-				hbaseAdmin = null;
 				String log = "couldn't open connection because hBaseAdmin.getConnection().isClosed()";
 				logger.warn(log);
 				throw new UnavailableException(log);
 			}
 			HBaseStaticContext.CONFIG_BY_ZK_QUORUM.put(zkQuorum, hbaseConfig);
-			HBaseStaticContext.ADMIN_BY_CONFIG.put(hbaseConfig, hbaseAdmin);
+			HBaseStaticContext.ADMIN_BY_CONFIG.put(hbaseConfig, admin);
 
 			//databean config
-			Pair<HTablePool,Map<String,Class<? extends PrimaryKey<?>>>> htablePoolAndPrimaryKeyByTableName
+			Pair<HBaseTablePool,Map<String,Class<? extends PrimaryKey<?>>>> htablePoolAndPrimaryKeyByTableName
 					= initTables();
 			timer.add("init HTables");
 
-			newClient = new HBaseClientImp(clientName, hbaseConfig, hbaseAdmin, htablePoolAndPrimaryKeyByTableName
-					.getLeft(), htablePoolAndPrimaryKeyByTableName.getRight(), clientAvailabilitySettings, executor);
+			newClient = new HBaseClientImp(clientName, hbaseConfig, admin, htablePoolAndPrimaryKeyByTableName.getLeft(),
+					htablePoolAndPrimaryKeyByTableName.getRight(), clientAvailabilitySettings, executor);
 			logger.warn(timer.add("done").toString());
-		}catch(ZooKeeperConnectionException e){
-			throw new UnavailableException(e);
-		}catch(MasterNotRunningException e){
+		}catch(IOException e){
 			throw new UnavailableException(e);
 		}
 		return newClient;
@@ -138,7 +141,7 @@ implements ClientFactory{
 
 	/********************** private ***************************/
 
-	private Pair<HTablePool,Map<String,Class<? extends PrimaryKey<?>>>> initTables(){
+	private Pair<HBaseTablePool,Map<String,Class<? extends PrimaryKey<?>>>> initTables(){
 		List<String> tableNames = new ArrayList<>();
 		Map<String,Class<? extends PrimaryKey<?>>> primaryKeyClassByName = new HashMap<>();
 		Map<String,PhysicalNode<?,?>> nodeByTableName = new TreeMap<>();
@@ -155,7 +158,7 @@ implements ClientFactory{
 			if(checkTables || createTables){
 				for(String tableName : DrIterableTool.nullSafe(tableNames)){
 					byte[] tableNameBytes = StringByteTool.getUtf8Bytes(tableName);
-					if(createTables && !hbaseAdmin.tableExists(tableName)){
+					if(createTables && !admin.tableExists(TableName.valueOf(tableName))){
 						logger.warn("table " + tableName + " not found, creating it");
 						HTableDescriptor htable = new HTableDescriptor(tableName);
 						htable.setMaxFileSize(DEFAULT_MAX_FILE_SIZE_BYTES);
@@ -169,15 +172,15 @@ implements ClientFactory{
 						byte[][] splitPoints = getSplitPoints(nodeByTableName.get(tableName));
 						if(DrArrayTool.isEmpty(splitPoints)
 								|| DrArrayTool.isEmpty(splitPoints[0])){//a single empty byte array
-							hbaseAdmin.createTable(htable);
+							admin.createTable(htable);
 						}else{
 							//careful, as throwing strange split points in here can crash master
 							// and corrupt meta table
-							hbaseAdmin.createTable(htable, splitPoints);
+							admin.createTable(htable, splitPoints);
 						}
 						logger.warn("created table " + tableName);
 					}else if(checkTables){
-						if(!hbaseAdmin.tableExists(tableNameBytes)){
+						if(!admin.tableExists(TableName.valueOf(tableNameBytes))){
 							logger.warn("table " + tableName + " not found");
 							break;
 						}
@@ -188,7 +191,7 @@ implements ClientFactory{
 			throw new RuntimeException(e);
 		}
 
-		HTablePool pool = new HTableExecutorServicePool(options, hbaseAdmin, clientName, primaryKeyClassByName);
+		HBaseTablePool pool = new HBaseTableExecutorServicePool(options, connection, clientName, primaryKeyClassByName);
 		return Pair.create(pool, primaryKeyClassByName);
 	}
 

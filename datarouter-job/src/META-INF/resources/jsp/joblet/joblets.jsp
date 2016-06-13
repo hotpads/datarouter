@@ -115,7 +115,7 @@
 								href="?submitAction=alterQueueNumTickets&ref=showJoblets&whereStatus=${whereStatus}&queueId=${s.queueId}&diff=-1">-</a>
 								${queuesById[s.queueId].numTickets} <a
 								href="?submitAction=alterQueueNumTickets&ref=showJoblets&whereStatus=${whereStatus}&queueId=${s.queueId}&diff=1">+</a>
-								<a href="/admin/feeds/edit/${s.queueId}">${queuesById[s.queueId].maxTickets}</a> 
+								<a href="/listing-tools/feeds/edit/${s.queueId}">${queuesById[s.queueId].maxTickets}</a> 
 							</td>
 						</c:if>
 						<c:if test="${empty s.queueId or empty queuesById[s.queueId]}">

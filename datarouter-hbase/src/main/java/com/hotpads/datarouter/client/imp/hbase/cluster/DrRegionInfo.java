@@ -1,15 +1,15 @@
 package com.hotpads.datarouter.client.imp.hbase.cluster;
 
 import org.apache.hadoop.hbase.HRegionInfo;
-import org.apache.hadoop.hbase.HServerLoad.RegionLoad;
+import org.apache.hadoop.hbase.RegionLoad;
 import org.apache.hadoop.hbase.ServerName;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
-import com.hotpads.datarouter.client.imp.hbase.compaction.HBaseCompactionInfo;
 import com.hotpads.datarouter.client.imp.hbase.compaction.DrhCompactionScheduler;
+import com.hotpads.datarouter.client.imp.hbase.compaction.HBaseCompactionInfo;
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseSubEntityReaderNode;
 import com.hotpads.datarouter.client.imp.hbase.util.HBaseResultTool;
 import com.hotpads.datarouter.node.Node;
@@ -27,32 +27,33 @@ import com.hotpads.util.core.lang.ClassTool;
 public class DrRegionInfo<PK extends PrimaryKey<PK>> implements Comparable<DrRegionInfo<?>>{
 	private static final Logger logger = LoggerFactory.getLogger(DrRegionInfo.class);
 
-	private Integer regionNum;
-	private String tableName;
-	private String name;
-	private HRegionInfo regionInfo;
-	private ServerName serverName;
-	private Node<PK,?> node;
-	private DatabeanFieldInfo<PK,?,?> fieldInfo;
-	private Integer partition;
-	private FieldSet<?> startKey, endKey;
-	private RegionLoad load;
+	private final Integer regionNum;
+	private final String tableName;
+	private final Class<PK> primaryKeyClass;
+	private final String name;
+	private final HRegionInfo regionInfo;
+	private final ServerName serverName;
+	private final Node<?,?> node;
+	private final DatabeanFieldInfo<?,?,?> fieldInfo;
+	private final Integer partition;
+	private final RegionLoad load;
+	private final DrhCompactionScheduler<PK> compactionScheduler;
+	private final HBaseCompactionInfo compactionInfo;
+
 	private ServerName balancerDestinationServer;
-	private DrhCompactionScheduler<PK> compactionScheduler;
-	private HBaseCompactionInfo compactionInfo;
+
 
 	public DrRegionInfo(Integer regionNum, String tableName, Class<PK> primaryKeyClass, HRegionInfo regionInfo,
-			ServerName serverName, Node<PK,?> node, RegionLoad load, HBaseCompactionInfo compactionInfo){
+			ServerName serverName, Node<?,?> node, RegionLoad load, HBaseCompactionInfo compactionInfo){
 		this.regionNum = regionNum;
 		this.tableName = tableName;
+		this.primaryKeyClass = primaryKeyClass;
 		this.compactionInfo = compactionInfo;
 		this.name = new String(regionInfo.getRegionName());
 		this.regionInfo = regionInfo;
 		this.serverName = serverName;
 		this.node = node;
 		this.fieldInfo = node.getFieldInfo();//set before calling getKey
-		this.startKey = getKey(primaryKeyClass, regionInfo.getStartKey());
-		this.endKey = getKey(primaryKeyClass, regionInfo.getEndKey());
 		this.partition = calculatePartition(regionInfo.getStartKey());
 		this.load = load;
 		this.compactionScheduler = new DrhCompactionScheduler<>(compactionInfo, this);
@@ -63,15 +64,20 @@ public class DrRegionInfo<PK extends PrimaryKey<PK>> implements Comparable<DrReg
 
 	private FieldSet<?> getKey(Class<PK> primaryKeyClass, byte[] bytes){
 		PK sampleKey = ReflectionTool.create(primaryKeyClass);
-		if(DrArrayTool.isEmpty(bytes)){
+		if(DrArrayTool.isEmpty(bytes)) {
 			return sampleKey;
 		}
-		if(fieldInfo.isEntity()){
-			HBaseSubEntityReaderNode<?,?,?,?,?> subEntityNode = (HBaseSubEntityReaderNode<?,?,?,?,?>)node;
-			EntityKey<?> ek = subEntityNode.getResultParser().getEkFromRowBytes(bytes);
-			return ek;
+		try{
+			if(fieldInfo.isEntity()){
+				HBaseSubEntityReaderNode<?,?,?,?,?> subEntityNode = (HBaseSubEntityReaderNode<?,?,?,?,?>)node;
+				EntityKey<?> ek = subEntityNode.getResultParser().getEkFromRowBytes(bytes);
+				return ek;
+			}
+			return HBaseResultTool.getPrimaryKeyUnchecked(bytes, fieldInfo);
+		}catch(RuntimeException e){
+			logger.warn("error on {}, {}", primaryKeyClass.getName(), Bytes.toStringBinary(bytes));
+			return null;
 		}
-		return HBaseResultTool.getPrimaryKeyUnchecked(bytes, fieldInfo);
 	}
 
 	private Integer calculatePartition(byte[] bytes){
@@ -188,12 +194,12 @@ public class DrRegionInfo<PK extends PrimaryKey<PK>> implements Comparable<DrReg
 	}
 
 	public FieldSet<?> getStartKey(){
-		return startKey;
+		return getKey(primaryKeyClass, regionInfo.getStartKey());
 	}
 
 	//used in hbaseTableRegions.jsp
 	public FieldSet<?> getEndKey(){
-		return endKey;
+		return getKey(primaryKeyClass, regionInfo.getEndKey());
 	}
 
 	public Integer getPartition(){

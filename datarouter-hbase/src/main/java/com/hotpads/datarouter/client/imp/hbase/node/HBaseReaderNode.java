@@ -8,10 +8,10 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.hadoop.hbase.client.Get;
-import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
+import org.apache.hadoop.hbase.client.Table;
 import org.apache.hadoop.hbase.filter.FirstKeyOnlyFilter;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
@@ -90,7 +90,7 @@ implements HBasePhysicalNode<PK,D>,
 		return new HBaseMultiAttemptTask<>(new HBaseTask<D>(getDatarouter(), getClientTableNodeNames(), "get",
 				config){
 			@Override
-			public D hbaseCall(HTable table, HBaseClient client, ResultScanner managedResultScanner) throws Exception{
+			public D hbaseCall(Table table, HBaseClient client, ResultScanner managedResultScanner) throws Exception{
 				byte[] rowBytes = getKeyBytesWithScatteringPrefix(null, key);
 				Result row = table.get(new Get(rowBytes));
 				if (row.isEmpty()){
@@ -116,7 +116,7 @@ implements HBasePhysicalNode<PK,D>,
 		return new HBaseMultiAttemptTask<>(new HBaseTask<List<D>>(getDatarouter(), getClientTableNodeNames(),
 				"getMulti", config){
 			@Override
-			public List<D> hbaseCall(HTable table, HBaseClient client, ResultScanner managedResultScanner)
+			public List<D> hbaseCall(Table table, HBaseClient client, ResultScanner managedResultScanner)
 					throws Exception{
 				List<Get> gets = DrListTool.createArrayListWithSize(keys);
 					for(PK key : keys){
@@ -139,7 +139,7 @@ implements HBasePhysicalNode<PK,D>,
 		return new HBaseMultiAttemptTask<>(new HBaseTask<List<PK>>(getDatarouter(), getClientTableNodeNames(),
 				"getKeys", config){
 			@Override
-			public List<PK> hbaseCall(HTable table, HBaseClient client, ResultScanner managedResultScanner)
+			public List<PK> hbaseCall(Table table, HBaseClient client, ResultScanner managedResultScanner)
 					throws Exception{
 				List<Get> gets = DrListTool.createArrayListWithSize(keys);
 					for(PK key : keys){
@@ -177,7 +177,7 @@ implements HBasePhysicalNode<PK,D>,
 			new HBaseMultiAttemptTask<>(new HBaseTask<Void>(getDatarouter(), getClientTableNodeNames(),
 					"getWithPrefixes", config){
 				@Override
-				public Void hbaseCall(HTable table, HBaseClient client, ResultScanner managedResultScanner)
+				public Void hbaseCall(Table table, HBaseClient client, ResultScanner managedResultScanner)
 						throws Exception{
 					managedResultScanner = table.getScanner(scan);
 						for(Result row : managedResultScanner){
@@ -254,7 +254,7 @@ implements HBasePhysicalNode<PK,D>,
 		return new HBaseMultiAttemptTask<>(new HBaseTask<List<Result>>(getDatarouter(),
 				getClientTableNodeNames(), scanKeysVsRowsNumBatches, config){
 			@Override
-			public List<Result> hbaseCall(HTable table, HBaseClient client, ResultScanner managedResultScanner)
+			public List<Result> hbaseCall(Table table, HBaseClient client, ResultScanner managedResultScanner)
 					throws Exception{
 				ByteRange start = range.getStart();
 				//careful: this may have already been set by scatteringPrefix logic
