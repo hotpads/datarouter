@@ -5,8 +5,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hbase.client.HBaseAdmin;
-import org.apache.hadoop.hbase.client.HTable;
+import org.apache.hadoop.hbase.client.Admin;
+import org.apache.hadoop.hbase.client.Table;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,7 +14,7 @@ import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.availability.ClientAvailabilitySettings;
 import com.hotpads.datarouter.client.imp.BaseClient;
 import com.hotpads.datarouter.client.imp.hbase.client.HBaseClient;
-import com.hotpads.datarouter.client.imp.hbase.pool.HTablePool;
+import com.hotpads.datarouter.client.imp.hbase.pool.HBaseTablePool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.concurrent.FutureTool;
 import com.hotpads.util.datastructs.MutableString;
@@ -25,20 +25,20 @@ implements HBaseClient{
 	private static final Logger logger = LoggerFactory.getLogger(HBaseClientImp.class);
 
 	private final Configuration hbaseConfiguration;
-	private final HBaseAdmin hbaseAdmin;
-	private final HTablePool htablePool;
+	private final Admin admin;
+	private final HBaseTablePool pool;
 	private final ExecutorService executorService;
 	private final Map<String,Class<? extends PrimaryKey<?>>> primaryKeyClassByName;
 
 	/**************************** constructor **********************************/
 
-	public HBaseClientImp(String name, Configuration hbaseConfiguration, HBaseAdmin hbaseAdmin, HTablePool pool,
+	public HBaseClientImp(String name, Configuration hbaseConfiguration, Admin hbaseAdmin, HBaseTablePool pool,
 			Map<String,Class<? extends PrimaryKey<?>>> primaryKeyClassByName, ClientAvailabilitySettings
 			clientAvailabilitySettings, ExecutorService executorService){
 		super(name, clientAvailabilitySettings);
 		this.hbaseConfiguration = hbaseConfiguration;
-		this.hbaseAdmin = hbaseAdmin;
-		this.htablePool = pool;
+		this.admin = hbaseAdmin;
+		this.pool = pool;
 		this.executorService = executorService;
 		this.primaryKeyClassByName = primaryKeyClassByName;
 	}
@@ -56,23 +56,23 @@ implements HBaseClient{
 	/****************************** HBaseClient methods *************************/
 
 	@Override
-	public HBaseAdmin getHBaseAdmin(){
-		return hbaseAdmin;
+	public Admin getAdmin(){
+		return admin;
 	}
 
 	@Override
-	public HTable checkOutHTable(String tableName, MutableString progress){
-		return htablePool.checkOut(tableName, progress);
+	public Table checkOutTable(String name, MutableString progress){
+		return pool.checkOut(name, progress);
 	}
 
 	@Override
-	public void checkInHTable(HTable htable, boolean possiblyTarnished){
-		htablePool.checkIn(htable, possiblyTarnished);
+	public void checkInTable(Table table, boolean possiblyTarnished){
+		pool.checkIn(table, possiblyTarnished);
 	}
 
 	@Override
-	public HTablePool getHTablePool(){
-		return htablePool;
+	public HBaseTablePool getHTablePool(){
+		return pool;
 	}
 
 	@Override
@@ -90,14 +90,9 @@ implements HBaseClient{
 	}
 
 	@Override
-	public Integer getTotalPoolSize(){
-		return htablePool.getTotalPoolSize();
-	}
-
-	@Override
 	public void shutdown(){
 		logger.warn("shutting down client:"+getName());
 		FutureTool.finishAndShutdown(executorService, 5L, TimeUnit.SECONDS);
-		htablePool.shutdown();
+		pool.shutdown();
 	}
 }

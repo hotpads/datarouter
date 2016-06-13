@@ -12,8 +12,8 @@ import java.util.TreeMap;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HRegionInfo;
-import org.apache.hadoop.hbase.HServerLoad;
-import org.apache.hadoop.hbase.HServerLoad.RegionLoad;
+import org.apache.hadoop.hbase.RegionLoad;
+import org.apache.hadoop.hbase.ServerLoad;
 import org.apache.hadoop.hbase.ServerName;
 import org.apache.hadoop.hbase.client.HTable;
 import org.slf4j.Logger;
@@ -57,8 +57,8 @@ public class DrRegionList{
 		//this got reorganized in hbase 0.92... just making quick fix for now
 		Map<String,RegionLoad> regionLoadByName = new TreeMap<>();
 		for(DrServerInfo server : DrIterableTool.nullSafe(servers.getServers())){
-			HServerLoad serverLoad = server.gethServerLoad();
-			Map<byte[],HServerLoad.RegionLoad> regionsLoad = serverLoad.getRegionsLoad();
+			ServerLoad serverLoad = server.getServerLoad();
+			Map<byte[],RegionLoad> regionsLoad = serverLoad.getRegionsLoad();
 			for(RegionLoad regionLoad : regionsLoad.values()){
 				String name = HRegionInfo.encodeRegionName(regionLoad.getName());
 				regionLoadByName.put(name, regionLoad);

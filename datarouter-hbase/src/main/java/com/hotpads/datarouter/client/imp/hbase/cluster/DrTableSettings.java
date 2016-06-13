@@ -1,13 +1,16 @@
 package com.hotpads.datarouter.client.imp.hbase.cluster;
 
 import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
+
+import org.apache.hadoop.hbase.io.compress.Compression.Algorithm;
+import org.apache.hadoop.hbase.io.encoding.DataBlockEncoding;
 
 public class DrTableSettings{
-	
+
 	public static final String
 		BLOCKCACHE = "BLOCKCACHE",
 		BLOCKSIZE = "BLOCKSIZE",
@@ -18,7 +21,7 @@ public class DrTableSettings{
 		IN_MEMORY = "IN_MEMORY",
 		TTL = "TTL",
 		VERSIONS = "VERSIONS";
-	
+
 	public static final SortedSet<String> COLUMN_SETTINGS = new TreeSet<>();
 	static {
 		COLUMN_SETTINGS.add(BLOCKCACHE);
@@ -31,17 +34,21 @@ public class DrTableSettings{
 		COLUMN_SETTINGS.add(TTL);
 		COLUMN_SETTINGS.add(VERSIONS);
 	}
-	
-	public static final Set<String>
-		SET_BLOOMFILTER = new HashSet<>(Arrays.asList("NONE", "ROW", "ROWCOL")),
-		SET_COMPRESSION = new HashSet<>(Arrays.asList("NONE", "LZO", "GZ")),
-		SET_DATA_BLOCK_ENCODING = new HashSet<>(Arrays.asList("NONE", "PREFIX", "DIFF", "FAST_DIFF"));
-	
+
+	public static final List<String>
+		BLOOMFILTER_STRINGS = Arrays.asList("NONE", "ROW", "ROWCOL"),
+		COMPRESSION_STRINGS = Arrays.stream(Algorithm.values())
+				.map(Algorithm::toString)
+				.collect(Collectors.toList()),
+		DATA_BLOCK_ENCODING_STRINGS = Arrays.stream(DataBlockEncoding.values())
+				.map(DataBlockEncoding::toString)
+				.collect(Collectors.toList());
+
 	public static final String
 		DEFAULT_DATA_BLOCK_ENCODING = "NONE",
 		DEFAULT_ENCODE_ON_DISK = "true";
-		
-	
+
+
 	public static void validateColumnFamilySetting(String setting, String value) {
 		if(BLOCKCACHE.equals(setting)) {
 			if(!validBoolean(value)) {
@@ -50,15 +57,15 @@ public class DrTableSettings{
 		}else if(BLOCKSIZE.equals(setting)) {
 			Long.valueOf(value);
 		}else if(BLOOMFILTER.equals(setting)) {
-			if(!SET_BLOOMFILTER.contains(value)) {
+			if(!BLOOMFILTER_STRINGS.contains(value)) {
 				throw new IllegalArgumentException("invalid " + BLOOMFILTER + " " + value);
 			}
 		}else if(COMPRESSION.equals(setting)) {
-			if(!SET_COMPRESSION.contains(value)) {
+			if(!COMPRESSION_STRINGS.contains(value)) {
 				throw new IllegalArgumentException("invalid " + COMPRESSION + " " + value);
 			}
 		}else if(DATA_BLOCK_ENCODING.equals(setting)) {
-			if(!SET_DATA_BLOCK_ENCODING.contains(value)) {
+			if(!DATA_BLOCK_ENCODING_STRINGS.contains(value)) {
 				throw new IllegalArgumentException("invalid " + DATA_BLOCK_ENCODING + " " + value);
 			}
 		}else if(ENCODE_ON_DISK.equals(setting)) {
@@ -78,8 +85,8 @@ public class DrTableSettings{
 			throw new IllegalArgumentException("unknown setting " + setting);
 		}
 	}
-	
-	
+
+
 	protected static boolean validBoolean(String value) {
 		return "TRUE".equalsIgnoreCase(value) || "FALSE".equalsIgnoreCase(value);
 	}

@@ -3,9 +3,9 @@ package com.hotpads.datarouter.client.imp.hbase.node;
 import java.util.Map;
 
 import org.apache.hadoop.hbase.client.Get;
-import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
+import org.apache.hadoop.hbase.client.Table;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,20 +70,20 @@ extends BasePhysicalEntityNode<EK,E>{
 		try{
 			return new HBaseMultiAttemptTask<E>(new HBaseTask<E>(getContext(), getClientTableNodeNames(), "getEntity",
 					config){
-					@Override
-					public E hbaseCall(HTable hTable, HBaseClient client, ResultScanner managedResultScanner)
-					throws Exception{
-						byte[] rowBytes = queryBuilder.getRowBytesWithPartition(ek);
-						Get get = new Get(rowBytes);
-						Result hbaseResult = hTable.get(get);
-						E entity = resultParser.parseEntity(ek, hbaseResult);
-						if(entity != null){
-							DRCounters.incClientNodeCustom(client.getType(), "entity databeans", getClientName(),
-									getNodeName(), entity.getNumDatabeans());
-						}
-						return entity;
+				@Override
+				public E hbaseCall(Table table, HBaseClient client, ResultScanner managedResultScanner)
+				throws Exception{
+					byte[] rowBytes = queryBuilder.getRowBytesWithPartition(ek);
+					Get get = new Get(rowBytes);
+					Result hbaseResult = table.get(get);
+					E entity = resultParser.parseEntity(ek, hbaseResult);
+					if(entity != null){
+						DRCounters.incClientNodeCustom(client.getType(), "entity databeans", getClientName(),
+								getNodeName(), entity.getNumDatabeans());
 					}
-				}).call();
+					return entity;
+				}
+			}).call();
 		}catch(RuntimeException e){
 			logger.warn("", e);//debugging missing stack traces
 			throw e;

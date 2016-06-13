@@ -44,8 +44,8 @@ public class DrhCompactionScheduler<PK extends PrimaryKey<PK>>{
 
 		boolean onlyOneStoreFile = regionInfo.getLoad().getStorefiles() <= 1;
 		if(onlyOneStoreFile){//still need to compact to localize the hdfs blocks
-			logger.warn("skipping compaction of " + regionInfo.getRegion().getEncodedName() + ", " + regionInfo
-					.getStartKey().toString() + " because only one file");
+			logger.warn("skipping compaction of {}, {} because only one file", regionInfo.getRegion().getEncodedName(),
+					regionInfo.getStartKey());
 			return false;
 		}
 		return true;

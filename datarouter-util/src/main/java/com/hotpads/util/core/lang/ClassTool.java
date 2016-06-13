@@ -1,6 +1,11 @@
 package com.hotpads.util.core.lang;
 
+import org.testng.Assert;
+import org.testng.annotations.Test;
+
 import com.hotpads.datarouter.util.core.DrStringTool;
+
+
 
 public class ClassTool {
 
@@ -63,4 +68,39 @@ public class ClassTool {
 		}
 	}
 
+	public static boolean isEquivalentBoxedType(Class<?> classA, Class<?> classB){
+		return isEquivalentSingleBoxedType(classA, classB, boolean.class, Boolean.class)
+				|| isEquivalentSingleBoxedType(classA, classB, byte.class, Byte.class)
+				|| isEquivalentSingleBoxedType(classA, classB, short.class, Short.class)
+				|| isEquivalentSingleBoxedType(classA, classB, char.class, Character.class)
+				|| isEquivalentSingleBoxedType(classA, classB, int.class, Integer.class)
+				|| isEquivalentSingleBoxedType(classA, classB, float.class, Float.class)
+				|| isEquivalentSingleBoxedType(classA, classB, long.class, Long.class)
+				|| isEquivalentSingleBoxedType(classA, classB, double.class, Double.class);
+	}
+
+	private static boolean isEquivalentSingleBoxedType(Class<?> classA, Class<?> classB, Class<?> primitive,
+			Class<?> boxed){
+		return primitive.equals(classA) && primitive.equals(classB)
+				|| primitive.equals(classA) && boxed.equals(classB)
+			    || boxed.equals(classA) && primitive.equals(classB)
+				|| boxed.equals(classA) && boxed.equals(classB);
+	}
+
+
+	/**************** Tests *************************/
+
+	public static class ClassToolTests{
+		@Test
+		public void testIsEquivalentBoxedType(){
+			Assert.assertTrue(isEquivalentBoxedType(int.class, int.class));
+			Assert.assertTrue(isEquivalentBoxedType(int.class, Integer.class));
+			Assert.assertTrue(isEquivalentBoxedType(Integer.class, int.class));
+			Assert.assertTrue(isEquivalentBoxedType(Integer.class, Integer.class));
+
+			Assert.assertFalse(isEquivalentBoxedType(long.class, int.class));
+			Assert.assertFalse(isEquivalentBoxedType(long.class, Integer.class));
+			Assert.assertFalse(isEquivalentBoxedType(String.class, String.class));//not primitive
+		}
+	}
 }
