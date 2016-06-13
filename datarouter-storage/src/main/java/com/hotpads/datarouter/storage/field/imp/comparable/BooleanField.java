@@ -1,6 +1,7 @@
 package com.hotpads.datarouter.storage.field.imp.comparable;
 
 import com.hotpads.datarouter.storage.field.BasePrimitiveField;
+import com.hotpads.datarouter.util.core.DrBooleanTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.util.core.bytes.BooleanByteTool;
 
@@ -40,7 +41,7 @@ public class BooleanField extends BasePrimitiveField<Boolean>{
 		if(DrStringTool.isEmpty(s) || s.equals("null")){
 			return null;
 		}
-		return Boolean.valueOf(s);
+		return DrBooleanTool.isTrue(s);
 	}
 
 
