@@ -2,6 +2,7 @@ package com.hotpads.datarouter.client;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -11,21 +12,20 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.inject.Singleton;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.inject.DatarouterInjector;
-import com.hotpads.datarouter.node.type.physical.PhysicalNode;
+import com.hotpads.datarouter.inject.guice.executor.DatarouterExecutorGuiceModule;
 import com.hotpads.datarouter.routing.Datarouter;
-import com.hotpads.datarouter.util.core.DrCollectionTool;
-import com.hotpads.datarouter.util.core.DrIterableTool;
-import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.datarouter.util.core.DrPropertiesTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.util.core.concurrent.FutureTool;
@@ -46,12 +46,7 @@ public class DatarouterClients{
 		PREFIX_clients = "clients",
 		PREFIX_client = "client.",
 		PARAM_forceInitMode = ".forceInitMode",
-		PARAM_names = ".names",
-		PARAM_connectionPool = ".connectionPool",
-		PARAM_initMode = ".initMode",
-		PARAM_type = ".type",
-		PARAM_slave = ".slave"
-		;
+		PARAM_initMode = ".initMode";
 
 	//injected
 	private final DatarouterInjector injector;
@@ -61,15 +56,17 @@ public class DatarouterClients{
 	private final Collection<Properties> multiProperties;
 	private final NavigableSet<ClientId> clientIds;
 	private final Map<String,LazyClientProvider> lazyClientProviderByName;
+	private final ExecutorService executorService;
 
 	private RouterOptions routerOptions;
-
 
 	/******************************* constructors **********************************/
 
 	@Inject
-	public DatarouterClients(DatarouterInjector injector){
+	public DatarouterClients(DatarouterInjector injector,
+			@Named(DatarouterExecutorGuiceModule.POOL_datarouterExecutor) ExecutorService executorService){
 		this.injector = injector;
+		this.executorService = executorService;
 		this.configFilePaths = new TreeSet<>();
 		this.multiProperties = new ArrayList<>();
 		this.clientIds = new TreeSet<>();
@@ -86,25 +83,21 @@ public class DatarouterClients{
 	}
 
 	public void registerClientIds(Datarouter context, Collection<ClientId> clientIdsToAdd) {
-		clientIds.addAll(DrCollectionTool.nullSafe(clientIdsToAdd));
-		for(ClientId clientId : DrIterableTool.nullSafe(clientIds)){
+		clientIds.addAll(clientIdsToAdd);
+		for(ClientId clientId : clientIdsToAdd){
 			initClientFactoryIfNull(context, clientId.getName());
 		}
 	}
 
-
-
 	/********************************** initialize ******************************/
 
-	public void initializeEagerClients(Datarouter context){
-		final List<String> eagerClientNames = getClientNamesRequiringEagerInitialization();
-		getClients(context, eagerClientNames);
+	public void initializeEagerClients(){
+		getClients(getClientNamesRequiringEagerInitialization());
 	}
 
 	public ClientType getClientTypeInstance(String clientName){
 		Class<? extends ClientType> clientTypeClass = routerOptions.getClientType(clientName);
-		ClientType clientType = injector.getInstance(clientTypeClass);
-		return clientType;
+		return injector.getInstance(clientTypeClass);
 	}
 
 	public boolean getDisableable(String clientName){
@@ -116,10 +109,7 @@ public class DatarouterClients{
 			return;
 		}
 		ClientType clientTypeInstance = getClientTypeInstance(clientName);
-		List<PhysicalNode<?,?>> physicalNodesForClient = new ArrayList<>(context.getNodes().getPhysicalNodesForClient(
-				clientName));
-		ClientFactory clientFactory = clientTypeInstance.createClientFactory(context, clientName,
-				physicalNodesForClient);
+		ClientFactory clientFactory = clientTypeInstance.createClientFactory(context, clientName);
 		lazyClientProviderByName.put(clientName, new LazyClientProvider(clientFactory));
 	}
 
@@ -152,7 +142,7 @@ public class DatarouterClients{
 			if(ClientInitMode.eager == forceInitMode){
 				return getClientNames();
 			}
-			return null;
+			return Collections.emptyList();
 		}
 
 		String defaultInitModeString = DrPropertiesTool.getFirstOccurrence(multiProperties, PREFIX_client
@@ -160,7 +150,7 @@ public class DatarouterClients{
 		ClientInitMode defaultInitMode = ClientInitMode.fromString(defaultInitModeString, ClientInitMode.lazy);
 
 		List<String> clientNamesRequiringEagerInitialization = new ArrayList<>();
-		for(String name : DrCollectionTool.nullSafe(getClientNames())){
+		for(String name : getClientNames()){
 			String clientInitModeString = DrPropertiesTool.getFirstOccurrence(multiProperties, PREFIX_client + name
 					+ PARAM_initMode);
 			ClientInitMode mode = ClientInitMode.fromString(clientInitModeString, defaultInitMode);
@@ -192,10 +182,10 @@ public class DatarouterClients{
 		return lazyClientProviderByName.get(clientName).call();
 	}
 
-	public List<Client> getClients(Datarouter context, Collection<String> clientNames){
-		List<Client> clients = DrListTool.createArrayListWithSize(clientNames);
+	public List<Client> getClients(Collection<String> clientNames){
+		List<Client> clients = new ArrayList<>();
 		List<LazyClientProvider> providers = new ArrayList<>();//TODO don't create until needed
-		for(String clientName : DrCollectionTool.nullSafe(clientNames)){
+		for(String clientName : clientNames){
 			LazyClientProvider provider = lazyClientProviderByName.get(clientName);
 			Objects.requireNonNull(provider, "LazyClientProvider cannot be null for clientName=" + clientName);
 			if(provider.isInitialized()){
@@ -204,20 +194,16 @@ public class DatarouterClients{
 				providers.add(provider);//these must be initialized first
 			}
 		}
-		if(DrCollectionTool.notEmpty(providers)){
-			clients.addAll(FutureTool.submitAndGetAll(providers, context.getExecutorService()));
-		}
+		clients.addAll(FutureTool.submitAndGetAll(providers, executorService));
 		return clients;
 	}
 
-	public List<Client> getAllClients(Datarouter context){
-		return getClients(context, ClientId.getNames(clientIds));
+	public List<Client> getAllClients(){
+		return getClients(ClientId.getNames(clientIds));
 	}
 
 	public Map<String,LazyClientProvider> getLazyClientProviderByName(){
 		return lazyClientProviderByName;
 	}
 
-
 }
-

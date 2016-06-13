@@ -5,14 +5,17 @@
 		<groupId>com.hotpads</groupId>
 		<artifactId>hotpads</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
-		<relativePath>../..</relativePath> 
+		<relativePath>../../config/maven</relativePath> 
 	</parent>
 	<artifactId>datarouter-http-client</artifactId>
 	<build>
 		<plugins>
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-failsafe-plugin</artifactId>
+				<groupId>pl.project13.maven</groupId>
+				<artifactId>git-commit-id-plugin</artifactId>
+				<configuration>
+					<dotGitDirectory>${project.basedir}/../.git</dotGitDirectory>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>
@@ -22,7 +25,6 @@
 			<artifactId>datarouter-logging</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
-
 		<dependency>
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>

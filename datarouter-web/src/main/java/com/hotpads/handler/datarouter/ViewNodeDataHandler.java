@@ -18,13 +18,12 @@ import com.hotpads.datarouter.node.DatarouterNodes;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.op.raw.read.SortedStorageReader;
 import com.hotpads.datarouter.node.op.raw.write.SortedStorageWriter;
-import com.hotpads.datarouter.serialize.PrimaryKeyStringConverter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
-import com.hotpads.datarouter.serialize.fielder.PrimaryKeyFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
+import com.hotpads.datarouter.util.PrimaryKeyPercentCodec;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrComparableTool;
 import com.hotpads.datarouter.util.core.DrIterableTool;
@@ -158,12 +157,8 @@ extends BaseHandler{
 
 		PK startAfterKey = null;
 		if(DrStringTool.notEmpty(startAfterKeyString)){
-//			startAfterKey = (PK)ReflectionTool.create(node.getPrimaryKeyType());
-			startAfterKey = PrimaryKeyStringConverter.primaryKeyFromString(
-					(Class<PK>)node.getFieldInfo().getPrimaryKeyClass(), //need to use the fielder in the jsp
-					(PrimaryKeyFielder<PK>)node.getFieldInfo().getSamplePrimaryKey(), startAfterKeyString);
-			startAfterKey.fromPersistentString(startAfterKeyString);
-			mav.put(PARAM_startAfterKey, startAfterKey.getPersistentString());
+			startAfterKey = (PK)PrimaryKeyPercentCodec.decode(node.getPrimaryKeyType(), startAfterKeyString);
+			mav.put(PARAM_startAfterKey, PrimaryKeyPercentCodec.encode(startAfterKey));
 		}
 
 		boolean startInclusive = true;
@@ -222,7 +217,7 @@ extends BaseHandler{
 
 		mav.put("abbreviatedFieldNameByFieldName", getFieldAbbreviationByFieldName(fielder, databeans));
 		if(DrCollectionTool.size(databeans) >= limit){
-			mav.put(PARAM_nextKey, DrCollectionTool.getLast(databeans).getKey().getPersistentString());
+			mav.put(PARAM_nextKey, PrimaryKeyPercentCodec.encode(DrCollectionTool.getLast(databeans).getKey()));
 		}
 	}
 
