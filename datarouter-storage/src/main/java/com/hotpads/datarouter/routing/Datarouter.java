@@ -26,9 +26,6 @@ import com.hotpads.datarouter.node.DatarouterNodes;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.op.TxnOp;
 import com.hotpads.datarouter.op.executor.impl.SessionExecutorImpl;
-import com.hotpads.datarouter.util.core.DrCollectionTool;
-import com.hotpads.datarouter.util.core.DrIterableTool;
-import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.datarouter.util.core.DrObjectTool;
 import com.hotpads.datarouter.util.core.DrPropertiesTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
@@ -46,8 +43,7 @@ public class Datarouter{
 
 	private static final String
 			CONFIG_SERVER_NAME = "server.name",
-			CONFIG_ADMINISTRATOR_EMAIL = "administrator.email"
-			;
+			CONFIG_ADMINISTRATOR_EMAIL = "administrator.email";
 
 	/*************************** fields *****************************/
 
@@ -84,7 +80,6 @@ public class Datarouter{
 		this.configFilePaths = new TreeSet<>();
 		this.multiProperties = new ArrayList<>();
 		this.routers = new TreeSet<>();
-//		createDefaultMemoryClient();//do after this.clients and this.nodes have been instantiated
 	}
 
 
@@ -130,7 +125,7 @@ public class Datarouter{
 	}
 
 	public void initializeEagerClients(){
-		clients.initializeEagerClients(this);
+		clients.initializeEagerClients();
 	}
 
 	public void shutdown(){
@@ -142,7 +137,7 @@ public class Datarouter{
 	/********************* methods **********************************/
 
 	public Router getRouter(String name){
-		for(Router router : DrCollectionTool.nullSafe(this.routers)){
+		for(Router router : routers){
 			if(name.equals(router.getName())){
 				return router;
 			}
@@ -152,8 +147,8 @@ public class Datarouter{
 
 	public List<Client> getClients(){
 		SortedSet<Client> clients = new TreeSet<>();
-		for(Router router : DrIterableTool.nullSafe(getRouters())){
-			for(Client client : DrIterableTool.nullSafe(router.getAllClients())){
+		for(Router router : routers){
+			for(Client client : router.getAllClients()){
 				clients.add(client);
 			}
 		}
@@ -183,8 +178,6 @@ public class Datarouter{
 		}
 		return writableNodes;
 	}
-
-
 
 	/************************************** run method **************************************/
 

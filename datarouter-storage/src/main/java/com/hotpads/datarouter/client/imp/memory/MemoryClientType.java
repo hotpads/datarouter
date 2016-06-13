@@ -1,7 +1,5 @@
 package com.hotpads.datarouter.client.imp.memory;
 
-import java.util.List;
-
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -47,8 +45,7 @@ public class MemoryClientType extends BaseClientType{
 	}
 
 	@Override
-	public ClientFactory createClientFactory(Datarouter datarouter, String clientName,
-			List<PhysicalNode<?,?>> physicalNodes){
+	public ClientFactory createClientFactory(Datarouter datarouter, String clientName){
 		return new MemoryClientFactory(clientName, clientAvailabilitySettings);
 	}
 

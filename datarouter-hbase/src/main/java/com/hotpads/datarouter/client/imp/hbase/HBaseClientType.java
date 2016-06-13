@@ -1,6 +1,5 @@
 package com.hotpads.datarouter.client.imp.hbase;
 
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 
 import javax.inject.Inject;
@@ -69,8 +68,7 @@ public class HBaseClientType extends BaseClientType{
 	}
 
 	@Override
-	public ClientFactory createClientFactory(Datarouter datarouter, String clientName,
-			List<PhysicalNode<?,?>> physicalNodes){
+	public ClientFactory createClientFactory(Datarouter datarouter, String clientName){
 		return new HBaseSimpleClientFactory(datarouter, clientName, clientAvailabilitySettings, executor);
 	}
 
