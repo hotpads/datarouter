@@ -15,4 +15,8 @@ extends Comparable<FieldSet<F>>,
 	List<?> getFieldValues();
 	Object getFieldValue(String fieldName);
 
+	String getPersistentString();
+	String getTypedPersistentString();
+	void fromPersistentString(String in);
+
 }
