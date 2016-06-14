@@ -15,16 +15,13 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.ClusterStatus;
 import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HConstants;
-import org.apache.hadoop.hbase.HServerLoad;
 import org.apache.hadoop.hbase.HTableDescriptor;
-import org.apache.hadoop.hbase.MasterNotRunningException;
+import org.apache.hadoop.hbase.ServerLoad;
 import org.apache.hadoop.hbase.ServerName;
-import org.apache.hadoop.hbase.UnknownRegionException;
-import org.apache.hadoop.hbase.ZooKeeperConnectionException;
-import org.apache.hadoop.hbase.client.HBaseAdmin;
+import org.apache.hadoop.hbase.TableName;
+import org.apache.hadoop.hbase.client.Admin;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.apache.hadoop.hbase.util.Merge;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,6 +33,7 @@ import com.hotpads.datarouter.client.imp.hbase.cluster.DrServerInfo;
 import com.hotpads.datarouter.client.imp.hbase.cluster.DrServerList;
 import com.hotpads.datarouter.client.imp.hbase.cluster.DrTableSettings;
 import com.hotpads.datarouter.client.imp.hbase.compaction.HBaseCompactionInfo;
+import com.hotpads.datarouter.client.imp.hbase.util.ServerNameTool;
 import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.routing.RouterParams;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
@@ -125,7 +123,7 @@ public class HBaseHandler extends BaseHandler {
 		mav.put("address", hbaseConfig.get(HConstants.ZOOKEEPER_QUORUM));
 		List<HTableDescriptor> tables;
 		try{
-			tables = DrListTool.create(routerParams.getClient().getHBaseAdmin().listTables());
+			tables = DrListTool.create(routerParams.getClient().getAdmin().listTables());
 		}catch(IOException e){
 			throw new RuntimeException(e);
 		}
@@ -154,20 +152,15 @@ public class HBaseHandler extends BaseHandler {
 	}
 
 	@Handler
-	private Mav viewHBaseServers() {
+	private Mav viewHBaseServers() throws IOException {
 		initialize();
 		mav.setViewName(PATH_JSP_HBASE + "hbaseServers.jsp");
-		ClusterStatus clusterStatus;
-		try{
-			clusterStatus = routerParams.getClient().getHBaseAdmin().getClusterStatus();
-		}catch(IOException e){
-			throw new RuntimeException(e);
-		}
+		ClusterStatus clusterStatus = routerParams.getClient().getAdmin().getClusterStatus();
 		mav.put("clusterStatus", clusterStatus);
 		Collection<ServerName> serverNames = new TreeSet<>(clusterStatus.getServers());
 		List<DrServerInfo> servers = new ArrayList<>();
 		for (ServerName serverName : DrIterableTool.nullSafe(serverNames)) {
-			HServerLoad serverLoad = clusterStatus.getLoad(serverName);
+			ServerLoad serverLoad = clusterStatus.getLoad(serverName);
 			servers.add(new DrServerInfo(serverName, serverLoad));
 		}
 		mav.put("servers", servers);
@@ -181,7 +174,8 @@ public class HBaseHandler extends BaseHandler {
 
 		HTableDescriptor table;
 		try{
-			table = routerParams.getClient().getHBaseAdmin().getTableDescriptor(routerParams.getTableName().getBytes());
+			table = routerParams.getClient().getAdmin().getTableDescriptor(TableName.valueOf(routerParams
+					.getTableName()));
 		}catch(Exception e){
 			throw new RuntimeException(e);
 		}
@@ -200,6 +194,9 @@ public class HBaseHandler extends BaseHandler {
 		}
 		mav.put("columnSummaryByName", columnSummaryByName);
 
+		mav.put("compressionOptions", DrTableSettings.COMPRESSION_STRINGS);
+		mav.put("dataBlockEncodingOptions", DrTableSettings.DATA_BLOCK_ENCODING_STRINGS);
+		mav.put("bloomOptions", DrTableSettings.BLOOMFILTER_STRINGS);
 		return mav;
 	}
 
@@ -221,15 +218,15 @@ public class HBaseHandler extends BaseHandler {
 	@Handler
 	private Mav updateHBaseTableAttribute(){
 		initialize();
-		HBaseAdmin admin = routerParams.getClient().getHBaseAdmin();
+		Admin admin = routerParams.getClient().getAdmin();
 		HTableDescriptor table;
 		try{
-			table = admin.getTableDescriptor(routerParams.getTableName().getBytes());
-		}catch(IOException e){
+			table = admin.getTableDescriptor(TableName.valueOf(routerParams.getTableName().getBytes()));
+		}catch(IllegalArgumentException | IOException e){
 			throw new RuntimeException(e);
 		}
 		try{
-			admin.disableTable(routerParams.getTableName());
+			admin.disableTable(TableName.valueOf(routerParams.getTableName()));
 			logger.warn("table disabled");
 			Long maxFileSizeMb = RequestTool.getLong(request, PARAM_maxFileSizeMb, null);
 			if(maxFileSizeMb != null){
@@ -240,18 +237,18 @@ public class HBaseHandler extends BaseHandler {
 			if(memstoreFlushSizeMb != null){
 				table.setMemStoreFlushSize(memstoreFlushSizeMb * 1024 * 1024);
 			}
-			admin.modifyTable(StringByteTool.getUtf8Bytes(routerParams.getTableName()), table);
+			admin.modifyTable(TableName.valueOf(StringByteTool.getUtf8Bytes(routerParams.getTableName())),
+					table);
 		}catch(Exception e){
-			logger.warn("", e);
+			throw new RuntimeException(e);
 		}finally{
 			try{
-				admin.enableTable(routerParams.getTableName());
+				admin.enableTable(TableName.valueOf(routerParams.getTableName()));
 			}catch(IOException e){
 				throw new RuntimeException(e);
 			}
 		}
 		logger.warn("table enabled");
-
 		mav = new MessageMav("HBase table attributes updated");
 		return mav;
 
@@ -260,14 +257,13 @@ public class HBaseHandler extends BaseHandler {
 	@Handler
 	private Mav updateHBaseColumnAttribute(){
 		initialize();
-		HBaseAdmin admin = routerParams.getClient().getHBaseAdmin();
+		Admin admin = routerParams.getClient().getAdmin();
 		HTableDescriptor table;
 		try{
-			table = admin.getTableDescriptor(routerParams.getTableName().getBytes());
+			table = admin.getTableDescriptor(TableName.valueOf(routerParams.getTableName()));
 		}catch(IOException e){
 			throw new RuntimeException(e);
 		}
-
 		String columnName = RequestTool.get(request, RoutersHandler.PARAM_columnName);
 		HColumnDescriptor column = table.getFamily(columnName.getBytes());
 		try{
@@ -276,18 +272,18 @@ public class HBaseHandler extends BaseHandler {
 				String value = RequestTool.get(request, colParam);
 				DrTableSettings.validateColumnFamilySetting(colParam, value);
 			}
-			admin.disableTable(routerParams.getTableName());
+			admin.disableTable(TableName.valueOf(routerParams.getTableName()));
 			logger.warn("table disabled");
 			for(String colParam : DrIterableTool.nullSafe(DrTableSettings.COLUMN_SETTINGS)){
 				String value = RequestTool.get(request, colParam);
 				column.setValue(colParam, value.trim());
 			}
-			admin.modifyColumn(routerParams.getTableName(), column);
+			admin.modifyColumn(TableName.valueOf(routerParams.getTableName()), column);
 		}catch(Exception e){
 			logger.warn("", e);
 		}finally{
 			try{
-				admin.enableTable(routerParams.getTableName());
+				admin.enableTable(TableName.valueOf(routerParams.getTableName()));
 			}catch(IOException e){
 				throw new RuntimeException(e);
 			}
@@ -299,10 +295,11 @@ public class HBaseHandler extends BaseHandler {
 	}
 
 
-	/********************** Move Handlers ***************/
+	/********************** Move Handlers
+	 * @throws IOException ***************/
 
 	@Handler
-	private Mav moveRegionsToCorrectServer(){
+	private Mav moveRegionsToCorrectServer() throws IOException{
 		int pauseBetweenRegionsMs = params.optionalInteger("pauseBetweenRegionsMs", 500);
 		initialize();
 		int counter = 0;
@@ -312,12 +309,8 @@ public class HBaseHandler extends BaseHandler {
 				PhaseTimer timer = new PhaseTimer("move " + counter + " of " + routerParams.getTableName());
 				String encodedRegionNameString = region.getRegion().getEncodedName();
 				String destinationServer = region.getConsistentHashServerName().getServerName();
-				try{
-					routerParams.getClient().getHBaseAdmin().move(Bytes.toBytes(encodedRegionNameString),
-							Bytes.toBytes(destinationServer));
-				}catch(UnknownRegionException | MasterNotRunningException | ZooKeeperConnectionException e){
-					throw new RuntimeException(e);
-				}
+				routerParams.getClient().getAdmin().move(Bytes.toBytes(encodedRegionNameString),
+						Bytes.toBytes(destinationServer));
 				logger.warn(timer.add("HBase moved region " + encodedRegionNameString + " to server "
 						+ destinationServer).toString());
 			}
@@ -329,23 +322,19 @@ public class HBaseHandler extends BaseHandler {
 	}
 
 	@Handler
-	private Mav moveHBaseTableRegions() {
+	private Mav moveHBaseTableRegions() throws IOException {
 		initialize();
 		String tableName = params.required(PARAM_tableName);
 		String destinationServer = params.required(PARAM_destinationServerName);
-		ServerName serverName = new ServerName(destinationServer);
+		ServerName serverName = ServerNameTool.create(destinationServer);
 		if(DrCollectionTool.doesNotContain(drServerList.getServerNames(), serverName)){
 			throw new IllegalArgumentException(serverName + " not found");
 		}
 		for(int i = 0; i < numRegions; ++i){
 			String encodedRegionNameString = encodedRegionNameStrings.get(i);
 			PhaseTimer timer = new PhaseTimer("move " + i + "/" + numRegions + " of " + tableName);
-			try{
-				routerParams.getClient().getHBaseAdmin().move(Bytes.toBytes(encodedRegionNameString), Bytes.toBytes(
-						destinationServer));
-			}catch(UnknownRegionException | MasterNotRunningException | ZooKeeperConnectionException e){
-				throw new RuntimeException(e);
-			}
+			routerParams.getClient().getAdmin().move(Bytes.toBytes(encodedRegionNameString), Bytes.toBytes(
+					destinationServer));
 			logger.warn(timer.add("HBase moved region " + encodedRegionNameString + " to server "
 					+ serverName).toString());
 		}
@@ -362,8 +351,8 @@ public class HBaseHandler extends BaseHandler {
 			String encodedRegionNameString = encodedRegionNameStrings.get(i);
 			DrRegionInfo<?> region = regionList.getRegionByEncodedName(encodedRegionNameString);
 			try{
-				routerParams.getClient().getHBaseAdmin().compact(region.getRegion().getRegionName());
-			}catch(IOException | InterruptedException e){
+				routerParams.getClient().getAdmin().compactRegion(region.getRegion().getRegionName());
+			}catch(IOException e){
 				throw new RuntimeException(e);
 			}
 
@@ -375,8 +364,8 @@ public class HBaseHandler extends BaseHandler {
 	private Mav compactAllHBaseTableRegions(){
 		initialize();
 		try{
-			routerParams.getClient().getHBaseAdmin().compact(routerParams.getTableName());
-		}catch(IOException | InterruptedException e){
+			routerParams.getClient().getAdmin().compact(TableName.valueOf(routerParams.getTableName()));
+		}catch(IOException e){
 			throw new RuntimeException(e);
 		}
 		return new MessageMav("Submitted compact request for entire table " + routerParams.getTableName());
@@ -389,8 +378,8 @@ public class HBaseHandler extends BaseHandler {
 			String encodedRegionNameString = encodedRegionNameStrings.get(i);
 			DrRegionInfo<?> region = regionList.getRegionByEncodedName(encodedRegionNameString);
 			try{
-				routerParams.getClient().getHBaseAdmin().majorCompact(region.getRegion().getRegionName());
-			}catch(IOException | InterruptedException e){
+				routerParams.getClient().getAdmin().majorCompactRegion(region.getRegion().getRegionName());
+			}catch(IOException e){
 				throw new RuntimeException(e);
 			}
 		}
@@ -401,8 +390,8 @@ public class HBaseHandler extends BaseHandler {
 	private Mav majorCompactAllHBaseTableRegions(){
 		initialize();
 		try{
-			routerParams.getClient().getHBaseAdmin().majorCompact(routerParams.getTableName());
-		}catch(IOException | InterruptedException e){
+			routerParams.getClient().getAdmin().majorCompact(TableName.valueOf(routerParams.getTableName()));
+		}catch(IOException e){
 			throw new RuntimeException(e);
 		}
 		return new MessageMav("Submitted majorCompact request for entire table " + routerParams.getTableName());
@@ -418,8 +407,8 @@ public class HBaseHandler extends BaseHandler {
 			String encodedRegionNameString = encodedRegionNameStrings.get(i);
 			DrRegionInfo<?> region = regionList.getRegionByEncodedName(encodedRegionNameString);
 			try{
-				routerParams.getClient().getHBaseAdmin().flush(region.getRegion().getRegionName());
-			}catch(IOException | InterruptedException e){
+				routerParams.getClient().getAdmin().flushRegion(region.getRegion().getRegionName());
+			}catch(IOException e){
 				throw new RuntimeException(e);
 			}
 		}
@@ -430,7 +419,7 @@ public class HBaseHandler extends BaseHandler {
 	private Mav flushAllHBaseTableRegions(){
 		initialize();
 		try{
-			routerParams.getClient().getHBaseAdmin().flush(routerParams.getTableName());
+			routerParams.getClient().getAdmin().flush(TableName.valueOf(routerParams.getTableName()));
 		}catch(Exception e){
 			throw new RuntimeException(e);
 		}
@@ -440,35 +429,35 @@ public class HBaseHandler extends BaseHandler {
 
 	/********************** Merge Handlers ***************/
 
-	@Handler
-	private Mav mergeFollowingHBaseTableRegions() {
-		initialize();
-		Merge merge = new Merge(hbaseConfig);
-		for (int i = 0; i < encodedRegionNameStrings.size(); ++i) {
-			PhaseTimer timer = new PhaseTimer("merge " + i + "/" + numRegions + " on " + routerParams.getTableName());
-			DrRegionInfo<?> regionA = regionList.getRegionByEncodedName(encodedRegionNameStrings.get(i));
-			if (regionA == null) {
-				logger.warn(timer.add("couldn't find " + routerParams.getTableName() + " region "
-						+ encodedRegionNameStrings.get(i)).toString());
-				continue;
-			}
-			DrRegionInfo<?> regionB = regionList.getRegionAfter(encodedRegionNameStrings.get(i));
-			try {
-				routerParams.getClient().getHBaseAdmin().flush(regionA.getRegion().getRegionName());
-				routerParams.getClient().getHBaseAdmin().flush(regionB.getRegion().getRegionName());
-				merge.run(new String[] { routerParams.getTableName(),
-						regionA.getRegion().getRegionNameAsString(),
-						regionB.getRegion().getRegionNameAsString() });
-				logger.warn(timer.add("merged "
-						+ regionA.getRegion().getRegionNameAsString() + " and "
-						+ regionB.getRegion().getRegionNameAsString()).toString());
-			} catch (Exception e) {
-				throw new RuntimeException(e);
-			}
-
-		}
-		return new MessageMav("Merged HBase table regions ");
-	}
+//	@Handler
+//	private Mav mergeFollowingHBaseTableRegions() {
+//		initialize();
+//		Merge merge = new Merge(hbaseConfig);
+//		for (int i = 0; i < encodedRegionNameStrings.size(); ++i) {
+//			PhaseTimer timer = new PhaseTimer("merge " + i + "/" + numRegions + " on " + routerParams.getTableName());
+//			DrRegionInfo<?> regionA = regionList.getRegionByEncodedName(encodedRegionNameStrings.get(i));
+//			if (regionA == null) {
+//				logger.warn(timer.add("couldn't find " + routerParams.getTableName() + " region "
+//						+ encodedRegionNameStrings.get(i)).toString());
+//				continue;
+//			}
+//			DrRegionInfo<?> regionB = regionList.getRegionAfter(encodedRegionNameStrings.get(i));
+//			try {
+//				routerParams.getClient().getHBaseAdmin().flush(regionA.getRegion().getRegionName());
+//				routerParams.getClient().getHBaseAdmin().flush(regionB.getRegion().getRegionName());
+//				merge.run(new String[] { routerParams.getTableName(),
+//						regionA.getRegion().getRegionNameAsString(),
+//						regionB.getRegion().getRegionNameAsString() });
+//				logger.warn(timer.add("merged "
+//						+ regionA.getRegion().getRegionNameAsString() + " and "
+//						+ regionB.getRegion().getRegionNameAsString()).toString());
+//			} catch (Exception e) {
+//				throw new RuntimeException(e);
+//			}
+//
+//		}
+//		return new MessageMav("Merged HBase table regions ");
+//	}
 
 	private static Map<String,Map<String,String>> parseTableAttributeMap(Collection<HColumnDescriptor> families){
 		Map<String,Map<String,String>> familyAttributeByNameByFamilyName = new TreeMap<>();

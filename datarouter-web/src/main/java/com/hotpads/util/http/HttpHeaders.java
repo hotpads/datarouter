@@ -4,13 +4,18 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
 import com.google.common.base.Joiner;
+import com.google.gson.Gson;
 import com.hotpads.util.http.response.exception.HotPadsHttpResponseException;
 
 public class HttpHeaders{
+
+	private static final Gson gson = new Gson();
 
 	public static final String
 			ACCEPT_CHARSET = "accept-charset",
@@ -61,27 +66,22 @@ public class HttpHeaders{
 		X_REQUESTED_WITH
 	};
 
-	private Map<String, String> headerMap = new HashMap<>();
+	private final Map<String,String> headerMap = new HashMap<>();
 
-	public HttpHeaders(HttpServletRequest request) {
+	public HttpHeaders(HttpServletRequest request){
 		Joiner listJoiner = Joiner.on(", ");
-		if (request != null) {
-			List<String> tmpHeaders = Collections.list(request.getHeaderNames());
-			for (String headerKey : recordedHeaders) {
-				if (tmpHeaders.remove(headerKey)) {
-					headerMap.put(headerKey, listJoiner.join(Collections.list(request.getHeaders(headerKey))));
-				}
-			}
-			StringBuilder othersBuilder = new StringBuilder();
-			for (String header : tmpHeaders) {
-				othersBuilder.append(header);
-				othersBuilder.append(": ");
-				othersBuilder.append(listJoiner.join(Collections.list(request.getHeaders(header))));
-				othersBuilder.append(", ");
-			}
-			String others = othersBuilder.toString();
-			headerMap.put("others", others);
+		if(request == null){
+			return;
 		}
+		List<String> tmpHeaders = Collections.list(request.getHeaderNames());
+		for(String headerKey : recordedHeaders){
+			if(tmpHeaders.remove(headerKey)){
+				headerMap.put(headerKey, listJoiner.join(Collections.list(request.getHeaders(headerKey))));
+			}
+		}
+		Map<String,List<String>> others = tmpHeaders.stream()
+				.collect(Collectors.toMap(Function.identity(), name -> Collections.list(request.getHeaders(name))));
+		headerMap.put("others", gson.toJson(others));
 	}
 
 	public String getAcceptCharset(){

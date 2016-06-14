@@ -7,10 +7,10 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.hadoop.hbase.client.Get;
-import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
+import org.apache.hadoop.hbase.client.Table;
 
 import com.hotpads.datarouter.client.ClientTableNodeNames;
 import com.hotpads.datarouter.client.imp.hbase.client.HBaseClient;
@@ -108,7 +108,7 @@ implements HBasePhysicalNode<PK,D>,
 		return new HBaseMultiAttemptTask<>(new HBaseTask<List<D>>(getDatarouter(), getClientTableNodeNames(),
 				"getMulti", Config.nullSafe(config)){
 			@Override
-			public List<D> hbaseCall(HTable htable, HBaseClient client, ResultScanner managedResultScanner)
+			public List<D> hbaseCall(Table htable, HBaseClient client, ResultScanner managedResultScanner)
 			throws Exception{
 				DRCounters.incClientNodeCustom(client.getType(), "getMulti requested", getClientName(), getNodeName(),
 						DrCollectionTool.size(pks));
@@ -131,7 +131,7 @@ implements HBasePhysicalNode<PK,D>,
 		return new HBaseMultiAttemptTask<>(new HBaseTask<List<PK>>(getDatarouter(), getClientTableNodeNames(),
 				"getKeys", Config.nullSafe(config)){
 				@Override
-				public List<PK> hbaseCall(HTable htable, HBaseClient client, ResultScanner managedResultScanner)
+				public List<PK> hbaseCall(Table htable, HBaseClient client, ResultScanner managedResultScanner)
 				throws Exception{
 					DRCounters.incClientNodeCustom(client.getType(), "getKeys requested", getClientName(),
 							getNodeName() , DrCollectionTool.size(pks));
@@ -177,7 +177,7 @@ implements HBasePhysicalNode<PK,D>,
 		List<D> singleEntityResults = new HBaseMultiAttemptTask<>(new HBaseTask<List<D>>(
 				getDatarouter(), getClientTableNodeNames(), "getWithPrefixes", nullSafeConfig){
 				@Override
-				public List<D> hbaseCall(HTable htable, HBaseClient client, ResultScanner managedResultScanner)
+				public List<D> hbaseCall(Table htable, HBaseClient client, ResultScanner managedResultScanner)
 				throws Exception{
 					List<Get> gets = queryBuilder.getPrefixGets(singleEntityPrefixes, wildcardLastField, config);
 					Result[] hbaseRows = htable.get(gets);
@@ -196,7 +196,7 @@ implements HBasePhysicalNode<PK,D>,
 			List<D> singleScanResults = new HBaseMultiAttemptTask<>(new HBaseTask<List<D>>(
 					getDatarouter(), getClientTableNodeNames(), "getWithPrefixes", nullSafeConfig){
 					@Override
-					public List<D> hbaseCall(HTable htable, HBaseClient client, ResultScanner managedResultScanner)
+					public List<D> hbaseCall(Table htable, HBaseClient client, ResultScanner managedResultScanner)
 					throws Exception{
 						List<D> results = new ArrayList<>();
 						managedResultScanner = htable.getScanner(singlePartitionScan);
@@ -235,7 +235,7 @@ implements HBasePhysicalNode<PK,D>,
 			List<PK> pks = new HBaseMultiAttemptTask<>(new HBaseTask<List<PK>>(getDatarouter(),
 					getClientTableNodeNames(), "scanPksInEntity", nullSafeConfig){
 				@Override
-				public List<PK> hbaseCall(HTable htable, HBaseClient client, ResultScanner managedResultScanner)
+				public List<PK> hbaseCall(Table htable, HBaseClient client, ResultScanner managedResultScanner)
 				throws Exception{
 					Get get = queryBuilder.getSingleRowRange(nullSafeRange.getStart().getEntityKey(), nullSafeRange,
 							true);
@@ -270,7 +270,7 @@ implements HBasePhysicalNode<PK,D>,
 			List<D> databeans = new HBaseMultiAttemptTask<>(new HBaseTask<List<D>>(getDatarouter(),
 					getClientTableNodeNames(), "scanInEntity", nullSafeConfig){
 				@Override
-				public List<D> hbaseCall(HTable htable, HBaseClient client, ResultScanner managedResultScanner)
+				public List<D> hbaseCall(Table htable, HBaseClient client, ResultScanner managedResultScanner)
 				throws Exception{
 					Get get = queryBuilder.getSingleRowRange(nullSafeRange.getStart().getEntityKey(), nullSafeRange,
 							false);
@@ -310,7 +310,7 @@ implements HBasePhysicalNode<PK,D>,
 		return new HBaseMultiAttemptTask<>(new HBaseTask<List<Result>>(getDatarouter(),
 				getClientTableNodeNames(), scanKeysVsRowsNumBatches, nullSafeConfig){
 			@Override
-			public List<Result> hbaseCall(HTable htable, HBaseClient client, ResultScanner managedResultScanner)
+			public List<Result> hbaseCall(Table htable, HBaseClient client, ResultScanner managedResultScanner)
 			throws Exception{
 				Scan scan = queryBuilder.getScanForSubrange(partition, pkRange, config, keysOnly);
 				managedResultScanner = htable.getScanner(scan);

@@ -24,12 +24,12 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.google.common.base.Joiner;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.serialize.fielder.Fielder;
@@ -50,6 +50,8 @@ import com.hotpads.util.http.HttpHeaders;
 import com.hotpads.util.http.RequestTool;
 
 public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRequestRecord>{
+
+	private static final Gson gson = new Gson();
 
 	private static final int
 		LENGTH_httpMethod = 16,
@@ -238,7 +240,7 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 				methodName,
 				lineNumber,
 				request.getMethod(),
-				null,
+				gson.toJson(request.getParameterMap()),
 				request.getScheme(),
 				request.getServerName(),
 				request.getServerPort(),
@@ -251,17 +253,6 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 				userId,
 				new HttpHeaders(request)
 				);
-
-		StringBuilder paramStringBuilder = new StringBuilder();
-		Joiner listJoiner = Joiner.on("; ");
-		for (Entry<String, String[]> param : request.getParameterMap().entrySet()) {
-			paramStringBuilder.append(param.getKey());
-			paramStringBuilder.append(": ");
-			paramStringBuilder.append(listJoiner.join(param.getValue()));
-			paramStringBuilder.append(", ");
-		}
-		String paramString = paramStringBuilder.toString();
-		this.httpParams = paramString;
 	}
 
 	private HttpRequestRecord(Date receivedAt, String exceptionRecordId, String exceptionPlace,
@@ -319,6 +310,57 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 		this.otherHeaders = headersWrapper.getOthers();
 	}
 
+	public HttpRequestRecord(ExceptionDto exceptionDto, String exceptionRecordId){
+		this.key = new HttpRequestRecordKey(UuidTool.generateV1Uuid());
+		this.created = exceptionDto.date;
+		this.receivedAt = exceptionDto.receivedAt;
+		if(receivedAt != null) {
+			this.duration = created.getTime() - receivedAt.getTime();
+		}
+
+		this.exceptionRecordId = exceptionRecordId;
+		this.exceptionPlace = exceptionDto.errorLocation;
+		this.methodName = exceptionDto.methodName;
+		this.lineNumber = exceptionDto.lineNumber;
+
+		this.httpMethod = exceptionDto.httpMethod;
+		this.httpParams = gson.toJson(exceptionDto.httpParams);
+
+		this.protocol = exceptionDto.protocol;
+		this.hostname = exceptionDto.hostname;
+		this.port = exceptionDto.port;
+		this.path = exceptionDto.path;
+		this.queryString = exceptionDto.queryString;
+		this.body = exceptionDto.body;
+
+		this.ip = exceptionDto.ip;
+		this.userRoles = exceptionDto.userRoles;
+		this.userId = exceptionDto.userId;
+
+		this.acceptCharset = exceptionDto.acceptCharset;
+		this.acceptEncoding = exceptionDto.acceptEncoding;
+		this.acceptLanguage = exceptionDto.acceptLanguage;
+		this.accept = exceptionDto.accept;
+		this.cacheControl = exceptionDto.cacheControl;
+		this.connection = exceptionDto.connection;
+		this.contentEncoding = exceptionDto.contentEncoding;
+		this.contentLanguage = exceptionDto.contentLanguage;
+		this.contentLength = exceptionDto.contentLength;
+		this.contentType = exceptionDto.contentType;
+		this.cookie = exceptionDto.cookie;
+		this.dnt = exceptionDto.dnt;
+		this.host = exceptionDto.host;
+		this.ifModifiedSince = exceptionDto.ifModifiedSince;
+		this.origin = exceptionDto.origin;
+		this.pragma = exceptionDto.pragma;
+		this.referer = exceptionDto.referer;
+		this.userAgent = exceptionDto.userAgent;
+		this.xForwardedFor = exceptionDto.forwardedFor;
+		this.xRequestedWith = exceptionDto.requestedWith;
+
+		this.otherHeaders = gson.toJson(exceptionDto.others);
+	}
+
 	@Override
 	public Class<HttpRequestRecordKey> getKeyClass() {
 		return HttpRequestRecordKey.class;
@@ -369,12 +411,12 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 		return map;
 	}
 
-	public Map<String, String> getOtherHeadersMap() {
-		return DrMapTool.getMapFromString(otherHeaders, ", ", ": ");
+	public Map<String, String[]> getOtherHeadersMap() {
+		return gson.fromJson(otherHeaders, new TypeToken<Map<String, String[]>>(){}.getType());
 	}
 
-	public Map<String, String> getHttpParamsMap() {
-		return DrMapTool.getMapFromString(httpParams, ", ", ": ");
+	public Map<String, String[]> getHttpParamsMap() {
+		return gson.fromJson(httpParams, new TypeToken<Map<String, String[]>>(){}.getType());
 	}
 
 	public Map<String, String> getCookiesMap() {

@@ -76,8 +76,11 @@ public class ExceptionRecord extends BaseDatabean<ExceptionRecordKey, ExceptionR
 	}
 
 	public ExceptionRecord(String serverName, String stackTrace, String type) {
+		this(new Date(), serverName, stackTrace, type);
+	}
+	public ExceptionRecord(Date date, String serverName, String stackTrace, String type) {
 		key = new ExceptionRecordKey(UuidTool.generateV1Uuid());
-		this.created = new Date();
+		this.created = date;
 		this.serverName = serverName;
 		this.stackTrace = stackTrace;
 		this.type = type;
