@@ -403,13 +403,12 @@ public class DrStringTool{
 
 		@Test
 		public void testSplitOnCharNoRegex(){
-			String input = "abc.def.g";
-			Object[] output = splitOnCharNoRegex(input, '.').toArray();
-			Assert.assertArrayEquals(new String[]{"abc", "def", "g"}, output);
-
-			String input2 = "..def.g.";
-			Object[] output2 = splitOnCharNoRegex(input2, '.').toArray();
-			Assert.assertArrayEquals(new String[]{"", "", "def", "g", ""}, output2);
+			Assert.assertArrayEquals(new String[]{""}, splitOnCharNoRegex("", '/').toArray());
+			Assert.assertArrayEquals(new String[]{"", ""}, splitOnCharNoRegex("/", '/').toArray());
+			Assert.assertArrayEquals(new String[]{"  ", ""}, splitOnCharNoRegex("  /", '/').toArray());
+			Assert.assertArrayEquals(new String[]{"abc", "def", "g"}, splitOnCharNoRegex("abc.def.g", '.').toArray());
+			Assert.assertArrayEquals(new String[]{"", "", "def", "g", ""}, splitOnCharNoRegex("..def.g.", '.')
+					.toArray());
 		}
 
 		@Test
