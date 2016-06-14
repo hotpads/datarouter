@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import com.hotpads.datarouter.client.imp.jdbc.field.JdbcFieldCodec;
 import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
@@ -19,7 +20,6 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.view.index.IndexEntry;
 import com.hotpads.datarouter.util.core.DrArrayTool;
-import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.util.core.java.ReflectionTool;
 import com.mysql.jdbc.Driver;
@@ -205,13 +205,11 @@ public class JdbcTool {
 	}
 
 	public static void appendCsvQuestionMarks(StringBuilder sb, List<Field<?>> list){
-		int size = DrCollectionTool.size(list);
-		for(int i=0; i < size; ++i){
-			if(i>0){
-				sb.append(",");
-			}
-			sb.append(list.get(i).getPreparedStatementValue());
+		if(list == null){
+			return;
 		}
+		final String statements = list.stream().map(Field::getPreparedStatementValue).collect(Collectors.joining(","));
+		sb.append(statements);
 	}
 
 	public static <F>F fieldSetFromJdbcResultSetUsingReflection(JdbcFieldCodecFactory fieldCodecFactory,
