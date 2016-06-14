@@ -46,8 +46,8 @@ public class ExceptionDto{
 	public String pragma;
 	public String referer;
 	public String userAgent;
-	public String xForwardedFor;
-	public String xRequestedWith;
+	public String forwardedFor; // X-Forwarded-For header
+	public String requestedWith; // X-Requested-With header
 	public Map<String,String[]> others;
 
 }

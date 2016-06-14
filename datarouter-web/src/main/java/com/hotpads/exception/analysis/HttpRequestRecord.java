@@ -355,8 +355,8 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 		this.pragma = exceptionDto.pragma;
 		this.referer = exceptionDto.referer;
 		this.userAgent = exceptionDto.userAgent;
-		this.xForwardedFor = exceptionDto.xForwardedFor;
-		this.xRequestedWith = exceptionDto.xRequestedWith;
+		this.xForwardedFor = exceptionDto.forwardedFor;
+		this.xRequestedWith = exceptionDto.requestedWith;
 
 		this.otherHeaders = gson.toJson(exceptionDto.others);
 	}
