@@ -410,7 +410,8 @@ public class DrStringTool{
 			AssertJUnit.assertArrayEquals(new String[]{}, splitOnCharNoRegex(null, '/').toArray());
 			AssertJUnit.assertArrayEquals(new String[]{"", ""}, splitOnCharNoRegex("/", '/').toArray());
 			AssertJUnit.assertArrayEquals(new String[]{"  ", ""}, splitOnCharNoRegex("  /", '/').toArray());
-			AssertJUnit.assertArrayEquals(new String[]{"abc", "def", "g"}, splitOnCharNoRegex("abc.def.g", '.').toArray());
+			AssertJUnit.assertArrayEquals(new String[]{"abc", "def", "g"}, splitOnCharNoRegex("abc.def.g", '.')
+					.toArray());
 			AssertJUnit.assertArrayEquals(new String[]{"", "", "def", "g", ""}, splitOnCharNoRegex("..def.g.", '.')
 					.toArray());
 		}
