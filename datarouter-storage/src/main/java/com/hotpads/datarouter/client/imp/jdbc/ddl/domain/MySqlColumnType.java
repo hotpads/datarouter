@@ -48,7 +48,8 @@ public enum MySqlColumnType{
 	LONGBLOB(false, false),
 	LONGTEXT(false, false),
 	ENUM(true, false),
-	SET(true, false);
+	SET(true, false),
+	GEOMETRY(false, false);
 
 	private static Map<String,MySqlColumnType> OTHER_NAME_TO_TYPE = Maps.newHashMap();
 	static{

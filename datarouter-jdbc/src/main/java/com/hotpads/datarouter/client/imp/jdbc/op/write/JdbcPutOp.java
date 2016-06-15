@@ -239,7 +239,7 @@ extends BaseJdbcOp<Void>{
 				sb.append(",");
 			}
 			sb.append("(");
-			JdbcTool.appendCsvQuestionMarks(sb, DrCollectionTool.size(node.getFieldInfo().getFields()));
+			JdbcTool.appendCsvQuestionMarks(sb, node.getFieldInfo().getFields());
 			sb.append(")");
 			doneOne = true;
 		}

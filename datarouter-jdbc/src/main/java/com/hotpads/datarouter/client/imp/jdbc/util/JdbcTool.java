@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import com.hotpads.datarouter.client.imp.jdbc.field.JdbcFieldCodec;
 import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
@@ -203,13 +204,12 @@ public class JdbcTool {
 		}
 	}
 
-	public static void appendCsvQuestionMarks(StringBuilder sb, int num){
-		for(int i=0; i < num; ++i){
-			if(i>0){
-				sb.append(",");
-			}
-			sb.append("?");
+	public static void appendCsvQuestionMarks(StringBuilder sb, List<Field<?>> list){
+		if(list == null){
+			return;
 		}
+		final String statements = list.stream().map(Field::getPreparedStatementValue).collect(Collectors.joining(","));
+		sb.append(statements);
 	}
 
 	public static <F>F fieldSetFromJdbcResultSetUsingReflection(JdbcFieldCodecFactory fieldCodecFactory,
