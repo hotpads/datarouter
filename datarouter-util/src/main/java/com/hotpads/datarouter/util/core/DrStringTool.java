@@ -6,8 +6,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
 
 public class DrStringTool{
 
@@ -87,6 +87,9 @@ public class DrStringTool{
 
 	public static ArrayList<String> splitOnCharNoRegex(String input, char separator){
 		ArrayList<String> results = new ArrayList<>();
+		if(input == null) {
+			return results;
+		}
 		int leftIndex = 0;
 		for(int rightIndex = 0; rightIndex <= input.length(); ++rightIndex){
 			if(rightIndex == input.length() || separator == input.charAt(rightIndex)) {
@@ -215,7 +218,7 @@ public class DrStringTool{
 		String result = input;
 
 		for(int i = 0; i < result.length(); ++i){ // careful about strings being immutable
-			if((result.charAt(i)) > 126) {
+			if(result.charAt(i) > 126) {
 				result = result.replace(result.charAt(i), replacement);
 			}
 		}
@@ -240,7 +243,7 @@ public class DrStringTool{
 	public static boolean containsCharactersOutsideRange(final String input, int bottom, int top){
 		char[] chars = input.toCharArray();
 		for(int i = 0; i < chars.length; i++){
-			if((chars[i]) > top || (chars[i]) < bottom) {
+			if(chars[i] > top || chars[i] < bottom) {
 				return true;
 			}
 		}
@@ -370,26 +373,26 @@ public class DrStringTool{
 
 		@Test
 		public void testGetStringSurroundedWith(){
-			Assert.assertEquals("wee", getStringSurroundedWith("|wee||", "|", "|"));
-			Assert.assertEquals("x", getStringSurroundedWith("][x][", "[", "]"));
-			Assert.assertEquals("a name", getStringSurroundedWith("<span>a name</span>", "<span>", "</span>"));
-			Assert.assertEquals("", getStringSurroundedWith("<span>a name</span>", "elephant", "</span>"));
+			AssertJUnit.assertEquals("wee", getStringSurroundedWith("|wee||", "|", "|"));
+			AssertJUnit.assertEquals("x", getStringSurroundedWith("][x][", "[", "]"));
+			AssertJUnit.assertEquals("a name", getStringSurroundedWith("<span>a name</span>", "<span>", "</span>"));
+			AssertJUnit.assertEquals("", getStringSurroundedWith("<span>a name</span>", "elephant", "</span>"));
 
-			Assert.assertEquals("right", getStringSurroundedWith("[wrong][right][x]", "[", "][x]"));
-			Assert.assertEquals("a", getStringSurroundedWith("|a|b|", "|", "|"));
-			Assert.assertEquals("b", getStringSurroundedWith("|a|b||", "|", "||"));
+			AssertJUnit.assertEquals("right", getStringSurroundedWith("[wrong][right][x]", "[", "][x]"));
+			AssertJUnit.assertEquals("a", getStringSurroundedWith("|a|b|", "|", "|"));
+			AssertJUnit.assertEquals("b", getStringSurroundedWith("|a|b||", "|", "||"));
 		}
 
 		@Test
 		public void testPad(){
-			Assert.assertEquals("    asdf", pad("asdf", ' ', 8));
-			Assert.assertEquals("fdsa___", padEnd("fdsa", '_', 7));
-			Assert.assertEquals("ffffffffff", repeat('f', 10));
+			AssertJUnit.assertEquals("    asdf", pad("asdf", ' ', 8));
+			AssertJUnit.assertEquals("fdsa___", padEnd("fdsa", '_', 7));
+			AssertJUnit.assertEquals("ffffffffff", repeat('f', 10));
 		}
 
 		@Test
 		public void testReplaceCharactersInRange(){
-			Assert.assertEquals("00banana 0banana 0banana 0 56", replaceCharactersInRange(
+			AssertJUnit.assertEquals("00banana 0banana 0banana 0 56", replaceCharactersInRange(
 					"01banana 2banana 3banana 4 56", '1', '4', '0'));
 		}
 
@@ -398,16 +401,17 @@ public class DrStringTool{
 			String input = "//";
 			List<String> expected = Arrays.asList("", "", "");
 			List<String> decoded = splitOnCharNoRegex(input, '/');
-			Assert.assertEquals(expected, decoded);
+			AssertJUnit.assertEquals(expected, decoded);
 		}
 
 		@Test
 		public void testSplitOnCharNoRegex(){
-			Assert.assertArrayEquals(new String[]{""}, splitOnCharNoRegex("", '/').toArray());
-			Assert.assertArrayEquals(new String[]{"", ""}, splitOnCharNoRegex("/", '/').toArray());
-			Assert.assertArrayEquals(new String[]{"  ", ""}, splitOnCharNoRegex("  /", '/').toArray());
-			Assert.assertArrayEquals(new String[]{"abc", "def", "g"}, splitOnCharNoRegex("abc.def.g", '.').toArray());
-			Assert.assertArrayEquals(new String[]{"", "", "def", "g", ""}, splitOnCharNoRegex("..def.g.", '.')
+			AssertJUnit.assertArrayEquals(new String[]{""}, splitOnCharNoRegex("", '/').toArray());
+			AssertJUnit.assertArrayEquals(new String[]{}, splitOnCharNoRegex(null, '/').toArray());
+			AssertJUnit.assertArrayEquals(new String[]{"", ""}, splitOnCharNoRegex("/", '/').toArray());
+			AssertJUnit.assertArrayEquals(new String[]{"  ", ""}, splitOnCharNoRegex("  /", '/').toArray());
+			AssertJUnit.assertArrayEquals(new String[]{"abc", "def", "g"}, splitOnCharNoRegex("abc.def.g", '.').toArray());
+			AssertJUnit.assertArrayEquals(new String[]{"", "", "def", "g", ""}, splitOnCharNoRegex("..def.g.", '.')
 					.toArray());
 		}
 
@@ -416,61 +420,61 @@ public class DrStringTool{
 			String aa = "dawgy";
 			String bb = "dawGy";
 			String cc = "dawGy";
-			Assert.assertTrue(equalsCaseInsensitive(aa, bb));
-			Assert.assertTrue(!DrObjectTool.nullSafeEquals(aa, bb));
-			Assert.assertTrue(equalsCaseInsensitiveButNotCaseSensitive(aa, bb));
-			Assert.assertTrue(!equalsCaseInsensitiveButNotCaseSensitive(bb, cc));
+			AssertJUnit.assertTrue(equalsCaseInsensitive(aa, bb));
+			AssertJUnit.assertTrue(!DrObjectTool.nullSafeEquals(aa, bb));
+			AssertJUnit.assertTrue(equalsCaseInsensitiveButNotCaseSensitive(aa, bb));
+			AssertJUnit.assertTrue(!equalsCaseInsensitiveButNotCaseSensitive(bb, cc));
 		}
 
 		@Test
 		public void testNumbers(){
-			Assert.assertFalse(containsOnlyNumbers("a1dlkafj"));
-			Assert.assertTrue(containsOnlyNumbers("01234567890123412341352109472813740198715"));
+			AssertJUnit.assertFalse(containsOnlyNumbers("a1dlkafj"));
+			AssertJUnit.assertTrue(containsOnlyNumbers("01234567890123412341352109472813740198715"));
 		}
 
 		@Test
 		public void testEnforceNumeric(){
-			Assert.assertEquals("-8473.93", enforceNumeric("-8.473.93"));
-			Assert.assertEquals("8473.93", enforceNumeric("8.473.93"));
-			Assert.assertEquals("8473.93", enforceNumeric("8473.93"));
-			Assert.assertEquals("5", enforceNumeric("5"));
-			Assert.assertEquals("5", enforceNumeric("ff5ff"));
-			Assert.assertEquals("5", enforceNumeric("ff5%"));
-			Assert.assertEquals("5", enforceNumeric("5%"));
-			Assert.assertEquals("5", enforceNumeric("%5"));
-			Assert.assertEquals("5", enforceNumeric("5."));
-			Assert.assertEquals("50.0", enforceNumeric("5.0.0."));
-			Assert.assertEquals("", enforceNumeric("."));
-			Assert.assertEquals("400000", enforceNumeric("ABC400,000DEF"));
+			AssertJUnit.assertEquals("-8473.93", enforceNumeric("-8.473.93"));
+			AssertJUnit.assertEquals("8473.93", enforceNumeric("8.473.93"));
+			AssertJUnit.assertEquals("8473.93", enforceNumeric("8473.93"));
+			AssertJUnit.assertEquals("5", enforceNumeric("5"));
+			AssertJUnit.assertEquals("5", enforceNumeric("ff5ff"));
+			AssertJUnit.assertEquals("5", enforceNumeric("ff5%"));
+			AssertJUnit.assertEquals("5", enforceNumeric("5%"));
+			AssertJUnit.assertEquals("5", enforceNumeric("%5"));
+			AssertJUnit.assertEquals("5", enforceNumeric("5."));
+			AssertJUnit.assertEquals("50.0", enforceNumeric("5.0.0."));
+			AssertJUnit.assertEquals("", enforceNumeric("."));
+			AssertJUnit.assertEquals("400000", enforceNumeric("ABC400,000DEF"));
 		}
 
 		@Test
 		public void testGetStringAfterLastOccurrence(){
-			Assert.assertEquals("xyz", getStringAfterLastOccurrence('/', "abc/def/xyz"));
-			Assert.assertEquals("ef/xyz", getStringAfterLastOccurrence("/d", "abc/def/xyz"));
-			Assert.assertEquals("", getStringAfterLastOccurrence("/z", "abc/def/xyz"));
+			AssertJUnit.assertEquals("xyz", getStringAfterLastOccurrence('/', "abc/def/xyz"));
+			AssertJUnit.assertEquals("ef/xyz", getStringAfterLastOccurrence("/d", "abc/def/xyz"));
+			AssertJUnit.assertEquals("", getStringAfterLastOccurrence("/z", "abc/def/xyz"));
 		}
 
 		@Test
 		public void testGetStringBeforeLastOccurrence(){
-			Assert.assertEquals("abc/def.xyz", getStringBeforeLastOccurrence('.', "abc/def.xyz.xml"));
-			Assert.assertEquals("abc", getStringBeforeLastOccurrence("/d", "abc/def/xyz"));
-			Assert.assertEquals(null, getStringBeforeLastOccurrence("", null));
-			Assert.assertEquals("", getStringBeforeLastOccurrence(".", "no_dot"));
+			AssertJUnit.assertEquals("abc/def.xyz", getStringBeforeLastOccurrence('.', "abc/def.xyz.xml"));
+			AssertJUnit.assertEquals("abc", getStringBeforeLastOccurrence("/d", "abc/def/xyz"));
+			AssertJUnit.assertEquals(null, getStringBeforeLastOccurrence("", null));
+			AssertJUnit.assertEquals("", getStringBeforeLastOccurrence(".", "no_dot"));
 		}
 
 		@Test
 		public void testEnforceAlphabetic(){
-			Assert.assertEquals("abc", enforceAlphabetic("abc123"));
-			Assert.assertEquals("abc", enforceAlphabetic("1abc123,"));
+			AssertJUnit.assertEquals("abc", enforceAlphabetic("abc123"));
+			AssertJUnit.assertEquals("abc", enforceAlphabetic("1abc123,"));
 		}
 
 		@Test
 		public void testReplaceStart(){
-			Assert.assertEquals("something", replaceStart("something", "something", "something"));
-			Assert.assertEquals("nothing", replaceStart("something", "some", "no"));
-			Assert.assertEquals("something", replaceStart("something", "12", "yikes"));
-			Assert.assertEquals("something", replaceStart("something", "thing", "yikes"));
+			AssertJUnit.assertEquals("something", replaceStart("something", "something", "something"));
+			AssertJUnit.assertEquals("nothing", replaceStart("something", "some", "no"));
+			AssertJUnit.assertEquals("something", replaceStart("something", "12", "yikes"));
+			AssertJUnit.assertEquals("something", replaceStart("something", "thing", "yikes"));
 		}
 
 	}
