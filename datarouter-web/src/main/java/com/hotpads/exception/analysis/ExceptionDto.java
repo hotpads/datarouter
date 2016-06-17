@@ -5,7 +5,7 @@ import java.util.Map;
 
 public class ExceptionDto{
 
-	public Date date;
+	public long date;
 	public String serverName;
 	public String stackTrace;
 	public String errorClass;
