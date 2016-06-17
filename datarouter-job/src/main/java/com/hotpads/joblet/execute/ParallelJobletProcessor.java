@@ -185,7 +185,7 @@ public class ParallelJobletProcessor{
 		jobletThrottle.acquirePermits(jobletType.getCpuPermits(), jobletType.getMemoryPermits());
 		try{
 			jobletRequest = jobletService.getJobletRequestForProcessing(jobletType, reservedBy,
-					RUNNING_JOBLET_TIMEOUT_MS, jobletSettings.getRateLimited().getValue());
+					RUNNING_JOBLET_TIMEOUT_MS);
 		}catch(Exception e){
 			logger.warn("", e);
 		}
