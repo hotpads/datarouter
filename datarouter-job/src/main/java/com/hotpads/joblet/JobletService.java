@@ -25,7 +25,6 @@ import com.hotpads.joblet.dto.JobletSummary;
 import com.hotpads.joblet.enums.JobletStatus;
 import com.hotpads.joblet.enums.JobletType;
 import com.hotpads.joblet.enums.JobletTypeFactory;
-import com.hotpads.joblet.hibernate.DeleteJobletRequest;
 import com.hotpads.joblet.hibernate.GetJobletRequestForProcessing;
 import com.hotpads.joblet.hibernate.GetJobletRequestStatuses;
 import com.hotpads.util.core.collections.Range;
@@ -115,7 +114,8 @@ public class JobletService{
 	}
 
 	public void handleJobletCompletion(JobletRequest jobletRequest){
-		datarouter.run(new DeleteJobletRequest(datarouter, jobletTypeFactory, jobletRequest, jobletNodes));
+		jobletNodes.jobletRequest().delete(jobletRequest.getKey(), null);
+		jobletNodes.jobletData().delete(jobletRequest.getJobletDataKey(), null);
 	}
 
 	public void submitJobletPackages(Collection<JobletPackage> jobletPackages){
