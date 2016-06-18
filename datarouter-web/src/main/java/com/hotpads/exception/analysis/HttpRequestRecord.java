@@ -312,7 +312,7 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 
 	public HttpRequestRecord(ExceptionDto exceptionDto, String exceptionRecordId){
 		this.key = new HttpRequestRecordKey(UuidTool.generateV1Uuid());
-		this.created = exceptionDto.date;
+		this.created = new Date(exceptionDto.dateMs);
 		this.receivedAt = exceptionDto.receivedAt;
 		if(receivedAt != null) {
 			this.duration = created.getTime() - receivedAt.getTime();
