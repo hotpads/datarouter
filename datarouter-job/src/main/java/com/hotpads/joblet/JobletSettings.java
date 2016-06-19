@@ -9,7 +9,6 @@ public interface JobletSettings{
 	Setting<Integer> getMaxJobletServers();
 	Setting<Integer> getMinJobletServers();
 	Setting<Integer> getNumServersToAddPerPeriod();
-	Setting<Boolean> getRateLimited();
 	Setting<Integer> getCpuTickets();
 	Setting<Integer> getMemoryTickets();
 

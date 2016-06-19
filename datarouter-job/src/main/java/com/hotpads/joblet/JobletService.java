@@ -25,11 +25,10 @@ import com.hotpads.joblet.dto.JobletSummary;
 import com.hotpads.joblet.enums.JobletStatus;
 import com.hotpads.joblet.enums.JobletType;
 import com.hotpads.joblet.enums.JobletTypeFactory;
-import com.hotpads.joblet.hibernate.DeleteJobletRequest;
 import com.hotpads.joblet.hibernate.GetJobletRequestForProcessing;
 import com.hotpads.joblet.hibernate.GetJobletRequestStatuses;
-import com.hotpads.joblet.hibernate.UpdateJobletRequestAndQueue;
 import com.hotpads.util.core.collections.Range;
+import com.hotpads.util.core.profile.PhaseTimer;
 import com.hotpads.util.core.stream.StreamTool;
 
 @Singleton
@@ -67,10 +66,16 @@ public class JobletService{
 		return new JobletPackage(jobletRequest, jobletData);
 	}
 
-	public JobletRequest getJobletRequestForProcessing(JobletType<?> type, String reservedBy, long jobletTimeoutMs,
-			boolean rateLimited){
-		return datarouter.run(new GetJobletRequestForProcessing(jobletTimeoutMs, MAX_JOBLET_RETRIES, reservedBy, type,
-				datarouter, jobletNodes, rateLimited));
+	public JobletRequest getJobletRequestForProcessing(JobletType<?> type, String reservedBy, long jobletTimeoutMs){
+		long startMs = System.currentTimeMillis();
+		JobletRequest jobletRequest = datarouter.run(new GetJobletRequestForProcessing(jobletTimeoutMs,
+				MAX_JOBLET_RETRIES, reservedBy, type, datarouter, jobletNodes));
+		long durationMs = System.currentTimeMillis() - startMs;
+		if(durationMs > 200){
+			String message = jobletRequest == null ? "none" : jobletRequest.getKey().toString();
+			logger.warn("slow get joblet type={}, durationMs={}, got {}", type, durationMs, message);
+		}
+		return jobletRequest;
 	}
 
 	public JobletData getJobletData(JobletRequest joblet){
@@ -87,17 +92,14 @@ public class JobletService{
 		return jobletNodes.jobletData().get(new JobletDataKey(jobletDataId), null);
 	}
 
-	public void handleJobletInterruption(JobletRequest jobletRequest, boolean rateLimited){
+	public void handleJobletInterruption(JobletRequest jobletRequest){
 		jobletRequest.setStatus(JobletStatus.created);
 		jobletRequest.setReservedBy(null);
 		jobletRequest.setReservedAt(null);
-		datarouter.run(new UpdateJobletRequestAndQueue(jobletTypeFactory, jobletRequest, true, datarouter, jobletNodes,
-				rateLimited));
 		logger.warn("interrupted "+jobletRequest.getKey()+", set status=created, reservedBy=null, reservedAt=null");
 	}
 
-	public void handleJobletError(JobletRequest jobletRequest, boolean rateLimited, Exception exception,
-			String location){
+	public void handleJobletError(JobletRequest jobletRequest, Exception exception, String location){
 		jobletRequest.setNumFailures(jobletRequest.getNumFailures() + 1);
 		if(jobletRequest.getNumFailures() < jobletRequest.getMaxFailures()){
 			jobletRequest.setStatus(JobletStatus.created);
@@ -109,23 +111,27 @@ public class JobletService{
 		jobletRequest.setExceptionRecordId(exceptionRecord.getKey().getId());
 		jobletRequest.setReservedBy(null);
 		jobletRequest.setReservedAt(null);
-		datarouter.run(new UpdateJobletRequestAndQueue(jobletTypeFactory, jobletRequest, true, datarouter, jobletNodes,
-				rateLimited));
 	}
 
-	public void handleJobletCompletion(JobletRequest jobletRequest, boolean decrementQueueIfRateLimited,
-			boolean rateLimited){
-		datarouter.run(new DeleteJobletRequest(datarouter, jobletTypeFactory, jobletRequest, jobletNodes, rateLimited));
+	public void handleJobletCompletion(JobletRequest jobletRequest){
+		jobletNodes.jobletRequest().delete(jobletRequest.getKey(), null);
+		jobletNodes.jobletData().delete(jobletRequest.getJobletDataKey(), null);
 	}
 
 	public void submitJobletPackages(Collection<JobletPackage> jobletPackages){
+		String typeString = DrCollectionTool.getFirst(jobletPackages).getJoblet().getTypeString();
+		PhaseTimer timer = new PhaseTimer("insert " + jobletPackages.size() + typeString);
 		jobletNodes.jobletData().putMulti(JobletPackage.getJobletDatas(jobletPackages), null);
+		timer.add("inserted JobletData");
 		jobletPackages.forEach(JobletPackage::updateJobletDataIdReference);
 		jobletNodes.jobletRequest().putMulti(JobletPackage.getJobletRequests(jobletPackages), null);
+		timer.add("inserted JobletRequest");
+		if(timer.getElapsedTimeBetweenFirstAndLastEvent() > 200){
+			logger.warn("slow insert joblets:{}", timer);
+		}
 	}
 
-	public void setJobletRequestsRunningOnServerToCreated(JobletType<?> jobletType, String serverName,
-			boolean rateLimited){
+	public void setJobletRequestsRunningOnServerToCreated(JobletType<?> jobletType, String serverName){
 		Iterable<JobletRequest> jobletRequests = jobletNodes.jobletRequest().scan(null, null);
 		String serverNamePrefix = serverName + "_";//don't want joblet1 to include joblet10
 		List<JobletRequest> jobletRequestsToReset = JobletRequest.filterByTypeStatusReservedByPrefix(jobletRequests,
@@ -133,7 +139,7 @@ public class JobletService{
 		logger.warn("found "+DrCollectionTool.size(jobletRequestsToReset)+" jobletRequests to reset");
 
 		for(JobletRequest jobletRequest : jobletRequestsToReset){
-			handleJobletInterruption(jobletRequest, rateLimited);
+			handleJobletInterruption(jobletRequest);
 		}
 	}
 
