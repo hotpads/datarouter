@@ -1,7 +1,6 @@
 package com.hotpads.joblet.handler;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,7 +8,6 @@ import java.util.Map;
 import javax.inject.Inject;
 
 import com.hotpads.datarouter.routing.Datarouter;
-import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.mav.Mav;
@@ -19,15 +17,12 @@ import com.hotpads.job.dispatcher.DatarouterJobDispatcher;
 import com.hotpads.joblet.JobletNodes;
 import com.hotpads.joblet.JobletService;
 import com.hotpads.joblet.JobletSettings;
-import com.hotpads.joblet.databean.JobletQueue;
-import com.hotpads.joblet.databean.JobletQueueKey;
 import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.dto.JobletSummary;
 import com.hotpads.joblet.enums.JobletStatus;
 import com.hotpads.joblet.enums.JobletTypeFactory;
 import com.hotpads.joblet.execute.JobletExecutorThread;
 import com.hotpads.joblet.execute.ParallelJobletProcessors;
-import com.hotpads.joblet.hibernate.ResetJobletQueueTickets;
 import com.hotpads.joblet.hibernate.RestartJobletRequests;
 import com.hotpads.joblet.hibernate.TimeoutStuckRunningJobletRequests;
 
@@ -45,7 +40,6 @@ public class JobletHandler extends BaseHandler{
 
 		URL_JOBLETS_IN_CONTEXT = DatarouterJobDispatcher.URL_DATAROUTER + DatarouterJobDispatcher.JOBLETS,
 		JSP_joblets = "/jsp/joblet/joblets.jsp",
-		JSP_queueSummary = "/jsp/joblet/queueSummary.jsp",
 		JSP_threads = "/jsp/joblet/threads.jsp",
 	 	JSP_exceptions = "/jsp/joblet/jobletExceptions.jsp";
 
@@ -76,7 +70,11 @@ public class JobletHandler extends BaseHandler{
 	@Handler
 	private Mav showJoblets(){
 		Mav mav = new Mav(JSP_joblets);
-		mav = populateMav(mav);
+		mav.put("minServers", jobletSettings.getMinJobletServers().getValue());
+		mav.put("maxServers", jobletSettings.getMaxJobletServers().getValue());
+		mav.put("jobletStatuses", JobletStatus.values());
+		mav.put("runningJobletThreads", getRunningJobletThreads());
+		mav.put("waitingJobletThreads", getWaitingJobletThreads());
 		String whereStatus = params.optional(PARAM_whereStatus, null);
 		boolean expanded = params.optionalBoolean(PARAM_expanded, false);
 		if(DrStringTool.notEmpty(whereStatus)){
@@ -152,22 +150,6 @@ public class JobletHandler extends BaseHandler{
 		return newCondensedSummary;
 	}
 
-	private Mav populateMav(Mav mav){
-		mav.put("minServers", jobletSettings.getMinJobletServers().getValue());
-		mav.put("maxServers", jobletSettings.getMaxJobletServers().getValue());
-		mav.put("jobletStatuses", JobletStatus.values());
-		List<JobletQueue> queues = DrListTool.createArrayList(jobletNodes.jobletQueue().scan(null, null));
-		Collections.sort(queues, new JobletQueue.NumTicketsComparator());
-		mav.put("queues", queues);
-		int totalTickets = JobletQueue.sumNumTickets(queues);
-		mav.put("totalTickets", totalTickets);
-		Map<String,JobletQueue> queuesById = JobletQueue.getById(queues);
-		mav.put("queuesById", queuesById);
-		mav.put("runningJobletThreads", getRunningJobletThreads());
-		mav.put("waitingJobletThreads", getWaitingJobletThreads());
-		return mav;
-	}
-
 	@Handler
 	private Mav listExceptions(){
 		Mav mav = new Mav(JSP_exceptions);
@@ -212,51 +194,10 @@ public class JobletHandler extends BaseHandler{
 	}
 
 	@Handler
-	private Mav resetQueueTickets(){
-		int numUpdated = datarouter.run(new ResetJobletQueueTickets(datarouter, jobletNodes));
-		return new MessageMav("updated "+numUpdated);
-	}
-
-	@Handler
-	private Mav showQueues(){
-		Mav mav = new Mav(JSP_queueSummary);
-		List<JobletQueue> queues = DrListTool.createArrayList(jobletNodes.jobletQueue().scan(null, null));
-		Collections.sort(queues, new JobletQueue.NumTicketsComparator());
-		mav.put("queues", queues);
-		int totalTickets = JobletQueue.sumNumTickets(queues);
-		mav.put("totalTickets", totalTickets);
-		return mav;
-	}
-
-	@Handler
 	private Mav showThreads(){
 		Mav mav = new Mav(JSP_threads);
 		mav.put("runningJobletThreads", getRunningJobletThreads());
 		mav.put("waitingJobletThreads", getWaitingJobletThreads());
-		return mav;
-	}
-
-	@Handler
-	private Mav alterQueueNumTickets(){
-		Mav mav = new Mav();
-		String ref = params.optional(PARAM_ref, null);
-		JobletQueue queue = jobletNodes.jobletQueue().get(
-				new JobletQueueKey(params.required( "queueId")), null);
-		Integer numTickets = params.optionalInteger(PARAM_numTickets, null);
-		if(numTickets != null){
-			queue.setNumTickets(numTickets);
-		}
-		Integer diff = params.optionalInteger(PARAM_diff, 0);
-		if(diff != null){
-			queue.setNumTickets(queue.getNumTickets() + diff);
-		}
-		jobletNodes.jobletQueue().put(queue, null);
-		if(ACTION_showJoblets.equals(ref)){
-			mav.setViewName(Mav.REDIRECT + params.getContextPath() + URL_JOBLETS_IN_CONTEXT);
-		}else{
-			mav.setViewName(Mav.REDIRECT + params.getContextPath() + URL_JOBLETS_IN_CONTEXT
-					+ "?submitAction=showQueues");
-		}
 		return mav;
 	}
 
