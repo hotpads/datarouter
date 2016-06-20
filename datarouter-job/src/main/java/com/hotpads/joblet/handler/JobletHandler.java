@@ -1,7 +1,6 @@
 package com.hotpads.joblet.handler;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -11,7 +10,6 @@ import javax.inject.Inject;
 
 import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.util.core.DrListTool;
-import com.hotpads.datarouter.util.core.DrNumberTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.mav.Mav;
@@ -19,20 +17,16 @@ import com.hotpads.handler.mav.imp.InContextRedirectMav;
 import com.hotpads.handler.mav.imp.MessageMav;
 import com.hotpads.job.dispatcher.DatarouterJobDispatcher;
 import com.hotpads.joblet.JobletNodes;
-import com.hotpads.joblet.JobletPackage;
 import com.hotpads.joblet.JobletService;
 import com.hotpads.joblet.JobletSettings;
-import com.hotpads.joblet.databean.JobletData;
 import com.hotpads.joblet.databean.JobletQueue;
 import com.hotpads.joblet.databean.JobletQueueKey;
 import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.dto.JobletSummary;
 import com.hotpads.joblet.enums.JobletStatus;
-import com.hotpads.joblet.enums.JobletType;
 import com.hotpads.joblet.enums.JobletTypeFactory;
 import com.hotpads.joblet.execute.JobletExecutorThread;
 import com.hotpads.joblet.execute.ParallelJobletProcessors;
-import com.hotpads.joblet.hibernate.DeleteTimedOutJobletRequests;
 import com.hotpads.joblet.hibernate.ResetJobletQueueTickets;
 import com.hotpads.joblet.hibernate.RestartJobletRequests;
 import com.hotpads.joblet.hibernate.TimeoutStuckRunningJobletRequests;
@@ -59,17 +53,17 @@ public class JobletHandler extends BaseHandler{
 	private final JobletTypeFactory jobletTypeFactory;
 	private final JobletNodes jobletNodes;
 	private final ParallelJobletProcessors parallelJobletProcessors;
-	private final JobletService jobletDao;
+	private final JobletService jobletService;
 	private final JobletSettings jobletSettings;
 
 	@Inject
 	public JobletHandler(Datarouter datarouter, JobletTypeFactory jobletTypeFactory, JobletNodes jobletNodes,
-			ParallelJobletProcessors parallelJobletProcessors, JobletService jobletDao, JobletSettings jobletSettings){
+			ParallelJobletProcessors parallelJobletProcessors, JobletService jobletService, JobletSettings jobletSettings){
 		this.datarouter = datarouter;
 		this.jobletTypeFactory = jobletTypeFactory;
 		this.jobletNodes = jobletNodes;
 		this.parallelJobletProcessors = parallelJobletProcessors;
-		this.jobletDao = jobletDao;
+		this.jobletService = jobletService;
 		this.jobletSettings = jobletSettings;
 	}
 
@@ -80,7 +74,7 @@ public class JobletHandler extends BaseHandler{
 	}
 
 	@Handler
-	protected Mav showJoblets(){
+	private Mav showJoblets(){
 		Mav mav = new Mav(JSP_joblets);
 		mav = populateMav(mav);
 		String whereStatus = params.optional(PARAM_whereStatus, null);
@@ -89,7 +83,7 @@ public class JobletHandler extends BaseHandler{
 			mav.put(PARAM_whereStatus, whereStatus);
 		}
 		mav.put("whereStatus", whereStatus);
-		List<JobletSummary> summaries = jobletDao.getJobletSummariesForTable(whereStatus, true);
+		List<JobletSummary> summaries = jobletService.getJobletSummariesForTable(whereStatus, true);
 		List<JobletSummary> combinedSummaries = new ArrayList<>();
 		if(!expanded){
 			int combinedIndex = 0;
@@ -175,7 +169,7 @@ public class JobletHandler extends BaseHandler{
 	}
 
 	@Handler
-	protected Mav listExceptions(){
+	private Mav listExceptions(){
 		Mav mav = new Mav(JSP_exceptions);
 		List<JobletRequest> failedJoblets = new ArrayList<>();
 		for(JobletRequest joblet : jobletNodes.jobletRequest().scan(null, null)){
@@ -188,37 +182,43 @@ public class JobletHandler extends BaseHandler{
 	}
 
 	@Handler
-	protected Mav restartFailed(){
+	private Mav restartFailed(){
 		int numRestarted = datarouter.run(new RestartJobletRequests(datarouter, jobletNodes, JobletStatus.failed));
 		return new MessageMav("restarted "+numRestarted);
 	}
 
 	@Handler
-	protected Mav restartTimedOut(){
+	private Mav restartTimedOut(){
 		int numRestarted = datarouter.run(new RestartJobletRequests(datarouter, jobletNodes, JobletStatus.timedOut));
 		return new MessageMav("restarted "+numRestarted);
 	}
 
 	@Handler
-	protected Mav timeoutStuckRunning(){
+	private Mav timeoutStuckRunning(){
 		int numTimedOut = datarouter.run(new TimeoutStuckRunningJobletRequests(datarouter, jobletNodes));
 		return new MessageMav("timedOut "+numTimedOut);
 	}
 
 	@Handler
-	protected Mav deleteTimedOutJoblets(){
-		int numDeleted = datarouter.run(new DeleteTimedOutJobletRequests(datarouter, jobletNodes));
-		return new MessageMav("deleted "+numDeleted);
+	private Mav deleteTimedOutJoblets(){
+		int numDeleted = 0;
+		for(JobletRequest request : jobletNodes.jobletRequest().scan(null, null)){
+			if(JobletStatus.timedOut == request.getStatus()){
+				jobletService.deleteJobletRequestAndData(request);
+				++numDeleted;
+			}
+		}
+		return new MessageMav("deleted " + numDeleted);
 	}
 
 	@Handler
-	protected Mav resetQueueTickets(){
+	private Mav resetQueueTickets(){
 		int numUpdated = datarouter.run(new ResetJobletQueueTickets(datarouter, jobletNodes));
 		return new MessageMav("updated "+numUpdated);
 	}
 
 	@Handler
-	protected Mav showQueues(){
+	private Mav showQueues(){
 		Mav mav = new Mav(JSP_queueSummary);
 		List<JobletQueue> queues = DrListTool.createArrayList(jobletNodes.jobletQueue().scan(null, null));
 		Collections.sort(queues, new JobletQueue.NumTicketsComparator());
@@ -229,7 +229,7 @@ public class JobletHandler extends BaseHandler{
 	}
 
 	@Handler
-	protected Mav showThreads(){
+	private Mav showThreads(){
 		Mav mav = new Mav(JSP_threads);
 		mav.put("runningJobletThreads", getRunningJobletThreads());
 		mav.put("waitingJobletThreads", getWaitingJobletThreads());
@@ -237,7 +237,7 @@ public class JobletHandler extends BaseHandler{
 	}
 
 	@Handler
-	protected Mav alterQueueNumTickets(){
+	private Mav alterQueueNumTickets(){
 		Mav mav = new Mav();
 		String ref = params.optional(PARAM_ref, null);
 		JobletQueue queue = jobletNodes.jobletQueue().get(
@@ -261,46 +261,17 @@ public class JobletHandler extends BaseHandler{
 	}
 
 	@Handler
-	protected Mav killJobletThread(){
+	private Mav killJobletThread(){
 		long threadId = params.requiredLong("threadId");
 		parallelJobletProcessors.killThread(threadId);
 		return new InContextRedirectMav(params, URL_JOBLETS_IN_CONTEXT);
 	}
 
 	@Handler
-	protected Mav restartExecutor(){
-		String jobletType = params.optional("jobletType", null);
+	private Mav restartExecutor(){
+		String jobletType = params.required("jobletType");
 		parallelJobletProcessors.restartExecutor(jobletType);
 		return new InContextRedirectMav(params, URL_JOBLETS_IN_CONTEXT);
-	}
-
-	@Handler //TODO rename runOrDeleteJobletRequestByDataId
-	protected Mav runOrDeleteJobletByDataId(){
-		//scan the Joblet table to get the matching joblet
-		Long jobletDataId = DrNumberTool.getLongNullSafe(params.optional("jobletDataId", ""),null);
-		boolean delete = params.optionalBoolean("delete", false);
-
-		List<JobletRequest> jobletRequests = DrListTool.createArrayList(jobletNodes.jobletRequest().scan(null, null));
-		JobletRequest jobletRequest = findJobletRequestWithId(jobletRequests, jobletDataId);
-		if(delete){
-			jobletNodes.jobletRequest().delete(jobletRequest.getKey(), null);
-		}else{
-			// parallelJobletProcessors.restartExecutor(joblet.getTypedPersistentString());
-			JobletData jobletData = jobletDao.getJobletData(jobletRequest);
-			JobletType<?> jobletType = jobletTypeFactory.fromJobletRequest(jobletRequest);
-			JobletPackage jobletPackage = new JobletPackage(jobletRequest, jobletData);
-			parallelJobletProcessors.getMap().get(jobletType).getJobletScheduler().submitJoblet(jobletPackage);
-		}
-		return new InContextRedirectMav(params, URL_JOBLETS_IN_CONTEXT);
-	}
-
-	private JobletRequest findJobletRequestWithId(Collection<JobletRequest> jobletRequests, Long jobletDataId){
-		for(JobletRequest jobletRequest : jobletRequests){
-			if(jobletRequest.getJobletDataId().equals(jobletDataId)){
-				return jobletRequest;
-			}
-		}
-		return null;
 	}
 
 	private Map<String,List<JobletExecutorThread>> getWaitingJobletThreads() {

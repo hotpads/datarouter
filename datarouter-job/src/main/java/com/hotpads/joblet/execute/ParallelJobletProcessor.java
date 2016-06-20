@@ -14,7 +14,6 @@ import com.hotpads.job.trigger.JobSettings;
 import com.hotpads.joblet.JobletPackage;
 import com.hotpads.joblet.JobletService;
 import com.hotpads.joblet.JobletSettings;
-import com.hotpads.joblet.databean.JobletData;
 import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.enums.JobletType;
 import com.hotpads.joblet.execute.JobletExecutorThreadPool.JobletExecutorThreadPoolFactory;
@@ -189,14 +188,14 @@ public class ParallelJobletProcessor{
 		}catch(Exception e){
 			logger.warn("", e);
 		}
-		JobletData jobletData = null;
+		JobletPackage jobletPackage = null;
 		if(jobletRequest != null){
 			jobletRequest.setInterrupted(interrupted);
-			jobletData = jobletService.getJobletData(jobletRequest);
+			jobletPackage = jobletService.getJobletPackageForJobletRequest(jobletRequest);
 		}else{
 			jobletThrottle.releasePermits(jobletType.getCpuPermits(), jobletType.getMemoryPermits());
 		}
-		return new JobletPackage(jobletRequest, jobletData);
+		return jobletPackage;
 	}
 
 }
