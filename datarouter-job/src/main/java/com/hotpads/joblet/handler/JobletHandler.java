@@ -52,7 +52,8 @@ public class JobletHandler extends BaseHandler{
 
 	@Inject
 	public JobletHandler(Datarouter datarouter, JobletTypeFactory jobletTypeFactory, JobletNodes jobletNodes,
-			ParallelJobletProcessors parallelJobletProcessors, JobletService jobletService, JobletSettings jobletSettings){
+			ParallelJobletProcessors parallelJobletProcessors, JobletService jobletService,
+			JobletSettings jobletSettings){
 		this.datarouter = datarouter;
 		this.jobletTypeFactory = jobletTypeFactory;
 		this.jobletNodes = jobletNodes;
