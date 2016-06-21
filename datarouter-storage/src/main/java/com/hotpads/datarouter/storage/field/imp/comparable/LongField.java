@@ -11,6 +11,10 @@ public class LongField extends BasePrimitiveField<Long>{
 		super(key, value);
 	}
 
+	public LongField(String prefix, LongFieldKey key, Long value){
+		super(prefix, key, value);
+	}
+
 	@Deprecated
 	public LongField(String name, Long value){
 		super(name, value);
@@ -36,14 +40,18 @@ public class LongField extends BasePrimitiveField<Long>{
 
 	@Override
 	public String getStringEncodedValue(){
-		if(value==null){ return null; }
+		if(value == null){
+			return null;
+		}
 		return value.toString();
 	}
 
 	@Override
-	public Long parseStringEncodedValueButDoNotSet(String s){
-		if(DrStringTool.isEmpty(s) || s.equals("null")){ return null; }
-		return Long.valueOf(s);
+	public Long parseStringEncodedValueButDoNotSet(String str){
+		if(DrStringTool.isEmpty(str) || "null".equals(str)){
+			return null;
+		}
+		return Long.valueOf(str);
 	}
 
 
