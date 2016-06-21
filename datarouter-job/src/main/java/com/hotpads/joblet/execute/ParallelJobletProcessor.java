@@ -138,16 +138,16 @@ public class ParallelJobletProcessor{
 				return;
 			}
 			threadPool.resize(getNumThreads());
-			PhaseTimer pt = new PhaseTimer();
+			PhaseTimer timer = new PhaseTimer();
 			jobletScheduler.blockUntilReadyForNewJoblet();
-			JobletPackage jobletPackage = getJoblet(counter++);
-			pt.add("acquired");
-			JobletRequest joblet = jobletPackage.getJoblet();
-			if(joblet == null){
+			JobletPackage jobletPackage = getJobletPackage(counter++);
+			timer.add("acquired");
+			if(jobletPackage == null){
 				return;
 			}
-			joblet.setTimer(pt);
-			jobletScheduler.submitJoblet(jobletPackage);
+			JobletRequest jobletRequest = jobletPackage.getJoblet();
+			jobletRequest.setTimer(timer);
+			jobletScheduler.submitJobletPackage(jobletPackage);
 		}
 
 	}
@@ -178,7 +178,7 @@ public class ParallelJobletProcessor{
 		return threadPool.getWaitingJobletExecutorThreads();
 	}
 
-	private final JobletPackage getJoblet(int counter){
+	private final JobletPackage getJobletPackage(int counter){
 		String reservedBy = getReservedByString(counter);
 		JobletRequest jobletRequest = null;
 		jobletThrottle.acquirePermits(jobletType.getCpuPermits(), jobletType.getMemoryPermits());
