@@ -13,9 +13,8 @@ public class JobletType<P>{
 	private final Integer memoryPermits;
 	private final boolean causesScaling;
 
-	public JobletType(String persistentString, Supplier<JobletCodec<P>> codecSupplier,
-			Class<? extends Joblet<P>> clazz, Integer cpuPermits,
-			Integer memoryPermits, boolean causesScaling){
+	public JobletType(String persistentString, Supplier<JobletCodec<P>> codecSupplier, Class<? extends Joblet<P>> clazz,
+			Integer cpuPermits, Integer memoryPermits, boolean causesScaling){
 		this.persistentString = persistentString;
 		this.codecSupplier = codecSupplier;
 		this.clazz = clazz;
