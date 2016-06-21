@@ -28,17 +28,12 @@ import com.hotpads.joblet.hibernate.TimeoutStuckRunningJobletRequests;
 
 public class JobletHandler extends BaseHandler{
 
-	public static final String
-		ACTION_showJoblets = "showJoblets",
+	private static final String
+		URL_JOBLETS_IN_CONTEXT = DatarouterJobDispatcher.URL_DATAROUTER + DatarouterJobDispatcher.JOBLETS,
 
-		PARAM_ref = "ref",
 		PARAM_whereStatus = "whereStatus",
-		PARAM_diff = "diff",
-		PARAM_numTickets = "numTickets",
-		PARAM_threadStatus = "threadStatus",
 		PARAM_expanded = "expanded",
 
-		URL_JOBLETS_IN_CONTEXT = DatarouterJobDispatcher.URL_DATAROUTER + DatarouterJobDispatcher.JOBLETS,
 		JSP_joblets = "/jsp/joblet/joblets.jsp",
 		JSP_threads = "/jsp/joblet/threads.jsp",
 	 	JSP_exceptions = "/jsp/joblet/jobletExceptions.jsp";
@@ -76,7 +71,7 @@ public class JobletHandler extends BaseHandler{
 		mav.put("jobletStatuses", JobletStatus.values());
 		mav.put("runningJobletThreads", getRunningJobletThreads());
 		mav.put("waitingJobletThreads", getWaitingJobletThreads());
-		String whereStatus = params.optional(PARAM_whereStatus, null);
+		String whereStatus = params.optional(PARAM_whereStatus).orElse(null);
 		boolean expanded = params.optionalBoolean(PARAM_expanded, false);
 		if(DrStringTool.notEmpty(whereStatus)){
 			mav.put(PARAM_whereStatus, whereStatus);
