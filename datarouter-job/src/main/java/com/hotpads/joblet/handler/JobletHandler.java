@@ -187,6 +187,7 @@ public class JobletHandler extends BaseHandler{
 		int numDeleted = 0;
 		for(JobletRequest request : jobletNodes.jobletRequest().scan(null, null)){
 			if(JobletStatus.timedOut == request.getStatus()){
+				//delete individually to minimize joblet table locking
 				jobletService.deleteJobletRequestAndData(request);
 				++numDeleted;
 			}
