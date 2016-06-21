@@ -39,29 +39,43 @@ public class JobletService{
 
 	private final Datarouter datarouter;
 	private final JobletTypeFactory jobletTypeFactory;
-	private final JobletFactory jobletFactory;
 	private final JobletNodes jobletNodes;
 	private final ExceptionRecorder exceptionRecorder;
 
 	@Inject
 	public JobletService(DatarouterInjector injector, Datarouter datarouter, JobletTypeFactory jobletTypeFactory,
-			JobletFactory jobletFactory, JobletNodes jobletNodes, ExceptionRecorder exceptionRecorder){
+			JobletNodes jobletNodes, ExceptionRecorder exceptionRecorder){
 		this.datarouter = datarouter;
 		this.jobletTypeFactory = jobletTypeFactory;
-		this.jobletFactory = jobletFactory;
 		this.jobletNodes = jobletNodes;
 		this.exceptionRecorder = exceptionRecorder;
 	}
 
+	/*--------------------- create ------------------------*/
+
+	public void submitJobletPackages(Collection<JobletPackage> jobletPackages){
+		String typeString = DrCollectionTool.getFirst(jobletPackages).getJoblet().getTypeString();
+		PhaseTimer timer = new PhaseTimer("insert " + jobletPackages.size() + typeString);
+		jobletNodes.jobletData().putMulti(JobletPackage.getJobletDatas(jobletPackages), null);
+		timer.add("inserted JobletData");
+		jobletPackages.forEach(JobletPackage::updateJobletDataIdReference);
+		jobletNodes.jobletRequest().putMulti(JobletPackage.getJobletRequests(jobletPackages), null);
+		timer.add("inserted JobletRequest");
+		if(timer.getElapsedTimeBetweenFirstAndLastEvent() > 200){
+			logger.warn("slow insert joblets:{}", timer);
+		}
+	}
+
+	/*---------------------- read ---------------------------*/
 
 	public List<JobletPackage> getJobletPackagesOfType(JobletType<?> jobletType){
 		JobletRequestKey prefix = new JobletRequestKey(jobletType, null, null, null);
 		return jobletNodes.jobletRequest().streamWithPrefix(prefix, null)
-				.map(this::getJobletPackageForJoblet)
+				.map(this::getJobletPackageForJobletRequest)
 				.collect(Collectors.toList());
 	}
 
-	public JobletPackage getJobletPackageForJoblet(JobletRequest jobletRequest){
+	public JobletPackage getJobletPackageForJobletRequest(JobletRequest jobletRequest){
 		JobletData jobletData = jobletNodes.jobletData().get(jobletRequest.getJobletDataKey(), null);
 		return new JobletPackage(jobletRequest, jobletData);
 	}
@@ -78,19 +92,49 @@ public class JobletService{
 		return jobletRequest;
 	}
 
-	public JobletData getJobletData(JobletRequest joblet){
-		Long jobletDataId = joblet.getJobletDataId();
-		JobletData jobletData = getJobletData(jobletDataId);
-		return jobletData;
+	public boolean jobletRequestExistsWithTypeAndStatus(JobletType<?> jobletType, JobletStatus jobletStatus){
+		JobletRequestKey key = new JobletRequestKey(jobletType, null, null, null);
+		Range<JobletRequestKey> range = new Range<>(key, true, key, true);
+		Config config = new Config().setIterateBatchSize(50);
+		for(JobletRequest jobletRequest : jobletNodes.jobletRequest().scan(range, config)){
+			if(jobletStatus == jobletRequest.getStatus()){
+				return true;
+			}
+		}
+		return false;
 	}
 
-	public JobletData getJobletData(Long jobletDataId){
-		// mysql has a bug that returns the lastest auto-increment row when queried for null
-		if(jobletDataId == null){
-			return null;
-		}// avoid querying for null
-		return jobletNodes.jobletData().get(new JobletDataKey(jobletDataId), null);
+	public JobletData getJobletDataForJobletRequest(JobletRequest joblet){
+		return jobletNodes.jobletData().get(joblet.getJobletDataKey(), null);
 	}
+
+	/*------------------- update ----------------------------*/
+
+	public void setJobletRequestsRunningOnServerToCreated(JobletType<?> jobletType, String serverName){
+		Iterable<JobletRequest> jobletRequests = jobletNodes.jobletRequest().scan(null, null);
+		String serverNamePrefix = serverName + "_";//don't want joblet1 to include joblet10
+		List<JobletRequest> jobletRequestsToReset = JobletRequest.filterByTypeStatusReservedByPrefix(jobletRequests,
+				jobletType, JobletStatus.running, serverNamePrefix);
+		logger.warn("found "+DrCollectionTool.size(jobletRequestsToReset)+" jobletRequests to reset");
+
+		for(JobletRequest jobletRequest : jobletRequestsToReset){
+			handleJobletInterruption(jobletRequest);
+		}
+	}
+
+	/*--------------------- delete -----------------------*/
+
+	public void deleteJobletRequestAndData(JobletRequest request){
+		jobletNodes.jobletRequest().delete(request.getKey(), null);
+		jobletNodes.jobletData().delete(request.getJobletDataKey(), null);
+	}
+
+	public void deleteJobletDatasForJobletRequests(Collection<JobletRequest> jobletRequests){
+		List<JobletDataKey> jobletDataKeys = StreamTool.map(jobletRequests, JobletRequest::getJobletDataKey);
+		jobletNodes.jobletData().deleteMulti(jobletDataKeys, null);
+	}
+
+	/*--------------------- lifecycle events -----------------------*/
 
 	public void handleJobletInterruption(JobletRequest jobletRequest){
 		jobletRequest.setStatus(JobletStatus.created);
@@ -114,34 +158,10 @@ public class JobletService{
 	}
 
 	public void handleJobletCompletion(JobletRequest jobletRequest){
-		jobletNodes.jobletRequest().delete(jobletRequest.getKey(), null);
-		jobletNodes.jobletData().delete(jobletRequest.getJobletDataKey(), null);
+		deleteJobletRequestAndData(jobletRequest);
 	}
 
-	public void submitJobletPackages(Collection<JobletPackage> jobletPackages){
-		String typeString = DrCollectionTool.getFirst(jobletPackages).getJoblet().getTypeString();
-		PhaseTimer timer = new PhaseTimer("insert " + jobletPackages.size() + typeString);
-		jobletNodes.jobletData().putMulti(JobletPackage.getJobletDatas(jobletPackages), null);
-		timer.add("inserted JobletData");
-		jobletPackages.forEach(JobletPackage::updateJobletDataIdReference);
-		jobletNodes.jobletRequest().putMulti(JobletPackage.getJobletRequests(jobletPackages), null);
-		timer.add("inserted JobletRequest");
-		if(timer.getElapsedTimeBetweenFirstAndLastEvent() > 200){
-			logger.warn("slow insert joblets:{}", timer);
-		}
-	}
-
-	public void setJobletRequestsRunningOnServerToCreated(JobletType<?> jobletType, String serverName){
-		Iterable<JobletRequest> jobletRequests = jobletNodes.jobletRequest().scan(null, null);
-		String serverNamePrefix = serverName + "_";//don't want joblet1 to include joblet10
-		List<JobletRequest> jobletRequestsToReset = JobletRequest.filterByTypeStatusReservedByPrefix(jobletRequests,
-				jobletType, JobletStatus.running, serverNamePrefix);
-		logger.warn("found "+DrCollectionTool.size(jobletRequestsToReset)+" jobletRequests to reset");
-
-		for(JobletRequest jobletRequest : jobletRequestsToReset){
-			handleJobletInterruption(jobletRequest);
-		}
-	}
+	/*--------------------- summaries -----------------------*/
 
 	public List<JobletSummary> getJobletSummaries(boolean slaveOk){
 		Iterable<JobletRequest> scanner = jobletNodes.jobletRequest().scan(null, new Config().setSlaveOk(slaveOk));
@@ -150,22 +170,5 @@ public class JobletService{
 
 	public List<JobletSummary> getJobletSummariesForTable(String whereStatus, boolean includeQueueId){
 		return datarouter.run(new GetJobletRequestStatuses(whereStatus, includeQueueId, datarouter, jobletNodes));
-	}
-
-	public boolean jobletRequestExistsWithTypeAndStatus(JobletType<?> jobletType, JobletStatus jobletStatus){
-		JobletRequestKey key = new JobletRequestKey(jobletType, null, null, null);
-		Range<JobletRequestKey> range = new Range<>(key, true, key, true);
-		Config config = new Config().setIterateBatchSize(50);
-		for(JobletRequest jobletRequest : jobletNodes.jobletRequest().scan(range, config)){
-			if(jobletStatus == jobletRequest.getStatus()){
-				return true;
-			}
-		}
-		return false;
-	}
-
-	public void deleteJobletDatasForJoblets(Collection<JobletRequest> jobletRequests){
-		List<JobletDataKey> jobletDataKeys = StreamTool.map(jobletRequests, JobletRequest::getJobletDataKey);
-		jobletNodes.jobletData().deleteMulti(jobletDataKeys, null);
 	}
 }
