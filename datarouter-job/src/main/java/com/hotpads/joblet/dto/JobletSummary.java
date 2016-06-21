@@ -6,22 +6,22 @@ import java.util.Date;
 import com.hotpads.datarouter.util.core.DrDateTool;
 import com.hotpads.datarouter.util.core.DrNumberTool;
 
-/*************** inner class ********************************/
 
 public class JobletSummary{
-	public Integer executionOrder;
-	public String status;
-	public String typeString;
-	public String queueId;
-	public Integer numFailures;
-	public Integer numType;
-	public Integer sumItems;
-	public Float avgItems;
-	public Integer sumTasks;
-	public Float avgTasks;
-	public Date firstCreated;
-	public Date firstReserved;
-	public boolean expandable = false;
+	private Integer executionOrder;
+	private String status;
+	private String typeString;
+	private String queueId;
+	private Integer numFailures;
+	private Integer numType;
+	private Integer sumItems;
+	private Float avgItems;
+	private Integer sumTasks;
+	private Float avgTasks;
+	private Date firstCreated;
+	private Date firstReserved;
+	private boolean expandable = false;
+
 
 	public JobletSummary(String typeString, Integer sumItems, Long created){
 		this.typeString = typeString;
@@ -53,6 +53,9 @@ public class JobletSummary{
 		}
 	}
 
+
+	/*------------------------ methods --------------------------*/
+
 	public boolean isEmpty(){
 		return DrNumberTool.isEmpty(numType);
 	}
@@ -71,19 +74,19 @@ public class JobletSummary{
 		return DrDateTool.getAgoString(this.firstReserved);
 	}
 
+
+	/*----------------------- Object ----------------------*/
+
 	@Override
 	public String toString() {
-		return "JobletSummary [avgItems=" + avgItems + ", avgTasks="
-				+ avgTasks + ", executionOrder=" + executionOrder
-				+ ", firstCreated=" + firstCreated + ", firstReserved="
-				+ firstReserved + ", numFailures=" + numFailures
-				+ ", numType=" + numType + ", queueId=" + queueId
-				+ ", status=" + status + ", sumItems=" + sumItems
+		return "JobletSummary [avgItems=" + avgItems + ", avgTasks=" + avgTasks + ", executionOrder=" + executionOrder
+				+ ", firstCreated=" + firstCreated + ", firstReserved=" + firstReserved + ", numFailures=" + numFailures
+				+ ", numType=" + numType + ", queueId=" + queueId + ", status=" + status + ", sumItems=" + sumItems
 				+ ", sumTasks=" + sumTasks + ", type=" + typeString + "]";
 	}
 
 
-	/****************************** get/set **********************************/
+	/*-------------------- get/set --------------------*/
 
 	public Integer getExecutionOrder() {
 		return executionOrder;
