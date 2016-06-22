@@ -2,9 +2,14 @@ package com.hotpads.joblet.dto;
 
 import java.math.BigInteger;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import com.hotpads.datarouter.util.core.DrDateTool;
 import com.hotpads.datarouter.util.core.DrNumberTool;
+import com.hotpads.joblet.databean.JobletRequest;
+import com.hotpads.joblet.enums.JobletType;
 
 
 public class JobletSummary{
@@ -50,6 +55,15 @@ public class JobletSummary{
 			}
 		}catch(Exception e){
 			throw new IllegalArgumentException(e);
+		}
+	}
+
+	/*------------------------ static ---------------------------*/
+
+	public static List<JobletSummary> fromJobletRequests(Iterable<JobletRequest> requests){
+		Map<JobletType<?>,Map<Integer,List<JobletSummary>>> results = new TreeMap<>();
+		for(JobletRequest request : requests){
+			if(!results.containsKey(request.getJob))
 		}
 	}
 
