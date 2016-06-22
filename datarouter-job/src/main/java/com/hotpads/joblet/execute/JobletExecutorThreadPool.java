@@ -21,6 +21,9 @@ import com.hotpads.joblet.execute.JobletExecutorThread.JobletExecutorThreadFacto
 public class JobletExecutorThreadPool {
 	private static final Logger logger = LoggerFactory.getLogger(JobletExecutorThreadPool.class);
 
+	private static final ThreadGroup jobletThreadGroup = new ThreadGroup("joblet");
+
+
 	@Singleton
 	public static class JobletExecutorThreadPoolFactory{
 		@Inject
@@ -32,25 +35,21 @@ public class JobletExecutorThreadPool {
 			return new JobletExecutorThreadPool(threadPoolSize, jobletType, jobletThrottle,
 					jobletExecutorThreadFactory);
 		}
-
 	}
 
-	private static final ThreadGroup jobletThreadGroup = new ThreadGroup("joblet");
 
-	ReentrantLock jobAssignmentLock = new ReentrantLock();
-	int numThreadsToLayOff = 0;
-
-	private Condition saturatedCondition = jobAssignmentLock.newCondition();
-	private BlockingQueue<JobletExecutorThread> waitingExecutorThreads = new LinkedBlockingQueue<>();
-	private List<JobletExecutorThread> runningExecutorThreads = new ArrayList<>();
-	private List<JobletExecutorThread> allExecutorThreads = new ArrayList<>();
-	private int numThreads;
-	private ThreadGroup threadGroup;
-
+	private final ReentrantLock jobAssignmentLock = new ReentrantLock();
+	private final Condition saturatedCondition = jobAssignmentLock.newCondition();
+	private final BlockingQueue<JobletExecutorThread> waitingExecutorThreads = new LinkedBlockingQueue<>();
+	private final List<JobletExecutorThread> runningExecutorThreads = new ArrayList<>();
+	private final List<JobletExecutorThread> allExecutorThreads = new ArrayList<>();
+	private final ThreadGroup threadGroup;
 	private final JobletType<?> jobletType;
-
 	private final JobletThrottle jobletThrottle;
 	private final JobletExecutorThreadFactory jobletExecutorThreadFactory;
+
+	private int numThreadsToLayOff = 0;
+	private int numThreads;
 
 	private JobletExecutorThreadPool(Integer threadPoolSize, JobletType<?> jobletType, JobletThrottle jobletThrottle,
 			JobletExecutorThreadFactory jobletExecutorThreadFactory) {
@@ -61,15 +60,7 @@ public class JobletExecutorThreadPool {
 		resize(threadPoolSize);
 	}
 
-	public Lock getJobAssignmentLock() {
-		return jobAssignmentLock ;
-	}
-
-	public Condition getSaturatedCondition() {
-		return saturatedCondition;
-	}
-
-	public void assignJoblet(JobletPackage jobletPackage) {
+	public void assignJobletPackage(JobletPackage jobletPackage) {
 		jobAssignmentLock.lock();
 		try{
 			JobletExecutorThread thread = waitingExecutorThreads.poll();
@@ -120,18 +111,18 @@ public class JobletExecutorThreadPool {
 			removeExecutorThreadFromPool(threadToLayOff);
 			return;
 		}
-
 		//mark a running one to die after current job
 		numThreadsToLayOff++;
 	}
-	void removeExecutorThreadFromPool(JobletExecutorThread thread) {
+
+	public void removeExecutorThreadFromPool(JobletExecutorThread thread) {
 		waitingExecutorThreads.remove(thread);
 		runningExecutorThreads.remove(thread);
 		allExecutorThreads.remove(thread);
 		thread.interrupt();
 	}
 
-	void addNewExecutorThreadToPool() {
+	public void addNewExecutorThreadToPool() {
 		if(numThreadsToLayOff > 0){
 			numThreadsToLayOff --;
 			return;
@@ -142,7 +133,7 @@ public class JobletExecutorThreadPool {
 		submitIdleThread(newThread);
 	}
 
-	void submitIdleThread(JobletExecutorThread thread){
+	public void submitIdleThread(JobletExecutorThread thread){
 		waitingExecutorThreads.add(thread);
 		runningExecutorThreads.remove(thread);
 		saturatedCondition.signal();
@@ -182,13 +173,30 @@ public class JobletExecutorThreadPool {
 	}
 
 	public List<JobletExecutorThread> getRunningJobletExecutorThreads() {
-		List<JobletExecutorThread> runningJobletThreads = new ArrayList<>(runningExecutorThreads);
-		return runningJobletThreads;
+		return new ArrayList<>(runningExecutorThreads);
 	}
 
 	public List<JobletExecutorThread> getWaitingJobletExecutorThreads(){
-		List<JobletExecutorThread> waitingJobletThreads = new ArrayList<>(waitingExecutorThreads);
-		return waitingJobletThreads;
+		return new ArrayList<>(waitingExecutorThreads);
+	}
+
+	public void decrementNumThreadsToLayoff(){
+		--numThreadsToLayOff;
+	}
+
+
+	/*-------------------- get/set -----------------------*/
+
+	public int getNumThreadsToLayOff(){
+		return numThreadsToLayOff;
+	}
+
+	public Lock getJobAssignmentLock() {
+		return jobAssignmentLock ;
+	}
+
+	public Condition getSaturatedCondition() {
+		return saturatedCondition;
 	}
 
 }

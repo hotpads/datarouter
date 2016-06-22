@@ -14,7 +14,6 @@ import com.hotpads.job.trigger.JobSettings;
 import com.hotpads.joblet.JobletPackage;
 import com.hotpads.joblet.JobletService;
 import com.hotpads.joblet.JobletSettings;
-import com.hotpads.joblet.databean.JobletData;
 import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.enums.JobletType;
 import com.hotpads.joblet.execute.JobletExecutorThreadPool.JobletExecutorThreadPoolFactory;
@@ -139,16 +138,16 @@ public class ParallelJobletProcessor{
 				return;
 			}
 			threadPool.resize(getNumThreads());
-			PhaseTimer pt = new PhaseTimer();
+			PhaseTimer timer = new PhaseTimer();
 			jobletScheduler.blockUntilReadyForNewJoblet();
-			JobletPackage jobletPackage = getJoblet(counter++);
-			pt.add("acquired");
-			JobletRequest joblet = jobletPackage.getJoblet();
-			if(joblet == null){
+			JobletPackage jobletPackage = getJobletPackage(counter++);
+			timer.add("acquired");
+			if(jobletPackage == null){
 				return;
 			}
-			joblet.setTimer(pt);
-			jobletScheduler.submitJoblet(jobletPackage);
+			JobletRequest jobletRequest = jobletPackage.getJoblet();
+			jobletRequest.setTimer(timer);
+			jobletScheduler.submitJobletPackage(jobletPackage);
 		}
 
 	}
@@ -179,7 +178,7 @@ public class ParallelJobletProcessor{
 		return threadPool.getWaitingJobletExecutorThreads();
 	}
 
-	private final JobletPackage getJoblet(int counter){
+	private final JobletPackage getJobletPackage(int counter){
 		String reservedBy = getReservedByString(counter);
 		JobletRequest jobletRequest = null;
 		jobletThrottle.acquirePermits(jobletType.getCpuPermits(), jobletType.getMemoryPermits());
@@ -189,14 +188,14 @@ public class ParallelJobletProcessor{
 		}catch(Exception e){
 			logger.warn("", e);
 		}
-		JobletData jobletData = null;
+		JobletPackage jobletPackage = null;
 		if(jobletRequest != null){
 			jobletRequest.setInterrupted(interrupted);
-			jobletData = jobletService.getJobletData(jobletRequest);
+			jobletPackage = jobletService.getJobletPackageForJobletRequest(jobletRequest);
 		}else{
 			jobletThrottle.releasePermits(jobletType.getCpuPermits(), jobletType.getMemoryPermits());
 		}
-		return new JobletPackage(jobletRequest, jobletData);
+		return jobletPackage;
 	}
 
 }

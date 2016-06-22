@@ -15,17 +15,17 @@ public class JobletSchedulerImp implements JobletScheduler{
 
 	@Override
 	public void blockUntilReadyForNewJoblet(){
-		assignJobletToThreadPool(null);
+		assignJobletPackageToThreadPool(null);
 		// TODO optional - if we instead fetch a joblet then block on adding, it will increase overall throughput,
 		// but a joblet may be reserved and not processed for a time.
 	}
 
 	@Override
-	public void submitJoblet(JobletPackage jobletPackage){
-		assignJobletToThreadPool(jobletPackage);
+	public void submitJobletPackage(JobletPackage jobletPackage){
+		assignJobletPackageToThreadPool(jobletPackage);
 	}
 
-	private void assignJobletToThreadPool(JobletPackage jobletPackage){
+	private void assignJobletPackageToThreadPool(JobletPackage jobletPackage){
 		Lock lock = threadPool.getJobAssignmentLock();
 		lock.lock();
 		try{
@@ -37,7 +37,7 @@ public class JobletSchedulerImp implements JobletScheduler{
 			if(jobletPackage == null){
 				return;
 			}
-			threadPool.assignJoblet(jobletPackage);
+			threadPool.assignJobletPackage(jobletPackage);
 		}catch(InterruptedException e){
 			return;
 		}finally{

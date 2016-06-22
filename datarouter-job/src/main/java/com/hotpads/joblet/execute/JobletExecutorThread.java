@@ -207,14 +207,14 @@ public class JobletExecutorThread extends Thread{
 	}
 
 	private void recycleThread(){
-		jobletExecutorThreadPool.jobAssignmentLock.lock();
+		jobletExecutorThreadPool.getJobAssignmentLock().lock();
 		try{
 			if(isInterrupted()){
 				jobletExecutorThreadPool.removeExecutorThreadFromPool(this);
 				shutdown = true;
 				logger.warn(getId() + " is interrupted");
-			}else if(jobletExecutorThreadPool.numThreadsToLayOff > 0){
-				jobletExecutorThreadPool.numThreadsToLayOff--;
+			}else if(jobletExecutorThreadPool.getNumThreadsToLayOff() > 0){
+				jobletExecutorThreadPool.decrementNumThreadsToLayoff();
 				jobletExecutorThreadPool.removeExecutorThreadFromPool(this);
 				shutdown = true;
 				logger.debug(getId() + " is laid off");
@@ -229,7 +229,7 @@ public class JobletExecutorThread extends Thread{
 			logger.error("", e);
 			throw e;
 		}finally{
-			jobletExecutorThreadPool.jobAssignmentLock.unlock();
+			jobletExecutorThreadPool.getJobAssignmentLock().unlock();
 		}
 	}
 
@@ -280,7 +280,7 @@ public class JobletExecutorThread extends Thread{
 
 	public void killMe(boolean replace) {
 		//called from other threads to kill this one.
-		jobletExecutorThreadPool.jobAssignmentLock.lock();
+		jobletExecutorThreadPool.getJobAssignmentLock().lock();
 		try{
 			jobletExecutorThreadPool.removeExecutorThreadFromPool(this);
 			shutdown = true;
@@ -290,7 +290,7 @@ public class JobletExecutorThread extends Thread{
 				jobletExecutorThreadPool.addNewExecutorThreadToPool();
 			}
 		}finally{
-			jobletExecutorThreadPool.jobAssignmentLock.unlock();
+			jobletExecutorThreadPool.getJobAssignmentLock().unlock();
 		}
 	}
 
