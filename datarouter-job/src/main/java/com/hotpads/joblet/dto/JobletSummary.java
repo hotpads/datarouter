@@ -76,8 +76,8 @@ public class JobletSummary{
 		requests.forEach(request -> {
 			ComparablePair<String,JobletStatus> queueIdStatus = new ComparablePair<>(request.getQueueId(), request
 					.getStatus());
-			summaryByQueueIdStatus.putIfAbsent(queueIdStatus, new JobletSummary(request));
-			JobletSummary summary = summaryByQueueIdStatus.get(queueIdStatus);
+			JobletSummary summary = summaryByQueueIdStatus.computeIfAbsent(queueIdStatus, a -> new JobletSummary(
+					request));
 			Preconditions.checkArgument(summary.equalsTypeExecutionOrderQueueIdStatus(request));
 			summary.include(request);
 		});
