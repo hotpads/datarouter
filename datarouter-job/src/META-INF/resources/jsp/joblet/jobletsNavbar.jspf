@@ -62,12 +62,6 @@
 					</ul>
 				</li>
 			</ul>
-			<ul class="nav navbar-nav navbar-right">
-				<c:if test="${expanded}">
-					<c:set var="expandBtnClass" value="active" />
-				</c:if>
-				<li class="${expandBtnClass}"><a href="?submitAction=showJoblets&expanded=${!expanded}">Expand queues</a></li>
-			</ul>
 		</div>
 	</div>
 </nav>
