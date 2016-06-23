@@ -72,12 +72,10 @@
 						</td>
 						<td>${s.numType}</td>
 						<td>
-							<a href="joblets/queues?jobletType=${s.typeString}&executionOrder=${s.executionOrder}">${s.numQueueIds} queues</a>
+							<c:if test="${s.numQueueIds > 0}">
+								<a href="joblets/queues?jobletType=${s.typeString}&executionOrder=${s.executionOrder}">${s.numQueueIds} queues</a>
+							</c:if>
 						</td>
-						<c:if test="${empty s.queueId or empty queuesById[s.queueId]}">
-							<td></td>
-						</c:if>
-						<td>${s.queueId}</td>
 						<td>${s.firstReservedAgo}</td>
 						<td>${s.firstCreatedAgo}</td>
 						<td>${s.sumItems}</td>
