@@ -6,18 +6,6 @@
 	<%@ include file="/jsp/generic/datarouterHead.jsp" %>
 	<script>
 	require(['jquery'], function(){
-		$(document).ready(function() {
-			$(".jobletTable tr[class^='aggregatedSummaryRow']").each(function() {
-				//add function to tr
-				$(this).click(function() {
-					//toggle all elements to next Level1 class
-					$(this).nextUntil("[class^='aggregatedSummaryRow']").toggle();
-				});
-			});
-			$(".jobletTable tr[class^='detailedSummaryRow']").each(function() {
-				$(this).hide();
-			});
-		});
 		var eventData = {
 			<c:forEach items="${runningJobletThreads}" var="jobletThreads">
 				<c:forEach items="${jobletThreads.value}" var="jobletThread">
@@ -48,12 +36,6 @@
 		}
 	});
 	</script>
-	<style>
-		.includesMultipleQueues{
-			background-color: #F0F8FF;
-			cursor: pointer;
-		}
-	</style>
 </head>
 <body>
 	<%@ include file="/jsp/menu/common-navbar.jsp" %>
@@ -82,16 +64,7 @@
 					<th>avgTasks</th>
 				</tr>
 				<c:forEach items="${summaries}" var="s">
-					<c:choose>
-						<c:when test="${expanded || lastType!=s.typeString || lastExecutionOrder!=s.executionOrder}">
-							<c:set var="lastExecutionOrder" value="${s.executionOrder}"/>
-							<c:set var="lastType" value="${s.typeString}"/>
-							<tr class="aggregatedSummaryRow <c:if test="${s.expandable}">includesMultipleQueues</c:if>">
-						</c:when>
-						<c:otherwise>
-							<tr class="detailedSummaryRow">
-						</c:otherwise>
-					</c:choose>
+					<tr>
 						<td>${s.numFailures}</td>
 						<td>${s.executionOrder}</td>
 						<td>${s.status}</td>
