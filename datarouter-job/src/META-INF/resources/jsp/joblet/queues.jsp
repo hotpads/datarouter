@@ -15,10 +15,9 @@
 			<table class="sortable table table-bordered table-condensed" style="border-collapse:collapse;">
 				<tr>
 					<th>queueId</th>
-					<th>numFailures</th>
 					<th>status</th>
-					<th>numType</th>
-					<th>tickets</th>
+					<th>numFailures</th>
+					<th>numJoblets</th>
 					<th>firstReserved</th>
 					<th>firstCreated</th>
 					<th>sumItems</th>
@@ -29,9 +28,8 @@
 				<c:forEach items="${summaries}" var="s">
 					<tr>
 						<td>${s.queueId}</td>
-						<td>${s.numFailures}</td>
-						<td>${s.executionOrder}</td>
 						<td>${s.status}</td>
+						<td>${s.numFailures}</td>
 						<td>${s.numType}</td>
 						<td>${s.firstReservedAgo}</td>
 						<td>${s.firstCreatedAgo}</td>

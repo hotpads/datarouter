@@ -34,7 +34,6 @@ public class JobletHandler extends BaseHandler{
 		URL_JOBLETS_IN_CONTEXT = DatarouterJobDispatcher.URL_DATAROUTER + DatarouterJobDispatcher.JOBLETS,
 
 		PARAM_whereStatus = "whereStatus",
-		PARAM_expanded = "expanded",
 
 		JSP_joblets = "/jsp/joblet/joblets.jsp",
 		JSP_queues = "/jsp/joblet/queues.jsp",
@@ -63,11 +62,6 @@ public class JobletHandler extends BaseHandler{
 	@Override
 	@Handler
 	protected Mav handleDefault(){
-		return showJoblets();
-	}
-
-	@Handler
-	private Mav showJoblets(){
 		Mav mav = new Mav(JSP_joblets);
 		mav.put("minServers", jobletSettings.getMinJobletServers().getValue());
 		mav.put("maxServers", jobletSettings.getMaxJobletServers().getValue());
@@ -75,78 +69,13 @@ public class JobletHandler extends BaseHandler{
 		mav.put("runningJobletThreads", getRunningJobletThreads());
 		mav.put("waitingJobletThreads", getWaitingJobletThreads());
 		String whereStatus = params.optional(PARAM_whereStatus).orElse(null);
-		boolean expanded = params.optionalBoolean(PARAM_expanded, false);
 		if(DrStringTool.notEmpty(whereStatus)){
 			mav.put(PARAM_whereStatus, whereStatus);
 		}
-		mav.put("whereStatus", whereStatus);
-		List<JobletSummary> summaries = jobletService.getJobletSummariesForTable(whereStatus, true);
-		List<JobletSummary> combinedSummaries = new ArrayList<>();
-		if(!expanded){
-			int combinedIndex = 0;
-			JobletSummary condensedSummary = null;
-			for(JobletSummary summary : summaries){
-				if(condensedSummary == null){
-					condensedSummary = createCondensedSummary(summary);
-					combinedSummaries.add(summary);
-					continue;
-				}
-				if(!condensedSummary.getTypeString().equals(summary.getTypeString())
-						|| condensedSummary.getExecutionOrder().intValue() != summary.getExecutionOrder().intValue()){
-					if(condensedSummary.getNumType() != combinedSummaries.get(combinedIndex).getNumType()){
-						combinedSummaries.add(combinedIndex, condensedSummary);
-					}
-					combinedIndex = combinedSummaries.size();
-					combinedSummaries.add(summary);
-					condensedSummary = createCondensedSummary(summary);
-
-				}else{
-					condensedSummary.setNumType(condensedSummary.getNumType() + summary.getNumType());
-					condensedSummary.setSumItems(condensedSummary.getSumItems() + summary.getSumItems());
-					condensedSummary.setSumTasks(condensedSummary.getSumTasks() + summary.getSumTasks());
-					condensedSummary.setAvgItems(condensedSummary.getSumItems().floatValue() / condensedSummary
-							.getNumType());
-					condensedSummary.setAvgTasks(condensedSummary.getSumTasks().floatValue() / condensedSummary
-							.getNumType());
-					if(condensedSummary.getFirstCreated().after(summary.getFirstCreated())){
-						condensedSummary.setFirstCreated(summary.getFirstCreated());
-					}
-					if(summary.getFirstReserved() != null && condensedSummary.getFirstReserved() != null
-							&& summary.getFirstReserved().before(condensedSummary.getFirstReserved())){
-						condensedSummary.setFirstReserved(summary.getFirstReserved());
-					}
-					combinedSummaries.add(summary);
-				}
-			}
-			if(condensedSummary!= null
-					&& condensedSummary.getNumType() != combinedSummaries.get(combinedIndex).getNumType()){
-				combinedSummaries.add(combinedIndex, condensedSummary);
-			}
-			mav.put("summaries", combinedSummaries);
-		}else{
-			mav.put("summaries", summaries);
-		}
-		mav.put("expanded", expanded);
+		Stream<JobletRequest> allRequests = jobletNodes.jobletRequest().stream(null, null);
+		mav.put("summaries", JobletSummary.buildSummaries(allRequests));
 		mav.put("jobletTypes", jobletTypeFactory.getAllTypes());
-		//mav.addObject(jobletThrottle.get, value)
 		return mav;
-	}
-
-	private JobletSummary createCondensedSummary(JobletSummary baseSummary){
-		JobletSummary newCondensedSummary = new JobletSummary(baseSummary.getTypeString(), baseSummary.getSumItems(),
-				baseSummary.getFirstCreated().getTime());
-		newCondensedSummary.setNumType(baseSummary.getNumType());
-		newCondensedSummary.setSumTasks(baseSummary.getSumTasks());
-		newCondensedSummary.setAvgItems(baseSummary.getAvgItems());
-		newCondensedSummary.setAvgTasks(baseSummary.getAvgTasks());
-		newCondensedSummary.setExeuctionOrder(baseSummary.getExecutionOrder());
-		newCondensedSummary.setStatus(baseSummary.getStatus());
-		newCondensedSummary.setNumFailures(baseSummary.getNumFailures());
-		if(baseSummary.getFirstReserved() != null && newCondensedSummary.getFirstReserved() != null){
-			newCondensedSummary.setFirstReserved(baseSummary.getFirstReserved());
-		}
-		newCondensedSummary.setExpandable(true);
-		return newCondensedSummary;
 	}
 
 	@Handler

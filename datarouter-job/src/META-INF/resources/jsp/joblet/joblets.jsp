@@ -54,7 +54,6 @@
 					<th>status</th>
 					<th>type(click for queue/processed counts)</th>
 					<th>numType</th>
-					<th>tickets</th>
 					<th>queueId</th>
 					<th>firstReserved</th>
 					<th>firstCreated</th>
@@ -68,20 +67,12 @@
 						<td>${s.numFailures}</td>
 						<td>${s.executionOrder}</td>
 						<td>${s.status}</td>
-						<c:choose>
-							<c:when test="${s.status == 'created'}">
-								<td><a href="/analytics/counters?submitAction=viewCounters&webApps=All&servers=All&periods=300000&counters=Joblet%20queue%20length%20${s.typeString}&frequency=second&archive=databean%20300000">${s.typeString}</a></td>
-							</c:when>
-							<c:when test="${s.status == 'running'}">
-								<td><a href="/analytics/counters?submitAction=viewCounters&webApps=All&servers=All&periods=300000&counters=Joblet%20items%20processed%20${s.typeString}&frequency=second&archive=databean%20300000">${s.typeString}</a></td>
-							</c:when>
-							<c:otherwise>
-								<td>${s.typeString}</td>
-							</c:otherwise>
-						</c:choose>
+						<td>
+							<a href="/analytics/counters?submitAction=viewCounters&webApps=All&servers=All&periods=300000&counters=Joblet%20queue%20length%20${s.typeString}&frequency=second&archive=databean%20300000">${s.typeString}</a>
+						</td>
 						<td>${s.numType}</td>
 						<td>
-							<a href="joblets/queues?jobletType=${s.typeString}&executionOrder=${s.executionOrder}">queues</a>
+							<a href="joblets/queues?jobletType=${s.typeString}&executionOrder=${s.executionOrder}">${s.numQueueIds} queues</a>
 						</td>
 						<c:if test="${empty s.queueId or empty queuesById[s.queueId]}">
 							<td></td>
