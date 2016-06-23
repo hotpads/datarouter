@@ -107,17 +107,9 @@
 							</c:otherwise>
 						</c:choose>
 						<td>${s.numType}</td>
-						<c:if
-							test="${not empty s.queueId and not empty queuesById[s.queueId]}">
-							<td><a
-								href="?submitAction=alterQueueNumTickets&ref=showJoblets&whereStatus=${whereStatus}&queueId=${s.queueId}&numTickets=${s.numType}">=</a>
-								<a
-								href="?submitAction=alterQueueNumTickets&ref=showJoblets&whereStatus=${whereStatus}&queueId=${s.queueId}&diff=-1">-</a>
-								${queuesById[s.queueId].numTickets} <a
-								href="?submitAction=alterQueueNumTickets&ref=showJoblets&whereStatus=${whereStatus}&queueId=${s.queueId}&diff=1">+</a>
-								<a href="/listing-tools/feeds/edit/${s.queueId}">${queuesById[s.queueId].maxTickets}</a> 
-							</td>
-						</c:if>
+						<td>
+							<a href="joblets/queues?jobletType=${s.typeString}&executionOrder=${s.executionOrder}">queues</a>
+						</td>
 						<c:if test="${empty s.queueId or empty queuesById[s.queueId]}">
 							<td></td>
 						</c:if>
