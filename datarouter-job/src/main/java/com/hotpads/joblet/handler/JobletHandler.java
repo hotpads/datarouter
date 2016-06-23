@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import javax.inject.Inject;
 
@@ -18,6 +19,7 @@ import com.hotpads.joblet.JobletNodes;
 import com.hotpads.joblet.JobletService;
 import com.hotpads.joblet.JobletSettings;
 import com.hotpads.joblet.databean.JobletRequest;
+import com.hotpads.joblet.databean.JobletRequestKey;
 import com.hotpads.joblet.dto.JobletSummary;
 import com.hotpads.joblet.enums.JobletStatus;
 import com.hotpads.joblet.enums.JobletTypeFactory;
@@ -35,6 +37,7 @@ public class JobletHandler extends BaseHandler{
 		PARAM_expanded = "expanded",
 
 		JSP_joblets = "/jsp/joblet/joblets.jsp",
+		JSP_queues = "/jsp/joblet/queues.jsp",
 		JSP_threads = "/jsp/joblet/threads.jsp",
 	 	JSP_exceptions = "/jsp/joblet/jobletExceptions.jsp";
 
@@ -144,6 +147,17 @@ public class JobletHandler extends BaseHandler{
 		}
 		newCondensedSummary.setExpandable(true);
 		return newCondensedSummary;
+	}
+
+	@Handler
+	private Mav queues(String jobletType, int executionOrder){
+		Mav mav = new Mav(JSP_queues);
+		mav.put("jobletType", jobletType);
+		mav.put("executionOrder", executionOrder);
+		JobletRequestKey prefix = new JobletRequestKey(jobletType, executionOrder, null, null);
+		Stream<JobletRequest> requests = jobletNodes.jobletRequest().streamWithPrefix(prefix, null);
+		mav.put("summaries", JobletSummary.buildQueueSummaries(requests).values());
+		return mav;
 	}
 
 	@Handler

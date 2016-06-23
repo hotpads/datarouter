@@ -28,10 +28,10 @@ public class JobletRequestKey extends BasePrimaryKey<JobletRequestKey>{
 	public static final int DEFAULT_STRING_LENGTH = MySqlColumnType.MAX_LENGTH_VARCHAR;
 
 	@Column(length=DEFAULT_STRING_LENGTH)
-	private String type;
+	private String type;//TODO use StringEnumField<JobletType<?>>
 	private Integer executionOrder = Integer.MAX_VALUE;
 	@Column(length=50)
-	private Long created;
+	private Long created;//TODO rename createdMs or use Date
 	private Integer batchSequence = 0;//tie breaker for keys "created" in same millisecond
 
 	public static class FieldKeys{
@@ -50,7 +50,7 @@ public class JobletRequestKey extends BasePrimaryKey<JobletRequestKey>{
 				new IntegerField(FieldKeys.batchSequence, batchSequence));
 	}
 
-	/****************************** construct ********************************/
+	/*----------------------- construct -----------------------*/
 
 	JobletRequestKey(){
 	}
@@ -60,14 +60,26 @@ public class JobletRequestKey extends BasePrimaryKey<JobletRequestKey>{
 	}
 
 	public JobletRequestKey(JobletType<?> type, Integer executionOrder, Date created, Integer batchSequence){
-		this.type = type==null?null:type.getPersistentString();
+		this(type == null ? null : type.getPersistentString(),
+				executionOrder,
+				created == null ? null : created.getTime(),
+				batchSequence);
+	}
+
+	public JobletRequestKey(String typeString, Integer executionOrder, Long createdMs, Integer batchSequence){
+		this.type = typeString;
 		this.executionOrder = executionOrder;
-		this.created = created == null ? null : created.getTime();
+		this.created = createdMs;
 		this.batchSequence = batchSequence;
 	}
 
+	/*----------------------- methods ---------------------------*/
 
-	/*************************** get/set **********************************/
+	public Date getCreatedDate(){
+		return new Date(created);
+	}
+
+	/*----------------------- get/set -----------------------*/
 
 	public Long getCreated() {
 		return created;

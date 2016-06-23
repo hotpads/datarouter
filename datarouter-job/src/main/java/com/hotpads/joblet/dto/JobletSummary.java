@@ -1,32 +1,49 @@
 package com.hotpads.joblet.dto;
 
 import java.math.BigInteger;
+import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.TreeMap;
+import java.util.stream.Stream;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Preconditions;
+import com.hotpads.datarouter.util.core.DrComparableTool;
 import com.hotpads.datarouter.util.core.DrDateTool;
 import com.hotpads.datarouter.util.core.DrNumberTool;
 import com.hotpads.joblet.databean.JobletRequest;
-import com.hotpads.joblet.enums.JobletType;
 
 
 public class JobletSummary{
+	private static final Logger logger = LoggerFactory.getLogger(JobletSummary.class);
+
+	//key fields
 	private Integer executionOrder;
 	private String status;
 	private String typeString;
 	private String queueId;
-	private Integer numFailures;
-	private Integer numType;
-	private Integer sumItems;
-	private Float avgItems;
-	private Integer sumTasks;
-	private Float avgTasks;
+	//summary fields
+	//TODO use primitives
+	private Integer numFailures = 0;
+	private Integer numType = 0;
+	private Integer sumItems = 0;
+	private Float avgItems = 0F;//TODO delete and calculate on the fly
+	private Integer sumTasks = 0;
+	private Float avgTasks = 0F;//TODO delete and calculate on the fly
 	private Date firstCreated;
 	private Date firstReserved;
+	//for jsp
 	private boolean expandable = false;
 
+	public JobletSummary(JobletRequest request){
+		this.typeString = request.getTypeString();
+		this.executionOrder = request.getKey().getExecutionOrder();
+		this.queueId = request.getQueueId();
+	}
 
 	public JobletSummary(String typeString, Integer sumItems, Long created){
 		this.typeString = typeString;
@@ -60,15 +77,56 @@ public class JobletSummary{
 
 	/*------------------------ static ---------------------------*/
 
-	public static List<JobletSummary> fromJobletRequests(Iterable<JobletRequest> requests){
-		Map<JobletType<?>,Map<Integer,List<JobletSummary>>> results = new TreeMap<>();
-		for(JobletRequest request : requests){
-			if(!results.containsKey(request.getJob))
-		}
+	//group by queueId where all types and executionOrders are the same
+	public static Map<String,JobletSummary> buildQueueSummaries(Stream<JobletRequest> requests){
+		Map<String,JobletSummary> summaryByQueueId = new TreeMap<>();
+		requests.forEach(request -> {
+			logger.warn("adding {}", request.getKey());
+			summaryByQueueId.putIfAbsent(request.getQueueId(), new JobletSummary(request));
+			JobletSummary summary = summaryByQueueId.get(request.getQueueId());
+			Preconditions.checkArgument(summary.equalsTypeExecutionOrderQueueId(request));
+			summary.include(request);
+		});
+		return summaryByQueueId;
 	}
 
 
 	/*------------------------ methods --------------------------*/
+
+	public JobletSummary combineWith(JobletSummary other){
+		numFailures += other.getNumFailures();
+		numType += other.getNumType();
+		sumItems += other.getSumItems();
+		avgItems = sumItems / (float)numType;
+		sumTasks += other.getSumTasks();
+		avgTasks = sumTasks / (float)numType;
+		firstCreated = DrComparableTool.getFirst(Arrays.asList(firstCreated, other.getFirstCreated()));
+		firstReserved = DrComparableTool.getFirst(Arrays.asList(firstReserved, other.getFirstCreated()));
+		return this;
+	}
+
+	public JobletSummary include(JobletRequest request){
+		Preconditions.checkNotNull(request);
+		numFailures += DrNumberTool.nullSafe(request.getNumFailures());
+		++numType;
+		sumItems += request.getNumItems();
+		avgItems = sumItems / (float)numType;
+		sumTasks += request.getNumTasks();
+		avgTasks = sumTasks / (float)numType;
+		if(firstCreated == null || request.getKey().getCreatedDate().compareTo(firstCreated) < 0){
+			firstCreated = request.getKey().getCreatedDate();
+		}
+		if(firstReserved == null || request.getReservedAtDate().compareTo(firstReserved) < 0){
+			firstReserved = request.getReservedAtDate();
+		}
+		return this;
+	}
+
+	public boolean equalsTypeExecutionOrderQueueId(JobletRequest request){
+		return Objects.equals(typeString, request.getTypeString())
+				&& Objects.equals(executionOrder, request.getKey().getExecutionOrder())
+				&& Objects.equals(queueId, request.getQueueId());
+	}
 
 	public boolean isEmpty(){
 		return DrNumberTool.isEmpty(numType);

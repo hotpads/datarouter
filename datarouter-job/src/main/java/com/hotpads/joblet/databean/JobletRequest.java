@@ -3,6 +3,7 @@ package com.hotpads.joblet.databean;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -239,6 +240,10 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 			return "";
 		}
 		return DrDateTool.getAgoString(this.getKey().getCreated());
+	}
+
+	public Date getReservedAtDate(){
+		return reservedAt == null ? null : new Date(reservedAt);
 	}
 
     /*-------------------- get/set --------------------*/
