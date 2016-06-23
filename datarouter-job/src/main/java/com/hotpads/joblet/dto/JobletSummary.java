@@ -70,7 +70,8 @@ public class JobletSummary{
 	}
 
 	//group by queueId where all types and executionOrders are the same
-	public static Map<ComparablePair<String,JobletStatus>,JobletSummary> buildQueueSummaries(Stream<JobletRequest> requests){
+	public static Map<ComparablePair<String,JobletStatus>,JobletSummary> buildQueueSummaries(
+			Stream<JobletRequest> requests){
 		Map<ComparablePair<String,JobletStatus>,JobletSummary> summaryByQueueIdStatus = new TreeMap<>();
 		requests.forEach(request -> {
 			ComparablePair<String,JobletStatus> queueIdStatus = new ComparablePair<>(request.getQueueId(), request

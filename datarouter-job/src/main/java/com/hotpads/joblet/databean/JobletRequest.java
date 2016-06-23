@@ -126,7 +126,7 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 
 	/*-------------------- construct --------------------*/
 
-	JobletRequest(){
+	public JobletRequest(){
 		this.key = new JobletRequestKey(null, null, null);
 	}
 
