@@ -19,6 +19,7 @@ import com.hotpads.datarouter.util.core.DrDateTool;
 import com.hotpads.datarouter.util.core.DrNumberTool;
 import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.enums.JobletStatus;
+import com.hotpads.util.core.collections.ComparablePair;
 
 
 public class JobletSummary{
@@ -69,15 +70,17 @@ public class JobletSummary{
 	}
 
 	//group by queueId where all types and executionOrders are the same
-	public static Map<String,JobletSummary> buildQueueSummaries(Stream<JobletRequest> requests){
-		Map<String,JobletSummary> summaryByQueueId = new TreeMap<>();
+	public static Map<ComparablePair<String,JobletStatus>,JobletSummary> buildQueueSummaries(Stream<JobletRequest> requests){
+		Map<ComparablePair<String,JobletStatus>,JobletSummary> summaryByQueueIdStatus = new TreeMap<>();
 		requests.forEach(request -> {
-			summaryByQueueId.putIfAbsent(request.getQueueId(), new JobletSummary(request));
-			JobletSummary summary = summaryByQueueId.get(request.getQueueId());
-			Preconditions.checkArgument(summary.equalsTypeExecutionOrderQueueId(request));
+			ComparablePair<String,JobletStatus> queueIdStatus = new ComparablePair<>(request.getQueueId(), request
+					.getStatus());
+			summaryByQueueIdStatus.putIfAbsent(queueIdStatus, new JobletSummary(request));
+			JobletSummary summary = summaryByQueueIdStatus.get(queueIdStatus);
+			Preconditions.checkArgument(summary.equalsTypeExecutionOrderQueueIdStatus(request));
 			summary.include(request);
 		});
-		return summaryByQueueId;
+		return summaryByQueueIdStatus;
 	}
 
 
@@ -110,11 +113,12 @@ public class JobletSummary{
 		return !equalsTypeExecutionOrderStatus(request);
 	}
 
-	public boolean equalsTypeExecutionOrderQueueId(JobletRequest request){
+	public boolean equalsTypeExecutionOrderQueueIdStatus(JobletRequest request){
 		return request != null
 				&& Objects.equals(typeString, request.getTypeString())
 				&& Objects.equals(executionOrder, request.getKey().getExecutionOrder())
-				&& Objects.equals(queueId, request.getQueueId());
+				&& Objects.equals(queueId, request.getQueueId())
+				&& Objects.equals(status, request.getStatus());
 	}
 
 	public boolean isEmpty(){
