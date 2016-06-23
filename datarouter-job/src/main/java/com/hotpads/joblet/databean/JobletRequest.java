@@ -41,7 +41,6 @@ import com.hotpads.joblet.enums.JobletStatus;
 import com.hotpads.joblet.enums.JobletType;
 import com.hotpads.joblet.enums.JobletTypeFactory;
 import com.hotpads.util.core.profile.PhaseTimer;
-import com.hotpads.util.core.stream.StreamTool;
 import com.hotpads.util.datastructs.MutableBoolean;
 
 @Entity
@@ -219,8 +218,8 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 	}
 
 	public static List<JobletDataKey> getJobletDataKeys(List<JobletRequest> jobletRequests){
-		return StreamTool.stream(jobletRequests)
-				.map(jobletRequest -> new JobletDataKey(jobletRequest.getJobletDataId()))
+		return jobletRequests.stream()
+				.map(JobletRequest::getJobletDataKey)
 				.collect(Collectors.toList());
 	}
 
@@ -231,7 +230,7 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
     }
 
 	public JobletDataKey getJobletDataKey(){
-		return new JobletDataKey(this.jobletDataId);
+		return new JobletDataKey(jobletDataId);
 	}
 
 

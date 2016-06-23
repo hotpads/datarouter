@@ -68,12 +68,14 @@ public class JobletHandler extends BaseHandler{
 		mav.put("jobletStatuses", JobletStatus.values());
 		mav.put("runningJobletThreads", getRunningJobletThreads());
 		mav.put("waitingJobletThreads", getWaitingJobletThreads());
-		String whereStatus = params.optional(PARAM_whereStatus).orElse(null);
-		if(DrStringTool.notEmpty(whereStatus)){
-			mav.put(PARAM_whereStatus, whereStatus);
+		String statusString = params.optional(PARAM_whereStatus).orElse(null);
+		mav.put(PARAM_whereStatus, statusString);
+		Stream<JobletRequest> requests = jobletNodes.jobletRequest().stream(null, null);
+		if(DrStringTool.notEmpty(statusString)){
+			JobletStatus status = JobletStatus.fromPersistentStringStatic(statusString);
+			requests = requests.filter(request -> status == request.getStatus());
 		}
-		Stream<JobletRequest> allRequests = jobletNodes.jobletRequest().stream(null, null);
-		mav.put("summaries", JobletSummary.buildSummaries(allRequests));
+		mav.put("summaries", JobletSummary.buildSummaries(requests));
 		mav.put("jobletTypes", jobletTypeFactory.getAllTypes());
 		return mav;
 	}
