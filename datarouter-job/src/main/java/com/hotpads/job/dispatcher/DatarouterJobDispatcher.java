@@ -25,7 +25,7 @@ public class DatarouterJobDispatcher extends BaseDispatcher{
 		//All urls must start with URL_DATAROUTER
 		handle(URL_DATAROUTER + TRIGGERS).withHandler(JobToTriggerHandler.class);
 		handle(URL_DATAROUTER + LONG_RUNNING_TASKS).withHandler(LongRunningTasksHandler.class);
-		handle(URL_DATAROUTER + JOBLETS).withHandler(JobletHandler.class);
+		handleDir(URL_DATAROUTER + JOBLETS).withHandler(JobletHandler.class);
 		handle(URL_DATAROUTER + JOBLET_SCALING).withHandler(JobletScalingHandler.class);
 	}
 
