@@ -1,7 +1,5 @@
 package com.hotpads.datarouter.storage.field.imp;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.slf4j.Logger;
@@ -73,13 +71,6 @@ public class DateField extends BasePrimitiveField<Date>{
 		if(DrStringTool.isEmpty(s) || s.equals("null")){
 			return null;
 		}
-		String fmt = "E MMM dd HH:mm:ss z yyyy";
-		try{
-			Date parsed = new SimpleDateFormat(fmt).parse(s);
-			return parsed;
-		}catch(ParseException e){
-			logger.error("wrong date format s=" + s);
-		}
 		return DrDateTool.parseUserInputDate(s,null);
 	}
 
@@ -105,9 +96,13 @@ public class DateField extends BasePrimitiveField<Date>{
 	public static class DateFieldTester{
 		@Test
 		public void testParseStringEncodedValueButDoNotSet(){
-			String dateStr = "Mon Jun 22 00:00:00 PDT 2015";
+			String dateStr = "2016-06-22T19:20:14Z";
+			String dateStr2 = "Mon Jun 22 00:00:00 PDT 2015";
 			DateField field = new DateField("test", null);
 			Date date = field.parseStringEncodedValueButDoNotSet(dateStr);
+			Assert.assertEquals(date.getTime(), 1466648414000L);
+			Date date2 = field.parseStringEncodedValueButDoNotSet(dateStr2);
+			Assert.assertEquals(date2.getTime(), 1434956400000L);
 			Assert.assertNotNull(date);
 		}
 	}
