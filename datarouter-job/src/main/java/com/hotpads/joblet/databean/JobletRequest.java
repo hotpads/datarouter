@@ -3,6 +3,7 @@ package com.hotpads.joblet.databean;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -40,7 +41,6 @@ import com.hotpads.joblet.enums.JobletStatus;
 import com.hotpads.joblet.enums.JobletType;
 import com.hotpads.joblet.enums.JobletTypeFactory;
 import com.hotpads.util.core.profile.PhaseTimer;
-import com.hotpads.util.core.stream.StreamTool;
 import com.hotpads.util.datastructs.MutableBoolean;
 
 @Entity
@@ -124,9 +124,9 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 	}
 
 
-	/************************* construct ********************************/
+	/*-------------------- construct --------------------*/
 
-	JobletRequest(){
+	public JobletRequest(){
 		this.key = new JobletRequestKey(null, null, null);
 	}
 
@@ -135,7 +135,7 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 		this.restartable = restartable;
 	}
 
-	/******************** databean ************************************/
+	/*-------------------- databean --------------------*/
 
 	@Override
 	public Class<JobletRequestKey> getKeyClass(){
@@ -147,15 +147,7 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 		return key;
 	}
 
-    /*********************************** methods ***************************/
-
-    public int getMaxFailures(){
-    	return 2;
-    }
-
-	public JobletDataKey getJobletDataKey(){
-		return new JobletDataKey(this.jobletDataId);
-	}
+	/*----------------------------- static ----------------------------*/
 
 	public static List<JobletSummary> getJobletCountsCreatedByType(JobletTypeFactory jobletTypeFactory,
 			Iterable<JobletRequest> scanner){
@@ -225,6 +217,23 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 		return oldest;
 	}
 
+	public static List<JobletDataKey> getJobletDataKeys(List<JobletRequest> jobletRequests){
+		return jobletRequests.stream()
+				.map(JobletRequest::getJobletDataKey)
+				.collect(Collectors.toList());
+	}
+
+    /*-------------------- methods --------------------*/
+
+    public int getMaxFailures(){
+    	return 2;
+    }
+
+	public JobletDataKey getJobletDataKey(){
+		return new JobletDataKey(jobletDataId);
+	}
+
+
 	public String getCreatedAgo(){
 		if(this.getKey().getCreated() == null){
 			return "";
@@ -232,13 +241,11 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 		return DrDateTool.getAgoString(this.getKey().getCreated());
 	}
 
-	public static List<JobletDataKey> getJobletDataKeys(List<JobletRequest> jobletRequests){
-		return StreamTool.stream(jobletRequests)
-				.map(jobletRequest -> new JobletDataKey(jobletRequest.getJobletDataId()))
-				.collect(Collectors.toList());
+	public Date getReservedAtDate(){
+		return reservedAt == null ? null : new Date(reservedAt);
 	}
 
-    /********************************** getters/setters *******************************/
+    /*-------------------- get/set --------------------*/
 
 	public String getReservedBy() {
 		return reservedBy;
@@ -276,10 +283,6 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 		return restartable;
 	}
 
-	public void setRestartable(Boolean restartable) {
-		this.restartable = restartable;
-	}
-
 	public Integer getNumTasks() {
 		return numTasks;
 	}
@@ -304,20 +307,8 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 		this.numTimeouts = numTimeouts;
 	}
 
-	public void setExecutionOrder(Integer executionOrder){
-		this.key.setExecutionOrder(executionOrder);
-	}
-
 	public String getTypeString(){
 		return key.getType();
-	}
-
-	public void setType(JobletType<?> type) {
-		this.key.setType(type==null?null:type.getPersistentString());
-	}
-
-	public void setBatchSequence(Integer batchSequence){
-		this.getKey().setBatchSequence(batchSequence);
 	}
 
 	public Long getJobletDataId(){
@@ -358,10 +349,6 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 
 	public MutableBoolean getInterrupted(){
 		return interrupted;
-	}
-
-	public void setKey(JobletRequestKey key){
-		this.key = key;
 	}
 
 	public void setTimer(PhaseTimer timer){

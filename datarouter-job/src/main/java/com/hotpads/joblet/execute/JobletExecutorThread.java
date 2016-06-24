@@ -18,7 +18,6 @@ import com.hotpads.joblet.JobletFactory;
 import com.hotpads.joblet.JobletNodes;
 import com.hotpads.joblet.JobletPackage;
 import com.hotpads.joblet.JobletService;
-import com.hotpads.joblet.JobletSettings;
 import com.hotpads.joblet.databean.JobletData;
 import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.enums.JobletType;
@@ -41,13 +40,11 @@ public class JobletExecutorThread extends Thread{
 		@Inject
 		private JobletNodes jobletNodes;
 		@Inject
-		private JobletSettings jobletSettings;
-		@Inject
 		private JobletService jobletService;
 
 		public JobletExecutorThread create(JobletExecutorThreadPool jobletExecutorThreadPool, ThreadGroup threadGroup){
 			return new JobletExecutorThread(jobletExecutorThreadPool, threadGroup, jobletTypeFactory,
-					jobletFactory, jobletThrottle, jobletNodes, jobletSettings, jobletService);
+					jobletFactory, jobletThrottle, jobletNodes, jobletService);
 		}
 	}
 
@@ -58,7 +55,6 @@ public class JobletExecutorThread extends Thread{
 	private final JobletFactory jobletFactory;
 	private final JobletThrottle jobletThrottle;
 	private final JobletNodes jobletNodes;
-	private final JobletSettings jobletSettings;
 	private final JobletService jobletService;
 
 	private StratifiedStatistics stats = new FixedTimeSpanStatistics(32); //45 min intervals
@@ -73,7 +69,7 @@ public class JobletExecutorThread extends Thread{
 
 	private JobletExecutorThread(JobletExecutorThreadPool jobletExecutorThreadPool, ThreadGroup threadGroup,
 			JobletTypeFactory jobletTypeFactory, JobletFactory jobletFactory, JobletThrottle jobletThrottle,
-			JobletNodes jobletNodes, JobletSettings jobletSettings, JobletService jobletService){
+			JobletNodes jobletNodes, JobletService jobletService){
 		super(threadGroup, threadGroup.getName() + " - idle");
 		this.jobletExecutorThreadPool = jobletExecutorThreadPool;
 		this.jobletTypeFactory = jobletTypeFactory;
@@ -81,7 +77,6 @@ public class JobletExecutorThread extends Thread{
 		this.jobletName = threadGroup.getName();
 		this.jobletThrottle = jobletThrottle;
 		this.jobletNodes = jobletNodes;
-		this.jobletSettings = jobletSettings;
 		this.jobletService = jobletService;
 	}
 
@@ -157,15 +152,14 @@ public class JobletExecutorThread extends Thread{
 		JobletRequest jobletRequest = jobletPackage.getJoblet();
 		PhaseTimer pt = jobletRequest.getTimer();
 		pt.add("waited for processing");
-		boolean rateLimited = jobletSettings.getRateLimited().getValue();
 		try{
 			runJoblet(jobletPackage);
 			pt.add("processed");
-			jobletService.handleJobletCompletion(jobletRequest, true, rateLimited);
+			jobletService.handleJobletCompletion(jobletRequest);
 			pt.add("completed");
 		}catch(JobInterruptedException e){
 			try{
-				jobletService.handleJobletInterruption(jobletRequest, rateLimited);
+				jobletService.handleJobletInterruption(jobletRequest);
 			}catch(Exception e1){
 				logger.error("", e1);
 			}
@@ -173,8 +167,7 @@ public class JobletExecutorThread extends Thread{
 		}catch(Exception e){
 			logger.error("", e);
 			try{
-				jobletService.handleJobletError(jobletRequest, rateLimited, e, jobletRequest.getClass()
-						.getSimpleName());
+				jobletService.handleJobletError(jobletRequest, e, jobletRequest.getClass().getSimpleName());
 				pt.add("failed");
 			}catch(Exception lastResort){
 				logger.error("", lastResort);
@@ -214,14 +207,14 @@ public class JobletExecutorThread extends Thread{
 	}
 
 	private void recycleThread(){
-		jobletExecutorThreadPool.jobAssignmentLock.lock();
+		jobletExecutorThreadPool.getJobAssignmentLock().lock();
 		try{
 			if(isInterrupted()){
 				jobletExecutorThreadPool.removeExecutorThreadFromPool(this);
 				shutdown = true;
 				logger.warn(getId() + " is interrupted");
-			}else if(jobletExecutorThreadPool.numThreadsToLayOff > 0){
-				jobletExecutorThreadPool.numThreadsToLayOff--;
+			}else if(jobletExecutorThreadPool.getNumThreadsToLayOff() > 0){
+				jobletExecutorThreadPool.decrementNumThreadsToLayoff();
 				jobletExecutorThreadPool.removeExecutorThreadFromPool(this);
 				shutdown = true;
 				logger.debug(getId() + " is laid off");
@@ -236,7 +229,7 @@ public class JobletExecutorThread extends Thread{
 			logger.error("", e);
 			throw e;
 		}finally{
-			jobletExecutorThreadPool.jobAssignmentLock.unlock();
+			jobletExecutorThreadPool.getJobAssignmentLock().unlock();
 		}
 	}
 
@@ -287,7 +280,7 @@ public class JobletExecutorThread extends Thread{
 
 	public void killMe(boolean replace) {
 		//called from other threads to kill this one.
-		jobletExecutorThreadPool.jobAssignmentLock.lock();
+		jobletExecutorThreadPool.getJobAssignmentLock().lock();
 		try{
 			jobletExecutorThreadPool.removeExecutorThreadFromPool(this);
 			shutdown = true;
@@ -297,7 +290,7 @@ public class JobletExecutorThread extends Thread{
 				jobletExecutorThreadPool.addNewExecutorThreadToPool();
 			}
 		}finally{
-			jobletExecutorThreadPool.jobAssignmentLock.unlock();
+			jobletExecutorThreadPool.getJobAssignmentLock().unlock();
 		}
 	}
 

@@ -3,6 +3,7 @@ package com.hotpads.datarouter.util;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -74,6 +75,9 @@ public class PercentFieldCodec{
 	}
 
 	private static String encodeFragment(String value){
+		if(value == null){
+			return "";//treat null as empty string since we must do that when decoding
+		}
 		try{
 			return URLEncoder.encode(value, StringByteTool.CHARSET_UTF8.toString());
 		}catch(UnsupportedEncodingException e){
@@ -101,6 +105,22 @@ public class PercentFieldCodec{
 	/*---------------- tests -------------------*/
 
 	public static class PercentFieldCodecTests{
+		@Test
+		public void testEncodeNulls(){
+			List<String> inputs = new ArrayList<>();
+			inputs.add(null);
+			inputs.add(null);
+			String encodedNulls = encode(inputs.stream());
+			Assert.assertEquals(encodedNulls, "/");
+		}
+
+		@Test
+		public void testDecodeEmptyStrings(){
+			String encoded = "//";
+			List<String> expected = Arrays.asList("", "", "");
+			List<String> decoded = decode(encoded);
+			Assert.assertEquals(decoded, expected);
+		}
 
 		@Test
 		public void testIndividualCharacters(){
