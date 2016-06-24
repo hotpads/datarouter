@@ -17,6 +17,7 @@ import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrDateTool;
 import com.hotpads.datarouter.util.core.DrNumberTool;
+import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.enums.JobletStatus;
 import com.hotpads.util.core.collections.ComparablePair;
@@ -89,7 +90,9 @@ public class JobletSummary{
 
 	public JobletSummary include(JobletRequest request){
 		Preconditions.checkNotNull(request);
-		queueIds.add(request.getQueueId());
+		if(DrStringTool.notEmpty(request.getQueueId())){
+			queueIds.add(request.getQueueId());
+		}
 		numFailures += DrNumberTool.nullSafe(request.getNumFailures());
 		++numType;
 		sumItems += request.getNumItems();
