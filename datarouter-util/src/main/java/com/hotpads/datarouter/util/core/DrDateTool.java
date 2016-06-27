@@ -86,10 +86,9 @@ public final class DrDateTool {
 			ordinalMatcher = ordinalPattern.matcher(strippedDate);
 		}
 		date = strippedDate;
-
 		String[] commonFormats =
-			{"yyyy MM dd hh mm ss","MM dd yy","MMM dd yy","MMMMM dd yy",
-				"MMMMM yyyy", "yyyyMMdd", "yyyyMM", "MMMMM dd"
+			{"E MMM dd hh mm ss z yyyy","yyyy MM dd'T'hh mm ss'Z'","yyyy MM dd hh mm ss","MM dd yy","MMM dd yy",
+					"MMMMM dd yy","MMMMM yyyy", "yyyyMMdd", "yyyyMM", "MMMMM dd"
 			};//"MM dd", "MMM dd","MMMMM dd", };
 
 		for(String fmt : commonFormats){

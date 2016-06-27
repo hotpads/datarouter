@@ -42,10 +42,15 @@ public class JobletPackage {
 
 	public static <P> JobletPackage create(JobletType<P> jobletType, int executionOrder, boolean restartable,
 			String queueId, P params){
+		int batchSequence = RandomTool.nextPositiveInt();
+		return createWithBatchSequence(jobletType, executionOrder, batchSequence, restartable, queueId, params);
+	}
+
+	public static <P> JobletPackage createWithBatchSequence(JobletType<P> jobletType, int executionOrder,
+			int batchSequence, boolean restartable, String queueId, P params){
 		JobletCodec<P> codec = jobletType.getCodecSupplier().get();
 
 		//build JobletRequest
-		int batchSequence = RandomTool.nextPositiveInt();
 		JobletRequest request = new JobletRequest(jobletType, executionOrder, batchSequence, restartable);
 		request.setQueueId(queueId);
 		request.setNumItems(codec.calculateNumItems(params));
