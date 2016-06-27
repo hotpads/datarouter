@@ -126,6 +126,26 @@ public class NodeFactory{
 			ClientId clientId,
 			String tableName,
 			String entityName,
+			Supplier<D> databeanSupplier,
+			Supplier<F> fielderSupplier,
+			Router router,
+			boolean addAdapter){
+		NodeParamsBuilder<PK,D,F> paramsBuilder = new NodeParamsBuilder<PK,D,F>(router, databeanSupplier)
+				.withClientId(clientId)
+				.withFielder(fielderSupplier)
+				.withHibernateTableName(tableName, entityName)
+				.withDiagnostics(getRecordCallsites());
+		return create(paramsBuilder.build(), addAdapter);
+	}
+
+	public <PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>,
+			N extends Node<PK,D>>
+	N create(//specify tableName and entityName
+			ClientId clientId,
+			String tableName,
+			String entityName,
 			Class<D> databeanClass,
 			Class<F> fielderClass,
 			Router router,

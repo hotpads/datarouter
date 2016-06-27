@@ -26,7 +26,6 @@ import com.hotpads.joblet.enums.JobletStatus;
 import com.hotpads.joblet.enums.JobletType;
 import com.hotpads.joblet.enums.JobletTypeFactory;
 import com.hotpads.joblet.hibernate.GetJobletRequestForProcessing;
-import com.hotpads.joblet.hibernate.GetJobletRequestStatuses;
 import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.profile.PhaseTimer;
 import com.hotpads.util.core.stream.StreamTool;
@@ -166,9 +165,5 @@ public class JobletService{
 	public List<JobletSummary> getJobletSummaries(boolean slaveOk){
 		Iterable<JobletRequest> scanner = jobletNodes.jobletRequest().scan(null, new Config().setSlaveOk(slaveOk));
 		return JobletRequest.getJobletCountsCreatedByType(jobletTypeFactory, scanner);
-	}
-
-	public List<JobletSummary> getJobletSummariesForTable(String whereStatus, boolean includeQueueId){
-		return datarouter.run(new GetJobletRequestStatuses(whereStatus, includeQueueId, datarouter, jobletNodes));
 	}
 }

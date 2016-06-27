@@ -9,25 +9,27 @@ import com.google.common.base.Objects;
 import com.hotpads.datarouter.util.core.DrObjectTool;
 
 
+@SuppressWarnings("serial")
 public class Pair<L,R> implements Serializable{
-	private static final long serialVersionUID = 366025719454032385L;
-	
+
 	protected L left;
 	protected R right;
-	
+
 	public Pair(L left, R right){
 		this.left=left;
 		this.right=right;
 	}
+
 	public Pair(){}
-	
-	public static <T,V> Pair<T,V> create(T t,V v) {
-		return new Pair<T,V>(t,v);
+
+	public static <T,V> Pair<T,V> create(T left,V right) {
+		return new Pair<T,V>(left,right);
 	}
+
 	public static <T,V> Pair<T,V> create(){
 		return create(null,null);
 	}
-	
+
 	public boolean areLeftAndRightEqual(){
 		return DrObjectTool.equals(left, right);
 	}
@@ -47,28 +49,33 @@ public class Pair<L,R> implements Serializable{
 	public void setRight(R right) {
 		this.right = right;
 	}
-	
+
+	@Override
 	public String toString(){
 		return "(" + left.toString() + ", " + right.toString() + ")";
 	}
-	
-	public boolean equals(Object o){
-		if(o == null || ! (o instanceof Pair)) return false;
-		Pair<?,?> p = (Pair<?,?>)o;
 
-		return ((p.getLeft()!=null && p.getLeft().equals(getLeft()))
-					|| (p.getLeft() == null && getLeft() == null))
-				&& ((p.getRight()!=null && p.getRight().equals(getRight()))
-						|| (p.getRight() == null && getRight() == null));
+	@Override
+	public boolean equals(Object other){
+		if(other == null || ! (other instanceof Pair)){
+			return false;
+		}
+		Pair<?,?> pair = (Pair<?,?>)other;
+
+		return ((pair.getLeft()!=null && pair.getLeft().equals(getLeft()))
+					|| (pair.getLeft() == null && getLeft() == null))
+				&& ((pair.getRight()!=null && pair.getRight().equals(getRight()))
+						|| (pair.getRight() == null && getRight() == null));
 	}
-	
+
 	@Override
 	public int hashCode(){
 		return Objects.hashCode(left, right);
 	}
-	
+
 	public static class Tests {
-		@Test public void testEquals(){
+		@Test
+		public void testEquals(){
 			Assert.assertFalse(Pair.create(null,null).equals("a string"));
 			Assert.assertFalse(Pair.create("a","a").equals("a"));
 			Assert.assertFalse(Pair.create(null,"a").equals("a"));
@@ -95,5 +102,5 @@ public class Pair<L,R> implements Serializable{
 					.equals(Pair.create("b", "b")));
 		}
 	}
-	
+
 }
