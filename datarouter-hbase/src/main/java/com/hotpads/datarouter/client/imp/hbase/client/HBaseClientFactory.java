@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.client.imp.hbase.factory;
+package com.hotpads.datarouter.client.imp.hbase.client;
 
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
@@ -17,12 +17,12 @@ import com.hotpads.datarouter.client.imp.hbase.HBaseStaticContext;
 import com.hotpads.datarouter.exception.UnavailableException;
 import com.hotpads.datarouter.routing.Datarouter;
 
-public class HBaseSimpleClientFactory
+public class HBaseClientFactory
 extends BaseHBaseClientFactory{
-	private static final Logger logger = LoggerFactory.getLogger(HBaseSimpleClientFactory.class);
+	private static final Logger logger = LoggerFactory.getLogger(HBaseClientFactory.class);
 
 
-	public HBaseSimpleClientFactory(Datarouter datarouter, String clientName, ClientAvailabilitySettings
+	public HBaseClientFactory(Datarouter datarouter, String clientName, ClientAvailabilitySettings
 			clientAvailabilitySettings, ExecutorService executor){
 		super(datarouter, clientName, clientAvailabilitySettings, executor);
 	}
