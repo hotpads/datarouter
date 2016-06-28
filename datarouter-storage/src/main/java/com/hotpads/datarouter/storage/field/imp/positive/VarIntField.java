@@ -15,12 +15,7 @@ public class VarIntField extends BasePrimitiveField<Integer>{
 
 	@Deprecated
 	public VarIntField(String name, Integer value){
-		super(name, assertInRange(value));
-	}
-
-	@Deprecated
-	public VarIntField(String prefix, String name, Integer value){
-		super(prefix, name, assertInRange(value));
+		this(new VarIntFieldKey(name), assertInRange(value));
 	}
 
 	/************************ static *********************************/
@@ -31,23 +26,23 @@ public class VarIntField extends BasePrimitiveField<Integer>{
 		return RandomTool.nextPositiveInt(random);
 	}
 
-
 	/*********************** StringEncodedField ***********************/
 
 	@Override
 	public String getStringEncodedValue(){
-		if(value==null){ return null; }
+		if(value == null){
+			return null;
+		}
 		return value.toString();
 	}
 
 	@Override
-	public Integer parseStringEncodedValueButDoNotSet(String s){
-		if(DrStringTool.isEmpty(s) || s.equals("null")){
+	public Integer parseStringEncodedValueButDoNotSet(String str){
+		if(DrStringTool.isEmpty(str) || "null".equals(str)){
 			return null;
 		}
-		return assertInRange(s==null?null:Integer.valueOf(s));
+		return assertInRange(str==null?null:Integer.valueOf(str));
 	}
-
 
 	/*********************** ByteEncodedField ***********************/
 
@@ -66,12 +61,15 @@ public class VarIntField extends BasePrimitiveField<Integer>{
 		return new VarInt(bytes, offset).getValue();
 	}
 
-
 	/***************************** validate *****************************************/
 
-	public static Integer assertInRange(Integer i){
-		if(i==null){ return i; }
-		if(i >= 0){ return i; }
+	public static Integer assertInRange(Integer value){
+		if(value == null){
+			return value;
+		}
+		if(value >= 0){
+			return value;
+		}
 		throw new IllegalArgumentException("VarIntField must be null or positive integer");
 	}
 

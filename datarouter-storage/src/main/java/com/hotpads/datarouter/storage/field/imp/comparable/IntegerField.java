@@ -7,34 +7,40 @@ import com.hotpads.util.core.bytes.IntegerByteTool;
 public class IntegerField extends BasePrimitiveField<Integer>{
 
 	public IntegerField(IntegerFieldKey key, Integer value){
-		super(key, value);
+		this(null, key, value);
+	}
+
+	public IntegerField(String prefix, IntegerFieldKey key, Integer value){
+		super(prefix, key, value);
 	}
 
 	@Deprecated
 	public IntegerField(String name, Integer value){
-		super(name, value);
+		this(null, name, value);
 	}
 
 	@Deprecated
 	public IntegerField(String prefix, String name, Integer value){
-		super(prefix, name, value);
+		this(prefix, new IntegerFieldKey(name), value);
 	}
-
 
 	/*********************** StringEncodedField ***********************/
 
 	@Override
 	public String getStringEncodedValue(){
-		if(value==null){ return null; }
+		if(value == null){
+			return null;
+		}
 		return value.toString();
 	}
 
 	@Override
-	public Integer parseStringEncodedValueButDoNotSet(String s){
-		if(DrStringTool.isEmpty(s) || s.equals("null")){ return null; }
-		return Integer.valueOf(s);
+	public Integer parseStringEncodedValueButDoNotSet(String str){
+		if(DrStringTool.isEmpty(str) || "null".equals(str)){
+			return null;
+		}
+		return Integer.valueOf(str);
 	}
-
 
 	/*********************** ByteEncodedField ***********************/
 

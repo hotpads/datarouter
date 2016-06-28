@@ -14,12 +14,7 @@ public class UInt7Field extends BasePrimitiveField<Byte>{
 
 	@Deprecated
 	public UInt7Field(String name, Byte value){
-		super(name, value);
-	}
-
-	@Deprecated
-	public UInt7Field(String prefix, String name, Byte value){
-		super(prefix, name, value);
+		this(new UInt7FieldKey(name), value);
 	}
 
 	/************************ static *********************************/
@@ -30,23 +25,23 @@ public class UInt7Field extends BasePrimitiveField<Byte>{
 		return RandomTool.nextPositiveByte(random);
 	}
 
-
 	/*********************** StringEncodedField ***********************/
 
 	@Override
 	public String getStringEncodedValue(){
-		if(value==null){ return null; }
+		if(value == null){
+			return null;
+		}
 		return value.toString();
 	}
 
 	@Override
-	public Byte parseStringEncodedValueButDoNotSet(String s){
-		if(DrStringTool.isEmpty(s) || s.equals("null")){
+	public Byte parseStringEncodedValueButDoNotSet(String str){
+		if(DrStringTool.isEmpty(str) || "null".equals(str)){
 			return null;
 		}
-		return Byte.valueOf(s);
+		return Byte.valueOf(str);
 	}
-
 
 	/*********************** ByteEncodedField ***********************/
 

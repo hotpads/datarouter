@@ -14,29 +14,26 @@ public class CharacterField extends BasePrimitiveField<Character>{
 
 	@Deprecated
 	public CharacterField(String name, Character value){
-		super(name, value);
+		this(new CharacterFieldKey(name), value);
 	}
-
-	@Deprecated
-	public CharacterField(String prefix, String name, Character value){
-		super(prefix, name, value);
-	}
-
 
 	/*********************** StringEncodedField ***********************/
 
 	@Override
 	public String getStringEncodedValue(){
-		if(value==null){ return null; }
+		if(value == null){
+			return null;
+		}
 		return value.toString();
 	}
 
 	@Override
-	public Character parseStringEncodedValueButDoNotSet(String s){
-		if(DrStringTool.isEmpty(s)){ return null; }
-		return s.charAt(0);
+	public Character parseStringEncodedValueButDoNotSet(String str){
+		if(DrStringTool.isEmpty(str)){
+			return null;
+		}
+		return str.charAt(0);
 	}
-
 
 	/*********************** ByteEncodedField ***********************/
 
@@ -48,7 +45,9 @@ public class CharacterField extends BasePrimitiveField<Character>{
 	@Override
 	public byte[] getBytesWithSeparator(){
 		byte[] dataBytes = getBytes();
-		if(DrArrayTool.isEmpty(dataBytes)){ return new byte[]{StringField.SEPARATOR}; }
+		if(DrArrayTool.isEmpty(dataBytes)){
+			return new byte[]{StringField.SEPARATOR};
+		}
 		byte[] allBytes = new byte[dataBytes.length+1];
 		System.arraycopy(dataBytes, 0, allBytes, 0, dataBytes.length);
 		allBytes[allBytes.length-1] = StringField.SEPARATOR;

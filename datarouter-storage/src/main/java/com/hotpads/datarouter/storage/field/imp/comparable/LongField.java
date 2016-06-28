@@ -1,14 +1,13 @@
 package com.hotpads.datarouter.storage.field.imp.comparable;
 
 import com.hotpads.datarouter.storage.field.BasePrimitiveField;
-import com.hotpads.datarouter.storage.field.encoding.FieldGeneratorType;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.util.core.bytes.LongByteTool;
 
 public class LongField extends BasePrimitiveField<Long>{
 
 	public LongField(LongFieldKey key, Long value){
-		super(key, value);
+		this(null, key, value);
 	}
 
 	public LongField(String prefix, LongFieldKey key, Long value){
@@ -17,24 +16,24 @@ public class LongField extends BasePrimitiveField<Long>{
 
 	@Deprecated
 	public LongField(String name, Long value){
-		super(name, value);
+		this(null, name, value);
 	}
 
 	@Deprecated
 	public LongField(String prefix, String name, Long value){
-		super(prefix, name, value);
+		this(prefix, name, name, true, value);
 	}
 
 	@Deprecated
 	public LongField(String name, boolean nullable, Long value){
-		super(null, name, nullable, FieldGeneratorType.NONE, value);
+		this(null, name, name, nullable, value);
 	}
 
 	@Deprecated
 	public LongField(String prefix, String name, String columnName, boolean nullable, Long value){
-		super(prefix, name, columnName, nullable, FieldGeneratorType.NONE, value);
+		this(prefix, new LongFieldKey(name).withColumnName(columnName).withColumnName(columnName).withNullable(
+				nullable), value);
 	}
-
 
 	/*********************** StringEncodedField ***********************/
 
@@ -53,7 +52,6 @@ public class LongField extends BasePrimitiveField<Long>{
 		}
 		return Long.valueOf(str);
 	}
-
 
 	/*********************** ByteEncodedField ***********************/
 
