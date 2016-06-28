@@ -92,7 +92,7 @@ implements ClientFactory{
 	public HBaseClient call(){
 		HBaseClientImp newClient = null;
 		try{
-			logger.info("activating BigTable client " + clientName);
+			logger.info("activating HBase client " + clientName);
 			PhaseTimer timer = new PhaseTimer(clientName);
 			Connection connection = makeConnection();
 			Admin admin = connection.getAdmin();
