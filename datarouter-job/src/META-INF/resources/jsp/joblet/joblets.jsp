@@ -1,4 +1,4 @@
-R<%@ include file="/WEB-INF/prelude.jspf" %>
+<%@ include file="/WEB-INF/prelude.jspf" %>
 <!DOCTYPE html>
 <html>
 <head>
