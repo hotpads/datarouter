@@ -10,22 +10,85 @@
 	<%@ include file="/jsp/menu/dr-navbar.jsp" %>
 	<div class="container">
 		<h2>Set Threshold</h2>		
-		<h3 class="">Routers and Clients</h3>
+
 		
-		<c:forEach items="${routers}" var="router">			
-			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-			${router['class'].simpleName}
-			<table class="table table-striped table-bordered table-hover table-condensed">					
-				<c:forEach items="${nodeWrappers}" var="nodeWrapper">
+		<form id="validationform" name="validationform" method="GET" action="?">
+		<table id="myTable2" class="order-list" class="table table-striped table-bordered table-hover table-condensed">
+				<thead>
 					<tr>
-						<td><a style="color: black;" href="${contextPath}/datarouter/nodes/browseData?submitAction=browseData&routerName=${param.routerName}&nodeName=${nodeWrapper.node.name}">${nodeWrapper.indentHtml}${nodeWrapper.node.name}</a></td>
-						<td><a href="${contextPath}/datarouter/nodes/browseData?submitAction=browseData&routerName=${param.routerName}&nodeName=${nodeWrapper.node.name}">set Threshold</a></td>
+						<td>Router name</td>
+						<td>Node name</td>
+						<td>Threshold Value</td>
+					</tr>
+				</thead>
+				<tbody>
+				<c:forEach items="${thresholdSettings}" var="setting">
+					<tr>
+						<td><input type="text" name="clientName" value='${setting.key.getClientName()}' readonly></td>
+						<td><input type="text" name="tableName" value='${setting.key.getTableName()}' readonly></td>
+						<td><input type="text" name="threshold" value='${setting.getThreshold()}' readonly></td>					
 					</tr>
 				</c:forEach>
+				</tbody>	
 			</table>
-			<br/>
-		</c:forEach>
+			<input type="hidden" value="exportData" name="submitAction" hidden="true">
+		</form>
+				
+		<br>
+		<button onclick="addThreshold()" >Add Threshold </button>
 		
+		
+		<form id="validationform2" name="validationform2" method="GET" action="?">
+		<table  id="myTable" class="order-list" class="table table-striped table-bordered table-hover table-condensed" style="visibility:hidden">
+				<thead>
+					<tr>
+						<td>Router name</td>
+						<td>Node name</td>
+						<td>Threshold Value</td>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td><input type="text" name="clientName"></td>
+						<td><input type="text" name="tableName" ></td>
+						<td><input type="text" name="threshold"></td>					
+					</tr>
+				</tbody>
+				
+				<tfoot>
+				<tr>
+					<td><input type="button" value="Add More(+)" name="addrow"
+						id="addrow"></td>					
+				</tr>
+				<tr>
+					<td><input type="submit" value="save" />					
+				</tr>
+			</tfoot>
+			</table>
+			<input type="hidden" value="exportData" name="submitAction" hidden="true">
+		</form>	
 	</div>
+	
+	<script>
+		require(['jquery'], function(){
+	 		$("#addrow").click(function(){
+		      var newRow = $("<tr>");
+              var cols = "";
+              cols += '<td><input type="text" name="clientName" required/></td>';
+              cols += '<td><input type="text" name="tableName" required/></td>';
+              cols += '<td><input type="text" name="threshold" required /></td>';
+              cols += '<td><a class="deleteRow"> x </a></td>';	           
+              newRow.append($(cols));
+		      $("#myTable").append(newRow);
+		    });
+		});
+
+		function addThreshold() {
+		    document.getElementById("myTable").style="visibility:visible"
+		 
+		  
+		}
+	</script>
+	
 </body>
 </html>
