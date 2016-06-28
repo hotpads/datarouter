@@ -113,7 +113,7 @@ implements ClientFactory{
 	}
 
 
-	protected Pair<HBaseTablePool,Map<String,Class<? extends PrimaryKey<?>>>> initTables(Connection connection,
+	private Pair<HBaseTablePool,Map<String,Class<? extends PrimaryKey<?>>>> initTables(Connection connection,
 			Admin admin){
 		List<String> tableNames = new ArrayList<>();
 		Map<String,Class<? extends PrimaryKey<?>>> primaryKeyClassByName = new HashMap<>();

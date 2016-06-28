@@ -48,7 +48,6 @@ extends BaseHBaseClientFactory{
 		if(connection.isClosed()){
 			HBaseStaticContext.CONFIG_BY_ZK_QUORUM.remove(zkQuorum);
 			HBaseStaticContext.ADMIN_BY_CONFIG.remove(hbaseConfig);
-			hbaseConfig = null;
 			String log = "couldn't open connection because hBaseAdmin.getConnection().isClosed()";
 			logger.warn(log);
 			throw new UnavailableException(log);
