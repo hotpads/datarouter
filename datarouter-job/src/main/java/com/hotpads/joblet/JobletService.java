@@ -86,7 +86,8 @@ public class JobletService{
 		long durationMs = System.currentTimeMillis() - startMs;
 		if(durationMs > 200){
 			String message = jobletRequest == null ? "none" : jobletRequest.getKey().toString();
-			logger.warn("slow get joblet type={}, durationMs={}, got {}", type, durationMs, message);
+			logger.warn("slow get joblet type={}, durationMs={}, got {}", type.getPersistentString(), durationMs,
+					message);
 		}
 		return jobletRequest;
 	}
