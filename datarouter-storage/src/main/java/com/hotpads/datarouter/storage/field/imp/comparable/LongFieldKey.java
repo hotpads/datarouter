@@ -18,4 +18,8 @@ public class LongFieldKey extends PrimitiveFieldKey<Long>{
 		return new LongFieldKey(name, columnName, nullable, fieldGeneratorType, defaultValue);
 	}
 
+	public LongFieldKey withNullable(boolean nullableOverride){
+		return new LongFieldKey(name, columnName, nullableOverride, fieldGeneratorType, defaultValue);
+	}
+
 }

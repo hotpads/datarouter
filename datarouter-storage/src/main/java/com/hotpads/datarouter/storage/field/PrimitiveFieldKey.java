@@ -2,8 +2,7 @@ package com.hotpads.datarouter.storage.field;
 
 import com.hotpads.datarouter.storage.field.encoding.FieldGeneratorType;
 
-public class PrimitiveFieldKey<T extends Comparable<T>>
-extends BaseFieldKey<T>{
+public abstract class PrimitiveFieldKey<T extends Comparable<T>> extends BaseFieldKey<T>{
 
 	public PrimitiveFieldKey(String name){
 		super(name);

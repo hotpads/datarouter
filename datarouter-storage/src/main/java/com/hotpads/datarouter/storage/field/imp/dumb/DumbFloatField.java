@@ -15,29 +15,26 @@ public class DumbFloatField extends BasePrimitiveField<Float>{
 
 	@Deprecated
 	public DumbFloatField(String name, Float value){
-		super(name, value);
+		super(new DumbFloatFieldKey(name), value);
 	}
-
-	@Deprecated
-	public DumbFloatField(String prefix, String name, Float value){
-		super(prefix, name, value);
-	}
-
 
 	/*********************** StringEncodedField ***********************/
 
 	@Override
 	public String getStringEncodedValue(){
-		if(value==null){ return null; }
+		if(value == null){
+			return null;
+		}
 		return value.toString();
 	}
 
 	@Override
-	public Float parseStringEncodedValueButDoNotSet(String s){
-		if(DrStringTool.isEmpty(s) || s.equals("null")){ return null; }
-		return Float.valueOf(s);
+	public Float parseStringEncodedValueButDoNotSet(String str){
+		if(DrStringTool.isEmpty(str) || "null".equals(str)){
+			return null;
+		}
+		return Float.valueOf(str);
 	}
-
 
 	/*********************** ByteEncodedField ***********************/
 

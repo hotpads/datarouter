@@ -13,17 +13,7 @@ public class BooleanField extends BasePrimitiveField<Boolean>{
 
 	@Deprecated
 	public BooleanField(String name, Boolean value){
-		this(name, value, null);
-	}
-
-	@Deprecated
-	public BooleanField(String prefix, String name, Boolean value){
-		super(prefix, name, value);
-	}
-
-	@Deprecated
-	public BooleanField(String name, Boolean value, Boolean defaultValue){
-		super(name, value, defaultValue);
+		this(new BooleanFieldKey(name), value);
 	}
 
 	/*********************** StringEncodedField ***********************/
@@ -37,13 +27,12 @@ public class BooleanField extends BasePrimitiveField<Boolean>{
 	}
 
 	@Override
-	public Boolean parseStringEncodedValueButDoNotSet(String s){
-		if(DrStringTool.isEmpty(s) || s.equals("null")){
+	public Boolean parseStringEncodedValueButDoNotSet(String str){
+		if(DrStringTool.isEmpty(str) || "null".equals(str)){
 			return null;
 		}
-		return DrBooleanTool.isTrue(s);
+		return DrBooleanTool.isTrue(str);
 	}
-
 
 	/*********************** ByteEncodedField ***********************/
 
@@ -61,6 +50,5 @@ public class BooleanField extends BasePrimitiveField<Boolean>{
 	public Boolean fromBytesButDoNotSet(byte[] bytes, int offset){
 		return BooleanByteTool.fromBytes(bytes, offset);
 	}
-
 
 }
