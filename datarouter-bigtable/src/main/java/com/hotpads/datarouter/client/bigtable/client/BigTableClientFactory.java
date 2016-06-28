@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.client.bigtable.imp.bigtable.client;
+package com.hotpads.datarouter.client.bigtable.client;
 
 import java.util.concurrent.ExecutorService;
 
