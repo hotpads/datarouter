@@ -22,6 +22,7 @@ public class DefaultClientTypes{
 	private DatarouterInjector injector;
 
 	public static final String
+			CLIENT_TYPE_bigtable = "bigtable",
 			CLIENT_TYPE_hbase = "hbase",
 			CLIENT_TYPE_hibernate = "hibernate",
 			CLIENT_TYPE_http = "http",
@@ -29,12 +30,12 @@ public class DefaultClientTypes{
 			CLIENT_TYPE_memcached = "memcached",
 			CLIENT_TYPE_memory = "memory",
 			CLIENT_TYPE_sqs = "sqs",
-			CLIENT_TYPE_sqsGroup = "sqsGroup"
-			;
+			CLIENT_TYPE_sqsGroup = "sqsGroup";
 
 	//TODO these should eventually be mapped in an external config file, like datarouter-xyz.properties
 	public static final Map<String,String> CLASS_BY_NAME = new TreeMap<>();
 	static{
+		CLASS_BY_NAME.put(CLIENT_TYPE_bigtable, "com.hotpads.datarouter.client.bigtable.BigTableClientType");
 		CLASS_BY_NAME.put(CLIENT_TYPE_hbase, "com.hotpads.datarouter.client.imp.hbase.HBaseClientType");
 		CLASS_BY_NAME.put(CLIENT_TYPE_hibernate, "com.hotpads.datarouter.client.imp.hibernate.HibernateClientType");
 		CLASS_BY_NAME.put(CLIENT_TYPE_http, "com.hotpads.datarouter.client.imp.http.HttpClientType");
