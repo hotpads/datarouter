@@ -14,7 +14,7 @@ import com.hotpads.datarouter.client.ClientFactory;
 import com.hotpads.datarouter.client.ClientTableNodeNames;
 import com.hotpads.datarouter.client.availability.ClientAvailabilitySettings;
 import com.hotpads.datarouter.client.imp.BaseClientType;
-import com.hotpads.datarouter.client.imp.hbase.factory.HBaseSimpleClientFactory;
+import com.hotpads.datarouter.client.imp.hbase.client.HBaseClientFactory;
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseEntityReaderNode;
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseNode;
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseSubEntityNode;
@@ -69,7 +69,7 @@ public class HBaseClientType extends BaseClientType{
 
 	@Override
 	public ClientFactory createClientFactory(Datarouter datarouter, String clientName){
-		return new HBaseSimpleClientFactory(datarouter, clientName, clientAvailabilitySettings, executor);
+		return new HBaseClientFactory(datarouter, clientName, clientAvailabilitySettings, executor);
 	}
 
 	@Override

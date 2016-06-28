@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.client.imp.hbase.factory;
+package com.hotpads.datarouter.client.imp.hbase.client;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -12,14 +12,11 @@ import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.HColumnDescriptor;
-import org.apache.hadoop.hbase.HConstants;
 import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Admin;
 import org.apache.hadoop.hbase.client.Connection;
-import org.apache.hadoop.hbase.client.ConnectionFactory;
 import org.apache.hadoop.hbase.io.compress.Compression.Algorithm;
 import org.apache.hadoop.hbase.io.encoding.DataBlockEncoding;
 import org.apache.hadoop.hbase.regionserver.BloomType;
@@ -29,8 +26,6 @@ import org.slf4j.LoggerFactory;
 import com.hotpads.datarouter.client.ClientFactory;
 import com.hotpads.datarouter.client.availability.ClientAvailabilitySettings;
 import com.hotpads.datarouter.client.imp.hbase.HBaseClientImp;
-import com.hotpads.datarouter.client.imp.hbase.HBaseStaticContext;
-import com.hotpads.datarouter.client.imp.hbase.client.HBaseClient;
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseReaderNode;
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseSubEntityReaderNode;
 import com.hotpads.datarouter.client.imp.hbase.pool.HBaseTableExecutorServicePool;
@@ -54,9 +49,9 @@ import com.hotpads.util.core.collections.Pair;
 import com.hotpads.util.core.collections.Twin;
 import com.hotpads.util.core.profile.PhaseTimer;
 
-public class HBaseSimpleClientFactory
+public abstract class BaseHBaseClientFactory
 implements ClientFactory{
-	private static final Logger logger = LoggerFactory.getLogger(HBaseSimpleClientFactory.class);
+	private static final Logger logger = LoggerFactory.getLogger(BaseHBaseClientFactory.class);
 
 	//default table configuration settings for new tables
 	private static final long
@@ -71,62 +66,41 @@ implements ClientFactory{
 	/********************* fields *******************************/
 
 	private final Datarouter datarouter;
-	private final String clientName;
+	protected final String clientName;
 	private final Set<String> configFilePaths;
 	private final List<Properties> multiProperties;
-	private final HBaseOptions options;
-	private final ClientAvailabilitySettings clientAvailabilitySettings;
-	private final ExecutorService executor;
+	protected final HBaseOptions options;
+	protected final ClientAvailabilitySettings clientAvailabilitySettings;
+	protected final ExecutorService executor;
 
-	//we cannot finalize these as they are created in a background thread for faster application boot time
-	private Configuration hbaseConfig;
-	private Connection connection;
-	private Admin admin;
-
-	public HBaseSimpleClientFactory(Datarouter datarouter, String clientName, ClientAvailabilitySettings
-			clientAvailabilitySettings, ExecutorService executor){
-		this.clientAvailabilitySettings = clientAvailabilitySettings;
+	public BaseHBaseClientFactory(Datarouter datarouter, String clientName,
+			ClientAvailabilitySettings clientAvailabilitySettings, ExecutorService executor){
 		this.datarouter = datarouter;
 		this.clientName = clientName;
-		this.executor = executor;
 		this.configFilePaths = datarouter.getConfigFilePaths();
 		this.multiProperties = DrPropertiesTool.fromFiles(configFilePaths);
 		this.options = new HBaseOptions(multiProperties, clientName);
+		this.clientAvailabilitySettings = clientAvailabilitySettings;
+		this.executor = executor;
 	}
+
+
+	protected abstract Connection makeConnection();
 
 
 	@Override
 	public HBaseClient call(){
 		HBaseClientImp newClient = null;
 		try{
-			logger.info("activating HBase client "+clientName);
+			logger.info("activating BigTable client " + clientName);
 			PhaseTimer timer = new PhaseTimer(clientName);
+			Connection connection = makeConnection();
+			Admin admin = connection.getAdmin();
+			Configuration hbaseConfig = connection.getConfiguration();
 
-			String zkQuorum = options.zookeeperQuorum();
-			hbaseConfig = HBaseStaticContext.CONFIG_BY_ZK_QUORUM.get(zkQuorum);
-			if(hbaseConfig==null){
-				hbaseConfig = HBaseConfiguration.create();
-				hbaseConfig.set(HConstants.ZOOKEEPER_QUORUM, zkQuorum);
-			}
-			if(connection == null){
-				connection = ConnectionFactory.createConnection(hbaseConfig);
-			}
-			admin = connection.getAdmin();
-
-			if(connection.isClosed()){
-				HBaseStaticContext.CONFIG_BY_ZK_QUORUM.remove(zkQuorum);
-				HBaseStaticContext.ADMIN_BY_CONFIG.remove(hbaseConfig);
-				hbaseConfig = null;
-				String log = "couldn't open connection because hBaseAdmin.getConnection().isClosed()";
-				logger.warn(log);
-				throw new UnavailableException(log);
-			}
-			HBaseStaticContext.CONFIG_BY_ZK_QUORUM.put(zkQuorum, hbaseConfig);
-			HBaseStaticContext.ADMIN_BY_CONFIG.put(hbaseConfig, admin);
-
-			//databean config
+			// databean config
 			Pair<HBaseTablePool,Map<String,Class<? extends PrimaryKey<?>>>> htablePoolAndPrimaryKeyByTableName
-					= initTables();
+					= initTables(connection, admin);
 			timer.add("init HTables");
 
 			newClient = new HBaseClientImp(clientName, hbaseConfig, admin, htablePoolAndPrimaryKeyByTableName.getLeft(),
@@ -139,9 +113,8 @@ implements ClientFactory{
 	}
 
 
-	/********************** private ***************************/
-
-	private Pair<HBaseTablePool,Map<String,Class<? extends PrimaryKey<?>>>> initTables(){
+	private Pair<HBaseTablePool,Map<String,Class<? extends PrimaryKey<?>>>> initTables(Connection connection,
+			Admin admin){
 		List<String> tableNames = new ArrayList<>();
 		Map<String,Class<? extends PrimaryKey<?>>> primaryKeyClassByName = new HashMap<>();
 		Map<String,PhysicalNode<?,?>> nodeByTableName = new TreeMap<>();

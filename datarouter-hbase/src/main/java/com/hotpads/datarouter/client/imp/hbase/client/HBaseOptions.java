@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.client.imp.hbase.factory;
+package com.hotpads.datarouter.client.imp.hbase.client;
 
 import java.util.List;
 import java.util.Properties;
