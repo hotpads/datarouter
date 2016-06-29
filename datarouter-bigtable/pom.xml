@@ -53,11 +53,6 @@
 			<artifactId>datarouter-hbase</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
-		<dependency>
-			<groupId>com.hotpads</groupId>
-			<artifactId>datarouter-web</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
 		<!-- provided (not inherited) -->
 		<dependency>
 			<groupId>javax.servlet</groupId>
