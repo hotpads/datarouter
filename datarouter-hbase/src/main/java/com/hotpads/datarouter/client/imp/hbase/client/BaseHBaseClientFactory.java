@@ -164,7 +164,8 @@ implements ClientFactory{
 			throw new RuntimeException(e);
 		}
 
-		HBaseTablePool pool = new HBaseTableExecutorServicePool(hbaseOptions, connection, clientName, primaryKeyClassByName);
+		HBaseTablePool pool = new HBaseTableExecutorServicePool(hbaseOptions, connection, clientName,
+				primaryKeyClassByName);
 		return Pair.create(pool, primaryKeyClassByName);
 	}
 
