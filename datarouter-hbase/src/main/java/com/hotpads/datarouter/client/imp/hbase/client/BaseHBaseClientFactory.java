@@ -11,7 +11,6 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
 
-import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.TableName;
@@ -31,7 +30,6 @@ import com.hotpads.datarouter.client.imp.hbase.node.HBaseSubEntityReaderNode;
 import com.hotpads.datarouter.client.imp.hbase.pool.HBaseTableExecutorServicePool;
 import com.hotpads.datarouter.client.imp.hbase.pool.HBaseTablePool;
 import com.hotpads.datarouter.client.imp.hbase.util.HBaseQueryBuilder;
-import com.hotpads.datarouter.exception.UnavailableException;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
@@ -90,26 +88,24 @@ implements ClientFactory{
 
 	@Override
 	public HBaseClient call(){
-		HBaseClientImp newClient = null;
+		logger.info("activating HBase client " + clientName);
+		PhaseTimer timer = new PhaseTimer(clientName);
+		Connection connection = makeConnection();
+		Admin admin;
 		try{
-			logger.info("activating HBase client " + clientName);
-			PhaseTimer timer = new PhaseTimer(clientName);
-			Connection connection = makeConnection();
-			Admin admin = connection.getAdmin();
-			Configuration hbaseConfig = connection.getConfiguration();
-
-			// databean config
-			Pair<HBaseTablePool,Map<String,Class<? extends PrimaryKey<?>>>> htablePoolAndPrimaryKeyByTableName
-					= initTables(connection, admin);
-			timer.add("init HTables");
-
-			newClient = new HBaseClientImp(clientName, hbaseConfig, admin, htablePoolAndPrimaryKeyByTableName.getLeft(),
-					htablePoolAndPrimaryKeyByTableName.getRight(), clientAvailabilitySettings, executor);
-			logger.warn(timer.add("done").toString());
+			admin = connection.getAdmin();
 		}catch(IOException e){
-			throw new UnavailableException(e);
+			throw new RuntimeException(e);
 		}
-		return newClient;
+
+		// databean config
+		Pair<HBaseTablePool,Map<String,Class<? extends PrimaryKey<?>>>> htablePoolAndPrimaryKeyByTableName = initTables(
+				connection, admin);
+		timer.add("init HTables");
+
+		logger.warn(timer.add("done").toString());
+		return new HBaseClientImp(clientName, connection.getConfiguration(), admin, htablePoolAndPrimaryKeyByTableName
+				.getLeft(), htablePoolAndPrimaryKeyByTableName.getRight(), clientAvailabilitySettings, executor);
 	}
 
 
