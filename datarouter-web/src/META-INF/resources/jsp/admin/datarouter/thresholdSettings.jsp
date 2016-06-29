@@ -65,7 +65,7 @@
 				</tr>
 			</tfoot>
 			</table>
-			<input type="hidden" value="exportData" name="submitAction" hidden="true">
+			<input type="hidden" value="displayThresholds" name="submitAction" hidden="true">
 		</form>	
 	</div>
 	
