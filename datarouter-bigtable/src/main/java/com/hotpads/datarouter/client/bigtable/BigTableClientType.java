@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.client.imp.hbase;
+package com.hotpads.datarouter.client.bigtable;
 
 import java.util.concurrent.ExecutorService;
 
@@ -14,8 +14,8 @@ import com.hotpads.datarouter.client.ClientFactory;
 import com.hotpads.datarouter.client.ClientTableNodeNames;
 import com.hotpads.datarouter.client.DefaultClientTypes;
 import com.hotpads.datarouter.client.availability.ClientAvailabilitySettings;
+import com.hotpads.datarouter.client.bigtable.client.BigTableClientFactory;
 import com.hotpads.datarouter.client.imp.BaseClientType;
-import com.hotpads.datarouter.client.imp.hbase.client.HBaseClientFactory;
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseEntityReaderNode;
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseNode;
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseSubEntityNode;
@@ -44,15 +44,15 @@ import com.hotpads.datarouter.test.DatarouterStorageTestModuleFactory;
 import com.hotpads.util.core.lang.ClassTool;
 
 @Singleton
-public class HBaseClientType extends BaseClientType{
+public class BigTableClientType extends BaseClientType{
 
-	public static HBaseClientType INSTANCE;
+	public static BigTableClientType INSTANCE;
 
 	private final ClientAvailabilitySettings clientAvailabilitySettings;
 	private final ExecutorService executor;
 
 	@Inject
-	public HBaseClientType(ClientAvailabilitySettings clientAvailabilitySettings,
+	public BigTableClientType(ClientAvailabilitySettings clientAvailabilitySettings,
 			@Named(DatarouterExecutorGuiceModule.POOL_hbaseClientExecutor) ExecutorService executor){
 		this.clientAvailabilitySettings = clientAvailabilitySettings;
 		this.executor = executor;
@@ -61,12 +61,12 @@ public class HBaseClientType extends BaseClientType{
 
 	@Override
 	public String getName(){
-		return DefaultClientTypes.CLIENT_TYPE_hbase;
+		return DefaultClientTypes.CLIENT_TYPE_bigtable;
 	}
 
 	@Override
 	public ClientFactory createClientFactory(Datarouter datarouter, String clientName){
-		return new HBaseClientFactory(datarouter, clientName, clientAvailabilitySettings, executor);
+		return new BigTableClientFactory(datarouter, clientName, clientAvailabilitySettings, executor);
 	}
 
 	@Override
@@ -113,9 +113,9 @@ public class HBaseClientType extends BaseClientType{
 
 		@Test
 		public void testClassLocation(){
-			String actualClassName = HBaseClientType.class.getCanonicalName();
-			Assert.assertEquals(DefaultClientTypes.CLIENT_CLASS_hbase, actualClassName);
-			injector.getInstance(ClassTool.forName(DefaultClientTypes.CLIENT_CLASS_hbase));
+			String actualClassName = BigTableClientType.class.getCanonicalName();
+			Assert.assertEquals(DefaultClientTypes.CLIENT_CLASS_bigtable, actualClassName);
+			injector.getInstance(ClassTool.forName(DefaultClientTypes.CLIENT_CLASS_bigtable));
 		}
 	}
 }

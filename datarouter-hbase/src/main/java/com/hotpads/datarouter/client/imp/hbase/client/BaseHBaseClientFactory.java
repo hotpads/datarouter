@@ -68,8 +68,8 @@ implements ClientFactory{
 	private final Datarouter datarouter;
 	protected final String clientName;
 	private final Set<String> configFilePaths;
-	private final List<Properties> multiProperties;
-	protected final HBaseOptions options;
+	protected final List<Properties> multiProperties;
+	protected final HBaseOptions hbaseOptions;
 	protected final ClientAvailabilitySettings clientAvailabilitySettings;
 	protected final ExecutorService executor;
 
@@ -79,7 +79,7 @@ implements ClientFactory{
 		this.clientName = clientName;
 		this.configFilePaths = datarouter.getConfigFilePaths();
 		this.multiProperties = DrPropertiesTool.fromFiles(configFilePaths);
-		this.options = new HBaseOptions(multiProperties, clientName);
+		this.hbaseOptions = new HBaseOptions(multiProperties, clientName);
 		this.clientAvailabilitySettings = clientAvailabilitySettings;
 		this.executor = executor;
 	}
@@ -92,7 +92,7 @@ implements ClientFactory{
 	public HBaseClient call(){
 		HBaseClientImp newClient = null;
 		try{
-			logger.info("activating BigTable client " + clientName);
+			logger.info("activating HBase client " + clientName);
 			PhaseTimer timer = new PhaseTimer(clientName);
 			Connection connection = makeConnection();
 			Admin admin = connection.getAdmin();
@@ -126,8 +126,8 @@ implements ClientFactory{
 		}
 
 		try{
-			boolean checkTables = options.checkTables();
-			boolean createTables = options.createTables();
+			boolean checkTables = hbaseOptions.checkTables();
+			boolean createTables = hbaseOptions.createTables();
 			if(checkTables || createTables){
 				for(String tableName : DrIterableTool.nullSafe(tableNames)){
 					byte[] tableNameBytes = StringByteTool.getUtf8Bytes(tableName);
@@ -164,7 +164,8 @@ implements ClientFactory{
 			throw new RuntimeException(e);
 		}
 
-		HBaseTablePool pool = new HBaseTableExecutorServicePool(options, connection, clientName, primaryKeyClassByName);
+		HBaseTablePool pool = new HBaseTableExecutorServicePool(hbaseOptions, connection, clientName,
+				primaryKeyClassByName);
 		return Pair.create(pool, primaryKeyClassByName);
 	}
 

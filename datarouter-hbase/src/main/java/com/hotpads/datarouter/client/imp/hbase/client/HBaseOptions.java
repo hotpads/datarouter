@@ -6,8 +6,8 @@ import java.util.Properties;
 import com.hotpads.util.core.properties.TypedProperties;
 
 public class HBaseOptions extends TypedProperties{
-	
-	private String clientPrefix;
+
+	private final String clientPrefix;
 
 	public HBaseOptions(List<Properties> multiProperties, String clientName){
 		super(multiProperties);
@@ -37,5 +37,5 @@ public class HBaseOptions extends TypedProperties{
 	public Integer maxThreadsPerHTable(int defaultValue){
 		return getInteger(clientPrefix + "maxThreadsPerHTable", defaultValue);
 	}
-	
+
 }

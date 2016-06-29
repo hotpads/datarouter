@@ -30,7 +30,7 @@ extends BaseHBaseClientFactory{
 
 	@Override
 	protected Connection makeConnection(){
-		String zkQuorum = options.zookeeperQuorum();
+		String zkQuorum = hbaseOptions.zookeeperQuorum();
 		Configuration hbaseConfig = HBaseStaticContext.CONFIG_BY_ZK_QUORUM.get(zkQuorum);
 		if(hbaseConfig==null){
 			hbaseConfig = HBaseConfiguration.create();

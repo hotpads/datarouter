@@ -8,6 +8,7 @@ import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
 import com.hotpads.datarouter.client.ClientFactory;
+import com.hotpads.datarouter.client.DefaultClientTypes;
 import com.hotpads.datarouter.client.availability.ClientAvailabilitySettings;
 import com.hotpads.datarouter.client.imp.BaseClientType;
 import com.hotpads.datarouter.client.imp.jdbc.factory.JdbcSimpleClientFactory;
@@ -35,10 +36,6 @@ import com.hotpads.util.core.lang.ClassTool;
 @Singleton
 public class JdbcClientType extends BaseClientType{
 
-	public static final String
-		NAME = "jdbc",
-		CANONICAL_CLASS_NAME = "com.hotpads.datarouter.client.imp.jdbc.JdbcClientType";
-
 	public static JdbcClientType INSTANCE;//TODO get rid of
 
 	//injected
@@ -55,7 +52,7 @@ public class JdbcClientType extends BaseClientType{
 
 	@Override
 	public String getName(){
-		return NAME;
+		return DefaultClientTypes.CLIENT_TYPE_jdbc;
 	}
 
 	@Override
@@ -100,8 +97,8 @@ public class JdbcClientType extends BaseClientType{
 		@Test
 		public void testClassLocation(){
 			String actualClassName = JdbcClientType.class.getCanonicalName();
-			Assert.assertEquals(CANONICAL_CLASS_NAME, actualClassName);
-			injector.getInstance(ClassTool.forName(CANONICAL_CLASS_NAME));
+			Assert.assertEquals(DefaultClientTypes.CLIENT_CLASS_jdbc, actualClassName);
+			injector.getInstance(ClassTool.forName(DefaultClientTypes.CLIENT_CLASS_jdbc));
 		}
 	}
 
