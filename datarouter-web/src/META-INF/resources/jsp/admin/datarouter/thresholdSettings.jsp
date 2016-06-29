@@ -26,12 +26,12 @@
 					<tr>
 						<td><input type="text" name="clientName" value='${setting.key.getClientName()}' readonly></td>
 						<td><input type="text" name="tableName" value='${setting.key.getTableName()}' readonly></td>
-						<td><input type="text" name="threshold" value='${setting.getThreshold()}' readonly></td>					
+						<td><input type="text" name="threshold" value='${setting.getMaxRows()}' readonly></td>					
 					</tr>
 				</c:forEach>
 				</tbody>	
 			</table>
-			<input type="hidden" value="exportData" name="submitAction" hidden="true">
+			<input type="hidden" value="displayThresholds" name="submitAction" hidden="true">
 		</form>
 				
 		<br>
