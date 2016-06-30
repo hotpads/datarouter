@@ -1,28 +1,33 @@
 <%@ include file="/jsp/generic/prelude-datarouter.jspf"%>
+<!DOCTYPE html>
 <html>
 <head>
-<title>DR Servers</title>
-<%@ include file="/jsp/generic/datarouterHead.jsp" %>
-<script type="text/javascript" data-main="${contextPath}/js/core-common" src="${contextPath}/js/require-jquery.js"></script>
-<script type="text/javascript">
-	require([
-            "plugin/sorttable", "bootstrap/bootstrap"
-    ], function($) {});
-</script>
-<%@ include file="/jsp/css/css-import.jspf" %>
+	<title>DR Servers</title>
+	<%@ include file="/jsp/generic/datarouterHead.jsp" %>
+	<script type="text/javascript">
+		require(["sorttable"]);
+	</script>
 </head>
 <body>
 	<%@ include file="/jsp/menu/dr-navbar.jsp" %>
-	<div class="container">
-		<h2 class="title">DR Servers</h2>
-		<a href="${contextPath}/datarouter/routers">Datarouter Home</a> &nbsp;&nbsp;&#62;&#62;&nbsp;&nbsp; 
-		<a href="${contextPath}/datarouter/routers?submitAction=inspectRouter&routerName=${param.routerName}">router: ${param.routerName}</a> &nbsp;&nbsp;&#62;&#62;&nbsp;&nbsp; 
-		<a href="${contextPath}/datarouter/clients/hbase?submitAction=inspectClient&routerName=${param.routerName}
-		&clientName=${param.clientName}">client: ${param.clientName}</a> &nbsp;&nbsp;>>&nbsp;&nbsp; table: ${param.tableName}
+	<div class="container-fluid">
+		<h2 class="page-header">DR Servers</h2>
+		<ol class="breadcrumb">
+			<li><a href="${contextPath}/datarouter/routers">Datarouter Home</a></li>
+			<li>
+				<a href="${contextPath}/datarouter/routers?submitAction=inspectRouter&routerName=${param.routerName}">
+					router: ${param.routerName}
+				</a>
+			</li>
+			<li>
+				<a href="${contextPath}/datarouter/clients/hbase?submitAction=inspectClient&routerName=${param.routerName}&clientName=${param.clientName}">
+					client: ${param.clientName}
+				</a>
+			</li>
+			<li class="active">table: ${param.tableName}</li>
+		</ol>
 		<h3>Servers</h3>
 		<b>routerName: </b>${param.routerName}<br /> <b>clientName: </b>${param.clientName}<br />
-	</div>
-	<div class="wide-container">
 		<table class="table table-striped table-bordered table-hover table-condensed sortable">
 			<thead>
 				<tr>
@@ -50,9 +55,6 @@
 			<tbody>
 				<c:forEach items="${servers}" var="server" varStatus="status">
 					<tr <c:if test="${status.index%5==0}"> class="highlighted"</c:if>>
-						<%
-							/*<td>${fn:replace(server.hostname,'HadoopNode','')}</td>*/
-						%>
 						<td class="right">${server.serverName}</td>
 						<td class="right">${server.serverLoad.numberOfRegions}</td>
 						<td class="right">${server.serverLoad.stores}</td>
