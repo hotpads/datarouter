@@ -73,10 +73,19 @@
 			<artifactId>protobuf-java</artifactId>
 			<version>2.6.1</version>
 		</dependency>
+		<!-- This is an uber jar that contains the statically linked libraries for all supported 
+			netty-tcnative-boringssl-static-{os_arch}. While this tends to be a fairly large jar, it greatly simplifies
+			the getting started experience since an application need not be concerned with obtaining the correct jar for
+			the platform. -->
+		<dependency>
+			<groupId>io.netty</groupId>
+			<artifactId>netty-tcnative-boringssl-static</artifactId>
+			<version>1.1.33.Fork16</version>
+		</dependency>
 		<dependency>
 			<groupId>com.google.cloud.bigtable</groupId>
 			<artifactId>bigtable-hbase-1.1</artifactId>
-			<version>0.3.0</version>
+			<version>0.9.0</version>
 			<exclusions>
 				<exclusion>
 					<groupId>org.slf4j</groupId>
