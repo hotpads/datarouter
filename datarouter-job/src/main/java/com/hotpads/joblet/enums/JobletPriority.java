@@ -14,6 +14,15 @@ public enum JobletPriority{
 		this.value = value;
 	}
 
+	public static JobletPriority fromExecutionOrder(int executionOrder){
+		for(JobletPriority priority : JobletPriority.values()){
+			if(priority.getValue() > executionOrder){
+				return priority;
+			}
+		}
+		return JobletPriority.LOWEST;
+	}
+
 	public Integer getValue(){
 		return this.value;
 	}
