@@ -9,6 +9,14 @@
 	</parent>
 	<artifactId>datarouter-bigtable</artifactId>
 	<build>
+		<extensions>
+			<!-- Use os-maven-plugin to initialize the "os.detected" properties -->
+			<extension>
+				<groupId>kr.motd.maven</groupId>
+				<artifactId>os-maven-plugin</artifactId>
+				<version>1.4.0.Final</version>
+			</extension>
+		</extensions>
 		<plugins>
 			<plugin>
 				<groupId>pl.project13.maven</groupId>
@@ -80,7 +88,9 @@
 		<dependency>
 			<groupId>io.netty</groupId>
 			<artifactId>netty-tcnative-boringssl-static</artifactId>
-			<version>1.1.33.Fork16</version>
+			<version>1.1.33.Fork17</version>
+<!-- 			<classifier>${os.detected.classifier}</classifier> -->
+			<classifier>linux-x86_64</classifier>
 		</dependency>
 		<dependency>
 			<groupId>com.google.cloud.bigtable</groupId>

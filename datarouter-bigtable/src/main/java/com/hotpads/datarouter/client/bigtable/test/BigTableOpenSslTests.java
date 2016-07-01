@@ -38,6 +38,7 @@ public class BigTableOpenSslTests{
 
 	@Test
 	public void testNettyTcnative(){
-        NativeLibraryLoader.load("netty-tcnative", SSL.class.getClassLoader());
+//        NativeLibraryLoader.load("netty-tcnative", SSL.class.getClassLoader());
+		System.loadLibrary("netty-tcnative");
 	}
 }
