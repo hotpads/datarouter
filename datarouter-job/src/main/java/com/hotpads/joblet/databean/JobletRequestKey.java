@@ -17,6 +17,7 @@ import com.hotpads.datarouter.storage.field.imp.comparable.IntegerFieldKey;
 import com.hotpads.datarouter.storage.field.imp.comparable.LongField;
 import com.hotpads.datarouter.storage.field.imp.comparable.LongFieldKey;
 import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
+import com.hotpads.joblet.enums.JobletPriority;
 import com.hotpads.joblet.enums.JobletType;
 
 
@@ -74,6 +75,10 @@ public class JobletRequestKey extends BasePrimaryKey<JobletRequestKey>{
 	}
 
 	/*----------------------- methods ---------------------------*/
+
+	public JobletPriority getPriority(){
+		return JobletPriority.fromExecutionOrder(executionOrder);
+	}
 
 	public Date getCreatedDate(){
 		return new Date(created);
