@@ -9,6 +9,7 @@ public enum JobletPriority{
 	LOWEST(3000);
 
 	private Integer value;
+
 	private JobletPriority(Integer value){
 		this.value = value;
 	}
