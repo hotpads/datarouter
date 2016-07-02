@@ -23,8 +23,7 @@ public class DefaultClientTypes{
 			CLIENT_TYPE_jdbc = "jdbc",
 			CLIENT_TYPE_memcached = "memcached",
 			CLIENT_TYPE_memory = "memory",
-			CLIENT_TYPE_sqs = "sqs",
-			CLIENT_TYPE_sqsGroup = "sqsGroup";
+			CLIENT_TYPE_sqs = "sqs";
 
 	public static final String
 			CLIENT_CLASS_bigtable = "com.hotpads.datarouter.client.bigtable.BigTableClientType",
