@@ -55,7 +55,7 @@ public class SqsPerformanceTester{
 	public void testLoadAndDrain(){
 		final int numMessages = 1000;
 		final int putBatchSize = 200;
-		final int numDrainThreads = 40;
+		final int numDrainThreads = 20;
 		final int groupNodeMultiplier = 100;//generate more data since messages are combined
 
 		print("########### non-group poll ###########");
@@ -103,7 +103,7 @@ public class SqsPerformanceTester{
 			exec.submit(() -> {
 				for(TestDatabean databean : router.testDatabean.pollUntilEmpty(config)){
 					numDrained.incrementAndGet();
-					if(numDrained.get() % 100 == 0){
+					if(numDrained.get() % 200 == 0){
 						print("drained {}, latest={}", numDrained.get(), databean.getKey());
 					}
 				}
@@ -130,9 +130,9 @@ public class SqsPerformanceTester{
 						numDatabeansDrained.addAndGet(databeans.size());
 						router.groupTestDatabean.ack(message.getKey(), null);
 						numMessagesDrained.incrementAndGet();
-						if(numMessagesDrained.get() % 100 == 0){
-							print("groupNode={}, drained {}, latest={}", groupNode, numDatabeansDrained.get(),
-									DrCollectionTool.getLast(databeans).getKey());
+						if(numMessagesDrained.get() % 5 == 0){
+						print("groupNode={}, drained {}, latest={}", groupNode, numDatabeansDrained.get(),
+								DrCollectionTool.getLast(databeans).getKey());
 						}
 					}
 				}else{
@@ -142,7 +142,7 @@ public class SqsPerformanceTester{
 						numDatabeansDrained.incrementAndGet();
 						router.testDatabean.ack(message.getKey(), null);
 						numMessagesDrained.incrementAndGet();
-						if(numMessagesDrained.get() % 100 == 0){
+						if(numMessagesDrained.get() % 200 == 0){
 							print("groupNode={}, drained {}, latest={}", groupNode, numDatabeansDrained.get(),
 									databean.getKey());
 						}
