@@ -53,22 +53,23 @@ public class SqsPerformanceTester{
 
 	@Test
 	public void testLoadAndDrain(){
-		final int numMessages = 1000;
+		final int numDatabeans = 1000;
 		final int putBatchSize = 200;
+		final int numGroupDatabeans = 100_000;
+		final int groupPutBatchSize = 20_000;
 		final int numDrainThreads = 20;
-		final int groupNodeMultiplier = 100;//generate more data since messages are combined
 
 		print("########### non-group poll ###########");
-		loadQueue(router.testDatabean, numMessages, putBatchSize);
+		loadQueue(router.testDatabean, numDatabeans, putBatchSize);
 		drainQueueViaPoll(numDrainThreads);
 
 		print("########### non-group peek/ack ############");
-		loadQueue(router.testDatabean, numMessages, putBatchSize);
+		loadQueue(router.testDatabean, numDatabeans, putBatchSize);
 		drainQueueViaPeek(false, numDrainThreads);
 
 
 		print("########### group peek/ack ############");
-		loadQueue(router.groupTestDatabean, numMessages * groupNodeMultiplier, putBatchSize * groupNodeMultiplier);
+		loadQueue(router.groupTestDatabean, numGroupDatabeans, groupPutBatchSize);
 		drainQueueViaPeek(true, numDrainThreads);
 	}
 
