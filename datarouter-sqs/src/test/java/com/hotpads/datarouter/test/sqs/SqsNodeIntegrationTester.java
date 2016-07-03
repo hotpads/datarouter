@@ -31,29 +31,28 @@ public class SqsNodeIntegrationTester{
 
 	private static final int DATABEAN_COUNT = 15;
 
-	@Inject
-	private Datarouter datarouter;
-
+	private final Datarouter datarouter;
 	private final SqsTestHelper sqsTestHelper;
 	private final SqsTestRouter router;
 
 	@Inject
-	public SqsNodeIntegrationTester(SqsTestRouter router){
+	public SqsNodeIntegrationTester(Datarouter datarouter, SqsTestRouter router){
+		this.datarouter = datarouter;
 		this.router = router;
 		this.sqsTestHelper = new SqsTestHelper(router.testDatabean);
 	}
 
 	@AfterClass
-	public void shutdown(){
+	public void afterClass(){
 		datarouter.shutdown();
 	}
 
 	@BeforeMethod
-	public void setUp(){
-		cleanUp(2);
+	public void beforeMethod(){
+		drainQueue(2);
 	}
 
-	private void cleanUp(int seconds){
+	private void drainQueue(int seconds){
 		Config config = new Config().setTimeout(seconds, TimeUnit.SECONDS);
 		for(TestDatabean testDatabean : router.testDatabean.pollUntilEmpty(config)){
 			logger.debug(seconds + "\t" + testDatabean);
@@ -135,7 +134,7 @@ public class SqsNodeIntegrationTester{
 
 	@Test//Too long to run for every build
 	public void testPollTimeout(){
-		cleanUp(40);//extra cleanup
+		drainQueue(40);//extra cleanup
 		TestDatabean databean = new TestDatabean(makeRandomString(), makeRandomString(), makeRandomString());
 		router.testDatabean.put(databean, null);
 

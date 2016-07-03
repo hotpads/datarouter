@@ -10,6 +10,7 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
@@ -17,6 +18,7 @@ import org.testng.annotations.Test;
 import com.hotpads.datarouter.client.imp.sqs.BaseSqsNode;
 import com.hotpads.datarouter.client.imp.sqs.config.DatarouterSqsTestModuleFactory;
 import com.hotpads.datarouter.config.Config;
+import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.storage.queue.GroupQueueMessage;
 import com.hotpads.datarouter.test.TestDatabean;
 import com.hotpads.datarouter.test.TestDatabeanKey;
@@ -29,21 +31,28 @@ public class SqsGroupNodeIntegrationTester{
 
 	private static final int DATABEAN_COUNT = 15;
 
-	private final SqsTestRouter router;
+	private final Datarouter datarouter;
 	private final SqsTestHelper sqsTestHelper;
+	private final SqsTestRouter router;
 
 	@Inject
-	public SqsGroupNodeIntegrationTester(SqsTestRouter router){
+	public SqsGroupNodeIntegrationTester(Datarouter datarouter, SqsTestRouter router){
+		this.datarouter = datarouter;
 		this.router = router;
-		this.sqsTestHelper = new SqsTestHelper(router.groupTestDatabean);
+		this.sqsTestHelper = new SqsTestHelper(router.testDatabean);
+	}
+
+	@AfterClass
+	public void afterClass(){
+		datarouter.shutdown();
 	}
 
 	@BeforeMethod
-	public void setUp(){
-		cleanUp();
+	public void beforeMethod(){
+		drainQueue();
 	}
 
-	private void cleanUp(){
+	private void drainQueue(){
 		Config config = new Config().setTimeout(4, TimeUnit.SECONDS);
 		for(GroupQueueMessage<TestDatabeanKey, TestDatabean> message : router.groupTestDatabean.peekUntilEmpty(config)){
 			router.groupTestDatabean.ack(message.getKey(), config);
