@@ -53,24 +53,30 @@ public class SqsPerformanceTester{
 
 	@Test
 	public void testLoadAndDrain(){
+		final int numMessages = 1000;
+		final int putBatchSize = 200;
+		final int numDrainThreads = 40;
+		final int groupNodeMultiplier = 100;//generate more data since messages are combined
+
 		print("########### non-group poll ###########");
-		loadQueue(router.testDatabean, 1000);
-		drainQueueViaPoll(40);
+		loadQueue(router.testDatabean, numMessages, putBatchSize);
+		drainQueueViaPoll(numDrainThreads);
 
-		print("########### non-group via peek/ack ############");
-		loadQueue(router.testDatabean, 1000);
-		drainQueueViaPeek(false, 40);
+		print("########### non-group peek/ack ############");
+		loadQueue(router.testDatabean, numMessages, putBatchSize);
+		drainQueueViaPeek(false, numDrainThreads);
 
-		print("########### group via peek/ack ############");
-		loadQueue(router.groupTestDatabean, 1000);
-		drainQueueViaPeek(true, 40);
+
+		print("########### group peek/ack ############");
+		loadQueue(router.groupTestDatabean, numMessages * groupNodeMultiplier, putBatchSize * groupNodeMultiplier);
+		drainQueueViaPeek(true, numDrainThreads);
 	}
 
 	/*----------------- load ------------------*/
 
-	private void loadQueue(QueueStorageWriter<TestDatabeanKey,TestDatabean> node, int numDatabeans){
+	private void loadQueue(QueueStorageWriter<TestDatabeanKey,TestDatabean> node, int numDatabeans, int batchSize){
 		PhaseTimer timer = new PhaseTimer("putMulti " + node.toString() + " " + numDatabeans);
-		for(List<TestDatabean> batch : new BatchingIterable<>(makeDatabeans(numDatabeans), 100)){
+		for(List<TestDatabean> batch : new BatchingIterable<>(makeDatabeans(numDatabeans), batchSize)){
 			node.putMulti(batch, null);
 			print("put through {}", DrCollectionTool.getLast(batch));
 		}
@@ -99,7 +105,6 @@ public class SqsPerformanceTester{
 					numDrained.incrementAndGet();
 					if(numDrained.get() % 100 == 0){
 						print("drained {}, latest={}", numDrained.get(), databean.getKey());
-
 					}
 				}
 			});
@@ -121,29 +126,26 @@ public class SqsPerformanceTester{
 				if(groupNode){
 					for(GroupQueueMessage<TestDatabeanKey,TestDatabean> message : router.groupTestDatabean
 							.peekUntilEmpty(config)){
-						for(TestDatabean databean : message.getDatabeans()){
-							numDatabeansDrained.incrementAndGet();
-							if(numDatabeansDrained.get() % 100 == 0){
-								print("groupNode={}, drained {}, latest={}", groupNode, numDatabeansDrained.get(),
-										databean.getKey());
-
-							}
-						}
+						List<TestDatabean> databeans = message.getDatabeans();
+						numDatabeansDrained.addAndGet(databeans.size());
 						router.groupTestDatabean.ack(message.getKey(), null);
 						numMessagesDrained.incrementAndGet();
+						if(numMessagesDrained.get() % 100 == 0){
+							print("groupNode={}, drained {}, latest={}", groupNode, numDatabeansDrained.get(),
+									DrCollectionTool.getLast(databeans).getKey());
+						}
 					}
 				}else{
 					for(QueueMessage<TestDatabeanKey,TestDatabean> message : router.testDatabean.peekUntilEmpty(
 							config)){
 						TestDatabean databean = message.getDatabean();
 						numDatabeansDrained.incrementAndGet();
-						if(numDatabeansDrained.get() % 100 == 0){
+						router.testDatabean.ack(message.getKey(), null);
+						numMessagesDrained.incrementAndGet();
+						if(numMessagesDrained.get() % 100 == 0){
 							print("groupNode={}, drained {}, latest={}", groupNode, numDatabeansDrained.get(),
 									databean.getKey());
 						}
-						// ack after counting for consistency with group version
-						router.testDatabean.ack(message.getKey(), null);
-						numMessagesDrained.incrementAndGet();
 					}
 				}
 			});
@@ -155,8 +157,11 @@ public class SqsPerformanceTester{
 		print(timer.toString() + "@" + timer.getItemsPerSecond(numDatabeansDrained.intValue()));
 	}
 
+	/*----------------- helper -------------------*/
+
 	private static void print(String message, Object... params){
 		Message messageObject = ParameterizedMessageFactory.INSTANCE.newMessage(message, params);
 		System.out.println(messageObject.getFormattedMessage());
 	}
+
 }
