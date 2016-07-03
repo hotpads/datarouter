@@ -5,7 +5,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
@@ -127,15 +126,10 @@ public class SqsNodeIntegrationTester{
 
 	@Test
 	public void testInterruptPeek(){
-		SqsTestHelper.testInterruptPeek(new Callable<Void>(){
-
-			@Override
-			public Void call(){
-				Config config = new Config().setTimeoutMs(5000L);
-				Assert.assertNull(router.testDatabean.peek(config));
-				return null;
-			}
-
+		SqsTestHelper.testInterruptPeek(() -> {
+			Config config = new Config().setTimeoutMs(5000L);
+			Assert.assertNull(router.testDatabean.peek(config));
+			return null;
 		});
 	}
 

@@ -3,7 +3,6 @@ package com.hotpads.datarouter.test.sqs;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
@@ -91,15 +90,10 @@ public class SqsGroupNodeIntegrationTester{
 
 	@Test
 	public void testInterruptPeek(){
-		SqsTestHelper.testInterruptPeek(new Callable<Void>(){
-
-			@Override
-			public Void call(){
-				Config config = new Config().setTimeoutMs(5000L);
-				Assert.assertNull(router.groupTestDatabean.peek(config));
-				return null;
-			}
-
+		SqsTestHelper.testInterruptPeek(() -> {
+			Config config = new Config().setTimeoutMs(5000L);
+			Assert.assertNull(router.groupTestDatabean.peek(config));
+			return null;
 		});
 	}
 
