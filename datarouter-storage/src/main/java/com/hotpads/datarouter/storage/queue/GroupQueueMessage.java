@@ -8,18 +8,18 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
 public class GroupQueueMessage<PK extends PrimaryKey<PK>,D extends Databean<PK,D>> extends BaseQueueMessage<PK,D>{
-	
-	private Collection<D> databeans;
-	
-	public GroupQueueMessage(byte[] handle, Collection<D> databeans){
+
+	private List<D> databeans;
+
+	public GroupQueueMessage(byte[] handle, List<D> databeans){
 		super(handle);
 		this.databeans = databeans;
 	}
-	
-	public Collection<D> getDatabeans(){
+
+	public List<D> getDatabeans(){
 		return databeans;
 	}
-	
+
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>> List<D> getDatabeans(
 			Collection<GroupQueueMessage<PK,D>> messages){
 		List<D> databeans = new ArrayList<>();
