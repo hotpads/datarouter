@@ -13,13 +13,11 @@ extends QueueStorageWriter<PK,D>, GroupQueueStorageReader<PK,D>{
 
 	public static final String
 			OP_pollMulti = "pollMulti",
-			OP_pollUntilEmpty = "pollUntilEmpty"
-			;
-	
+			OP_pollUntilEmpty = "pollUntilEmpty";
+
 	List<D> pollMulti(Config config);
-	
+
 	public interface PhysicalGroupQueueStorageNode<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 	extends GroupQueueStorage<PK,D>,PhysicalQueueStorageWriterNode<PK,D>{
-		
 	}
 }

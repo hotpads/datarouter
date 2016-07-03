@@ -14,13 +14,12 @@ public interface StorageWriter<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>>
 extends NodeOps<PK,D>{
-	
+
 	public static final String
 			OP_put = "put",
-			OP_putMulti = "putMulti"
-			;
-	
-	
+			OP_putMulti = "putMulti";
+
 	void put(D databean, Config config);
 	void putMulti(Collection<D> databeans, Config config);
+
 }
