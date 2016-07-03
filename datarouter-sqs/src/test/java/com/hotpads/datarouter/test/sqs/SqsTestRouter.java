@@ -33,7 +33,7 @@ public class SqsTestRouter extends BaseRouter{
 				TestDatabean.class, null, TestDatabeanFielder.class, true));
 		//Use a different table name to prevent test suites from interfering
 		groupTestDatabean = register(nodeFactory.createGroupQueueNode(DrTestConstants.CLIENT_drTestSqs, this,
-				TestDatabean.class, "groupTestDatabean", TestDatabeanFielder.class, true));
+				TestDatabean.class, "GroupTestDatabean", TestDatabeanFielder.class, true));
 	}
 
 	@Override
