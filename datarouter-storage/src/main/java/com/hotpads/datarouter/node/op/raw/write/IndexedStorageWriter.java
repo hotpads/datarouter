@@ -14,31 +14,30 @@ import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 
 /**
  * Methods for writing to storage systems that provide secondary indexing.
- * 
+ *
  * This storage may be deprecated in favor of a future MultiIndexWriter.
  */
 public interface IndexedStorageWriter<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>>
 extends NodeOps<PK,D>, IndexedOps<PK,D>{
-	
+
 	public static final String
 		OP_indexDelete = "indexDelete",
 		OP_deleteUnique = "deleteUnique",
 		OP_deleteMultiUnique = "deleteMultiUnique",
-		OP_deleteByIndex = "deleteByIndex"
-		;
-	
-	
+		OP_deleteByIndex = "deleteByIndex";
+
+
 	//TODO rename something different than MapStorageWriter.delete
 	//
 	// does not affect the same entry as MapStorageReader.lookup
 	// Example: when a field is null affect only entry where field IS NULL (instead of accept all values for this field)
 	void delete(Lookup<PK> lookup, Config config);
-	
+
 	void deleteUnique(UniqueKey<PK> uniqueKey, Config config);
 	void deleteMultiUnique(Collection<? extends UniqueKey<PK>> uniqueKeys, Config config);
-	
+
 	<IK extends PrimaryKey<IK>> void deleteByIndex(Collection<IK> keys, Config config);
 
 
@@ -50,11 +49,11 @@ extends NodeOps<PK,D>, IndexedOps<PK,D>{
 	extends Node<PK,D>, IndexedStorageWriter<PK,D>{
 	}
 
-	
+
 	public interface PhysicalIndexedStorageWriterNode<
 			PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>>
 	extends PhysicalNode<PK,D>, IndexedStorageWriterNode<PK,D>{
 	}
-	
+
 }
