@@ -11,17 +11,13 @@ import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.routing.BaseRouter;
 import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.test.DrTestConstants;
-import com.hotpads.trace.node.TraceCompoundNode;
 import com.hotpads.trace.node.TraceEntityNode;
 
 
 @Singleton
 public class TraceTestRouter extends BaseRouter{
 
-	public static final String
-			NAME = "TraceRouter",
-			NODE_TraceEntity = "TraceEntity",
-			NODE_TraceCompound = "TraceCompound";
+	private static final String NAME = "TraceRouter";
 
 	/********************************** config **********************************/
 
@@ -34,7 +30,6 @@ public class TraceTestRouter extends BaseRouter{
 
 	/********************************** nodes **********************************/
 
-	private final TraceCompoundNode traceCompound;
 	private final TraceEntityNode traceEntity;
 
 	@Inject
@@ -43,18 +38,12 @@ public class TraceTestRouter extends BaseRouter{
 
 		traceEntity = new TraceEntityNode(entityNodeFactory, nodeFactory, this, DrTestConstants.CLIENT_drTestHBase,
 				TraceEntityNode.ENTITY_NODE_PARAMS_TraceEntityTest);
-		traceCompound = new TraceCompoundNode(nodeFactory, this, datarouter, DrTestConstants.CLIENT_drTestHBase,
-				NODE_TraceCompound);
 	}
 
 	/*************************** get/set ***********************************/
 
 	public TraceEntityNode traceEntity(){
 		return traceEntity;
-	}
-
-	public TraceCompoundNode traceCompound(){
-		return traceCompound;
 	}
 
 }
