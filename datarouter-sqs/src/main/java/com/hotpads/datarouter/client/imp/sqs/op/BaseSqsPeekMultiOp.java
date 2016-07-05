@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.client.imp.sqs.op;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,12 +27,11 @@ extends SqsOp<PK,D,F,List<T>>{
 
 	@Override
 	protected final List<T> run(){
-		ReceiveMessageRequest request = new ReceiveMessageRequest(queueUrl);
+		ReceiveMessageRequest request = makeRequest();
 		Long timeoutMs = config.getTimeoutMs();
 		if(timeoutMs == null){
 			timeoutMs = 0L;
 		}
-		request.setMaxNumberOfMessages(config.getLimitOrUse(BaseSqsNode.MAX_MESSAGES_PER_BATCH));
 		long timeWaitedMs = 0;
 		do{
 			long waitTimeMs = Math.min(timeoutMs - timeWaitedMs, BaseSqsNode.MAX_TIMEOUT_SECONDS * 1000);
@@ -50,4 +50,12 @@ extends SqsOp<PK,D,F,List<T>>{
 	}
 
 	protected abstract List<T> extractDatabeans(List<Message> messages);
+
+	private ReceiveMessageRequest makeRequest(){
+		ReceiveMessageRequest request = new ReceiveMessageRequest(queueUrl);
+		long visibilityTimeoutMs = config.getVisibilityTimeoutMsOrUse(BaseSqsNode.DEFAULT_VISIBILITY_TIMEOUT_MS);
+		request.setVisibilityTimeout((int)Duration.ofMillis(visibilityTimeoutMs).getSeconds());
+		request.setMaxNumberOfMessages(config.getLimitOrUse(BaseSqsNode.MAX_MESSAGES_PER_BATCH));
+		return request;
+	}
 }

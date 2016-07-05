@@ -19,8 +19,12 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 @Singleton
 public class QueueNodeFactory{
 
+	private final DatarouterClients clients;
+
 	@Inject
-	private DatarouterClients clients;
+	public QueueNodeFactory(DatarouterClients clients){
+		this.clients = clients;
+	}
 
 	public <PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
