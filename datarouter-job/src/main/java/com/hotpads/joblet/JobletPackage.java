@@ -1,6 +1,7 @@
 package com.hotpads.joblet;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 import com.hotpads.joblet.databean.JobletData;
@@ -44,15 +45,15 @@ public class JobletPackage {
 	public static <P> JobletPackage create(JobletType<P> jobletType, JobletPriority priority, boolean restartable,
 			String queueId, P params){
 		int batchSequence = RandomTool.nextPositiveInt();
-		return createWithBatchSequence(jobletType, priority, batchSequence, restartable, queueId, params);
+		return createDetailed(jobletType, priority, new Date(), batchSequence, restartable, queueId, params);
 	}
 
-	public static <P> JobletPackage createWithBatchSequence(JobletType<P> jobletType, JobletPriority priority,
+	public static <P> JobletPackage createDetailed(JobletType<P> jobletType, JobletPriority priority, Date dateCreated,
 			int batchSequence, boolean restartable, String queueId, P params){
 		JobletCodec<P> codec = jobletType.getCodecSupplier().get();
 
 		//build JobletRequest
-		JobletRequest request = new JobletRequest(jobletType, priority, batchSequence, restartable);
+		JobletRequest request = new JobletRequest(jobletType, priority, dateCreated, batchSequence, restartable);
 		request.setQueueId(queueId);
 		request.setNumItems(codec.calculateNumItems(params));
 		request.setNumTasks(codec.calculateNumTasks(params));
