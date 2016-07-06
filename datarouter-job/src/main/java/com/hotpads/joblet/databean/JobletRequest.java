@@ -128,11 +128,12 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 	/*-------------------- construct --------------------*/
 
 	public JobletRequest(){
-		this.key = new JobletRequestKey(null, null, null);
+		this.key = new JobletRequestKey(null, null, null, null);
 	}
 
-	public JobletRequest(JobletType<?> type, JobletPriority priority, Integer batchSequence, boolean restartable){
-		this.key = new JobletRequestKey(type, priority.getExecutionOrder(), batchSequence);
+	public JobletRequest(JobletType<?> type, JobletPriority priority, Date createdDate, Integer batchSequence,
+			boolean restartable){
+		this.key = JobletRequestKey.create(type, priority.getExecutionOrder(), createdDate, batchSequence);
 		this.restartable = restartable;
 	}
 
