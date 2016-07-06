@@ -1,6 +1,7 @@
 package com.hotpads.datarouter.client.imp.memcached.node;
 
 import java.util.Collection;
+import java.util.concurrent.ExecutionException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +12,7 @@ import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.op.raw.MapStorage.PhysicalMapStorageNode;
 import com.hotpads.datarouter.node.op.raw.write.MapStorageWriter;
+import com.hotpads.datarouter.profile.tally.TallyKey;
 import com.hotpads.datarouter.serialize.JsonDatabeanTool;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
@@ -125,6 +127,44 @@ implements PhysicalMapStorageNode<PK,D>{
 	public void deleteMulti(final Collection<PK> keys, final Config paramConfig){
 		for(PK pk : DrIterableTool.nullSafe(keys)){
 			delete(pk, paramConfig);
+		}
+	}
+
+
+	public long getTallyCount(TallyKey key){
+		if(key == null){
+			return -1;
+		}
+		byte[] bytes = null;
+		try{
+			bytes = (byte[]) getClient().getSpyClient().asyncGet(buildMemcachedKey(key)).get();
+		}catch(MemcachedStateException | InterruptedException | ExecutionException e){
+			logger.error("memcached error on " + key, e);
+		}
+
+		char[] asciiChar = new char[bytes.length];
+		for(int i = 0; i < bytes.length; i++){
+			asciiChar[i] = (char)bytes[i];
+		}
+		return Long.valueOf(new String(asciiChar).trim()).longValue();
+	}
+
+
+	public void increment(TallyKey tallyKey, int delta, Config paramConfig){
+		if(tallyKey == null){
+			return;
+		}
+		try{
+			TracerTool.startSpan(TracerThreadLocal.get(), "MemcachedRateLimiter.incr");
+			String key = buildMemcachedKey(tallyKey);
+			try{
+				getClient().getSpyClient().incr(key, delta);
+
+			}catch (MemcachedStateException e){
+				logger.error("memcached error on " + key, e);
+			}
+		} finally {
+			finishTraceSpan();
 		}
 	}
 

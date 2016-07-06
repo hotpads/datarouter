@@ -117,7 +117,8 @@ implements MemcachedPhysicalNode<PK,D>,
 
 		try {
 			//get results asynchronously.  default CacheTimeoutMS set in MapCachingStorage.CACHE_CONFIG
-			Future<Map<String,Object>> future = getClient().getSpyClient().asyncGetBulk(buildMemcachedKeys(keys));
+			Future<Map<String,Object>> future = getClient().getSpyClient()
+					.asyncGetBulk(buildMemcachedKeys((Collection<PrimaryKey<?>>)keys));
 			bytesByStringKey = future.get(config.getTimeoutMs(), TimeUnit.MILLISECONDS);
 		} catch(TimeoutException e) {
 			TracerTool.appendToSpanInfo(TracerThreadLocal.get(), "memcached timeout");
@@ -164,11 +165,11 @@ implements MemcachedPhysicalNode<PK,D>,
 
 	/******************** serialization *******************/
 
-	protected String buildMemcachedKey(PK pk){
-		return new DatarouterMemcachedKey<>(getName(), databeanVersion, pk).getVersionedKeyString();
+	protected String buildMemcachedKey(PrimaryKey<?> pk){
+		return new DatarouterMemcachedKey(getName(), databeanVersion, pk).getVersionedKeyString();
 	}
 
-	protected List<String> buildMemcachedKeys(Collection<PK> pks){
+	protected List<String> buildMemcachedKeys(Collection<PrimaryKey<?>> pks){
 		return DatarouterMemcachedKey.getVersionedKeyStrings(getName(), databeanVersion, pks);
 	}
 
