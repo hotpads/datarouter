@@ -13,6 +13,7 @@ import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
 
 public abstract class BaseSqsPeekMultiOp<
 		PK extends PrimaryKey<PK>,
@@ -28,34 +29,36 @@ extends SqsOp<PK,D,F,List<T>>{
 	@Override
 	protected final List<T> run(){
 		ReceiveMessageRequest request = makeRequest();
-		Long timeoutMs = config.getTimeoutMs();
-		if(timeoutMs == null){
-			timeoutMs = 0L;
-		}
-		long timeWaitedMs = 0;
-		do{
-			long waitTimeMs = Math.min(timeoutMs - timeWaitedMs, BaseSqsNode.MAX_TIMEOUT_SECONDS * 1000);
-			timeWaitedMs += waitTimeMs;
-			request.setWaitTimeSeconds((int) (waitTimeMs / 1000));
-			try{
-				ReceiveMessageResult result = amazonSqsClient.receiveMessage(request);
-				if(result.getMessages().size() != 0){
-					return extractDatabeans(result.getMessages());
-				}
-			}catch(AbortedException e){
-				Thread.currentThread().interrupt();
+		try{
+			ReceiveMessageResult result = amazonSqsClient.receiveMessage(request);
+			if(DrCollectionTool.notEmpty(result.getMessages())){
+				return extractDatabeans(result.getMessages());
 			}
-		}while(!Thread.currentThread().isInterrupted() && timeWaitedMs < timeoutMs);
+		}catch(AbortedException e){
+			Thread.currentThread().interrupt();
+		}
 		return new ArrayList<>();
 	}
 
 	protected abstract List<T> extractDatabeans(List<Message> messages);
 
+
 	private ReceiveMessageRequest makeRequest(){
 		ReceiveMessageRequest request = new ReceiveMessageRequest(queueUrl);
+
+		//waitTime
+		long configTimeoutMs = config.getVisibilityTimeoutMsOrUse(Long.MAX_VALUE);
+		long waitTimeMs = Math.min(configTimeoutMs, BaseSqsNode.MAX_TIMEOUT_SECONDS * 1000);
+		int waitTimeSeconds = (int)Duration.ofMillis(waitTimeMs).getSeconds();
+		request.setWaitTimeSeconds(waitTimeSeconds);
+
+		//visibility timeout
 		long visibilityTimeoutMs = config.getVisibilityTimeoutMsOrUse(BaseSqsNode.DEFAULT_VISIBILITY_TIMEOUT_MS);
 		request.setVisibilityTimeout((int)Duration.ofMillis(visibilityTimeoutMs).getSeconds());
+
+		//max messages
 		request.setMaxNumberOfMessages(config.getLimitOrUse(BaseSqsNode.MAX_MESSAGES_PER_BATCH));
+
 		return request;
 	}
 }
