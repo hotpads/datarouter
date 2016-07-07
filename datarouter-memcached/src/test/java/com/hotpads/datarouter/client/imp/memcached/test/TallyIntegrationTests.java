@@ -1,3 +1,4 @@
+
 package com.hotpads.datarouter.client.imp.memcached.test;
 
 import javax.inject.Inject;
@@ -38,15 +39,8 @@ public class TallyIntegrationTests{
 	public void setup(ClientId clientId, boolean useFielder){
 		router = new TallyTestRouter(datarouter, datarouterClients, nodeFactory, clientId, useFielder);
 		tallyNodeRouter = router.tally();
-
-		resetTable();
 	}
 
-	private void resetTable(){
-		if(!isMemcached()){
-			tallyNodeRouter.deleteAll(null);
-		}
-	}
 
 	@BeforeClass
 	public void beforeClass(){
@@ -57,6 +51,7 @@ public class TallyIntegrationTests{
 	public void afterClass(){
 		datarouter.shutdown();
 	}
+
 
 	/********************** subclasses should override these ************************/
 
@@ -70,7 +65,7 @@ public class TallyIntegrationTests{
 
 	@Test
 	public void testIncrement(){
-		Tally bean = new Tally("_key_");
+		Tally bean = new Tally("testKey1");
 		tallyNodeRouter.put(bean, null);
 
 		int count = 5;
@@ -80,5 +75,52 @@ public class TallyIntegrationTests{
 		count += 100;
 		tallyNodeRouter.increment(bean.getKey(), count, null);
 		Assert.assertEquals(tallyNodeRouter.getTallyCount(bean.getKey()), 110 );
+
+		deleteRecord(bean.getKey());
 	}
+
+
+	@Test(expectedExceptions=NullPointerException.class)
+	public void testDelete(){
+		Tally bean = new Tally("testKey2");
+		tallyNodeRouter.put(bean, null);
+
+		tallyNodeRouter.delete(bean.getKey(), null);
+		Tally roundTripped = tallyNodeRouter.get(bean.getKey(), null);
+		Assert.assertNull(roundTripped);
+
+		// Throws NullPointerException since databean has been deleted from Memcached
+		tallyNodeRouter.increment(roundTripped.getKey(), 10, null);
+
+		deleteRecord(bean.getKey());
+	}
+
+	@Test
+	public void testIncrementWihoutPut(){
+		Tally bean = new Tally("testKey3");
+
+		tallyNodeRouter.increment(bean.getKey(), 5, null);
+
+		// if assert error occurs, delete key then rerun test
+		Assert.assertEquals(5, tallyNodeRouter.getTallyCount(bean.getKey()));
+
+		deleteRecord(bean.getKey());
+	}
+
+	@Test
+	public void testGetTallyCountOnNull(){
+		Tally bean = new Tally();
+		Assert.assertEquals(tallyNodeRouter.getTallyCount(bean.getKey()), -1);
+
+		deleteRecord(bean.getKey());
+	}
+
+
+	/*********************** Tracking Test Keys *********************************/
+
+
+	protected void deleteRecord(TallyKey key){
+		tallyNodeRouter.delete(key, null);
+	}
+
 }

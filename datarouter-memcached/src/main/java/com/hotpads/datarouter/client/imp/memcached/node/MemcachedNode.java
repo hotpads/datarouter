@@ -135,18 +135,27 @@ implements PhysicalMapStorageNode<PK,D>{
 		if(key == null){
 			return -1;
 		}
-		byte[] bytes = null;
+		Object tallyObject = null;
 		try{
-			bytes = (byte[]) getClient().getSpyClient().asyncGet(buildMemcachedKey(key)).get();
+			tallyObject = getClient().getSpyClient().asyncGet(buildMemcachedKey(key)).get();
 		}catch(MemcachedStateException | InterruptedException | ExecutionException e){
 			logger.error("memcached error on " + key, e);
+			return -1;
 		}
 
-		char[] asciiChar = new char[bytes.length];
-		for(int i = 0; i < bytes.length; i++){
-			asciiChar[i] = (char)bytes[i];
+		if(tallyObject instanceof String){
+			return Long.valueOf(((String)tallyObject).trim()).longValue();
 		}
-		return Long.valueOf(new String(asciiChar).trim()).longValue();
+		if(tallyObject instanceof byte[]){
+			byte[] asciiBytes = (byte[]) tallyObject;
+			char[] asciiChar = new char[asciiBytes.length];
+			for(int i = 0; i < asciiBytes.length; i++){
+				asciiChar[i] = (char)asciiBytes[i];
+			}
+			return Long.valueOf(new String(asciiChar).trim()).longValue();
+		}
+
+		return -1;
 	}
 
 
@@ -158,8 +167,7 @@ implements PhysicalMapStorageNode<PK,D>{
 			TracerTool.startSpan(TracerThreadLocal.get(), "MemcachedRateLimiter.incr");
 			String key = buildMemcachedKey(tallyKey);
 			try{
-				getClient().getSpyClient().incr(key, delta);
-
+				getClient().getSpyClient().incr(key, delta, delta);
 			}catch (MemcachedStateException e){
 				logger.error("memcached error on " + key, e);
 			}
