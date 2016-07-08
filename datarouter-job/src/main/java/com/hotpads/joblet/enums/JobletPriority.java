@@ -11,7 +11,10 @@ public enum JobletPriority{
 		this.executionOrder = executionOrder;
 	}
 
-	public static JobletPriority fromExecutionOrder(int executionOrder){
+	public static JobletPriority fromExecutionOrder(Integer executionOrder){
+		if(executionOrder==null){
+			return JobletPriority.LOW;
+		}
 		for(JobletPriority priority : JobletPriority.values()){
 			if(priority.getExecutionOrder() >= executionOrder){
 				return priority;

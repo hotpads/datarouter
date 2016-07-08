@@ -427,8 +427,9 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 		return "XMLHttpRequest".equals(xRequestedWith);
 	}
 
-	public String getUrl() {
-		return getProtocol()+ "://" + hostname + ":" + port + contextPath + path + (queryString != null ? "?" + queryString : "");
+	public String getUrl(){
+		return getProtocol() + "://" + hostname + ":" + port + (contextPath == null ? "" : contextPath) + path
+				+ (queryString != null ? "?" + queryString : "");
 	}
 
 	public static HttpRequestRecord createEmptyForTesting(){
