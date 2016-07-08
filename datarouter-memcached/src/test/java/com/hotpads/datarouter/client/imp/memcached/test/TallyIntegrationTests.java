@@ -31,14 +31,15 @@ public class TallyIntegrationTests{
 	private DatarouterClients datarouterClients;
 	@Inject
 	private NodeFactory nodeFactory;
-	protected TallyTestRouter router;
-	protected MemcachedNode<TallyKey, Tally, TallyFielder> tallyNodeRouter;
+
+	private TallyTestRouter router;
+	private MemcachedNode<TallyKey, Tally, TallyFielder> tallyNode;
 
 	/***************************** constructors **************************************/
 
 	public void setup(ClientId clientId, boolean useFielder){
 		router = new TallyTestRouter(datarouter, datarouterClients, nodeFactory, clientId, useFielder);
-		tallyNodeRouter = router.tally();
+		tallyNode = router.tally();
 	}
 
 
@@ -53,28 +54,21 @@ public class TallyIntegrationTests{
 	}
 
 
-	/********************** subclasses should override these ************************/
-
-	public boolean isMemcached(){
-		return true;
-	}
-
-
 	/***************************** tests **************************************/
 
 
 	@Test
 	public void testIncrement(){
 		Tally bean = new Tally("testKey1");
-		tallyNodeRouter.put(bean, null);
+		tallyNode.put(bean, null);
 
 		int count = 5;
-		tallyNodeRouter.increment(bean.getKey(), count, null);
-		Assert.assertEquals(tallyNodeRouter.getTallyCount(bean.getKey()), count);
+		tallyNode.increment(bean.getKey(), count, null);
+		Assert.assertEquals(tallyNode.getTallyCount(bean.getKey()), new Long(-1));
 
 		count += 100;
-		tallyNodeRouter.increment(bean.getKey(), count, null);
-		Assert.assertEquals(tallyNodeRouter.getTallyCount(bean.getKey()), 110 );
+		tallyNode.increment(bean.getKey(), count, null);
+		Assert.assertEquals(tallyNode.getTallyCount(bean.getKey()), new Long(-1));
 
 		deleteRecord(bean.getKey());
 	}
@@ -83,14 +77,14 @@ public class TallyIntegrationTests{
 	@Test(expectedExceptions=NullPointerException.class)
 	public void testDelete(){
 		Tally bean = new Tally("testKey2");
-		tallyNodeRouter.put(bean, null);
+		tallyNode.put(bean, null);
 
-		tallyNodeRouter.delete(bean.getKey(), null);
-		Tally roundTripped = tallyNodeRouter.get(bean.getKey(), null);
+		tallyNode.delete(bean.getKey(), null);
+		Tally roundTripped = tallyNode.get(bean.getKey(), null);
 		Assert.assertNull(roundTripped);
 
 		// Throws NullPointerException since databean has been deleted from Memcached
-		tallyNodeRouter.increment(roundTripped.getKey(), 10, null);
+		tallyNode.increment(roundTripped.getKey(), 10, null);
 
 		deleteRecord(bean.getKey());
 	}
@@ -99,10 +93,10 @@ public class TallyIntegrationTests{
 	public void testIncrementWihoutPut(){
 		Tally bean = new Tally("testKey3");
 
-		tallyNodeRouter.increment(bean.getKey(), 5, null);
+		tallyNode.increment(bean.getKey(), 5, null);
 
 		// if assert error occurs, delete key then rerun test
-		Assert.assertEquals(5, tallyNodeRouter.getTallyCount(bean.getKey()));
+		Assert.assertEquals(tallyNode.getTallyCount(bean.getKey()), new Long(5));
 
 		deleteRecord(bean.getKey());
 	}
@@ -110,7 +104,7 @@ public class TallyIntegrationTests{
 	@Test
 	public void testGetTallyCountOnNull(){
 		Tally bean = new Tally();
-		Assert.assertEquals(tallyNodeRouter.getTallyCount(bean.getKey()), -1);
+		Assert.assertEquals(tallyNode.getTallyCount(bean.getKey()), new Long(-1));
 
 		deleteRecord(bean.getKey());
 	}
@@ -119,8 +113,8 @@ public class TallyIntegrationTests{
 	/*********************** Tracking Test Keys *********************************/
 
 
-	protected void deleteRecord(TallyKey key){
-		tallyNodeRouter.delete(key, null);
+	private void deleteRecord(TallyKey key){
+		tallyNode.delete(key, null);
 	}
 
 }

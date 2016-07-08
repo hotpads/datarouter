@@ -31,10 +31,10 @@ public class DatarouterMemcachedKey{
 	}
 
 	public static List<String> getVersionedKeyStrings(String nodeName, int version,
-			Collection<PrimaryKey<?>> pks){
+			Collection<? extends PrimaryKey<?>> pks){
 		List<String> outs = DrListTool.createArrayListWithSize(pks);
-		for(PrimaryKey<?> f : DrIterableTool.nullSafe(pks)){
-			outs.add(new DatarouterMemcachedKey(nodeName, version, f).getVersionedKeyString());
+		for(PrimaryKey<?> pk : DrIterableTool.nullSafe(pks)){
+			outs.add(new DatarouterMemcachedKey(nodeName, version, pk).getVersionedKeyString());
 		}
 		return outs;
 	}

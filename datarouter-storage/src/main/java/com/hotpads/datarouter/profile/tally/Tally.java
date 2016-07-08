@@ -12,12 +12,12 @@ import com.hotpads.datarouter.storage.field.imp.comparable.LongFieldKey;
 public class Tally extends BaseDatabean<TallyKey, Tally>{
 
 	private TallyKey key;
-	private long count; // Only going to use this databean as a key. Count is stored in memcached.
+	private long tally;
 
 	/**************************** column names *******************************/
 
 	public static class FieldKeys{
-		public static final LongFieldKey count = new LongFieldKey("count");
+		public static final LongFieldKey tally = new LongFieldKey("tally");
 	}
 
 	public static class TallyFielder extends BaseDatabeanFielder<TallyKey, Tally>{
@@ -28,7 +28,7 @@ public class Tally extends BaseDatabean<TallyKey, Tally>{
 
 		@Override
 		public List<Field<?>> getNonKeyFields(Tally databean){
-			return Arrays.asList(new LongField(FieldKeys.count, databean.count));
+			return Arrays.asList(new LongField(FieldKeys.tally, databean.tally));
 		}
 	}
 
@@ -38,8 +38,8 @@ public class Tally extends BaseDatabean<TallyKey, Tally>{
 		this(null);
 	}
 
-	public Tally(String userToken){
-		this.key = new TallyKey(userToken);
+	public Tally(String id){
+		this.key = new TallyKey(id);
 	}
 
 	/**************************** databean ***********************************/
@@ -53,14 +53,4 @@ public class Tally extends BaseDatabean<TallyKey, Tally>{
 	public TallyKey getKey(){
 		return key;
 	}
-
-//	/**************************** get/set ************************************/
-//
-//	public long getCount(){
-//		return count;
-//	}
-//
-//	public void setCount(long newCount){
-//		this.count = newCount;
-//	}
 }

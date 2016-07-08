@@ -1,6 +1,6 @@
 package com.hotpads.datarouter.client.imp.memcached.test;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -24,11 +24,11 @@ import com.hotpads.datarouter.test.DrTestConstants;
 @Singleton
 public class TallyTestRouter extends BaseRouter{
 
-	private static final int VERSION_RateLimiter = 2;
+	private static final int VERSION_Tally = 2;
 
 	private final List<ClientId> clientIds;
 
-	protected MemcachedNode<TallyKey, Tally, TallyFielder> tallyNode;
+	private final MemcachedNode<TallyKey, Tally, TallyFielder> tallyNode;
 
 	private DatarouterClients datarouterClients;
 
@@ -37,8 +37,7 @@ public class TallyTestRouter extends BaseRouter{
 			ClientId clientId, boolean useFielder){
 		super(datarouter, DrTestConstants.CONFIG_PATH, TallyTestRouter.class.getSimpleName());
 		this.datarouterClients = datarouterClients;
-		this.clientIds = new ArrayList<>();
-		this.clientIds.add(clientId);
+		this.clientIds = Arrays.asList(clientId);
 
 		String clientName = clientId.getName();
 		MemcachedClientType clientType = (MemcachedClientType) datarouterClients.getClientTypeInstance(clientName);
@@ -48,7 +47,7 @@ public class TallyTestRouter extends BaseRouter{
 				TallyFielder>(this,Tally::new)
 				.withClientId(clientId)
 				.withFielder(TallyFielder::new)
-				.withSchemaVersion(VERSION_RateLimiter);
+				.withSchemaVersion(VERSION_Tally);
 
 		NodeParams<TallyKey,Tally,TallyFielder> params = paramsBuilder.build();
 
