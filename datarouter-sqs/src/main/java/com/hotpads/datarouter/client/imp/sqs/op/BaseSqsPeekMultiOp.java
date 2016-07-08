@@ -1,10 +1,9 @@
 package com.hotpads.datarouter.client.imp.sqs.op;
 
 import java.time.Duration;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-import com.amazonaws.AbortedException;
 import com.amazonaws.services.sqs.model.Message;
 import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
 import com.amazonaws.services.sqs.model.ReceiveMessageResult;
@@ -29,15 +28,11 @@ extends SqsOp<PK,D,F,List<T>>{
 	@Override
 	protected final List<T> run(){
 		ReceiveMessageRequest request = makeRequest();
-		try{
-			ReceiveMessageResult result = amazonSqsClient.receiveMessage(request);
-			if(DrCollectionTool.notEmpty(result.getMessages())){
-				return extractDatabeans(result.getMessages());
-			}
-		}catch(AbortedException e){
-			Thread.currentThread().interrupt();
+		ReceiveMessageResult result = amazonSqsClient.receiveMessage(request);
+		if(DrCollectionTool.isEmpty(result.getMessages())){
+			return Collections.emptyList();
 		}
-		return new ArrayList<>();
+		return extractDatabeans(result.getMessages());
 	}
 
 	protected abstract List<T> extractDatabeans(List<Message> messages);
@@ -49,8 +44,7 @@ extends SqsOp<PK,D,F,List<T>>{
 		//waitTime
 		long configTimeoutMs = config.getVisibilityTimeoutMsOrUse(Long.MAX_VALUE);
 		long waitTimeMs = Math.min(configTimeoutMs, BaseSqsNode.MAX_TIMEOUT_SECONDS * 1000);
-		int waitTimeSeconds = (int)Duration.ofMillis(waitTimeMs).getSeconds();
-		request.setWaitTimeSeconds(waitTimeSeconds);
+		request.setWaitTimeSeconds((int)Duration.ofMillis(waitTimeMs).getSeconds());//must fit in an int
 
 		//visibility timeout
 		long visibilityTimeoutMs = config.getVisibilityTimeoutMsOrUse(BaseSqsNode.DEFAULT_VISIBILITY_TIMEOUT_MS);
