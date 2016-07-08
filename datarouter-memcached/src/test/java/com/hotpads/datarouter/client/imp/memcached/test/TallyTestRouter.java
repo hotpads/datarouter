@@ -26,11 +26,10 @@ public class TallyTestRouter extends BaseRouter{
 
 	private static final int VERSION_Tally = 2;
 
+	private final DatarouterClients datarouterClients;
 	private final List<ClientId> clientIds;
 
-	private final MemcachedNode<TallyKey, Tally, TallyFielder> tallyNode;
-
-	private DatarouterClients datarouterClients;
+	private final MemcachedNode<TallyKey,Tally,TallyFielder> tallyNode;
 
 	@Inject
 	public TallyTestRouter(Datarouter datarouter, DatarouterClients datarouterClients, NodeFactory nodeFactory,
@@ -43,7 +42,7 @@ public class TallyTestRouter extends BaseRouter{
 		MemcachedClientType clientType = (MemcachedClientType) datarouterClients.getClientTypeInstance(clientName);
 		Preconditions.checkNotNull(clientType, "clientType not found for clientName:"+clientName);
 
-		NodeParamsBuilder<TallyKey, Tally, TallyFielder> paramsBuilder = new NodeParamsBuilder<TallyKey, Tally,
+		NodeParamsBuilder<TallyKey,Tally,TallyFielder> paramsBuilder = new NodeParamsBuilder<TallyKey, Tally,
 				TallyFielder>(this,Tally::new)
 				.withClientId(clientId)
 				.withFielder(TallyFielder::new)
@@ -51,7 +50,7 @@ public class TallyTestRouter extends BaseRouter{
 
 		NodeParams<TallyKey,Tally,TallyFielder> params = paramsBuilder.build();
 
-		this.tallyNode = register((MemcachedNode<TallyKey, Tally, TallyFielder>)clientType
+		this.tallyNode = register((MemcachedNode<TallyKey,Tally,TallyFielder>)clientType
 				.createNodeWithoutAdapters(params));
 	}
 
@@ -64,9 +63,7 @@ public class TallyTestRouter extends BaseRouter{
 
 	/*************************** get/set ***********************************/
 
-	public MemcachedNode<TallyKey, Tally, TallyFielder> tally() {
+	public MemcachedNode<TallyKey,Tally,TallyFielder> tally() {
 		return tallyNode;
 	}
 }
-
-

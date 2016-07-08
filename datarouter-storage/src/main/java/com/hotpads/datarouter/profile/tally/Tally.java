@@ -12,7 +12,7 @@ import com.hotpads.datarouter.storage.field.imp.comparable.LongFieldKey;
 public class Tally extends BaseDatabean<TallyKey, Tally>{
 
 	private TallyKey key;
-	private long tally;
+	private Long tally;
 
 	/**************************** column names *******************************/
 
