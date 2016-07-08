@@ -34,7 +34,7 @@ public abstract class BaseManyFieldIntegrationTests{
 	private Datarouter datarouter;
 	@Inject
 	private NodeFactory nodeFactory;
-	protected ManyFieldTestRouter router;
+
 	protected MapStorageNode<ManyFieldBeanKey,ManyFieldBean> mapNode;
 
 	@Deprecated //currently unused, but not ready to delete
@@ -43,7 +43,7 @@ public abstract class BaseManyFieldIntegrationTests{
 	/***************************** constructors **************************************/
 
 	public void setup(ClientId clientId, boolean useFielder){
-		router = new ManyFieldTestRouter(datarouter, nodeFactory, clientId, useFielder);
+		ManyFieldTestRouter router = new ManyFieldTestRouter(datarouter, nodeFactory, clientId, useFielder);
 		mapNode = router.manyFieldTypeBean();
 
 		resetTable();
