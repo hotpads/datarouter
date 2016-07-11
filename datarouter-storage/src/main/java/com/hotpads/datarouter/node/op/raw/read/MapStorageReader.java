@@ -12,7 +12,7 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
 /**
  * Methods for reading from simple key/value storage systems, supporting similar methods to a HashMap.
- * 
+ *
  * There are many possible implementations such as a HashMap, a Guava cache, Ehcache, Memcached, JDBC, Hibernate, HBase,
  * DynamoDB, S3, Google Cloud Storage, etc.
  */
@@ -20,31 +20,30 @@ public interface MapStorageReader<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>>
 extends NodeOps<PK,D>{
-	
+
 	public static final String
 		OP_exists = "exists",
 		OP_get = "get",
 		OP_getMulti = "getMulti",
-		OP_getKeys = "getKeys"
-		;
-	
-	
+		OP_getKeys = "getKeys";
+
+
 	boolean exists(PK key, Config config);
 	List<PK> getKeys(final Collection<PK> keys, final Config config);
-	
+
 	D get(PK key, Config config);
 	List<D> getMulti(Collection<PK> keys, Config config);
-	
-	
+
+
 	/*************** sub-interfaces ***********************/
-		
+
 	public interface MapStorageReaderNode<
 			PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>>
 	extends Node<PK,D>, MapStorageReader<PK,D>{
-	}	
+	}
 
-	
+
 	public interface PhysicalMapStorageReaderNode<
 			PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>>

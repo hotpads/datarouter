@@ -3,7 +3,6 @@ package com.hotpads.datarouter.storage.field.imp.positive;
 import java.util.Random;
 
 import com.hotpads.datarouter.storage.field.BasePrimitiveField;
-import com.hotpads.datarouter.storage.field.PrimitiveFieldKey;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.util.core.bytes.IntegerByteTool;
 import com.hotpads.util.core.number.RandomTool;
@@ -11,22 +10,21 @@ import com.hotpads.util.core.number.RandomTool;
 public class UInt31Field extends BasePrimitiveField<Integer>{
 
 	public UInt31Field(UInt31FieldKey key, Integer value){
-		super(key, value);
+		this(null, key, value);
 	}
 
-	@Deprecated
-	public UInt31Field(String prefix, PrimitiveFieldKey<Integer> key, Integer value){
+	public UInt31Field(String prefix, UInt31FieldKey key, Integer value){
 		super(prefix, key, value);
 	}
 
 	@Deprecated
 	public UInt31Field(String name, Integer value){
-		super(name, value);
+		this(null, name, value);
 	}
 
 	@Deprecated
 	public UInt31Field(String prefix, String name, Integer value){
-		super(prefix, name, value);
+		this(prefix, new UInt31FieldKey(name), value);
 	}
 
 	/************************ static *********************************/
@@ -37,21 +35,23 @@ public class UInt31Field extends BasePrimitiveField<Integer>{
 		return RandomTool.nextPositiveInt(random);
 	}
 
-
 	/*********************** StringEncodedField ***********************/
 
 	@Override
 	public String getStringEncodedValue(){
-		if(value==null){ return null; }
+		if(value == null){
+			return null;
+		}
 		return value.toString();
 	}
 
 	@Override
-	public Integer parseStringEncodedValueButDoNotSet(String s){
-		if(DrStringTool.isEmpty(s) || s.equals("null")){ return null; }
-		return Integer.valueOf(s);
+	public Integer parseStringEncodedValueButDoNotSet(String str){
+		if(DrStringTool.isEmpty(str) || "null".equals(str)){
+			return null;
+		}
+		return Integer.valueOf(str);
 	}
-
 
 	/*********************** ByteEncodedField ***********************/
 

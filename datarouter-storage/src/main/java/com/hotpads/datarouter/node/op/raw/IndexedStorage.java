@@ -10,11 +10,9 @@ extends IndexedStorageReader<PK,D>, IndexedStorageWriter<PK,D>{
 
 	public interface IndexedStorageNode<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 	extends IndexedStorageReaderNode<PK,D>, IndexedStorageWriterNode<PK,D>{
-
 	}
 
 	public interface PhysicalIndexedStorageNode<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 	extends PhysicalIndexedStorageReaderNode<PK,D>, PhysicalIndexedStorageWriterNode<PK,D>{
-
 	}
 }

@@ -17,6 +17,7 @@ import com.hotpads.datarouter.storage.field.imp.comparable.IntegerFieldKey;
 import com.hotpads.datarouter.storage.field.imp.comparable.LongField;
 import com.hotpads.datarouter.storage.field.imp.comparable.LongFieldKey;
 import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
+import com.hotpads.joblet.enums.JobletPriority;
 import com.hotpads.joblet.enums.JobletType;
 
 
@@ -55,14 +56,12 @@ public class JobletRequestKey extends BasePrimaryKey<JobletRequestKey>{
 	JobletRequestKey(){
 	}
 
-	public JobletRequestKey(JobletType<?> type, Integer executionOrder, Integer batchSequence){
-		this(type, executionOrder, new Date(), batchSequence);
-	}
-
-	public JobletRequestKey(JobletType<?> type, Integer executionOrder, Date created, Integer batchSequence){
-		this(type == null ? null : type.getPersistentString(),
+	//static method to avoid ambiguity with below constructor
+	public static JobletRequestKey create(JobletType<?> type, Integer executionOrder, Date createdDate,
+			Integer batchSequence){
+		return new JobletRequestKey(type == null ? null : type.getPersistentString(),
 				executionOrder,
-				created == null ? null : created.getTime(),
+				createdDate == null ? null : createdDate.getTime(),
 				batchSequence);
 	}
 
@@ -74,6 +73,10 @@ public class JobletRequestKey extends BasePrimaryKey<JobletRequestKey>{
 	}
 
 	/*----------------------- methods ---------------------------*/
+
+	public JobletPriority getPriority(){
+		return JobletPriority.fromExecutionOrder(executionOrder);
+	}
 
 	public Date getCreatedDate(){
 		return new Date(created);

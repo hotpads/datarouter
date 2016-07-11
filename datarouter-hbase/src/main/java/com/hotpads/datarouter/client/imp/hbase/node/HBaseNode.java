@@ -14,7 +14,7 @@ import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.client.Table;
 
 import com.hotpads.datarouter.client.imp.hbase.client.HBaseClient;
-import com.hotpads.datarouter.client.imp.hbase.factory.HBaseSimpleClientFactory;
+import com.hotpads.datarouter.client.imp.hbase.client.HBaseClientFactory;
 import com.hotpads.datarouter.client.imp.hbase.op.write.HBaseIncrementOp;
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseMultiAttemptTask;
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseTask;
@@ -54,8 +54,8 @@ implements PhysicalSortedMapStorageNode<PK,D>, HBaseIncrement<PK>{
 
 	/************************************ MapStorageWriter methods ****************************/
 
-	public static final byte[] FAM = HBaseSimpleClientFactory.DEFAULT_FAMILY_QUALIFIER;
-	public static final SignedByteFieldKey DUMMY = new SignedByteFieldKey(HBaseSimpleClientFactory.DUMMY_COL_NAME);
+	public static final byte[] FAM = HBaseClientFactory.DEFAULT_FAMILY_QUALIFIER;
+	public static final SignedByteFieldKey DUMMY = new SignedByteFieldKey(HBaseClientFactory.DUMMY_COL_NAME);
 
 
 	@Override

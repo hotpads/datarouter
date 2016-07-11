@@ -37,6 +37,7 @@ import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.handler.exception.ExceptionRecordKey;
 import com.hotpads.joblet.dto.JobletSummary;
+import com.hotpads.joblet.enums.JobletPriority;
 import com.hotpads.joblet.enums.JobletStatus;
 import com.hotpads.joblet.enums.JobletType;
 import com.hotpads.joblet.enums.JobletTypeFactory;
@@ -104,7 +105,7 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 		public List<Field<?>> getNonKeyFields(JobletRequest databean) {
 			return Arrays.asList(
 					new StringField(FieldKeys.queueId, databean.queueId),
-					new StringEnumField<JobletStatus>(FieldKeys.status, databean.status),
+					new StringEnumField<>(FieldKeys.status, databean.status),
 					new IntegerField(FieldKeys.numFailures, databean.numFailures),
 					new IntegerField(FieldKeys.numTimeouts, databean.numTimeouts),
 					new StringField(FieldKeys.reservedBy, databean.reservedBy),
@@ -127,11 +128,12 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 	/*-------------------- construct --------------------*/
 
 	public JobletRequest(){
-		this.key = new JobletRequestKey(null, null, null);
+		this.key = new JobletRequestKey(null, null, null, null);
 	}
 
-	public JobletRequest(JobletType<?> type, Integer executionOrder, Integer batchSequence, boolean restartable){
-		this.key = new JobletRequestKey(type, executionOrder, batchSequence);
+	public JobletRequest(JobletType<?> type, JobletPriority priority, Date createdDate, Integer batchSequence,
+			boolean restartable){
+		this.key = JobletRequestKey.create(type, priority.getExecutionOrder(), createdDate, batchSequence);
 		this.restartable = restartable;
 	}
 

@@ -67,6 +67,9 @@ implements Cloneable{
 	private Boolean cacheOk = DEFAULT_CACHE_OK;
 	private Long ttlMs = 0L;//infinite
 
+	//messaging
+	private Long visibilityTimeoutMs;
+
 	//callsite tracing
 	private LineOfCode callsite;
 	private LineOfCode customCallsite;
@@ -96,6 +99,7 @@ implements Cloneable{
 			offset = "offset",
 			cacheOk = "cacheOk",
 			ttlMs = "ttlMs",
+			visibilityTimeoutMs = "visibilityTimeoutMs",
 			callsite = "callsite",
 			customCallsite = "customCallsite"
 			;
@@ -126,6 +130,7 @@ implements Cloneable{
 					new UInt31Field(F.offset, config.offset),
 					new BooleanField(F.cacheOk, config.cacheOk),
 					new UInt63Field(F.ttlMs, config.ttlMs),
+					new UInt63Field(F.visibilityTimeoutMs, config.visibilityTimeoutMs),
 					new StringField(F.callsite, config.callsite.getPersistentString(), LENGTH_CALLSITE),
 					new StringField(F.customCallsite, config.customCallsite.getPersistentString(), LENGTH_CALLSITE)
 					);
@@ -166,6 +171,8 @@ implements Cloneable{
 
 			.setCacheOk(cacheOk)
 			.setTtlMs(ttlMs)
+
+			.setVisibilityTimeoutMs(visibilityTimeoutMs)
 
 			.setCallsite(callsite)
 			.setCustomCallsite(customCallsite);
@@ -424,6 +431,25 @@ implements Cloneable{
 
 	public Config setTtlMs(Long ttlMs){
 		this.ttlMs = ttlMs;
+		return this;
+	}
+
+
+	/************** messaging *************************/
+
+	public long getVisibilityTimeoutMsOrUse(long alternative){
+		if (visibilityTimeoutMs != null){
+			return visibilityTimeoutMs;
+		}
+		return alternative;
+	}
+
+	public Long getVisibilityTimeoutMs(){
+		return visibilityTimeoutMs;
+	}
+
+	public Config setVisibilityTimeoutMs(Long visibilityTimeoutMs){
+		this.visibilityTimeoutMs = visibilityTimeoutMs;
 		return this;
 	}
 

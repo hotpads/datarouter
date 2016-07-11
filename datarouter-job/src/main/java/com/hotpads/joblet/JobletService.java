@@ -68,7 +68,7 @@ public class JobletService{
 	/*---------------------- read ---------------------------*/
 
 	public List<JobletPackage> getJobletPackagesOfType(JobletType<?> jobletType){
-		JobletRequestKey prefix = new JobletRequestKey(jobletType, null, null, null);
+		JobletRequestKey prefix = JobletRequestKey.create(jobletType, null, null, null);
 		return jobletNodes.jobletRequest().streamWithPrefix(prefix, null)
 				.map(this::getJobletPackageForJobletRequest)
 				.collect(Collectors.toList());
@@ -86,13 +86,14 @@ public class JobletService{
 		long durationMs = System.currentTimeMillis() - startMs;
 		if(durationMs > 200){
 			String message = jobletRequest == null ? "none" : jobletRequest.getKey().toString();
-			logger.warn("slow get joblet type={}, durationMs={}, got {}", type, durationMs, message);
+			logger.warn("slow get joblet type={}, durationMs={}, got {}", type, durationMs,
+					message);
 		}
 		return jobletRequest;
 	}
 
 	public boolean jobletRequestExistsWithTypeAndStatus(JobletType<?> jobletType, JobletStatus jobletStatus){
-		JobletRequestKey key = new JobletRequestKey(jobletType, null, null, null);
+		JobletRequestKey key = JobletRequestKey.create(jobletType, null, null, null);
 		Range<JobletRequestKey> range = new Range<>(key, true, key, true);
 		Config config = new Config().setIterateBatchSize(50);
 		for(JobletRequest jobletRequest : jobletNodes.jobletRequest().scan(range, config)){

@@ -27,6 +27,11 @@ public class JobletType<P>{
 		return getPersistentString();
 	}
 
+	@Override
+	public String toString(){
+		return persistentString;
+	}
+
 	/*-------------- get -------------------*/
 
 	public String getPersistentString(){

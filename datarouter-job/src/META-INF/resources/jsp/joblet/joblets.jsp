@@ -5,7 +5,7 @@
 	<title>Joblets</title>
 	<%@ include file="/jsp/generic/datarouterHead.jsp" %>
 	<script>
-	require(['jquery'], function(){
+	require(['jquery','sorttable'], function(){
 		var eventData = {
 			<c:forEach items="${runningJobletThreads}" var="jobletThreads">
 				<c:forEach items="${jobletThreads.value}" var="jobletThread">

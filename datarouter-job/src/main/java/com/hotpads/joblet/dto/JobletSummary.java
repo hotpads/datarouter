@@ -100,8 +100,10 @@ public class JobletSummary{
 		if(firstCreated == null || request.getKey().getCreatedDate().compareTo(firstCreated) < 0){
 			firstCreated = request.getKey().getCreatedDate();
 		}
-		if(firstReserved == null || request.getReservedAtDate().compareTo(firstReserved) < 0){
-			firstReserved = request.getReservedAtDate();
+		if(request.getReservedAtDate() != null){
+			if(firstReserved == null || request.getReservedAtDate().compareTo(firstReserved) < 0){
+				firstReserved = request.getReservedAtDate();
+			}
 		}
 		return this;
 	}

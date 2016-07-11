@@ -37,8 +37,7 @@ extends NodeOps<PK,D>, IndexedOps<PK,D>{
 		OP_getIndexRange = "getIndexRange",
 		OP_getIndexKeyRange = "getIndexKeyRange",
 		OP_scanIndex = "scanIndex",
-		OP_scanIndexKeys = "scanIndexKeys"
-		;
+		OP_scanIndexKeys = "scanIndexKeys";
 
 
 	D lookupUnique(UniqueKey<PK> uniqueKey, Config config);

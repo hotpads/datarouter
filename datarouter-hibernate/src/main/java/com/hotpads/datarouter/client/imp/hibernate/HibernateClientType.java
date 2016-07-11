@@ -8,6 +8,7 @@ import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
 import com.hotpads.datarouter.client.ClientFactory;
+import com.hotpads.datarouter.client.DefaultClientTypes;
 import com.hotpads.datarouter.client.availability.ClientAvailabilitySettings;
 import com.hotpads.datarouter.client.imp.BaseClientType;
 import com.hotpads.datarouter.client.imp.hibernate.client.HibernateSimpleClientFactory;
@@ -38,10 +39,6 @@ import com.hotpads.util.core.lang.ClassTool;
 @Singleton
 public class HibernateClientType extends BaseClientType{
 
-	public static final String
-			NAME = "hibernate",
-			CANONICAL_CLASS_NAME = "com.hotpads.datarouter.client.imp.hibernate.HibernateClientType";
-
 	public static HibernateClientType INSTANCE;
 
 	private final JdbcFieldCodecFactory fieldCodecFactory;
@@ -59,7 +56,7 @@ public class HibernateClientType extends BaseClientType{
 
 	@Override
 	public String getName(){
-		return NAME;
+		return DefaultClientTypes.CLIENT_TYPE_hibernate;
 	}
 
 	@Override
@@ -110,8 +107,8 @@ public class HibernateClientType extends BaseClientType{
 		@Test
 		public void testClassLocation(){
 			String actualClassName = HibernateClientType.class.getCanonicalName();
-			Assert.assertEquals(CANONICAL_CLASS_NAME, actualClassName);
-			injector.getInstance(ClassTool.forName(CANONICAL_CLASS_NAME));
+			Assert.assertEquals(DefaultClientTypes.CLIENT_CLASS_hibernate, actualClassName);
+			injector.getInstance(ClassTool.forName(DefaultClientTypes.CLIENT_CLASS_hibernate));
 		}
 	}
 

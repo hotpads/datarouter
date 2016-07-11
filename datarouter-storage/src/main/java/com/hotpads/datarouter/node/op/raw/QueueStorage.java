@@ -17,21 +17,20 @@ public interface QueueStorage<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>>
 extends QueueStorageWriter<PK,D>, QueueStorageReader<PK,D>{
-	
+
 	public static final String
 			OP_poll = "poll",
 			OP_pollMulti = "pollMulti",
-			OP_pollUntilEmpty = "pollUntilEmpty"
-			;
-	
-	
+			OP_pollUntilEmpty = "pollUntilEmpty";
+
+
 	D poll(Config config);
 	List<D> pollMulti(Config config);
 	Iterable<D> pollUntilEmpty(Config config);
-	
+
 
 	/*************** sub-interfaces ***********************/
-	
+
 	public interface PhysicalQueueStorageNode<
 			PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>>

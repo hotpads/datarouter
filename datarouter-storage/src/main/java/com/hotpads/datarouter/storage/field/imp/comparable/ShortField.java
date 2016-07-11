@@ -12,29 +12,26 @@ public class ShortField extends BasePrimitiveField<Short>{
 
 	@Deprecated
 	public ShortField(String name, Short value){
-		super(name, value);
+		this(new ShortFieldKey(name), value);
 	}
-
-	@Deprecated
-	public ShortField(String prefix, String name, Short value){
-		super(prefix, name, value);
-	}
-
 
 	/*********************** StringEncodedField ***********************/
 
 	@Override
 	public String getStringEncodedValue(){
-		if(value==null){ return null; }
+		if(value == null){
+			return null;
+		}
 		return value.toString();
 	}
 
 	@Override
-	public Short parseStringEncodedValueButDoNotSet(String s){
-		if(DrStringTool.isEmpty(s) || s.equals("null")){ return null; }
-		return Short.valueOf(s);
+	public Short parseStringEncodedValueButDoNotSet(String str){
+		if(DrStringTool.isEmpty(str) || "null".equals(str)){
+			return null;
+		}
+		return Short.valueOf(str);
 	}
-
 
 	/*********************** ByteEncodedField ***********************/
 

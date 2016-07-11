@@ -15,12 +15,7 @@ public class UInt15Field extends BasePrimitiveField<Short>{
 
 	@Deprecated
 	public UInt15Field(String name, Short value){
-		super(name, value);
-	}
-
-	@Deprecated
-	public UInt15Field(String prefix, String name, Short value){
-		super(prefix, name, value);
+		this(new UInt15FieldKey(name), value);
 	}
 
 	/************************ static *********************************/
@@ -31,21 +26,23 @@ public class UInt15Field extends BasePrimitiveField<Short>{
 		return RandomTool.nextPositiveShort(random);
 	}
 
-
 	/*********************** StringEncodedField ***********************/
 
 	@Override
 	public String getStringEncodedValue(){
-		if(value==null){ return null; }
+		if(value == null){
+			return null;
+		}
 		return value.toString();
 	}
 
 	@Override
-	public Short parseStringEncodedValueButDoNotSet(String s){
-		if(DrStringTool.isEmpty(s) || s.equals("null")){ return null; }
-		return Short.valueOf(s);
+	public Short parseStringEncodedValueButDoNotSet(String str){
+		if(DrStringTool.isEmpty(str) || "null".equals(str)){
+			return null;
+		}
+		return Short.valueOf(str);
 	}
-
 
 	/*********************** ByteEncodedField ***********************/
 

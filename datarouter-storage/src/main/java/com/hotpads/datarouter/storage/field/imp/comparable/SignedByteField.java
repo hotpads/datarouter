@@ -13,29 +13,26 @@ public class SignedByteField extends BasePrimitiveField<Byte>{
 
 	@Deprecated
 	public SignedByteField(String name, Byte value){
-		super(name, value);
+		this(new SignedByteFieldKey(name), value);
 	}
-
-	@Deprecated
-	public SignedByteField(String prefix, String name, Byte value){
-		super(prefix, name, value);
-	}
-
 
 	/*********************** StringEncodedField ***********************/
 
 	@Override
 	public String getStringEncodedValue(){
-		if(value==null){ return null; }
+		if(value == null){
+			return null;
+		}
 		return value.toString();
 	}
 
 	@Override
-	public Byte parseStringEncodedValueButDoNotSet(String s){
-		if(DrStringTool.isEmpty(s) || s.equals("null")){ return null; }
-		return Byte.valueOf(s);
+	public Byte parseStringEncodedValueButDoNotSet(String str){
+		if(DrStringTool.isEmpty(str) || "null".equals(str)){
+			return null;
+		}
+		return Byte.valueOf(str);
 	}
-
 
 	/*********************** ByteEncodedField ***********************/
 

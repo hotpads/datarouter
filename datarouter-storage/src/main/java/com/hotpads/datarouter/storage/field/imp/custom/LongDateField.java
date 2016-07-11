@@ -14,30 +14,27 @@ public class LongDateField extends BasePrimitiveField<Date>{
 
 	@Deprecated
 	public LongDateField(String name, Date value){
-		super(name, value);
+		this(new LongDateFieldKey(name), value);
 	}
-
-	@Deprecated
-	public LongDateField(String prefix, String name, Date value){
-		super(prefix, name, value);
-	}
-
 
 	/*********************** StringEncodedField ***********************/
 
 	@Override
 	public String getStringEncodedValue(){
-		if(value==null){ return null; }
+		if(value == null){
+			return null;
+		}
 		return value.getTime()+"";
 	}
 
 	@Override
-	public Date parseStringEncodedValueButDoNotSet(String s){
-		if(DrStringTool.isEmpty(s) || s.equals("null")){ return null; }
-//		return DateTool.parseUserInputDate(s,null);
-		return new Date(Long.valueOf(s));
+	public Date parseStringEncodedValueButDoNotSet(String str){
+		if(DrStringTool.isEmpty(str) || "null".equals(str)){
+			return null;
+		}
+		//		return DateTool.parseUserInputDate(s,null);
+		return new Date(Long.valueOf(str));
 	}
-
 
 	/*********************** ByteEncodedField ***********************/
 
@@ -55,12 +52,11 @@ public class LongDateField extends BasePrimitiveField<Date>{
 	public Date fromBytesButDoNotSet(byte[] bytes, int offset){
 		return new Date(LongByteTool.fromUInt63Bytes(bytes, offset));
 	}
-
-
-
 	@Override
 	public String getValueString(){
-		if(value==null){ return ""; }
+		if(value == null){
+			return "";
+		}
 		return value.toString();
 	}
 
