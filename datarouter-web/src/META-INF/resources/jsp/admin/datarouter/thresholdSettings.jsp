@@ -31,7 +31,7 @@
 				</c:forEach>
 				</tbody>	
 			</table>
-			<input type="hidden" value="displayThresholds" name="submitAction" hidden="true">
+			<input type="hidden" value="saveThresholds" name="submitAction" hidden="true">
 		</form>
 				
 		<br>
@@ -65,7 +65,7 @@
 				</tr>
 			</tfoot>
 			</table>
-			<input type="hidden" value="displayThresholds" name="submitAction" hidden="true">
+			<input value="saveThresholds" name="submitAction" hidden="true">
 		</form>	
 	</div>
 	
