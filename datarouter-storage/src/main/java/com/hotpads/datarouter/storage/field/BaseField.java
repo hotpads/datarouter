@@ -16,12 +16,18 @@ public abstract class BaseField<T> implements Field<T>{
 	protected T value;
 
 	/*************************** constructor *********************************/
+
 	public BaseField(String prefix, T value) {
 		this.prefix = DrStringTool.nullSafe(prefix);
 		this.value = value;
 	}
 
 	/******************************** methods *******************************/
+
+	@Override
+	public int getValueHashCode(){
+		return value == null ? 0 : value.hashCode();
+	}
 
 	@Override
 	public String toString() {

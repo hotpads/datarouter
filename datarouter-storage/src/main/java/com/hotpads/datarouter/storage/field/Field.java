@@ -30,6 +30,8 @@ extends Comparable<Field<T>>,
 
 	void setUsingReflection(Object targetFieldSet, Object value);
 
+	int getValueHashCode();
+
 	String getValueString();
 	void fromString(String string);
 	String getPreparedStatementValue();
