@@ -85,8 +85,6 @@
 
 		function addThreshold() {
 		    document.getElementById("myTable").style="visibility:visible"
-		 
-		  
 		}
 	</script>
 	
