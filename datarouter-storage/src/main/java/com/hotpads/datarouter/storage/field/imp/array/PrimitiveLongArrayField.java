@@ -1,5 +1,7 @@
 package com.hotpads.datarouter.storage.field.imp.array;
 
+import java.util.Arrays;
+
 import com.hotpads.datarouter.storage.field.BaseField;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.util.core.bytes.LongByteTool;
@@ -34,6 +36,11 @@ public class PrimitiveLongArrayField extends BaseField<long[]>{
 	@Override
 	public String getValueString(){
 		return value.toString();
+	}
+
+	@Override
+	public int getValueHashCode(){
+		return Arrays.hashCode(value);
 	}
 
 	@Override
