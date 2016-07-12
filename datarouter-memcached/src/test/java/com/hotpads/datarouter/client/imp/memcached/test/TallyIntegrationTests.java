@@ -9,7 +9,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
-import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.client.DatarouterClients;
 import com.hotpads.datarouter.client.imp.memcached.node.MemcachedNode;
 import com.hotpads.datarouter.node.factory.NodeFactory;
@@ -36,15 +35,11 @@ public class TallyIntegrationTests{
 
 	/***************************** constructors **************************************/
 
-	public void setup(ClientId clientId, boolean useFielder){
-		TallyTestRouter router = new TallyTestRouter(datarouter, datarouterClients, nodeFactory, clientId, useFielder);
-		tallyNode = router.tally();
-	}
-
-
 	@BeforeClass
 	public void beforeClass(){
-		setup(DrTestConstants.CLIENT_drTestMemcached, false);
+		TallyTestRouter router = new TallyTestRouter(datarouter, datarouterClients, nodeFactory,
+				DrTestConstants.CLIENT_drTestMemcached, false);
+		tallyNode = router.tally();
 	}
 
 	@AfterClass
