@@ -133,7 +133,7 @@ implements PhysicalMapStorageNode<PK,D>{
 
 	public Long getTallyCount(TallyKey key){
 		if(key == null){
-			return (long)0;
+			return 0L;
 		}
 		Object tallyObject = null;
 		try{
@@ -144,10 +144,10 @@ implements PhysicalMapStorageNode<PK,D>{
 		}
 
 		if(tallyObject instanceof String){
-			return Long.valueOf(((String)tallyObject).trim()).longValue();
+			return Long.valueOf(((String)tallyObject).trim());
 		}
 
-		return (long)-1;
+		return null;
 	}
 
 
@@ -162,6 +162,24 @@ implements PhysicalMapStorageNode<PK,D>{
 				getClient().getSpyClient().incr(key, delta, delta);
 			}catch (MemcachedStateException e){
 				logger.error("memcached error on " + key, e);
+			}
+		} finally {
+			finishTraceSpan();
+		}
+	}
+
+	public Long incrementAndGetCount(TallyKey tallyKey, int delta, Config paramConfig){
+		if(tallyKey == null){
+			return 0L;
+		}
+		try{
+			TracerTool.startSpan(TracerThreadLocal.get(), "memcached increment and get count");
+			String key = buildMemcachedKey(tallyKey);
+			try{
+				return getClient().getSpyClient().incr(key, delta, delta);
+			}catch (MemcachedStateException e){
+				logger.error("memcached error on " + key, e);
+				return null;
 			}
 		} finally {
 			finishTraceSpan();

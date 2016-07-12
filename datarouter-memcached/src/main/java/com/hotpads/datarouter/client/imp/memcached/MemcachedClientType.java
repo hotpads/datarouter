@@ -66,7 +66,7 @@ public class MemcachedClientType extends BaseClientType{
 	}
 
 	public <PK extends PrimaryKey<PK>, D extends Databean<PK, D>, F extends DatabeanFielder<PK, D>>
-	PhysicalNode<PK, D> createNodeWithoutAdapters(NodeParams<PK, D, F> nodeParams){
+	MemcachedNode<PK,D,F> createNodeWithoutAdapters(NodeParams<PK, D, F> nodeParams){
 		return new MemcachedNode<>(nodeParams);
 	}
 

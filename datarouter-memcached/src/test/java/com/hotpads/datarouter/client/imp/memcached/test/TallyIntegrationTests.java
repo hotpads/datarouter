@@ -32,13 +32,12 @@ public class TallyIntegrationTests{
 	@Inject
 	private NodeFactory nodeFactory;
 
-	private TallyTestRouter router;
 	private MemcachedNode<TallyKey, Tally, TallyFielder> tallyNode;
 
 	/***************************** constructors **************************************/
 
 	public void setup(ClientId clientId, boolean useFielder){
-		router = new TallyTestRouter(datarouter, datarouterClients, nodeFactory, clientId, useFielder);
+		TallyTestRouter router = new TallyTestRouter(datarouter, datarouterClients, nodeFactory, clientId, useFielder);
 		tallyNode = router.tally();
 	}
 
@@ -64,11 +63,11 @@ public class TallyIntegrationTests{
 
 		int count = 5;
 		tallyNode.increment(bean.getKey(), count, null);
-		Assert.assertEquals(tallyNode.getTallyCount(bean.getKey()), new Long(-1));
+		Assert.assertEquals(tallyNode.getTallyCount(bean.getKey()), null);
 
 		count += 100;
 		tallyNode.increment(bean.getKey(), count, null);
-		Assert.assertEquals(tallyNode.getTallyCount(bean.getKey()), new Long(-1));
+		Assert.assertEquals(tallyNode.getTallyCount(bean.getKey()), null);
 
 		deleteRecord(bean.getKey());
 	}
@@ -97,6 +96,9 @@ public class TallyIntegrationTests{
 
 		// if assert error occurs, delete key then rerun test
 		Assert.assertEquals(tallyNode.getTallyCount(bean.getKey()), new Long(5));
+		Assert.assertEquals(tallyNode.getTallyCount(bean.getKey()), new Long(5));
+		tallyNode.increment(bean.getKey(), 5, null);
+		Assert.assertEquals(tallyNode.getTallyCount(bean.getKey()), new Long(10));
 
 		deleteRecord(bean.getKey());
 	}
@@ -104,7 +106,7 @@ public class TallyIntegrationTests{
 	@Test
 	public void testGetTallyCountOnNull(){
 		Tally bean = new Tally();
-		Assert.assertEquals(tallyNode.getTallyCount(bean.getKey()), new Long(-1));
+		Assert.assertEquals(tallyNode.getTallyCount(bean.getKey()), null);
 
 		deleteRecord(bean.getKey());
 	}

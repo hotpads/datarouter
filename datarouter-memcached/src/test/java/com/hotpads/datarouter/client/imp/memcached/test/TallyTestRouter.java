@@ -29,41 +29,50 @@ public class TallyTestRouter extends BaseRouter{
 	private final DatarouterClients datarouterClients;
 	private final List<ClientId> clientIds;
 
+	/********************************** nodes ********************************/
+
 	private final MemcachedNode<TallyKey,Tally,TallyFielder> tallyNode;
+
+	/******************************* constructor *****************************/
 
 	@Inject
 	public TallyTestRouter(Datarouter datarouter, DatarouterClients datarouterClients, NodeFactory nodeFactory,
 			ClientId clientId, boolean useFielder){
 		super(datarouter, DrTestConstants.CONFIG_PATH, TallyTestRouter.class.getSimpleName());
+
 		this.datarouterClients = datarouterClients;
 		this.clientIds = Arrays.asList(clientId);
 
-		String clientName = clientId.getName();
-		MemcachedClientType clientType = (MemcachedClientType) datarouterClients.getClientTypeInstance(clientName);
-		Preconditions.checkNotNull(clientType, "clientType not found for clientName:"+clientName);
-
-		NodeParamsBuilder<TallyKey,Tally,TallyFielder> paramsBuilder = new NodeParamsBuilder<TallyKey, Tally,
-				TallyFielder>(this,Tally::new)
-				.withClientId(clientId)
-				.withFielder(TallyFielder::new)
-				.withSchemaVersion(VERSION_Tally);
-
-		NodeParams<TallyKey,Tally,TallyFielder> params = paramsBuilder.build();
-
-		this.tallyNode = register((MemcachedNode<TallyKey,Tally,TallyFielder>)clientType
-				.createNodeWithoutAdapters(params));
+		this.tallyNode = buildTallyNode(clientId);
 	}
 
-	/********************************** config **********************************/
+	/********************************** config *******************************/
 
 	@Override
 	public List<ClientId> getClientIds(){
 		return clientIds;
 	}
 
-	/*************************** get/set ***********************************/
+	/*************************** get/set *************************************/
 
 	public MemcachedNode<TallyKey,Tally,TallyFielder> tally() {
 		return tallyNode;
+	}
+
+	/********************************** helper *******************************/
+
+	private MemcachedNode<TallyKey, Tally, TallyFielder> buildTallyNode(ClientId clientId){
+		String clientName = clientId.getName();
+		MemcachedClientType clientType = (MemcachedClientType) datarouterClients.getClientTypeInstance(clientName);
+		Preconditions.checkNotNull(clientType, "clientType not found for clientName:"+clientName);
+
+		NodeParamsBuilder<TallyKey, Tally, TallyFielder> paramsBuilder = new NodeParamsBuilder<TallyKey, Tally,
+				TallyFielder>(this,Tally::new)
+				.withClientId(clientId)
+				.withFielder(TallyFielder::new)
+				.withSchemaVersion(VERSION_Tally);
+
+		NodeParams<TallyKey,Tally,TallyFielder> params = paramsBuilder.build();
+		return register(clientType.createNodeWithoutAdapters(params));
 	}
 }
