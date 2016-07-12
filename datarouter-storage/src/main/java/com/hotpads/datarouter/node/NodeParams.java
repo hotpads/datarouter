@@ -35,6 +35,7 @@ public class NodeParams<
 	//name the table different than the databean class
 	private final String physicalName;
 	private final String qualifiedPhysicalName;//weird hibernate requirement ("entity name")
+	private final Optional<String> namespace;
 
 	private final String entityNodePrefix;
 
@@ -47,12 +48,13 @@ public class NodeParams<
 
 	public NodeParams(Router router, ClientId clientId, String parentName, Supplier<D> databeanSupplier,
 			Supplier<F> fielderSupplier, Integer schemaVersion, Class<? super D> baseDatabeanClass, String physicalName,
-			String qualifiedPhysicalName, String entityNodePrefix, String remoteRouterName, String remoteNodeName,
-			Cached<Boolean> recordCallsites){
+			String qualifiedPhysicalName, String namespace, String entityNodePrefix, String remoteRouterName,
+			String remoteNodeName, Cached<Boolean> recordCallsites){
 		this.router = router;
 		this.clientId = clientId;
 		this.parentName = parentName;
 		this.databeanSupplier = databeanSupplier;
+		this.namespace = Optional.ofNullable(namespace);
 		this.databeanName = databeanSupplier.get().getDatabeanName();
 		this.fielderSupplier = fielderSupplier;
 		this.schemaVersion = schemaVersion;
@@ -85,6 +87,7 @@ public class NodeParams<
 
 		private String physicalName;
 		private String qualifiedPhysicalName;
+		private String namespace;
 
 		private String entityNodePrefix;
 
@@ -92,6 +95,7 @@ public class NodeParams<
 		private String remoteNodeName;
 
 		private Cached<Boolean> recordCallsites;
+
 
 		/************** construct **************/
 
@@ -167,13 +171,17 @@ public class NodeParams<
 			return this;
 		}
 
+		public NodeParamsBuilder<PK,D,F> withNamespace(String namespace){
+			this.namespace = namespace;
+			return this;
+		}
 
 		/******************* build ***************************/
 
 		public NodeParams<PK,D,F> build(){
 			return new NodeParams<>(router, clientId, parentName,
 					databeanSupplier, fielderSupplier, schemaVersion, baseDatabeanClass,
-					physicalName, qualifiedPhysicalName,
+					physicalName, qualifiedPhysicalName, namespace,
 					entityNodePrefix,
 					remoteRouterName, remoteNodeName,
 					recordCallsites);
@@ -228,6 +236,10 @@ public class NodeParams<
 
 	public String getQualifiedPhysicalName(){
 		return qualifiedPhysicalName;
+	}
+
+	public Optional<String> getNamespace(){
+		return namespace;
 	}
 
 	public String getRemoteRouterName(){
