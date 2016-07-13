@@ -7,11 +7,9 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
 public interface MemcachedPhysicalNode<
 		PK extends PrimaryKey<PK>,
-		D extends Databean<PK,D>> 
-extends PhysicalNode<PK,D>
-{
+		D extends Databean<PK,D>>
+extends PhysicalNode<PK,D>{
 
 	@Override
 	MemcachedClient getClient();
-	
 }

@@ -7,7 +7,10 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.ListFieldKey;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 
-public abstract class KeyedListField<V extends Comparable<V>,L extends List<V>,K extends ListFieldKey<V,L>>
+public abstract class KeyedListField<
+		V extends Comparable<V>,
+		L extends List<V>, //value must be a List that implements a deep hashCode
+		K extends ListFieldKey<V,L>>
 extends BaseField<L>{
 
 	protected final K key;

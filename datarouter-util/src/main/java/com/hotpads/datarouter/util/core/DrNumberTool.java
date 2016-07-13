@@ -108,16 +108,6 @@ public class DrNumberTool{
 		}
 	}
 
-	public static Integer getIntegerNullSafe(String toInteger, Integer alternate){
-		if(toInteger == null) {
-			return alternate;
-		}
-		try{
-			return Integer.valueOf(toInteger);
-		}catch(NumberFormatException e){
-			return alternate;
-		}
-	}
 	/****************************** tests *************************************/
 
 	public static class Tests{

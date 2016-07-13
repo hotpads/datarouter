@@ -49,7 +49,11 @@ implements QueueStorageWriter<PK,D>{
 	}
 
 	private String getOrCreateQueueUrl(){
-		String queueName = getSqsClient().getSqsOptions().getNamespace() + "-" + getTableName();
+		String prefix = fieldInfo.getNamespace().orElse(getSqsClient().getSqsOptions().getNamespace());
+		if(!prefix.isEmpty()){
+			prefix += "-";
+		}
+		String queueName = prefix + getTableName();
 		CreateQueueRequest createQueueRequest = new CreateQueueRequest(queueName);
 		return getAmazonSqsClient().createQueue(createQueueRequest).getQueueUrl();
 	}
