@@ -508,7 +508,7 @@ public class RequestTool {
 	public static String tryGetBodyAsString(ServletRequest request){
 		try{
 			return getBodyAsString(request);
-		}catch(IllegalStateException e){
+		}catch(Exception e){
 			return INACCESSIBLE_BODY + e.getMessage();
 		}
 	}
