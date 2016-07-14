@@ -1,14 +1,13 @@
 package com.hotpads.datarouter.util.core;
 
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.testng.Assert;
+import org.testng.annotations.Test;
+
 
 public class DrArrayTool {
-	
+
 	public static <T> T getFirst(T[] ins){
 		return isEmpty(ins) ? null : ins[0];
 	}
@@ -20,14 +19,14 @@ public class DrArrayTool {
 			throw new RuntimeException(e);
 		}
 	}
-	
+
 	public static byte[] clone(byte[] in){
 		if(in==null){ return null; }
 		byte[] out = new byte[in.length];
 		System.arraycopy(in, 0, out, 0, in.length);
 		return out;
 	}
-	
+
 	public static byte[] nullSafe(byte[] a){
 		if(a==null){ return new byte[0]; }
 		return a;
@@ -37,13 +36,13 @@ public class DrArrayTool {
 		if(a==null){ return new String[0]; }
 		return a;
 	}
-	
+
 	public static int length(byte[] a){
 		if(a==null){ return 0; }
 		return a.length;
 	}
-	
-	
+
+
 	//TODO remove the "nullSafe" from method names
 	public static int nullSafeLength(short[] a){
 		if(a==null){ return 0; }
@@ -64,46 +63,63 @@ public class DrArrayTool {
 		if(a==null){ return 0; }
 		return a.length;
 	}
-	
+
 	public static boolean isEmpty(byte[] a){
 		if(a==null){ return true; }
 		if(a.length==0){ return true; }
 		return false;
 	}
-	
+
 	public static boolean isEmpty(short[] a){
 		if(a==null){ return true; }
 		if(a.length==0){ return true; }
 		return false;
 	}
-	
+
 	public static boolean isEmpty(int[] a){
 		if(a==null){ return true; }
 		if(a.length==0){ return true; }
 		return false;
 	}
-	
+
 	public static boolean isEmpty(Object[] a){
 		if(a==null){ return true; }
 		if(a.length==0){ return true; }
 		return false;
 	}
-	
+
 	public static boolean notEmpty(Object[] a){
 		return ! isEmpty(a);
 	}
-	
+
 	/*
-	 * concatenate two arrays of bytes 
+	 * concatenate two arrays of bytes
 	 */
 	public static byte[] concatenate(byte[] A, byte[] B) {
-		   byte[] C= new byte[A.length+B.length];
-		   System.arraycopy(A, 0, C, 0, A.length);
-		   System.arraycopy(B, 0, C, A.length, B.length);
-		   return C;
+	   byte[] C= new byte[A.length+B.length];
+	   System.arraycopy(A, 0, C, 0, A.length);
+	   System.arraycopy(B, 0, C, A.length, B.length);
+	   return C;
+	}
+
+	public static byte[] concatenate(byte[]... arrays){
+		int totalLength = 0;
+		for(int i=0; i < nullSafeLength(arrays); ++i){
+			totalLength += length(arrays[i]);
 		}
-	
-	
+		byte[] result = new byte[totalLength];
+		int nextStartIndex = 0;
+		for(int i=0; i < nullSafeLength(arrays); ++i){
+			int argArrayLength = length(arrays[i]);
+			if(argArrayLength > 0){
+				System.arraycopy(arrays[i], 0, result, nextStartIndex, argArrayLength);
+				nextStartIndex += argArrayLength;
+			}
+		}
+		return result;
+	}
+
+
 	public static boolean containsUnsorted(byte[] a, byte key){
 		if(isEmpty(a)){ return false; }
 		for(int i=0; i < a.length; ++i){
@@ -111,7 +127,7 @@ public class DrArrayTool {
 		}
 		return false;
 	}
-	
+
 	public static boolean containsUnsorted(int[] a, Integer key){
 		if(key==null){ return false; }
 		if(isEmpty(a)){ return false; }
@@ -120,7 +136,7 @@ public class DrArrayTool {
 		}
 		return false;
 	}
-	
+
 	public static String toCsvString(byte[] a){
 		if(a==null){ return ""; }
 		StringBuilder sb = new StringBuilder();
@@ -130,7 +146,7 @@ public class DrArrayTool {
 		}
 		return sb.toString();
 	}
-	
+
 	public static String toCsvString(double[] a){
 		if(a==null){ return ""; }
 		StringBuilder sb = new StringBuilder();
@@ -140,7 +156,7 @@ public class DrArrayTool {
 		}
 		return sb.toString();
 	}
-	
+
 	public static long[] primitiveLongArray(Collection<Long> ins){
 		if(DrCollectionTool.isEmpty(ins)){ return new long[0]; }
 		long[] array = new long[ins.size()];
@@ -150,7 +166,7 @@ public class DrArrayTool {
 		}
 		return array;
 	}
-	
+
 	public static void copyInto(byte[] destination, byte[] source, int offset) {
 		for(int i = 0; i < source.length; i++){
 			try{
@@ -163,15 +179,20 @@ public class DrArrayTool {
 	}
 
 	 public static class Tests{
-		 @Test public void simpleCompare(){
+		 @Test
+		 public void simpleCompare(){
 			 Double one = 1.0;
 			 Double two = 2.0;
-			 Assert.assertEquals(0, one.compareTo(one));
-			 Assert.assertEquals(-1, one.compareTo(two));
-			 Assert.assertEquals(1, two.compareTo(one));
+			 Assert.assertEquals(one.compareTo(one), 0);
+			 Assert.assertEquals(one.compareTo(two), -1);
+			 Assert.assertEquals(two.compareTo(one), 1);
+		 }
+		 @Test
+		 public void testConcatenateVarargBytes(){
+			 byte[] concat = concatenate(new byte[]{0, 1}, new byte[]{2}, new byte[]{3, 4});
+			 Assert.assertEquals(concat, new byte[]{0, 1, 2, 3, 4});
 		 }
 	 }
-
 
 }
 
