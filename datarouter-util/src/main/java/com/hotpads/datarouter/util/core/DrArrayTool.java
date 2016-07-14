@@ -5,111 +5,77 @@ import java.util.Collection;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-
-public class DrArrayTool {
-
-	public static <T> T getFirst(T[] ins){
-		return isEmpty(ins) ? null : ins[0];
-	}
-
-	public static void copyWrapException(Object src, int srcPos, Object dest, int destPos, int length){
-		try{
-			System.arraycopy(src, srcPos, dest, destPos, length);
-		}catch(RuntimeException e){
-			throw new RuntimeException(e);
-		}
-	}
+public class DrArrayTool{
 
 	public static byte[] clone(byte[] in){
-		if(in==null){ return null; }
+		if(in == null){
+			return null;
+		}
 		byte[] out = new byte[in.length];
 		System.arraycopy(in, 0, out, 0, in.length);
 		return out;
 	}
 
-	public static byte[] nullSafe(byte[] a){
-		if(a==null){ return new byte[0]; }
-		return a;
+	public static byte[] nullSafe(byte[] array){
+		if(array == null){
+			return new byte[0];
+		}
+		return array;
 	}
 
-	public static String[] nullSafe(String[] a){
-		if(a==null){ return new String[0]; }
-		return a;
+	public static String[] nullSafe(String[] array){
+		if(array == null){
+			return new String[0];
+		}
+		return array;
 	}
 
-	public static int length(byte[] a){
-		if(a==null){ return 0; }
-		return a.length;
+	public static int length(byte[] array){
+		if(array == null){
+			return 0;
+		}
+		return array.length;
 	}
 
-
-	//TODO remove the "nullSafe" from method names
-	public static int nullSafeLength(short[] a){
-		if(a==null){ return 0; }
-		return a.length;
+	public static int length(Object[] array){
+		if(array == null){
+			return 0;
+		}
+		return array.length;
 	}
 
-	public static int nullSafeLength(int[] a){
-		if(a==null){ return 0; }
-		return a.length;
-	}
-
-	public static int nullSafeLength(long[] a){
-		if(a==null){ return 0; }
-		return a.length;
-	}
-
-	public static int nullSafeLength(Object[] a){
-		if(a==null){ return 0; }
-		return a.length;
-	}
-
-	public static boolean isEmpty(byte[] a){
-		if(a==null){ return true; }
-		if(a.length==0){ return true; }
+	public static boolean isEmpty(byte[] array){
+		if(array == null){
+			return true;
+		}
+		if(array.length == 0){
+			return true;
+		}
 		return false;
 	}
 
-	public static boolean isEmpty(short[] a){
-		if(a==null){ return true; }
-		if(a.length==0){ return true; }
+	public static boolean isEmpty(Object[] array){
+		if(array == null){
+			return true;
+		}
+		if(array.length == 0){
+			return true;
+		}
 		return false;
 	}
 
-	public static boolean isEmpty(int[] a){
-		if(a==null){ return true; }
-		if(a.length==0){ return true; }
-		return false;
-	}
-
-	public static boolean isEmpty(Object[] a){
-		if(a==null){ return true; }
-		if(a.length==0){ return true; }
-		return false;
-	}
-
-	public static boolean notEmpty(Object[] a){
-		return ! isEmpty(a);
-	}
-
-	/*
-	 * concatenate two arrays of bytes
-	 */
-	public static byte[] concatenate(byte[] A, byte[] B) {
-	   byte[] C= new byte[A.length+B.length];
-	   System.arraycopy(A, 0, C, 0, A.length);
-	   System.arraycopy(B, 0, C, A.length, B.length);
-	   return C;
+	public static boolean notEmpty(Object[] array){
+		return !isEmpty(array);
 	}
 
 	public static byte[] concatenate(byte[]... arrays){
 		int totalLength = 0;
-		for(int i=0; i < nullSafeLength(arrays); ++i){
+		for(int i = 0; i < length(arrays); ++i){
 			totalLength += length(arrays[i]);
 		}
 		byte[] result = new byte[totalLength];
 		int nextStartIndex = 0;
-		for(int i=0; i < nullSafeLength(arrays); ++i){
+		for(int i = 0; i < length(arrays); ++i){
 			int argArrayLength = length(arrays[i]);
 			if(argArrayLength > 0){
 				System.arraycopy(arrays[i], 0, result, nextStartIndex, argArrayLength);
@@ -119,46 +85,22 @@ public class DrArrayTool {
 		return result;
 	}
 
-
-	public static boolean containsUnsorted(byte[] a, byte key){
-		if(isEmpty(a)){ return false; }
-		for(int i=0; i < a.length; ++i){
-			if(a[i]==key){ return true; }
+	public static boolean containsUnsorted(byte[] array, byte key){
+		if(isEmpty(array)){
+			return false;
+		}
+		for(int i = 0; i < array.length; ++i){
+			if(array[i] == key){
+				return true;
+			}
 		}
 		return false;
-	}
-
-	public static boolean containsUnsorted(int[] a, Integer key){
-		if(key==null){ return false; }
-		if(isEmpty(a)){ return false; }
-		for(int i=0; i < a.length; ++i){
-			if(a[i]==key){ return true; }
-		}
-		return false;
-	}
-
-	public static String toCsvString(byte[] a){
-		if(a==null){ return ""; }
-		StringBuilder sb = new StringBuilder();
-		for(int i=0; i < a.length; ++i){
-			if(i>0){ sb.append(","); }
-			sb.append(a[i]);
-		}
-		return sb.toString();
-	}
-
-	public static String toCsvString(double[] a){
-		if(a==null){ return ""; }
-		StringBuilder sb = new StringBuilder();
-		for(int i=0; i < a.length; ++i){
-			if(i>0){ sb.append(","); }
-			sb.append(a[i]);
-		}
-		return sb.toString();
 	}
 
 	public static long[] primitiveLongArray(Collection<Long> ins){
-		if(DrCollectionTool.isEmpty(ins)){ return new long[0]; }
+		if(DrCollectionTool.isEmpty(ins)){
+			return new long[0];
+		}
 		long[] array = new long[ins.size()];
 		int index = 0;
 		for(long i : ins){
@@ -167,47 +109,31 @@ public class DrArrayTool {
 		return array;
 	}
 
-	public static void copyInto(byte[] destination, byte[] source, int offset) {
+	public static void copyInto(byte[] destination, byte[] source, int offset){
 		for(int i = 0; i < source.length; i++){
 			try{
 				destination[offset + i] = source[i];
-			}
-			catch(ArrayIndexOutOfBoundsException e){
+			}catch(ArrayIndexOutOfBoundsException e){
 				throw new ArrayIndexOutOfBoundsException("array1 + offset is shorter than array2");
 			}
 		}
 	}
 
-	 public static class Tests{
-		 @Test
-		 public void simpleCompare(){
-			 Double one = 1.0;
-			 Double two = 2.0;
-			 Assert.assertEquals(one.compareTo(one), 0);
-			 Assert.assertEquals(one.compareTo(two), -1);
-			 Assert.assertEquals(two.compareTo(one), 1);
-		 }
-		 @Test
-		 public void testConcatenateVarargBytes(){
-			 byte[] concat = concatenate(new byte[]{0, 1}, new byte[]{2}, new byte[]{3, 4});
-			 Assert.assertEquals(concat, new byte[]{0, 1, 2, 3, 4});
-		 }
-	 }
+	public static class Tests{
+		@Test
+		public void simpleCompare(){
+			Double one = 1.0;
+			Double two = 2.0;
+			Assert.assertEquals(one.compareTo(one), 0);
+			Assert.assertEquals(one.compareTo(two), -1);
+			Assert.assertEquals(two.compareTo(one), 1);
+		}
+
+		@Test
+		public void testConcatenateVarargBytes(){
+			byte[] concat = concatenate(new byte[]{0, 1}, new byte[]{2}, new byte[]{3, 4});
+			Assert.assertEquals(concat, new byte[]{0, 1, 2, 3, 4});
+		}
+	}
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
