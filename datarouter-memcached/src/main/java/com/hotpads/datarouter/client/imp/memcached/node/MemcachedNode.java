@@ -159,7 +159,11 @@ implements PhysicalMapStorageNode<PK,D>{
 			TracerTool.startSpan(TracerThreadLocal.get(), "memcached increment");
 			String key = buildMemcachedKey(tallyKey);
 			try{
-				getClient().getSpyClient().incr(key, delta, delta);
+				if(paramConfig != null){
+					getClient().getSpyClient().incr(key, delta, delta, paramConfig.getTtlMs().intValue());
+				} else {
+					getClient().getSpyClient().incr(key, delta, delta);
+				}
 			}catch (MemcachedStateException e){
 				logger.error("memcached error on " + key, e);
 			}
@@ -176,6 +180,9 @@ implements PhysicalMapStorageNode<PK,D>{
 			TracerTool.startSpan(TracerThreadLocal.get(), "memcached increment and get count");
 			String key = buildMemcachedKey(tallyKey);
 			try{
+				if(paramConfig != null){
+					return getClient().getSpyClient().incr(key, delta, delta, paramConfig.getTtlMs().intValue());
+				}
 				return getClient().getSpyClient().incr(key, delta, delta);
 			}catch (MemcachedStateException e){
 				logger.error("memcached error on " + key, e);

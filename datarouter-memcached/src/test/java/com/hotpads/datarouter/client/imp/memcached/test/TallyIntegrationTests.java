@@ -11,6 +11,7 @@ import org.testng.annotations.Test;
 
 import com.hotpads.datarouter.client.DatarouterClients;
 import com.hotpads.datarouter.client.imp.memcached.node.MemcachedNode;
+import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.profile.tally.Tally;
 import com.hotpads.datarouter.profile.tally.Tally.TallyFielder;
@@ -86,6 +87,7 @@ public class TallyIntegrationTests{
 	@Test
 	public void testIncrementWihoutPut(){
 		Tally bean = new Tally("testKey3");
+		deleteRecord(bean.getKey());
 
 		tallyNode.increment(bean.getKey(), 5, null);
 
@@ -104,6 +106,26 @@ public class TallyIntegrationTests{
 		Assert.assertEquals(tallyNode.getTallyCount(bean.getKey()), null);
 
 		deleteRecord(bean.getKey());
+	}
+
+
+//	@Test
+	public void testTtl(){
+		Tally bean = new Tally("testKey4");
+		deleteRecord(bean.getKey());
+
+		tallyNode.increment(bean.getKey(), 5, new Config().setTtlMs(10L));
+
+		System.out.println(new java.util.Date());
+		try{
+			Thread.sleep(10000);
+		} catch (InterruptedException e){
+			Thread.currentThread().interrupt();
+		}
+		System.out.println(new java.util.Date());
+
+		//
+		Assert.assertEquals(tallyNode.getTallyCount(bean.getKey()), new Long(0));
 	}
 
 
