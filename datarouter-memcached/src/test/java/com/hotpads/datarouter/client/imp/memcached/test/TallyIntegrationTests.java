@@ -114,7 +114,7 @@ public class TallyIntegrationTests{
 		Tally bean = new Tally("testKey4");
 		deleteRecord(bean.getKey());
 
-		tallyNode.increment(bean.getKey(), 5, new Config().setTtlMs(10L));
+		tallyNode.increment(bean.getKey(), 5, new Config().setTtlMs(100L));
 
 		System.out.println(new java.util.Date());
 		try{
