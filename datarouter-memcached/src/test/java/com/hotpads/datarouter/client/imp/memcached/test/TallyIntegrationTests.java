@@ -109,23 +109,20 @@ public class TallyIntegrationTests{
 	}
 
 
-//	@Test
+	@Test
 	public void testTtl(){
 		Tally bean = new Tally("testKey4");
 		deleteRecord(bean.getKey());
 
-		tallyNode.increment(bean.getKey(), 5, new Config().setTtlMs(100L));
+		tallyNode.increment(bean.getKey(), 5, new Config().setTtlMs(2000L));
 
-		System.out.println(new java.util.Date());
+		// Wait for 5 seconds
 		try{
-			Thread.sleep(10000);
+			Thread.sleep(4 * 1000);
 		} catch (InterruptedException e){
 			Thread.currentThread().interrupt();
 		}
-		System.out.println(new java.util.Date());
-
-		//
-		Assert.assertEquals(tallyNode.getTallyCount(bean.getKey()), new Long(0));
+		Assert.assertEquals(tallyNode.getTallyCount(bean.getKey()), null);
 	}
 
 
