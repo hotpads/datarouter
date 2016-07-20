@@ -777,7 +777,6 @@ public final class MemcachedClient extends SpyThread {
 				if(f.get()) {
 					rv=def;
 				} else {
-					System.out.println("Memcached value of exp: " + exp);
 					rv=mutate(t, key, by, 0, exp);
 					assert rv != -1 : "Failed to mutate or init value";
 				}
