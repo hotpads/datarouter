@@ -1,20 +1,19 @@
 package com.hotpads.joblet.hibernate;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Collection;
 import java.util.concurrent.TimeUnit;
 
-import org.hibernate.SQLQuery;
-import org.hibernate.Session;
-
 import com.hotpads.datarouter.client.Client;
-import com.hotpads.datarouter.client.imp.hibernate.op.BaseHibernateOp;
+import com.hotpads.datarouter.client.imp.jdbc.op.BaseJdbcOp;
 import com.hotpads.datarouter.op.util.ResultMergeTool;
 import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.joblet.JobletNodes;
 import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.enums.JobletStatus;
 
-public class TimeoutStuckRunningJobletRequests extends BaseHibernateOp<Integer>{
+public class TimeoutStuckRunningJobletRequests extends BaseJdbcOp<Integer>{
 
 	//injected
 	private final JobletNodes jobletNodes;
@@ -49,10 +48,12 @@ public class TimeoutStuckRunningJobletRequests extends BaseHibernateOp<Integer>{
 				+ " and " + restartableFalseFragment
 				+ " and " + reservedAtFragment;
 
-		Session session = getSession(client.getName());
-		SQLQuery query = session.createSQLQuery(sql);
-		int numTimedOut = query.executeUpdate();
-		return numTimedOut;
+		Connection connection = getConnection(client.getName());
+		try{
+			return connection.prepareStatement(sql).executeUpdate();
+		}catch(SQLException e){
+			throw new RuntimeException(e);
+		}
 	}
 
 }
