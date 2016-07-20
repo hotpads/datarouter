@@ -114,7 +114,50 @@ public class TallyIntegrationTests{
 		Tally bean = new Tally("testKey4");
 		deleteRecord(bean.getKey());
 
-		tallyNode.increment(bean.getKey(), 5, new Config().setTtlMs(2000L));
+		tallyNode.increment(bean.getKey(), 1, new Config().setTtlMs(2000L));
+
+		// Wait for 4 seconds
+		try{
+			Thread.sleep(4 * 1000);
+		} catch (InterruptedException e){
+			Thread.currentThread().interrupt();
+		}
+		Assert.assertEquals(tallyNode.getTallyCount(bean.getKey()), null);
+	}
+
+
+	@Test
+	public void testTtlUpdate(){
+		Tally bean = new Tally("testKey5");
+		deleteRecord(bean.getKey());
+
+		// Multiple increments does not modify the original TTL
+		// This bean's TTL stays at 2 seconds
+		tallyNode.increment(bean.getKey(), 1, new Config().setTtlMs(2000L));
+		tallyNode.increment(bean.getKey(), 1, new Config().setTtlMs(2000L));
+		tallyNode.increment(bean.getKey(), 1, new Config().setTtlMs(2000L));
+		tallyNode.increment(bean.getKey(), 1, new Config().setTtlMs(2000L));
+		tallyNode.increment(bean.getKey(), 1, new Config().setTtlMs(2000L));
+
+		// Wait for 4 seconds
+		try{
+			Thread.sleep(4 * 1000);
+		} catch (InterruptedException e){
+			Thread.currentThread().interrupt();
+		}
+		Assert.assertEquals(tallyNode.getTallyCount(bean.getKey()), null);
+	}
+
+	@Test
+	public void testTtlAdvance(){
+		Tally bean = new Tally("testKey6");
+		deleteRecord(bean.getKey());
+
+		tallyNode.increment(bean.getKey(), 1, new Config().setTtlMs(2000L));
+		tallyNode.increment(bean.getKey(), 1, new Config().setTtlMs(2000L));
+		tallyNode.increment(bean.getKey(), 1, new Config().setTtlMs(2000L));
+		tallyNode.increment(bean.getKey(), 1, new Config().setTtlMs(2000L));
+		tallyNode.increment(bean.getKey(), 1, null);
 
 		// Wait for 4 seconds
 		try{
