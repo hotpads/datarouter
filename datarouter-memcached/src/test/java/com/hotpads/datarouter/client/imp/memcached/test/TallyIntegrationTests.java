@@ -116,7 +116,7 @@ public class TallyIntegrationTests{
 
 		tallyNode.increment(bean.getKey(), 5, new Config().setTtlMs(2000L));
 
-		// Wait for 5 seconds
+		// Wait for 4 seconds
 		try{
 			Thread.sleep(4 * 1000);
 		} catch (InterruptedException e){

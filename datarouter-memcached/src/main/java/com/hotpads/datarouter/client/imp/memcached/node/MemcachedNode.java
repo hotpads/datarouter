@@ -183,7 +183,7 @@ implements PhysicalMapStorageNode<PK,D>{
 
 	/************************************ Private methods ****************************/
 
-	private int getExpiration(Config config){
+	private static int getExpiration(Config config){
 		if(config == null){
 			return 0; // Infinite time
 		}
