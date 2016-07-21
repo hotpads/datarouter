@@ -73,12 +73,7 @@ implements PhysicalMapStorageNode<PK,D>{
 				byte[] bytes = DatabeanTool.getBytes(databean, fieldInfo.getSampleFielder());
 				String key = buildMemcachedKey(databean.getKey());
 				//memcachedClient uses an integer for cache timeout
-				Long timeoutLong = config.getTtlMs() == null
-						? Long.MAX_VALUE
-						: config.getTtlMs() / 1000;
-				Integer expiration = timeoutLong > new Long(Integer.MAX_VALUE)
-						? Integer.MAX_VALUE
-						: timeoutLong.intValue();
+				Integer expiration = getExpiration(config);
 				if (bytes.length > 2 * MEGABYTE) {
 					//memcached max size is 1mb for a compressed object, so don't PUT things that won't compress well
 					String json = JsonDatabeanTool.fieldsToJson(databean.getKey().getFields()).toString();
@@ -159,7 +154,7 @@ implements PhysicalMapStorageNode<PK,D>{
 			TracerTool.startSpan(TracerThreadLocal.get(), "memcached increment");
 			String key = buildMemcachedKey(tallyKey);
 			try{
-				getClient().getSpyClient().incr(key, delta, delta);
+				getClient().getSpyClient().incr(key, delta, delta, getExpiration(paramConfig));
 			}catch (MemcachedStateException e){
 				logger.error("memcached error on " + key, e);
 			}
@@ -176,7 +171,7 @@ implements PhysicalMapStorageNode<PK,D>{
 			TracerTool.startSpan(TracerThreadLocal.get(), "memcached increment and get count");
 			String key = buildMemcachedKey(tallyKey);
 			try{
-				return getClient().getSpyClient().incr(key, delta, delta);
+				return getClient().getSpyClient().incr(key, delta, delta, getExpiration(paramConfig));
 			}catch (MemcachedStateException e){
 				logger.error("memcached error on " + key, e);
 				return null;
@@ -186,4 +181,18 @@ implements PhysicalMapStorageNode<PK,D>{
 		}
 	}
 
+	/************************************ Private methods ****************************/
+
+	private static int getExpiration(Config config){
+		if(config == null){
+			return 0; // Infinite time
+		}
+		Long timeoutLong = config.getTtlMs() == null
+				? Long.MAX_VALUE
+				: config.getTtlMs() / 1000;
+		Integer expiration = timeoutLong > new Long(Integer.MAX_VALUE)
+				? Integer.MAX_VALUE
+				: timeoutLong.intValue();
+		return expiration;
+	}
 }
