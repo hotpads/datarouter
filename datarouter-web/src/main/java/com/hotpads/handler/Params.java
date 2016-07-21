@@ -55,11 +55,7 @@ public class Params{
 	}
 
 	public Boolean optionalBoolean(String key, Boolean defaultValue){
-		String value = optional(key).orElse(null);
-		if(value==null){
-			return defaultValue;
-		}
-		return DrBooleanTool.isTrue(value);
+		return optional(key).map(DrBooleanTool::isTrue).orElse(defaultValue);
 	}
 
 	public Long requiredLong(String key){
@@ -67,19 +63,12 @@ public class Params{
 	}
 
 	public Long optionalLong(String key, Long defaultValue){
-		String value = optional(key).orElse(null);
-		if(value==null){
-			return defaultValue;
-		}
-		return Long.valueOf(value);
+		return optional(key).map(Long::valueOf).orElse(defaultValue);
 	}
 
 	public Long optionalLongEmptySafe(String key, Long defaultValue){
-		String value = optional(key).orElse(null);
-		if(DrStringTool.isNullOrEmptyOrWhitespace(value)){
-			return defaultValue;
-		}
-		return Long.valueOf(value);
+		return optional(key).filter(str -> !DrStringTool.isNullOrEmptyOrWhitespace(str)).map(Long::valueOf)
+				.orElse(defaultValue);
 	}
 
 	public Integer requiredInteger(String key){
@@ -87,23 +76,16 @@ public class Params{
 	}
 
 	public Integer optionalInteger(String key, Integer defaultValue){
-		String value = optional(key).orElse(null);
-		if(DrStringTool.isNullOrEmptyOrWhitespace(value)){
-			return defaultValue;
-		}
-		return Integer.valueOf(value);
-	}
-
-	public Double optionalDouble(String key, Double defaultValue){
-		String value = optional(key).orElse(null);
-		if(value==null){
-			return defaultValue;
-		}
-		return Double.valueOf(value);
+		return optional(key).filter(str -> !DrStringTool.isNullOrEmptyOrWhitespace(str)).map(Integer::valueOf)
+				.orElse(defaultValue);
 	}
 
 	public Double requiredDouble(String key){
 		return Double.valueOf(required(key));
+	}
+
+	public Double optionalDouble(String key, Double defaultValue){
+		return optional(key).map(Double::valueOf).orElse(defaultValue);
 	}
 
 	public List<String> optionalCsvList(String key, List<String> defaultValue){
@@ -111,11 +93,7 @@ public class Params{
 	}
 
 	public List<String> optionalList(String key, String delimiter, List<String> defaultValue){
-		String stringVal = optional(key).orElse(null);
-		if(DrStringTool.isEmpty(stringVal)){
-			return defaultValue;
-		}
-		return Arrays.asList(stringVal.split(delimiter));
+		return optional(key).map(str -> str.split(delimiter)).map(Arrays::asList).orElse(defaultValue);
 	}
 
 	public Integer tryGetInteger(String key, Integer defaultValue) {
