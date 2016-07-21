@@ -19,23 +19,18 @@ public class MultipartParams extends Params{
 	private final Map<String,String> paramsMap;
 	private final Map<String,FileItem> filesMap;
 
-	public MultipartParams(HttpServletRequest request){
+	public MultipartParams(HttpServletRequest request) throws FileUploadException{
 		super(request);
 		this.request = request;
 		paramsMap = new HashMap<>();
 		filesMap = new HashMap<>();
-		try{
-			List<FileItem> items = new ServletFileUpload(new DiskFileItemFactory()).parseRequest(this.request);
-			for(FileItem item : items){
-				if(item.isFormField()){
-					paramsMap.put(item.getFieldName(), item.getString());
-				} else {
-					filesMap.put(item.getFieldName(), item);
-				}
+		List<FileItem> items = new ServletFileUpload(new DiskFileItemFactory()).parseRequest(this.request);
+		for(FileItem item : items){
+			if(item.isFormField()){
+				paramsMap.put(item.getFieldName(), item.getString());
+			} else {
+				filesMap.put(item.getFieldName(), item);
 			}
-		}catch(FileUploadException e){
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 	}
 
