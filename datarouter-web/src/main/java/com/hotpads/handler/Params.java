@@ -51,11 +51,11 @@ public class Params{
 	}
 
 	public Boolean requiredBoolean(String key){
-		return DrBooleanTool.isTrue(Preconditions.checkNotNull(request.getParameter(key)));
+		return DrBooleanTool.isTrue(required(key));
 	}
 
 	public Boolean optionalBoolean(String key, Boolean defaultValue){
-		String value = request.getParameter(key);
+		String value = optional(key).orElse(null);
 		if(value==null){
 			return defaultValue;
 		}
@@ -63,11 +63,11 @@ public class Params{
 	}
 
 	public Long requiredLong(String key){
-		return Long.valueOf(Preconditions.checkNotNull(request.getParameter(key)));
+		return Long.valueOf(required(key));
 	}
 
 	public Long optionalLong(String key, Long defaultValue){
-		String value = request.getParameter(key);
+		String value = optional(key).orElse(null);
 		if(value==null){
 			return defaultValue;
 		}
@@ -75,7 +75,7 @@ public class Params{
 	}
 
 	public Long optionalLongEmptySafe(String key, Long defaultValue){
-		String value = request.getParameter(key);
+		String value = optional(key).orElse(null);
 		if(DrStringTool.isNullOrEmptyOrWhitespace(value)){
 			return defaultValue;
 		}
@@ -83,11 +83,11 @@ public class Params{
 	}
 
 	public Integer requiredInteger(String key){
-		return Integer.valueOf(Preconditions.checkNotNull(request.getParameter(key)));
+		return Integer.valueOf(required(key));
 	}
 
 	public Integer optionalInteger(String key, Integer defaultValue){
-		String value = request.getParameter(key);
+		String value = optional(key).orElse(null);
 		if(DrStringTool.isNullOrEmptyOrWhitespace(value)){
 			return defaultValue;
 		}
@@ -95,7 +95,7 @@ public class Params{
 	}
 
 	public Double optionalDouble(String key, Double defaultValue){
-		String value = request.getParameter(key);
+		String value = optional(key).orElse(null);
 		if(value==null){
 			return defaultValue;
 		}
@@ -103,7 +103,7 @@ public class Params{
 	}
 
 	public Double requiredDouble(String key){
-		return Double.valueOf(Preconditions.checkNotNull(request.getParameter(key)));
+		return Double.valueOf(required(key));
 	}
 
 	public List<String> optionalCsvList(String key, List<String> defaultValue){
@@ -111,7 +111,7 @@ public class Params{
 	}
 
 	public List<String> optionalList(String key, String delimiter, List<String> defaultValue){
-		String stringVal = request.getParameter(key);
+		String stringVal = optional(key).orElse(null);
 		if(DrStringTool.isEmpty(stringVal)){
 			return defaultValue;
 		}
