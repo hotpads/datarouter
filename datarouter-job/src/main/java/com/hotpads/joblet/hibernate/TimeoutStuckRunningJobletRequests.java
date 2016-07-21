@@ -1,12 +1,11 @@
 package com.hotpads.joblet.hibernate;
 
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.Collection;
 import java.util.concurrent.TimeUnit;
 
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.imp.jdbc.op.BaseJdbcOp;
+import com.hotpads.datarouter.client.imp.jdbc.util.JdbcTool;
 import com.hotpads.datarouter.op.util.ResultMergeTool;
 import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.joblet.JobletNodes;
@@ -48,12 +47,7 @@ public class TimeoutStuckRunningJobletRequests extends BaseJdbcOp<Integer>{
 				+ " and " + restartableFalseFragment
 				+ " and " + reservedAtFragment;
 
-		Connection connection = getConnection(client.getName());
-		try{
-			return connection.prepareStatement(sql).executeUpdate();
-		}catch(SQLException e){
-			throw new RuntimeException(e);
-		}
+		return JdbcTool.update(getConnection(client.getName()), sql);
 	}
 
 }
