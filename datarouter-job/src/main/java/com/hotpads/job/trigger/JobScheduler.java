@@ -52,8 +52,8 @@ public class JobScheduler {
 				.filter(task -> task.getJobExecutionStatus() == JobExecutionStatus.success)
 				.map(LongRunningTask::getFinishTime)
 				.max(Date::compareTo);
-		if(!jobsLastCompletion.isPresent()){
-			sampleJob.scheduleNextRun(true);
+		if(!jobsLastCompletion.isPresent()){//has never run, schedule for next normal time
+			sampleJob.scheduleNextRun(false);
 			return;
 		}
 		Date nextValid = jobPackage.cronExpression.getNextValidTimeAfter(jobsLastCompletion.get());
