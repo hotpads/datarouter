@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.client.imp.memcached.client.DatarouterMemcachedKey;
 import com.hotpads.datarouter.client.imp.memcached.client.MemcachedClient;
-import com.hotpads.datarouter.client.imp.memcached.client.MemcachedStateException;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.op.raw.read.MapStorageReader;
@@ -81,7 +80,7 @@ implements MemcachedPhysicalNode<PK,D>,
 			bytes = (byte[])future.get(config.getTimeoutMs(), TimeUnit.MILLISECONDS);
 		} catch(TimeoutException e) {
 			TracerTool.appendToSpanInfo(TracerThreadLocal.get(), "memcached timeout");
-		} catch(InterruptedException | ExecutionException | MemcachedStateException e) {
+		} catch(InterruptedException | ExecutionException e) {
 			logger.error("", e);
 		}
 
@@ -122,7 +121,7 @@ implements MemcachedPhysicalNode<PK,D>,
 			bytesByStringKey = future.get(config.getTimeoutMs(), TimeUnit.MILLISECONDS);
 		} catch(TimeoutException e) {
 			TracerTool.appendToSpanInfo(TracerThreadLocal.get(), "memcached timeout");
-		} catch(ExecutionException | InterruptedException | MemcachedStateException e){
+		} catch(ExecutionException | InterruptedException e){
 			logger.error("", e);
 		}
 

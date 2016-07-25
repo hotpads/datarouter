@@ -12,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.imp.memcached.client.MemcachedClientImp;
-import com.hotpads.datarouter.client.imp.memcached.client.MemcachedStateException;
 import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.routing.RouterParams;
 import com.hotpads.handler.BaseHandler;
@@ -22,7 +21,7 @@ import com.hotpads.handler.mav.Mav;
 public class MemcachedHandler extends BaseHandler {
 
 	private static final Logger logger = LoggerFactory.getLogger(MemcachedHandler.class);
-	
+
 	@Inject
 	private Datarouter datarouter;
 
@@ -35,12 +34,8 @@ public class MemcachedHandler extends BaseHandler {
 				"/jsp/admin/datarouter/memcached/memcachedClientSummary.jsp");
 		mav.put("client", paramsRouter.getClient().getSpyClient());
 		Map<SocketAddress, Map<String, String>> stats = null;
-		try {
-			stats = paramsRouter.getClient().getSpyClient().getStats();
-			mav.put("memcachedStats", stats);
-		} catch (MemcachedStateException e) {
-			logger.error("",e);
-		}
+		stats = paramsRouter.getClient().getSpyClient().getStats();
+		mav.put("memcachedStats", stats);
 
 		return mav;
 	}
