@@ -6,7 +6,6 @@ import java.util.concurrent.ExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hotpads.datarouter.client.imp.memcached.client.MemcachedStateException;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams;
@@ -81,11 +80,7 @@ implements PhysicalMapStorageNode<PK,D>{
 							+ json);
 					return;
 				}
-				try {
-					this.getClient().getSpyClient().set(key, expiration, bytes);
-				} catch (MemcachedStateException e) {
-					logger.error("memached error on " + key,e);
-				}
+				this.getClient().getSpyClient().set(key, expiration, bytes);
 			}
 			TracerTool.appendToSpanInfo(TracerThreadLocal.get(), DrCollectionTool.size(databeans)+"");
 		}finally{
@@ -107,11 +102,7 @@ implements PhysicalMapStorageNode<PK,D>{
 		}
 		try{
 			startTraceSpan(MapStorageWriter.OP_delete);
-			try {
-				getClient().getSpyClient().delete(buildMemcachedKey(key));
-			} catch (MemcachedStateException e) {
-				logger.error("", e);
-			}
+			getClient().getSpyClient().delete(buildMemcachedKey(key));
 		}finally{
 			finishTraceSpan();
 		}
@@ -133,7 +124,7 @@ implements PhysicalMapStorageNode<PK,D>{
 		Object tallyObject = null;
 		try{
 			tallyObject = getClient().getSpyClient().asyncGet(buildMemcachedKey(key)).get();
-		}catch(MemcachedStateException | InterruptedException | ExecutionException e){
+		}catch(InterruptedException | ExecutionException e){
 			logger.error("memcached error on " + key, e);
 			return null;
 		}
@@ -153,11 +144,7 @@ implements PhysicalMapStorageNode<PK,D>{
 		try{
 			TracerTool.startSpan(TracerThreadLocal.get(), "memcached increment");
 			String key = buildMemcachedKey(tallyKey);
-			try{
-				getClient().getSpyClient().incr(key, delta, delta, getExpiration(paramConfig));
-			}catch (MemcachedStateException e){
-				logger.error("memcached error on " + key, e);
-			}
+			getClient().getSpyClient().incr(key, delta, delta, getExpiration(paramConfig));
 		} finally {
 			finishTraceSpan();
 		}
@@ -170,12 +157,7 @@ implements PhysicalMapStorageNode<PK,D>{
 		try{
 			TracerTool.startSpan(TracerThreadLocal.get(), "memcached increment and get count");
 			String key = buildMemcachedKey(tallyKey);
-			try{
-				return getClient().getSpyClient().incr(key, delta, delta, getExpiration(paramConfig));
-			}catch (MemcachedStateException e){
-				logger.error("memcached error on " + key, e);
-				return null;
-			}
+			return getClient().getSpyClient().incr(key, delta, delta, getExpiration(paramConfig));
 		} finally {
 			finishTraceSpan();
 		}
