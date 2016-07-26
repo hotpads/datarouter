@@ -1,9 +1,7 @@
 package com.hotpads.handler;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -16,6 +14,7 @@ import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.util.core.DrBooleanTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.handler.user.session.DatarouterSession;
+import com.hotpads.util.http.RequestTool;
 
 public class Params{
 
@@ -24,9 +23,7 @@ public class Params{
 
 	public Params(HttpServletRequest request){
 		this.request = request;
-		paramsMap = new HashMap<>();
-		Collections.list(request.getParameterNames())
-				.forEach(key -> paramsMap.put(key, request.getParameter(key)));
+		paramsMap = RequestTool.getParamMap(request);
 	}
 
 	public String required(String key){
