@@ -135,14 +135,14 @@ implements PhysicalMapStorageNode<PK,D>{
 			tallyObject = getClient().getSpyClient().asyncGet(buildMemcachedKey(key)).get();
 		}catch(MemcachedStateException | InterruptedException | ExecutionException e){
 			logger.error("memcached error on " + key, e);
-			return null;
+			return 0L;
 		}
 
 		if(tallyObject instanceof String){
 			return Long.valueOf(((String)tallyObject).trim());
 		}
 
-		return null;
+		return 0L;
 	}
 
 

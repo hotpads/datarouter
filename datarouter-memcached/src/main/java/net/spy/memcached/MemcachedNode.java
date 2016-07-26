@@ -160,7 +160,7 @@ public interface MemcachedNode {
 	void fixupOps();
 
 	void resetReconnectCount();
-	
+
 	void clearAllOps();
 
 }
