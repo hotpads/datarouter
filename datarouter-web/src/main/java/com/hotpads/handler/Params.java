@@ -25,9 +25,8 @@ public class Params{
 	public Params(HttpServletRequest request){
 		this.request = request;
 		paramsMap = new HashMap<>();
-		for(String key : Collections.list(request.getParameterNames())){
-			paramsMap.put(key, request.getParameter(key));
-		}
+		Collections.list(request.getParameterNames())
+				.forEach(key -> paramsMap.put(key, request.getParameter(key)));
 	}
 
 	public String required(String key){
