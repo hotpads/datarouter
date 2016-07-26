@@ -8,6 +8,8 @@ import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.fileupload.FileItem;
+
 import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.util.core.DrBooleanTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
@@ -115,6 +117,14 @@ public class Params{
 	public Date tryGetLongAsDate(String key, Long defaultValue) {
 		Long value = tryGetLong(key, defaultValue);
 		return new Date(value);
+	}
+
+	public FileItem requiredFile(String key){
+		throw new NullPointerException("not a multipart request");
+	}
+
+	public Optional<FileItem> optionalFile(String key){
+		return Optional.empty();
 	}
 
 	public Map<String, String> toMap(){
