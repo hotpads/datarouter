@@ -1,7 +1,9 @@
 package com.hotpads.handler;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -14,22 +16,26 @@ import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.util.core.DrBooleanTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.handler.user.session.DatarouterSession;
-import com.hotpads.util.http.RequestTool;
 
 public class Params{
 
 	private final HttpServletRequest request;
+	protected Map<String,String> paramsMap;
 
 	public Params(HttpServletRequest request){
 		this.request = request;
+		paramsMap = new HashMap<>();
+		for(String key : Collections.list(request.getParameterNames())){
+			paramsMap.put(key, request.getParameter(key));
+		}
 	}
 
 	public String required(String key){
-		return Preconditions.checkNotNull(request.getParameter(key));
+		return Preconditions.checkNotNull(paramsMap.get(key));
 	}
 
 	public Optional<String> optional(String key){
-		return Optional.ofNullable(request.getParameter(key));
+		return Optional.ofNullable(paramsMap.get(key));
 	}
 
 	/**
@@ -127,8 +133,8 @@ public class Params{
 		return Optional.empty();
 	}
 
-	public Map<String, String> toMap(){
-		return RequestTool.getParamMap(request);
+	public Map<String,String> toMap(){
+		return paramsMap;
 	}
 
 	/**************************** fancier methods *************************/

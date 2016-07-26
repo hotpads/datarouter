@@ -16,8 +16,7 @@ import com.google.common.base.Preconditions;
 
 public class MultipartParams extends Params{
 	private final HttpServletRequest request;
-	private final Map<String,String> paramsMap;
-	private final Map<String,FileItem> filesMap;
+	private Map<String,FileItem> filesMap;
 
 	public MultipartParams(HttpServletRequest request) throws FileUploadException{
 		super(request);
@@ -35,19 +34,11 @@ public class MultipartParams extends Params{
 	}
 
 	@Override
-	public String required(String key){
-		return Preconditions.checkNotNull(paramsMap.get(key));
-	}
-
-	@Override
-	public Optional<String> optional(String key){
-		return Optional.ofNullable(paramsMap.get(key));
-	}
-
 	public FileItem requiredFile(String key){
 		return Preconditions.checkNotNull(filesMap.get(key));
 	}
 
+	@Override
 	public Optional<FileItem> optionalFile(String key){
 		return Optional.ofNullable(filesMap.get(key));
 	}
