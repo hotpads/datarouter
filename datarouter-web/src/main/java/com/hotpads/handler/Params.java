@@ -120,7 +120,7 @@ public class Params{
 	}
 
 	public FileItem requiredFile(String key){
-		throw new NullPointerException("not a multipart request");
+		throw new RuntimeException("not a multipart request");
 	}
 
 	public Optional<FileItem> optionalFile(String key){
