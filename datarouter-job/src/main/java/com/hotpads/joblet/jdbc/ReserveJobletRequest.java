@@ -14,8 +14,6 @@ import com.hotpads.joblet.enums.JobletType;
 
 public class ReserveJobletRequest extends BaseJdbcOp<Boolean>{
 
-	public static final int MAX_JOBLET_RETRIES = 10;
-
 	private final String tableName;
 	private final String reservedBy;
 	private final JobletType<?> jobletType;

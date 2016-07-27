@@ -91,38 +91,6 @@ public class JobletService{
 		return new JobletPackage(jobletRequest, jobletData);
 	}
 
-	public JobletRequest getJobletRequestForProcessing(JobletType<?> type, String reservedBy){
-		long startMs = System.currentTimeMillis();
-		JobletRequest jobletRequest;
-		if(GET_VS_RESERVE_JOBLET){
-			while(true){
-				GetJobletRequest jdbcOp = new GetJobletRequest(reservedBy, type, datarouter, jobletNodes,
-						jdbcFieldCodecFactory, jobletRequestSqlBuilder);
-				jobletRequest = datarouter.run(jdbcOp);
-				if(jobletRequest == null){
-					break; //no JobletRequest found
-				}
-				if(JobletStatus.running == jobletRequest.getStatus()){
-					break; //GetJobletRequest class gives us a "running" joblet if it's ready to run
-				}
-			}
-		}else{
-			ReserveJobletRequest jdbcOp = new ReserveJobletRequest(reservedBy, type, datarouter, jobletNodes,
-					jobletRequestSqlBuilder);
-			boolean success = datarouter.run(jdbcOp);
-			if(success){
-				jobletRequest = jobletRequestDao.getReservedRequest(type, reservedBy);
-			}
-		}
-		long durationMs = System.currentTimeMillis() - startMs;
-		if(durationMs > 200){
-			String message = jobletRequest == null ? "none" : jobletRequest.getKey().toString();
-			logger.warn("slow get joblet type={}, durationMs={}, got {}", type, durationMs,
-					message);
-		}
-		return jobletRequest;
-	}
-
 	public boolean jobletRequestExistsWithTypeAndStatus(JobletType<?> jobletType, JobletStatus jobletStatus){
 		JobletRequestKey key = JobletRequestKey.create(jobletType, null, null, null);
 		Range<JobletRequestKey> range = new Range<>(key, true, key, true);
@@ -137,6 +105,65 @@ public class JobletService{
 
 	public JobletData getJobletDataForJobletRequest(JobletRequest joblet){
 		return jobletNodes.jobletData().get(joblet.getJobletDataKey(), null);
+	}
+
+	/*--------------------- get for processing ---------------------*/
+
+	public JobletRequest getJobletRequestForProcessing(JobletType<?> type, String reservedBy){
+		long startMs = System.currentTimeMillis();
+		JobletRequest jobletRequest;
+		if(GET_VS_RESERVE_JOBLET){
+			jobletRequest = getJobletRequestByGetOp(type, reservedBy);
+		}else{
+			jobletRequest = getJobletRequestByReserveOp(type, reservedBy);
+		}
+		long durationMs = System.currentTimeMillis() - startMs;
+		if(durationMs > 200){
+			String message = jobletRequest == null ? "none" : jobletRequest.getKey().toString();
+			logger.warn("slow get joblet type={}, durationMs={}, got {}", type, durationMs,
+					message);
+		}
+		return jobletRequest;
+	}
+
+	private JobletRequest getJobletRequestByGetOp(JobletType<?> type, String reservedBy){
+		while(true){
+			GetJobletRequest jdbcOp = new GetJobletRequest(reservedBy, type, datarouter, jobletNodes,
+					jdbcFieldCodecFactory, jobletRequestSqlBuilder);
+			JobletRequest jobletRequest = datarouter.run(jdbcOp);
+			if(jobletRequest == null){
+				return null;
+			}
+			if( ! jobletRequest.getStatus().isRunning()){
+				continue;//weird flow.  it was probably just marked as timedOut, so skip it
+			}
+			return jobletRequest;
+		}
+	}
+
+	private JobletRequest getJobletRequestByReserveOp(JobletType<?> type, String reservedBy){
+		ReserveJobletRequest jdbcOp = new ReserveJobletRequest(reservedBy, type, datarouter, jobletNodes,
+				jobletRequestSqlBuilder);
+		while(datarouter.run(jdbcOp)){//returns false if no joblet found
+			JobletRequest jobletRequest = jobletRequestDao.getReservedRequest(type, reservedBy);
+			if(JobletStatus.created == jobletRequest.getStatus()){
+				jobletRequest.setStatus(JobletStatus.running);
+				jobletNodes.jobletRequest().put(jobletRequest, null);
+				return jobletRequest;
+			}
+
+			//we got a previously timed-out joblet
+			jobletRequest.incrementNumTimeouts();
+			if(jobletRequest.getNumTimeouts() <= MAX_JOBLET_RETRIES){
+				jobletNodes.jobletRequest().put(jobletRequest, null);
+				return jobletRequest;
+			}
+
+			jobletRequest.setStatus(JobletStatus.timedOut);
+			jobletNodes.jobletRequest().put(jobletRequest, null);
+			//loop around for another
+		}
+		return null;
 	}
 
 	/*------------------- update ----------------------------*/

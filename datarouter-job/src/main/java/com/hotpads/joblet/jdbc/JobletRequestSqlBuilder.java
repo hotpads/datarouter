@@ -41,20 +41,17 @@ public class JobletRequestSqlBuilder{
 	//update for ReserveJobletRequest
 	public String makeUpdateClause(String tableName, String reservedBy){
 		StringField reservedByField = new StringField(JobletRequest.FieldKeys.reservedBy, reservedBy);
-		String setClause = " set " + jdbcFieldCodecFactory.createCodec(STATUS_CREATED_FIELD)
-				.getSqlNameValuePairEscaped();
-		setClause += ", " + jdbcFieldCodecFactory.createCodec(reservedByField).getSqlNameValuePairEscaped();
-		return "update " + tableName + setClause;
+		String reservedByClause = jdbcFieldCodecFactory.createCodec(reservedByField).getSqlNameValuePairEscaped();
+		return "update " + tableName + " set " + reservedByClause;
 	}
 
 	//where for both
 	public String makeWhereClause(JobletType<?> jobletType){
 		StringBuilder sql = new StringBuilder();
-		return sql
-				.append(" where ")
+		return sql.append(" where ")
 				.append(makeTypeClause(jobletType))
 				.append(" and ")
-				.append(makeReadyClause())
+				.append(makeStatusClause())
 				.append(" limit 1")
 				.toString();
 	}
@@ -64,18 +61,18 @@ public class JobletRequestSqlBuilder{
 		return jdbcFieldCodecFactory.createCodec(typeField).getSqlNameValuePairEscaped();
 	}
 
+	private String makeStatusClause(){
+		return " (" + makeStatusCreatedClause() + " or " + makeStatusTimedOutClause() + ") ";
+	}
+
 	private String makeStatusCreatedClause(){
 		return jdbcFieldCodecFactory.createCodec(STATUS_CREATED_FIELD).getSqlNameValuePairEscaped();
 	}
 
-	private String makeTimedOutClause(){
+	private String makeStatusTimedOutClause(){
 		return "(" + jdbcFieldCodecFactory.createCodec(STATUS_RUNNING_FIELD).getSqlNameValuePairEscaped() + " and "
 				+ JobletRequest.FieldKeys.reservedAt.getColumnName() + " < " + computeReservedBeforeMs() + " and "
 				+ jdbcFieldCodecFactory.createCodec(RESTARTABLE_FIELD).getSqlNameValuePairEscaped() + ")";
-	}
-
-	private String makeReadyClause(){
-		return " (" + makeStatusCreatedClause() + " or " + makeTimedOutClause() + ") ";
 	}
 
 	private Long computeReservedBeforeMs(){
