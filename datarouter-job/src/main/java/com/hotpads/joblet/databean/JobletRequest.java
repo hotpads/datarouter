@@ -7,17 +7,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.Transient;
-
-import org.hibernate.annotations.AccessType;
-import org.hibernate.annotations.Parameter;
-import org.hibernate.annotations.Type;
-import org.hibernate.annotations.TypeDef;
-import org.hibernate.annotations.TypeDefs;
-
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlRowFormat;
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
@@ -45,21 +34,10 @@ import com.hotpads.joblet.enums.JobletTypeFactory;
 import com.hotpads.util.core.profile.PhaseTimer;
 import com.hotpads.util.datastructs.MutableBoolean;
 
-@Entity
-@Table(name="Joblet")//TODO change to JobletRequest
-@AccessType("field")
-@TypeDefs({
-	@TypeDef(name="status", typeClass=com.hotpads.databean.GenericEnumUserType.class, parameters={
-		@Parameter(name="enumClass", value="com.hotpads.joblet.enums.JobletStatus"),
-		@Parameter(name="identifierMethod", value="getPersistentString"),
-		@Parameter(name="valueOfMethod", value="fromPersistentStringStatic")}),
-})
 public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 
-	@Id
 	private JobletRequestKey key;
 	private String queueId;
-	@Type(type="status")
 	private JobletStatus status = JobletStatus.created;
 	private Integer numFailures = 0;
 	private Integer numTimeouts = 0;
@@ -71,14 +49,11 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 	private Integer numItems = 0;
 	private Integer numTasks = 0;
 	private String debug;
-	@Transient
+
 	private PhaseTimer timer = new PhaseTimer();
-	@Transient
 	private MutableBoolean interrupted;
 
-
 	public static final String KEY_NAME = "key";
-
 
 	public static class FieldKeys{
 		public static final StringFieldKey queueId = new StringFieldKey("queueId");
