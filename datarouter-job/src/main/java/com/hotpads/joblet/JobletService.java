@@ -17,6 +17,7 @@ import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.handler.exception.ExceptionRecord;
 import com.hotpads.handler.exception.ExceptionRecorder;
 import com.hotpads.job.trigger.JobExceptionCategory;
+import com.hotpads.joblet.dao.JobletRequestDao;
 import com.hotpads.joblet.databean.JobletData;
 import com.hotpads.joblet.databean.JobletDataKey;
 import com.hotpads.joblet.databean.JobletRequest;
@@ -27,6 +28,7 @@ import com.hotpads.joblet.enums.JobletType;
 import com.hotpads.joblet.enums.JobletTypeFactory;
 import com.hotpads.joblet.jdbc.GetJobletRequest;
 import com.hotpads.joblet.jdbc.JobletRequestSqlBuilder;
+import com.hotpads.joblet.jdbc.ReserveJobletRequest;
 import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.profile.PhaseTimer;
 import com.hotpads.util.core.stream.StreamTool;
@@ -45,17 +47,19 @@ public class JobletService{
 	private final ExceptionRecorder exceptionRecorder;
 	private final JdbcFieldCodecFactory jdbcFieldCodecFactory;
 	private final JobletRequestSqlBuilder jobletRequestSqlBuilder;
+	private final JobletRequestDao jobletRequestDao;
 
 	@Inject
 	public JobletService(Datarouter datarouter, JobletTypeFactory jobletTypeFactory, JobletNodes jobletNodes,
 			ExceptionRecorder exceptionRecorder, JdbcFieldCodecFactory jdbcFieldCodecFactory,
-			JobletRequestSqlBuilder jobletRequestSqlBuilder){
+			JobletRequestSqlBuilder jobletRequestSqlBuilder, JobletRequestDao jobletRequestDao){
 		this.datarouter = datarouter;
 		this.jobletTypeFactory = jobletTypeFactory;
 		this.jobletNodes = jobletNodes;
 		this.exceptionRecorder = exceptionRecorder;
 		this.jdbcFieldCodecFactory = jdbcFieldCodecFactory;
 		this.jobletRequestSqlBuilder = jobletRequestSqlBuilder;
+		this.jobletRequestDao = jobletRequestDao;
 	}
 
 	/*--------------------- create ------------------------*/
@@ -92,8 +96,9 @@ public class JobletService{
 		JobletRequest jobletRequest;
 		if(GET_VS_RESERVE_JOBLET){
 			while(true){
-				jobletRequest = datarouter.run(new GetJobletRequest(reservedBy, type, datarouter, jobletNodes,
-						jdbcFieldCodecFactory, jobletRequestSqlBuilder));
+				GetJobletRequest jdbcOp = new GetJobletRequest(reservedBy, type, datarouter, jobletNodes,
+						jdbcFieldCodecFactory, jobletRequestSqlBuilder);
+				jobletRequest = datarouter.run(jdbcOp);
 				if(jobletRequest == null){
 					break; //no JobletRequest found
 				}
@@ -102,7 +107,12 @@ public class JobletService{
 				}
 			}
 		}else{
-
+			ReserveJobletRequest jdbcOp = new ReserveJobletRequest(reservedBy, type, datarouter, jobletNodes,
+					jobletRequestSqlBuilder);
+			boolean success = datarouter.run(jdbcOp);
+			if(success){
+				jobletRequest = jobletRequestDao.getReservedRequest(type, reservedBy);
+			}
 		}
 		long durationMs = System.currentTimeMillis() - startMs;
 		if(durationMs > 200){
