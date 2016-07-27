@@ -16,12 +16,12 @@ import com.google.common.base.Preconditions;
 
 public class MultipartParams extends Params{
 	private final HttpServletRequest request;
-	private Map<String,FileItem> filesMap;
+	private final Map<String,FileItem> filesMap;
 
 	public MultipartParams(HttpServletRequest request) throws FileUploadException{
 		super(request);
 		this.request = request;
-		paramsMap = new HashMap<>();
+		paramsMap.clear();
 		filesMap = new HashMap<>();
 		List<FileItem> items = new ServletFileUpload(new DiskFileItemFactory()).parseRequest(this.request);
 		for(FileItem item : items){

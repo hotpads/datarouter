@@ -19,7 +19,7 @@ import com.hotpads.util.http.RequestTool;
 public class Params{
 
 	private final HttpServletRequest request;
-	protected Map<String,String> paramsMap;
+	protected final Map<String,String> paramsMap;
 
 	public Params(HttpServletRequest request){
 		this.request = request;
