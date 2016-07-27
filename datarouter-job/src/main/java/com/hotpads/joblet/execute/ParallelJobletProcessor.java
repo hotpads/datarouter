@@ -46,7 +46,7 @@ public class ParallelJobletProcessor{
 
 	}
 
-	public static Long RUNNING_JOBLET_TIMEOUT_MS = 1000L * 60 * 10;  //10 minutes
+	public static final Long RUNNING_JOBLET_TIMEOUT_MS = 1000L * 60 * 10;  //10 minutes
 
 	//intentionally shared across any instances that might exist
 	private static final MutableBoolean interrupted = new MutableBoolean(false);
@@ -183,8 +183,7 @@ public class ParallelJobletProcessor{
 		JobletRequest jobletRequest = null;
 		jobletThrottle.acquirePermits(jobletType.getCpuPermits(), jobletType.getMemoryPermits());
 		try{
-			jobletRequest = jobletService.getJobletRequestForProcessing(jobletType, reservedBy,
-					RUNNING_JOBLET_TIMEOUT_MS);
+			jobletRequest = jobletService.getJobletRequestForProcessing(jobletType, reservedBy);
 		}catch(Exception e){
 			logger.warn("", e);
 		}

@@ -5,9 +5,11 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.fileupload.FileUploadException;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -60,7 +62,7 @@ public abstract class BaseDispatcher{
 	/*------------------ handle -------------------*/
 
 	public boolean handleRequestIfUrlMatch(ServletContext servletContext, HttpServletRequest request,
-			HttpServletResponse response){
+			HttpServletResponse response) throws ServletException{
 		String uri = request.getRequestURI();
 		if(!uri.startsWith(combinedPrefix)){
 			return false;
@@ -89,9 +91,22 @@ public abstract class BaseDispatcher{
 		handler.setRequest(request);
 		handler.setResponse(response);
 		handler.setServletContext(servletContext);
-		handler.setParams(new Params(request));
+		if(isMultipart(request)){
+			try{
+				handler.setParams(new MultipartParams(request));
+			}catch(FileUploadException e){
+				throw new ServletException(e);
+			}
+		} else {
+			handler.setParams(new Params(request));
+		}
 		handler.handleWrapper();
 		return true;
+	}
+
+	private boolean isMultipart(HttpServletRequest request){
+		return request.getContentType() != null
+				&& request.getContentType().toLowerCase().indexOf("multipart/form-data") > -1;
 	}
 
 	/*------------------ getters -------------------*/

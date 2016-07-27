@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Singleton;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -33,7 +34,8 @@ public abstract class DispatcherServlet extends HttpServlet implements InjectorR
 	public abstract void registerDispatchers();
 
 	@Override
-	protected void service(HttpServletRequest request, HttpServletResponse response) throws IOException{
+	protected void service(HttpServletRequest request, HttpServletResponse response)
+	throws IOException, ServletException{
 
 		response.setContentType("text/plain");
 
