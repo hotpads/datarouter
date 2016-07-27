@@ -23,6 +23,7 @@ import com.hotpads.joblet.databean.JobletDataKey;
 import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.databean.JobletRequestKey;
 import com.hotpads.joblet.dto.JobletSummary;
+import com.hotpads.joblet.enums.JobletQueueMechanism;
 import com.hotpads.joblet.enums.JobletStatus;
 import com.hotpads.joblet.enums.JobletType;
 import com.hotpads.joblet.enums.JobletTypeFactory;
@@ -39,8 +40,6 @@ public class JobletService{
 
 	public static final int MAX_JOBLET_RETRIES = 10;
 
-	private static final boolean GET_VS_RESERVE_JOBLET = true;
-
 	private final Datarouter datarouter;
 	private final JobletTypeFactory jobletTypeFactory;
 	private final JobletNodes jobletNodes;
@@ -48,11 +47,13 @@ public class JobletService{
 	private final JdbcFieldCodecFactory jdbcFieldCodecFactory;
 	private final JobletRequestSqlBuilder jobletRequestSqlBuilder;
 	private final JobletRequestDao jobletRequestDao;
+	private final JobletSettings jobletSettings;
 
 	@Inject
 	public JobletService(Datarouter datarouter, JobletTypeFactory jobletTypeFactory, JobletNodes jobletNodes,
 			ExceptionRecorder exceptionRecorder, JdbcFieldCodecFactory jdbcFieldCodecFactory,
-			JobletRequestSqlBuilder jobletRequestSqlBuilder, JobletRequestDao jobletRequestDao){
+			JobletRequestSqlBuilder jobletRequestSqlBuilder, JobletRequestDao jobletRequestDao,
+			JobletSettings jobletSettings){
 		this.datarouter = datarouter;
 		this.jobletTypeFactory = jobletTypeFactory;
 		this.jobletNodes = jobletNodes;
@@ -60,6 +61,7 @@ public class JobletService{
 		this.jdbcFieldCodecFactory = jdbcFieldCodecFactory;
 		this.jobletRequestSqlBuilder = jobletRequestSqlBuilder;
 		this.jobletRequestDao = jobletRequestDao;
+		this.jobletSettings = jobletSettings;
 	}
 
 	/*--------------------- create ------------------------*/
@@ -112,10 +114,13 @@ public class JobletService{
 	public JobletRequest getJobletRequestForProcessing(JobletType<?> type, String reservedBy){
 		long startMs = System.currentTimeMillis();
 		JobletRequest jobletRequest;
-		if(GET_VS_RESERVE_JOBLET){
+		JobletQueueMechanism queueMechanism = jobletSettings.getQueueMechanismEnum();
+		if(JobletQueueMechanism.JDBC_LOCK_FOR_UPDATE == queueMechanism){
 			jobletRequest = getJobletRequestByGetOp(type, reservedBy);
-		}else{
+		}else if(JobletQueueMechanism.JDBC_UPDATE_AND_SCAN == queueMechanism){
 			jobletRequest = getJobletRequestByReserveOp(type, reservedBy);
+		}else{
+			throw new IllegalStateException("unknown JobletQueueMechanism");
 		}
 		long durationMs = System.currentTimeMillis() - startMs;
 		if(durationMs > 200){
