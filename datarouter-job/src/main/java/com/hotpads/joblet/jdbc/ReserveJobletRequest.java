@@ -1,4 +1,4 @@
-package com.hotpads.joblet.hibernate;
+package com.hotpads.joblet.jdbc;
 
 import java.sql.Connection;
 import java.util.Collection;
@@ -23,7 +23,7 @@ import com.hotpads.joblet.enums.JobletStatus;
 import com.hotpads.joblet.enums.JobletType;
 import com.hotpads.joblet.execute.ParallelJobletProcessor;
 
-public class GetJobletRequestForProcessing extends BaseJdbcOp<JobletRequest>{
+public class ReserveJobletRequest extends BaseJdbcOp<JobletRequest>{
 
 	public static final int MAX_JOBLET_RETRIES = 10;
 
@@ -39,7 +39,7 @@ public class GetJobletRequestForProcessing extends BaseJdbcOp<JobletRequest>{
 	private final JdbcFieldCodecFactory jdbcFieldCodecFactory;
 	private final JobletNodes jobletNodes;
 
-	public GetJobletRequestForProcessing(String reservedBy, JobletType<?> jobletType,
+	public ReserveJobletRequest(String reservedBy, JobletType<?> jobletType,
 			Datarouter datarouter, JobletNodes jobletNodes, JdbcFieldCodecFactory jdbcFieldCodecFactory){
 		super(datarouter, jobletNodes.jobletRequest().getMaster().getClientNames(), Isolation.repeatableRead, false);
 		this.jobletNodes = jobletNodes;

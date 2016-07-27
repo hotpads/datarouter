@@ -25,8 +25,8 @@ import com.hotpads.joblet.enums.JobletStatus;
 import com.hotpads.joblet.enums.JobletTypeFactory;
 import com.hotpads.joblet.execute.JobletExecutorThread;
 import com.hotpads.joblet.execute.ParallelJobletProcessors;
-import com.hotpads.joblet.hibernate.RestartJobletRequests;
-import com.hotpads.joblet.hibernate.TimeoutStuckRunningJobletRequests;
+import com.hotpads.joblet.jdbc.RestartJobletRequests;
+import com.hotpads.joblet.jdbc.TimeoutStuckRunningJobletRequests;
 
 public class JobletHandler extends BaseHandler{
 

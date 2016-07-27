@@ -25,7 +25,7 @@ import com.hotpads.joblet.dto.JobletSummary;
 import com.hotpads.joblet.enums.JobletStatus;
 import com.hotpads.joblet.enums.JobletType;
 import com.hotpads.joblet.enums.JobletTypeFactory;
-import com.hotpads.joblet.hibernate.GetJobletRequestForProcessing;
+import com.hotpads.joblet.jdbc.GetJobletRequest;
 import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.profile.PhaseTimer;
 import com.hotpads.util.core.stream.StreamTool;
@@ -33,6 +33,8 @@ import com.hotpads.util.core.stream.StreamTool;
 @Singleton
 public class JobletService{
 	private static final Logger logger = LoggerFactory.getLogger(JobletService.class);
+
+	private static final boolean GET_VS_RESERVE_JOBLET = true;
 
 	private final Datarouter datarouter;
 	private final JobletTypeFactory jobletTypeFactory;
@@ -81,8 +83,21 @@ public class JobletService{
 
 	public JobletRequest getJobletRequestForProcessing(JobletType<?> type, String reservedBy){
 		long startMs = System.currentTimeMillis();
-		JobletRequest jobletRequest = datarouter.run(new GetJobletRequestForProcessing(reservedBy, type, datarouter,
-				jobletNodes, jdbcFieldCodecFactory));
+		JobletRequest jobletRequest;
+		if(GET_VS_RESERVE_JOBLET){
+			while(true){
+				jobletRequest = datarouter.run(new GetJobletRequest(reservedBy, type, datarouter, jobletNodes,
+						jdbcFieldCodecFactory));
+				if(jobletRequest == null){
+					break; //no JobletRequest found
+				}
+				if(JobletStatus.running == jobletRequest.getStatus()){
+					break; //GetJobletRequest class gives us a "running" joblet if it's ready to run
+				}
+			}
+		}else{
+
+		}
 		long durationMs = System.currentTimeMillis() - startMs;
 		if(durationMs > 200){
 			String message = jobletRequest == null ? "none" : jobletRequest.getKey().toString();
