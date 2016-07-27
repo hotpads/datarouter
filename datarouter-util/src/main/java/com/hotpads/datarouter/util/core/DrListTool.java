@@ -53,7 +53,7 @@ public class DrListTool{
 	}
 
 	public static <T> ArrayList<T> createArrayList(T... in){
-		ArrayList<T> out = new ArrayList<>(DrArrayTool.nullSafeLength(in));
+		ArrayList<T> out = new ArrayList<>(DrArrayTool.length(in));
 		if(DrArrayTool.isEmpty(in)){
 			return out;
 		}

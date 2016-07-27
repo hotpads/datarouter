@@ -1,5 +1,7 @@
 package com.hotpads.datarouter.node.factory;
 
+import java.util.function.Supplier;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -30,12 +32,13 @@ public class QueueNodeFactory{
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>,
 			N extends Node<PK,D>>
-	N createSingleQueueNode(ClientId clientId, Router router, Class<D> databeanClass, String queueName,
-			Class<F> fielder, boolean addAdapter){
-		NodeParams<PK,D,F> params = new NodeParamsBuilder<PK,D,F>(router, databeanClass)
+		N createSingleQueueNode(ClientId clientId, Router router, Supplier<D> databeanSupplier, String queueName,
+			Supplier<F> fielderSupplier, boolean addAdapter, String namespace){
+		NodeParams<PK,D,F> params = new NodeParamsBuilder<PK,D,F>(router, databeanSupplier)
 				.withClientId(clientId)
-				.withFielder(fielder)
+				.withFielder(fielderSupplier)
 				.withTableName(queueName)
+				.withNamespace(namespace)
 				.build();
 		QueueClientType clientType = getClientType(params);
 		return wrapWithAdapterIfNecessary(clientType, clientType.createSingleQueueNode(params), addAdapter, params);
@@ -45,11 +48,20 @@ public class QueueNodeFactory{
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>,
 			N extends Node<PK,D>>
-	N createGroupQueueNode(ClientId clientId, Router router, Class<D> databeanClass, String queueName,
-			Class<F> fielder, boolean addAdapter){
-		NodeParams<PK,D,F> params = new NodeParamsBuilder<PK,D,F>(router, databeanClass)
+	N createSingleQueueNode(ClientId clientId, Router router, Supplier<D> databeanSupplier, String queueName,
+			Supplier<F> fielderSupplier, boolean addAdapter){
+		return createSingleQueueNode(clientId, router, databeanSupplier, queueName, fielderSupplier, addAdapter, null);
+	}
+
+	public <PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>,
+			N extends Node<PK,D>>
+	N createGroupQueueNode(ClientId clientId, Router router, Supplier<D> databeanSupplier, String queueName,
+			Supplier<F> fielderSupplier, boolean addAdapter){
+		NodeParams<PK,D,F> params = new NodeParamsBuilder<PK,D,F>(router, databeanSupplier)
 				.withClientId(clientId)
-				.withFielder(fielder)
+				.withFielder(fielderSupplier)
 				.withTableName(queueName)
 				.build();
 		QueueClientType clientType = getClientType(params);

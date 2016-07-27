@@ -70,8 +70,8 @@ extends BaseJdbcOp<List<D>>{
 				break;
 			}
 		}
-		if(result.size() >= LARGE_LOOKUP_ALERT_THRESHOLD){
-			logger.warn("JDBC lookup exceeded alert threshold : " + result.size() + ">=" + LARGE_LOOKUP_ALERT_THRESHOLD,
+		if(result.size() > LARGE_LOOKUP_ALERT_THRESHOLD){
+			logger.warn("JDBC lookup exceeded alert threshold : " + result.size() + ">" + LARGE_LOOKUP_ALERT_THRESHOLD,
 					new Exception());
 			Counters.inc("JDBC lookup exceeded alert threshold");
 			DRCounters.incNode("JDBC lookup exceeded alert threshold", node.getName(), 1);

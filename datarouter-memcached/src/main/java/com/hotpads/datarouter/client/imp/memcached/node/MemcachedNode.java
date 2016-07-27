@@ -1,6 +1,7 @@
 package com.hotpads.datarouter.client.imp.memcached.node;
 
 import java.util.Collection;
+import java.util.concurrent.ExecutionException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +12,7 @@ import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.op.raw.MapStorage.PhysicalMapStorageNode;
 import com.hotpads.datarouter.node.op.raw.write.MapStorageWriter;
+import com.hotpads.datarouter.profile.tally.TallyKey;
 import com.hotpads.datarouter.serialize.JsonDatabeanTool;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
@@ -71,12 +73,7 @@ implements PhysicalMapStorageNode<PK,D>{
 				byte[] bytes = DatabeanTool.getBytes(databean, fieldInfo.getSampleFielder());
 				String key = buildMemcachedKey(databean.getKey());
 				//memcachedClient uses an integer for cache timeout
-				Long timeoutLong = config.getTtlMs() == null
-						? Long.MAX_VALUE
-						: config.getTtlMs() / 1000;
-				Integer expiration = timeoutLong > new Long(Integer.MAX_VALUE)
-						? Integer.MAX_VALUE
-						: timeoutLong.intValue();
+				Integer expiration = getExpiration(config);
 				if (bytes.length > 2 * MEGABYTE) {
 					//memcached max size is 1mb for a compressed object, so don't PUT things that won't compress well
 					String json = JsonDatabeanTool.fieldsToJson(databean.getKey().getFields()).toString();
@@ -128,4 +125,74 @@ implements PhysicalMapStorageNode<PK,D>{
 		}
 	}
 
+
+	public Long getTallyCount(TallyKey key){
+		if(key == null){
+			return null;
+		}
+		Object tallyObject = null;
+		try{
+			tallyObject = getClient().getSpyClient().asyncGet(buildMemcachedKey(key)).get();
+		}catch(MemcachedStateException | InterruptedException | ExecutionException e){
+			logger.error("memcached error on " + key, e);
+			return null;
+		}
+
+		if(tallyObject instanceof String){
+			return Long.valueOf(((String)tallyObject).trim());
+		}
+
+		return null;
+	}
+
+
+	public void increment(TallyKey tallyKey, int delta, Config paramConfig){
+		if(tallyKey == null){
+			return;
+		}
+		try{
+			TracerTool.startSpan(TracerThreadLocal.get(), "memcached increment");
+			String key = buildMemcachedKey(tallyKey);
+			try{
+				getClient().getSpyClient().incr(key, delta, delta, getExpiration(paramConfig));
+			}catch (MemcachedStateException e){
+				logger.error("memcached error on " + key, e);
+			}
+		} finally {
+			finishTraceSpan();
+		}
+	}
+
+	public Long incrementAndGetCount(TallyKey tallyKey, int delta, Config paramConfig){
+		if(tallyKey == null){
+			return null;
+		}
+		try{
+			TracerTool.startSpan(TracerThreadLocal.get(), "memcached increment and get count");
+			String key = buildMemcachedKey(tallyKey);
+			try{
+				return getClient().getSpyClient().incr(key, delta, delta, getExpiration(paramConfig));
+			}catch (MemcachedStateException e){
+				logger.error("memcached error on " + key, e);
+				return null;
+			}
+		} finally {
+			finishTraceSpan();
+		}
+	}
+
+	/************************************ Private methods ****************************/
+
+	private static int getExpiration(Config config){
+		if(config == null){
+			return 0; // Infinite time
+		}
+		Long timeoutLong = config.getTtlMs() == null
+				? Long.MAX_VALUE
+				: config.getTtlMs() / 1000;
+		Integer expiration = timeoutLong > new Long(Integer.MAX_VALUE)
+				? Integer.MAX_VALUE
+				: timeoutLong.intValue();
+		return expiration;
+	}
 }

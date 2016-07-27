@@ -1,18 +1,18 @@
 package com.hotpads.joblet.hibernate;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.Collection;
 
-import org.hibernate.SQLQuery;
-import org.hibernate.Session;
-
 import com.hotpads.datarouter.client.Client;
-import com.hotpads.datarouter.client.imp.hibernate.op.BaseHibernateOp;
+import com.hotpads.datarouter.client.imp.jdbc.op.BaseJdbcOp;
 import com.hotpads.datarouter.op.util.ResultMergeTool;
 import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.joblet.JobletNodes;
 import com.hotpads.joblet.enums.JobletStatus;
 
-public class RestartJobletRequests extends BaseHibernateOp<Integer>{
+public class RestartJobletRequests extends BaseJdbcOp<Integer>{
 
 	private final String tableName;
 	private final JobletStatus currentStatus;
@@ -32,19 +32,20 @@ public class RestartJobletRequests extends BaseHibernateOp<Integer>{
 	public Integer runOncePerClient(Client client){
 		String sql;
 		if(currentStatus.getPersistentString().equals(JobletStatus.timedOut.getPersistentString())){
-			sql = "update " + tableName + " set status=:status, numFailures=0"
-					+ " where status=:currentStatus and type != 'FeedImport'";
+			sql = "update " + tableName + " set status=?, numFailures=0" + " where status=? and type != 'FeedImport'";
 		}else{
-			sql = "update " + tableName + " set status=:status, numFailures=0 where status=:currentStatus";
+			sql = "update " + tableName + " set status=?, numFailures=0 where status=?";
 		}
 
-		Session session = getSession(client.getName());
-
-		SQLQuery query = session.createSQLQuery(sql);
-		query.setParameter("status", JobletStatus.created.getPersistentString());
-		query.setParameter("currentStatus", currentStatus.getPersistentString());
-		int numReserved = query.executeUpdate();
-		return numReserved;
+		Connection connection = getConnection(client.getName());
+		try{
+			PreparedStatement statement = connection.prepareStatement(sql);
+			statement.setString(1, JobletStatus.created.getPersistentString());
+			statement.setString(2, currentStatus.getPersistentString());
+			return statement.executeUpdate();
+		}catch(SQLException e){
+			throw new RuntimeException(e);
+		}
 	}
 
 }

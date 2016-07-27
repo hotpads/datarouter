@@ -1,5 +1,7 @@
 package com.hotpads.datarouter.storage.field.imp.array;
 
+import java.util.Arrays;
+
 import javax.xml.bind.DatatypeConverter;
 
 import org.apache.commons.codec.binary.Hex;
@@ -102,6 +104,11 @@ public class ByteArrayField extends BaseField<byte[]>{
 			return null;
 		}
 		return Hex.encodeHexString(value);
+	}
+
+	@Override
+	public int getValueHashCode(){
+		return Arrays.hashCode(value);
 	}
 
 	@Override

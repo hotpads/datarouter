@@ -15,7 +15,8 @@ public enum UrlScheme {
 		PORT_HTTP_STANDARD = 80,
 		PORT_HTTPS_STANDARD = 443,
 		PORT_HTTP_DEV = 8080,
-		PORT_HTTPS_DEV = 8443;
+		PORT_HTTPS_DEV = 8443,
+		PORT_NODE = 3000;
 
 	public static final String LOCAL_DEV_SERVER = LOCAL_HOST + ":" + PORT_HTTP_DEV;
 	public static final String LOCAL_DEV_SERVER_HTTPS = LOCAL_HOST + ":" + PORT_HTTPS_DEV;
@@ -23,6 +24,7 @@ public enum UrlScheme {
 			+ PORT_HTTP_DEV;
 	public static final String LOCAL_DEV_SERVER_HTTPS_URL = HTTPS.stringRepresentation + "://" + LOCAL_HOST + ":"
 			+ PORT_HTTPS_DEV;
+	public static final String LOCAL_NODE_SERVER_URL = HTTP.stringRepresentation + "://" + LOCAL_HOST + ":" + PORT_NODE;
 	public static final String DOMAIN_NAME_HTTPS_URL = HTTPS.stringRepresentation + "://" + DOMAIN_NAME;
 
 	private final String stringRepresentation;

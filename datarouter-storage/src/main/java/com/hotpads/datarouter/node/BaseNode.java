@@ -32,8 +32,9 @@ implements Node<PK,D>{
 		try{
 			this.fieldInfo = new DatabeanFieldInfo<>(getName(), params);
 		}catch(Exception probablyNoPkInstantiated){
-			throw new IllegalArgumentException("could not instantiate " + getName() + " Check that the primary key is "
-					+ "instantiated in the databean constructor.", probablyNoPkInstantiated);
+			throw new IllegalArgumentException("could not instantiate " + params.getClientName() + "." + params
+					.getDatabeanName() + ". Check that the primary key is instantiated in the databean constructor.",
+					probablyNoPkInstantiated);
 		}
 		//this default id is frequently overridden
 		this.setId(new NodeId<>(getClass().getSimpleName(), params, fieldInfo.getExplicitNodeName()));

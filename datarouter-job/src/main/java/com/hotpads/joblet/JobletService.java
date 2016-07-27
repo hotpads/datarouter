@@ -10,8 +10,8 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.config.Config;
-import com.hotpads.datarouter.inject.DatarouterInjector;
 import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.handler.exception.ExceptionRecord;
@@ -32,22 +32,22 @@ import com.hotpads.util.core.stream.StreamTool;
 
 @Singleton
 public class JobletService{
-	private static Logger logger = LoggerFactory.getLogger(JobletService.class);
-
-	public static final int MAX_JOBLET_RETRIES = 10;
+	private static final Logger logger = LoggerFactory.getLogger(JobletService.class);
 
 	private final Datarouter datarouter;
 	private final JobletTypeFactory jobletTypeFactory;
 	private final JobletNodes jobletNodes;
 	private final ExceptionRecorder exceptionRecorder;
+	private final JdbcFieldCodecFactory jdbcFieldCodecFactory;
 
 	@Inject
-	public JobletService(DatarouterInjector injector, Datarouter datarouter, JobletTypeFactory jobletTypeFactory,
-			JobletNodes jobletNodes, ExceptionRecorder exceptionRecorder){
+	public JobletService(Datarouter datarouter, JobletTypeFactory jobletTypeFactory, JobletNodes jobletNodes,
+			ExceptionRecorder exceptionRecorder, JdbcFieldCodecFactory jdbcFieldCodecFactory){
 		this.datarouter = datarouter;
 		this.jobletTypeFactory = jobletTypeFactory;
 		this.jobletNodes = jobletNodes;
 		this.exceptionRecorder = exceptionRecorder;
+		this.jdbcFieldCodecFactory = jdbcFieldCodecFactory;
 	}
 
 	/*--------------------- create ------------------------*/
@@ -79,10 +79,10 @@ public class JobletService{
 		return new JobletPackage(jobletRequest, jobletData);
 	}
 
-	public JobletRequest getJobletRequestForProcessing(JobletType<?> type, String reservedBy, long jobletTimeoutMs){
+	public JobletRequest getJobletRequestForProcessing(JobletType<?> type, String reservedBy){
 		long startMs = System.currentTimeMillis();
-		JobletRequest jobletRequest = datarouter.run(new GetJobletRequestForProcessing(jobletTimeoutMs,
-				MAX_JOBLET_RETRIES, reservedBy, type, datarouter, jobletNodes));
+		JobletRequest jobletRequest = datarouter.run(new GetJobletRequestForProcessing(reservedBy, type, datarouter,
+				jobletNodes, jdbcFieldCodecFactory));
 		long durationMs = System.currentTimeMillis() - startMs;
 		if(durationMs > 200){
 			String message = jobletRequest == null ? "none" : jobletRequest.getKey().toString();
@@ -167,4 +167,5 @@ public class JobletService{
 		Iterable<JobletRequest> scanner = jobletNodes.jobletRequest().scan(null, new Config().setSlaveOk(slaveOk));
 		return JobletRequest.getJobletCountsCreatedByType(jobletTypeFactory, scanner);
 	}
+
 }
