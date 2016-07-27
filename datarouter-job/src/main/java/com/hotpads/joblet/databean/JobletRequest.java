@@ -34,6 +34,7 @@ import com.hotpads.datarouter.storage.field.imp.enums.StringEnumField;
 import com.hotpads.datarouter.storage.field.imp.enums.StringEnumFieldKey;
 import com.hotpads.datarouter.util.core.DrDateTool;
 import com.hotpads.datarouter.util.core.DrIterableTool;
+import com.hotpads.datarouter.util.core.DrNumberTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.handler.exception.ExceptionRecordKey;
 import com.hotpads.joblet.dto.JobletSummary;
@@ -245,6 +246,11 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 
 	public Date getReservedAtDate(){
 		return reservedAt == null ? null : new Date(reservedAt);
+	}
+
+	public int incrementNumTimeouts(){
+		numTimeouts = DrNumberTool.nullSafe(numTimeouts) + 1;
+		return numTimeouts;
 	}
 
     /*-------------------- get/set --------------------*/

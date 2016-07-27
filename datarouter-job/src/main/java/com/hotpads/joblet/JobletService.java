@@ -26,6 +26,7 @@ import com.hotpads.joblet.enums.JobletStatus;
 import com.hotpads.joblet.enums.JobletType;
 import com.hotpads.joblet.enums.JobletTypeFactory;
 import com.hotpads.joblet.jdbc.GetJobletRequest;
+import com.hotpads.joblet.jdbc.JobletRequestSqlBuilder;
 import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.profile.PhaseTimer;
 import com.hotpads.util.core.stream.StreamTool;
@@ -34,6 +35,8 @@ import com.hotpads.util.core.stream.StreamTool;
 public class JobletService{
 	private static final Logger logger = LoggerFactory.getLogger(JobletService.class);
 
+	public static final int MAX_JOBLET_RETRIES = 10;
+
 	private static final boolean GET_VS_RESERVE_JOBLET = true;
 
 	private final Datarouter datarouter;
@@ -41,15 +44,18 @@ public class JobletService{
 	private final JobletNodes jobletNodes;
 	private final ExceptionRecorder exceptionRecorder;
 	private final JdbcFieldCodecFactory jdbcFieldCodecFactory;
+	private final JobletRequestSqlBuilder jobletRequestSqlBuilder;
 
 	@Inject
 	public JobletService(Datarouter datarouter, JobletTypeFactory jobletTypeFactory, JobletNodes jobletNodes,
-			ExceptionRecorder exceptionRecorder, JdbcFieldCodecFactory jdbcFieldCodecFactory){
+			ExceptionRecorder exceptionRecorder, JdbcFieldCodecFactory jdbcFieldCodecFactory,
+			JobletRequestSqlBuilder jobletRequestSqlBuilder){
 		this.datarouter = datarouter;
 		this.jobletTypeFactory = jobletTypeFactory;
 		this.jobletNodes = jobletNodes;
 		this.exceptionRecorder = exceptionRecorder;
 		this.jdbcFieldCodecFactory = jdbcFieldCodecFactory;
+		this.jobletRequestSqlBuilder = jobletRequestSqlBuilder;
 	}
 
 	/*--------------------- create ------------------------*/
@@ -87,7 +93,7 @@ public class JobletService{
 		if(GET_VS_RESERVE_JOBLET){
 			while(true){
 				jobletRequest = datarouter.run(new GetJobletRequest(reservedBy, type, datarouter, jobletNodes,
-						jdbcFieldCodecFactory));
+						jdbcFieldCodecFactory, jobletRequestSqlBuilder));
 				if(jobletRequest == null){
 					break; //no JobletRequest found
 				}
