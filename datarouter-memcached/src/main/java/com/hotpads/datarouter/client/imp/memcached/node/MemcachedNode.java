@@ -128,7 +128,7 @@ implements PhysicalMapStorageNode<PK,D>{
 
 	public Long getTallyCount(TallyKey key){
 		if(key == null){
-			return 0L;
+			return null;
 		}
 		Object tallyObject = null;
 		try{
@@ -165,7 +165,7 @@ implements PhysicalMapStorageNode<PK,D>{
 
 	public Long incrementAndGetCount(TallyKey tallyKey, int delta, Config paramConfig){
 		if(tallyKey == null){
-			return 0L;
+			return null;
 		}
 		try{
 			TracerTool.startSpan(TracerThreadLocal.get(), "memcached increment and get count");
