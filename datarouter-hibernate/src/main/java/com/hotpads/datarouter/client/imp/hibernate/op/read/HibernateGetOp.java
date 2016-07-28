@@ -21,27 +21,26 @@ import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
-import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.trace.TracerThreadLocal;
 import com.hotpads.trace.TracerTool;
 
 public class HibernateGetOp<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
-		F extends DatabeanFielder<PK,D>> 
+		F extends DatabeanFielder<PK,D>>
 extends BaseHibernateOp<List<D>>{
-		
+
 	private final HibernateReaderNode<PK,D,F> node;
 	private final Collection<PK> keys;
 	private final Config config;
-	
+
 	public HibernateGetOp(HibernateReaderNode<PK,D,F> node, Collection<PK> keys, Config config) {
 		super(node.getDatarouter(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
 		this.node = node;
 		this.keys = keys;
 		this.config = config;
 	}
-	
+
 	@Override
 	public List<D> runOnce(){
 		Session session = getSession(node.getClientId().getName());
@@ -51,7 +50,7 @@ extends BaseHibernateOp<List<D>>{
 		Disjunction orSeparatedIds = Restrictions.disjunction();
 		for(Key<PK> key : DrCollectionTool.nullSafe(sortedKeys)){
 			Conjunction possiblyCompoundId = Restrictions.conjunction();
-			List<Field<?>> fields = FieldTool.prependPrefixes(node.getFieldInfo().getKeyFieldName(), 
+			List<Field<?>> fields = FieldTool.prependPrefixes(node.getFieldInfo().getKeyFieldName(),
 					key.getFields());
 			for(Field<?> field : fields){
 				possiblyCompoundId.add(Restrictions.eq(field.getPrefixedName(), field.getValue()));
@@ -64,5 +63,5 @@ extends BaseHibernateOp<List<D>>{
 				+ DrCollectionTool.size(keys) + "]");
 		return result;
 	}
-	
+
 }

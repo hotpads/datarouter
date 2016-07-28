@@ -11,9 +11,9 @@ import com.hotpads.datarouter.config.Isolation;
 import com.hotpads.datarouter.routing.Datarouter;
 
 public abstract class BaseHibernateOp<T>
-extends BaseJdbcOp<T> 
+extends BaseJdbcOp<T>
 implements SessionAware {
-	
+
 	public BaseHibernateOp(Datarouter datarouter, List<String> clientNames) {
 		this(datarouter, clientNames, Isolation.DEFAULT, false);
 	}
@@ -36,5 +36,5 @@ implements SessionAware {
 		}
 		return null;
 	}
-	
+
 }
