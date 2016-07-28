@@ -31,39 +31,39 @@ public class PutOpIntegrationTests{
 	private Datarouter datarouter;
 	@Inject
 	private NodeFactory nodeFactory;
-	
+
 	private PutOpTestRouter router;
-	
+
 	@BeforeClass
 	public void beforeClass(){
 		router = new PutOpTestRouter(datarouter, nodeFactory, DrTestConstants.CLIENT_drTestJdbc0);
-		
+
 		resetTable();
 	}
-	
+
 	@AfterClass
 	public void afterClass(){
 		datarouter.shutdown();
 	}
-	
+
 	private void resetTable(){
 		router.putOptTest().deleteAll(null);
 	}
-	
+
 	@Test
 	public void testDefault(){
 		Pair<String, String> result = test("testDefault", null);
 		Assert.assertEquals("baz", result.getLeft());
 		Assert.assertEquals("qux", result.getRight());
 	}
-	
+
 	@Test
 	public void testInsertIgnore(){
 		Pair<String, String> result = test("testInsertIgnore", new Config().setPutMethod(PutMethod.INSERT_IGNORE));
 		Assert.assertEquals("baz", result.getLeft());
 		Assert.assertEquals("baz", result.getRight());
 	}
-	
+
 	@Test
 	public void testInsertOnDuplicateUpdate(){
 		Config config = new Config().setPutMethod(PutMethod.INSERT_ON_DUPLICATE_UPDATE);
@@ -71,7 +71,7 @@ public class PutOpIntegrationTests{
 		Assert.assertEquals("baz", result.getLeft());
 		Assert.assertEquals("qux", result.getRight());
 	}
-	
+
 	@Test
 	public void testInsertOrBust(){
 		Config config = new Config().setPutMethod(PutMethod.INSERT_OR_BUST);
@@ -79,21 +79,21 @@ public class PutOpIntegrationTests{
 		Assert.assertEquals("baz", result.getLeft());
 		Assert.assertEquals("baz", result.getRight());
 	}
-	
+
 	@Test
 	public void testInsertOrUpdate(){
 		Pair<String, String> result = test("testInsertOrUpdate", new Config().setPutMethod(PutMethod.INSERT_OR_UPDATE));
 		Assert.assertEquals("baz", result.getLeft());
 		Assert.assertEquals("qux", result.getRight());
 	}
-	
+
 	@Test
 	public void testUpdateOrInsert(){
 		Pair<String, String> result = test("testUpdateOrInsert", new Config().setPutMethod(PutMethod.UPDATE_OR_INSERT));
 		Assert.assertEquals("baz", result.getLeft());
 		Assert.assertEquals("qux", result.getRight());
 	}
-	
+
 	@Test
 	public void testUpdateOrBust(){
 		Config config = new Config().setPutMethod(PutMethod.UPDATE_OR_BUST);
@@ -101,18 +101,18 @@ public class PutOpIntegrationTests{
 		Assert.assertNull(result.getLeft());
 		Assert.assertNull(result.getRight());
 	}
-	
+
 	@Test
 	public void testMerge(){
 		Pair<String, String> result = test("testMerge", new Config().setPutMethod(PutMethod.MERGE));
 		Assert.assertEquals("baz", result.getLeft());
 		Assert.assertEquals("qux", result.getRight());
 	}
-	
+
 	private Pair<String, String> test(String testName, Config config){
 		return test(testName, config, false, false);
 	}
-	
+
 	private Pair<String,String> test(String testName, Config config, boolean expectedFirstCaught,
 			boolean expectedSecondCaught){
 		PutOpTestBean bean = new PutOpTestBean(testName, "bar", "baz");
@@ -131,17 +131,17 @@ public class PutOpIntegrationTests{
 			Assert.assertTrue(expectedSecondCaught);
 		}
 		String after = nullSafeGetC(router.putOptTest().get(new PutOpTestBeanKey(testName, "bar"), null));
-		
+
 		return new Pair<>(before, after);
 	}
-	
+
 	private String nullSafeGetC(PutOpTestBean bean){
 		if(bean == null){
 			return null;
 		}
 		return bean.getC();
 	}
-	
+
 	@Test
 	public void testMultiInsert(){
 		int testBatchSize = 10;
@@ -156,9 +156,9 @@ public class PutOpIntegrationTests{
 		router.putOptTest().putMulti(databeans, config);
 		Assert.assertEquals(router.putOptTest().getMulti(DatabeanTool.getKeys(databeans), null).size(), totalCount);
 	}
-	
+
 	private static final String randomString(){
 		return UUID.randomUUID().toString();
 	}
-	
+
 }

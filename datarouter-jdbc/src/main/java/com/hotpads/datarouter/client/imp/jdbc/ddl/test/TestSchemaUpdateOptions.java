@@ -7,8 +7,6 @@ import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SchemaUpdateOptions;
@@ -22,12 +20,12 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.imp.ConnectionSqlTabl
 import com.hotpads.datarouter.client.imp.jdbc.util.JdbcTool;
 
 public class TestSchemaUpdateOptions{
-	
+
 	public TestSchemaUpdateOptions(){
 	}
-	
+
 	//TODO Add auto-increment test
-	
+
 	@Test public synchronized void testDoNothing() throws Exception{
 		SchemaUpdateOptions doNothing = new SchemaUpdateOptions().setAllFalse();
 		Connection connection = JdbcTool.openConnection("localhost", 3306, "drTest0", "root", "");
@@ -42,12 +40,12 @@ public class TestSchemaUpdateOptions{
 		listBC.add(colC);
 		listM.add(colM);
 		SqlIndex index = new SqlIndex("index1", listBC);
-		SqlIndex index2 = new SqlIndex("index2", listM);	
+		SqlIndex index2 = new SqlIndex("index2", listM);
 		SqlTable currentTable = new SqlTable(tableName).addColumn(colA).addColumn(colB).addColumn(colC);
 		SqlTable requestedTable = new SqlTable(tableName).addColumn(colA).addColumn(colM);
 		currentTable.addIndex(index);
 		requestedTable.addIndex(index2);
-		
+
 		Statement stmt = null;
 		try{
 		stmt = connection.createStatement();
@@ -73,16 +71,16 @@ public class TestSchemaUpdateOptions{
 		ConnectionSqlTableGenerator constructor = new ConnectionSqlTableGenerator(connection, tableName, "");
 		currentTable = constructor.generate();
 		// TEST THAT IT DOESN'T CREATE TABLES
-		// TEST THAT IT DOESM'T DROP TABLES 
+		// TEST THAT IT DOESM'T DROP TABLES
 		// TEST THAT IT DOESN'T ADD COLUMNS
 		Assert.assertFalse(currentTable.containsColumn("M"));
 		// TEST THAT IT DOESN'T DELETE COLUMNS
 		Assert.assertTrue(currentTable.containsColumn("A"));
 		Assert.assertTrue(currentTable.containsColumn("B"));
 		Assert.assertTrue(currentTable.containsColumn("C"));
-		// TEST THAT IT DOESN'T ADD INDEXES 
+		// TEST THAT IT DOESN'T ADD INDEXES
 		Assert.assertTrue(currentTable.containsIndex("index1"));
-		 	//Assert.assertTrue(currentTable.getIndexes().equals( *** ));	
+		 	//Assert.assertTrue(currentTable.getIndexes().equals( *** ));
 		// TEST THAT IT DOESN'T DROP INDEXES
 		Assert.assertFalse(currentTable.containsIndex("index2"));
 	 	//Assert.assertFalse(currentTable.getIndexes().equals( *** ));
@@ -91,28 +89,28 @@ public class TestSchemaUpdateOptions{
 			if(connection!=null){ connection.close(); }
 		}
 	}
-	
+
 	@Test public synchronized void testAddColumnsAndIndexes() throws Exception{
 		SchemaUpdateOptions addColumnsAndIndexes = new SchemaUpdateOptions().setAllFalse().setAddColumns(true)
 				.setAddIndexes(true);
 		Connection connection = JdbcTool.openConnection("localhost", 3306, "drTest0", "root", "");
-		
+
 		String tableName = "TestSchemaUpdateOptionsDoNothing";
-		
+
 		SqlColumn colA = new SqlColumn("A", MySqlColumnType.BIGINT,250,true, false);
 		SqlColumn colB = new SqlColumn("B", MySqlColumnType.BINARY);
 		SqlColumn colC = new SqlColumn("C", MySqlColumnType.BOOLEAN);
 		SqlColumn colM = new SqlColumn("M", MySqlColumnType.VARCHAR);
-		List<SqlColumn> 
+		List<SqlColumn>
 			listBC = new ArrayList<>(),
 			listM = new ArrayList<>();
 		listBC.add(colB);
 		listBC.add(colC);
 		listM.add(colM);
 		SqlIndex index = new SqlIndex("index", listBC);
-		SqlIndex index2 = new SqlIndex("index", listM);	
+		SqlIndex index2 = new SqlIndex("index", listM);
 		SqlTable currentTable = new SqlTable(tableName).addColumn(colA).addColumn(colM);
-		SqlTable requestedTable = new SqlTable(tableName).addColumn(colA).addColumn(colB).addColumn(colC); 
+		SqlTable requestedTable = new SqlTable(tableName).addColumn(colA).addColumn(colB).addColumn(colC);
 		currentTable.addIndex(index);
 		requestedTable.addIndex(index2);
 		Statement stmt = null;
@@ -138,16 +136,16 @@ public class TestSchemaUpdateOptions{
 		ConnectionSqlTableGenerator constructor = new ConnectionSqlTableGenerator(connection, tableName, "");
 		currentTable = constructor.generate();
 		// TEST THAT IT DOESN'T CREATE TABLES
-		// TEST THAT IT DOESM'T DROP TABLES 
+		// TEST THAT IT DOESM'T DROP TABLES
 		// TEST THAT IT DOES ADD COLUMNS
 		Assert.assertTrue(currentTable.containsColumn("M"));
 		// TEST THAT IT DOESN'T DELETE COLUMNS
 		Assert.assertTrue(currentTable.containsColumn("A"));
 		Assert.assertTrue(currentTable.containsColumn("B"));
 		Assert.assertTrue(currentTable.containsColumn("C"));
-		// TEST THAT IT DOES ADD INDEXES 
+		// TEST THAT IT DOES ADD INDEXES
 		Assert.assertTrue(currentTable.containsIndex("index1"));
-		//Assert.assertTrue(currentTable.getIndexes().equals( *** ));	
+		//Assert.assertTrue(currentTable.getIndexes().equals( *** ));
 		// TEST THAT IT DOESN'T DROP INDEXES
 		Assert.assertFalse(currentTable.containsIndex("index2"));
 		//Assert.assertFalse(currentTable.getIndexes().equals( *** ));

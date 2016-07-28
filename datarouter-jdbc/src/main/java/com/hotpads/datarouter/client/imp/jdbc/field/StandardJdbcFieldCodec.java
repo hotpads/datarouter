@@ -72,12 +72,12 @@ public enum StandardJdbcFieldCodec{
 	STRING(StringField.class, StringJdbcFieldCodec.class),
 	DATE(DateField.class, DateJdbcFieldCodec.class),
 	LONG_DATE(LongDateField.class, LongDateJdbcFieldCodec.class),
-	
+
 	//enums
 	INTEGER_ENUM(IntegerEnumField.class, IntegerEnumJdbcFieldCodec.class),
 	STRING_ENUM(StringEnumField.class, StringEnumJdbcFieldCodec.class),
 	VAR_INT_ENUM(VarIntEnumField.class, VarIntEnumJdbcFieldCodec.class),
-	
+
 	//BaseListJdbcFieldCodec
 	BOOLEAN_ARRAY(BooleanArrayField.class, BooleanArrayJdbcFieldCodec.class),
 	DELIMITED_STRING_ARRAY(DelimitedStringArrayField.class, DelimitedStringArrayJdbcFieldCodec.class),
@@ -85,12 +85,12 @@ public enum StandardJdbcFieldCodec{
 	INTEGER_ARRAY(IntegerArrayField.class, IntegerArrayJdbcFieldCodec.class),
 	UINT63_ARRAY(UInt63ArrayField.class, UInt63ArrayJdbcFieldCodec.class),
 	UINT7_ARRAY(UInt7ArrayField.class, UInt7ArrayJdbcFieldCodec.class),
-	
+
 	//primitive arrays
 	BYTE_ARRAY(ByteArrayField.class, ByteArrayJdbcFieldCodec.class),
 	PRIMITIVE_INTEGER_ARRAY(PrimitiveIntegerArrayField.class, PrimitiveIntegerArrayJdbcFieldCodec.class),
 	PRIMITIVE_LONG_ARRAY(PrimitiveLongArrayField.class, PrimitiveLongArrayJdbcFieldCodec.class),
-	
+
 	//positive numbers only
 	UINT15(UInt15Field.class, UInt15JdbcFieldCodec.class),
 	UINT31(UInt31Field.class, UInt31JdbcFieldCodec.class),
@@ -102,20 +102,20 @@ public enum StandardJdbcFieldCodec{
 
 	private final Class<? extends Field<?>> fieldType;
 	private final Class<? extends JdbcFieldCodec> codecType;
-	
+
 	private <T,F extends Field<T>,C extends JdbcFieldCodec<T,? extends Field<T>>>
 	StandardJdbcFieldCodec(Class<F> fieldType, Class<C> codecType){
 		this.fieldType = fieldType;
 		this.codecType = codecType;
 	}
-	
-	
+
+
 	public <T,F extends Field<T>> Class<F> getFieldType(){
 		return (Class<F>)fieldType;
 	}
-	
+
 	public <T,F extends Field<T>,C extends JdbcFieldCodec<T,F>> Class<C> getCodecType(){
 		return (Class<C>)codecType;
 	}
-	
+
 }

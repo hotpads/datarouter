@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
-import com.hotpads.datarouter.client.imp.jdbc.node.JdbcNode;
+import com.hotpads.datarouter.client.imp.jdbc.node.JdbcReaderNode;
 import com.hotpads.datarouter.client.imp.jdbc.op.BaseJdbcOp;
 import com.hotpads.datarouter.client.imp.jdbc.util.JdbcTool;
 import com.hotpads.datarouter.client.imp.jdbc.util.SqlBuilder;
@@ -21,7 +21,6 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.view.index.IndexEntry;
-import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.iterable.BatchingIterable;
 
 public class JdbcGetIndexOp<
@@ -56,7 +55,7 @@ extends BaseJdbcOp<List<IE>>{
 	public List<IE> runOnce(){
 		Connection connection = getConnection(mainNode.getClientId().getName());
 		List<IE> databeans = new ArrayList<>();
-		for(List<IK> batch : new BatchingIterable<>(uniqueKeys, JdbcNode.DEFAULT_ITERATE_BATCH_SIZE)){
+		for(List<IK> batch : new BatchingIterable<>(uniqueKeys, JdbcReaderNode.DEFAULT_ITERATE_BATCH_SIZE)){
 			List<? extends Key<IK>> keys = new ArrayList<>(batch);
 			String sql = SqlBuilder.getMulti(fieldCodecFactory, config, mainNode.getTableName(), indexFielder.getFields(
 					indexEntry), keys);

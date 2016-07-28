@@ -10,13 +10,13 @@ import com.hotpads.datarouter.client.imp.jdbc.util.JdbcTool;
 public class TableDropper{
 
 	@Test public void testCreateAndDeleteTable()throws Exception{
-		
+
 		Connection conn = JdbcTool.openConnection("localhost", 3306, "drTest0", "root", "");
 		Statement stmt = null;
 		try{
 			stmt = conn.createStatement();
 //			stmt.execute("drop table Cheese");
-//			stmt.execute("drop table if exists Inquiry;");	
+//			stmt.execute("drop table if exists Inquiry;");
 			stmt.execute("alter table Cheese \n" + "add column blabla BOOLEAN DEFAULT NULL;");
 		}finally{
 			if(stmt!=null){ stmt.close(); }

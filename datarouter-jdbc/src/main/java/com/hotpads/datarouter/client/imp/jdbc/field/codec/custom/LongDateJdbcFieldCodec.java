@@ -15,15 +15,15 @@ import com.hotpads.datarouter.storage.field.Field;
 
 public class LongDateJdbcFieldCodec
 extends BasePrimitiveJdbcFieldCodec<Date,Field<Date>>{
-	
+
 	public LongDateJdbcFieldCodec(){//no-arg for reflection
 		this(null);
 	}
-	
+
 	public LongDateJdbcFieldCodec(Field<Date> field){
 		super(field);
 	}
-	
+
 
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
@@ -34,7 +34,7 @@ extends BasePrimitiveJdbcFieldCodec<Date,Field<Date>>{
 	public Date parseJdbcValueButDoNotSet(Object obj){
 		return obj==null?null:new Date(((BigInteger)obj).longValue());
 	}
-	
+
 	@Override
 	public void setPreparedStatementValue(PreparedStatement ps, int parameterIndex){
 		try{
@@ -47,7 +47,7 @@ extends BasePrimitiveJdbcFieldCodec<Date,Field<Date>>{
 			throw new DataAccessException(e);
 		}
 	}
-	
+
 	@Override
 	public Date fromJdbcResultSetButDoNotSet(ResultSet rs){
 		try{

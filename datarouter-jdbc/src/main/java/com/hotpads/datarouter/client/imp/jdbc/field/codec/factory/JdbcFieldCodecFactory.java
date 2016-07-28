@@ -3,7 +3,6 @@ package com.hotpads.datarouter.client.imp.jdbc.field.codec.factory;
 import java.util.Collection;
 import java.util.List;
 
-import com.google.inject.ImplementedBy;
 import com.hotpads.datarouter.client.imp.jdbc.field.JdbcFieldCodec;
 import com.hotpads.datarouter.storage.field.Field;
 
