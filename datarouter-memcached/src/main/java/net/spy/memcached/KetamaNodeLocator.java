@@ -1,5 +1,5 @@
 package net.spy.memcached;
- 
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -8,10 +8,10 @@ import java.util.NoSuchElementException;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import com.google.common.collect.Lists;
+
 import net.spy.SpyObject;
 
-import com.google.common.collect.Lists;
- 
 /**
 * This is an implementation of the Ketama consistent hash strategy from
 * last.fm. This implementation may not be compatible with libketama as
@@ -22,16 +22,16 @@ import com.google.common.collect.Lists;
 * @see http://www.last.fm/user/RJ/journal/2007/04/10/392555/
 */
 public final class KetamaNodeLocator extends SpyObject implements NodeLocator {
- 
+
     static final int NUM_REPS = 160;
- 
+
     TreeMap<Long, ServerInfo> ketamaNodes;
     Collection<MemcachedNode> allNodes;
     final List<ServerInfo> goodServers;
     final List<ServerInfo> failedServers;
- 
+
     final HashAlgorithm hashAlg;
- 
+
     public KetamaNodeLocator(ServerInfo[] serverList, HashAlgorithm alg) {
         super();
         goodServers = Lists.newArrayList(serverList);
@@ -39,7 +39,7 @@ public final class KetamaNodeLocator extends SpyObject implements NodeLocator {
         hashAlg = alg;
         createContinuum();
     }
-    
+
     public static long computeHash(String key, int alignment) {
         byte[] digest = HashAlgorithm.computeMd5(key);
         long result = ((long) (digest[3 + alignment * 4] & 0xFF) << 24)
@@ -48,7 +48,7 @@ public final class KetamaNodeLocator extends SpyObject implements NodeLocator {
             | (digest[alignment * 4] & 0xFF);
         return result;
     }
-    
+
     private void createContinuum() {
         // we use (NUM_REPS * #servers) total points, but allocate them based on server weights.
         double total_weight = 0.0;
@@ -57,10 +57,10 @@ public final class KetamaNodeLocator extends SpyObject implements NodeLocator {
         }
         int total_servers = goodServers.size();
         int nodes_per_server = (hashAlg == HashAlgorithm.KETAMA_HASH) ? NUM_REPS / 4 : NUM_REPS;
- 
-        allNodes = new ArrayList<MemcachedNode>();
-        ketamaNodes = new TreeMap<Long, ServerInfo>();
- 
+
+        allNodes = new ArrayList<>();
+        ketamaNodes = new TreeMap<>();
+
         for (ServerInfo sinfo : goodServers) {
             double percent = sinfo.weight / total_weight;
             // the tiny fudge fraction is added to counteract float errors.
@@ -77,12 +77,12 @@ public final class KetamaNodeLocator extends SpyObject implements NodeLocator {
             }
             allNodes.add(sinfo.connection);
         }
-        
+
         // because of int flooring, we may have fewer nodes than (NUM_REPS * total_servers), but it will be bounded.
         assert ketamaNodes.size() <= NUM_REPS * total_servers;
         assert ketamaNodes.size() >= NUM_REPS * (total_servers - 1);
     }
-    
+
     @Override
     public String toString() {
         StringBuilder dump = new StringBuilder("<KetamaNodeLocator");
@@ -93,24 +93,29 @@ public final class KetamaNodeLocator extends SpyObject implements NodeLocator {
         dump.append(">");
         return dump.toString();
     }
-    
-    public Collection<MemcachedNode> getAll() {
+
+    @Override
+	public Collection<MemcachedNode> getAll() {
         return allNodes;
     }
-    
+
     public List<ServerInfo> getGoodServers() {
         return goodServers;
     }
-    
-    public List<ServerInfo> getFailedServers() {
+
+    @Override
+	public List<ServerInfo> getFailedServers() {
     	return failedServers;
     }
-    
-    public void removeServer(MemcachedNode node) {
+
+    @Override
+	public void removeServer(MemcachedNode node) {
     	ServerInfo dead = null;
-    	for (ServerInfo server : goodServers)
-    		if (server.connection.equals(node))
-    			dead = server;
+    	for (ServerInfo server : goodServers){
+			if (server.connection.equals(node)){
+				dead = server;
+			}
+		}
     	if (dead != null) {
     		goodServers.remove(dead);
     		failedServers.add(dead);
@@ -119,31 +124,35 @@ public final class KetamaNodeLocator extends SpyObject implements NodeLocator {
     		getLogger().error("couldnt find server to remove for " + node.toString());
     	}
     }
-    
-    public void addServer(ServerInfo server) {
+
+    @Override
+	public void addServer(ServerInfo server) {
     	goodServers.add(server);
     	createContinuum();
     }
-      
-    public void moveAllFailedToGood() {
+
+    @Override
+	public void moveAllFailedToGood() {
     	List<ServerInfo> temp = new ArrayList<>();
     	temp.addAll(failedServers);
     	failedServers.clear();
     	goodServers.addAll(temp);
     	createContinuum();
     }
-    
-    public MemcachedNode getPrimary(final String k) {
+
+    @Override
+	public MemcachedNode getPrimary(final String k) {
         ServerInfo rv = getNodeForKey(hashAlg.hash(k));
-        if (rv == null)
-        	return null;
+        if (rv == null){
+			return null;
+		}
         return rv.connection;
     }
- 
+
     long getMaxKey() {
         return ketamaNodes.lastKey();
     }
- 
+
     ServerInfo getNodeForKey(long hash) {
     	try {
 	        if(!ketamaNodes.containsKey(hash)) {
@@ -161,26 +170,27 @@ public final class KetamaNodeLocator extends SpyObject implements NodeLocator {
     		return null; //most likely, all memcached servers down
     	}
     }
- 
-    public Iterator<MemcachedNode> getSequence(String k) {
+
+    @Override
+	public Iterator<MemcachedNode> getSequence(String k) {
         return new KetamaIterator(k, allNodes.size());
     }
- 
- 
+
+
     class KetamaIterator implements Iterator<MemcachedNode> {
- 
+
         final String key;
         long hashVal;
         int remainingTries;
         int numTries=0;
- 
+
         public KetamaIterator(final String k, final int t) {
             super();
             hashVal=hashAlg.hash(k);
             remainingTries=t;
             key=k;
         }
- 
+
         private void nextHash() {
             // this.calculateHash(Integer.toString(tries)+key).hashCode();
             long tmpKey=hashAlg.hash((numTries++) + key);
@@ -189,22 +199,25 @@ public final class KetamaNodeLocator extends SpyObject implements NodeLocator {
             hashVal &= 0xffffffffL; /* truncate to 32-bits */
             remainingTries--;
         }
- 
-        public boolean hasNext() {
+
+        @Override
+		public boolean hasNext() {
             return remainingTries > 0;
         }
- 
-        public MemcachedNode next() {
+
+        @Override
+		public MemcachedNode next() {
             try {
                 return getNodeForKey(hashVal).connection;
             } finally {
                 nextHash();
             }
         }
- 
-        public void remove() {
+
+        @Override
+		public void remove() {
             throw new UnsupportedOperationException("remove not supported");
         }
- 
+
     }
 }

@@ -56,6 +56,7 @@ public final class SerializingTranscoder extends SpyObject
 	/* (non-Javadoc)
 	 * @see net.spy.memcached.Transcoder#decode(net.spy.memcached.CachedData)
 	 */
+	@Override
 	public Object decode(CachedData d) {
 		byte[] data=d.getData();
 		Object rv=null;
@@ -101,6 +102,7 @@ public final class SerializingTranscoder extends SpyObject
 	/* (non-Javadoc)
 	 * @see net.spy.memcached.Transcoder#encode(java.lang.Object)
 	 */
+	@Override
 	public CachedData encode(Object o) {
 		CachedData rv=null;
 		byte[] b=null;

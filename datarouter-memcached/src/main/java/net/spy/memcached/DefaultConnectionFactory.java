@@ -1,10 +1,8 @@
 package net.spy.memcached;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.channels.SocketChannel;
-import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
@@ -68,6 +66,7 @@ public class DefaultConnectionFactory extends SpyObject
 		this(DEFAULT_OP_QUEUE_LEN, DEFAULT_READ_BUFFER_SIZE);
 	}
 
+	@Override
 	public MemcachedNode createMemcachedNode(SocketAddress sa,
 			SocketChannel c, int bufSize) {
 		return new AsciiMemcachedNodeImpl(sa, c, bufSize,
@@ -79,6 +78,7 @@ public class DefaultConnectionFactory extends SpyObject
 	/* (non-Javadoc)
 	 * @see net.spy.memcached.ConnectionFactory#createConnection(java.util.List)
 	 */
+	@Override
 	public MemcachedConnection createConnection(ServerInfo[] serverList)
 		throws IOException {
 		return new MemcachedConnection(getReadBufSize(), this, serverList);
@@ -87,13 +87,15 @@ public class DefaultConnectionFactory extends SpyObject
 	/* (non-Javadoc)
 	 * @see net.spy.memcached.ConnectionFactory#createOperationQueue()
 	 */
+	@Override
 	public BlockingQueue<Operation> createOperationQueue() {
-		return new ArrayBlockingQueue<Operation>(getOpQueueLen());
+		return new ArrayBlockingQueue<>(getOpQueueLen());
 	}
 
 	/* (non-Javadoc)
 	 * @see net.spy.memcached.ConnectionFactory#createLocator(java.util.List)
 	 */
+	@Override
 	public NodeLocator createLocator(ServerInfo[] serverList) {
 		return new ArrayModNodeLocator(serverList, getHashAlg());
 	}
@@ -119,6 +121,7 @@ public class DefaultConnectionFactory extends SpyObject
 		return hashAlg;
 	}
 
+	@Override
 	public OperationFactory getOperationFactory() {
 		return new AsciiOperationFactory();
 	}

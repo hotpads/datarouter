@@ -22,7 +22,7 @@ public class AddrUtil {
 					+ s + "''");
 		}
 		ArrayList<InetSocketAddress> addrs=
-			new ArrayList<InetSocketAddress>();
+			new ArrayList<>();
 
 		for(String hoststuff : s.split(" ")) {
 			addrs.add(getAddress(hoststuff));
@@ -30,7 +30,7 @@ public class AddrUtil {
 		assert !addrs.isEmpty() : "No addrs found";
 		return addrs;
 	}
-	
+
 	public static InetSocketAddress getAddress(String hoststuff) {
 		String[] parts=hoststuff.split(":");
 		if(parts.length != 2) {
