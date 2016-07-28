@@ -12,25 +12,25 @@ import com.hotpads.datarouter.util.core.DrCollectionTool;
 
 public class RoundRobinBalancer
 extends BaseHBaseRegionBalancer{
-	
+
 	public RoundRobinBalancer(String tableName){
 		super(tableName);
 	}
 
-	
+
 	@Override
 	public Map<DrRegionInfo<?>,ServerName> call() {
 		this.serverByRegion = new TreeMap<>();
 		List<ServerName> serverNames = drhServerList.getServerNamesSorted();
-		
+
 		int regionIndex=0;
 		for(DrRegionInfo<?> drhRegionInfo : drhRegionList.getRegionsSorted()){
 			int serverIndex = regionIndex % DrCollectionTool.size(serverNames);
 			this.serverByRegion.put(drhRegionInfo, serverNames.get(serverIndex));
 			++regionIndex;
 		}
-		
+
 		return serverByRegion;
 	}
-	
+
 }

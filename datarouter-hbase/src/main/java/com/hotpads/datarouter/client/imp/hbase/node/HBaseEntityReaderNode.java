@@ -42,8 +42,8 @@ extends BasePhysicalEntityNode<EK,E>{
 		this.nodeFactory = nodeFactory;
 		this.entityNodeParams = entityNodeParams;
 		this.clientTableNodeNames = clientTableNodeNames;
-		this.queryBuilder = new HBaseEntityQueryBuilder<EK,E>(getEntityFieldInfo());
-		this.resultParser = new HBaseEntityResultParser<EK,E>(entityFieldInfo,
+		this.queryBuilder = new HBaseEntityQueryBuilder<>(getEntityFieldInfo());
+		this.resultParser = new HBaseEntityResultParser<>(entityFieldInfo,
 				(Map<String,HBaseSubEntityReaderNode<EK,E,?,?,?>>)getNodeByQualifierPrefix());
 	}
 
@@ -68,7 +68,7 @@ extends BasePhysicalEntityNode<EK,E>{
 		}
 		final Config config = Config.nullSafe(paramConfig);
 		try{
-			return new HBaseMultiAttemptTask<E>(new HBaseTask<E>(getContext(), getClientTableNodeNames(), "getEntity",
+			return new HBaseMultiAttemptTask<>(new HBaseTask<E>(getContext(), getClientTableNodeNames(), "getEntity",
 					config){
 				@Override
 				public E hbaseCall(Table table, HBaseClient client, ResultScanner managedResultScanner)
