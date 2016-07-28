@@ -1,7 +1,5 @@
 package net.spy.memcached;
- 
-import java.util.List;
- 
+
 /**
 * ConnectionFactory instance that sets up a ketama compatible connection.
 *
@@ -24,14 +22,14 @@ public class KetamaConnectionFactory extends DefaultConnectionFactory {
 	  public KetamaConnectionFactory(int qLen, int bufSize) {
 	    super(qLen, bufSize, HashAlgorithm.KETAMA_HASH);
 	  }
-	 
+
 	  /**
 	   * Create a KetamaConnectionFactory with the default parameters.
 	   */
 	  public KetamaConnectionFactory() {
 	    this(DEFAULT_OP_QUEUE_LEN, DEFAULT_READ_BUFFER_SIZE);
 	  }
-	 
+
 	  /* (non-Javadoc)
 	   * @see net.spy.memcached.ConnectionFactory#createLocator(java.util.List)
 	   */
@@ -40,4 +38,3 @@ public class KetamaConnectionFactory extends DefaultConnectionFactory {
 	    return new KetamaNodeLocator(serverList, getHashAlg());
 	  }
 }
-	 

@@ -24,6 +24,7 @@ public class GetCallbackWrapper implements GetOperation.Callback {
 		cb=c;
 	}
 
+	@Override
 	public void gotData(String key, int flags, byte[] data) {
 		assert !completed : "Got data for a completed wrapped op";
 		cb.gotData(key, flags, data);
@@ -33,12 +34,14 @@ public class GetCallbackWrapper implements GetOperation.Callback {
 		}
 	}
 
+	@Override
 	public void receivedStatus(OperationStatus status) {
 		if(!completed) {
 			cb.receivedStatus(status);
 		}
 	}
 
+	@Override
 	public void complete() {
 		assert !completed;
 		cb.complete();

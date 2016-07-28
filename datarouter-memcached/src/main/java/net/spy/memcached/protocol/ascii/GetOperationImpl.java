@@ -37,13 +37,14 @@ class GetOperationImpl extends OperationImpl implements GetOperation {
 
 	public GetOperationImpl(Collection<String> k, GetOperation.Callback c) {
 		super(c);
-		keys=new HashSet<String>(k);
+		keys=new HashSet<>(k);
 		cb=c;
 	}
 
 	/**
 	 * Get the keys this GetOperation is looking for.
 	 */
+	@Override
 	public final Collection<String> getKeys() {
 		return keys;
 	}

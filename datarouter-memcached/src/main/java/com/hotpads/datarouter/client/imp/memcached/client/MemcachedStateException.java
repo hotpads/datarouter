@@ -9,11 +9,11 @@ public class MemcachedStateException extends Exception {
 	public MemcachedStateException(Exception e) {
 		super(e);
 	}
-	
+
 	public MemcachedStateException() {
 		super();
 	}
-	
+
 	public MemcachedStateException(String s) {
 		super(s);
 	}

@@ -1,10 +1,8 @@
 package net.spy.memcached;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.channels.SocketChannel;
-import java.util.List;
 import java.util.concurrent.BlockingQueue;
 
 import net.spy.memcached.ops.Operation;
@@ -38,7 +36,7 @@ public interface ConnectionFactory {
 
 	/**
 	 * Create a NodeLocator instance for the given list of nodes.
-	 */  
+	 */
 	NodeLocator createLocator(ServerInfo[] serverList);
 
 	/**

@@ -1,7 +1,6 @@
 package net.spy.memcached;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -27,25 +26,29 @@ public final class ArrayModNodeLocator implements NodeLocator {
 	 */
 	  public ArrayModNodeLocator(ServerInfo[] serverList, HashAlgorithm alg) {
 	    super();
-	    nodes = new ArrayList<MemcachedNode>(serverList.length);
+	    nodes = new ArrayList<>(serverList.length);
 	    for (int i = 0; i < serverList.length; i++) {
 	    	nodes.add(serverList[i].connection);
 	    }
 	    hashAlg=alg;
 	  }
 
+	@Override
 	public Collection<MemcachedNode> getAll() {
 		return nodes;
 	}
-	
+
+	@Override
 	public void removeServer(MemcachedNode node) {
 		nodes.remove(node);
 	}
 
+	@Override
 	public MemcachedNode getPrimary(String k) {
 		return nodes.get(getServerForKey(k));
 	}
 
+	@Override
 	public Iterator<MemcachedNode> getSequence(String k) {
 		return new NodeIterator(getServerForKey(k));
 	}
@@ -73,6 +76,7 @@ public final class ArrayModNodeLocator implements NodeLocator {
 					+ nodes.size() + " next is " + next;
 		}
 
+		@Override
 		public boolean hasNext() {
 			return next >= 0;
 		}
@@ -86,6 +90,7 @@ public final class ArrayModNodeLocator implements NodeLocator {
 			}
 		}
 
+		@Override
 		public MemcachedNode next() {
 			try {
 				return nodes.get(next);
@@ -94,6 +99,7 @@ public final class ArrayModNodeLocator implements NodeLocator {
 			}
 		}
 
+		@Override
 		public void remove() {
 			throw new UnsupportedOperationException("Can't remove a node");
 		}
@@ -108,7 +114,7 @@ public final class ArrayModNodeLocator implements NodeLocator {
 
 	@Override
 	public Collection<ServerInfo> getFailedServers() {
-		throw new NotImplementedException("not implemented for arraymod locator");	
+		throw new NotImplementedException("not implemented for arraymod locator");
 	}
 
 	@Override

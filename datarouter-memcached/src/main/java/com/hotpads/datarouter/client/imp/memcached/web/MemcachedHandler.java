@@ -22,7 +22,7 @@ import com.hotpads.handler.mav.Mav;
 public class MemcachedHandler extends BaseHandler {
 
 	private static final Logger logger = LoggerFactory.getLogger(MemcachedHandler.class);
-	
+
 	@Inject
 	private Datarouter datarouter;
 

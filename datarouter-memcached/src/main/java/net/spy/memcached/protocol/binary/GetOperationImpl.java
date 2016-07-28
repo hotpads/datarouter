@@ -37,6 +37,7 @@ public class GetOperationImpl extends OperationImpl implements GetOperation {
 		return errCode == ERR_NOT_FOUND ? NOT_FOUND_STATUS : null;
 	}
 
+	@Override
 	public Collection<String> getKeys() {
 		return Collections.singleton(key);
 	}

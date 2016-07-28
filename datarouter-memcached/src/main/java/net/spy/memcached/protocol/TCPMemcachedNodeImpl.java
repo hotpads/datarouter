@@ -59,8 +59,9 @@ public abstract class TCPMemcachedNodeImpl extends SpyObject
 	/* (non-Javadoc)
 	 * @see net.spy.memcached.MemcachedNode#copyInputQueue()
 	 */
+	@Override
 	public final void copyInputQueue() {
-		Collection<Operation> tmp=new ArrayList<Operation>();
+		Collection<Operation> tmp=new ArrayList<>();
 		inputQueue.drainTo(tmp);
 		writeQ.addAll(tmp);
 	}
@@ -69,6 +70,7 @@ public abstract class TCPMemcachedNodeImpl extends SpyObject
 	/* (non-Javadoc)
 	 * @see net.spy.memcached.MemcachedNode#setupResend()
 	 */
+	@Override
 	public final void setupResend() {
 		// First, reset the current write op.
 		Operation op=getCurrentWriteOp();
@@ -87,10 +89,11 @@ public abstract class TCPMemcachedNodeImpl extends SpyObject
 		getRbuf().clear();
 		toWrite=0;
 	}
-	
+
 	/**
 	 * clear all pending operations, used for when a node fails
 	 */
+	@Override
 	public final void clearAllOps() {
 		Operation op;
 		while (hasReadOp()) {
@@ -125,6 +128,7 @@ public abstract class TCPMemcachedNodeImpl extends SpyObject
 	/* (non-Javadoc)
 	 * @see net.spy.memcached.MemcachedNode#fillWriteBuffer(boolean)
 	 */
+	@Override
 	public final void fillWriteBuffer(boolean optimizeGets) {
 		if(toWrite == 0) {
 			getWbuf().clear();
@@ -166,6 +170,7 @@ public abstract class TCPMemcachedNodeImpl extends SpyObject
 	/* (non-Javadoc)
 	 * @see net.spy.memcached.MemcachedNode#transitionWriteItem()
 	 */
+	@Override
 	public final void transitionWriteItem() {
 		Operation op=removeCurrentWriteOp();
 		assert op != null : "There is no write item to transition";
@@ -181,6 +186,7 @@ public abstract class TCPMemcachedNodeImpl extends SpyObject
 	/* (non-Javadoc)
 	 * @see net.spy.memcached.MemcachedNode#getCurrentReadOp()
 	 */
+	@Override
 	public final Operation getCurrentReadOp() {
 		return readQ.peek();
 	}
@@ -188,6 +194,7 @@ public abstract class TCPMemcachedNodeImpl extends SpyObject
 	/* (non-Javadoc)
 	 * @see net.spy.memcached.MemcachedNode#removeCurrentReadOp()
 	 */
+	@Override
 	public final Operation removeCurrentReadOp() {
 		return readQ.remove();
 	}
@@ -195,6 +202,7 @@ public abstract class TCPMemcachedNodeImpl extends SpyObject
 	/* (non-Javadoc)
 	 * @see net.spy.memcached.MemcachedNode#getCurrentWriteOp()
 	 */
+	@Override
 	public final Operation getCurrentWriteOp() {
 		return getOp == null ? writeQ.peek() : getOp;
 	}
@@ -202,6 +210,7 @@ public abstract class TCPMemcachedNodeImpl extends SpyObject
 	/* (non-Javadoc)
 	 * @see net.spy.memcached.MemcachedNode#removeCurrentWriteOp()
 	 */
+	@Override
 	public final Operation removeCurrentWriteOp() {
 		Operation rv=getOp;
 		if(rv == null) {
@@ -215,6 +224,7 @@ public abstract class TCPMemcachedNodeImpl extends SpyObject
 	/* (non-Javadoc)
 	 * @see net.spy.memcached.MemcachedNode#hasReadOp()
 	 */
+	@Override
 	public final boolean hasReadOp() {
 		return !readQ.isEmpty();
 	}
@@ -222,6 +232,7 @@ public abstract class TCPMemcachedNodeImpl extends SpyObject
 	/* (non-Javadoc)
 	 * @see net.spy.memcached.MemcachedNode#hasWriteOp()
 	 */
+	@Override
 	public final boolean hasWriteOp() {
 		return !(getOp == null && writeQ.isEmpty());
 	}
@@ -229,6 +240,7 @@ public abstract class TCPMemcachedNodeImpl extends SpyObject
 	/* (non-Javadoc)
 	 * @see net.spy.memcached.MemcachedNode#addOp(net.spy.memcached.ops.Operation)
 	 */
+	@Override
 	public final void addOp(Operation op) {
 		boolean added=inputQueue.add(op);
 		assert added; // documented to throw an IllegalStateException
@@ -237,6 +249,7 @@ public abstract class TCPMemcachedNodeImpl extends SpyObject
 	/* (non-Javadoc)
 	 * @see net.spy.memcached.MemcachedNode#getSelectionOps()
 	 */
+	@Override
 	public final int getSelectionOps() {
 		int rv=0;
 		if(getChannel().isConnected()) {
@@ -255,6 +268,7 @@ public abstract class TCPMemcachedNodeImpl extends SpyObject
 	/* (non-Javadoc)
 	 * @see net.spy.memcached.MemcachedNode#getRbuf()
 	 */
+	@Override
 	public final ByteBuffer getRbuf() {
 		return rbuf;
 	}
@@ -262,6 +276,7 @@ public abstract class TCPMemcachedNodeImpl extends SpyObject
 	/* (non-Javadoc)
 	 * @see net.spy.memcached.MemcachedNode#getWbuf()
 	 */
+	@Override
 	public final ByteBuffer getWbuf() {
 		return wbuf;
 	}
@@ -269,6 +284,7 @@ public abstract class TCPMemcachedNodeImpl extends SpyObject
 	/* (non-Javadoc)
 	 * @see net.spy.memcached.MemcachedNode#getSocketAddress()
 	 */
+	@Override
 	public final SocketAddress getSocketAddress() {
 		return socketAddress;
 	}
@@ -276,6 +292,7 @@ public abstract class TCPMemcachedNodeImpl extends SpyObject
 	/* (non-Javadoc)
 	 * @see net.spy.memcached.MemcachedNode#isActive()
 	 */
+	@Override
 	public final boolean isActive() {
 		return reconnectAttempt == 0
 			&& getChannel() != null && getChannel().isConnected();
@@ -284,6 +301,7 @@ public abstract class TCPMemcachedNodeImpl extends SpyObject
 	/* (non-Javadoc)
 	 * @see net.spy.memcached.MemcachedNode#reconnecting()
 	 */
+	@Override
 	public final void reconnecting() {
 		reconnectAttempt++;
 	}
@@ -291,6 +309,7 @@ public abstract class TCPMemcachedNodeImpl extends SpyObject
 	/* (non-Javadoc)
 	 * @see net.spy.memcached.MemcachedNode#connected()
 	 */
+	@Override
 	public final void connected() {
 		reconnectAttempt=0;
 	}
@@ -298,10 +317,12 @@ public abstract class TCPMemcachedNodeImpl extends SpyObject
 	/* (non-Javadoc)
 	 * @see net.spy.memcached.MemcachedNode#getReconnectCount()
 	 */
+	@Override
 	public final int getReconnectCount() {
 		return reconnectAttempt;
 	}
-	
+
+	@Override
 	public final void resetReconnectCount() {
 		reconnectAttempt = 0;
 	}
@@ -330,6 +351,7 @@ public abstract class TCPMemcachedNodeImpl extends SpyObject
 	/* (non-Javadoc)
 	 * @see net.spy.memcached.MemcachedNode#registerChannel(java.nio.channels.SocketChannel, java.nio.channels.SelectionKey)
 	 */
+	@Override
 	public final void registerChannel(SocketChannel ch, SelectionKey skey) {
 		setChannel(ch);
 		setSk(skey);
@@ -338,6 +360,7 @@ public abstract class TCPMemcachedNodeImpl extends SpyObject
 	/* (non-Javadoc)
 	 * @see net.spy.memcached.MemcachedNode#setChannel(java.nio.channels.SocketChannel)
 	 */
+	@Override
 	public final void setChannel(SocketChannel to) {
 		assert channel == null || !channel.isOpen() : "Attempting to overwrite channel";
 		channel = to;
@@ -346,6 +369,7 @@ public abstract class TCPMemcachedNodeImpl extends SpyObject
 	/* (non-Javadoc)
 	 * @see net.spy.memcached.MemcachedNode#getChannel()
 	 */
+	@Override
 	public final SocketChannel getChannel() {
 		return channel;
 	}
@@ -353,6 +377,7 @@ public abstract class TCPMemcachedNodeImpl extends SpyObject
 	/* (non-Javadoc)
 	 * @see net.spy.memcached.MemcachedNode#setSk(java.nio.channels.SelectionKey)
 	 */
+	@Override
 	public final void setSk(SelectionKey to) {
 		sk = to;
 	}
@@ -360,6 +385,7 @@ public abstract class TCPMemcachedNodeImpl extends SpyObject
 	/* (non-Javadoc)
 	 * @see net.spy.memcached.MemcachedNode#getSk()
 	 */
+	@Override
 	public final SelectionKey getSk() {
 		return sk;
 	}
@@ -367,6 +393,7 @@ public abstract class TCPMemcachedNodeImpl extends SpyObject
 	/* (non-Javadoc)
 	 * @see net.spy.memcached.MemcachedNode#getBytesRemainingInBuffer()
 	 */
+	@Override
 	public final int getBytesRemainingToWrite() {
 		return toWrite;
 	}
@@ -374,6 +401,7 @@ public abstract class TCPMemcachedNodeImpl extends SpyObject
 	/* (non-Javadoc)
 	 * @see net.spy.memcached.MemcachedNode#writeSome()
 	 */
+	@Override
 	public final int writeSome() throws IOException {
 		int wrote=channel.write(wbuf);
 		assert wrote >= 0 : "Wrote negative bytes?";
@@ -386,6 +414,7 @@ public abstract class TCPMemcachedNodeImpl extends SpyObject
 	}
 
 
+	@Override
 	public final void fixupOps() {
 		if(sk != null && sk.isValid()) {
 			int iops=getSelectionOps();

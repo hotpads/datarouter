@@ -72,10 +72,10 @@ public final class MemcachedConnection extends SpyObject {
 	public MemcachedConnection(int bufSize, ConnectionFactory f,
 			ServerInfo[] serverList)
 		throws IOException {
-		reconnectQueue=new TreeMap<Long, MemcachedNode>();
-		addedQueue=new ConcurrentLinkedQueue<MemcachedNode>();
+		reconnectQueue=new TreeMap<>();
+		addedQueue=new ConcurrentLinkedQueue<>();
 		failedServersToFix =  Collections.synchronizedList(new ArrayList<ServerInfo>());
-		addNewServerQueue = new ArrayBlockingQueue<Triple<ServerInfo, ConnectionFactory, Integer>>(25);
+		addNewServerQueue = new ArrayBlockingQueue<>(25);
 
 		selector=Selector.open();
 		for (ServerInfo sinfo : serverList) {
@@ -227,10 +227,10 @@ public final class MemcachedConnection extends SpyObject {
 	    if(!addedQueue.isEmpty()) {
 	        getLogger().debug("Handling queue");
 	        // If there's stuff in the added queue. Try to process it.
-	        Collection<MemcachedNode> toAdd=new HashSet<MemcachedNode>();
+	        Collection<MemcachedNode> toAdd=new HashSet<>();
 	        // Transfer the queue into a hashset. There are very likely more
 	        // additions than there are nodes.
-	        Collection<MemcachedNode> todo=new HashSet<MemcachedNode>();
+	        Collection<MemcachedNode> todo=new HashSet<>();
 	        try {
 	          MemcachedNode qa=null;
 	          while((qa=addedQueue.remove()) != null) {
@@ -403,7 +403,7 @@ public final class MemcachedConnection extends SpyObject {
 	private void attemptReconnects() throws IOException {
 	    final long now=System.currentTimeMillis();
 	    final Map<MemcachedNode, Boolean> seen=
-	      new IdentityHashMap<MemcachedNode, Boolean>();
+	      new IdentityHashMap<>();
 	    for(Iterator<MemcachedNode> i=
 	        reconnectQueue.headMap(now).values().iterator(); i.hasNext();) {
 	      final MemcachedNode qa=i.next();
