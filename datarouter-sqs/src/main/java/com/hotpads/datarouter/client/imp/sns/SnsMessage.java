@@ -3,6 +3,8 @@ package com.hotpads.datarouter.client.imp.sns;
 import java.util.Arrays;
 import java.util.List;
 
+import com.hotpads.datarouter.serialize.StringDatabeanCodec;
+import com.hotpads.datarouter.serialize.codec.FlatKeyJsonDatabeanCodec;
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
@@ -27,6 +29,11 @@ public class SnsMessage extends BaseDatabean<SnsMessageKey,SnsMessage>{
 		@Override
 		public List<Field<?>> getNonKeyFields(SnsMessage snsMessage){
 			return Arrays.asList(new StringField(FieldKeys.message, snsMessage.message));
+		}
+
+		@Override
+		public Class<? extends StringDatabeanCodec> getStringDatabeanCodecClass(){
+			return FlatKeyJsonDatabeanCodec.class;
 		}
 
 	}
