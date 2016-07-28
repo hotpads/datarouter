@@ -3,28 +3,30 @@ package com.hotpads.joblet;
 import com.hotpads.datarouter.profile.counter.Counters;
 
 public class JobletCounters {
-	public static final String
-		PREFIX_QUEUE_LENGTH = "Joblet queue length",
-		PREFIX_ITEMS_PROCESSED = "Joblet items processed",
-		PREFIX_TASKS_PROCESSED = "Joblet tasks processed",
-		PREFIX_FIRST_CREATED = "Joblet first created",
-		PREFIX_NUM_SERVERS = "Joblet num servers",
-		PREFIX_TARGET_SERVERS = "Joblet target servers";
+	private static final String PREFIX = "Joblet ";
 
-	public static void incQueueLength(String key) {
+	public static void incQueueLength(String key){
 		incQueueLength(key, 1L);
 	}
 
-	public static void incQueueLength(String key, long delta) {
-		Counters.inc(PREFIX_QUEUE_LENGTH+" "+key, delta);
+	public static void incQueueLength(String key, long delta){
+		Counters.inc(PREFIX + "queue length " + key, delta);
+	}
+
+	public static void incNumJobletsProcessed(){
+		Counters.inc(PREFIX + "processed");
+	}
+
+	public static void incNumJobletsProcessed(String key){
+		Counters.inc(PREFIX + "processed " + key);
 	}
 
 	public static void incItemsProcessed(String key, long delta){
-		Counters.inc(PREFIX_ITEMS_PROCESSED+" "+key, delta);
+		Counters.inc(PREFIX + "items processed " + key, delta);
 	}
 
 	public static void incTasksProcessed(String key, long delta){
-		Counters.inc(PREFIX_TASKS_PROCESSED+" "+key, delta);
+		Counters.inc(PREFIX + "tasks processed " + key, delta);
 	}
 
 	public static void incFirstCreated(String key){
@@ -32,13 +34,15 @@ public class JobletCounters {
 	}
 
 	public static void incFirstCreated(String key, long delta){
-		Counters.inc(PREFIX_FIRST_CREATED+" "+key, delta);
+		Counters.inc(PREFIX + "first created " + key, delta);
 	}
 
 	public static void incNumServers(long delta){
-		Counters.inc(PREFIX_NUM_SERVERS, delta);
+		Counters.inc(PREFIX + "num servers", delta);
 	}
+
 	public static void incTargetServers(long delta){
-		Counters.inc(PREFIX_TARGET_SERVERS, delta);
+		Counters.inc(PREFIX + "target servers", delta);
 	}
+
 }
