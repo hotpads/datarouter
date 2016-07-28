@@ -5,5 +5,5 @@ extends Comparable<E>{
 
 	Integer getPersistentInteger();
 	E fromPersistentInteger(Integer i);
-	
+
 }

@@ -20,8 +20,8 @@ implements EntityNode<EK,E>{
 	private Datarouter datarouter;
 	private String name;
 	private List<Node<?,?>> subEntityNodes;
-	
-	
+
+
 	public BaseEntityNode(Datarouter datarouter, String name){
 		this.datarouter = datarouter;
 		this.name = name;
@@ -39,7 +39,7 @@ implements EntityNode<EK,E>{
 	public Datarouter getContext(){
 		return datarouter;
 	}
-	
+
 	@Override
 	public String getName(){
 		return name;
@@ -49,5 +49,5 @@ implements EntityNode<EK,E>{
 	public Collection<Node<?,?>> getSubEntityNodes(){
 		return subEntityNodes;
 	}
-	
+
 }

@@ -20,17 +20,17 @@ implements TxnExecutor{
 	private static Logger logger = LoggerFactory.getLogger(BaseTxnExecutor.class);
 
 	private TxnOp<T> parallelTxnOp;
-	
+
 	public BaseTxnExecutor(Datarouter datarouter, TxnOp<T> parallelTxnOp) {
 		super(datarouter, parallelTxnOp);
 		this.parallelTxnOp = parallelTxnOp;
 	}
-	
+
 	@Override
 	public Isolation getIsolation() {
 		return parallelTxnOp.getIsolation();
 	}
-	
+
 	/********************* txn code **********************************/
 
 	@Override
@@ -48,7 +48,7 @@ implements TxnExecutor{
 			DRCounters.incClient(txnClient.getType(), "beginTxn", txnClient.getName());
 		}
 	}
-	
+
 	@Override
 	public void commitTxns(){
 		for(Client client : DrCollectionTool.nullSafe(getClients())){
@@ -64,7 +64,7 @@ implements TxnExecutor{
 			DRCounters.incClient(txnClient.getType(), "commitTxn", txnClient.getName());
 		}
 	}
-	
+
 	@Override
 	public void rollbackTxns(){
 		for(Client client : DrCollectionTool.nullSafe(getClients())){
@@ -83,6 +83,6 @@ implements TxnExecutor{
 			}
 		}
 	}
-	
-	
+
+
 }

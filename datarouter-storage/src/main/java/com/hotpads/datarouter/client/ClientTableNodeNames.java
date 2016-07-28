@@ -5,8 +5,8 @@ public class ClientTableNodeNames{
 	private String clientName;
 	private String tableName;
 	private String nodeName;
-	
-	
+
+
 	public ClientTableNodeNames(String clientName, String tableName, String nodeName){
 		this.clientName = clientName;
 		this.tableName = tableName;
@@ -26,7 +26,7 @@ public class ClientTableNodeNames{
 		return nodeName;
 	}
 
-	
+
 	/********************** eclipse generated ***************************/
 
 	@Override
@@ -42,28 +42,37 @@ public class ClientTableNodeNames{
 
 	@Override
 	public boolean equals(Object obj){
-		if(this == obj)
+		if(this == obj){
 			return true;
-		if(obj == null)
+		}
+		if(obj == null){
 			return false;
-		if(getClass() != obj.getClass())
+		}
+		if(getClass() != obj.getClass()){
 			return false;
+		}
 		ClientTableNodeNames other = (ClientTableNodeNames)obj;
 		if(clientName == null){
-			if(other.clientName != null)
+			if(other.clientName != null){
 				return false;
-		}else if(!clientName.equals(other.clientName))
+			}
+		}else if(!clientName.equals(other.clientName)){
 			return false;
+		}
 		if(nodeName == null){
-			if(other.nodeName != null)
+			if(other.nodeName != null){
 				return false;
-		}else if(!nodeName.equals(other.nodeName))
+			}
+		}else if(!nodeName.equals(other.nodeName)){
 			return false;
+		}
 		if(tableName == null){
-			if(other.tableName != null)
+			if(other.tableName != null){
 				return false;
-		}else if(!tableName.equals(other.tableName))
+			}
+		}else if(!tableName.equals(other.tableName)){
 			return false;
+		}
 		return true;
 	}
 
@@ -73,6 +82,6 @@ public class ClientTableNodeNames{
 		return "ClientTableNodeNames [clientName=" + clientName + ", tableName=" + tableName + ", nodeName=" + nodeName
 				+ "]";
 	}
-	
-	
+
+
 }

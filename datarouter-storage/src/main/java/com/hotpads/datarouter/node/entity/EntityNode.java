@@ -17,12 +17,12 @@ public interface EntityNode<
 
 	Datarouter getContext();
 	String getName();
-	
+
 	<PK extends EntityPrimaryKey<EK,PK>,D extends Databean<PK,D>>
 	void register(SortedMapStorageReaderNode<PK,D> subEntityNode);
 
 	Collection<Node<?,?>> getSubEntityNodes();
-	
+
 	E getEntity(EK key, Config config);
-	
+
 }

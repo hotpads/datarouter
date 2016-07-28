@@ -179,9 +179,9 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 			fields.add(new CharacterField(F.characterField, d.characterField));
 			fields.add(new StringField(F.stringField, d.stringField, MySqlColumnType.MAX_KEY_LENGTH_UTF8MB4));
 			fields.add(new VarIntField(F.varIntField, d.varIntField));
-			fields.add(new IntegerEnumField<TestEnum>(TestEnum.class, F.intEnumField, d.intEnumField));
-			fields.add(new VarIntEnumField<TestEnum>(TestEnum.class, F.varIntEnumField, d.varIntEnumField));
-			fields.add(new StringEnumField<TestEnum>(TestEnum.class, F.stringEnumField, d.stringEnumField, LEN_STRING_ENUM_FIELD));
+			fields.add(new IntegerEnumField<>(TestEnum.class, F.intEnumField, d.intEnumField));
+			fields.add(new VarIntEnumField<>(TestEnum.class, F.varIntEnumField, d.varIntEnumField));
+			fields.add(new StringEnumField<>(TestEnum.class, F.stringEnumField, d.stringEnumField, LEN_STRING_ENUM_FIELD));
 			fields.add(new ByteArrayField(F.stringByteField, d.stringByteField, MySqlColumnType.MAX_LENGTH_LONGBLOB));
 			fields.add(new ByteArrayField(F.data, d.data, MySqlColumnType.MAX_LENGTH_LONGBLOB));
 			fields.add(new UInt63ArrayField(F.longArrayField, d.longArrayField));

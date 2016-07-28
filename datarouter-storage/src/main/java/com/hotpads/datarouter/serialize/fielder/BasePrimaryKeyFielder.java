@@ -9,5 +9,5 @@ implements PrimaryKeyFielder<PK>{
 	public boolean isEntity(){
 		return false;
 	}
-	
+
 }

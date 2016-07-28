@@ -9,8 +9,8 @@ public abstract class BaseMultiIndexEntry<
 		IK extends PrimaryKey<IK>,
 		IE extends Databean<IK,IE>,
 		PK extends PrimaryKey<PK>,
-		D extends Databean<PK,D>> 
+		D extends Databean<PK,D>>
 extends BaseDatabean<IK,IE>
 implements MultiIndexEntry<IK,IE,PK,D>{
-	
+
 }

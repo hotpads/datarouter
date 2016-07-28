@@ -7,5 +7,5 @@ extends ConnectionClient{
 
 	Connection getExistingConnection();
 	Connection acquireConnection();
-	
+
 }

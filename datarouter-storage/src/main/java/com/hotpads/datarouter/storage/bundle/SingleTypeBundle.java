@@ -9,8 +9,8 @@ import com.hotpads.datarouter.util.core.DrCollectionTool;
 
 public class SingleTypeBundle<D extends Databean<?,?>> {
 
-	protected NavigableSet<D> databeans = new TreeSet<D>();
-	
+	protected NavigableSet<D> databeans = new TreeSet<>();
+
 	public void add(D databean){
 		if(databean==null){ return; }
 		this.databeans.add(databean);
@@ -21,13 +21,13 @@ public class SingleTypeBundle<D extends Databean<?,?>> {
 			this.add(databean);
 		}
 	}
-	
+
 	public NavigableSet<D> getDatabeans(){
 		return this.databeans;
 	}
-	
+
 	public D getFirst(){
 		return DrCollectionTool.getFirst(this.databeans);
 	}
-	
+
 }

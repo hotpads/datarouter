@@ -11,15 +11,15 @@ import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.iterable.scanner.batch.BaseBatchBackedScanner;
 
 public abstract class BaseManagedIndexKeyScanner<
-		PK extends PrimaryKey<PK>, 
+		PK extends PrimaryKey<PK>,
 		D extends Databean<PK, D>,
 		IK extends PrimaryKey<IK>,
 		IE extends IndexEntry<IK, IE, PK, D>>
 extends BaseBatchBackedScanner<IK,IK>{
-	
+
 	private final Range<IK> range;
 	protected final Config config;
-	
+
 	public BaseManagedIndexKeyScanner(Range<IK> range, Config config){
 		this.range = Range.nullSafe(range);
 		this.config = Config.nullSafe(config).getDeepCopy();
@@ -44,17 +44,17 @@ extends BaseBatchBackedScanner<IK,IK>{
 				range.getEndInclusive());
 
 		currentBatch = doLoad(batchRange);
-		
+
 		if (DrCollectionTool.size(currentBatch) < config.getIterateBatchSize()){
 			noMoreBatches = true;
 		}
 	}
-	
+
 	@Override
 	protected void setCurrentFromResult(IK result){
 		this.current = result;
 	}
 
 	protected abstract List<IK> doLoad(Range<IK> batchRange);
-	
+
 }

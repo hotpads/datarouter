@@ -1,10 +1,7 @@
 package com.hotpads.datarouter.serialize.fieldcache;
 
-import java.util.List;
-
 import com.hotpads.datarouter.node.entity.EntityNodeParams;
 import com.hotpads.datarouter.storage.entity.Entity;
-import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
 import com.hotpads.datarouter.storage.key.entity.EntityPartitioner;
 import com.hotpads.datarouter.storage.key.entity.base.NoOpEntityPartitioner;
@@ -14,7 +11,7 @@ public class EntityFieldInfo<
 		EK extends EntityKey<EK>,
 //		EP extends EntityPartitioner<EK>,
 		E extends Entity<EK>>{
-	
+
 	public static final byte ENTITY_PREFIX_TERMINATOR = 0;
 
 	private String entityTableName;
@@ -24,8 +21,8 @@ public class EntityFieldInfo<
 	private Class<? extends EntityPartitioner<EK>> entityPartitionerClass;
 	private EntityPartitioner<EK> entityPartitioner;
 	private Class<E> entityClass;
-	
-	
+
+
 	public EntityFieldInfo(EntityNodeParams<EK,E> params){
 		this.entityTableName = params.getEntityTableName();
 		this.entityKeyClass = params.getEntityKeyClass();
@@ -41,8 +38,8 @@ public class EntityFieldInfo<
 		this.entityClass = params.getEntityClass();
 	}
 
-	
-	
+
+
 	public static byte getEntityPrefixTerminator(){
 		return ENTITY_PREFIX_TERMINATOR;
 	}

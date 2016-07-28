@@ -14,13 +14,13 @@ import com.hotpads.datarouter.storage.key.entity.EntityKey;
 
 @Singleton
 public class EntityNodeFactory{
-	
+
 	@Inject
 	private DatarouterClients clients;
 	@Inject
 	private NodeFactory nodeFactory;
 
-	public <EK extends EntityKey<EK>,E extends Entity<EK>> 
+	public <EK extends EntityKey<EK>,E extends Entity<EK>>
 	EntityNode<EK,E> create(String clientName, Router router, EntityNodeParams<EK,E> params){
 		ClientType clientType = clients.getClientTypeInstance(clientName);
 		Preconditions.checkNotNull(clientType, "clientType not found for clientName:"+clientName);

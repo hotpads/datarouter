@@ -8,7 +8,7 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
 public interface IndexedMapStorage<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
-extends MapStorage<PK,D>, IndexedStorage<PK,D>, 
+extends MapStorage<PK,D>, IndexedStorage<PK,D>,
 		IndexedMapStorageReader<PK,D>, IndexedMapStorageWriter<PK,D>
 {
 	public interface IndexedMapStorageNode<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>

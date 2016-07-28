@@ -7,18 +7,18 @@ import java.util.List;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 
 @SuppressWarnings("serial")
-public class SimpleFieldSet<F extends FieldSet<F>> 
+public class SimpleFieldSet<F extends FieldSet<F>>
 extends BaseFieldSet<F>{
 
 	protected List<Field<?>> fields = new ArrayList<>();
-	
+
 	public SimpleFieldSet(){
 	}
-	
+
 	public SimpleFieldSet(Collection<Field<?>> fields){
 		add(fields);
 	}
-	
+
 	public void add(Field<?> field){
 		if(field==null){ return; }
 		this.fields.add(field);
@@ -30,14 +30,14 @@ extends BaseFieldSet<F>{
 		}
 		return this;
 	}
-	
+
 	@Override
 	public List<Field<?>> getFields(){
 		return fields;
 	}
-	
+
 	public Field<?> getFirst(){
 		return DrCollectionTool.getFirst(fields);
 	}
-	
+
 }

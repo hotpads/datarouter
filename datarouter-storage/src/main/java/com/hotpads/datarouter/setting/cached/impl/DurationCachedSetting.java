@@ -13,7 +13,7 @@ public class DurationCachedSetting extends CachedSetting<Duration>{
 	protected Duration reload(){
 		return finder.getDuration(name, defaultValue);
 	}
-	
+
 	@Override
 	public boolean isValid(String value){
 		return Duration.isDuration(value);
