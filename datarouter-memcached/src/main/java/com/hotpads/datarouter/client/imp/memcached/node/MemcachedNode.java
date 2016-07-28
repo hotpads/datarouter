@@ -30,6 +30,8 @@ extends MemcachedReaderNode<PK,D,F>
 implements PhysicalMapStorageNode<PK,D>{
 	private static final Logger logger = LoggerFactory.getLogger(MemcachedNode.class);
 
+	private static final Boolean DEFAULT_SWALLOW_EXCEPTION = true;
+
 	protected static final int MEGABYTE = 1024 * 1024;
 
 	public MemcachedNode(NodeParams<PK,D,F> params){
@@ -83,7 +85,7 @@ implements PhysicalMapStorageNode<PK,D>{
 			}
 			TracerTool.appendToSpanInfo(TracerThreadLocal.get(), DrCollectionTool.size(databeans)+"");
 		}catch(Exception exception){
-			if(paramConfig.swallowExceptionOrUse(true)){
+			if(paramConfig.swallowExceptionOrUse(DEFAULT_SWALLOW_EXCEPTION)){
 				logger.error("memcached error on ", exception);
 			}else{
 				throw exception;
@@ -109,7 +111,7 @@ implements PhysicalMapStorageNode<PK,D>{
 			startTraceSpan(MapStorageWriter.OP_delete);
 			getClient().getSpyClient().delete(buildMemcachedKey(key));
 		}catch(Exception exception){
-			if(paramConfig.swallowExceptionOrUse(true)){
+			if(paramConfig.swallowExceptionOrUse(DEFAULT_SWALLOW_EXCEPTION)){
 				logger.error("memcached error on " + key, exception);
 			}else{
 				throw exception;
@@ -127,30 +129,6 @@ implements PhysicalMapStorageNode<PK,D>{
 		}
 	}
 
-
-	public Long getTallyCount(TallyKey key, final Config paramConfig){
-		if(key == null){
-			return null;
-		}
-		Object tallyObject = null;
-		try{
-			tallyObject = getClient().getSpyClient().asyncGet(buildMemcachedKey(key)).get();
-		}catch(Exception exception){
-			if(paramConfig.swallowExceptionOrUse(true)){
-				logger.error("memcached error on " + key, exception);
-			}else{
-				throw new RuntimeException(exception);
-			}
-		}
-
-		if(tallyObject instanceof String){
-			return Long.valueOf(((String)tallyObject).trim());
-		}
-
-		return null;
-	}
-
-
 	public void increment(TallyKey tallyKey, int delta, Config paramConfig){
 		if(tallyKey == null){
 			return;
@@ -160,7 +138,7 @@ implements PhysicalMapStorageNode<PK,D>{
 			String key = buildMemcachedKey(tallyKey);
 			getClient().getSpyClient().incr(key, delta, delta, getExpiration(paramConfig));
 		}catch(Exception exception){
-			if(paramConfig.swallowExceptionOrUse(true)){
+			if(paramConfig.swallowExceptionOrUse(DEFAULT_SWALLOW_EXCEPTION)){
 				logger.error("memcached error on " + tallyKey, exception);
 			}else{
 				throw exception;
@@ -179,7 +157,7 @@ implements PhysicalMapStorageNode<PK,D>{
 			String key = buildMemcachedKey(tallyKey);
 			return getClient().getSpyClient().incr(key, delta, delta, getExpiration(paramConfig));
 		}catch(Exception exception){
-			if(paramConfig.swallowExceptionOrUse(true)){
+			if(paramConfig.swallowExceptionOrUse(DEFAULT_SWALLOW_EXCEPTION)){
 				logger.error("memcached error on " + tallyKey, exception);
 				return null;
 			}else{
