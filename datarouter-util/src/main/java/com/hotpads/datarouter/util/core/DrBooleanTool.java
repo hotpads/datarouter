@@ -4,11 +4,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class DrBooleanTool {
-	
 
-	public static final Set<String> TRUE_VALUES = new HashSet<String>();
-	public static final Set<String> FALSE_VALUES = new HashSet<String>();
-	
+
+	public static final Set<String> TRUE_VALUES = new HashSet<>();
+	public static final Set<String> FALSE_VALUES = new HashSet<>();
+
 	static{
 		TRUE_VALUES.add("true");
 		TRUE_VALUES.add("1");
@@ -24,37 +24,49 @@ public class DrBooleanTool {
 		FALSE_VALUES.add("n");
 		FALSE_VALUES.add("off");
 	}
-	
+
 	public static boolean isTrue(String input){
-		if(input==null) return false;
+		if(input==null){
+			return false;
+		}
 		return TRUE_VALUES.contains(input.toLowerCase());
 	}
-	
+
 	public static boolean isTrueOrNull(String input){
-		if(input==null) return true;
+		if(input==null){
+			return true;
+		}
 		return TRUE_VALUES.contains(input.toLowerCase());
 	}
-	
+
 	public static boolean isFalse(String input){
-		if(input==null) return false;
+		if(input==null){
+			return false;
+		}
 		return FALSE_VALUES.contains(input.toLowerCase());
 	}
-	
+
 	public static boolean isTrue(Boolean b){
-		if (b == null) return false;
+		if (b == null){
+			return false;
+		}
 		return b;
 	}
-	
+
 	public static boolean isFalseOrNull(Boolean b){
-		if (b == null) return true;
+		if (b == null){
+			return true;
+		}
 		return ! b;
 	}
-	
+
 	public static boolean isFalse(Boolean b){
-		if (b == null) return false;
+		if (b == null){
+			return false;
+		}
 		return ! b;
 	}
-	
+
 	public static boolean isBoolean(String input){
 		return isTrue(input) || isFalse(input);
 	}

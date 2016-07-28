@@ -6,7 +6,7 @@ import java.io.OutputStream;
 import com.hotpads.util.core.bytes.ByteRange;
 
 public class OutputStreamTool{
-	
+
 	public static void write(OutputStream os, byte b){
 		try{
 			os.write(b);
@@ -35,5 +35,5 @@ public class OutputStreamTool{
 		write(os, byteRange.getBytes(), byteRange.getOffset() + byteRangeInnerOffset, byteRange.getLength()
 				- byteRangeInnerOffset);
 	}
-	
+
 }

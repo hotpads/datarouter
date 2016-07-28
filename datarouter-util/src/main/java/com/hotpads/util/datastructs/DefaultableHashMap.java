@@ -9,36 +9,35 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.collect.Maps;
-
 import com.hotpads.util.core.collections.DefaultableMap;
 
 public class DefaultableHashMap<K,V> extends DefaultableMapAbs<K, V> implements DefaultableMap<K, V> {
 
 	protected HashMap<K,V> backingMap = Maps.newHashMap();
-	
+
 	public DefaultableHashMap() {
 		// TODO Auto-generated constructor stub
 	}
-	
+
 	public DefaultableHashMap(Map<K, V> copyMap){
-		backingMap = new HashMap<K, V>(copyMap);
+		backingMap = new HashMap<>(copyMap);
 	}
-	
+
 	@Override
 	protected Map<K, V> delegate() {
 		return this.backingMap;
 	}
-	
+
 	public static class Tests {
 		DefaultableHashMap<String, String> map;
 		@Before public void setup() {
-			map = new DefaultableHashMap<String,String>();
+			map = new DefaultableHashMap<>();
 			map.put("str", "str");
 			map.put("bool", "true");
 			map.put("double", "1.234");
 			map.put("int", "6");
 		}
-		
+
 		@Test public void test() {
 			assertTrue(map.getBoolean("bool", false));
 			assertTrue(map.getBoolean("boola", true));

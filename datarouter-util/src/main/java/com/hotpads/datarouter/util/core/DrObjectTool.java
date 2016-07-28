@@ -2,18 +2,18 @@ package com.hotpads.datarouter.util.core;
 
 
 public class DrObjectTool {
-	
-	
+
+
 	public static <T> boolean equals(T a, T b){
 		if(bothNull(a,b)){ return true; }
 		if(isOneNullButNotTheOther(a,b)){ return false; }
 		return a.equals(b);
 	}
-	
+
 	public static <T> boolean notEquals(T a, T b){
 		return ! equals(a, b);
 	}
-	
+
 	public static boolean isOneNullButNotTheOther(Object a, Object b){
 		if(a==null && b!=null){
 			return true;
@@ -23,7 +23,7 @@ public class DrObjectTool {
 		}
 		return false;
 	}
-	
+
 	public static boolean bothNull(Object a, Object b){
 		return a==null && b==null;
 	}
@@ -37,11 +37,11 @@ public class DrObjectTool {
 		}
 		return numNulls;
 	}
-	
+
 	public static <T> T nullSafe(T t, T returnIfNull){
 		return t != null ? t : returnIfNull;
 	}
-	
+
 	public static boolean nullSafeEquals(Object a, Object b){
 		if(a==null && b==null){
 			return true;
@@ -51,12 +51,12 @@ public class DrObjectTool {
 			return a.equals(b);
 		}
 	}
-	
-	
+
+
 	public static boolean nullSafeNotEquals(Object a, Object b){
 		return ! nullSafeEquals(a, b);
 	}
-	
+
 
 	public static String nullSafeToString(Object object) {
 		return nullSafeToString(object, null);

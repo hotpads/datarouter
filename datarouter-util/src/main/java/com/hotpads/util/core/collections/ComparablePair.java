@@ -15,7 +15,7 @@ implements Comparable<ComparablePair<L,R>>{
 
 	public static <L extends Comparable<? super L>,R extends Comparable<? super R>> ComparablePair<L,R> create(L left,
 			R right){
-		return new ComparablePair<L,R>(left, right);
+		return new ComparablePair<>(left, right);
 	}
 
 	@Override

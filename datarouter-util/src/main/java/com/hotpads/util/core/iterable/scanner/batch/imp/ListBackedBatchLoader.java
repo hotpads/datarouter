@@ -12,7 +12,7 @@ public class ListBackedBatchLoader<T> extends BaseBatchLoader<T>{
 	private List<T> list;
 	private int firstIndex;
 	private int batchSize;
-	
+
 	public ListBackedBatchLoader(List<T> list, int firstIndex, int batchSize){
 		this.list = list;
 		this.firstIndex = firstIndex;
@@ -27,7 +27,7 @@ public class ListBackedBatchLoader<T> extends BaseBatchLoader<T>{
 	@Override
 	public BatchLoader<T> getNextLoader(){
 		int nextBatchStartIndex = firstIndex + batchSize;
-		return new ListBackedBatchLoader<T>(list, nextBatchStartIndex, batchSize);
+		return new ListBackedBatchLoader<>(list, nextBatchStartIndex, batchSize);
 	}
 
 	@Override
@@ -37,7 +37,7 @@ public class ListBackedBatchLoader<T> extends BaseBatchLoader<T>{
 		updateBatch(newBatch);
 		return this;
 	}
-	
-	
-	
+
+
+
 }

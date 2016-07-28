@@ -6,7 +6,7 @@ import java.io.IOException;
 public class RuntimeIOException extends RuntimeException{
 
 	private IOException checkedCause;
-	
+
 	public RuntimeIOException(IOException checkedCause){
 		this.checkedCause = checkedCause;
 	}
@@ -14,5 +14,5 @@ public class RuntimeIOException extends RuntimeException{
 	public IOException getCheckedCause(){
 		return checkedCause;
 	}
-	
+
 }

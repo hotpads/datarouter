@@ -6,8 +6,8 @@ import com.hotpads.util.core.iterable.scanner.Scanner;
 
 public interface BatchLoader<T>
 extends Callable<BatchLoader<T>>, Scanner<T>{
-	
+
 	boolean isLastBatch();
 	BatchLoader<T> getNextLoader();
-	
+
 }

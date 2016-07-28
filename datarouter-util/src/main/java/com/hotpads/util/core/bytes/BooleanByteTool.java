@@ -8,7 +8,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class BooleanByteTool{
-	
+
 	public static final int NULL = -2;
 
 	public static byte[] getBytesNullable(Boolean value){
@@ -17,18 +17,18 @@ public class BooleanByteTool{
 		}
 		return getBytes(value);
 	}
-	
+
 	public static Boolean fromBytesNullable(final byte[] bytes, final int offset){
 		if(Arrays.equals(bytes, new byte[]{NULL})){
 			return null;
 		}
 		return fromBytes(bytes, offset);
 	}
-	
+
 	public static byte[] getBytes(boolean value){
 		return value ? new byte[]{-1} : new byte[]{0};
 	}
-	
+
 	/**
 	 * @return the number of bytes written to the array
 	 */
@@ -36,11 +36,11 @@ public class BooleanByteTool{
 		bytes[offset] = value ? (byte)-1 : (byte)0;
 		return 1;
 	}
-	
+
 	public static boolean fromBytes(byte[] bytes, int offset){
 		return bytes[offset]!=0;
 	}
-	
+
 	public static byte[] getBooleanByteArray(List<Boolean> valuesWithNulls){
 		if(valuesWithNulls==null){return null;}
 		byte[] out = new byte[valuesWithNulls.size()];
@@ -49,7 +49,7 @@ public class BooleanByteTool{
 		}
 		return out;
 	}
-	
+
 	public static List<Boolean> fromBooleanByteArray(final byte[] bytes, final int startIdx){
 		int numBooleans = (bytes.length - startIdx);
 		List<Boolean> bools = new ArrayList<>();
@@ -60,9 +60,9 @@ public class BooleanByteTool{
 		}
 		return bools;
 	}
-	
+
 	/************************** tests ************************************/
-	
+
 	public static class BooleanByteToolTests{
 		@Test public void testGetBytes(){
 			Assert.assertEquals(0, getBytes(false)[0]);
@@ -78,18 +78,18 @@ public class BooleanByteTool{
 			boolean one = true;
 			boolean two =  false;
 			boolean three = false;
-			
+
 			List<Boolean> booleans = new ArrayList<>();
 			booleans.add(one);
 			booleans.add(null);
 			booleans.add(null);
 			booleans.add(two);
 			booleans.add(three);
-			
+
 			byte[] booleanBytes = getBooleanByteArray(booleans);
 			List<Boolean> result = fromBooleanByteArray(booleanBytes, 0);
 			Assert.assertEquals(booleans, result);
-			
+
 		}
 	}
 }
