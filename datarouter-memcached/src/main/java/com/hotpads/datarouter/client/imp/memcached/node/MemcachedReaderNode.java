@@ -21,6 +21,7 @@ import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.op.raw.read.MapStorageReader;
 import com.hotpads.datarouter.node.type.physical.base.BasePhysicalNode;
+import com.hotpads.datarouter.profile.tally.TallyKey;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.databean.DatabeanTool;
@@ -161,6 +162,28 @@ implements MemcachedPhysicalNode<PK,D>,
 		return DatabeanTool.getKeys(getMulti(keys, paramConfig));
 	}
 
+
+	public Long getTallyCount(TallyKey key, final Config paramConfig){
+		if(key == null){
+			return null;
+		}
+		Object tallyObject = null;
+		try{
+			tallyObject = getClient().getSpyClient().asyncGet(buildMemcachedKey(key)).get();
+		}catch(Exception exception){
+			if(paramConfig.swallowExceptionOrUse(true)){
+				logger.error("memcached error on " + key, exception);
+			}else{
+				throw new RuntimeException(exception);
+			}
+		}
+
+		if(tallyObject instanceof String){
+			return Long.valueOf(((String)tallyObject).trim());
+		}
+
+		return null;
+	}
 
 	/******************** serialization *******************/
 

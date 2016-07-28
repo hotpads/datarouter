@@ -25,7 +25,6 @@ public class Config extends BaseDatabean<ConfigKey,Config> implements Cloneable{
 	public static final Isolation DEFAULT_ISOLATION = Isolation.readCommitted;
 	public static final Boolean DEFAULT_AUTO_COMMIT = false;
 	public static final Integer LENGTH_CALLSITE = MySqlColumnType.INT_LENGTH_LONGTEXT;
-	public static final Boolean DEFAULT_SWALLOW_EXCEPTION = true;
 
 	/*************** fields ********************************/
 
@@ -53,7 +52,7 @@ public class Config extends BaseDatabean<ConfigKey,Config> implements Cloneable{
 	private Integer iterateBatchSize = DEFAULT_ITERATE_BATCH_SIZE;
 
 	//error handling
-	private Boolean swallowException = DEFAULT_SWALLOW_EXCEPTION;
+	private Boolean swallowException = null;
 
 	//retrying
 	private Long timeoutMs = Duration.ofMinutes(10).toMillis();
