@@ -13,13 +13,13 @@ public class LongRunningTaskTracker {
 	private static Logger logger = LoggerFactory.getLogger(LongRunningTaskTracker.class);
 
 	private static long HEARTBEAT_PERSIST_PERIOD_MS = 2000L;
-	
+
 	private IndexedSortedMapStorage<LongRunningTaskKey, LongRunningTask> node;
 	private LongRunningTask task;
 	private MutableBoolean interrupted;
 	private Date lastPersistedHeartbeat;
 	private Setting<Boolean> shouldSaveLongRunningTasks;
-	
+
 	public LongRunningTaskTracker(IndexedSortedMapStorage<LongRunningTaskKey, LongRunningTask> node,
 			LongRunningTask task, Setting<Boolean> shouldSaveLongRunningTasks){
 		this.node = node;
@@ -27,13 +27,13 @@ public class LongRunningTaskTracker {
 		this.interrupted = new MutableBoolean(false);
 		this.shouldSaveLongRunningTasks = shouldSaveLongRunningTasks;
 	}
-	
+
 	public void requestStop(){
 		logger.info("requested interrupt on "+task.getKey().getJobClass());
 		interrupted.set(true);
 		task.setInterrupt(true);
 	}
-	
+
 	public boolean isStopRequested(){
 		if(interrupted.get()){
 			task.setJobExecutionStatus(JobExecutionStatus.interrupted);
@@ -43,7 +43,7 @@ public class LongRunningTaskTracker {
 		}
 		return interrupted.get();
 	}
-	
+
 	public LongRunningTaskTracker heartbeat(){
 		if(shouldPersistHeartbeat()){
 			Date heartbeat = new Date();
@@ -53,14 +53,14 @@ public class LongRunningTaskTracker {
 		}
 		return this;
 	}
-	
+
 	private void persist(){
 		if(task.getKey().getTriggerTime()==null){
 			logger.error("not persisting "+task.getDatabeanName()+" tracker because of null trigger time");
 		}
 		node.put(task, null);
 	}
-	
+
 	private boolean shouldPersistHeartbeat(){
 		if((shouldSaveLongRunningTasks == null) || !shouldSaveLongRunningTasks.getValue()){
 			return false;
@@ -70,12 +70,12 @@ public class LongRunningTaskTracker {
 		}
 		return System.currentTimeMillis() - lastPersistedHeartbeat.getTime() > HEARTBEAT_PERSIST_PERIOD_MS;
 	}
-	
+
 	public LongRunningTaskTracker setNumItemsProcessed(long numItems){
 		task.setNumItemsProcessed(numItems);
 		return this;
 	}
-	
+
 	public IndexedSortedMapStorage<LongRunningTaskKey, LongRunningTask> getNode() {
 		return node;
 	}
