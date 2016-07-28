@@ -5,9 +5,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class TriggerInfo{
 
-	
+
 	/******************fields******************/
-	
+
 	protected Date nextScheduled;
 	protected Date lastFired;
 	protected Date lastThrownError;
@@ -18,12 +18,12 @@ public class TriggerInfo{
 	protected boolean isDisabled;
 	protected AtomicBoolean isRunning;
 	protected int numberOfSuccesses;
-	protected int numberOfErrors; 
+	protected int numberOfErrors;
 	protected Job job;
-	
-	
+
+
 	/******************constructors******************/
-	
+
 	public TriggerInfo(){
 		this.lastFired = null;
 		this.lastExecutionDurationMs = -1;
@@ -34,28 +34,28 @@ public class TriggerInfo{
 		this.numberOfSuccesses = 0;
 		this.numberOfErrors = 0;
 	}
-	
-	
+
+
 	/******************methods******************/
-	
+
 	public void incrementNumberOfSuccesses(){
 		this.numberOfSuccesses++;
 	}
-	
+
 	public void incrementNumberOfErrors(){
 		this.numberOfErrors++;
 	}
 
-	
+
 	/******************setters/getters******************/
 	public Job getJob(){
 		return job;
 	}
-	
+
 	public void setJob(Job job){
 		this.job = job;
 	}
-	
+
 	public Date getNextScheduled(){
 		return nextScheduled;
 	}
@@ -143,6 +143,6 @@ public class TriggerInfo{
 	public void setNumberOfErrors(int numberOfErrors){
 		this.numberOfErrors = numberOfErrors;
 	}
-	
-	
+
+
 }
