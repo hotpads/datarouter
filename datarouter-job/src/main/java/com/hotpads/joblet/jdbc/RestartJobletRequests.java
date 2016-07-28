@@ -1,4 +1,4 @@
-package com.hotpads.joblet.hibernate;
+package com.hotpads.joblet.jdbc;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

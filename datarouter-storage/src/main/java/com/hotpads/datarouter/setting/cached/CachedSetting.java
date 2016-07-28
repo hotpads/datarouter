@@ -12,31 +12,31 @@ public abstract class CachedSetting<T>
 extends Cached<T>
 implements Setting<T>{
 
-	protected SettingFinder finder;
-	protected String name;
-	protected T defaultValue;
+	protected final SettingFinder finder;
+	protected final String name;
+	protected final T defaultValue;
 	protected boolean hasCustomValues;
 	protected boolean hasRedundantCustomValues;
-	
+
 	public CachedSetting(SettingFinder finder, String name, T defaultValue){
 		super(15, TimeUnit.SECONDS);
 		this.finder = finder;
 		this.name = name;
 		this.defaultValue = defaultValue;
 	}
-	
+
 	/******************* Setting methods *************************/
 
 	@Override
 	public String getName(){
 		return name;
 	}
-	
+
 	@Override
 	public T getDefaultValue(){
 		return defaultValue;
 	}
-	
+
 	@Override
 	public T getValue(){
 		return super.get();
@@ -51,5 +51,5 @@ implements Setting<T>{
 	public boolean getHasRedundantCustomValue(){
 		return DrObjectTool.equals(getDefaultValue(), getValue());
 	}
-	
+
 }
