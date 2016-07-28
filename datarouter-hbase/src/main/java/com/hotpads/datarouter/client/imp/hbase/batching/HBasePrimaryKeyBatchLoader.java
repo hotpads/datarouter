@@ -20,25 +20,25 @@ import com.hotpads.util.core.iterable.scanner.batch.BatchLoader;
 public class HBasePrimaryKeyBatchLoader<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
-		F extends DatabeanFielder<PK,D>> 
+		F extends DatabeanFielder<PK,D>>
 extends BaseHBaseBatchLoader<PK,D,F,PK>{
 	private static Logger logger = LoggerFactory.getLogger(HBasePrimaryKeyBatchLoader.class);
-	
+
 	public HBasePrimaryKeyBatchLoader(final HBaseReaderNode<PK,D,F> node, final List<Field<?>> scatteringPrefix,
 			final Range<PK> range, final Config pConfig, Long batchChainCounter){
 		super(node, scatteringPrefix, range, pConfig, batchChainCounter);
 	}
-	
+
 	@Override
 	protected boolean isKeysOnly(){
 		return true;
 	}
-	
+
 	@Override
 	protected PK parseHBaseResult(Result result){
 		return HBaseResultTool.getPrimaryKey(result.getRow(), node.getFieldInfo());
 	}
-	
+
 	@Override
 	protected PK getLastPrimaryKeyFromBatch(){
 		return getLast();
@@ -47,6 +47,6 @@ extends BaseHBaseBatchLoader<PK,D,F,PK>{
 	@Override
 	public BatchLoader<PK> getNextLoader(){
 		Range<PK> nextRange = getNextRange();
-		return new HBasePrimaryKeyBatchLoader<PK,D,F>(node, scatteringPrefix, nextRange, config, batchChainCounter + 1);					
+		return new HBasePrimaryKeyBatchLoader<>(node, scatteringPrefix, nextRange, config, batchChainCounter + 1);
 	}
 }

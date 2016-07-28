@@ -15,9 +15,9 @@ import com.hotpads.datarouter.util.core.DrHashMethods;
 
 public class ConsistentHashBalancer
 extends BaseHBaseRegionBalancer{
-	
+
 	public static final Integer BUCKETS_PER_NODE = 1000;
-	
+
 	public ConsistentHashBalancer(String tableName){
 		super(tableName);
 	}
@@ -26,7 +26,7 @@ extends BaseHBaseRegionBalancer{
 	public Map<DrRegionInfo<?>,ServerName> call(){
 		//set up the ring of servers
 		SortedMap<Long,ServerName> consistentHashRing = buildServerHashRing(drhServerList, BUCKETS_PER_NODE);
-		
+
 		//calculate each region's position in the ring and store it
 		for(DrRegionInfo<?> drhRegionInfo : drhRegionList.getRegions()){
 			byte[] consistentHashInput = drhRegionInfo.getRegion().getEncodedNameAsBytes();
@@ -35,7 +35,7 @@ extends BaseHBaseRegionBalancer{
 		}
 //		logger.warn(getServerByRegionStringForDebug());
 		assertRegionCountsConsistent();
-		
+
 		//level out any imbalances from the hashing
 		HBaseBalanceLeveler<DrRegionInfo<?>> leveler = new HBaseBalanceLeveler<>(drhServerList.getServerNames(),
 				serverByRegion, tableName);
@@ -45,7 +45,7 @@ extends BaseHBaseRegionBalancer{
 		assertRegionCountsConsistent();
 		return serverByRegion;
 	}
-	
+
 	public static SortedMap<Long,ServerName> buildServerHashRing(DrServerList servers, int numBucketsPerNode){
 		SortedMap<Long,ServerName> consistentHashRing = new TreeMap<>();
 		for(DrServerInfo server : servers.getServers()){
@@ -56,8 +56,8 @@ extends BaseHBaseRegionBalancer{
 		}
 		return consistentHashRing;
 	}
-	
-	public static ServerName calcServerNameForItem(SortedMap<Long,ServerName> consistentHashRing, 
+
+	public static ServerName calcServerNameForItem(SortedMap<Long,ServerName> consistentHashRing,
 			byte[] consistentHashInput){
 		long hash = DrHashMethods.longMD5DJBHash(consistentHashInput);
 		if(!consistentHashRing.containsKey(hash)){
@@ -67,5 +67,5 @@ extends BaseHBaseRegionBalancer{
 		ServerName serverName = consistentHashRing.get(hash);
 		return serverName;
 	}
-	
+
 }
