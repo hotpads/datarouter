@@ -19,14 +19,14 @@ import com.hotpads.datarouter.util.core.DrCollectionTool;
 public class JdbcLookupUniqueOp<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
-		F extends DatabeanFielder<PK,D>> 
+		F extends DatabeanFielder<PK,D>>
 extends BaseJdbcOp<List<D>>{
-		
+
 	private final JdbcReaderNode<PK,D,F> node;
 	private final JdbcFieldCodecFactory fieldCodecFactory;
 	private final Collection<? extends UniqueKey<PK>> uniqueKeys;
 	private final Config config;
-	
+
 	public JdbcLookupUniqueOp(JdbcReaderNode<PK,D,F> node, JdbcFieldCodecFactory fieldCodecFactory,
 			Collection<? extends UniqueKey<PK>> uniqueKeys, Config config){
 		super(node.getDatarouter(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
@@ -35,7 +35,7 @@ extends BaseJdbcOp<List<D>>{
 		this.uniqueKeys = uniqueKeys;
 		this.config = config;
 	}
-	
+
 	@Override
 	public List<D> runOnce(){
 		if(DrCollectionTool.isEmpty(uniqueKeys)){
@@ -47,5 +47,5 @@ extends BaseJdbcOp<List<D>>{
 				.getFieldInfo(), sql);
 		return result;
 	}
-	
+
 }

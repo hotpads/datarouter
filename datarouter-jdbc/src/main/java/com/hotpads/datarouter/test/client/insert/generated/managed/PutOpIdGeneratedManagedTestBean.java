@@ -16,7 +16,7 @@ implements PutOpGeneratedTestBean<PutOpIdGeneratedManagedTestBeanKey, PutOpIdGen
 
 	private PutOpIdGeneratedManagedTestBeanKey key;
 	private String a;
-	
+
 	public static class PutOpIdGeneratedManagedTestBeanFielder extends BaseDatabeanFielder<PutOpIdGeneratedManagedTestBeanKey, PutOpIdGeneratedManagedTestBean>{
 
 		@Override
@@ -28,13 +28,13 @@ implements PutOpGeneratedTestBean<PutOpIdGeneratedManagedTestBeanKey, PutOpIdGen
 		public List<Field<?>> getNonKeyFields(PutOpIdGeneratedManagedTestBean d){
 			return FieldTool.createList(new StringField("a", d.a, 10));
 		}
-		
+
 	}
-	
+
 	public PutOpIdGeneratedManagedTestBean(){
 		this.key = new PutOpIdGeneratedManagedTestBeanKey();
 	}
-	
+
 	public PutOpIdGeneratedManagedTestBean(String a){
 		this.key = new PutOpIdGeneratedManagedTestBeanKey();
 		this.a = a;

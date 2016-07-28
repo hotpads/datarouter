@@ -2,10 +2,10 @@ package com.hotpads.datarouter.client.imp.jdbc.ddl.generate;
 
 
 public class SqlAlterTableClause{
-	
+
 	protected String alterTable;
 	protected SqlAlterTypes type;
-	
+
 	public SqlAlterTableClause(String alterTable, SqlAlterTypes type){
 		this.alterTable = alterTable;
 		this.type = type;

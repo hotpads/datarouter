@@ -10,15 +10,15 @@ import com.hotpads.util.core.exception.NotImplementedException;
 
 public class PrimitiveIntegerArrayJdbcFieldCodec
 extends BaseJdbcFieldCodec<int[],Field<int[]>>{
-	
+
 	public PrimitiveIntegerArrayJdbcFieldCodec(){//no-arg for reflection
 		this(null);
 	}
-	
+
 	public PrimitiveIntegerArrayJdbcFieldCodec(Field<int[]> field){
 		super(field);
 	}
-	
+
 
 	@Override
 	public SqlColumn getSqlColumnDefinition(){

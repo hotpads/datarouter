@@ -13,15 +13,15 @@ import com.hotpads.datarouter.util.core.DrComparableTool;
 import com.hotpads.datarouter.util.core.DrMathTool;
 
 public class SqlIndex implements Comparable<SqlIndex>{
-	
+
 	/********************** fields *************************/
-	
+
 	protected String name;
 	protected List<SqlColumn> columns;
-	
-	
+
+
 	/********************** constructors **********************/
-	
+
 	public SqlIndex(String name, List<SqlColumn> columns){
 		this.name = name;
 		this.columns = columns;
@@ -32,22 +32,22 @@ public class SqlIndex implements Comparable<SqlIndex>{
 		this.columns=new ArrayList<>();
 	}
 
-	
+
 	/******************* methods ****************************/
-	
+
 	public SqlIndex addColumn(SqlColumn col){
 		columns.add(col);
 		return this;
 	}
 
-	
+
 	/******************* Object methods **********************/
-	
+
 	@Override
 	public String toString(){
 		return "`" + name + "` , (" + columns + ")";
 	}
-	
+
 	@Override
 	public int hashCode(){
 		final int prime = 31;
@@ -85,10 +85,10 @@ public class SqlIndex implements Comparable<SqlIndex>{
 		}
 		return true;
 	}
-	
-	
+
+
 	/****************** get/set ****************************/
-	
+
 	public String getName(){
 		return name;
 	}
@@ -104,14 +104,14 @@ public class SqlIndex implements Comparable<SqlIndex>{
 	public void setColumns(List<SqlColumn> columns){
 		this.columns = columns;
 	}
-	
+
 	public int getNumberOfColumns(){
 		return DrCollectionTool.size(columns);
 	}
-	
-	
+
+
 	/********************* comparators **********************************/
-	
+
 	public static class SqlIndexNameComparator implements Comparator<SqlIndex>{
 
 		@Override
@@ -134,9 +134,9 @@ public class SqlIndex implements Comparable<SqlIndex>{
 			}
 			return 0;
 		}
-		
+
 	}
-	
+
 	@Override
 	public int compareTo(SqlIndex o){
 			int c = DrComparableTool.nullFirstCompareTo(name, o.name);
@@ -157,10 +157,10 @@ public class SqlIndex implements Comparable<SqlIndex>{
 			}
 			return 0;
 	}
-	
-	
+
+
 	/**************************** tests *******************************************/
-	
+
 	public static class SqlIndexTests{
 		@Test public void equalsTester(){
 			SqlColumn a = new SqlColumn("a", MySqlColumnType.BIGINT);
@@ -169,10 +169,10 @@ public class SqlIndex implements Comparable<SqlIndex>{
 			SqlColumn bb=new SqlColumn("b", MySqlColumnType.VARCHAR);
 			SqlIndex index1 = new SqlIndex("index");
 			SqlIndex index2 = new SqlIndex("index");
-			
+
 			index1.addColumn(a).addColumn(b);
 			index2.addColumn(aa).addColumn(bb);
-			
+
 			Assert.assertTrue(index1.equals(index2));
 		}
 	}

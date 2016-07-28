@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.hotpads.datarouter.storage.field.Field;
 
-public abstract class BaseListJdbcFieldCodec<T extends Comparable<T>,L extends List<T>,F extends Field<L>> 
+public abstract class BaseListJdbcFieldCodec<T extends Comparable<T>,L extends List<T>,F extends Field<L>>
 extends BaseJdbcFieldCodec<L,F>{
 
 	public BaseListJdbcFieldCodec(F field){

@@ -21,10 +21,10 @@ public class CreateTableTester{
 //						.addColumn(colLastName)
 //						.addColumn(colFirstName));
 //		inputTable.setIndexes(index);
-//		
+//
 //		SqlCreateTableGenerator generator = new SqlCreateTableGenerator(inputTable);
 //		String sql = generator.generateDdl();
-//		
+//
 //		Connection conn = JdbcTool.openConnection("localhost", 3306, DRTestConstants.DATABASE_drTest0, "root", "");
 //		Statement stmt = null;
 //		try{
@@ -32,20 +32,20 @@ public class CreateTableTester{
 //			stmt.execute("drop table if exists "+inputTable.getName()+";");
 //			System.out.println(sql);
 //			stmt.execute(sql);
-//			
+//
 //			ResultSet result = stmt.executeQuery("show create table "+inputTable.getName() + ";");
 //			result.next();// position at first result row
 //			String showCreateTableOutput = result.getString(2);
-//			
+//
 //			ConnectionSqlTableGenerator parser = new ConnectionSqlTableGenerator(showCreateTableOutput);
 //			SqlTable outputTable = parser.parse();
 //			Assert.assertEquals(inputTable, outputTable);
-//			
+//
 //			System.out.println("/******************** INPUT TABLE  *********************************/");
 //			System.out.println(inputTable);
 //			System.out.println("/*******************  OUTPUT TABLE **********************************/");
 //			System.out.println(outputTable);
-//			 
+//
 //		}finally{
 //			if(stmt!=null){ stmt.close(); }
 //			if(conn!=null){ conn.close(); }
