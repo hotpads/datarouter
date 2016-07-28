@@ -13,7 +13,10 @@ public enum JobletQueueMechanism{
 	}
 
 	public static JobletQueueMechanism fromPersistentString(String from){
-		return Arrays.stream(values()).filter(mechanism -> mechanism.equals(from)).findAny().get();
+		return Arrays.stream(values())
+				.filter(mechanism -> mechanism.getPersistentString().equals(from))
+				.findAny()
+				.get();
 	}
 
 	public String getPersistentString(){
