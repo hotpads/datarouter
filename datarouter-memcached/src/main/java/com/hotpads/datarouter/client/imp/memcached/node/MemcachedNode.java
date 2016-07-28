@@ -128,16 +128,19 @@ implements PhysicalMapStorageNode<PK,D>{
 	}
 
 
-	public Long getTallyCount(TallyKey key){
+	public Long getTallyCount(TallyKey key, final Config paramConfig){
 		if(key == null){
 			return null;
 		}
 		Object tallyObject = null;
 		try{
 			tallyObject = getClient().getSpyClient().asyncGet(buildMemcachedKey(key)).get();
-		}catch(Exception e){
-			logger.error("memcached error on " + key, e);
-			return null;
+		}catch(Exception exception){
+			if(paramConfig.swallowExceptionOrUse(true)){
+				logger.error("memcached error on " + key, exception);
+			}else{
+				throw new RuntimeException(exception);
+			}
 		}
 
 		if(tallyObject instanceof String){
@@ -178,10 +181,10 @@ implements PhysicalMapStorageNode<PK,D>{
 		}catch(Exception exception){
 			if(paramConfig.swallowExceptionOrUse(true)){
 				logger.error("memcached error on " + tallyKey, exception);
+				return null;
 			}else{
 				throw exception;
 			}
-			return null;
 		} finally {
 			finishTraceSpan();
 		}
