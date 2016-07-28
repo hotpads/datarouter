@@ -43,28 +43,28 @@ public class NodeWrapper{
 	public Node<?,?> getNode(){
 		return node;
 	}
-	
+
 	public String getClassName(){
 		return node.getClass().getName();
 	}
-	
+
 	public String getClassSimpleName(){
 		return node.getClass().getSimpleName();
 	}
-	
+
 //	public HBaseNode<?,?,?> getHBaseNode(){
 //		if(! getIsHBaseNode()){ return null; }
 //		return (HBaseNode<?,?,?>)node;
 //	}
-	
+
 //	public boolean getIsHBaseNode(){
 //		return node instanceof HBaseNode;
 //	}
-	
+
 //	public boolean getIsHibernateReaderNode(){
 //		return node instanceof HibernateReaderNode;
 //	}
-	
+
 //	public String getHBaseTableName(){
 //		if(! getIsHBaseNode()){ return null; }
 //		return getHBaseNode().getTableName();

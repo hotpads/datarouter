@@ -16,5 +16,5 @@ public class StringMav extends Mav{
 		super(JSP_PATH);
 		put(VAR_NAME, string);
 	}
-	
+
 }

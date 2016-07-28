@@ -10,7 +10,7 @@ import com.hotpads.handler.user.session.DatarouterSession;
 public class DatarouterKeepAliveAuthenticator extends BaseDatarouterAuthenticator {
 
 	private DatarouterAuthenticationConfig authenticationConfig;
-	
+
 	public DatarouterKeepAliveAuthenticator(HttpServletRequest request, HttpServletResponse response,
 			DatarouterAuthenticationConfig authenticationConfig) {
 		super(request, response);

@@ -9,9 +9,9 @@ import com.hotpads.handler.user.session.DatarouterSession;
 import com.hotpads.handler.user.session.DatarouterSessionManager;
 
 public class DatarouterUserTokenAuthenticator extends BaseDatarouterAuthenticator{
-	
+
 	private DatarouterSessionManager sessionManager;
-	
+
 	public DatarouterUserTokenAuthenticator(HttpServletRequest request, HttpServletResponse response,
 			DatarouterSessionManager sessionManager) {
 		super(request, response);
@@ -24,11 +24,11 @@ public class DatarouterUserTokenAuthenticator extends BaseDatarouterAuthenticato
 		if(DrStringTool.isEmpty(userToken)){
 			return null;
 		}
-		
+
 		//user has been to the site before.  create a new session with their previous userToken
 		DatarouterSession session = DatarouterSession.createAnonymousSession(userToken);
 		return session;
 	}
-	
-	
+
+
 }

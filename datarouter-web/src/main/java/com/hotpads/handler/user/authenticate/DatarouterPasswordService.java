@@ -21,13 +21,13 @@ import com.hotpads.util.core.bytes.StringByteTool;
  * http://howtodoinjava.com/2013/07/22/how-to-generate-secure-password-hash-md5-sha-pbkdf2-bcrypt-examples/
  */
 public class DatarouterPasswordService{
-	
+
 	private static final int NUM_DIGEST_ITERATIONS = 2471;
 
 	@Inject
 	private DatarouterUserNodes userNodes;
-	
-	
+
+
 	public String digest(String salt, String rawPassword){
 		String s = salt + rawPassword;
 		for(int i=0; i < NUM_DIGEST_ITERATIONS; ++i){
@@ -35,18 +35,18 @@ public class DatarouterPasswordService{
 		}
 		return s;
 	}
-	
+
 	public boolean isPasswordCorrect(DatarouterUser user, String rawPassword){
 		if(user==null || rawPassword==null){ return false; }
 		String passwordDigest = digest(user.getPasswordSalt(), rawPassword);
 		return DrObjectTool.equals(user.getPasswordDigest(), passwordDigest);
 	}
-	
+
 	public boolean isPasswordCorrect(String email, String rawPassword){
 		DatarouterUser user = userNodes.getUserNode().lookupUnique(new DatarouterUserByUsernameLookup(email), null);
 		return isPasswordCorrect(user, rawPassword);
 	}
-	
+
 	public String generateSaltForNewUser(){
         SecureRandom sr;
 		try{
@@ -59,7 +59,7 @@ public class DatarouterPasswordService{
         byte[] base64Salt = Base64.encodeBase64URLSafe(salt);
         return StringByteTool.fromUtf8Bytes(base64Salt);
 	}
-	
+
 	public void updateUserPassword(DatarouterUser user, String password) {
 		String passwordSalt = generateSaltForNewUser();
 		String passwordDigest = digest(passwordSalt, password);
@@ -67,10 +67,10 @@ public class DatarouterPasswordService{
 		user.setPasswordDigest(passwordDigest);
 		userNodes.getUserNode().put(user, null);
 	}
-	
-	
+
+
 	/******************* tests ***********************/
-	
+
 	public static class ReputationPasswordServiceTests{
 		@Test
 		public void testDigest(){
