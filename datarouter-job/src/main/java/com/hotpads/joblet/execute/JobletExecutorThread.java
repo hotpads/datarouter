@@ -182,17 +182,22 @@ public class JobletExecutorThread extends Thread{
 		JobletRequest jobletRequest = jobletPackage.getJoblet();
 		long startTimeMs = System.currentTimeMillis();
 		joblet.process();
+
+		//counters
+		JobletCounters.incNumJobletsProcessed();
+		JobletCounters.incNumJobletsProcessed(jobletType.getPersistentString());
 		int numItemsProcessed = Math.max(1, jobletRequest.getNumItems());
 		JobletCounters.incItemsProcessed(jobletType.getPersistentString(), numItemsProcessed);
 		int numTasksProcessed = Math.max(1, jobletRequest.getNumTasks());
 		JobletCounters.incTasksProcessed(jobletType.getPersistentString(), numTasksProcessed);
 		long endTimeMs = System.currentTimeMillis();
 		long durationMs = endTimeMs - startTimeMs;
-//			int numItems = ;
 		String itemsPerSecond = DrNumberFormatter.format((double)jobletRequest.getNumItems() / ((double)durationMs
 				/ (double)1000), 1);
 		String tasksPerSecond = DrNumberFormatter.format((double)jobletRequest.getNumTasks() / ((double)durationMs
 				/ (double)1000), 1);
+
+		//logging
 		String typeAndQueue = jobletType.getPersistentString();
 		if(DrStringTool.notEmpty(jobletRequest.getQueueId())){
 			typeAndQueue += " " + jobletRequest.getQueueId();
