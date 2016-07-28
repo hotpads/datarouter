@@ -244,7 +244,7 @@ public class DatabeanGenerator {
 
 	private <T> void addField(Class<T> type, String name, String genericType,
 			List<FieldDefinition<?>> fieldList, boolean isKey){
-		FieldDefinition<T> fieldDefinition = new FieldDefinition<T>(type,name,genericType);
+		FieldDefinition<T> fieldDefinition = new FieldDefinition<>(type,name,genericType);
 		fieldList.add(fieldDefinition);
 		if(isKey){
 			keyFieldNameToFieldDefinition.put(name, fieldDefinition);

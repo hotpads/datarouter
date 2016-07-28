@@ -30,7 +30,7 @@ public class DatarouterUserKey extends BasePrimaryKey<DatarouterUserKey> {
 	public DatarouterUserKey(Long id){
 		this.id = id;
 	}
-	
+
 //	public static DatarouterUserKey create(){
 //		return new DatarouterUserKey(RandomTool.nextPositiveLong());
 //	}

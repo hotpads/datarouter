@@ -8,8 +8,6 @@ import org.apache.logging.log4j.core.impl.ThrowableProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hotpads.datarouter.util.core.DrXMLStringTool;
-
 public class DrExceptionTool {
 	private static final Logger log = LoggerFactory.getLogger(DrExceptionTool.class);
 
@@ -29,12 +27,12 @@ public class DrExceptionTool {
 		ThrowableProxy proxy = new ThrowableProxy(e);
 		return proxy.getCauseStackTraceAsString();
 	}
-	
+
 	public static String getStackTraceStringForHtmlPreBlock(Throwable e){
 		String stackTrace = (e != null) ? getStackTraceAsString(e) : "No exception defined.";
 		return getColorized(stackTrace);
 	}
-	
+
 	public static String getColorized(String stackTrace) {
 		stackTrace = DrXMLStringTool.escapeXml(stackTrace);
 		String highlightOpener = "<span style='color:red;font-weight:bold;font-size:1.5em;'>";
