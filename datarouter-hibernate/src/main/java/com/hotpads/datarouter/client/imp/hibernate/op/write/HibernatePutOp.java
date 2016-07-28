@@ -17,23 +17,23 @@ import com.hotpads.datarouter.util.core.DrCollectionTool;
 public class HibernatePutOp<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
-		F extends DatabeanFielder<PK,D>> 
+		F extends DatabeanFielder<PK,D>>
 extends BaseHibernateOp<Void>{
-	
+
 	public static final PutMethod DEFAULT_PUT_METHOD = PutMethod.SELECT_FIRST_OR_LOOK_AT_PRIMARY_KEY;
-	
+
 	private final HibernateNode<PK,D,F> node;
 	private final Collection<D> databeans;
 	private final Config config;
-	
+
 	public HibernatePutOp(HibernateNode<PK,D,F> node, Collection<D> databeans, Config config) {
-		super(node.getDatarouter(), node.getClientNames(), getIsolation(config), 
+		super(node.getDatarouter(), node.getClientNames(), getIsolation(config),
 				shouldAutoCommit(databeans, config));
 		this.node = node;
 		this.databeans = databeans;
 		this.config = config;
 	}
-	
+
 	@Override
 	public Void runOnce(){
 		Session session = getSession(node.getClientId().getName());
@@ -43,18 +43,18 @@ extends BaseHibernateOp<Void>{
 		}
 		return null;
 	}
-	
 
-	
+
+
 	/******************** private **********************************************/
-	
+
 	private static Isolation getIsolation(Config config){
 		if(config==null){
 			return Config.DEFAULT_ISOLATION;
 		}
 		return config.getIsolationOrUse(Config.DEFAULT_ISOLATION);
 	}
-	
+
 	/*
 	 * mirror of of above "putUsingMethod"
 	 */
@@ -80,10 +80,10 @@ extends BaseHibernateOp<Void>{
 			return false;
 		}
 	}
-	
-	private void hibernatePutUsingMethod(Session session, String entityName, Databean<PK,D> databean, 
+
+	private void hibernatePutUsingMethod(Session session, String entityName, Databean<PK,D> databean,
 			final Config config, PutMethod defaultPutMethod){
-		
+
 		PutMethod putMethod = defaultPutMethod;
 		if(config!=null && config.getPutMethod()!=null){
 			putMethod = config.getPutMethod();
@@ -96,7 +96,7 @@ extends BaseHibernateOp<Void>{
 			try{
 				session.save(entityName, databean);
 				session.flush();//seems like it tries to save 3 times before throwing an exception
-			}catch(RuntimeException e){  
+			}catch(RuntimeException e){
 				session.evict(databean);  //must evict or it will ignore future actions for the databean?
 				session.update(entityName, databean);
 			}

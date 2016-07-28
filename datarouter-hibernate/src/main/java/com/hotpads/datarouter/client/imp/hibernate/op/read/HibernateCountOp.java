@@ -18,20 +18,20 @@ import com.hotpads.datarouter.util.core.DrCollectionTool;
 public class HibernateCountOp<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
-		F extends DatabeanFielder<PK,D>> 
+		F extends DatabeanFielder<PK,D>>
 extends BaseHibernateOp<Long>{
-		
+
 	private final HibernateReaderNode<PK,D,F> node;
 	private final Lookup<PK> lookup;
 	private final Config config;
-	
+
 	public HibernateCountOp(HibernateReaderNode<PK,D,F> node, Lookup<PK> lookup, Config config) {
 		super(node.getDatarouter(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
 		this.node = node;
 		this.lookup = lookup;
 		this.config = config;
 	}
-	
+
 	@Override
 	public Long runOnce(){
 		Session session = getSession(node.getClientId().getName());
@@ -41,9 +41,9 @@ extends BaseHibernateOp<Long>{
 		for(Field<?> field : DrCollectionTool.nullSafe(lookup.getFields())){
 			criteria.add(Restrictions.eq(field.getPrefixedName(), field.getValue()));
 		}
-		
+
 		Number number = (Number)criteria.uniqueResult();
 		return number.longValue();
 	}
-	
+
 }

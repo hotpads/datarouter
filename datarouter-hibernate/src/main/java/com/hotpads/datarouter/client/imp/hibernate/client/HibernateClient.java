@@ -5,11 +5,11 @@ import org.hibernate.SessionFactory;
 
 import com.hotpads.datarouter.client.type.JdbcClient;
 
-public interface HibernateClient 
+public interface HibernateClient
 extends JdbcClient{
-	
+
 	Session getExistingSession();
-	
+
 	SessionFactory getSessionFactory();
-	
+
 }

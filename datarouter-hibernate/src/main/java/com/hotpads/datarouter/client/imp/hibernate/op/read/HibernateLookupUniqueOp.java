@@ -10,7 +10,6 @@ import org.hibernate.criterion.Conjunction;
 import org.hibernate.criterion.Disjunction;
 import org.hibernate.criterion.Restrictions;
 
-import com.hotpads.datarouter.client.imp.hibernate.node.HibernateNode;
 import com.hotpads.datarouter.client.imp.hibernate.node.HibernateReaderNode;
 import com.hotpads.datarouter.client.imp.hibernate.op.BaseHibernateOp;
 import com.hotpads.datarouter.config.Config;
@@ -26,26 +25,26 @@ import com.hotpads.util.core.iterable.BatchingIterable;
 public class HibernateLookupUniqueOp<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
-		F extends DatabeanFielder<PK,D>> 
+		F extends DatabeanFielder<PK,D>>
 extends BaseHibernateOp<List<D>>{
-		
+
 	private final HibernateReaderNode<PK,D,F> node;
 	private final Collection<? extends UniqueKey<PK>> uniqueKeys;
 	private final Config config;
-	
-	public HibernateLookupUniqueOp(HibernateReaderNode<PK,D,F> node, Collection<? extends UniqueKey<PK>> uniqueKeys, 
+
+	public HibernateLookupUniqueOp(HibernateReaderNode<PK,D,F> node, Collection<? extends UniqueKey<PK>> uniqueKeys,
 			Config config) {
 		super(node.getDatarouter(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
 		this.node = node;
 		this.uniqueKeys = uniqueKeys;
 		this.config = config;
 	}
-	
+
 	@Override
 	public List<D> runOnce(){
 		Session session = getSession(node.getClientId().getName());
-		
-		int batchSize = HibernateNode.DEFAULT_ITERATE_BATCH_SIZE;
+
+		int batchSize = HibernateReaderNode.DEFAULT_ITERATE_BATCH_SIZE;
 		if(config!=null && config.getIterateBatchSize()!=null){
 			batchSize = config.getIterateBatchSize();
 		}
@@ -68,5 +67,5 @@ extends BaseHibernateOp<List<D>>{
 		}
 		return all;
 	}
-	
+
 }

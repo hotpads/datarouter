@@ -23,15 +23,15 @@ import com.hotpads.datarouter.util.core.DrCollectionTool;
 public class HibernateGetWithPrefixesOp<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
-		F extends DatabeanFielder<PK,D>> 
+		F extends DatabeanFielder<PK,D>>
 extends BaseHibernateOp<List<D>>{
-		
+
 	private final HibernateReaderNode<PK,D,F> node;
 	private final Collection<PK> prefixes;
 	private final boolean wildcardLastField;
 	private final Config config;
-	
-	public HibernateGetWithPrefixesOp(HibernateReaderNode<PK,D,F> node, Collection<PK> prefixes, 
+
+	public HibernateGetWithPrefixesOp(HibernateReaderNode<PK,D,F> node, Collection<PK> prefixes,
 			boolean wildcardLastField, Config config) {
 		super(node.getDatarouter(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
 		this.node = node;
@@ -39,7 +39,7 @@ extends BaseHibernateOp<List<D>>{
 		this.wildcardLastField = wildcardLastField;
 		this.config = config;
 	}
-	
+
 	@Override
 	public List<D> runOnce(){
 		if(DrCollectionTool.isEmpty(prefixes)){
@@ -63,5 +63,5 @@ extends BaseHibernateOp<List<D>>{
 		Collections.sort(result);//todo, make sure the datastore scans in order so we don't need to sort here
 		return result;
 	}
-	
+
 }
