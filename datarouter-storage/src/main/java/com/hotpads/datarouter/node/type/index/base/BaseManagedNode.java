@@ -10,13 +10,13 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.view.index.IndexEntry;
 
 public abstract class BaseManagedNode
-		<PK extends PrimaryKey<PK>, 
+		<PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
 		IK extends PrimaryKey<IK>,
 		IE extends IndexEntry<IK, IE, PK, D>,
-		IF extends DatabeanFielder<IK, IE>> 
+		IF extends DatabeanFielder<IK, IE>>
 implements ManagedNode<PK,D,IK,IE,IF>{
-	
+
 	private String name;
 	protected DatabeanFieldInfo<IK, IE, IF> fieldInfo;
 	protected IndexedMapStorage<PK, D> node;
@@ -31,7 +31,7 @@ implements ManagedNode<PK,D,IK,IE,IF>{
 	public String getName(){
 		return name;
 	}
-	
+
 	@Override
 	public DatabeanFieldInfo<IK, IE, IF> getFieldInfo(){
 		return fieldInfo;

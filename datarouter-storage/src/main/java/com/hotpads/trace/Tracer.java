@@ -9,19 +9,19 @@ public interface Tracer{
 	Long getTraceId();
 	List<TraceThread> getThreads();
 	List<TraceSpan> getSpans();
-	
+
 	Long getCurrentThreadId();
-	
+
 	void createAndStartThread(String name);
 	void createThread(String name);
 	void startThread();
 	void appendToThreadName(String text);
 	void appendToThreadInfo(String text);
 	void finishThread();
-	
+
 	void startSpan(String name);
 	void appendToSpanName(String text);
 	void appendToSpanInfo(String text);
 	void finishSpan();
-	
+
 }

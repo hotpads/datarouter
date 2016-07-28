@@ -19,7 +19,7 @@ import com.hotpads.util.core.collections.Range;
  * Some scans return extra results that we need to filter out
  */
 public class FieldSetRangeFilter{
-	
+
 	public static <FS extends FieldSet<?>> List<FS> filter(Iterable<FS> candidates, Range<? extends FS> range){
 		List<FS> matches = new ArrayList<>();
 		for(FS candidate : DrIterableTool.nullSafe(candidates)){
@@ -30,25 +30,25 @@ public class FieldSetRangeFilter{
 		return matches;
 	}
 
-	
+
 	public static <FS extends FieldSet<?>> boolean include(FieldSet<?> candidate, Range<? extends FS> range){
 		boolean matchesStart = true;
 		if(range.hasStart()){
 			matchesStart = isCandidateAfterStartOfRange(candidate.getFields(), range.getStart().getFields(), range
 					.getStartInclusive());
 		}
-		
+
 		boolean matchesEnd = true;
 		if(range.hasEnd()){
 			matchesEnd = isCandidateBeforeEndOfRange(candidate.getFields(), range.getEnd().getFields(), range
 					.getEndInclusive());
 		}
-		
+
 		return matchesStart && matchesEnd;
 	}
-	
-	
-	private static boolean isCandidateAfterStartOfRange(List<Field<?>> candidateFields, 
+
+
+	private static boolean isCandidateAfterStartOfRange(List<Field<?>> candidateFields,
 			List<Field<?>> startOfRangeFields, boolean inclusive){
 		if(startOfRangeFields == null){
 			return true;
@@ -88,9 +88,9 @@ public class FieldSetRangeFilter{
 		}
 		throw new IllegalStateException("shouldn't get here");
 	}
-	
-	
-	private static boolean isCandidateBeforeEndOfRange(List<Field<?>> candidateFields, 
+
+
+	private static boolean isCandidateBeforeEndOfRange(List<Field<?>> candidateFields,
 			List<Field<?>> endOfRangeFields, boolean inclusive){
 		if(endOfRangeFields == null){
 			return true;
@@ -130,10 +130,10 @@ public class FieldSetRangeFilter{
 		}
 		throw new IllegalStateException("shouldn't get here");
 	}
-	
-	
+
+
 	/********************* tests *******************************/
-	
+
 	public static class PrefixFieldSetComparatorTests{
 		SortedBeanKey endOfRange1 = new SortedBeanKey("emu", null, null, null);
 		Range<SortedBeanKey> rangeEndInclusive = new Range<>(null, true, endOfRange1, true);

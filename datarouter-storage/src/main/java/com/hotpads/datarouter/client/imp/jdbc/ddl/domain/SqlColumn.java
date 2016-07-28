@@ -15,7 +15,6 @@ import org.junit.Test;
 
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrComparableTool;
-import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
 
 public class SqlColumn implements Comparable<SqlColumn>{

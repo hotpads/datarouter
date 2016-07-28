@@ -15,5 +15,5 @@ extends SortedMapStorageReaderNode<PK,D>
 {
 
 	public String getEntityNodePrefix();
-	
+
 }

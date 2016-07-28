@@ -9,10 +9,10 @@ import com.hotpads.util.core.iterable.scanner.batch.BaseBatchBackedScanner;
 
 public class PeekGroupUntilEmptyQueueStorageScanner<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 extends BaseBatchBackedScanner<GroupQueueMessage<PK,D>,GroupQueueMessage<PK,D>>{
-	
+
 	private final GroupQueueStorageReader<PK,D> queueStorageReader;
 	private final Config config;
-	
+
 	public PeekGroupUntilEmptyQueueStorageScanner(GroupQueueStorageReader<PK,D> queueStorageReader, Config config){
 		this.queueStorageReader = queueStorageReader;
 		this.config = config;

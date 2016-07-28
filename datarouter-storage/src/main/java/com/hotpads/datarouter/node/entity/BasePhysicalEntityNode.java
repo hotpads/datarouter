@@ -23,8 +23,8 @@ implements PhysicalEntityNode<EK,E>{
 	protected EntityFieldInfo<EK,E> entityFieldInfo;
 	private ClientTableNodeNames clientTableNodeNames;//currently acting as a cache of superclass fields
 	private Map<String,SubEntitySortedMapStorageReaderNode<EK,?,?,?>> nodeByQualifierPrefix;
-	
-	
+
+
 	public BasePhysicalEntityNode(Datarouter datarouter, EntityNodeParams<EK,E> entityNodeParams,
 			ClientTableNodeNames clientTableNodeNames){
 		super(datarouter, clientTableNodeNames.getNodeName());
@@ -43,7 +43,7 @@ implements PhysicalEntityNode<EK,E>{
 		nodeByQualifierPrefix.put(subEntityNode.getEntityNodePrefix(), subEntityNode);
 	}
 
-	
+
 	@Override
 	public Client getClient(){
 		return getContext().getClientPool().getClient(getClientName());
@@ -58,17 +58,17 @@ implements PhysicalEntityNode<EK,E>{
 	public String getTableName(){
 		return clientTableNodeNames.getTableName();
 	}
-	
+
 	@Override
 	public Map<String,? extends SubEntitySortedMapStorageReaderNode<EK,?,?,?>> getNodeByQualifierPrefix(){
 		return nodeByQualifierPrefix;
 	}
-	
+
 //	public EntityNodeParams<EK,E> getEntityNodeParams(){
 //		return entityNodeParams;
 //	}
 	public EntityFieldInfo<EK,E> getEntityFieldInfo(){
 		return entityFieldInfo;
 	}
-	
+
 }

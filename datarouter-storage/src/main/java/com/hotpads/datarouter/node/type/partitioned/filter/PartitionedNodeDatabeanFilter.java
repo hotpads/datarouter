@@ -11,11 +11,11 @@ public class PartitionedNodeDatabeanFilter<
 		D extends Databean<PK,D>,
 		N extends PhysicalNode<PK,D>>
 implements Filter<D>{
-	
+
 	protected BasePartitionedNode<PK,D,?,N> partitionedNode;
 	protected N partition;
-	
-	
+
+
 	public PartitionedNodeDatabeanFilter(BasePartitionedNode<PK,D,?,N> partitionedNode, N partition){
 		this.partitionedNode = partitionedNode;
 		this.partition = partition;

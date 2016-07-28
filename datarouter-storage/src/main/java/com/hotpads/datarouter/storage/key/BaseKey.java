@@ -3,7 +3,7 @@ package com.hotpads.datarouter.storage.key;
 import com.hotpads.datarouter.storage.field.BaseFieldSet;
 
 @SuppressWarnings("serial")
-public abstract class BaseKey<K extends Key<K>> 
+public abstract class BaseKey<K extends Key<K>>
 extends BaseFieldSet<K>
 implements Key<K>{
 
@@ -13,7 +13,7 @@ implements Key<K>{
 //	public List<Field<?>> getKeyFields(){
 //		return getFields();
 //	}
-	
+
 //	@Override
 //	public void fromPersistentString(String in){
 //		String[] tokens = in.split("_");
@@ -26,5 +26,5 @@ implements Key<K>{
 //			++i;
 //		}
 //	}
-	
+
 }

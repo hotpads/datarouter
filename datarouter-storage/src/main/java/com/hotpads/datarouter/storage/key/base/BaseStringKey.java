@@ -13,7 +13,7 @@ extends BaseKey<K>{
 
 	@Column(nullable=false)
 	protected String id;
-	
+
 	public BaseStringKey(String id){
 		this.id = id;
 	}
@@ -26,6 +26,6 @@ extends BaseKey<K>{
 		this.id = id;
 	}
 
-	
-	
+
+
 }

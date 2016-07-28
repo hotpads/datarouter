@@ -13,25 +13,26 @@ public abstract class BaseUniqueKeyIndexEntry<
 		IK extends PrimaryKey<IK>,
 		IE extends Databean<IK,IE>,
 		PK extends PrimaryKey<PK>,
-		D extends Databean<PK,D>> 
+		D extends Databean<PK,D>>
 extends BaseDatabean<IK,IE>
 implements UniqueKeyIndexEntry<IK,IE,PK,D>{
-    
+
 //	@Override
 //	public void fromDatabean(D target){
 //		fromPrimaryKey(target.getKey());
 //	}
 
+	@Override
 	@SuppressWarnings("unchecked")
 	public List<IE> createFromDatabean(D target){
 		BaseUniqueKeyIndexEntry<IK,IE,PK,D> indexEntry = ReflectionTool.create(getClass());
 		indexEntry.fromPrimaryKey(target.getKey());
 		return (List<IE>)DrListTool.wrap(indexEntry);
 	}
-	
+
 //	@Override
 //	public List<Field<?>> getFields(PK pk) {
 //		return pk.getFields();
 //	};
-	
+
 }

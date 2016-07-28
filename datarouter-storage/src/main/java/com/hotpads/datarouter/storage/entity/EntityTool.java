@@ -11,7 +11,7 @@ import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
 import com.hotpads.datarouter.util.core.DrIterableTool;
 
 public class EntityTool{
-	
+
 	public static <EK extends EntityKey<EK>,
 		PK extends EntityPrimaryKey<EK,PK>>
 	NavigableMap<EK,List<PK>> getPrimaryKeysByEntityKey(Iterable<PK> pks){
@@ -27,7 +27,7 @@ public class EntityTool{
 		}
 		return pksByEntityKey;
 	}
-	
+
 	public static <EK extends EntityKey<EK>,
 		PK extends EntityPrimaryKey<EK,PK>,
 		D extends Databean<PK,D>>

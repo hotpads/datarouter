@@ -1,7 +1,7 @@
 package com.hotpads.datarouter.client.type;
 
 
-public interface JdbcClient 
+public interface JdbcClient
 extends SessionClient{
-		
+
 }

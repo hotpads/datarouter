@@ -2,7 +2,7 @@ package com.hotpads.trace;
 
 
 public abstract class TracedCallable<V> extends TracedCheckedCallable<V>{
-	
+
 	public TracedCallable(String threadName) {
 		super(threadName);
 	}
@@ -20,5 +20,5 @@ public abstract class TracedCallable<V> extends TracedCheckedCallable<V>{
 
 	@Override
 	public abstract V wrappedCall()/* limited to RuntimeException */;
-	
+
 }

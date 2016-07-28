@@ -9,5 +9,5 @@ public interface TxnExecutor{
 	void beginTxns();
 	void commitTxns();
 	void rollbackTxns();
-	
+
 }

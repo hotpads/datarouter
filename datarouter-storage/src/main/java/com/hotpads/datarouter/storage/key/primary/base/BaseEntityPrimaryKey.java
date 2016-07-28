@@ -10,14 +10,14 @@ import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
 import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
 
-@SuppressWarnings("serial") 
+@SuppressWarnings("serial")
 public abstract class BaseEntityPrimaryKey<EK extends EntityKey<EK>,PK extends EntityPrimaryKey<EK,PK>>
 extends BasePrimaryKey<PK>
 implements EntityPrimaryKey<EK,PK>
 {
 
 	private static final String DEFAULT_ENTITY_KEY_FIELD_NAME = "entityKey";
-	
+
 	public String getEntityKeyName() {
 		return DEFAULT_ENTITY_KEY_FIELD_NAME;
 	}
@@ -32,7 +32,7 @@ implements EntityPrimaryKey<EK,PK>
 		}
 		return FieldTool.prependPrefixes(getEntityKeyName(), getEntityKey().getFields());
 	}
-	
+
 	@Override
 	public List<Field<?>> getFields(){
 		List<Field<?>> entityKeyFields = getEntityKeyFields();
@@ -40,5 +40,5 @@ implements EntityPrimaryKey<EK,PK>
 		List<Field<?>> allPkFields = DrListTool.concatenate(entityKeyFields, postEntityKeyFields);
 		return allPkFields;
 	}
-	
+
 }

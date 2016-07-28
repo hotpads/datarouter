@@ -15,7 +15,7 @@ implements PrimaryKey<PK>{
 	public BaseBooleanPrimaryKey(Boolean key) {
 		super(key);
 	}
-	
+
 	@Override
 	public PrimaryKey<PK> getPrimaryKey(){
 		return this;

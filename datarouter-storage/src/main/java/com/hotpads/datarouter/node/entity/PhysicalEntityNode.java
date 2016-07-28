@@ -15,7 +15,7 @@ extends EntityNode<EK,E>{
 	String getTableName();
 
 	Map<String,? extends SubEntitySortedMapStorageReaderNode<EK,?,?,?>> getNodeByQualifierPrefix();
-	
+
 	Client getClient();
-	
+
 }

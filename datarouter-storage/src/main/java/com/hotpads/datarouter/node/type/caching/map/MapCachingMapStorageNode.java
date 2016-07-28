@@ -20,10 +20,10 @@ implements MapStorageNode<PK,D>{
 	protected MapCachingMapStorageWriterMixin<PK,D,F,N> mixinMapWriteOps;
 	protected boolean cacheWrites = false;
 
-	public MapCachingMapStorageNode(N cacheNode, N backingNode, 
+	public MapCachingMapStorageNode(N cacheNode, N backingNode,
 			boolean cacheReads, boolean cacheWrites){
 		super(cacheNode, backingNode, cacheReads);
-		this.mixinMapWriteOps = new MapCachingMapStorageWriterMixin<PK,D,F,N>(this, cacheWrites);
+		this.mixinMapWriteOps = new MapCachingMapStorageWriterMixin<>(this, cacheWrites);
 		this.cacheWrites = cacheWrites;
 	}
 
@@ -34,30 +34,30 @@ implements MapStorageNode<PK,D>{
 		mixinMapWriteOps.delete(key, config);
 	}
 
-	
+
 	@Override
 	public void deleteAll(Config config){
 		mixinMapWriteOps.deleteAll(config);
 	}
 
-	
+
 	@Override
 	public void deleteMulti(Collection<PK> keys, Config config){
 		mixinMapWriteOps.deleteMulti(keys, config);
 	}
 
-	
+
 	@Override
 	public void put(D databean, Config config){
 		mixinMapWriteOps.put(databean, config);
 	}
 
-	
+
 	@Override
 	public void putMulti(Collection<D> databeans, Config config){
 		mixinMapWriteOps.putMulti(databeans, config);
 	}
 
-	
-	
+
+
 }

@@ -5,7 +5,7 @@ import com.hotpads.datarouter.storage.key.Key;
 
 @SuppressWarnings("serial")
 public abstract class BaseUniqueKey<K extends Key<K>>
-extends BaseKey<K> 
+extends BaseKey<K>
 implements UniqueKey<K>{
-	
+
 }
