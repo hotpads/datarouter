@@ -59,11 +59,11 @@ public class TallyIntegrationTests{
 
 		int count = 5;
 		tallyNode.increment(bean.getKey(), count, null);
-		Assert.assertEquals(tallyNode.getTallyCount(bean.getKey()), null);
+		Assert.assertEquals(tallyNode.getTallyCount(bean.getKey(), null), null);
 
 		count += 100;
 		tallyNode.increment(bean.getKey(), count, null);
-		Assert.assertEquals(tallyNode.getTallyCount(bean.getKey()), null);
+		Assert.assertEquals(tallyNode.getTallyCount(bean.getKey(), null), null);
 
 		deleteRecord(bean.getKey());
 	}
@@ -92,10 +92,10 @@ public class TallyIntegrationTests{
 		tallyNode.increment(bean.getKey(), 5, null);
 
 		// if assert error occurs, delete key then rerun test
-		Assert.assertEquals(tallyNode.getTallyCount(bean.getKey()), new Long(5));
-		Assert.assertEquals(tallyNode.getTallyCount(bean.getKey()), new Long(5));
+		Assert.assertEquals(tallyNode.getTallyCount(bean.getKey(), null), new Long(5));
+		Assert.assertEquals(tallyNode.getTallyCount(bean.getKey(), null), new Long(5));
 		tallyNode.increment(bean.getKey(), 5, null);
-		Assert.assertEquals(tallyNode.getTallyCount(bean.getKey()), new Long(10));
+		Assert.assertEquals(tallyNode.getTallyCount(bean.getKey(), null), new Long(10));
 
 		deleteRecord(bean.getKey());
 	}
@@ -103,7 +103,7 @@ public class TallyIntegrationTests{
 	@Test
 	public void testGetTallyCountOnNull(){
 		Tally bean = new Tally();
-		Assert.assertEquals(tallyNode.getTallyCount(bean.getKey()), null);
+		Assert.assertEquals(tallyNode.getTallyCount(bean.getKey(), null), null);
 
 		deleteRecord(bean.getKey());
 	}
@@ -122,7 +122,7 @@ public class TallyIntegrationTests{
 		} catch (InterruptedException e){
 			Thread.currentThread().interrupt();
 		}
-		Assert.assertEquals(tallyNode.getTallyCount(bean.getKey()), null);
+		Assert.assertEquals(tallyNode.getTallyCount(bean.getKey(), null), null);
 	}
 
 
@@ -145,7 +145,7 @@ public class TallyIntegrationTests{
 		} catch (InterruptedException e){
 			Thread.currentThread().interrupt();
 		}
-		Assert.assertEquals(tallyNode.getTallyCount(bean.getKey()), null);
+		Assert.assertEquals(tallyNode.getTallyCount(bean.getKey(), null), null);
 	}
 
 	@Test
@@ -165,7 +165,7 @@ public class TallyIntegrationTests{
 		} catch (InterruptedException e){
 			Thread.currentThread().interrupt();
 		}
-		Assert.assertEquals(tallyNode.getTallyCount(bean.getKey()), null);
+		Assert.assertEquals(tallyNode.getTallyCount(bean.getKey(), null), null);
 	}
 
 
