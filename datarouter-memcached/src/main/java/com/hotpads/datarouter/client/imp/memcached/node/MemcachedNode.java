@@ -1,7 +1,6 @@
 package com.hotpads.datarouter.client.imp.memcached.node;
 
 import java.util.Collection;
-import java.util.concurrent.ExecutionException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -83,6 +82,11 @@ implements PhysicalMapStorageNode<PK,D>{
 				this.getClient().getSpyClient().set(key, expiration, bytes);
 			}
 			TracerTool.appendToSpanInfo(TracerThreadLocal.get(), DrCollectionTool.size(databeans)+"");
+		}catch(Exception exception){
+			if(!paramConfig.swallowExceptionOrUse(true)){
+				logger.error("memcached error ", exception);
+				throw exception;
+			}
 		}finally{
 			finishTraceSpan();
 		}
@@ -103,6 +107,11 @@ implements PhysicalMapStorageNode<PK,D>{
 		try{
 			startTraceSpan(MapStorageWriter.OP_delete);
 			getClient().getSpyClient().delete(buildMemcachedKey(key));
+		}catch(Exception exception){
+			if(!paramConfig.swallowExceptionOrUse(true)){
+				logger.error("memcached error on " + key, exception);
+				throw exception;
+			}
 		}finally{
 			finishTraceSpan();
 		}
@@ -124,7 +133,7 @@ implements PhysicalMapStorageNode<PK,D>{
 		Object tallyObject = null;
 		try{
 			tallyObject = getClient().getSpyClient().asyncGet(buildMemcachedKey(key)).get();
-		}catch(InterruptedException | ExecutionException e){
+		}catch(Exception e){
 			logger.error("memcached error on " + key, e);
 			return null;
 		}
@@ -145,6 +154,11 @@ implements PhysicalMapStorageNode<PK,D>{
 			TracerTool.startSpan(TracerThreadLocal.get(), "memcached increment");
 			String key = buildMemcachedKey(tallyKey);
 			getClient().getSpyClient().incr(key, delta, delta, getExpiration(paramConfig));
+		}catch(Exception exception){
+			if(!paramConfig.swallowExceptionOrUse(true)){
+				logger.error("memcached error on " + tallyKey, exception);
+				throw exception;
+			}
 		} finally {
 			finishTraceSpan();
 		}
@@ -158,6 +172,12 @@ implements PhysicalMapStorageNode<PK,D>{
 			TracerTool.startSpan(TracerThreadLocal.get(), "memcached increment and get count");
 			String key = buildMemcachedKey(tallyKey);
 			return getClient().getSpyClient().incr(key, delta, delta, getExpiration(paramConfig));
+		}catch(Exception exception){
+			if(!paramConfig.swallowExceptionOrUse(true)){
+				logger.error("memcached error on " + tallyKey, exception);
+				throw exception;
+			}
+			return null;
 		} finally {
 			finishTraceSpan();
 		}
