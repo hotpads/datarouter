@@ -73,12 +73,12 @@ public class ReaderTool{
 	}
 
 	public static Scanner<List<String>> scanLinesInBatches(BufferedReader reader, int batchSize){
-		return new BatchingScanner<String>(new ReaderScanner(reader), batchSize);
+		return new BatchingScanner<>(new ReaderScanner(reader), batchSize);
 	}
 
 	public static Scanner<List<String>> scanFileLinesInBatches(String fullPath, int batchSize){
 		BufferedReader bufferedReader = createNewBufferedFileReader(fullPath);
-		return new BatchingScanner<String>(new ReaderScanner(bufferedReader), batchSize);
+		return new BatchingScanner<>(new ReaderScanner(bufferedReader), batchSize);
 	}
 
 	public static class ReaderScanner implements Scanner<String>{

@@ -11,7 +11,7 @@ public interface DefaultableMap<K,V> extends Map<K,V> {
 	 * @return the value, or if it doesn't exist the default value given
 	 */
 	public V getDefault(K key, V def);
-	
+
 	/**
 	 * get the value mapped by key as a Boolean, or def if there is no value
 	 * @param key

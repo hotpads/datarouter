@@ -15,7 +15,7 @@ public class DrComparableTool {
 		int diff = nullFirstCompareTo(a, b);
 		return diff < 0;
 	}
-	
+
 	/**
 	 * is a > b
 	 */
@@ -23,7 +23,7 @@ public class DrComparableTool {
 		int diff = nullFirstCompareTo(a, b);
 		return diff > 0;
 	}
-	
+
 	//treat start=null as -Infinity, end=null as Infinity
 	public static <T extends Comparable<? super T>> boolean between(
 			T min, boolean minInclusive, T value, T max, boolean maxInclusive){
@@ -33,7 +33,7 @@ public class DrComparableTool {
 		if(maxInclusive && maxDiff==0){ return true; }
 		return minDiff > 0 && maxDiff < 0;
 	}
-	
+
 	public static <T extends Comparable<? super T>> int nullFirstCompareTo(T a, T b){
 		if(a==null && b==null){
 			return 0;
@@ -45,7 +45,7 @@ public class DrComparableTool {
 			return a.compareTo(b);
 		}
 	}
-	
+
 	public static <T extends Comparable<? super T>> int nullLastCompareTo(T a, T b){
 		if(a==null && b==null){
 			return 0;
@@ -57,7 +57,7 @@ public class DrComparableTool {
 			return a.compareTo(b);
 		}
 	}
-	
+
 	//smallest
 	public static <T extends Comparable<T>> T getFirst(Collection<T> c){
 		if(DrCollectionTool.isEmpty(c)){ return null; }
@@ -69,7 +69,7 @@ public class DrComparableTool {
 		}
 		return first;
 	}
-	
+
 	//biggest
 	public static  <T extends Comparable<T>> T getLast(Collection<T> c){
 		if(DrCollectionTool.isEmpty(c)){ return null; }
@@ -81,7 +81,7 @@ public class DrComparableTool {
 		}
 		return last;
 	}
-	
+
 	public static <T extends Comparable<? super T>> boolean isSorted(Iterable<? extends T> ins){
 		if(ins==null){ return true; }//null is considered sorted
 		Iterator<? extends T> iter = ins.iterator();
@@ -96,14 +96,14 @@ public class DrComparableTool {
 		}
 		return true;
 	}
-	
+
 	public static <T extends Comparable<? super T>> int compareAndAssertReflexive(T a, T b){
 		int forwardDiff = nullFirstCompareTo(a, b);
 		int backwardDiff = nullFirstCompareTo(b, a);
 		Assert.assertEquals(forwardDiff, -backwardDiff);
 		return forwardDiff;
 	}
-	
+
 	public static class ComparableToolTests{
 		@Test public void testLessThan(){
 			Assert.assertTrue(lt("a", "b"));
@@ -133,7 +133,7 @@ public class DrComparableTool {
 			Assert.assertTrue(isSorted(a));
 			List<Integer> b = DrListTool.create(1,2,55,4);
 			Assert.assertFalse(isSorted(b));
-			
+
 		}
 	}
 }

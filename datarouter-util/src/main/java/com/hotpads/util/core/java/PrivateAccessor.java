@@ -11,7 +11,9 @@ import java.lang.reflect.Method;
 public class PrivateAccessor {
 
 	public static Field getPrivateField (Class<?> c, String fieldName) {
-		if(c==null || fieldName==null) return null;
+		if(c==null || fieldName==null){
+			return null;
+		}
 		final Field[] fields = c.getDeclaredFields();
 		for (int i = 0; i < fields.length; ++i) {
 			if (fieldName.equals(fields[i].getName())) {
@@ -21,9 +23,11 @@ public class PrivateAccessor {
 		}
 		return null;
 	}
-	
+
 	public static Method getPrivateMethod (Class<?> c, String methodName) {
-		if(c==null || methodName==null) return null;
+		if(c==null || methodName==null){
+			return null;
+		}
 		final Method[] methods = c.getDeclaredMethods();
 		for (int i = 0; i < methods.length; ++i) {
 			if (methodName.equals(methods[i].getName())) {
@@ -33,5 +37,5 @@ public class PrivateAccessor {
 		}
 		return null;
 	}
-	
+
 }

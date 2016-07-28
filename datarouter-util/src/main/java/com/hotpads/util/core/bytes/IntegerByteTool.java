@@ -18,10 +18,10 @@ public class IntegerByteTool {
 	public static final int NULL = Integer.MIN_VALUE;
 	/*
 	 * int32
-	 * 
+	 *
 	 * flip first bit so bitwiseCompare is always correct
 	 */
-	
+
 	public static byte[] getRawBytes(final int in){
 		byte[] out = new byte[4];
 		out[0] = (byte) (in >>> 24);
@@ -30,7 +30,7 @@ public class IntegerByteTool {
 		out[3] = (byte) in;
 		return out;
 	}
-	
+
 	/**
 	 * @return numBytes written
 	 */
@@ -41,23 +41,23 @@ public class IntegerByteTool {
 		bytes[offset + 3] = (byte) in;
 		return 4;
 	}
-	
+
 	public static int fromRawBytes(final byte[] bytes, final int offset){
 		return (
 				  ((bytes[offset    ] & 0xff) << 24)
 				| ((bytes[offset + 1] & 0xff) << 16)
 				| ((bytes[offset + 2] & 0xff) <<  8)
-				|  (bytes[offset + 3] & 0xff)      
+				|  (bytes[offset + 3] & 0xff)
 			);
-	}	
-	
+	}
+
 	public static byte[] getBytesNullable(Integer value){
 		if(value == null){
 			return getComparableBytes(NULL);
 		}
 		return getComparableBytes(value);
 	}
-	
+
 	public static Integer fromBytesNullable(byte[] bytes, int offset){
 		Integer fromBytes = fromComparableBytes(bytes, offset);
 		if(fromBytes == NULL){
@@ -65,21 +65,21 @@ public class IntegerByteTool {
 		}
 		return fromBytes;
 	}
-		
+
 	public static byte[] getComparableBytes(final int value){
 		int shifted = value ^ Integer.MIN_VALUE;
 		return getRawBytes(shifted);
 	}
-	
+
 	public static int toComparableBytes(final int value, final byte[] bytes, final int offset){
 		int shifted = value ^ Integer.MIN_VALUE;
 		return toRawBytes(shifted, bytes, offset);
 	}
-	
+
 	public static int fromComparableBytes(final byte[] bytes, int byteOffset){
 		return Integer.MIN_VALUE ^ fromRawBytes(bytes, byteOffset);
 	}
-	
+
 //	public static byte[] getComparableBytes(final int value){
 //		int shifted = value ^ Integer.MIN_VALUE;
 //		byte[] out = new byte[4];
@@ -89,13 +89,13 @@ public class IntegerByteTool {
 //		out[3] = (byte) shifted;
 //		return out;
 //	}
-//	
+//
 //	public static int fromComparableBytes(final byte[] bytes, final int startIdx){
 //		return Integer.MIN_VALUE ^ (
 //				  ((bytes[startIdx    ] & (int)0xff) << 24)
 //				| ((bytes[startIdx + 1] & (int)0xff) << 16)
 //				| ((bytes[startIdx + 2] & (int)0xff) <<  8)
-//				|  (bytes[startIdx + 3] & (int)0xff)      
+//				|  (bytes[startIdx + 3] & (int)0xff)
 //			);
 //	}
 
@@ -109,7 +109,7 @@ public class IntegerByteTool {
 		}
 		return out;
 	}
-	
+
 	public static List<Integer> fromIntegerByteArray(final byte[] bytes, final int startIdx){
 		int numIntegers = (bytes.length - startIdx)/4;
 		List<Integer> integers = new ArrayList<>();
@@ -120,7 +120,7 @@ public class IntegerByteTool {
 		}
 		return integers;
 	}
-	
+
 	public static byte[] getIntegerByteArray(List<Integer> valuesWithNulls){
 		if(valuesWithNulls==null){return null;}
 		byte[] out = new byte[4*valuesWithNulls.size()];
@@ -143,14 +143,14 @@ public class IntegerByteTool {
 		int[] out = new int[bytes.length / 4];
 		for(int i=0; i < out.length; ++i){
 			int startIdx = i*4;
-			
+
 			/*
-			 * i think the first bitwise operation causes the operand to be zero-padded 
+			 * i think the first bitwise operation causes the operand to be zero-padded
 			 *     to an integer before the operation happens
-			 *     
+			 *
 			 * parenthesis are extremely important here because of the automatic int upgrading
 			 */
-			
+
 			//more compact
 			out[i] = Integer.MIN_VALUE ^ (
 						  ((bytes[startIdx    ] & 0xff) << 24)
@@ -160,13 +160,13 @@ public class IntegerByteTool {
 		}
 		return out;
 	}
-	
+
 	/*
 	 * uInt31
-	 * 
+	 *
 	 * first bit must be 0, reject others
 	 */
-	
+
 	public static byte[] getUInt31Bytes(final int value){
 //		if(value < 0){ throw new IllegalArgumentException("no negatives"); }
 		byte[] out = new byte[4];
@@ -176,9 +176,9 @@ public class IntegerByteTool {
 		out[3] = (byte) value;
 		return out;
 	}
-	
+
 	public static int fromUInt31Bytes(final byte[] bytes, final int startIdx){
-		return 
+		return
 		  ((bytes[startIdx    ] & 0xff) << 24)
 		| ((bytes[startIdx + 1] & 0xff) << 16)
 		| ((bytes[startIdx + 2] & 0xff) <<  8)
@@ -209,24 +209,24 @@ public class IntegerByteTool {
 		int[] out = new int[bytes.length / 4];
 		for(int i=0; i < out.length; ++i){
 			int startIdx = i*4;
-			
+
 			/*
-			 * i think the first bitwise operation causes the operand to be zero-padded 
+			 * i think the first bitwise operation causes the operand to be zero-padded
 			 *     to an integer before the operation happens
-			 *     
+			 *
 			 * parenthesis are extremely important here because of the automatic int upgrading
 			 */
-			
+
 			//more compact
 			out[i] =      ((bytes[startIdx    ] & 0xff) << 24)
 						| ((bytes[startIdx + 1] & 0xff) << 16)
 						| ((bytes[startIdx + 2] & 0xff) <<  8)
 						|  (bytes[startIdx + 3] & 0xff);
-			
+
 		}
 		return out;
 	}
-	
+
 	/************************ tests ***************************************/
 
 	public static class Tests{
@@ -270,7 +270,7 @@ public class IntegerByteTool {
 			Assert.assertTrue(DrByteTool.bitwiseCompare(p5, n3) > 0);
 			Assert.assertTrue(DrByteTool.bitwiseCompare(p5, n7) > 0);
 		}
-		
+
 		@Test public void testRoundTrip(){
 			int[] subjects = new int[]{
 					Integer.MIN_VALUE,Integer.MIN_VALUE+1,
@@ -286,7 +286,7 @@ public class IntegerByteTool {
 				Assert.assertEquals(subjects[i], roundTripped);
 			}
 		}
-		
+
 		@Test public void testRoundTrips(){
 			Random r = new Random();
 			int i=Integer.MIN_VALUE;
@@ -314,12 +314,12 @@ public class IntegerByteTool {
 			}
 			Assert.assertTrue(counter > 1000);//make sure we did a lot of tests
 		}
-		
+
 		@Test
 		public void testToFromByteArray(){
 			int one = -239483;
 			int two = 583;
-			
+
 			List<Integer> integers = new ArrayList<>();
 			integers.add(one);
 			integers.add(null);

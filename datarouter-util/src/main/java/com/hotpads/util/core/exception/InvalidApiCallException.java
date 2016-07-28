@@ -6,5 +6,5 @@ public class InvalidApiCallException extends RuntimeException {
 	public InvalidApiCallException(String message){
 		super(message);
 	}
-	
+
 }

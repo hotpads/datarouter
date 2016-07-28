@@ -24,22 +24,24 @@ public class ThreadSafePhaseTimer extends PhaseRecord implements PhaseRecorder<T
 		super(name);
 		record( name+"-start");
 	}
-	
+
 	/*********************** methods ****************************************/
+	@Override
 	public ThreadSafePhaseTimer record(String eventName){
 		PhaseRecord record = new PhaseRecord( eventName );
 		phases.add(record);
 		return this;
 	}
-			
+
 	public int numEvents(){
 		return this.phases.size();
 	}
-	
+
 	public String toString(int showPhasesAtLeastThisMsLong){
 		return toString(DEFAULT_DELIM,showPhasesAtLeastThisMsLong);
 	}
-	
+
+	@Override
 	public String toString(){
 		return toString(DEFAULT_DELIM,1);
 	}
@@ -50,7 +52,7 @@ public class ThreadSafePhaseTimer extends PhaseRecord implements PhaseRecorder<T
 
 	public String toString(String delimiter,int showPhasesAtLeastThisMsLong){
 		StringBuilder sb = new StringBuilder();
-		if (name != null){ 
+		if (name != null){
 			sb.append(name);
 		}
 		sb.append("[Total:")
@@ -73,7 +75,7 @@ public class ThreadSafePhaseTimer extends PhaseRecord implements PhaseRecorder<T
 				.append( thread )
 				.append(":total:")
 				.append(DrNumberFormatter.addCommas(elapsed))
-				.append("ms]"); 
+				.append("ms]");
 			}
 			for(int i=0; i < phases.size(); ++i){
 				phase = phases.get(i);
@@ -105,7 +107,7 @@ public class ThreadSafePhaseTimer extends PhaseRecord implements PhaseRecorder<T
 			list.add( record );
 		}
 	}
-	
+
 	/**
 	 * Guaranteed to create valid merge but concurrent updates of phases might get lost obviously.
 	 * We don't need to support that use case.
@@ -124,7 +126,7 @@ public class ThreadSafePhaseTimer extends PhaseRecord implements PhaseRecorder<T
 		};
 		this.phases = merged;
 	}
-	
+
 	private long totalize( List<PhaseRecord> phases ) {
 		if ( phases.size() == 0 ) {
 			return 0L;
@@ -141,22 +143,22 @@ public class ThreadSafePhaseTimer extends PhaseRecord implements PhaseRecorder<T
 		}
 		return max - min;
 	}
-	
+
 	private Map<String,List<PhaseRecord>> buildThreadMap() {
-		Map<String,List<PhaseRecord>> result = new LinkedHashMap<String, List<PhaseRecord>>();
+		Map<String,List<PhaseRecord>> result = new LinkedHashMap<>();
 		for (int i = 0;i < phases.size(); i++) {
 			PhaseRecord phase = phases.get(i);
 			String threadId = phase.getThreadId();
 			List<PhaseRecord> threadEvents = result.get( threadId );
 			if ( threadEvents == null ) {
-				threadEvents = new ArrayList<PhaseRecord>();
+				threadEvents = new ArrayList<>();
 				result.put( threadId, threadEvents );
 			}
 			threadEvents.add( phase );
 		}
 		return result;
 	}
-		
+
 	public static class SafeTimerTests {
 		private class TestThread extends Thread {
 			private ThreadSafePhaseTimer timer;
@@ -168,17 +170,18 @@ public class ThreadSafePhaseTimer extends PhaseRecord implements PhaseRecorder<T
 		    	this.timer = timer;
 		    	timer.record( name + "-start" );
 		    }
-		    public void run() {
+		    @Override
+			public void run() {
 				for (int i = 0; i < 5; i++) {
 		            try {
-		            	int time = (int)(Math.random() * 200); 
+		            	int time = (int)(Math.random() * 200);
 		            	sleep(time);
 		            	timer.record( name + "-awoke step " + i + " slept " + time );
 		            } catch (InterruptedException e) {
 		            	break;
 		            }
 				}
-				timer.record( name + "-complete" );	
+				timer.record( name + "-complete" );
 				complete.set(true);
 			}
 		    public boolean isComplete() {
@@ -190,7 +193,7 @@ public class ThreadSafePhaseTimer extends PhaseRecord implements PhaseRecorder<T
 		public void testThreads() throws Exception{
 			ThreadSafePhaseTimer timer1 = new ThreadSafePhaseTimer("TestOnly");
 			ThreadSafePhaseTimer timer2 = new ThreadSafePhaseTimer("Timer2");
-			
+
 			String[] names = { "A1", "B2", "B1", "C1", "C2", "D2" };
 			List<TestThread> threads = new ArrayList<>();
 			for ( String name : names ) {
@@ -224,10 +227,10 @@ public class ThreadSafePhaseTimer extends PhaseRecord implements PhaseRecorder<T
 			timer1.merge( timer2 );
 			System.out.println( "Here is the time1 with timer2 merged:\n" + timer1.toString("\n",0) );
 			System.out.println( "Note any 0ms times will not be shown typically" );
-			Assert.assertTrue( "Merged timer should contain all original records", 
+			Assert.assertTrue( "Merged timer should contain all original records",
 					timer1.phases.size() == t1Size + t2Size );
 		}
 
-	}	
-	
+	}
+
 }

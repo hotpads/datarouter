@@ -10,18 +10,18 @@ public enum CallsiteStatComparator{
 
 	COUNT("count", CallsiteCountComparator.class),
 	DURATION("duration", CallsiteDurationComparator.class);
-	
-	
+
+
 	private final String varName;
 	private final Class<? extends Comparator<CallsiteStatX>> comparatorClass;
-	
-	
+
+
 	private CallsiteStatComparator(String varName, Class<? extends Comparator<CallsiteStatX>> comparatorClass){
 		this.varName = varName;
 		this.comparatorClass = comparatorClass;
 	}
-	
-	
+
+
 	public static CallsiteStatComparator fromVarName(String string){
 		for(CallsiteStatComparator comparatorEnum : values()){
 			if(comparatorEnum.varName.equals(string)){
@@ -30,13 +30,13 @@ public enum CallsiteStatComparator{
 		}
 		throw new IllegalArgumentException(string + " not found");
 	}
-	
-	
+
+
 	public Comparator<CallsiteStatX> getComparator(){
 		return ReflectionTool.create(comparatorClass);
 	}
-	
-	
+
+
 	public String getVarName(){
 		return varName;
 	}

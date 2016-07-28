@@ -13,36 +13,36 @@ import com.hotpads.datarouter.util.core.DrArrayTool;
 import com.hotpads.datarouter.util.core.DrByteTool;
 
 public class VarLong{
-	
-	public static final byte 
+
+	public static final byte
 		BYTE_7_RIGHT_BITS_SET = 127,
 		BYTE_LEFT_BIT_SET = -128;
-	
-	public static final long 
+
+	public static final long
 		LONG_7_RIGHT_BITS_SET = 127,
 		LONG_8TH_BIT_SET = 128;
-	
+
 	public static final byte[] MAX_VALUE_BYTES = new byte[]{-1, -1, -1, -1, -1, -1, -1, -1, 127};
-	
+
 	protected long value;
-	
+
 	public VarLong(long value){
 		set(value);
 	}
-	
+
 	public VarLong(byte[] bytes){
 		set(bytes);
 	}
-	
+
 	public VarLong(InputStream is) throws IOException{
 		set(is);
 	}
-	
+
 	public void set(long value){
 		if(value < 0){ throw new IllegalArgumentException("must be postitive long"); }
 		this.value = value;
 	}
-	
+
 	public void set(byte[] bytes){
 		if(DrArrayTool.isEmpty(bytes) || bytes.length > 9){
 			throw new IllegalArgumentException("invalid bytes "+DrByteTool.getBinaryStringBigEndian(bytes));
@@ -56,7 +56,7 @@ public class VarLong{
 			if(b >= 0){ break; }//first bit was 0, so that's the last byte in the VarLong
 		}
 	}
-	
+
 	public void set(InputStream is) throws IOException{
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		while(true){
@@ -68,15 +68,15 @@ public class VarLong{
 		}
 		set(baos.toByteArray());
 	}
-	
+
 	public long getValue(){
 		return value;
 	}
-	
+
 	public int getValueInt(){
 		return (int)value;
 	}
-	
+
 	public byte[] getBytes(){
 		int numBytes = numBytes(value);
 		byte[] bytes = new byte[numBytes];
@@ -88,16 +88,16 @@ public class VarLong{
 		bytes[numBytes-1] = (byte)(remainder & LONG_7_RIGHT_BITS_SET);//do not set the left bit
 		return bytes;
 	}
-	
+
 	public int getNumBytes(){
 		return numBytes(value);
 	}
-	
+
 	protected static int numBytes(long in){//do a check for illegal arguments if not protected
 		if(in==0){ return 1; }//doesn't work with the formula below
 		return (70 - Long.numberOfLeadingZeros(in)) / 7;//70 comes from 64+(7-1)
 	}
-	
+
 	public static class VarLongTests{
 		@Test public void testNumBytes(){
 			Assert.assertEquals(1, numBytes(0));
@@ -109,7 +109,7 @@ public class VarLong{
 			Assert.assertEquals(2, numBytes(129));
 			Assert.assertEquals(9, numBytes(Long.MAX_VALUE));
 		}
-		
+
 		@Test public void testToBytes(){
 			VarLong v0 = new VarLong(0);
 			Assert.assertArrayEquals(new byte[]{0}, v0.getBytes());
@@ -162,5 +162,5 @@ public class VarLong{
 			Assert.assertEquals(155, v155.getValue());
 		}
 	}
-	
+
 }

@@ -15,13 +15,13 @@ public class BatchingScanner<T> implements Scanner<List<T>>{
 	private Scanner<T> scanner;
 	private int batchSize;
 	private List<T> batch;
-	
+
 	public BatchingScanner(Scanner<T> scanner, int batchSize){
 		this.scanner = scanner;
 		this.batch = new ArrayList<>();
 		this.batchSize = batchSize;
 	}
-	
+
 	@Override
 	public boolean advance(){
 		batch = new ArrayList<>();
@@ -33,19 +33,19 @@ public class BatchingScanner<T> implements Scanner<List<T>>{
 		}
 		return DrCollectionTool.notEmpty(batch);
 	}
-	
+
 	@Override
 	public List<T> getCurrent(){
 		return batch;
 	}
-	
+
 	private boolean fullBatch(){
 		return batch.size() >= batchSize;
 	}
-	
-	
+
+
 	/**************** tests *************************/
-	
+
 	public static class BatchingScannerTests{
 		@Test
 		public void testEmptyInputScanner(){

@@ -4,7 +4,7 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class NamedThreadFactory implements ThreadFactory {
-	
+
 	protected String groupName;
 	protected boolean makeDaemonsByDefault = true;
 	protected ThreadGroup group;
@@ -20,7 +20,8 @@ public class NamedThreadFactory implements ThreadFactory {
     	}
     }
 
-    public Thread newThread(Runnable runnable) {
+    @Override
+	public Thread newThread(Runnable runnable) {
 		Thread thread = new Thread(group, runnable, groupName + "-" + threadNumber.getAndIncrement(), 0);
 		thread.setDaemon(makeDaemonsByDefault);
         return thread;
