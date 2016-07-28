@@ -16,10 +16,7 @@ import com.hotpads.datarouter.storage.field.imp.positive.UInt31Field;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt63Field;
 import com.hotpads.util.core.lang.LineOfCode;
 
-
-public class Config
-extends BaseDatabean<ConfigKey,Config>
-implements Cloneable{
+public class Config extends BaseDatabean<ConfigKey,Config> implements Cloneable{
 
 	/****************** static vars *******************************/
 
@@ -28,7 +25,7 @@ implements Cloneable{
 	public static final Isolation DEFAULT_ISOLATION = Isolation.readCommitted;
 	public static final Boolean DEFAULT_AUTO_COMMIT = false;
 	public static final Integer LENGTH_CALLSITE = MySqlColumnType.INT_LENGTH_LONGTEXT;
-
+	public static final Boolean DEFAULT_SWALLOW_EXCEPTION = true;
 
 	/*************** fields ********************************/
 
@@ -54,6 +51,9 @@ implements Cloneable{
 	//table scans
 	private Boolean scannerCaching = true;
 	private Integer iterateBatchSize = DEFAULT_ITERATE_BATCH_SIZE;
+
+	//error handling
+	private Boolean swallowException = DEFAULT_SWALLOW_EXCEPTION;
 
 	//retrying
 	private Long timeoutMs = Duration.ofMinutes(10).toMillis();
@@ -93,6 +93,7 @@ implements Cloneable{
 			persistentPut = "persistentPut",
 			scannerCaching = "scannerCaching",
 			iterateBatchSize = "iterateBatchSize",
+			swallowException = "swallowException",
 			timeoutMs = "timeoutMs",
 			numAttempts = "numAttempts",
 			limit = "limit",
@@ -124,6 +125,7 @@ implements Cloneable{
 					new BooleanField(F.persistentPut, config.persistentPut),
 					new BooleanField(F.scannerCaching, config.scannerCaching),
 					new UInt31Field(F.iterateBatchSize, config.iterateBatchSize),
+					new BooleanField(F.swallowException, config.swallowException),
 					new UInt63Field(F.timeoutMs, config.timeoutMs),
 					new UInt31Field(F.numAttempts, config.numAttempts),
 					new UInt31Field(F.limit, config.limit),
@@ -162,6 +164,8 @@ implements Cloneable{
 
 			.setScannerCaching(scannerCaching)
 			.setIterateBatchSize(iterateBatchSize)
+
+			.setSwallowException(swallowException)
 
 			.setTimeoutMs(timeoutMs)
 			.setNumAttempts(numAttempts)
@@ -473,4 +477,25 @@ implements Cloneable{
 		this.customCallsite = customCallsite;
 		return this;
 	}
+
+	/******************* error handling ******************/
+
+
+	public Boolean getSwallowException(){
+		return swallowException;
+	}
+
+	public Config setSwallowException(Boolean paramSwallowException){
+		this.swallowException = paramSwallowException;
+		return this;
+	}
+
+	public Boolean swallowExceptionOrUse(Boolean alternative){
+		if(swallowException != null){
+			return swallowException;
+		}
+		return alternative;
+	}
+
+
 }
