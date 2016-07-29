@@ -52,7 +52,7 @@ public class Config extends BaseDatabean<ConfigKey,Config> implements Cloneable{
 	private Integer iterateBatchSize = DEFAULT_ITERATE_BATCH_SIZE;
 
 	//error handling
-	private Boolean swallowException = null;
+	private Boolean ignoreException = null;
 
 	//retrying
 	private Long timeoutMs = Duration.ofMinutes(10).toMillis();
@@ -124,7 +124,7 @@ public class Config extends BaseDatabean<ConfigKey,Config> implements Cloneable{
 					new BooleanField(F.persistentPut, config.persistentPut),
 					new BooleanField(F.scannerCaching, config.scannerCaching),
 					new UInt31Field(F.iterateBatchSize, config.iterateBatchSize),
-					new BooleanField(F.swallowException, config.swallowException),
+					new BooleanField(F.swallowException, config.ignoreException),
 					new UInt63Field(F.timeoutMs, config.timeoutMs),
 					new UInt31Field(F.numAttempts, config.numAttempts),
 					new UInt31Field(F.limit, config.limit),
@@ -164,7 +164,7 @@ public class Config extends BaseDatabean<ConfigKey,Config> implements Cloneable{
 			.setScannerCaching(scannerCaching)
 			.setIterateBatchSize(iterateBatchSize)
 
-			.setSwallowException(swallowException)
+			.setIgnoreException(ignoreException)
 
 			.setTimeoutMs(timeoutMs)
 			.setNumAttempts(numAttempts)
@@ -480,18 +480,18 @@ public class Config extends BaseDatabean<ConfigKey,Config> implements Cloneable{
 	/******************* error handling ******************/
 
 
-	public Boolean getSwallowException(){
-		return swallowException;
+	public Boolean getIgnoreException(){
+		return ignoreException;
 	}
 
-	public Config setSwallowException(Boolean paramSwallowException){
-		this.swallowException = paramSwallowException;
+	public Config setIgnoreException(Boolean paramIgnoreException){
+		this.ignoreException = paramIgnoreException;
 		return this;
 	}
 
-	public Boolean swallowExceptionOrUse(Boolean alternative){
-		if(swallowException != null){
-			return swallowException;
+	public Boolean ignoreExceptionOrUse(Boolean alternative){
+		if(ignoreException != null){
+			return ignoreException;
 		}
 		return alternative;
 	}
