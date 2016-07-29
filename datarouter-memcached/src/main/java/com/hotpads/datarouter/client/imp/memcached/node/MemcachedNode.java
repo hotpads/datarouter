@@ -160,9 +160,8 @@ implements PhysicalMapStorageNode<PK,D>{
 			if(paramConfig.ignoreExceptionOrUse(DEFAULT_IGNORE_EXCEPTION)){
 				logger.error("memcached error on " + tallyKey, exception);
 				return null;
-			}else{
-				throw exception;
 			}
+			throw exception;
 		} finally {
 			finishTraceSpan();
 		}
