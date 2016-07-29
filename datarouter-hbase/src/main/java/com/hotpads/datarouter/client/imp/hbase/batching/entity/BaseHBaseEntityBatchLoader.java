@@ -3,7 +3,6 @@ package com.hotpads.datarouter.client.imp.hbase.batching.entity;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
 
@@ -17,7 +16,6 @@ import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
 import com.hotpads.datarouter.util.core.DrByteTool;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrComparableTool;
-import com.hotpads.util.core.collections.Pair;
 import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.iterable.scanner.batch.BaseBatchLoader;
 
@@ -40,11 +38,9 @@ extends BaseBatchLoader<T>{
 	protected final Config config;
 	protected final Integer iterateBatchSize;//break this out of config for safety
 	protected Long batchChainCounter;
-	protected final List<KeyValue> partialResultCellsFromPreviousLoader;
 
 	public BaseHBaseEntityBatchLoader(final HBaseSubEntityReaderNode<EK,E,PK,D,F> node, int partition,
-			final byte[] partitionBytes, final Range<PK> range, final Config config, Long batchChainCounter,
-			List<KeyValue> partialResultCellsFromPreviousLoader){
+			final byte[] partitionBytes, final Range<PK> range, final Config config, Long batchChainCounter){
 		this.node = node;
 		this.partition = partition;
 		this.partitionBytes = partitionBytes;
@@ -53,11 +49,10 @@ extends BaseBatchLoader<T>{
 		this.iterateBatchSize = this.config.getIterateBatchSize();
 		this.config.setIterateBatchSize(iterateBatchSize);
 		this.batchChainCounter = batchChainCounter;
-		this.partialResultCellsFromPreviousLoader = partialResultCellsFromPreviousLoader;
 	}
 
 	abstract boolean isKeysOnly();
-	abstract Pair<List<T>,List<KeyValue>> parseHBaseResult(Result result);
+	abstract List<T> parseHBaseResult(Result result);
 	abstract PK getLastPrimaryKeyFromBatch();
 
 
@@ -73,7 +68,7 @@ extends BaseBatchLoader<T>{
 			if(ASSERT_PARTITION){
 				assertPartition(row);
 			}
-			List<T> results = parseHBaseResult(row).getLeft();
+			List<T> results = parseHBaseResult(row);
 			if(ASSERT_ORDERING){
 				assertOrdering(outs, results);
 			}
