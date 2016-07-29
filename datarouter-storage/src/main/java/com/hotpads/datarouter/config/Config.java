@@ -56,7 +56,7 @@ public class Config extends BaseDatabean<ConfigKey,Config> implements Cloneable{
 	private Integer iterateBatchSize = DEFAULT_ITERATE_BATCH_SIZE;
 
 	//error handling
-	private Boolean ignoreException = null;
+	private Boolean ignoreException;
 
 	//retrying
 	private Long timeoutMs = Duration.ofMinutes(10).toMillis();
