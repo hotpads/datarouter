@@ -7,7 +7,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.hadoop.hbase.Cell;
+import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
@@ -340,7 +340,7 @@ implements HBasePhysicalNode<PK,D>,
 		}).call();
 	}
 
-	public class HBaseSubEntityResultScanner implements Scanner<Cell>{
+	public class HBaseSubEntityResultScanner implements Scanner<KeyValue>{
 		private final String scanKeysVsRowsNumBatches;
 		private final String scanKeysVsRowsNumRows;
 		private final Config config;
@@ -351,7 +351,7 @@ implements HBasePhysicalNode<PK,D>,
 
 		private final Lazy<ResultScanner> hbaseResultScanner;
 
-		private Cell[] currentBatch;
+		private KeyValue[] currentBatch;
 		private int currentBatchIndex = 0;
 
 		public HBaseSubEntityResultScanner(String scanKeysVsRowsNumBatches, String scanKeysVsRowsNumRows,
@@ -368,7 +368,7 @@ implements HBasePhysicalNode<PK,D>,
 		}
 
 		@Override
-		public Cell getCurrent(){
+		public KeyValue getCurrent(){
 			if(currentBatch == null){
 				return null;
 			}
@@ -424,7 +424,7 @@ implements HBasePhysicalNode<PK,D>,
 			}while(!result.isEmpty());
 
 			//found a non-empty result
-			currentBatch = result.rawCells();
+			currentBatch = result.raw();
 			currentBatchIndex = 0;
 			return true;
 		}
