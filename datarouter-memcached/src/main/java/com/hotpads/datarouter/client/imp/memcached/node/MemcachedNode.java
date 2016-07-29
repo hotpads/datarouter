@@ -30,7 +30,7 @@ extends MemcachedReaderNode<PK,D,F>
 implements PhysicalMapStorageNode<PK,D>{
 	private static final Logger logger = LoggerFactory.getLogger(MemcachedNode.class);
 
-	private static final Boolean DEFAULT_SWALLOW_EXCEPTION = true;
+	private static final Boolean DEFAULT_IGNORE_EXCEPTION = true;
 
 	protected static final int MEGABYTE = 1024 * 1024;
 
@@ -85,7 +85,7 @@ implements PhysicalMapStorageNode<PK,D>{
 			}
 			TracerTool.appendToSpanInfo(TracerThreadLocal.get(), DrCollectionTool.size(databeans)+"");
 		}catch(Exception exception){
-			if(paramConfig.ignoreExceptionOrUse(DEFAULT_SWALLOW_EXCEPTION)){
+			if(paramConfig.ignoreExceptionOrUse(DEFAULT_IGNORE_EXCEPTION)){
 				logger.error("memcached error on ", exception);
 			}else{
 				throw exception;
@@ -111,7 +111,7 @@ implements PhysicalMapStorageNode<PK,D>{
 			startTraceSpan(MapStorageWriter.OP_delete);
 			getClient().getSpyClient().delete(buildMemcachedKey(key));
 		}catch(Exception exception){
-			if(paramConfig.ignoreExceptionOrUse(DEFAULT_SWALLOW_EXCEPTION)){
+			if(paramConfig.ignoreExceptionOrUse(DEFAULT_IGNORE_EXCEPTION)){
 				logger.error("memcached error on " + key, exception);
 			}else{
 				throw exception;
@@ -138,7 +138,7 @@ implements PhysicalMapStorageNode<PK,D>{
 			String key = buildMemcachedKey(tallyKey);
 			getClient().getSpyClient().incr(key, delta, delta, getExpiration(paramConfig));
 		}catch(Exception exception){
-			if(paramConfig.ignoreExceptionOrUse(DEFAULT_SWALLOW_EXCEPTION)){
+			if(paramConfig.ignoreExceptionOrUse(DEFAULT_IGNORE_EXCEPTION)){
 				logger.error("memcached error on " + tallyKey, exception);
 			}else{
 				throw exception;
@@ -157,7 +157,7 @@ implements PhysicalMapStorageNode<PK,D>{
 			String key = buildMemcachedKey(tallyKey);
 			return getClient().getSpyClient().incr(key, delta, delta, getExpiration(paramConfig));
 		}catch(Exception exception){
-			if(paramConfig.ignoreExceptionOrUse(DEFAULT_SWALLOW_EXCEPTION)){
+			if(paramConfig.ignoreExceptionOrUse(DEFAULT_IGNORE_EXCEPTION)){
 				logger.error("memcached error on " + tallyKey, exception);
 				return null;
 			}else{
