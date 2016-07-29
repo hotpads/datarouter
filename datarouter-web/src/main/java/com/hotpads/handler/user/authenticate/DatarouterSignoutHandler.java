@@ -7,7 +7,7 @@ import com.hotpads.handler.mav.Mav;
 import com.hotpads.handler.user.session.DatarouterSessionManager;
 
 public class DatarouterSignoutHandler extends BaseHandler{
-	
+
 	@Inject
 	private DatarouterSessionManager sessionManager;
 

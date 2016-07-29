@@ -20,7 +20,7 @@ public abstract class DatabeanUpdate <PK extends PrimaryKey<PK>, D extends Datab
 	protected <Storage extends MapStorage<PK,D>> DatabeanUpdate(Storage storage){
 		this.storage = storage;
 	}
-	
+
 	public void update(Collection<D> oldBeans, Collection<D> newBeans){
 		SortedMap<PK,D> newBeansByKey = DatabeanTool.getByKeySorted(newBeans);
 		for(D oldBean : DrCollectionTool.nullSafe(oldBeans)){
@@ -34,7 +34,7 @@ public abstract class DatabeanUpdate <PK extends PrimaryKey<PK>, D extends Datab
 		}
 		storage.putMulti(DrMapTool.nullSafe(newBeansByKey).values(), Configs.insertOrBust());
 	}
-	
+
 	public void update(D oldBean, D newBean){
 		if(ContentTool.equalsContent(oldBean,newBean)){
 			return;
@@ -49,17 +49,17 @@ public abstract class DatabeanUpdate <PK extends PrimaryKey<PK>, D extends Datab
 				putConfig = Configs.insertOrBust();
 				storage.delete(oldBean.getKey(), null);
 			}
-			storage.put(newBean, putConfig);	
+			storage.put(newBean, putConfig);
 		}
 	}
-	
+
 	/**
-	 * Comparing all values is not required since this method is called after the content has already been compared and 
-	 * determined to be different. This method should determine whether to delete the existing row and save the new 
-	 * value (replace) or merge the new values into the existing row.  Usually replacement is desired if the key of the 
-	 * row has changed (but the row still holds data about the same object), such as a case change in a case-insensitive 
+	 * Comparing all values is not required since this method is called after the content has already been compared and
+	 * determined to be different. This method should determine whether to delete the existing row and save the new
+	 * value (replace) or merge the new values into the existing row.  Usually replacement is desired if the key of the
+	 * row has changed (but the row still holds data about the same object), such as a case change in a case-insensitive
 	 * database.
-	 * 
+	 *
 	 * @param oldBean
 	 * @param newBean
 	 * @return

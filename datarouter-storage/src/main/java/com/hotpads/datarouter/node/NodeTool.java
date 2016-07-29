@@ -12,7 +12,7 @@ public class NodeTool{
 		addNodeAndDescendants(nodes, parent);
 		return nodes;
 	}
-	
+
 	public static void addNodeAndDescendants(List<Node<?,?>> nodes, Node<?,?> parent){
 		nodes.add(parent);
 		List<? extends Node<?,?>> children = parent.getChildNodes();

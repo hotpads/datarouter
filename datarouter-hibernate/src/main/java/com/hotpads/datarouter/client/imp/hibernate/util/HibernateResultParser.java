@@ -13,9 +13,9 @@ import com.hotpads.util.core.java.ReflectionTool;
 
 @Singleton
 public class HibernateResultParser{
-	
+
 	private final JdbcFieldCodecFactory fieldCodecFactory;
-	
+
 
 	@Inject
 	public HibernateResultParser(JdbcFieldCodecFactory fieldCodecFactory){

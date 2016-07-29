@@ -5,7 +5,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
-import java.nio.channels.Channel;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.util.Random;
@@ -16,49 +15,49 @@ import org.junit.Test;
 import com.hotpads.datarouter.util.core.DrByteTool;
 
 public class VarInt{
-	
-	public static final byte 
+
+	public static final byte
 		BYTE_7_RIGHT_BITS_SET = 127,
 		BYTE_LEFT_BIT_SET = -128;
-	
-	public static final long 
+
+	public static final long
 		INT_3_RIGHT_BITS_SET = 127,
 		INT_8TH_BIT_SET = 128;
-	
+
 	public static final byte[] MAX_VALUE_BYTES = new byte[]{-1, -1, -1, -1, 7};
 	public static final int MAX_BYTES = 5;
-	
+
 	protected int value;
-	
+
 	public VarInt(int value){
 		set(value);
 	}
-	
+
 	public VarInt(byte[] bytes, int offset){
 		set(bytes, offset);
 	}
-	
+
 	public VarInt(byte[] bytes){
 		set(bytes, 0);
 	}
-	
+
 	public VarInt(InputStream is) throws IOException{
 		set(is);
 	}
-	
+
 	public VarInt(ReadableByteChannel channel)throws IOException{
 		set(channel);
 	}
-	
+
 	public void set(int value){
 		if(value < 0){ throw new IllegalArgumentException("must be postitive int"); }
 		this.value = value;
 	}
-	
+
 	public void set(byte[] bytes){
 		set(bytes, 0);
 	}
-	
+
 	public void set(byte[] bytes, int offset){
 		if(offset >= bytes.length){
 			//TODO check other invalidity conditions
@@ -73,7 +72,7 @@ public class VarInt{
 			if(b >= 0){ break; }//first bit was 0, so that's the last byte in the VarLong
 		}
 	}
-	
+
 	//should be faster than the above, but not correct yet
 //	public void set(byte[] bytes, int offset){
 //		if(ArrayTool.isEmpty(bytes) || bytes.length > 5){
@@ -87,7 +86,7 @@ public class VarInt{
 //			value |= BYTE_7_RIGHT_BITS_SET & bytes[i];
 //		}
 //	}
-	
+
 	public void set(InputStream is) throws IOException{
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		while(true){
@@ -99,7 +98,7 @@ public class VarInt{
 		}
 		set(baos.toByteArray());
 	}
-	
+
 	public void set(ReadableByteChannel fs) throws IOException{
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		ByteBuffer byteBuffer = ByteBuffer.allocate(1);
@@ -115,7 +114,7 @@ public class VarInt{
 	public int getValue(){
 		return value;
 	}
-	
+
 	public byte[] getBytes(){
 		int numBytes = numBytes(value);
 		byte[] bytes = new byte[numBytes];
@@ -127,16 +126,16 @@ public class VarInt{
 		bytes[numBytes-1] = (byte)(remainder & INT_3_RIGHT_BITS_SET);//do not set the left bit
 		return bytes;
 	}
-	
+
 	public int getNumBytes(){
 		return numBytes(value);
 	}
-	
+
 	public static int numBytes(int in){//do a check for illegal arguments if not protected
 		if(in==0){ return 1; }//doesn't work with the formula below
 		return (38 - Integer.numberOfLeadingZeros(in)) / 7;//38 comes from 32+(7-1)
 	}
-	
+
 	public static class VarLongTests{
 		@Test public void testOffset(){
 			Assert.assertEquals(28, new VarInt(new byte[]{-1,-1,28}, 2).value);
@@ -151,7 +150,7 @@ public class VarInt{
 			Assert.assertEquals(2, numBytes(129));
 			Assert.assertEquals(5, numBytes(Integer.MAX_VALUE));
 		}
-		
+
 		@Test public void testToBytes(){
 			VarInt v0 = new VarInt(0);
 			Assert.assertArrayEquals(new byte[]{0}, v0.getBytes());
@@ -222,7 +221,7 @@ public class VarInt{
 			ReadableByteChannel channel = Channels.newChannel(is);
 			VarInt v0 = new VarInt(channel);
 			Assert.assertEquals(0, v0.getValue());
-			
+
 			//repeat channel test with these values
 //			is = new ByteArrayInputStream(new byte[]{0});
 //			VarInt v0 = new VarInt(is);
@@ -238,5 +237,5 @@ public class VarInt{
 //			Assert.assertEquals(3195, v3195.getValue());
 		}
 	}
-	
+
 }

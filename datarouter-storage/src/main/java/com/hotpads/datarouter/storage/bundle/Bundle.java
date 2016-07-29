@@ -14,30 +14,29 @@ import org.testng.annotations.Test;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.test.node.basic.manyfield.ManyFieldBean;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
-import com.hotpads.datarouter.util.core.DrListTool;
 
 
 public class Bundle{
 
 	protected Map<String,SingleTypeBundle<? extends Databean<?,?>>> bundleByType = new HashMap<>();
-	
+
 	protected <D extends Databean<?,?>> Bundle add(D databean){
 		if(databean==null){ return this; }
 		this.ensureSingleTypeBundleExists(databean);
-		@SuppressWarnings("unchecked") 
+		@SuppressWarnings("unchecked")
 		SingleTypeBundle<D> singleTypeBundle = (SingleTypeBundle<D>)this.bundleByType.get(databean.getClass()
 				.getName());
 		singleTypeBundle.add(databean);
 		return this;
 	}
-	
+
 	protected <D extends Databean<?,?>> Bundle add(Collection<D> databeans){
 		for(D databean : DrCollectionTool.nullSafe(databeans)){
 			this.add(databean);
 		}
 		return this;
 	}
-	
+
 	protected <D extends Databean<?,?>> D getFirst(Class<D> clazz){
 		if(clazz==null){ return null; }
 		if(this.bundleByType.get(clazz.getName())==null){ return null; }
@@ -45,7 +44,7 @@ public class Bundle{
 		SingleTypeBundle<D> singleTypeBundle = (SingleTypeBundle<D>)this.bundleByType.get(clazz.getName());
 		return singleTypeBundle.getFirst();
 	}
-	
+
 	protected <D extends Databean<?,?>> SortedSet<D> getAllSet(Class<D> clazz){
 		if(clazz==null){ return null; }
 		ensureSingleTypeBundleExists(clazz);
@@ -53,25 +52,25 @@ public class Bundle{
 		SingleTypeBundle<D> singleTypeBundle = (SingleTypeBundle<D>)this.bundleByType.get(clazz.getName());
 		return singleTypeBundle.getDatabeans();
 	}
-	
+
 	protected <D extends Databean<?,?>> List<D> getAllList(Class<D> clazz){
 		return new ArrayList<>(getAllSet(clazz));
 	}
-	
+
 	protected <D extends Databean<?,?>> void ensureSingleTypeBundleExists(D databean){
 		ensureSingleTypeBundleExists(databean.getClass());
 	}
-	
+
 	private <D extends Databean<?,?>> void ensureSingleTypeBundleExists(Class<D> clazz){
 		if(this.bundleByType.get(clazz.getName())==null){
 			this.bundleByType.put(clazz.getName(), new SingleTypeBundle<D>());
 		}
 	}
-	
+
 	protected <D extends Databean<?,?>> void removeAll(Class<D> clazz){
 		this.bundleByType.put(clazz.getName(), new SingleTypeBundle<D>());
 	}
-	
+
 	/**
 	 * @param <D>
 	 * @param clazz needed to allow setting empty
@@ -82,14 +81,14 @@ public class Bundle{
 		this.removeAll(clazz);
 		this.add(databeans);
 	}
-	
+
 	protected <D extends Databean<?,?>> void set(D databean){
 		this.removeAll(databean.getClass());
 		this.add(databean);
 	}
 
 	/** tests ****************************************************************/
-	
+
 	public static class BundleTests {
 		@Test
 		public void testModifyCollection(){
@@ -97,11 +96,11 @@ public class Bundle{
 			b.add(new ManyFieldBean(1L));
 			Set<ManyFieldBean> bs = b.getAllSet(ManyFieldBean.class);
 			Assert.assertEquals(1, bs.size());
-			
+
 			//modify collection outside of bundle
 			bs.add(new ManyFieldBean(2L));
 			Assert.assertEquals(2, b.getAllSet(ManyFieldBean.class).size());
-			
+
 			//modify empty collection outside bundle
 			b = new Bundle();
 			bs = b.getAllSet(ManyFieldBean.class);
@@ -109,8 +108,8 @@ public class Bundle{
 			Assert.assertEquals(0, bs.size());
 			bs.add(new ManyFieldBean(3L));
 			Assert.assertEquals(1, b.getAllSet(ManyFieldBean.class).size());
-			
+
 		}
 	}
-	
+
 }

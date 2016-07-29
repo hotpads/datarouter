@@ -25,19 +25,18 @@ import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrIterableTool;
-import com.hotpads.datarouter.util.core.DrListTool;
 
 public class HibernateGetKeysOp<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
-		F extends DatabeanFielder<PK,D>> 
+		F extends DatabeanFielder<PK,D>>
 extends BaseHibernateOp<List<PK>>{
-		
+
 	private final HibernateReaderNode<PK,D,F> node;
 	private final HibernateResultParser resultParser;
 	private final Collection<PK> keys;
 	private final Config config;
-	
+
 	public HibernateGetKeysOp(HibernateReaderNode<PK,D,F> node, HibernateResultParser resultParser,
 			Collection<PK> keys, Config config) {
 		super(node.getDatarouter(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
@@ -46,7 +45,7 @@ extends BaseHibernateOp<List<PK>>{
 		this.keys = keys;
 		this.config = config;
 	}
-	
+
 	@Override
 	public List<PK> runOnce(){
 		Session session = getSession(node.getClientId().getName());
@@ -78,5 +77,5 @@ extends BaseHibernateOp<List<PK>>{
 		}
 		return result;
 	}
-	
+
 }

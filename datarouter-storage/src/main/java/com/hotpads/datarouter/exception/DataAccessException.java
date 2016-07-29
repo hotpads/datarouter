@@ -23,5 +23,5 @@ public class DataAccessException extends RuntimeException{
 		super(cause);
 		// TODO Auto-generated constructor stub
 	}
-	
+
 }

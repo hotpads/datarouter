@@ -17,11 +17,11 @@ import com.hotpads.util.core.exception.NotImplementedException;
 
 public class DoubleArrayJdbcFieldCodec
 extends BaseListJdbcFieldCodec<Double,List<Double>,Field<List<Double>>>{
-	
+
 	public DoubleArrayJdbcFieldCodec(){//no-arg for reflection
 		this(null);
 	}
-	
+
 	public DoubleArrayJdbcFieldCodec(Field<List<Double>> field){
 		super(field);
 	}
@@ -40,7 +40,7 @@ extends BaseListJdbcFieldCodec<Double,List<Double>,Field<List<Double>>>{
 //		byte[] bytes = (byte[])obj;
 //		return DoubleByteTool.fromDoubleBytes(bytes);
 	}
-	
+
 	@Override
 	public List<Double> fromJdbcResultSetButDoNotSet(ResultSet rs){
 		try{

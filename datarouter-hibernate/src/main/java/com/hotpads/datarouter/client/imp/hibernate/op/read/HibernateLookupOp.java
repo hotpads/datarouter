@@ -22,15 +22,15 @@ import com.hotpads.datarouter.util.core.DrCollectionTool;
 public class HibernateLookupOp<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
-		F extends DatabeanFielder<PK,D>> 
+		F extends DatabeanFielder<PK,D>>
 extends BaseHibernateOp<List<D>>{
-		
+
 	private final HibernateReaderNode<PK,D,F> node;
 	private final Collection<? extends Lookup<PK>> lookups;
 	private final boolean wildcardLastField;
 	private final Config config;
-	
-	public HibernateLookupOp(HibernateReaderNode<PK,D,F> node, Collection<? extends Lookup<PK>> lookups, 
+
+	public HibernateLookupOp(HibernateReaderNode<PK,D,F> node, Collection<? extends Lookup<PK>> lookups,
 			boolean wildcardLastField, Config config) {
 		super(node.getDatarouter(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
 		this.node = node;
@@ -38,7 +38,7 @@ extends BaseHibernateOp<List<D>>{
 		this.wildcardLastField = wildcardLastField;
 		this.config = config;
 	}
-	
+
 	@Override
 	public List<D> runOnce(){
 		if(DrCollectionTool.isEmpty(lookups)){
@@ -61,5 +61,5 @@ extends BaseHibernateOp<List<D>>{
 		List<D> result = criteria.list();
 		return result;
 	}
-	
+
 }

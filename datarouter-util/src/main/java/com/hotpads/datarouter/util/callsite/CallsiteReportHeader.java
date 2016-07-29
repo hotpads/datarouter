@@ -10,7 +10,7 @@ public enum CallsiteReportHeader{
 	node,
 	method,
 	callsite;
-	
+
 	public int length(){
 		return toString().length();
 	}

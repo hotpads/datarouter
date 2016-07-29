@@ -19,7 +19,7 @@ public class HibernateRowCountTxn extends BaseHibernateOp<Integer>{
 	private final Class<?> bean;
 	private final String colToCount;
 	private final Criterion restriction;
-	
+
 	public HibernateRowCountTxn(Datarouter datarouter, List<String> clientNames, Class<?> bean,
 			String colToCount, Criterion restriction){
 		super(datarouter, clientNames);
@@ -32,7 +32,7 @@ public class HibernateRowCountTxn extends BaseHibernateOp<Integer>{
 	public Integer mergeResults(Integer fromOnce, Collection<Integer> fromEachClient){
 		return ResultMergeTool.sum(fromOnce, fromEachClient);
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public Integer runOncePerClient(Client client){
@@ -41,12 +41,16 @@ public class HibernateRowCountTxn extends BaseHibernateOp<Integer>{
 		ProjectionList pl = Projections.projectionList();
 		pl.add(Projections.count(colToCount));
 		criteria.setProjection(pl);
-		if(restriction != null) criteria.add(restriction);
+		if(restriction != null){
+			criteria.add(restriction);
+		}
 
 		List<Object> rows = criteria.list();
 
-		if(rows == null || rows.size() < 1) return 0;
+		if(rows == null || rows.size() < 1){
+			return 0;
+		}
 		return (Integer)rows.get(0);
 	}
-	
+
 }

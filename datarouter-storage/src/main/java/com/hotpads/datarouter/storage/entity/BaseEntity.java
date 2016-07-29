@@ -17,27 +17,27 @@ implements Entity<EK>,
 
 	private EK key;
 	private NavigableMap<String,EntitySection<EK,?,?>> databeansByQualifierPrefix;
-	
+
 	public BaseEntity(EK key){
 		this.key = key;
 		this.databeansByQualifierPrefix = new TreeMap<>();
 	}
-	
+
 	@Override
 	public void setKey(EK key){
 		this.key = key;
 	}
-	
+
 	@Override
 	public EK getKey(){
 		return key;
 	}
-	
+
 	@Override
 	public int compareTo(BaseEntity<EK> entity) {
 		return getKey().compareTo(entity.getKey());
 	}
-	
+
 	@Override
 	public int getNumDatabeans(){
 		int total = 0;
@@ -46,20 +46,20 @@ implements Entity<EK>,
 		}
 		return total;
 	}
-	
-	@SuppressWarnings("unchecked") 
+
+	@SuppressWarnings("unchecked")
 	@Override
 	public <PK extends EntityPrimaryKey<EK,PK>,D extends Databean<PK,D>>
 	void addDatabeansForQualifierPrefixUnchecked(String qualifierPrefix, Collection<? extends Databean<?,?>> databeans){
 		addDatabeansForQualifierPrefix(qualifierPrefix, (Collection<D>)databeans);
 	}
-	
+
 	public <PK extends EntityPrimaryKey<EK,PK>,D extends Databean<PK,D>>
 	void addDatabeansForQualifierPrefix(String qualifierPrefix, Collection<D> databeans){
 		@SuppressWarnings("unchecked") //types enforced by subclasses
 		EntitySection<EK,PK,D> section = (EntitySection<EK,PK,D>)databeansByQualifierPrefix.get(qualifierPrefix);
 		if(section==null){
-			section = new EntitySection<EK,PK,D>();
+			section = new EntitySection<>();
 			databeansByQualifierPrefix.put(qualifierPrefix, section);
 		}
 		section.addAll(databeans);
@@ -69,7 +69,7 @@ implements Entity<EK>,
 	void addDatabeanForQualifierPrefix(String qualifierPrefix, D databean){
 		addDatabeansForQualifierPrefix(qualifierPrefix, DrCollectionTool.nullSafe(databean));
 	}
-	
+
 	//custom table name
 	public <PK extends EntityPrimaryKey<EK,PK>,D extends Databean<PK,D>>
 	TreeSet<D> getDatabeansForQualifierPrefix(Class<D> databeanClass, String qualifierPrefix){
@@ -77,7 +77,7 @@ implements Entity<EK>,
 		EntitySection<EK,PK,D> section = (EntitySection<EK,PK,D>)databeansByQualifierPrefix.get(qualifierPrefix);
 		return section==null ? null : section.getDatabeans();
 	}
-	
+
 	public <PK extends EntityPrimaryKey<EK,PK>,D extends Databean<PK,D>>
 	ArrayList<D> getListDatabeansForQualifierPrefix(Class<D> databeanClass, String qualifierPrefix){
 		ArrayList<D> arrayList = new ArrayList<>();
@@ -87,17 +87,17 @@ implements Entity<EK>,
 		}
 		return arrayList;
 	}
-	
-	
+
+
 	/******************* inner class *****************************/
-	
+
 	public static class EntitySection<
 			EK extends EntityKey<EK>,
 			PK extends EntityPrimaryKey<EK,PK>,
 			D extends Databean<PK,D>>{
 
 		protected TreeSet<D> databeans = new TreeSet<>();
-		
+
 		public void addAndReSort(D databean){
 			if(databean==null){ return; }
 			databeans.add(databean);
@@ -106,19 +106,19 @@ implements Entity<EK>,
 		public void addAll(Collection<D> toAdd){
 			databeans.addAll(DrCollectionTool.nullSafe(toAdd));
 		}
-		
+
 		public TreeSet<D> getDatabeans(){
 			return databeans;
 		}
-		
+
 		public D getFirst(){
 			return DrCollectionTool.getFirst(databeans);
 		}
-		
+
 		public int getNumDatabeans(){
 			return DrCollectionTool.size(databeans);
 		}
-		
+
 	}
 
 }

@@ -4,7 +4,7 @@ import com.google.common.collect.ForwardingMap;
 import com.hotpads.util.core.collections.DefaultableMap;
 
 public abstract class DefaultableMapAbs<K,V> extends ForwardingMap<K, V> implements DefaultableMap<K, V> {
-		
+
 	@Override
 	public V getDefault(K key, V def) {
 		V val = get(key);
@@ -57,7 +57,7 @@ public abstract class DefaultableMapAbs<K,V> extends ForwardingMap<K, V> impleme
 		}
 		return val.toString();
 	}
-	
+
 	@Override
 	public Long getLong(K key, Long def) {
 		V val = get(key);

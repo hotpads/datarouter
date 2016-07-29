@@ -15,18 +15,18 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 public class HibernateGetAllOp<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
-		F extends DatabeanFielder<PK,D>> 
+		F extends DatabeanFielder<PK,D>>
 extends BaseHibernateOp<List<D>>{
-		
+
 	private final HibernateReaderNode<PK,D,F> node;
 	private final Config config;
-	
+
 	public HibernateGetAllOp(HibernateReaderNode<PK,D,F> node, Config config) {
 		super(node.getDatarouter(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
 		this.node = node;
 		this.config = config;
 	}
-	
+
 	@Override
 	public List<D> runOnce(){
 		Session session = getSession(node.getClientId().getName());
@@ -34,5 +34,5 @@ extends BaseHibernateOp<List<D>>{
 		List<D> databeans = criteria.list();
 		return databeans;//assume they come back sorted due to innodb
 	}
-	
+
 }

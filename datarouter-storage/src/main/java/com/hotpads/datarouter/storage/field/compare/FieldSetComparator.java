@@ -13,15 +13,15 @@ public class FieldSetComparator implements Comparator<FieldSet<?>>{
 	public int compare(FieldSet<?> a, FieldSet<?> b){
 		return compareStatic(a, b);
 	}
-	
-	
+
+
 	public static int compareStatic(FieldSet<?> a, FieldSet<?> b){
 		//sort classes alphabetically
 		if(b==null){ return 1; }
 		if(ClassTool.differentClass(a, b)){
 			return a.getClass().getName().compareTo(b.getClass().getName());
 		}
-		
+
 		//field by field comparison
 		Iterator<Field<?>> thisIterator = a.getFields().iterator();
 		Iterator<Field<?>> thatIterator = b.getFields().iterator();

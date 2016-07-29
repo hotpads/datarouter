@@ -10,7 +10,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class DrBatchTool {
-	
+
 
 	public static int getNumBatches(int totalSize, int batchSize){
 		if(totalSize==0){ return 0; }
@@ -21,14 +21,14 @@ public class DrBatchTool {
 		}
 		return 1 + numFullBatches;
 	}
-	
+
 	public static int getBatchStartIndex(int totalSize, int batchSize, int batchNumZeroBased){
 		if(totalSize == 0){
 			return 0;
 		}
 		return batchNumZeroBased*batchSize;
 	}
-	
+
 	public static int getBatchEndIndexExclusive(int totalSize, int batchSize, int batchNumZeroBased){
 		if(totalSize == 0){
 			return 0;
@@ -42,30 +42,32 @@ public class DrBatchTool {
 		}
 		return endIndex + 1;
 	}
-	
-	
+
+
 	public static <T> int getNumBatches(Collection<T> collection, int batchSize){
 		if(DrCollectionTool.isEmpty(collection)){ return 0; }
 		return getNumBatches(collection.size(), batchSize);
 	}
-	
+
 	public static <T> List<T> getBatch(List<T> list, int batchSize, int batchNumZeroBased){
 		if(list == null || list.size() == 0){
-			return new ArrayList<T>();
+			return new ArrayList<>();
 		}
 		int startIndex = getBatchStartIndex(list.size(), batchSize, batchNumZeroBased);
 		int endIndex = getBatchEndIndexExclusive(list.size(), batchSize, batchNumZeroBased);
 		if(startIndex >= list.size() || endIndex > list.size()){
-			return new ArrayList<T>();
+			return new ArrayList<>();
 		}
 		List<T> batch = list.subList(startIndex, endIndex);
 		return batch;
 	}
-	
+
 	public static <T> List<List<T>> getBatches(Collection<T> all, int batchSize){
 		int numBatches = getNumBatches(all, batchSize);
-		List<List<T>> batches = new ArrayList<List<T>>(numBatches);
-		if(all==null||all.size()<1) return batches;
+		List<List<T>> batches = new ArrayList<>(numBatches);
+		if(all==null||all.size()<1){
+			return batches;
+		}
 		int numComplete = 0;
 		int batchNum = -1;
 		for(T t : all){
@@ -81,7 +83,7 @@ public class DrBatchTool {
 
 	public static class Tests{
 		@Test public void testMany(){
-			List<String> list = new ArrayList<String>();
+			List<String> list = new ArrayList<>();
 			list.add("a");
 			list.add("b");
 			list.add("c");
@@ -93,30 +95,30 @@ public class DrBatchTool {
 			Assert.assertEquals(Arrays.asList("a","b"), list.subList(0,2));
 			Assert.assertEquals(Arrays.asList("c","d"), list.subList(2,4));
 		}
-		
+
 		@Test public void testUnreachableBatches(){
-			List<String> list = new LinkedList<String>();
+			List<String> list = new LinkedList<>();
 			list.add("a"); list.add("b"); list.add("c"); list.add("d");
-			
+
 			List<String> batch = getBatch(list,2,0);
 			Assert.assertEquals(2,batch.size());
-			
+
 			batch = getBatch(list,2,1);
 			Assert.assertEquals(2,batch.size());
-			
+
 			batch = getBatch(list,2,2);
 			Assert.assertEquals(0,batch.size());
-			
+
 			batch = getBatch(list,3,0);
 			Assert.assertEquals(3,batch.size());
 			batch = getBatch(list,3,1);
 			Assert.assertEquals(1,batch.size());
 			batch = getBatch(list,3,2);
 			Assert.assertEquals(0,batch.size());
-			
+
 			batch = getBatch(list,3,200);
 			Assert.assertEquals(0,batch.size());
 		}
-		
+
 	}
 }

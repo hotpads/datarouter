@@ -7,5 +7,5 @@ public class SessionExecutorPleaseRetryException extends RuntimeException{
 		super(cause);
 	}
 
-	
+
 }

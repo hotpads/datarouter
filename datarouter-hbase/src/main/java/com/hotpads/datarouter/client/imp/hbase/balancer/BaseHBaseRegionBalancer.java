@@ -10,8 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.imp.hbase.cluster.DrRegionInfo;
-import com.hotpads.datarouter.client.imp.hbase.cluster.DrServerList;
 import com.hotpads.datarouter.client.imp.hbase.cluster.DrRegionList;
+import com.hotpads.datarouter.client.imp.hbase.cluster.DrServerList;
 import com.hotpads.datarouter.storage.key.entity.EntityPartitioner;
 import com.hotpads.datarouter.storage.prefix.ScatteringPrefix;
 import com.hotpads.datarouter.util.core.DrStringTool;
@@ -29,11 +29,11 @@ implements Callable<Map<DrRegionInfo<?>,ServerName>>{
 	protected Class<? extends ScatteringPrefix> scatteringPrefixClass;
 	protected EntityPartitioner<?> entityPartitioner;
 	protected ScatteringPrefix scatteringPrefix;
-	
+
 	protected BaseHBaseRegionBalancer(String tableName){
 		this.tableName = tableName;
 	}
-	
+
 	public BaseHBaseRegionBalancer init(Class<? extends ScatteringPrefix> scatteringPrefixClass,
 			EntityPartitioner<?> entityPartitioner,
 			DrServerList drhServerList, DrRegionList drhRegionList){
@@ -58,7 +58,7 @@ implements Callable<Map<DrRegionInfo<?>,ServerName>>{
 					+", output="+serverByRegion.size());
 		}
 	}
-	
+
 	protected String getServerByRegionStringForDebug(){
 		int i = 0;
 		StringBuilder sb = new StringBuilder();

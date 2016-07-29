@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package com.hotpads.datarouter.config;
 
@@ -19,15 +19,15 @@ public class ConfigKey extends BasePrimaryKey<ConfigKey>{
 
 	public static final String
 		COL_id = "id";
-	
+
 	public ConfigKey(){//remember no-arg is required
 		this.id = RandomTool.nextPositiveLong(random);
 	}
-	
+
 	public ConfigKey(Long id){
 		this.id = id;
 	}
-	
+
 	@Override
 	public List<Field<?>> getFields(){
 		return FieldTool.createList(
@@ -41,5 +41,5 @@ public class ConfigKey extends BasePrimaryKey<ConfigKey>{
 	public void setId(Long id) {
 		this.id = id;
 	}
-	
+
 }

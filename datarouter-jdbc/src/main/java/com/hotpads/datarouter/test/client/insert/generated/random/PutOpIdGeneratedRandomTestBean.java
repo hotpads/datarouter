@@ -16,7 +16,7 @@ implements PutOpGeneratedTestBean<PutOpIdGeneratedRandomTestBeanKey, PutOpIdGene
 
 	private PutOpIdGeneratedRandomTestBeanKey key;
 	private String a;
-	
+
 	public static class PutOpIdGeneratedRandomTestBeanFielder extends
 			BaseDatabeanFielder<PutOpIdGeneratedRandomTestBeanKey, PutOpIdGeneratedRandomTestBean>{
 
@@ -29,13 +29,13 @@ implements PutOpGeneratedTestBean<PutOpIdGeneratedRandomTestBeanKey, PutOpIdGene
 		public List<Field<?>> getNonKeyFields(PutOpIdGeneratedRandomTestBean d){
 			return FieldTool.createList(new StringField("a", d.a, 10));
 		}
-		
+
 	}
-	
+
 	public PutOpIdGeneratedRandomTestBean(){
 		this.key = new PutOpIdGeneratedRandomTestBeanKey();
 	}
-	
+
 	public PutOpIdGeneratedRandomTestBean(String a){
 		this.key = new PutOpIdGeneratedRandomTestBeanKey();
 		this.a = a;

@@ -61,7 +61,7 @@ public class Duration{
 	public String toString(){
 		return toString(TimeUnit.MILLISECONDS);
 	}
-	
+
 	public String toString(TimeUnit presision){
 		if(nano == 0) {
 			return "0";
@@ -82,7 +82,7 @@ public class Duration{
 		}
 		return builder.toString();
 	}
-	
+
 	public static boolean isDuration(String string){
 		if("0".equals(string)){
 			return true;
@@ -130,7 +130,7 @@ public class Duration{
 			d = new Duration("0");
 			Assert.assertEquals("0", d.toString());
 		}
-		
+
 		@Test
 		public void testIsDuration(){
 			Assert.assertTrue(isDuration("3d"));

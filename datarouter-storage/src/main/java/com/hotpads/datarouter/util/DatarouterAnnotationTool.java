@@ -6,8 +6,6 @@ import java.lang.reflect.Method;
 
 import javax.persistence.Column;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -21,7 +19,7 @@ import com.hotpads.util.core.java.PrivateAccessor;
 public class DatarouterAnnotationTool {
 
 	private Class<?> clazz=null;
-	
+
 	public DatarouterAnnotationTool(Class<?> clazz){
 		this.clazz=clazz;
 	}
@@ -45,49 +43,59 @@ public class DatarouterAnnotationTool {
 	private Integer getColumnLengthAnnotation(AccessibleObject annotated){
 		try{
 			Column colAn = annotated.getAnnotation(Column.class);
-			if(colAn == null) return null;
+			if(colAn == null){
+				return null;
+			}
 			return colAn.length();
 		}catch(Exception e){
 			return null;
 		}
 	}
-	
+
 	public String limitLength(String column, String content){
 		Integer maxLength = getMaxLengthIfExceeded(column, content);
-		if(maxLength==null) return content;
+		if(maxLength==null){
+			return content;
+		}
 		return content.substring(0, maxLength);
 	}
-	
+
 	/**
-	 * Returns the max column length if a column's content exceeds the length 
+	 * Returns the max column length if a column's content exceeds the length
 	 * annotation.  Useful for error checking methods.
 	 * @param column
 	 * @param content
 	 * @return
 	 */
 	public Integer getMaxLengthIfExceeded(String column, String content){
-		if(content == null) return null;
+		if(content == null){
+			return null;
+		}
 		Integer maxLength = getColumnLengthAnnotation(column);
-		if(maxLength==null) maxLength=255;
-		if(content.length()>maxLength) return maxLength;
+		if(maxLength==null){
+			maxLength=255;
+		}
+		if(content.length()>maxLength){
+			return maxLength;
+		}
 		return null;
 	}
-	
+
 	private static class AnnotationToolTestBean{
 		public static final String COL_name = "name", COL_feedId = "feedId", COL_label = "label";
 		public static final int LENGTH_name = 50;
 		public static final int LENGTH_feedId = 27;
 		public static final int LENGTH_COL_LABEL = 50;
-		
+
 		@Column(length=LENGTH_name)
 		private String name;
 
 		@Column(length=LENGTH_feedId, nullable=false)
 		protected String feedId;
-		
+
 		@Column(length=LENGTH_COL_LABEL)
 		protected String label = null;
-		
+
 		public final String getName(){
 			return name;
 		}
@@ -95,23 +103,23 @@ public class DatarouterAnnotationTool {
 		public final void setName(String name){
 			this.name = name;
 		}
-		
+
 	}
-	
+
 	private static class AnnotationToolTestExtendedBean extends AnnotationToolTestBean{
-		
+
 	}
-	
+
 	public static class Tests{
 
 		@Test
 		public void testGetLengthAnnotation() throws Exception{
 			DatarouterAnnotationTool at = new DatarouterAnnotationTool(AnnotationToolTestBean.class);
 			Assert.assertEquals(new Integer(50), at.getColumnLengthAnnotation(AnnotationToolTestBean.COL_name));
-			
+
 			//test field declared on supertype
 			at = new DatarouterAnnotationTool(AnnotationToolTestExtendedBean.class);
-			Assert.assertNotNull(at.getColumnLengthAnnotation(AnnotationToolTestExtendedBean.COL_feedId));
+			Assert.assertNotNull(at.getColumnLengthAnnotation(AnnotationToolTestBean.COL_feedId));
 			Assert.assertNull(at.getColumnLengthAnnotation("nonExistantField"));
 		}
 		@Test
@@ -119,7 +127,7 @@ public class DatarouterAnnotationTool {
 			DatarouterAnnotationTool at = new DatarouterAnnotationTool(AnnotationToolTestBean.class);
 			AnnotationToolTestBean bean = new AnnotationToolTestBean();
 			String shortName = "somethingshort";
-			String longName = 
+			String longName =
 				"somethingMuchLongerThanSomethingShortWithMoreLetters";
 			bean.setName(shortName);
 			bean.setName(at.limitLength(AnnotationToolTestBean.COL_name, bean.getName()));
@@ -139,5 +147,5 @@ public class DatarouterAnnotationTool {
 
 		}
 	}
-	
+
 }

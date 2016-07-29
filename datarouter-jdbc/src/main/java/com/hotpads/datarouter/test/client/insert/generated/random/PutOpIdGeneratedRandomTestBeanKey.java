@@ -15,16 +15,17 @@ extends BasePrimaryKey<PutOpIdGeneratedRandomTestBeanKey>
 implements PutOpGeneratedTestBeanKey<PutOpIdGeneratedRandomTestBeanKey>{
 
 	private Long id;
-	
+
 	@Override
 	public List<Field<?>> getFields(){
 		return FieldTool.createList(new UInt63Field(null, "id", false, FieldGeneratorType.RANDOM, id));
 	}
 
+	@Override
 	public Long getId(){
 		return id;
 	}
-	
+
 	public void setId(Long id){
 		this.id = id;
 	}

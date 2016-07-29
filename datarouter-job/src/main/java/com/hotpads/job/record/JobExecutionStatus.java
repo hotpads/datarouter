@@ -9,29 +9,29 @@ public enum JobExecutionStatus implements StringEnum<JobExecutionStatus>{
 	success("success",false),
 	errored("errored",false),
 	interrupted("interrupted",false);
-	
+
 	private String varName;
 	private boolean isRunning=false;
-	
+
 	private JobExecutionStatus(String varName, boolean isRunning){
 		this.isRunning = isRunning;
 		this.varName = varName;
 	}
-	
+
 	@Override
 	public String getPersistentString(){
 		return varName;
 	}
-	
+
 	public static JobExecutionStatus fromPersistentStringStatic(String s){
 		return DatarouterEnumTool.getEnumFromString(values(), s, null);
 	}
-	
+
 	@Override
 	public JobExecutionStatus fromPersistentString(String s) {
 		return fromPersistentStringStatic(s);
 	}
-	
+
 	public boolean isRunning(){
 		return isRunning;
 	}

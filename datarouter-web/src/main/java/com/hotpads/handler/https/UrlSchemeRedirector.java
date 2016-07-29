@@ -37,7 +37,7 @@ public class UrlSchemeRedirector{
 		return null;
 	}
 
-	protected static Set<Integer> STANDARD_PORTS = new HashSet<Integer>();
+	protected static Set<Integer> STANDARD_PORTS = new HashSet<>();
 	static{
 		STANDARD_PORTS.add(UrlScheme.PORT_HTTP_STANDARD);
 		STANDARD_PORTS.add(UrlScheme.PORT_HTTPS_STANDARD);
@@ -72,7 +72,9 @@ public class UrlSchemeRedirector{
 	}
 
 	private String getRedirectUrlPortStringWithColon(int originalPort, UrlScheme requiredScheme){
-		if(originalPort == -1) return "";
+		if(originalPort == -1){
+			return "";
+		}
 		boolean standard = STANDARD_PORTS.contains(originalPort);
 		if(UrlScheme.HTTP == requiredScheme){
 			return standard ? "" : ":" + UrlScheme.PORT_HTTP_DEV;
@@ -86,15 +88,15 @@ public class UrlSchemeRedirector{
 	}
 
 	public static class Tests{
-		
+
 		private UrlSchemeRedirector urlSchemeHandler = new UrlSchemeRedirector(new TestPortIdentifier());
-		
+
 		String urlHttp = "http://x.com";
 		String urlHttps = "https://x.com";
 		String param = "/y?z=0";
 		String urlWithHttpPort = urlHttp + ":" + UrlScheme.PORT_HTTP_DEV + param;
 		String urlWithHttpsPort = urlHttps + ":" + UrlScheme.PORT_HTTPS_DEV + param;
-		
+
 		@Test
 		public void testGetRedirectUrlPortStringWithColon(){
 			Assert.assertEquals("", urlSchemeHandler.getRedirectUrlPortStringWithColon(80, UrlScheme.HTTP));
@@ -104,17 +106,17 @@ public class UrlSchemeRedirector{
 		}
 
 		@Test public void testGetUriWithScheme() throws Exception{
-			Assert.assertEquals(urlHttp + param, 
+			Assert.assertEquals(urlHttp + param,
 					urlSchemeHandler.getUriWithScheme(UrlScheme.HTTP, new URL(urlHttp + param)));
-			Assert.assertEquals(urlWithHttpPort, 
+			Assert.assertEquals(urlWithHttpPort,
 					urlSchemeHandler.getUriWithScheme(UrlScheme.HTTP, new URL(urlWithHttpPort)));
-			Assert.assertEquals(urlWithHttpsPort, 
+			Assert.assertEquals(urlWithHttpsPort,
 					urlSchemeHandler.getUriWithScheme(UrlScheme.HTTPS, new URL(urlWithHttpPort)));
-			Assert.assertEquals(urlHttps + param, 
+			Assert.assertEquals(urlHttps + param,
 					urlSchemeHandler.getUriWithScheme(UrlScheme.HTTPS, new URL(urlHttp + param)));
-			Assert.assertEquals(urlHttps, 
+			Assert.assertEquals(urlHttps,
 					urlSchemeHandler.getUriWithScheme(UrlScheme.HTTPS, new URL(urlHttp)));
-			Assert.assertEquals(urlHttp, 
+			Assert.assertEquals(urlHttp,
 					urlSchemeHandler.getUriWithScheme(UrlScheme.HTTP, new URL(urlHttp)));
 		}
 	}

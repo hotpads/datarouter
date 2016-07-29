@@ -11,6 +11,7 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
+import org.testng.internal.junit.ArrayAsserts;
 
 import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.config.Config;
@@ -418,7 +419,7 @@ public abstract class BaseManyFieldIntegrationTests{
 		mapNode.put(bean, null);
 
 		ManyFieldBean roundTripped = mapNode.get(bean.getKey(), null);
-		AssertJUnit.assertArrayEquals(DrArrayTool.primitiveLongArray(ids),
+		ArrayAsserts.assertArrayEquals(DrArrayTool.primitiveLongArray(ids),
 				LongByteTool.fromComparableByteArray(roundTripped.getData()));
 		recordKey(bean.getKey());
 	}
@@ -517,7 +518,7 @@ public abstract class BaseManyFieldIntegrationTests{
 		mapNode.put(bean, null);
 
 		ManyFieldBean roundTripped = mapNode.get(bean.getKey(), null);
-		AssertJUnit.assertArrayEquals(strings.toArray(), roundTripped.getDelimitedStringArrayField().toArray());
+		ArrayAsserts.assertArrayEquals(strings.toArray(), roundTripped.getDelimitedStringArrayField().toArray());
 		recordKey(bean.getKey());
 	}
 

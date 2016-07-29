@@ -8,8 +8,8 @@ import com.hotpads.datarouter.client.Client;
 public interface ClientExecutor{
 
 	List<Client> getClients();
-	
+
 	void reserveConnections();
 	void releaseConnections();
-	
+
 }

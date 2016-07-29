@@ -6,9 +6,9 @@ import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.util.core.iterable.scanner.sorted.BaseHoldingScanner;
 
 //can store anything in currentBatch.  subclass will translate B -> T later
-public abstract class BaseBatchBackedScanner<T,B> 
+public abstract class BaseBatchBackedScanner<T,B>
 extends	BaseHoldingScanner<T>{
-	
+
 	public static final Integer BATCH_SIZE_DEFAULT = 100;
 
 	//used during iteration
@@ -17,10 +17,10 @@ extends	BaseHoldingScanner<T>{
 	protected boolean noMoreBatches = false;//optimization to track if the previous fetch didn't get a full batch
 
 	/**************** abstract methods *******************************/
-	
+
 	protected abstract void loadNextBatch();
 	protected abstract void setCurrentFromResult(B result);
-	
+
 	/****************** methods *************************************/
 
 	@Override

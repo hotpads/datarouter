@@ -8,18 +8,18 @@ import java.util.Properties;
 import com.hotpads.util.core.properties.TypedProperties;
 
 public class MemcachedOptions extends TypedProperties{
-	
+
 	protected String clientPrefix;
 
 	public MemcachedOptions(List<Properties> multiProperties, String clientName){
 		super(multiProperties);
 		this.clientPrefix = "client."+clientName+".memcached.";
 	}
-	
+
 	public Integer getNumServers(){
 		return getInteger(clientPrefix+"numServers");
 	}
-	
+
 	public InetSocketAddress[] getServers(){
 		List<InetSocketAddress> servers = new LinkedList<>();
 		for(int i=0; i < getNumServers(); ++i){
@@ -32,5 +32,5 @@ public class MemcachedOptions extends TypedProperties{
 		}
 		return servers.toArray(new InetSocketAddress[servers.size()]);
 	}
-	
+
 }

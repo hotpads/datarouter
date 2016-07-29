@@ -16,22 +16,22 @@ import com.hotpads.util.core.exception.NotImplementedException;
 
 public class UInt63ArrayJdbcFieldCodec
 extends BaseListJdbcFieldCodec<Long,List<Long>,UInt63ArrayField>{
-	
+
 	public UInt63ArrayJdbcFieldCodec(){//no-arg for reflection
 		this(null);
 	}
-	
+
 	public UInt63ArrayJdbcFieldCodec(UInt63ArrayField field){
 		super(field);
 	}
 
-	
+
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
 		return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.LONGBLOB, Integer.MAX_VALUE, field
 				.getKey().isNullable(), false);
 	}
-	
+
 	@Override
 	public void setPreparedStatementValue(PreparedStatement ps, int parameterIndex){
 		try{
@@ -48,7 +48,7 @@ extends BaseListJdbcFieldCodec<Long,List<Long>,UInt63ArrayField>{
 //		byte[] bytes = (byte[])obj;
 //		return new LongArray(LongByteTool.fromUInt63Bytes(bytes));
 	}
-	
+
 	@Override
 	public List<Long> fromJdbcResultSetButDoNotSet(ResultSet rs){
 		try{
@@ -58,7 +58,7 @@ extends BaseListJdbcFieldCodec<Long,List<Long>,UInt63ArrayField>{
 			throw new DataAccessException(e);
 		}
 	}
-	
+
 	@Override
 	public String getSqlEscaped(){
 		throw new NotImplementedException("and probably never will be");

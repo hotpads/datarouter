@@ -17,23 +17,23 @@ import com.hotpads.datarouter.client.imp.hbase.cluster.DrRegionInfo;
  */
 public class EntityPartitionBalancer
 extends BaseHBaseRegionBalancer{
-	
+
 	private Map<Integer,List<DrRegionInfo<?>>> regionsByPartition;
-	
+
 	/******************* constructor ***************************/
-	
+
 	public EntityPartitionBalancer(String tableName){
 		super(tableName);
 	}
-	
+
 	@Override
 	public SortedMap<DrRegionInfo<?>,ServerName> call(){
 		initRegionByPartitionMap();
-		
+
 		//set up the ring of servers
-		SortedMap<Long,ServerName> consistentHashRing = ConsistentHashBalancer.buildServerHashRing(drhServerList, 
+		SortedMap<Long,ServerName> consistentHashRing = ConsistentHashBalancer.buildServerHashRing(drhServerList,
 				ConsistentHashBalancer.BUCKETS_PER_NODE);
-		
+
 		//calculate each partition's position in the ring and store it
 		SortedMap<Integer,ServerName> serverByPartition = new TreeMap<>();
 		for(Integer partition : regionsByPartition.keySet()){
@@ -42,7 +42,7 @@ extends BaseHBaseRegionBalancer{
 					consistentHashInput);
 			serverByPartition.put(partition, serverName);//now region->server mapping is known
 		}
-		
+
 		//level out any imbalances from the hashing
 		HBaseBalanceLeveler<Integer> leveler = new HBaseBalanceLeveler<>(drhServerList.getServerNames(),
 				serverByPartition, tableName);
@@ -59,12 +59,12 @@ extends BaseHBaseRegionBalancer{
 		assertRegionCountsConsistent();
 		return serverByRegion;
 	}
-	
-	
+
+
 	private void initRegionByPartitionMap(){
 		regionsByPartition = new TreeMap<>();
 		for(Integer partition : entityPartitioner.getAllPartitions()){
-			regionsByPartition.put(partition, new ArrayList<>()); 
+			regionsByPartition.put(partition, new ArrayList<>());
 		}
 		for(DrRegionInfo<?> drhRegionInfo : drhRegionList.getRegionsSorted()){
 			Integer partition = drhRegionInfo.getPartition();
@@ -74,6 +74,6 @@ extends BaseHBaseRegionBalancer{
 			regionsByPartition.get(partition).add(drhRegionInfo);
 		}
 	}
-	
-	
+
+
 }

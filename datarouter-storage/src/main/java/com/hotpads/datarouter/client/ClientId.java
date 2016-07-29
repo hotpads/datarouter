@@ -11,13 +11,13 @@ public class ClientId implements Comparable<ClientId>{
 
 	protected String name;
 	protected Boolean writable;
-	
+
 	public ClientId(String name, Boolean writable){
 		if(name==null){ throw new IllegalArgumentException("name cannot be null"); }
 		this.name = name;
 		this.writable = writable;
 	}
-	
+
 	@Override
 	public int hashCode(){
 		final int prime = 31;
@@ -29,26 +29,40 @@ public class ClientId implements Comparable<ClientId>{
 
 	@Override
 	public boolean equals(Object obj){
-		if(this == obj) return true;
-		if(obj == null) return false;
-		if(!(obj instanceof ClientId)) return false;
+		if(this == obj){
+			return true;
+		}
+		if(obj == null){
+			return false;
+		}
+		if(!(obj instanceof ClientId)){
+			return false;
+		}
 		ClientId other = (ClientId)obj;
 		if(name == null){
-			if(other.name != null) return false;
-		}else if(!name.equals(other.name)) return false;
+			if(other.name != null){
+				return false;
+			}
+		}else if(!name.equals(other.name)){
+			return false;
+		}
 		if(writable == null){
-			if(other.writable != null) return false;
-		}else if(!writable.equals(other.writable)) return false;
+			if(other.writable != null){
+				return false;
+			}
+		}else if(!writable.equals(other.writable)){
+			return false;
+		}
 		return true;
 	}
-	
+
 	@Override
 	public int compareTo(ClientId other){
 		int c = DrComparableTool.nullFirstCompareTo(name, other.name);
 		if(c!=0) { return c; }
 		return DrComparableTool.nullFirstCompareTo(writable, other.writable);
 	}
-	
+
 	@Override
 	public String toString(){
 		return "ClientId["+name+","+writable+"]";
@@ -61,7 +75,7 @@ public class ClientId implements Comparable<ClientId>{
 		}
 		return names;
 	}
-	
+
 	public static List<String> getWritableNames(Collection<ClientId> ids){
 		List<String> names = DrListTool.createArrayListWithSize(ids);
 		for(ClientId id : DrCollectionTool.nullSafe(ids)){
@@ -77,6 +91,6 @@ public class ClientId implements Comparable<ClientId>{
 	public Boolean getWritable(){
 		return writable;
 	}
-	
-	
+
+
 }

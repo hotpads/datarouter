@@ -12,7 +12,7 @@ public class LongCachedSetting extends CachedSetting<Long>{
 	protected Long reload(){
 		return finder.getLong(name, defaultValue);
 	}
-	
+
 	@Override
 	public boolean isValid(String value){
 		//Is there a better way to know if a string is parsable to Long?

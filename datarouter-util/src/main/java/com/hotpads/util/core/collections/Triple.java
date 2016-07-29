@@ -8,21 +8,21 @@ public class Triple<A, B, C> implements Serializable {
 	protected A first;
 	protected B second;
 	protected C third;
-	
+
 	public Triple() { }
 	public Triple(A first, B second, C third) {
 		this.first = first;
 		this.second= second;
 		this.third = third;
 	}
-	
+
 	public static <A,B,C> Triple<A, B, C> create(A a, B b, C c) {
-		return new Triple<A,B,C>(a,b,c);
+		return new Triple<>(a,b,c);
 	}
 	public static <A,B,C> Triple<A,B,C> create(){
-		return new Triple<A,B,C>();
+		return new Triple<>();
 	}
-	
+
 	public A getFirst() {
 		return first;
 	}
@@ -41,21 +41,23 @@ public class Triple<A, B, C> implements Serializable {
 	public void setThird(C third) {
 		this.third = third;
 	}
-	
+
 	public boolean getIsComplete(){
 		return first!=null&&second!=null&&third!=null;
 	}
-	
+
 	@Override
 	public boolean equals(Object o){
-		if(!(o instanceof Triple)) return false;
+		if(!(o instanceof Triple)){
+			return false;
+		}
 		Triple t = (Triple)o;
-		return(((first!=null && first.equals(t.getFirst())) 
+		return(((first!=null && first.equals(t.getFirst()))
 						|| (first==null && t.getFirst()==null))
-				&& ((second!=null && second.equals(t.getSecond())) 
+				&& ((second!=null && second.equals(t.getSecond()))
 						|| (second==null && t.getSecond()==null))
-				&& ((third!=null && third.equals(t.getThird())) 
+				&& ((third!=null && third.equals(t.getThird()))
 						|| (third==null && t.getThird()==null)));
 	}
-		
+
 }

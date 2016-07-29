@@ -9,7 +9,7 @@ public enum LongRunningTaskType implements StringEnum<LongRunningTaskType>{
 	request("request", "request"),
 	migration("migration", "migration"),
 	test("test", "test");
-	
+
 	private String display;
 	private String varName;
 
@@ -17,7 +17,7 @@ public enum LongRunningTaskType implements StringEnum<LongRunningTaskType>{
 		this.display = display;
 		this.varName = varName;
 	}
-	
+
 	@Override
 	public String getPersistentString() {
 		return varName;
@@ -26,7 +26,7 @@ public enum LongRunningTaskType implements StringEnum<LongRunningTaskType>{
 	public static LongRunningTaskType fromPersistentStringStatic(String s){
 		return DatarouterEnumTool.getEnumFromString(values(), s, null);
 	}
-	
+
 	@Override
 	public LongRunningTaskType fromPersistentString(String s) {
 		return fromPersistentStringStatic(s);

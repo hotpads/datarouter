@@ -16,7 +16,7 @@ import com.hotpads.datarouter.storage.field.imp.enums.StringEnumField;
 import com.hotpads.datarouter.util.core.DrDateTool;
 
 public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunningTask>{
-	
+
 	public static final int DEFAULT_STRING_LENGTH = MySqlColumnType.MAX_LENGTH_VARCHAR;
 	public static final long LAST_HEARTBEAT_WARNING_THRESHOLD = 2l * DrDateTool.MILLISECONDS_IN_SECOND,
 							LAST_HEARTBEAT_STALLED_THRESHOLD = 10l * DrDateTool.MILLISECONDS_IN_SECOND;
@@ -24,7 +24,7 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 							OK = 0,
 							WARNING = 1,
 							STALLED = 2;
-	
+
 	private LongRunningTaskKey key;
 	private LongRunningTaskType type;
 	private Date startTime;
@@ -34,9 +34,9 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 	private JobExecutionStatus jobExecutionStatus;
 	private String triggeredByUserEmail;
 	private Long numItemsProcessed;
-	
+
 	/**************************** columns ****************************************/
-	
+
 	public static class F{
 		public static final String
 			startTime = "startTime",
@@ -48,9 +48,9 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 			type = "type",
 			numItemsProcessed = "numItemsProcessed";
 	}
-	
+
 	/********************** databean *****************************************/
-	
+
 	public static class LongRunningTaskFielder extends BaseDatabeanFielder<LongRunningTaskKey, LongRunningTask>{
 		public LongRunningTaskFielder(){}
 		@Override
@@ -60,17 +60,17 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 		@Override
 		public List<Field<?>> getNonKeyFields(LongRunningTask d){
 			return FieldTool.createList(
-					new StringEnumField<LongRunningTaskType>(LongRunningTaskType.class, F.type, d.type, DEFAULT_STRING_LENGTH),
+					new StringEnumField<>(LongRunningTaskType.class, F.type, d.type, DEFAULT_STRING_LENGTH),
 					new DateField(F.startTime, d.startTime),
 					new BooleanField(F.interrupt, d.interrupt),
 					new DateField(F.finishTime, d.finishTime),
 					new DateField(F.heartbeatTime, d.heartbeatTime),
-					new StringEnumField<JobExecutionStatus>(JobExecutionStatus.class, F.jobExecutionStatus, d.jobExecutionStatus, DEFAULT_STRING_LENGTH),
+					new StringEnumField<>(JobExecutionStatus.class, F.jobExecutionStatus, d.jobExecutionStatus, DEFAULT_STRING_LENGTH),
 					new StringField(F.triggeredByUserEmail, d.triggeredByUserEmail, DEFAULT_STRING_LENGTH),
 					new LongField(F.numItemsProcessed, d.numItemsProcessed));
 		}
 	}
-	
+
 	@Override
 	public Class<LongRunningTaskKey> getKeyClass() {
 		return LongRunningTaskKey.class;
@@ -80,38 +80,38 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 	public LongRunningTaskKey getKey(){
 		return key;
 	}
-	
+
 	/****************** construct ************************/
-	
+
 	public LongRunningTask(){
 		this.key = new LongRunningTaskKey();
 	}
-	
+
 	public LongRunningTask(String jobClass, String serverName, LongRunningTaskType type){
 		this.key = new LongRunningTaskKey(jobClass, serverName);
 		this.type = type;
 	}
-	
+
 	/****************** helper methods ************************/
-	
+
 	public String getDurationString(){
 		return DrDateTool.getAgoString(startTime);
 	}
-	
+
 	public String getLastHeartbeatString(){
 		if(heartbeatTime == null){
 			return "";
 		}
 		return DrDateTool.getAgoString(heartbeatTime);
 	}
-	
+
 	public String getFinishTimeString(){
 		if(finishTime == null){
 			return "";
 		}
 		return DrDateTool.getAgoString(finishTime);
 	}
-	
+
 	public int getStatus(){
 		if(heartbeatTime == null){
 			return NULL;
@@ -127,13 +127,13 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 			return OK;
 		}
 	}
-	
+
 	/****************** get/set ************************/
-	
+
 	public void setTriggerTime(Date date){
 		key.setTriggerTime(date);
 	}
-	
+
 	public Date getStartTime() {
 		return startTime;
 	}

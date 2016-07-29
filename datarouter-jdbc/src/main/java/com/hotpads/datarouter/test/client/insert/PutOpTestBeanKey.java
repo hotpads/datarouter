@@ -12,10 +12,10 @@ public class PutOpTestBeanKey extends BasePrimaryKey<PutOpTestBeanKey>{
 
 	private String a;
 	private String b;
-	
+
 	PutOpTestBeanKey(){
 	}
-	
+
 	public PutOpTestBeanKey(String a, String b){
 		this.a = a;
 		this.b = b;

@@ -12,10 +12,10 @@ public interface ContentHolder<PK extends PrimaryKey<PK>,D extends Databean<PK,D
 //	List<Field<?>> getDataFields();
 	List<Field<?>> getMetaFields();
 	List<Field<?>> getContentFields();
-	
+
 	boolean equalsContent(ContentHolder<?,?> other);
-	
+
 	PK getKey();
-	
+
 //	void copyContent(ContentHolder<D> other);
 }

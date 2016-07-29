@@ -7,8 +7,8 @@ import org.slf4j.LoggerFactory;
 
 public class RetryableTool{
 	private static final Logger logger = LoggerFactory.getLogger(RetryableTool.class);
-	
-	
+
+
 	public static <T> T tryNTimesWithBackoffUnchecked(Retryable<T> callable, final int numAttempts,
 			final long initialBackoffMs){
 		long backoffMs = initialBackoffMs;
@@ -28,5 +28,5 @@ public class RetryableTool{
 		}
 		throw new RuntimeException("shouldn't get here");
 	}
-	
+
 }

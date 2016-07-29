@@ -14,11 +14,11 @@ import com.hotpads.datarouter.storage.field.imp.dumb.DumbDoubleField;
 
 public class DumbDoubleJdbcFieldCodec
 extends BasePrimitiveJdbcFieldCodec<Double,Field<Double>>{
-	
+
 	public DumbDoubleJdbcFieldCodec(){//no-arg for reflection
 		this(null);
 	}
-	
+
 	public DumbDoubleJdbcFieldCodec(DumbDoubleField field){
 		super(field);
 	}
@@ -29,12 +29,12 @@ extends BasePrimitiveJdbcFieldCodec<Double,Field<Double>>{
 		return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.DOUBLE, 22, field.getKey().isNullable(),
 				false);
 	}
-	
+
 	@Override
 	public Double parseJdbcValueButDoNotSet(Object obj){
 		return obj==null?null:(Double)obj;
 	}
-	
+
 	@Override
 	public void setPreparedStatementValue(PreparedStatement ps, int parameterIndex){
 		try{
@@ -47,7 +47,7 @@ extends BasePrimitiveJdbcFieldCodec<Double,Field<Double>>{
 			throw new DataAccessException(e);
 		}
 	}
-	
+
 	@Override
 	public Double fromJdbcResultSetButDoNotSet(ResultSet rs){
 		try{

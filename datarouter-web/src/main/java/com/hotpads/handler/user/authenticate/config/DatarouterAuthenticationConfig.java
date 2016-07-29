@@ -14,9 +14,9 @@ public interface DatarouterAuthenticationConfig{
 	String getKeepAlivePath();
 	String getDatarouterPath();
 	String getShutdownPath();
-	
+
 	String getApiPath();
-	
+
 	String getSignupPath();
 	String getSignupSubmitPath();
 	String getSigninPath();
@@ -45,14 +45,14 @@ public interface DatarouterAuthenticationConfig{
 	String getSignatureParam();
 	String getNonceParam();
 	String getTimestampParam();
-	
+
 	String getKeepaliveJsp();
 	String getHomeJsp();
 	String getViewUsersJsp();
 	String getCreateUserJsp();
 	String getEditUserJsp();
 	String getResetPasswordJsp();
-	
+
 	String getCookiePrefix();
 	String getUserTokenCookieName();
 	String getSessionTokenCookieName();
@@ -60,12 +60,12 @@ public interface DatarouterAuthenticationConfig{
 
 	Integer getUserTokenTimeoutSeconds();
 	Integer getSessionTokenTimeoutSeconds();
-	
+
 	Iterable<DatarouterAuthenticator> getAuthenticators(HttpServletRequest request,
 			HttpServletResponse response);
-	
+
 	Collection<DatarouterUserRole> getRequiredRoles(String path);
-	
+
 	Collection<String> getNonceProtectedPaths();
-	
+
 }

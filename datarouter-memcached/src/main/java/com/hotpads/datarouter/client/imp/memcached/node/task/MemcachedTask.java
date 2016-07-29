@@ -13,7 +13,7 @@ import com.hotpads.trace.TracedCallable;
 import com.hotpads.trace.TracerThreadLocal;
 import com.hotpads.trace.TracerTool;
 
-public abstract class MemcachedTask<V> 
+public abstract class MemcachedTask<V>
 extends TracedCallable<V>{
 	static Logger logger = LoggerFactory.getLogger(MemcachedTask.class);
 
@@ -23,13 +23,13 @@ extends TracedCallable<V>{
 	protected Integer attemptNumOneBased;
 	protected Integer numAttempts;
 	protected Long timeoutMs;
-	
+
 	protected MemcachedPhysicalNode<?,?> node;
 	protected String tableName;
 	protected MemcachedClient client;
 	protected net.spy.memcached.MemcachedClient spyClient;
 	protected Config config;
-	
+
 	public MemcachedTask(String taskName, MemcachedPhysicalNode<?,?> node, Config config){
 		super("MemcachedTask."+taskName);
 		this.taskName = taskName;
@@ -38,20 +38,20 @@ extends TracedCallable<V>{
 		this.spyClient = client.getSpyClient();
 		this.tableName = node.getTableName();
 		this.config = Config.nullSafe(config);
-		
+
 	}
-	
+
 	@Override
 	public V wrappedCall(){
 		try{
 			DRCounters.incClientNodeCustom(client.getType(), taskName, client.getName(), node.getName());
 			TracerTool.startSpan(TracerThreadLocal.get(), node.getName()+" "+taskName);
-			if(DrNumberTool.nullSafe(numAttempts) > 1){ 
+			if(DrNumberTool.nullSafe(numAttempts) > 1){
 				TracerTool.appendToThreadInfo(TracerThreadLocal.get(), "[attempt " + attemptNumOneBased + "/"
 						+ numAttempts + "]");
 			}
-			if( ! DrNumberTool.isMax(timeoutMs)){ 
-				TracerTool.appendToThreadInfo(TracerThreadLocal.get(), "[timeoutMs="+timeoutMs+"]"); 
+			if( ! DrNumberTool.isMax(timeoutMs)){
+				TracerTool.appendToThreadInfo(TracerThreadLocal.get(), "[timeoutMs="+timeoutMs+"]");
 			}
 			return memcachedCall();
 		}catch(Exception e){
@@ -60,12 +60,12 @@ extends TracedCallable<V>{
 			TracerTool.finishSpan(TracerThreadLocal.get());
 		}
 	}
-	
+
 	public abstract V memcachedCall() throws Exception;
 
-	
+
 	/******************************* get/set ********************************************/
-	
+
 	public String getTaskName(){
 		return taskName;
 	}
@@ -101,6 +101,6 @@ extends TracedCallable<V>{
 	public void setTimeoutMs(Long timeoutMs){
 		this.timeoutMs = timeoutMs;
 	}
-	
-	
+
+
 }
