@@ -3,6 +3,7 @@ package com.hotpads.datarouter.client.imp.hbase.batching.entity;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Result;
 
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseSubEntityReaderNode;
@@ -17,7 +18,6 @@ import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.util.core.collections.Range;
-import com.hotpads.util.core.iterable.scanner.batch.BatchLoader;
 
 //TODO merge this with PrimaryKeyBatchLoader.  slightly more complicated than first glance with generics
 public class HBaseEntityDatabeanBatchLoader<
@@ -29,8 +29,9 @@ public class HBaseEntityDatabeanBatchLoader<
 extends BaseHBaseEntityBatchLoader<EK,E,PK,D,F,D>{
 
 	public HBaseEntityDatabeanBatchLoader(final HBaseSubEntityReaderNode<EK,E,PK,D,F> node, int partition,
-			final byte[] partitionBytes, final Range<PK> range, final Config config, Long batchChainCounter){
-		super(node, partition, partitionBytes, range, config, batchChainCounter);
+			final byte[] partitionBytes, final Range<PK> range, final Config config, Long batchChainCounter,
+			List<KeyValue> partialResultCellsFromPreviousLoader){
+		super(node, partition, partitionBytes, range, config, batchChainCounter, partialResultCellsFromPreviousLoader);
 	}
 
 	@Override
@@ -62,7 +63,7 @@ extends BaseHBaseEntityBatchLoader<EK,E,PK,D,F,D>{
 	}
 
 	@Override
-	public BatchLoader<D> getNextLoader(){
+	public HBaseEntityDatabeanBatchLoader<EK,E,PK,D,F> getNextLoader(){
 		Range<PK> nextRange = getNextRange();
 		return new HBaseEntityDatabeanBatchLoader<>(node, partition, partitionBytes, nextRange, config,
 				batchChainCounter + 1);
