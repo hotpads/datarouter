@@ -1,11 +1,13 @@
 package com.hotpads.datarouter.client.imp.hbase.node;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
@@ -35,6 +37,9 @@ import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.datarouter.util.core.DrNumberTool;
 import com.hotpads.util.core.collections.Range;
+import com.hotpads.util.core.concurrent.Lazy;
+import com.hotpads.util.core.io.RuntimeIOException;
+import com.hotpads.util.core.iterable.scanner.Scanner;
 import com.hotpads.util.core.iterable.scanner.batch.AsyncBatchLoaderScanner;
 import com.hotpads.util.core.iterable.scanner.collate.PriorityQueueCollator;
 import com.hotpads.util.core.iterable.scanner.iterable.SingleUseScannerIterable;
@@ -333,6 +338,93 @@ implements HBasePhysicalNode<PK,D>,
 				return results;
 			}
 		}).call();
+	}
+
+	public class HBaseSubEntityResultScanner implements Scanner<Cell>{
+		private final String scanKeysVsRowsNumBatches;
+		private final String scanKeysVsRowsNumRows;
+		private final Config config;
+
+		private final int partition;
+		private final Range<PK> pkRange;
+		private final boolean keysOnly;
+
+		private Lazy<ResultScanner> hbaseResultScanner;
+
+		private Cell[] currentBatch;
+		private int currentBatchIndex = 0;
+
+		public HBaseSubEntityResultScanner(String scanKeysVsRowsNumBatches, String scanKeysVsRowsNumRows,
+				Config config, int partition, Range<PK> pkRange, boolean keysOnly){
+			this.scanKeysVsRowsNumBatches = scanKeysVsRowsNumBatches;
+			this.scanKeysVsRowsNumRows = scanKeysVsRowsNumRows;
+			this.config = config;
+			this.partition = partition;
+			this.pkRange = pkRange;
+			this.keysOnly = keysOnly;
+			this.hbaseResultScanner = Lazy.of(() -> initResultScanner());
+			this.currentBatch = null;
+			this.currentBatchIndex = 0;
+		}
+
+		@Override
+		public Cell getCurrent(){
+			if(currentBatch == null){
+				return null;
+			}
+			return currentBatch[currentBatchIndex];
+		}
+
+		@Override
+		public boolean advance(){
+			if(currentBatch != null && currentBatchIndex < currentBatch.length - 1){
+				++currentBatchIndex;
+				return true;
+			}
+			consumeNextResult();
+			if(currentBatch == null){
+				hbaseResultScanner.get().close();//necessary?
+				return false;
+			}
+			if(row.isEmpty()){
+				continue;
+			}
+			if(config.getIterateBatchSize()!=null && results.size()>=config.getIterateBatchSize()){
+				break;
+			}
+			if(config.getLimit()!=null && results.size()>=config.getLimit()){
+				break;
+			}
+//			DRCounters.incClientNodeCustom(client.getType(), scanKeysVsRowsNumRows, getClientName(), getNodeName(),
+//					DrCollectionTool.size(results));
+		}
+
+		private void consumeNextResult(){
+			Result result;
+			try{
+				result = hbaseResultScanner.get().next();
+			}catch(IOException e){
+				throw new RuntimeIOException(e);
+			}
+			if(result == null){
+				currentBatch = null;
+				return;
+			}
+			currentBatch = result.rawCells();
+			currentBatchIndex = 0;
+		}
+
+		private ResultScanner initResultScanner(){
+			return new HBaseMultiAttemptTask<>(new HBaseTask<ResultScanner>(getDatarouter(),
+					getClientTableNodeNames(), scanKeysVsRowsNumBatches, config){
+				@Override
+				public ResultScanner hbaseCall(Table htable, HBaseClient client, ResultScanner managedResultScanner)
+				throws Exception{
+					Scan scan = queryBuilder.getScanForSubrange(partition, pkRange, config, keysOnly);
+					return htable.getScanner(scan);
+				}
+			}).call();
+		}
 	}
 
 
