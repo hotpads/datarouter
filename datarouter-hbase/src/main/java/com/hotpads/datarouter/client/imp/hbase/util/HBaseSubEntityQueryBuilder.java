@@ -54,11 +54,11 @@ extends HBaseEntityQueryBuilder<EK,E>{
 
 	public boolean isSingleEntity(Range<PK> pkRange){
 		Range<EK> ekRange = getEkRange(pkRange);
-		return ekRange.hasStart() && ekRange.equalsStartEnd() && isEntityFullyDefined(ekRange);
+		return ekRange.hasStart() && ekRange.equalsStartEnd() && isEntityFullyDefined(ekRange.getStart());
 	}
 
-	private boolean isEntityFullyDefined(Range<EK> ekRange){
-		return ekRange.getStart().getFields().stream()
+	private boolean isEntityFullyDefined(EK ek){
+		return ek.getFields().stream()
 				.map(Field::getValue)
 				.noneMatch(Objects::isNull);
 	}
