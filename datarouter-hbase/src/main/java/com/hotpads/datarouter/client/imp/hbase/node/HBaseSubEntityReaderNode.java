@@ -349,7 +349,7 @@ implements HBasePhysicalNode<PK,D>,
 		private final Range<PK> pkRange;
 		private final boolean keysOnly;
 
-		private Lazy<ResultScanner> hbaseResultScanner;
+		private final Lazy<ResultScanner> hbaseResultScanner;
 
 		private Cell[] currentBatch;
 		private int currentBatchIndex = 0;
@@ -381,37 +381,17 @@ implements HBasePhysicalNode<PK,D>,
 				++currentBatchIndex;
 				return true;
 			}
-			consumeNextResult();
-			if(currentBatch == null){
-				hbaseResultScanner.get().close();//necessary?
-				return false;
-			}
-			if(row.isEmpty()){
-				continue;
-			}
-			if(config.getIterateBatchSize()!=null && results.size()>=config.getIterateBatchSize()){
-				break;
-			}
-			if(config.getLimit()!=null && results.size()>=config.getLimit()){
-				break;
-			}
-//			DRCounters.incClientNodeCustom(client.getType(), scanKeysVsRowsNumRows, getClientName(), getNodeName(),
-//					DrCollectionTool.size(results));
-		}
+			boolean foundMoreData = loadNextResult();
+			return foundMoreData;
 
-		private void consumeNextResult(){
-			Result result;
-			try{
-				result = hbaseResultScanner.get().next();
-			}catch(IOException e){
-				throw new RuntimeIOException(e);
-			}
-			if(result == null){
-				currentBatch = null;
-				return;
-			}
-			currentBatch = result.rawCells();
-			currentBatchIndex = 0;
+			//TODO move iterateBatchSize and limit logic elsewhere
+
+//			if(config.getIterateBatchSize()!=null && results.size()>=config.getIterateBatchSize()){
+//				break;
+//			}
+//			if(config.getLimit()!=null && results.size()>=config.getLimit()){
+//				break;
+//			}
 		}
 
 		private ResultScanner initResultScanner(){
@@ -424,6 +404,29 @@ implements HBasePhysicalNode<PK,D>,
 					return htable.getScanner(scan);
 				}
 			}).call();
+		}
+
+		private boolean loadNextResult(){
+			Result result;
+			do{
+				try{
+					result = hbaseResultScanner.get().next();
+					DRCounters.incClientNodeCustom(getClient().getType(), scanKeysVsRowsNumRows, getClient().getName(),
+							getName());
+				}catch(IOException e){
+					throw new RuntimeIOException(e);
+				}
+				if(result == null){
+					currentBatch = null;
+					hbaseResultScanner.get().close();//necessary?
+					return false;
+				}
+			}while(!result.isEmpty());
+
+			//found a non-empty result
+			currentBatch = result.rawCells();
+			currentBatchIndex = 0;
+			return true;
 		}
 	}
 
