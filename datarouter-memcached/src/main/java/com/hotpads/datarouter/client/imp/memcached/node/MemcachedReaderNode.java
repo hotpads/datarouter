@@ -171,18 +171,18 @@ implements MemcachedPhysicalNode<PK,D>,
 		try{
 			tallyObject = getClient().getSpyClient().asyncGet(buildMemcachedKey(key)).get();
 		}catch(Exception exception){
-			if(paramConfig.swallowExceptionOrUse(true)){
+			if(paramConfig.ignoreExceptionOrUse(true)){
 				logger.error("memcached error on " + key, exception);
 			}else{
 				throw new RuntimeException(exception);
 			}
 		}
 
-		if(tallyObject instanceof String){
-			return Long.valueOf(((String)tallyObject).trim());
+		if(!(tallyObject instanceof String)){
+			return null;
 		}
 
-		return null;
+		return Long.valueOf(((String)tallyObject).trim());
 	}
 
 	/******************** serialization *******************/

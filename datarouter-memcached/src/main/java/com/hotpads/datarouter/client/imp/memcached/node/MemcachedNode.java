@@ -85,7 +85,7 @@ implements PhysicalMapStorageNode<PK,D>{
 			}
 			TracerTool.appendToSpanInfo(TracerThreadLocal.get(), DrCollectionTool.size(databeans)+"");
 		}catch(Exception exception){
-			if(paramConfig.swallowExceptionOrUse(DEFAULT_SWALLOW_EXCEPTION)){
+			if(paramConfig.ignoreExceptionOrUse(DEFAULT_SWALLOW_EXCEPTION)){
 				logger.error("memcached error on ", exception);
 			}else{
 				throw exception;
@@ -111,7 +111,7 @@ implements PhysicalMapStorageNode<PK,D>{
 			startTraceSpan(MapStorageWriter.OP_delete);
 			getClient().getSpyClient().delete(buildMemcachedKey(key));
 		}catch(Exception exception){
-			if(paramConfig.swallowExceptionOrUse(DEFAULT_SWALLOW_EXCEPTION)){
+			if(paramConfig.ignoreExceptionOrUse(DEFAULT_SWALLOW_EXCEPTION)){
 				logger.error("memcached error on " + key, exception);
 			}else{
 				throw exception;
@@ -138,7 +138,7 @@ implements PhysicalMapStorageNode<PK,D>{
 			String key = buildMemcachedKey(tallyKey);
 			getClient().getSpyClient().incr(key, delta, delta, getExpiration(paramConfig));
 		}catch(Exception exception){
-			if(paramConfig.swallowExceptionOrUse(DEFAULT_SWALLOW_EXCEPTION)){
+			if(paramConfig.ignoreExceptionOrUse(DEFAULT_SWALLOW_EXCEPTION)){
 				logger.error("memcached error on " + tallyKey, exception);
 			}else{
 				throw exception;
@@ -157,7 +157,7 @@ implements PhysicalMapStorageNode<PK,D>{
 			String key = buildMemcachedKey(tallyKey);
 			return getClient().getSpyClient().incr(key, delta, delta, getExpiration(paramConfig));
 		}catch(Exception exception){
-			if(paramConfig.swallowExceptionOrUse(DEFAULT_SWALLOW_EXCEPTION)){
+			if(paramConfig.ignoreExceptionOrUse(DEFAULT_SWALLOW_EXCEPTION)){
 				logger.error("memcached error on " + tallyKey, exception);
 				return null;
 			}else{
