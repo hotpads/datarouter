@@ -9,15 +9,12 @@ public class BooleanFieldKey extends PrimitiveFieldKey<Boolean>{
 		super(name);
 	}
 
-	public BooleanFieldKey(String name, Boolean defaultValue){
-		super(name, defaultValue);
-	}
-
-	public BooleanFieldKey(String name, String columnName, boolean nullable, FieldGeneratorType fieldGeneratorType){
-		super(name, columnName, nullable, fieldGeneratorType);
+	public BooleanFieldKey(String name, String columnName, boolean nullable, FieldGeneratorType fieldGeneratorType,
+			Boolean defaultValue){
+		super(name, columnName, nullable, fieldGeneratorType, defaultValue);
 	}
 
 	public BooleanFieldKey withDefaultValue(Boolean defaultValueOverride){
-		return new BooleanFieldKey(name, defaultValueOverride);
+		return new BooleanFieldKey(name, columnName, nullable, fieldGeneratorType, defaultValueOverride);
 	}
 }
