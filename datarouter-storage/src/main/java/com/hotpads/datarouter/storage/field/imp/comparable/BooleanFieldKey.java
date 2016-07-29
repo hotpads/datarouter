@@ -9,7 +9,7 @@ public class BooleanFieldKey extends PrimitiveFieldKey<Boolean>{
 		super(name);
 	}
 
-	public BooleanFieldKey(String name, String columnName, boolean nullable, FieldGeneratorType fieldGeneratorType,
+	private BooleanFieldKey(String name, String columnName, boolean nullable, FieldGeneratorType fieldGeneratorType,
 			Boolean defaultValue){
 		super(name, columnName, nullable, fieldGeneratorType, defaultValue);
 	}
