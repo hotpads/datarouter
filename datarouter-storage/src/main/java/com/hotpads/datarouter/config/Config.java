@@ -10,10 +10,14 @@ import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.imp.StringField;
+import com.hotpads.datarouter.storage.field.imp.StringFieldKey;
 import com.hotpads.datarouter.storage.field.imp.comparable.BooleanField;
+import com.hotpads.datarouter.storage.field.imp.comparable.BooleanFieldKey;
 import com.hotpads.datarouter.storage.field.imp.enums.StringEnumField;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt31Field;
+import com.hotpads.datarouter.storage.field.imp.positive.UInt31FieldKey;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt63Field;
+import com.hotpads.datarouter.storage.field.imp.positive.UInt63FieldKey;
 import com.hotpads.util.core.lang.LineOfCode;
 
 public class Config extends BaseDatabean<ConfigKey,Config> implements Cloneable{
@@ -115,25 +119,27 @@ public class Config extends BaseDatabean<ConfigKey,Config> implements Cloneable{
 		public List<Field<?>> getNonKeyFields(Config config){
 			return Arrays.asList(
 					new StringEnumField<>(ConnectMethod.class, F.connectMethod, config.connectMethod, LEN_default),
-					new BooleanField(F.useSession, config.useSession),
+					new BooleanField(new BooleanFieldKey(F.useSession), config.useSession),
 					new StringEnumField<>(Isolation.class, F.isolation, config.isolation, LEN_default),
-					new BooleanField(F.slaveOk, config.slaveOk),
+					new BooleanField(new BooleanFieldKey(F.slaveOk), config.slaveOk),
 					new StringEnumField<>(PutMethod.class, F.putMethod, config.putMethod, LEN_default),
-					new BooleanField(F.ignoreNullFields, config.ignoreNullFields),
-					new UInt31Field(F.commitBatchSize, config.commitBatchSize),
-					new BooleanField(F.persistentPut, config.persistentPut),
-					new BooleanField(F.scannerCaching, config.scannerCaching),
-					new UInt31Field(F.iterateBatchSize, config.iterateBatchSize),
-					new BooleanField(F.ignoreException, config.ignoreException),
-					new UInt63Field(F.timeoutMs, config.timeoutMs),
-					new UInt31Field(F.numAttempts, config.numAttempts),
-					new UInt31Field(F.limit, config.limit),
-					new UInt31Field(F.offset, config.offset),
-					new BooleanField(F.cacheOk, config.cacheOk),
-					new UInt63Field(F.ttlMs, config.ttlMs),
-					new UInt63Field(F.visibilityTimeoutMs, config.visibilityTimeoutMs),
-					new StringField(F.callsite, config.callsite.getPersistentString(), LENGTH_CALLSITE),
-					new StringField(F.customCallsite, config.customCallsite.getPersistentString(), LENGTH_CALLSITE)
+					new BooleanField(new BooleanFieldKey(F.ignoreNullFields), config.ignoreNullFields),
+					new UInt31Field(new UInt31FieldKey(F.commitBatchSize), config.commitBatchSize),
+					new BooleanField(new BooleanFieldKey(F.persistentPut), config.persistentPut),
+					new BooleanField(new BooleanFieldKey(F.scannerCaching), config.scannerCaching),
+					new UInt31Field(new UInt31FieldKey(F.iterateBatchSize), config.iterateBatchSize),
+					new BooleanField(new BooleanFieldKey(F.ignoreException), config.ignoreException),
+					new UInt63Field(new UInt63FieldKey(F.timeoutMs), config.timeoutMs),
+					new UInt31Field(new UInt31FieldKey(F.numAttempts), config.numAttempts),
+					new UInt31Field(new UInt31FieldKey(F.limit), config.limit),
+					new UInt31Field(new UInt31FieldKey(F.offset), config.offset),
+					new BooleanField(new BooleanFieldKey(F.cacheOk), config.cacheOk),
+					new UInt63Field(new UInt63FieldKey(F.ttlMs), config.ttlMs),
+					new UInt63Field(new UInt63FieldKey(F.visibilityTimeoutMs), config.visibilityTimeoutMs),
+					new StringField(new StringFieldKey(F.callsite, false, LENGTH_CALLSITE),
+							config.callsite.getPersistentString()),
+					new StringField(new StringFieldKey(F.customCallsite, false, LENGTH_CALLSITE),
+							config.customCallsite.getPersistentString())
 					);
 		}
 	}
@@ -189,7 +195,7 @@ public class Config extends BaseDatabean<ConfigKey,Config> implements Cloneable{
 	@Override
 	public Class<ConfigKey> getKeyClass() {
 		return ConfigKey.class;
-	};
+	}
 
 	@Override
 	public ConfigKey getKey() {
