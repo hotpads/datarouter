@@ -2,7 +2,6 @@ package com.hotpads.datarouter.client.imp.hbase.scan;
 
 import org.apache.hadoop.hbase.KeyValue;
 
-import com.hotpads.datarouter.client.imp.hbase.node.HBaseSubEntityReaderNode.HBaseSubEntityResultScanner;
 import com.hotpads.datarouter.client.imp.hbase.util.HBaseSubEntityResultParser;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
@@ -22,19 +21,19 @@ public class HBaseSubEntityPrimaryKeyScanner<
 extends BaseSortedScanner<PK>{
 
 	private final HBaseSubEntityResultParser<EK,E,PK,D,F> resultParser;
-	private final HBaseSubEntityResultScanner kvScanner;
+	private final HBaseSubEntityKvScanner<EK,E,PK,D,F> kvScanner;
 
-	private PK current;
+	private PK currentPk;
 
 	public HBaseSubEntityPrimaryKeyScanner(HBaseSubEntityResultParser<EK,E,PK,D,F> resultParser,
-			HBaseSubEntityResultScanner kvScanner){
+			HBaseSubEntityKvScanner<EK,E,PK,D,F> kvScanner){
 		this.resultParser = resultParser;
 		this.kvScanner = kvScanner;
 	}
 
 	@Override
 	public PK getCurrent(){
-		return current;
+		return currentPk;
 	}
 
 	@Override
@@ -44,8 +43,8 @@ extends BaseSortedScanner<PK>{
 			//TODO could avoid building a new PK for each cell in the Databean
 			Pair<PK,String> pkAndFieldName = resultParser.parsePrimaryKeyAndFieldName(kv);
 			PK pk = pkAndFieldName.getLeft();
-			if(DrObjectTool.notEquals(current, pk)){
-				current = pk;
+			if(DrObjectTool.notEquals(currentPk, pk)){
+				currentPk = pk;
 				return true;
 			}
 		}

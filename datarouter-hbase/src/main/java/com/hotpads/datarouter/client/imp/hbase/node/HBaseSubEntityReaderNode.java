@@ -1,13 +1,11 @@
 package com.hotpads.datarouter.client.imp.hbase.node;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
@@ -16,6 +14,7 @@ import org.apache.hadoop.hbase.client.Table;
 
 import com.hotpads.datarouter.client.ClientTableNodeNames;
 import com.hotpads.datarouter.client.imp.hbase.client.HBaseClient;
+import com.hotpads.datarouter.client.imp.hbase.scan.HBaseSubEntityKvScanner;
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseMultiAttemptTask;
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseTask;
 import com.hotpads.datarouter.client.imp.hbase.util.HBaseSubEntityQueryBuilder;
@@ -37,9 +36,6 @@ import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.datarouter.util.core.DrNumberTool;
 import com.hotpads.util.core.collections.Range;
-import com.hotpads.util.core.concurrent.Lazy;
-import com.hotpads.util.core.io.RuntimeIOException;
-import com.hotpads.util.core.iterable.scanner.Scanner;
 import com.hotpads.util.core.iterable.scanner.batch.AsyncBatchLoaderScanner;
 import com.hotpads.util.core.iterable.scanner.collate.PriorityQueueCollator;
 import com.hotpads.util.core.iterable.scanner.iterable.SingleUseScannerIterable;
@@ -345,101 +341,11 @@ implements HBasePhysicalNode<PK,D>,
 		}).call();
 	}
 
-	public HBaseSubEntityResultScanner makeResultScanner(String scanKeysVsRowsNumBatches, String scanKeysVsRowsNumRows,
-			Config config, int partition, Range<PK> pkRange, boolean keysOnly){
-		return new HBaseSubEntityResultScanner(config, partition, pkRange, keysOnly);
+	public HBaseSubEntityKvScanner<EK,E,PK,D,F> makeResultScanner(Config config, int partition, Range<PK> pkRange,
+			boolean keysOnly){
+		return new HBaseSubEntityKvScanner<>(getDatarouter(), getClient(), clientTableNodeNames, queryBuilder, config,
+				partition, pkRange, keysOnly);
 	}
-
-	public class HBaseSubEntityResultScanner implements Scanner<KeyValue>{
-		private final Config config;
-		private final int partition;
-		private final Range<PK> pkRange;
-		private final boolean keysOnly;
-
-		private final String scanKeysVsRowsNumBatches;
-		private final String scanKeysVsRowsNumRows;
-		private final Lazy<ResultScanner> hbaseResultScanner;
-		private KeyValue[] currentBatch;
-		private int currentBatchIndex;
-
-		public HBaseSubEntityResultScanner(Config config, int partition, Range<PK> pkRange, boolean keysOnly){
-			this.config = config;
-			this.partition = partition;
-			this.pkRange = pkRange;
-			this.keysOnly = keysOnly;
-
-			this.scanKeysVsRowsNumBatches = "scan " + (keysOnly ? "pk" : "entity") + " numBatches";
-			this.scanKeysVsRowsNumRows = "scan " + (keysOnly ? "pk" : "entity") + " numRows";
-			this.hbaseResultScanner = Lazy.of(() -> initResultScanner());
-			updateCurrentBatch(null);
-		}
-
-		@Override
-		public KeyValue getCurrent(){
-			if(currentBatch == null){
-				return null;
-			}
-			return currentBatch[currentBatchIndex];
-		}
-
-		@Override
-		public boolean advance(){
-			if(currentBatch != null && currentBatchIndex < currentBatch.length - 1){
-				++currentBatchIndex;
-				return true;
-			}
-			boolean foundMoreData = loadNextResult();
-			return foundMoreData;
-
-			//TODO move iterateBatchSize and limit logic elsewhere
-
-//			if(config.getIterateBatchSize()!=null && results.size()>=config.getIterateBatchSize()){
-//				break;
-//			}
-//			if(config.getLimit()!=null && results.size()>=config.getLimit()){
-//				break;
-//			}
-		}
-
-		private ResultScanner initResultScanner(){
-			return new HBaseMultiAttemptTask<>(new HBaseTask<ResultScanner>(getDatarouter(),
-					getClientTableNodeNames(), scanKeysVsRowsNumBatches, config){
-				@Override
-				public ResultScanner hbaseCall(Table htable, HBaseClient client, ResultScanner managedResultScanner)
-				throws Exception{
-					Scan scan = queryBuilder.getScanForSubrange(partition, pkRange, config, keysOnly);
-					return htable.getScanner(scan);
-				}
-			}).call();
-		}
-
-		private boolean loadNextResult(){
-			Result result;
-			do{
-				try{
-					result = hbaseResultScanner.get().next();
-					DRCounters.incClientNodeCustom(getClient().getType(), scanKeysVsRowsNumRows, getClient().getName(),
-							getName());
-				}catch(IOException e){
-					throw new RuntimeIOException(e);
-				}
-				if(result == null){
-					updateCurrentBatch(null);
-					hbaseResultScanner.get().close();//necessary?
-					return false;
-				}
-			}while(result.isEmpty());
-			updateCurrentBatch(result.raw());
-			//found a non-empty result
-			return true;
-		}
-
-		private void updateCurrentBatch(KeyValue[] kvs){
-			currentBatch = kvs;
-			currentBatchIndex = 0;
-		}
-	}
-
 
 	/********************* get/set *******************************/
 
