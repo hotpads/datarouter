@@ -57,7 +57,7 @@ implements HBasePhysicalNode<PK,D>,
 		SubEntitySortedMapStorageReaderNode<EK,PK,D,F>{
 
 	public static final int DEFAULT_ITERATE_BATCH_SIZE = Config.DEFAULT_ITERATE_BATCH_SIZE;
-	private static final boolean USE_ASYNC_SCANNERS = true;
+	private static final boolean USE_ASYNC_SCANNERS = false;
 
 	private final ClientTableNodeNames clientTableNodeNames;
 	protected final EntityFieldInfo<EK,E> entityFieldInfo;
@@ -347,35 +347,31 @@ implements HBasePhysicalNode<PK,D>,
 
 	public HBaseSubEntityResultScanner makeResultScanner(String scanKeysVsRowsNumBatches, String scanKeysVsRowsNumRows,
 			Config config, int partition, Range<PK> pkRange, boolean keysOnly){
-		return new HBaseSubEntityResultScanner(scanKeysVsRowsNumBatches, scanKeysVsRowsNumRows, config, partition,
-				pkRange, keysOnly);
+		return new HBaseSubEntityResultScanner(config, partition, pkRange, keysOnly);
 	}
 
 	public class HBaseSubEntityResultScanner implements Scanner<KeyValue>{
-		private final String scanKeysVsRowsNumBatches;
-		private final String scanKeysVsRowsNumRows;
 		private final Config config;
-
 		private final int partition;
 		private final Range<PK> pkRange;
 		private final boolean keysOnly;
 
+		private final String scanKeysVsRowsNumBatches;
+		private final String scanKeysVsRowsNumRows;
 		private final Lazy<ResultScanner> hbaseResultScanner;
-
 		private KeyValue[] currentBatch;
-		private int currentBatchIndex = 0;
+		private int currentBatchIndex;
 
-		public HBaseSubEntityResultScanner(String scanKeysVsRowsNumBatches, String scanKeysVsRowsNumRows,
-				Config config, int partition, Range<PK> pkRange, boolean keysOnly){
-			this.scanKeysVsRowsNumBatches = scanKeysVsRowsNumBatches;
-			this.scanKeysVsRowsNumRows = scanKeysVsRowsNumRows;
+		public HBaseSubEntityResultScanner(Config config, int partition, Range<PK> pkRange, boolean keysOnly){
 			this.config = config;
 			this.partition = partition;
 			this.pkRange = pkRange;
 			this.keysOnly = keysOnly;
+
+			this.scanKeysVsRowsNumBatches = "scan " + (keysOnly ? "pk" : "entity") + " numBatches";
+			this.scanKeysVsRowsNumRows = "scan " + (keysOnly ? "pk" : "entity") + " numRows";
 			this.hbaseResultScanner = Lazy.of(() -> initResultScanner());
-			this.currentBatch = null;
-			this.currentBatchIndex = 0;
+			updateCurrentBatch(null);
 		}
 
 		@Override
@@ -428,16 +424,19 @@ implements HBasePhysicalNode<PK,D>,
 					throw new RuntimeIOException(e);
 				}
 				if(result == null){
-					currentBatch = null;
+					updateCurrentBatch(null);
 					hbaseResultScanner.get().close();//necessary?
 					return false;
 				}
-			}while(!result.isEmpty());
-
+			}while(result.isEmpty());
+			updateCurrentBatch(result.raw());
 			//found a non-empty result
-			currentBatch = result.raw();
-			currentBatchIndex = 0;
 			return true;
+		}
+
+		private void updateCurrentBatch(KeyValue[] kvs){
+			currentBatch = kvs;
+			currentBatchIndex = 0;
 		}
 	}
 
