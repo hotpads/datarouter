@@ -50,7 +50,7 @@ public class HBaseSubEntityResultParser<
 	}
 
 
-	/***************** parse simple row bytes ************************/
+	/***************** parse EK, PK, and column name ************************/
 
 	public EK getEkFromRowBytes(byte[] rowBytes){
 		EK ek = ReflectionTool.create(entityFieldInfo.getEntityKeyClass());
@@ -64,6 +64,18 @@ public class HBaseSubEntityResultParser<
 			byteOffset += field.numBytesWithSeparator(rowBytes, byteOffset);
 		}
 		return ek;
+	}
+
+	public Pair<PK,String> parsePrimaryKeyAndFieldName(KeyValue kv){
+		PK pk = ReflectionTool.create(fieldInfo.getPrimaryKeyClass());
+		//EK
+		//be sure to get the entity key fields from DatabeanFieldInfo in case the PK overrode the EK field names
+		parseEkFieldsFromBytesToPk(kv, pk);
+		//post-EK
+		int fieldNameOffset = parsePostEkFieldsFromBytesToPk(kv, pk);
+		//fieldName
+		String fieldName = StringByteTool.fromUtf8BytesOffset(kv.getQualifier(), fieldNameOffset);
+		return Pair.create(pk, fieldName);
 	}
 
 
@@ -173,18 +185,6 @@ public class HBaseSubEntityResultParser<
 
 
 	/****************** private ********************/
-
-	private Pair<PK,String> parsePrimaryKeyAndFieldName(KeyValue kv){
-		PK pk = ReflectionTool.create(fieldInfo.getPrimaryKeyClass());
-		//EK
-		//be sure to get the entity key fields from DatabeanFieldInfo in case the PK overrode the EK field names
-		parseEkFieldsFromBytesToPk(kv, pk);
-		//post-EK
-		int fieldNameOffset = parsePostEkFieldsFromBytesToPk(kv, pk);
-		//fieldName
-		String fieldName = StringByteTool.fromUtf8BytesOffset(kv.getQualifier(), fieldNameOffset);
-		return Pair.create(pk, fieldName);
-	}
 
 	private boolean matchesNodePrefix(KeyValue kv){
 		byte[] prefix = fieldInfo.getEntityColumnPrefixBytes();

@@ -57,12 +57,12 @@ implements HBasePhysicalNode<PK,D>,
 		SubEntitySortedMapStorageReaderNode<EK,PK,D,F>{
 
 	public static final int DEFAULT_ITERATE_BATCH_SIZE = Config.DEFAULT_ITERATE_BATCH_SIZE;
+	private static final boolean USE_ASYNC_SCANNERS = true;
 
-	private ClientTableNodeNames clientTableNodeNames;
-	protected EntityFieldInfo<EK,E> entityFieldInfo;
-
-	protected HBaseSubEntityQueryBuilder<EK,E,PK,D,F> queryBuilder;
-	protected HBaseSubEntityResultParser<EK,E,PK,D,F> resultParser;
+	private final ClientTableNodeNames clientTableNodeNames;
+	protected final EntityFieldInfo<EK,E> entityFieldInfo;
+	protected final HBaseSubEntityQueryBuilder<EK,E,PK,D,F> queryBuilder;
+	protected final HBaseSubEntityResultParser<EK,E,PK,D,F> resultParser;
 
 	/******************************* constructors ************************************/
 
@@ -251,7 +251,12 @@ implements HBasePhysicalNode<PK,D>,
 			}).call();
 			return DrIterableTool.skip(pks, DrNumberTool.longValue(nullSafeConfig.getOffset()));
 		}
-		List<AsyncBatchLoaderScanner<PK>> scanners = queryBuilder.getPkScanners(this, nullSafeRange, config);
+		List<? extends SortedScanner<PK>> scanners;
+		if(USE_ASYNC_SCANNERS){
+			scanners = queryBuilder.getBatchingPkScanners(this, nullSafeRange, config);
+		}else{
+			scanners = queryBuilder.getPkScanners(this, nullSafeRange, nullSafeConfig);
+		}
 		SortedScanner<PK> collator = new PriorityQueueCollator<>(scanners, DrNumberTool.longValue(nullSafeConfig
 				.getLimit()));
 		collator.advanceBy(nullSafeConfig.getOffset());
@@ -338,6 +343,12 @@ implements HBasePhysicalNode<PK,D>,
 				return results;
 			}
 		}).call();
+	}
+
+	public HBaseSubEntityResultScanner makeResultScanner(String scanKeysVsRowsNumBatches, String scanKeysVsRowsNumRows,
+			Config config, int partition, Range<PK> pkRange, boolean keysOnly){
+		return new HBaseSubEntityResultScanner(scanKeysVsRowsNumBatches, scanKeysVsRowsNumRows, config, partition,
+				pkRange, keysOnly);
 	}
 
 	public class HBaseSubEntityResultScanner implements Scanner<KeyValue>{

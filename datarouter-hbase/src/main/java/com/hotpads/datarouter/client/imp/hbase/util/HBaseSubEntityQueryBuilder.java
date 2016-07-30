@@ -15,6 +15,7 @@ import org.apache.hadoop.hbase.filter.KeyOnlyFilter;
 import com.hotpads.datarouter.client.imp.hbase.batching.entity.HBaseEntityDatabeanBatchLoader;
 import com.hotpads.datarouter.client.imp.hbase.batching.entity.HBaseEntityPrimaryKeyBatchLoader;
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseSubEntityReaderNode;
+import com.hotpads.datarouter.client.imp.hbase.scan.HBaseSubEntityPrimaryKeyScanner;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
 import com.hotpads.datarouter.serialize.fieldcache.EntityFieldInfo;
@@ -239,9 +240,27 @@ extends HBaseEntityQueryBuilder<EK,E>{
 	}
 
 
+	/***************** scanners *******************/
+
+	public List<HBaseSubEntityPrimaryKeyScanner<EK,E,PK,D,F>> getPkScanners(HBaseSubEntityReaderNode<EK,E,PK,D,F> node,
+			Range<PK> range, Config config){
+		List<HBaseSubEntityPrimaryKeyScanner<EK,E,PK,D,F>> scanners = new ArrayList<>();
+		final String scanKeysVsRowsNumBatches = "scan pk numBatches";
+		final String scanKeysVsRowsNumRows = "scan pk numRows";
+		for(int partition = 0; partition < partitioner.getNumPartitions(); ++partition){
+			HBaseSubEntityReaderNode<EK,E,PK,D,F>.HBaseSubEntityResultScanner resultScanner = node.makeResultScanner(
+					scanKeysVsRowsNumBatches, scanKeysVsRowsNumRows, config, partition, range, true);
+			HBaseSubEntityPrimaryKeyScanner<EK,E,PK,D,F> scanner = new HBaseSubEntityPrimaryKeyScanner<>(node
+					.getResultParser(), resultScanner);
+			scanners.add(scanner);
+		}
+		return scanners;
+	}
+
+
 	/***************** batching scanners *******************/
 
-	public List<AsyncBatchLoaderScanner<PK>> getPkScanners(HBaseSubEntityReaderNode<EK,E,PK,D,F> node,
+	public List<AsyncBatchLoaderScanner<PK>> getBatchingPkScanners(HBaseSubEntityReaderNode<EK,E,PK,D,F> node,
 			Range<PK> range, Config config){
 		List<AsyncBatchLoaderScanner<PK>> scanners = new ArrayList<>();
 		for(int partition=0; partition < partitioner.getNumPartitions(); ++partition){
