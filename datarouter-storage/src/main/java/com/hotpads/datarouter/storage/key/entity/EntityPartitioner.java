@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.storage.key.entity;
 
+import java.util.Collections;
 import java.util.List;
 
 public interface EntityPartitioner<EK extends EntityKey<EK>>{
@@ -16,4 +17,7 @@ public interface EntityPartitioner<EK extends EntityKey<EK>>{
 	byte[] getPrefix(EK ek);
 	int parsePartitionFromBytes(byte[] bytes);
 
+	default List<Integer> getSinglePartitionAsList(EK ek){
+		return Collections.singletonList(getPartition(ek));
+	}
 }

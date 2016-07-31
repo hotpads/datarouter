@@ -48,7 +48,7 @@ public class FieldSetRangeFilter{
 	}
 
 
-	private static boolean isCandidateAfterStartOfRange(List<Field<?>> candidateFields,
+	public static boolean isCandidateAfterStartOfRange(List<Field<?>> candidateFields,
 			List<Field<?>> startOfRangeFields, boolean inclusive){
 		if(startOfRangeFields == null){
 			return true;
@@ -90,7 +90,7 @@ public class FieldSetRangeFilter{
 	}
 
 
-	private static boolean isCandidateBeforeEndOfRange(List<Field<?>> candidateFields,
+	public static boolean isCandidateBeforeEndOfRange(List<Field<?>> candidateFields,
 			List<Field<?>> endOfRangeFields, boolean inclusive){
 		if(endOfRangeFields == null){
 			return true;

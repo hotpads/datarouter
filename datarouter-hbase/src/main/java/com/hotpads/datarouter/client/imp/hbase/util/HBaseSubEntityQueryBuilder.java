@@ -11,6 +11,7 @@ import org.apache.hadoop.hbase.filter.ColumnPrefixFilter;
 import org.apache.hadoop.hbase.filter.ColumnRangeFilter;
 import org.apache.hadoop.hbase.filter.FilterList;
 import org.apache.hadoop.hbase.filter.KeyOnlyFilter;
+import org.apache.hadoop.hbase.filter.PrefixFilter;
 
 import com.hotpads.datarouter.client.imp.hbase.batching.entity.HBaseEntityDatabeanBatchLoader;
 import com.hotpads.datarouter.client.imp.hbase.batching.entity.HBaseEntityPrimaryKeyBatchLoader;
@@ -246,10 +247,13 @@ extends HBaseEntityQueryBuilder<EK,E>{
 	public List<HBaseSubEntityPrimaryKeyScanner<EK,E,PK,D,F>> getPkScanners(HBaseSubEntityReaderNode<EK,E,PK,D,F> node,
 			Range<PK> range, Config config){
 		List<HBaseSubEntityPrimaryKeyScanner<EK,E,PK,D,F>> scanners = new ArrayList<>();
-		for(int partition = 0; partition < partitioner.getNumPartitions(); ++partition){
+		List<Integer> partitions = isSingleEntity(range)
+				? partitioner.getSinglePartitionAsList(range.getStart().getEntityKey())
+				: partitioner.getAllPartitions();
+		for(Integer partition : partitions){
 			HBaseSubEntityKvScanner<EK,E,PK,D,F> resultScanner = node.makeResultScanner(config, partition, range, true);
 			HBaseSubEntityPrimaryKeyScanner<EK,E,PK,D,F> scanner = new HBaseSubEntityPrimaryKeyScanner<>(node
-					.getResultParser(), resultScanner);
+					.getResultParser(), resultScanner, range);
 			scanners.add(scanner);
 		}
 		return scanners;
@@ -258,6 +262,7 @@ extends HBaseEntityQueryBuilder<EK,E>{
 
 	/***************** batching scanners *******************/
 
+	@Deprecated
 	public List<AsyncBatchLoaderScanner<PK>> getBatchingPkScanners(HBaseSubEntityReaderNode<EK,E,PK,D,F> node,
 			Range<PK> range, Config config){
 		List<AsyncBatchLoaderScanner<PK>> scanners = new ArrayList<>();
@@ -289,11 +294,26 @@ extends HBaseEntityQueryBuilder<EK,E>{
 
 	/************* get results in sub range ********************/
 
+	public Scan getScanForPartition(final int partition, final Range<PK> rowRange, final Config config,
+			boolean keysOnly){
+		Config nullSafeConfig = Config.nullSafe(config);
+		Range<ByteRange> rowBytesRange = getRowRange(partition, rowRange);
+		Scan scan = HBaseQueryBuilder.getScanForRange(rowBytesRange, nullSafeConfig);
+		FilterList filterList = new FilterList();
+		filterList.addFilter(new PrefixFilter(partitioner.getPrefix(partition)));
+		filterList.addFilter(new ColumnPrefixFilter(fieldInfo.getEntityColumnPrefixBytes()));
+		//TODO add ColumnRangeFilter (or possible ColumnPrefixFilter if applicable) when scanning inside single entity
+		if(keysOnly){
+			filterList.addFilter(new KeyOnlyFilter());
+		}
+		scan.setFilter(filterList);
+		return scan;
+	}
+
 	public Scan getScanForSubrange(final int partition, final Range<PK> rowRange, final Config config,
 			boolean keysOnly){
 		Config nullSafeConfig = Config.nullSafe(config);
 		Range<ByteRange> rowBytesRange = getRowRange(partition, rowRange);
-		//TODO Get if single row
 		Scan scan = HBaseQueryBuilder.getScanForRange(rowBytesRange, nullSafeConfig);
 		FilterList filterList = new FilterList();
 		if(keysOnly){

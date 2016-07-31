@@ -43,7 +43,7 @@ implements Scanner<KeyValue>{
 
 	private final Config config;
 	private final int partition;
-	private final Range<PK> pkRange;
+	private final Range<PK> range;
 	private final boolean keysOnly;
 
 	private final String scanKeysVsRowsNumBatches;
@@ -53,7 +53,7 @@ implements Scanner<KeyValue>{
 	private int currentBatchIndex;
 
 	public HBaseSubEntityKvScanner(Datarouter datarouter, Client client, ClientTableNodeNames clientTableNodeNames,
-			HBaseSubEntityQueryBuilder<EK,E,PK,D,F> queryBuilder, Config config, int partition, Range<PK> pkRange,
+			HBaseSubEntityQueryBuilder<EK,E,PK,D,F> queryBuilder, Config config, int partition, Range<PK> range,
 			boolean keysOnly){
 		this.datarouter = datarouter;
 		this.client = client;
@@ -61,7 +61,7 @@ implements Scanner<KeyValue>{
 		this.queryBuilder = queryBuilder;
 		this.config = config;
 		this.partition = partition;
-		this.pkRange = pkRange;
+		this.range = range;
 		this.keysOnly = keysOnly;
 
 		this.scanKeysVsRowsNumBatches = "scan " + (keysOnly ? "pk" : "entity") + " numBatches";
@@ -94,7 +94,7 @@ implements Scanner<KeyValue>{
 			@Override
 			public ResultScanner hbaseCall(Table htable, HBaseClient client, ResultScanner managedResultScanner)
 			throws Exception{
-				Scan scan = queryBuilder.getScanForSubrange(partition, pkRange, config, keysOnly);
+				Scan scan = queryBuilder.getScanForSubrange(partition, range, config, keysOnly);
 				return htable.getScanner(scan);
 			}
 		}).call();

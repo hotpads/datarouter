@@ -20,6 +20,7 @@ import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.iterable.scanner.batch.BatchLoader;
 
 //TODO merge this with PrimaryKeyBatchLoader.  slightly more complicated than first glance with generics
+@Deprecated
 public class HBaseEntityDatabeanBatchLoader<
 		EK extends EntityKey<EK>,
 		E extends Entity<EK>,

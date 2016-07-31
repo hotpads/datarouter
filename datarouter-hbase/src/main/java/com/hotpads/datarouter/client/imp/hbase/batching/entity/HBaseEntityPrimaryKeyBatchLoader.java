@@ -18,6 +18,7 @@ import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.iterable.scanner.batch.BatchLoader;
 
 
+@Deprecated
 public class HBaseEntityPrimaryKeyBatchLoader<
 		EK extends EntityKey<EK>,
 		E extends Entity<EK>,

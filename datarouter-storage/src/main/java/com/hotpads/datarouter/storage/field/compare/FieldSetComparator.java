@@ -17,7 +17,9 @@ public class FieldSetComparator implements Comparator<FieldSet<?>>{
 
 	public static int compareStatic(FieldSet<?> a, FieldSet<?> b){
 		//sort classes alphabetically
-		if(b==null){ return 1; }
+		if(b == null){
+			return 1;
+		}
 		if(ClassTool.differentClass(a, b)){
 			return a.getClass().getName().compareTo(b.getClass().getName());
 		}
@@ -31,7 +33,9 @@ public class FieldSetComparator implements Comparator<FieldSet<?>>{
 			Field thatField = thatIterator.next();
 			@SuppressWarnings("unchecked")
 			int diff = thisField.compareTo(thatField);
-			if(diff != 0){ return diff; }
+			if(diff != 0){
+				return diff;
+			}
 		}
 		return 0;
 	}
