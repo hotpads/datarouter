@@ -36,6 +36,10 @@ public class HBaseSubEntityKvScanner<
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>>
 implements Scanner<KeyValue>{
+
+	private static final boolean ALLOW_PARTIAL_RESULTS = true;
+	private static final long MAX_RESULT_SIZE_BYTES = 1024 * 1024; // 1 MB
+
 	private final Datarouter datarouter;
 	private final HBaseSubEntityQueryBuilder<EK,E,PK,D,F> queryBuilder;
 	private final Client client;
@@ -94,7 +98,8 @@ implements Scanner<KeyValue>{
 			@Override
 			public ResultScanner hbaseCall(Table htable, HBaseClient client, ResultScanner managedResultScanner)
 			throws Exception{
-				Scan scan = queryBuilder.getScanForSubrange(partition, range, config, keysOnly);
+				Scan scan = queryBuilder.getScanForPartition(partition, range, config, keysOnly, ALLOW_PARTIAL_RESULTS,
+						MAX_RESULT_SIZE_BYTES);
 				return htable.getScanner(scan);
 			}
 		}).call();

@@ -296,7 +296,7 @@ extends HBaseEntityQueryBuilder<EK,E>{
 	/************* get results in sub range ********************/
 
 	public Scan getScanForPartition(final int partition, final Range<PK> rowRange, final Config config,
-			boolean keysOnly){
+			boolean keysOnly, boolean allowPartialResults, long maxResultSizeBytes){
 		Config nullSafeConfig = Config.nullSafe(config);
 		Range<ByteRange> rowBytesRange = getRowRange(partition, rowRange);
 		Scan scan = HBaseQueryBuilder.getScanForRange(rowBytesRange, nullSafeConfig);
@@ -308,6 +308,8 @@ extends HBaseEntityQueryBuilder<EK,E>{
 			filterList.addFilter(new KeyOnlyFilter());
 		}
 		scan.setFilter(filterList);
+		scan.setAllowPartialResults(allowPartialResults);
+		scan.setMaxResultSize(maxResultSizeBytes);
 		return scan;
 	}
 
