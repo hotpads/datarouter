@@ -325,7 +325,7 @@ implements HBasePhysicalNode<PK,D>,
 		}).call();
 	}
 
-	public HBaseSubEntityKvScanner<EK,E,PK,D,F> makeResultScanner(Config config, int partition, Range<PK> pkRange,
+	public HBaseSubEntityKvScanner<EK,E,PK,D,F> makeKvScanner(Config config, int partition, Range<PK> pkRange,
 			boolean keysOnly){
 		return new HBaseSubEntityKvScanner<>(getDatarouter(), getClient(), clientTableNodeNames, queryBuilder, config,
 				partition, pkRange, keysOnly);

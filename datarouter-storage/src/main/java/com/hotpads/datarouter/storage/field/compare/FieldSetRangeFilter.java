@@ -47,7 +47,7 @@ public class FieldSetRangeFilter{
 		return matchesStart && matchesEnd;
 	}
 
-
+	//is this any better than range.matchesStart(candidate)?
 	public static boolean isCandidateAfterStartOfRange(List<Field<?>> candidateFields,
 			List<Field<?>> startOfRangeFields, boolean inclusive){
 		if(startOfRangeFields == null){

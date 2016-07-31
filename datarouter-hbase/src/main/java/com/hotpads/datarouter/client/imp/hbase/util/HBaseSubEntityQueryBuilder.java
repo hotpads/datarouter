@@ -18,7 +18,7 @@ import com.hotpads.datarouter.client.imp.hbase.batching.entity.HBaseEntityDatabe
 import com.hotpads.datarouter.client.imp.hbase.batching.entity.HBaseEntityPrimaryKeyBatchLoader;
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseSubEntityReaderNode;
 import com.hotpads.datarouter.client.imp.hbase.scan.HBaseSubEntityKvScanner;
-import com.hotpads.datarouter.client.imp.hbase.scan.HBaseSubEntityPrimaryKeyScanner;
+import com.hotpads.datarouter.client.imp.hbase.scan.HBaseSubEntityPkScanner;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
 import com.hotpads.datarouter.serialize.fieldcache.EntityFieldInfo;
@@ -245,17 +245,17 @@ extends HBaseEntityQueryBuilder<EK,E>{
 
 	/***************** scanners *******************/
 
-	public List<HBaseSubEntityPrimaryKeyScanner<EK,E,PK,D,F>> getPkScanners(HBaseSubEntityReaderNode<EK,E,PK,D,F> node,
+	public List<HBaseSubEntityPkScanner<EK,E,PK,D,F>> getPkScanners(HBaseSubEntityReaderNode<EK,E,PK,D,F> node,
 			Range<PK> range, Config config){
-		List<HBaseSubEntityPrimaryKeyScanner<EK,E,PK,D,F>> scanners = new ArrayList<>();
+		List<HBaseSubEntityPkScanner<EK,E,PK,D,F>> scanners = new ArrayList<>();
 		List<Integer> partitions = isSingleEntity(range)
 				? Collections.singletonList(partitioner.getPartition(range.getStart().getEntityKey()))
 				: partitioner.getAllPartitions();
 		for(Integer partition : partitions){
-			HBaseSubEntityKvScanner<EK,E,PK,D,F> resultScanner = node.makeResultScanner(config, partition, range, true);
-			HBaseSubEntityPrimaryKeyScanner<EK,E,PK,D,F> scanner = new HBaseSubEntityPrimaryKeyScanner<>(node
-					.getResultParser(), resultScanner, range);
-			scanners.add(scanner);
+			HBaseSubEntityKvScanner<EK,E,PK,D,F> kvScanner = node.makeKvScanner(config, partition, range, true);
+			HBaseSubEntityPkScanner<EK,E,PK,D,F> pkScanner = new HBaseSubEntityPkScanner<>(node
+					.getResultParser(), kvScanner, range);
+			scanners.add(pkScanner);
 		}
 		return scanners;
 	}

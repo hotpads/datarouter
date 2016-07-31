@@ -15,7 +15,7 @@ import com.hotpads.util.core.collections.Pair;
 import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.iterable.scanner.sorted.BaseSortedScanner;
 
-public class HBaseSubEntityPrimaryKeyScanner<
+public class HBaseSubEntityPkScanner<
 		EK extends EntityKey<EK>,
 		E extends Entity<EK>,
 		PK extends EntityPrimaryKey<EK,PK>,
@@ -30,7 +30,7 @@ extends BaseSortedScanner<PK>{
 	private PK currentPk;
 	private boolean finished = false;
 
-	public HBaseSubEntityPrimaryKeyScanner(HBaseSubEntityResultParser<EK,E,PK,D,F> resultParser,
+	public HBaseSubEntityPkScanner(HBaseSubEntityResultParser<EK,E,PK,D,F> resultParser,
 			HBaseSubEntityKvScanner<EK,E,PK,D,F> kvScanner, Range<PK> range){
 		this.resultParser = resultParser;
 		this.kvScanner = kvScanner;
@@ -50,10 +50,10 @@ extends BaseSortedScanner<PK>{
 		}
 		while(kvScanner.advance()){
 			KeyValue kv = kvScanner.getCurrent();
-			//TODO could avoid building a new PK for each cell in the Databean
+			//TODO could avoid building a new PK for each cell (doing byte[] comparisons instead)
 			Pair<PK,String> pkAndFieldName = resultParser.parsePrimaryKeyAndFieldName(kv);
 			PK pk = pkAndFieldName.getLeft();
-			if( ! range.matchesStart(pk)){
+			if(shouldSkip(pk)){
 				continue;
 			}
 			if(Objects.equals(currentPk, pk)){
@@ -70,9 +70,12 @@ extends BaseSortedScanner<PK>{
 		return false;
 	}
 
+	private boolean shouldSkip(PK pk){
+		return range != null && ! range.matchesStart(pk);
+	}
 
 	private boolean passedEndKey(PK pk){
-		if( ! range.hasEnd()){
+		if(range == null || ! range.hasEnd()){
 			return false;
 		}
 		return ! FieldSetRangeFilter.isCandidateBeforeEndOfRange(pk.getFields(), range.getEnd().getFields(), range
