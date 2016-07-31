@@ -233,6 +233,22 @@ implements HBasePhysicalNode<PK,D>,
 		final Range<PK> nullSafeRange = Range.nullSafe(range);
 		List<? extends SortedScanner<PK>> scanners;
 		if(USE_ASYNC_SCANNERS){
+			//single row. use Get. gets all pks in entity. no way to limit rows
+			if(queryBuilder.isSingleEntity(nullSafeRange)){
+				List<PK> pks = new HBaseMultiAttemptTask<>(new HBaseTask<List<PK>>(getDatarouter(),
+						getClientTableNodeNames(), "scanPksInEntity", nullSafeConfig){
+					@Override
+					public List<PK> hbaseCall(Table htable, HBaseClient client, ResultScanner managedResultScanner)
+					throws Exception{
+						Get get = queryBuilder.getSingleRowRange(nullSafeRange.getStart().getEntityKey(), nullSafeRange,
+								true);
+						Result result = htable.get(get);
+						return new ArrayList<>(resultParser.getPrimaryKeysWithMatchingQualifierPrefix(result,
+						nullSafeConfig.getLimit()));
+					}
+				}).call();
+				return DrIterableTool.skip(pks, DrNumberTool.longValue(nullSafeConfig.getOffset()));
+			}
 			scanners = queryBuilder.getBatchingPkScanners(this, nullSafeRange, config);
 		}else{
 			scanners = queryBuilder.getPkScanners(this, nullSafeRange, nullSafeConfig);
