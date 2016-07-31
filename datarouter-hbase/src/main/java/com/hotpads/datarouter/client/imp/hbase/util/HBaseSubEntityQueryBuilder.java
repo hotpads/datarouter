@@ -17,6 +17,7 @@ import org.apache.hadoop.hbase.filter.PrefixFilter;
 import com.hotpads.datarouter.client.imp.hbase.batching.entity.HBaseEntityDatabeanBatchLoader;
 import com.hotpads.datarouter.client.imp.hbase.batching.entity.HBaseEntityPrimaryKeyBatchLoader;
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseSubEntityReaderNode;
+import com.hotpads.datarouter.client.imp.hbase.scan.HBaseSubEntityDatabeanScanner;
 import com.hotpads.datarouter.client.imp.hbase.scan.HBaseSubEntityKvScanner;
 import com.hotpads.datarouter.client.imp.hbase.scan.HBaseSubEntityPkScanner;
 import com.hotpads.datarouter.config.Config;
@@ -248,12 +249,25 @@ extends HBaseEntityQueryBuilder<EK,E>{
 	public List<HBaseSubEntityPkScanner<EK,E,PK,D,F>> getPkScanners(HBaseSubEntityReaderNode<EK,E,PK,D,F> node,
 			Range<PK> range, Config config){
 		List<HBaseSubEntityPkScanner<EK,E,PK,D,F>> scanners = new ArrayList<>();
-		List<Integer> partitions = isSingleEntity(range)
-				? Collections.singletonList(partitioner.getPartition(range.getStart().getEntityKey()))
-				: partitioner.getAllPartitions();
+		List<Integer> partitions = isSingleEntity(range) ? Collections.singletonList(partitioner.getPartition(range
+				.getStart().getEntityKey())) : partitioner.getAllPartitions();
 		for(Integer partition : partitions){
 			HBaseSubEntityKvScanner<EK,E,PK,D,F> kvScanner = node.makeKvScanner(config, partition, range, true);
-			HBaseSubEntityPkScanner<EK,E,PK,D,F> pkScanner = new HBaseSubEntityPkScanner<>(node
+			HBaseSubEntityPkScanner<EK,E,PK,D,F> pkScanner = new HBaseSubEntityPkScanner<>(node.getResultParser(),
+					kvScanner, range);
+			scanners.add(pkScanner);
+		}
+		return scanners;
+	}
+
+	public List<HBaseSubEntityDatabeanScanner<EK,E,PK,D,F>> getDatabeanScanners(
+			HBaseSubEntityReaderNode<EK,E,PK,D,F> node, Range<PK> range, Config config){
+		List<HBaseSubEntityDatabeanScanner<EK,E,PK,D,F>> scanners = new ArrayList<>();
+		List<Integer> partitions = isSingleEntity(range) ? Collections.singletonList(partitioner.getPartition(range
+				.getStart().getEntityKey())) : partitioner.getAllPartitions();
+		for(Integer partition : partitions){
+			HBaseSubEntityKvScanner<EK,E,PK,D,F> kvScanner = node.makeKvScanner(config, partition, range, true);
+			HBaseSubEntityDatabeanScanner<EK,E,PK,D,F> pkScanner = new HBaseSubEntityDatabeanScanner<>(node
 					.getResultParser(), kvScanner, range);
 			scanners.add(pkScanner);
 		}
@@ -278,7 +292,7 @@ extends HBaseEntityQueryBuilder<EK,E>{
 		return scanners;
 	}
 
-	public List<AsyncBatchLoaderScanner<D>> getDatabeanScanners(HBaseSubEntityReaderNode<EK,E,PK,D,F> node,
+	public List<AsyncBatchLoaderScanner<D>> getBatchingDatabeanScanners(HBaseSubEntityReaderNode<EK,E,PK,D,F> node,
 			Range<PK> range, Config config){
 		List<AsyncBatchLoaderScanner<D>> scanners = new ArrayList<>();
 		for(int partition=0; partition < partitioner.getNumPartitions(); ++partition){

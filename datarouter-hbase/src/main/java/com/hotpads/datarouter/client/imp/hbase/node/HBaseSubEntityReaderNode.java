@@ -36,7 +36,6 @@ import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.datarouter.util.core.DrNumberTool;
 import com.hotpads.util.core.collections.Range;
-import com.hotpads.util.core.iterable.scanner.batch.AsyncBatchLoaderScanner;
 import com.hotpads.util.core.iterable.scanner.collate.PriorityQueueCollator;
 import com.hotpads.util.core.iterable.scanner.iterable.SingleUseScannerIterable;
 import com.hotpads.util.core.iterable.scanner.sorted.SortedScanner;
@@ -271,22 +270,28 @@ implements HBasePhysicalNode<PK,D>,
 			nullSafeConfig.setLimit(nullSafeConfig.getLimit() + nullSafeConfig.getOffset());
 		}
 		final Range<PK> nullSafeRange = Range.nullSafe(range);
-		//single row. use Get. gets all databeans in entity. no way to limit rows
-		if(queryBuilder.isSingleEntity(nullSafeRange)){
-			List<D> databeans = new HBaseMultiAttemptTask<>(new HBaseTask<List<D>>(getDatarouter(),
-					getClientTableNodeNames(), "scanInEntity", nullSafeConfig){
-				@Override
-				public List<D> hbaseCall(Table htable, HBaseClient client, ResultScanner managedResultScanner)
-				throws Exception{
-					Get get = queryBuilder.getSingleRowRange(nullSafeRange.getStart().getEntityKey(), nullSafeRange,
-							false);
-					Result result = htable.get(get);
-					return resultParser.getDatabeansWithMatchingQualifierPrefix(result, nullSafeConfig.getLimit());
-				}
-			}).call();
-			return DrIterableTool.skip(databeans, DrNumberTool.longValue(nullSafeConfig.getOffset()));
+
+		List<? extends SortedScanner<D>> scanners;
+		if(USE_ASYNC_SCANNERS){
+			//single row. use Get. gets all databeans in entity. no way to limit rows
+			if(queryBuilder.isSingleEntity(nullSafeRange)){
+				List<D> databeans = new HBaseMultiAttemptTask<>(new HBaseTask<List<D>>(getDatarouter(),
+						getClientTableNodeNames(), "scanInEntity", nullSafeConfig){
+					@Override
+					public List<D> hbaseCall(Table htable, HBaseClient client, ResultScanner managedResultScanner)
+					throws Exception{
+						Get get = queryBuilder.getSingleRowRange(nullSafeRange.getStart().getEntityKey(), nullSafeRange,
+								false);
+						Result result = htable.get(get);
+						return resultParser.getDatabeansWithMatchingQualifierPrefix(result, nullSafeConfig.getLimit());
+					}
+				}).call();
+				return DrIterableTool.skip(databeans, DrNumberTool.longValue(nullSafeConfig.getOffset()));
+			}
+			scanners = queryBuilder.getBatchingDatabeanScanners(this, nullSafeRange, config);
+		}else{
+			scanners = queryBuilder.getDatabeanScanners(this, nullSafeRange, nullSafeConfig);
 		}
-		List<AsyncBatchLoaderScanner<D>> scanners = queryBuilder.getDatabeanScanners(this, nullSafeRange, config);
 		SortedScanner<D> collator = new PriorityQueueCollator<>(scanners, DrNumberTool.longValue(nullSafeConfig
 				.getLimit()));
 		collator.advanceBy(nullSafeConfig.getOffset());

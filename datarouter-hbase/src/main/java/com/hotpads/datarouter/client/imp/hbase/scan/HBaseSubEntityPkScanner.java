@@ -38,13 +38,13 @@ extends BaseHBaseSubEntityScanner<EK,E,PK,D,F,PK>{
 			//TODO could avoid building a new PK for each cell (doing byte[] comparisons instead)
 			Pair<PK,String> pkAndFieldName = resultParser.parsePrimaryKeyAndFieldName(kv);
 			PK pk = pkAndFieldName.getLeft();
-			if(shouldSkip(pk)){
+			if(isBeforeStartOfRange(pk)){
 				continue;
 			}
 			if(Objects.equals(current, pk)){
 				continue;//don't replace the current one which would break the == operator
 			}
-			if(passedEndKey(pk)){
+			if(isAfterEndOfRange(pk)){
 				current = null;
 				finished = true;
 				return false;

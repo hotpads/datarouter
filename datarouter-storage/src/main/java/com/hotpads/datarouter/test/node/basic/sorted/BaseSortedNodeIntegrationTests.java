@@ -68,15 +68,12 @@ public abstract class BaseSortedNodeIntegrationTests{
 		}
 
 		sortedNode.deleteAll(null);
-		List<SortedBean> remainingAfterDelete = DrListTool.createArrayList(sortedNode.scan(null, null));
-		AssertJUnit.assertEquals(0, DrCollectionTool.size(remainingAfterDelete));
+		Assert.assertEquals(sortedNode.stream(null, null).count(), 0);
 
 		for(List<SortedBean> batch : new BatchingIterable<>(allBeans, 1000)){
 			sortedNode.putMulti(batch, new Config().setPutMethod(PutMethod.INSERT_OR_BUST));
 		}
-
-		List<SortedBean> roundTripped = DrListTool.createArrayList(sortedNode.scan(null, null));
-		AssertJUnit.assertEquals(SortedBeans.TOTAL_RECORDS, roundTripped.size());
+		Assert.assertEquals(sortedNode.stream(null, null).count(), SortedBeans.TOTAL_RECORDS);
 	}
 
 	protected void testSortedDelete(){

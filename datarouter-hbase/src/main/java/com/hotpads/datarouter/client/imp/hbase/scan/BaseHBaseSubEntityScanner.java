@@ -39,11 +39,11 @@ extends BaseSortedScanner<T>{
 		return current;
 	}
 
-	protected boolean shouldSkip(PK pk){
+	protected boolean isBeforeStartOfRange(PK pk){
 		return range != null && ! range.matchesStart(pk);
 	}
 
-	protected boolean passedEndKey(PK pk){
+	protected boolean isAfterEndOfRange(PK pk){
 		if(range == null || ! range.hasEnd()){
 			return false;
 		}
