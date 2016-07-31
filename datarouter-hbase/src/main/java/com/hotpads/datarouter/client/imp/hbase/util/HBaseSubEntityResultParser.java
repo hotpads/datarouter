@@ -169,6 +169,14 @@ public class HBaseSubEntityResultParser<
 		return databeans;
 	}
 
+	public D makeDatabeanWithOneField(KeyValue kv){
+		Pair<PK,String> pkAndFieldName = parsePrimaryKeyAndFieldName(kv);
+		D databean = fieldInfo.getDatabeanSupplier().get();
+		ReflectionTool.set(fieldInfo.getKeyJavaField(), databean, pkAndFieldName.getLeft());
+		setDatabeanField(databean, pkAndFieldName.getRight(), kv.getValue());
+		return databean;
+	}
+
 	public void setDatabeanField(D databean, String fieldName, byte[] bytesValue){
 		Field<?> field = null;
 		if(HBaseSubEntityNode.DUMMY.equals(fieldName)){
