@@ -2,6 +2,7 @@ package com.hotpads.datarouter.client.imp.hbase.util;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -248,7 +249,7 @@ extends HBaseEntityQueryBuilder<EK,E>{
 			Range<PK> range, Config config){
 		List<HBaseSubEntityPrimaryKeyScanner<EK,E,PK,D,F>> scanners = new ArrayList<>();
 		List<Integer> partitions = isSingleEntity(range)
-				? partitioner.getSinglePartitionAsList(range.getStart().getEntityKey())
+				? Collections.singletonList(partitioner.getPartition(range.getStart().getEntityKey()))
 				: partitioner.getAllPartitions();
 		for(Integer partition : partitions){
 			HBaseSubEntityKvScanner<EK,E,PK,D,F> resultScanner = node.makeResultScanner(config, partition, range, true);
