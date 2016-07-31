@@ -7,6 +7,9 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.client.Table;
+import org.apache.hadoop.hbase.util.Bytes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.ClientTableNodeNames;
@@ -36,6 +39,7 @@ public class HBaseSubEntityKvScanner<
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>>
 implements Scanner<KeyValue>{
+	private static final Logger logger = LoggerFactory.getLogger(HBaseSubEntityKvScanner.class);
 
 	private static final boolean ALLOW_PARTIAL_RESULTS = true;
 	private static final long MAX_RESULT_SIZE_BYTES = 1024 * 1024; // 1 MB
@@ -110,8 +114,16 @@ implements Scanner<KeyValue>{
 		do{
 			try{
 				result = hbaseResultScannerRef.get().next();
-				DRCounters.incClientNodeCustom(client.getType(), scanKeysVsRowsNumRows, clientTableNodeNames
-						.getClientName(), clientTableNodeNames.getNodeName());
+				if(result != null){
+					DRCounters.incClientNodeCustom(client.getType(), scanKeysVsRowsNumRows, clientTableNodeNames
+							.getClientName(), clientTableNodeNames.getNodeName());
+					if(result.isPartial()){
+						logger.warn("partial result on {}, {}", clientTableNodeNames.getNodeName(), Bytes
+								.toStringBinary(result.getRow()));
+						DRCounters.incClientNodeCustom(client.getType(), "partial result", clientTableNodeNames
+								.getClientName(), clientTableNodeNames.getNodeName());
+					}
+				}
 			}catch(IOException e){
 				throw new RuntimeIOException(e);
 			}
