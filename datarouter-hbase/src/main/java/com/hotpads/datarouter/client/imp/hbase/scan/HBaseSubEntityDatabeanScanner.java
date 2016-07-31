@@ -48,7 +48,7 @@ extends BaseHBaseSubEntityScanner<EK,E,PK,D,F,D>{
 			}
 			if(DrObjectTool.notEquals(nextDatabean.getKey(), pk)){
 				promoteNextToCurrentAndSetNextTo(resultParser.makeDatabeanWithOneField(kv));
-				if(isAfterEndOfRange(pk)){
+				if(isAfterEndOfRange(pk)){//the kv scanner returned more kvs than we wanted
 					finished = true;
 				}
 				return true;
@@ -56,7 +56,7 @@ extends BaseHBaseSubEntityScanner<EK,E,PK,D,F,D>{
 
 			resultParser.setDatabeanField(nextDatabean, pkAndFieldName.getRight(), kv.getValue());
 		}
-		if(nextDatabean != null){
+		if(nextDatabean != null){//put the last databean in place
 			promoteNextToCurrentAndSetNextTo(null);
 			finished = true;
 			return true;
@@ -67,7 +67,6 @@ extends BaseHBaseSubEntityScanner<EK,E,PK,D,F,D>{
 
 	private void promoteNextToCurrentAndSetNextTo(D next){
 		current = nextDatabean;
-		System.out.println("updated to " + current);
 		nextDatabean = next;
 	}
 
