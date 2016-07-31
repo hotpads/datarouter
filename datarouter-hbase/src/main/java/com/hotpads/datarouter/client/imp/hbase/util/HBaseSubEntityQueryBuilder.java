@@ -292,6 +292,7 @@ extends HBaseEntityQueryBuilder<EK,E>{
 		return scanners;
 	}
 
+	@Deprecated
 	public List<AsyncBatchLoaderScanner<D>> getBatchingDatabeanScanners(HBaseSubEntityReaderNode<EK,E,PK,D,F> node,
 			Range<PK> range, Config config){
 		List<AsyncBatchLoaderScanner<D>> scanners = new ArrayList<>();
