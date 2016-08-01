@@ -266,7 +266,7 @@ extends HBaseEntityQueryBuilder<EK,E>{
 		List<Integer> partitions = isSingleEntity(range) ? Collections.singletonList(partitioner.getPartition(range
 				.getStart().getEntityKey())) : partitioner.getAllPartitions();
 		for(Integer partition : partitions){
-			HBaseSubEntityKvScanner<EK,E,PK,D,F> kvScanner = node.makeKvScanner(config, partition, range, true);
+			HBaseSubEntityKvScanner<EK,E,PK,D,F> kvScanner = node.makeKvScanner(config, partition, range, false);
 			HBaseSubEntityDatabeanScanner<EK,E,PK,D,F> pkScanner = new HBaseSubEntityDatabeanScanner<>(node
 					.getResultParser(), kvScanner, range);
 			scanners.add(pkScanner);
