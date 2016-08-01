@@ -135,9 +135,7 @@ implements Scanner<Cell>{
 			}
 		}while(result.isEmpty());
 
-		//TODO iterate the cells without collecting them into a List
-		updateCurrentBatch(result.listCells());
-		//found a non-empty result
+		updateCurrentBatch(result.listCells());//this internally does Arrays.asList on a Cell[]
 		return true;
 	}
 
