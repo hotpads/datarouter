@@ -9,7 +9,7 @@ public class MemoryIndexedSortedNodeIntegrationTests extends BaseIndexedNodeInte
 
 	@BeforeClass
 	public void beforeClass(){
-		setup(DrTestConstants.CLIENT_drTestMemory, true, false);
+		setup(DrTestConstants.CLIENT_drTestMemory, false);
 	}
 
 	@AfterClass

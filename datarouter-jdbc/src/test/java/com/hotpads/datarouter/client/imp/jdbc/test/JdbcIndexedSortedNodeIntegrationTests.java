@@ -13,7 +13,7 @@ public class JdbcIndexedSortedNodeIntegrationTests extends BaseIndexedNodeIntegr
 
 	@BeforeClass
 	public void beforeClass(){
-		setup(DrTestConstants.CLIENT_drTestJdbc0, true, false);
+		setup(DrTestConstants.CLIENT_drTestJdbc0, false);
 	}
 
 	@AfterClass

@@ -47,7 +47,6 @@
 		</plugins>
 	</build>
 	<dependencies>
-		<!-- temporary for joblet hibernate ops -->
 		<dependency>
 			<groupId>com.hotpads</groupId>
 			<artifactId>datarouter-jdbc</artifactId>
