@@ -32,7 +32,7 @@ public class Log4j2Configurator{
 
 	public static ConsoleAppender createConsoleAppender(String name, Target target, String pattern){
 		PatternLayout layout = createLayout(pattern);
-		return ConsoleAppender.createAppender(layout, null, target, name, false, true);
+		return ConsoleAppender.createAppender(layout, null, target, name, false, false, true);
 	}
 
 	public static FileAppender createFileAppender(String name, String fileName, String pattern){
