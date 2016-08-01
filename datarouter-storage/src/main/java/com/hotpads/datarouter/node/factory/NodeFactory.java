@@ -197,26 +197,6 @@ public class NodeFactory{
 		return (N) Preconditions.checkNotNull(node, "cannot build Node for clientType="+clientType);
 	}
 
-
-	/*************** baseDatabeanClass ********************/
-
-	public <PK extends PrimaryKey<PK>,
-			D extends Databean<PK,D>,
-			F extends DatabeanFielder<PK,D>,
-			N extends Node<PK,D>>
-	N createWithBaseDatabeanClass(//3 args
-			ClientId clientId,
-			Class<D> databeanClass,
-			Class<? super D> baseDatabeanClass,
-			Router router){
-		NodeParamsBuilder<PK,D,?> paramsBuilder = new NodeParamsBuilder<PK,D,F>(router, databeanClass)
-				.withClientId(clientId)
-				.withBaseDatabean(baseDatabeanClass)
-				.withDiagnostics(getRecordCallsites());
-		return create(paramsBuilder.build(), true);
-	}
-
-
 	/***************** private **************************/
 
 	private Cached<Boolean> getRecordCallsites(){
