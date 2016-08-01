@@ -70,7 +70,7 @@ public class FieldSetRangeFilter{
 			@SuppressWarnings("rawtypes")
 			Field startOfRange = startOfRangeIterator.next();
 			if(startOfRange.getValue() == null){
-				return true;
+				return inclusive;
 			}
 			//neither value should be null at this point
 			@SuppressWarnings("unchecked")
@@ -140,6 +140,24 @@ public class FieldSetRangeFilter{
 		Range<SortedBeanKey> rangeEndExclusive = new Range<>(null, true, endOfRange1, false);
 
 		@Test
+		public void testStart(){
+			SortedBeanKey startOfRangeKey = new SortedBeanKey("a", "c", 2, null);
+			SortedBeanKey candidateKey = new SortedBeanKey("a", "c", 2, "d");
+			Assert.assertTrue(isCandidateAfterStartOfRange(candidateKey.getFields(), startOfRangeKey.getFields(),
+					true));
+			Assert.assertFalse(isCandidateAfterStartOfRange(candidateKey.getFields(), startOfRangeKey.getFields(),
+					false));
+		}
+
+		@Test
+		public void testEnd(){
+			SortedBeanKey endOfRangeKey = new SortedBeanKey("a", "c", 2, null);
+			SortedBeanKey candidateKey = new SortedBeanKey("a", "c", 2, "d");
+			Assert.assertTrue(isCandidateBeforeEndOfRange(candidateKey.getFields(), endOfRangeKey.getFields(), true));
+			Assert.assertFalse(isCandidateBeforeEndOfRange(candidateKey.getFields(), endOfRangeKey.getFields(), false));
+		}
+
+		@Test
 		public void testObviousFailure(){
 			SortedBeanKey candidate1 = new SortedBeanKey("zzz", "zzz", 55, "zzz");
 			Assert.assertTrue(candidate1.compareTo(endOfRange1) > 0);//sanity check
@@ -156,16 +174,6 @@ public class FieldSetRangeFilter{
 			Assert.assertTrue(candidate3.compareTo(endOfRange2) == 0);
 			Assert.assertTrue(include(candidate3, rangeEnd2Inclusive));//but in the prefix range
 			Assert.assertFalse(include(candidate3, rangeEnd2Exclusive));//even with inclusive=false
-		}
-
-		@Test
-		public void testEndExclusive(){
-			SortedBeanKey endOfRangeKey = new SortedBeanKey("a", "c", 2, null);
-			SortedBeanKey candidateKey = new SortedBeanKey("a", "c", 2, "d");
-			boolean inclusive = false;
-			boolean isBefore = isCandidateBeforeEndOfRange(candidateKey.getFields(), endOfRangeKey.getFields(),
-					inclusive);
-			Assert.assertFalse(isBefore);
 		}
 	}
 }
