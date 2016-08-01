@@ -4,13 +4,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.hadoop.hbase.KeyValue;
+import org.apache.hadoop.hbase.Cell;
+import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.log4j.Logger;
 
 import com.google.common.base.Objects;
-import com.hotpads.datarouter.client.imp.hbase.node.HBaseSubEntityNode;
+import com.hotpads.datarouter.client.imp.hbase.client.HBaseClientFactory;
 import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
 import com.hotpads.datarouter.serialize.fieldcache.EntityFieldInfo;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
@@ -107,11 +108,11 @@ public class HBaseSubEntityResultParser<
 		//unfortunately, we expect a bunch of duplicate PK's
 		ArrayList<PK> pks = new ArrayList<>();
 		PK previousPk = null;
-		for(KeyValue kv : DrIterableTool.nullSafe(row.list())){//row.list() can return null
-			if(!matchesNodePrefix(kv)) {
+		for(Cell cell : DrIterableTool.nullSafe(row.listCells())){//row.list() can return null
+			if(!matchesNodePrefix(cell)) {
 				continue;
 			}
-			Pair<PK,String> pkAndFieldName = parsePrimaryKeyAndFieldName(kv);
+			Pair<PK,String> pkAndFieldName = parsePrimaryKeyAndFieldName(cell);
 			PK pk = pkAndFieldName.getLeft();
 			if(Objects.equal(previousPk, pk)){
 				continue;
@@ -129,20 +130,20 @@ public class HBaseSubEntityResultParser<
 		if(row == null) {
 			return Collections.emptyList();
 		}
-		return getDatabeansForKvsWithMatchingQualifierPrefix(row.list(), limit);
+		return getDatabeansForKvsWithMatchingQualifierPrefix(row.listCells(), limit);
 	}
 
-	public List<D> getDatabeansForKvsWithMatchingQualifierPrefix(List<KeyValue> kvs, Integer limit){
-		if(DrCollectionTool.isEmpty(kvs)) {
+	public List<D> getDatabeansForKvsWithMatchingQualifierPrefix(List<Cell> cells, Integer limit){
+		if(DrCollectionTool.isEmpty(cells)) {
 			return Collections.emptyList();
 		}
 		List<D> databeans = new ArrayList<>();
 		D databean = null;
-		for(KeyValue kv : kvs){
-			if(!matchesNodePrefix(kv)) {
+		for(Cell cell : cells){
+			if(!matchesNodePrefix(cell)) {
 				continue;
 			}
-			Pair<PK,String> pkAndFieldName = parsePrimaryKeyAndFieldName(kv);
+			Pair<PK,String> pkAndFieldName = parsePrimaryKeyAndFieldName(cell);
 			if(databean == null || DrObjectTool.notEquals(databean.getKey(), pkAndFieldName.getLeft())){
 				//we're about to start a new databean
 				if(limit != null && databeans.size() == limit){
@@ -152,14 +153,14 @@ public class HBaseSubEntityResultParser<
 				ReflectionTool.set(fieldInfo.getKeyJavaField(), databean, pkAndFieldName.getLeft());
 				databeans.add(databean);
 			}
-			setDatabeanField(databean, pkAndFieldName.getRight(), kv.getValue());
+			setDatabeanField(databean, pkAndFieldName.getRight(), CellUtil.cloneValue(cell));
 		}
 		return databeans;
 	}
 
 	public void setDatabeanField(D databean, String fieldName, byte[] bytesValue){
 		Field<?> field = null;
-		if(HBaseSubEntityNode.DUMMY.equals(fieldName)){
+		if(HBaseClientFactory.DUMMY_COL_NAME.equals(fieldName)){
 			return;
 		}
 		field = fieldInfo.getNonKeyFieldByColumnName().get(fieldName);
@@ -174,38 +175,38 @@ public class HBaseSubEntityResultParser<
 
 	/****************** private ********************/
 
-	private Pair<PK,String> parsePrimaryKeyAndFieldName(KeyValue kv){
+	private Pair<PK,String> parsePrimaryKeyAndFieldName(Cell cell){
 		PK pk = ReflectionTool.create(fieldInfo.getPrimaryKeyClass());
 		//EK
 		//be sure to get the entity key fields from DatabeanFieldInfo in case the PK overrode the EK field names
-		parseEkFieldsFromBytesToPk(kv, pk);
+		parseEkFieldsFromBytesToPk(cell, pk);
 		//post-EK
-		int fieldNameOffset = parsePostEkFieldsFromBytesToPk(kv, pk);
+		int fieldNameOffset = parsePostEkFieldsFromBytesToPk(cell, pk);
 		//fieldName
-		String fieldName = StringByteTool.fromUtf8BytesOffset(kv.getQualifier(), fieldNameOffset);
+		String fieldName = StringByteTool.fromUtf8BytesOffset(CellUtil.cloneQualifier(cell), fieldNameOffset);
 		return Pair.create(pk, fieldName);
 	}
 
-	private boolean matchesNodePrefix(KeyValue kv){
+	private boolean matchesNodePrefix(Cell cell){
 		byte[] prefix = fieldInfo.getEntityColumnPrefixBytes();
-		if(kv.getQualifierLength() < prefix.length){
+		if(cell.getQualifierLength() < prefix.length){
 			return false;
 		}
-		return Bytes.equals(kv.getBuffer(), kv.getQualifierOffset(), prefix.length, prefix, 0, prefix.length);
+		return Bytes.equals(cell.getValueArray(), cell.getQualifierOffset(), prefix.length, prefix, 0, prefix.length);
 	}
 
 	//parse the hbase row bytes after the partition offset
-	private int parseEkFieldsFromBytesToPk(KeyValue kv, PK targetPk){
+	private int parseEkFieldsFromBytesToPk(Cell cell, PK targetPk){
 		int offset = partitioner.getNumPrefixBytes();
-		byte[] fromBytes = kv.getRow();
+		byte[] fromBytes = CellUtil.cloneRow(cell);
 		return parseFieldsFromBytesToPk(fieldInfo.getEkPkFields(), fromBytes, offset, targetPk);
 	}
 
 	//parse the hbase qualifier bytes
-	private int parsePostEkFieldsFromBytesToPk(KeyValue kv, PK targetPk){
+	private int parsePostEkFieldsFromBytesToPk(Cell cell, PK targetPk){
 		byte[] entityColumnPrefixBytes = fieldInfo.getEntityColumnPrefixBytes();
 		int offset = entityColumnPrefixBytes.length;
-		byte[] fromBytes = kv.getQualifier();
+		byte[] fromBytes = CellUtil.cloneQualifier(cell);
 		return parseFieldsFromBytesToPk(fieldInfo.getPostEkPkKeyFields(), fromBytes, offset, targetPk);
 	}
 

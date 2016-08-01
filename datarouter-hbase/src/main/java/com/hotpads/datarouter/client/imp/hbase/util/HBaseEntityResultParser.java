@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.hadoop.hbase.KeyValue;
+import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.client.Result;
 
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseSubEntityReaderNode;
@@ -56,9 +56,9 @@ public class HBaseEntityResultParser<
 		if(row == null) {
 			return Collections.emptyMap();
 		}
-		Map<String,ArrayList<KeyValue>> kvsByQp = getKvsByQualifierPrefix(row);
+		Map<String,List<Cell>> cellsByQp = getKvsByQualifierPrefix(row);
 		Map<String,List<? extends Databean<?,?>>> databeansByQp = new HashMap<>();
-		for(Map.Entry<String,ArrayList<KeyValue>> entry : kvsByQp.entrySet()){
+		for(Map.Entry<String,List<Cell>> entry : cellsByQp.entrySet()){
 			String qp = entry.getKey();
 			HBaseSubEntityReaderNode<EK,E,?,?,?> subNode = nodeByQualifierPrefix.get(qp);
 			if(subNode == null){
@@ -72,32 +72,32 @@ public class HBaseEntityResultParser<
 		return databeansByQp;
 	}
 
-	private Map<String,ArrayList<KeyValue>> getKvsByQualifierPrefix(Result row){
-		Map<String,ArrayList<KeyValue>> kvsByQp = new HashMap<>();
-		ArrayList<KeyValue> kvsForQp = null;
+	private Map<String, List<Cell>> getKvsByQualifierPrefix(Result row){
+		Map<String, List<Cell>> cellsByQp = new HashMap<>();
+		List<Cell> cellsForQp = new ArrayList<>();
 		String previousQp = null;
-		for(KeyValue kv : DrIterableTool.nullSafe(row.list())){//row.list() can return null
-			String qp = getQualifierPrefix(kv);
+		for(Cell cell : DrIterableTool.nullSafe(row.listCells())){//row.list() can return null
+			String qp = getQualifierPrefix(cell);
 			if(DrObjectTool.notEquals(previousQp, qp)){
-				kvsForQp = new ArrayList<>();
-				kvsByQp.put(qp, kvsForQp);
+				cellsForQp = new ArrayList<>();
+				cellsByQp.put(qp, cellsForQp);
 				previousQp = qp;
 			}
-			kvsForQp.add(kv);
+			cellsForQp.add(cell);
 		}
-		return kvsByQp;
+		return cellsByQp;
 	}
 
-	private String getQualifierPrefix(KeyValue kv){
-		int backingArrayOffset = kv.getQualifierOffset();
-		int qualifierPrefixLength = getQualifierPrefixLength(kv);
-		return StringByteTool.fromUtf8Bytes(kv.getBuffer(), backingArrayOffset, qualifierPrefixLength);
+	private String getQualifierPrefix(Cell cell){
+		int backingArrayOffset = cell.getQualifierOffset();
+		int qualifierPrefixLength = getQualifierPrefixLength(cell);
+		return StringByteTool.fromUtf8Bytes(cell.getValueArray(), backingArrayOffset, qualifierPrefixLength);
 	}
 
-	private int getQualifierPrefixLength(KeyValue kv){
-		int qualifierOffset = kv.getQualifierOffset();
-		int qualifierLength = kv.getQualifierLength();
-		byte[] buffer = kv.getBuffer();
+	private int getQualifierPrefixLength(Cell cell){
+		int qualifierOffset = cell.getQualifierOffset();
+		int qualifierLength = cell.getQualifierLength();
+		byte[] buffer = cell.getValueArray();
 		for(int prefixLength=0; prefixLength < qualifierLength; ++prefixLength){
 			if(buffer[qualifierOffset + prefixLength] == EntityFieldInfo.ENTITY_PREFIX_TERMINATOR){
 				return prefixLength;
