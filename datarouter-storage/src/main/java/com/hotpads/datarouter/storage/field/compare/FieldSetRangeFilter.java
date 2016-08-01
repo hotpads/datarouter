@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldSet;
@@ -112,7 +112,7 @@ public class FieldSetRangeFilter{
 			@SuppressWarnings("rawtypes")
 			Field endOfRange = endOfRangeIterator.next();
 			if(endOfRange.getValue() == null){
-				return true;
+				return inclusive;
 			}
 			//neither value should be null at this point
 			@SuppressWarnings("unchecked")
@@ -138,20 +138,12 @@ public class FieldSetRangeFilter{
 		SortedBeanKey endOfRange1 = new SortedBeanKey("emu", null, null, null);
 		Range<SortedBeanKey> rangeEndInclusive = new Range<>(null, true, endOfRange1, true);
 		Range<SortedBeanKey> rangeEndExclusive = new Range<>(null, true, endOfRange1, false);
+
 		@Test
 		public void testObviousFailure(){
 			SortedBeanKey candidate1 = new SortedBeanKey("zzz", "zzz", 55, "zzz");
 			Assert.assertTrue(candidate1.compareTo(endOfRange1) > 0);//sanity check
 			Assert.assertFalse(include(candidate1, rangeEndInclusive));
-		}
-
-		@Test
-		public void testCloseCall(){
-			//the candidate would normally compare after the endOfRange, but should be included here
-			SortedBeanKey candidate2 = new SortedBeanKey("emu", "zzz", 55, "zzz");
-			Assert.assertTrue(candidate2.compareTo(endOfRange1) > 0);//candidate is after end with normal comparison
-			Assert.assertTrue(include(candidate2, rangeEndInclusive));//but in the prefix range
-			Assert.assertTrue(include(candidate2, rangeEndExclusive));//even with inclusive=false
 		}
 
 		@Test
@@ -164,6 +156,16 @@ public class FieldSetRangeFilter{
 			Assert.assertTrue(candidate3.compareTo(endOfRange2) == 0);
 			Assert.assertTrue(include(candidate3, rangeEnd2Inclusive));//but in the prefix range
 			Assert.assertFalse(include(candidate3, rangeEnd2Exclusive));//even with inclusive=false
+		}
+
+		@Test
+		public void testEndExclusive(){
+			SortedBeanKey endOfRangeKey = new SortedBeanKey("a", "c", 2, null);
+			SortedBeanKey candidateKey = new SortedBeanKey("a", "c", 2, "d");
+			boolean inclusive = false;
+			boolean isBefore = isCandidateBeforeEndOfRange(candidateKey.getFields(), endOfRangeKey.getFields(),
+					inclusive);
+			Assert.assertFalse(isBefore);
 		}
 	}
 }
