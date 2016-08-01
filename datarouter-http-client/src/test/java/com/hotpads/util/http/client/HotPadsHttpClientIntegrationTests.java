@@ -113,16 +113,14 @@ public class HotPadsHttpClientIntegrationTests {
 		client.executeChecked(request);
 	}
 
-	@Test(expected = HotPadsHttpConnectionAbortedException.class, timeout = 1000)
+	@Test(expected = HotPadsHttpConnectionAbortedException.class)
 	public void testRequestTimeoutException() throws HotPadsHttpException {
 		server.setResponseDelay(200);
-		try {
+		try{
 			HotPadsHttpClient client = new HotPadsHttpClientBuilder().build();
 			HotPadsHttpRequest request = new HotPadsHttpRequest(HttpRequestMethod.GET, URL, false).setTimeoutMs(100);
 			client.executeChecked(request);
-		} catch (Exception e) {
-			throw e;
-		} finally {
+		}finally{
 			server.setResponseDelay(0);
 		}
 	}
