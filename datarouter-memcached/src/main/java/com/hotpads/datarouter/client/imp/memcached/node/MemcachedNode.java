@@ -1,12 +1,10 @@
 package com.hotpads.datarouter.client.imp.memcached.node;
 
 import java.util.Collection;
-import java.util.concurrent.ExecutionException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hotpads.datarouter.client.imp.memcached.client.MemcachedStateException;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams;
@@ -31,6 +29,8 @@ public class MemcachedNode<
 extends MemcachedReaderNode<PK,D,F>
 implements PhysicalMapStorageNode<PK,D>{
 	private static final Logger logger = LoggerFactory.getLogger(MemcachedNode.class);
+
+	private static final Boolean DEFAULT_IGNORE_EXCEPTION = true;
 
 	protected static final int MEGABYTE = 1024 * 1024;
 
@@ -81,13 +81,15 @@ implements PhysicalMapStorageNode<PK,D>{
 							+ json);
 					return;
 				}
-				try {
-					this.getClient().getSpyClient().set(key, expiration, bytes);
-				} catch (MemcachedStateException e) {
-					logger.error("memached error on " + key,e);
-				}
+				this.getClient().getSpyClient().set(key, expiration, bytes);
 			}
 			TracerTool.appendToSpanInfo(TracerThreadLocal.get(), DrCollectionTool.size(databeans)+"");
+		}catch(Exception exception){
+			if(paramConfig.ignoreExceptionOrUse(DEFAULT_IGNORE_EXCEPTION)){
+				logger.error("memcached error on ", exception);
+			}else{
+				throw exception;
+			}
 		}finally{
 			finishTraceSpan();
 		}
@@ -107,10 +109,12 @@ implements PhysicalMapStorageNode<PK,D>{
 		}
 		try{
 			startTraceSpan(MapStorageWriter.OP_delete);
-			try {
-				getClient().getSpyClient().delete(buildMemcachedKey(key));
-			} catch (MemcachedStateException e) {
-				logger.error("", e);
+			getClient().getSpyClient().delete(buildMemcachedKey(key));
+		}catch(Exception exception){
+			if(paramConfig.ignoreExceptionOrUse(DEFAULT_IGNORE_EXCEPTION)){
+				logger.error("memcached error on " + key, exception);
+			}else{
+				throw exception;
 			}
 		}finally{
 			finishTraceSpan();
@@ -125,27 +129,6 @@ implements PhysicalMapStorageNode<PK,D>{
 		}
 	}
 
-
-	public Long getTallyCount(TallyKey key){
-		if(key == null){
-			return null;
-		}
-		Object tallyObject = null;
-		try{
-			tallyObject = getClient().getSpyClient().asyncGet(buildMemcachedKey(key)).get();
-		}catch(MemcachedStateException | InterruptedException | ExecutionException e){
-			logger.error("memcached error on " + key, e);
-			return null;
-		}
-
-		if(tallyObject instanceof String){
-			return Long.valueOf(((String)tallyObject).trim());
-		}
-
-		return null;
-	}
-
-
 	public void increment(TallyKey tallyKey, int delta, Config paramConfig){
 		if(tallyKey == null){
 			return;
@@ -153,10 +136,12 @@ implements PhysicalMapStorageNode<PK,D>{
 		try{
 			TracerTool.startSpan(TracerThreadLocal.get(), "memcached increment");
 			String key = buildMemcachedKey(tallyKey);
-			try{
-				getClient().getSpyClient().incr(key, delta, delta, getExpiration(paramConfig));
-			}catch (MemcachedStateException e){
-				logger.error("memcached error on " + key, e);
+			getClient().getSpyClient().incr(key, delta, delta, getExpiration(paramConfig));
+		}catch(Exception exception){
+			if(paramConfig.ignoreExceptionOrUse(DEFAULT_IGNORE_EXCEPTION)){
+				logger.error("memcached error on " + tallyKey, exception);
+			}else{
+				throw exception;
 			}
 		} finally {
 			finishTraceSpan();
@@ -170,12 +155,13 @@ implements PhysicalMapStorageNode<PK,D>{
 		try{
 			TracerTool.startSpan(TracerThreadLocal.get(), "memcached increment and get count");
 			String key = buildMemcachedKey(tallyKey);
-			try{
-				return getClient().getSpyClient().incr(key, delta, delta, getExpiration(paramConfig));
-			}catch (MemcachedStateException e){
-				logger.error("memcached error on " + key, e);
+			return getClient().getSpyClient().incr(key, delta, delta, getExpiration(paramConfig));
+		}catch(Exception exception){
+			if(paramConfig.ignoreExceptionOrUse(DEFAULT_IGNORE_EXCEPTION)){
+				logger.error("memcached error on " + tallyKey, exception);
 				return null;
 			}
+			throw exception;
 		} finally {
 			finishTraceSpan();
 		}
