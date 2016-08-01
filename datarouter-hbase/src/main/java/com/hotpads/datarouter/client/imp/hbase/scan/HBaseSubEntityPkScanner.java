@@ -2,7 +2,7 @@ package com.hotpads.datarouter.client.imp.hbase.scan;
 
 import java.util.Objects;
 
-import org.apache.hadoop.hbase.KeyValue;
+import org.apache.hadoop.hbase.Cell;
 
 import com.hotpads.datarouter.client.imp.hbase.util.HBaseSubEntityResultParser;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
@@ -22,8 +22,8 @@ public class HBaseSubEntityPkScanner<
 extends BaseHBaseSubEntityScanner<EK,E,PK,D,F,PK>{
 
 	public HBaseSubEntityPkScanner(HBaseSubEntityResultParser<EK,E,PK,D,F> resultParser,
-			HBaseSubEntityKvScanner<EK,E,PK,D,F> kvScanner, Range<PK> range){
-		super(resultParser, kvScanner, range);
+			HBaseSubEntityCellScanner<EK,E,PK,D,F> cellScanner, Range<PK> range){
+		super(resultParser, cellScanner, range);
 	}
 
 
@@ -33,10 +33,10 @@ extends BaseHBaseSubEntityScanner<EK,E,PK,D,F,PK>{
 		if(finished){
 			return false;
 		}
-		while(kvScanner.advance()){
-			KeyValue kv = kvScanner.getCurrent();
+		while(cellScanner.advance()){
+			Cell cell = cellScanner.getCurrent();
 			//TODO could avoid building a new PK for each cell (doing byte[] comparisons instead)
-			Pair<PK,String> pkAndFieldName = resultParser.parsePrimaryKeyAndFieldName(kv);
+			Pair<PK,String> pkAndFieldName = resultParser.parsePrimaryKeyAndFieldName(cell);
 			PK pk = pkAndFieldName.getLeft();
 			if(isBeforeStartOfRange(pk)){
 				continue;

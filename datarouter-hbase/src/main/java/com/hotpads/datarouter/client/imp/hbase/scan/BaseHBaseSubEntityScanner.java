@@ -20,16 +20,16 @@ public abstract class BaseHBaseSubEntityScanner<
 extends BaseSortedScanner<T>{
 
 	protected final HBaseSubEntityResultParser<EK,E,PK,D,F> resultParser;
-	protected final HBaseSubEntityKvScanner<EK,E,PK,D,F> kvScanner;
+	protected final HBaseSubEntityCellScanner<EK,E,PK,D,F> cellScanner;
 	private final Range<PK> range;
 
 	protected T current;
 	protected boolean finished;
 
 	public BaseHBaseSubEntityScanner(HBaseSubEntityResultParser<EK,E,PK,D,F> resultParser,
-			HBaseSubEntityKvScanner<EK,E,PK,D,F> kvScanner, Range<PK> range){
+			HBaseSubEntityCellScanner<EK,E,PK,D,F> cellScanner, Range<PK> range){
 		this.resultParser = resultParser;
-		this.kvScanner = kvScanner;
+		this.cellScanner = cellScanner;
 		this.range = range;
 		this.finished = false;
 	}

@@ -1,6 +1,6 @@
 package com.hotpads.datarouter.client.imp.hbase.scan;
 
-import org.apache.hadoop.hbase.KeyValue;
+import org.apache.hadoop.hbase.Cell;
 
 import com.hotpads.datarouter.client.imp.hbase.util.HBaseSubEntityResultParser;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
@@ -23,8 +23,8 @@ extends BaseHBaseSubEntityScanner<EK,E,PK,D,F,D>{
 	private D nextDatabean;
 
 	public HBaseSubEntityDatabeanScanner(HBaseSubEntityResultParser<EK,E,PK,D,F> resultParser,
-			HBaseSubEntityKvScanner<EK,E,PK,D,F> kvScanner, Range<PK> range){
-		super(resultParser, kvScanner, range);
+			HBaseSubEntityCellScanner<EK,E,PK,D,F> cellScanner, Range<PK> range){
+		super(resultParser, cellScanner, range);
 	}
 
 
@@ -35,26 +35,26 @@ extends BaseHBaseSubEntityScanner<EK,E,PK,D,F,D>{
 			current = null;
 			return false;
 		}
-		while(kvScanner.advance()){
-			KeyValue kv = kvScanner.getCurrent();
-			Pair<PK,String> pkAndFieldName = resultParser.parsePrimaryKeyAndFieldName(kv);
+		while(cellScanner.advance()){
+			Cell cell = cellScanner.getCurrent();
+			Pair<PK,String> pkAndFieldName = resultParser.parsePrimaryKeyAndFieldName(cell);
 			PK pk = pkAndFieldName.getLeft();
 			if(isBeforeStartOfRange(pk)){
 				continue;
 			}
 			if(nextDatabean == null){//init first databean
-				promoteNextToCurrentAndSetNextTo(resultParser.makeDatabeanWithOneField(kv));
+				promoteNextToCurrentAndSetNextTo(resultParser.makeDatabeanWithOneField(cell));
 				continue;
 			}
 			if(DrObjectTool.notEquals(nextDatabean.getKey(), pk)){
-				promoteNextToCurrentAndSetNextTo(resultParser.makeDatabeanWithOneField(kv));
+				promoteNextToCurrentAndSetNextTo(resultParser.makeDatabeanWithOneField(cell));
 				if(isAfterEndOfRange(pk)){//the kv scanner returned more kvs than we wanted
 					finished = true;
 				}
 				return true;
 			}
 
-			resultParser.setDatabeanField(nextDatabean, pkAndFieldName.getRight(), kv.getValue());
+			resultParser.setDatabeanField(nextDatabean, pkAndFieldName.getRight(), cell.getValue());
 		}
 		if(nextDatabean != null){//put the last databean in place
 			promoteNextToCurrentAndSetNextTo(null);

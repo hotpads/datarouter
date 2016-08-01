@@ -14,7 +14,7 @@ import org.apache.hadoop.hbase.client.Table;
 
 import com.hotpads.datarouter.client.ClientTableNodeNames;
 import com.hotpads.datarouter.client.imp.hbase.client.HBaseClient;
-import com.hotpads.datarouter.client.imp.hbase.scan.HBaseSubEntityKvScanner;
+import com.hotpads.datarouter.client.imp.hbase.scan.HBaseSubEntityCellScanner;
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseMultiAttemptTask;
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseTask;
 import com.hotpads.datarouter.client.imp.hbase.util.HBaseSubEntityQueryBuilder;
@@ -346,9 +346,9 @@ implements HBasePhysicalNode<PK,D>,
 		}).call();
 	}
 
-	public HBaseSubEntityKvScanner<EK,E,PK,D,F> makeKvScanner(Config config, int partition, Range<PK> pkRange,
+	public HBaseSubEntityCellScanner<EK,E,PK,D,F> makeKvScanner(Config config, int partition, Range<PK> pkRange,
 			boolean keysOnly){
-		return new HBaseSubEntityKvScanner<>(getDatarouter(), getClient(), clientTableNodeNames, queryBuilder, config,
+		return new HBaseSubEntityCellScanner<>(getDatarouter(), getClient(), clientTableNodeNames, queryBuilder, config,
 				partition, pkRange, keysOnly);
 	}
 

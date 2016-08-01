@@ -1,8 +1,9 @@
 package com.hotpads.datarouter.client.imp.hbase.scan;
 
 import java.io.IOException;
+import java.util.List;
 
-import org.apache.hadoop.hbase.KeyValue;
+import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
@@ -32,14 +33,14 @@ import com.hotpads.util.core.io.RuntimeIOException;
 import com.hotpads.util.core.iterable.scanner.Scanner;
 
 //TODO switch from KeyValues to Cells
-public class HBaseSubEntityKvScanner<
+public class HBaseSubEntityCellScanner<
 		EK extends EntityKey<EK>,
 		E extends Entity<EK>,
 		PK extends EntityPrimaryKey<EK,PK>,
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>>
-implements Scanner<KeyValue>{
-	private static final Logger logger = LoggerFactory.getLogger(HBaseSubEntityKvScanner.class);
+implements Scanner<Cell>{
+	private static final Logger logger = LoggerFactory.getLogger(HBaseSubEntityCellScanner.class);
 
 	private static final boolean ALLOW_PARTIAL_RESULTS = true;
 	private static final long MAX_RESULT_SIZE_BYTES = 1024 * 1024; // 1 MB
@@ -57,10 +58,10 @@ implements Scanner<KeyValue>{
 	private final String scanKeysVsRowsNumBatches;
 	private final String scanKeysVsRowsNumRows;
 	private final Ref<ResultScanner> hbaseResultScannerRef;
-	private KeyValue[] currentBatch;
+	private List<Cell> currentBatch;
 	private int currentBatchIndex;
 
-	public HBaseSubEntityKvScanner(Datarouter datarouter, Client client, ClientTableNodeNames clientTableNodeNames,
+	public HBaseSubEntityCellScanner(Datarouter datarouter, Client client, ClientTableNodeNames clientTableNodeNames,
 			HBaseSubEntityQueryBuilder<EK,E,PK,D,F> queryBuilder, Config config, int partition, Range<PK> range,
 			boolean keysOnly){
 		this.datarouter = datarouter;
@@ -79,16 +80,16 @@ implements Scanner<KeyValue>{
 	}
 
 	@Override
-	public KeyValue getCurrent(){
+	public Cell getCurrent(){
 		if(currentBatch == null){
 			return null;
 		}
-		return currentBatch[currentBatchIndex];
+		return currentBatch.get(currentBatchIndex);
 	}
 
 	@Override
 	public boolean advance(){
-		if(currentBatch != null && currentBatchIndex < currentBatch.length - 1){
+		if(currentBatch != null && currentBatchIndex < currentBatch.size() - 1){
 			++currentBatchIndex;
 			return true;
 		}
@@ -133,13 +134,15 @@ implements Scanner<KeyValue>{
 				return false;
 			}
 		}while(result.isEmpty());
-		updateCurrentBatch(result.raw());
+
+		//TODO iterate the cells without collecting them into a List
+		updateCurrentBatch(result.listCells());
 		//found a non-empty result
 		return true;
 	}
 
-	private void updateCurrentBatch(KeyValue[] kvs){
-		currentBatch = kvs;
+	private void updateCurrentBatch(List<Cell> cells){
+		currentBatch = cells;
 		currentBatchIndex = 0;
 	}
 }
