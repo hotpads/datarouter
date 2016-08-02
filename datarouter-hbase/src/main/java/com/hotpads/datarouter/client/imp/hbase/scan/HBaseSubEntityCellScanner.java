@@ -32,7 +32,6 @@ import com.hotpads.util.core.concurrent.Lazy;
 import com.hotpads.util.core.io.RuntimeIOException;
 import com.hotpads.util.core.iterable.scanner.Scanner;
 
-//TODO switch from KeyValues to Cells
 public class HBaseSubEntityCellScanner<
 		EK extends EntityKey<EK>,
 		E extends Entity<EK>,
@@ -126,11 +125,12 @@ implements Scanner<Cell>{
 					}
 				}
 			}catch(IOException e){
+				logger.error("EXTRA DEBUG LOGGING", e);//this isn't getting logged up the call chain for some reason
+				cleanup();
 				throw new RuntimeIOException(e);
 			}
 			if(result == null){
-				updateCurrentBatch(null);
-				hbaseResultScannerRef.get().close();//necessary?
+				cleanup();
 				return false;
 			}
 		}while(result.isEmpty());
@@ -142,5 +142,10 @@ implements Scanner<Cell>{
 	private void updateCurrentBatch(List<Cell> cells){
 		currentBatch = cells;
 		currentBatchIndex = 0;
+	}
+
+	private void cleanup(){
+		updateCurrentBatch(null);
+		hbaseResultScannerRef.get().close();
 	}
 }
