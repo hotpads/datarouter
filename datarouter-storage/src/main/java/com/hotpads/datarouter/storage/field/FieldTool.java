@@ -1,7 +1,6 @@
 package com.hotpads.datarouter.storage.field;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -138,9 +137,8 @@ public class FieldTool{
 				baos.write(keyBytes);
 				baos.write(valueLength.getBytes());
 				baos.write(valueBytes);
-			}catch(IOException e){
-				throw new RuntimeException("a ByteArrayOutputStream threw an IOException..."
-						+ " not sure how that could happen");
+			}catch(Exception e){
+				throw new RuntimeException("Failed writing " + field, e);
 			}
 		}
 		return baos.toByteArray();
