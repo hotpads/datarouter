@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.client;
 
+import com.hotpads.datarouter.node.Node;
 
 /**
  * Client represents a connection to a database, cache, or API endpoint. The Client might send requests to an external
@@ -20,5 +21,6 @@ extends Comparable<Client>{
 	ClientType getType();
 	void shutdown();
 	boolean isAvailable();
+	void notififyNodeRegistration(Node<?,?> node);
 
 }

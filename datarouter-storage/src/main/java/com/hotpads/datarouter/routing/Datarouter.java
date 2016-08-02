@@ -10,6 +10,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.stream.Stream;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -21,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.client.DatarouterClients;
+import com.hotpads.datarouter.client.LazyClientProvider;
 import com.hotpads.datarouter.inject.guice.executor.DatarouterExecutorGuiceModule;
 import com.hotpads.datarouter.node.DatarouterNodes;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
@@ -89,8 +91,8 @@ public class Datarouter{
 		clients.registerConfigFile(configFilePath);
 	}
 
-	public void registerClientIds(Collection<ClientId> clientIds){
-		clients.registerClientIds(this, clientIds);
+	public Stream<LazyClientProvider> registerClientIds(Collection<ClientId> clientIds){
+		return clients.registerClientIds(this, clientIds);
 	}
 
 	public synchronized void register(Router router) {
