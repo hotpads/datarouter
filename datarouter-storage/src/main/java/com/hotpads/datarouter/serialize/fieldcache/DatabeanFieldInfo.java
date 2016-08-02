@@ -184,13 +184,6 @@ public class DatabeanFieldInfo<
 				logger.info("client:" + clientId.getName() + " " + sampleDatabean.getDatabeanName() + " overridden -> "
 						+ tableName);
 			}
-		}else if(params.getBaseDatabeanClass() != null){//table-per-class-hierarchy (use superclass's table)
-			this.tableName = params.getBaseDatabeanClass().getSimpleName();
-			this.packagedTableName = sampleDatabean.getClass().getName();
-			this.explicitNodeName = clientId.getName() + "." + params.getBaseDatabeanClass().getSimpleName() + "."
-					+ sampleDatabean.getDatabeanName();
-			logger.info("client:"+clientId.getName()+" "+sampleDatabean.getDatabeanName()+" in superclass -> "
-					+ tableName);
 		}else{//default to using the databean's name as the table name
 			this.tableName = sampleDatabean.getDatabeanName();
 			this.packagedTableName = sampleDatabean.getClass().getName();

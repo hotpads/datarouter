@@ -37,7 +37,7 @@ public class HBaseEntityNodeIntegrationTests{
 	@BeforeClass
 	public void beforeClass(){
 		SortedNodeTestRouter router = new SortedNodeTestRouter(datarouter, entityNodeFactory,
-				SortedBeanEntityNode.ENTITY_NODE_PARAMS_3, nodeFactory, DrTestConstants.CLIENT_drTestHBase, true, true);
+				SortedBeanEntityNode.ENTITY_NODE_PARAMS_3, nodeFactory, DrTestConstants.CLIENT_drTestHBase, true);
 		sortedBeanEntityNode = router.sortedBeanEntity();
 
 		for(List<SortedBean> batch : new BatchingIterable<>(SortedBeans.generatedSortedBeans(), 1000)){
