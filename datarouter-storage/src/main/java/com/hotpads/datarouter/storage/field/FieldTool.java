@@ -128,7 +128,7 @@ public class FieldTool{
 			byte[] valueBytes = field.getBytes();
 			VarLong valueLength = new VarLong(DrArrayTool.length(valueBytes));
 			//abort if value is 0 bytes
-			if(DrArrayTool.isEmpty(valueBytes) && skipNullValues){
+			if(valueBytes == null && skipNullValues){
 				continue;
 			}
 			try{
