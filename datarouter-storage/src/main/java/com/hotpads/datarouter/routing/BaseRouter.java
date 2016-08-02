@@ -152,20 +152,20 @@ clients.defaultInitMode=lazy
 
 client.testHashMap.type=hashMap
 
-client.animal0.type=hibernate
+client.animal0.type=jdbc
 
-client.pets0.type=hibernate
+client.pets0.type=jdbc
 
-client.pets1.type=hibernate
+client.pets1.type=jdbc
 
-client.pets0_slave0.type=hibernate
+client.pets0_slave0.type=jdbc
 client.pets0_slave0.slave=true
 client.pets0_slave0.initMode=eager
 
-client.pets1_slave0.type=hibernate
+client.pets1_slave0.type=jdbc
 client.pets1_slave0.slave=true
 
-client.event.type=hibernate
+client.event.type=jdbc
 client.event.springBeanName=sessionFactoryEvent
 
 	 */

@@ -9,7 +9,7 @@ public class HBaseSortedNodeIntegrationTests extends BaseSortedNodeIntegrationTe
 
 	@BeforeClass
 	public void beforeClass(){
-		setup(DrTestConstants.CLIENT_drTestHBase, true, false);
+		setup(DrTestConstants.CLIENT_drTestHBase, false);
 	}
 
 	@AfterClass

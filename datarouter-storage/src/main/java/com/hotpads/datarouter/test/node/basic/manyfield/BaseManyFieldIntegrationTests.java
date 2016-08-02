@@ -67,16 +67,8 @@ public abstract class BaseManyFieldIntegrationTests{
 		return false;
 	}
 
-	public boolean isHibernate(){
-		return false;
-	}
-
 	public boolean isJdbc(){
 		return false;
-	}
-
-	public boolean isJdbcOrHibernate(){
-		return isHibernate() || isJdbc();
 	}
 
 	public boolean isHBase(){
@@ -104,7 +96,7 @@ public abstract class BaseManyFieldIntegrationTests{
 
 	@Test
 	public void testNullKey(){
-		if (!isJdbcOrHibernate()){
+		if (!isJdbc()){
 			return;
 		}
 		ManyFieldBean bean = new ManyFieldBean();
@@ -198,7 +190,7 @@ public abstract class BaseManyFieldIntegrationTests{
 			mapNode.put(bean, new Config().setPutMethod(PutMethod.INSERT_OR_UPDATE));
 		}
 		int expectedExceptions;
-		if(isJdbcOrHibernate()){
+		if(isJdbc()){
 			expectedExceptions = 1;
 		}else{
 			expectedExceptions = 0;
@@ -265,9 +257,6 @@ public abstract class BaseManyFieldIntegrationTests{
 
 	@Test
 	public void testLongDate(){
-		if(isHibernate()){
-			return;
-		}
 		ManyFieldBean bean = new ManyFieldBean();
 		Date val = new Date();
 		bean.setLongDateField(val);
@@ -392,9 +381,6 @@ public abstract class BaseManyFieldIntegrationTests{
 
 	@Test
 	public void testStringEnum(){
-		if(isHibernate()){
-			return;
-		}
 		ManyFieldBean bean = new ManyFieldBean();
 		bean.setStringEnumField(TestEnum.cat);
 		mapNode.put(bean, null);
@@ -438,9 +424,6 @@ public abstract class BaseManyFieldIntegrationTests{
 
 	@Test
 	public void testLongArray(){
-		if(isHibernate()){
-			return;
-		}
 		ManyFieldBean bean = new ManyFieldBean();
 		bean.appendToLongArrayField(Long.MAX_VALUE);
 		bean.appendToLongArrayField(Integer.MAX_VALUE);
@@ -457,9 +440,6 @@ public abstract class BaseManyFieldIntegrationTests{
 
 	@Test
 	public void testBooleanArray(){
-		if(isHibernate()){
-			return;
-		}
 		ManyFieldBean bean = new ManyFieldBean();
 		bean.appendToBooleanArrayField(true);
 		bean.appendToBooleanArrayField(null);
@@ -473,9 +453,6 @@ public abstract class BaseManyFieldIntegrationTests{
 
 	@Test
 	public void testIntegerArray(){
-		if(isHibernate()){
-			return;
-		}
 		ManyFieldBean bean = new ManyFieldBean();
 		bean.appendToIntegerArrayField(Integer.MAX_VALUE);
 		bean.appendToIntegerArrayField(null);
@@ -487,13 +464,8 @@ public abstract class BaseManyFieldIntegrationTests{
 		recordKey(bean.getKey());
 	}
 
-
-
 	@Test
 	public void testDoubleArray(){
-		if(isHibernate()){
-			return;
-		}
 		ManyFieldBean bean = new ManyFieldBean();
 		bean.appendToDoubleArrayField(Double.MAX_VALUE);
 		bean.appendToDoubleArrayField(null);
@@ -509,9 +481,6 @@ public abstract class BaseManyFieldIntegrationTests{
 
 	@Test
 	public void testDelimitedStringArray(){
-		if(isHibernate()){
-			return;
-		}
 		ManyFieldBean bean = new ManyFieldBean();
 		List<String> strings = DrListTool.create("abc hi!", "xxx's", "bb_3");
 		bean.setDelimitedStringArrayField(strings);
@@ -522,33 +491,10 @@ public abstract class BaseManyFieldIntegrationTests{
 		recordKey(bean.getKey());
 	}
 
-
-
-	/*@Test
-	public void testBigLongArray(){
-		if(isHibernate()){
-			return;
-		}
-		ManyFieldBean bean = new ManyFieldBean();
-		int numLongs = 1000000;//8MB
-		if(isMemcached()){
-			numLongs = 100000;//800kb (under memcached default 1mb max size)
-		}
-		for(int i=0; i < numLongs; ++i){
-			bean.appendToLongArrayField(i);
-		}
-		mapNode.put(bean, null);
-		ManyFieldBean roundTripped = mapNode.get(bean.getKey(), null);
-		AssertJUnit.assertTrue(0==DrListTool.compare(bean.getLongArrayField(), roundTripped.getLongArrayField()));
-		recordKey(bean.getKey());
-	}*/
-
 	/************************* helpers ********************************************/
 
 	protected void recordKey(ManyFieldBeanKey key){
 		allKeys.add(key);
 	}
-
-
 
 }

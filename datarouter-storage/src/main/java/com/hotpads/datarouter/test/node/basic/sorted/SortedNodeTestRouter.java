@@ -31,8 +31,8 @@ public class SortedNodeTestRouter extends BaseRouter{
 
 
 	public SortedNodeTestRouter(Datarouter datarouter, EntityNodeFactory entityNodeFactory,
-			EntityNodeParams<SortedBeanEntityKey,SortedBeanEntity> entityNodeParams,
-			NodeFactory nodeFactory, ClientId clientId, boolean useFielder, boolean entity){
+			EntityNodeParams<SortedBeanEntityKey,SortedBeanEntity> entityNodeParams, NodeFactory nodeFactory,
+			ClientId clientId, boolean entity){
 		super(datarouter, DrTestConstants.CONFIG_PATH, NAME);
 
 		this.clientIds = new ArrayList<>();
@@ -45,12 +45,8 @@ public class SortedNodeTestRouter extends BaseRouter{
 					entityNodeParams);
 			sortedBeanNode = sortedBeanEntityNode.sortedBean();
 		}else{
-			if(useFielder){
-				sortedBeanNode = register(nodeFactory.create(clientId, tableName, entityName, SortedBean.class,
-						SortedBeanFielder.class, this, false));
-			}else{// no fielder to trigger hibernate node
-				sortedBeanNode = register(nodeFactory.create(clientId, SortedBean.class, this, false));
-			}
+			sortedBeanNode = register(nodeFactory.create(clientId, tableName, entityName, SortedBean.class,
+					SortedBeanFielder.class, this, false));
 		}
 
 	}
