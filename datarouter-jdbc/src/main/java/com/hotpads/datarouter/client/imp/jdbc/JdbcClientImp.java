@@ -59,7 +59,7 @@ implements JdbcConnectionClient, TxnClient, JdbcClient{
 	}
 
 	@Override
-	public void notifyNodeRegistration(Node<?,?> node){
+	public void notififyNodeRegistration(Node<?,?> node){
 		schemaUpdateService.queueNodeForSchemaUpdate(getName(), node.getPhysicalNodeIfApplicable());
 	}
 

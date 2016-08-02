@@ -21,6 +21,6 @@ extends Comparable<Client>{
 	ClientType getType();
 	void shutdown();
 	boolean isAvailable();
-	void notifyNodeRegistration(Node<?,?> node);
+	void notififyNodeRegistration(Node<?,?> node);
 
 }

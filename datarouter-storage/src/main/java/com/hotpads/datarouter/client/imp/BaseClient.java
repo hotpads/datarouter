@@ -35,7 +35,7 @@ implements Client{
 	}
 
 	@Override
-	public void notifyNodeRegistration(Node<?,?> node){
+	public void notififyNodeRegistration(Node<?,?> node){
 		//do nothing
 	}
 }

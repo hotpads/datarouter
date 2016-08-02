@@ -33,7 +33,6 @@ implements ClientFactory{
 
 	private final Datarouter datarouter;
 	private final ClientAvailabilitySettings clientAvailabilitySettings;
-	private final JdbcSchemaUpdateServiceFactory jdbcSchemaUpdateServiceFactory;
 
 	private final String clientName;
 	private final JdbcOptions jdbcOptions;
@@ -41,6 +40,7 @@ implements ClientFactory{
 	private final SchemaUpdateOptions schemaUpdatePrintOptions;
 	private final SchemaUpdateOptions schemaUpdateExecuteOptions;
 	private final boolean schemaUpdateEnabled;
+	private final JdbcSchemaUpdateServiceFactory jdbcSchemaUpdateServiceFactory;
 
 	public JdbcSimpleClientFactory(Datarouter datarouter, String clientName,
 			ClientAvailabilitySettings clientAvailabilitySettings,
