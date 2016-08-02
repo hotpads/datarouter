@@ -4,7 +4,7 @@ import java.sql.Connection;
 import java.sql.Statement;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 
 import org.slf4j.Logger;
@@ -30,7 +30,7 @@ import com.hotpads.datarouter.util.core.DrMapTool;
 import com.hotpads.util.core.profile.PhaseTimer;
 
 public class SingleTableSchemaUpdate
-implements Callable<Void>{
+implements Callable<Optional<String>>{
 	private static final Logger logger = LoggerFactory.getLogger(SingleTableSchemaUpdate.class);
 
 	private final JdbcFieldCodecFactory fieldCodecFactory;
@@ -42,29 +42,21 @@ implements Callable<Void>{
 	private final SchemaUpdateOptions executeOptions;
 	private final PhysicalNode<?,?> physicalNode;
 
-	//we write back to these 2 thread-safe collections that are passed in
-	private final Set<String> updatedTables;
-	private final List<String> printedSchemaUpdates;
-
-
 	public SingleTableSchemaUpdate(JdbcFieldCodecFactory fieldCodecFactory, String clientName,
 			JdbcConnectionPool connectionPool, List<String> existingTableNames, SchemaUpdateOptions printOptions,
-			SchemaUpdateOptions executeOptions, Set<String> updatedTables, List<String> printedSchemaUpdates,
-			PhysicalNode<?,?> physicalNode){
+			SchemaUpdateOptions executeOptions, PhysicalNode<?,?> physicalNode){
 		this.fieldCodecFactory = fieldCodecFactory;
 		this.clientName = clientName;
 		this.connectionPool = connectionPool;
 		this.schemaName = connectionPool.getSchemaName();
 		this.printOptions = printOptions;
 		this.executeOptions = executeOptions;
-		this.updatedTables = updatedTables;
-		this.printedSchemaUpdates = printedSchemaUpdates;
 		this.existingTableNames = existingTableNames;
 		this.physicalNode = physicalNode;
 	}
 
 	@Override
-	public Void call(){
+	public Optional<String> call(){
 		if( ! physicalNode.getFieldInfo().getFieldAware()){
 			return null;
 		}
@@ -104,14 +96,11 @@ implements Callable<Void>{
 		SqlTable requested = generator.generate();
 		Connection connection = null;
 		String ddl = null;
+		Optional<String> printedSchemaUpdate = Optional.empty();
 		try{
 			if(!connectionPool.isWritable()){
 				return null;
 			}
-			if(updatedTables.contains(tableName)){
-				return null;
-			}
-			updatedTables.add(tableName);
 			connection = connectionPool.checkOut();
 			Statement statement = connection.createStatement();
 			boolean exists = existingTableNames.contains(tableName);
@@ -128,7 +117,7 @@ implements Callable<Void>{
 					logger.info("========================================== Please Execute SchemaUpdate"
 							+" ============================");
 					logger.info(ddl);
-					printedSchemaUpdates.add(ddl);
+					printedSchemaUpdate = Optional.of(ddl);
 				}
 			} else{
 				//execute the alter table
@@ -159,7 +148,7 @@ implements Callable<Void>{
 					logger.info("# ==================== Please Execute SchemaUpdate ==========================");
 					//print it
 					String alterTablePrintString = printAlterTableGenerator.generateDdl();
-					printedSchemaUpdates.add(alterTablePrintString);
+					printedSchemaUpdate = Optional.of(alterTablePrintString);
 					logger.info(alterTablePrintString);
 					logger.info("# ========================== Thank You ======================================");
 				}
@@ -170,6 +159,6 @@ implements Callable<Void>{
 		} finally{
 			connectionPool.checkIn(connection);
 		}
-		return null;
+		return printedSchemaUpdate;
 	}
 }

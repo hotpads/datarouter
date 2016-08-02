@@ -2,6 +2,7 @@ package com.hotpads.datarouter.client.imp;
 
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.availability.ClientAvailabilitySettings;
+import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.setting.Setting;
 import com.hotpads.datarouter.util.core.DrComparableTool;
 
@@ -31,5 +32,10 @@ implements Client{
 	@Override
 	public String getName(){
 		return name;
+	}
+
+	@Override
+	public void notififyNodeRegistration(Node<?,?> node){
+		//do nothing
 	}
 }
