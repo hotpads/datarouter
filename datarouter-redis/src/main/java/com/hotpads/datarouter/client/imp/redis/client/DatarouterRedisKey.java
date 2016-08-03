@@ -10,6 +10,7 @@ import com.hotpads.datarouter.util.core.DrListTool;
 
 public class DatarouterRedisKey{
 
+	// TODO ask if this is the corret key
 	public static final Integer DATAROUTER_VERSION = 3;
 
 	private final String nodeName;

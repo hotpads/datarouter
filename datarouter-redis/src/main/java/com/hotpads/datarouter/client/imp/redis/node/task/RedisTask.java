@@ -1,8 +1,5 @@
 package com.hotpads.datarouter.client.imp.redis.node.task;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.hotpads.datarouter.client.imp.redis.client.RedisClient;
 import com.hotpads.datarouter.client.imp.redis.node.RedisPhysicalNode;
 import com.hotpads.datarouter.config.Config;
@@ -15,7 +12,7 @@ import com.hotpads.trace.TracerTool;
 
 public abstract class RedisTask<V> extends TracedCallable<V>{
 
-	private static Logger logger = LoggerFactory.getLogger(RedisTask.class);
+//	private static Logger logger = LoggerFactory.getLogger(RedisTask.class);
 
 	//variables for TraceThreads and TraceSpans
 	// breaking encapsulation in favor of tracing

@@ -33,9 +33,7 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.test.DatarouterStorageTestModuleFactory;
 import com.hotpads.util.core.lang.ClassTool;
 
-/**
- * applications create this class via reflection
- */
+// applications create this class via reflection
 @Singleton
 public class RedisClientType extends BaseClientType{
 
@@ -50,7 +48,7 @@ public class RedisClientType extends BaseClientType{
 
 	@Override
 	public String getName(){
-		return DefaultClientTypes.CLIENT_TYPE_memcached;
+		return DefaultClientTypes.CLIENT_TYPE_redis;
 	}
 
 	@Override
@@ -94,18 +92,18 @@ public class RedisClientType extends BaseClientType{
 	}
 
 
-	/********************** tests ****************************/
+	/** tests ****************************************************************/
 
 	@Guice(moduleFactory = DatarouterStorageTestModuleFactory.class)
-	public static class MemcachedClientTypeTests{
+	public static class RedisClientTypeTests{
 		@Inject
 		private DatarouterInjector injector;
 
 		@Test
 		public void testClassLocation(){
 			String actualClassName = RedisClientType.class.getCanonicalName();
-			Assert.assertEquals(DefaultClientTypes.CLIENT_CLASS_memcached, actualClassName);
-			injector.getInstance(ClassTool.forName(DefaultClientTypes.CLIENT_CLASS_memcached));
+			Assert.assertEquals(DefaultClientTypes.CLIENT_CLASS_redis, actualClassName);
+			injector.getInstance(ClassTool.forName(DefaultClientTypes.CLIENT_CLASS_redis));
 		}
 	}
 

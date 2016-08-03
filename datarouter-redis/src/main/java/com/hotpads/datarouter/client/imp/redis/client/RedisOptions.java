@@ -7,17 +7,19 @@ import java.util.Properties;
 
 import com.hotpads.util.core.properties.TypedProperties;
 
+// TODO maybe delete this file since its not being used.
+// This could be causing errors
 public class RedisOptions extends TypedProperties{
 
 	protected String clientPrefix;
 
 	public RedisOptions(List<Properties> multiProperties, String clientName){
 		super(multiProperties);
-		this.clientPrefix = "client." + clientName + ".memcached.";
+		this.clientPrefix = "client." + clientName + ".redis.";
 	}
 
 	public Integer getNumServers(){
-		return getInteger(clientPrefix+"numServers");
+		return getInteger(clientPrefix + "numServers");
 	}
 
 	public InetSocketAddress[] getServers(){

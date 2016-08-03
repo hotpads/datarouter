@@ -25,17 +25,17 @@ public class RedisHandler extends BaseHandler {
 	@Handler
 	protected Mav inspectClient() {
 		initialize();
-		Mav mav = new Mav("/jsp/admin/datarouter/memcached/memcachedClientSummary.jsp");
+		Mav mav = new Mav("/jsp/admin/datarouter/redis/redisClientSummary.jsp");
 		mav.put("client", paramsRouter.getClient().getJedisClient());
 		Map<SocketAddress, Map<String, String>> stats = null;
-		stats = paramsRouter.getClient().getJedisClient().getStats();
-		mav.put("memcachedStats", stats);
+//		stats = paramsRouter.getClient().getJedisClient().getStats();
+		mav.put("redisStats", stats);
 
 		return mav;
 	}
 
 	private void initialize(){
-		paramsRouter = new RouterParams<>(datarouter, params, MEMCHACHED_NEEDS);
+		paramsRouter = new RouterParams<>(datarouter, params, REDIS_NEEDS);
 	}
 
 	private static final List<String> NEEDS_CLIENT = new ArrayList<>();
@@ -52,11 +52,11 @@ public class RedisHandler extends BaseHandler {
 	static{
 	}
 
-	private static final HashMap<String, List<String>> MEMCHACHED_NEEDS = new HashMap<>();
+	private static final HashMap<String, List<String>> REDIS_NEEDS = new HashMap<>();
 	static{
-		MEMCHACHED_NEEDS.put(RouterParams.NEEDS_CLIENT, NEEDS_CLIENT);
-		MEMCHACHED_NEEDS.put(RouterParams.NEEDS_ROUTER, NEEDS_ROUTER);
-		MEMCHACHED_NEEDS.put(RouterParams.NEEDS_NODE, NEEDS_NODE);
+		REDIS_NEEDS.put(RouterParams.NEEDS_CLIENT, NEEDS_CLIENT);
+		REDIS_NEEDS.put(RouterParams.NEEDS_ROUTER, NEEDS_ROUTER);
+		REDIS_NEEDS.put(RouterParams.NEEDS_NODE, NEEDS_NODE);
 	}
 
 }

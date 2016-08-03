@@ -1,7 +1,5 @@
 package com.hotpads.datarouter.client.imp.redis.client;
 
-import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
@@ -15,8 +13,6 @@ import com.hotpads.datarouter.client.availability.ClientAvailabilitySettings;
 import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.util.core.DrPropertiesTool;
 import com.hotpads.util.core.profile.PhaseTimer;
-
-import net.spy.memcached.KetamaConnectionFactory;
 
 public class RedisSimpleClientFactory implements ClientFactory{
 
@@ -39,15 +35,14 @@ public class RedisSimpleClientFactory implements ClientFactory{
 
 	@Override
 	public Client call(){
-		logger.info("activating Memcached client " + clientName);
+		logger.info("activating Redis client " + clientName);
 		PhaseTimer timer = new PhaseTimer(clientName);
 		redis.clients.jedis.Jedis jedisClient;
-		try{
-			//use KetamaConnectionFactory for consistent hashing between memcached servers
-			jedisClient = new redis.clients.jedis.Jedis(new KetamaConnectionFactory(), Arrays.asList(options.getServers()));
-		}catch(IOException e){
-			throw new RuntimeException(e);
-		}
+
+		// TODO fix this
+		jedisClient = new redis.clients.jedis.Jedis(options.getServers()[0].getHostName(),
+				options.getServers()[0].getPort());
+
 		RedisClient newClient = new RedisClientImp(clientName, jedisClient, clientAvailabilitySettings);
 		logger.warn(timer.add("done").toString());
 		return newClient;
