@@ -16,7 +16,7 @@ public class LazyClientProvider implements Callable<Client>{
 		this.client = Lazy.of(() -> {
 			try{
 				Client client = clientFactory.call();
-				datarouterNodes.getPhysicalNodesForClient(client.getName()).forEach(client::notififyNodeRegistration);
+				datarouterNodes.getPhysicalNodesForClient(client.getName()).forEach(client::notifyNodeRegistration);
 				return client;
 			}catch(Exception e){
 				throw new RuntimeException(e);
