@@ -123,7 +123,7 @@ public class JdbcSchemaUpdateService{
 	}
 
 	private List<String> fetchExistingTables(){
-		Connection connection = null;
+		Connection connection;
 		try{
 			connection = connectionPool.checkOut();
 		}catch(SQLException e){
