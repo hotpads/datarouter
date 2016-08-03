@@ -12,11 +12,8 @@ import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.ClientTableNodeNames;
 import com.hotpads.datarouter.client.imp.hbase.client.HBaseClient;
-import com.hotpads.datarouter.client.imp.hbase.task.HBaseMultiAttemptTask;
-import com.hotpads.datarouter.client.imp.hbase.task.HBaseTask;
 import com.hotpads.datarouter.client.imp.hbase.util.HBaseSubEntityQueryBuilder;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.routing.Datarouter;
@@ -31,6 +28,7 @@ import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.concurrent.Lazy;
 import com.hotpads.util.core.io.RuntimeIOException;
 import com.hotpads.util.core.iterable.scanner.Scanner;
+import com.hotpads.util.datastructs.MutableString;
 
 public class HBaseSubEntityCellScanner<
 		EK extends EntityKey<EK>,
@@ -46,7 +44,7 @@ implements Scanner<Cell>{
 
 	private final Datarouter datarouter;
 	private final HBaseSubEntityQueryBuilder<EK,E,PK,D,F> queryBuilder;
-	private final Client client;
+	private final HBaseClient client;
 	private final ClientTableNodeNames clientTableNodeNames;
 
 	private final Config config;
@@ -57,10 +55,12 @@ implements Scanner<Cell>{
 	private final String scanKeysVsRowsNumBatches;
 	private final String scanKeysVsRowsNumRows;
 	private final Ref<ResultScanner> hbaseResultScannerRef;
+
+	private Table table;
 	private List<Cell> currentBatch;
 	private int currentBatchIndex;
 
-	public HBaseSubEntityCellScanner(Datarouter datarouter, Client client, ClientTableNodeNames clientTableNodeNames,
+	public HBaseSubEntityCellScanner(Datarouter datarouter, HBaseClient client, ClientTableNodeNames clientTableNodeNames,
 			HBaseSubEntityQueryBuilder<EK,E,PK,D,F> queryBuilder, Config config, int partition, Range<PK> range,
 			boolean keysOnly){
 		this.datarouter = datarouter;
@@ -97,16 +97,27 @@ implements Scanner<Cell>{
 	}
 
 	private ResultScanner initResultScanner(){
-		return new HBaseMultiAttemptTask<>(new HBaseTask<ResultScanner>(datarouter, clientTableNodeNames,
-				scanKeysVsRowsNumBatches, config){
-			@Override
-			public ResultScanner hbaseCall(Table htable, HBaseClient client, ResultScanner managedResultScanner)
-			throws Exception{
-				Scan scan = queryBuilder.getScanForPartition(partition, range, config, keysOnly, ALLOW_PARTIAL_RESULTS,
-						MAX_RESULT_SIZE_BYTES);
-				return htable.getScanner(scan);
-			}
-		}).call();
+//		return new HBaseMultiAttemptTask<>(new HBaseTask<ResultScanner>(datarouter, clientTableNodeNames,
+//				scanKeysVsRowsNumBatches, config){
+//			@Override
+//			public ResultScanner hbaseCall(Table htable, HBaseClient client, ResultScanner managedResultScanner)
+//			throws Exception{
+//				Scan scan = queryBuilder.getScanForPartition(partition, range, config, keysOnly, ALLOW_PARTIAL_RESULTS,
+//						MAX_RESULT_SIZE_BYTES);
+//				return htable.getScanner(scan);
+//			}
+//		}).call();
+		Scan scan = queryBuilder.getScanForPartition(partition, range, config, keysOnly, ALLOW_PARTIAL_RESULTS,
+				MAX_RESULT_SIZE_BYTES);
+		MutableString progress = new MutableString("start");
+		table = client.getTable(clientTableNodeNames.getTableName());
+		try{
+			return table.getScanner(scan);
+		}catch(IOException e){
+			logger.error("error at progress {}", progress);
+			throw new RuntimeIOException(e);
+		}
+
 	}
 
 	private boolean loadNextResult(){
@@ -126,11 +137,11 @@ implements Scanner<Cell>{
 				}
 			}catch(IOException e){
 				logger.error("EXTRA DEBUG LOGGING", e);//this isn't getting logged up the call chain for some reason
-				cleanup();
+				cleanup(true);
 				throw new RuntimeIOException(e);
 			}
 			if(result == null){
-				cleanup();
+				cleanup(false);
 				return false;
 			}
 		}while(result.isEmpty());
@@ -144,8 +155,13 @@ implements Scanner<Cell>{
 		currentBatchIndex = 0;
 	}
 
-	private void cleanup(){
+	private void cleanup(boolean possiblyTarnished){
 		updateCurrentBatch(null);
 		hbaseResultScannerRef.get().close();
+		try{
+			table.close();
+		}catch(IOException e){
+			throw new RuntimeIOException(e);
+		}
 	}
 }

@@ -17,8 +17,8 @@ import org.apache.hadoop.hbase.filter.PrefixFilter;
 import com.hotpads.datarouter.client.imp.hbase.batching.entity.HBaseEntityDatabeanBatchLoader;
 import com.hotpads.datarouter.client.imp.hbase.batching.entity.HBaseEntityPrimaryKeyBatchLoader;
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseSubEntityReaderNode;
-import com.hotpads.datarouter.client.imp.hbase.scan.HBaseSubEntityDatabeanScanner;
 import com.hotpads.datarouter.client.imp.hbase.scan.HBaseSubEntityCellScanner;
+import com.hotpads.datarouter.client.imp.hbase.scan.HBaseSubEntityDatabeanScanner;
 import com.hotpads.datarouter.client.imp.hbase.scan.HBaseSubEntityPkScanner;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
@@ -252,7 +252,7 @@ extends HBaseEntityQueryBuilder<EK,E>{
 		List<Integer> partitions = isSingleEntity(range) ? Collections.singletonList(partitioner.getPartition(range
 				.getStart().getEntityKey())) : partitioner.getAllPartitions();
 		for(Integer partition : partitions){
-			HBaseSubEntityCellScanner<EK,E,PK,D,F> kvScanner = node.makeKvScanner(config, partition, range, true);
+			HBaseSubEntityCellScanner<EK,E,PK,D,F> kvScanner = node.makeCellScanner(config, partition, range, true);
 			HBaseSubEntityPkScanner<EK,E,PK,D,F> pkScanner = new HBaseSubEntityPkScanner<>(node.getResultParser(),
 					kvScanner, range);
 			scanners.add(pkScanner);
@@ -266,7 +266,7 @@ extends HBaseEntityQueryBuilder<EK,E>{
 		List<Integer> partitions = isSingleEntity(range) ? Collections.singletonList(partitioner.getPartition(range
 				.getStart().getEntityKey())) : partitioner.getAllPartitions();
 		for(Integer partition : partitions){
-			HBaseSubEntityCellScanner<EK,E,PK,D,F> kvScanner = node.makeKvScanner(config, partition, range, false);
+			HBaseSubEntityCellScanner<EK,E,PK,D,F> kvScanner = node.makeCellScanner(config, partition, range, false);
 			HBaseSubEntityDatabeanScanner<EK,E,PK,D,F> pkScanner = new HBaseSubEntityDatabeanScanner<>(node
 					.getResultParser(), kvScanner, range);
 			scanners.add(pkScanner);
