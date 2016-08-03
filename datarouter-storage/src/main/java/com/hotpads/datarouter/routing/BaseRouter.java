@@ -54,7 +54,7 @@ implements Router{
 		datarouter.registerClientIds(node.getClientIds())
 				.filter(LazyClientProvider::isInitialized)
 				.map(LazyClientProvider::call)
-				.forEach(client -> client.notififyNodeRegistration(node));
+				.forEach(client -> client.notifyNodeRegistration(node));
 		return node;
 	}
 
