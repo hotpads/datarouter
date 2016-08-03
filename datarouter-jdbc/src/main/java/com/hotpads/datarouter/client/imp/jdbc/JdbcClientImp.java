@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.availability.ClientAvailabilitySettings;
 import com.hotpads.datarouter.client.imp.BaseClient;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.execute.JdbcSchemaUpdateService;
 import com.hotpads.datarouter.client.type.JdbcClient;
 import com.hotpads.datarouter.client.type.JdbcConnectionClient;
 import com.hotpads.datarouter.client.type.TxnClient;
@@ -19,6 +20,7 @@ import com.hotpads.datarouter.config.Isolation;
 import com.hotpads.datarouter.connection.ConnectionHandle;
 import com.hotpads.datarouter.connection.JdbcConnectionPool;
 import com.hotpads.datarouter.exception.DataAccessException;
+import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.datarouter.util.core.DrMapTool;
 
@@ -33,13 +35,15 @@ implements JdbcConnectionClient, TxnClient, JdbcClient{
 	private AtomicLong connectionCounter = new AtomicLong(-1L);
 
 	private final JdbcConnectionPool connectionPool;
+	private final JdbcSchemaUpdateService schemaUpdateService;
 
 	/**************************** constructor **********************************/
 
-	public JdbcClientImp(String name, JdbcConnectionPool connectionPool,
+	public JdbcClientImp(String name, JdbcConnectionPool connectionPool, JdbcSchemaUpdateService schemaUpdateService,
 			ClientAvailabilitySettings clientAvailabilitySettings){
 		super(name, clientAvailabilitySettings);
 		this.connectionPool = connectionPool;
+		this.schemaUpdateService = schemaUpdateService;
 	}
 
 	/******************************** methods **********************************/
@@ -52,6 +56,11 @@ implements JdbcConnectionClient, TxnClient, JdbcClient{
 	@Override
 	public String toString(){
 		return getName();
+	}
+
+	@Override
+	public void notifyNodeRegistration(Node<?,?> node){
+		schemaUpdateService.queueNodeForSchemaUpdate(getName(), node.getPhysicalNodeIfApplicable());
 	}
 
 	/****************************** ConnectionClient methods *************************/

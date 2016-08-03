@@ -5,6 +5,7 @@ import java.util.List;
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.client.ClientType;
+import com.hotpads.datarouter.client.LazyClientProvider;
 import com.hotpads.datarouter.client.RouterOptions;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.storage.databean.Databean;
@@ -49,8 +50,11 @@ implements Router{
 
 	@Override
 	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,N extends Node<PK,D>> N register(N node){
-		this.datarouter.getNodes().register(name, node);
-		this.datarouter.registerClientIds(node.getClientIds());
+		datarouter.getNodes().register(name, node);
+		datarouter.registerClientIds(node.getClientIds())
+				.filter(LazyClientProvider::isInitialized)
+				.map(LazyClientProvider::call)
+				.forEach(client -> client.notifyNodeRegistration(node));
 		return node;
 	}
 

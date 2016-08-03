@@ -2,42 +2,36 @@ package com.hotpads.datarouter.client;
 
 import java.util.concurrent.Callable;
 
+import com.hotpads.datarouter.node.DatarouterNodes;
+import com.hotpads.util.core.concurrent.Lazy;
+
 /*
  * call a bunch of these in parallel
  */
 public class LazyClientProvider implements Callable<Client>{
 
-	private ClientFactory clientFactory;
+	private final Lazy<Client> client;
 
-	//volatile to ensure atomic construction: http://en.wikipedia.org/wiki/Double-checked_locking#Usage_in_Java
-	private volatile Client client;
-
-	public LazyClientProvider(ClientFactory clientFactory){
-		this.clientFactory = clientFactory;
+	public LazyClientProvider(ClientFactory clientFactory, DatarouterNodes datarouterNodes){
+		this.client = Lazy.of(() -> {
+			try{
+				Client client = clientFactory.call();
+				datarouterNodes.getPhysicalNodesForClient(client.getName()).forEach(client::notifyNodeRegistration);
+				return client;
+			}catch(Exception e){
+				throw new RuntimeException(e);
+			}
+		});
 	}
 
 	@Override
 	public Client call(){
-		if(client != null){// lightweight volatile check
-			return client;
-		}
-		synchronized(this){
-			if(client != null){
-				return client;
-			}
-//			 logger.warn("activating Jdbc client "+clientName);
-			try{
-				client = clientFactory.call();
-			}catch(Exception e){
-				throw new RuntimeException(e);
-			}
-			return client;
-		}
+		return client.get();
 	}
 
 	//used by datarouterMenu.jsp
 	public boolean isInitialized(){
-		return client != null;
+		return client.isInitialized();
 	}
 
 	//bean accessor used by datarouterMenu.jsp
