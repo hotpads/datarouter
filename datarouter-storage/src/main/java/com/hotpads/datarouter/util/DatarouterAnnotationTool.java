@@ -4,7 +4,6 @@ import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
-import javax.persistence.Column;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -87,13 +86,10 @@ public class DatarouterAnnotationTool {
 		public static final int LENGTH_feedId = 27;
 		public static final int LENGTH_COL_LABEL = 50;
 
-		@Column(length=LENGTH_name)
 		private String name;
 
-		@Column(length=LENGTH_feedId, nullable=false)
 		protected String feedId;
 
-		@Column(length=LENGTH_COL_LABEL)
 		protected String label = null;
 
 		public final String getName(){

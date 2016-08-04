@@ -10,7 +10,6 @@ import java.util.TreeMap;
 
 import javax.persistence.Access;
 import javax.persistence.AccessType;
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Lob;
@@ -68,35 +67,23 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 	private Long longField;
 	private Float floatField;
 	private Double doubleField;
-	@Column(columnDefinition="bigint(20)")
 	private Date longDateField;
 	private Character characterField;
 	private String stringField;
 	private Integer varIntField;
-	@Column(columnDefinition="int")
 	private TestEnum intEnumField;
-	@Column(columnDefinition="int")
 	private TestEnum varIntEnumField;
-	@Column(columnDefinition="varchar(" +LEN_STRING_ENUM_FIELD +")")
 	private TestEnum stringEnumField;
 
-	@Lob @Column(length=1024)
 	private byte[] stringByteField;
 
-	@Lob @Column(length=1<<27)
 	private byte[] data;
 
-	@Lob @Column(length=1<<27)
 	private List<Long> longArrayField;
-	@Lob @Column(length=1<<27)
 	private List<Boolean> booleanArrayField;
-	@Lob @Column(length=1<<27)
 	private List<Integer> integerArrayField;
-	@Lob @Column(length=1<<27)
 	private List<Double> doubleArrayField;
-	@Lob @Column(length=1<<27)
 	private List<String> delimitedStringArrayField;
-	@Lob @Column(length=1<<27)
 	private byte[] byteArrayField;
 	private String testSchemaUpdateField;
 	private Long incrementField;

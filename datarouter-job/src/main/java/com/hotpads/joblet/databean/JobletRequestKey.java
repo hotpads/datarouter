@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.persistence.Entity;
 
@@ -28,10 +27,8 @@ public class JobletRequestKey extends BasePrimaryKey<JobletRequestKey>{
 
 	public static final int DEFAULT_STRING_LENGTH = MySqlColumnType.MAX_LENGTH_VARCHAR;
 
-	@Column(length=DEFAULT_STRING_LENGTH)
 	private String type;//TODO use StringEnumField<JobletType<?>>
 	private Integer executionOrder = Integer.MAX_VALUE;
-	@Column(length=50)
 	private Long created;//TODO rename createdMs or use Date
 	private Integer batchSequence = 0;//tie breaker for keys "created" in same millisecond
 
