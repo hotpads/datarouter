@@ -2,8 +2,6 @@ package com.hotpads.datarouter.test.node.basic.sorted;
 
 import java.util.List;
 
-import javax.persistence.Access;
-import javax.persistence.AccessType;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
@@ -23,7 +21,6 @@ import com.hotpads.datarouter.storage.key.multi.BaseLookup;
 
 @SuppressWarnings("serial")
 @Entity()
-@Access(AccessType.FIELD)
 public class SortedBean extends BaseDatabean<SortedBeanKey,SortedBean>{
 
 	private static final String KEY_NAME = "key";

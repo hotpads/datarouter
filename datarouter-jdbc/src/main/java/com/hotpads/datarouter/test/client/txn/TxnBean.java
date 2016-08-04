@@ -2,8 +2,6 @@ package com.hotpads.datarouter.test.client.txn;
 
 import java.util.List;
 
-import javax.persistence.Access;
-import javax.persistence.AccessType;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
@@ -14,7 +12,6 @@ import com.hotpads.datarouter.storage.field.FieldTool;
 
 
 @Entity()
-@Access(AccessType.FIELD)
 public class TxnBean extends BaseDatabean<TxnBeanKey,TxnBean>{
 
 	@Id
