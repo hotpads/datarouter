@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 
@@ -45,7 +44,6 @@ import com.hotpads.datarouter.util.core.DrObjectTool;
 import com.hotpads.util.core.collections.arrays.LongArray;
 
 
-@Entity()
 public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 
 	public static final int DEFAULT_STRING_LENGTH = MySqlColumnType.MAX_LENGTH_VARCHAR;
