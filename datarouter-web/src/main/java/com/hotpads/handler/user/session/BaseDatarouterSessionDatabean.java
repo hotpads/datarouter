@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
@@ -17,7 +16,6 @@ public abstract class BaseDatarouterSessionDatabean<
 		D extends BaseDatarouterSessionDatabean<PK,D>>
 extends BaseDatabean<PK,D>{
 
-	@Id
 	protected PK key;
 	private Date created;//track how old the session is
 	private Date updated;//last heartbeat time

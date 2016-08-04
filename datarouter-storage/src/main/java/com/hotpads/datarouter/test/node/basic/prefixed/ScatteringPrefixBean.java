@@ -3,7 +3,6 @@ package com.hotpads.datarouter.test.node.basic.prefixed;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.Id;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
@@ -20,7 +19,6 @@ import com.hotpads.datarouter.storage.prefix.ScatteringPrefix;
 
 public class ScatteringPrefixBean extends BaseDatabean<ScatteringPrefixBeanKey,ScatteringPrefixBean>{
 
-	@Id
 	private ScatteringPrefixBeanKey key;
 
 	private String f1;

@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import javax.persistence.Id;
 import javax.persistence.Lob;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSet;
@@ -52,7 +51,6 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 
 	/***************************** fields ********************************/
 
-	@Id
 	private ManyFieldBeanKey key;
 
 	private Boolean booleanField;

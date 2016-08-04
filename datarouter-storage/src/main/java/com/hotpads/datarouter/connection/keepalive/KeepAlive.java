@@ -2,7 +2,6 @@ package com.hotpads.datarouter.connection.keepalive;
 
 import java.util.List;
 
-import javax.persistence.Id;
 
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
@@ -21,7 +20,6 @@ public class KeepAlive extends BaseDatabean<KeepAliveKey,KeepAlive>{
 
 	public static final String TABLE_NAME = "KeepAlive";//if you want to modify, you will have to change other stuff as well
 
-	@Id
 	private KeepAliveKey key;
 
 	/***************************** columns ******************************/
