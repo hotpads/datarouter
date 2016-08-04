@@ -4,13 +4,11 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import javax.persistence.MappedSuperclass;
 
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.imp.DateField;
 
-@MappedSuperclass
 public abstract class BaseDatarouterSessionDatabean<
 		PK extends BaseDatarouterSessionDatabeanKey<PK>,
 		D extends BaseDatarouterSessionDatabean<PK,D>>
