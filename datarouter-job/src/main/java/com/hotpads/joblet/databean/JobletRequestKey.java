@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import javax.persistence.Embeddable;
 import javax.persistence.Entity;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
@@ -22,7 +21,6 @@ import com.hotpads.joblet.enums.JobletType;
 
 @SuppressWarnings("serial")
 @Entity
-@Embeddable
 public class JobletRequestKey extends BasePrimaryKey<JobletRequestKey>{
 
 	public static final int DEFAULT_STRING_LENGTH = MySqlColumnType.MAX_LENGTH_VARCHAR;
