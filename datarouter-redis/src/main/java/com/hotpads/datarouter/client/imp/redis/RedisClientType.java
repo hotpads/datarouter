@@ -72,7 +72,6 @@ public class RedisClientType extends BaseClientType{
 		return new RedisNode<>(nodeParams);
 	}
 
-	//ignore the entityNodeParams
 	@Override
 	public <EK extends EntityKey<EK>,
 			E extends Entity<EK>,
@@ -91,7 +90,6 @@ public class RedisClientType extends BaseClientType{
 		return new PhysicalMapStorageCallsiteAdapter<>(nodeParams, (PhysicalMapStorageNode<PK,D>) backingNode);
 	}
 
-
 	/** tests ****************************************************************/
 
 	@Guice(moduleFactory = DatarouterStorageTestModuleFactory.class)
@@ -106,5 +104,4 @@ public class RedisClientType extends BaseClientType{
 			injector.getInstance(ClassTool.forName(DefaultClientTypes.CLIENT_CLASS_redis));
 		}
 	}
-
 }

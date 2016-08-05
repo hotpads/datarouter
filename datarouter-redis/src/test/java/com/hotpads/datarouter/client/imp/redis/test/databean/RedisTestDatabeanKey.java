@@ -10,7 +10,6 @@ import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
 
 public class RedisTestDatabeanKey extends BasePrimaryKey<RedisTestDatabeanKey>{
 
-
 	private static final long serialVersionUID = 1L;
 
 	private String id;

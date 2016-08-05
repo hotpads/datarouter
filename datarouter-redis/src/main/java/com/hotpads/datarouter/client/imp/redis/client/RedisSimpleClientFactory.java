@@ -39,7 +39,6 @@ public class RedisSimpleClientFactory implements ClientFactory{
 		PhaseTimer timer = new PhaseTimer(clientName);
 		redis.clients.jedis.Jedis jedisClient;
 
-		// TODO Fix this to handle a cluster
 		jedisClient = new redis.clients.jedis.Jedis(options.getServers()[0].getHostName(),
 				options.getServers()[0].getPort());
 

@@ -45,7 +45,7 @@ implements RedisPhysicalNode<PK,D>, MapStorageReader<PK,D>{
 		return (RedisClient)getRouter().getClient(getClientId().getName());
 	}
 
-	/** MapStorageReader methods *********************************************/
+	/** exists ***************************************************************/
 
 	@Override
 	public boolean exists(PK key, Config config){
@@ -62,20 +62,17 @@ implements RedisPhysicalNode<PK,D>, MapStorageReader<PK,D>{
 		if(key == null){
 			return null;
 		}
-
-		String json;
-
 		try{
 			startTraceSpan("redis get");
-			json = getClient().getJedisClient().get(buildRedisKey(key));
-		} finally {
+			String json = getClient().getJedisClient().get(buildRedisKey(key));
+			if(json == null){
+				return null;
+			}
+			return JsonDatabeanTool.databeanFromJson(fieldInfo.getDatabeanSupplier(), fieldInfo.getSampleFielder(),
+					json);
+		} finally{
 			finishTraceSpan();
 		}
-
-		if(json == null){
-			return null;
-		}
-		return JsonDatabeanTool.databeanFromJson(fieldInfo.getDatabeanSupplier(), fieldInfo.getSampleFielder(), json);
 	}
 
 	@Override
@@ -107,14 +104,13 @@ implements RedisPhysicalNode<PK,D>, MapStorageReader<PK,D>{
 		try{
 			startTraceSpan("redis getTallyCount");
 			tallyCount = getClient().getJedisClient().get(buildRedisKey(key));
+			if(tallyCount == null){
+				return null;
+			}
+			return Long.valueOf(tallyCount.trim());
 		} finally{
 			finishTraceSpan();
 		}
-
-		if(tallyCount == null){
-			return null;
-		}
-		return Long.valueOf(tallyCount.trim());
 	}
 
 	/** serialization ********************************************************/

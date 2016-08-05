@@ -5,7 +5,6 @@ import java.util.List;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.hotpads.datarouter.storage.field.BaseListField;
-import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.bytes.DoubleByteTool;
 
 
@@ -62,18 +61,4 @@ public class DoubleArrayField extends BaseListField<Double,List<Double>>{
 		// TODO Auto-generated method stub
 		return 0;
 	}
-
-
-	public static void main(String[] args){
-		DoubleArrayField testField = new DoubleArrayField("stuff", DrListTool.create(new Double(-5.00001), new Double(203920.555),  null));
-		for(Double num : testField.value){
-			System.out.println(num);
-		}
-		byte[] bytes = testField.getBytes();
-		List<Double> doubles = testField.fromBytesButDoNotSet(bytes, 0);
-		for(Double doub : doubles){
-			System.out.println(doub);
-		}
-	}
-
 }

@@ -491,8 +491,6 @@ public abstract class BaseManyFieldIntegrationTests{
 		recordKey(bean.getKey());
 	}
 
-
-
 	@Test
 	public void testDoubleArray(){
 		if(isHibernate()){
@@ -526,8 +524,6 @@ public abstract class BaseManyFieldIntegrationTests{
 		recordKey(bean.getKey());
 	}
 
-
-
 	/*@Test
 	public void testBigLongArray(){
 		if(isHibernate()){
@@ -552,7 +548,4 @@ public abstract class BaseManyFieldIntegrationTests{
 	protected void recordKey(ManyFieldBeanKey key){
 		allKeys.add(key);
 	}
-
-
-
 }

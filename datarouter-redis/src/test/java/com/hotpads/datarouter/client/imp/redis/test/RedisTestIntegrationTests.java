@@ -224,7 +224,6 @@ public class RedisTestIntegrationTests{
 		deleteRecord(bean);
 	}
 
-
 	/** private **************************************************************/
 
 	private void deleteRecord(RedisTestDatabean bean){

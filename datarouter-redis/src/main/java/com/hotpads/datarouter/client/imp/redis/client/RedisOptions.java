@@ -24,7 +24,7 @@ public class RedisOptions extends TypedProperties{
 		return getInteger(clientPrefix + "numServers");
 	}
 
-	//TODO ask about this
+	// Used for JedisClient
 	public InetSocketAddress[] getServers(){
 		List<InetSocketAddress> servers = new LinkedList<>();
 		for(int i = 0; i < getNumServers(); ++i){
@@ -38,6 +38,7 @@ public class RedisOptions extends TypedProperties{
 		return servers.toArray(new InetSocketAddress[servers.size()]);
 	}
 
+	// Used for JedisCluster
 	public Set<HostAndPort> getHostsAndPorts(){
 		Set<HostAndPort> cluster = new HashSet<>();
 		for(int i = 0; i < getNumServers(); ++i){

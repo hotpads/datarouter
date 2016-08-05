@@ -59,21 +59,21 @@ implements PhysicalMapStorageNode<PK,D>{
 			return;
 		}
 
-		Long ttl = getTtlMs(config);
-
-		String jsonBean;
 		try{
 			startTraceSpan("redis put");
-			jsonBean = JsonDatabeanTool.databeanToJsonString(databean, fieldInfo.getSampleFielder());
-		} finally{
+			Long ttl = getTtlMs(config);
+
+			String jsonBean = JsonDatabeanTool.databeanToJsonString(databean, fieldInfo.getSampleFielder());
+
+			if(ttl == null){
+				getClient().getJedisClient().set(key, jsonBean);
+			} else{
+				getClient().getJedisClient().set(key, jsonBean, "XX", "PX", ttl);
+			}
+		} finally {
 			finishTraceSpan();
 		}
 
-		if(ttl == null){
-			getClient().getJedisClient().set(key, jsonBean);
-		} else{
-			getClient().getJedisClient().set(key, jsonBean, "XX", "PX", ttl);
-		}
 	}
 
 	@Override
@@ -88,10 +88,14 @@ implements PhysicalMapStorageNode<PK,D>{
 
 	/** delete ***************************************************************/
 
-	// TODO redis supports this and can be added
 	@Override
 	public void deleteAll(final Config config){
-		throw new UnsupportedOperationException();
+		try{
+			startTraceSpan("redis delete all");
+			getClient().getJedisClient().flushAll();
+		} finally{
+			finishTraceSpan();
+		}
 	}
 
 	@Override
