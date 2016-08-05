@@ -1,5 +1,7 @@
 package com.hotpads.datarouter.node.factory;
 
+import java.util.function.Supplier;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -14,6 +16,7 @@ import com.hotpads.datarouter.routing.Router;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
+import com.hotpads.util.core.java.ReflectionTool;
 
 @Singleton
 public class SettinglessNodeFactory{
@@ -42,7 +45,6 @@ public class SettinglessNodeFactory{
 	}
 
 
-	// +fielderClass
 	public <PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>,
@@ -51,6 +53,25 @@ public class SettinglessNodeFactory{
 			ClientId clientId,
 			Class<D> databeanClass,
 			Class<F> fielderClass,
+			Router router,
+			boolean addAdapter){
+		return create(clientId, ReflectionTool.supplier(databeanClass), ReflectionTool.supplier(fielderClass), router,
+				addAdapter);
+	}
+
+
+	/**
+	 * @deprecated use {@link #create(ClientId, Supplier, Supplier, Router, boolean)}
+	 */
+	@Deprecated
+	public <PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>,
+			N extends Node<PK,D>>
+	N create(
+			ClientId clientId,
+			Supplier<D> databeanClass,
+			Supplier<F> fielderClass,
 			Router router,
 			boolean addAdapter){
 		NodeParamsBuilder<PK,D,F> paramsBuilder = new NodeParamsBuilder<>(router, databeanClass, fielderClass)

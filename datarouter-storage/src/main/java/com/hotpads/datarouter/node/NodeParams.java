@@ -9,7 +9,6 @@ import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.cache.Cached;
-import com.hotpads.util.core.java.ReflectionTool;
 
 public class NodeParams<
 		PK extends PrimaryKey<PK>,
@@ -83,14 +82,6 @@ public class NodeParams<
 
 
 		/************** construct **************/
-
-		/**
-		 * @deprecated use {@link #NodeParams(Router, Supplier)}
-		 */
-		@Deprecated
-		public NodeParamsBuilder(Router router, Class<D> databeanClass, Class<F> fielderClass){
-			this(router, ReflectionTool.supplier(databeanClass), ReflectionTool.supplier(fielderClass));
-		}
 
 		public NodeParamsBuilder(Router router, Supplier<D> databeanSupplier, Supplier<F> fielderSupplier){
 			this.router = router;
