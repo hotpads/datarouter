@@ -2,7 +2,6 @@ package com.hotpads.datarouter.connection.keepalive;
 
 import java.util.List;
 
-import javax.persistence.Embeddable;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.storage.field.Field;
@@ -12,7 +11,6 @@ import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
 
 
 @SuppressWarnings("serial")
-@Embeddable
 public class KeepAliveKey extends BasePrimaryKey<KeepAliveKey>{
 
 
