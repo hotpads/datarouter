@@ -16,7 +16,6 @@ import com.hotpads.datarouter.client.ClientTableNodeNames;
 import com.hotpads.datarouter.client.imp.hbase.client.HBaseClient;
 import com.hotpads.datarouter.client.imp.hbase.util.HBaseSubEntityQueryBuilder;
 import com.hotpads.datarouter.config.Config;
-import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.entity.Entity;
@@ -28,7 +27,6 @@ import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.concurrent.Lazy;
 import com.hotpads.util.core.io.RuntimeIOException;
 import com.hotpads.util.core.iterable.scanner.Scanner;
-import com.hotpads.util.datastructs.MutableString;
 
 public class HBaseSubEntityCellScanner<
 		EK extends EntityKey<EK>,
@@ -42,7 +40,6 @@ implements Scanner<Cell>{
 	private static final boolean ALLOW_PARTIAL_RESULTS = true;
 	private static final long MAX_RESULT_SIZE_BYTES = 1024 * 1024; // 1 MB
 
-	private final Datarouter datarouter;
 	private final HBaseSubEntityQueryBuilder<EK,E,PK,D,F> queryBuilder;
 	private final HBaseClient client;
 	private final ClientTableNodeNames clientTableNodeNames;
@@ -52,7 +49,6 @@ implements Scanner<Cell>{
 	private final Range<PK> range;
 	private final boolean keysOnly;
 
-	private final String scanKeysVsRowsNumBatches;
 	private final String scanKeysVsRowsNumRows;
 	private final Ref<ResultScanner> hbaseResultScannerRef;
 
@@ -60,10 +56,9 @@ implements Scanner<Cell>{
 	private List<Cell> currentBatch;
 	private int currentBatchIndex;
 
-	public HBaseSubEntityCellScanner(Datarouter datarouter, HBaseClient client, ClientTableNodeNames clientTableNodeNames,
+	public HBaseSubEntityCellScanner(HBaseClient client, ClientTableNodeNames clientTableNodeNames,
 			HBaseSubEntityQueryBuilder<EK,E,PK,D,F> queryBuilder, Config config, int partition, Range<PK> range,
 			boolean keysOnly){
-		this.datarouter = datarouter;
 		this.client = client;
 		this.clientTableNodeNames = clientTableNodeNames;
 		this.queryBuilder = queryBuilder;
@@ -72,7 +67,6 @@ implements Scanner<Cell>{
 		this.range = range;
 		this.keysOnly = keysOnly;
 
-		this.scanKeysVsRowsNumBatches = "scan " + (keysOnly ? "pk" : "entity") + " numBatches";
 		this.scanKeysVsRowsNumRows = "scan " + (keysOnly ? "pk" : "entity") + " numRows";
 		this.hbaseResultScannerRef = Lazy.of(() -> initResultScanner());
 		updateCurrentBatch(null);
@@ -97,24 +91,12 @@ implements Scanner<Cell>{
 	}
 
 	private ResultScanner initResultScanner(){
-//		return new HBaseMultiAttemptTask<>(new HBaseTask<ResultScanner>(datarouter, clientTableNodeNames,
-//				scanKeysVsRowsNumBatches, config){
-//			@Override
-//			public ResultScanner hbaseCall(Table htable, HBaseClient client, ResultScanner managedResultScanner)
-//			throws Exception{
-//				Scan scan = queryBuilder.getScanForPartition(partition, range, config, keysOnly, ALLOW_PARTIAL_RESULTS,
-//						MAX_RESULT_SIZE_BYTES);
-//				return htable.getScanner(scan);
-//			}
-//		}).call();
 		Scan scan = queryBuilder.getScanForPartition(partition, range, config, keysOnly, ALLOW_PARTIAL_RESULTS,
 				MAX_RESULT_SIZE_BYTES);
-		MutableString progress = new MutableString("start");
 		table = client.getTable(clientTableNodeNames.getTableName());
 		try{
 			return table.getScanner(scan);
 		}catch(IOException e){
-			logger.error("error at progress {}", progress);
 			throw new RuntimeIOException(e);
 		}
 
@@ -137,11 +119,11 @@ implements Scanner<Cell>{
 				}
 			}catch(IOException e){
 				logger.error("EXTRA DEBUG LOGGING", e);//this isn't getting logged up the call chain for some reason
-				cleanup(true);
+				cleanup();
 				throw new RuntimeIOException(e);
 			}
 			if(result == null){
-				cleanup(false);
+				cleanup();
 				return false;
 			}
 		}while(result.isEmpty());
@@ -155,7 +137,7 @@ implements Scanner<Cell>{
 		currentBatchIndex = 0;
 	}
 
-	private void cleanup(boolean possiblyTarnished){
+	private void cleanup(){
 		updateCurrentBatch(null);
 		hbaseResultScannerRef.get().close();
 		try{
