@@ -53,9 +53,8 @@ public class SettinglessNodeFactory{
 			Class<F> fielderClass,
 			Router router,
 			boolean addAdapter){
-		NodeParamsBuilder<PK,D,F> paramsBuilder = new NodeParamsBuilder<PK,D,F>(router, databeanClass)
-				.withClientId(clientId)
-				.withFielder(fielderClass);
+		NodeParamsBuilder<PK,D,F> paramsBuilder = new NodeParamsBuilder<>(router, databeanClass, fielderClass)
+				.withClientId(clientId);
 		return create(paramsBuilder.build(), addAdapter);
 	}
 

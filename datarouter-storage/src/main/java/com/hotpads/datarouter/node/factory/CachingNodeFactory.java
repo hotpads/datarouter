@@ -73,8 +73,7 @@ public class CachingNodeFactory{
 			boolean cacheReads,
 			boolean cacheWrites,
 			boolean addAdapter){
-		NodeParamsBuilder<PK,D,F> paramsBuilder = new NodeParamsBuilder<PK,D,F>(router, databeanClass)
-				.withFielder(fielderClass)
+		NodeParamsBuilder<PK,D,F> paramsBuilder = new NodeParamsBuilder<PK,D,F>(router, databeanClass, fielderClass)
 				.withDiagnostics(drSettings.getRecordCallsites());
 		return create(paramsBuilder.build(), cacheNode, backingNode, cacheReads, cacheWrites, addAdapter);
 	}
