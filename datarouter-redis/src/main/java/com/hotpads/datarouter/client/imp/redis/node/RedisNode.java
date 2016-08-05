@@ -133,7 +133,6 @@ implements PhysicalMapStorageNode<PK,D>{
 				getClient().getJedisClient().incrBy(key, delta);
 				return;
 			}
-
 			getClient().getJedisClient().incrBy(key, delta);
 			getClient().getJedisClient().pexpire(key, ttl);
 			return;

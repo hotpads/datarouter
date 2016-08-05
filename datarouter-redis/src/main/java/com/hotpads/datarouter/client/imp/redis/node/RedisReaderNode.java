@@ -100,10 +100,9 @@ implements RedisPhysicalNode<PK,D>, MapStorageReader<PK,D>{
 		if(key == null){
 			return null;
 		}
-		String tallyCount;
 		try{
 			startTraceSpan("redis getTallyCount");
-			tallyCount = getClient().getJedisClient().get(buildRedisKey(key));
+			String tallyCount = getClient().getJedisClient().get(buildRedisKey(key));
 			if(tallyCount == null){
 				return null;
 			}

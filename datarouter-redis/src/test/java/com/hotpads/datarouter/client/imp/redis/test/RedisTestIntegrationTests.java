@@ -103,6 +103,9 @@ public class RedisTestIntegrationTests{
 		redisNode.put(bean, null);
 		RedisTestDatabean roundTripped2 = redisNode.get(bean.getKey(), null);
 		Assert.assertEquals(roundTripped2.getData(), bean.getData());
+
+		deleteRecord(roundTripped2);
+		deleteRecord(bean);
 	}
 
 	@Test
