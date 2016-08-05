@@ -13,8 +13,6 @@ public class DatarouterRedisDispatcher extends BaseDispatcher{
 
 	public DatarouterRedisDispatcher(DatarouterInjector injector, String servletContextPath){
 		super(injector, servletContextPath, PATH);
-
-		//All urls must start with PATH
 		handle(PATH).withHandler(RedisHandler.class);
 	}
 }

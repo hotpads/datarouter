@@ -12,8 +12,6 @@ import com.hotpads.trace.TracerTool;
 
 public abstract class RedisTask<V> extends TracedCallable<V>{
 
-//	private static Logger logger = LoggerFactory.getLogger(RedisTask.class);
-
 	//variables for TraceThreads and TraceSpans
 	// breaking encapsulation in favor of tracing
 	protected String taskName;
@@ -30,7 +28,7 @@ public abstract class RedisTask<V> extends TracedCallable<V>{
 	/** constructor **********************************************************/
 
 	public RedisTask(String taskName, RedisPhysicalNode<?,?> node, Config config){
-		super("MemcachedTask."+taskName);
+		super("RedisTask." + taskName);
 		this.taskName = taskName;
 		this.node = node;
 		this.client = node.getClient();
@@ -43,13 +41,13 @@ public abstract class RedisTask<V> extends TracedCallable<V>{
 	public V wrappedCall(){
 		try{
 			DRCounters.incClientNodeCustom(client.getType(), taskName, client.getName(), node.getName());
-			TracerTool.startSpan(TracerThreadLocal.get(), node.getName()+" "+taskName);
+			TracerTool.startSpan(TracerThreadLocal.get(), node.getName() + " " + taskName);
 			if(DrNumberTool.nullSafe(numAttempts) > 1){
 				TracerTool.appendToThreadInfo(TracerThreadLocal.get(), "[attempt " + attemptNumOneBased + "/"
 						+ numAttempts + "]");
 			}
 			if(! DrNumberTool.isMax(timeoutMs)){
-				TracerTool.appendToThreadInfo(TracerThreadLocal.get(), "[timeoutMs="+timeoutMs+"]");
+				TracerTool.appendToThreadInfo(TracerThreadLocal.get(), "[timeoutMs=" + timeoutMs + "]");
 			}
 			return redisCall();
 		}catch(Exception e){

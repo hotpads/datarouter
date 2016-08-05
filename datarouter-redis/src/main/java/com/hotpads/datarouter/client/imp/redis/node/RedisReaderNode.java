@@ -7,6 +7,7 @@ import java.util.List;
 import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.client.imp.redis.client.DatarouterRedisKey;
 import com.hotpads.datarouter.client.imp.redis.client.RedisClient;
+import com.hotpads.datarouter.client.imp.redis.test.databean.RedisTestDatabeanKey;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.op.raw.read.MapStorageReader;
@@ -28,101 +29,95 @@ public class RedisReaderNode<
 extends BasePhysicalNode<PK,D,F>
 implements RedisPhysicalNode<PK,D>, MapStorageReader<PK,D>{
 
-//	private static final Logger logger = LoggerFactory.getLogger(RedisReaderNode.class);
-
 	protected final Integer databeanVersion;
 
-	/*** constructors ****************************************************************/
+	/*** constructor *********************************************************/
 
 	public RedisReaderNode(NodeParams<PK,D,F> params){
 		super(params);
 		this.databeanVersion = Preconditions.checkNotNull(params.getSchemaVersion());
 	}
 
-
-	/** plumbing methods **************************************************************/
+	/** plumbing *************************************************************/
 
 	@Override
 	public RedisClient getClient(){
 		return (RedisClient)getRouter().getClient(getClientId().getName());
 	}
 
-	/** MapStorageReader methods *************************************************************/
+	/** MapStorageReader methods *********************************************/
 
 	@Override
 	public boolean exists(PK key, Config config){
-		// TODO figure out what to do with the config
-		return getClient().getJedisClient().exists(buildRedisKey(key));
+		try{
+			startTraceSpan("redis exists");
+			return getClient().getJedisClient().exists(buildRedisKey(key));
+		} finally{
+			finishTraceSpan();
+		}
 	}
 
-
 	@Override
-	public D get(final PK key, final Config paramConfig){
+	public D get(final PK key, final Config config){
 		if(key == null){
 			return null;
 		}
 
-		String json = getClient().getJedisClient().get(buildRedisKey(key));
+		String json;
+
+		try{
+			startTraceSpan("redis get");
+			json = getClient().getJedisClient().get(buildRedisKey(key));
+		} finally {
+			finishTraceSpan();
+		}
+
+		if(json == null){
+			return null;
+		}
 		return JsonDatabeanTool.databeanFromJson(fieldInfo.getDatabeanSupplier(), fieldInfo.getSampleFielder(), json);
 	}
 
-
 	@Override
-	public List<D> getMulti(final Collection<PK> keys, final Config paramConfig){
+	public List<D> getMulti(final Collection<PK> keys, final Config config){
 		if(DrCollectionTool.isEmpty(keys)){
 			return new LinkedList<>();
 		}
+
 		List <D> databeans = DrListTool.createArrayListWithSize(keys);
 		for(PK key : keys){
-			databeans.add(this.get(key, paramConfig));
+			databeans.add(get(key, config));
 		}
-
-		/*
-		List <String> jsonDatabeans = getClient().getJedisClient()
-				.mget(buildRedisKeys(keys).toArray(new String[keys.size()]));
-
-		List <D> databeans = DrListTool.createArrayListWithSize(keys);
-		for(String databeanString : jsonDatabeans){
-			databeans.add(JsonDatabeanTool.databeanFromJson(fieldInfo.getDatabeanSupplier(),
-					fieldInfo.getSampleFielder(), databeanString));
-		}
-		*/
 		return databeans;
 	}
 
 	@Override
-	public List<PK> getKeys(final Collection<PK> keys, final Config paramConfig){
+	public List<PK> getKeys(final Collection<PK> keys, final Config config){
 		if(DrCollectionTool.isEmpty(keys)){
 			return new LinkedList<>();
 		}
-		return DatabeanTool.getKeys(getMulti(keys, paramConfig));
+		return DatabeanTool.getKeys(getMulti(keys, config));
 	}
 
-//
-//	public Long getTallyCount(TallyKey key, final Config paramConfig){
-//		if(key == null){
-//			return null;
-//		}
-//
-//		String json = getClient().getJedisClient().get(buildRedisKey(key));
-//		JsonDatabeanTool.databeanFromJson(fieldInfo.getDatabeanSupplier(), fieldInfo.getSampleFielder(),
-//				json);
-//
-//		Object tallyObject = null;
-//		try{
-//			tallyObject = getClient().getJedisClient().get(buildRedisKey(key));
-//		}catch(Exception exception){
-//			if(paramConfig.ignoreExceptionOrUse(true)){
-//				logger.error("redis error on " + key, exception);
-//			}else{
-//				throw new RuntimeException(exception);
-//			}
-//		}
-//
-//		return Long.valueOf(((String)tallyObject).trim());
-//	}
+	public Long getTallyCount(RedisTestDatabeanKey key){
+		if(key == null){
+			return null;
+		}
+		String tallyCount;
+		try{
+			startTraceSpan("redis getTallyCount");
+			tallyCount = getClient().getJedisClient().get(buildRedisKey(key));
+		} finally{
+			finishTraceSpan();
+		}
 
-	/** serialization ****************************************************/
+		if(tallyCount == null){
+			return null;
+		}
+		return Long.valueOf(tallyCount.trim());
+	}
+
+	/** serialization ********************************************************/
 
 	protected String buildRedisKey(PrimaryKey<?> pk){
 		return new DatarouterRedisKey(getName(), databeanVersion, pk).getVersionedKeyString();
@@ -132,17 +127,13 @@ implements RedisPhysicalNode<PK,D>, MapStorageReader<PK,D>{
 		return DatarouterRedisKey.getVersionedKeyStrings(getName(), databeanVersion, pks);
 	}
 
-	/** tracing ************************************************************/
+	/** tracing **************************************************************/
 
 	protected void startTraceSpan(String opName){
-		TracerTool.startSpan(TracerThreadLocal.get(), getTraceName(opName));
+		TracerTool.startSpan(TracerThreadLocal.get(), getName() + " " + opName);
 	}
 
 	protected void finishTraceSpan(){
 		TracerTool.finishSpan(TracerThreadLocal.get());
-	}
-
-	protected String getTraceName(String opName){
-		return getName() + " " + opName;
 	}
 }

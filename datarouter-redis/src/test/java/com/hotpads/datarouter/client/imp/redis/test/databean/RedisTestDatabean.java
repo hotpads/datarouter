@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.client.imp.redis.test;
+package com.hotpads.datarouter.client.imp.redis.test.databean;
 
 import java.util.Arrays;
 import java.util.List;
@@ -14,7 +14,7 @@ public class RedisTestDatabean extends BaseDatabean<RedisTestDatabeanKey, RedisT
 	private RedisTestDatabeanKey key;
 	private String data;
 
-	/**************************** column names *******************************/
+	/** column names *********************************************************/
 
 	public static class FieldKeys{
 		public static final StringFieldKey data = new StringFieldKey("data");
@@ -32,7 +32,7 @@ public class RedisTestDatabean extends BaseDatabean<RedisTestDatabeanKey, RedisT
 		}
 	}
 
-	/**************************** constructor  *******************************/
+	/** constructor **********************************************************/
 
 	public RedisTestDatabean(){
 		this(null, null);
@@ -43,7 +43,7 @@ public class RedisTestDatabean extends BaseDatabean<RedisTestDatabeanKey, RedisT
 		this.data = data;
 	}
 
-	/**************************** databean ***********************************/
+	/** databean *************************************************************/
 
 	@Override
 	public Class<RedisTestDatabeanKey> getKeyClass(){
@@ -54,6 +54,8 @@ public class RedisTestDatabean extends BaseDatabean<RedisTestDatabeanKey, RedisT
 	public RedisTestDatabeanKey getKey(){
 		return key;
 	}
+
+	/** get/set **************************************************************/
 
 	public String getData(){
 		return data;

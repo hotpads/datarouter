@@ -2,10 +2,11 @@ package com.hotpads.datarouter.storage.field.imp.array;
 
 import java.util.List;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.hotpads.datarouter.storage.field.BaseListField;
 import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.bytes.BooleanByteTool;
-import com.hotpads.util.core.exception.NotImplementedException;
 
 public class BooleanArrayField extends BaseListField<Boolean,List<Boolean>>{
 
@@ -28,14 +29,15 @@ public class BooleanArrayField extends BaseListField<Boolean,List<Boolean>>{
 
 	@Override
 	public String getStringEncodedValue(){
-		if(value==null){ return null; }
-		//TODO to CSV format?
-		throw new NotImplementedException();
+		if(value == null){
+			return null;
+		}
+		return new Gson().toJson(value);
 	}
 
 	@Override
-	public List<Boolean> parseStringEncodedValueButDoNotSet(String s){
-		throw new NotImplementedException();
+	public List<Boolean> parseStringEncodedValueButDoNotSet(String value){
+		return new Gson().fromJson(value, new TypeToken<List<Boolean>>(){}.getType());
 	}
 
 

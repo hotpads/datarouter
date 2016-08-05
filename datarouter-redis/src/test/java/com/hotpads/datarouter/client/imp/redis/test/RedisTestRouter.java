@@ -10,7 +10,9 @@ import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.client.DatarouterClients;
 import com.hotpads.datarouter.client.imp.redis.RedisClientType;
 import com.hotpads.datarouter.client.imp.redis.node.RedisNode;
-import com.hotpads.datarouter.client.imp.redis.test.RedisTestDatabean.RedisTestDatabeanFielder;
+import com.hotpads.datarouter.client.imp.redis.test.databean.RedisTestDatabean;
+import com.hotpads.datarouter.client.imp.redis.test.databean.RedisTestDatabeanKey;
+import com.hotpads.datarouter.client.imp.redis.test.databean.RedisTestDatabean.RedisTestDatabeanFielder;
 import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.NodeParams.NodeParamsBuilder;
 import com.hotpads.datarouter.routing.BaseRouter;
@@ -51,20 +53,20 @@ public class RedisTestRouter extends BaseRouter{
 
 	/*** get/set *************************************************************/
 
-	public RedisNode<RedisTestDatabeanKey,RedisTestDatabean,RedisTestDatabeanFielder> node() {
+	public RedisNode<RedisTestDatabeanKey,RedisTestDatabean,RedisTestDatabeanFielder> redisNode() {
 		return redisNode;
 	}
 
 	/** helper ***************************************************************/
 
-	private RedisNode<RedisTestDatabeanKey,RedisTestDatabean,RedisTestDatabeanFielder>
-	buildRedisNode(ClientId clientId){
+	private RedisNode<RedisTestDatabeanKey,RedisTestDatabean,RedisTestDatabeanFielder>buildRedisNode(ClientId clientId){
 		String clientName = clientId.getName();
 		RedisClientType clientType = (RedisClientType) datarouterClients.getClientTypeInstance(clientName);
 		Objects.requireNonNull(clientType, "clientType not found for clientName:" + clientName);
-		NodeParamsBuilder<RedisTestDatabeanKey, RedisTestDatabean, RedisTestDatabeanFielder> paramsBuilder =
-				new NodeParamsBuilder<RedisTestDatabeanKey, RedisTestDatabean,
-				RedisTestDatabeanFielder>(this, RedisTestDatabean::new)
+
+		NodeParamsBuilder<RedisTestDatabeanKey,RedisTestDatabean,RedisTestDatabeanFielder> paramsBuilder =
+				new NodeParamsBuilder<RedisTestDatabeanKey ,RedisTestDatabean,
+				RedisTestDatabeanFielder>(this,RedisTestDatabean::new)
 				.withClientId(clientId)
 				.withFielder(RedisTestDatabeanFielder::new)
 				.withSchemaVersion(VERSION_RedisTest);

@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.client.imp.redis.test;
+package com.hotpads.datarouter.client.imp.redis.test.databean;
 
 import java.util.Arrays;
 import java.util.List;

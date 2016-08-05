@@ -48,7 +48,7 @@ public class DefaultClientTypes{
 		CLASS_BY_NAME.put(CLIENT_TYPE_memcached, CLIENT_CLASS_memcached);
 		CLASS_BY_NAME.put(CLIENT_TYPE_memory, CLIENT_CLASS_memory);
 		CLASS_BY_NAME.put(CLIENT_TYPE_sqs, CLIENT_CLASS_sqs);
-		CLASS_BY_NAME.put(CLIENT_CLASS_redis, CLIENT_CLASS_redis);
+		CLASS_BY_NAME.put(CLIENT_TYPE_redis, CLIENT_CLASS_redis);
 	}
 
 	public ClientType create(String name){

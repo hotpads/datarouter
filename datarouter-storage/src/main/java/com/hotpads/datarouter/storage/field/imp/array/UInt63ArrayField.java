@@ -5,6 +5,8 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.hotpads.datarouter.storage.field.BaseListField;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.util.core.DrArrayTool;
@@ -13,7 +15,6 @@ import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.bytes.IntegerByteTool;
 import com.hotpads.util.core.bytes.LongByteTool;
 import com.hotpads.util.core.collections.arrays.LongArray;
-import com.hotpads.util.core.exception.NotImplementedException;
 
 public class UInt63ArrayField extends BaseListField<Long,List<Long>>{
 
@@ -45,14 +46,15 @@ public class UInt63ArrayField extends BaseListField<Long,List<Long>>{
 
 	@Override
 	public String getStringEncodedValue(){
-		if(value==null){ return null; }
-		//TODO to CSV format?
-		throw new NotImplementedException();
+		if(value == null){
+			return null;
+		}
+		return new Gson().toJson(value);
 	}
 
 	@Override
-	public List<Long> parseStringEncodedValueButDoNotSet(String s){
-		throw new NotImplementedException();
+	public List<Long> parseStringEncodedValueButDoNotSet(String value){
+		return new Gson().fromJson(value, new TypeToken<List<Long>>(){}.getType());
 	}
 
 
