@@ -1,5 +1,7 @@
 package com.hotpads.datarouter.node.factory;
 
+import java.util.function.Supplier;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -17,6 +19,7 @@ import com.hotpads.datarouter.routing.Router;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
+import com.hotpads.util.core.java.ReflectionTool;
 
 @Singleton
 public class CachingNodeFactory{
@@ -59,7 +62,25 @@ public class CachingNodeFactory{
 
 	/*************** simple helpers *********************/
 
-	// +fielderClass
+	public <PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>,
+			N extends MapStorageNode<PK,D>>
+	MapStorageNode<PK,D> create(
+			Supplier<D> databeanClass,
+			Router router,
+			Supplier<F> fielderClass,
+			N cacheNode,
+			N backingNode,
+			boolean cacheReads,
+			boolean cacheWrites,
+			boolean addAdapter){
+		NodeParamsBuilder<PK,D,F> paramsBuilder = new NodeParamsBuilder<>(router, databeanClass, fielderClass)
+				.withDiagnostics(drSettings.getRecordCallsites());
+		return create(paramsBuilder.build(), cacheNode, backingNode, cacheReads, cacheWrites, addAdapter);
+	}
+
+	@Deprecated
 	public <PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>,
@@ -73,8 +94,7 @@ public class CachingNodeFactory{
 			boolean cacheReads,
 			boolean cacheWrites,
 			boolean addAdapter){
-		NodeParamsBuilder<PK,D,F> paramsBuilder = new NodeParamsBuilder<PK,D,F>(router, databeanClass, fielderClass)
-				.withDiagnostics(drSettings.getRecordCallsites());
-		return create(paramsBuilder.build(), cacheNode, backingNode, cacheReads, cacheWrites, addAdapter);
+		return create(ReflectionTool.supplier(databeanClass), router, ReflectionTool.supplier(fielderClass), cacheNode,
+				backingNode, cacheReads, cacheWrites, addAdapter);
 	}
 }
