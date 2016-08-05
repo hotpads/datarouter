@@ -25,7 +25,9 @@ import com.hotpads.datarouter.node.op.combo.SortedMapStorage;
 import com.hotpads.datarouter.op.util.SortedStorageCountingTool;
 import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.storage.databean.DatabeanTool;
+import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.test.DatarouterStorageTestModuleFactory;
+import com.hotpads.datarouter.test.node.basic.sorted.SortedBean.SortedBeanFielder;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrListTool;
@@ -79,7 +81,13 @@ public abstract class BaseSortedNodeIntegrationTests{
 		AssertJUnit.assertEquals(SortedBeans.TOTAL_RECORDS, roundTripped.size());
 	}
 
-	protected void testSortedDelete(){
+	protected void postTestTests(){
+		testSortedDelete();
+		testBlankDatabeanPut(new Config().setIgnoreNullFields(false));
+		testBlankDatabeanPut(new Config().setIgnoreNullFields(true));
+	}
+
+	private void testSortedDelete(){
 		resetTable(true);
 		int remainingElements = SortedBeans.TOTAL_RECORDS;
 
@@ -107,6 +115,18 @@ public abstract class BaseSortedNodeIntegrationTests{
 		sortedNode.deleteWithPrefix(prefix, null);
 		remainingElements -= SortedBeans.NUM_ELEMENTS * SortedBeans.NUM_ELEMENTS * SortedBeans.NUM_ELEMENTS;
 		AssertJUnit.assertEquals(remainingElements, DrIterableTool.count(sortedNode.scan(null, null)).intValue());
+	}
+
+	private void testBlankDatabeanPut(Config config){
+		SortedBean blankDatabean = new SortedBean("a", "b", 1, "d1", null, null, null, null);
+		SortedBean nonBlankDatabean = new SortedBean("a", "b", 1, "d2", "non blank", null, null, null);
+		sortedNode.putMulti(Arrays.asList(nonBlankDatabean, blankDatabean), config);
+		SortedBean blankDatabeanFromDb = sortedNode.get(blankDatabean.getKey(), config);
+		new SortedBeanFielder().getNonKeyFields(blankDatabeanFromDb).stream()
+				.map(Field::getValue)
+				.forEach(AssertJUnit::assertNull);
+		sortedNode.deleteMulti(DatabeanTool.getKeys(Arrays.asList(blankDatabean, nonBlankDatabean)), config);
+		AssertJUnit.assertNull(sortedNode.get(blankDatabean.getKey(), config));
 	}
 
 	/********************** junit methods *********************************************/
@@ -288,7 +308,7 @@ public abstract class BaseSortedNodeIntegrationTests{
 	}
 
 	private long scanKeysAndCountWithConfig(Config config){
-		return router.sortedBean().streamKeys(null, config).count();
+		return sortedNode.streamKeys(null, config).count();
 	}
 
 	@Test
@@ -313,7 +333,7 @@ public abstract class BaseSortedNodeIntegrationTests{
 	}
 
 	private long scanAndCountWithConfig(Config config){
-		return router.sortedBean().stream(null, config).count();
+		return sortedNode.stream(null, config).count();
 	}
 
 	@Test

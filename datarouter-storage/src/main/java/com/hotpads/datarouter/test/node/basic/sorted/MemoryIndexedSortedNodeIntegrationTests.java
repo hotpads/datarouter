@@ -14,7 +14,7 @@ public class MemoryIndexedSortedNodeIntegrationTests extends BaseIndexedNodeInte
 
 	@AfterClass
 	public void afterClass(){
-		testSortedDelete();
+		postTestTests();
 		datarouter.shutdown();
 	}
 
