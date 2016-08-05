@@ -123,8 +123,8 @@ public class IndexingNodeFactory {
 	ManagedUniqueIndexNode<PK, D, IK, IE, IF> newManagedUnique(Router router,
 			IndexedMapStorage<PK, D> backingNode, Supplier<IF> indexFielderSupplier, Supplier<IE> indexEntrySupplier,
 			boolean manageTxn, String indexName){
-		NodeParams<IK, IE, IF> params = new NodeParamsBuilder<IK, IE, IF>(router, indexEntrySupplier)
-				.withFielder(indexFielderSupplier).withTableName(indexName).build();
+		NodeParams<IK, IE, IF> params = new NodeParamsBuilder<>(router, indexEntrySupplier, indexFielderSupplier)
+				.withTableName(indexName).build();
 		if(manageTxn){
 			return new TxnManagedUniqueIndexNode<>(backingNode, params, indexName);
 		}

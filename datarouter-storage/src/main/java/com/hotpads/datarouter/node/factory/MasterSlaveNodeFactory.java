@@ -106,8 +106,7 @@ public class MasterSlaveNodeFactory{
 			slaves.add(slaveNode);
 		}
 
-		NodeParams<PK,D,F> nodeParams = new NodeParamsBuilder<PK,D,F>(router, databeanClass)
-				.withFielder(fielderClass)
+		NodeParams<PK,D,F> nodeParams = new NodeParamsBuilder<PK,D,F>(router, databeanClass, fielderClass)
 				.withDiagnostics(drSettings.getRecordCallsites())
 				.build();
 
