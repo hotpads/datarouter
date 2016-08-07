@@ -33,7 +33,7 @@ public class HBaseEntitySortedNodeIntegrationTests extends BaseSortedNodeIntegra
 
 	@AfterClass
 	public void afterClass(){
-		testSortedDelete();
+		postTestTests();
 		datarouter.shutdown();
 	}
 

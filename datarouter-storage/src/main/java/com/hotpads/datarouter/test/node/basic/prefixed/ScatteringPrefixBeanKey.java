@@ -2,7 +2,6 @@ package com.hotpads.datarouter.test.node.basic.prefixed;
 
 import java.util.List;
 
-import javax.persistence.Embeddable;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.storage.field.Field;
@@ -14,7 +13,6 @@ import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
 /********************************* indexes ***********************************/
 
 @SuppressWarnings("serial")
-@Embeddable
 public class ScatteringPrefixBeanKey extends BasePrimaryKey<ScatteringPrefixBeanKey>{
 
 	protected String a;

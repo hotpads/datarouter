@@ -2,7 +2,6 @@ package com.hotpads.handler.user.session;
 
 import java.util.List;
 
-import javax.persistence.MappedSuperclass;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.storage.field.Field;
@@ -11,7 +10,6 @@ import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
 
 @SuppressWarnings("serial")
-@MappedSuperclass
 public class BaseDatarouterSessionDatabeanKey<
 		PK extends BaseDatarouterSessionDatabeanKey<PK>>
 extends BasePrimaryKey<PK>{
