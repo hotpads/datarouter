@@ -17,7 +17,7 @@ import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.iterable.scanner.batch.BatchLoader;
 
-@Deprecated
+@Deprecated//replacing with HBaseSubEntityPkScanner
 public class HBaseEntityPrimaryKeyBatchLoader<
 		EK extends EntityKey<EK>,
 		E extends Entity<EK>,
