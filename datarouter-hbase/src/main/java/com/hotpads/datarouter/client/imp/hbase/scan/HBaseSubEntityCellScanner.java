@@ -111,7 +111,7 @@ implements Scanner<Cell>{
 					DRCounters.incClientNodeCustom(client.getType(), scanKeysVsRowsNumRows, clientTableNodeNames
 							.getClientName(), clientTableNodeNames.getNodeName());
 					if(result.isPartial()){
-						logger.warn("partial result on {}, {}", clientTableNodeNames.getNodeName(), Bytes
+						logger.info("partial result on {}, {}", clientTableNodeNames.getNodeName(), Bytes
 								.toStringBinary(result.getRow()));
 						DRCounters.incClientNodeCustom(client.getType(), "partial result", clientTableNodeNames
 								.getClientName(), clientTableNodeNames.getNodeName());
