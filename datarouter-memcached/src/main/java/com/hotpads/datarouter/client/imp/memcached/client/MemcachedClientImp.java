@@ -44,11 +44,4 @@ implements MemcachedClient{
 	public ClientType getType(){
 		return MemcachedClientType.INSTANCE;
 	}
-
-//	net.spy.memcached.MemcachedClient spyClient;
-
-
-
-
-
 }

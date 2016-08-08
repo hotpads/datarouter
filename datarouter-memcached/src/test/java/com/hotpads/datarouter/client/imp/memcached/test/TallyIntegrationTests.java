@@ -12,7 +12,6 @@ import org.testng.annotations.Test;
 import com.hotpads.datarouter.client.DatarouterClients;
 import com.hotpads.datarouter.client.imp.memcached.node.MemcachedNode;
 import com.hotpads.datarouter.config.Config;
-import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.profile.tally.Tally;
 import com.hotpads.datarouter.profile.tally.Tally.TallyFielder;
 import com.hotpads.datarouter.profile.tally.TallyKey;
@@ -29,8 +28,6 @@ public class TallyIntegrationTests{
 	private Datarouter datarouter;
 	@Inject
 	private DatarouterClients datarouterClients;
-	@Inject
-	private NodeFactory nodeFactory;
 
 	private MemcachedNode<TallyKey, Tally, TallyFielder> tallyNode;
 
@@ -38,8 +35,8 @@ public class TallyIntegrationTests{
 
 	@BeforeClass
 	public void beforeClass(){
-		TallyTestRouter router = new TallyTestRouter(datarouter, datarouterClients, nodeFactory,
-				DrTestConstants.CLIENT_drTestMemcached, false);
+		TallyTestRouter router = new TallyTestRouter(datarouter, datarouterClients,
+				DrTestConstants.CLIENT_drTestMemcached);
 		tallyNode = router.tally();
 	}
 
