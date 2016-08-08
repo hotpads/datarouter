@@ -5,6 +5,7 @@ import java.util.List;
 import javax.inject.Inject;
 
 import com.hotpads.datarouter.client.DatarouterClients;
+import com.hotpads.datarouter.config.DatarouterProperties;
 import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.routing.Router;
 import com.hotpads.handler.BaseHandler;
@@ -35,6 +36,8 @@ public class RoutersHandler extends BaseHandler {
 	@Inject
 	private Datarouter datarouter;
 	@Inject
+	private DatarouterProperties datarouterProperties;
+	@Inject
 	private DatarouterClients datarouterClients;
 
 
@@ -42,8 +45,8 @@ public class RoutersHandler extends BaseHandler {
 	@Handler
 	protected Mav handleDefault(){
 		Mav mav = new Mav(JSP_datarouterMenu);
-		mav.put("serverName", datarouter.getServerName());
-		mav.put("administratorEmail", datarouter.getAdministratorEmail());
+		mav.put("serverName", datarouterProperties.getServerName());
+		mav.put("administratorEmail", datarouterProperties.getAdministratorEmail());
 		mav.put("routers", datarouter.getRouters());
 		mav.put("lazyClientProviderByName", datarouterClients.getLazyClientProviderByName());
 		mav.put("uninitializedClientNames", datarouterClients.getClientNamesByInitialized().get(false));

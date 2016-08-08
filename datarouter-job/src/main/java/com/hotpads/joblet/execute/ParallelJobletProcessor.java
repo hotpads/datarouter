@@ -8,7 +8,7 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hotpads.datarouter.routing.Datarouter;
+import com.hotpads.datarouter.config.DatarouterProperties;
 import com.hotpads.datarouter.util.core.DrDateTool;
 import com.hotpads.job.trigger.JobSettings;
 import com.hotpads.joblet.JobletPackage;
@@ -31,7 +31,7 @@ public class ParallelJobletProcessor{
 		@Inject
 		private JobletService jobletService;
 		@Inject
-		private Datarouter datarouter;
+		private DatarouterProperties datarouterProperties;
 		@Inject
 		private JobletThrottle jobletThrottle;
 		@Inject
@@ -40,8 +40,8 @@ public class ParallelJobletProcessor{
 		private JobletExecutorThreadPoolFactory jobletExecutorThreadPoolFactory;
 
 		public ParallelJobletProcessor create(JobletType<?> jobletType){
-			return new ParallelJobletProcessor(jobletType, jobSettings, jobletService, datarouter, jobletThrottle,
-					jobletSettings, jobletExecutorThreadPoolFactory);
+			return new ParallelJobletProcessor(jobletType, jobSettings, jobletService, datarouterProperties,
+					jobletThrottle, jobletSettings, jobletExecutorThreadPoolFactory);
 		}
 
 	}
@@ -59,17 +59,17 @@ public class ParallelJobletProcessor{
 
 	private final JobSettings jobSettings;
 	private final JobletService jobletService;
-	private final Datarouter datarouter;
+	private final DatarouterProperties datarouterProperties;
 	private final JobletThrottle jobletThrottle;
 	private final JobletSettings jobletSettings;
 
 	private ParallelJobletProcessor(JobletType<?> jobletType, JobSettings jobSettings, JobletService jobletService,
-			Datarouter datarouter, JobletThrottle jobletThrottle, JobletSettings jobletSettings,
+			DatarouterProperties datarouterProperties, JobletThrottle jobletThrottle, JobletSettings jobletSettings,
 			JobletExecutorThreadPoolFactory jobletExecutorThreadPoolFactory) {
 		this.jobletType = jobletType;
 		this.jobSettings = jobSettings;
 		this.jobletService = jobletService;
-		this.datarouter = datarouter;
+		this.datarouterProperties = datarouterProperties;
 		this.jobletThrottle = jobletThrottle;
 		this.jobletSettings = jobletSettings;
 		this.threadPool = jobletExecutorThreadPoolFactory.create(0, jobletType);
@@ -162,7 +162,7 @@ public class ParallelJobletProcessor{
 	}
 
 	private String getReservedByString(int counter){
-		return datarouter.getServerName() + "_" + DrDateTool.getYyyyMmDdHhMmSsMmmWithPunctuationNoSpaces(
+		return datarouterProperties.getServerName() + "_" + DrDateTool.getYyyyMmDdHhMmSsMmmWithPunctuationNoSpaces(
 				System.currentTimeMillis()) + "_" + Thread.currentThread().getId() + "_" + counter;
 	}
 
