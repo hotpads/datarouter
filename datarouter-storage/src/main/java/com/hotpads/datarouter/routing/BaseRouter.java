@@ -1,6 +1,7 @@
 package com.hotpads.datarouter.routing;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.ClientId;
@@ -8,6 +9,10 @@ import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.LazyClientProvider;
 import com.hotpads.datarouter.client.RouterOptions;
 import com.hotpads.datarouter.node.Node;
+import com.hotpads.datarouter.node.NodeParams;
+import com.hotpads.datarouter.node.NodeParams.NodeParamsBuilder;
+import com.hotpads.datarouter.node.factory.NodeFactory;
+import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.concurrent.FutureTool;
@@ -27,18 +32,28 @@ implements Router{
 	private final String name;
 	private final List<String> clientNames;
 	private final RouterOptions routerOptions;
+	private final NodeFactory nodeFactory;
 
 
 	/**************************** constructor  ****************************************/
 
-	public BaseRouter(Datarouter datarouter, String configLocation, String name){
+	public BaseRouter(Datarouter datarouter, String configLocation, String name, NodeFactory nodeFactory){
 		this.datarouter = datarouter;
 		this.configLocation = configLocation;
 		this.name = name;
 		this.clientNames = ClientId.getNames(getClientIds());
 		this.routerOptions = new RouterOptions(getConfigLocation());
 		this.datarouter.registerConfigFile(getConfigLocation());
+		this.nodeFactory = nodeFactory;
 		registerWithContext();
+	}
+
+	/**
+	 * @deprecated use {@link #BaseRouter(Datarouter, String, String, NodeFactory)}
+	 */
+	@Deprecated
+	public BaseRouter(Datarouter datarouter, String configLocation, String name){
+		this(datarouter, configLocation, name, null);
 	}
 
 
@@ -58,6 +73,11 @@ implements Router{
 				.map(client -> client.notifyNodeRegistration(node))
 				.forEach(FutureTool::get);
 		return node;
+	}
+
+	protected <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>,N extends Node<PK,D>>
+	NodeBuilder<PK,D,F,N> create(ClientId clientId, Supplier<D> databeanSupplier, Supplier<F> fielderSupplier){
+		return new NodeBuilder<>(clientId, databeanSupplier, fielderSupplier);
 	}
 
 	@Override
@@ -121,59 +141,29 @@ implements Router{
 		return routerOptions;
 	}
 
-	/********************************* sample config file ***********************************/
-	/*
-	 *
-implementation=development
+	protected class NodeBuilder<
+			PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>,
+			N extends Node<PK,D>>{
 
-# connectionPools
-connectionPoolNames=animal0,pets0,pets1,pets0_slave0,pets1_slave0
+		private final ClientId clientId;
+		private final Supplier<D> databeanSupplier;
+		private final Supplier<F> fielderSupplier;
 
-connectionPools.defaultInitMode=lazy
-#connectionPools.forceInitMode=eager
+		private NodeBuilder(ClientId clientId, Supplier<D> databeanSupplier, Supplier<F> fielderSupplier){
+			this.clientId = clientId;
+			this.databeanSupplier = databeanSupplier;
+			this.fielderSupplier = fielderSupplier;
+		}
 
-connectionPool.animal0.url=localhost:3306/animal0
-connectionPool.animal0.maxPoolSize=10
+		public N build(){
+			NodeParams<PK,D,F> params = new NodeParamsBuilder<>(BaseRouter.this, databeanSupplier, fielderSupplier)
+					.withClientId(clientId)
+					.build();
+			return nodeFactory.create(params, true);
+		}
 
-connectionPool.pets0.url=localhost:3306/pets0
-connectionPool.pets0.maxPoolSize=10
-
-connectionPool.pets1.url=localhost:3306/pets1
-connectionPool.pets1.maxPoolSize=10
-
-connectionPool.pets0_slave0.url=localhost:3306/pets0
-connectionPool.pets0_slave0.maxPoolSize=10
-connectionPool.pets0_slave0.readOnly=true
-
-connectionPool.pets1_slave0.url=localhost:3306/pets1
-connectionPool.pets1_slave0.maxPoolSize=10
-connectionPool.pets1_slave0.readOnly=true
-
-
-# clients
-clientNames=testHashMap,animal0,pets0,pets1,pets0_slave0,pets1_slave0
-
-clients.defaultInitMode=lazy
-#clients.forceInitMode=eager
-
-client.testHashMap.type=hashMap
-
-client.animal0.type=jdbc
-
-client.pets0.type=jdbc
-
-client.pets1.type=jdbc
-
-client.pets0_slave0.type=jdbc
-client.pets0_slave0.slave=true
-client.pets0_slave0.initMode=eager
-
-client.pets1_slave0.type=jdbc
-client.pets1_slave0.slave=true
-
-client.event.type=jdbc
-client.event.springBeanName=sessionFactoryEvent
-
-	 */
+	}
 
 }

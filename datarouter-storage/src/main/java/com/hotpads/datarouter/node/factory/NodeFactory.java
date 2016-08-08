@@ -38,7 +38,7 @@ public class NodeFactory{
 
 	/********************* pass any params *****************/
 
-	private <PK extends PrimaryKey<PK>,
+	public <PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>,
 			N extends Node<PK,D>>
