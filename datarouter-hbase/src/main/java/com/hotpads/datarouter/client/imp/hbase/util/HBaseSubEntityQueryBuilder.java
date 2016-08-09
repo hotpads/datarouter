@@ -277,7 +277,7 @@ extends HBaseEntityQueryBuilder<EK,E>{
 
 	/***************** batching scanners *******************/
 
-	@Deprecated
+	@Deprecated//replacing with getPkScanners
 	public List<AsyncBatchLoaderScanner<PK>> getBatchingPkScanners(HBaseSubEntityReaderNode<EK,E,PK,D,F> node,
 			Range<PK> range, Config config){
 		List<AsyncBatchLoaderScanner<PK>> scanners = new ArrayList<>();
@@ -292,7 +292,7 @@ extends HBaseEntityQueryBuilder<EK,E>{
 		return scanners;
 	}
 
-	@Deprecated
+	@Deprecated//replacing with getDatabeanScanners
 	public List<AsyncBatchLoaderScanner<D>> getBatchingDatabeanScanners(HBaseSubEntityReaderNode<EK,E,PK,D,F> node,
 			Range<PK> range, Config config){
 		List<AsyncBatchLoaderScanner<D>> scanners = new ArrayList<>();
