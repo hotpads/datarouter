@@ -54,7 +54,7 @@ public class JobletHandler extends BaseHandler{
 			jobletTypeFactory, JobletNodes jobletNodes,	ParallelJobletProcessors parallelJobletProcessors, JobletService
 			jobletService, JobletSettings jobletSettings){
 		this.datarouter = datarouter;
-		serverName = datarouterProperties.getServerName();
+		this.serverName = datarouterProperties.getServerName();
 		this.jobletTypeFactory = jobletTypeFactory;
 		this.jobletNodes = jobletNodes;
 		this.parallelJobletProcessors = parallelJobletProcessors;

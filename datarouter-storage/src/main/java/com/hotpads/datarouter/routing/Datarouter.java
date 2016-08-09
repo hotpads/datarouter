@@ -56,6 +56,7 @@ public class Datarouter{
 	private final ExecutorService executorService;//for async client init and monitoring
 	private final ScheduledExecutorService writeBehindScheduler;
 	private final ExecutorService writeBehindExecutor;
+	private final DatarouterProperties datarouterProperties;
 
 	private SortedSet<Router> routers;
 	private Set<String> configFilePaths;
@@ -63,7 +64,6 @@ public class Datarouter{
 	private String serverName;
 	private String administratorEmail;
 
-	private DatarouterProperties datarouterProperties;
 
 	/************************** constructors ***************************/
 
