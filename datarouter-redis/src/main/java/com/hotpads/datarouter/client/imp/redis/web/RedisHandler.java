@@ -1,10 +1,8 @@
 package com.hotpads.datarouter.client.imp.redis.web;
 
-import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -27,10 +25,7 @@ public class RedisHandler extends BaseHandler {
 		initialize();
 		Mav mav = new Mav("/jsp/admin/datarouter/redis/redisClientSummary.jsp");
 		mav.put("client", paramsRouter.getClient().getJedisClient());
-		Map<SocketAddress, Map<String, String>> stats = null;
-//		stats = paramsRouter.getClient().getJedisClient().getStats();
-		mav.put("redisStats", stats);
-
+		mav.put("redisStats", paramsRouter.getClient().getJedisClient().info());
 		return mav;
 	}
 
@@ -58,5 +53,4 @@ public class RedisHandler extends BaseHandler {
 		REDIS_NEEDS.put(RouterParams.NEEDS_ROUTER, NEEDS_ROUTER);
 		REDIS_NEEDS.put(RouterParams.NEEDS_NODE, NEEDS_NODE);
 	}
-
 }
