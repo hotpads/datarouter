@@ -13,7 +13,7 @@ public abstract class BaseDatarouterProperties implements DatarouterProperties{
 	private final Properties properties;
 
 	public BaseDatarouterProperties(String path){
-		properties = DrPropertiesTool.parse(path);
+		this.properties = DrPropertiesTool.parse(path);
 		if (DrStringTool.isNullOrEmptyOrWhitespace(getServerName())) {
 			throw new RuntimeException("Expected " + path + " to contain property " + SERVER_NAME);
 		}
