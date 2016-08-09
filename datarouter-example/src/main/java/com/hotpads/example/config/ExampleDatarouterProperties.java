@@ -14,4 +14,9 @@ public class ExampleDatarouterProperties extends BaseDatarouterProperties{
 		super(CONFIG_PATH);
 	}
 
+	@Override
+	public String getConfigPath(){
+		return CONFIG_PATH;
+	}
+
 }
