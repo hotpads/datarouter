@@ -74,7 +74,7 @@ public class HBaseSubEntityResultParser<
 		int fieldNameOffset = parsePostEkFieldsFromBytesToPk(cell, pk);
 		//fieldName
 		String fieldName = StringByteTool.fromUtf8BytesOffset(CellUtil.cloneQualifier(cell), fieldNameOffset);
-		return Pair.create(pk, fieldName);
+		return new Pair<>(pk, fieldName);
 	}
 
 
