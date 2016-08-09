@@ -304,15 +304,18 @@ extends HBaseEntityQueryBuilder<EK,E>{
 
 	/************* get results in sub range ********************/
 
-	public Scan getScanForPartition(final int partition, final Range<PK> rowRange, final Config config,
+	public Scan getScanForPartition(final int partition, final Range<PK> range, final Config config,
 			boolean keysOnly, boolean allowPartialResults, long maxResultSizeBytes){
 		Config nullSafeConfig = Config.nullSafe(config);
-		Range<ByteRange> rowBytesRange = getRowRange(partition, rowRange);
+		Range<ByteRange> rowBytesRange = getRowRange(partition, range);
 		Scan scan = HBaseQueryBuilder.getScanForRange(rowBytesRange, nullSafeConfig);
 		FilterList filterList = new FilterList();
 		filterList.addFilter(new PrefixFilter(partitioner.getPrefix(partition)));
-		filterList.addFilter(new ColumnPrefixFilter(fieldInfo.getEntityColumnPrefixBytes()));
-		//TODO add ColumnRangeFilter (or possible ColumnPrefixFilter if applicable) when scanning inside single entity
+		if(isSingleEntity(range)){
+			filterList.addFilter(getColumnRangeFilter(range));
+		}else{
+			filterList.addFilter(new ColumnPrefixFilter(fieldInfo.getEntityColumnPrefixBytes()));
+		}
 		if(keysOnly){
 			filterList.addFilter(new KeyOnlyFilter());
 		}
