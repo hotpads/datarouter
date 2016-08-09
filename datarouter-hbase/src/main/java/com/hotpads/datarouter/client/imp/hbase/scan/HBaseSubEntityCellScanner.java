@@ -86,8 +86,7 @@ implements Scanner<Cell>{
 			++currentBatchIndex;
 			return true;
 		}
-		boolean foundMoreData = loadNextResult();
-		return foundMoreData;
+		return loadNextResult();
 	}
 
 	private ResultScanner initResultScanner(){
@@ -102,6 +101,7 @@ implements Scanner<Cell>{
 
 	}
 
+	//return true if a valid (non-null and non-empty) next result was loaded
 	private boolean loadNextResult(){
 		Result result;
 		do{
