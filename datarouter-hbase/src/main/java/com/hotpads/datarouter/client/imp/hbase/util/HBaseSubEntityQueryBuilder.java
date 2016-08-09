@@ -210,6 +210,8 @@ extends HBaseEntityQueryBuilder<EK,E>{
 		if(pkRange.getEndInclusive()){
 			end = DrByteTool.unsignedIncrement(end);
 		}
+		// for some reason, we must compute our own start/end keys and pass true/false. passing the range's inclusive
+		// flags directly to the filter does not work
 		return new ColumnRangeFilter(start, true, end, false);
 	}
 
