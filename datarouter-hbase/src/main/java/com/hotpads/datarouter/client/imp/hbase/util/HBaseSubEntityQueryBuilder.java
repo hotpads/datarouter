@@ -203,14 +203,8 @@ extends HBaseEntityQueryBuilder<EK,E>{
 
 	public ColumnRangeFilter getColumnRangeFilter(Range<PK> pkRange){
 		byte[] start = getQualifierPrefix(pkRange.getStart());
-		if(!pkRange.getStartInclusive()){
-			start = DrByteTool.unsignedIncrement(start);
-		}
 		byte[] end = getQualifierPrefix(pkRange.getEnd());
-		if(pkRange.getEndInclusive()){
-			end = DrByteTool.unsignedIncrement(end);
-		}
-		return new ColumnRangeFilter(start, true, end, false);
+		return new ColumnRangeFilter(start, pkRange.getStartInclusive(), end, pkRange.getEndInclusive());
 	}
 
 	/************** multi row prefix ********************/
