@@ -68,7 +68,7 @@ implements Scanner<Cell>{
 		this.keysOnly = keysOnly;
 
 		this.scanKeysVsRowsNumRows = "scan " + (keysOnly ? "pk" : "entity") + " numRows";
-		this.hbaseResultScannerRef = Lazy.of(() -> initResultScanner());
+		this.hbaseResultScannerRef = Lazy.of(this::initResultScanner);
 		updateCurrentBatch(null);
 	}
 
