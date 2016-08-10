@@ -31,7 +31,6 @@ public class NodeParams<
 
 	//name the table different than the databean class
 	private final String physicalName;
-	private final String qualifiedPhysicalName;//weird hibernate requirement ("entity name")
 	private final Optional<String> namespace;
 
 	private final String entityNodePrefix;
@@ -44,9 +43,8 @@ public class NodeParams<
 	private final Cached<Boolean> recordCallsites;
 
 	public NodeParams(Router router, ClientId clientId, String parentName, Supplier<D> databeanSupplier,
-			Supplier<F> fielderSupplier, Integer schemaVersion, String physicalName, String qualifiedPhysicalName,
-			String namespace, String entityNodePrefix, String remoteRouterName, String remoteNodeName,
-			Cached<Boolean> recordCallsites){
+			Supplier<F> fielderSupplier, Integer schemaVersion, String physicalName, String namespace,
+			String entityNodePrefix, String remoteRouterName, String remoteNodeName, Cached<Boolean> recordCallsites){
 		this.router = router;
 		this.clientId = clientId;
 		this.parentName = parentName;
@@ -56,7 +54,6 @@ public class NodeParams<
 		this.fielderSupplier = fielderSupplier;
 		this.schemaVersion = schemaVersion;
 		this.physicalName = physicalName;
-		this.qualifiedPhysicalName = qualifiedPhysicalName;
 		this.entityNodePrefix = entityNodePrefix;
 		this.remoteRouterName = remoteRouterName;
 		this.remoteNodeName = remoteNodeName;
@@ -137,12 +134,6 @@ public class NodeParams<
 			return this;
 		}
 
-		public NodeParamsBuilder<PK,D,F> withHibernateTableName(String physicalName, String qualifiedPhysicalName){
-			this.physicalName = physicalName;
-			this.qualifiedPhysicalName = qualifiedPhysicalName;
-			return this;
-		}
-
 		public NodeParamsBuilder<PK,D,F> withEntity(String entityTableName, String entityNodePrefix){
 			this.physicalName = entityTableName;
 			this.entityNodePrefix = entityNodePrefix;
@@ -169,8 +160,7 @@ public class NodeParams<
 
 		public NodeParams<PK,D,F> build(){
 			return new NodeParams<>(router, clientId, parentName, databeanSupplier, fielderSupplier, schemaVersion,
-					physicalName, qualifiedPhysicalName, namespace, entityNodePrefix, remoteRouterName, remoteNodeName,
-					recordCallsites);
+					physicalName, namespace, entityNodePrefix, remoteRouterName, remoteNodeName, recordCallsites);
 		}
 	}
 
@@ -214,10 +204,6 @@ public class NodeParams<
 
 	public String getPhysicalName(){
 		return physicalName;
-	}
-
-	public String getQualifiedPhysicalName(){
-		return qualifiedPhysicalName;
 	}
 
 	public Optional<String> getNamespace(){

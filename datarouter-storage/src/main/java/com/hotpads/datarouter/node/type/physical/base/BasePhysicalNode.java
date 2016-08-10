@@ -110,11 +110,6 @@ implements PhysicalNode<PK,D>{
 	}
 
 	@Override
-	public String getPackagedTableName(){
-		return fieldInfo.getPackagedTableName();
-	}
-
-	@Override
 	public String toString(){
 		return this.getName();
 	}
