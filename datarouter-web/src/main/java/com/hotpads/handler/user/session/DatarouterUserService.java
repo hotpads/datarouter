@@ -8,7 +8,7 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hotpads.datarouter.routing.Datarouter;
+import com.hotpads.datarouter.config.DatarouterProperties;
 import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.handler.user.DatarouterUser;
 import com.hotpads.handler.user.DatarouterUserNodes;
@@ -28,14 +28,14 @@ public class DatarouterUserService{
 	//injected fields
 	private final DatarouterUserNodes userNodes;
 	private final DatarouterPasswordService passwordService;
-	private final Datarouter datarouter;
+	private final DatarouterProperties datarouterProperties;
 
 	@Inject
 	public DatarouterUserService(DatarouterUserNodes userNodes, DatarouterPasswordService passwordService,
-			Datarouter datarouter){
+			DatarouterProperties datarouterProperties){
 		this.userNodes = userNodes;
 		this.passwordService = passwordService;
-		this.datarouter = datarouter;
+		this.datarouterProperties = datarouterProperties;
 	}
 
 	public void createAdminUser(){
@@ -43,7 +43,7 @@ public class DatarouterUserService{
 		String digest = passwordService.digest(salt, DEFAULT_PASSWORD);
 		DatarouterUser user = new DatarouterUser();
 		user.setCreated(new Date());
-		user.setUsername(datarouter.getAdministratorEmail());
+		user.setUsername(datarouterProperties.getAdministratorEmail());
 		user.setEnabled(true);
 		user.setId(ADMIN_ID);
 		user.setLastLoggedIn(new Date());
