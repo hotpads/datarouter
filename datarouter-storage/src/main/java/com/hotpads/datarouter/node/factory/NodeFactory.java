@@ -115,7 +115,6 @@ public class NodeFactory{
 	N create(//specify tableName and entityName
 			ClientId clientId,
 			String tableName,
-			String entityName,
 			Supplier<D> databeanSupplier,
 			Supplier<F> fielderSupplier,
 			Router router,
@@ -123,7 +122,7 @@ public class NodeFactory{
 		NodeParamsBuilder<PK,D,F> paramsBuilder = new NodeParamsBuilder<PK,D,F>(router, databeanSupplier)
 				.withClientId(clientId)
 				.withFielder(fielderSupplier)
-				.withHibernateTableName(tableName, entityName)
+				.withTableName(tableName)
 				.withDiagnostics(getRecordCallsites());
 		return create(paramsBuilder.build(), addAdapter);
 	}
@@ -135,7 +134,6 @@ public class NodeFactory{
 	N create(//specify tableName and entityName
 			ClientId clientId,
 			String tableName,
-			String entityName,
 			Class<D> databeanClass,
 			Class<F> fielderClass,
 			Router router,
@@ -143,7 +141,7 @@ public class NodeFactory{
 		NodeParamsBuilder<PK,D,F> paramsBuilder = new NodeParamsBuilder<PK,D,F>(router, databeanClass)
 				.withClientId(clientId)
 				.withFielder(fielderClass)
-				.withHibernateTableName(tableName, entityName)
+				.withTableName(tableName)
 				.withDiagnostics(getRecordCallsites());
 		return create(paramsBuilder.build(), addAdapter);
 	}
