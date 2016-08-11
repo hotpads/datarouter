@@ -5,10 +5,10 @@ import com.hotpads.datarouter.storage.field.enums.StringEnum;
 
 public enum LongRunningTaskType implements StringEnum<LongRunningTaskType>{
 
-	job("job"),
-	request("request"),
-	migration("migration"),
-	test("test");
+	JOB("job"),
+	REQUEST("request"),
+	MIGRATION("migration"),
+	TEST("test");
 
 	private final String varName;
 
