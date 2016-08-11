@@ -41,12 +41,6 @@ public class LongRunningTaskTracker {
 		return this;
 	}
 
-	@Deprecated//use hearbeat(numItemsProcessed)
-	public LongRunningTaskTracker setNumItemsProcessed(long numItems){
-		task.setNumItemsProcessed(numItems);
-		return this;
-	}
-
 	public void requestStop(){
 		logger.info("requested interrupt on " + task.getKey().getJobClass());
 		interrupted.set(true);
