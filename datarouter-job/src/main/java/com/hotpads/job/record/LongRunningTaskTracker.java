@@ -17,20 +17,25 @@ public class LongRunningTaskTracker {
 	private final IndexedSortedMapStorage<LongRunningTaskKey, LongRunningTask> node;
 	private final LongRunningTask task;
 	private final MutableBoolean interrupted;
-	private final Setting<Boolean> shouldPersist;
+	private final Setting<Boolean> persistSetting;
 	private Date lastPersistedHeartbeat;
 
 	public LongRunningTaskTracker(IndexedSortedMapStorage<LongRunningTaskKey,LongRunningTask> node,
-			LongRunningTask task, Setting<Boolean> shouldPersist){
+			LongRunningTask task, Setting<Boolean> persistSetting){
 		this.node = node;
 		this.task = task;
 		this.interrupted = new MutableBoolean(false);
-		this.shouldPersist = shouldPersist;
+		this.persistSetting = persistSetting;
 	}
 
 
+	public LongRunningTaskTracker heartbeat(long numItemsProcessed){
+		task.setNumItemsProcessed(numItemsProcessed);
+		return heartbeat();
+	}
+
 	public LongRunningTaskTracker heartbeat(){
-		if( ! shouldPersistHeartbeat()){
+		if(shouldPersist()){
 			Date heartbeat = new Date();
 			task.setHeartbeatTime(heartbeat);
 			persist();
@@ -39,13 +44,14 @@ public class LongRunningTaskTracker {
 		return this;
 	}
 
+	@Deprecated//use hearbeat(numItemsProcessed)
 	public LongRunningTaskTracker setNumItemsProcessed(long numItems){
 		task.setNumItemsProcessed(numItems);
 		return this;
 	}
 
 	public void requestStop(){
-		logger.info("requested interrupt on "+task.getKey().getJobClass());
+		logger.info("requested interrupt on " + task.getKey().getJobClass());
 		interrupted.set(true);
 		task.setInterrupt(true);
 	}
@@ -53,7 +59,7 @@ public class LongRunningTaskTracker {
 	public boolean isStopRequested(){
 		if(interrupted.get()){
 			task.setJobExecutionStatus(JobExecutionStatus.interrupted);
-			if(shouldPersistHeartbeat()){
+			if(shouldPersist()){
 				persist();
 			}
 		}
@@ -62,21 +68,21 @@ public class LongRunningTaskTracker {
 
 	/*------------------------ private -------------------*/
 
-	private void persist(){
-		if(task.getKey().getTriggerTime()==null){
-			logger.error("not persisting "+task.getDatabeanName()+" tracker because of null trigger time");
-		}
-		node.put(task, null);
-	}
-
-	private boolean shouldPersistHeartbeat(){
-		if((shouldPersist == null) || !shouldPersist.getValue()){
+	private boolean shouldPersist(){
+		if(persistSetting == null || !persistSetting.getValue()){
 			return false;
 		}
 		if(lastPersistedHeartbeat == null){
 			return true;
 		}
 		return System.currentTimeMillis() - lastPersistedHeartbeat.getTime() > HEARTBEAT_PERSIST_PERIOD_MS;
+	}
+
+	private void persist(){
+		if(task.getKey().getTriggerTime()==null){
+			logger.error("not persisting "+task.getDatabeanName()+" tracker because of null trigger time");
+		}
+		node.put(task, null);
 	}
 
 	/*--------------------- get/set -------------------------*/
