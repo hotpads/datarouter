@@ -4,11 +4,11 @@ import java.util.Comparator;
 
 import com.hotpads.datarouter.util.core.DrComparableTool;
 
-public class LongRunningTaskDurationComparator implements Comparator<LongRunningTask>{
+public class LongRunningTaskStartTimeComparator implements Comparator<LongRunningTask>{
 
 	private final boolean ascending;
 
-	public LongRunningTaskDurationComparator(boolean ascending){
+	public LongRunningTaskStartTimeComparator(boolean ascending){
 		this.ascending = ascending;
 	}
 
