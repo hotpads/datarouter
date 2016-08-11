@@ -30,10 +30,10 @@ public class LongRunningTasksHandler extends BaseHandler {
 		Iterable<LongRunningTask> tasks = longRunningTaskNodeProvider.get().scan(null, Configs.slaveOk());
 		List<LongRunningTask> currentlyRunningTasks = new ArrayList<>();
 		for(LongRunningTask task : tasks){
-			if(task.getJobExecutionStatus() == JobExecutionStatus.running){
+			if(task.getJobExecutionStatus() == JobExecutionStatus.RUNNING){
 				currentlyRunningTasks.add(task);
 			}
-			if(task.getJobExecutionStatus() == JobExecutionStatus.success){
+			if(task.getJobExecutionStatus() == JobExecutionStatus.SUCCESS){
 				if(lastCompletions.get(task.getKey().getJobClass()) == null
 						|| task.getFinishTime().after(lastCompletions.get(task.getKey().getJobClass())
 								.getFinishTime())){

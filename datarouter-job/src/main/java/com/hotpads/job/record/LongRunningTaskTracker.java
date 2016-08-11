@@ -49,7 +49,7 @@ public class LongRunningTaskTracker {
 
 	public boolean isStopRequested(){
 		if(interrupted.get()){
-			task.setJobExecutionStatus(JobExecutionStatus.interrupted);
+			task.setJobExecutionStatus(JobExecutionStatus.INTERRUPTED);
 			persistIfShould(new Date());
 		}
 		return interrupted.get();

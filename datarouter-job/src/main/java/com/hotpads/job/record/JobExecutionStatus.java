@@ -5,10 +5,10 @@ import com.hotpads.datarouter.storage.field.enums.StringEnum;
 
 public enum JobExecutionStatus implements StringEnum<JobExecutionStatus>{
 
-	running("running",true),
-	success("success",false),
-	errored("errored",false),
-	interrupted("interrupted",false);
+	RUNNING("running",true),
+	SUCCESS("success",false),
+	ERRORED("errored",false),
+	INTERRUPTED("interrupted",false);
 
 	private String varName;
 	private boolean isRunning=false;
