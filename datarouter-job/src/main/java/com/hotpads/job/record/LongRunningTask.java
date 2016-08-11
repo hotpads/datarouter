@@ -1,5 +1,6 @@
 package com.hotpads.job.record;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -7,7 +8,6 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
-import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.DateField;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.comparable.BooleanField;
@@ -18,12 +18,16 @@ import com.hotpads.datarouter.util.core.DrDateTool;
 public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunningTask>{
 
 	public static final int DEFAULT_STRING_LENGTH = MySqlColumnType.MAX_LENGTH_VARCHAR;
-	public static final long LAST_HEARTBEAT_WARNING_THRESHOLD = 2l * DrDateTool.MILLISECONDS_IN_SECOND,
-							LAST_HEARTBEAT_STALLED_THRESHOLD = 10l * DrDateTool.MILLISECONDS_IN_SECOND;
-	public static final int NULL = 3,
-							OK = 0,
-							WARNING = 1,
-							STALLED = 2;
+
+	public static final long
+			LAST_HEARTBEAT_WARNING_THRESHOLD = 2L * DrDateTool.MILLISECONDS_IN_SECOND,
+			LAST_HEARTBEAT_STALLED_THRESHOLD = 10L * DrDateTool.MILLISECONDS_IN_SECOND;
+
+	public static final int
+			NULL = 3,
+			OK = 0,
+			WARNING = 1,
+			STALLED = 2;
 
 	private LongRunningTaskKey key;
 	private LongRunningTaskType type;
@@ -52,22 +56,21 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 	/********************** databean *****************************************/
 
 	public static class LongRunningTaskFielder extends BaseDatabeanFielder<LongRunningTaskKey, LongRunningTask>{
-		public LongRunningTaskFielder(){}
-		@Override
-		public Class<LongRunningTaskKey> getKeyFielderClass(){
-			return LongRunningTaskKey.class;
+		public LongRunningTaskFielder(){
+			super(LongRunningTaskKey.class);
 		}
 		@Override
-		public List<Field<?>> getNonKeyFields(LongRunningTask d){
-			return FieldTool.createList(
-					new StringEnumField<>(LongRunningTaskType.class, F.type, d.type, DEFAULT_STRING_LENGTH),
-					new DateField(F.startTime, d.startTime),
-					new BooleanField(F.interrupt, d.interrupt),
-					new DateField(F.finishTime, d.finishTime),
-					new DateField(F.heartbeatTime, d.heartbeatTime),
-					new StringEnumField<>(JobExecutionStatus.class, F.jobExecutionStatus, d.jobExecutionStatus, DEFAULT_STRING_LENGTH),
-					new StringField(F.triggeredByUserEmail, d.triggeredByUserEmail, DEFAULT_STRING_LENGTH),
-					new LongField(F.numItemsProcessed, d.numItemsProcessed));
+		public List<Field<?>> getNonKeyFields(LongRunningTask databean){
+			return Arrays.asList(
+					new StringEnumField<>(LongRunningTaskType.class, F.type, databean.type, DEFAULT_STRING_LENGTH),
+					new DateField(F.startTime, databean.startTime),
+					new BooleanField(F.interrupt, databean.interrupt),
+					new DateField(F.finishTime, databean.finishTime),
+					new DateField(F.heartbeatTime, databean.heartbeatTime),
+					new StringEnumField<>(JobExecutionStatus.class, F.jobExecutionStatus, databean.jobExecutionStatus,
+							DEFAULT_STRING_LENGTH),
+					new StringField(F.triggeredByUserEmail, databean.triggeredByUserEmail, DEFAULT_STRING_LENGTH),
+					new LongField(F.numItemsProcessed, databean.numItemsProcessed));
 		}
 	}
 
@@ -119,11 +122,9 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 		long millisAgo = System.currentTimeMillis() - heartbeatTime.getTime();
 		if(millisAgo > LAST_HEARTBEAT_STALLED_THRESHOLD){
 			return STALLED;
-		}
-		else if(millisAgo > LAST_HEARTBEAT_WARNING_THRESHOLD){
+		}else if(millisAgo > LAST_HEARTBEAT_WARNING_THRESHOLD){
 			return WARNING;
-		}
-		else{
+		}else{
 			return OK;
 		}
 	}
