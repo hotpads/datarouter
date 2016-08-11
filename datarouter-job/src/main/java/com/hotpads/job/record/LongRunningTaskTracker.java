@@ -18,7 +18,7 @@ public class LongRunningTaskTracker {
 	private final LongRunningTask task;
 	private final MutableBoolean interrupted;
 	private final Setting<Boolean> persistSetting;
-	private Date lastPersistedHeartbeat;
+	private Date dateLastPersisted;
 
 	public LongRunningTaskTracker(IndexedSortedMapStorage<LongRunningTaskKey,LongRunningTask> node,
 			LongRunningTask task, Setting<Boolean> persistSetting){
@@ -35,12 +35,9 @@ public class LongRunningTaskTracker {
 	}
 
 	public LongRunningTaskTracker heartbeat(){
-		if(shouldPersist()){
-			Date heartbeat = new Date();
-			task.setHeartbeatTime(heartbeat);
-			persist();
-			lastPersistedHeartbeat = heartbeat;
-		}
+		Date now = new Date();
+		task.setHeartbeatTime(now);
+		persistIfShould(now);
 		return this;
 	}
 
@@ -59,30 +56,32 @@ public class LongRunningTaskTracker {
 	public boolean isStopRequested(){
 		if(interrupted.get()){
 			task.setJobExecutionStatus(JobExecutionStatus.interrupted);
-			if(shouldPersist()){
-				persist();
-			}
+			persistIfShould(new Date());
 		}
 		return interrupted.get();
 	}
 
 	/*------------------------ private -------------------*/
 
+	private void persistIfShould(Date newDateLastPersisted){
+		if(!shouldPersist()){
+			return;
+		}
+		if(task.getKey().getTriggerTime()==null){
+			logger.error("not persisting " + task.getDatabeanName() + " tracker because of null trigger time");
+		}
+		node.put(task, null);
+		dateLastPersisted = newDateLastPersisted;
+	}
+
 	private boolean shouldPersist(){
 		if(persistSetting == null || !persistSetting.getValue()){
 			return false;
 		}
-		if(lastPersistedHeartbeat == null){
+		if(dateLastPersisted == null){
 			return true;
 		}
-		return System.currentTimeMillis() - lastPersistedHeartbeat.getTime() > HEARTBEAT_PERSIST_PERIOD_MS;
-	}
-
-	private void persist(){
-		if(task.getKey().getTriggerTime()==null){
-			logger.error("not persisting "+task.getDatabeanName()+" tracker because of null trigger time");
-		}
-		node.put(task, null);
+		return System.currentTimeMillis() - dateLastPersisted.getTime() > HEARTBEAT_PERSIST_PERIOD_MS;
 	}
 
 	/*--------------------- get/set -------------------------*/
