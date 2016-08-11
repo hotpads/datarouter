@@ -52,7 +52,7 @@ public class HBaseEntitySortedNodeIntegrationTests extends BaseSortedNodeIntegra
 	@Test
 	private void testSingleEntityScan(){
 		SortedBeanKey twoFieldsPk = new SortedBeanKey(SortedBeans.S_albatross, SortedBeans.S_ostrich, null, null);
-		SortedBeanKey threeFieldsPk = new SortedBeanKey(SortedBeans.S_albatross, SortedBeans.S_ostrich, 0, null);
+		SortedBeanKey threeFieldsPk = new SortedBeanKey(SortedBeans.S_albatross, SortedBeans.S_ostrich, 1, null);
 
 		final int limit = 23;
 		Assert.assertEquals(sortedNode.streamKeysWithPrefix(threeFieldsPk, new Config().setLimit(limit)).count(),

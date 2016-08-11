@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldSet;
@@ -47,8 +47,8 @@ public class FieldSetRangeFilter{
 		return matchesStart && matchesEnd;
 	}
 
-
-	private static boolean isCandidateAfterStartOfRange(List<Field<?>> candidateFields,
+	//is this any better than range.matchesStart(candidate)?
+	public static boolean isCandidateAfterStartOfRange(List<Field<?>> candidateFields,
 			List<Field<?>> startOfRangeFields, boolean inclusive){
 		if(startOfRangeFields == null){
 			return true;
@@ -70,7 +70,7 @@ public class FieldSetRangeFilter{
 			@SuppressWarnings("rawtypes")
 			Field startOfRange = startOfRangeIterator.next();
 			if(startOfRange.getValue() == null){
-				return true;
+				return inclusive;
 			}
 			//neither value should be null at this point
 			@SuppressWarnings("unchecked")
@@ -90,7 +90,7 @@ public class FieldSetRangeFilter{
 	}
 
 
-	private static boolean isCandidateBeforeEndOfRange(List<Field<?>> candidateFields,
+	public static boolean isCandidateBeforeEndOfRange(List<Field<?>> candidateFields,
 			List<Field<?>> endOfRangeFields, boolean inclusive){
 		if(endOfRangeFields == null){
 			return true;
@@ -112,7 +112,7 @@ public class FieldSetRangeFilter{
 			@SuppressWarnings("rawtypes")
 			Field endOfRange = endOfRangeIterator.next();
 			if(endOfRange.getValue() == null){
-				return true;
+				return inclusive;
 			}
 			//neither value should be null at this point
 			@SuppressWarnings("unchecked")
@@ -138,20 +138,30 @@ public class FieldSetRangeFilter{
 		SortedBeanKey endOfRange1 = new SortedBeanKey("emu", null, null, null);
 		Range<SortedBeanKey> rangeEndInclusive = new Range<>(null, true, endOfRange1, true);
 		Range<SortedBeanKey> rangeEndExclusive = new Range<>(null, true, endOfRange1, false);
+
+		@Test
+		public void testStart(){
+			SortedBeanKey startOfRangeKey = new SortedBeanKey("a", "c", 2, null);
+			SortedBeanKey candidateKey = new SortedBeanKey("a", "c", 2, "d");
+			Assert.assertTrue(isCandidateAfterStartOfRange(candidateKey.getFields(), startOfRangeKey.getFields(),
+					true));
+			Assert.assertFalse(isCandidateAfterStartOfRange(candidateKey.getFields(), startOfRangeKey.getFields(),
+					false));
+		}
+
+		@Test
+		public void testEnd(){
+			SortedBeanKey endOfRangeKey = new SortedBeanKey("a", "c", 2, null);
+			SortedBeanKey candidateKey = new SortedBeanKey("a", "c", 2, "d");
+			Assert.assertTrue(isCandidateBeforeEndOfRange(candidateKey.getFields(), endOfRangeKey.getFields(), true));
+			Assert.assertFalse(isCandidateBeforeEndOfRange(candidateKey.getFields(), endOfRangeKey.getFields(), false));
+		}
+
 		@Test
 		public void testObviousFailure(){
 			SortedBeanKey candidate1 = new SortedBeanKey("zzz", "zzz", 55, "zzz");
 			Assert.assertTrue(candidate1.compareTo(endOfRange1) > 0);//sanity check
 			Assert.assertFalse(include(candidate1, rangeEndInclusive));
-		}
-
-		@Test
-		public void testCloseCall(){
-			//the candidate would normally compare after the endOfRange, but should be included here
-			SortedBeanKey candidate2 = new SortedBeanKey("emu", "zzz", 55, "zzz");
-			Assert.assertTrue(candidate2.compareTo(endOfRange1) > 0);//candidate is after end with normal comparison
-			Assert.assertTrue(include(candidate2, rangeEndInclusive));//but in the prefix range
-			Assert.assertTrue(include(candidate2, rangeEndExclusive));//even with inclusive=false
 		}
 
 		@Test
