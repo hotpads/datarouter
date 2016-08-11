@@ -14,9 +14,7 @@ import com.hotpads.handler.mav.Mav;
 
 public class LongRunningTasksHandler extends BaseHandler {
 
-	public static final int LRT_DURATION_THRESHOLD_SECONDS = 20;
-
-	public static final String JSP_tasks = "/jsp/admin/datarouter/job/longRunningTasks.jsp";
+	public static final String JSP_longRunningTasks = "/jsp/admin/datarouter/job/longRunningTasks.jsp";
 
 	@Inject
 	private LongRunningTaskNodeProvider longRunningTaskNodeProvider;
@@ -25,7 +23,7 @@ public class LongRunningTasksHandler extends BaseHandler {
 	@Override
 	@Handler
 	protected Mav handleDefault(){
-		Mav mav = new Mav(JSP_tasks);
+		Mav mav = new Mav(JSP_longRunningTasks);
 		Map<String,LongRunningTask> lastCompletions = new HashMap<>();
 		Iterable<LongRunningTask> tasks = longRunningTaskNodeProvider.get().scan(null, Configs.slaveOk());
 		List<LongRunningTask> currentlyRunningTasks = new ArrayList<>();
@@ -40,7 +38,7 @@ public class LongRunningTasksHandler extends BaseHandler {
 				}
 			}
 		}
-		Collections.sort(currentlyRunningTasks, new LongRunningTaskDurationComparator(true));
+		Collections.sort(currentlyRunningTasks, new LongRunningTaskStartTimeComparator(true));
 		mav.put("lastCompletions", lastCompletions);
 		mav.put("currentlyRunningTasks", currentlyRunningTasks);
 		return mav;
