@@ -6,19 +6,16 @@ import com.hotpads.datarouter.util.core.DrComparableTool;
 
 public class LongRunningTaskDurationComparator implements Comparator<LongRunningTask>{
 
-	private boolean ascending = false;
+	private final boolean ascending;
 
 	public LongRunningTaskDurationComparator(boolean ascending){
 		this.ascending = ascending;
 	}
 
 	@Override
-	public int compare(LongRunningTask a, LongRunningTask b) {
-		int compare = DrComparableTool.nullFirstCompareTo(a.getStartTime(), b.getStartTime());
-		if(ascending){
-			return compare;
-		}
-		return -1 * compare;
+	public int compare(LongRunningTask left, LongRunningTask right) {
+		int compare = DrComparableTool.nullFirstCompareTo(left.getStartTime(), right.getStartTime());
+		return ascending ? compare : -1 * compare;
 	}
 
 }
