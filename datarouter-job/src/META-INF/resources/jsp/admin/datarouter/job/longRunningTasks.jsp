@@ -11,10 +11,10 @@
 <body>
 	<%@ include file="/jsp/menu/common-navbar.jsp"%>
 	<%@ include file="/jsp/menu/dr-navbar.jsp"%>
-	<div class="container" id="jobletsTable">
-		<h2 class="page-header">Currently Running LongRunningTasks</h2>
+	<div class="container-fluid" id="tasksTable">
+		<h2 class="page-header">LongRunningTasks</h2>
 		<div class="page-content-container page-content-thicktop page-single-column">
-			<table class="sortable table table-bordered table-condensed">
+			<table class="jobletTable sortable table table-bordered table-condensed" style="border-collapse:collapse;">
 				<tr>
 					<th>triggerTime</th>
 					<th>jobClass</th>
