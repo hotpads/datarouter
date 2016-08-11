@@ -14,18 +14,34 @@ public class LongRunningTaskTracker {
 
 	private static long HEARTBEAT_PERSIST_PERIOD_MS = 2000L;
 
-	private IndexedSortedMapStorage<LongRunningTaskKey, LongRunningTask> node;
-	private LongRunningTask task;
-	private MutableBoolean interrupted;
+	private final IndexedSortedMapStorage<LongRunningTaskKey, LongRunningTask> node;
+	private final LongRunningTask task;
+	private final MutableBoolean interrupted;
+	private final Setting<Boolean> shouldPersist;
 	private Date lastPersistedHeartbeat;
-	private Setting<Boolean> shouldSaveLongRunningTasks;
 
-	public LongRunningTaskTracker(IndexedSortedMapStorage<LongRunningTaskKey, LongRunningTask> node,
-			LongRunningTask task, Setting<Boolean> shouldSaveLongRunningTasks){
+	public LongRunningTaskTracker(IndexedSortedMapStorage<LongRunningTaskKey,LongRunningTask> node,
+			LongRunningTask task, Setting<Boolean> shouldPersist){
 		this.node = node;
 		this.task = task;
 		this.interrupted = new MutableBoolean(false);
-		this.shouldSaveLongRunningTasks = shouldSaveLongRunningTasks;
+		this.shouldPersist = shouldPersist;
+	}
+
+
+	public LongRunningTaskTracker heartbeat(){
+		if( ! shouldPersistHeartbeat()){
+			Date heartbeat = new Date();
+			task.setHeartbeatTime(heartbeat);
+			persist();
+			lastPersistedHeartbeat = heartbeat;
+		}
+		return this;
+	}
+
+	public LongRunningTaskTracker setNumItemsProcessed(long numItems){
+		task.setNumItemsProcessed(numItems);
+		return this;
 	}
 
 	public void requestStop(){
@@ -44,15 +60,7 @@ public class LongRunningTaskTracker {
 		return interrupted.get();
 	}
 
-	public LongRunningTaskTracker heartbeat(){
-		if(shouldPersistHeartbeat()){
-			Date heartbeat = new Date();
-			task.setHeartbeatTime(heartbeat);
-			persist();
-			lastPersistedHeartbeat = heartbeat;
-		}
-		return this;
-	}
+	/*------------------------ private -------------------*/
 
 	private void persist(){
 		if(task.getKey().getTriggerTime()==null){
@@ -62,7 +70,7 @@ public class LongRunningTaskTracker {
 	}
 
 	private boolean shouldPersistHeartbeat(){
-		if((shouldSaveLongRunningTasks == null) || !shouldSaveLongRunningTasks.getValue()){
+		if((shouldPersist == null) || !shouldPersist.getValue()){
 			return false;
 		}
 		if(lastPersistedHeartbeat == null){
@@ -71,36 +79,13 @@ public class LongRunningTaskTracker {
 		return System.currentTimeMillis() - lastPersistedHeartbeat.getTime() > HEARTBEAT_PERSIST_PERIOD_MS;
 	}
 
-	public LongRunningTaskTracker setNumItemsProcessed(long numItems){
-		task.setNumItemsProcessed(numItems);
-		return this;
-	}
+	/*--------------------- get/set -------------------------*/
 
-	public IndexedSortedMapStorage<LongRunningTaskKey, LongRunningTask> getNode() {
+	public IndexedSortedMapStorage<LongRunningTaskKey,LongRunningTask> getNode() {
 		return node;
 	}
 
 	public LongRunningTask getTask() {
 		return task;
-	}
-
-	public void setTask(LongRunningTask task) {
-		this.task = task;
-	}
-
-	public Date getLastPersistedHeartbeat() {
-		return lastPersistedHeartbeat;
-	}
-
-	public void setLastPersistedHeartbeat(Date lastPersistedHeartbeat) {
-		this.lastPersistedHeartbeat = lastPersistedHeartbeat;
-	}
-
-	public Setting<Boolean> getShouldSaveLongRunningTasks() {
-		return shouldSaveLongRunningTasks;
-	}
-
-	public void setShouldSaveLongRunningTasks(Setting<Boolean> shouldSaveLongRunningTasks) {
-		this.shouldSaveLongRunningTasks = shouldSaveLongRunningTasks;
 	}
 }
