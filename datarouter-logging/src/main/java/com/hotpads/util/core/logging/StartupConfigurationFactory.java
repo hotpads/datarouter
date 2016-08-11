@@ -31,6 +31,7 @@ public class StartupConfigurationFactory extends ConfigurationFactory{
 
 	@Override
 	public Configuration getConfiguration(ConfigurationSource source){
+		@SuppressWarnings("serial")
 		Configuration configuration = new AbstractConfiguration(ConfigurationSource.NULL_SOURCE){};
 		String fullyQualifiedClassName;
 		try(BufferedReader reader = new BufferedReader(new InputStreamReader(source.getInputStream()))){

@@ -9,7 +9,7 @@
 	</parent>
 	<artifactId>datarouter-logging</artifactId>
 	<properties>
-		<log4j2Version>2.6.2</log4j2Version>
+		<log4j2Version>2.5</log4j2Version>
 	</properties>
 	<build>
 		<plugins>
