@@ -9,10 +9,15 @@ import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.imp.DateField;
+import com.hotpads.datarouter.storage.field.imp.DateFieldKey;
 import com.hotpads.datarouter.storage.field.imp.StringField;
+import com.hotpads.datarouter.storage.field.imp.StringFieldKey;
 import com.hotpads.datarouter.storage.field.imp.comparable.BooleanField;
+import com.hotpads.datarouter.storage.field.imp.comparable.BooleanFieldKey;
 import com.hotpads.datarouter.storage.field.imp.comparable.LongField;
+import com.hotpads.datarouter.storage.field.imp.comparable.LongFieldKey;
 import com.hotpads.datarouter.storage.field.imp.enums.StringEnumField;
+import com.hotpads.datarouter.storage.field.imp.enums.StringEnumFieldKey;
 import com.hotpads.datarouter.util.core.DrDateTool;
 
 public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunningTask>{
@@ -41,16 +46,17 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 
 	/**************************** columns ****************************************/
 
-	public static class F{
-		public static final String
-			startTime = "startTime",
-			interrupt = "interrupt",
-			finishTime = "finishTime",
-			heartbeatTime = "heartbeatTime",
-			jobExecutionStatus = "jobExecutionStatus",
-			triggeredByUserEmail = "triggeredByUserEmail",
-			type = "type",
-			numItemsProcessed = "numItemsProcessed";
+	public static class FieldKeys{
+		public static final StringEnumFieldKey<LongRunningTaskType> type = new StringEnumFieldKey<>("type",
+				LongRunningTaskType.class);
+		public static final DateFieldKey startTime = new DateFieldKey("startTime");
+		public static final BooleanFieldKey interrupt = new BooleanFieldKey("interrupt");
+		public static final DateFieldKey finishTime = new DateFieldKey("finishTime");
+		public static final DateFieldKey heartbeatTime = new DateFieldKey("heartbeatTime");
+		public static final StringEnumFieldKey<JobExecutionStatus> jobExecutionStatus = new StringEnumFieldKey<>(
+				"jobExecutionStatus", JobExecutionStatus.class);
+		public static final StringFieldKey triggeredByUserEmail = new StringFieldKey("triggeredByUserEmail");
+		public static final LongFieldKey numItemsProcessed = new LongFieldKey("numItemsProcessed");
 	}
 
 	/********************** databean *****************************************/
@@ -62,15 +68,14 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 		@Override
 		public List<Field<?>> getNonKeyFields(LongRunningTask databean){
 			return Arrays.asList(
-					new StringEnumField<>(LongRunningTaskType.class, F.type, databean.type, DEFAULT_STRING_LENGTH),
-					new DateField(F.startTime, databean.startTime),
-					new BooleanField(F.interrupt, databean.interrupt),
-					new DateField(F.finishTime, databean.finishTime),
-					new DateField(F.heartbeatTime, databean.heartbeatTime),
-					new StringEnumField<>(JobExecutionStatus.class, F.jobExecutionStatus, databean.jobExecutionStatus,
-							DEFAULT_STRING_LENGTH),
-					new StringField(F.triggeredByUserEmail, databean.triggeredByUserEmail, DEFAULT_STRING_LENGTH),
-					new LongField(F.numItemsProcessed, databean.numItemsProcessed));
+					new StringEnumField<>(FieldKeys.type, databean.type),
+					new DateField(FieldKeys.startTime, databean.startTime),
+					new BooleanField(FieldKeys.interrupt, databean.interrupt),
+					new DateField(FieldKeys.finishTime, databean.finishTime),
+					new DateField(FieldKeys.heartbeatTime, databean.heartbeatTime),
+					new StringEnumField<>(FieldKeys.jobExecutionStatus, databean.jobExecutionStatus),
+					new StringField(FieldKeys.triggeredByUserEmail, databean.triggeredByUserEmail),
+					new LongField(FieldKeys.numItemsProcessed, databean.numItemsProcessed));
 		}
 	}
 
