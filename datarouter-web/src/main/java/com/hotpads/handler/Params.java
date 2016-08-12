@@ -12,6 +12,7 @@ import org.apache.commons.fileupload.FileItem;
 
 import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.util.core.DrBooleanTool;
+import com.hotpads.datarouter.util.core.DrNumberTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.handler.user.session.DatarouterSession;
 import com.hotpads.util.http.RequestTool;
@@ -66,13 +67,23 @@ public class Params{
 		return Long.valueOf(required(key));
 	}
 
+	public Optional<Long> optionalLong(String key){
+		return optional(key).map(Long::valueOf);
+	}
+
 	public Long optionalLong(String key, Long defaultValue){
-		return optional(key).map(Long::valueOf).orElse(defaultValue);
+		return optionalLong(key).orElse(defaultValue);
 	}
 
 	public Long optionalLongEmptySafe(String key, Long defaultValue){
 		return optional(key).filter(str -> !DrStringTool.isNullOrEmptyOrWhitespace(str)).map(Long::valueOf)
 				.orElse(defaultValue);
+	}
+
+	public Optional<Long> optionalLongSafeParsing(String key){
+		return optional(key)
+				.map(value->DrNumberTool.getLongNullSafe(value,null))
+				.filter(value->value!=null);
 	}
 
 	public Integer requiredInteger(String key){
