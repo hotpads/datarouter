@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Currently Running LongRunningTasks</title>
+	<title>LongRunningTasks</title>
 	<%@ include file="/jsp/generic/datarouterHead.jsp" %>
 	<script>
 	require(["sorttable"]);
@@ -27,8 +27,10 @@
 					<th>lastFinishTime</th>
 				</tr>
 				<c:forEach items="${currentlyRunningTasks}" var="task">
-					<tr <c:choose><c:when test="${task.status == 2}">style="background: #FF9999;"</c:when>
-						<c:when test="${task.status == 1}">style="background: #FFEE00;"</c:when></c:choose>>
+					<tr <c:choose>
+							<c:when test="${task.status == 2}">style="background: #FF9999;"</c:when>
+							<c:when test="${task.status == 1}">style="background: #FFEE00;"</c:when>
+						</c:choose>>
 						<td>${task.key.triggerTime}</td>
 						<td>${task.key.jobClass}</td>
 						<td>${task.key.serverName}</td>
