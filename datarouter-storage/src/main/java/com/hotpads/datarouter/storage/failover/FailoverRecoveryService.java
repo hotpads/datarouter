@@ -11,11 +11,11 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
 @Singleton
-public class FailoverRecoveringService{
+public class FailoverRecoveryService{
 
 	private final List<RecoveringPolicy<?,?>> recoveringPolicies;
 
-	public FailoverRecoveringService(){
+	public FailoverRecoveryService(){
 		this.recoveringPolicies = new ArrayList<>();
 	}
 

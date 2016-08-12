@@ -18,7 +18,7 @@ public class FailoverStorageWriter<PK extends PrimaryKey<PK>,D extends Databean<
 	public static class FailoverStorageWriterFactory{
 
 		@Inject
-		private FailoverRecoveringService failoverRecoveringService;
+		private FailoverRecoveryService failoverRecoveringService;
 		@Inject
 		private FailoverSettings failoverSettings;
 
