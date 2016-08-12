@@ -7,6 +7,7 @@ import com.amazonaws.services.sqs.AmazonSQSClient;
 import com.hotpads.datarouter.client.imp.sqs.BaseSqsNode;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.serialize.StringDatabeanCodec;
+import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
@@ -24,6 +25,7 @@ implements Callable<V>{
 	protected final Supplier<D> databeanSupplier;
 	protected final F fielder;
 	protected final StringDatabeanCodec codec;
+	protected final DatabeanFieldInfo<PK,D,F> fieldInfo;
 
 	public SqsOp(Config config, BaseSqsNode<PK,D,F> sqsNode){
 		this.config = Config.nullSafe(config);
@@ -32,6 +34,7 @@ implements Callable<V>{
 		this.databeanSupplier = sqsNode.getFieldInfo().getDatabeanSupplier();
 		this.fielder = sqsNode.getFieldInfo().getSampleFielder();
 		this.codec = fielder.getStringDatabeanCodec();
+		this.fieldInfo = sqsNode.getFieldInfo();
 	}
 
 	@Override
