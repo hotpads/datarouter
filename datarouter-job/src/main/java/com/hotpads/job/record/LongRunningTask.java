@@ -28,6 +28,7 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 			LAST_HEARTBEAT_WARNING_THRESHOLD = 2L * DrDateTool.MILLISECONDS_IN_SECOND,
 			LAST_HEARTBEAT_STALLED_THRESHOLD = 10L * DrDateTool.MILLISECONDS_IN_SECOND;
 
+	//used by longRunningTasks.jsp
 	public static final int
 			NULL = 3,
 			OK = 0,
@@ -184,20 +185,8 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 		return triggeredByUserEmail;
 	}
 
-	public void setTriggeredByUserEmail(String triggeredByUserEmail) {
-		this.triggeredByUserEmail = triggeredByUserEmail;
-	}
-
-	public void setKey(LongRunningTaskKey key) {
-		this.key = key;
-	}
-
 	public LongRunningTaskType getType() {
 		return type;
-	}
-
-	public void setType(LongRunningTaskType type) {
-		this.type = type;
 	}
 
 	public Long getNumItemsProcessed() {
