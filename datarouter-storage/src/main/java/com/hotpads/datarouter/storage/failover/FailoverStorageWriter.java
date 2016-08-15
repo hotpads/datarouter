@@ -25,9 +25,10 @@ public class FailoverStorageWriter<PK extends PrimaryKey<PK>,D extends Databean<
 		public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 		FailoverStorageWriter<PK,D> createWithStandbyQueueStorage(StorageWriterNode<PK,D> mainStorage,
 				QueueStorage<PK,D> standbyStorage){
+			Setting<Boolean> isFailedOver = failoverSettings.isFailedOver(mainStorage.getName());
 			FailoverStorageWriter<PK,D> failoverStorage = new FailoverStorageWriter<>(mainStorage, standbyStorage,
-					failoverSettings.isFailedOver(mainStorage.getName()));
-			failoverRecoveryService.registerRecoveryPolicy(mainStorage, () -> standbyStorage.poll(null));
+					isFailedOver);
+			failoverRecoveryService.registerRecoveryPolicy(mainStorage, () -> standbyStorage.poll(null), isFailedOver);
 			return failoverStorage;
 		}
 

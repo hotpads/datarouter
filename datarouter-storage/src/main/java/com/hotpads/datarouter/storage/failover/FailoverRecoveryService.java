@@ -7,6 +7,7 @@ import java.util.function.Supplier;
 import javax.inject.Singleton;
 
 import com.hotpads.datarouter.node.op.raw.write.StorageWriter;
+import com.hotpads.datarouter.setting.Setting;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
@@ -20,8 +21,8 @@ public class FailoverRecoveryService{
 	}
 
 	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>> void registerRecoveryPolicy(
-			StorageWriter<PK,D> mainStorage, Supplier<D> databeanPoller){
-		recoveryPolicies.add(new RecoveryPolicy<>(mainStorage, databeanPoller));
+			StorageWriter<PK,D> mainStorage, Supplier<D> databeanPoller, Setting<Boolean> isFailedOver){
+		recoveryPolicies.add(new RecoveryPolicy<>(mainStorage, databeanPoller, isFailedOver));
 	}
 
 	public void runRecovery(){
@@ -32,13 +33,19 @@ public class FailoverRecoveryService{
 
 		private final StorageWriter<PK,D> mainStorage;
 		private final Supplier<D> databeanPoller;
+		private final Setting<Boolean> isFailedOver;
 
-		private RecoveryPolicy(StorageWriter<PK,D> mainStorage, Supplier<D> databeanPoller){
+		private RecoveryPolicy(StorageWriter<PK,D> mainStorage, Supplier<D> databeanPoller,
+				Setting<Boolean> isFailedOver){
 			this.mainStorage = mainStorage;
 			this.databeanPoller = databeanPoller;
+			this.isFailedOver = isFailedOver;
 		}
 
 		private void recover(){
+			if(isFailedOver.getValue()){
+				return;
+			}
 			D databean;
 			while((databean = databeanPoller.get()) != null){
 				mainStorage.put(databean, null);
