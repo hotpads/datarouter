@@ -29,9 +29,9 @@ import com.hotpads.job.trigger.JobScheduler;
 import com.hotpads.job.web.TriggersRepository.JobPackage;
 import com.hotpads.util.core.enums.EnumTool;
 
-public class JobToTriggerHandler extends BaseHandler {
+public class TriggerHandler extends BaseHandler {
 
-	private static final Logger logger = LoggerFactory.getLogger(JobToTriggerHandler.class);
+	private static final Logger logger = LoggerFactory.getLogger(TriggerHandler.class);
 
 	public static final String
 		P_name = "name",
