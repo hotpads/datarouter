@@ -26,8 +26,7 @@ extends SqsOp<PK,D,F,Void>{
 
 	@Override
 	protected Void run(){
-		FieldGeneratorTool.optFieldToGenerate(fieldInfo, databean).ifPresent(field -> FieldGeneratorTool
-				.generateAndSetValueForField(fieldInfo, databean, field, bean -> true));
+		FieldGeneratorTool.generateAndSetValueForFieldIfNecessary(fieldInfo, databean);
 		String encodedDatabean = codec.toString(databean, fielder);
 		if(StringByteTool.getUtf8Bytes(encodedDatabean).length > BaseSqsNode.MAX_BYTES_PER_MESSAGE){
 			throw new SqsDataTooLargeException(databean);

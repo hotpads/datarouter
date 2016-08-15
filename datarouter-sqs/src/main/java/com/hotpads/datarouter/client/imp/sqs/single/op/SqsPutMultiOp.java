@@ -36,8 +36,7 @@ extends SqsOp<PK,D,F,Void>{
 		List<D> rejectedDatabeans = new ArrayList<>();
 		int currentPayloadSize = 0;
 		for(D databean : databeans){
-			FieldGeneratorTool.optFieldToGenerate(fieldInfo, databean).ifPresent(field -> FieldGeneratorTool
-					.generateAndSetValueForField(fieldInfo, databean, field, bean -> true));
+			FieldGeneratorTool.generateAndSetValueForFieldIfNecessary(fieldInfo, databean);
 			String encodedDatabean = codec.toString(databean, fielder);
 			int encodedDatabeanSize = StringByteTool.getUtf8Bytes(encodedDatabean).length;
 			if(encodedDatabeanSize > BaseSqsNode.MAX_BYTES_PER_MESSAGE){

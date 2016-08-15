@@ -18,7 +18,7 @@ public class FailoverStorageWriter<PK extends PrimaryKey<PK>,D extends Databean<
 	public static class FailoverStorageWriterFactory{
 
 		@Inject
-		private FailoverRecoveryService failoverRecoveringService;
+		private FailoverRecoveryService failoverRecoveryService;
 		@Inject
 		private FailoverSettings failoverSettings;
 
@@ -26,8 +26,8 @@ public class FailoverStorageWriter<PK extends PrimaryKey<PK>,D extends Databean<
 		FailoverStorageWriter<PK,D> createWithStandbyQueueStorage(StorageWriterNode<PK,D> mainStorage,
 				QueueStorage<PK,D> standbyStorage){
 			FailoverStorageWriter<PK,D> failoverStorage = new FailoverStorageWriter<>(mainStorage, standbyStorage,
-					failoverSettings.shouldFailover(mainStorage.getName()));
-			failoverRecoveringService.registerRecoveryPolicy(mainStorage, () -> standbyStorage.poll(null));
+					failoverSettings.isFailedOver(mainStorage.getName()));
+			failoverRecoveryService.registerRecoveryPolicy(mainStorage, () -> standbyStorage.poll(null));
 			return failoverStorage;
 		}
 
@@ -35,18 +35,18 @@ public class FailoverStorageWriter<PK extends PrimaryKey<PK>,D extends Databean<
 
 	private final StorageWriter<PK,D> mainStorage;
 	private final StorageWriter<PK,D> standbyStorage;
-	private final Setting<Boolean> shouldFailover;
+	private final Setting<Boolean> isFailedOver;
 
 	public FailoverStorageWriter(StorageWriter<PK,D> mainStorage, StorageWriter<PK,D> standbyStorage,
-			Setting<Boolean> shouldFailover){
+			Setting<Boolean> isFailedOver){
 		this.mainStorage = mainStorage;
 		this.standbyStorage = standbyStorage;
-		this.shouldFailover = shouldFailover;
+		this.isFailedOver = isFailedOver;
 	}
 
 	@Override
 	public void put(D databean, Config config){
-		if(shouldFailover.getValue()){
+		if(isFailedOver.getValue()){
 			standbyStorage.put(databean, config);
 		}else{
 			mainStorage.put(databean, config);
@@ -55,7 +55,7 @@ public class FailoverStorageWriter<PK extends PrimaryKey<PK>,D extends Databean<
 
 	@Override
 	public void putMulti(Collection<D> databeans, Config config){
-		if(shouldFailover.getValue()){
+		if(isFailedOver.getValue()){
 			standbyStorage.putMulti(databeans, config);
 		}else{
 			mainStorage.putMulti(databeans, config);

@@ -13,18 +13,18 @@ import com.hotpads.datarouter.setting.SettingNode;
 @Singleton
 public class FailoverSettings extends SettingNode{
 
-	private final Map<String,Setting<Boolean>> shouldFailoverByNodeName;
+	private final Map<String,Setting<Boolean>> isFailedOverByNodeName;
 	public final Setting<Boolean> runRecoveryJob;
 
 	@Inject
 	public FailoverSettings(SettingFinder finder){
 		super(finder, "datarouter.failover.", "datarouter.");
-		this.shouldFailoverByNodeName = new HashMap<>();
+		this.isFailedOverByNodeName = new HashMap<>();
 		this.runRecoveryJob = registerBoolean("runRecoveryJob", false);
 	}
 
-	public Setting<Boolean> shouldFailover(String nodeName){
-		return shouldFailoverByNodeName.computeIfAbsent(nodeName, name -> registerBoolean(nodeName, false));
+	public Setting<Boolean> isFailedOver(String nodeName){
+		return isFailedOverByNodeName.computeIfAbsent(nodeName, name -> registerBoolean(nodeName, false));
 	}
 
 }
