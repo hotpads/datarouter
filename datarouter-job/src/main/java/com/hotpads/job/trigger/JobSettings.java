@@ -20,7 +20,7 @@ public class JobSettings extends SettingNode{
 	public JobSettings(SettingFinder finder, WebAppName webAppName){
 		super(finder, webAppName + ".job.", webAppName + ".");
 
-		saveLongRunningTasks = registerBoolean("saveLongRunningTasks", false);
+		saveLongRunningTasks = registerBoolean("saveLongRunningTasks", true);
 		scheduleMissedJobsOnStartup = registerBoolean("scheduleMissedJobsOnStartup", false);
 		processJobs = registerBoolean("processJobs", true);
 	}
