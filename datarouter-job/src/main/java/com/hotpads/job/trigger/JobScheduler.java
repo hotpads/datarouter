@@ -49,7 +49,7 @@ public class JobScheduler {
 		}
 		Optional<Date> jobsLastCompletion = longRunningTaskNode.streamWithPrefix(new LongRunningTaskKey(
 				jobPackage.jobClass), null)
-				.filter(task -> task.getJobExecutionStatus() == JobExecutionStatus.success)
+				.filter(task -> task.getJobExecutionStatus() == JobExecutionStatus.SUCCESS)
 				.map(LongRunningTask::getFinishTime)
 				.max(Date::compareTo);
 		if(!jobsLastCompletion.isPresent()){//has never run, schedule for next normal time

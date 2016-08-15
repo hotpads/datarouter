@@ -1,5 +1,6 @@
 package com.hotpads.job.record;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -7,23 +8,32 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
-import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.DateField;
+import com.hotpads.datarouter.storage.field.imp.DateFieldKey;
 import com.hotpads.datarouter.storage.field.imp.StringField;
+import com.hotpads.datarouter.storage.field.imp.StringFieldKey;
 import com.hotpads.datarouter.storage.field.imp.comparable.BooleanField;
+import com.hotpads.datarouter.storage.field.imp.comparable.BooleanFieldKey;
 import com.hotpads.datarouter.storage.field.imp.comparable.LongField;
+import com.hotpads.datarouter.storage.field.imp.comparable.LongFieldKey;
 import com.hotpads.datarouter.storage.field.imp.enums.StringEnumField;
+import com.hotpads.datarouter.storage.field.imp.enums.StringEnumFieldKey;
 import com.hotpads.datarouter.util.core.DrDateTool;
 
 public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunningTask>{
 
 	public static final int DEFAULT_STRING_LENGTH = MySqlColumnType.MAX_LENGTH_VARCHAR;
-	public static final long LAST_HEARTBEAT_WARNING_THRESHOLD = 2l * DrDateTool.MILLISECONDS_IN_SECOND,
-							LAST_HEARTBEAT_STALLED_THRESHOLD = 10l * DrDateTool.MILLISECONDS_IN_SECOND;
-	public static final int NULL = 3,
-							OK = 0,
-							WARNING = 1,
-							STALLED = 2;
+
+	public static final long
+			LAST_HEARTBEAT_WARNING_THRESHOLD = 2L * DrDateTool.MILLISECONDS_IN_SECOND,
+			LAST_HEARTBEAT_STALLED_THRESHOLD = 10L * DrDateTool.MILLISECONDS_IN_SECOND;
+
+	//used by longRunningTasks.jsp
+	public static final int
+			NULL = 3,
+			OK = 0,
+			WARNING = 1,
+			STALLED = 2;
 
 	private LongRunningTaskKey key;
 	private LongRunningTaskType type;
@@ -37,37 +47,36 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 
 	/**************************** columns ****************************************/
 
-	public static class F{
-		public static final String
-			startTime = "startTime",
-			interrupt = "interrupt",
-			finishTime = "finishTime",
-			heartbeatTime = "heartbeatTime",
-			jobExecutionStatus = "jobExecutionStatus",
-			triggeredByUserEmail = "triggeredByUserEmail",
-			type = "type",
-			numItemsProcessed = "numItemsProcessed";
+	public static class FieldKeys{
+		public static final StringEnumFieldKey<LongRunningTaskType> type = new StringEnumFieldKey<>("type",
+				LongRunningTaskType.class);
+		public static final DateFieldKey startTime = new DateFieldKey("startTime");
+		public static final BooleanFieldKey interrupt = new BooleanFieldKey("interrupt");
+		public static final DateFieldKey finishTime = new DateFieldKey("finishTime");
+		public static final DateFieldKey heartbeatTime = new DateFieldKey("heartbeatTime");
+		public static final StringEnumFieldKey<JobExecutionStatus> jobExecutionStatus = new StringEnumFieldKey<>(
+				"jobExecutionStatus", JobExecutionStatus.class);
+		public static final StringFieldKey triggeredByUserEmail = new StringFieldKey("triggeredByUserEmail");
+		public static final LongFieldKey numItemsProcessed = new LongFieldKey("numItemsProcessed");
 	}
 
 	/********************** databean *****************************************/
 
 	public static class LongRunningTaskFielder extends BaseDatabeanFielder<LongRunningTaskKey, LongRunningTask>{
-		public LongRunningTaskFielder(){}
-		@Override
-		public Class<LongRunningTaskKey> getKeyFielderClass(){
-			return LongRunningTaskKey.class;
+		public LongRunningTaskFielder(){
+			super(LongRunningTaskKey.class);
 		}
 		@Override
-		public List<Field<?>> getNonKeyFields(LongRunningTask d){
-			return FieldTool.createList(
-					new StringEnumField<>(LongRunningTaskType.class, F.type, d.type, DEFAULT_STRING_LENGTH),
-					new DateField(F.startTime, d.startTime),
-					new BooleanField(F.interrupt, d.interrupt),
-					new DateField(F.finishTime, d.finishTime),
-					new DateField(F.heartbeatTime, d.heartbeatTime),
-					new StringEnumField<>(JobExecutionStatus.class, F.jobExecutionStatus, d.jobExecutionStatus, DEFAULT_STRING_LENGTH),
-					new StringField(F.triggeredByUserEmail, d.triggeredByUserEmail, DEFAULT_STRING_LENGTH),
-					new LongField(F.numItemsProcessed, d.numItemsProcessed));
+		public List<Field<?>> getNonKeyFields(LongRunningTask databean){
+			return Arrays.asList(
+					new StringEnumField<>(FieldKeys.type, databean.type),
+					new DateField(FieldKeys.startTime, databean.startTime),
+					new BooleanField(FieldKeys.interrupt, databean.interrupt),
+					new DateField(FieldKeys.finishTime, databean.finishTime),
+					new DateField(FieldKeys.heartbeatTime, databean.heartbeatTime),
+					new StringEnumField<>(FieldKeys.jobExecutionStatus, databean.jobExecutionStatus),
+					new StringField(FieldKeys.triggeredByUserEmail, databean.triggeredByUserEmail),
+					new LongField(FieldKeys.numItemsProcessed, databean.numItemsProcessed));
 		}
 	}
 
@@ -119,11 +128,9 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 		long millisAgo = System.currentTimeMillis() - heartbeatTime.getTime();
 		if(millisAgo > LAST_HEARTBEAT_STALLED_THRESHOLD){
 			return STALLED;
-		}
-		else if(millisAgo > LAST_HEARTBEAT_WARNING_THRESHOLD){
+		}else if(millisAgo > LAST_HEARTBEAT_WARNING_THRESHOLD){
 			return WARNING;
-		}
-		else{
+		}else{
 			return OK;
 		}
 	}
@@ -178,20 +185,8 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 		return triggeredByUserEmail;
 	}
 
-	public void setTriggeredByUserEmail(String triggeredByUserEmail) {
-		this.triggeredByUserEmail = triggeredByUserEmail;
-	}
-
-	public void setKey(LongRunningTaskKey key) {
-		this.key = key;
-	}
-
 	public LongRunningTaskType getType() {
 		return type;
-	}
-
-	public void setType(LongRunningTaskType type) {
-		this.type = type;
 	}
 
 	public Long getNumItemsProcessed() {
