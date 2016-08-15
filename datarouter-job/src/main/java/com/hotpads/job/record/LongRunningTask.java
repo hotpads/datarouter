@@ -62,7 +62,7 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 
 	/********************** databean *****************************************/
 
-	public static class LongRunningTaskFielder extends BaseDatabeanFielder<LongRunningTaskKey, LongRunningTask>{
+	public static class LongRunningTaskFielder extends BaseDatabeanFielder<LongRunningTaskKey,LongRunningTask>{
 		public LongRunningTaskFielder(){
 			super(LongRunningTaskKey.class);
 		}
@@ -96,9 +96,10 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 		this.key = new LongRunningTaskKey();
 	}
 
-	public LongRunningTask(String jobClass, String serverName, LongRunningTaskType type){
+	public LongRunningTask(String jobClass, String serverName, LongRunningTaskType type, String triggeredByUserEmail){
 		this.key = new LongRunningTaskKey(jobClass, serverName);
 		this.type = type;
+		this.triggeredByUserEmail = triggeredByUserEmail;
 	}
 
 	/****************** helper methods ************************/

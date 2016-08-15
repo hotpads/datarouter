@@ -16,8 +16,8 @@ public class LongRunningTaskTrackerFactory {
 	}
 
 	public LongRunningTaskTracker create(String jobClass, String serverName,
-			Setting<Boolean> shouldSaveLongRunningTasks, LongRunningTaskType type){
-		LongRunningTask task = new LongRunningTask(jobClass, serverName, type);
+			Setting<Boolean> shouldSaveLongRunningTasks, LongRunningTaskType type, String triggeredByUserEmail){
+		LongRunningTask task = new LongRunningTask(jobClass, serverName, type, triggeredByUserEmail);
 		return new LongRunningTaskTracker(longRunningTaskNodeProvider.get(), task, shouldSaveLongRunningTasks);
 	}
 
