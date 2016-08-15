@@ -19,6 +19,5 @@ extends Node<PK,D>{
 	Client getClient();
 
 	String getTableName();
-	String getPackagedTableName();
 
 }

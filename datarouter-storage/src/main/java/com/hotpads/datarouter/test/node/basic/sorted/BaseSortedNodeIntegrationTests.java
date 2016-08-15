@@ -70,21 +70,19 @@ public abstract class BaseSortedNodeIntegrationTests{
 		}
 
 		sortedNode.deleteAll(null);
-		List<SortedBean> remainingAfterDelete = DrListTool.createArrayList(sortedNode.scan(null, null));
-		AssertJUnit.assertEquals(0, DrCollectionTool.size(remainingAfterDelete));
+		Assert.assertEquals(sortedNode.stream(null, null).count(), 0);
 
 		for(List<SortedBean> batch : new BatchingIterable<>(allBeans, 1000)){
 			sortedNode.putMulti(batch, new Config().setPutMethod(PutMethod.INSERT_OR_BUST));
 		}
-
-		List<SortedBean> roundTripped = DrListTool.createArrayList(sortedNode.scan(null, null));
-		AssertJUnit.assertEquals(SortedBeans.TOTAL_RECORDS, roundTripped.size());
+		Assert.assertEquals(sortedNode.stream(null, null).count(), SortedBeans.TOTAL_RECORDS);
 	}
 
 	protected void postTestTests(){
 		testSortedDelete();
 		testBlankDatabeanPut(new Config().setIgnoreNullFields(false));
 		testBlankDatabeanPut(new Config().setIgnoreNullFields(true));
+		testIgnoreNull();
 	}
 
 	private void testSortedDelete(){
@@ -127,6 +125,21 @@ public abstract class BaseSortedNodeIntegrationTests{
 				.forEach(AssertJUnit::assertNull);
 		sortedNode.deleteMulti(DatabeanTool.getKeys(Arrays.asList(blankDatabean, nonBlankDatabean)), config);
 		AssertJUnit.assertNull(sortedNode.get(blankDatabean.getKey(), config));
+	}
+
+	protected void testIgnoreNull(){
+		SortedBeanKey pk = new SortedBeanKey("a", "b", 3, "d");
+		String f1 = "Degermat";
+		String f3 = "Kenavo";
+		SortedBean databean = new SortedBean(pk, f1, null, null, null);
+		sortedNode.put(databean, null);
+		databean = new SortedBean(pk, null, null, f3, null);
+		sortedNode.put(databean, new Config().setIgnoreNullFields(true));
+		databean = sortedNode.get(pk, null);
+		Assert.assertEquals(databean.getF1(), f1);
+		Assert.assertEquals(databean.getF3(), f3);
+		sortedNode.delete(pk, null);
+		Assert.assertNull(sortedNode.get(pk, null));
 	}
 
 	/********************** junit methods *********************************************/

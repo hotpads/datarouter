@@ -22,4 +22,9 @@ public class JdbcIndexedSortedNodeIntegrationTests extends BaseIndexedNodeIntegr
 		datarouter.shutdown();
 	}
 
+	@Override
+	protected void testIgnoreNull(){
+		// Skip because feature is not yet implemented
+	}
+
 }

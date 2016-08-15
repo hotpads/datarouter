@@ -1,11 +1,14 @@
 package com.hotpads.datarouter.client.imp.hbase;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Admin;
+import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.Table;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +20,7 @@ import com.hotpads.datarouter.client.imp.hbase.client.HBaseClient;
 import com.hotpads.datarouter.client.imp.hbase.pool.HBaseTablePool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.concurrent.FutureTool;
+import com.hotpads.util.core.io.RuntimeIOException;
 import com.hotpads.util.datastructs.MutableString;
 
 public class HBaseClientImp
@@ -24,6 +28,7 @@ extends BaseClient
 implements HBaseClient{
 	private static final Logger logger = LoggerFactory.getLogger(HBaseClientImp.class);
 
+	private final Connection connection;
 	private final Configuration hbaseConfiguration;
 	private final Admin admin;
 	private final HBaseTablePool pool;
@@ -32,11 +37,12 @@ implements HBaseClient{
 
 	/**************************** constructor **********************************/
 
-	public HBaseClientImp(String name, Configuration hbaseConfiguration, Admin hbaseAdmin, HBaseTablePool pool,
+	public HBaseClientImp(String name, Connection connection, Admin hbaseAdmin, HBaseTablePool pool,
 			Map<String,Class<? extends PrimaryKey<?>>> primaryKeyClassByName, ClientAvailabilitySettings
 			clientAvailabilitySettings, ExecutorService executorService){
 		super(name, clientAvailabilitySettings);
-		this.hbaseConfiguration = hbaseConfiguration;
+		this.connection = connection;
+		this.hbaseConfiguration = connection.getConfiguration();
 		this.admin = hbaseAdmin;
 		this.pool = pool;
 		this.executorService = executorService;
@@ -58,6 +64,15 @@ implements HBaseClient{
 	@Override
 	public Admin getAdmin(){
 		return admin;
+	}
+
+	@Override
+	public Table getTable(String name){
+		try{
+			return connection.getTable(TableName.valueOf(name));
+		}catch(IOException e){
+			throw new RuntimeIOException(e);
+		}
 	}
 
 	@Override

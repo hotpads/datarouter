@@ -18,4 +18,9 @@ public class MemoryIndexedSortedNodeIntegrationTests extends BaseIndexedNodeInte
 		datarouter.shutdown();
 	}
 
+	@Override
+	protected void testIgnoreNull(){
+		// Skip because feature is not yet implemented
+	}
+
 }

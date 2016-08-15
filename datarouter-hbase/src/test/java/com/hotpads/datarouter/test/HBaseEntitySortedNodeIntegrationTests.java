@@ -45,14 +45,14 @@ public class HBaseEntitySortedNodeIntegrationTests extends BaseSortedNodeIntegra
 		int numExpected = SortedBeans.NUM_ELEMENTS * SortedBeans.NUM_ELEMENTS;
 		Collection<SortedBean> results = albatrossOstrich.getSortedBeans();
 		AssertJUnit.assertEquals(numExpected, results.size());
-		AssertJUnit.assertEquals(SortedBeans.S_albatross, DrCollectionTool.getFirst(results).getA());
-		AssertJUnit.assertEquals(SortedBeans.S_ostrich, DrCollectionTool.getFirst(results).getB());
+		AssertJUnit.assertEquals(SortedBeans.S_albatross, DrCollectionTool.getFirst(results).getKey().getA());
+		AssertJUnit.assertEquals(SortedBeans.S_ostrich, DrCollectionTool.getFirst(results).getKey().getB());
 	}
 
 	@Test
 	private void testSingleEntityScan(){
 		SortedBeanKey twoFieldsPk = new SortedBeanKey(SortedBeans.S_albatross, SortedBeans.S_ostrich, null, null);
-		SortedBeanKey threeFieldsPk = new SortedBeanKey(SortedBeans.S_albatross, SortedBeans.S_ostrich, 0, null);
+		SortedBeanKey threeFieldsPk = new SortedBeanKey(SortedBeans.S_albatross, SortedBeans.S_ostrich, 1, null);
 
 		final int limit = 23;
 		Assert.assertEquals(sortedNode.streamKeysWithPrefix(threeFieldsPk, new Config().setLimit(limit)).count(),

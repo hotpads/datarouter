@@ -2,7 +2,7 @@ package com.hotpads.joblet.handler;
 
 import javax.inject.Inject;
 
-import com.hotpads.datarouter.routing.Datarouter;
+import com.hotpads.datarouter.config.DatarouterProperties;
 import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.mav.Mav;
 import com.hotpads.joblet.execute.JobletScaler;
@@ -17,7 +17,7 @@ public class JobletScalingHandler extends BaseHandler {
 	@Inject
 	private JobletScaler jobletScaler;
 	@Inject
-	private Datarouter datarouter;
+	private DatarouterProperties datarouterProperties;
 
 	@Override
 	@Handler
@@ -30,7 +30,7 @@ public class JobletScalingHandler extends BaseHandler {
 		final Mav mav = new Mav(JSP);
 		int numServers = jobletScaler.getNumJobletServers();
 		mav.put("serverCount", numServers);
-		mav.put("serverName", datarouter.getServerName());
+		mav.put("serverName", datarouterProperties.getServerName());
 		return mav;
 	}
 }

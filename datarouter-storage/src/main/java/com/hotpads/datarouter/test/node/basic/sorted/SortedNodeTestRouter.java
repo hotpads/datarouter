@@ -39,14 +39,13 @@ public class SortedNodeTestRouter extends BaseRouter{
 		this.clientIds.add(clientId);
 
 		String tableName = TABLE_NAME_SortedBean;
-		String entityName = SortedBean.class.getCanonicalName();
 		if(entity){
 			sortedBeanEntityNode = new SortedBeanEntityNode(entityNodeFactory, nodeFactory, this, clientId,
 					entityNodeParams);
 			sortedBeanNode = sortedBeanEntityNode.sortedBean();
 		}else{
-			sortedBeanNode = register(nodeFactory.create(clientId, tableName, entityName, SortedBean.class,
-					SortedBeanFielder.class, this, false));
+			sortedBeanNode = register(nodeFactory.create(clientId, tableName, SortedBean.class, SortedBeanFielder.class,
+					this, false));
 		}
 
 	}
