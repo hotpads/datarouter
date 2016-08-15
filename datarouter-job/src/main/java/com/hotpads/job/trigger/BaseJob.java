@@ -52,8 +52,8 @@ public abstract class BaseJob implements Job{
 		this.shouldSaveLongRunningTasks = jobEnvironment.getShouldSaveLongRunningTasksSetting();
 		this.jobClass = getClass().getSimpleName();
 		this.serverName = jobEnvironment.getServerName();
-		this.tracker = jobEnvironment.getLongRunningTaskTrackerFactory().create(jobClass, jobEnvironment.getShouldSaveLongRunningTasksSetting(),
-				LongRunningTaskType.JOB, null);
+		this.tracker = jobEnvironment.getLongRunningTaskTrackerFactory().create(jobClass, jobEnvironment
+				.getShouldSaveLongRunningTasksSetting(), LongRunningTaskType.JOB, null);
 		this.createdAt = new Date();
 	}
 
