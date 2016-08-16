@@ -31,8 +31,10 @@ public abstract class BaseJob implements Job{
 	protected LongRunningTaskTracker tracker;
 	protected Setting<Boolean> shouldSaveLongRunningTasks;
 	private final TriggersRepository triggersRepository;
+	private String serverName;
 	private Date triggerTime;
 	private String jobClass;
+	private final Date createdAt;//timestamp at construction, before queueing in the scheduler
 	private Date startedAt;//timestamp after queue, when processing begins
 	private Date finishedAt;
 
@@ -49,8 +51,10 @@ public abstract class BaseJob implements Job{
 		this.processJobsSetting = jobEnvironment.getProcessJobsSetting();
 		this.shouldSaveLongRunningTasks = jobEnvironment.getShouldSaveLongRunningTasksSetting();
 		this.jobClass = getClass().getSimpleName();
-		this.tracker = jobEnvironment.getLongRunningTaskTrackerFactory().create(jobClass, LongRunningTaskType.JOB,
-				null);
+		this.serverName = jobEnvironment.getServerName();
+		this.tracker = jobEnvironment.getLongRunningTaskTrackerFactory().create(jobClass, jobEnvironment
+				.getShouldSaveLongRunningTasksSetting(), LongRunningTaskType.JOB, null);
+		this.createdAt = new Date();
 	}
 
 	/*********************** methods ******************************/
@@ -293,12 +297,31 @@ public abstract class BaseJob implements Job{
 		return scheduler.getTracker().get(getClass());
 	}
 
+	public String getServerName(){
+		return serverName;
+	}
+
+	public Date getCreatedAt(){
+		return createdAt;
+	}
+
+	public Date getStartedAt(){
+		return startedAt;
+	}
+
 	public boolean hasStarted(){
 		return startedAt != null;
 	}
 
 	public long getStartDelayMs(){
 		return startedAt.getTime() - triggerTime.getTime();//NPE if either is null
+	}
+
+	public long getQueuedTimeMs(){
+		if(startedAt == null){
+			return System.currentTimeMillis() - createdAt.getTime();
+		}
+		return startedAt.getTime() - createdAt.getTime();
 	}
 
 	public long getElapsedRunningTimeMs(){
