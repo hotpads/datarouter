@@ -4,27 +4,29 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import com.hotpads.datarouter.config.DatarouterProperties;
-import com.hotpads.datarouter.setting.Setting;
 import com.hotpads.datarouter.setting.constant.ConstantBooleanSetting;
+import com.hotpads.job.trigger.JobSettings;
 
 @Singleton
 public class LongRunningTaskTrackerFactory {
 
 	private final DatarouterProperties datarouterProperties;
 	private final LongRunningTaskNodeProvider longRunningTaskNodeProvider;
+	private final JobSettings jobSettings;
 
 	@Inject
 	public LongRunningTaskTrackerFactory(DatarouterProperties datarouterProperties,
-			LongRunningTaskNodeProvider longRunningTaskNodeProvider){
+			LongRunningTaskNodeProvider longRunningTaskNodeProvider, JobSettings jobSettings){
 		this.datarouterProperties = datarouterProperties;
 		this.longRunningTaskNodeProvider = longRunningTaskNodeProvider;
+		this.jobSettings = jobSettings;
 	}
 
 
-	public LongRunningTaskTracker create(String jobClass, Setting<Boolean> shouldSaveLongRunningTasks,
-			LongRunningTaskType type, String triggeredBy){
+	public LongRunningTaskTracker create(String jobClass, LongRunningTaskType type, String triggeredBy){
 		LongRunningTask task = new LongRunningTask(jobClass, datarouterProperties.getServerName(), type, triggeredBy);
-		return new LongRunningTaskTracker(longRunningTaskNodeProvider.get(), task, shouldSaveLongRunningTasks);
+		return new LongRunningTaskTracker(longRunningTaskNodeProvider.get(), task, jobSettings
+				.getSaveLongRunningTasks());
 	}
 
 	//TODO do we need the factory for this, or could we have a NoOpLongRunningTaskTracker implementation?
