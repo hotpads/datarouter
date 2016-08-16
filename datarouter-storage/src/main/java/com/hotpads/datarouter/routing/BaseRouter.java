@@ -10,6 +10,7 @@ import com.hotpads.datarouter.client.RouterOptions;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
+import com.hotpads.util.core.concurrent.FutureTool;
 
 public abstract class BaseRouter
 implements Router{
@@ -54,7 +55,8 @@ implements Router{
 		datarouter.registerClientIds(node.getClientIds())
 				.filter(LazyClientProvider::isInitialized)
 				.map(LazyClientProvider::call)
-				.forEach(client -> client.notifyNodeRegistration(node));
+				.map(client -> client.notifyNodeRegistration(node))
+				.forEach(FutureTool::get);
 		return node;
 	}
 
