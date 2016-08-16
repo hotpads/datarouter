@@ -30,9 +30,8 @@ import com.hotpads.job.trigger.TriggerInfo;
 import com.hotpads.job.web.TriggersRepository.JobPackage;
 import com.hotpads.util.core.enums.EnumTool;
 
-public class JobHandler extends BaseHandler {
-
-	private static final Logger logger = LoggerFactory.getLogger(JobHandler.class);
+public class TriggerHandler extends BaseHandler {
+	private static final Logger logger = LoggerFactory.getLogger(TriggerHandler.class);
 
 	public static final String
 		P_name = "name",
@@ -63,7 +62,7 @@ public class JobHandler extends BaseHandler {
 	}
 
 	@Handler
-	public Mav list() {
+	public Mav list(){
 		Mav mav = new Mav(JSP_triggers);
 		Iterable<LongRunningTask> tasks = longRunningTaskNodeProvider.get().scan(null, Configs.slaveOk());
 		Map<String, LongRunningTask> lastCompletions = new HashMap<>();
