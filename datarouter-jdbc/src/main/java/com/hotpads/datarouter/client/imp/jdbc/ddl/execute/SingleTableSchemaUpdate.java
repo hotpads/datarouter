@@ -102,9 +102,9 @@ implements Callable<Optional<String>>{
 			if(!connectionPool.isWritable()){
 				return null;
 			}
+			boolean exists = existingTableNames.get().contains(tableName);
 			connection = connectionPool.checkOut();
 			Statement statement = connection.createStatement();
-			boolean exists = existingTableNames.get().contains(tableName);
 			if(!exists){
 				ddl = new SqlCreateTableGenerator(requested, schemaName).generateDdl();
 				if(executeOptions.getCreateTables()){
