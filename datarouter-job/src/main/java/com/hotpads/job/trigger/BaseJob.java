@@ -297,6 +297,7 @@ public abstract class BaseJob implements Job{
 		return scheduler.getTracker().get(getClass());
 	}
 
+	//used by triggers.jsp
 	public String getServerName(){
 		return serverName;
 	}
