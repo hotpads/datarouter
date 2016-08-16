@@ -1,8 +1,10 @@
 package com.hotpads.datarouter.client;
 
 import java.util.concurrent.Callable;
+import java.util.stream.Collectors;
 
 import com.hotpads.datarouter.node.DatarouterNodes;
+import com.hotpads.util.core.concurrent.FutureTool;
 import com.hotpads.util.core.concurrent.Lazy;
 
 /*
@@ -16,7 +18,9 @@ public class LazyClientProvider implements Callable<Client>{
 		this.client = Lazy.of(() -> {
 			try{
 				Client client = clientFactory.call();
-				datarouterNodes.getPhysicalNodesForClient(client.getName()).forEach(client::notifyNodeRegistration);
+				datarouterNodes.getPhysicalNodesForClient(client.getName()).stream()
+						.map(client::notifyNodeRegistration)
+						.collect(Collectors.collectingAndThen(Collectors.toList(), FutureTool::getAll));
 				return client;
 			}catch(Exception e){
 				throw new RuntimeException(e);

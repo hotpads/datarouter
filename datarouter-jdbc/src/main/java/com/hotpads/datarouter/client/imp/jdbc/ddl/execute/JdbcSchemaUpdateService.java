@@ -81,9 +81,12 @@ public class JdbcSchemaUpdateService{
 		executor.scheduleWithFixedDelay(this::gatherSchemaUpdates, 0, THROTTLING_DELAY_SECONDS, TimeUnit.SECONDS);
 	}
 
-	public void queueNodeForSchemaUpdate(String clientName, PhysicalNode<?,?> node){
-		futures.add(datarouter.getExecutorService().submit(new SingleTableSchemaUpdate(fieldCodecFactory, clientName,
-				connectionPool, existingTableNames.get(), printOptions, executeOptions, node)));
+	public Future<Optional<String>> queueNodeForSchemaUpdate(String clientName, PhysicalNode<?,?> node){
+		Future<Optional<String>> future = datarouter.getExecutorService().submit(new SingleTableSchemaUpdate(
+				fieldCodecFactory, clientName, connectionPool, existingTableNames, printOptions, executeOptions,
+				node));
+		futures.add(future);
+		return future;
 	}
 
 	private void gatherSchemaUpdates(){
