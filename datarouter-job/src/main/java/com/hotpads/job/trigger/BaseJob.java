@@ -23,18 +23,18 @@ import com.hotpads.util.core.date.CronExpression;
 public abstract class BaseJob implements Job{
 	private static final Logger logger = LoggerFactory.getLogger(BaseJob.class);
 
-	protected JobScheduler scheduler;
-	protected ScheduledExecutorService executor;
-	protected Setting<Boolean> processJobsSetting;
-	protected AtomicBoolean isAlreadyScheduled = new AtomicBoolean(false);
-	protected AtomicBoolean isAlreadyRunning = new AtomicBoolean(false);
-	protected LongRunningTaskTracker tracker;
-	protected Setting<Boolean> shouldSaveLongRunningTasks;
+	protected final JobScheduler scheduler;
+	protected final ScheduledExecutorService executor;
+	protected final Setting<Boolean> processJobsSetting;
+	protected final AtomicBoolean isAlreadyScheduled = new AtomicBoolean(false);
+	protected final AtomicBoolean isAlreadyRunning = new AtomicBoolean(false);
+	protected final LongRunningTaskTracker tracker;
+	protected final Setting<Boolean> shouldSaveLongRunningTasks;
 	private final TriggersRepository triggersRepository;
-	private String serverName;
-	private Date triggerTime;
-	private String jobClass;
+	private final String serverName;
+	private final String jobClass;
 	private final Date createdAt;//timestamp at construction, before queueing in the scheduler
+	private Date triggerTime;
 	private Date startedAt;//timestamp after queue, when processing begins
 	private Date finishedAt;
 
@@ -52,8 +52,8 @@ public abstract class BaseJob implements Job{
 		this.shouldSaveLongRunningTasks = jobEnvironment.getShouldSaveLongRunningTasksSetting();
 		this.jobClass = getClass().getSimpleName();
 		this.serverName = jobEnvironment.getServerName();
-		this.tracker = jobEnvironment.getLongRunningTaskTrackerFactory().create(jobClass, jobEnvironment
-				.getShouldSaveLongRunningTasksSetting(), LongRunningTaskType.JOB, null);
+		this.tracker = jobEnvironment.getLongRunningTaskTrackerFactory().create(jobClass, LongRunningTaskType.JOB,
+				null);
 		this.createdAt = new Date();
 	}
 
