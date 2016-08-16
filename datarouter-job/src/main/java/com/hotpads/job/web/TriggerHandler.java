@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.config.Configs;
+import com.hotpads.datarouter.config.DatarouterProperties;
 import com.hotpads.datarouter.inject.DatarouterInjector;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.handler.BaseHandler;
@@ -55,6 +56,8 @@ public class TriggerHandler extends BaseHandler {
 	private JobScheduler jobScheduler;
 	@Inject
 	private TriggersRepository triggersRepository;
+	@Inject
+	private DatarouterProperties datarouterProperties;
 
 	@Override
 	protected Mav handleDefault() {
@@ -64,6 +67,7 @@ public class TriggerHandler extends BaseHandler {
 	@Handler
 	public Mav list(){
 		Mav mav = new Mav(JSP_triggers);
+		mav.put("serverName", datarouterProperties.getServerName());
 		Iterable<LongRunningTask> tasks = longRunningTaskNodeProvider.get().scan(null, Configs.slaveOk());
 		Map<String, LongRunningTask> lastCompletions = new HashMap<>();
 		Map<String, LongRunningTask> currentlyRunningTasks = new HashMap<>();

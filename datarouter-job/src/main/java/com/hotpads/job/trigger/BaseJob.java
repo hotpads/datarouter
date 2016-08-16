@@ -31,7 +31,6 @@ public abstract class BaseJob implements Job{
 	protected final LongRunningTaskTracker tracker;
 	protected final Setting<Boolean> shouldSaveLongRunningTasks;
 	private final TriggersRepository triggersRepository;
-	private final String serverName;
 	private final String jobClass;
 	private final Date createdAt;//timestamp at construction, before queueing in the scheduler
 	private Date triggerTime;
@@ -51,7 +50,6 @@ public abstract class BaseJob implements Job{
 		this.processJobsSetting = jobEnvironment.getProcessJobsSetting();
 		this.shouldSaveLongRunningTasks = jobEnvironment.getShouldSaveLongRunningTasksSetting();
 		this.jobClass = getClass().getSimpleName();
-		this.serverName = jobEnvironment.getServerName();
 		this.tracker = jobEnvironment.getLongRunningTaskTrackerFactory().create(jobClass, LongRunningTaskType.JOB,
 				null);
 		this.createdAt = new Date();
@@ -295,11 +293,6 @@ public abstract class BaseJob implements Job{
 
 	protected TriggerInfo getFromTracker(){
 		return scheduler.getTracker().get(getClass());
-	}
-
-	//used by triggers.jsp
-	public String getServerName(){
-		return serverName;
 	}
 
 	public Date getCreatedAt(){
