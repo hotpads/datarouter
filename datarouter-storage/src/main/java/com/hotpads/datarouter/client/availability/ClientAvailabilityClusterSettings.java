@@ -26,7 +26,6 @@ public class ClientAvailabilityClusterSettings extends SettingNode implements Cl
 		availabilityByClientName = new HashMap<>();
 	}
 
-
 	@Override
 	public Setting<Boolean> getAvailabilityForClientName(String clientName){
 		return availabilityByClientName.computeIfAbsent(clientName, name -> {
