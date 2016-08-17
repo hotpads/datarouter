@@ -29,12 +29,8 @@ public class NodeParams<
 	//for schema evolution
 	private final Integer schemaVersion;
 
-	//sometimes we need to know the superclass of a databean
-	private final Class<? super D> baseDatabeanClass;
-
 	//name the table different than the databean class
 	private final String physicalName;
-	private final String qualifiedPhysicalName;//weird hibernate requirement ("entity name")
 	private final Optional<String> namespace;
 
 	private final String entityNodePrefix;
@@ -47,9 +43,8 @@ public class NodeParams<
 	private final Cached<Boolean> recordCallsites;
 
 	public NodeParams(Router router, ClientId clientId, String parentName, Supplier<D> databeanSupplier,
-			Supplier<F> fielderSupplier, Integer schemaVersion, Class<? super D> baseDatabeanClass, String physicalName,
-			String qualifiedPhysicalName, String namespace, String entityNodePrefix, String remoteRouterName,
-			String remoteNodeName, Cached<Boolean> recordCallsites){
+			Supplier<F> fielderSupplier, Integer schemaVersion, String physicalName, String namespace,
+			String entityNodePrefix, String remoteRouterName, String remoteNodeName, Cached<Boolean> recordCallsites){
 		this.router = router;
 		this.clientId = clientId;
 		this.parentName = parentName;
@@ -58,9 +53,7 @@ public class NodeParams<
 		this.databeanName = databeanSupplier.get().getDatabeanName();
 		this.fielderSupplier = fielderSupplier;
 		this.schemaVersion = schemaVersion;
-		this.baseDatabeanClass = baseDatabeanClass;
 		this.physicalName = physicalName;
-		this.qualifiedPhysicalName = qualifiedPhysicalName;
 		this.entityNodePrefix = entityNodePrefix;
 		this.remoteRouterName = remoteRouterName;
 		this.remoteNodeName = remoteNodeName;
@@ -82,8 +75,6 @@ public class NodeParams<
 		private Supplier<F> fielderSupplier;
 
 		private Integer schemaVersion;
-
-		private Class<? super D> baseDatabeanClass;
 
 		private String physicalName;
 		private String qualifiedPhysicalName;
@@ -138,19 +129,8 @@ public class NodeParams<
 			return this;
 		}
 
-		public NodeParamsBuilder<PK,D,F> withBaseDatabean(Class<? super D> baseDatabeanClass){
-			this.baseDatabeanClass = baseDatabeanClass;
-			return this;
-		}
-
 		public NodeParamsBuilder<PK,D,F> withTableName(String physicalName){
 			this.physicalName = physicalName;
-			return this;
-		}
-
-		public NodeParamsBuilder<PK,D,F> withHibernateTableName(String physicalName, String qualifiedPhysicalName){
-			this.physicalName = physicalName;
-			this.qualifiedPhysicalName = qualifiedPhysicalName;
 			return this;
 		}
 
@@ -179,12 +159,8 @@ public class NodeParams<
 		/******************* build ***************************/
 
 		public NodeParams<PK,D,F> build(){
-			return new NodeParams<>(router, clientId, parentName,
-					databeanSupplier, fielderSupplier, schemaVersion, baseDatabeanClass,
-					physicalName, qualifiedPhysicalName, namespace,
-					entityNodePrefix,
-					remoteRouterName, remoteNodeName,
-					recordCallsites);
+			return new NodeParams<>(router, clientId, parentName, databeanSupplier, fielderSupplier, schemaVersion,
+					physicalName, namespace, entityNodePrefix, remoteRouterName, remoteNodeName, recordCallsites);
 		}
 	}
 
@@ -226,16 +202,8 @@ public class NodeParams<
 		return schemaVersion;
 	}
 
-	public Class<? super D> getBaseDatabeanClass(){
-		return baseDatabeanClass;
-	}
-
 	public String getPhysicalName(){
 		return physicalName;
-	}
-
-	public String getQualifiedPhysicalName(){
-		return qualifiedPhysicalName;
 	}
 
 	public Optional<String> getNamespace(){

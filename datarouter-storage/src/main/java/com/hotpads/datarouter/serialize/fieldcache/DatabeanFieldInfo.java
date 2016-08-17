@@ -47,7 +47,6 @@ public class DatabeanFieldInfo<
 	//these 4 fields only apply to physical nodes, but cleanest to add them here for now
 	private ClientId clientId;
 	private String tableName;
-	private String packagedTableName;
 	private String explicitNodeName;
 	private Optional<String> namespace;
 
@@ -173,27 +172,17 @@ public class DatabeanFieldInfo<
 		this.clientId = params.getClientId();
 		if(entity){
 			this.tableName = params.getPhysicalName();
-			this.packagedTableName = null;//what to do here
 			this.explicitNodeName = params.getParentName()+"."+sampleDatabean.getDatabeanName()+"."+entityNodePrefix;
 		}else if(DrStringTool.notEmpty(params.getPhysicalName())){
 			//explicitly set tableName.  do after entity check since that also sets a table name
 			this.tableName = params.getPhysicalName();
-			this.packagedTableName = params.getQualifiedPhysicalName();
 			if(clientId != null){
 				this.explicitNodeName = clientId.getName()+"."+tableName;
 				logger.info("client:" + clientId.getName() + " " + sampleDatabean.getDatabeanName() + " overridden -> "
 						+ tableName);
 			}
-		}else if(params.getBaseDatabeanClass() != null){//table-per-class-hierarchy (use superclass's table)
-			this.tableName = params.getBaseDatabeanClass().getSimpleName();
-			this.packagedTableName = sampleDatabean.getClass().getName();
-			this.explicitNodeName = clientId.getName() + "." + params.getBaseDatabeanClass().getSimpleName() + "."
-					+ sampleDatabean.getDatabeanName();
-			logger.info("client:"+clientId.getName()+" "+sampleDatabean.getDatabeanName()+" in superclass -> "
-					+ tableName);
 		}else{//default to using the databean's name as the table name
 			this.tableName = sampleDatabean.getDatabeanName();
-			this.packagedTableName = sampleDatabean.getClass().getName();
 		}
 
 		assertAssertions();
@@ -426,10 +415,6 @@ public class DatabeanFieldInfo<
 
 	public String getExplicitNodeName(){
 		return explicitNodeName;
-	}
-
-	public String getPackagedTableName(){
-		return packagedTableName;
 	}
 
 	public ClientId getClientId(){

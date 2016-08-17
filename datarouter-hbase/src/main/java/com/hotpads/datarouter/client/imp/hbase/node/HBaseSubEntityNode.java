@@ -101,7 +101,6 @@ implements SubEntitySortedMapStorageNode<EK,PK,D,F>, PhysicalSortedMapStorageNod
 						List<Field<?>> fields = fieldInfo.getNonKeyFieldsWithValues(databean);
 						boolean didAtLeastOneField = false;
 						for(Field<?> field : fields){//TODO only put modified fields
-							didAtLeastOneField = true;
 							byte[] fullQualifierBytes = DrByteTool.concatenate(fieldInfo.getEntityColumnPrefixBytes(),
 									qualifierPkBytes, field.getKey().getColumnNameBytes());
 							byte[] fieldValueBytes = field.getBytes();
@@ -111,6 +110,7 @@ implements SubEntitySortedMapStorageNode<EK,PK,D,F>, PhysicalSortedMapStorageNod
 									++numCellsDeleted;
 								}
 							}else{
+								didAtLeastOneField = true;
 								put.add(FAM, fullQualifierBytes, fieldValueBytes);
 								++numCellsPut;
 							}
@@ -215,6 +215,13 @@ implements SubEntitySortedMapStorageNode<EK,PK,D,F>, PhysicalSortedMapStorageNod
 							delete.deleteColumns(FAM, qualifier);
 							deletes.add(delete);
 						}
+						byte[] qualifierPkBytes = queryBuilder.getQualifierPkBytes(pk, true);
+						Delete delete = new Delete(rowBytes);
+						Field<?> dummyField = new SignedByteField(DUMMY, (byte)0);
+						byte[] dummyQualifierBytes = DrByteTool.concatenate(fieldInfo.getEntityColumnPrefixBytes(),
+								qualifierPkBytes, dummyField.getKey().getColumnNameBytes());
+						delete.deleteColumns(FAM, dummyQualifierBytes);
+						deletes.add(delete);
 					}
 				}
 				table.batch(deletes);

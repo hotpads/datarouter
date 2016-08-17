@@ -41,7 +41,7 @@ public class HBaseSubEntityReaderNodeIntegrationTests{
 	public void setup(){
 		//Use SortedBeanEntityNode.ENTITY_NODE_PARAMS_2 to avoid conflicting with HBaseEntitySortedNodeIntegrationTests
 		SortedNodeTestRouter router = new SortedNodeTestRouter(datarouter, entityNodeFactory,
-				SortedBeanEntityNode.ENTITY_NODE_PARAMS_2, nodeFactory, DrTestConstants.CLIENT_drTestHBase, true, true);
+				SortedBeanEntityNode.ENTITY_NODE_PARAMS_2, nodeFactory, DrTestConstants.CLIENT_drTestHBase, true);
 		sortedBean = router.sortedBean();
 
 		sortedBeans = new ArrayList<>();

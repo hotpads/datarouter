@@ -18,7 +18,6 @@ public class DefaultClientTypes{
 	public static final String
 			CLIENT_TYPE_bigtable = "bigtable",
 			CLIENT_TYPE_hbase = "hbase",
-			CLIENT_TYPE_hibernate = "hibernate",
 			CLIENT_TYPE_http = "http",
 			CLIENT_TYPE_jdbc = "jdbc",
 			CLIENT_TYPE_memcached = "memcached",
@@ -29,7 +28,6 @@ public class DefaultClientTypes{
 	public static final String
 			CLIENT_CLASS_bigtable = "com.hotpads.datarouter.client.bigtable.BigTableClientType",
 			CLIENT_CLASS_hbase = "com.hotpads.datarouter.client.imp.hbase.HBaseClientType",
-			CLIENT_CLASS_hibernate = "com.hotpads.datarouter.client.imp.hibernate.HibernateClientType",
 			CLIENT_CLASS_http = "com.hotpads.datarouter.client.imp.http.HttpClientType",
 			CLIENT_CLASS_jdbc = "com.hotpads.datarouter.client.imp.jdbc.JdbcClientType",
 			CLIENT_CLASS_memcached = "com.hotpads.datarouter.client.imp.memcached.MemcachedClientType",
@@ -42,7 +40,6 @@ public class DefaultClientTypes{
 	static{
 		CLASS_BY_NAME.put(CLIENT_TYPE_bigtable, CLIENT_CLASS_bigtable);
 		CLASS_BY_NAME.put(CLIENT_TYPE_hbase, CLIENT_CLASS_hbase);
-		CLASS_BY_NAME.put(CLIENT_TYPE_hibernate, CLIENT_CLASS_hibernate);
 		CLASS_BY_NAME.put(CLIENT_TYPE_http, CLIENT_CLASS_http);
 		CLASS_BY_NAME.put(CLIENT_TYPE_jdbc, CLIENT_CLASS_jdbc);
 		CLASS_BY_NAME.put(CLIENT_TYPE_memcached, CLIENT_CLASS_memcached);

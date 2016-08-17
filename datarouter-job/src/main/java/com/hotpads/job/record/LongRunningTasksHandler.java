@@ -12,11 +12,9 @@ import com.hotpads.datarouter.config.Configs;
 import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.mav.Mav;
 
-//TODO move to datarouter module
 public class LongRunningTasksHandler extends BaseHandler {
 
-	public static final int LRT_DURATION_THRESHOLD_SECONDS = 20;
-	public static final String JSP_tasks = "/jsp/admin/datarouter/job/longRunningTasks.jsp";
+	public static final String JSP_longRunningTasks = "/jsp/admin/datarouter/job/longRunningTasks.jsp";
 
 	@Inject
 	private LongRunningTaskNodeProvider longRunningTaskNodeProvider;
@@ -25,23 +23,22 @@ public class LongRunningTasksHandler extends BaseHandler {
 	@Override
 	@Handler
 	protected Mav handleDefault(){
-		Mav mav = new Mav(JSP_tasks);
-		Map<String, LongRunningTask> lastCompletions = new HashMap<>();
+		Mav mav = new Mav(JSP_longRunningTasks);
+		Map<String,LongRunningTask> lastCompletions = new HashMap<>();
 		Iterable<LongRunningTask> tasks = longRunningTaskNodeProvider.get().scan(null, Configs.slaveOk());
 		List<LongRunningTask> currentlyRunningTasks = new ArrayList<>();
 		for(LongRunningTask task : tasks){
-			if(task.getJobExecutionStatus() == JobExecutionStatus.running){
+			if(task.getJobExecutionStatus() == JobExecutionStatus.RUNNING){
 				currentlyRunningTasks.add(task);
 			}
-			if(task.getJobExecutionStatus() == JobExecutionStatus.success){
-				if(lastCompletions.get(task.getKey().getJobClass()) == null
-						|| task.getFinishTime().after(lastCompletions.get(task.getKey().getJobClass())
-								.getFinishTime())){
+			if(task.getJobExecutionStatus() == JobExecutionStatus.SUCCESS){
+				if(lastCompletions.get(task.getKey().getJobClass()) == null || task.getFinishTime().after(
+						lastCompletions.get(task.getKey().getJobClass()).getFinishTime())){
 					lastCompletions.put(task.getKey().getJobClass(), task);
 				}
 			}
 		}
-		Collections.sort(currentlyRunningTasks, new LongRunningTaskDurationComparator(true));
+		Collections.sort(currentlyRunningTasks, new LongRunningTaskStartTimeComparator(true));
 		mav.put("lastCompletions", lastCompletions);
 		mav.put("currentlyRunningTasks", currentlyRunningTasks);
 		return mav;

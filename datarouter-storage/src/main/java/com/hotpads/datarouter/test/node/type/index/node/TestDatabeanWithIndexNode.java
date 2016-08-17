@@ -19,13 +19,13 @@ public abstract class TestDatabeanWithIndexNode{
 	public MapStorageNode<TestDatabeanKey, TestDatabean> mainNode;
 
 	public UniqueIndexNode<TestDatabeanKey,
-							TestDatabean,
-							TestDatabeanWithManagedIndexByBarKey,
-							TestDatabeanWithManagedIndexByBar> byB;
+			TestDatabean,
+			TestDatabeanWithManagedIndexByBarKey,
+			TestDatabeanWithManagedIndexByBar> byB;
 
 	public TestDatabeanWithIndexNode(NodeFactory nodeFactory, Router router, ClientId clientId){
-		backingMapNode = router.register(nodeFactory.create(clientId, getTableName(), getTableName(),
-				TestDatabean.class, TestDatabeanFielder.class, router, false));
+		backingMapNode = router.register(nodeFactory.create(clientId, getTableName(), TestDatabean.class,
+				TestDatabeanFielder.class, router, false));
 		mainNode = backingMapNode;
 	}
 

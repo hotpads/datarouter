@@ -22,7 +22,8 @@ public class DatarouterExecutorGuiceModule extends BaseExecutorGuiceModule{
 		POOL_datarouterExecutor = "datarouterExecutor",
 		POOL_parallelApiCallerFlusher = "parallelApiCallerFlusher",
 		POOL_parallelApiCallerSender = "parallelApiCallerSender",
-		POOL_hbaseClientExecutor = "hbaseClientExecutor";
+		POOL_hbaseClientExecutor = "hbaseClientExecutor",
+		POOL_schemaUpdateScheduler = "schemaUpdateScheduler";
 
 	private static final ThreadGroup
 		datarouter = new ThreadGroup("datarouter"),
@@ -63,6 +64,9 @@ public class DatarouterExecutorGuiceModule extends BaseExecutorGuiceModule{
 		bind(ExecutorService.class)
 			.annotatedWith(Names.named(POOL_hbaseClientExecutor))
 			.toInstance(createHbaseClientExecutor());
+		bind(ScheduledExecutorService.class)
+			.annotatedWith(Names.named(POOL_schemaUpdateScheduler))
+			.toInstance(createSchemaUpdateScheduler());
 	}
 
 	//The following factory methods are for Spring
@@ -110,5 +114,10 @@ public class DatarouterExecutorGuiceModule extends BaseExecutorGuiceModule{
 
 	private ExecutorService createHbaseClientExecutor(){
 		return createThreadPool(datarouter, POOL_hbaseClientExecutor, 10, 10, 1, new CallerRunsPolicy());
+	}
+
+	private ScheduledExecutorService createSchemaUpdateScheduler(){
+		return Executors.newSingleThreadScheduledExecutor(new NamedThreadFactory(flushers, POOL_schemaUpdateScheduler,
+				true));
 	}
 }

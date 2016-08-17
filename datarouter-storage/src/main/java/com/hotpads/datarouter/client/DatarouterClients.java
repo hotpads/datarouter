@@ -15,6 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -82,11 +83,11 @@ public class DatarouterClients{
 		}
 	}
 
-	public void registerClientIds(Datarouter context, Collection<ClientId> clientIdsToAdd) {
+	public Stream<LazyClientProvider> registerClientIds(Datarouter context, Collection<ClientId> clientIdsToAdd) {
 		clientIds.addAll(clientIdsToAdd);
-		for(ClientId clientId : clientIdsToAdd){
-			initClientFactoryIfNull(context, clientId.getName());
-		}
+		return clientIdsToAdd.stream()
+				.map(ClientId::getName)
+				.map(name -> initClientFactoryIfNull(context, name));
 	}
 
 	/********************************** initialize ******************************/
@@ -104,13 +105,12 @@ public class DatarouterClients{
 		return routerOptions.getDisableable(clientName);
 	}
 
-	private synchronized void initClientFactoryIfNull(Datarouter context, String clientName) {
-		if(lazyClientProviderByName.containsKey(clientName)){
-			return;
-		}
-		ClientType clientTypeInstance = getClientTypeInstance(clientName);
-		ClientFactory clientFactory = clientTypeInstance.createClientFactory(context, clientName);
-		lazyClientProviderByName.put(clientName, new LazyClientProvider(clientFactory));
+	private synchronized LazyClientProvider initClientFactoryIfNull(Datarouter datarouter, String clientName) {
+		return lazyClientProviderByName.computeIfAbsent(clientName, client -> {
+			ClientType clientTypeInstance = getClientTypeInstance(client);
+			ClientFactory clientFactory = clientTypeInstance.createClientFactory(datarouter, client);
+			return new LazyClientProvider(clientFactory, datarouter.getNodes());
+		});
 	}
 
 

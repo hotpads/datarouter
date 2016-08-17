@@ -3,7 +3,6 @@ package com.hotpads.datarouter.node.op.raw.write;
 import java.util.Collection;
 
 import com.hotpads.datarouter.config.Config;
-import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
@@ -34,7 +33,7 @@ extends StorageWriter<PK,D>{
 	public interface MapStorageWriterNode<
 			PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>>
-	extends Node<PK,D>, MapStorageWriter<PK,D>{
+	extends StorageWriterNode<PK,D>, MapStorageWriter<PK,D>{
 	}
 
 

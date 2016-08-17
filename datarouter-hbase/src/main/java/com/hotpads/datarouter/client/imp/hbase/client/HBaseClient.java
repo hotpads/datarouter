@@ -13,6 +13,7 @@ import com.hotpads.util.datastructs.MutableString;
 public interface HBaseClient
 extends Client{
 
+	Table getTable(String name);
 	Table checkOutTable(String name, MutableString progress);
 	void checkInTable(Table table, boolean possiblyTarnished);
 	HBaseTablePool getHTablePool();

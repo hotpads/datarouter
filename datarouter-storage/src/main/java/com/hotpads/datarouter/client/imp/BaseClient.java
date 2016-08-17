@@ -1,7 +1,12 @@
 package com.hotpads.datarouter.client.imp;
 
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Future;
+
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.availability.ClientAvailabilitySettings;
+import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.setting.Setting;
 import com.hotpads.datarouter.util.core.DrComparableTool;
 
@@ -31,5 +36,10 @@ implements Client{
 	@Override
 	public String getName(){
 		return name;
+	}
+
+	@Override
+	public Future<Optional<String>> notifyNodeRegistration(Node<?,?> node){
+		return CompletableFuture.completedFuture(Optional.empty());
 	}
 }

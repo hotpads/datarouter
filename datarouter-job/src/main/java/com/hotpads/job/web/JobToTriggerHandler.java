@@ -68,13 +68,13 @@ public class JobToTriggerHandler extends BaseHandler {
 		Map<String, LongRunningTask> lastCompletions = new HashMap<>();
 		Map<String, LongRunningTask> currentlyRunningTasks = new HashMap<>();
 		for (LongRunningTask task : tasks){
-			if (task.getJobExecutionStatus() == JobExecutionStatus.running
+			if (task.getJobExecutionStatus() == JobExecutionStatus.RUNNING
 					&& (currentlyRunningTasks.get(task.getKey().getJobClass()) == null
 					|| task.getStartTime().after(currentlyRunningTasks.get(task.getKey().getJobClass())
 							.getStartTime()))){
 				currentlyRunningTasks.put(task.getKey().getJobClass(), task);
 			}
-			if (task.getJobExecutionStatus() == JobExecutionStatus.success){
+			if (task.getJobExecutionStatus() == JobExecutionStatus.SUCCESS){
 				if (lastCompletions.get(task.getKey().getJobClass()) == null
 					|| task.getFinishTime().after(lastCompletions.get(task.getKey().getJobClass()).getFinishTime())){
 					lastCompletions.put(task.getKey().getJobClass(), task);

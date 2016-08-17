@@ -8,7 +8,6 @@ import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.apache.log4j.Logger;
 
 import com.google.common.base.Objects;
 import com.hotpads.datarouter.client.imp.hbase.client.HBaseClientFactory;
@@ -37,7 +36,6 @@ public class HBaseSubEntityResultParser<
 		PK extends EntityPrimaryKey<EK,PK>,
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>>{
-	private static final Logger logger = Logger.getLogger(HBaseSubEntityResultParser.class);
 
 	private final EntityFieldInfo<EK,E> entityFieldInfo;
 	private final EntityPartitioner<EK> partitioner;
@@ -51,7 +49,7 @@ public class HBaseSubEntityResultParser<
 	}
 
 
-	/***************** parse simple row bytes ************************/
+	/***************** parse EK, PK, and column name ************************/
 
 	public EK getEkFromRowBytes(byte[] rowBytes){
 		EK ek = ReflectionTool.create(entityFieldInfo.getEntityKeyClass());
@@ -65,6 +63,18 @@ public class HBaseSubEntityResultParser<
 			byteOffset += field.numBytesWithSeparator(rowBytes, byteOffset);
 		}
 		return ek;
+	}
+
+	public Pair<PK,String> parsePrimaryKeyAndFieldName(Cell cell){
+		PK pk = ReflectionTool.create(fieldInfo.getPrimaryKeyClass());
+		//EK
+		//be sure to get the entity key fields from DatabeanFieldInfo in case the PK overrode the EK field names
+		parseEkFieldsFromBytesToPk(cell, pk);
+		//post-EK
+		int fieldNameOffset = parsePostEkFieldsFromBytesToPk(cell, pk);
+		//fieldName
+		String fieldName = StringByteTool.fromUtf8BytesOffset(CellUtil.cloneQualifier(cell), fieldNameOffset);
+		return new Pair<>(pk, fieldName);
 	}
 
 
@@ -158,6 +168,14 @@ public class HBaseSubEntityResultParser<
 		return databeans;
 	}
 
+	public D makeDatabeanWithOneField(Cell cell){
+		Pair<PK,String> pkAndFieldName = parsePrimaryKeyAndFieldName(cell);
+		D databean = fieldInfo.getDatabeanSupplier().get();
+		ReflectionTool.set(fieldInfo.getKeyJavaField(), databean, pkAndFieldName.getLeft());
+		setDatabeanField(databean, pkAndFieldName.getRight(), cell.getValue());
+		return databean;
+	}
+
 	public void setDatabeanField(D databean, String fieldName, byte[] bytesValue){
 		Field<?> field = null;
 		if(HBaseClientFactory.DUMMY_COL_NAME.equals(fieldName)){
@@ -174,18 +192,6 @@ public class HBaseSubEntityResultParser<
 
 
 	/****************** private ********************/
-
-	private Pair<PK,String> parsePrimaryKeyAndFieldName(Cell cell){
-		PK pk = ReflectionTool.create(fieldInfo.getPrimaryKeyClass());
-		//EK
-		//be sure to get the entity key fields from DatabeanFieldInfo in case the PK overrode the EK field names
-		parseEkFieldsFromBytesToPk(cell, pk);
-		//post-EK
-		int fieldNameOffset = parsePostEkFieldsFromBytesToPk(cell, pk);
-		//fieldName
-		String fieldName = StringByteTool.fromUtf8BytesOffset(CellUtil.cloneQualifier(cell), fieldNameOffset);
-		return Pair.create(pk, fieldName);
-	}
 
 	private boolean matchesNodePrefix(Cell cell){
 		byte[] prefix = fieldInfo.getEntityColumnPrefixBytes();
