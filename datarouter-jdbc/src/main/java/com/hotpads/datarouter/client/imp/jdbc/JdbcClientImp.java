@@ -3,7 +3,9 @@ package com.hotpads.datarouter.client.imp.jdbc;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.slf4j.Logger;
@@ -59,8 +61,8 @@ implements JdbcConnectionClient, TxnClient, JdbcClient{
 	}
 
 	@Override
-	public void notifyNodeRegistration(Node<?,?> node){
-		schemaUpdateService.queueNodeForSchemaUpdate(getName(), node.getPhysicalNodeIfApplicable());
+	public Future<Optional<String>> notifyNodeRegistration(Node<?,?> node){
+		return schemaUpdateService.queueNodeForSchemaUpdate(getName(), node.getPhysicalNodeIfApplicable());
 	}
 
 	/****************************** ConnectionClient methods *************************/

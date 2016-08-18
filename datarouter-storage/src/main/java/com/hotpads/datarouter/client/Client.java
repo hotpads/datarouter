@@ -1,5 +1,8 @@
 package com.hotpads.datarouter.client;
 
+import java.util.Optional;
+import java.util.concurrent.Future;
+
 import com.hotpads.datarouter.node.Node;
 
 /**
@@ -21,6 +24,6 @@ extends Comparable<Client>{
 	ClientType getType();
 	void shutdown();
 	boolean isAvailable();
-	void notifyNodeRegistration(Node<?,?> node);
+	Future<Optional<String>> notifyNodeRegistration(Node<?,?> node);
 
 }

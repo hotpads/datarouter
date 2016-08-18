@@ -62,7 +62,8 @@ public class LongRunningTaskTracker {
 			return;
 		}
 		if(task.getKey().getTriggerTime()==null){
-			logger.error("not persisting " + task.getDatabeanName() + " tracker because of null trigger time");
+			logger.warn("setting null triggerTime to now on {}", task.getDatabeanName());
+			task.setTriggerTime(new Date());
 		}
 		node.put(task, null);
 		dateLastPersisted = newDateLastPersisted;
