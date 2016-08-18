@@ -14,8 +14,8 @@ import com.hotpads.datarouter.client.availability.ClientAvailabilitySettings;
 import com.hotpads.datarouter.client.imp.jdbc.JdbcClientImp;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SchemaUpdateOptions;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.execute.DatabaseCreator;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.execute.ParallelSchemaUpdate;
-import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.execute.JdbcSchemaUpdateService;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.execute.JdbcSchemaUpdateService.JdbcSchemaUpdateServiceFactory;
 import com.hotpads.datarouter.client.type.JdbcClient;
 import com.hotpads.datarouter.connection.JdbcConnectionPool;
 import com.hotpads.datarouter.routing.Datarouter;
@@ -29,36 +29,34 @@ implements ClientFactory{
 
 	private static final String
 			POOL_DEFAULT = "default",
-			SCHEMA_UPDATE_ENABLE = "schemaUpdate.enable",
-			PRINT_PREFIX = "schemaUpdate.print",
-			EXECUTE_PREFIX = "schemaUpdate.execute";
+			SCHEMA_UPDATE_ENABLE = "schemaUpdate.enable";
 
-	protected final Datarouter datarouter;
-	protected final ClientAvailabilitySettings clientAvailabilitySettings;
-	protected final JdbcFieldCodecFactory fieldCodecFactory;
+	private final Datarouter datarouter;
+	private final ClientAvailabilitySettings clientAvailabilitySettings;
+	private final JdbcSchemaUpdateServiceFactory jdbcSchemaUpdateServiceFactory;
 
-	protected final String clientName;
-	protected final List<Properties> multiProperties;
+	private final String clientName;
 	private final JdbcOptions jdbcOptions;
 	private final JdbcOptions defaultJdbcOptions;
-	protected final SchemaUpdateOptions schemaUpdatePrintOptions;
-	protected final SchemaUpdateOptions schemaUpdateExecuteOptions;
+	private final SchemaUpdateOptions schemaUpdatePrintOptions;
+	private final SchemaUpdateOptions schemaUpdateExecuteOptions;
 	private final boolean schemaUpdateEnabled;
 
-	public JdbcSimpleClientFactory(Datarouter datarouter, JdbcFieldCodecFactory fieldCodecFactory,
-			String clientName, ClientAvailabilitySettings clientAvailabilitySettings){
+	public JdbcSimpleClientFactory(Datarouter datarouter, String clientName,
+			ClientAvailabilitySettings clientAvailabilitySettings,
+			JdbcSchemaUpdateServiceFactory jdbcSchemaUpdateServiceFactory){
 		this.datarouter = datarouter;
 		this.clientAvailabilitySettings = clientAvailabilitySettings;
-		this.fieldCodecFactory = fieldCodecFactory;
 		this.clientName = clientName;
+		this.jdbcSchemaUpdateServiceFactory = jdbcSchemaUpdateServiceFactory;
 		Set<String> configFilePaths = datarouter.getConfigFilePaths();
-		this.multiProperties = DrPropertiesTool.fromFiles(configFilePaths);
+		List<Properties> multiProperties = DrPropertiesTool.fromFiles(configFilePaths);
 		this.jdbcOptions = new JdbcOptions(multiProperties, clientName);
 		this.defaultJdbcOptions = new JdbcOptions(multiProperties, POOL_DEFAULT);
-
-		this.schemaUpdatePrintOptions = new SchemaUpdateOptions(multiProperties, PRINT_PREFIX, true);
-		this.schemaUpdateExecuteOptions = new SchemaUpdateOptions(multiProperties, EXECUTE_PREFIX, false);
-
+		this.schemaUpdatePrintOptions = new SchemaUpdateOptions(multiProperties, JdbcSchemaUpdateService.PRINT_PREFIX,
+				true);
+		this.schemaUpdateExecuteOptions = new SchemaUpdateOptions(multiProperties,
+				JdbcSchemaUpdateService.EXECUTE_PREFIX, false);
 		this.schemaUpdateEnabled = DrBooleanTool.isTrue(DrPropertiesTool.getFirstOccurrence(multiProperties,
 				SCHEMA_UPDATE_ENABLE));
 	}
@@ -70,14 +68,10 @@ implements ClientFactory{
 		JdbcConnectionPool connectionPool = initConnectionPool();
 		timer.add("pool");
 
-		JdbcClient client = new JdbcClientImp(clientName, connectionPool, clientAvailabilitySettings);
+		JdbcSchemaUpdateService schemaUpdateService = jdbcSchemaUpdateServiceFactory.create(connectionPool);
+		JdbcClient client = new JdbcClientImp(clientName, connectionPool, schemaUpdateService,
+				clientAvailabilitySettings);
 		timer.add("client");
-
-		if(doSchemaUpdate()){
-			new ParallelSchemaUpdate(datarouter, fieldCodecFactory, clientName, connectionPool,
-					schemaUpdatePrintOptions, schemaUpdateExecuteOptions).call();
-			timer.add("schema update");
-		}
 
 		logger.warn(timer.toString());
 		return client;

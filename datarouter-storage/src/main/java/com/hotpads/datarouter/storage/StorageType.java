@@ -8,5 +8,5 @@ public enum StorageType {
 	column,
 	attribute,  //can have multiple values per table cell
 	;
-	
+
 }

@@ -15,13 +15,13 @@ public class JdbcIndexDeleteOp<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>>
 extends BaseJdbcOp<Long>{
-		
+
 	private final PhysicalNode<PK,D> node;
 	private final JdbcFieldCodecFactory fieldCodecFactory;
 	private final Lookup<PK> lookup;
 	private final Config config;
-	
-	public JdbcIndexDeleteOp(PhysicalNode<PK,D> node, JdbcFieldCodecFactory fieldCodecFactory, Lookup<PK> lookup, 
+
+	public JdbcIndexDeleteOp(PhysicalNode<PK,D> node, JdbcFieldCodecFactory fieldCodecFactory, Lookup<PK> lookup,
 			Config config){
 		super(node.getDatarouter(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
 		this.node = node;
@@ -29,12 +29,12 @@ extends BaseJdbcOp<Long>{
 		this.lookup = lookup;
 		this.config = config;
 	}
-	
+
 	@Override
 	public Long runOnce(){
 		String sql = SqlBuilder.deleteMulti(fieldCodecFactory, config, node.getTableName(), DrListTool.wrap(lookup));
 		long numModified = JdbcTool.update(getConnection(node.getClientId().getName()), sql.toString());
 		return numModified;
 	}
-	
+
 }

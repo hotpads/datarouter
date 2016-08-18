@@ -2,7 +2,6 @@ package com.hotpads.datarouter.client.imp.jdbc.ddl.test;
 
 import java.util.List;
 
-import org.apache.commons.lang.WordUtils;
 import org.junit.Test;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
@@ -11,7 +10,7 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlTable;
 
 public class SchemaUpdateIntegrationTest{
 
-	
+
 	public static void main(String[] args){
 		List<String> listOfColumnTypeNames = MySqlColumnType.getAllColumnTypeNames();
 		TestCodeGenerator genereTest = new TestCodeGenerator("SchemaUpdateIntegration");
@@ -24,15 +23,15 @@ public class SchemaUpdateIntegrationTest{
 //					"}");
 //		}
 	}
-	
-	
+
+
 	/**
 	 * TESTING THE MODIFICATION OF A COLUMN
 	 */
-	
+
 	@Test
 	public void testBitModified(){
-			
+
 	}
 	@Test
 	public void testTinyintModified(){
@@ -115,14 +114,14 @@ public class SchemaUpdateIntegrationTest{
 		SqlTable current;
 		SqlTable requested;
 		SchemaUpdateOptions option;
-		
+
 		// DELETE THE CURRENT TABLE IF IT EXISTS
 		// CREATE THE TABLE USING CURRENT
 		// ASSERT THAT THE TABLE PARSES CORRECTLY AND MATCHES CURRENT
 		// SET THE OPTIONS MANUALLY
 		// SCHEMA UPDATE
 		// PASS TO THE METHOD THAT TESTS THAT THE REQUESTED MATCHES EQUAL
-		
+
 	}
 	@Test
 	public void testBinaryModified(){
@@ -173,8 +172,8 @@ public class SchemaUpdateIntegrationTest{
 
 	}
 
-	
-	
-	
-	
+
+
+
+
 }

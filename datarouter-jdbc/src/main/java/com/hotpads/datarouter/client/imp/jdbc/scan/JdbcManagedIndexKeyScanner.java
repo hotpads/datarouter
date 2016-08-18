@@ -13,14 +13,14 @@ import com.hotpads.datarouter.storage.view.index.IndexEntry;
 import com.hotpads.util.core.collections.Range;
 
 public class JdbcManagedIndexKeyScanner<
-		PK extends PrimaryKey<PK>, 
+		PK extends PrimaryKey<PK>,
 		D extends Databean<PK, D>,
 		F extends DatabeanFielder<PK,D>,
 		IK extends PrimaryKey<IK>,
 		IE extends IndexEntry<IK, IE, PK, D>,
 		IF extends DatabeanFielder<IK, IE>>
 extends BaseManagedIndexKeyScanner<PK,D,IK,IE>{
-	
+
 	private final DatabeanFieldInfo<IK,IE,IF> indexEntryFieldInfo;
 	private final JdbcReaderOps<PK, D, F> jdbcReaderOps;
 

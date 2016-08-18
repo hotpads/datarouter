@@ -45,7 +45,7 @@ import com.hotpads.util.http.RequestTool;
 
 public class DatabeanGeneratorHandler extends BaseHandler {
 	private static final Logger logger = LoggerFactory.getLogger(DatabeanGeneratorHandler.class);
-	
+
 	public static List<Class<?>> FIELD_TYPES = new ArrayList<>();
 	static{
 		FIELD_TYPES.add(BooleanArrayField.class);
@@ -83,7 +83,7 @@ public class DatabeanGeneratorHandler extends BaseHandler {
 			}
 		});
 	}
-	
+
 	public static Map<String, String> simpleClassNameToCanonicalClassName;
 	static{
 		simpleClassNameToCanonicalClassName = new HashMap<>();
@@ -91,7 +91,7 @@ public class DatabeanGeneratorHandler extends BaseHandler {
 			simpleClassNameToCanonicalClassName.put(field.getSimpleName(), field.getCanonicalName());
 		}
 	}
-	
+
 	public static final String PARAM_DATABEAN_NAME = "databeanName";
 	public static final String PARAM_DATABEAN_PACKAGE = "databeanPackage";
 	public static final String PARAM_KEYFIELD_ENUM_TYPE = "keyField_enumType_";
@@ -104,9 +104,10 @@ public class DatabeanGeneratorHandler extends BaseHandler {
 
 	public static final int MAX_KEYFIELDS = 100;
 	public static final int MAX_FIELDS = 200;
-	
+
+	@Override
 	@Handler
-	protected Mav handleDefault() {		
+	protected Mav handleDefault() {
 		Mav mav = new Mav("/jsp/admin/datarouter/generateJavaClasses.jsp");
 		StringBuilder sb = new StringBuilder();
 		StringBuilder sb1 = new StringBuilder("FIELD TYPES:\n------------\n");
@@ -121,7 +122,7 @@ public class DatabeanGeneratorHandler extends BaseHandler {
 
 	@Handler
 	protected Mav generateJavaCode() {
-		try {			
+		try {
 			DataBeanParams databeanParams = new DataBeanParams();
 			collectParams(databeanParams);
 			String javaCode = databeanParams.getJavaCode();
@@ -133,15 +134,15 @@ public class DatabeanGeneratorHandler extends BaseHandler {
 		}
 		return null;
 	}
-	
+
 	@Handler
 	protected Mav getDemoScript() {
 		try {
-			DatabeanGenerator g = 
+			DatabeanGenerator g =
 					new DatabeanGenerator("ListingCounter");
 
 				g.setPackageName("com.hotpads.marius");
-				
+
 				for(Class<?> c: DatabeanGeneratorHandler.FIELD_TYPES){
 					String genericType = null;
 					if(DatabeanGenerator.INTEGER_ENUM_FIELDS.contains(c)){
@@ -150,11 +151,11 @@ public class DatabeanGeneratorHandler extends BaseHandler {
 					} else if(DatabeanGenerator.STRING_ENUM_FIELDS.contains(c)){
 						genericType = "TempEnum";
 						//continue;
-					} else 
+					} else
 						if(c.equals(UInt8Field.class)){
 						continue;
 					}
-						
+
 					g.addKeyField(c, DrStringTool.lowercaseFirstCharacter(c.getSimpleName()) +"DemoKey", genericType);
 					g.addField(c, DrStringTool.lowercaseFirstCharacter(c.getSimpleName())+"Demo", genericType);
 				}
@@ -171,22 +172,22 @@ public class DatabeanGeneratorHandler extends BaseHandler {
 		}
 		return null;
 	}
-	
 
-	private void collectParams(DataBeanParams databeanParams) {	
-		String createScript = RequestTool.get(request, PARAM_CREATE_SCRIPT, null);		
+
+	private void collectParams(DataBeanParams databeanParams) {
+		String createScript = RequestTool.get(request, PARAM_CREATE_SCRIPT, null);
 		if(DrStringTool.notEmpty(createScript)){
 			collectParamsFromCreateScript(createScript, databeanParams);
 			return;
 		}
-		databeanParams.setDataBeanName(DrStringTool.capitalizeFirstLetter(RequestTool.get(request, PARAM_DATABEAN_NAME, null)));		
+		databeanParams.setDataBeanName(DrStringTool.capitalizeFirstLetter(RequestTool.get(request, PARAM_DATABEAN_NAME, null)));
 		databeanParams.setDataBeanPackage(RequestTool.get(request, PARAM_DATABEAN_PACKAGE, null));
-		
+
 		for (int i = 0; i < MAX_KEYFIELDS; i++) {
 			String keyFieldName = RequestTool.get(request, PARAM_KEYFIELD_NAME + i, null);
 			String keyFieldType = RequestTool.get(request, PARAM_KEYFIELD_TYPE + i, null);
 			String keyFieldEnumType = RequestTool.get(request, PARAM_KEYFIELD_ENUM_TYPE + i, null);
-			databeanParams.addKeyField(keyFieldName, keyFieldType, keyFieldEnumType);			
+			databeanParams.addKeyField(keyFieldName, keyFieldType, keyFieldEnumType);
 		}
 
 		for (int i = 0; i < MAX_FIELDS; i++) {
@@ -197,7 +198,7 @@ public class DatabeanGeneratorHandler extends BaseHandler {
 		}
 	}
 
-	private void collectParamsFromCreateScript(String createScript, DataBeanParams databeanParams) {		
+	private void collectParamsFromCreateScript(String createScript, DataBeanParams databeanParams) {
 		boolean isPKField = false;
 		for(String line : createScript.split("\n")){
 			if(DrStringTool.isEmpty(line)){
@@ -257,7 +258,7 @@ public class DatabeanGeneratorHandler extends BaseHandler {
 		List<String> fieldEnumTypes = new ArrayList<>();
 		List<String> fieldNames = new ArrayList<>();
 		List<String> fieldTypes = new ArrayList<>();
-		
+
 		List<String> indexes = new ArrayList<>();
 
 		public void addKeyField(String name, String type, String enumType) {
@@ -277,7 +278,7 @@ public class DatabeanGeneratorHandler extends BaseHandler {
 			fieldNames.add(name);
 			fieldTypes.add(type);
 		}
-		
+
 		public void addIndex(String csvIndexFields){
 			this.indexes.add(csvIndexFields);
 		}
@@ -289,27 +290,27 @@ public class DatabeanGeneratorHandler extends BaseHandler {
 		public void setDataBeanPackage(String dataBeanPackage) {
 			this.dataBeanPackage = dataBeanPackage;
 		}
-		
+
 		public String getJavaCode(){
 			DatabeanGenerator generator = new DatabeanGenerator(dataBeanName);
 			generator.setPackageName(dataBeanPackage);
 			for(int i =0; i< keyFieldNames.size(); i++){
 					generator.addKeyField(getClassForName(keyFieldTypes.get(i)), keyFieldNames.get(i), keyfieldEnumTypes.get(i));
 			}
-			
+
 			for(int i =0; i< fieldNames.size(); i++){
 				generator.addField(getClassForName(fieldTypes.get(i)), fieldNames.get(i), fieldEnumTypes.get(i));
 			}
-			
+
 			for(String indexFields : indexes){
 				if(DrStringTool.isEmpty(indexFields)){
 					continue;
 				}
 				indexFields = indexFields.trim();
-				generator.addIndex(indexFields.split(","));	
+				generator.addIndex(indexFields.split(","));
 			}
-			
-			
+
+
 			StringBuilder javaCode = new StringBuilder();
 			javaCode.append(dataBeanName + "~~##~~");
 			javaCode.append(generator.toJavaDatabean());
@@ -340,9 +341,9 @@ public class DatabeanGeneratorHandler extends BaseHandler {
 
 			return sb.toString();
 		}
-		
+
 	}
-	
+
 	public static Class<?> getClassForName(String name){
 		Class<?> cls = null;
 		try {
@@ -357,8 +358,8 @@ public class DatabeanGeneratorHandler extends BaseHandler {
 		}
 		return cls;
 	}
-	
+
 	public static final class UnknownField {
 	}
-	
+
 }

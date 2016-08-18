@@ -22,8 +22,9 @@ public class Pair<L,R> implements Serializable{
 
 	public Pair(){}
 
+	@Deprecated //use new Pair<>(..)
 	public static <T,V> Pair<T,V> create(T left,V right) {
-		return new Pair<T,V>(left,right);
+		return new Pair<>(left,right);
 	}
 
 	public static <T,V> Pair<T,V> create(){

@@ -18,20 +18,20 @@ implements EntityPartitioner<EK>{
 		MIN_PARTITIONS = 1,
 		MAX_ONE_BYTE_NUM_PARTITIONS = 256,
 		MAX_PARTITIONS = 1 << 16;
-	
+
 	private List<Integer> allPartitions;
 	private ArrayList<byte[]> allPrefixes;
 	private byte[][] allPrefixesArray;
-		
-	
+
+
 	/****************** construct ********************/
-	
+
 	public BaseEntityPartitioner(){
 		this.allPartitions = new ArrayList<>();
 		for(int i=0; i < getNumPartitions(); ++i){
 			allPartitions.add(i);
 		}
-		
+
 		this.allPrefixes = new ArrayList<>();
 		if(getNumPartitions()==1){
 			allPrefixes.add(new byte[0]);
@@ -40,41 +40,41 @@ implements EntityPartitioner<EK>{
 				allPrefixes.add(getPrefix(i));
 			}
 		}
-		
+
 		this.allPrefixesArray = new byte[allPrefixes.size()][];
 		for(int i=0; i < allPrefixes.size(); ++i){
 			allPrefixesArray[i] = allPrefixes.get(i);
 		}
 	}
-	
-	
+
+
 	/**************** methods *********************/
-	
+
 	@Override
 	public List<Integer> getAllPartitions(){
 		return allPartitions;
 	}
-	
+
 	@Override
 	public boolean isLastPartition(int partition){
 		return partition == getNumPartitions() - 1;
 	}
-	
+
 	@Override
 	public int getNumPrefixBytes(){
 		return getNumPrefixBytesStatic(getNumPartitions());
 	}
-	
+
 	@Override
 	public List<byte[]> getAllPrefixes(){
 		return allPrefixes;
 	}
-	
+
 	@Override
 	public byte[][] getAllPrefixesArray(){
 		return allPrefixesArray;
 	}
-	
+
 	@Override
 	public byte[] getPrefix(int partition){
 		byte[] fourBytePrefix = IntegerByteTool.getRawBytes(partition);
@@ -84,13 +84,13 @@ implements EntityPartitioner<EK>{
 		System.arraycopy(fourBytePrefix, offset, prefix, 0, numPrefixBytes);
 		return prefix;
 	}
-	
+
 	@Override
 	public byte[] getNextPrefix(int partition){
 		if(isLastPartition(partition)){ return null; }
 		return getPrefix(partition + 1);
 	}
-	
+
 	@Override
 	//TODO skip intermediate array
 	public byte[] getPrefix(EK ek){
@@ -98,21 +98,21 @@ implements EntityPartitioner<EK>{
 		byte[] prefix = getPrefix(partition);
 		return prefix;
 	}
-	
+
 	@Override
 	public int parsePartitionFromBytes(byte[] bytes){
 		byte[] prefixBytes = DrByteTool.copyOfRange(bytes, 0, getNumPrefixBytes());
 		return getPartition(prefixBytes);
-		
+
 	}
-	
+
 	private int getPartition(byte[] bytes){
 		byte[] fourBytePrefix = DrByteTool.padPrefix(bytes, 4);
 		return IntegerByteTool.fromRawBytes(fourBytePrefix, 0);
 	}
-	
+
 	/*********** static for testing *************/
-	
+
 	private static int getNumPrefixBytesStatic(int numPartitions){
 		if(numPartitions < MIN_PARTITIONS){
 			throw new IllegalArgumentException("must have at least one partition");
@@ -122,10 +122,10 @@ implements EntityPartitioner<EK>{
 		if(numPartitions <= MAX_PARTITIONS){ return 2; }
 		throw new IllegalArgumentException("max partitions is "+MAX_PARTITIONS);
 	}
-	
-	
+
+
 	/************** tests ***********************/
-	
+
 	public static class BaseEntityPartitionerTests{
 		@Test(expected=IllegalArgumentException.class)
 		public void testMinBound(){
@@ -146,5 +146,5 @@ implements EntityPartitioner<EK>{
 			getNumPrefixBytesStatic(65537);
 		}
 	}
-	
+
 }

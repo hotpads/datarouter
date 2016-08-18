@@ -9,10 +9,10 @@ extends BaseEntityPartitioner<EK>{
 	public int getNumPartitions(){
 		return 1;
 	}
-	
+
 	@Override
 	public int getPartition(EK ek){
 		return 0;
 	}
-	
+
 }

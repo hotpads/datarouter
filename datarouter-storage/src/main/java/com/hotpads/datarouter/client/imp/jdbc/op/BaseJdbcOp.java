@@ -22,7 +22,7 @@ implements TxnOp<T>, ConnectionAware {
 	private List<String> clientNames;
 	private Isolation isolation;
 	private boolean autoCommit;
-	
+
 	public BaseJdbcOp(Datarouter datarouter, List<String> clientNames, Isolation isolation,
 			boolean autoCommit) {
 		this.datarouter = datarouter;
@@ -30,7 +30,7 @@ implements TxnOp<T>, ConnectionAware {
 		this.isolation = isolation;
 		this.autoCommit = autoCommit;
 	}
-	
+
 	public BaseJdbcOp(Datarouter datarouter, List<String> clientNames){
 		this(datarouter, clientNames, Isolation.DEFAULT, false);
 	}
@@ -49,35 +49,32 @@ implements TxnOp<T>, ConnectionAware {
 		return null;
 	}
 
-	
-	
-	
-	
 	public Logger getLogger(){
 		return logger;
 	}
 
 	/****************** abstract methods default to no-op ******************/
-	
+
 	@Override
 	public T runOnce(){
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
+
 	@Override
 	public T runOncePerClient(Client client){
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
+
+	@Override
 	public T mergeResults(T fromOnce, Collection<T> fromEachClient){
 		return fromOnce;
 	}
-	
-	
+
+
 	/**************** get *******************************************/
-	
+
 	@Override
 	public Datarouter getDatarouter(){
 		return datarouter;

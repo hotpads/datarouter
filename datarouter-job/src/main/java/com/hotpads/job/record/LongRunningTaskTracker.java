@@ -13,94 +13,79 @@ public class LongRunningTaskTracker {
 	private static Logger logger = LoggerFactory.getLogger(LongRunningTaskTracker.class);
 
 	private static long HEARTBEAT_PERSIST_PERIOD_MS = 2000L;
-	
-	private IndexedSortedMapStorage<LongRunningTaskKey, LongRunningTask> node;
-	private LongRunningTask task;
-	private MutableBoolean interrupted;
-	private Date lastPersistedHeartbeat;
-	private Setting<Boolean> shouldSaveLongRunningTasks;
-	
-	public LongRunningTaskTracker(IndexedSortedMapStorage<LongRunningTaskKey, LongRunningTask> node,
-			LongRunningTask task, Setting<Boolean> shouldSaveLongRunningTasks){
+
+	private final IndexedSortedMapStorage<LongRunningTaskKey, LongRunningTask> node;
+	private final LongRunningTask task;
+	private final MutableBoolean interrupted;
+	private final Setting<Boolean> persistSetting;
+	private Date dateLastPersisted;
+
+	public LongRunningTaskTracker(IndexedSortedMapStorage<LongRunningTaskKey,LongRunningTask> node,
+			LongRunningTask task, Setting<Boolean> persistSetting){
 		this.node = node;
 		this.task = task;
 		this.interrupted = new MutableBoolean(false);
-		this.shouldSaveLongRunningTasks = shouldSaveLongRunningTasks;
+		this.persistSetting = persistSetting;
 	}
-	
+
+
+	public LongRunningTaskTracker heartbeat(long numItemsProcessed){
+		task.setNumItemsProcessed(numItemsProcessed);
+		return heartbeat();
+	}
+
+	public LongRunningTaskTracker heartbeat(){
+		Date now = new Date();
+		task.setHeartbeatTime(now);
+		persistIfShould(now);
+		return this;
+	}
+
 	public void requestStop(){
-		logger.info("requested interrupt on "+task.getKey().getJobClass());
+		logger.info("requested interrupt on " + task.getKey().getJobClass());
 		interrupted.set(true);
 		task.setInterrupt(true);
 	}
-	
+
 	public boolean isStopRequested(){
 		if(interrupted.get()){
-			task.setJobExecutionStatus(JobExecutionStatus.interrupted);
-			if(shouldPersistHeartbeat()){
-				persist();
-			}
+			task.setJobExecutionStatus(JobExecutionStatus.INTERRUPTED);
+			persistIfShould(new Date());
 		}
 		return interrupted.get();
 	}
-	
-	public LongRunningTaskTracker heartbeat(){
-		if(shouldPersistHeartbeat()){
-			Date heartbeat = new Date();
-			task.setHeartbeatTime(heartbeat);
-			persist();
-			lastPersistedHeartbeat = heartbeat;
+
+	/*------------------------ private -------------------*/
+
+	private void persistIfShould(Date newDateLastPersisted){
+		if(!shouldPersist()){
+			return;
 		}
-		return this;
-	}
-	
-	private void persist(){
 		if(task.getKey().getTriggerTime()==null){
-			logger.error("not persisting "+task.getDatabeanName()+" tracker because of null trigger time");
+			logger.warn("setting null triggerTime to now on {}", task.getDatabeanName());
+			task.setTriggerTime(new Date());
 		}
 		node.put(task, null);
+		dateLastPersisted = newDateLastPersisted;
 	}
-	
-	private boolean shouldPersistHeartbeat(){
-		if((shouldSaveLongRunningTasks == null) || !shouldSaveLongRunningTasks.getValue()){
+
+	private boolean shouldPersist(){
+		if(persistSetting == null || !persistSetting.getValue()){
 			return false;
 		}
-		if(lastPersistedHeartbeat == null){
+		if(dateLastPersisted == null){
 			return true;
 		}
-		return System.currentTimeMillis() - lastPersistedHeartbeat.getTime() > HEARTBEAT_PERSIST_PERIOD_MS;
+		return System.currentTimeMillis() - dateLastPersisted.getTime() > HEARTBEAT_PERSIST_PERIOD_MS;
 	}
-	
-	public LongRunningTaskTracker setNumItemsProcessed(long numItems){
-		task.setNumItemsProcessed(numItems);
-		return this;
-	}
-	
-	public IndexedSortedMapStorage<LongRunningTaskKey, LongRunningTask> getNode() {
+
+	/*--------------------- get/set -------------------------*/
+
+	public IndexedSortedMapStorage<LongRunningTaskKey,LongRunningTask> getNode() {
 		return node;
 	}
 
 	public LongRunningTask getTask() {
 		return task;
-	}
-
-	public void setTask(LongRunningTask task) {
-		this.task = task;
-	}
-
-	public Date getLastPersistedHeartbeat() {
-		return lastPersistedHeartbeat;
-	}
-
-	public void setLastPersistedHeartbeat(Date lastPersistedHeartbeat) {
-		this.lastPersistedHeartbeat = lastPersistedHeartbeat;
-	}
-
-	public Setting<Boolean> getShouldSaveLongRunningTasks() {
-		return shouldSaveLongRunningTasks;
-	}
-
-	public void setShouldSaveLongRunningTasks(Setting<Boolean> shouldSaveLongRunningTasks) {
-		this.shouldSaveLongRunningTasks = shouldSaveLongRunningTasks;
 	}
 }

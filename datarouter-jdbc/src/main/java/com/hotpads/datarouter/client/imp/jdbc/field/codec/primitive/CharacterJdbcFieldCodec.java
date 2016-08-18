@@ -13,27 +13,27 @@ import com.hotpads.datarouter.storage.field.Field;
 
 public class CharacterJdbcFieldCodec
 extends BasePrimitiveJdbcFieldCodec<Character,Field<Character>>{
-	
+
 	public CharacterJdbcFieldCodec(){//no-arg for reflection
 		this(null);
 	}
-	
+
 	public CharacterJdbcFieldCodec(Field<Character> field){
 		super(field);
 	}
-	
-	
+
+
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
 		return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.CHAR, 1, field.getKey().isNullable(),
 				false);
 	}
-	
+
 	@Override
 	public Character parseJdbcValueButDoNotSet(Object obj){
 		return obj==null?null:(Character)obj;
 	}
-	
+
 	@Override
 	public void setPreparedStatementValue(PreparedStatement ps, int parameterIndex){
 		try{
@@ -46,7 +46,7 @@ extends BasePrimitiveJdbcFieldCodec<Character,Field<Character>>{
 			throw new DataAccessException(e);
 		}
 	}
-	
+
 	@Override
 	public Character fromJdbcResultSetButDoNotSet(ResultSet rs){
 		try{

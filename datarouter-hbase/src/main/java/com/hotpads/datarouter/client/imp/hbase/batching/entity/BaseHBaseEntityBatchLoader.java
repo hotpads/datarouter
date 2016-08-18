@@ -19,6 +19,7 @@ import com.hotpads.datarouter.util.core.DrComparableTool;
 import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.iterable.scanner.batch.BaseBatchLoader;
 
+@Deprecated//replacing with BaseHBaseSubEntityScanner
 public abstract class BaseHBaseEntityBatchLoader<
 		EK extends EntityKey<EK>,
 		E extends Entity<EK>,

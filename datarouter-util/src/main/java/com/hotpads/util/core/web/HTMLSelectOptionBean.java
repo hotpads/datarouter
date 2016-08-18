@@ -13,16 +13,16 @@ public class HTMLSelectOptionBean {
 			return bean1.getName().compareTo(bean2.getName());
 		}
 	};
-	
+
 	public static List<HTMLSelectOptionBean> getOptionsFromMap(Map<String,String> c){
-		List<HTMLSelectOptionBean> beans = new ArrayList<HTMLSelectOptionBean>(c.size());
+		List<HTMLSelectOptionBean> beans = new ArrayList<>(c.size());
 		for (String key : c.keySet()){
 			beans.add(new HTMLSelectOptionBean(c.get(key),key));
 		}
 		Collections.sort(beans, beanByValueComparator);
 		return beans;
 	}
-	
+
 	public HTMLSelectOptionBean(String name, String value) {
 		this.name = name;
 		this.value = value;
@@ -33,6 +33,7 @@ public class HTMLSelectOptionBean {
 	private String format;
 	private boolean selected = false;
 
+	@Override
 	public String toString() {
 		return "<option value=\"" + value + "\"" + (selected ? " selected" : "")
 				+ ">" + name + "</option>";

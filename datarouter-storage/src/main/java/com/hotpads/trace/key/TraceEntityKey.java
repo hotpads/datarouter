@@ -9,19 +9,19 @@ import com.hotpads.datarouter.storage.key.entity.base.BaseEntityKey;
 import com.hotpads.datarouter.storage.key.entity.base.BaseEntityPartitioner;
 
 @SuppressWarnings("serial")
-public class TraceEntityKey 
+public class TraceEntityKey
 extends BaseEntityKey<TraceEntityKey>{
 
 	/************* fields *************************/
-	
+
 	private Long traceId;
 
-	
+
 	public static class Fields{
 		public static final String
 			traceId = "traceId";
 	}
-	
+
 	@Override
 	public List<Field<?>> getFields(){
 		return FieldTool.createList(
@@ -31,7 +31,7 @@ extends BaseEntityKey<TraceEntityKey>{
 //	public static class TraceEntityPartitioner
 //	extends NoOpEntityPartitioner<TraceEntityKey>{
 //	}
-	
+
 	public static class TraceEntityPartitioner extends BaseEntityPartitioner<TraceEntityKey>{
 		@Override
 		public int getNumPartitions(){
@@ -43,22 +43,22 @@ extends BaseEntityKey<TraceEntityKey>{
 		}
 	}
 
-	
+
 	/****************** construct *******************/
-	
+
 	private TraceEntityKey(){//no-arg for reflection
 	}
-	
+
 	public TraceEntityKey(Long traceId){
 		this.traceId = traceId;
 	}
 
-	
+
 	/********************** get/set ***************************/
-	
+
 	public Long getTraceId(){
 		return traceId;
 	}
-	
+
 
 }

@@ -36,10 +36,10 @@ public class ConstantBooleanSetting implements Setting<Boolean>{
 	public boolean getHasRedundantCustomValue(){
 		return DrObjectTool.equals(getDefaultValue(), getValue());
 	}
-	
+
 	@Override
 	public boolean isValid(String value){
 		return DrBooleanTool.isBoolean(value);
 	}
-	
+
 }

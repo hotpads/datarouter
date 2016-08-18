@@ -6,5 +6,5 @@ package com.hotpads.util.core.iterable.scanner.filter;
 public interface Filter<T>{
 
 	boolean include(T t);
-	
+
 }

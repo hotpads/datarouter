@@ -24,7 +24,6 @@ public class NodeWrapper{
 		List<NodeWrapper> outs = new ArrayList<>();
 		Collection<Node<?,?>> topLevelNodes = router.getContext().getNodes().getTopLevelNodesByRouterName().get(
 				router.getName());
-//		SortedSet<Node> topLevelNodes = router.getNodes();
 		for(Node<?,?> node : topLevelNodes){
 			addNodeAndChildren(node, outs, 0);
 		}
@@ -34,7 +33,9 @@ public class NodeWrapper{
 	public static void addNodeAndChildren(Node<?,?> parentNode, List<NodeWrapper> wrappers, int indent){
 		wrappers.add(new NodeWrapper(parentNode, indent));
 		List<? extends Node<?,?>> childNodes = parentNode.getChildNodes();
-		if(DrCollectionTool.isEmpty(childNodes)){ return; }
+		if(DrCollectionTool.isEmpty(childNodes)){
+			return;
+		}
 		for(Node<?,?> node : childNodes){
 			addNodeAndChildren(node, wrappers, indent + 1);
 		}
@@ -43,32 +44,14 @@ public class NodeWrapper{
 	public Node<?,?> getNode(){
 		return node;
 	}
-	
+
 	public String getClassName(){
 		return node.getClass().getName();
 	}
-	
+
 	public String getClassSimpleName(){
 		return node.getClass().getSimpleName();
 	}
-	
-//	public HBaseNode<?,?,?> getHBaseNode(){
-//		if(! getIsHBaseNode()){ return null; }
-//		return (HBaseNode<?,?,?>)node;
-//	}
-	
-//	public boolean getIsHBaseNode(){
-//		return node instanceof HBaseNode;
-//	}
-	
-//	public boolean getIsHibernateReaderNode(){
-//		return node instanceof HibernateReaderNode;
-//	}
-	
-//	public String getHBaseTableName(){
-//		if(! getIsHBaseNode()){ return null; }
-//		return getHBaseNode().getTableName();
-//	}
 
 	public int getLevelsNested(){
 		return levelsNested;

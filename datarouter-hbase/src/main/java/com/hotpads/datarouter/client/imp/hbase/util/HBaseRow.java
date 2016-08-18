@@ -14,7 +14,7 @@ public class HBaseRow{
 		this.key = key;
 		this.map = map;
 	}
-	
+
 	@Override
 	public String toString(){
 		StringBuilder sb = new StringBuilder();

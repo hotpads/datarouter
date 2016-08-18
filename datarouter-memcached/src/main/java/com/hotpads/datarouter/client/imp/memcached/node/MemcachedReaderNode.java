@@ -17,11 +17,11 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.client.imp.memcached.client.DatarouterMemcachedKey;
 import com.hotpads.datarouter.client.imp.memcached.client.MemcachedClient;
-import com.hotpads.datarouter.client.imp.memcached.client.MemcachedStateException;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.op.raw.read.MapStorageReader;
 import com.hotpads.datarouter.node.type.physical.base.BasePhysicalNode;
+import com.hotpads.datarouter.profile.tally.TallyKey;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.databean.DatabeanTool;
@@ -81,7 +81,7 @@ implements MemcachedPhysicalNode<PK,D>,
 			bytes = (byte[])future.get(config.getTimeoutMs(), TimeUnit.MILLISECONDS);
 		} catch(TimeoutException e) {
 			TracerTool.appendToSpanInfo(TracerThreadLocal.get(), "memcached timeout");
-		} catch(InterruptedException | ExecutionException | MemcachedStateException e) {
+		} catch(InterruptedException | ExecutionException e) {
 			logger.error("", e);
 		}
 
@@ -122,7 +122,7 @@ implements MemcachedPhysicalNode<PK,D>,
 			bytesByStringKey = future.get(config.getTimeoutMs(), TimeUnit.MILLISECONDS);
 		} catch(TimeoutException e) {
 			TracerTool.appendToSpanInfo(TracerThreadLocal.get(), "memcached timeout");
-		} catch(ExecutionException | InterruptedException | MemcachedStateException e){
+		} catch(ExecutionException | InterruptedException e){
 			logger.error("", e);
 		}
 
@@ -162,6 +162,28 @@ implements MemcachedPhysicalNode<PK,D>,
 		return DatabeanTool.getKeys(getMulti(keys, paramConfig));
 	}
 
+
+	public Long getTallyCount(TallyKey key, final Config paramConfig){
+		if(key == null){
+			return null;
+		}
+		Object tallyObject = null;
+		try{
+			tallyObject = getClient().getSpyClient().asyncGet(buildMemcachedKey(key)).get();
+		}catch(Exception exception){
+			if(paramConfig.ignoreExceptionOrUse(true)){
+				logger.error("memcached error on " + key, exception);
+			}else{
+				throw new RuntimeException(exception);
+			}
+		}
+
+		if(!(tallyObject instanceof String)){
+			return null;
+		}
+
+		return Long.valueOf(((String)tallyObject).trim());
+	}
 
 	/******************** serialization *******************/
 

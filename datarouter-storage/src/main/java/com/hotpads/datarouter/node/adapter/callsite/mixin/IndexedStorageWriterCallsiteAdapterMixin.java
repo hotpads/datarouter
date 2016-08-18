@@ -21,11 +21,11 @@ public class IndexedStorageWriterCallsiteAdapterMixin<
 		F extends DatabeanFielder<PK,D>,
 		N extends IndexedStorageWriterNode<PK,D>>
 implements IndexedStorageWriter<PK,D>{
-	
+
 	private BaseCallsiteAdapter<PK,D,F,N> adapterNode;
 	private N backingNode;
 
-	
+
 	public IndexedStorageWriterCallsiteAdapterMixin(BaseCallsiteAdapter<PK,D,F,N> adapterNode, N backingNode){
 		this.adapterNode = adapterNode;
 		this.backingNode = backingNode;

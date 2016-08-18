@@ -11,5 +11,5 @@ public class SemaphoreTool {
 			throw new RuntimeException(e);
 		}
 	}
-	
+
 }

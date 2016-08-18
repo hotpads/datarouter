@@ -8,12 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import javax.persistence.Access;
-import javax.persistence.AccessType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Lob;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSet;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCollation;
@@ -48,8 +42,6 @@ import com.hotpads.datarouter.util.core.DrObjectTool;
 import com.hotpads.util.core.collections.arrays.LongArray;
 
 
-@Entity()
-@Access(AccessType.FIELD)
 public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 
 	public static final int DEFAULT_STRING_LENGTH = MySqlColumnType.MAX_LENGTH_VARCHAR;
@@ -58,7 +50,6 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 
 	/***************************** fields ********************************/
 
-	@Id
 	private ManyFieldBeanKey key;
 
 	private Boolean booleanField;
@@ -68,35 +59,23 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 	private Long longField;
 	private Float floatField;
 	private Double doubleField;
-	@Column(columnDefinition="bigint(20)")
 	private Date longDateField;
 	private Character characterField;
 	private String stringField;
 	private Integer varIntField;
-	@Column(columnDefinition="int")
 	private TestEnum intEnumField;
-	@Column(columnDefinition="int")
 	private TestEnum varIntEnumField;
-	@Column(columnDefinition="varchar(" +LEN_STRING_ENUM_FIELD +")")
 	private TestEnum stringEnumField;
 
-	@Lob @Column(length=1024)
 	private byte[] stringByteField;
 
-	@Lob @Column(length=1<<27)
 	private byte[] data;
 
-	@Lob @Column(length=1<<27)
 	private List<Long> longArrayField;
-	@Lob @Column(length=1<<27)
 	private List<Boolean> booleanArrayField;
-	@Lob @Column(length=1<<27)
 	private List<Integer> integerArrayField;
-	@Lob @Column(length=1<<27)
 	private List<Double> doubleArrayField;
-	@Lob @Column(length=1<<27)
 	private List<String> delimitedStringArrayField;
-	@Lob @Column(length=1<<27)
 	private byte[] byteArrayField;
 	private String testSchemaUpdateField;
 	private Long incrementField;
@@ -179,9 +158,9 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 			fields.add(new CharacterField(F.characterField, d.characterField));
 			fields.add(new StringField(F.stringField, d.stringField, MySqlColumnType.MAX_KEY_LENGTH_UTF8MB4));
 			fields.add(new VarIntField(F.varIntField, d.varIntField));
-			fields.add(new IntegerEnumField<TestEnum>(TestEnum.class, F.intEnumField, d.intEnumField));
-			fields.add(new VarIntEnumField<TestEnum>(TestEnum.class, F.varIntEnumField, d.varIntEnumField));
-			fields.add(new StringEnumField<TestEnum>(TestEnum.class, F.stringEnumField, d.stringEnumField, LEN_STRING_ENUM_FIELD));
+			fields.add(new IntegerEnumField<>(TestEnum.class, F.intEnumField, d.intEnumField));
+			fields.add(new VarIntEnumField<>(TestEnum.class, F.varIntEnumField, d.varIntEnumField));
+			fields.add(new StringEnumField<>(TestEnum.class, F.stringEnumField, d.stringEnumField, LEN_STRING_ENUM_FIELD));
 			fields.add(new ByteArrayField(F.stringByteField, d.stringByteField, MySqlColumnType.MAX_LENGTH_LONGBLOB));
 			fields.add(new ByteArrayField(F.data, d.data, MySqlColumnType.MAX_LENGTH_LONGBLOB));
 			fields.add(new UInt63ArrayField(F.longArrayField, d.longArrayField));

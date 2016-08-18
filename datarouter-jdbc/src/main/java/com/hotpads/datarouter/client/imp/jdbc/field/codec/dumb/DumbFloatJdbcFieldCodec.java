@@ -14,11 +14,11 @@ import com.hotpads.datarouter.storage.field.imp.dumb.DumbFloatField;
 
 public class DumbFloatJdbcFieldCodec
 extends BasePrimitiveJdbcFieldCodec<Float,Field<Float>>{
-	
+
 	public DumbFloatJdbcFieldCodec(){//no-arg for reflection
 		this(null);
 	}
-	
+
 	public DumbFloatJdbcFieldCodec(DumbFloatField field){
 		super(field);
 	}
@@ -29,12 +29,12 @@ extends BasePrimitiveJdbcFieldCodec<Float,Field<Float>>{
 		return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.FLOAT, 12, field.getKey().isNullable(),
 				false);
 	}
-	
+
 	@Override
 	public Float parseJdbcValueButDoNotSet(Object obj){
 		return obj==null?null:(Float)obj;
 	}
-	
+
 	@Override
 	public void setPreparedStatementValue(PreparedStatement ps, int parameterIndex){
 		try{
@@ -47,7 +47,7 @@ extends BasePrimitiveJdbcFieldCodec<Float,Field<Float>>{
 			throw new DataAccessException(e);
 		}
 	}
-	
+
 	@Override
 	public Float fromJdbcResultSetButDoNotSet(ResultSet rs){
 		try{

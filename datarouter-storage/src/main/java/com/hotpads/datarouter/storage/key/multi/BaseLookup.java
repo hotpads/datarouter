@@ -10,14 +10,14 @@ extends BaseKey<PK>
 implements Lookup<PK>{
 
 	protected PK key;
-	
+
 	public BaseLookup() {
 	}
-	
+
 	public PK getPrimaryKey(){
 		return key;
 	}
-	
+
 	@Override
 	public void setPrimaryKey(PK primaryKey){
 		this.key = primaryKey;

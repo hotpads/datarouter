@@ -5,5 +5,5 @@ import com.hotpads.datarouter.routing.Datarouter;
 public interface DatarouterAware{
 
 	Datarouter getDatarouter();
-	
+
 }

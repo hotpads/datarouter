@@ -6,5 +6,5 @@ public class DuplicateEntrySqlException extends RuntimeException{
 	public DuplicateEntrySqlException(Throwable cause){
 		super(cause);
 	}
-	
+
 }

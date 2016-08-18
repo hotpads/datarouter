@@ -5,5 +5,5 @@ import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage;
 public interface LongRunningTaskNodeProvider{
 
 	IndexedSortedMapStorage<LongRunningTaskKey,LongRunningTask> get();
-	
+
 }

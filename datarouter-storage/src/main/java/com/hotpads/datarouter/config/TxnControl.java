@@ -6,6 +6,6 @@ public enum TxnControl {
 	startIfNone,
 	startNew,
 	support;
-	
-	
+
+
 }

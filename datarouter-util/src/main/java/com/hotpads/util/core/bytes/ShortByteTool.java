@@ -13,13 +13,13 @@ import com.hotpads.datarouter.util.core.DrCollectionTool;
  * methods for converting shorts into bytes
  */
 public class ShortByteTool {
-	
+
 	/*
 	 * int16
-	 * 
+	 *
 	 * flip first bit so bitwiseCompare is always correct
 	 */
-	
+
 	public static byte[] getRawBytes(final short in){
 		byte[] out = new byte[2];
 		out[0] = (byte) (in >>> 8);
@@ -32,14 +32,14 @@ public class ShortByteTool {
 		bytes[offset + 1] = (byte) in;
 		return 2;
 	}
-	
+
 	public static short fromRawBytes(final byte[] bytes, final int startIdx){
 		return (short)(
 				  ((bytes[startIdx    ] & 0xff) << 8)
-				|  (bytes[startIdx + 1] & 0xff)      
+				|  (bytes[startIdx + 1] & 0xff)
 			);
-	}	
-		
+	}
+
 	public static byte[] getComparableBytes(final short value){
 		int shifted = value ^ Short.MIN_VALUE;
 		return getRawBytes((short)shifted);
@@ -49,7 +49,7 @@ public class ShortByteTool {
 		int shifted = value ^ Short.MIN_VALUE;
 		return toRawBytes((short)shifted, bytes, offset);
 	}
-	
+
 	public static short fromComparableBytes(final byte[] bytes, int byteOffset){
 		return (short)(Short.MIN_VALUE ^ fromRawBytes(bytes, byteOffset));
 	}
@@ -61,11 +61,11 @@ public class ShortByteTool {
 //		out[1] = (byte) shifted;
 //		return out;
 //	}
-//	
+//
 //	public static short fromComparableBytes(final byte[] bytes, final int startIdx){
 //		return (short)(Short.MIN_VALUE ^ (
 //				  ((bytes[startIdx    ] & (int)0xff) << 8)
-//				|  (bytes[startIdx + 1] & (int)0xff)      
+//				|  (bytes[startIdx + 1] & (int)0xff)
 //			));
 //	}
 
@@ -79,7 +79,7 @@ public class ShortByteTool {
 		}
 		return out;
 	}
-	
+
 
 	public static byte[] getComparableByteArray(short[] values){
 		byte[] out = new byte[2*values.length];
@@ -94,32 +94,32 @@ public class ShortByteTool {
 		short[] out = new short[bytes.length / 2];
 		for(int i=0; i < out.length; ++i){
 			int startIdx = i*2;
-			
+
 			/*
-			 * i think the first bitwise operation causes the operand to be zero-padded 
+			 * i think the first bitwise operation causes the operand to be zero-padded
 			 *     to an integer before the operation happens
-			 *     
+			 *
 			 * parenthesis are extremely important here because of the automatic int upgrading
 			 */
-			
+
 			//more compact
 			out[i] = (short)(Short.MIN_VALUE ^ (
 						  ((bytes[startIdx    ] & 0xff) << 8)
-						|  (bytes[startIdx + 1] & 0xff)      
+						|  (bytes[startIdx + 1] & 0xff)
 					));
-			
+
 		}
 		return out;
 	}
-	
-	
+
+
 
 	/*
 	 * uInt31
-	 * 
+	 *
 	 * first bit must be 0, reject others
 	 */
-	
+
 	public static byte[] getUInt15Bytes(final short value){
 //		if(value < 0){ throw new IllegalArgumentException("no negatives"); }
 		byte[] out = new byte[2];
@@ -127,18 +127,18 @@ public class ShortByteTool {
 		out[1] = (byte) value;
 		return out;
 	}
-	
+
 	public static short fromUInt15Bytes(final byte[] bytes, final int startIdx){
 		return (short)(
 			  ((bytes[startIdx + 0] & 0xff) <<  8)
 			|  (bytes[startIdx + 1] & 0xff));
 	}
-	
+
 	//TODO copy array methods from IntegerByteTool
-	
-	
-	/********************************* tests ***********************************************/	
-	
+
+
+	/********************************* tests ***********************************************/
+
 	public static class Tests{
 		@Test public void testGetOrderedBytes(){
 			short a = Short.MIN_VALUE;
@@ -184,7 +184,7 @@ public class ShortByteTool {
 			Assert.assertTrue(DrByteTool.bitwiseCompare(p5, n3) > 0);
 			Assert.assertTrue(DrByteTool.bitwiseCompare(p5, n7) > 0);
 		}
-		
+
 		@Test public void testRoundTrip(){
 			short[] subjects = new short[]{
 					Short.MIN_VALUE,Short.MIN_VALUE+1,
@@ -200,7 +200,7 @@ public class ShortByteTool {
 				Assert.assertEquals(subjects[i], roundTripped);
 			}
 		}
-		
+
 		@Test public void testRoundTrips(){
 			short i = Short.MIN_VALUE;
 			byte[] lastBytes = getComparableBytes(i);
@@ -227,7 +227,7 @@ public class ShortByteTool {
 			}
 			Assert.assertTrue(counter > 1000);//make sure we did a lot of tests
 		}
-		
+
 		@Test public void testUnsignedRoundTrips(){
 //			for(short i=0; i <= Short.MAX_VALUE; ++i){//infinite loop
 			short i=0;

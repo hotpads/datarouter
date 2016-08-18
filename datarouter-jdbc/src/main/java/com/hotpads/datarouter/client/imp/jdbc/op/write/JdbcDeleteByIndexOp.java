@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.List;
 
 import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
-import com.hotpads.datarouter.client.imp.jdbc.node.JdbcNode;
+import com.hotpads.datarouter.client.imp.jdbc.node.JdbcReaderNode;
 import com.hotpads.datarouter.client.imp.jdbc.op.BaseJdbcOp;
 import com.hotpads.datarouter.client.imp.jdbc.util.JdbcTool;
 import com.hotpads.datarouter.client.imp.jdbc.util.SqlBuilder;
@@ -32,19 +32,19 @@ public class JdbcDeleteByIndexOp<PK extends PrimaryKey<PK>, D extends Databean<P
 		this.entryKeys = entryKeys;
 		this.config = config;
 	}
-	
+
 	@Override
 	public Long runOnce(){
 		long numModified = 0;
-		for(List<IK> batch : new BatchingIterable<>(entryKeys, JdbcNode.DEFAULT_ITERATE_BATCH_SIZE)){
+		for(List<IK> batch : new BatchingIterable<>(entryKeys, JdbcReaderNode.DEFAULT_ITERATE_BATCH_SIZE)){
 			String sql = SqlBuilder.deleteMulti(fieldCodecFactory, config, node.getTableName(), batch);
 			numModified += JdbcTool.update(getConnection(node.getClientId().getName()), sql.toString());
 		}
-		
+
 		return numModified;
 	}
-	
-	
+
+
 	private static <IK extends PrimaryKey<IK>> boolean shouldAutoCommit(Collection<IK> keys){
 		return DrCollectionTool.size(keys) <= 1;
 	}

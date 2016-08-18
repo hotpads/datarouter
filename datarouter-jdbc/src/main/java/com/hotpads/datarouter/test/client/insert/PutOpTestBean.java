@@ -13,16 +13,16 @@ public class PutOpTestBean extends BaseDatabean<PutOpTestBeanKey, PutOpTestBean>
 
 	private PutOpTestBeanKey key;
 	private String c;
-	
+
 	PutOpTestBean(){
 		key = new PutOpTestBeanKey();
 	}
-	
+
 	public PutOpTestBean(String a, String b, String c){
 		key = new PutOpTestBeanKey(a, b);
 		this.c = c;
 	}
-	
+
 	public static class PutOpTestBeanFielder extends BaseDatabeanFielder<PutOpTestBeanKey, PutOpTestBean> {
 
 		@Override
@@ -34,7 +34,7 @@ public class PutOpTestBean extends BaseDatabean<PutOpTestBeanKey, PutOpTestBean>
 		public List<Field<?>> getNonKeyFields(PutOpTestBean databean){
 			return FieldTool.createList(new StringField("c", databean.c, 100));
 		}
-		
+
 	}
 
 	@Override
@@ -46,7 +46,7 @@ public class PutOpTestBean extends BaseDatabean<PutOpTestBeanKey, PutOpTestBean>
 	public PutOpTestBeanKey getKey(){
 		return key;
 	}
-	
+
 	public void setKey(PutOpTestBeanKey key){
 		this.key = key;
 	}

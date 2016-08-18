@@ -13,11 +13,11 @@ public class CallsiteRecord{
 	private String callsite;
 	private long numItems;
 	private long durationNs;
-	
-	
+
+
 	/************** construct ****************/
-	
-	public CallsiteRecord(Date timestamp, String nodeName, String datarouterMethodName, String callsite, long numItems, 
+
+	public CallsiteRecord(Date timestamp, String nodeName, String datarouterMethodName, String callsite, long numItems,
 			long durationNs){
 		this.timestamp = timestamp;
 		this.nodeName = nodeName;
@@ -26,10 +26,10 @@ public class CallsiteRecord{
 		this.numItems = numItems;
 		this.durationNs = durationNs;
 	}
-	
-	
+
+
 	/****************** serialize *******************/
-	
+
 	public String getLogMessage(){
 		long durationUs = durationNs / 1000;
 		String message = nodeName
@@ -39,12 +39,12 @@ public class CallsiteRecord{
 				+ " " + durationUs;
 		return message;
 	}
-	
+
 	public static CallsiteRecord fromLogLine(String line){
 		String[] allTokens = line.split(" ");
 		String dateTime = allTokens[0] + " " + allTokens[1];
 		Date timestamp = DrDateTool.parseUserInputDate(dateTime, 2014);
-		
+
 		String afterThreadName = line.substring(line.indexOf("]") + 1);
 		String[] lineTokens = afterThreadName.split(" ");
 		int i = 3;
@@ -52,21 +52,21 @@ public class CallsiteRecord{
 		String datarouterMethodName = lineTokens[i++];
 		String callsite = lineTokens[i++];
 		Integer numItems = Integer.valueOf(lineTokens[i++]);
-		Long microseconds = Long.valueOf(lineTokens[i++]); 
+		Long microseconds = Long.valueOf(lineTokens[i++]);
 		Long nanoseconds = 1000 * microseconds;
 		return new CallsiteRecord(timestamp, nodeName, datarouterMethodName, callsite, numItems, nanoseconds);
 	}
-	
-	
+
+
 	/**************** methods *************************/
 
 	public long getDurationUs(){
 		return durationNs / 1000;
 	}
 
-	
+
 	/***************** get/set ***********************/
-	
+
 	public String getNodeName(){
 		return nodeName;
 	}
@@ -86,9 +86,9 @@ public class CallsiteRecord{
 	public long getDurationNs(){
 		return durationNs;
 	}
-	
+
 	public Date getTimestamp(){
 		return timestamp;
 	}
-	
+
 }

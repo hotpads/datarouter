@@ -2,8 +2,6 @@ package com.hotpads.datarouter.node.op.combo.writer;
 
 import com.hotpads.datarouter.node.op.raw.write.IndexedStorageWriter;
 import com.hotpads.datarouter.node.op.raw.write.MapStorageWriter;
-import com.hotpads.datarouter.node.op.raw.write.IndexedStorageWriter.IndexedStorageWriterNode;
-import com.hotpads.datarouter.node.op.raw.write.IndexedStorageWriter.PhysicalIndexedStorageWriterNode;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 

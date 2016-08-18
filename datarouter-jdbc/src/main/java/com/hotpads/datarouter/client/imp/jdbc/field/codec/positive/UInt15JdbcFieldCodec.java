@@ -13,11 +13,11 @@ import com.hotpads.datarouter.storage.field.imp.positive.UInt15Field;
 
 public class UInt15JdbcFieldCodec
 extends BasePrimitiveJdbcFieldCodec<Short,UInt15Field>{
-	
+
 	public UInt15JdbcFieldCodec(){//no-arg for reflection
 		this(null);
 	}
-	
+
 	public UInt15JdbcFieldCodec(UInt15Field field){
 		super(field);
 	}
@@ -28,7 +28,7 @@ extends BasePrimitiveJdbcFieldCodec<Short,UInt15Field>{
 		return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.SMALLINT, 5, field.getKey().isNullable(),
 				false);
 	}
-	
+
 	@Override
 	public void setPreparedStatementValue(PreparedStatement ps, int parameterIndex){
 		try{
@@ -41,12 +41,12 @@ extends BasePrimitiveJdbcFieldCodec<Short,UInt15Field>{
 			throw new DataAccessException(e);
 		}
 	}
-	
+
 	@Override
 	public Short parseJdbcValueButDoNotSet(Object obj){
 		return obj==null?null:(Short)obj;
 	}
-	
+
 	@Override
 	public Short fromJdbcResultSetButDoNotSet(ResultSet rs){
 		try{

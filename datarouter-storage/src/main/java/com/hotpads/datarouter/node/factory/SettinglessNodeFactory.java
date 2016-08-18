@@ -17,9 +17,9 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
 @Singleton
 public class SettinglessNodeFactory{
-	
+
 	private final DatarouterClients clients;
-	
+
 	@Inject
 	private SettinglessNodeFactory(DatarouterClients clients){
 		this.clients = clients;
@@ -29,7 +29,7 @@ public class SettinglessNodeFactory{
 	public <PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>,
-			N extends Node<PK,D>> 
+			N extends Node<PK,D>>
 	N create(NodeParams<PK,D,F> params, boolean addAdapter){
 		String clientName = params.getClientId().getName();
 		ClientType clientType = clients.getClientTypeInstance(clientName);
@@ -40,16 +40,16 @@ public class SettinglessNodeFactory{
 		}
 		return Preconditions.checkNotNull(node, "cannot build Node for clientType="+clientType);
 	}
-	
-	
+
+
 	// +fielderClass
 	public <PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>,
-			N extends Node<PK,D>> 
+			N extends Node<PK,D>>
 	N create(
-			ClientId clientId, 
-			Class<D> databeanClass, 
+			ClientId clientId,
+			Class<D> databeanClass,
 			Class<F> fielderClass,
 			Router router,
 			boolean addAdapter){
@@ -58,5 +58,5 @@ public class SettinglessNodeFactory{
 				.withFielder(fielderClass);
 		return create(paramsBuilder.build(), addAdapter);
 	}
-	
+
 }

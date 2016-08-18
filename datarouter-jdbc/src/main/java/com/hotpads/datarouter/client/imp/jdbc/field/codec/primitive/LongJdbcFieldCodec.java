@@ -14,11 +14,11 @@ import com.hotpads.datarouter.storage.field.Field;
 
 public class LongJdbcFieldCodec
 extends BasePrimitiveJdbcFieldCodec<Long,Field<Long>>{
-	
+
 	public LongJdbcFieldCodec(){//no-arg for reflection
 		this(null);
 	}
-	
+
 	public LongJdbcFieldCodec(Field<Long> field){
 		super(field);
 	}
@@ -29,10 +29,10 @@ extends BasePrimitiveJdbcFieldCodec<Long,Field<Long>>{
 		return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.BIGINT, 20, field.getKey().isNullable(),
 				false);
 	}
-	
+
 	@Override
 	public Long parseJdbcValueButDoNotSet(Object obj){
-		if(obj==null){ 
+		if(obj==null){
 			return null;
 		}
 		//currently handling jdbc and hibernate return types.  hibernate returns all sorts of different things
@@ -41,7 +41,7 @@ extends BasePrimitiveJdbcFieldCodec<Long,Field<Long>>{
 		}
 		return (Long)obj;
 	}
-	
+
 	@Override
 	public void setPreparedStatementValue(PreparedStatement ps, int parameterIndex){
 		try{
@@ -54,7 +54,7 @@ extends BasePrimitiveJdbcFieldCodec<Long,Field<Long>>{
 			throw new DataAccessException(e);
 		}
 	}
-	
+
 	@Override
 	public Long fromJdbcResultSetButDoNotSet(ResultSet rs){
 		try{

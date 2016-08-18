@@ -4,10 +4,10 @@ import com.hotpads.datarouter.util.core.DrStringTool;
 
 public enum MySqlTableEngine{
 
-	INNODB, 
+	INNODB,
 	MYISAM;
-	
-	
+
+
 	public static MySqlTableEngine parse(String a){
 		String upperCase = DrStringTool.nullSafe(a).toUpperCase();
 		for(MySqlTableEngine type : values()){

@@ -5,7 +5,7 @@ public class PhaseRecord {
 	String threadId;
 	long time;
 	long duration = 0L;
-	
+
 	public static final String makeThreadId( long threadId ) {
 		return "T" + threadId;
 	}

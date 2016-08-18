@@ -37,23 +37,11 @@ implements MemcachedClient{
 
 	@Override
 	public void shutdown(){
-		//should we shutdown the executorService?
-		try{
-			spyClient.shutdown();
-		}catch(MemcachedStateException e){
-			throw new RuntimeException(e);
-		}
+		spyClient.shutdown();
 	}
 
 	@Override
 	public ClientType getType(){
 		return MemcachedClientType.INSTANCE;
 	}
-
-//	net.spy.memcached.MemcachedClient spyClient;
-
-
-
-
-
 }

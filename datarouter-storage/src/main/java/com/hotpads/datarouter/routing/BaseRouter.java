@@ -5,10 +5,12 @@ import java.util.List;
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.client.ClientType;
+import com.hotpads.datarouter.client.LazyClientProvider;
 import com.hotpads.datarouter.client.RouterOptions;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
+import com.hotpads.util.core.concurrent.FutureTool;
 
 public abstract class BaseRouter
 implements Router{
@@ -49,8 +51,12 @@ implements Router{
 
 	@Override
 	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,N extends Node<PK,D>> N register(N node){
-		this.datarouter.getNodes().register(name, node);
-		this.datarouter.registerClientIds(node.getClientIds());
+		datarouter.getNodes().register(name, node);
+		datarouter.registerClientIds(node.getClientIds())
+				.filter(LazyClientProvider::isInitialized)
+				.map(LazyClientProvider::call)
+				.map(client -> client.notifyNodeRegistration(node))
+				.forEach(FutureTool::get);
 		return node;
 	}
 
@@ -152,20 +158,20 @@ clients.defaultInitMode=lazy
 
 client.testHashMap.type=hashMap
 
-client.animal0.type=hibernate
+client.animal0.type=jdbc
 
-client.pets0.type=hibernate
+client.pets0.type=jdbc
 
-client.pets1.type=hibernate
+client.pets1.type=jdbc
 
-client.pets0_slave0.type=hibernate
+client.pets0_slave0.type=jdbc
 client.pets0_slave0.slave=true
 client.pets0_slave0.initMode=eager
 
-client.pets1_slave0.type=hibernate
+client.pets1_slave0.type=jdbc
 client.pets1_slave0.slave=true
 
-client.event.type=hibernate
+client.event.type=jdbc
 client.event.springBeanName=sessionFactoryEvent
 
 	 */

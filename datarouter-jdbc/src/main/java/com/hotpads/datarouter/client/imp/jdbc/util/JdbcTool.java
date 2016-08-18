@@ -186,7 +186,7 @@ public class JdbcTool {
 			if(conn==null || DrArrayTool.isEmpty(sql)){
 				return new int[]{};
 			}
-			int numStatements = DrArrayTool.nullSafeLength(sql);
+			int numStatements = DrArrayTool.length(sql);
 			if(numStatements < 1){
 				return null;
 			}

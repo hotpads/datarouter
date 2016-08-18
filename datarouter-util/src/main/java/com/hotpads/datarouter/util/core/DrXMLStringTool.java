@@ -6,7 +6,7 @@ import org.junit.Test;
 
 
 public class DrXMLStringTool {
-	
+
 	public static String escapeXml(String input){
 		if(input==null){return null;}
 		input = DrStringTool.removeNonStandardCharacters(input);
@@ -21,15 +21,15 @@ public class DrXMLStringTool {
 		input = input.replaceAll(">", "&gt;");
 		input = input.replaceAll("'", "&apos;");
 		input = input.replaceAll("\"", "&quot;");
-		
+
 		return input;
 	}
 
-	
+
 	/** TESTS *****************************************************************/
-	
+
 	public static class Tests {
-		
+
 		@Test public void testEscapeXml(){
 			assertEquals("test &amp; for &amp;",
 					"Baseboard &amp; Crown Moldings Throughout; ",
@@ -58,7 +58,7 @@ public class DrXMLStringTool {
 							"malley &aMP; fred &Quot;the dagger&Quot; " +
 							"dirkowitz&LT;/wee&gt;"));
 		}
-		
+
 	}
-	
+
 }

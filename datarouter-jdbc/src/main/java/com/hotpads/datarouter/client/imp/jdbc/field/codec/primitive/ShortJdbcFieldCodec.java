@@ -10,15 +10,14 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.client.imp.jdbc.field.codec.base.BasePrimitiveJdbcFieldCodec;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.Field;
-import com.hotpads.datarouter.storage.field.imp.comparable.ShortField;
 
 public class ShortJdbcFieldCodec
 extends BasePrimitiveJdbcFieldCodec<Short,Field<Short>>{
-	
+
 	public ShortJdbcFieldCodec(){//no-arg for reflection
 		this(null);
 	}
-	
+
 	public ShortJdbcFieldCodec(Field<Short> field){
 		super(field);
 	}
@@ -29,12 +28,12 @@ extends BasePrimitiveJdbcFieldCodec<Short,Field<Short>>{
 		return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.SMALLINT, 5, field.getKey().isNullable(),
 				false);
 	}
-	
+
 	@Override
 	public Short parseJdbcValueButDoNotSet(Object obj){
 		return obj==null?null:(Short)obj;
 	}
-	
+
 	@Override
 	public void setPreparedStatementValue(PreparedStatement ps, int parameterIndex){
 		try{
@@ -47,7 +46,7 @@ extends BasePrimitiveJdbcFieldCodec<Short,Field<Short>>{
 			throw new DataAccessException(e);
 		}
 	}
-	
+
 	@Override
 	public Short fromJdbcResultSetButDoNotSet(ResultSet rs){
 		try{

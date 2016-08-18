@@ -18,13 +18,13 @@ import com.hotpads.handler.user.session.DatarouterSessionManager;
 
 public class DatarouterSessionAuthenticator extends BaseDatarouterAuthenticator{
 	private static Logger logger = LoggerFactory.getLogger(DatarouterSessionAuthenticator.class);
-	
+
 	public static final Long
 		SESSION_TIMOUT_MS = 30L * DrDateTool.MILLISECONDS_IN_MINUTE;
-			
+
 	private DatarouterUserNodes userNodes;
 	private DatarouterSessionManager sessionManager;
-	
+
 	public DatarouterSessionAuthenticator(HttpServletRequest request, HttpServletResponse response,
 			DatarouterUserNodes userNodes, DatarouterSessionManager sessionManager) {
 		super(request, response);
@@ -43,7 +43,7 @@ public class DatarouterSessionAuthenticator extends BaseDatarouterAuthenticator{
 		if(msSinceLastAccess > SESSION_TIMOUT_MS){
 			return null;
 		}
-		
+
 		//verify session's userToken matches cookie userToken.  if not, delete session to be safe
 		String cookieUserToken = sessionManager.getUserTokenFromCookie(request);
 		if(DrObjectTool.notEquals(cookieUserToken, session.getUserToken())){
@@ -53,9 +53,9 @@ public class DatarouterSessionAuthenticator extends BaseDatarouterAuthenticator{
 			sessionManager.clearSessionTokenCookie(response);
 			return null;
 		}
-		
-		session.setUpdated(new Date());		
+
+		session.setUpdated(new Date());
 		return session;
-		
+
 	}
 }

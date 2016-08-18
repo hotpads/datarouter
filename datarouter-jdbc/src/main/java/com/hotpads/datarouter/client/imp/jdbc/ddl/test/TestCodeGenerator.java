@@ -8,8 +8,8 @@ public class TestCodeGenerator{
 
 	protected String ClassName;
 	protected String packageName;
-	
-	
+
+
 	public TestCodeGenerator(String className){
 		ClassName = className;
 	}
@@ -33,5 +33,5 @@ public class TestCodeGenerator{
 		}
 		return testmethodsCode;
 	}
-	
+
 }

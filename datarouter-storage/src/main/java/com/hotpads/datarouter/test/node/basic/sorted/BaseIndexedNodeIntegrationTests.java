@@ -18,8 +18,9 @@ public abstract class BaseIndexedNodeIntegrationTests extends BaseSortedNodeInte
 
 	/***************************** setup/teardown **************************************/
 
-	protected void testIndexedDelete(){
-		testSortedDelete();
+	@Override
+	protected void postTestTests(){
+		super.postTestTests();
 		resetTable(true);//leave the table full
 
 		int remainingElements = TOTAL_RECORDS;
@@ -29,7 +30,7 @@ public abstract class BaseIndexedNodeIntegrationTests extends BaseSortedNodeInte
 		SortedBeanByDCBLookup lookup = new SortedBeanByDCBLookup(
 				SortedBeans.S_gopher, 0, SortedBeans.S_gopher);
 		router.indexedSortedBean().delete(lookup, null);
-		remainingElements -= (NUM_ELEMENTS);
+		remainingElements -= NUM_ELEMENTS;
 		AssertJUnit.assertEquals(remainingElements, DrIterableTool.count(sortedNode.scan(null, null)).intValue());
 	}
 

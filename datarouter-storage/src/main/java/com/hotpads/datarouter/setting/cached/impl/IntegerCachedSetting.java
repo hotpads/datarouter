@@ -12,7 +12,7 @@ public class IntegerCachedSetting extends CachedSetting<Integer>{
 	protected Integer reload(){
 		return finder.getInteger(name, defaultValue);
 	}
-	
+
 	@Override
 	public boolean isValid(String value){
 		//Is there a better way to know if a string is parsable to Integer?

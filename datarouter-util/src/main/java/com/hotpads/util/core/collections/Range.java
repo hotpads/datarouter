@@ -103,8 +103,24 @@ public class Range<T extends Comparable<? super T>> implements Comparable<Range<
 		return DrObjectTool.equals(start, end);
 	}
 
+	public boolean matchesStart(T item){
+		if( ! hasStart()){
+			return true;
+		}
+		int diff = item.compareTo(start);
+		return startInclusive ? diff >= 0 : diff > 0;
+	}
+
+	public boolean matchesEnd(T item){
+		if( ! hasEnd()){
+			return true;
+		}
+		int diff = item.compareTo(end);
+		return endInclusive ? diff <= 0 : diff < 0;
+	}
+
 	public boolean contains(T item){
-		return DrComparableTool.between(start, startInclusive, item, end, endInclusive);
+		return matchesStart(item) && matchesEnd(item);
 	}
 
 	public ArrayList<T> filter(Iterable<T> ins){
@@ -252,6 +268,24 @@ public class Range<T extends Comparable<? super T>> implements Comparable<Range<
 	/** tests *******************************************************/
 
 	public static class RangeTests{
+		@Test
+		public void testContains(){
+			Range<Integer> rangeA = new Range<>(3, true, 5, true);
+			Assert.assertFalse(rangeA.contains(2));
+			Assert.assertTrue(rangeA.contains(3));
+			Assert.assertTrue(rangeA.contains(5));
+			Assert.assertFalse(rangeA.contains(6));
+			Range<Integer> rangeB = new Range<>(3, false, 5, false);
+			Assert.assertFalse(rangeB.contains(3));
+			Assert.assertTrue(rangeB.contains(4));
+			Assert.assertFalse(rangeB.contains(5));
+			Range<Integer> rangeC = new Range<>(7, true, 7, true);
+			Assert.assertTrue(rangeC.contains(7));
+			Range<Integer> rangeD = new Range<>(8, false, 8, false);
+			Assert.assertFalse(rangeD.contains(8));
+			Range<Integer> rangeE = new Range<>(9, true, 9, false);//exclusive should win (?)
+			Assert.assertFalse(rangeE.contains(9));
+		}
 		@Test
 		public void testCompareStarts(){
 			Range<Integer> rangeA = Range.create(null, true, null, true);

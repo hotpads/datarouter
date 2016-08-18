@@ -40,7 +40,7 @@ extends MasterSlaveNode<PK,D,N>, MapStorage<PK,D>{
 	public default void putMulti(Collection<D> databeans, Config config) {
 		getMaster().putMulti(databeans, config);
 	}
-	
+
 	@Override
 	public default boolean exists(PK key, Config config){
 		boolean slaveOk = Config.nullSafe(config).getSlaveOk();

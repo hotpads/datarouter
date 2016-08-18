@@ -5,5 +5,5 @@ import com.hotpads.handler.user.session.DatarouterSession;
 public interface DatarouterAuthenticator{
 
 	DatarouterSession getSession();
-	
+
 }

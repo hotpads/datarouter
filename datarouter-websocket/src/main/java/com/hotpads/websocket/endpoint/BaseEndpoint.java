@@ -55,7 +55,7 @@ public abstract class BaseEndpoint extends Endpoint{
 	@Override
 	public void onError(Session session, Throwable thr){
 		logger.error("Error on websocket session {}", webSocketSession, thr);
-		exceptionRecorder.tryRecordException((Exception)thr, getClass().getName());
+		exceptionRecorder.tryRecordException(thr, getClass().getName());
 	}
 
 }

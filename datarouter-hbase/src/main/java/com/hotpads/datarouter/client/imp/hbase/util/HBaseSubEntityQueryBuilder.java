@@ -2,6 +2,7 @@ package com.hotpads.datarouter.client.imp.hbase.util;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -11,10 +12,14 @@ import org.apache.hadoop.hbase.filter.ColumnPrefixFilter;
 import org.apache.hadoop.hbase.filter.ColumnRangeFilter;
 import org.apache.hadoop.hbase.filter.FilterList;
 import org.apache.hadoop.hbase.filter.KeyOnlyFilter;
+import org.apache.hadoop.hbase.filter.PrefixFilter;
 
 import com.hotpads.datarouter.client.imp.hbase.batching.entity.HBaseEntityDatabeanBatchLoader;
 import com.hotpads.datarouter.client.imp.hbase.batching.entity.HBaseEntityPrimaryKeyBatchLoader;
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseSubEntityReaderNode;
+import com.hotpads.datarouter.client.imp.hbase.scan.HBaseSubEntityCellScanner;
+import com.hotpads.datarouter.client.imp.hbase.scan.HBaseSubEntityDatabeanScanner;
+import com.hotpads.datarouter.client.imp.hbase.scan.HBaseSubEntityPkScanner;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
 import com.hotpads.datarouter.serialize.fieldcache.EntityFieldInfo;
@@ -54,11 +59,11 @@ extends HBaseEntityQueryBuilder<EK,E>{
 
 	public boolean isSingleEntity(Range<PK> pkRange){
 		Range<EK> ekRange = getEkRange(pkRange);
-		return ekRange.hasStart() && ekRange.equalsStartEnd() && isEntityFullyDefined(ekRange);
+		return ekRange.hasStart() && ekRange.equalsStartEnd() && isEntityFullyDefined(ekRange.getStart());
 	}
 
-	private boolean isEntityFullyDefined(Range<EK> ekRange){
-		return ekRange.getStart().getFields().stream()
+	private boolean isEntityFullyDefined(EK ek){
+		return ek.getFields().stream()
 				.map(Field::getValue)
 				.noneMatch(Objects::isNull);
 	}
@@ -205,6 +210,8 @@ extends HBaseEntityQueryBuilder<EK,E>{
 		if(pkRange.getEndInclusive()){
 			end = DrByteTool.unsignedIncrement(end);
 		}
+		// for some reason, we must compute our own start/end keys and pass true/false. passing the range's inclusive
+		// flags directly to the filter does not work
 		return new ColumnRangeFilter(start, true, end, false);
 	}
 
@@ -239,9 +246,41 @@ extends HBaseEntityQueryBuilder<EK,E>{
 	}
 
 
+	/***************** scanners *******************/
+
+	public List<HBaseSubEntityPkScanner<EK,E,PK,D,F>> getPkScanners(HBaseSubEntityReaderNode<EK,E,PK,D,F> node,
+			Range<PK> range, Config config){
+		List<HBaseSubEntityPkScanner<EK,E,PK,D,F>> scanners = new ArrayList<>();
+		List<Integer> partitions = isSingleEntity(range) ? Collections.singletonList(partitioner.getPartition(range
+				.getStart().getEntityKey())) : partitioner.getAllPartitions();
+		for(Integer partition : partitions){
+			HBaseSubEntityCellScanner<EK,E,PK,D,F> kvScanner = node.makeCellScanner(config, partition, range, true);
+			HBaseSubEntityPkScanner<EK,E,PK,D,F> pkScanner = new HBaseSubEntityPkScanner<>(node.getResultParser(),
+					kvScanner, range);
+			scanners.add(pkScanner);
+		}
+		return scanners;
+	}
+
+	public List<HBaseSubEntityDatabeanScanner<EK,E,PK,D,F>> getDatabeanScanners(
+			HBaseSubEntityReaderNode<EK,E,PK,D,F> node, Range<PK> range, Config config){
+		List<HBaseSubEntityDatabeanScanner<EK,E,PK,D,F>> scanners = new ArrayList<>();
+		List<Integer> partitions = isSingleEntity(range) ? Collections.singletonList(partitioner.getPartition(range
+				.getStart().getEntityKey())) : partitioner.getAllPartitions();
+		for(Integer partition : partitions){
+			HBaseSubEntityCellScanner<EK,E,PK,D,F> kvScanner = node.makeCellScanner(config, partition, range, false);
+			HBaseSubEntityDatabeanScanner<EK,E,PK,D,F> pkScanner = new HBaseSubEntityDatabeanScanner<>(node
+					.getResultParser(), kvScanner, range);
+			scanners.add(pkScanner);
+		}
+		return scanners;
+	}
+
+
 	/***************** batching scanners *******************/
 
-	public List<AsyncBatchLoaderScanner<PK>> getPkScanners(HBaseSubEntityReaderNode<EK,E,PK,D,F> node,
+	@Deprecated//replacing with getPkScanners
+	public List<AsyncBatchLoaderScanner<PK>> getBatchingPkScanners(HBaseSubEntityReaderNode<EK,E,PK,D,F> node,
 			Range<PK> range, Config config){
 		List<AsyncBatchLoaderScanner<PK>> scanners = new ArrayList<>();
 		for(int partition=0; partition < partitioner.getNumPartitions(); ++partition){
@@ -255,7 +294,8 @@ extends HBaseEntityQueryBuilder<EK,E>{
 		return scanners;
 	}
 
-	public List<AsyncBatchLoaderScanner<D>> getDatabeanScanners(HBaseSubEntityReaderNode<EK,E,PK,D,F> node,
+	@Deprecated//replacing with getDatabeanScanners
+	public List<AsyncBatchLoaderScanner<D>> getBatchingDatabeanScanners(HBaseSubEntityReaderNode<EK,E,PK,D,F> node,
 			Range<PK> range, Config config){
 		List<AsyncBatchLoaderScanner<D>> scanners = new ArrayList<>();
 		for(int partition=0; partition < partitioner.getNumPartitions(); ++partition){
@@ -272,11 +312,31 @@ extends HBaseEntityQueryBuilder<EK,E>{
 
 	/************* get results in sub range ********************/
 
+	public Scan getScanForPartition(final int partition, final Range<PK> range, final Config config,
+			boolean keysOnly, boolean allowPartialResults, long maxResultSizeBytes){
+		Config nullSafeConfig = Config.nullSafe(config);
+		Range<ByteRange> rowBytesRange = getRowRange(partition, range);
+		Scan scan = HBaseQueryBuilder.getScanForRange(rowBytesRange, nullSafeConfig);
+		FilterList filterList = new FilterList();
+		filterList.addFilter(new PrefixFilter(partitioner.getPrefix(partition)));
+		if(isSingleEntity(range)){
+			filterList.addFilter(getColumnRangeFilter(range));
+		}else{
+			filterList.addFilter(new ColumnPrefixFilter(fieldInfo.getEntityColumnPrefixBytes()));
+		}
+		if(keysOnly){
+			filterList.addFilter(new KeyOnlyFilter());
+		}
+		scan.setFilter(filterList);
+		scan.setAllowPartialResults(allowPartialResults);
+		scan.setMaxResultSize(maxResultSizeBytes);
+		return scan;
+	}
+
 	public Scan getScanForSubrange(final int partition, final Range<PK> rowRange, final Config config,
 			boolean keysOnly){
 		Config nullSafeConfig = Config.nullSafe(config);
 		Range<ByteRange> rowBytesRange = getRowRange(partition, rowRange);
-		//TODO Get if single row
 		Scan scan = HBaseQueryBuilder.getScanForRange(rowBytesRange, nullSafeConfig);
 		FilterList filterList = new FilterList();
 		if(keysOnly){

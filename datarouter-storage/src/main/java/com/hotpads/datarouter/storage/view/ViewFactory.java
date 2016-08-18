@@ -2,9 +2,6 @@ package com.hotpads.datarouter.storage.view;
 
 import java.util.Collection;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
@@ -19,17 +16,17 @@ public abstract class ViewFactory<
 		D extends Databean<PK,D>,
 		UK extends UniqueKey<PK>,
 		V extends View<PK,D,UK>>{
-		
+
 	public ViewFactory(){
 	}
 
 	public abstract Boolean isLatest(UK key, V view, boolean ignoreVersion);  //return null if not sure
-	
+
 	public abstract V getNew(UK key);
 	public abstract V getLatest(UK key, boolean updateCache, boolean ignoreVersion);
-	
+
 	public abstract V update(V view);
-	
+
 	public abstract void handleRenderOutcome(Collection<UK> keys, StandardStatus newStatus);
-	
+
 }

@@ -5,27 +5,17 @@ import java.util.Comparator;
 import java.util.Map;
 import java.util.TreeMap;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-
-import org.hibernate.annotations.AccessType;
-
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrComparableTool;
 
-
-@Entity()
-@AccessType("field")
 public class JobletQueue extends BaseDatabean<JobletQueueKey,JobletQueue>{
 
 	/************* persistent properties ********************************/
 
-    @Id
 	private JobletQueueKey key;
     private Integer numTickets = 0;
     private Integer maxTickets = 1;
-
 
     /********************** columns ************************/
 

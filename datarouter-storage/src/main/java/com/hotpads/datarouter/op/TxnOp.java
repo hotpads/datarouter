@@ -8,5 +8,5 @@ extends ClientOp<T>{
 
 	Isolation getIsolation();
 	boolean isAutoCommit();
-	
+
 }

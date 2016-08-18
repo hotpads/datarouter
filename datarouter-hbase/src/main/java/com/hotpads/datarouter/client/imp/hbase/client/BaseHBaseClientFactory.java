@@ -104,7 +104,7 @@ implements ClientFactory{
 		timer.add("init HTables");
 
 		logger.warn(timer.add("done").toString());
-		return new HBaseClientImp(clientName, connection.getConfiguration(), admin, htablePoolAndPrimaryKeyByTableName
+		return new HBaseClientImp(clientName, connection, admin, htablePoolAndPrimaryKeyByTableName
 				.getLeft(), htablePoolAndPrimaryKeyByTableName.getRight(), clientAvailabilitySettings, executor);
 	}
 

@@ -8,6 +8,7 @@ import java.util.stream.Stream;
 
 import javax.inject.Inject;
 
+import com.hotpads.datarouter.config.DatarouterProperties;
 import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.handler.BaseHandler;
@@ -25,8 +26,8 @@ import com.hotpads.joblet.enums.JobletStatus;
 import com.hotpads.joblet.enums.JobletTypeFactory;
 import com.hotpads.joblet.execute.JobletExecutorThread;
 import com.hotpads.joblet.execute.ParallelJobletProcessors;
-import com.hotpads.joblet.hibernate.RestartJobletRequests;
-import com.hotpads.joblet.hibernate.TimeoutStuckRunningJobletRequests;
+import com.hotpads.joblet.jdbc.RestartJobletRequests;
+import com.hotpads.joblet.jdbc.TimeoutStuckRunningJobletRequests;
 
 public class JobletHandler extends BaseHandler{
 
@@ -41,6 +42,7 @@ public class JobletHandler extends BaseHandler{
 	 	JSP_exceptions = "/jsp/joblet/jobletExceptions.jsp";
 
 	private final Datarouter datarouter;
+	private final String serverName;
 	private final JobletTypeFactory jobletTypeFactory;
 	private final JobletNodes jobletNodes;
 	private final ParallelJobletProcessors parallelJobletProcessors;
@@ -48,10 +50,11 @@ public class JobletHandler extends BaseHandler{
 	private final JobletSettings jobletSettings;
 
 	@Inject
-	public JobletHandler(Datarouter datarouter, JobletTypeFactory jobletTypeFactory, JobletNodes jobletNodes,
-			ParallelJobletProcessors parallelJobletProcessors, JobletService jobletService,
-			JobletSettings jobletSettings){
+	public JobletHandler(Datarouter datarouter, DatarouterProperties datarouterProperties, JobletTypeFactory
+			jobletTypeFactory, JobletNodes jobletNodes,	ParallelJobletProcessors parallelJobletProcessors, JobletService
+			jobletService, JobletSettings jobletSettings){
 		this.datarouter = datarouter;
+		this.serverName = datarouterProperties.getServerName();
 		this.jobletTypeFactory = jobletTypeFactory;
 		this.jobletNodes = jobletNodes;
 		this.parallelJobletProcessors = parallelJobletProcessors;
@@ -167,7 +170,7 @@ public class JobletHandler extends BaseHandler{
 
 	private Map<String,List<JobletExecutorThread>> getJobletThreads(List<JobletExecutorThread> jobletThreads){
 		Map<String,List<JobletExecutorThread>> jobletThreadsByServer = new HashMap<>();
-		jobletThreadsByServer.put(datarouter.getServerName(), jobletThreads);
+		jobletThreadsByServer.put(serverName, jobletThreads);
 		return jobletThreadsByServer;
 	}
 
