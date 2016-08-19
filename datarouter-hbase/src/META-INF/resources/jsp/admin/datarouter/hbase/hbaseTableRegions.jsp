@@ -1,4 +1,5 @@
 <%@ include file="/WEB-INF/prelude.jspf"%>
+<!DOCTYPE html>
 <html>
 <head>
 	<title>DR ${param.tableName}</title>
@@ -6,7 +7,6 @@
 	<script type="text/javascript">
 		require(["sorttable", "bootstrap"]);
 	</script>
-	<%@ include file="/jsp/css/css-import.jspf"%>
 </head>
 <body>
 	<form method="post" action="?" name="mainform">

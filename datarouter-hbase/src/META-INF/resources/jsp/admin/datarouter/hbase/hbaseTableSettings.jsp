@@ -4,10 +4,6 @@
 <head>
 	<title>DR Table Settings</title>
 	<%@ include file="/jsp/generic/datarouterHead.jsp" %>
-	<script type="text/javascript">
-		require(["plugin/sorttable", "bootstrap/bootstrap"]);
-	</script>
-	<%@ include file="/jsp/css/css-import.jspf" %>
 </head>
 <body>
 	<%@ include file="/jsp/menu/dr-navbar.jsp" %>
