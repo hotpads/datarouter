@@ -7,7 +7,7 @@ import java.util.List;
 public final class DrFileUtils{
 
 	private static final List<String> staticFilesExtensions = Arrays.asList("ttf", "css", "js", "html", "pdf", "png",
-			"jpg", "jpeg", "swf", "woff", "woff2");
+			"jpg", "jpeg", "swf", "woff", "woff2", "map");
 
 	public static boolean createFileParents(String path){
 		return createFileParents(new File(path));
