@@ -38,6 +38,7 @@ import com.hotpads.util.core.lang.ClassTool;
 public class RedisClientType extends BaseClientType{
 
 	public static RedisClientType INSTANCE;
+
 	private final ClientAvailabilitySettings clientAvailabilitySettings;
 
 	@Inject

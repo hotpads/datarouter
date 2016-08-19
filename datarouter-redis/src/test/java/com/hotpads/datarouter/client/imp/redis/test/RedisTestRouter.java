@@ -9,10 +9,10 @@ import javax.inject.Inject;
 import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.client.DatarouterClients;
 import com.hotpads.datarouter.client.imp.redis.RedisClientType;
+import com.hotpads.datarouter.client.imp.redis.databean.RedisDatabean;
+import com.hotpads.datarouter.client.imp.redis.databean.RedisDatabean.RedisDatabeanFielder;
+import com.hotpads.datarouter.client.imp.redis.databean.RedisDatabeanKey;
 import com.hotpads.datarouter.client.imp.redis.node.RedisNode;
-import com.hotpads.datarouter.client.imp.redis.test.databean.RedisTestDatabean;
-import com.hotpads.datarouter.client.imp.redis.test.databean.RedisTestDatabean.RedisTestDatabeanFielder;
-import com.hotpads.datarouter.client.imp.redis.test.databean.RedisTestDatabeanKey;
 import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.NodeParams.NodeParamsBuilder;
 import com.hotpads.datarouter.routing.BaseRouter;
@@ -36,7 +36,7 @@ public class RedisTestRouter extends BaseRouter{
 
 	/** nodes ****************************************************************/
 
-	private final RedisNode<RedisTestDatabeanKey,RedisTestDatabean,RedisTestDatabeanFielder> redisNode;
+	private final RedisNode<RedisDatabeanKey,RedisDatabean,RedisDatabeanFielder> redisNode;
 
 	/** constructor **********************************************************/
 
@@ -50,25 +50,24 @@ public class RedisTestRouter extends BaseRouter{
 
 	/** get/set **************************************************************/
 
-	public RedisNode<RedisTestDatabeanKey,RedisTestDatabean,RedisTestDatabeanFielder> redisNode() {
+	public RedisNode<RedisDatabeanKey,RedisDatabean,RedisDatabeanFielder> redisNode() {
 		return redisNode;
 	}
 
 	/** helper ***************************************************************/
 
-	private RedisNode<RedisTestDatabeanKey,RedisTestDatabean,RedisTestDatabeanFielder>buildRedisNode(ClientId client){
+	private RedisNode<RedisDatabeanKey,RedisDatabean,RedisDatabeanFielder>buildRedisNode(ClientId client){
 		String clientName = client.getName();
 		RedisClientType clientType = (RedisClientType) datarouterClients.getClientTypeInstance(clientName);
 		Objects.requireNonNull(clientType, "clientType not found for clientName:" + clientName);
 
-		NodeParamsBuilder<RedisTestDatabeanKey,RedisTestDatabean,RedisTestDatabeanFielder> paramsBuilder =
-				new NodeParamsBuilder<RedisTestDatabeanKey ,RedisTestDatabean,
-				RedisTestDatabeanFielder>(this,RedisTestDatabean::new)
+		NodeParamsBuilder<RedisDatabeanKey,RedisDatabean,RedisDatabeanFielder> paramsBuilder =
+				new NodeParamsBuilder<RedisDatabeanKey ,RedisDatabean,RedisDatabeanFielder>(this,RedisDatabean::new)
 				.withClientId(client)
-				.withFielder(RedisTestDatabeanFielder::new)
+				.withFielder(RedisDatabeanFielder::new)
 				.withSchemaVersion(VERSION_RedisTest);
 
-		NodeParams<RedisTestDatabeanKey,RedisTestDatabean,RedisTestDatabeanFielder> params = paramsBuilder.build();
+		NodeParams<RedisDatabeanKey,RedisDatabean,RedisDatabeanFielder> params = paramsBuilder.build();
 		return register(clientType.createNodeWithoutAdapters(params));
 	}
 }

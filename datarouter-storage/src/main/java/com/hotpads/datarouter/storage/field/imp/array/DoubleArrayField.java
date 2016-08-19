@@ -7,7 +7,6 @@ import com.google.gson.reflect.TypeToken;
 import com.hotpads.datarouter.storage.field.BaseListField;
 import com.hotpads.util.core.bytes.DoubleByteTool;
 
-
 public class DoubleArrayField extends BaseListField<Double,List<Double>>{
 
 	public DoubleArrayField(DoubleArrayFieldKey key, List<Double> value){
@@ -19,29 +18,14 @@ public class DoubleArrayField extends BaseListField<Double,List<Double>>{
 		super(name, value);
 	}
 
-	@Deprecated
-	public DoubleArrayField(String prefix, String name, List<Double> value){
-		super(prefix, name, value);
-	}
-
-
-	/*********************** StringEncodedField ***********************/
-
-	@Override
-	public String getStringEncodedValue(){
-		if(value == null){
-			return null;
-		}
-		return new Gson().toJson(value);
-	}
+	/*********************** StringEncodedField ******************************/
 
 	@Override
 	public List<Double> parseStringEncodedValueButDoNotSet(String value){
 		return new Gson().fromJson(value, new TypeToken<List<Double>>(){}.getType());
 	}
 
-
-	/*********************** ByteEncodedField ***********************/
+	/*********************** ByteEncodedField ********************************/
 
 	@Override
 	public byte[] getBytes(){

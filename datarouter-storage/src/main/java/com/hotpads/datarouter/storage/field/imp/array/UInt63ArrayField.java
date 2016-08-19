@@ -27,13 +27,7 @@ public class UInt63ArrayField extends BaseListField<Long,List<Long>>{
 		super(name, value);
 	}
 
-	@Deprecated
-	public UInt63ArrayField(String prefix, String name, List<Long> value){
-		super(prefix, name, value);
-	}
-
-
-	/*********************** Comparable ********************************/
+	/*********************** Comparable **************************************/
 
 	//TODO should we even bother?
 	@Override
@@ -41,24 +35,14 @@ public class UInt63ArrayField extends BaseListField<Long,List<Long>>{
 		return DrListTool.compare(this.value, other.getValue());
 	}
 
-
-	/*********************** StringEncodedField ***********************/
-
-	@Override
-	public String getStringEncodedValue(){
-		if(value == null){
-			return null;
-		}
-		return new Gson().toJson(value);
-	}
+	/*********************** StringEncodedField ******************************/
 
 	@Override
 	public List<Long> parseStringEncodedValueButDoNotSet(String value){
 		return new Gson().fromJson(value, new TypeToken<List<Long>>(){}.getType());
 	}
 
-
-	/*********************** ByteEncodedField ***********************/
+	/*********************** ByteEncodedField ********************************/
 
 	@Override
 	public byte[] getBytes(){

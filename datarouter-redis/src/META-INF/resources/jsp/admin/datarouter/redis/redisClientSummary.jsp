@@ -22,13 +22,13 @@
 			href="${contextPath}/datarouter/routers?submitAction=inspectRouter&routerName=${param.routerName}">Router:
 			${param.routerName}</a> &nbsp;&nbsp;&#62;&#62;&nbsp;&nbsp; client: <b>${client.name}</b>
 
-		<h3>Memcached Client Summary</h3>
+		<h3>Redis Client Summary</h3>
 		<b>routerName: </b>${param.routerName}<br /> <b>clientName: </b>${param.clientName}<br />
 	</div>
 	<div class="wide-container">
 		<h3>Memcached stats</h3>
 
-		<c:forEach items="${memcachedStats}" var="stats">
+		<c:forEach items="${redisStats}" var="stats">
 			<h4>${stats.key}</h4>
 			<table
 				class="table table-striped table-bordered table-hover table-condensed">

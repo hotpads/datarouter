@@ -22,28 +22,14 @@ public class UInt7ArrayField extends BaseListField<Byte,List<Byte>>{
 		super(name, value);
 	}
 
-	@Deprecated
-	public UInt7ArrayField(String prefix, String name, List<Byte> value){
-		super(prefix, name, value);
-	}
-
-
-	/*********************** StringEncodedField ***********************/
-
-	@Override
-	public String getStringEncodedValue(){
-		if(value == null){
-			return null;
-		}
-		return new Gson().toJson(value);
-	}
+	/*********************** StringEncodedField ******************************/
 
 	@Override
 	public List<Byte> parseStringEncodedValueButDoNotSet(String value){
 		return new Gson().fromJson(value, new TypeToken<List<Byte>>(){}.getType());
 	}
 
-	/*********************** ByteEncodedField ***********************/
+	/*********************** ByteEncodedField ********************************/
 
 	@Override
 	public byte[] getBytes(){

@@ -14,14 +14,16 @@ import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.util.core.DrPropertiesTool;
 import com.hotpads.util.core.profile.PhaseTimer;
 
+import redis.clients.jedis.Jedis;
+
 public class RedisSimpleClientFactory implements ClientFactory{
 
-	private static Logger logger = LoggerFactory.getLogger(RedisSimpleClientFactory.class);
+	private static final Logger logger = LoggerFactory.getLogger(RedisSimpleClientFactory.class);
 
-	private String clientName;
-	private Set<String> configFilePaths;
-	private List<Properties> multiProperties;
-	private RedisOptions options;
+	private final String clientName;
+	private final Set<String> configFilePaths;
+	private final List<Properties> multiProperties;
+	private final RedisOptions options;
 	private final ClientAvailabilitySettings clientAvailabilitySettings;
 
 	public RedisSimpleClientFactory(Datarouter datarouter, String clientName, ClientAvailabilitySettings
@@ -39,8 +41,9 @@ public class RedisSimpleClientFactory implements ClientFactory{
 		PhaseTimer timer = new PhaseTimer(clientName);
 		redis.clients.jedis.Jedis jedisClient;
 
-		jedisClient = new redis.clients.jedis.Jedis(options.getServers()[0].getHostName(),
+		jedisClient = new Jedis(options.getServers()[0].getHostName(),
 				options.getServers()[0].getPort());
+//		jedisClient = new redis.clients.jedis.JedisCluster(options.getHostsAndPorts());
 
 		RedisClient newClient = new RedisClientImp(clientName, jedisClient, clientAvailabilitySettings);
 		logger.warn(timer.add("done").toString());

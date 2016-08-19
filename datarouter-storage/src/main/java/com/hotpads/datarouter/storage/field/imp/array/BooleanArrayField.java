@@ -18,29 +18,14 @@ public class BooleanArrayField extends BaseListField<Boolean,List<Boolean>>{
 		super(name, value);
 	}
 
-	@Deprecated
-	public BooleanArrayField(String prefix, String name, List<Boolean> value){
-		super(prefix, name, value);
-	}
-
-
-	/*********************** StringEncodedField ***********************/
-
-	@Override
-	public String getStringEncodedValue(){
-		if(value == null){
-			return null;
-		}
-		return new Gson().toJson(value);
-	}
+	/*********************** StringEncodedField ******************************/
 
 	@Override
 	public List<Boolean> parseStringEncodedValueButDoNotSet(String value){
 		return new Gson().fromJson(value, new TypeToken<List<Boolean>>(){}.getType());
 	}
 
-
-	/*********************** ByteEncodedField ***********************/
+	/*********************** ByteEncodedField ********************************/
 
 	@Override
 	public byte[] getBytes(){

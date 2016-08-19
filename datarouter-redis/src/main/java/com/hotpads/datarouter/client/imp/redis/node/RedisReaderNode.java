@@ -1,13 +1,13 @@
 package com.hotpads.datarouter.client.imp.redis.node;
 
 import java.util.Collection;
-import java.util.LinkedList;
+import java.util.Collections;
 import java.util.List;
 
 import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.client.imp.redis.client.DatarouterRedisKey;
 import com.hotpads.datarouter.client.imp.redis.client.RedisClient;
-import com.hotpads.datarouter.client.imp.redis.test.databean.RedisTestDatabeanKey;
+import com.hotpads.datarouter.client.imp.redis.databean.RedisDatabeanKey;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.op.raw.read.MapStorageReader;
@@ -78,7 +78,7 @@ implements RedisPhysicalNode<PK,D>, MapStorageReader<PK,D>{
 	@Override
 	public List<D> getMulti(final Collection<PK> keys, final Config config){
 		if(DrCollectionTool.isEmpty(keys)){
-			return new LinkedList<>();
+			return Collections.emptyList();
 		}
 
 		List <D> databeans = DrListTool.createArrayListWithSize(keys);
@@ -91,12 +91,12 @@ implements RedisPhysicalNode<PK,D>, MapStorageReader<PK,D>{
 	@Override
 	public List<PK> getKeys(final Collection<PK> keys, final Config config){
 		if(DrCollectionTool.isEmpty(keys)){
-			return new LinkedList<>();
+			return Collections.emptyList();
 		}
 		return DatabeanTool.getKeys(getMulti(keys, config));
 	}
 
-	public Long getTallyCount(RedisTestDatabeanKey key){
+	public Long getTallyCount(RedisDatabeanKey key){
 		if(key == null){
 			return null;
 		}

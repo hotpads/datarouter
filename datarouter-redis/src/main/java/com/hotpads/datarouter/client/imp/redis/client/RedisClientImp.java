@@ -9,6 +9,8 @@ import com.hotpads.datarouter.client.imp.BaseClient;
 import com.hotpads.datarouter.client.imp.redis.RedisClientType;
 import com.hotpads.util.core.concurrent.NamedThreadFactory;
 
+import redis.clients.jedis.Jedis;
+
 public class RedisClientImp extends BaseClient implements RedisClient{
 
 	protected redis.clients.jedis.Jedis jedisClient;
@@ -16,8 +18,7 @@ public class RedisClientImp extends BaseClient implements RedisClient{
 
 	/** constructor **********************************************************/
 
-	public RedisClientImp(String name, redis.clients.jedis.Jedis jedisClient, ClientAvailabilitySettings
-			clientAvailabilitySettings){
+	public RedisClientImp(String name, Jedis jedisClient, ClientAvailabilitySettings clientAvailabilitySettings){
 		super(name, clientAvailabilitySettings);
 		this.jedisClient = jedisClient;
 		NamedThreadFactory threadFactory = new NamedThreadFactory(null, "HTablePool", true);
@@ -32,7 +33,7 @@ public class RedisClientImp extends BaseClient implements RedisClient{
 	}
 
 	@Override
-	public redis.clients.jedis.Jedis getJedisClient(){
+	public Jedis getJedisClient(){
 		return jedisClient;
 	}
 

@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.client.imp.redis.test.databean;
+package com.hotpads.datarouter.client.imp.redis.databean;
 
 import java.util.Arrays;
 import java.util.List;
@@ -8,7 +8,7 @@ import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.StringFieldKey;
 import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
 
-public class RedisTestDatabeanKey extends BasePrimaryKey<RedisTestDatabeanKey>{
+public class RedisDatabeanKey extends BasePrimaryKey<RedisDatabeanKey>{
 
 	private static final long serialVersionUID = 1L;
 
@@ -23,10 +23,10 @@ public class RedisTestDatabeanKey extends BasePrimaryKey<RedisTestDatabeanKey>{
 		return Arrays.asList(new StringField(FieldKeys.id, id));
 	}
 
-	public RedisTestDatabeanKey(){
+	public RedisDatabeanKey(){
 	}
 
-	public RedisTestDatabeanKey(String id){
+	public RedisDatabeanKey(String id){
 		this.id = id;
 	}
 

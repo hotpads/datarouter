@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.client.imp.redis.test.databean;
+package com.hotpads.datarouter.client.imp.redis.databean;
 
 import java.util.Arrays;
 import java.util.List;
@@ -9,9 +9,9 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.StringFieldKey;
 
-public class RedisTestDatabean extends BaseDatabean<RedisTestDatabeanKey, RedisTestDatabean>{
+public class RedisDatabean extends BaseDatabean<RedisDatabeanKey, RedisDatabean>{
 
-	private RedisTestDatabeanKey key;
+	private RedisDatabeanKey key;
 	private String data;
 
 	/** column names *********************************************************/
@@ -20,38 +20,38 @@ public class RedisTestDatabean extends BaseDatabean<RedisTestDatabeanKey, RedisT
 		public static final StringFieldKey data = new StringFieldKey("data");
 	}
 
-	public static class RedisTestDatabeanFielder extends BaseDatabeanFielder<RedisTestDatabeanKey, RedisTestDatabean>{
+	public static class RedisDatabeanFielder extends BaseDatabeanFielder<RedisDatabeanKey, RedisDatabean>{
 
-		public RedisTestDatabeanFielder(){
-			super(RedisTestDatabeanKey.class);
+		public RedisDatabeanFielder(){
+			super(RedisDatabeanKey.class);
 		}
 
 		@Override
-		public List<Field<?>> getNonKeyFields(RedisTestDatabean databean){
+		public List<Field<?>> getNonKeyFields(RedisDatabean databean){
 			return Arrays.asList(new StringField(FieldKeys.data, databean.data));
 		}
 	}
 
 	/** constructor **********************************************************/
 
-	public RedisTestDatabean(){
+	public RedisDatabean(){
 		this(null, null);
 	}
 
-	public RedisTestDatabean(String id, String data){
-		this.key = new RedisTestDatabeanKey(id);
+	public RedisDatabean(String id, String data){
+		this.key = new RedisDatabeanKey(id);
 		this.data = data;
 	}
 
 	/** databean *************************************************************/
 
 	@Override
-	public Class<RedisTestDatabeanKey> getKeyClass(){
-		return RedisTestDatabeanKey.class;
+	public Class<RedisDatabeanKey> getKeyClass(){
+		return RedisDatabeanKey.class;
 	}
 
 	@Override
-	public RedisTestDatabeanKey getKey(){
+	public RedisDatabeanKey getKey(){
 		return key;
 	}
 

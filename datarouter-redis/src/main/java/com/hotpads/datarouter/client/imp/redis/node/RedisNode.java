@@ -5,7 +5,7 @@ import java.util.Collection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hotpads.datarouter.client.imp.redis.test.databean.RedisTestDatabeanKey;
+import com.hotpads.datarouter.client.imp.redis.databean.RedisDatabeanKey;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams;
@@ -26,8 +26,7 @@ implements PhysicalMapStorageNode<PK,D>{
 
 	private static final Logger logger = LoggerFactory.getLogger(RedisNode.class);
 
-	private static final int MEGABYTE = 1024 * 1024;
-	private static final int MAX_REDIS_KEY_SIZE = MEGABYTE * 512;
+	private static final int MAX_REDIS_KEY_SIZE = 1024 * 64;
 
 	/** constructor **********************************************************/
 
@@ -68,12 +67,13 @@ implements PhysicalMapStorageNode<PK,D>{
 			if(ttl == null){
 				getClient().getJedisClient().set(key, jsonBean);
 			} else{
+				// XX - Only set they key if it already exists
+				// PX - Milliseconds
 				getClient().getJedisClient().set(key, jsonBean, "XX", "PX", ttl);
 			}
 		} finally {
 			finishTraceSpan();
 		}
-
 	}
 
 	@Override
@@ -81,8 +81,39 @@ implements PhysicalMapStorageNode<PK,D>{
 		if(DrCollectionTool.isEmpty(databeans)){
 			return;
 		}
-		for(D databean : databeans){
-			put(databean, config);
+		try{
+			startTraceSpan("redis put multi");
+			for(D databean : databeans){
+				if(databean == null){
+					return;
+				}
+
+				if(! fieldInfo.getFieldAware()){
+					throw new IllegalArgumentException("databean must be field aware");
+				}
+				String key = buildRedisKey(databean.getKey());
+
+				if(key.length() > MAX_REDIS_KEY_SIZE){
+					String jsonKey = JsonDatabeanTool.fieldsToJson(databean.getKey().getFields()).toString();
+					logger.error("redis object too big for redis! " + databean.getDatabeanName() + ", key: " + jsonKey);
+					return;
+				}
+
+				startTraceSpan("redis put");
+				Long ttl = getTtlMs(config);
+
+				String jsonBean = JsonDatabeanTool.databeanToJsonString(databean, fieldInfo.getSampleFielder());
+
+				if(ttl == null){
+					getClient().getJedisClient().set(key, jsonBean);
+				} else{
+					// XX - Only set they key if it already exists
+					// PX - Milliseconds
+					getClient().getJedisClient().set(key, jsonBean, "XX", "PX", ttl);
+				}
+			}
+		} finally {
+			finishTraceSpan();
 		}
 	}
 
@@ -120,13 +151,13 @@ implements PhysicalMapStorageNode<PK,D>{
 
 	/** increment ************************************************************/
 
-	public void increment(RedisTestDatabeanKey tallyKey, int delta, Config config){
-		if(tallyKey == null){
+	public void increment(RedisDatabeanKey redisKey, int delta, Config config){
+		if(redisKey == null){
 			return;
 		}
 		try{
 			startTraceSpan("redis increment");
-			String key = buildRedisKey(tallyKey);
+			String key = buildRedisKey(redisKey);
 
 			Long ttl = getTtlMs(config);
 			if(ttl == null){
@@ -141,13 +172,13 @@ implements PhysicalMapStorageNode<PK,D>{
 		}
 	}
 
-	public Long incrementAndGetCount(RedisTestDatabeanKey tallyKey, int delta, Config config){
-		if(tallyKey == null){
+	public Long incrementAndGetCount(RedisDatabeanKey redisKey, int delta, Config config){
+		if(redisKey == null){
 			return null;
 		}
 		try{
 			startTraceSpan("redis increment and get count");
-			String key = buildRedisKey(tallyKey);
+			String key = buildRedisKey(redisKey);
 
 			Long expiration = getTtlMs(config);
 			if(expiration == null){

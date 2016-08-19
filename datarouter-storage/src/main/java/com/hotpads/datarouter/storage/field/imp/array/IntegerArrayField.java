@@ -14,38 +14,19 @@ public class IntegerArrayField extends BaseListField<Integer, List<Integer>>{
 		super(key, value);
 	}
 
-//	@Deprecated
-//	public IntegerArrayField(ListFieldKey<Integer,List<Integer>> key, List<Integer> value){
-//		super(key, value);
-//	}
-
 	@Deprecated
 	public IntegerArrayField(String name, List<Integer> value){
 		super(name, value);
 	}
 
-	@Deprecated
-	public IntegerArrayField(String prefix, String name, List<Integer> value){
-		super(prefix, name, value);
-	}
-
-
-	/*********************** StringEncodedField ***********************/
-
-	@Override
-	public String getStringEncodedValue(){
-		if(value == null){
-			return null;
-		}
-		return new Gson().toJson(value);
-	}
+	/*********************** StringEncodedField ******************************/
 
 	@Override
 	public List<Integer> parseStringEncodedValueButDoNotSet(String value){
 		return new Gson().fromJson(value, new TypeToken<List<Integer>>(){}.getType());
 	}
 
-	/*********************** ByteEncodedField ***********************/
+	/*********************** ByteEncodedField ********************************/
 
 	@Override
 	public byte[] getBytes(){

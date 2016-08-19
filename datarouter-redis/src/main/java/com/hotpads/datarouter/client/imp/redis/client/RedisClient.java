@@ -4,8 +4,10 @@ import java.util.concurrent.ExecutorService;
 
 import com.hotpads.datarouter.client.Client;
 
+import redis.clients.jedis.Jedis;
+
 public interface RedisClient extends Client{
 
 	ExecutorService getExecutorService();
-	redis.clients.jedis.Jedis getJedisClient();
+	Jedis getJedisClient();
 }

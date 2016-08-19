@@ -10,6 +10,8 @@ import com.hotpads.trace.TracedCallable;
 import com.hotpads.trace.TracerThreadLocal;
 import com.hotpads.trace.TracerTool;
 
+import redis.clients.jedis.Jedis;
+
 public abstract class RedisTask<V> extends TracedCallable<V>{
 
 	//variables for TraceThreads and TraceSpans
@@ -22,7 +24,7 @@ public abstract class RedisTask<V> extends TracedCallable<V>{
 	protected RedisPhysicalNode<?,?> node;
 	protected String tableName;
 	protected RedisClient client;
-	protected redis.clients.jedis.Jedis jedisClient;
+	protected Jedis jedisClient;
 	protected Config config;
 
 	/** constructor **********************************************************/
