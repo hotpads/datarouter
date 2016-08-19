@@ -4,10 +4,6 @@
 <head>
 	<title>DataRouter</title>
 	<%@ include file="/jsp/generic/datarouterHead.jsp"%>
-	<script type="text/javascript">
-		require(["bootstrap"]);
-	</script>
-	<%@ include file="/jsp/css/css-import.jspf"%>
 </head>
 <body>
 	<%@ include file="/jsp/menu/dr-navbar.jsp"%>
