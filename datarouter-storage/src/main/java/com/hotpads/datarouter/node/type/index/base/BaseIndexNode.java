@@ -32,8 +32,8 @@ extends BaseNode<IK,IE,DatabeanFielder<IK,IE>>{
 	protected N indexNode;
 
 	public BaseIndexNode(Supplier<IE> indexEntrySupplier, N backingNode){
-		super(new NodeParamsBuilder<>(backingNode.getRouter(), indexEntrySupplier)
-				.withFielder((Supplier<DatabeanFielder<IK,IE>>)backingNode.getFieldInfo().getFielderSupplier())
+		super(new NodeParamsBuilder<>(backingNode.getRouter(), indexEntrySupplier,
+				(Supplier<DatabeanFielder<IK,IE>>) backingNode.getFieldInfo().getFielderSupplier())
 				.build());
 		this.indexNode = backingNode;
 	}
