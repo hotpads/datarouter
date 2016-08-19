@@ -12,8 +12,8 @@
 		<h2>Set Threshold</h2>		
 
 		
-		<form id="validationform" name="validationform" method="GET" action="?">
-		<table id="myTable2" class="order-list" class="table table-striped table-bordered table-hover table-condensed">
+		  <form id="validationform" name="validationform" method="GET" action="?">
+			<table id="myTable2" class="order-list" class="table table-striped table-bordered table-hover table-condensed">
 				<thead>
 					<tr>
 						<td>Router name</td>
@@ -23,11 +23,14 @@
 				</thead>
 				<tbody>
 				<c:forEach items="${thresholdSettings}" var="setting">
+				 <form method="get" action="${contextPath}/datarouter/tableRowCount/threshold">
 					<tr>
 						<td><input type="text" name="clientName" value='${setting.key.getClientName()}' readonly></td>
 						<td><input type="text" name="tableName" value='${setting.key.getTableName()}' readonly></td>
-						<td><input type="text" name="threshold" value='${setting.getMaxRows()}' readonly></td>					
+						<td><input type="text" name="threshold" value='${setting.getMaxRows()}' ></td>
+						<td><input type="submit" value="updateThreshold" class="btn btn-warning" name="submitAction" ></td>
 					</tr>
+					</form>
 				</c:forEach>
 				</tbody>	
 			</table>
