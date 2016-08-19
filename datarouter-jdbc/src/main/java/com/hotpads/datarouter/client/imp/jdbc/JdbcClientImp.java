@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicLong;
@@ -33,8 +34,9 @@ implements JdbcConnectionClient, TxnClient, JdbcClient{
 
 	private Map<Long,ConnectionHandle> handleByThread = new ConcurrentHashMap<>();
 	private Map<ConnectionHandle,Connection> connectionByHandle = new ConcurrentHashMap<>();
-
 	private AtomicLong connectionCounter = new AtomicLong(-1L);
+
+	private final boolean schemaUpdateEnabled;
 
 	private final JdbcConnectionPool connectionPool;
 	private final JdbcSchemaUpdateService schemaUpdateService;
@@ -42,10 +44,11 @@ implements JdbcConnectionClient, TxnClient, JdbcClient{
 	/**************************** constructor **********************************/
 
 	public JdbcClientImp(String name, JdbcConnectionPool connectionPool, JdbcSchemaUpdateService schemaUpdateService,
-			ClientAvailabilitySettings clientAvailabilitySettings){
+			ClientAvailabilitySettings clientAvailabilitySettings, boolean schemaUpdateEnabled){
 		super(name, clientAvailabilitySettings);
 		this.connectionPool = connectionPool;
 		this.schemaUpdateService = schemaUpdateService;
+		this.schemaUpdateEnabled = schemaUpdateEnabled;
 	}
 
 	/******************************** methods **********************************/
@@ -62,7 +65,10 @@ implements JdbcConnectionClient, TxnClient, JdbcClient{
 
 	@Override
 	public Future<Optional<String>> notifyNodeRegistration(Node<?,?> node){
-		return schemaUpdateService.queueNodeForSchemaUpdate(getName(), node.getPhysicalNodeIfApplicable());
+		if(schemaUpdateEnabled){
+			return schemaUpdateService.queueNodeForSchemaUpdate(getName(), node.getPhysicalNodeIfApplicable());
+		}
+		return CompletableFuture.completedFuture(Optional.empty());
 	}
 
 	/****************************** ConnectionClient methods *************************/
