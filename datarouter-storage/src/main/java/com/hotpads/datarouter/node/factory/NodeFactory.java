@@ -14,6 +14,7 @@ import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.NodeParams.NodeParamsBuilder;
 import com.hotpads.datarouter.node.entity.EntityNodeParams;
+import com.hotpads.datarouter.routing.BaseRouter;
 import com.hotpads.datarouter.routing.Router;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
@@ -56,6 +57,10 @@ public class NodeFactory{
 
 	/*************** simple helpers *********************/
 
+	/**
+	 * @deprecated use {@link BaseRouter#create(ClientId, Supplier, Supplier)}
+	 */
+	@Deprecated
 	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>,N extends Node<PK,D>>
 	N create(ClientId clientId, Supplier<D> databeanSupplier, Supplier<F> fielderSupplier, Router router,
 			boolean addAdapter){
@@ -63,7 +68,7 @@ public class NodeFactory{
 	}
 
 	/**
-	 * @deprecated use {@link #create(ClientId, Supplier, Supplier, Router, boolean)}
+	 * @deprecated use {@link BaseRouter#create(ClientId, Supplier, Supplier)}
 	 */
 	@Deprecated
 	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,
@@ -78,6 +83,11 @@ public class NodeFactory{
 	}
 
 	// +schemaVersion
+	/**
+	 * @deprecated use {@link BaseRouter#create(ClientId, Supplier, Supplier)}
+	 * and {@link BaseRouter.NodeBuilder#withSchemaVersion}
+	 */
+	@Deprecated
 	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>,N extends Node<PK,D>>
 	N create(ClientId clientId, Supplier<D> databeanSupplier, Supplier<F> fielderSupplier, Integer schemaVersion,
 			Router router, boolean addAdapter){
@@ -90,7 +100,8 @@ public class NodeFactory{
 
 	// +schemaVersion
 	/**
-	 * @deprecated use {@link #create(ClientId, Supplier, Supplier, Integer, Router, boolean)}
+	 * @deprecated use {@link BaseRouter#create(ClientId, Supplier, Supplier)}
+	 * and {@link BaseRouter.NodeBuilder#withSchemaVersion}
 	 */
 	@Deprecated
 	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>,N extends Node<PK,D>>
@@ -102,6 +113,11 @@ public class NodeFactory{
 
 	/************ include tableName **********************/
 
+	/**
+	 * @deprecated use {@link BaseRouter#create(ClientId, Supplier, Supplier)}
+	 * and {@link BaseRouter.NodeBuilder#withTableName}
+	 */
+	@Deprecated
 	public <PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>,
@@ -121,7 +137,8 @@ public class NodeFactory{
 	}
 
 	/**
-	 * @deprecated use {@link #create(ClientId, String, String, Supplier, Supplier, Router, boolean)}
+	 * @deprecated use {@link BaseRouter#create(ClientId, Supplier, Supplier)}
+	 * and {@link BaseRouter.NodeBuilder#withTableName}
 	 */
 	@Deprecated
 	public <PK extends PrimaryKey<PK>,

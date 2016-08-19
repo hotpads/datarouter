@@ -8,10 +8,12 @@ import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.LazyClientProvider;
 import com.hotpads.datarouter.client.RouterOptions;
+import com.hotpads.datarouter.config.DatarouterSettings;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.NodeParams.NodeParamsBuilder;
 import com.hotpads.datarouter.node.factory.NodeFactory;
+import com.hotpads.datarouter.node.op.NodeOps;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
@@ -33,14 +35,16 @@ implements Router{
 	private final List<String> clientNames;
 	private final RouterOptions routerOptions;
 	private final NodeFactory nodeFactory;
-
+	private final DatarouterSettings datarouterSettings;
 
 	/**************************** constructor  ****************************************/
 
-	public BaseRouter(Datarouter datarouter, String configLocation, String name, NodeFactory nodeFactory){
+	public BaseRouter(Datarouter datarouter, String configLocation, String name, NodeFactory nodeFactory,
+			DatarouterSettings datarouterSettings){
 		this.datarouter = datarouter;
 		this.configLocation = configLocation;
 		this.name = name;
+		this.datarouterSettings = datarouterSettings;
 		this.clientNames = ClientId.getNames(getClientIds());
 		this.routerOptions = new RouterOptions(getConfigLocation());
 		this.datarouter.registerConfigFile(getConfigLocation());
@@ -49,13 +53,12 @@ implements Router{
 	}
 
 	/**
-	 * @deprecated use {@link #BaseRouter(Datarouter, String, String, NodeFactory)}
+	 * @deprecated use {@link #BaseRouter(Datarouter, String, String, NodeFactory, DatarouterSettings)}
 	 */
 	@Deprecated
 	public BaseRouter(Datarouter datarouter, String configLocation, String name){
-		this(datarouter, configLocation, name, null);
+		this(datarouter, configLocation, name, null, null);
 	}
-
 
 	/********************************* methods *************************************/
 
@@ -73,11 +76,6 @@ implements Router{
 				.map(client -> client.notifyNodeRegistration(node))
 				.forEach(FutureTool::get);
 		return node;
-	}
-
-	protected <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>,N extends Node<PK,D>>
-	NodeBuilder<PK,D,F,N> create(ClientId clientId, Supplier<D> databeanSupplier, Supplier<F> fielderSupplier){
-		return new NodeBuilder<>(clientId, databeanSupplier, fielderSupplier);
 	}
 
 	@Override
@@ -141,27 +139,59 @@ implements Router{
 		return routerOptions;
 	}
 
+	/* Node building */
+
+	protected <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>>
+	NodeBuilder<PK,D,F> create(ClientId clientId, Supplier<D> databeanSupplier, Supplier<F> fielderSupplier){
+		return new NodeBuilder<>(clientId, databeanSupplier, fielderSupplier);
+	}
+
+	protected <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>,
+			N extends NodeOps<PK,D>>
+	N createAndRegister(ClientId clientId, Supplier<D> databeanSupplier, Supplier<F> fielderSupplier){
+		return new NodeBuilder<>(clientId, databeanSupplier, fielderSupplier).buildAndRegister();
+	}
+
 	protected class NodeBuilder<
 			PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
-			F extends DatabeanFielder<PK,D>,
-			N extends Node<PK,D>>{
+			F extends DatabeanFielder<PK,D>>{
 
 		private final ClientId clientId;
 		private final Supplier<D> databeanSupplier;
 		private final Supplier<F> fielderSupplier;
+		private String tableName;
+		private Integer schemaVersion;
 
-		private NodeBuilder(ClientId clientId, Supplier<D> databeanSupplier, Supplier<F> fielderSupplier){
+		private NodeBuilder(ClientId clientId, Supplier<D> databeanSupplier,
+				Supplier<F> fielderSupplier){
 			this.clientId = clientId;
 			this.databeanSupplier = databeanSupplier;
 			this.fielderSupplier = fielderSupplier;
 		}
 
-		public N build(){
+		public NodeBuilder<PK,D,F> withTableName(String tableName){
+			this.tableName = tableName;
+			return this;
+		}
+
+		public NodeBuilder<PK,D,F> withSchemaVersion(Integer schemaVersion){
+			this.schemaVersion = schemaVersion;
+			return this;
+		}
+
+		public <N extends NodeOps<PK,D>> N build(){
 			NodeParams<PK,D,F> params = new NodeParamsBuilder<>(BaseRouter.this, databeanSupplier, fielderSupplier)
 					.withClientId(clientId)
+					.withTableName(tableName)
+					.withSchemaVersion(schemaVersion)
+					.withDiagnostics(datarouterSettings.getRecordCallsites())
 					.build();
 			return nodeFactory.create(params, true);
+		}
+
+		public <N extends NodeOps<PK,D>> N buildAndRegister(){
+			return register(build());
 		}
 
 	}
