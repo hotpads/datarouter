@@ -42,7 +42,7 @@ public class RedisTestRouter extends BaseRouter{
 
 	@Inject
 	public RedisTestRouter(Datarouter datarouter, DatarouterClients datarouterClients, ClientId clientId){
-		super(datarouter, DrTestConstants.CONFIG_PATH, RedisTestRouter.class.getSimpleName());
+		super(datarouter, DrTestConstants.CONFIG_PATH, RedisTestRouter.class.getSimpleName(), null, null);
 		this.datarouterClients = datarouterClients;
 		this.clientIds = Arrays.asList(clientId);
 		this.redisNode = buildRedisNode(clientId);
@@ -62,9 +62,8 @@ public class RedisTestRouter extends BaseRouter{
 		Objects.requireNonNull(clientType, "clientType not found for clientName:" + clientName);
 
 		NodeParamsBuilder<RedisDatabeanKey,RedisDatabean,RedisDatabeanFielder> paramsBuilder =
-				new NodeParamsBuilder<RedisDatabeanKey ,RedisDatabean,RedisDatabeanFielder>(this,RedisDatabean::new)
+				new NodeParamsBuilder<>(this,RedisDatabean::new, RedisDatabeanFielder::new)
 				.withClientId(client)
-				.withFielder(RedisDatabeanFielder::new)
 				.withSchemaVersion(VERSION_RedisTest);
 
 		NodeParams<RedisDatabeanKey,RedisDatabean,RedisDatabeanFielder> params = paramsBuilder.build();

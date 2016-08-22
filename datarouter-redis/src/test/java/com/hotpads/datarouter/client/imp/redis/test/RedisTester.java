@@ -19,7 +19,7 @@ import com.hotpads.datarouter.test.DatarouterStorageTestModuleFactory;
 import com.hotpads.datarouter.test.DrTestConstants;
 
 @Guice(moduleFactory=DatarouterStorageTestModuleFactory.class)
-public class RedisIntegrationTests{
+public class RedisTester{
 
 	/** fields ***************************************************************/
 
@@ -57,7 +57,7 @@ public class RedisIntegrationTests{
 		deleteRecord(bean2);
 	}
 
-//	@Test
+	@Test
 	public void testTtl(){
 		RedisDatabean bean = new RedisDatabean("testKey2", "testData2");
 		redisNode.increment(bean.getKey(), 1, new Config().setTtlMs(2000L));
@@ -72,7 +72,7 @@ public class RedisIntegrationTests{
 		deleteRecord(bean);
 	}
 
-//	@Test
+	@Test
 	public void testTtlUpdate(){
 		RedisDatabean bean = new RedisDatabean("testKey3", "testData3");
 		deleteRecord(bean);
@@ -96,7 +96,7 @@ public class RedisIntegrationTests{
 		deleteRecord(bean);
 	}
 
-//	@Test
+	@Test
 	public void testTtlAdvance(){
 		RedisDatabean bean = new RedisDatabean("testKey4", "testData4");
 
