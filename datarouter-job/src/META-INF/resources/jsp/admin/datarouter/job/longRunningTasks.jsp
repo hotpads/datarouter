@@ -25,6 +25,7 @@
 					<th>numItemsProcessed</th>
 					<th>jobExecutionStatus</th>
 					<th>lastFinishTime</th>
+					<th>triggeredBy</th>
 				</tr>
 				<c:forEach items="${currentlyRunningTasks}" var="task">
 					<tr <c:choose>
@@ -40,6 +41,7 @@
 						<td>${task.numItemsProcessed}</td>
 						<td>${task.jobExecutionStatus}</td>
 						<td>${lastCompletions[task.key.jobClass].finishTimeString}</td>
+						<td>${task.triggeredBy}</td>
 					</tr>
 				</c:forEach>
 			</table>

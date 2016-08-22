@@ -70,7 +70,7 @@ implements ClientFactory{
 
 		JdbcSchemaUpdateService schemaUpdateService = jdbcSchemaUpdateServiceFactory.create(connectionPool);
 		JdbcClient client = new JdbcClientImp(clientName, connectionPool, schemaUpdateService,
-				clientAvailabilitySettings);
+				clientAvailabilitySettings, schemaUpdateEnabled);
 		timer.add("client");
 
 		logger.warn(timer.toString());
