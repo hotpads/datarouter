@@ -145,8 +145,8 @@ public class LatencyMonitoringService{
 		runningChecks.forEach(future -> future.cancel(true));
 	}
 
-	public List<Pair<String,Runnable>> getClientChecks(){
-		List<Pair<String,Runnable>> checks = new ArrayList<>();
+	public List<LatencyCheck> getClientChecks(){
+		List<LatencyCheck> checks = new ArrayList<>();
 		for(Entry<String,LazyClientProvider> entry : clients.getLazyClientProviderByName().entrySet()){
 			if(entry.getValue().isInitialized()){
 				Client client = entry.getValue().getClient();
@@ -156,7 +156,7 @@ public class LatencyMonitoringService{
 					PhysicalNode<?,?> node = findFirst.get();
 					if(node instanceof PhysicalMapStorageNode){
 						PhysicalMapStorageNode<?,?> ms = (PhysicalMapStorageNode<?,?>)node;
-						checks.add(new Pair<>(LatencyMonitoringService.DR_CLIENT_PREFIX + entry.getKey()
+						checks.add(new LatencyCheck(LatencyMonitoringService.DR_CLIENT_PREFIX + entry.getKey()
 								+ LatencyMonitoringService.MS_CHECK_SUFIX, makeGet(ms)));
 					}
 				}
@@ -173,7 +173,7 @@ public class LatencyMonitoringService{
 				.filter(LazyClientProvider::isInitialized)
 				.map(LazyClientProvider::getClient)
 				.flatMap(flatMapper)
-				.map(pair -> new Pair<>(pair.getLeft() + LatencyMonitoringService.SS_CHECK_SUFIX, (Runnable)() -> pair
+				.map(pair -> new LatencyCheck(pair.getLeft() + LatencyMonitoringService.SS_CHECK_SUFIX, () -> pair
 						.getRight().stream(null, ONLY_FIRST).findFirst()))
 				.collect(Collectors.toList()));
 		return checks;
