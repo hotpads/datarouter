@@ -5,7 +5,6 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.hotpads.datarouter.storage.field.BaseListField;
 import com.hotpads.datarouter.storage.field.Field;
@@ -39,7 +38,7 @@ public class UInt63ArrayField extends BaseListField<Long,List<Long>>{
 
 	@Override
 	public List<Long> parseStringEncodedValueButDoNotSet(String value){
-		return new Gson().fromJson(value, new TypeToken<List<Long>>(){}.getType());
+		return gson.fromJson(value, new TypeToken<List<Long>>(){}.getType());
 	}
 
 	/*********************** ByteEncodedField ********************************/

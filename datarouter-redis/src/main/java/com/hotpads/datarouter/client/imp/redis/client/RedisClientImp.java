@@ -13,7 +13,7 @@ import redis.clients.jedis.Jedis;
 
 public class RedisClientImp extends BaseClient implements RedisClient{
 
-	protected redis.clients.jedis.Jedis jedisClient;
+	protected Jedis jedisClient;
 	protected ExecutorService executorService;
 
 	/** constructor **********************************************************/

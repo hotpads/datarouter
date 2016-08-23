@@ -8,7 +8,7 @@ import com.hotpads.datarouter.storage.field.imp.array.KeyedListField;
 public abstract class BaseListField<V extends Comparable<V>,L extends List<V>>
 extends KeyedListField<V,L,ListFieldKey<V,L>>{
 
-	private static Gson gson = new Gson();
+	protected static final Gson gson = new Gson();
 
 	public BaseListField(ListFieldKey<V,L> key, L value){
 		super(key, value);
@@ -27,6 +27,6 @@ extends KeyedListField<V,L,ListFieldKey<V,L>>{
 		if(value == null){
 			return null;
 		}
-		return new Gson().toJson(value);
+		return gson.toJson(value);
 	}
 }

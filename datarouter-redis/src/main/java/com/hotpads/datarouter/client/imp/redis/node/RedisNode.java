@@ -47,9 +47,6 @@ implements PhysicalMapStorageNode<PK,D>{
 			return;
 		}
 
-		if(! fieldInfo.getFieldAware()){
-			throw new IllegalArgumentException("databeans must be field aware");
-		}
 		String key = buildRedisKey(databean.getKey());
 
 		if(key.length() > MAX_REDIS_KEY_SIZE){
@@ -88,9 +85,6 @@ implements PhysicalMapStorageNode<PK,D>{
 					return;
 				}
 
-				if(! fieldInfo.getFieldAware()){
-					throw new IllegalArgumentException("databean must be field aware");
-				}
 				String key = buildRedisKey(databean.getKey());
 
 				if(key.length() > MAX_REDIS_KEY_SIZE){

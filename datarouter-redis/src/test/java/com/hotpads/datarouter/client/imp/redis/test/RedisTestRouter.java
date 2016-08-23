@@ -61,12 +61,11 @@ public class RedisTestRouter extends BaseRouter{
 		RedisClientType clientType = (RedisClientType) datarouterClients.getClientTypeInstance(clientName);
 		Objects.requireNonNull(clientType, "clientType not found for clientName:" + clientName);
 
-		NodeParamsBuilder<RedisDatabeanKey,RedisDatabean,RedisDatabeanFielder> paramsBuilder =
+		NodeParams<RedisDatabeanKey,RedisDatabean,RedisDatabeanFielder> params =
 				new NodeParamsBuilder<>(this,RedisDatabean::new, RedisDatabeanFielder::new)
 				.withClientId(client)
-				.withSchemaVersion(VERSION_RedisTest);
-
-		NodeParams<RedisDatabeanKey,RedisDatabean,RedisDatabeanFielder> params = paramsBuilder.build();
+				.withSchemaVersion(VERSION_RedisTest)
+				.build();
 		return register(clientType.createNodeWithoutAdapters(params));
 	}
 }
