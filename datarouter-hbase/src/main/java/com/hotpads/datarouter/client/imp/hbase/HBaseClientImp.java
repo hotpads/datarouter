@@ -54,11 +54,6 @@ implements HBaseClient{
 		return HBaseClientType.INSTANCE;
 	}
 
-	@Override
-	public String toString(){
-		return getName();
-	}
-
 	/****************************** HBaseClient methods *************************/
 
 	@Override

@@ -19,9 +19,9 @@ import javax.servlet.http.HttpSession;
 
 import com.hotpads.WebAppName;
 import com.hotpads.datarouter.config.DatarouterProperties;
-import com.hotpads.datarouter.setting.cached.impl.Duration;
 import com.hotpads.handler.dispatcher.DatarouterWebDispatcher;
 import com.hotpads.handler.mav.Mav;
+import com.hotpads.util.core.Duration;
 import com.hotpads.util.core.bytes.ByteUnitTool;
 
 public class MemoryMonitoringHandler extends BaseHandler{

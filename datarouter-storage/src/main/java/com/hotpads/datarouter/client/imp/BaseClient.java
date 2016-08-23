@@ -42,4 +42,10 @@ implements Client{
 	public Future<Optional<String>> notifyNodeRegistration(Node<?,?> node){
 		return CompletableFuture.completedFuture(Optional.empty());
 	}
+
+	@Override
+	public String toString(){
+		return name;
+	}
+
 }
