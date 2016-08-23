@@ -42,7 +42,7 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 	private Date finishTime;
 	private Date heartbeatTime;
 	private JobExecutionStatus jobExecutionStatus;
-	private String triggeredByUserEmail;
+	private String triggeredBy;
 	private Long numItemsProcessed;
 
 	/**************************** columns ****************************************/
@@ -56,13 +56,13 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 		public static final DateFieldKey heartbeatTime = new DateFieldKey("heartbeatTime");
 		public static final StringEnumFieldKey<JobExecutionStatus> jobExecutionStatus = new StringEnumFieldKey<>(
 				"jobExecutionStatus", JobExecutionStatus.class);
-		public static final StringFieldKey triggeredByUserEmail = new StringFieldKey("triggeredByUserEmail");
+		public static final StringFieldKey triggeredBy = new StringFieldKey("triggeredBy");
 		public static final LongFieldKey numItemsProcessed = new LongFieldKey("numItemsProcessed");
 	}
 
 	/********************** databean *****************************************/
 
-	public static class LongRunningTaskFielder extends BaseDatabeanFielder<LongRunningTaskKey, LongRunningTask>{
+	public static class LongRunningTaskFielder extends BaseDatabeanFielder<LongRunningTaskKey,LongRunningTask>{
 		public LongRunningTaskFielder(){
 			super(LongRunningTaskKey.class);
 		}
@@ -75,7 +75,7 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 					new DateField(FieldKeys.finishTime, databean.finishTime),
 					new DateField(FieldKeys.heartbeatTime, databean.heartbeatTime),
 					new StringEnumField<>(FieldKeys.jobExecutionStatus, databean.jobExecutionStatus),
-					new StringField(FieldKeys.triggeredByUserEmail, databean.triggeredByUserEmail),
+					new StringField(FieldKeys.triggeredBy, databean.triggeredBy),
 					new LongField(FieldKeys.numItemsProcessed, databean.numItemsProcessed));
 		}
 	}
@@ -96,9 +96,10 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 		this.key = new LongRunningTaskKey();
 	}
 
-	public LongRunningTask(String jobClass, String serverName, LongRunningTaskType type){
+	public LongRunningTask(String jobClass, String serverName, LongRunningTaskType type, String triggeredBy){
 		this.key = new LongRunningTaskKey(jobClass, serverName);
 		this.type = type;
+		this.triggeredBy = triggeredBy;
 	}
 
 	/****************** helper methods ************************/
@@ -181,8 +182,8 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 		this.jobExecutionStatus = jobExecutionStatus;
 	}
 
-	public String getTriggeredByUserEmail() {
-		return triggeredByUserEmail;
+	public String getTriggeredBy() {
+		return triggeredBy;
 	}
 
 	public LongRunningTaskType getType() {

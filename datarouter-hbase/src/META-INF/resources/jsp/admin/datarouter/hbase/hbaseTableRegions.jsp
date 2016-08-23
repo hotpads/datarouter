@@ -1,15 +1,12 @@
-<%@ include file="/jsp/generic/prelude-datarouter.jspf"%>
+<%@ include file="/WEB-INF/prelude.jspf"%>
+<!DOCTYPE html>
 <html>
 <head>
-<title>DR ${param.tableName}</title>
-<%@ include file="/jsp/generic/datarouterHead.jsp"%>
-<script type="text/javascript" data-main="${contextPath}/js/core-common"
-	src="${contextPath}/js/require-jquery.js"></script>
-<script type="text/javascript">
-	require([ "plugin/sorttable", "bootstrap/bootstrap" ], function($) {
-	});
-</script>
-<%@ include file="/jsp/css/css-import.jspf"%>
+	<title>DR ${param.tableName}</title>
+	<%@ include file="/jsp/generic/datarouterHead.jsp"%>
+	<script type="text/javascript">
+		require(["sorttable", "bootstrap"]);
+	</script>
 </head>
 <body>
 	<form method="post" action="?" name="mainform">

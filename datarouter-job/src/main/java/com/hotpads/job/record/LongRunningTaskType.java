@@ -8,7 +8,8 @@ public enum LongRunningTaskType implements StringEnum<LongRunningTaskType>{
 	JOB("job"),
 	REQUEST("request"),
 	MIGRATION("migration"),
-	TEST("test");
+	TEST("test"),
+	NOOP("noop");
 
 	private final String varName;
 

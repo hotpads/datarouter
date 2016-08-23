@@ -1,4 +1,4 @@
-<%@ include file="../../generic/prelude-datarouter.jspf"%>
+<%@ include file="/WEB-INF/prelude.jspf"%>
 <!DOCTYPE html>
 <html>
 <head>
