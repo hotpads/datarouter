@@ -3,7 +3,7 @@ package com.hotpads.util.core.io;
 import java.io.IOException;
 
 /**
- * @deprecated used {@link RuntimeException}
+ * @deprecated use {@link RuntimeException}
  */
 @Deprecated
 @SuppressWarnings("serial")
