@@ -11,26 +11,23 @@ public class HBaseEntityQueryBuilder<
 		EK extends EntityKey<EK>,
 		E extends Entity<EK>>{
 
-	protected EntityFieldInfo<EK,E> entityFieldInfo;
-	protected EntityPartitioner<EK> partitioner;
+	protected final EntityPartitioner<EK> partitioner;
 
 	public HBaseEntityQueryBuilder(EntityFieldInfo<EK,E> entityFieldInfo){
-		this.entityFieldInfo = entityFieldInfo;
 		this.partitioner = entityFieldInfo.getEntityPartitioner();
 	}
-
 
 	/************** methods *******************/
 
 	public byte[] getRowBytes(EK ek){
-		if(ek == null) {
+		if(ek == null){
 			throw new IllegalArgumentException("no nulls");
 		}
 		return FieldTool.getConcatenatedValueBytes(ek.getFields(), true, true, false);
 	}
 
 	public byte[] getRowBytesWithPartition(EK ek){
-		byte[] partitionPrefix = entityFieldInfo.getEntityPartitioner().getPrefix(ek);
+		byte[] partitionPrefix = partitioner.getPrefix(ek);
 		return DrByteTool.concatenate(partitionPrefix, getRowBytes(ek));
 	}
 
