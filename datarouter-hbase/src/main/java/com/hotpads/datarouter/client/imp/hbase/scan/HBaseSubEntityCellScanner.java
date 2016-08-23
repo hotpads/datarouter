@@ -118,7 +118,6 @@ implements Scanner<Cell>{
 					}
 				}
 			}catch(IOException e){
-				logger.error("EXTRA DEBUG LOGGING", e);//this isn't getting logged up the call chain for some reason
 				cleanup();
 				throw new RuntimeIOException(e);
 			}
