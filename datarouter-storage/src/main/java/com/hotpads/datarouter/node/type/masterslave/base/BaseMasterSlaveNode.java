@@ -42,8 +42,8 @@ extends BaseNode<PK,D,F> implements MasterSlaveNode<PK,D,N>{
 	protected AtomicInteger slaveRequestCounter = new AtomicInteger(0);
 
 	public BaseMasterSlaveNode(Supplier<D> databeanSupplier, Router router, N master, Collection<N> slaves){
-		super(new NodeParamsBuilder<PK,D,F>(router, databeanSupplier)
-				.withFielder((Supplier<F>)master.getFieldInfo().getFielderSupplier())
+		super(new NodeParamsBuilder<>(router, databeanSupplier,
+				(Supplier<F>)master.getFieldInfo().getFielderSupplier())
 				.build());
 
 		this.registerMaster(master);

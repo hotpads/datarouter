@@ -54,7 +54,7 @@
 			</tr>
 			<c:forEach items="${jobs}" var="job">
 				 <tr>
-					<td><a class="btn <c:choose><c:when test="${job.shouldRun()}">btn-success</c:when><c:otherwise>btn-warning</c:otherwise></c:choose> btn-mini" href="?submitAction=run&name=${job.getClass().getName()}" onclick="return confirmRunJob('${job.getClass().getSimpleName()}', '${job.shouldRun()}', '${job.getServerName()}')">run</a></td>
+					<td><a class="btn <c:choose><c:when test="${job.shouldRun()}">btn-success</c:when><c:otherwise>btn-warning</c:otherwise></c:choose> btn-mini" href="?submitAction=run&name=${job.getClass().getName()}" onclick="return confirmRunJob('${job.getClass().getSimpleName()}', '${job.shouldRun()}', '${serverName}')">run</a></td>
 					<td><a class="btn btn-danger btn-mini" href="?submitAction=interrupt&name=${job.getClass().getName()}" onclick="return window.confirm('Are you sure?');">interrupt</a></td>
 					<td><c:choose>
 							<c:when test="${job.getIsDisabled()}">

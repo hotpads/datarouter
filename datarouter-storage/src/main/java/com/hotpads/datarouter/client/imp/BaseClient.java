@@ -1,5 +1,9 @@
 package com.hotpads.datarouter.client.imp;
 
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Future;
+
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.availability.ClientAvailabilitySettings;
 import com.hotpads.datarouter.node.Node;
@@ -35,7 +39,7 @@ implements Client{
 	}
 
 	@Override
-	public void notifyNodeRegistration(Node<?,?> node){
-		//do nothing
+	public Future<Optional<String>> notifyNodeRegistration(Node<?,?> node){
+		return CompletableFuture.completedFuture(Optional.empty());
 	}
 }

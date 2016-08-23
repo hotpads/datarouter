@@ -13,7 +13,6 @@ import com.hotpads.datarouter.client.imp.memcached.MemcachedClientType;
 import com.hotpads.datarouter.client.imp.memcached.node.MemcachedNode;
 import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.NodeParams.NodeParamsBuilder;
-import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.profile.tally.Tally;
 import com.hotpads.datarouter.profile.tally.Tally.TallyFielder;
 import com.hotpads.datarouter.profile.tally.TallyKey;
@@ -44,8 +43,7 @@ public class TallyTestRouter extends BaseRouter{
 	/******************************* constructor *****************************/
 
 	@Inject
-	public TallyTestRouter(Datarouter datarouter, DatarouterClients datarouterClients, NodeFactory nodeFactory,
-			ClientId clientId, boolean useFielder){
+	public TallyTestRouter(Datarouter datarouter, DatarouterClients datarouterClients, ClientId clientId){
 		super(datarouter, DrTestConstants.CONFIG_PATH, TallyTestRouter.class.getSimpleName());
 
 		this.datarouterClients = datarouterClients;
@@ -67,13 +65,10 @@ public class TallyTestRouter extends BaseRouter{
 		String clientName = clientId.getName();
 		MemcachedClientType clientType = (MemcachedClientType) datarouterClients.getClientTypeInstance(clientName);
 		Objects.requireNonNull(clientType, "clientType not found for clientName:" + clientName);
-		NodeParamsBuilder<TallyKey, Tally, TallyFielder> paramsBuilder = new NodeParamsBuilder<TallyKey,Tally,
-				TallyFielder>(this,Tally::new)
+		NodeParams<TallyKey,Tally,TallyFielder> params = new NodeParamsBuilder<>(this, Tally::new, TallyFielder::new)
 				.withClientId(clientId)
-				.withFielder(TallyFielder::new)
-				.withSchemaVersion(VERSION_Tally);
-
-		NodeParams<TallyKey,Tally,TallyFielder> params = paramsBuilder.build();
+				.withSchemaVersion(VERSION_Tally)
+				.build();
 		return register(clientType.createNodeWithoutAdapters(params));
 	}
 }

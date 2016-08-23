@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.config.Configs;
+import com.hotpads.datarouter.config.DatarouterProperties;
 import com.hotpads.datarouter.inject.DatarouterInjector;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.handler.BaseHandler;
@@ -26,12 +27,12 @@ import com.hotpads.job.record.LongRunningTask;
 import com.hotpads.job.record.LongRunningTaskNodeProvider;
 import com.hotpads.job.trigger.Job;
 import com.hotpads.job.trigger.JobScheduler;
+import com.hotpads.job.trigger.TriggerInfo;
 import com.hotpads.job.web.TriggersRepository.JobPackage;
 import com.hotpads.util.core.enums.EnumTool;
 
-public class JobToTriggerHandler extends BaseHandler {
-
-	private static final Logger logger = LoggerFactory.getLogger(JobToTriggerHandler.class);
+public class TriggerHandler extends BaseHandler {
+	private static final Logger logger = LoggerFactory.getLogger(TriggerHandler.class);
 
 	public static final String
 		P_name = "name",
@@ -55,6 +56,8 @@ public class JobToTriggerHandler extends BaseHandler {
 	private JobScheduler jobScheduler;
 	@Inject
 	private TriggersRepository triggersRepository;
+	@Inject
+	private DatarouterProperties datarouterProperties;
 
 	@Override
 	protected Mav handleDefault() {
@@ -62,19 +65,20 @@ public class JobToTriggerHandler extends BaseHandler {
 	}
 
 	@Handler
-	public Mav list() {
+	public Mav list(){
 		Mav mav = new Mav(JSP_triggers);
+		mav.put("serverName", datarouterProperties.getServerName());
 		Iterable<LongRunningTask> tasks = longRunningTaskNodeProvider.get().scan(null, Configs.slaveOk());
 		Map<String, LongRunningTask> lastCompletions = new HashMap<>();
 		Map<String, LongRunningTask> currentlyRunningTasks = new HashMap<>();
 		for (LongRunningTask task : tasks){
-			if (task.getJobExecutionStatus() == JobExecutionStatus.running
+			if (task.getJobExecutionStatus() == JobExecutionStatus.RUNNING
 					&& (currentlyRunningTasks.get(task.getKey().getJobClass()) == null
 					|| task.getStartTime().after(currentlyRunningTasks.get(task.getKey().getJobClass())
 							.getStartTime()))){
 				currentlyRunningTasks.put(task.getKey().getJobClass(), task);
 			}
-			if (task.getJobExecutionStatus() == JobExecutionStatus.success){
+			if (task.getJobExecutionStatus() == JobExecutionStatus.SUCCESS){
 				if (lastCompletions.get(task.getKey().getJobClass()) == null
 					|| task.getFinishTime().after(lastCompletions.get(task.getKey().getJobClass()).getFinishTime())){
 					lastCompletions.put(task.getKey().getJobClass(), task);
@@ -82,8 +86,8 @@ public class JobToTriggerHandler extends BaseHandler {
 			}
 		}
 
-		String keyword = params.optional(P_keyword, "");
-		Optional<JobCategory> category = triggersRepository.parseJobCategory(params.optional(P_category, null));
+		String keyword = params.optional(P_keyword).orElse("");
+		Optional<JobCategory> category = triggersRepository.parseJobCategory(params.optional(P_category).orElse(null));
 		List<Job> jobList = getTriggeredJobsListFiltered(keyword, category);
 		mav.put(V_jobs, jobList);
 		mav.put(V_categoryOptions, EnumTool.getHtmlSelectOptions(triggersRepository.getJobCategories()));
@@ -96,21 +100,22 @@ public class JobToTriggerHandler extends BaseHandler {
 	public Mav run() throws Exception{
 		String jobKey = params.required(P_name);
 		Job sampleJob = injector.getInstance(Class.forName(jobKey).asSubclass(Job.class));
-		if(jobScheduler.getTracker().get(sampleJob.getClass()).isRunning()){
+		TriggerInfo triggerInfo = jobScheduler.getTracker().get(sampleJob.getClass());
+		if(triggerInfo.isRunning()){
 			return new MessageMav("Unable to run job, it is already running on this server");
 		}
-		jobScheduler.getTracker().get(sampleJob.getClass()).setRunning(true);
-		jobScheduler.getTracker().get(sampleJob.getClass()).setJob(sampleJob);
+		triggerInfo.setRunning(true);
+		triggerInfo.setJob(sampleJob);
 		Date date = new Date();
 		sampleJob.setTriggerTime(date);
 		sampleJob.trackBeforeRun(System.currentTimeMillis());
 		try{
 			sampleJob.run();
 		}catch(Exception e){
-			jobScheduler.getTracker().get(sampleJob.getClass()).setRunning(false);
+			triggerInfo.setRunning(false);
 			throw e;
 		}
-		jobScheduler.getTracker().get(sampleJob.getClass()).setRunning(false);
+		triggerInfo.setRunning(false);
 		sampleJob.trackAfterRun(System.currentTimeMillis());
 		long durationMs = System.currentTimeMillis() - date.getTime();
 		logger.warn("Finished manual trigger of "+sampleJob.getClass().getSimpleName()+" in "+durationMs+"ms");
@@ -145,10 +150,12 @@ public class JobToTriggerHandler extends BaseHandler {
 	/***********helper************/
 
 	public List<Job> getTriggeredJobsListFiltered(String keyword, Optional<JobCategory> category) {
-		final boolean defaultOff = DrStringTool.equalsCaseInsensitive(params.optional(P_default, ""), "");
-		final boolean customOff = DrStringTool.equalsCaseInsensitive(params.optional(P_custom, ""), "");
-		final boolean disabledOff = DrStringTool.equalsCaseInsensitive(params.optional(P_hideDisabledJobs, ""), "");
-		final boolean enabledOff = DrStringTool.equalsCaseInsensitive(params.optional(P_hideEnabledJobs, ""), "");
+		final boolean defaultOff = DrStringTool.equalsCaseInsensitive(params.optional(P_default).orElse(""), "");
+		final boolean customOff = DrStringTool.equalsCaseInsensitive(params.optional(P_custom).orElse(""), "");
+		final boolean disabledOff = DrStringTool.equalsCaseInsensitive(params.optional(P_hideDisabledJobs).orElse(""),
+				"");
+		final boolean enabledOff = DrStringTool.equalsCaseInsensitive(params.optional(P_hideEnabledJobs).orElse(""),
+				"");
 
 		List<Job> jobList = new ArrayList<>();
 		for(JobPackage jobPackage : triggersRepository.getJobPackages()){

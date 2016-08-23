@@ -27,6 +27,7 @@ import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.util.core.DrMapTool;
+import com.hotpads.util.core.concurrent.Lazy;
 import com.hotpads.util.core.profile.PhaseTimer;
 
 public class SingleTableSchemaUpdate
@@ -37,13 +38,13 @@ implements Callable<Optional<String>>{
 	private final String clientName;
 	private final JdbcConnectionPool connectionPool;
 	private final String schemaName;
-	private final List<String> existingTableNames;
+	private final Lazy<List<String>> existingTableNames;
 	private final SchemaUpdateOptions printOptions;
 	private final SchemaUpdateOptions executeOptions;
 	private final PhysicalNode<?,?> physicalNode;
 
 	public SingleTableSchemaUpdate(JdbcFieldCodecFactory fieldCodecFactory, String clientName,
-			JdbcConnectionPool connectionPool, List<String> existingTableNames, SchemaUpdateOptions printOptions,
+			JdbcConnectionPool connectionPool, Lazy<List<String>> existingTableNames, SchemaUpdateOptions printOptions,
 			SchemaUpdateOptions executeOptions, PhysicalNode<?,?> physicalNode){
 		this.fieldCodecFactory = fieldCodecFactory;
 		this.clientName = clientName;
@@ -101,9 +102,9 @@ implements Callable<Optional<String>>{
 			if(!connectionPool.isWritable()){
 				return null;
 			}
+			boolean exists = existingTableNames.get().contains(tableName);
 			connection = connectionPool.checkOut();
 			Statement statement = connection.createStatement();
-			boolean exists = existingTableNames.contains(tableName);
 			if(!exists){
 				ddl = new SqlCreateTableGenerator(requested, schemaName).generateDdl();
 				if(executeOptions.getCreateTables()){

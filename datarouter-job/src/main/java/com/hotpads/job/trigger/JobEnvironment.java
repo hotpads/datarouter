@@ -6,7 +6,6 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
-import com.hotpads.datarouter.config.DatarouterProperties;
 import com.hotpads.datarouter.inject.guice.executor.DatarouterExecutorGuiceModule;
 import com.hotpads.datarouter.setting.Setting;
 import com.hotpads.job.record.LongRunningTaskTrackerFactory;
@@ -19,18 +18,16 @@ public class JobEnvironment{
 	private final ScheduledExecutorService executor;
 	private final LongRunningTaskTrackerFactory longRunningTaskTrackerFactory;
 	private final JobSettings jobSettings;
-	private final String serverName;
 	private final TriggersRepository triggersRepository;
 
 	@Inject
 	public JobEnvironment(JobScheduler jobScheduler, LongRunningTaskTrackerFactory longRunningTaskTrackerFactory,
 			@Named(DatarouterExecutorGuiceModule.POOL_datarouterJobExecutor) ScheduledExecutorService executorService,
-			JobSettings jobSettings, DatarouterProperties datarouterProperties, TriggersRepository triggersRepository){
+			JobSettings jobSettings, TriggersRepository triggersRepository){
 		this.scheduler = jobScheduler;
 		this.executor = executorService;
 		this.longRunningTaskTrackerFactory = longRunningTaskTrackerFactory;
 		this.jobSettings = jobSettings;
-		this.serverName = datarouterProperties.getServerName();
 		this.triggersRepository = triggersRepository;
 	}
 
@@ -44,10 +41,6 @@ public class JobEnvironment{
 
 	public final Setting<Boolean> getProcessJobsSetting(){
 		return jobSettings.getProcessJobs();
-	}
-
-	public final String getServerName(){
-		return serverName;
 	}
 
 	public final LongRunningTaskTrackerFactory getLongRunningTaskTrackerFactory(){

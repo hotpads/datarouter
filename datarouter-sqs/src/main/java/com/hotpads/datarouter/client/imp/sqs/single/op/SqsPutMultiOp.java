@@ -13,6 +13,7 @@ import com.hotpads.datarouter.client.imp.sqs.op.SqsOp;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
+import com.hotpads.datarouter.storage.field.generation.FieldGeneratorTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.bytes.StringByteTool;
 
@@ -35,6 +36,7 @@ extends SqsOp<PK,D,F,Void>{
 		List<D> rejectedDatabeans = new ArrayList<>();
 		int currentPayloadSize = 0;
 		for(D databean : databeans){
+			FieldGeneratorTool.generateAndSetValueForFieldIfNecessary(fieldInfo, databean);
 			String encodedDatabean = codec.toString(databean, fielder);
 			int encodedDatabeanSize = StringByteTool.getUtf8Bytes(encodedDatabean).length;
 			if(encodedDatabeanSize > BaseSqsNode.MAX_BYTES_PER_MESSAGE){
