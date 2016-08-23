@@ -182,6 +182,7 @@ public class LatencyMonitoringService{
 	private <PK extends PrimaryKey<PK>> Runnable makeGet(PhysicalMapStorageNode<PK,?> node){
 		DatabeanFieldInfo<PK,?,?> fieldInfo = node.getFieldInfo();
 		PK pk = ReflectionTool.create(fieldInfo.getPrimaryKeyClass());
+		// assumes the node will complete a valid RPC for a PK with null fields
 		return () -> node.get(pk, null);
 	}
 
