@@ -8,15 +8,22 @@ import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.LazyClientProvider;
 import com.hotpads.datarouter.client.RouterOptions;
+import com.hotpads.datarouter.client.imp.jdbc.node.index.TxnManagedUniqueIndexNode;
 import com.hotpads.datarouter.config.DatarouterSettings;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.NodeParams.NodeParamsBuilder;
 import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.node.op.NodeOps;
+import com.hotpads.datarouter.node.op.combo.IndexedMapStorage;
+import com.hotpads.datarouter.node.type.index.UniqueIndexNode;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
+import com.hotpads.datarouter.storage.databean.FieldlessIndexEntry;
+import com.hotpads.datarouter.storage.field.FieldlessIndexEntryFielder;
+import com.hotpads.datarouter.storage.key.FieldlessIndexEntryPrimaryKey;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
+import com.hotpads.datarouter.storage.view.index.unique.UniqueIndexEntry;
 import com.hotpads.util.core.concurrent.FutureTool;
 
 public abstract class BaseRouter
@@ -163,8 +170,7 @@ implements Router{
 		private String tableName;
 		private Integer schemaVersion;
 
-		private NodeBuilder(ClientId clientId, Supplier<D> databeanSupplier,
-				Supplier<F> fielderSupplier){
+		private NodeBuilder(ClientId clientId, Supplier<D> databeanSupplier, Supplier<F> fielderSupplier){
 			this.clientId = clientId;
 			this.databeanSupplier = databeanSupplier;
 			this.fielderSupplier = fielderSupplier;
@@ -192,6 +198,57 @@ implements Router{
 
 		public <N extends NodeOps<PK,D>> N buildAndRegister(){
 			return register(build());
+		}
+
+	}
+
+	protected <PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			IK extends FieldlessIndexEntryPrimaryKey<IK,PK,D>>
+	ManagedNodeBuilder<PK,D,IK,FieldlessIndexEntry<IK,PK,D>,FieldlessIndexEntryFielder<IK,PK,D>>
+	createKeyOnlyManagedIndex(Class<IK> indexEntryKeyClass, IndexedMapStorage<PK,D> backingNode){
+		return new ManagedNodeBuilder<>(indexEntryKeyClass, () -> new FieldlessIndexEntry<>(indexEntryKeyClass),
+				() -> new FieldlessIndexEntryFielder<>(indexEntryKeyClass), backingNode);
+	}
+
+	protected <PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			IK extends FieldlessIndexEntryPrimaryKey<IK,PK,D>>
+	UniqueIndexNode<PK,D,IK,FieldlessIndexEntry<IK,PK,D>> buildKeyOnlyManagedIndex(Class<IK> indexEntryKeyClass,
+			IndexedMapStorage<PK,D> backingNode){
+		return createKeyOnlyManagedIndex(indexEntryKeyClass, backingNode).build();
+	}
+
+	protected class ManagedNodeBuilder<
+			PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			IK extends PrimaryKey<IK>,
+			IE extends UniqueIndexEntry<IK,IE,PK,D>,
+			IF extends DatabeanFielder<IK,IE>>{
+
+		private final Supplier<IE> databeanSupplier;
+		private final Supplier<IF> fielderSupplier;
+		private final IndexedMapStorage<PK,D> backingNode;
+		private String tableName;
+
+		public ManagedNodeBuilder(Class<IK> indexEntryKeyClass, Supplier<IE> databeanSupplier,
+				Supplier<IF> fielderSupplier, IndexedMapStorage<PK,D> backingNode){
+			this.databeanSupplier = databeanSupplier;
+			this.fielderSupplier = fielderSupplier;
+			this.backingNode = backingNode;
+			this.tableName = indexEntryKeyClass.getSimpleName();
+		}
+
+		public ManagedNodeBuilder<PK,D,IK,IE,IF> withTableName(String tableName){
+			this.tableName = tableName;
+			return this;
+		}
+
+		public UniqueIndexNode<PK,D,IK,IE> build(){
+			NodeParams<IK,IE,IF> params = new NodeParamsBuilder<>(BaseRouter.this, databeanSupplier, fielderSupplier)
+					.withTableName(tableName)
+					.build();
+			return backingNode.registerManaged(new TxnManagedUniqueIndexNode<>(backingNode, params, tableName));
 		}
 
 	}
