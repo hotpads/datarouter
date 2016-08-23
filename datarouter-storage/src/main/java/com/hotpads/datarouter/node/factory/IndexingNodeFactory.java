@@ -17,6 +17,7 @@ import com.hotpads.datarouter.node.type.index.ManualMultiIndexNode;
 import com.hotpads.datarouter.node.type.index.ManualUniqueIndexNode;
 import com.hotpads.datarouter.node.type.indexing.IndexingMapStorageNode;
 import com.hotpads.datarouter.node.type.indexing.IndexingSortedMapStorageNode;
+import com.hotpads.datarouter.routing.BaseRouter;
 import com.hotpads.datarouter.routing.Router;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
@@ -96,23 +97,19 @@ public class IndexingNodeFactory {
 	}
 
 	/**** Managed indexes ****/
-	public static <PK extends PrimaryKey<PK>,
-			D extends Databean<PK,D>,
-			IK extends FieldlessIndexEntryPrimaryKey<IK,PK,D>>
-	ManagedUniqueIndexNode<PK,D,IK,FieldlessIndexEntry<IK,PK,D>,FieldlessIndexEntryFielder<IK,PK,D>>
-			newKeyOnlyManagedUnique(Router router, IndexedMapStorage<PK, D> backingNode, boolean manageTxn,
-					String indexName, Class<IK> indexKeyClass){
-		return newManagedUnique(router, backingNode, () -> new FieldlessIndexEntryFielder<>(indexKeyClass),
-				() -> new FieldlessIndexEntry<>(indexKeyClass), manageTxn, indexName);
-	}
 
+	/**
+	 * @deprecated use {@link BaseRouter#createKeyOnlyManagedIndex}
+	 */
+	@Deprecated
 	public static <PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			IK extends FieldlessIndexEntryPrimaryKey<IK,PK,D>>
 	ManagedUniqueIndexNode<PK,D,IK,FieldlessIndexEntry<IK,PK,D>,FieldlessIndexEntryFielder<IK,PK,D>>
 			newKeyOnlyManagedUnique(Router router, IndexedMapStorage<PK, D> backingNode, boolean manageTxn,
 					Class<IK> indexKeyClass){
-		return newKeyOnlyManagedUnique(router, backingNode, manageTxn, indexKeyClass.getSimpleName(), indexKeyClass);
+		return newManagedUnique(router, backingNode, () -> new FieldlessIndexEntryFielder<>(indexKeyClass),
+				() -> new FieldlessIndexEntry<>(indexKeyClass), manageTxn, indexKeyClass.getSimpleName());
 	}
 
 	public static <PK extends PrimaryKey<PK>,
