@@ -66,6 +66,7 @@ public class RedisTestRouter extends BaseRouter{
 				.withClientId(client)
 				.withSchemaVersion(VERSION_RedisTest)
 				.build();
+
 		return register(clientType.createNodeWithoutAdapters(params));
 	}
 }
