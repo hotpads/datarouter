@@ -13,16 +13,18 @@ public class CheckResult{
 	private final Optional<String> failureMessage;
 	private final Optional<Duration> latency;
 
-	public CheckResult(long dateMs, Duration latency){
+	private CheckResult(long dateMs, Optional<String> failureMessage, Optional<Duration> latency){
 		this.dateMs = dateMs;
-		this.failureMessage = Optional.empty();
-		this.latency = Optional.of(latency);
+		this.failureMessage = failureMessage;
+		this.latency = latency;
 	}
 
-	public CheckResult(long dateMs, String failureMessage){
-		this.dateMs = dateMs;
-		this.failureMessage = Optional.of(StringUtils.abbreviate(failureMessage, 200));
-		this.latency = Optional.empty();
+	public static CheckResult newSuccess(long dateMs, Duration latency){
+		return new CheckResult(dateMs, Optional.empty(), Optional.of(latency));
+	}
+
+	public static CheckResult newFailure(long dateMs, String failureMessage){
+		return new CheckResult(dateMs, Optional.of(StringUtils.abbreviate(failureMessage, 200)), Optional.empty());
 	}
 
 	public String getCssClass(){

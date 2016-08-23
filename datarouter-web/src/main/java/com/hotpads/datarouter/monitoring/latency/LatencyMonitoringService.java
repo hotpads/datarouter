@@ -69,7 +69,7 @@ public class LatencyMonitoringService{
 
 	public void record(String checkName, Duration duration){
 		metrics.save(METRIC_PREFIX + checkName, duration.to(TimeUnit.MICROSECONDS));
-		lastResultByName.put(checkName, new CheckResult(System.currentTimeMillis(), duration));
+		lastResultByName.put(checkName, CheckResult.newSuccess(System.currentTimeMillis(), duration));
 		Deque<Duration> lastDurations = getLastDurations(checkName);
 		if(lastDurations.size() == 15){
 			lastDurations.pollLast();
@@ -83,7 +83,7 @@ public class LatencyMonitoringService{
 	}
 
 	public void recordFailure(String checkName, String failureMessage){
-		lastResultByName.put(checkName, new CheckResult(System.currentTimeMillis(), failureMessage));
+		lastResultByName.put(checkName, CheckResult.newFailure(System.currentTimeMillis(), failureMessage));
 		getLastDurations(checkName).clear();
 		logger.info("{} failed - {}", checkName, failureMessage);
 	}
