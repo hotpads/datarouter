@@ -38,7 +38,7 @@ public class HBaseSubEntityReaderNodeIntegrationTests{
 	private List<SortedBean> sortedBeans;
 
 	@BeforeClass
-	public void setup(){
+	public void beforeClass(){
 		//Use SortedBeanEntityNode.ENTITY_NODE_PARAMS_2 to avoid conflicting with HBaseEntitySortedNodeIntegrationTests
 		SortedNodeTestRouter router = new SortedNodeTestRouter(datarouter, entityNodeFactory,
 				SortedBeanEntityNode.ENTITY_NODE_PARAMS_2, nodeFactory, DrTestConstants.CLIENT_drTestHBase, true);
@@ -58,7 +58,6 @@ public class HBaseSubEntityReaderNodeIntegrationTests{
 		sortedBeans.add(new SortedBean("b", "b", 1, "d", "f1", 2L, "f3", 4D));
 		sortedBeans.add(new SortedBean("c", "b", 1, "d", "f1", 2L, "f3", 4D));
 		sortedBean.putMulti(sortedBeans, null);
-
 	}
 
 	@Test
@@ -89,8 +88,9 @@ public class HBaseSubEntityReaderNodeIntegrationTests{
 	}
 
 	@AfterClass
-	public void cleanup(){
+	public void afterClass(){
 		sortedBean.deleteMulti(DatabeanTool.getKeys(sortedBeans), null);
+		datarouter.shutdown();
 	}
 
 }
