@@ -92,17 +92,6 @@ implements Scanner<Cell>{
 		return loadNextResult();
 	}
 
-	private ResultScanner openResultScanner(Range<PK> paramRange){
-		Scan scan = queryBuilder.getScanForPartition(partition, paramRange, config, keysOnly, ALLOW_PARTIAL_RESULTS,
-				MAX_RESULT_SIZE_BYTES);
-		try{
-			return table.getScanner(scan);
-		}catch(IOException e){
-			throw new RuntimeException(e);
-		}
-
-	}
-
 	//return true if a valid (non-null and non-empty) next result was loaded
 	private boolean loadNextResult(){
 		Result result;
@@ -137,14 +126,27 @@ implements Scanner<Cell>{
 		return true;
 	}
 
+
+	private ResultScanner openResultScanner(Range<PK> paramRange){
+		Scan scan = queryBuilder.getScanForPartition(partition, paramRange, config, keysOnly, ALLOW_PARTIAL_RESULTS,
+				MAX_RESULT_SIZE_BYTES);
+		try{
+			return table.getScanner(scan);
+		}catch(IOException e){
+			throw new RuntimeException(e);
+		}
+	}
+
 	//this may return some cells that were already returned, but the PK and Databean scanners will just overwrite the
 	// values from the previous cells, and they will very likely be the same
 	private Result reopenTimedOutResultScannerAndGetNext(){
 		PK lastPartialPk = Optional.ofNullable(getCurrent())
 				.map(resultParser::parsePrimaryKeyAndFieldName)
 				.map(Pair::getLeft)
-				.orElse(null);
-		Range<PK> resumingRange = new Range<>(lastPartialPk, true, range.getEnd(), range.getEndInclusive());
+				.orElse(range.getStart());
+		//if we were in the middle of a databean then we need to try to get that databean again in case we missed cells
+		boolean startInclusive = lastPartialPk == null ? range.getStartInclusive() : true;
+		Range<PK> resumingRange = new Range<>(lastPartialPk, startInclusive, range.getEnd(), range.getEndInclusive());
 		hbaseResultScanner = openResultScanner(resumingRange);
 		try{
 			return hbaseResultScanner.next();
