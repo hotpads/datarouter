@@ -27,7 +27,6 @@ import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.util.core.collections.Pair;
 import com.hotpads.util.core.collections.Range;
-import com.hotpads.util.core.io.RuntimeIOException;
 import com.hotpads.util.core.iterable.scanner.Scanner;
 
 public class HBaseSubEntityCellScanner<
@@ -72,7 +71,7 @@ implements Scanner<Cell>{
 		this.keysOnly = keysOnly;
 		this.table = client.getTable(clientTableNodeNames.getTableName());
 		this.scanKeysVsRowsNumRows = "scan " + (keysOnly ? "pk" : "entity") + " numRows";
-		this.hbaseResultScanner = initResultScanner(range);
+		this.hbaseResultScanner = openResultScanner(range);
 		updateCurrentBatch(null);
 	}
 
@@ -93,7 +92,7 @@ implements Scanner<Cell>{
 		return loadNextResult();
 	}
 
-	private ResultScanner initResultScanner(Range<PK> paramRange){
+	private ResultScanner openResultScanner(Range<PK> paramRange){
 		Scan scan = queryBuilder.getScanForPartition(partition, paramRange, config, keysOnly, ALLOW_PARTIAL_RESULTS,
 				MAX_RESULT_SIZE_BYTES);
 		try{
@@ -107,21 +106,13 @@ implements Scanner<Cell>{
 	//return true if a valid (non-null and non-empty) next result was loaded
 	private boolean loadNextResult(){
 		Result result;
-		do{
+		while(true){
 			try{
 				result = hbaseResultScanner.next();
-			}catch(UnknownScannerException use){
-				//scanner timed out on server.  trigger a new one from where we left of
-				PK lastPartialPk = Optional.ofNullable(getCurrent())
-						.map(resultParser::parsePrimaryKeyAndFieldName)
-						.map(Pair::getLeft)
-						.orElse(null);
-				Range<PK> resumingRange = new Range<>(lastPartialPk, true, range.getEnd(), range.getEndInclusive());
-				Scan scan = queryBuilder.getScanForPartition(partition, resumingRange, config, keysOnly,
-						ALLOW_PARTIAL_RESULTS, MAX_RESULT_SIZE_BYTES);
-				hbaseResultScanner = initResultScanner(resumingRange);
-//				result = hbaseResultScanner.next();
-				continue;
+			}catch(UnknownScannerException unknownScannerException){
+				logger.warn("UnknownScannerException on partition={} of range {}", unknownScannerException,
+						partition, range);
+				result = reopenTimedOutResultScannerAndGetNext();
 			}catch(Exception e){
 				cleanup();
 				throw new RuntimeException(e);
@@ -133,15 +124,34 @@ implements Scanner<Cell>{
 			DRCounters.incClientNodeCustom(client.getType(), scanKeysVsRowsNumRows, clientTableNodeNames
 					.getClientName(), clientTableNodeNames.getNodeName());
 			if(result.isPartial()){
-				logger.info("partial result on {}, {}", clientTableNodeNames.getNodeName(), Bytes
+				logger.warn("partial result on {}, {}", clientTableNodeNames.getNodeName(), Bytes
 						.toStringBinary(result.getRow()));
 				DRCounters.incClientNodeCustom(client.getType(), "partial result", clientTableNodeNames
 						.getClientName(), clientTableNodeNames.getNodeName());
 			}
-		}while(result.isEmpty());
-
+			if(!result.isEmpty()){//else continue till we find a result with data
+				break;
+			}
+		}
 		updateCurrentBatch(result.listCells());//this internally does Arrays.asList on a Cell[]
 		return true;
+	}
+
+	//this may return some cells that were already returned, but the PK and Databean scanners will just overwrite the
+	// values from the previous cells, and they will very likely be the same
+	private Result reopenTimedOutResultScannerAndGetNext(){
+		PK lastPartialPk = Optional.ofNullable(getCurrent())
+				.map(resultParser::parsePrimaryKeyAndFieldName)
+				.map(Pair::getLeft)
+				.orElse(null);
+		Range<PK> resumingRange = new Range<>(lastPartialPk, true, range.getEnd(), range.getEndInclusive());
+		hbaseResultScanner = openResultScanner(resumingRange);
+		try{
+			return hbaseResultScanner.next();
+		}catch(Exception e){
+			cleanup();
+			throw new RuntimeException(e);
+		}
 	}
 
 	private void updateCurrentBatch(List<Cell> cells){
@@ -151,11 +161,11 @@ implements Scanner<Cell>{
 
 	private void cleanup(){
 		updateCurrentBatch(null);
-		hbaseResultScanner.get().close();
+		hbaseResultScanner.close();
 		try{
 			table.close();
 		}catch(IOException e){
-			throw new RuntimeIOException(e);
+			throw new RuntimeException(e);
 		}
 	}
 }

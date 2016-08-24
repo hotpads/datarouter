@@ -348,8 +348,8 @@ implements HBasePhysicalNode<PK,D>,
 
 	public HBaseSubEntityCellScanner<EK,E,PK,D,F> makeCellScanner(Config config, int partition, Range<PK> pkRange,
 			boolean keysOnly){
-		return new HBaseSubEntityCellScanner<>(getClient(), clientTableNodeNames, queryBuilder, config, partition,
-				pkRange, keysOnly);
+		return new HBaseSubEntityCellScanner<>(getClient(), clientTableNodeNames, queryBuilder, resultParser, config,
+				partition, pkRange, keysOnly);
 	}
 
 	/********************* get/set *******************************/
