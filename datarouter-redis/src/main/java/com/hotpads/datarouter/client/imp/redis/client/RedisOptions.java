@@ -13,7 +13,7 @@ import redis.clients.jedis.HostAndPort;
 
 public class RedisOptions extends TypedProperties{
 
-	protected final String clientPrefix;
+	private final String clientPrefix;
 
 	public RedisOptions(List<Properties> multiProperties, String clientName){
 		super(multiProperties);

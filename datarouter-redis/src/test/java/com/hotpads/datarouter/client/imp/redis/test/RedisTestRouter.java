@@ -56,7 +56,7 @@ public class RedisTestRouter extends BaseRouter{
 
 	/** helper ***************************************************************/
 
-	private RedisNode<RedisDatabeanKey,RedisDatabean,RedisDatabeanFielder>buildRedisNode(ClientId client){
+	private RedisNode<RedisDatabeanKey,RedisDatabean,RedisDatabeanFielder> buildRedisNode(ClientId client){
 		String clientName = client.getName();
 		RedisClientType clientType = (RedisClientType) datarouterClients.getClientTypeInstance(clientName);
 		Objects.requireNonNull(clientType, "clientType not found for clientName:" + clientName);

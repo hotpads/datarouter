@@ -6,7 +6,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import com.hotpads.datarouter.client.imp.redis.client.RedisClientImp;
+import com.hotpads.datarouter.client.imp.redis.client.RedisClient;
 import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.routing.RouterParams;
 import com.hotpads.handler.BaseHandler;
@@ -18,19 +18,13 @@ public class RedisHandler extends BaseHandler {
 	@Inject
 	private Datarouter datarouter;
 
-	private RouterParams<RedisClientImp> paramsRouter;
-
 	@Handler
 	protected Mav inspectClient() {
-		initialize();
+		RouterParams<RedisClient> paramsRouter = new RouterParams<>(datarouter, params, REDIS_NEEDS);
 		Mav mav = new Mav("/jsp/admin/datarouter/redis/redisClientSummary.jsp");
 		mav.put("client", paramsRouter.getClient().getJedisClient());
 		mav.put("redisStats", paramsRouter.getClient().getJedisClient().info());
 		return mav;
-	}
-
-	private void initialize(){
-		paramsRouter = new RouterParams<>(datarouter, params, REDIS_NEEDS);
 	}
 
 	private static final List<String> NEEDS_CLIENT = new ArrayList<>();

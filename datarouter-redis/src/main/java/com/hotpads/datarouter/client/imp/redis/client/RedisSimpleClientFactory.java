@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.ClientFactory;
 import com.hotpads.datarouter.client.availability.ClientAvailabilitySettings;
+import com.hotpads.datarouter.client.imp.redis.RedisClientType;
 import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.util.core.DrPropertiesTool;
 import com.hotpads.util.core.profile.PhaseTimer;
@@ -25,26 +26,27 @@ public class RedisSimpleClientFactory implements ClientFactory{
 	private final List<Properties> multiProperties;
 	private final RedisOptions options;
 	private final ClientAvailabilitySettings clientAvailabilitySettings;
+	private final RedisClientType redisClientType;
 
 	public RedisSimpleClientFactory(Datarouter datarouter, String clientName, ClientAvailabilitySettings
-			clientAvailabilitySettings){
+			clientAvailabilitySettings, RedisClientType redisClientType){
 		this.clientName = clientName;
 		this.clientAvailabilitySettings = clientAvailabilitySettings;
 		this.configFilePaths = datarouter.getConfigFilePaths();
 		this.multiProperties = DrPropertiesTool.fromFiles(configFilePaths);
 		this.options = new RedisOptions(multiProperties, clientName);
+		this.redisClientType = redisClientType;
 	}
 
 	@Override
 	public Client call(){
 		logger.info("activating Redis client " + clientName);
 		PhaseTimer timer = new PhaseTimer(clientName);
-		Jedis jedisClient;
 
-		jedisClient = new Jedis(options.getServers()[0].getHostName(),
-				options.getServers()[0].getPort());
+		Jedis jedisClient = new Jedis(options.getServers()[0].getHostName(), options.getServers()[0].getPort());
+		RedisClient newClient = new RedisClient(clientName, jedisClient, clientAvailabilitySettings,
+				redisClientType);
 
-		RedisClient newClient = new RedisClientImp(clientName, jedisClient, clientAvailabilitySettings);
 		logger.warn(timer.add("done").toString());
 		return newClient;
 	}

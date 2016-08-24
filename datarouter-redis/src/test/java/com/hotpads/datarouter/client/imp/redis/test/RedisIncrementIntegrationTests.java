@@ -13,13 +13,12 @@ import com.hotpads.datarouter.client.imp.redis.databean.RedisDatabean;
 import com.hotpads.datarouter.client.imp.redis.databean.RedisDatabean.RedisDatabeanFielder;
 import com.hotpads.datarouter.client.imp.redis.databean.RedisDatabeanKey;
 import com.hotpads.datarouter.client.imp.redis.node.RedisNode;
-import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.test.DatarouterStorageTestModuleFactory;
 import com.hotpads.datarouter.test.DrTestConstants;
 
 @Guice(moduleFactory=DatarouterStorageTestModuleFactory.class)
-public class RedisTester{
+public class RedisIncrementIntegrationTests{
 
 	/** fields ***************************************************************/
 
@@ -55,66 +54,6 @@ public class RedisTester{
 
 		deleteRecord(bean);
 		deleteRecord(bean2);
-	}
-
-	@Test
-	public void testTtl(){
-		RedisDatabean bean = new RedisDatabean("testKey2", "testData2");
-		redisNode.increment(bean.getKey(), 1, new Config().setTtlMs(2000L));
-
-		try{
-			Thread.sleep(4 * 1000);
-		} catch(InterruptedException e){
-			Thread.currentThread().interrupt();
-		}
-		Assert.assertEquals(redisNode.getTallyCount(bean.getKey()), null);
-
-		deleteRecord(bean);
-	}
-
-	@Test
-	public void testTtlUpdate(){
-		RedisDatabean bean = new RedisDatabean("testKey3", "testData3");
-		deleteRecord(bean);
-
-		// Multiple increments does not modify the original TTL
-		// This bean's TTL stays at 2 seconds
-		redisNode.increment(bean.getKey(), 1, new Config().setTtlMs(2000L));
-		redisNode.increment(bean.getKey(), 1, new Config().setTtlMs(2000L));
-		redisNode.increment(bean.getKey(), 1, new Config().setTtlMs(2000L));
-		redisNode.increment(bean.getKey(), 1, new Config().setTtlMs(2000L));
-		redisNode.increment(bean.getKey(), 1, new Config().setTtlMs(2000L));
-
-		// Wait for 4 seconds
-		try{
-			Thread.sleep(4 * 1000);
-		} catch (InterruptedException e){
-			Thread.currentThread().interrupt();
-		}
-		Assert.assertEquals(redisNode.getTallyCount(bean.getKey()), null);
-
-		deleteRecord(bean);
-	}
-
-	@Test
-	public void testTtlAdvance(){
-		RedisDatabean bean = new RedisDatabean("testKey4", "testData4");
-
-		redisNode.increment(bean.getKey(), 1, new Config().setTtlMs(2000L));
-		redisNode.increment(bean.getKey(), 1, new Config().setTtlMs(2000L));
-		redisNode.increment(bean.getKey(), 1, new Config().setTtlMs(2000L));
-		redisNode.increment(bean.getKey(), 1, new Config().setTtlMs(2000L));
-		redisNode.increment(bean.getKey(), 1, null);
-
-		// Wait for 4 seconds
-		try{
-			Thread.sleep(4 * 1000);
-		} catch (InterruptedException e){
-			Thread.currentThread().interrupt();
-		}
-		Assert.assertEquals(redisNode.getTallyCount(bean.getKey()), null);
-
-		deleteRecord(bean);
 	}
 
 	/** private **************************************************************/

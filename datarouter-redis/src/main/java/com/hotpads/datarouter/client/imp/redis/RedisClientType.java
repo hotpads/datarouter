@@ -37,14 +37,11 @@ import com.hotpads.util.core.lang.ClassTool;
 @Singleton
 public class RedisClientType extends BaseClientType{
 
-	public static RedisClientType INSTANCE;
-
 	private final ClientAvailabilitySettings clientAvailabilitySettings;
 
 	@Inject
 	public RedisClientType(ClientAvailabilitySettings clientAvailabilitySettings){
 		this.clientAvailabilitySettings = clientAvailabilitySettings;
-		INSTANCE = this;
 	}
 
 	@Override
@@ -54,7 +51,7 @@ public class RedisClientType extends BaseClientType{
 
 	@Override
 	public ClientFactory createClientFactory(Datarouter datarouter, String clientName){
-		return new RedisSimpleClientFactory(datarouter, clientName, clientAvailabilitySettings);
+		return new RedisSimpleClientFactory(datarouter, clientName, clientAvailabilitySettings, this);
 	}
 
 	@Override

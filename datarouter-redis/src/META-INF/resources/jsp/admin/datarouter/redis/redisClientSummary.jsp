@@ -1,16 +1,9 @@
-<%@ include file="/jsp/generic/prelude-datarouter.jspf"%>
+<%@ include file="/WEB-INF/prelude.jspf"%>
 <!DOCTYPE html>
 <html>
 <head>
 <title>DataRouter</title>
 <%@ include file="/jsp/generic/datarouterHead.jsp"%>
-<script type="text/javascript" data-main="${contextPath}/js/core-common"
-	src="${contextPath}/js/require-jquery.js"></script>
-<script type="text/javascript">
-	require([ "bootstrap/bootstrap" ], function($) {
-	});
-</script>
-<%@ include file="/jsp/css/css-import.jspf"%>
 </head>
 <body>
 	<%@ include file="/jsp/menu/dr-navbar.jsp"%>
@@ -26,19 +19,12 @@
 		<b>routerName: </b>${param.routerName}<br /> <b>clientName: </b>${param.clientName}<br />
 	</div>
 	<div class="wide-container">
-		<h3>Memcached stats</h3>
+		<h3>Redis stats</h3>
 
 		<c:forEach items="${redisStats}" var="stats">
 			<h4>${stats.key}</h4>
 			<table
 				class="table table-striped table-bordered table-hover table-condensed">
-				<!-- 				<thead> -->
-				<!-- 					<tr> -->
-				<%-- 						<c:forEach items="${stats.value}" var="stat"> --%>
-
-				<%-- 						</c:forEach> --%>
-				<!-- 					</tr> -->
-				<!-- 				</thead> -->
 				<tbody>
 
 					<c:forEach items="${stats.value}" var="stat">
@@ -50,9 +36,7 @@
 					</c:forEach>
 				</tbody>
 			</table>
-
 		</c:forEach>
-
 
 	</div>
 </body>

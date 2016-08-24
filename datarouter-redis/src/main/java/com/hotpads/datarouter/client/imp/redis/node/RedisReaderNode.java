@@ -18,7 +18,6 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.databean.DatabeanTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
-import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.trace.TracerThreadLocal;
 import com.hotpads.trace.TracerTool;
 
@@ -27,9 +26,9 @@ public class RedisReaderNode<
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>>
 extends BasePhysicalNode<PK,D,F>
-implements RedisPhysicalNode<PK,D>, MapStorageReader<PK,D>{
+implements MapStorageReader<PK,D>{
 
-	protected final Integer databeanVersion;
+	private final Integer databeanVersion;
 
 	/*** constructor *********************************************************/
 
@@ -57,6 +56,8 @@ implements RedisPhysicalNode<PK,D>, MapStorageReader<PK,D>{
 		}
 	}
 
+	/** get ******************************************************************/
+
 	@Override
 	public D get(final PK key, final Config config){
 		if(key == null){
@@ -64,6 +65,7 @@ implements RedisPhysicalNode<PK,D>, MapStorageReader<PK,D>{
 		}
 		try{
 			startTraceSpan("redis get");
+
 			String json = getClient().getJedisClient().get(buildRedisKey(key));
 			if(json == null){
 				return null;
@@ -80,11 +82,19 @@ implements RedisPhysicalNode<PK,D>, MapStorageReader<PK,D>{
 		if(DrCollectionTool.isEmpty(keys)){
 			return Collections.emptyList();
 		}
-
-		List <D> databeans = DrListTool.createArrayListWithSize(keys);
-		for(PK key : keys){
-			databeans.add(get(key, config));
+		List<String> jsons = null;
+		try{
+			startTraceSpan("redis get multi");
+			jsons = getClient().getJedisClient().mget((String[])buildRedisKeys(keys).toArray());
+		} finally{
+			finishTraceSpan();
 		}
+		List<D> databeans = Collections.emptyList();
+		for(String json : jsons){
+			databeans.add(JsonDatabeanTool.databeanFromJson(fieldInfo.getDatabeanSupplier(),
+					fieldInfo.getSampleFielder(), json));
+		}
+
 		return databeans;
 	}
 

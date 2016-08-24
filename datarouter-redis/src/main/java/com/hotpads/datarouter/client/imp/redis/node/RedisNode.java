@@ -15,7 +15,6 @@ import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
-import com.hotpads.datarouter.util.core.DrIterableTool;
 
 public class RedisNode<
 		PK extends PrimaryKey<PK>,
@@ -90,10 +89,7 @@ implements PhysicalMapStorageNode<PK,D>{
 				if(key.length() > MAX_REDIS_KEY_SIZE){
 					String jsonKey = JsonDatabeanTool.fieldsToJson(databean.getKey().getFields()).toString();
 					logger.error("redis object too big for redis! " + databean.getDatabeanName() + ", key: " + jsonKey);
-					return;
 				}
-
-				startTraceSpan("redis put");
 				Long ttl = getTtlMs(config);
 
 				String jsonBean = JsonDatabeanTool.databeanToJsonString(databean, fieldInfo.getSampleFielder());
@@ -138,8 +134,14 @@ implements PhysicalMapStorageNode<PK,D>{
 
 	@Override
 	public void deleteMulti(final Collection<PK> keys, final Config config){
-		for(PK pk : DrIterableTool.nullSafe(keys)){
-			delete(pk, config);
+		if(DrCollectionTool.isEmpty(keys)){
+			return;
+		}
+		try{
+			startTraceSpan("redis delete multi");
+			getClient().getJedisClient().del((String[])buildRedisKeys(keys).toArray());
+		} finally{
+			finishTraceSpan();
 		}
 	}
 
