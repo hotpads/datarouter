@@ -2,8 +2,10 @@ package com.hotpads.datarouter.client.imp.hbase.scan;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.hadoop.hbase.Cell;
+import org.apache.hadoop.hbase.UnknownScannerException;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
@@ -15,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import com.hotpads.datarouter.client.ClientTableNodeNames;
 import com.hotpads.datarouter.client.imp.hbase.client.HBaseClient;
 import com.hotpads.datarouter.client.imp.hbase.util.HBaseSubEntityQueryBuilder;
+import com.hotpads.datarouter.client.imp.hbase.util.HBaseSubEntityResultParser;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
@@ -22,9 +25,8 @@ import com.hotpads.datarouter.storage.entity.Entity;
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
 import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
-import com.hotpads.datarouter.util.async.Ref;
+import com.hotpads.util.core.collections.Pair;
 import com.hotpads.util.core.collections.Range;
-import com.hotpads.util.core.concurrent.Lazy;
 import com.hotpads.util.core.io.RuntimeIOException;
 import com.hotpads.util.core.iterable.scanner.Scanner;
 
@@ -40,9 +42,10 @@ implements Scanner<Cell>{
 	private static final boolean ALLOW_PARTIAL_RESULTS = true;
 	private static final long MAX_RESULT_SIZE_BYTES = 1024 * 1024; // 1 MB
 
-	private final HBaseSubEntityQueryBuilder<EK,E,PK,D,F> queryBuilder;
 	private final HBaseClient client;
 	private final ClientTableNodeNames clientTableNodeNames;
+	private final HBaseSubEntityQueryBuilder<EK,E,PK,D,F> queryBuilder;
+	private final HBaseSubEntityResultParser<EK,E,PK,D,F> resultParser;
 
 	private final Config config;
 	private final int partition;
@@ -50,25 +53,26 @@ implements Scanner<Cell>{
 	private final boolean keysOnly;
 
 	private final String scanKeysVsRowsNumRows;
-	private final Ref<ResultScanner> hbaseResultScannerRef;
+	private final Table table;
 
-	private Table table;
+	private ResultScanner hbaseResultScanner;
 	private List<Cell> currentBatch;
 	private int currentBatchIndex;
 
 	public HBaseSubEntityCellScanner(HBaseClient client, ClientTableNodeNames clientTableNodeNames,
-			HBaseSubEntityQueryBuilder<EK,E,PK,D,F> queryBuilder, Config config, int partition, Range<PK> range,
-			boolean keysOnly){
+			HBaseSubEntityQueryBuilder<EK,E,PK,D,F> queryBuilder, HBaseSubEntityResultParser<EK,E,PK,D,F> resultParser,
+			Config config, int partition, Range<PK> range, boolean keysOnly){
 		this.client = client;
 		this.clientTableNodeNames = clientTableNodeNames;
 		this.queryBuilder = queryBuilder;
+		this.resultParser = resultParser;
 		this.config = config;
 		this.partition = partition;
 		this.range = range;
 		this.keysOnly = keysOnly;
-
+		this.table = client.getTable(clientTableNodeNames.getTableName());
 		this.scanKeysVsRowsNumRows = "scan " + (keysOnly ? "pk" : "entity") + " numRows";
-		this.hbaseResultScannerRef = Lazy.of(this::initResultScanner);
+		this.hbaseResultScanner = initResultScanner(range);
 		updateCurrentBatch(null);
 	}
 
@@ -89,10 +93,9 @@ implements Scanner<Cell>{
 		return loadNextResult();
 	}
 
-	private ResultScanner initResultScanner(){
-		Scan scan = queryBuilder.getScanForPartition(partition, range, config, keysOnly, ALLOW_PARTIAL_RESULTS,
+	private ResultScanner initResultScanner(Range<PK> paramRange){
+		Scan scan = queryBuilder.getScanForPartition(partition, paramRange, config, keysOnly, ALLOW_PARTIAL_RESULTS,
 				MAX_RESULT_SIZE_BYTES);
-		table = client.getTable(clientTableNodeNames.getTableName());
 		try{
 			return table.getScanner(scan);
 		}catch(IOException e){
@@ -106,7 +109,7 @@ implements Scanner<Cell>{
 		Result result;
 		do{
 			try{
-				result = hbaseResultScannerRef.get().next();
+				result = hbaseResultScanner.next();
 				if(result != null){
 					DRCounters.incClientNodeCustom(client.getType(), scanKeysVsRowsNumRows, clientTableNodeNames
 							.getClientName(), clientTableNodeNames.getNodeName());
@@ -117,6 +120,15 @@ implements Scanner<Cell>{
 								.getClientName(), clientTableNodeNames.getNodeName());
 					}
 				}
+			}catch(UnknownScannerException use){
+				PK lastPartialPk = Optional.ofNullable(getCurrent())
+						.map(resultParser::parsePrimaryKeyAndFieldName)
+						.map(Pair::getLeft)
+						.orElse(null);
+				Range<PK> resumingRange = new Range<>(lastPartialPk, true, range.getEnd(), range.getEndInclusive());
+				Scan scan = queryBuilder.getScanForPartition(partition, resumingRange, config, keysOnly,
+						ALLOW_PARTIAL_RESULTS, MAX_RESULT_SIZE_BYTES);
+				hbaseResultScanner = initResultScanner(resumingRange);
 			}catch(IOException e){
 				cleanup();
 				throw new RuntimeIOException(e);
@@ -138,7 +150,7 @@ implements Scanner<Cell>{
 
 	private void cleanup(){
 		updateCurrentBatch(null);
-		hbaseResultScannerRef.get().close();
+		hbaseResultScanner.get().close();
 		try{
 			table.close();
 		}catch(IOException e){
