@@ -99,7 +99,7 @@ implements Scanner<Cell>{
 		try{
 			return table.getScanner(scan);
 		}catch(IOException e){
-			throw new RuntimeIOException(e);
+			throw new RuntimeException(e);
 		}
 
 	}
@@ -110,17 +110,8 @@ implements Scanner<Cell>{
 		do{
 			try{
 				result = hbaseResultScanner.next();
-				if(result != null){
-					DRCounters.incClientNodeCustom(client.getType(), scanKeysVsRowsNumRows, clientTableNodeNames
-							.getClientName(), clientTableNodeNames.getNodeName());
-					if(result.isPartial()){
-						logger.info("partial result on {}, {}", clientTableNodeNames.getNodeName(), Bytes
-								.toStringBinary(result.getRow()));
-						DRCounters.incClientNodeCustom(client.getType(), "partial result", clientTableNodeNames
-								.getClientName(), clientTableNodeNames.getNodeName());
-					}
-				}
 			}catch(UnknownScannerException use){
+				//scanner timed out on server.  trigger a new one from where we left of
 				PK lastPartialPk = Optional.ofNullable(getCurrent())
 						.map(resultParser::parsePrimaryKeyAndFieldName)
 						.map(Pair::getLeft)
@@ -129,13 +120,23 @@ implements Scanner<Cell>{
 				Scan scan = queryBuilder.getScanForPartition(partition, resumingRange, config, keysOnly,
 						ALLOW_PARTIAL_RESULTS, MAX_RESULT_SIZE_BYTES);
 				hbaseResultScanner = initResultScanner(resumingRange);
-			}catch(IOException e){
+//				result = hbaseResultScanner.next();
+				continue;
+			}catch(Exception e){
 				cleanup();
-				throw new RuntimeIOException(e);
+				throw new RuntimeException(e);
 			}
 			if(result == null){
 				cleanup();
 				return false;
+			}
+			DRCounters.incClientNodeCustom(client.getType(), scanKeysVsRowsNumRows, clientTableNodeNames
+					.getClientName(), clientTableNodeNames.getNodeName());
+			if(result.isPartial()){
+				logger.info("partial result on {}, {}", clientTableNodeNames.getNodeName(), Bytes
+						.toStringBinary(result.getRow()));
+				DRCounters.incClientNodeCustom(client.getType(), "partial result", clientTableNodeNames
+						.getClientName(), clientTableNodeNames.getNodeName());
 			}
 		}while(result.isEmpty());
 
