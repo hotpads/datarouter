@@ -58,10 +58,6 @@ implements Callable<Optional<String>>{
 
 	@Override
 	public Optional<String> call(){
-		if( ! physicalNode.getFieldInfo().getFieldAware()){
-			return null;
-		}
-
 		String tableName = physicalNode.getTableName();
 		DatabeanFieldInfo<?, ?, ?> fieldInfo = physicalNode.getFieldInfo();
 		List<Field<?>> primaryKeyFields = fieldInfo.getPrimaryKeyFields();
