@@ -10,7 +10,7 @@ import com.hotpads.datarouter.util.core.DrListTool;
 
 public class DatarouterRedisKey{
 
-	public static final Integer DATAROUTER_VERSION = 3;
+	public static final Integer DATAROUTER_VERSION = 1;
 
 	private final String nodeName;
 	private final Integer databeanVersion;
