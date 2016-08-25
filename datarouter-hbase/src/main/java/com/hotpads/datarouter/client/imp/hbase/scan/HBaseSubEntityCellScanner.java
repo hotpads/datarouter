@@ -5,10 +5,10 @@ import java.util.List;
 import java.util.Optional;
 
 import org.apache.hadoop.hbase.Cell;
-import org.apache.hadoop.hbase.UnknownScannerException;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
+import org.apache.hadoop.hbase.client.ScannerTimeoutException;
 import org.apache.hadoop.hbase.client.Table;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
@@ -98,8 +98,8 @@ implements Scanner<Cell>{
 		while(true){
 			try{
 				result = hbaseResultScanner.next();
-			}catch(UnknownScannerException unknownScannerException){
-				logger.warn("UnknownScannerException on partition={} of range {}", unknownScannerException,
+			}catch(ScannerTimeoutException scannerTimeoutException){
+				logger.warn("scannerTimeoutException on partition={} of range {}", scannerTimeoutException,
 						partition, range);
 				result = reopenTimedOutResultScannerAndGetNext();
 			}catch(Exception e){
