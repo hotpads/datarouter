@@ -99,8 +99,8 @@ implements Scanner<Cell>{
 			try{
 				result = hbaseResultScanner.next();
 			}catch(ScannerTimeoutException scannerTimeoutException){
-				logger.warn("scannerTimeoutException on partition={} of range {}", scannerTimeoutException,
-						partition, range);
+				logger.warn("scannerTimeoutException on partition={} of range {}", partition, range,
+						scannerTimeoutException);
 				result = reopenTimedOutResultScannerAndGetNext();
 			}catch(Exception e){
 				cleanup();
