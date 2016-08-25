@@ -23,15 +23,16 @@ import com.hotpads.datarouter.config.PutMethod;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.exception.DuplicateEntrySqlException;
 import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
+import com.hotpads.datarouter.serialize.fielder.BaseVersionedDatabeanFielder;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.databean.DatabeanVersioningException;
 import com.hotpads.datarouter.storage.databean.VersionedDatabean;
-import com.hotpads.datarouter.storage.databean.VersionedDatabeanFielder;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.encoding.FieldGeneratorType;
 import com.hotpads.datarouter.storage.field.generation.FieldGeneratorTool;
+import com.hotpads.datarouter.storage.field.imp.comparable.LongField;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.util.core.iterable.BatchingIterable;
@@ -267,9 +268,9 @@ extends BaseJdbcOp<Void>{
 		sb.append(" where ");
 		List<Field<?>> whereFields = new ArrayList<>(databean.getKeyFields());
 		if(fieldInfo.getIsVersioned()){
-			VersionedDatabeanFielder<PK,?> versionedFielder = (VersionedDatabeanFielder<PK,?>)fieldInfo
-					.getSampleFielder();
-			whereFields.add(versionedFielder.getPreviousVersionField((VersionedDatabean<PK,?>)databean));
+			VersionedDatabean<PK,?> versionedDatabean = (VersionedDatabean<PK,?>)databean;
+			whereFields.add(new LongField(BaseVersionedDatabeanFielder.FieldKeys.version,
+					versionedDatabean.getVersion() - 1));
 		}
 		sb.append(SqlBuilder.getSqlNameValuePairsEscapedConjunction(fieldCodecFactory, whereFields));
 		int numUpdated;

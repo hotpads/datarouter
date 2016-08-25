@@ -28,7 +28,7 @@ public class TestVersionedDatabean extends BaseVersionedDatabean<TestDatabeanKey
 
 		@Override
 		public List<Field<?>> getVersionedNonKeyFields(TestVersionedDatabean databean){
-			return Arrays.asList(new StringField(FieldKeys.bar, databean.bar));
+			return Arrays.asList(new StringField(TestVersionedDatabean.FieldKeys.bar, databean.bar));
 		}
 
 	}

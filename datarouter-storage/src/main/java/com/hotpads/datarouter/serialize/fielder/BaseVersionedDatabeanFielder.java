@@ -4,17 +4,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.hotpads.datarouter.storage.databean.VersionedDatabean;
-import com.hotpads.datarouter.storage.databean.VersionedDatabeanFielder;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.imp.comparable.LongField;
 import com.hotpads.datarouter.storage.field.imp.comparable.LongFieldKey;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
 public abstract class BaseVersionedDatabeanFielder<PK extends PrimaryKey<PK>,D extends VersionedDatabean<PK,D>>
-extends BaseDatabeanFielder<PK,D> implements VersionedDatabeanFielder<PK,D>{
+extends BaseDatabeanFielder<PK,D>{
 
-	private static class FieldKeys{
-		private static final LongFieldKey version = new LongFieldKey("version");
+	public static class FieldKeys{
+		public static final LongFieldKey version = new LongFieldKey("version");
 	}
 
 	public BaseVersionedDatabeanFielder(Class<? extends Fielder<PK>> primaryKeyFielderClass){
@@ -30,11 +29,6 @@ extends BaseDatabeanFielder<PK,D> implements VersionedDatabeanFielder<PK,D>{
 	}
 
 	public abstract List<Field<?>> getVersionedNonKeyFields(D databean);
-
-	@Override
-	public LongField getPreviousVersionField(VersionedDatabean<?,?> databean){
-		return new LongField(FieldKeys.version, databean.getVersion() - 1);
-	}
 
 	@Override
 	public boolean isVersioned(){
