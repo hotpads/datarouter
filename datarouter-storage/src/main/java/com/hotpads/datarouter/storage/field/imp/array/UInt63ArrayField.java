@@ -5,6 +5,7 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.google.gson.reflect.TypeToken;
 import com.hotpads.datarouter.storage.field.BaseListField;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.util.core.DrArrayTool;
@@ -13,7 +14,6 @@ import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.bytes.IntegerByteTool;
 import com.hotpads.util.core.bytes.LongByteTool;
 import com.hotpads.util.core.collections.arrays.LongArray;
-import com.hotpads.util.core.exception.NotImplementedException;
 
 public class UInt63ArrayField extends BaseListField<Long,List<Long>>{
 
@@ -26,13 +26,7 @@ public class UInt63ArrayField extends BaseListField<Long,List<Long>>{
 		super(name, value);
 	}
 
-	@Deprecated
-	public UInt63ArrayField(String prefix, String name, List<Long> value){
-		super(prefix, name, value);
-	}
-
-
-	/*********************** Comparable ********************************/
+	/*********************** Comparable **************************************/
 
 	//TODO should we even bother?
 	@Override
@@ -40,23 +34,14 @@ public class UInt63ArrayField extends BaseListField<Long,List<Long>>{
 		return DrListTool.compare(this.value, other.getValue());
 	}
 
-
-	/*********************** StringEncodedField ***********************/
-
-	@Override
-	public String getStringEncodedValue(){
-		if(value==null){ return null; }
-		//TODO to CSV format?
-		throw new NotImplementedException();
-	}
+	/*********************** StringEncodedField ******************************/
 
 	@Override
-	public List<Long> parseStringEncodedValueButDoNotSet(String s){
-		throw new NotImplementedException();
+	public List<Long> parseStringEncodedValueButDoNotSet(String value){
+		return gson.fromJson(value, new TypeToken<List<Long>>(){}.getType());
 	}
 
-
-	/*********************** ByteEncodedField ***********************/
+	/*********************** ByteEncodedField ********************************/
 
 	@Override
 	public byte[] getBytes(){
@@ -76,7 +61,9 @@ public class UInt63ArrayField extends BaseListField<Long,List<Long>>{
 
 	@Override
 	public byte[] getBytesWithSeparator(){
-		if(value==null){ return IntegerByteTool.getUInt31Bytes(0); }
+		if(value==null){
+			return IntegerByteTool.getUInt31Bytes(0);
+		}
 		//prepend the length (in bytes) as a positive integer (not bitwise comparable =( )
 		//TODO replace with varint
 		byte[] dataBytes = LongByteTool.getUInt63ByteArray(value);

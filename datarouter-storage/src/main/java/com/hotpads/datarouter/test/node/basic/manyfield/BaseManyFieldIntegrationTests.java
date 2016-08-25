@@ -51,7 +51,7 @@ public abstract class BaseManyFieldIntegrationTests{
 	}
 
 	private void resetTable(){
-		if(!isMemcached()){
+		if(!isMemcached() && !isRedis()){
 			mapNode.deleteAll(null);
 		}
 	}
@@ -76,6 +76,10 @@ public abstract class BaseManyFieldIntegrationTests{
 	}
 
 	public boolean isMemcached(){
+		return false;
+	}
+
+	public boolean isRedis(){
 		return false;
 	}
 
@@ -496,5 +500,4 @@ public abstract class BaseManyFieldIntegrationTests{
 	protected void recordKey(ManyFieldBeanKey key){
 		allKeys.add(key);
 	}
-
 }
