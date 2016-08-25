@@ -81,7 +81,7 @@ implements PhysicalMapStorageNode<PK,D>{
 			startTraceSpan("redis put multi");
 			for(D databean : databeans){
 				if(databean == null){
-					return;
+					continue;
 				}
 
 				String key = buildRedisKey(databean.getKey());
