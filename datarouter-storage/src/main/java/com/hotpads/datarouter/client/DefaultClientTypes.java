@@ -22,6 +22,7 @@ public class DefaultClientTypes{
 			CLIENT_TYPE_jdbc = "jdbc",
 			CLIENT_TYPE_memcached = "memcached",
 			CLIENT_TYPE_memory = "memory",
+			CLIENT_TYPE_redis = "redis",
 			CLIENT_TYPE_sqs = "sqs";
 
 	public static final String
@@ -31,6 +32,7 @@ public class DefaultClientTypes{
 			CLIENT_CLASS_jdbc = "com.hotpads.datarouter.client.imp.jdbc.JdbcClientType",
 			CLIENT_CLASS_memcached = "com.hotpads.datarouter.client.imp.memcached.MemcachedClientType",
 			CLIENT_CLASS_memory = "com.hotpads.datarouter.client.imp.memory.MemoryClientType",
+			CLIENT_CLASS_redis = "com.hotpads.datarouter.client.imp.redis.RedisClientType",
 			CLIENT_CLASS_sqs = "com.hotpads.datarouter.client.imp.sqs.SqsClientType";
 
 	//TODO these should eventually be mapped in an external config file, like datarouter-xyz.properties
@@ -42,11 +44,11 @@ public class DefaultClientTypes{
 		CLASS_BY_NAME.put(CLIENT_TYPE_jdbc, CLIENT_CLASS_jdbc);
 		CLASS_BY_NAME.put(CLIENT_TYPE_memcached, CLIENT_CLASS_memcached);
 		CLASS_BY_NAME.put(CLIENT_TYPE_memory, CLIENT_CLASS_memory);
+		CLASS_BY_NAME.put(CLIENT_TYPE_redis, CLIENT_CLASS_redis);
 		CLASS_BY_NAME.put(CLIENT_TYPE_sqs, CLIENT_CLASS_sqs);
 	}
 
 	public ClientType create(String name){
 		return (ClientType)injector.getInstance(ClassTool.forName(CLASS_BY_NAME.get(name)));
 	}
-
 }

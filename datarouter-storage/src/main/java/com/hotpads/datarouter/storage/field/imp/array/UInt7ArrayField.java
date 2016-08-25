@@ -2,13 +2,13 @@ package com.hotpads.datarouter.storage.field.imp.array;
 
 import java.util.List;
 
+import com.google.gson.reflect.TypeToken;
 import com.hotpads.datarouter.storage.field.BaseListField;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.util.core.DrArrayTool;
 import com.hotpads.datarouter.util.core.DrByteTool;
 import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.bytes.IntegerByteTool;
-import com.hotpads.util.core.exception.NotImplementedException;
 
 public class UInt7ArrayField extends BaseListField<Byte,List<Byte>>{
 
@@ -21,28 +21,14 @@ public class UInt7ArrayField extends BaseListField<Byte,List<Byte>>{
 		super(name, value);
 	}
 
-	@Deprecated
-	public UInt7ArrayField(String prefix, String name, List<Byte> value){
-		super(prefix, name, value);
-	}
-
-
-	/*********************** StringEncodedField ***********************/
+	/*********************** StringEncodedField ******************************/
 
 	@Override
-	public String getStringEncodedValue(){
-		if(value==null){ return null; }
-		//TODO to CSV format?
-		throw new NotImplementedException();
+	public List<Byte> parseStringEncodedValueButDoNotSet(String value){
+		return gson.fromJson(value, new TypeToken<List<Byte>>(){}.getType());
 	}
 
-	@Override
-	public List<Byte> parseStringEncodedValueButDoNotSet(String s){
-		throw new NotImplementedException();
-	}
-
-
-	/*********************** ByteEncodedField ***********************/
+	/*********************** ByteEncodedField ********************************/
 
 	@Override
 	public byte[] getBytes(){
