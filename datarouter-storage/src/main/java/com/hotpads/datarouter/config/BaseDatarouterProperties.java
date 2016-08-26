@@ -8,6 +8,7 @@ import com.hotpads.datarouter.util.core.DrStringTool;
 public abstract class BaseDatarouterProperties implements DatarouterProperties{
 
 	private static final String SERVER_NAME = "server.name";
+	private static final String SERVER_TYPE = "server.type";
 	private static final String ADMINISTRATOR_EMAIL = "administrator.email";
 
 	private final Properties properties;
@@ -17,6 +18,9 @@ public abstract class BaseDatarouterProperties implements DatarouterProperties{
 		if (DrStringTool.isNullOrEmptyOrWhitespace(getServerName())) {
 			throw new RuntimeException("Expected " + path + " to contain property " + SERVER_NAME);
 		}
+		if (DrStringTool.isNullOrEmptyOrWhitespace(getServerName())) {
+			throw new RuntimeException("Expected " + path + " to contain property " + SERVER_TYPE);
+		}
 		if (DrStringTool.isNullOrEmptyOrWhitespace(getAdministratorEmail())) {
 			throw new RuntimeException("Expected " + path + " to contain property " + ADMINISTRATOR_EMAIL);
 		}
@@ -25,6 +29,11 @@ public abstract class BaseDatarouterProperties implements DatarouterProperties{
 	@Override
 	public String getServerName(){
 		return properties.getProperty(SERVER_NAME);
+	}
+
+	@Override
+	public String getServerType(){
+		return properties.getProperty(SERVER_TYPE);
 	}
 
 	@Override
