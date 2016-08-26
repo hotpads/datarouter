@@ -110,4 +110,9 @@ implements DatabeanFielder<PK,D>{
 		return stringDatabeanCodec;
 	}
 
+	@Override
+	public boolean isVersioned(){
+		return false;
+	}
+
 }

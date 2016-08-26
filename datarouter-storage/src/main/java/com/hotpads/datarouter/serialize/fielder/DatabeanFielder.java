@@ -35,4 +35,6 @@ public interface DatabeanFielder<
 
 	Class<? extends StringDatabeanCodec> getStringDatabeanCodecClass();
 	StringDatabeanCodec getStringDatabeanCodec();
+
+	boolean isVersioned();
 }
