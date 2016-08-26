@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
@@ -83,7 +84,7 @@ public class Params{
 	public Optional<Long> optionalLongSafeParsing(String key){
 		return optional(key)
 				.map(value->DrNumberTool.getLongNullSafe(value,null))
-				.filter(value->value!=null);
+				.filter(Objects::nonNull);
 	}
 
 	public Integer requiredInteger(String key){
