@@ -2,8 +2,8 @@ package com.hotpads.datarouter.storage.field.imp.array;
 
 import java.util.List;
 
+import com.google.gson.reflect.TypeToken;
 import com.hotpads.datarouter.storage.field.BaseListField;
-import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.bytes.IntegerByteTool;
 import com.hotpads.util.core.exception.NotImplementedException;
 
@@ -13,38 +13,19 @@ public class IntegerArrayField extends BaseListField<Integer, List<Integer>>{
 		super(key, value);
 	}
 
-//	@Deprecated
-//	public IntegerArrayField(ListFieldKey<Integer,List<Integer>> key, List<Integer> value){
-//		super(key, value);
-//	}
-
 	@Deprecated
 	public IntegerArrayField(String name, List<Integer> value){
 		super(name, value);
 	}
 
-	@Deprecated
-	public IntegerArrayField(String prefix, String name, List<Integer> value){
-		super(prefix, name, value);
-	}
-
-
-	/*********************** StringEncodedField ***********************/
+	/*********************** StringEncodedField ******************************/
 
 	@Override
-	public String getStringEncodedValue(){
-		if(value==null){ return null; }
-		//TODO to CSV format?
-		throw new NotImplementedException();
+	public List<Integer> parseStringEncodedValueButDoNotSet(String value){
+		return gson.fromJson(value, new TypeToken<List<Integer>>(){}.getType());
 	}
 
-	@Override
-	public List<Integer> parseStringEncodedValueButDoNotSet(String s){
-		throw new NotImplementedException();
-	}
-
-
-	/*********************** ByteEncodedField ***********************/
+	/*********************** ByteEncodedField ********************************/
 
 	@Override
 	public byte[] getBytes(){
@@ -63,21 +44,4 @@ public class IntegerArrayField extends BaseListField<Integer, List<Integer>>{
 	public int numBytesWithSeparator(byte[] bytes, int byteOffset){
 		throw new NotImplementedException();//why isn't this implemented?
 	}
-
-
-	/********************* main ************************/
-
-	public static void main(String[] args){
-		IntegerArrayField testField = new IntegerArrayField("stuff", DrListTool.create(new Integer(-51), null, new Integer(2)));
-		for(Integer num : testField.value){
-			System.out.println(num);
-		}
-		byte[] bytes = testField.getBytes();
-		List<Integer> integers = testField.fromBytesButDoNotSet(bytes, 0);
-		for(Integer value : integers){
-			System.out.println(value);
-		}
-	}
-
-
 }

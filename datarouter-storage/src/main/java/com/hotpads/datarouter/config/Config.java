@@ -68,7 +68,7 @@ public class Config extends BaseDatabean<ConfigKey,Config> implements Cloneable{
 
 	//caching
 	private Boolean cacheOk = DEFAULT_CACHE_OK;
-	private Long ttlMs = 0L;//infinite
+	private Long ttlMs;// = 0L;//infinite
 
 	//messaging
 	private Long visibilityTimeoutMs;
