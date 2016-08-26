@@ -88,7 +88,7 @@ public class LatencyMonitoringService{
 		logger.info("{} failed - {}", checkName, failureMessage);
 	}
 
-	public Map<String,CheckResult> getLast(){
+	public Map<String,CheckResult> getLastResultByName(){
 		return new TreeMap<>(lastResultByName);
 	}
 
@@ -162,9 +162,9 @@ public class LatencyMonitoringService{
 				}
 			}
 		}
-		Function<Client, Stream<Pair<String,SortedStorage<?,?>>>> flatMapper = client -> nodes
+		Function<Client, Stream<Pair<String,SortedStorage<?,?>>>> mapClientToFirstSortedStorageNode = client -> nodes
 				.getPhysicalNodesForClient(client.getName()).stream()
-				.filter(no -> no instanceof SortedStorage)
+				.filter(node -> node instanceof SortedStorage)
 				.limit(1)
 				.map(SortedStorage.class::cast)
 				.map(ss -> new Pair<>(LatencyMonitoringService.DR_CLIENT_PREFIX + client.getName(), ss));
@@ -172,7 +172,7 @@ public class LatencyMonitoringService{
 		checks.addAll(clients.getLazyClientProviderByName().values().stream()
 				.filter(LazyClientProvider::isInitialized)
 				.map(LazyClientProvider::getClient)
-				.flatMap(flatMapper)
+				.flatMap(mapClientToFirstSortedStorageNode)
 				.map(pair -> new LatencyCheck(pair.getLeft() + LatencyMonitoringService.SS_CHECK_SUFIX, () -> pair
 						.getRight().stream(null, ONLY_FIRST).findFirst()))
 				.collect(Collectors.toList()));

@@ -24,7 +24,7 @@ public class DatarouterExecutorGuiceModule extends BaseExecutorGuiceModule{
 		POOL_parallelApiCallerSender = "parallelApiCallerSender",
 		POOL_hbaseClientExecutor = "hbaseClientExecutor",
 		POOL_schemaUpdateScheduler = "schemaUpdateScheduler",
-		POOL_serviceMonitoring = "serviceMonitoring";
+		POOL_latencyMonitoring = "latencyMonitoring";
 
 	private static final ThreadGroup
 		datarouter = new ThreadGroup("datarouter"),
@@ -69,8 +69,8 @@ public class DatarouterExecutorGuiceModule extends BaseExecutorGuiceModule{
 			.annotatedWith(Names.named(POOL_schemaUpdateScheduler))
 			.toInstance(createSchemaUpdateScheduler());
 		bind(ExecutorService.class)
-			.annotatedWith(Names.named(POOL_serviceMonitoring))
-			.toInstance(createServiceMonitoringExecutor());
+			.annotatedWith(Names.named(POOL_latencyMonitoring))
+			.toInstance(createLatencyMonitoringExecutor());
 	}
 
 	//The following factory methods are for Spring
@@ -125,8 +125,8 @@ public class DatarouterExecutorGuiceModule extends BaseExecutorGuiceModule{
 				true));
 	}
 
-	private ExecutorService createServiceMonitoringExecutor(){
-		return createScalingPool(datarouter, POOL_serviceMonitoring, 60);
+	private ExecutorService createLatencyMonitoringExecutor(){
+		return createScalingPool(datarouter, POOL_latencyMonitoring, 60);
 	}
 
 }
