@@ -12,7 +12,6 @@ import javax.inject.Singleton;
 import com.hotpads.joblet.enums.JobletType;
 import com.hotpads.joblet.enums.JobletTypeFactory;
 import com.hotpads.joblet.execute.ParallelJobletProcessor.ParallelJobletProcessorFactory;
-import com.hotpads.util.datastructs.MutableBoolean;
 
 @Singleton
 public class ParallelJobletProcessors {
@@ -21,7 +20,6 @@ public class ParallelJobletProcessors {
 	private final ParallelJobletProcessorFactory parallelJobletProcessorFactory;
 	private final JobletTypeFactory jobletTypeFactory;
 
-	private final MutableBoolean shutdownRequested;
 	private final Map<JobletType<?>,ParallelJobletProcessor> processorByType;
 
 
@@ -30,9 +28,8 @@ public class ParallelJobletProcessors {
 			JobletTypeFactory jobletTypeFactory){
 		this.parallelJobletProcessorFactory = parallelJobletProcessorFactory;
 		this.jobletTypeFactory = jobletTypeFactory;
-		this.shutdownRequested = new MutableBoolean(false);
 		this.processorByType = jobletTypeFactory.getAllTypes().stream()
-				.map(jobletType -> parallelJobletProcessorFactory.create(shutdownRequested, jobletType))
+				.map(parallelJobletProcessorFactory::create)
 				.collect(Collectors.toMap(ParallelJobletProcessor::getJobletType, Function.identity()));
 	}
 
@@ -64,7 +61,7 @@ public class ParallelJobletProcessors {
 	public void restartExecutor(String jobletTypeString){
 		JobletType<?> jobletType = jobletTypeFactory.fromPersistentString(jobletTypeString);
 		processorByType.get(jobletType).requestShutdown();
-		processorByType.put(jobletType, parallelJobletProcessorFactory.create(shutdownRequested, jobletType));
+		processorByType.put(jobletType, parallelJobletProcessorFactory.create(jobletType));
 	}
 
 	public void requestShutdown(){
