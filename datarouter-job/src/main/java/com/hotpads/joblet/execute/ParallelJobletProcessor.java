@@ -104,8 +104,8 @@ public class ParallelJobletProcessor{
 			workerThreadPool.resize(jobletSettings.getThreadCountForJobletType(jobletType));
 			PhaseTimer timer = new PhaseTimer();
 			JobletPackage jobletPackage = getJobletPackage(counter++);
-			timer.add("acquired");
 			if(jobletPackage != null){
+				timer.add("acquired");
 				jobletPackage.getJobletRequest().setTimer(timer);
 				assignJobletPackageToThreadPool(jobletPackage);
 			}else{
