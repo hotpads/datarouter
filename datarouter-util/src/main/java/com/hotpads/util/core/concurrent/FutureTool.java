@@ -56,10 +56,10 @@ public class FutureTool {
 		return futures;
 	}
 
-	public static List<?> getAllVaried(Collection<Future<?>> ins){
-		List<?> outs = DrListTool.createArrayListWithSize(ins);
+	public static List<Object> getAllVaried(Collection<Future<?>> ins){
+		List<Object> outs = DrListTool.createArrayListWithSize(ins);
 		for(Future<?> in : DrIterableTool.nullSafe(ins)){
-			get(in);
+			outs.add(get(in));
 		}
 		return outs;
 	}

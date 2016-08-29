@@ -64,7 +64,7 @@ public abstract class BaseExecutorGuiceModule extends AbstractModule{
 	protected ScalingThreadPoolExecutor createScalingPool(ThreadGroup parentGroup, String name, int maxThreadCount){
 		ThreadFactory threadFactory = new NamedThreadFactory(parentGroup, name, true);
 		logger.info(name + " initialization " + System.identityHashCode(threadFactory));
-		return new ScalingThreadPoolExecutor(0, maxThreadCount, 1, TimeUnit.SECONDS, threadFactory);
+		return new ScalingThreadPoolExecutor(0, maxThreadCount, 1, TimeUnit.MINUTES, threadFactory);
 	}
 
 	protected ScheduledExecutorService createScheduled(ThreadGroup parentGroup, String name, int numThreads){

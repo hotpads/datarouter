@@ -5,14 +5,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.hotpads.datarouter.util.core.DrIterableTool;
 
 public class CallableTool{
-	private static final Logger logger = LoggerFactory.getLogger(CallableTool.class);
-
 
 	public static <T> T callUnchecked(Callable<T> callable){
 		try{
