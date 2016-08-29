@@ -73,7 +73,7 @@ public class ParallelJobletProcessor{
 		//create a separate shutdownRequested for each processor so we can disable them independently
 		this.shutdownRequested = new MutableBoolean(false);
 		this.workerThreadPool = jobletExecutorThreadPoolFactory.create(0, jobletType);
-		this.driverThread = new Thread(null, this::processJobletsInParallel, jobletType.getPersistentString()
+		this.driverThread = new Thread(null, this::fetchJobletsAndAssignToPool, jobletType.getPersistentString()
 				+ " JobletProcessor worker thread");
 		driverThread.start();
 	}
@@ -91,36 +91,41 @@ public class ParallelJobletProcessor{
 				&& !shutdownRequested.get();
 	}
 
-	private void processJobletsInParallel(){
+	//this method must continue indefinitely, so be sure to catch all exceptions
+	private void fetchJobletsAndAssignToPool(){
 		int counter = 0;
 		while(!shutdownRequested.get()){
-			if(!shouldRun()){
-				logger.warn("sleeping since shouldRun false for {}", jobletType.getPersistentString());
-				sleepABit();
-				continue;
-			}
-			workerThreadPool.resize(jobletSettings.getThreadCountForJobletType(jobletType));
-			PhaseTimer timer = new PhaseTimer();
-			JobletPackage jobletPackage = getJobletPackage(counter++);
-			if(jobletPackage != null){
-				timer.add("acquired");
-				jobletPackage.getJobletRequest().setTimer(timer);
-				assignJobletPackageToThreadPool(jobletPackage);
-			}else{
-				logger.warn("sleeping since no joblet found for {}", jobletType.getPersistentString());
-				sleepABit();
+			try{
+				if(!shouldRun()){
+					logger.warn("sleeping since shouldRun false for {}", jobletType.getPersistentString());
+					sleepABit();
+					continue;
+				}
+				workerThreadPool.resize(jobletSettings.getThreadCountForJobletType(jobletType));
+				PhaseTimer timer = new PhaseTimer();
+				JobletPackage jobletPackage = getJobletPackage(counter++);
+				if(jobletPackage != null){
+					timer.add("acquired");
+					jobletPackage.getJobletRequest().setTimer(timer);
+					assignJobletPackageToThreadPool(jobletPackage);
+				}else{
+					logger.warn("sleeping since no joblet found for {}", jobletType.getPersistentString());
+					sleepABit();
+				}
+			}catch(Exception e){
+				logger.error("", e);
+				try{
+					sleepABit();
+				}catch(Exception problemSleeping){
+					logger.error("uh oh, problem sleeping", problemSleeping);
+				}
 			}
 		}
 	}
 
 	private final JobletPackage getJobletPackage(int counter){
 		String reservedBy = getReservedByString(counter);
-		JobletRequest jobletRequest = null;
-		try{
-			jobletRequest = jobletService.getJobletRequestForProcessing(jobletType, reservedBy);
-		}catch(Exception e){
-			logger.warn("", e);
-		}
+		JobletRequest jobletRequest = jobletService.getJobletRequestForProcessing(jobletType, reservedBy);
 		if(jobletRequest == null){
 			return null;
 		}
