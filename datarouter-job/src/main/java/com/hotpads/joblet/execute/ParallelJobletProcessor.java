@@ -49,8 +49,7 @@ public class ParallelJobletProcessor{
 	public static final Long RUNNING_JOBLET_TIMEOUT_MS = 1000L * 60 * 10;  //10 minutes
 
 	//intentionally shared across any instances that might exist
-	private static final MutableBoolean interrupted = new MutableBoolean(false);
-	private volatile boolean shutdownRequested = false;
+	private static final MutableBoolean shutdownRequested = new MutableBoolean(false);
 
 	private final JobletType<?> jobletType;
 	private Thread workerThread;
@@ -80,11 +79,11 @@ public class ParallelJobletProcessor{
 	}
 
 	public static void interruptAllJoblets(){
-		interrupted.set(true);
+		shutdownRequested.set(true);
 	}
 
 	public void requestShutdown() {
-		shutdownRequested  = true;
+		shutdownRequested.set(true);;
 	}
 
 	/*----------------- private --------------------*/
@@ -93,14 +92,13 @@ public class ParallelJobletProcessor{
 		return jobSettings.getProcessJobs().getValue()
 				&& jobletSettings.getRunJoblets().getValue()
 				&& jobletSettings.getThreadCountForJobletType(jobletType) > 0
-				&& !shutdownRequested
-				&& !interrupted.get();
+				&& !shutdownRequested.get();
 	}
 
 	private void processJobletsInParallel(){
 		int counter = 0;
 		while(true){
-			if(interrupted.get()){
+			if(shutdownRequested.get()){
 				return;
 			}
 			if(!shouldRun()){
@@ -131,7 +129,7 @@ public class ParallelJobletProcessor{
 		}
 		JobletPackage jobletPackage = null;
 		if(jobletRequest != null){
-			jobletRequest.setInterrupted(interrupted);
+			jobletRequest.setInterrupted(shutdownRequested);
 			jobletPackage = jobletService.getJobletPackageForJobletRequest(jobletRequest);
 		}else{
 			jobletThrottle.releasePermits(jobletType.getCpuPermits(), jobletType.getMemoryPermits());
