@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.config.DatarouterProperties;
 import com.hotpads.datarouter.util.core.DrDateTool;
-import com.hotpads.job.trigger.JobSettings;
 import com.hotpads.joblet.JobletPackage;
 import com.hotpads.joblet.JobletService;
 import com.hotpads.joblet.JobletSettings;
@@ -29,8 +28,6 @@ public class ParallelJobletProcessor{
 	@Singleton
 	public static class ParallelJobletProcessorFactory{
 		@Inject
-		private JobSettings jobSettings;
-		@Inject
 		private JobletService jobletService;
 		@Inject
 		private DatarouterProperties datarouterProperties;
@@ -40,7 +37,7 @@ public class ParallelJobletProcessor{
 		private JobletExecutorThreadPoolFactory jobletExecutorThreadPoolFactory;
 
 		public ParallelJobletProcessor create(JobletType<?> jobletType){
-			return new ParallelJobletProcessor(datarouterProperties, jobSettings, jobletSettings, jobletService,
+			return new ParallelJobletProcessor(datarouterProperties, jobletSettings, jobletService,
 					jobletExecutorThreadPoolFactory, jobletType);
 		}
 	}
@@ -50,7 +47,6 @@ public class ParallelJobletProcessor{
 
 	//injected
 	private final DatarouterProperties datarouterProperties;
-	private final JobSettings jobSettings;
 	private final JobletSettings jobletSettings;
 	private final JobletService jobletService;
 	//not injected
@@ -60,12 +56,10 @@ public class ParallelJobletProcessor{
 	private final Thread driverThread;
 
 
-	public ParallelJobletProcessor(DatarouterProperties datarouterProperties, JobSettings jobSettings,
-			JobletSettings jobletSettings, JobletService jobletService,
-			JobletExecutorThreadPoolFactory jobletExecutorThreadPoolFactory,
+	public ParallelJobletProcessor(DatarouterProperties datarouterProperties, JobletSettings jobletSettings,
+			JobletService jobletService, JobletExecutorThreadPoolFactory jobletExecutorThreadPoolFactory,
 			JobletType<?> jobletType){
 		this.datarouterProperties = datarouterProperties;
-		this.jobSettings = jobSettings;
 		this.jobletSettings = jobletSettings;
 		this.jobletService = jobletService;
 
@@ -96,7 +90,7 @@ public class ParallelJobletProcessor{
 		while(!shutdownRequested.get()){
 			try{
 				if(!shouldRun()){
-					logger.warn("sleeping since shouldRun false for {}", jobletType.getPersistentString());
+					logger.debug("sleeping since shouldRun false for {}", jobletType.getPersistentString());
 					sleepABit();
 					continue;
 				}
@@ -108,7 +102,7 @@ public class ParallelJobletProcessor{
 					jobletPackage.getJobletRequest().setTimer(timer);
 					assignJobletPackageToThreadPool(jobletPackage);
 				}else{
-					logger.warn("sleeping since no joblet found for {}", jobletType.getPersistentString());
+					logger.debug("sleeping since no joblet found for {}", jobletType.getPersistentString());
 					sleepABit();
 				}
 			}catch(Exception e){//catch everything; don't let the loop break
