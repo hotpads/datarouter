@@ -4,38 +4,6 @@
 <head>
 	<title>Joblets</title>
 	<%@ include file="/jsp/generic/datarouterHead.jsp" %>
-	<script>
-	require(['jquery','sorttable'], function(){
-		var eventData = {
-			<c:forEach items="${runningJobletThreads}" var="jobletThreads">
-				<c:forEach items="${jobletThreads.value}" var="jobletThread">
-					<c:set var="maxNumEvents" value="0"/>
-					<c:set var="maxAvgDuration" value="0"/>
-					${jobletThread.id}:{
-						numEvents:"<c:forEach items="${jobletThread.stats.stratifiedEvents}" var="eventGroup" varStatus="status">${eventGroup.numEvents}<c:if test="${not status.last}">,</c:if><c:if test="${eventGroup.numEvents > maxNumEvents}"><c:set var="maxNumEvents" value="${eventGroup.numEvents}"/></c:if></c:forEach>",
-						avgDuration:"<c:forEach items="${jobletThread.stats.stratifiedEvents}" var="eventGroup" varStatus="status">${eventGroup.averageExecutionTimeMillis}<c:if test="${not status.last}">,</c:if><c:if test="${eventGroup.averageExecutionTimeMillis > maxAvgDuration}"><c:set var="maxAvgDuration" value="${eventGroup.averageExecutionTimeMillis}"/></c:if></c:forEach>",
-						labels:"<c:forEach items="${jobletThread.stats.stratumNames}" var="stratumName" varStatus="status">${stratumName}<c:if test="${not status.last}">|</c:if></c:forEach>",
-						numEventsHighest: ${maxNumEvents},
-						avgDurationHighest: ${maxAvgDuration}
-					},
-				</c:forEach>
-				blank:""
-			</c:forEach>
-		}
-		
-		function generateChartUrl(threadId, type){
-			var chartType = null;
-			if(type=='avgDuration'){
-				chartType = 'bvs';
-			}
-			else{
-				chartType = 'lc';
-			}
-			return "http://chart.apis.google.com/chart?chs=1000x200&cht="+ chartType +"&chxt=x,y&chxl=0:|"+eventData[threadId].labels+"&chd=t:"
-			+eventData[threadId][type]+"&chds=0,"+eventData[threadId][type+"Highest"]+"&chxr=1,0,"+eventData[threadId][type+"Highest"];
-		}
-	});
-	</script>
 </head>
 <body>
 	<%@ include file="/jsp/menu/common-navbar.jsp" %>

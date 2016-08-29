@@ -3,28 +3,29 @@
 		<th>name</th>
 		<th>id</th>
 		<th>current running time</th>
-		<th>average running time</th>
-		<th>graph</th>
 		<th>queue</th>
 		<th>current task</th>
 		<th>kill</th>
 	</tr>
 	<c:forEach items="${jobletThreads.value}" var="jobletThread">
-		<tr <c:if test="${not empty jobletThread.joblet}">style="background: #00CC00;"</c:if>>
+		<tr
+			<c:if test="${not empty jobletThread.joblet}">style="background: #00CC00;"</c:if>>
 			<td>${jobletThread.name}</td>
 			<td>${jobletThread.id}</td>
 			<td>${jobletThread.runningTimeString}</td>
-			<td>${jobletThread.averageRunningTimeString}</td>
-			<td><a href="#" onclick="window.open(generateChartUrl(${jobletThread.id}, 'numEvents'), 'chart', 'height=300,width=1020')">num jobs</a> | 
-			<a href="#" onclick="window.open(generateChartUrl(${jobletThread.id}, 'avgDuration'), 'chart', 'height=220,width=1020')">avg time</a></td>
 			<td>
 				<c:if test="${not empty jobletThread.joblet}">
 					${jobletThread.joblet.queueId}
 				</c:if>
 			</td>
-			<c:if test="${not empty jobletThread.jobletData}"><td><textarea cols="15" rows="1">${jobletThread.jobletData.data}</textarea></td></c:if>
-			<c:if test="${empty jobletThread.joblet}"><td>none</td></c:if>
-			<td><a href="?submitAction=killJobletThread&threadId=${jobletThread.id}">kill</a></td>
+			<c:if test="${not empty jobletThread.jobletData}">
+				<td><textarea cols="15" rows="1">${jobletThread.jobletData.data}</textarea></td>
+			</c:if>
+			<c:if test="${empty jobletThread.joblet}">
+				<td>none</td>
+			</c:if>
+			<td><a
+				href="?submitAction=killJobletThread&threadId=${jobletThread.id}">kill</a></td>
 		</tr>
 	</c:forEach>
 </table>

@@ -21,9 +21,6 @@ import com.hotpads.joblet.execute.JobletExecutorThread.JobletExecutorThreadFacto
 public class JobletExecutorThreadPool {
 	private static final Logger logger = LoggerFactory.getLogger(JobletExecutorThreadPool.class);
 
-	private static final ThreadGroup jobletThreadGroup = new ThreadGroup("joblet");
-
-
 	@Singleton
 	public static class JobletExecutorThreadPoolFactory{
 		@Inject
@@ -37,9 +34,10 @@ public class JobletExecutorThreadPool {
 		}
 	}
 
+	private static final ThreadGroup jobletThreadGroup = new ThreadGroup("joblet");
 
-	private final ReentrantLock jobAssignmentLock = new ReentrantLock();
-	private final Condition saturatedCondition = jobAssignmentLock.newCondition();
+	private final ReentrantLock assignmentLock = new ReentrantLock();
+	private final Condition saturatedCondition = assignmentLock.newCondition();
 	private final BlockingQueue<JobletExecutorThread> waitingExecutorThreads = new LinkedBlockingQueue<>();
 	private final List<JobletExecutorThread> runningExecutorThreads = new ArrayList<>();
 	private final List<JobletExecutorThread> allExecutorThreads = new ArrayList<>();
@@ -61,7 +59,7 @@ public class JobletExecutorThreadPool {
 	}
 
 	public void assignJobletPackage(JobletPackage jobletPackage) {
-		jobAssignmentLock.lock();
+		assignmentLock.lock();
 		try{
 			JobletExecutorThread thread = waitingExecutorThreads.poll();
 			if(thread == null){
@@ -71,22 +69,22 @@ public class JobletExecutorThreadPool {
 			thread.submitJoblet(jobletPackage);
 			runningExecutorThreads.add(thread);
 		}finally{
-			jobAssignmentLock.unlock();
+			assignmentLock.unlock();
 		}
 	}
 
 	public boolean isSaturated() {
-		jobAssignmentLock.lock();
+		assignmentLock.lock();
 		try{
 			return waitingExecutorThreads.isEmpty() || runningExecutorThreads.size() == numThreads;
 		}finally{
-			jobAssignmentLock.unlock();
+			assignmentLock.unlock();
 		}
 	}
 
 	public void resize(int threadPoolSize) {
 		numThreads = threadPoolSize;
-		jobAssignmentLock.lock();
+		assignmentLock.lock();
 		try{
 			if(threadPoolSize == allExecutorThreads.size()){
 				return;
@@ -100,7 +98,7 @@ public class JobletExecutorThreadPool {
 				}
 			}
 		}finally{
-			jobAssignmentLock.unlock();
+			assignmentLock.unlock();
 		}
 	}
 
@@ -140,7 +138,7 @@ public class JobletExecutorThreadPool {
 	}
 
 	public void findAndKillRunawayJoblets() {
-		jobAssignmentLock.lock();
+		assignmentLock.lock();
 		try{
 			ArrayList<JobletExecutorThread> threadsToKill = new ArrayList<>();
 			for(JobletExecutorThread thread : allExecutorThreads){
@@ -168,7 +166,7 @@ public class JobletExecutorThreadPool {
 				logger.error("numThreadsToLayOff: "+numThreadsToLayOff);
 			}
 		}finally{
-			jobAssignmentLock.unlock();
+			assignmentLock.unlock();
 		}
 	}
 
@@ -192,7 +190,7 @@ public class JobletExecutorThreadPool {
 	}
 
 	public Lock getJobAssignmentLock() {
-		return jobAssignmentLock ;
+		return assignmentLock ;
 	}
 
 	public Condition getSaturatedCondition() {
