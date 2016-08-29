@@ -109,8 +109,8 @@ public class JobletExecutorThread extends Thread{
 				semaphoreWaitTime = System.currentTimeMillis() - requestPermitTime;
 				// JobletThrottle.acquirePermits(jobletPackage.getJoblet().getType().getCpuPermits(),
 				// jobletPackage.getJoblet().getType().getMemoryPermits());
-				jobletPackage.getJoblet().setReservedAt(System.currentTimeMillis());
-				jobletNodes.jobletRequest().put(jobletPackage.getJoblet(), null);
+				jobletPackage.getJobletRequest().setReservedAt(System.currentTimeMillis());
+				jobletNodes.jobletRequest().put(jobletPackage.getJobletRequest(), null);
 				setName(jobletName + " - working");
 				PhaseTimer timer = new PhaseTimer();
 				processingStartTime = System.currentTimeMillis();
@@ -149,7 +149,7 @@ public class JobletExecutorThread extends Thread{
 	}
 
 	private void executeJoblet(){
-		JobletRequest jobletRequest = jobletPackage.getJoblet();
+		JobletRequest jobletRequest = jobletPackage.getJobletRequest();
 		PhaseTimer pt = jobletRequest.getTimer();
 		pt.add("waited for processing");
 		try{
@@ -179,7 +179,7 @@ public class JobletExecutorThread extends Thread{
 	private final void runJoblet(JobletPackage jobletPackage) throws JobInterruptedException{
 		Joblet<?> joblet = jobletFactory.createForPackage(jobletPackage);
 		JobletType<?> jobletType = jobletTypeFactory.fromJobletPackage(jobletPackage);
-		JobletRequest jobletRequest = jobletPackage.getJoblet();
+		JobletRequest jobletRequest = jobletPackage.getJobletRequest();
 		long startTimeMs = System.currentTimeMillis();
 		joblet.process();
 
@@ -275,7 +275,7 @@ public class JobletExecutorThread extends Thread{
 
 	//used by jobletThreadTable.jspf
 	public JobletRequest getJoblet(){
-		return jobletPackage == null ? null : jobletPackage.getJoblet();
+		return jobletPackage == null ? null : jobletPackage.getJobletRequest();
 	}
 
 	//used by jobletThreadTable.jspf

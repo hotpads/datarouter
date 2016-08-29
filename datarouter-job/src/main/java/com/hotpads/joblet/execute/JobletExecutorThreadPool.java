@@ -146,7 +146,7 @@ public class JobletExecutorThreadPool {
 			for(JobletExecutorThread thread : allExecutorThreads){
 				Long runningTime = thread.getRunningTime();
 				if(runningTime != null && runningTime > ParallelJobletProcessor.RUNNING_JOBLET_TIMEOUT_MS){
-					if(!thread.getJobletPackage().getJoblet().getRestartable()){
+					if(!thread.getJobletPackage().getJobletRequest().getRestartable()){
 						continue;//don't kill non-restartable threads due to timeout (such as feeds)
 					}
 					threadsToKill.add(thread);

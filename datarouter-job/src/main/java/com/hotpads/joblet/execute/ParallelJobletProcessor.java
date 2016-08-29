@@ -107,7 +107,7 @@ public class ParallelJobletProcessor{
 			JobletPackage jobletPackage = getJobletPackage(counter++);
 			timer.add("acquired");
 			if(jobletPackage != null){
-				jobletPackage.getJoblet().setTimer(timer);
+				jobletPackage.getJobletRequest().setTimer(timer);
 				jobletScheduler.submitJobletPackage(jobletPackage);
 			}else{
 				sleepABit();

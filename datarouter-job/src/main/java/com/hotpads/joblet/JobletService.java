@@ -67,7 +67,7 @@ public class JobletService{
 	/*--------------------- create ------------------------*/
 
 	public void submitJobletPackages(Collection<JobletPackage> jobletPackages){
-		String typeString = DrCollectionTool.getFirst(jobletPackages).getJoblet().getTypeString();
+		String typeString = DrCollectionTool.getFirst(jobletPackages).getJobletRequest().getTypeString();
 		PhaseTimer timer = new PhaseTimer("insert " + jobletPackages.size() + typeString);
 		jobletNodes.jobletData().putMulti(JobletPackage.getJobletDatas(jobletPackages), null);
 		timer.add("inserted JobletData");
