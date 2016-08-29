@@ -25,7 +25,6 @@ public class ParallelJobletProcessor{
 
 	@Singleton
 	public static class ParallelJobletProcessorFactory{
-
 		@Inject
 		private JobSettings jobSettings;
 		@Inject
@@ -43,14 +42,13 @@ public class ParallelJobletProcessor{
 			return new ParallelJobletProcessor(jobletType, jobSettings, jobletService, datarouterProperties,
 					jobletThrottle, jobletSettings, jobletExecutorThreadPoolFactory);
 		}
-
 	}
 
 	public static final Long RUNNING_JOBLET_TIMEOUT_MS = 1000L * 60 * 10;  //10 minutes
 
 	//intentionally shared across any instances that might exist
 	private static final MutableBoolean interrupted = new MutableBoolean(false);
-	private boolean stop = false;
+	private volatile boolean stop = false;
 
 	private final JobletType<?> jobletType;
 	private Thread workerThread;
@@ -76,26 +74,12 @@ public class ParallelJobletProcessor{
 		this.jobletScheduler = new JobletSchedulerImp(threadPool);
 	}
 
-	@Override
-	public String toString(){
-		return getClass().getSimpleName() + "[" + System.identityHashCode(this) + "," + jobletType + ",numThreads:"
-				+ getNumThreads() + "]";
-	}
-
-	private boolean shouldRun() {
-		if(jobSettings.getProcessJobs().getValue()
-			&& jobletSettings.getRunJoblets().getValue()
-			&& getNumThreads() > 0
-			&& !stop
-			&& !interrupted.get()){
-			return true;
-		}
-
-		return false;
-	}
-
 	public static void interruptAllJoblets(){
 		interrupted.set(true);
+	}
+
+	public void stop() {
+		stop  = true;
 	}
 
 	public boolean isAwake() {
@@ -107,6 +91,17 @@ public class ParallelJobletProcessor{
 			return;
 		}
 		startThread();
+	}
+
+
+	/*----------------- private --------------------*/
+
+	private boolean shouldRun() {
+		return jobSettings.getProcessJobs().getValue()
+				&& jobletSettings.getRunJoblets().getValue()
+				&& getNumThreads() > 0
+				&& !stop
+				&& !interrupted.get();
 	}
 
 	private void startThread(){
@@ -157,25 +152,9 @@ public class ParallelJobletProcessor{
 		return numThreads == null ? 0 : numThreads;
 	}
 
-	public void stop() {
-		stop  = true;
-	}
-
 	private String getReservedByString(int counter){
 		return datarouterProperties.getServerName() + "_" + DrDateTool.getYyyyMmDdHhMmSsMmmWithPunctuationNoSpaces(
 				System.currentTimeMillis()) + "_" + Thread.currentThread().getId() + "_" + counter;
-	}
-
-	public JobletScheduler getJobletScheduler(){
-		return jobletScheduler;
-	}
-
-	public Collection<JobletExecutorThread> getRunningJobletExecutorThreads() {
-		return threadPool.getRunningJobletExecutorThreads();
-	}
-
-	public Collection<JobletExecutorThread> getWaitingJobletExecutorThreads(){
-		return threadPool.getWaitingJobletExecutorThreads();
 	}
 
 	private final JobletPackage getJobletPackage(int counter){
@@ -197,8 +176,32 @@ public class ParallelJobletProcessor{
 		return jobletPackage;
 	}
 
+	/*---------------- Object methods ----------------*/
+
+	@Override
+	public String toString(){
+		return getClass().getSimpleName() + "[" + System.identityHashCode(this) + "," + jobletType + ",numThreads:"
+				+ getNumThreads() + "]";
+	}
+
+	/*---------------- convenience ---------------*/
+
+	public Collection<JobletExecutorThread> getRunningJobletExecutorThreads() {
+		return threadPool.getRunningJobletExecutorThreads();
+	}
+
+	public Collection<JobletExecutorThread> getWaitingJobletExecutorThreads(){
+		return threadPool.getWaitingJobletExecutorThreads();
+	}
+
+	/*-------------- get/set -----------------*/
+
 	public JobletType<?> getJobletType(){
 		return jobletType;
+	}
+
+	public JobletScheduler getJobletScheduler(){
+		return jobletScheduler;
 	}
 
 }
