@@ -197,4 +197,8 @@ public class ParallelJobletProcessor{
 		return jobletPackage;
 	}
 
+	public JobletType<?> getJobletType(){
+		return jobletType;
+	}
+
 }
