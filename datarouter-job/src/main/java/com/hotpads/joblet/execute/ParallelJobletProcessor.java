@@ -99,6 +99,7 @@ public class ParallelJobletProcessor{
 		while(!shutdownRequested.get()){
 			if(!shouldRun()){
 				sleepABit();
+				continue;
 			}
 			workerThreadPool.resize(jobletSettings.getThreadCountForJobletType(jobletType));
 			PhaseTimer timer = new PhaseTimer();
