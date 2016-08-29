@@ -22,8 +22,6 @@ import com.hotpads.joblet.databean.JobletData;
 import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.enums.JobletType;
 import com.hotpads.joblet.enums.JobletTypeFactory;
-import com.hotpads.joblet.profiling.FixedTimeSpanStatistics;
-import com.hotpads.joblet.profiling.StratifiedStatistics;
 import com.hotpads.util.core.profile.PhaseTimer;
 
 public class JobletExecutorThread extends Thread{
@@ -57,7 +55,6 @@ public class JobletExecutorThread extends Thread{
 	private final JobletNodes jobletNodes;
 	private final JobletService jobletService;
 
-	private StratifiedStatistics stats = new FixedTimeSpanStatistics(32); //45 min intervals
 	private boolean shutdown = false;
 	private ReentrantLock workLock = new ReentrantLock();
 	private Condition hasWorkToBeDone = workLock.newCondition();
@@ -91,11 +88,6 @@ public class JobletExecutorThread extends Thread{
 		}
 	}
 
-	//used in joblets.jsp
-	public StratifiedStatistics getStats() {
-		return stats;
-	}
-
 	@Override
 	public void run() {
 		while(!shutdown){
@@ -116,7 +108,6 @@ public class JobletExecutorThread extends Thread{
 				processingStartTime = System.currentTimeMillis();
 				executeJoblet();
 				timer.add("done");
-				stats.logEvent(timer);
 				completedTasks++;
 				totalRunTime += System.currentTimeMillis() - processingStartTime;
 			}catch(InterruptedException e){
