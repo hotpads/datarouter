@@ -1,4 +1,4 @@
-package com.hotpads.joblet.execute;
+package com.hotpads.joblet;
 
 import java.time.Duration;
 import java.util.EnumSet;
@@ -12,8 +12,6 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import com.hotpads.datarouter.config.Configs;
-import com.hotpads.joblet.JobletNodes;
-import com.hotpads.joblet.JobletSettings;
 import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.enums.JobletStatus;
 import com.hotpads.joblet.enums.JobletTypeFactory;
