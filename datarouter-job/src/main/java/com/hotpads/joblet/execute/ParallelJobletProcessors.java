@@ -61,7 +61,7 @@ public class ParallelJobletProcessors {
 
 	public void restartExecutor(String jobletTypeString){
 		JobletType<?> jobletType = jobletTypeFactory.fromPersistentString(jobletTypeString);
-		processorByType.get(jobletType).stop();
+		processorByType.get(jobletType).requestShutdown();
 		processorByType.put(jobletType, parallelJobletProcessorFactory.create(jobletType));
 	}
 

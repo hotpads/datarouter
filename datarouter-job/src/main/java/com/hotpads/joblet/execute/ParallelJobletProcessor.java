@@ -1,5 +1,6 @@
 package com.hotpads.joblet.execute;
 
+import java.time.Duration;
 import java.util.Collection;
 
 import javax.inject.Inject;
@@ -44,11 +45,12 @@ public class ParallelJobletProcessor{
 		}
 	}
 
+	public static final long SLEEP_MS_WHEN_NO_WORK = Duration.ofSeconds(1).toMillis();
 	public static final Long RUNNING_JOBLET_TIMEOUT_MS = 1000L * 60 * 10;  //10 minutes
 
 	//intentionally shared across any instances that might exist
 	private static final MutableBoolean interrupted = new MutableBoolean(false);
-	private volatile boolean stop = false;
+	private volatile boolean shutdownRequested = false;
 
 	private final JobletType<?> jobletType;
 	private Thread workerThread;
@@ -72,89 +74,50 @@ public class ParallelJobletProcessor{
 		this.jobletSettings = jobletSettings;
 		this.threadPool = jobletExecutorThreadPoolFactory.create(0, jobletType);
 		this.jobletScheduler = new JobletSchedulerImp(threadPool);
+		this.workerThread = new Thread(null, this::processJobletsInParallel, jobletType.getPersistentString()
+				+ " JobletProcessor worker thread");
+		workerThread.start();
 	}
 
 	public static void interruptAllJoblets(){
 		interrupted.set(true);
 	}
 
-	public void stop() {
-		stop  = true;
+	public void requestShutdown() {
+		shutdownRequested  = true;
 	}
-
-	public boolean isAwake() {
-		return workerThread != null;
-	}
-
-	public void wakeUp(){
-		if(isAwake()){
-			return;
-		}
-		startThread();
-	}
-
 
 	/*----------------- private --------------------*/
 
 	private boolean shouldRun() {
 		return jobSettings.getProcessJobs().getValue()
 				&& jobletSettings.getRunJoblets().getValue()
-				&& getNumThreads() > 0
-				&& !stop
+				&& jobletSettings.getThreadCountForJobletType(jobletType) > 0
+				&& !shutdownRequested
 				&& !interrupted.get();
-	}
-
-	private void startThread(){
-		workerThread = new Thread(null, buildWorker(), jobletType.getPersistentString()
-				+ " JobletProcessor worker thread");
-		workerThread.start();
-	}
-
-	private void endThread(){
-		workerThread = null;
-	}
-
-	private Runnable buildWorker(){
-		return new Runnable(){
-			@Override
-			public void run() {
-				processJobletsInParallel();
-				endThread();
-			}
-		};
 	}
 
 	private void processJobletsInParallel(){
 		int counter = 0;
-		int numThreads = getNumThreads();
-		threadPool.resize(numThreads);
-		while(shouldRun()){
+		while(true){
 			if(interrupted.get()){
 				return;
 			}
-			threadPool.resize(getNumThreads());
+			if(!shouldRun()){
+				sleepABit();
+			}
+			threadPool.resize(jobletSettings.getThreadCountForJobletType(jobletType));
 			PhaseTimer timer = new PhaseTimer();
 			jobletScheduler.blockUntilReadyForNewJoblet();
 			JobletPackage jobletPackage = getJobletPackage(counter++);
 			timer.add("acquired");
-			if(jobletPackage == null){
-				return;
+			if(jobletPackage != null){
+				jobletPackage.getJoblet().setTimer(timer);
+				jobletScheduler.submitJobletPackage(jobletPackage);
+			}else{
+				sleepABit();
 			}
-			JobletRequest jobletRequest = jobletPackage.getJoblet();
-			jobletRequest.setTimer(timer);
-			jobletScheduler.submitJobletPackage(jobletPackage);
 		}
-
-	}
-
-	private int getNumThreads(){
-		Integer numThreads = jobletSettings.getThreadCountForJobletType(jobletType);
-		return numThreads == null ? 0 : numThreads;
-	}
-
-	private String getReservedByString(int counter){
-		return datarouterProperties.getServerName() + "_" + DrDateTool.getYyyyMmDdHhMmSsMmmWithPunctuationNoSpaces(
-				System.currentTimeMillis()) + "_" + Thread.currentThread().getId() + "_" + counter;
 	}
 
 	private final JobletPackage getJobletPackage(int counter){
@@ -176,12 +139,26 @@ public class ParallelJobletProcessor{
 		return jobletPackage;
 	}
 
+	private String getReservedByString(int counter){
+		return datarouterProperties.getServerName() + "_" + DrDateTool.getYyyyMmDdHhMmSsMmmWithPunctuationNoSpaces(
+				System.currentTimeMillis()) + "_" + Thread.currentThread().getId() + "_" + counter;
+	}
+
+	private void sleepABit(){
+		try{
+			Thread.sleep(SLEEP_MS_WHEN_NO_WORK);
+		}catch(InterruptedException e){
+			logger.warn("", e);
+			Thread.interrupted();//continue.  we have explicit interrupted handling for terminating
+		}
+	}
+
 	/*---------------- Object methods ----------------*/
 
 	@Override
 	public String toString(){
 		return getClass().getSimpleName() + "[" + System.identityHashCode(this) + "," + jobletType + ",numThreads:"
-				+ getNumThreads() + "]";
+				+ jobletSettings.getThreadCountForJobletType(jobletType) + "]";
 	}
 
 	/*---------------- convenience ---------------*/
