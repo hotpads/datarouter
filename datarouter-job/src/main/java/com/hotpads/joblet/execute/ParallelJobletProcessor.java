@@ -42,8 +42,8 @@ public class ParallelJobletProcessor{
 		private JobletExecutorThreadPoolFactory jobletExecutorThreadPoolFactory;
 
 		public ParallelJobletProcessor create(JobletType<?> jobletType){
-			return new ParallelJobletProcessor(jobletType, jobSettings, jobletService, datarouterProperties,
-					jobletThrottle, jobletSettings, jobletExecutorThreadPoolFactory);
+			return new ParallelJobletProcessor(datarouterProperties, jobletType, jobSettings, jobletSettings,
+					jobletService, jobletThrottle, jobletExecutorThreadPoolFactory);
 		}
 	}
 
@@ -53,33 +53,32 @@ public class ParallelJobletProcessor{
 	//intentionally shared across any instances that might exist
 	private static final MutableBoolean shutdownRequested = new MutableBoolean(false);
 
-	private final JobletType<?> jobletType;
-	private final Thread workerThread;
-	private JobletExecutorThreadPool threadPool;
-
-	private final JobSettings jobSettings;
-	private final JobletService jobletService;
+	//injected
 	private final DatarouterProperties datarouterProperties;
-	private final JobletThrottle jobletThrottle;
+	private final JobletType<?> jobletType;
+	private final JobSettings jobSettings;
 	private final JobletSettings jobletSettings;
+	private final JobletService jobletService;
+	private final JobletThrottle jobletThrottle;
+	//not injected
+	private final JobletExecutorThreadPool workerThreadPool;
+	private final Thread driverThread;
 
-	private ParallelJobletProcessor(JobletType<?> jobletType, JobSettings jobSettings, JobletService jobletService,
-			DatarouterProperties datarouterProperties, JobletThrottle jobletThrottle, JobletSettings jobletSettings,
-			JobletExecutorThreadPoolFactory jobletExecutorThreadPoolFactory) {
+
+	public ParallelJobletProcessor(DatarouterProperties datarouterProperties, JobletType<?> jobletType,
+			JobSettings jobSettings, JobletSettings jobletSettings, JobletService jobletService,
+			JobletThrottle jobletThrottle, JobletExecutorThreadPoolFactory jobletExecutorThreadPoolFactory){
+		this.datarouterProperties = datarouterProperties;
 		this.jobletType = jobletType;
 		this.jobSettings = jobSettings;
-		this.jobletService = jobletService;
-		this.datarouterProperties = datarouterProperties;
-		this.jobletThrottle = jobletThrottle;
 		this.jobletSettings = jobletSettings;
-		this.threadPool = jobletExecutorThreadPoolFactory.create(0, jobletType);
-		this.workerThread = new Thread(null, this::processJobletsInParallel, jobletType.getPersistentString()
-				+ " JobletProcessor worker thread");
-		workerThread.start();
-	}
+		this.jobletService = jobletService;
+		this.jobletThrottle = jobletThrottle;
 
-	public static void interruptAllJoblets(){
-		shutdownRequested.set(true);
+		this.workerThreadPool = jobletExecutorThreadPoolFactory.create(0, jobletType);
+		this.driverThread = new Thread(null, this::processJobletsInParallel, jobletType.getPersistentString()
+				+ " JobletProcessor worker thread");
+		driverThread.start();
 	}
 
 	public void requestShutdown() {
@@ -101,7 +100,7 @@ public class ParallelJobletProcessor{
 			if(!shouldRun()){
 				sleepABit();
 			}
-			threadPool.resize(jobletSettings.getThreadCountForJobletType(jobletType));
+			workerThreadPool.resize(jobletSettings.getThreadCountForJobletType(jobletType));
 			PhaseTimer timer = new PhaseTimer();
 			JobletPackage jobletPackage = getJobletPackage(counter++);
 			timer.add("acquired");
@@ -125,7 +124,7 @@ public class ParallelJobletProcessor{
 		}
 		JobletPackage jobletPackage = null;
 		if(jobletRequest != null){
-			jobletRequest.setInterrupted(shutdownRequested);
+			jobletRequest.setShutdownRequested(shutdownRequested);
 			jobletPackage = jobletService.getJobletPackageForJobletRequest(jobletRequest);
 		}else{
 			jobletThrottle.releasePermits(jobletType.getCpuPermits(), jobletType.getMemoryPermits());
@@ -134,23 +133,22 @@ public class ParallelJobletProcessor{
 	}
 
 	private String getReservedByString(int counter){
-		return datarouterProperties.getServerName() + "_" + DrDateTool.getYyyyMmDdHhMmSsMmmWithPunctuationNoSpaces(
-				System.currentTimeMillis()) + "_" + Thread.currentThread().getId() + "_" + counter;
+		return datarouterProperties.getServerName()
+				+ "_" + DrDateTool.getYyyyMmDdHhMmSsMmmWithPunctuationNoSpaces(System.currentTimeMillis())
+				+ "_" + Thread.currentThread().getId()
+				+ "_" + counter;
 	}
 
 	public void assignJobletPackageToThreadPool(JobletPackage jobletPackage){
-		Lock lock = threadPool.getJobAssignmentLock();
+		Lock lock = workerThreadPool.getJobAssignmentLock();
 		lock.lock();
 		try{
-			while(threadPool.isSaturated()){
-				if(!threadPool.getSaturatedCondition().await(1, TimeUnit.SECONDS)){
-					threadPool.findAndKillRunawayJoblets();
+			while(workerThreadPool.isSaturated()){
+				if(!workerThreadPool.getSaturatedCondition().await(1, TimeUnit.SECONDS)){
+					workerThreadPool.findAndKillRunawayJoblets();
 				}
 			}
-			if(jobletPackage == null){
-				return;
-			}
-			threadPool.assignJobletPackage(jobletPackage);
+			workerThreadPool.assignJobletPackage(jobletPackage);
 		}catch(InterruptedException e){
 			return;
 		}finally{
@@ -178,11 +176,11 @@ public class ParallelJobletProcessor{
 	/*---------------- convenience ---------------*/
 
 	public Collection<JobletExecutorThread> getRunningJobletExecutorThreads() {
-		return threadPool.getRunningJobletExecutorThreads();
+		return workerThreadPool.getRunningJobletExecutorThreads();
 	}
 
 	public Collection<JobletExecutorThread> getWaitingJobletExecutorThreads(){
-		return threadPool.getWaitingJobletExecutorThreads();
+		return workerThreadPool.getWaitingJobletExecutorThreads();
 	}
 
 	/*-------------- get/set -----------------*/
