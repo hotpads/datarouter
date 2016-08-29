@@ -50,8 +50,9 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 	private Integer numTasks = 0;
 	private String debug;
 
+	//TODO remove these from the databean
 	private PhaseTimer timer = new PhaseTimer();
-	private MutableBoolean interrupted;
+	private MutableBoolean shutdownRequested;//a shared flag passed in from the executor
 
 	public static final String KEY_NAME = "key";
 
@@ -326,12 +327,12 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 		return timer;
 	}
 
-	public void setInterrupted(MutableBoolean interrupted){
-		this.interrupted = interrupted;
+	public void setShutdownRequested(MutableBoolean shutdownRequested){
+		this.shutdownRequested = shutdownRequested;
 	}
 
 	public MutableBoolean getInterrupted(){
-		return interrupted;
+		return shutdownRequested;
 	}
 
 	public void setTimer(PhaseTimer timer){
