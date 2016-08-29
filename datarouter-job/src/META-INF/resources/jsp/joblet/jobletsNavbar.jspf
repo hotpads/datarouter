@@ -44,7 +44,6 @@
 						<li><a href="?submitAction=restartFailed" onclick="return confirm('Are you sure you want to restart failed joblets?');">restart failed joblets</a></li>
 						<li><a href="?submitAction=timeoutStuckRunning" onclick="return confirm('Are you sure you want to timeout stuck running joblets?');">timeout stuck running joblets</a></li>
 						<li><a href="?submitAction=deleteTimedOutJoblets" onclick="return confirm('Are you sure you want to delete timed out joblets?');">delete timed out joblets</a></li>
-						<li><a href="?submitAction=resetQueueTickets" onclick="return confirm('Are you sure you want to reset queue tickets?');">reset queue tickets</a></li>
 						<li><a href="?submitAction=restartTimedOut" onclick="return confirm('Are you sure you want to restart timedOut joblets?');">restart timedOut joblets</a></li>
 					</ul>
 				</li>
