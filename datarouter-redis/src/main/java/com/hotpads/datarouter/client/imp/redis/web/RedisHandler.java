@@ -13,13 +13,13 @@ import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.admin.RoutersHandler;
 import com.hotpads.handler.mav.Mav;
 
-public class RedisHandler extends BaseHandler {
+public class RedisHandler extends BaseHandler{
 
 	@Inject
 	private Datarouter datarouter;
 
 	@Handler
-	protected Mav inspectClient() {
+	protected Mav inspectClient(){
 		RouterParams<RedisClient> paramsRouter = new RouterParams<>(datarouter, params, REDIS_NEEDS);
 		Mav mav = new Mav("/jsp/admin/datarouter/redis/redisClientSummary.jsp");
 		mav.put("client", paramsRouter.getClient().getJedisClient());
@@ -41,7 +41,7 @@ public class RedisHandler extends BaseHandler {
 	static{
 	}
 
-	private static final HashMap<String, List<String>> REDIS_NEEDS = new HashMap<>();
+	private static final HashMap<String,List<String>> REDIS_NEEDS = new HashMap<>();
 	static{
 		REDIS_NEEDS.put(RouterParams.NEEDS_CLIENT, NEEDS_CLIENT);
 		REDIS_NEEDS.put(RouterParams.NEEDS_ROUTER, NEEDS_ROUTER);

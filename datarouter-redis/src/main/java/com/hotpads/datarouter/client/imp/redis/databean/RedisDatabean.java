@@ -9,7 +9,7 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.StringFieldKey;
 
-public class RedisDatabean extends BaseDatabean<RedisDatabeanKey, RedisDatabean>{
+public class RedisDatabean extends BaseDatabean<RedisDatabeanKey,RedisDatabean>{
 
 	private RedisDatabeanKey key;
 	private String data;
@@ -20,7 +20,7 @@ public class RedisDatabean extends BaseDatabean<RedisDatabeanKey, RedisDatabean>
 		public static final StringFieldKey data = new StringFieldKey("data");
 	}
 
-	public static class RedisDatabeanFielder extends BaseDatabeanFielder<RedisDatabeanKey, RedisDatabean>{
+	public static class RedisDatabeanFielder extends BaseDatabeanFielder<RedisDatabeanKey,RedisDatabean>{
 
 		public RedisDatabeanFielder(){
 			super(RedisDatabeanKey.class);

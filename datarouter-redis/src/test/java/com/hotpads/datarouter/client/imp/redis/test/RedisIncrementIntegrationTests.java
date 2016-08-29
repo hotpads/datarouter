@@ -1,5 +1,8 @@
 package com.hotpads.datarouter.client.imp.redis.test;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.inject.Inject;
 
 import org.junit.AfterClass;
@@ -17,7 +20,7 @@ import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.test.DatarouterStorageTestModuleFactory;
 import com.hotpads.datarouter.test.DrTestConstants;
 
-@Guice(moduleFactory=DatarouterStorageTestModuleFactory.class)
+@Guice(moduleFactory = DatarouterStorageTestModuleFactory.class)
 public class RedisIncrementIntegrationTests{
 
 	/** fields ***************************************************************/
@@ -27,7 +30,7 @@ public class RedisIncrementIntegrationTests{
 	@Inject
 	private DatarouterClients datarouterClients;
 
-	private RedisNode <RedisDatabeanKey,RedisDatabean,RedisDatabeanFielder> redisNode;
+	private RedisNode<RedisDatabeanKey,RedisDatabean,RedisDatabeanFielder> redisNode;
 
 	/** constructors *********************************************************/
 
@@ -54,6 +57,53 @@ public class RedisIncrementIntegrationTests{
 
 		deleteRecord(bean);
 		deleteRecord(bean2);
+	}
+
+	@Test
+	public void testGetMulti(){
+		RedisDatabean bean0 = new RedisDatabean("key0", "data0");
+		RedisDatabean bean1 = new RedisDatabean("key1", "data1");
+		RedisDatabean bean2 = new RedisDatabean("key2", "data2");
+
+		List<RedisDatabean> beans = new ArrayList<>();
+		beans.add(bean0);
+		beans.add(bean1);
+		beans.add(bean2);
+		redisNode.putMulti(beans, null);
+
+		List<RedisDatabeanKey> keys = new ArrayList<>();
+		keys.add(bean0.getKey());
+		keys.add(bean1.getKey());
+		keys.add(bean2.getKey());
+
+		List<RedisDatabean> roundTripped = redisNode.getMulti(keys, null);
+
+		Assert.assertEquals(beans, roundTripped);
+		for(RedisDatabean bean : beans){
+			deleteRecord(bean);
+		}
+	}
+
+	@Test
+	public void testPutMulti(){
+		List<RedisDatabean> beans = new ArrayList<>();
+		for(int i = 0; i < 10; i++){
+			beans.add(new RedisDatabean("key " + i, "data " + i));
+		}
+
+		for(RedisDatabean bean : beans){
+			Assert.assertFalse(redisNode.exists(bean.getKey(), null));
+		}
+
+		redisNode.putMulti(beans, null);
+
+		for(RedisDatabean bean : beans){
+			Assert.assertTrue(redisNode.exists(bean.getKey(), null));
+		}
+
+		for(RedisDatabean bean : beans){
+			deleteRecord(bean);
+		}
 	}
 
 	/** private **************************************************************/

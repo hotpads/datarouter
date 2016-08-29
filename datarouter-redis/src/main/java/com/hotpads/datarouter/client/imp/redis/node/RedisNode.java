@@ -1,6 +1,8 @@
 package com.hotpads.datarouter.client.imp.redis.node;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,12 +18,8 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 
-public class RedisNode<
-		PK extends PrimaryKey<PK>,
-		D extends Databean<PK,D>,
-		F extends DatabeanFielder<PK,D>>
-extends RedisReaderNode<PK,D,F>
-implements PhysicalMapStorageNode<PK,D>{
+public class RedisNode<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>>extends
+		RedisReaderNode<PK,D,F> implements PhysicalMapStorageNode<PK,D>{
 
 	private static final Logger logger = LoggerFactory.getLogger(RedisNode.class);
 
@@ -34,14 +32,14 @@ implements PhysicalMapStorageNode<PK,D>{
 	}
 
 	@Override
-	public Node<PK,D> getMaster() {
+	public Node<PK,D> getMaster(){
 		return this;
 	}
 
 	/** put ******************************************************************/
 
 	@Override
-	public void put(final D databean, final Config config) {
+	public void put(final D databean, final Config config){
 		if(databean == null){
 			return;
 		}
@@ -53,56 +51,51 @@ implements PhysicalMapStorageNode<PK,D>{
 			logger.error("redis object too big for redis! " + databean.getDatabeanName() + ", key: " + jsonKey);
 			return;
 		}
-
+		Long ttl = getTtlMs(config);
+		String jsonBean = JsonDatabeanTool.databeanToJsonString(databean, fieldInfo.getSampleFielder());
 		try{
 			startTraceSpan("redis put");
-			Long ttl = getTtlMs(config);
-
-			String jsonBean = JsonDatabeanTool.databeanToJsonString(databean, fieldInfo.getSampleFielder());
-
 			if(ttl == null){
 				getClient().getJedisClient().set(key, jsonBean);
-			} else{
+			}else{
 				// XX - Only set they key if it already exists
 				// PX - Milliseconds
 				getClient().getJedisClient().set(key, jsonBean, "XX", "PX", ttl);
 			}
-		} finally {
+		}finally{
 			finishTraceSpan();
 		}
 	}
 
 	@Override
-	public void putMulti(final Collection<D> databeans, final Config config) {
+	public void putMulti(final Collection<D> databeans, final Config config){
 		if(DrCollectionTool.isEmpty(databeans)){
 			return;
 		}
+		if(config != null && config.getTtlMs() != null){
+			// redis cannot handle both batch-puts and setting ttl
+			for(D databean : databeans){
+				put(databean, config);
+			}
+			return;
+		}
+
+		List<String> list = new ArrayList<>();
+		// redis mset(key1, value1, key2, value2, key3, value3, ...)
+		for(D databean : databeans){
+			String key = buildRedisKey(databean.getKey());
+			if(key.length() > MAX_REDIS_KEY_SIZE){
+				logger.error("redis object too big for redis! " + databean.getDatabeanName() + ", key: " + key);
+			}
+			String jsonBean = JsonDatabeanTool.databeanToJsonString(databean, fieldInfo.getSampleFielder());
+			list.add(key);
+			list.add(jsonBean);
+		}
+
 		try{
 			startTraceSpan("redis put multi");
-			for(D databean : databeans){
-				if(databean == null){
-					continue;
-				}
-
-				String key = buildRedisKey(databean.getKey());
-
-				if(key.length() > MAX_REDIS_KEY_SIZE){
-					String jsonKey = JsonDatabeanTool.fieldsToJson(databean.getKey().getFields()).toString();
-					logger.error("redis object too big for redis! " + databean.getDatabeanName() + ", key: " + jsonKey);
-				}
-				Long ttl = getTtlMs(config);
-
-				String jsonBean = JsonDatabeanTool.databeanToJsonString(databean, fieldInfo.getSampleFielder());
-
-				if(ttl == null){
-					getClient().getJedisClient().set(key, jsonBean);
-				} else{
-					// XX - Only set they key if it already exists
-					// PX - Milliseconds
-					getClient().getJedisClient().set(key, jsonBean, "XX", "PX", ttl);
-				}
-			}
-		} finally {
+			getClient().getJedisClient().mset(list.toArray(new String[databeans.size()]));
+		}finally{
 			finishTraceSpan();
 		}
 	}
@@ -111,12 +104,7 @@ implements PhysicalMapStorageNode<PK,D>{
 
 	@Override
 	public void deleteAll(final Config config){
-		try{
-			startTraceSpan("redis delete all");
-			getClient().getJedisClient().flushAll();
-		} finally{
-			finishTraceSpan();
-		}
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
@@ -127,7 +115,7 @@ implements PhysicalMapStorageNode<PK,D>{
 		try{
 			startTraceSpan("redis delete");
 			getClient().getJedisClient().del(buildRedisKey(key));
-		} finally{
+		}finally{
 			finishTraceSpan();
 		}
 	}
@@ -140,7 +128,7 @@ implements PhysicalMapStorageNode<PK,D>{
 		try{
 			startTraceSpan("redis delete multi");
 			getClient().getJedisClient().del((String[])buildRedisKeys(keys).toArray());
-		} finally{
+		}finally{
 			finishTraceSpan();
 		}
 	}
@@ -151,11 +139,11 @@ implements PhysicalMapStorageNode<PK,D>{
 		if(redisKey == null){
 			return;
 		}
+
+		String key = buildRedisKey(redisKey);
+		Long ttl = getTtlMs(config);
 		try{
 			startTraceSpan("redis increment");
-			String key = buildRedisKey(redisKey);
-
-			Long ttl = getTtlMs(config);
 			if(ttl == null){
 				getClient().getJedisClient().incrBy(key, delta);
 				return;
@@ -163,7 +151,7 @@ implements PhysicalMapStorageNode<PK,D>{
 			getClient().getJedisClient().incrBy(key, delta);
 			getClient().getJedisClient().pexpire(key, ttl);
 			return;
-		} finally{
+		}finally{
 			finishTraceSpan();
 		}
 	}
@@ -172,11 +160,10 @@ implements PhysicalMapStorageNode<PK,D>{
 		if(redisKey == null){
 			return null;
 		}
+		String key = buildRedisKey(redisKey);
+		Long expiration = getTtlMs(config);
 		try{
 			startTraceSpan("redis increment and get count");
-			String key = buildRedisKey(redisKey);
-
-			Long expiration = getTtlMs(config);
 			if(expiration == null){
 				return getClient().getJedisClient().incrBy(key, delta).longValue();
 			}
@@ -184,7 +171,7 @@ implements PhysicalMapStorageNode<PK,D>{
 			Long response = getClient().getJedisClient().incrBy(key, delta);
 			getClient().getJedisClient().pexpire(key, expiration);
 			return response.longValue();
-		} finally{
+		}finally{
 			finishTraceSpan();
 		}
 	}
@@ -195,9 +182,7 @@ implements PhysicalMapStorageNode<PK,D>{
 		if(config == null){
 			return null;
 		}
-		Long ttl = config.getTtlMs() == null
-				? Long.MAX_VALUE
-				: config.getTtlMs();
+		Long ttl = config.getTtlMs() == null ? Long.MAX_VALUE : config.getTtlMs();
 		return ttl;
 	}
 }
