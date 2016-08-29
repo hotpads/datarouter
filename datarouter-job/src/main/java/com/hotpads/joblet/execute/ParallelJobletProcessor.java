@@ -94,6 +94,7 @@ public class ParallelJobletProcessor{
 		int counter = 0;
 		while(!shutdownRequested.get()){
 			if(!shouldRun()){
+				logger.warn("sleeping since shouldRun false for {}", jobletType.getPersistentString());
 				sleepABit();
 				continue;
 			}
@@ -105,6 +106,7 @@ public class ParallelJobletProcessor{
 				jobletPackage.getJobletRequest().setTimer(timer);
 				assignJobletPackageToThreadPool(jobletPackage);
 			}else{
+				logger.warn("sleeping since no joblet found for {}", jobletType.getPersistentString());
 				sleepABit();
 			}
 		}
@@ -162,8 +164,8 @@ public class ParallelJobletProcessor{
 
 	@Override
 	public String toString(){
-		return getClass().getSimpleName() + "[" + System.identityHashCode(this) + "," + jobletType + ",numThreads:"
-				+ jobletSettings.getThreadCountForJobletType(jobletType) + "]";
+		return getClass().getSimpleName() + "[" + jobletType + ", numThreads:" + jobletSettings
+				.getThreadCountForJobletType(jobletType) + "]";
 	}
 
 	/*---------------- convenience ---------------*/
