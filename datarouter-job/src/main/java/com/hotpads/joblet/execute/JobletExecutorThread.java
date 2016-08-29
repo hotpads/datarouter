@@ -1,5 +1,6 @@
 package com.hotpads.joblet.execute;
 
+import java.util.Optional;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -266,12 +267,12 @@ public class JobletExecutorThread extends Thread{
 
 	//used by jobletThreadTable.jspf
 	public JobletRequest getJoblet(){
-		return jobletPackage == null ? null : jobletPackage.getJobletRequest();
+		return Optional.ofNullable(jobletPackage).map(JobletPackage::getJobletRequest).orElse(null);
 	}
 
 	//used by jobletThreadTable.jspf
 	public JobletData getJobletData(){
-		return jobletPackage == null ? null : jobletPackage.getJobletData();
+		return Optional.ofNullable(jobletPackage).map(JobletPackage::getJobletData).orElse(null);
 	}
 
 	public void killMe(boolean replace) {
