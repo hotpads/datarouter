@@ -35,15 +35,13 @@ public class ParallelJobletProcessor{
 		@Inject
 		private DatarouterProperties datarouterProperties;
 		@Inject
-		private JobletThrottle jobletThrottle;
-		@Inject
 		private JobletSettings jobletSettings;
 		@Inject
 		private JobletExecutorThreadPoolFactory jobletExecutorThreadPoolFactory;
 
 		public ParallelJobletProcessor create(JobletType<?> jobletType){
 			return new ParallelJobletProcessor(datarouterProperties, jobletType, jobSettings, jobletSettings,
-					jobletService, jobletThrottle, jobletExecutorThreadPoolFactory);
+					jobletService, jobletExecutorThreadPoolFactory);
 		}
 	}
 
@@ -59,7 +57,6 @@ public class ParallelJobletProcessor{
 	private final JobSettings jobSettings;
 	private final JobletSettings jobletSettings;
 	private final JobletService jobletService;
-	private final JobletThrottle jobletThrottle;
 	//not injected
 	private final JobletExecutorThreadPool workerThreadPool;
 	private final Thread driverThread;
@@ -67,13 +64,12 @@ public class ParallelJobletProcessor{
 
 	public ParallelJobletProcessor(DatarouterProperties datarouterProperties, JobletType<?> jobletType,
 			JobSettings jobSettings, JobletSettings jobletSettings, JobletService jobletService,
-			JobletThrottle jobletThrottle, JobletExecutorThreadPoolFactory jobletExecutorThreadPoolFactory){
+			JobletExecutorThreadPoolFactory jobletExecutorThreadPoolFactory){
 		this.datarouterProperties = datarouterProperties;
 		this.jobletType = jobletType;
 		this.jobSettings = jobSettings;
 		this.jobletSettings = jobletSettings;
 		this.jobletService = jobletService;
-		this.jobletThrottle = jobletThrottle;
 
 		this.workerThreadPool = jobletExecutorThreadPoolFactory.create(0, jobletType);
 		this.driverThread = new Thread(null, this::processJobletsInParallel, jobletType.getPersistentString()
@@ -117,7 +113,6 @@ public class ParallelJobletProcessor{
 	private final JobletPackage getJobletPackage(int counter){
 		String reservedBy = getReservedByString(counter);
 		JobletRequest jobletRequest = null;
-		jobletThrottle.acquirePermits(jobletType.getCpuPermits(), jobletType.getMemoryPermits());
 		try{
 			jobletRequest = jobletService.getJobletRequestForProcessing(jobletType, reservedBy);
 		}catch(Exception e){
@@ -127,8 +122,6 @@ public class ParallelJobletProcessor{
 		if(jobletRequest != null){
 			jobletRequest.setShutdownRequested(shutdownRequested);
 			jobletPackage = jobletService.getJobletPackageForJobletRequest(jobletRequest);
-		}else{
-			jobletThrottle.releasePermits(jobletType.getCpuPermits(), jobletType.getMemoryPermits());
 		}
 		return jobletPackage;
 	}

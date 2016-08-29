@@ -24,13 +24,10 @@ public class JobletExecutorThreadPool {
 	@Singleton
 	public static class JobletExecutorThreadPoolFactory{
 		@Inject
-		private JobletThrottle jobletThrottle;
-		@Inject
 		private JobletExecutorThreadFactory jobletExecutorThreadFactory;
 
 		public JobletExecutorThreadPool create(Integer threadPoolSize, JobletType<?> jobletType){
-			return new JobletExecutorThreadPool(threadPoolSize, jobletType, jobletThrottle,
-					jobletExecutorThreadFactory);
+			return new JobletExecutorThreadPool(threadPoolSize, jobletType, jobletExecutorThreadFactory);
 		}
 	}
 
@@ -43,16 +40,14 @@ public class JobletExecutorThreadPool {
 	private final List<JobletExecutorThread> allExecutorThreads = new ArrayList<>();
 	private final ThreadGroup threadGroup;
 	private final JobletType<?> jobletType;
-	private final JobletThrottle jobletThrottle;
 	private final JobletExecutorThreadFactory jobletExecutorThreadFactory;
 
 	private int numThreadsToLayOff = 0;
 	private int numThreads;
 
-	private JobletExecutorThreadPool(Integer threadPoolSize, JobletType<?> jobletType, JobletThrottle jobletThrottle,
+	private JobletExecutorThreadPool(Integer threadPoolSize, JobletType<?> jobletType,
 			JobletExecutorThreadFactory jobletExecutorThreadFactory) {
 		this.jobletType = jobletType;
-		this.jobletThrottle = jobletThrottle;
 		this.jobletExecutorThreadFactory = jobletExecutorThreadFactory;
 		this.threadGroup = new ThreadGroup(jobletThreadGroup, jobletType.getPersistentString());
 		resize(threadPoolSize);
@@ -65,7 +60,6 @@ public class JobletExecutorThreadPool {
 			if(thread == null){
 				throw new IllegalStateException("No thread available!");
 			}
-			jobletThrottle.adjustCpuMemoryPermits();
 			thread.submitJoblet(jobletPackage);
 			runningExecutorThreads.add(thread);
 		}finally{
@@ -158,7 +152,6 @@ public class JobletExecutorThreadPool {
 				logger.error("numThreadsToLayOff: "+numThreadsToLayOff);
 				thread.interrupt();
 				removeExecutorThreadFromPool(thread);
-				jobletThrottle.releasePermits(jobletType.getCpuPermits(), jobletType.getMemoryPermits());
 				addNewExecutorThreadToPool();
 				logger.error("after:");
 				logger.error("allExecutorThreads: "+allExecutorThreads.size());

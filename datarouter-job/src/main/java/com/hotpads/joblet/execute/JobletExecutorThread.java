@@ -35,15 +35,13 @@ public class JobletExecutorThread extends Thread{
 		@Inject
 		private JobletFactory jobletFactory;
 		@Inject
-		private JobletThrottle jobletThrottle;
-		@Inject
 		private JobletNodes jobletNodes;
 		@Inject
 		private JobletService jobletService;
 
 		public JobletExecutorThread create(JobletExecutorThreadPool jobletExecutorThreadPool, ThreadGroup threadGroup){
-			return new JobletExecutorThread(jobletExecutorThreadPool, threadGroup, jobletTypeFactory,
-					jobletFactory, jobletThrottle, jobletNodes, jobletService);
+			return new JobletExecutorThread(jobletExecutorThreadPool, threadGroup, jobletTypeFactory, jobletFactory,
+					jobletNodes, jobletService);
 		}
 	}
 
@@ -52,7 +50,6 @@ public class JobletExecutorThread extends Thread{
 
 	private final JobletTypeFactory jobletTypeFactory;
 	private final JobletFactory jobletFactory;
-	private final JobletThrottle jobletThrottle;
 	private final JobletNodes jobletNodes;
 	private final JobletService jobletService;
 
@@ -66,14 +63,13 @@ public class JobletExecutorThread extends Thread{
 	private long semaphoreWaitTime = 0;
 
 	private JobletExecutorThread(JobletExecutorThreadPool jobletExecutorThreadPool, ThreadGroup threadGroup,
-			JobletTypeFactory jobletTypeFactory, JobletFactory jobletFactory, JobletThrottle jobletThrottle,
-			JobletNodes jobletNodes, JobletService jobletService){
+			JobletTypeFactory jobletTypeFactory, JobletFactory jobletFactory, JobletNodes jobletNodes,
+			JobletService jobletService){
 		super(threadGroup, threadGroup.getName() + " - idle");
 		this.jobletExecutorThreadPool = jobletExecutorThreadPool;
 		this.jobletTypeFactory = jobletTypeFactory;
 		this.jobletFactory = jobletFactory;
 		this.jobletName = threadGroup.getName();
-		this.jobletThrottle = jobletThrottle;
 		this.jobletNodes = jobletNodes;
 		this.jobletService = jobletService;
 	}
@@ -115,14 +111,12 @@ public class JobletExecutorThread extends Thread{
 				logger.warn(e.toString());
 				shutdown = true;
 				JobletType<?> jobletType = jobletTypeFactory.fromJobletPackage(jobletPackage);
-				jobletThrottle.releasePermits(jobletType.getCpuPermits(), jobletType.getMemoryPermits());
 				return;
 			}catch(Throwable t){
 				logger.warn("", t);
 			}finally{
 				// JobletThrottle.releasePermit();
 				JobletType<?> jobletType = jobletTypeFactory.fromJobletPackage(jobletPackage);
-				jobletThrottle.releasePermits(jobletType.getCpuPermits(), jobletType.getMemoryPermits());
 				jobletPackage = null;
 				processingStartTime = null;
 				setName(jobletName + " - idle");
@@ -282,7 +276,6 @@ public class JobletExecutorThread extends Thread{
 			jobletExecutorThreadPool.removeExecutorThreadFromPool(this);
 			shutdown = true;
 			JobletType<?> jobletType = jobletTypeFactory.fromJobletPackage(jobletPackage);
-			jobletThrottle.releasePermits(jobletType.getCpuPermits(), jobletType.getMemoryPermits());
 			if(replace){
 				jobletExecutorThreadPool.addNewExecutorThreadToPool();
 			}
