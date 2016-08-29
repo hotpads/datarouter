@@ -2,6 +2,8 @@ package com.hotpads.joblet.execute;
 
 import java.time.Duration;
 import java.util.Collection;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -53,7 +55,6 @@ public class ParallelJobletProcessor{
 
 	private final JobletType<?> jobletType;
 	private final Thread workerThread;
-	private JobletScheduler jobletScheduler;
 	private JobletExecutorThreadPool threadPool;
 
 	private final JobSettings jobSettings;
@@ -72,7 +73,6 @@ public class ParallelJobletProcessor{
 		this.jobletThrottle = jobletThrottle;
 		this.jobletSettings = jobletSettings;
 		this.threadPool = jobletExecutorThreadPoolFactory.create(0, jobletType);
-		this.jobletScheduler = new JobletScheduler(threadPool);
 		this.workerThread = new Thread(null, this::processJobletsInParallel, jobletType.getPersistentString()
 				+ " JobletProcessor worker thread");
 		workerThread.start();
@@ -103,12 +103,11 @@ public class ParallelJobletProcessor{
 			}
 			threadPool.resize(jobletSettings.getThreadCountForJobletType(jobletType));
 			PhaseTimer timer = new PhaseTimer();
-			jobletScheduler.blockUntilReadyForNewJoblet();
 			JobletPackage jobletPackage = getJobletPackage(counter++);
 			timer.add("acquired");
 			if(jobletPackage != null){
 				jobletPackage.getJobletRequest().setTimer(timer);
-				jobletScheduler.submitJobletPackage(jobletPackage);
+				assignJobletPackageToThreadPool(jobletPackage);
 			}else{
 				sleepABit();
 			}
@@ -137,6 +136,26 @@ public class ParallelJobletProcessor{
 	private String getReservedByString(int counter){
 		return datarouterProperties.getServerName() + "_" + DrDateTool.getYyyyMmDdHhMmSsMmmWithPunctuationNoSpaces(
 				System.currentTimeMillis()) + "_" + Thread.currentThread().getId() + "_" + counter;
+	}
+
+	public void assignJobletPackageToThreadPool(JobletPackage jobletPackage){
+		Lock lock = threadPool.getJobAssignmentLock();
+		lock.lock();
+		try{
+			while(threadPool.isSaturated()){
+				if(!threadPool.getSaturatedCondition().await(1, TimeUnit.SECONDS)){
+					threadPool.findAndKillRunawayJoblets();
+				}
+			}
+			if(jobletPackage == null){
+				return;
+			}
+			threadPool.assignJobletPackage(jobletPackage);
+		}catch(InterruptedException e){
+			return;
+		}finally{
+			lock.unlock();
+		}
 	}
 
 	private void sleepABit(){
@@ -170,10 +189,6 @@ public class ParallelJobletProcessor{
 
 	public JobletType<?> getJobletType(){
 		return jobletType;
-	}
-
-	public JobletScheduler getJobletScheduler(){
-		return jobletScheduler;
 	}
 
 }
