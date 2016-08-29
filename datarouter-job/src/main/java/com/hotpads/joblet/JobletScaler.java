@@ -39,7 +39,7 @@ public class JobletScaler {
 		return calcNumJobletServers(joblets);
 	}
 
-	/*--------------- prive -----------------*/
+	/*--------------- private -----------------*/
 
 	private int calcNumJobletServers(Iterable<JobletRequest> jobletRequests){
 		int minServers = jobletSettings.getMinJobletServers().getValue();

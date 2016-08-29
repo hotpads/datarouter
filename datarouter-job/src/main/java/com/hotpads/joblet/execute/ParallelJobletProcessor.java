@@ -39,38 +39,38 @@ public class ParallelJobletProcessor{
 		@Inject
 		private JobletExecutorThreadPoolFactory jobletExecutorThreadPoolFactory;
 
-		public ParallelJobletProcessor create(JobletType<?> jobletType){
-			return new ParallelJobletProcessor(datarouterProperties, jobletType, jobSettings, jobletSettings,
-					jobletService, jobletExecutorThreadPoolFactory);
+		public ParallelJobletProcessor create(MutableBoolean shutdownRequested, JobletType<?> jobletType){
+			return new ParallelJobletProcessor(datarouterProperties, jobSettings, jobletSettings, jobletService,
+					jobletExecutorThreadPoolFactory, shutdownRequested, jobletType);
 		}
 	}
 
 	public static final long SLEEP_MS_WHEN_NO_WORK = Duration.ofSeconds(1).toMillis();
 	public static final Long RUNNING_JOBLET_TIMEOUT_MS = 1000L * 60 * 10;  //10 minutes
 
-	//intentionally shared across any instances that might exist
-	private static final MutableBoolean shutdownRequested = new MutableBoolean(false);
-
 	//injected
 	private final DatarouterProperties datarouterProperties;
-	private final JobletType<?> jobletType;
 	private final JobSettings jobSettings;
 	private final JobletSettings jobletSettings;
 	private final JobletService jobletService;
 	//not injected
+	private final MutableBoolean shutdownRequested;
+	private final JobletType<?> jobletType;
 	private final JobletExecutorThreadPool workerThreadPool;
 	private final Thread driverThread;
 
 
-	public ParallelJobletProcessor(DatarouterProperties datarouterProperties, JobletType<?> jobletType,
-			JobSettings jobSettings, JobletSettings jobletSettings, JobletService jobletService,
-			JobletExecutorThreadPoolFactory jobletExecutorThreadPoolFactory){
+	public ParallelJobletProcessor(DatarouterProperties datarouterProperties, JobSettings jobSettings,
+			JobletSettings jobletSettings, JobletService jobletService,
+			JobletExecutorThreadPoolFactory jobletExecutorThreadPoolFactory, MutableBoolean shutdownRequested,
+			JobletType<?> jobletType){
 		this.datarouterProperties = datarouterProperties;
-		this.jobletType = jobletType;
 		this.jobSettings = jobSettings;
 		this.jobletSettings = jobletSettings;
 		this.jobletService = jobletService;
 
+		this.shutdownRequested = shutdownRequested;
+		this.jobletType = jobletType;
 		this.workerThreadPool = jobletExecutorThreadPoolFactory.create(0, jobletType);
 		this.driverThread = new Thread(null, this::processJobletsInParallel, jobletType.getPersistentString()
 				+ " JobletProcessor worker thread");
