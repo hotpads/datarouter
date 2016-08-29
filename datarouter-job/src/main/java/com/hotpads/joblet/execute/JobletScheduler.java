@@ -1,10 +1,45 @@
 package com.hotpads.joblet.execute;
 
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+
 import com.hotpads.joblet.JobletPackage;
 
-public interface JobletScheduler{
+public class JobletScheduler{
 
-	void blockUntilReadyForNewJoblet();
-	void submitJobletPackage(JobletPackage jobletPackage);
+	private final JobletExecutorThreadPool threadPool;
 
+	public JobletScheduler(JobletExecutorThreadPool threadPool){
+		this.threadPool = threadPool;
+	}
+
+	public void blockUntilReadyForNewJoblet(){
+		assignJobletPackageToThreadPool(null);
+		// TODO optional - if we instead fetch a joblet then block on adding, it will increase overall throughput,
+		// but a joblet may be reserved and not processed for a time.
+	}
+
+	public void submitJobletPackage(JobletPackage jobletPackage){
+		assignJobletPackageToThreadPool(jobletPackage);
+	}
+
+	private void assignJobletPackageToThreadPool(JobletPackage jobletPackage){
+		Lock lock = threadPool.getJobAssignmentLock();
+		lock.lock();
+		try{
+			while(threadPool.isSaturated()){
+				if(!threadPool.getSaturatedCondition().await(1, TimeUnit.SECONDS)){
+					threadPool.findAndKillRunawayJoblets();
+				}
+			}
+			if(jobletPackage == null){
+				return;
+			}
+			threadPool.assignJobletPackage(jobletPackage);
+		}catch(InterruptedException e){
+			return;
+		}finally{
+			lock.unlock();
+		}
+	}
 }

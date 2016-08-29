@@ -52,7 +52,7 @@ public class ParallelJobletProcessor{
 	private static final MutableBoolean shutdownRequested = new MutableBoolean(false);
 
 	private final JobletType<?> jobletType;
-	private Thread workerThread;
+	private final Thread workerThread;
 	private JobletScheduler jobletScheduler;
 	private JobletExecutorThreadPool threadPool;
 
@@ -72,7 +72,7 @@ public class ParallelJobletProcessor{
 		this.jobletThrottle = jobletThrottle;
 		this.jobletSettings = jobletSettings;
 		this.threadPool = jobletExecutorThreadPoolFactory.create(0, jobletType);
-		this.jobletScheduler = new JobletSchedulerImp(threadPool);
+		this.jobletScheduler = new JobletScheduler(threadPool);
 		this.workerThread = new Thread(null, this::processJobletsInParallel, jobletType.getPersistentString()
 				+ " JobletProcessor worker thread");
 		workerThread.start();
@@ -97,10 +97,7 @@ public class ParallelJobletProcessor{
 
 	private void processJobletsInParallel(){
 		int counter = 0;
-		while(true){
-			if(shutdownRequested.get()){
-				return;
-			}
+		while(!shutdownRequested.get()){
 			if(!shouldRun()){
 				sleepABit();
 			}
