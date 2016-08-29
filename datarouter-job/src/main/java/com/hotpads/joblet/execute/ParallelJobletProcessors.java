@@ -13,7 +13,6 @@ import com.hotpads.joblet.enums.JobletType;
 import com.hotpads.joblet.enums.JobletTypeFactory;
 import com.hotpads.joblet.execute.ParallelJobletProcessor.ParallelJobletProcessorFactory;
 
-//static map to hold a ParallelJobletProcessor for each joblet type
 @Singleton
 public class ParallelJobletProcessors {
 

@@ -118,12 +118,11 @@ public class ParallelJobletProcessor{
 		}catch(Exception e){
 			logger.warn("", e);
 		}
-		JobletPackage jobletPackage = null;
-		if(jobletRequest != null){
-			jobletRequest.setShutdownRequested(shutdownRequested);
-			jobletPackage = jobletService.getJobletPackageForJobletRequest(jobletRequest);
+		if(jobletRequest == null){
+			return null;
 		}
-		return jobletPackage;
+		jobletRequest.setShutdownRequested(shutdownRequested);
+		return jobletService.getJobletPackageForJobletRequest(jobletRequest);
 	}
 
 	private String getReservedByString(int counter){

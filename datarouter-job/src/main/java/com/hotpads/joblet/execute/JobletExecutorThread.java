@@ -110,13 +110,11 @@ public class JobletExecutorThread extends Thread{
 			}catch(InterruptedException e){
 				logger.warn(e.toString());
 				shutdown = true;
-				JobletType<?> jobletType = jobletTypeFactory.fromJobletPackage(jobletPackage);
 				return;
 			}catch(Throwable t){
 				logger.warn("", t);
 			}finally{
 				// JobletThrottle.releasePermit();
-				JobletType<?> jobletType = jobletTypeFactory.fromJobletPackage(jobletPackage);
 				jobletPackage = null;
 				processingStartTime = null;
 				setName(jobletName + " - idle");
@@ -275,7 +273,6 @@ public class JobletExecutorThread extends Thread{
 		try{
 			jobletExecutorThreadPool.removeExecutorThreadFromPool(this);
 			shutdown = true;
-			JobletType<?> jobletType = jobletTypeFactory.fromJobletPackage(jobletPackage);
 			if(replace){
 				jobletExecutorThreadPool.addNewExecutorThreadToPool();
 			}

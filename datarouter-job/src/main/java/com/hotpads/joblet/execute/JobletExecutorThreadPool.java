@@ -39,7 +39,6 @@ public class JobletExecutorThreadPool {
 	private final List<JobletExecutorThread> runningExecutorThreads = new ArrayList<>();
 	private final List<JobletExecutorThread> allExecutorThreads = new ArrayList<>();
 	private final ThreadGroup threadGroup;
-	private final JobletType<?> jobletType;
 	private final JobletExecutorThreadFactory jobletExecutorThreadFactory;
 
 	private int numThreadsToLayOff = 0;
@@ -47,7 +46,6 @@ public class JobletExecutorThreadPool {
 
 	private JobletExecutorThreadPool(Integer threadPoolSize, JobletType<?> jobletType,
 			JobletExecutorThreadFactory jobletExecutorThreadFactory) {
-		this.jobletType = jobletType;
 		this.jobletExecutorThreadFactory = jobletExecutorThreadFactory;
 		this.threadGroup = new ThreadGroup(jobletThreadGroup, jobletType.getPersistentString());
 		resize(threadPoolSize);
