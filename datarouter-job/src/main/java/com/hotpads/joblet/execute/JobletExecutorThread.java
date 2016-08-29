@@ -58,8 +58,6 @@ public class JobletExecutorThread extends Thread{
 	private Condition hasWorkToBeDone = workLock.newCondition();
 	private JobletPackage jobletPackage;
 	private Long processingStartTime;
-	private long totalRunTime = 0;
-	private long completedTasks = 0;
 	private long semaphoreWaitTime = 0;
 
 	private JobletExecutorThread(JobletExecutorThreadPool jobletExecutorThreadPool, ThreadGroup threadGroup,
@@ -74,6 +72,20 @@ public class JobletExecutorThread extends Thread{
 		this.jobletService = jobletService;
 	}
 
+	public void killMe(boolean replace) {
+		//called from other threads to kill this one.
+		jobletExecutorThreadPool.getJobAssignmentLock().lock();
+		try{
+			jobletExecutorThreadPool.removeExecutorThreadFromPool(this);
+			shutdown = true;
+			if(replace){
+				jobletExecutorThreadPool.addNewExecutorThreadToPool();
+			}
+		}finally{
+			jobletExecutorThreadPool.getJobAssignmentLock().unlock();
+		}
+	}
+
 	public void submitJoblet(JobletPackage jobletPackage){
 		workLock.lock();
 		try{
@@ -85,6 +97,8 @@ public class JobletExecutorThread extends Thread{
 		}
 	}
 
+	/*------------------ processing loop -----------------*/
+
 	@Override
 	public void run() {
 		while(!shutdown){
@@ -94,19 +108,12 @@ public class JobletExecutorThread extends Thread{
 					hasWorkToBeDone.await();
 				}
 				Long requestPermitTime = System.currentTimeMillis();
-				// JobletThrottle.acquirePermit();
 				semaphoreWaitTime = System.currentTimeMillis() - requestPermitTime;
-				// JobletThrottle.acquirePermits(jobletPackage.getJoblet().getType().getCpuPermits(),
-				// jobletPackage.getJoblet().getType().getMemoryPermits());
 				jobletPackage.getJobletRequest().setReservedAt(System.currentTimeMillis());
 				jobletNodes.jobletRequest().put(jobletPackage.getJobletRequest(), null);
 				setName(jobletName + " - working");
-				PhaseTimer timer = new PhaseTimer();
 				processingStartTime = System.currentTimeMillis();
-				executeJoblet();
-				timer.add("done");
-				completedTasks++;
-				totalRunTime += System.currentTimeMillis() - processingStartTime;
+				internalProjcessJobletWithExceptionHandlingAndStats();
 			}catch(InterruptedException e){
 				logger.warn(e.toString());
 				shutdown = true;
@@ -124,43 +131,35 @@ public class JobletExecutorThread extends Thread{
 		}
 	}
 
-	public Long getRunningTime(){
-		Long processingStartTime = this.processingStartTime;
-		if(processingStartTime == null){
-			return null;
-		}
-		return System.currentTimeMillis() - processingStartTime;
-	}
-
-	private void executeJoblet(){
+	private void internalProjcessJobletWithExceptionHandlingAndStats(){
 		JobletRequest jobletRequest = jobletPackage.getJobletRequest();
-		PhaseTimer pt = jobletRequest.getTimer();
-		pt.add("waited for processing");
+		PhaseTimer timer = jobletRequest.getTimer();
+		timer.add("waited for processing");
 		try{
-			runJoblet(jobletPackage);
-			pt.add("processed");
+			internalProcessJobletWithStats(jobletPackage);
+			timer.add("processed");
 			jobletService.handleJobletCompletion(jobletRequest);
-			pt.add("completed");
+			timer.add("completed");
 		}catch(JobInterruptedException e){
 			try{
 				jobletService.handleJobletInterruption(jobletRequest);
 			}catch(Exception e1){
 				logger.error("", e1);
 			}
-			pt.add("interrupted");
+			timer.add("interrupted");
 		}catch(Exception e){
 			logger.error("", e);
 			try{
 				jobletService.handleJobletError(jobletRequest, e, jobletRequest.getClass().getSimpleName());
-				pt.add("failed");
+				timer.add("failed");
 			}catch(Exception lastResort){
 				logger.error("", lastResort);
-				pt.add("couldn't mark failed");
+				timer.add("couldn't mark failed");
 			}
 		}
 	}
 
-	private final void runJoblet(JobletPackage jobletPackage) throws JobInterruptedException{
+	private final void internalProcessJobletWithStats(JobletPackage jobletPackage) throws JobInterruptedException{
 		Joblet<?> joblet = jobletFactory.createForPackage(jobletPackage);
 		JobletType<?> jobletType = jobletTypeFactory.fromJobletPackage(jobletPackage);
 		JobletRequest jobletRequest = jobletPackage.getJobletRequest();
@@ -195,6 +194,8 @@ public class JobletExecutorThread extends Thread{
 				+ " after waiting " + semaphoreWaitTime+"ms");
 	}
 
+	/*------------------ private ----------------------*/
+
 	private void recycleThread(){
 		jobletExecutorThreadPool.getJobAssignmentLock().lock();
 		try{
@@ -222,6 +223,15 @@ public class JobletExecutorThread extends Thread{
 		}
 	}
 
+	/*----------------- getters ---------------------*/
+
+	public Long getRunningTime(){
+		if(processingStartTime == null){
+			return null;
+		}
+		return System.currentTimeMillis() - processingStartTime;
+	}
+
 	//used in jobletThreadTable.jspf
 	public String getRunningTimeString(){
 		Long startTime = processingStartTime;
@@ -229,15 +239,6 @@ public class JobletExecutorThread extends Thread{
 			return "idle";
 		}
 		Long duration = System.currentTimeMillis() - startTime;
-		return makeDurationString(duration);
-	}
-
-	//used in jobletThreadTable.jspf
-	public String getAverageRunningTimeString(){
-		if(completedTasks == 0){
-			return "no tasks";
-		}
-		Long duration = totalRunTime/completedTasks;
 		return makeDurationString(duration);
 	}
 
@@ -253,12 +254,8 @@ public class JobletExecutorThread extends Thread{
 		return sb.toString();
 	}
 
-	public JobletPackage getJobletPackage() {
-		return jobletPackage;
-	}
-
 	//used by jobletThreadTable.jspf
-	public JobletRequest getJoblet(){
+	public JobletRequest getJobletRequest(){
 		return Optional.ofNullable(jobletPackage).map(JobletPackage::getJobletRequest).orElse(null);
 	}
 
@@ -267,18 +264,8 @@ public class JobletExecutorThread extends Thread{
 		return Optional.ofNullable(jobletPackage).map(JobletPackage::getJobletData).orElse(null);
 	}
 
-	public void killMe(boolean replace) {
-		//called from other threads to kill this one.
-		jobletExecutorThreadPool.getJobAssignmentLock().lock();
-		try{
-			jobletExecutorThreadPool.removeExecutorThreadFromPool(this);
-			shutdown = true;
-			if(replace){
-				jobletExecutorThreadPool.addNewExecutorThreadToPool();
-			}
-		}finally{
-			jobletExecutorThreadPool.getJobAssignmentLock().unlock();
-		}
+	public JobletPackage getJobletPackage() {
+		return jobletPackage;
 	}
 
 }

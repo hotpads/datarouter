@@ -65,8 +65,7 @@ public class ParallelJobletProcessors {
 	}
 
 	public void requestShutdown(){
-		processorByType.values().stream()
-				.forEach(ParallelJobletProcessor::requestShutdown);
+		processorByType.values().forEach(ParallelJobletProcessor::requestShutdown);
 	}
 
 }

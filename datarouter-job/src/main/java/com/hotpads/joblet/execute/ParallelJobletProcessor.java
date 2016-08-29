@@ -84,16 +84,15 @@ public class ParallelJobletProcessor{
 
 	/*----------------- private --------------------*/
 
-	private boolean shouldRun() {
-		return jobSettings.getProcessJobs().getValue()
+	private boolean shouldRun(){
+		return !shutdownRequested.get()
 				&& jobletSettings.getRunJoblets().getValue()
-				&& jobletSettings.getThreadCountForJobletType(jobletType) > 0
-				&& !shutdownRequested.get();
+				&& jobletSettings.getThreadCountForJobletType(jobletType) > 0;
 	}
 
 	//this method must continue indefinitely, so be sure to catch all exceptions
 	private void fetchJobletsAndAssignToPool(){
-		int counter = 0;
+		long counter = 0;
 		while(!shutdownRequested.get()){
 			try{
 				if(!shouldRun()){
@@ -112,7 +111,7 @@ public class ParallelJobletProcessor{
 					logger.warn("sleeping since no joblet found for {}", jobletType.getPersistentString());
 					sleepABit();
 				}
-			}catch(Exception e){
+			}catch(Exception e){//catch everything; don't let the loop break
 				logger.error("", e);
 				try{
 					sleepABit();
@@ -123,7 +122,7 @@ public class ParallelJobletProcessor{
 		}
 	}
 
-	private final JobletPackage getJobletPackage(int counter){
+	private final JobletPackage getJobletPackage(long counter){
 		String reservedBy = getReservedByString(counter);
 		JobletRequest jobletRequest = jobletService.getJobletRequestForProcessing(jobletType, reservedBy);
 		if(jobletRequest == null){
@@ -133,7 +132,7 @@ public class ParallelJobletProcessor{
 		return jobletService.getJobletPackageForJobletRequest(jobletRequest);
 	}
 
-	private String getReservedByString(int counter){
+	private String getReservedByString(long counter){
 		return datarouterProperties.getServerName()
 				+ "_" + DrDateTool.getYyyyMmDdHhMmSsMmmWithPunctuationNoSpaces(System.currentTimeMillis())
 				+ "_" + Thread.currentThread().getId()
