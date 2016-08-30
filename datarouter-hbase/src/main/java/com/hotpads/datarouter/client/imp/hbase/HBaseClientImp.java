@@ -20,7 +20,6 @@ import com.hotpads.datarouter.client.imp.hbase.client.HBaseClient;
 import com.hotpads.datarouter.client.imp.hbase.pool.HBaseTablePool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.concurrent.FutureTool;
-import com.hotpads.util.core.io.RuntimeIOException;
 import com.hotpads.util.datastructs.MutableString;
 
 public class HBaseClientImp
@@ -34,14 +33,16 @@ implements HBaseClient{
 	private final HBaseTablePool pool;
 	private final ExecutorService executorService;
 	private final Map<String,Class<? extends PrimaryKey<?>>> primaryKeyClassByName;
+	private final ClientType clientType;
 
 	/**************************** constructor **********************************/
 
 	public HBaseClientImp(String name, Connection connection, Admin hbaseAdmin, HBaseTablePool pool,
 			Map<String,Class<? extends PrimaryKey<?>>> primaryKeyClassByName, ClientAvailabilitySettings
-			clientAvailabilitySettings, ExecutorService executorService){
+			clientAvailabilitySettings, ExecutorService executorService, ClientType clientType){
 		super(name, clientAvailabilitySettings);
 		this.connection = connection;
+		this.clientType = clientType;
 		this.hbaseConfiguration = connection.getConfiguration();
 		this.admin = hbaseAdmin;
 		this.pool = pool;
@@ -51,7 +52,7 @@ implements HBaseClient{
 
 	@Override
 	public ClientType getType(){
-		return HBaseClientType.INSTANCE;
+		return clientType;
 	}
 
 	/****************************** HBaseClient methods *************************/
@@ -66,7 +67,7 @@ implements HBaseClient{
 		try{
 			return connection.getTable(TableName.valueOf(name));
 		}catch(IOException e){
-			throw new RuntimeIOException(e);
+			throw new RuntimeException(e);
 		}
 	}
 

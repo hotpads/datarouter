@@ -23,6 +23,7 @@ public class DatarouterExecutorGuiceModule extends BaseExecutorGuiceModule{
 		POOL_parallelApiCallerFlusher = "parallelApiCallerFlusher",
 		POOL_parallelApiCallerSender = "parallelApiCallerSender",
 		POOL_hbaseClientExecutor = "hbaseClientExecutor",
+		POOL_bigTableClientExecutor = "bigTableClientExecutor",
 		POOL_schemaUpdateScheduler = "schemaUpdateScheduler",
 		POOL_latencyMonitoring = "latencyMonitoring";
 
@@ -65,6 +66,9 @@ public class DatarouterExecutorGuiceModule extends BaseExecutorGuiceModule{
 		bind(ExecutorService.class)
 			.annotatedWith(Names.named(POOL_hbaseClientExecutor))
 			.toInstance(createHbaseClientExecutor());
+		bind(ExecutorService.class)
+			.annotatedWith(Names.named(POOL_bigTableClientExecutor))
+			.toInstance(createBigTableClientExecutor());
 		bind(ScheduledExecutorService.class)
 			.annotatedWith(Names.named(POOL_schemaUpdateScheduler))
 			.toInstance(createSchemaUpdateScheduler());
@@ -118,6 +122,10 @@ public class DatarouterExecutorGuiceModule extends BaseExecutorGuiceModule{
 
 	private ExecutorService createHbaseClientExecutor(){
 		return createThreadPool(datarouter, POOL_hbaseClientExecutor, 10, 10, 1, new CallerRunsPolicy());
+	}
+
+	private ExecutorService createBigTableClientExecutor(){
+		return createThreadPool(datarouter, POOL_bigTableClientExecutor, 10, 10, 1, new CallerRunsPolicy());
 	}
 
 	private ScheduledExecutorService createSchemaUpdateScheduler(){
