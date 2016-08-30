@@ -56,7 +56,7 @@ public class JobletExecutorThread extends Thread{
 	private final ReentrantLock workLock = new ReentrantLock();
 	private final Condition hasWorkToBeDone = workLock.newCondition();
 
-	private volatile boolean shutdown = false;
+	private volatile boolean stopRequested = false;
 	private JobletPackage jobletPackage;
 	private Long processingStartTime;
 	private long semaphoreWaitTime = 0;
@@ -73,12 +73,13 @@ public class JobletExecutorThread extends Thread{
 		this.jobletService = jobletService;
 	}
 
-	public void killMe(boolean replace) {
-		//called from other threads to kill this one.
+
+	//called from other threads to kill this one.
+	public void interruptMe(boolean replace) {
 		jobletExecutorThreadPool.getJobAssignmentLock().lock();
 		try{
 			jobletExecutorThreadPool.removeExecutorThreadFromPool(this);
-			shutdown = true;
+			stopRequested = true;
 			if(replace){
 				jobletExecutorThreadPool.addNewExecutorThreadToPool();
 			}
@@ -101,7 +102,7 @@ public class JobletExecutorThread extends Thread{
 
 	@Override
 	public void run() {
-		while(!shutdown){
+		while(!stopRequested){
 			workLock.lock();
 			try{
 				while(jobletPackage == null){
@@ -116,7 +117,7 @@ public class JobletExecutorThread extends Thread{
 				internalProcessJobletWithExceptionHandlingAndStats();
 			}catch(InterruptedException ie){
 				logger.warn(ie.toString());
-				shutdown = true;
+				stopRequested = true;
 				return;
 			}catch(Exception e){
 				logger.warn("", e);
@@ -198,14 +199,14 @@ public class JobletExecutorThread extends Thread{
 		try{
 			if(isInterrupted()){
 				jobletExecutorThreadPool.removeExecutorThreadFromPool(this);
-				shutdown = true;
+				stopRequested = true;
 				logger.warn(getId() + " is interrupted");
 			}else if(jobletExecutorThreadPool.getNumThreadsToLayOff() > 0){
 				jobletExecutorThreadPool.decrementNumThreadsToLayoff();
 				jobletExecutorThreadPool.removeExecutorThreadFromPool(this);
-				shutdown = true;
+				stopRequested = true;
 				logger.debug(getId() + " is laid off");
-			}else if(shutdown){
+			}else if(stopRequested){
 				jobletExecutorThreadPool.removeExecutorThreadFromPool(this);
 				logger.warn(getId() + " is shutdown");
 			}else{

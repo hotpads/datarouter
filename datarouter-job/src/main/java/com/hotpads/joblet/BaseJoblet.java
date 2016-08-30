@@ -1,5 +1,6 @@
 package com.hotpads.joblet;
 
+import com.hotpads.job.JobInterruptedException;
 import com.hotpads.joblet.databean.JobletRequest;
 
 public abstract class BaseJoblet<T> implements Joblet<T>{
@@ -21,5 +22,11 @@ public abstract class BaseJoblet<T> implements Joblet<T>{
 	@Override
 	public void setJobletParams(T params){
 		this.params = params;
+	}
+
+	protected void assertShutdownNotRequested(){
+		if(jobletRequest.getShutdownRequested().isTrue()){
+			throw new JobInterruptedException();
+		}
 	}
 }
