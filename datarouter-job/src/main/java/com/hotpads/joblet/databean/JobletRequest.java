@@ -331,7 +331,7 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 		this.shutdownRequested = shutdownRequested;
 	}
 
-	public MutableBoolean getInterrupted(){
+	public MutableBoolean getShutdownRequested(){
 		return shutdownRequested;
 	}
 

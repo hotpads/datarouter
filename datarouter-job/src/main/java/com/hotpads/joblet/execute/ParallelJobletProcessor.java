@@ -73,7 +73,7 @@ public class ParallelJobletProcessor{
 	}
 
 	public void requestShutdown() {
-		shutdownRequested.set(true);;
+		shutdownRequested.set(true);
 	}
 
 	/*----------------- private --------------------*/
