@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.ClientFactory;
 import com.hotpads.datarouter.client.availability.ClientAvailabilitySettings;
+import com.hotpads.datarouter.client.imp.hbase.BaseHBaseClientType;
 import com.hotpads.datarouter.client.imp.hbase.HBaseClientImp;
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseReaderNode;
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseSubEntityReaderNode;
@@ -70,11 +71,14 @@ implements ClientFactory{
 	protected final HBaseOptions hbaseOptions;
 	protected final ClientAvailabilitySettings clientAvailabilitySettings;
 	protected final ExecutorService executor;
+	private final BaseHBaseClientType clientType;
 
 	public BaseHBaseClientFactory(Datarouter datarouter, String clientName,
-			ClientAvailabilitySettings clientAvailabilitySettings, ExecutorService executor){
+			ClientAvailabilitySettings clientAvailabilitySettings, ExecutorService executor,
+			BaseHBaseClientType clientType){
 		this.datarouter = datarouter;
 		this.clientName = clientName;
+		this.clientType = clientType;
 		this.configFilePaths = datarouter.getConfigFilePaths();
 		this.multiProperties = DrPropertiesTool.fromFiles(configFilePaths);
 		this.hbaseOptions = new HBaseOptions(multiProperties, clientName);
@@ -82,9 +86,7 @@ implements ClientFactory{
 		this.executor = executor;
 	}
 
-
 	protected abstract Connection makeConnection();
-
 
 	@Override
 	public HBaseClient call(){
@@ -104,8 +106,8 @@ implements ClientFactory{
 		timer.add("init HTables");
 
 		logger.warn(timer.add("done").toString());
-		return new HBaseClientImp(clientName, connection, admin, htablePoolAndPrimaryKeyByTableName
-				.getLeft(), htablePoolAndPrimaryKeyByTableName.getRight(), clientAvailabilitySettings, executor);
+		return new HBaseClientImp(clientName, connection, admin, htablePoolAndPrimaryKeyByTableName.getLeft(),
+				htablePoolAndPrimaryKeyByTableName.getRight(), clientAvailabilitySettings, executor, clientType);
 	}
 
 
@@ -129,7 +131,7 @@ implements ClientFactory{
 					byte[] tableNameBytes = StringByteTool.getUtf8Bytes(tableName);
 					if(createTables && !admin.tableExists(TableName.valueOf(tableName))){
 						logger.warn("table " + tableName + " not found, creating it");
-						HTableDescriptor htable = new HTableDescriptor(tableName);
+						HTableDescriptor htable = new HTableDescriptor(TableName.valueOf(tableName));
 						htable.setMaxFileSize(DEFAULT_MAX_FILE_SIZE_BYTES);
 						htable.setMemStoreFlushSize(DEFAULT_MEMSTORE_FLUSH_SIZE_BYTES);
 						HColumnDescriptor family = new HColumnDescriptor(DEFAULT_FAMILY_QUALIFIER);
@@ -161,8 +163,8 @@ implements ClientFactory{
 		}
 
 		HBaseTablePool pool = new HBaseTableExecutorServicePool(hbaseOptions, connection, clientName,
-				primaryKeyClassByName);
-		return Pair.create(pool, primaryKeyClassByName);
+				primaryKeyClassByName, clientType);
+		return new Pair<>(pool, primaryKeyClassByName);
 	}
 
 

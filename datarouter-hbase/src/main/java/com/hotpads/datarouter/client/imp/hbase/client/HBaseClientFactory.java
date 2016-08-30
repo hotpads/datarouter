@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.availability.ClientAvailabilitySettings;
+import com.hotpads.datarouter.client.imp.hbase.HBaseClientType;
 import com.hotpads.datarouter.client.imp.hbase.HBaseStaticContext;
 import com.hotpads.datarouter.exception.UnavailableException;
 import com.hotpads.datarouter.routing.Datarouter;
@@ -23,8 +24,8 @@ extends BaseHBaseClientFactory{
 
 
 	public HBaseClientFactory(Datarouter datarouter, String clientName, ClientAvailabilitySettings
-			clientAvailabilitySettings, ExecutorService executor){
-		super(datarouter, clientName, clientAvailabilitySettings, executor);
+			clientAvailabilitySettings, ExecutorService executor, HBaseClientType clientType){
+		super(datarouter, clientName, clientAvailabilitySettings, executor, clientType);
 	}
 
 
