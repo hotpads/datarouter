@@ -55,7 +55,7 @@ public class ParallelJobletProcessors {
 		getCurrentlyRunningJobletExecutorThreads().stream()
 				.filter(thread -> thread.getId() == threadId)
 				.findAny()
-				.ifPresent(thread -> thread.stopJoblet(true));
+				.ifPresent(thread -> thread.interruptMe(true));
 	}
 
 	public void restartExecutor(String jobletTypeString){
