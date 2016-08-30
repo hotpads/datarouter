@@ -23,7 +23,9 @@ public class DatarouterExecutorGuiceModule extends BaseExecutorGuiceModule{
 		POOL_parallelApiCallerFlusher = "parallelApiCallerFlusher",
 		POOL_parallelApiCallerSender = "parallelApiCallerSender",
 		POOL_hbaseClientExecutor = "hbaseClientExecutor",
-		POOL_schemaUpdateScheduler = "schemaUpdateScheduler";
+		POOL_bigTableClientExecutor = "bigTableClientExecutor",
+		POOL_schemaUpdateScheduler = "schemaUpdateScheduler",
+		POOL_latencyMonitoring = "latencyMonitoring";
 
 	private static final ThreadGroup
 		datarouter = new ThreadGroup("datarouter"),
@@ -64,9 +66,15 @@ public class DatarouterExecutorGuiceModule extends BaseExecutorGuiceModule{
 		bind(ExecutorService.class)
 			.annotatedWith(Names.named(POOL_hbaseClientExecutor))
 			.toInstance(createHbaseClientExecutor());
+		bind(ExecutorService.class)
+			.annotatedWith(Names.named(POOL_bigTableClientExecutor))
+			.toInstance(createBigTableClientExecutor());
 		bind(ScheduledExecutorService.class)
 			.annotatedWith(Names.named(POOL_schemaUpdateScheduler))
 			.toInstance(createSchemaUpdateScheduler());
+		bind(ExecutorService.class)
+			.annotatedWith(Names.named(POOL_latencyMonitoring))
+			.toInstance(createLatencyMonitoringExecutor());
 	}
 
 	//The following factory methods are for Spring
@@ -116,8 +124,17 @@ public class DatarouterExecutorGuiceModule extends BaseExecutorGuiceModule{
 		return createThreadPool(datarouter, POOL_hbaseClientExecutor, 10, 10, 1, new CallerRunsPolicy());
 	}
 
+	private ExecutorService createBigTableClientExecutor(){
+		return createThreadPool(datarouter, POOL_bigTableClientExecutor, 10, 10, 1, new CallerRunsPolicy());
+	}
+
 	private ScheduledExecutorService createSchemaUpdateScheduler(){
 		return Executors.newSingleThreadScheduledExecutor(new NamedThreadFactory(flushers, POOL_schemaUpdateScheduler,
 				true));
 	}
+
+	private ExecutorService createLatencyMonitoringExecutor(){
+		return createScalingPool(datarouter, POOL_latencyMonitoring, 60);
+	}
+
 }

@@ -47,7 +47,7 @@ public class StackTracesManagerHandler extends BaseHandler{
 				continue;
 			}
 			String stackTrace = Arrays.stream(sts.get(thread))
-					.map(Object::toString)
+					.map(StackTraceElement::toString)
 					.collect(Collectors.joining("<br />"));
 			if(optWildcard.isPresent() && !stackTrace.toLowerCase().contains(optWildcard.get().toLowerCase())){
 				continue;

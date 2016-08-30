@@ -29,7 +29,7 @@ public class RedisClient extends BaseClient {
 
 	@Override
 	public void shutdown(){
-		jedisClient.shutdown();
+		jedisClient.close();
 	}
 
 	@Override

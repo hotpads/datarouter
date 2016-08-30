@@ -59,11 +59,6 @@ implements JdbcConnectionClient, TxnClient, JdbcClient{
 	}
 
 	@Override
-	public String toString(){
-		return getName();
-	}
-
-	@Override
 	public Future<Optional<String>> notifyNodeRegistration(Node<?,?> node){
 		if(schemaUpdateEnabled){
 			return schemaUpdateService.queueNodeForSchemaUpdate(getName(), node.getPhysicalNodeIfApplicable());
