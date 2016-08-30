@@ -53,9 +53,10 @@ public class JobletExecutorThread extends Thread{
 	private final JobletNodes jobletNodes;
 	private final JobletService jobletService;
 
-	private boolean shutdown = false;
-	private ReentrantLock workLock = new ReentrantLock();
-	private Condition hasWorkToBeDone = workLock.newCondition();
+	private final ReentrantLock workLock = new ReentrantLock();
+	private final Condition hasWorkToBeDone = workLock.newCondition();
+
+	private volatile boolean shutdown = false;
 	private JobletPackage jobletPackage;
 	private Long processingStartTime;
 	private long semaphoreWaitTime = 0;
@@ -90,7 +91,6 @@ public class JobletExecutorThread extends Thread{
 		workLock.lock();
 		try{
 			this.jobletPackage = jobletPackage;
-			// processingStartTime = System.currentTimeMillis();
 			hasWorkToBeDone.signal();
 		}finally{
 			workLock.unlock();
@@ -113,15 +113,14 @@ public class JobletExecutorThread extends Thread{
 				jobletNodes.jobletRequest().put(jobletPackage.getJobletRequest(), null);
 				setName(jobletName + " - working");
 				processingStartTime = System.currentTimeMillis();
-				internalProjcessJobletWithExceptionHandlingAndStats();
-			}catch(InterruptedException e){
-				logger.warn(e.toString());
+				internalProcessJobletWithExceptionHandlingAndStats();
+			}catch(InterruptedException ie){
+				logger.warn(ie.toString());
 				shutdown = true;
 				return;
-			}catch(Throwable t){
-				logger.warn("", t);
+			}catch(Exception e){
+				logger.warn("", e);
 			}finally{
-				// JobletThrottle.releasePermit();
 				jobletPackage = null;
 				processingStartTime = null;
 				setName(jobletName + " - idle");
@@ -131,7 +130,7 @@ public class JobletExecutorThread extends Thread{
 		}
 	}
 
-	private void internalProjcessJobletWithExceptionHandlingAndStats(){
+	private void internalProcessJobletWithExceptionHandlingAndStats(){
 		JobletRequest jobletRequest = jobletPackage.getJobletRequest();
 		PhaseTimer timer = jobletRequest.getTimer();
 		timer.add("waited for processing");
@@ -159,7 +158,7 @@ public class JobletExecutorThread extends Thread{
 		}
 	}
 
-	private final void internalProcessJobletWithStats(JobletPackage jobletPackage) throws JobInterruptedException{
+	private final void internalProcessJobletWithStats(JobletPackage jobletPackage){
 		Joblet<?> joblet = jobletFactory.createForPackage(jobletPackage);
 		JobletType<?> jobletType = jobletTypeFactory.fromJobletPackage(jobletPackage);
 		JobletRequest jobletRequest = jobletPackage.getJobletRequest();
@@ -194,8 +193,6 @@ public class JobletExecutorThread extends Thread{
 				+ " after waiting " + semaphoreWaitTime+"ms");
 	}
 
-	/*------------------ private ----------------------*/
-
 	private void recycleThread(){
 		jobletExecutorThreadPool.getJobAssignmentLock().lock();
 		try{
@@ -226,19 +223,20 @@ public class JobletExecutorThread extends Thread{
 	/*----------------- getters ---------------------*/
 
 	public Long getRunningTime(){
-		if(processingStartTime == null){
+		Long localProcessingStartTime = processingStartTime;//thread safe copy
+		if(localProcessingStartTime == null){
 			return null;
 		}
-		return System.currentTimeMillis() - processingStartTime;
+		return System.currentTimeMillis() - localProcessingStartTime;
 	}
 
 	//used in jobletThreadTable.jspf
 	public String getRunningTimeString(){
-		Long startTime = processingStartTime;
-		if(startTime == null){
+		Long localStartTime = processingStartTime;//thread safe copy
+		if(localStartTime == null){
 			return "idle";
 		}
-		Long duration = System.currentTimeMillis() - startTime;
+		long duration = System.currentTimeMillis() - localStartTime;
 		return makeDurationString(duration);
 	}
 
