@@ -19,100 +19,100 @@ import com.hotpads.datarouter.storage.prefix.ScatteringPrefix;
 import com.hotpads.util.core.java.ReflectionTool;
 
 public abstract class BaseHbaseDatabeanFielder<
-PK extends PrimaryKey<PK>,
-D extends Databean<PK,D>>
+		PK extends PrimaryKey<PK>,
+		D extends Databean<PK,D>>
 implements HbaseDatabeanFielder<PK,D>{
 
-private final Class<? extends Fielder<PK>> primaryKeyFielderClass;
-private final Fielder<PK> primaryKeyFielder;
-private final StringDatabeanCodec stringDatabeanCodec;
+	private final Class<? extends Fielder<PK>> primaryKeyFielderClass;
+	private final Fielder<PK> primaryKeyFielder;
+	private final StringDatabeanCodec stringDatabeanCodec;
 
-protected BaseHbaseDatabeanFielder(Class<? extends Fielder<PK>> primaryKeyFielderClass){
-this.primaryKeyFielder = ReflectionTool.create(primaryKeyFielderClass);
-this.primaryKeyFielderClass = primaryKeyFielderClass;
-this.stringDatabeanCodec = ReflectionTool.create(getStringDatabeanCodecClass());
-}
+	protected BaseHbaseDatabeanFielder(Class<? extends Fielder<PK>> primaryKeyFielderClass){
+		this.primaryKeyFielder = ReflectionTool.create(primaryKeyFielderClass);
+		this.primaryKeyFielderClass = primaryKeyFielderClass;
+		this.stringDatabeanCodec = ReflectionTool.create(getStringDatabeanCodecClass());
+	}
 
-/**
-* @deprecated use {@link #BaseDatabeanFielder(Class)}, you do not need to implement {@link #getKeyFielderClass()}
-*/
-@Deprecated
-protected BaseHbaseDatabeanFielder(){
-this.primaryKeyFielder = ReflectionTool.create(getKeyFielderClass());
-this.primaryKeyFielderClass = getKeyFielderClass();
-this.stringDatabeanCodec = ReflectionTool.create(getStringDatabeanCodecClass());
-}
+	/**
+	 * @deprecated use {@link #BaseDatabeanFielder(Class)}, you do not need to implement {@link #getKeyFielderClass()}
+	 */
+	@Deprecated
+	protected BaseHbaseDatabeanFielder(){
+		this.primaryKeyFielder = ReflectionTool.create(getKeyFielderClass());
+		this.primaryKeyFielderClass = getKeyFielderClass();
+		this.stringDatabeanCodec = ReflectionTool.create(getStringDatabeanCodecClass());
+	}
 
-/**
-* @deprecated pass the primaryKeyFieldClass to the super(..) constructor
-*/
-@Deprecated
-@Override
-public Class<? extends Fielder<PK>> getKeyFielderClass(){
-return primaryKeyFielderClass;
-}
+	/**
+	 * @deprecated pass the primaryKeyFieldClass to the super(..) constructor
+	 */
+	@Deprecated
+	@Override
+	public Class<? extends Fielder<PK>> getKeyFielderClass(){
+		return primaryKeyFielderClass;
+	}
 
-@Override
-public Class<? extends ScatteringPrefix> getScatteringPrefixClass() {
-return EmptyScatteringPrefix.class;
-}
+	@Override
+	public Class<? extends ScatteringPrefix> getScatteringPrefixClass() {
+		return EmptyScatteringPrefix.class;
+	}
 
-@Override
-public Fielder<PK> getKeyFielder(){
-return primaryKeyFielder;
-}
+	@Override
+	public Fielder<PK> getKeyFielder(){
+		return primaryKeyFielder;
+	}
 
-@Override
-public List<Field<?>> getKeyFields(D databean){
-return FieldTool.prependPrefixes(databean.getKeyFieldName(), primaryKeyFielder.getFields(databean.getKey()));
-}
+	@Override
+	public List<Field<?>> getKeyFields(D databean){
+		return FieldTool.prependPrefixes(databean.getKeyFieldName(), primaryKeyFielder.getFields(databean.getKey()));
+	}
 
-@Override
-public List<Field<?>> getFields(D databean){
-List<Field<?>> allFields = new ArrayList<>();
-allFields.addAll(getKeyFields(databean)); //getKeyFields already prepends prefixes
-allFields.addAll(getNonKeyFields(databean));
-return allFields;
-}
+	@Override
+	public List<Field<?>> getFields(D databean){
+		List<Field<?>> allFields = new ArrayList<>();
+		allFields.addAll(getKeyFields(databean)); //getKeyFields already prepends prefixes
+		allFields.addAll(getNonKeyFields(databean));
+		return allFields;
+	}
 
-@Override
-public Map<String,List<Field<?>>> getIndexes(D databean){
-return new TreeMap<>();
-}
+	@Override
+	public Map<String,List<Field<?>>> getIndexes(D databean){
+		return new TreeMap<>();
+	}
 
-@Override
-public Map<String,List<Field<?>>> getUniqueIndexes(D databean){
-return new TreeMap<>();
-}
+	@Override
+	public Map<String,List<Field<?>>> getUniqueIndexes(D databean){
+		return new TreeMap<>();
+	}
 
-@Override
-public MySqlCollation getCollation(){
-return MySqlCollation.utf8_bin;
-}
+	@Override
+	public MySqlCollation getCollation(){
+		return MySqlCollation.utf8_bin;
+	}
 
-@Override
-public MySqlCharacterSet getCharacterSet(){
-return MySqlCharacterSet.utf8;
-}
+	@Override
+	public MySqlCharacterSet getCharacterSet(){
+		return MySqlCharacterSet.utf8;
+	}
 
-@Override
-public MySqlRowFormat getRowFormat(){
-return MySqlRowFormat.DYNAMIC;
-}
+	@Override
+	public MySqlRowFormat getRowFormat(){
+		return MySqlRowFormat.DYNAMIC;
+	}
 
-@Override
-public Class<? extends StringDatabeanCodec> getStringDatabeanCodecClass(){
-return JsonDatabeanCodec.class;
-}
+	@Override
+	public Class<? extends StringDatabeanCodec> getStringDatabeanCodecClass(){
+		return JsonDatabeanCodec.class;
+	}
 
-@Override
-public final StringDatabeanCodec getStringDatabeanCodec(){
-return stringDatabeanCodec;
-}
+	@Override
+	public final StringDatabeanCodec getStringDatabeanCodec(){
+		return stringDatabeanCodec;
+	}
 
-@Override
-public boolean isVersioned(){
-return false;
-}
+	@Override
+	public boolean isVersioned(){
+		return false;
+	}
 
 }
