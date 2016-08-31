@@ -6,7 +6,7 @@ import com.hotpads.datarouter.util.core.DrPropertiesTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
 
 public abstract class BaseDatarouterProperties implements DatarouterProperties{
-
+	private static final String SERVER_PUBLIC_IP = "server.publicIp";
 	private static final String SERVER_NAME = "server.name";
 	private static final String SERVER_TYPE = "server.type";
 	private static final String ADMINISTRATOR_EMAIL = "administrator.email";
@@ -15,15 +15,23 @@ public abstract class BaseDatarouterProperties implements DatarouterProperties{
 
 	public BaseDatarouterProperties(String path){
 		this.properties = DrPropertiesTool.parse(path);
+		if (DrStringTool.isNullOrEmptyOrWhitespace(getServerPublicIp())) {
+			throw new RuntimeException("Expected " + path + " to contain property " + SERVER_PUBLIC_IP);
+		}
 		if (DrStringTool.isNullOrEmptyOrWhitespace(getServerName())) {
 			throw new RuntimeException("Expected " + path + " to contain property " + SERVER_NAME);
 		}
-		if (DrStringTool.isNullOrEmptyOrWhitespace(getServerName())) {
+		if (DrStringTool.isNullOrEmptyOrWhitespace(getServerType())) {
 			throw new RuntimeException("Expected " + path + " to contain property " + SERVER_TYPE);
 		}
 		if (DrStringTool.isNullOrEmptyOrWhitespace(getAdministratorEmail())) {
 			throw new RuntimeException("Expected " + path + " to contain property " + ADMINISTRATOR_EMAIL);
 		}
+	}
+
+	@Override
+	public String getServerPublicIp(){
+		return properties.getProperty(SERVER_PUBLIC_IP);
 	}
 
 	@Override
