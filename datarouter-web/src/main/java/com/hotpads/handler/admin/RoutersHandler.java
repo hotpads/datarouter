@@ -6,6 +6,7 @@ import javax.inject.Inject;
 
 import com.hotpads.datarouter.client.DatarouterClients;
 import com.hotpads.datarouter.config.DatarouterProperties;
+import com.hotpads.datarouter.monitoring.latency.LatencyMonitoringService;
 import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.routing.Router;
 import com.hotpads.handler.BaseHandler;
@@ -32,17 +33,16 @@ public class RoutersHandler extends BaseHandler {
 		JSP_datarouterMenu = "/jsp/admin/datarouter/datarouterMenu.jsp",
 		JSP_routerSummary = "/jsp/admin/datarouter/routerSummary.jsp";
 
-
 	@Inject
 	private Datarouter datarouter;
 	@Inject
 	private DatarouterProperties datarouterProperties;
 	@Inject
 	private DatarouterClients datarouterClients;
-
+	@Inject
+	private LatencyMonitoringService monitoringService;
 
 	@Override
-	@Handler
 	protected Mav handleDefault(){
 		Mav mav = new Mav(JSP_datarouterMenu);
 		mav.put("serverName", datarouterProperties.getServerName());
@@ -50,6 +50,7 @@ public class RoutersHandler extends BaseHandler {
 		mav.put("routers", datarouter.getRouters());
 		mav.put("lazyClientProviderByName", datarouterClients.getLazyClientProviderByName());
 		mav.put("uninitializedClientNames", datarouterClients.getClientNamesByInitialized().get(false));
+		mav.put("monitoringService", monitoringService);
 		return mav;
 	}
 

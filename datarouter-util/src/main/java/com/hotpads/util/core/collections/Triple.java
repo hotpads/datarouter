@@ -1,63 +1,55 @@
 package com.hotpads.util.core.collections;
 
 import java.io.Serializable;
+import java.util.Objects;
 
-
-
-public class Triple<A, B, C> implements Serializable {
+@SuppressWarnings("serial")
+public class Triple<A,B,C> implements Serializable{
 	protected A first;
 	protected B second;
 	protected C third;
 
 	public Triple() { }
+
 	public Triple(A first, B second, C third) {
 		this.first = first;
 		this.second= second;
 		this.third = third;
 	}
 
-	public static <A,B,C> Triple<A, B, C> create(A a, B b, C c) {
-		return new Triple<>(a,b,c);
-	}
-	public static <A,B,C> Triple<A,B,C> create(){
-		return new Triple<>();
+	public static <A,B,C> Triple<A,B,C> create(A first, B second, C third){
+		return new Triple<>(first, second, third);
 	}
 
-	public A getFirst() {
+	public A getFirst(){
 		return first;
 	}
-	public void setFirst(A first) {
-		this.first = first;
-	}
-	public B getSecond() {
+
+	public B getSecond(){
 		return second;
 	}
-	public void setSecond(B second) {
-		this.second = second;
-	}
-	public C getThird() {
-		return third;
-	}
-	public void setThird(C third) {
-		this.third = third;
-	}
 
-	public boolean getIsComplete(){
-		return first!=null&&second!=null&&third!=null;
+	public C getThird(){
+		return third;
 	}
 
 	@Override
-	public boolean equals(Object o){
-		if(!(o instanceof Triple)){
+	public boolean equals(Object other){
+		if(!(other instanceof Triple)){
 			return false;
 		}
-		Triple t = (Triple)o;
-		return(((first!=null && first.equals(t.getFirst()))
-						|| (first==null && t.getFirst()==null))
-				&& ((second!=null && second.equals(t.getSecond()))
-						|| (second==null && t.getSecond()==null))
-				&& ((third!=null && third.equals(t.getThird()))
-						|| (third==null && t.getThird()==null)));
+		Triple<?,?,?> otherTriple = (Triple<?,?,?>)other;
+		return (first!=null && first.equals(otherTriple.getFirst())
+				|| first==null && otherTriple.getFirst()==null)
+		&& (second!=null && second.equals(otherTriple.getSecond())
+				|| second==null && otherTriple.getSecond()==null)
+		&& (third!=null && third.equals(otherTriple.getThird())
+				|| third==null && otherTriple.getThird()==null);
+	}
+
+	@Override
+	public int hashCode(){
+		return Objects.hash(first, second, third);
 	}
 
 }

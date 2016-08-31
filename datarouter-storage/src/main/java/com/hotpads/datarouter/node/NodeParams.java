@@ -9,7 +9,6 @@ import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.cache.Cached;
-import com.hotpads.util.core.java.ReflectionTool;
 
 public class NodeParams<
 		PK extends PrimaryKey<PK>,
@@ -72,24 +71,18 @@ public class NodeParams<
 			PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>{
-		private Router router;
+		private final Router router;
+		private final Supplier<D> databeanSupplier;
+		private final Supplier<F> fielderSupplier;
 		private String parentName;
 		private ClientId clientId;
-		private Supplier<D> databeanSupplier;
-
-		private Supplier<F> fielderSupplier;
-
 		private Integer schemaVersion;
-
 		private String physicalName;
 		private String qualifiedPhysicalName;
 		private String namespace;
-
 		private String entityNodePrefix;
-
 		private String remoteRouterName;
 		private String remoteNodeName;
-
 		private Cached<Boolean> recordCallsites;
 
 		private String arnRole;
@@ -97,17 +90,10 @@ public class NodeParams<
 
 		/************** construct **************/
 
-		/**
-		 * @deprecated use {@link #NodeParams(Router, Supplier)}
-		 */
-		@Deprecated
-		public NodeParamsBuilder(Router router, Class<D> databeanClass){
-			this(router, ReflectionTool.supplier(databeanClass));
-		}
-
-		public NodeParamsBuilder(Router router, Supplier<D> databeanSupplier){
+		public NodeParamsBuilder(Router router, Supplier<D> databeanSupplier, Supplier<F> fielderSupplier){
 			this.router = router;
 			this.databeanSupplier = databeanSupplier;
+			this.fielderSupplier = fielderSupplier;
 		}
 
 		/************* with *******************/
@@ -120,15 +106,6 @@ public class NodeParams<
 		public NodeParamsBuilder<PK,D,F> withParentName(String parentName){
 			this.parentName = parentName;
 			return this;
-		}
-
-		public NodeParamsBuilder<PK,D,F> withFielder(Supplier<F> fielderSupplier){
-			this.fielderSupplier = fielderSupplier;
-			return this;
-		}
-
-		public NodeParamsBuilder<PK,D,F> withFielder(Class<F> fielderClass){
-			return withFielder(Optional.ofNullable(fielderClass).map(ReflectionTool::supplier).orElse(null));
 		}
 
 		public NodeParamsBuilder<PK,D,F> withSchemaVersion(Integer schemaVersion){

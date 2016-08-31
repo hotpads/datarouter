@@ -34,8 +34,8 @@ extends BaseNode<PK,D,F>{
 	protected List<IndexListener<PK,D>> indexListeners;
 
 	public BaseIndexingNode(N mainNode) {
-		super(new NodeParamsBuilder<PK,D,F>(mainNode.getRouter(), mainNode.getFieldInfo().getDatabeanSupplier())
-				.withFielder((Supplier<F>)mainNode.getFieldInfo().getFielderSupplier())
+		super(new NodeParamsBuilder<PK,D,F>(mainNode.getRouter(), mainNode.getFieldInfo().getDatabeanSupplier(),
+				(Supplier<F>)mainNode.getFieldInfo().getFielderSupplier())
 				.build());
 		this.mainNode = mainNode;
 		this.indexListeners = new ArrayList<>();

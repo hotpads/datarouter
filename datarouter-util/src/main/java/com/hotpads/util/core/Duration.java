@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.setting.cached.impl;
+package com.hotpads.util.core;
 
 import java.util.Arrays;
 import java.util.List;
@@ -18,7 +18,8 @@ public class Duration{
 		TimeUnit.HOURS,
 		TimeUnit.MINUTES,
 		TimeUnit.SECONDS,
-		TimeUnit.MILLISECONDS
+		TimeUnit.MILLISECONDS,
+		TimeUnit.MICROSECONDS,
 	};
 
 	private static final String[] strings = new String[]{
@@ -26,7 +27,8 @@ public class Duration{
 		"h",
 		"m",
 		"s",
-		"ms"
+		"ms",
+		"us",
 	};
 
 	private long nano;
@@ -45,16 +47,20 @@ public class Duration{
 		}
 	}
 
-	public Duration(long d, TimeUnit u){
-		nano = u.toNanos(d);
+	public Duration(long amont, TimeUnit unit){
+		nano = unit.toNanos(amont);
 	}
 
 	public long toSecond(){
-		return TimeUnit.NANOSECONDS.toSeconds(nano);
+		return to(TimeUnit.SECONDS);
 	}
 
 	public long toMillis(){
-		return TimeUnit.NANOSECONDS.toMillis(nano);
+		return to(TimeUnit.MILLISECONDS);
+	}
+
+	public long to(TimeUnit timeUnit){
+		return timeUnit.convert(nano, TimeUnit.NANOSECONDS);
 	}
 
 	@Override
@@ -63,9 +69,6 @@ public class Duration{
 	}
 
 	public String toString(TimeUnit presision){
-		if(nano == 0) {
-			return "0";
-		}
 		int maxIndex = Arrays.asList(timeUnits).indexOf(presision);
 		if (maxIndex == -1) {
 			maxIndex = timeUnits.length - 1;
@@ -73,10 +76,10 @@ public class Duration{
 		long rest = nano;
 		StringBuilder builder = new StringBuilder();
 		for(int i = 0; i < maxIndex + 1; i++){
-			long aUnit = timeUnits[i].toNanos(1);
-			long val = rest / aUnit;
-			rest = rest % aUnit;
-			if(val != 0){
+			long unit = timeUnits[i].toNanos(1);
+			long val = rest / unit;
+			rest = rest % unit;
+			if(val != 0 || i == maxIndex && builder.length() == 0){
 				builder.append(val + strings[i]);
 			}
 		}
@@ -112,23 +115,25 @@ public class Duration{
 
 		@Test
 		public void parserAndtoStringTest(){
-			Duration d = new Duration(3, TimeUnit.DAYS);
-			Assert.assertEquals("3d", d.toString());
-			d = new Duration("1d2h65m15s");
-			Assert.assertEquals("1d3h5m15s", d.toString());
-			d = new Duration("2h1d65m15s");
-			Assert.assertEquals("1d3h5m15s", d.toString());
-			d = new Duration("15s");
-			Assert.assertEquals(15, d.toSecond());
-			Assert.assertEquals("15s", d.toString());
-			d = new Duration("100000d5s123ms");
-			Assert.assertEquals("100000d5s123ms", d.toString());
-			d = new Duration("100000 d 5s 123 ms");
-			Assert.assertEquals("100000d5s123ms", d.toString());
-			d = new Duration("48h");
-			Assert.assertEquals("2d", d.toString());
-			d = new Duration("0");
-			Assert.assertEquals("0", d.toString());
+			Duration duration = new Duration(3, TimeUnit.DAYS);
+			Assert.assertEquals("3d", duration.toString());
+			duration = new Duration("1d2h65m15s");
+			Assert.assertEquals("1d3h5m15s", duration.toString());
+			duration = new Duration("2h1d65m15s");
+			Assert.assertEquals("1d3h5m15s", duration.toString());
+			duration = new Duration("15s");
+			Assert.assertEquals(15, duration.toSecond());
+			Assert.assertEquals("15s", duration.toString());
+			duration = new Duration("100000d5s123ms");
+			Assert.assertEquals("100000d5s123ms", duration.toString());
+			duration = new Duration("100000 d 5s 123 ms");
+			Assert.assertEquals("100000d5s123ms", duration.toString());
+			duration = new Duration("48h");
+			Assert.assertEquals("2d", duration.toString());
+			duration = new Duration("0");
+			Assert.assertEquals("0ms", duration.toString());
+			duration = new Duration(1234, TimeUnit.NANOSECONDS);
+			Assert.assertEquals("1us", duration.toString(TimeUnit.MICROSECONDS));
 		}
 
 		@Test
@@ -145,6 +150,12 @@ public class Duration{
 			Assert.assertFalse(isDuration("1.5d7m"));
 			Assert.assertFalse(isDuration("1.5d7"));
 		}
+
+		@Test
+		public void testConvertion(){
+			Assert.assertEquals(1000, new Duration(1, TimeUnit.SECONDS).to(TimeUnit.MILLISECONDS));
+		}
+
 	}
 
 }

@@ -13,7 +13,7 @@ import org.apache.hadoop.hbase.client.Table;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hotpads.datarouter.client.imp.hbase.HBaseClientType;
+import com.hotpads.datarouter.client.imp.hbase.BaseHBaseClientType;
 import com.hotpads.datarouter.client.imp.hbase.client.HBaseOptions;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
@@ -42,6 +42,7 @@ implements HBaseTablePool{
 	//provided via constructor
 	private final Connection connection;
 	private final String clientName;
+	private final BaseHBaseClientType clientType;
 	private final Map<String,Class<? extends PrimaryKey<?>>> primaryKeyClassByName;
 	private final int maxHTables;
 	private final int minThreadsPerHTable;
@@ -56,10 +57,11 @@ implements HBaseTablePool{
 	private volatile long lastLoggedWarning = 0L;
 
 	public HBaseTableExecutorServicePool(HBaseOptions hbaseOptions, Connection connection, String clientName,
-			Map<String,Class<? extends PrimaryKey<?>>> primaryKeyClassByName){
+			Map<String,Class<? extends PrimaryKey<?>>> primaryKeyClassByName, BaseHBaseClientType clientType){
 		this.connection = connection;
 		this.clientName = clientName;
 		this.primaryKeyClassByName = primaryKeyClassByName;
+		this.clientType = clientType;
 		this.maxHTables = hbaseOptions.maxHTables(DEFAULT_MAX_HTABLES);
 		this.minThreadsPerHTable = hbaseOptions.minThreadsPerHTable(DEFAULT_MIN_THREADS_PER_HTABLE);
 		this.maxThreadsPerHTable = hbaseOptions.maxThreadsPerHTable(DEFAULT_MAX_THREADS_PER_HTABLE);
@@ -81,7 +83,7 @@ implements HBaseTablePool{
 		HBaseTableExecutorService htableExecutorService = null;
 		Table htable = null;
 		try{
-			DRCounters.incClientTable(HBaseClientType.INSTANCE, "connection getHTable", clientName, tableName);
+			DRCounters.incClientTable(clientType, "connection getHTable", clientName, tableName);
 			while(true){
 				htableExecutorService = executorServiceQueue.poll();
 				setProgress(progress, "polled queue " + (htableExecutorService == null ? "null" : "success"));
@@ -90,13 +92,13 @@ implements HBaseTablePool{
 					htableExecutorService = new HBaseTableExecutorService(minThreadsPerHTable, maxThreadsPerHTable);
 					setProgress(progress, "new HTableExecutorService()");
 					String counterName = "connection create HTable";
-					DRCounters.incClientTable(HBaseClientType.INSTANCE, counterName, clientName, tableName);
+					DRCounters.incClientTable(clientType, counterName, clientName, tableName);
 					logWithPoolInfo("created new HTableExecutorService", tableName);
 					break;
 				}
 				if( ! htableExecutorService.isExpired()){
 					// logger.warn("connection got pooled HTable executor");
-					DRCounters.incClientTable(HBaseClientType.INSTANCE, "got pooled HTable executor", clientName,
+					DRCounters.incClientTable(clientType, "got pooled HTable executor", clientName,
 							tableName);
 					break;// done. we got an unexpired one, exit the while loop
 				}
@@ -138,7 +140,7 @@ implements HBaseTablePool{
 			htableExecutorService = activeHTables.remove(htable);
 			if(htableExecutorService==null){
 				logWithPoolInfo("HTable returned to pool but HTableExecutorService not found", tableName);
-				DRCounters.incClientTable(HBaseClientType.INSTANCE, "HTable returned to pool but HTableExecutorService"
+				DRCounters.incClientTable(clientType, "HTable returned to pool but HTableExecutorService"
 						+ " not found", clientName, tableName);
 				//don't release the semaphore
 				return;
@@ -151,31 +153,31 @@ implements HBaseTablePool{
 			htableExecutorService.purge();
 			if(possiblyTarnished){//discard
 				logWithPoolInfo("ThreadPoolExecutor possibly tarnished, discarding", tableName);
-				DRCounters.incClientTable(HBaseClientType.INSTANCE, "HTable executor possiblyTarnished", clientName,
+				DRCounters.incClientTable(clientType, "HTable executor possiblyTarnished", clientName,
 						tableName);
 				htableExecutorService.terminateAndBlockUntilFinished(tableName);
 			}else if(htableExecutorService.isDyingOrDead(tableName)){//discard
 				logWithPoolInfo("ThreadPoolExecutor not reusable, discarding", tableName);
-				DRCounters.incClientTable(HBaseClientType.INSTANCE, "HTable executor isDyingOrDead", clientName,
+				DRCounters.incClientTable(clientType, "HTable executor isDyingOrDead", clientName,
 						tableName);
 				htableExecutorService.terminateAndBlockUntilFinished(tableName);
 			}else if(!htableExecutorService.isTaskQueueEmpty()){//discard
 				logWithPoolInfo("ThreadPoolExecutor taskQueue not empty, discarding", tableName);
-				DRCounters.incClientTable(HBaseClientType.INSTANCE, "HTable executor taskQueue not empty", clientName,
+				DRCounters.incClientTable(clientType, "HTable executor taskQueue not empty", clientName,
 						tableName);
 				htableExecutorService.terminateAndBlockUntilFinished(tableName);
 			}else if(!htableExecutorService.waitForActiveThreadsToSettle(tableName)){//discard
 				logWithPoolInfo("active thread count would not settle to 0", tableName);
-				DRCounters.incClientTable(HBaseClientType.INSTANCE, "HTable executor pool active threads won't quit",
+				DRCounters.incClientTable(clientType, "HTable executor pool active threads won't quit",
 						clientName, tableName);
 				htableExecutorService.terminateAndBlockUntilFinished(tableName);
 			}else{
 				if(executorServiceQueue.offer(htableExecutorService)){//keep it!
-					DRCounters.incClientTable(HBaseClientType.INSTANCE, "connection HTable returned to pool",
+					DRCounters.incClientTable(clientType, "connection HTable returned to pool",
 							clientName, tableName);
 				}else{//discard
 					logWithPoolInfo("checkIn HTable but queue already full, so close and discard", tableName);
-					DRCounters.incClientTable(HBaseClientType.INSTANCE, "HTable executor pool overflow", clientName,
+					DRCounters.incClientTable(clientType, "HTable executor pool overflow", clientName,
 							tableName);
 					htableExecutorService.terminateAndBlockUntilFinished(tableName);
 				}
@@ -250,7 +252,7 @@ implements HBaseTablePool{
 			return;
 		}
 		if(checkOutDurationMs > 1){
-			DRCounters.incClientTable(HBaseClientType.INSTANCE, "connection open > 1ms", clientName, tableName);
+			DRCounters.incClientTable(clientType, "connection open > 1ms", clientName, tableName);
 //			logger.warn("slow reserveConnection:"+checkOutDurationMs+"ms on "+clientName);
 		}
 	}

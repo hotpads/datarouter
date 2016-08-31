@@ -1,9 +1,34 @@
-<%@ include file="../../generic/prelude-datarouter.jspf"%>
+<%@ include file="/WEB-INF/prelude.jspf"%>
 <!DOCTYPE html>
 <html>
 <head>
 	<title>Routers</title>
 	<%@ include file="/jsp/generic/datarouterHead.jsp" %>
+	<style>
+	.status{
+		display: inline-block;
+		width: 10px;
+		height: 10px;
+		border: solid 1px;
+		border-color: transparent;
+		border-radius: 50%;
+	}
+	.green{
+		background-color: #55DD44;
+		border-color: #337722;
+	}
+	.orange{
+		background-color: #FFAA00;
+		border-color: #CC8800;
+	}
+	.red{
+		background-color: #DD2222;
+		border-color: #882222;
+	}
+	.router td{
+		width: 50%;
+	}
+	</style>
 </head>
 <body>
 	<%@ include file="/jsp/menu/common-navbar.jsp" %>
@@ -18,32 +43,47 @@
 		
 		<h3 class="">Routers and Clients</h3>
 		<c:if test="${not empty uninitializedClientNames}">
-			[<a href="${contextPath}/datarouter/routers/initAllClients">init remaining clients</a>]<br/>
+			[<a href="${contextPath}/datarouter/routers/initAllClients">init remaining clients</a>]
+			<br/>
 			<br/>
 		</c:if>
 		<c:forEach items="${routers}" var="router">
 			<a href="?submitAction=inspectRouter&routerName=${router.name}">${router.name}</a>
-			&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;&nbsp;&nbsp;
-			${router['class'].simpleName}
-			<table class="table table-striped table-bordered table-hover table-condensed">
+			<table class="table table-striped table-bordered table-hover table-condensed router">
 				<c:forEach items="${router.clientNames}" var="clientName">
 					<c:set var="lazyClientProvider" value="${lazyClientProviderByName[clientName]}" />
 					<tr>
 						<c:choose>
 							<c:when test="${lazyClientProvider.initialized}">
+								<c:set var="checkResult"
+									value="${monitoringService.getLastResultForDatarouterClient(clientName)}"/>
 								<c:set var="client" value="${lazyClientProvider.client}" />
-								<td style="width: 50%">
-									<a href="${contextPath}/datarouter/clients/${client.type.name}?submitAction=inspectClient&routerName=${router.name}&clientName=${client.name}">${client.name}</a>
+								<td>
+									<c:choose>
+										<c:when test="${empty checkResult}">
+											<span class="status"></span>
+										</c:when>
+										<c:otherwise>
+											<a class="status ${checkResult.cssClass}" title="${checkResult}"
+												href="${monitoringService.getGraphLinkForDatarouterClient(clientName)}">
+											</a>
+										</c:otherwise>
+									</c:choose>
+									<a href="${contextPath}/datarouter/clients/${client.type.name}?submitAction=inspectClient&routerName=${router.name}&clientName=${client.name}">
+										${client.name}
+									</a>
 								</td>
-								<td style="width: 50%">
+								<td>
 									${client.type.name}
 								</td>
 							</c:when>
 							<c:otherwise>
-								<td style="width: 50%">
-									${clientName} [<a href="${contextPath}/datarouter/routers/initClient?clientName=${clientName}">init</a>]
+								<td>
+									<span class="status"></span>
+									${clientName}
+									[<a href="${contextPath}/datarouter/routers/initClient?clientName=${clientName}">init</a>]
 								</td>
-								<td style="width: 50%">
+								<td>
 									unknown
 								</td>
 							</c:otherwise>

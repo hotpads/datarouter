@@ -21,10 +21,13 @@ public class RetryableTool{
 					ThreadTool.sleep(backoffMs);
 				}else{
 					logger.error("exception on final attempt {}", attemptNum, e);
+					if(e instanceof RuntimeException){
+						throw (RuntimeException)e;
+					}
 					throw new RuntimeException(e);
 				}
 			}
-			backoffMs = (backoffMs * 2) + ThreadLocalRandom.current().nextLong(0, initialBackoffMs);
+			backoffMs = backoffMs * 2 + ThreadLocalRandom.current().nextLong(0, initialBackoffMs);
 		}
 		throw new RuntimeException("shouldn't get here");
 	}

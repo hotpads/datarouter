@@ -36,8 +36,8 @@ implements RedundantNode<PK,D,N>{
 	protected N readNode;//needs to be one of the write nodes
 
 	public BaseRedundantNode(Supplier<D> databeanSupplier, Router router, Collection<N> writeNodes, N readNode){
-		super(new NodeParamsBuilder<>(router, databeanSupplier)
-				.withFielder((Supplier<DatabeanFielder<PK,D>>)readNode.getFieldInfo().getFielderSupplier())
+		super(new NodeParamsBuilder<>(router, databeanSupplier,
+				(Supplier<DatabeanFielder<PK,D>>)readNode.getFieldInfo().getFielderSupplier())
 				.build());
 
 		if(DrCollectionTool.isEmpty(writeNodes)){
