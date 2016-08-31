@@ -42,9 +42,13 @@ public class NodeParams<
 	//diagnostics
 	private final Cached<Boolean> recordCallsites;
 
+	//for kinesis streams
+	private final String arnRole;
+
 	public NodeParams(Router router, ClientId clientId, String parentName, Supplier<D> databeanSupplier,
 			Supplier<F> fielderSupplier, Integer schemaVersion, String physicalName, String namespace,
-			String entityNodePrefix, String remoteRouterName, String remoteNodeName, Cached<Boolean> recordCallsites){
+			String entityNodePrefix, String remoteRouterName, String remoteNodeName, Cached<Boolean> recordCallsites,
+			String arnRole){
 		this.router = router;
 		this.clientId = clientId;
 		this.parentName = parentName;
@@ -58,6 +62,7 @@ public class NodeParams<
 		this.remoteRouterName = remoteRouterName;
 		this.remoteNodeName = remoteNodeName;
 		this.recordCallsites = recordCallsites;
+		this.arnRole = arnRole;
 	}
 
 
@@ -86,6 +91,8 @@ public class NodeParams<
 		private String remoteNodeName;
 
 		private Cached<Boolean> recordCallsites;
+
+		private String arnRole;
 
 
 		/************** construct **************/
@@ -156,11 +163,17 @@ public class NodeParams<
 			return this;
 		}
 
+		public NodeParamsBuilder<PK,D,F> withArnRole(String arnRole){
+			this.arnRole = arnRole;
+			return this;
+		}
+
 		/******************* build ***************************/
 
 		public NodeParams<PK,D,F> build(){
 			return new NodeParams<>(router, clientId, parentName, databeanSupplier, fielderSupplier, schemaVersion,
-					physicalName, namespace, entityNodePrefix, remoteRouterName, remoteNodeName, recordCallsites);
+					physicalName, namespace, entityNodePrefix, remoteRouterName, remoteNodeName, recordCallsites,
+					arnRole);
 		}
 	}
 
@@ -224,5 +237,9 @@ public class NodeParams<
 
 	public Cached<Boolean> getRecordCallsites(){
 		return recordCallsites;
+	}
+
+	public String getArnRole(){
+		return arnRole;
 	}
 }

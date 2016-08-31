@@ -22,7 +22,8 @@ public class DefaultClientTypes{
 			CLIENT_TYPE_jdbc = "jdbc",
 			CLIENT_TYPE_memcached = "memcached",
 			CLIENT_TYPE_memory = "memory",
-			CLIENT_TYPE_sqs = "sqs";
+			CLIENT_TYPE_sqs = "sqs",
+			CLIENT_TYPE_kinesis = "kinesis";
 
 	public static final String
 			CLIENT_CLASS_bigtable = "com.hotpads.datarouter.client.bigtable.BigTableClientType",
@@ -31,7 +32,9 @@ public class DefaultClientTypes{
 			CLIENT_CLASS_jdbc = "com.hotpads.datarouter.client.imp.jdbc.JdbcClientType",
 			CLIENT_CLASS_memcached = "com.hotpads.datarouter.client.imp.memcached.MemcachedClientType",
 			CLIENT_CLASS_memory = "com.hotpads.datarouter.client.imp.memory.MemoryClientType",
-			CLIENT_CLASS_sqs = "com.hotpads.datarouter.client.imp.sqs.SqsClientType";
+			CLIENT_CLASS_sqs = "com.hotpads.datarouter.client.imp.sqs.SqsClientType",
+			CLIENT_CLASS_kinesis = "com.hotpads.datarouter.client.imp.kinesis.KinesisClientType";
+
 
 	//TODO these should eventually be mapped in an external config file, like datarouter-xyz.properties
 	public static final Map<String,String> CLASS_BY_NAME = new TreeMap<>();
@@ -43,6 +46,7 @@ public class DefaultClientTypes{
 		CLASS_BY_NAME.put(CLIENT_TYPE_memcached, CLIENT_CLASS_memcached);
 		CLASS_BY_NAME.put(CLIENT_TYPE_memory, CLIENT_CLASS_memory);
 		CLASS_BY_NAME.put(CLIENT_TYPE_sqs, CLIENT_CLASS_sqs);
+		CLASS_BY_NAME.put(CLIENT_TYPE_kinesis, CLIENT_CLASS_kinesis);
 	}
 
 	public ClientType create(String name){
