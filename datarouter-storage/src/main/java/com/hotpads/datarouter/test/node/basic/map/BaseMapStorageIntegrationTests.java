@@ -5,25 +5,18 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.testng.Assert;
-import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
 import com.hotpads.datarouter.client.ClientId;
+import com.hotpads.datarouter.config.DatarouterSettings;
 import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.node.op.raw.MapStorage.MapStorageNode;
 import com.hotpads.datarouter.routing.Datarouter;
-import com.hotpads.datarouter.test.DatarouterStorageTestModuleFactory;
 import com.hotpads.datarouter.test.node.basic.map.databean.MapStorageDatabean;
 import com.hotpads.datarouter.test.node.basic.map.databean.MapStorageDatabeanKey;
 
-@Guice(moduleFactory=DatarouterStorageTestModuleFactory.class)
 public abstract class BaseMapStorageIntegrationTests{
-
-	private static final Logger logger = LoggerFactory.getLogger(BaseMapStorageIntegrationTests.class);
-
 
 	/** fields ***************************************************************/
 
@@ -31,6 +24,8 @@ public abstract class BaseMapStorageIntegrationTests{
 	protected Datarouter datarouter;
 	@Inject
 	private NodeFactory nodeFactory;
+	@Inject
+	private DatarouterSettings datarouterSettings;
 
 	protected MapStorageTestRouter router;
 	private MapStorageNode<MapStorageDatabeanKey,MapStorageDatabean> mapStorageNode;
@@ -38,39 +33,9 @@ public abstract class BaseMapStorageIntegrationTests{
 	/***************************** setup/teardown **************************************/
 
 	protected void setup(ClientId clientId){
-		router = new MapStorageTestRouter(datarouter, nodeFactory, clientId);
+		router = new MapStorageTestRouter(datarouter, nodeFactory, clientId, datarouterSettings);
 		mapStorageNode = router.mapStorageNode();
 	}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 	@Test
 	public void testGetMulti(){
@@ -91,7 +56,10 @@ public abstract class BaseMapStorageIntegrationTests{
 
 		List<MapStorageDatabean> roundTripped = mapStorageNode.getMulti(keys, null);
 
-		Assert.assertEquals(beans, roundTripped);
+		Assert.assertTrue(roundTripped.contains(bean0));
+		Assert.assertTrue(roundTripped.contains(bean1));
+		Assert.assertTrue(roundTripped.contains(bean2));
+
 		for(MapStorageDatabean bean : beans){
 			deleteRecord(bean);
 		}

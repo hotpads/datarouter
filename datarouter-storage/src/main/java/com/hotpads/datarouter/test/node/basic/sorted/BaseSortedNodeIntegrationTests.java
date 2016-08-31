@@ -36,7 +36,7 @@ import com.hotpads.util.core.iterable.BatchingIterable;
 import com.hotpads.util.core.profile.PhaseTimer;
 
 @Guice(moduleFactory=DatarouterStorageTestModuleFactory.class)
-public abstract class BaseSortedNodeIntegrationTests{
+public abstract class BaseSortedNodeIntegrationTests {
 	private static final Logger logger = LoggerFactory.getLogger(BaseSortedNodeIntegrationTests.class);
 
 	/***************************** fields **************************************/
