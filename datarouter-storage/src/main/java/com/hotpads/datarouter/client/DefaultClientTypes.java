@@ -34,7 +34,7 @@ public class DefaultClientTypes{
 			CLIENT_CLASS_memcached = "com.hotpads.datarouter.client.imp.memcached.MemcachedClientType",
 			CLIENT_CLASS_memory = "com.hotpads.datarouter.client.imp.memory.MemoryClientType",
 			CLIENT_CLASS_redis = "com.hotpads.datarouter.client.imp.redis.RedisClientType",
-			CLIENT_CLASS_sqs = "com.hotpads.datarouter.client.imp.sqs.SqsClientType";
+			CLIENT_CLASS_sqs = "com.hotpads.datarouter.client.imp.sqs.SqsClientType",
 			CLIENT_CLASS_kinesis = "com.hotpads.datarouter.client.imp.kinesis.KinesisClientType";
 
 	//TODO these should eventually be mapped in an external config file, like datarouter-xyz.properties

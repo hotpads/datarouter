@@ -43,11 +43,13 @@ public class NodeParams<
 
 	//for kinesis streams
 	private final String arnRole;
+	private final String streamName;
+	private final String regionName;
 
 	public NodeParams(Router router, ClientId clientId, String parentName, Supplier<D> databeanSupplier,
 			Supplier<F> fielderSupplier, Integer schemaVersion, String physicalName, String namespace,
 			String entityNodePrefix, String remoteRouterName, String remoteNodeName, Cached<Boolean> recordCallsites,
-			String arnRole){
+			String arnRole, String streamName, String regionName){
 		this.router = router;
 		this.clientId = clientId;
 		this.parentName = parentName;
@@ -62,6 +64,8 @@ public class NodeParams<
 		this.remoteNodeName = remoteNodeName;
 		this.recordCallsites = recordCallsites;
 		this.arnRole = arnRole;
+		this.streamName = streamName;
+		this.regionName = regionName;
 	}
 
 
@@ -86,6 +90,8 @@ public class NodeParams<
 		private Cached<Boolean> recordCallsites;
 
 		private String arnRole;
+		private String streamName;
+		private String regionName;
 
 
 		/************** construct **************/
@@ -145,12 +151,22 @@ public class NodeParams<
 			return this;
 		}
 
+		public NodeParamsBuilder<PK,D,F> withStreamName(String streamName){
+			this.streamName = streamName;
+			return this;
+		}
+
+		public NodeParamsBuilder<PK,D,F> withRegionName(String regionName){
+			this.regionName = regionName;
+			return this;
+		}
+
 		/******************* build ***************************/
 
 		public NodeParams<PK,D,F> build(){
 			return new NodeParams<>(router, clientId, parentName, databeanSupplier, fielderSupplier, schemaVersion,
 					physicalName, namespace, entityNodePrefix, remoteRouterName, remoteNodeName, recordCallsites,
-					arnRole);
+					arnRole, streamName, regionName);
 		}
 	}
 
