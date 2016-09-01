@@ -9,9 +9,9 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.StringFieldKey;
 
-public class MapStorageDatabean extends BaseDatabean<MapStorageDatabeanKey,MapStorageDatabean>{
+public class MapStorageBean extends BaseDatabean<MapStorageBeanKey,MapStorageBean>{
 
-	private MapStorageDatabeanKey key;
+	private MapStorageBeanKey key;
 	private String data;
 
 	/** column names *********************************************************/
@@ -20,38 +20,38 @@ public class MapStorageDatabean extends BaseDatabean<MapStorageDatabeanKey,MapSt
 		public static final StringFieldKey data = new StringFieldKey("data");
 	}
 
-	public static class MapStorageDatabeanFielder extends BaseDatabeanFielder<MapStorageDatabeanKey,MapStorageDatabean>{
+	public static class MapStorageBeanFielder extends BaseDatabeanFielder<MapStorageBeanKey,MapStorageBean>{
 
-		public MapStorageDatabeanFielder(){
-			super(MapStorageDatabeanKey.class);
+		public MapStorageBeanFielder(){
+			super(MapStorageBeanKey.class);
 		}
 
 		@Override
-		public List<Field<?>> getNonKeyFields(MapStorageDatabean databean){
+		public List<Field<?>> getNonKeyFields(MapStorageBean databean){
 			return Arrays.asList(new StringField(FieldKeys.data, databean.data));
 		}
 	}
 
 	/** constructor **********************************************************/
 
-	public MapStorageDatabean(){
-		this(null, null);
+	public MapStorageBean(){
+		this(null);
 	}
 
-	public MapStorageDatabean(String id, String data){
-		this.key = new MapStorageDatabeanKey(id);
+	public MapStorageBean(String data){
+		this.key = new MapStorageBeanKey();
 		this.data = data;
 	}
 
 	/** databean *************************************************************/
 
 	@Override
-	public Class<MapStorageDatabeanKey> getKeyClass(){
-		return MapStorageDatabeanKey.class;
+	public Class<MapStorageBeanKey> getKeyClass(){
+		return MapStorageBeanKey.class;
 	}
 
 	@Override
-	public MapStorageDatabeanKey getKey(){
+	public MapStorageBeanKey getKey(){
 		return key;
 	}
 

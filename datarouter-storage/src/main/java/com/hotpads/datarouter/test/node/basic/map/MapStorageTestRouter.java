@@ -10,9 +10,9 @@ import com.hotpads.datarouter.node.op.raw.MapStorage.MapStorageNode;
 import com.hotpads.datarouter.routing.BaseRouter;
 import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.test.DrTestConstants;
-import com.hotpads.datarouter.test.node.basic.map.databean.MapStorageDatabean;
-import com.hotpads.datarouter.test.node.basic.map.databean.MapStorageDatabean.MapStorageDatabeanFielder;
-import com.hotpads.datarouter.test.node.basic.map.databean.MapStorageDatabeanKey;
+import com.hotpads.datarouter.test.node.basic.map.databean.MapStorageBean;
+import com.hotpads.datarouter.test.node.basic.map.databean.MapStorageBean.MapStorageBeanFielder;
+import com.hotpads.datarouter.test.node.basic.map.databean.MapStorageBeanKey;
 
 public class MapStorageTestRouter extends BaseRouter{
 
@@ -21,13 +21,13 @@ public class MapStorageTestRouter extends BaseRouter{
 
 	private final List<ClientId> clientIds;
 
-	private MapStorageNode<MapStorageDatabeanKey,MapStorageDatabean> mapStorageNode;
+	private MapStorageNode<MapStorageBeanKey,MapStorageBean> mapStorageNode;
 
 	public MapStorageTestRouter(Datarouter datarouter, NodeFactory nodeFactory, ClientId clientId,
 			DatarouterSettings datarouterSettings){
 		super(datarouter, DrTestConstants.CONFIG_PATH, NAME, nodeFactory, datarouterSettings);
 		this.clientIds = Arrays.asList(clientId);
-		mapStorageNode = create(clientId, MapStorageDatabean::new, MapStorageDatabeanFielder::new)
+		mapStorageNode = create(clientId, MapStorageBean::new, MapStorageBeanFielder::new)
 			.withSchemaVersion(VERSION_mapStorageTestRouter)
 			.buildAndRegister();
 	}
@@ -37,7 +37,7 @@ public class MapStorageTestRouter extends BaseRouter{
 		return clientIds;
 	}
 
-	public MapStorageNode<MapStorageDatabeanKey,MapStorageDatabean> mapStorageNode(){
+	public MapStorageNode<MapStorageBeanKey,MapStorageBean> mapStorageNode(){
 		return mapStorageNode;
 	}
 }
