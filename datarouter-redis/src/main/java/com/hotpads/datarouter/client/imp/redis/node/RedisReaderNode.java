@@ -22,8 +22,8 @@ import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.trace.TracerThreadLocal;
 import com.hotpads.trace.TracerTool;
 
-public class RedisReaderNode<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>>extends
-		BasePhysicalNode<PK,D,F> implements MapStorageReader<PK,D>{
+public class RedisReaderNode<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>>
+extends BasePhysicalNode<PK,D,F> implements MapStorageReader<PK,D>{
 
 	private final Integer databeanVersion;
 
