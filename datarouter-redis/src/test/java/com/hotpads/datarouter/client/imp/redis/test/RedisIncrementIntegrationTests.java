@@ -56,10 +56,6 @@ public class RedisIncrementIntegrationTests{
 		deleteRecord(bean2);
 	}
 
-<<<<<<< HEAD
-=======
-
->>>>>>> 708dc2b... init
 	/** private **************************************************************/
 
 	private void deleteRecord(RedisDatabean bean){
