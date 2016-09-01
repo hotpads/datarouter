@@ -558,7 +558,10 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 	}
 
 	public String getStringBody(){
-		return new String(binaryBody);
+		if(binaryBody != null){
+			return new String(binaryBody);
+		}
+		return null;
 	}
 
 	public String getIp() {
