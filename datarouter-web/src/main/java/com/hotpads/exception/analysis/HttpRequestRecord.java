@@ -32,12 +32,12 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
-import com.hotpads.datarouter.serialize.fielder.Fielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
-import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.DateField;
 import com.hotpads.datarouter.storage.field.imp.StringField;
+import com.hotpads.datarouter.storage.field.imp.array.ByteArrayField;
+import com.hotpads.datarouter.storage.field.imp.array.ByteArrayFieldKey;
 import com.hotpads.datarouter.storage.field.imp.comparable.IntegerField;
 import com.hotpads.datarouter.storage.field.imp.comparable.LongField;
 import com.hotpads.datarouter.storage.field.imp.custom.LongDateField;
@@ -80,6 +80,7 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 	private String path;
 	private String queryString;
 	private String body;
+	private byte[] binaryBody;
 
 	private String ip;
 	private String userRoles;
@@ -106,6 +107,11 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 	private String xForwardedFor;
 	private String xRequestedWith;
 	private String otherHeaders;
+
+	private static class FieldKeys{
+		private static final ByteArrayFieldKey body = new ByteArrayFieldKey("binaryBody")
+				.withSize(MySqlColumnType.MAX_LENGTH_LONGBLOB);
+	}
 
 	private static class F {
 		public static String
@@ -158,61 +164,59 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 
 	public static class HttpRequestRecordFielder extends BaseDatabeanFielder<HttpRequestRecordKey, HttpRequestRecord>{
 
-		HttpRequestRecordFielder() {}
-
-		@Override
-		public Class<? extends Fielder<HttpRequestRecordKey>> getKeyFielderClass() {
-			return HttpRequestRecordKey.class;
+		public HttpRequestRecordFielder() {
+			super(HttpRequestRecordKey.class);
 		}
 
 		@Override
-		public List<Field<?>> getNonKeyFields(HttpRequestRecord d) {
+		public List<Field<?>> getNonKeyFields(HttpRequestRecord record){
 			return Arrays.asList(
-					new DateField(F.created, d.created),
-					new LongDateField(F.receivedAt, d.receivedAt),
-					new LongField(F.duration, d.duration),
+					new DateField(F.created, record.created),
+					new LongDateField(F.receivedAt, record.receivedAt),
+					new LongField(F.duration, record.duration),
 
-					new StringField(F.exceptionRecordId, d.exceptionRecordId, MySqlColumnType.MAX_LENGTH_VARCHAR),
-					new StringField(F.exceptionPlace, d.exceptionPlace, MySqlColumnType.MAX_LENGTH_VARCHAR),
-					new StringField(F.methodName, d.methodName, MySqlColumnType.MAX_LENGTH_VARCHAR),
-					new IntegerField(F.lineNumber, d.lineNumber),
+					new StringField(F.exceptionRecordId, record.exceptionRecordId, MySqlColumnType.MAX_LENGTH_VARCHAR),
+					new StringField(F.exceptionPlace, record.exceptionPlace, MySqlColumnType.MAX_LENGTH_VARCHAR),
+					new StringField(F.methodName, record.methodName, MySqlColumnType.MAX_LENGTH_VARCHAR),
+					new IntegerField(F.lineNumber, record.lineNumber),
 
-					new StringField(F.httpMethod, d.httpMethod, LENGTH_httpMethod),
-					new StringField(F.httpParams, d.httpParams, MySqlColumnType.INT_LENGTH_LONGTEXT),
+					new StringField(F.httpMethod, record.httpMethod, LENGTH_httpMethod),
+					new StringField(F.httpParams, record.httpParams, MySqlColumnType.INT_LENGTH_LONGTEXT),
 
-					new StringField(F.protocol, d.protocol, LENGTH_protocol),
-					new StringField(F.hostname, d.hostname, MySqlColumnType.MAX_LENGTH_VARCHAR),
-					new IntegerField(F.port, d.port),
-					new StringField(F.contextPath, d.contextPath, MySqlColumnType.MAX_LENGTH_VARCHAR),
-					new StringField(F.path, d.path, MySqlColumnType.MAX_LENGTH_VARCHAR),
-					new StringField(F.queryString, d.queryString, MySqlColumnType.INT_LENGTH_LONGTEXT),
-					new StringField(F.body, d.body, MySqlColumnType.INT_LENGTH_LONGTEXT),
+					new StringField(F.protocol, record.protocol, LENGTH_protocol),
+					new StringField(F.hostname, record.hostname, MySqlColumnType.MAX_LENGTH_VARCHAR),
+					new IntegerField(F.port, record.port),
+					new StringField(F.contextPath, record.contextPath, MySqlColumnType.MAX_LENGTH_VARCHAR),
+					new StringField(F.path, record.path, MySqlColumnType.MAX_LENGTH_VARCHAR),
+					new StringField(F.queryString, record.queryString, MySqlColumnType.INT_LENGTH_LONGTEXT),
+					new StringField(F.body, record.body, MySqlColumnType.INT_LENGTH_LONGTEXT),
+					new ByteArrayField(FieldKeys.body, record.binaryBody),
 
-					new StringField(F.ip, d.ip, LENGTH_ip),
-					new StringField(F.userRoles, d.userRoles, MySqlColumnType.MAX_LENGTH_VARCHAR),
-					new LongField(F.userId, d.userId),
+					new StringField(F.ip, record.ip, LENGTH_ip),
+					new StringField(F.userRoles, record.userRoles, MySqlColumnType.MAX_LENGTH_VARCHAR),
+					new LongField(F.userId, record.userId),
 
-					new StringField(F.acceptCharset, d.acceptCharset, MySqlColumnType.MAX_LENGTH_VARCHAR),
-					new StringField(F.acceptEncoding, d.acceptEncoding, MySqlColumnType.MAX_LENGTH_VARCHAR),
-					new StringField(F.acceptLanguage, d.acceptLanguage, MySqlColumnType.MAX_LENGTH_VARCHAR),
-					new StringField(F.accept, d.accept, MySqlColumnType.MAX_LENGTH_VARCHAR),
-					new StringField(F.cacheControl, d.cacheControl, MySqlColumnType.MAX_LENGTH_VARCHAR),
-					new StringField(F.connection, d.connection, MySqlColumnType.MAX_LENGTH_VARCHAR),
-					new StringField(F.contentEncoding, d.contentEncoding, MySqlColumnType.MAX_LENGTH_VARCHAR),
-					new StringField(F.contentLanguage, d.contentLanguage, MySqlColumnType.MAX_LENGTH_VARCHAR),
-					new StringField(F.contentLength, d.contentLength, MySqlColumnType.MAX_LENGTH_VARCHAR),
-					new StringField(F.contentType, d.contentType, MySqlColumnType.MAX_LENGTH_VARCHAR),
-					new StringField(F.cookie, d.cookie, MySqlColumnType.INT_LENGTH_LONGTEXT),
-					new StringField(F.dnt, d.dnt, MySqlColumnType.MAX_LENGTH_VARCHAR),
-					new StringField(F.host, d.host, MySqlColumnType.MAX_LENGTH_VARCHAR),
-					new StringField(F.ifModifiedSince, d.ifModifiedSince, MySqlColumnType.MAX_LENGTH_VARCHAR),
-					new StringField(F.origin, d.origin, MySqlColumnType.MAX_LENGTH_VARCHAR),
-					new StringField(F.pragma, d.pragma, MySqlColumnType.MAX_LENGTH_VARCHAR),
-					new StringField(F.referer, d.referer, MySqlColumnType.INT_LENGTH_LONGTEXT),
-					new StringField(F.userAgent, d.userAgent, MySqlColumnType.INT_LENGTH_LONGTEXT),
-					new StringField(F.xForwardedFor, d.xForwardedFor, MySqlColumnType.MAX_LENGTH_VARCHAR),
-					new StringField(F.xRequestedWith, d.xRequestedWith, MySqlColumnType.MAX_LENGTH_VARCHAR),
-					new StringField(F.others, d.otherHeaders, MySqlColumnType.INT_LENGTH_LONGTEXT)
+					new StringField(F.acceptCharset, record.acceptCharset, MySqlColumnType.MAX_LENGTH_VARCHAR),
+					new StringField(F.acceptEncoding, record.acceptEncoding, MySqlColumnType.MAX_LENGTH_VARCHAR),
+					new StringField(F.acceptLanguage, record.acceptLanguage, MySqlColumnType.MAX_LENGTH_VARCHAR),
+					new StringField(F.accept, record.accept, MySqlColumnType.MAX_LENGTH_VARCHAR),
+					new StringField(F.cacheControl, record.cacheControl, MySqlColumnType.MAX_LENGTH_VARCHAR),
+					new StringField(F.connection, record.connection, MySqlColumnType.MAX_LENGTH_VARCHAR),
+					new StringField(F.contentEncoding, record.contentEncoding, MySqlColumnType.MAX_LENGTH_VARCHAR),
+					new StringField(F.contentLanguage, record.contentLanguage, MySqlColumnType.MAX_LENGTH_VARCHAR),
+					new StringField(F.contentLength, record.contentLength, MySqlColumnType.MAX_LENGTH_VARCHAR),
+					new StringField(F.contentType, record.contentType, MySqlColumnType.MAX_LENGTH_VARCHAR),
+					new StringField(F.cookie, record.cookie, MySqlColumnType.INT_LENGTH_LONGTEXT),
+					new StringField(F.dnt, record.dnt, MySqlColumnType.MAX_LENGTH_VARCHAR),
+					new StringField(F.host, record.host, MySqlColumnType.MAX_LENGTH_VARCHAR),
+					new StringField(F.ifModifiedSince, record.ifModifiedSince, MySqlColumnType.MAX_LENGTH_VARCHAR),
+					new StringField(F.origin, record.origin, MySqlColumnType.MAX_LENGTH_VARCHAR),
+					new StringField(F.pragma, record.pragma, MySqlColumnType.MAX_LENGTH_VARCHAR),
+					new StringField(F.referer, record.referer, MySqlColumnType.INT_LENGTH_LONGTEXT),
+					new StringField(F.userAgent, record.userAgent, MySqlColumnType.INT_LENGTH_LONGTEXT),
+					new StringField(F.xForwardedFor, record.xForwardedFor, MySqlColumnType.MAX_LENGTH_VARCHAR),
+					new StringField(F.xRequestedWith, record.xRequestedWith, MySqlColumnType.MAX_LENGTH_VARCHAR),
+					new StringField(F.others, record.otherHeaders, MySqlColumnType.INT_LENGTH_LONGTEXT)
 					);
 		}
 
@@ -247,7 +251,7 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 				request.getContextPath(),
 				request.getRequestURI().substring(request.getContextPath().length()),
 				request.getQueryString(),
-				RequestTool.tryGetBodyAsString(request),
+				RequestTool.tryGetBodyAsByteArray(request),
 				RequestTool.getIpAddress(request),
 				sessionRoles,
 				userId,
@@ -255,9 +259,9 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 				);
 	}
 
-	private HttpRequestRecord(Date receivedAt, String exceptionRecordId, String exceptionPlace,
-			String methodName, int lineNumber, String httpMethod, String httpParams, String protocol, String hostname,
-			int port, String contextPath, String path, String queryString, String body, String ip, String sessionRoles,
+	private HttpRequestRecord(Date receivedAt, String exceptionRecordId, String exceptionPlace, String methodName,
+			int lineNumber, String httpMethod, String httpParams, String protocol, String hostname, int port,
+			String contextPath, String path, String queryString, byte[] binaryBody, String ip, String sessionRoles,
 			Long userId, HttpHeaders headersWrapper){
 		this.key = new HttpRequestRecordKey(UuidTool.generateV1Uuid());
 		this.created = new Date();
@@ -280,7 +284,8 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 		this.contextPath = contextPath;
 		this.path = path;
 		this.queryString = queryString;
-		this.body = body;
+		this.binaryBody = binaryBody;
+		this.body = getStringBody();
 
 		this.ip = ip;
 		this.userRoles = sessionRoles;
@@ -332,6 +337,7 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 		this.path = exceptionDto.path;
 		this.queryString = exceptionDto.queryString;
 		this.body = exceptionDto.body;
+		this.binaryBody = exceptionDto.body.getBytes();
 
 		this.ip = exceptionDto.ip;
 		this.userRoles = exceptionDto.userRoles;
@@ -368,7 +374,8 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 
 	/********************************Lookup*************************************/
 	@SuppressWarnings("serial")
-	public static class HttpRequestRecordByExceptionRecord extends BaseLookup<HttpRequestRecordKey> implements UniqueKey<HttpRequestRecordKey> {
+	public static class HttpRequestRecordByExceptionRecord extends BaseLookup<HttpRequestRecordKey>
+	implements UniqueKey<HttpRequestRecordKey> {
 
 		private String exceptionRecordId;
 
@@ -380,9 +387,8 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 
 		@Override
 		public List<Field<?>> getFields() {
-			return FieldTool.createList(
-					new StringField(F.exceptionRecordId, exceptionRecordId, MySqlColumnType.MAX_LENGTH_VARCHAR)
-					);
+			return Arrays.asList(
+					new StringField(F.exceptionRecordId, exceptionRecordId, MySqlColumnType.MAX_LENGTH_VARCHAR));
 		}
 	}
 
@@ -551,8 +557,8 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 		this.queryString = queryString;
 	}
 
-	public String getBody(){
-		return body;
+	public String getStringBody(){
+		return new String(binaryBody);
 	}
 
 	public String getIp() {
