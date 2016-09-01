@@ -30,12 +30,14 @@ public abstract class BaseMapStorageIntegrationTests{
 	protected MapStorageTestRouter router;
 	private MapStorageNode<MapStorageDatabeanKey,MapStorageDatabean> mapStorageNode;
 
-	/***************************** setup/teardown **************************************/
+	/** setup/teardown *******************************************************/
 
 	protected void setup(ClientId clientId){
 		router = new MapStorageTestRouter(datarouter, nodeFactory, clientId, datarouterSettings);
 		mapStorageNode = router.mapStorageNode();
 	}
+
+	/** tests ****************************************************************/
 
 	@Test
 	public void testGetMulti(){
