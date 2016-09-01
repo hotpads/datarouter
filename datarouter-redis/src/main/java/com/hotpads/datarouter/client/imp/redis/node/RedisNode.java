@@ -23,6 +23,7 @@ extends RedisReaderNode<PK,D,F> implements PhysicalMapStorageNode<PK,D>{
 
 	private static final Logger logger = LoggerFactory.getLogger(RedisNode.class);
 
+	//redis can handle a max keys size of 32 megabytes
 	private static final int MAX_REDIS_KEY_SIZE = 1024 * 64;
 
 	/** constructor **********************************************************/
@@ -86,6 +87,7 @@ extends RedisReaderNode<PK,D,F> implements PhysicalMapStorageNode<PK,D>{
 			String key = buildRedisKey(databean.getKey());
 			if(key.length() > MAX_REDIS_KEY_SIZE){
 				logger.error("redis object too big for redis! " + databean.getDatabeanName() + ", key: " + key);
+				continue;
 			}
 			String jsonBean = JsonDatabeanTool.databeanToJsonString(databean, fieldInfo.getSampleFielder());
 			list.add(key);
