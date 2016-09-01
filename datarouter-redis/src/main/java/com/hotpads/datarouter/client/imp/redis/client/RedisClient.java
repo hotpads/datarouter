@@ -7,7 +7,7 @@ import com.hotpads.datarouter.client.imp.redis.RedisClientType;
 
 import redis.clients.jedis.Jedis;
 
-public class RedisClient extends BaseClient{
+public class RedisClient extends BaseClient {
 
 	private final Jedis jedisClient;
 	private final RedisClientType redisClientType;
