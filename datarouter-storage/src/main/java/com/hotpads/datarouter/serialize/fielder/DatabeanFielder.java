@@ -37,4 +37,6 @@ public interface DatabeanFielder<
 	StringDatabeanCodec getStringDatabeanCodec();
 
 	boolean isVersioned();
+
+	int getTtl();
 }

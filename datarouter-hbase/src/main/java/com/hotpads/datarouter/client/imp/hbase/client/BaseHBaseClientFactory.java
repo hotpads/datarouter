@@ -139,6 +139,7 @@ implements ClientFactory{
 						family.setBloomFilterType(BloomType.NONE);
 						family.setDataBlockEncoding(DataBlockEncoding.FAST_DIFF);
 						family.setCompressionType(Algorithm.GZ);
+						family.setTimeToLive(nodeByTableName.get(tableName).getFieldInfo().getTtl());
 						htable.addFamily(family);
 						byte[][] splitPoints = getSplitPoints(nodeByTableName.get(tableName));
 						if(DrArrayTool.isEmpty(splitPoints)
