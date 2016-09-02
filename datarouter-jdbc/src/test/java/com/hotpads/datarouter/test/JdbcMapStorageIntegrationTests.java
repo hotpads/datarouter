@@ -1,22 +1,16 @@
 package com.hotpads.datarouter.test;
 
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Guice;
 
 import com.hotpads.datarouter.client.imp.jdbc.TestDatarouterJdbcModuleFactory;
 import com.hotpads.datarouter.test.node.basic.map.BaseMapStorageIntegrationTests;
 
-@Guice(moduleFactory = TestDatarouterJdbcModuleFactory.class)
+@Guice(moduleFactory=TestDatarouterJdbcModuleFactory.class)
 public class JdbcMapStorageIntegrationTests extends BaseMapStorageIntegrationTests{
 
 	@BeforeClass
 	public void beforeClass(){
 		setup(DrTestConstants.CLIENT_drTestJdbc0);
-	}
-
-	@AfterClass
-	public void afterClass(){
-		datarouter.shutdown();
 	}
 }

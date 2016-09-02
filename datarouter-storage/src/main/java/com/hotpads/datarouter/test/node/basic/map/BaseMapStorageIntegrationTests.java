@@ -7,6 +7,7 @@ import java.util.List;
 import javax.inject.Inject;
 
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 
 import com.hotpads.datarouter.client.ClientId;
@@ -41,6 +42,11 @@ public abstract class BaseMapStorageIntegrationTests{
 	protected void setup(ClientId clientId){
 		router = new MapStorageTestRouter(datarouter, nodeFactory, clientId, datarouterSettings);
 		mapStorageNode = router.mapStorageNode();
+	}
+
+	@AfterClass
+	public void afterClass(){
+		datarouter.shutdown();
 	}
 
 	/** tests ****************************************************************/
