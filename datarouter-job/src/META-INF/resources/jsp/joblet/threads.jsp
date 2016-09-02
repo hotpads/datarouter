@@ -12,12 +12,58 @@
 	<div class="container" id="jobletsTable">
 		<h2 class="page-header">Joblet Threads</h2>
 		<div class="page-content-container page-content-thicktop page-single-column">
+			CPU and Memory Permit info: throttling enabled: ${isThrottling}
+			<table class="sortable table table-bordered table-condensed">
+				<tr>
+					<th>type</td>
+					<th>numRunningPermits</td>
+					<th>numAvailablePermits</td>
+				</tr>
+				<tr>
+					<td>CPU</td>
+					<td>${totalRunningCpuPermits}</td>
+					<td>${numCpuPermits}</td>
+				</tr>
+				<tr>
+					<td>Memory</td>
+					<th>${totalRunningMemoryPermits}</th>
+					<td>${numMemoryPermits}</td>
+				</tr>
+			</table>
+		
+			By type on this server:
+			<table class="sortable table table-bordered table-condensed">
+				<tr>
+					<th>jobletType</th>
+					<th>numRunning</th>
+					<th>numRunningCpuPermits</th>
+					<th>numRunningMemoryPermits</th>
+					<th>numWaiting</th>
+				</tr>
+				<tr>
+					<th>Total:</th>
+					<th>${totalRunning}</th>
+					<th>${totalRunningCpuPermits}</th>
+					<th>${totalRunningMemoryPermits}</th>
+					<th>${totalWaiting}</th>
+				</tr>
+				<c:forEach items="${typeSummaryDtos}" var="dto">
+					<tr>
+						<td>${dto.jobletType}</td>
+						<td>${dto.numRunning}</td>
+						<td>${dto.numRunningCpuPermits}</td>
+						<td>${dto.numRunningMemoryPermits}</td>
+						<td>${dto.numWaiting}</td>
+					</tr>
+				</c:forEach>
+			</table>
+			
 			<c:forEach items="${runningJobletThreads}" var="jobletThreads">
-				<h4>${jobletThreads.key} (running)</h4>
+				${jobletThreads.key} (running)
 				<%@ include file="/jsp/joblet/jobletThreadTable.jspf"%>
 			</c:forEach>
 			<c:forEach items="${waitingJobletThreads}" var="jobletThreads">
-				<h4>${jobletThreads.key} (waiting)</h4>
+				${jobletThreads.key} (waiting)
 				<%@ include file="/jsp/joblet/jobletThreadTable.jspf"%>
 			</c:forEach>
 		</div>

@@ -11,10 +11,19 @@ import com.hotpads.util.core.concurrent.ThreadTool;
 public class SleepingJoblet extends BaseJoblet<SleepingJobletParams>{
 	private static final Logger logger = LoggerFactory.getLogger(SleepingJoblet.class);
 
+	private static final long MAX_SEGMENT_MS = 1000;
+
 	@Override
 	public Long process(){
 		logger.warn("starting SleepingJoblet {}", params.id);
-		ThreadTool.sleep(params.sleepTimeMs);
+		long startMs = System.currentTimeMillis();
+		long remainingMs = params.sleepTimeMs;
+		while(remainingMs > 0){
+			assertShutdownNotRequested();
+			ThreadTool.sleep(Math.min(remainingMs, MAX_SEGMENT_MS));
+			long totalElapsedMs = System.currentTimeMillis() - startMs;
+			remainingMs = params.sleepTimeMs - totalElapsedMs;
+		}
 		logger.warn("finished SleepingJoblet {}", params.id);
 		return params.sleepTimeMs;
 	}
@@ -28,7 +37,6 @@ public class SleepingJoblet extends BaseJoblet<SleepingJobletParams>{
 			this.id = id;
 			this.sleepTimeMs = sleepTimeMs;
 		}
-
 	}
 
 
