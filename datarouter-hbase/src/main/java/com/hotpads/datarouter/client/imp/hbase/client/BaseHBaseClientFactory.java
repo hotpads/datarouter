@@ -132,6 +132,7 @@ implements ClientFactory{
 					if(createTables && !admin.tableExists(TableName.valueOf(tableName))){
 						logger.warn("table " + tableName + " not found, creating it");
 						HTableDescriptor htable = new HTableDescriptor(TableName.valueOf(tableName));
+						DatabeanFieldInfo<?,?,?> fieldInfo = nodeByTableName.get(tableName).getFieldInfo();
 						htable.setMaxFileSize(DEFAULT_MAX_FILE_SIZE_BYTES);
 						htable.setMemStoreFlushSize(DEFAULT_MEMSTORE_FLUSH_SIZE_BYTES);
 						HColumnDescriptor family = new HColumnDescriptor(DEFAULT_FAMILY_QUALIFIER);
@@ -139,7 +140,7 @@ implements ClientFactory{
 						family.setBloomFilterType(BloomType.NONE);
 						family.setDataBlockEncoding(DataBlockEncoding.FAST_DIFF);
 						family.setCompressionType(Algorithm.GZ);
-						family.setTimeToLive(nodeByTableName.get(tableName).getFieldInfo().getTtl());
+						family.setTimeToLive(fieldInfo.getTtl());
 						htable.addFamily(family);
 						byte[][] splitPoints = getSplitPoints(nodeByTableName.get(tableName));
 						if(DrArrayTool.isEmpty(splitPoints)
