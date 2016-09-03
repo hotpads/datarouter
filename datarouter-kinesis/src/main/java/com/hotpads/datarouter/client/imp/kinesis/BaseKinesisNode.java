@@ -60,8 +60,8 @@ implements StorageWriter<PK,D>{
 		return regionName;
 	}
 
-	private KclClient getKinesisClient(){
-		return (KclClient) datarouter.getClientPool().getClient(getClientId().getName());
+	private KclZillowReadOnlyLitLzgClient getKinesisClient(){
+		return (KclZillowReadOnlyLitLzgClient) datarouter.getClientPool().getClient(getClientId().getName());
 	}
 
 	public AmazonKinesisClient getAmazonKinesisClient(){

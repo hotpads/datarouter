@@ -7,17 +7,10 @@ import com.hotpads.util.core.properties.TypedProperties;
 public class KinesisOptions extends TypedProperties{
 
 	private final String clientPrefix;
-	private final String streamName;
-	private final String regionName;
-	private final String arnRole;
 
-	public KinesisOptions(Datarouter datarouter, String clientName, String streamName, String regionName,
-			String arnRole){
+	public KinesisOptions(Datarouter datarouter, String clientName){
 		super(DrPropertiesTool.fromFiles(datarouter.getConfigFilePaths()));
 		this.clientPrefix = "client." + clientName + ".";
-		this.streamName = streamName;
-		this.regionName = regionName;
-		this.arnRole = arnRole;
 	}
 
 	public String getAccessKey(){
@@ -33,14 +26,6 @@ public class KinesisOptions extends TypedProperties{
 	}
 
 	public String getArnRole(){
-		return arnRole;
-	}
-
-	public String getStreamName(){
-		return streamName;
-	}
-
-	public String getRegionName(){
-		return regionName;
+		return getRequiredString(clientPrefix + "arnRole");
 	}
 }

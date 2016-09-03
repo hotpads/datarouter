@@ -6,6 +6,8 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import com.hotpads.datarouter.client.ClientId;
+import com.hotpads.datarouter.client.ClientType;
+import com.hotpads.datarouter.client.DatarouterClients;
 import com.hotpads.datarouter.client.imp.kinesis.single.KinesisNode;
 import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.NodeParams.NodeParamsBuilder;
@@ -20,26 +22,31 @@ public class KinesisNodeFactory{
 
 	@Inject
 	private Datarouter datarouter;
+	@Inject
+	private DatarouterClients clients;
 
 	public <PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>
 	KinesisNode<PK,D,F> createSingleNode(ClientId clientId, Router router, Supplier<D> databeanSupplier,
-			String queueName, Supplier<F> fielderSupplier, String arnRole, String streamName, String regionName){
+			String queueName, Supplier<F> fielderSupplier, String streamName, String regionName){
 		NodeParams<PK,D,F> params = new NodeParamsBuilder<>(router, databeanSupplier, fielderSupplier)
 			.withClientId(clientId)
 			.withArnRole(arnRole)
 			.withStreamName(streamName)
 			.withRegionName(regionName)
 			.build();
-		return createSingleNode(params);
+		KinesisClientType clientType = getClientType(params);
+		return  (KinesisNode<PK,D,F>)clientType.createNode(params);
 	}
 
-	public <PK extends PrimaryKey<PK>,
-			D extends Databean<PK,D>,
-			F extends DatabeanFielder<PK,D>>
-	KinesisNode<PK,D,F> createSingleNode(NodeParams<PK,D,F> params){
-		return new KinesisNode<>(datarouter, params);
+	private KinesisClientType getClientType(NodeParams<?,?,?> params){
+		String clientName = params.getClientId().getName();
+		ClientType clientType = clients.getClientTypeInstance(clientName);
+		if(clientType == null){
+			throw new NullPointerException("clientType not found for clientName:" + clientName);
+		}
+		return (KinesisClientType) clientType;
 	}
 
 }

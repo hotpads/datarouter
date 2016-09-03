@@ -15,15 +15,15 @@ import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.ClientFactory;
 import com.hotpads.datarouter.client.availability.ClientAvailabilitySettings;
 
-public class KclConsumerClientFactory implements ClientFactory{
+public class KclZillowReadOnlyLitLzgClientFactory implements ClientFactory{
 
 	private final String clientName;
 	private final KinesisClientType clientType;
 	private final KinesisOptions kinesisOptions;
 	private final ClientAvailabilitySettings clientAvailabilitySettings;
 
-	public KclConsumerClientFactory(String clientName, KinesisClientType clientType, KinesisOptions kinesisOptions,
-			ClientAvailabilitySettings clientAvailabilitySettings){
+	public KclZillowReadOnlyLitLzgClientFactory(String clientName, KinesisClientType clientType,
+			KinesisOptions kinesisOptions, ClientAvailabilitySettings clientAvailabilitySettings){
 		this.clientName = clientName;
 		this.clientType = clientType;
 		this.kinesisOptions = kinesisOptions;
@@ -34,13 +34,27 @@ public class KclConsumerClientFactory implements ClientFactory{
 	public Client call(){
 		AWSCredentials basicCredentials = new BasicAWSCredentials(kinesisOptions.getAccessKey(), kinesisOptions
 				.getSecretKey());
-		AWSCredentials arnRoleCredentials = null;
-		if(kinesisOptions.getArnRole() != null){
-			arnRoleCredentials = getTempSessionCredentialsForRoleArn(basicCredentials, kinesisOptions.getArnRole());
+		AWSCredentials credentials = basicCredentials;
+		if(kinesisOptions.getArnRole() != null){//we're assuming an aws role
+			credentials = getTempSessionCredentialsForRoleArn(basicCredentials, kinesisOptions.getArnRole());
 		}
-		AWSCredentials credentials = kinesisOptions.getArnRole() != null ? arnRoleCredentials : basicCredentials;
 		AmazonKinesisClient amazonKinesisClient = new AmazonKinesisAsyncClient(credentials);
-		AWSCredentialsProvider credentialsProvider = new AWSCredentialsProvider(){
+		AWSCredentialsProvider credentialsProvider = makeAWSCredentialsProvider(credentials);
+		return new KclZillowReadOnlyLitLzgClient(clientName, clientType, amazonKinesisClient, credentialsProvider,
+				kinesisOptions, clientAvailabilitySettings);
+	}
+
+	private static AWSSessionCredentials getTempSessionCredentialsForRoleArn(AWSCredentials awsCredentials, String arn){
+		AWSSecurityTokenServiceClient tokenServiceClient = new AWSSecurityTokenServiceClient(awsCredentials);
+		AssumeRoleRequest arRequest = new AssumeRoleRequest().withRoleArn(arn).withRoleSessionName("arSession");
+		AssumeRoleResult arResult = tokenServiceClient.assumeRole(arRequest);
+		Credentials tempCredentials = arResult.getCredentials();
+		return new BasicSessionCredentials(tempCredentials.getAccessKeyId(), tempCredentials.getSecretAccessKey(),
+				tempCredentials.getSessionToken());
+	}
+
+	private static AWSCredentialsProvider makeAWSCredentialsProvider(AWSCredentials credentials){
+		return new AWSCredentialsProvider(){
 
 			@Override
 			public void refresh(){
@@ -51,16 +65,6 @@ public class KclConsumerClientFactory implements ClientFactory{
 				return credentials;
 			}
 		};
-		return new KclClient(clientName, clientType, amazonKinesisClient, credentialsProvider, kinesisOptions, clientAvailabilitySettings);
-	}
-
-	private static AWSSessionCredentials getTempSessionCredentialsForRoleArn(AWSCredentials awsCredentials, String arn){
-		AWSSecurityTokenServiceClient tokenServiceClient = new AWSSecurityTokenServiceClient(awsCredentials);
-		AssumeRoleRequest arRequest = new AssumeRoleRequest().withRoleArn(arn).withRoleSessionName("arSession");
-		AssumeRoleResult arResult = tokenServiceClient.assumeRole(arRequest);
-		Credentials tempCredentials = arResult.getCredentials();
-		return new BasicSessionCredentials(tempCredentials.getAccessKeyId(), tempCredentials.getSecretAccessKey(),
-				tempCredentials.getSessionToken());
 	}
 
 }

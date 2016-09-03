@@ -6,14 +6,14 @@ import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.availability.ClientAvailabilitySettings;
 import com.hotpads.datarouter.client.imp.BaseClient;
 
-public class KclClient extends BaseClient{
+public class KclZillowReadOnlyLitLzgClient extends BaseClient{
 
 	private final KinesisClientType clientType;
 	private final AmazonKinesisClient kinesisClient;
 	private final AWSCredentialsProvider awsCredentialsProvider;
 	private final KinesisOptions kinesisOptions;
 
-	public KclClient(String name, KinesisClientType clientType, AmazonKinesisClient kinesisClient,
+	public KclZillowReadOnlyLitLzgClient(String name, KinesisClientType clientType, AmazonKinesisClient kinesisClient,
 			AWSCredentialsProvider awsCredentialsProvider, KinesisOptions kinesisOptions,
 			ClientAvailabilitySettings clientAvailabilitySettings){
 		super(name, clientAvailabilitySettings);
@@ -44,4 +44,5 @@ public class KclClient extends BaseClient{
 	public KinesisOptions getKinesisOptions(){
 		return kinesisOptions;
 	}
+
 }
