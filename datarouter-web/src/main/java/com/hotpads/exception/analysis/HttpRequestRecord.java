@@ -337,7 +337,9 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 		this.path = exceptionDto.path;
 		this.queryString = exceptionDto.queryString;
 		this.body = exceptionDto.body;
-		this.binaryBody = exceptionDto.body.getBytes();
+		if(body != null){
+			this.binaryBody = exceptionDto.body.getBytes();
+		}
 
 		this.ip = exceptionDto.ip;
 		this.userRoles = exceptionDto.userRoles;
