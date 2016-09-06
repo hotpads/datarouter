@@ -434,8 +434,8 @@ public class DatabeanFieldInfo<
 		return ttlMs;
 	}
 
-	public long getTtlorUse(long overrideTtl){
-		if(getTtlMs().equals(null)){
+	public long getTtlOrUse(long overrideTtl){
+		if(getTtlMs()==null){
 			return overrideTtl;
 		}
 		return getTtlMs();
