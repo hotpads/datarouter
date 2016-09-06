@@ -116,8 +116,7 @@ implements DatabeanFielder<PK,D>{
 	}
 
 	@Override
-	public int getTtl(){
-		return Integer.MAX_VALUE;
+	public Long getTtlMs(){
+		return null;
 	}
-
 }

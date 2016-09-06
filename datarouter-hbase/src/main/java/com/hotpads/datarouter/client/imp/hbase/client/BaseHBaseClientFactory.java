@@ -12,6 +12,7 @@ import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
 
 import org.apache.hadoop.hbase.HColumnDescriptor;
+import org.apache.hadoop.hbase.HConstants;
 import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Admin;
@@ -140,7 +141,7 @@ implements ClientFactory{
 						family.setBloomFilterType(BloomType.NONE);
 						family.setDataBlockEncoding(DataBlockEncoding.FAST_DIFF);
 						family.setCompressionType(Algorithm.GZ);
-						family.setTimeToLive(fieldInfo.getTtl());
+						family.setTimeToLive((int)fieldInfo.getTtlorUse(HConstants.FOREVER));
 						htable.addFamily(family);
 						byte[][] splitPoints = getSplitPoints(nodeByTableName.get(tableName));
 						if(DrArrayTool.isEmpty(splitPoints)

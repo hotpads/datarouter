@@ -32,7 +32,7 @@ public interface DatabeanFielder<
 	MySqlCollation getCollation();
 	MySqlCharacterSet getCharacterSet();
 	MySqlRowFormat getRowFormat();
-	int getTtl();
+	Long getTtlMs();
 
 	Class<? extends StringDatabeanCodec> getStringDatabeanCodecClass();
 	StringDatabeanCodec getStringDatabeanCodec();
