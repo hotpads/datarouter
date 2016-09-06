@@ -11,21 +11,21 @@ public abstract class BaseDatarouterProperties implements DatarouterProperties{
 	private static final String SERVER_TYPE = "server.type";
 	private static final String ADMINISTRATOR_EMAIL = "administrator.email";
 
+	private final String path;
 	private final Properties properties;
 
 	public BaseDatarouterProperties(String path){
+		this.path = path;
 		this.properties = DrPropertiesTool.parse(path);
-		if (DrStringTool.isNullOrEmptyOrWhitespace(getServerPublicIp())) {
-			throw new RuntimeException("Expected " + path + " to contain property " + SERVER_PUBLIC_IP);
-		}
-		if (DrStringTool.isNullOrEmptyOrWhitespace(getServerName())) {
-			throw new RuntimeException("Expected " + path + " to contain property " + SERVER_NAME);
-		}
-		if (DrStringTool.isNullOrEmptyOrWhitespace(getServerType())) {
-			throw new RuntimeException("Expected " + path + " to contain property " + SERVER_TYPE);
-		}
-		if (DrStringTool.isNullOrEmptyOrWhitespace(getAdministratorEmail())) {
-			throw new RuntimeException("Expected " + path + " to contain property " + ADMINISTRATOR_EMAIL);
+		validatePropertyValue(SERVER_PUBLIC_IP, getServerPublicIp());
+		validatePropertyValue(SERVER_NAME, getServerName());
+		validatePropertyValue(SERVER_TYPE, getServerType());
+		validatePropertyValue(ADMINISTRATOR_EMAIL, getAdministratorEmail());
+	}
+
+	private void validatePropertyValue(String name, String value){
+		if(DrStringTool.isNullOrEmptyOrWhitespace(value)){
+			throw new RuntimeException("Expected " + path + " to contain property " + name);
 		}
 	}
 
