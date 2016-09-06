@@ -15,13 +15,11 @@ import com.hotpads.datarouter.client.imp.hbase.util.HBaseResultTool;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
 import com.hotpads.datarouter.storage.field.FieldSet;
-import com.hotpads.datarouter.storage.key.entity.EntityKey;
 import com.hotpads.datarouter.storage.key.entity.EntityPartitioner;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.core.DrArrayTool;
 import com.hotpads.datarouter.util.core.DrNumberFormatter;
 import com.hotpads.datarouter.util.core.DrObjectTool;
-import com.hotpads.util.core.java.ReflectionTool;
 import com.hotpads.util.core.lang.ClassTool;
 
 public class DrRegionInfo<PK extends PrimaryKey<PK>> implements Comparable<DrRegionInfo<?>>{
@@ -62,20 +60,16 @@ public class DrRegionInfo<PK extends PrimaryKey<PK>> implements Comparable<DrReg
 
 	/******************************* methods *****************************************/
 
-	private FieldSet<?> getKey(Class<PK> primaryKeyClass, byte[] bytes){
-		PK sampleKey = ReflectionTool.create(primaryKeyClass);
-		if(DrArrayTool.isEmpty(bytes)) {
-			return sampleKey;
-		}
+	private FieldSet<?> getKey(byte[] bytes){
 		try{
 			if(fieldInfo.isEntity()){
 				HBaseSubEntityReaderNode<?,?,?,?,?> subEntityNode = (HBaseSubEntityReaderNode<?,?,?,?,?>)node;
-				EntityKey<?> ek = subEntityNode.getResultParser().getEkFromRowBytes(bytes);
-				return ek;
+				return subEntityNode.getResultParser().getEkFromRowBytes(bytes);
+			}else{
+				return HBaseResultTool.getPrimaryKeyUnchecked(bytes, fieldInfo);
 			}
-			return HBaseResultTool.getPrimaryKeyUnchecked(bytes, fieldInfo);
 		}catch(RuntimeException e){
-			logger.warn("error on {}, {}", primaryKeyClass.getName(), Bytes.toStringBinary(bytes));
+			logger.warn("error on {}, {}", node.getName(), Bytes.toStringBinary(bytes));
 			return null;
 		}
 	}
@@ -194,12 +188,12 @@ public class DrRegionInfo<PK extends PrimaryKey<PK>> implements Comparable<DrReg
 	}
 
 	public FieldSet<?> getStartKey(){
-		return getKey(primaryKeyClass, regionInfo.getStartKey());
+		return getKey(regionInfo.getStartKey());
 	}
 
 	//used in hbaseTableRegions.jsp
 	public FieldSet<?> getEndKey(){
-		return getKey(primaryKeyClass, regionInfo.getEndKey());
+		return getKey(regionInfo.getEndKey());
 	}
 
 	public Integer getPartition(){
