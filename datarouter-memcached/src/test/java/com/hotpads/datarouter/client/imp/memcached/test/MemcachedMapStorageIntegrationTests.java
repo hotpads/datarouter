@@ -12,6 +12,6 @@ public class MemcachedMapStorageIntegrationTests extends BaseMapStorageIntegrati
 
 	@BeforeClass
 	public void beforeClass(){
-		setup(DrTestConstants.CLIENT_drTestMemcached);
+		setup(DrTestConstants.CLIENT_drTestMemcached, false);
 	}
 }

@@ -11,6 +11,6 @@ public class MemoryMapStorageIntegrationTests extends BaseMapStorageIntegrationT
 
 	@BeforeClass
 	public void beforeClass(){
-		setup(DrTestConstants.CLIENT_drTestMemory);
+		setup(DrTestConstants.CLIENT_drTestMemory, false);
 	}
 }

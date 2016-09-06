@@ -7,10 +7,12 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.imp.comparable.LongField;
 import com.hotpads.datarouter.storage.field.imp.comparable.LongFieldKey;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt63Field;
-import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
+import com.hotpads.datarouter.storage.key.primary.base.BaseEntityPrimaryKey;
 
 @SuppressWarnings("serial")
-public class MapStorageBeanKey extends BasePrimaryKey<MapStorageBeanKey>{
+public class MapStorageBeanKey extends BaseEntityPrimaryKey<MapStorageBeanEntityKey,MapStorageBeanKey>{
+
+	/** fields ***************************************************************/
 
 	private Long id;
 
@@ -23,11 +25,30 @@ public class MapStorageBeanKey extends BasePrimaryKey<MapStorageBeanKey>{
 		return Arrays.asList(new LongField(FieldKeys.id, id));
 	}
 
+	/** constructor **********************************************************/
+
 	public MapStorageBeanKey(){
 		this.id = UInt63Field.nextPositiveRandom();
 	}
 
 	public Long getId(){
 		return id;
+	}
+
+	/** entity ***************************************************************/
+
+	@Override
+	public MapStorageBeanEntityKey getEntityKey(){
+		return new MapStorageBeanEntityKey(UInt63Field.nextPositiveRandom());
+	}
+
+	@Override
+	public MapStorageBeanKey prefixFromEntityKey(MapStorageBeanEntityKey entityKey){
+		return new MapStorageBeanKey();
+	}
+
+	@Override
+	public List<Field<?>> getPostEntityKeyFields(){
+		return Arrays.asList(new LongField(FieldKeys.id, id));
 	}
 }

@@ -5,6 +5,8 @@ import java.util.List;
 
 import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.config.DatarouterSettings;
+import com.hotpads.datarouter.node.entity.EntityNodeParams;
+import com.hotpads.datarouter.node.factory.EntityNodeFactory;
 import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.node.op.raw.MapStorage.MapStorageNode;
 import com.hotpads.datarouter.routing.BaseRouter;
@@ -12,6 +14,8 @@ import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.test.DrTestConstants;
 import com.hotpads.datarouter.test.node.basic.map.databean.MapStorageBean;
 import com.hotpads.datarouter.test.node.basic.map.databean.MapStorageBean.MapStorageBeanFielder;
+import com.hotpads.datarouter.test.node.basic.map.databean.MapStorageBeanEntity;
+import com.hotpads.datarouter.test.node.basic.map.databean.MapStorageBeanEntityKey;
 import com.hotpads.datarouter.test.node.basic.map.databean.MapStorageBeanKey;
 
 public class MapStorageTestRouter extends BaseRouter{
@@ -24,12 +28,19 @@ public class MapStorageTestRouter extends BaseRouter{
 	private MapStorageNode<MapStorageBeanKey,MapStorageBean> mapStorageNode;
 
 	public MapStorageTestRouter(Datarouter datarouter, NodeFactory nodeFactory, ClientId clientId,
-			DatarouterSettings datarouterSettings){
+			DatarouterSettings datarouterSettings, boolean entity, EntityNodeFactory entityNodeFactory,
+			EntityNodeParams<MapStorageBeanEntityKey,MapStorageBeanEntity> entityNodeParams){
 		super(datarouter, DrTestConstants.CONFIG_PATH, NAME, nodeFactory, datarouterSettings);
 		this.clientIds = Arrays.asList(clientId);
-		mapStorageNode = create(clientId, MapStorageBean::new, MapStorageBeanFielder::new)
-			.withSchemaVersion(VERSION_mapStorageTestRouter)
-			.buildAndRegister();
+
+		if(entity){
+			mapStorageNode = new MapStorageEntityNode(entityNodeFactory, nodeFactory, this, clientId, entityNodeParams)
+					.mapStorageNode();
+		}else{
+			mapStorageNode = create(clientId, MapStorageBean::new, MapStorageBeanFielder::new)
+				.withSchemaVersion(VERSION_mapStorageTestRouter)
+				.buildAndRegister();
+		}
 	}
 
 	@Override
