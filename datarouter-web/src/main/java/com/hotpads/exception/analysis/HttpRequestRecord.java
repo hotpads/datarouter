@@ -79,7 +79,6 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 	private String contextPath;
 	private String path;
 	private String queryString;
-	private String body;
 	private byte[] binaryBody;
 
 	private String ip;
@@ -109,7 +108,7 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 	private String otherHeaders;
 
 	private static class FieldKeys{
-		private static final ByteArrayFieldKey body = new ByteArrayFieldKey("binaryBody")
+		private static final ByteArrayFieldKey binaryBody = new ByteArrayFieldKey("binaryBody")
 				.withSize(MySqlColumnType.MAX_LENGTH_LONGBLOB);
 	}
 
@@ -189,8 +188,7 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 					new StringField(F.contextPath, record.contextPath, MySqlColumnType.MAX_LENGTH_VARCHAR),
 					new StringField(F.path, record.path, MySqlColumnType.MAX_LENGTH_VARCHAR),
 					new StringField(F.queryString, record.queryString, MySqlColumnType.INT_LENGTH_LONGTEXT),
-					new StringField(F.body, record.body, MySqlColumnType.INT_LENGTH_LONGTEXT),
-					new ByteArrayField(FieldKeys.body, record.binaryBody),
+					new ByteArrayField(FieldKeys.binaryBody, record.binaryBody),
 
 					new StringField(F.ip, record.ip, LENGTH_ip),
 					new StringField(F.userRoles, record.userRoles, MySqlColumnType.MAX_LENGTH_VARCHAR),
@@ -285,7 +283,6 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 		this.path = path;
 		this.queryString = queryString;
 		this.binaryBody = binaryBody;
-		this.body = getStringBody();
 
 		this.ip = ip;
 		this.userRoles = sessionRoles;
@@ -336,8 +333,7 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 		this.port = exceptionDto.port;
 		this.path = exceptionDto.path;
 		this.queryString = exceptionDto.queryString;
-		this.body = exceptionDto.body;
-		if(body != null){
+		if(exceptionDto.body != null){
 			this.binaryBody = exceptionDto.body.getBytes();
 		}
 
