@@ -13,20 +13,20 @@ import com.hotpads.util.core.stream.StreamTool;
 
 public class JobletPackage {
 
-	private final JobletRequest joblet;
+	private final JobletRequest jobletRequest;
 	private final JobletData jobletData;
 
-	public JobletPackage(JobletRequest joblet, JobletData jobletData) {
-		this.joblet = joblet;
+	public JobletPackage(JobletRequest jobletRequest, JobletData jobletData) {
+		this.jobletRequest = jobletRequest;
 		this.jobletData = jobletData;
 	}
 
 	public void updateJobletDataIdReference(){
-		getJoblet().setJobletDataId(getJobletData().getId());
+		getJobletRequest().setJobletDataId(getJobletData().getId());
 	}
 
-	public JobletRequest getJoblet() {
-		return joblet;
+	public JobletRequest getJobletRequest() {
+		return jobletRequest;
 	}
 
 	public JobletData getJobletData(){
@@ -66,7 +66,7 @@ public class JobletPackage {
 	}
 
 	public static List<JobletRequest> getJobletRequests(Collection<JobletPackage> jobletPackages){
-		return StreamTool.map(jobletPackages, JobletPackage::getJoblet);
+		return StreamTool.map(jobletPackages, JobletPackage::getJobletRequest);
 	}
 
 	public static List<JobletData> getJobletDatas(Collection<JobletPackage> jobletPackages){

@@ -1,30 +1,26 @@
 package com.hotpads.joblet.execute;
 
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.hotpads.joblet.enums.JobletType;
 import com.hotpads.joblet.enums.JobletTypeFactory;
 import com.hotpads.joblet.execute.ParallelJobletProcessor.ParallelJobletProcessorFactory;
 
-//static map to hold a ParallelJobletProcessor for each joblet type
 @Singleton
 public class ParallelJobletProcessors {
-	private static final Logger logger = LoggerFactory.getLogger(ParallelJobletProcessors.class);
 
 	//injected
 	private final ParallelJobletProcessorFactory parallelJobletProcessorFactory;
 	private final JobletTypeFactory jobletTypeFactory;
 
-	private final Map<JobletType<?>,ParallelJobletProcessor> processorsByJobletType = new ConcurrentHashMap<>();
+	private final Map<JobletType<?>,ParallelJobletProcessor> processorByType;
 
 
 	@Inject
@@ -32,45 +28,44 @@ public class ParallelJobletProcessors {
 			JobletTypeFactory jobletTypeFactory){
 		this.parallelJobletProcessorFactory = parallelJobletProcessorFactory;
 		this.jobletTypeFactory = jobletTypeFactory;
-		for(JobletType<?> jobletType : jobletTypeFactory.getAllTypes()){
-			processorsByJobletType.put(jobletType, parallelJobletProcessorFactory.create(jobletType));
-		}
-		logger.info("created ParallelJobletProcessors singleton with " + processorsByJobletType.keySet());
+		this.processorByType = jobletTypeFactory.getAllTypes().stream()
+				.map(parallelJobletProcessorFactory::create)
+				.collect(Collectors.toMap(ParallelJobletProcessor::getJobletType, Function.identity()));
 	}
 
 	public Map<JobletType<?>,ParallelJobletProcessor> getMap(){
-		return processorsByJobletType;
+		return processorByType;
 	}
 
 	public List<JobletExecutorThread> getCurrentlyRunningJobletExecutorThreads(){
-		ArrayList<JobletExecutorThread> runningJobletThreads = new ArrayList<>();
-		for(ParallelJobletProcessor processor : getMap().values()){
-			runningJobletThreads.addAll(processor.getRunningJobletExecutorThreads());
-		}
-		return runningJobletThreads;
+		return processorByType.values().stream()
+				.map(ParallelJobletProcessor::getRunningJobletExecutorThreads)
+				.flatMap(Collection::stream)
+				.collect(Collectors.toList());
 	}
 
 	public List<JobletExecutorThread> getCurrentlyWaitingJobletExecutorThreads(){
-		ArrayList<JobletExecutorThread> waitingJobletThreads = new ArrayList<>();
-		for(ParallelJobletProcessor processor : getMap().values()){
-			waitingJobletThreads.addAll(processor.getWaitingJobletExecutorThreads());
-		}
-		return waitingJobletThreads;
+		return processorByType.values().stream()
+				.map(ParallelJobletProcessor::getWaitingJobletExecutorThreads)
+				.flatMap(Collection::stream)
+				.collect(Collectors.toList());
 	}
 
 	public void killThread(long threadId) {
-		for(JobletExecutorThread thread : getCurrentlyRunningJobletExecutorThreads()){
-			if(thread.getId() == threadId){
-				thread.killMe(true);
-				return;
-			}
-		}
+		getCurrentlyRunningJobletExecutorThreads().stream()
+				.filter(thread -> thread.getId() == threadId)
+				.findAny()
+				.ifPresent(thread -> thread.interruptMe(true));
 	}
 
 	public void restartExecutor(String jobletTypeString){
 		JobletType<?> jobletType = jobletTypeFactory.fromPersistentString(jobletTypeString);
-		getMap().get(jobletType).stop();
-		getMap().put(jobletType, parallelJobletProcessorFactory.create(jobletType));
+		processorByType.get(jobletType).requestShutdown();
+		processorByType.put(jobletType, parallelJobletProcessorFactory.create(jobletType));
+	}
+
+	public void requestShutdown(){
+		processorByType.values().forEach(ParallelJobletProcessor::requestShutdown);
 	}
 
 }

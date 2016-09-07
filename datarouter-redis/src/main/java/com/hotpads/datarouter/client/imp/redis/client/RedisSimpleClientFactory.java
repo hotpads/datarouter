@@ -44,8 +44,7 @@ public class RedisSimpleClientFactory implements ClientFactory{
 		PhaseTimer timer = new PhaseTimer(clientName);
 
 		Jedis jedisClient = new Jedis(options.getServers()[0].getHostName(), options.getServers()[0].getPort());
-		RedisClient newClient = new RedisClient(clientName, jedisClient, clientAvailabilitySettings,
-				redisClientType);
+		RedisClient newClient = new RedisClient(clientName, jedisClient, clientAvailabilitySettings, redisClientType);
 
 		logger.warn(timer.add("done").toString());
 		return newClient;

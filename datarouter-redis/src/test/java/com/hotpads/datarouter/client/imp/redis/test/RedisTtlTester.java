@@ -19,7 +19,7 @@ import com.hotpads.datarouter.test.DatarouterStorageTestModuleFactory;
 import com.hotpads.datarouter.test.DrTestConstants;
 
 // Difficult to test TTLs in maven
-@Guice(moduleFactory=DatarouterStorageTestModuleFactory.class)
+@Guice(moduleFactory = DatarouterStorageTestModuleFactory.class)
 public class RedisTtlTester{
 
 	/** fields ***************************************************************/
@@ -29,7 +29,7 @@ public class RedisTtlTester{
 	@Inject
 	private DatarouterClients datarouterClients;
 
-	private RedisNode <RedisDatabeanKey,RedisDatabean,RedisDatabeanFielder> redisNode;
+	private RedisNode<RedisDatabeanKey,RedisDatabean,RedisDatabeanFielder> redisNode;
 
 	/** constructors *********************************************************/
 
@@ -53,7 +53,7 @@ public class RedisTtlTester{
 
 		try{
 			Thread.sleep(4 * 1000);
-		} catch(InterruptedException e){
+		}catch(InterruptedException e){
 			Thread.currentThread().interrupt();
 		}
 		Assert.assertEquals(redisNode.getTallyCount(bean.getKey()), null);
@@ -77,7 +77,7 @@ public class RedisTtlTester{
 		// Wait for 4 seconds
 		try{
 			Thread.sleep(4 * 1000);
-		} catch (InterruptedException e){
+		}catch(InterruptedException e){
 			Thread.currentThread().interrupt();
 		}
 		Assert.assertEquals(redisNode.getTallyCount(bean.getKey()), null);
@@ -98,7 +98,7 @@ public class RedisTtlTester{
 		// Wait for 4 seconds
 		try{
 			Thread.sleep(4 * 1000);
-		} catch (InterruptedException e){
+		}catch(InterruptedException e){
 			Thread.currentThread().interrupt();
 		}
 		Assert.assertEquals(redisNode.getTallyCount(bean.getKey()), null);

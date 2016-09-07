@@ -24,4 +24,7 @@ public class IntegerFieldKey extends PrimitiveFieldKey<Integer>{
 		return RandomTool.nextPositiveInt();
 	}
 
+	public IntegerFieldKey withColumnName(String columnNameOverride){
+		return new IntegerFieldKey(name, columnNameOverride, nullable, fieldGeneratorType, defaultValue);
+	}
 }

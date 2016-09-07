@@ -27,7 +27,7 @@ public class RedisIncrementIntegrationTests{
 	@Inject
 	private DatarouterClients datarouterClients;
 
-	private RedisNode <RedisDatabeanKey,RedisDatabean,RedisDatabeanFielder> redisNode;
+	private RedisNode<RedisDatabeanKey,RedisDatabean,RedisDatabeanFielder> redisNode;
 
 	/** constructors *********************************************************/
 

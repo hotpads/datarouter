@@ -21,7 +21,7 @@ import com.hotpads.datarouter.test.DrTestConstants;
 
 public class RedisTestRouter extends BaseRouter{
 
-	private static final int VERSION_RedisTest = 2;
+	private static final int VERSION_RedisTest = 1;
 
 	private final DatarouterClients datarouterClients;
 

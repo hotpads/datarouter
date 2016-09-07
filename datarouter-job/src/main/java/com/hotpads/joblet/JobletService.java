@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.config.Config;
+import com.hotpads.datarouter.config.PutMethod;
 import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.handler.exception.ExceptionRecord;
@@ -67,7 +68,7 @@ public class JobletService{
 	/*--------------------- create ------------------------*/
 
 	public void submitJobletPackages(Collection<JobletPackage> jobletPackages){
-		String typeString = DrCollectionTool.getFirst(jobletPackages).getJoblet().getTypeString();
+		String typeString = DrCollectionTool.getFirst(jobletPackages).getJobletRequest().getTypeString();
 		PhaseTimer timer = new PhaseTimer("insert " + jobletPackages.size() + typeString);
 		jobletNodes.jobletData().putMulti(JobletPackage.getJobletDatas(jobletPackages), null);
 		timer.add("inserted JobletData");
@@ -200,10 +201,13 @@ public class JobletService{
 	/*--------------------- lifecycle events -----------------------*/
 
 	public void handleJobletInterruption(JobletRequest jobletRequest){
-		jobletRequest.setStatus(JobletStatus.created);
 		jobletRequest.setReservedBy(null);
 		jobletRequest.setReservedAt(null);
-		logger.warn("interrupted "+jobletRequest.getKey()+", set status=created, reservedBy=null, reservedAt=null");
+		JobletStatus setStatusTo = jobletRequest.getRestartable() ? JobletStatus.created : JobletStatus.interrupted;
+		jobletRequest.setStatus(setStatusTo);
+		logger.warn("interrupted {}, set status={}, reservedBy=null, reservedAt=null", jobletRequest.getKey(),
+				setStatusTo);
+		jobletNodes.jobletRequest().put(jobletRequest, new Config().setPutMethod(PutMethod.UPDATE_OR_BUST));
 	}
 
 	public void handleJobletError(JobletRequest jobletRequest, Exception exception, String location){
@@ -218,6 +222,7 @@ public class JobletService{
 		jobletRequest.setExceptionRecordId(exceptionRecord.getKey().getId());
 		jobletRequest.setReservedBy(null);
 		jobletRequest.setReservedAt(null);
+		jobletNodes.jobletRequest().put(jobletRequest, new Config().setPutMethod(PutMethod.UPDATE_OR_BUST));
 	}
 
 	public void handleJobletCompletion(JobletRequest jobletRequest){
