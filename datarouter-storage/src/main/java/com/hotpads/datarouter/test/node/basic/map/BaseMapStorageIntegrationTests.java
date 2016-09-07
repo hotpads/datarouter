@@ -1,6 +1,7 @@
 package com.hotpads.datarouter.test.node.basic.map;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -10,13 +11,18 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 
 import com.hotpads.datarouter.client.ClientId;
+import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.config.DatarouterSettings;
 import com.hotpads.datarouter.node.factory.EntityNodeFactory;
 import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.node.op.raw.MapStorage.MapStorageNode;
 import com.hotpads.datarouter.routing.Datarouter;
+import com.hotpads.datarouter.storage.databean.DatabeanTool;
+import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.test.node.basic.map.databean.MapStorageBean;
+import com.hotpads.datarouter.test.node.basic.map.databean.MapStorageBean.MapStorageBeanFielder;
 import com.hotpads.datarouter.test.node.basic.map.databean.MapStorageBeanKey;
+import com.hotpads.datarouter.util.core.DrListTool;
 
 public abstract class BaseMapStorageIntegrationTests{
 
@@ -59,7 +65,7 @@ public abstract class BaseMapStorageIntegrationTests{
 		}
 	}
 
-/*	@Test
+	@Test
 	protected void testGetMulti(){
 		List<MapStorageBean> beans = initBeans(10);
 		mapStorageNode.putMulti(beans, null);
@@ -126,7 +132,6 @@ public abstract class BaseMapStorageIntegrationTests{
 		Assert.assertFalse(keysGotten.contains(bean1.getKey()));
 		Assert.assertTrue(keysGotten.contains(bean2.getKey()));
 	}
-	*/
 
 	/** private **************************************************************/
 
