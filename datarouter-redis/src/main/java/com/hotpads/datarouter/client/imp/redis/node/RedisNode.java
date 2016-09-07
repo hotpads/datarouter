@@ -81,7 +81,7 @@ extends RedisReaderNode<PK,D,F> implements PhysicalMapStorageNode<PK,D>{
 			return;
 		}
 
-		List<String> list = new ArrayList<>();
+		List<String> keysAndDatabeans = new ArrayList<>();
 		// redis mset(key1, value1, key2, value2, key3, value3, ...)
 		for(D databean : databeans){
 			String key = buildRedisKey(databean.getKey());
@@ -90,13 +90,13 @@ extends RedisReaderNode<PK,D,F> implements PhysicalMapStorageNode<PK,D>{
 				continue;
 			}
 			String jsonBean = JsonDatabeanTool.databeanToJsonString(databean, fieldInfo.getSampleFielder());
-			list.add(key);
-			list.add(jsonBean);
+			keysAndDatabeans.add(key);
+			keysAndDatabeans.add(jsonBean);
 		}
 
 		try{
 			startTraceSpan("redis put multi");
-			getClient().getJedisClient().mset(list.toArray(new String[databeans.size()]));
+			getClient().getJedisClient().mset(keysAndDatabeans.toArray(new String[keysAndDatabeans.size()]));
 		}finally{
 			finishTraceSpan();
 		}
