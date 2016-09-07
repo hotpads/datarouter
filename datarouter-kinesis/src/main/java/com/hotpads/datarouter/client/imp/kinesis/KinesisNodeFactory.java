@@ -29,10 +29,9 @@ public class KinesisNodeFactory{
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>
 	KinesisNode<PK,D,F> createSingleNode(ClientId clientId, Router router, Supplier<D> databeanSupplier,
-			String queueName, Supplier<F> fielderSupplier, String streamName, String regionName){
+			Supplier<F> fielderSupplier, String streamName, String regionName){
 		NodeParams<PK,D,F> params = new NodeParamsBuilder<>(router, databeanSupplier, fielderSupplier)
 			.withClientId(clientId)
-			.withArnRole(arnRole)
 			.withStreamName(streamName)
 			.withRegionName(regionName)
 			.build();
