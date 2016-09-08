@@ -118,6 +118,6 @@ implements DatabeanFielder<PK,D>{
 
 	@Override
 	public Optional<Long> getTtlMs(){
-		return null;
+		return Optional.empty();
 	}
 }
