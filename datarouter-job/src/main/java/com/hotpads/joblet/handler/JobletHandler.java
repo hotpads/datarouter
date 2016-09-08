@@ -191,7 +191,7 @@ public class JobletHandler extends BaseHandler{
 		return new InContextRedirectMav(params, URL_JOBLETS_IN_CONTEXT);
 	}
 
-	// /datarouter/joblet/createSleepingJoblets?numJoblets=100&sleepMs=500
+	// /datarouter/joblets/createSleepingJoblets?numJoblets=100&sleepMs=500
 	@Handler
 	private Mav createSleepingJoblets(int numJoblets, long sleepMs){
 		List<JobletPackage> jobletPackages = new ArrayList<>();
