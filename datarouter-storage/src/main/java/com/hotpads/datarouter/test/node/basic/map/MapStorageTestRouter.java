@@ -25,7 +25,7 @@ public class MapStorageTestRouter extends BaseRouter{
 
 	private final List<ClientId> clientIds;
 
-	private MapStorageNode<MapStorageBeanKey,MapStorageBean> mapStorageNode;
+	public final MapStorageNode<MapStorageBeanKey,MapStorageBean> mapStorageNode;
 
 	public MapStorageTestRouter(Datarouter datarouter, NodeFactory nodeFactory, ClientId clientId,
 			DatarouterSettings datarouterSettings, boolean entity, EntityNodeFactory entityNodeFactory,
@@ -46,9 +46,5 @@ public class MapStorageTestRouter extends BaseRouter{
 	@Override
 	public List<ClientId> getClientIds(){
 		return clientIds;
-	}
-
-	public MapStorageNode<MapStorageBeanKey,MapStorageBean> mapStorageNode(){
-		return mapStorageNode;
 	}
 }

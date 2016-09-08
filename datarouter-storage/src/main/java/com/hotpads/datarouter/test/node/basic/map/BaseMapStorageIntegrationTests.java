@@ -43,7 +43,7 @@ public abstract class BaseMapStorageIntegrationTests{
 
 	protected void setup(ClientId clientId, boolean entity){
 		mapStorageNode = new MapStorageTestRouter(datarouter, nodeFactory, clientId, datarouterSettings, entity,
-				entityNodeFactory, MapStorageEntityNode.ENTITY_NODE_PARAMS_1).mapStorageNode();
+				entityNodeFactory, MapStorageEntityNode.ENTITY_NODE_PARAMS_1).mapStorageNode;
 	}
 
 	@AfterClass

@@ -52,11 +52,9 @@ extends RedisReaderNode<PK,D,F> implements PhysicalMapStorageNode<PK,D>{
 			logger.error("redis object too big for redis! " + databean.getDatabeanName() + ", key: " + jsonKey);
 			return;
 		}
-		Long ttl;
+		Long ttl = null;
 		if(config != null && config.getTtlMs() != null){
 			ttl =  getTtlMs(config);;
-		}else{
-			ttl = null;
 		}
 		String jsonBean = JsonDatabeanTool.databeanToJsonString(databean, fieldInfo.getSampleFielder());
 		try{

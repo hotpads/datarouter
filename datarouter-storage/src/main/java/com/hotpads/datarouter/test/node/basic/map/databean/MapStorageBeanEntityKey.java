@@ -39,7 +39,7 @@ public class MapStorageBeanEntityKey extends BaseEntityKey<MapStorageBeanEntityK
 
 		@Override
 		public int getPartition(MapStorageBeanEntityKey entityKey){
-			String hashInput = String.valueOf(entityKey.entityId).toString();
+			String hashInput = String.valueOf(entityKey.entityId);
 			long hash = DrHashMethods.longDJBHash(hashInput) % getNumPartitions();
 			return (int)(hash % getNumPartitions());
 		}

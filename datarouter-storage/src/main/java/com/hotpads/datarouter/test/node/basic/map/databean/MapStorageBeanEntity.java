@@ -17,10 +17,4 @@ public class MapStorageBeanEntity extends BaseEntity<MapStorageBeanEntityKey>{
 	public MapStorageBeanEntity(MapStorageBeanEntityKey key){
 		super(key);
 	}
-
-	/** get databean *********************************************************/
-
-	public Collection<MapStorageBean> getMapStorageBeans(){
-		return getDatabeansForQualifierPrefix(MapStorageBean.class, QUALIFIER_PREFIX_MapStorageBean);
-	}
 }

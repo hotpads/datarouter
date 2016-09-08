@@ -21,7 +21,7 @@ public class MapStorageEntityNode{
 			new EntityNodeParams<>("MapStorageBeanEntity", MapStorageBeanEntityKey.class, MapStorageBeanEntity.class,
 			MapStorageBeanEntityPartitioner.class, "MapStorageBeanEntity");
 
-	private EntityNode<MapStorageBeanEntityKey,MapStorageBeanEntity> entity;
+	private final EntityNode<MapStorageBeanEntityKey,MapStorageBeanEntity> entity;
 
 	private SubEntitySortedMapStorageNode
 			<MapStorageBeanEntityKey,MapStorageBeanKey,MapStorageBean,MapStorageBeanFielder> mapStorageNode;
@@ -35,10 +35,6 @@ public class MapStorageEntityNode{
 	}
 
 	/*********************** get nodes ******************************/
-
-	public EntityNode<MapStorageBeanEntityKey,MapStorageBeanEntity> entity(){
-		return entity;
-	}
 
 	public MapStorageNode<MapStorageBeanKey,MapStorageBean> mapStorageNode(){
 		return mapStorageNode;
