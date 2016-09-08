@@ -12,8 +12,8 @@ import com.hotpads.datarouter.storage.key.primary.base.BaseEntityPrimaryKey;
 @SuppressWarnings("serial")
 public class MapStorageBeanKey extends BaseEntityPrimaryKey<MapStorageBeanEntityKey,MapStorageBeanKey>{
 
-	private MapStorageBeanEntityKey entityKey;
-	private Long id;
+	private final MapStorageBeanEntityKey entityKey;
+	private final Long id;
 
 	/** fields ***************************************************************/
 
@@ -29,34 +29,34 @@ public class MapStorageBeanKey extends BaseEntityPrimaryKey<MapStorageBeanEntity
 	/** constructor **********************************************************/
 
 	public MapStorageBeanKey(){
-		this(UInt63Field.nextPositiveRandom());
+		this(new MapStorageBeanEntityKey(UInt63Field.nextPositiveRandom()), UInt63Field.nextPositiveRandom());
 	}
 
-	public MapStorageBeanKey(Long id){
+	public MapStorageBeanKey(MapStorageBeanEntityKey entityKey, Long id){
+		this.entityKey = entityKey;
 		this.id = id;
-		entityKey = new MapStorageBeanEntityKey(id);
-	}
-
-	/** get ******************************************************************/
-
-	public Long getId(){
-		return id;
 	}
 
 	/** entity ***************************************************************/
+
+	@Override
+	public MapStorageBeanKey prefixFromEntityKey(MapStorageBeanEntityKey entityKey){
+		return new MapStorageBeanKey(entityKey, null);
+	}
+
+	@Override
+	public List<Field<?>> getPostEntityKeyFields(){
+		return Arrays.asList(new LongField(FieldKeys.id, id));
+	}
+
+	/** get ******************************************************************/
 
 	@Override
 	public MapStorageBeanEntityKey getEntityKey(){
 		return entityKey;
 	}
 
-	@Override
-	public MapStorageBeanKey prefixFromEntityKey(MapStorageBeanEntityKey entityKey){
-		return new MapStorageBeanKey(entityKey.getEntityId());
-	}
-
-	@Override
-	public List<Field<?>> getPostEntityKeyFields(){
-		return Arrays.asList(new LongField(FieldKeys.id, id));
+	public Long getId(){
+		return id;
 	}
 }
