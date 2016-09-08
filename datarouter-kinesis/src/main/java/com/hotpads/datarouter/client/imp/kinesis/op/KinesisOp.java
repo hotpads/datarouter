@@ -6,6 +6,7 @@ import java.util.function.Supplier;
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.services.kinesis.AmazonKinesisClient;
 import com.hotpads.datarouter.client.imp.kinesis.BaseKinesisNode;
+import com.hotpads.datarouter.client.imp.kinesis.KclZillowReadOnlyLitLzgClient;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.serialize.StringDatabeanCodec;
 import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
@@ -25,6 +26,7 @@ implements Callable<V>{
 	protected final AWSCredentialsProvider awsCredentialsProvider;
 	protected final String streamName;
 	protected final String regionName;
+	protected final String kclNamespace;
 	protected final Supplier<D> databeanSupplier;
 	protected final F fielder;
 	protected final StringDatabeanCodec codec;
@@ -36,6 +38,8 @@ implements Callable<V>{
 		this.awsCredentialsProvider = kinesisNode.getAwsCredentialsProvider();
 		this.streamName = kinesisNode.getStreamName();
 		this.regionName = kinesisNode.getRegionName();
+		this.kclNamespace = ((KclZillowReadOnlyLitLzgClient)kinesisNode.getClient()).getKinesisOptions()
+				.getKclNamespace();
 		this.databeanSupplier = kinesisNode.getFieldInfo().getDatabeanSupplier();
 		this.fielder = kinesisNode.getFieldInfo().getSampleFielder();
 		this.codec = fielder.getStringDatabeanCodec();

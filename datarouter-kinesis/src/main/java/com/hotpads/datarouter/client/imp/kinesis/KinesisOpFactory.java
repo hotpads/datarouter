@@ -7,6 +7,7 @@ import com.hotpads.datarouter.client.imp.kinesis.op.KinesisOp;
 import com.hotpads.datarouter.client.imp.kinesis.single.op.KinesisPutMultiOp;
 import com.hotpads.datarouter.client.imp.kinesis.single.op.KinesisPutOp;
 import com.hotpads.datarouter.client.imp.kinesis.single.op.KinesisStreamLatest;
+import com.hotpads.datarouter.client.imp.kinesis.single.op.KinesisStreamOldest;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
@@ -22,8 +23,11 @@ public class KinesisOpFactory<PK extends PrimaryKey<PK>,D extends Databean<PK,D>
 	}
 
 	public KinesisOp<PK,D,F,BlockingQueue<StreamRecord<PK,D>>> makeStreamLatestOp(Config config){
-		String applicationName = "lit-lzg-hotpads-consumer-full-export-stream";
-		return new KinesisStreamLatest<>(config, kinesisNode).withApplicationName(applicationName);
+		return new KinesisStreamLatest<>(config, kinesisNode);
+	}
+
+	public KinesisOp<PK,D,F,BlockingQueue<StreamRecord<PK,D>>> makeStreamOldestOp(Config config){
+		return new KinesisStreamOldest<>(config, kinesisNode);
 	}
 
 	public KinesisOp<PK,D,F,Void> makePutMultiOp(Collection<D> databeans, Config config){

@@ -10,28 +10,27 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.stream.StreamRecord;
 
-public class KinesisStreamLatest<
+public class KinesisStreamOldest<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>>
 extends BaseKinesisStreamSubscribeOperation<PK,D,F>{
 
-	public KinesisStreamLatest(Config config, BaseKinesisNode<PK,D,F> kinesisNode){
+	public KinesisStreamOldest(Config config, BaseKinesisNode<PK,D,F> kinesisNode){
 		super(config, kinesisNode);
 	}
 
 	@Override
 	public String getSubscriberName(){
-		return "streamLatestSubscriber";
+		return "streamOldestSubscriber";
 	}
 
 	@Override
 	protected final BlockingQueue<StreamRecord<PK,D>> run(){
 		StreamSubscriber<PK,D,F> streamSubscriber = new StreamSubscriber<>(streamName, getApplicationName(), regionName,
-				InitialPositionInStream.LATEST, amazonKinesisClient, awsCredentialsProvider, codec, fielder,
+				InitialPositionInStream.TRIM_HORIZON, amazonKinesisClient, awsCredentialsProvider, codec, fielder,
 				databeanSupplier);
 		streamSubscriber.subscribe();
 		return streamSubscriber.getHose();
 	}
-
 }

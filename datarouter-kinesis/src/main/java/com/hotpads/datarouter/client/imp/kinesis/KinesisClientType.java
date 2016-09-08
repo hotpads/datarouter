@@ -75,13 +75,8 @@ public class KinesisClientType extends BaseClientType implements StreamClientTyp
 	@Override
 	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>> PhysicalNode<PK,D>
 			createSingleStreamNode(NodeParams<PK,D,F> nodeParams){
-		KinesisNode<PK,D,F> node = kinesisNodeFactory.createSingleNode(nodeParams.getClientId(),
-				router, databeanSupplier, queueName, fielderSupplier, arnRole, streamName, regionName);
+		KinesisNode<PK,D,F> node = kinesisNodeFactory.createSingleNode(nodeParams);
 		return node;
-	}
-
-	public void withArnRole(String arnRole){
-		this.arnRole = arnRole;
 	}
 
 	/********************** tests ****************************/

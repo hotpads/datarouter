@@ -146,10 +146,10 @@ public class NodeParams<
 			return this;
 		}
 
-		public NodeParamsBuilder<PK,D,F> withArnRole(String arnRole){
-			this.arnRole = arnRole;
-			return this;
-		}
+//		public NodeParamsBuilder<PK,D,F> withArnRole(String arnRole){
+//			this.arnRole = arnRole;
+//			return this;
+//		}
 
 		public NodeParamsBuilder<PK,D,F> withStreamName(String streamName){
 			this.streamName = streamName;
@@ -232,7 +232,15 @@ public class NodeParams<
 		return recordCallsites;
 	}
 
-	public String getArnRole(){
-		return arnRole;
+//	public String getArnRole(){
+//		return arnRole;
+//	}
+
+	public String getStreamName(){
+		return streamName;
+	}
+
+	public String getRegionName(){
+		return regionName;
 	}
 }

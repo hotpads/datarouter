@@ -34,8 +34,7 @@ implements StreamStorage<PK,D>{
 
 	@Override
 	public BlockingQueue<StreamRecord<PK,D>> subscribeOldest(DatarouterKinesisStreamConfig streamConfig, Config config){
-		// TODO Auto-generated method stub
-		return null;
+		return kinesisOpFactory.makeStreamOldestOp(config).call();
 	}
 
 	@Override

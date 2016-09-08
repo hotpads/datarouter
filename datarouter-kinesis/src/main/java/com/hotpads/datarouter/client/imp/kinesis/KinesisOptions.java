@@ -28,4 +28,8 @@ public class KinesisOptions extends TypedProperties{
 	public String getArnRole(){
 		return getRequiredString(clientPrefix + "arnRole");
 	}
+
+	public String getKclNamespace(){
+		return getRequiredString(clientPrefix + "kcl.namespace");
+	}
 }

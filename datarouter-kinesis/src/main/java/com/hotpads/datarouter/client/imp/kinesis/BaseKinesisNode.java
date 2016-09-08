@@ -30,22 +30,23 @@ implements StorageWriter<PK,D>{
 	public BaseKinesisNode(Datarouter datarouter, NodeParams<PK,D,F> params){
 		super(params);
 		this.datarouter = datarouter;
-		this.streamName = getOrMakeStreamName();
-		this.regionName = getKinesisClient().getKinesisOptions().getRegionName();
+		this.streamName = params.getStreamName();
+		this.regionName = params.getRegionName();
 		this.kinesisOpFactory = new KinesisOpFactory<>(this);
 	}
 
-	private String getOrMakeStreamName(){
-		if(getKinesisClient().getKinesisOptions().getStreamName()!=null){
-			return getKinesisClient().getKinesisOptions().getStreamName();
-		}
-		String prefix = getKinesisClient().getKinesisOptions().getNamespace();
-		if(prefix != null && !prefix.isEmpty()){
-			prefix+="-";
-		}
-		String streamName = prefix + getTableName();
-		return streamName;
-	}
+//	private String getOrMakeStreamName(NodeParams<PK,D,F> params){
+//		return params.getStreamName();
+//		if(getKinesisClient().getKinesisOptions().getStreamName()!=null){
+//			return getKinesisClient().getKinesisOptions().getStreamName();
+//		}
+//		String prefix = getKinesisClient().getKinesisOptions().getNamespace();
+//		if(prefix != null && !prefix.isEmpty()){
+//			prefix+="-";
+//		}
+//		String streamName = prefix + getTableName();
+//		return streamName;
+//	}
 
 	@Override
 	public Client getClient(){
