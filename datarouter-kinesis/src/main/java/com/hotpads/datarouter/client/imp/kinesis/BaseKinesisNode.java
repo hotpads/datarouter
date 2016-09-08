@@ -35,19 +35,6 @@ implements StorageWriter<PK,D>{
 		this.kinesisOpFactory = new KinesisOpFactory<>(this);
 	}
 
-//	private String getOrMakeStreamName(NodeParams<PK,D,F> params){
-//		return params.getStreamName();
-//		if(getKinesisClient().getKinesisOptions().getStreamName()!=null){
-//			return getKinesisClient().getKinesisOptions().getStreamName();
-//		}
-//		String prefix = getKinesisClient().getKinesisOptions().getNamespace();
-//		if(prefix != null && !prefix.isEmpty()){
-//			prefix+="-";
-//		}
-//		String streamName = prefix + getTableName();
-//		return streamName;
-//	}
-
 	@Override
 	public Client getClient(){
 		return getKinesisClient();
@@ -61,15 +48,16 @@ implements StorageWriter<PK,D>{
 		return regionName;
 	}
 
-	private KclZillowReadOnlyLitLzgClient getKinesisClient(){
-		return (KclZillowReadOnlyLitLzgClient) datarouter.getClientPool().getClient(getClientId().getName());
-	}
-
 	public AmazonKinesisClient getAmazonKinesisClient(){
 		return getKinesisClient().getAmazonKinesisClient();
 	}
 
 	public AWSCredentialsProvider getAwsCredentialsProvider(){
 		return getKinesisClient().getAwsCredentialsProvider();
-	};
+	}
+
+	private KclZillowReadOnlyLitLzgClient getKinesisClient(){
+		return (KclZillowReadOnlyLitLzgClient) datarouter.getClientPool().getClient(getClientId().getName());
+	}
+
 }

@@ -5,7 +5,7 @@ import java.util.concurrent.BlockingQueue;
 
 import com.hotpads.datarouter.client.imp.kinesis.BaseKinesisNode;
 import com.hotpads.datarouter.config.Config;
-import com.hotpads.datarouter.config.DatarouterKinesisStreamConfig;
+import com.hotpads.datarouter.config.DatarouterStreamSubscriberConfig;
 import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.op.raw.StreamStorage;
 import com.hotpads.datarouter.routing.Datarouter;
@@ -28,20 +28,8 @@ implements StreamStorage<PK,D>{
 	// Reader
 
 	@Override
-	public BlockingQueue<StreamRecord<PK,D>> subscribeLatest(DatarouterKinesisStreamConfig streamConfig, Config config){
-		return kinesisOpFactory.makeStreamLatestOp(config).call();
-	}
-
-	@Override
-	public BlockingQueue<StreamRecord<PK,D>> subscribeOldest(DatarouterKinesisStreamConfig streamConfig, Config config){
-		return kinesisOpFactory.makeStreamOldestOp(config).call();
-	}
-
-	@Override
-	public BlockingQueue<StreamRecord<PK,D>> subscribeAtTimestamp(DatarouterKinesisStreamConfig streamConfig,
-			Config config){
-		// TODO Auto-generated method stub
-		return null;
+	public BlockingQueue<StreamRecord<PK,D>> subscribe(DatarouterStreamSubscriberConfig streamSubscriberConfig, Config config){
+		return kinesisOpFactory.makeStreamSubscriberOp(streamSubscriberConfig, config).call();
 	}
 
 	// Writer
