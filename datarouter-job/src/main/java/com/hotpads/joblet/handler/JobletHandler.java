@@ -3,6 +3,7 @@ package com.hotpads.joblet.handler;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,11 +21,13 @@ import com.hotpads.handler.mav.imp.InContextRedirectMav;
 import com.hotpads.handler.mav.imp.MessageMav;
 import com.hotpads.job.dispatcher.DatarouterJobDispatcher;
 import com.hotpads.joblet.JobletNodes;
+import com.hotpads.joblet.JobletPackage;
 import com.hotpads.joblet.JobletService;
 import com.hotpads.joblet.JobletSettings;
 import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.databean.JobletRequestKey;
 import com.hotpads.joblet.dto.JobletSummary;
+import com.hotpads.joblet.enums.JobletPriority;
 import com.hotpads.joblet.enums.JobletStatus;
 import com.hotpads.joblet.enums.JobletType;
 import com.hotpads.joblet.enums.JobletTypeFactory;
@@ -33,6 +36,8 @@ import com.hotpads.joblet.execute.ParallelJobletProcessor;
 import com.hotpads.joblet.execute.ParallelJobletProcessors;
 import com.hotpads.joblet.jdbc.RestartJobletRequests;
 import com.hotpads.joblet.jdbc.TimeoutStuckRunningJobletRequests;
+import com.hotpads.joblet.test.SleepingJoblet;
+import com.hotpads.joblet.test.SleepingJoblet.SleepingJobletParams;
 
 public class JobletHandler extends BaseHandler{
 
@@ -185,6 +190,24 @@ public class JobletHandler extends BaseHandler{
 		parallelJobletProcessors.restartExecutor(jobletType);
 		return new InContextRedirectMav(params, URL_JOBLETS_IN_CONTEXT);
 	}
+
+	// /datarouter/joblet/createSleepingJoblets?numJoblets=100&sleepMs=500
+	@Handler
+	private Mav createSleepingJoblets(int numJoblets, long sleepMs){
+		List<JobletPackage> jobletPackages = new ArrayList<>();
+		for(int i = 0; i < numJoblets; ++i){
+			SleepingJobletParams params = new SleepingJobletParams(i + "", sleepMs);
+			int batchSequence = i;//specify this so joblets execute in precise order
+			JobletPackage jobletPackage = JobletPackage.createDetailed(SleepingJoblet.JOBLET_TYPE,
+					JobletPriority.DEFAULT, new Date(), batchSequence, true, null, params);
+			jobletPackages.add(jobletPackage);
+		}
+		jobletService.submitJobletPackages(jobletPackages);
+		return new MessageMav("created " + numJoblets + " @" + sleepMs + "ms");
+	}
+
+
+	/*--------------------- private -------------------------*/
 
 	private Map<String,List<JobletExecutorThread>> getWaitingJobletThreads() {
 		return getJobletThreads(parallelJobletProcessors.getCurrentlyWaitingJobletExecutorThreads());
