@@ -34,7 +34,7 @@ extends KinesisOp<PK,D,F,BlockingQueue<StreamRecord<PK,D>>>{
 		super(config, kinesisNode);
 		this.subscriberName = subscriberName;
 		this.initialPositionInStream = initialPositionInStream;
-		this.applicationName = kclNamespace + "-" + subscriberName + "-" + streamName;
+		this.applicationName = kclNamespace + "-" + subscriberName + "-" + streamName;//used for dynamoDb table name
 		this.streamSubscriberAccessorSetter = subscriberAccessorSetter;
 		this.blockingQueueSize = blockingQueueSize;
 	}
