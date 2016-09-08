@@ -133,6 +133,13 @@ public abstract class BaseMapStorageIntegrationTests{
 		Assert.assertTrue(keysGotten.contains(bean2.getKey()));
 	}
 
+	@Test
+	public void simpleTest(){
+		MapStorageBean bean = new MapStorageBean();
+		mapStorageNode.put(bean, null);
+		Assert.assertTrue(mapStorageNode.exists(bean.getKey(), null));
+	}
+
 	/** private **************************************************************/
 
 	private List<MapStorageBean> initBeans(int size){

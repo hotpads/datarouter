@@ -17,15 +17,15 @@ public class MapStorageBeanEntityKey extends BaseEntityKey<MapStorageBeanEntityK
 
 	/** fields ***************************************************************/
 
-	private Long id;
+	private Long entityId;
 
 	public static class FieldKeys{
-		public static final LongFieldKey id = new LongFieldKey("id");
+		public static final LongFieldKey entityId = new LongFieldKey("entityId");
 	}
 
 	@Override
 	public List<Field<?>> getFields(){
-		return Arrays.asList(new LongField(FieldKeys.id, id));
+		return Arrays.asList(new LongField(FieldKeys.entityId, entityId));
 	}
 
 	/** partitioner **********************************************************/
@@ -39,7 +39,7 @@ public class MapStorageBeanEntityKey extends BaseEntityKey<MapStorageBeanEntityK
 
 		@Override
 		public int getPartition(MapStorageBeanEntityKey entityKey){
-			String hashInput = String.valueOf(entityKey.id).toString();
+			String hashInput = String.valueOf(entityKey.entityId).toString();
 			long hash = DrHashMethods.longDJBHash(hashInput) % getNumPartitions();
 			return (int)(hash % getNumPartitions());
 		}
@@ -52,13 +52,13 @@ public class MapStorageBeanEntityKey extends BaseEntityKey<MapStorageBeanEntityK
 	private MapStorageBeanEntityKey(){
 	}
 
-	public MapStorageBeanEntityKey(Long id){
-		this.id = id;
+	public MapStorageBeanEntityKey(Long entityId){
+		this.entityId = entityId;
 	}
 
 	/** get/set **************************************************************/
 
-	public Long getId(){
-		return id;
+	public Long getEntityId(){
+		return entityId;
 	}
 }

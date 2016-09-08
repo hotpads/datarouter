@@ -6,7 +6,7 @@ import org.testng.annotations.Guice;
 import com.hotpads.datarouter.test.node.basic.map.BaseMapStorageIntegrationTests;
 
 @Guice(moduleFactory=DatarouterStorageTestModuleFactory.class)
-public class HBaseEntityMapStorageIntegrationTests extends BaseMapStorageIntegrationTests{
+public class HBaseEntityMapStorageTester extends BaseMapStorageIntegrationTests{
 
 	@BeforeClass
 	public void beforeClass(){
