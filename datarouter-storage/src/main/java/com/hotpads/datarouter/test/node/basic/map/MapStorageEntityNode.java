@@ -23,7 +23,7 @@ public class MapStorageEntityNode{
 
 	private final EntityNode<MapStorageBeanEntityKey,MapStorageBeanEntity> entity;
 
-	private SubEntitySortedMapStorageNode
+	private final SubEntitySortedMapStorageNode
 			<MapStorageBeanEntityKey,MapStorageBeanKey,MapStorageBean,MapStorageBeanFielder> mapStorageNode;
 
 	public MapStorageEntityNode(EntityNodeFactory entityNodeFactory, NodeFactory nodeFactory, Router router,
