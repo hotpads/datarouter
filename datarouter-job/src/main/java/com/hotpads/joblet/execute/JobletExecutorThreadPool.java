@@ -21,72 +21,62 @@ import com.hotpads.joblet.execute.JobletExecutorThread.JobletExecutorThreadFacto
 public class JobletExecutorThreadPool {
 	private static final Logger logger = LoggerFactory.getLogger(JobletExecutorThreadPool.class);
 
-	private static final ThreadGroup jobletThreadGroup = new ThreadGroup("joblet");
-
-
 	@Singleton
 	public static class JobletExecutorThreadPoolFactory{
-		@Inject
-		private JobletThrottle jobletThrottle;
 		@Inject
 		private JobletExecutorThreadFactory jobletExecutorThreadFactory;
 
 		public JobletExecutorThreadPool create(Integer threadPoolSize, JobletType<?> jobletType){
-			return new JobletExecutorThreadPool(threadPoolSize, jobletType, jobletThrottle,
-					jobletExecutorThreadFactory);
+			return new JobletExecutorThreadPool(threadPoolSize, jobletType, jobletExecutorThreadFactory);
 		}
 	}
 
+	private static final ThreadGroup jobletThreadGroup = new ThreadGroup("joblet");
 
-	private final ReentrantLock jobAssignmentLock = new ReentrantLock();
-	private final Condition saturatedCondition = jobAssignmentLock.newCondition();
+	private final ReentrantLock assignmentLock = new ReentrantLock();
+	private final Condition saturatedCondition = assignmentLock.newCondition();
 	private final BlockingQueue<JobletExecutorThread> waitingExecutorThreads = new LinkedBlockingQueue<>();
 	private final List<JobletExecutorThread> runningExecutorThreads = new ArrayList<>();
 	private final List<JobletExecutorThread> allExecutorThreads = new ArrayList<>();
 	private final ThreadGroup threadGroup;
-	private final JobletType<?> jobletType;
-	private final JobletThrottle jobletThrottle;
 	private final JobletExecutorThreadFactory jobletExecutorThreadFactory;
 
 	private int numThreadsToLayOff = 0;
 	private int numThreads;
 
-	private JobletExecutorThreadPool(Integer threadPoolSize, JobletType<?> jobletType, JobletThrottle jobletThrottle,
+	private JobletExecutorThreadPool(Integer threadPoolSize, JobletType<?> jobletType,
 			JobletExecutorThreadFactory jobletExecutorThreadFactory) {
-		this.jobletType = jobletType;
-		this.jobletThrottle = jobletThrottle;
 		this.jobletExecutorThreadFactory = jobletExecutorThreadFactory;
 		this.threadGroup = new ThreadGroup(jobletThreadGroup, jobletType.getPersistentString());
 		resize(threadPoolSize);
 	}
 
 	public void assignJobletPackage(JobletPackage jobletPackage) {
-		jobAssignmentLock.lock();
+		assignmentLock.lock();
 		try{
 			JobletExecutorThread thread = waitingExecutorThreads.poll();
 			if(thread == null){
 				throw new IllegalStateException("No thread available!");
 			}
-			jobletThrottle.adjustCpuMemoryPermits();
 			thread.submitJoblet(jobletPackage);
 			runningExecutorThreads.add(thread);
 		}finally{
-			jobAssignmentLock.unlock();
+			assignmentLock.unlock();
 		}
 	}
 
 	public boolean isSaturated() {
-		jobAssignmentLock.lock();
+		assignmentLock.lock();
 		try{
 			return waitingExecutorThreads.isEmpty() || runningExecutorThreads.size() == numThreads;
 		}finally{
-			jobAssignmentLock.unlock();
+			assignmentLock.unlock();
 		}
 	}
 
 	public void resize(int threadPoolSize) {
 		numThreads = threadPoolSize;
-		jobAssignmentLock.lock();
+		assignmentLock.lock();
 		try{
 			if(threadPoolSize == allExecutorThreads.size()){
 				return;
@@ -100,7 +90,7 @@ public class JobletExecutorThreadPool {
 				}
 			}
 		}finally{
-			jobAssignmentLock.unlock();
+			assignmentLock.unlock();
 		}
 	}
 
@@ -140,13 +130,13 @@ public class JobletExecutorThreadPool {
 	}
 
 	public void findAndKillRunawayJoblets() {
-		jobAssignmentLock.lock();
+		assignmentLock.lock();
 		try{
 			ArrayList<JobletExecutorThread> threadsToKill = new ArrayList<>();
 			for(JobletExecutorThread thread : allExecutorThreads){
 				Long runningTime = thread.getRunningTime();
 				if(runningTime != null && runningTime > ParallelJobletProcessor.RUNNING_JOBLET_TIMEOUT_MS){
-					if(!thread.getJobletPackage().getJoblet().getRestartable()){
+					if(!thread.getJobletPackage().getJobletRequest().getRestartable()){
 						continue;//don't kill non-restartable threads due to timeout (such as feeds)
 					}
 					threadsToKill.add(thread);
@@ -160,7 +150,6 @@ public class JobletExecutorThreadPool {
 				logger.error("numThreadsToLayOff: "+numThreadsToLayOff);
 				thread.interrupt();
 				removeExecutorThreadFromPool(thread);
-				jobletThrottle.releasePermits(jobletType.getCpuPermits(), jobletType.getMemoryPermits());
 				addNewExecutorThreadToPool();
 				logger.error("after:");
 				logger.error("allExecutorThreads: "+allExecutorThreads.size());
@@ -168,7 +157,7 @@ public class JobletExecutorThreadPool {
 				logger.error("numThreadsToLayOff: "+numThreadsToLayOff);
 			}
 		}finally{
-			jobAssignmentLock.unlock();
+			assignmentLock.unlock();
 		}
 	}
 
@@ -192,7 +181,7 @@ public class JobletExecutorThreadPool {
 	}
 
 	public Lock getJobAssignmentLock() {
-		return jobAssignmentLock ;
+		return assignmentLock ;
 	}
 
 	public Condition getSaturatedCondition() {

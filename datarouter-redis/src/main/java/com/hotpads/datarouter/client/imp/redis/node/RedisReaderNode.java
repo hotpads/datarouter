@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.client.imp.redis.node;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -21,12 +22,8 @@ import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.trace.TracerThreadLocal;
 import com.hotpads.trace.TracerTool;
 
-public class RedisReaderNode<
-		PK extends PrimaryKey<PK>,
-		D extends Databean<PK,D>,
-		F extends DatabeanFielder<PK,D>>
-extends BasePhysicalNode<PK,D,F>
-implements MapStorageReader<PK,D>{
+public class RedisReaderNode<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>>
+extends BasePhysicalNode<PK,D,F> implements MapStorageReader<PK,D>{
 
 	private final Integer databeanVersion;
 
@@ -51,7 +48,7 @@ implements MapStorageReader<PK,D>{
 		try{
 			startTraceSpan("redis exists");
 			return getClient().getJedisClient().exists(buildRedisKey(key));
-		} finally{
+		}finally{
 			finishTraceSpan();
 		}
 	}
@@ -65,14 +62,13 @@ implements MapStorageReader<PK,D>{
 		}
 		try{
 			startTraceSpan("redis get");
-
 			String json = getClient().getJedisClient().get(buildRedisKey(key));
 			if(json == null){
 				return null;
 			}
 			return JsonDatabeanTool.databeanFromJson(fieldInfo.getDatabeanSupplier(), fieldInfo.getSampleFielder(),
 					json);
-		} finally{
+		}finally{
 			finishTraceSpan();
 		}
 	}
@@ -85,16 +81,18 @@ implements MapStorageReader<PK,D>{
 		List<String> jsons = null;
 		try{
 			startTraceSpan("redis get multi");
-			jsons = getClient().getJedisClient().mget((String[])buildRedisKeys(keys).toArray());
-		} finally{
+			jsons = getClient().getJedisClient().mget(buildRedisKeys(keys).toArray(new String[keys.size()]));
+		}finally{
 			finishTraceSpan();
 		}
-		List<D> databeans = Collections.emptyList();
+		List<D> databeans = new ArrayList<>();
 		for(String json : jsons){
-			databeans.add(JsonDatabeanTool.databeanFromJson(fieldInfo.getDatabeanSupplier(),
-					fieldInfo.getSampleFielder(), json));
+			if(json == null){
+				continue;
+			}
+			databeans.add(JsonDatabeanTool.databeanFromJson(fieldInfo.getDatabeanSupplier(), fieldInfo
+					.getSampleFielder(), json));
 		}
-
 		return databeans;
 	}
 
@@ -117,7 +115,7 @@ implements MapStorageReader<PK,D>{
 				return null;
 			}
 			return Long.valueOf(tallyCount.trim());
-		} finally{
+		}finally{
 			finishTraceSpan();
 		}
 	}
