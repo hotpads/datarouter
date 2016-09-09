@@ -9,8 +9,8 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import javax.inject.Inject;
 
-import org.apache.logging.log4j.message.Message;
-import org.apache.logging.log4j.message.ParameterizedMessageFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Guice;
@@ -32,6 +32,7 @@ import com.hotpads.util.core.profile.PhaseTimer;
 @Guice(moduleFactory = DatarouterSqsTestModuleFactory.class)
 @Test(singleThreaded = true)
 public class SqsPerformanceTester{
+	private static final Logger logger = LoggerFactory.getLogger(SqsPerformanceTester.class);
 
 	@Inject
 	private Datarouter datarouter;
@@ -40,9 +41,9 @@ public class SqsPerformanceTester{
 
 	@BeforeClass
 	public void beforeClass(){
-		print("######### drain existing non-group messages #############");
+		logger.info("######### drain existing non-group messages #############");
 		drainQueueViaPeek(false, 40);
-		print("######### drain existing group messages #############");
+		logger.info("######### drain existing group messages #############");
 		drainQueueViaPeek(true, 40);
 	}
 
@@ -59,16 +60,16 @@ public class SqsPerformanceTester{
 		final int groupPutBatchSize = 20_000;
 		final int numDrainThreads = 20;
 
-		print("########### non-group poll ###########");
+		logger.info("########### non-group poll ###########");
 		loadQueue(router.testDatabean, numDatabeans, putBatchSize);
 		drainQueueViaPoll(numDrainThreads);
 
-		print("########### non-group peek/ack ############");
+		logger.info("########### non-group peek/ack ############");
 		loadQueue(router.testDatabean, numDatabeans, putBatchSize);
 		drainQueueViaPeek(false, numDrainThreads);
 
 
-		print("########### group peek/ack ############");
+		logger.info("########### group peek/ack ############");
 		loadQueue(router.groupTestDatabean, numGroupDatabeans, groupPutBatchSize);
 		drainQueueViaPeek(true, numDrainThreads);
 	}
@@ -79,10 +80,10 @@ public class SqsPerformanceTester{
 		PhaseTimer timer = new PhaseTimer("putMulti " + node.toString() + " " + numDatabeans);
 		for(List<TestDatabean> batch : new BatchingIterable<>(makeDatabeans(numDatabeans), batchSize)){
 			node.putMulti(batch, null);
-			print("put through {}", DrCollectionTool.getLast(batch));
+			logger.info("put through {}", DrCollectionTool.getLast(batch));
 		}
 		timer.add("loaded");
-		print(timer.toString() + "@" + timer.getItemsPerSecond(numDatabeans));
+		logger.info(timer.toString() + "@" + timer.getItemsPerSecond(numDatabeans));
 	}
 
 	private List<TestDatabean> makeDatabeans(int numDatabeans){
@@ -105,7 +106,7 @@ public class SqsPerformanceTester{
 				for(TestDatabean databean : router.testDatabean.pollUntilEmpty(config)){
 					numDrained.incrementAndGet();
 					if(numDrained.get() % 200 == 0){
-						print("drained {}, latest={}", numDrained.get(), databean.getKey());
+						logger.info("drained {}, latest={}", numDrained.get(), databean.getKey());
 					}
 				}
 			});
@@ -113,7 +114,7 @@ public class SqsPerformanceTester{
 		exec.shutdown();
 		ExecutorServiceTool.awaitTerminationForever(exec);
 		timer.add("drained " + numDrained.intValue());
-		print(timer.toString() + "@" + timer.getItemsPerSecond(numDrained.intValue()));
+		logger.info(timer.toString() + "@" + timer.getItemsPerSecond(numDrained.intValue()));
 	}
 
 	private void drainQueueViaPeek(boolean groupNode, int numThreads){
@@ -132,7 +133,7 @@ public class SqsPerformanceTester{
 						router.groupTestDatabean.ack(message.getKey(), null);
 						numMessagesDrained.incrementAndGet();
 						if(numMessagesDrained.get() % 5 == 0){
-						print("groupNode={}, drained {}, latest={}", groupNode, numDatabeansDrained.get(),
+						logger.info("groupNode={}, drained {}, latest={}", groupNode, numDatabeansDrained.get(),
 								DrCollectionTool.getLast(databeans).getKey());
 						}
 					}
@@ -144,7 +145,7 @@ public class SqsPerformanceTester{
 						router.testDatabean.ack(message.getKey(), null);
 						numMessagesDrained.incrementAndGet();
 						if(numMessagesDrained.get() % 200 == 0){
-							print("groupNode={}, drained {}, latest={}", groupNode, numDatabeansDrained.get(),
+							logger.info("groupNode={}, drained {}, latest={}", groupNode, numDatabeansDrained.get(),
 									databean.getKey());
 						}
 					}
@@ -155,14 +156,7 @@ public class SqsPerformanceTester{
 		ExecutorServiceTool.awaitTerminationForever(exec);
 		timer.add("drained " + numMessagesDrained.intValue() + " messages with " + numDatabeansDrained.intValue()
 				+ " databeans");
-		print(timer.toString() + "@" + timer.getItemsPerSecond(numDatabeansDrained.intValue()));
-	}
-
-	/*----------------- helper -------------------*/
-
-	private static void print(String message, Object... params){
-		Message messageObject = ParameterizedMessageFactory.INSTANCE.newMessage(message, params);
-		System.out.println(messageObject.getFormattedMessage());
+		logger.info(timer.toString() + "@" + timer.getItemsPerSecond(numDatabeansDrained.intValue()));
 	}
 
 }
