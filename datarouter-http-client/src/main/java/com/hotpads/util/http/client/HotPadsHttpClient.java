@@ -25,6 +25,7 @@ import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.entity.ContentType;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.pool.PoolStats;
 import org.apache.http.protocol.HttpContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,11 +61,12 @@ public class HotPadsHttpClient {
 	private final ExecutorService executor;
 	private final int requestTimeoutMs;
 	private final long futureTimeoutMs;
+	private final PoolStats poolStats;
 
 	HotPadsHttpClient(CloseableHttpClient httpClient, JsonSerializer jsonSerializer,
 			SignatureValidator signatureValidator, CsrfValidator csrfValidator, ApiKeyPredicate apiKeyPredicate,
 			HotPadsHttpClientConfig config, ExecutorService executor, Integer requestTimeoutMs, Long futureTimeoutMs,
-			Integer retryCount) {
+			Integer retryCount, PoolStats poolStats) {
 		this.httpClient = httpClient;
 		this.jsonSerializer = jsonSerializer;
 		this.signatureValidator = signatureValidator;
@@ -72,6 +74,7 @@ public class HotPadsHttpClient {
 		this.apiKeyPredicate = apiKeyPredicate;
 		this.config = config;
 		this.executor = executor;
+		this.poolStats = poolStats;
 		this.requestTimeoutMs = requestTimeoutMs == null ? DEFAULT_REQUEST_TIMEOUT_MS : requestTimeoutMs.intValue();
 		this.futureTimeoutMs = futureTimeoutMs == null ? getFutureTimeoutMs(this.requestTimeoutMs, retryCount)
 				: futureTimeoutMs.longValue();
@@ -251,5 +254,21 @@ public class HotPadsHttpClient {
 		String serializedDto = jsonSerializer.serialize(dto);
 		request.setEntity(serializedDto, ContentType.APPLICATION_JSON);
 		return this;
+	}
+
+	public long getNumAvailableConnections(){
+		return poolStats.getAvailable();
+	}
+
+	public long getNumLeasedConnections(){
+		return poolStats.getLeased();
+	}
+
+	public long getMaxConnections(){
+		return poolStats.getMax();
+	}
+
+	public long getNumPendingConnections(){
+		return poolStats.getPending();
 	}
 }
