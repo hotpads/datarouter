@@ -5,7 +5,7 @@
 	<title>Joblets</title>
 	<%@ include file="/jsp/generic/datarouterHead.jsp" %>
 	<script>
-	require(['jquery','sorttable']);
+	require(['sorttable']);
 	</script>
 </head>
 <body>
