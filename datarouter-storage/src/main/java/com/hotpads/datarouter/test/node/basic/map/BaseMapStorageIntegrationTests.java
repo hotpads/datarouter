@@ -11,7 +11,6 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 
 import com.hotpads.datarouter.client.ClientId;
-import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.config.DatarouterSettings;
 import com.hotpads.datarouter.node.factory.EntityNodeFactory;
 import com.hotpads.datarouter.node.factory.NodeFactory;
@@ -22,14 +21,13 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.test.node.basic.map.databean.MapStorageBean;
 import com.hotpads.datarouter.test.node.basic.map.databean.MapStorageBean.MapStorageBeanFielder;
 import com.hotpads.datarouter.test.node.basic.map.databean.MapStorageBeanKey;
-import com.hotpads.datarouter.util.core.DrListTool;
 
 public abstract class BaseMapStorageIntegrationTests{
 
 	/** fields ***************************************************************/
 
 	@Inject
-	protected Datarouter datarouter;
+	private Datarouter datarouter;
 	@Inject
 	private NodeFactory nodeFactory;
 	@Inject
@@ -63,20 +61,18 @@ public abstract class BaseMapStorageIntegrationTests{
 			MapStorageBean roundTripped = mapStorageNode.get(bean.getKey(), null);
 			Assert.assertEquals(roundTripped, bean);
 		}
+		deleteRecords(beans);
 	}
 
 	@Test
-	protected void testGetMulti(){
+	public void testGetMulti(){
 		List<MapStorageBean> beans = initBeans(10);
 		mapStorageNode.putMulti(beans, null);
-		List<MapStorageBeanKey> keys = new ArrayList<>();
 
-		for(MapStorageBean bean : beans){
-			keys.add(bean.getKey());
-		}
-
+		List<MapStorageBeanKey> keys = DatabeanTool.getKeys(beans);
 		List<MapStorageBean> roundTripped = mapStorageNode.getMulti(keys, null);
 		Assert.assertEquals(roundTripped.size(), beans.size());
+
 		for(MapStorageBean bean : beans){
 			Assert.assertTrue(roundTripped.contains(bean));
 		}
@@ -85,7 +81,7 @@ public abstract class BaseMapStorageIntegrationTests{
 	}
 
 	@Test
-	protected void testPutMulti(){
+	public void testPutMulti(){
 		List<MapStorageBean> beans = initBeans(10);
 
 		for(MapStorageBean bean : beans){
@@ -102,17 +98,16 @@ public abstract class BaseMapStorageIntegrationTests{
 	}
 
 	@Test
-	protected void testBlankDatabeanPut(){
-		Config config = new Config();
+	public void testBlankDatabeanPut(){
 		MapStorageBean blankDatabean = new MapStorageBean(null);
 		MapStorageBean nonBlankDatabean = new MapStorageBean("a");
-		mapStorageNode.putMulti(Arrays.asList(nonBlankDatabean, blankDatabean), config);
-		MapStorageBean roundTrippedBlank = mapStorageNode.get(blankDatabean.getKey(), config);
+		mapStorageNode.putMulti(Arrays.asList(nonBlankDatabean, blankDatabean), null);
+		MapStorageBean roundTrippedBlank = mapStorageNode.get(blankDatabean.getKey(), null);
 		new MapStorageBeanFielder().getNonKeyFields(roundTrippedBlank).stream()
 				.map(Field::getValue)
 				.forEach(Assert::assertNull);
-		mapStorageNode.deleteMulti(DatabeanTool.getKeys(Arrays.asList(blankDatabean, nonBlankDatabean)), config);
-		Assert.assertNull(mapStorageNode.get(blankDatabean.getKey(), config));
+		mapStorageNode.deleteMulti(DatabeanTool.getKeys(Arrays.asList(blankDatabean, nonBlankDatabean)), null);
+		Assert.assertNull(mapStorageNode.get(blankDatabean.getKey(), null));
 	}
 
 
@@ -125,19 +120,15 @@ public abstract class BaseMapStorageIntegrationTests{
 		mapStorageNode.put(bean0, null);
 		mapStorageNode.put(bean2, null);
 
-		List<MapStorageBeanKey> keysToGet = DrListTool.create(bean0.getKey(), bean1.getKey(), bean2.getKey());
+		List<MapStorageBeanKey> keysToGet = Arrays.asList(bean0.getKey(), bean1.getKey(), bean2.getKey());
 		List<MapStorageBeanKey> keysGotten = mapStorageNode.getKeys(keysToGet, null);
 
 		Assert.assertTrue(keysGotten.contains(bean0.getKey()));
 		Assert.assertFalse(keysGotten.contains(bean1.getKey()));
 		Assert.assertTrue(keysGotten.contains(bean2.getKey()));
-	}
 
-	@Test
-	public void simpleTest(){
-		MapStorageBean bean = new MapStorageBean();
-		mapStorageNode.put(bean, null);
-		Assert.assertTrue(mapStorageNode.exists(bean.getKey(), null));
+		deleteRecord(bean0);
+		deleteRecord(bean2);
 	}
 
 	/** private **************************************************************/
