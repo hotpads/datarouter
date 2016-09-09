@@ -25,6 +25,7 @@ import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.entity.ContentType;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.pool.PoolStats;
 import org.apache.http.protocol.HttpContext;
 import org.slf4j.Logger;
@@ -61,12 +62,12 @@ public class HotPadsHttpClient {
 	private final ExecutorService executor;
 	private final int requestTimeoutMs;
 	private final long futureTimeoutMs;
-	private final PoolStats poolStats;
+	private final PoolingHttpClientConnectionManager connectionManager;
 
 	HotPadsHttpClient(CloseableHttpClient httpClient, JsonSerializer jsonSerializer,
 			SignatureValidator signatureValidator, CsrfValidator csrfValidator, ApiKeyPredicate apiKeyPredicate,
 			HotPadsHttpClientConfig config, ExecutorService executor, Integer requestTimeoutMs, Long futureTimeoutMs,
-			Integer retryCount, PoolStats poolStats) {
+			Integer retryCount, PoolingHttpClientConnectionManager connectionManager) {
 		this.httpClient = httpClient;
 		this.jsonSerializer = jsonSerializer;
 		this.signatureValidator = signatureValidator;
@@ -74,7 +75,7 @@ public class HotPadsHttpClient {
 		this.apiKeyPredicate = apiKeyPredicate;
 		this.config = config;
 		this.executor = executor;
-		this.poolStats = poolStats;
+		this.connectionManager = connectionManager;
 		this.requestTimeoutMs = requestTimeoutMs == null ? DEFAULT_REQUEST_TIMEOUT_MS : requestTimeoutMs.intValue();
 		this.futureTimeoutMs = futureTimeoutMs == null ? getFutureTimeoutMs(this.requestTimeoutMs, retryCount)
 				: futureTimeoutMs.longValue();
@@ -256,19 +257,8 @@ public class HotPadsHttpClient {
 		return this;
 	}
 
-	public long getNumAvailableConnections(){
-		return poolStats.getAvailable();
+	public PoolStats getPoolStats(){
+		return connectionManager.getTotalStats();
 	}
 
-	public long getNumLeasedConnections(){
-		return poolStats.getLeased();
-	}
-
-	public long getMaxConnections(){
-		return poolStats.getMax();
-	}
-
-	public long getNumPendingConnections(){
-		return poolStats.getPending();
-	}
 }

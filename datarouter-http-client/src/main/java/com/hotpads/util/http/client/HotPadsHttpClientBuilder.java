@@ -93,7 +93,7 @@ public class HotPadsHttpClientBuilder{
 				new ThreadPoolExecutor.CallerRunsPolicy());
 		return new HotPadsHttpClient(builtHttpClient, this.jsonSerializer, this.signatureValidator, this.csrfValidator,
 				this.apiKeyPredicate, this.config, executor, this.timeoutMs, this.futureTimeoutMs, retryHandler
-				.getRetryCount(), connectionManager.getTotalStats());
+				.getRetryCount(), connectionManager);
 	}
 
 	public HotPadsHttpClientBuilder setRetryCount(int retryCount){
