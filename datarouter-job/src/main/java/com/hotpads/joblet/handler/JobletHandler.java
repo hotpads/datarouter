@@ -196,7 +196,7 @@ public class JobletHandler extends BaseHandler{
 	private Mav createSleepingJoblets(int numJoblets, long sleepMs){
 		List<JobletPackage> jobletPackages = new ArrayList<>();
 		for(int i = 0; i < numJoblets; ++i){
-			SleepingJobletParams params = new SleepingJobletParams(i + "", sleepMs);
+			SleepingJobletParams params = new SleepingJobletParams(String.valueOf(i), sleepMs);
 			int batchSequence = i;//specify this so joblets execute in precise order
 			JobletPackage jobletPackage = JobletPackage.createDetailed(SleepingJoblet.JOBLET_TYPE,
 					JobletPriority.DEFAULT, new Date(), batchSequence, true, null, params);
