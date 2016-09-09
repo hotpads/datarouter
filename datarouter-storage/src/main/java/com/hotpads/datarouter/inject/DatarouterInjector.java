@@ -1,6 +1,6 @@
 package com.hotpads.datarouter.inject;
 
-import java.util.Collection;
+import java.util.Map;
 
 
 /**
@@ -11,7 +11,7 @@ public interface DatarouterInjector{
 
 	<T> T getInstance(Class<? extends T> clazz);
 
-	<T> Collection<T> getInstancesOfType(Class<T> type);
+	<T> Map<String,T> getInstancesOfType(Class<T> type);
 
 	void injectMenbers(Object instance);
 

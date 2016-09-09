@@ -15,6 +15,7 @@ public class ProfilingSettings extends SettingNode{
 	private final Setting<Boolean> runServerMonitoringJob;
 	public final Setting<Boolean> runLatencyMonitoringJob;
 	public final Setting<Boolean> saveExecutorsMetrics;
+	public final Setting<Boolean> saveHttpClientsMetrics;
 
 	@Inject
 	public ProfilingSettings(SettingFinder finder){
@@ -25,6 +26,7 @@ public class ProfilingSettings extends SettingNode{
 		runServerMonitoringJob = registerBoolean("runServerMonitoringJob", true);
 		runLatencyMonitoringJob = registerBoolean("runLatencyMonitoringJob", false);
 		saveExecutorsMetrics = registerBoolean("saveExecutorsMetrics", false);
+		saveHttpClientsMetrics = registerBoolean("saveHttpClientsMetrics", false);
 	}
 
 	public Setting<Boolean> getSaveCounts(){

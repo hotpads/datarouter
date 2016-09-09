@@ -10,9 +10,6 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Stream;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrDateTool;
@@ -24,7 +21,6 @@ import com.hotpads.util.core.collections.ComparablePair;
 
 
 public class JobletSummary{
-	private static final Logger logger = LoggerFactory.getLogger(JobletSummary.class);
 
 	//key fields
 	private Integer executionOrder;
