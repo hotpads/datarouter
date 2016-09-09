@@ -21,7 +21,7 @@ public class ProfilingSettings extends SettingNode{
 		super(finder, "datarouter.profiling.", "datarouter.");
 
 		saveCounts = registerBoolean("saveCounts", true);
-		runMetricsAggregationJob = registerBoolean("runMetricsAggregationJob", true);
+		runMetricsAggregationJob = registerBoolean("runMetricsAggregationJob", false);
 		runServerMonitoringJob = registerBoolean("runServerMonitoringJob", true);
 		runLatencyMonitoringJob = registerBoolean("runLatencyMonitoringJob", false);
 		saveExecutorsMetrics = registerBoolean("saveExecutorsMetrics", false);
