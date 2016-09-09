@@ -11,8 +11,10 @@ import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.client.DatarouterClients;
 import com.hotpads.datarouter.client.imp.memcached.MemcachedClientType;
 import com.hotpads.datarouter.client.imp.memcached.node.MemcachedNode;
+import com.hotpads.datarouter.config.DatarouterSettings;
 import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.NodeParams.NodeParamsBuilder;
+import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.profile.tally.Tally;
 import com.hotpads.datarouter.profile.tally.Tally.TallyFielder;
 import com.hotpads.datarouter.profile.tally.TallyKey;
@@ -27,13 +29,9 @@ public class TallyTestRouter extends BaseRouter{
 
 	private final DatarouterClients datarouterClients;
 
-	/*************************** client names ********************************/
-
-	private final List<ClientId> clientIds;
-
 	@Override
 	public List<ClientId> getClientIds(){
-		return clientIds;
+		return Arrays.asList(DrTestConstants.CLIENT_drTestMemcached);
 	}
 
 	/********************************** nodes ********************************/
@@ -43,13 +41,13 @@ public class TallyTestRouter extends BaseRouter{
 	/******************************* constructor *****************************/
 
 	@Inject
-	public TallyTestRouter(Datarouter datarouter, DatarouterClients datarouterClients, ClientId clientId){
-		super(datarouter, DrTestConstants.CONFIG_PATH, TallyTestRouter.class.getSimpleName());
+	public TallyTestRouter(Datarouter datarouter, DatarouterClients datarouterClients, NodeFactory nodeFactory,
+			DatarouterSettings datarouterSettings){
+		super(datarouter, DrTestConstants.CONFIG_PATH, TallyTestRouter.class.getSimpleName(), nodeFactory,
+				datarouterSettings);
 
 		this.datarouterClients = datarouterClients;
-		this.clientIds = Arrays.asList(clientId);
-
-		this.tallyNode = buildTallyNode(clientId);
+		this.tallyNode = buildTallyNode(DrTestConstants.CLIENT_drTestMemcached);
 	}
 
 
