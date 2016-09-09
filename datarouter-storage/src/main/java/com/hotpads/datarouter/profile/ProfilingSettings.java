@@ -14,15 +14,17 @@ public class ProfilingSettings extends SettingNode{
 	private final Setting<Boolean> runMetricsAggregationJob;
 	private final Setting<Boolean> runServerMonitoringJob;
 	public final Setting<Boolean> runLatencyMonitoringJob;
+	public final Setting<Boolean> saveExecutorsMetrics;
 
 	@Inject
 	public ProfilingSettings(SettingFinder finder){
 		super(finder, "datarouter.profiling.", "datarouter.");
 
 		saveCounts = registerBoolean("saveCounts", true);
-		runMetricsAggregationJob = registerBoolean("runMetricsAggregationJob", false);
+		runMetricsAggregationJob = registerBoolean("runMetricsAggregationJob", true);
 		runServerMonitoringJob = registerBoolean("runServerMonitoringJob", true);
 		runLatencyMonitoringJob = registerBoolean("runLatencyMonitoringJob", false);
+		saveExecutorsMetrics = registerBoolean("saveExecutorsMetrics", false);
 	}
 
 	public Setting<Boolean> getSaveCounts(){
