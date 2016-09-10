@@ -9,6 +9,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.amazonaws.auth.AWSCredentialsProvider;
+import com.amazonaws.regions.Regions;
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
+import com.amazonaws.services.dynamodbv2.document.DynamoDB;
+import com.amazonaws.services.dynamodbv2.document.Table;
 import com.amazonaws.services.kinesis.AmazonKinesisClient;
 import com.amazonaws.services.kinesis.clientlibrary.interfaces.v2.IRecordProcessor;
 import com.amazonaws.services.kinesis.clientlibrary.interfaces.v2.IRecordProcessorFactory;
@@ -34,6 +38,7 @@ D extends Databean<PK,D>, F extends DatabeanFielder<PK,D>> implements Datarouter
 	private AmazonKinesisClient kinesisClient;
 	private KinesisClientLibConfiguration kinesisClientLibConfiguration;
 	private IRecordProcessorFactory recordProcessorFactory;
+	private String dynamoDbTableName;
 
 	public KinesisSubscriber(String streamName, String regionName,
 			InitialPositionInStream initialPositionInStream, Date timestamp, Integer blockingQueueSize,
@@ -51,6 +56,7 @@ D extends Databean<PK,D>, F extends DatabeanFielder<PK,D>> implements Datarouter
 		if(timestamp != null){
 			kinesisClientLibConfiguration.withTimestampAtInitialPositionInStream(timestamp);
 		}
+		this.dynamoDbTableName = applicationName;
 
         this.recordProcessorFactory = new IRecordProcessorFactory(){
 
@@ -89,6 +95,21 @@ D extends Databean<PK,D>, F extends DatabeanFielder<PK,D>> implements Datarouter
 		}catch(InterruptedException e){
 			logger.error("", e);
 		}
+		AmazonDynamoDBClient dynamoDbclient = new AmazonDynamoDBClient(kinesisClientLibConfiguration.getDynamoDBCredentialsProvider());dynamoDbclient.withRegion(Regions.US_WEST_2);
+		DynamoDB dynamoDB = new DynamoDB(dynamoDbclient);
+		Table table = dynamoDB.getTable(dynamoDbTableName);
+        try {
+            System.out.println("Issuing DeleteTable request for " + dynamoDbTableName);
+            table.delete();
+
+            System.out.println("Waiting for " + dynamoDbTableName
+                + " to be deleted...this may take a while...");
+
+            table.waitForDelete();
+        } catch (Exception e) {
+            System.err.println("DeleteTable request failed for " + dynamoDbTableName);
+            System.err.println(e.getMessage());
+        }
 	}
 
 	public BlockingQueue<StreamRecord<PK,D>> getBlockingQueue(){
