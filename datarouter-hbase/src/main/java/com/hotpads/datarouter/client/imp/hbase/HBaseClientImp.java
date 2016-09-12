@@ -1,11 +1,17 @@
 package com.hotpads.datarouter.client.imp.hbase;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hbase.HColumnDescriptor;
+import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Admin;
 import org.apache.hadoop.hbase.client.Connection;
@@ -18,7 +24,11 @@ import com.hotpads.datarouter.client.availability.ClientAvailabilitySettings;
 import com.hotpads.datarouter.client.imp.BaseClient;
 import com.hotpads.datarouter.client.imp.hbase.client.HBaseClient;
 import com.hotpads.datarouter.client.imp.hbase.pool.HBaseTablePool;
+import com.hotpads.datarouter.node.Node;
+import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
+import com.hotpads.datarouter.util.core.DrIterableTool;
+import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.concurrent.FutureTool;
 import com.hotpads.util.datastructs.MutableString;
 
@@ -34,12 +44,14 @@ implements HBaseClient{
 	private final ExecutorService executorService;
 	private final Map<String,Class<? extends PrimaryKey<?>>> primaryKeyClassByName;
 	private final ClientType clientType;
+	private final boolean schemaUpdateEnabled;
 
-	/**************************** constructor **********************************/
+	/**************************** constructor  **********************************/
 
 	public HBaseClientImp(String name, Connection connection, Admin hbaseAdmin, HBaseTablePool pool,
 			Map<String,Class<? extends PrimaryKey<?>>> primaryKeyClassByName, ClientAvailabilitySettings
-			clientAvailabilitySettings, ExecutorService executorService, ClientType clientType){
+			clientAvailabilitySettings, ExecutorService executorService, ClientType clientType,
+			boolean schemaUpdateEnabled){
 		super(name, clientAvailabilitySettings);
 		this.connection = connection;
 		this.clientType = clientType;
@@ -48,6 +60,7 @@ implements HBaseClient{
 		this.pool = pool;
 		this.executorService = executorService;
 		this.primaryKeyClassByName = primaryKeyClassByName;
+		this.schemaUpdateEnabled = schemaUpdateEnabled;
 	}
 
 	@Override
@@ -106,4 +119,33 @@ implements HBaseClient{
 		FutureTool.finishAndShutdown(executorService, 5L, TimeUnit.SECONDS);
 		pool.shutdown();
 	}
+
+	@Override
+	public Future<Optional<String>> notifyNodeRegistration(Node<?,?> node){
+		if(schemaUpdateEnabled){
+			generateSchemaUpdate(node);
+		}
+		return CompletableFuture.completedFuture(Optional.empty());
+	}
+
+	private void generateSchemaUpdate(Node<?,?> node){
+		String tableName = node.getPhysicalNodeIfApplicable().getTableName();
+		DatabeanFieldInfo<?,?,?> fieldInfo = node.getFieldInfo();
+		try{
+			HTableDescriptor desc = admin.getTableDescriptor(TableName.valueOf(tableName));
+			List<HColumnDescriptor> columnFamilies = DrListTool.create(desc.getColumnFamilies());
+			for(HColumnDescriptor column : DrIterableTool.nullSafe(columnFamilies)){
+				if(fieldInfo.getTtlMs().isPresent()){
+					if(!fieldInfo.getTtlMs().get().equals(column.getTimeToLive())){
+						logger.info(" Please Alter the value of TTL to "+ fieldInfo.getTtlMs().get()+ "for the table "
+					+tableName);
+					}
+				}
+			}
+		}catch(IOException e){
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
 }

@@ -68,7 +68,6 @@ implements Callable<Optional<String>>{
 		MySqlCharacterSet characterSet = fieldInfo.getCharacterSet();
 		MySqlRowFormat rowFormat = fieldInfo.getRowFormat();
 
-
 		if(executeOptions.getIgnoreClients().contains(clientName)){
 			return Optional.empty();
 		}
@@ -136,9 +135,9 @@ implements Callable<Optional<String>>{
 				}
 
 				//print the alter table
-				ConnectionSqlTableGenerator prinitConstructor = new ConnectionSqlTableGenerator(connection, tableName,
+				ConnectionSqlTableGenerator printConstructor = new ConnectionSqlTableGenerator(connection, tableName,
 						schemaName);
-				SqlTable printCurrent = prinitConstructor.generate();
+				SqlTable printCurrent = printConstructor.generate();
 				SqlAlterTableGenerator printAlterTableGenerator = new SqlAlterTableGenerator(printOptions,
 						printCurrent, requested, schemaName);
 				if(printAlterTableGenerator.willAlterTable()){

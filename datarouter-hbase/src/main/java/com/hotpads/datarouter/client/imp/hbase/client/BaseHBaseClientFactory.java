@@ -41,6 +41,7 @@ import com.hotpads.datarouter.storage.key.entity.EntityPartitioner;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.prefix.ScatteringPrefix;
 import com.hotpads.datarouter.util.core.DrArrayTool;
+import com.hotpads.datarouter.util.core.DrBooleanTool;
 import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrPropertiesTool;
 import com.hotpads.util.core.bytes.ByteRange;
@@ -58,9 +59,11 @@ implements ClientFactory{
 			DEFAULT_MAX_FILE_SIZE_BYTES = 1L * 4 * 1024 * 1024 * 1024,//cast to long before overflowing int
 			DEFAULT_MEMSTORE_FLUSH_SIZE_BYTES = 1L * 256 * 1024 * 1024;//cast to long before overflowing int
 
+
 	//these are used for databeans with no values outside the PK.  we fake a value as we need at least 1 cell in a row
 	public static final byte[] DEFAULT_FAMILY_QUALIFIER = new byte[]{(byte)'a'};
-	public static final String DUMMY_COL_NAME = new String(new byte[]{0});
+	public static final String DUMMY_COL_NAME = new String(new byte[]{0}),
+			SCHEMA_UPDATE_ENABLE = "schemaUpdate.enable";
 
 
 	/********************* fields *******************************/
@@ -73,6 +76,7 @@ implements ClientFactory{
 	protected final ClientAvailabilitySettings clientAvailabilitySettings;
 	protected final ExecutorService executor;
 	private final BaseHBaseClientType clientType;
+	private final boolean schemaUpdateEnabled;
 
 	public BaseHBaseClientFactory(Datarouter datarouter, String clientName,
 			ClientAvailabilitySettings clientAvailabilitySettings, ExecutorService executor,
@@ -85,6 +89,8 @@ implements ClientFactory{
 		this.hbaseOptions = new HBaseOptions(multiProperties, clientName);
 		this.clientAvailabilitySettings = clientAvailabilitySettings;
 		this.executor = executor;
+		this.schemaUpdateEnabled = DrBooleanTool.isTrue(DrPropertiesTool.getFirstOccurrence(multiProperties,
+				SCHEMA_UPDATE_ENABLE));
 	}
 
 	protected abstract Connection makeConnection();
@@ -108,7 +114,8 @@ implements ClientFactory{
 
 		logger.warn(timer.add("done").toString());
 		return new HBaseClientImp(clientName, connection, admin, htablePoolAndPrimaryKeyByTableName.getLeft(),
-				htablePoolAndPrimaryKeyByTableName.getRight(), clientAvailabilitySettings, executor, clientType);
+				htablePoolAndPrimaryKeyByTableName.getRight(), clientAvailabilitySettings, executor, clientType,
+				schemaUpdateEnabled);
 	}
 
 
