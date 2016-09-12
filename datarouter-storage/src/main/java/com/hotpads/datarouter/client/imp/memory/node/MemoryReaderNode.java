@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.hotpads.datarouter.client.imp.memory.MemoryClient;
@@ -156,10 +157,10 @@ implements IndexedSortedMapStorageReader<PK,D>{
 				offset++;
 				continue;
 			}
-			Map<String,Field<?>> entryFieldsByName = FieldSetTool.generateFieldMap(getFieldInfo().getFieldsWithValues(
-					entry.getValue()));
+			Map<String,Field<?>> entryFieldsByColumnName = getFieldInfo().getFieldsWithValues(entry.getValue()).stream()
+					.collect(Collectors.toMap(field -> field.getKey().getColumnName(), Function.identity()));
 			for(int i = 0 ; i < nonNullLeadingStartFields ; i++){
-				Field<?> keyField = entryFieldsByName.get(startFields.get(i).getKey().getName());
+				Field<?> keyField = entryFieldsByColumnName.get(startFields.get(i).getKey().getColumnName());
 				if(i == nonNullLeadingStartFields - 1
 						&& wildcardLastField
 						&& startFields.get(i) instanceof StringField
@@ -173,7 +174,7 @@ implements IndexedSortedMapStorageReader<PK,D>{
 				}
 			}
 			for(int j = 0 ; j < nonNullLeadingEndFields ; j++){
-				Field<?> keyField = entryFieldsByName.get(endFields.get(j).getKey().getName());
+				Field<?> keyField = entryFieldsByColumnName.get(endFields.get(j).getKey().getColumnName());
 				if(j == nonNullLeadingEndFields - 1
 						&& wildcardLastField
 						&& endFields.get(j) instanceof StringField
