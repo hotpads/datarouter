@@ -1,7 +1,6 @@
 package com.hotpads.datarouter.client.imp.hbase;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -27,8 +26,6 @@ import com.hotpads.datarouter.client.imp.hbase.pool.HBaseTablePool;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.datarouter.util.core.DrIterableTool;
-import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.concurrent.FutureTool;
 import com.hotpads.util.datastructs.MutableString;
 
@@ -128,23 +125,23 @@ implements HBaseClient{
 		return CompletableFuture.completedFuture(Optional.empty());
 	}
 
+	@SuppressWarnings("null")
 	private void generateSchemaUpdate(Node<?,?> node){
 		String tableName = node.getPhysicalNodeIfApplicable().getTableName();
 		DatabeanFieldInfo<?,?,?> fieldInfo = node.getFieldInfo();
+		HTableDescriptor desc = null;
 		try{
-			HTableDescriptor desc = admin.getTableDescriptor(TableName.valueOf(tableName));
-			List<HColumnDescriptor> columnFamilies = DrListTool.create(desc.getColumnFamilies());
-			for(HColumnDescriptor column : DrIterableTool.nullSafe(columnFamilies)){
-				if(fieldInfo.getTtlMs().isPresent()){
-					if(!fieldInfo.getTtlMs().get().equals(column.getTimeToLive())){
-						logger.info(" Please Alter the value of TTL to "+ fieldInfo.getTtlMs().get()+ "for the table "
-					+tableName);
-					}
+			desc = admin.getTableDescriptor(TableName.valueOf(tableName));
+		}catch(IOException e){
+			e.printStackTrace();
+		}
+		for(HColumnDescriptor column : desc.getColumnFamilies()){
+			if(fieldInfo.getTtlMs().isPresent()){
+				if(!fieldInfo.getTtlMs().get().equals(column.getTimeToLive())){
+					logger.warn(" Please Alter the value of TTL to "+ fieldInfo.getTtlMs().get()+ "for the table "
+							+tableName);
 				}
 			}
-		}catch(IOException e){
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 	}
 
