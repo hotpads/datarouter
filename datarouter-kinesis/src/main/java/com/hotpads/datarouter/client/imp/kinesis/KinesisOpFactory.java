@@ -6,7 +6,9 @@ import java.util.concurrent.BlockingQueue;
 import com.hotpads.datarouter.client.imp.kinesis.op.KinesisOp;
 import com.hotpads.datarouter.client.imp.kinesis.single.op.KinesisPutMultiOp;
 import com.hotpads.datarouter.client.imp.kinesis.single.op.KinesisPutOp;
+import com.hotpads.datarouter.client.imp.kinesis.single.op.KinesisStreamAtTimestampOp;
 import com.hotpads.datarouter.client.imp.kinesis.single.op.KinesisStreamLatestOp;
+import com.hotpads.datarouter.client.imp.kinesis.single.op.KinesisStreamOldestOp;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.config.DatarouterStreamSubscriberConfig;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
@@ -27,11 +29,11 @@ public class KinesisOpFactory<PK extends PrimaryKey<PK>,D extends Databean<PK,D>
 			Config config){
 		switch(streamSubscriberConfig.getDrInitialPositionInStream()){
 		case AT_TIMESTAMP:
-			return new KinesisStreamLatestOp<>(streamSubscriberConfig, config, kinesisNode);
+			return new KinesisStreamAtTimestampOp<>(streamSubscriberConfig, config, kinesisNode);
 		case LATEST:
 			return new KinesisStreamLatestOp<>(streamSubscriberConfig, config, kinesisNode);
 		case OLDEST:
-			return new KinesisStreamLatestOp<>(streamSubscriberConfig, config, kinesisNode);
+			return new KinesisStreamOldestOp<>(streamSubscriberConfig, config, kinesisNode);
 		default:
 			return null;
 		}
