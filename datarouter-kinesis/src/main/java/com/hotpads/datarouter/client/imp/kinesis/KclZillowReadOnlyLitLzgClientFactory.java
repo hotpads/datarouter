@@ -39,7 +39,7 @@ public class KclZillowReadOnlyLitLzgClientFactory implements ClientFactory{
 			credentials = getTempSessionCredentialsForRoleArn(basicCredentials, kinesisOptions.getArnRole());
 		}
 		AmazonKinesisClient amazonKinesisClient = new AmazonKinesisAsyncClient(credentials);
-		AWSCredentialsProvider credentialsProvider = makeAWSCredentialsProvider(credentials);
+		AWSCredentialsProvider credentialsProvider = makeAwsCredentialsProvider(credentials);
 		return new KclZillowReadOnlyLitLzgClient(clientName, clientType, amazonKinesisClient, credentialsProvider,
 				kinesisOptions, clientAvailabilitySettings);
 	}
@@ -53,7 +53,7 @@ public class KclZillowReadOnlyLitLzgClientFactory implements ClientFactory{
 				tempCredentials.getSessionToken());
 	}
 
-	private static AWSCredentialsProvider makeAWSCredentialsProvider(AWSCredentials credentials){
+	private static AWSCredentialsProvider makeAwsCredentialsProvider(AWSCredentials credentials){
 		return new AWSCredentialsProvider(){
 
 			@Override

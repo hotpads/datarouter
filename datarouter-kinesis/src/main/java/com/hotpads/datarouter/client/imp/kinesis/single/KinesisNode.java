@@ -28,7 +28,8 @@ implements StreamStorage<PK,D>{
 	// Reader
 
 	@Override
-	public BlockingQueue<StreamRecord<PK,D>> subscribe(DatarouterStreamSubscriberConfig streamSubscriberConfig, Config config){
+	public BlockingQueue<StreamRecord<PK,D>> subscribe(DatarouterStreamSubscriberConfig streamSubscriberConfig,
+			Config config){
 		return kinesisOpFactory.makeStreamSubscriberOp(streamSubscriberConfig, config).call();
 	}
 

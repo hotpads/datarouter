@@ -22,7 +22,8 @@ public class KinesisOpFactory<PK extends PrimaryKey<PK>,D extends Databean<PK,D>
 		this.kinesisNode = kinesisNode;
 	}
 
-	public KinesisOp<PK,D,F,BlockingQueue<StreamRecord<PK,D>>> makeStreamSubscriberOp(DatarouterStreamSubscriberConfig streamSubscriberConfig,
+	public KinesisOp<PK,D,F,BlockingQueue<StreamRecord<PK,D>>> makeStreamSubscriberOp(
+			DatarouterStreamSubscriberConfig streamSubscriberConfig,
 			Config config){
 		switch(streamSubscriberConfig.getDrInitialPositionInStream()){
 		case AT_TIMESTAMP:

@@ -47,7 +47,6 @@ D extends Databean<PK,D>, F extends DatabeanFielder<PK,D>> implements Datarouter
 		this.kinesisClient = kinesisClient;
 		this.blockingQueue = blockingQueueSize != null ? new ArrayBlockingQueue<>(blockingQueueSize)
 				: new ArrayBlockingQueue<>(DEFAULT_BLOCKING_QUEUE_SIZE);
-		System.out.println("app name: " + applicationName);
 		this.kinesisClientLibConfiguration = new KinesisClientLibConfiguration(applicationName, streamName,
 				credentialsProvider, workerId)
 				.withRegionName(regionName)
@@ -66,17 +65,17 @@ D extends Databean<PK,D>, F extends DatabeanFielder<PK,D>> implements Datarouter
 			}
 
 		};
-		if(replayData != null && replayData == true){
-			deleteOldDynamoDBTable(applicationName);
+		if(replayData != null && replayData){
+			deleteOldDynamoDbTable(applicationName);
 		}
 	}
 
-	private void deleteOldDynamoDBTable(String dynamoDbTableName){
+	private void deleteOldDynamoDbTable(String dynamoDbTableName){
 		AmazonDynamoDBClient dynamoDbclient = new AmazonDynamoDBClient(kinesisClientLibConfiguration
 				.getDynamoDBCredentialsProvider())
 				.withRegion(Regions.fromName(kinesisClientLibConfiguration.getRegionName()));
-		DynamoDB dynamoDB = new DynamoDB(dynamoDbclient);
-		Table table = dynamoDB.getTable(dynamoDbTableName);
+		DynamoDB dynamoDb = new DynamoDB(dynamoDbclient);
+		Table table = dynamoDb.getTable(dynamoDbTableName);
         try {
             logger.warn("Issuing DeleteTable request for " + dynamoDbTableName);
             table.delete();
@@ -90,6 +89,9 @@ D extends Databean<PK,D>, F extends DatabeanFielder<PK,D>> implements Datarouter
 	}
 
 	public void subscribe(){
+		logger.warn("subscribing to " + kinesisClientLibConfiguration.getStreamName() + " in "
+				+ kinesisClientLibConfiguration.getRegionName() + " with app name: " + kinesisClientLibConfiguration
+						.getApplicationName());
 		kinesisWorker = new Worker.Builder()
 				 .recordProcessorFactory(recordProcessorFactory)
 				 .config(kinesisClientLibConfiguration)

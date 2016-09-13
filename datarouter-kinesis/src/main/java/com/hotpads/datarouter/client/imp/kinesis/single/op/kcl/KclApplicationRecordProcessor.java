@@ -83,12 +83,6 @@ D extends Databean<PK,D>, F extends DatabeanFielder<PK,D>> implements IRecordPro
         }
     }
 
-    /**
-     * Process a single record.
-     *
-     * @param record The record to be processed.
-     * @throws InterruptedException
-     */
     private void processSingleRecord(Record record) throws InterruptedException {
 		logger.trace("processing record: " + record.getPartitionKey() + " " + record.getSequenceNumber());
 		String recordDataJson = new String(record.getData().array(), Charset.forName("UTF-8"));
@@ -103,9 +97,6 @@ D extends Databean<PK,D>, F extends DatabeanFielder<PK,D>> implements IRecordPro
 				databean));
     }
 
-    /** Checkpoint with retries.
-     * @param checkpointer
-     */
     private void checkpoint(IRecordProcessorCheckpointer checkpointer) {
         logger.info("Checkpointing shard " + kinesisShardId);
         for (int i = 0; i < NUM_RETRIES; i++) {
@@ -127,7 +118,8 @@ D extends Databean<PK,D>, F extends DatabeanFielder<PK,D>> implements IRecordPro
                 }
             } catch (InvalidStateException e) {
                 // This indicates an issue with the DynamoDB table (check for table, provisioned IOPS).
-                logger.error("Cannot save checkpoint to the DynamoDB table used by the Amazon Kinesis Client Library.", e);
+				logger.error("Cannot save checkpoint to the DynamoDB table used by the Amazon Kinesis Client Library.",
+						e);
                 break;
             }
             try {
