@@ -3,6 +3,7 @@ package com.hotpads.datarouter.client.imp.hbase.balancer;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -128,7 +129,7 @@ public class HBaseBalanceLeveler<I>{
 
 	private ServerName getMostLoadedDestination(){
 		for(Map.Entry<ServerName,Long> entry : countByDestination.entrySet()){
-			if(DrObjectTool.equals(entry.getValue(), maxAtDestination)){
+			if(Objects.equals(entry.getValue(), (T) maxAtDestination)){
 				return entry.getKey();
 			}
 		}
@@ -138,7 +139,7 @@ public class HBaseBalanceLeveler<I>{
 
 	private ServerName getLeastLoadedDestination(){
 		for(Map.Entry<ServerName,Long> entry : countByDestination.entrySet()){
-			if(DrObjectTool.equals(entry.getValue(), minAtDestination)){
+			if(Objects.equals(entry.getValue(), (T) minAtDestination)){
 				return entry.getKey();
 			}
 		}

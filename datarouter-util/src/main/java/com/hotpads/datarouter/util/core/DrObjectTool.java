@@ -4,14 +4,6 @@ import java.util.Objects;
 
 public class DrObjectTool {
 
-	/**
-	 * @deprecated inline me
-	 */
-	@Deprecated
-	public static <T> boolean equals(T first, T second){
-		return Objects.equals(first, second);
-	}
-
 	public static <T> boolean notEquals(T first, T second){
 		return ! Objects.equals(first, second);
 	}

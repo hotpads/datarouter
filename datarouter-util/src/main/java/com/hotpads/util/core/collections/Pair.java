@@ -32,7 +32,7 @@ public class Pair<L,R> implements Serializable{
 	}
 
 	public boolean areLeftAndRightEqual(){
-		return DrObjectTool.equals(left, right);
+		return java.util.Objects.equals(left, right);
 	}
 
 	public L getLeft() {
