@@ -10,6 +10,7 @@ import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage.PhysicalInde
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.databean.DatabeanTool;
+import com.hotpads.datarouter.storage.field.generation.FieldGeneratorTool;
 import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.datarouter.storage.key.multi.Lookup;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
@@ -61,6 +62,7 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D>{
 		if(databean == null || databean.getKey() == null){
 			return;
 		}
+		FieldGeneratorTool.generateAndSetValueForFieldIfNecessary(fieldInfo, databean);
 		backingMap.put(databean.getKey(), databean);
 	}
 

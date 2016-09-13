@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.client.imp.redis.databean;
+package com.hotpads.datarouter.test.node.basic.map.databean;
 
 import java.util.Arrays;
 import java.util.List;
@@ -9,9 +9,9 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.StringFieldKey;
 
-public class RedisDatabean extends BaseDatabean<RedisDatabeanKey,RedisDatabean>{
+public class MapStorageBean extends BaseDatabean<MapStorageBeanKey,MapStorageBean>{
 
-	private RedisDatabeanKey key;
+	private MapStorageBeanKey key;
 	private String data;
 
 	/** column names *********************************************************/
@@ -20,38 +20,38 @@ public class RedisDatabean extends BaseDatabean<RedisDatabeanKey,RedisDatabean>{
 		public static final StringFieldKey data = new StringFieldKey("data");
 	}
 
-	public static class RedisDatabeanFielder extends BaseDatabeanFielder<RedisDatabeanKey,RedisDatabean>{
+	public static class MapStorageBeanFielder extends BaseDatabeanFielder<MapStorageBeanKey,MapStorageBean>{
 
-		public RedisDatabeanFielder(){
-			super(RedisDatabeanKey.class);
+		public MapStorageBeanFielder(){
+			super(MapStorageBeanKey.class);
 		}
 
 		@Override
-		public List<Field<?>> getNonKeyFields(RedisDatabean databean){
+		public List<Field<?>> getNonKeyFields(MapStorageBean databean){
 			return Arrays.asList(new StringField(FieldKeys.data, databean.data));
 		}
 	}
 
 	/** constructor **********************************************************/
 
-	public RedisDatabean(){
-		this(null, null);
+	public MapStorageBean(){
+		this(null);
 	}
 
-	public RedisDatabean(String id, String data){
-		this.key = new RedisDatabeanKey(id);
+	public MapStorageBean(String data){
+		this.key = new MapStorageBeanKey();
 		this.data = data;
 	}
 
 	/** databean *************************************************************/
 
 	@Override
-	public Class<RedisDatabeanKey> getKeyClass(){
-		return RedisDatabeanKey.class;
+	public Class<MapStorageBeanKey> getKeyClass(){
+		return MapStorageBeanKey.class;
 	}
 
 	@Override
-	public RedisDatabeanKey getKey(){
+	public MapStorageBeanKey getKey(){
 		return key;
 	}
 

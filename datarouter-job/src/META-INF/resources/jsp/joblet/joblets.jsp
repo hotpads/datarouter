@@ -4,6 +4,9 @@
 <head>
 	<title>Joblets</title>
 	<%@ include file="/jsp/generic/datarouterHead.jsp" %>
+	<script>
+	require(['sorttable']);
+	</script>
 </head>
 <body>
 	<%@ include file="/jsp/menu/common-navbar.jsp" %>
