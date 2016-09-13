@@ -20,7 +20,7 @@ extends BaseKinesisStreamSubscribeOp<PK,D,F>{
 	public KinesisStreamOldestOp(DatarouterStreamSubscriberConfig streamConfig, Config config,
 			BaseKinesisNode<PK,D,F> kinesisNode){
 		super(config, kinesisNode, SUBSCRIBER_NAME, INITIAL_POSITION_IN_STREAM, streamConfig, streamConfig
-				.getBlockingQueueSize());
+				.getBlockingQueueSize(), streamConfig.getMaxRecordsPerRequest(), streamConfig.getReplayData());
 		if(streamConfig.getSubscriberAppName()!= null){
 			withExplicitApplicationName(streamConfig.getSubscriberAppName());
 		}

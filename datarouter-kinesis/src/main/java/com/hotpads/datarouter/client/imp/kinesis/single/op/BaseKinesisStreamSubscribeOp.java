@@ -27,16 +27,21 @@ extends KinesisOp<PK,D,F,BlockingQueue<StreamRecord<PK,D>>>{
 	private DatarouterStreamSubscriberAccessorSetter streamSubscriberAccessorSetter;
 	private Date timestamp;
 	private Integer blockingQueueSize;
+	private Integer maxRecordsPerRequest;
+	private Boolean replayData;//if true deletes the dynamodb table
 
 	public BaseKinesisStreamSubscribeOp(Config config, BaseKinesisNode<PK,D,F> kinesisNode, String subscriberName,
 			InitialPositionInStream initialPositionInStream,
-			DatarouterStreamSubscriberAccessorSetter subscriberAccessorSetter, Integer blockingQueueSize){
+			DatarouterStreamSubscriberAccessorSetter subscriberAccessorSetter, Integer blockingQueueSize,
+			Integer maxRecordsPerRequest, boolean replayData){
 		super(config, kinesisNode);
 		this.subscriberName = subscriberName;
 		this.initialPositionInStream = initialPositionInStream;
 		this.applicationName = kclNamespace + "-" + subscriberName + "-" + streamName;//used for dynamoDb table name
 		this.streamSubscriberAccessorSetter = subscriberAccessorSetter;
 		this.blockingQueueSize = blockingQueueSize;
+		this.maxRecordsPerRequest = maxRecordsPerRequest;
+		this.replayData = replayData;
 	}
 
 	public BaseKinesisStreamSubscribeOp<PK,D,F> withExplicitApplicationName(String applicationName){
@@ -54,8 +59,8 @@ extends KinesisOp<PK,D,F,BlockingQueue<StreamRecord<PK,D>>>{
 	protected final BlockingQueue<StreamRecord<PK,D>> run(){
 		String workerId = applicationName + UUID.randomUUID().toString();
 		KinesisSubscriber<PK,D,F> kinesisSubscriber = new KinesisSubscriber<>(streamName, regionName,
-				initialPositionInStream, timestamp, blockingQueueSize, applicationName, workerId, amazonKinesisClient,
-				awsCredentialsProvider, codec, fielder, databeanSupplier);
+				initialPositionInStream, timestamp, blockingQueueSize, maxRecordsPerRequest, applicationName, workerId,
+				replayData,	amazonKinesisClient, awsCredentialsProvider, codec, fielder, databeanSupplier);
 		if(streamSubscriberAccessorSetter != null){
 			streamSubscriberAccessorSetter.setDatarouterStreamSubscriberAccessor(kinesisSubscriber);
 		}

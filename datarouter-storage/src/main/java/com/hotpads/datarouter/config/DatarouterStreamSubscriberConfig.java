@@ -7,10 +7,14 @@ public class DatarouterStreamSubscriberConfig implements DatarouterStreamSubscri
 	private Date timestamp;
 	private DrInitialPositionInStream drInitialPositionInStream;
 	private String subscriberAppName;
-	private int blockingQueueSize;
+	private Integer blockingQueueSize;
+	private Integer maxRecordsPerRequest;
+	private Boolean replayData;
 
-	public DatarouterStreamSubscriberConfig(int blockingQueueSize, DrInitialPositionInStream drInitialPositionInStream){
+	public DatarouterStreamSubscriberConfig(Integer blockingQueueSize, Integer maxRecordsPerRequest,
+			DrInitialPositionInStream drInitialPositionInStream){
 		this.blockingQueueSize = blockingQueueSize;
+		this.maxRecordsPerRequest = maxRecordsPerRequest;
 		this.drInitialPositionInStream = drInitialPositionInStream;
 	}
 
@@ -36,6 +40,11 @@ public class DatarouterStreamSubscriberConfig implements DatarouterStreamSubscri
 		return this;
 	}
 
+	public DatarouterStreamSubscriberConfig withReplayData(Boolean replayData){
+		this.replayData = replayData;
+		return this;
+	}
+
 	public DatarouterStreamSubscriberAccessor getSubscriberAccessor(){
 		return subscriberAccessor;
 	}
@@ -48,12 +57,20 @@ public class DatarouterStreamSubscriberConfig implements DatarouterStreamSubscri
 		return blockingQueueSize;
 	}
 
+	public Integer getMaxRecordsPerRequest(){
+		return maxRecordsPerRequest;
+	}
+
 	public String getSubscriberAppName(){
 		return subscriberAppName;
 	}
 
 	public DrInitialPositionInStream getDrInitialPositionInStream(){
 		return drInitialPositionInStream;
+	}
+
+	public Boolean getReplayData(){
+		return replayData;
 	}
 
 	public static enum DrInitialPositionInStream{

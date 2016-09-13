@@ -38,26 +38,26 @@ D extends Databean<PK,D>, F extends DatabeanFielder<PK,D>> implements Datarouter
 	private AmazonKinesisClient kinesisClient;
 	private KinesisClientLibConfiguration kinesisClientLibConfiguration;
 	private IRecordProcessorFactory recordProcessorFactory;
-	private String dynamoDbTableName;
 
-	public KinesisSubscriber(String streamName, String regionName,
-			InitialPositionInStream initialPositionInStream, Date timestamp, Integer blockingQueueSize,
-			String applicationName, String workerId,
-			AmazonKinesisClient kinesisClient,
+	public KinesisSubscriber(String streamName, String regionName, InitialPositionInStream initialPositionInStream,
+			Date timestamp, Integer blockingQueueSize, Integer maxRecordsPerRequest, String applicationName,
+			String workerId, Boolean replayData, AmazonKinesisClient kinesisClient,
 			AWSCredentialsProvider credentialsProvider, StringDatabeanCodec codec, F fielder,
 			Supplier<D> databeanSupplier){
 		this.kinesisClient = kinesisClient;
 		this.blockingQueue = blockingQueueSize != null ? new ArrayBlockingQueue<>(blockingQueueSize)
 				: new ArrayBlockingQueue<>(DEFAULT_BLOCKING_QUEUE_SIZE);
+		System.out.println("app name: " + applicationName);
 		this.kinesisClientLibConfiguration = new KinesisClientLibConfiguration(applicationName, streamName,
 				credentialsProvider, workerId)
 				.withRegionName(regionName)
 				.withInitialPositionInStream(initialPositionInStream);
+		if(maxRecordsPerRequest!= null && maxRecordsPerRequest > 0){
+			kinesisClientLibConfiguration.withMaxRecords(maxRecordsPerRequest);
+		}
 		if(timestamp != null){
 			kinesisClientLibConfiguration.withTimestampAtInitialPositionInStream(timestamp);
 		}
-		this.dynamoDbTableName = applicationName;
-
         this.recordProcessorFactory = new IRecordProcessorFactory(){
 
 			@Override
@@ -66,6 +66,27 @@ D extends Databean<PK,D>, F extends DatabeanFielder<PK,D>> implements Datarouter
 			}
 
 		};
+		if(replayData != null && replayData == true){
+			deleteOldDynamoDBTable(applicationName);
+		}
+	}
+
+	private void deleteOldDynamoDBTable(String dynamoDbTableName){
+		AmazonDynamoDBClient dynamoDbclient = new AmazonDynamoDBClient(kinesisClientLibConfiguration
+				.getDynamoDBCredentialsProvider())
+				.withRegion(Regions.fromName(kinesisClientLibConfiguration.getRegionName()));
+		DynamoDB dynamoDB = new DynamoDB(dynamoDbclient);
+		Table table = dynamoDB.getTable(dynamoDbTableName);
+        try {
+            logger.warn("Issuing DeleteTable request for " + dynamoDbTableName);
+            table.delete();
+
+            logger.warn("Waiting for " + dynamoDbTableName + " to be deleted...this may take a while...");
+
+            table.waitForDelete();
+        } catch (Exception e) {
+            logger.error("DeleteTable request failed for " + dynamoDbTableName);
+        }
 	}
 
 	public void subscribe(){
@@ -95,21 +116,6 @@ D extends Databean<PK,D>, F extends DatabeanFielder<PK,D>> implements Datarouter
 		}catch(InterruptedException e){
 			logger.error("", e);
 		}
-		AmazonDynamoDBClient dynamoDbclient = new AmazonDynamoDBClient(kinesisClientLibConfiguration.getDynamoDBCredentialsProvider());dynamoDbclient.withRegion(Regions.US_WEST_2);
-		DynamoDB dynamoDB = new DynamoDB(dynamoDbclient);
-		Table table = dynamoDB.getTable(dynamoDbTableName);
-        try {
-            System.out.println("Issuing DeleteTable request for " + dynamoDbTableName);
-            table.delete();
-
-            System.out.println("Waiting for " + dynamoDbTableName
-                + " to be deleted...this may take a while...");
-
-            table.waitForDelete();
-        } catch (Exception e) {
-            System.err.println("DeleteTable request failed for " + dynamoDbTableName);
-            System.err.println(e.getMessage());
-        }
 	}
 
 	public BlockingQueue<StreamRecord<PK,D>> getBlockingQueue(){
