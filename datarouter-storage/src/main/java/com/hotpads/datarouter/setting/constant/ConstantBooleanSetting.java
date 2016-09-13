@@ -1,5 +1,7 @@
 package com.hotpads.datarouter.setting.constant;
 
+import java.util.Objects;
+
 import com.hotpads.datarouter.setting.Setting;
 import com.hotpads.datarouter.util.core.DrBooleanTool;
 import com.hotpads.datarouter.util.core.DrObjectTool;
@@ -34,7 +36,7 @@ public class ConstantBooleanSetting implements Setting<Boolean>{
 
 	@Override
 	public boolean getHasRedundantCustomValue(){
-		return DrObjectTool.equals(getDefaultValue(), getValue());
+		return Objects.equals(getDefaultValue(), getValue());
 	}
 
 	@Override

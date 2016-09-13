@@ -44,7 +44,6 @@ implements IndexListener<PK,D>{
 
 	/********************** writing ******************************/
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public void onDelete(PK key, Config config){
 		if(key==null){
@@ -52,7 +51,7 @@ implements IndexListener<PK,D>{
 		}
 		IE indexEntry = createIndexEntry();
 		if(indexEntry instanceof KeyIndexEntry){
-			((KeyIndexEntry)indexEntry).fromPrimaryKey(key);
+			((KeyIndexEntry<IK,IE,PK,D>)indexEntry).fromPrimaryKey(key);
 			indexNode.delete(indexEntry.getKey(), config);
 		}else{
 			//there is currently no way to delete an index entry whose PK can't be calculated from the target PK.
@@ -85,8 +84,6 @@ implements IndexListener<PK,D>{
 		IE sampleIndexEntry = createIndexEntry();
 		List<IE> indexEntries = sampleIndexEntry.createFromDatabean(databean);
 		indexNode.putMulti(indexEntries, config);
-//		indexEntry.fromDatabean(databean);
-//		indexNode.put(indexEntry, config);
 	}
 
 	@Override
@@ -98,16 +95,14 @@ implements IndexListener<PK,D>{
 		indexNode.putMulti(indexEntries, config);
 	}
 
-
 	/******************* helper **************************/
 
-	@SuppressWarnings("unchecked")
-	protected List<IE> getIndexEntriesFromPrimaryKeys(Collection<PK> primaryKeys){
+	private List<IE> getIndexEntriesFromPrimaryKeys(Collection<PK> primaryKeys){
 		List<IE> indexEntries = DrListTool.createArrayListWithSize(primaryKeys);
 		for(PK key : DrIterableTool.nullSafe(primaryKeys)){
 			IE indexEntry = createIndexEntry();
 			if(indexEntry instanceof UniqueKeyIndexEntry){
-				((UniqueKeyIndexEntry)indexEntry).fromPrimaryKey(key);
+				((UniqueKeyIndexEntry<IK,IE,PK,D>)indexEntry).fromPrimaryKey(key);
 				indexEntries.add(indexEntry);
 			}else{
 				//we don't know enough.  don't return anything
@@ -116,7 +111,7 @@ implements IndexListener<PK,D>{
 		return indexEntries;
 	}
 
-	protected List<IE> getIndexEntriesFromDatabeans(Collection<D> databeans){
+	private List<IE> getIndexEntriesFromDatabeans(Collection<D> databeans){
 		IE sampleIndexEntry = createIndexEntry();
 		List<IE> indexEntries = DrListTool.createArrayListWithSize(databeans);
 		for(D databean : DrIterableTool.nullSafe(databeans)){
