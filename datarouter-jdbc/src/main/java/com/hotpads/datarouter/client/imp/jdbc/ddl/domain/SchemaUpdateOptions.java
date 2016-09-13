@@ -24,7 +24,6 @@ public class SchemaUpdateOptions{
 			SUFFIX_modifyRowFormat = ".modifyRowFormat",
 			SUFFIX_modifyCharacterSetOrCollation = ".modifyCharacterSetOrCollation";
 
-
 	private boolean createDatabases;
 	private boolean createTables;
 	private boolean dropTables;
