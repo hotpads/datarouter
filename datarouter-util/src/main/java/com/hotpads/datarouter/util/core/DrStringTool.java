@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 import org.testng.AssertJUnit;
@@ -74,7 +75,7 @@ public class DrStringTool{
 	}
 
 	public static boolean equalsCaseInsensitiveButNotCaseSensitive(String left, String right){
-		return !DrObjectTool.nullSafeEquals(left, right) && equalsCaseInsensitive(left, right);
+		return !Objects.equals(left, right) && equalsCaseInsensitive(left, right);
 	}
 
 	public static boolean containsCharactersBesidesWhitespace(String in){
@@ -423,7 +424,7 @@ public class DrStringTool{
 			String bb = "dawGy";
 			String cc = "dawGy";
 			AssertJUnit.assertTrue(equalsCaseInsensitive(aa, bb));
-			AssertJUnit.assertTrue(!DrObjectTool.nullSafeEquals(aa, bb));
+			AssertJUnit.assertTrue(!Objects.equals(aa, bb));
 			AssertJUnit.assertTrue(equalsCaseInsensitiveButNotCaseSensitive(aa, bb));
 			AssertJUnit.assertTrue(!equalsCaseInsensitiveButNotCaseSensitive(bb, cc));
 		}

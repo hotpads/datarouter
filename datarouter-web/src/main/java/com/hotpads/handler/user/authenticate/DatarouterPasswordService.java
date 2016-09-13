@@ -3,6 +3,7 @@ package com.hotpads.handler.user.authenticate;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.SecureRandom;
+import java.util.Objects;
 
 import javax.inject.Inject;
 
@@ -39,7 +40,7 @@ public class DatarouterPasswordService{
 	public boolean isPasswordCorrect(DatarouterUser user, String rawPassword){
 		if(user==null || rawPassword==null){ return false; }
 		String passwordDigest = digest(user.getPasswordSalt(), rawPassword);
-		return DrObjectTool.equals(user.getPasswordDigest(), passwordDigest);
+		return Objects.equals(user.getPasswordDigest(), passwordDigest);
 	}
 
 	public boolean isPasswordCorrect(String email, String rawPassword){

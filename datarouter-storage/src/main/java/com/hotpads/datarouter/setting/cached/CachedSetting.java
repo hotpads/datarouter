@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.setting.cached;
 
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import com.hotpads.datarouter.setting.Setting;
@@ -49,7 +50,7 @@ implements Setting<T>{
 
 	@Override
 	public boolean getHasRedundantCustomValue(){
-		return DrObjectTool.equals(getDefaultValue(), getValue());
+		return Objects.equals(getDefaultValue(), getValue());
 	}
 
 }

@@ -1,6 +1,7 @@
 package com.hotpads.util.core.collections;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -100,7 +101,7 @@ public class Range<T extends Comparable<? super T>> implements Comparable<Range<
 	}
 
 	public boolean equalsStartEnd(){
-		return DrObjectTool.equals(start, end);
+		return Objects.equals(start, end);
 	}
 
 	public boolean matchesStart(T item){

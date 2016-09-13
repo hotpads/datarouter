@@ -6,6 +6,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.Collection;
+import java.util.Objects;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -98,7 +99,7 @@ public class DatarouterAuthenticationFilter implements Filter{
 		}
 
 		// successful login.  redirect
-		if(DrObjectTool.equals(path, signinSubmitPath)){
+		if(Objects.equals(path, signinSubmitPath)){
 			handleSuccessfulLogin(request, response, targetUrl);
 			return;
 		}
@@ -131,7 +132,7 @@ public class DatarouterAuthenticationFilter implements Filter{
 		if(targetUrl==null){
 			return null;
 		}
-		if(DrObjectTool.equals(signinFormPath, targetUrl.getPath())){
+		if(Objects.equals(signinFormPath, targetUrl.getPath())){
 			logger.warn("ignoring targetUrl "+targetUrl.getPath());
 			return null;
 		}
@@ -142,9 +143,9 @@ public class DatarouterAuthenticationFilter implements Filter{
 	private static boolean shouldBounceBack(HttpServletRequest request, String path, String signinFormPath,
 			URL referrer, URL targetUrl){
 		boolean referredFromThisHost = referrer != null
-				&& DrObjectTool.equals(referrer.getHost(), request.getServerName());
+				&& Objects.equals(referrer.getHost(), request.getServerName());
 		boolean noExplicitTargetUrl = targetUrl == null;
-		boolean displayingLoginForm = DrObjectTool.equals(signinFormPath, path);
+		boolean displayingLoginForm = Objects.equals(signinFormPath, path);
 		return referredFromThisHost && noExplicitTargetUrl && displayingLoginForm;
 	}
 
