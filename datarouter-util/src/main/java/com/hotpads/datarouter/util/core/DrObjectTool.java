@@ -21,14 +21,6 @@ public class DrObjectTool {
 	}
 
 	/**
-	 * @deprecated inline me
-	 */
-	@Deprecated
-	public static boolean nullSafeEquals(Object first, Object second){
-		return Objects.equals(first, second);
-	}
-
-	/**
 	 * @deprecated use {@link #notEquals(Object, Object)}
 	 */
 	@Deprecated

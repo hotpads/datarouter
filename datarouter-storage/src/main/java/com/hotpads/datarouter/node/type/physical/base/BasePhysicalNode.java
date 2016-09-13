@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import com.hotpads.datarouter.client.ClientId;
@@ -75,7 +76,7 @@ implements PhysicalNode<PK,D>{
 
 	@Override
 	public boolean usesClient(String clientName) {
-		return DrObjectTool.nullSafeEquals(getClientId().getName(), clientName);
+		return Objects.equals(getClientId().getName(), clientName);
 	}
 
 	@Override
