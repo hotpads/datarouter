@@ -27,19 +27,14 @@ import com.hotpads.datarouter.storage.key.FieldlessIndexEntryPrimaryKey;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.view.index.multi.MultiIndexEntry;
 import com.hotpads.datarouter.storage.view.index.unique.UniqueIndexEntry;
-import com.hotpads.datarouter.storage.view.index.unique.UniqueKeyIndexEntry;
 import com.hotpads.util.core.java.ReflectionTool;
 
 public class IndexingNodeFactory {
 
-	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
-	IndexingMapStorageNode<PK,D,DatabeanFielder<PK,D>,MapStorageNode<PK,D>>
-	newMap(MapStorageNode<PK,D> mainNode){
-
-		IndexingMapStorageNode<PK,D,DatabeanFielder<PK,D>,MapStorageNode<PK,D>> result =
-			new IndexingMapStorageNode<>(mainNode);
-		return result;
-
+	public static <PK extends PrimaryKey<PK>,
+					D extends Databean<PK,D>>
+	IndexingMapStorageNode<PK,D,DatabeanFielder<PK,D>,MapStorageNode<PK,D>> newMap(MapStorageNode<PK,D> mainNode){
+		return new IndexingMapStorageNode<>(mainNode);
 	}
 
 	public static <PK extends PrimaryKey<PK>,
@@ -55,24 +50,33 @@ public class IndexingNodeFactory {
 	public static <PK extends PrimaryKey<PK>,
 					D extends Databean<PK,D>,
 					IK extends PrimaryKey<IK>,
-					IE extends UniqueKeyIndexEntry<IK,IE,PK,D>,
+					IE extends UniqueIndexEntry<IK,IE,PK,D>,
 					IN extends SortedMapStorageNode<IK,IE>>
-	IndexListener<PK,D> newUniqueKeyListener(Class<IE> indexEntryClass, IN indexNode){
-		return new IndexMapStorageWriterListener<PK,D,IK,IE,SortedMapStorageNode<IK,IE>>(
-				ReflectionTool.supplier(indexEntryClass), indexNode);
+	IndexListener<PK,D> newUniqueListener(Supplier<IE> indexEntrySupplier, IN indexNode){
+		return new IndexMapStorageWriterListener<>(indexEntrySupplier, indexNode);
 	}
 
-
+	/**
+	 * @deprecated use {@link #newMultiListener(Supplier, SortedMapStorageNode)}
+	 */
+	@Deprecated
 	public static <PK extends PrimaryKey<PK>,
 					D extends Databean<PK,D>,
 					IK extends PrimaryKey<IK>,
 					IE extends MultiIndexEntry<IK,IE,PK,D>,
 					IN extends SortedMapStorageNode<IK,IE>>
 	IndexListener<PK,D> newMultiListener(Class<IE> indexEntryClass, IN indexNode){
-		return new IndexMapStorageWriterListener<PK,D,IK,IE,SortedMapStorageNode<IK,IE>>(
-				ReflectionTool.supplier(indexEntryClass), indexNode);//indexNode must have explicit Fielder
+		return new IndexMapStorageWriterListener<>(ReflectionTool.supplier(indexEntryClass), indexNode);
 	}
 
+	public static <PK extends PrimaryKey<PK>,
+					D extends Databean<PK,D>,
+					IK extends PrimaryKey<IK>,
+					IE extends MultiIndexEntry<IK,IE,PK,D>,
+					IN extends SortedMapStorageNode<IK,IE>>
+	IndexListener<PK,D> newMultiListener(Supplier<IE> indexEntrySupplier, IN indexNode){
+		return new IndexMapStorageWriterListener<>(indexEntrySupplier, indexNode);
+	}
 
 	/******************************* indexing node **************************************/
 
@@ -81,11 +85,9 @@ public class IndexingNodeFactory {
 					D extends Databean<PK,D>,
 					IK extends PrimaryKey<IK>,
 					IE extends UniqueIndexEntry<IK,IE,PK,D>>
-	ManualUniqueIndexNode<PK,D,IK,IE> newManualUnique(MapStorage<PK,D> mainNode,
-			SortedMapStorageNode<IK,IE> indexNode){
+	ManualUniqueIndexNode<PK,D,IK,IE> newManualUnique(MapStorage<PK,D> mainNode,SortedMapStorageNode<IK,IE> indexNode){
 		return new ManualUniqueIndexNode<>(mainNode, indexNode);
 	}
-
 
 	public static <PK extends PrimaryKey<PK>,
 					D extends Databean<PK,D>,
