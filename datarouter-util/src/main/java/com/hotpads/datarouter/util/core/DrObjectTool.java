@@ -20,14 +20,6 @@ public class DrObjectTool {
 		return object != null ? object : returnIfNull;
 	}
 
-	/**
-	 * @deprecated use {@link #notEquals(Object, Object)}
-	 */
-	@Deprecated
-	public static boolean nullSafeNotEquals(Object first, Object second){
-		return ! Objects.equals(first, second);
-	}
-
 	public static String nullSafeToString(Object object) {
 		return Objects.toString(object, null);
 	}
