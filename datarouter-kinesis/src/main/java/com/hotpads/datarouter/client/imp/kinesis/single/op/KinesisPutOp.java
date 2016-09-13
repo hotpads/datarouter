@@ -9,6 +9,7 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.generation.FieldGeneratorTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.bytes.StringByteTool;
+import com.hotpads.util.core.exception.NotImplementedException;
 
 public class KinesisPutOp<
 		PK extends PrimaryKey<PK>,
@@ -31,7 +32,7 @@ extends KinesisOp<PK,D,F,Void>{
 			throw new KinesisDataTooLargeException(databean);
 		}
 		//put here
-		return null;
+		throw new NotImplementedException();
 	}
 
 }
