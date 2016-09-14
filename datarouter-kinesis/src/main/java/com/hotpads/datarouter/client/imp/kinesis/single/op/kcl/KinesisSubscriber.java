@@ -30,7 +30,7 @@ public class KinesisSubscriber<PK extends PrimaryKey<PK>,
 D extends Databean<PK,D>, F extends DatabeanFielder<PK,D>> implements DatarouterStreamSubscriberAccessor{
 	private static final Logger logger = LoggerFactory.getLogger(KinesisSubscriber.class);
 
-	private static final int DEFAULT_BLOCKING_QUEUE_SIZE = 500;
+	private static final int DEFAULT_BLOCKING_QUEUE_SIZE = 1;
 
 	private Worker kinesisWorker;
 	private Thread kinesisWorkerThread;

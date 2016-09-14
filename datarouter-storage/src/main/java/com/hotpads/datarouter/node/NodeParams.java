@@ -224,10 +224,6 @@ public class NodeParams<
 		return recordCallsites;
 	}
 
-//	public String getArnRole(){
-//		return arnRole;
-//	}
-
 	public String getStreamName(){
 		return streamName;
 	}
