@@ -53,13 +53,15 @@ implements DatarouterStreamSubscriberAccessor{
 				: new ArrayBlockingQueue<>(DEFAULT_BLOCKING_QUEUE_SIZE);
 		this.kinesisClientLibConfiguration = new KinesisClientLibConfiguration(applicationName, streamName,
 				credentialsProvider, workerId)
-				.withRegionName(regionName)
-				.withInitialPositionInStream(initialPositionInStream);
+				.withRegionName(regionName);
+
 		if(maxRecordsPerRequest!= null && maxRecordsPerRequest > 0){
 			kinesisClientLibConfiguration.withMaxRecords(maxRecordsPerRequest);
 		}
 		if(timestamp != null){
 			kinesisClientLibConfiguration.withTimestampAtInitialPositionInStream(timestamp);
+		} else {
+			kinesisClientLibConfiguration.withInitialPositionInStream(initialPositionInStream);
 		}
         this.recordProcessorFactory = new IRecordProcessorFactory(){
 
