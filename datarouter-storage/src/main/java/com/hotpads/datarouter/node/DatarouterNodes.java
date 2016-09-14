@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeMap;
@@ -105,7 +106,7 @@ public class DatarouterNodes{
 	public List<String> getTableNamesForRouterAndClient(String routerName, String clientName){
 		List<String> tableNames = new ArrayList<>();
 		for(PhysicalNode<?,?> physicalNode : getPhysicalNodesForClient(clientName)){
-			if(DrObjectTool.equals(routerNameByNode.get(physicalNode), routerName)){
+			if(Objects.equals(routerNameByNode.get(physicalNode), routerName)){
 				tableNames.add(physicalNode.getTableName());
 			}
 		}

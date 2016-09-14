@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
@@ -102,10 +103,10 @@ public class DrIterableTool {
 			@Override
 			public boolean advance(){
 				T candidate = current;
-				while(iterator.hasNext() && DrObjectTool.equals(candidate, current)){
+				while(iterator.hasNext() && Objects.equals(candidate, current)){
 					candidate = iterator.next();
 				}
-				if(DrObjectTool.equals(candidate, current)){
+				if(Objects.equals(candidate, current)){
 					return false;
 				}
 				current = candidate;

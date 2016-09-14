@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.SortedSet;
@@ -37,7 +38,7 @@ public class TraceThreadGroup{
 	}
 
 	public boolean attemptToAddThread(TraceThread newThread){
-		if(DrObjectTool.equals(thread.getId(), newThread.getParentId())){
+		if(Objects.equals(thread.getId(), newThread.getParentId())){
 			TraceThreadGroup childGroup = new TraceThreadGroup(newThread);
 			childGroup.parent = this;
 			children.add(childGroup);

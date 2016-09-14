@@ -10,6 +10,10 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.http.client.RedirectStrategy;
 import org.apache.http.client.config.RequestConfig;
+import org.apache.http.config.Registry;
+import org.apache.http.config.RegistryBuilder;
+import org.apache.http.conn.socket.ConnectionSocketFactory;
+import org.apache.http.conn.socket.PlainConnectionSocketFactory;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -61,18 +65,24 @@ public class HotPadsHttpClientBuilder{
 				.setSocketTimeout(timeoutMs)
 				.build();
 		httpClientBuilder.setDefaultRequestConfig(defaultRequestConfig);
+		PoolingHttpClientConnectionManager connectionManager;
 		if(ignoreSsl){
+			SSLConnectionSocketFactory sslsf;
 			try{
 				SSLContextBuilder builder = new SSLContextBuilder();
 				builder.loadTrustMaterial(null, (chain, authType) -> true);
-				SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(builder.build(),
-						NoopHostnameVerifier.INSTANCE);
-				httpClientBuilder.setSSLSocketFactory(sslsf);
+				sslsf = new SSLConnectionSocketFactory(builder.build(), NoopHostnameVerifier.INSTANCE);
 			}catch(KeyManagementException | KeyStoreException | NoSuchAlgorithmException e){
 				throw new RuntimeException(e);
 			}
+			Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder.<ConnectionSocketFactory>create()
+					.register("http", PlainConnectionSocketFactory.getSocketFactory())
+					.register("https", sslsf)
+					.build();
+			connectionManager = new PoolingHttpClientConnectionManager(socketFactoryRegistry);
+		}else{
+			connectionManager = new PoolingHttpClientConnectionManager();
 		}
-		PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager();
 		connectionManager.setMaxTotal(maxTotalConnections);
 		connectionManager.setDefaultMaxPerRoute(maxConnectionsPerRoute);
 		httpClientBuilder.setConnectionManager(connectionManager);

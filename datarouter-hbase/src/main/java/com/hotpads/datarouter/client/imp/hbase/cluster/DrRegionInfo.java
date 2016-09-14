@@ -1,5 +1,7 @@
 package com.hotpads.datarouter.client.imp.hbase.cluster;
 
+import java.util.Objects;
+
 import org.apache.hadoop.hbase.HRegionInfo;
 import org.apache.hadoop.hbase.RegionLoad;
 import org.apache.hadoop.hbase.ServerName;
@@ -92,7 +94,7 @@ public class DrRegionInfo<PK extends PrimaryKey<PK>> implements Comparable<DrReg
 
 	public boolean isOnCorrectServer(){
 		try{
-			return DrObjectTool.equals(serverName, balancerDestinationServer);
+			return Objects.equals(serverName, balancerDestinationServer);
 //					consistentHashHServer.getHostAndPort());
 		}catch(NullPointerException npe){
 			logger.warn("", npe);
@@ -158,7 +160,7 @@ public class DrRegionInfo<PK extends PrimaryKey<PK>> implements Comparable<DrReg
 			return false;
 		}
 		DrRegionInfo<?> that = (DrRegionInfo<?>)obj;
-		return DrObjectTool.equals(regionInfo.getEncodedName(), that.regionInfo.getEncodedName());
+		return Objects.equals(regionInfo.getEncodedName(), that.regionInfo.getEncodedName());
 	}
 
 	@Override

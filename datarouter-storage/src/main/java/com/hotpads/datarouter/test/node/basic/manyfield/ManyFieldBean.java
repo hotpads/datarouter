@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.TreeMap;
 
 
@@ -234,7 +235,7 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 	public static List<ManyFieldBean> filterForStringValue(Collection<ManyFieldBean> ins, String value){
 		List<ManyFieldBean> outs = new LinkedList<>();
 		for(ManyFieldBean in : DrIterableTool.nullSafe(ins)){
-			if(DrObjectTool.equals(in.getStringField(), value)){
+			if(Objects.equals(in.getStringField(), value)){
 				outs.add(in);
 			}
 		}
