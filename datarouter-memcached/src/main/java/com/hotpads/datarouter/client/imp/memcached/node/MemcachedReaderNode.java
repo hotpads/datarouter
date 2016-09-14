@@ -171,7 +171,7 @@ implements MemcachedPhysicalNode<PK,D>,
 		try{
 			tallyObject = getClient().getSpyClient().asyncGet(buildMemcachedKey(key)).get();
 		}catch(Exception exception){
-			if(paramConfig.ignoreExceptionOrUse(true)){
+			if(Config.nullSafe(paramConfig).ignoreExceptionOrUse(true)){
 				logger.error("memcached error on " + key, exception);
 			}else{
 				throw new RuntimeException(exception);
