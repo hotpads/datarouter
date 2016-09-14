@@ -15,14 +15,14 @@ import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.ClientFactory;
 import com.hotpads.datarouter.client.availability.ClientAvailabilitySettings;
 
-public class KclZillowReadOnlyLitLzgClientFactory implements ClientFactory{
+public class KinesisClientFactory implements ClientFactory{
 
 	private final String clientName;
 	private final KinesisClientType clientType;
 	private final KinesisOptions kinesisOptions;
 	private final ClientAvailabilitySettings clientAvailabilitySettings;
 
-	public KclZillowReadOnlyLitLzgClientFactory(String clientName, KinesisClientType clientType,
+	public KinesisClientFactory(String clientName, KinesisClientType clientType,
 			KinesisOptions kinesisOptions, ClientAvailabilitySettings clientAvailabilitySettings){
 		this.clientName = clientName;
 		this.clientType = clientType;
@@ -40,7 +40,7 @@ public class KclZillowReadOnlyLitLzgClientFactory implements ClientFactory{
 		}
 		AmazonKinesisClient amazonKinesisClient = new AmazonKinesisAsyncClient(credentials);
 		AWSCredentialsProvider credentialsProvider = makeAwsCredentialsProvider(credentials);
-		return new KclZillowReadOnlyLitLzgClient(clientName, clientType, amazonKinesisClient, credentialsProvider,
+		return new KinesisClient(clientName, clientType, amazonKinesisClient, credentialsProvider,
 				kinesisOptions, clientAvailabilitySettings);
 	}
 

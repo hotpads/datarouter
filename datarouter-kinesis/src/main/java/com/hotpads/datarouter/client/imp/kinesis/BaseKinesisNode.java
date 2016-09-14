@@ -16,15 +16,14 @@ public abstract class BaseKinesisNode<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>>
-extends BasePhysicalNode<PK,D,F>
-implements StorageWriter<PK,D>{
+extends BasePhysicalNode<PK,D,F> implements StorageWriter<PK,D>{
 
 	//do not change, this is a limit from Kinesis
 	public static final int MAX_BYTES_PER_RECORD = (int)(1*ByteUnitTool.MiB);
 
-	private final Datarouter datarouter;
 	private final String streamName;
 	private final String regionName;
+	private final Datarouter datarouter;
 	protected final KinesisOpFactory<PK,D,F> kinesisOpFactory;
 
 	public BaseKinesisNode(Datarouter datarouter, NodeParams<PK,D,F> params){
@@ -56,8 +55,8 @@ implements StorageWriter<PK,D>{
 		return getKinesisClient().getAwsCredentialsProvider();
 	}
 
-	private KclZillowReadOnlyLitLzgClient getKinesisClient(){
-		return (KclZillowReadOnlyLitLzgClient) datarouter.getClientPool().getClient(getClientId().getName());
+	private KinesisClient getKinesisClient(){
+		return (KinesisClient) datarouter.getClientPool().getClient(getClientId().getName());
 	}
 
 }

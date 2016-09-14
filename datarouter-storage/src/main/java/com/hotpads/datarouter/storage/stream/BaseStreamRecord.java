@@ -6,8 +6,8 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
 public class BaseStreamRecord <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>{
-	private StreamRecordKey key;
-	private Date approximateArrivalTimestamp;
+	private final StreamRecordKey key;
+	private final Date approximateArrivalTimestamp;
 
 	public BaseStreamRecord(String sequenceNumber, Date approximateArrivalTimestamp){
 		this.key = new StreamRecordKey(sequenceNumber);

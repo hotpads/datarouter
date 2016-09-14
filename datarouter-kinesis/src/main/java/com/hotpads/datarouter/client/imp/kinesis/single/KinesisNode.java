@@ -18,8 +18,7 @@ public class KinesisNode<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>>
-extends BaseKinesisNode<PK,D,F>
-implements StreamStorage<PK,D>{
+extends BaseKinesisNode<PK,D,F> implements StreamStorage<PK,D>{
 
 	public KinesisNode(Datarouter datarouter, NodeParams<PK,D,F> params){
 		super(datarouter, params);

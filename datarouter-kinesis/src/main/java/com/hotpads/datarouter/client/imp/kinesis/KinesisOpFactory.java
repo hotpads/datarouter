@@ -16,7 +16,10 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.stream.StreamRecord;
 
-public class KinesisOpFactory<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>>{
+public class KinesisOpFactory<
+		PK extends PrimaryKey<PK>,
+		D extends Databean<PK,D>,
+		F extends DatabeanFielder<PK,D>>{
 
 	private final BaseKinesisNode<PK,D,F> kinesisNode;
 
@@ -35,7 +38,7 @@ public class KinesisOpFactory<PK extends PrimaryKey<PK>,D extends Databean<PK,D>
 		case OLDEST:
 			return new KinesisStreamOldestOp<>(streamSubscriberConfig, config, kinesisNode);
 		default:
-			return null;
+			throw new IllegalArgumentException();
 		}
 	}
 

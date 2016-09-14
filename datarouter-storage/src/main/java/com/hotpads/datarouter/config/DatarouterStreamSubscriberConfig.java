@@ -3,19 +3,18 @@ package com.hotpads.datarouter.config;
 import java.util.Date;
 
 public class DatarouterStreamSubscriberConfig implements DatarouterStreamSubscriberAccessorSetter{
+	private final Integer blockingQueueSize;
+	private final Integer maxRecordsPerRequest;
+
+	private DrInitialPositionInStream drInitialPositionInStream = DrInitialPositionInStream.LATEST;
 	private DatarouterStreamSubscriberAccessor subscriberAccessor;
 	private Date timestamp;
-	private DrInitialPositionInStream drInitialPositionInStream;
 	private String subscriberAppName;
-	private Integer blockingQueueSize;
-	private Integer maxRecordsPerRequest;
 	private Boolean replayData;
 
-	public DatarouterStreamSubscriberConfig(Integer blockingQueueSize, Integer maxRecordsPerRequest,
-			DrInitialPositionInStream drInitialPositionInStream){
+	public DatarouterStreamSubscriberConfig(Integer blockingQueueSize, Integer maxRecordsPerRequest){
 		this.blockingQueueSize = blockingQueueSize;
 		this.maxRecordsPerRequest = maxRecordsPerRequest;
-		this.drInitialPositionInStream = drInitialPositionInStream;
 	}
 
 	@Override
@@ -24,12 +23,12 @@ public class DatarouterStreamSubscriberConfig implements DatarouterStreamSubscri
 	}
 
 	public DatarouterStreamSubscriberConfig withInitialPositionInStream(
-			DrInitialPositionInStream drInitialPositionInStream){
-		this.drInitialPositionInStream = drInitialPositionInStream;
+			DrInitialPositionInStream initialPositionInStream){
+		this.drInitialPositionInStream = initialPositionInStream;
 		return this;
 	}
 
-	public DatarouterStreamSubscriberConfig withTimestampAtInitialPositionInStream(Date timestamp) {
+	public DatarouterStreamSubscriberConfig withTimestampAtInitialPositionInStreamAtTimestamp(Date timestamp) {
 		this.timestamp = timestamp;
 		this.drInitialPositionInStream = DrInitialPositionInStream.AT_TIMESTAMP;
 		return this;
@@ -73,9 +72,4 @@ public class DatarouterStreamSubscriberConfig implements DatarouterStreamSubscri
 		return replayData;
 	}
 
-	public static enum DrInitialPositionInStream{
-		LATEST,
-		OLDEST,
-		AT_TIMESTAMP
-	}
 }

@@ -15,7 +15,7 @@ public class KinesisDataTooLargeException extends DataAccessException{
 
 	public KinesisDataTooLargeException(Databean<?,?> rejectedDatabean){
 		this();
-		this.rejectedDatabeans = Collections.<Databean<?,?>>singleton(rejectedDatabean);
+		this.rejectedDatabeans = Collections.singleton(rejectedDatabean);
 	}
 
 	public KinesisDataTooLargeException(){

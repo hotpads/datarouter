@@ -51,7 +51,7 @@ public class KinesisClientType extends BaseClientType implements StreamClientTyp
 	@Override
 	public ClientFactory createClientFactory(Datarouter datarouter, String clientName){
 		KinesisOptions kinesisOptions = new KinesisOptions(datarouter, clientName);
-		return new KclZillowReadOnlyLitLzgClientFactory(clientName, this, kinesisOptions, clientAvailabilitySettings);
+		return new KinesisClientFactory(clientName, this, kinesisOptions, clientAvailabilitySettings);
 	}
 
 	@Override

@@ -31,7 +31,7 @@ extends KinesisOp<PK,D,F,Void>{
 		if(StringByteTool.getUtf8Bytes(encodedDatabean).length > BaseKinesisNode.MAX_BYTES_PER_RECORD){
 			throw new KinesisDataTooLargeException(databean);
 		}
-		//put here
+		//TODO DATAROUTER-401
 		throw new NotImplementedException();
 	}
 

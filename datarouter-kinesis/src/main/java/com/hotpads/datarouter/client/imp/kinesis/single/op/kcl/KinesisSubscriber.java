@@ -26,17 +26,21 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.stream.StreamRecord;
 
-public class KinesisSubscriber<PK extends PrimaryKey<PK>,
-D extends Databean<PK,D>, F extends DatabeanFielder<PK,D>> implements DatarouterStreamSubscriberAccessor{
+public class KinesisSubscriber<
+		PK extends PrimaryKey<PK>,
+		D extends Databean<PK,D>,
+		F extends DatabeanFielder<PK,D>>
+implements DatarouterStreamSubscriberAccessor{
+
 	private static final Logger logger = LoggerFactory.getLogger(KinesisSubscriber.class);
 
 	private static final int DEFAULT_BLOCKING_QUEUE_SIZE = 1;
 
 	private Worker kinesisWorker;
 	private Thread kinesisWorkerThread;
-	private BlockingQueue<StreamRecord<PK, D>> blockingQueue;
 	private AmazonKinesisClient kinesisClient;
 	private KinesisClientLibConfiguration kinesisClientLibConfiguration;
+	private BlockingQueue<StreamRecord<PK, D>> blockingQueue;
 	private IRecordProcessorFactory recordProcessorFactory;
 
 	public KinesisSubscriber(String streamName, String regionName, InitialPositionInStream initialPositionInStream,

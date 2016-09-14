@@ -1,7 +1,7 @@
 package com.hotpads.datarouter.storage.stream;
 
 public class StreamRecordKey{
-	private String sequenceNumber;
+	private final String sequenceNumber;
 
 	public StreamRecordKey(String sequenceNumber){
 		this.sequenceNumber = sequenceNumber;
