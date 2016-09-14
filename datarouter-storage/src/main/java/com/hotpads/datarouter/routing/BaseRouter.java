@@ -81,7 +81,7 @@ implements Router{
 				.filter(LazyClientProvider::isInitialized)
 				.map(LazyClientProvider::call)
 				.flatMap(client -> node.getPhysicalNodesForClient(client.getName()).stream()
-							.map(physicalNode -> client.notifyNodeRegistration(physicalNode)))
+							.map(client::notifyNodeRegistration))
 				.forEach(FutureTool::get);
 		return node;
 	}
