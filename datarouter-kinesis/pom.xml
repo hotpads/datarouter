@@ -37,8 +37,8 @@
 		</dependency>
 		<dependency>
 			<groupId>com.amazonaws</groupId>
-			<artifactId>aws-java-sdk-sts</artifactId>
-			<version>1.11.23</version>
-		</dependency>
+			<artifactId>aws-java-sdk-sts</artifactId> <!-- needed for AssumeRoleRequest -->
+			<version>${aws-sdk-version}</version>
+ 		</dependency>
 	</dependencies>
 </project>
