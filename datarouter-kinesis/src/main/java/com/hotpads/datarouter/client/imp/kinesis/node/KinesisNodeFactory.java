@@ -1,8 +1,7 @@
-package com.hotpads.datarouter.client.imp.kinesis;
+package com.hotpads.datarouter.client.imp.kinesis.node;
 
 import javax.inject.Inject;
 
-import com.hotpads.datarouter.client.imp.kinesis.single.KinesisNode;
 import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;

@@ -1,9 +1,8 @@
-package com.hotpads.datarouter.client.imp.kinesis.single;
+package com.hotpads.datarouter.client.imp.kinesis.node;
 
 import java.util.Collection;
 import java.util.concurrent.BlockingQueue;
 
-import com.hotpads.datarouter.client.imp.kinesis.BaseKinesisNode;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.config.DatarouterStreamSubscriberConfig;
 import com.hotpads.datarouter.node.NodeParams;

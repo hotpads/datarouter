@@ -1,8 +1,10 @@
-package com.hotpads.datarouter.client.imp.kinesis;
+package com.hotpads.datarouter.client.imp.kinesis.node;
 
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.services.kinesis.AmazonKinesisClient;
 import com.hotpads.datarouter.client.Client;
+import com.hotpads.datarouter.client.imp.kinesis.client.KinesisClient;
+import com.hotpads.datarouter.client.imp.kinesis.op.KinesisOpFactory;
 import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.op.raw.write.StorageWriter;
 import com.hotpads.datarouter.node.type.physical.base.BasePhysicalNode;

@@ -1,14 +1,9 @@
-package com.hotpads.datarouter.client.imp.kinesis;
+package com.hotpads.datarouter.client.imp.kinesis.op;
 
 import java.util.Collection;
 import java.util.concurrent.BlockingQueue;
 
-import com.hotpads.datarouter.client.imp.kinesis.op.KinesisOp;
-import com.hotpads.datarouter.client.imp.kinesis.single.op.KinesisPutMultiOp;
-import com.hotpads.datarouter.client.imp.kinesis.single.op.KinesisPutOp;
-import com.hotpads.datarouter.client.imp.kinesis.single.op.KinesisStreamAtTimestampOp;
-import com.hotpads.datarouter.client.imp.kinesis.single.op.KinesisStreamLatestOp;
-import com.hotpads.datarouter.client.imp.kinesis.single.op.KinesisStreamOldestOp;
+import com.hotpads.datarouter.client.imp.kinesis.node.BaseKinesisNode;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.config.DatarouterStreamSubscriberConfig;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;

@@ -5,8 +5,8 @@ import java.util.function.Supplier;
 
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.services.kinesis.AmazonKinesisClient;
-import com.hotpads.datarouter.client.imp.kinesis.BaseKinesisNode;
-import com.hotpads.datarouter.client.imp.kinesis.KinesisClient;
+import com.hotpads.datarouter.client.imp.kinesis.client.KinesisClient;
+import com.hotpads.datarouter.client.imp.kinesis.node.BaseKinesisNode;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.serialize.StringDatabeanCodec;
 import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;

@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.client.imp.kinesis;
+package com.hotpads.datarouter.client.imp.kinesis.client;
 
 import com.hotpads.util.core.enums.StringPersistedEnum;
 

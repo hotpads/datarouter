@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.client.imp.kinesis;
+package com.hotpads.datarouter.client.imp.kinesis.exception;
 
 import java.util.ArrayList;
 import java.util.Collection;

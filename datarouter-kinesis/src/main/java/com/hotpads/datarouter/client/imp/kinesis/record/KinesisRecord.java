@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.client.imp.kinesis;
+package com.hotpads.datarouter.client.imp.kinesis.record;
 
 import java.util.Arrays;
 import java.util.List;

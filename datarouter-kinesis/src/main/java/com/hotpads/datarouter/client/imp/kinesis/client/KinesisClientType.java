@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.client.imp.kinesis;
+package com.hotpads.datarouter.client.imp.kinesis.client;
 
 import javax.inject.Inject;
 
@@ -11,7 +11,8 @@ import com.hotpads.datarouter.client.DefaultClientTypes;
 import com.hotpads.datarouter.client.availability.ClientAvailabilitySettings;
 import com.hotpads.datarouter.client.imp.BaseClientType;
 import com.hotpads.datarouter.client.imp.StreamClientType;
-import com.hotpads.datarouter.client.imp.kinesis.single.KinesisNode;
+import com.hotpads.datarouter.client.imp.kinesis.node.KinesisNode;
+import com.hotpads.datarouter.client.imp.kinesis.node.KinesisNodeFactory;
 import com.hotpads.datarouter.inject.DatarouterInjector;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams;
