@@ -4,6 +4,11 @@ import java.util.Collection;
 import java.util.concurrent.BlockingQueue;
 
 import com.hotpads.datarouter.client.imp.kinesis.node.BaseKinesisNode;
+import com.hotpads.datarouter.client.imp.kinesis.op.read.KinesisStreamAtTimestampOp;
+import com.hotpads.datarouter.client.imp.kinesis.op.read.KinesisStreamLatestOp;
+import com.hotpads.datarouter.client.imp.kinesis.op.read.KinesisStreamOldestOp;
+import com.hotpads.datarouter.client.imp.kinesis.op.write.KinesisPutMultiOp;
+import com.hotpads.datarouter.client.imp.kinesis.op.write.KinesisPutOp;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.config.DatarouterStreamSubscriberConfig;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;

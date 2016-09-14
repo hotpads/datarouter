@@ -1,7 +1,8 @@
-package com.hotpads.datarouter.client.imp.kinesis.op;
+package com.hotpads.datarouter.client.imp.kinesis.op.write;
 
 import com.hotpads.datarouter.client.imp.kinesis.exception.KinesisDataTooLargeException;
 import com.hotpads.datarouter.client.imp.kinesis.node.BaseKinesisNode;
+import com.hotpads.datarouter.client.imp.kinesis.op.KinesisOp;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;

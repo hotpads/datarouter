@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.client.imp.kinesis.op.kcl;
+package com.hotpads.datarouter.client.imp.kinesis.op.read.kcl;
 
 import java.nio.charset.Charset;
 import java.util.List;

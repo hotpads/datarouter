@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.client.imp.kinesis.op;
+package com.hotpads.datarouter.client.imp.kinesis.op.read;
 
 import java.util.Date;
 import java.util.UUID;
@@ -6,7 +6,8 @@ import java.util.concurrent.BlockingQueue;
 
 import com.amazonaws.services.kinesis.clientlibrary.lib.worker.InitialPositionInStream;
 import com.hotpads.datarouter.client.imp.kinesis.node.BaseKinesisNode;
-import com.hotpads.datarouter.client.imp.kinesis.op.kcl.KinesisSubscriber;
+import com.hotpads.datarouter.client.imp.kinesis.op.KinesisOp;
+import com.hotpads.datarouter.client.imp.kinesis.op.read.kcl.KinesisSubscriber;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.config.DatarouterStreamSubscriberAccessorSetter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
