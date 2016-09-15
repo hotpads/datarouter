@@ -83,7 +83,8 @@ extends KinesisOp<PK,D,F,BlockingQueue<StreamRecord<PK,D>>>{
 		KinesisSubscriber<PK,D,F> kinesisSubscriber = new KinesisSubscriber<>(streamName, regionName,
 				initialPositionInStream, timestamp, blockingQueueSize, maxRecordsPerRequest, kclApplicationName,
 				workerId, replayData, initialLeaseTableReadCapacity, initialLeaseTableWriteCapacity,
-				amazonKinesisClient, awsCredentialsProvider, codec, fielder, databeanSupplier);
+				amazonKinesisClient, awsCredentialsProvider, codec, fielder, databeanSupplier,
+				streamsSubscribersTracker);
 		if(streamSubscriberAccessorSetter != null){
 			streamSubscriberAccessorSetter.setDatarouterStreamSubscriberAccessor(kinesisSubscriber);
 		}

@@ -6,6 +6,7 @@ import java.util.function.Supplier;
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.services.kinesis.AmazonKinesisClient;
 import com.hotpads.datarouter.client.imp.kinesis.client.KinesisClient;
+import com.hotpads.datarouter.client.imp.kinesis.client.KinesisStreamsSubscribersTracker;
 import com.hotpads.datarouter.client.imp.kinesis.node.BaseKinesisNode;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.serialize.StringDatabeanCodec;
@@ -24,6 +25,7 @@ implements Callable<V>{
 	protected final Config config;
 	protected final AmazonKinesisClient amazonKinesisClient;
 	protected final AWSCredentialsProvider awsCredentialsProvider;
+	protected final KinesisStreamsSubscribersTracker streamsSubscribersTracker;
 	protected final String streamName;
 	protected final String regionName;
 	protected final String kclNamespace;
@@ -36,6 +38,7 @@ implements Callable<V>{
 		this.config = Config.nullSafe(config);
 		this.amazonKinesisClient = kinesisNode.getAmazonKinesisClient();
 		this.awsCredentialsProvider = kinesisNode.getAwsCredentialsProvider();
+		this.streamsSubscribersTracker = kinesisNode.getKinesisStreamsSubscribersTracker();
 		this.streamName = kinesisNode.getStreamName();
 		this.regionName = kinesisNode.getRegionName();
 		this.kclNamespace = ((KinesisClient)kinesisNode.getClient()).getKinesisOptions()

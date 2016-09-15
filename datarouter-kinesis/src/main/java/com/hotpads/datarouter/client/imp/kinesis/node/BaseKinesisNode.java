@@ -4,6 +4,7 @@ import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.services.kinesis.AmazonKinesisClient;
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.imp.kinesis.client.KinesisClient;
+import com.hotpads.datarouter.client.imp.kinesis.client.KinesisStreamsSubscribersTracker;
 import com.hotpads.datarouter.client.imp.kinesis.op.KinesisOpFactory;
 import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.op.raw.write.StorageWriter;
@@ -55,6 +56,10 @@ extends BasePhysicalNode<PK,D,F> implements StorageWriter<PK,D>{
 
 	public AWSCredentialsProvider getAwsCredentialsProvider(){
 		return getKinesisClient().getAwsCredentialsProvider();
+	}
+
+	public KinesisStreamsSubscribersTracker getKinesisStreamsSubscribersTracker(){
+		return getKinesisClient().getKinesisStreamsSubscribersTracker();
 	}
 
 	private KinesisClient getKinesisClient(){

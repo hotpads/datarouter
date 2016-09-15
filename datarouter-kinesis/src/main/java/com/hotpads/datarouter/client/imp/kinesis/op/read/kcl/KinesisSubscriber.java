@@ -19,6 +19,7 @@ import com.amazonaws.services.kinesis.clientlibrary.lib.worker.InitialPositionIn
 import com.amazonaws.services.kinesis.clientlibrary.lib.worker.KinesisClientLibConfiguration;
 import com.amazonaws.services.kinesis.clientlibrary.lib.worker.Worker;
 import com.amazonaws.services.kinesis.metrics.interfaces.MetricsLevel;
+import com.hotpads.datarouter.client.imp.kinesis.client.KinesisStreamsSubscribersTracker;
 import com.hotpads.datarouter.config.DatarouterStreamSubscriberAccessor;
 import com.hotpads.datarouter.serialize.StringDatabeanCodec;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
@@ -40,6 +41,8 @@ implements DatarouterStreamSubscriberAccessor{
 	private final KinesisClientLibConfiguration kinesisClientLibConfiguration;
 	private final BlockingQueue<StreamRecord<PK, D>> blockingQueue;
 	private final IRecordProcessorFactory recordProcessorFactory;
+	private final String subscriberId;
+	private final KinesisStreamsSubscribersTracker streamsSubscribersTracker;
 
 	private Worker kinesisWorker;
 	private Thread kinesisWorkerThread;
@@ -49,7 +52,7 @@ implements DatarouterStreamSubscriberAccessor{
 			String workerId, Boolean replayData, Integer initialLeaseTableReadCapacity,
 			Integer initialLeaseTableWriteCapacity, AmazonKinesisClient kinesisClient,
 			AWSCredentialsProvider credentialsProvider, StringDatabeanCodec codec, F fielder,
-			Supplier<D> databeanSupplier){
+			Supplier<D> databeanSupplier, KinesisStreamsSubscribersTracker streamsSubscribersTracker){
 		this.kinesisClient = kinesisClient;
 		this.blockingQueue = blockingQueueSize != null ? new ArrayBlockingQueue<>(blockingQueueSize)
 				: new ArrayBlockingQueue<>(DEFAULT_BLOCKING_QUEUE_SIZE);
@@ -79,6 +82,8 @@ implements DatarouterStreamSubscriberAccessor{
 		if(replayData != null && replayData){
 			deleteOldDynamoDbTable(applicationName);
 		}
+		this.subscriberId = applicationName + "_" + workerId;
+		this.streamsSubscribersTracker = streamsSubscribersTracker;
 	}
 
 	private void deleteOldDynamoDbTable(String dynamoDbTableName){
@@ -112,6 +117,7 @@ implements DatarouterStreamSubscriberAccessor{
 
 		kinesisWorkerThread.setDaemon(true);
 		kinesisWorkerThread.start();
+		streamsSubscribersTracker.registerSubscriber(subscriberId, this);
 	}
 
 	@Override
@@ -119,11 +125,16 @@ implements DatarouterStreamSubscriberAccessor{
 		if(kinesisWorker!=null){
 			kinesisWorker.shutdown();
 		}
-		try{
-			kinesisWorkerThread.join();
-		}catch(InterruptedException e){
-			logger.error("", e);
+		if(kinesisWorkerThread != null){
+			try{
+				kinesisWorkerThread.join();
+			}catch(InterruptedException e){
+				logger.error("", e);
+			}
 		}
+		streamsSubscribersTracker.deregisterSubscriber(subscriberId);
+		kinesisWorker = null;
+		kinesisWorkerThread = null;
 	}
 
 	public BlockingQueue<StreamRecord<PK,D>> getBlockingQueue(){

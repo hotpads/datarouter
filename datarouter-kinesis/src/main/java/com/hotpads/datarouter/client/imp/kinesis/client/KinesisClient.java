@@ -12,6 +12,7 @@ public class KinesisClient extends BaseClient{
 	private final AmazonKinesisClient kinesisClient;
 	private final AWSCredentialsProvider awsCredentialsProvider;
 	private final KinesisOptions kinesisOptions;
+	private final KinesisStreamsSubscribersTracker streamsSubscribersTracker;
 
 	public KinesisClient(String name, KinesisClientType clientType, AmazonKinesisClient kinesisClient,
 			AWSCredentialsProvider awsCredentialsProvider, KinesisOptions kinesisOptions,
@@ -21,6 +22,7 @@ public class KinesisClient extends BaseClient{
 		this.kinesisClient = kinesisClient;
 		this.kinesisOptions = kinesisOptions;
 		this.awsCredentialsProvider = awsCredentialsProvider;
+		this.streamsSubscribersTracker = new KinesisStreamsSubscribersTracker();
 	}
 
 	@Override
@@ -30,6 +32,7 @@ public class KinesisClient extends BaseClient{
 
 	@Override
 	public void shutdown(){
+		streamsSubscribersTracker.unsubscribeAll();
 		kinesisClient.shutdown();
 	}
 
@@ -43,6 +46,10 @@ public class KinesisClient extends BaseClient{
 
 	public KinesisOptions getKinesisOptions(){
 		return kinesisOptions;
+	}
+
+	public KinesisStreamsSubscribersTracker getKinesisStreamsSubscribersTracker(){
+		return streamsSubscribersTracker;
 	}
 
 }
