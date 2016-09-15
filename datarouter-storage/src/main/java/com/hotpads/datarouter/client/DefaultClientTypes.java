@@ -31,7 +31,7 @@ public class DefaultClientTypes{
 			CLIENT_CLASS_hbase = "com.hotpads.datarouter.client.imp.hbase.HBaseClientType",
 			CLIENT_CLASS_http = "com.hotpads.datarouter.client.imp.http.HttpClientType",
 			CLIENT_CLASS_jdbc = "com.hotpads.datarouter.client.imp.jdbc.JdbcClientType",
-			CLIENT_CLASS_kinesis = "com.hotpads.datarouter.client.imp.kinesis.KinesisClientType",
+			CLIENT_CLASS_kinesis = "com.hotpads.datarouter.client.imp.kinesis.client.KinesisClientType",
 			CLIENT_CLASS_memcached = "com.hotpads.datarouter.client.imp.memcached.MemcachedClientType",
 			CLIENT_CLASS_memory = "com.hotpads.datarouter.client.imp.memory.MemoryClientType",
 			CLIENT_CLASS_redis = "com.hotpads.datarouter.client.imp.redis.RedisClientType",
