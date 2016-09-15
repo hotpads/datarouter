@@ -40,21 +40,30 @@ extends KinesisOp<PK,D,F,BlockingQueue<StreamRecord<PK,D>>>{
 	/* each shard processor of the kcl worker can read up to 2MB of records/second or up to 10000 records/request. */
 	private final Integer maxRecordsPerRequest;
 
+	/* one read capacity unit = 1 strongly consistent read per second, or 2/second for items up to 4KB */
+	private final Integer initialLeaseTableReadCapacity;
+
+	/* one write capacity unit = 1 write per second, for items up to 1KB in size */
+	private final Integer initialLeaseTableWriteCapacity;
+
 	/* if true we're issuing a delete request for the dynamoDb table before subscribing to the stream */
 	private final Boolean replayData;
 
 	public BaseKinesisStreamSubscribeOp(Config config, BaseKinesisNode<PK,D,F> kinesisNode, String subscriberName,
 			InitialPositionInStream initialPositionInStream,
 			DatarouterStreamSubscriberAccessorSetter subscriberAccessorSetter, Integer blockingQueueSize,
-			Integer maxRecordsPerRequest, boolean replayData, String explicitKclApplicationName){
+			Integer maxRecordsPerRequest, boolean replayData, String explicitKclApplicationName,
+			Integer initialLeaseTableReadCapacity, Integer initialLeaseTableWriteCapacity){
 		this(config, kinesisNode, subscriberName, initialPositionInStream, subscriberAccessorSetter, blockingQueueSize,
-				maxRecordsPerRequest, replayData, explicitKclApplicationName, null);
+				maxRecordsPerRequest, replayData, explicitKclApplicationName, null, initialLeaseTableReadCapacity,
+				initialLeaseTableWriteCapacity);
 	}
 
 	public BaseKinesisStreamSubscribeOp(Config config, BaseKinesisNode<PK,D,F> kinesisNode, String subscriberName,
 			InitialPositionInStream initialPositionInStream,
 			DatarouterStreamSubscriberAccessorSetter subscriberAccessorSetter, Integer blockingQueueSize,
-			Integer maxRecordsPerRequest, boolean replayData, String explicitKclApplicationName, Date timestamp){
+			Integer maxRecordsPerRequest, boolean replayData, String explicitKclApplicationName, Date timestamp,
+			Integer initialLeaseTableReadCapacity, Integer initialLeaseTableWriteCapacity){
 		super(config, kinesisNode);
 		this.initialPositionInStream = initialPositionInStream;
 		this.timestamp = timestamp;
@@ -63,6 +72,8 @@ extends KinesisOp<PK,D,F,BlockingQueue<StreamRecord<PK,D>>>{
 		this.streamSubscriberAccessorSetter = subscriberAccessorSetter;
 		this.blockingQueueSize = blockingQueueSize;
 		this.maxRecordsPerRequest = maxRecordsPerRequest;
+		this.initialLeaseTableReadCapacity = initialLeaseTableReadCapacity;
+		this.initialLeaseTableWriteCapacity = initialLeaseTableWriteCapacity;
 		this.replayData = replayData;
 	}
 
@@ -71,7 +82,8 @@ extends KinesisOp<PK,D,F,BlockingQueue<StreamRecord<PK,D>>>{
 		String workerId = kclApplicationName + UUID.randomUUID().toString();
 		KinesisSubscriber<PK,D,F> kinesisSubscriber = new KinesisSubscriber<>(streamName, regionName,
 				initialPositionInStream, timestamp, blockingQueueSize, maxRecordsPerRequest, kclApplicationName,
-				workerId, replayData, amazonKinesisClient, awsCredentialsProvider, codec, fielder, databeanSupplier);
+				workerId, replayData, initialLeaseTableReadCapacity, initialLeaseTableWriteCapacity,
+				amazonKinesisClient, awsCredentialsProvider, codec, fielder, databeanSupplier);
 		if(streamSubscriberAccessorSetter != null){
 			streamSubscriberAccessorSetter.setDatarouterStreamSubscriberAccessor(kinesisSubscriber);
 		}

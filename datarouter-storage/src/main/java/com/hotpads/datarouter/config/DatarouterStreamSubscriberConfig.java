@@ -6,6 +6,8 @@ public class DatarouterStreamSubscriberConfig implements DatarouterStreamSubscri
 	private final Integer blockingQueueSize;
 	private final Integer maxRecordsPerRequest;
 
+	private Integer initialLeaseTableReadCapacity;
+	private Integer initialLeaseTableWriteCapacity;
 	private DrInitialPositionInStream drInitialPositionInStream = DrInitialPositionInStream.LATEST;
 	private DatarouterStreamSubscriberAccessor subscriberAccessor;
 	private Date timestamp;
@@ -44,6 +46,16 @@ public class DatarouterStreamSubscriberConfig implements DatarouterStreamSubscri
 		return this;
 	}
 
+	public DatarouterStreamSubscriberConfig withInitialLeaseTableReadCapacity(Integer initialLeaseTableReadCapacity){
+		this.initialLeaseTableReadCapacity = initialLeaseTableReadCapacity;
+		return this;
+	}
+
+	public DatarouterStreamSubscriberConfig withInitialLeaseTableWriteCapacity(Integer initialLeaseTableWriteCapacity){
+		this.initialLeaseTableWriteCapacity = initialLeaseTableWriteCapacity;
+		return this;
+	}
+
 	public DatarouterStreamSubscriberAccessor getSubscriberAccessor(){
 		return subscriberAccessor;
 	}
@@ -72,4 +84,11 @@ public class DatarouterStreamSubscriberConfig implements DatarouterStreamSubscri
 		return replayData;
 	}
 
+	public Integer getInitialLeaseTableReadCapacity(){
+		return initialLeaseTableReadCapacity;
+	}
+
+	public Integer getInitialLeaseTableWriteCapacity(){
+		return initialLeaseTableWriteCapacity;
+	}
 }

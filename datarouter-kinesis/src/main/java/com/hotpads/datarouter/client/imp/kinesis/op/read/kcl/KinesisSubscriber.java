@@ -19,6 +19,7 @@ import com.amazonaws.services.kinesis.clientlibrary.interfaces.v2.IRecordProcess
 import com.amazonaws.services.kinesis.clientlibrary.lib.worker.InitialPositionInStream;
 import com.amazonaws.services.kinesis.clientlibrary.lib.worker.KinesisClientLibConfiguration;
 import com.amazonaws.services.kinesis.clientlibrary.lib.worker.Worker;
+import com.amazonaws.services.kinesis.metrics.interfaces.MetricsLevel;
 import com.hotpads.datarouter.config.DatarouterStreamSubscriberAccessor;
 import com.hotpads.datarouter.serialize.StringDatabeanCodec;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
@@ -45,7 +46,8 @@ implements DatarouterStreamSubscriberAccessor{
 
 	public KinesisSubscriber(String streamName, String regionName, InitialPositionInStream initialPositionInStream,
 			Date timestamp, Integer blockingQueueSize, Integer maxRecordsPerRequest, String applicationName,
-			String workerId, Boolean replayData, AmazonKinesisClient kinesisClient,
+			String workerId, Boolean replayData, Integer initialLeaseTableReadCapacity,
+			Integer initialLeaseTableWriteCapacity, AmazonKinesisClient kinesisClient,
 			AWSCredentialsProvider credentialsProvider, StringDatabeanCodec codec, F fielder,
 			Supplier<D> databeanSupplier){
 		this.kinesisClient = kinesisClient;
@@ -53,16 +55,24 @@ implements DatarouterStreamSubscriberAccessor{
 				: new ArrayBlockingQueue<>(DEFAULT_BLOCKING_QUEUE_SIZE);
 		this.kinesisClientLibConfiguration = new KinesisClientLibConfiguration(applicationName, streamName,
 				credentialsProvider, workerId)
-				.withRegionName(regionName);
+				.withRegionName(regionName)
+				.withMetricsLevel(MetricsLevel.SUMMARY);
 
 		if(maxRecordsPerRequest!= null && maxRecordsPerRequest > 0){
 			kinesisClientLibConfiguration.withMaxRecords(maxRecordsPerRequest);
+		}
+		if(initialLeaseTableReadCapacity!= null && initialLeaseTableReadCapacity > 0){
+			kinesisClientLibConfiguration.withInitialLeaseTableReadCapacity(initialLeaseTableReadCapacity);
+		}
+		if(initialLeaseTableWriteCapacity!= null && initialLeaseTableWriteCapacity > 0){
+			kinesisClientLibConfiguration.withInitialLeaseTableWriteCapacity(initialLeaseTableWriteCapacity);
 		}
 		if(timestamp != null){
 			kinesisClientLibConfiguration.withTimestampAtInitialPositionInStream(timestamp);
 		} else {
 			kinesisClientLibConfiguration.withInitialPositionInStream(initialPositionInStream);
 		}
+
         this.recordProcessorFactory = new IRecordProcessorFactory(){
 
 			@Override
@@ -100,7 +110,7 @@ implements DatarouterStreamSubscriberAccessor{
 						.getApplicationName());
 		kinesisWorker = new Worker.Builder()
 				 .recordProcessorFactory(recordProcessorFactory)
-				 .config(kinesisClientLibConfiguration)
+				 .config(kinesisClientLibConfiguration.withInitialLeaseTableReadCapacity(250))
 				 .kinesisClient(kinesisClient)
 				 .build();
 		kinesisWorkerThread = new Thread("kinesis client worker"){

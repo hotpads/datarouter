@@ -21,7 +21,8 @@ extends BaseKinesisStreamSubscribeOp<PK,D,F>{
 			BaseKinesisNode<PK,D,F> kinesisNode){
 		super(config, kinesisNode, SUBSCRIBER_NAME, INITIAL_POSITION_IN_STREAM, streamConfig, streamConfig
 				.getBlockingQueueSize(), streamConfig.getMaxRecordsPerRequest(), streamConfig.getReplayData(),
-				streamConfig.getSubscriberAppName());
+				streamConfig.getSubscriberAppName(), streamConfig.getInitialLeaseTableReadCapacity(),
+				streamConfig.getInitialLeaseTableWriteCapacity());
 	}
 
 }
