@@ -1,5 +1,8 @@
 package com.hotpads.joblet;
 
+import java.util.Objects;
+import java.util.Optional;
+
 import javax.inject.Inject;
 
 import com.hotpads.WebAppName;
@@ -55,13 +58,14 @@ implements JobletSettings{
 
 	@Override
 	public Integer getThreadCountForJobletType(JobletType<?> jobletType){
-		return getThreadCount().getThreadCountForJobletType(jobletType);
+		return Optional.ofNullable(getThreadCountSettings().getThreadCountForJobletType(jobletType)).orElse(0);
 	}
 
 	/*------------------ node getters ------------------*/
 
-	public JobletThreadCountSettings getThreadCount(){
-		return (JobletThreadCountSettings)getChildren().get(getName() + "threadCount.");
+	public JobletThreadCountSettings getThreadCountSettings(){
+		String name = getName() + JobletThreadCountSettings.NAME + ".";
+		return Objects.requireNonNull((JobletThreadCountSettings)getChildren().get(name));
 	}
 
 	/*-------------------- get/set ----------------------*/

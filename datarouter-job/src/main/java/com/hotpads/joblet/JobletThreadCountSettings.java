@@ -17,11 +17,13 @@ import com.hotpads.joblet.enums.JobletTypeFactory;
 @Singleton
 public class JobletThreadCountSettings extends SettingNode{
 
+	public static final String NAME = "threadCount";
+
 	private final Map<JobletType<?>,Setting<Integer>> settingByJobletType = new HashMap<>();
 
 	@Inject
 	public JobletThreadCountSettings(SettingFinder finder, WebAppName webAppName, JobletTypeFactory jobletTypeFactory){
-		super(finder, webAppName + ".joblet.threadCount", webAppName + ".joblet.");
+		super(finder, webAppName + ".joblet." + NAME + ".", webAppName + ".joblet.");
 
 		for(JobletType<?> jobletType : jobletTypeFactory.getAllTypes()){
 			Setting<Integer> setting = registerThreadCountSetting(jobletType, jobletType.getPersistentString(), 0);
