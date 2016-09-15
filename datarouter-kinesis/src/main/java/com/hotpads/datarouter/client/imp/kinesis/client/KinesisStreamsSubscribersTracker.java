@@ -6,7 +6,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import com.hotpads.datarouter.config.DatarouterStreamSubscriberAccessor;
 
 public class KinesisStreamsSubscribersTracker{
-	private final Map<String,DatarouterStreamSubscriberAccessor> subscriberIdToSubscriberAccessor = new ConcurrentHashMap<>();
+	private final Map<String,DatarouterStreamSubscriberAccessor> subscriberIdToSubscriberAccessor =
+			new ConcurrentHashMap<>();
 
 	public void registerSubscriber(String subscriberId, DatarouterStreamSubscriberAccessor subscriberAccessor){
 		subscriberIdToSubscriberAccessor.putIfAbsent(subscriberId, subscriberAccessor);
