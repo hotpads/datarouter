@@ -14,7 +14,6 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 import com.amazonaws.services.dynamodbv2.document.DynamoDB;
 import com.amazonaws.services.dynamodbv2.document.Table;
 import com.amazonaws.services.kinesis.AmazonKinesisClient;
-import com.amazonaws.services.kinesis.clientlibrary.interfaces.v2.IRecordProcessor;
 import com.amazonaws.services.kinesis.clientlibrary.interfaces.v2.IRecordProcessorFactory;
 import com.amazonaws.services.kinesis.clientlibrary.lib.worker.InitialPositionInStream;
 import com.amazonaws.services.kinesis.clientlibrary.lib.worker.KinesisClientLibConfiguration;
@@ -37,12 +36,13 @@ implements DatarouterStreamSubscriberAccessor{
 
 	private static final int DEFAULT_BLOCKING_QUEUE_SIZE = 1;
 
+	private final AmazonKinesisClient kinesisClient;
+	private final KinesisClientLibConfiguration kinesisClientLibConfiguration;
+	private final BlockingQueue<StreamRecord<PK, D>> blockingQueue;
+	private final IRecordProcessorFactory recordProcessorFactory;
+
 	private Worker kinesisWorker;
 	private Thread kinesisWorkerThread;
-	private AmazonKinesisClient kinesisClient;
-	private KinesisClientLibConfiguration kinesisClientLibConfiguration;
-	private BlockingQueue<StreamRecord<PK, D>> blockingQueue;
-	private IRecordProcessorFactory recordProcessorFactory;
 
 	public KinesisSubscriber(String streamName, String regionName, InitialPositionInStream initialPositionInStream,
 			Date timestamp, Integer blockingQueueSize, Integer maxRecordsPerRequest, String applicationName,
@@ -73,14 +73,9 @@ implements DatarouterStreamSubscriberAccessor{
 			kinesisClientLibConfiguration.withInitialPositionInStream(initialPositionInStream);
 		}
 
-        this.recordProcessorFactory = new IRecordProcessorFactory(){
+		this.recordProcessorFactory = () -> new KclApplicationRecordProcessor<>(blockingQueue, codec, fielder,
+				databeanSupplier);
 
-			@Override
-			public IRecordProcessor createProcessor(){
-				return new KclApplicationRecordProcessor<>(blockingQueue, codec, fielder, databeanSupplier);
-			}
-
-		};
 		if(replayData != null && replayData){
 			deleteOldDynamoDbTable(applicationName);
 		}
@@ -113,12 +108,7 @@ implements DatarouterStreamSubscriberAccessor{
 				 .config(kinesisClientLibConfiguration.withInitialLeaseTableReadCapacity(250))
 				 .kinesisClient(kinesisClient)
 				 .build();
-		kinesisWorkerThread = new Thread("kinesis client worker"){
-			@Override
-			public void run(){
-				kinesisWorker.run();
-			}
-		};
+		kinesisWorkerThread = new Thread(() -> kinesisWorker.run(), "kinesis client worker");
 
 		kinesisWorkerThread.setDaemon(true);
 		kinesisWorkerThread.start();

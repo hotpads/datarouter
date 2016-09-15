@@ -40,10 +40,10 @@ implements IRecordProcessor{
     private static final long CHECKPOINT_INTERVAL_MILLIS = 60000L;
     private long nextCheckpointTimeInMillis;
 
-    private BlockingQueue<StreamRecord<PK, D>> blockingQueue;
-	private StringDatabeanCodec codec;
-	private F fielder;
-	private Supplier<D> databeanSupplier;
+    private final BlockingQueue<StreamRecord<PK, D>> blockingQueue;
+	private final StringDatabeanCodec codec;
+	private final F fielder;
+	private final Supplier<D> databeanSupplier;
 
     private String kinesisShardId;
 
@@ -60,79 +60,77 @@ implements IRecordProcessor{
      *
      * @param records Data records to be processed.
      */
-    private void processRecordsWithRetries(List<Record> records) {
+	private void processRecordsWithRetries(List<Record> records){
 		logger.trace("processing " + records.size() + " records");
-    	for (Record record : records) {
-            boolean processedSuccessfully = false;
-            for (int i = 0; i < NUM_RETRIES; i++) {
-                try {
-                    processSingleRecord(record);
-                    processedSuccessfully = true;
-                    break;
-                } catch (Throwable t) {
-                    logger.warn("Caught throwable while processing record " + record, t);
-                }
+		for(Record record : records){
+			boolean processedSuccessfully = false;
+			for(int i = 0; i < NUM_RETRIES; i++){
+				try{
+					processSingleRecord(record);
+					processedSuccessfully = true;
+					break;
+				}catch(Throwable t){
+					logger.warn("Caught throwable while processing record " + record, t);
+				}
 
-                // backoff if we encounter an exception.
-                try {
-                    Thread.sleep(BACKOFF_TIME_IN_MILLIS);
-                } catch (InterruptedException e) {
-                    logger.debug("Interrupted sleep", e);
-                }
-            }
+				// backoff if we encounter an exception.
+				try{
+					Thread.sleep(BACKOFF_TIME_IN_MILLIS);
+				}catch(InterruptedException ignore){
+				}
+			}
 
-            if (!processedSuccessfully) {
-                logger.error("Couldn't process record " + record + ". Skipping the record.");
-            }
-        }
-    }
+			if(!processedSuccessfully){
+				logger.error("Couldn't process record " + record + ". Skipping the record.");
+			}
+		}
+	}
 
-    private void processSingleRecord(Record record) throws InterruptedException {
+	private void processSingleRecord(Record record) throws InterruptedException{
 		logger.trace("processing record: " + record.getPartitionKey() + " " + record.getSequenceNumber());
 		String recordDataJson = new String(record.getData().array(), Charset.forName("UTF-8"));
-		//helper for codec
+		// helper for codec
 		StringBuilder jsonBuilder = new StringBuilder();
 		jsonBuilder.append("{");
 		jsonBuilder.append("\"SequenceNumber\":\"" + record.getSequenceNumber() + "\",");
-		jsonBuilder.append("\"RecordData\":"+recordDataJson);
+		jsonBuilder.append("\"RecordData\":" + recordDataJson);
 		jsonBuilder.append("}");
 		D databean = codec.fromString(jsonBuilder.toString(), fielder, databeanSupplier);
 		blockingQueue.put(new StreamRecord<>(record.getSequenceNumber(), record.getApproximateArrivalTimestamp(),
 				databean));
-    }
+	}
 
-    private void checkpoint(IRecordProcessorCheckpointer checkpointer) {
-        logger.info("Checkpointing shard " + kinesisShardId);
-        for (int i = 0; i < NUM_RETRIES; i++) {
-            try {
-                checkpointer.checkpoint();
-                break;
-            } catch (ShutdownException se) {
-                // Ignore checkpoint if the processor instance has been shutdown (fail over).
-                logger.info("Caught shutdown exception, skipping checkpoint.", se);
-                break;
-            } catch (ThrottlingException e) {
-                // Backoff and re-attempt checkpoint upon transient failures
-                if (i >= (NUM_RETRIES - 1)) {
-                    logger.error("Checkpoint failed after " + (i + 1) + "attempts.", e);
-                    break;
-                } else {
-                    logger.info("Transient issue when checkpointing - attempt " + (i + 1) + " of "
-                            + NUM_RETRIES, e);
-                }
-            } catch (InvalidStateException e) {
-                // This indicates an issue with the DynamoDB table (check for table, provisioned IOPS).
+	private void checkpoint(IRecordProcessorCheckpointer checkpointer){
+		logger.info("Checkpointing shard " + kinesisShardId);
+		for(int i = 0; i < NUM_RETRIES; i++){
+			try{
+				checkpointer.checkpoint();
+				break;
+			}catch(ShutdownException se){
+				// Ignore checkpoint if the processor instance has been shutdown (fail over).
+				logger.info("Caught shutdown exception, skipping checkpoint.", se);
+				break;
+			}catch(ThrottlingException e){
+				// Backoff and re-attempt checkpoint upon transient failures
+				if(i >= (NUM_RETRIES - 1)){
+					logger.error("Checkpoint failed after " + (i + 1) + "attempts.", e);
+					break;
+				}else{
+					logger.info("Transient issue when checkpointing - attempt " + (i + 1) + " of " + NUM_RETRIES, e);
+				}
+			}catch(InvalidStateException e){
+				// This indicates an issue with the DynamoDB table (check for table, provisioned IOPS).
 				logger.error("Cannot save checkpoint to the DynamoDB table used by the Amazon Kinesis Client Library.",
 						e);
-                break;
-            }
-            try {
-                Thread.sleep(BACKOFF_TIME_IN_MILLIS);
-            } catch (InterruptedException e) {
-                logger.debug("Interrupted sleep", e);
-            }
-        }
-    }
+				break;
+			}
+			try{
+				Thread.sleep(BACKOFF_TIME_IN_MILLIS);
+			}catch(InterruptedException e){
+				logger.debug("Interrupted sleep", e);
+			}
+		}
+	}
 
 	@Override
 	public void initialize(InitializationInput initializationInput){

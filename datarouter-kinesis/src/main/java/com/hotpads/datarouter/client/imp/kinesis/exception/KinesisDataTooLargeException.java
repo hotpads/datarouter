@@ -25,10 +25,7 @@ public class KinesisDataTooLargeException extends DataAccessException{
 	public <PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>>
 	KinesisDataTooLargeException withRejectedDatabeans(Collection<D> databeans){
-		rejectedDatabeans = new ArrayList<>();
-		for(D databean : databeans){
-			rejectedDatabeans.add(databean);
-		}
+		rejectedDatabeans = new ArrayList<>(databeans);
 		return this;
 	}
 
