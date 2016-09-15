@@ -129,6 +129,9 @@ implements HBaseClient{
 	private void generateSchemaUpdate(Node<?,?> node){
 		DatabeanFieldInfo<?,?,?> fieldInfo = node.getFieldInfo();
 		String tableName = fieldInfo.getTableName();
+		if(!fieldInfo.getTtlMs().isPresent()){
+			return;
+		}
 		HTableDescriptor desc;
 		try{
 			desc = admin.getTableDescriptor(TableName.valueOf(tableName));
@@ -136,11 +139,9 @@ implements HBaseClient{
 			throw new RuntimeException(e);
 		}
 		for(HColumnDescriptor column : desc.getColumnFamilies()){
-			if(fieldInfo.getTtlMs().isPresent()){
-				if(!fieldInfo.getTtlMs().get().equals(column.getTimeToLive())){
-					logger.warn("Please alter the TTL of " + node.getName() + " to "
-							+ fieldInfo.getTtlMs().get() / 1000 + " seconds");
-				}
+			if(!fieldInfo.getTtlMs().get().equals(column.getTimeToLive())){
+				logger.warn("Please alter the TTL of " + node.getName() + " to "
+						+ fieldInfo.getTtlMs().get() / 1000 + " seconds");
 			}
 		}
 	}
