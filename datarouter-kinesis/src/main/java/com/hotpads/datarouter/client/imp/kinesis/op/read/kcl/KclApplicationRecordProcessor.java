@@ -75,8 +75,10 @@ implements IRecordProcessor{
 
 				// backoff if we encounter an exception.
 				try{
+					logger.debug("backoff for " + BACKOFF_TIME_IN_MILLIS + " ms");
 					Thread.sleep(BACKOFF_TIME_IN_MILLIS);
-				}catch(InterruptedException ignore){
+				}catch(InterruptedException e){
+					//ignore
 				}
 			}
 
@@ -125,9 +127,10 @@ implements IRecordProcessor{
 				break;
 			}
 			try{
+				logger.debug("backoff for " + BACKOFF_TIME_IN_MILLIS + " ms");
 				Thread.sleep(BACKOFF_TIME_IN_MILLIS);
 			}catch(InterruptedException e){
-				logger.debug("Interrupted sleep", e);
+				//ignore
 			}
 		}
 	}
