@@ -80,7 +80,8 @@ implements Router{
 		datarouter.registerClientIds(node.getClientIds())
 				.filter(LazyClientProvider::isInitialized)
 				.map(LazyClientProvider::call)
-				.map(client -> client.notifyNodeRegistration(node))
+				.flatMap(client -> node.getPhysicalNodesForClient(client.getName()).stream()
+							.map(client::notifyNodeRegistration))
 				.forEach(FutureTool::get);
 		return node;
 	}
