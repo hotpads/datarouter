@@ -118,7 +118,6 @@ implements HBaseClient{
 		pool.shutdown();
 	}
 
-
 	@Override
 	public Future<Optional<String>> notifyNodeRegistration(PhysicalNode<?,?> node){
 		if(schemaUpdateEnabled){
@@ -127,8 +126,6 @@ implements HBaseClient{
 		return CompletableFuture.completedFuture(Optional.empty());
 	}
 
-
-	//@SuppressWarnings("null")
 	private void generateSchemaUpdate(Node<?,?> node){
 		String tableName = node.getPhysicalNodeIfApplicable().getTableName();
 		String clientName = "hbase1";
