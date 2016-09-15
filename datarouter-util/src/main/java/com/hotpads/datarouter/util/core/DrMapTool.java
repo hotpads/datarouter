@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -78,7 +79,7 @@ public class DrMapTool {
 
 	public static <K,V> K getFirstKeyWhereValueEquals(Map<K,V> map, V value){
 		for(Map.Entry<K,V> entry : nullSafe(map).entrySet()){
-			if(DrObjectTool.equals(value, entry.getValue())){
+			if(Objects.equals(value, entry.getValue())){
 				return entry.getKey();
 			}
 		}

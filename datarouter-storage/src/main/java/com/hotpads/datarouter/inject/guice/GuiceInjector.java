@@ -1,6 +1,6 @@
 package com.hotpads.datarouter.inject.guice;
 
-import java.util.Collection;
+import java.util.Map;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -24,7 +24,7 @@ public class GuiceInjector implements DatarouterInjector{
 	}
 
 	@Override
-	public <T> Collection<T> getInstancesOfType(Class<T> type){
+	public <T> Map<String,T> getInstancesOfType(Class<T> type){
 		return GuiceTool.getInstancesOfType(injector, type);
 	}
 

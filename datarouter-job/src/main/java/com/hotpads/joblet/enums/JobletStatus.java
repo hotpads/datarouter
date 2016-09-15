@@ -5,12 +5,13 @@ import com.hotpads.datarouter.storage.field.enums.StringEnum;
 
 public enum JobletStatus implements StringEnum<JobletStatus>{
 
-	created("created",false),
-	running("running",true),
-	runningFailed("runningFailed",true),
-	complete("complete",false),
-	failed("failed",false),
-	timedOut("timedOut",false);
+	created("created", false),
+	running("running", true),
+	runningFailed("runningFailed", true),
+	complete("complete", false),
+	interrupted("interrupted", false),
+	failed("failed", false),
+	timedOut("timedOut", false);
 
 	private String varName;
 	private boolean isRunning=false;

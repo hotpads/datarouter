@@ -23,7 +23,7 @@ import com.hotpads.datarouter.config.Isolation;
 import com.hotpads.datarouter.connection.ConnectionHandle;
 import com.hotpads.datarouter.connection.JdbcConnectionPool;
 import com.hotpads.datarouter.exception.DataAccessException;
-import com.hotpads.datarouter.node.Node;
+import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.datarouter.util.core.DrMapTool;
 
@@ -59,9 +59,9 @@ implements JdbcConnectionClient, TxnClient, JdbcClient{
 	}
 
 	@Override
-	public Future<Optional<String>> notifyNodeRegistration(Node<?,?> node){
+	public Future<Optional<String>> notifyNodeRegistration(PhysicalNode<?,?> node){
 		if(schemaUpdateEnabled){
-			return schemaUpdateService.queueNodeForSchemaUpdate(getName(), node.getPhysicalNodeIfApplicable());
+			return schemaUpdateService.queueNodeForSchemaUpdate(getName(), node);
 		}
 		return CompletableFuture.completedFuture(Optional.empty());
 	}

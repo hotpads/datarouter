@@ -1,9 +1,13 @@
 package com.hotpads.joblet.handler;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.inject.Inject;
@@ -17,17 +21,23 @@ import com.hotpads.handler.mav.imp.InContextRedirectMav;
 import com.hotpads.handler.mav.imp.MessageMav;
 import com.hotpads.job.dispatcher.DatarouterJobDispatcher;
 import com.hotpads.joblet.JobletNodes;
+import com.hotpads.joblet.JobletPackage;
 import com.hotpads.joblet.JobletService;
 import com.hotpads.joblet.JobletSettings;
 import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.databean.JobletRequestKey;
 import com.hotpads.joblet.dto.JobletSummary;
+import com.hotpads.joblet.enums.JobletPriority;
 import com.hotpads.joblet.enums.JobletStatus;
+import com.hotpads.joblet.enums.JobletType;
 import com.hotpads.joblet.enums.JobletTypeFactory;
 import com.hotpads.joblet.execute.JobletExecutorThread;
+import com.hotpads.joblet.execute.ParallelJobletProcessor;
 import com.hotpads.joblet.execute.ParallelJobletProcessors;
 import com.hotpads.joblet.jdbc.RestartJobletRequests;
 import com.hotpads.joblet.jdbc.TimeoutStuckRunningJobletRequests;
+import com.hotpads.joblet.test.SleepingJoblet;
+import com.hotpads.joblet.test.SleepingJoblet.SleepingJobletParams;
 
 public class JobletHandler extends BaseHandler{
 
@@ -141,6 +151,27 @@ public class JobletHandler extends BaseHandler{
 	@Handler
 	private Mav showThreads(){
 		Mav mav = new Mav(JSP_threads);
+
+		//cpu and memory ticket info
+		mav.put("numCpuPermits", jobletSettings.getCpuTickets().getValue());
+		mav.put("numMemoryPermits", jobletSettings.getMemoryTickets().getValue());
+		mav.put("isThrottling", false);//because JobletThrottle no longer exists
+
+		List<TypeSummaryDto> typeSummaryDtos = parallelJobletProcessors.getMap().values().stream()
+				.map(TypeSummaryDto::new)
+				.sorted(Comparator.comparing(TypeSummaryDto::getJobletType))
+				.collect(Collectors.toList());
+
+		//totals for server
+		mav.put("typeSummaryDtos", typeSummaryDtos);
+
+		//stats by type
+		mav.put("totalRunning", TypeSummaryDto.getTotalRunning(typeSummaryDtos));
+		mav.put("totalRunningCpuPermits", TypeSummaryDto.getTotalRunningCpuPermits(typeSummaryDtos));
+		mav.put("totalRunningMemoryPermits", TypeSummaryDto.getTotalRunningMemoryPermits(typeSummaryDtos));
+		mav.put("totalWaiting", TypeSummaryDto.getTotalWaiting(typeSummaryDtos));
+
+		//all threads
 		mav.put("runningJobletThreads", getRunningJobletThreads());
 		mav.put("waitingJobletThreads", getWaitingJobletThreads());
 		return mav;
@@ -160,6 +191,24 @@ public class JobletHandler extends BaseHandler{
 		return new InContextRedirectMav(params, URL_JOBLETS_IN_CONTEXT);
 	}
 
+	// /datarouter/joblets/createSleepingJoblets?numJoblets=100&sleepMs=500
+	@Handler
+	private Mav createSleepingJoblets(int numJoblets, long sleepMs){
+		List<JobletPackage> jobletPackages = new ArrayList<>();
+		for(int i = 0; i < numJoblets; ++i){
+			SleepingJobletParams params = new SleepingJobletParams(String.valueOf(i), sleepMs);
+			int batchSequence = i;//specify this so joblets execute in precise order
+			JobletPackage jobletPackage = JobletPackage.createDetailed(SleepingJoblet.JOBLET_TYPE,
+					JobletPriority.DEFAULT, new Date(), batchSequence, true, null, params);
+			jobletPackages.add(jobletPackage);
+		}
+		jobletService.submitJobletPackages(jobletPackages);
+		return new MessageMav("created " + numJoblets + " @" + sleepMs + "ms");
+	}
+
+
+	/*--------------------- private -------------------------*/
+
 	private Map<String,List<JobletExecutorThread>> getWaitingJobletThreads() {
 		return getJobletThreads(parallelJobletProcessors.getCurrentlyWaitingJobletExecutorThreads());
 	}
@@ -172,6 +221,54 @@ public class JobletHandler extends BaseHandler{
 		Map<String,List<JobletExecutorThread>> jobletThreadsByServer = new HashMap<>();
 		jobletThreadsByServer.put(serverName, jobletThreads);
 		return jobletThreadsByServer;
+	}
+
+	public static class TypeSummaryDto{
+		private final JobletType<?> jobletTypeEnum;
+		private final int numRunning;
+		private final int numWaiting;
+
+		public TypeSummaryDto(ParallelJobletProcessor processor){
+			this.jobletTypeEnum = processor.getJobletType();
+			this.numRunning = processor.getRunningJobletExecutorThreads().size();
+			this.numWaiting = processor.getWaitingJobletExecutorThreads().size();
+		}
+
+		public static int getTotalRunning(Collection<TypeSummaryDto> dtos){
+			return dtos.stream().mapToInt(TypeSummaryDto::getNumRunning).sum();
+		}
+
+		public static long getTotalRunningCpuPermits(Collection<TypeSummaryDto> dtos){
+			return dtos.stream().mapToLong(TypeSummaryDto::getNumRunningCpuPermits).sum();
+		}
+
+		public static long getTotalRunningMemoryPermits(Collection<TypeSummaryDto> dtos){
+			return dtos.stream().mapToLong(TypeSummaryDto::getNumRunningMemoryPermits).sum();
+		}
+
+		public static int getTotalWaiting(Collection<TypeSummaryDto> dtos){
+			return dtos.stream().mapToInt(TypeSummaryDto::getNumWaiting).sum();
+		}
+
+		public long getNumRunningCpuPermits(){
+			return jobletTypeEnum.getCpuPermits() * numRunning;
+		}
+
+		public long getNumRunningMemoryPermits(){
+			return jobletTypeEnum.getMemoryPermits() * numRunning;
+		}
+
+		public String getJobletType(){
+			return jobletTypeEnum.getPersistentString();
+		}
+
+		public int getNumRunning(){
+			return numRunning;
+		}
+
+		public int getNumWaiting(){
+			return numWaiting;
+		}
 	}
 
 }
