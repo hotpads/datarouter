@@ -24,6 +24,7 @@ import com.hotpads.datarouter.client.imp.BaseClient;
 import com.hotpads.datarouter.client.imp.hbase.client.HBaseClient;
 import com.hotpads.datarouter.client.imp.hbase.pool.HBaseTablePool;
 import com.hotpads.datarouter.node.Node;
+import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.concurrent.FutureTool;
@@ -117,29 +118,32 @@ implements HBaseClient{
 		pool.shutdown();
 	}
 
+
 	@Override
-	public Future<Optional<String>> notifyNodeRegistration(Node<?,?> node){
+	public Future<Optional<String>> notifyNodeRegistration(PhysicalNode<?,?> node){
 		if(schemaUpdateEnabled){
 			generateSchemaUpdate(node);
 		}
 		return CompletableFuture.completedFuture(Optional.empty());
 	}
 
-	@SuppressWarnings("null")
+
+	//@SuppressWarnings("null")
 	private void generateSchemaUpdate(Node<?,?> node){
 		String tableName = node.getPhysicalNodeIfApplicable().getTableName();
+		String clientName = "hbase1";
 		DatabeanFieldInfo<?,?,?> fieldInfo = node.getFieldInfo();
 		HTableDescriptor desc = null;
 		try{
 			desc = admin.getTableDescriptor(TableName.valueOf(tableName));
 		}catch(IOException e){
-			e.printStackTrace();
+			throw new RuntimeException(e);
 		}
 		for(HColumnDescriptor column : desc.getColumnFamilies()){
 			if(fieldInfo.getTtlMs().isPresent()){
 				if(!fieldInfo.getTtlMs().get().equals(column.getTimeToLive())){
-					logger.warn(" Please Alter the value of TTL to "+ fieldInfo.getTtlMs().get()+ "for the table "
-							+tableName);
+					logger.warn("Please alter the TTL of " + clientName + "." + tableName + " to "
+							+ fieldInfo.getTtlMs().get() / 1000 + " seconds");
 				}
 			}
 		}
