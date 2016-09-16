@@ -17,6 +17,11 @@ public class KinesisAwsCredentialsProvider implements AWSCredentialsProvider{
 	private AWSCredentials credentials;
 
 	public KinesisAwsCredentialsProvider(KinesisOptions kinesisOptions){
+		if(!kinesisOptions.isEnabled()){
+			basicCredentials = null;
+			arnRole = null;
+			return;
+		}
 		this.basicCredentials = new BasicAWSCredentials(kinesisOptions.getAccessKey(), kinesisOptions
 				.getSecretKey());
 		this.arnRole = kinesisOptions.getArnRole();

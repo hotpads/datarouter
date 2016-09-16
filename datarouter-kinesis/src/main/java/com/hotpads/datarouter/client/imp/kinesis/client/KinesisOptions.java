@@ -50,7 +50,7 @@ public class KinesisOptions extends TypedProperties{
 		return getRequiredString(clientPrefix + "kcl.namespace");
 	}
 
-	private boolean isEnabled(){
+	public boolean isEnabled(){
 		return getBoolean(clientPrefix + "enabled", ENABLED);
 	}
 }
