@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.client.imp.jdbc.ddl.domain;
+package com.hotpads.datarouter;
 
 import java.util.List;
 import java.util.Properties;
@@ -8,6 +8,9 @@ import com.hotpads.datarouter.util.core.DrPropertiesTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
 
 public class SchemaUpdateOptions{
+
+	public static final String
+			SCHEMA_UPDATE_ENABLE = "schemaUpdate.enable";
 
 	private static final String
 			SUFFIX_createDatabases = ".createDatabases",
