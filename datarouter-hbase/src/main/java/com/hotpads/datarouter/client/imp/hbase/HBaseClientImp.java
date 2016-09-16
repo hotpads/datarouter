@@ -128,11 +128,13 @@ implements HBaseClient{
 
 	private void generateSchemaUpdate(Node<?,?> node){
 		DatabeanFieldInfo<?,?,?> fieldInfo = node.getFieldInfo();
-		String tableName = fieldInfo.getTableName();
+
 		if(!fieldInfo.getTtlMs().isPresent()){
 			return;
 		}
 		HTableDescriptor desc;
+		String clientName = fieldInfo.getClientId().getName();
+		String tableName = fieldInfo.getTableName();
 		try{
 			desc = admin.getTableDescriptor(TableName.valueOf(tableName));
 		}catch(IOException e){
@@ -140,7 +142,7 @@ implements HBaseClient{
 		}
 		for(HColumnDescriptor column : desc.getColumnFamilies()){
 			if(!fieldInfo.getTtlMs().get().equals(column.getTimeToLive())){
-				logger.warn("Please alter the TTL of " + node.getName() + " to "
+				logger.warn("Please alter the TTL of " + clientName + "." + tableName + " to "
 						+ fieldInfo.getTtlMs().get() / 1000 + " seconds");
 			}
 		}
