@@ -23,7 +23,7 @@ public class JobletThreadCountSettings extends SettingNode{
 
 	@Inject
 	public JobletThreadCountSettings(SettingFinder finder, WebAppName webAppName, JobletTypeFactory jobletTypeFactory){
-		super(finder, webAppName + ".joblet." + NAME + ".", webAppName + ".joblet.");
+		super(finder, webAppName + ".joblet.threadCount.", webAppName + ".joblet.");
 
 		for(JobletType<?> jobletType : jobletTypeFactory.getAllTypes()){
 			Setting<Integer> setting = registerThreadCountSetting(jobletType, jobletType.getPersistentString(), 0);
