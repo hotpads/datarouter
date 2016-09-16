@@ -23,7 +23,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>com.hotpads</groupId>
-			<artifactId>datarouter-core</artifactId>
+			<artifactId>datarouter-job</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 		<!-- servlet -->
