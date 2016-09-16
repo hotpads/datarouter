@@ -17,7 +17,7 @@ import com.hotpads.handler.mav.imp.JsonMav;
 import com.hotpads.notification.alias.databean.AutomatedEmail;
 import com.hotpads.notification.alias.databean.Moderator;
 import com.hotpads.notification.alias.databean.Subscriber;
-import com.hotpads.notification.config.http.NotificationDispatcher;
+import com.hotpads.notification.config.http.DatarouterNotificationDispatcher;
 import com.hotpads.notification.databean.NotificationLog;
 import com.hotpads.util.http.RequestTool;
 
@@ -27,7 +27,7 @@ import net.sf.json.JSONObject;
 public class NotificationAliasHandler extends BaseHandler{
 
 	private static final String
-			COMMAND_REGEX = ".*" + NotificationDispatcher.NOTIFICATION_ALIAS + "/",
+			COMMAND_REGEX = ".*" + DatarouterNotificationDispatcher.NOTIFICATION_ALIAS + "/",
 			JSP = "/jsp/admin/datarouter/notification/alias.jsp";
 
 	@Inject
@@ -41,7 +41,7 @@ public class NotificationAliasHandler extends BaseHandler{
 			aliasUrl = "/" + alias.getPersistentName();
 		}
 		return new Mav(Mav.REDIRECT + servletContext.getContextPath() + DatarouterWebDispatcher.PATH_datarouter
-				+ NotificationDispatcher.NOTIFICATION_ALIAS + aliasUrl);
+				+ DatarouterNotificationDispatcher.NOTIFICATION_ALIAS + aliasUrl);
 	}
 
 	@Override

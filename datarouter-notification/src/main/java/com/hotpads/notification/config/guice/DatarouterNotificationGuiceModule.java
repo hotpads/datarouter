@@ -10,14 +10,12 @@ import com.hotpads.notification.NotificationApiClient;
 import com.hotpads.notification.NotificationApiClient.NotificationApiClientHttpClientProvider;
 import com.hotpads.util.http.client.HotPadsHttpClient;
 
-public class NotificationGuiceModule extends AbstractModule{
+public class DatarouterNotificationGuiceModule extends AbstractModule{
 
 	@Override
 	protected void configure(){
 		bind(ExceptionRecorder.class).to(NotificationServiceExceptionRecorder.class);
-		bind(HotPadsHttpClient.class)
-		.annotatedWith(Names.named(NotificationApiClient.NOTIFICATION_API_CLIENT))
-		.toProvider(NotificationApiClientHttpClientProvider.class)
-		.in(Singleton.class);
+		bind(HotPadsHttpClient.class).annotatedWith(Names.named(NotificationApiClient.NOTIFICATION_API_CLIENT))
+				.toProvider(NotificationApiClientHttpClientProvider.class).in(Singleton.class);
 	}
 }
