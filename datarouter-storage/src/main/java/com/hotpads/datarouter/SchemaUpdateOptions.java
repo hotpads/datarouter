@@ -15,7 +15,6 @@ public class SchemaUpdateOptions{
 	private static final String
 			SUFFIX_createDatabases = ".createDatabases",
 			SUFFIX_createTables = ".createTables",
-			SUFFIX_dropTables = ".dropTables",
 			SUFFIX_addColumns = ".addColumns",
 			SUFFIX_deleteColumns = ".deleteColumns",
 			SUFFIX_modifyColumns = ".modifyColumns",
@@ -29,7 +28,6 @@ public class SchemaUpdateOptions{
 
 	private boolean createDatabases;
 	private boolean createTables;
-	private boolean dropTables;
 	private boolean addColumns;
 	private boolean deleteColumns;
 	private boolean modifyColumns;
@@ -57,8 +55,6 @@ public class SchemaUpdateOptions{
 				+ SUFFIX_createDatabases));
 		createTables = DrBooleanTool.isTrueOrNull(DrPropertiesTool.getFirstOccurrence(multiProperties, prefix
 				+ SUFFIX_createTables));
-		dropTables = DrBooleanTool.isTrueOrNull(DrPropertiesTool.getFirstOccurrence(multiProperties, prefix
-				+ SUFFIX_dropTables));
 		addColumns = DrBooleanTool.isTrueOrNull(DrPropertiesTool.getFirstOccurrence(multiProperties, prefix
 				+ SUFFIX_addColumns));
 		deleteColumns = DrBooleanTool.isTrueOrNull(DrPropertiesTool.getFirstOccurrence(multiProperties, prefix
@@ -87,9 +83,6 @@ public class SchemaUpdateOptions{
 				+ SUFFIX_createDatabases));
 		createTables = DrBooleanTool.isTrueOrNull(DrPropertiesTool.getFirstOccurrence(multiProperties, prefix
 				+ SUFFIX_createTables));
-
-		//drop tables are always set to false for obvious reasons
-		dropTables = false;
 
 		//settings that modify an existing tables are returned with default true since they are less dangerous
 		addColumns = DrBooleanTool.isTrue(DrPropertiesTool.getFirstOccurrence(multiProperties, prefix
@@ -123,7 +116,6 @@ public class SchemaUpdateOptions{
 
 	public SchemaUpdateOptions setAllTrue(){
 		createTables = true;
-		dropTables = true;
 		addColumns = true;
 		deleteColumns = true;
 		modifyColumns = true;
@@ -135,7 +127,6 @@ public class SchemaUpdateOptions{
 
 	public SchemaUpdateOptions setAllFalse(){
 		createTables = false;
-		dropTables = false;
 		addColumns = false;
 		deleteColumns = false;
 		modifyColumns = false;
@@ -151,10 +142,6 @@ public class SchemaUpdateOptions{
 
 	public Boolean getCreateDatabases(){
 		return createDatabases;
-	}
-
-	public Boolean getDropTables(){
-		return dropTables;
 	}
 
 	public Boolean getAddColumns(){

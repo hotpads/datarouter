@@ -69,12 +69,12 @@ implements Callable<Optional<String>>{
 		MySqlRowFormat rowFormat = fieldInfo.getRowFormat();
 
 		if(executeOptions.getIgnoreClients().contains(clientName)){
-			return null;
+			return Optional.empty();
 		}
 		List<String> tablesToIgnore = executeOptions.getIgnoreTables();
 		String currentTableAbsoluteName = clientName + "." + tableName;
 		if(tablesToIgnore.contains(currentTableAbsoluteName)){
-			return null;
+			return Optional.empty();
 		}
 
 		if(physicalNode instanceof IndexedStorage){
@@ -95,7 +95,7 @@ implements Callable<Optional<String>>{
 		Optional<String> printedSchemaUpdate = Optional.empty();
 		try{
 			if(!connectionPool.isWritable()){
-				return null;
+				return Optional.empty();
 			}
 			boolean exists = existingTableNames.get().contains(tableName);
 			connection = connectionPool.checkOut();

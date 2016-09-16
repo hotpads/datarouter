@@ -20,6 +20,7 @@ public class DefaultClientTypes{
 			CLIENT_TYPE_hbase = "hbase",
 			CLIENT_TYPE_http = "http",
 			CLIENT_TYPE_jdbc = "jdbc",
+			CLIENT_TYPE_kinesis = "kinesis",
 			CLIENT_TYPE_memcached = "memcached",
 			CLIENT_TYPE_memory = "memory",
 			CLIENT_TYPE_redis = "redis",
@@ -30,6 +31,7 @@ public class DefaultClientTypes{
 			CLIENT_CLASS_hbase = "com.hotpads.datarouter.client.imp.hbase.HBaseClientType",
 			CLIENT_CLASS_http = "com.hotpads.datarouter.client.imp.http.HttpClientType",
 			CLIENT_CLASS_jdbc = "com.hotpads.datarouter.client.imp.jdbc.JdbcClientType",
+			CLIENT_CLASS_kinesis = "com.hotpads.datarouter.client.imp.kinesis.client.KinesisClientType",
 			CLIENT_CLASS_memcached = "com.hotpads.datarouter.client.imp.memcached.MemcachedClientType",
 			CLIENT_CLASS_memory = "com.hotpads.datarouter.client.imp.memory.MemoryClientType",
 			CLIENT_CLASS_redis = "com.hotpads.datarouter.client.imp.redis.RedisClientType",
@@ -42,6 +44,7 @@ public class DefaultClientTypes{
 		CLASS_BY_NAME.put(CLIENT_TYPE_hbase, CLIENT_CLASS_hbase);
 		CLASS_BY_NAME.put(CLIENT_TYPE_http, CLIENT_CLASS_http);
 		CLASS_BY_NAME.put(CLIENT_TYPE_jdbc, CLIENT_CLASS_jdbc);
+		CLASS_BY_NAME.put(CLIENT_TYPE_kinesis, CLIENT_CLASS_kinesis);
 		CLASS_BY_NAME.put(CLIENT_TYPE_memcached, CLIENT_CLASS_memcached);
 		CLASS_BY_NAME.put(CLIENT_TYPE_memory, CLIENT_CLASS_memory);
 		CLASS_BY_NAME.put(CLIENT_TYPE_redis, CLIENT_CLASS_redis);

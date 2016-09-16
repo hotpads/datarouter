@@ -17,5 +17,6 @@ public class DrTestConstants{
 		CLIENT_drTestBigTable = new ClientId("drTestBigTable", true),
 		CLIENT_drTestMemcached = new ClientId("drTestMemcached", true),
 		CLIENT_drTestRedis = new ClientId("drTestRedis", true),
-		CLIENT_drTestSqs = new ClientId("drTestSqs", true);
+		CLIENT_drTestSqs = new ClientId("drTestSqs", true),
+		CLIENT_drTestKinesis = new ClientId("drTestKinesis", true);
 }
