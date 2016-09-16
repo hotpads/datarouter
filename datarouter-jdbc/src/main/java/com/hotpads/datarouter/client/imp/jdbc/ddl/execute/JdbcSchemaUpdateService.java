@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SchemaUpdateOptions;
 import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.client.imp.jdbc.util.JdbcTool;
+import com.hotpads.datarouter.config.DatarouterProperties;
 import com.hotpads.datarouter.connection.JdbcConnectionPool;
 import com.hotpads.datarouter.inject.guice.executor.DatarouterExecutorGuiceModule;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
@@ -40,13 +41,16 @@ public class JdbcSchemaUpdateService{
 		@Inject
 		private Datarouter datarouter;
 		@Inject
+		private DatarouterProperties datarouterProperties;
+		@Inject
 		private JdbcFieldCodecFactory fieldCodecFactory;
 		@Inject
 		@Named(DatarouterExecutorGuiceModule.POOL_schemaUpdateScheduler)
 		private ScheduledExecutorService executor;
 
 		public JdbcSchemaUpdateService create(JdbcConnectionPool connectionPool){
-			return new JdbcSchemaUpdateService(datarouter, fieldCodecFactory, executor, connectionPool);
+			return new JdbcSchemaUpdateService(datarouter, datarouterProperties, fieldCodecFactory, executor,
+					connectionPool);
 		}
 
 	}
@@ -59,6 +63,7 @@ public class JdbcSchemaUpdateService{
 	private static final long THROTTLING_DELAY_SECONDS = 10;
 
 	private final Datarouter datarouter;
+	private final DatarouterProperties datarouterProperties;
 	private final JdbcFieldCodecFactory fieldCodecFactory;
 	private final JdbcConnectionPool connectionPool;
 	private final SchemaUpdateOptions printOptions;
@@ -67,9 +72,11 @@ public class JdbcSchemaUpdateService{
 	private final List<String> printedSchemaUpdates;
 	private final List<Future<Optional<String>>> futures;
 
-	private JdbcSchemaUpdateService(Datarouter datarouter, JdbcFieldCodecFactory fieldCodecFactory,
-			ScheduledExecutorService executor, JdbcConnectionPool connectionPool){
+	private JdbcSchemaUpdateService(Datarouter datarouter, DatarouterProperties datarouterProperties,
+			JdbcFieldCodecFactory fieldCodecFactory, ScheduledExecutorService executor,
+			JdbcConnectionPool connectionPool){
 		this.datarouter = datarouter;
+		this.datarouterProperties = datarouterProperties;
 		this.fieldCodecFactory = fieldCodecFactory;
 		this.connectionPool = connectionPool;
 		List<Properties> multiProperties = DrPropertiesTool.fromFiles(datarouter.getConfigFilePaths());
@@ -89,7 +96,7 @@ public class JdbcSchemaUpdateService{
 		return future;
 	}
 
-	private void gatherSchemaUpdates(){
+	public synchronized void gatherSchemaUpdates(){
 		boolean shouldNotify = !printedSchemaUpdates.isEmpty();
 		Iterator<Future<Optional<String>>> futureIterator = futures.iterator();
 		while(futureIterator.hasNext()){
@@ -115,12 +122,12 @@ public class JdbcSchemaUpdateService{
 		if (printedSchemaUpdates.isEmpty()){
 			return;
 		}
-		String subject = "SchemaUpdate request from "+datarouter.getServerName();
+		String subject = "SchemaUpdate request from " + datarouterProperties.getServerName();
 		StringBuilder body = new StringBuilder();
 		for(String update : printedSchemaUpdates){
 			body.append(update + "\n\n");
 		}
-		DatarouterEmailTool.trySendEmail("noreply@hotpads.com", datarouter.getAdministratorEmail(), subject,
+		DatarouterEmailTool.trySendEmail("noreply@hotpads.com", datarouterProperties.getAdministratorEmail(), subject,
 				body.toString());
 		printedSchemaUpdates.clear();
 	}
