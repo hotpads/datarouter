@@ -27,6 +27,7 @@ import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
+import com.hotpads.datarouter.util.core.DrObjectTool;
 import com.hotpads.util.core.concurrent.FutureTool;
 import com.hotpads.util.datastructs.MutableString;
 
@@ -141,9 +142,10 @@ implements HBaseClient{
 			throw new RuntimeException(e);
 		}
 		for(HColumnDescriptor column : desc.getColumnFamilies()){
-			if(!fieldInfo.getTtlMs().get().equals(column.getTimeToLive())){
+			long requestedTtlSeconds = fieldInfo.getTtlMs().get()/1000;
+			if(DrObjectTool.notEquals(requestedTtlSeconds, column.getTimeToLive())) {
 				logger.warn("Please alter the TTL of " + clientName + "." + tableName + " to "
-						+ fieldInfo.getTtlMs().get() / 1000 + " seconds");
+						+ requestedTtlSeconds + " seconds");
 			}
 		}
 	}
