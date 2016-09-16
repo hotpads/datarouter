@@ -23,6 +23,7 @@ import org.apache.hadoop.hbase.regionserver.BloomType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.hotpads.datarouter.SchemaUpdateOptions;
 import com.hotpads.datarouter.client.ClientFactory;
 import com.hotpads.datarouter.client.availability.ClientAvailabilitySettings;
 import com.hotpads.datarouter.client.imp.hbase.BaseHBaseClientType;
@@ -62,9 +63,7 @@ implements ClientFactory{
 
 	//these are used for databeans with no values outside the PK.  we fake a value as we need at least 1 cell in a row
 	public static final byte[] DEFAULT_FAMILY_QUALIFIER = new byte[]{(byte)'a'};
-	public static final String DUMMY_COL_NAME = new String(new byte[]{0}),
-			SCHEMA_UPDATE_ENABLE = "schemaUpdate.enable";
-
+	public static final String DUMMY_COL_NAME = new String(new byte[]{0});
 
 	/********************* fields *******************************/
 
@@ -90,7 +89,7 @@ implements ClientFactory{
 		this.clientAvailabilitySettings = clientAvailabilitySettings;
 		this.executor = executor;
 		this.schemaUpdateEnabled = DrBooleanTool.isTrue(DrPropertiesTool.getFirstOccurrence(multiProperties,
-				SCHEMA_UPDATE_ENABLE));
+				SchemaUpdateOptions.SCHEMA_UPDATE_ENABLE));
 	}
 
 	protected abstract Connection makeConnection();
