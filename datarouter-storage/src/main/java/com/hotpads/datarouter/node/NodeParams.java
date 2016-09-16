@@ -41,9 +41,14 @@ public class NodeParams<
 	//diagnostics
 	private final Cached<Boolean> recordCallsites;
 
+	//for kinesis streams
+	private final String streamName;
+	private final String regionName;
+
 	public NodeParams(Router router, ClientId clientId, String parentName, Supplier<D> databeanSupplier,
 			Supplier<F> fielderSupplier, Integer schemaVersion, String physicalName, String namespace,
-			String entityNodePrefix, String remoteRouterName, String remoteNodeName, Cached<Boolean> recordCallsites){
+			String entityNodePrefix, String remoteRouterName, String remoteNodeName, Cached<Boolean> recordCallsites,
+			String streamName, String regionName){
 		this.router = router;
 		this.clientId = clientId;
 		this.parentName = parentName;
@@ -57,6 +62,8 @@ public class NodeParams<
 		this.remoteRouterName = remoteRouterName;
 		this.remoteNodeName = remoteNodeName;
 		this.recordCallsites = recordCallsites;
+		this.streamName = streamName;
+		this.regionName = regionName;
 	}
 
 
@@ -79,6 +86,9 @@ public class NodeParams<
 		private String remoteRouterName;
 		private String remoteNodeName;
 		private Cached<Boolean> recordCallsites;
+
+		private String streamName;
+		private String regionName;
 
 
 		/************** construct **************/
@@ -133,11 +143,22 @@ public class NodeParams<
 			return this;
 		}
 
+		public NodeParamsBuilder<PK,D,F> withStreamName(String streamName){
+			this.streamName = streamName;
+			return this;
+		}
+
+		public NodeParamsBuilder<PK,D,F> withRegionName(String regionName){
+			this.regionName = regionName;
+			return this;
+		}
+
 		/******************* build ***************************/
 
 		public NodeParams<PK,D,F> build(){
 			return new NodeParams<>(router, clientId, parentName, databeanSupplier, fielderSupplier, schemaVersion,
-					physicalName, namespace, entityNodePrefix, remoteRouterName, remoteNodeName, recordCallsites);
+					physicalName, namespace, entityNodePrefix, remoteRouterName, remoteNodeName, recordCallsites,
+					streamName, regionName);
 		}
 	}
 
@@ -201,5 +222,13 @@ public class NodeParams<
 
 	public Cached<Boolean> getRecordCallsites(){
 		return recordCallsites;
+	}
+
+	public String getStreamName(){
+		return streamName;
+	}
+
+	public String getRegionName(){
+		return regionName;
 	}
 }
