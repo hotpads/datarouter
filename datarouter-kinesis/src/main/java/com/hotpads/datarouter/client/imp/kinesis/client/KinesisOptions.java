@@ -6,6 +6,8 @@ import com.hotpads.util.core.properties.TypedProperties;
 
 public class KinesisOptions extends TypedProperties{
 
+	private static final boolean ENABLED = true;
+
 	private final String clientPrefix;
 
 	public KinesisOptions(Datarouter datarouter, String clientName){
@@ -14,22 +16,41 @@ public class KinesisOptions extends TypedProperties{
 	}
 
 	public String getAccessKey(){
+		if(!isEnabled()){
+			return null;
+		}
 		return getRequiredString(clientPrefix + "accessKey");
 	}
 
 	public String getSecretKey(){
+		if(!isEnabled()){
+			return null;
+		}
 		return getRequiredString(clientPrefix + "secretKey");
 	}
 
 	public String getNamespace(){
+		if(!isEnabled()){
+			return null;
+		}
 		return getRequiredString(clientPrefix + "namespace");
 	}
 
 	public String getArnRole(){
+		if(!isEnabled()){
+			return null;
+		}
 		return getString(clientPrefix + "arnRole");
 	}
 
 	public String getKclNamespace(){
+		if(!isEnabled()){
+			return null;
+		}
 		return getRequiredString(clientPrefix + "kcl.namespace");
+	}
+
+	private boolean isEnabled(){
+		return getBoolean(clientPrefix + "enabled", ENABLED);
 	}
 }
