@@ -31,7 +31,7 @@ public class ReflectionTool {
 	}
 
 	public static <T> T createAsSubclass(String className, Class<T> superClass){
-		return create(getClass(className).asSubclass(superClass));
+		return create(getAsSubClass(className, superClass));
 	}
 
 	private static Class<?> getClass(String className){
@@ -40,6 +40,10 @@ public class ReflectionTool {
 		}catch(ClassNotFoundException e){
 			throw new RuntimeException(className, e);
 		}
+	}
+
+	public static <T> Class<? extends T> getAsSubClass(String className, Class<T> superClass){
+		return getClass(className).asSubclass(superClass);
 	}
 
 	public static <T> T createWithParameters(Class<T> type, Collection<?> requiredParameters){
