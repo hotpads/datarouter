@@ -24,6 +24,7 @@ import com.hotpads.util.core.date.DurationWithCarriedUnits;
 public final class DrDateTool {
 
 	public static final int
+		MILLISECONDS_IN_DAY = 24 * 60 * 60 * 1000,
 		MILLISECONDS_IN_MINUTE = 60 * 1000,
 		MILLISECONDS_IN_SECOND = 1000;
 
@@ -239,6 +240,15 @@ public final class DrDateTool {
     	return wud.toStringByMaxUnitsMaxPrecision(maxPrecision, maxUnits);
     }
 
+	public static int getDatesBetween(Date oldDate, Date newDate){
+		//round everything > .95 up to handle partial days due to DST and leap seconds
+		double daysBetween =DrDateTool.getDaysBetween(oldDate, newDate);
+		return (int)Math.ceil(daysBetween-.95d);
+	}
+
+	public static double getDaysBetween(Date d1, Date d2){
+		return getPeriodsBetween(d1, d2, MILLISECONDS_IN_DAY);
+	}
 
 	/*************************************************************************/
 
