@@ -8,11 +8,8 @@
 		<version>0.0.1-SNAPSHOT</version>
 		<relativePath>../../config/maven</relativePath>
 	</parent>
-	<artifactId>datarouter-example</artifactId>
-	<packaging>war</packaging>
+	<artifactId>datarouter-notification</artifactId>
 	<build>
-		<!-- finalName will remove the versioning from the war file -->
-		<finalName>datarouter-example</finalName>
 		<plugins>
 			<plugin>
 				<groupId>pl.project13.maven</groupId>
@@ -26,12 +23,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>com.hotpads</groupId>
-			<artifactId>datarouter-core</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>com.hotpads</groupId>
-			<artifactId>datarouter-notification</artifactId>
+			<artifactId>datarouter-job</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 		<!-- servlet -->
