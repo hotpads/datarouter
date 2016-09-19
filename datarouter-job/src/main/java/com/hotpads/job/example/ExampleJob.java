@@ -8,11 +8,11 @@ import org.slf4j.LoggerFactory;
 import com.hotpads.job.trigger.BaseJob;
 import com.hotpads.job.trigger.JobEnvironment;
 
-public class HelloWorldJob extends BaseJob{
-	private static final Logger logger = LoggerFactory.getLogger(HelloWorldJob.class);
+public class ExampleJob extends BaseJob{
+	private static final Logger logger = LoggerFactory.getLogger(ExampleJob.class);
 
 	@Inject
-	public HelloWorldJob(JobEnvironment jobEnvironment){
+	public ExampleJob(JobEnvironment jobEnvironment){
 		super(jobEnvironment);
 	}
 
