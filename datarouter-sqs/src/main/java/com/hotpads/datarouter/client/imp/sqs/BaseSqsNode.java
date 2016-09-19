@@ -49,6 +49,9 @@ implements QueueStorageWriter<PK,D>{
 	}
 
 	private String getOrCreateQueueUrl(){
+		if(getSqsClient().getSqsOptions().getQueueUrl() != null){
+			return getSqsClient().getSqsOptions().getQueueUrl();
+		}
 		String prefix = fieldInfo.getNamespace().orElse(getSqsClient().getSqsOptions().getNamespace());
 		if(!prefix.isEmpty()){
 			prefix += "-";

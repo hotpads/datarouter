@@ -22,6 +22,14 @@ public class SqsOptions extends TypedProperties{
 	}
 
 	public String getNamespace(){
-		return getRequiredString(clientPrefix + "namespace");
+		return getString(clientPrefix + "namespace");
+	}
+
+	public String getArnRole(){
+		return getString(clientPrefix + "arnRole");
+	}
+
+	public String getQueueUrl(){
+		return getString(clientPrefix + "queueUrl");
 	}
 }
