@@ -25,10 +25,6 @@ public class SqsOptions extends TypedProperties{
 		return getString(clientPrefix + "namespace");
 	}
 
-	public String getArnRole(){
-		return getString(clientPrefix + "arnRole");
-	}
-
 	public String getQueueUrl(){
 		return getString(clientPrefix + "queueUrl");
 	}
