@@ -39,6 +39,10 @@ public class JobletThreadCountSettings extends SettingNode{
 		return setting;
 	}
 
+	public Setting<Integer> getSettingForJobletType(JobletType<?> type){
+		return settingByJobletType.get(type);
+	}
+
 	public int getThreadCountForJobletType(JobletType<?> type){
 		return Optional.ofNullable(settingByJobletType.get(type).getValue()).orElse(0);
 	}
