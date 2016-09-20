@@ -1,0 +1,62 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>com.hotpads</groupId>
+		<artifactId>hotpads</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+		<relativePath>../../config/maven</relativePath>
+	</parent>
+	<artifactId>datarouter-kinesis</artifactId>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>pl.project13.maven</groupId>
+				<artifactId>git-commit-id-plugin</artifactId>
+				<configuration>
+					<dotGitDirectory>${project.basedir}/../.git</dotGitDirectory>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+	<dependencies>
+		<dependency>
+			<groupId>com.hotpads</groupId>
+			<artifactId>datarouter-web</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>com.amazonaws</groupId>
+			<artifactId>amazon-kinesis-client</artifactId>
+			<version>1.7.0</version>
+			<exclusions>
+				<exclusion>  
+					<groupId>com.google.guava</groupId>
+					<artifactId>guava</artifactId><!-- guava 18 causes issues with hbase 1.1.2 -->
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>com.amazonaws</groupId>
+			<artifactId>amazon-kinesis-producer</artifactId>
+			<version>0.10.2</version>
+			<exclusions>
+				<exclusion>  
+					<groupId>com.google.guava</groupId>
+					<artifactId>guava</artifactId><!-- guava 18 causes issues with hbase 1.1.2 -->
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>com.amazonaws</groupId>
+			<artifactId>aws-java-sdk-sts</artifactId> <!-- needed for AssumeRoleRequest -->
+			<version>${aws-sdk-version}</version>
+ 		</dependency>
+ 		<dependency>
+			<groupId>com.fasterxml.jackson.dataformat</groupId>
+			<artifactId>jackson-dataformat-cbor</artifactId>
+			<version>2.8.1</version><!-- 2.8.1 is required by amazon-kinesis-client. --> 
+			<!-- Internally they use jackson 2.6.6 which has a bug which triggers NoSuchMethodError. -->
+		</dependency>
+	</dependencies>
+</project>
