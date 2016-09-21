@@ -20,8 +20,6 @@ import com.hotpads.util.core.exception.InvalidCredentialsException;
 import com.hotpads.util.http.RequestTool;
 
 public class DatarouterSigninFormAuthenticator extends BaseDatarouterAuthenticator{
-//	private static Logger logger = LoggerFactory.getLogger(DatarouterLoginFormAuthenticator.class);
-
 	private DatarouterAuthenticationConfig authenticationConfig;
 	private DatarouterUserNodes userNodes;
 	private DatarouterPasswordService passwordService;
@@ -49,10 +47,6 @@ public class DatarouterSigninFormAuthenticator extends BaseDatarouterAuthenticat
 
 		user.setLastLoggedIn(new Date());
 		userNodes.getUserNode().put(user, null);
-
-//		if (rememberMe) {
-//			RememberMeCookieAuthenticator.addRememberMeCookieToResponse(request, response, user);
-//		}
 
 		DatarouterSession session = DatarouterSession.createFromUser(user);
 		return session;
