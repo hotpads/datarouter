@@ -1,6 +1,8 @@
 package com.hotpads.example.config.guice;
 
 import com.google.inject.AbstractModule;
+import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
+import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.StandardJdbcFieldCodecFactory;
 import com.hotpads.datarouter.config.DatarouterProperties;
 import com.hotpads.datarouter.setting.SettingFinder;
 import com.hotpads.example.config.ExampleDatarouterProperties;
@@ -24,6 +26,7 @@ public class ExampleGuiceModule extends AbstractModule{
 		bind(ExceptionNodes.class).to(NoOpExceptionNodes.class);
 		bind(LoggingConfigDao.class).to(NonPersistentLoggingConfigDao.class);
 		bind(MetricsNodes.class).to(NoOpMetricsNodes.class);
+		bind(JdbcFieldCodecFactory.class).to(StandardJdbcFieldCodecFactory.class);
 	}
 
 }
