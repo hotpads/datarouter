@@ -4,8 +4,8 @@ import java.util.List;
 
 import org.junit.Test;
 
+import com.hotpads.datarouter.SchemaUpdateOptions;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SchemaUpdateOptions;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlTable;
 
 public class SchemaUpdateIntegrationTest{
