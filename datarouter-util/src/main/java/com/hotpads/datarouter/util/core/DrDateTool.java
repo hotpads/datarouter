@@ -360,7 +360,8 @@ public final class DrDateTool {
 			Assert.assertNull(toReverseDateLong(fromReverseDateLong(null)));
 		}
 
-		@Test public void testGetDaysBetween() throws Exception{
+		@Test
+		public void testGetDaysBetween() throws Exception{
 			Date d1 = new Date(1352059736026L);
 			int daysApart = 4;
 			Date d2 = new Date(d1.getTime()+ MILLISECONDS_IN_DAY*daysApart);
