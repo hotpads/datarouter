@@ -44,7 +44,10 @@ public class SettinglessNodeFactory{
 		return Preconditions.checkNotNull(node, "cannot build Node for clientType="+clientType);
 	}
 
-
+	/**
+	 * @deprecated use {@link #create(ClientId, Supplier, Supplier, Router, boolean)}
+	 */
+	@Deprecated
 	public <PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>,
@@ -59,11 +62,6 @@ public class SettinglessNodeFactory{
 				addAdapter);
 	}
 
-
-	/**
-	 * @deprecated use {@link #create(ClientId, Supplier, Supplier, Router, boolean)}
-	 */
-	@Deprecated
 	public <PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>,
