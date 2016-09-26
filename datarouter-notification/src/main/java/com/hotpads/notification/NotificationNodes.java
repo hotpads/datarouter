@@ -26,16 +26,10 @@ public interface NotificationNodes extends Router{
 	public SortedMapStorageNode<NotificationRequestKey,NotificationRequest> getNotificationRequest();
 
 	public SortedMapStorageNode<NotificationLogKey,NotificationLog> getNotificationLog();
-	public IndexedSortedMapStorageNode<NotificationLogKey,NotificationLog> getNotificationLogMySql();
-	public SortedMapStorageNode<NotificationLogKey,NotificationLog> getNotificationLogHbase();
 	public UniqueIndexNode<NotificationLogKey,NotificationLog,NotificationLogByIdKey,NotificationLogById>
 			getNotificationLogById();
-	public UniqueIndexNode<NotificationLogKey,NotificationLog,NotificationLogByIdKey,NotificationLogById>
-			getNotificationLogByIdHbase();
 
 	public SortedMapStorageNode<NotificationItemLogKey,NotificationItemLog> getNotificationItemLog();
-	public SortedMapStorageNode<NotificationItemLogKey,NotificationItemLog> getNotificationItemLogMysql();
-	public SortedMapStorageNode<NotificationItemLogKey,NotificationItemLog> getNotificationItemLogHbase();
 
 	public IndexedSortedMapStorageNode<NotificationDestinationKey,NotificationDestination> getNotificationDestination();
 	public UniqueIndexNode<NotificationDestinationKey,NotificationDestination, NotificationDestinationByAppDeviceIdKey,

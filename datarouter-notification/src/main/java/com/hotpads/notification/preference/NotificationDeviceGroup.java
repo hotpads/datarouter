@@ -2,17 +2,16 @@ package com.hotpads.notification.preference;
 
 public class NotificationDeviceGroup{
 	public static class F {
-		public static final String
-		persistentName = "persistentName";
+		public static final String persistentName = "persistentName";
 	}
 
-	private String persistentName;
+	private String persistentString;
 
-	public NotificationDeviceGroup(String persistentName){
-		this.persistentName = persistentName;
+	public NotificationDeviceGroup(String persistentString){
+		this.persistentString = persistentString;
 	}
 
-	public String getPersistentName(){
-		return persistentName;
+	public String getPersistentString(){
+		return persistentString;
 	}
 }

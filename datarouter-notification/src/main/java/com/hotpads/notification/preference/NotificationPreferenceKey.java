@@ -14,13 +14,9 @@ public class NotificationPreferenceKey extends BasePrimaryKey<NotificationPrefer
 	public static class FieldKeys{
 		public static final StringFieldKey userToken = new StringFieldKey("userToken");
 		public static final StringFieldKey deviceGroup = new StringFieldKey("deviceGroup", false,
-				StringField.DEFAULT_STRING_LENGTH);//TODO need something more complex?
+				StringField.DEFAULT_STRING_LENGTH);
 		public static final StringFieldKey typeGroup = new StringFieldKey("typeGroup", false,
 				StringField.DEFAULT_STRING_LENGTH);
-//		public static final StringEnumFieldKey<NotificationDeviceGroup> deviceGroup = new StringEnumFieldKey<>(
-//				"deviceGroup", NotificationDeviceGroup.class);
-//		public static final StringEnumFieldKey<NotificationTypeGroup> typeGroup = new StringEnumFieldKey<>("typeGroup",
-//				NotificationTypeGroup.class);
 	}
 
 	private String userToken;
@@ -31,11 +27,8 @@ public class NotificationPreferenceKey extends BasePrimaryKey<NotificationPrefer
 	public List<Field<?>> getFields(){
 		return Arrays.asList(
 				new StringField(FieldKeys.userToken, userToken),
-				new StringField(FieldKeys.deviceGroup, deviceGroup.getPersistentName()),//TODO need something more complex?
-				new StringField(FieldKeys.typeGroup, typeGroup.getPersistentName()));
-//				new StringField(FieldKeys.typeGroup, typeGroup);)
-//				new StringEnumField<>(FieldKeys.deviceGroup, deviceGroup),
-//				new StringEnumField<>(FieldKeys.typeGroup, typeGroup));
+				new StringField(FieldKeys.deviceGroup, deviceGroup.getPersistentString()),
+				new StringField(FieldKeys.typeGroup, typeGroup.getPersistentString()));
 	}
 
 	public NotificationPreferenceKey(String userToken, NotificationDeviceGroup deviceGroup, NotificationTypeGroup
