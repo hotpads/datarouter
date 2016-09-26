@@ -45,10 +45,13 @@ public class NodeParams<
 	private final String streamName;
 	private final String regionName;
 
+	//for external sqs
+	private final String queueUrl;
+
 	public NodeParams(Router router, ClientId clientId, String parentName, Supplier<D> databeanSupplier,
 			Supplier<F> fielderSupplier, Integer schemaVersion, String physicalName, String namespace,
 			String entityNodePrefix, String remoteRouterName, String remoteNodeName, Cached<Boolean> recordCallsites,
-			String streamName, String regionName){
+			String streamName, String regionName, String queueUrl){
 		this.router = router;
 		this.clientId = clientId;
 		this.parentName = parentName;
@@ -64,6 +67,7 @@ public class NodeParams<
 		this.recordCallsites = recordCallsites;
 		this.streamName = streamName;
 		this.regionName = regionName;
+		this.queueUrl = queueUrl;
 	}
 
 
@@ -89,6 +93,8 @@ public class NodeParams<
 
 		private String streamName;
 		private String regionName;
+
+		private String queueUrl;
 
 
 		/************** construct **************/
@@ -153,12 +159,17 @@ public class NodeParams<
 			return this;
 		}
 
+		public NodeParamsBuilder<PK,D,F> withQueueUrl(String queueUrl){
+			this.queueUrl = queueUrl;
+			return this;
+		}
+
 		/******************* build ***************************/
 
 		public NodeParams<PK,D,F> build(){
 			return new NodeParams<>(router, clientId, parentName, databeanSupplier, fielderSupplier, schemaVersion,
 					physicalName, namespace, entityNodePrefix, remoteRouterName, remoteNodeName, recordCallsites,
-					streamName, regionName);
+					streamName, regionName, queueUrl);
 		}
 	}
 
@@ -230,5 +241,9 @@ public class NodeParams<
 
 	public String getRegionName(){
 		return regionName;
+	}
+
+	public String getQueueUrl(){
+		return queueUrl;
 	}
 }
