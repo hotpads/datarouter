@@ -53,11 +53,4 @@ public class DataExportItemKey extends BasePrimaryKey<DataExportItemKey>{
 	public void setRowId(Integer rowId){
 		this.rowId = rowId;
 	}
-
-
-
 }
-
-
-
-
