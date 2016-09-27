@@ -27,8 +27,8 @@ public class NotificationPreferenceKey extends BasePrimaryKey<NotificationPrefer
 	public List<Field<?>> getFields(){
 		return Arrays.asList(
 				new StringField(FieldKeys.userToken, userToken),
-				new StringField(FieldKeys.deviceGroup, deviceGroup.getPersistentString()),
-				new StringField(FieldKeys.typeGroup, typeGroup.getPersistentString()));
+				new StringField(FieldKeys.deviceGroup, deviceGroup.persistentString),
+				new StringField(FieldKeys.typeGroup, typeGroup.persistentString));
 	}
 
 	public NotificationPreferenceKey(String userToken, NotificationDeviceGroup deviceGroup, NotificationTypeGroup

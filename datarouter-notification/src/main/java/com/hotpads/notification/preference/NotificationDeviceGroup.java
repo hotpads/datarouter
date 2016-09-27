@@ -5,13 +5,9 @@ public class NotificationDeviceGroup{
 		public static final String persistentName = "persistentName";
 	}
 
-	private String persistentString;
+	public final String persistentString;
 
 	public NotificationDeviceGroup(String persistentString){
 		this.persistentString = persistentString;
-	}
-
-	public String getPersistentString(){
-		return persistentString;
 	}
 }
