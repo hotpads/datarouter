@@ -57,11 +57,9 @@ implements Serializable {
 
 	public static class DatarouterSessionFielder extends BaseDatabeanFielder<DatarouterSessionKey,DatarouterSession>{
 		public DatarouterSessionFielder(){
+			super(DatarouterSessionKey.class);
 		}
-		@Override
-		public Class<DatarouterSessionKey> getKeyFielderClass(){
-			return DatarouterSessionKey.class;
-		}
+
 		@Override
 		public List<Field<?>> getNonKeyFields(DatarouterSession databean){
 			List<Field<?>> nonKeyFields = new ArrayList<>(databean.getNonKeyFields());
@@ -92,7 +90,7 @@ implements Serializable {
 
 	/************************** construct *************************/
 
-	DatarouterSession(){
+	public DatarouterSession(){
 		super(new DatarouterSessionKey(null));
 	}
 
@@ -127,7 +125,9 @@ implements Serializable {
 	/********************** methods *************************************/
 
 	public DatarouterUserKey getUserKey(){
-		if(userId==null){ return null; }
+		if(userId == null){
+			return null;
+		}
 		return new DatarouterUserKey(userId);
 	}
 
@@ -157,8 +157,8 @@ implements Serializable {
 
 	public boolean isAdmin() {
 		Collection<DatarouterUserRole> rolesNullSafe = getRoles();
-		return rolesNullSafe.contains(DatarouterUserRole.datarouterAdmin) ||
-				rolesNullSafe.contains(DatarouterUserRole.admin);
+		return rolesNullSafe.contains(DatarouterUserRole.datarouterAdmin)
+				|| rolesNullSafe.contains(DatarouterUserRole.admin);
 	}
 
 	public boolean isApiUser() {

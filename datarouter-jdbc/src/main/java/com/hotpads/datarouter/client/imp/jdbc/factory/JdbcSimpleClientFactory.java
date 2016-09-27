@@ -7,12 +7,12 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.hotpads.datarouter.SchemaUpdateOptions;
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.ClientFactory;
 import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.client.availability.ClientAvailabilitySettings;
 import com.hotpads.datarouter.client.imp.jdbc.JdbcClientImp;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SchemaUpdateOptions;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.execute.DatabaseCreator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.execute.JdbcSchemaUpdateService;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.execute.JdbcSchemaUpdateService.JdbcSchemaUpdateServiceFactory;
@@ -28,8 +28,7 @@ implements ClientFactory{
 	private static final Logger logger = LoggerFactory.getLogger(JdbcSimpleClientFactory.class);
 
 	private static final String
-			POOL_DEFAULT = "default",
-			SCHEMA_UPDATE_ENABLE = "schemaUpdate.enable";
+			POOL_DEFAULT = "default";
 
 	private final Datarouter datarouter;
 	private final ClientAvailabilitySettings clientAvailabilitySettings;
@@ -58,7 +57,7 @@ implements ClientFactory{
 		this.schemaUpdateExecuteOptions = new SchemaUpdateOptions(multiProperties,
 				JdbcSchemaUpdateService.EXECUTE_PREFIX, false);
 		this.schemaUpdateEnabled = DrBooleanTool.isTrue(DrPropertiesTool.getFirstOccurrence(multiProperties,
-				SCHEMA_UPDATE_ENABLE));
+				SchemaUpdateOptions.SCHEMA_UPDATE_ENABLE));
 	}
 
 	@Override
