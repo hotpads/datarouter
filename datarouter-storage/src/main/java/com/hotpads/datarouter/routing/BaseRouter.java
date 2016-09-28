@@ -39,7 +39,6 @@ implements Router{
 	protected final Datarouter datarouter;
 	private final String configLocation;
 	private final String name;
-	private final List<String> clientNames;
 	private final RouterOptions routerOptions;
 	private final NodeFactory nodeFactory;
 	private final DatarouterSettings datarouterSettings;
@@ -52,7 +51,6 @@ implements Router{
 		this.configLocation = configLocation;
 		this.name = name;
 		this.datarouterSettings = datarouterSettings;
-		this.clientNames = ClientId.getNames(getClientIds());
 		this.routerOptions = new RouterOptions(getConfigLocation());
 		this.datarouter.registerConfigFile(getConfigLocation());
 		this.nodeFactory = nodeFactory;
@@ -95,7 +93,7 @@ implements Router{
 
 	@Override
 	public List<String> getClientNames(){
-		return clientNames;
+		return ClientId.getNames(getClientIds());
 	}
 
 	@Override
