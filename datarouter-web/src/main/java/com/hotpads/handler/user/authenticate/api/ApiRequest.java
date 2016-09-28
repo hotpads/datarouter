@@ -40,7 +40,7 @@ public class ApiRequest extends BaseDatabean<ApiRequestKey, ApiRequest>{
 
 	/** constructors **************************************************************************************************/
 
-	ApiRequest() {
+	public ApiRequest() {
 		this.key = new ApiRequestKey();
 	}
 

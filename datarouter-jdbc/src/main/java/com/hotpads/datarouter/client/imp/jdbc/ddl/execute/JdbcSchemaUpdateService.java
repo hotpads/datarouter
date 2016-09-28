@@ -20,7 +20,7 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SchemaUpdateOptions;
+import com.hotpads.datarouter.SchemaUpdateOptions;
 import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.client.imp.jdbc.util.JdbcTool;
 import com.hotpads.datarouter.config.DatarouterProperties;

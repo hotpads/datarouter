@@ -10,10 +10,10 @@ import java.util.concurrent.Callable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.hotpads.datarouter.SchemaUpdateOptions;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSet;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCollation;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlRowFormat;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SchemaUpdateOptions;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlTable;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.SqlAlterTableGenerator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.SqlCreateTableGenerator;
@@ -67,7 +67,6 @@ implements Callable<Optional<String>>{
 		MySqlCollation collation = fieldInfo.getCollation();
 		MySqlCharacterSet characterSet = fieldInfo.getCharacterSet();
 		MySqlRowFormat rowFormat = fieldInfo.getRowFormat();
-
 
 		if(executeOptions.getIgnoreClients().contains(clientName)){
 			return Optional.empty();
@@ -136,9 +135,9 @@ implements Callable<Optional<String>>{
 				}
 
 				//print the alter table
-				ConnectionSqlTableGenerator prinitConstructor = new ConnectionSqlTableGenerator(connection, tableName,
+				ConnectionSqlTableGenerator printConstructor = new ConnectionSqlTableGenerator(connection, tableName,
 						schemaName);
-				SqlTable printCurrent = prinitConstructor.generate();
+				SqlTable printCurrent = printConstructor.generate();
 				SqlAlterTableGenerator printAlterTableGenerator = new SqlAlterTableGenerator(printOptions,
 						printCurrent, requested, schemaName);
 				if(printAlterTableGenerator.willAlterTable()){
