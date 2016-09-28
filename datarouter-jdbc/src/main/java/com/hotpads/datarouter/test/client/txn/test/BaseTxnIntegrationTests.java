@@ -7,6 +7,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 
 import com.hotpads.datarouter.client.ClientId;
+import com.hotpads.datarouter.config.DatarouterSettings;
 import com.hotpads.datarouter.config.Isolation;
 import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
@@ -25,6 +26,8 @@ public abstract class BaseTxnIntegrationTests {
 	@Inject
 	private Datarouter datarouter;
 	@Inject
+	private	DatarouterSettings datarouterSettings;
+	@Inject
 	private NodeFactory nodeFactory;
 
 	private ClientId clientId;
@@ -34,7 +37,7 @@ public abstract class BaseTxnIntegrationTests {
 
 	protected void setup(ClientId clientId, boolean useFielder){
 		this.clientId = clientId;
-		router = new TxnTestRouter(datarouter, nodeFactory, clientId, useFielder);
+		router = new TxnTestRouter(datarouter, datarouterSettings, nodeFactory, clientId, useFielder);
 		node = router.txnBean();
 	}
 

@@ -6,6 +6,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import com.hotpads.datarouter.client.ClientId;
+import com.hotpads.datarouter.config.DatarouterSettings;
 import com.hotpads.datarouter.node.factory.EntityNodeFactory;
 import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.routing.BaseRouter;
@@ -33,8 +34,9 @@ public class TraceTestRouter extends BaseRouter{
 	private final TraceEntityNode traceEntity;
 
 	@Inject
-	public TraceTestRouter(Datarouter datarouter, EntityNodeFactory entityNodeFactory, NodeFactory nodeFactory){
-		super(datarouter, DrTestConstants.CONFIG_PATH, NAME);
+	public TraceTestRouter(Datarouter datarouter, DatarouterSettings datarouterSettings,
+			EntityNodeFactory entityNodeFactory, NodeFactory nodeFactory){
+		super(datarouter, DrTestConstants.CONFIG_PATH, NAME, nodeFactory, datarouterSettings);
 
 		traceEntity = new TraceEntityNode(entityNodeFactory, nodeFactory, this, DrTestConstants.CLIENT_drTestHBase,
 				TraceEntityNode.ENTITY_NODE_PARAMS_TraceEntityTest);
