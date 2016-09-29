@@ -150,7 +150,7 @@ public class DatarouterExecutorGuiceModule extends BaseExecutorGuiceModule{
 	}
 
 	private ExecutorService createMetricsAggregationExecutor(){
-		return createScalingPool(datarouter, POOL_metricsAggregation, 8);
+		return createScalingPool(datarouter, POOL_metricsAggregation, 10);
 	}
 
 }
