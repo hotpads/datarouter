@@ -14,6 +14,7 @@ import org.testng.annotations.Test;
 
 import com.hotpads.datarouter.client.imp.jdbc.TestDatarouterJdbcModuleFactory;
 import com.hotpads.datarouter.config.Config;
+import com.hotpads.datarouter.config.DatarouterSettings;
 import com.hotpads.datarouter.config.PutMethod;
 import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.routing.Datarouter;
@@ -30,13 +31,15 @@ public class PutOpIntegrationTests{
 	@Inject
 	private Datarouter datarouter;
 	@Inject
+	private	DatarouterSettings datarouterSettings;
+	@Inject
 	private NodeFactory nodeFactory;
 
 	private PutOpTestRouter router;
 
 	@BeforeClass
 	public void beforeClass(){
-		router = new PutOpTestRouter(datarouter, nodeFactory, DrTestConstants.CLIENT_drTestJdbc0);
+		router = new PutOpTestRouter(datarouter, datarouterSettings, nodeFactory, DrTestConstants.CLIENT_drTestJdbc0);
 
 		resetTable();
 	}

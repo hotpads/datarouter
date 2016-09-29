@@ -31,20 +31,16 @@ implements Router{
 
 	public static final String
 		MODE_development = "development",
-		MODE_production = "production"
-		;
+		MODE_production = "production";
 
-	/********************************* fields **********************************/
 
 	protected final Datarouter datarouter;
 	private final String configLocation;
 	private final String name;
-	private final List<String> clientNames;
 	private final RouterOptions routerOptions;
 	private final NodeFactory nodeFactory;
 	private final DatarouterSettings datarouterSettings;
 
-	/**************************** constructor  ****************************************/
 
 	public BaseRouter(Datarouter datarouter, String configLocation, String name, NodeFactory nodeFactory,
 			DatarouterSettings datarouterSettings){
@@ -52,19 +48,10 @@ implements Router{
 		this.configLocation = configLocation;
 		this.name = name;
 		this.datarouterSettings = datarouterSettings;
-		this.clientNames = ClientId.getNames(getClientIds());
 		this.routerOptions = new RouterOptions(getConfigLocation());
 		this.datarouter.registerConfigFile(getConfigLocation());
 		this.nodeFactory = nodeFactory;
 		registerWithContext();
-	}
-
-	/**
-	 * @deprecated use {@link #BaseRouter(Datarouter, String, String, NodeFactory, DatarouterSettings)}
-	 */
-	@Deprecated
-	public BaseRouter(Datarouter datarouter, String configLocation, String name){
-		this(datarouter, configLocation, name, null, null);
 	}
 
 	/********************************* methods *************************************/
@@ -95,7 +82,7 @@ implements Router{
 
 	@Override
 	public List<String> getClientNames(){
-		return clientNames;
+		return ClientId.getNames(getClientIds());
 	}
 
 	@Override

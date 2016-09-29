@@ -7,6 +7,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import com.hotpads.datarouter.client.ClientId;
+import com.hotpads.datarouter.config.DatarouterSettings;
 import com.hotpads.datarouter.connection.keepalive.KeepAlive;
 import com.hotpads.datarouter.connection.keepalive.KeepAlive.KeepAliveFielder;
 import com.hotpads.datarouter.connection.keepalive.KeepAliveKey;
@@ -36,8 +37,9 @@ extends BaseRouter{
 	/********************************* constructor *****************************/
 
 	@Inject
-	public BasicClientTestRouter(Datarouter datarouter, NodeFactory nodeFactory){
-		super(datarouter, DrTestConstants.CONFIG_PATH, name);
+	public BasicClientTestRouter(Datarouter datarouter,
+			DatarouterSettings datarouterSettings, NodeFactory nodeFactory){
+		super(datarouter, DrTestConstants.CONFIG_PATH, name, nodeFactory, datarouterSettings);
 
 		keepAliveHBase = register(nodeFactory.create(DrTestConstants.CLIENT_drTestHBase, KeepAlive.class,
 				KeepAliveFielder.class, this, false));

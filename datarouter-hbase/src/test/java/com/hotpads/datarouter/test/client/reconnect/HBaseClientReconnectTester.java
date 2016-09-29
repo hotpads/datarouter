@@ -10,6 +10,7 @@ import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
 import com.hotpads.datarouter.config.Config;
+import com.hotpads.datarouter.config.DatarouterSettings;
 import com.hotpads.datarouter.connection.keepalive.KeepAlive;
 import com.hotpads.datarouter.connection.keepalive.KeepAliveKey;
 import com.hotpads.datarouter.exception.DataAccessException;
@@ -34,6 +35,8 @@ public class HBaseClientReconnectTester {
 	@Inject
 	private Datarouter datarouter;
 	@Inject
+	private DatarouterSettings datarouterSettings;
+	@Inject
 	private NodeFactory nodeFactory;
 
 	private BasicClientTestRouter router;
@@ -41,7 +44,7 @@ public class HBaseClientReconnectTester {
 
 	@BeforeClass
 	public void beforeClass(){
-		router = new BasicClientTestRouter(datarouter, nodeFactory);
+		router = new BasicClientTestRouter(datarouter, datarouterSettings, nodeFactory);
 		node = router.keepAliveHBase();
 		resetTable();
 	}
