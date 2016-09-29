@@ -7,12 +7,12 @@ import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.adapter.BaseAdapter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
+import com.hotpads.datarouter.setting.Setting;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.callsite.CallsiteRecorder;
 import com.hotpads.datarouter.util.core.DrBooleanTool;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
-import com.hotpads.util.core.cache.Cached;
 import com.hotpads.util.core.lang.LineOfCode;
 
 public abstract class BaseCallsiteAdapter<
@@ -22,7 +22,7 @@ public abstract class BaseCallsiteAdapter<
 		N extends Node<PK,D>>
 extends BaseAdapter<PK,D,N> implements CallsiteAdapter{
 
-	private final Cached<Boolean> recordCallsites;
+	private final Setting<Boolean> recordCallsites;
 
 	public BaseCallsiteAdapter(NodeParams<PK,D,F> params, N backingNode){
 		super(backingNode);
@@ -47,7 +47,7 @@ extends BaseAdapter<PK,D,N> implements CallsiteAdapter{
 
 	@Override
 	public void recordCallsite(Config config, long startNs, int numItems){
-		if(recordCallsites == null || DrBooleanTool.isFalseOrNull(recordCallsites.get())){
+		if(recordCallsites == null || DrBooleanTool.isFalseOrNull(recordCallsites.getValue())){
 			return;
 		}
 		LineOfCode datarouterMethod = new LineOfCode(2);

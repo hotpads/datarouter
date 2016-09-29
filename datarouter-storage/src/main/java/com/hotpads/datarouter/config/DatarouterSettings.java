@@ -1,14 +1,13 @@
 package com.hotpads.datarouter.config;
 
-import com.hotpads.datarouter.setting.cached.impl.BooleanCachedSetting;
-import com.hotpads.datarouter.setting.cached.impl.IntegerCachedSetting;
+import com.hotpads.datarouter.setting.Setting;
 
 public interface DatarouterSettings{
 
-	BooleanCachedSetting getLoggingConfigUpdaterEnabled();
+	Setting<Boolean> getLoggingConfigUpdaterEnabled();
 
-	BooleanCachedSetting getRecordCallsites();
+	Setting<Boolean> getRecordCallsites();
 
-	IntegerCachedSetting getNumThreadsForMaxThreadsTest();
+	Setting<Integer> getNumThreadsForMaxThreadsTest();
 
 }

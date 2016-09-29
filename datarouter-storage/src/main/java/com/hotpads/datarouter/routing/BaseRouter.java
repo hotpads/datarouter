@@ -13,7 +13,7 @@ import com.hotpads.datarouter.config.DatarouterSettings;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.NodeParams.NodeParamsBuilder;
-import com.hotpads.datarouter.node.factory.NodeFactory;
+import com.hotpads.datarouter.node.factory.BaseNodeFactory;
 import com.hotpads.datarouter.node.op.NodeOps;
 import com.hotpads.datarouter.node.op.combo.IndexedMapStorage;
 import com.hotpads.datarouter.node.type.index.UniqueIndexNode;
@@ -38,11 +38,11 @@ implements Router{
 	private final String configLocation;
 	private final String name;
 	private final RouterOptions routerOptions;
-	private final NodeFactory nodeFactory;
+	private final BaseNodeFactory nodeFactory;
 	private final DatarouterSettings datarouterSettings;
 
 
-	public BaseRouter(Datarouter datarouter, String configLocation, String name, NodeFactory nodeFactory,
+	public BaseRouter(Datarouter datarouter, String configLocation, String name, BaseNodeFactory nodeFactory,
 			DatarouterSettings datarouterSettings){
 		this.datarouter = datarouter;
 		this.configLocation = configLocation;
