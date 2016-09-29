@@ -8,6 +8,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import com.hotpads.datarouter.client.ClientId;
+import com.hotpads.datarouter.config.DatarouterSettings;
 import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.node.op.raw.MapStorage.MapStorageNode;
 import com.hotpads.datarouter.routing.BaseRouter;
@@ -21,9 +22,10 @@ public class ManyFieldTestRouter extends BaseRouter{
 	private final List<ClientId> clientIds;
 
 	@Inject
-	public ManyFieldTestRouter(Datarouter datarouter, NodeFactory nodeFactory, ClientId clientId,
-			boolean useFielder){
-		super(datarouter, DrTestConstants.CONFIG_PATH, ManyFieldTestRouter.class.getSimpleName());
+	public ManyFieldTestRouter(Datarouter datarouter, DatarouterSettings datarouterSettings, NodeFactory nodeFactory,
+			ClientId clientId, boolean useFielder){
+		super(datarouter, DrTestConstants.CONFIG_PATH, ManyFieldTestRouter.class.getSimpleName(), nodeFactory,
+				datarouterSettings);
 
 		this.clientIds = new ArrayList<>();
 		this.clientIds.add(clientId);

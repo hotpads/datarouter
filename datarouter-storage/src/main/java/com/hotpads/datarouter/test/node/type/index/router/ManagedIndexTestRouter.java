@@ -7,6 +7,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import com.hotpads.datarouter.client.ClientId;
+import com.hotpads.datarouter.config.DatarouterSettings;
 import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.routing.BaseRouter;
 import com.hotpads.datarouter.routing.Datarouter;
@@ -21,15 +22,18 @@ public class ManagedIndexTestRouter extends BaseRouter{
 
 		private final Datarouter datarouter;
 		private final NodeFactory nodeFactory;
+		private final DatarouterSettings datarouterSettings;
 
 		@Inject
-		public ManagedIndexTestRouterFactory(Datarouter context, NodeFactory nodeFactory){
-			this.datarouter = context;
+		public ManagedIndexTestRouterFactory(Datarouter datarouter,
+				DatarouterSettings datarouterSettings, NodeFactory nodeFactory){
+			this.datarouter = datarouter;
+			this.datarouterSettings = datarouterSettings;
 			this.nodeFactory = nodeFactory;
 		}
 
 		public ManagedIndexTestRouter createWithClientId(ClientId clientId){
-			return new ManagedIndexTestRouter(datarouter, nodeFactory, clientId);
+			return new ManagedIndexTestRouter(datarouter, datarouterSettings, nodeFactory, clientId);
 		}
 	}
 
@@ -38,8 +42,9 @@ public class ManagedIndexTestRouter extends BaseRouter{
 	public final TestDatabeanWithManagedIndexNode testDatabeanWithManagedIndex;
 	public final TestDatabeanWithTxnManagedIndexNode testDatabeanWithTxnManagedIndex;
 
-	private ManagedIndexTestRouter(Datarouter context, NodeFactory nodeFactory, ClientId clientId){
-		super(context, DrTestConstants.CONFIG_PATH, NAME);
+	private ManagedIndexTestRouter(Datarouter datarouter, DatarouterSettings datarouterSettings,
+			NodeFactory nodeFactory, ClientId clientId){
+		super(datarouter, DrTestConstants.CONFIG_PATH, NAME, nodeFactory, datarouterSettings);
 		testDatabeanWithManagedIndex = new TestDatabeanWithManagedIndexNode(nodeFactory, this, clientId);
 		testDatabeanWithTxnManagedIndex = new TestDatabeanWithTxnManagedIndexNode(nodeFactory, this, clientId);
 	}
