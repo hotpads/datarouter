@@ -13,8 +13,10 @@ public class NotificationPreferenceKey extends BasePrimaryKey<NotificationPrefer
 
 	public static class FieldKeys{
 		public static final StringFieldKey userToken = new StringFieldKey("userToken");
-		public static final StringFieldKey deviceGroup = new StringFieldKey("deviceGroup");
-		public static final StringFieldKey typeGroup = new StringFieldKey("typeGroup");
+		public static final StringFieldKey deviceGroup = new StringFieldKey(NotificationDeviceGroup.F.persistentString)
+				.withColumnName("deviceGroup");
+		public static final StringFieldKey typeGroup = new StringFieldKey(NotificationTypeGroup.F.persistentString)
+				.withColumnName("typeGroup");
 	}
 
 	private String userToken;
@@ -25,8 +27,8 @@ public class NotificationPreferenceKey extends BasePrimaryKey<NotificationPrefer
 	public List<Field<?>> getFields(){
 		return Arrays.asList(
 				new StringField(FieldKeys.userToken, userToken),
-				new StringField(FieldKeys.deviceGroup, deviceGroup.persistentString),
-				new StringField(FieldKeys.typeGroup, typeGroup.persistentString));
+				new StringField("deviceGroup", FieldKeys.deviceGroup, deviceGroup.persistentString),
+				new StringField("typeGroup", FieldKeys.typeGroup, typeGroup.persistentString));
 	}
 
 	public NotificationPreferenceKey(String userToken, NotificationDeviceGroup deviceGroup, NotificationTypeGroup
