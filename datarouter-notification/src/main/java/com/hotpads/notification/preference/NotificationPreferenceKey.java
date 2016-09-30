@@ -36,8 +36,12 @@ public class NotificationPreferenceKey extends BasePrimaryKey<NotificationPrefer
 		this.typeGroup = typeGroup;
 	}
 
+	public NotificationPreferenceKey(String userToken){
+		this(userToken, new NotificationDeviceGroup(null), new NotificationTypeGroup(null));
+	}
+
 	public NotificationPreferenceKey(){
-		this(null, new NotificationDeviceGroup(null), new NotificationTypeGroup(null));
+		this(null);
 	}
 
 	public NotificationDeviceGroup getDeviceGroup(){
