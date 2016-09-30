@@ -47,7 +47,7 @@ public class NotificationTrackingEvent extends BaseDatabean<NotificationTracking
 	public static class NotificationTrackingEventFielder
 	extends BaseDatabeanFielder<NotificationTrackingEventKey,NotificationTrackingEvent>{
 
-		public NotificationTrackingEventFielder(){
+		private NotificationTrackingEventFielder(){
 			super(NotificationTrackingEventKey.class);
 		}
 
@@ -68,7 +68,8 @@ public class NotificationTrackingEvent extends BaseDatabean<NotificationTracking
 
 	/** construct *************************************************************/
 
-	public NotificationTrackingEvent(){
+	@SuppressWarnings("unused")
+	private NotificationTrackingEvent(){
 		this(NotificationTrackingEventType.createEmptyInstance(), null, new TrackingNotificationType(), null);
 	}
 

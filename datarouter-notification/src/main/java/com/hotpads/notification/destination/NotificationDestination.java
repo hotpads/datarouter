@@ -61,7 +61,7 @@ public class NotificationDestination extends BaseDatabean<NotificationDestinatio
 
 	}
 
-	public NotificationDestination(){
+	private NotificationDestination(){
 		this.key = new NotificationDestinationKey();
 	}
 
