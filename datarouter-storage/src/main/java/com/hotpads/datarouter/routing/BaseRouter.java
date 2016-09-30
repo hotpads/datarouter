@@ -13,7 +13,7 @@ import com.hotpads.datarouter.config.DatarouterSettings;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.NodeParams.NodeParamsBuilder;
-import com.hotpads.datarouter.node.factory.NodeFactory;
+import com.hotpads.datarouter.node.factory.BaseNodeFactory;
 import com.hotpads.datarouter.node.op.NodeOps;
 import com.hotpads.datarouter.node.op.combo.IndexedMapStorage;
 import com.hotpads.datarouter.node.type.index.UniqueIndexNode;
@@ -31,40 +31,27 @@ implements Router{
 
 	public static final String
 		MODE_development = "development",
-		MODE_production = "production"
-		;
+		MODE_production = "production";
 
-	/********************************* fields **********************************/
 
 	protected final Datarouter datarouter;
 	private final String configLocation;
 	private final String name;
-	private final List<String> clientNames;
 	private final RouterOptions routerOptions;
-	private final NodeFactory nodeFactory;
+	private final BaseNodeFactory nodeFactory;
 	private final DatarouterSettings datarouterSettings;
 
-	/**************************** constructor  ****************************************/
 
-	public BaseRouter(Datarouter datarouter, String configLocation, String name, NodeFactory nodeFactory,
+	public BaseRouter(Datarouter datarouter, String configLocation, String name, BaseNodeFactory nodeFactory,
 			DatarouterSettings datarouterSettings){
 		this.datarouter = datarouter;
 		this.configLocation = configLocation;
 		this.name = name;
 		this.datarouterSettings = datarouterSettings;
-		this.clientNames = ClientId.getNames(getClientIds());
 		this.routerOptions = new RouterOptions(getConfigLocation());
 		this.datarouter.registerConfigFile(getConfigLocation());
 		this.nodeFactory = nodeFactory;
 		registerWithContext();
-	}
-
-	/**
-	 * @deprecated use {@link #BaseRouter(Datarouter, String, String, NodeFactory, DatarouterSettings)}
-	 */
-	@Deprecated
-	public BaseRouter(Datarouter datarouter, String configLocation, String name){
-		this(datarouter, configLocation, name, null, null);
 	}
 
 	/********************************* methods *************************************/
@@ -95,7 +82,7 @@ implements Router{
 
 	@Override
 	public List<String> getClientNames(){
-		return clientNames;
+		return ClientId.getNames(getClientIds());
 	}
 
 	@Override

@@ -6,9 +6,9 @@ import java.util.function.Supplier;
 import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.routing.Router;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
+import com.hotpads.datarouter.setting.Setting;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.util.core.cache.Cached;
 
 public class NodeParams<
 		PK extends PrimaryKey<PK>,
@@ -39,7 +39,7 @@ public class NodeParams<
 	private final String remoteNodeName;
 
 	//diagnostics
-	private final Cached<Boolean> recordCallsites;
+	private final Setting<Boolean> recordCallsites;
 
 	//for kinesis streams
 	private final String streamName;
@@ -50,7 +50,7 @@ public class NodeParams<
 
 	public NodeParams(Router router, ClientId clientId, String parentName, Supplier<D> databeanSupplier,
 			Supplier<F> fielderSupplier, Integer schemaVersion, String physicalName, String namespace,
-			String entityNodePrefix, String remoteRouterName, String remoteNodeName, Cached<Boolean> recordCallsites,
+			String entityNodePrefix, String remoteRouterName, String remoteNodeName, Setting<Boolean> recordCallsites,
 			String streamName, String regionName, String queueUrl){
 		this.router = router;
 		this.clientId = clientId;
@@ -84,12 +84,11 @@ public class NodeParams<
 		private ClientId clientId;
 		private Integer schemaVersion;
 		private String physicalName;
-		private String qualifiedPhysicalName;
 		private String namespace;
 		private String entityNodePrefix;
 		private String remoteRouterName;
 		private String remoteNodeName;
-		private Cached<Boolean> recordCallsites;
+		private Setting<Boolean> recordCallsites;
 
 		private String streamName;
 		private String regionName;
@@ -133,13 +132,12 @@ public class NodeParams<
 			return this;
 		}
 
-		public NodeParamsBuilder<PK,D,F> withProxyDestination(String remoteRouterName, String remoteNodeName){
+		public NodeParamsBuilder<PK,D,F> withProxyDestination(String remoteRouterName){
 			this.physicalName = remoteRouterName;
-			this.qualifiedPhysicalName = remoteNodeName;
 			return this;
 		}
 
-		public NodeParamsBuilder<PK,D,F> withDiagnostics(Cached<Boolean> recordCallsites){
+		public NodeParamsBuilder<PK,D,F> withDiagnostics(Setting<Boolean> recordCallsites){
 			this.recordCallsites = recordCallsites;
 			return this;
 		}
@@ -231,7 +229,7 @@ public class NodeParams<
 		return entityNodePrefix;
 	}
 
-	public Cached<Boolean> getRecordCallsites(){
+	public Setting<Boolean> getRecordCallsites(){
 		return recordCallsites;
 	}
 

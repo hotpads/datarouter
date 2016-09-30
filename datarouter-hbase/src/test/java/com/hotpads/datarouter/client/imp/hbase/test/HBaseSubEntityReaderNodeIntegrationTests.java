@@ -11,6 +11,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
+import com.hotpads.datarouter.config.DatarouterSettings;
 import com.hotpads.datarouter.node.factory.EntityNodeFactory;
 import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage;
@@ -30,6 +31,8 @@ public class HBaseSubEntityReaderNodeIntegrationTests{
 	@Inject
 	protected Datarouter datarouter;
 	@Inject
+	private DatarouterSettings datarouterSettings;
+	@Inject
 	private EntityNodeFactory entityNodeFactory;
 	@Inject
 	private NodeFactory nodeFactory;
@@ -40,7 +43,7 @@ public class HBaseSubEntityReaderNodeIntegrationTests{
 	@BeforeClass
 	public void beforeClass(){
 		//Use SortedBeanEntityNode.ENTITY_NODE_PARAMS_2 to avoid conflicting with HBaseEntitySortedNodeIntegrationTests
-		SortedNodeTestRouter router = new SortedNodeTestRouter(datarouter, entityNodeFactory,
+		SortedNodeTestRouter router = new SortedNodeTestRouter(datarouter, datarouterSettings, entityNodeFactory,
 				SortedBeanEntityNode.ENTITY_NODE_PARAMS_2, nodeFactory, DrTestConstants.CLIENT_drTestHBase, true);
 		sortedBean = router.sortedBean();
 
