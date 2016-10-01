@@ -24,7 +24,7 @@ public class KinesisClientFactory implements ClientFactory{
 	@Override
 	public Client call(){
 		KinesisAwsCredentialsProvider credentialsProvider = new KinesisAwsCredentialsProvider(kinesisOptions);
-		AmazonKinesisClient amazonKinesisClient = new AmazonKinesisAsyncClient(credentialsProvider.getCredentials());
+		AmazonKinesisClient amazonKinesisClient = new AmazonKinesisAsyncClient(credentialsProvider);
 		return new KinesisClient(clientName, clientType, amazonKinesisClient, credentialsProvider,
 				kinesisOptions, clientAvailabilitySettings);
 	}
