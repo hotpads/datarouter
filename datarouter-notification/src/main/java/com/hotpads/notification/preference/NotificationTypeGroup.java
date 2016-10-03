@@ -10,4 +10,8 @@ public class NotificationTypeGroup{
 	public NotificationTypeGroup(String persistentString){
 		this.persistentString = persistentString;
 	}
+
+	public NotificationTypeGroup(){
+		this(null);
+	}
 }

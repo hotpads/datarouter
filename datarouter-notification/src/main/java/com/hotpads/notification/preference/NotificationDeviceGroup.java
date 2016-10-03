@@ -10,4 +10,8 @@ public class NotificationDeviceGroup{
 	public NotificationDeviceGroup(String persistentString){
 		this.persistentString = persistentString;
 	}
+
+	public NotificationDeviceGroup(){
+		this(null);
+	}
 }
