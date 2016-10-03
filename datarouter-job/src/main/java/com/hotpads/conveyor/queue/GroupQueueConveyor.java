@@ -62,6 +62,9 @@ implements Conveyor, Runnable{
 			}catch(Exception e){
 				logger.error("", e);
 			}finally{
+				if(shutdownRequested.get()){
+					return;
+				}
 				try{
 					ConveyorCounters.inc(this, "sleep", 1);
 					Thread.sleep(SLEEP_DURATION.toMillis());
