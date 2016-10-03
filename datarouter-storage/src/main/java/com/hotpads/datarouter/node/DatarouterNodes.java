@@ -68,8 +68,7 @@ public class DatarouterNodes{
 						physicalNode);
 			}
 			routerNameByNode.put(nodeOrDescendant, routerName);
-			clientIdsByRouterName.putIfAbsent(routerName, new TreeSet<>());
-			clientIdsByRouterName.get(routerName).addAll(node.getClientIds());
+			clientIdsByRouterName.computeIfAbsent(routerName, k -> new TreeSet<>()).addAll(node.getClientIds());
 		}
 
 		return node;
