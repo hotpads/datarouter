@@ -1,7 +1,5 @@
 package com.hotpads.datarouter.test.node.basic.manyfield;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 
 import javax.inject.Inject;
@@ -19,28 +17,16 @@ import com.hotpads.datarouter.test.node.basic.manyfield.ManyFieldBean.ManyFieldT
 @Singleton
 public class ManyFieldTestRouter extends BaseRouter{
 
-	private final List<ClientId> clientIds;
-
 	@Inject
 	public ManyFieldTestRouter(Datarouter datarouter, DatarouterSettings datarouterSettings, NodeFactory nodeFactory,
 			ClientId clientId, boolean useFielder){
 		super(datarouter, DrTestConstants.CONFIG_PATH, ManyFieldTestRouter.class.getSimpleName(), nodeFactory,
 				datarouterSettings);
 
-		this.clientIds = new ArrayList<>();
-		this.clientIds.add(clientId);
-
 		Class<ManyFieldTypeBeanFielder> fielderClass = useFielder ? ManyFieldTypeBeanFielder.class : null;
 		this.manyFieldTypeBeanNode = register(nodeFactory.create(clientId, ManyFieldBean.class, fielderClass,
 				new Random().nextInt(), this, false));
 
-	}
-
-	/********************************** config **********************************/
-
-	@Override
-	public List<ClientId> getClientIds(){
-		return clientIds;
 	}
 
 	/********************************** nodes **********************************/

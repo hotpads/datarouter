@@ -1,12 +1,8 @@
 package com.hotpads.datarouter.test.sqs;
 
-import java.util.Arrays;
-import java.util.List;
-
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.config.DatarouterSettings;
 import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.node.factory.QueueNodeFactory;
@@ -39,8 +35,4 @@ public class SqsTestRouter extends BaseRouter{
 				TestDatabean::new, "GroupTestDatabean", TestDatabeanFielder::new, true));
 	}
 
-	@Override
-	public List<ClientId> getClientIds(){
-		return Arrays.asList(DrTestConstants.CLIENT_drTestSqs);
-	}
 }
