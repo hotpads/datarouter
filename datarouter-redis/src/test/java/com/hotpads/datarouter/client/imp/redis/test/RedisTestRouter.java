@@ -1,7 +1,5 @@
 package com.hotpads.datarouter.client.imp.redis.test;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 
 import javax.inject.Inject;
@@ -25,15 +23,6 @@ public class RedisTestRouter extends BaseRouter{
 
 	private final DatarouterClients datarouterClients;
 
-	/** client names *********************************************************/
-
-	private final List<ClientId> clientIds;
-
-	@Override
-	public List<ClientId> getClientIds(){
-		return clientIds;
-	}
-
 	/** nodes ****************************************************************/
 
 	private final RedisNode<RedisDatabeanKey,RedisDatabean,RedisDatabeanFielder> redisNode;
@@ -44,7 +33,6 @@ public class RedisTestRouter extends BaseRouter{
 	public RedisTestRouter(Datarouter datarouter, DatarouterClients datarouterClients, ClientId clientId){
 		super(datarouter, DrTestConstants.CONFIG_PATH, RedisTestRouter.class.getSimpleName(), null, null);
 		this.datarouterClients = datarouterClients;
-		this.clientIds = Arrays.asList(clientId);
 		this.redisNode = buildRedisNode(clientId);
 	}
 

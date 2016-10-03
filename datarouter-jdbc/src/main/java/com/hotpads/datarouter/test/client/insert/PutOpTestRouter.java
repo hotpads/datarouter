@@ -1,8 +1,5 @@
 package com.hotpads.datarouter.test.client.insert;
 
-import java.util.Arrays;
-import java.util.List;
-
 import javax.inject.Singleton;
 
 import com.hotpads.datarouter.client.ClientId;
@@ -34,13 +31,6 @@ extends BaseRouter{
 		this.putOptTest = register(nodeFactory.create(clientId, PutOpTestBean.class, PutOpTestBeanFielder.class, this,
 				false));
 
-	}
-
-	/********************************** config **********************************/
-
-	@Override
-	public List<ClientId> getClientIds(){
-		return Arrays.asList(DrTestConstants.CLIENT_drTestJdbc0);
 	}
 
 
