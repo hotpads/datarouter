@@ -19,13 +19,12 @@ public class ManyFieldTestRouter extends BaseRouter{
 
 	@Inject
 	public ManyFieldTestRouter(Datarouter datarouter, DatarouterSettings datarouterSettings, NodeFactory nodeFactory,
-			ClientId clientId, boolean useFielder){
+			ClientId clientId){
 		super(datarouter, DrTestConstants.CONFIG_PATH, ManyFieldTestRouter.class.getSimpleName(), nodeFactory,
 				datarouterSettings);
 
-		Class<ManyFieldTypeBeanFielder> fielderClass = useFielder ? ManyFieldTypeBeanFielder.class : null;
-		this.manyFieldTypeBeanNode = register(nodeFactory.create(clientId, ManyFieldBean.class, fielderClass,
-				new Random().nextInt(), this, false));
+		this.manyFieldTypeBeanNode = create(clientId, ManyFieldBean::new, ManyFieldTypeBeanFielder::new)
+				.withSchemaVersion(new Random().nextInt()).buildAndRegister();
 
 	}
 

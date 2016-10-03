@@ -9,7 +9,7 @@ public class MemoryManyFieldIntegrationTests extends BaseManyFieldIntegrationTes
 
 	@BeforeClass
 	public void beforeClass(){
-		setup(DrTestConstants.CLIENT_drTestMemory, true);
+		setup(DrTestConstants.CLIENT_drTestMemory);
 	}
 
 	@Override

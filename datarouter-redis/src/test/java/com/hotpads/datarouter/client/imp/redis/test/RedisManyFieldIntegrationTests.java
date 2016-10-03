@@ -9,7 +9,7 @@ public class RedisManyFieldIntegrationTests extends BaseManyFieldIntegrationTest
 
 	@BeforeClass
 	public void beforeClass(){
-		setup(DrTestConstants.CLIENT_drTestRedis, true);
+		setup(DrTestConstants.CLIENT_drTestRedis);
 	}
 
 	@Override
