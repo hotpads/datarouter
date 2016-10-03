@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.conveyor;
+package com.hotpads.conveyor;
 
 public interface Conveyor extends Comparable<Conveyor>, Runnable{
 

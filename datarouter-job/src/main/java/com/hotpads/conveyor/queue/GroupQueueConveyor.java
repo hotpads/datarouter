@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.conveyor;
+package com.hotpads.conveyor.queue;
 
 import java.time.Duration;
 import java.util.List;
@@ -7,6 +7,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.hotpads.conveyor.Conveyor;
 import com.hotpads.datarouter.node.op.raw.GroupQueueStorage;
 import com.hotpads.datarouter.node.op.raw.MapStorage;
 import com.hotpads.datarouter.setting.Setting;
