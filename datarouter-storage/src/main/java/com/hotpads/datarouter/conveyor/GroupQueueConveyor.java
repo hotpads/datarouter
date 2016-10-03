@@ -17,39 +17,43 @@ import com.hotpads.datarouter.storage.queue.GroupQueueMessage;
 public class GroupQueueConveyor<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>>
-implements Runnable{
+implements Conveyor, Runnable{
 	private static final Logger logger = LoggerFactory.getLogger(GroupQueueConveyor.class);
 
 	private static final Duration SLEEP_DURATION = Duration.ofSeconds(5);
 
+	private final String name;
 	private final Setting<Boolean> shouldRunSetting;
 	private final GroupQueueStorage<PK,D> groupQueueStorage;
 	private final MapStorage<PK,D> mapStorage;
 
-	private final AtomicBoolean requestShutdown;
+	private final AtomicBoolean shutdownRequested;
 	private long numDatabeansDrained = 0;
 
 
-	public GroupQueueConveyor(Setting<Boolean> shouldRunSetting, GroupQueueStorage<PK,D> groupQueueStorage,
+	public GroupQueueConveyor(String name, Setting<Boolean> shouldRunSetting, GroupQueueStorage<PK,D> groupQueueStorage,
 			MapStorage<PK,D> mapStorage){
+		this.name = name;
 		this.shouldRunSetting = shouldRunSetting;
 		this.groupQueueStorage = groupQueueStorage;
 		this.mapStorage = mapStorage;
-		this.requestShutdown = new AtomicBoolean(false);
+		this.shutdownRequested = new AtomicBoolean(false);
 	}
 
 
 	@Override
 	public void run(){
-		while(shouldRun()){
+		while(true){
 			try{
-				for(GroupQueueMessage<PK,D> message : groupQueueStorage.peekUntilEmpty(null)){
-					List<D> databeans = message.getDatabeans();
-					mapStorage.putMulti(databeans, null);
-					numDatabeansDrained += databeans.size();
-					groupQueueStorage.ack(message.getKey(), null);
-					if(!shouldRun()){
-						break;
+				if(shouldRun()){
+					for(GroupQueueMessage<PK,D> message : groupQueueStorage.peekUntilEmpty(null)){
+						List<D> databeans = message.getDatabeans();
+						mapStorage.putMulti(databeans, null);
+						numDatabeansDrained += databeans.size();
+						groupQueueStorage.ack(message.getKey(), null);
+						if(!shouldRun()){
+							break;
+						}
 					}
 				}
 			}catch(Exception e){
@@ -64,12 +68,18 @@ implements Runnable{
 		}
 	}
 
+	@Override
+	public String getName(){
+		return name;
+	}
+
+	@Override
 	public void shutdown(){
-		requestShutdown.set(true);
+		shutdownRequested.set(true);
 	}
 
 	private boolean shouldRun(){
-		return shouldRunSetting.getValue() && !requestShutdown.get();
+		return shouldRunSetting.getValue() && !shutdownRequested.get();
 	}
 
 }
