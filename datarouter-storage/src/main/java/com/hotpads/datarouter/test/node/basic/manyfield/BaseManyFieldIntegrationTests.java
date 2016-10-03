@@ -15,6 +15,7 @@ import org.testng.internal.junit.ArrayAsserts;
 
 import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.config.Config;
+import com.hotpads.datarouter.config.DatarouterSettings;
 import com.hotpads.datarouter.config.PutMethod;
 import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.node.op.raw.MapStorage.MapStorageNode;
@@ -34,6 +35,8 @@ public abstract class BaseManyFieldIntegrationTests{
 	@Inject
 	private Datarouter datarouter;
 	@Inject
+	private	DatarouterSettings datarouterSettings;
+	@Inject
 	private NodeFactory nodeFactory;
 
 	protected MapStorageNode<ManyFieldBeanKey,ManyFieldBean> mapNode;
@@ -44,7 +47,8 @@ public abstract class BaseManyFieldIntegrationTests{
 	/***************************** constructors **************************************/
 
 	public void setup(ClientId clientId, boolean useFielder){
-		ManyFieldTestRouter router = new ManyFieldTestRouter(datarouter, nodeFactory, clientId, useFielder);
+		ManyFieldTestRouter router = new ManyFieldTestRouter(datarouter, datarouterSettings, nodeFactory, clientId,
+				useFielder);
 		mapNode = router.manyFieldTypeBean();
 
 		resetTable();

@@ -7,6 +7,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import com.hotpads.datarouter.client.ClientId;
+import com.hotpads.datarouter.config.DatarouterSettings;
 import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import com.hotpads.datarouter.routing.BaseRouter;
@@ -27,8 +28,10 @@ public class TxnTestRouter extends BaseRouter{
 	/********************************* constructor *****************************/
 
 	@Inject
-	public TxnTestRouter(Datarouter datarouter, NodeFactory nodeFactory, ClientId clientId, boolean useFielder){
-		super(datarouter, DrTestConstants.CONFIG_PATH, TxnTestRouter.class.getSimpleName()+"Router");
+	public TxnTestRouter(Datarouter datarouter,
+			DatarouterSettings datarouterSettings, NodeFactory nodeFactory, ClientId clientId, boolean useFielder){
+		super(datarouter, DrTestConstants.CONFIG_PATH, TxnTestRouter.class.getSimpleName() + "Router", nodeFactory,
+				datarouterSettings);
 
 		this.clientIds = new ArrayList<>();
 		this.clientIds.add(clientId);

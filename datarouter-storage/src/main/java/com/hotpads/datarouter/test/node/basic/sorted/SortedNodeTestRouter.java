@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.hotpads.datarouter.client.ClientId;
+import com.hotpads.datarouter.config.DatarouterSettings;
 import com.hotpads.datarouter.node.entity.EntityNodeParams;
 import com.hotpads.datarouter.node.factory.EntityNodeFactory;
 import com.hotpads.datarouter.node.factory.NodeFactory;
@@ -29,11 +30,11 @@ public class SortedNodeTestRouter extends BaseRouter{
 	private SortedMapStorageNode<SortedBeanKey,SortedBean> sortedBeanNode;
 	private SortedBeanEntityNode sortedBeanEntityNode;
 
-
-	public SortedNodeTestRouter(Datarouter datarouter, EntityNodeFactory entityNodeFactory,
+	public SortedNodeTestRouter(Datarouter datarouter, DatarouterSettings datarouterSettings,
+			EntityNodeFactory entityNodeFactory,
 			EntityNodeParams<SortedBeanEntityKey,SortedBeanEntity> entityNodeParams, NodeFactory nodeFactory,
 			ClientId clientId, boolean entity){
-		super(datarouter, DrTestConstants.CONFIG_PATH, NAME);
+		super(datarouter, DrTestConstants.CONFIG_PATH, NAME, nodeFactory, datarouterSettings);
 
 		this.clientIds = new ArrayList<>();
 		this.clientIds.add(clientId);

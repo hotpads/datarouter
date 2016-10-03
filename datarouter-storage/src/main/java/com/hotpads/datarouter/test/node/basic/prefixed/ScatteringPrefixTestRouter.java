@@ -7,6 +7,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import com.hotpads.datarouter.client.ClientId;
+import com.hotpads.datarouter.config.DatarouterSettings;
 import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage;
 import com.hotpads.datarouter.node.op.raw.SortedStorage;
@@ -21,8 +22,10 @@ public class ScatteringPrefixTestRouter extends BaseRouter{
 	private final List<ClientId> clientIds;
 
 	@Inject
-	public ScatteringPrefixTestRouter(Datarouter datarouter, NodeFactory nodeFactory, ClientId clientId){
-		super(datarouter, DrTestConstants.CONFIG_PATH, ScatteringPrefixTestRouter.class.getSimpleName());
+	public ScatteringPrefixTestRouter(Datarouter datarouter, DatarouterSettings datarouterSettings,
+			NodeFactory nodeFactory, ClientId clientId){
+		super(datarouter, DrTestConstants.CONFIG_PATH, ScatteringPrefixTestRouter.class.getSimpleName(), nodeFactory,
+				datarouterSettings);
 
 		this.clientIds = new ArrayList<>();
 		this.clientIds.add(clientId);

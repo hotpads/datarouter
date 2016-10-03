@@ -12,6 +12,7 @@ import org.testng.annotations.Test;
 
 import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.config.Config;
+import com.hotpads.datarouter.config.DatarouterSettings;
 import com.hotpads.datarouter.config.PutMethod;
 import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.routing.Datarouter;
@@ -32,12 +33,14 @@ public abstract class BaseScatteringPrefixIntegrationTests{
 	@Inject
 	private Datarouter datarouter;
 	@Inject
+	private	DatarouterSettings datarouterSettings;
+	@Inject
 	private NodeFactory nodeFactory;
 
 	private ScatteringPrefixTestRouter router;
 
 	public void setup(ClientId clientId){
-		router = new ScatteringPrefixTestRouter(datarouter, nodeFactory, clientId);
+		router = new ScatteringPrefixTestRouter(datarouter, datarouterSettings, nodeFactory, clientId);
 
 		resetTable();
 	}

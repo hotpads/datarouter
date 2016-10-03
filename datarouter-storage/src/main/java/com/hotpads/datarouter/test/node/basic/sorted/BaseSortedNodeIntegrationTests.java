@@ -18,6 +18,7 @@ import org.testng.annotations.Test;
 import com.google.common.collect.Sets;
 import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.config.Config;
+import com.hotpads.datarouter.config.DatarouterSettings;
 import com.hotpads.datarouter.config.PutMethod;
 import com.hotpads.datarouter.node.factory.EntityNodeFactory;
 import com.hotpads.datarouter.node.factory.NodeFactory;
@@ -44,6 +45,8 @@ public abstract class BaseSortedNodeIntegrationTests{
 	@Inject
 	protected Datarouter datarouter;
 	@Inject
+	private DatarouterSettings datarouterSettings;
+	@Inject
 	private EntityNodeFactory entityNodeFactory;
 	@Inject
 	private NodeFactory nodeFactory;
@@ -56,8 +59,8 @@ public abstract class BaseSortedNodeIntegrationTests{
 	/***************************** setup/teardown **************************************/
 
 	protected void setup(ClientId clientId, boolean entity){
-		router = new SortedNodeTestRouter(datarouter, entityNodeFactory, SortedBeanEntityNode.ENTITY_NODE_PARAMS_1,
-				nodeFactory, clientId, entity);
+		router = new SortedNodeTestRouter(datarouter, datarouterSettings, entityNodeFactory,
+				SortedBeanEntityNode.ENTITY_NODE_PARAMS_1, nodeFactory, clientId, entity);
 		sortedNode = router.sortedBean();
 
 		resetTable(true);
