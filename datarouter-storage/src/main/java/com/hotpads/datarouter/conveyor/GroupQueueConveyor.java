@@ -44,10 +44,22 @@ implements Runnable{
 			mapStorage.putMulti(databeans, null);
 			numDatabeansDrained += databeans.size();
 			groupQueueStorage.ack(message.getKey(), null);
-			if(!shouldRunSetting.getValue()){
+			if(!shouldRun()){
 				break;
 			}
 		}
+	}
+
+	public void shutdown(){
+		exec.shutdown();
+		try{
+			exec.awaitTermination(5, TimeUnit.SECONDS);
+		}catch(InterruptedException e){
+		}
+	}
+
+	private boolean shouldRun(){
+		return !exec.isShutdown() && !Thread.currentThread().isInterrupted() && shouldRunSetting.getValue();
 	}
 
 }
