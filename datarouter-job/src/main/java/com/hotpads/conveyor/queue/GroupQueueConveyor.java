@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hotpads.conveyor.Conveyor;
+import com.hotpads.conveyor.ConveyorCounters;
 import com.hotpads.datarouter.node.op.raw.GroupQueueStorage;
 import com.hotpads.datarouter.node.op.raw.MapStorage;
 import com.hotpads.datarouter.setting.Setting;
@@ -29,7 +30,6 @@ implements Conveyor, Runnable{
 	private final MapStorage<PK,D> mapStorage;
 
 	private final AtomicBoolean shutdownRequested;
-	private long numDatabeansDrained = 0;
 
 
 	public GroupQueueConveyor(String name, Setting<Boolean> shouldRunSetting, GroupQueueStorage<PK,D> groupQueueStorage,
@@ -50,8 +50,10 @@ implements Conveyor, Runnable{
 					for(GroupQueueMessage<PK,D> message : groupQueueStorage.peekUntilEmpty(null)){
 						List<D> databeans = message.getDatabeans();
 						mapStorage.putMulti(databeans, null);
-						numDatabeansDrained += databeans.size();
+						ConveyorCounters.inc(this, "putMulti", 1);
+						ConveyorCounters.inc(this, "putMulti databeans", databeans.size());
 						groupQueueStorage.ack(message.getKey(), null);
+						ConveyorCounters.inc(this, "ack", 1);
 						if(!shouldRun()){
 							break;
 						}
@@ -61,6 +63,7 @@ implements Conveyor, Runnable{
 				logger.error("", e);
 			}finally{
 				try{
+					ConveyorCounters.inc(this, "sleep", 1);
 					Thread.sleep(SLEEP_DURATION.toMillis());
 				}catch(InterruptedException e){
 					Thread.currentThread().isInterrupted();//clear flag
