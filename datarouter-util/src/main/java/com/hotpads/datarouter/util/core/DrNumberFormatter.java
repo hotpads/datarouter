@@ -8,15 +8,15 @@ import org.junit.Test;
 
 public class DrNumberFormatter {
 
-	public static String format(Number n, int numFractionDigits){
-		return format(n, "", "", numFractionDigits, true);
+	public static String format(Number number, int numFractionDigits){
+		return format(number, "", "", numFractionDigits, true);
 	}
 
-	public static String format(Number n, String prefix, String suffix, int numFractionDigits){
-		return format(n, prefix, suffix, numFractionDigits, true);
+	public static String format(Number number, String prefix, String suffix, int numFractionDigits){
+		return format(number, prefix, suffix, numFractionDigits, true);
 	}
 
-	public static String format(Number n, String prefix, String suffix, int numFractionDigits, boolean grouping){
+	public static String format(Number number, String prefix, String suffix, int numFractionDigits, boolean grouping){
 		DecimalFormat df = new DecimalFormat();
 		df.setMaximumFractionDigits(numFractionDigits);
 		df.setMinimumFractionDigits(numFractionDigits);
@@ -26,7 +26,7 @@ public class DrNumberFormatter {
 		df.setNegativePrefix(prefix + "-");
 		df.setPositiveSuffix(suffix);
 		df.setNegativeSuffix(suffix);
-		return df.format(n);
+		return df.format(number);
 	}
 
 	public static String addCommas(final Number pValue){
