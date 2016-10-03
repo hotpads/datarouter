@@ -1,8 +1,5 @@
 package com.hotpads.datarouter.test.node.basic.map;
 
-import java.util.Arrays;
-import java.util.List;
-
 import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.config.DatarouterSettings;
 import com.hotpads.datarouter.node.entity.EntityNodeParams;
@@ -23,15 +20,12 @@ public class MapStorageTestRouter extends BaseRouter{
 	private static final String NAME = "MapStorageTestRouter";
 	private static final int VERSION_mapStorageTestRouter = 1;
 
-	private final List<ClientId> clientIds;
-
 	public final MapStorageNode<MapStorageBeanKey,MapStorageBean> mapStorageNode;
 
 	public MapStorageTestRouter(Datarouter datarouter, NodeFactory nodeFactory, ClientId clientId,
 			DatarouterSettings datarouterSettings, boolean entity, EntityNodeFactory entityNodeFactory,
 			EntityNodeParams<MapStorageBeanEntityKey,MapStorageBeanEntity> entityNodeParams){
 		super(datarouter, DrTestConstants.CONFIG_PATH, NAME, nodeFactory, datarouterSettings);
-		this.clientIds = Arrays.asList(clientId);
 
 		if(entity){
 			mapStorageNode = new MapStorageEntityNode(entityNodeFactory, nodeFactory, this, clientId, entityNodeParams)
@@ -43,8 +37,4 @@ public class MapStorageTestRouter extends BaseRouter{
 		}
 	}
 
-	@Override
-	public List<ClientId> getClientIds(){
-		return clientIds;
-	}
 }

@@ -1,7 +1,5 @@
 package com.hotpads.datarouter.client.imp.memcached.test;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 
 import javax.inject.Inject;
@@ -28,11 +26,6 @@ public class TallyTestRouter extends BaseRouter{
 	private static final int VERSION_Tally = 2;
 
 	private final DatarouterClients datarouterClients;
-
-	@Override
-	public List<ClientId> getClientIds(){
-		return Arrays.asList(DrTestConstants.CLIENT_drTestMemcached);
-	}
 
 	/********************************** nodes ********************************/
 
