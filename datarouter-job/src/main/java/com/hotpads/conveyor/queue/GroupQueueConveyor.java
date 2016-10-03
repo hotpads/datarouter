@@ -9,12 +9,14 @@ import org.slf4j.LoggerFactory;
 
 import com.hotpads.conveyor.Conveyor;
 import com.hotpads.conveyor.ConveyorCounters;
+import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.op.raw.GroupQueueStorage;
 import com.hotpads.datarouter.node.op.raw.MapStorage;
 import com.hotpads.datarouter.setting.Setting;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.queue.GroupQueueMessage;
+import com.hotpads.util.core.concurrent.ThreadTool;
 
 public class GroupQueueConveyor<
 		PK extends PrimaryKey<PK>,
@@ -22,6 +24,8 @@ public class GroupQueueConveyor<
 implements Conveyor, Runnable{
 	private static final Logger logger = LoggerFactory.getLogger(GroupQueueConveyor.class);
 
+	private static final Duration PEEK_TIMEOUT = Duration.ofSeconds(5);//will delay server shutdown
+	private static final Config PEEK_CONFIG = new Config().setTimeoutMs(PEEK_TIMEOUT.toMillis());
 	private static final Duration SLEEP_DURATION = Duration.ofSeconds(5);
 
 	private final String name;
@@ -44,13 +48,13 @@ implements Conveyor, Runnable{
 
 	@Override
 	public void run(){
-		while(true){
+		while(!shutdownRequested.get()){
 			try{
 				if(shouldRun()){
-					for(GroupQueueMessage<PK,D> message : groupQueueStorage.peekUntilEmpty(null)){
+					for(GroupQueueMessage<PK,D> message : groupQueueStorage.peekUntilEmpty(PEEK_CONFIG)){
 						List<D> databeans = message.getDatabeans();
 						mapStorage.putMulti(databeans, null);
-						ConveyorCounters.inc(this, "putMulti", 1);
+						ConveyorCounters.inc(this, "putMulti ops", 1);
 						ConveyorCounters.inc(this, "putMulti databeans", databeans.size());
 						groupQueueStorage.ack(message.getKey(), null);
 						ConveyorCounters.inc(this, "ack", 1);
@@ -58,21 +62,15 @@ implements Conveyor, Runnable{
 							break;
 						}
 					}
+				}else{
+					ThreadTool.sleep(SLEEP_DURATION.toMillis());
 				}
 			}catch(Exception e){
 				logger.error("", e);
-			}finally{
-				if(shutdownRequested.get()){
-					return;
-				}
-				try{
-					ConveyorCounters.inc(this, "sleep", 1);
-					Thread.sleep(SLEEP_DURATION.toMillis());
-				}catch(InterruptedException e){
-					Thread.currentThread().isInterrupted();//clear flag
-				}
+				ThreadTool.sleep(SLEEP_DURATION.toMillis());
 			}
 		}
+		logger.warn("exiting {}", getName());
 	}
 
 	@Override
