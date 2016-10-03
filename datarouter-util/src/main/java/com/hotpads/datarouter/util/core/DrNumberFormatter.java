@@ -9,15 +9,15 @@ import org.junit.Test;
 public class DrNumberFormatter {
 
 	public static String format(Number n, int numFractionDigits){
-		return format(n, "", "", numFractionDigits);
+		return format(n, "", "", numFractionDigits, true);
 	}
 
-	public static String format(Number n, String prefix, String suffix, int numFractionDigits){
+	public static String format(Number n, String prefix, String suffix, int numFractionDigits, boolean grouping){
 		DecimalFormat df = new DecimalFormat();
 		df.setMaximumFractionDigits(numFractionDigits);
 		df.setMinimumFractionDigits(numFractionDigits);
 		df.setRoundingMode(RoundingMode.HALF_UP);
-		df.setGroupingUsed(true);
+		df.setGroupingUsed(grouping);
 		df.setPositivePrefix(prefix);
 		df.setNegativePrefix(prefix + "-");
 		df.setPositiveSuffix(suffix);
@@ -25,17 +25,20 @@ public class DrNumberFormatter {
 		return df.format(n);
 	}
 
+	public static String format(Number n, int numFractionDigits, boolean grouping){
+		return format(n, "", "", numFractionDigits, grouping);
+	}
+
 	public static String addCommas(final Number pValue){
 		if(pValue==null){ return null; }
 		return new DecimalFormat("###,###,###,###,###,###,###,###.#####################").format(pValue);//biggest is 19 digits
 	}
 
-
-
 	public static class Tests{
 		@Test public void testFormat(){
 			double input = 1234567890.1234567890;
-			Assert.assertEquals("$1,234,567,890.12", format(input,"$","",2));
+			Assert.assertEquals("$1,234,567,890.12", format(input,"$","",2,true));
+			Assert.assertEquals("1,234,567,890", format(input,"","",0,true));
 		}
 		@Test public void testAddCommas(){
 			Short nullShort = null;
