@@ -33,11 +33,12 @@ public class QueueNodeFactory{
 			F extends DatabeanFielder<PK,D>,
 			N extends Node<PK,D>>
 		N createSingleQueueNode(ClientId clientId, Router router, Supplier<D> databeanSupplier, String queueName,
-			Supplier<F> fielderSupplier, boolean addAdapter, String namespace){
+			Supplier<F> fielderSupplier, boolean addAdapter, String namespace, String queueUrl){
 		NodeParams<PK,D,F> params = new NodeParamsBuilder<>(router, databeanSupplier, fielderSupplier)
 				.withClientId(clientId)
 				.withTableName(queueName)
 				.withNamespace(namespace)
+				.withQueueUrl(queueUrl)
 				.build();
 		QueueClientType clientType = getClientType(params);
 		return wrapWithAdapterIfNecessary(clientType, clientType.createSingleQueueNode(params), addAdapter, params);
@@ -48,8 +49,19 @@ public class QueueNodeFactory{
 			F extends DatabeanFielder<PK,D>,
 			N extends Node<PK,D>>
 	N createSingleQueueNode(ClientId clientId, Router router, Supplier<D> databeanSupplier, String queueName,
+			Supplier<F> fielderSupplier, boolean addAdapter, String namespace){
+		return createSingleQueueNode(clientId, router, databeanSupplier, queueName, fielderSupplier, addAdapter,
+				namespace, null);
+	}
+
+	public <PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>,
+			N extends Node<PK,D>>
+	N createSingleQueueNode(ClientId clientId, Router router, Supplier<D> databeanSupplier, String queueName,
 			Supplier<F> fielderSupplier, boolean addAdapter){
-		return createSingleQueueNode(clientId, router, databeanSupplier, queueName, fielderSupplier, addAdapter, null);
+		return createSingleQueueNode(clientId, router, databeanSupplier, queueName, fielderSupplier, addAdapter, null,
+				null);
 	}
 
 	public <PK extends PrimaryKey<PK>,
