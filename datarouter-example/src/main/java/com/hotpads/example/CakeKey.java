@@ -8,7 +8,6 @@ import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.StringFieldKey;
 import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
 
-@SuppressWarnings("serial")
 public class CakeKey extends BasePrimaryKey<CakeKey>{
 
 	private String name;

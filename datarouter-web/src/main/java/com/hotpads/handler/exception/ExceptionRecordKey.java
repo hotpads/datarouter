@@ -9,7 +9,6 @@ import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
 import com.hotpads.handler.exception.ExceptionRecord.F;
 
-@SuppressWarnings("serial")
 public class ExceptionRecordKey extends BasePrimaryKey<ExceptionRecordKey> {
 
 	public static int

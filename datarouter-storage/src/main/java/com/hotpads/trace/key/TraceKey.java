@@ -13,7 +13,6 @@ import com.hotpads.datarouter.storage.field.imp.comparable.LongFieldKey;
 import com.hotpads.datarouter.storage.key.primary.base.BaseEntityPrimaryKey;
 import com.hotpads.util.core.number.RandomTool;
 
-@SuppressWarnings("serial")
 public class TraceKey extends BaseEntityPrimaryKey<TraceEntityKey,TraceKey>{
 
 	private Long id;

@@ -13,7 +13,6 @@ import com.hotpads.datarouter.storage.key.entity.base.BaseEntityPartitioner;
 import com.hotpads.datarouter.storage.key.entity.base.NoOpEntityPartitioner;
 import com.hotpads.datarouter.util.core.DrHashMethods;
 
-@SuppressWarnings("serial")
 public class SortedBeanEntityKey
 extends BaseEntityKey<SortedBeanEntityKey>{
 

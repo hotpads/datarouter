@@ -18,7 +18,6 @@ import com.hotpads.joblet.enums.JobletPriority;
 import com.hotpads.joblet.enums.JobletType;
 
 
-@SuppressWarnings("serial")
 public class JobletRequestKey extends BasePrimaryKey<JobletRequestKey>{
 
 	public static final int DEFAULT_STRING_LENGTH = MySqlColumnType.MAX_LENGTH_VARCHAR;

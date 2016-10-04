@@ -9,7 +9,6 @@ import com.hotpads.datarouter.storage.field.imp.positive.UInt63Field;
 import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
 import com.hotpads.datarouter.test.client.insert.generated.PutOpGeneratedTestBeanKey;
 
-@SuppressWarnings("serial")
 public class PutOpIdGeneratedManagedTestBeanKey
 extends BasePrimaryKey<PutOpIdGeneratedManagedTestBeanKey>
 implements PutOpGeneratedTestBeanKey<PutOpIdGeneratedManagedTestBeanKey>{

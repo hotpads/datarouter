@@ -81,7 +81,6 @@ public class NotificationLog extends BaseDatabean<NotificationLogKey,Notificatio
 
 	}
 
-	@SuppressWarnings("serial")
 	public static class NotificationLogByReverseCreatedMsLookup extends BaseLookup<NotificationLogKey>{
 
 		private Long reverseCreatedMs;

@@ -9,7 +9,6 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
 
-@SuppressWarnings("serial")
 public class OpOptimizedBatchSizeKey extends BasePrimaryKey<OpOptimizedBatchSizeKey>{
 
 	private String opName;

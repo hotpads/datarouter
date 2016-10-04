@@ -9,7 +9,6 @@ import com.hotpads.datarouter.storage.field.imp.comparable.LongFieldKey;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt63Field;
 import com.hotpads.datarouter.storage.key.primary.base.BaseEntityPrimaryKey;
 
-@SuppressWarnings("serial")
 public class MapStorageBeanKey extends BaseEntityPrimaryKey<MapStorageBeanEntityKey,MapStorageBeanKey>{
 
 	private final MapStorageBeanEntityKey entityKey;

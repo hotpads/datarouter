@@ -7,7 +7,6 @@ import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
 
-@SuppressWarnings("serial")
 public class PutOpTestBeanKey extends BasePrimaryKey<PutOpTestBeanKey>{
 
 	private String a;
