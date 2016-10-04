@@ -5,12 +5,11 @@ import java.util.Collection;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.servlet.http.HttpServletRequest;
 
 import com.hotpads.datarouter.inject.DatarouterInjector;
-import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.BaseHandler.Handler;
 import com.hotpads.util.core.collections.Pair;
-import com.hotpads.util.core.java.ReflectionTool;
 
 @Singleton
 public class HandlerTypingHelper{
@@ -22,10 +21,9 @@ public class HandlerTypingHelper{
 	 * This methods goes through all methods who are named like methodName and tries to find the one that has the
 	 * largest number of parameters. It generates the array of arguments at the same time.
 	 */
-	public Pair<Method, Object[]> findMethodByName(BaseHandler handler, String methodName){
+	public Pair<Method, Object[]> findMethodByName(Collection<Method> possibleMethods, HttpServletRequest request){
 		Method method = null;
 		Object[] args = new Object[]{};
-		Collection<Method> possibleMethods = ReflectionTool.getDeclaredMethodsWithName(handler.getClass(), methodName);
 		for(Method possibleMethod : possibleMethods){
 			if(!possibleMethod.isAnnotationPresent(Handler.class)){
 				continue;
@@ -33,7 +31,7 @@ public class HandlerTypingHelper{
 			try{
 				Class<? extends HandlerDecoder> decoderClass = possibleMethod.getAnnotation(Handler.class).decoder();
 				HandlerDecoder decoder = injector.getInstance(decoderClass);
-				Object[] newArgs = decoder.decode(handler.getRequest(), possibleMethod);
+				Object[] newArgs = decoder.decode(request, possibleMethod);
 				if(newArgs == null){
 					continue;
 				}
