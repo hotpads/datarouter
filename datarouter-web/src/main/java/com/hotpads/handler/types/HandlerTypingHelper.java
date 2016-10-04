@@ -25,9 +25,6 @@ public class HandlerTypingHelper{
 		Method method = null;
 		Object[] args = new Object[]{};
 		for(Method possibleMethod : possibleMethods){
-			if(!possibleMethod.isAnnotationPresent(Handler.class)){
-				continue;
-			}
 			try{
 				Class<? extends HandlerDecoder> decoderClass = possibleMethod.getAnnotation(Handler.class).decoder();
 				HandlerDecoder decoder = injector.getInstance(decoderClass);
