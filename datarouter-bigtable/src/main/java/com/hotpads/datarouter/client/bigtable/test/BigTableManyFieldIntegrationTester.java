@@ -10,7 +10,7 @@ public class BigTableManyFieldIntegrationTester extends BaseManyFieldIntegration
 
 	@BeforeClass
 	public void beforeClass(){
-		setup(DrTestConstants.CLIENT_drTestBigTable, true);
+		setup(DrTestConstants.CLIENT_drTestBigTable);
 	}
 
 	@Override

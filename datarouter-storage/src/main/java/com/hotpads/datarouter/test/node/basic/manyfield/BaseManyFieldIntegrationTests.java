@@ -46,9 +46,8 @@ public abstract class BaseManyFieldIntegrationTests{
 
 	/***************************** constructors **************************************/
 
-	public void setup(ClientId clientId, boolean useFielder){
-		ManyFieldTestRouter router = new ManyFieldTestRouter(datarouter, datarouterSettings, nodeFactory, clientId,
-				useFielder);
+	public void setup(ClientId clientId){
+		ManyFieldTestRouter router = new ManyFieldTestRouter(datarouter, datarouterSettings, nodeFactory, clientId);
 		mapNode = router.manyFieldTypeBean();
 
 		resetTable();
