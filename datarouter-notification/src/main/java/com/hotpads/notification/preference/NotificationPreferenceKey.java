@@ -8,7 +8,6 @@ import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.StringFieldKey;
 import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
 
-@SuppressWarnings("serial")
 public class NotificationPreferenceKey extends BasePrimaryKey<NotificationPreferenceKey>{
 
 	public static class FieldKeys{
