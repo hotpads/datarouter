@@ -22,7 +22,6 @@ public class TestIndexedDatabeanFielder extends TestDatabeanFielder{
 		return indexes;
 	}
 
-	@SuppressWarnings("serial")
 	public static class TestDatabeanByBarLookup extends BaseLookup<TestDatabeanKey>{
 
 		private String bar;
@@ -38,7 +37,6 @@ public class TestIndexedDatabeanFielder extends TestDatabeanFielder{
 
 	}
 
-	@SuppressWarnings("serial")
 	public static class TestDatabeanByBazLookup extends BaseLookup<TestDatabeanKey>
 	implements UniqueKey<TestDatabeanKey>{
 

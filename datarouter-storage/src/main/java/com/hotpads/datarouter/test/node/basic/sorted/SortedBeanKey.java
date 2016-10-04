@@ -14,7 +14,6 @@ import com.hotpads.datarouter.storage.key.primary.base.BaseEntityPrimaryKey;
 
 /********************************* indexes ***********************************/
 
-@SuppressWarnings("serial")
 public class SortedBeanKey extends BaseEntityPrimaryKey<SortedBeanEntityKey,SortedBeanKey>{
 
 	private String a;

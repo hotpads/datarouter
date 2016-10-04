@@ -12,7 +12,6 @@ import com.hotpads.datarouter.storage.field.imp.comparable.LongField;
 import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
 import com.hotpads.util.core.number.RandomTool;
 
-@SuppressWarnings("serial")
 public class ConfigKey extends BasePrimaryKey<ConfigKey>{
 	private Long id;
 	private static Random random = new Random();

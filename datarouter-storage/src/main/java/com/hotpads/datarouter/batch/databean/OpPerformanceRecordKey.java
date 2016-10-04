@@ -10,7 +10,6 @@ import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.comparable.LongField;
 import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
 
-@SuppressWarnings("serial")
 public class OpPerformanceRecordKey extends BasePrimaryKey<OpPerformanceRecordKey>{
 
 	private String opName;
