@@ -32,7 +32,7 @@ public class DatarouterWebDispatcher extends BaseDispatcher{
 			PATH_executors = PATH_datarouter + "/executors",
 			PATH_data = PATH_datarouter + DATA,
 			PATH_testApi = PATH_datarouter + "/testApi",
-			PATH_webAppInstances = PATH_datarouter + "/server/webapps";
+			PATH_webAppInstances = PATH_datarouter + "/webapps";
 
 	public DatarouterWebDispatcher(DatarouterInjector injector, String servletContextPath){
 		super(injector, servletContextPath, PATH_datarouter);

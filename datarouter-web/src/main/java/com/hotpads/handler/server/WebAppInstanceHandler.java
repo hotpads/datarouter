@@ -24,7 +24,7 @@ public class WebAppInstanceHandler extends BaseHandler{
 		Mav mav = new Mav("/jsp/server/webAppTable.jsp");
 
 		Collection<WebAppInstance> webApps = DrListTool.createArrayList(webAppInstanceRouter.webApp.scan(null, null));
-		mav.put("webApps", webApps);
+		mav.put("webAppInstances", webApps);
 
     	return mav;
 	}

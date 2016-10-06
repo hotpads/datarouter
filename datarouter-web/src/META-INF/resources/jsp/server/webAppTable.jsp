@@ -1,8 +1,9 @@
 <%@ include file="/WEB-INF/prelude.jspf" %>
-
+<!DOCTYPE html>
 <html>
 <head>
 	<title>Web App Settings</title>
+	<%@ include file="/jsp/generic/datarouterHead.jsp" %>
 <style>
 
 .settingsTable{
@@ -24,16 +25,16 @@ padding:1px;
 </style>
 
 	<script>
-	require(["util/ext/sorttable"], function() {});
+	require(["sorttable"]);
 	</script>
 </head>
 <body>
-<div class="page-container">
-<h2 class="page-title">Web App Settings</h2>
-<div class="clearfix"></div>
-<div class="page-content-container page-content-thicktop page-single-column">
-		<h1>Web Apps</h1><br/>
-		<table class="sortable">
+<%@ include file="/jsp/menu/common-navbar.jsp" %>
+<%@ include file="/jsp/menu/dr-navbar.jsp"%>
+<div class="container">
+	<h2 class="page-header">Web App Instances</h2>
+	<div class="page-content-container page-content-thicktop page-single-column">
+		<table class="sortable table table-bordered table-condensed"  style="border-collapse:collapse;">
 			<tr>
 				<th>Web App</th>
 				<th>Server Name</th>
@@ -44,7 +45,7 @@ padding:1px;
 				<th>Build Date</th>
 				<th>Commit Id</th>
 			</tr>
-			<c:forEach items="${webApps}" var="webApp">
+			<c:forEach items="${webAppInstances}" var="webApp">
 			<tr>
 				<td>${webApp.key.webAppName}</td>
 				<td>${webApp.key.serverName}</td>
@@ -57,7 +58,6 @@ padding:1px;
 			</tr>
 			</c:forEach>
 		</table>
-		
 	</div>
 </div>
 </body>
