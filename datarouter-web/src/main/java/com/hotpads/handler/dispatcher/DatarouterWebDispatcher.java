@@ -13,6 +13,7 @@ import com.hotpads.handler.admin.StackTracesManagerHandler;
 import com.hotpads.handler.admin.client.memory.MemoryHandler;
 import com.hotpads.handler.datarouter.DatabeanViewerHandler;
 import com.hotpads.handler.datarouter.ViewNodeDataHandler;
+import com.hotpads.handler.server.WebAppInstanceHandler;
 
 public class DatarouterWebDispatcher extends BaseDispatcher{
 
@@ -30,7 +31,8 @@ public class DatarouterWebDispatcher extends BaseDispatcher{
 			PATH_nodes_browseData = PATH_datarouter + "/nodes/browseData",
 			PATH_executors = PATH_datarouter + "/executors",
 			PATH_data = PATH_datarouter + DATA,
-			PATH_testApi = PATH_datarouter + "/testApi";
+			PATH_testApi = PATH_datarouter + "/testApi",
+			PATH_webAppInstances = PATH_datarouter + "/server/webapps";
 
 	public DatarouterWebDispatcher(DatarouterInjector injector, String servletContextPath){
 		super(injector, servletContextPath, PATH_datarouter);
@@ -52,6 +54,8 @@ public class DatarouterWebDispatcher extends BaseDispatcher{
 		// example: /datarouter/data/fadafa/adfadfafqe/abc or /datarouter/data/fadafa/adfadfafqe/abc.1341 or
 		// /datarouter/data/fadafa/adfadfafqe/abbc_2152
 		handle(PATH_data + REGEX_TWO_DIRECTORY_PLUS).withHandler(DatabeanViewerHandler.class);
+
+		handle(PATH_webAppInstances).withHandler(WebAppInstanceHandler.class);
 	}
 
 }
