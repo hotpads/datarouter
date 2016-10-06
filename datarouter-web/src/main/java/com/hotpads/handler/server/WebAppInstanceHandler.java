@@ -26,7 +26,7 @@ public class WebAppInstanceHandler extends BaseHandler{
 		Collection<WebAppInstance> webApps = DrListTool.createArrayList(webAppInstanceRouter.webApp.scan(null, null));
 		mav.put("webAppInstances", webApps);
 
-    	return mav;
+		return mav;
 	}
 
 }

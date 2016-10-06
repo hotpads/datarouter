@@ -38,7 +38,6 @@ public class WebAppInstanceRouter extends BaseRouter {
 	public WebAppInstanceRouter(Datarouter datarouter, DatarouterProperties datarouterProperties, NodeFactory
 			nodeFactory, DatarouterSettings datarouterSettings){
 		super(datarouter, datarouterProperties.getConfigPath(), NAME, nodeFactory, datarouterSettings);
-
 		webApp = createAndRegister(CLIENT_config, WebAppInstance::new, WebAppFielder::new);
 	}
 }
