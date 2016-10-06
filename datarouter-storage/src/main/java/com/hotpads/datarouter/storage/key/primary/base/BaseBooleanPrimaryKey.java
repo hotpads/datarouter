@@ -5,7 +5,6 @@ import com.hotpads.datarouter.storage.key.base.BaseBooleanKey;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
 
-@SuppressWarnings("serial")
 public abstract class BaseBooleanPrimaryKey<PK extends PrimaryKey<PK>>
 extends BaseBooleanKey<PK>
 implements PrimaryKey<PK>{

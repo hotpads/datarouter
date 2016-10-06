@@ -3,7 +3,6 @@ package com.hotpads.notification.log;
 import com.hotpads.notification.databean.BaseNotificationUserIdEntityKey;
 import com.hotpads.notification.databean.NotificationUserId;
 
-@SuppressWarnings("serial")
 public class NotificationLogEntityKey extends BaseNotificationUserIdEntityKey<NotificationLogEntityKey>{
 
 	@SuppressWarnings("unused") // used by datarouter reflection

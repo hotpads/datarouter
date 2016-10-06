@@ -9,7 +9,6 @@ import com.hotpads.datarouter.storage.field.imp.enums.StringEnumField;
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
 import com.hotpads.datarouter.storage.key.entity.base.BaseEntityKey;
 
-@SuppressWarnings("serial")
 public abstract class BaseNotificationUserIdEntityKey<EK extends EntityKey<EK>> extends BaseEntityKey<EK>{
 
 	public static final String PREFIX_userId = "userId";

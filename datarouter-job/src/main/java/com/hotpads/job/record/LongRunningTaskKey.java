@@ -12,7 +12,6 @@ import com.hotpads.datarouter.storage.field.imp.custom.LongDateFieldKey;
 import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
 import com.hotpads.job.trigger.Job;
 
-@SuppressWarnings("serial")
 public class LongRunningTaskKey extends BasePrimaryKey<LongRunningTaskKey>{
 
 	private Date triggerTime;

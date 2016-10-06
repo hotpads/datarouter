@@ -8,7 +8,6 @@ import com.hotpads.datarouter.storage.field.imp.positive.UInt63Field;
 import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
 
 
-@SuppressWarnings("serial")
 public class PoolTestBeanKey extends BasePrimaryKey<PoolTestBeanKey>{
 
 	/********************************* fields ***********************************/

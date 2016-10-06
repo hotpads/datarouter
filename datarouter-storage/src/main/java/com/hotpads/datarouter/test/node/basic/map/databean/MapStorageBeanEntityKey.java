@@ -10,7 +10,6 @@ import com.hotpads.datarouter.storage.key.entity.base.BaseEntityKey;
 import com.hotpads.datarouter.storage.key.entity.base.BaseEntityPartitioner;
 import com.hotpads.datarouter.util.core.DrHashMethods;
 
-@SuppressWarnings("serial")
 public class MapStorageBeanEntityKey extends BaseEntityKey<MapStorageBeanEntityKey>{
 
 	private static int NUM_PARTITIONS = 4;
