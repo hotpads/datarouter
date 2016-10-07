@@ -64,11 +64,6 @@ implements Runnable, Conveyor{
 		return name;
 	}
 
-	@Override
-	public void shutdown(){
-		Thread.currentThread().interrupt();
-	}
-
 	private boolean shouldRun(){
 		return !Thread.currentThread().isInterrupted() && shouldRunSetting.getValue();
 	}

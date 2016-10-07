@@ -3,7 +3,6 @@ package com.hotpads.conveyor;
 public interface Conveyor extends Comparable<Conveyor>, Runnable{
 
 	String getName();
-	void shutdown();
 
 
 	@Override
