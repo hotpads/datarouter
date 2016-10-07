@@ -22,7 +22,7 @@ public class GroupQueueConveyor<
 implements Runnable, Conveyor{
 	private static final Logger logger = LoggerFactory.getLogger(GroupQueueConveyor.class);
 
-	private static final Duration PEEK_TIMEOUT = Duration.ofSeconds(5);//will delay server shutdown
+	private static final Duration PEEK_TIMEOUT = Duration.ofSeconds(5);
 	private static final Config PEEK_CONFIG = new Config().setTimeoutMs(PEEK_TIMEOUT.toMillis());
 
 	private final String name;
@@ -42,18 +42,21 @@ implements Runnable, Conveyor{
 
 	@Override
 	public void run(){
-		for(GroupQueueMessage<PK,D> message : groupQueueStorage.peekUntilEmpty(PEEK_CONFIG)){
-			List<D> databeans = message.getDatabeans();
-			mapStorage.putMulti(databeans, null);
-			ConveyorCounters.inc(this, "putMulti ops", 1);
-			ConveyorCounters.inc(this, "putMulti databeans", databeans.size());
-			groupQueueStorage.ack(message.getKey(), null);
-			ConveyorCounters.inc(this, "ack", 1);
-			if(!shouldRun()){
-				break;
+		try{
+			for(GroupQueueMessage<PK,D> message : groupQueueStorage.peekUntilEmpty(PEEK_CONFIG)){
+				List<D> databeans = message.getDatabeans();
+				mapStorage.putMulti(databeans, null);
+				ConveyorCounters.inc(this, "putMulti ops", 1);
+				ConveyorCounters.inc(this, "putMulti databeans", databeans.size());
+				groupQueueStorage.ack(message.getKey(), null);
+				ConveyorCounters.inc(this, "ack", 1);
+				if(!shouldRun()){
+					break;
+				}
 			}
+		}catch(Exception e){
+			logger.warn("swallowing exception so ScheduledExecutorService restarts this Runnable", e);
 		}
-		logger.warn("exiting {}", getName());
 	}
 
 	@Override
