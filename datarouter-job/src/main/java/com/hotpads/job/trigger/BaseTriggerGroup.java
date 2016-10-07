@@ -34,4 +34,8 @@ public abstract class BaseTriggerGroup implements TriggerGroup{
 
 	protected abstract void registerTriggers();
 
+	protected void install(TriggerGroup triggerGroup){
+		triggerGroup.makeJobPackages().forEach(jobPackages::add);
+	}
+
 }
