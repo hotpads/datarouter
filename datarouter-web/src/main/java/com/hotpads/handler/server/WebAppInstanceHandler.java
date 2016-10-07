@@ -1,10 +1,10 @@
 package com.hotpads.handler.server;
 
 import java.util.Collection;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
-import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.mav.Mav;
 import com.hotpads.server.WebAppInstanceNodes;
@@ -18,7 +18,7 @@ public class WebAppInstanceHandler extends BaseHandler{
 	protected Mav handleDefault(){
 		Mav mav = new Mav("/jsp/server/webApps.jsp");
 
-		Collection<WebAppInstance> webApps = DrListTool.createArrayList(webAppNodes.getWebApps().scan(null, null));
+		Collection<WebAppInstance> webApps = webAppNodes.getWebApps().stream(null, null).collect(Collectors.toList());
 		mav.put("webAppInstances", webApps);
 
 		return mav;
