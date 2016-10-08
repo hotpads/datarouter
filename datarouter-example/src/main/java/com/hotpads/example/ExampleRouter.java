@@ -1,8 +1,5 @@
 package com.hotpads.example;
 
-import java.util.Arrays;
-import java.util.List;
-
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -25,11 +22,6 @@ public class ExampleRouter extends BaseRouter{
 	public ExampleRouter(Datarouter datarouter, DatarouterSettings datarouterSettings, NodeFactory nodeFactory){
 		super(datarouter, "/hotpads/config/datarouter-example.properties", "example", nodeFactory, datarouterSettings);
 		cake = register(nodeFactory.create(memory, Cake.class, CakeFielder.class, this, false));
-	}
-
-	@Override
-	public List<ClientId> getClientIds(){
-		return Arrays.asList(memory);
 	}
 
 }

@@ -45,8 +45,12 @@ public class RoutersHandler extends BaseHandler {
 	@Override
 	protected Mav handleDefault(){
 		Mav mav = new Mav(JSP_datarouterMenu);
+		//DatarouterProperties info
+		mav.put("serverType", datarouterProperties.getServerType());
 		mav.put("serverName", datarouterProperties.getServerName());
+		mav.put("serverPublicIp", datarouterProperties.getServerPublicIp());
 		mav.put("administratorEmail", datarouterProperties.getAdministratorEmail());
+		//Routers, nodes, clients
 		mav.put("routers", datarouter.getRouters());
 		mav.put("lazyClientProviderByName", datarouterClients.getLazyClientProviderByName());
 		mav.put("uninitializedClientNames", datarouterClients.getClientNamesByInitialized().get(false));

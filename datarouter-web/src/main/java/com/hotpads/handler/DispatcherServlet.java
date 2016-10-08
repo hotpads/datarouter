@@ -38,6 +38,7 @@ public abstract class DispatcherServlet extends HttpServlet implements InjectorR
 	throws IOException, ServletException{
 
 		response.setContentType("text/plain");
+		response.setHeader("X-Frame-Options", "SAMEORIGIN"); //clickjacking protection
 
 		boolean handled = false;
 		for(BaseDispatcher dispatcher : dispatchers){

@@ -1,8 +1,5 @@
 package com.hotpads.datarouter.test.node.type.index.router;
 
-import java.util.Collections;
-import java.util.List;
-
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -47,11 +44,6 @@ public class ManagedIndexTestRouter extends BaseRouter{
 		super(datarouter, DrTestConstants.CONFIG_PATH, NAME, nodeFactory, datarouterSettings);
 		testDatabeanWithManagedIndex = new TestDatabeanWithManagedIndexNode(nodeFactory, this, clientId);
 		testDatabeanWithTxnManagedIndex = new TestDatabeanWithTxnManagedIndexNode(nodeFactory, this, clientId);
-	}
-
-	@Override
-	public List<ClientId> getClientIds(){
-		return Collections.emptyList();
 	}
 
 }

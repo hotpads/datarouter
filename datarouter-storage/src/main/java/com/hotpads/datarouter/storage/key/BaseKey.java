@@ -2,7 +2,6 @@ package com.hotpads.datarouter.storage.key;
 
 import com.hotpads.datarouter.storage.field.BaseFieldSet;
 
-@SuppressWarnings("serial")
 public abstract class BaseKey<K extends Key<K>>
 extends BaseFieldSet<K>
 implements Key<K>{

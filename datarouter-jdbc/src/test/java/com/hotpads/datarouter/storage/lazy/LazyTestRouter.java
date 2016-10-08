@@ -1,12 +1,8 @@
 package com.hotpads.datarouter.storage.lazy;
 
-import java.util.Collections;
-import java.util.List;
-
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.config.DatarouterSettings;
 import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage;
@@ -33,11 +29,6 @@ public class LazyTestRouter extends BaseRouter{
 				TestIndexedDatabeanFielder.class, this, true));
 		lazyTestDatabean = new LazyIndexedSortedMapStorageReader<>(testDatabean);
 
-	}
-
-	@Override
-	public List<ClientId> getClientIds(){
-		return Collections.singletonList(DrTestConstants.CLIENT_drTestJdbc0);
 	}
 
 }

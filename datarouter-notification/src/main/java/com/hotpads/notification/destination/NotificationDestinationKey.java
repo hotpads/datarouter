@@ -9,7 +9,6 @@ import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.enums.StringEnumField;
 import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
 
-@SuppressWarnings("serial")
 public class NotificationDestinationKey extends BasePrimaryKey<NotificationDestinationKey> {
 
 	private String token;

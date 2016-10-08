@@ -12,7 +12,6 @@ import com.hotpads.datarouter.storage.field.imp.comparable.LongFieldKey;
 import com.hotpads.datarouter.storage.key.primary.base.BaseEntityPrimaryKey;
 import com.hotpads.util.core.number.RandomTool;
 
-@SuppressWarnings("serial")
 public class TraceThreadKey extends BaseEntityPrimaryKey<TraceEntityKey,TraceThreadKey>{
 
 	private Long traceId;

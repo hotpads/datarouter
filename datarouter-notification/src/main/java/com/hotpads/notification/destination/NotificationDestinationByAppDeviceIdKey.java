@@ -10,7 +10,6 @@ import com.hotpads.datarouter.storage.field.imp.enums.StringEnumField;
 import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
 import com.hotpads.notification.destination.NotificationDestinationKey.F;
 
-@SuppressWarnings("serial")
 public class NotificationDestinationByAppDeviceIdKey extends BasePrimaryKey<NotificationDestinationByAppDeviceIdKey>{
 
 	private NotificationDestinationAppEnum app;

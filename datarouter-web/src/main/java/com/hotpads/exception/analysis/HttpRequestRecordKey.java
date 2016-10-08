@@ -8,7 +8,6 @@ import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
 
-@SuppressWarnings("serial")
 public class HttpRequestRecordKey extends BasePrimaryKey<HttpRequestRecordKey>{
 
 	private String id;

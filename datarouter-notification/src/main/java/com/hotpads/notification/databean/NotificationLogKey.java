@@ -13,7 +13,6 @@ import com.hotpads.datarouter.storage.key.primary.base.BaseEntityPrimaryKey;
 import com.hotpads.datarouter.util.core.DrDateTool;
 import com.hotpads.notification.log.NotificationLogEntityKey;
 
-@SuppressWarnings("serial")
 public class NotificationLogKey extends BaseEntityPrimaryKey<NotificationLogEntityKey,NotificationLogKey>{
 
 	private NotificationLogEntityKey entityKey;

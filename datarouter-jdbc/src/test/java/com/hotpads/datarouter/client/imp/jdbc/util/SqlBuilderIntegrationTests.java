@@ -167,7 +167,6 @@ public class SqlBuilderIntegrationTests{
 		Assert.assertEquals(stringBuilder.toString(), "foo=?,bar=?");
 	}
 
-	@SuppressWarnings("serial")
 	private static class TestKey extends BaseKey<TestKey>{
 
 		private final Integer foo;
@@ -187,7 +186,6 @@ public class SqlBuilderIntegrationTests{
 
 	}
 
-	@SuppressWarnings("serial")
 	private static class OtherKey extends TestKey{
 
 		private OtherKey(String bar, Integer foo){

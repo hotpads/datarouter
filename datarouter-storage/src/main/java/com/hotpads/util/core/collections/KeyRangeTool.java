@@ -78,7 +78,6 @@ public class KeyRangeTool{
 			Assert.assertNull(incrementLastChar(""));
 		}
 
-		@SuppressWarnings("serial")
 		private class TestKey extends BasePrimaryKey<TestKey>{
 
 			private Integer foo;

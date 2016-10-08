@@ -371,7 +371,6 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 	}
 
 	/********************************Lookup*************************************/
-	@SuppressWarnings("serial")
 	public static class HttpRequestRecordByExceptionRecord extends BaseLookup<HttpRequestRecordKey>
 	implements UniqueKey<HttpRequestRecordKey> {
 
