@@ -42,7 +42,7 @@ extends SqsOp<PK,D,F,List<T>>{
 		ReceiveMessageRequest request = new ReceiveMessageRequest(queueUrl);
 
 		//waitTime
-		long configTimeoutMs = config.getVisibilityTimeoutMsOrUse(Long.MAX_VALUE);
+		long configTimeoutMs = config.getTimeoutMsOrUse(Long.MAX_VALUE);
 		long waitTimeMs = Math.min(configTimeoutMs, BaseSqsNode.MAX_TIMEOUT_SECONDS * 1000);
 		request.setWaitTimeSeconds((int)Duration.ofMillis(waitTimeMs).getSeconds());//must fit in an int
 
