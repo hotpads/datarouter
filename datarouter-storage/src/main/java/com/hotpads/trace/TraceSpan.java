@@ -63,7 +63,7 @@ public class TraceSpan extends BaseDatabean<TraceSpanKey,TraceSpan>{
 
 	/*********************** constructor **********************************/
 
-	TraceSpan(){
+	public TraceSpan(){
 		this.key = new TraceSpanKey(null, null, null);
 	}
 
