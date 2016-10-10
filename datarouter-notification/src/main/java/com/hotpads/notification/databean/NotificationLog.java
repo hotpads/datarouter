@@ -2,12 +2,8 @@ package com.hotpads.notification.databean;
 
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCollation;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlRowFormat;
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
@@ -17,9 +13,6 @@ import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.StringFieldKey;
 import com.hotpads.datarouter.storage.field.imp.array.DelimitedStringArrayField;
 import com.hotpads.datarouter.storage.field.imp.array.DelimitedStringArrayFieldKey;
-import com.hotpads.datarouter.storage.field.imp.comparable.LongField;
-import com.hotpads.datarouter.storage.field.imp.enums.StringEnumField;
-import com.hotpads.datarouter.storage.key.multi.BaseLookup;
 
 public class NotificationLog extends BaseDatabean<NotificationLogKey,NotificationLog>{
 
@@ -48,11 +41,6 @@ public class NotificationLog extends BaseDatabean<NotificationLogKey,Notificatio
 		}
 
 		@Override
-		public Class<NotificationLogKey> getKeyFielderClass(){
-			return NotificationLogKey.class;
-		}
-
-		@Override
 		public List<Field<?>> getNonKeyFields(NotificationLog notificationLog){
 			return Arrays.asList(
 					new DateField(FieldKeys.created, notificationLog.created),
@@ -60,44 +48,6 @@ public class NotificationLog extends BaseDatabean<NotificationLogKey,Notificatio
 					new DelimitedStringArrayField(FieldKeys.itemIds, notificationLog.itemIds),
 					new StringField(FieldKeys.channel, notificationLog.channel),
 					new StringField(FieldKeys.id, notificationLog.id));
-		}
-
-		@Override
-		public Map<String,List<Field<?>>> getIndexes(NotificationLog notificationLog){
-			Map<String,List<Field<?>>> map = new HashMap<>();
-			map.put("index_reverseCreatedMs", new NotificationLogByReverseCreatedMsLookup(null).getFields());
-			return map;
-		}
-
-		@Override
-		public MySqlCollation getCollation(){
-			return MySqlCollation.utf8_general_ci;
-		}
-
-		@Override
-		public MySqlRowFormat getRowFormat(){
-			return MySqlRowFormat.COMPACT;
-		}
-
-	}
-
-	public static class NotificationLogByReverseCreatedMsLookup extends BaseLookup<NotificationLogKey>{
-
-		private Long reverseCreatedMs;
-
-		public NotificationLogByReverseCreatedMsLookup(Long reverseCreatedMs){
-			this.reverseCreatedMs = reverseCreatedMs;
-		}
-
-		@Override
-		public List<Field<?>> getFields(){
-			return Arrays.asList(
-					new LongField(NotificationLogKey.FieldKeys.reverseCreatedMs, reverseCreatedMs),
-					new StringEnumField<>(NotificationUserId.FieldKeys.userType, null, BaseNotificationUserIdEntityKey
-							.PREFIX_userId),
-					new StringField(BaseNotificationUserIdEntityKey.PREFIX_userId, NotificationUserId.FieldKeys.userId,
-							null),
-					new StringField(NotificationLogKey.FieldKeys.template, null));
 		}
 
 	}
