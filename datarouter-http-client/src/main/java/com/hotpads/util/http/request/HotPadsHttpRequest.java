@@ -1,5 +1,6 @@
 package com.hotpads.util.http.request;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -30,9 +31,9 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.Args;
+import org.apache.http.util.EntityUtils;
 
 import com.hotpads.util.http.client.HotPadsHttpClientConfig;
-import com.hotpads.util.http.response.exception.HotPadsHttpRuntimeException;
 
 public class HotPadsHttpRequest {
 
@@ -167,18 +168,13 @@ public class HotPadsHttpRequest {
 		return entity;
 	}
 
-	/**
-	 * Entities only exist in HttpPut, HttpPatch, HttpPost
-	 * @deprecated use {@link #setEntity(String, ContentType)} instead
-	 */
-	@Deprecated
-	public HotPadsHttpRequest setEntity(String entity) {
-		try {
-			this.entity = new StringEntity(entity);
-		} catch (UnsupportedEncodingException e) {
-			throw new HotPadsHttpRuntimeException(e);
+	/** Entities only exist in HttpPut, HttpPatch, HttpPost */
+	public String getEntityAsString(){
+		try{
+			return EntityUtils.toString(entity);
+		}catch(IOException e){
+			throw new RuntimeException(e);
 		}
-		return this;
 	}
 
 	/** Entities only exist in HttpPut, HttpPatch, HttpPost */
