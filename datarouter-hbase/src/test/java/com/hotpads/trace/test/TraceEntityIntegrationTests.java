@@ -31,11 +31,11 @@ public class TraceEntityIntegrationTests{
 
 	private void resetTable(){
 		nodes.trace().deleteAll(null);
-		nodes.thread().deleteAll(null);
-		nodes.span().deleteAll(null);
+		nodes.traceThread().deleteAll(null);
+		nodes.traceSpan().deleteAll(null);
 		nodes.trace().putMulti(TraceTestDataGenerator.traces, null);
-		nodes.thread().putMulti(TraceTestDataGenerator.threads, null);
-		nodes.span().putMulti(TraceTestDataGenerator.spans, null);
+		nodes.traceThread().putMulti(TraceTestDataGenerator.threads, null);
+		nodes.traceSpan().putMulti(TraceTestDataGenerator.spans, null);
 	}
 
 	@Test
@@ -43,9 +43,9 @@ public class TraceEntityIntegrationTests{
 		resetTable();
 		long numTraces = nodes.trace().stream(null, null).count();
 		Assert.assertEquals(TraceTestDataGenerator.traces.size(), numTraces);
-		long numThreads = nodes.thread().stream(null, null).count();
+		long numThreads = nodes.traceThread().stream(null, null).count();
 		Assert.assertEquals(TraceTestDataGenerator.threads.size(), numThreads);
-		long numSpans = nodes.span().stream(null, null).count();
+		long numSpans = nodes.traceSpan().stream(null, null).count();
 		Assert.assertEquals(TraceTestDataGenerator.spans.size(), numSpans);
 	}
 

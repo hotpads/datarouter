@@ -11,7 +11,7 @@ import com.hotpads.trace.key.TraceThreadKey;
 public interface TraceSubNodes{
 
 	SortedMapStorageNode<TraceKey,Trace> trace();
-	SortedMapStorageNode<TraceThreadKey,TraceThread> thread();
-	SortedMapStorageNode<TraceSpanKey,TraceSpan> span();
+	SortedMapStorageNode<TraceThreadKey,TraceThread> traceThread();
+	SortedMapStorageNode<TraceSpanKey,TraceSpan> traceSpan();
 
 }

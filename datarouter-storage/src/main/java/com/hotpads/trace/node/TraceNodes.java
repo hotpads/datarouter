@@ -20,12 +20,12 @@ public interface TraceNodes extends TraceWriteNodes{
 
 	@Override
 	default StorageWriter<TraceThreadKey,TraceThread> traceThreadWriteQueue(){
-		return traceEntity().thread();
+		return traceEntity().traceThread();
 	}
 
 	@Override
 	default StorageWriter<TraceSpanKey,TraceSpan> traceSpanWriteQueue(){
-		return traceEntity().span();
+		return traceEntity().traceSpan();
 	}
 
 
