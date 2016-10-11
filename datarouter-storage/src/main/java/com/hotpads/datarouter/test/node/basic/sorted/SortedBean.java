@@ -15,7 +15,6 @@ import com.hotpads.datarouter.storage.field.imp.dumb.DumbDoubleFieldKey;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt31Field;
 import com.hotpads.datarouter.storage.key.multi.BaseLookup;
 
-@SuppressWarnings("serial")
 public class SortedBean extends BaseDatabean<SortedBeanKey,SortedBean>{
 
 	private static final String KEY_NAME = "key";

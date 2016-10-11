@@ -9,7 +9,6 @@ import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
 import com.hotpads.notification.alias.NotificationAlias;
 
-@SuppressWarnings("serial")
 public class ModeratorKey extends BasePrimaryKey<ModeratorKey> {
 
 	/** fields ****************************************************************/

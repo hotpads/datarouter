@@ -11,7 +11,6 @@ import com.hotpads.datarouter.storage.field.imp.comparable.LongFieldKey;
 import com.hotpads.datarouter.storage.key.primary.base.BaseEntityPrimaryKey;
 import com.hotpads.notification.request.NotificationRequestEntityKey;
 
-@SuppressWarnings("serial")
 public class NotificationRequestKey extends BaseEntityPrimaryKey<NotificationRequestEntityKey,NotificationRequestKey> {
 
 	private NotificationRequestEntityKey entityKey;

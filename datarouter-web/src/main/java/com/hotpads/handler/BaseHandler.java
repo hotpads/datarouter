@@ -7,6 +7,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Collection;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.servlet.ServletContext;
@@ -31,7 +33,6 @@ import com.hotpads.handler.types.HandlerTypingHelper;
 import com.hotpads.handler.user.authenticate.AdminEditUserHandler;
 import com.hotpads.util.core.collections.Pair;
 import com.hotpads.util.core.concurrent.Lazy;
-import com.hotpads.util.core.exception.PermissionException;
 import com.hotpads.util.core.java.ReflectionTool;
 import com.hotpads.util.http.ResponseTool;
 
@@ -62,9 +63,9 @@ public abstract class BaseHandler{
 
 	protected static final String DEFAULT_HANDLER_METHOD_NAME = "handleDefault";
 
-	@SuppressWarnings("unused")//throws exception to let overrides throw
 	@Handler
 	protected Object handleDefault() throws Exception{
+		response.sendError(404);
 		return new MessageMav("no default handler method found, please specify " + handlerMethodParamName());
 	}
 
@@ -85,27 +86,21 @@ public abstract class BaseHandler{
 	protected void handleWrapper(){//dispatcher servlet calls this
 		try{
 			permitted();
-			Method method = null;
-			Object[] args = null;
-			try{
-				String methodName = handlerMethodName();
-				if (!DrStringTool.isNullOrEmpty(methodName)) {
-					Pair<Method, Object[]> pair = handlerTypingHelper.findMethodByName(this, methodName);
-					method = pair.getLeft();
-					args = pair.getRight();
-				}
-				if (method == null) {
-					methodName = DEFAULT_HANDLER_METHOD_NAME;
-					method = ReflectionTool.getDeclaredMethodFromHierarchy(getClass(), methodName);
-				}
-				if (method == null || !(method.isAnnotationPresent(Handler.class)
-						|| matchesDefaultHandlerMethod(methodName))) {
-					throw new PermissionException("no such handler " + handlerMethodParamName() + "=" + methodName);
-				}
-			}catch(IllegalArgumentException e){
-				throw new RuntimeException(e);
-			}catch(SecurityException e){
-				throw new RuntimeException(e);
+			String methodName = handlerMethodName();
+			Collection<Method> possibleMethods = ReflectionTool.getDeclaredMethodsWithName(getClass(), methodName)
+					.stream()
+					.filter(possibleMethod -> possibleMethod.isAnnotationPresent(Handler.class))
+					.collect(Collectors.toList());
+			Pair<Method, Object[]> pair = handlerTypingHelper.findMethodByName(possibleMethods, request);
+			Method method = pair.getLeft();
+			Object[] args = pair.getRight();
+			if(method == null && possibleMethods.size() > 0){
+				response.sendError(400);
+				throw new RuntimeException("missing parameters for method " + methodName);
+			}
+			if(method == null){
+				methodName = DEFAULT_HANDLER_METHOD_NAME;
+				method = ReflectionTool.getDeclaredMethodFromHierarchy(getClass(), methodName);
 			}
 
 			HandlerEncoder encoder;
@@ -166,10 +161,6 @@ public abstract class BaseHandler{
 			return "";
 		}
 		return uri.replaceAll("[^?]*/([^/?]+)[/?]?.*", "$1");
-	}
-
-	private boolean matchesDefaultHandlerMethod(String methodName){
-		return DEFAULT_HANDLER_METHOD_NAME.equals(methodName);
 	}
 
 	protected String handlerMethodParamName(){

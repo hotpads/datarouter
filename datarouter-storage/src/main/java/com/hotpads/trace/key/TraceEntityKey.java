@@ -8,7 +8,6 @@ import com.hotpads.datarouter.storage.field.imp.comparable.LongField;
 import com.hotpads.datarouter.storage.key.entity.base.BaseEntityKey;
 import com.hotpads.datarouter.storage.key.entity.base.BaseEntityPartitioner;
 
-@SuppressWarnings("serial")
 public class TraceEntityKey
 extends BaseEntityKey<TraceEntityKey>{
 

@@ -4,7 +4,6 @@ import java.util.List;
 
 import com.hotpads.datarouter.storage.field.compare.FieldSetComparator;
 
-@SuppressWarnings("serial")
 public abstract class BaseFieldSet<F extends FieldSet<F>>
 implements FieldSet<F>{
 

@@ -10,7 +10,6 @@ import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
 import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
 
-@SuppressWarnings("serial")
 public abstract class BaseEntityPrimaryKey<EK extends EntityKey<EK>,PK extends EntityPrimaryKey<EK,PK>>
 extends BasePrimaryKey<PK>
 implements EntityPrimaryKey<EK,PK>

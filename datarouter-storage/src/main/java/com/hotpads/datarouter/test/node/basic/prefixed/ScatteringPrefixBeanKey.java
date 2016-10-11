@@ -12,7 +12,6 @@ import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
 
 /********************************* indexes ***********************************/
 
-@SuppressWarnings("serial")
 public class ScatteringPrefixBeanKey extends BasePrimaryKey<ScatteringPrefixBeanKey>{
 
 	protected String a;

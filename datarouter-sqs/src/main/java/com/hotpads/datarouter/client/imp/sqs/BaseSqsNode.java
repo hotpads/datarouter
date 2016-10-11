@@ -39,7 +39,7 @@ implements QueueStorageWriter<PK,D>{
 	public BaseSqsNode(Datarouter datarouter, NodeParams<PK,D,F> params){
 		super(params);
 		this.datarouter = datarouter;
-		this.queueUrl = Lazy.of(this::getOrCreateQueueUrl);
+		this.queueUrl = Lazy.of(() -> getOrCreateQueueUrl(params.getQueueUrl()));
 		this.sqsOpFactory = new SqsOpFactory<>(this);
 	}
 
@@ -48,7 +48,10 @@ implements QueueStorageWriter<PK,D>{
 		return getSqsClient();
 	}
 
-	private String getOrCreateQueueUrl(){
+	private String getOrCreateQueueUrl(String queueUrl){
+		if(queueUrl != null){
+			return queueUrl;
+		}
 		String prefix = fieldInfo.getNamespace().orElse(getSqsClient().getSqsOptions().getNamespace());
 		if(!prefix.isEmpty()){
 			prefix += "-";

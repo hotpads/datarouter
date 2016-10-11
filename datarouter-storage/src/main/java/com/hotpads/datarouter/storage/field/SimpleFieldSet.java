@@ -6,7 +6,6 @@ import java.util.List;
 
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 
-@SuppressWarnings("serial")
 public class SimpleFieldSet<F extends FieldSet<F>>
 extends BaseFieldSet<F>{
 

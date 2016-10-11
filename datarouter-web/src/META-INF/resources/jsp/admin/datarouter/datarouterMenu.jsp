@@ -37,7 +37,9 @@
 		<h2>Datarouter</h2>
 		<h3>Server Info</h3>
 		<table class="table table-striped table-bordered table-hover table-condensed">
+			<tr><td>server.type</td><td>${serverType}</td></tr>
 			<tr><td>server.name</td><td>${serverName}</td></tr>
+			<tr><td>server.publicIp</td><td>${serverPublicIp}</td></tr>
 			<tr><td>administrator.email</td><td>${administratorEmail}</td></tr>
 		</table>
 		
@@ -48,7 +50,7 @@
 			<br/>
 		</c:if>
 		<c:forEach items="${routers}" var="router">
-			<a href="?submitAction=inspectRouter&routerName=${router.name}">${router.name}</a>
+			<a href="?submitAction=inspectRouter&routerName=${router.name}">${router.name}</a> router
 			<table class="table table-striped table-bordered table-hover table-condensed router">
 				<c:forEach items="${router.clientNames}" var="clientName">
 					<c:set var="lazyClientProvider" value="${lazyClientProviderByName[clientName]}" />
@@ -81,10 +83,9 @@
 								<td>
 									<span class="status"></span>
 									${clientName}
-									[<a href="${contextPath}/datarouter/routers/initClient?clientName=${clientName}">init</a>]
 								</td>
 								<td>
-									unknown
+									[<a href="${contextPath}/datarouter/routers/initClient?clientName=${clientName}">init</a>]
 								</td>
 							</c:otherwise>
 						</c:choose>

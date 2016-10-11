@@ -56,7 +56,10 @@ public abstract class BaseNodeFactory{
 	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>,N extends Node<PK,D>>
 	N create(ClientId clientId, Supplier<D> databeanSupplier, Supplier<F> fielderSupplier, Router router,
 			boolean addAdapter){
-		return create(clientId, databeanSupplier, fielderSupplier, null, router, addAdapter);
+		NodeParamsBuilder<PK,D,F> paramsBuilder = new NodeParamsBuilder<>(router, databeanSupplier, fielderSupplier)
+				.withClientId(clientId)
+				.withDiagnostics(getRecordCallsites());
+		return create(paramsBuilder.build(), addAdapter);
 	}
 
 	/**
@@ -71,36 +74,11 @@ public abstract class BaseNodeFactory{
 			Class<F> fielderClass,
 			Router router,
 			boolean addAdapter){
-		return create(clientId, databeanClass, fielderClass, null, router, addAdapter);
-	}
-
-	// +schemaVersion
-	/**
-	 * @deprecated use {@link BaseRouter#create(ClientId, Supplier, Supplier)}
-	 * and {@link BaseRouter.NodeBuilder#withSchemaVersion}
-	 */
-	@Deprecated
-	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>,N extends Node<PK,D>>
-	N create(ClientId clientId, Supplier<D> databeanSupplier, Supplier<F> fielderSupplier, Integer schemaVersion,
-			Router router, boolean addAdapter){
-		NodeParamsBuilder<PK,D,F> paramsBuilder = new NodeParamsBuilder<>(router, databeanSupplier, fielderSupplier)
+		NodeParamsBuilder<PK,D,F> paramsBuilder = new NodeParamsBuilder<>(router,
+				ReflectionTool.supplier(databeanClass), ReflectionTool.supplier(fielderClass))
 				.withClientId(clientId)
-				.withSchemaVersion(schemaVersion)
 				.withDiagnostics(getRecordCallsites());
 		return create(paramsBuilder.build(), addAdapter);
-	}
-
-	// +schemaVersion
-	/**
-	 * @deprecated use {@link BaseRouter#create(ClientId, Supplier, Supplier)}
-	 * and {@link BaseRouter.NodeBuilder#withSchemaVersion}
-	 */
-	@Deprecated
-	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>,N extends Node<PK,D>>
-	N create(ClientId clientId, Class<D> databeanClass, Class<F> fielderClass, Integer schemaVersion, Router router,
-			boolean addAdapter){
-		return create(clientId, ReflectionTool.supplier(databeanClass), ReflectionTool.supplier(fielderClass),
-				schemaVersion, router, addAdapter);
 	}
 
 	/************ include tableName **********************/
@@ -117,35 +95,16 @@ public abstract class BaseNodeFactory{
 	N create(//specify tableName and entityName
 			ClientId clientId,
 			String tableName,
-			Supplier<D> databeanSupplier,
-			Supplier<F> fielderSupplier,
-			Router router,
-			boolean addAdapter){
-		NodeParamsBuilder<PK,D,F> paramsBuilder = new NodeParamsBuilder<>(router, databeanSupplier, fielderSupplier)
-				.withClientId(clientId)
-				.withTableName(tableName)
-				.withDiagnostics(getRecordCallsites());
-		return create(paramsBuilder.build(), addAdapter);
-	}
-
-	/**
-	 * @deprecated use {@link BaseRouter#create(ClientId, Supplier, Supplier)}
-	 * and {@link BaseRouter.NodeBuilder#withTableName}
-	 */
-	@Deprecated
-	public <PK extends PrimaryKey<PK>,
-			D extends Databean<PK,D>,
-			F extends DatabeanFielder<PK,D>,
-			N extends Node<PK,D>>
-	N create(//specify tableName and entityName
-			ClientId clientId,
-			String tableName,
 			Class<D> databeanClass,
 			Class<F> fielderClass,
 			Router router,
 			boolean addAdapter){
-		return create(clientId, tableName, ReflectionTool.supplier(databeanClass),
-				ReflectionTool.supplier(fielderClass), router, addAdapter);
+		NodeParamsBuilder<PK,D,F> paramsBuilder = new NodeParamsBuilder<>(router,
+				ReflectionTool.supplier(databeanClass), ReflectionTool.supplier(fielderClass))
+				.withClientId(clientId)
+				.withTableName(tableName)
+				.withDiagnostics(getRecordCallsites());
+		return create(paramsBuilder.build(), addAdapter);
 	}
 
 

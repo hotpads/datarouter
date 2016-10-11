@@ -1,8 +1,5 @@
 package com.hotpads.datarouter.test.node.basic.sorted;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.config.DatarouterSettings;
 import com.hotpads.datarouter.node.entity.EntityNodeParams;
@@ -17,8 +14,6 @@ import com.hotpads.datarouter.test.DrTestConstants;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBean.SortedBeanFielder;
 
 public class SortedNodeTestRouter extends BaseRouter{
-
-	private final List<ClientId> clientIds;
 
 	private static final String
 			NAME = "SortedNodeTestRouter",
@@ -36,9 +31,6 @@ public class SortedNodeTestRouter extends BaseRouter{
 			ClientId clientId, boolean entity){
 		super(datarouter, DrTestConstants.CONFIG_PATH, NAME, nodeFactory, datarouterSettings);
 
-		this.clientIds = new ArrayList<>();
-		this.clientIds.add(clientId);
-
 		String tableName = TABLE_NAME_SortedBean;
 		if(entity){
 			sortedBeanEntityNode = new SortedBeanEntityNode(entityNodeFactory, nodeFactory, this, clientId,
@@ -49,13 +41,6 @@ public class SortedNodeTestRouter extends BaseRouter{
 					this, false));
 		}
 
-	}
-
-	/********************************** config **********************************/
-
-	@Override
-	public List<ClientId> getClientIds(){
-		return clientIds;
 	}
 
 

@@ -1,11 +1,7 @@
 package com.hotpads.trace.test;
-import java.util.Arrays;
-import java.util.List;
-
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.config.DatarouterSettings;
 import com.hotpads.datarouter.node.factory.EntityNodeFactory;
 import com.hotpads.datarouter.node.factory.NodeFactory;
@@ -20,14 +16,6 @@ public class TraceTestRouter extends BaseRouter{
 
 	private static final String NAME = "TraceRouter";
 
-	/********************************** config **********************************/
-
-	public static final List<ClientId> CLIENT_IDS = Arrays.asList(DrTestConstants.CLIENT_drTestHBase);
-
-	@Override
-	public List<ClientId> getClientIds(){
-		return CLIENT_IDS;
-	}
 
 	/********************************** nodes **********************************/
 

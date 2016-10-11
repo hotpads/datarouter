@@ -9,7 +9,6 @@ import com.hotpads.datarouter.storage.field.imp.positive.UInt63FieldKey;
 import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
 import com.hotpads.util.core.number.RandomTool;
 
-@SuppressWarnings("serial")
 public class JobletDataKey extends BasePrimaryKey<JobletDataKey>{
 
 	private Long id;

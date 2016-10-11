@@ -12,7 +12,7 @@ public class JdbcManyFieldIntegrationTests extends BaseManyFieldIntegrationTests
 
 	@BeforeClass
 	public void beforeClass(){
-		setup(DrTestConstants.CLIENT_drTestJdbc0, true);
+		setup(DrTestConstants.CLIENT_drTestJdbc0);
 	}
 
 	@Override

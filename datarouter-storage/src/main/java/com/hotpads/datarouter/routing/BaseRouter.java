@@ -81,6 +81,11 @@ implements Router{
 	/************************************** getting clients *************************/
 
 	@Override
+	public List<ClientId> getClientIds(){
+		return datarouter.getNodes().getClientIdsForRouter(name);
+	}
+
+	@Override
 	public List<String> getClientNames(){
 		return ClientId.getNames(getClientIds());
 	}

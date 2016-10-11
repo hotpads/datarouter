@@ -8,7 +8,6 @@ import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.comparable.LongField;
 import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
 
-@SuppressWarnings("serial")
 public class AutomatedEmailKey extends BasePrimaryKey<AutomatedEmailKey> {
 
 	/** fields ****************************************************************/
