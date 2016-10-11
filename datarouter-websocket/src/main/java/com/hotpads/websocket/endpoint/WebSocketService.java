@@ -1,9 +1,11 @@
 package com.hotpads.websocket.endpoint;
 
+import com.hotpads.websocket.session.WebSocketSession;
+
 public interface WebSocketService{
 
 	String getName();
 
-	void onMessage(String userToken, String message);
+	void onMessage(WebSocketSession webSocketSession, String message);
 
 }

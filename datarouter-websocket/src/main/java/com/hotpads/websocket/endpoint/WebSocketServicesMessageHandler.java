@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.handler.exception.ExceptionRecorder;
+import com.hotpads.websocket.session.WebSocketSession;
 
 public class WebSocketServicesMessageHandler implements Whole<String>{
 	private static final Logger logger = LoggerFactory.getLogger(WebSocketServicesMessageHandler.class);
@@ -19,7 +20,7 @@ public class WebSocketServicesMessageHandler implements Whole<String>{
 	private final WebSocketServices services;
 	private final ExceptionRecorder exceptionRecorder;
 
-	private final String userToken;
+	private final WebSocketSession webSocketSession;
 	private final Map<String, WebSocketService> openedServices;
 
 	@Singleton
@@ -30,17 +31,17 @@ public class WebSocketServicesMessageHandler implements Whole<String>{
 		@Inject
 		private ExceptionRecorder exceptionRecorder;
 
-		public WebSocketServicesMessageHandler create(String userToken){
-			return new WebSocketServicesMessageHandler(services, exceptionRecorder, userToken);
+		public WebSocketServicesMessageHandler create(WebSocketSession webSocketSession){
+			return new WebSocketServicesMessageHandler(services, exceptionRecorder, webSocketSession);
 		}
 
 	}
 
 	private WebSocketServicesMessageHandler(WebSocketServices services, ExceptionRecorder exceptionRecorder,
-			String userToken){
+			WebSocketSession webSocketSession){
 		this.services = services;
 		this.exceptionRecorder = exceptionRecorder;
-		this.userToken = userToken;
+		this.webSocketSession = webSocketSession;
 		this.openedServices = new HashMap<>();
 	}
 
@@ -67,7 +68,7 @@ public class WebSocketServicesMessageHandler implements Whole<String>{
 		openedServices.put(serviceString, service);
 		String paypload = message.substring(prefixEndIndex + 1);
 		try{
-			service.onMessage(userToken, paypload);
+			service.onMessage(webSocketSession, paypload);
 		}catch(Exception exception){
 			logger.warn("Exception in websocket service handling message", exception);
 			exceptionRecorder.tryRecordException(exception, service.getClass().toString());

@@ -33,12 +33,12 @@ public abstract class WebSocketConfig implements ServerApplicationConfig{
 		logger.warn("Initializing websocket endpoint");
 		Set<ServerEndpointConfig> result = new HashSet<>();
 		ServerEndpointConfig echoEndpointConfig = Builder
-				.create(SwedishEchoEndpoint.class, "/" + WEBSOCKET_URI_PREFIX + "echo")
+				.create(SwedishEchoEndpoint.class, "/" + WEBSOCKET_URI_PREFIX + "/echo")
 				.configurator(webSocketConfigurator)
 				.build();
 		result.add(echoEndpointConfig);
 		ServerEndpointConfig servicesEndpointConfig = Builder
-				.create(WebSocketServicesEndpoint.class, "/" + WEBSOCKET_URI_PREFIX + "services")
+				.create(WebSocketServicesEndpoint.class, "/" + WEBSOCKET_URI_PREFIX + "/services")
 				.configurator(webSocketConfigurator)
 				.build();
 		result.add(servicesEndpointConfig);
