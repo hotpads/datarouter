@@ -52,7 +52,7 @@ extends KinesisOp<PK,D,F,BlockingQueue<StreamRecord<PK,D>>>{
 	public BaseKinesisStreamSubscribeOp(Config config, BaseKinesisNode<PK,D,F> kinesisNode, String subscriberName,
 			InitialPositionInStream initialPositionInStream,
 			DatarouterStreamSubscriberAccessorSetter subscriberAccessorSetter, Integer blockingQueueSize,
-			Integer maxRecordsPerRequest, boolean replayData, String explicitKclApplicationName,
+			Integer maxRecordsPerRequest, Boolean replayData, String explicitKclApplicationName,
 			Integer initialLeaseTableReadCapacity, Integer initialLeaseTableWriteCapacity){
 		this(config, kinesisNode, subscriberName, initialPositionInStream, subscriberAccessorSetter, blockingQueueSize,
 				maxRecordsPerRequest, replayData, explicitKclApplicationName, null, initialLeaseTableReadCapacity,
