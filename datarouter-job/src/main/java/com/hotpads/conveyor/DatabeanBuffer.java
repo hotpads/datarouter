@@ -33,7 +33,7 @@ public class DatabeanBuffer<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>{
 		return accepted;
 	}
 
-	public boolean offer(Collection<D> databeans){
+	public boolean offerMulti(Collection<D> databeans){
 		for(D databean : databeans){
 			if(!offer(databean)){
 				return false;
@@ -42,7 +42,7 @@ public class DatabeanBuffer<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>{
 		return true;
 	}
 
-	public List<D> poll(int limit){
+	public List<D> pollMultiWithLimit(int limit){
 		List<D> result = new ArrayList<>();
 		while(result.size() < limit){
 			D databean = queue.poll();

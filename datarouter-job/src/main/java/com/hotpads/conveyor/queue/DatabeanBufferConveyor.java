@@ -40,12 +40,13 @@ implements Runnable, Conveyor{
 	public void run(){
 		try{
 			while(true){
-				List<D> databeans = databeanBuffer.poll(BATCH_SIZE);
+				List<D> databeans = databeanBuffer.pollMultiWithLimit(BATCH_SIZE);
 				if(databeans.isEmpty()){
 					return;
 				}
 				try{
 					storageWriter.putMulti(databeans, null);
+//					logger.warn("{} put {} databeans", name, databeans.size());
 					ConveyorCounters.inc(this, "putMulti ops", 1);
 					ConveyorCounters.inc(this, "putMulti databeans", databeans.size());
 				}catch(Exception putMultiException){
