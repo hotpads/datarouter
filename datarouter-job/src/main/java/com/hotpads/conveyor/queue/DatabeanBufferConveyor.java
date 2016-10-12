@@ -39,7 +39,7 @@ implements Runnable, Conveyor{
 	@Override
 	public void run(){
 		try{
-			while(true){
+			while(shouldRun()){
 				List<D> databeans = databeanBuffer.pollMultiWithLimit(BATCH_SIZE);
 				if(databeans.isEmpty()){
 					return;
@@ -51,9 +51,6 @@ implements Runnable, Conveyor{
 				}catch(Exception putMultiException){
 					databeans.forEach(databeanBuffer::offer);//might as well try to save them for later
 					ConveyorCounters.inc(this, "putMulti exception", 1);
-				}
-				if(!shouldRun()){
-					break;
 				}
 			}
 		}catch(Exception e){
