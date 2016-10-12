@@ -46,7 +46,6 @@ implements Runnable, Conveyor{
 				}
 				try{
 					storageWriter.putMulti(databeans, null);
-//					logger.warn("{} put {} databeans", name, databeans.size());
 					ConveyorCounters.inc(this, "putMulti ops", 1);
 					ConveyorCounters.inc(this, "putMulti databeans", databeans.size());
 				}catch(Exception putMultiException){
