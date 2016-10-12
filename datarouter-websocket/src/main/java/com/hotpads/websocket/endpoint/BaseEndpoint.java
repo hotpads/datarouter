@@ -39,11 +39,11 @@ public abstract class BaseEndpoint extends Endpoint{
 		webSocketSession = new WebSocketSession(userToken, serverAddress);
 		pushService.register(webSocketSession);
 		webSocketConnectionStore.put(webSocketSession, session);
-		MessageHandler messageHandler = getMessageHandler(userToken);
+		MessageHandler messageHandler = getMessageHandler(webSocketSession);
 		session.addMessageHandler(messageHandler);
 	}
 
-	protected abstract MessageHandler getMessageHandler(String userToken);
+	protected abstract MessageHandler getMessageHandler(WebSocketSession webSocketSession);
 
 	@Override
 	public void onClose(Session session, CloseReason closeReason){
