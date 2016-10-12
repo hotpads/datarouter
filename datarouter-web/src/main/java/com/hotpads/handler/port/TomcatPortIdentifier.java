@@ -2,7 +2,6 @@ package com.hotpads.handler.port;
 
 import java.lang.management.ManagementFactory;
 
-import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.management.JMException;
 import javax.management.MBeanServer;
@@ -17,7 +16,6 @@ public class TomcatPortIdentifier implements PortIdentifier{
 	private Integer httpPort;
 	private Integer httpsPort;
 
-	@Inject
 	public TomcatPortIdentifier() throws MalformedObjectNameException{
 		MBeanServer server = ManagementFactory.getPlatformMBeanServer();
 		ObjectName query = new ObjectName(CompoundPortIdentifier.CATALINA_JMX_DOMAIN + ":type=ProtocolHandler,*");
