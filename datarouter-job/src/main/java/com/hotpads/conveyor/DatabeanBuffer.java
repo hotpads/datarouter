@@ -1,6 +1,7 @@
 package com.hotpads.conveyor;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -30,6 +31,15 @@ public class DatabeanBuffer<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>{
 			ConveyorCounters.inc(this, "offer rejected", 1);
 		}
 		return accepted;
+	}
+
+	public boolean offer(Collection<D> databeans){
+		for(D databean : databeans){
+			if(!offer(databean)){
+				return false;
+			}
+		}
+		return true;
 	}
 
 	public List<D> poll(int limit){
