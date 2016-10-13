@@ -68,7 +68,7 @@ public class TraceThread extends BaseDatabean<TraceThreadKey,TraceThread>{
 
 	/*********************** constructor **********************************/
 
-	TraceThread(){
+	public TraceThread(){
 		this.key = new TraceThreadKey(null, null);
 	}
 

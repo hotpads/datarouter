@@ -13,6 +13,7 @@ public class ProfilingSettings extends SettingNode{
 	private final Setting<Boolean> saveCounts;
 	private final Setting<Boolean> bufferCountsInSqs;//currently need to restart webapp after changing
 	private final Setting<Boolean> drainSqsCounts;
+	private final Setting<Boolean> drainSqsTraces;
 	private final Setting<Boolean> runMetricsAggregationJob;
 	private final Setting<Boolean> runServerMonitoringJob;
 	public final Setting<Boolean> runLatencyMonitoringJob;
@@ -26,6 +27,7 @@ public class ProfilingSettings extends SettingNode{
 		saveCounts = registerBoolean("saveCounts", true);
 		bufferCountsInSqs = registerBoolean("bufferCountsInSqs", false);
 		drainSqsCounts = registerBoolean("drainSqsCounts", false);
+		drainSqsTraces = registerBoolean("drainSqsTraces", false);
 		runMetricsAggregationJob = registerBoolean("runMetricsAggregationJob", false);
 		runServerMonitoringJob = registerBoolean("runServerMonitoringJob", true);
 		runLatencyMonitoringJob = registerBoolean("runLatencyMonitoringJob", false);
@@ -43,6 +45,10 @@ public class ProfilingSettings extends SettingNode{
 
 	public Setting<Boolean> getDrainSqsCounts(){
 		return drainSqsCounts;
+	}
+
+	public Setting<Boolean> getDrainSqsTraces(){
+		return drainSqsTraces;
 	}
 
 	public Setting<Boolean> getRunMetricsAggregationJob(){

@@ -76,32 +76,32 @@ implements HBasePhysicalNode<PK,D>,
 
 	@Override
 	public boolean exists(PK key, Config config) {
-		//should probably make a getKey method
-		return get(key, config) != null;
+		return !getKeys(Arrays.asList(key), config).isEmpty();
 	}
 
 
 	@Override
 	public D get(final PK key, Config config){
-		if(key==null){
+		if(key == null){
 			return null;
 		}
 		config = Config.nullSafe(config);
-		return new HBaseMultiAttemptTask<>(new HBaseTask<D>(getDatarouter(), getClientTableNodeNames(), "get",
-				config){
+		return new HBaseMultiAttemptTask<>(new HBaseTask<D>(getDatarouter(), getClientTableNodeNames(), "get", config){
 			@Override
 			public D hbaseCall(Table table, HBaseClient client, ResultScanner managedResultScanner) throws Exception{
 				byte[] rowBytes = getKeyBytesWithScatteringPrefix(null, key);
-				Result row = table.get(new Get(rowBytes));
-				if (row.isEmpty()){
+				if(rowBytes.length == 0){
 					return null;
 				}
-				if( ! Bytes.equals(rowBytes, row.getRow())){//bug in hbase 0.94.2?
+				Result row = table.get(new Get(rowBytes));
+				if(row.isEmpty()){
+					return null;
+				}
+				if(!Bytes.equals(rowBytes, row.getRow())){// bug in hbase 0.94.2?
 					logger.warn("hbase returned row that doesn't match our key");
 					return null;
 				}
-				D result = HBaseResultTool.getDatabean(row, fieldInfo);
-				return result;
+				return HBaseResultTool.getDatabean(row, fieldInfo);
 			}
 		}).call();
 	}

@@ -368,6 +368,10 @@ public class Config extends BaseDatabean<ConfigKey,Config> implements Cloneable{
 		return timeoutMs;
 	}
 
+	public long getTimeoutMsOrUse(long alternative){
+		return timeoutMs == null ? alternative : timeoutMs;
+	}
+
 	public Config setTimeoutMs(Long timeoutMs) {
 		this.timeoutMs = timeoutMs;
 		return this;
