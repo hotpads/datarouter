@@ -80,6 +80,7 @@ implements DatarouterStreamSubscriberAccessor{
 		this.recordProcessorFactory = () -> new KclApplicationRecordProcessor<>(blockingQueue, codec, fielder,
 				databeanSupplier);
 
+		describeDynamoDbTable(applicationName);
 		if(replayData != null && replayData){
 			deleteOldDynamoDbTable(applicationName);
 		}
@@ -131,7 +132,6 @@ implements DatarouterStreamSubscriberAccessor{
 		logger.warn("subscribing to " + kinesisClientLibConfiguration.getStreamName() + " in "
 				+ kinesisClientLibConfiguration.getRegionName() + " with app name: " + kinesisClientLibConfiguration
 						.getApplicationName());
-		describeDynamoDbTable(kinesisClientLibConfiguration.getApplicationName());
 		kinesisWorker = new Worker.Builder()
 				 .recordProcessorFactory(recordProcessorFactory)
 				 .config(kinesisClientLibConfiguration)
