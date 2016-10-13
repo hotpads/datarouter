@@ -13,6 +13,7 @@ import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 import com.amazonaws.services.dynamodbv2.document.DynamoDB;
 import com.amazonaws.services.dynamodbv2.document.Table;
+import com.amazonaws.services.dynamodbv2.model.TableDescription;
 import com.amazonaws.services.kinesis.AmazonKinesisClient;
 import com.amazonaws.services.kinesis.clientlibrary.interfaces.v2.IRecordProcessorFactory;
 import com.amazonaws.services.kinesis.clientlibrary.lib.worker.InitialPositionInStream;
@@ -79,6 +80,7 @@ implements DatarouterStreamSubscriberAccessor{
 		this.recordProcessorFactory = () -> new KclApplicationRecordProcessor<>(blockingQueue, codec, fielder,
 				databeanSupplier);
 
+		describeDynamoDbTable(applicationName);
 		if(replayData != null && replayData){
 			deleteOldDynamoDbTable(applicationName);
 		}
@@ -104,13 +106,35 @@ implements DatarouterStreamSubscriberAccessor{
         }
 	}
 
+	private void describeDynamoDbTable(String dynamoDbTableName){
+		try{
+			AmazonDynamoDBClient dynamoDbclient = new AmazonDynamoDBClient(kinesisClientLibConfiguration
+					.getDynamoDBCredentialsProvider()).withRegion(Regions.fromName(kinesisClientLibConfiguration
+							.getRegionName()));
+			DynamoDB dynamoDb = new DynamoDB(dynamoDbclient);
+			logger.warn("Describing " + dynamoDbTableName);
+
+			TableDescription tableDescription = dynamoDb.getTable(dynamoDbTableName).describe();
+			StringBuilder log = new StringBuilder();
+			log.append("Name: " + tableDescription.getTableName() + "\n");
+			log.append("Status: " + tableDescription.getTableStatus() + "\n");
+			log.append("Provisioned Throughput (read capacity units/sec): " + tableDescription
+					.getProvisionedThroughput().getReadCapacityUnits() + "\n");
+			log.append("Provisioned Throughput (write capacity units/sec): " + tableDescription
+					.getProvisionedThroughput().getWriteCapacityUnits() + "\n");
+			logger.warn(log.toString());
+		}catch(Exception e){
+			logger.warn("DescribeTable failed for " + dynamoDbTableName, e);
+		}
+	}
+
 	public void subscribe(){
 		logger.warn("subscribing to " + kinesisClientLibConfiguration.getStreamName() + " in "
 				+ kinesisClientLibConfiguration.getRegionName() + " with app name: " + kinesisClientLibConfiguration
 						.getApplicationName());
 		kinesisWorker = new Worker.Builder()
 				 .recordProcessorFactory(recordProcessorFactory)
-				 .config(kinesisClientLibConfiguration.withInitialLeaseTableReadCapacity(250))
+				 .config(kinesisClientLibConfiguration)
 				 .kinesisClient(kinesisClient)
 				 .build();
 		kinesisWorkerThread = new Thread(() -> kinesisWorker.run(), "kinesis client worker");
