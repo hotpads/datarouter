@@ -2,14 +2,10 @@ package com.hotpads.handler.port;
 
 import com.hotpads.util.http.security.UrlScheme;
 
-
 public interface PortIdentifier{
 
 	Integer getHttpPort();
 	Integer getHttpsPort();
-
-
-
 
 	/************ fixed class for testing ***************/
 
@@ -23,6 +19,5 @@ public interface PortIdentifier{
 			return UrlScheme.PORT_HTTPS_DEV;
 		}
 	}
-
 
 }
