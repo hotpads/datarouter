@@ -16,7 +16,7 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 public class DatabeanBufferConveyor<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>>
-implements Runnable, Conveyor{
+implements Conveyor{
 	private static final Logger logger = LoggerFactory.getLogger(DatabeanBufferConveyor.class);
 
 	private static final int BATCH_SIZE = 100;

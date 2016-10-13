@@ -19,7 +19,7 @@ import com.hotpads.datarouter.storage.queue.GroupQueueMessage;
 public class GroupQueueConveyor<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>>
-implements Runnable, Conveyor{
+implements Conveyor{
 	private static final Logger logger = LoggerFactory.getLogger(GroupQueueConveyor.class);
 
 	private static final Duration PEEK_TIMEOUT = Duration.ofSeconds(5);
