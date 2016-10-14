@@ -3,12 +3,12 @@ package com.hotpads.datarouter.config;
 public class Configs {
 	public static boolean SLAVE_OK = true;
 	public static boolean USE_MASTER = !SLAVE_OK;
-	
+
 	public static Config slaveOk(){
 		return new Config().setSlaveOk(true);
 	}
-	
-	
+
+
 	public static Config noTimeout(){
 		return new Config().setTimeoutMs(Long.MAX_VALUE);
 	}
@@ -38,5 +38,5 @@ public class Configs {
 		return new Config().setPutMethod(PutMethod.MERGE);
 	}
 
-	
+
 }

@@ -6,10 +6,9 @@ import java.util.function.Supplier;
 import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.routing.Router;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
+import com.hotpads.datarouter.setting.Setting;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.util.core.cache.Cached;
-import com.hotpads.util.core.java.ReflectionTool;
 
 public class NodeParams<
 		PK extends PrimaryKey<PK>,
@@ -29,12 +28,9 @@ public class NodeParams<
 	//for schema evolution
 	private final Integer schemaVersion;
 
-	//sometimes we need to know the superclass of a databean
-	private final Class<? super D> baseDatabeanClass;
-
 	//name the table different than the databean class
 	private final String physicalName;
-	private final String qualifiedPhysicalName;//weird hibernate requirement ("entity name")
+	private final Optional<String> namespace;
 
 	private final String entityNodePrefix;
 
@@ -43,26 +39,35 @@ public class NodeParams<
 	private final String remoteNodeName;
 
 	//diagnostics
-	private final Cached<Boolean> recordCallsites;
+	private final Setting<Boolean> recordCallsites;
+
+	//for kinesis streams
+	private final String streamName;
+	private final String regionName;
+
+	//for external sqs
+	private final String queueUrl;
 
 	public NodeParams(Router router, ClientId clientId, String parentName, Supplier<D> databeanSupplier,
-			Supplier<F> fielderSupplier, Integer schemaVersion, Class<? super D> baseDatabeanClass, String physicalName,
-			String qualifiedPhysicalName, String entityNodePrefix, String remoteRouterName, String remoteNodeName,
-			Cached<Boolean> recordCallsites){
+			Supplier<F> fielderSupplier, Integer schemaVersion, String physicalName, String namespace,
+			String entityNodePrefix, String remoteRouterName, String remoteNodeName, Setting<Boolean> recordCallsites,
+			String streamName, String regionName, String queueUrl){
 		this.router = router;
 		this.clientId = clientId;
 		this.parentName = parentName;
 		this.databeanSupplier = databeanSupplier;
+		this.namespace = Optional.ofNullable(namespace);
 		this.databeanName = databeanSupplier.get().getDatabeanName();
 		this.fielderSupplier = fielderSupplier;
 		this.schemaVersion = schemaVersion;
-		this.baseDatabeanClass = baseDatabeanClass;
 		this.physicalName = physicalName;
-		this.qualifiedPhysicalName = qualifiedPhysicalName;
 		this.entityNodePrefix = entityNodePrefix;
 		this.remoteRouterName = remoteRouterName;
 		this.remoteNodeName = remoteNodeName;
 		this.recordCallsites = recordCallsites;
+		this.streamName = streamName;
+		this.regionName = regionName;
+		this.queueUrl = queueUrl;
 	}
 
 
@@ -72,40 +77,31 @@ public class NodeParams<
 			PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>{
-		private Router router;
+		private final Router router;
+		private final Supplier<D> databeanSupplier;
+		private final Supplier<F> fielderSupplier;
 		private String parentName;
 		private ClientId clientId;
-		private Supplier<D> databeanSupplier;
-
-		private Supplier<F> fielderSupplier;
-
 		private Integer schemaVersion;
-
-		private Class<? super D> baseDatabeanClass;
-
 		private String physicalName;
-		private String qualifiedPhysicalName;
-
+		private String namespace;
 		private String entityNodePrefix;
-
 		private String remoteRouterName;
 		private String remoteNodeName;
+		private Setting<Boolean> recordCallsites;
 
-		private Cached<Boolean> recordCallsites;
+		private String streamName;
+		private String regionName;
+
+		private String queueUrl;
+
 
 		/************** construct **************/
 
-		/**
-		 * @deprecated use {@link #NodeParams(Router, Supplier)}
-		 */
-		@Deprecated
-		public NodeParamsBuilder(Router router, Class<D> databeanClass){
-			this(router, ReflectionTool.supplier(databeanClass));
-		}
-
-		public NodeParamsBuilder(Router router, Supplier<D> databeanSupplier){
+		public NodeParamsBuilder(Router router, Supplier<D> databeanSupplier, Supplier<F> fielderSupplier){
 			this.router = router;
 			this.databeanSupplier = databeanSupplier;
+			this.fielderSupplier = fielderSupplier;
 		}
 
 		/************* with *******************/
@@ -120,33 +116,13 @@ public class NodeParams<
 			return this;
 		}
 
-		public NodeParamsBuilder<PK,D,F> withFielder(Supplier<F> fielderSupplier){
-			this.fielderSupplier = fielderSupplier;
-			return this;
-		}
-
-		public NodeParamsBuilder<PK,D,F> withFielder(Class<F> fielderClass){
-			return withFielder(Optional.ofNullable(fielderClass).map(ReflectionTool::supplier).orElse(null));
-		}
-
 		public NodeParamsBuilder<PK,D,F> withSchemaVersion(Integer schemaVersion){
 			this.schemaVersion = schemaVersion;
 			return this;
 		}
 
-		public NodeParamsBuilder<PK,D,F> withBaseDatabean(Class<? super D> baseDatabeanClass){
-			this.baseDatabeanClass = baseDatabeanClass;
-			return this;
-		}
-
 		public NodeParamsBuilder<PK,D,F> withTableName(String physicalName){
 			this.physicalName = physicalName;
-			return this;
-		}
-
-		public NodeParamsBuilder<PK,D,F> withHibernateTableName(String physicalName, String qualifiedPhysicalName){
-			this.physicalName = physicalName;
-			this.qualifiedPhysicalName = qualifiedPhysicalName;
 			return this;
 		}
 
@@ -156,27 +132,42 @@ public class NodeParams<
 			return this;
 		}
 
-		public NodeParamsBuilder<PK,D,F> withProxyDestination(String remoteRouterName, String remoteNodeName){
+		public NodeParamsBuilder<PK,D,F> withProxyDestination(String remoteRouterName){
 			this.physicalName = remoteRouterName;
-			this.qualifiedPhysicalName = remoteNodeName;
 			return this;
 		}
 
-		public NodeParamsBuilder<PK,D,F> withDiagnostics(Cached<Boolean> recordCallsites){
+		public NodeParamsBuilder<PK,D,F> withDiagnostics(Setting<Boolean> recordCallsites){
 			this.recordCallsites = recordCallsites;
 			return this;
 		}
 
+		public NodeParamsBuilder<PK,D,F> withNamespace(String namespace){
+			this.namespace = namespace;
+			return this;
+		}
+
+		public NodeParamsBuilder<PK,D,F> withStreamName(String streamName){
+			this.streamName = streamName;
+			return this;
+		}
+
+		public NodeParamsBuilder<PK,D,F> withRegionName(String regionName){
+			this.regionName = regionName;
+			return this;
+		}
+
+		public NodeParamsBuilder<PK,D,F> withQueueUrl(String queueUrl){
+			this.queueUrl = queueUrl;
+			return this;
+		}
 
 		/******************* build ***************************/
 
 		public NodeParams<PK,D,F> build(){
-			return new NodeParams<>(router, clientId, parentName,
-					databeanSupplier, fielderSupplier, schemaVersion, baseDatabeanClass,
-					physicalName, qualifiedPhysicalName,
-					entityNodePrefix,
-					remoteRouterName, remoteNodeName,
-					recordCallsites);
+			return new NodeParams<>(router, clientId, parentName, databeanSupplier, fielderSupplier, schemaVersion,
+					physicalName, namespace, entityNodePrefix, remoteRouterName, remoteNodeName, recordCallsites,
+					streamName, regionName, queueUrl);
 		}
 	}
 
@@ -218,16 +209,12 @@ public class NodeParams<
 		return schemaVersion;
 	}
 
-	public Class<? super D> getBaseDatabeanClass(){
-		return baseDatabeanClass;
-	}
-
 	public String getPhysicalName(){
 		return physicalName;
 	}
 
-	public String getQualifiedPhysicalName(){
-		return qualifiedPhysicalName;
+	public Optional<String> getNamespace(){
+		return namespace;
 	}
 
 	public String getRemoteRouterName(){
@@ -242,7 +229,19 @@ public class NodeParams<
 		return entityNodePrefix;
 	}
 
-	public Cached<Boolean> getRecordCallsites(){
+	public Setting<Boolean> getRecordCallsites(){
 		return recordCallsites;
+	}
+
+	public String getStreamName(){
+		return streamName;
+	}
+
+	public String getRegionName(){
+		return regionName;
+	}
+
+	public String getQueueUrl(){
+		return queueUrl;
 	}
 }

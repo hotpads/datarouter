@@ -1,72 +1,52 @@
 package com.hotpads.trace.test;
 
-import java.util.List;
-
 import javax.inject.Inject;
 
-import org.testng.AssertJUnit;
-import org.testng.annotations.DataProvider;
+import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
+import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.test.DatarouterStorageTestModuleFactory;
-import com.hotpads.datarouter.util.core.DrListTool;
-import com.hotpads.datarouter.util.core.DrObjectTool;
-import com.hotpads.trace.Trace;
-import com.hotpads.trace.TraceSpan;
-import com.hotpads.trace.TraceThread;
-import com.hotpads.trace.node.TraceCompoundNode;
-import com.hotpads.trace.node.TraceEntityNode;
 import com.hotpads.trace.node.TraceSubNodes;
 
 @Guice(moduleFactory=DatarouterStorageTestModuleFactory.class)
 public class TraceEntityIntegrationTests{
 
-	private static final String PARAMETERS = "parameters";
+	private final Datarouter datarouter;
 
-	@DataProvider(name=PARAMETERS)
-	public static Object[][] parameters(){
-		Object[][] params = new Object[][]{
-				{TraceCompoundNode.class},
-				{TraceEntityNode.class}
-		};
-		return params;
-	}
+	private final TraceSubNodes nodes;
 
 	@Inject
-	private TraceTestRouter router;
+	public TraceEntityIntegrationTests(Datarouter datarouter, TraceTestRouter router){
+		this.datarouter = datarouter;
+		this.nodes = router.traceEntity();
+	}
 
-	private TraceSubNodes nodes;
-
-	private void initNodes(Class<? extends TraceSubNodes> type){
-		if(DrObjectTool.equals(TraceCompoundNode.class, type)){
-			nodes = router.traceCompound();
-		}else if(DrObjectTool.equals(TraceEntityNode.class, type)){
-			nodes = router.traceEntity();
-		}else{
-			throw new IllegalArgumentException("unknown nodes class " + type);
-		}
+	@AfterClass
+	public void afterClass(){
+		datarouter.shutdown();
 	}
 
 	private void resetTable(){
 		nodes.trace().deleteAll(null);
-		nodes.thread().deleteAll(null);
-		nodes.span().deleteAll(null);
+		nodes.traceThread().deleteAll(null);
+		nodes.traceSpan().deleteAll(null);
 		nodes.trace().putMulti(TraceTestDataGenerator.traces, null);
-		nodes.thread().putMulti(TraceTestDataGenerator.threads, null);
-		nodes.span().putMulti(TraceTestDataGenerator.spans, null);
+		nodes.traceThread().putMulti(TraceTestDataGenerator.threads, null);
+		nodes.traceSpan().putMulti(TraceTestDataGenerator.spans, null);
 	}
 
-	@Test(dataProvider=PARAMETERS)
-	public void testCounts(Class<? extends TraceSubNodes> type){
-		initNodes(type);
+	@Test
+	public void testCounts(){
 		resetTable();
-		List<Trace> traces = DrListTool.createArrayList(nodes.trace().scan(null, null));
-		AssertJUnit.assertEquals(TraceTestDataGenerator.traces.size(), traces.size());
-		List<TraceThread> traceThreads = DrListTool.createArrayList(nodes.thread().scan(null, null));
-		AssertJUnit.assertEquals(TraceTestDataGenerator.threads.size(), traceThreads.size());
-		List<TraceSpan> traceSpans = DrListTool.createArrayList(nodes.span().scan(null, null));
-		AssertJUnit.assertEquals(TraceTestDataGenerator.spans.size(), traceSpans.size());
+		long numTraces = nodes.trace().stream(null, null).count();
+		Assert.assertEquals(TraceTestDataGenerator.traces.size(), numTraces);
+		long numThreads = nodes.traceThread().stream(null, null).count();
+		Assert.assertEquals(TraceTestDataGenerator.threads.size(), numThreads);
+		long numSpans = nodes.traceSpan().stream(null, null).count();
+		Assert.assertEquals(TraceTestDataGenerator.spans.size(), numSpans);
 	}
 
 }

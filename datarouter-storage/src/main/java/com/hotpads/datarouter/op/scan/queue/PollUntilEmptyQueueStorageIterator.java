@@ -10,10 +10,10 @@ import com.hotpads.datarouter.storage.queue.QueueMessage;
 
 public class PollUntilEmptyQueueStorageIterator<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 implements Iterator<D>{
-	
+
 	private final Iterator<QueueMessage<PK,D>> queueMessageIterator;
 	private final QueueStorage<PK,D> queueStorage;
-	
+
 	public PollUntilEmptyQueueStorageIterator(QueueStorage<PK,D> queueStorage, Config config){
 		this.queueStorage = queueStorage;
 		this.queueMessageIterator = queueStorage.peekUntilEmpty(config).iterator();

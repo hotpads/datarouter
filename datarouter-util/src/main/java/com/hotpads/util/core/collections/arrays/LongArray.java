@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.ListIterator;
 
 import org.junit.Assert;
-
 import org.junit.Test;
 
 import com.hotpads.datarouter.util.core.DrCollectionTool;
@@ -15,34 +14,34 @@ import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrListTool;
 
 public class LongArray implements List<Long>, Comparable<List<Long>>{
-	
+
 	public static final int DEFAULT_initialCapacity = 2;
 	public static final long NULL = Long.MIN_VALUE;//compares before all other longs
-	
+
 	long[] array;
 	int size;
-	
+
 	public LongArray(){
 		this(DEFAULT_initialCapacity);
 	}
-	
+
 	public LongArray(int initialCapacity){
 		this.array = new long[initialCapacity];
 		this.size = 0;
 	}
-	
+
 	public LongArray(long[] toWrap){
 		this.array = toWrap;
 		this.size = array.length;
 	}
-	
+
 	public LongArray(Collection<Long> elements){
 		this(DrCollectionTool.size(elements));
 		for(Long element : elements){
 			this.add(element);
 		}
 	}
-		
+
 	protected void expandIfNecessary(int delta){
 		int neededSize = this.size + delta;
 		if(neededSize > this.array.length){
@@ -53,7 +52,7 @@ public class LongArray implements List<Long>, Comparable<List<Long>>{
 			this.array = newArray;
 		}
 	}
-	
+
 	protected void shrinkIfNecessary(int delta){
 		//when shrinking, the size has already been adjusted
 		if(this.size < this.array.length / 4){
@@ -71,7 +70,7 @@ public class LongArray implements List<Long>, Comparable<List<Long>>{
 		this.array[index] = value==null?NULL:value;
 		++this.size;
 	}
-	
+
 	public void add(int index, long value) {
 		this.expandIfNecessary(1);
 		this.array[index] = value;
@@ -83,7 +82,7 @@ public class LongArray implements List<Long>, Comparable<List<Long>>{
 		this.add(this.size, value);
 		return true;//collections return true if they were modified
 	}
-	
+
 	public boolean add(long value){
 		this.add(this.size, value);
 		return true;
@@ -148,7 +147,7 @@ public class LongArray implements List<Long>, Comparable<List<Long>>{
 		if(index > size){ throw new ArrayIndexOutOfBoundsException(index); }
 		return this.array[index]==NULL?null:this.array[index];
 	}
-	
+
 	public long getPrimitive(int index){
 		if(index > size){ throw new ArrayIndexOutOfBoundsException(index); }
 		return this.array[index];
@@ -209,7 +208,7 @@ public class LongArray implements List<Long>, Comparable<List<Long>>{
 //		System.out.println("removing idx "+index);
 		if(index >= this.size){ throw new IllegalArgumentException("out of range"); }
 		long value = this.array[index];
-		if(index<size-1){ 
+		if(index<size-1){
 			System.arraycopy(this.array, index+1, this.array, index, this.size-index-1);
 		}//otherwise we can just decrement the size
 		--this.size;
@@ -260,8 +259,8 @@ public class LongArray implements List<Long>, Comparable<List<Long>>{
 
 	@Override
 	public Long set(int index, Long value) {
-		if(index < 0 || index >= size){ 
-			throw new IllegalArgumentException(index+" "+this.size); 
+		if(index < 0 || index >= size){
+			throw new IllegalArgumentException(index+" "+this.size);
 		}
 		this.array[index] = value==null?NULL:value;
 		return value;
@@ -299,30 +298,30 @@ public class LongArray implements List<Long>, Comparable<List<Long>>{
 	public int compareTo(List<Long> other) {
 		return DrListTool.compare(this, other);//NULL compares before all other longs
 	}
-	
+
 	public long[] getPrimitiveArray() {
 		if(size == array.length){
 			return array;
 		}
-		
+
 		long[] copy = new long[size];
 		System.arraycopy(this.array, 0, copy, 0, this.size);
-		
+
 		return copy;
 	}
-	
-	
-	
+
+
+
 	public static class LongArrayIterator implements ListIterator<Long>{
-		
+
 		LongArray wrapper;
 		int lastIndex;
-		
+
 		public LongArrayIterator(LongArray wrapper){
 			this.wrapper = wrapper;
 			this.lastIndex = -1;
 		}
-		
+
 		public LongArrayIterator(LongArray wrapper, int startIndex){
 			this(wrapper);
 			this.lastIndex = startIndex - 1;
@@ -374,45 +373,45 @@ public class LongArray implements List<Long>, Comparable<List<Long>>{
 		public void set(Long value) {
 			this.wrapper.set(this.lastIndex+1, value);
 		}
-		
-	}
-	
 
-	
+	}
+
+
+
 	/************************ tests ***************************************/
-	
+
 	public static class Tests{
 		List<Long> list = new LongArray();
 		int max = 150;
-		
+
 		@Test public void testBasics(){
-			
+
 			//expanding
 			for(long l=0; l < max; ++l){
 				list.add(l);
 				Assert.assertEquals(l, list.size()-1);
 			}
 			Assert.assertEquals(max, list.size());
-			
+
 			//shrinking
 			for(long l=max-1; l >=0; --l){
 				list.remove(l);
 				Assert.assertEquals(l, list.size());
 			}
 			Assert.assertEquals(0, list.size());
-			
+
 			//re-expanding
 			for(long l=0; l < max; ++l){
 				list.add(l);
 				Assert.assertEquals(l, list.size()-1);
 			}
-			
+
 			//removing indexes
 			long valueRemoved = list.remove(31);
 			Assert.assertTrue(31L==valueRemoved);
 			Assert.assertEquals(max-1, list.size());
 			Assert.assertTrue(list.get(31).equals(32L));
-			
+
 			//removing objects
 			boolean modified = list.remove(5L);
 			Assert.assertTrue(modified);
@@ -422,7 +421,7 @@ public class LongArray implements List<Long>, Comparable<List<Long>>{
 			Assert.assertFalse(modified);
 			Assert.assertEquals(max-2, list.size());
 			Assert.assertTrue(list.get(5).equals(6L));
-			
+
 			//retain objects
 			List<Long> toRetain = DrListTool.create(55L,57L,7L);
 			modified = list.retainAll(toRetain);
@@ -437,9 +436,9 @@ public class LongArray implements List<Long>, Comparable<List<Long>>{
 			Assert.assertTrue(list.get(0).equals(7L));
 			Assert.assertTrue(list.get(1).equals(55L));
 			Assert.assertTrue(list.get(2).equals(57L));
-			
+
 			//nulls
-			List<Long> nullableList = new LinkedList<Long>();
+			List<Long> nullableList = new LinkedList<>();
 			LongArray primitiveList = new LongArray();
 			nullableList.add(-7L); primitiveList.add(-7L);
 			nullableList.add(null); primitiveList.add(null);
@@ -452,7 +451,7 @@ public class LongArray implements List<Long>, Comparable<List<Long>>{
 			Assert.assertEquals(null, primitiveList.get(1));
 		}
 	}
-	
+
 }
 
 

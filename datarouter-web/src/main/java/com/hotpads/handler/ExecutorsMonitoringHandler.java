@@ -27,7 +27,7 @@ public class ExecutorsMonitoringHandler extends BaseHandler{
 
 	@Handler(encoder = JsonEncoder.class)
 	public Collection<TextExecutor> getExecutors(){
-		Collection<ExecutorService> executors = injector.getInstancesOfType(ExecutorService.class);
+		Collection<ExecutorService> executors = injector.getInstancesOfType(ExecutorService.class).values();
 		List<TextExecutor> textExecutors = new ArrayList<>();
 		for(ExecutorService executor : executors){
 			if(executor instanceof ThreadPoolExecutor){

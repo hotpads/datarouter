@@ -9,9 +9,9 @@ import com.hotpads.datarouter.op.aware.DatarouterAware;
 public interface ClientOp<T>
 extends DatarouterAware{
 
-	List<String> getClientNames();	
+	List<String> getClientNames();
 	T runOnce();
 	T runOncePerClient(Client client);
 	T mergeResults(T fromOnce, Collection<T> fromEachClient);
-	
+
 }

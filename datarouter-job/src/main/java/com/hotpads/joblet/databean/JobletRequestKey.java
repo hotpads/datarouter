@@ -4,9 +4,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
-import javax.persistence.Entity;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.storage.field.Field;
@@ -17,20 +14,16 @@ import com.hotpads.datarouter.storage.field.imp.comparable.IntegerFieldKey;
 import com.hotpads.datarouter.storage.field.imp.comparable.LongField;
 import com.hotpads.datarouter.storage.field.imp.comparable.LongFieldKey;
 import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
+import com.hotpads.joblet.enums.JobletPriority;
 import com.hotpads.joblet.enums.JobletType;
 
 
-@SuppressWarnings("serial")
-@Entity
-@Embeddable
 public class JobletRequestKey extends BasePrimaryKey<JobletRequestKey>{
 
 	public static final int DEFAULT_STRING_LENGTH = MySqlColumnType.MAX_LENGTH_VARCHAR;
 
-	@Column(length=DEFAULT_STRING_LENGTH)
 	private String type;//TODO use StringEnumField<JobletType<?>>
 	private Integer executionOrder = Integer.MAX_VALUE;
-	@Column(length=50)
 	private Long created;//TODO rename createdMs or use Date
 	private Integer batchSequence = 0;//tie breaker for keys "created" in same millisecond
 
@@ -55,14 +48,12 @@ public class JobletRequestKey extends BasePrimaryKey<JobletRequestKey>{
 	JobletRequestKey(){
 	}
 
-	public JobletRequestKey(JobletType<?> type, Integer executionOrder, Integer batchSequence){
-		this(type, executionOrder, new Date(), batchSequence);
-	}
-
-	public JobletRequestKey(JobletType<?> type, Integer executionOrder, Date created, Integer batchSequence){
-		this(type == null ? null : type.getPersistentString(),
+	//static method to avoid ambiguity with below constructor
+	public static JobletRequestKey create(JobletType<?> type, Integer executionOrder, Date createdDate,
+			Integer batchSequence){
+		return new JobletRequestKey(type == null ? null : type.getPersistentString(),
 				executionOrder,
-				created == null ? null : created.getTime(),
+				createdDate == null ? null : createdDate.getTime(),
 				batchSequence);
 	}
 
@@ -74,6 +65,10 @@ public class JobletRequestKey extends BasePrimaryKey<JobletRequestKey>{
 	}
 
 	/*----------------------- methods ---------------------------*/
+
+	public JobletPriority getPriority(){
+		return JobletPriority.fromExecutionOrder(executionOrder);
+	}
 
 	public Date getCreatedDate(){
 		return new Date(created);

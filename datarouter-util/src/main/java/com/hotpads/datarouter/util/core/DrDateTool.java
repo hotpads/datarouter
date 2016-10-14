@@ -24,6 +24,7 @@ import com.hotpads.util.core.date.DurationWithCarriedUnits;
 public final class DrDateTool {
 
 	public static final int
+		MILLISECONDS_IN_DAY = 24 * 60 * 60 * 1000,
 		MILLISECONDS_IN_MINUTE = 60 * 1000,
 		MILLISECONDS_IN_SECOND = 1000;
 
@@ -239,6 +240,15 @@ public final class DrDateTool {
     	return wud.toStringByMaxUnitsMaxPrecision(maxPrecision, maxUnits);
     }
 
+	public static int getDatesBetween(Date oldDate, Date newDate){
+		//round everything > .95 up to handle partial days due to DST and leap seconds
+		double daysBetween =DrDateTool.getDaysBetween(oldDate, newDate);
+		return (int)Math.ceil(daysBetween-.95d);
+	}
+
+	public static double getDaysBetween(Date d1, Date d2){
+		return getPeriodsBetween(d1, d2, MILLISECONDS_IN_DAY);
+	}
 
 	/*************************************************************************/
 
@@ -348,6 +358,17 @@ public final class DrDateTool {
 			Assert.assertEquals(nowTime, toReverseDateLong(fromReverseDateLong(nowTime)));
 			Assert.assertNull(fromReverseDateLong(toReverseDateLong(null)));
 			Assert.assertNull(toReverseDateLong(fromReverseDateLong(null)));
+		}
+
+		@Test
+		public void testGetDaysBetween() throws Exception{
+			Date d1 = new Date(1352059736026L);
+			int daysApart = 4;
+			Date d2 = new Date(d1.getTime()+ MILLISECONDS_IN_DAY*daysApart);
+			Assert.assertEquals(daysApart, getDaysBetween(d1, d2), 1>>20);
+			d2 = new Date(d1.getTime()+ MILLISECONDS_IN_DAY*daysApart-4);
+			Assert.assertTrue(daysApart > getDaysBetween(d1, d2));
+			Assert.assertTrue(daysApart-1 < getDaysBetween(d1, d2));
 		}
 
 	}

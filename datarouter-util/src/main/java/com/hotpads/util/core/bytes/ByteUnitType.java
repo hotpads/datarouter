@@ -5,19 +5,19 @@ import java.text.DecimalFormat;
 
 public enum ByteUnitType {
 	BYTE(1l, ByteUnitName.BYTE_DEC),
-	KB(BYTE.numBytes * ByteUnitName.BYTE_DEC.unitSystem.step,  ByteUnitName.KB), 
+	KB(BYTE.numBytes * ByteUnitName.BYTE_DEC.unitSystem.step,  ByteUnitName.KB),
 	MB(  KB.numBytes * ByteUnitName.MB.unitSystem.step,  ByteUnitName.MB),
 	GB(  MB.numBytes * ByteUnitName.GB.unitSystem.step,  ByteUnitName.GB),
 	TB(  GB.numBytes * ByteUnitName.TB.unitSystem.step,  ByteUnitName.TB),
 	PB(  TB.numBytes * ByteUnitName.PB.unitSystem.step,  ByteUnitName.PB),
-			
-	KiB(BYTE.numBytes * ByteUnitName.BYTE_BIN.unitSystem.step,  ByteUnitName.KiB), 
+
+	KiB(BYTE.numBytes * ByteUnitName.BYTE_BIN.unitSystem.step,  ByteUnitName.KiB),
 	MiB( KiB.numBytes * ByteUnitName.MiB.unitSystem.step,  ByteUnitName.MiB),
 	GiB( MiB.numBytes * ByteUnitName.GiB.unitSystem.step,  ByteUnitName.GiB),
 	TiB( GiB.numBytes * ByteUnitName.TiB.unitSystem.step,  ByteUnitName.TiB),
 	PiB( TiB.numBytes * ByteUnitName.PiB.unitSystem.step,  ByteUnitName.PiB),
 	;
-		
+
 	private ByteUnitType(long numBytes, ByteUnitName unitName) {
 		this.numBytes = numBytes;
 		this.unitName = unitName;
@@ -37,23 +37,23 @@ public enum ByteUnitType {
 			return step;
 		}
 	}
-		
+
 	public enum ByteUnitName {
-		BYTE_DEC("B", "byte", ByteUnitSystem.DECIMAL), 
-		KB("KB", "kilobyte", ByteUnitSystem.DECIMAL), 
-		MB("MB", "megabyte", ByteUnitSystem.DECIMAL), 
-		GB("GB", "gigabyte", ByteUnitSystem.DECIMAL), 
-		TB("TB", "terabyte", ByteUnitSystem.DECIMAL), 
+		BYTE_DEC("B", "byte", ByteUnitSystem.DECIMAL),
+		KB("KB", "kilobyte", ByteUnitSystem.DECIMAL),
+		MB("MB", "megabyte", ByteUnitSystem.DECIMAL),
+		GB("GB", "gigabyte", ByteUnitSystem.DECIMAL),
+		TB("TB", "terabyte", ByteUnitSystem.DECIMAL),
 		PB("PB", "petabyte", ByteUnitSystem.DECIMAL),
-		
+
 		BYTE_BIN("B", "byte", ByteUnitSystem.BINARY),
-		KiB("KiB", "kibibyte", ByteUnitSystem.BINARY), 
-		MiB("MiB", "mebibyte", ByteUnitSystem.BINARY), 
-		GiB("GiB", "gibibyte", ByteUnitSystem.BINARY), 
-		TiB("TiB", "tebibyte", ByteUnitSystem.BINARY), 
+		KiB("KiB", "kibibyte", ByteUnitSystem.BINARY),
+		MiB("MiB", "mebibyte", ByteUnitSystem.BINARY),
+		GiB("GiB", "gibibyte", ByteUnitSystem.BINARY),
+		TiB("TiB", "tebibyte", ByteUnitSystem.BINARY),
 		PiB("PiB", "pebibyte", ByteUnitSystem.BINARY),
 		;
-			
+
 		private ByteUnitName(String shortName, String longName, ByteUnitSystem unitSystem) {
 			this.shortName = shortName;
 			this.longName = longName;

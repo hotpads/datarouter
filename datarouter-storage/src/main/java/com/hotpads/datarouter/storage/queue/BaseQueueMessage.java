@@ -10,11 +10,11 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 public class BaseQueueMessage<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>{
 
 	private QueueMessageKey key;
-	
+
 	public BaseQueueMessage(byte[] handle){
 		this.key = new QueueMessageKey(handle);
 	}
-	
+
 	public QueueMessageKey getKey(){
 		return key;
 	}

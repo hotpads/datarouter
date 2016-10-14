@@ -11,7 +11,7 @@ import com.hotpads.datarouter.storage.key.entity.EntityKey;
 public abstract class BaseClientType implements ClientType{
 
 	@Override
-	public <EK extends EntityKey<EK>,E extends Entity<EK>>EntityNode<EK,E> createEntityNode(NodeFactory nodeFactory, 
+	public <EK extends EntityKey<EK>,E extends Entity<EK>>EntityNode<EK,E> createEntityNode(NodeFactory nodeFactory,
 			Router router, EntityNodeParams<EK,E> entityNodeParams, String clientName){
 		throw new UnsupportedOperationException();
 	}

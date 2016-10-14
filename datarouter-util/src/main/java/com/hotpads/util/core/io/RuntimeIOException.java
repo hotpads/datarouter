@@ -2,17 +2,15 @@ package com.hotpads.util.core.io;
 
 import java.io.IOException;
 
+/**
+ * @deprecated use {@link RuntimeException}
+ */
+@Deprecated
 @SuppressWarnings("serial")
 public class RuntimeIOException extends RuntimeException{
 
-	private IOException checkedCause;
-	
 	public RuntimeIOException(IOException checkedCause){
-		this.checkedCause = checkedCause;
+		super(checkedCause);
 	}
 
-	public IOException getCheckedCause(){
-		return checkedCause;
-	}
-	
 }

@@ -1,9 +1,7 @@
 package com.hotpads.datarouter.test.node.basic.sorted;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.hotpads.datarouter.client.ClientId;
+import com.hotpads.datarouter.config.DatarouterSettings;
 import com.hotpads.datarouter.node.entity.EntityNodeParams;
 import com.hotpads.datarouter.node.factory.EntityNodeFactory;
 import com.hotpads.datarouter.node.factory.NodeFactory;
@@ -17,8 +15,6 @@ import com.hotpads.datarouter.test.node.basic.sorted.SortedBean.SortedBeanFielde
 
 public class SortedNodeTestRouter extends BaseRouter{
 
-	private final List<ClientId> clientIds;
-
 	private static final String
 			NAME = "SortedNodeTestRouter",
 			TABLE_NAME_SortedBean = "SortedBean";
@@ -29,37 +25,22 @@ public class SortedNodeTestRouter extends BaseRouter{
 	private SortedMapStorageNode<SortedBeanKey,SortedBean> sortedBeanNode;
 	private SortedBeanEntityNode sortedBeanEntityNode;
 
-
-	public SortedNodeTestRouter(Datarouter datarouter, EntityNodeFactory entityNodeFactory,
-			EntityNodeParams<SortedBeanEntityKey,SortedBeanEntity> entityNodeParams,
-			NodeFactory nodeFactory, ClientId clientId, boolean useFielder, boolean entity){
-		super(datarouter, DrTestConstants.CONFIG_PATH, NAME);
-
-		this.clientIds = new ArrayList<>();
-		this.clientIds.add(clientId);
+	public SortedNodeTestRouter(Datarouter datarouter, DatarouterSettings datarouterSettings,
+			EntityNodeFactory entityNodeFactory,
+			EntityNodeParams<SortedBeanEntityKey,SortedBeanEntity> entityNodeParams, NodeFactory nodeFactory,
+			ClientId clientId, boolean entity){
+		super(datarouter, DrTestConstants.CONFIG_PATH, NAME, nodeFactory, datarouterSettings);
 
 		String tableName = TABLE_NAME_SortedBean;
-		String entityName = SortedBean.class.getCanonicalName();
 		if(entity){
 			sortedBeanEntityNode = new SortedBeanEntityNode(entityNodeFactory, nodeFactory, this, clientId,
 					entityNodeParams);
 			sortedBeanNode = sortedBeanEntityNode.sortedBean();
 		}else{
-			if(useFielder){
-				sortedBeanNode = register(nodeFactory.create(clientId, tableName, entityName, SortedBean.class,
-						SortedBeanFielder.class, this, false));
-			}else{// no fielder to trigger hibernate node
-				sortedBeanNode = register(nodeFactory.create(clientId, SortedBean.class, this, false));
-			}
+			sortedBeanNode = register(nodeFactory.create(clientId, tableName, SortedBean.class, SortedBeanFielder.class,
+					this, false));
 		}
 
-	}
-
-	/********************************** config **********************************/
-
-	@Override
-	public List<ClientId> getClientIds(){
-		return clientIds;
 	}
 
 

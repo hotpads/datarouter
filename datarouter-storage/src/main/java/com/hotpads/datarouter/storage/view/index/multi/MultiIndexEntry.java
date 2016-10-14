@@ -9,8 +9,8 @@ public interface MultiIndexEntry<
 		IK extends PrimaryKey<IK>,
 		IE extends Databean<IK,IE>,
 		PK extends PrimaryKey<PK>,
-		D extends Databean<PK,D>> 
+		D extends Databean<PK,D>>
 extends IndexEntry<IK,IE,PK,D>{
 
-	
+
 }

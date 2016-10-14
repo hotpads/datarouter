@@ -72,7 +72,7 @@ public class HBaseQueryBuilder{
 				endBytes = endBytes.cloneAndIncrement();
 			}
 		}
-		return new Twin<ByteRange>(startBytes, endBytes);
+		return new Twin<>(startBytes, endBytes);
 	}
 
 	public static Twin<ByteRange> getStartEndBytesForPrefix(List<Field<?>> prefix, boolean wildcardLastField){
@@ -100,7 +100,7 @@ public class HBaseQueryBuilder{
 		byte[] endBytes = DrByteTool.unsignedIncrementOverflowToNull(startBytes);
 		ByteRange startByteRange = startBytes==null ? null : new ByteRange(startBytes);
 		ByteRange endByteRange = endBytes==null ? null : new ByteRange(endBytes);
-		return new Twin<ByteRange>(startByteRange, endByteRange);
+		return new Twin<>(startByteRange, endByteRange);
 	}
 
 

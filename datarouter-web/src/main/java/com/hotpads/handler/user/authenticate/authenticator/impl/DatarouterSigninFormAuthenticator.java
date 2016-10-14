@@ -20,13 +20,11 @@ import com.hotpads.util.core.exception.InvalidCredentialsException;
 import com.hotpads.util.http.RequestTool;
 
 public class DatarouterSigninFormAuthenticator extends BaseDatarouterAuthenticator{
-//	private static Logger logger = LoggerFactory.getLogger(DatarouterLoginFormAuthenticator.class);
-
 	private DatarouterAuthenticationConfig authenticationConfig;
 	private DatarouterUserNodes userNodes;
 	private DatarouterPasswordService passwordService;
-	
-	public DatarouterSigninFormAuthenticator(HttpServletRequest request, HttpServletResponse response, 
+
+	public DatarouterSigninFormAuthenticator(HttpServletRequest request, HttpServletResponse response,
 			DatarouterAuthenticationConfig authenticationConfig, DatarouterUserNodes userNodes,
 			DatarouterPasswordService passwordService) {
 		super(request, response);
@@ -34,38 +32,34 @@ public class DatarouterSigninFormAuthenticator extends BaseDatarouterAuthenticat
 		this.userNodes = userNodes;
 		this.passwordService = passwordService;
 	}
-	
+
 	@Override
 	public DatarouterSession getSession(){
 		//the usual case where we're not submitting the login form.  just skip this filter
 		if(DrObjectTool.notEquals(request.getServletPath(), authenticationConfig.getSigninSubmitPath())){
-			return null; 
+			return null;
 		}
-		
+
 		String username = RequestTool.get(request, authenticationConfig.getUsernameParam(), null);
 		String password = RequestTool.get(request, authenticationConfig.getPasswordParam(), null);
-		
+
 		DatarouterUser user = lookupAndValidateUser(username, password);
-		
+
 		user.setLastLoggedIn(new Date());
 		userNodes.getUserNode().put(user, null);
 
-//		if (rememberMe) {
-//			RememberMeCookieAuthenticator.addRememberMeCookieToResponse(request, response, user);
-//		}
-		
 		DatarouterSession session = DatarouterSession.createFromUser(user);
 		return session;
 	}
-	
-	
+
+
 	private DatarouterUser lookupAndValidateUser(String username, String password){
 		if(DrStringTool.isEmpty(username)){
 			throw new InvalidCredentialsException("no username specified");
 		}
-		
+
 		DatarouterUser user = userNodes.getUserNode().lookupUnique(new DatarouterUserByUsernameLookup(username), null);
-		
+
 		if(user==null){
 			throw new InvalidCredentialsException("user not found ("+username+")");
 		}
@@ -80,5 +74,5 @@ public class DatarouterSigninFormAuthenticator extends BaseDatarouterAuthenticat
 		}
 		return user;
 	}
-		
+
 }

@@ -16,22 +16,22 @@ import com.mysql.jdbc.AbandonedConnectionCleanupThread;
 @Singleton
 public class JdbcAppListener extends DatarouterAppListener{
 	private static final Logger logger = LoggerFactory.getLogger(JdbcAppListener.class);
-	
-	
+
+
 	@Override
 	protected void onStartUp(){
 	}
 
-	
+
 	@Override
 	protected void onShutDown(){
 		unregisterDrivers();
 		cleanupAbandonedConnections();
 	}
 
-	
+
 	/******************** private **********************/
-	
+
 	private static void unregisterDrivers(){
 		Enumeration<Driver> drivers = DriverManager.getDrivers();
 		while (drivers.hasMoreElements()){
@@ -44,7 +44,7 @@ public class JdbcAppListener extends DatarouterAppListener{
 			}
 		}
 	}
-	
+
 	private static void cleanupAbandonedConnections(){
 		try{
 			AbandonedConnectionCleanupThread.shutdown();

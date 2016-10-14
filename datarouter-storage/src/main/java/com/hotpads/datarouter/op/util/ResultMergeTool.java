@@ -13,7 +13,6 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import com.hotpads.datarouter.util.core.DrCollectionTool;
-import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.datarouter.util.core.DrMapTool;
 
 public class ResultMergeTool {
@@ -45,7 +44,7 @@ public class ResultMergeTool {
 		}
 		return null;
 	}
-	
+
 	public static <T,C extends Collection<T>> List<T> append(C a, Collection<? extends C> bs){
 		int size = DrCollectionTool.sizeNullSafe(a) + DrCollectionTool.getTotalSizeOfCollectionOfCollections(bs);
 		List<T> out = new ArrayList<>(size);
@@ -55,7 +54,7 @@ public class ResultMergeTool {
 		}
 		return out;
 	}
-	
+
 	public static <T,C extends Collection<T>> Set<T> addAll(C a, Collection<? extends C> bs){
 		Set<T> out = new HashSet<>();
 		out.addAll(DrCollectionTool.nullSafe(a));
@@ -64,7 +63,7 @@ public class ResultMergeTool {
 		}
 		return out;
 	}
-	
+
 	public static <T,C extends Collection<T>> SortedSet<T> addAllSorted(C a, Collection<? extends C> bs){
 		SortedSet<T> out = new TreeSet<>();
 		out.addAll(DrCollectionTool.nullSafe(a));
@@ -73,8 +72,8 @@ public class ResultMergeTool {
 		}
 		return out;
 	}
-	
-	public static <T extends Comparable<? super T>,C extends Collection<T>> 
+
+	public static <T extends Comparable<? super T>,C extends Collection<T>>
 	ArrayList<T> mergeIntoListAndSort(C a, Collection<? extends C> bs){
 		ArrayList<T> out = new ArrayList<>();
 		out.addAll(DrCollectionTool.nullSafe(a));
@@ -84,16 +83,16 @@ public class ResultMergeTool {
 		Collections.sort(out);
 		return out;
 	}
-	
-	public static <T extends Comparable<T>,C extends Collection<T>> 
+
+	public static <T extends Comparable<T>,C extends Collection<T>>
 	List<T> appendAndSort(C a, Collection<? extends C> bs){
 		List<T> appended = append(a, bs);
 		Collections.sort(appended);
 		return appended;
 	}
-	
+
 	public static <K,V> Map<K,V> mergeMaps(Map<K,V> fromOnce, Collection<Map<K,V>> fromEach){
-		Map<K,V> result = new HashMap<K,V>();
+		Map<K,V> result = new HashMap<>();
 		if(DrMapTool.notEmpty(fromOnce)){
 			result.putAll(fromOnce);
 		}
@@ -102,9 +101,9 @@ public class ResultMergeTool {
 		}
 		return result;
 	}
-	
+
 	public static <K> Map<K,Integer> mergeIntegerValueMaps(Map<K,Integer> fromOnce, Collection<Map<K,Integer>> fromEach){
-		Map<K,Integer> result = new HashMap<K,Integer>();
+		Map<K,Integer> result = new HashMap<>();
 		if(DrMapTool.notEmpty(fromOnce)){
 			result.putAll(fromOnce);
 		}

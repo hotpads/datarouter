@@ -34,8 +34,8 @@ implements TraceSubNodes{
 
 	public EntityNode<TraceEntityKey,TraceEntity> entity;
 	private SubEntitySortedMapStorageNode<TraceEntityKey,TraceKey,Trace,TraceFielder> trace;
-	private SubEntitySortedMapStorageNode<TraceEntityKey,TraceThreadKey,TraceThread,TraceThreadFielder> thread;
-	private SubEntitySortedMapStorageNode<TraceEntityKey,TraceSpanKey,TraceSpan,TraceSpanFielder> span;
+	private SubEntitySortedMapStorageNode<TraceEntityKey,TraceThreadKey,TraceThread,TraceThreadFielder> traceThread;
+	private SubEntitySortedMapStorageNode<TraceEntityKey,TraceSpanKey,TraceSpan,TraceSpanFielder> traceSpan;
 
 	public TraceEntityNode(EntityNodeFactory entityNodeFactory, NodeFactory nodeFactory, Router router,
 			ClientId clientId, EntityNodeParams<TraceEntityKey,TraceEntity> entityNodeParams){
@@ -45,13 +45,13 @@ implements TraceSubNodes{
 				TraceFielder.class, TraceEntity.QUALIFIER_PREFIX_Trace));
 		entity.register(trace);
 
-		thread = router.register(nodeFactory.subEntityNode(router, entityNodeParams, clientId, TraceThread.class,
+		traceThread = router.register(nodeFactory.subEntityNode(router, entityNodeParams, clientId, TraceThread.class,
 				TraceThreadFielder.class, TraceEntity.QUALIFIER_PREFIX_TraceThread));
-		entity.register(thread);
+		entity.register(traceThread);
 
-		span = router.register(nodeFactory.subEntityNode(router, entityNodeParams, clientId, TraceSpan.class,
+		traceSpan = router.register(nodeFactory.subEntityNode(router, entityNodeParams, clientId, TraceSpan.class,
 				TraceSpanFielder.class, TraceEntity.QUALIFIER_PREFIX_TraceSpan));
-		entity.register(span);
+		entity.register(traceSpan);
 	}
 
 
@@ -67,13 +67,13 @@ implements TraceSubNodes{
 	}
 
 	@Override
-	public SortedMapStorageNode<TraceThreadKey,TraceThread> thread(){
-		return thread;
+	public SortedMapStorageNode<TraceThreadKey,TraceThread> traceThread(){
+		return traceThread;
 	}
 
 	@Override
-	public SortedMapStorageNode<TraceSpanKey,TraceSpan> span(){
-		return span;
+	public SortedMapStorageNode<TraceSpanKey,TraceSpan> traceSpan(){
+		return traceSpan;
 	}
 
 

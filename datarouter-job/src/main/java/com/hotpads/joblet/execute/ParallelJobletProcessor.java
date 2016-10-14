@@ -1,6 +1,9 @@
 package com.hotpads.joblet.execute;
 
+import java.time.Duration;
 import java.util.Collection;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -8,9 +11,8 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hotpads.datarouter.routing.Datarouter;
+import com.hotpads.datarouter.config.DatarouterProperties;
 import com.hotpads.datarouter.util.core.DrDateTool;
-import com.hotpads.job.trigger.JobSettings;
 import com.hotpads.joblet.JobletPackage;
 import com.hotpads.joblet.JobletService;
 import com.hotpads.joblet.JobletSettings;
@@ -25,177 +27,160 @@ public class ParallelJobletProcessor{
 
 	@Singleton
 	public static class ParallelJobletProcessorFactory{
-
-		@Inject
-		private JobSettings jobSettings;
 		@Inject
 		private JobletService jobletService;
 		@Inject
-		private Datarouter datarouter;
-		@Inject
-		private JobletThrottle jobletThrottle;
+		private DatarouterProperties datarouterProperties;
 		@Inject
 		private JobletSettings jobletSettings;
 		@Inject
 		private JobletExecutorThreadPoolFactory jobletExecutorThreadPoolFactory;
 
 		public ParallelJobletProcessor create(JobletType<?> jobletType){
-			return new ParallelJobletProcessor(jobletType, jobSettings, jobletService, datarouter, jobletThrottle,
-					jobletSettings, jobletExecutorThreadPoolFactory);
+			return new ParallelJobletProcessor(datarouterProperties, jobletSettings, jobletService,
+					jobletExecutorThreadPoolFactory, jobletType);
 		}
-
 	}
 
-	public static Long RUNNING_JOBLET_TIMEOUT_MS = 1000L * 60 * 10;  //10 minutes
+	private static final long SLEEP_MS_WHEN_NO_WORK = Duration.ofSeconds(1).toMillis();
+	public static final Long RUNNING_JOBLET_TIMEOUT_MS = 1000L * 60 * 10;  //10 minutes
 
-	//intentionally shared across any instances that might exist
-	private static final MutableBoolean interrupted = new MutableBoolean(false);
-	private boolean stop = false;
-
-	private final JobletType<?> jobletType;
-	private Thread workerThread;
-	private JobletScheduler jobletScheduler;
-	private JobletExecutorThreadPool threadPool;
-
-	private final JobSettings jobSettings;
-	private final JobletService jobletService;
-	private final Datarouter datarouter;
-	private final JobletThrottle jobletThrottle;
+	//injected
+	private final DatarouterProperties datarouterProperties;
 	private final JobletSettings jobletSettings;
+	private final JobletService jobletService;
+	//not injected
+	private final JobletType<?> jobletType;
+	private final MutableBoolean shutdownRequested;
+	private final JobletExecutorThreadPool workerThreadPool;
+	private final Thread driverThread;
 
-	private ParallelJobletProcessor(JobletType<?> jobletType, JobSettings jobSettings, JobletService jobletService,
-			Datarouter datarouter, JobletThrottle jobletThrottle, JobletSettings jobletSettings,
-			JobletExecutorThreadPoolFactory jobletExecutorThreadPoolFactory) {
-		this.jobletType = jobletType;
-		this.jobSettings = jobSettings;
-		this.jobletService = jobletService;
-		this.datarouter = datarouter;
-		this.jobletThrottle = jobletThrottle;
+
+	public ParallelJobletProcessor(DatarouterProperties datarouterProperties, JobletSettings jobletSettings,
+			JobletService jobletService, JobletExecutorThreadPoolFactory jobletExecutorThreadPoolFactory,
+			JobletType<?> jobletType){
+		this.datarouterProperties = datarouterProperties;
 		this.jobletSettings = jobletSettings;
-		this.threadPool = jobletExecutorThreadPoolFactory.create(0, jobletType);
-		this.jobletScheduler = new JobletSchedulerImp(threadPool);
+		this.jobletService = jobletService;
+
+		this.jobletType = jobletType;
+		//create a separate shutdownRequested for each processor so we can disable them independently
+		this.shutdownRequested = new MutableBoolean(false);
+		this.workerThreadPool = jobletExecutorThreadPoolFactory.create(0, jobletType);
+		this.driverThread = new Thread(null, this::fetchJobletsAndAssignToPool, jobletType.getPersistentString()
+				+ " JobletProcessor worker thread");
+		driverThread.start();
 	}
+
+	public void requestShutdown() {
+		shutdownRequested.set(true);
+	}
+
+	/*----------------- private --------------------*/
+
+	private boolean shouldRun(){
+		return !shutdownRequested.get()
+				&& jobletSettings.getRunJoblets().getValue()
+				&& jobletSettings.getThreadCountForJobletType(jobletType) > 0;
+	}
+
+	//this method must continue indefinitely, so be sure to catch all exceptions
+	private void fetchJobletsAndAssignToPool(){
+		long counter = 0;
+		while(!shutdownRequested.get()){
+			try{
+				if(!shouldRun()){
+					logger.debug("sleeping since shouldRun false for {}", jobletType.getPersistentString());
+					sleepABit();
+					continue;
+				}
+				workerThreadPool.resize(jobletSettings.getThreadCountForJobletType(jobletType));
+				PhaseTimer timer = new PhaseTimer();
+				JobletPackage jobletPackage = getJobletPackage(counter++);
+				if(jobletPackage != null){
+					timer.add("acquired");
+					jobletPackage.getJobletRequest().setTimer(timer);
+					assignJobletPackageToThreadPool(jobletPackage);
+				}else{
+					logger.debug("sleeping since no joblet found for {}", jobletType.getPersistentString());
+					sleepABit();
+				}
+			}catch(Exception e){//catch everything; don't let the loop break
+				logger.error("", e);
+				try{
+					sleepABit();
+				}catch(Exception problemSleeping){
+					logger.error("uh oh, problem sleeping", problemSleeping);
+				}
+			}
+		}
+	}
+
+	private final JobletPackage getJobletPackage(long counter){
+		String reservedBy = getReservedByString(counter);
+		JobletRequest jobletRequest = jobletService.getJobletRequestForProcessing(jobletType, reservedBy);
+		if(jobletRequest == null){
+			return null;
+		}
+		jobletRequest.setShutdownRequested(shutdownRequested);
+		return jobletService.getJobletPackageForJobletRequest(jobletRequest);
+	}
+
+	private String getReservedByString(long counter){
+		return datarouterProperties.getServerName()
+				+ "_" + DrDateTool.getYyyyMmDdHhMmSsMmmWithPunctuationNoSpaces(System.currentTimeMillis())
+				+ "_" + Thread.currentThread().getId()
+				+ "_" + counter;
+	}
+
+	public void assignJobletPackageToThreadPool(JobletPackage jobletPackage){
+		Lock lock = workerThreadPool.getJobAssignmentLock();
+		lock.lock();
+		try{
+			while(workerThreadPool.isSaturated()){
+				if(!workerThreadPool.getSaturatedCondition().await(1, TimeUnit.SECONDS)){
+					workerThreadPool.findAndKillRunawayJoblets();
+				}
+			}
+			workerThreadPool.assignJobletPackage(jobletPackage);
+		}catch(InterruptedException e){
+			return;
+		}finally{
+			lock.unlock();
+		}
+	}
+
+	private void sleepABit(){
+		try{
+			Thread.sleep(SLEEP_MS_WHEN_NO_WORK);
+		}catch(InterruptedException e){
+			logger.warn("", e);
+			Thread.interrupted();//continue.  we have explicit interrupted handling for terminating
+		}
+	}
+
+	/*---------------- Object methods ----------------*/
 
 	@Override
 	public String toString(){
-		return getClass().getSimpleName() + "[" + System.identityHashCode(this) + "," + jobletType + ",numThreads:"
-				+ getNumThreads() + "]";
+		return getClass().getSimpleName() + "[" + jobletType + ", numThreads:" + jobletSettings
+				.getThreadCountForJobletType(jobletType) + "]";
 	}
 
-	private boolean shouldRun() {
-		if(jobSettings.getProcessJobs().getValue()
-			&& jobletSettings.getRunJoblets().getValue()
-			&& getNumThreads() > 0
-			&& !stop
-			&& !interrupted.get()){
-			return true;
-		}
-
-		return false;
-	}
-
-	public static void interruptAllJoblets(){
-		interrupted.set(true);
-	}
-
-	public boolean isAwake() {
-		return workerThread != null;
-	}
-
-	public void wakeUp(){
-		if(isAwake()){
-			return;
-		}
-		startThread();
-	}
-
-	private void startThread(){
-		workerThread = new Thread(null, buildWorker(), jobletType.getPersistentString()
-				+ " JobletProcessor worker thread");
-		workerThread.start();
-	}
-
-	private void endThread(){
-		workerThread = null;
-	}
-
-	private Runnable buildWorker(){
-		return new Runnable(){
-			@Override
-			public void run() {
-				processJobletsInParallel();
-				endThread();
-			}
-		};
-	}
-
-	private void processJobletsInParallel(){
-		int counter = 0;
-		int numThreads = getNumThreads();
-		threadPool.resize(numThreads);
-		while(shouldRun()){
-			if(interrupted.get()){
-				return;
-			}
-			threadPool.resize(getNumThreads());
-			PhaseTimer timer = new PhaseTimer();
-			jobletScheduler.blockUntilReadyForNewJoblet();
-			JobletPackage jobletPackage = getJobletPackage(counter++);
-			timer.add("acquired");
-			if(jobletPackage == null){
-				return;
-			}
-			JobletRequest jobletRequest = jobletPackage.getJoblet();
-			jobletRequest.setTimer(timer);
-			jobletScheduler.submitJobletPackage(jobletPackage);
-		}
-
-	}
-
-	private int getNumThreads(){
-		Integer numThreads = jobletSettings.getThreadCountForJobletType(jobletType);
-		return numThreads == null ? 0 : numThreads;
-	}
-
-	public void stop() {
-		stop  = true;
-	}
-
-	private String getReservedByString(int counter){
-		return datarouter.getServerName() + "_" + DrDateTool.getYyyyMmDdHhMmSsMmmWithPunctuationNoSpaces(
-				System.currentTimeMillis()) + "_" + Thread.currentThread().getId() + "_" + counter;
-	}
-
-	public JobletScheduler getJobletScheduler(){
-		return jobletScheduler;
-	}
+	/*---------------- convenience ---------------*/
 
 	public Collection<JobletExecutorThread> getRunningJobletExecutorThreads() {
-		return threadPool.getRunningJobletExecutorThreads();
+		return workerThreadPool.getRunningJobletExecutorThreads();
 	}
 
 	public Collection<JobletExecutorThread> getWaitingJobletExecutorThreads(){
-		return threadPool.getWaitingJobletExecutorThreads();
+		return workerThreadPool.getWaitingJobletExecutorThreads();
 	}
 
-	private final JobletPackage getJobletPackage(int counter){
-		String reservedBy = getReservedByString(counter);
-		JobletRequest jobletRequest = null;
-		jobletThrottle.acquirePermits(jobletType.getCpuPermits(), jobletType.getMemoryPermits());
-		try{
-			jobletRequest = jobletService.getJobletRequestForProcessing(jobletType, reservedBy,
-					RUNNING_JOBLET_TIMEOUT_MS);
-		}catch(Exception e){
-			logger.warn("", e);
-		}
-		JobletPackage jobletPackage = null;
-		if(jobletRequest != null){
-			jobletRequest.setInterrupted(interrupted);
-			jobletPackage = jobletService.getJobletPackageForJobletRequest(jobletRequest);
-		}else{
-			jobletThrottle.releasePermits(jobletType.getCpuPermits(), jobletType.getMemoryPermits());
-		}
-		return jobletPackage;
+	/*-------------- get/set -----------------*/
+
+	public JobletType<?> getJobletType(){
+		return jobletType;
 	}
 
 }

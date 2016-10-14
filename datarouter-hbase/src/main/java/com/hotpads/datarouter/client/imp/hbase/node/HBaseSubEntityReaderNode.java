@@ -14,6 +14,7 @@ import org.apache.hadoop.hbase.client.Table;
 
 import com.hotpads.datarouter.client.ClientTableNodeNames;
 import com.hotpads.datarouter.client.imp.hbase.client.HBaseClient;
+import com.hotpads.datarouter.client.imp.hbase.scan.HBaseSubEntityCellScanner;
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseMultiAttemptTask;
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseTask;
 import com.hotpads.datarouter.client.imp.hbase.util.HBaseSubEntityQueryBuilder;
@@ -35,7 +36,6 @@ import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.datarouter.util.core.DrNumberTool;
 import com.hotpads.util.core.collections.Range;
-import com.hotpads.util.core.iterable.scanner.batch.AsyncBatchLoaderScanner;
 import com.hotpads.util.core.iterable.scanner.collate.PriorityQueueCollator;
 import com.hotpads.util.core.iterable.scanner.iterable.SingleUseScannerIterable;
 import com.hotpads.util.core.iterable.scanner.sorted.SortedScanner;
@@ -52,12 +52,12 @@ implements HBasePhysicalNode<PK,D>,
 		SubEntitySortedMapStorageReaderNode<EK,PK,D,F>{
 
 	public static final int DEFAULT_ITERATE_BATCH_SIZE = Config.DEFAULT_ITERATE_BATCH_SIZE;
+	private static final boolean USE_ASYNC_SCANNERS = false;
 
-	private ClientTableNodeNames clientTableNodeNames;
-	protected EntityFieldInfo<EK,E> entityFieldInfo;
-
-	protected HBaseSubEntityQueryBuilder<EK,E,PK,D,F> queryBuilder;
-	protected HBaseSubEntityResultParser<EK,E,PK,D,F> resultParser;
+	private final ClientTableNodeNames clientTableNodeNames;
+	protected final EntityFieldInfo<EK,E> entityFieldInfo;
+	protected final HBaseSubEntityQueryBuilder<EK,E,PK,D,F> queryBuilder;
+	protected final HBaseSubEntityResultParser<EK,E,PK,D,F> resultParser;
 
 	/******************************* constructors ************************************/
 
@@ -230,23 +230,28 @@ implements HBasePhysicalNode<PK,D>,
 			nullSafeConfig.setLimit(nullSafeConfig.getLimit() + nullSafeConfig.getOffset());
 		}
 		final Range<PK> nullSafeRange = Range.nullSafe(range);
-		//single row. use Get. gets all pks in entity. no way to limit rows
-		if(queryBuilder.isSingleEntity(nullSafeRange)){
-			List<PK> pks = new HBaseMultiAttemptTask<>(new HBaseTask<List<PK>>(getDatarouter(),
-					getClientTableNodeNames(), "scanPksInEntity", nullSafeConfig){
-				@Override
-				public List<PK> hbaseCall(Table htable, HBaseClient client, ResultScanner managedResultScanner)
-				throws Exception{
-					Get get = queryBuilder.getSingleRowRange(nullSafeRange.getStart().getEntityKey(), nullSafeRange,
-							true);
-					Result result = htable.get(get);
-					return new ArrayList<>(resultParser.getPrimaryKeysWithMatchingQualifierPrefix(result,
-					nullSafeConfig.getLimit()));
-				}
-			}).call();
-			return DrIterableTool.skip(pks, DrNumberTool.longValue(nullSafeConfig.getOffset()));
+		List<? extends SortedScanner<PK>> scanners;
+		if(USE_ASYNC_SCANNERS){
+			//single row. use Get. gets all pks in entity. no way to limit rows
+			if(queryBuilder.isSingleEntity(nullSafeRange)){
+				List<PK> pks = new HBaseMultiAttemptTask<>(new HBaseTask<List<PK>>(getDatarouter(),
+						getClientTableNodeNames(), "scanPksInEntity", nullSafeConfig){
+					@Override
+					public List<PK> hbaseCall(Table htable, HBaseClient client, ResultScanner managedResultScanner)
+					throws Exception{
+						Get get = queryBuilder.getSingleRowRange(nullSafeRange.getStart().getEntityKey(), nullSafeRange,
+								true);
+						Result result = htable.get(get);
+						return new ArrayList<>(resultParser.getPrimaryKeysWithMatchingQualifierPrefix(result,
+						nullSafeConfig.getLimit()));
+					}
+				}).call();
+				return DrIterableTool.skip(pks, DrNumberTool.longValue(nullSafeConfig.getOffset()));
+			}
+			scanners = queryBuilder.getBatchingPkScanners(this, nullSafeRange, config);
+		}else{
+			scanners = queryBuilder.getPkScanners(this, nullSafeRange, nullSafeConfig);
 		}
-		List<AsyncBatchLoaderScanner<PK>> scanners = queryBuilder.getPkScanners(this, nullSafeRange, config);
 		SortedScanner<PK> collator = new PriorityQueueCollator<>(scanners, DrNumberTool.longValue(nullSafeConfig
 				.getLimit()));
 		collator.advanceBy(nullSafeConfig.getOffset());
@@ -265,22 +270,28 @@ implements HBasePhysicalNode<PK,D>,
 			nullSafeConfig.setLimit(nullSafeConfig.getLimit() + nullSafeConfig.getOffset());
 		}
 		final Range<PK> nullSafeRange = Range.nullSafe(range);
-		//single row. use Get. gets all databeans in entity. no way to limit rows
-		if(queryBuilder.isSingleEntity(nullSafeRange)){
-			List<D> databeans = new HBaseMultiAttemptTask<>(new HBaseTask<List<D>>(getDatarouter(),
-					getClientTableNodeNames(), "scanInEntity", nullSafeConfig){
-				@Override
-				public List<D> hbaseCall(Table htable, HBaseClient client, ResultScanner managedResultScanner)
-				throws Exception{
-					Get get = queryBuilder.getSingleRowRange(nullSafeRange.getStart().getEntityKey(), nullSafeRange,
-							false);
-					Result result = htable.get(get);
-					return resultParser.getDatabeansWithMatchingQualifierPrefix(result, nullSafeConfig.getLimit());
-				}
-			}).call();
-			return DrIterableTool.skip(databeans, DrNumberTool.longValue(nullSafeConfig.getOffset()));
+
+		List<? extends SortedScanner<D>> scanners;
+		if(USE_ASYNC_SCANNERS){
+			//single row. use Get. gets all databeans in entity. no way to limit rows
+			if(queryBuilder.isSingleEntity(nullSafeRange)){
+				List<D> databeans = new HBaseMultiAttemptTask<>(new HBaseTask<List<D>>(getDatarouter(),
+						getClientTableNodeNames(), "scanInEntity", nullSafeConfig){
+					@Override
+					public List<D> hbaseCall(Table htable, HBaseClient client, ResultScanner managedResultScanner)
+					throws Exception{
+						Get get = queryBuilder.getSingleRowRange(nullSafeRange.getStart().getEntityKey(), nullSafeRange,
+								false);
+						Result result = htable.get(get);
+						return resultParser.getDatabeansWithMatchingQualifierPrefix(result, nullSafeConfig.getLimit());
+					}
+				}).call();
+				return DrIterableTool.skip(databeans, DrNumberTool.longValue(nullSafeConfig.getOffset()));
+			}
+			scanners = queryBuilder.getBatchingDatabeanScanners(this, nullSafeRange, config);
+		}else{
+			scanners = queryBuilder.getDatabeanScanners(this, nullSafeRange, nullSafeConfig);
 		}
-		List<AsyncBatchLoaderScanner<D>> scanners = queryBuilder.getDatabeanScanners(this, nullSafeRange, config);
 		SortedScanner<D> collator = new PriorityQueueCollator<>(scanners, DrNumberTool.longValue(nullSafeConfig
 				.getLimit()));
 		collator.advanceBy(nullSafeConfig.getOffset());
@@ -335,6 +346,11 @@ implements HBasePhysicalNode<PK,D>,
 		}).call();
 	}
 
+	public HBaseSubEntityCellScanner<EK,E,PK,D,F> makeCellScanner(Config config, int partition, Range<PK> pkRange,
+			boolean keysOnly){
+		return new HBaseSubEntityCellScanner<>(getClient(), clientTableNodeNames, queryBuilder, resultParser, config,
+				partition, pkRange, keysOnly);
+	}
 
 	/********************* get/set *******************************/
 

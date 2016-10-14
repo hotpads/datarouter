@@ -14,17 +14,17 @@ import com.hotpads.datarouter.test.client.txn.TxnBean;
 import com.hotpads.datarouter.test.client.txn.TxnTestRouter;
 
 public class TestInsertRollback extends BaseJdbcOp<Void>{
-	
+
 	private TxnTestRouter router;
 	private String beanPrefix;
-	
+
 	public TestInsertRollback(Datarouter datarouter, List<String> clientNames, Isolation isolation,
 			TxnTestRouter router, String beanPrefix){
 		super(datarouter, clientNames, isolation, false);
 		this.router = router;
 		this.beanPrefix = beanPrefix;
 	}
-	
+
 	@Override
 	public Void runOncePerClient(Client client){
 		TxnBean a = new TxnBean(beanPrefix + "1");

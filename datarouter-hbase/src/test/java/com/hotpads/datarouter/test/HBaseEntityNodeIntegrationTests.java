@@ -12,6 +12,7 @@ import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
 import com.hotpads.datarouter.config.Config;
+import com.hotpads.datarouter.config.DatarouterSettings;
 import com.hotpads.datarouter.node.factory.EntityNodeFactory;
 import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.routing.Datarouter;
@@ -27,6 +28,8 @@ public class HBaseEntityNodeIntegrationTests{
 	@Inject
 	private Datarouter datarouter;
 	@Inject
+	private DatarouterSettings datarouterSettings;
+	@Inject
 	private EntityNodeFactory entityNodeFactory;
 	@Inject
 	private NodeFactory nodeFactory;
@@ -36,8 +39,8 @@ public class HBaseEntityNodeIntegrationTests{
 
 	@BeforeClass
 	public void beforeClass(){
-		SortedNodeTestRouter router = new SortedNodeTestRouter(datarouter, entityNodeFactory,
-				SortedBeanEntityNode.ENTITY_NODE_PARAMS_3, nodeFactory, DrTestConstants.CLIENT_drTestHBase, true, true);
+		SortedNodeTestRouter router = new SortedNodeTestRouter(datarouter, datarouterSettings, entityNodeFactory,
+				SortedBeanEntityNode.ENTITY_NODE_PARAMS_3, nodeFactory, DrTestConstants.CLIENT_drTestHBase, true);
 		sortedBeanEntityNode = router.sortedBeanEntity();
 
 		for(List<SortedBean> batch : new BatchingIterable<>(SortedBeans.generatedSortedBeans(), 1000)){

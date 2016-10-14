@@ -14,7 +14,7 @@ import com.hotpads.handler.admin.RoutersHandler;
 import com.hotpads.handler.mav.Mav;
 
 public class MemoryHandler extends BaseHandler {
-	
+
 	/**************** static **********************/
 
 	private static final List<String> NEEDS_CLIENT = new ArrayList<>();
@@ -38,10 +38,10 @@ public class MemoryHandler extends BaseHandler {
 		MEMORY_NEEDS.put(RouterParams.NEEDS_ROUTER, NEEDS_ROUTER);
 		MEMORY_NEEDS.put(RouterParams.NEEDS_NODE, NEEDS_NODE);
 	}
-	
-	
+
+
 	/******************** fields ************************/
-	
+
 	@Inject
 	private Datarouter datarouter;
 

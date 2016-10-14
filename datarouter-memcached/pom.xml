@@ -55,9 +55,9 @@
 		</dependency>
 		<!-- external -->
 		<dependency>
-			<groupId>memcached-spy</groupId>
-			<artifactId>spy</artifactId>
-			<version>2.4</version>
+			<groupId>net.spy</groupId>
+			<artifactId>spymemcached</artifactId>
+			<version>2.12.1</version>
 		</dependency>
 		<!-- provided (not inherited) -->
 		<dependency>

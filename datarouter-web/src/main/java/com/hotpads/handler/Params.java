@@ -4,12 +4,16 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.fileupload.FileItem;
+
 import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.util.core.DrBooleanTool;
+import com.hotpads.datarouter.util.core.DrNumberTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.handler.user.session.DatarouterSession;
 import com.hotpads.util.http.RequestTool;
@@ -17,17 +21,19 @@ import com.hotpads.util.http.RequestTool;
 public class Params{
 
 	private final HttpServletRequest request;
+	protected final Map<String,String> paramsMap;
 
 	public Params(HttpServletRequest request){
 		this.request = request;
+		paramsMap = RequestTool.getParamMap(request);
 	}
 
 	public String required(String key){
-		return Preconditions.checkNotNull(request.getParameter(key));
+		return Preconditions.checkNotNull(paramsMap.get(key));
 	}
 
 	public Optional<String> optional(String key){
-		return Optional.ofNullable(request.getParameter(key));
+		return Optional.ofNullable(paramsMap.get(key));
 	}
 
 	/**
@@ -51,59 +57,51 @@ public class Params{
 	}
 
 	public Boolean requiredBoolean(String key){
-		return DrBooleanTool.isTrue(Preconditions.checkNotNull(request.getParameter(key)));
+		return DrBooleanTool.isTrue(required(key));
 	}
 
 	public Boolean optionalBoolean(String key, Boolean defaultValue){
-		String value = request.getParameter(key);
-		if(value==null){
-			return defaultValue;
-		}
-		return DrBooleanTool.isTrue(value);
+		return optional(key).map(DrBooleanTool::isTrue).orElse(defaultValue);
 	}
 
 	public Long requiredLong(String key){
-		return Long.valueOf(Preconditions.checkNotNull(request.getParameter(key)));
+		return Long.valueOf(required(key));
+	}
+
+	public Optional<Long> optionalLong(String key){
+		return optional(key).map(Long::valueOf);
 	}
 
 	public Long optionalLong(String key, Long defaultValue){
-		String value = request.getParameter(key);
-		if(value==null){
-			return defaultValue;
-		}
-		return Long.valueOf(value);
+		return optionalLong(key).orElse(defaultValue);
 	}
 
 	public Long optionalLongEmptySafe(String key, Long defaultValue){
-		String value = request.getParameter(key);
-		if(DrStringTool.isNullOrEmptyOrWhitespace(value)){
-			return defaultValue;
-		}
-		return Long.valueOf(value);
+		return optional(key).filter(str -> !DrStringTool.isNullOrEmptyOrWhitespace(str)).map(Long::valueOf)
+				.orElse(defaultValue);
+	}
+
+	public Optional<Long> optionalLongSafeParsing(String key){
+		return optional(key)
+				.map(value->DrNumberTool.getLongNullSafe(value,null))
+				.filter(Objects::nonNull);
 	}
 
 	public Integer requiredInteger(String key){
-		return Integer.valueOf(Preconditions.checkNotNull(request.getParameter(key)));
+		return Integer.valueOf(required(key));
 	}
 
 	public Integer optionalInteger(String key, Integer defaultValue){
-		String value = request.getParameter(key);
-		if(DrStringTool.isNullOrEmptyOrWhitespace(value)){
-			return defaultValue;
-		}
-		return Integer.valueOf(value);
-	}
-
-	public Double optionalDouble(String key, Double defaultValue){
-		String value = request.getParameter(key);
-		if(value==null){
-			return defaultValue;
-		}
-		return Double.valueOf(value);
+		return optional(key).filter(str -> !DrStringTool.isNullOrEmptyOrWhitespace(str)).map(Integer::valueOf)
+				.orElse(defaultValue);
 	}
 
 	public Double requiredDouble(String key){
-		return Double.valueOf(Preconditions.checkNotNull(request.getParameter(key)));
+		return Double.valueOf(required(key));
+	}
+
+	public Double optionalDouble(String key, Double defaultValue){
+		return optional(key).map(Double::valueOf).orElse(defaultValue);
 	}
 
 	public List<String> optionalCsvList(String key, List<String> defaultValue){
@@ -111,11 +109,7 @@ public class Params{
 	}
 
 	public List<String> optionalList(String key, String delimiter, List<String> defaultValue){
-		String stringVal = request.getParameter(key);
-		if(DrStringTool.isEmpty(stringVal)){
-			return defaultValue;
-		}
-		return Arrays.asList(stringVal.split(delimiter));
+		return optional(key).map(str -> str.split(delimiter)).map(Arrays::asList).orElse(defaultValue);
 	}
 
 	public Integer tryGetInteger(String key, Integer defaultValue) {
@@ -139,8 +133,16 @@ public class Params{
 		return new Date(value);
 	}
 
-	public Map<String, String> toMap(){
-		return RequestTool.getParamMap(request);
+	public FileItem requiredFile(String key){
+		throw new RuntimeException("not a multipart request");
+	}
+
+	public Optional<FileItem> optionalFile(String key){
+		return Optional.empty();
+	}
+
+	public Map<String,String> toMap(){
+		return paramsMap;
 	}
 
 	/**************************** fancier methods *************************/

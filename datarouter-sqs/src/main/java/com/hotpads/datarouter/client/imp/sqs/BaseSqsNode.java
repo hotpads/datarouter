@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.client.imp.sqs;
 
+import java.time.Duration;
 import java.util.Collection;
 
 import com.amazonaws.services.sqs.AmazonSQSClient;
@@ -28,6 +29,8 @@ implements QueueStorageWriter<PK,D>{
 	public static final int MAX_TIMEOUT_SECONDS = 20;
 	public static final int MAX_BYTES_PER_MESSAGE = 256*1024;
 	public static final int MAX_BYTES_PER_PAYLOAD = 256*1024;
+	//SQS default is 30 sec
+	public static final long DEFAULT_VISIBILITY_TIMEOUT_MS = Duration.ofSeconds(30).toMillis();
 
 	private final Datarouter datarouter;
 	private final Lazy<String> queueUrl;
@@ -36,7 +39,7 @@ implements QueueStorageWriter<PK,D>{
 	public BaseSqsNode(Datarouter datarouter, NodeParams<PK,D,F> params){
 		super(params);
 		this.datarouter = datarouter;
-		this.queueUrl = Lazy.of(this::getOrCreateQueueUrl);
+		this.queueUrl = Lazy.of(() -> getOrCreateQueueUrl(params.getQueueUrl()));
 		this.sqsOpFactory = new SqsOpFactory<>(this);
 	}
 
@@ -45,8 +48,15 @@ implements QueueStorageWriter<PK,D>{
 		return getSqsClient();
 	}
 
-	private String getOrCreateQueueUrl(){
-		String queueName = getSqsClient().getSqsOptions().getNamespace() + "-" + getTableName();
+	private String getOrCreateQueueUrl(String queueUrl){
+		if(queueUrl != null){
+			return queueUrl;
+		}
+		String prefix = fieldInfo.getNamespace().orElse(getSqsClient().getSqsOptions().getNamespace());
+		if(!prefix.isEmpty()){
+			prefix += "-";
+		}
+		String queueName = prefix + getTableName();
 		CreateQueueRequest createQueueRequest = new CreateQueueRequest(queueName);
 		return getAmazonSqsClient().createQueue(createQueueRequest).getQueueUrl();
 	}

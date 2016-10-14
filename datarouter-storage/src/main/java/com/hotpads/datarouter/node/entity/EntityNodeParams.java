@@ -13,9 +13,9 @@ public class EntityNodeParams<
 	private final Class<E> entityClass;
 	private final Class<? extends EntityPartitioner<EK>> entityPartitionerClass;
 	private final String entityTableName;
-	
-	
-	public EntityNodeParams(String nodeName, Class<EK> entityKeyClass, 
+
+
+	public EntityNodeParams(String nodeName, Class<EK> entityKeyClass,
 			Class<E> entityClass, Class<? extends EntityPartitioner<EK>> entityPartitionerClass,
 			String entityTableName){
 		this.nodeName = nodeName;
@@ -24,16 +24,16 @@ public class EntityNodeParams<
 		this.entityPartitionerClass = entityPartitionerClass;
 		this.entityTableName = entityTableName;
 	}
-	
-	
+
+
 	public String getNodeName(){
 		return nodeName;
 	}
-	
+
 	public Class<EK> getEntityKeyClass(){
 		return entityKeyClass;
 	}
-	
+
 	public Class<E> getEntityClass(){
 		return entityClass;
 	}

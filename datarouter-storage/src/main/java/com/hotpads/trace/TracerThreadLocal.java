@@ -3,12 +3,12 @@ package com.hotpads.trace;
 public class TracerThreadLocal{
 
 	/*************** ThreadLocal ***************/
-	
+
 	private static final ThreadLocal<Tracer> tracerThreadLocal = new ThreadLocal<>();
 
-	
+
 	/************** methods *****************/
-	
+
 	public static Tracer bindToThread(Tracer tracer) {
 		tracerThreadLocal.set(tracer);
 		return tracer;

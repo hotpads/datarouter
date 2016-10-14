@@ -1,12 +1,10 @@
 package com.hotpads.datarouter.test.sqs;
 
-import java.util.Arrays;
-import java.util.List;
-
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import com.hotpads.datarouter.client.ClientId;
+import com.hotpads.datarouter.config.DatarouterSettings;
+import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.node.factory.QueueNodeFactory;
 import com.hotpads.datarouter.node.op.raw.GroupQueueStorage;
 import com.hotpads.datarouter.node.op.raw.QueueStorage;
@@ -26,18 +24,15 @@ public class SqsTestRouter extends BaseRouter{
 	public final GroupQueueStorage<TestDatabeanKey,TestDatabean> groupTestDatabean;
 
 	@Inject
-	public SqsTestRouter(Datarouter context, QueueNodeFactory nodeFactory){
-		super(context, DrTestConstants.CONFIG_PATH, NAME);
+	public SqsTestRouter(Datarouter context, QueueNodeFactory queueNodeFactory, NodeFactory nodeFactory,
+			DatarouterSettings datarouterSettings){
+		super(context, DrTestConstants.CONFIG_PATH, NAME, nodeFactory, datarouterSettings);
 
-		testDatabean = register(nodeFactory.createSingleQueueNode(DrTestConstants.CLIENT_drTestSqs, this,
-				TestDatabean.class, null, TestDatabeanFielder.class, true));
+		testDatabean = register(queueNodeFactory.createSingleQueueNode(DrTestConstants.CLIENT_drTestSqs, this,
+				TestDatabean::new, null, TestDatabeanFielder::new, true));
 		//Use a different table name to prevent test suites from interfering
-		groupTestDatabean = register(nodeFactory.createGroupQueueNode(DrTestConstants.CLIENT_drTestSqs, this,
-				TestDatabean.class, "groupTestDatabean", TestDatabeanFielder.class, true));
+		groupTestDatabean = register(queueNodeFactory.createGroupQueueNode(DrTestConstants.CLIENT_drTestSqs, this,
+				TestDatabean::new, "GroupTestDatabean", TestDatabeanFielder::new, true));
 	}
 
-	@Override
-	public List<ClientId> getClientIds(){
-		return Arrays.asList(DrTestConstants.CLIENT_drTestSqs);
-	}
 }

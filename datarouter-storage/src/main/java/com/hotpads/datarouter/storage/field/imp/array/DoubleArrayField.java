@@ -2,11 +2,9 @@ package com.hotpads.datarouter.storage.field.imp.array;
 
 import java.util.List;
 
+import com.google.gson.reflect.TypeToken;
 import com.hotpads.datarouter.storage.field.BaseListField;
-import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.bytes.DoubleByteTool;
-import com.hotpads.util.core.exception.NotImplementedException;
-
 
 public class DoubleArrayField extends BaseListField<Double,List<Double>>{
 
@@ -19,28 +17,14 @@ public class DoubleArrayField extends BaseListField<Double,List<Double>>{
 		super(name, value);
 	}
 
-	@Deprecated
-	public DoubleArrayField(String prefix, String name, List<Double> value){
-		super(prefix, name, value);
-	}
-
-
-	/*********************** StringEncodedField ***********************/
+	/*********************** StringEncodedField ******************************/
 
 	@Override
-	public String getStringEncodedValue(){
-		if(value==null){ return null; }
-		//TODO to CSV format?
-		throw new NotImplementedException();
+	public List<Double> parseStringEncodedValueButDoNotSet(String value){
+		return gson.fromJson(value, new TypeToken<List<Double>>(){}.getType());
 	}
 
-	@Override
-	public List<Double> parseStringEncodedValueButDoNotSet(String s){
-		throw new NotImplementedException();
-	}
-
-
-	/*********************** ByteEncodedField ***********************/
+	/*********************** ByteEncodedField ********************************/
 
 	@Override
 	public byte[] getBytes(){
@@ -60,18 +44,4 @@ public class DoubleArrayField extends BaseListField<Double,List<Double>>{
 		// TODO Auto-generated method stub
 		return 0;
 	}
-
-
-	public static void main(String[] args){
-		DoubleArrayField testField = new DoubleArrayField("stuff", DrListTool.create(new Double(-5.00001), new Double(203920.555),  null));
-		for(Double num : testField.value){
-			System.out.println(num);
-		}
-		byte[] bytes = testField.getBytes();
-		List<Double> doubles = testField.fromBytesButDoNotSet(bytes, 0);
-		for(Double doub : doubles){
-			System.out.println(doub);
-		}
-	}
-
 }

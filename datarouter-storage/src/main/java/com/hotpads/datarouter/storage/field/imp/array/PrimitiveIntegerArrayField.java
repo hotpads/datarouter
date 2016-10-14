@@ -1,5 +1,7 @@
 package com.hotpads.datarouter.storage.field.imp.array;
 
+import java.util.Arrays;
+
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -36,6 +38,11 @@ public class PrimitiveIntegerArrayField extends BaseField<int[]>{
 	@Override
 	public String getValueString(){
 		return String.valueOf(value);
+	}
+
+	@Override
+	public int getValueHashCode(){
+		return Arrays.hashCode(value);
 	}
 
 	@Override

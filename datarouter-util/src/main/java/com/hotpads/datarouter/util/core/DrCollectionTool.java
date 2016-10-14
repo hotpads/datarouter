@@ -108,7 +108,7 @@ public class DrCollectionTool{
 		List<T> listOfA = new ArrayList<>(collectionA);
 		List<T> listOfB = new ArrayList<>(collectionB);
 		for(int i = 0; i < listOfA.size(); ++i){
-			if(DrObjectTool.nullSafeNotEquals(listOfA.get(i), listOfB.get(i))){
+			if(DrObjectTool.notEquals(listOfA.get(i), listOfB.get(i))){
 				return false;
 			}
 		}

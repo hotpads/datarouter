@@ -1,9 +1,9 @@
 package com.hotpads.datarouter.client.imp.sqs.op;
 
-import java.util.ArrayList;
+import java.time.Duration;
+import java.util.Collections;
 import java.util.List;
 
-import com.amazonaws.AbortedException;
 import com.amazonaws.services.sqs.model.Message;
 import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
 import com.amazonaws.services.sqs.model.ReceiveMessageResult;
@@ -12,6 +12,7 @@ import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
 
 public abstract class BaseSqsPeekMultiOp<
 		PK extends PrimaryKey<PK>,
@@ -26,28 +27,32 @@ extends SqsOp<PK,D,F,List<T>>{
 
 	@Override
 	protected final List<T> run(){
-		ReceiveMessageRequest request = new ReceiveMessageRequest(queueUrl);
-		Long timeoutMs = config.getTimeoutMs();
-		if(timeoutMs == null){
-			timeoutMs = 0L;
+		ReceiveMessageRequest request = makeRequest();
+		ReceiveMessageResult result = amazonSqsClient.receiveMessage(request);
+		if(DrCollectionTool.isEmpty(result.getMessages())){
+			return Collections.emptyList();
 		}
-		request.setMaxNumberOfMessages(config.getLimitOrUse(BaseSqsNode.MAX_MESSAGES_PER_BATCH));
-		long timeWaitedMs = 0;
-		do{
-			long waitTimeMs = Math.min(timeoutMs - timeWaitedMs, BaseSqsNode.MAX_TIMEOUT_SECONDS * 1000);
-			timeWaitedMs += waitTimeMs;
-			request.setWaitTimeSeconds((int) (waitTimeMs / 1000));
-			try{
-				ReceiveMessageResult result = amazonSqsClient.receiveMessage(request);
-				if(result.getMessages().size() != 0){
-					return extractDatabeans(result.getMessages());
-				}
-			}catch(AbortedException e){
-				Thread.currentThread().interrupt();
-			}
-		}while(!Thread.currentThread().isInterrupted() && timeWaitedMs < timeoutMs);
-		return new ArrayList<>();
+		return extractDatabeans(result.getMessages());
 	}
 
 	protected abstract List<T> extractDatabeans(List<Message> messages);
+
+
+	private ReceiveMessageRequest makeRequest(){
+		ReceiveMessageRequest request = new ReceiveMessageRequest(queueUrl);
+
+		//waitTime
+		long configTimeoutMs = config.getTimeoutMsOrUse(Long.MAX_VALUE);
+		long waitTimeMs = Math.min(configTimeoutMs, BaseSqsNode.MAX_TIMEOUT_SECONDS * 1000);
+		request.setWaitTimeSeconds((int)Duration.ofMillis(waitTimeMs).getSeconds());//must fit in an int
+
+		//visibility timeout
+		long visibilityTimeoutMs = config.getVisibilityTimeoutMsOrUse(BaseSqsNode.DEFAULT_VISIBILITY_TIMEOUT_MS);
+		request.setVisibilityTimeout((int)Duration.ofMillis(visibilityTimeoutMs).getSeconds());
+
+		//max messages
+		request.setMaxNumberOfMessages(config.getLimitOrUse(BaseSqsNode.MAX_MESSAGES_PER_BATCH));
+
+		return request;
+	}
 }

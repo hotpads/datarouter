@@ -4,16 +4,16 @@ import java.sql.Connection;
 import java.sql.Statement;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.hotpads.datarouter.SchemaUpdateOptions;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSet;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCollation;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlRowFormat;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SchemaUpdateOptions;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlTable;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.SqlAlterTableGenerator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.SqlCreateTableGenerator;
@@ -27,48 +27,37 @@ import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.util.core.DrMapTool;
+import com.hotpads.util.core.concurrent.Lazy;
 import com.hotpads.util.core.profile.PhaseTimer;
 
 public class SingleTableSchemaUpdate
-implements Callable<Void>{
+implements Callable<Optional<String>>{
 	private static final Logger logger = LoggerFactory.getLogger(SingleTableSchemaUpdate.class);
 
 	private final JdbcFieldCodecFactory fieldCodecFactory;
 	private final String clientName;
 	private final JdbcConnectionPool connectionPool;
 	private final String schemaName;
-	private final List<String> existingTableNames;
+	private final Lazy<List<String>> existingTableNames;
 	private final SchemaUpdateOptions printOptions;
 	private final SchemaUpdateOptions executeOptions;
 	private final PhysicalNode<?,?> physicalNode;
 
-	//we write back to these 2 thread-safe collections that are passed in
-	private final Set<String> updatedTables;
-	private final List<String> printedSchemaUpdates;
-
-
 	public SingleTableSchemaUpdate(JdbcFieldCodecFactory fieldCodecFactory, String clientName,
-			JdbcConnectionPool connectionPool, List<String> existingTableNames, SchemaUpdateOptions printOptions,
-			SchemaUpdateOptions executeOptions, Set<String> updatedTables, List<String> printedSchemaUpdates,
-			PhysicalNode<?,?> physicalNode){
+			JdbcConnectionPool connectionPool, Lazy<List<String>> existingTableNames, SchemaUpdateOptions printOptions,
+			SchemaUpdateOptions executeOptions, PhysicalNode<?,?> physicalNode){
 		this.fieldCodecFactory = fieldCodecFactory;
 		this.clientName = clientName;
 		this.connectionPool = connectionPool;
 		this.schemaName = connectionPool.getSchemaName();
 		this.printOptions = printOptions;
 		this.executeOptions = executeOptions;
-		this.updatedTables = updatedTables;
-		this.printedSchemaUpdates = printedSchemaUpdates;
 		this.existingTableNames = existingTableNames;
 		this.physicalNode = physicalNode;
 	}
 
 	@Override
-	public Void call(){
-		if( ! physicalNode.getFieldInfo().getFieldAware()){
-			return null;
-		}
-
+	public Optional<String> call(){
 		String tableName = physicalNode.getTableName();
 		DatabeanFieldInfo<?, ?, ?> fieldInfo = physicalNode.getFieldInfo();
 		List<Field<?>> primaryKeyFields = fieldInfo.getPrimaryKeyFields();
@@ -79,14 +68,13 @@ implements Callable<Void>{
 		MySqlCharacterSet characterSet = fieldInfo.getCharacterSet();
 		MySqlRowFormat rowFormat = fieldInfo.getRowFormat();
 
-
 		if(executeOptions.getIgnoreClients().contains(clientName)){
-			return null;
+			return Optional.empty();
 		}
 		List<String> tablesToIgnore = executeOptions.getIgnoreTables();
 		String currentTableAbsoluteName = clientName + "." + tableName;
 		if(tablesToIgnore.contains(currentTableAbsoluteName)){
-			return null;
+			return Optional.empty();
 		}
 
 		if(physicalNode instanceof IndexedStorage){
@@ -104,17 +92,14 @@ implements Callable<Void>{
 		SqlTable requested = generator.generate();
 		Connection connection = null;
 		String ddl = null;
+		Optional<String> printedSchemaUpdate = Optional.empty();
 		try{
 			if(!connectionPool.isWritable()){
-				return null;
+				return Optional.empty();
 			}
-			if(updatedTables.contains(tableName)){
-				return null;
-			}
-			updatedTables.add(tableName);
+			boolean exists = existingTableNames.get().contains(tableName);
 			connection = connectionPool.checkOut();
 			Statement statement = connection.createStatement();
-			boolean exists = existingTableNames.contains(tableName);
 			if(!exists){
 				ddl = new SqlCreateTableGenerator(requested, schemaName).generateDdl();
 				if(executeOptions.getCreateTables()){
@@ -128,7 +113,7 @@ implements Callable<Void>{
 					logger.info("========================================== Please Execute SchemaUpdate"
 							+" ============================");
 					logger.info(ddl);
-					printedSchemaUpdates.add(ddl);
+					printedSchemaUpdate = Optional.of(ddl);
 				}
 			} else{
 				//execute the alter table
@@ -150,16 +135,16 @@ implements Callable<Void>{
 				}
 
 				//print the alter table
-				ConnectionSqlTableGenerator prinitConstructor = new ConnectionSqlTableGenerator(connection, tableName,
+				ConnectionSqlTableGenerator printConstructor = new ConnectionSqlTableGenerator(connection, tableName,
 						schemaName);
-				SqlTable printCurrent = prinitConstructor.generate();
+				SqlTable printCurrent = printConstructor.generate();
 				SqlAlterTableGenerator printAlterTableGenerator = new SqlAlterTableGenerator(printOptions,
 						printCurrent, requested, schemaName);
 				if(printAlterTableGenerator.willAlterTable()){
 					logger.info("# ==================== Please Execute SchemaUpdate ==========================");
 					//print it
 					String alterTablePrintString = printAlterTableGenerator.generateDdl();
-					printedSchemaUpdates.add(alterTablePrintString);
+					printedSchemaUpdate = Optional.of(alterTablePrintString);
 					logger.info(alterTablePrintString);
 					logger.info("# ========================== Thank You ======================================");
 				}
@@ -170,6 +155,6 @@ implements Callable<Void>{
 		} finally{
 			connectionPool.checkIn(connection);
 		}
-		return null;
+		return printedSchemaUpdate;
 	}
 }

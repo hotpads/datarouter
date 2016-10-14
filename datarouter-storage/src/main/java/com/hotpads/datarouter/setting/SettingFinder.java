@@ -1,6 +1,6 @@
 package com.hotpads.datarouter.setting;
 
-import com.hotpads.datarouter.setting.cached.impl.Duration;
+import com.hotpads.util.core.Duration;
 import com.hotpads.util.core.date.CronExpression;
 
 public interface SettingFinder{

@@ -2,10 +2,6 @@ package com.hotpads.datarouter.test.client.txn;
 
 import java.util.List;
 
-import javax.persistence.Access;
-import javax.persistence.AccessType;
-import javax.persistence.Entity;
-import javax.persistence.Id;
 
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
@@ -13,13 +9,10 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
 
 
-@Entity()
-@Access(AccessType.FIELD)
 public class TxnBean extends BaseDatabean<TxnBeanKey,TxnBean>{
-	
-	@Id
+
 	private TxnBeanKey key;
-	
+
 	public static class TxnBeanFielder extends BaseDatabeanFielder<TxnBeanKey,TxnBean>{
 		public TxnBeanFielder(){}
 		@Override
@@ -31,32 +24,32 @@ public class TxnBean extends BaseDatabean<TxnBeanKey,TxnBean>{
 			return FieldTool.createList();
 		}
 	}
-	
+
 
 	/***************************** constructor **************************************/
-		
+
 	TxnBean(){
 		this.key = new TxnBeanKey(null);
 	}
-	
+
 	public TxnBean(String id) {
 		this.key = new TxnBeanKey(id);
 	}
-	
-	
+
+
 	/***************************** method ************************************/
-	
+
 	@Override
 	public Class<TxnBeanKey> getKeyClass() {
 		return TxnBeanKey.class;
 	};
-	
+
 	@Override
 	public TxnBeanKey getKey() {
 		return key;
 	}
 
-	
+
 	/***************************** get/set **************************************/
 
 
@@ -75,6 +68,6 @@ public class TxnBean extends BaseDatabean<TxnBeanKey,TxnBean>{
 	public void setId(String id){
 		key.setId(id);
 	}
-	
-	
+
+
 }

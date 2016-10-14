@@ -1,5 +1,9 @@
 package com.hotpads.datarouter.client;
 
+import java.util.Optional;
+import java.util.concurrent.Future;
+
+import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 
 /**
  * Client represents a connection to a database, cache, or API endpoint. The Client might send requests to an external
@@ -20,5 +24,6 @@ extends Comparable<Client>{
 	ClientType getType();
 	void shutdown();
 	boolean isAvailable();
+	Future<Optional<String>> notifyNodeRegistration(PhysicalNode<?,?> node);
 
 }

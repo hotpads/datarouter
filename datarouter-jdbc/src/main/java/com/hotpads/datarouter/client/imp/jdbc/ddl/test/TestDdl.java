@@ -20,12 +20,12 @@ public class TestDdl{
 			stmt = conn.createStatement();
 
 			// stmt.execute("drop table Cheese");
-			stmt.execute("drop table if exists Cheese;");		
-			String sql = "create table Cheese " 
+			stmt.execute("drop table if exists Cheese;");
+			String sql = "create table Cheese "
 					+"(id varchar(30), "
 					+" country char(2), "
 					+" rating integer, "
-					+" primary key (id))"; 
+					+" primary key (id))";
 
 			stmt.executeUpdate(sql);
 
@@ -37,7 +37,7 @@ public class TestDdl{
 			int numCheeses = resultSet.getInt("cnt");
 			System.out.println("num : " + numCheeses);
 			Assert.assertEquals(2, numCheeses);
-			
+
 			ResultSet resultSet2 = stmt.executeQuery("show create table Cheese;");
 			while(resultSet2.next()){
 				// Get the data from the row using the column index
@@ -58,13 +58,13 @@ public class TestDdl{
 				String s = resultSet3.getString(2);
 				System.out.println(s);
 			}
-			
-			
+
+
 			conn = JdbcTool.openConnection("localhost", 3306, "property", "root", "");
 			sql = "select * from Inquiry";
 			rs = stmt.executeQuery(sql);
 			ResultSetMetaData metaData = rs.getMetaData();
-			
+
 			int rowCount = metaData.getColumnCount();
 
 			System.out.println("Table Name : " + metaData.getTableName(2));
@@ -75,15 +75,15 @@ public class TestDdl{
 				System.out.print(metaData.getColumnDisplaySize(i + 1) + "\t");
 				System.out.println(metaData.getColumnTypeName(i + 1));
 			}
-			
-			
+
+
 			DatabaseMetaData dbmd = conn.getMetaData();
 			ResultSet indexList = dbmd.getIndexInfo(null, null, "Inquiry", false, false);
 			while(indexList.next()){
 				System.out.println(" Index Name: " + indexList.getString("INDEX_NAME"));
 				System.out.println(" Column Name:" + indexList.getString("COLUMN_NAME"));
 			}
-	        indexList.close(); 
+	        indexList.close();
 		}finally{
 			if(stmt!=null){ stmt.close(); }
 			if(conn!=null){ conn.close(); }

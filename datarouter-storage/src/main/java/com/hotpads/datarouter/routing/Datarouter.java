@@ -10,6 +10,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.stream.Stream;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -21,6 +22,8 @@ import org.slf4j.LoggerFactory;
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.client.DatarouterClients;
+import com.hotpads.datarouter.client.LazyClientProvider;
+import com.hotpads.datarouter.config.DatarouterProperties;
 import com.hotpads.datarouter.inject.guice.executor.DatarouterExecutorGuiceModule;
 import com.hotpads.datarouter.node.DatarouterNodes;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
@@ -53,6 +56,7 @@ public class Datarouter{
 	private final ExecutorService executorService;//for async client init and monitoring
 	private final ScheduledExecutorService writeBehindScheduler;
 	private final ExecutorService writeBehindExecutor;
+	private final DatarouterProperties datarouterProperties;
 
 	private SortedSet<Router> routers;
 	private Set<String> configFilePaths;
@@ -70,7 +74,8 @@ public class Datarouter{
 			@Named(DatarouterExecutorGuiceModule.POOL_datarouterExecutor) ExecutorService executorService,
 			@Named(DatarouterExecutorGuiceModule.POOL_writeBehindExecutor) ExecutorService writeBehindExecutor,
 			@Named(DatarouterExecutorGuiceModule.POOL_writeBehindScheduler) ScheduledExecutorService
-				writeBehindScheduler){
+				writeBehindScheduler, DatarouterProperties datarouterProperties){
+
 		this.executorService = executorService;
 		this.clients = clients;
 		this.nodes = nodes;
@@ -80,6 +85,8 @@ public class Datarouter{
 		this.configFilePaths = new TreeSet<>();
 		this.multiProperties = new ArrayList<>();
 		this.routers = new TreeSet<>();
+
+		this.datarouterProperties = datarouterProperties;
 	}
 
 
@@ -89,8 +96,8 @@ public class Datarouter{
 		clients.registerConfigFile(configFilePath);
 	}
 
-	public void registerClientIds(Collection<ClientId> clientIds){
-		clients.registerClientIds(this, clientIds);
+	public Stream<LazyClientProvider> registerClientIds(Collection<ClientId> clientIds){
+		return clients.registerClientIds(this, clientIds);
 	}
 
 	public synchronized void register(Router router) {
@@ -223,11 +230,13 @@ public class Datarouter{
 		return configFilePaths;
 	}
 
+	@Deprecated//use DatarouterProperties.getServerName()
 	public String getServerName(){
-		return serverName;
+		return datarouterProperties.getServerName();
 	}
 
+	@Deprecated//use DatarouterProperties.getAdministratorEmail()
 	public String getAdministratorEmail(){
-		return administratorEmail;
+		return datarouterProperties.getAdministratorEmail();
 	}
 }

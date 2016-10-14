@@ -22,7 +22,12 @@ public class DatarouterExecutorGuiceModule extends BaseExecutorGuiceModule{
 		POOL_datarouterExecutor = "datarouterExecutor",
 		POOL_parallelApiCallerFlusher = "parallelApiCallerFlusher",
 		POOL_parallelApiCallerSender = "parallelApiCallerSender",
-		POOL_hbaseClientExecutor = "hbaseClientExecutor";
+		POOL_hbaseClientExecutor = "hbaseClientExecutor",
+		POOL_bigTableClientExecutor = "bigTableClientExecutor",
+		POOL_schemaUpdateScheduler = "schemaUpdateScheduler",
+		POOL_latencyMonitoring = "latencyMonitoring",
+		POOL_tableSampler = "tableSampler",
+		POOL_metricsAggregation = "metricsAggregation";
 
 	private static final ThreadGroup
 		datarouter = new ThreadGroup("datarouter"),
@@ -31,38 +36,53 @@ public class DatarouterExecutorGuiceModule extends BaseExecutorGuiceModule{
 	@Override
 	protected void configure(){
 		bind(ScheduledExecutorService.class)
-			.annotatedWith(Names.named(POOL_datarouterJobExecutor))
-			.toInstance(createDatarouterJobExecutor());
+				.annotatedWith(Names.named(POOL_datarouterJobExecutor))
+				.toInstance(createDatarouterJobExecutor());
 		bind(ScheduledExecutorService.class)
-			.annotatedWith(Names.named(POOL_countArchiveFlushSchedulerMemory))
-			.toInstance(createCountArchiveFlushSchedulerMemory());
+				.annotatedWith(Names.named(POOL_countArchiveFlushSchedulerMemory))
+				.toInstance(createCountArchiveFlushSchedulerMemory());
 		bind(ScheduledExecutorService.class)
-			.annotatedWith(Names.named(POOL_countArchiveFlushSchedulerDb))
-			.toInstance(createCountArchiveFlushSchedulerDb());
+				.annotatedWith(Names.named(POOL_countArchiveFlushSchedulerDb))
+				.toInstance(createCountArchiveFlushSchedulerDb());
 		bind(ScheduledExecutorService.class)
-			.annotatedWith(Names.named(POOL_countArchiveFlusherMemory))
-			.toInstance(createCountArchiveFlusherMemory());
+				.annotatedWith(Names.named(POOL_countArchiveFlusherMemory))
+				.toInstance(createCountArchiveFlusherMemory());
 		bind(ScheduledExecutorService.class)
-			.annotatedWith(Names.named(POOL_countArchiveFlusherDb))
-			.toInstance(createCountArchiveFlusherDb());
+				.annotatedWith(Names.named(POOL_countArchiveFlusherDb))
+				.toInstance(createCountArchiveFlusherDb());
 		bind(ScheduledExecutorService.class)
-			.annotatedWith(Names.named(POOL_writeBehindScheduler))
-			.toInstance(createWriteBehindScheduler());
+				.annotatedWith(Names.named(POOL_writeBehindScheduler))
+				.toInstance(createWriteBehindScheduler());
 		bind(ExecutorService.class)
-			.annotatedWith(Names.named(POOL_writeBehindExecutor))
-			.toInstance(createWriteBehindExecutor());
+				.annotatedWith(Names.named(POOL_writeBehindExecutor))
+				.toInstance(createWriteBehindExecutor());
 		bind(ExecutorService.class)
-			.annotatedWith(Names.named(POOL_datarouterExecutor))
-			.toInstance(createDatarouterExecutor());
+				.annotatedWith(Names.named(POOL_datarouterExecutor))
+				.toInstance(createDatarouterExecutor());
 		bind(ScheduledExecutorService.class)
-			.annotatedWith(Names.named(POOL_parallelApiCallerFlusher))
-			.toInstance(createParallelApiCallerFlusher());
+				.annotatedWith(Names.named(POOL_parallelApiCallerFlusher))
+				.toInstance(createParallelApiCallerFlusher());
 		bind(ExecutorService.class)
-			.annotatedWith(Names.named(POOL_parallelApiCallerSender))
-			.toInstance(createParallelApiCallerSender());
+				.annotatedWith(Names.named(POOL_parallelApiCallerSender))
+				.toInstance(createParallelApiCallerSender());
 		bind(ExecutorService.class)
-			.annotatedWith(Names.named(POOL_hbaseClientExecutor))
-			.toInstance(createHbaseClientExecutor());
+				.annotatedWith(Names.named(POOL_hbaseClientExecutor))
+				.toInstance(createHbaseClientExecutor());
+		bind(ExecutorService.class)
+				.annotatedWith(Names.named(POOL_bigTableClientExecutor))
+				.toInstance(createBigTableClientExecutor());
+		bind(ScheduledExecutorService.class)
+				.annotatedWith(Names.named(POOL_schemaUpdateScheduler))
+				.toInstance(createSchemaUpdateScheduler());
+		bind(ExecutorService.class)
+				.annotatedWith(Names.named(POOL_latencyMonitoring))
+				.toInstance(createLatencyMonitoringExecutor());
+		bind(ExecutorService.class)
+				.annotatedWith(Names.named(POOL_tableSampler))
+				.toInstance(createTableSamplerExecutor());
+		bind(ExecutorService.class)
+				.annotatedWith(Names.named(POOL_metricsAggregation))
+				.toInstance(createMetricsAggregationExecutor());
 	}
 
 	//The following factory methods are for Spring
@@ -83,7 +103,7 @@ public class DatarouterExecutorGuiceModule extends BaseExecutorGuiceModule{
 	}
 
 	private ScheduledExecutorService createDatarouterJobExecutor(){
-		return createScheduled(datarouter, POOL_datarouterJobExecutor, 10);
+		return createScheduled(datarouter, POOL_datarouterJobExecutor, 100);
 	}
 
 	private ScheduledExecutorService createWriteBehindScheduler(){
@@ -111,4 +131,26 @@ public class DatarouterExecutorGuiceModule extends BaseExecutorGuiceModule{
 	private ExecutorService createHbaseClientExecutor(){
 		return createThreadPool(datarouter, POOL_hbaseClientExecutor, 10, 10, 1, new CallerRunsPolicy());
 	}
+
+	private ExecutorService createBigTableClientExecutor(){
+		return createThreadPool(datarouter, POOL_bigTableClientExecutor, 10, 10, 1, new CallerRunsPolicy());
+	}
+
+	private ScheduledExecutorService createSchemaUpdateScheduler(){
+		return Executors.newSingleThreadScheduledExecutor(new NamedThreadFactory(flushers, POOL_schemaUpdateScheduler,
+				true));
+	}
+
+	private ExecutorService createLatencyMonitoringExecutor(){
+		return createScalingPool(datarouter, POOL_latencyMonitoring, 60);
+	}
+
+	private ExecutorService createTableSamplerExecutor(){
+		return createScalingPool(datarouter, POOL_tableSampler, 3);
+	}
+
+	private ExecutorService createMetricsAggregationExecutor(){
+		return createScalingPool(datarouter, POOL_metricsAggregation, 10);
+	}
+
 }

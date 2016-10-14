@@ -54,7 +54,7 @@ public class JobletTypeFactory{
 	}
 
 	public JobletType<?> fromJobletPackage(JobletPackage jobletPackage){
-		return jobletPackage == null ? null : fromJobletRequest(jobletPackage.getJoblet());
+		return jobletPackage == null ? null : fromJobletRequest(jobletPackage.getJobletRequest());
 	}
 
 	public JobletType<?> fromJobletRequest(JobletRequest jobletRequest){

@@ -19,12 +19,12 @@ public class MapCachingMapStorageWriterMixin<
 		F extends DatabeanFielder<PK,D>,
 		N extends MapStorageWriterNode<PK,D>>
 implements MapStorageWriter<PK,D>{
-	
+
 	public static Config CACHE_CONFIG = MapCachingMapStorageNode.CONFIG;
-	
+
 	protected BaseMapCachingNode<PK,D,F,N> target;
 	protected boolean cacheWrites = false;
-	
+
 	public MapCachingMapStorageWriterMixin(BaseMapCachingNode<PK,D,F,N> target, boolean cacheWrites){
 		this.target = target;
 		this.cacheWrites = cacheWrites;
@@ -89,5 +89,5 @@ implements MapStorageWriter<PK,D>{
 		}
 		target.getBackingNode().putMulti(databeans, config);
 	}
-	
+
 }

@@ -5,12 +5,12 @@ import java.util.Collection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hotpads.datarouter.client.imp.memcached.client.MemcachedStateException;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.op.raw.MapStorage.PhysicalMapStorageNode;
 import com.hotpads.datarouter.node.op.raw.write.MapStorageWriter;
+import com.hotpads.datarouter.profile.tally.TallyKey;
 import com.hotpads.datarouter.serialize.JsonDatabeanTool;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
@@ -29,6 +29,8 @@ public class MemcachedNode<
 extends MemcachedReaderNode<PK,D,F>
 implements PhysicalMapStorageNode<PK,D>{
 	private static final Logger logger = LoggerFactory.getLogger(MemcachedNode.class);
+
+	private static final Boolean DEFAULT_IGNORE_EXCEPTION = true;
 
 	protected static final int MEGABYTE = 1024 * 1024;
 
@@ -63,20 +65,12 @@ implements PhysicalMapStorageNode<PK,D>{
 			startTraceSpan(MapStorageWriter.OP_putMulti);
 			final Config config = Config.nullSafe(paramConfig);
 			for(D databean : databeans){
-				if( ! fieldInfo.getFieldAware()){
-					throw new IllegalArgumentException("databeans must be field aware");
-				}
 				//TODO put only the nonKeyFields in the byte[] and figure out the keyFields from the key string
 				//  could big big savings for small or key-only databeans
 				byte[] bytes = DatabeanTool.getBytes(databean, fieldInfo.getSampleFielder());
 				String key = buildMemcachedKey(databean.getKey());
 				//memcachedClient uses an integer for cache timeout
-				Long timeoutLong = config.getTtlMs() == null
-						? Long.MAX_VALUE
-						: config.getTtlMs() / 1000;
-				Integer expiration = timeoutLong > new Long(Integer.MAX_VALUE)
-						? Integer.MAX_VALUE
-						: timeoutLong.intValue();
+				Integer expiration = getExpiration(config);
 				if (bytes.length > 2 * MEGABYTE) {
 					//memcached max size is 1mb for a compressed object, so don't PUT things that won't compress well
 					String json = JsonDatabeanTool.fieldsToJson(databean.getKey().getFields()).toString();
@@ -84,13 +78,15 @@ implements PhysicalMapStorageNode<PK,D>{
 							+ json);
 					return;
 				}
-				try {
-					this.getClient().getSpyClient().set(key, expiration, bytes);
-				} catch (MemcachedStateException e) {
-					logger.error("memached error on " + key,e);
-				}
+				this.getClient().getSpyClient().set(key, expiration, bytes);
 			}
 			TracerTool.appendToSpanInfo(TracerThreadLocal.get(), DrCollectionTool.size(databeans)+"");
+		}catch(Exception exception){
+			if(paramConfig.ignoreExceptionOrUse(DEFAULT_IGNORE_EXCEPTION)){
+				logger.error("memcached error on ", exception);
+			}else{
+				throw exception;
+			}
 		}finally{
 			finishTraceSpan();
 		}
@@ -110,10 +106,12 @@ implements PhysicalMapStorageNode<PK,D>{
 		}
 		try{
 			startTraceSpan(MapStorageWriter.OP_delete);
-			try {
-				getClient().getSpyClient().delete(buildMemcachedKey(key));
-			} catch (MemcachedStateException e) {
-				logger.error("", e);
+			getClient().getSpyClient().delete(buildMemcachedKey(key));
+		}catch(Exception exception){
+			if(paramConfig.ignoreExceptionOrUse(DEFAULT_IGNORE_EXCEPTION)){
+				logger.error("memcached error on " + key, exception);
+			}else{
+				throw exception;
 			}
 		}finally{
 			finishTraceSpan();
@@ -128,4 +126,56 @@ implements PhysicalMapStorageNode<PK,D>{
 		}
 	}
 
+	public void increment(TallyKey tallyKey, int delta, Config paramConfig){
+		if(tallyKey == null){
+			return;
+		}
+		try{
+			TracerTool.startSpan(TracerThreadLocal.get(), "memcached increment");
+			String key = buildMemcachedKey(tallyKey);
+			getClient().getSpyClient().incr(key, delta, delta, getExpiration(paramConfig));
+		}catch(Exception exception){
+			if(paramConfig.ignoreExceptionOrUse(DEFAULT_IGNORE_EXCEPTION)){
+				logger.error("memcached error on " + tallyKey, exception);
+			}else{
+				throw exception;
+			}
+		} finally {
+			finishTraceSpan();
+		}
+	}
+
+	public Long incrementAndGetCount(TallyKey tallyKey, int delta, Config paramConfig){
+		if(tallyKey == null){
+			return null;
+		}
+		try{
+			TracerTool.startSpan(TracerThreadLocal.get(), "memcached increment and get count");
+			String key = buildMemcachedKey(tallyKey);
+			return getClient().getSpyClient().incr(key, delta, delta, getExpiration(paramConfig));
+		}catch(Exception exception){
+			if(paramConfig.ignoreExceptionOrUse(DEFAULT_IGNORE_EXCEPTION)){
+				logger.error("memcached error on " + tallyKey, exception);
+				return null;
+			}
+			throw exception;
+		} finally {
+			finishTraceSpan();
+		}
+	}
+
+	/************************************ Private methods ****************************/
+
+	private static int getExpiration(Config config){
+		if(config == null){
+			return 0; // Infinite time
+		}
+		Long timeoutLong = config.getTtlMs() == null
+				? Long.MAX_VALUE
+				: config.getTtlMs() / 1000;
+		Integer expiration = timeoutLong > new Long(Integer.MAX_VALUE)
+				? Integer.MAX_VALUE
+				: timeoutLong.intValue();
+		return expiration;
+	}
 }

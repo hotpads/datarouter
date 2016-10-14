@@ -2,10 +2,9 @@ package com.hotpads.datarouter.storage.field.imp.array;
 
 import java.util.List;
 
+import com.google.gson.reflect.TypeToken;
 import com.hotpads.datarouter.storage.field.BaseListField;
-import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.bytes.BooleanByteTool;
-import com.hotpads.util.core.exception.NotImplementedException;
 
 public class BooleanArrayField extends BaseListField<Boolean,List<Boolean>>{
 
@@ -18,28 +17,14 @@ public class BooleanArrayField extends BaseListField<Boolean,List<Boolean>>{
 		super(name, value);
 	}
 
-	@Deprecated
-	public BooleanArrayField(String prefix, String name, List<Boolean> value){
-		super(prefix, name, value);
-	}
-
-
-	/*********************** StringEncodedField ***********************/
+	/*********************** StringEncodedField ******************************/
 
 	@Override
-	public String getStringEncodedValue(){
-		if(value==null){ return null; }
-		//TODO to CSV format?
-		throw new NotImplementedException();
+	public List<Boolean> parseStringEncodedValueButDoNotSet(String value){
+		return gson.fromJson(value, new TypeToken<List<Boolean>>(){}.getType());
 	}
 
-	@Override
-	public List<Boolean> parseStringEncodedValueButDoNotSet(String s){
-		throw new NotImplementedException();
-	}
-
-
-	/*********************** ByteEncodedField ***********************/
+	/*********************** ByteEncodedField ********************************/
 
 	@Override
 	public byte[] getBytes(){
@@ -59,20 +44,4 @@ public class BooleanArrayField extends BaseListField<Boolean,List<Boolean>>{
 		// TODO Auto-generated method stub
 		return 0;
 	}
-
-
-	/************************** main ***********************/
-
-	public static void main(String[] args){
-		BooleanArrayField testField = new BooleanArrayField("stuff", DrListTool.create(new Boolean(true), null, new Boolean(false)));
-		for(Boolean num : testField.value){
-			System.out.println(num);
-		}
-		byte[] bytes = testField.getBytes();
-		List<Boolean> bools = testField.fromBytesButDoNotSet(bytes, 0);
-		for(Boolean bool : bools){
-			System.out.println(bool);
-		}
-	}
-
 }

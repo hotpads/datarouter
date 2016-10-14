@@ -65,6 +65,11 @@ public class MemcachedClientType extends BaseClientType{
 				nodeParams)));
 	}
 
+	public <PK extends PrimaryKey<PK>, D extends Databean<PK, D>, F extends DatabeanFielder<PK, D>>
+	MemcachedNode<PK,D,F> createNodeWithoutAdapters(NodeParams<PK, D, F> nodeParams){
+		return new MemcachedNode<>(nodeParams);
+	}
+
 	//ignore the entityNodeParams
 	@Override
 	public <EK extends EntityKey<EK>,

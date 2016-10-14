@@ -15,7 +15,7 @@ public class HBaseRegionMovement{
 	private final String regionName;
 	private final ServerName currentServer;
 	private final ServerName destinationServer;
-	
+
 	public HBaseRegionMovement(String tableName, String regionName, ServerName currentServer,
 			ServerName destinationServer){
 		this.tableName = tableName;
@@ -23,7 +23,7 @@ public class HBaseRegionMovement{
 		this.currentServer = currentServer;
 		this.destinationServer = destinationServer;
 	}
-	
+
 	public static Map<ServerName,List<HBaseRegionMovement>> getByCurrentServer(
 			Collection<HBaseRegionMovement> movements){
 		Map<ServerName,List<HBaseRegionMovement>> movementsByCurrentServer = new TreeMap<>();
@@ -33,11 +33,11 @@ public class HBaseRegionMovement{
 		}
 		return movementsByCurrentServer;
 	}
-	
+
 	public byte[] getRegionNameBytes(){
 		return Bytes.toBytes(regionName);
 	}
-	
+
 	public byte[] getDestinationServerNameBytes(){
 		return Bytes.toBytes(destinationServer.getServerName());
 	}
@@ -47,5 +47,5 @@ public class HBaseRegionMovement{
 		return "HBaseRegionMovement [tableName=" + tableName + ", regionName=" + regionName + ", currentServer="
 				+ currentServer + ", destinationServer=" + destinationServer + "]";
 	}
-	
+
 }

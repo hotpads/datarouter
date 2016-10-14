@@ -14,7 +14,7 @@ public class StringCachedSetting extends CachedSetting<String>{
 		if(defaultValue == null){ return finder.getString(name, null); }
 		return finder.getString(name, defaultValue);
 	}
-	
+
 	@Override
 	public boolean isValid(String value){
 		return true;

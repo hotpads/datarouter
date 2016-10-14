@@ -3,7 +3,10 @@ package com.hotpads.datarouter.client.imp.jdbc;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.slf4j.Logger;
@@ -12,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.availability.ClientAvailabilitySettings;
 import com.hotpads.datarouter.client.imp.BaseClient;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.execute.JdbcSchemaUpdateService;
 import com.hotpads.datarouter.client.type.JdbcClient;
 import com.hotpads.datarouter.client.type.JdbcConnectionClient;
 import com.hotpads.datarouter.client.type.TxnClient;
@@ -19,6 +23,7 @@ import com.hotpads.datarouter.config.Isolation;
 import com.hotpads.datarouter.connection.ConnectionHandle;
 import com.hotpads.datarouter.connection.JdbcConnectionPool;
 import com.hotpads.datarouter.exception.DataAccessException;
+import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.datarouter.util.core.DrMapTool;
 
@@ -29,17 +34,21 @@ implements JdbcConnectionClient, TxnClient, JdbcClient{
 
 	private Map<Long,ConnectionHandle> handleByThread = new ConcurrentHashMap<>();
 	private Map<ConnectionHandle,Connection> connectionByHandle = new ConcurrentHashMap<>();
-
 	private AtomicLong connectionCounter = new AtomicLong(-1L);
 
+	private final boolean schemaUpdateEnabled;
+
 	private final JdbcConnectionPool connectionPool;
+	private final JdbcSchemaUpdateService schemaUpdateService;
 
 	/**************************** constructor **********************************/
 
-	public JdbcClientImp(String name, JdbcConnectionPool connectionPool,
-			ClientAvailabilitySettings clientAvailabilitySettings){
+	public JdbcClientImp(String name, JdbcConnectionPool connectionPool, JdbcSchemaUpdateService schemaUpdateService,
+			ClientAvailabilitySettings clientAvailabilitySettings, boolean schemaUpdateEnabled){
 		super(name, clientAvailabilitySettings);
 		this.connectionPool = connectionPool;
+		this.schemaUpdateService = schemaUpdateService;
+		this.schemaUpdateEnabled = schemaUpdateEnabled;
 	}
 
 	/******************************** methods **********************************/
@@ -50,8 +59,11 @@ implements JdbcConnectionClient, TxnClient, JdbcClient{
 	}
 
 	@Override
-	public String toString(){
-		return getName();
+	public Future<Optional<String>> notifyNodeRegistration(PhysicalNode<?,?> node){
+		if(schemaUpdateEnabled){
+			return schemaUpdateService.queueNodeForSchemaUpdate(getName(), node);
+		}
+		return CompletableFuture.completedFuture(Optional.empty());
 	}
 
 	/****************************** ConnectionClient methods *************************/
@@ -245,6 +257,7 @@ implements JdbcConnectionClient, TxnClient, JdbcClient{
 	@Override
 	public void shutdown(){
 		connectionPool.shutdown();
+		schemaUpdateService.gatherSchemaUpdates();
 	}
 
 	/************************** private *********************************/

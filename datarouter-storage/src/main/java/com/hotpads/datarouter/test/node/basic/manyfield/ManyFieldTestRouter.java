@@ -1,13 +1,12 @@
 package com.hotpads.datarouter.test.node.basic.manyfield;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import com.hotpads.datarouter.client.ClientId;
+import com.hotpads.datarouter.config.DatarouterSettings;
 import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.node.op.raw.MapStorage.MapStorageNode;
 import com.hotpads.datarouter.routing.BaseRouter;
@@ -18,27 +17,15 @@ import com.hotpads.datarouter.test.node.basic.manyfield.ManyFieldBean.ManyFieldT
 @Singleton
 public class ManyFieldTestRouter extends BaseRouter{
 
-	private final List<ClientId> clientIds;
-
 	@Inject
-	public ManyFieldTestRouter(Datarouter datarouter, NodeFactory nodeFactory, ClientId clientId,
-			boolean useFielder){
-		super(datarouter, DrTestConstants.CONFIG_PATH, ManyFieldTestRouter.class.getSimpleName());
+	public ManyFieldTestRouter(Datarouter datarouter, DatarouterSettings datarouterSettings, NodeFactory nodeFactory,
+			ClientId clientId){
+		super(datarouter, DrTestConstants.CONFIG_PATH, ManyFieldTestRouter.class.getSimpleName(), nodeFactory,
+				datarouterSettings);
 
-		this.clientIds = new ArrayList<>();
-		this.clientIds.add(clientId);
+		this.manyFieldTypeBeanNode = create(clientId, ManyFieldBean::new, ManyFieldTypeBeanFielder::new)
+				.withSchemaVersion(new Random().nextInt()).buildAndRegister();
 
-		Class<ManyFieldTypeBeanFielder> fielderClass = useFielder ? ManyFieldTypeBeanFielder.class : null;
-		this.manyFieldTypeBeanNode = register(nodeFactory.create(clientId, ManyFieldBean.class, fielderClass,
-				new Random().nextInt(), this, false));
-
-	}
-
-	/********************************** config **********************************/
-
-	@Override
-	public List<ClientId> getClientIds(){
-		return clientIds;
 	}
 
 	/********************************** nodes **********************************/

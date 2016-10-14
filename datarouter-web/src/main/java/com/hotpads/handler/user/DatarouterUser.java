@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import javax.persistence.Id;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
@@ -22,12 +21,10 @@ import com.hotpads.datarouter.storage.field.imp.comparable.BooleanField;
 import com.hotpads.datarouter.storage.key.unique.base.BaseStringUniqueKey;
 import com.hotpads.handler.user.role.DatarouterUserRole;
 
-@SuppressWarnings("serial")
 public class DatarouterUser extends BaseDatabean<DatarouterUserKey, DatarouterUser> {
 
 	/********************* fields *************************/
 
-	@Id
 	private DatarouterUserKey key;
 
 	private String username;

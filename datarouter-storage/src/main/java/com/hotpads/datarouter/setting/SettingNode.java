@@ -8,12 +8,11 @@ import java.util.TreeMap;
 
 import com.hotpads.datarouter.setting.cached.impl.BooleanCachedSetting;
 import com.hotpads.datarouter.setting.cached.impl.DoubleCachedSetting;
-import com.hotpads.datarouter.setting.cached.impl.Duration;
 import com.hotpads.datarouter.setting.cached.impl.DurationCachedSetting;
 import com.hotpads.datarouter.setting.cached.impl.IntegerCachedSetting;
 import com.hotpads.datarouter.setting.cached.impl.LongCachedSetting;
 import com.hotpads.datarouter.setting.cached.impl.StringCachedSetting;
-import com.hotpads.datarouter.util.core.DrListTool;
+import com.hotpads.util.core.Duration;
 
 public abstract class SettingNode {
 

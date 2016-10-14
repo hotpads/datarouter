@@ -16,8 +16,8 @@ import com.hotpads.datarouter.op.executor.SessionExecutor;
 import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
-import com.hotpads.trace.TracerTool;
 import com.hotpads.trace.TracerThreadLocal;
+import com.hotpads.trace.TracerTool;
 
 public class SessionExecutorImpl<T>
 extends BaseTxnExecutor<T>
@@ -25,19 +25,19 @@ implements SessionExecutor, Callable<T>{
 	private static Logger logger = LoggerFactory.getLogger(SessionExecutorImpl.class);
 
 	public static final boolean EAGER_SESSION_FLUSH = true;
-	
+
 	//TODO have custom SessionExecutors for each module so we can compile-check this
 	public static final Set<String> ROLLED_BACK_EXCEPTION_SIMPLE_NAMES = ImmutableSet.of(
 			"MySQLTransactionRollbackException");
-		
+
 	private final TxnOp<T> parallelTxnOp;
 	private String traceName;
-	
+
 	public SessionExecutorImpl(TxnOp<T> parallelTxnOp) {
 		super(parallelTxnOp.getDatarouter(), parallelTxnOp);
 		this.parallelTxnOp = parallelTxnOp;
 	}
-	
+
 	public SessionExecutorImpl(TxnOp<T> parallelTxnOp, String traceName) {
 		this(parallelTxnOp);
 		this.traceName = traceName;
@@ -46,7 +46,7 @@ implements SessionExecutor, Callable<T>{
 
 	/*******************************************************************/
 
-	
+
 	@Override
 	public T call(){
 		T onceResult = null;
@@ -57,7 +57,7 @@ implements SessionExecutor, Callable<T>{
 			reserveConnections();
 			beginTxns();
 			openSessions();
-			
+
 			//begin user code
 			onceResult = parallelTxnOp.runOnce();
 			for(Client client : DrCollectionTool.nullSafe(clients)){  //TODO threading
@@ -65,10 +65,10 @@ implements SessionExecutor, Callable<T>{
 				clientResults.add(clientResult);
 			}
 			//end user code
-			
+
 			flushSessions();
 			commitTxns();
-			
+
 		}catch(Exception e){
 			if(wasRolledBackAndShouldRetry(e)){
 				//make sure JdbcRollbackRetryingCallable catches this particular exception
@@ -101,11 +101,11 @@ implements SessionExecutor, Callable<T>{
 		T mergedResult = parallelTxnOp.mergeResults(onceResult, clientResults);
 		return mergedResult;
 	}
-	
 
-	
+
+
 	/********************* session code **********************************/
-	
+
 	@Override
 	public void openSessions(){
 		for(Client client : DrCollectionTool.nullSafe(getClients())){
@@ -118,7 +118,7 @@ implements SessionExecutor, Callable<T>{
 			DRCounters.incClient(sessionClient.getType(), "openSession", sessionClient.getName());
 		}
 	}
-	
+
 	@Override
 	public void flushSessions(){
 		for(Client client : DrCollectionTool.nullSafe(getClients())){
@@ -131,7 +131,7 @@ implements SessionExecutor, Callable<T>{
 			DRCounters.incClient(sessionClient.getType(), "flushSession", sessionClient.getName());
 		}
 	}
-	
+
 	@Override
 	public void cleanupSessions(){
 		for(Client client : DrCollectionTool.nullSafe(getClients())){
@@ -144,26 +144,26 @@ implements SessionExecutor, Callable<T>{
 			DRCounters.incClient(sessionClient.getType(), "cleanupSession", sessionClient.getName());
 		}
 	}
-	
-	
+
+
 	/********************** helper ******************************/
-	
+
 	private boolean shouldTrace(){
 		return DrStringTool.notEmpty(traceName);
 	}
-	
+
 	private void startTrace(){
 		if(shouldTrace()){
 			TracerTool.startSpan(TracerThreadLocal.get(), traceName);
 		}
 	}
-	
+
 	private void finishTrace(){
 		if(shouldTrace()){
 			TracerTool.finishSpan(TracerThreadLocal.get());
 		}
 	}
-	
+
 	private boolean wasRolledBackAndShouldRetry(Exception exception){
 		if(exception == null){
 			return false;
@@ -180,5 +180,5 @@ implements SessionExecutor, Callable<T>{
 		}
 		return false;
 	}
-	
+
 }

@@ -28,9 +28,4 @@ extends PhysicalNode<PK,D>{
 		return getBackingNode().getTableName();
 	}
 
-
-	@Override
-	public default String getPackagedTableName(){
-		return getBackingNode().getPackagedTableName();
-	}
 }

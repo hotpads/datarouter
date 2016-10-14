@@ -14,9 +14,9 @@ import com.hotpads.util.core.collections.arrays.LongArray;
  * methods for converting longs into bytes
  */
 public class LongByteTool {
-	
+
 	/****************** serialize to bytes ****************************/
-	
+
 	public static byte[] getRawBytes(final long in){
 		byte[] out = new byte[8];
 		out[0] = (byte) (in >>> 56);
@@ -29,7 +29,7 @@ public class LongByteTool {
 		out[7] = (byte) in;
 		return out;
 	}
-	
+
 	public static int toRawBytes(final long in, final byte[] bytes, final int offset){
 		bytes[offset] = (byte) (in >>> 56);
 		bytes[offset + 1] = (byte) (in >>> 48);
@@ -41,7 +41,7 @@ public class LongByteTool {
 		bytes[offset + 7] = (byte) in;
 		return 8;
 	}
-	
+
 	public static long fromRawBytes(final byte[] bytes, final int byteOffset){
 		return (
 		      ((bytes[byteOffset    ] & (long)0xff) << 56)
@@ -51,18 +51,18 @@ public class LongByteTool {
 			| ((bytes[byteOffset + 4] & (long)0xff) << 24)
 			| ((bytes[byteOffset + 5] & (long)0xff) << 16)
 			| ((bytes[byteOffset + 6] & (long)0xff) <<  8)
-			|  (bytes[byteOffset + 7] & (long)0xff)      
+			|  (bytes[byteOffset + 7] & (long)0xff)
 		);
 	}
-	
+
 	/*
 	 * int64
-	 * 
+	 *
 	 * flip first bit so bitwiseCompare is always correct
 	 */
 
-	//************ single values 
-	
+	//************ single values
+
 	public static byte[] getComparableBytes(final long value){
 		long shifted = value ^ Long.MIN_VALUE;
 		return getRawBytes(shifted);
@@ -72,13 +72,13 @@ public class LongByteTool {
 		long shifted = value ^ Long.MIN_VALUE;
 		return toRawBytes(shifted, bytes, offset);
 	}
-	
+
 	public static Long fromComparableBytes(final byte[] bytes, int byteOffset){
 		return Long.MIN_VALUE ^ fromRawBytes(bytes, byteOffset);
 	}
 
 	//************ arrays and collections
-	
+
 	public static byte[] getComparableByteArray(List<Long> valuesWithNulls){
 		if(valuesWithNulls==null){ return new byte[0]; }
 		LongArray values;
@@ -93,7 +93,7 @@ public class LongByteTool {
 		}
 		return out;
 	}
-	
+
 
 	public static byte[] getComparableByteArray(long[] values){
 		byte[] out = new byte[8*values.length];
@@ -113,12 +113,12 @@ public class LongByteTool {
 		int byteOffset = startIdx;
 		for(int i=0; i < out.length; ++i){
 			/*
-			 * i think the first bitwise operation causes the operand to be zero-padded 
+			 * i think the first bitwise operation causes the operand to be zero-padded
 			 *     to an integer before the operation happens
-			 *     
+			 *
 			 * parenthesis are extremely important here because of the automatic int upgrading
 			 */
-			
+
 			//more compact
 			out[i] = Long.MIN_VALUE ^ (
 						  ((bytes[byteOffset    ] & (long)0xff) << 56)
@@ -128,24 +128,24 @@ public class LongByteTool {
 						| ((bytes[byteOffset + 4] & (long)0xff) << 24)
 						| ((bytes[byteOffset + 5] & (long)0xff) << 16)
 						| ((bytes[byteOffset + 6] & (long)0xff) <<  8)
-						|  (bytes[byteOffset + 7] & (long)0xff)      
+						|  (bytes[byteOffset + 7] & (long)0xff)
 					);
-			
+
 			byteOffset += 8;
 		}
 		return out;
 	}
 
-	
-	
+
+
 	/*
 	 * uInt63
-	 * 
+	 *
 	 * first bit must be 0, reject others
 	 */
 
-	//************ single values 
-	
+	//************ single values
+
 	public static byte[] getUInt63Bytes(final long value){
 //		if(value < 0){ throw new IllegalArgumentException("no negatives"); }//need to allow Long.MIN_VALUE in for nulls
 		byte[] out = new byte[8];
@@ -159,9 +159,9 @@ public class LongByteTool {
 		out[7] = (byte) value;
 		return out;
 	}
-	
+
 	public static Long fromUInt63Bytes(final byte[] bytes, final int byteOffset){
-		return 
+		return
 		  ((bytes[byteOffset    ] & (long)0xff) << 56)
 		| ((bytes[byteOffset + 1] & (long)0xff) << 48)
 		| ((bytes[byteOffset + 2] & (long)0xff) << 40)
@@ -188,7 +188,7 @@ public class LongByteTool {
 		}
 		return out;
 	}
-	
+
 
 	public static byte[] getUInt63ByteArray(long[] values){
 		byte[] out = new byte[8*values.length];
@@ -197,24 +197,24 @@ public class LongByteTool {
 		}
 		return out;
 	}
-	
+
 	public static long[] fromUInt63ByteArray(final byte[] bytes){
 		if(DrArrayTool.isEmpty(bytes)){ return new long[0]; }
 		return fromUInt63ByteArray(bytes, 0, bytes.length);
 	}
-		
+
 	public static long[] fromUInt63ByteArray(final byte[] bytes, final int startIdx, int length){
 		long[] out = new long[length / 8];
 		int byteOffset = startIdx;
 		for(int i=0; i < out.length; ++i){
-			
+
 			/*
-			 * i think the first bitwise operation causes the operand to be zero-padded 
+			 * i think the first bitwise operation causes the operand to be zero-padded
 			 *     to an integer before the operation happens
-			 *     
+			 *
 			 * parenthesis are extremely important here because of the automatic int upgrading
 			 */
-			
+
 			//more compact
 			out[i] =      ((bytes[byteOffset    ] & (long)0xff) << 56)
 						| ((bytes[byteOffset + 1] & (long)0xff) << 48)
@@ -224,16 +224,16 @@ public class LongByteTool {
 						| ((bytes[byteOffset + 5] & (long)0xff) << 16)
 						| ((bytes[byteOffset + 6] & (long)0xff) <<  8)
 						|  (bytes[byteOffset + 7] & (long)0xff);
-			
+
 			byteOffset += 8;
 		}
 		return out;
 	}
-	
-	
-	
+
+
+
 	/************************ tests ***************************************/
-	
+
 	public static class Tests{
 
 		@Test public void testBuildingLong(){
@@ -244,7 +244,7 @@ public class LongByteTool {
 			l = (l << 8) + (-2+128);
 //			System.out.println(LongTool.toBitString(l));
 		}
-		
+
 		@Test public void testGetOrderedBytes(){
 			long a = Long.MIN_VALUE;
 			byte[] ab = new byte[]{0,0,0,0,0,0,0,0};
@@ -290,7 +290,7 @@ public class LongByteTool {
 			long d = Long.MAX_VALUE - 3;
 			byte[] db = new byte[]{-1,-1,-1,-1,-1,-1,-1,-4};
 			Assert.assertEquals(d, fromComparableByteArray(db)[0]);
-			
+
 			long e = 3;
 			byte[] eb = new byte[]{-128,0,0,0,0,0,0,3};
 			Assert.assertEquals(e, fromComparableByteArray(eb)[0]);
@@ -311,7 +311,7 @@ public class LongByteTool {
 				Assert.assertEquals(subjects[i], roundTripped);
 			}
 		}
-		
+
 		@Test public void testRoundTrips(){
 			Random r = new Random();
 			long value=Long.MIN_VALUE;

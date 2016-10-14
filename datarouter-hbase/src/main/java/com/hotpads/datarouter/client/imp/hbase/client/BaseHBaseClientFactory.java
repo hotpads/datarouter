@@ -12,6 +12,7 @@ import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
 
 import org.apache.hadoop.hbase.HColumnDescriptor;
+import org.apache.hadoop.hbase.HConstants;
 import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Admin;
@@ -22,8 +23,10 @@ import org.apache.hadoop.hbase.regionserver.BloomType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.hotpads.datarouter.SchemaUpdateOptions;
 import com.hotpads.datarouter.client.ClientFactory;
 import com.hotpads.datarouter.client.availability.ClientAvailabilitySettings;
+import com.hotpads.datarouter.client.imp.hbase.BaseHBaseClientType;
 import com.hotpads.datarouter.client.imp.hbase.HBaseClientImp;
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseReaderNode;
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseSubEntityReaderNode;
@@ -39,6 +42,7 @@ import com.hotpads.datarouter.storage.key.entity.EntityPartitioner;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.prefix.ScatteringPrefix;
 import com.hotpads.datarouter.util.core.DrArrayTool;
+import com.hotpads.datarouter.util.core.DrBooleanTool;
 import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrPropertiesTool;
 import com.hotpads.util.core.bytes.ByteRange;
@@ -56,10 +60,10 @@ implements ClientFactory{
 			DEFAULT_MAX_FILE_SIZE_BYTES = 1L * 4 * 1024 * 1024 * 1024,//cast to long before overflowing int
 			DEFAULT_MEMSTORE_FLUSH_SIZE_BYTES = 1L * 256 * 1024 * 1024;//cast to long before overflowing int
 
+
 	//these are used for databeans with no values outside the PK.  we fake a value as we need at least 1 cell in a row
 	public static final byte[] DEFAULT_FAMILY_QUALIFIER = new byte[]{(byte)'a'};
 	public static final String DUMMY_COL_NAME = new String(new byte[]{0});
-
 
 	/********************* fields *******************************/
 
@@ -70,21 +74,25 @@ implements ClientFactory{
 	protected final HBaseOptions hbaseOptions;
 	protected final ClientAvailabilitySettings clientAvailabilitySettings;
 	protected final ExecutorService executor;
+	private final BaseHBaseClientType clientType;
+	private final boolean schemaUpdateEnabled;
 
 	public BaseHBaseClientFactory(Datarouter datarouter, String clientName,
-			ClientAvailabilitySettings clientAvailabilitySettings, ExecutorService executor){
+			ClientAvailabilitySettings clientAvailabilitySettings, ExecutorService executor,
+			BaseHBaseClientType clientType){
 		this.datarouter = datarouter;
 		this.clientName = clientName;
+		this.clientType = clientType;
 		this.configFilePaths = datarouter.getConfigFilePaths();
 		this.multiProperties = DrPropertiesTool.fromFiles(configFilePaths);
 		this.hbaseOptions = new HBaseOptions(multiProperties, clientName);
 		this.clientAvailabilitySettings = clientAvailabilitySettings;
 		this.executor = executor;
+		this.schemaUpdateEnabled = DrBooleanTool.isTrue(DrPropertiesTool.getFirstOccurrence(multiProperties,
+				SchemaUpdateOptions.SCHEMA_UPDATE_ENABLE));
 	}
 
-
 	protected abstract Connection makeConnection();
-
 
 	@Override
 	public HBaseClient call(){
@@ -104,8 +112,9 @@ implements ClientFactory{
 		timer.add("init HTables");
 
 		logger.warn(timer.add("done").toString());
-		return new HBaseClientImp(clientName, connection.getConfiguration(), admin, htablePoolAndPrimaryKeyByTableName
-				.getLeft(), htablePoolAndPrimaryKeyByTableName.getRight(), clientAvailabilitySettings, executor);
+		return new HBaseClientImp(clientName, connection, admin, htablePoolAndPrimaryKeyByTableName.getLeft(),
+				htablePoolAndPrimaryKeyByTableName.getRight(), clientAvailabilitySettings, executor, clientType,
+				schemaUpdateEnabled);
 	}
 
 
@@ -129,14 +138,20 @@ implements ClientFactory{
 					byte[] tableNameBytes = StringByteTool.getUtf8Bytes(tableName);
 					if(createTables && !admin.tableExists(TableName.valueOf(tableName))){
 						logger.warn("table " + tableName + " not found, creating it");
-						HTableDescriptor htable = new HTableDescriptor(tableName);
+						HTableDescriptor htable = new HTableDescriptor(TableName.valueOf(tableName));
 						htable.setMaxFileSize(DEFAULT_MAX_FILE_SIZE_BYTES);
 						htable.setMemStoreFlushSize(DEFAULT_MEMSTORE_FLUSH_SIZE_BYTES);
 						HColumnDescriptor family = new HColumnDescriptor(DEFAULT_FAMILY_QUALIFIER);
+						DatabeanFieldInfo<?,?,?> fieldInfo = nodeByTableName.get(tableName).getFieldInfo();
 						family.setMaxVersions(1);
 						family.setBloomFilterType(BloomType.NONE);
 						family.setDataBlockEncoding(DataBlockEncoding.FAST_DIFF);
 						family.setCompressionType(Algorithm.GZ);
+						if(fieldInfo.getTtlMs().isPresent()){
+							family.setTimeToLive((int)(fieldInfo.getTtlMs().get()/1000));
+						}else{
+							family.setTimeToLive(HConstants.FOREVER);
+						}
 						htable.addFamily(family);
 						byte[][] splitPoints = getSplitPoints(nodeByTableName.get(tableName));
 						if(DrArrayTool.isEmpty(splitPoints)
@@ -161,8 +176,8 @@ implements ClientFactory{
 		}
 
 		HBaseTablePool pool = new HBaseTableExecutorServicePool(hbaseOptions, connection, clientName,
-				primaryKeyClassByName);
-		return Pair.create(pool, primaryKeyClassByName);
+				primaryKeyClassByName, clientType);
+		return new Pair<>(pool, primaryKeyClassByName);
 	}
 
 

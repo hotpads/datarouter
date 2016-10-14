@@ -7,6 +7,7 @@ import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.op.IndexedOps;
 import com.hotpads.datarouter.node.op.NodeOps;
+import com.hotpads.datarouter.node.op.index.IndexReader;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
@@ -37,14 +38,21 @@ extends NodeOps<PK,D>, IndexedOps<PK,D>{
 		OP_getIndexRange = "getIndexRange",
 		OP_getIndexKeyRange = "getIndexKeyRange",
 		OP_scanIndex = "scanIndex",
-		OP_scanIndexKeys = "scanIndexKeys"
-		;
+		OP_scanIndexKeys = "scanIndexKeys";
 
 
 	D lookupUnique(UniqueKey<PK> uniqueKey, Config config);
 	List<D> lookupMultiUnique(Collection<? extends UniqueKey<PK>> uniqueKeys, Config config);
 
+	/**
+	 * @deprecated use {@link #lookupUnique(UniqueKey, Config)} or {@link IndexReader}
+	 */
+	@Deprecated
 	List<D> lookup(Lookup<PK> lookup, boolean wildcardLastField, Config config);
+	/**
+	 * @deprecated use {@link #lookupMultiUnique(Collection, Config)} or {@link IndexReader}
+	 */
+	@Deprecated
 	List<D> lookupMulti(Collection<? extends Lookup<PK>> lookup, Config config);
 
 	<IK extends PrimaryKey<IK>,

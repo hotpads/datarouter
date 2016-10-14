@@ -3,28 +3,13 @@ package com.hotpads.handler.port;
 import java.lang.management.ManagementFactory;
 
 import javax.inject.Singleton;
+import javax.management.JMException;
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
-import com.hotpads.util.core.concurrent.Lazy;
-
 @Singleton
 public class JettyPortIdentifier implements PortIdentifier{
-
-	@Singleton
-	public static class JettyPortIdentifierProvider extends Lazy<JettyPortIdentifier>{
-
-		@Override
-		protected JettyPortIdentifier load(){
-			try{
-				return new JettyPortIdentifier();
-			}catch(MalformedObjectNameException e){
-				throw new RuntimeException(e);
-			}
-		}
-
-	}
 
 	private static final String
 			TYPE_PROPERTY = "type",
@@ -33,8 +18,8 @@ public class JettyPortIdentifier implements PortIdentifier{
 			DEFAULT_PROTOCOL = "defaultProtocol",
 			SSL_PROTOCOL = "SSL";
 
-	private int http;
-	private int https;
+	private int httpPort;
+	private int httpsPort;
 
 	public JettyPortIdentifier() throws MalformedObjectNameException{
 		MBeanServer server = ManagementFactory.getPlatformMBeanServer();
@@ -48,28 +33,28 @@ public class JettyPortIdentifier implements PortIdentifier{
 					try{
 						port = (int)server.getAttribute(objectName, PORT);
 						defaultProtocol = (String)server.getAttribute(objectName, DEFAULT_PROTOCOL);
-					}catch(Exception e){
+					}catch(JMException e){
 						throw new RuntimeException(e);
 					}
 					if(defaultProtocol.equals(SSL_PROTOCOL)){
-						https = port;
+						this.httpsPort = port;
 					}else{
-						http = port;
+						this.httpPort = port;
 					}
 				});
-		if(http == 0 || https == 0){
+		if(this.httpPort == 0 || this.httpsPort == 0){
 			throw new RuntimeException("JettyPortIdentifier didn't found port numbers in jmx");
 		}
 	}
 
 	@Override
 	public Integer getHttpPort(){
-		return http;
+		return httpPort;
 	}
 
 	@Override
 	public Integer getHttpsPort(){
-		return https;
+		return httpsPort;
 	}
 
 }

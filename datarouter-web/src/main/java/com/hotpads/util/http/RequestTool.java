@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -505,11 +506,11 @@ public class RequestTool {
 		return builder.toString();
 	}
 
-	public static String partiallyTryGetBodyAsString(ServletRequest request){
+	public static byte[] tryGetBodyAsByteArray(ServletRequest request){
 		try{
-			return getBodyAsString(request);
-		}catch(IllegalStateException e){
-			return INACCESSIBLE_BODY + e.getMessage();
+			return IOUtils.toByteArray(request.getInputStream());
+		}catch(Exception e){
+			return (INACCESSIBLE_BODY + e.getMessage()).getBytes();
 		}
 	}
 

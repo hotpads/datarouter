@@ -14,17 +14,17 @@ import com.hotpads.handler.user.session.DatarouterSession;
 import com.hotpads.util.core.exception.InvalidApiCallException;
 
 public class DatarouterApiKeyAuthenticator extends BaseDatarouterAuthenticator {
-	
+
 	private DatarouterAuthenticationConfig authenticationConfig;
 	private DatarouterUserNodes userNodes;
-	
+
 	public DatarouterApiKeyAuthenticator(HttpServletRequest request, HttpServletResponse response,
 			DatarouterAuthenticationConfig authenticationConfig, DatarouterUserNodes userNodes) {
 		super(request, response);
 		this.authenticationConfig = authenticationConfig;
 		this.userNodes = userNodes;
 	}
-	
+
 	@Override
 	public DatarouterSession getSession() {
 		if(!request.getServletPath().startsWith(authenticationConfig.getApiPath())) {
@@ -36,7 +36,7 @@ public class DatarouterApiKeyAuthenticator extends BaseDatarouterAuthenticator {
 		session.setPersistent(false);
 		return session;
 	}
-	
+
 	private DatarouterUser lookupUserByApiKey(String apiKey) {
 		if (DrStringTool.isNullOrEmpty(apiKey)) {
 			throw new InvalidApiCallException("no api key specified");

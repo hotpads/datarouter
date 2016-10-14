@@ -3,9 +3,7 @@ package com.hotpads.datarouter.storage.field;
 import java.util.List;
 
 import com.hotpads.datarouter.storage.field.compare.FieldSetComparator;
-import com.hotpads.datarouter.util.core.DrCollectionTool;
 
-@SuppressWarnings("serial")
 public abstract class BaseFieldSet<F extends FieldSet<F>>
 implements FieldSet<F>{
 
@@ -25,22 +23,11 @@ implements FieldSet<F>{
 
 	@Override
 	public int hashCode(){
-		//preserve order
-//		int hash = 0;
-//        for (Comparable<?> fieldValue : CollectionTool.nullSafe(this.getFieldValues())){
-//        	hash = 31*hash + fieldValue.hashCode();
-//        }
-//        return hash;
-
-		//but order doesn't matter that much for us
-		int hash = 0;
-		for (Object fieldValue : DrCollectionTool.nullSafe(getFieldValues())){
-			if(fieldValue != null){
-				hash = hash ^ fieldValue.hashCode();
-			}
+		int result = 0;
+		for(Field<?> field : getFields()){
+			result = 31 * result + field.getValueHashCode();
 		}
-	  return hash;
-
+		return result;
 	}
 
 	/*
@@ -83,16 +70,19 @@ implements FieldSet<F>{
 
 	/**************************** serialize ******************/
 
+	@Override
 	@Deprecated //used in jsps.  replace with percent codec
 	public String getPersistentString(){
 		return FieldSetTool.getPersistentString(getFields());
 	}
 
+	@Override
 	@Deprecated //replace with percent codec
 	public String getTypedPersistentString(){
 		return getClass().getSimpleName()+"_"+getPersistentString();
 	}
 
+	@Override
 	@Deprecated //replace with percent codec
 	public void fromPersistentString(String in){
 		String[] tokens = in.split("_");

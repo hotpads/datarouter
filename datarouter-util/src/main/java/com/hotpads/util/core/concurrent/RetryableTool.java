@@ -7,8 +7,8 @@ import org.slf4j.LoggerFactory;
 
 public class RetryableTool{
 	private static final Logger logger = LoggerFactory.getLogger(RetryableTool.class);
-	
-	
+
+
 	public static <T> T tryNTimesWithBackoffUnchecked(Retryable<T> callable, final int numAttempts,
 			final long initialBackoffMs){
 		long backoffMs = initialBackoffMs;
@@ -21,12 +21,15 @@ public class RetryableTool{
 					ThreadTool.sleep(backoffMs);
 				}else{
 					logger.error("exception on final attempt {}", attemptNum, e);
+					if(e instanceof RuntimeException){
+						throw (RuntimeException)e;
+					}
 					throw new RuntimeException(e);
 				}
 			}
-			backoffMs = (backoffMs * 2) + ThreadLocalRandom.current().nextLong(0, initialBackoffMs);
+			backoffMs = backoffMs * 2 + ThreadLocalRandom.current().nextLong(0, initialBackoffMs);
 		}
 		throw new RuntimeException("shouldn't get here");
 	}
-	
+
 }

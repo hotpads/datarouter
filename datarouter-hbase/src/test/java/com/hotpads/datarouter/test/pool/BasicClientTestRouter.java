@@ -1,12 +1,9 @@
 package com.hotpads.datarouter.test.pool;
 
-import java.util.Collections;
-import java.util.List;
-
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import com.hotpads.datarouter.client.ClientId;
+import com.hotpads.datarouter.config.DatarouterSettings;
 import com.hotpads.datarouter.connection.keepalive.KeepAlive;
 import com.hotpads.datarouter.connection.keepalive.KeepAlive.KeepAliveFielder;
 import com.hotpads.datarouter.connection.keepalive.KeepAliveKey;
@@ -24,8 +21,6 @@ extends BaseRouter{
 
 	public static final String name = "basicClientTest";
 
-	public static final List<ClientId> CLIENT_IDS = Collections.singletonList(DrTestConstants.CLIENT_drTestHBase);
-
 
 	/********************************** nodes **********************************/
 
@@ -36,22 +31,15 @@ extends BaseRouter{
 	/********************************* constructor *****************************/
 
 	@Inject
-	public BasicClientTestRouter(Datarouter datarouter, NodeFactory nodeFactory){
-		super(datarouter, DrTestConstants.CONFIG_PATH, name);
+	public BasicClientTestRouter(Datarouter datarouter,
+			DatarouterSettings datarouterSettings, NodeFactory nodeFactory){
+		super(datarouter, DrTestConstants.CONFIG_PATH, name, nodeFactory, datarouterSettings);
 
 		keepAliveHBase = register(nodeFactory.create(DrTestConstants.CLIENT_drTestHBase, KeepAlive.class,
 				KeepAliveFielder.class, this, false));
 		poolTestBeanHBase = register(nodeFactory.create(DrTestConstants.CLIENT_drTestHBase, PoolTestBean.class,
 				PoolTestBeanFielder.class, this, false));
 
-	}
-
-
-	/********************************** config **********************************/
-
-	@Override
-	public List<ClientId> getClientIds(){
-		return CLIENT_IDS;
 	}
 
 

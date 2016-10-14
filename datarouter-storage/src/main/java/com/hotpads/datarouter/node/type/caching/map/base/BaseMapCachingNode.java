@@ -40,8 +40,8 @@ extends BaseNode<PK,D,F>{
 	protected Long lastContact = 0L;
 
 	public BaseMapCachingNode(N cacheNode, N backingNode){
-		super(new NodeParamsBuilder<PK,D,F>(backingNode.getRouter(), backingNode.getFieldInfo().getDatabeanSupplier())
-				.withFielder((Supplier<F>)backingNode.getFieldInfo().getFielderSupplier())
+		super(new NodeParamsBuilder<>(backingNode.getRouter(), backingNode.getFieldInfo().getDatabeanSupplier(),
+				(Supplier<F>)backingNode.getFieldInfo().getFielderSupplier())
 				.build());
 		this.cachingNode = cacheNode;
 		this.backingNode = backingNode;

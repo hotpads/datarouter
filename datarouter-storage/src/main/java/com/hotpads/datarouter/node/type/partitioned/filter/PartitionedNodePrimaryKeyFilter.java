@@ -11,11 +11,11 @@ public class PartitionedNodePrimaryKeyFilter<
 		D extends Databean<PK,D>,
 		N extends PhysicalNode<PK,D>>
 implements Filter<PK>{
-	
+
 	protected BasePartitionedNode<PK,D,?,N> partitionedNode;
 	protected N partition;
-	
-	
+
+
 	public PartitionedNodePrimaryKeyFilter(BasePartitionedNode<PK,D,?,N> partitionedNode, N partition){
 		this.partitionedNode = partitionedNode;
 		this.partition = partition;

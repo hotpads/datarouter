@@ -5,19 +5,19 @@ import com.hotpads.util.core.iterable.scanner.sorted.BaseSortedScanner;
 
 /**
  * wraps a scanner rather than extending one.  does not hold a copy of the current element
- * 
+ *
  * keeps advancing the underlying scanner until filter.include(..) returns true
  */
 public class FilteringSortedScanner<T extends Comparable<? super T>> extends BaseSortedScanner<T>{
 
 	protected Scanner<T> scanner;
 	protected Filter<T> filter;
-	
+
 	public FilteringSortedScanner(Scanner<T> scanner, Filter<T> filter){
 		this.scanner = scanner;
 		this.filter = filter;
 	}
-	
+
 	@Override
 	public boolean advance(){
 		do{
@@ -29,7 +29,7 @@ public class FilteringSortedScanner<T extends Comparable<? super T>> extends Bas
 		}while(FilterTool.excludes(filter, scanner.getCurrent()));
 		return true;//current passed the filter, so indicate that our advance was successful
 	}
-	
+
 	@Override
 	public T getCurrent() {
 		return scanner.getCurrent();

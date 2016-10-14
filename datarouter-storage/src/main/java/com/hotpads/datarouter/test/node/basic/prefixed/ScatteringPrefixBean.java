@@ -3,10 +3,6 @@ package com.hotpads.datarouter.test.node.basic.prefixed;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.Access;
-import javax.persistence.AccessType;
-import javax.persistence.Entity;
-import javax.persistence.Id;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
@@ -21,28 +17,25 @@ import com.hotpads.datarouter.storage.prefix.BaseScatteringPrefix;
 import com.hotpads.datarouter.storage.prefix.ScatteringPrefix;
 
 
-@Entity()
-@Access(AccessType.FIELD)
 public class ScatteringPrefixBean extends BaseDatabean<ScatteringPrefixBeanKey,ScatteringPrefixBean>{
-	
-	@Id
+
 	private ScatteringPrefixBeanKey key;
-	
+
 	private String f1;
-	
+
 	/***************************** columns ******************************/
-	
+
 	public static final String
 		KEY_NAME = "key",
 		COL_f1 = "f1";
-	
-	public static class ScatteringPrefixBeanFielder extends BaseDatabeanFielder<ScatteringPrefixBeanKey,ScatteringPrefixBean>{	
-		
-		public static class ScatteringPrefixBeanScatterer extends BaseScatteringPrefix{			
-			public static final Integer 
+
+	public static class ScatteringPrefixBeanFielder extends BaseDatabeanFielder<ScatteringPrefixBeanKey,ScatteringPrefixBean>{
+
+		public static class ScatteringPrefixBeanScatterer extends BaseScatteringPrefix{
+			public static final Integer
 				NUM_SHARDS = 8,
 				NUM_PREFIX_BYTES = 1;
-			
+
 			public static class F{
 				public static final String
 					prefix = "prefix";
@@ -71,7 +64,7 @@ public class ScatteringPrefixBean extends BaseDatabean<ScatteringPrefixBeanKey,S
 
 		public ScatteringPrefixBeanFielder(){
 		}
-		
+
 		@Override
 		public Class<? extends ScatteringPrefix> getScatteringPrefixClass() {
 			return ScatteringPrefixBeanScatterer.class;
@@ -86,36 +79,36 @@ public class ScatteringPrefixBean extends BaseDatabean<ScatteringPrefixBeanKey,S
 					new StringField(COL_f1, d.f1, MySqlColumnType.MAX_LENGTH_VARCHAR));
 		}
 	}
-	
+
 
 	/***************************** constructor **************************************/
-		
+
 	ScatteringPrefixBean() {
 		this.key = new ScatteringPrefixBeanKey();
 	}
-	
+
 	public ScatteringPrefixBean(String a, Long id, String f1, Integer f2){
 		this.key = new ScatteringPrefixBeanKey(a, id);
 		int prefix = (int)(id % ScatteringPrefixBeanFielder.ScatteringPrefixBeanScatterer.NUM_SHARDS);
 		this.f1 = prefix+"_"+id.toString();
-		
+
 	}
-	
-	
+
+
 	/************************** databean *******************************************/
 
 	@Override
 	public Class<ScatteringPrefixBeanKey> getKeyClass() {
 		return ScatteringPrefixBeanKey.class;
 	};
-	
+
 	@Override
 	public ScatteringPrefixBeanKey getKey() {
 		return key;
 	}
-	
 
-	
+
+
 	/***************************** get/set **************************************/
 
 	public String getF1(){
@@ -133,5 +126,5 @@ public class ScatteringPrefixBean extends BaseDatabean<ScatteringPrefixBeanKey,S
 	}
 
 
-	
+
 }

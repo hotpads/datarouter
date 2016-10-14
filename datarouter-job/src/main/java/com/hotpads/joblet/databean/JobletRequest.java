@@ -7,17 +7,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.Transient;
-
-import org.hibernate.annotations.AccessType;
-import org.hibernate.annotations.Parameter;
-import org.hibernate.annotations.Type;
-import org.hibernate.annotations.TypeDef;
-import org.hibernate.annotations.TypeDefs;
-
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlRowFormat;
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
@@ -34,30 +23,21 @@ import com.hotpads.datarouter.storage.field.imp.enums.StringEnumField;
 import com.hotpads.datarouter.storage.field.imp.enums.StringEnumFieldKey;
 import com.hotpads.datarouter.util.core.DrDateTool;
 import com.hotpads.datarouter.util.core.DrIterableTool;
+import com.hotpads.datarouter.util.core.DrNumberTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.handler.exception.ExceptionRecordKey;
 import com.hotpads.joblet.dto.JobletSummary;
+import com.hotpads.joblet.enums.JobletPriority;
 import com.hotpads.joblet.enums.JobletStatus;
 import com.hotpads.joblet.enums.JobletType;
 import com.hotpads.joblet.enums.JobletTypeFactory;
 import com.hotpads.util.core.profile.PhaseTimer;
 import com.hotpads.util.datastructs.MutableBoolean;
 
-@Entity
-@Table(name="Joblet")//TODO change to JobletRequest
-@AccessType("field")
-@TypeDefs({
-	@TypeDef(name="status", typeClass=com.hotpads.databean.GenericEnumUserType.class, parameters={
-		@Parameter(name="enumClass", value="com.hotpads.joblet.enums.JobletStatus"),
-		@Parameter(name="identifierMethod", value="getPersistentString"),
-		@Parameter(name="valueOfMethod", value="fromPersistentStringStatic")}),
-})
 public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 
-	@Id
 	private JobletRequestKey key;
 	private String queueId;
-	@Type(type="status")
 	private JobletStatus status = JobletStatus.created;
 	private Integer numFailures = 0;
 	private Integer numTimeouts = 0;
@@ -69,14 +49,12 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 	private Integer numItems = 0;
 	private Integer numTasks = 0;
 	private String debug;
-	@Transient
-	private PhaseTimer timer = new PhaseTimer();
-	@Transient
-	private MutableBoolean interrupted;
 
+	//TODO remove these from the databean
+	private PhaseTimer timer = new PhaseTimer();
+	private MutableBoolean shutdownRequested;//a shared flag passed in from the executor
 
 	public static final String KEY_NAME = "key";
-
 
 	public static class FieldKeys{
 		public static final StringFieldKey queueId = new StringFieldKey("queueId");
@@ -104,7 +82,7 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 		public List<Field<?>> getNonKeyFields(JobletRequest databean) {
 			return Arrays.asList(
 					new StringField(FieldKeys.queueId, databean.queueId),
-					new StringEnumField<JobletStatus>(FieldKeys.status, databean.status),
+					new StringEnumField<>(FieldKeys.status, databean.status),
 					new IntegerField(FieldKeys.numFailures, databean.numFailures),
 					new IntegerField(FieldKeys.numTimeouts, databean.numTimeouts),
 					new StringField(FieldKeys.reservedBy, databean.reservedBy),
@@ -127,11 +105,12 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 	/*-------------------- construct --------------------*/
 
 	public JobletRequest(){
-		this.key = new JobletRequestKey(null, null, null);
+		this.key = new JobletRequestKey(null, null, null, null);
 	}
 
-	public JobletRequest(JobletType<?> type, Integer executionOrder, Integer batchSequence, boolean restartable){
-		this.key = new JobletRequestKey(type, executionOrder, batchSequence);
+	public JobletRequest(JobletType<?> type, JobletPriority priority, Date createdDate, Integer batchSequence,
+			boolean restartable){
+		this.key = JobletRequestKey.create(type, priority.getExecutionOrder(), createdDate, batchSequence);
 		this.restartable = restartable;
 	}
 
@@ -245,6 +224,11 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 		return reservedAt == null ? null : new Date(reservedAt);
 	}
 
+	public int incrementNumTimeouts(){
+		numTimeouts = DrNumberTool.nullSafe(numTimeouts) + 1;
+		return numTimeouts;
+	}
+
     /*-------------------- get/set --------------------*/
 
 	public String getReservedBy() {
@@ -343,12 +327,12 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 		return timer;
 	}
 
-	public void setInterrupted(MutableBoolean interrupted){
-		this.interrupted = interrupted;
+	public void setShutdownRequested(MutableBoolean shutdownRequested){
+		this.shutdownRequested = shutdownRequested;
 	}
 
-	public MutableBoolean getInterrupted(){
-		return interrupted;
+	public MutableBoolean getShutdownRequested(){
+		return shutdownRequested;
 	}
 
 	public void setTimer(PhaseTimer timer){

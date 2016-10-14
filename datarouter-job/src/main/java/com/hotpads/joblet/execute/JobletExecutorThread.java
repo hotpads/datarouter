@@ -1,5 +1,6 @@
 package com.hotpads.joblet.execute;
 
+import java.util.Optional;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -22,8 +23,6 @@ import com.hotpads.joblet.databean.JobletData;
 import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.enums.JobletType;
 import com.hotpads.joblet.enums.JobletTypeFactory;
-import com.hotpads.joblet.profiling.FixedTimeSpanStatistics;
-import com.hotpads.joblet.profiling.StratifiedStatistics;
 import com.hotpads.util.core.profile.PhaseTimer;
 
 public class JobletExecutorThread extends Thread{
@@ -36,15 +35,13 @@ public class JobletExecutorThread extends Thread{
 		@Inject
 		private JobletFactory jobletFactory;
 		@Inject
-		private JobletThrottle jobletThrottle;
-		@Inject
 		private JobletNodes jobletNodes;
 		@Inject
 		private JobletService jobletService;
 
 		public JobletExecutorThread create(JobletExecutorThreadPool jobletExecutorThreadPool, ThreadGroup threadGroup){
-			return new JobletExecutorThread(jobletExecutorThreadPool, threadGroup, jobletTypeFactory,
-					jobletFactory, jobletThrottle, jobletNodes, jobletService);
+			return new JobletExecutorThread(jobletExecutorThreadPool, threadGroup, jobletTypeFactory, jobletFactory,
+					jobletNodes, jobletService);
 		}
 	}
 
@@ -53,84 +50,78 @@ public class JobletExecutorThread extends Thread{
 
 	private final JobletTypeFactory jobletTypeFactory;
 	private final JobletFactory jobletFactory;
-	private final JobletThrottle jobletThrottle;
 	private final JobletNodes jobletNodes;
 	private final JobletService jobletService;
 
-	private StratifiedStatistics stats = new FixedTimeSpanStatistics(32); //45 min intervals
-	private boolean shutdown = false;
-	private ReentrantLock workLock = new ReentrantLock();
-	private Condition hasWorkToBeDone = workLock.newCondition();
+	private final ReentrantLock workLock = new ReentrantLock();
+	private final Condition hasWorkToBeDone = workLock.newCondition();
+
+	private volatile boolean stopRequested = false;
 	private JobletPackage jobletPackage;
 	private Long processingStartTime;
-	private long totalRunTime = 0;
-	private long completedTasks = 0;
 	private long semaphoreWaitTime = 0;
 
 	private JobletExecutorThread(JobletExecutorThreadPool jobletExecutorThreadPool, ThreadGroup threadGroup,
-			JobletTypeFactory jobletTypeFactory, JobletFactory jobletFactory, JobletThrottle jobletThrottle,
-			JobletNodes jobletNodes, JobletService jobletService){
+			JobletTypeFactory jobletTypeFactory, JobletFactory jobletFactory, JobletNodes jobletNodes,
+			JobletService jobletService){
 		super(threadGroup, threadGroup.getName() + " - idle");
 		this.jobletExecutorThreadPool = jobletExecutorThreadPool;
 		this.jobletTypeFactory = jobletTypeFactory;
 		this.jobletFactory = jobletFactory;
 		this.jobletName = threadGroup.getName();
-		this.jobletThrottle = jobletThrottle;
 		this.jobletNodes = jobletNodes;
 		this.jobletService = jobletService;
+	}
+
+
+	//called from other threads to kill this one.
+	public void interruptMe(boolean replace) {
+		jobletExecutorThreadPool.getJobAssignmentLock().lock();
+		try{
+			jobletExecutorThreadPool.removeExecutorThreadFromPool(this);
+			stopRequested = true;
+			if(replace){
+				jobletExecutorThreadPool.addNewExecutorThreadToPool();
+			}
+		}finally{
+			jobletExecutorThreadPool.getJobAssignmentLock().unlock();
+		}
 	}
 
 	public void submitJoblet(JobletPackage jobletPackage){
 		workLock.lock();
 		try{
 			this.jobletPackage = jobletPackage;
-			// processingStartTime = System.currentTimeMillis();
 			hasWorkToBeDone.signal();
 		}finally{
 			workLock.unlock();
 		}
 	}
 
-	//used in joblets.jsp
-	public StratifiedStatistics getStats() {
-		return stats;
-	}
+	/*------------------ processing loop -----------------*/
 
 	@Override
 	public void run() {
-		while(!shutdown){
+		while(!stopRequested){
 			workLock.lock();
 			try{
 				while(jobletPackage == null){
 					hasWorkToBeDone.await();
 				}
 				Long requestPermitTime = System.currentTimeMillis();
-				// JobletThrottle.acquirePermit();
 				semaphoreWaitTime = System.currentTimeMillis() - requestPermitTime;
-				// JobletThrottle.acquirePermits(jobletPackage.getJoblet().getType().getCpuPermits(),
-				// jobletPackage.getJoblet().getType().getMemoryPermits());
-				jobletPackage.getJoblet().setReservedAt(System.currentTimeMillis());
-				jobletNodes.jobletRequest().put(jobletPackage.getJoblet(), null);
+				jobletPackage.getJobletRequest().setReservedAt(System.currentTimeMillis());
+				jobletNodes.jobletRequest().put(jobletPackage.getJobletRequest(), null);
 				setName(jobletName + " - working");
-				PhaseTimer timer = new PhaseTimer();
 				processingStartTime = System.currentTimeMillis();
-				executeJoblet();
-				timer.add("done");
-				stats.logEvent(timer);
-				completedTasks++;
-				totalRunTime += System.currentTimeMillis() - processingStartTime;
-			}catch(InterruptedException e){
-				logger.warn(e.toString());
-				shutdown = true;
-				JobletType<?> jobletType = jobletTypeFactory.fromJobletPackage(jobletPackage);
-				jobletThrottle.releasePermits(jobletType.getCpuPermits(), jobletType.getMemoryPermits());
+				internalProcessJobletWithExceptionHandlingAndStats();
+			}catch(InterruptedException ie){
+				logger.warn(ie.toString());
+				stopRequested = true;
 				return;
-			}catch(Throwable t){
-				logger.warn("", t);
+			}catch(Exception e){
+				logger.warn("", e);
 			}finally{
-				// JobletThrottle.releasePermit();
-				JobletType<?> jobletType = jobletTypeFactory.fromJobletPackage(jobletPackage);
-				jobletThrottle.releasePermits(jobletType.getCpuPermits(), jobletType.getMemoryPermits());
 				jobletPackage = null;
 				processingStartTime = null;
 				setName(jobletName + " - idle");
@@ -140,59 +131,56 @@ public class JobletExecutorThread extends Thread{
 		}
 	}
 
-	public Long getRunningTime(){
-		Long processingStartTime = this.processingStartTime;
-		if(processingStartTime == null){
-			return null;
-		}
-		return System.currentTimeMillis() - processingStartTime;
-	}
-
-	private void executeJoblet(){
-		JobletRequest jobletRequest = jobletPackage.getJoblet();
-		PhaseTimer pt = jobletRequest.getTimer();
-		pt.add("waited for processing");
+	private void internalProcessJobletWithExceptionHandlingAndStats(){
+		JobletRequest jobletRequest = jobletPackage.getJobletRequest();
+		PhaseTimer timer = jobletRequest.getTimer();
+		timer.add("waited for processing");
 		try{
-			runJoblet(jobletPackage);
-			pt.add("processed");
+			internalProcessJobletWithStats(jobletPackage);
+			timer.add("processed");
 			jobletService.handleJobletCompletion(jobletRequest);
-			pt.add("completed");
+			timer.add("completed");
 		}catch(JobInterruptedException e){
 			try{
 				jobletService.handleJobletInterruption(jobletRequest);
 			}catch(Exception e1){
 				logger.error("", e1);
 			}
-			pt.add("interrupted");
+			timer.add("interrupted");
 		}catch(Exception e){
 			logger.error("", e);
 			try{
 				jobletService.handleJobletError(jobletRequest, e, jobletRequest.getClass().getSimpleName());
-				pt.add("failed");
+				timer.add("failed");
 			}catch(Exception lastResort){
 				logger.error("", lastResort);
-				pt.add("couldn't mark failed");
+				timer.add("couldn't mark failed");
 			}
 		}
 	}
 
-	private final void runJoblet(JobletPackage jobletPackage) throws JobInterruptedException{
+	private final void internalProcessJobletWithStats(JobletPackage jobletPackage){
 		Joblet<?> joblet = jobletFactory.createForPackage(jobletPackage);
 		JobletType<?> jobletType = jobletTypeFactory.fromJobletPackage(jobletPackage);
-		JobletRequest jobletRequest = jobletPackage.getJoblet();
+		JobletRequest jobletRequest = jobletPackage.getJobletRequest();
 		long startTimeMs = System.currentTimeMillis();
 		joblet.process();
+
+		//counters
+		JobletCounters.incNumJobletsProcessed();
+		JobletCounters.incNumJobletsProcessed(jobletType.getPersistentString());
 		int numItemsProcessed = Math.max(1, jobletRequest.getNumItems());
 		JobletCounters.incItemsProcessed(jobletType.getPersistentString(), numItemsProcessed);
 		int numTasksProcessed = Math.max(1, jobletRequest.getNumTasks());
 		JobletCounters.incTasksProcessed(jobletType.getPersistentString(), numTasksProcessed);
 		long endTimeMs = System.currentTimeMillis();
 		long durationMs = endTimeMs - startTimeMs;
-//			int numItems = ;
 		String itemsPerSecond = DrNumberFormatter.format((double)jobletRequest.getNumItems() / ((double)durationMs
 				/ (double)1000), 1);
 		String tasksPerSecond = DrNumberFormatter.format((double)jobletRequest.getNumTasks() / ((double)durationMs
 				/ (double)1000), 1);
+
+		//logging
 		String typeAndQueue = jobletType.getPersistentString();
 		if(DrStringTool.notEmpty(jobletRequest.getQueueId())){
 			typeAndQueue += " " + jobletRequest.getQueueId();
@@ -211,14 +199,14 @@ public class JobletExecutorThread extends Thread{
 		try{
 			if(isInterrupted()){
 				jobletExecutorThreadPool.removeExecutorThreadFromPool(this);
-				shutdown = true;
+				stopRequested = true;
 				logger.warn(getId() + " is interrupted");
 			}else if(jobletExecutorThreadPool.getNumThreadsToLayOff() > 0){
 				jobletExecutorThreadPool.decrementNumThreadsToLayoff();
 				jobletExecutorThreadPool.removeExecutorThreadFromPool(this);
-				shutdown = true;
+				stopRequested = true;
 				logger.debug(getId() + " is laid off");
-			}else if(shutdown){
+			}else if(stopRequested){
 				jobletExecutorThreadPool.removeExecutorThreadFromPool(this);
 				logger.warn(getId() + " is shutdown");
 			}else{
@@ -233,22 +221,23 @@ public class JobletExecutorThread extends Thread{
 		}
 	}
 
-	//used in jobletThreadTable.jspf
-	public String getRunningTimeString(){
-		Long startTime = processingStartTime;
-		if(startTime == null){
-			return "idle";
+	/*----------------- getters ---------------------*/
+
+	public Long getRunningTime(){
+		Long localProcessingStartTime = processingStartTime;//thread safe copy
+		if(localProcessingStartTime == null){
+			return null;
 		}
-		Long duration = System.currentTimeMillis() - startTime;
-		return makeDurationString(duration);
+		return System.currentTimeMillis() - localProcessingStartTime;
 	}
 
 	//used in jobletThreadTable.jspf
-	public String getAverageRunningTimeString(){
-		if(completedTasks == 0){
-			return "no tasks";
+	public String getRunningTimeString(){
+		Long localStartTime = processingStartTime;//thread safe copy
+		if(localStartTime == null){
+			return "idle";
 		}
-		Long duration = totalRunTime/completedTasks;
+		long duration = System.currentTimeMillis() - localStartTime;
 		return makeDurationString(duration);
 	}
 
@@ -264,34 +253,18 @@ public class JobletExecutorThread extends Thread{
 		return sb.toString();
 	}
 
-	public JobletPackage getJobletPackage() {
-		return jobletPackage;
-	}
-
 	//used by jobletThreadTable.jspf
-	public JobletRequest getJoblet(){
-		return jobletPackage == null ? null : jobletPackage.getJoblet();
+	public JobletRequest getJobletRequest(){
+		return Optional.ofNullable(jobletPackage).map(JobletPackage::getJobletRequest).orElse(null);
 	}
 
 	//used by jobletThreadTable.jspf
 	public JobletData getJobletData(){
-		return jobletPackage == null ? null : jobletPackage.getJobletData();
+		return Optional.ofNullable(jobletPackage).map(JobletPackage::getJobletData).orElse(null);
 	}
 
-	public void killMe(boolean replace) {
-		//called from other threads to kill this one.
-		jobletExecutorThreadPool.getJobAssignmentLock().lock();
-		try{
-			jobletExecutorThreadPool.removeExecutorThreadFromPool(this);
-			shutdown = true;
-			JobletType<?> jobletType = jobletTypeFactory.fromJobletPackage(jobletPackage);
-			jobletThrottle.releasePermits(jobletType.getCpuPermits(), jobletType.getMemoryPermits());
-			if(replace){
-				jobletExecutorThreadPool.addNewExecutorThreadToPool();
-			}
-		}finally{
-			jobletExecutorThreadPool.getJobAssignmentLock().unlock();
-		}
+	public JobletPackage getJobletPackage() {
+		return jobletPackage;
 	}
 
 }

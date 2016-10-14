@@ -18,7 +18,7 @@ import com.hotpads.datarouter.util.core.DrCollectionTool;
 public class NoTxnManagedUniqueIndexNode
 		<PK extends PrimaryKey<PK>,
 		D extends Databean<PK, D>,
-		IK extends PrimaryKey<IK>, 
+		IK extends PrimaryKey<IK>,
 		IE extends UniqueIndexEntry<IK, IE, PK, D>,
 		IF extends DatabeanFielder<IK,IE>>
 extends BaseManagedIndexNode<PK, D, IK, IE, IF>
@@ -32,7 +32,7 @@ implements ManagedUniqueIndexNode<PK, D, IK, IE, IF>{
 	public List<IE> getMulti(Collection<IK> uniqueKeys, final Config config){
 		return node.getMultiFromIndex(uniqueKeys, config, fieldInfo);
 	}
-	
+
 	@Override
 	public IE get(IK uniqueKey, Config config){
 		return DrCollectionTool.getFirst(getMulti(Collections.singleton(uniqueKey), config));
@@ -46,7 +46,7 @@ implements ManagedUniqueIndexNode<PK, D, IK, IE, IF>{
 		}
 		return node.get(indexEntry.getTargetKey(), config);
 	}
-	
+
 	@Override
 	public List<D> lookupMultiUnique(Collection<IK> fromListingKeys, final Config config){
 		List<IE> indexEntries = getMulti(fromListingKeys, config);

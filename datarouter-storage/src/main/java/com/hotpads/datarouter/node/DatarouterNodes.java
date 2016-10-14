@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeMap;
@@ -15,10 +16,11 @@ import javax.inject.Singleton;
 
 import com.google.common.collect.Multimap;
 import com.google.common.collect.TreeMultimap;
+import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.datarouter.util.core.DrObjectTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
 
 /**
  * Nodes is a registry of all Nodes in a Datarouter. It ensures that no two nodes try to share the same name. It can be
@@ -33,6 +35,7 @@ public class DatarouterNodes{
 	private final Map<String,Node<?,?>> nodeByName;
 	private final Multimap<String,Node<?,?>> topLevelNodesByRouterName;
 	private final Map<Node<?,?>,String> routerNameByNode;
+	private final Map<String,Set<ClientId>> clientIdsByRouterName;
 	private final Map<String,Map<String,PhysicalNode<?,?>>> physicalNodeByTableNameByClientName;
 
 	/********************** constructors **********************************/
@@ -42,6 +45,7 @@ public class DatarouterNodes{
 		this.nodeByName = new TreeMap<>();
 		this.topLevelNodesByRouterName = TreeMultimap.create();
 		this.routerNameByNode = new TreeMap<>();
+		this.clientIdsByRouterName = new TreeMap<>();
 		this.physicalNodeByTableNameByClientName = new TreeMap<>();
 	}
 
@@ -64,6 +68,7 @@ public class DatarouterNodes{
 						physicalNode);
 			}
 			routerNameByNode.put(nodeOrDescendant, routerName);
+			clientIdsByRouterName.computeIfAbsent(routerName, k -> new TreeSet<>()).addAll(node.getClientIds());
 		}
 
 		return node;
@@ -71,6 +76,10 @@ public class DatarouterNodes{
 
 	public Node<?,?> getNode(String nodeName){
 		return nodeByName.get(nodeName);
+	}
+
+	public List<ClientId> getClientIdsForRouter(String routerName){
+		return new ArrayList<>(DrCollectionTool.nullSafe(clientIdsByRouterName.get(routerName)));
 	}
 
 	public Set<Class<?>> getTypesForClient(String clientName){
@@ -105,7 +114,7 @@ public class DatarouterNodes{
 	public List<String> getTableNamesForRouterAndClient(String routerName, String clientName){
 		List<String> tableNames = new ArrayList<>();
 		for(PhysicalNode<?,?> physicalNode : getPhysicalNodesForClient(clientName)){
-			if(DrObjectTool.equals(routerNameByNode.get(physicalNode), routerName)){
+			if(Objects.equals(routerNameByNode.get(physicalNode), routerName)){
 				tableNames.add(physicalNode.getTableName());
 			}
 		}

@@ -7,7 +7,7 @@ import com.hotpads.handler.mav.Mav;
 import com.hotpads.handler.user.authenticate.config.DatarouterAuthenticationConfig;
 
 public class DatarouterSigninHandler extends BaseHandler{
-	
+
 	@Inject
 	private DatarouterAuthenticationConfig authenticationConfig;
 
@@ -17,5 +17,5 @@ public class DatarouterSigninHandler extends BaseHandler{
 		mav.put("authenticationConfig", authenticationConfig);
 		return mav;
 	}
-	
+
 }

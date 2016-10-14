@@ -2,6 +2,7 @@ package com.hotpads.datarouter.serialize.fielder;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSet;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCollation;
@@ -32,7 +33,10 @@ public interface DatabeanFielder<
 	MySqlCollation getCollation();
 	MySqlCharacterSet getCharacterSet();
 	MySqlRowFormat getRowFormat();
+	Optional<Long> getTtlMs();
 
 	Class<? extends StringDatabeanCodec> getStringDatabeanCodecClass();
 	StringDatabeanCodec getStringDatabeanCodec();
+
+	boolean isVersioned();
 }

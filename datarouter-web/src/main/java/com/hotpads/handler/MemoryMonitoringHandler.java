@@ -18,10 +18,10 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpSession;
 
 import com.hotpads.WebAppName;
-import com.hotpads.datarouter.routing.Datarouter;
-import com.hotpads.datarouter.setting.cached.impl.Duration;
+import com.hotpads.datarouter.config.DatarouterProperties;
 import com.hotpads.handler.dispatcher.DatarouterWebDispatcher;
 import com.hotpads.handler.mav.Mav;
+import com.hotpads.util.core.Duration;
 import com.hotpads.util.core.bytes.ByteUnitTool;
 
 public class MemoryMonitoringHandler extends BaseHandler{
@@ -29,7 +29,7 @@ public class MemoryMonitoringHandler extends BaseHandler{
 	private static final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("d MMM H:mm");
 
 	@Inject
-	private Datarouter datarouter;
+	private DatarouterProperties datarouterProperties;
 	@Inject
 	private WebAppName webAppName;
 	@Inject
@@ -49,7 +49,7 @@ public class MemoryMonitoringHandler extends BaseHandler{
 		long uptime = runtimeMxBean.getUptime();
 		mav.put("startTime", simpleDateFormat.format(new Date(startTime)));
 		mav.put("upTime", new Duration(uptime, TimeUnit.MILLISECONDS).toString(TimeUnit.MINUTES));
-		mav.put("serverName", datarouter.getServerName());
+		mav.put("serverName", datarouterProperties.getServerName());
 		mav.put("serverVersion", servletContext.getServerInfo());
 		mav.put("javaVersion", System.getProperty("java.version"));
 		mav.put("jvmVersion", runtimeMxBean.getVmName() + " (build " + runtimeMxBean.getVmVersion() + ")");
@@ -121,7 +121,7 @@ public class MemoryMonitoringHandler extends BaseHandler{
 	@Handler
 	private Mav garbageCollector(){
 		String serverName = params.required("serverName");
-		if (!serverName.equals(datarouter.getServerName())){
+		if (!serverName.equals(datarouterProperties.getServerName())){
 			String redirectUrl = getRedirectUrl();
 			redirectUrl += "?sameServer=1";
 			return new Mav(redirectUrl);

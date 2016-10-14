@@ -52,13 +52,6 @@
 			<artifactId>datarouter-util</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
-		<!-- javax.persistence annotations used in some datarouter-storage tests -->
-		<!-- there is no official Oracle release of these annotations, so use hibernate's -->
-		<dependency>
-			<groupId>org.hibernate.javax.persistence</groupId>
-			<artifactId>hibernate-jpa-2.0-api</artifactId>
-			<version>1.0.1.Final</version>
-		</dependency>
 		<!-- guice -->
 		<dependency>
 			<groupId>com.google.inject</groupId>
@@ -98,6 +91,11 @@
 			<groupId>javax.inject</groupId>
 			<artifactId>javax.inject</artifactId>
 			<version>1</version>
+		</dependency>
+		<dependency>
+			<groupId>com.google.code.gson</groupId>
+			<artifactId>gson</artifactId>
+			<version>${gson-version}</version>
 		</dependency>
 	</dependencies>
 </project>

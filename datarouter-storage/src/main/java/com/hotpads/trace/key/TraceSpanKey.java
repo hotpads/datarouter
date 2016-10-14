@@ -1,33 +1,29 @@
 /**
- * 
+ *
  */
 package com.hotpads.trace.key;
 
+import java.util.Arrays;
 import java.util.List;
 
 import com.hotpads.datarouter.storage.field.Field;
-import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.comparable.IntegerField;
+import com.hotpads.datarouter.storage.field.imp.comparable.IntegerFieldKey;
 import com.hotpads.datarouter.storage.field.imp.comparable.LongField;
+import com.hotpads.datarouter.storage.field.imp.comparable.LongFieldKey;
 import com.hotpads.datarouter.storage.key.primary.base.BaseEntityPrimaryKey;
 
-@SuppressWarnings("serial")
 public class TraceSpanKey extends BaseEntityPrimaryKey<TraceEntityKey,TraceSpanKey>{
 
-	/****************************** fields ********************************/
-	
-	//hibernate will create these in the wrong order
 	private Long traceId;
 	private Long threadId;
 	private Integer sequence;
-	
-	public static class Fields{
-		public static final String
-			threadId = "threadId",
-			sequence = "sequence";
+
+	public static class FieldsKeys{
+		public static final LongFieldKey threadId = new LongFieldKey("threadId");
+		public static final IntegerFieldKey sequence = new IntegerFieldKey("sequence");
 	}
 
-	
 	@Override
 	public TraceEntityKey getEntityKey(){
 		return new TraceEntityKey(traceId);
@@ -42,47 +38,43 @@ public class TraceSpanKey extends BaseEntityPrimaryKey<TraceEntityKey,TraceSpanK
 	public TraceSpanKey prefixFromEntityKey(TraceEntityKey entityKey){
 		return new TraceSpanKey(entityKey.getTraceId(), null, null);
 	}
-	
+
 	@Override
 	public List<Field<?>> getPostEntityKeyFields(){
-		return FieldTool.createList(
-				new LongField(Fields.threadId, threadId),
-				new IntegerField(Fields.sequence, sequence));
+		return Arrays.asList(
+				new LongField(FieldsKeys.threadId, threadId),
+				new IntegerField(FieldsKeys.sequence, sequence));
 	}
-	
+
 
 	/****************************** constructor ********************************/
-	
+
 	TraceSpanKey(){
 	}
-	
+
 	public TraceSpanKey(Long traceId, Long threadId, Integer sequence){
 		this.traceId = traceId;
 		this.threadId = threadId;
 		this.sequence = sequence;
 	}
-	
+
 
 	/****************************** get/set ********************************/
-	
-	public Long getTraceId() {
+
+	public Long getTraceId(){
 		return traceId;
 	}
-	public void setTraceId(Long traceId) {
-		this.traceId = traceId;
-	}
-	public Long getThreadId() {
+
+	public Long getThreadId(){
 		return threadId;
 	}
-	public void setThreadId(Long threadId) {
+
+	public void setThreadId(Long threadId){
 		this.threadId = threadId;
 	}
-	public Integer getSequence() {
+
+	public Integer getSequence(){
 		return sequence;
 	}
-	public void setSequence(Integer sequence) {
-		this.sequence = sequence;
-	}
-	
-	
+
 }

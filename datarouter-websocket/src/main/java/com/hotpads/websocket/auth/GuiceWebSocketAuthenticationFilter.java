@@ -1,8 +1,10 @@
 package com.hotpads.websocket.auth;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import javax.servlet.FilterConfig;
 
+@Singleton
 public class GuiceWebSocketAuthenticationFilter extends WebSocketAuthenticationFilter{
 
 	@Inject

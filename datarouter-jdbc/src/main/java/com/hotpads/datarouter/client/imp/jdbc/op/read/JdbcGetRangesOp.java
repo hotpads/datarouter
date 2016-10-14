@@ -32,7 +32,7 @@ extends BaseJdbcOp<List<D>>{
 
 	public JdbcGetRangesOp(JdbcReaderNode<PK,D,F> node, JdbcFieldCodecFactory fieldCodecFactory,
 			Collection<Range<PK>> ranges, Config config) {
-		super(node.getDatarouter(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
+		super(node.getDatarouter(), node.getClientNames(), config.getIsolationOrUse(Config.DEFAULT_ISOLATION), true);
 		this.node = node;
 		this.fieldCodecFactory = fieldCodecFactory;
 		this.ranges = ranges;

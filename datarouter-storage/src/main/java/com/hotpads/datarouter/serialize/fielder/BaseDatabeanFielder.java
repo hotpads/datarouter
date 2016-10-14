@@ -3,6 +3,7 @@ package com.hotpads.datarouter.serialize.fielder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.TreeMap;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSet;
@@ -110,4 +111,13 @@ implements DatabeanFielder<PK,D>{
 		return stringDatabeanCodec;
 	}
 
+	@Override
+	public boolean isVersioned(){
+		return false;
+	}
+
+	@Override
+	public Optional<Long> getTtlMs(){
+		return Optional.empty();
+	}
 }

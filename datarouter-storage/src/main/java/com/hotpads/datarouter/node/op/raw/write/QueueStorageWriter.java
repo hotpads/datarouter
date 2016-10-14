@@ -13,21 +13,20 @@ import com.hotpads.datarouter.storage.queue.QueueMessageKey;
  */
 public interface QueueStorageWriter<
 		PK extends PrimaryKey<PK>,
-		D extends Databean<PK,D>> 
+		D extends Databean<PK,D>>
 extends StorageWriter<PK,D>{
-	
+
 	public static final String
 			OP_ack = "ack",
-			OP_ackMulti = "ackMulti"
-			;
-	
-	
+			OP_ackMulti = "ackMulti";
+
+
 	void ack(QueueMessageKey key, Config config);
 	void ackMulti(Collection<QueueMessageKey> keys, Config config);
-	
+
 
 	/*************** sub-interfaces ***********************/
-	
+
 	public interface PhysicalQueueStorageWriterNode<
 			PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>>

@@ -9,15 +9,15 @@ import com.hotpads.handler.user.session.DatarouterSession;
 import com.hotpads.handler.user.session.DatarouterSessionManager;
 
 public class DatarouterNewUserAuthenticator extends BaseDatarouterAuthenticator{
-	
+
 	private DatarouterSessionManager sessionManager;
-	
+
 	public DatarouterNewUserAuthenticator(HttpServletRequest request, HttpServletResponse response,
 			DatarouterSessionManager sessionManager) {
 		super(request, response);
 		this.sessionManager = sessionManager;
 	}
-	
+
 	@Override
 	public DatarouterSession getSession(){
 		String userToken = DatarouterTokenGenerator.generateRandomToken();

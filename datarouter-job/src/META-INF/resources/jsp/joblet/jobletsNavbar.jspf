@@ -21,6 +21,7 @@
 					<a href="#" class="dropdown-toggle" data-toggle="dropdown">Counters <span class="caret"></span></a>
 					<ul class="dropdown-menu">
 						<li><a href="/analytics/counters?submitAction=listCounters&webApps=All&servers=ALL&periods=300000&archive=databean+300000&nameLike=Joblet+queue+length">Queue Length Counts</a></li>
+						<li><a href="/analytics/counters?submitAction=listCounters&webApps=All&servers=ALL&periods=300000&archive=databean+300000&nameLike=Joblet+processed">Joblets Processed Counts</a></li>
 						<li><a href="/analytics/counters?submitAction=listCounters&webApps=All&servers=ALL&periods=300000&archive=databean+300000&nameLike=Joblet+items+processed">Items Processed Counts</a></li>
 						<li><a href="/analytics/counters?submitAction=listCounters&webApps=All&servers=ALL&periods=300000&archive=databean+300000&nameLike=Joblet+tasks+processed">Tasks Processed Counts</a></li>
 						<li><a href="/analytics/counters?submitAction=listCounters&webApps=All&servers=ALL&periods=300000&archive=databean+300000&nameLike=Joblet+first+created">First Created Counts</a></li>
@@ -43,7 +44,6 @@
 						<li><a href="?submitAction=restartFailed" onclick="return confirm('Are you sure you want to restart failed joblets?');">restart failed joblets</a></li>
 						<li><a href="?submitAction=timeoutStuckRunning" onclick="return confirm('Are you sure you want to timeout stuck running joblets?');">timeout stuck running joblets</a></li>
 						<li><a href="?submitAction=deleteTimedOutJoblets" onclick="return confirm('Are you sure you want to delete timed out joblets?');">delete timed out joblets</a></li>
-						<li><a href="?submitAction=resetQueueTickets" onclick="return confirm('Are you sure you want to reset queue tickets?');">reset queue tickets</a></li>
 						<li><a href="?submitAction=restartTimedOut" onclick="return confirm('Are you sure you want to restart timedOut joblets?');">restart timedOut joblets</a></li>
 					</ul>
 				</li>

@@ -1,44 +1,48 @@
 package com.hotpads.joblet;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import com.hotpads.datarouter.profile.counter.Counters;
+import com.hotpads.datarouter.profile.metrics.Metrics;
 
+@Singleton
 public class JobletCounters {
-	public static final String
-		PREFIX_QUEUE_LENGTH = "Joblet queue length",
-		PREFIX_ITEMS_PROCESSED = "Joblet items processed",
-		PREFIX_TASKS_PROCESSED = "Joblet tasks processed",
-		PREFIX_FIRST_CREATED = "Joblet first created",
-		PREFIX_NUM_SERVERS = "Joblet num servers",
-		PREFIX_TARGET_SERVERS = "Joblet target servers";
+	private static final String PREFIX = "Joblet ";
 
-	public static void incQueueLength(String key) {
-		incQueueLength(key, 1L);
+	@Inject
+	private Metrics metrics;
+
+	public void saveQueueLength(String key, long queueLength){
+		metrics.save(PREFIX + "queue length " + key, queueLength);
 	}
 
-	public static void incQueueLength(String key, long delta) {
-		Counters.inc(PREFIX_QUEUE_LENGTH+" "+key, delta);
+	public void saveFirstCreated(String key, long firstCreated){
+		metrics.save(PREFIX + "first created " + key, firstCreated);
+	}
+
+	public void saveNumServers(long numServers){
+		metrics.save(PREFIX + "num servers", numServers);
+	}
+
+	public void saveTargetServers(long numTargetServers){
+		metrics.save(PREFIX + "target servers", numTargetServers);
+	}
+
+	public static void incNumJobletsProcessed(){
+		Counters.inc(PREFIX + "processed");
+	}
+
+	public static void incNumJobletsProcessed(String key){
+		Counters.inc(PREFIX + "processed " + key);
 	}
 
 	public static void incItemsProcessed(String key, long delta){
-		Counters.inc(PREFIX_ITEMS_PROCESSED+" "+key, delta);
+		Counters.inc(PREFIX + "items processed " + key, delta);
 	}
 
 	public static void incTasksProcessed(String key, long delta){
-		Counters.inc(PREFIX_TASKS_PROCESSED+" "+key, delta);
+		Counters.inc(PREFIX + "tasks processed " + key, delta);
 	}
 
-	public static void incFirstCreated(String key){
-		incFirstCreated(key, 1L);
-	}
-
-	public static void incFirstCreated(String key, long delta){
-		Counters.inc(PREFIX_FIRST_CREATED+" "+key, delta);
-	}
-
-	public static void incNumServers(long delta){
-		Counters.inc(PREFIX_NUM_SERVERS, delta);
-	}
-	public static void incTargetServers(long delta){
-		Counters.inc(PREFIX_TARGET_SERVERS, delta);
-	}
 }

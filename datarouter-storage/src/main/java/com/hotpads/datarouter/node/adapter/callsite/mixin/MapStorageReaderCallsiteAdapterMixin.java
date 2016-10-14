@@ -17,11 +17,11 @@ public class MapStorageReaderCallsiteAdapterMixin<
 		F extends DatabeanFielder<PK,D>,
 		N extends MapStorageReaderNode<PK,D>>
 implements MapStorageReader<PK,D>{
-	
+
 	private BaseCallsiteAdapter<PK,D,F,N> adapterNode;
 	private N backingNode;
-	
-	
+
+
 	public MapStorageReaderCallsiteAdapterMixin(BaseCallsiteAdapter<PK,D,F,N> adapterNode, N backingNode){
 		this.adapterNode = adapterNode;
 		this.backingNode = backingNode;
@@ -29,7 +29,7 @@ implements MapStorageReader<PK,D>{
 
 
 	/**************************** MapStorageReader ***********************************/
-	
+
 	@Override
 	public boolean exists(PK key, Config pConfig){
 		Config config = Config.nullSafe(pConfig).setCallsite(adapterNode.getCallsite());
@@ -83,5 +83,5 @@ implements MapStorageReader<PK,D>{
 			adapterNode.recordCollectionCallsite(config, startNs, results);
 		}
 	}
-	
+
 }
