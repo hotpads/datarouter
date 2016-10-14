@@ -12,14 +12,15 @@ import com.hotpads.server.databean.WebAppInstance;
 
 public class WebAppInstanceHandler extends BaseHandler{
 	@Inject
-	private WebAppInstanceNodes webAppNodes;
+	private WebAppInstanceNodes webAppInstanceNodes;
 
 	@Override
 	protected Mav handleDefault(){
-		Mav mav = new Mav("/jsp/server/webApps.jsp");
+		Mav mav = new Mav("/jsp/server/webAppInstances.jsp");
 
-		Collection<WebAppInstance> webApps = webAppNodes.getWebApps().stream(null, null).collect(Collectors.toList());
-		mav.put("webAppInstances", webApps);
+		Collection<WebAppInstance> webAppInstances = webAppInstanceNodes.getWebAppInstances().stream(null, null)
+				.collect(Collectors.toList());
+		mav.put("webAppInstances", webAppInstances);
 
 		return mav;
 	}
