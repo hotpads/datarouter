@@ -43,6 +43,9 @@ implements Runnable, Conveyor{
 	@Override
 	public void run(){
 		try{
+			if(!shouldRun()){
+				return;
+			}
 			for(GroupQueueMessage<PK,D> message : groupQueueStorage.peekUntilEmpty(PEEK_CONFIG)){
 				List<D> databeans = message.getDatabeans();
 				mapStorage.putMulti(databeans, null);
