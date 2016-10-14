@@ -3,6 +3,7 @@ package com.hotpads.handler.port;
 import java.lang.management.ManagementFactory;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -11,9 +12,8 @@ import javax.management.MBeanServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hotpads.handler.port.JettyPortIdentifier.JettyPortIdentifierProvider;
-import com.hotpads.handler.port.TomcatServerXmlPortIdentifier.TomcatServerXmlPortIdentifierProvider;
-import com.hotpads.handler.port.WildFlyPortIdentifier.WildFlyPortIdentifierProvider;
+import com.hotpads.datarouter.inject.DatarouterInjector;
+import com.hotpads.util.core.collections.Triple;
 
 @Singleton
 public class CompoundPortIdentifier implements PortIdentifier{
@@ -25,26 +25,27 @@ public class CompoundPortIdentifier implements PortIdentifier{
 			JETTY_SERVER_JMX_DOMAIN = "org.eclipse.jetty.server",
 			JBOSS_JMX_DOMAIN = "jboss.as";
 
+	private static final List<Triple<String,String,Class<? extends PortIdentifier>>> IDENTIFIERS = Arrays.asList(
+			new Triple<>("Tomcat", CATALINA_JMX_DOMAIN, TomcatPortIdentifier.class),
+			new Triple<>("Jetty", JETTY_SERVER_JMX_DOMAIN, JettyPortIdentifier.class),
+			new Triple<>("Wildfly (JBoss)", JBOSS_JMX_DOMAIN, WildFlyPortIdentifier.class));
+
 	private PortIdentifier portIdentifier;
 
 	@Inject
-	public CompoundPortIdentifier(TomcatServerXmlPortIdentifierProvider tomcatServerXmlPortIdentifier,
-			JettyPortIdentifierProvider jettyPortIdentifier, WildFlyPortIdentifierProvider wildFlyPortIdentifier){
+	public CompoundPortIdentifier(DatarouterInjector injector){
 		MBeanServer server = ManagementFactory.getPlatformMBeanServer();
 		List<String> domains = Arrays.asList(server.getDomains());
-		if(domains.contains(JETTY_SERVER_JMX_DOMAIN)){
-			logger.warn("Jetty detected as servlet container");
-			portIdentifier = jettyPortIdentifier.get();
-		}else if(domains.contains(CATALINA_JMX_DOMAIN)){
-			logger.warn("Tomcat detected as servlet container");
-			// TODO use JMX
-			portIdentifier = tomcatServerXmlPortIdentifier.get();
-		}else if(domains.contains(JBOSS_JMX_DOMAIN)){
-			logger.warn("Wildfly (JBoss) detected as servlet container");
-			portIdentifier = wildFlyPortIdentifier.get();
-		}else{
+		Optional<Triple<String,String,Class<? extends PortIdentifier>>> optIdentifier = IDENTIFIERS.stream()
+				.filter(triple -> domains.contains(triple.getSecond()))
+				.findAny();
+		if(!optIdentifier.isPresent()){
 			logger.error("Servlet container not detected. Expect some features to not work.");
+			return;
 		}
+		Triple<String,String,Class<? extends PortIdentifier>> identifier = optIdentifier.get();
+		logger.info("{} detected as servlet container", identifier.getFirst());
+		portIdentifier = injector.getInstance(identifier.getThird());
 	}
 
 	@Override

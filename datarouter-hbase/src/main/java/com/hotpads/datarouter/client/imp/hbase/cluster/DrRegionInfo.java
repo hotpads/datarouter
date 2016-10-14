@@ -21,7 +21,6 @@ import com.hotpads.datarouter.storage.key.entity.EntityPartitioner;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.core.DrArrayTool;
 import com.hotpads.datarouter.util.core.DrNumberFormatter;
-import com.hotpads.datarouter.util.core.DrObjectTool;
 import com.hotpads.util.core.lang.ClassTool;
 
 public class DrRegionInfo<PK extends PrimaryKey<PK>> implements Comparable<DrRegionInfo<?>>{
@@ -92,10 +91,13 @@ public class DrRegionInfo<PK extends PrimaryKey<PK>> implements Comparable<DrReg
 		return balancerDestinationServer;
 	}
 
+	public boolean isNotOnAnyServer(){
+		return serverName == null;
+	}
+
 	public boolean isOnCorrectServer(){
 		try{
 			return Objects.equals(serverName, balancerDestinationServer);
-//					consistentHashHServer.getHostAndPort());
 		}catch(NullPointerException npe){
 			logger.warn("", npe);
 		}

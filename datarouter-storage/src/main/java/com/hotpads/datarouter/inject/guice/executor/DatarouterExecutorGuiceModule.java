@@ -103,7 +103,7 @@ public class DatarouterExecutorGuiceModule extends BaseExecutorGuiceModule{
 	}
 
 	private ScheduledExecutorService createDatarouterJobExecutor(){
-		return createScheduled(datarouter, POOL_datarouterJobExecutor, 10);
+		return createScheduled(datarouter, POOL_datarouterJobExecutor, 100);
 	}
 
 	private ScheduledExecutorService createWriteBehindScheduler(){
