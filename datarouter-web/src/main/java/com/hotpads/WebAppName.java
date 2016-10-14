@@ -11,6 +11,8 @@ public class WebAppName{
 
 	public static final String TEST = "test";
 
+	public static final String MODEL_INDEX_NAME = "modelIndex";
+
 	private String name;
 
 	@Inject
