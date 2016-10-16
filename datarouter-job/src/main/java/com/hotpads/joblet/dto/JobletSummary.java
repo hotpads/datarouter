@@ -11,16 +11,17 @@ import java.util.TreeMap;
 import java.util.stream.Stream;
 
 import com.google.common.base.Preconditions;
-import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrComparableTool;
 import com.hotpads.datarouter.util.core.DrDateTool;
 import com.hotpads.datarouter.util.core.DrNumberTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.enums.JobletStatus;
 import com.hotpads.util.core.collections.ComparablePair;
+import com.hotpads.util.core.lang.ClassTool;
 
 
-public class JobletSummary{
+public class JobletSummary implements Comparable<JobletSummary>{
 
 	//key fields
 	private Integer executionOrder;
@@ -54,16 +55,12 @@ public class JobletSummary{
 	/*------------------------ static ---------------------------*/
 
 	public static List<JobletSummary> buildSummaries(Stream<JobletRequest> requests){
-		List<JobletSummary> summaries = new ArrayList<>();
-		requests.forEach(request -> {
-			JobletSummary previous = DrCollectionTool.getLast(summaries);
-			if(previous != null && previous.equalsTypeExecutionOrderStatus(request)){
-				previous.include(request);
-			}else{
-				summaries.add(new JobletSummary(request));
-			}
+		Map<JobletSummary,JobletSummary> summaries = new TreeMap<>();//hack to emulate Set::get
+		requests.map(JobletSummary::new).forEach(summary -> {
+			summaries.putIfAbsent(summary, summary);
+			summaries.get(summary).include(summary);
 		});
-		return summaries;
+		return new ArrayList<>(summaries.values());
 	}
 
 	//group by queueId where all types and executionOrders are the same
@@ -83,6 +80,26 @@ public class JobletSummary{
 
 
 	/*------------------------ methods --------------------------*/
+
+	public JobletSummary include(JobletSummary other){
+		Preconditions.checkNotNull(other);
+		if(DrStringTool.notEmpty(other.queueId)){
+			queueIds.add(other.queueId);
+		}
+		numFailures += DrNumberTool.nullSafe(other.numFailures);
+		++numType;
+		sumItems += other.sumItems;
+		sumTasks += other.sumTasks;
+		if(firstCreated == null || other.firstCreated.before(firstCreated)){
+			firstCreated = other.firstCreated;
+		}
+		if(other.firstReserved != null){
+			if(firstReserved == null || other.firstReserved.before(firstReserved)){
+				firstReserved = other.firstReserved;
+			}
+		}
+		return this;
+	}
 
 	public JobletSummary include(JobletRequest request){
 		Preconditions.checkNotNull(request);
@@ -157,6 +174,27 @@ public class JobletSummary{
 	/*----------------------- Object ----------------------*/
 
 	@Override
+	public int hashCode(){
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((executionOrder == null) ? 0 : executionOrder.hashCode());
+		result = prime * result + ((status == null) ? 0 : status.hashCode());
+		result = prime * result + ((typeString == null) ? 0 : typeString.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj){
+		if(ClassTool.differentClass(this, obj)){
+			return false;
+		}
+		JobletSummary other = (JobletSummary)obj;
+		return Objects.equals(typeString, other.typeString)
+				&& Objects.equals(executionOrder, other.executionOrder)
+				&& Objects.equals(status, other.status);
+	}
+
+	@Override
 	public String toString(){
 		return "JobletSummary [executionOrder=" + executionOrder + ", status=" + status + ", typeString=" + typeString
 				+ ", queueId=" + queueId + ", queueIds=" + queueIds + ", numFailures=" + numFailures + ", numType="
@@ -164,6 +202,20 @@ public class JobletSummary{
 				+ ", firstReserved=" + firstReserved + "]";
 	}
 
+	/*------------------ Comparable -------------------*/
+
+	@Override
+	public int compareTo(JobletSummary other){
+		int diff = DrComparableTool.nullFirstCompareTo(typeString, other.typeString);
+		if(diff != 0){
+			return diff;
+		}
+		diff = DrComparableTool.nullFirstCompareTo(executionOrder, other.executionOrder);
+		if(diff != 0){
+			return diff;
+		}
+		return DrComparableTool.nullFirstCompareTo(status, other.status);
+	}
 
 	/*-------------------- get/set --------------------*/
 
