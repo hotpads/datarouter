@@ -56,9 +56,13 @@ public class JobletSummary implements Comparable<JobletSummary>{
 
 	public static List<JobletSummary> buildSummaries(Stream<JobletRequest> requests){
 		Map<JobletSummary,JobletSummary> summaries = new TreeMap<>();//hack to emulate Set::get
-		requests.map(JobletSummary::new).forEach(summary -> {
-			summaries.putIfAbsent(summary, summary);
-			summaries.get(summary).include(summary);
+		requests.forEach(request -> {
+			JobletSummary summary = new JobletSummary(request).include(request);
+			if(summaries.containsKey(summary)){
+				summaries.get(summary).absorbStats(summary);
+			}else{
+				summaries.put(summary, summary);
+			}
 		});
 		return new ArrayList<>(summaries.values());
 	}
@@ -81,7 +85,7 @@ public class JobletSummary implements Comparable<JobletSummary>{
 
 	/*------------------------ methods --------------------------*/
 
-	public JobletSummary include(JobletSummary other){
+	public JobletSummary absorbStats(JobletSummary other){
 		Preconditions.checkNotNull(other);
 		if(DrStringTool.notEmpty(other.queueId)){
 			queueIds.add(other.queueId);
