@@ -25,7 +25,6 @@ import com.hotpads.datarouter.util.core.DrDateTool;
 import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrNumberTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
-import com.hotpads.handler.exception.ExceptionRecordKey;
 import com.hotpads.joblet.enums.JobletPriority;
 import com.hotpads.joblet.enums.JobletStatus;
 import com.hotpads.joblet.enums.JobletType;
@@ -64,8 +63,7 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 		public static final StringFieldKey reservedBy = new StringFieldKey("reservedBy");
 		public static final LongFieldKey reservedAt = new LongFieldKey("reservedAt");
 		public static final BooleanFieldKey restartable = new BooleanFieldKey("restartable");
-		public static final StringFieldKey exceptionRecordId = new StringFieldKey("exceptionRecordId")
-				.withSize(ExceptionRecordKey.LENGTH_id);
+		public static final StringFieldKey exceptionRecordId = new StringFieldKey("exceptionRecordId");
 		public static final LongFieldKey jobletDataId = new LongFieldKey("jobletDataId");
 		public static final IntegerFieldKey numItems = new IntegerFieldKey("numItems");
 		public static final IntegerFieldKey numTasks = new IntegerFieldKey("numTasks");
