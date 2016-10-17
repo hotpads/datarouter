@@ -47,9 +47,9 @@ public class WebAppInstance extends BaseDatabean<WebAppInstanceKey,WebAppInstanc
 
 	/** fielder ***************************************************************/
 
-	public static class WebAppFielder extends BaseDatabeanFielder<WebAppInstanceKey, WebAppInstance>{
+	public static class WebAppInstanceFielder extends BaseDatabeanFielder<WebAppInstanceKey, WebAppInstance>{
 
-		public WebAppFielder(){
+		public WebAppInstanceFielder(){
 			super(WebAppInstanceKey.class);
 		}
 

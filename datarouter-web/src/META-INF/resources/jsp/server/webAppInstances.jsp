@@ -4,26 +4,6 @@
 <head>
 	<title>Web App Settings</title>
 	<%@ include file="/jsp/generic/datarouterHead.jsp" %>
-<style>
-
-.settingsTable{
-	display:none;
-}
-
-table{
-border: 1px solid gray;
-border-collapse:collapse;
-}
-th{
-border: 1px solid gray;
-padding:1px;
-}
-td{
-border: 1px solid gray;
-padding:1px;
-}
-</style>
-
 	<script>
 	require(["sorttable"]);
 	</script>
