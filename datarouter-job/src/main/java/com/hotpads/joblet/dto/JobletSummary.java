@@ -21,7 +21,7 @@ import com.hotpads.util.core.collections.ComparablePair;
 import com.hotpads.util.core.lang.ClassTool;
 
 
-public class JobletSummary implements Comparable<JobletSummary>{
+public class JobletSummary{
 
 	//key fields
 	private Integer executionOrder;
@@ -56,7 +56,7 @@ public class JobletSummary implements Comparable<JobletSummary>{
 	/*------------------------ static ---------------------------*/
 
 	public static List<JobletSummary> buildSummaries(Stream<JobletRequest> requests){
-		Map<TypeExecutionOrderStatusKey,JobletSummary> summaries = new TreeMap<>();//hack to emulate Set::get
+		Map<TypeExecutionOrderStatusKey,JobletSummary> summaries = new TreeMap<>();
 		requests.map(JobletSummary::new).forEach(summary -> {
 			TypeExecutionOrderStatusKey key = new TypeExecutionOrderStatusKey(summary);
 			if(summaries.containsKey(key)){
@@ -84,7 +84,7 @@ public class JobletSummary implements Comparable<JobletSummary>{
 	}
 
 
-	/*------------------------ methods --------------------------*/
+	/*------------------------ private --------------------------*/
 
 	private JobletSummary absorbStats(JobletSummary other){
 		Preconditions.checkNotNull(other);
@@ -126,6 +126,9 @@ public class JobletSummary implements Comparable<JobletSummary>{
 		return this;
 	}
 
+
+	/*------------------------ public (jsp) --------------------------*/
+
 	public boolean isEmpty(){
 		return DrNumberTool.isEmpty(numType);
 	}
@@ -160,27 +163,6 @@ public class JobletSummary implements Comparable<JobletSummary>{
 	/*----------------------- Object ----------------------*/
 
 	@Override
-	public int hashCode(){
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((executionOrder == null) ? 0 : executionOrder.hashCode());
-		result = prime * result + ((status == null) ? 0 : status.hashCode());
-		result = prime * result + ((typeString == null) ? 0 : typeString.hashCode());
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj){
-		if(ClassTool.differentClass(this, obj)){
-			return false;
-		}
-		JobletSummary other = (JobletSummary)obj;
-		return Objects.equals(typeString, other.typeString)
-				&& Objects.equals(executionOrder, other.executionOrder)
-				&& Objects.equals(status, other.status);
-	}
-
-	@Override
 	public String toString(){
 		return "JobletSummary [executionOrder=" + executionOrder + ", status=" + status + ", typeString=" + typeString
 				+ ", queueId=" + queueId + ", queueIds=" + queueIds + ", numFailures=" + numFailures + ", numType="
@@ -188,20 +170,6 @@ public class JobletSummary implements Comparable<JobletSummary>{
 				+ ", firstReserved=" + firstReserved + "]";
 	}
 
-	/*------------------ Comparable -------------------*/
-
-	@Override
-	public int compareTo(JobletSummary other){
-		int diff = DrComparableTool.nullFirstCompareTo(typeString, other.typeString);
-		if(diff != 0){
-			return diff;
-		}
-		diff = DrComparableTool.nullFirstCompareTo(executionOrder, other.executionOrder);
-		if(diff != 0){
-			return diff;
-		}
-		return DrComparableTool.nullFirstCompareTo(status, other.status);
-	}
 
 	/*------------------ keys -----------------------*/
 
