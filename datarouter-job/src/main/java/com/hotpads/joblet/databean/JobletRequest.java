@@ -26,7 +26,6 @@ import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrNumberTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.handler.exception.ExceptionRecordKey;
-import com.hotpads.joblet.dto.JobletSummary;
 import com.hotpads.joblet.enums.JobletPriority;
 import com.hotpads.joblet.enums.JobletStatus;
 import com.hotpads.joblet.enums.JobletType;
@@ -127,35 +126,6 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 	}
 
 	/*----------------------------- static ----------------------------*/
-
-	public static List<JobletSummary> getJobletCountsCreatedByType(JobletTypeFactory jobletTypeFactory,
-			Iterable<JobletRequest> scanner){
-		List<JobletSummary> summaries = new ArrayList<>();
-		JobletType<?> currentType = null;
-		Long oldestCreatedDate = null;
-		Integer sumItems = 0;
-		boolean atLeastOneCreatedJoblet = false;
-		for(JobletRequest jobletRequest : scanner){
-			JobletType<?> type = jobletTypeFactory.fromJobletRequest(jobletRequest);
-			if(jobletRequest.getStatus() == JobletStatus.created){
-				atLeastOneCreatedJoblet = true;
-				if(currentType != null && type != currentType){
-					summaries.add(new JobletSummary(currentType.getPersistentString(), sumItems, oldestCreatedDate));
-					oldestCreatedDate = null;
-					sumItems = 0;
-				}
-				currentType = jobletTypeFactory.fromJobletRequest(jobletRequest);
-				sumItems = sumItems + jobletRequest.getNumItems();
-				if(oldestCreatedDate == null || jobletRequest.getKey().getCreated() < oldestCreatedDate){
-					oldestCreatedDate = jobletRequest.getKey().getCreated();
-				}
-			}
-		}
-        if(atLeastOneCreatedJoblet){
-            summaries.add(new JobletSummary(currentType.getPersistentString(), sumItems, oldestCreatedDate));
-        }
-		return summaries;
-	}
 
 	public static ArrayList<JobletRequest> filterByTypeStatusReservedByPrefix(Iterable<JobletRequest> ins,
 			JobletType<?> type, JobletStatus status, String reservedByPrefix){

@@ -54,7 +54,18 @@ public class JobletSummary{
 
 	/*------------------------ static ---------------------------*/
 
-	public static Map<TypeExecutionOrderStatusKey,JobletSummary> buildSummaries(Stream<JobletRequest> requests){
+	public static Map<TypeKey,JobletSummary> summarizeByType(Stream<JobletRequest> requests){
+		return requests
+				.map(JobletSummary::new)
+				.collect(Collectors.toMap(
+						TypeKey::new,
+						Function.identity(),
+						JobletSummary::absorbStats,
+						TreeMap::new));
+	}
+
+	public static Map<TypeExecutionOrderStatusKey,JobletSummary> summarizeByTypeExecutionOrderStatus(
+			Stream<JobletRequest> requests){
 		return requests
 				.map(JobletSummary::new)
 				.collect(Collectors.toMap(
@@ -64,7 +75,7 @@ public class JobletSummary{
 						TreeMap::new));
 	}
 
-	public static Map<QueueStatusKey,JobletSummary> buildQueueSummaries(Stream<JobletRequest> requests){
+	public static Map<QueueStatusKey,JobletSummary> summarizeByQueueStatus(Stream<JobletRequest> requests){
 		return requests
 				.map(JobletSummary::new)
 				.collect(Collectors.toMap(
@@ -72,16 +83,6 @@ public class JobletSummary{
 						Function.identity(),
 						JobletSummary::absorbStats,
 						TreeMap::new));
-//		Map<ComparablePair<String,JobletStatus>,JobletSummary> summaryByQueueIdStatus = new TreeMap<>();
-//		requests.map(JobletSummary::new).forEach(summary -> {
-//			ComparablePair<String,JobletStatus> key = new ComparablePair<>(summary.getQueueId(), summary.getStatus());
-//			if(summaryByQueueIdStatus.containsKey(key)){
-//				summaryByQueueIdStatus.get(key).absorbStats(summary);
-//			}else{
-//				summaryByQueueIdStatus.put(key, summary);
-//			}
-//		});
-//		return summaryByQueueIdStatus;
 	}
 
 
@@ -173,6 +174,33 @@ public class JobletSummary{
 
 
 	/*------------------ keys -----------------------*/
+
+	private static class TypeKey implements Comparable<TypeKey>{
+		private final String typeString;
+
+		public TypeKey(JobletSummary summary){
+			this.typeString = summary.typeString;
+		}
+
+		@Override
+		public boolean equals(Object obj){
+			if(ClassTool.differentClass(this, obj)){
+				return false;
+			}
+			JobletSummary other = (JobletSummary)obj;
+			return Objects.equals(typeString, other.typeString);
+		}
+
+		@Override
+		public int hashCode(){
+			return Objects.hash(typeString);
+		}
+
+		@Override
+		public int compareTo(TypeKey other){
+			return DrComparableTool.nullFirstCompareTo(typeString, other.typeString);
+		}
+	}
 
 	private static class TypeExecutionOrderStatusKey implements Comparable<TypeExecutionOrderStatusKey>{
 		private final String typeString;

@@ -88,7 +88,7 @@ public class JobletHandler extends BaseHandler{
 			JobletStatus status = JobletStatus.fromPersistentStringStatic(statusString);
 			requests = requests.filter(request -> status == request.getStatus());
 		}
-		mav.put("summaries", JobletSummary.buildSummaries(requests).values());
+		mav.put("summaries", JobletSummary.summarizeByTypeExecutionOrderStatus(requests).values());
 		mav.put("jobletTypes", jobletTypeFactory.getAllTypes());
 		return mav;
 	}
@@ -100,7 +100,7 @@ public class JobletHandler extends BaseHandler{
 		mav.put("executionOrder", executionOrder);
 		JobletRequestKey prefix = new JobletRequestKey(jobletType, executionOrder, null, null);
 		Stream<JobletRequest> requests = jobletNodes.jobletRequest().streamWithPrefix(prefix, null);
-		mav.put("summaries", JobletSummary.buildQueueSummaries(requests).values());
+		mav.put("summaries", JobletSummary.summarizeByQueueStatus(requests).values());
 		return mav;
 	}
 

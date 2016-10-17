@@ -23,7 +23,6 @@ import com.hotpads.joblet.databean.JobletData;
 import com.hotpads.joblet.databean.JobletDataKey;
 import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.databean.JobletRequestKey;
-import com.hotpads.joblet.dto.JobletSummary;
 import com.hotpads.joblet.enums.JobletQueueMechanism;
 import com.hotpads.joblet.enums.JobletStatus;
 import com.hotpads.joblet.enums.JobletType;
@@ -227,13 +226,6 @@ public class JobletService{
 
 	public void handleJobletCompletion(JobletRequest jobletRequest){
 		deleteJobletRequestAndData(jobletRequest);
-	}
-
-	/*--------------------- summaries -----------------------*/
-
-	public List<JobletSummary> getJobletSummaries(boolean slaveOk){
-		Iterable<JobletRequest> scanner = jobletNodes.jobletRequest().scan(null, new Config().setSlaveOk(slaveOk));
-		return JobletRequest.getJobletCountsCreatedByType(jobletTypeFactory, scanner);
 	}
 
 }
