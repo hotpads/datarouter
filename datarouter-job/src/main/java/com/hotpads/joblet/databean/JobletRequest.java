@@ -134,11 +134,11 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 		JobletType<?> currentType = null;
 		Long oldestCreatedDate = null;
 		Integer sumItems = 0;
-		boolean atLeastOnecreatedJoblet = false;
+		boolean atLeastOneCreatedJoblet = false;
 		for(JobletRequest jobletRequest : scanner){
 			JobletType<?> type = jobletTypeFactory.fromJobletRequest(jobletRequest);
 			if(jobletRequest.getStatus() == JobletStatus.created){
-				atLeastOnecreatedJoblet = true;
+				atLeastOneCreatedJoblet = true;
 				if(currentType != null && type != currentType){
 					summaries.add(new JobletSummary(currentType.getPersistentString(), sumItems, oldestCreatedDate));
 					oldestCreatedDate = null;
@@ -151,7 +151,7 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 				}
 			}
 		}
-        if(atLeastOnecreatedJoblet){
+        if(atLeastOneCreatedJoblet){
             summaries.add(new JobletSummary(currentType.getPersistentString(), sumItems, oldestCreatedDate));
         }
 		return summaries;

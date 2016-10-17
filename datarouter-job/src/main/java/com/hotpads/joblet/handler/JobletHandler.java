@@ -88,7 +88,7 @@ public class JobletHandler extends BaseHandler{
 			JobletStatus status = JobletStatus.fromPersistentStringStatic(statusString);
 			requests = requests.filter(request -> status == request.getStatus());
 		}
-		mav.put("summaries", JobletSummary.buildSummaries(requests));
+		mav.put("summaries", JobletSummary.buildSummaries(requests).values());
 		mav.put("jobletTypes", jobletTypeFactory.getAllTypes());
 		return mav;
 	}

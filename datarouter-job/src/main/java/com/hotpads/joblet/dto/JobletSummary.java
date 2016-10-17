@@ -2,7 +2,6 @@ package com.hotpads.joblet.dto;
 
 import java.util.Date;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -18,7 +17,6 @@ import com.hotpads.datarouter.util.core.DrNumberTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.enums.JobletStatus;
-import com.hotpads.util.core.collections.ComparablePair;
 import com.hotpads.util.core.lang.ClassTool;
 
 
@@ -56,32 +54,34 @@ public class JobletSummary{
 
 	/*------------------------ static ---------------------------*/
 
-	public static List<JobletSummary> buildSummaries(Stream<JobletRequest> requests){
+	public static Map<TypeExecutionOrderStatusKey,JobletSummary> buildSummaries(Stream<JobletRequest> requests){
 		return requests
 				.map(JobletSummary::new)
 				.collect(Collectors.toMap(
 						TypeExecutionOrderStatusKey::new,
 						Function.identity(),
 						JobletSummary::absorbStats,
-						TreeMap::new))
-				.values()
-				.stream()
-				.collect(Collectors.toList());
+						TreeMap::new));
 	}
 
-	//group by queueId where all types and executionOrders are the same
-	public static Map<ComparablePair<String,JobletStatus>,JobletSummary> buildQueueSummaries(
-			Stream<JobletRequest> requests){
-		Map<ComparablePair<String,JobletStatus>,JobletSummary> summaryByQueueIdStatus = new TreeMap<>();
-		requests.map(JobletSummary::new).forEach(summary -> {
-			ComparablePair<String,JobletStatus> key = new ComparablePair<>(summary.getQueueId(), summary.getStatus());
-			if(summaryByQueueIdStatus.containsKey(key)){
-				summaryByQueueIdStatus.get(key).absorbStats(summary);
-			}else{
-				summaryByQueueIdStatus.put(key, summary);
-			}
-		});
-		return summaryByQueueIdStatus;
+	public static Map<QueueStatusKey,JobletSummary> buildQueueSummaries(Stream<JobletRequest> requests){
+		return requests
+				.map(JobletSummary::new)
+				.collect(Collectors.toMap(
+						QueueStatusKey::new,
+						Function.identity(),
+						JobletSummary::absorbStats,
+						TreeMap::new));
+//		Map<ComparablePair<String,JobletStatus>,JobletSummary> summaryByQueueIdStatus = new TreeMap<>();
+//		requests.map(JobletSummary::new).forEach(summary -> {
+//			ComparablePair<String,JobletStatus> key = new ComparablePair<>(summary.getQueueId(), summary.getStatus());
+//			if(summaryByQueueIdStatus.containsKey(key)){
+//				summaryByQueueIdStatus.get(key).absorbStats(summary);
+//			}else{
+//				summaryByQueueIdStatus.put(key, summary);
+//			}
+//		});
+//		return summaryByQueueIdStatus;
 	}
 
 
@@ -175,9 +175,9 @@ public class JobletSummary{
 	/*------------------ keys -----------------------*/
 
 	private static class TypeExecutionOrderStatusKey implements Comparable<TypeExecutionOrderStatusKey>{
-		private String typeString;
-		private Integer executionOrder;
-		private JobletStatus status;
+		private final String typeString;
+		private final Integer executionOrder;
+		private final JobletStatus status;
 
 		public TypeExecutionOrderStatusKey(JobletSummary summary){
 			this.typeString = summary.typeString;
@@ -213,7 +213,40 @@ public class JobletSummary{
 			}
 			return DrComparableTool.nullFirstCompareTo(status, other.status);
 		}
+	}
 
+	private static class QueueStatusKey implements Comparable<QueueStatusKey>{
+		private final String queueId;
+		private final JobletStatus status;
+
+		public QueueStatusKey(JobletSummary summary){
+			this.queueId = summary.queueId;
+			this.status = summary.status;
+		}
+
+		@Override
+		public boolean equals(Object obj){
+			if(ClassTool.differentClass(this, obj)){
+				return false;
+			}
+			JobletSummary other = (JobletSummary)obj;
+			return Objects.equals(queueId, other.queueId)
+					&& Objects.equals(status, other.status);
+		}
+
+		@Override
+		public int hashCode(){
+			return Objects.hash(queueId, status);
+		}
+
+		@Override
+		public int compareTo(QueueStatusKey other){
+			int diff = DrComparableTool.nullFirstCompareTo(queueId, other.queueId);
+			if(diff != 0){
+				return diff;
+			}
+			return DrComparableTool.nullFirstCompareTo(status, other.status);
+		}
 	}
 
 	/*-------------------- get/set --------------------*/
