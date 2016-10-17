@@ -42,6 +42,7 @@ public class JobletSummary implements Comparable<JobletSummary>{
 		this.executionOrder = request.getKey().getExecutionOrder();
 		this.status = request.getStatus();
 		this.queueId = request.getQueueId();
+		absorbJobletRequestStats(request);
 	}
 
 	public JobletSummary(String typeString, Integer sumItems, Long created){
@@ -55,13 +56,13 @@ public class JobletSummary implements Comparable<JobletSummary>{
 	/*------------------------ static ---------------------------*/
 
 	public static List<JobletSummary> buildSummaries(Stream<JobletRequest> requests){
-		Map<JobletSummary,JobletSummary> summaries = new TreeMap<>();//hack to emulate Set::get
-		requests.forEach(request -> {
-			JobletSummary summary = new JobletSummary(request).include(request);
-			if(summaries.containsKey(summary)){
-				summaries.get(summary).absorbStats(summary);
+		Map<TypeExecutionOrderStatusKey,JobletSummary> summaries = new TreeMap<>();//hack to emulate Set::get
+		requests.map(JobletSummary::new).forEach(summary -> {
+			TypeExecutionOrderStatusKey key = new TypeExecutionOrderStatusKey(summary);
+			if(summaries.containsKey(key)){
+				summaries.get(key).absorbStats(summary);
 			}else{
-				summaries.put(summary, summary);
+				summaries.put(key, summary);
 			}
 		});
 		return new ArrayList<>(summaries.values());
@@ -71,13 +72,13 @@ public class JobletSummary implements Comparable<JobletSummary>{
 	public static Map<ComparablePair<String,JobletStatus>,JobletSummary> buildQueueSummaries(
 			Stream<JobletRequest> requests){
 		Map<ComparablePair<String,JobletStatus>,JobletSummary> summaryByQueueIdStatus = new TreeMap<>();
-		requests.forEach(request -> {
-			ComparablePair<String,JobletStatus> queueIdStatus = new ComparablePair<>(request.getQueueId(), request
-					.getStatus());
-			JobletSummary summary = summaryByQueueIdStatus.computeIfAbsent(queueIdStatus, a -> new JobletSummary(
-					request));
-			Preconditions.checkArgument(summary.equalsTypeExecutionOrderQueueIdStatus(request));
-			summary.include(request);
+		requests.map(JobletSummary::new).forEach(summary -> {
+			ComparablePair<String,JobletStatus> key = new ComparablePair<>(summary.getQueueId(), summary.getStatus());
+			if(summaryByQueueIdStatus.containsKey(key)){
+				summaryByQueueIdStatus.get(key).absorbStats(summary);
+			}else{
+				summaryByQueueIdStatus.put(key, summary);
+			}
 		});
 		return summaryByQueueIdStatus;
 	}
@@ -85,7 +86,7 @@ public class JobletSummary implements Comparable<JobletSummary>{
 
 	/*------------------------ methods --------------------------*/
 
-	public JobletSummary absorbStats(JobletSummary other){
+	private JobletSummary absorbStats(JobletSummary other){
 		Preconditions.checkNotNull(other);
 		if(DrStringTool.notEmpty(other.queueId)){
 			queueIds.add(other.queueId);
@@ -105,7 +106,7 @@ public class JobletSummary implements Comparable<JobletSummary>{
 		return this;
 	}
 
-	public JobletSummary include(JobletRequest request){
+	private JobletSummary absorbJobletRequestStats(JobletRequest request){
 		Preconditions.checkNotNull(request);
 		if(DrStringTool.notEmpty(request.getQueueId())){
 			queueIds.add(request.getQueueId());
@@ -123,25 +124,6 @@ public class JobletSummary implements Comparable<JobletSummary>{
 			}
 		}
 		return this;
-	}
-
-	public boolean equalsTypeExecutionOrderStatus(JobletRequest request){
-		return request != null
-				&& Objects.equals(typeString, request.getTypeString())
-				&& Objects.equals(executionOrder, request.getKey().getExecutionOrder())
-				&& Objects.equals(status, request.getStatus());
-	}
-
-	public boolean differentTypeExecutionOrder(JobletRequest request){
-		return !equalsTypeExecutionOrderStatus(request);
-	}
-
-	public boolean equalsTypeExecutionOrderQueueIdStatus(JobletRequest request){
-		return request != null
-				&& Objects.equals(typeString, request.getTypeString())
-				&& Objects.equals(executionOrder, request.getKey().getExecutionOrder())
-				&& Objects.equals(queueId, request.getQueueId())
-				&& Objects.equals(status, request.getStatus());
 	}
 
 	public boolean isEmpty(){
@@ -219,6 +201,50 @@ public class JobletSummary implements Comparable<JobletSummary>{
 			return diff;
 		}
 		return DrComparableTool.nullFirstCompareTo(status, other.status);
+	}
+
+	/*------------------ keys -----------------------*/
+
+	private static class TypeExecutionOrderStatusKey implements Comparable<TypeExecutionOrderStatusKey>{
+		private String typeString;
+		private Integer executionOrder;
+		private JobletStatus status;
+
+		public TypeExecutionOrderStatusKey(JobletSummary summary){
+			this.typeString = summary.typeString;
+			this.executionOrder = summary.executionOrder;
+			this.status = summary.status;
+		}
+
+		@Override
+		public boolean equals(Object obj){
+			if(ClassTool.differentClass(this, obj)){
+				return false;
+			}
+			JobletSummary other = (JobletSummary)obj;
+			return Objects.equals(typeString, other.typeString)
+					&& Objects.equals(executionOrder, other.executionOrder)
+					&& Objects.equals(status, other.status);
+		}
+
+		@Override
+		public int hashCode(){
+			return Objects.hash(typeString, executionOrder, status);
+		}
+
+		@Override
+		public int compareTo(TypeExecutionOrderStatusKey other){
+			int diff = DrComparableTool.nullFirstCompareTo(typeString, other.typeString);
+			if(diff != 0){
+				return diff;
+			}
+			diff = DrComparableTool.nullFirstCompareTo(executionOrder, other.executionOrder);
+			if(diff != 0){
+				return diff;
+			}
+			return DrComparableTool.nullFirstCompareTo(status, other.status);
+		}
+
 	}
 
 	/*-------------------- get/set --------------------*/
