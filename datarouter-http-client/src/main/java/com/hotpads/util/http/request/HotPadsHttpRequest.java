@@ -251,6 +251,11 @@ public class HotPadsHttpRequest {
 		return this;
 	}
 
+	public HotPadsHttpRequest addBearerAuthorizationHeader(String accessToken){
+		headers.put("Authorization", "Bearer " + accessToken);
+		return this;
+	}
+
 	// from AdvancedStringTool
 	private String urlEncode(String unencoded) {
 		try {
