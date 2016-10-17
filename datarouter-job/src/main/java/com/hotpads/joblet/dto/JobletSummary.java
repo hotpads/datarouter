@@ -1,6 +1,5 @@
 package com.hotpads.joblet.dto;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -8,6 +7,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.google.common.base.Preconditions;
@@ -56,16 +57,16 @@ public class JobletSummary{
 	/*------------------------ static ---------------------------*/
 
 	public static List<JobletSummary> buildSummaries(Stream<JobletRequest> requests){
-		Map<TypeExecutionOrderStatusKey,JobletSummary> summaries = new TreeMap<>();
-		requests.map(JobletSummary::new).forEach(summary -> {
-			TypeExecutionOrderStatusKey key = new TypeExecutionOrderStatusKey(summary);
-			if(summaries.containsKey(key)){
-				summaries.get(key).absorbStats(summary);
-			}else{
-				summaries.put(key, summary);
-			}
-		});
-		return new ArrayList<>(summaries.values());
+		return requests
+				.map(JobletSummary::new)
+				.collect(Collectors.toMap(
+						TypeExecutionOrderStatusKey::new,
+						Function.identity(),
+						JobletSummary::absorbStats,
+						TreeMap::new))
+				.values()
+				.stream()
+				.collect(Collectors.toList());
 	}
 
 	//group by queueId where all types and executionOrders are the same
