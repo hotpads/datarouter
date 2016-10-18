@@ -11,8 +11,7 @@ public class WebAppName{
 
 	public static final String TEST = "test";
 
-	public static final String MODEL_INDEX_NAME = "modelIndex";
-
+	//note: this seems to be the artifactId in the pom (not the directory that the pom is in)
 	private String name;
 
 	@Inject
