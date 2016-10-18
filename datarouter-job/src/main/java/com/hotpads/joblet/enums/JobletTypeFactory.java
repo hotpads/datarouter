@@ -18,14 +18,14 @@ public class JobletTypeFactory{
 
 	private final List<JobletType<?>> allTypes;
 	private final JobletType<?> sampleType;
-	private final Map<String,JobletType<?>> typeByPersistentString;
+	private final Map<Integer,JobletType<?>> typeByPersistentInt;
 	private final Set<JobletType<?>> typesCausingScaling;
 
 	public JobletTypeFactory(Collection<JobletType<?>> types){
 		this.allTypes = new ArrayList<>(types);
 		this.sampleType = DrCollectionTool.getFirst(types);
-		this.typeByPersistentString = types.stream()
-				.collect(Collectors.toMap(JobletType::getPersistentString, Function.identity()));
+		this.typeByPersistentInt = types.stream()
+				.collect(Collectors.toMap(JobletType::getPersistentInt, Function.identity()));
 		this.typesCausingScaling = types.stream()
 				.filter(JobletType::causesScaling)
 				.collect(Collectors.toSet());
@@ -62,10 +62,10 @@ public class JobletTypeFactory{
 	}
 
 	public JobletType<?> fromJobletKey(JobletRequestKey jobletKey){
-		return jobletKey == null ? null : fromPersistentString(jobletKey.getType());
+		return jobletKey == null ? null : fromPersistentInt(jobletKey.getTypeCode());
 	}
 
-	public JobletType<?> fromPersistentString(String string){
-		return typeByPersistentString.get(string);
+	public JobletType<?> fromPersistentInt(Integer typeCode){
+		return typeByPersistentInt.get(typeCode);
 	}
 }

@@ -12,7 +12,7 @@ import com.hotpads.util.core.concurrent.ThreadTool;
 public class SleepingJoblet extends BaseJoblet<SleepingJobletParams>{
 	private static final Logger logger = LoggerFactory.getLogger(SleepingJoblet.class);
 
-	public static final JobletType<SleepingJobletParams> JOBLET_TYPE = new JobletType<>("SleepingJoblet",
+	public static final JobletType<SleepingJobletParams> JOBLET_TYPE = new JobletType<>(-1, "SleepingJoblet",
 			SleepingJobletCodec::new, SleepingJoblet.class, 1, 1, true);
 
 	private static final long MAX_SEGMENT_MS = 1000;

@@ -26,6 +26,7 @@ public class JobletSummary{
 	private Integer executionOrder;
 	private JobletStatus status;
 	private String typeString;
+	private Integer typeCode;
 	private String queueId;
 	//summary fields
 	private Set<String> queueIds = new HashSet<>();
@@ -37,19 +38,12 @@ public class JobletSummary{
 	private Date firstReserved;
 
 	public JobletSummary(JobletRequest request){
+		this.typeCode = request.getKey().getTypeCode();
 		this.typeString = request.getTypeString();
 		this.executionOrder = request.getKey().getExecutionOrder();
 		this.status = request.getStatus();
 		this.queueId = request.getQueueId();
 		absorbJobletRequestStats(request);
-	}
-
-	public JobletSummary(String typeString, Integer sumItems, Long created){
-		this.typeString = typeString;
-		this.sumItems = sumItems;
-		if(created != null){
-			this.firstCreated = new Date(created);
-		}
 	}
 
 	/*------------------------ static ---------------------------*/
@@ -176,10 +170,10 @@ public class JobletSummary{
 	/*------------------ keys -----------------------*/
 
 	private static class TypeKey implements Comparable<TypeKey>{
-		private final String typeString;
+		private final int typeCode;
 
 		public TypeKey(JobletSummary summary){
-			this.typeString = summary.typeString;
+			this.typeCode = summary.typeCode;
 		}
 
 		@Override
@@ -188,27 +182,27 @@ public class JobletSummary{
 				return false;
 			}
 			JobletSummary other = (JobletSummary)obj;
-			return Objects.equals(typeString, other.typeString);
+			return Objects.equals(typeCode, other.typeCode);
 		}
 
 		@Override
 		public int hashCode(){
-			return Objects.hash(typeString);
+			return Objects.hash(typeCode);
 		}
 
 		@Override
 		public int compareTo(TypeKey other){
-			return DrComparableTool.nullFirstCompareTo(typeString, other.typeString);
+			return DrComparableTool.nullFirstCompareTo(typeCode, other.typeCode);
 		}
 	}
 
 	private static class TypeExecutionOrderStatusKey implements Comparable<TypeExecutionOrderStatusKey>{
-		private final String typeString;
+		private final int typeCode;
 		private final Integer executionOrder;
 		private final JobletStatus status;
 
 		public TypeExecutionOrderStatusKey(JobletSummary summary){
-			this.typeString = summary.typeString;
+			this.typeCode = summary.typeCode;
 			this.executionOrder = summary.executionOrder;
 			this.status = summary.status;
 		}
@@ -219,19 +213,19 @@ public class JobletSummary{
 				return false;
 			}
 			JobletSummary other = (JobletSummary)obj;
-			return Objects.equals(typeString, other.typeString)
+			return Objects.equals(typeCode, other.typeCode)
 					&& Objects.equals(executionOrder, other.executionOrder)
 					&& Objects.equals(status, other.status);
 		}
 
 		@Override
 		public int hashCode(){
-			return Objects.hash(typeString, executionOrder, status);
+			return Objects.hash(typeCode, executionOrder, status);
 		}
 
 		@Override
 		public int compareTo(TypeExecutionOrderStatusKey other){
-			int diff = DrComparableTool.nullFirstCompareTo(typeString, other.typeString);
+			int diff = DrComparableTool.nullFirstCompareTo(typeCode, other.typeCode);
 			if(diff != 0){
 				return diff;
 			}
@@ -285,6 +279,10 @@ public class JobletSummary{
 
 	public JobletStatus getStatus() {
 		return status;
+	}
+
+	public Integer getTypeCode(){
+		return typeCode;
 	}
 
 	public String getTypeString() {
