@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.OptionalDouble;
-import java.util.TreeMap;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
@@ -45,6 +44,7 @@ import com.hotpads.util.core.java.ReflectionTool;
 public class LatencyMonitoringService{
 	private static final Logger logger = LoggerFactory.getLogger(LatencyMonitoringService.class);
 
+	private static final int NUM_LAST_CHECKS_TO_RETAIN = 15;
 	private static final Config ONLY_FIRST = new Config().setLimit(1);
 	private static final String METRIC_PREFIX = "Latency ";
 	private static final String DR_CLIENT_PREFIX = "Client ";
@@ -62,16 +62,16 @@ public class LatencyMonitoringService{
 	@Inject
 	private WebAppName webApp;
 
-	private final Map<String,CheckResult> lastResultByName = new HashMap<>();
+	private final Map<String,Deque<CheckResult>> lastResultsByName = new HashMap<>();
 	private final Map<String,Deque<Duration>> lastDurationsByName = new HashMap<>();
 
 	private List<Future<?>> runningChecks = Collections.emptyList();
 
 	public void record(String checkName, Duration duration){
 		metrics.save(METRIC_PREFIX + checkName, duration.to(TimeUnit.MICROSECONDS));
-		lastResultByName.put(checkName, CheckResult.newSuccess(System.currentTimeMillis(), duration));
+		addCheckResult(checkName, CheckResult.newSuccess(System.currentTimeMillis(), duration));
 		Deque<Duration> lastDurations = getLastDurations(checkName);
-		if(lastDurations.size() == 15){
+		if(lastDurations.size() == NUM_LAST_CHECKS_TO_RETAIN){
 			lastDurations.pollLast();
 		}
 		lastDurations.offerFirst(duration);
@@ -82,14 +82,28 @@ public class LatencyMonitoringService{
 		return lastDurationsByName.computeIfAbsent(checkName, $ -> new LinkedList<>());
 	}
 
+	private Deque<CheckResult> getLastResults(String checkName){
+		return lastResultsByName.computeIfAbsent(checkName, $ -> new LinkedList<>());
+	}
+
+	private void addCheckResult(String checkName, CheckResult checkResult){
+		Deque<CheckResult> lastResults = getLastResults(checkName);
+		if(lastResults.size() == NUM_LAST_CHECKS_TO_RETAIN){
+			lastResults.pollLast();
+		}
+		lastResults.offerFirst(checkResult);
+	}
+
 	public void recordFailure(String checkName, String failureMessage){
-		lastResultByName.put(checkName, CheckResult.newFailure(System.currentTimeMillis(), failureMessage));
+		addCheckResult(checkName, CheckResult.newFailure(System.currentTimeMillis(), failureMessage));
 		getLastDurations(checkName).clear();
 		logger.info("{} failed - {}", checkName, failureMessage);
 	}
 
 	public Map<String,CheckResult> getLastResultByName(){
-		return new TreeMap<>(lastResultByName);
+		return lastResultsByName.entrySet().stream()
+				.filter(entry -> !entry.getValue().isEmpty())
+				.collect(Collectors.toMap(Entry::getKey, entry -> entry.getValue().peekFirst()));
 	}
 
 	public Map<String,String> computeLastFiveAvg(){
@@ -118,7 +132,7 @@ public class LatencyMonitoringService{
 	}
 
 	public CheckResult getLastResultForDatarouterClient(String clientName){
-		return lastResultByName.get(getCheckNameForDatarouterClient(clientName));
+		return getLastResults(getCheckNameForDatarouterClient(clientName)).peekFirst();
 	}
 
 	public String getGraphLink(String checkName){
