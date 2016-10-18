@@ -2,10 +2,10 @@ package com.hotpads.joblet.enums;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.hotpads.datarouter.util.core.DrCollectionTool;
@@ -24,8 +24,15 @@ public class JobletTypeFactory{
 	public JobletTypeFactory(Collection<JobletType<?>> types){
 		this.allTypes = new ArrayList<>(types);
 		this.sampleType = DrCollectionTool.getFirst(types);
-		this.typeByPersistentInt = types.stream()
-				.collect(Collectors.toMap(JobletType::getPersistentInt, Function.identity()));
+		this.typeByPersistentInt = new HashMap<>();
+		for(JobletType<?> type : types){
+			if(typeByPersistentInt.containsKey(type.getPersistentInt())){
+				throw new RuntimeException("Joblet type "+type.getPersistentString()+" with persistentInt "
+						+type.getPersistentInt()+" duplicates persistent int for joblet type "
+						+typeByPersistentInt.get(type.getPersistentInt()).getPersistentString());
+			}
+			typeByPersistentInt.put(type.getPersistentInt(), type);
+		}
 		this.typesCausingScaling = types.stream()
 				.filter(JobletType::causesScaling)
 				.collect(Collectors.toSet());
