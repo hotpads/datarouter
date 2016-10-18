@@ -9,8 +9,6 @@ import java.util.function.Supplier;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.serialize.fielder.Fielder;
 import com.hotpads.datarouter.storage.databean.Databean;
@@ -213,15 +211,6 @@ public class JsonDatabeanTool{
 			jsonObject.element(f.getKey().getColumnName(), f.getStringEncodedValue());
 		}
 		return jsonObject;
-	}
-
-	public static void main(String...strings){
-		JSONObject x = ((JSONObject)JSONSerializer.toJSON("{\"something\":{\"string\":\"[1-one]\"}}"));
-		System.err.println(x.toString());
-
-		JsonParser parser = new JsonParser();
-		JsonObject gson = (JsonObject)parser.parse("{\"something\":{\"string\":\"[1-one]\"}}");
-		System.err.println(gson.toString());
 	}
 
 	/***************** tests **************************/
