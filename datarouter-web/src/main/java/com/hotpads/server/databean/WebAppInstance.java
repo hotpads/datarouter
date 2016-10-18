@@ -19,7 +19,6 @@ import com.hotpads.datarouter.util.core.DrDateTool;
 import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.handler.GitProperties;
 
-
 public class WebAppInstance extends BaseDatabean<WebAppInstanceKey,WebAppInstance> {
 
 	/** fields ****************************************************************/
@@ -32,7 +31,6 @@ public class WebAppInstance extends BaseDatabean<WebAppInstanceKey,WebAppInstanc
 	private Date startupDate;
 	private Date buildDate;
 	private String commitId;
-
 
 	/** columns ***************************************************************/
 
@@ -63,7 +61,6 @@ public class WebAppInstance extends BaseDatabean<WebAppInstanceKey,WebAppInstanc
 					new DateField(FieldKeys.buildDate, databean.buildDate),
 					new StringField(FieldKeys.commitId, databean.commitId));
 		}
-
 	}
 
 	/** construct *************************************************************/
