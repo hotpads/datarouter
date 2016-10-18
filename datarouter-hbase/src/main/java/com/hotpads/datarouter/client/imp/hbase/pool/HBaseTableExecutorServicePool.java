@@ -30,7 +30,7 @@ public class HBaseTableExecutorServicePool
 implements HBaseTablePool{
 	private static final Logger logger = LoggerFactory.getLogger(HBaseTableExecutorServicePool.class);
 
-	private static final int DEFAULT_MAX_HTABLES = 10;
+	private static final int DEFAULT_MAX_HTABLES = 100;
 	private static final int DEFAULT_MIN_THREADS_PER_HTABLE = 1;
 	//practically, you will get only one thread per regionserver, but it doesn't hurt to have a high ceiling that won't
 	// exhaust all server threads
