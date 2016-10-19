@@ -132,7 +132,8 @@ public class DatarouterExecutorGuiceModule extends BaseExecutorGuiceModule{
 
 	//keep the maxThreads here in sync with the HBaseTableExecutorServicePool.maxHTables
 	private ExecutorService createHbaseClientExecutor(){
-		return createScalingPool(datarouter, POOL_hbaseClientExecutor, HBASE_CLIENT_EXECUTOR_MAX_THREADS);
+		return createThreadPool(datarouter, POOL_hbaseClientExecutor, HBASE_CLIENT_EXECUTOR_MAX_THREADS,
+				HBASE_CLIENT_EXECUTOR_MAX_THREADS, 1, new CallerRunsPolicy());
 	}
 
 	private ExecutorService createBigTableClientExecutor(){
