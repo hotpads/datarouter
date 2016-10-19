@@ -47,6 +47,10 @@ public class CheckResult{
 				.orElse("");
 	}
 
+	public boolean isFailure(){
+		return failureMessage.isPresent();
+	}
+
 	@Override
 	public String toString(){
 		if(failureMessage.isPresent()){

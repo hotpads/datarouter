@@ -131,8 +131,12 @@ public class LatencyMonitoringService{
 		return DR_CLIENT_PREFIX + clientName + SS_CHECK_SUFIX;
 	}
 
+	public Deque<CheckResult> getLastResultsForDatarouterClient(String clientName){
+		return getLastResults(getCheckNameForDatarouterClient(clientName));
+	}
+
 	public CheckResult getLastResultForDatarouterClient(String clientName){
-		return getLastResults(getCheckNameForDatarouterClient(clientName)).peekFirst();
+		return getLastResultsForDatarouterClient(clientName).peekFirst();
 	}
 
 	public String getGraphLink(String checkName){
