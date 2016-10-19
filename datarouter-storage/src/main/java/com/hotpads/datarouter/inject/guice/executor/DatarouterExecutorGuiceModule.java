@@ -33,6 +33,8 @@ public class DatarouterExecutorGuiceModule extends BaseExecutorGuiceModule{
 		datarouter = new ThreadGroup("datarouter"),
 		flushers = new ThreadGroup(datarouter, "flushers");
 
+	public static final int HBASE_CLIENT_EXECUTOR_MAX_THREADS = 100;
+
 	@Override
 	protected void configure(){
 		bind(ScheduledExecutorService.class)
@@ -128,8 +130,10 @@ public class DatarouterExecutorGuiceModule extends BaseExecutorGuiceModule{
 				new NamedThreadFactory(datarouter, POOL_parallelApiCallerSender, true));
 	}
 
+	//keep the maxThreads here in sync with the HBaseTableExecutorServicePool.maxHTables
 	private ExecutorService createHbaseClientExecutor(){
-		return createThreadPool(datarouter, POOL_hbaseClientExecutor, 10, 10, 1, new CallerRunsPolicy());
+		return createThreadPool(datarouter, POOL_hbaseClientExecutor, HBASE_CLIENT_EXECUTOR_MAX_THREADS,
+				HBASE_CLIENT_EXECUTOR_MAX_THREADS, 1, new CallerRunsPolicy());
 	}
 
 	private ExecutorService createBigTableClientExecutor(){
