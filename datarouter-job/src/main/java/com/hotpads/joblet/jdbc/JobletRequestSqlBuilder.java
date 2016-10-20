@@ -7,6 +7,7 @@ import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodec
 import com.hotpads.datarouter.client.imp.jdbc.util.SqlBuilder;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.comparable.BooleanField;
+import com.hotpads.datarouter.storage.field.imp.comparable.IntegerField;
 import com.hotpads.datarouter.storage.field.imp.enums.StringEnumField;
 import com.hotpads.joblet.JobletNodes;
 import com.hotpads.joblet.databean.JobletRequest;
@@ -57,8 +58,9 @@ public class JobletRequestSqlBuilder{
 	}
 
 	private String makeTypeClause(JobletType<?> jobletType){
-		StringField typeField = new StringField(JobletRequestKey.FieldKeys.type, jobletType.getPersistentString());
-		return jdbcFieldCodecFactory.createCodec(typeField).getSqlNameValuePairEscaped();
+		IntegerField typeCodeField = new IntegerField(JobletRequestKey.FieldKeys.typeCode,
+				jobletType.getPersistentInt());
+		return jdbcFieldCodecFactory.createCodec(typeCodeField).getSqlNameValuePairEscaped();
 	}
 
 	private String makeStatusClause(){

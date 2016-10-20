@@ -2,10 +2,10 @@ package com.hotpads.joblet.enums;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.hotpads.datarouter.util.core.DrCollectionTool;
@@ -18,14 +18,21 @@ public class JobletTypeFactory{
 
 	private final List<JobletType<?>> allTypes;
 	private final JobletType<?> sampleType;
-	private final Map<String,JobletType<?>> typeByPersistentString;
+	private final Map<Integer,JobletType<?>> typeByPersistentInt;
 	private final Set<JobletType<?>> typesCausingScaling;
 
 	public JobletTypeFactory(Collection<JobletType<?>> types){
 		this.allTypes = new ArrayList<>(types);
 		this.sampleType = DrCollectionTool.getFirst(types);
-		this.typeByPersistentString = types.stream()
-				.collect(Collectors.toMap(JobletType::getPersistentString, Function.identity()));
+		this.typeByPersistentInt = new HashMap<>();
+		for(JobletType<?> type : types){
+			if(typeByPersistentInt.containsKey(type.getPersistentInt())){
+				throw new RuntimeException("Joblet type "+type.getPersistentString()+" with persistentInt "
+						+type.getPersistentInt()+" duplicates persistent int for joblet type "
+						+typeByPersistentInt.get(type.getPersistentInt()).getPersistentString());
+			}
+			typeByPersistentInt.put(type.getPersistentInt(), type);
+		}
 		this.typesCausingScaling = types.stream()
 				.filter(JobletType::causesScaling)
 				.collect(Collectors.toSet());
@@ -62,10 +69,10 @@ public class JobletTypeFactory{
 	}
 
 	public JobletType<?> fromJobletKey(JobletRequestKey jobletKey){
-		return jobletKey == null ? null : fromPersistentString(jobletKey.getType());
+		return jobletKey == null ? null : fromPersistentInt(jobletKey.getTypeCode());
 	}
 
-	public JobletType<?> fromPersistentString(String string){
-		return typeByPersistentString.get(string);
+	public JobletType<?> fromPersistentInt(Integer typeCode){
+		return typeByPersistentInt.get(typeCode);
 	}
 }

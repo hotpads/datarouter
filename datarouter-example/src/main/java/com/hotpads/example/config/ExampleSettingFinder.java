@@ -1,6 +1,6 @@
 package com.hotpads.example.config;
 
-import com.hotpads.setting.cluster.MemorySettingFinder;
+import com.hotpads.datarouter.setting.MemorySettingFinder;
 
 public class ExampleSettingFinder extends MemorySettingFinder{
 

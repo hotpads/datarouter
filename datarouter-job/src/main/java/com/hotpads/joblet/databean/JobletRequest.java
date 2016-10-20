@@ -25,7 +25,6 @@ import com.hotpads.datarouter.util.core.DrDateTool;
 import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrNumberTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
-import com.hotpads.handler.exception.ExceptionRecordKey;
 import com.hotpads.joblet.enums.JobletPriority;
 import com.hotpads.joblet.enums.JobletStatus;
 import com.hotpads.joblet.enums.JobletType;
@@ -48,6 +47,7 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 	private Integer numItems = 0;
 	private Integer numTasks = 0;
 	private String debug;
+	private String type;
 
 	//TODO remove these from the databean
 	private PhaseTimer timer = new PhaseTimer();
@@ -64,12 +64,12 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 		public static final StringFieldKey reservedBy = new StringFieldKey("reservedBy");
 		public static final LongFieldKey reservedAt = new LongFieldKey("reservedAt");
 		public static final BooleanFieldKey restartable = new BooleanFieldKey("restartable");
-		public static final StringFieldKey exceptionRecordId = new StringFieldKey("exceptionRecordId")
-				.withSize(ExceptionRecordKey.LENGTH_id);
+		public static final StringFieldKey exceptionRecordId = new StringFieldKey("exceptionRecordId");
 		public static final LongFieldKey jobletDataId = new LongFieldKey("jobletDataId");
 		public static final IntegerFieldKey numItems = new IntegerFieldKey("numItems");
 		public static final IntegerFieldKey numTasks = new IntegerFieldKey("numTasks");
 		public static final StringFieldKey debug = new StringFieldKey("debug");
+		public static final StringFieldKey type = new StringFieldKey("type");
 	}
 
 	public static class JobletRequestFielder extends BaseDatabeanFielder<JobletRequestKey, JobletRequest> {
@@ -91,7 +91,8 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 					new LongField(FieldKeys.jobletDataId, databean.jobletDataId),
 					new IntegerField(FieldKeys.numItems, databean.numItems),
 					new IntegerField(FieldKeys.numTasks, databean.numTasks),
-					new StringField(FieldKeys.debug, databean.debug));
+					new StringField(FieldKeys.debug, databean.debug),
+					new StringField(FieldKeys.type, databean.type));
 		}
 
 		@Override
@@ -110,6 +111,7 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 	public JobletRequest(JobletType<?> type, JobletPriority priority, Date createdDate, Integer batchSequence,
 			boolean restartable){
 		this.key = JobletRequestKey.create(type, priority.getExecutionOrder(), createdDate, batchSequence);
+		this.type = type.getPersistentString();
 		this.restartable = restartable;
 	}
 
@@ -131,7 +133,7 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 			JobletType<?> type, JobletStatus status, String reservedByPrefix){
 		ArrayList<JobletRequest> outs = new ArrayList<>();
 		for(JobletRequest in : DrIterableTool.nullSafe(ins)){
-			if(type.getPersistentString() != in.getTypeString()) {
+			if(type.getPersistentInt() != in.getKey().getTypeCode().intValue()) {
 				continue;
 			}
 			if(status != in.getStatus()) {
@@ -262,7 +264,7 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 	}
 
 	public String getTypeString(){
-		return key.getType();
+		return type;
 	}
 
 	public Long getJobletDataId(){
