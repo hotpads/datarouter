@@ -157,6 +157,10 @@ public final class DrDateTool {
 		return timeMs - timeMs % periodMs;
 	}
 
+	public static String getDateTime(Date date){
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		return dateFormat.format(date);
+	}
 
 	/************************ time elapsed *********************************/
 
