@@ -6,6 +6,7 @@ import com.hotpads.joblet.Joblet;
 import com.hotpads.joblet.JobletCodec;
 
 public class JobletType<P>{
+	private final int persistentInt;
 	private final String persistentString;
 	private final Supplier<JobletCodec<P>> codecSupplier;
 	private final Class<? extends Joblet<P>> clazz;
@@ -13,8 +14,9 @@ public class JobletType<P>{
 	private final Integer memoryPermits;
 	private final boolean causesScaling;
 
-	public JobletType(String persistentString, Supplier<JobletCodec<P>> codecSupplier, Class<? extends Joblet<P>> clazz,
-			Integer cpuPermits, Integer memoryPermits, boolean causesScaling){
+	public JobletType(int persistentInt, String persistentString, Supplier<JobletCodec<P>> codecSupplier,
+			Class<? extends Joblet<P>> clazz, Integer cpuPermits, Integer memoryPermits, boolean causesScaling){
+		this.persistentInt = persistentInt;
 		this.persistentString = persistentString;
 		this.codecSupplier = codecSupplier;
 		this.clazz = clazz;
@@ -29,13 +31,17 @@ public class JobletType<P>{
 
 	@Override
 	public String toString(){
-		return persistentString;
+		return getPersistentString();
 	}
 
 	/*-------------- get -------------------*/
 
 	public String getPersistentString(){
 		return persistentString;
+	}
+
+	public int getPersistentInt(){
+		return persistentInt;
 	}
 
 	public Supplier<? extends JobletCodec<P>> getCodecSupplier(){

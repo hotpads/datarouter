@@ -44,7 +44,7 @@
 						<td>${s.numType}</td>
 						<td>
 							<c:if test="${s.numQueueIds > 0}">
-								<a href="joblets/queues?jobletType=${s.typeString}&executionOrder=${s.executionOrder}">${s.numQueueIds} queues</a>
+								<a href="joblets/queues?jobletType=${s.typeString}&jobletTypeCode=${s.typeCode}&executionOrder=${s.executionOrder}">${s.numQueueIds} queues</a>
 							</c:if>
 						</td>
 						<td>${s.firstReservedAgo}</td>

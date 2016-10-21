@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.config.Config;
+import com.hotpads.datarouter.config.Configs;
 import com.hotpads.datarouter.config.PutMethod;
 import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
@@ -68,11 +69,11 @@ public class JobletService{
 
 	public void submitJobletPackages(Collection<JobletPackage> jobletPackages){
 		String typeString = DrCollectionTool.getFirst(jobletPackages).getJobletRequest().getTypeString();
-		PhaseTimer timer = new PhaseTimer("insert " + jobletPackages.size() + typeString);
-		jobletNodes.jobletData().putMulti(JobletPackage.getJobletDatas(jobletPackages), null);
+		PhaseTimer timer = new PhaseTimer("insert " + jobletPackages.size() + " " + typeString);
+		jobletNodes.jobletData().putMulti(JobletPackage.getJobletDatas(jobletPackages), Configs.insertOrBust());
 		timer.add("inserted JobletData");
 		jobletPackages.forEach(JobletPackage::updateJobletDataIdReference);
-		jobletNodes.jobletRequest().putMulti(JobletPackage.getJobletRequests(jobletPackages), null);
+		jobletNodes.jobletRequest().putMulti(JobletPackage.getJobletRequests(jobletPackages), Configs.insertOrBust());
 		timer.add("inserted JobletRequest");
 		if(timer.getElapsedTimeBetweenFirstAndLastEvent() > 200){
 			logger.warn("slow insert joblets:{}", timer);

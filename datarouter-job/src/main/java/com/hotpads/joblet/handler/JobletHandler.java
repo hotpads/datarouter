@@ -94,11 +94,12 @@ public class JobletHandler extends BaseHandler{
 	}
 
 	@Handler
-	private Mav queues(String jobletType, int executionOrder){
+	private Mav queues(String jobletType, int jobletTypeCode, int executionOrder){
 		Mav mav = new Mav(JSP_queues);
+		mav.put("jobletTypeCode", jobletTypeCode);
 		mav.put("jobletType", jobletType);
 		mav.put("executionOrder", executionOrder);
-		JobletRequestKey prefix = new JobletRequestKey(jobletType, executionOrder, null, null);
+		JobletRequestKey prefix = new JobletRequestKey(jobletTypeCode, executionOrder, null, null);
 		Stream<JobletRequest> requests = jobletNodes.jobletRequest().streamWithPrefix(prefix, null);
 		mav.put("summaries", JobletSummary.summarizeByQueueStatus(requests).values());
 		return mav;
@@ -186,8 +187,8 @@ public class JobletHandler extends BaseHandler{
 
 	@Handler
 	private Mav restartExecutor(){
-		String jobletType = params.required("jobletType");
-		parallelJobletProcessors.restartExecutor(jobletType);
+		Integer jobletTypeCode = params.requiredInteger("jobletTypeCode");
+		parallelJobletProcessors.restartExecutor(jobletTypeCode);
 		return new InContextRedirectMav(params, URL_JOBLETS_IN_CONTEXT);
 	}
 

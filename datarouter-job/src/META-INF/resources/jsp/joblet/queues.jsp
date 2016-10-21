@@ -11,7 +11,7 @@
 	<%@ include file="/jsp/joblet/jobletsNavbar.jspf" %>
 	<div class="container-fluid">
 		<div class="page-content-container page-content-thicktop page-single-column">
-			jobletType: ${jobletType}, executionOrder: ${executionOrder}<br/><br/>
+			jobletType: ${jobletType} (${jobletTypeCode}), executionOrder: ${executionOrder}<br/><br/>
 			<table class="sortable table table-bordered table-condensed" style="border-collapse:collapse;">
 				<tr>
 					<th>queueId</th>
