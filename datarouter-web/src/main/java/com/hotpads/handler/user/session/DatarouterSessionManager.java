@@ -4,6 +4,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -11,6 +12,7 @@ import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.handler.CookieTool;
 import com.hotpads.handler.user.authenticate.config.DatarouterAuthenticationConfig;
 
+@Singleton
 public class DatarouterSessionManager{
 
 	@Inject
