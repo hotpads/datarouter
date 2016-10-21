@@ -35,7 +35,7 @@ public class ClientAvailabilitySettings extends SettingNode{
 			if(clients.getDisableable(name)){
 				return registerBoolean(name, true);
 			}
-			return new ConstantBooleanSetting(true);
+			return ConstantBooleanSetting.TRUE;
 		});
 	}
 
