@@ -21,6 +21,7 @@ import com.hotpads.datarouter.storage.field.imp.comparable.LongField;
 import com.hotpads.datarouter.storage.field.imp.comparable.LongFieldKey;
 import com.hotpads.datarouter.storage.field.imp.enums.StringEnumField;
 import com.hotpads.datarouter.storage.field.imp.enums.StringEnumFieldKey;
+import com.hotpads.datarouter.storage.queue.QueueMessageKey;
 import com.hotpads.datarouter.util.core.DrDateTool;
 import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrNumberTool;
@@ -48,6 +49,7 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 	private Integer numTasks = 0;
 	private String debug;
 	private String type;
+	private QueueMessageKey queueMessageKey;//transient
 
 	//TODO remove these from the databean
 	private PhaseTimer timer = new PhaseTimer();
@@ -309,6 +311,14 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 
 	public void setTimer(PhaseTimer timer){
 		this.timer = timer;
+	}
+
+	public QueueMessageKey getQueueMessageKey(){
+		return queueMessageKey;
+	}
+
+	public void setQueueMessageKey(QueueMessageKey queueMessageKey){
+		this.queueMessageKey = queueMessageKey;
 	}
 
 }

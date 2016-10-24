@@ -2,6 +2,7 @@ package com.hotpads.joblet;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -15,6 +16,8 @@ import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.config.Configs;
 import com.hotpads.datarouter.config.PutMethod;
 import com.hotpads.datarouter.routing.Datarouter;
+import com.hotpads.datarouter.storage.databean.Databean;
+import com.hotpads.datarouter.storage.queue.QueueMessage;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.handler.exception.ExceptionRecord;
 import com.hotpads.handler.exception.ExceptionRecorder;
@@ -29,6 +32,7 @@ import com.hotpads.joblet.enums.JobletQueueMechanism;
 import com.hotpads.joblet.enums.JobletStatus;
 import com.hotpads.joblet.enums.JobletType;
 import com.hotpads.joblet.enums.JobletTypeFactory;
+import com.hotpads.joblet.execute.ParallelJobletProcessor;
 import com.hotpads.joblet.jdbc.GetJobletRequest;
 import com.hotpads.joblet.jdbc.JobletRequestSqlBuilder;
 import com.hotpads.joblet.jdbc.ReserveJobletRequest;
@@ -120,24 +124,26 @@ public class JobletService{
 
 	/*--------------------- get for processing ---------------------*/
 
-	public JobletRequest getJobletRequestForProcessing(JobletType<?> type, String reservedBy){
+	public JobletRequest getJobletRequestForProcessing(JobletType<?> type, JobletPriority startAtPriority,
+			String reservedBy){
 		long startMs = System.currentTimeMillis();
-		JobletRequest jobletRequest;
+		Optional<JobletRequest> jobletRequest;
 		JobletQueueMechanism queueMechanism = jobletSettings.getQueueMechanismEnum();
 		if(JobletQueueMechanism.JDBC_LOCK_FOR_UPDATE == queueMechanism){
-			jobletRequest = getJobletRequestByGetOp(type, reservedBy);
+			jobletRequest = Optional.ofNullable(getJobletRequestByGetOp(type, reservedBy));
 		}else if(JobletQueueMechanism.JDBC_UPDATE_AND_SCAN == queueMechanism){
-			jobletRequest = getJobletRequestByReserveOp(type, reservedBy);
+			jobletRequest = Optional.ofNullable(getJobletRequestByReserveOp(type, reservedBy));
+		}else if(JobletQueueMechanism.SQS == queueMechanism){
+			jobletRequest = getJobletRequestFromQueues(type, startAtPriority, reservedBy);
 		}else{
 			throw new IllegalStateException("unknown JobletQueueMechanism");
 		}
 		long durationMs = System.currentTimeMillis() - startMs;
 		if(durationMs > 200){
-			String message = jobletRequest == null ? "none" : jobletRequest.getKey().toString();
-			logger.warn("slow get joblet type={}, durationMs={}, got {}", type, durationMs,
-					message);
+			String message = jobletRequest.map(Databean::getKey).map(Object::toString).orElse("none");
+			logger.warn("slow get joblet type={}, durationMs={}, got {}", type, durationMs, message);
 		}
-		return jobletRequest;
+		return jobletRequest.orElse(null);
 	}
 
 	private JobletRequest getJobletRequestByGetOp(JobletType<?> type, String reservedBy){
@@ -178,6 +184,32 @@ public class JobletService{
 			//loop around for another
 		}
 		return null;
+	}
+
+	private Optional<JobletRequest> getJobletRequestFromQueues(JobletType<?> type, JobletPriority startAtPriority,
+			String reservedBy){
+		for(JobletPriority priority : JobletPriority.values()){
+			if(priority.compareTo(startAtPriority) < 0){
+				continue;
+			}
+			JobletRequestQueueKey queueKey = new JobletRequestQueueKey(type, priority);
+			// set timeout to 0 so we return immediately. processor threads can do the waiting
+			Config config = new Config().setTimeoutMs(0L)
+					.setVisibilityTimeoutMs(ParallelJobletProcessor.RUNNING_JOBLET_TIMEOUT_MS);
+			QueueMessage<JobletRequestKey,JobletRequest> message = jobletNodes.jobletRequestQueueByKey().get(queueKey)
+					.peek(config);
+			if(message == null){
+				continue;
+			}
+			JobletRequest jobletRequest = message.getDatabean();
+			jobletRequest.setQueueMessageKey(message.getKey());
+			jobletRequest.setReservedBy(reservedBy);
+			jobletRequest.setReservedAt(System.currentTimeMillis());
+			jobletRequest.setStatus(JobletStatus.running);
+			jobletNodes.jobletRequest().put(jobletRequest, null);
+			return Optional.of(jobletRequest);
+		}
+		return Optional.empty();
 	}
 
 	/*------------------- update ----------------------------*/
@@ -234,6 +266,11 @@ public class JobletService{
 	}
 
 	public void handleJobletCompletion(JobletRequest jobletRequest){
+		if(jobletRequest.getQueueMessageKey() != null){
+			JobletType<?> type = jobletTypeFactory.fromJobletRequest(jobletRequest);
+			JobletRequestQueueKey queueKey = new JobletRequestQueueKey(type, jobletRequest.getKey().getPriority());
+			jobletNodes.jobletRequestQueueByKey().get(queueKey).ack(jobletRequest.getQueueMessageKey(), null);
+		}
 		deleteJobletRequestAndData(jobletRequest);
 	}
 
