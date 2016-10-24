@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.BinaryOperator;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -37,6 +38,12 @@ public class StreamTool{
 	public static <T> Stream<T> flatten(Stream<Stream<T>> streams){
 		return streams.reduce(Stream.empty(), Stream::concat);
 	}
+
+    public static <V> BinaryOperator<V> throwingMerger() {
+		return (v1, v2) -> {
+			throw new IllegalStateException(String.format("Duplicate key for values %s and %s", v1, v2));
+		};
+    }
 
 	/************** Tests *******************/
 
