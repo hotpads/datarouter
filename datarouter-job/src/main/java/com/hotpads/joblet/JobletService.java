@@ -82,7 +82,7 @@ public class JobletService{
 		timer.add("inserted JobletRequest");
 		for(JobletPackage jobletPackage : jobletPackages){
 			JobletRequest jobletRequest = jobletPackage.getJobletRequest();
-			JobletRequestQueueKey queueKey = jobletTypeFactory.getJobletRequestQueueKey(jobletRequest);
+			JobletRequestQueueKey queueKey = jobletTypeFactory.getQueueKey(jobletRequest);
 			jobletNodes.jobletRequestQueueByKey().get(queueKey).put(jobletRequest, null);
 		}
 		if(timer.getElapsedTimeBetweenFirstAndLastEvent() > 200){
@@ -271,7 +271,7 @@ public class JobletService{
 
 	public void handleJobletCompletion(JobletRequest jobletRequest){
 		if(jobletRequest.getQueueMessageKey() != null){
-			JobletRequestQueueKey queueKey = jobletTypeFactory.getJobletRequestQueueKey(jobletRequest);
+			JobletRequestQueueKey queueKey = jobletTypeFactory.getQueueKey(jobletRequest);
 			jobletNodes.jobletRequestQueueByKey().get(queueKey).ack(jobletRequest.getQueueMessageKey(), null);
 		}
 		deleteJobletRequestAndData(jobletRequest);
@@ -281,7 +281,7 @@ public class JobletService{
 		if(jobletRequest.getQueueMessageKey() == null){
 			return;
 		}
-		JobletRequestQueueKey queueKey = jobletTypeFactory.getJobletRequestQueueKey(jobletRequest);
+		JobletRequestQueueKey queueKey = jobletTypeFactory.getQueueKey(jobletRequest);
 		//rather than ack/put, is there an ack(false) mechanism?
 		jobletNodes.jobletRequestQueueByKey().get(queueKey).ack(jobletRequest.getQueueMessageKey(), null);
 		jobletNodes.jobletRequestQueueByKey().get(queueKey).put(jobletRequest, null);

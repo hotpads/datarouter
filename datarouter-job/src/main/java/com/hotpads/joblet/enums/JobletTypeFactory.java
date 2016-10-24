@@ -81,8 +81,18 @@ public class JobletTypeFactory{
 
 	/*------------------- methods --------------------*/
 
-	public JobletRequestQueueKey getJobletRequestQueueKey(JobletRequest jobletRequest){
+	public JobletRequestQueueKey getQueueKey(JobletRequest jobletRequest){
 		return new JobletRequestQueueKey(fromJobletRequest(jobletRequest), jobletRequest.getKey().getPriority());
+	}
+
+	public List<JobletRequestQueueKey> getAllQueueKeys(){
+		List<JobletRequestQueueKey> queueKeys = new ArrayList<>();
+		for(JobletType<?> type : allTypes){
+			for(JobletPriority priority : JobletPriority.values()){
+				queueKeys.add(new JobletRequestQueueKey(type, priority));
+			}
+		}
+		return queueKeys;
 	}
 
 }
