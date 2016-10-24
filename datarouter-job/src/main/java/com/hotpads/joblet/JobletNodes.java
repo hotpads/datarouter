@@ -14,6 +14,6 @@ public interface JobletNodes{
 
 	IndexedSortedMapStorageNode<JobletRequestKey,JobletRequest> jobletRequest();
 	SortedMapStorage<JobletDataKey,JobletData> jobletData();
-	Map<JobletRequestQueueKey,QueueStorage<?,?>> jobletRequestQueueByKey();
+	Map<JobletRequestQueueKey,QueueStorage<JobletRequestKey,JobletRequest>> jobletRequestQueueByKey();
 
 }

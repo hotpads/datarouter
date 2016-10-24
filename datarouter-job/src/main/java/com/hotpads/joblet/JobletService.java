@@ -24,6 +24,7 @@ import com.hotpads.joblet.databean.JobletData;
 import com.hotpads.joblet.databean.JobletDataKey;
 import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.databean.JobletRequestKey;
+import com.hotpads.joblet.enums.JobletPriority;
 import com.hotpads.joblet.enums.JobletQueueMechanism;
 import com.hotpads.joblet.enums.JobletStatus;
 import com.hotpads.joblet.enums.JobletType;
@@ -75,6 +76,13 @@ public class JobletService{
 		jobletPackages.forEach(JobletPackage::updateJobletDataIdReference);
 		jobletNodes.jobletRequest().putMulti(JobletPackage.getJobletRequests(jobletPackages), Configs.insertOrBust());
 		timer.add("inserted JobletRequest");
+		for(JobletPackage jobletPackage : jobletPackages){
+			JobletRequest request = jobletPackage.getJobletRequest();
+			JobletType<?> type = jobletTypeFactory.fromJobletRequest(request);
+			JobletPriority priority = request.getKey().getPriority();
+			JobletRequestQueueKey queueKey = new JobletRequestQueueKey(type, priority);
+			jobletNodes.jobletRequestQueueByKey().get(queueKey).put(request, null);
+		}
 		if(timer.getElapsedTimeBetweenFirstAndLastEvent() > 200){
 			logger.warn("slow insert joblets:{}", timer);
 		}

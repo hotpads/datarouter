@@ -8,12 +8,15 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.inject.Singleton;
+
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.joblet.Joblet;
 import com.hotpads.joblet.JobletPackage;
 import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.databean.JobletRequestKey;
 
+@Singleton
 public class JobletTypeFactory{
 
 	private final List<JobletType<?>> allTypes;
