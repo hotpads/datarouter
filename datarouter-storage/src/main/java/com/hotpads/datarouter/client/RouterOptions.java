@@ -61,7 +61,7 @@ public class RouterOptions extends TypedProperties{
 	}
 
 	public boolean getDisableable(String clientName){
-		return getBoolean(prependClientPrefix(clientName, "disableable"), false);
+		return getBoolean(prependClientPrefix(clientName, "disableable"), true);
 	}
 
 	public String getMode(String routerName){

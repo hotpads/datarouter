@@ -39,8 +39,9 @@ public abstract class SettingNode {
 
 	/*********** methods ***********/
 
-	protected void registerChild(SettingNode child){
-		children.put(child.name, child);
+	protected <N extends SettingNode> N registerChild(N child){
+		children.put(child.getName(), child);
+		return child;
 	}
 
 	private <S extends Setting<?>> S register(S setting){
