@@ -13,6 +13,7 @@ import javax.inject.Singleton;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.joblet.Joblet;
 import com.hotpads.joblet.JobletPackage;
+import com.hotpads.joblet.JobletRequestQueueKey;
 import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.databean.JobletRequestKey;
 
@@ -56,7 +57,6 @@ public class JobletTypeFactory{
 		return typesCausingScaling;
 	}
 
-
 	/*--------------------- parse persistent string ----------------*/
 
 	public JobletType<?> fromJoblet(Joblet<?> joblet){
@@ -78,4 +78,11 @@ public class JobletTypeFactory{
 	public JobletType<?> fromPersistentInt(Integer typeCode){
 		return typeByPersistentInt.get(typeCode);
 	}
+
+	/*------------------- methods --------------------*/
+
+	public JobletRequestQueueKey getJobletRequestQueueKey(JobletRequest jobletRequest){
+		return new JobletRequestQueueKey(fromJobletRequest(jobletRequest), jobletRequest.getKey().getPriority());
+	}
+
 }

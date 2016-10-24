@@ -81,11 +81,9 @@ public class JobletService{
 		jobletNodes.jobletRequest().putMulti(JobletPackage.getJobletRequests(jobletPackages), Configs.insertOrBust());
 		timer.add("inserted JobletRequest");
 		for(JobletPackage jobletPackage : jobletPackages){
-			JobletRequest request = jobletPackage.getJobletRequest();
-			JobletType<?> type = jobletTypeFactory.fromJobletRequest(request);
-			JobletPriority priority = request.getKey().getPriority();
-			JobletRequestQueueKey queueKey = new JobletRequestQueueKey(type, priority);
-			jobletNodes.jobletRequestQueueByKey().get(queueKey).put(request, null);
+			JobletRequest jobletRequest = jobletPackage.getJobletRequest();
+			JobletRequestQueueKey queueKey = jobletTypeFactory.getJobletRequestQueueKey(jobletRequest);
+			jobletNodes.jobletRequestQueueByKey().get(queueKey).put(jobletRequest, null);
 		}
 		if(timer.getElapsedTimeBetweenFirstAndLastEvent() > 200){
 			logger.warn("slow insert joblets:{}", timer);
@@ -202,6 +200,10 @@ public class JobletService{
 				continue;
 			}
 			JobletRequest jobletRequest = message.getDatabean();
+			if(!jobletNodes.jobletRequest().exists(jobletRequest.getKey(), null)){
+				logger.warn("not processing non-existent JobletRequest {}", jobletRequest);
+				jobletNodes.jobletRequestQueueByKey().get(queueKey).ack(message.getKey(), null);
+			}
 			jobletRequest.setQueueMessageKey(message.getKey());
 			jobletRequest.setReservedBy(reservedBy);
 			jobletRequest.setReservedAt(System.currentTimeMillis());
@@ -245,9 +247,10 @@ public class JobletService{
 		jobletRequest.setReservedAt(null);
 		JobletStatus setStatusTo = jobletRequest.getRestartable() ? JobletStatus.created : JobletStatus.interrupted;
 		jobletRequest.setStatus(setStatusTo);
+		requeueJobletRequest(jobletRequest);
+		jobletNodes.jobletRequest().put(jobletRequest, new Config().setPutMethod(PutMethod.UPDATE_OR_BUST));
 		logger.warn("interrupted {}, set status={}, reservedBy=null, reservedAt=null", jobletRequest.getKey(),
 				setStatusTo);
-		jobletNodes.jobletRequest().put(jobletRequest, new Config().setPutMethod(PutMethod.UPDATE_OR_BUST));
 	}
 
 	public void handleJobletError(JobletRequest jobletRequest, Exception exception, String location){
@@ -262,16 +265,26 @@ public class JobletService{
 		jobletRequest.setExceptionRecordId(exceptionRecord.getKey().getId());
 		jobletRequest.setReservedBy(null);
 		jobletRequest.setReservedAt(null);
+		requeueJobletRequest(jobletRequest);
 		jobletNodes.jobletRequest().put(jobletRequest, new Config().setPutMethod(PutMethod.UPDATE_OR_BUST));
 	}
 
 	public void handleJobletCompletion(JobletRequest jobletRequest){
 		if(jobletRequest.getQueueMessageKey() != null){
-			JobletType<?> type = jobletTypeFactory.fromJobletRequest(jobletRequest);
-			JobletRequestQueueKey queueKey = new JobletRequestQueueKey(type, jobletRequest.getKey().getPriority());
+			JobletRequestQueueKey queueKey = jobletTypeFactory.getJobletRequestQueueKey(jobletRequest);
 			jobletNodes.jobletRequestQueueByKey().get(queueKey).ack(jobletRequest.getQueueMessageKey(), null);
 		}
 		deleteJobletRequestAndData(jobletRequest);
+	}
+
+	private void requeueJobletRequest(JobletRequest jobletRequest){
+		if(jobletRequest.getQueueMessageKey() == null){
+			return;
+		}
+		JobletRequestQueueKey queueKey = jobletTypeFactory.getJobletRequestQueueKey(jobletRequest);
+		//rather than ack/put, is there an ack(false) mechanism?
+		jobletNodes.jobletRequestQueueByKey().get(queueKey).ack(jobletRequest.getQueueMessageKey(), null);
+		jobletNodes.jobletRequestQueueByKey().get(queueKey).put(jobletRequest, null);
 	}
 
 }
