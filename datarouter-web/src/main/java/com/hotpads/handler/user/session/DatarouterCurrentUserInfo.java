@@ -19,7 +19,8 @@ public class DatarouterCurrentUserInfo implements CurrentUserInfo{
 	@Override
 	public String getEmail(HttpServletRequest request){
 		String userToken = sessionManager.getUserTokenFromCookie(request);
-		DatarouterUser user = userNodes.getUserNode().lookupUnique(new DatarouterUserByUserTokenLookup(userToken), null);
+		DatarouterUser user = userNodes.getUserNode().lookupUnique(new DatarouterUserByUserTokenLookup(userToken),
+				null);
 		return user.getUsername();
 	}
 
