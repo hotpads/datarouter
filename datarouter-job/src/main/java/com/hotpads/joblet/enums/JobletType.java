@@ -2,10 +2,11 @@ package com.hotpads.joblet.enums;
 
 import java.util.function.Supplier;
 
+import com.hotpads.datarouter.util.core.DrComparableTool;
 import com.hotpads.joblet.Joblet;
 import com.hotpads.joblet.JobletCodec;
 
-public class JobletType<P>{
+public class JobletType<P> implements Comparable<JobletType<?>>{
 	private final int persistentInt;
 	private final String persistentString;
 	private final Supplier<JobletCodec<P>> codecSupplier;
@@ -32,6 +33,13 @@ public class JobletType<P>{
 	@Override
 	public String toString(){
 		return getPersistentString();
+	}
+
+	/*-------------- Comparable ---------------*/
+
+	@Override
+	public int compareTo(JobletType<?> other){
+		return DrComparableTool.nullFirstCompareTo(this.persistentString, other.persistentString);
 	}
 
 	/*-------------- get -------------------*/
