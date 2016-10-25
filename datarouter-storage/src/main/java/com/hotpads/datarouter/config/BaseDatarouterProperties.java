@@ -19,7 +19,7 @@ public abstract class BaseDatarouterProperties implements DatarouterProperties{
 		this.properties = DrPropertiesTool.parse(path);
 		validatePropertyValue(SERVER_PUBLIC_IP, getServerPublicIp());
 		validatePropertyValue(SERVER_NAME, getServerName());
-		validatePropertyValue(SERVER_TYPE, getServerType());
+		validatePropertyValue(SERVER_TYPE, getServerTypeString());
 		validatePropertyValue(ADMINISTRATOR_EMAIL, getAdministratorEmail());
 	}
 
@@ -40,7 +40,7 @@ public abstract class BaseDatarouterProperties implements DatarouterProperties{
 	}
 
 	@Override
-	public String getServerType(){
+	public String getServerTypeString(){
 		return properties.getProperty(SERVER_TYPE);
 	}
 

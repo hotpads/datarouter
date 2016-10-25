@@ -54,8 +54,8 @@ public class ClientAvailabilitySettings extends SettingNode{
 				read = registerBoolean(READ, true);
 				write = registerBoolean(WRITE, true);
 			}else{
-				read = new ConstantBooleanSetting(true);
-				write = new ConstantBooleanSetting(true);
+				read = ConstantBooleanSetting.TRUE;
+				write = ConstantBooleanSetting.TRUE;
 			}
 
 		}
