@@ -5,5 +5,5 @@ import com.hotpads.server.databean.WebAppInstance;
 import com.hotpads.server.databean.WebAppInstanceKey;
 
 public interface WebAppInstanceNodes{
-	SortedMapStorageNode<WebAppInstanceKey,WebAppInstance> getWebAppInstances();
+	SortedMapStorageNode<WebAppInstanceKey,WebAppInstance> getWebAppInstance();
 }

@@ -17,7 +17,7 @@ public class SettinglessNodeFactory extends BaseNodeFactory{
 
 	@Override
 	protected Setting<Boolean> getRecordCallsites(){
-		return new ConstantBooleanSetting(false);
+		return ConstantBooleanSetting.FALSE;
 	}
 
 }
