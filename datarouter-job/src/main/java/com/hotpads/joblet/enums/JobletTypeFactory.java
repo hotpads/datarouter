@@ -15,7 +15,6 @@ import com.hotpads.joblet.Joblet;
 import com.hotpads.joblet.JobletPackage;
 import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.databean.JobletRequestKey;
-import com.hotpads.joblet.queue.JobletRequestQueueKey;
 
 @Singleton
 public class JobletTypeFactory{
@@ -77,22 +76,6 @@ public class JobletTypeFactory{
 
 	public JobletType<?> fromPersistentInt(Integer typeCode){
 		return typeByPersistentInt.get(typeCode);
-	}
-
-	/*------------------- methods --------------------*/
-
-	public JobletRequestQueueKey getQueueKey(JobletRequest jobletRequest){
-		return new JobletRequestQueueKey(fromJobletRequest(jobletRequest), jobletRequest.getKey().getPriority());
-	}
-
-	public List<JobletRequestQueueKey> getAllQueueKeys(){
-		List<JobletRequestQueueKey> queueKeys = new ArrayList<>();
-		for(JobletType<?> type : allTypes){
-			for(JobletPriority priority : JobletPriority.values()){
-				queueKeys.add(new JobletRequestQueueKey(type, priority));
-			}
-		}
-		return queueKeys;
 	}
 
 }

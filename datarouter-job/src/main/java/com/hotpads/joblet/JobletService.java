@@ -31,11 +31,11 @@ import com.hotpads.joblet.enums.JobletPriority;
 import com.hotpads.joblet.enums.JobletQueueMechanism;
 import com.hotpads.joblet.enums.JobletStatus;
 import com.hotpads.joblet.enums.JobletType;
-import com.hotpads.joblet.enums.JobletTypeFactory;
 import com.hotpads.joblet.execute.ParallelJobletProcessor;
 import com.hotpads.joblet.jdbc.GetJobletRequest;
 import com.hotpads.joblet.jdbc.JobletRequestSqlBuilder;
 import com.hotpads.joblet.jdbc.ReserveJobletRequest;
+import com.hotpads.joblet.queue.JobletQueueManager;
 import com.hotpads.joblet.queue.JobletRequestQueueKey;
 import com.hotpads.joblet.setting.JobletSettings;
 import com.hotpads.util.core.collections.Range;
@@ -49,7 +49,7 @@ public class JobletService{
 	public static final int MAX_JOBLET_RETRIES = 10;
 
 	private final Datarouter datarouter;
-	private final JobletTypeFactory jobletTypeFactory;
+	private final JobletQueueManager jobletQueueManager;
 	private final JobletNodes jobletNodes;
 	private final ExceptionRecorder exceptionRecorder;
 	private final JdbcFieldCodecFactory jdbcFieldCodecFactory;
@@ -58,12 +58,12 @@ public class JobletService{
 	private final JobletSettings jobletSettings;
 
 	@Inject
-	public JobletService(Datarouter datarouter, JobletTypeFactory jobletTypeFactory, JobletNodes jobletNodes,
+	public JobletService(Datarouter datarouter, JobletQueueManager jobletQueueManager, JobletNodes jobletNodes,
 			ExceptionRecorder exceptionRecorder, JdbcFieldCodecFactory jdbcFieldCodecFactory,
 			JobletRequestSqlBuilder jobletRequestSqlBuilder, JobletRequestDao jobletRequestDao,
 			JobletSettings jobletSettings){
 		this.datarouter = datarouter;
-		this.jobletTypeFactory = jobletTypeFactory;
+		this.jobletQueueManager = jobletQueueManager;
 		this.jobletNodes = jobletNodes;
 		this.exceptionRecorder = exceptionRecorder;
 		this.jdbcFieldCodecFactory = jdbcFieldCodecFactory;
@@ -84,7 +84,7 @@ public class JobletService{
 		timer.add("inserted JobletRequest");
 		for(JobletPackage jobletPackage : jobletPackages){
 			JobletRequest jobletRequest = jobletPackage.getJobletRequest();
-			JobletRequestQueueKey queueKey = jobletTypeFactory.getQueueKey(jobletRequest);
+			JobletRequestQueueKey queueKey = jobletQueueManager.getQueueKey(jobletRequest);
 			jobletNodes.jobletRequestQueueByKey().get(queueKey).put(jobletRequest, null);
 		}
 		if(timer.getElapsedTimeBetweenFirstAndLastEvent() > 200){
@@ -273,7 +273,7 @@ public class JobletService{
 
 	public void handleJobletCompletion(JobletRequest jobletRequest){
 		if(jobletRequest.getQueueMessageKey() != null){
-			JobletRequestQueueKey queueKey = jobletTypeFactory.getQueueKey(jobletRequest);
+			JobletRequestQueueKey queueKey = jobletQueueManager.getQueueKey(jobletRequest);
 			jobletNodes.jobletRequestQueueByKey().get(queueKey).ack(jobletRequest.getQueueMessageKey(), null);
 		}
 		deleteJobletRequestAndData(jobletRequest);
@@ -283,7 +283,7 @@ public class JobletService{
 		if(jobletRequest.getQueueMessageKey() == null){
 			return;
 		}
-		JobletRequestQueueKey queueKey = jobletTypeFactory.getQueueKey(jobletRequest);
+		JobletRequestQueueKey queueKey = jobletQueueManager.getQueueKey(jobletRequest);
 		//rather than ack/put, is there an ack(false) mechanism?
 		jobletNodes.jobletRequestQueueByKey().get(queueKey).ack(jobletRequest.getQueueMessageKey(), null);
 		jobletNodes.jobletRequestQueueByKey().get(queueKey).put(jobletRequest, null);
