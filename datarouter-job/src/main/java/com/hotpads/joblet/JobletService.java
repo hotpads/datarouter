@@ -124,14 +124,14 @@ public class JobletService{
 
 	/*--------------------- get for processing ---------------------*/
 
-	public JobletRequest getJobletRequestForProcessing(JobletType<?> type, String reservedBy){
+	public Optional<JobletRequest> getJobletRequestForProcessing(JobletType<?> type, String reservedBy){
 		long startMs = System.currentTimeMillis();
 		Optional<JobletRequest> jobletRequest;
 		JobletQueueMechanism queueMechanism = jobletSettings.getQueueMechanismEnum();
 		if(JobletQueueMechanism.JDBC_LOCK_FOR_UPDATE == queueMechanism){
-			jobletRequest = Optional.ofNullable(getJobletRequestByGetOp(type, reservedBy));
+			jobletRequest = getJobletRequestByGetOp(type, reservedBy);
 		}else if(JobletQueueMechanism.JDBC_UPDATE_AND_SCAN == queueMechanism){
-			jobletRequest = Optional.ofNullable(getJobletRequestByReserveOp(type, reservedBy));
+			jobletRequest = getJobletRequestByReserveOp(type, reservedBy);
 		}else if(JobletQueueMechanism.SQS == queueMechanism){
 			jobletRequest = getJobletRequestFromQueues(type, reservedBy);
 		}else{
@@ -142,25 +142,25 @@ public class JobletService{
 			String message = jobletRequest.map(Databean::getKey).map(Object::toString).orElse("none");
 			logger.warn("slow get joblet type={}, durationMs={}, got {}", type, durationMs, message);
 		}
-		return jobletRequest.orElse(null);
+		return jobletRequest;
 	}
 
-	private JobletRequest getJobletRequestByGetOp(JobletType<?> type, String reservedBy){
+	private Optional<JobletRequest> getJobletRequestByGetOp(JobletType<?> type, String reservedBy){
 		while(true){
 			GetJobletRequest jdbcOp = new GetJobletRequest(reservedBy, type, datarouter, jobletNodes,
 					jdbcFieldCodecFactory, jobletRequestSqlBuilder);
 			JobletRequest jobletRequest = datarouter.run(jdbcOp);
 			if(jobletRequest == null){
-				return null;
+				return Optional.empty();
 			}
 			if( ! jobletRequest.getStatus().isRunning()){
 				continue;//weird flow.  it was probably just marked as timedOut, so skip it
 			}
-			return jobletRequest;
+			return Optional.of(jobletRequest);
 		}
 	}
 
-	private JobletRequest getJobletRequestByReserveOp(JobletType<?> type, String reservedBy){
+	private Optional<JobletRequest> getJobletRequestByReserveOp(JobletType<?> type, String reservedBy){
 		ReserveJobletRequest jdbcOp = new ReserveJobletRequest(reservedBy, type, datarouter, jobletNodes,
 				jobletRequestSqlBuilder);
 		while(datarouter.run(jdbcOp)){//returns false if no joblet found
@@ -168,21 +168,21 @@ public class JobletService{
 			if(JobletStatus.created == jobletRequest.getStatus()){
 				jobletRequest.setStatus(JobletStatus.running);
 				jobletNodes.jobletRequest().put(jobletRequest, null);
-				return jobletRequest;
+				return Optional.of(jobletRequest);
 			}
 
 			//we got a previously timed-out joblet
 			jobletRequest.incrementNumTimeouts();
 			if(jobletRequest.getNumTimeouts() <= MAX_JOBLET_RETRIES){
 				jobletNodes.jobletRequest().put(jobletRequest, null);
-				return jobletRequest;
+				return Optional.of(jobletRequest);
 			}
 
 			jobletRequest.setStatus(JobletStatus.timedOut);
 			jobletNodes.jobletRequest().put(jobletRequest, null);
 			//loop around for another
 		}
-		return null;
+		return Optional.empty();
 	}
 
 	private Optional<JobletRequest> getJobletRequestFromQueues(JobletType<?> type, String reservedBy){
