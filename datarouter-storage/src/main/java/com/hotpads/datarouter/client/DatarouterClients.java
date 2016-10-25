@@ -6,10 +6,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.NavigableSet;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -55,7 +55,7 @@ public class DatarouterClients{
 	//not injected
 	private final Set<String> configFilePaths;
 	private final Collection<Properties> multiProperties;
-	private final NavigableSet<ClientId> clientIds;
+	private final Map<String,ClientId> clientIdByClientName;
 	private final Map<String,LazyClientProvider> lazyClientProviderByName;
 	private final ExecutorService executorService;
 
@@ -70,7 +70,7 @@ public class DatarouterClients{
 		this.executorService = executorService;
 		this.configFilePaths = new TreeSet<>();
 		this.multiProperties = new ArrayList<>();
-		this.clientIds = new TreeSet<>();
+		this.clientIdByClientName = new TreeMap<>();
 		this.lazyClientProviderByName = new ConcurrentHashMap<>();
 		this.routerOptions = new RouterOptions(multiProperties);
 	}
@@ -84,7 +84,7 @@ public class DatarouterClients{
 	}
 
 	public Stream<LazyClientProvider> registerClientIds(Datarouter context, Collection<ClientId> clientIdsToAdd) {
-		clientIds.addAll(clientIdsToAdd);
+		clientIdsToAdd.forEach(clientId -> clientIdByClientName.put(clientId.getName(), clientId));
 		return clientIdsToAdd.stream()
 				.map(ClientId::getName)
 				.map(name -> initClientFactoryIfNull(context, name));
@@ -99,10 +99,6 @@ public class DatarouterClients{
 	public ClientType getClientTypeInstance(String clientName){
 		Class<? extends ClientType> clientTypeClass = routerOptions.getClientType(clientName);
 		return injector.getInstance(clientTypeClass);
-	}
-
-	public boolean getDisableable(String clientName){
-		return routerOptions.getDisableable(clientName);
 	}
 
 	private synchronized LazyClientProvider initClientFactoryIfNull(Datarouter datarouter, String clientName) {
@@ -134,7 +130,7 @@ public class DatarouterClients{
 
 	/******************** getNames **********************************************/
 
-	private List<String> getClientNamesRequiringEagerInitialization(){
+	private Collection<String> getClientNamesRequiringEagerInitialization(){
 		String forceInitModeString = DrPropertiesTool.getFirstOccurrence(multiProperties, PREFIX_clients
 				+ PARAM_forceInitMode);
 		ClientInitMode forceInitMode = ClientInitMode.fromString(forceInitModeString, null);
@@ -164,12 +160,12 @@ public class DatarouterClients{
 
 	/********************************** access connection pools ******************************/
 
-	public NavigableSet<ClientId> getClientIds(){
-		return clientIds;
+	public ClientId getClientId(String clientName){
+		return clientIdByClientName.get(clientName);
 	}
 
-	public List<String> getClientNames(){
-		return ClientId.getNames(clientIds);
+	public Set<String> getClientNames(){
+		return clientIdByClientName.keySet();
 	}
 
 	public Map<Boolean,List<String>> getClientNamesByInitialized(){
@@ -199,7 +195,7 @@ public class DatarouterClients{
 	}
 
 	public List<Client> getAllClients(){
-		return getClients(ClientId.getNames(clientIds));
+		return getClients(getClientNames());
 	}
 
 	public Map<String,LazyClientProvider> getLazyClientProviderByName(){

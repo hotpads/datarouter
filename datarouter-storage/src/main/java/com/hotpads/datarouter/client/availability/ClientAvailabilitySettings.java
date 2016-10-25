@@ -37,7 +37,7 @@ public class ClientAvailabilitySettings extends SettingNode{
 
 	public AvailabilitySettingNode getAvailabilityForClientName(String clientName){
 		return availabilityByClientName.computeIfAbsent(clientName, name -> new AvailabilitySettingNode(name,
-				clients.getDisableable(name)));
+				clients.getClientId(name).getDisableable()));
 	}
 
 	public class AvailabilitySettingNode extends SettingNode{
