@@ -5,7 +5,6 @@ import java.util.Objects;
 import javax.inject.Singleton;
 
 import com.hotpads.datarouter.config.BaseDatarouterProperties;
-import com.hotpads.datarouter.setting.ServerType;
 import com.hotpads.datarouter.setting.StandardServerType;
 
 @Singleton
@@ -24,7 +23,7 @@ public class ExampleDatarouterProperties extends BaseDatarouterProperties{
 	}
 
 	@Override
-	public ServerType getServerType(){
+	public StandardServerType getServerType(){
 		return StandardServerType.fromPersistentStringStatic(Objects.requireNonNull(getServerTypeString()));
 	}
 
