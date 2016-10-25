@@ -187,7 +187,7 @@ public class JobletService{
 	private Optional<JobletRequest> getJobletRequestFromQueues(JobletType<?> type, JobletPriority startAtPriority,
 			String reservedBy){
 		for(JobletPriority priority : JobletPriority.values()){
-			if(priority.compareTo(startAtPriority) < 0){
+			if(startAtPriority != null && priority.compareTo(startAtPriority) < 0){
 				continue;
 			}
 			JobletRequestQueueKey queueKey = new JobletRequestQueueKey(type, priority);
