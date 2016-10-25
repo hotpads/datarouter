@@ -3,6 +3,7 @@ package com.hotpads.datarouter.client;
 import java.util.Optional;
 import java.util.concurrent.Future;
 
+import com.hotpads.datarouter.client.availability.ClientAvailabilitySettings.AvailabilitySettingNode;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 
 /**
@@ -23,7 +24,7 @@ extends Comparable<Client>{
 	String getName();
 	ClientType getType();
 	void shutdown();
-	boolean isAvailable();
+	AvailabilitySettingNode getAvailability();
 	Future<Optional<String>> notifyNodeRegistration(PhysicalNode<?,?> node);
 
 }
