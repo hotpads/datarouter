@@ -23,7 +23,6 @@ import com.hotpads.job.dispatcher.DatarouterJobDispatcher;
 import com.hotpads.joblet.JobletNodes;
 import com.hotpads.joblet.JobletPackage;
 import com.hotpads.joblet.JobletService;
-import com.hotpads.joblet.JobletSettings;
 import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.databean.JobletRequestKey;
 import com.hotpads.joblet.dto.JobletSummary;
@@ -36,6 +35,7 @@ import com.hotpads.joblet.execute.ParallelJobletProcessor;
 import com.hotpads.joblet.execute.ParallelJobletProcessors;
 import com.hotpads.joblet.jdbc.RestartJobletRequests;
 import com.hotpads.joblet.jdbc.TimeoutStuckRunningJobletRequests;
+import com.hotpads.joblet.setting.JobletSettings;
 import com.hotpads.joblet.test.SleepingJoblet;
 import com.hotpads.joblet.test.SleepingJoblet.SleepingJobletParams;
 

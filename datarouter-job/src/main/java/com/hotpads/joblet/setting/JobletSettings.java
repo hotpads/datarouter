@@ -1,4 +1,4 @@
-package com.hotpads.joblet;
+package com.hotpads.joblet.setting;
 
 import java.util.Objects;
 import java.util.Optional;
