@@ -13,9 +13,9 @@ import javax.inject.Singleton;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.joblet.Joblet;
 import com.hotpads.joblet.JobletPackage;
-import com.hotpads.joblet.JobletRequestQueueKey;
 import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.databean.JobletRequestKey;
+import com.hotpads.joblet.queue.JobletRequestQueueKey;
 
 @Singleton
 public class JobletTypeFactory{

@@ -36,6 +36,7 @@ import com.hotpads.joblet.execute.ParallelJobletProcessor;
 import com.hotpads.joblet.jdbc.GetJobletRequest;
 import com.hotpads.joblet.jdbc.JobletRequestSqlBuilder;
 import com.hotpads.joblet.jdbc.ReserveJobletRequest;
+import com.hotpads.joblet.queue.JobletRequestQueueKey;
 import com.hotpads.joblet.setting.JobletSettings;
 import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.profile.PhaseTimer;

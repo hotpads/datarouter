@@ -1,4 +1,4 @@
-package com.hotpads.joblet;
+package com.hotpads.joblet.queue;
 
 import java.util.Objects;
 
