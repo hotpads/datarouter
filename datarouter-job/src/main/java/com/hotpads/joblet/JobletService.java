@@ -193,6 +193,9 @@ public class JobletService{
 				continue;
 			}
 			JobletRequestQueueKey queueKey = new JobletRequestQueueKey(type, priority);
+			if(jobletQueueManager.shouldSkipQueue(queueKey)){
+				continue;
+			}
 			// set timeout to 0 so we return immediately. processor threads can do the waiting
 			Config config = new Config().setTimeoutMs(0L)
 					.setVisibilityTimeoutMs(ParallelJobletProcessor.RUNNING_JOBLET_TIMEOUT_MS);
@@ -201,6 +204,7 @@ public class JobletService{
 			if(message == null){
 				continue;
 			}
+			jobletQueueManager.onJobletRequestFound(queueKey);
 			JobletRequest jobletRequest = message.getDatabean();
 			if(!jobletNodes.jobletRequest().exists(jobletRequest.getKey(), null)){
 				logger.warn("not processing non-existent JobletRequest {}", jobletRequest);
