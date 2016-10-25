@@ -124,8 +124,7 @@ public class JobletService{
 
 	/*--------------------- get for processing ---------------------*/
 
-	public JobletRequest getJobletRequestForProcessing(JobletType<?> type, JobletPriority startAtPriority,
-			String reservedBy){
+	public JobletRequest getJobletRequestForProcessing(JobletType<?> type, String reservedBy){
 		long startMs = System.currentTimeMillis();
 		Optional<JobletRequest> jobletRequest;
 		JobletQueueMechanism queueMechanism = jobletSettings.getQueueMechanismEnum();
@@ -134,7 +133,7 @@ public class JobletService{
 		}else if(JobletQueueMechanism.JDBC_UPDATE_AND_SCAN == queueMechanism){
 			jobletRequest = Optional.ofNullable(getJobletRequestByReserveOp(type, reservedBy));
 		}else if(JobletQueueMechanism.SQS == queueMechanism){
-			jobletRequest = getJobletRequestFromQueues(type, startAtPriority, reservedBy);
+			jobletRequest = getJobletRequestFromQueues(type, reservedBy);
 		}else{
 			throw new IllegalStateException("unknown JobletQueueMechanism");
 		}
@@ -186,12 +185,8 @@ public class JobletService{
 		return null;
 	}
 
-	private Optional<JobletRequest> getJobletRequestFromQueues(JobletType<?> type, JobletPriority startAtPriority,
-			String reservedBy){
+	private Optional<JobletRequest> getJobletRequestFromQueues(JobletType<?> type, String reservedBy){
 		for(JobletPriority priority : JobletPriority.values()){
-			if(startAtPriority != null && priority.compareTo(startAtPriority) < 0){
-				continue;
-			}
 			JobletRequestQueueKey queueKey = new JobletRequestQueueKey(type, priority);
 			if(jobletQueueManager.shouldSkipQueue(queueKey)){
 				continue;
