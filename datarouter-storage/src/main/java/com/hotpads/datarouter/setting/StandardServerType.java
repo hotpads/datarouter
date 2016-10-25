@@ -26,8 +26,8 @@ public enum StandardServerType implements ServerType, StringEnum<StandardServerT
 	}
 
 	@Override
-	public StandardServerType fromPersistentString(String required){
-		return DatarouterEnumTool.getEnumFromString(values(), required, null);
+	public StandardServerType fromPersistentString(String str){
+		return fromPersistentStringStatic(str);
 	}
 
 	public static StandardServerType fromPersistentStringStatic(String str){
