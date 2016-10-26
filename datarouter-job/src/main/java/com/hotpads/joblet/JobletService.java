@@ -2,7 +2,7 @@ package com.hotpads.joblet;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -81,14 +81,15 @@ public class JobletService{
 		jobletNodes.jobletData().putMulti(JobletPackage.getJobletDatas(jobletPackages), Configs.insertOrBust());
 		timer.add("inserted JobletData");
 		jobletPackages.forEach(JobletPackage::updateJobletDataIdReference);
-		jobletNodes.jobletRequest().putMulti(JobletPackage.getJobletRequests(jobletPackages), Configs.insertOrBust());
+		List<JobletRequest> jobletRequests = JobletPackage.getJobletRequests(jobletPackages);
+		jobletNodes.jobletRequest().putMulti(jobletRequests, Configs.insertOrBust());
 		timer.add("inserted JobletRequest");
 		if(jobletSettings.getQueueMechanismEnum() == JobletQueueMechanism.SQS){
-			for(JobletPackage jobletPackage : jobletPackages){
-				JobletRequest jobletRequest = jobletPackage.getJobletRequest();
-				JobletRequestQueueKey queueKey = jobletQueueManager.getQueueKey(jobletRequest);
-				Objects.requireNonNull(jobletRequest.getJobletDataId());
-				jobletNodes.jobletRequestQueueByKey().get(queueKey).put(jobletRequest, null);
+			Map<JobletRequestQueueKey,List<JobletRequest>> requestsByQueueKey = jobletRequests.stream()
+					.collect(Collectors.groupingBy(jobletQueueManager::getQueueKey, Collectors.toList()));
+			for(Map.Entry<JobletRequestQueueKey,List<JobletRequest>> queueAndRequests : requestsByQueueKey.entrySet()){
+				jobletNodes.jobletRequestQueueByKey().get(queueAndRequests.getKey()).putMulti(queueAndRequests
+						.getValue(), null);
 			}
 		}
 		if(timer.getElapsedTimeBetweenFirstAndLastEvent() > 200){
