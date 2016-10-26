@@ -21,6 +21,7 @@ public class ProfilingSettings extends SettingNode{
 	public final Setting<Boolean> saveExecutorsMetrics;
 	public final Setting<Boolean> saveHttpClientsMetrics;
 	public final Setting<Boolean> runAvailabilitySwitchJob;
+	public final Setting<Boolean> runExceptionRecordAggregationJob;
 
 	@Inject
 	public ProfilingSettings(SettingFinder finder){
@@ -37,6 +38,7 @@ public class ProfilingSettings extends SettingNode{
 		saveExecutorsMetrics = registerBoolean("saveExecutorsMetrics", false);
 		saveHttpClientsMetrics = registerBoolean("saveHttpClientsMetrics", false);
 		runAvailabilitySwitchJob = registerBoolean("runAvailabilitySwitchJob", false);
+		runExceptionRecordAggregationJob = registerBoolean("runExceptionRecordAggregationJob", false);
 	}
 
 	public Setting<Boolean> getSaveCounts(){
