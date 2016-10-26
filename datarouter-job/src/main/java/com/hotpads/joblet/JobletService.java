@@ -193,7 +193,7 @@ public class JobletService{
 		for(JobletPriority priority : JobletPriority.values()){
 			JobletRequestQueueKey queueKey = new JobletRequestQueueKey(type, priority);
 			if(jobletQueueManager.shouldSkipQueue(queueKey)){
-//				logger.warn("skipping queue {}", queueKey);
+				JobletCounters.incQueueSkip(queueKey.getQueueName());
 				continue;
 			}
 			// set timeout to 0 so we return immediately. processor threads can do the waiting
@@ -202,13 +202,16 @@ public class JobletService{
 			QueueMessage<JobletRequestKey,JobletRequest> message = jobletNodes.jobletRequestQueueByKey().get(queueKey)
 					.peek(config);
 			if(message == null){
+				JobletCounters.incQueueMiss(queueKey.getQueueName());
 				jobletQueueManager.onJobletRequestQueueMiss(queueKey);
 				continue;
 			}
+			JobletCounters.incQueueHit(queueKey.getQueueName());
 			JobletRequest jobletRequest = message.getDatabean();
 			if(!jobletNodes.jobletRequest().exists(jobletRequest.getKey(), null)){
 				logger.warn("not processing non-existent JobletRequest {}", jobletRequest);
 				jobletNodes.jobletRequestQueueByKey().get(queueKey).ack(message.getKey(), null);
+				continue;
 			}
 			jobletRequest.setQueueMessageKey(message.getKey());
 			jobletRequest.setReservedBy(reservedBy);
