@@ -21,7 +21,7 @@ public class ExampleRouter extends BaseRouter{
 	@Inject
 	public ExampleRouter(Datarouter datarouter, DatarouterSettings datarouterSettings, NodeFactory nodeFactory){
 		super(datarouter, "/hotpads/config/datarouter-example.properties", "example", nodeFactory, datarouterSettings);
-		cake = register(nodeFactory.create(memory, Cake.class, CakeFielder.class, this, false));
+		cake = createAndRegister(memory, Cake::new, CakeFielder::new);
 	}
 
 }
