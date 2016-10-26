@@ -91,6 +91,7 @@ public class JobletService{
 				jobletNodes.jobletRequestQueueByKey().get(queueAndRequests.getKey()).putMulti(queueAndRequests
 						.getValue(), null);
 			}
+			timer.add("queued JobletRequests");
 		}
 		if(timer.getElapsedTimeBetweenFirstAndLastEvent() > 200){
 			logger.warn("slow insert joblets:{}", timer);
