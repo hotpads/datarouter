@@ -14,7 +14,7 @@ import com.hotpads.joblet.enums.JobletType;
 import com.hotpads.joblet.enums.JobletTypeFactory;
 
 @Singleton
-public class JobletQueueManager{
+public class JobletRequestQueueManager{
 
 	private static final long BACKOFF_MS = 2000;//skip queues that recently returned an empty result
 
@@ -24,7 +24,7 @@ public class JobletQueueManager{
 	private final ConcurrentMap<JobletRequestQueueKey,Long> lastMissByQueue;
 
 	@Inject
-	public JobletQueueManager(JobletTypeFactory jobletTypeFactory){
+	public JobletRequestQueueManager(JobletTypeFactory jobletTypeFactory){
 		this.jobletTypeFactory = jobletTypeFactory;
 		this.lastMissByQueue = new ConcurrentHashMap<>();
 		getAllQueueKeys().forEach(key -> lastMissByQueue.put(key, 0L));

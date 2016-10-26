@@ -39,7 +39,7 @@ public class JobletType<P> implements Comparable<JobletType<?>>{
 
 	@Override
 	public int compareTo(JobletType<?> other){
-		return DrComparableTool.nullFirstCompareTo(this.persistentString, other.persistentString);
+		return DrComparableTool.nullFirstCompareTo(persistentString, other.persistentString);
 	}
 
 	/*-------------- get -------------------*/

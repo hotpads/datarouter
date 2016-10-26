@@ -119,13 +119,12 @@ public class ParallelJobletProcessor{
 
 	private final Optional<JobletPackage> getJobletPackage(long counter){
 		String reservedBy = getReservedByString(counter);
-		//TODO pass a later startAtPriority if the first queue(s) are repeatedly empty
 		Optional<JobletRequest> jobletRequest = jobletService.getJobletRequestForProcessing(jobletType, reservedBy);
 		if(!jobletRequest.isPresent()){
 			return Optional.empty();
 		}
 		jobletRequest.get().setShutdownRequested(shutdownRequested);
-		return Optional.of(jobletService.getJobletPackageForJobletRequest(jobletRequest.get()));
+		return jobletRequest.map(jobletService::getJobletPackageForJobletRequest);
 	}
 
 	private String getReservedByString(long counter){
