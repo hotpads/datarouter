@@ -62,7 +62,6 @@ implements QueueStorageWriter<PK,D>{
 		}
 		String queueName = prefix + getTableName();
 		CreateQueueRequest createQueueRequest = new CreateQueueRequest(queueName);
-		logger.warn("creating SQS queue {}", queueName);
 		return getAmazonSqsClient().createQueue(createQueueRequest).getQueueUrl();
 	}
 
