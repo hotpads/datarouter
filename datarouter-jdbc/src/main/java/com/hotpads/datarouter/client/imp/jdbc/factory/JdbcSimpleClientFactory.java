@@ -83,8 +83,8 @@ implements ClientFactory{
 	protected JdbcConnectionPool initConnectionPool(){
 		// check if the createDatabase option is set to true before checking for missing databases.
 		if(doSchemaUpdate()){
-			new DatabaseCreator(jdbcOptions, defaultJdbcOptions, clientName, schemaUpdatePrintOptions,
-					schemaUpdateExecuteOptions).call();
+			new DatabaseCreator(jdbcOptions, defaultJdbcOptions, schemaUpdatePrintOptions, schemaUpdateExecuteOptions)
+					.call();
 		}
 		return new JdbcConnectionPool(clientName, isWritableClient(), defaultJdbcOptions, jdbcOptions);
 	}
