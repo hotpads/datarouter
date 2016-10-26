@@ -3,9 +3,6 @@ package com.hotpads.datarouter.client.imp.sqs;
 import java.time.Duration;
 import java.util.Collection;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.amazonaws.services.sqs.AmazonSQSClient;
 import com.amazonaws.services.sqs.model.CreateQueueRequest;
 import com.hotpads.datarouter.client.Client;
@@ -26,7 +23,6 @@ public abstract class BaseSqsNode<
 		F extends DatabeanFielder<PK,D>>
 extends BasePhysicalNode<PK,D,F>
 implements QueueStorageWriter<PK,D>{
-	private static final Logger logger = LoggerFactory.getLogger(BaseSqsNode.class);
 
 	//do not change, this is a limit from SQS
 	public static final int MAX_MESSAGES_PER_BATCH = 10;
