@@ -192,15 +192,16 @@ public class JobletHandler extends BaseHandler{
 		return new InContextRedirectMav(params, URL_JOBLETS_IN_CONTEXT);
 	}
 
-	// /datarouter/joblets/createSleepingJoblets?numJoblets=100&sleepMs=500
+	// /datarouter/joblets/createSleepingJoblets?numJoblets=100&sleepMs=500&executionOrder=10
 	@Handler
-	private Mav createSleepingJoblets(int numJoblets, long sleepMs){
+	private Mav createSleepingJoblets(int numJoblets, long sleepMs, int executionOrder){
+		JobletPriority priority = JobletPriority.fromExecutionOrder(executionOrder);
 		List<JobletPackage> jobletPackages = new ArrayList<>();
 		for(int i = 0; i < numJoblets; ++i){
 			SleepingJobletParams params = new SleepingJobletParams(String.valueOf(i), sleepMs);
 			int batchSequence = i;//specify this so joblets execute in precise order
-			JobletPackage jobletPackage = JobletPackage.createDetailed(SleepingJoblet.JOBLET_TYPE,
-					JobletPriority.DEFAULT, new Date(), batchSequence, true, null, params);
+			JobletPackage jobletPackage = JobletPackage.createDetailed(SleepingJoblet.JOBLET_TYPE, priority, new Date(),
+					batchSequence, true, null, params);
 			jobletPackages.add(jobletPackage);
 		}
 		jobletService.submitJobletPackages(jobletPackages);

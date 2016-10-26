@@ -16,18 +16,18 @@ import com.hotpads.joblet.enums.JobletTypeFactory;
 @Singleton
 public class JobletQueueManager{
 
-	private static final long TIMEOUT_MS = 2000;
+	private static final long BACKOFF_MS = 2000;//skip queues that recently returned an empty result
 
 	//injected
 	private final JobletTypeFactory jobletTypeFactory;
 
-	private final ConcurrentMap<JobletRequestQueueKey,Long> lastDequeueByQueue;
+	private final ConcurrentMap<JobletRequestQueueKey,Long> lastMissByQueue;
 
 	@Inject
 	public JobletQueueManager(JobletTypeFactory jobletTypeFactory){
 		this.jobletTypeFactory = jobletTypeFactory;
-		this.lastDequeueByQueue = new ConcurrentHashMap<>();
-		getAllQueueKeys().forEach(key -> lastDequeueByQueue.put(key, 0L));
+		this.lastMissByQueue = new ConcurrentHashMap<>();
+		getAllQueueKeys().forEach(key -> lastMissByQueue.put(key, 0L));
 	}
 
 
@@ -46,12 +46,13 @@ public class JobletQueueManager{
 		return queueKeys;
 	}
 
-	public void onJobletRequestFound(JobletRequestQueueKey queueKey){
-		lastDequeueByQueue.put(queueKey, System.currentTimeMillis());
+	public void onJobletRequestQueueMiss(JobletRequestQueueKey queueKey){
+		lastMissByQueue.put(queueKey, System.currentTimeMillis());
 	}
 
 	public boolean shouldSkipQueue(JobletRequestQueueKey queueKey){
-		return lastDequeueByQueue.get(queueKey) < TIMEOUT_MS;
+		long lastMissAgoMs = System.currentTimeMillis() - lastMissByQueue.get(queueKey);
+		return lastMissAgoMs < BACKOFF_MS;
 	}
 
 

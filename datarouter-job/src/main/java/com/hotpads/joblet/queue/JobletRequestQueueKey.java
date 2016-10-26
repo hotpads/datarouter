@@ -38,6 +38,11 @@ public class JobletRequestQueueKey implements Comparable<JobletRequestQueueKey>{
 		return Objects.hash(type, priority);
 	}
 
+	@Override
+	public String toString(){
+		return getQueueName();
+	}
+
 	/*------------- Comparable -------------------*/
 
 	@Override

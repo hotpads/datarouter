@@ -12,7 +12,7 @@ public enum JobletPriority{
 
 	private JobletPriority(Integer executionOrder){
 		this.executionOrder = executionOrder;
-		this.comparableName = DrStringTool.pad(Integer.toString(executionOrder), ' ', 4);
+		this.comparableName = DrStringTool.pad(Integer.toString(executionOrder), '0', 4);
 	}
 
 	public static JobletPriority fromExecutionOrder(Integer executionOrder){

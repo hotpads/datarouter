@@ -2,6 +2,7 @@ package com.hotpads.joblet;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -82,10 +83,13 @@ public class JobletService{
 		jobletPackages.forEach(JobletPackage::updateJobletDataIdReference);
 		jobletNodes.jobletRequest().putMulti(JobletPackage.getJobletRequests(jobletPackages), Configs.insertOrBust());
 		timer.add("inserted JobletRequest");
-		for(JobletPackage jobletPackage : jobletPackages){
-			JobletRequest jobletRequest = jobletPackage.getJobletRequest();
-			JobletRequestQueueKey queueKey = jobletQueueManager.getQueueKey(jobletRequest);
-			jobletNodes.jobletRequestQueueByKey().get(queueKey).put(jobletRequest, null);
+		if(jobletSettings.getQueueMechanismEnum() == JobletQueueMechanism.SQS){
+			for(JobletPackage jobletPackage : jobletPackages){
+				JobletRequest jobletRequest = jobletPackage.getJobletRequest();
+				JobletRequestQueueKey queueKey = jobletQueueManager.getQueueKey(jobletRequest);
+				Objects.requireNonNull(jobletRequest.getJobletDataId());
+				jobletNodes.jobletRequestQueueByKey().get(queueKey).put(jobletRequest, null);
+			}
 		}
 		if(timer.getElapsedTimeBetweenFirstAndLastEvent() > 200){
 			logger.warn("slow insert joblets:{}", timer);
@@ -138,7 +142,7 @@ public class JobletService{
 			throw new IllegalStateException("unknown JobletQueueMechanism");
 		}
 		long durationMs = System.currentTimeMillis() - startMs;
-		if(durationMs > 200){
+		if(durationMs > 1000){
 			String message = jobletRequest.map(Databean::getKey).map(Object::toString).orElse("none");
 			logger.warn("slow get joblet type={}, durationMs={}, got {}", type, durationMs, message);
 		}
@@ -189,6 +193,7 @@ public class JobletService{
 		for(JobletPriority priority : JobletPriority.values()){
 			JobletRequestQueueKey queueKey = new JobletRequestQueueKey(type, priority);
 			if(jobletQueueManager.shouldSkipQueue(queueKey)){
+//				logger.warn("skipping queue {}", queueKey);
 				continue;
 			}
 			// set timeout to 0 so we return immediately. processor threads can do the waiting
@@ -197,9 +202,9 @@ public class JobletService{
 			QueueMessage<JobletRequestKey,JobletRequest> message = jobletNodes.jobletRequestQueueByKey().get(queueKey)
 					.peek(config);
 			if(message == null){
+				jobletQueueManager.onJobletRequestQueueMiss(queueKey);
 				continue;
 			}
-			jobletQueueManager.onJobletRequestFound(queueKey);
 			JobletRequest jobletRequest = message.getDatabean();
 			if(!jobletNodes.jobletRequest().exists(jobletRequest.getKey(), null)){
 				logger.warn("not processing non-existent JobletRequest {}", jobletRequest);
