@@ -8,12 +8,12 @@ public class NoDbDatarouterSettings implements DatarouterSettings{
 
 	@Override
 	public Setting<Boolean> getLoggingConfigUpdaterEnabled(){
-		return new ConstantBooleanSetting(true);
+		return ConstantBooleanSetting.TRUE;
 	}
 
 	@Override
 	public Setting<Boolean> getRecordCallsites(){
-		return new ConstantBooleanSetting(false);
+		return ConstantBooleanSetting.FALSE;
 	}
 
 	@Override

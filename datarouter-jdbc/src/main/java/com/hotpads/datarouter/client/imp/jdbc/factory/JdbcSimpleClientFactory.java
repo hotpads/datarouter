@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import com.hotpads.datarouter.SchemaUpdateOptions;
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.ClientFactory;
-import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.client.availability.ClientAvailabilitySettings;
 import com.hotpads.datarouter.client.imp.jdbc.JdbcClientImp;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.execute.DatabaseCreator;
@@ -77,7 +76,7 @@ implements ClientFactory{
 	}
 
 	private boolean isWritableClient(){
-		return ClientId.getWritableNames(datarouter.getClientPool().getClientIds()).contains(clientName);
+		return datarouter.getClientPool().getClientId(clientName).getWritable();
 	}
 
 	protected JdbcConnectionPool initConnectionPool(){

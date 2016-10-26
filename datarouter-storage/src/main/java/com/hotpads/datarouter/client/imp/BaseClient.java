@@ -6,19 +6,19 @@ import java.util.concurrent.Future;
 
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.availability.ClientAvailabilitySettings;
+import com.hotpads.datarouter.client.availability.ClientAvailabilitySettings.AvailabilitySettingNode;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
-import com.hotpads.datarouter.setting.Setting;
 import com.hotpads.datarouter.util.core.DrComparableTool;
 
 public abstract class BaseClient
 implements Client{
 
 	private final String name;
-	private final Setting<Boolean> isAvailable;
+	private final AvailabilitySettingNode availability;
 
 	public BaseClient(String name, ClientAvailabilitySettings clientAvailabilitySettings){
 		this.name = name;
-		this.isAvailable = clientAvailabilitySettings.getAvailabilityForClientName(getName());
+		this.availability = clientAvailabilitySettings.getAvailabilityForClientName(getName());
 	}
 
 	/**************************** standard ******************************/
@@ -29,8 +29,8 @@ implements Client{
 	}
 
 	@Override
-	public boolean isAvailable(){
-		return isAvailable.getValue();
+	public AvailabilitySettingNode getAvailability(){
+		return availability;
 	}
 
 	@Override

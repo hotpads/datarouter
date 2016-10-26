@@ -46,7 +46,7 @@ public class RoutersHandler extends BaseHandler {
 	protected Mav handleDefault(){
 		Mav mav = new Mav(JSP_datarouterMenu);
 		//DatarouterProperties info
-		mav.put("serverType", datarouterProperties.getServerType());
+		mav.put("serverType", datarouterProperties.getServerTypeString());
 		mav.put("serverName", datarouterProperties.getServerName());
 		mav.put("serverPublicIp", datarouterProperties.getServerPublicIp());
 		mav.put("administratorEmail", datarouterProperties.getAdministratorEmail());
