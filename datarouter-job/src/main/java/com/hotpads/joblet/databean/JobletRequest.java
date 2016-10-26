@@ -198,6 +198,15 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 		return reservedAt == null ? null : new Date(reservedAt);
 	}
 
+	public int incrementNumFailures(){
+		numFailures = DrNumberTool.nullSafe(numFailures) + 1;
+		return numFailures;
+	}
+
+	public boolean hasReachedMaxFailures(){
+		return numFailures >= getMaxFailures();
+	}
+
 	public int incrementNumTimeouts(){
 		numTimeouts = DrNumberTool.nullSafe(numTimeouts) + 1;
 		return numTimeouts;

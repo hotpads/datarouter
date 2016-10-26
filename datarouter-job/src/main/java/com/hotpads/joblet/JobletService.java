@@ -265,18 +265,18 @@ public class JobletService{
 	}
 
 	public void handleJobletError(JobletRequest jobletRequest, Exception exception, String location){
-		jobletRequest.setNumFailures(jobletRequest.getNumFailures() + 1);
-		if(jobletRequest.getNumFailures() < jobletRequest.getMaxFailures()){
-			jobletRequest.setStatus(JobletStatus.created);
-		}else{
-			jobletRequest.setStatus(JobletStatus.failed);
-		}
 		ExceptionRecord exceptionRecord = exceptionRecorder.tryRecordException(exception, location,
 				JobExceptionCategory.JOBLET);
 		jobletRequest.setExceptionRecordId(exceptionRecord.getKey().getId());
 		jobletRequest.setReservedBy(null);
 		jobletRequest.setReservedAt(null);
-		requeueJobletRequest(jobletRequest);
+		jobletRequest.incrementNumFailures();
+		if(jobletRequest.getRestartable() && ! jobletRequest.hasReachedMaxFailures()){
+			jobletRequest.setStatus(JobletStatus.created);
+			requeueJobletRequest(jobletRequest);
+		}else{
+			jobletRequest.setStatus(JobletStatus.failed);
+		}
 		jobletNodes.jobletRequest().put(jobletRequest, new Config().setPutMethod(PutMethod.UPDATE_OR_BUST));
 	}
 
