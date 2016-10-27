@@ -28,7 +28,7 @@ public class SettingRoot extends SettingNode{
 		return null;
 	}
 
-	public List<SettingNode> getDescendance(String nodeName){
+	public List<SettingNode> getDescendants(String nodeName){
 		for(SettingNode settingNode : rootNodes){
 			if(nodeName.startsWith(settingNode.getName())){
 				return settingNode.getDescendanceByName(nodeName);
