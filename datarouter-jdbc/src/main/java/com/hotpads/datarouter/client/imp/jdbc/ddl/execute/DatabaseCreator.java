@@ -18,15 +18,13 @@ public class DatabaseCreator{
 
 	private final JdbcOptions jdbcOptions;
 	private final JdbcOptions defaultJdbcOptions;
-	private final String clientName;
 	private final SchemaUpdateOptions printOptions;
 	private final SchemaUpdateOptions executeOptions;
 
-	public DatabaseCreator(JdbcOptions jdbcOptions, JdbcOptions defaultJdbcOptions, String clientName,
-			SchemaUpdateOptions printOptions, SchemaUpdateOptions executeOptions){
+	public DatabaseCreator(JdbcOptions jdbcOptions, JdbcOptions defaultJdbcOptions, SchemaUpdateOptions printOptions,
+			SchemaUpdateOptions executeOptions){
 		this.jdbcOptions = jdbcOptions;
 		this.defaultJdbcOptions = defaultJdbcOptions;
-		this.clientName = clientName;
 		this.printOptions = printOptions;
 		this.executeOptions = executeOptions;
 	}
@@ -51,7 +49,7 @@ public class DatabaseCreator{
 
 		//if database does not exist, create database
 		if(!existingDatabases.contains(databaseName)){
-			generateCreateDatabaseSchema(connection, clientName);
+			generateCreateDatabaseSchema(connection, databaseName);
 		}
 	}
 

@@ -73,7 +73,7 @@ public class WebAppInstance extends BaseDatabean<WebAppInstanceKey,WebAppInstanc
 			gitProperties){
 		this.key = new WebAppInstanceKey(webAppName, datarouterProperties.getServerName());
 		this.serverPublicIp = datarouterProperties.getServerPublicIp();
-		this.serverType = datarouterProperties.getServerType();
+		this.serverType = datarouterProperties.getServerTypeString();
 		this.refreshedLast = new Date();//webApp update job assumes this is happening
 		this.startupDate = startupDate;
 		this.buildDate = gitProperties.getBuildTime();

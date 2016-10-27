@@ -36,6 +36,7 @@ import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.imp.DateField;
 import com.hotpads.datarouter.storage.field.imp.StringField;
+import com.hotpads.datarouter.storage.field.imp.StringFieldKey;
 import com.hotpads.datarouter.storage.field.imp.array.ByteArrayField;
 import com.hotpads.datarouter.storage.field.imp.array.ByteArrayFieldKey;
 import com.hotpads.datarouter.storage.field.imp.comparable.IntegerField;
@@ -46,6 +47,7 @@ import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 import com.hotpads.datarouter.util.UuidTool;
 import com.hotpads.datarouter.util.core.DrMapTool;
 import com.hotpads.handler.exception.ExceptionRecord;
+import com.hotpads.handler.exception.ExceptionRecordKey;
 import com.hotpads.util.http.HttpHeaders;
 import com.hotpads.util.http.RequestTool;
 
@@ -107,9 +109,10 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 	private String xRequestedWith;
 	private String otherHeaders;
 
-	private static class FieldKeys{
-		private static final ByteArrayFieldKey binaryBody = new ByteArrayFieldKey("binaryBody")
+	public static class FieldKeys{
+		public static final ByteArrayFieldKey binaryBody = new ByteArrayFieldKey("binaryBody")
 				.withSize(MySqlColumnType.MAX_LENGTH_LONGBLOB);
+		public static final StringFieldKey exceptionPlace = new StringFieldKey("exceptionPlace");
 	}
 
 	private static class F {
@@ -117,7 +120,6 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 		created = "created",
 
 		exceptionRecordId = "exceptionRecordId",
-		exceptionPlace = "exceptionPlace",
 		methodName = "methodName",
 		lineNumber = "lineNumber",
 
@@ -175,7 +177,7 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 					new LongField(F.duration, record.duration),
 
 					new StringField(F.exceptionRecordId, record.exceptionRecordId, MySqlColumnType.MAX_LENGTH_VARCHAR),
-					new StringField(F.exceptionPlace, record.exceptionPlace, MySqlColumnType.MAX_LENGTH_VARCHAR),
+					new StringField(FieldKeys.exceptionPlace, record.exceptionPlace),
 					new StringField(F.methodName, record.methodName, MySqlColumnType.MAX_LENGTH_VARCHAR),
 					new IntegerField(F.lineNumber, record.lineNumber),
 
@@ -456,6 +458,10 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 
 	public void setCreated(Date created) {
 		this.created = created;
+	}
+
+	public ExceptionRecordKey getExceptionRecordKey(){
+		return new ExceptionRecordKey(exceptionRecordId);
 	}
 
 	public String getExceptionRecordId() {

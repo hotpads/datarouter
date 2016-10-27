@@ -1,9 +1,12 @@
 package com.hotpads.datarouter.config;
 
+import com.hotpads.datarouter.setting.ServerType;
+
 public interface DatarouterProperties{
-	public String getServerPublicIp();
-	public String getServerName();
-	public String getServerType();
-	public String getAdministratorEmail();
-	public String getConfigPath();
+	String getServerPublicIp();
+	String getServerName();
+	String getServerTypeString();
+	ServerType getServerType();
+	String getAdministratorEmail();
+	String getConfigPath();
 }

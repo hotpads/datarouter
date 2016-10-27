@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.OptionalDouble;
+import java.util.TreeMap;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
@@ -39,6 +40,7 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.Duration;
 import com.hotpads.util.core.collections.Pair;
 import com.hotpads.util.core.java.ReflectionTool;
+import com.hotpads.util.core.stream.StreamTool;
 
 @Singleton
 public class LatencyMonitoringService{
@@ -103,7 +105,8 @@ public class LatencyMonitoringService{
 	public Map<String,CheckResult> getLastResultByName(){
 		return lastResultsByName.entrySet().stream()
 				.filter(entry -> !entry.getValue().isEmpty())
-				.collect(Collectors.toMap(Entry::getKey, entry -> entry.getValue().peekFirst()));
+				.collect(Collectors.toMap(Entry::getKey, entry -> entry.getValue().peekFirst(), StreamTool
+						.throwingMerger(), TreeMap::new));
 	}
 
 	public Map<String,String> computeLastFiveAvg(){

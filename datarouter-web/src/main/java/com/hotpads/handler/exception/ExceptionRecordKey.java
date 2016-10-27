@@ -11,7 +11,7 @@ import com.hotpads.util.core.number.RandomTool;
 
 public class ExceptionRecordKey extends BasePrimaryKey<ExceptionRecordKey> {
 
-	private static final long ID_TIME_MULTIPLIER = 1000000;
+	public static final long ID_TIME_MULTIPLIER = 1000000;
 
 	private String id;
 

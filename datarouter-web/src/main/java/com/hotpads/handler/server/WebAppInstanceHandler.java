@@ -18,7 +18,7 @@ public class WebAppInstanceHandler extends BaseHandler{
 	protected Mav handleDefault(){
 		Mav mav = new Mav("/jsp/server/webAppInstances.jsp");
 
-		Collection<WebAppInstance> webAppInstances = webAppInstanceNodes.getWebAppInstances().stream(null, null)
+		Collection<WebAppInstance> webAppInstances = webAppInstanceNodes.getWebAppInstance().stream(null, null)
 				.collect(Collectors.toList());
 		mav.put("webAppInstances", webAppInstances);
 

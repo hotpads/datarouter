@@ -45,8 +45,7 @@ public class Cake extends BaseDatabean<CakeKey,Cake>{
 
 	}
 
-	@SuppressWarnings("unused") // used by reflection
-	private Cake(){
+	public Cake(){
 		this.key = new CakeKey();
 	}
 
