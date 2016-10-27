@@ -12,17 +12,14 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.config.Configs;
 import com.hotpads.datarouter.config.PutMethod;
-import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.handler.exception.ExceptionRecord;
 import com.hotpads.handler.exception.ExceptionRecorder;
 import com.hotpads.job.trigger.JobExceptionCategory;
-import com.hotpads.joblet.dao.JobletRequestDao;
 import com.hotpads.joblet.databean.JobletData;
 import com.hotpads.joblet.databean.JobletDataKey;
 import com.hotpads.joblet.databean.JobletRequest;
@@ -30,7 +27,6 @@ import com.hotpads.joblet.databean.JobletRequestKey;
 import com.hotpads.joblet.enums.JobletQueueMechanism;
 import com.hotpads.joblet.enums.JobletStatus;
 import com.hotpads.joblet.enums.JobletType;
-import com.hotpads.joblet.jdbc.JobletRequestSqlBuilder;
 import com.hotpads.joblet.queue.JobletRequestQueueKey;
 import com.hotpads.joblet.queue.JobletRequestQueueManager;
 import com.hotpads.joblet.queue.JobletRequestSelector;
@@ -46,28 +42,19 @@ public class JobletService{
 
 	public static final int MAX_JOBLET_RETRIES = 10;
 
-	private final Datarouter datarouter;
 	private final JobletRequestQueueManager jobletRequestQueueManager;
 	private final JobletNodes jobletNodes;
 	private final ExceptionRecorder exceptionRecorder;
-	private final JdbcFieldCodecFactory jdbcFieldCodecFactory;
-	private final JobletRequestSqlBuilder jobletRequestSqlBuilder;
-	private final JobletRequestDao jobletRequestDao;
 	private final JobletSettings jobletSettings;
 	private final JobletRequestSelectorFactory jobletRequestSelectorFactory;
 
 	@Inject
-	public JobletService(Datarouter datarouter, JobletRequestQueueManager jobletRequestQueueManager,
-			JobletNodes jobletNodes, ExceptionRecorder exceptionRecorder, JdbcFieldCodecFactory jdbcFieldCodecFactory,
-			JobletRequestSqlBuilder jobletRequestSqlBuilder, JobletRequestDao jobletRequestDao,
-			JobletSettings jobletSettings, JobletRequestSelectorFactory jobletRequestSelectorFactory){
-		this.datarouter = datarouter;
+	public JobletService(JobletRequestQueueManager jobletRequestQueueManager, JobletNodes jobletNodes,
+			ExceptionRecorder exceptionRecorder, JobletSettings jobletSettings,
+			JobletRequestSelectorFactory jobletRequestSelectorFactory){
 		this.jobletRequestQueueManager = jobletRequestQueueManager;
 		this.jobletNodes = jobletNodes;
 		this.exceptionRecorder = exceptionRecorder;
-		this.jdbcFieldCodecFactory = jdbcFieldCodecFactory;
-		this.jobletRequestSqlBuilder = jobletRequestSqlBuilder;
-		this.jobletRequestDao = jobletRequestDao;
 		this.jobletSettings = jobletSettings;
 		this.jobletRequestSelectorFactory = jobletRequestSelectorFactory;
 	}
