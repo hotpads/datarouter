@@ -56,7 +56,7 @@ extends BaseBatchLoader<T>{
 	public BaseHBaseBatchLoader<PK,D,F,T> call(){
 		//these should handle null scattering prefixes and null pks
 		ByteRange startBytes = new ByteRange(node.getKeyBytesWithScatteringPrefix(scatteringPrefix, range.getStart()));
-		boolean incrementStartBytes = !range.getStartInclusive();
+		boolean incrementStartBytes = !range.getStartInclusive() && range.getStart() != null;
 		if(incrementStartBytes){
 			startBytes = new ByteRange(startBytes.copyToArrayNewArrayAndIncrement());
 		}
