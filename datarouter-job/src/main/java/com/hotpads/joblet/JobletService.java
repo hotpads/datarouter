@@ -18,7 +18,6 @@ import com.hotpads.datarouter.config.Configs;
 import com.hotpads.datarouter.config.PutMethod;
 import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.storage.databean.Databean;
-import com.hotpads.datarouter.storage.queue.QueueMessage;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.handler.exception.ExceptionRecord;
 import com.hotpads.handler.exception.ExceptionRecorder;
@@ -28,16 +27,14 @@ import com.hotpads.joblet.databean.JobletData;
 import com.hotpads.joblet.databean.JobletDataKey;
 import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.databean.JobletRequestKey;
-import com.hotpads.joblet.enums.JobletPriority;
 import com.hotpads.joblet.enums.JobletQueueMechanism;
 import com.hotpads.joblet.enums.JobletStatus;
 import com.hotpads.joblet.enums.JobletType;
-import com.hotpads.joblet.execute.ParallelJobletProcessor;
-import com.hotpads.joblet.jdbc.GetJobletRequest;
 import com.hotpads.joblet.jdbc.JobletRequestSqlBuilder;
-import com.hotpads.joblet.jdbc.ReserveJobletRequest;
 import com.hotpads.joblet.queue.JobletRequestQueueKey;
 import com.hotpads.joblet.queue.JobletRequestQueueManager;
+import com.hotpads.joblet.queue.JobletRequestSelector;
+import com.hotpads.joblet.queue.JobletRequestSelectorFactory;
 import com.hotpads.joblet.setting.JobletSettings;
 import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.profile.PhaseTimer;
@@ -57,12 +54,13 @@ public class JobletService{
 	private final JobletRequestSqlBuilder jobletRequestSqlBuilder;
 	private final JobletRequestDao jobletRequestDao;
 	private final JobletSettings jobletSettings;
+	private final JobletRequestSelectorFactory jobletRequestSelectorFactory;
 
 	@Inject
 	public JobletService(Datarouter datarouter, JobletRequestQueueManager jobletRequestQueueManager,
 			JobletNodes jobletNodes, ExceptionRecorder exceptionRecorder, JdbcFieldCodecFactory jdbcFieldCodecFactory,
 			JobletRequestSqlBuilder jobletRequestSqlBuilder, JobletRequestDao jobletRequestDao,
-			JobletSettings jobletSettings){
+			JobletSettings jobletSettings, JobletRequestSelectorFactory jobletRequestSelectorFactory){
 		this.datarouter = datarouter;
 		this.jobletRequestQueueManager = jobletRequestQueueManager;
 		this.jobletNodes = jobletNodes;
@@ -71,6 +69,7 @@ public class JobletService{
 		this.jobletRequestSqlBuilder = jobletRequestSqlBuilder;
 		this.jobletRequestDao = jobletRequestDao;
 		this.jobletSettings = jobletSettings;
+		this.jobletRequestSelectorFactory = jobletRequestSelectorFactory;
 	}
 
 	/*--------------------- create ------------------------*/
@@ -132,97 +131,14 @@ public class JobletService{
 
 	public Optional<JobletRequest> getJobletRequestForProcessing(JobletType<?> type, String reservedBy){
 		long startMs = System.currentTimeMillis();
-		Optional<JobletRequest> jobletRequest;
-		JobletQueueMechanism queueMechanism = jobletSettings.getQueueMechanismEnum();
-		if(JobletQueueMechanism.JDBC_LOCK_FOR_UPDATE == queueMechanism){
-			jobletRequest = getJobletRequestByGetOp(type, reservedBy);
-		}else if(JobletQueueMechanism.JDBC_UPDATE_AND_SCAN == queueMechanism){
-			jobletRequest = getJobletRequestByReserveOp(type, reservedBy);
-		}else if(JobletQueueMechanism.SQS == queueMechanism){
-			jobletRequest = getJobletRequestFromQueues(type, reservedBy);
-		}else{
-			throw new IllegalStateException("unknown JobletQueueMechanism");
-		}
+		JobletRequestSelector selector = jobletRequestSelectorFactory.create();
+		Optional<JobletRequest> jobletRequest = selector.getJobletRequestForProcessing(type, reservedBy);
 		long durationMs = System.currentTimeMillis() - startMs;
 		if(durationMs > 1000){
 			String message = jobletRequest.map(Databean::getKey).map(Object::toString).orElse("none");
 			logger.warn("slow get joblet type={}, durationMs={}, got {}", type, durationMs, message);
 		}
 		return jobletRequest;
-	}
-
-	private Optional<JobletRequest> getJobletRequestByGetOp(JobletType<?> type, String reservedBy){
-		while(true){
-			GetJobletRequest jdbcOp = new GetJobletRequest(reservedBy, type, datarouter, jobletNodes,
-					jdbcFieldCodecFactory, jobletRequestSqlBuilder);
-			JobletRequest jobletRequest = datarouter.run(jdbcOp);
-			if(jobletRequest == null){
-				return Optional.empty();
-			}
-			if( ! jobletRequest.getStatus().isRunning()){
-				continue;//weird flow.  it was probably just marked as timedOut, so skip it
-			}
-			return Optional.of(jobletRequest);
-		}
-	}
-
-	private Optional<JobletRequest> getJobletRequestByReserveOp(JobletType<?> type, String reservedBy){
-		ReserveJobletRequest jdbcOp = new ReserveJobletRequest(reservedBy, type, datarouter, jobletNodes,
-				jobletRequestSqlBuilder);
-		while(datarouter.run(jdbcOp)){//returns false if no joblet found
-			JobletRequest jobletRequest = jobletRequestDao.getReservedRequest(type, reservedBy);
-			if(JobletStatus.created == jobletRequest.getStatus()){
-				jobletRequest.setStatus(JobletStatus.running);
-				jobletNodes.jobletRequest().put(jobletRequest, null);
-				return Optional.of(jobletRequest);
-			}
-
-			//we got a previously timed-out joblet
-			jobletRequest.incrementNumTimeouts();
-			if(jobletRequest.getNumTimeouts() <= MAX_JOBLET_RETRIES){
-				jobletNodes.jobletRequest().put(jobletRequest, null);
-				return Optional.of(jobletRequest);
-			}
-
-			jobletRequest.setStatus(JobletStatus.timedOut);
-			jobletNodes.jobletRequest().put(jobletRequest, null);
-			//loop around for another
-		}
-		return Optional.empty();
-	}
-
-	private Optional<JobletRequest> getJobletRequestFromQueues(JobletType<?> type, String reservedBy){
-		for(JobletPriority priority : JobletPriority.values()){
-			JobletRequestQueueKey queueKey = new JobletRequestQueueKey(type, priority);
-			if(jobletRequestQueueManager.shouldSkipQueue(queueKey)){
-				JobletCounters.incQueueSkip(queueKey.getQueueName());
-				continue;
-			}
-			// set timeout to 0 so we return immediately. processor threads can do the waiting
-			Config config = new Config().setTimeoutMs(0L)
-					.setVisibilityTimeoutMs(ParallelJobletProcessor.RUNNING_JOBLET_TIMEOUT_MS);
-			QueueMessage<JobletRequestKey,JobletRequest> message = jobletNodes.jobletRequestQueueByKey().get(queueKey)
-					.peek(config);
-			if(message == null){
-				JobletCounters.incQueueMiss(queueKey.getQueueName());
-				jobletRequestQueueManager.onJobletRequestQueueMiss(queueKey);
-				continue;
-			}
-			JobletCounters.incQueueHit(queueKey.getQueueName());
-			JobletRequest jobletRequest = message.getDatabean();
-			if(!jobletNodes.jobletRequest().exists(jobletRequest.getKey(), null)){
-				logger.warn("draining non-existent JobletRequest without processing: {}", jobletRequest);
-				jobletNodes.jobletRequestQueueByKey().get(queueKey).ack(message.getKey(), null);
-				continue;
-			}
-			jobletRequest.setQueueMessageKey(message.getKey());
-			jobletRequest.setReservedBy(reservedBy);
-			jobletRequest.setReservedAt(System.currentTimeMillis());
-			jobletRequest.setStatus(JobletStatus.running);
-			jobletNodes.jobletRequest().put(jobletRequest, null);
-			return Optional.of(jobletRequest);
-		}
-		return Optional.empty();
 	}
 
 	/*------------------- update ----------------------------*/
