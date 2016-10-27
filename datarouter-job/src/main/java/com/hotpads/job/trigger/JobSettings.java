@@ -3,13 +3,13 @@ package com.hotpads.job.trigger;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import com.hotpads.WebAppName;
+import com.hotpads.datarouter.config.DatarouterClusterSettings;
 import com.hotpads.datarouter.setting.Setting;
 import com.hotpads.datarouter.setting.SettingFinder;
-import com.hotpads.datarouter.setting.SettingNode;
+import com.hotpads.datarouter.setting.SettingRoot;
 
 @Singleton
-public class JobSettings extends SettingNode{
+public class JobSettings extends SettingRoot{
 
 	private final Setting<Boolean> saveLongRunningTasks;
 	private final Setting<Boolean> scheduleMissedJobsOnStartup;
@@ -17,12 +17,13 @@ public class JobSettings extends SettingNode{
 
 
 	@Inject
-	public JobSettings(SettingFinder finder, WebAppName webAppName){
-		super(finder, webAppName + ".job.", webAppName + ".");
+	public JobSettings(SettingFinder finder, DatarouterClusterSettings datarouterSettings){
+		super(finder, "datarouterJob.", "");
+		dependsOn(datarouterSettings);
 
-		saveLongRunningTasks = registerBoolean("saveLongRunningTasks", false);
-		scheduleMissedJobsOnStartup = registerBoolean("scheduleMissedJobsOnStartup", false);
-		processJobs = registerBoolean("processJobs", true);
+		this.saveLongRunningTasks = registerBoolean("saveLongRunningTasks", false);
+		this.scheduleMissedJobsOnStartup = registerBoolean("scheduleMissedJobsOnStartup", false);
+		this.processJobs = registerBoolean("processJobs", true);
 	}
 
 
