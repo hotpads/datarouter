@@ -8,11 +8,11 @@ import com.hotpads.datarouter.client.availability.ClientAvailabilitySettings;
 import com.hotpads.datarouter.profile.ProfilingSettings;
 import com.hotpads.datarouter.setting.Setting;
 import com.hotpads.datarouter.setting.SettingFinder;
-import com.hotpads.datarouter.setting.SettingNode;
+import com.hotpads.datarouter.setting.SettingRoot;
 import com.hotpads.datarouter.storage.failover.FailoverSettings;
 
 @Singleton
-public class DatarouterClusterSettings extends SettingNode implements DatarouterSettings {
+public class DatarouterClusterSettings extends SettingRoot implements DatarouterSettings {
 
 	private final Setting<Boolean> loggingConfigUpdaterEnabled;
 	private final Setting<Boolean> recordCallsites;
