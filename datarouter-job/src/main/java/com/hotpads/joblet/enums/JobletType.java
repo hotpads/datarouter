@@ -9,16 +9,19 @@ import com.hotpads.joblet.JobletCodec;
 public class JobletType<P> implements Comparable<JobletType<?>>{
 	private final int persistentInt;
 	private final String persistentString;
+	private final String shortQueueName;//must be short for some queueing systems
 	private final Supplier<JobletCodec<P>> codecSupplier;
 	private final Class<? extends Joblet<P>> clazz;
 	private final Integer cpuPermits;
 	private final Integer memoryPermits;
 	private final boolean causesScaling;
 
-	public JobletType(int persistentInt, String persistentString, Supplier<JobletCodec<P>> codecSupplier,
-			Class<? extends Joblet<P>> clazz, Integer cpuPermits, Integer memoryPermits, boolean causesScaling){
+	public JobletType(int persistentInt, String persistentString, String shortQueueName,
+			Supplier<JobletCodec<P>> codecSupplier, Class<? extends Joblet<P>> clazz, Integer cpuPermits,
+			Integer memoryPermits, boolean causesScaling){
 		this.persistentInt = persistentInt;
 		this.persistentString = persistentString;
+		this.shortQueueName =  shortQueueName;
 		this.codecSupplier = codecSupplier;
 		this.clazz = clazz;
 		this.cpuPermits = cpuPermits;
