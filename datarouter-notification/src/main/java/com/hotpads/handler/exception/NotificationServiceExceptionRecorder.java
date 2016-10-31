@@ -24,7 +24,7 @@ public class NotificationServiceExceptionRecorder implements ExceptionRecorder{
 	@Inject
 	private ExceptionHandlingConfig exceptionHandlingConfig;
 	@Inject
-	private ExceptionCategoryNotificationTypeFactory exceptionCategoryNotificationTypeFactory;
+	private ExceptionNotificationTypeFinder exceptionNotificationTypeFinder;
 
 
 	@Override
@@ -73,7 +73,7 @@ public class NotificationServiceExceptionRecorder implements ExceptionRecorder{
 					exceptionHandlingConfig.getRecipientEmail());
 			NotificationRequest notificationRequest = new NotificationRequest(
 					notificationUserId,
-					exceptionCategoryNotificationTypeFactory.getNotificationType(exceptionCategory),
+					exceptionNotificationTypeFinder.getNotificationType(exceptionCategory),
 					exceptionRecord.getKey().getId(),
 					location);// This is the email subject
 			notificationApiCaller.add(notificationRequest, exceptionRecord);

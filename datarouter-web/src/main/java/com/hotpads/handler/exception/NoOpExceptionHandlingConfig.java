@@ -3,7 +3,6 @@ package com.hotpads.handler.exception;
 import javax.servlet.http.HttpServletRequest;
 
 import com.hotpads.exception.analysis.ExceptionDto;
-import com.hotpads.notification.type.NotificationType;
 
 public class NoOpExceptionHandlingConfig implements ExceptionHandlingConfig{
 
@@ -44,26 +43,6 @@ public class NoOpExceptionHandlingConfig implements ExceptionHandlingConfig{
 
 	@Override
 	public String getNotificationApiEndPoint(){
-		return null;
-	}
-
-	@Override
-	public Class<? extends NotificationType> getDefaultErrorNotificationType(){
-		return null;
-	}
-
-	@Override
-	public Class<? extends NotificationType> getServerErrorNotificationType(){
-		return null;
-	}
-
-	@Override
-	public Class<? extends NotificationType> getJobErrorNotificationType(){
-		return null;
-	}
-
-	@Override
-	public Class<? extends NotificationType> getJobletErrorNotificationType(){
 		return null;
 	}
 
