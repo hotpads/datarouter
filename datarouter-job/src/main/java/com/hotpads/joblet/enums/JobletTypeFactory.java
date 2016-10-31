@@ -35,15 +35,16 @@ public class JobletTypeFactory{
 			int persistentInt = type.getPersistentInt();
 			if(typeByPersistentInt.containsKey(persistentInt)){
 				throw new RuntimeException(type.getAssociatedClass() + " duplicates persistentInt[" + persistentInt
-						+ "] for " + typeByPersistentInt.get(persistentInt));
+						+ "] of " + typeByPersistentInt.get(persistentInt).getAssociatedClass());
 			}
 			typeByPersistentInt.put(type.getPersistentInt(), type);
 
-			//error on duplicate persistentStrings
+			// error on duplicate persistentStrings
 			String persistentString = type.getPersistentString();
 			if(typeByPersistentString.containsKey(persistentString)){
 				throw new RuntimeException(type.getAssociatedClass() + " duplicates persistentString["
-						+ persistentString + "] for " + typeByPersistentString.get(persistentString));
+						+ persistentString + "] of " + typeByPersistentString.get(persistentString)
+								.getAssociatedClass());
 			}
 			typeByPersistentString.put(type.getPersistentString(), type);
 		}
