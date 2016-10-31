@@ -15,6 +15,7 @@ import com.hotpads.datarouter.config.Configs;
 import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.enums.JobletStatus;
 import com.hotpads.joblet.enums.JobletTypeFactory;
+import com.hotpads.joblet.setting.JobletSettings;
 
 @Singleton
 public class JobletScaler {

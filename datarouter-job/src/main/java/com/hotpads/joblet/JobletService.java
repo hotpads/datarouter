@@ -2,6 +2,8 @@ package com.hotpads.joblet;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -10,16 +12,14 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.config.Configs;
 import com.hotpads.datarouter.config.PutMethod;
-import com.hotpads.datarouter.routing.Datarouter;
+import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.handler.exception.ExceptionRecord;
 import com.hotpads.handler.exception.ExceptionRecorder;
 import com.hotpads.job.trigger.JobExceptionCategory;
-import com.hotpads.joblet.dao.JobletRequestDao;
 import com.hotpads.joblet.databean.JobletData;
 import com.hotpads.joblet.databean.JobletDataKey;
 import com.hotpads.joblet.databean.JobletRequest;
@@ -27,10 +27,11 @@ import com.hotpads.joblet.databean.JobletRequestKey;
 import com.hotpads.joblet.enums.JobletQueueMechanism;
 import com.hotpads.joblet.enums.JobletStatus;
 import com.hotpads.joblet.enums.JobletType;
-import com.hotpads.joblet.enums.JobletTypeFactory;
-import com.hotpads.joblet.jdbc.GetJobletRequest;
-import com.hotpads.joblet.jdbc.JobletRequestSqlBuilder;
-import com.hotpads.joblet.jdbc.ReserveJobletRequest;
+import com.hotpads.joblet.queue.JobletRequestQueueKey;
+import com.hotpads.joblet.queue.JobletRequestQueueManager;
+import com.hotpads.joblet.queue.JobletRequestSelector;
+import com.hotpads.joblet.queue.JobletRequestSelectorFactory;
+import com.hotpads.joblet.setting.JobletSettings;
 import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.profile.PhaseTimer;
 import com.hotpads.util.core.stream.StreamTool;
@@ -41,28 +42,21 @@ public class JobletService{
 
 	public static final int MAX_JOBLET_RETRIES = 10;
 
-	private final Datarouter datarouter;
-	private final JobletTypeFactory jobletTypeFactory;
+	private final JobletRequestQueueManager jobletRequestQueueManager;
 	private final JobletNodes jobletNodes;
 	private final ExceptionRecorder exceptionRecorder;
-	private final JdbcFieldCodecFactory jdbcFieldCodecFactory;
-	private final JobletRequestSqlBuilder jobletRequestSqlBuilder;
-	private final JobletRequestDao jobletRequestDao;
 	private final JobletSettings jobletSettings;
+	private final JobletRequestSelectorFactory jobletRequestSelectorFactory;
 
 	@Inject
-	public JobletService(Datarouter datarouter, JobletTypeFactory jobletTypeFactory, JobletNodes jobletNodes,
-			ExceptionRecorder exceptionRecorder, JdbcFieldCodecFactory jdbcFieldCodecFactory,
-			JobletRequestSqlBuilder jobletRequestSqlBuilder, JobletRequestDao jobletRequestDao,
-			JobletSettings jobletSettings){
-		this.datarouter = datarouter;
-		this.jobletTypeFactory = jobletTypeFactory;
+	public JobletService(JobletRequestQueueManager jobletRequestQueueManager, JobletNodes jobletNodes,
+			ExceptionRecorder exceptionRecorder, JobletSettings jobletSettings,
+			JobletRequestSelectorFactory jobletRequestSelectorFactory){
+		this.jobletRequestQueueManager = jobletRequestQueueManager;
 		this.jobletNodes = jobletNodes;
 		this.exceptionRecorder = exceptionRecorder;
-		this.jdbcFieldCodecFactory = jdbcFieldCodecFactory;
-		this.jobletRequestSqlBuilder = jobletRequestSqlBuilder;
-		this.jobletRequestDao = jobletRequestDao;
 		this.jobletSettings = jobletSettings;
+		this.jobletRequestSelectorFactory = jobletRequestSelectorFactory;
 	}
 
 	/*--------------------- create ------------------------*/
@@ -73,8 +67,18 @@ public class JobletService{
 		jobletNodes.jobletData().putMulti(JobletPackage.getJobletDatas(jobletPackages), Configs.insertOrBust());
 		timer.add("inserted JobletData");
 		jobletPackages.forEach(JobletPackage::updateJobletDataIdReference);
-		jobletNodes.jobletRequest().putMulti(JobletPackage.getJobletRequests(jobletPackages), Configs.insertOrBust());
+		List<JobletRequest> jobletRequests = JobletPackage.getJobletRequests(jobletPackages);
+		jobletNodes.jobletRequest().putMulti(jobletRequests, Configs.insertOrBust());
 		timer.add("inserted JobletRequest");
+		if(jobletSettings.getQueueMechanismEnum() == JobletQueueMechanism.SQS){
+			Map<JobletRequestQueueKey,List<JobletRequest>> requestsByQueueKey = jobletRequests.stream()
+					.collect(Collectors.groupingBy(jobletRequestQueueManager::getQueueKey, Collectors.toList()));
+			for(Map.Entry<JobletRequestQueueKey,List<JobletRequest>> queueAndRequests : requestsByQueueKey.entrySet()){
+				jobletNodes.jobletRequestQueueByKey().get(queueAndRequests.getKey()).putMulti(queueAndRequests
+						.getValue(), null);
+			}
+			timer.add("queued JobletRequests");
+		}
 		if(timer.getElapsedTimeBetweenFirstAndLastEvent() > 200){
 			logger.warn("slow insert joblets:{}", timer);
 		}
@@ -112,64 +116,16 @@ public class JobletService{
 
 	/*--------------------- get for processing ---------------------*/
 
-	public JobletRequest getJobletRequestForProcessing(JobletType<?> type, String reservedBy){
+	public Optional<JobletRequest> getJobletRequestForProcessing(JobletType<?> type, String reservedBy){
 		long startMs = System.currentTimeMillis();
-		JobletRequest jobletRequest;
-		JobletQueueMechanism queueMechanism = jobletSettings.getQueueMechanismEnum();
-		if(JobletQueueMechanism.JDBC_LOCK_FOR_UPDATE == queueMechanism){
-			jobletRequest = getJobletRequestByGetOp(type, reservedBy);
-		}else if(JobletQueueMechanism.JDBC_UPDATE_AND_SCAN == queueMechanism){
-			jobletRequest = getJobletRequestByReserveOp(type, reservedBy);
-		}else{
-			throw new IllegalStateException("unknown JobletQueueMechanism");
-		}
+		JobletRequestSelector selector = jobletRequestSelectorFactory.create();
+		Optional<JobletRequest> jobletRequest = selector.getJobletRequestForProcessing(type, reservedBy);
 		long durationMs = System.currentTimeMillis() - startMs;
-		if(durationMs > 200){
-			String message = jobletRequest == null ? "none" : jobletRequest.getKey().toString();
-			logger.warn("slow get joblet type={}, durationMs={}, got {}", type, durationMs,
-					message);
+		if(durationMs > 1000){
+			String message = jobletRequest.map(Databean::getKey).map(Object::toString).orElse("none");
+			logger.warn("slow get joblet type={}, durationMs={}, got {}", type, durationMs, message);
 		}
 		return jobletRequest;
-	}
-
-	private JobletRequest getJobletRequestByGetOp(JobletType<?> type, String reservedBy){
-		while(true){
-			GetJobletRequest jdbcOp = new GetJobletRequest(reservedBy, type, datarouter, jobletNodes,
-					jdbcFieldCodecFactory, jobletRequestSqlBuilder);
-			JobletRequest jobletRequest = datarouter.run(jdbcOp);
-			if(jobletRequest == null){
-				return null;
-			}
-			if( ! jobletRequest.getStatus().isRunning()){
-				continue;//weird flow.  it was probably just marked as timedOut, so skip it
-			}
-			return jobletRequest;
-		}
-	}
-
-	private JobletRequest getJobletRequestByReserveOp(JobletType<?> type, String reservedBy){
-		ReserveJobletRequest jdbcOp = new ReserveJobletRequest(reservedBy, type, datarouter, jobletNodes,
-				jobletRequestSqlBuilder);
-		while(datarouter.run(jdbcOp)){//returns false if no joblet found
-			JobletRequest jobletRequest = jobletRequestDao.getReservedRequest(type, reservedBy);
-			if(JobletStatus.created == jobletRequest.getStatus()){
-				jobletRequest.setStatus(JobletStatus.running);
-				jobletNodes.jobletRequest().put(jobletRequest, null);
-				return jobletRequest;
-			}
-
-			//we got a previously timed-out joblet
-			jobletRequest.incrementNumTimeouts();
-			if(jobletRequest.getNumTimeouts() <= MAX_JOBLET_RETRIES){
-				jobletNodes.jobletRequest().put(jobletRequest, null);
-				return jobletRequest;
-			}
-
-			jobletRequest.setStatus(JobletStatus.timedOut);
-			jobletNodes.jobletRequest().put(jobletRequest, null);
-			//loop around for another
-		}
-		return null;
 	}
 
 	/*------------------- update ----------------------------*/
@@ -205,28 +161,44 @@ public class JobletService{
 		jobletRequest.setReservedAt(null);
 		JobletStatus setStatusTo = jobletRequest.getRestartable() ? JobletStatus.created : JobletStatus.interrupted;
 		jobletRequest.setStatus(setStatusTo);
+		requeueJobletRequest(jobletRequest);
+		jobletNodes.jobletRequest().put(jobletRequest, new Config().setPutMethod(PutMethod.UPDATE_OR_BUST));
 		logger.warn("interrupted {}, set status={}, reservedBy=null, reservedAt=null", jobletRequest.getKey(),
 				setStatusTo);
-		jobletNodes.jobletRequest().put(jobletRequest, new Config().setPutMethod(PutMethod.UPDATE_OR_BUST));
 	}
 
 	public void handleJobletError(JobletRequest jobletRequest, Exception exception, String location){
-		jobletRequest.setNumFailures(jobletRequest.getNumFailures() + 1);
-		if(jobletRequest.getNumFailures() < jobletRequest.getMaxFailures()){
-			jobletRequest.setStatus(JobletStatus.created);
-		}else{
-			jobletRequest.setStatus(JobletStatus.failed);
-		}
 		ExceptionRecord exceptionRecord = exceptionRecorder.tryRecordException(exception, location,
 				JobExceptionCategory.JOBLET);
 		jobletRequest.setExceptionRecordId(exceptionRecord.getKey().getId());
 		jobletRequest.setReservedBy(null);
 		jobletRequest.setReservedAt(null);
+		jobletRequest.incrementNumFailures();
+		if(jobletRequest.getRestartable() && ! jobletRequest.hasReachedMaxFailures()){
+			jobletRequest.setStatus(JobletStatus.created);
+			requeueJobletRequest(jobletRequest);
+		}else{
+			jobletRequest.setStatus(JobletStatus.failed);
+		}
 		jobletNodes.jobletRequest().put(jobletRequest, new Config().setPutMethod(PutMethod.UPDATE_OR_BUST));
 	}
 
 	public void handleJobletCompletion(JobletRequest jobletRequest){
+		if(jobletRequest.getQueueMessageKey() != null){
+			JobletRequestQueueKey queueKey = jobletRequestQueueManager.getQueueKey(jobletRequest);
+			jobletNodes.jobletRequestQueueByKey().get(queueKey).ack(jobletRequest.getQueueMessageKey(), null);
+		}
 		deleteJobletRequestAndData(jobletRequest);
+	}
+
+	private void requeueJobletRequest(JobletRequest jobletRequest){
+		if(jobletRequest.getQueueMessageKey() == null){
+			return;
+		}
+		JobletRequestQueueKey queueKey = jobletRequestQueueManager.getQueueKey(jobletRequest);
+		//rather than ack/put, is there an ack(false) mechanism?
+		jobletNodes.jobletRequestQueueByKey().get(queueKey).ack(jobletRequest.getQueueMessageKey(), null);
+		jobletNodes.jobletRequestQueueByKey().get(queueKey).put(jobletRequest, null);
 	}
 
 }

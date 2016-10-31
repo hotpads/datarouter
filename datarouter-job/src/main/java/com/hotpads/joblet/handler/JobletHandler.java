@@ -23,7 +23,6 @@ import com.hotpads.job.dispatcher.DatarouterJobDispatcher;
 import com.hotpads.joblet.JobletNodes;
 import com.hotpads.joblet.JobletPackage;
 import com.hotpads.joblet.JobletService;
-import com.hotpads.joblet.JobletSettings;
 import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.databean.JobletRequestKey;
 import com.hotpads.joblet.dto.JobletSummary;
@@ -36,6 +35,7 @@ import com.hotpads.joblet.execute.ParallelJobletProcessor;
 import com.hotpads.joblet.execute.ParallelJobletProcessors;
 import com.hotpads.joblet.jdbc.RestartJobletRequests;
 import com.hotpads.joblet.jdbc.TimeoutStuckRunningJobletRequests;
+import com.hotpads.joblet.setting.JobletSettings;
 import com.hotpads.joblet.test.SleepingJoblet;
 import com.hotpads.joblet.test.SleepingJoblet.SleepingJobletParams;
 
@@ -192,15 +192,16 @@ public class JobletHandler extends BaseHandler{
 		return new InContextRedirectMav(params, URL_JOBLETS_IN_CONTEXT);
 	}
 
-	// /datarouter/joblets/createSleepingJoblets?numJoblets=100&sleepMs=500
+	// /datarouter/joblets/createSleepingJoblets?numJoblets=100&sleepMs=500&executionOrder=10
 	@Handler
-	private Mav createSleepingJoblets(int numJoblets, long sleepMs){
+	private Mav createSleepingJoblets(int numJoblets, long sleepMs, int executionOrder){
+		JobletPriority priority = JobletPriority.fromExecutionOrder(executionOrder);
 		List<JobletPackage> jobletPackages = new ArrayList<>();
 		for(int i = 0; i < numJoblets; ++i){
 			SleepingJobletParams params = new SleepingJobletParams(String.valueOf(i), sleepMs);
 			int batchSequence = i;//specify this so joblets execute in precise order
-			JobletPackage jobletPackage = JobletPackage.createDetailed(SleepingJoblet.JOBLET_TYPE,
-					JobletPriority.DEFAULT, new Date(), batchSequence, true, null, params);
+			JobletPackage jobletPackage = JobletPackage.createDetailed(SleepingJoblet.JOBLET_TYPE, priority, new Date(),
+					batchSequence, true, null, params);
 			jobletPackages.add(jobletPackage);
 		}
 		jobletService.submitJobletPackages(jobletPackages);

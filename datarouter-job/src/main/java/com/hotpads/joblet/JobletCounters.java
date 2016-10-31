@@ -45,4 +45,16 @@ public class JobletCounters {
 		Counters.inc(PREFIX + "tasks processed " + key, delta);
 	}
 
+	public static void incQueueSkip(String key){
+		Counters.inc(PREFIX + "queue " + key + " skip");
+	}
+
+	public static void incQueueHit(String key){
+		Counters.inc(PREFIX + "queue " + key + " hit");
+	}
+
+	public static void incQueueMiss(String key){
+		Counters.inc(PREFIX + "queue " + key + " miss");
+	}
+
 }

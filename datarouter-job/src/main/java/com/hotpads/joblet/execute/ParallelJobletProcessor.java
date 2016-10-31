@@ -2,6 +2,7 @@ package com.hotpads.joblet.execute;
 
 import java.time.Duration;
 import java.util.Collection;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 
@@ -15,10 +16,10 @@ import com.hotpads.datarouter.config.DatarouterProperties;
 import com.hotpads.datarouter.util.core.DrDateTool;
 import com.hotpads.joblet.JobletPackage;
 import com.hotpads.joblet.JobletService;
-import com.hotpads.joblet.JobletSettings;
 import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.enums.JobletType;
 import com.hotpads.joblet.execute.JobletExecutorThreadPool.JobletExecutorThreadPoolFactory;
+import com.hotpads.joblet.setting.JobletSettings;
 import com.hotpads.util.core.profile.PhaseTimer;
 import com.hotpads.util.datastructs.MutableBoolean;
 
@@ -96,11 +97,11 @@ public class ParallelJobletProcessor{
 				}
 				workerThreadPool.resize(jobletSettings.getThreadCountForJobletType(jobletType));
 				PhaseTimer timer = new PhaseTimer();
-				JobletPackage jobletPackage = getJobletPackage(counter++);
-				if(jobletPackage != null){
+				Optional<JobletPackage> jobletPackage = getJobletPackage(counter++);
+				if(jobletPackage.isPresent()){
 					timer.add("acquired");
-					jobletPackage.getJobletRequest().setTimer(timer);
-					assignJobletPackageToThreadPool(jobletPackage);
+					jobletPackage.get().getJobletRequest().setTimer(timer);
+					assignJobletPackageToThreadPool(jobletPackage.get());
 				}else{
 					logger.debug("sleeping since no joblet found for {}", jobletType.getPersistentString());
 					sleepABit();
@@ -116,14 +117,14 @@ public class ParallelJobletProcessor{
 		}
 	}
 
-	private final JobletPackage getJobletPackage(long counter){
+	private final Optional<JobletPackage> getJobletPackage(long counter){
 		String reservedBy = getReservedByString(counter);
-		JobletRequest jobletRequest = jobletService.getJobletRequestForProcessing(jobletType, reservedBy);
-		if(jobletRequest == null){
-			return null;
+		Optional<JobletRequest> jobletRequest = jobletService.getJobletRequestForProcessing(jobletType, reservedBy);
+		if(!jobletRequest.isPresent()){
+			return Optional.empty();
 		}
-		jobletRequest.setShutdownRequested(shutdownRequested);
-		return jobletService.getJobletPackageForJobletRequest(jobletRequest);
+		jobletRequest.get().setShutdownRequested(shutdownRequested);
+		return jobletRequest.map(jobletService::getJobletPackageForJobletRequest);
 	}
 
 	private String getReservedByString(long counter){
