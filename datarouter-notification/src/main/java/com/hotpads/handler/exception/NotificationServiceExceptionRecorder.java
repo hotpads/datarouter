@@ -8,10 +8,6 @@ import org.slf4j.LoggerFactory;
 import com.hotpads.datarouter.exception.ExceptionCategory;
 import com.hotpads.datarouter.exception.UnknownExceptionCategory;
 import com.hotpads.datarouter.util.core.DrExceptionTool;
-import com.hotpads.handler.exception.ExceptionCounters;
-import com.hotpads.handler.exception.ExceptionNodes;
-import com.hotpads.handler.exception.ExceptionRecord;
-import com.hotpads.handler.exception.ExceptionRecorder;
 import com.hotpads.notification.ParallelApiCaller;
 import com.hotpads.notification.databean.NotificationRequest;
 import com.hotpads.notification.databean.NotificationUserId;
@@ -64,10 +60,8 @@ public class NotificationServiceExceptionRecorder implements ExceptionRecorder{
 		ExceptionCounters.inc(exception.getClass().getName());
 		ExceptionCounters.inc(location);
 		ExceptionCounters.inc(exception.getClass().getName() + " " + location);
-		ExceptionRecord exceptionRecord = new ExceptionRecord(
-				exceptionHandlingConfig.getServerName(),
-				DrExceptionTool.getStackTraceAsString(exception),
-				exception.getClass().getName());
+		ExceptionRecord exceptionRecord = new ExceptionRecord(exceptionHandlingConfig.getServerName(), DrExceptionTool
+				.getStackTraceAsString(exception), exception.getClass().getName(), location);
 		exceptionNodes.getExceptionRecordNode().put(exceptionRecord, null);
 		String domain = exceptionHandlingConfig.isDevServer() ? UrlScheme.LOCAL_DEV_SERVER_HTTPS
 				: UrlScheme.DOMAIN_NAME;

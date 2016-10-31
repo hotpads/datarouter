@@ -11,7 +11,6 @@ public class WebAppName{
 
 	public static final String TEST = "test";
 
-	//note: this seems to be the artifactId in the pom (not the directory that the pom is in)
 	private String name;
 
 	@Inject
@@ -29,6 +28,9 @@ public class WebAppName{
 		return name;
 	}
 
+	/**
+	 * @return the content of the display-name tag in the web.xml
+	 */
 	public String getName(){
 		return name;
 	}
