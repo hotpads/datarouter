@@ -18,7 +18,7 @@ public class JobletRequestQueueKey implements Comparable<JobletRequestQueueKey>{
 	}
 
 	public String getQueueName(){
-		return type.getPersistentString() + "-" + priority.getComparableName();
+		return type.getShortQueueName() + "-" + priority.getComparableName();
 	}
 
 	/*---------------- Object ------------------*/
@@ -47,11 +47,11 @@ public class JobletRequestQueueKey implements Comparable<JobletRequestQueueKey>{
 
 	@Override
 	public int compareTo(JobletRequestQueueKey other){
-		int diff = DrComparableTool.nullFirstCompareTo(this.type, other.type);
+		int diff = DrComparableTool.nullFirstCompareTo(type, other.type);
 		if(diff != 0){
 			return diff;
 		}
-		return DrComparableTool.nullFirstCompareTo(this.priority, other.priority);
+		return DrComparableTool.nullFirstCompareTo(priority, other.priority);
 	}
 
 	/*-------------- get/set ------------------------*/

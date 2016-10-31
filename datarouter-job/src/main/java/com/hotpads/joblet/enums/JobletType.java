@@ -2,11 +2,14 @@ package com.hotpads.joblet.enums;
 
 import java.util.function.Supplier;
 
+import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.util.core.DrComparableTool;
 import com.hotpads.joblet.Joblet;
 import com.hotpads.joblet.JobletCodec;
+import com.hotpads.joblet.JobletConstants;
 
 public class JobletType<P> implements Comparable<JobletType<?>>{
+
 	private final int persistentInt;
 	private final String persistentString;
 	private final String shortQueueName;//must be short for some queueing systems
@@ -21,6 +24,7 @@ public class JobletType<P> implements Comparable<JobletType<?>>{
 			Integer memoryPermits, boolean causesScaling){
 		this.persistentInt = persistentInt;
 		this.persistentString = persistentString;
+		Preconditions.checkArgument(shortQueueName.length() <= JobletConstants.MAX_LENGTH_SHORT_QUEUE_NAME);
 		this.shortQueueName =  shortQueueName;
 		this.codecSupplier = codecSupplier;
 		this.clazz = clazz;
@@ -49,6 +53,10 @@ public class JobletType<P> implements Comparable<JobletType<?>>{
 
 	public String getPersistentString(){
 		return persistentString;
+	}
+
+	public String getShortQueueName(){
+		return shortQueueName;
 	}
 
 	public int getPersistentInt(){
