@@ -48,6 +48,7 @@ public class JobletTypeFactory{
 						+ persistentString + "] of " + typeByPersistentString.get(persistentString)
 								.getAssociatedClass());
 			}
+			typeByPersistentString.put(type.getPersistentString(), type);
 
 			// error on duplicate shortQueueNames
 			String shortQueueName = type.getShortQueueName();
@@ -56,8 +57,7 @@ public class JobletTypeFactory{
 						+ shortQueueName + "] of " + typeByShortQueueName.get(shortQueueName)
 								.getAssociatedClass());
 			}
-			typeByPersistentString.put(type.getPersistentString(), type);
-			typeByPersistentString.put(type.getPersistentString(), type);
+			typeByShortQueueName.put(type.getShortQueueName(), type);
 		}
 		this.typesCausingScaling = types.stream()
 				.filter(JobletType::causesScaling)
