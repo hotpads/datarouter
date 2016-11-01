@@ -1,15 +1,25 @@
 package com.hotpads.handler.exception;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 
 import com.hotpads.exception.analysis.ExceptionDto;
+import com.hotpads.handler.user.role.DatarouterUserRole;
+import com.hotpads.handler.user.session.DatarouterSession;
+import com.hotpads.handler.user.session.DatarouterSessionManager;
 import com.hotpads.notification.type.NotificationType;
 
+@Singleton
 public class NoOpExceptionHandlingConfig implements ExceptionHandlingConfig{
+
+	@Inject
+	private DatarouterSessionManager sessionManager;
 
 	@Override
 	public boolean shouldDisplayStackTrace(HttpServletRequest request, Exception exception){
-		return false;
+		DatarouterSession session = sessionManager.getFromRequest(request);
+		return DatarouterUserRole.isSessionAdmin(session);
 	}
 
 	@Override
@@ -24,7 +34,7 @@ public class NoOpExceptionHandlingConfig implements ExceptionHandlingConfig{
 
 	@Override
 	public String getHtmlErrorMessage(Exception exception){
-		return null;
+		return "Error";
 	}
 
 	@Override
