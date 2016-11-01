@@ -7,10 +7,12 @@ import com.hotpads.datarouter.config.DatarouterProperties;
 import com.hotpads.datarouter.setting.SettingFinder;
 import com.hotpads.example.config.ExampleDatarouterProperties;
 import com.hotpads.example.config.ExampleSettingFinder;
+import com.hotpads.example.config.http.ExampleAuthenticationConfig;
 import com.hotpads.handler.exception.ExceptionHandlingConfig;
 import com.hotpads.handler.exception.ExceptionNodes;
 import com.hotpads.handler.exception.NoOpExceptionHandlingConfig;
 import com.hotpads.handler.exception.NoOpExceptionNodes;
+import com.hotpads.handler.user.authenticate.config.DatarouterAuthenticationConfig;
 import com.hotpads.profile.metrics.MetricsNodes;
 import com.hotpads.profile.metrics.NoOpMetricsNodes;
 import com.hotpads.util.core.logging.LoggingConfigDao;
@@ -27,6 +29,7 @@ public class ExampleGuiceModule extends AbstractModule{
 		bind(LoggingConfigDao.class).to(NonPersistentLoggingConfigDao.class);
 		bind(MetricsNodes.class).to(NoOpMetricsNodes.class);
 		bind(JdbcFieldCodecFactory.class).to(StandardJdbcFieldCodecFactory.class);
+		bind(DatarouterAuthenticationConfig.class).to(ExampleAuthenticationConfig.class);
 	}
 
 }
