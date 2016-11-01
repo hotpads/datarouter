@@ -23,6 +23,7 @@ public class JobletTypeFactory{
 	private final JobletType<?> sampleType;
 	private final Map<Integer,JobletType<?>> typeByPersistentInt;
 	private final Map<String,JobletType<?>> typeByPersistentString;
+	private final Map<String,JobletType<?>> typeByShortQueueName;
 	private final Set<JobletType<?>> typesCausingScaling;
 
 	public JobletTypeFactory(Collection<JobletType<?>> types){
@@ -30,6 +31,7 @@ public class JobletTypeFactory{
 		this.sampleType = DrCollectionTool.getFirst(types);
 		this.typeByPersistentInt = new HashMap<>();
 		this.typeByPersistentString = new HashMap<>();
+		this.typeByShortQueueName = new HashMap<>();
 		for(JobletType<?> type : types){
 			//error on duplicate persistentInts
 			int persistentInt = type.getPersistentInt();
@@ -47,6 +49,15 @@ public class JobletTypeFactory{
 								.getAssociatedClass());
 			}
 			typeByPersistentString.put(type.getPersistentString(), type);
+
+			// error on duplicate shortQueueNames
+			String shortQueueName = type.getShortQueueName();
+			if(typeByShortQueueName.containsKey(shortQueueName)){
+				throw new RuntimeException(type.getAssociatedClass() + " duplicates shortQueueName["
+						+ shortQueueName + "] of " + typeByShortQueueName.get(shortQueueName)
+								.getAssociatedClass());
+			}
+			typeByShortQueueName.put(type.getShortQueueName(), type);
 		}
 		this.typesCausingScaling = types.stream()
 				.filter(JobletType::causesScaling)
