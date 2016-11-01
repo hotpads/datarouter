@@ -8,7 +8,6 @@ import com.hotpads.exception.analysis.ExceptionDto;
 import com.hotpads.handler.user.role.DatarouterUserRole;
 import com.hotpads.handler.user.session.DatarouterSession;
 import com.hotpads.handler.user.session.DatarouterSessionManager;
-import com.hotpads.notification.type.NotificationType;
 
 @Singleton
 public class NoOpExceptionHandlingConfig implements ExceptionHandlingConfig{
@@ -54,26 +53,6 @@ public class NoOpExceptionHandlingConfig implements ExceptionHandlingConfig{
 
 	@Override
 	public String getNotificationApiEndPoint(){
-		return null;
-	}
-
-	@Override
-	public Class<? extends NotificationType> getDefaultErrorNotificationType(){
-		return null;
-	}
-
-	@Override
-	public Class<? extends NotificationType> getServerErrorNotificationType(){
-		return null;
-	}
-
-	@Override
-	public Class<? extends NotificationType> getJobErrorNotificationType(){
-		return null;
-	}
-
-	@Override
-	public Class<? extends NotificationType> getJobletErrorNotificationType(){
 		return null;
 	}
 
