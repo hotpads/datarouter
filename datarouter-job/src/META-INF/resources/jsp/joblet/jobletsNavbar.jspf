@@ -60,6 +60,19 @@
 						</c:forEach>
 					</ul>
 				</li>
+				<li class="dropdown">
+					<a href="#" class="dropdown-toggle" data-toggle="dropdown">Requeue <span class="caret"></span></a>
+					<ul class="dropdown-menu">
+						<c:forEach items="${jobletTypes}" var="jobletType">
+							<li>
+								<a href="?submitAction=copyJobletRequestsToQueues&jobletType=${jobletType.persistentString}" 
+									onclick="return confirm('Are you sure you want to requeue ${jobletType.display} requests');">
+									${jobletType.display}
+								</a>
+							</li>
+						</c:forEach>
+					</ul>
+				</li>
 			</ul>
 		</div>
 	</div>

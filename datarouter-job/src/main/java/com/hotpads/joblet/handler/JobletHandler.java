@@ -12,6 +12,9 @@ import java.util.stream.Stream;
 
 import javax.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.hotpads.datarouter.config.DatarouterProperties;
 import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.util.core.DrStringTool;
@@ -23,6 +26,7 @@ import com.hotpads.job.dispatcher.DatarouterJobDispatcher;
 import com.hotpads.joblet.JobletNodes;
 import com.hotpads.joblet.JobletPackage;
 import com.hotpads.joblet.JobletService;
+import com.hotpads.joblet.dao.JobletRequestDao;
 import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.databean.JobletRequestKey;
 import com.hotpads.joblet.dto.JobletSummary;
@@ -35,11 +39,15 @@ import com.hotpads.joblet.execute.ParallelJobletProcessor;
 import com.hotpads.joblet.execute.ParallelJobletProcessors;
 import com.hotpads.joblet.jdbc.RestartJobletRequests;
 import com.hotpads.joblet.jdbc.TimeoutStuckRunningJobletRequests;
+import com.hotpads.joblet.queue.JobletRequestQueueKey;
+import com.hotpads.joblet.queue.JobletRequestQueueManager;
 import com.hotpads.joblet.setting.JobletSettings;
 import com.hotpads.joblet.test.SleepingJoblet;
 import com.hotpads.joblet.test.SleepingJoblet.SleepingJobletParams;
+import com.hotpads.util.core.iterable.BatchingIterable;
 
 public class JobletHandler extends BaseHandler{
+	private static final Logger logger = LoggerFactory.getLogger(JobletHandler.class);
 
 	private static final String
 		URL_JOBLETS_IN_CONTEXT = DatarouterJobDispatcher.URL_DATAROUTER + DatarouterJobDispatcher.JOBLETS,
@@ -58,11 +66,15 @@ public class JobletHandler extends BaseHandler{
 	private final ParallelJobletProcessors parallelJobletProcessors;
 	private final JobletService jobletService;
 	private final JobletSettings jobletSettings;
+	private final JobletRequestDao jobletRequestDao;
+	private final JobletRequestQueueManager jobletRequestQueueManager;
 
 	@Inject
-	public JobletHandler(Datarouter datarouter, DatarouterProperties datarouterProperties, JobletTypeFactory
-			jobletTypeFactory, JobletNodes jobletNodes,	ParallelJobletProcessors parallelJobletProcessors, JobletService
-			jobletService, JobletSettings jobletSettings){
+	public JobletHandler(Datarouter datarouter, DatarouterProperties datarouterProperties,
+			JobletTypeFactory jobletTypeFactory, JobletNodes jobletNodes,
+			ParallelJobletProcessors parallelJobletProcessors, JobletService jobletService,
+			JobletSettings jobletSettings, JobletRequestDao jobletRequestDao,
+			JobletRequestQueueManager jobletRequestQueueManager){
 		this.datarouter = datarouter;
 		this.serverName = datarouterProperties.getServerName();
 		this.jobletTypeFactory = jobletTypeFactory;
@@ -70,6 +82,8 @@ public class JobletHandler extends BaseHandler{
 		this.parallelJobletProcessors = parallelJobletProcessors;
 		this.jobletService = jobletService;
 		this.jobletSettings = jobletSettings;
+		this.jobletRequestDao = jobletRequestDao;
+		this.jobletRequestQueueManager = jobletRequestQueueManager;
 	}
 
 	@Override
@@ -119,21 +133,37 @@ public class JobletHandler extends BaseHandler{
 	}
 
 	@Handler
+	private Mav copyJobletRequestsToQueues(String jobletType){
+		JobletType<?> jobletTypeEnum = jobletTypeFactory.fromPersistentString(jobletType);
+		long numCopied = 0;
+		for(List<JobletRequest> requestBatch : new BatchingIterable<>(jobletRequestDao.streamType(jobletTypeEnum,
+				false)::iterator, 100)){
+			for(JobletRequest request : requestBatch){
+				JobletRequestQueueKey queueKey = jobletRequestQueueManager.getQueueKey(request);
+				jobletNodes.jobletRequestQueueByKey().get(queueKey).put(request, null);
+				++numCopied;
+			}
+			logger.warn("copied {}", numCopied);
+		}
+		return new MessageMav("copied " + numCopied);
+	}
+
+	@Handler
 	private Mav restartFailed(){
 		int numRestarted = datarouter.run(new RestartJobletRequests(datarouter, jobletNodes, JobletStatus.failed));
-		return new MessageMav("restarted "+numRestarted);
+		return new MessageMav("restarted " + numRestarted);
 	}
 
 	@Handler
 	private Mav restartTimedOut(){
 		int numRestarted = datarouter.run(new RestartJobletRequests(datarouter, jobletNodes, JobletStatus.timedOut));
-		return new MessageMav("restarted "+numRestarted);
+		return new MessageMav("restarted " + numRestarted);
 	}
 
 	@Handler
 	private Mav timeoutStuckRunning(){
 		int numTimedOut = datarouter.run(new TimeoutStuckRunningJobletRequests(datarouter, jobletNodes));
-		return new MessageMav("timedOut "+numTimedOut);
+		return new MessageMav("timedOut " + numTimedOut);
 	}
 
 	@Handler
