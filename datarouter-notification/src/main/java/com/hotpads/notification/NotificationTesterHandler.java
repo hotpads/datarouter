@@ -62,17 +62,11 @@ public class NotificationTesterHandler extends BaseHandler{
 		List<NotificationRequest> notificationRequests = Stream.of(dataArr)
 				.map(data -> new NotificationRequest(userId, type, data, channel))
 				.collect(Collectors.toList());
-
 		if(async){
-			if (notificationRequests.size() > 1){
-				notificationManager.request(notificationRequests);
-			} else{
-				notificationManager.request(notificationRequests.get(0));
-			}
+			notificationManager.request(notificationRequests);
 			return Optional.empty();
 		} else {
-			return Optional.of(notificationRequests.size() > 1 ? notificationManager.send(notificationRequests) :
-				notificationManager.send(notificationRequests.get(0)));
+			return Optional.of(notificationManager.send(notificationRequests));
 		}
 	}
 
