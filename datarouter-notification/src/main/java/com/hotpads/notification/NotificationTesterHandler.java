@@ -7,7 +7,6 @@ import java.util.stream.Stream;
 
 import javax.inject.Inject;
 
-import com.google.common.base.Preconditions;
 import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.mav.Mav;
 import com.hotpads.notification.databean.NotificationRequest;
@@ -31,10 +30,10 @@ public class NotificationTesterHandler extends BaseHandler{
 
 	@Override
 	protected Mav handleDefault(){
- 		Mav mav = new Mav(JSP_NOTIFICATION_TESTER);
- 		if(params.optional(P_NOTIFICATION_TYPE).orElse(null) != null){
- 			Optional<List<NotificationSendingResult>> results = sendNotification();
- 			if(results.isPresent()){
+		Mav mav = new Mav(JSP_NOTIFICATION_TESTER);
+		if(params.optional(P_NOTIFICATION_TYPE).isPresent()){
+			Optional<List<NotificationSendingResult>> results = sendNotification();
+			if(results.isPresent()){
 				String failures = results.get().stream()
 						.filter(result -> result.getFailureReason() != null)
 						.map(result -> result.getTemplate().getName() + ": " + result.getFailureReason())
@@ -42,12 +41,12 @@ public class NotificationTesterHandler extends BaseHandler{
 				mav.put("failures", failures);
 				mav.put("numAttempted", results.get().size());
 				mav.put("numSent", NotificationSendingResult.countSuccesses(results.get()));
- 			}else{
- 				mav.put("requested", true);
- 			}
- 		}
- 		mav.put("userTypes", NotificationUserType.values());
- 		return mav;
+			}else{
+				mav.put("requested", true);
+			}
+		}
+		mav.put("userTypes", NotificationUserType.values());
+		return mav;
 	}
 
 	private Optional<List<NotificationSendingResult>> sendNotification(){
@@ -59,9 +58,10 @@ public class NotificationTesterHandler extends BaseHandler{
 		String channel = params.optional(P_NOTIFICATION_CHANNEL).orElse(null);
 		Boolean async = params.requiredBoolean(P_NOTIFICATION_ASYNCH);
 
-		String[] dataArr = Preconditions.checkNotNull(request.getParameterValues(P_NOTIFICATION_REQUEST_DATA));
+		String[] dataArr = params.requiredArray(P_NOTIFICATION_REQUEST_DATA);
 		List<NotificationRequest> notificationRequests = Stream.of(dataArr)
-				.map(data -> new NotificationRequest(userId, type, data, channel)).collect(Collectors.toList());
+				.map(data -> new NotificationRequest(userId, type, data, channel))
+				.collect(Collectors.toList());
 
 		if(async){
 			if (notificationRequests.size() > 1){
