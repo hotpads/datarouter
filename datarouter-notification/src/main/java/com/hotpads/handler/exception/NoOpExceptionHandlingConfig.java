@@ -6,7 +6,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.hotpads.exception.analysis.ExceptionDto;
 import com.hotpads.handler.user.role.DatarouterUserRole;
-import com.hotpads.handler.user.session.DatarouterSession;
 import com.hotpads.handler.user.session.DatarouterSessionManager;
 import com.hotpads.notification.type.NotificationType;
 
@@ -18,8 +17,10 @@ public class NoOpExceptionHandlingConfig implements ExceptionHandlingConfig{
 
 	@Override
 	public boolean shouldDisplayStackTrace(HttpServletRequest request, Exception exception){
-		DatarouterSession session = sessionManager.getFromRequest(request);
-		return DatarouterUserRole.isSessionAdmin(session);
+		return sessionManager
+			.getFromRequest(request)
+			.map(DatarouterUserRole::isSessionAdmin)
+			.orElse(false);
 	}
 
 	@Override

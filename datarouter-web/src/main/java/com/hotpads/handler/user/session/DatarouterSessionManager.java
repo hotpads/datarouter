@@ -2,6 +2,7 @@ package com.hotpads.handler.user.session;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Optional;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -84,8 +85,8 @@ public class DatarouterSessionManager{
 		request.setAttribute(REQUEST_ATTRIBUTE_NAME, userSession);
 	}
 
-	public DatarouterSession getFromRequest(HttpServletRequest request) {
-		return (DatarouterSession)request.getAttribute(REQUEST_ATTRIBUTE_NAME);
+	public Optional<DatarouterSession> getFromRequest(HttpServletRequest request) {
+		return Optional.ofNullable((DatarouterSession)request.getAttribute(REQUEST_ATTRIBUTE_NAME));
 	}
 
 }
