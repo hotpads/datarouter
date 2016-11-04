@@ -51,23 +51,58 @@
 		.no-value-on-0 .tree-level-0{
 			width: 255px;
 		}
+		.alert{
+			width: 255px;
+			margin-top: 20px;
+		}
 	</style>
 	<script>
-	require(['jquery'], function(){
-		$(document).ready(function(){
-			$('#loading-example-btn').click(function () {
-				var answer = confirm('Do you really to run the garbage collector on ${serverName}');
-				if(!answer){
+	require(['jquery'], function($){
+		$(function(){
+			$('#loading-example-btn').click(function(){
+				if(!confirm('Do you really to run the garbage collector on ${serverName}')){
 					return false;
 				}
 				var btn = $(this);
 				btn.button('loading');
 				var start = new Date().getTime();
-				setInterval(function() {
-					var now = new Date().getTime();
-					var diff = now - start;
+				var interval = setInterval(function() {
+					var diff = new Date().getTime() - start;
 					btn.text('In progress ' + Math.round(diff/100)/10 + 's');
 				}, 100);
+				$.get("${contextPath}/datarouter/memory/garbageCollector?serverName=${serverName}")
+						.done(function(response){
+							window.clearInterval(interval);
+							btn.text('Run garbage collector').button('reset');
+							btn.siblings().remove();
+							if(response.success){
+								var title = $('<h3>').text('Previous manual run');
+								var timeLabel = $('<span>').addClass('property tree-level-0').text('Time');
+								var timeValue = $('<span>').addClass('value')
+										.text(response.duration/1000 + 's');
+								var resultDiv = $('<div>').css('text-align', 'right')
+										.append(title)
+										.append(timeLabel).append(timeValue).append($('<br>'));
+								response.effects.forEach(function(effect){
+									var effectNameLabel = $('<span>').addClass('property tree-level-0')
+											.text(effect.name);
+									var effectNameValue = $('<span>').addClass('value');
+									var savedLabel = $('<span>').addClass('property tree-level-1').text('Memory saved');
+									var savedValue = $('<span>').addClass('value').text(effect.saved);
+									var pctLabel = $('<span>').addClass('property tree-level-1').text('Percentage');
+									var pctValue = $('<span>').addClass('value')
+											.text(Math.round(100 * effect.pct) + '%');
+									resultDiv.append(effectNameLabel).append(effectNameValue).append($('<br>'))
+											.append(savedLabel).append(savedValue).append($('<br>'))
+											.append(pctLabel).append(pctValue).append($('<br>'));
+								});
+								btn.parent().append(resultDiv);
+							}else{
+								btn.parent().append($('<div>').addClass('alert alert-danger')
+										.text('The request came from another server. ' 
+												+ 'Are you sure you are on an server specific url?'));
+							}
+						});
 			});
 		});
 	});
@@ -77,9 +112,6 @@
 <%@ include file="/jsp/menu/common-navbar.jsp"%>
 <%@ include file="/jsp/menu/dr-navbar.jsp"%>
 <div class="auto-centered-container">
-	<c:if test="${not empty param.sameServer}">
-		<div class="alert alert-danger">The request come from another server. Are you sure to be on an server specific url?</div>
-	</c:if>
 	<div class="block">
 		<h2>Server</h2>
 		<span class="property tree-level-0">Start time</span>
@@ -190,31 +222,9 @@
 			<br>
 		</c:forEach>
 		<div style="text-align: left">
-			<a
-			class="btn btn-danger" id="loading-example-btn" data-loading-text="In progress..."
-			href="${contextPath}/datarouter/memory/garbageCollector?serverName=${serverName}">
+			<a class="btn btn-danger" id="loading-example-btn">
 				Run garbage collector
 			</a>
-			<c:if test="${not empty duration}">
-				<div style="text-align: right;">
-					<h3>Previous manual run</h3>
-					<span class="property tree-level-0">Time</span>
-					<span class="value">${duration/1000}s</span>
-					<br>
-					<c:forEach items="${effects}" var="gcEffect">
-						<span class="property tree-level-0">${gcEffect.name}</span>
-						<span class="value"></span>
-						<br>
-						<span class="property tree-level-1">Memory saved</span>
-						<span class="value">${gcEffect.saved}</span>
-						<br>
-						<span class="property tree-level-1">Percentage</span>
-						<fmt:formatNumber var="pct" value="${100 * gcEffect.pct}" maxFractionDigits="0"/>
-						<span class="value">${pct}%</span>
-						<br>
-					</c:forEach>
-				</div>
-			</c:if>
 		</div>
 	</div>
 </div>
