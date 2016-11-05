@@ -40,7 +40,7 @@ public class DefaultDecoder implements HandlerDecoder{
 		}else{
 			bodyParamCount = 0;
 		}
-		if(queryParams.size() + bodyParamCount  + getOptionalParameterCount(parameters) < parameters.length){
+		if(queryParams.size() + bodyParamCount + getOptionalParameterCount(parameters) < parameters.length){
 			return null;
 		}
 		String body = null;

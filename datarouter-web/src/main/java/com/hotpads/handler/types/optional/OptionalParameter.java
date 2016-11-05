@@ -45,5 +45,4 @@ public abstract class OptionalParameter<T>{
 		}
 		return parameterClass;
 	}
-
 }
