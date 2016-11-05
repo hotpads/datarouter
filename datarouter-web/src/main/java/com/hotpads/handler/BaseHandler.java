@@ -7,8 +7,11 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.inject.Inject;
 import javax.servlet.ServletContext;
@@ -81,6 +84,7 @@ public abstract class BaseHandler{
 		String description() default "";
 		Class<? extends HandlerEncoder> encoder() default MavEncoder.class;
 		Class<? extends HandlerDecoder> decoder() default DefaultDecoder.class;
+		boolean defaultHandler() default false;
 	}
 
 	protected void handleWrapper(){//dispatcher servlet calls this
@@ -94,6 +98,15 @@ public abstract class BaseHandler{
 			Pair<Method, Object[]> pair = handlerTypingHelper.findMethodByName(possibleMethods, request);
 			Method method = pair.getLeft();
 			Object[] args = pair.getRight();
+			if(method == null){
+				Optional<Method> defaultHandlerMethod = getDefaultHandlerMethod();
+				if(defaultHandlerMethod.isPresent()){
+					pair = handlerTypingHelper.findMethodByName(Arrays.asList(defaultHandlerMethod.get()), request);
+					method = pair.getLeft();
+					method.setAccessible(true);
+					args = pair.getRight();
+				}
+			}
 			if(method == null && possibleMethods.size() > 0){
 				response.sendError(400);
 				throw new RuntimeException("missing parameters for method " + methodName);
@@ -154,6 +167,13 @@ public abstract class BaseHandler{
 		String fullPath = request.getServletPath() + DrStringTool.nullSafe(request.getPathInfo());
 		String lastPathSegment = getLastPathSegment(fullPath);
 		return params.optional(handlerMethodParamName()).orElse(lastPathSegment);
+	}
+
+	private Optional<Method> getDefaultHandlerMethod(){
+		return Stream.of(getClass().getDeclaredMethods())
+				.filter(possibleMethod -> possibleMethod.isAnnotationPresent(Handler.class))
+				.filter(possibleMethod -> possibleMethod.getDeclaredAnnotation(Handler.class).defaultHandler())
+				.findFirst();
 	}
 
 	private String getLastPathSegment(String uri) {

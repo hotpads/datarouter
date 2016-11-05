@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import com.google.gson.JsonSyntaxException;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.handler.encoder.HandlerEncoder;
+import com.hotpads.handler.types.optional.OptionalParameter;
 import com.hotpads.util.core.java.ReflectionTool;
 import com.hotpads.util.http.RequestTool;
 import com.hotpads.util.http.json.JsonSerializer;
@@ -39,7 +40,7 @@ public class DefaultDecoder implements HandlerDecoder{
 		}else{
 			bodyParamCount = 0;
 		}
-		if(queryParams.size() + bodyParamCount < parameters.length){
+		if(queryParams.size() + bodyParamCount  + getOptionalParameterCount(parameters) < parameters.length){
 			return null;
 		}
 		String body = null;
@@ -70,10 +71,16 @@ public class DefaultDecoder implements HandlerDecoder{
 				args[i] = decode(body, parameterType);
 			}else{
 				String[] queryParam = queryParams.get(parameterName);
-				if(queryParam == null){
+				boolean isOptional = OptionalParameter.class.isAssignableFrom(parameter.getType());
+				if(queryParam == null && !isOptional){
 					return null;
 				}
-				args[i] = decode(queryParam[0], parameterType);
+				if(queryParam == null){
+					args[i] = isOptional ? OptionalParameter.makeOptionalParameter(null, parameterType) : null;
+				} else{
+					args[i] = isOptional ? OptionalParameter.makeOptionalParameter(queryParam[0], parameterType)
+							: decode(queryParam[0], parameterType);
+				}
 			}
 		}
 		return args;
@@ -96,4 +103,9 @@ public class DefaultDecoder implements HandlerDecoder{
 				.anyMatch(parameter -> parameter.isAnnotationPresent(RequestBody.class));
 	}
 
+	private long getOptionalParameterCount(Parameter[] parameters){
+		return Arrays.stream(parameters)
+				.filter(parameter -> OptionalParameter.class.isAssignableFrom(parameter.getType()))
+				.count();
+	}
 }
