@@ -7,15 +7,12 @@ import com.hotpads.joblet.JobletFactory;
 import com.hotpads.joblet.JobletNodes;
 import com.hotpads.joblet.JobletService;
 import com.hotpads.joblet.enums.JobletType;
-import com.hotpads.joblet.enums.JobletTypeFactory;
 import com.hotpads.util.datastructs.MutableBoolean;
 
 public class JobletCallableFactory{
 
 	@Inject
 	private DatarouterProperties datarouterProperties;
-	@Inject
-	private JobletTypeFactory jobletTypeFactory;
 	@Inject
 	private JobletNodes jobletNodes;
 	@Inject
@@ -25,8 +22,8 @@ public class JobletCallableFactory{
 
 
 	public JobletCallable create(MutableBoolean shutdownRequested, JobletType<?> jobletType, long id){
-		return new JobletCallable(datarouterProperties, jobletTypeFactory, jobletNodes, jobletService, jobletFactory,
-				shutdownRequested, jobletType, id);
+		return new JobletCallable(datarouterProperties, jobletNodes, jobletService, jobletFactory, shutdownRequested,
+				jobletType, id);
 	}
 
 }

@@ -27,6 +27,7 @@ public class JobletCallable implements Callable<Void>{
 	private final JobletNodes jobletNodes;
 	private final JobletService jobletService;
 	private final JobletFactory jobletFactory;
+
 	private final MutableBoolean shutdownRequested;
 	private final JobletType<?> jobletType;
 	private final long id;
@@ -106,4 +107,5 @@ public class JobletCallable implements Callable<Void>{
 				+ " at "+itemsPerSecond+" items/sec"
 				+ " and "+tasksPerSecond+" tasks/sec");
 	}
+
 }

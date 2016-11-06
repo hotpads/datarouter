@@ -1,7 +1,6 @@
 package com.hotpads.joblet.execute.v2;
 
 import java.time.Duration;
-import java.util.Collection;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -11,13 +10,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hotpads.joblet.enums.JobletType;
-import com.hotpads.joblet.execute.JobletExecutorThread;
 import com.hotpads.joblet.queue.JobletRequestQueueManager;
 import com.hotpads.joblet.setting.JobletSettings;
 import com.hotpads.util.core.concurrent.NamedThreadFactory;
 import com.hotpads.util.datastructs.MutableBoolean;
 
-public class JobletProcessorV2{
+public class JobletProcessorV2 implements Runnable{
 	private static final Logger logger = LoggerFactory.getLogger(JobletProcessorV2.class);
 
 	private static final long SLEEP_MS_WHEN_NO_WORK = Duration.ofSeconds(1).toMillis();
@@ -47,7 +45,7 @@ public class JobletProcessorV2{
 		ThreadFactory threadFactory = new NamedThreadFactory(null, "joblet-" + jobletType.getPersistentString(), true);
 		this.exec = new ThreadPoolExecutor(0, 0, 60L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>(),
 				threadFactory);
-		this.driverThread = new Thread(null, this::fetchJobletsAndAssignToPool, jobletType.getPersistentString()
+		this.driverThread = new Thread(null, this::run, jobletType.getPersistentString()
 				+ " JobletProcessor worker thread");
 		this.counter = 0;
 		driverThread.start();
@@ -66,24 +64,22 @@ public class JobletProcessorV2{
 	}
 
 	//this method must continue indefinitely, so be sure to catch all exceptions
-	private void fetchJobletsAndAssignToPool(){
+	@Override
+	public void run(){
 		while(!shutdownRequested.get()){
 			try{
 				exec.setMaximumPoolSize(jobletSettings.getThreadCountForJobletType(jobletType));
 				if(!shouldRun()){
-					logger.debug("sleeping since shouldRun false for {}", jobletType.getPersistentString());
-					sleepABit();
+					sleepABit("shouldRun=false");
 					continue;
 				}
 				if(!jobletRequestQueueManager.shouldCheckAnyQueues(jobletType)){
-					logger.debug("sleeping since shouldCheckAnyQueues  false for {}", jobletType.getPersistentString());
-					sleepABit();
+					sleepABit("shouldCheckAnyQueues =false");
 					continue;
 				}
 				int numSlotsAvailable = exec.getMaximumPoolSize() - exec.getActiveCount();
 				if(numSlotsAvailable < 1){
-					logger.debug("sleeping since no slots available for {}", jobletType.getPersistentString());
-					sleepABit();
+					sleepABit("no slots available");
 					continue;
 				}
 				for(int i = 0; i < numSlotsAvailable; ++i){
@@ -94,7 +90,7 @@ public class JobletProcessorV2{
 			}catch(Exception e){//catch everything; don't let the loop break
 				logger.error("", e);
 				try{
-					sleepABit();
+					sleepABit("exception acquiring joblet");
 				}catch(Exception problemSleeping){
 					logger.error("uh oh, problem sleeping", problemSleeping);
 				}
@@ -102,7 +98,8 @@ public class JobletProcessorV2{
 		}
 	}
 
-	private void sleepABit(){
+	private void sleepABit(String reason){
+		logger.debug("sleeping since {} for {}", reason, jobletType.getPersistentString());
 		try{
 			Thread.sleep(SLEEP_MS_WHEN_NO_WORK);
 		}catch(InterruptedException e){
@@ -117,16 +114,6 @@ public class JobletProcessorV2{
 	public String toString(){
 		return getClass().getSimpleName() + "[" + jobletType + ", numThreads:" + jobletSettings
 				.getThreadCountForJobletType(jobletType) + "]";
-	}
-
-	/*---------------- convenience ---------------*/
-
-	public Collection<JobletExecutorThread> getRunningJobletExecutorThreads() {
-		return exec.getRunningJobletExecutorThreads();
-	}
-
-	public Collection<JobletExecutorThread> getWaitingJobletExecutorThreads(){
-		return exec.getWaitingJobletExecutorThreads();
 	}
 
 	/*-------------- get/set -----------------*/
