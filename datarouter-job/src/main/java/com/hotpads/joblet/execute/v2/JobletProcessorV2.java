@@ -59,7 +59,7 @@ public class JobletProcessorV2 implements Runnable{
 
 	private boolean shouldRun(){
 		return !shutdownRequested.get()
-				&& jobletSettings.getRunJoblets().getValue()
+				&& jobletSettings.runJoblets.getValue()
 				&& jobletSettings.getThreadCountForJobletType(jobletType) > 0;
 	}
 

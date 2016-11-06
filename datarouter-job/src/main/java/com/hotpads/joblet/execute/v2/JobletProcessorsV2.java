@@ -9,20 +9,29 @@ import javax.inject.Singleton;
 
 import com.hotpads.joblet.enums.JobletType;
 import com.hotpads.joblet.enums.JobletTypeFactory;
+import com.hotpads.joblet.execute.JobletProcessors;
 
 @Singleton
-public class JobletProcessorsV2 {
+public class JobletProcessorsV2 implements JobletProcessors{
 
-	private final Map<JobletType<?>,JobletProcessorV2> processorByType;
+	private final JobletProcessorV2Factory jobletProcessorV2Factory;
+	private final JobletTypeFactory jobletTypeFactory;
+
+	private Map<JobletType<?>,JobletProcessorV2> processorByType;
 
 
 	@Inject
 	public JobletProcessorsV2(JobletProcessorV2Factory jobletProcessorV2Factory, JobletTypeFactory jobletTypeFactory){
+		this.jobletProcessorV2Factory = jobletProcessorV2Factory;
+		this.jobletTypeFactory = jobletTypeFactory;
+	}
+
+
+	public void createAndStartProcessors(){
 		this.processorByType = jobletTypeFactory.getAllTypes().stream()
 				.map(jobletProcessorV2Factory::create)
 				.collect(Collectors.toMap(JobletProcessorV2::getJobletType, Function.identity()));
 	}
-
 
 	public void requestShutdown(){
 		processorByType.values().forEach(JobletProcessorV2::requestShutdown);

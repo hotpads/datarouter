@@ -90,8 +90,8 @@ public class JobletHandler extends BaseHandler{
 	@Handler
 	protected Mav handleDefault(){
 		Mav mav = new Mav(JSP_joblets);
-		mav.put("minServers", jobletSettings.getMinJobletServers().getValue());
-		mav.put("maxServers", jobletSettings.getMaxJobletServers().getValue());
+		mav.put("minServers", jobletSettings.minJobletServers.getValue());
+		mav.put("maxServers", jobletSettings.maxJobletServers.getValue());
 		mav.put("jobletStatuses", JobletStatus.values());
 		mav.put("runningJobletThreads", getRunningJobletThreads());
 		mav.put("waitingJobletThreads", getWaitingJobletThreads());
@@ -184,8 +184,8 @@ public class JobletHandler extends BaseHandler{
 		Mav mav = new Mav(JSP_threads);
 
 		//cpu and memory ticket info
-		mav.put("numCpuPermits", jobletSettings.getCpuTickets().getValue());
-		mav.put("numMemoryPermits", jobletSettings.getMemoryTickets().getValue());
+		mav.put("numCpuPermits", jobletSettings.cpuTickets.getValue());
+		mav.put("numMemoryPermits", jobletSettings.memoryTickets.getValue());
 		mav.put("isThrottling", false);//because JobletThrottle no longer exists
 
 		List<TypeSummaryDto> typeSummaryDtos = parallelJobletProcessors.getMap().values().stream()

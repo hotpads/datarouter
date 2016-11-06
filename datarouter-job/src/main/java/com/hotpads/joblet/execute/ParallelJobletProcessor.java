@@ -81,7 +81,7 @@ public class ParallelJobletProcessor{
 
 	private boolean shouldRun(){
 		return !shutdownRequested.get()
-				&& jobletSettings.getRunJoblets().getValue()
+				&& jobletSettings.runJoblets.getValue()
 				&& jobletSettings.getThreadCountForJobletType(jobletType) > 0;
 	}
 

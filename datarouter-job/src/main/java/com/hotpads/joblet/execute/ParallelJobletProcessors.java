@@ -14,13 +14,13 @@ import com.hotpads.joblet.enums.JobletTypeFactory;
 import com.hotpads.joblet.execute.ParallelJobletProcessor.ParallelJobletProcessorFactory;
 
 @Singleton
-public class ParallelJobletProcessors {
+public class ParallelJobletProcessors implements JobletProcessors{
 
 	//injected
 	private final ParallelJobletProcessorFactory parallelJobletProcessorFactory;
 	private final JobletTypeFactory jobletTypeFactory;
 
-	private final Map<JobletType<?>,ParallelJobletProcessor> processorByType;
+	private Map<JobletType<?>,ParallelJobletProcessor> processorByType;
 
 
 	@Inject
@@ -28,7 +28,11 @@ public class ParallelJobletProcessors {
 			JobletTypeFactory jobletTypeFactory){
 		this.parallelJobletProcessorFactory = parallelJobletProcessorFactory;
 		this.jobletTypeFactory = jobletTypeFactory;
-		this.processorByType = jobletTypeFactory.getAllTypes().stream()
+	}
+
+	@Override
+	public void createAndStartProcessors(){
+		processorByType = jobletTypeFactory.getAllTypes().stream()
 				.map(parallelJobletProcessorFactory::create)
 				.collect(Collectors.toMap(ParallelJobletProcessor::getJobletType, Function.identity()));
 	}
@@ -64,6 +68,7 @@ public class ParallelJobletProcessors {
 		processorByType.put(jobletType, parallelJobletProcessorFactory.create(jobletType));
 	}
 
+	@Override
 	public void requestShutdown(){
 		processorByType.values().forEach(ParallelJobletProcessor::requestShutdown);
 	}
