@@ -58,19 +58,20 @@ public class JobletCallable implements Callable<Void>{
 	@Override
 	public Void call(){
 		try{
-			jobletPackage = dequeueJobletPackage();
+			PhaseTimer timer = new PhaseTimer("JobletCallable-" + id);
+			jobletPackage = dequeueJobletPackage(timer);
 			if(!jobletPackage.isPresent()){
 				return null;
 			}
 			JobletRequest jobletRequest = jobletPackage.get().getJobletRequest();
-			PhaseTimer timer = jobletRequest.getTimer();
 			try{
 				jobletRequest.setReservedAt(System.currentTimeMillis());
 				jobletNodes.jobletRequest().put(jobletRequest, null);
+				timer.add("setReservedAt");
 				processJobletWithStats(jobletPackage.get());
-				timer.add("processed");
+				timer.add("process");
 				jobletService.handleJobletCompletion(jobletRequest);
-				timer.add("completed");
+				timer.add("handleJobletCompletion");
 			}catch(JobInterruptedException e){
 				try{
 					jobletService.handleJobletInterruption(jobletRequest);
@@ -95,14 +96,17 @@ public class JobletCallable implements Callable<Void>{
 	}
 
 
-	private final Optional<JobletPackage> dequeueJobletPackage(){
+	private final Optional<JobletPackage> dequeueJobletPackage(PhaseTimer timer){
 		String reservedBy = getReservedByString();
+		timer.add("getJobletRequest");
 		Optional<JobletRequest> jobletRequest = jobletService.getJobletRequestForProcessing(jobletType, reservedBy);
 		if(!jobletRequest.isPresent()){
 			return Optional.empty();
 		}
 		jobletRequest.get().setShutdownRequested(shutdownRequested);
-		return jobletRequest.map(jobletService::getJobletPackageForJobletRequest);
+		JobletPackage jobletPackage = jobletService.getJobletPackageForJobletRequest(jobletRequest.get());
+		timer.add("getJobletPackage");
+		return Optional.of(jobletPackage);
 	}
 
 	private String getReservedByString(){
@@ -120,11 +124,11 @@ public class JobletCallable implements Callable<Void>{
 
 		//counters
 		JobletCounters.incNumJobletsProcessed();
-		JobletCounters.incNumJobletsProcessed(jobletType.getPersistentString());
+		JobletCounters.incNumJobletsProcessed(jobletType);
 		int numItemsProcessed = Math.max(1, jobletRequest.getNumItems());
-		JobletCounters.incItemsProcessed(jobletType.getPersistentString(), numItemsProcessed);
+		JobletCounters.incItemsProcessed(jobletType, numItemsProcessed);
 		int numTasksProcessed = Math.max(1, jobletRequest.getNumTasks());
-		JobletCounters.incTasksProcessed(jobletType.getPersistentString(), numTasksProcessed);
+		JobletCounters.incTasksProcessed(jobletType, numTasksProcessed);
 		long endTimeMs = System.currentTimeMillis();
 		long durationMs = endTimeMs - startTimeMs;
 		String itemsPerSecond = DrNumberFormatter.format((double)jobletRequest.getNumItems() / ((double)durationMs

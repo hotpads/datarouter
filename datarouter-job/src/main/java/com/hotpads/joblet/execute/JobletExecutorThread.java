@@ -168,11 +168,11 @@ public class JobletExecutorThread extends Thread{
 
 		//counters
 		JobletCounters.incNumJobletsProcessed();
-		JobletCounters.incNumJobletsProcessed(jobletType.getPersistentString());
+		JobletCounters.incNumJobletsProcessed(jobletType);
 		int numItemsProcessed = Math.max(1, jobletRequest.getNumItems());
-		JobletCounters.incItemsProcessed(jobletType.getPersistentString(), numItemsProcessed);
+		JobletCounters.incItemsProcessed(jobletType, numItemsProcessed);
 		int numTasksProcessed = Math.max(1, jobletRequest.getNumTasks());
-		JobletCounters.incTasksProcessed(jobletType.getPersistentString(), numTasksProcessed);
+		JobletCounters.incTasksProcessed(jobletType, numTasksProcessed);
 		long endTimeMs = System.currentTimeMillis();
 		long durationMs = endTimeMs - startTimeMs;
 		String itemsPerSecond = DrNumberFormatter.format((double)jobletRequest.getNumItems() / ((double)durationMs

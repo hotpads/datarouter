@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.hotpads.joblet.JobletCounters;
 import com.hotpads.joblet.dto.RunningJoblet;
 import com.hotpads.joblet.enums.JobletType;
 import com.hotpads.joblet.queue.JobletRequestQueueManager;
@@ -110,11 +111,10 @@ public class JobletProcessorV2 implements Runnable{
 	}
 
 	/**
-	 * aggressively try to add to the queue until MAX_EXEC_BACKOFF_TIME
+	 * aggressively try to add to the queue until MAX_EXEC_BACKOFF_TIME.  this is to keep topping off the queue when
+	 * we're processing joblets that finish quickly
 	 *
 	 * TODO make a BlockingRejectedExecutionHandler?
-	 *
-	 * @return boolean true if we were able to create a callable or didn't need to; false if the exec was too busy
 	 */
 	private void tryEnqueueJobletCallable(){
 		int numThreads = jobletSettings.getThreadCountForJobletType(jobletType);
@@ -134,6 +134,7 @@ public class JobletProcessorV2 implements Runnable{
 				return;//return so we loop back immediately
 			}catch(RejectedExecutionException ree){
 //				logger.warn("{} #{} rejected, backing off {}ms", jobletType, counter, backoffMs);
+				JobletCounters.rejectedCallable(jobletType);
 				sleepABit(Duration.ofMillis(backoffMs), "executor full");
 				backoffMs = Math.min(2 * backoffMs, MAX_EXEC_BACKOFF_TIME.toMillis());
 			}
