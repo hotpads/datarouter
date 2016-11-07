@@ -1,9 +1,9 @@
 package com.hotpads.joblet.dto;
 
-import java.time.Duration;
 import java.util.Date;
 import java.util.Optional;
 
+import com.hotpads.datarouter.util.core.DrDateTool;
 import com.hotpads.joblet.JobletPackage;
 import com.hotpads.joblet.enums.JobletType;
 import com.hotpads.joblet.execute.JobletExecutorThread;
@@ -48,7 +48,7 @@ public class RunningJoblet{
 
 	public String getRunningTimeString(){
 		long runningTimeMs = System.currentTimeMillis() - startedAt.getTime();
-		return Duration.ofMillis(runningTimeMs).toString();
+		return DrDateTool.getAgoString(runningTimeMs);
 	}
 
 	public String getQueueId(){
