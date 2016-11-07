@@ -1,15 +1,20 @@
 package com.hotpads.joblet.execute.v2;
 
 import java.time.Duration;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.hotpads.joblet.dto.RunningJoblet;
 import com.hotpads.joblet.enums.JobletType;
 import com.hotpads.joblet.queue.JobletRequestQueueManager;
 import com.hotpads.joblet.setting.JobletSettings;
@@ -35,6 +40,7 @@ public class JobletProcessorV2 implements Runnable{
 	private final MutableBoolean shutdownRequested;
 	private final ThreadPoolExecutor exec;
 	private final Thread driverThread;
+	private final Map<Long,JobletCallable> runningJobletCallables;
 	private long counter;
 
 
@@ -52,6 +58,7 @@ public class JobletProcessorV2 implements Runnable{
 				new SynchronousQueue<Runnable>(), threadFactory);
 		this.driverThread = new Thread(null, this::run, jobletType.getPersistentString()
 				+ " JobletProcessor worker thread");
+		this.runningJobletCallables = new ConcurrentHashMap<>();
 		this.counter = 0;
 		driverThread.start();
 	}
@@ -110,8 +117,10 @@ public class JobletProcessorV2 implements Runnable{
 				return;//stop trying
 			}
 			try{
-				JobletCallable jobletCallable = jobletCallableFactory.create(shutdownRequested, jobletType, ++counter);
+				long id = ++counter;
+				JobletCallable jobletCallable = jobletCallableFactory.create(shutdownRequested, this, jobletType, id);
 				exec.submit(jobletCallable);
+				runningJobletCallables.put(id, jobletCallable);
 				return;//return so we loop back immediately
 			}catch(RejectedExecutionException ree){
 //				logger.warn("{} #{} rejected, backing off {}ms", jobletType, counter, backoffMs);
@@ -119,21 +128,6 @@ public class JobletProcessorV2 implements Runnable{
 				backoffMs = Math.min(2 * backoffMs, MAX_EXEC_BACKOFF_TIME.toMillis());
 			}
 		}
-	}
-
-	//return whether a slot became available
-	private boolean waitForExecutorSlot(int numThreads){
-		long startMs = System.currentTimeMillis();
-		long backoffMs = 1L;
-		while(numThreads - exec.getActiveCount() < 1){
-			long elapsedMs = System.currentTimeMillis() - startMs;
-			if(elapsedMs > MAX_WAIT_FOR_EXECUTOR.toMillis()){
-				return false;
-			}
-			sleepABit(Duration.ofMillis(backoffMs), "executor full");
-			backoffMs = Math.min(2 * backoffMs, MAX_EXEC_BACKOFF_TIME.toMillis());
-		}
-		return true;
 	}
 
 	private void sleepABit(Duration duration, String reason){
@@ -144,6 +138,10 @@ public class JobletProcessorV2 implements Runnable{
 			logger.warn("", e);
 			Thread.interrupted();//continue.  we have explicit interrupted handling for terminating
 		}
+	}
+
+	public void onCompletion(Long id){
+		runningJobletCallables.remove(id);
 	}
 
 	/*---------------- Object methods ----------------*/
@@ -158,6 +156,12 @@ public class JobletProcessorV2 implements Runnable{
 
 	public JobletType<?> getJobletType(){
 		return jobletType;
+	}
+
+	public List<RunningJoblet> getRunningJoblets(){
+		return runningJobletCallables.values().stream()
+				.map(JobletCallable::getRunningJoblet)
+				.collect(Collectors.toList());
 	}
 
 }

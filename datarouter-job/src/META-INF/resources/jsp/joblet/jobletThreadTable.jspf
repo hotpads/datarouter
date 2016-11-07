@@ -2,32 +2,24 @@
 	<tr>
 		<th>name</th>
 		<th>id</th>
-		<th>current running time</th>
+		<th>running time</th>
 		<th>queue</th>
 		<th>current task</th>
 		<th>kill</th>
 	</tr>
-	<c:forEach items="${jobletThreads.value}" var="jobletThread">
-		<tr
-			<c:if test="${not empty jobletThread.jobletRequest}">style="background: #00CC00;"</c:if>>
-			<td>${jobletThread.name}</td>
-			<td>${jobletThread.id}</td>
-			<td>${jobletThread.runningTimeString}</td>
+	<c:forEach items="${runningJobletsOfType.value}" var="runningJoblet">
+		<tr>
+			<td>${runningJoblet.name}</td>
+			<td>${runningJoblet.id}</td>
+			<td>${runningJoblet.runningTimeString}</td>
+			<td>${runningJoblet.queueId}</td>
 			<td>
-				<c:if test="${not empty jobletThread.jobletRequest}">
-					${jobletThread.jobletRequest.queueId}
+				<c:if test="${not empty runningJoblet.jobletData}">
+					<textarea cols="15" rows="1">${runningJoblet.jobletData}</textarea>
 				</c:if>
 			</td>
-			<c:if test="${not empty jobletThread.jobletData}">
-				<td>
-					<textarea cols="15" rows="1">${jobletThread.jobletData.data}</textarea>
-				</td>
-			</c:if>
-			<c:if test="${empty jobletThread.jobletRequest}">
-				<td>none</td>
-			</c:if>
 			<td>
-				<a href="?submitAction=killJobletThread&threadId=${jobletThread.id}">kill</a>
+				<a href="?submitAction=killJobletThread&threadId=${runningJoblet.id}">kill</a>
 			</td>
 		</tr>
 	</c:forEach>

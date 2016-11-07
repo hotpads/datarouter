@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import com.hotpads.joblet.dto.RunningJoblet;
 import com.hotpads.joblet.enums.JobletType;
 import com.hotpads.util.core.exception.NotImplementedException;
 
@@ -11,7 +12,7 @@ public interface JobletProcessors{
 
 	void createAndStartProcessors();
 	void requestShutdown();
-
+	Map<JobletType<?>,List<RunningJoblet>> getRunningJobletsByType();
 
 	@Deprecated //use dto
 	default List<JobletExecutorThread> getCurrentlyRunningJobletExecutorThreads(){

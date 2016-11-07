@@ -2,6 +2,7 @@ package com.hotpads.joblet.execute;
 
 import java.time.Duration;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
@@ -17,6 +18,7 @@ import com.hotpads.datarouter.util.core.DrDateTool;
 import com.hotpads.joblet.JobletPackage;
 import com.hotpads.joblet.JobletService;
 import com.hotpads.joblet.databean.JobletRequest;
+import com.hotpads.joblet.dto.RunningJoblet;
 import com.hotpads.joblet.enums.JobletType;
 import com.hotpads.joblet.execute.JobletExecutorThreadPool.JobletExecutorThreadPoolFactory;
 import com.hotpads.joblet.setting.JobletSettings;
@@ -179,6 +181,10 @@ public class ParallelJobletProcessor{
 	}
 
 	/*-------------- get/set -----------------*/
+
+	public List<RunningJoblet> getRunningJoblets(){
+		return workerThreadPool.getRunningJoblets();
+	}
 
 	public JobletType<?> getJobletType(){
 		return jobletType;

@@ -7,6 +7,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -15,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hotpads.joblet.JobletPackage;
+import com.hotpads.joblet.dto.RunningJoblet;
 import com.hotpads.joblet.enums.JobletType;
 import com.hotpads.joblet.execute.JobletExecutorThread.JobletExecutorThreadFactory;
 
@@ -173,6 +175,11 @@ public class JobletExecutorThreadPool {
 		--numThreadsToLayOff;
 	}
 
+	public List<RunningJoblet> getRunningJoblets(){
+		return runningExecutorThreads.stream()
+				.map(RunningJoblet::new)
+				.collect(Collectors.toList());
+	}
 
 	/*-------------------- get/set -----------------------*/
 

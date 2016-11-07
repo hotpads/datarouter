@@ -21,9 +21,10 @@ public class JobletCallableFactory{
 	private JobletFactory jobletFactory;
 
 
-	public JobletCallable create(MutableBoolean shutdownRequested, JobletType<?> jobletType, long id){
+	public JobletCallable create(MutableBoolean shutdownRequested, JobletProcessorV2 jobletProcessor,
+			JobletType<?> jobletType, long id){
 		return new JobletCallable(datarouterProperties, jobletNodes, jobletService, jobletFactory, shutdownRequested,
-				jobletType, id);
+				jobletProcessor, jobletType, id);
 	}
 
 }

@@ -92,8 +92,7 @@ public class JobletHandler extends BaseHandler{
 		mav.put("minServers", jobletSettings.minJobletServers.getValue());
 		mav.put("maxServers", jobletSettings.maxJobletServers.getValue());
 		mav.put("jobletStatuses", JobletStatus.values());
-		mav.put("runningJobletThreads", getRunningJobletThreads());
-		mav.put("waitingJobletThreads", getWaitingJobletThreads());
+		mav.put("runningJobletsByType", jobletProcessors.getRunningJobletsByType());
 		String statusString = params.optional(PARAM_whereStatus).orElse(null);
 		mav.put(PARAM_whereStatus, statusString);
 		Stream<JobletRequest> requests = jobletNodes.jobletRequest().stream(null, null);

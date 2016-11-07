@@ -1,5 +1,6 @@
 package com.hotpads.joblet.execute.v2;
 
+import java.util.Date;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 
@@ -18,6 +19,7 @@ import com.hotpads.joblet.JobletNodes;
 import com.hotpads.joblet.JobletPackage;
 import com.hotpads.joblet.JobletService;
 import com.hotpads.joblet.databean.JobletRequest;
+import com.hotpads.joblet.dto.RunningJoblet;
 import com.hotpads.joblet.enums.JobletType;
 import com.hotpads.util.core.profile.PhaseTimer;
 import com.hotpads.util.datastructs.MutableBoolean;
@@ -31,55 +33,66 @@ public class JobletCallable implements Callable<Void>{
 	private final JobletFactory jobletFactory;
 
 	private final MutableBoolean shutdownRequested;
+	private final JobletProcessorV2 processor;//for callback
 	private final JobletType<?> jobletType;
 	private final long id;
+
+	private Date startedAt;
+	private Optional<JobletPackage> jobletPackage;
 
 
 	public JobletCallable(DatarouterProperties datarouterProperties, JobletNodes jobletNodes,
 			JobletService jobletService, JobletFactory jobletFactory, MutableBoolean shutdownRequested,
-			JobletType<?> jobletType, long id){
+			JobletProcessorV2 processor, JobletType<?> jobletType, long id){
 		this.datarouterProperties = datarouterProperties;
 		this.jobletNodes = jobletNodes;
 		this.jobletService = jobletService;
 		this.jobletFactory = jobletFactory;
 		this.shutdownRequested = shutdownRequested;
+		this.processor = processor;
 		this.jobletType = jobletType;
 		this.id = id;
+		this.startedAt = new Date();
+		this.jobletPackage = Optional.empty();
 	}
 
 	@Override
 	public Void call(){
-		Optional<JobletPackage> jobletPackage = dequeueJobletPackage();
-		if(!jobletPackage.isPresent()){
-			return null;
-		}
-		JobletRequest jobletRequest = jobletPackage.get().getJobletRequest();
-		PhaseTimer timer = jobletRequest.getTimer();
 		try{
-			jobletRequest.setReservedAt(System.currentTimeMillis());
-			jobletNodes.jobletRequest().put(jobletRequest, null);
-			processJobletWithStats(jobletPackage.get());
-			timer.add("processed");
-			jobletService.handleJobletCompletion(jobletRequest);
-			timer.add("completed");
-		}catch(JobInterruptedException e){
-			try{
-				jobletService.handleJobletInterruption(jobletRequest);
-			}catch(Exception e1){
-				logger.error("", e1);
+			jobletPackage = dequeueJobletPackage();
+			if(!jobletPackage.isPresent()){
+				return null;
 			}
-			timer.add("interrupted");
-		}catch(Exception e){
-			logger.error("", e);
+			JobletRequest jobletRequest = jobletPackage.get().getJobletRequest();
+			PhaseTimer timer = jobletRequest.getTimer();
 			try{
-				jobletService.handleJobletError(jobletRequest, e, jobletRequest.getClass().getSimpleName());
-				timer.add("failed");
-			}catch(Exception lastResort){
-				logger.error("", lastResort);
-				timer.add("couldn't mark failed");
+				jobletRequest.setReservedAt(System.currentTimeMillis());
+				jobletNodes.jobletRequest().put(jobletRequest, null);
+				processJobletWithStats(jobletPackage.get());
+				timer.add("processed");
+				jobletService.handleJobletCompletion(jobletRequest);
+				timer.add("completed");
+			}catch(JobInterruptedException e){
+				try{
+					jobletService.handleJobletInterruption(jobletRequest);
+				}catch(Exception e1){
+					logger.error("", e1);
+				}
+				timer.add("interrupted");
+			}catch(Exception e){
+				logger.error("", e);
+				try{
+					jobletService.handleJobletError(jobletRequest, e, jobletRequest.getClass().getSimpleName());
+					timer.add("failed");
+				}catch(Exception lastResort){
+					logger.error("", lastResort);
+					timer.add("couldn't mark failed");
+				}
 			}
+			return null;
+		}finally{
+			processor.onCompletion(id);
 		}
-		return null;
 	}
 
 
@@ -131,6 +144,10 @@ public class JobletCallable implements Callable<Void>{
 				+ " in " + DrNumberFormatter.addCommas(durationMs)+"ms"
 				+ " at "+itemsPerSecond+" items/sec"
 				+ " and "+tasksPerSecond+" tasks/sec");
+	}
+
+	public RunningJoblet getRunningJoblet(){
+		return new RunningJoblet(jobletType, id, startedAt, jobletPackage);
 	}
 
 }
