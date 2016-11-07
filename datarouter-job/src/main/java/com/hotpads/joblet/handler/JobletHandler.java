@@ -202,7 +202,6 @@ public class JobletHandler extends BaseHandler{
 
 		//all threads
 		mav.put("runningJobletThreads", getRunningJobletThreads());
-		mav.put("waitingJobletThreads", getWaitingJobletThreads());
 		return mav;
 	}
 
@@ -238,10 +237,6 @@ public class JobletHandler extends BaseHandler{
 
 
 	/*--------------------- private -------------------------*/
-
-	private Map<String,List<JobletExecutorThread>> getWaitingJobletThreads() {
-		return getJobletThreads(jobletProcessors.getCurrentlyWaitingJobletExecutorThreads());
-	}
 
 	private Map<String,List<JobletExecutorThread>> getRunningJobletThreads() {
 		return getJobletThreads(jobletProcessors.getCurrentlyRunningJobletExecutorThreads());

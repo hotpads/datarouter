@@ -19,11 +19,6 @@ public interface JobletProcessors{
 		return Collections.emptyList();
 	}
 
-	@Deprecated //use dto
-	default List<JobletExecutorThread> getCurrentlyWaitingJobletExecutorThreads(){
-		return Collections.emptyList();
-	}
-
 	@Deprecated //remove
 	default void killThread(long threadId){
 		throw new NotImplementedException();
