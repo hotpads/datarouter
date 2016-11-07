@@ -56,8 +56,11 @@
 					</tr>
 				</c:forEach>
 			</table>
-
-			<%@ include file="/jsp/joblet/jobletThreadTable.jspf"%>
+			
+			<br/>
+			<br/>
+			RunningJoblets:
+			<%@ include file="/jsp/joblet/runningJoblets.jspf"%>
 		</div>
 	</div>
 </body>

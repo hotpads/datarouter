@@ -1,13 +1,10 @@
 package com.hotpads.joblet.handler;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.inject.Inject;
@@ -30,13 +27,13 @@ import com.hotpads.joblet.dao.JobletRequestDao;
 import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.databean.JobletRequestKey;
 import com.hotpads.joblet.dto.JobletSummary;
+import com.hotpads.joblet.dto.JobletTypeSummary;
 import com.hotpads.joblet.enums.JobletPriority;
 import com.hotpads.joblet.enums.JobletStatus;
 import com.hotpads.joblet.enums.JobletType;
 import com.hotpads.joblet.enums.JobletTypeFactory;
 import com.hotpads.joblet.execute.JobletExecutorThread;
 import com.hotpads.joblet.execute.JobletProcessors;
-import com.hotpads.joblet.execute.ParallelJobletProcessor;
 import com.hotpads.joblet.jdbc.RestartJobletRequests;
 import com.hotpads.joblet.jdbc.TimeoutStuckRunningJobletRequests;
 import com.hotpads.joblet.queue.JobletRequestQueueKey;
@@ -186,22 +183,18 @@ public class JobletHandler extends BaseHandler{
 		mav.put("numMemoryPermits", jobletSettings.memoryTickets.getValue());
 		mav.put("isThrottling", false);//because JobletThrottle no longer exists
 
-		List<TypeSummaryDto> typeSummaryDtos = jobletProcessors.getMap().values().stream()
-				.map(TypeSummaryDto::new)
-				.sorted(Comparator.comparing(TypeSummaryDto::getJobletType))
-				.collect(Collectors.toList());
-
 		//totals for server
-		mav.put("typeSummaryDtos", typeSummaryDtos);
+		List<JobletTypeSummary> typeSummaries = jobletProcessors.getTypeSummaries();
+		mav.put("typeSummaryDtos", typeSummaries);
 
 		//stats by type
-		mav.put("totalRunning", TypeSummaryDto.getTotalRunning(typeSummaryDtos));
-		mav.put("totalRunningCpuPermits", TypeSummaryDto.getTotalRunningCpuPermits(typeSummaryDtos));
-		mav.put("totalRunningMemoryPermits", TypeSummaryDto.getTotalRunningMemoryPermits(typeSummaryDtos));
-		mav.put("totalWaiting", TypeSummaryDto.getTotalWaiting(typeSummaryDtos));
+		mav.put("totalThreads", JobletTypeSummary.getTotalThreads(typeSummaries));
+		mav.put("totalRunning", JobletTypeSummary.getTotalRunning(typeSummaries));
+		mav.put("totalRunningCpuPermits", JobletTypeSummary.getTotalRunningCpuPermits(typeSummaries));
+		mav.put("totalRunningMemoryPermits", JobletTypeSummary.getTotalRunningMemoryPermits(typeSummaries));
 
-		//all threads
-		mav.put("runningJobletThreads", getRunningJobletThreads());
+		//RunningJoblets
+		mav.put("runningJobletsByType", jobletProcessors.getRunningJobletsByType());
 		return mav;
 	}
 
@@ -246,54 +239,6 @@ public class JobletHandler extends BaseHandler{
 		Map<String,List<JobletExecutorThread>> jobletThreadsByServer = new HashMap<>();
 		jobletThreadsByServer.put(serverName, jobletThreads);
 		return jobletThreadsByServer;
-	}
-
-	public static class TypeSummaryDto{
-		private final JobletType<?> jobletTypeEnum;
-		private final int numRunning;
-		private final int numWaiting;
-
-		public TypeSummaryDto(ParallelJobletProcessor processor){
-			this.jobletTypeEnum = processor.getJobletType();
-			this.numRunning = processor.getRunningJobletExecutorThreads().size();
-			this.numWaiting = processor.getWaitingJobletExecutorThreads().size();
-		}
-
-		public static int getTotalRunning(Collection<TypeSummaryDto> dtos){
-			return dtos.stream().mapToInt(TypeSummaryDto::getNumRunning).sum();
-		}
-
-		public static long getTotalRunningCpuPermits(Collection<TypeSummaryDto> dtos){
-			return dtos.stream().mapToLong(TypeSummaryDto::getNumRunningCpuPermits).sum();
-		}
-
-		public static long getTotalRunningMemoryPermits(Collection<TypeSummaryDto> dtos){
-			return dtos.stream().mapToLong(TypeSummaryDto::getNumRunningMemoryPermits).sum();
-		}
-
-		public static int getTotalWaiting(Collection<TypeSummaryDto> dtos){
-			return dtos.stream().mapToInt(TypeSummaryDto::getNumWaiting).sum();
-		}
-
-		public long getNumRunningCpuPermits(){
-			return jobletTypeEnum.getCpuPermits() * numRunning;
-		}
-
-		public long getNumRunningMemoryPermits(){
-			return jobletTypeEnum.getMemoryPermits() * numRunning;
-		}
-
-		public String getJobletType(){
-			return jobletTypeEnum.getPersistentString();
-		}
-
-		public int getNumRunning(){
-			return numRunning;
-		}
-
-		public int getNumWaiting(){
-			return numWaiting;
-		}
 	}
 
 }

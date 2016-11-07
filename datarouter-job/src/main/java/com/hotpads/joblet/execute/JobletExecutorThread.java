@@ -231,7 +231,7 @@ public class JobletExecutorThread extends Thread{
 		return System.currentTimeMillis() - localProcessingStartTime;
 	}
 
-	//used in jobletThreadTable.jspf
+	//used in runningJoblets.jspf
 	public String getRunningTimeString(){
 		Long localStartTime = processingStartTime;//thread safe copy
 		if(localStartTime == null){
@@ -253,12 +253,12 @@ public class JobletExecutorThread extends Thread{
 		return sb.toString();
 	}
 
-	//used by jobletThreadTable.jspf
+	//used by runningJoblets.jspf
 	public JobletRequest getJobletRequest(){
 		return Optional.ofNullable(jobletPackage).map(JobletPackage::getJobletRequest).orElse(null);
 	}
 
-	//used by jobletThreadTable.jspf
+	//used by runningJoblets.jspf
 	public JobletData getJobletData(){
 		return Optional.ofNullable(jobletPackage).map(JobletPackage::getJobletData).orElse(null);
 	}

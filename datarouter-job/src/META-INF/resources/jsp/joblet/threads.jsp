@@ -35,33 +35,33 @@
 			<table class="sortable table table-bordered table-condensed">
 				<tr>
 					<th>jobletType</th>
+					<th>numThreads</th>
 					<th>numRunning</th>
 					<th>numRunningCpuPermits</th>
 					<th>numRunningMemoryPermits</th>
-					<th>numWaiting</th>
 				</tr>
 				<tr>
 					<th>Total:</th>
+					<th>${totalThreads}</th>
 					<th>${totalRunning}</th>
 					<th>${totalRunningCpuPermits}</th>
 					<th>${totalRunningMemoryPermits}</th>
-					<th>${totalWaiting}</th>
 				</tr>
 				<c:forEach items="${typeSummaryDtos}" var="dto">
 					<tr>
 						<td>${dto.jobletType}</td>
+						<td>${dto.numThreads}</td>
 						<td>${dto.numRunning}</td>
 						<td>${dto.numRunningCpuPermits}</td>
 						<td>${dto.numRunningMemoryPermits}</td>
-						<td>${dto.numWaiting}</td>
 					</tr>
 				</c:forEach>
 			</table>
 			
-			<c:forEach items="${runningJobletThreads}" var="jobletThreads">
-				${jobletThreads.key} (running)
-				<%@ include file="/jsp/joblet/jobletThreadTable.jspf"%>
-			</c:forEach>
+			<br/>
+			<br/>
+			RunningJoblets:
+			<%@ include file="/jsp/joblet/runningJoblets.jspf"%>
 		</div>
 	</div>
 </body>

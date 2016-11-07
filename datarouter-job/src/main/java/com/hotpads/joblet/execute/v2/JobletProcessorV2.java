@@ -144,6 +144,21 @@ public class JobletProcessorV2 implements Runnable{
 		runningJobletCallables.remove(id);
 	}
 
+	public List<RunningJoblet> getRunningJoblets(){
+		return runningJobletCallables.values().stream()
+				.map(JobletCallable::getRunningJoblet)
+				.filter(RunningJoblet::hasPayload)
+				.collect(Collectors.toList());
+	}
+
+	public int getNumRunningJoblets(){
+		return runningJobletCallables.size();
+	}
+
+	public int getThreadCountFromSettings(){
+		return jobletSettings.getThreadCountForJobletType(jobletType);
+	}
+
 	/*---------------- Object methods ----------------*/
 
 	@Override
@@ -156,13 +171,6 @@ public class JobletProcessorV2 implements Runnable{
 
 	public JobletType<?> getJobletType(){
 		return jobletType;
-	}
-
-	public List<RunningJoblet> getRunningJoblets(){
-		return runningJobletCallables.values().stream()
-				.map(JobletCallable::getRunningJoblet)
-				.filter(RunningJoblet::hasPayload)
-				.collect(Collectors.toList());
 	}
 
 }

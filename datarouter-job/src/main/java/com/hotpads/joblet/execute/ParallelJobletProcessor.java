@@ -180,6 +180,10 @@ public class ParallelJobletProcessor{
 		return workerThreadPool.getWaitingJobletExecutorThreads();
 	}
 
+	public int getThreadCountFromSettings(){
+		return jobletSettings.getThreadCountForJobletType(jobletType);
+	}
+
 	/*-------------- get/set -----------------*/
 
 	public List<RunningJoblet> getRunningJoblets(){
