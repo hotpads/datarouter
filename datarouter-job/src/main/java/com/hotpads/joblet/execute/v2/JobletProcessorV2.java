@@ -161,6 +161,7 @@ public class JobletProcessorV2 implements Runnable{
 	public List<RunningJoblet> getRunningJoblets(){
 		return runningJobletCallables.values().stream()
 				.map(JobletCallable::getRunningJoblet)
+				.filter(RunningJoblet::hasPayload)
 				.collect(Collectors.toList());
 	}
 

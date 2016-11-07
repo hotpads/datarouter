@@ -1,26 +1,28 @@
 <table class="sortable table table-bordered table-condensed">
 	<tr>
-		<th>name</th>
+		<th>type</th>
 		<th>id</th>
 		<th>running time</th>
 		<th>queue</th>
 		<th>current task</th>
 		<th>kill</th>
 	</tr>
-	<c:forEach items="${runningJobletsOfType.value}" var="runningJoblet">
-		<tr>
-			<td>${runningJoblet.name}</td>
-			<td>${runningJoblet.id}</td>
-			<td>${runningJoblet.runningTimeString}</td>
-			<td>${runningJoblet.queueId}</td>
-			<td>
-				<c:if test="${not empty runningJoblet.jobletData}">
-					<textarea cols="15" rows="1">${runningJoblet.jobletData}</textarea>
-				</c:if>
-			</td>
-			<td>
-				<a href="?submitAction=killJobletThread&threadId=${runningJoblet.id}">kill</a>
-			</td>
-		</tr>
+	<c:forEach items="${runningJobletsByType}" var="runningJobletsOfType">
+		<c:forEach items="${runningJobletsOfType.value}" var="runningJoblet">
+			<tr>
+				<td>${runningJoblet.name}</td>
+				<td>${runningJoblet.id}</td>
+				<td>${runningJoblet.runningTimeString}</td>
+				<td>${runningJoblet.queueId}</td>
+				<td>
+					<c:if test="${not empty runningJoblet.jobletData}">
+						<textarea cols="15" rows="1">${runningJoblet.jobletData}</textarea>
+					</c:if>
+				</td>
+				<td>
+					<a href="?submitAction=killJobletThread&threadId=${runningJoblet.id}">kill</a>
+				</td>
+			</tr>
+		</c:forEach>
 	</c:forEach>
 </table>

@@ -57,10 +57,7 @@
 				</c:forEach>
 			</table>
 
-			<c:forEach items="${runningJobletsByType}" var="runningJobletsOfType">
-				${runningJobletsOfType.key}<br/>
-				<%@ include file="/jsp/joblet/jobletThreadTable.jspf"%>
-			</c:forEach>
+			<%@ include file="/jsp/joblet/jobletThreadTable.jspf"%>
 		</div>
 	</div>
 </body>

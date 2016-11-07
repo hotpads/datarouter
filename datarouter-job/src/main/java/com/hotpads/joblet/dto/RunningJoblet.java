@@ -38,6 +38,10 @@ public class RunningJoblet{
 		}
 	}
 
+	public boolean hasPayload(){
+		return jobletData != null;
+	}
+
 	public String getName(){
 		return name;
 	}
@@ -47,8 +51,7 @@ public class RunningJoblet{
 	}
 
 	public String getRunningTimeString(){
-		long runningTimeMs = System.currentTimeMillis() - startedAt.getTime();
-		return DrDateTool.getAgoString(runningTimeMs);
+		return DrDateTool.getAgoString(startedAt);
 	}
 
 	public String getQueueId(){

@@ -36,8 +36,7 @@ public class JobletCallable implements Callable<Void>{
 	private final JobletProcessorV2 processor;//for callback
 	private final JobletType<?> jobletType;
 	private final long id;
-
-	private Date startedAt;
+	private final Date startedAt;
 	private Optional<JobletPackage> jobletPackage;
 
 
