@@ -10,6 +10,7 @@ import com.hotpads.datarouter.config.DatarouterProperties;
 import com.hotpads.datarouter.util.core.DrDateTool;
 import com.hotpads.datarouter.util.core.DrNumberFormatter;
 import com.hotpads.datarouter.util.core.DrStringTool;
+import com.hotpads.job.JobInterruptedException;
 import com.hotpads.joblet.Joblet;
 import com.hotpads.joblet.JobletCounters;
 import com.hotpads.joblet.JobletFactory;
@@ -18,6 +19,7 @@ import com.hotpads.joblet.JobletPackage;
 import com.hotpads.joblet.JobletService;
 import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.enums.JobletType;
+import com.hotpads.util.core.profile.PhaseTimer;
 import com.hotpads.util.datastructs.MutableBoolean;
 
 public class JobletCallable implements Callable<Void>{
@@ -51,9 +53,32 @@ public class JobletCallable implements Callable<Void>{
 		if(!jobletPackage.isPresent()){
 			return null;
 		}
-		jobletPackage.get().getJobletRequest().setReservedAt(System.currentTimeMillis());
-		jobletNodes.jobletRequest().put(jobletPackage.get().getJobletRequest(), null);
-		processJobletWithStats(jobletPackage.get());
+		JobletRequest jobletRequest = jobletPackage.get().getJobletRequest();
+		PhaseTimer timer = jobletRequest.getTimer();
+		try{
+			jobletRequest.setReservedAt(System.currentTimeMillis());
+			jobletNodes.jobletRequest().put(jobletRequest, null);
+			processJobletWithStats(jobletPackage.get());
+			timer.add("processed");
+			jobletService.handleJobletCompletion(jobletRequest);
+			timer.add("completed");
+		}catch(JobInterruptedException e){
+			try{
+				jobletService.handleJobletInterruption(jobletRequest);
+			}catch(Exception e1){
+				logger.error("", e1);
+			}
+			timer.add("interrupted");
+		}catch(Exception e){
+			logger.error("", e);
+			try{
+				jobletService.handleJobletError(jobletRequest, e, jobletRequest.getClass().getSimpleName());
+				timer.add("failed");
+			}catch(Exception lastResort){
+				logger.error("", lastResort);
+				timer.add("couldn't mark failed");
+			}
+		}
 		return null;
 	}
 

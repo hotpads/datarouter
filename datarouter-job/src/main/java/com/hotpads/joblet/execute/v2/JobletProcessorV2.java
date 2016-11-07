@@ -1,6 +1,7 @@
 package com.hotpads.joblet.execute.v2;
 
 import java.time.Duration;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -18,7 +19,11 @@ import com.hotpads.util.datastructs.MutableBoolean;
 public class JobletProcessorV2 implements Runnable{
 	private static final Logger logger = LoggerFactory.getLogger(JobletProcessorV2.class);
 
-	private static final long SLEEP_MS_WHEN_NO_WORK = Duration.ofSeconds(1).toMillis();
+	private static final Duration SLEEP_TIME_WHEN_DISABLED = Duration.ofSeconds(5);
+	private static final Duration SLEEP_TIME_WHEN_NO_WORK = Duration.ofSeconds(1);
+	private static final Duration MAX_EXEC_BACKOFF_TIME = Duration.ofSeconds(1);
+	private static final Duration MAX_WAIT_FOR_EXECUTOR = Duration.ofSeconds(5);
+	private static final Duration SLEEP_TIME_AFTER_EXCEPTION = Duration.ofSeconds(5);
 	public static final Long RUNNING_JOBLET_TIMEOUT_MS = 1000L * 60 * 10;  //10 minutes
 
 	//injected
@@ -43,8 +48,8 @@ public class JobletProcessorV2 implements Runnable{
 		//create a separate shutdownRequested for each processor so we can disable them independently
 		this.shutdownRequested = new MutableBoolean(false);
 		ThreadFactory threadFactory = new NamedThreadFactory(null, "joblet-" + jobletType.getPersistentString(), true);
-		this.exec = new ThreadPoolExecutor(0, 0, 60L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>(),
-				threadFactory);
+		this.exec = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 5L, TimeUnit.SECONDS,
+				new SynchronousQueue<Runnable>(), threadFactory);
 		this.driverThread = new Thread(null, this::run, jobletType.getPersistentString()
 				+ " JobletProcessor worker thread");
 		this.counter = 0;
@@ -66,31 +71,21 @@ public class JobletProcessorV2 implements Runnable{
 	//this method must continue indefinitely, so be sure to catch all exceptions
 	@Override
 	public void run(){
-		while(!shutdownRequested.get()){
+		while(true){
 			try{
-				exec.setMaximumPoolSize(jobletSettings.getThreadCountForJobletType(jobletType));
 				if(!shouldRun()){
-					sleepABit("shouldRun=false");
+					sleepABit(SLEEP_TIME_WHEN_DISABLED, "shouldRun=false");
 					continue;
 				}
 				if(!jobletRequestQueueManager.shouldCheckAnyQueues(jobletType)){
-					sleepABit("shouldCheckAnyQueues =false");
+					sleepABit(SLEEP_TIME_WHEN_NO_WORK, "shouldCheckAnyQueues=false");
 					continue;
 				}
-				int numSlotsAvailable = exec.getMaximumPoolSize() - exec.getActiveCount();
-				if(numSlotsAvailable < 1){
-					sleepABit("no slots available");
-					continue;
-				}
-				for(int i = 0; i < numSlotsAvailable; ++i){
-					JobletCallable jobletCallable = jobletCallableFactory.create(shutdownRequested, jobletType,
-							++counter);
-					exec.submit(jobletCallable);
-				}
+				tryEnqueueJobletCallable();
 			}catch(Exception e){//catch everything; don't let the loop break
 				logger.error("", e);
 				try{
-					sleepABit("exception acquiring joblet");
+					sleepABit(SLEEP_TIME_AFTER_EXCEPTION, "exception acquiring joblet");
 				}catch(Exception problemSleeping){
 					logger.error("uh oh, problem sleeping", problemSleeping);
 				}
@@ -98,10 +93,52 @@ public class JobletProcessorV2 implements Runnable{
 		}
 	}
 
-	private void sleepABit(String reason){
-		logger.debug("sleeping since {} for {}", reason, jobletType.getPersistentString());
+	/**
+	 * aggressively try to add to the queue until MAX_EXEC_BACKOFF_TIME
+	 *
+	 * TODO make a BlockingRejectedExecutionHandler?
+	 *
+	 * @return boolean true if we were able to create a callable or didn't need to; false if the exec was too busy
+	 */
+	private void tryEnqueueJobletCallable(){
+		int numThreads = jobletSettings.getThreadCountForJobletType(jobletType);
+		exec.setMaximumPoolSize(numThreads);//must be >0
+		long startMs = System.currentTimeMillis();
+		long backoffMs = 1L;
+		while(System.currentTimeMillis() - startMs < MAX_WAIT_FOR_EXECUTOR.toMillis()){
+			if(!jobletRequestQueueManager.shouldCheckAnyQueues(jobletType)){
+				return;
+			}
+			try{
+				JobletCallable jobletCallable = jobletCallableFactory.create(shutdownRequested, jobletType, ++counter);
+				exec.submit(jobletCallable);
+			}catch(RejectedExecutionException ree){
+//				logger.warn("{} #{} rejected, backing off {}ms", jobletType, counter, backoffMs);
+				sleepABit(Duration.ofMillis(backoffMs), "executor full");
+				backoffMs = Math.min(2 * backoffMs, MAX_EXEC_BACKOFF_TIME.toMillis());
+			}
+		}
+	}
+
+	//return whether a slot became available
+	private boolean waitForExecutorSlot(int numThreads){
+		long startMs = System.currentTimeMillis();
+		long backoffMs = 1L;
+		while(numThreads - exec.getActiveCount() < 1){
+			long elapsedMs = System.currentTimeMillis() - startMs;
+			if(elapsedMs > MAX_WAIT_FOR_EXECUTOR.toMillis()){
+				return false;
+			}
+			sleepABit(Duration.ofMillis(backoffMs), "executor full");
+			backoffMs = Math.min(2 * backoffMs, MAX_EXEC_BACKOFF_TIME.toMillis());
+		}
+		return true;
+	}
+
+	private void sleepABit(Duration duration, String reason){
+		logger.debug("sleeping {} since {} for {}", duration, reason, jobletType.getPersistentString());
 		try{
-			Thread.sleep(SLEEP_MS_WHEN_NO_WORK);
+			Thread.sleep(duration.toMillis());
 		}catch(InterruptedException e){
 			logger.warn("", e);
 			Thread.interrupted();//continue.  we have explicit interrupted handling for terminating

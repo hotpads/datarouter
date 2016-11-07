@@ -35,8 +35,8 @@ import com.hotpads.joblet.enums.JobletStatus;
 import com.hotpads.joblet.enums.JobletType;
 import com.hotpads.joblet.enums.JobletTypeFactory;
 import com.hotpads.joblet.execute.JobletExecutorThread;
+import com.hotpads.joblet.execute.JobletProcessors;
 import com.hotpads.joblet.execute.ParallelJobletProcessor;
-import com.hotpads.joblet.execute.ParallelJobletProcessors;
 import com.hotpads.joblet.jdbc.RestartJobletRequests;
 import com.hotpads.joblet.jdbc.TimeoutStuckRunningJobletRequests;
 import com.hotpads.joblet.queue.JobletRequestQueueKey;
@@ -63,7 +63,7 @@ public class JobletHandler extends BaseHandler{
 	private final String serverName;
 	private final JobletTypeFactory jobletTypeFactory;
 	private final JobletNodes jobletNodes;
-	private final ParallelJobletProcessors parallelJobletProcessors;
+	private final JobletProcessors jobletProcessors;
 	private final JobletService jobletService;
 	private final JobletSettings jobletSettings;
 	private final JobletRequestDao jobletRequestDao;
@@ -71,15 +71,14 @@ public class JobletHandler extends BaseHandler{
 
 	@Inject
 	public JobletHandler(Datarouter datarouter, DatarouterProperties datarouterProperties,
-			JobletTypeFactory jobletTypeFactory, JobletNodes jobletNodes,
-			ParallelJobletProcessors parallelJobletProcessors, JobletService jobletService,
-			JobletSettings jobletSettings, JobletRequestDao jobletRequestDao,
+			JobletTypeFactory jobletTypeFactory, JobletNodes jobletNodes, JobletProcessors jobletProcessors,
+			JobletService jobletService, JobletSettings jobletSettings, JobletRequestDao jobletRequestDao,
 			JobletRequestQueueManager jobletRequestQueueManager){
 		this.datarouter = datarouter;
 		this.serverName = datarouterProperties.getServerName();
 		this.jobletTypeFactory = jobletTypeFactory;
 		this.jobletNodes = jobletNodes;
-		this.parallelJobletProcessors = parallelJobletProcessors;
+		this.jobletProcessors = jobletProcessors;
 		this.jobletService = jobletService;
 		this.jobletSettings = jobletSettings;
 		this.jobletRequestDao = jobletRequestDao;
@@ -188,7 +187,7 @@ public class JobletHandler extends BaseHandler{
 		mav.put("numMemoryPermits", jobletSettings.memoryTickets.getValue());
 		mav.put("isThrottling", false);//because JobletThrottle no longer exists
 
-		List<TypeSummaryDto> typeSummaryDtos = parallelJobletProcessors.getMap().values().stream()
+		List<TypeSummaryDto> typeSummaryDtos = jobletProcessors.getMap().values().stream()
 				.map(TypeSummaryDto::new)
 				.sorted(Comparator.comparing(TypeSummaryDto::getJobletType))
 				.collect(Collectors.toList());
@@ -211,14 +210,14 @@ public class JobletHandler extends BaseHandler{
 	@Handler
 	private Mav killJobletThread(){
 		long threadId = params.requiredLong("threadId");
-		parallelJobletProcessors.killThread(threadId);
+		jobletProcessors.killThread(threadId);
 		return new InContextRedirectMav(params, URL_JOBLETS_IN_CONTEXT);
 	}
 
 	@Handler
 	private Mav restartExecutor(){
 		Integer jobletTypeCode = params.requiredInteger("jobletTypeCode");
-		parallelJobletProcessors.restartExecutor(jobletTypeCode);
+		jobletProcessors.restartExecutor(jobletTypeCode);
 		return new InContextRedirectMav(params, URL_JOBLETS_IN_CONTEXT);
 	}
 
@@ -242,11 +241,11 @@ public class JobletHandler extends BaseHandler{
 	/*--------------------- private -------------------------*/
 
 	private Map<String,List<JobletExecutorThread>> getWaitingJobletThreads() {
-		return getJobletThreads(parallelJobletProcessors.getCurrentlyWaitingJobletExecutorThreads());
+		return getJobletThreads(jobletProcessors.getCurrentlyWaitingJobletExecutorThreads());
 	}
 
 	private Map<String,List<JobletExecutorThread>> getRunningJobletThreads() {
-		return getJobletThreads(parallelJobletProcessors.getCurrentlyRunningJobletExecutorThreads());
+		return getJobletThreads(jobletProcessors.getCurrentlyRunningJobletExecutorThreads());
 	}
 
 	private Map<String,List<JobletExecutorThread>> getJobletThreads(List<JobletExecutorThread> jobletThreads){
