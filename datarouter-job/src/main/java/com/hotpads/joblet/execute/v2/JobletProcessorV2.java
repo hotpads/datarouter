@@ -104,14 +104,15 @@ public class JobletProcessorV2 implements Runnable{
 		int numThreads = jobletSettings.getThreadCountForJobletType(jobletType);
 		exec.setMaximumPoolSize(numThreads);//must be >0
 		long startMs = System.currentTimeMillis();
-		long backoffMs = 1L;
+		long backoffMs = 10L;
 		while(System.currentTimeMillis() - startMs < MAX_WAIT_FOR_EXECUTOR.toMillis()){
 			if(!jobletRequestQueueManager.shouldCheckAnyQueues(jobletType)){
-				return;
+				return;//stop trying
 			}
 			try{
 				JobletCallable jobletCallable = jobletCallableFactory.create(shutdownRequested, jobletType, ++counter);
 				exec.submit(jobletCallable);
+				return;//return so we loop back immediately
 			}catch(RejectedExecutionException ree){
 //				logger.warn("{} #{} rejected, backing off {}ms", jobletType, counter, backoffMs);
 				sleepABit(Duration.ofMillis(backoffMs), "executor full");
