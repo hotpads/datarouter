@@ -10,7 +10,7 @@ public class OptionalString extends OptionalParameter<String>{
 	}
 
 	@Override
-	public Class<?> getInternalType(){
+	public Class<String> getInternalType(){
 		return String.class;
 	}
 

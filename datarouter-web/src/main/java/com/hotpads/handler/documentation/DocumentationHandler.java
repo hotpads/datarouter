@@ -16,12 +16,12 @@ public class DocumentationHandler extends BaseHandler{
 	protected List<DocumentedEndpoint> buildDocumentation(BaseDispatcher apiDispatcher, String apiUrlContext){
 		return apiDispatcher.getDispatchRules().stream()
 				.filter(rule -> rule.getPattern().pattern().startsWith(apiUrlContext))
-				.map(this::buildEndpointDocumentations)
+				.map(this::buildEndpointDocumentation)
 				.flatMap(List::stream)
 				.collect(Collectors.toList());
 	}
 
-	private List<DocumentedEndpoint> buildEndpointDocumentations(DispatchRule rule){
+	private List<DocumentedEndpoint> buildEndpointDocumentation(DispatchRule rule){
 		List<DocumentedEndpoint> endpoints = new ArrayList<>();
 		Class<? extends BaseHandler> handler = rule.getHandlerClass();
 		while(handler != null && !handler.getName().equals(BaseHandler.class.getName())){

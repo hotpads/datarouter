@@ -12,7 +12,7 @@ public class OptionalDouble extends OptionalParameter<Double>{
 	}
 
 	@Override
-	public Class<?> getInternalType(){
+	public Class<Double> getInternalType(){
 		return Double.class;
 	}
 

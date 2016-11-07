@@ -12,7 +12,7 @@ public class OptionalLong extends OptionalParameter<Long>{
 	}
 
 	@Override
-	public Class<?> getInternalType(){
+	public Class<Long> getInternalType(){
 		return Long.class;
 	}
 

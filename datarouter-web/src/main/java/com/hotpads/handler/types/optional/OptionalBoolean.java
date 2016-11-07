@@ -12,7 +12,7 @@ public class OptionalBoolean extends OptionalParameter<Boolean>{
 	}
 
 	@Override
-	public Class<?> getInternalType(){
+	public Class<Boolean> getInternalType(){
 		return Boolean.class;
 	}
 

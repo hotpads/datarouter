@@ -24,7 +24,7 @@ public abstract class OptionalParameter<T>{
 		return opt;
 	}
 
-	public abstract Class<?> getInternalType();
+	public abstract Class<T> getInternalType();
 	public abstract OptionalParameter<T> fromString(String stringValue);
 
 	public static OptionalParameter<?> makeOptionalParameter(String stringValue, Type type){

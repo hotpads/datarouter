@@ -12,7 +12,7 @@ public class OptionalInteger extends OptionalParameter<Integer>{
 	}
 
 	@Override
-	public Class<?> getInternalType(){
+	public Class<Integer> getInternalType(){
 		return Integer.class;
 	}
 
