@@ -4,6 +4,7 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;
@@ -40,7 +41,8 @@ public class JobletProcessorV2 implements Runnable{
 	private final MutableBoolean shutdownRequested;
 	private final ThreadPoolExecutor exec;
 	private final Thread driverThread;
-	private final Map<Long,JobletCallable> runningJobletCallables;
+	private final Map<Long,JobletCallable> jobletCallableById;
+	private final Map<Long,Future<Void>> jobletFutureById;
 	private long counter;
 
 
@@ -58,7 +60,8 @@ public class JobletProcessorV2 implements Runnable{
 				new SynchronousQueue<Runnable>(), threadFactory);
 		this.driverThread = new Thread(null, this::run, jobletType.getPersistentString()
 				+ " JobletProcessor worker thread");
-		this.runningJobletCallables = new ConcurrentHashMap<>();
+		this.jobletCallableById = new ConcurrentHashMap<>();
+		this.jobletFutureById = new ConcurrentHashMap<>();
 		this.counter = 0;
 		driverThread.start();
 	}
@@ -119,8 +122,9 @@ public class JobletProcessorV2 implements Runnable{
 			try{
 				long id = ++counter;
 				JobletCallable jobletCallable = jobletCallableFactory.create(shutdownRequested, this, jobletType, id);
-				exec.submit(jobletCallable);
-				runningJobletCallables.put(id, jobletCallable);
+				Future<Void> jobletFuture = exec.submit(jobletCallable);
+				jobletCallableById.put(id, jobletCallable);
+				jobletFutureById.put(id, jobletFuture);
 				return;//return so we loop back immediately
 			}catch(RejectedExecutionException ree){
 //				logger.warn("{} #{} rejected, backing off {}ms", jobletType, counter, backoffMs);
@@ -141,18 +145,19 @@ public class JobletProcessorV2 implements Runnable{
 	}
 
 	public void onCompletion(Long id){
-		runningJobletCallables.remove(id);
+		jobletCallableById.remove(id);
+		jobletFutureById.remove(id);
 	}
 
 	public List<RunningJoblet> getRunningJoblets(){
-		return runningJobletCallables.values().stream()
+		return jobletCallableById.values().stream()
 				.map(JobletCallable::getRunningJoblet)
 				.filter(RunningJoblet::hasPayload)
 				.collect(Collectors.toList());
 	}
 
 	public int getNumRunningJoblets(){
-		return runningJobletCallables.size();
+		return jobletCallableById.size();
 	}
 
 	public int getThreadCountFromSettings(){
