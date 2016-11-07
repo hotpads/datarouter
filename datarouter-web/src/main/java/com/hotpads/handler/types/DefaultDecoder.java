@@ -75,12 +75,9 @@ public class DefaultDecoder implements HandlerDecoder{
 				if(queryParam == null && !isOptional){
 					return null;
 				}
-				if(queryParam == null){
-					args[i] = isOptional ? OptionalParameter.makeOptionalParameter(null, parameterType) : null;
-				} else{
-					args[i] = isOptional ? OptionalParameter.makeOptionalParameter(queryParam[0], parameterType)
-							: decode(queryParam[0], parameterType);
-				}
+				String parameterValue = queryParam == null ? null : queryParam[0];
+				args[i] = isOptional ? OptionalParameter.makeOptionalParameter(parameterValue, parameterType)
+						: decode(parameterValue, parameterType);
 			}
 		}
 		return args;

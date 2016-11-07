@@ -103,7 +103,6 @@ public abstract class BaseHandler{
 				if(defaultHandlerMethod.isPresent()){
 					pair = handlerTypingHelper.findMethodByName(Arrays.asList(defaultHandlerMethod.get()), request);
 					method = pair.getLeft();
-					method.setAccessible(true);
 					args = pair.getRight();
 				}
 			}
@@ -170,10 +169,14 @@ public abstract class BaseHandler{
 	}
 
 	private Optional<Method> getDefaultHandlerMethod(){
-		return Stream.of(getClass().getDeclaredMethods())
+		Optional<Method> defaultHandlerMethod = Stream.of(getClass().getDeclaredMethods())
 				.filter(possibleMethod -> possibleMethod.isAnnotationPresent(Handler.class))
 				.filter(possibleMethod -> possibleMethod.getDeclaredAnnotation(Handler.class).defaultHandler())
 				.findFirst();
+		if(defaultHandlerMethod.isPresent()){
+			defaultHandlerMethod.get().setAccessible(true);
+		}
+		return defaultHandlerMethod;
 	}
 
 	private String getLastPathSegment(String uri) {
