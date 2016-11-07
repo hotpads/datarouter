@@ -1,6 +1,5 @@
 package com.hotpads.joblet.execute;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -21,11 +20,6 @@ public interface JobletProcessors{
 	@Deprecated //remove
 	default void restartExecutor(int jobletTypeCode){
 		throw new NotImplementedException();
-	}
-
-	@Deprecated //rewrite
-	default Map<JobletType<?>,ParallelJobletProcessor> getMap(){
-		return Collections.emptyMap();
 	}
 
 }

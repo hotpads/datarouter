@@ -41,11 +41,6 @@ public class ParallelJobletProcessors implements JobletProcessors{
 				.collect(Collectors.toMap(ParallelJobletProcessor::getJobletType, Function.identity()));
 	}
 
-	@Override
-	public Map<JobletType<?>,ParallelJobletProcessor> getMap(){
-		return processorByType;
-	}
-
 	private List<JobletExecutorThread> getCurrentlyRunningJobletExecutorThreads(){
 		return processorByType.values().stream()
 				.map(ParallelJobletProcessor::getRunningJobletExecutorThreads)
@@ -83,7 +78,7 @@ public class ParallelJobletProcessors implements JobletProcessors{
 
 	@Override
 	public List<JobletTypeSummary> getTypeSummaries(){
-		return getMap().values().stream()
+		return processorByType.values().stream()
 				.map(JobletTypeSummary::new)
 				.sorted(Comparator.comparing(JobletTypeSummary::getJobletType))
 				.collect(Collectors.toList());
