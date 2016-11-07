@@ -231,10 +231,6 @@ public class JobletHandler extends BaseHandler{
 
 	/*--------------------- private -------------------------*/
 
-	private Map<String,List<JobletExecutorThread>> getRunningJobletThreads() {
-		return getJobletThreads(jobletProcessors.getCurrentlyRunningJobletExecutorThreads());
-	}
-
 	private Map<String,List<JobletExecutorThread>> getJobletThreads(List<JobletExecutorThread> jobletThreads){
 		Map<String,List<JobletExecutorThread>> jobletThreadsByServer = new HashMap<>();
 		jobletThreadsByServer.put(serverName, jobletThreads);

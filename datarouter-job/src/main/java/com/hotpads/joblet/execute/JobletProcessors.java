@@ -12,20 +12,11 @@ import com.hotpads.util.core.exception.NotImplementedException;
 public interface JobletProcessors{
 
 	void createAndStartProcessors();
-	void requestShutdown();
 	Map<JobletType<?>,List<RunningJoblet>> getRunningJobletsByType();
-
 	List<JobletTypeSummary> getTypeSummaries();
+	void killThread(long threadId);
+	void requestShutdown();
 
-	@Deprecated //use dto
-	default List<JobletExecutorThread> getCurrentlyRunningJobletExecutorThreads(){
-		return Collections.emptyList();
-	}
-
-	@Deprecated //remove
-	default void killThread(long threadId){
-		throw new NotImplementedException();
-	}
 
 	@Deprecated //remove
 	default void restartExecutor(int jobletTypeCode){

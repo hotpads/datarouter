@@ -3,6 +3,7 @@ package com.hotpads.joblet.execute.v2;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -22,6 +23,7 @@ public class JobletProcessorsV2 implements JobletProcessors{
 	private final JobletProcessorV2Factory jobletProcessorV2Factory;
 	private final JobletTypeFactory jobletTypeFactory;
 
+	private final AtomicLong idGenerator;
 	private Map<JobletType<?>,JobletProcessorV2> processorByType;
 
 
@@ -29,6 +31,8 @@ public class JobletProcessorsV2 implements JobletProcessors{
 	public JobletProcessorsV2(JobletProcessorV2Factory jobletProcessorV2Factory, JobletTypeFactory jobletTypeFactory){
 		this.jobletProcessorV2Factory = jobletProcessorV2Factory;
 		this.jobletTypeFactory = jobletTypeFactory;
+
+		this.idGenerator = new AtomicLong(0);
 	}
 
 
@@ -58,6 +62,11 @@ public class JobletProcessorsV2 implements JobletProcessors{
 				.filter(summary -> summary.getNumRunning() > 0)
 				.sorted(Comparator.comparing(JobletTypeSummary::getJobletType))
 				.collect(Collectors.toList());
+	}
+
+	@Override
+	public void killThread(long threadId){
+		processorByType.values().forEach(processor -> processor.killThread(threadId));
 	}
 
 }

@@ -3,6 +3,7 @@ package com.hotpads.joblet.execute.v2;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
@@ -68,6 +69,11 @@ public class JobletProcessorV2 implements Runnable{
 
 	public void requestShutdown() {
 		shutdownRequested.set(true);
+	}
+
+	public void killThread(long threadId){
+		Optional.ofNullable(jobletFutureById.get(threadId))
+				.map(future -> future.cancel(true));
 	}
 
 	/*----------------- private --------------------*/
