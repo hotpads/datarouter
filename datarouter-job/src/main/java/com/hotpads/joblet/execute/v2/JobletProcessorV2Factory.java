@@ -1,5 +1,7 @@
 package com.hotpads.joblet.execute.v2;
 
+import java.util.concurrent.atomic.AtomicLong;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -16,7 +18,8 @@ public class JobletProcessorV2Factory{
 	@Inject
 	private JobletCallableFactory jobletCallableFactory;
 
-	public JobletProcessorV2 create(JobletType<?> jobletType){
-		return new JobletProcessorV2(jobletSettings, jobletRequestQueueManager, jobletCallableFactory, jobletType);
+	public JobletProcessorV2 create(AtomicLong idGenerator, JobletType<?> jobletType){
+		return new JobletProcessorV2(jobletSettings, jobletRequestQueueManager, jobletCallableFactory, idGenerator,
+				jobletType);
 	}
 }

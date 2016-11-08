@@ -39,7 +39,7 @@ public class JobletProcessorsV2 implements JobletProcessors{
 	@Override
 	public void createAndStartProcessors(){
 		this.processorByType = jobletTypeFactory.getAllTypes().stream()
-				.map(jobletProcessorV2Factory::create)
+				.map(jobletType -> jobletProcessorV2Factory.create(idGenerator, jobletType))
 				.collect(Collectors.toMap(JobletProcessorV2::getJobletType, Function.identity()));
 	}
 

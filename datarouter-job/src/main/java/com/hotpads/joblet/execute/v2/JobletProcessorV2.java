@@ -11,6 +11,7 @@ import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -34,37 +35,36 @@ public class JobletProcessorV2 implements Runnable{
 	private static final Duration SLEEP_TIME_AFTER_EXCEPTION = Duration.ofSeconds(5);
 	public static final Long RUNNING_JOBLET_TIMEOUT_MS = 1000L * 60 * 10;  //10 minutes
 
-	//injected
+	//injectable
 	private final JobletSettings jobletSettings;
 	private final JobletRequestQueueManager jobletRequestQueueManager;
 	private final JobletCallableFactory jobletCallableFactory;
-	//not injected
+	//not injectable
+	private final AtomicLong idGenerator;
 	private final JobletType<?> jobletType;
 	private final MutableBoolean shutdownRequested;
 	private final ThreadPoolExecutor exec;
-	private final Thread driverThread;
 	private final Map<Long,JobletCallable> jobletCallableById;
 	private final Map<Long,Future<Void>> jobletFutureById;
-	private long counter;
+	private final Thread driverThread;
 
 
 	public JobletProcessorV2(JobletSettings jobletSettings, JobletRequestQueueManager jobletRequestQueueManager,
-			JobletCallableFactory jobletCallableFactory, JobletType<?> jobletType){
+			JobletCallableFactory jobletCallableFactory, AtomicLong idGenerator, JobletType<?> jobletType){
 		this.jobletSettings = jobletSettings;
 		this.jobletRequestQueueManager = jobletRequestQueueManager;
 		this.jobletCallableFactory = jobletCallableFactory;
-
+		this.idGenerator = idGenerator;
 		this.jobletType = jobletType;
 		//create a separate shutdownRequested for each processor so we can disable them independently
 		this.shutdownRequested = new MutableBoolean(false);
 		ThreadFactory threadFactory = new NamedThreadFactory(null, "joblet-" + jobletType.getPersistentString(), true);
 		this.exec = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 5L, TimeUnit.SECONDS,
 				new SynchronousQueue<Runnable>(), threadFactory);
-		this.driverThread = new Thread(null, this::run, jobletType.getPersistentString()
-				+ " JobletProcessor worker thread");
 		this.jobletCallableById = new ConcurrentHashMap<>();
 		this.jobletFutureById = new ConcurrentHashMap<>();
-		this.counter = 0;
+		this.driverThread = new Thread(null, this::run, jobletType.getPersistentString()
+				+ " JobletProcessor worker thread");
 		driverThread.start();
 	}
 
@@ -126,7 +126,7 @@ public class JobletProcessorV2 implements Runnable{
 				return;//stop trying
 			}
 			try{
-				long id = ++counter;
+				long id = idGenerator.incrementAndGet();
 				JobletCallable jobletCallable = jobletCallableFactory.create(shutdownRequested, this, jobletType, id);
 				Future<Void> jobletFuture = exec.submit(jobletCallable);
 				jobletCallableById.put(id, jobletCallable);

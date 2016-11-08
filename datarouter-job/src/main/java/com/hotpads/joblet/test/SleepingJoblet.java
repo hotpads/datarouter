@@ -19,7 +19,7 @@ public class SleepingJoblet extends BaseJoblet<SleepingJobletParams>{
 
 	@Override
 	public Long process(){
-		logger.warn("starting SleepingJoblet {}", params.id);
+		logger.debug("starting SleepingJoblet {}", params.id);
 		long startMs = System.currentTimeMillis();
 		long remainingMs = params.sleepTimeMs;
 		while(remainingMs > 0){
@@ -28,7 +28,7 @@ public class SleepingJoblet extends BaseJoblet<SleepingJobletParams>{
 			long totalElapsedMs = System.currentTimeMillis() - startMs;
 			remainingMs = params.sleepTimeMs - totalElapsedMs;
 		}
-		logger.warn("finished SleepingJoblet {}", params.id);
+		logger.debug("finished SleepingJoblet {}", params.id);
 		return params.sleepTimeMs;
 	}
 
