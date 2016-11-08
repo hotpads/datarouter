@@ -136,9 +136,9 @@ public class JobletService{
 		List<JobletRequest> jobletRequestsToReset = JobletRequest.filterByTypeStatusReservedByPrefix(jobletRequests,
 				jobletType, JobletStatus.running, serverNamePrefix);
 		logger.warn("found "+DrCollectionTool.size(jobletRequestsToReset)+" jobletRequests to reset");
-
 		for(JobletRequest jobletRequest : jobletRequestsToReset){
-			handleJobletInterruption(jobletRequest);
+			handleJobletInterruption(new PhaseTimer("setJobletRequestsRunningOnServerToCreated " + jobletRequest
+					.toString()), jobletRequest);
 		}
 	}
 
@@ -156,18 +156,17 @@ public class JobletService{
 
 	/*--------------------- lifecycle events -----------------------*/
 
-	public void handleJobletInterruption(JobletRequest jobletRequest){
+	public void handleJobletInterruption(PhaseTimer timer, JobletRequest jobletRequest){
 		jobletRequest.setReservedBy(null);
 		jobletRequest.setReservedAt(null);
 		JobletStatus setStatusTo = jobletRequest.getRestartable() ? JobletStatus.created : JobletStatus.interrupted;
 		jobletRequest.setStatus(setStatusTo);
-		requeueJobletRequest(jobletRequest);
-		jobletNodes.jobletRequest().put(jobletRequest, new Config().setPutMethod(PutMethod.UPDATE_OR_BUST));
+		requeueJobletRequest(timer, jobletRequest);
 		logger.warn("interrupted {}, set status={}, reservedBy=null, reservedAt=null", jobletRequest.getKey(),
 				setStatusTo);
 	}
 
-	public void handleJobletError(JobletRequest jobletRequest, Exception exception, String location){
+	public void handleJobletError(PhaseTimer timer, JobletRequest jobletRequest, Exception exception, String location){
 		ExceptionRecord exceptionRecord = exceptionRecorder.tryRecordException(exception, location,
 				JobExceptionCategory.JOBLET);
 		jobletRequest.setExceptionRecordId(exceptionRecord.getKey().getId());
@@ -176,29 +175,35 @@ public class JobletService{
 		jobletRequest.incrementNumFailures();
 		if(jobletRequest.getRestartable() && ! jobletRequest.hasReachedMaxFailures()){
 			jobletRequest.setStatus(JobletStatus.created);
-			requeueJobletRequest(jobletRequest);
+			requeueJobletRequest(timer, jobletRequest);
 		}else{
 			jobletRequest.setStatus(JobletStatus.failed);
+			jobletNodes.jobletRequest().put(jobletRequest, new Config().setPutMethod(PutMethod.UPDATE_OR_BUST));
+			timer.add("mark failed");
 		}
-		jobletNodes.jobletRequest().put(jobletRequest, new Config().setPutMethod(PutMethod.UPDATE_OR_BUST));
 	}
 
-	public void handleJobletCompletion(JobletRequest jobletRequest){
+	public void handleJobletCompletion(PhaseTimer timer, JobletRequest jobletRequest){
 		if(jobletRequest.getQueueMessageKey() != null){
 			JobletRequestQueueKey queueKey = jobletRequestQueueManager.getQueueKey(jobletRequest);
 			jobletNodes.jobletRequestQueueByKey().get(queueKey).ack(jobletRequest.getQueueMessageKey(), null);
+			timer.add("ack");
 		}
 		deleteJobletRequestAndData(jobletRequest);
+		timer.add("deleteJobletRequestAndData");
 	}
 
-	private void requeueJobletRequest(JobletRequest jobletRequest){
+	private void requeueJobletRequest(PhaseTimer timer, JobletRequest jobletRequest){
 		if(jobletRequest.getQueueMessageKey() == null){
 			return;
 		}
 		JobletRequestQueueKey queueKey = jobletRequestQueueManager.getQueueKey(jobletRequest);
 		//rather than ack/put, is there an ack(false) mechanism?
 		jobletNodes.jobletRequestQueueByKey().get(queueKey).ack(jobletRequest.getQueueMessageKey(), null);
-		jobletNodes.jobletRequestQueueByKey().get(queueKey).put(jobletRequest, null);
+		timer.add("requeue ack");
+		jobletNodes.jobletRequestQueueByKey().get(queueKey).put(jobletRequest, new Config().setPutMethod(
+				PutMethod.UPDATE_OR_BUST));
+		timer.add("requeue put");
 	}
 
 }
