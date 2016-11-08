@@ -70,11 +70,11 @@ public class JobletCallable implements Callable<Void>{
 				timer.add("setReservedAt");
 				processJobletWithStats(jobletPackage.get());
 				timer.add("process");
-				jobletService.handleJobletCompletion(jobletRequest, timer);
+				jobletService.handleJobletCompletion(timer, jobletRequest);
 				timer.add("handleJobletCompletion");
 			}catch(JobInterruptedException e){
 				try{
-					jobletService.handleJobletInterruption(jobletRequest);
+					jobletService.handleJobletInterruption(timer, jobletRequest);
 				}catch(Exception e1){
 					logger.error("", e1);
 				}
@@ -82,7 +82,7 @@ public class JobletCallable implements Callable<Void>{
 			}catch(Exception e){
 				logger.error("", e);
 				try{
-					jobletService.handleJobletError(jobletRequest, e, jobletRequest.getClass().getSimpleName());
+					jobletService.handleJobletError(timer, jobletRequest, e, jobletRequest.getClass().getSimpleName());
 					timer.add("failed");
 				}catch(Exception lastResort){
 					logger.error("", lastResort);
