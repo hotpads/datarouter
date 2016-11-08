@@ -58,7 +58,7 @@ public class JobletCallable implements Callable<Void>{
 	@Override
 	public Void call(){
 		try{
-			PhaseTimer timer = new PhaseTimer("JobletCallable-" + id);
+			PhaseTimer timer = new PhaseTimer(jobletType.getPersistentString() + "-" + id);
 			jobletPackage = dequeueJobletPackage(timer);
 			if(!jobletPackage.isPresent()){
 				return null;
@@ -68,27 +68,24 @@ public class JobletCallable implements Callable<Void>{
 				jobletRequest.setReservedAt(System.currentTimeMillis());
 				jobletNodes.jobletRequest().put(jobletRequest, null);
 				timer.add("setReservedAt");
-				processJobletWithStats(jobletPackage.get());
-				timer.add("process");
+				processJobletWithStats(timer, jobletPackage.get());
 				jobletService.handleJobletCompletion(timer, jobletRequest);
-				timer.add("handleJobletCompletion");
 			}catch(JobInterruptedException e){
 				try{
 					jobletService.handleJobletInterruption(timer, jobletRequest);
 				}catch(Exception e1){
 					logger.error("", e1);
 				}
-				timer.add("interrupted");
 			}catch(Exception e){
 				logger.error("", e);
 				try{
 					jobletService.handleJobletError(timer, jobletRequest, e, jobletRequest.getClass().getSimpleName());
-					timer.add("failed");
 				}catch(Exception lastResort){
 					logger.error("", lastResort);
 					timer.add("couldn't mark failed");
 				}
 			}
+			logger.info(timer.toString());
 			return null;
 		}finally{
 			processor.onCompletion(id);
@@ -98,14 +95,16 @@ public class JobletCallable implements Callable<Void>{
 
 	private final Optional<JobletPackage> dequeueJobletPackage(PhaseTimer timer){
 		String reservedBy = getReservedByString();
-		timer.add("getJobletRequest");
 		Optional<JobletRequest> jobletRequest = jobletService.getJobletRequestForProcessing(jobletType, reservedBy);
-		if(!jobletRequest.isPresent()){
+		if(jobletRequest.isPresent()){
+			timer.add("got " + jobletRequest.get().getKey());
+		}else{
+			timer.add("no JobletRequest found");
 			return Optional.empty();
 		}
 		jobletRequest.get().setShutdownRequested(shutdownRequested);
 		JobletPackage jobletPackage = jobletService.getJobletPackageForJobletRequest(jobletRequest.get());
-		timer.add("getJobletPackage");
+		timer.add("getJobletData");
 		return Optional.of(jobletPackage);
 	}
 
@@ -116,7 +115,7 @@ public class JobletCallable implements Callable<Void>{
 				+ "_" + id;
 	}
 
-	private void processJobletWithStats(JobletPackage jobletPackage){
+	private void processJobletWithStats(PhaseTimer timer, JobletPackage jobletPackage){
 		Joblet<?> joblet = jobletFactory.createForPackage(jobletPackage);
 		JobletRequest jobletRequest = jobletPackage.getJobletRequest();
 		long startTimeMs = System.currentTimeMillis();
@@ -127,6 +126,7 @@ public class JobletCallable implements Callable<Void>{
 		JobletCounters.incNumJobletsProcessed(jobletType);
 		int numItemsProcessed = Math.max(1, jobletRequest.getNumItems());
 		JobletCounters.incItemsProcessed(jobletType, numItemsProcessed);
+		timer.add("processed " + numItemsProcessed + " items");
 		int numTasksProcessed = Math.max(1, jobletRequest.getNumTasks());
 		JobletCounters.incTasksProcessed(jobletType, numTasksProcessed);
 		long endTimeMs = System.currentTimeMillis();
@@ -141,7 +141,7 @@ public class JobletCallable implements Callable<Void>{
 		if(DrStringTool.notEmpty(jobletRequest.getQueueId())){
 			typeAndQueue += " " + jobletRequest.getQueueId();
 		}
-		logger.info("Finished " + typeAndQueue
+		logger.debug("Finished " + typeAndQueue
 				+ " with " + jobletRequest.getNumItems() + " items"
 				+ " and " + jobletRequest.getNumTasks() + " tasks"
 				+ " in " + DrNumberFormatter.addCommas(durationMs)+"ms"
