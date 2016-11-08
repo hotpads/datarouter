@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import javax.inject.Inject;
@@ -212,13 +213,24 @@ public class JobletHandler extends BaseHandler{
 		return new InContextRedirectMav(params, URL_JOBLETS_IN_CONTEXT);
 	}
 
-	// /datarouter/joblets/createSleepingJoblets?numJoblets=100&sleepMs=500&executionOrder=10
+	// /datarouter/joblets/createSleepingJoblets?numJoblets=100&sleepMs=500
 	@Handler
-	private Mav createSleepingJoblets(int numJoblets, long sleepMs, int executionOrder){
-		JobletPriority priority = JobletPriority.fromExecutionOrder(executionOrder);
+	private Mav createSleepingJoblets(int numJoblets, long sleepMs){
+		Optional<Integer> executionOrder = params.optionalInteger("executionOrder");
+		Optional<Boolean> includeFailures = params.optionalBoolean("includeFailures");
+		Optional<Integer> failEveryN = params.optionalInteger("failEveryN");
+		JobletPriority priority = JobletPriority.fromExecutionOrder(executionOrder.get());
 		List<JobletPackage> jobletPackages = new ArrayList<>();
 		for(int i = 0; i < numJoblets; ++i){
-			SleepingJobletParams params = new SleepingJobletParams(String.valueOf(i), sleepMs);
+			int numFailuresForThisJoblet = 0;
+			if(includeFailures.get()){
+				boolean failThisJoblet = i % failEveryN.orElse(10) == 0;
+				if(failThisJoblet){
+					numFailuresForThisJoblet = JobletRequest.MAX_FAILURES + 3;//+3 to see if it causes a problem
+				}
+			}
+			SleepingJobletParams params = new SleepingJobletParams(String.valueOf(i), sleepMs,
+					numFailuresForThisJoblet);
 			int batchSequence = i;//specify this so joblets execute in precise order
 			JobletPackage jobletPackage = JobletPackage.createDetailed(SleepingJoblet.JOBLET_TYPE, priority, new Date(),
 					batchSequence, true, null, params);

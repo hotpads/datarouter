@@ -34,6 +34,8 @@ import com.hotpads.util.datastructs.MutableBoolean;
 
 public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 
+	public static final int MAX_FAILURES = 2;//TODO make this a custom field
+
 	private JobletRequestKey key;
 	private String queueId;
 	private JobletStatus status = JobletStatus.created;
@@ -176,10 +178,6 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 
     /*-------------------- methods --------------------*/
 
-    public int getMaxFailures(){
-    	return 2;
-    }
-
 	public JobletDataKey getJobletDataKey(){
 		return new JobletDataKey(jobletDataId);
 	}
@@ -202,7 +200,7 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 	}
 
 	public boolean hasReachedMaxFailures(){
-		return numFailures >= getMaxFailures();
+		return numFailures >= MAX_FAILURES;
 	}
 
 	public int incrementNumTimeouts(){
