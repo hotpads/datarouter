@@ -27,7 +27,8 @@ public class DatarouterExecutorGuiceModule extends BaseExecutorGuiceModule{
 		POOL_schemaUpdateScheduler = "schemaUpdateScheduler",
 		POOL_latencyMonitoring = "latencyMonitoring",
 		POOL_tableSampler = "tableSampler",
-		POOL_metricsAggregation = "metricsAggregation";
+		POOL_metricsAggregation = "metricsAggregation",
+		POOL_parallelScanning = "parallelScanning";
 
 	private static final ThreadGroup
 		datarouter = new ThreadGroup("datarouter"),
@@ -85,6 +86,9 @@ public class DatarouterExecutorGuiceModule extends BaseExecutorGuiceModule{
 		bind(ExecutorService.class)
 				.annotatedWith(Names.named(POOL_metricsAggregation))
 				.toInstance(createMetricsAggregationExecutor());
+		bind(ExecutorService.class)
+				.annotatedWith(Names.named(POOL_parallelScanning))
+				.toInstance(createParallelScanningExecutor());
 	}
 
 	//The following factory methods are for Spring
@@ -155,6 +159,10 @@ public class DatarouterExecutorGuiceModule extends BaseExecutorGuiceModule{
 
 	private ExecutorService createMetricsAggregationExecutor(){
 		return createScalingPool(datarouter, POOL_metricsAggregation, 10);
+	}
+
+	private ExecutorService createParallelScanningExecutor(){
+		return Executors.newCachedThreadPool(new NamedThreadFactory(datarouter, POOL_parallelScanning, true));
 	}
 
 }
