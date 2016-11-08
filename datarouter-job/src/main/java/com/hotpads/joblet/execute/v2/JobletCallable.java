@@ -70,7 +70,7 @@ public class JobletCallable implements Callable<Void>{
 				timer.add("setReservedAt");
 				processJobletWithStats(jobletPackage.get());
 				timer.add("process");
-				jobletService.handleJobletCompletion(jobletRequest);
+				jobletService.handleJobletCompletion(jobletRequest, timer);
 				timer.add("handleJobletCompletion");
 			}catch(JobInterruptedException e){
 				try{

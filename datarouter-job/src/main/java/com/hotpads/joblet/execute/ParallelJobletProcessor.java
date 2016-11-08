@@ -22,7 +22,6 @@ import com.hotpads.joblet.dto.RunningJoblet;
 import com.hotpads.joblet.enums.JobletType;
 import com.hotpads.joblet.execute.JobletExecutorThreadPool.JobletExecutorThreadPoolFactory;
 import com.hotpads.joblet.setting.JobletSettings;
-import com.hotpads.util.core.profile.PhaseTimer;
 import com.hotpads.util.datastructs.MutableBoolean;
 
 public class ParallelJobletProcessor{
@@ -98,11 +97,9 @@ public class ParallelJobletProcessor{
 					continue;
 				}
 				workerThreadPool.resize(jobletSettings.getThreadCountForJobletType(jobletType));
-				PhaseTimer timer = new PhaseTimer();
 				Optional<JobletPackage> jobletPackage = getJobletPackage(counter++);
 				if(jobletPackage.isPresent()){
-					timer.add("acquired");
-					jobletPackage.get().getJobletRequest().setTimer(timer);
+					jobletPackage.get().getJobletRequest();
 					assignJobletPackageToThreadPool(jobletPackage.get());
 				}else{
 					logger.debug("sleeping since no joblet found for {}", jobletType.getPersistentString());

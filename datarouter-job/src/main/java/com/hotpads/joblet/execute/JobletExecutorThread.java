@@ -59,7 +59,6 @@ public class JobletExecutorThread extends Thread{
 	private volatile boolean stopRequested = false;
 	private JobletPackage jobletPackage;
 	private Long processingStartTime;
-	private long semaphoreWaitTime = 0;
 
 	private JobletExecutorThread(JobletExecutorThreadPool jobletExecutorThreadPool, ThreadGroup threadGroup,
 			JobletTypeFactory jobletTypeFactory, JobletFactory jobletFactory, JobletNodes jobletNodes,
@@ -108,13 +107,13 @@ public class JobletExecutorThread extends Thread{
 				while(jobletPackage == null){
 					hasWorkToBeDone.await();
 				}
-				Long requestPermitTime = System.currentTimeMillis();
-				semaphoreWaitTime = System.currentTimeMillis() - requestPermitTime;
+				PhaseTimer timer = new PhaseTimer("JobletExecutorThread");
 				jobletPackage.getJobletRequest().setReservedAt(System.currentTimeMillis());
 				jobletNodes.jobletRequest().put(jobletPackage.getJobletRequest(), null);
+				timer.add("update reservedAt");
 				setName(jobletName + " - working");
 				processingStartTime = System.currentTimeMillis();
-				internalProcessJobletWithExceptionHandlingAndStats();
+				internalProcessJobletWithExceptionHandlingAndStats(timer);
 			}catch(InterruptedException ie){
 				logger.warn(ie.toString());
 				stopRequested = true;
@@ -131,14 +130,13 @@ public class JobletExecutorThread extends Thread{
 		}
 	}
 
-	private void internalProcessJobletWithExceptionHandlingAndStats(){
+	private void internalProcessJobletWithExceptionHandlingAndStats(PhaseTimer timer){
 		JobletRequest jobletRequest = jobletPackage.getJobletRequest();
-		PhaseTimer timer = jobletRequest.getTimer();
 		timer.add("waited for processing");
 		try{
 			internalProcessJobletWithStats(jobletPackage);
 			timer.add("processed");
-			jobletService.handleJobletCompletion(jobletRequest);
+			jobletService.handleJobletCompletion(jobletRequest, timer);
 			timer.add("completed");
 		}catch(JobInterruptedException e){
 			try{
@@ -190,8 +188,7 @@ public class JobletExecutorThread extends Thread{
 				+ " and " + jobletRequest.getNumTasks() + " tasks"
 				+ " in " + DrNumberFormatter.addCommas(durationMs)+"ms"
 				+ " at "+itemsPerSecond+" items/sec"
-				+ " and "+tasksPerSecond+" tasks/sec"
-				+ " after waiting " + semaphoreWaitTime+"ms");
+				+ " and "+tasksPerSecond+" tasks/sec");
 	}
 
 	private void recycleThread(){

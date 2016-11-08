@@ -30,7 +30,6 @@ import com.hotpads.joblet.enums.JobletPriority;
 import com.hotpads.joblet.enums.JobletStatus;
 import com.hotpads.joblet.enums.JobletType;
 import com.hotpads.joblet.enums.JobletTypeFactory;
-import com.hotpads.util.core.profile.PhaseTimer;
 import com.hotpads.util.datastructs.MutableBoolean;
 
 public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
@@ -51,8 +50,7 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 	private String type;
 	private QueueMessageKey queueMessageKey;//transient
 
-	//TODO remove these from the databean
-	private PhaseTimer timer = new PhaseTimer();
+	//TODO remove from the databean
 	private MutableBoolean shutdownRequested;//a shared flag passed in from the executor
 
 	public static final String KEY_NAME = "key";
@@ -306,20 +304,12 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 		this.queueId = queueId;
 	}
 
-	public PhaseTimer getTimer(){
-		return timer;
-	}
-
 	public void setShutdownRequested(MutableBoolean shutdownRequested){
 		this.shutdownRequested = shutdownRequested;
 	}
 
 	public MutableBoolean getShutdownRequested(){
 		return shutdownRequested;
-	}
-
-	public void setTimer(PhaseTimer timer){
-		this.timer = timer;
 	}
 
 	public QueueMessageKey getQueueMessageKey(){
