@@ -5,7 +5,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Stream;
 
 import javax.inject.Inject;
@@ -20,6 +19,8 @@ import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.mav.Mav;
 import com.hotpads.handler.mav.imp.InContextRedirectMav;
 import com.hotpads.handler.mav.imp.MessageMav;
+import com.hotpads.handler.types.optional.OptionalBoolean;
+import com.hotpads.handler.types.optional.OptionalInteger;
 import com.hotpads.job.dispatcher.DatarouterJobDispatcher;
 import com.hotpads.joblet.JobletNodes;
 import com.hotpads.joblet.JobletPackage;
@@ -213,12 +214,10 @@ public class JobletHandler extends BaseHandler{
 		return new InContextRedirectMav(params, URL_JOBLETS_IN_CONTEXT);
 	}
 
-	// /datarouter/joblets/createSleepingJoblets?numJoblets=100&sleepMs=500
+	// /datarouter/joblets/createSleepingJoblets?numJoblets=100&sleepMs=500&
 	@Handler
-	private Mav createSleepingJoblets(int numJoblets, long sleepMs){
-		Optional<Integer> executionOrder = params.optionalInteger("executionOrder");
-		Optional<Boolean> includeFailures = params.optionalBoolean("includeFailures");
-		Optional<Integer> failEveryN = params.optionalInteger("failEveryN");
+	private Mav createSleepingJoblets(int numJoblets, long sleepMs, OptionalInteger executionOrder,
+			OptionalBoolean includeFailures, OptionalInteger failEveryN){
 		JobletPriority priority = JobletPriority.fromExecutionOrder(executionOrder.get());
 		List<JobletPackage> jobletPackages = new ArrayList<>();
 		for(int i = 0; i < numJoblets; ++i){
