@@ -167,18 +167,6 @@ public class JobletHandler extends BaseHandler{
 	}
 
 	@Handler
-	private Mav deleteTimedOutJoblets(){
-		int numDeleted = 0;
-		for(JobletRequest request : jobletNodes.jobletRequest().scan(null, null)){
-			if(JobletStatus.timedOut == request.getStatus()){
-				jobletService.deleteJobletRequestAndData(request);
-				++numDeleted;
-			}
-		}
-		return new MessageMav("deleted " + numDeleted);
-	}
-
-	@Handler
 	private Mav showThreads(){
 		Mav mav = new Mav(JSP_threads);
 
