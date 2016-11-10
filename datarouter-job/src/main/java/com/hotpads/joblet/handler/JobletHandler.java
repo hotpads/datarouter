@@ -73,9 +73,8 @@ public class JobletHandler extends BaseHandler{
 		this.jobletRequestQueueManager = jobletRequestQueueManager;
 	}
 
-	@Override
-	@Handler
-	protected Mav handleDefault(){
+	@Handler(defaultHandler=true)
+	private Mav list(){
 		Mav mav = new Mav(JSP_joblets);
 		mav.put("minServers", jobletSettings.minJobletServers.getValue());
 		mav.put("maxServers", jobletSettings.maxJobletServers.getValue());
@@ -106,15 +105,9 @@ public class JobletHandler extends BaseHandler{
 	}
 
 	@Handler
-	private Mav listExceptions(){
+	private Mav exceptions(){
 		Mav mav = new Mav(JSP_exceptions);
-		List<JobletRequest> failedJoblets = new ArrayList<>();
-		for(JobletRequest joblet : jobletNodes.jobletRequest().scan(null, null)){
-			if(joblet.getStatus() == JobletStatus.failed){
-				failedJoblets.add(joblet);
-			}
-		}
-		mav.put("failedJoblets", failedJoblets);
+		mav.put("failedJoblets", jobletRequestDao.getWithStatus(JobletStatus.failed));
 		return mav;
 	}
 
@@ -167,7 +160,7 @@ public class JobletHandler extends BaseHandler{
 	}
 
 	@Handler
-	private Mav showThreads(){
+	private Mav threads(){
 		Mav mav = new Mav(JSP_threads);
 
 		//cpu and memory ticket info

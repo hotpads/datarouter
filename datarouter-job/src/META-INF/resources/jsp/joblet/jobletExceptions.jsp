@@ -16,21 +16,31 @@
 		<div class="page-content-container page-content-thicktop page-single-column">
 			<table class="sortable table table-bordered table-condensed">
 				<tr>
-					<th>type</th>
-					<th>queueId</th>
-					<th>created</th>
+					<th>exceptionRecordId</th>
+					<th>typeCode</th>
+					<th>executionOrder</th>
+					<th>batchSequence</th>
+					<th>dataId</th>
+					<th>reservedBy</th>
+					<th>createdAgo</th>
+					<th>restartable</th>
 					<th>numItems</th>
 					<th>numTasks</th>
-					<th>exceptionRecordId</th>
+					<th>queueId</th>
 				</tr>
 				<c:forEach items="${failedJoblets}" var="joblet">
 					<tr>
-						<td>${joblet.key.type}</td>
-						<td>${joblet.queueId}</td>
+						<td><a href="/analytics/exception/details?exceptionRecord=${joblet.exceptionRecordId}">${joblet.exceptionRecordId}</a></td>
+						<td>${joblet.key.typeCode}</td>
+						<td>${joblet.key.executionOrder}</td>
+						<td>${joblet.key.batchSequence}</td>
+						<td>${joblet.jobletDataId}</td>
+						<td>${joblet.reservedBy}</td>
 						<td>${joblet.createdAgo}</td>
+						<td>${joblet.restartable}</td>
+						<td>${joblet.queueId}</td>
 						<td>${joblet.numItems}</td>
 						<td>${joblet.numTasks}</td>
-						<td><a href="/analytics/exception/details?exceptionRecord=${joblet.exceptionRecordId}">${joblet.exceptionRecordId}</a></td>
 					</tr>
 				</c:forEach>
 			</table>

@@ -51,9 +51,9 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 	private Integer numTasks = 0;
 	private String debug;
 	private String type;
-	private QueueMessageKey queueMessageKey;//transient
 
 	//TODO remove from the databean
+	private QueueMessageKey queueMessageKey;//transient
 	private MutableBoolean shutdownRequested;//a shared flag passed in from the executor
 
 	public static final String KEY_NAME = "key";
