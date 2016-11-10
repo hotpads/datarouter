@@ -26,7 +26,8 @@ public class SleepingJoblet extends BaseJoblet<SleepingJobletParams>{
 		int numPreviousFailures = getJobletRequest().getNumFailures();
 		if(numPreviousFailures < params.numFailures){
 			int thisFailureNum = numPreviousFailures + 1;
-			String message = "SleepingJoblet intentional failure " + thisFailureNum + "/" + JobletRequest.MAX_FAILURES;
+			String message = "SleepingJoblet intentional failure " + thisFailureNum + "/" + JobletRequest.MAX_FAILURES
+					+ " on " + jobletRequest;
 			throw new RuntimeException(message);
 		}
 		while(remainingMs > 0){
