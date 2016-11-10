@@ -197,13 +197,6 @@ public class JobletHandler extends BaseHandler{
 		return new InContextRedirectMav(params, URL_JOBLETS_IN_CONTEXT);
 	}
 
-	@Handler
-	private Mav restartExecutor(){
-		Integer jobletTypeCode = params.requiredInteger("jobletTypeCode");
-		jobletProcessors.restartExecutor(jobletTypeCode);
-		return new InContextRedirectMav(params, URL_JOBLETS_IN_CONTEXT);
-	}
-
 	// /datarouter/joblets/createSleepingJoblets?numJoblets=1000&sleepMs=500&executionOrder=10&includeFailures=false&failEveryN=100
 	@Handler
 	private Mav createSleepingJoblets(int numJoblets, long sleepMs, OptionalInteger executionOrder,

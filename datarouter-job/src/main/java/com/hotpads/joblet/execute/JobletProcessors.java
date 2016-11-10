@@ -6,7 +6,6 @@ import java.util.Map;
 import com.hotpads.joblet.dto.JobletTypeSummary;
 import com.hotpads.joblet.dto.RunningJoblet;
 import com.hotpads.joblet.enums.JobletType;
-import com.hotpads.util.core.exception.NotImplementedException;
 
 public interface JobletProcessors{
 
@@ -15,11 +14,5 @@ public interface JobletProcessors{
 	List<JobletTypeSummary> getTypeSummaries();
 	void killThread(long threadId);
 	void requestShutdown();
-
-
-	@Deprecated //remove
-	default void restartExecutor(int jobletTypeCode){
-		throw new NotImplementedException();
-	}
 
 }

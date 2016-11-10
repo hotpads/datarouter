@@ -57,13 +57,6 @@ public class ParallelJobletProcessors implements JobletProcessors{
 	}
 
 	@Override
-	public void restartExecutor(int jobletTypeCode){
-		JobletType<?> jobletType = jobletTypeFactory.fromPersistentInt(jobletTypeCode);
-		processorByType.get(jobletType).requestShutdown();
-		processorByType.put(jobletType, parallelJobletProcessorFactory.create(jobletType));
-	}
-
-	@Override
 	public void requestShutdown(){
 		processorByType.values().forEach(ParallelJobletProcessor::requestShutdown);
 	}
