@@ -10,7 +10,7 @@ public class BatchingIterable<T> implements Iterable<List<T>>{
 	private Iterable<T> iterable;
 	private int batchSize;
 
-
+// this is causing a seg fault
 //	public BatchingIterable(Stream<T> stream, int batchSize){
 //		this(stream::iterator, batchSize);
 //	}
