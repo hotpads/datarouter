@@ -146,7 +146,7 @@ public class JobletHandler extends BaseHandler{
 				.filter(request -> request.getReservedAgoMs().isPresent())
 				.filter(request -> request.getReservedAgoMs().get() > Duration.ofDays(2).toMillis());
 		long numTimedOut = 0;
-		for(List<JobletRequest> requestBatch : new BatchingIterable<>(requests, 100)){
+		for(List<JobletRequest> requestBatch : new BatchingIterable<>(requests::iterator, 100)){
 			List<JobletRequest> toSave = new ArrayList<>();
 			for(JobletRequest request : requestBatch){
 				request.setStatus(JobletStatus.created);

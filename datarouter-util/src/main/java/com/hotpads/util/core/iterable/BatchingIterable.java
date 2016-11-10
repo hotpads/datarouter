@@ -3,7 +3,6 @@ package com.hotpads.util.core.iterable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.stream.Stream;
 
 
 public class BatchingIterable<T> implements Iterable<List<T>>{
@@ -12,9 +11,9 @@ public class BatchingIterable<T> implements Iterable<List<T>>{
 	private int batchSize;
 
 
-	public BatchingIterable(Stream<T> stream, int batchSize){
-		this(stream::iterator, batchSize);
-	}
+//	public BatchingIterable(Stream<T> stream, int batchSize){
+//		this(stream::iterator, batchSize);
+//	}
 
 	public BatchingIterable(Iterable<T> iterable, int batchSize){
 		this.iterable = iterable;
