@@ -4,7 +4,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -20,6 +22,7 @@ import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.handler.exception.ExceptionRecord;
 import com.hotpads.handler.exception.ExceptionRecorder;
 import com.hotpads.job.trigger.JobExceptionCategory;
+import com.hotpads.joblet.dao.JobletRequestDao;
 import com.hotpads.joblet.databean.JobletData;
 import com.hotpads.joblet.databean.JobletDataKey;
 import com.hotpads.joblet.databean.JobletRequest;
@@ -44,16 +47,18 @@ public class JobletService{
 
 	private final JobletRequestQueueManager jobletRequestQueueManager;
 	private final JobletNodes jobletNodes;
+	private final JobletRequestDao jobletRequestDao;
 	private final ExceptionRecorder exceptionRecorder;
 	private final JobletSettings jobletSettings;
 	private final JobletRequestSelectorFactory jobletRequestSelectorFactory;
 
 	@Inject
 	public JobletService(JobletRequestQueueManager jobletRequestQueueManager, JobletNodes jobletNodes,
-			ExceptionRecorder exceptionRecorder, JobletSettings jobletSettings,
+			JobletRequestDao jobletRequestDao, ExceptionRecorder exceptionRecorder, JobletSettings jobletSettings,
 			JobletRequestSelectorFactory jobletRequestSelectorFactory){
 		this.jobletRequestQueueManager = jobletRequestQueueManager;
 		this.jobletNodes = jobletNodes;
+		this.jobletRequestDao = jobletRequestDao;
 		this.exceptionRecorder = exceptionRecorder;
 		this.jobletSettings = jobletSettings;
 		this.jobletRequestSelectorFactory = jobletRequestSelectorFactory;
@@ -140,6 +145,24 @@ public class JobletService{
 			handleJobletInterruption(new PhaseTimer("setJobletRequestsRunningOnServerToCreated " + jobletRequest
 					.toString()), jobletRequest);
 		}
+	}
+
+	public long restartJoblets(JobletType<?> jobletType, JobletStatus jobletStatus){
+		final AtomicLong numRestarted = new AtomicLong();
+		Stream<JobletRequest> requests = jobletRequestDao.streamType(jobletType, false)
+				.filter(request -> request.getStatus() == jobletStatus);
+		requests.forEach(request -> {
+			request.setStatus(JobletStatus.created);
+			request.setNumFailures(0);
+			jobletNodes.jobletRequest().put(request, null);
+			if(jobletSettings.getQueueMechanismEnum() == JobletQueueMechanism.SQS){
+				JobletRequestQueueKey queueKey = jobletRequestQueueManager.getQueueKey(request);
+				jobletNodes.jobletRequestQueueByKey().get(queueKey).put(request, null);
+			}
+			numRestarted.incrementAndGet();
+			logger.warn("restarted {}", numRestarted.get());
+		});
+		return numRestarted.get();
 	}
 
 	/*--------------------- delete -----------------------*/
