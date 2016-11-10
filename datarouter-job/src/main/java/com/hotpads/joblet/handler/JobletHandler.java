@@ -122,8 +122,11 @@ public class JobletHandler extends BaseHandler{
 	private Mav copyJobletRequestsToQueues(String jobletType){
 		JobletType<?> jobletTypeEnum = jobletTypeFactory.fromPersistentString(jobletType);
 		long numCopied = 0;
-		for(List<JobletRequest> requestBatch : new BatchingIterable<>(jobletRequestDao.streamType(jobletTypeEnum,
-				false), 100)){
+		//passing this stream to the BatchingIterable like this is causing a seg fault
+//		for(List<JobletRequest> requestBatch : new BatchingIterable<>(jobletRequestDao.streamType(jobletTypeEnum,
+//				false), 100)){
+		Iterable<JobletRequest> jobletsOfType = jobletRequestDao.streamType(jobletTypeEnum, false)::iterator;
+		for(List<JobletRequest> requestBatch : new BatchingIterable<>(jobletsOfType, 100)){
 			for(JobletRequest request : requestBatch){
 				JobletRequestQueueKey queueKey = jobletRequestQueueManager.getQueueKey(request);
 				jobletNodes.jobletRequestQueueByKey().get(queueKey).put(request, null);
