@@ -1,10 +1,9 @@
 package com.hotpads.joblet.handler;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Stream;
 
 import javax.inject.Inject;
@@ -12,8 +11,6 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hotpads.datarouter.config.DatarouterProperties;
-import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.mav.Mav;
@@ -34,10 +31,7 @@ import com.hotpads.joblet.enums.JobletPriority;
 import com.hotpads.joblet.enums.JobletStatus;
 import com.hotpads.joblet.enums.JobletType;
 import com.hotpads.joblet.enums.JobletTypeFactory;
-import com.hotpads.joblet.execute.JobletExecutorThread;
 import com.hotpads.joblet.execute.JobletProcessors;
-import com.hotpads.joblet.jdbc.RestartJobletRequests;
-import com.hotpads.joblet.jdbc.TimeoutStuckRunningJobletRequests;
 import com.hotpads.joblet.queue.JobletRequestQueueKey;
 import com.hotpads.joblet.queue.JobletRequestQueueManager;
 import com.hotpads.joblet.setting.JobletSettings;
@@ -58,8 +52,6 @@ public class JobletHandler extends BaseHandler{
 		JSP_threads = "/jsp/joblet/threads.jsp",
 	 	JSP_exceptions = "/jsp/joblet/jobletExceptions.jsp";
 
-	private final Datarouter datarouter;
-	private final String serverName;
 	private final JobletTypeFactory jobletTypeFactory;
 	private final JobletNodes jobletNodes;
 	private final JobletProcessors jobletProcessors;
@@ -69,12 +61,9 @@ public class JobletHandler extends BaseHandler{
 	private final JobletRequestQueueManager jobletRequestQueueManager;
 
 	@Inject
-	public JobletHandler(Datarouter datarouter, DatarouterProperties datarouterProperties,
-			JobletTypeFactory jobletTypeFactory, JobletNodes jobletNodes, JobletProcessors jobletProcessors,
-			JobletService jobletService, JobletSettings jobletSettings, JobletRequestDao jobletRequestDao,
-			JobletRequestQueueManager jobletRequestQueueManager){
-		this.datarouter = datarouter;
-		this.serverName = datarouterProperties.getServerName();
+	public JobletHandler(JobletTypeFactory jobletTypeFactory, JobletNodes jobletNodes,
+			JobletProcessors jobletProcessors, JobletService jobletService, JobletSettings jobletSettings,
+			JobletRequestDao jobletRequestDao, JobletRequestQueueManager jobletRequestQueueManager){
 		this.jobletTypeFactory = jobletTypeFactory;
 		this.jobletNodes = jobletNodes;
 		this.jobletProcessors = jobletProcessors;
@@ -146,20 +135,31 @@ public class JobletHandler extends BaseHandler{
 	}
 
 	@Handler
-	private Mav restartFailed(){
-		int numRestarted = datarouter.run(new RestartJobletRequests(datarouter, jobletNodes, JobletStatus.failed));
+	private Mav restart(String type, String status){
+		JobletType<?> jobletType = jobletTypeFactory.fromPersistentString(type);
+		JobletStatus jobletStatus = JobletStatus.fromPersistentStringStatic(status);
+		long numRestarted = jobletService.restartJoblets(jobletType, jobletStatus);
 		return new MessageMav("restarted " + numRestarted);
 	}
 
 	@Handler
-	private Mav restartTimedOut(){
-		int numRestarted = datarouter.run(new RestartJobletRequests(datarouter, jobletNodes, JobletStatus.timedOut));
-		return new MessageMav("restarted " + numRestarted);
-	}
-
-	@Handler
-	private Mav timeoutStuckRunning(){
-		int numTimedOut = datarouter.run(new TimeoutStuckRunningJobletRequests(datarouter, jobletNodes));
+	private Mav timeoutStuckRunning(String type){
+		JobletType<?> jobletType = jobletTypeFactory.fromPersistentString(type);
+		Stream<JobletRequest> requests = jobletRequestDao.streamType(jobletType, false)
+				.filter(request -> request.getStatus() == JobletStatus.running)
+				.filter(request -> request.getReservedAgoMs().isPresent())
+				.filter(request -> request.getReservedAgoMs().get() > Duration.ofDays(2).toMillis());
+		long numTimedOut = 0;
+		for(List<JobletRequest> requestBatch : new BatchingIterable<>(requests::iterator, 100)){
+			List<JobletRequest> toSave = new ArrayList<>();
+			for(JobletRequest request : requestBatch){
+				request.setStatus(JobletStatus.created);
+				request.setNumFailures(0);
+				++numTimedOut;
+			}
+			jobletNodes.jobletRequest().putMulti(toSave, null);
+			logger.warn("copied {}", numTimedOut);
+		}
 		return new MessageMav("timedOut " + numTimedOut);
 	}
 
@@ -168,7 +168,6 @@ public class JobletHandler extends BaseHandler{
 		int numDeleted = 0;
 		for(JobletRequest request : jobletNodes.jobletRequest().scan(null, null)){
 			if(JobletStatus.timedOut == request.getStatus()){
-				//delete individually to minimize joblet table locking
 				jobletService.deleteJobletRequestAndData(request);
 				++numDeleted;
 			}
@@ -237,15 +236,6 @@ public class JobletHandler extends BaseHandler{
 		}
 		jobletService.submitJobletPackages(jobletPackages);
 		return new MessageMav("created " + numJoblets + " @" + sleepMs + "ms");
-	}
-
-
-	/*--------------------- private -------------------------*/
-
-	private Map<String,List<JobletExecutorThread>> getJobletThreads(List<JobletExecutorThread> jobletThreads){
-		Map<String,List<JobletExecutorThread>> jobletThreadsByServer = new HashMap<>();
-		jobletThreadsByServer.put(serverName, jobletThreads);
-		return jobletThreadsByServer;
 	}
 
 }

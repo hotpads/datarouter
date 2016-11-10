@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlRowFormat;
@@ -192,6 +193,10 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 
 	public Date getReservedAtDate(){
 		return reservedAt == null ? null : new Date(reservedAt);
+	}
+
+	public Optional<Long> getReservedAgoMs(){
+		return reservedAt == null ? Optional.empty() : Optional.of(System.currentTimeMillis() - reservedAt);
 	}
 
 	public int incrementNumFailures(){
