@@ -7,9 +7,6 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,30 +17,12 @@ import com.hotpads.joblet.JobletService;
 import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.dto.RunningJoblet;
 import com.hotpads.joblet.enums.JobletType;
-import com.hotpads.joblet.execute.JobletExecutorThreadPool.JobletExecutorThreadPoolFactory;
 import com.hotpads.joblet.setting.JobletSettings;
 import com.hotpads.util.core.profile.PhaseTimer;
 import com.hotpads.util.datastructs.MutableBoolean;
 
 public class ParallelJobletProcessor{
 	private static final Logger logger = LoggerFactory.getLogger(ParallelJobletProcessor.class);
-
-	@Singleton
-	public static class ParallelJobletProcessorFactory{
-		@Inject
-		private JobletService jobletService;
-		@Inject
-		private DatarouterProperties datarouterProperties;
-		@Inject
-		private JobletSettings jobletSettings;
-		@Inject
-		private JobletExecutorThreadPoolFactory jobletExecutorThreadPoolFactory;
-
-		public ParallelJobletProcessor create(JobletType<?> jobletType){
-			return new ParallelJobletProcessor(datarouterProperties, jobletSettings, jobletService,
-					jobletExecutorThreadPoolFactory, jobletType);
-		}
-	}
 
 	private static final long SLEEP_MS_WHEN_NO_WORK = Duration.ofSeconds(1).toMillis();
 	public static final Long RUNNING_JOBLET_TIMEOUT_MS = 1000L * 60 * 10;  //10 minutes

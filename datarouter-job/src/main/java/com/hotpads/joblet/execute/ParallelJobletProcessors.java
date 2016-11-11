@@ -15,7 +15,6 @@ import com.hotpads.joblet.dto.JobletTypeSummary;
 import com.hotpads.joblet.dto.RunningJoblet;
 import com.hotpads.joblet.enums.JobletType;
 import com.hotpads.joblet.enums.JobletTypeFactory;
-import com.hotpads.joblet.execute.ParallelJobletProcessor.ParallelJobletProcessorFactory;
 
 @Singleton
 public class ParallelJobletProcessors implements JobletProcessors{
@@ -49,7 +48,7 @@ public class ParallelJobletProcessors implements JobletProcessors{
 	}
 
 	@Override
-	public void killThread(long threadId) {
+	public void killThread(long threadId){
 		getCurrentlyRunningJobletExecutorThreads().stream()
 				.filter(thread -> thread.getId() == threadId)
 				.findAny()

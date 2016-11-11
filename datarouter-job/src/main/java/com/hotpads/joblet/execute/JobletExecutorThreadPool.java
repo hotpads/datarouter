@@ -9,29 +9,15 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hotpads.joblet.JobletPackage;
 import com.hotpads.joblet.dto.RunningJoblet;
 import com.hotpads.joblet.enums.JobletType;
-import com.hotpads.joblet.execute.JobletExecutorThread.JobletExecutorThreadFactory;
 
-public class JobletExecutorThreadPool {
+public class JobletExecutorThreadPool{
 	private static final Logger logger = LoggerFactory.getLogger(JobletExecutorThreadPool.class);
-
-	@Singleton
-	public static class JobletExecutorThreadPoolFactory{
-		@Inject
-		private JobletExecutorThreadFactory jobletExecutorThreadFactory;
-
-		public JobletExecutorThreadPool create(Integer threadPoolSize, JobletType<?> jobletType){
-			return new JobletExecutorThreadPool(threadPoolSize, jobletType, jobletExecutorThreadFactory);
-		}
-	}
 
 	private static final ThreadGroup jobletThreadGroup = new ThreadGroup("joblet");
 
@@ -46,7 +32,7 @@ public class JobletExecutorThreadPool {
 	private int numThreadsToLayOff = 0;
 	private int numThreads;
 
-	private JobletExecutorThreadPool(Integer threadPoolSize, JobletType<?> jobletType,
+	public JobletExecutorThreadPool(Integer threadPoolSize, JobletType<?> jobletType,
 			JobletExecutorThreadFactory jobletExecutorThreadFactory) {
 		this.jobletExecutorThreadFactory = jobletExecutorThreadFactory;
 		this.threadGroup = new ThreadGroup(jobletThreadGroup, jobletType.getPersistentString());

@@ -4,9 +4,6 @@ import java.util.Optional;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,23 +25,6 @@ import com.hotpads.util.core.profile.PhaseTimer;
 public class JobletExecutorThread extends Thread{
 	private static final Logger logger = LoggerFactory.getLogger(JobletExecutorThread.class);
 
-	@Singleton
-	public static class JobletExecutorThreadFactory{
-		@Inject
-		private JobletTypeFactory jobletTypeFactory;
-		@Inject
-		private JobletFactory jobletFactory;
-		@Inject
-		private JobletNodes jobletNodes;
-		@Inject
-		private JobletService jobletService;
-
-		public JobletExecutorThread create(JobletExecutorThreadPool jobletExecutorThreadPool, ThreadGroup threadGroup){
-			return new JobletExecutorThread(jobletExecutorThreadPool, threadGroup, jobletTypeFactory, jobletFactory,
-					jobletNodes, jobletService);
-		}
-	}
-
 	private final JobletExecutorThreadPool jobletExecutorThreadPool;
 	private final String jobletName;
 
@@ -60,7 +40,7 @@ public class JobletExecutorThread extends Thread{
 	private JobletPackage jobletPackage;
 	private Long processingStartTime;
 
-	private JobletExecutorThread(JobletExecutorThreadPool jobletExecutorThreadPool, ThreadGroup threadGroup,
+	public JobletExecutorThread(JobletExecutorThreadPool jobletExecutorThreadPool, ThreadGroup threadGroup,
 			JobletTypeFactory jobletTypeFactory, JobletFactory jobletFactory, JobletNodes jobletNodes,
 			JobletService jobletService){
 		super(threadGroup, threadGroup.getName() + " - idle");
