@@ -30,7 +30,9 @@ public class RunningJoblet{
 	public RunningJoblet(JobletExecutorThread thread){
 		this.name = thread.getName();
 		this.id = Long.toString(thread.getId());
-		this.startedAt = new Date(System.currentTimeMillis() - thread.getRunningTime());
+		this.startedAt = Optional.ofNullable(thread.getRunningTime())
+				.map(runningTime -> new Date(System.currentTimeMillis() - runningTime))
+				.orElse(null);
 		JobletPackage jobletPackage = thread.getJobletPackage();
 		if(jobletPackage != null){
 			this.queueId = thread.getJobletRequest().getQueueId();
