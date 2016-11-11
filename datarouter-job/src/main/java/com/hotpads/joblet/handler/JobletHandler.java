@@ -4,6 +4,8 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.inject.Inject;
@@ -117,10 +119,12 @@ public class JobletHandler extends BaseHandler{
 		long numCopied = 0;
 		Iterable<JobletRequest> jobletsOfType = jobletRequestDao.streamType(jobletTypeEnum, false)::iterator;
 		for(List<JobletRequest> requestBatch : new BatchingIterable<>(jobletsOfType, 100)){
-			for(JobletRequest request : requestBatch){
-				JobletRequestQueueKey queueKey = jobletRequestQueueManager.getQueueKey(request);
-				jobletNodes.jobletRequestQueueByKey().get(queueKey).put(request, null);
-				++numCopied;
+			Map<JobletRequestQueueKey,List<JobletRequest>> requestsByQueueKey = requestBatch.stream().collect(Collectors
+					.groupingBy(jobletRequestQueueManager::getQueueKey, Collectors.toList()));
+			for(Map.Entry<JobletRequestQueueKey,List<JobletRequest>> queueAndJoblets : requestsByQueueKey.entrySet()){
+				List<JobletRequest> jobletsForQueue = queueAndJoblets.getValue();
+				jobletNodes.jobletRequestQueueByKey().get(queueAndJoblets.getKey()).putMulti(jobletsForQueue, null);
+				numCopied += jobletsForQueue.size();
 			}
 			logger.warn("copied {}", numCopied);
 		}
