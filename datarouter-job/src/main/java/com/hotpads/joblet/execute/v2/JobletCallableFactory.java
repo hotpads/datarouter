@@ -1,6 +1,7 @@
 package com.hotpads.joblet.execute.v2;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import com.hotpads.datarouter.config.DatarouterProperties;
 import com.hotpads.joblet.JobletFactory;
@@ -9,6 +10,7 @@ import com.hotpads.joblet.JobletService;
 import com.hotpads.joblet.enums.JobletType;
 import com.hotpads.util.datastructs.MutableBoolean;
 
+@Singleton
 public class JobletCallableFactory{
 
 	@Inject
