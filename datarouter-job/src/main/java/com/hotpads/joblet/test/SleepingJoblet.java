@@ -1,8 +1,5 @@
 package com.hotpads.joblet.test;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.hotpads.joblet.BaseJoblet;
 import com.hotpads.joblet.codec.BaseGsonJobletCodec;
 import com.hotpads.joblet.databean.JobletRequest;
@@ -11,7 +8,6 @@ import com.hotpads.joblet.test.SleepingJoblet.SleepingJobletParams;
 import com.hotpads.util.core.concurrent.ThreadTool;
 
 public class SleepingJoblet extends BaseJoblet<SleepingJobletParams>{
-	private static final Logger logger = LoggerFactory.getLogger(SleepingJoblet.class);
 
 	public static final JobletType<SleepingJobletParams> JOBLET_TYPE = new JobletType<>(-1, "SleepingJoblet",
 			"Sleeping", SleepingJobletCodec::new, SleepingJoblet.class, 1, 1, true);
@@ -20,7 +16,6 @@ public class SleepingJoblet extends BaseJoblet<SleepingJobletParams>{
 
 	@Override
 	public Long process(){
-		logger.debug("starting SleepingJoblet {}", params.id);
 		long startMs = System.currentTimeMillis();
 		long remainingMs = params.sleepTimeMs;
 		int numPreviousFailures = getJobletRequest().getNumFailures();
@@ -36,7 +31,6 @@ public class SleepingJoblet extends BaseJoblet<SleepingJobletParams>{
 			long totalElapsedMs = System.currentTimeMillis() - startMs;
 			remainingMs = params.sleepTimeMs - totalElapsedMs;
 		}
-		logger.debug("finished SleepingJoblet {}", params.id);
 		return params.sleepTimeMs;
 	}
 
