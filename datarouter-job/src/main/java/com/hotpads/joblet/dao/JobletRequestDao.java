@@ -1,5 +1,7 @@
 package com.hotpads.joblet.dao;
 
+import java.util.stream.Stream;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -26,6 +28,11 @@ public class JobletRequestDao{
 				.filter(request -> Objects.equal(request.getReservedBy(), reservedBy))
 				.findAny()
 				.orElse(null);
+	}
+
+	public Stream<JobletRequest> streamType(JobletType<?> type, boolean slaveOk){
+		JobletRequestKey prefix = JobletRequestKey.create(type, null, null, null);
+		return jobletNodes.jobletRequest().streamWithPrefix(prefix, new Config().setSlaveOk(slaveOk));
 	}
 
 }

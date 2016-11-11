@@ -27,6 +27,7 @@ public class ExceptionRecord extends BaseDatabean<ExceptionRecordKey, ExceptionR
 	private String serverName;
 	private String stackTrace;
 	private String type;
+	private String exceptionLocation;
 
 	public static class FieldKeys{
 		public static final DateFieldKey created = new DateFieldKey("created");
@@ -34,6 +35,7 @@ public class ExceptionRecord extends BaseDatabean<ExceptionRecordKey, ExceptionR
 		public static final StringFieldKey stackTrace = new StringFieldKey("stackTrace")
 				.withSize(MySqlColumnType.MAX_LENGTH_MEDIUMTEXT);
 		public static final StringFieldKey type = new StringFieldKey("type");
+		public static final StringFieldKey exceptionLocation = new StringFieldKey("exceptionLocation");
 	}
 
 	public static class ExceptionRecordFielder extends BaseDatabeanFielder<ExceptionRecordKey, ExceptionRecord> {
@@ -48,7 +50,8 @@ public class ExceptionRecord extends BaseDatabean<ExceptionRecordKey, ExceptionR
 					new DateField(FieldKeys.created, record.created),
 					new StringField(FieldKeys.serverName, record.serverName),
 					new StringField(FieldKeys.stackTrace, record.stackTrace),
-					new StringField(FieldKeys.type, record.type));
+					new StringField(FieldKeys.type, record.type),
+					new StringField(FieldKeys.exceptionLocation, record.exceptionLocation));
 		}
 
 		@Override
@@ -64,16 +67,17 @@ public class ExceptionRecord extends BaseDatabean<ExceptionRecordKey, ExceptionR
 		this.key = new ExceptionRecordKey();
 	}
 
-	public ExceptionRecord(String serverName, String stackTrace, String type) {
-		this(System.currentTimeMillis(), serverName, stackTrace, type);
+	public ExceptionRecord(String serverName, String stackTrace, String type, String exceptionLocation) {
+		this(System.currentTimeMillis(), serverName, stackTrace, type, exceptionLocation);
 	}
 
-	public ExceptionRecord(long dateMs, String serverName, String stackTrace, String type) {
+	public ExceptionRecord(long dateMs, String serverName, String stackTrace, String type, String exceptionLocation){
 		this.key = ExceptionRecordKey.generate();
 		this.created = new Date(dateMs);
 		this.serverName = serverName;
 		this.stackTrace = stackTrace;
 		this.type = type;
+		this.exceptionLocation = exceptionLocation;
 	}
 
 	@Override
@@ -114,6 +118,10 @@ public class ExceptionRecord extends BaseDatabean<ExceptionRecordKey, ExceptionR
 
 	public String getType() {
 		return type;
+	}
+
+	public String getExceptionLocation(){
+		return exceptionLocation;
 	}
 
 	@Override

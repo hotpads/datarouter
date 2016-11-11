@@ -2,22 +2,30 @@ package com.hotpads.joblet.enums;
 
 import java.util.function.Supplier;
 
+import com.google.common.base.Preconditions;
+import com.hotpads.datarouter.util.core.DrComparableTool;
 import com.hotpads.joblet.Joblet;
 import com.hotpads.joblet.JobletCodec;
+import com.hotpads.joblet.JobletConstants;
 
-public class JobletType<P>{
+public class JobletType<P> implements Comparable<JobletType<?>>{
+
 	private final int persistentInt;
 	private final String persistentString;
+	private final String shortQueueName;//must be short for some queueing systems
 	private final Supplier<JobletCodec<P>> codecSupplier;
 	private final Class<? extends Joblet<P>> clazz;
 	private final Integer cpuPermits;
 	private final Integer memoryPermits;
 	private final boolean causesScaling;
 
-	public JobletType(int persistentInt, String persistentString, Supplier<JobletCodec<P>> codecSupplier,
-			Class<? extends Joblet<P>> clazz, Integer cpuPermits, Integer memoryPermits, boolean causesScaling){
+	public JobletType(int persistentInt, String persistentString, String shortQueueName,
+			Supplier<JobletCodec<P>> codecSupplier, Class<? extends Joblet<P>> clazz, Integer cpuPermits,
+			Integer memoryPermits, boolean causesScaling){
 		this.persistentInt = persistentInt;
 		this.persistentString = persistentString;
+		Preconditions.checkArgument(shortQueueName.length() <= JobletConstants.MAX_LENGTH_SHORT_QUEUE_NAME);
+		this.shortQueueName =  shortQueueName;
 		this.codecSupplier = codecSupplier;
 		this.clazz = clazz;
 		this.cpuPermits = cpuPermits;
@@ -34,10 +42,21 @@ public class JobletType<P>{
 		return getPersistentString();
 	}
 
+	/*-------------- Comparable ---------------*/
+
+	@Override
+	public int compareTo(JobletType<?> other){
+		return DrComparableTool.nullFirstCompareTo(persistentString, other.persistentString);
+	}
+
 	/*-------------- get -------------------*/
 
 	public String getPersistentString(){
 		return persistentString;
+	}
+
+	public String getShortQueueName(){
+		return shortQueueName;
 	}
 
 	public int getPersistentInt(){

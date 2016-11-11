@@ -8,30 +8,56 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.inject.Singleton;
+
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.joblet.Joblet;
 import com.hotpads.joblet.JobletPackage;
 import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.databean.JobletRequestKey;
 
+@Singleton
 public class JobletTypeFactory{
 
 	private final List<JobletType<?>> allTypes;
 	private final JobletType<?> sampleType;
 	private final Map<Integer,JobletType<?>> typeByPersistentInt;
+	private final Map<String,JobletType<?>> typeByPersistentString;
+	private final Map<String,JobletType<?>> typeByShortQueueName;
 	private final Set<JobletType<?>> typesCausingScaling;
 
 	public JobletTypeFactory(Collection<JobletType<?>> types){
 		this.allTypes = new ArrayList<>(types);
 		this.sampleType = DrCollectionTool.getFirst(types);
 		this.typeByPersistentInt = new HashMap<>();
+		this.typeByPersistentString = new HashMap<>();
+		this.typeByShortQueueName = new HashMap<>();
 		for(JobletType<?> type : types){
-			if(typeByPersistentInt.containsKey(type.getPersistentInt())){
-				throw new RuntimeException("Joblet type "+type.getPersistentString()+" with persistentInt "
-						+type.getPersistentInt()+" duplicates persistent int for joblet type "
-						+typeByPersistentInt.get(type.getPersistentInt()).getPersistentString());
+			//error on duplicate persistentInts
+			int persistentInt = type.getPersistentInt();
+			if(typeByPersistentInt.containsKey(persistentInt)){
+				throw new RuntimeException(type.getAssociatedClass() + " duplicates persistentInt[" + persistentInt
+						+ "] of " + typeByPersistentInt.get(persistentInt).getAssociatedClass());
 			}
 			typeByPersistentInt.put(type.getPersistentInt(), type);
+
+			// error on duplicate persistentStrings
+			String persistentString = type.getPersistentString();
+			if(typeByPersistentString.containsKey(persistentString)){
+				throw new RuntimeException(type.getAssociatedClass() + " duplicates persistentString["
+						+ persistentString + "] of " + typeByPersistentString.get(persistentString)
+								.getAssociatedClass());
+			}
+			typeByPersistentString.put(type.getPersistentString(), type);
+
+			// error on duplicate shortQueueNames
+			String shortQueueName = type.getShortQueueName();
+			if(typeByShortQueueName.containsKey(shortQueueName)){
+				throw new RuntimeException(type.getAssociatedClass() + " duplicates shortQueueName["
+						+ shortQueueName + "] of " + typeByShortQueueName.get(shortQueueName)
+								.getAssociatedClass());
+			}
+			typeByShortQueueName.put(type.getShortQueueName(), type);
 		}
 		this.typesCausingScaling = types.stream()
 				.filter(JobletType::causesScaling)
@@ -52,7 +78,6 @@ public class JobletTypeFactory{
 	public Set<JobletType<?>> getTypesCausingScaling(){
 		return typesCausingScaling;
 	}
-
 
 	/*--------------------- parse persistent string ----------------*/
 
@@ -75,4 +100,9 @@ public class JobletTypeFactory{
 	public JobletType<?> fromPersistentInt(Integer typeCode){
 		return typeByPersistentInt.get(typeCode);
 	}
+
+	public JobletType<?> fromPersistentString(String string){
+		return typeByPersistentString.get(string);
+	}
+
 }

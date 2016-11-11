@@ -30,11 +30,6 @@ import com.hotpads.datarouter.inject.InjectorRetriever;
 import com.hotpads.datarouter.profile.counter.Counters;
 import com.hotpads.datarouter.util.core.DrExceptionTool;
 import com.hotpads.exception.analysis.HttpRequestRecord;
-import com.hotpads.handler.exception.ExceptionNodes;
-import com.hotpads.handler.exception.ExceptionRecord;
-import com.hotpads.handler.exception.ExceptionRecordKey;
-import com.hotpads.handler.exception.ExceptionRecorder;
-import com.hotpads.handler.exception.WebExceptionCategory;
 import com.hotpads.util.core.collections.Pair;
 import com.hotpads.util.http.HttpHeaders;
 import com.hotpads.util.http.RequestTool;
@@ -120,7 +115,6 @@ public abstract class ExceptionHandlingFilter implements Filter, InjectorRetriev
 			HttpRequestRecord httpRequestRecord = new HttpRequestRecord(
 					receivedAt,
 					exceptionRecord.getKey().getId(),
-					place,
 					null,
 					lineNumber == null ? -1 : lineNumber,
 					request,

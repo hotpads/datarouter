@@ -29,11 +29,6 @@
 			<artifactId>datarouter-core</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
-		<dependency>
-			<groupId>com.hotpads</groupId>
-			<artifactId>datarouter-notification</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
 		<!-- servlet -->
 		<dependency>
 			<groupId>javax.servlet</groupId>

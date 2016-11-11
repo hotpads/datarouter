@@ -3,6 +3,7 @@ package com.hotpads.joblet;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 import com.hotpads.joblet.databean.JobletData;
 import com.hotpads.joblet.databean.JobletRequest;
@@ -17,8 +18,8 @@ public class JobletPackage {
 	private final JobletData jobletData;
 
 	public JobletPackage(JobletRequest jobletRequest, JobletData jobletData) {
-		this.jobletRequest = jobletRequest;
-		this.jobletData = jobletData;
+		this.jobletRequest = Objects.requireNonNull(jobletRequest);
+		this.jobletData = Objects.requireNonNull(jobletData);
 	}
 
 	public void updateJobletDataIdReference(){

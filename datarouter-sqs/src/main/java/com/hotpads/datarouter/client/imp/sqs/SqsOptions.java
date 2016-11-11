@@ -21,6 +21,8 @@ public class SqsOptions extends TypedProperties{
 		return getRequiredString(clientPrefix + "secretKey");
 	}
 
+	//SQS max queue name length is 80 chars.
+	//TODO limit this to 30
 	public String getNamespace(){
 		return getString(clientPrefix + "namespace");
 	}
