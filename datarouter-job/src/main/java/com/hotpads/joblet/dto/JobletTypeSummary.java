@@ -6,7 +6,6 @@ import com.hotpads.joblet.enums.JobletType;
 import com.hotpads.joblet.execute.ParallelJobletProcessor;
 import com.hotpads.joblet.execute.v2.JobletProcessorV2;
 
-
 public class JobletTypeSummary{
 	private final JobletType<?> jobletTypeEnum;
 	private final int numThreads;
