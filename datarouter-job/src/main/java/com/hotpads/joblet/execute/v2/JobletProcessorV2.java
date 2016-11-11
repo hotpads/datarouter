@@ -65,6 +65,7 @@ public class JobletProcessorV2 implements Runnable{
 		this.jobletFutureById = new ConcurrentHashMap<>();
 		this.driverThread = new Thread(null, this::run, jobletType.getPersistentString()
 				+ " JobletProcessor worker thread");
+		driverThread.setDaemon(true);
 		driverThread.start();
 	}
 
