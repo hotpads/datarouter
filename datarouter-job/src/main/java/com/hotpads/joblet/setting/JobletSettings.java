@@ -52,7 +52,7 @@ extends SettingNode{
 
 		queueMechanism = registerString("queueMechanism", JobletQueueMechanism.JDBC_LOCK_FOR_UPDATE
 				.getPersistentString());
-		processorVersion = registerInteger("processorVersion", 2);
+		processorVersion = registerInteger("processorVersion", 1);
 	}
 
 	/*------------------ methods -----------------------*/
