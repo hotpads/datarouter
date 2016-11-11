@@ -45,7 +45,7 @@ public class JobletRequestDao{
 
 	public List<JobletRequest> getWithStatus(JobletStatus status){
 		return node.stream(null, null)
-				.filter(request -> Objects.equal(status, request.getStatus()))
+				.filter(request -> status == request.getStatus())
 				.collect(Collectors.toList());
 	}
 
