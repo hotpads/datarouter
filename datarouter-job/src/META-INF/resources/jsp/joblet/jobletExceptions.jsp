@@ -11,6 +11,7 @@
 <body>
 	<%@ include file="/jsp/menu/common-navbar.jsp" %>
 	<%@ include file="/jsp/menu/dr-navbar.jsp"%>
+	<%@ include file="/jsp/joblet/jobletsNavbar.jspf" %>
 	<div class="container" id="exceptionsTable">
 		<h2 class="page-header">Joblet Exception Records</h2>
 		<div class="page-content-container page-content-thicktop page-single-column">
