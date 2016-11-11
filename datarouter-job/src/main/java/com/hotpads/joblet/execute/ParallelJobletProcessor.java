@@ -22,6 +22,7 @@ import com.hotpads.joblet.dto.RunningJoblet;
 import com.hotpads.joblet.enums.JobletType;
 import com.hotpads.joblet.execute.JobletExecutorThreadPool.JobletExecutorThreadPoolFactory;
 import com.hotpads.joblet.setting.JobletSettings;
+import com.hotpads.util.core.profile.PhaseTimer;
 import com.hotpads.util.datastructs.MutableBoolean;
 
 public class ParallelJobletProcessor{
@@ -117,8 +118,10 @@ public class ParallelJobletProcessor{
 	}
 
 	private final Optional<JobletPackage> getJobletPackage(long counter){
+		PhaseTimer timer = new PhaseTimer();//may be replaced later
 		String reservedBy = getReservedByString(counter);
-		Optional<JobletRequest> jobletRequest = jobletService.getJobletRequestForProcessing(jobletType, reservedBy);
+		Optional<JobletRequest> jobletRequest = jobletService.getJobletRequestForProcessing(timer, jobletType,
+				reservedBy);
 		if(!jobletRequest.isPresent()){
 			return Optional.empty();
 		}

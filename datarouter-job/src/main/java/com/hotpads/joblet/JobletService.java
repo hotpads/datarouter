@@ -121,10 +121,11 @@ public class JobletService{
 
 	/*--------------------- get for processing ---------------------*/
 
-	public Optional<JobletRequest> getJobletRequestForProcessing(JobletType<?> type, String reservedBy){
+	public Optional<JobletRequest> getJobletRequestForProcessing(PhaseTimer timer, JobletType<?> type,
+			String reservedBy){
 		long startMs = System.currentTimeMillis();
 		JobletRequestSelector selector = jobletRequestSelectorFactory.create();
-		Optional<JobletRequest> jobletRequest = selector.getJobletRequestForProcessing(type, reservedBy);
+		Optional<JobletRequest> jobletRequest = selector.getJobletRequestForProcessing(timer, type, reservedBy);
 		long durationMs = System.currentTimeMillis() - startMs;
 		if(durationMs > 1000){
 			String message = jobletRequest.map(Databean::getKey).map(Object::toString).orElse("none");

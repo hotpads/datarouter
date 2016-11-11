@@ -95,9 +95,10 @@ public class JobletCallable implements Callable<Void>{
 
 	private final Optional<JobletPackage> dequeueJobletPackage(PhaseTimer timer){
 		String reservedBy = getReservedByString();
-		Optional<JobletRequest> jobletRequest = jobletService.getJobletRequestForProcessing(jobletType, reservedBy);
+		Optional<JobletRequest> jobletRequest = jobletService.getJobletRequestForProcessing(timer, jobletType,
+				reservedBy);
 		if(jobletRequest.isPresent()){
-			timer.add("got " + jobletRequest.get().getKey());
+			timer.add("dequeued " + jobletRequest.get().getKey());
 		}else{
 			timer.add("no JobletRequest found");
 			return Optional.empty();

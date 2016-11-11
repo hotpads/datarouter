@@ -62,4 +62,8 @@ public class JobletCounters {
 		Counters.inc(PREFIX + "rejected callable " + jobletType.getPersistentString());
 	}
 
+	public static void ignoredRequestMissingFromDb(JobletType<?> jobletType){
+		Counters.inc(PREFIX + "ignored request missing from db " + jobletType.getPersistentString());
+	}
+
 }

@@ -13,6 +13,7 @@ import com.hotpads.joblet.enums.JobletType;
 import com.hotpads.joblet.jdbc.GetJobletRequest;
 import com.hotpads.joblet.jdbc.JobletRequestSqlBuilder;
 import com.hotpads.joblet.queue.JobletRequestSelector;
+import com.hotpads.util.core.profile.PhaseTimer;
 
 @Singleton
 public class JdbcLockForUpdateJobletRequestSelector implements JobletRequestSelector{
@@ -27,11 +28,13 @@ public class JdbcLockForUpdateJobletRequestSelector implements JobletRequestSele
 	private JobletRequestSqlBuilder jobletRequestSqlBuilder;
 
 	@Override
-	public Optional<JobletRequest> getJobletRequestForProcessing(JobletType<?> type, String reservedBy){
+	public Optional<JobletRequest> getJobletRequestForProcessing(PhaseTimer timer, JobletType<?> type,
+			String reservedBy){
 		while(true){
 			GetJobletRequest jdbcOp = new GetJobletRequest(reservedBy, type, datarouter, jobletNodes,
 					jdbcFieldCodecFactory, jobletRequestSqlBuilder);
 			JobletRequest jobletRequest = datarouter.run(jdbcOp);
+			timer.add("GetJobletRequest");
 			if(jobletRequest == null){
 				return Optional.empty();
 			}
