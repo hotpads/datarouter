@@ -50,6 +50,7 @@ public class CompletionServiceTool{
 			}catch(Exception e){
 				runningFutures.forEach(runningFuture -> runningFuture.cancel(true));
 				if(e instanceof InterruptedException){
+					Thread.currentThread().interrupt();
 					throw new InterruptedRuntimeException(e);
 				}
 				throw new RuntimeException(e);
@@ -62,4 +63,5 @@ public class CompletionServiceTool{
 		}
 
 	}
+
 }
