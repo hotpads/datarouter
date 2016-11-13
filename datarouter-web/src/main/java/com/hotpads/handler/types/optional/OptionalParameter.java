@@ -1,6 +1,7 @@
 package com.hotpads.handler.types.optional;
 
 import java.lang.reflect.Type;
+import java.util.Objects;
 import java.util.Optional;
 
 import com.google.common.collect.ImmutableSet;
@@ -45,4 +46,40 @@ public abstract class OptionalParameter<T>{
 		}
 		return parameterClass;
 	}
+
+	/*-------------- pass through methods ----------------*/
+
+	public T get(){
+		return opt.get();
+	}
+
+	public boolean isPresent(){
+		return opt.isPresent();
+	}
+
+    public T orElse(T other) {
+        return opt.orElse(other);
+    }
+
+    /*--------------- Object ------------------*/
+
+    @Override
+    public boolean equals(Object obj){
+    	if(this == obj){
+    		return true;
+    	}
+    	if(obj instanceof Optional){
+            return Objects.equals(opt, obj);
+    	}
+    	if(obj instanceof OptionalParameter){
+    		OptionalParameter<?> other = (OptionalParameter<?>)obj;
+            return Objects.equals(opt, other.opt);
+    	}
+    	return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return opt.hashCode();
+    }
 }

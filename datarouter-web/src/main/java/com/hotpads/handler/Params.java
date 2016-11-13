@@ -63,6 +63,10 @@ public class Params{
 		return optional(key).map(DrBooleanTool::isTrue).orElse(defaultValue);
 	}
 
+	public Optional<Boolean> optionalBoolean(String key){
+		return optional(key).map(Boolean::valueOf);
+	}
+
 	public Long requiredLong(String key){
 		return Long.valueOf(required(key));
 	}
@@ -93,6 +97,10 @@ public class Params{
 	public Integer optionalInteger(String key, Integer defaultValue){
 		return optional(key).filter(str -> !DrStringTool.isNullOrEmptyOrWhitespace(str)).map(Integer::valueOf)
 				.orElse(defaultValue);
+	}
+
+	public Optional<Integer> optionalInteger(String key){
+		return optional(key).map(Integer::valueOf);
 	}
 
 	public Double requiredDouble(String key){

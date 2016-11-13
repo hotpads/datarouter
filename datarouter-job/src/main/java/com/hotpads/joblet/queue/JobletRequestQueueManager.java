@@ -2,6 +2,7 @@ package com.hotpads.joblet.queue;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -55,5 +56,18 @@ public class JobletRequestQueueManager{
 		return lastMissAgoMs < BACKOFF_MS;
 	}
 
+	public Optional<JobletRequestQueueKey> getQueueToCheck(JobletType<?> jobletType){
+		for(JobletPriority priority : JobletPriority.values()){
+			JobletRequestQueueKey queueKey = new JobletRequestQueueKey(jobletType, priority);
+			if(!shouldSkipQueue(queueKey)){
+				return Optional.of(queueKey);
+			}
+		}
+		return Optional.empty();
+	}
+
+	public boolean shouldCheckAnyQueues(JobletType<?> jobletType){
+		return getQueueToCheck(jobletType).isPresent();
+	}
 
 }

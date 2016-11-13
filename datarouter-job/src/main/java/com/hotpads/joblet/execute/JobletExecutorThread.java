@@ -4,9 +4,6 @@ import java.util.Optional;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,23 +25,6 @@ import com.hotpads.util.core.profile.PhaseTimer;
 public class JobletExecutorThread extends Thread{
 	private static final Logger logger = LoggerFactory.getLogger(JobletExecutorThread.class);
 
-	@Singleton
-	public static class JobletExecutorThreadFactory{
-		@Inject
-		private JobletTypeFactory jobletTypeFactory;
-		@Inject
-		private JobletFactory jobletFactory;
-		@Inject
-		private JobletNodes jobletNodes;
-		@Inject
-		private JobletService jobletService;
-
-		public JobletExecutorThread create(JobletExecutorThreadPool jobletExecutorThreadPool, ThreadGroup threadGroup){
-			return new JobletExecutorThread(jobletExecutorThreadPool, threadGroup, jobletTypeFactory, jobletFactory,
-					jobletNodes, jobletService);
-		}
-	}
-
 	private final JobletExecutorThreadPool jobletExecutorThreadPool;
 	private final String jobletName;
 
@@ -59,9 +39,8 @@ public class JobletExecutorThread extends Thread{
 	private volatile boolean stopRequested = false;
 	private JobletPackage jobletPackage;
 	private Long processingStartTime;
-	private long semaphoreWaitTime = 0;
 
-	private JobletExecutorThread(JobletExecutorThreadPool jobletExecutorThreadPool, ThreadGroup threadGroup,
+	public JobletExecutorThread(JobletExecutorThreadPool jobletExecutorThreadPool, ThreadGroup threadGroup,
 			JobletTypeFactory jobletTypeFactory, JobletFactory jobletFactory, JobletNodes jobletNodes,
 			JobletService jobletService){
 		super(threadGroup, threadGroup.getName() + " - idle");
@@ -108,13 +87,13 @@ public class JobletExecutorThread extends Thread{
 				while(jobletPackage == null){
 					hasWorkToBeDone.await();
 				}
-				Long requestPermitTime = System.currentTimeMillis();
-				semaphoreWaitTime = System.currentTimeMillis() - requestPermitTime;
+				PhaseTimer timer = new PhaseTimer("JobletExecutorThread");
 				jobletPackage.getJobletRequest().setReservedAt(System.currentTimeMillis());
 				jobletNodes.jobletRequest().put(jobletPackage.getJobletRequest(), null);
+				timer.add("update reservedAt");
 				setName(jobletName + " - working");
 				processingStartTime = System.currentTimeMillis();
-				internalProcessJobletWithExceptionHandlingAndStats();
+				internalProcessJobletWithExceptionHandlingAndStats(timer);
 			}catch(InterruptedException ie){
 				logger.warn(ie.toString());
 				stopRequested = true;
@@ -131,18 +110,17 @@ public class JobletExecutorThread extends Thread{
 		}
 	}
 
-	private void internalProcessJobletWithExceptionHandlingAndStats(){
+	private void internalProcessJobletWithExceptionHandlingAndStats(PhaseTimer timer){
 		JobletRequest jobletRequest = jobletPackage.getJobletRequest();
-		PhaseTimer timer = jobletRequest.getTimer();
 		timer.add("waited for processing");
 		try{
 			internalProcessJobletWithStats(jobletPackage);
 			timer.add("processed");
-			jobletService.handleJobletCompletion(jobletRequest);
+			jobletService.handleJobletCompletion(timer, jobletRequest);
 			timer.add("completed");
 		}catch(JobInterruptedException e){
 			try{
-				jobletService.handleJobletInterruption(jobletRequest);
+				jobletService.handleJobletInterruption(timer, jobletRequest);
 			}catch(Exception e1){
 				logger.error("", e1);
 			}
@@ -150,7 +128,7 @@ public class JobletExecutorThread extends Thread{
 		}catch(Exception e){
 			logger.error("", e);
 			try{
-				jobletService.handleJobletError(jobletRequest, e, jobletRequest.getClass().getSimpleName());
+				jobletService.handleJobletError(timer, jobletRequest, e, jobletRequest.getClass().getSimpleName());
 				timer.add("failed");
 			}catch(Exception lastResort){
 				logger.error("", lastResort);
@@ -168,11 +146,11 @@ public class JobletExecutorThread extends Thread{
 
 		//counters
 		JobletCounters.incNumJobletsProcessed();
-		JobletCounters.incNumJobletsProcessed(jobletType.getPersistentString());
+		JobletCounters.incNumJobletsProcessed(jobletType);
 		int numItemsProcessed = Math.max(1, jobletRequest.getNumItems());
-		JobletCounters.incItemsProcessed(jobletType.getPersistentString(), numItemsProcessed);
+		JobletCounters.incItemsProcessed(jobletType, numItemsProcessed);
 		int numTasksProcessed = Math.max(1, jobletRequest.getNumTasks());
-		JobletCounters.incTasksProcessed(jobletType.getPersistentString(), numTasksProcessed);
+		JobletCounters.incTasksProcessed(jobletType, numTasksProcessed);
 		long endTimeMs = System.currentTimeMillis();
 		long durationMs = endTimeMs - startTimeMs;
 		String itemsPerSecond = DrNumberFormatter.format((double)jobletRequest.getNumItems() / ((double)durationMs
@@ -190,8 +168,7 @@ public class JobletExecutorThread extends Thread{
 				+ " and " + jobletRequest.getNumTasks() + " tasks"
 				+ " in " + DrNumberFormatter.addCommas(durationMs)+"ms"
 				+ " at "+itemsPerSecond+" items/sec"
-				+ " and "+tasksPerSecond+" tasks/sec"
-				+ " after waiting " + semaphoreWaitTime+"ms");
+				+ " and "+tasksPerSecond+" tasks/sec");
 	}
 
 	private void recycleThread(){
@@ -231,7 +208,7 @@ public class JobletExecutorThread extends Thread{
 		return System.currentTimeMillis() - localProcessingStartTime;
 	}
 
-	//used in jobletThreadTable.jspf
+	//used in runningJoblets.jspf
 	public String getRunningTimeString(){
 		Long localStartTime = processingStartTime;//thread safe copy
 		if(localStartTime == null){
@@ -253,12 +230,12 @@ public class JobletExecutorThread extends Thread{
 		return sb.toString();
 	}
 
-	//used by jobletThreadTable.jspf
+	//used by runningJoblets.jspf
 	public JobletRequest getJobletRequest(){
 		return Optional.ofNullable(jobletPackage).map(JobletPackage::getJobletRequest).orElse(null);
 	}
 
-	//used by jobletThreadTable.jspf
+	//used by runningJoblets.jspf
 	public JobletData getJobletData(){
 		return Optional.ofNullable(jobletPackage).map(JobletPackage::getJobletData).orElse(null);
 	}

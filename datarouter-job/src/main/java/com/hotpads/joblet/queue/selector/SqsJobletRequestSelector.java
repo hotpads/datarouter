@@ -20,6 +20,7 @@ import com.hotpads.joblet.execute.ParallelJobletProcessor;
 import com.hotpads.joblet.queue.JobletRequestQueueKey;
 import com.hotpads.joblet.queue.JobletRequestQueueManager;
 import com.hotpads.joblet.queue.JobletRequestSelector;
+import com.hotpads.util.core.profile.PhaseTimer;
 
 public class SqsJobletRequestSelector implements JobletRequestSelector{
 	private static final Logger logger = LoggerFactory.getLogger(SqsJobletRequestSelector.class);
@@ -30,7 +31,8 @@ public class SqsJobletRequestSelector implements JobletRequestSelector{
 	private JobletRequestQueueManager jobletRequestQueueManager;
 
 	@Override
-	public Optional<JobletRequest> getJobletRequestForProcessing(JobletType<?> type, String reservedBy){
+	public Optional<JobletRequest> getJobletRequestForProcessing(PhaseTimer timer, JobletType<?> type,
+			String reservedBy){
 		for(JobletPriority priority : JobletPriority.values()){
 			JobletRequestQueueKey queueKey = new JobletRequestQueueKey(type, priority);
 			if(jobletRequestQueueManager.shouldSkipQueue(queueKey)){
@@ -42,6 +44,7 @@ public class SqsJobletRequestSelector implements JobletRequestSelector{
 					.setVisibilityTimeoutMs(ParallelJobletProcessor.RUNNING_JOBLET_TIMEOUT_MS);
 			QueueMessage<JobletRequestKey,JobletRequest> message = jobletNodes.jobletRequestQueueByKey().get(queueKey)
 					.peek(config);
+			timer.add("peek");
 			if(message == null){
 				JobletCounters.incQueueMiss(queueKey.getQueueName());
 				jobletRequestQueueManager.onJobletRequestQueueMiss(queueKey);
@@ -49,9 +52,13 @@ public class SqsJobletRequestSelector implements JobletRequestSelector{
 			}
 			JobletCounters.incQueueHit(queueKey.getQueueName());
 			JobletRequest jobletRequest = message.getDatabean();
-			if(!jobletNodes.jobletRequest().exists(jobletRequest.getKey(), null)){
+			boolean existsInDb = jobletNodes.jobletRequest().exists(jobletRequest.getKey(), null);
+			timer.add("check exists");
+			if(!existsInDb){
 				logger.warn("draining non-existent JobletRequest without processing: {}", jobletRequest);
+				JobletCounters.ignoredRequestMissingFromDb(type);
 				jobletNodes.jobletRequestQueueByKey().get(queueKey).ack(message.getKey(), null);
+				timer.add("ack missing request");
 				continue;
 			}
 			jobletRequest.setQueueMessageKey(message.getKey());
