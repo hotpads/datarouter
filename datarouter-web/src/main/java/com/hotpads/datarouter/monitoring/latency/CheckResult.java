@@ -29,7 +29,7 @@ public class CheckResult{
 
 	public String getCssClass(){
 		if(failureMessage.isPresent()){
-			return "red";
+			return "black";
 		}
 		if(latency.get().to(TimeUnit.MILLISECONDS) < 200){
 			return "green";
@@ -41,7 +41,11 @@ public class CheckResult{
 
 	}
 
-	public String getLatency(){
+	public Optional<Duration> getLatency(){
+		return latency;
+	}
+
+	public String getLatencyString(){
 		return latency
 				.map(duration -> duration.toString(TimeUnit.MILLISECONDS))
 				.orElse("");
@@ -49,6 +53,10 @@ public class CheckResult{
 
 	public boolean isFailure(){
 		return failureMessage.isPresent();
+	}
+
+	public long getDateMs(){
+		return dateMs;
 	}
 
 	@Override
