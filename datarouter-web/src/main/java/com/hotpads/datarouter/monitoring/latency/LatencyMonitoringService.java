@@ -136,7 +136,7 @@ public class LatencyMonitoringService{
 		}));
 	}
 
-	private String getCheckNameForDatarouterClient(String clientName){
+	public String getCheckNameForDatarouterClient(String clientName){
 		return DR_CLIENT_PREFIX + clientName + SS_CHECK_SUFIX;
 	}
 
