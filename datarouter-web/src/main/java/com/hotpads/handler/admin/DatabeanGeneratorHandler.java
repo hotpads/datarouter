@@ -7,10 +7,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hotpads.datarouter.meta.DatabeanGenerator;
+import com.hotpads.datarouter.meta.JavapoetDatabeanGenerator;
 import com.hotpads.datarouter.storage.field.imp.DateField;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.array.BooleanArrayField;
@@ -138,17 +139,17 @@ public class DatabeanGeneratorHandler extends BaseHandler {
 	@Handler
 	protected Mav getDemoScript() {
 		try {
-			DatabeanGenerator g =
-					new DatabeanGenerator("ListingCounter");
+			JavapoetDatabeanGenerator g =
+					new JavapoetDatabeanGenerator("ListingCounter");
 
 				g.setPackageName("com.hotpads.marius");
 
 				for(Class<?> c: DatabeanGeneratorHandler.FIELD_TYPES){
 					String genericType = null;
-					if(DatabeanGenerator.INTEGER_ENUM_FIELDS.contains(c)){
+					if(JavapoetDatabeanGenerator.INTEGER_ENUM_FIELDS.contains(c)){
 						genericType = "TempEnum";
 						//continue;
-					} else if(DatabeanGenerator.STRING_ENUM_FIELDS.contains(c)){
+					} else if(JavapoetDatabeanGenerator.STRING_ENUM_FIELDS.contains(c)){
 						genericType = "TempEnum";
 						//continue;
 					} else
@@ -175,7 +176,7 @@ public class DatabeanGeneratorHandler extends BaseHandler {
 
 
 	private void collectParams(DataBeanParams databeanParams) {
-		String createScript = RequestTool.get(request, PARAM_CREATE_SCRIPT, null);
+		String createScript = StringEscapeUtils.unescapeHtml4(RequestTool.get(request, PARAM_CREATE_SCRIPT, null));
 		if(DrStringTool.notEmpty(createScript)){
 			collectParamsFromCreateScript(createScript, databeanParams);
 			return;
@@ -292,7 +293,7 @@ public class DatabeanGeneratorHandler extends BaseHandler {
 		}
 
 		public String getJavaCode(){
-			DatabeanGenerator generator = new DatabeanGenerator(dataBeanName);
+			JavapoetDatabeanGenerator generator = new JavapoetDatabeanGenerator(dataBeanName);
 			generator.setPackageName(dataBeanPackage);
 			for(int i =0; i< keyFieldNames.size(); i++){
 					generator.addKeyField(getClassForName(keyFieldTypes.get(i)), keyFieldNames.get(i), keyfieldEnumTypes.get(i));
