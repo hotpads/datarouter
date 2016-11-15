@@ -15,7 +15,6 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
-import javax.servlet.http.HttpSession;
 
 import com.hotpads.WebAppName;
 import com.hotpads.datarouter.config.DatarouterProperties;
@@ -103,14 +102,6 @@ public class MemoryMonitoringHandler extends BaseHandler{
 		}
 		mav.put("gcs", es);
 
-		HttpSession session = request.getSession();
-		Object duration = session.getAttribute("duration");
-		if(duration != null){
-			mav.put("duration", duration);
-			mav.put("effects", session.getAttribute("effects"));
-			session.removeAttribute("duration");
-			session.removeAttribute("effects");
-		}
 		return mav;
 	}
 
