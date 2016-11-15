@@ -199,19 +199,19 @@ public class LatencyMonitoringService{
 				}
 			}
 		}
-		Function<Client, Stream<Pair<String,SortedStorage<?,?>>>> mapClientToFirstSortedStorageNode = client -> nodes
+		Function<Client, Stream<Pair<Client,SortedStorage<?,?>>>> mapClientToFirstSortedStorageNode = client -> nodes
 				.getPhysicalNodesForClient(client.getName()).stream()
 				.filter(node -> node instanceof SortedStorage)
 				.limit(1)
 				.map(SortedStorage.class::cast)
-				.map(ss -> new Pair<>(client.getName(), ss));
+				.map(ss -> new Pair<>(client, ss));
 
 		checks.addAll(clients.getLazyClientProviderByName().values().stream()
 				.filter(LazyClientProvider::isInitialized)
 				.map(LazyClientProvider::getClient)
 				.flatMap(mapClientToFirstSortedStorageNode)
-				.map(pair -> new DatarouterClientLatencyCheck(getCheckNameForDatarouterClient(pair.getLeft()),
-						() -> pair.getRight().stream(null, ONLY_FIRST).findFirst(), pair.getLeft()))
+				.map(pair -> new DatarouterClientLatencyCheck(getCheckNameForDatarouterClient(pair.getLeft().getName()),
+						() -> pair.getRight().stream(null, ONLY_FIRST).findFirst(), pair.getLeft().getName()))
 				.collect(Collectors.toList()));
 		return checks;
 	}
