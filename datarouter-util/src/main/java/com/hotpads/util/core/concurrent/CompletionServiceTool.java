@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletionService;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -42,20 +43,22 @@ public class CompletionServiceTool{
 
 		@Override
 		public T next(){
-			Future<T> future;
+			Future<T> future = null;
 			T result;
 			try{
 				future = completionService.take();
 				result = future.get();
-			}catch(Exception e){
+			}catch(InterruptedException e){
 				runningFutures.forEach(runningFuture -> runningFuture.cancel(true));
-				if(e instanceof InterruptedException){
-					Thread.currentThread().interrupt();
-					throw new InterruptedRuntimeException(e);
-				}
+				Thread.currentThread().interrupt();
+				throw new InterruptedRuntimeException(e);
+			}catch(ExecutionException e){
 				throw new RuntimeException(e);
+			}finally{
+				if(future != null){
+					runningFutures.remove(future);
+				}
 			}
-			runningFutures.remove(future);
 			if(callableIterator.hasNext()){
 				runningFutures.add(completionService.submit(callableIterator.next()));
 			}
