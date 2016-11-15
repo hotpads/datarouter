@@ -97,17 +97,6 @@ public class ThreadSafePhaseTimer extends PhaseRecord implements PhaseRecorder<T
 		return sb.toString();
 	}
 
-	private void addRecords( Map<Long,List<PhaseRecord>> tree, List<PhaseRecord> phases ) {
-		for (PhaseRecord record : phases ) {
-			List<PhaseRecord> list = tree.get( record.time );
-			if ( list == null ) {
-				list = new ArrayList<>();
-				tree.put( record.time, list );
-			}
-			list.add( record );
-		}
-	}
-
 	private int insertSingleRecord(PhaseRecord record, int fromPosition){
 		while(fromPosition < phases.size()){
 			PhaseRecord current = phases.get(fromPosition);
