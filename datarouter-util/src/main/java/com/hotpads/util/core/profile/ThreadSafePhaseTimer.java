@@ -109,9 +109,9 @@ public class ThreadSafePhaseTimer extends PhaseRecord implements PhaseRecorder<T
 	}
 
 	private int insertSingleRecord(PhaseRecord record, int fromPosition){
-		while (fromPosition < phases.size()){
+		while(fromPosition < phases.size()){
 			PhaseRecord current = phases.get(fromPosition);
-			if (record.time > current.time) {
+			if(record.time > current.time){
 				fromPosition++;
 			}else{
 				break;
@@ -122,12 +122,12 @@ public class ThreadSafePhaseTimer extends PhaseRecord implements PhaseRecorder<T
 	}
 
 	public void merge(ThreadSafePhaseTimer other) {
-		if (other == null || other == this || other.phases.isEmpty() ) {
+		if(other == null || other == this || other.phases.isEmpty()){
 			return;
 		}
 		Iterator<PhaseRecord> otherRecords = other.phases.iterator();
 		int position = 0;
-		while (otherRecords.hasNext()){
+		while(otherRecords.hasNext()){
 			position = insertSingleRecord(otherRecords.next(), position);
 		}
 	}
