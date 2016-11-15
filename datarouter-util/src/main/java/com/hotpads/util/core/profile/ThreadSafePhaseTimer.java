@@ -2,10 +2,10 @@ package com.hotpads.util.core.profile;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.junit.Assert;
@@ -108,37 +108,42 @@ public class ThreadSafePhaseTimer extends PhaseRecord implements PhaseRecorder<T
 		}
 	}
 
-	/**
-	 * Guaranteed to create valid merge but concurrent updates of phases might get lost obviously.
-	 * We don't need to support that use case.
-	 */
+	private int insertSingleRecord(PhaseRecord record, int fromPosition){
+		while (fromPosition < phases.size()){
+			PhaseRecord current = phases.get(fromPosition);
+			if (record.time > current.time) {
+				fromPosition++;
+			}else{
+				break;
+			}
+		}
+		phases.add(fromPosition++,record);
+		return fromPosition;
+	}
+
 	public void merge(ThreadSafePhaseTimer other) {
 		if (other == null || other == this || other.phases.isEmpty() ) {
 			return;
 		}
-		Map<Long,List<PhaseRecord>> tree = new TreeMap<>();
-		addRecords(tree,other.phases);
-		addRecords(tree,this.phases);
-		List<PhaseRecord> merged = Collections
-				.synchronizedList(new ArrayList<PhaseRecord>());
-		for (List<PhaseRecord> list: tree.values()) {
-			merged.addAll(list);
-		};
-		this.phases = merged;
+		Iterator<PhaseRecord> otherRecords = other.phases.iterator();
+		int position = 0;
+		while (otherRecords.hasNext()){
+			position = insertSingleRecord(otherRecords.next(), position);
+		}
 	}
 
 	private long totalize( List<PhaseRecord> phases ) {
-		if ( phases.size() == 0 ) {
+		if(phases.size() == 0){
 			return 0L;
 		}
-		long min = this.getTime();
-		if(!phases.get(0).threadId.equals( this.threadId )) {
-			min = phases.get(0).getTime();
-		}
-		long max = min;
-		for ( PhaseRecord p : phases ) {
-			if ( p.time > max ) {
+		long min = 0;
+		long max = 0;
+		for(PhaseRecord p : phases){
+			if(p.time > max){
 				max = p.time;
+			}
+			if(p.time < min || min == 0){
+				min = p.time;
 			}
 		}
 		return max - min;
