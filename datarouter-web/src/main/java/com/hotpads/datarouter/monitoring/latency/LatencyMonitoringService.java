@@ -28,6 +28,7 @@ import com.hotpads.WebAppName;
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.DatarouterClients;
 import com.hotpads.datarouter.client.LazyClientProvider;
+import com.hotpads.datarouter.client.availability.ClientAvailabilitySwitchThresholdSettings;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.config.DatarouterProperties;
 import com.hotpads.datarouter.node.DatarouterNodes;
@@ -46,7 +47,7 @@ import com.hotpads.util.core.stream.StreamTool;
 public class LatencyMonitoringService{
 	private static final Logger logger = LoggerFactory.getLogger(LatencyMonitoringService.class);
 
-	private static final int NUM_LAST_CHECKS_TO_RETAIN = 15;
+	private static final int MIN_LAST_CHECKS_TO_RETAIN = 15;
 	private static final Config ONLY_FIRST = new Config().setLimit(1);
 	private static final String METRIC_PREFIX = "Latency ";
 	private static final String DR_CLIENT_PREFIX = "Client ";
@@ -63,43 +64,36 @@ public class LatencyMonitoringService{
 	private DatarouterProperties datarouterProperties;
 	@Inject
 	private WebAppName webApp;
+	@Inject
+	private ClientAvailabilitySwitchThresholdSettings switchThresholdSettings;
 
 	private final Map<String,Deque<CheckResult>> lastResultsByName = new HashMap<>();
-	private final Map<String,Deque<Duration>> lastDurationsByName = new HashMap<>();
 
 	private List<Future<?>> runningChecks = Collections.emptyList();
 
-	public void record(String checkName, Duration duration){
-		metrics.save(METRIC_PREFIX + checkName, duration.to(TimeUnit.MICROSECONDS));
-		addCheckResult(checkName, CheckResult.newSuccess(System.currentTimeMillis(), duration));
-		Deque<Duration> lastDurations = getLastDurations(checkName);
-		if(lastDurations.size() == NUM_LAST_CHECKS_TO_RETAIN){
-			lastDurations.pollLast();
-		}
-		lastDurations.offerFirst(duration);
-		logger.debug("{} - {}", checkName, duration);
-	}
-
-	private Deque<Duration> getLastDurations(String checkName){
-		return lastDurationsByName.computeIfAbsent(checkName, $ -> new LinkedList<>());
+	public void record(LatencyCheck check, Duration duration){
+		metrics.save(METRIC_PREFIX + check.name, duration.to(TimeUnit.MICROSECONDS));
+		addCheckResult(check, CheckResult.newSuccess(System.currentTimeMillis(), duration));
+		logger.debug("{} - {}", check.name, duration);
 	}
 
 	private Deque<CheckResult> getLastResults(String checkName){
 		return lastResultsByName.computeIfAbsent(checkName, $ -> new LinkedList<>());
 	}
 
-	private void addCheckResult(String checkName, CheckResult checkResult){
-		Deque<CheckResult> lastResults = getLastResults(checkName);
-		if(lastResults.size() == NUM_LAST_CHECKS_TO_RETAIN){
-			lastResults.pollLast();
+	private void addCheckResult(LatencyCheck check, CheckResult checkResult){
+		Deque<CheckResult> lastResults = getLastResults(check.name);
+		synchronized(lastResults){
+			while(lastResults.size() >= getNumLastChecksToRetain(check)){
+				lastResults.pollLast();
+			}
+			lastResults.offerFirst(checkResult);
 		}
-		lastResults.offerFirst(checkResult);
 	}
 
-	public void recordFailure(String checkName, String failureMessage){
-		addCheckResult(checkName, CheckResult.newFailure(System.currentTimeMillis(), failureMessage));
-		getLastDurations(checkName).clear();
-		logger.info("{} failed - {}", checkName, failureMessage);
+	public void recordFailure(LatencyCheck check, String failureMessage){
+		addCheckResult(check, CheckResult.newFailure(System.currentTimeMillis(), failureMessage));
+		logger.info("{} failed - {}", check.name, failureMessage);
 	}
 
 	public Map<String,CheckResult> getLastResultByName(){
@@ -107,6 +101,15 @@ public class LatencyMonitoringService{
 				.filter(entry -> !entry.getValue().isEmpty())
 				.collect(Collectors.toMap(Entry::getKey, entry -> entry.getValue().peekFirst(), StreamTool
 						.throwingMerger(), TreeMap::new));
+	}
+
+	private int getNumLastChecksToRetain(LatencyCheck check){
+		if(check instanceof DatarouterClientLatencyCheck){
+			String clientName = ((DatarouterClientLatencyCheck)check).getClientName();
+			return Math.max(MIN_LAST_CHECKS_TO_RETAIN, switchThresholdSettings.getSwitchThreshold(clientName)
+					.getValue());
+		}
+		return MIN_LAST_CHECKS_TO_RETAIN;
 	}
 
 	public Map<String,String> computeLastFiveAvg(){
@@ -118,8 +121,11 @@ public class LatencyMonitoringService{
 	}
 
 	private Map<String,String> avg(int nb){
-		return lastDurationsByName.entrySet().stream().collect(Collectors.toMap(Entry::getKey, entry -> {
+		return lastResultsByName.entrySet().stream().collect(Collectors.toMap(Entry::getKey, entry -> {
 			OptionalDouble average = entry.getValue().stream()
+					.map(CheckResult::getLatency)
+					.filter(Optional::isPresent)
+					.map(Optional::get)
 					.limit(nb)
 					.mapToLong(duration -> duration.to(TimeUnit.NANOSECONDS))
 					.average();
@@ -177,25 +183,25 @@ public class LatencyMonitoringService{
 					PhysicalNode<?,?> node = findFirst.get();
 					if(node instanceof PhysicalMapStorageNode){
 						PhysicalMapStorageNode<?,?> ms = (PhysicalMapStorageNode<?,?>)node;
-						checks.add(new LatencyCheck(LatencyMonitoringService.DR_CLIENT_PREFIX + entry.getKey()
-								+ LatencyMonitoringService.MS_CHECK_SUFIX, makeGet(ms)));
+						checks.add(new DatarouterClientLatencyCheck(LatencyMonitoringService.DR_CLIENT_PREFIX + entry
+								.getKey() + LatencyMonitoringService.MS_CHECK_SUFIX, makeGet(ms), entry.getKey()));
 					}
 				}
 			}
 		}
-		Function<Client, Stream<Pair<String,SortedStorage<?,?>>>> mapClientToFirstSortedStorageNode = client -> nodes
+		Function<Client, Stream<Pair<Client,SortedStorage<?,?>>>> mapClientToFirstSortedStorageNode = client -> nodes
 				.getPhysicalNodesForClient(client.getName()).stream()
 				.filter(node -> node instanceof SortedStorage)
 				.limit(1)
 				.map(SortedStorage.class::cast)
-				.map(ss -> new Pair<>(LatencyMonitoringService.DR_CLIENT_PREFIX + client.getName(), ss));
+				.map(ss -> new Pair<>(client, ss));
 
 		checks.addAll(clients.getLazyClientProviderByName().values().stream()
 				.filter(LazyClientProvider::isInitialized)
 				.map(LazyClientProvider::getClient)
 				.flatMap(mapClientToFirstSortedStorageNode)
-				.map(pair -> new LatencyCheck(pair.getLeft() + LatencyMonitoringService.SS_CHECK_SUFIX, () -> pair
-						.getRight().stream(null, ONLY_FIRST).findFirst()))
+				.map(pair -> new DatarouterClientLatencyCheck(getCheckNameForDatarouterClient(pair.getLeft().getName()),
+						() -> pair.getRight().stream(null, ONLY_FIRST).findFirst(), pair.getLeft().getName()))
 				.collect(Collectors.toList()));
 		return checks;
 	}

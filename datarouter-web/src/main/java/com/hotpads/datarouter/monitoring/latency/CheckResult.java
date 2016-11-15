@@ -65,7 +65,7 @@ public class CheckResult{
 			return "Failure " + new Duration(System.currentTimeMillis() - dateMs, TimeUnit.MILLISECONDS) + " ago: "
 					+ failureMessage.get();
 		}
-		return getLatency() + " (" + new Duration(System.currentTimeMillis() - dateMs, TimeUnit.MILLISECONDS)
+		return getLatencyString() + " (" + new Duration(System.currentTimeMillis() - dateMs, TimeUnit.MILLISECONDS)
 				+ " ago)";
 	}
 
