@@ -68,25 +68,13 @@ public class LatencyMonitoringService{
 	private ClientAvailabilitySwitchThresholdSettings switchThresholdSettings;
 
 	private final Map<String,Deque<CheckResult>> lastResultsByName = new HashMap<>();
-	private final Map<String,Deque<Duration>> lastDurationsByName = new HashMap<>();
 
 	private List<Future<?>> runningChecks = Collections.emptyList();
 
 	public void record(LatencyCheck check, Duration duration){
 		metrics.save(METRIC_PREFIX + check.name, duration.to(TimeUnit.MICROSECONDS));
 		addCheckResult(check, CheckResult.newSuccess(System.currentTimeMillis(), duration));
-		Deque<Duration> lastDurations = getLastDurations(check.name);
-		synchronized(lastDurations){
-			while(lastDurations.size() >= getNumLastChecksToRetain(check)){
-				lastDurations.pollLast();
-			}
-			lastDurations.offerFirst(duration);
-		}
 		logger.debug("{} - {}", check.name, duration);
-	}
-
-	private Deque<Duration> getLastDurations(String checkName){
-		return lastDurationsByName.computeIfAbsent(checkName, $ -> new LinkedList<>());
 	}
 
 	private Deque<CheckResult> getLastResults(String checkName){
@@ -105,7 +93,6 @@ public class LatencyMonitoringService{
 
 	public void recordFailure(LatencyCheck check, String failureMessage){
 		addCheckResult(check, CheckResult.newFailure(System.currentTimeMillis(), failureMessage));
-		getLastDurations(check.name).clear();
 		logger.info("{} failed - {}", check.name, failureMessage);
 	}
 
@@ -134,8 +121,11 @@ public class LatencyMonitoringService{
 	}
 
 	private Map<String,String> avg(int nb){
-		return lastDurationsByName.entrySet().stream().collect(Collectors.toMap(Entry::getKey, entry -> {
+		return lastResultsByName.entrySet().stream().collect(Collectors.toMap(Entry::getKey, entry -> {
 			OptionalDouble average = entry.getValue().stream()
+					.map(CheckResult::getLatency)
+					.filter(Optional::isPresent)
+					.map(Optional::get)
 					.limit(nb)
 					.mapToLong(duration -> duration.to(TimeUnit.NANOSECONDS))
 					.average();

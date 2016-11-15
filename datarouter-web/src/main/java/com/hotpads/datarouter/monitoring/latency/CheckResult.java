@@ -41,7 +41,11 @@ public class CheckResult{
 
 	}
 
-	public String getLatency(){
+	public Optional<Duration> getLatency(){
+		return latency;
+	}
+
+	public String getLatencyAsString(){
 		return latency
 				.map(duration -> duration.toString(TimeUnit.MILLISECONDS))
 				.orElse("");
@@ -57,7 +61,7 @@ public class CheckResult{
 			return "Failure " + new Duration(System.currentTimeMillis() - dateMs, TimeUnit.MILLISECONDS) + " ago: "
 					+ failureMessage.get();
 		}
-		return getLatency() + " (" + new Duration(System.currentTimeMillis() - dateMs, TimeUnit.MILLISECONDS)
+		return getLatencyAsString() + " (" + new Duration(System.currentTimeMillis() - dateMs, TimeUnit.MILLISECONDS)
 				+ " ago)";
 	}
 
