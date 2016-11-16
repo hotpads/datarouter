@@ -50,6 +50,7 @@ public class CompletionServiceTool{
 				result = future.get();
 			}catch(InterruptedException e){
 				runningFutures.forEach(runningFuture -> runningFuture.cancel(true));
+				runningFutures.clear();
 				Thread.currentThread().interrupt();
 				throw new InterruptedRuntimeException(e);
 			}catch(ExecutionException e){
@@ -58,9 +59,9 @@ public class CompletionServiceTool{
 				if(future != null){
 					runningFutures.remove(future);
 				}
-			}
-			if(callableIterator.hasNext()){
-				runningFutures.add(completionService.submit(callableIterator.next()));
+				if(!Thread.currentThread().isInterrupted() && callableIterator.hasNext()){
+					runningFutures.add(completionService.submit(callableIterator.next()));
+				}
 			}
 			return result;
 		}
