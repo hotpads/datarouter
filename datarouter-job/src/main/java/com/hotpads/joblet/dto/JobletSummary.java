@@ -1,7 +1,9 @@
 package com.hotpads.joblet.dto;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -58,6 +60,17 @@ public class JobletSummary{
 						TreeMap::new));
 	}
 
+	public static Map<TypeStatusKey,JobletSummary> summarizeByTypeStatus(
+			Stream<JobletRequest> requests){
+		return requests
+				.map(JobletSummary::new)
+				.collect(Collectors.toMap(
+						TypeStatusKey::new,
+						Function.identity(),
+						JobletSummary::absorbStats,
+						TreeMap::new));
+	}
+
 	public static Map<TypeExecutionOrderStatusKey,JobletSummary> summarizeByTypeExecutionOrderStatus(
 			Stream<JobletRequest> requests){
 		return requests
@@ -77,6 +90,12 @@ public class JobletSummary{
 						Function.identity(),
 						JobletSummary::absorbStats,
 						TreeMap::new));
+	}
+
+	public static List<JobletSummary> filterForStatus(Collection<JobletSummary> summaries, JobletStatus status){
+		return summaries.stream()
+				.filter(summary -> summary.getStatus() == status)
+				.collect(Collectors.toList());
 	}
 
 
@@ -193,6 +212,40 @@ public class JobletSummary{
 		@Override
 		public int compareTo(TypeKey other){
 			return DrComparableTool.nullFirstCompareTo(typeCode, other.typeCode);
+		}
+	}
+
+	private static class TypeStatusKey implements Comparable<TypeStatusKey>{
+		private final int typeCode;
+		private final JobletStatus status;
+
+		public TypeStatusKey(JobletSummary summary){
+			this.typeCode = summary.typeCode;
+			this.status = summary.status;
+		}
+
+		@Override
+		public boolean equals(Object obj){
+			if(ClassTool.differentClass(this, obj)){
+				return false;
+			}
+			JobletSummary other = (JobletSummary)obj;
+			return Objects.equals(typeCode, other.typeCode)
+					&& Objects.equals(status, other.status);
+		}
+
+		@Override
+		public int hashCode(){
+			return Objects.hash(typeCode, status);
+		}
+
+		@Override
+		public int compareTo(TypeStatusKey other){
+			int diff = DrComparableTool.nullFirstCompareTo(typeCode, other.typeCode);
+			if(diff != 0){
+				return diff;
+			}
+			return DrComparableTool.nullFirstCompareTo(status, other.status);
 		}
 	}
 
