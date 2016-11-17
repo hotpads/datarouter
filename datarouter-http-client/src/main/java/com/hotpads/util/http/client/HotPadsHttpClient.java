@@ -261,4 +261,8 @@ public class HotPadsHttpClient {
 		return connectionManager.getTotalStats();
 	}
 
+	public CloseableHttpClient getApacheHttpClient(){
+		return httpClient;
+	}
+
 }
