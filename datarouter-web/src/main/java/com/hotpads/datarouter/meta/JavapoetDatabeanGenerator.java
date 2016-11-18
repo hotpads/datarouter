@@ -2,8 +2,6 @@ package com.hotpads.datarouter.meta;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -24,6 +22,7 @@ import com.hotpads.datarouter.storage.field.imp.array.ByteArrayField;
 import com.hotpads.datarouter.storage.field.imp.array.DelimitedStringArrayField;
 import com.hotpads.datarouter.storage.field.imp.array.DoubleArrayField;
 import com.hotpads.datarouter.storage.field.imp.array.IntegerArrayField;
+import com.hotpads.datarouter.storage.field.imp.array.KeyedListField;
 import com.hotpads.datarouter.storage.field.imp.array.UInt63ArrayField;
 import com.hotpads.datarouter.storage.field.imp.array.UInt7ArrayField;
 import com.hotpads.datarouter.storage.field.imp.comparable.BooleanField;
@@ -58,7 +57,13 @@ import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.WildcardTypeName;
 
-public class JavapoetDatabeanGenerator {//TODO move this to services, so that more classes can be discovered correctly?
+//TODO (potential additions):
+//find actual class for enum types(not just a Javapoet ClassName without a known package)
+//custom ordering of comments and members (currently no comments, since I can't control the order)
+//line length limiting (esp. for constructors and other known long lines)
+//(MYSQL) add limit of 16 fields per key? also, can't use blobs for keys
+//more bean constructors (Key only, Key + non-Key fields)?
+public class JavapoetDatabeanGenerator {
 
 	private final String name;
 	private final String packageName;
@@ -74,10 +79,10 @@ public class JavapoetDatabeanGenerator {//TODO move this to services, so that mo
 	private static final TypeName FIELD_LIST = ParameterizedTypeName.get(ClassName.get(List.class), FIELD);
 
 	private class NamedFieldDefinition<T> {
-		JavapoetFieldDefinition<T> def;
+		JavapoetFieldDefinition def;
 		String name;
 
-		public NamedFieldDefinition(JavapoetFieldDefinition<T> def, String name){
+		public NamedFieldDefinition(JavapoetFieldDefinition def, String name){
 			this.def = def;
 			this.name = name;
 		}
@@ -95,7 +100,7 @@ public class JavapoetDatabeanGenerator {//TODO move this to services, so that mo
 		}
 	}
 
-	private static class JavapoetFieldDefinition<T> {
+	private static class JavapoetFieldDefinition {
 		TypeName type;//for fields of databean/key
 		TypeName fieldType;//for *Field in getFields/getNonKeyFields
 		TypeName fieldKeyType;//for *FieldKey in FieldKeys (just fieldType's type name + "Key")
@@ -110,9 +115,9 @@ public class JavapoetDatabeanGenerator {//TODO move this to services, so that mo
 		}
 
 		/**
-		 * Use this for non-generic, non-enum fields
+		 * Use this for simple fields
 		 */
-		public JavapoetFieldDefinition(Class<T> type, Class<? extends BaseField<T>> fieldType){
+		public <T> JavapoetFieldDefinition(Class<T> type, Class<? extends BaseField<T>> fieldType){
 			this.isEnum = false;
 			this.type = type.isArray() ? ArrayTypeName.of(type.getComponentType()) : ClassName.get(type);
 			this.fieldType = ClassName.get(fieldType);
@@ -120,11 +125,11 @@ public class JavapoetDatabeanGenerator {//TODO move this to services, so that mo
 		}
 
 		/**
-		 * Use this for generic fields (collections and arrays)
+		 * Use this for list fields
 		 */
-		//TODO consider correlating all the generics properly according to Base/KeyedListField
-		public JavapoetFieldDefinition(Class<?> type, Class<?> typeGeneric,
-				Class<? extends BaseField<T>> fieldType){
+		@SuppressWarnings("rawtypes")
+		public JavapoetFieldDefinition(Class<? extends List> type, Class<? extends Comparable<?>> typeGeneric,
+				Class<? extends KeyedListField<?,?,?>> fieldType){
 			this.isEnum = false;
 			this.type = ParameterizedTypeName.get(type, typeGeneric);
 			this.fieldType = ClassName.get(fieldType);
@@ -144,80 +149,51 @@ public class JavapoetDatabeanGenerator {//TODO move this to services, so that mo
 
 	}
 
-	public static final List<Class<?>> FIELD_TYPES;
-	static{
-		List<Class<?>> fieldTypes = new ArrayList<>();
-		fieldTypes.add(BooleanArrayField.class);
-		fieldTypes.add(ByteArrayField.class);
-		fieldTypes.add(DoubleArrayField.class);
-		fieldTypes.add(IntegerArrayField.class);
-		fieldTypes.add(UInt63ArrayField.class);
-		fieldTypes.add(UInt7ArrayField.class);
-		fieldTypes.add(BooleanField.class);
-		fieldTypes.add(CharacterField.class);
-		fieldTypes.add(IntegerField.class);
-		fieldTypes.add(LongField.class);
-		fieldTypes.add(ShortField.class);
-		fieldTypes.add(SignedByteField.class);
-		fieldTypes.add(LongDateField.class);
-		fieldTypes.add(DumbDoubleField.class);
-		fieldTypes.add(DumbFloatField.class);
-		fieldTypes.add(IntegerEnumField.class);
-		fieldTypes.add(StringEnumField.class);
-		fieldTypes.add(VarIntEnumField.class);
-		fieldTypes.add(VarIntField.class);
-		fieldTypes.add(UInt15Field.class);
-		fieldTypes.add(UInt31Field.class);
-		fieldTypes.add(UInt63Field.class);
-		fieldTypes.add(UInt7Field.class);
-		fieldTypes.add(UInt8Field.class);
-		fieldTypes.add(DateField.class);
-		fieldTypes.add(StringField.class);
-		fieldTypes.add(DelimitedStringArrayField.class);
-		Collections.sort(fieldTypes, new Comparator<Class<?>>() {
-			@Override
-			public int compare(Class<?> o1, Class<?> o2) {
-				return o1.getSimpleName().compareTo(o2.getSimpleName());
-			}
-		});
-
-		FIELD_TYPES = Collections.unmodifiableList(fieldTypes);
+	public static final Map<Class<?>, JavapoetFieldDefinition> typeNames = new HashMap<>();
+	static {
+		//lists
+		typeNames.put(BooleanArrayField.class,
+				new JavapoetFieldDefinition(List.class, Boolean.class, BooleanArrayField.class));
+		typeNames.put(DoubleArrayField.class,
+				new JavapoetFieldDefinition(List.class, Double.class, DoubleArrayField.class));
+		typeNames.put(IntegerArrayField.class,
+				new JavapoetFieldDefinition(List.class, Integer.class, IntegerArrayField.class));
+		typeNames.put(UInt63ArrayField.class,
+				new JavapoetFieldDefinition(List.class, Long.class, UInt63ArrayField.class));
+		typeNames.put(UInt7ArrayField.class,
+				new JavapoetFieldDefinition(List.class, Byte.class, UInt7ArrayField.class));
+		typeNames.put(DelimitedStringArrayField.class,
+				new JavapoetFieldDefinition(List.class, String.class, DelimitedStringArrayField.class));
+		//simple types
+		typeNames.put(ByteArrayField.class, new JavapoetFieldDefinition(byte[].class, ByteArrayField.class));
+		typeNames.put(BooleanField.class, new JavapoetFieldDefinition(Boolean.class, BooleanField.class));
+		typeNames.put(CharacterField.class, new JavapoetFieldDefinition(Character.class, CharacterField.class));
+		typeNames.put(IntegerField.class, new JavapoetFieldDefinition(Integer.class, IntegerField.class));
+		typeNames.put(LongField.class, new JavapoetFieldDefinition(Long.class, LongField.class));
+		typeNames.put(ShortField.class, new JavapoetFieldDefinition(Short.class, ShortField.class));
+		typeNames.put(SignedByteField.class, new JavapoetFieldDefinition(Byte.class, SignedByteField.class));
+		typeNames.put(LongDateField.class, new JavapoetFieldDefinition(Date.class, LongDateField.class));
+		typeNames.put(DumbDoubleField.class, new JavapoetFieldDefinition(Double.class, DumbDoubleField.class));
+		typeNames.put(DumbFloatField.class, new JavapoetFieldDefinition(Float.class, DumbFloatField.class));
+		typeNames.put(VarIntField.class, new JavapoetFieldDefinition(Integer.class, VarIntField.class));
+		typeNames.put(UInt15Field.class, new JavapoetFieldDefinition(Short.class, UInt15Field.class));
+		typeNames.put(UInt31Field.class, new JavapoetFieldDefinition(Integer.class, UInt31Field.class));
+		typeNames.put(UInt63Field.class, new JavapoetFieldDefinition(Long.class, UInt63Field.class));
+		typeNames.put(UInt7Field.class, new JavapoetFieldDefinition(Byte.class, UInt7Field.class));
+		typeNames.put(UInt8Field.class, new JavapoetFieldDefinition(Byte.class, UInt8Field.class));
+		typeNames.put(DateField.class, new JavapoetFieldDefinition(Date.class, DateField.class));
+		typeNames.put(StringField.class, new JavapoetFieldDefinition(String.class, StringField.class));
 	}
 
-	//TODO order these less stupidly
-	public static final Map<Class<?>, JavapoetFieldDefinition<?>> typeNames = new HashMap<>();
-	static {
-		typeNames.put(BooleanArrayField.class,
-				new JavapoetFieldDefinition<>(List.class, Boolean.class, BooleanArrayField.class));
-		typeNames.put(DoubleArrayField.class,
-				new JavapoetFieldDefinition<>(List.class, Double.class, DoubleArrayField.class));
-		typeNames.put(IntegerArrayField.class,
-				new JavapoetFieldDefinition<>(List.class, Integer.class, IntegerArrayField.class));
-		typeNames.put(UInt63ArrayField.class,
-				new JavapoetFieldDefinition<>(List.class, Long.class, UInt63ArrayField.class));
-		typeNames.put(UInt7ArrayField.class,
-				new JavapoetFieldDefinition<>(List.class, Byte.class, UInt7ArrayField.class));
-		typeNames.put(DelimitedStringArrayField.class,
-				new JavapoetFieldDefinition<>(List.class, String.class, DelimitedStringArrayField.class));//TODO correct
-		typeNames.put(ByteArrayField.class, new JavapoetFieldDefinition<>(byte[].class, ByteArrayField.class));
+	//Map to look up field types when adding fields (contains all field types)
+	public static Map<String, Class<?>> fieldTypeClassLookup;
+	static{
+		fieldTypeClassLookup = new HashMap<>();
+		typeNames.keySet().forEach(field -> fieldTypeClassLookup.put(field.getSimpleName(), field));
 
-		typeNames.put(BooleanField.class, new JavapoetFieldDefinition<>(Boolean.class, BooleanField.class));
-		typeNames.put(CharacterField.class, new JavapoetFieldDefinition<>(Character.class, CharacterField.class));
-		typeNames.put(IntegerField.class, new JavapoetFieldDefinition<>(Integer.class, IntegerField.class));
-		typeNames.put(LongField.class, new JavapoetFieldDefinition<>(Long.class, LongField.class));
-		typeNames.put(ShortField.class, new JavapoetFieldDefinition<>(Short.class, ShortField.class));
-		typeNames.put(SignedByteField.class, new JavapoetFieldDefinition<>(Byte.class, SignedByteField.class));
-		typeNames.put(LongDateField.class, new JavapoetFieldDefinition<>(Date.class, LongDateField.class));
-		typeNames.put(DumbDoubleField.class, new JavapoetFieldDefinition<>(Double.class, DumbDoubleField.class));
-		typeNames.put(DumbFloatField.class, new JavapoetFieldDefinition<>(Float.class, DumbFloatField.class));
-		typeNames.put(VarIntField.class, new JavapoetFieldDefinition<>(Integer.class, VarIntField.class));
-		typeNames.put(UInt15Field.class, new JavapoetFieldDefinition<>(Short.class, UInt15Field.class));
-		typeNames.put(UInt31Field.class, new JavapoetFieldDefinition<>(Integer.class, UInt31Field.class));
-		typeNames.put(UInt63Field.class, new JavapoetFieldDefinition<>(Long.class, UInt63Field.class));
-		typeNames.put(UInt7Field.class, new JavapoetFieldDefinition<>(Byte.class, UInt7Field.class));
-		typeNames.put(UInt8Field.class, new JavapoetFieldDefinition<>(Byte.class, UInt8Field.class));
-		typeNames.put(DateField.class, new JavapoetFieldDefinition<>(Date.class, DateField.class));
-		typeNames.put(StringField.class, new JavapoetFieldDefinition<>(String.class, StringField.class));
+		for(Class<?> field : Arrays.asList(IntegerEnumField.class, StringEnumField.class, VarIntEnumField.class)){
+			fieldTypeClassLookup.put(field.getSimpleName(), field);
+		}
 	}
 
 	public JavapoetDatabeanGenerator(String name, String packageName){
@@ -228,16 +204,74 @@ public class JavapoetDatabeanGenerator {//TODO move this to services, so that mo
 		this.indexes = new ArrayList<>();
 	}
 
-	public <T> void addField(Class<T> type, String name, String genericType){
-		beanNamedFieldDefinitions.add(makeFieldDef(type, name, genericType));
+	public JavapoetDatabeanGenerator(String createScript){
+		//skip blank lines
+		int lineNum = 0;
+		String[] lines = createScript.split("\n");
+		while(lines[lineNum].trim().isEmpty()){
+			lineNum++;
+		}
+
+		//first line contains name and packageName (this part is just extracted to make sure all fields are initialized)
+		String line = lines[lineNum++];
+		this.packageName = line.substring(0, line.lastIndexOf("."));
+		this.name = line.substring(line.lastIndexOf(".") + 1, line.lastIndexOf("{"));
+		this.keyNamedFieldDefinitions = new ArrayList<>();
+		this.beanNamedFieldDefinitions = new ArrayList<>();
+		this.indexes = new ArrayList<>();
+
+		//handle the rest of the file, now that everything is initialized
+		boolean isPkField = false;
+		while(lineNum < lines.length){
+			line = lines[lineNum++].trim();
+			if(DrStringTool.isEmpty(line)){
+				continue;
+			}
+			if("pk{".equalsIgnoreCase(line) || "pk {".equalsIgnoreCase(line)){
+				isPkField = true;
+			} else if(isPkField && "}".equals(line)){
+				isPkField = false;
+			} else if (isPkField) { //pk field line
+				line = line.replace(",", "");
+				String enumType = DrStringTool.getStringSurroundedWith(line, "<", ">");
+				if (DrStringTool.notEmpty(enumType)) {
+					line = line.replace("<" + enumType + ">", "");
+				}
+				addKeyField(line.split(" ")[0], line.split(" ")[1], enumType);
+			} else if(line.startsWith("index(") || line.startsWith("index (")){ //index line
+				if(line.contains("(") && line.contains(")")){
+					line = line.substring(line.indexOf("(")+1, line.lastIndexOf(")"));
+					addIndex(line.trim());
+				}
+			} else if("}".equals(line)){
+				return;//this should be last line of the script
+			} else { // non pk field line
+				line = line.replace(",", "").trim();
+				if(DrStringTool.isEmpty(line)) {
+					continue;
+				}
+				String enumType = DrStringTool.getStringSurroundedWith(line, "<", ">");
+				if (DrStringTool.notEmpty(enumType)) {
+					line = line.replace("<" + enumType + ">", "");
+				}
+				addField(line.split(" ")[0], line.split(" ")[1], enumType);
+			}
+		}
 	}
 
-	public <T> void addKeyField(Class<T> type, String name, String genericType){
-		keyNamedFieldDefinitions.add(makeFieldDef(type, name, genericType));
+	public <T> void addField(String type, String name, String genericType){
+		if (fieldTypeClassLookup.containsKey(type)){
+			beanNamedFieldDefinitions.add(makeFieldDef(fieldTypeClassLookup.get(type), name, genericType));
+		}
 	}
 
-	public void addIndex(String ...indexFields){//TODO
-		//TODO do indexes allow key indices? if so, this will need to be complicated.
+	public <T> void addKeyField(String type, String name, String genericType){
+		if (fieldTypeClassLookup.containsKey(type)){
+			keyNamedFieldDefinitions.add(makeFieldDef(fieldTypeClassLookup.get(type), name, genericType));
+		}
+	}
+
+	public void addIndex(String ...indexFields){
 		StringBuilder indexName = new StringBuilder("index");
 		StringBuilder lookupName = new StringBuilder(name + "By");
 		List<Integer> fieldIndices = new ArrayList<>();
@@ -251,7 +285,7 @@ public class JavapoetDatabeanGenerator {//TODO move this to services, so that mo
 				NamedFieldDefinition<?> fieldDef = beanNamedFieldDefinitions.get(i);
 				if (fieldName.equals(fieldDef.name)){
 					indexName.append('_').append(fieldDef.name);
-					lookupName.append(DrStringTool.capitalizeFirstLetter(fieldDef.name));//TODO replace with non-DR?
+					lookupName.append(DrStringTool.capitalizeFirstLetter(fieldDef.name));
 					fieldIndices.add(i);
 				}
 			}
@@ -262,7 +296,6 @@ public class JavapoetDatabeanGenerator {//TODO move this to services, so that mo
 			lookupName.append("Lookup");
 			indexes.add(new IndexDefinition(indexName.toString(), lookupName.toString(), fieldIndices));
 		}
-		//TODO any error handling?
 	}
 
 	public String toJavaDatabeanKey(){
@@ -279,21 +312,54 @@ public class JavapoetDatabeanGenerator {//TODO move this to services, so that mo
 		return bean;
 	}
 
+	private static final String INDENT_TWO = "  ";
+	private static final String INDENT_FOUR = "    ";
+
+	public String toCreateScript(){
+		StringBuilder script = new StringBuilder(packageName + '.' + name + "{\n");
+		String indent = INDENT_TWO;
+
+		script.append(indent).append("PK{");
+		appendScriptFields(script, INDENT_FOUR, keyNamedFieldDefinitions);
+		script.append("}\n");
+
+		appendScriptFields(script, INDENT_TWO, beanNamedFieldDefinitions);
+
+		for(Iterator<IndexDefinition> iter = indexes.iterator(); iter.hasNext(); ){
+			IndexDefinition index = iter.next();
+			appendIndex(script, index, INDENT_TWO);
+			script.append(iter.hasNext() ? ",\n" : '\n');
+		}
+
+		script.append('}');
+
+		return script.toString();
+	}
+
+	private void appendIndex(StringBuilder script, IndexDefinition index, String indent){
+		script.append(indent + '(');
+		for(Iterator<Integer> iter = index.fieldIndices.iterator(); iter.hasNext(); ){
+			Integer fieldIndex = iter.next();
+			script.append(beanNamedFieldDefinitions.get(fieldIndex).name);
+			if(iter.hasNext()){
+				script.append(", ");
+			}
+		}
+		script.append(')');
+	}
+
+	private static void appendScriptFields(StringBuilder script, String indent, List<NamedFieldDefinition<?>> fields){
+		for(Iterator<NamedFieldDefinition<?>> iter = fields.iterator(); iter.hasNext(); ){
+			NamedFieldDefinition<?> field = iter.next();
+			script.append(indent)
+					.append(field.def.fieldType.toString())
+					.append(' ')
+					.append(field.name)
+					.append(iter.hasNext() ? ",\n" : "\n");
+		}
+	}
+
 	private void generate(){
-		//BIG TODO SWITCH MANY METHODS TO NON-STATIC, NOW THAT SOME VARIABLE ARE NOT JUST LOCAL ANYMORE
-		//TODO make sure these can be generated in a specific order of columns (no sorting imposition)
-		//TODO add limit of 16 fields per key? also, can't use blobs for keys
-
-		//TODO things left to add:
-		//nicer comments
-		//indexes
-		//proper indentation?
-		//section comments/desired order?
-		//proper genericization without warnings
-		//line length limiting?
-		//more bean constructors? (key only, key + fields)
-		//import enum types?
-
 		//generating the key
 		ClassName keyName = ClassName.get(packageName, name + "Key");
 
@@ -319,9 +385,7 @@ public class JavapoetDatabeanGenerator {//TODO move this to services, so that mo
 		//generating the bean
 		ClassName beanName = ClassName.get(packageName, name);
 
-		List<FieldSpec> beanFieldSpecs = buildFields(beanNamedFieldDefinitions);/*beanNamedFieldDefinitions.stream()
-				.map(fieldDef -> buildPrivateField(fieldDef.def.type, fieldDef.name))
-				.collect(Collectors.toList());*/
+		List<FieldSpec> beanFieldSpecs = buildFields(beanNamedFieldDefinitions);
 
 		TypeSpec beanFieldKeysType = buildFieldKeysClass(beanNamedFieldDefinitions);
 
@@ -377,13 +441,12 @@ public class JavapoetDatabeanGenerator {//TODO move this to services, so that mo
 	}
 
 	private NamedFieldDefinition<?> makeFieldDef(Class<?> type, String name, String genericType){
-		JavapoetFieldDefinition<?> fieldDef = typeNames.get(type);
+		JavapoetFieldDefinition fieldDef = typeNames.get(type);
 		if (fieldDef == null){
-			if (type == IntegerEnumField.class || type == StringEnumField.class){
-				fieldDef = new JavapoetFieldDefinition<>(genericType, type);
+			if (type == IntegerEnumField.class || type == StringEnumField.class || type == VarIntEnumField.class){
+				fieldDef = new JavapoetFieldDefinition(genericType, type);
 			} else {
-				//TODO handle unknown/mismatches
-				fieldDef = null;
+				return null;
 			}
 		}
 		return new NamedFieldDefinition<>(fieldDef, name);
@@ -588,7 +651,7 @@ public class JavapoetDatabeanGenerator {//TODO move this to services, so that mo
 		List<MethodSpec> methods = new ArrayList<>(fields.size() * 2);
 
 		for(FieldSpec field : fields){
-			String methodNameSuffix = DrStringTool.capitalizeFirstLetter(field.name);//TODO replace with non-DR?
+			String methodNameSuffix = DrStringTool.capitalizeFirstLetter(field.name);
 
 			//getter
 			methods.add(generateGetterBuilder(field, "get" + methodNameSuffix).build());
@@ -627,5 +690,13 @@ public class JavapoetDatabeanGenerator {//TODO move this to services, so that mo
 				.addModifiers(Modifier.PUBLIC)
 				.returns(beanKeyField.type)
 				.addStatement("return $N", beanKeyField);
+	}
+
+	public String getName(){
+		return name;
+	}
+
+	public String getPackageName(){
+		return packageName;
 	}
 }
