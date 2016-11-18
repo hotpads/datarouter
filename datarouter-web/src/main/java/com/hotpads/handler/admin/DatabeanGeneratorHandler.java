@@ -135,44 +135,44 @@ public class DatabeanGeneratorHandler extends BaseHandler {
 		}
 		return null;
 	}
-
-	@Handler
-	protected Mav getDemoScript() {
-		try {
-			JavapoetDatabeanGenerator g =
-					new JavapoetDatabeanGenerator("ListingCounter");
-
-				g.setPackageName("com.hotpads.marius");
-
-				for(Class<?> c: DatabeanGeneratorHandler.FIELD_TYPES){
-					String genericType = null;
-					if(JavapoetDatabeanGenerator.INTEGER_ENUM_FIELDS.contains(c)){
-						genericType = "TempEnum";
-						//continue;
-					} else if(JavapoetDatabeanGenerator.STRING_ENUM_FIELDS.contains(c)){
-						genericType = "TempEnum";
-						//continue;
-					} else
-						if(c.equals(UInt8Field.class)){
-						continue;
-					}
-
-					g.addKeyField(c, DrStringTool.lowercaseFirstCharacter(c.getSimpleName()) +"DemoKey", genericType);
-					g.addField(c, DrStringTool.lowercaseFirstCharacter(c.getSimpleName())+"Demo", genericType);
-				}
-				g.addIndex(g.getCsvFieldNames().split(","));
-				g.addIndex(g.getCsvKeyFieldNames().split(","));
-				g.addIndex((g.getCsvFieldNames() +", " + g.getCsvKeyFieldNames()).split(","));
-			g.generateCreateScript();
-			String demoScript  = g.getCreateScript();
-			out.get().write(demoScript);
-			//logger.warn(demoScript);
-		} catch (Exception e) {
-			logger.error("",e);
-			out.get().write("failed");
-		}
-		return null;
-	}
+//TODO add back
+//	@Handler
+//	protected Mav getDemoScript() {
+//		try {
+//			JavapoetDatabeanGenerator g =
+//					new JavapoetDatabeanGenerator("ListingCounter");
+//
+//				g.setPackageName("com.hotpads.marius");
+//
+//				for(Class<?> c: DatabeanGeneratorHandler.FIELD_TYPES){
+//					String genericType = null;
+//					if(JavapoetDatabeanGenerator.INTEGER_ENUM_FIELDS.contains(c)){
+//						genericType = "TempEnum";
+//						//continue;
+//					} else if(JavapoetDatabeanGenerator.STRING_ENUM_FIELDS.contains(c)){
+//						genericType = "TempEnum";
+//						//continue;
+//					} else
+//						if(c.equals(UInt8Field.class)){
+//						continue;
+//					}
+//
+//					g.addKeyField(c, DrStringTool.lowercaseFirstCharacter(c.getSimpleName()) +"DemoKey", genericType);
+//					g.addField(c, DrStringTool.lowercaseFirstCharacter(c.getSimpleName())+"Demo", genericType);
+//				}
+//				g.addIndex(g.getCsvFieldNames().split(","));
+//				g.addIndex(g.getCsvKeyFieldNames().split(","));
+//				g.addIndex((g.getCsvFieldNames() +", " + g.getCsvKeyFieldNames()).split(","));
+//			g.generateCreateScript();
+//			String demoScript  = g.getCreateScript();
+//			out.get().write(demoScript);
+//			//logger.warn(demoScript);
+//		} catch (Exception e) {
+//			logger.error("",e);
+//			out.get().write("failed");
+//		}
+//		return null;
+//	}
 
 
 	private void collectParams(DataBeanParams databeanParams) {
@@ -293,8 +293,7 @@ public class DatabeanGeneratorHandler extends BaseHandler {
 		}
 
 		public String getJavaCode(){
-			JavapoetDatabeanGenerator generator = new JavapoetDatabeanGenerator(dataBeanName);
-			generator.setPackageName(dataBeanPackage);
+			JavapoetDatabeanGenerator generator = new JavapoetDatabeanGenerator(dataBeanName, dataBeanPackage);
 			for(int i =0; i< keyFieldNames.size(); i++){
 					generator.addKeyField(getClassForName(keyFieldTypes.get(i)), keyFieldNames.get(i), keyfieldEnumTypes.get(i));
 			}
