@@ -215,7 +215,7 @@ public class JobletHandler extends BaseHandler{
 					batchSequence, true, null, params);
 			jobletPackages.add(jobletPackage);
 		}
-		jobletService.submitJobletPackages(jobletPackages);
+		jobletService.submitJobletPackagesOfSameType(jobletPackages);
 		return new MessageMav("created " + numJoblets + " @" + sleepMs + "ms");
 	}
 
