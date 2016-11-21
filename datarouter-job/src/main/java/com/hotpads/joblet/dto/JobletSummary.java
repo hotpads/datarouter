@@ -15,6 +15,7 @@ import java.util.stream.Stream;
 import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.util.core.DrComparableTool;
 import com.hotpads.datarouter.util.core.DrDateTool;
+import com.hotpads.datarouter.util.core.DrNumberFormatter;
 import com.hotpads.datarouter.util.core.DrNumberTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.joblet.databean.JobletRequest;
@@ -166,11 +167,21 @@ public class JobletSummary{
 		return queueIds.size();
 	}
 
-	public double getAvgItems(){
+	public String getAvgItemsString(){
+		return DrNumberFormatter.format(getAvgItems(), 1);
+	}
+
+	public String getAvgTasksString(){
+		return DrNumberFormatter.format(getAvgTasks(), 1);
+	}
+
+	/*-------------------- private ----------------------*/
+
+	private double getAvgItems(){
 		return (double)sumItems / (double)numType;
 	}
 
-	public double getAvgTasks(){
+	private double getAvgTasks(){
 		return (double)sumItems / (double)numType;
 	}
 
