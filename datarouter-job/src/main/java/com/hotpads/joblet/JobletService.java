@@ -3,7 +3,6 @@ package com.hotpads.joblet;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
@@ -15,7 +14,6 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.config.Configs;
 import com.hotpads.datarouter.config.PutMethod;
@@ -74,11 +72,7 @@ public class JobletService{
 
 	public void submitJobletPackagesOfSameType(Collection<JobletPackage> jobletPackages){
 		JobletType<?> jobletType = jobletTypeFactory.fromJobletPackage(DrCollectionTool.getFirst(jobletPackages));
-		jobletPackages.stream()//assert all same shortQueueName
-				.map(jobletTypeFactory::fromJobletPackage)
-				.map(JobletType::getShortQueueName)
-				.forEach(shortQueueName -> Preconditions.checkState(Objects.equals(jobletType.getShortQueueName(),
-						shortQueueName)));
+		JobletType.assertAllSameShortQueueName(StreamTool.map(jobletPackages, jobletTypeFactory::fromJobletPackage));
 		for(List<JobletPackage> batch : new BatchingIterable<>(jobletPackages, 100)){
 			PhaseTimer timer = new PhaseTimer("insert " + batch.size() + " " + jobletType);
 			jobletNodes.jobletData().putMulti(JobletPackage.getJobletDatas(batch), Configs.insertOrBust());

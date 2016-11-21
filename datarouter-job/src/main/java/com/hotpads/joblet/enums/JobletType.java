@@ -1,8 +1,11 @@
 package com.hotpads.joblet.enums;
 
+import java.util.Collection;
+import java.util.Objects;
 import java.util.function.Supplier;
 
 import com.google.common.base.Preconditions;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrComparableTool;
 import com.hotpads.joblet.Joblet;
 import com.hotpads.joblet.JobletCodec;
@@ -47,6 +50,15 @@ public class JobletType<P> implements Comparable<JobletType<?>>{
 	@Override
 	public int compareTo(JobletType<?> other){
 		return DrComparableTool.nullFirstCompareTo(persistentString, other.persistentString);
+	}
+
+	/*--------------- static -------------------*/
+
+	public static void assertAllSameShortQueueName(Collection<JobletType<?>> jobletTypes){
+		JobletType<?> first = DrCollectionTool.getFirst(jobletTypes);
+		for(JobletType<?> jobletType : jobletTypes){
+			Preconditions.checkState(Objects.equals(first.getShortQueueName(), jobletType.getShortQueueName()));
+		}
 	}
 
 	/*-------------- get -------------------*/
