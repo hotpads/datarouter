@@ -21,7 +21,6 @@ public class JobletAppListener extends DatarouterAppListener{
 	@Override
 	protected void onShutDown(){
 		jobletProcessors.requestShutdown();
-
 	}
 
 }
