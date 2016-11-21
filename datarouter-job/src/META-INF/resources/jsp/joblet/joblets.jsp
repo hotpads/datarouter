@@ -50,9 +50,9 @@
 						<td>${s.firstReservedAgo}</td>
 						<td>${s.firstCreatedAgo}</td>
 						<td>${s.sumItems}</td>
-						<td>${s.avgItems}</td>
+						<td>${s.avgItemsString}</td>
 						<td>${s.sumTasks}</td>
-						<td>${s.avgTasks}</td>
+						<td>${s.avgTasksString}</td>
 					</tr>
 				</c:forEach>
 			</table>
