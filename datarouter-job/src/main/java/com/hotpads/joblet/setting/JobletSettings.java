@@ -28,6 +28,7 @@ extends SettingNode{
 	public final Setting<Integer> memoryTickets;
 	private final Setting<String> queueMechanism;
 	public final Setting<Integer> processorVersion;
+	public final Setting<Boolean> runJobletCounterJob;
 
 
 	@Inject
@@ -53,6 +54,7 @@ extends SettingNode{
 		queueMechanism = registerString("queueMechanism", JobletQueueMechanism.JDBC_LOCK_FOR_UPDATE
 				.getPersistentString());
 		processorVersion = registerInteger("processorVersion", 1);
+		runJobletCounterJob = registerBoolean("runJobletCounterJob", false);
 	}
 
 	/*------------------ methods -----------------------*/
