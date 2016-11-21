@@ -66,6 +66,10 @@ public class SqsJobletRequestSelector implements JobletRequestSelector{
 			jobletRequest.setReservedAt(System.currentTimeMillis());
 			jobletRequest.setStatus(JobletStatus.running);
 			jobletNodes.jobletRequest().put(jobletRequest, null);
+			if(!jobletRequest.getRestartable()){//don't let SQS give this joblet out again
+				jobletNodes.jobletRequestQueueByKey().get(queueKey).ack(message.getKey(), null);
+				timer.add("ack non-restartable");
+			}
 			return Optional.of(jobletRequest);
 		}
 		return Optional.empty();
