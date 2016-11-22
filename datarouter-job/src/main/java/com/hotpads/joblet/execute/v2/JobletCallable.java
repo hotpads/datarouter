@@ -31,6 +31,7 @@ public class JobletCallable implements Callable<Void>{
 	private final JobletNodes jobletNodes;
 	private final JobletService jobletService;
 	private final JobletFactory jobletFactory;
+	private final JobletCounters jobletCounters;
 
 	private final MutableBoolean shutdownRequested;
 	private final JobletProcessorV2 processor;//for callback
@@ -41,12 +42,13 @@ public class JobletCallable implements Callable<Void>{
 
 
 	public JobletCallable(DatarouterProperties datarouterProperties, JobletNodes jobletNodes,
-			JobletService jobletService, JobletFactory jobletFactory, MutableBoolean shutdownRequested,
-			JobletProcessorV2 processor, JobletType<?> jobletType, long id){
+			JobletService jobletService, JobletFactory jobletFactory, JobletCounters jobletCounters,
+			MutableBoolean shutdownRequested, JobletProcessorV2 processor, JobletType<?> jobletType, long id){
 		this.datarouterProperties = datarouterProperties;
 		this.jobletNodes = jobletNodes;
 		this.jobletService = jobletService;
 		this.jobletFactory = jobletFactory;
+		this.jobletCounters = jobletCounters;
 		this.shutdownRequested = shutdownRequested;
 		this.processor = processor;
 		this.jobletType = jobletType;
@@ -123,13 +125,13 @@ public class JobletCallable implements Callable<Void>{
 		joblet.process();
 
 		//counters
-		JobletCounters.incNumJobletsProcessed();
-		JobletCounters.incNumJobletsProcessed(jobletType);
+		jobletCounters.incNumJobletsProcessed();
+		jobletCounters.incNumJobletsProcessed(jobletType);
 		int numItemsProcessed = Math.max(1, jobletRequest.getNumItems());
-		JobletCounters.incItemsProcessed(jobletType, numItemsProcessed);
+		jobletCounters.incItemsProcessed(jobletType, numItemsProcessed);
 		timer.add("processed " + numItemsProcessed + " items");
 		int numTasksProcessed = Math.max(1, jobletRequest.getNumTasks());
-		JobletCounters.incTasksProcessed(jobletType, numTasksProcessed);
+		jobletCounters.incTasksProcessed(jobletType, numTasksProcessed);
 		long endTimeMs = System.currentTimeMillis();
 		long durationMs = endTimeMs - startTimeMs;
 		String itemsPerSecond = DrNumberFormatter.format((double)jobletRequest.getNumItems() / ((double)durationMs

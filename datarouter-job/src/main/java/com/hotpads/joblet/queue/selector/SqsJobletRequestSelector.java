@@ -29,6 +29,8 @@ public class SqsJobletRequestSelector implements JobletRequestSelector{
 	private JobletNodes jobletNodes;
 	@Inject
 	private JobletRequestQueueManager jobletRequestQueueManager;
+	@Inject
+	private JobletCounters jobletCounters;
 
 	@Override
 	public Optional<JobletRequest> getJobletRequestForProcessing(PhaseTimer timer, JobletType<?> type,
@@ -36,7 +38,7 @@ public class SqsJobletRequestSelector implements JobletRequestSelector{
 		for(JobletPriority priority : JobletPriority.values()){
 			JobletRequestQueueKey queueKey = new JobletRequestQueueKey(type, priority);
 			if(jobletRequestQueueManager.shouldSkipQueue(queueKey)){
-				JobletCounters.incQueueSkip(queueKey.getQueueName());
+				jobletCounters.incQueueSkip(queueKey.getQueueName());
 				continue;
 			}
 			// set timeout to 0 so we return immediately. processor threads can do the waiting
@@ -46,17 +48,17 @@ public class SqsJobletRequestSelector implements JobletRequestSelector{
 					.peek(config);
 			timer.add("peek");
 			if(message == null){
-				JobletCounters.incQueueMiss(queueKey.getQueueName());
+				jobletCounters.incQueueMiss(queueKey.getQueueName());
 				jobletRequestQueueManager.onJobletRequestQueueMiss(queueKey);
 				continue;
 			}
-			JobletCounters.incQueueHit(queueKey.getQueueName());
+			jobletCounters.incQueueHit(queueKey.getQueueName());
 			JobletRequest jobletRequest = message.getDatabean();
 			boolean existsInDb = jobletNodes.jobletRequest().exists(jobletRequest.getKey(), null);
 			timer.add("check exists");
 			if(!existsInDb){
 				logger.warn("draining non-existent JobletRequest without processing: {}", jobletRequest);
-				JobletCounters.ignoredRequestMissingFromDb(type);
+				jobletCounters.ignoredRequestMissingFromDb(type);
 				jobletNodes.jobletRequestQueueByKey().get(queueKey).ack(message.getKey(), null);
 				timer.add("ack missing request");
 				continue;

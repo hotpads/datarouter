@@ -30,39 +30,39 @@ public class JobletCounters {
 		metrics.save(PREFIX + "target servers", numTargetServers);
 	}
 
-	public static void incNumJobletsProcessed(){
+	public void incNumJobletsProcessed(){
 		Counters.inc(PREFIX + "processed");
 	}
 
-	public static void incNumJobletsProcessed(JobletType<?> jobletType){
+	public void incNumJobletsProcessed(JobletType<?> jobletType){
 		Counters.inc(PREFIX + "processed " + jobletType.getPersistentString());
 	}
 
-	public static void incItemsProcessed(JobletType<?> jobletType, long delta){
+	public void incItemsProcessed(JobletType<?> jobletType, long delta){
 		Counters.inc(PREFIX + "items processed " + jobletType.getPersistentString(), delta);
 	}
 
-	public static void incTasksProcessed(JobletType<?> jobletType, long delta){
+	public void incTasksProcessed(JobletType<?> jobletType, long delta){
 		Counters.inc(PREFIX + "tasks processed " + jobletType.getPersistentString(), delta);
 	}
 
-	public static void incQueueSkip(String key){
+	public void incQueueSkip(String key){
 		Counters.inc(PREFIX + "queue " + key + " skip");
 	}
 
-	public static void incQueueHit(String key){
+	public void incQueueHit(String key){
 		Counters.inc(PREFIX + "queue " + key + " hit");
 	}
 
-	public static void incQueueMiss(String key){
+	public void incQueueMiss(String key){
 		Counters.inc(PREFIX + "queue " + key + " miss");
 	}
 
-	public static void rejectedCallable(JobletType<?> jobletType){
+	public void rejectedCallable(JobletType<?> jobletType){
 		Counters.inc(PREFIX + "rejected callable " + jobletType.getPersistentString());
 	}
 
-	public static void ignoredRequestMissingFromDb(JobletType<?> jobletType){
+	public void ignoredRequestMissingFromDb(JobletType<?> jobletType){
 		Counters.inc(PREFIX + "ignored request missing from db " + jobletType.getPersistentString());
 	}
 
