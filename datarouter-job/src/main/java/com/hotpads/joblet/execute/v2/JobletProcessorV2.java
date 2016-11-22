@@ -39,6 +39,7 @@ public class JobletProcessorV2 implements Runnable{
 	private final JobletSettings jobletSettings;
 	private final JobletRequestQueueManager jobletRequestQueueManager;
 	private final JobletCallableFactory jobletCallableFactory;
+	private final JobletCounters jobletCounters;
 	//not injectable
 	private final AtomicLong idGenerator;
 	private final JobletType<?> jobletType;
@@ -50,10 +51,12 @@ public class JobletProcessorV2 implements Runnable{
 
 
 	public JobletProcessorV2(JobletSettings jobletSettings, JobletRequestQueueManager jobletRequestQueueManager,
-			JobletCallableFactory jobletCallableFactory, AtomicLong idGenerator, JobletType<?> jobletType){
+			JobletCallableFactory jobletCallableFactory, JobletCounters jobletCounters, AtomicLong idGenerator,
+			JobletType<?> jobletType){
 		this.jobletSettings = jobletSettings;
 		this.jobletRequestQueueManager = jobletRequestQueueManager;
 		this.jobletCallableFactory = jobletCallableFactory;
+		this.jobletCounters = jobletCounters;
 		this.idGenerator = idGenerator;
 		this.jobletType = jobletType;
 		//create a separate shutdownRequested for each processor so we can disable them independently
@@ -135,7 +138,7 @@ public class JobletProcessorV2 implements Runnable{
 				return;//return so we loop back immediately
 			}catch(RejectedExecutionException ree){
 //				logger.warn("{} #{} rejected, backing off {}ms", jobletType, counter, backoffMs);
-				JobletCounters.rejectedCallable(jobletType);
+				jobletCounters.rejectedCallable(jobletType);
 				sleepABit(Duration.ofMillis(backoffMs), "executor full");
 				backoffMs = Math.min(2 * backoffMs, MAX_EXEC_BACKOFF_TIME.toMillis());
 			}

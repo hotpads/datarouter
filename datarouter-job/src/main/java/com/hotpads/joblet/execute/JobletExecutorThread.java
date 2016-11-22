@@ -32,6 +32,7 @@ public class JobletExecutorThread extends Thread{
 	private final JobletFactory jobletFactory;
 	private final JobletNodes jobletNodes;
 	private final JobletService jobletService;
+	private final JobletCounters jobletCounters;
 
 	private final ReentrantLock workLock = new ReentrantLock();
 	private final Condition hasWorkToBeDone = workLock.newCondition();
@@ -42,7 +43,7 @@ public class JobletExecutorThread extends Thread{
 
 	public JobletExecutorThread(JobletExecutorThreadPool jobletExecutorThreadPool, ThreadGroup threadGroup,
 			JobletTypeFactory jobletTypeFactory, JobletFactory jobletFactory, JobletNodes jobletNodes,
-			JobletService jobletService){
+			JobletService jobletService, JobletCounters jobletCounters){
 		super(threadGroup, threadGroup.getName() + " - idle");
 		this.jobletExecutorThreadPool = jobletExecutorThreadPool;
 		this.jobletTypeFactory = jobletTypeFactory;
@@ -50,6 +51,7 @@ public class JobletExecutorThread extends Thread{
 		this.jobletName = threadGroup.getName();
 		this.jobletNodes = jobletNodes;
 		this.jobletService = jobletService;
+		this.jobletCounters = jobletCounters;
 	}
 
 
@@ -145,12 +147,12 @@ public class JobletExecutorThread extends Thread{
 		joblet.process();
 
 		//counters
-		JobletCounters.incNumJobletsProcessed();
-		JobletCounters.incNumJobletsProcessed(jobletType);
+		jobletCounters.incNumJobletsProcessed();
+		jobletCounters.incNumJobletsProcessed(jobletType);
 		int numItemsProcessed = Math.max(1, jobletRequest.getNumItems());
-		JobletCounters.incItemsProcessed(jobletType, numItemsProcessed);
+		jobletCounters.incItemsProcessed(jobletType, numItemsProcessed);
 		int numTasksProcessed = Math.max(1, jobletRequest.getNumTasks());
-		JobletCounters.incTasksProcessed(jobletType, numTasksProcessed);
+		jobletCounters.incTasksProcessed(jobletType, numTasksProcessed);
 		long endTimeMs = System.currentTimeMillis();
 		long durationMs = endTimeMs - startTimeMs;
 		String itemsPerSecond = DrNumberFormatter.format((double)jobletRequest.getNumItems() / ((double)durationMs

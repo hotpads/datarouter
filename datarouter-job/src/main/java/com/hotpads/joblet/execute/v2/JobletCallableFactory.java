@@ -4,6 +4,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import com.hotpads.datarouter.config.DatarouterProperties;
+import com.hotpads.joblet.JobletCounters;
 import com.hotpads.joblet.JobletFactory;
 import com.hotpads.joblet.JobletNodes;
 import com.hotpads.joblet.JobletService;
@@ -21,12 +22,14 @@ public class JobletCallableFactory{
 	private JobletService jobletService;
 	@Inject
 	private JobletFactory jobletFactory;
+	@Inject
+	private JobletCounters jobletCounters;
 
 
 	public JobletCallable create(MutableBoolean shutdownRequested, JobletProcessorV2 jobletProcessor,
 			JobletType<?> jobletType, long id){
-		return new JobletCallable(datarouterProperties, jobletNodes, jobletService, jobletFactory, shutdownRequested,
-				jobletProcessor, jobletType, id);
+		return new JobletCallable(datarouterProperties, jobletNodes, jobletService, jobletFactory, jobletCounters,
+				shutdownRequested, jobletProcessor, jobletType, id);
 	}
 
 }
