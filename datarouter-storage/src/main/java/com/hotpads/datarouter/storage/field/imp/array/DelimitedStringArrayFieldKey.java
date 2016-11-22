@@ -13,6 +13,10 @@ public class DelimitedStringArrayFieldKey extends ListFieldKey<String,List<Strin
 		this.separator = separator;
 	}
 
+	public DelimitedStringArrayFieldKey(String name){
+		this(name, ",");
+	}
+
 
 	//hmm, why doesn't this override isFixedLength => false
 }
