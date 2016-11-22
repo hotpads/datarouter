@@ -14,6 +14,8 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.ImmutableListMultimap;
+import com.google.common.collect.Multimaps;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.config.Configs;
 import com.hotpads.datarouter.config.PutMethod;
@@ -69,6 +71,13 @@ public class JobletService{
 	}
 
 	/*--------------------- create ------------------------*/
+
+	public void submitJobletPackagesOfDifferentTypes(Collection<JobletPackage> jobletPackages){
+		ImmutableListMultimap<String, JobletPackage> jobletPackagesByType = Multimaps.index(jobletPackages,
+				jobletPackage->jobletPackage.getJobletRequest().getTypeString());
+		jobletPackagesByType.asMap().values()
+			.forEach(packagesOfOneType -> submitJobletPackagesOfSameType(packagesOfOneType));
+	}
 
 	public void submitJobletPackagesOfSameType(Collection<JobletPackage> jobletPackages){
 		JobletType<?> jobletType = jobletTypeFactory.fromJobletPackage(DrCollectionTool.getFirst(jobletPackages));
