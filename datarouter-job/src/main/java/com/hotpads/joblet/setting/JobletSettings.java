@@ -29,6 +29,7 @@ extends SettingNode{
 	private final Setting<String> queueMechanism;
 	public final Setting<Integer> processorVersion;
 	public final Setting<Boolean> runJobletCounterJob;
+	public final Setting<Boolean> runJobletInstanceCounterJob;
 
 
 	@Inject
@@ -55,6 +56,7 @@ extends SettingNode{
 				.getPersistentString());
 		processorVersion = registerInteger("processorVersion", 1);
 		runJobletCounterJob = registerBoolean("runJobletCounterJob", false);
+		runJobletInstanceCounterJob = registerBoolean("runJobletInstanceCounterJob", false);
 	}
 
 	/*------------------ methods -----------------------*/
