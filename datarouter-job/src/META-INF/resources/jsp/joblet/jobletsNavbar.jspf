@@ -42,10 +42,12 @@
 				<li class="dropdown">
 					<a href="#" class="dropdown-toggle" data-toggle="dropdown">Requeue<span class="caret"></span></a>
 					<ul class="dropdown-menu">
-						<a href="?submitAction=copyJobletRequestsToQueues" 
-							onclick="return confirm('Are you sure you want to requeue all requests');">
-							All
-						</a>
+						<li>
+							<a href="?submitAction=copyJobletRequestsToQueues" 
+								onclick="return confirm('Are you sure you want to requeue all requests');">
+								All
+							</a>
+						</li>
 						<c:forEach items="${jobletTypes}" var="jobletType">
 							<li>
 								<a href="?submitAction=copyJobletRequestsToQueues&jobletType=${jobletType.persistentString}" 
@@ -59,10 +61,12 @@
 				<li class="dropdown">
 					<a href="#" class="dropdown-toggle" data-toggle="dropdown">Restart failed<span class="caret"></span></a>
 					<ul class="dropdown-menu">
-						<a href="?submitAction=restart&status=failed" 
-							onclick="return confirm('Are you sure you want to restart all failed requests');">
-							All
-						</a>
+						<li>
+							<a href="?submitAction=restart&status=failed" 
+								onclick="return confirm('Are you sure you want to restart all failed requests');">
+								All
+							</a>
+						</li>
 						<c:forEach items="${jobletTypes}" var="jobletType">
 							<li>
 								<a href="?submitAction=restart&type=${jobletType.persistentString}&status=failed" 
@@ -76,10 +80,12 @@
 				<li class="dropdown">
 					<a href="#" class="dropdown-toggle" data-toggle="dropdown">Restart timedOut<span class="caret"></span></a>
 					<ul class="dropdown-menu">
-						<a href="?submitAction=restart&status=timedOut" 
-							onclick="return confirm('Are you sure you want to restart all timedOut requests');">
-							All
-						</a>
+						<li>
+							<a href="?submitAction=restart&status=timedOut" 
+								onclick="return confirm('Are you sure you want to restart all timedOut requests');">
+								All
+							</a>
+						</li>
 						<c:forEach items="${jobletTypes}" var="jobletType">
 							<li>
 								<a href="?submitAction=restart&type=${jobletType.persistentString}&status=timedOut" 
