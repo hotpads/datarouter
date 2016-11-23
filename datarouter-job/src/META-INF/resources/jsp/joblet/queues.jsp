@@ -4,6 +4,9 @@
 <head>
 	<title>Joblet Queues</title>
 	<%@ include file="/jsp/generic/datarouterHead.jsp" %>
+	<script>
+	require(["sorttable"]);
+	</script>
 </head>
 <body>
 	<%@ include file="/jsp/menu/common-navbar.jsp" %>
@@ -11,7 +14,7 @@
 	<%@ include file="/jsp/joblet/jobletsNavbar.jspf" %>
 	<div class="container-fluid">
 		<div class="page-content-container page-content-thicktop page-single-column">
-			jobletType: ${jobletType}, executionOrder: ${executionOrder}<br/><br/>
+			jobletType: ${jobletType} (${jobletTypeCode}), executionOrder: ${executionOrder}<br/><br/>
 			<table class="sortable table table-bordered table-condensed" style="border-collapse:collapse;">
 				<tr>
 					<th>queueId</th>
@@ -34,9 +37,9 @@
 						<td>${s.firstReservedAgo}</td>
 						<td>${s.firstCreatedAgo}</td>
 						<td>${s.sumItems}</td>
-						<td>${s.avgItems}</td>
+						<td>${s.avgItemsString}</td>
 						<td>${s.sumTasks}</td>
-						<td>${s.avgTasks}</td>
+						<td>${s.avgTasksString}</td>
 					</tr>
 				</c:forEach>
 			</table>

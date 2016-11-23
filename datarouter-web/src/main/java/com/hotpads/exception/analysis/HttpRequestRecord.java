@@ -46,6 +46,7 @@ import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 import com.hotpads.datarouter.util.UuidTool;
 import com.hotpads.datarouter.util.core.DrMapTool;
 import com.hotpads.handler.exception.ExceptionRecord;
+import com.hotpads.handler.exception.ExceptionRecordKey;
 import com.hotpads.util.http.HttpHeaders;
 import com.hotpads.util.http.RequestTool;
 
@@ -66,7 +67,6 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 	private Long duration;
 
 	private String exceptionRecordId;
-	private String exceptionPlace;
 	private String methodName;
 	private int lineNumber;
 
@@ -107,8 +107,8 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 	private String xRequestedWith;
 	private String otherHeaders;
 
-	private static class FieldKeys{
-		private static final ByteArrayFieldKey binaryBody = new ByteArrayFieldKey("binaryBody")
+	public static class FieldKeys{
+		public static final ByteArrayFieldKey binaryBody = new ByteArrayFieldKey("binaryBody")
 				.withSize(MySqlColumnType.MAX_LENGTH_LONGBLOB);
 	}
 
@@ -117,7 +117,6 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 		created = "created",
 
 		exceptionRecordId = "exceptionRecordId",
-		exceptionPlace = "exceptionPlace",
 		methodName = "methodName",
 		lineNumber = "lineNumber",
 
@@ -130,7 +129,6 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 		contextPath = "contextPath",
 		path = "path",
 		queryString = "queryString",
-		body = "body",
 
 		ip = "ip",
 		userRoles="userRoles",
@@ -175,7 +173,6 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 					new LongField(F.duration, record.duration),
 
 					new StringField(F.exceptionRecordId, record.exceptionRecordId, MySqlColumnType.MAX_LENGTH_VARCHAR),
-					new StringField(F.exceptionPlace, record.exceptionPlace, MySqlColumnType.MAX_LENGTH_VARCHAR),
 					new StringField(F.methodName, record.methodName, MySqlColumnType.MAX_LENGTH_VARCHAR),
 					new IntegerField(F.lineNumber, record.lineNumber),
 
@@ -233,12 +230,11 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 		key = new HttpRequestRecordKey();
 	}
 
-	public HttpRequestRecord(Date receivedAt, String exceptionRecordId, String exceptionPlace,
-			String methodName, int lineNumber, HttpServletRequest request, String sessionRoles, Long userId){
+	public HttpRequestRecord(Date receivedAt, String exceptionRecordId, String methodName, int lineNumber,
+			HttpServletRequest request, String sessionRoles, Long userId){
 		this(
 				receivedAt,
 				exceptionRecordId,
-				exceptionPlace,
 				methodName,
 				lineNumber,
 				request.getMethod(),
@@ -257,10 +253,10 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 				);
 	}
 
-	private HttpRequestRecord(Date receivedAt, String exceptionRecordId, String exceptionPlace, String methodName,
-			int lineNumber, String httpMethod, String httpParams, String protocol, String hostname, int port,
-			String contextPath, String path, String queryString, byte[] binaryBody, String ip, String sessionRoles,
-			Long userId, HttpHeaders headersWrapper){
+	private HttpRequestRecord(Date receivedAt, String exceptionRecordId, String methodName, int lineNumber,
+			String httpMethod, String httpParams, String protocol, String hostname, int port, String contextPath,
+			String path, String queryString, byte[] binaryBody, String ip, String sessionRoles, Long userId,
+			HttpHeaders headersWrapper){
 		this.key = new HttpRequestRecordKey(UuidTool.generateV1Uuid());
 		this.created = new Date();
 		this.receivedAt = receivedAt;
@@ -269,7 +265,6 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 		}
 
 		this.exceptionRecordId = exceptionRecordId;
-		this.exceptionPlace = exceptionPlace;
 		this.methodName = methodName;
 		this.lineNumber = lineNumber;
 
@@ -321,7 +316,6 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 		}
 
 		this.exceptionRecordId = exceptionRecordId;
-		this.exceptionPlace = exceptionDto.errorLocation;
 		this.methodName = exceptionDto.methodName;
 		this.lineNumber = exceptionDto.lineNumber;
 
@@ -436,7 +430,7 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 	}
 
 	public static HttpRequestRecord createEmptyForTesting(){
-		return new HttpRequestRecord(null, null, null, null, 0, null, null, null, null, 0, null, null, null, null,
+		return new HttpRequestRecord(null, null, null, 0, null, null, null, null, 0, null, null, null, null,
 				null, null, 0L, new HttpHeaders(null));
 	}
 
@@ -458,20 +452,16 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 		this.created = created;
 	}
 
+	public ExceptionRecordKey getExceptionRecordKey(){
+		return new ExceptionRecordKey(exceptionRecordId);
+	}
+
 	public String getExceptionRecordId() {
 		return exceptionRecordId;
 	}
 
 	public void setExceptionRecordId(String exceptionRecordId) {
 		this.exceptionRecordId = exceptionRecordId;
-	}
-
-	public String getExceptionPlace() {
-		return exceptionPlace;
-	}
-
-	public void setExceptionPlace(String exceptionPlace) {
-		this.exceptionPlace = exceptionPlace;
 	}
 
 	public String getMethodName() {

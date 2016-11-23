@@ -12,7 +12,7 @@ public class DatarouterStreamSubscriberConfig implements DatarouterStreamSubscri
 	private DatarouterStreamSubscriberAccessor subscriberAccessor;
 	private Date timestamp;
 	private String subscriberAppName;
-	private Boolean replayData;
+	private boolean replayData = false;
 
 	public DatarouterStreamSubscriberConfig(Integer blockingQueueSize, Integer maxRecordsPerRequest){
 		this.blockingQueueSize = blockingQueueSize;
@@ -41,7 +41,7 @@ public class DatarouterStreamSubscriberConfig implements DatarouterStreamSubscri
 		return this;
 	}
 
-	public DatarouterStreamSubscriberConfig withReplayData(Boolean replayData){
+	public DatarouterStreamSubscriberConfig withReplayData(boolean replayData){
 		this.replayData = replayData;
 		return this;
 	}
@@ -80,7 +80,7 @@ public class DatarouterStreamSubscriberConfig implements DatarouterStreamSubscri
 		return drInitialPositionInStream;
 	}
 
-	public Boolean getReplayData(){
+	public boolean getReplayData(){
 		return replayData;
 	}
 

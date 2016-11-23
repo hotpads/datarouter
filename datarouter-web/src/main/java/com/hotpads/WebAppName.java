@@ -28,6 +28,9 @@ public class WebAppName{
 		return name;
 	}
 
+	/**
+	 * @return the content of the display-name tag in the web.xml
+	 */
 	public String getName(){
 		return name;
 	}

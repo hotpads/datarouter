@@ -21,7 +21,7 @@ extends MapStorage<PK,D>{
 
 	@Override
 	default boolean exists(PK key, Config config){
-		if(getBackingNode().getClient().isAvailable()){
+		if(getBackingNode().getClient().getAvailability().read.getValue()){
 			return getBackingNode().exists(key, config);
 		}
 		throw makeUnavailableException();
@@ -29,7 +29,7 @@ extends MapStorage<PK,D>{
 
 	@Override
 	default List<PK> getKeys(Collection<PK> keys, Config config){
-		if(getBackingNode().getClient().isAvailable()){
+		if(getBackingNode().getClient().getAvailability().read.getValue()){
 			return getBackingNode().getKeys(keys, config);
 		}
 		throw makeUnavailableException();
@@ -37,7 +37,7 @@ extends MapStorage<PK,D>{
 
 	@Override
 	default D get(PK key, Config config){
-		if(getBackingNode().getClient().isAvailable()){
+		if(getBackingNode().getClient().getAvailability().read.getValue()){
 			return getBackingNode().get(key, config);
 		}
 		throw makeUnavailableException();
@@ -45,7 +45,7 @@ extends MapStorage<PK,D>{
 
 	@Override
 	default List<D> getMulti(Collection<PK> keys, Config config){
-		if(getBackingNode().getClient().isAvailable()){
+		if(getBackingNode().getClient().getAvailability().read.getValue()){
 			return getBackingNode().getMulti(keys, config);
 		}
 		throw makeUnavailableException();
@@ -53,7 +53,7 @@ extends MapStorage<PK,D>{
 
 	@Override
 	default void delete(PK key, Config config){
-		if(getBackingNode().getClient().isAvailable()){
+		if(getBackingNode().getClient().getAvailability().write.getValue()){
 			getBackingNode().delete(key, config);
 			return;
 		}
@@ -62,7 +62,7 @@ extends MapStorage<PK,D>{
 
 	@Override
 	default void deleteMulti(Collection<PK> keys, Config config){
-		if(getBackingNode().getClient().isAvailable()){
+		if(getBackingNode().getClient().getAvailability().write.getValue()){
 			getBackingNode().deleteMulti(keys, config);
 			return;
 		}
@@ -71,7 +71,7 @@ extends MapStorage<PK,D>{
 
 	@Override
 	default void deleteAll(Config config){
-		if(getBackingNode().getClient().isAvailable()){
+		if(getBackingNode().getClient().getAvailability().write.getValue()){
 			getBackingNode().deleteAll(config);
 			return;
 		}
@@ -80,7 +80,7 @@ extends MapStorage<PK,D>{
 
 	@Override
 	default void put(D databean, Config config){
-		if(getBackingNode().getClient().isAvailable()){
+		if(getBackingNode().getClient().getAvailability().write.getValue()){
 			getBackingNode().put(databean, config);
 			return;
 		}
@@ -89,7 +89,7 @@ extends MapStorage<PK,D>{
 
 	@Override
 	default void putMulti(Collection<D> databeans, Config config){
-		if(getBackingNode().getClient().isAvailable()){
+		if(getBackingNode().getClient().getAvailability().write.getValue()){
 			getBackingNode().putMulti(databeans, config);
 			return;
 		}

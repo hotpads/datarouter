@@ -23,7 +23,7 @@ extends SortedStorage<PK,D>{
 	@Override
 	@Deprecated
 	default List<D> getWithPrefix(PK prefix, boolean wildcardLastField, Config config){
-		if(getBackingNode().getClient().isAvailable()){
+		if(getBackingNode().getClient().getAvailability().read.getValue()){
 			return getBackingNode().getWithPrefix(prefix, wildcardLastField, config);
 		}
 		throw makeUnavailableException();
@@ -32,7 +32,7 @@ extends SortedStorage<PK,D>{
 	@Override
 	@Deprecated
 	default List<D> getWithPrefixes(Collection<PK> prefixes, boolean wildcardLastField, Config config){
-		if(getBackingNode().getClient().isAvailable()){
+		if(getBackingNode().getClient().getAvailability().read.getValue()){
 			return getBackingNode().getWithPrefixes(prefixes, wildcardLastField, config);
 		}
 		throw makeUnavailableException();
@@ -40,7 +40,7 @@ extends SortedStorage<PK,D>{
 
 	@Override
 	default Iterable<PK> scanKeysMulti(Collection<Range<PK>> ranges, Config config){
-		if(getBackingNode().getClient().isAvailable()){
+		if(getBackingNode().getClient().getAvailability().read.getValue()){
 			return getBackingNode().scanKeysMulti(ranges, config);
 		}
 		throw makeUnavailableException();
@@ -48,7 +48,7 @@ extends SortedStorage<PK,D>{
 
 	@Override
 	default Iterable<PK> scanKeys(Range<PK> range, Config config){
-		if(getBackingNode().getClient().isAvailable()){
+		if(getBackingNode().getClient().getAvailability().read.getValue()){
 			return getBackingNode().scanKeys(range, config);
 		}
 		throw makeUnavailableException();
@@ -56,7 +56,7 @@ extends SortedStorage<PK,D>{
 
 	@Override
 	default Iterable<D> scanMulti(Collection<Range<PK>> ranges, Config config){
-		if(getBackingNode().getClient().isAvailable()){
+		if(getBackingNode().getClient().getAvailability().read.getValue()){
 			return getBackingNode().scanMulti(ranges, config);
 		}
 		throw makeUnavailableException();
@@ -64,7 +64,7 @@ extends SortedStorage<PK,D>{
 
 	@Override
 	default Iterable<D> scan(Range<PK> range, Config config){
-		if(getBackingNode().getClient().isAvailable()){
+		if(getBackingNode().getClient().getAvailability().read.getValue()){
 			return getBackingNode().scan(range, config);
 		}
 		throw makeUnavailableException();

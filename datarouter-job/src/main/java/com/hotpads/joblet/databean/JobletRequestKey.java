@@ -4,11 +4,8 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.storage.field.Field;
-import com.hotpads.datarouter.storage.field.imp.StringField;
-import com.hotpads.datarouter.storage.field.imp.StringFieldKey;
 import com.hotpads.datarouter.storage.field.imp.comparable.IntegerField;
 import com.hotpads.datarouter.storage.field.imp.comparable.IntegerFieldKey;
 import com.hotpads.datarouter.storage.field.imp.comparable.LongField;
@@ -22,13 +19,13 @@ public class JobletRequestKey extends BasePrimaryKey<JobletRequestKey>{
 
 	public static final int DEFAULT_STRING_LENGTH = MySqlColumnType.MAX_LENGTH_VARCHAR;
 
-	private String type;//TODO use StringEnumField<JobletType<?>>
+	private Integer typeCode;
 	private Integer executionOrder = Integer.MAX_VALUE;
 	private Long created;//TODO rename createdMs or use Date
 	private Integer batchSequence = 0;//tie breaker for keys "created" in same millisecond
 
 	public static class FieldKeys{
-		public static final StringFieldKey type = new StringFieldKey("type");
+		public static final IntegerFieldKey typeCode = new IntegerFieldKey("typeCode");
 		public static final IntegerFieldKey executionOrder = new IntegerFieldKey("executionOrder");
 		public static final LongFieldKey created = new LongFieldKey("created");
 		public static final IntegerFieldKey batchSequence = new IntegerFieldKey("batchSequence");
@@ -37,7 +34,7 @@ public class JobletRequestKey extends BasePrimaryKey<JobletRequestKey>{
 	@Override
 	public List<Field<?>> getFields() {
 		return Arrays.asList(
-				new StringField(FieldKeys.type, type),
+				new IntegerField(FieldKeys.typeCode, typeCode),
 				new IntegerField(FieldKeys.executionOrder, executionOrder),
 				new LongField(FieldKeys.created, created),
 				new IntegerField(FieldKeys.batchSequence, batchSequence));
@@ -51,14 +48,14 @@ public class JobletRequestKey extends BasePrimaryKey<JobletRequestKey>{
 	//static method to avoid ambiguity with below constructor
 	public static JobletRequestKey create(JobletType<?> type, Integer executionOrder, Date createdDate,
 			Integer batchSequence){
-		return new JobletRequestKey(type == null ? null : type.getPersistentString(),
+		return new JobletRequestKey(type == null ? null : type.getPersistentInt(),
 				executionOrder,
 				createdDate == null ? null : createdDate.getTime(),
 				batchSequence);
 	}
 
-	public JobletRequestKey(String typeString, Integer executionOrder, Long createdMs, Integer batchSequence){
-		this.type = typeString;
+	public JobletRequestKey(Integer typeCode, Integer executionOrder, Long createdMs, Integer batchSequence){
+		this.typeCode = typeCode;
 		this.executionOrder = executionOrder;
 		this.created = createdMs;
 		this.batchSequence = batchSequence;
@@ -100,12 +97,12 @@ public class JobletRequestKey extends BasePrimaryKey<JobletRequestKey>{
 		this.batchSequence = batchSequence;
 	}
 
-	public String getType() {
-		return type;
+	public Integer getTypeCode() {
+		return typeCode;
 	}
 
-	public void setType(String type) {
-		this.type = type;
+	public void setTypeCode(Integer typeCode) {
+		this.typeCode = typeCode;
 	}
 
 }

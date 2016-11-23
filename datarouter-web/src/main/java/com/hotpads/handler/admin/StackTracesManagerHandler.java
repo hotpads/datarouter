@@ -5,12 +5,16 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import javax.inject.Inject;
+
+import com.hotpads.datarouter.config.DatarouterProperties;
 import com.hotpads.datarouter.util.core.DrMapTool;
 import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.mav.Mav;
@@ -26,6 +30,9 @@ import com.hp.gagawa.java.elements.Pre;
 import com.hp.gagawa.java.elements.Span;
 
 public class StackTracesManagerHandler extends BaseHandler{
+
+	@Inject
+	private DatarouterProperties datarouterProperties;
 
 	@Override
 	protected Mav handleDefault(){
@@ -61,7 +68,7 @@ public class StackTracesManagerHandler extends BaseHandler{
 			container.appendChild(getThreadDescription(thread, stackTrace));
 		}
 
-		mav.put("title", "StackTraces of " + request.getLocalAddr());
+		mav.put("title", "StackTraces of " + datarouterProperties.getServerName() + " at " + new Date());
 
 		Pre pre = new Pre();
 		H4 counterTitle = new H4();

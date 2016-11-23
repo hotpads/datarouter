@@ -2,11 +2,10 @@ package com.hotpads.joblet.execute;
 
 import java.time.Duration;
 import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,32 +14,15 @@ import com.hotpads.datarouter.config.DatarouterProperties;
 import com.hotpads.datarouter.util.core.DrDateTool;
 import com.hotpads.joblet.JobletPackage;
 import com.hotpads.joblet.JobletService;
-import com.hotpads.joblet.JobletSettings;
 import com.hotpads.joblet.databean.JobletRequest;
+import com.hotpads.joblet.dto.RunningJoblet;
 import com.hotpads.joblet.enums.JobletType;
-import com.hotpads.joblet.execute.JobletExecutorThreadPool.JobletExecutorThreadPoolFactory;
+import com.hotpads.joblet.setting.JobletSettings;
 import com.hotpads.util.core.profile.PhaseTimer;
 import com.hotpads.util.datastructs.MutableBoolean;
 
 public class ParallelJobletProcessor{
 	private static final Logger logger = LoggerFactory.getLogger(ParallelJobletProcessor.class);
-
-	@Singleton
-	public static class ParallelJobletProcessorFactory{
-		@Inject
-		private JobletService jobletService;
-		@Inject
-		private DatarouterProperties datarouterProperties;
-		@Inject
-		private JobletSettings jobletSettings;
-		@Inject
-		private JobletExecutorThreadPoolFactory jobletExecutorThreadPoolFactory;
-
-		public ParallelJobletProcessor create(JobletType<?> jobletType){
-			return new ParallelJobletProcessor(datarouterProperties, jobletSettings, jobletService,
-					jobletExecutorThreadPoolFactory, jobletType);
-		}
-	}
 
 	private static final long SLEEP_MS_WHEN_NO_WORK = Duration.ofSeconds(1).toMillis();
 	public static final Long RUNNING_JOBLET_TIMEOUT_MS = 1000L * 60 * 10;  //10 minutes
@@ -80,7 +62,7 @@ public class ParallelJobletProcessor{
 
 	private boolean shouldRun(){
 		return !shutdownRequested.get()
-				&& jobletSettings.getRunJoblets().getValue()
+				&& jobletSettings.runJoblets.getValue()
 				&& jobletSettings.getThreadCountForJobletType(jobletType) > 0;
 	}
 
@@ -95,12 +77,10 @@ public class ParallelJobletProcessor{
 					continue;
 				}
 				workerThreadPool.resize(jobletSettings.getThreadCountForJobletType(jobletType));
-				PhaseTimer timer = new PhaseTimer();
-				JobletPackage jobletPackage = getJobletPackage(counter++);
-				if(jobletPackage != null){
-					timer.add("acquired");
-					jobletPackage.getJobletRequest().setTimer(timer);
-					assignJobletPackageToThreadPool(jobletPackage);
+				Optional<JobletPackage> jobletPackage = getJobletPackage(counter++);
+				if(jobletPackage.isPresent()){
+					jobletPackage.get().getJobletRequest();
+					assignJobletPackageToThreadPool(jobletPackage.get());
 				}else{
 					logger.debug("sleeping since no joblet found for {}", jobletType.getPersistentString());
 					sleepABit();
@@ -116,14 +96,16 @@ public class ParallelJobletProcessor{
 		}
 	}
 
-	private final JobletPackage getJobletPackage(long counter){
+	private final Optional<JobletPackage> getJobletPackage(long counter){
+		PhaseTimer timer = new PhaseTimer();//may be replaced later
 		String reservedBy = getReservedByString(counter);
-		JobletRequest jobletRequest = jobletService.getJobletRequestForProcessing(jobletType, reservedBy);
-		if(jobletRequest == null){
-			return null;
+		Optional<JobletRequest> jobletRequest = jobletService.getJobletRequestForProcessing(timer, jobletType,
+				reservedBy);
+		if(!jobletRequest.isPresent()){
+			return Optional.empty();
 		}
-		jobletRequest.setShutdownRequested(shutdownRequested);
-		return jobletService.getJobletPackageForJobletRequest(jobletRequest);
+		jobletRequest.get().setShutdownRequested(shutdownRequested);
+		return jobletRequest.map(jobletService::getJobletPackageForJobletRequest);
 	}
 
 	private String getReservedByString(long counter){
@@ -177,7 +159,15 @@ public class ParallelJobletProcessor{
 		return workerThreadPool.getWaitingJobletExecutorThreads();
 	}
 
+	public int getThreadCountFromSettings(){
+		return jobletSettings.getThreadCountForJobletType(jobletType);
+	}
+
 	/*-------------- get/set -----------------*/
+
+	public List<RunningJoblet> getRunningJoblets(){
+		return workerThreadPool.getRunningJoblets();
+	}
 
 	public JobletType<?> getJobletType(){
 		return jobletType;

@@ -15,11 +15,10 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
-import javax.servlet.http.HttpSession;
 
 import com.hotpads.WebAppName;
 import com.hotpads.datarouter.config.DatarouterProperties;
-import com.hotpads.handler.dispatcher.DatarouterWebDispatcher;
+import com.hotpads.handler.encoder.JsonEncoder;
 import com.hotpads.handler.mav.Mav;
 import com.hotpads.util.core.Duration;
 import com.hotpads.util.core.bytes.ByteUnitTool;
@@ -36,10 +35,6 @@ public class MemoryMonitoringHandler extends BaseHandler{
 	private GitProperties gitProperties;
 	@Inject
 	private LoadedLibraries loadedLibraries;
-
-	private String getRedirectUrl(){
-		return Mav.REDIRECT + servletContext.getContextPath() + DatarouterWebDispatcher.PATH_memory;
-	}
 
 	@Override
 	protected Mav handleDefault(){
@@ -107,24 +102,14 @@ public class MemoryMonitoringHandler extends BaseHandler{
 		}
 		mav.put("gcs", es);
 
-		HttpSession session = request.getSession();
-		Object duration = session.getAttribute("duration");
-		if(duration != null){
-			mav.put("duration", duration);
-			mav.put("effects", session.getAttribute("effects"));
-			session.removeAttribute("duration");
-			session.removeAttribute("effects");
-		}
 		return mav;
 	}
 
-	@Handler
-	private Mav garbageCollector(){
+	@Handler(encoder=JsonEncoder.class)
+	private GarbabeCollectingResult garbageCollector(){
 		String serverName = params.required("serverName");
-		if (!serverName.equals(datarouterProperties.getServerName())){
-			String redirectUrl = getRedirectUrl();
-			redirectUrl += "?sameServer=1";
-			return new Mav(redirectUrl);
+		if(!serverName.equals(datarouterProperties.getServerName())){
+			return new GarbabeCollectingResult(false, null, null);
 		}
 		List<MemoryPoolMXBean> memoryPoolMxBeans = ManagementFactory.getMemoryPoolMXBeans();
 		Map<String, Long> map = new HashMap<>();
@@ -134,17 +119,26 @@ public class MemoryMonitoringHandler extends BaseHandler{
 		long start = System.currentTimeMillis();
 		System.gc();
 		long duration = System.currentTimeMillis() - start;
-		HttpSession session = request.getSession();
-		session.setAttribute("duration", duration);
-		memoryPoolMxBeans = ManagementFactory.getMemoryPoolMXBeans();
 		List<GcEffect> effects = new LinkedList<>();
-		for(MemoryPoolMXBean memoryPoolMxBean : memoryPoolMxBeans){
+		for(MemoryPoolMXBean memoryPoolMxBean : ManagementFactory.getMemoryPoolMXBeans()){
 			GcEffect gcEffect = new GcEffect(memoryPoolMxBean.getName(), map.get(memoryPoolMxBean.getName()),
 					memoryPoolMxBean.getUsage().getUsed());
 			effects.add(gcEffect);
 		}
-		session.setAttribute("effects", effects);
-		return new Mav(getRedirectUrl());
+		return new GarbabeCollectingResult(true, duration, effects);
+	}
+
+	@SuppressWarnings("unused")
+	private static class GarbabeCollectingResult{
+		private final boolean success;
+		private final Long duration;
+		private final List<GcEffect> effects;
+
+		private GarbabeCollectingResult(boolean success, Long duration, List<GcEffect> effects){
+			this.success = success;
+			this.duration = duration;
+			this.effects = effects;
+		}
 	}
 
 	public static class GarbageCollectorForDisplay{
@@ -257,7 +251,7 @@ public class MemoryMonitoringHandler extends BaseHandler{
 
 		private String name;
 		private String saved;
-		private double pct;
+		private Double pct;
 
 		public GcEffect(String name, long before, long after){
 			this.name = name;
@@ -267,7 +261,9 @@ public class MemoryMonitoringHandler extends BaseHandler{
 			}else{
 				this.saved = "-" + ByteUnitTool.byteCountToDisplaySize(-diff);
 			}
-			this.pct = diff / (double)before;
+			if(before > 0){
+				this.pct = diff / (double)before;
+			}
 		}
 
 		public String getName(){

@@ -13,12 +13,15 @@ public class ProfilingSettings extends SettingNode{
 	private final Setting<Boolean> saveCounts;
 	private final Setting<Boolean> bufferCountsInSqs;//currently need to restart webapp after changing
 	private final Setting<Boolean> drainSqsCounts;
+	private final Setting<Boolean> bufferTracesInSqs;
 	private final Setting<Boolean> drainSqsTraces;
 	private final Setting<Boolean> runMetricsAggregationJob;
 	private final Setting<Boolean> runServerMonitoringJob;
 	public final Setting<Boolean> runLatencyMonitoringJob;
 	public final Setting<Boolean> saveExecutorsMetrics;
 	public final Setting<Boolean> saveHttpClientsMetrics;
+	public final Setting<Boolean> runAvailabilitySwitchJob;
+	public final Setting<Boolean> runExceptionRecordAggregationJob;
 
 	@Inject
 	public ProfilingSettings(SettingFinder finder){
@@ -27,12 +30,15 @@ public class ProfilingSettings extends SettingNode{
 		saveCounts = registerBoolean("saveCounts", true);
 		bufferCountsInSqs = registerBoolean("bufferCountsInSqs", false);
 		drainSqsCounts = registerBoolean("drainSqsCounts", false);
+		bufferTracesInSqs = registerBoolean("bufferTracesInSqs", false);
 		drainSqsTraces = registerBoolean("drainSqsTraces", false);
 		runMetricsAggregationJob = registerBoolean("runMetricsAggregationJob", false);
 		runServerMonitoringJob = registerBoolean("runServerMonitoringJob", true);
 		runLatencyMonitoringJob = registerBoolean("runLatencyMonitoringJob", false);
 		saveExecutorsMetrics = registerBoolean("saveExecutorsMetrics", false);
 		saveHttpClientsMetrics = registerBoolean("saveHttpClientsMetrics", false);
+		runAvailabilitySwitchJob = registerBoolean("runAvailabilitySwitchJob", false);
+		runExceptionRecordAggregationJob = registerBoolean("runExceptionRecordAggregationJob", false);
 	}
 
 	public Setting<Boolean> getSaveCounts(){
@@ -45,6 +51,10 @@ public class ProfilingSettings extends SettingNode{
 
 	public Setting<Boolean> getDrainSqsCounts(){
 		return drainSqsCounts;
+	}
+
+	public Setting<Boolean> getBufferTracesInSqs(){
+		return bufferTracesInSqs;
 	}
 
 	public Setting<Boolean> getDrainSqsTraces(){

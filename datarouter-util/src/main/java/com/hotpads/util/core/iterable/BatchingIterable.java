@@ -10,9 +10,16 @@ public class BatchingIterable<T> implements Iterable<List<T>>{
 	private Iterable<T> iterable;
 	private int batchSize;
 
+// this is causing a seg fault
+//	public BatchingIterable(Stream<T> stream, int batchSize){
+//		this(stream::iterator, batchSize);
+//	}
+
 	public BatchingIterable(Iterable<T> iterable, int batchSize){
 		this.iterable = iterable;
-		if(batchSize < 1){ throw new IllegalArgumentException("illegal batch size:"+batchSize); }
+		if(batchSize < 1){
+			throw new IllegalArgumentException("illegal batch size:" + batchSize);
+		}
 		this.batchSize = batchSize;
 	}
 

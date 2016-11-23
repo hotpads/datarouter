@@ -19,7 +19,6 @@ public class Trace extends BaseDatabean<TraceKey,Trace>{
 
 	private TraceKey key;
 
-	private String sessionId;
 	private String context;
 	private String type;
 	private String params;
@@ -34,7 +33,6 @@ public class Trace extends BaseDatabean<TraceKey,Trace>{
 	/**************************** columns *******************************/
 
 	public static class FieldKeys{
-		public static final StringFieldKey sessionId = new StringFieldKey("sessionId").withSize(32);
 		public static final StringFieldKey context = new StringFieldKey("context").withSize(20);
 		public static final StringFieldKey type = new StringFieldKey("type");
 		public static final StringFieldKey params = new StringFieldKey("params");
@@ -49,7 +47,6 @@ public class Trace extends BaseDatabean<TraceKey,Trace>{
 		@Override
 		public List<Field<?>> getNonKeyFields(Trace trace){
 			return Arrays.asList(
-					new StringField(FieldKeys.sessionId, trace.sessionId),
 					new StringField(FieldKeys.context, trace.context),
 					new StringField(FieldKeys.type, trace.type),
 					new StringField(FieldKeys.params, trace.params),
@@ -113,9 +110,6 @@ public class Trace extends BaseDatabean<TraceKey,Trace>{
 	/******************** validate *****************************************/
 
 	public void trimStringsToFit(){
-		if(DrStringTool.exceedsLength(sessionId, FieldKeys.sessionId.getSize())){
-			sessionId = sessionId.substring(0, FieldKeys.sessionId.getSize());
-		}
 		if(DrStringTool.exceedsLength(context, FieldKeys.context.getSize())){
 			context = context.substring(0, FieldKeys.context.getSize());
 		}
@@ -148,14 +142,6 @@ public class Trace extends BaseDatabean<TraceKey,Trace>{
 
 	public void setParams(String params){
 		this.params = params;
-	}
-
-	public String getSessionId(){
-		return sessionId;
-	}
-
-	public void setSessionId(String sessionId){
-		this.sessionId = sessionId;
 	}
 
 	public String getContext(){

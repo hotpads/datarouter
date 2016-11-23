@@ -33,7 +33,7 @@ public class LongRunningTaskTrackerFactory {
 	public LongRunningTaskTracker createNoOpTracker(String jobClass){
 		LongRunningTask task = new LongRunningTask(jobClass, datarouterProperties.getServerName(),
 				LongRunningTaskType.NOOP, null);
-		return new LongRunningTaskTracker(longRunningTaskNodeProvider.get(), task, new ConstantBooleanSetting(false));
+		return new LongRunningTaskTracker(longRunningTaskNodeProvider.get(), task, ConstantBooleanSetting.FALSE);
 	}
 
 }

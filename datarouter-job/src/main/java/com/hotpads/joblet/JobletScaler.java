@@ -15,6 +15,7 @@ import com.hotpads.datarouter.config.Configs;
 import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.enums.JobletStatus;
 import com.hotpads.joblet.enums.JobletTypeFactory;
+import com.hotpads.joblet.setting.JobletSettings;
 
 @Singleton
 public class JobletScaler {
@@ -42,8 +43,8 @@ public class JobletScaler {
 	/*--------------- private -----------------*/
 
 	private int calcNumJobletServers(Iterable<JobletRequest> jobletRequests){
-		int minServers = jobletSettings.getMinJobletServers().getValue();
-		int maxServers = jobletSettings.getMaxJobletServers().getValue();
+		int minServers = jobletSettings.minJobletServers.getValue();
+		int maxServers = jobletSettings.maxJobletServers.getValue();
 		JobletRequest oldestJobletRequest = JobletRequest.getOldestForTypesAndStatuses(jobletTypeFactory,
 				jobletRequests, jobletTypeFactory.getTypesCausingScaling(), STATUSES_TO_CONSIDER);
 		if(oldestJobletRequest == null){

@@ -2,9 +2,12 @@ package com.hotpads.util.core.stream;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Spliterators;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.BinaryOperator;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -20,6 +23,10 @@ public class StreamTool{
 
 	public static <T> Stream<T> stream(Iterable<T> iterable){
 		return StreamSupport.stream(DrIterableTool.nullSafe(iterable).spliterator(), false);
+	}
+
+	public static <T> Stream<T> stream(Iterator<T> iterator){
+		return StreamSupport.stream(Spliterators.spliteratorUnknownSize(iterator, 0), false);
 	}
 
 	public static <T> void forEach(Iterable<T> iterable, Consumer<? super T> action){
@@ -38,12 +45,18 @@ public class StreamTool{
 		return streams.reduce(Stream.empty(), Stream::concat);
 	}
 
+    public static <V> BinaryOperator<V> throwingMerger() {
+		return (v1, v2) -> {
+			throw new IllegalStateException(String.format("Duplicate key for values %s and %s", v1, v2));
+		};
+    }
+
 	/************** Tests *******************/
 
 	public static class StreamToolTests{
 		@Test
 		public void testStreamFromNull(){
-			Stream<?> stream = stream(null);
+			Stream<?> stream = stream((Iterable<?>)null);
 			Assert.assertEquals(stream.count(), 0L);
 		}
 

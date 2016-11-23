@@ -44,27 +44,23 @@
 						<td>${s.numType}</td>
 						<td>
 							<c:if test="${s.numQueueIds > 0}">
-								<a href="joblets/queues?jobletType=${s.typeString}&executionOrder=${s.executionOrder}">${s.numQueueIds} queues</a>
+								<a href="joblets/queues?jobletType=${s.typeString}&jobletTypeCode=${s.typeCode}&executionOrder=${s.executionOrder}">${s.numQueueIds} queues</a>
 							</c:if>
 						</td>
 						<td>${s.firstReservedAgo}</td>
 						<td>${s.firstCreatedAgo}</td>
 						<td>${s.sumItems}</td>
-						<td>${s.avgItems}</td>
+						<td>${s.avgItemsString}</td>
 						<td>${s.sumTasks}</td>
-						<td>${s.avgTasks}</td>
+						<td>${s.avgTasksString}</td>
 					</tr>
 				</c:forEach>
 			</table>
-
-			<c:forEach items="${runningJobletThreads}" var="jobletThreads">
-				<h4>${jobletThreads.key} (running)</h4>
-				<%@ include file="/jsp/joblet/jobletThreadTable.jspf"%>
-			</c:forEach>
-			<c:forEach items="${waitingJobletThreads}" var="jobletThreads">
-				<h4>${jobletThreads.key} (waiting)</h4>
-				<%@ include file="/jsp/joblet/jobletThreadTable.jspf"%>
-			</c:forEach>
+			
+			<br/>
+			<br/>
+			RunningJoblets:
+			<%@ include file="/jsp/joblet/runningJoblets.jspf"%>
 		</div>
 	</div>
 </body>

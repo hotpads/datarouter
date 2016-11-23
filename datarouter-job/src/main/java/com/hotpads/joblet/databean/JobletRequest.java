@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlRowFormat;
@@ -21,20 +22,20 @@ import com.hotpads.datarouter.storage.field.imp.comparable.LongField;
 import com.hotpads.datarouter.storage.field.imp.comparable.LongFieldKey;
 import com.hotpads.datarouter.storage.field.imp.enums.StringEnumField;
 import com.hotpads.datarouter.storage.field.imp.enums.StringEnumFieldKey;
+import com.hotpads.datarouter.storage.queue.QueueMessageKey;
 import com.hotpads.datarouter.util.core.DrDateTool;
 import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrNumberTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
-import com.hotpads.handler.exception.ExceptionRecordKey;
-import com.hotpads.joblet.dto.JobletSummary;
 import com.hotpads.joblet.enums.JobletPriority;
 import com.hotpads.joblet.enums.JobletStatus;
 import com.hotpads.joblet.enums.JobletType;
 import com.hotpads.joblet.enums.JobletTypeFactory;
-import com.hotpads.util.core.profile.PhaseTimer;
 import com.hotpads.util.datastructs.MutableBoolean;
 
 public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
+
+	public static final int MAX_FAILURES = 2;//TODO make this a custom field
 
 	private JobletRequestKey key;
 	private String queueId;
@@ -49,9 +50,10 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 	private Integer numItems = 0;
 	private Integer numTasks = 0;
 	private String debug;
+	private String type;
 
-	//TODO remove these from the databean
-	private PhaseTimer timer = new PhaseTimer();
+	//TODO remove from the databean
+	private QueueMessageKey queueMessageKey;//transient
 	private MutableBoolean shutdownRequested;//a shared flag passed in from the executor
 
 	public static final String KEY_NAME = "key";
@@ -65,12 +67,12 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 		public static final StringFieldKey reservedBy = new StringFieldKey("reservedBy");
 		public static final LongFieldKey reservedAt = new LongFieldKey("reservedAt");
 		public static final BooleanFieldKey restartable = new BooleanFieldKey("restartable");
-		public static final StringFieldKey exceptionRecordId = new StringFieldKey("exceptionRecordId")
-				.withSize(ExceptionRecordKey.LENGTH_id);
+		public static final StringFieldKey exceptionRecordId = new StringFieldKey("exceptionRecordId");
 		public static final LongFieldKey jobletDataId = new LongFieldKey("jobletDataId");
 		public static final IntegerFieldKey numItems = new IntegerFieldKey("numItems");
 		public static final IntegerFieldKey numTasks = new IntegerFieldKey("numTasks");
 		public static final StringFieldKey debug = new StringFieldKey("debug");
+		public static final StringFieldKey type = new StringFieldKey("type");
 	}
 
 	public static class JobletRequestFielder extends BaseDatabeanFielder<JobletRequestKey, JobletRequest> {
@@ -92,7 +94,8 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 					new LongField(FieldKeys.jobletDataId, databean.jobletDataId),
 					new IntegerField(FieldKeys.numItems, databean.numItems),
 					new IntegerField(FieldKeys.numTasks, databean.numTasks),
-					new StringField(FieldKeys.debug, databean.debug));
+					new StringField(FieldKeys.debug, databean.debug),
+					new StringField(FieldKeys.type, databean.type));
 		}
 
 		@Override
@@ -111,6 +114,7 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 	public JobletRequest(JobletType<?> type, JobletPriority priority, Date createdDate, Integer batchSequence,
 			boolean restartable){
 		this.key = JobletRequestKey.create(type, priority.getExecutionOrder(), createdDate, batchSequence);
+		this.type = type.getPersistentString();
 		this.restartable = restartable;
 	}
 
@@ -128,40 +132,11 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 
 	/*----------------------------- static ----------------------------*/
 
-	public static List<JobletSummary> getJobletCountsCreatedByType(JobletTypeFactory jobletTypeFactory,
-			Iterable<JobletRequest> scanner){
-		List<JobletSummary> summaries = new ArrayList<>();
-		JobletType<?> currentType = null;
-		Long oldestCreatedDate = null;
-		Integer sumItems = 0;
-		boolean atLeastOnecreatedJoblet = false;
-		for(JobletRequest jobletRequest : scanner){
-			JobletType<?> type = jobletTypeFactory.fromJobletRequest(jobletRequest);
-			if(jobletRequest.getStatus() == JobletStatus.created){
-				atLeastOnecreatedJoblet = true;
-				if(currentType != null && type != currentType){
-					summaries.add(new JobletSummary(currentType.getPersistentString(), sumItems, oldestCreatedDate));
-					oldestCreatedDate = null;
-					sumItems = 0;
-				}
-				currentType = jobletTypeFactory.fromJobletRequest(jobletRequest);
-				sumItems = sumItems + jobletRequest.getNumItems();
-				if(oldestCreatedDate == null || jobletRequest.getKey().getCreated() < oldestCreatedDate){
-					oldestCreatedDate = jobletRequest.getKey().getCreated();
-				}
-			}
-		}
-        if(atLeastOnecreatedJoblet){
-            summaries.add(new JobletSummary(currentType.getPersistentString(), sumItems, oldestCreatedDate));
-        }
-		return summaries;
-	}
-
 	public static ArrayList<JobletRequest> filterByTypeStatusReservedByPrefix(Iterable<JobletRequest> ins,
 			JobletType<?> type, JobletStatus status, String reservedByPrefix){
 		ArrayList<JobletRequest> outs = new ArrayList<>();
 		for(JobletRequest in : DrIterableTool.nullSafe(ins)){
-			if(type.getPersistentString() != in.getTypeString()) {
+			if(type.getPersistentInt() != in.getKey().getTypeCode().intValue()) {
 				continue;
 			}
 			if(status != in.getStatus()) {
@@ -204,10 +179,6 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 
     /*-------------------- methods --------------------*/
 
-    public int getMaxFailures(){
-    	return 2;
-    }
-
 	public JobletDataKey getJobletDataKey(){
 		return new JobletDataKey(jobletDataId);
 	}
@@ -222,6 +193,19 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 
 	public Date getReservedAtDate(){
 		return reservedAt == null ? null : new Date(reservedAt);
+	}
+
+	public Optional<Long> getReservedAgoMs(){
+		return reservedAt == null ? Optional.empty() : Optional.of(System.currentTimeMillis() - reservedAt);
+	}
+
+	public int incrementNumFailures(){
+		numFailures = DrNumberTool.nullSafe(numFailures) + 1;
+		return numFailures;
+	}
+
+	public boolean hasReachedMaxFailures(){
+		return numFailures >= MAX_FAILURES;
 	}
 
 	public int incrementNumTimeouts(){
@@ -292,7 +276,7 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 	}
 
 	public String getTypeString(){
-		return key.getType();
+		return type;
 	}
 
 	public Long getJobletDataId(){
@@ -323,10 +307,6 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 		this.queueId = queueId;
 	}
 
-	public PhaseTimer getTimer(){
-		return timer;
-	}
-
 	public void setShutdownRequested(MutableBoolean shutdownRequested){
 		this.shutdownRequested = shutdownRequested;
 	}
@@ -335,8 +315,12 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 		return shutdownRequested;
 	}
 
-	public void setTimer(PhaseTimer timer){
-		this.timer = timer;
+	public QueueMessageKey getQueueMessageKey(){
+		return queueMessageKey;
+	}
+
+	public void setQueueMessageKey(QueueMessageKey queueMessageKey){
+		this.queueMessageKey = queueMessageKey;
 	}
 
 }

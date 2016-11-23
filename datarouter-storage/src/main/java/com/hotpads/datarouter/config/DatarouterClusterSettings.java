@@ -4,15 +4,15 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import com.hotpads.datarouter.batch.config.BatchSizeOptimizerSettings;
-import com.hotpads.datarouter.client.availability.ClientAvailabilityClusterSettings;
+import com.hotpads.datarouter.client.availability.ClientAvailabilitySettings;
 import com.hotpads.datarouter.profile.ProfilingSettings;
 import com.hotpads.datarouter.setting.Setting;
 import com.hotpads.datarouter.setting.SettingFinder;
-import com.hotpads.datarouter.setting.SettingNode;
+import com.hotpads.datarouter.setting.SettingRoot;
 import com.hotpads.datarouter.storage.failover.FailoverSettings;
 
 @Singleton
-public class DatarouterClusterSettings extends SettingNode implements DatarouterSettings {
+public class DatarouterClusterSettings extends SettingRoot implements DatarouterSettings {
 
 	private final Setting<Boolean> loggingConfigUpdaterEnabled;
 	private final Setting<Boolean> recordCallsites;
@@ -22,7 +22,7 @@ public class DatarouterClusterSettings extends SettingNode implements Datarouter
 	@Inject
 	public DatarouterClusterSettings(SettingFinder finder, DatarouterNotificationSettings notificationSettings,
 			ProfilingSettings profilingSettings, BatchSizeOptimizerSettings batchSizeOptimizerSettings,
-			NodeWatchSettings nodeWatchSettings, ClientAvailabilityClusterSettings clientAvailabilitySettings,
+			NodeWatchSettings nodeWatchSettings, ClientAvailabilitySettings clientAvailabilitySettings,
 			FailoverSettings failoverSettings){
 		super(finder, "datarouter.", "");
 		registerChild(notificationSettings);

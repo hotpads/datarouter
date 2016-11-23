@@ -17,19 +17,10 @@ public class WildFlyPortIdentifier implements PortIdentifier{
 			HTTPS = "socket-binding-group=standard-sockets,socket-binding=https",
 			PORT_ATTRIBUTE = "port";
 
-	public static class WildFlyPortIdentifierProvider extends Lazy<WildFlyPortIdentifier>{
-
-		@Override
-		protected WildFlyPortIdentifier load(){
-			return new WildFlyPortIdentifier();
-		}
-
-	}
-
 	private final Lazy<Pair<Integer,Integer>> ports;
 
 	public WildFlyPortIdentifier(){
-		ports = Lazy.of(()->{
+		this.ports = Lazy.of(()->{
 			MBeanServer server = ManagementFactory.getPlatformMBeanServer();
 			try {
 				ObjectName objectName = new ObjectName(CompoundPortIdentifier.JBOSS_JMX_DOMAIN + ":" + HTTP);

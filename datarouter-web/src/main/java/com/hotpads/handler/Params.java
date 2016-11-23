@@ -11,7 +11,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.fileupload.FileItem;
 
-import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.util.core.DrBooleanTool;
 import com.hotpads.datarouter.util.core.DrNumberTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
@@ -29,7 +28,7 @@ public class Params{
 	}
 
 	public String required(String key){
-		return Preconditions.checkNotNull(paramsMap.get(key));
+		return Objects.requireNonNull(paramsMap.get(key));
 	}
 
 	public Optional<String> optional(String key){
@@ -64,6 +63,10 @@ public class Params{
 		return optional(key).map(DrBooleanTool::isTrue).orElse(defaultValue);
 	}
 
+	public Optional<Boolean> optionalBoolean(String key){
+		return optional(key).map(Boolean::valueOf);
+	}
+
 	public Long requiredLong(String key){
 		return Long.valueOf(required(key));
 	}
@@ -96,6 +99,10 @@ public class Params{
 				.orElse(defaultValue);
 	}
 
+	public Optional<Integer> optionalInteger(String key){
+		return optional(key).map(Integer::valueOf);
+	}
+
 	public Double requiredDouble(String key){
 		return Double.valueOf(required(key));
 	}
@@ -110,6 +117,17 @@ public class Params{
 
 	public List<String> optionalList(String key, String delimiter, List<String> defaultValue){
 		return optional(key).map(str -> str.split(delimiter)).map(Arrays::asList).orElse(defaultValue);
+	}
+
+	public Optional<String[]> optionalArray(String key){
+		return Optional.ofNullable(request.getParameterValues(key));
+	}
+
+	/**
+	 * This does not guarantee multiple elements
+	 */
+	public String[] requiredArray(String key){
+		return Objects.requireNonNull(request.getParameterValues(key));
 	}
 
 	public Integer tryGetInteger(String key, Integer defaultValue) {
