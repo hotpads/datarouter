@@ -14,8 +14,6 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.ImmutableListMultimap;
-import com.google.common.collect.Multimaps;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.config.Configs;
 import com.hotpads.datarouter.config.PutMethod;
@@ -56,11 +54,13 @@ public class JobletService{
 	private final JobletSettings jobletSettings;
 	private final JobletRequestSelectorFactory jobletRequestSelectorFactory;
 	private final JobletTypeFactory jobletTypeFactory;
+	private final JobletCounters jobletCounters;
 
 	@Inject
 	public JobletService(JobletRequestQueueManager jobletRequestQueueManager, JobletNodes jobletNodes,
 			JobletRequestDao jobletRequestDao, ExceptionRecorder exceptionRecorder, JobletSettings jobletSettings,
-			JobletRequestSelectorFactory jobletRequestSelectorFactory, JobletTypeFactory jobletTypeFactory){
+			JobletRequestSelectorFactory jobletRequestSelectorFactory, JobletTypeFactory jobletTypeFactory,
+			JobletCounters jobletCounters){
 		this.jobletRequestQueueManager = jobletRequestQueueManager;
 		this.jobletNodes = jobletNodes;
 		this.jobletRequestDao = jobletRequestDao;
@@ -68,15 +68,16 @@ public class JobletService{
 		this.jobletSettings = jobletSettings;
 		this.jobletRequestSelectorFactory = jobletRequestSelectorFactory;
 		this.jobletTypeFactory = jobletTypeFactory;
+		this.jobletCounters = jobletCounters;
 	}
 
 	/*--------------------- create ------------------------*/
 
 	public void submitJobletPackagesOfDifferentTypes(Collection<JobletPackage> jobletPackages){
-		ImmutableListMultimap<String, JobletPackage> jobletPackagesByType = Multimaps.index(jobletPackages,
-				jobletPackage->jobletPackage.getJobletRequest().getTypeString());
-		jobletPackagesByType.asMap().values()
-			.forEach(packagesOfOneType -> submitJobletPackagesOfSameType(packagesOfOneType));
+		jobletPackages.stream()
+				.collect(Collectors.groupingBy(jobletPackage -> jobletPackage.getJobletRequest().getTypeString()))
+				.values()
+				.forEach(this::submitJobletPackagesOfSameType);
 	}
 
 	public void submitJobletPackagesOfSameType(Collection<JobletPackage> jobletPackages){
@@ -89,6 +90,8 @@ public class JobletService{
 			batch.forEach(JobletPackage::updateJobletDataIdReference);
 			List<JobletRequest> jobletRequests = JobletPackage.getJobletRequests(batch);
 			jobletNodes.jobletRequest().putMulti(jobletRequests, Configs.insertOrBust());
+			jobletCounters.incNumJobletsInserted(jobletRequests.size());
+			jobletCounters.incNumJobletsInserted(jobletType, jobletRequests.size());
 			timer.add("inserted JobletRequest");
 			if(jobletSettings.getQueueMechanismEnum() == JobletQueueMechanism.SQS){
 				Map<JobletRequestQueueKey,List<JobletRequest>> requestsByQueueKey = jobletRequests.stream()
