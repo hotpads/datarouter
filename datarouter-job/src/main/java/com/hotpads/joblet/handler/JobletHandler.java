@@ -20,6 +20,7 @@ import com.hotpads.handler.mav.imp.InContextRedirectMav;
 import com.hotpads.handler.mav.imp.MessageMav;
 import com.hotpads.handler.types.optional.OptionalBoolean;
 import com.hotpads.handler.types.optional.OptionalInteger;
+import com.hotpads.handler.types.optional.OptionalString;
 import com.hotpads.job.dispatcher.DatarouterJobDispatcher;
 import com.hotpads.joblet.JobletNodes;
 import com.hotpads.joblet.JobletPackage;
@@ -132,10 +133,17 @@ public class JobletHandler extends BaseHandler{
 	}
 
 	@Handler
-	private Mav restart(String type, String status){
-		JobletType<?> jobletType = jobletTypeFactory.fromPersistentString(type);
+	private Mav restart(OptionalString type, String status){
 		JobletStatus jobletStatus = JobletStatus.fromPersistentStringStatic(status);
-		long numRestarted = jobletService.restartJoblets(jobletType, jobletStatus);
+		long numRestarted = 0;
+		if(type.isPresent()){
+			JobletType<?> jobletType = jobletTypeFactory.fromPersistentString(type.get());
+			numRestarted = jobletService.restartJoblets(jobletType, jobletStatus);
+		}else{
+			for(JobletType<?> jobletType : jobletTypeFactory.getAllTypes()){
+				numRestarted += jobletService.restartJoblets(jobletType, jobletStatus);
+			}
+		}
 		return new MessageMav("restarted " + numRestarted);
 	}
 
