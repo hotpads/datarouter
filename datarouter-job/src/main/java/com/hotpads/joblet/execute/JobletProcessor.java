@@ -1,4 +1,4 @@
-package com.hotpads.joblet.execute.v2;
+package com.hotpads.joblet.execute;
 
 import java.time.Duration;
 import java.util.List;
@@ -25,8 +25,8 @@ import com.hotpads.joblet.setting.JobletSettings;
 import com.hotpads.util.core.concurrent.NamedThreadFactory;
 import com.hotpads.util.datastructs.MutableBoolean;
 
-public class JobletProcessorV2 implements Runnable{
-	private static final Logger logger = LoggerFactory.getLogger(JobletProcessorV2.class);
+public class JobletProcessor implements Runnable{
+	private static final Logger logger = LoggerFactory.getLogger(JobletProcessor.class);
 
 	private static final Duration SLEEP_TIME_WHEN_DISABLED = Duration.ofSeconds(5);
 	private static final Duration SLEEP_TIME_WHEN_NO_WORK = Duration.ofSeconds(1);
@@ -50,7 +50,7 @@ public class JobletProcessorV2 implements Runnable{
 	private final Thread driverThread;
 
 
-	public JobletProcessorV2(JobletSettings jobletSettings, JobletRequestQueueManager jobletRequestQueueManager,
+	public JobletProcessor(JobletSettings jobletSettings, JobletRequestQueueManager jobletRequestQueueManager,
 			JobletCallableFactory jobletCallableFactory, JobletCounters jobletCounters, AtomicLong idGenerator,
 			JobletType<?> jobletType){
 		this.jobletSettings = jobletSettings;

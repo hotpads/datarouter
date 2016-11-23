@@ -11,7 +11,7 @@ import com.hotpads.listener.DatarouterAppListener;
 public class JobletAppListener extends DatarouterAppListener{
 
 	@Inject
-	private JobletProcessors jobletProcessors;//ParallelJobletProcessors starts when injected, so don't delete it yet
+	private JobletProcessors jobletProcessors;
 
 	@Override
 	protected void onStartUp(){

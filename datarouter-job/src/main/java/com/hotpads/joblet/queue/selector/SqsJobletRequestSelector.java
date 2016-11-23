@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.storage.queue.QueueMessage;
+import com.hotpads.joblet.JobletConstants;
 import com.hotpads.joblet.JobletCounters;
 import com.hotpads.joblet.JobletNodes;
 import com.hotpads.joblet.databean.JobletRequest;
@@ -16,7 +17,6 @@ import com.hotpads.joblet.databean.JobletRequestKey;
 import com.hotpads.joblet.enums.JobletPriority;
 import com.hotpads.joblet.enums.JobletStatus;
 import com.hotpads.joblet.enums.JobletType;
-import com.hotpads.joblet.execute.ParallelJobletProcessor;
 import com.hotpads.joblet.queue.JobletRequestQueueKey;
 import com.hotpads.joblet.queue.JobletRequestQueueManager;
 import com.hotpads.joblet.queue.JobletRequestSelector;
@@ -43,7 +43,7 @@ public class SqsJobletRequestSelector implements JobletRequestSelector{
 			}
 			// set timeout to 0 so we return immediately. processor threads can do the waiting
 			Config config = new Config().setTimeoutMs(0L)
-					.setVisibilityTimeoutMs(ParallelJobletProcessor.RUNNING_JOBLET_TIMEOUT_MS);
+					.setVisibilityTimeoutMs(JobletConstants.RUNNING_JOBLET_TIMEOUT_MS);
 			QueueMessage<JobletRequestKey,JobletRequest> message = jobletNodes.jobletRequestQueueByKey().get(queueKey)
 					.peek(config);
 			timer.add("peek");
