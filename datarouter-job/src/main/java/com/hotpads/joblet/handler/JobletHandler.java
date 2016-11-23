@@ -2,6 +2,7 @@ package com.hotpads.joblet.handler;
 
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -115,19 +116,27 @@ public class JobletHandler extends BaseHandler{
 	}
 
 	@Handler
-	private Mav copyJobletRequestsToQueues(String jobletType){
-		JobletType<?> jobletTypeEnum = jobletTypeFactory.fromPersistentString(jobletType);
+	private Mav copyJobletRequestsToQueues(OptionalString jobletType){
+//		List<JobletType<?>> jobletTypes = jobletType
+//				.map(jobletTypeFactory::fromPersistentString)
+//				.map(Arrays::asList)
+//				.orElse(jobletTypeFactory.getAllTypes());//generics error?
+		List<JobletType<?>> jobletTypes = jobletType.isPresent()
+				? Arrays.asList(jobletTypeFactory.fromPersistentString(jobletType.get()))
+				: jobletTypeFactory.getAllTypes();
 		long numCopied = 0;
-		Iterable<JobletRequest> jobletsOfType = jobletRequestDao.streamType(jobletTypeEnum, false)::iterator;
-		for(List<JobletRequest> requestBatch : new BatchingIterable<>(jobletsOfType, 100)){
-			Map<JobletRequestQueueKey,List<JobletRequest>> requestsByQueueKey = requestBatch.stream().collect(Collectors
-					.groupingBy(jobletRequestQueueManager::getQueueKey, Collectors.toList()));
-			for(Map.Entry<JobletRequestQueueKey,List<JobletRequest>> queueAndJoblets : requestsByQueueKey.entrySet()){
-				List<JobletRequest> jobletsForQueue = queueAndJoblets.getValue();
-				jobletNodes.jobletRequestQueueByKey().get(queueAndJoblets.getKey()).putMulti(jobletsForQueue, null);
-				numCopied += jobletsForQueue.size();
+		for(JobletType<?> type : jobletTypes){
+			Iterable<JobletRequest> requestsOfType = jobletRequestDao.streamType(type, false)::iterator;
+			for(List<JobletRequest> requestBatch : new BatchingIterable<>(requestsOfType, 100)){
+				Map<JobletRequestQueueKey,List<JobletRequest>> requestsByQueueKey = requestBatch.stream()
+						.collect(Collectors.groupingBy(jobletRequestQueueManager::getQueueKey));
+				for(JobletRequestQueueKey queueKey : requestsByQueueKey.keySet()){
+					List<JobletRequest> jobletsForQueue = requestsByQueueKey.get(queueKey);
+					jobletNodes.jobletRequestQueueByKey().get(queueKey).putMulti(jobletsForQueue, null);
+					numCopied += jobletsForQueue.size();
+				}
+				logger.warn("copied {}", numCopied);
 			}
-			logger.warn("copied {}", numCopied);
 		}
 		return new MessageMav("copied " + numCopied);
 	}
