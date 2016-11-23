@@ -20,13 +20,14 @@
 				<li class="dropdown">
 					<a href="#" class="dropdown-toggle" data-toggle="dropdown">Counters <span class="caret"></span></a>
 					<ul class="dropdown-menu">
-						<li><a href="/analytics/counters?submitAction=listCounters&webApps=All&servers=ALL&periods=300000&archive=databean+300000&nameLike=Joblet+queue+length">Queue Length Counts</a></li>
-						<li><a href="/analytics/counters?submitAction=listCounters&webApps=All&servers=ALL&periods=300000&archive=databean+300000&nameLike=Joblet+processed">Joblets Processed Counts</a></li>
-						<li><a href="/analytics/counters?submitAction=listCounters&webApps=All&servers=ALL&periods=300000&archive=databean+300000&nameLike=Joblet+items+processed">Items Processed Counts</a></li>
-						<li><a href="/analytics/counters?submitAction=listCounters&webApps=All&servers=ALL&periods=300000&archive=databean+300000&nameLike=Joblet+tasks+processed">Tasks Processed Counts</a></li>
-						<li><a href="/analytics/counters?submitAction=listCounters&webApps=All&servers=ALL&periods=300000&archive=databean+300000&nameLike=Joblet+first+created">First Created Counts</a></li>
-						<li><a href="/analytics/counters?counters=Joblet%20target%20servers&submitAction=viewCounters&webApps=All&servers=All&periods=300000&frequency=second&rollPeriod=1">Target Servers Counts</a></li>
-						<li><a href="/analytics/counters?counters=Joblet%20num%20servers&submitAction=viewCounters&webApps=All&servers=All&periods=300000&frequency=second&rollPeriod=1">Num Servers Counts</a></li>
+						<li><a href="/analytics/counters?submitAction=listCounters&webApps=All&servers=ALL&periods=300000&archive=databean+300000&nameLike=Joblet+first+created">First Created</a></li>
+						<li><a href="/analytics/counters?submitAction=listCounters&webApps=All&servers=ALL&periods=300000&archive=databean+300000&nameLike=Joblet+queue+length">Queue Length</a></li>
+						<li><a href="/analytics/counters?submitAction=listCounters&webApps=All&servers=ALL&periods=300000&archive=databean+300000&nameLike=Joblet+processed">Joblets Inserted</a></li>
+						<li><a href="/analytics/counters?submitAction=listCounters&webApps=All&servers=ALL&periods=300000&archive=databean+300000&nameLike=Joblet+processed">Joblets Processed</a></li>
+						<li><a href="/analytics/counters?submitAction=listCounters&webApps=All&servers=ALL&periods=300000&archive=databean+300000&nameLike=Joblet+items+processed">Items Processed</a></li>
+						<li><a href="/analytics/counters?submitAction=listCounters&webApps=All&servers=ALL&periods=300000&archive=databean+300000&nameLike=Joblet+tasks+processed">Tasks Processed</a></li>
+						<li><a href="/analytics/counters?counters=Joblet%20target%20servers&submitAction=viewCounters&webApps=All&servers=All&periods=300000&frequency=second&rollPeriod=1">Target Servers</a></li>
+						<li><a href="/analytics/counters?counters=Joblet%20num%20servers&submitAction=viewCounters&webApps=All&servers=All&periods=300000&frequency=second&rollPeriod=1">Actual Servers</a></li>
 					</ul>
 				</li>
 				<li class="dropdown">
