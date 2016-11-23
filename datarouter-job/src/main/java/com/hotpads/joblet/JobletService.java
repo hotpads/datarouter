@@ -75,8 +75,7 @@ public class JobletService{
 
 	public void submitJobletPackagesOfDifferentTypes(Collection<JobletPackage> jobletPackages){
 		jobletPackages.stream()
-				.collect(Collectors.groupingByConcurrent(jobletPackage -> jobletPackage.getJobletRequest()
-						.getTypeString()))
+				.collect(Collectors.groupingBy(jobletPackage -> jobletPackage.getJobletRequest().getTypeString()))
 				.values()
 				.forEach(this::submitJobletPackagesOfSameType);
 	}
@@ -91,8 +90,8 @@ public class JobletService{
 			batch.forEach(JobletPackage::updateJobletDataIdReference);
 			List<JobletRequest> jobletRequests = JobletPackage.getJobletRequests(batch);
 			jobletNodes.jobletRequest().putMulti(jobletRequests, Configs.insertOrBust());
-			jobletCounters.incNumJobletsInserted();
-			jobletCounters.incNumJobletsInserted(jobletType);
+			jobletCounters.incNumJobletsInserted(jobletRequests.size());
+			jobletCounters.incNumJobletsInserted(jobletType, jobletRequests.size());
 			timer.add("inserted JobletRequest");
 			if(jobletSettings.getQueueMechanismEnum() == JobletQueueMechanism.SQS){
 				Map<JobletRequestQueueKey,List<JobletRequest>> requestsByQueueKey = jobletRequests.stream()
