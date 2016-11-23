@@ -30,6 +30,14 @@ public class JobletCounters {
 		metrics.save(PREFIX + "target servers", numTargetServers);
 	}
 
+	public void incNumJobletsInserted(){
+		Counters.inc(PREFIX + "inserted");
+	}
+
+	public void incNumJobletsInserted(JobletType<?> jobletType){
+		Counters.inc(PREFIX + "inserted " + jobletType.getPersistentString());
+	}
+
 	public void incNumJobletsProcessed(){
 		Counters.inc(PREFIX + "processed");
 	}
