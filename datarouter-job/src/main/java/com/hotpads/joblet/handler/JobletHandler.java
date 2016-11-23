@@ -2,6 +2,7 @@ package com.hotpads.joblet.handler;
 
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +21,7 @@ import com.hotpads.handler.mav.imp.InContextRedirectMav;
 import com.hotpads.handler.mav.imp.MessageMav;
 import com.hotpads.handler.types.optional.OptionalBoolean;
 import com.hotpads.handler.types.optional.OptionalInteger;
+import com.hotpads.handler.types.optional.OptionalString;
 import com.hotpads.job.dispatcher.DatarouterJobDispatcher;
 import com.hotpads.joblet.JobletNodes;
 import com.hotpads.joblet.JobletPackage;
@@ -114,28 +116,43 @@ public class JobletHandler extends BaseHandler{
 	}
 
 	@Handler
-	private Mav copyJobletRequestsToQueues(String jobletType){
-		JobletType<?> jobletTypeEnum = jobletTypeFactory.fromPersistentString(jobletType);
+	private Mav copyJobletRequestsToQueues(OptionalString jobletType){
+//		List<JobletType<?>> jobletTypes = jobletType
+//				.map(jobletTypeFactory::fromPersistentString)
+//				.map(Arrays::asList)
+//				.orElse(jobletTypeFactory.getAllTypes());//generics error?
+		List<JobletType<?>> jobletTypes = jobletType.isPresent()
+				? Arrays.asList(jobletTypeFactory.fromPersistentString(jobletType.get()))
+				: jobletTypeFactory.getAllTypes();
 		long numCopied = 0;
-		Iterable<JobletRequest> jobletsOfType = jobletRequestDao.streamType(jobletTypeEnum, false)::iterator;
-		for(List<JobletRequest> requestBatch : new BatchingIterable<>(jobletsOfType, 100)){
-			Map<JobletRequestQueueKey,List<JobletRequest>> requestsByQueueKey = requestBatch.stream().collect(Collectors
-					.groupingBy(jobletRequestQueueManager::getQueueKey, Collectors.toList()));
-			for(Map.Entry<JobletRequestQueueKey,List<JobletRequest>> queueAndJoblets : requestsByQueueKey.entrySet()){
-				List<JobletRequest> jobletsForQueue = queueAndJoblets.getValue();
-				jobletNodes.jobletRequestQueueByKey().get(queueAndJoblets.getKey()).putMulti(jobletsForQueue, null);
-				numCopied += jobletsForQueue.size();
+		for(JobletType<?> type : jobletTypes){
+			Iterable<JobletRequest> requestsOfType = jobletRequestDao.streamType(type, false)::iterator;
+			for(List<JobletRequest> requestBatch : new BatchingIterable<>(requestsOfType, 100)){
+				Map<JobletRequestQueueKey,List<JobletRequest>> requestsByQueueKey = requestBatch.stream()
+						.collect(Collectors.groupingBy(jobletRequestQueueManager::getQueueKey));
+				for(JobletRequestQueueKey queueKey : requestsByQueueKey.keySet()){
+					List<JobletRequest> jobletsForQueue = requestsByQueueKey.get(queueKey);
+					jobletNodes.jobletRequestQueueByKey().get(queueKey).putMulti(jobletsForQueue, null);
+					numCopied += jobletsForQueue.size();
+				}
+				logger.warn("copied {}", numCopied);
 			}
-			logger.warn("copied {}", numCopied);
 		}
 		return new MessageMav("copied " + numCopied);
 	}
 
 	@Handler
-	private Mav restart(String type, String status){
-		JobletType<?> jobletType = jobletTypeFactory.fromPersistentString(type);
+	private Mav restart(OptionalString type, String status){
 		JobletStatus jobletStatus = JobletStatus.fromPersistentStringStatic(status);
-		long numRestarted = jobletService.restartJoblets(jobletType, jobletStatus);
+		long numRestarted = 0;
+		if(type.isPresent()){
+			JobletType<?> jobletType = jobletTypeFactory.fromPersistentString(type.get());
+			numRestarted = jobletService.restartJoblets(jobletType, jobletStatus);
+		}else{
+			for(JobletType<?> jobletType : jobletTypeFactory.getAllTypes()){
+				numRestarted += jobletService.restartJoblets(jobletType, jobletStatus);
+			}
+		}
 		return new MessageMav("restarted " + numRestarted);
 	}
 

@@ -3,6 +3,7 @@ package com.hotpads.handler.types.optional;
 import java.lang.reflect.Type;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Function;
 
 import com.google.common.collect.ImmutableSet;
 import com.hotpads.util.core.java.ReflectionTool;
@@ -57,8 +58,12 @@ public abstract class OptionalParameter<T>{
 		return opt.isPresent();
 	}
 
-    public T orElse(T other) {
+    public T orElse(T other){
         return opt.orElse(other);
+    }
+
+    public <U> Optional<U> map(Function<? super T, ? extends U> mapper){
+        return opt.map(mapper);
     }
 
     /*--------------- Object ------------------*/
@@ -79,7 +84,7 @@ public abstract class OptionalParameter<T>{
     }
 
     @Override
-    public int hashCode() {
+    public int hashCode(){
         return opt.hashCode();
     }
 }
