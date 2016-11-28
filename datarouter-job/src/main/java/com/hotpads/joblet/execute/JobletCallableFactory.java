@@ -1,4 +1,4 @@
-package com.hotpads.joblet.execute.v2;
+package com.hotpads.joblet.execute;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -26,7 +26,7 @@ public class JobletCallableFactory{
 	private JobletCounters jobletCounters;
 
 
-	public JobletCallable create(MutableBoolean shutdownRequested, JobletProcessorV2 jobletProcessor,
+	public JobletCallable create(MutableBoolean shutdownRequested, JobletProcessor jobletProcessor,
 			JobletType<?> jobletType, long id){
 		return new JobletCallable(datarouterProperties, jobletNodes, jobletService, jobletFactory, jobletCounters,
 				shutdownRequested, jobletProcessor, jobletType, id);

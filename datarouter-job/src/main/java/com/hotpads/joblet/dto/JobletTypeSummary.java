@@ -3,21 +3,14 @@ package com.hotpads.joblet.dto;
 import java.util.Collection;
 
 import com.hotpads.joblet.enums.JobletType;
-import com.hotpads.joblet.execute.ParallelJobletProcessor;
-import com.hotpads.joblet.execute.v2.JobletProcessorV2;
+import com.hotpads.joblet.execute.JobletProcessor;
 
 public class JobletTypeSummary{
 	private final JobletType<?> jobletTypeEnum;
 	private final int numThreads;
 	private final int numRunning;
 
-	public JobletTypeSummary(ParallelJobletProcessor processor){
-		this.jobletTypeEnum = processor.getJobletType();
-		this.numThreads = processor.getThreadCountFromSettings();
-		this.numRunning = processor.getRunningJobletExecutorThreads().size();
-	}
-
-	public JobletTypeSummary(JobletProcessorV2 processor){
+	public JobletTypeSummary(JobletProcessor processor){
 		this.jobletTypeEnum = processor.getJobletType();
 		this.numThreads = processor.getThreadCountFromSettings();
 		this.numRunning = processor.getNumRunningJoblets();

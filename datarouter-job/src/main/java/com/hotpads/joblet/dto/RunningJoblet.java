@@ -6,7 +6,6 @@ import java.util.Optional;
 import com.hotpads.datarouter.util.core.DrDateTool;
 import com.hotpads.joblet.JobletPackage;
 import com.hotpads.joblet.enums.JobletType;
-import com.hotpads.joblet.execute.JobletExecutorThread;
 
 public class RunningJoblet{
 
@@ -26,19 +25,6 @@ public class RunningJoblet{
 		}
 	}
 
-	@Deprecated//temporary backwards compatibility
-	public RunningJoblet(JobletExecutorThread thread){
-		this.name = thread.getName();
-		this.id = Long.toString(thread.getId());
-		this.startedAt = Optional.ofNullable(thread.getRunningTime())
-				.map(runningTime -> new Date(System.currentTimeMillis() - runningTime))
-				.orElse(null);
-		JobletPackage jobletPackage = thread.getJobletPackage();
-		if(jobletPackage != null){
-			this.queueId = thread.getJobletRequest().getQueueId();
-			this.jobletData = thread.getJobletData().getData();
-		}
-	}
 
 	public boolean hasPayload(){
 		return jobletData != null;

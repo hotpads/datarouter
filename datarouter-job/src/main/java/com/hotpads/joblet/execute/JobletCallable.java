@@ -1,4 +1,4 @@
-package com.hotpads.joblet.execute.v2;
+package com.hotpads.joblet.execute;
 
 import java.util.Date;
 import java.util.Optional;
@@ -34,7 +34,7 @@ public class JobletCallable implements Callable<Void>{
 	private final JobletCounters jobletCounters;
 
 	private final MutableBoolean shutdownRequested;
-	private final JobletProcessorV2 processor;//for callback
+	private final JobletProcessor processor;//for callback
 	private final JobletType<?> jobletType;
 	private final long id;
 	private final Date startedAt;
@@ -43,7 +43,7 @@ public class JobletCallable implements Callable<Void>{
 
 	public JobletCallable(DatarouterProperties datarouterProperties, JobletNodes jobletNodes,
 			JobletService jobletService, JobletFactory jobletFactory, JobletCounters jobletCounters,
-			MutableBoolean shutdownRequested, JobletProcessorV2 processor, JobletType<?> jobletType, long id){
+			MutableBoolean shutdownRequested, JobletProcessor processor, JobletType<?> jobletType, long id){
 		this.datarouterProperties = datarouterProperties;
 		this.jobletNodes = jobletNodes;
 		this.jobletService = jobletService;
