@@ -78,7 +78,7 @@ public class LoggingTests{
 		configurator.updateOrCreateLoggerConfig(getClass(), Level.ALL, false, ERR_CONSOLE_APPENDER_NAME);
 		logger.warn("ar");//going to err console
 
-		try(BufferedReader reader = new BufferedReader(new FileReader(TEST_FILE_2_NAME))){
+		try(BufferedReader reader = new BufferedReader(new FileReader(TEST_FILE_2))){
 			Assert.assertTrue(reader.readLine().endsWith("degemer"));
 			Assert.assertNull(reader.readLine());
 		}
