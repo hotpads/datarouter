@@ -66,7 +66,10 @@ public abstract class BaseHandler{
 
 	protected static final String DEFAULT_HANDLER_METHOD_NAME = "handleDefault";
 
-	@Deprecated //replaced with @Handler(defaultHandler=true) annotation
+	/**
+	 * @deprecated  Replaced with @Handler(defaultHandler = true) annotation
+	 */
+	@Deprecated
 	@Handler
 	protected Object handleDefault() throws Exception{
 		response.sendError(404);
@@ -79,7 +82,7 @@ public abstract class BaseHandler{
 	 */
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.METHOD)
-	public @interface Handler {
+	public @interface Handler{
 		Class<?>[] expectedParameterClasses() default {};
 		Class<?> expectedParameterClassesProvider() default Object.class;
 		String description() default "";
@@ -180,7 +183,7 @@ public abstract class BaseHandler{
 		return defaultHandlerMethod;
 	}
 
-	private String getLastPathSegment(String uri) {
+	private String getLastPathSegment(String uri){
 		if(uri == null){
 			return "";
 		}
@@ -214,17 +217,17 @@ public abstract class BaseHandler{
 		this.out = Lazy.of(() -> ResponseTool.getWriter(response));
 	}
 
-	public static class BaseHandlerTests {
+	public static class BaseHandlerTests{
 
 		BaseHandler test;
 
 		@Before
-		public void setup() {
+		public void setup(){
 			test = new AdminEditUserHandler();
 		}
 
 		@Test
-		public void testGetLastPathSegment() {
+		public void testGetLastPathSegment(){
 			Assert.assertEquals("something", test.getLastPathSegment("/something"));
 			Assert.assertEquals("something", test.getLastPathSegment("~/something"));
 			Assert.assertEquals("viewUsers", test.getLastPathSegment("/admin/edit/reputation/viewUsers"));
