@@ -14,7 +14,7 @@ public final class TestDatarouterLog4j2Configuration extends HotPadsLog4j2Config
 	public static final String TEST_FILE_NAME = "/hotpads/tests/logging/testFile.log";
 	public static final String TEST_APPENDER_NAME = "testFile";
 
-	public TestDatarouterLog4j2Configuration() throws IllegalArgumentException{
+	public TestDatarouterLog4j2Configuration(){
 		registerParent(DatarouterLog4j2Configuration.class);
 		registerParent(TestDatarouterParentLog4j2Configuration.class);
 
@@ -24,7 +24,7 @@ public final class TestDatarouterLog4j2Configuration extends HotPadsLog4j2Config
 
 	public static final class TestDatarouterParentLog4j2Configuration extends HotPadsLog4j2Configuration{
 
-		public TestDatarouterParentLog4j2Configuration() throws IllegalArgumentException, IllegalAccessException{
+		public TestDatarouterParentLog4j2Configuration() throws IllegalAccessException{
 			addFilter(RegexFilter.createFilter(".*password.*", null, true, Result.DENY, Result.NEUTRAL));
 
 			FileAppender testFileAppender = Log4j2Configurator.createFileAppender(TEST_APPENDER_NAME, TEST_FILE_NAME,
