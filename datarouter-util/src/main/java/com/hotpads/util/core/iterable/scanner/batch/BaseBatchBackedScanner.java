@@ -9,8 +9,6 @@ import com.hotpads.util.core.iterable.scanner.sorted.BaseHoldingScanner;
 public abstract class BaseBatchBackedScanner<T,B>
 extends	BaseHoldingScanner<T>{
 
-	public static final Integer BATCH_SIZE_DEFAULT = 100;
-
 	//used during iteration
 	protected List<B> currentBatch;
 	protected int currentBatchIndex = -1;//advance() will immediately increment this

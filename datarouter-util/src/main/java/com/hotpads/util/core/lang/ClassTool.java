@@ -5,9 +5,7 @@ import org.testng.annotations.Test;
 
 import com.hotpads.datarouter.util.core.DrStringTool;
 
-
-
-public class ClassTool {
+public class ClassTool{
 
 	public static boolean sameClass(Object objectA, Object objectB){
 		if(objectA == null && objectB == null){
@@ -23,13 +21,13 @@ public class ClassTool {
 	}
 
 	public static boolean sameClass(Class<?> classA, Class<?> classB){
-		if(classA==null && classB==null){
+		if(classA == null && classB == null){
 			return true;
 		}
-		if(classA==null && classB!=null){
+		if(classA == null && classB != null){
 			return false;
 		}
-		if(classA!=null && classB==null){
+		if(classA != null && classB == null){
 			return false;
 		}
 		return classA.equals(classB);
@@ -40,13 +38,13 @@ public class ClassTool {
 	}
 
 	public static int compareClass(Object objectA, Object objectB){
-		if(objectA==objectB){
+		if(objectA == objectB){
 			return 0;
 		}
-		if(objectA==null){
+		if(objectA == null){
 			return -1;
 		}
-		if(objectB==null){
+		if(objectB == null){
 			return 1;
 		}
 		return objectA.getClass().getName().compareTo(objectB.getClass().getName());

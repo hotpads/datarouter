@@ -6,23 +6,15 @@ import org.junit.Test;
 import com.hotpads.util.core.bytes.ByteUnitType.ByteUnitSystem;
 
 public class ByteUnitTool {
-	public static final long KB = ByteUnitType.KB.getNumBytes();//kilo
-	public static final long MB = ByteUnitType.MB.getNumBytes();//mega
-	public static final long GB = ByteUnitType.GB.getNumBytes();//giga
-	public static final long TB = ByteUnitType.TB.getNumBytes();//tera
-	public static final long PB = ByteUnitType.PB.getNumBytes();//peta
 
 	public static final long KiB = ByteUnitType.KiB.getNumBytes();//kibi
 	public static final long MiB = ByteUnitType.MiB.getNumBytes();//mebi
-	public static final long GiB = ByteUnitType.GiB.getNumBytes();//gibi
-	public static final long TiB = ByteUnitType.TiB.getNumBytes();//tebi
-	public static final long PiB = ByteUnitType.PiB.getNumBytes();//pebi
 
 	public static String byteCountToDisplaySize(long sizeInBytes) {
 		return byteCountToDisplaySize(sizeInBytes, ByteUnitSystem.BINARY);
 	}
 
-	public static String byteCountToDisplaySize(long sizeInBytes, ByteUnitSystem byteUnitSystem) {
+	private static String byteCountToDisplaySize(long sizeInBytes, ByteUnitSystem byteUnitSystem) {
 		if (sizeInBytes < 0) {
 			return null;
 		}
@@ -42,20 +34,6 @@ public class ByteUnitTool {
 			return ByteUnitType.PiB.getNumBytesDisplay(sizeInBytes);
 		}
 		return ByteUnitType.PB.getNumBytesDisplay(sizeInBytes);
-	}
-
-	public static void main(String[] args) {
-		long advertisedHddSize = 80 * ByteUnitType.GB.getNumBytes();
-		System.out.println("ADVERTISED HDD SIZE: "
-				+ byteCountToDisplaySize(advertisedHddSize, ByteUnitSystem.DECIMAL));
-		System.out.println("ACTUAL HDD SIZE: "
-				+ byteCountToDisplaySize(advertisedHddSize, ByteUnitSystem.BINARY));
-		System.out.println();
-		advertisedHddSize = 1000 * ByteUnitType.GB.getNumBytes();
-		System.out.println("ADVERTISED HDD SIZE: "
-				+ byteCountToDisplaySize(advertisedHddSize, ByteUnitSystem.DECIMAL));
-		System.out.println("ACTUAL HDD SIZE: "
-				+ byteCountToDisplaySize(advertisedHddSize, ByteUnitSystem.BINARY));
 	}
 
 	/** tests *********************************************************************************************************/

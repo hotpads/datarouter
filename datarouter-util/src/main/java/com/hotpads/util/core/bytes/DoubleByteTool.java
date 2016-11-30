@@ -10,9 +10,9 @@ import com.hotpads.datarouter.util.core.DrByteTool;
 
 public class DoubleByteTool{
 
-	public static final long NaN = 0x0010000000000000L;
+	private static final long NaN = 0x0010000000000000L;
 
-	public static Double fromBytesNullable(final byte[] bytes, final int offset){
+	private static Double fromBytesNullable(final byte[] bytes, final int offset){
 		Long longValue = LongByteTool.fromRawBytes(bytes, offset);
 		if(longValue.longValue() == NaN){
 			return null;
@@ -20,7 +20,7 @@ public class DoubleByteTool{
 		return Double.longBitsToDouble(longValue);
 	}
 
-	public static byte[] getBytesNullable(Double in){
+	private static byte[] getBytesNullable(Double in){
 		if(in == null){
 			return getBytes(Double.longBitsToDouble(NaN));
 		}
@@ -43,7 +43,7 @@ public class DoubleByteTool{
 	}
 
 	public static List<Double> fromDoubleByteArray(final byte[] bytes, final int startIdx){
-		int numDoubles = (bytes.length - startIdx)/8;
+		int numDoubles = (bytes.length - startIdx) / 8;
 		List<Double> doubles = new ArrayList<>();
 		byte[] arrayToCopy = new byte[8];
 		for(int i = 0; i < numDoubles; i++){
@@ -54,10 +54,12 @@ public class DoubleByteTool{
 	}
 
 	public static byte[] getDoubleByteArray(List<Double> valuesWithNulls){
-		if(valuesWithNulls==null){ return null; }
-		byte[] out = new byte[8*valuesWithNulls.size()];
-		for(int i=0; i < valuesWithNulls.size(); ++i){
-			System.arraycopy(getBytesNullable(valuesWithNulls.get(i)), 0, out, i*8, 8);
+		if(valuesWithNulls == null){
+			return null;
+		}
+		byte[] out = new byte[8 * valuesWithNulls.size()];
+		for(int i = 0; i < valuesWithNulls.size(); ++i){
+			System.arraycopy(getBytesNullable(valuesWithNulls.get(i)), 0, out, i * 8, 8);
 		}
 		return out;
 	}
@@ -65,15 +67,15 @@ public class DoubleByteTool{
 	public static class Tests{
 		@Test
 		public void testBytes1(){
-			double a = 12354234.456d;
-			byte[] abytes = getBytes(a);
+			double valueA = 12354234.456D;
+			byte[] abytes = getBytes(valueA);
 			double aback = fromBytes(abytes, 0);
-			Assert.assertTrue(a==aback);
+			Assert.assertTrue(valueA == aback);
 
-			double b = -1234568.456d;
-			byte[] bbytes = getBytes(b);
+			double valueB = -1234568.456D;
+			byte[] bbytes = getBytes(valueB);
 			double bback = fromBytes(bbytes, 0);
-			Assert.assertTrue(b==bback);
+			Assert.assertTrue(valueB == bback);
 
 			Assert.assertTrue(DrByteTool.bitwiseCompare(abytes, bbytes) < 0);//positives and negatives are reversed
 		}

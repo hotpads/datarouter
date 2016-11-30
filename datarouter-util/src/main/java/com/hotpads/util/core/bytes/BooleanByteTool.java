@@ -9,16 +9,16 @@ import org.junit.Test;
 
 public class BooleanByteTool{
 
-	public static final int NULL = -2;
+	private static final int NULL = -2;
 
-	public static byte[] getBytesNullable(Boolean value){
+	private static byte[] getBytesNullable(Boolean value){
 		if(value == null){
 			return new byte[]{NULL};
 		}
 		return getBytes(value);
 	}
 
-	public static Boolean fromBytesNullable(final byte[] bytes, final int offset){
+	private static Boolean fromBytesNullable(final byte[] bytes, final int offset){
 		if(Arrays.equals(bytes, new byte[]{NULL})){
 			return null;
 		}
@@ -38,11 +38,13 @@ public class BooleanByteTool{
 	}
 
 	public static boolean fromBytes(byte[] bytes, int offset){
-		return bytes[offset]!=0;
+		return bytes[offset] != 0;
 	}
 
 	public static byte[] getBooleanByteArray(List<Boolean> valuesWithNulls){
-		if(valuesWithNulls==null){return null;}
+		if(valuesWithNulls == null){
+			return null;
+		}
 		byte[] out = new byte[valuesWithNulls.size()];
 		for(int i = 0; i < valuesWithNulls.size(); i++){
 			System.arraycopy(getBytesNullable(valuesWithNulls.get(i)), 0, out, i, 1);
@@ -51,11 +53,11 @@ public class BooleanByteTool{
 	}
 
 	public static List<Boolean> fromBooleanByteArray(final byte[] bytes, final int startIdx){
-		int numBooleans = (bytes.length - startIdx);
+		int numBooleans = bytes.length - startIdx;
 		List<Boolean> bools = new ArrayList<>();
 		byte[] arrayToCopy = new byte[1];
 		for(int i = 0; i < numBooleans; i++){
-			System.arraycopy(bytes,  i + startIdx, arrayToCopy, 0, 1);
+			System.arraycopy(bytes, i + startIdx, arrayToCopy, 0, 1);
 			bools.add(fromBytesNullable(arrayToCopy, 0));
 		}
 		return bools;
@@ -64,19 +66,23 @@ public class BooleanByteTool{
 	/************************** tests ************************************/
 
 	public static class BooleanByteToolTests{
-		@Test public void testGetBytes(){
+		@Test
+		public void testGetBytes(){
 			Assert.assertEquals(0, getBytes(false)[0]);
 			Assert.assertEquals(-1, getBytes(true)[0]);
 		}
-		@Test public void testFromBytes(){
+
+		@Test
+		public void testFromBytes(){
 			Assert.assertEquals(false, fromBytes(new byte[]{0}, 0));
 			Assert.assertEquals(false, fromBytes(new byte[]{1, 0}, 1));
 			Assert.assertEquals(true, fromBytes(new byte[]{-37}, 0));
 		}
+
 		@Test
 		public void testToFromByteArray(){
 			boolean one = true;
-			boolean two =  false;
+			boolean two = false;
 			boolean three = false;
 
 			List<Boolean> booleans = new ArrayList<>();

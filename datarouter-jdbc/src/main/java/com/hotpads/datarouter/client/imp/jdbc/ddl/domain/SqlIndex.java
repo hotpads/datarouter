@@ -10,7 +10,6 @@ import org.junit.Test;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn.SqlColumnNameTypeComparator;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrComparableTool;
-import com.hotpads.datarouter.util.core.DrMathTool;
 
 public class SqlIndex implements Comparable<SqlIndex>{
 
@@ -52,8 +51,8 @@ public class SqlIndex implements Comparable<SqlIndex>{
 	public int hashCode(){
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((columns == null) ? 0 : columns.hashCode());
-		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		result = prime * result + (columns == null ? 0 : columns.hashCode());
+		result = prime * result + (name == null ? 0 : name.hashCode());
 		return result;
 	}
 
@@ -119,7 +118,7 @@ public class SqlIndex implements Comparable<SqlIndex>{
 			int c = DrComparableTool.nullFirstCompareTo(index1.getName(), index2.getName());
 			if(c!=0){ return c; }
 			SqlColumnNameTypeComparator nameTypeColumnComparator = new SqlColumnNameTypeComparator(true);
-			for(int i=0; i<DrMathTool.min(index1.getColumns().size(), index2.getColumns().size()); i++){
+			for(int i = 0; i < Math.min(index1.getColumns().size(), index2.getColumns().size()); i++){
 				c=DrComparableTool.nullFirstCompareTo(index1.getColumns().get(i), index2.getColumns().get(i));
 				if(index1.getColumns().get(i)==null && index2.getColumns().get(i)==null){
 					c = 0;
@@ -142,7 +141,7 @@ public class SqlIndex implements Comparable<SqlIndex>{
 			int c = DrComparableTool.nullFirstCompareTo(name, o.name);
 			if(c!=0){ return c; }
 			SqlColumnNameTypeComparator nameTypeColumnComparator = new SqlColumnNameTypeComparator(true);
-			for(int i=0; i < DrMathTool.min(columns.size(), o.columns.size()); i++){
+			for(int i=0; i < Math.min(columns.size(), o.columns.size()); i++){
 				c=DrComparableTool.nullFirstCompareTo(columns.get(i),o.columns.get(i));
 				if(columns.get(i)==null && o.columns.get(i)==null){
 					c = 0;

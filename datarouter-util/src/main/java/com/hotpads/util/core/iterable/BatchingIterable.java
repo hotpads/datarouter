@@ -23,11 +23,6 @@ public class BatchingIterable<T> implements Iterable<List<T>>{
 		this.batchSize = batchSize;
 	}
 
-	//helper method so callers don't have to specify T
-	public static <T> BatchingIterable<T> create(Iterable<T> iterable, int batchSize){
-		return new BatchingIterable<>(iterable, batchSize);
-	}
-
 	@Override
 	public Iterator<List<T>> iterator(){
 		return new BatchingIterator<>(iterable.iterator(), batchSize);

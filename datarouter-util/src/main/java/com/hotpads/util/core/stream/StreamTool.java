@@ -38,14 +38,14 @@ public class StreamTool{
 	}
 
 	public static <T> Stream<T> nullItemSafeStream(Iterable<T> iterable){
-		return stream(iterable).filter( Objects::nonNull );
+		return stream(iterable).filter(Objects::nonNull);
 	}
 
 	public static <T> Stream<T> flatten(Stream<Stream<T>> streams){
 		return streams.reduce(Stream.empty(), Stream::concat);
 	}
 
-    public static <V> BinaryOperator<V> throwingMerger() {
+	public static <V> BinaryOperator<V> throwingMerger(){
 		return (v1, v2) -> {
 			throw new IllegalStateException(String.format("Duplicate key for values %s and %s", v1, v2));
 		};
