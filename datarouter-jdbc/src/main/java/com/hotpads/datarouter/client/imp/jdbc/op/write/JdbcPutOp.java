@@ -84,7 +84,7 @@ extends BaseJdbcOp<Void>{
 						throw new DatabeanVersioningException();
 					}
 					versionedDatabean.incrementVersion();
-					jdbcUpdate(connection, databean);
+					jdbcUpdate(connection, databean, false);
 				}
 			}
 		}else if(PutMethod.INSERT_ON_DUPLICATE_UPDATE == config.getPutMethod()
@@ -128,17 +128,17 @@ extends BaseJdbcOp<Void>{
 		}else if(PutMethod.INSERT_OR_BUST == putMethod){
 			jdbcInsert(connection, databean);
 		}else if(PutMethod.UPDATE_OR_BUST == putMethod){
-			jdbcUpdate(connection, databean);
+			jdbcUpdate(connection, databean, false);
 		}else if(PutMethod.INSERT_OR_UPDATE == putMethod){
 			try{
 				jdbcInsert(connection, databean);
 			}catch(RuntimeException e){
 				//TODO this will not work inside a txn if not all of the rows already exist
-				jdbcUpdate(connection, databean);
+				jdbcUpdate(connection, databean, false);
 			}
 		}else if(PutMethod.UPDATE_OR_INSERT == putMethod){
 			try{
-				jdbcUpdate(connection, databean);
+				jdbcUpdate(connection, databean, false);
 			}catch(RuntimeException e){
 				//TODO this will not work inside a txn if some of the rows already exist
 				jdbcInsert(connection, databean);
@@ -146,16 +146,18 @@ extends BaseJdbcOp<Void>{
 		}else if(PutMethod.MERGE == putMethod){
 			//not really a jdbc concept, but usually an update (?)
 			try{
-				jdbcUpdate(connection, databean);
+				jdbcUpdate(connection, databean, false);
 			}catch(RuntimeException e){
 				jdbcInsert(connection, databean);
 			}
 		}else if(PutMethod.INSERT_IGNORE == putMethod){
 			jdbcInsert(connection, databean, true);
+		}else if(PutMethod.UPDATE_IGNORE == putMethod){
+			jdbcUpdate(connection, databean, true);
 		}else{
 			boolean alreadyExists = node.exists(databean.getKey(), null);
 			if(alreadyExists){//select before update like hibernate's saveOrUpdate
-				jdbcUpdate(connection, databean);
+				jdbcUpdate(connection, databean, false);
 			}else{
 				jdbcInsert(connection, databean);
 			}
@@ -254,7 +256,7 @@ extends BaseJdbcOp<Void>{
 		return sb;
 	}
 
-	private void jdbcUpdate(Connection connection, D databean){
+	private void jdbcUpdate(Connection connection, D databean, boolean ignore){
 		//it doesn't make sense to update a row without PK fields.  updating the PK will move the row
 		List<Field<?>> emptyNonKeyFields = fieldInfo.getNonKeyFields();
 		if(DrCollectionTool.isEmpty(emptyNonKeyFields)){
@@ -286,12 +288,14 @@ extends BaseJdbcOp<Void>{
 		}catch(SQLException e){
 			throw new DataAccessException("error updating "+node.getTableName(), e);
 		}
-		if(numUpdated!=1){
-			if(fieldInfo.getIsVersioned()){
-				throw new DatabeanVersioningException();
+		if(!ignore){
+			if(numUpdated != 1){
+				if(fieldInfo.getIsVersioned()){
+					throw new DatabeanVersioningException();
+				}
+				throw new DataAccessException(node.getTableName() + " row " + databean.getKey().toString()
+						+ " not found so could not be updated");
 			}
-			throw new DataAccessException(node.getTableName()+" row "+databean.getKey().toString()
-					+" not found so could not be updated");
 		}
 	}
 }
