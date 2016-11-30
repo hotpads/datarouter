@@ -26,6 +26,8 @@ public abstract class SettingNode {
 	private final SortedMap<String,Setting<?>> settings;
 	private final SettingFinder finder;
 
+	private final Boolean isGroup;
+
 
 	/*********** construct ***********/
 
@@ -35,11 +37,24 @@ public abstract class SettingNode {
 		this.children = Collections.synchronizedSortedMap(new TreeMap<String,SettingNode>());
 		this.settings = Collections.synchronizedSortedMap(new TreeMap<String,Setting<?>>());
 		this.finder = finder;
+		isGroup = false;
+	}
+
+	public SettingNode(SettingFinder finder, String name, String parentName, Boolean isGroup){
+		this.name = name;
+		this.parentName = parentName;
+		this.children = Collections.synchronizedSortedMap(new TreeMap<String,SettingNode>());
+		this.settings = Collections.synchronizedSortedMap(new TreeMap<String,Setting<?>>());
+		this.finder = finder;
+		this.isGroup = isGroup;
 	}
 
 	/*********** methods ***********/
 
 	protected <N extends SettingNode> N registerChild(N child){
+		if(isGroup){//groups have no children
+			throw new RuntimeException("No children allowed for groups");
+		}
 		children.put(child.getName(), child);
 		return child;
 	}
@@ -85,6 +100,9 @@ public abstract class SettingNode {
 		if(getSettings().containsKey(settingNameParam)){
 			return getSettings().get(settingNameParam);
 		}
+		if(isGroup){//groups have no children
+			return null;
+		}
 		String nextChildShortName = settingNameParam.substring(getName().length());
 		int index = nextChildShortName.indexOf('.');
 		String nextChildPath = getName()+nextChildShortName.substring(0, index+1);
@@ -111,6 +129,8 @@ public abstract class SettingNode {
 		return shortName.substring(0, shortName.length()-1);
 	}
 
+	//TODO put group names into these methods to make group appear in DB?
+	//maybe it doesn't need to be in the DB at all, if it's in memory...
 	protected StringCachedSetting registerString(String name, String defaultValue){
 		return register(new StringCachedSetting(finder, getName() + name, defaultValue));
 	}
@@ -150,7 +170,11 @@ public abstract class SettingNode {
 	}
 
 	public SortedMap<String,SettingNode> getChildren(){
-		return children;
+		return children;//TODO technically someone could add a child into a group node here
+	}
+
+	public Boolean isGroup(){
+		return isGroup;
 	}
 
 }
