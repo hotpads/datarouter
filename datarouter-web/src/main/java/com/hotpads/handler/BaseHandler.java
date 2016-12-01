@@ -68,7 +68,7 @@ public abstract class BaseHandler{
 
 	@Handler
 	protected Object handleDefault() throws Exception{
-		response.sendError(404);
+		response.setStatus(HttpServletResponse.SC_NOT_FOUND);
 		return new MessageMav("no default handler method found, please specify " + handlerMethodParamName());
 	}
 
