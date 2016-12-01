@@ -8,7 +8,6 @@ public class NotImplementedException extends UnsupportedOperationException{
 	}
 
 	public NotImplementedException() {
-		super();
 	}
 
 }

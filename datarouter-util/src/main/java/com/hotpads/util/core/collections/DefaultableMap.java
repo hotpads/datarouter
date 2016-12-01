@@ -2,7 +2,6 @@ package com.hotpads.util.core.collections;
 
 import java.util.Map;
 
-
 public interface DefaultableMap<K,V> extends Map<K,V>{
 
 	boolean getBoolean(K key, boolean def);

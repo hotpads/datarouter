@@ -30,10 +30,6 @@ public class ReflectionTool {
 		return () -> ReflectionTool.create(type);
 	}
 
-	public static <T> T createAsSubclass(String className, Class<T> superClass){
-		return create(getAsSubClass(className, superClass));
-	}
-
 	private static Class<?> getClass(String className){
 		try{
 			return Class.forName(className);
@@ -66,7 +62,7 @@ public class ReflectionTool {
 		return create(getClass(fullyQualifiedClassName));
 	}
 
-	public static <T> T create(Class<T> cls, String exceptionMessage){
+	private static <T> T create(Class<T> cls, String exceptionMessage){
 		try{
 			if(cls.isEnum()){
 				T enumValue = cls.getEnumConstants()[0];

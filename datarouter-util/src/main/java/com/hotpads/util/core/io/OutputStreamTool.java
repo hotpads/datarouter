@@ -3,8 +3,6 @@ package com.hotpads.util.core.io;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import com.hotpads.util.core.bytes.ByteRange;
-
 public class OutputStreamTool{
 
 	public static void write(OutputStream os, byte b){
@@ -25,15 +23,6 @@ public class OutputStreamTool{
 		}catch(IOException e){
 			throw new RuntimeException(e);
 		}
-	}
-
-	public static void write(OutputStream os, ByteRange byteRange){
-		write(os, byteRange.getBytes(), byteRange.getOffset(), byteRange.getLength());
-	}
-
-	public static void write(OutputStream os, ByteRange byteRange, int byteRangeInnerOffset){
-		write(os, byteRange.getBytes(), byteRange.getOffset() + byteRangeInnerOffset, byteRange.getLength()
-				- byteRangeInnerOffset);
 	}
 
 }
