@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
 import java.util.TreeMap;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.servlet.ServletRequest;
@@ -26,12 +27,10 @@ import org.junit.Test;
 
 import com.hotpads.datarouter.util.core.DrBooleanTool;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
-import com.hotpads.datarouter.util.core.DrIdentityFunctor;
 import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.datarouter.util.core.DrNumberTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.handler.mav.Mav;
-import com.hotpads.util.core.Functor;
 import com.hotpads.util.core.collections.DefaultableMap;
 import com.hotpads.util.core.profile.ThreadSafePhaseTimer;
 import com.hotpads.util.datastructs.DefaultableHashMap;
@@ -345,20 +344,18 @@ public class RequestTool {
 	}
 
 	public static List<String> getCheckedBoxes(HttpServletRequest request, String prefix){
-		return getCheckedBoxes(request,prefix,new DrIdentityFunctor<String>());
+		return getCheckedBoxes(request, prefix, Function.identity());
 	}
 
-	public static <T> List<T> getCheckedBoxes(HttpServletRequest request, String prefix, Functor<T,String> converter){
+	public static <T> List<T> getCheckedBoxes(HttpServletRequest request, String prefix, Function<String,T> converter){
 		Enumeration<String> paramNames = request.getParameterNames();
 		List<T> selecteds = new ArrayList<>();
 		while(paramNames.hasMoreElements()){
 			String name = paramNames.nextElement();
-			if( ! name.startsWith(prefix)) {
+			if(!name.startsWith(prefix)){
 				continue;
 			}
-			selecteds.add(converter.invoke(
-							name.substring(
-									prefix.length())));
+			selecteds.add(converter.apply(name.substring(prefix.length())));
 		}
 		return selecteds;
 	}

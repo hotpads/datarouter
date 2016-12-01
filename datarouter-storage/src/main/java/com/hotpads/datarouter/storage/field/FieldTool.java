@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 
@@ -15,7 +16,6 @@ import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.datarouter.util.core.DrObjectTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
-import com.hotpads.util.core.Functor;
 import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.java.ReflectionTool;
 import com.hotpads.util.core.number.VarLong;
@@ -212,15 +212,15 @@ public class FieldTool{
 
 
 	public static List<String> getCsvValuesList(Iterable<Field<?>> fields,
-			Map<String, Functor<String, Object>> columnNameToCsvValueFunctor, boolean emptyForNullValue) {
+			Map<String,Function<Object,String>> columnNameToCsvValueFunctor, boolean emptyForNullValue){
 		List<String> csvRow = new LinkedList<>();
-		for (Field<?> field : DrIterableTool.nullSafe(fields)) {
+		for(Field<?> field : DrIterableTool.nullSafe(fields)){
 			String value = DrObjectTool.nullSafeToString(field.getValue());
-			if (columnNameToCsvValueFunctor != null
-					&& columnNameToCsvValueFunctor.containsKey(field.getKey().getColumnName())) {
-				value = columnNameToCsvValueFunctor.get(field.getKey().getColumnName()).invoke(field.getValue());
+			if(columnNameToCsvValueFunctor != null
+					&& columnNameToCsvValueFunctor.containsKey(field.getKey().getColumnName())){
+				value = columnNameToCsvValueFunctor.get(field.getKey().getColumnName()).apply(field.getValue());
 			}
-			if (value == null && emptyForNullValue) {
+			if(value == null && emptyForNullValue){
 				value = "";
 			}
 			csvRow.add(value);
