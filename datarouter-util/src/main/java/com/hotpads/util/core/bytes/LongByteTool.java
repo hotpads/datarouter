@@ -1,5 +1,6 @@
 package com.hotpads.util.core.bytes;
 
+import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Random;
 
@@ -43,16 +44,14 @@ public class LongByteTool {
 	}
 
 	public static long fromRawBytes(final byte[] bytes, final int byteOffset){
-		return (
-		      ((bytes[byteOffset    ] & (long)0xff) << 56)
-			| ((bytes[byteOffset + 1] & (long)0xff) << 48)
-			| ((bytes[byteOffset + 2] & (long)0xff) << 40)
-			| ((bytes[byteOffset + 3] & (long)0xff) << 32)
-			| ((bytes[byteOffset + 4] & (long)0xff) << 24)
-			| ((bytes[byteOffset + 5] & (long)0xff) << 16)
-			| ((bytes[byteOffset + 6] & (long)0xff) <<  8)
-			|  (bytes[byteOffset + 7] & (long)0xff)
-		);
+		return (bytes[byteOffset    ] & (long)0xff) << 56
+		| (bytes[byteOffset + 1] & (long)0xff) << 48
+		| (bytes[byteOffset + 2] & (long)0xff) << 40
+		| (bytes[byteOffset + 3] & (long)0xff) << 32
+		| (bytes[byteOffset + 4] & (long)0xff) << 24
+		| (bytes[byteOffset + 5] & (long)0xff) << 16
+		| (bytes[byteOffset + 6] & (long)0xff) <<  8
+		|  bytes[byteOffset + 7] & (long)0xff;
 	}
 
 	/*
@@ -80,63 +79,47 @@ public class LongByteTool {
 	//************ arrays and collections
 
 	public static byte[] getComparableByteArray(List<Long> valuesWithNulls){
-		if(valuesWithNulls==null){ return new byte[0]; }
+		if(valuesWithNulls == null){
+			return new byte[0];
+		}
 		LongArray values;
 		if(valuesWithNulls instanceof LongArray){
 			values = (LongArray)valuesWithNulls;
 		}else{
 			values = new LongArray(valuesWithNulls);
 		}
-		byte[] out = new byte[8*values.size()];
-		for(int i=0; i < values.size(); ++i){
-			System.arraycopy(getComparableBytes(values.getPrimitive(i)), 0, out, i*8, 8);
+		byte[] out = new byte[8 * values.size()];
+		for(int i = 0; i < values.size(); ++i){
+			System.arraycopy(getComparableBytes(values.getPrimitive(i)), 0, out, i * 8, 8);
 		}
 		return out;
 	}
 
 
 	public static byte[] getComparableByteArray(long[] values){
-		byte[] out = new byte[8*values.length];
-		for(int i=0; i < values.length; ++i){
-			System.arraycopy(getComparableBytes(values[i]), 0, out, i*8, 8);
+		byte[] out = new byte[8 * values.length];
+		for(int i = 0; i < values.length; ++i){
+			System.arraycopy(getComparableBytes(values[i]), 0, out, i * 8, 8);
 		}
 		return out;
 	}
 
 	public static long[] fromComparableByteArray(final byte[] bytes){
-		if(DrArrayTool.isEmpty(bytes)){ return new long[0]; }
+		if(DrArrayTool.isEmpty(bytes)){
+			return new long[0];
+		}
 		return fromComparableByteArray(bytes, 0, bytes.length);
 	}
 
-	public static long[] fromComparableByteArray(final byte[] bytes, final int startIdx, final int length){
+	private static long[] fromComparableByteArray(final byte[] bytes, final int startIdx, final int length){
 		long[] out = new long[length / 8];
 		int byteOffset = startIdx;
-		for(int i=0; i < out.length; ++i){
-			/*
-			 * i think the first bitwise operation causes the operand to be zero-padded
-			 *     to an integer before the operation happens
-			 *
-			 * parenthesis are extremely important here because of the automatic int upgrading
-			 */
-
-			//more compact
-			out[i] = Long.MIN_VALUE ^ (
-						  ((bytes[byteOffset    ] & (long)0xff) << 56)
-						| ((bytes[byteOffset + 1] & (long)0xff) << 48)
-						| ((bytes[byteOffset + 2] & (long)0xff) << 40)
-						| ((bytes[byteOffset + 3] & (long)0xff) << 32)
-						| ((bytes[byteOffset + 4] & (long)0xff) << 24)
-						| ((bytes[byteOffset + 5] & (long)0xff) << 16)
-						| ((bytes[byteOffset + 6] & (long)0xff) <<  8)
-						|  (bytes[byteOffset + 7] & (long)0xff)
-					);
-
+		for(int i = 0; i < out.length; ++i){
+			out[i] = Long.MIN_VALUE ^ fromUInt63Bytes(bytes, byteOffset);
 			byteOffset += 8;
 		}
 		return out;
 	}
-
-
 
 	/*
 	 * uInt63
@@ -145,6 +128,10 @@ public class LongByteTool {
 	 */
 
 	//************ single values
+
+//	public static byte[] getUInt63Bytes(final long value){
+//		return ByteBuffer.allocate(Long.BYTES).putLong(value).array();
+//	}
 
 	public static byte[] getUInt63Bytes(final long value){
 //		if(value < 0){ throw new IllegalArgumentException("no negatives"); }//need to allow Long.MIN_VALUE in for nulls
@@ -160,77 +147,68 @@ public class LongByteTool {
 		return out;
 	}
 
+	public static void main(String[] args){
+		long c1 = 0;
+		long c2 = 0;
+		for(long value = -100000000L ; value < 100000000L ; value++){
+			long start = System.currentTimeMillis();
+			ByteBuffer.allocate(Long.BYTES).putLong(value).array();
+			c1 += System.currentTimeMillis() - start;
+			start = System.currentTimeMillis();
+			getUInt63Bytes(value);
+			c2 += System.currentTimeMillis() - start;
+		}
+		System.out.println(c1 + "\t" + c2);
+	}
+
 	public static Long fromUInt63Bytes(final byte[] bytes, final int byteOffset){
 		return
-		  ((bytes[byteOffset    ] & (long)0xff) << 56)
-		| ((bytes[byteOffset + 1] & (long)0xff) << 48)
-		| ((bytes[byteOffset + 2] & (long)0xff) << 40)
-		| ((bytes[byteOffset + 3] & (long)0xff) << 32)
-		| ((bytes[byteOffset + 4] & (long)0xff) << 24)
-		| ((bytes[byteOffset + 5] & (long)0xff) << 16)
-		| ((bytes[byteOffset + 6] & (long)0xff) <<  8)
-		|  (bytes[byteOffset + 7] & (long)0xff);
+		  (bytes[byteOffset    ] & (long)0xff) << 56
+		| (bytes[byteOffset + 1] & (long)0xff) << 48
+		| (bytes[byteOffset + 2] & (long)0xff) << 40
+		| (bytes[byteOffset + 3] & (long)0xff) << 32
+		| (bytes[byteOffset + 4] & (long)0xff) << 24
+		| (bytes[byteOffset + 5] & (long)0xff) << 16
+		| (bytes[byteOffset + 6] & (long)0xff) <<  8
+		|  bytes[byteOffset + 7] & (long)0xff;
 	}
 
 	//************ arrays and collections
 
 	public static byte[] getUInt63ByteArray(List<Long> valuesWithNulls){
-		if(valuesWithNulls==null){ return new byte[0]; }
+		if(valuesWithNulls == null){
+			return new byte[0];
+		}
 		LongArray values;
 		if(valuesWithNulls instanceof LongArray){
 			values = (LongArray)valuesWithNulls;
 		}else{
 			values = new LongArray(valuesWithNulls);
 		}
-		byte[] out = new byte[8*values.size()];
-		for(int i=0; i < values.size(); ++i){
-			System.arraycopy(getUInt63Bytes(values.getPrimitive(i)), 0, out, i*8, 8);
+		byte[] out = new byte[8 * values.size()];
+		for(int i = 0; i < values.size(); ++i){
+			System.arraycopy(getUInt63Bytes(values.getPrimitive(i)), 0, out, i * 8, 8);
 		}
 		return out;
 	}
 
-
-	public static byte[] getUInt63ByteArray(long[] values){
-		byte[] out = new byte[8*values.length];
-		for(int i=0; i < values.length; ++i){
-			System.arraycopy(getUInt63Bytes(values[i]), 0, out, i*8, 8);
-		}
-		return out;
-	}
 
 	public static long[] fromUInt63ByteArray(final byte[] bytes){
-		if(DrArrayTool.isEmpty(bytes)){ return new long[0]; }
+		if(DrArrayTool.isEmpty(bytes)){
+			return new long[0];
+		}
 		return fromUInt63ByteArray(bytes, 0, bytes.length);
 	}
 
 	public static long[] fromUInt63ByteArray(final byte[] bytes, final int startIdx, int length){
 		long[] out = new long[length / 8];
 		int byteOffset = startIdx;
-		for(int i=0; i < out.length; ++i){
-
-			/*
-			 * i think the first bitwise operation causes the operand to be zero-padded
-			 *     to an integer before the operation happens
-			 *
-			 * parenthesis are extremely important here because of the automatic int upgrading
-			 */
-
-			//more compact
-			out[i] =      ((bytes[byteOffset    ] & (long)0xff) << 56)
-						| ((bytes[byteOffset + 1] & (long)0xff) << 48)
-						| ((bytes[byteOffset + 2] & (long)0xff) << 40)
-						| ((bytes[byteOffset + 3] & (long)0xff) << 32)
-						| ((bytes[byteOffset + 4] & (long)0xff) << 24)
-						| ((bytes[byteOffset + 5] & (long)0xff) << 16)
-						| ((bytes[byteOffset + 6] & (long)0xff) <<  8)
-						|  (bytes[byteOffset + 7] & (long)0xff);
-
+		for(int i = 0; i < out.length; ++i){
+			out[i] = fromUInt63Bytes(bytes, byteOffset);
 			byteOffset += 8;
 		}
 		return out;
 	}
-
-
 
 	/************************ tests ***************************************/
 
@@ -301,14 +279,14 @@ public class LongByteTool {
 					0,1,127,128,
 					Long.MAX_VALUE-1,Long.MAX_VALUE,
 					-9223372036845049055L};
-			for(int i=0; i < subjects.length; ++i){
+			for(long subject : subjects){
 //				System.out.println("roundTrip "+Integer.toHexString(subjects[i]));
 //				System.out.println("origi "+toBitString(subjects[i]));
-				byte[] bytes = getComparableBytes(subjects[i]);
+				byte[] bytes = getComparableBytes(subject);
 //				System.out.println("bytes "+ByteTool.getBinaryStringBigEndian(bytes));
 				long roundTripped = fromComparableByteArray(bytes)[0];
 //				System.out.println("round "+toBitString(roundTripped));
-				Assert.assertEquals(subjects[i], roundTripped);
+				Assert.assertEquals(subject, roundTripped);
 			}
 		}
 

@@ -6,10 +6,6 @@ public class DrRuntimeTool {
 		return isOS("windows");
 	}
 
-	public static boolean isLinux() {
-		return isOS("linux");
-	}
-
 	public static boolean isOS(String os) {
 		String realOs = System.getProperty("os.name");
 		return realOs != null
@@ -53,14 +49,6 @@ public class DrRuntimeTool {
 	public static int getTotalMemoryMBytes(){
 		Double memory = getTotalMemory()/1024/1024/1.5;
 		return memory.intValue();
-	}
-
-	public static long getFreeMemory(){
-		return Runtime.getRuntime().freeMemory();
-	}
-
-	public static long getMaxMemory(){
-		return Runtime.getRuntime().maxMemory();
 	}
 
 }

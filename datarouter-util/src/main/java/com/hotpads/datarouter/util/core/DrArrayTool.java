@@ -89,8 +89,8 @@ public class DrArrayTool{
 		if(isEmpty(array)){
 			return false;
 		}
-		for(int i = 0; i < array.length; ++i){
-			if(array[i] == key){
+		for(byte element : array){
+			if(element == key){
 				return true;
 			}
 		}
@@ -107,16 +107,6 @@ public class DrArrayTool{
 			array[index++] = i;
 		}
 		return array;
-	}
-
-	public static void copyInto(byte[] destination, byte[] source, int offset){
-		for(int i = 0; i < source.length; i++){
-			try{
-				destination[offset + i] = source[i];
-			}catch(ArrayIndexOutOfBoundsException e){
-				throw new ArrayIndexOutOfBoundsException("array1 + offset is shorter than array2");
-			}
-		}
 	}
 
 	public static class Tests{

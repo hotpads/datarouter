@@ -244,8 +244,8 @@ public class DrStringTool{
 
 	public static boolean containsCharactersOutsideRange(final String input, int bottom, int top){
 		char[] chars = input.toCharArray();
-		for(int i = 0; i < chars.length; i++){
-			if(chars[i] > top || chars[i] < bottom) {
+		for(char c : chars){
+			if(c > top || c < bottom) {
 				return true;
 			}
 		}
@@ -316,10 +316,6 @@ public class DrStringTool{
 
 	public static String capitalizeFirstLetter(String input){
 		return changeFirstCharacterCase(input, true);
-	}
-
-	public static String lowercaseFirstCharacter(String input){
-		return changeFirstCharacterCase(input, false);
 	}
 
 	private static String changeFirstCharacterCase(String input, boolean capitalize){
