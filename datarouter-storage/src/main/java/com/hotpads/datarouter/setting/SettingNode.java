@@ -26,20 +26,30 @@ public abstract class SettingNode {
 	private final SortedMap<String,Setting<?>> settings;
 	private final SettingFinder finder;
 
+	private final Boolean isGroup;
+
 
 	/*********** construct ***********/
 
 	public SettingNode(SettingFinder finder, String name, String parentName){
+		this(finder, name, parentName, false);
+	}
+
+	public SettingNode(SettingFinder finder, String name, String parentName, Boolean isGroup){
 		this.name = name;
 		this.parentName = parentName;
 		this.children = Collections.synchronizedSortedMap(new TreeMap<String,SettingNode>());
 		this.settings = Collections.synchronizedSortedMap(new TreeMap<String,Setting<?>>());
 		this.finder = finder;
+		this.isGroup = isGroup;
 	}
 
 	/*********** methods ***********/
 
 	protected <N extends SettingNode> N registerChild(N child){
+		if(isGroup){//groups have no children
+			throw new RuntimeException("No children allowed for groups");
+		}
 		children.put(child.getName(), child);
 		return child;
 	}
@@ -84,6 +94,9 @@ public abstract class SettingNode {
 	public Setting<?> getDescendantSettingByName(String settingNameParam){
 		if(getSettings().containsKey(settingNameParam)){
 			return getSettings().get(settingNameParam);
+		}
+		if(isGroup){//groups have no children
+			return null;
 		}
 		String nextChildShortName = settingNameParam.substring(getName().length());
 		int index = nextChildShortName.indexOf('.');
@@ -151,6 +164,10 @@ public abstract class SettingNode {
 
 	public SortedMap<String,SettingNode> getChildren(){
 		return children;
+	}
+
+	public Boolean isGroup(){
+		return isGroup;
 	}
 
 }
