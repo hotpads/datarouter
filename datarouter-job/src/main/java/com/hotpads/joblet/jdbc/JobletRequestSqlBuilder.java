@@ -9,12 +9,12 @@ import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.comparable.BooleanField;
 import com.hotpads.datarouter.storage.field.imp.comparable.IntegerField;
 import com.hotpads.datarouter.storage.field.imp.enums.StringEnumField;
+import com.hotpads.joblet.JobletConstants;
 import com.hotpads.joblet.JobletNodes;
 import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.databean.JobletRequestKey;
 import com.hotpads.joblet.enums.JobletStatus;
 import com.hotpads.joblet.enums.JobletType;
-import com.hotpads.joblet.execute.ParallelJobletProcessor;
 
 @Singleton
 public class JobletRequestSqlBuilder{
@@ -78,6 +78,6 @@ public class JobletRequestSqlBuilder{
 	}
 
 	private Long computeReservedBeforeMs(){
-		return System.currentTimeMillis() - ParallelJobletProcessor.RUNNING_JOBLET_TIMEOUT_MS;
+		return System.currentTimeMillis() - JobletConstants.RUNNING_JOBLET_TIMEOUT_MS;
 	}
 }

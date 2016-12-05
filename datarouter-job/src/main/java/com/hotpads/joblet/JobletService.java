@@ -4,7 +4,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -20,6 +22,7 @@ import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.handler.exception.ExceptionRecord;
 import com.hotpads.handler.exception.ExceptionRecorder;
 import com.hotpads.job.trigger.JobExceptionCategory;
+import com.hotpads.joblet.dao.JobletRequestDao;
 import com.hotpads.joblet.databean.JobletData;
 import com.hotpads.joblet.databean.JobletDataKey;
 import com.hotpads.joblet.databean.JobletRequest;
@@ -27,12 +30,14 @@ import com.hotpads.joblet.databean.JobletRequestKey;
 import com.hotpads.joblet.enums.JobletQueueMechanism;
 import com.hotpads.joblet.enums.JobletStatus;
 import com.hotpads.joblet.enums.JobletType;
+import com.hotpads.joblet.enums.JobletTypeFactory;
 import com.hotpads.joblet.queue.JobletRequestQueueKey;
 import com.hotpads.joblet.queue.JobletRequestQueueManager;
 import com.hotpads.joblet.queue.JobletRequestSelector;
 import com.hotpads.joblet.queue.JobletRequestSelectorFactory;
 import com.hotpads.joblet.setting.JobletSettings;
 import com.hotpads.util.core.collections.Range;
+import com.hotpads.util.core.iterable.BatchingIterable;
 import com.hotpads.util.core.profile.PhaseTimer;
 import com.hotpads.util.core.stream.StreamTool;
 
@@ -44,43 +49,63 @@ public class JobletService{
 
 	private final JobletRequestQueueManager jobletRequestQueueManager;
 	private final JobletNodes jobletNodes;
+	private final JobletRequestDao jobletRequestDao;
 	private final ExceptionRecorder exceptionRecorder;
 	private final JobletSettings jobletSettings;
 	private final JobletRequestSelectorFactory jobletRequestSelectorFactory;
+	private final JobletTypeFactory jobletTypeFactory;
+	private final JobletCounters jobletCounters;
 
 	@Inject
 	public JobletService(JobletRequestQueueManager jobletRequestQueueManager, JobletNodes jobletNodes,
-			ExceptionRecorder exceptionRecorder, JobletSettings jobletSettings,
-			JobletRequestSelectorFactory jobletRequestSelectorFactory){
+			JobletRequestDao jobletRequestDao, ExceptionRecorder exceptionRecorder, JobletSettings jobletSettings,
+			JobletRequestSelectorFactory jobletRequestSelectorFactory, JobletTypeFactory jobletTypeFactory,
+			JobletCounters jobletCounters){
 		this.jobletRequestQueueManager = jobletRequestQueueManager;
 		this.jobletNodes = jobletNodes;
+		this.jobletRequestDao = jobletRequestDao;
 		this.exceptionRecorder = exceptionRecorder;
 		this.jobletSettings = jobletSettings;
 		this.jobletRequestSelectorFactory = jobletRequestSelectorFactory;
+		this.jobletTypeFactory = jobletTypeFactory;
+		this.jobletCounters = jobletCounters;
 	}
 
 	/*--------------------- create ------------------------*/
 
-	public void submitJobletPackages(Collection<JobletPackage> jobletPackages){
-		String typeString = DrCollectionTool.getFirst(jobletPackages).getJobletRequest().getTypeString();
-		PhaseTimer timer = new PhaseTimer("insert " + jobletPackages.size() + " " + typeString);
-		jobletNodes.jobletData().putMulti(JobletPackage.getJobletDatas(jobletPackages), Configs.insertOrBust());
-		timer.add("inserted JobletData");
-		jobletPackages.forEach(JobletPackage::updateJobletDataIdReference);
-		List<JobletRequest> jobletRequests = JobletPackage.getJobletRequests(jobletPackages);
-		jobletNodes.jobletRequest().putMulti(jobletRequests, Configs.insertOrBust());
-		timer.add("inserted JobletRequest");
-		if(jobletSettings.getQueueMechanismEnum() == JobletQueueMechanism.SQS){
-			Map<JobletRequestQueueKey,List<JobletRequest>> requestsByQueueKey = jobletRequests.stream()
-					.collect(Collectors.groupingBy(jobletRequestQueueManager::getQueueKey, Collectors.toList()));
-			for(Map.Entry<JobletRequestQueueKey,List<JobletRequest>> queueAndRequests : requestsByQueueKey.entrySet()){
-				jobletNodes.jobletRequestQueueByKey().get(queueAndRequests.getKey()).putMulti(queueAndRequests
-						.getValue(), null);
+	public void submitJobletPackagesOfDifferentTypes(Collection<JobletPackage> jobletPackages){
+		jobletPackages.stream()
+				.collect(Collectors.groupingBy(jobletPackage -> jobletPackage.getJobletRequest().getTypeString()))
+				.values()
+				.forEach(this::submitJobletPackagesOfSameType);
+	}
+
+	public void submitJobletPackagesOfSameType(Collection<JobletPackage> jobletPackages){
+		JobletType<?> jobletType = jobletTypeFactory.fromJobletPackage(DrCollectionTool.getFirst(jobletPackages));
+		JobletType.assertAllSameShortQueueName(StreamTool.map(jobletPackages, jobletTypeFactory::fromJobletPackage));
+		for(List<JobletPackage> batch : new BatchingIterable<>(jobletPackages, 100)){
+			PhaseTimer timer = new PhaseTimer("insert " + batch.size() + " " + jobletType);
+			jobletNodes.jobletData().putMulti(JobletPackage.getJobletDatas(batch), Configs.insertOrBust());
+			timer.add("inserted JobletData");
+			batch.forEach(JobletPackage::updateJobletDataIdReference);
+			List<JobletRequest> jobletRequests = JobletPackage.getJobletRequests(batch);
+			jobletNodes.jobletRequest().putMulti(jobletRequests, Configs.insertOrBust());
+			jobletCounters.incNumJobletsInserted(jobletRequests.size());
+			jobletCounters.incNumJobletsInserted(jobletType, jobletRequests.size());
+			timer.add("inserted JobletRequest");
+			if(jobletSettings.getQueueMechanismEnum() == JobletQueueMechanism.SQS){
+				Map<JobletRequestQueueKey,List<JobletRequest>> requestsByQueueKey = jobletRequests.stream()
+						.collect(Collectors.groupingBy(jobletRequestQueueManager::getQueueKey, Collectors.toList()));
+				for(Map.Entry<JobletRequestQueueKey,List<JobletRequest>> queueAndRequests : requestsByQueueKey
+						.entrySet()){
+					jobletNodes.jobletRequestQueueByKey().get(queueAndRequests.getKey()).putMulti(queueAndRequests
+							.getValue(), null);
+				}
+				timer.add("queued JobletRequests");
 			}
-			timer.add("queued JobletRequests");
-		}
-		if(timer.getElapsedTimeBetweenFirstAndLastEvent() > 200){
-			logger.warn("slow insert joblets:{}", timer);
+			if(timer.getElapsedTimeBetweenFirstAndLastEvent() > 200){
+				logger.warn("slow insert joblets:{}", timer);
+			}
 		}
 	}
 
@@ -116,10 +141,11 @@ public class JobletService{
 
 	/*--------------------- get for processing ---------------------*/
 
-	public Optional<JobletRequest> getJobletRequestForProcessing(JobletType<?> type, String reservedBy){
+	public Optional<JobletRequest> getJobletRequestForProcessing(PhaseTimer timer, JobletType<?> type,
+			String reservedBy){
 		long startMs = System.currentTimeMillis();
 		JobletRequestSelector selector = jobletRequestSelectorFactory.create();
-		Optional<JobletRequest> jobletRequest = selector.getJobletRequestForProcessing(type, reservedBy);
+		Optional<JobletRequest> jobletRequest = selector.getJobletRequestForProcessing(timer, type, reservedBy);
 		long durationMs = System.currentTimeMillis() - startMs;
 		if(durationMs > 1000){
 			String message = jobletRequest.map(Databean::getKey).map(Object::toString).orElse("none");
@@ -136,10 +162,28 @@ public class JobletService{
 		List<JobletRequest> jobletRequestsToReset = JobletRequest.filterByTypeStatusReservedByPrefix(jobletRequests,
 				jobletType, JobletStatus.running, serverNamePrefix);
 		logger.warn("found "+DrCollectionTool.size(jobletRequestsToReset)+" jobletRequests to reset");
-
 		for(JobletRequest jobletRequest : jobletRequestsToReset){
-			handleJobletInterruption(jobletRequest);
+			handleJobletInterruption(new PhaseTimer("setJobletRequestsRunningOnServerToCreated " + jobletRequest
+					.toString()), jobletRequest);
 		}
+	}
+
+	public long restartJoblets(JobletType<?> jobletType, JobletStatus jobletStatus){
+		final AtomicLong numRestarted = new AtomicLong();
+		Stream<JobletRequest> requests = jobletRequestDao.streamType(jobletType, false)
+				.filter(request -> request.getStatus() == jobletStatus);
+		requests.forEach(request -> {
+			request.setStatus(JobletStatus.created);
+			request.setNumFailures(0);
+			jobletNodes.jobletRequest().put(request, null);
+			if(jobletSettings.getQueueMechanismEnum() == JobletQueueMechanism.SQS){
+				JobletRequestQueueKey queueKey = jobletRequestQueueManager.getQueueKey(request);
+				jobletNodes.jobletRequestQueueByKey().get(queueKey).put(request, null);
+			}
+			numRestarted.incrementAndGet();
+			logger.warn("restarted {}", numRestarted.get());
+		});
+		return numRestarted.get();
 	}
 
 	/*--------------------- delete -----------------------*/
@@ -156,18 +200,17 @@ public class JobletService{
 
 	/*--------------------- lifecycle events -----------------------*/
 
-	public void handleJobletInterruption(JobletRequest jobletRequest){
+	public void handleJobletInterruption(PhaseTimer timer, JobletRequest jobletRequest){
 		jobletRequest.setReservedBy(null);
 		jobletRequest.setReservedAt(null);
 		JobletStatus setStatusTo = jobletRequest.getRestartable() ? JobletStatus.created : JobletStatus.interrupted;
 		jobletRequest.setStatus(setStatusTo);
-		requeueJobletRequest(jobletRequest);
-		jobletNodes.jobletRequest().put(jobletRequest, new Config().setPutMethod(PutMethod.UPDATE_OR_BUST));
+		requeueJobletRequest(timer, jobletRequest);
 		logger.warn("interrupted {}, set status={}, reservedBy=null, reservedAt=null", jobletRequest.getKey(),
 				setStatusTo);
 	}
 
-	public void handleJobletError(JobletRequest jobletRequest, Exception exception, String location){
+	public void handleJobletError(PhaseTimer timer, JobletRequest jobletRequest, Exception exception, String location){
 		ExceptionRecord exceptionRecord = exceptionRecorder.tryRecordException(exception, location,
 				JobExceptionCategory.JOBLET);
 		jobletRequest.setExceptionRecordId(exceptionRecord.getKey().getId());
@@ -176,29 +219,35 @@ public class JobletService{
 		jobletRequest.incrementNumFailures();
 		if(jobletRequest.getRestartable() && ! jobletRequest.hasReachedMaxFailures()){
 			jobletRequest.setStatus(JobletStatus.created);
-			requeueJobletRequest(jobletRequest);
+			requeueJobletRequest(timer, jobletRequest);
 		}else{
 			jobletRequest.setStatus(JobletStatus.failed);
+			jobletNodes.jobletRequest().put(jobletRequest, new Config().setPutMethod(PutMethod.UPDATE_OR_BUST));
+			timer.add("mark failed");
 		}
-		jobletNodes.jobletRequest().put(jobletRequest, new Config().setPutMethod(PutMethod.UPDATE_OR_BUST));
 	}
 
-	public void handleJobletCompletion(JobletRequest jobletRequest){
+	public void handleJobletCompletion(PhaseTimer timer, JobletRequest jobletRequest){
 		if(jobletRequest.getQueueMessageKey() != null){
 			JobletRequestQueueKey queueKey = jobletRequestQueueManager.getQueueKey(jobletRequest);
 			jobletNodes.jobletRequestQueueByKey().get(queueKey).ack(jobletRequest.getQueueMessageKey(), null);
+			timer.add("ack");
 		}
 		deleteJobletRequestAndData(jobletRequest);
+		timer.add("deleteJobletRequestAndData");
 	}
 
-	private void requeueJobletRequest(JobletRequest jobletRequest){
+	private void requeueJobletRequest(PhaseTimer timer, JobletRequest jobletRequest){
 		if(jobletRequest.getQueueMessageKey() == null){
 			return;
 		}
 		JobletRequestQueueKey queueKey = jobletRequestQueueManager.getQueueKey(jobletRequest);
 		//rather than ack/put, is there an ack(false) mechanism?
 		jobletNodes.jobletRequestQueueByKey().get(queueKey).ack(jobletRequest.getQueueMessageKey(), null);
-		jobletNodes.jobletRequestQueueByKey().get(queueKey).put(jobletRequest, null);
+		timer.add("requeue ack");
+		jobletNodes.jobletRequestQueueByKey().get(queueKey).put(jobletRequest, new Config().setPutMethod(
+				PutMethod.UPDATE_OR_BUST));
+		timer.add("requeue put");
 	}
 
 }

@@ -10,7 +10,7 @@ import com.hotpads.conveyor.Conveyor;
 import com.hotpads.conveyor.ConveyorCounters;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.op.raw.GroupQueueStorage;
-import com.hotpads.datarouter.node.op.raw.MapStorage;
+import com.hotpads.datarouter.node.op.raw.write.StorageWriter;
 import com.hotpads.datarouter.setting.Setting;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
@@ -19,7 +19,7 @@ import com.hotpads.datarouter.storage.queue.GroupQueueMessage;
 public class GroupQueueConveyor<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>>
-implements Runnable, Conveyor{
+implements Conveyor{
 	private static final Logger logger = LoggerFactory.getLogger(GroupQueueConveyor.class);
 
 	private static final Duration PEEK_TIMEOUT = Duration.ofSeconds(5);
@@ -28,15 +28,15 @@ implements Runnable, Conveyor{
 	private final String name;
 	private final Setting<Boolean> shouldRunSetting;
 	private final GroupQueueStorage<PK,D> groupQueueStorage;
-	private final MapStorage<PK,D> mapStorage;
+	private final StorageWriter<PK,D> storageWriter;
 
 
 	public GroupQueueConveyor(String name, Setting<Boolean> shouldRunSetting, GroupQueueStorage<PK,D> groupQueueStorage,
-			MapStorage<PK,D> mapStorage){
+			StorageWriter<PK,D> storageWriter){
 		this.name = name;
 		this.shouldRunSetting = shouldRunSetting;
 		this.groupQueueStorage = groupQueueStorage;
-		this.mapStorage = mapStorage;
+		this.storageWriter = storageWriter;
 	}
 
 
@@ -48,7 +48,7 @@ implements Runnable, Conveyor{
 			}
 			for(GroupQueueMessage<PK,D> message : groupQueueStorage.peekUntilEmpty(PEEK_CONFIG)){
 				List<D> databeans = message.getDatabeans();
-				mapStorage.putMulti(databeans, null);
+				storageWriter.putMulti(databeans, null);
 				ConveyorCounters.inc(this, "putMulti ops", 1);
 				ConveyorCounters.inc(this, "putMulti databeans", databeans.size());
 				groupQueueStorage.ack(message.getKey(), null);

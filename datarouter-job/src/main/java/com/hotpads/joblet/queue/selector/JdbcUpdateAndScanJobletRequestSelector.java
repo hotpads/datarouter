@@ -15,6 +15,7 @@ import com.hotpads.joblet.enums.JobletType;
 import com.hotpads.joblet.jdbc.JobletRequestSqlBuilder;
 import com.hotpads.joblet.jdbc.ReserveJobletRequest;
 import com.hotpads.joblet.queue.JobletRequestSelector;
+import com.hotpads.util.core.profile.PhaseTimer;
 
 @Singleton
 public class JdbcUpdateAndScanJobletRequestSelector implements JobletRequestSelector{
@@ -29,7 +30,8 @@ public class JdbcUpdateAndScanJobletRequestSelector implements JobletRequestSele
 	private JobletRequestSqlBuilder jobletRequestSqlBuilder;
 
 	@Override
-	public Optional<JobletRequest> getJobletRequestForProcessing(JobletType<?> type, String reservedBy){
+	public Optional<JobletRequest> getJobletRequestForProcessing(PhaseTimer timer, JobletType<?> type,
+			String reservedBy){
 		ReserveJobletRequest jdbcOp = new ReserveJobletRequest(reservedBy, type, datarouter, jobletNodes,
 				jobletRequestSqlBuilder);
 		while(datarouter.run(jdbcOp)){//returns false if no joblet found

@@ -13,20 +13,21 @@
 				<li class="dropdown">
 					<a href="#" class="dropdown-toggle" data-toggle="dropdown">Monitoring <span class="caret"></span></a>
 					<ul class="dropdown-menu">
-						<li><a href="?submitAction=showThreads">Threads</a></li>
-						<li><a href="?submitAction=listExceptions">Exceptions</a></li>
+						<li><a href="?submitAction=threads">Threads</a></li>
+						<li><a href="?submitAction=exceptions">Exceptions</a></li>
 					</ul>
 				</li>
 				<li class="dropdown">
 					<a href="#" class="dropdown-toggle" data-toggle="dropdown">Counters <span class="caret"></span></a>
 					<ul class="dropdown-menu">
-						<li><a href="/analytics/counters?submitAction=listCounters&webApps=All&servers=ALL&periods=300000&archive=databean+300000&nameLike=Joblet+queue+length">Queue Length Counts</a></li>
-						<li><a href="/analytics/counters?submitAction=listCounters&webApps=All&servers=ALL&periods=300000&archive=databean+300000&nameLike=Joblet+processed">Joblets Processed Counts</a></li>
-						<li><a href="/analytics/counters?submitAction=listCounters&webApps=All&servers=ALL&periods=300000&archive=databean+300000&nameLike=Joblet+items+processed">Items Processed Counts</a></li>
-						<li><a href="/analytics/counters?submitAction=listCounters&webApps=All&servers=ALL&periods=300000&archive=databean+300000&nameLike=Joblet+tasks+processed">Tasks Processed Counts</a></li>
-						<li><a href="/analytics/counters?submitAction=listCounters&webApps=All&servers=ALL&periods=300000&archive=databean+300000&nameLike=Joblet+first+created">First Created Counts</a></li>
-						<li><a href="/analytics/counters?counters=Joblet%20target%20servers&submitAction=viewCounters&webApps=All&servers=All&periods=300000&frequency=second&rollPeriod=1">Target Servers Counts</a></li>
-						<li><a href="/analytics/counters?counters=Joblet%20num%20servers&submitAction=viewCounters&webApps=All&servers=All&periods=300000&frequency=second&rollPeriod=1">Num Servers Counts</a></li>
+						<li><a href="/analytics/counters?submitAction=listCounters&webApps=All&servers=ALL&periods=300000&archive=databean+300000&nameLike=Joblet+first+created">First Created</a></li>
+						<li><a href="/analytics/counters?submitAction=listCounters&webApps=All&servers=ALL&periods=300000&archive=databean+300000&nameLike=Joblet+queue+length">Queue Length</a></li>
+						<li><a href="/analytics/counters?submitAction=listCounters&webApps=All&servers=ALL&periods=300000&archive=databean+300000&nameLike=Joblet+processed">Joblets Inserted</a></li>
+						<li><a href="/analytics/counters?submitAction=listCounters&webApps=All&servers=ALL&periods=300000&archive=databean+300000&nameLike=Joblet+processed">Joblets Processed</a></li>
+						<li><a href="/analytics/counters?submitAction=listCounters&webApps=All&servers=ALL&periods=300000&archive=databean+300000&nameLike=Joblet+items+processed">Items Processed</a></li>
+						<li><a href="/analytics/counters?submitAction=listCounters&webApps=All&servers=ALL&periods=300000&archive=databean+300000&nameLike=Joblet+tasks+processed">Tasks Processed</a></li>
+						<li><a href="/analytics/counters?counters=Joblet%20target%20servers&submitAction=viewCounters&webApps=All&servers=All&periods=300000&frequency=second&rollPeriod=1">Target Servers</a></li>
+						<li><a href="/analytics/counters?counters=Joblet%20num%20servers&submitAction=viewCounters&webApps=All&servers=All&periods=300000&frequency=second&rollPeriod=1">Actual Servers</a></li>
 					</ul>
 				</li>
 				<li class="dropdown">
@@ -34,26 +35,23 @@
 					<ul class="dropdown-menu">
 						<li><a href="?submitAction=showJoblets">all</a></li>
 						<c:forEach items="${jobletStatuses}" var="status">
-							<li><a href="?submitAction=showJoblets&expanded=${expanded}&whereStatus=${status.persistentString}">${status.persistentString}</a></li>
+							<li><a href="?submitAction=showJoblets&whereStatus=${status.persistentString}">${status.persistentString}</a></li>
 						</c:forEach>
 					</ul>
 				</li>
 				<li class="dropdown">
-					<a href="#" class="dropdown-toggle" data-toggle="dropdown">Actions <span class="caret"></span></a>
+					<a href="#" class="dropdown-toggle" data-toggle="dropdown">Requeue<span class="caret"></span></a>
 					<ul class="dropdown-menu">
-						<li><a href="?submitAction=restartFailed" onclick="return confirm('Are you sure you want to restart failed joblets?');">restart failed joblets</a></li>
-						<li><a href="?submitAction=timeoutStuckRunning" onclick="return confirm('Are you sure you want to timeout stuck running joblets?');">timeout stuck running joblets</a></li>
-						<li><a href="?submitAction=deleteTimedOutJoblets" onclick="return confirm('Are you sure you want to delete timed out joblets?');">delete timed out joblets</a></li>
-						<li><a href="?submitAction=restartTimedOut" onclick="return confirm('Are you sure you want to restart timedOut joblets?');">restart timedOut joblets</a></li>
-					</ul>
-				</li>
-				<li class="dropdown">
-					<a href="#" class="dropdown-toggle" data-toggle="dropdown">Executor restart <span class="caret"></span></a>
-					<ul class="dropdown-menu">
+						<li>
+							<a href="?submitAction=copyJobletRequestsToQueues" 
+								onclick="return confirm('Are you sure you want to requeue all requests');">
+								All
+							</a>
+						</li>
 						<c:forEach items="${jobletTypes}" var="jobletType">
 							<li>
-								<a href="?submitAction=restartExecutor&jobletTypeCode=${jobletType.persistentInt}" 
-									onclick="return confirm('Are you sure you want to restart ${jobletType.display} executor?');">
+								<a href="?submitAction=copyJobletRequestsToQueues&jobletType=${jobletType.persistentString}" 
+									onclick="return confirm('Are you sure you want to requeue ${jobletType.display} requests');">
 									${jobletType.display}
 								</a>
 							</li>
@@ -61,12 +59,37 @@
 					</ul>
 				</li>
 				<li class="dropdown">
-					<a href="#" class="dropdown-toggle" data-toggle="dropdown">Requeue <span class="caret"></span></a>
+					<a href="#" class="dropdown-toggle" data-toggle="dropdown">Restart failed<span class="caret"></span></a>
 					<ul class="dropdown-menu">
+						<li>
+							<a href="?submitAction=restart&status=failed" 
+								onclick="return confirm('Are you sure you want to restart all failed requests');">
+								All
+							</a>
+						</li>
 						<c:forEach items="${jobletTypes}" var="jobletType">
 							<li>
-								<a href="?submitAction=copyJobletRequestsToQueues&jobletType=${jobletType.persistentString}" 
-									onclick="return confirm('Are you sure you want to requeue ${jobletType.display} requests');">
+								<a href="?submitAction=restart&type=${jobletType.persistentString}&status=failed" 
+									onclick="return confirm('Are you sure you want to restart failed ${jobletType.display} requests');">
+									${jobletType.display}
+								</a>
+							</li>
+						</c:forEach>
+					</ul>
+				</li>
+				<li class="dropdown">
+					<a href="#" class="dropdown-toggle" data-toggle="dropdown">Restart timedOut<span class="caret"></span></a>
+					<ul class="dropdown-menu">
+						<li>
+							<a href="?submitAction=restart&status=timedOut" 
+								onclick="return confirm('Are you sure you want to restart all timedOut requests');">
+								All
+							</a>
+						</li>
+						<c:forEach items="${jobletTypes}" var="jobletType">
+							<li>
+								<a href="?submitAction=restart&type=${jobletType.persistentString}&status=timedOut" 
+									onclick="return confirm('Are you sure you want to restart timedOut ${jobletType.display} requests');">
 									${jobletType.display}
 								</a>
 							</li>

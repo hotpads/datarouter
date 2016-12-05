@@ -20,13 +20,15 @@ extends SettingNode{
 	public static final int MAX_MEMORY_PERMITS = 1000;
 	public static final int MAX_CPU_PERMITS = 16 * PERMITS_PER_HARDWARE_THREAD;
 
-	private final Setting<Boolean> runJoblets;
-	private final Setting<Integer> maxJobletServers;
-	private final Setting<Integer> minJobletServers;
-	private final Setting<Integer> numServersToAddPerPeriod;
-	private final Setting<Integer> cpuTickets;
-	private final Setting<Integer> memoryTickets;
+	public final Setting<Boolean> runJoblets;
+	public final Setting<Integer> maxJobletServers;
+	public final Setting<Integer> minJobletServers;
+	public final Setting<Integer> numServersToAddPerPeriod;
+	public final Setting<Integer> cpuTickets;
+	public final Setting<Integer> memoryTickets;
 	private final Setting<String> queueMechanism;
+	public final Setting<Boolean> runJobletCounterJob;
+	public final Setting<Boolean> runJobletInstanceCounterJob;
 
 
 	@Inject
@@ -51,6 +53,8 @@ extends SettingNode{
 
 		queueMechanism = registerString("queueMechanism", JobletQueueMechanism.JDBC_LOCK_FOR_UPDATE
 				.getPersistentString());
+		runJobletCounterJob = registerBoolean("runJobletCounterJob", false);
+		runJobletInstanceCounterJob = registerBoolean("runJobletInstanceCounterJob", false);
 	}
 
 	/*------------------ methods -----------------------*/
@@ -60,7 +64,7 @@ extends SettingNode{
 	}
 
 	public JobletQueueMechanism getQueueMechanismEnum(){
-		return JobletQueueMechanism.fromPersistentString(getQueueMechanism().getValue());
+		return JobletQueueMechanism.fromPersistentString(queueMechanism.getValue());
 	}
 
 	/*------------------ node getters ------------------*/
@@ -70,33 +74,4 @@ extends SettingNode{
 		return Objects.requireNonNull((JobletThreadCountSettings)getChildren().get(name));
 	}
 
-	/*-------------------- get/set ----------------------*/
-
-	public Setting<Boolean> getRunJoblets(){
-		return runJoblets;
-	}
-
-	public Setting<Integer> getMaxJobletServers(){
-		return maxJobletServers;
-	}
-
-	public Setting<Integer> getMinJobletServers(){
-		return minJobletServers;
-	}
-
-	public Setting<Integer> getNumServersToAddPerPeriod(){
-		return numServersToAddPerPeriod;
-	}
-
-	public Setting<Integer> getCpuTickets(){
-		return cpuTickets;
-	}
-
-	public Setting<Integer> getMemoryTickets(){
-		return memoryTickets;
-	}
-
-	public Setting<String> getQueueMechanism(){
-		return queueMechanism;
-	}
 }

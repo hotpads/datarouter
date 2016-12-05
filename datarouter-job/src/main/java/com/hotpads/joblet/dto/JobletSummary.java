@@ -1,7 +1,9 @@
 package com.hotpads.joblet.dto;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -13,6 +15,7 @@ import java.util.stream.Stream;
 import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.util.core.DrComparableTool;
 import com.hotpads.datarouter.util.core.DrDateTool;
+import com.hotpads.datarouter.util.core.DrNumberFormatter;
 import com.hotpads.datarouter.util.core.DrNumberTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.joblet.databean.JobletRequest;
@@ -58,6 +61,17 @@ public class JobletSummary{
 						TreeMap::new));
 	}
 
+	public static Map<TypeStatusKey,JobletSummary> summarizeByTypeStatus(
+			Stream<JobletRequest> requests){
+		return requests
+				.map(JobletSummary::new)
+				.collect(Collectors.toMap(
+						TypeStatusKey::new,
+						Function.identity(),
+						JobletSummary::absorbStats,
+						TreeMap::new));
+	}
+
 	public static Map<TypeExecutionOrderStatusKey,JobletSummary> summarizeByTypeExecutionOrderStatus(
 			Stream<JobletRequest> requests){
 		return requests
@@ -77,6 +91,12 @@ public class JobletSummary{
 						Function.identity(),
 						JobletSummary::absorbStats,
 						TreeMap::new));
+	}
+
+	public static List<JobletSummary> filterForStatus(Collection<JobletSummary> summaries, JobletStatus status){
+		return summaries.stream()
+				.filter(summary -> summary.getStatus() == status)
+				.collect(Collectors.toList());
 	}
 
 
@@ -147,11 +167,21 @@ public class JobletSummary{
 		return queueIds.size();
 	}
 
-	public double getAvgItems(){
+	public String getAvgItemsString(){
+		return DrNumberFormatter.format(getAvgItems(), 1);
+	}
+
+	public String getAvgTasksString(){
+		return DrNumberFormatter.format(getAvgTasks(), 1);
+	}
+
+	/*-------------------- private ----------------------*/
+
+	private double getAvgItems(){
 		return (double)sumItems / (double)numType;
 	}
 
-	public double getAvgTasks(){
+	private double getAvgTasks(){
 		return (double)sumItems / (double)numType;
 	}
 
@@ -193,6 +223,40 @@ public class JobletSummary{
 		@Override
 		public int compareTo(TypeKey other){
 			return DrComparableTool.nullFirstCompareTo(typeCode, other.typeCode);
+		}
+	}
+
+	private static class TypeStatusKey implements Comparable<TypeStatusKey>{
+		private final int typeCode;
+		private final JobletStatus status;
+
+		public TypeStatusKey(JobletSummary summary){
+			this.typeCode = summary.typeCode;
+			this.status = summary.status;
+		}
+
+		@Override
+		public boolean equals(Object obj){
+			if(ClassTool.differentClass(this, obj)){
+				return false;
+			}
+			JobletSummary other = (JobletSummary)obj;
+			return Objects.equals(typeCode, other.typeCode)
+					&& Objects.equals(status, other.status);
+		}
+
+		@Override
+		public int hashCode(){
+			return Objects.hash(typeCode, status);
+		}
+
+		@Override
+		public int compareTo(TypeStatusKey other){
+			int diff = DrComparableTool.nullFirstCompareTo(typeCode, other.typeCode);
+			if(diff != 0){
+				return diff;
+			}
+			return DrComparableTool.nullFirstCompareTo(status, other.status);
 		}
 	}
 

@@ -1,10 +1,9 @@
 package com.hotpads.joblet.handler;
 
+import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
+import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -15,13 +14,14 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hotpads.datarouter.config.DatarouterProperties;
-import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.mav.Mav;
 import com.hotpads.handler.mav.imp.InContextRedirectMav;
 import com.hotpads.handler.mav.imp.MessageMav;
+import com.hotpads.handler.types.optional.OptionalBoolean;
+import com.hotpads.handler.types.optional.OptionalInteger;
+import com.hotpads.handler.types.optional.OptionalString;
 import com.hotpads.job.dispatcher.DatarouterJobDispatcher;
 import com.hotpads.joblet.JobletNodes;
 import com.hotpads.joblet.JobletPackage;
@@ -30,15 +30,12 @@ import com.hotpads.joblet.dao.JobletRequestDao;
 import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.databean.JobletRequestKey;
 import com.hotpads.joblet.dto.JobletSummary;
+import com.hotpads.joblet.dto.JobletTypeSummary;
 import com.hotpads.joblet.enums.JobletPriority;
 import com.hotpads.joblet.enums.JobletStatus;
 import com.hotpads.joblet.enums.JobletType;
 import com.hotpads.joblet.enums.JobletTypeFactory;
-import com.hotpads.joblet.execute.JobletExecutorThread;
-import com.hotpads.joblet.execute.ParallelJobletProcessor;
-import com.hotpads.joblet.execute.ParallelJobletProcessors;
-import com.hotpads.joblet.jdbc.RestartJobletRequests;
-import com.hotpads.joblet.jdbc.TimeoutStuckRunningJobletRequests;
+import com.hotpads.joblet.execute.JobletProcessors;
 import com.hotpads.joblet.queue.JobletRequestQueueKey;
 import com.hotpads.joblet.queue.JobletRequestQueueManager;
 import com.hotpads.joblet.setting.JobletSettings;
@@ -59,42 +56,34 @@ public class JobletHandler extends BaseHandler{
 		JSP_threads = "/jsp/joblet/threads.jsp",
 	 	JSP_exceptions = "/jsp/joblet/jobletExceptions.jsp";
 
-	private final Datarouter datarouter;
-	private final String serverName;
 	private final JobletTypeFactory jobletTypeFactory;
 	private final JobletNodes jobletNodes;
-	private final ParallelJobletProcessors parallelJobletProcessors;
+	private final JobletProcessors jobletProcessors;
 	private final JobletService jobletService;
 	private final JobletSettings jobletSettings;
 	private final JobletRequestDao jobletRequestDao;
 	private final JobletRequestQueueManager jobletRequestQueueManager;
 
 	@Inject
-	public JobletHandler(Datarouter datarouter, DatarouterProperties datarouterProperties,
-			JobletTypeFactory jobletTypeFactory, JobletNodes jobletNodes,
-			ParallelJobletProcessors parallelJobletProcessors, JobletService jobletService,
-			JobletSettings jobletSettings, JobletRequestDao jobletRequestDao,
-			JobletRequestQueueManager jobletRequestQueueManager){
-		this.datarouter = datarouter;
-		this.serverName = datarouterProperties.getServerName();
+	public JobletHandler(JobletTypeFactory jobletTypeFactory, JobletNodes jobletNodes,
+			JobletProcessors jobletProcessors, JobletService jobletService, JobletSettings jobletSettings,
+			JobletRequestDao jobletRequestDao, JobletRequestQueueManager jobletRequestQueueManager){
 		this.jobletTypeFactory = jobletTypeFactory;
 		this.jobletNodes = jobletNodes;
-		this.parallelJobletProcessors = parallelJobletProcessors;
+		this.jobletProcessors = jobletProcessors;
 		this.jobletService = jobletService;
 		this.jobletSettings = jobletSettings;
 		this.jobletRequestDao = jobletRequestDao;
 		this.jobletRequestQueueManager = jobletRequestQueueManager;
 	}
 
-	@Override
-	@Handler
-	protected Mav handleDefault(){
+	@Handler(defaultHandler=true)
+	private Mav list(){
 		Mav mav = new Mav(JSP_joblets);
-		mav.put("minServers", jobletSettings.getMinJobletServers().getValue());
-		mav.put("maxServers", jobletSettings.getMaxJobletServers().getValue());
+		mav.put("minServers", jobletSettings.minJobletServers.getValue());
+		mav.put("maxServers", jobletSettings.maxJobletServers.getValue());
 		mav.put("jobletStatuses", JobletStatus.values());
-		mav.put("runningJobletThreads", getRunningJobletThreads());
-		mav.put("waitingJobletThreads", getWaitingJobletThreads());
+		mav.put("runningJobletsByType", jobletProcessors.getRunningJobletsByType());
 		String statusString = params.optional(PARAM_whereStatus).orElse(null);
 		mav.put(PARAM_whereStatus, statusString);
 		Stream<JobletRequest> requests = jobletNodes.jobletRequest().stream(null, null);
@@ -120,187 +109,131 @@ public class JobletHandler extends BaseHandler{
 	}
 
 	@Handler
-	private Mav listExceptions(){
+	private Mav exceptions(){
 		Mav mav = new Mav(JSP_exceptions);
-		List<JobletRequest> failedJoblets = new ArrayList<>();
-		for(JobletRequest joblet : jobletNodes.jobletRequest().scan(null, null)){
-			if(joblet.getStatus() == JobletStatus.failed){
-				failedJoblets.add(joblet);
-			}
-		}
-		mav.put("failedJoblets", failedJoblets);
+		mav.put("failedJoblets", jobletRequestDao.getWithStatus(JobletStatus.failed));
 		return mav;
 	}
 
 	@Handler
-	private Mav copyJobletRequestsToQueues(String jobletType){
-		JobletType<?> jobletTypeEnum = jobletTypeFactory.fromPersistentString(jobletType);
+	private Mav copyJobletRequestsToQueues(OptionalString jobletType){
+//		List<JobletType<?>> jobletTypes = jobletType
+//				.map(jobletTypeFactory::fromPersistentString)
+//				.map(Arrays::asList)
+//				.orElse(jobletTypeFactory.getAllTypes());//generics error?
+		List<JobletType<?>> jobletTypes = jobletType.isPresent()
+				? Arrays.asList(jobletTypeFactory.fromPersistentString(jobletType.get()))
+				: jobletTypeFactory.getAllTypes();
 		long numCopied = 0;
-		for(List<JobletRequest> requestBatch : new BatchingIterable<>(jobletRequestDao.streamType(jobletTypeEnum,
-				false)::iterator, 100)){
-			for(JobletRequest request : requestBatch){
-				JobletRequestQueueKey queueKey = jobletRequestQueueManager.getQueueKey(request);
-				jobletNodes.jobletRequestQueueByKey().get(queueKey).put(request, null);
-				++numCopied;
+		for(JobletType<?> type : jobletTypes){
+			Iterable<JobletRequest> requestsOfType = jobletRequestDao.streamType(type, false)::iterator;
+			for(List<JobletRequest> requestBatch : new BatchingIterable<>(requestsOfType, 100)){
+				Map<JobletRequestQueueKey,List<JobletRequest>> requestsByQueueKey = requestBatch.stream()
+						.collect(Collectors.groupingBy(jobletRequestQueueManager::getQueueKey));
+				for(JobletRequestQueueKey queueKey : requestsByQueueKey.keySet()){
+					List<JobletRequest> jobletsForQueue = requestsByQueueKey.get(queueKey);
+					jobletNodes.jobletRequestQueueByKey().get(queueKey).putMulti(jobletsForQueue, null);
+					numCopied += jobletsForQueue.size();
+				}
+				logger.warn("copied {}", numCopied);
 			}
-			logger.warn("copied {}", numCopied);
 		}
 		return new MessageMav("copied " + numCopied);
 	}
 
 	@Handler
-	private Mav restartFailed(){
-		int numRestarted = datarouter.run(new RestartJobletRequests(datarouter, jobletNodes, JobletStatus.failed));
+	private Mav restart(OptionalString type, String status){
+		JobletStatus jobletStatus = JobletStatus.fromPersistentStringStatic(status);
+		long numRestarted = 0;
+		if(type.isPresent()){
+			JobletType<?> jobletType = jobletTypeFactory.fromPersistentString(type.get());
+			numRestarted = jobletService.restartJoblets(jobletType, jobletStatus);
+		}else{
+			for(JobletType<?> jobletType : jobletTypeFactory.getAllTypes()){
+				numRestarted += jobletService.restartJoblets(jobletType, jobletStatus);
+			}
+		}
 		return new MessageMav("restarted " + numRestarted);
 	}
 
 	@Handler
-	private Mav restartTimedOut(){
-		int numRestarted = datarouter.run(new RestartJobletRequests(datarouter, jobletNodes, JobletStatus.timedOut));
-		return new MessageMav("restarted " + numRestarted);
-	}
-
-	@Handler
-	private Mav timeoutStuckRunning(){
-		int numTimedOut = datarouter.run(new TimeoutStuckRunningJobletRequests(datarouter, jobletNodes));
+	private Mav timeoutStuckRunning(String type){
+		JobletType<?> jobletType = jobletTypeFactory.fromPersistentString(type);
+		Stream<JobletRequest> requests = jobletRequestDao.streamType(jobletType, false)
+				.filter(request -> request.getStatus() == JobletStatus.running)
+				.filter(request -> request.getReservedAgoMs().isPresent())
+				.filter(request -> request.getReservedAgoMs().get() > Duration.ofDays(2).toMillis());
+		long numTimedOut = 0;
+		for(List<JobletRequest> requestBatch : new BatchingIterable<>(requests::iterator, 100)){
+			List<JobletRequest> toSave = new ArrayList<>();
+			for(JobletRequest request : requestBatch){
+				request.setStatus(JobletStatus.created);
+				request.setNumFailures(0);
+				++numTimedOut;
+			}
+			jobletNodes.jobletRequest().putMulti(toSave, null);
+			logger.warn("copied {}", numTimedOut);
+		}
 		return new MessageMav("timedOut " + numTimedOut);
 	}
 
 	@Handler
-	private Mav deleteTimedOutJoblets(){
-		int numDeleted = 0;
-		for(JobletRequest request : jobletNodes.jobletRequest().scan(null, null)){
-			if(JobletStatus.timedOut == request.getStatus()){
-				//delete individually to minimize joblet table locking
-				jobletService.deleteJobletRequestAndData(request);
-				++numDeleted;
-			}
-		}
-		return new MessageMav("deleted " + numDeleted);
-	}
-
-	@Handler
-	private Mav showThreads(){
+	private Mav threads(){
 		Mav mav = new Mav(JSP_threads);
 
 		//cpu and memory ticket info
-		mav.put("numCpuPermits", jobletSettings.getCpuTickets().getValue());
-		mav.put("numMemoryPermits", jobletSettings.getMemoryTickets().getValue());
+		mav.put("numCpuPermits", jobletSettings.cpuTickets.getValue());
+		mav.put("numMemoryPermits", jobletSettings.memoryTickets.getValue());
 		mav.put("isThrottling", false);//because JobletThrottle no longer exists
 
-		List<TypeSummaryDto> typeSummaryDtos = parallelJobletProcessors.getMap().values().stream()
-				.map(TypeSummaryDto::new)
-				.sorted(Comparator.comparing(TypeSummaryDto::getJobletType))
-				.collect(Collectors.toList());
-
 		//totals for server
-		mav.put("typeSummaryDtos", typeSummaryDtos);
+		List<JobletTypeSummary> typeSummaries = jobletProcessors.getTypeSummaries();
+		mav.put("typeSummaryDtos", typeSummaries);
 
 		//stats by type
-		mav.put("totalRunning", TypeSummaryDto.getTotalRunning(typeSummaryDtos));
-		mav.put("totalRunningCpuPermits", TypeSummaryDto.getTotalRunningCpuPermits(typeSummaryDtos));
-		mav.put("totalRunningMemoryPermits", TypeSummaryDto.getTotalRunningMemoryPermits(typeSummaryDtos));
-		mav.put("totalWaiting", TypeSummaryDto.getTotalWaiting(typeSummaryDtos));
+		mav.put("totalThreads", JobletTypeSummary.getTotalThreads(typeSummaries));
+		mav.put("totalRunning", JobletTypeSummary.getTotalRunning(typeSummaries));
+		mav.put("totalRunningCpuPermits", JobletTypeSummary.getTotalRunningCpuPermits(typeSummaries));
+		mav.put("totalRunningMemoryPermits", JobletTypeSummary.getTotalRunningMemoryPermits(typeSummaries));
 
-		//all threads
-		mav.put("runningJobletThreads", getRunningJobletThreads());
-		mav.put("waitingJobletThreads", getWaitingJobletThreads());
+		//RunningJoblets
+		mav.put("runningJobletsByType", jobletProcessors.getRunningJobletsByType());
 		return mav;
 	}
 
 	@Handler
 	private Mav killJobletThread(){
 		long threadId = params.requiredLong("threadId");
-		parallelJobletProcessors.killThread(threadId);
+		jobletProcessors.killThread(threadId);
 		return new InContextRedirectMav(params, URL_JOBLETS_IN_CONTEXT);
 	}
 
+	/*
+	 /datarouter/joblets/createSleepingJoblets
+	 ?numJoblets=1000&sleepMs=500&executionOrder=10&includeFailures=false&failEveryN=100
+	*/
 	@Handler
-	private Mav restartExecutor(){
-		Integer jobletTypeCode = params.requiredInteger("jobletTypeCode");
-		parallelJobletProcessors.restartExecutor(jobletTypeCode);
-		return new InContextRedirectMav(params, URL_JOBLETS_IN_CONTEXT);
-	}
-
-	// /datarouter/joblets/createSleepingJoblets?numJoblets=100&sleepMs=500&executionOrder=10
-	@Handler
-	private Mav createSleepingJoblets(int numJoblets, long sleepMs, int executionOrder){
-		JobletPriority priority = JobletPriority.fromExecutionOrder(executionOrder);
+	private Mav createSleepingJoblets(int numJoblets, long sleepMs, OptionalInteger executionOrder,
+			OptionalBoolean includeFailures, OptionalInteger failEveryN){
+		JobletPriority priority = JobletPriority.fromExecutionOrder(executionOrder.get());
 		List<JobletPackage> jobletPackages = new ArrayList<>();
 		for(int i = 0; i < numJoblets; ++i){
-			SleepingJobletParams params = new SleepingJobletParams(String.valueOf(i), sleepMs);
+			int numFailuresForThisJoblet = 0;
+			if(includeFailures.get()){
+				boolean failThisJoblet = i % failEveryN.orElse(10) == 0;
+				if(failThisJoblet){
+					numFailuresForThisJoblet = JobletRequest.MAX_FAILURES + 3;//+3 to see if it causes a problem
+				}
+			}
+			SleepingJobletParams params = new SleepingJobletParams(String.valueOf(i), sleepMs,
+					numFailuresForThisJoblet);
 			int batchSequence = i;//specify this so joblets execute in precise order
 			JobletPackage jobletPackage = JobletPackage.createDetailed(SleepingJoblet.JOBLET_TYPE, priority, new Date(),
 					batchSequence, true, null, params);
 			jobletPackages.add(jobletPackage);
 		}
-		jobletService.submitJobletPackages(jobletPackages);
+		jobletService.submitJobletPackagesOfSameType(jobletPackages);
 		return new MessageMav("created " + numJoblets + " @" + sleepMs + "ms");
-	}
-
-
-	/*--------------------- private -------------------------*/
-
-	private Map<String,List<JobletExecutorThread>> getWaitingJobletThreads() {
-		return getJobletThreads(parallelJobletProcessors.getCurrentlyWaitingJobletExecutorThreads());
-	}
-
-	private Map<String,List<JobletExecutorThread>> getRunningJobletThreads() {
-		return getJobletThreads(parallelJobletProcessors.getCurrentlyRunningJobletExecutorThreads());
-	}
-
-	private Map<String,List<JobletExecutorThread>> getJobletThreads(List<JobletExecutorThread> jobletThreads){
-		Map<String,List<JobletExecutorThread>> jobletThreadsByServer = new HashMap<>();
-		jobletThreadsByServer.put(serverName, jobletThreads);
-		return jobletThreadsByServer;
-	}
-
-	public static class TypeSummaryDto{
-		private final JobletType<?> jobletTypeEnum;
-		private final int numRunning;
-		private final int numWaiting;
-
-		public TypeSummaryDto(ParallelJobletProcessor processor){
-			this.jobletTypeEnum = processor.getJobletType();
-			this.numRunning = processor.getRunningJobletExecutorThreads().size();
-			this.numWaiting = processor.getWaitingJobletExecutorThreads().size();
-		}
-
-		public static int getTotalRunning(Collection<TypeSummaryDto> dtos){
-			return dtos.stream().mapToInt(TypeSummaryDto::getNumRunning).sum();
-		}
-
-		public static long getTotalRunningCpuPermits(Collection<TypeSummaryDto> dtos){
-			return dtos.stream().mapToLong(TypeSummaryDto::getNumRunningCpuPermits).sum();
-		}
-
-		public static long getTotalRunningMemoryPermits(Collection<TypeSummaryDto> dtos){
-			return dtos.stream().mapToLong(TypeSummaryDto::getNumRunningMemoryPermits).sum();
-		}
-
-		public static int getTotalWaiting(Collection<TypeSummaryDto> dtos){
-			return dtos.stream().mapToInt(TypeSummaryDto::getNumWaiting).sum();
-		}
-
-		public long getNumRunningCpuPermits(){
-			return jobletTypeEnum.getCpuPermits() * numRunning;
-		}
-
-		public long getNumRunningMemoryPermits(){
-			return jobletTypeEnum.getMemoryPermits() * numRunning;
-		}
-
-		public String getJobletType(){
-			return jobletTypeEnum.getPersistentString();
-		}
-
-		public int getNumRunning(){
-			return numRunning;
-		}
-
-		public int getNumWaiting(){
-			return numWaiting;
-		}
 	}
 
 }

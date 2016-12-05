@@ -43,8 +43,9 @@ import com.hotpads.util.http.ResponseTool;
  * a dispatcher servlet sets necessary parameters and then calls "handle()"
  */
 public abstract class BaseHandler{
-
 	private static final Logger logger = LoggerFactory.getLogger(BaseHandler.class);
+
+	private static final String DEFAULT_HANDLER_METHOD_NAME = "handleDefault";
 
 	@Inject
 	private HandlerTypingHelper handlerTypingHelper;
@@ -64,12 +65,16 @@ public abstract class BaseHandler{
 	@Deprecated
 	protected Lazy<PrintWriter> out;
 
-	protected static final String DEFAULT_HANDLER_METHOD_NAME = "handleDefault";
 
+	/**
+	 * @deprecated  Replaced with @Handler(defaultHandler = true) annotation
+	 */
+	@Deprecated
 	@Handler
 	protected Object handleDefault() throws Exception{
-		response.sendError(404);
-		return new MessageMav("no default handler method found, please specify " + handlerMethodParamName());
+		MessageMav mav = new MessageMav("no default handler method found, please specify " + handlerMethodParamName());
+		mav.setStatusCode(HttpServletResponse.SC_NOT_FOUND);
+		return mav;
 	}
 
 	/*
@@ -78,7 +83,7 @@ public abstract class BaseHandler{
 	 */
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.METHOD)
-	public @interface Handler {
+	public @interface Handler{
 		Class<?>[] expectedParameterClasses() default {};
 		Class<?> expectedParameterClassesProvider() default Object.class;
 		String description() default "";
@@ -179,7 +184,7 @@ public abstract class BaseHandler{
 		return defaultHandlerMethod;
 	}
 
-	private String getLastPathSegment(String uri) {
+	private String getLastPathSegment(String uri){
 		if(uri == null){
 			return "";
 		}
@@ -213,17 +218,17 @@ public abstract class BaseHandler{
 		this.out = Lazy.of(() -> ResponseTool.getWriter(response));
 	}
 
-	public static class BaseHandlerTests {
+	public static class BaseHandlerTests{
 
-		BaseHandler test;
+		private BaseHandler test;
 
 		@Before
-		public void setup() {
+		public void setup(){
 			test = new AdminEditUserHandler();
 		}
 
 		@Test
-		public void testGetLastPathSegment() {
+		public void testGetLastPathSegment(){
 			Assert.assertEquals("something", test.getLastPathSegment("/something"));
 			Assert.assertEquals("something", test.getLastPathSegment("~/something"));
 			Assert.assertEquals("viewUsers", test.getLastPathSegment("/admin/edit/reputation/viewUsers"));
