@@ -43,8 +43,9 @@ import com.hotpads.util.http.ResponseTool;
  * a dispatcher servlet sets necessary parameters and then calls "handle()"
  */
 public abstract class BaseHandler{
-
 	private static final Logger logger = LoggerFactory.getLogger(BaseHandler.class);
+
+	private static final String DEFAULT_HANDLER_METHOD_NAME = "handleDefault";
 
 	@Inject
 	private HandlerTypingHelper handlerTypingHelper;
@@ -64,8 +65,11 @@ public abstract class BaseHandler{
 	@Deprecated
 	protected Lazy<PrintWriter> out;
 
-	protected static final String DEFAULT_HANDLER_METHOD_NAME = "handleDefault";
 
+	/**
+	 * @deprecated  Replaced with @Handler(defaultHandler = true) annotation
+	 */
+	@Deprecated
 	@Handler
 	protected Object handleDefault() throws Exception{
 		MessageMav mav = new MessageMav("no default handler method found, please specify " + handlerMethodParamName());

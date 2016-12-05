@@ -29,8 +29,7 @@ public class DocumentationHandler extends BaseHandler{
 				if(!method.isAnnotationPresent(Handler.class)){
 					continue;
 				}
-				String urlSuffix = (method.getName().equals(DEFAULT_HANDLER_METHOD_NAME)
-						|| method.getAnnotation(Handler.class).defaultHandler()) ? "" : "/" + method.getName();
+				String urlSuffix = method.getAnnotation(Handler.class).defaultHandler() ? "" : "/" + method.getName();
 				DocumentedEndpoint endpoint = new DocumentedEndpoint();
 				endpoint.url = rule.getPattern().pattern().replace(BaseDispatcher.REGEX_ONE_DIRECTORY, "") + urlSuffix;
 				endpoint.parameters = new ArrayList<>();
