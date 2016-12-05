@@ -1,6 +1,5 @@
 package com.hotpads.util.core.bytes;
 
-import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Random;
 
@@ -14,7 +13,7 @@ import com.hotpads.util.core.collections.arrays.LongArray;
 /*
  * methods for converting longs into bytes
  */
-public class LongByteTool {
+public class LongByteTool{
 
 	/****************** serialize to bytes ****************************/
 
@@ -129,10 +128,6 @@ public class LongByteTool {
 
 	//************ single values
 
-//	public static byte[] getUInt63Bytes(final long value){
-//		return ByteBuffer.allocate(Long.BYTES).putLong(value).array();
-//	}
-
 	public static byte[] getUInt63Bytes(final long value){
 //		if(value < 0){ throw new IllegalArgumentException("no negatives"); }//need to allow Long.MIN_VALUE in for nulls
 		byte[] out = new byte[8];
@@ -145,20 +140,6 @@ public class LongByteTool {
 		out[6] = (byte) (value >>> 8);
 		out[7] = (byte) value;
 		return out;
-	}
-
-	public static void main(String[] args){
-		long c1 = 0;
-		long c2 = 0;
-		for(long value = -100000000L ; value < 100000000L ; value++){
-			long start = System.currentTimeMillis();
-			ByteBuffer.allocate(Long.BYTES).putLong(value).array();
-			c1 += System.currentTimeMillis() - start;
-			start = System.currentTimeMillis();
-			getUInt63Bytes(value);
-			c2 += System.currentTimeMillis() - start;
-		}
-		System.out.println(c1 + "\t" + c2);
 	}
 
 	public static Long fromUInt63Bytes(final byte[] bytes, final int byteOffset){

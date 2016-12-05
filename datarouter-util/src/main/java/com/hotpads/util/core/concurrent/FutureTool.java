@@ -18,35 +18,10 @@ import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.datarouter.util.core.DrNumberTool;
 
-public class FutureTool {
+public class FutureTool{
 	private static final Logger logger = LoggerFactory.getLogger(FutureTool.class);
 
-	/******************** sequential ***************************/
-
-	//these are in CallableTool
-
-//	public static <T> List<T> callAll(Collection<Callable<T>> callables){
-//		List<T> outs = new ArrayList<>();
-//		for(Callable<T> callable : IterableTool.nullSafe(callables)){
-//			outs.add(call(callable));
-//		}
-//		return outs;
-//	}
-//
-//	public static <T> T call(Callable<T> callable){
-//		try{
-//			return callable.call();
-//		}catch(Exception e){
-//			throw new RuntimeException(e);
-//		}
-//	}
-
 	/********************* multiple of different types ************/
-
-	public static List<?> submitAndGetAllVaried(Collection<Callable<?>> callables, ExecutorService executorService){
-		List<Future<?>> futures = submitAllVaried(callables, executorService);
-		return getAllVaried(futures);
-	}
 
 	public static List<Future<?>> submitAllVaried(Collection<Callable<?>> callables, ExecutorService executorService){
 		List<Future<?>> futures = new ArrayList<>();
