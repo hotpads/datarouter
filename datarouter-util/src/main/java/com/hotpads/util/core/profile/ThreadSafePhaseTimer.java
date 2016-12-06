@@ -13,28 +13,25 @@ import org.junit.Test;
 
 import com.hotpads.datarouter.util.core.DrNumberFormatter;
 
-public class ThreadSafePhaseTimer extends PhaseRecord implements PhaseRecorder<ThreadSafePhaseTimer> {
+public class ThreadSafePhaseTimer extends PhaseRecord implements PhaseRecorder<ThreadSafePhaseTimer>{
 	private List<PhaseRecord> phases = Collections.synchronizedList(new ArrayList<PhaseRecord>());
 	private static final String DEFAULT_DELIM = "";
-	public ThreadSafePhaseTimer() {
-		super();
-		record( "timer-start" );
+
+	public ThreadSafePhaseTimer(){
+		record("timer-start");
 	}
-	public ThreadSafePhaseTimer(String name) {
+
+	public ThreadSafePhaseTimer(String name){
 		super(name);
-		record( name+"-start");
+		record(name + "-start");
 	}
 
 	/*********************** methods ****************************************/
 	@Override
 	public ThreadSafePhaseTimer record(String eventName){
-		PhaseRecord record = new PhaseRecord( eventName );
+		PhaseRecord record = new PhaseRecord(eventName);
 		phases.add(record);
 		return this;
-	}
-
-	public int numEvents(){
-		return this.phases.size();
 	}
 
 	public String toString(int showPhasesAtLeastThisMsLong){
@@ -46,13 +43,9 @@ public class ThreadSafePhaseTimer extends PhaseRecord implements PhaseRecorder<T
 		return toString(DEFAULT_DELIM,1);
 	}
 
-	public String toString(String delimiter){
-		return toString(delimiter,1);
-	}
-
 	public String toString(String delimiter,int showPhasesAtLeastThisMsLong){
 		StringBuilder sb = new StringBuilder();
-		if (name != null){
+		if(name != null){
 			sb.append(name);
 		}
 		sb.append("[Total:")
@@ -61,28 +54,28 @@ public class ThreadSafePhaseTimer extends PhaseRecord implements PhaseRecorder<T
 			.append(phases.size())
 			.append(" records]");
 		Map<String,List<PhaseRecord>> threads = buildThreadMap();
-		for (String thread : threads.keySet()) {
+		for(String thread : threads.keySet()){
 			List<PhaseRecord> phases = threads.get(thread);
 			long elapsed = totalize(phases);
 			long previous = this.getTime();
 			PhaseRecord phase = phases.get(0);
-			if (!phase.getThreadId().equals(this.getThreadId())) {
+			if(!phase.getThreadId().equals(this.getThreadId())){
 				previous = phase.time;
 			}
-			if (threads.size() > 1 ) {
+			if(threads.size() > 1){
 				sb.append(delimiter)
-				.append( "[" )
-				.append( thread )
+				.append("[")
+				.append(thread)
 				.append(":total:")
 				.append(DrNumberFormatter.addCommas(elapsed))
 				.append("ms]");
 			}
-			for(int i=0; i < phases.size(); ++i){
+			for(int i = 0; i < phases.size(); ++i){
 				phase = phases.get(i);
 				long diff = phase.time - previous;
-				if (diff >= showPhasesAtLeastThisMsLong) {
-					sb.append(delimiter).append( "[" );
-					if (threads.size() > 1) {
+				if(diff >= showPhasesAtLeastThisMsLong){
+					sb.append(delimiter).append("[");
+					if(threads.size() > 1){
 						sb.append(thread)
 						.append(":");
 					}
@@ -110,7 +103,7 @@ public class ThreadSafePhaseTimer extends PhaseRecord implements PhaseRecorder<T
 		return fromPosition;
 	}
 
-	public void merge(ThreadSafePhaseTimer other) {
+	public void merge(ThreadSafePhaseTimer other){
 		if(other == null || other == this || other.phases.isEmpty()){
 			return;
 		}
@@ -121,7 +114,7 @@ public class ThreadSafePhaseTimer extends PhaseRecord implements PhaseRecorder<T
 		}
 	}
 
-	private long totalize( List<PhaseRecord> phases ) {
+	private long totalize(List<PhaseRecord> phases){
 		if(phases.size() == 0){
 			return 0L;
 		}
@@ -138,49 +131,52 @@ public class ThreadSafePhaseTimer extends PhaseRecord implements PhaseRecorder<T
 		return max - min;
 	}
 
-	private Map<String,List<PhaseRecord>> buildThreadMap() {
+	private Map<String,List<PhaseRecord>> buildThreadMap(){
 		Map<String,List<PhaseRecord>> result = new LinkedHashMap<>();
-		for (int i = 0;i < phases.size(); i++) {
+		for(int i = 0; i < phases.size(); i++){
 			PhaseRecord phase = phases.get(i);
 			String threadId = phase.getThreadId();
-			List<PhaseRecord> threadEvents = result.get( threadId );
-			if ( threadEvents == null ) {
+			List<PhaseRecord> threadEvents = result.get(threadId);
+			if(threadEvents == null){
 				threadEvents = new ArrayList<>();
-				result.put( threadId, threadEvents );
+				result.put(threadId, threadEvents);
 			}
-			threadEvents.add( phase );
+			threadEvents.add(phase);
 		}
 		return result;
 	}
 
-	public static class SafeTimerTests {
-		private class TestThread extends Thread {
+	public static class SafeTimerTests{
+		private class TestThread extends Thread{
 			private ThreadSafePhaseTimer timer;
 			private String name;
 			private AtomicBoolean complete = new AtomicBoolean();
-		    public TestThread(ThreadSafePhaseTimer timer, String str) {
-		    	super(str);
-		    	this.name = str;
-		    	this.timer = timer;
-		    	timer.record( name + "-start" );
-		    }
-		    @Override
-			public void run() {
-				for (int i = 0; i < 5; i++) {
-		            try {
-		            	int time = (int)(Math.random() * 200);
-		            	sleep(time);
-		            	timer.record( name + "-awoke step " + i + " slept " + time );
-		            } catch (InterruptedException e) {
-		            	break;
-		            }
+
+			public TestThread(ThreadSafePhaseTimer timer, String str){
+				super(str);
+				this.name = str;
+				this.timer = timer;
+				timer.record(name + "-start");
+			}
+
+			@Override
+			public void run(){
+				for(int i = 0; i < 5; i++){
+					try{
+						int time = (int)(Math.random() * 200);
+						sleep(time);
+						timer.record(name + "-awoke step " + i + " slept " + time);
+					}catch(InterruptedException e){
+						break;
+					}
 				}
-				timer.record( name + "-complete" );
+				timer.record(name + "-complete");
 				complete.set(true);
 			}
-		    public boolean isComplete() {
-		    	return complete.get();
-		    }
+
+			public boolean isComplete(){
+				return complete.get();
+			}
 		}
 
 		@Test
@@ -188,41 +184,37 @@ public class ThreadSafePhaseTimer extends PhaseRecord implements PhaseRecorder<T
 			ThreadSafePhaseTimer timer1 = new ThreadSafePhaseTimer("TestOnly");
 			ThreadSafePhaseTimer timer2 = new ThreadSafePhaseTimer("Timer2");
 
-			String[] names = { "A1", "B2", "B1", "C1", "C2", "D2" };
+			String[] names = {"A1", "B2", "B1", "C1", "C2", "D2"};
 			List<TestThread> threads = new ArrayList<>();
-			for ( String name : names ) {
-				if (name.contains( "2" )) {
-					threads.add( new TestThread(timer2, "Timer2 thread: " + name ) );
-				} else {
-					threads.add( new TestThread(timer1, "Timer1 thread: " + name ) );
+			for(String name : names){
+				if(name.contains("2")){
+					threads.add(new TestThread(timer2, "Timer2 thread: " + name));
+				}else{
+					threads.add(new TestThread(timer1, "Timer1 thread: " + name));
 				}
 			}
-			for ( Thread thread : threads ) {
+			for(Thread thread : threads){
 				thread.start();
 			}
 			int totalDone = 0;
-			while (totalDone < threads.size()) {
+			while(totalDone < threads.size()){
 				totalDone = 0;
 
-				for (TestThread thread : threads) {
-					if (thread.isComplete()) {
+				for(TestThread thread : threads){
+					if(thread.isComplete()){
 						totalDone++;
-					} else {
+					}else{
 						thread.timer.record("main-loop waited");
-						Thread.sleep( 100L );
+						Thread.sleep(100L);
 						break;
 					}
 				}
 			}
-			System.out.println( "Here is the timer1 output:\n" + timer1.toString("\n",0) );
-			System.out.println( "Here is the timer2 output:\n" + timer2.toString("\n",0) );
 			int t1Size = timer1.phases.size();
 			int t2Size = timer2.phases.size();
-			timer1.merge( timer2 );
-			System.out.println( "Here is the time1 with timer2 merged:\n" + timer1.toString("\n",0) );
-			System.out.println( "Note any 0ms times will not be shown typically" );
-			Assert.assertTrue( "Merged timer should contain all original records",
-					timer1.phases.size() == t1Size + t2Size );
+			timer1.merge(timer2);
+			Assert.assertTrue("Merged timer should contain all original records",
+					timer1.phases.size() == t1Size + t2Size);
 		}
 
 	}

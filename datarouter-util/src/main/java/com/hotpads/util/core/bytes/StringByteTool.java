@@ -1,15 +1,12 @@
 package com.hotpads.util.core.bytes;
 
 import java.nio.charset.Charset;
-import java.util.List;
 import java.util.Map;
 
 import org.junit.Assert;
 import org.junit.Test;
 
 import com.hotpads.datarouter.util.core.DrByteTool;
-import com.hotpads.datarouter.util.core.DrIterableTool;
-import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
 
 public class StringByteTool{
@@ -22,12 +19,6 @@ public class StringByteTool{
 		CHARSET_UTF8 = Charset.forName("UTF-8"),
 		CHARSET_UTF16BE = Charset.forName("UTF-16BE");//java internal "char" representation.  Need to investigate BOM more
 
-
-
-//	public static void appendUtf8Bytes(byte[] dest, int startIndex, String s){
-//		if(s==null){ return; }
-//		s.getBytes(0, s.length(), dest, startIndex);
-//	}
 
 	public static byte[] getByteArray(String s, Charset charset){
 		if(s==null){ return null; }
@@ -49,14 +40,6 @@ public class StringByteTool{
 		return bytes.length;
 	}
 
-	public static List<byte[]> getUtf8ByteArrays(List<String> strings){
-		List<byte[]> byteArrays = DrListTool.createArrayListWithSize(strings);
-		for(String s : DrIterableTool.nullSafe(strings)){
-			byteArrays.add(getUtf8Bytes(s));
-		}
-		return byteArrays;
-	}
-
 	public static String fromUtf8Bytes(byte[] bytes){
 		return new String(bytes, CHARSET_UTF8);
 	}
@@ -69,22 +52,6 @@ public class StringByteTool{
 	public static String fromUtf8Bytes(byte[] bytes, int offset, int length){
 		return new String(bytes, offset, length, CHARSET_UTF8);
 	}
-
-	public static String binaryIncrement(String input){
-		byte[] bytes = getUtf8Bytes(input);
-		byte[] nextStringBytes = DrByteTool.unsignedIncrement(bytes);
-		String nextString = fromUtf8Bytes(nextStringBytes);
-		return nextString;
-	}
-
-	public static int getNumBytesInMemoryWithPointers(String s){
-		return 2 * DrByteTool.BYTES_PER_POINTER //object overhead for string
-				+ DrByteTool.BYTES_PER_INTEGER//hash
-				+ DrByteTool.BYTES_PER_POINTER //for the pointer to the char[]??
-				+ 3 * DrByteTool.BYTES_PER_POINTER //array overhead (object overhead + length)
-				+ s.length() * 2; //actual char[] data
-	}
-
 
 	public static class Tests{
 

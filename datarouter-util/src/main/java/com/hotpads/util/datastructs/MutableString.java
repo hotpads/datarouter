@@ -34,10 +34,6 @@ public class MutableString implements Comparable<MutableString>{
 		return string.compareTo(otherString.string);
 	}
 
-	public String get(){
-		return string;
-	}
-
 	public void set(String string){
 		this.string = string;
 	}
@@ -46,7 +42,4 @@ public class MutableString implements Comparable<MutableString>{
 		return string;
 	}
 
-	public void setString(String string){
-		this.string = string;
-	}
 }

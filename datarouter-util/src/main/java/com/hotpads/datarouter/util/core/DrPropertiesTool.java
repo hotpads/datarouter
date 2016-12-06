@@ -33,7 +33,7 @@ public class DrPropertiesTool {
 		return multiProperties;
 	}
 
-	protected static Properties fromFile(String pathToFile)
+	private static Properties fromFile(String pathToFile)
 	throws FileNotFoundException, IOException{
 		if(pathToFile==null){ throw new FileNotFoundException(); }
 		Properties properties = new Properties();

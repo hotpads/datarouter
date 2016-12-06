@@ -8,29 +8,25 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.google.common.collect.Maps;
-import com.hotpads.util.core.collections.DefaultableMap;
+public class DefaultableHashMap<K,V> extends DefaultableMapAbs<K,V>{
 
-public class DefaultableHashMap<K,V> extends DefaultableMapAbs<K, V> implements DefaultableMap<K, V> {
+	private HashMap<K,V> backingMap;
 
-	protected HashMap<K,V> backingMap = Maps.newHashMap();
-
-	public DefaultableHashMap() {
-		// TODO Auto-generated constructor stub
-	}
-
-	public DefaultableHashMap(Map<K, V> copyMap){
-		backingMap = new HashMap<>(copyMap);
+	public DefaultableHashMap(){
+		this.backingMap = new HashMap<>();
 	}
 
 	@Override
-	protected Map<K, V> delegate() {
+	protected Map<K,V> delegate(){
 		return this.backingMap;
 	}
 
-	public static class Tests {
-		DefaultableHashMap<String, String> map;
-		@Before public void setup() {
+	public static class Tests{
+
+		private DefaultableHashMap<String, String> map;
+
+		@Before
+		public void setup(){
 			map = new DefaultableHashMap<>();
 			map.put("str", "str");
 			map.put("bool", "true");
@@ -38,7 +34,8 @@ public class DefaultableHashMap<K,V> extends DefaultableMapAbs<K, V> implements 
 			map.put("int", "6");
 		}
 
-		@Test public void test() {
+		@Test
+		public void test(){
 			assertTrue(map.getBoolean("bool", false));
 			assertTrue(map.getBoolean("boola", true));
 			assertTrue(map.getDouble("double", 0.1).equals(1.234));

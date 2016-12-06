@@ -38,28 +38,8 @@ public class TypedProperties{
 		return v==null?def:v;
 	}
 
-	public Short getShort(String key, short def){
-		Short v = getShort(key);
-		return v==null?def:v;
-	}
-
 	public Integer getInteger(String key, int def){
 		Integer v = getInteger(key);
-		return v==null?def:v;
-	}
-
-	public Long getLong(String key, long def){
-		Long v = getLong(key);
-		return v==null?def:v;
-	}
-
-	public Float getFloat(String key, float def){
-		Float v = getFloat(key);
-		return v==null?def:v;
-	}
-
-	public Double getDouble(String key, double def){
-		Double v = getDouble(key);
 		return v==null?def:v;
 	}
 

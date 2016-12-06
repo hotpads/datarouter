@@ -286,11 +286,11 @@ public final class DrDateTool {
 		return FRIDAY_INDEX == getDayInteger(date);
 	}
 
-	public static Long toReverseDateLong(Date date) {
+	public static Long toReverseDateLong(Date date){
 		return date == null ? null : Long.MAX_VALUE - date.getTime();
 	}
 
-	public static Date fromReverseDateLong(Long dateLong) {
+	public static Date fromReverseDateLong(Long dateLong){
 		return dateLong == null ? null : new Date(Long.MAX_VALUE - dateLong);
 	}
 
@@ -365,7 +365,7 @@ public final class DrDateTool {
 		}
 
 		@Test
-		public void testGetDaysBetween() throws Exception{
+		public void testGetDaysBetween(){
 			Date d1 = new Date(1352059736026L);
 			int daysApart = 4;
 			Date d2 = new Date(d1.getTime()+ MILLISECONDS_IN_DAY*daysApart);
@@ -376,6 +376,5 @@ public final class DrDateTool {
 		}
 
 	}
-
 
 }

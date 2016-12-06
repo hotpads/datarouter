@@ -2,16 +2,16 @@ package com.hotpads.datarouter.setting;
 
 import java.util.List;
 
-import com.hotpads.util.core.web.HTMLSelectOptionBean;
+import com.hotpads.util.core.web.HtmlSelectOptionBean;
 
-public interface ServerType {
+public interface ServerType{
 
 	public static final String
 			ALL = "all",
 			UNKNOWN = "unknown",
 			DEV = "dev";
 
-	List<HTMLSelectOptionBean> getHTMLSelectOptionsVarNames();
+	List<HtmlSelectOptionBean> getHtmlSelectOptionsVarNames();
 
 	ServerType fromPersistentString(String str);
 

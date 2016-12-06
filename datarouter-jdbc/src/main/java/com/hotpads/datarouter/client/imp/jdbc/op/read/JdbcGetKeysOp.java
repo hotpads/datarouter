@@ -17,10 +17,10 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
-import com.hotpads.datarouter.util.core.DrBatchTool;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.trace.TracerThreadLocal;
 import com.hotpads.trace.TracerTool;
+import com.hotpads.util.core.iterable.BatchingIterable;
 
 public class JdbcGetKeysOp<
 		PK extends PrimaryKey<PK>,
@@ -35,7 +35,7 @@ extends BaseJdbcOp<List<PK>>{
 	private final Config config;
 
 	public JdbcGetKeysOp(JdbcReaderNode<PK,D,F> node, JdbcFieldCodecFactory fieldCodecFactory, String opName,
-			Collection<PK> keys, Config config) {
+			Collection<PK> keys, Config config){
 		super(node.getDatarouter(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
 		this.node = node;
 		this.fieldCodecFactory = fieldCodecFactory;
@@ -47,16 +47,14 @@ extends BaseJdbcOp<List<PK>>{
 	@Override
 	public List<PK> runOnce(){
 		int batchSize = JdbcReaderNode.DEFAULT_ITERATE_BATCH_SIZE;
-		if(config!=null && config.getIterateBatchSize()!=null){
+		if(config != null && config.getIterateBatchSize() != null){
 			batchSize = config.getIterateBatchSize();
 		}
 		List<? extends Key<PK>> sortedKeys = new ArrayList<>(keys);
-		Collections.sort(sortedKeys);//should prob remove
-		int numBatches = DrBatchTool.getNumBatches(sortedKeys.size(), batchSize);
+		Collections.sort(sortedKeys);
 		List<PK> result = new ArrayList<>(keys.size());
 		Connection connection = getConnection(node.getClientId().getName());
-		for(int batchNum=0; batchNum < numBatches; ++batchNum){
-			List<? extends Key<PK>> keyBatch = DrBatchTool.getBatch(sortedKeys, batchSize, batchNum);
+		for(List<? extends Key<PK>> keyBatch : new BatchingIterable<>(sortedKeys, batchSize)){
 			String sql = SqlBuilder.getMulti(fieldCodecFactory, config, node.getTableName(), node.getFieldInfo()
 					.getPrimaryKeyFields(), keyBatch);
 			List<PK> batch = JdbcTool.selectPrimaryKeys(fieldCodecFactory, connection, node.getFieldInfo(), sql);

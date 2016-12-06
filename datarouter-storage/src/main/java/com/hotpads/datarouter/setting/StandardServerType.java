@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.hotpads.datarouter.storage.field.enums.DatarouterEnumTool;
 import com.hotpads.datarouter.storage.field.enums.StringEnum;
-import com.hotpads.util.core.web.HTMLSelectOptionBean;
+import com.hotpads.util.core.web.HtmlSelectOptionBean;
 
 public enum StandardServerType implements ServerType, StringEnum<StandardServerType>{
 
@@ -21,7 +21,7 @@ public enum StandardServerType implements ServerType, StringEnum<StandardServerT
 	}
 
 	@Override
-	public List<HTMLSelectOptionBean> getHTMLSelectOptionsVarNames(){
+	public List<HtmlSelectOptionBean> getHtmlSelectOptionsVarNames(){
 		return null;
 	}
 
