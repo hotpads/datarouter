@@ -117,17 +117,14 @@ public class JobletHandler extends BaseHandler{
 
 	@Handler
 	private Mav copyJobletRequestsToQueues(OptionalString jobletType){
-//		List<JobletType<?>> jobletTypes = jobletType
-//				.map(jobletTypeFactory::fromPersistentString)
-//				.map(Arrays::asList)
-//				.orElse(jobletTypeFactory.getAllTypes());//generics error?
 		List<JobletType<?>> jobletTypes = jobletType.isPresent()
 				? Arrays.asList(jobletTypeFactory.fromPersistentString(jobletType.get()))
 				: jobletTypeFactory.getAllTypes();
 		long numCopied = 0;
 		for(JobletType<?> type : jobletTypes){
-			Iterable<JobletRequest> requestsOfType = jobletRequestDao.streamType(type, false)::iterator;
-			for(List<JobletRequest> requestBatch : new BatchingIterable<>(requestsOfType, 100)){
+			Stream<JobletRequest> requestsOfType = jobletRequestDao.streamType(type, false)
+					.filter(jobletRequest -> JobletStatus.created == jobletRequest.getStatus());
+			for(List<JobletRequest> requestBatch : new BatchingIterable<>(requestsOfType::iterator, 100)){
 				Map<JobletRequestQueueKey,List<JobletRequest>> requestsByQueueKey = requestBatch.stream()
 						.collect(Collectors.groupingBy(jobletRequestQueueManager::getQueueKey));
 				for(JobletRequestQueueKey queueKey : requestsByQueueKey.keySet()){
