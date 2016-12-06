@@ -11,18 +11,15 @@ public class ExportParameters<PK extends PrimaryKey<PK>,D extends Databean<PK, D
 	private final String tableName;
 	private final String columnNameCsv;
 	private final int hoursToRedownload;
-	private final boolean isHibernateTable;
 	private final SortedStorageReader<PK, D> sortedStorageReader;
 
 	public ExportParameters(Class<D> databeanClass, Class<DatabeanFielder<PK, D>> fielderClass, String tableName,
-			String columnNameCsv, SortedStorageReader<PK, D> sortedStorageReader, int hoursToRedownload,
-			boolean isHibernateTable){
+			String columnNameCsv, SortedStorageReader<PK, D> sortedStorageReader, int hoursToRedownload){
 		this.databeanClass = databeanClass;
 		this.fielderClass = fielderClass;
 		this.tableName = tableName;
 		this.columnNameCsv = columnNameCsv;
 		this.hoursToRedownload = hoursToRedownload;
-		this.isHibernateTable = isHibernateTable;
 		this.sortedStorageReader = sortedStorageReader;
 	}
 
@@ -46,10 +43,6 @@ public class ExportParameters<PK extends PrimaryKey<PK>,D extends Databean<PK, D
 		return hoursToRedownload;
 	}
 
-	public boolean isHibernateTable(){
-		return isHibernateTable;
-	}
-
 	public SortedStorageReader<PK, D> getSortedStorageReader(){
 		return sortedStorageReader;
 	}
@@ -57,7 +50,7 @@ public class ExportParameters<PK extends PrimaryKey<PK>,D extends Databean<PK, D
 	@Override
 	public String toString(){
 		return "databeanClass=" + getDatabeanClass().getName() + "|fielderClass=" + getFielderClass().getName()
-				+ "|tableName=" + getTableName() + "|isHibernateTable=" + isHibernateTable()
-				+ "|columnNameCsv=" + getColumnNameCsv() + "|hoursToRedownload=" + getHoursToRedownload();
+				+ "|tableName=" + getTableName() + "|columnNameCsv=" + getColumnNameCsv() + "|hoursToRedownload="
+				+ getHoursToRedownload();
 	}
 }
