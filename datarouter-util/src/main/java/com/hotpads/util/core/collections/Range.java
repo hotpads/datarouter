@@ -58,14 +58,17 @@ public class Range<T extends Comparable<? super T>> implements Comparable<Range<
 		return new Range<>(null, true);
 	}
 
+	@Deprecated
 	public static <T extends Comparable<? super T>> Range<T> from(T start){
 		return new Range<>(start, true);
 	}
 
+	@Deprecated
 	public static <T extends Comparable<? super T>> Range<T> create(T start, T end){
 		return new Range<>(start, end);
 	}
 
+	@Deprecated
 	public static <T extends Comparable<? super T>> Range<T> create(T start, boolean startInclusive, T end,
 			boolean endInclusive){
 		return new Range<>(start, startInclusive, end, endInclusive);
