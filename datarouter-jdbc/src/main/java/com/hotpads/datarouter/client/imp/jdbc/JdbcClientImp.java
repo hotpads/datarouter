@@ -257,7 +257,7 @@ implements JdbcConnectionClient, TxnClient, JdbcClient{
 	@Override
 	public void shutdown(){
 		connectionPool.shutdown();
-		schemaUpdateService.gatherSchemaUpdates();
+		schemaUpdateService.gatherSchemaUpdates(true);
 	}
 
 	/************************** private *********************************/

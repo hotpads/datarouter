@@ -80,7 +80,7 @@ public class JdbcSchemaUpdateService{
 		this.fieldCodecFactory = fieldCodecFactory;
 		this.connectionPool = connectionPool;
 		List<Properties> multiProperties = DrPropertiesTool.fromFiles(datarouter.getConfigFilePaths());
-		this.printOptions = new SchemaUpdateOptions(multiProperties , PRINT_PREFIX, true);
+		this.printOptions = new SchemaUpdateOptions(multiProperties, PRINT_PREFIX, true);
 		this.executeOptions = new SchemaUpdateOptions(multiProperties, EXECUTE_PREFIX, false);
 		this.printedSchemaUpdates = new ArrayList<>();
 		this.futures = Collections.synchronizedList(new ArrayList<>());
@@ -96,12 +96,16 @@ public class JdbcSchemaUpdateService{
 		return future;
 	}
 
-	public synchronized void gatherSchemaUpdates(){
-		boolean shouldNotify = !printedSchemaUpdates.isEmpty();
+	private void gatherSchemaUpdates(){
+		gatherSchemaUpdates(false);
+	}
+
+	public synchronized void gatherSchemaUpdates(boolean wait){
+		boolean shouldNotify = true;
 		Iterator<Future<Optional<String>>> futureIterator = futures.iterator();
 		while(futureIterator.hasNext()){
 			Future<Optional<String>> future = futureIterator.next();
-			if(future.isDone()){
+			if(wait || future.isDone()){
 				try{
 					future.get().ifPresent(printedSchemaUpdates::add);
 				}catch(InterruptedException | ExecutionException e){
@@ -119,7 +123,7 @@ public class JdbcSchemaUpdateService{
 	}
 
 	private void sendEmail(){
-		if (printedSchemaUpdates.isEmpty()){
+		if(printedSchemaUpdates.isEmpty()){
 			return;
 		}
 		String subject = "SchemaUpdate request from " + datarouterProperties.getServerName();
