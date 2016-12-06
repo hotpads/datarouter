@@ -2,7 +2,9 @@ package com.hotpads.joblet;
 
 import java.time.Duration;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -15,8 +17,10 @@ import org.testng.annotations.Test;
 import com.hotpads.datarouter.config.Configs;
 import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.enums.JobletStatus;
+import com.hotpads.joblet.enums.JobletType;
 import com.hotpads.joblet.enums.JobletTypeFactory;
 import com.hotpads.joblet.setting.JobletSettings;
+import com.hotpads.joblet.setting.JobletThreadCountSettings;
 
 @Singleton
 public class JobletScaler{
@@ -28,12 +32,15 @@ public class JobletScaler{
 
 	private final JobletTypeFactory jobletTypeFactory;
 	private final JobletSettings jobletSettings;
+	private final JobletThreadCountSettings jobletThreadCountSettings;
 	private final JobletNodes jobletNodes;
 
 	@Inject
-	private JobletScaler(JobletTypeFactory jobletTypeFactory, JobletSettings jobletSettings, JobletNodes jobletNodes){
+	private JobletScaler(JobletTypeFactory jobletTypeFactory, JobletSettings jobletSettings,
+			JobletThreadCountSettings jobletThreadCountSettings, JobletNodes jobletNodes){
 		this.jobletTypeFactory = jobletTypeFactory;
 		this.jobletSettings = jobletSettings;
+		this.jobletThreadCountSettings = jobletThreadCountSettings;
 		this.jobletNodes = jobletNodes;
 	}
 
@@ -48,7 +55,7 @@ public class JobletScaler{
 		int minServers = jobletSettings.minJobletServers.getValue();
 		int maxServers = jobletSettings.maxJobletServers.getValue();
 		JobletRequest oldestJobletRequest = JobletRequest.getOldestForTypesAndStatuses(jobletTypeFactory,
-				jobletRequests, jobletTypeFactory.getTypesCausingScaling(), STATUSES_TO_CONSIDER);
+				jobletRequests, getEnabledTypesCausingScaling(), STATUSES_TO_CONSIDER);
 		if(oldestJobletRequest == null){
 			return minServers;
 		}
@@ -59,6 +66,12 @@ public class JobletScaler{
 					.fromJobletRequest(oldestJobletRequest), maxAge.toMinutes());
 		}
 		return targetServers;
+	}
+
+	private List<JobletType<?>> getEnabledTypesCausingScaling(){
+		return jobletTypeFactory.getTypesCausingScaling().stream()
+				.filter(type -> jobletThreadCountSettings.getThreadCountForJobletType(type) > 0)
+				.collect(Collectors.toList());
 	}
 
 	private static int getTargetServersForQueueAge(int minServers, int maxServers, Duration age){
