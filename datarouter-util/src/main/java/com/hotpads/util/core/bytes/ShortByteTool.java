@@ -9,7 +9,7 @@ import com.hotpads.datarouter.util.core.DrByteTool;
 /*
  * methods for converting shorts into bytes
  */
-public class ShortByteTool {
+public class ShortByteTool{
 
 	/*
 	 * int16
@@ -17,24 +17,23 @@ public class ShortByteTool {
 	 * flip first bit so bitwiseCompare is always correct
 	 */
 
-	public static byte[] getRawBytes(final short in){
+	private static byte[] getRawBytes(final short in){
 		byte[] out = new byte[2];
 		out[0] = (byte) (in >>> 8);
 		out[1] = (byte) in;
 		return out;
 	}
 
-	public static int toRawBytes(final short in, final byte[] bytes, final int offset){
+	private static int toRawBytes(final short in, final byte[] bytes, final int offset){
 		bytes[offset] = (byte) (in >>> 8);
 		bytes[offset + 1] = (byte) in;
 		return 2;
 	}
 
-	public static short fromRawBytes(final byte[] bytes, final int startIdx){
+	private static short fromRawBytes(final byte[] bytes, final int startIdx){
 		return (short)(
-				  (bytes[startIdx    ] & 0xff) << 8
-				|  bytes[startIdx + 1] & 0xff
-			);
+				 (bytes[startIdx] & 0xff) << 8
+				| bytes[startIdx + 1] & 0xff);
 	}
 
 	public static byte[] getComparableBytes(final short value){
@@ -51,11 +50,13 @@ public class ShortByteTool {
 		return (short)(Short.MIN_VALUE ^ fromRawBytes(bytes, byteOffset));
 	}
 
-	public static short[] fromComparableByteArray(final byte[] bytes){
-		if(DrArrayTool.isEmpty(bytes)){ return new short[0]; }
+	private static short[] fromComparableByteArray(final byte[] bytes){
+		if(DrArrayTool.isEmpty(bytes)){
+			return new short[0];
+		}
 		short[] out = new short[bytes.length / 2];
-		for(int i=0; i < out.length; ++i){
-			int startIdx = i*2;
+		for(int i = 0; i < out.length; ++i){
+			int startIdx = i * 2;
 
 			/*
 			 * i think the first bitwise operation causes the operand to be zero-padded
@@ -66,15 +67,12 @@ public class ShortByteTool {
 
 			//more compact
 			out[i] = (short)(Short.MIN_VALUE ^ (
-						  (bytes[startIdx    ] & 0xff) << 8
-						|  bytes[startIdx + 1] & 0xff
-					));
+						 (bytes[startIdx] & 0xff) << 8
+						| bytes[startIdx + 1] & 0xff));
 
 		}
 		return out;
 	}
-
-
 
 	/*
 	 * uInt31
@@ -92,8 +90,8 @@ public class ShortByteTool {
 
 	public static short fromUInt15Bytes(final byte[] bytes, final int startIdx){
 		return (short)(
-			  (bytes[startIdx + 0] & 0xff) <<  8
-			|  bytes[startIdx + 1] & 0xff);
+			 (bytes[startIdx + 0] & 0xff) << 8
+			| bytes[startIdx + 1] & 0xff);
 	}
 
 	//TODO copy array methods from IntegerByteTool
@@ -102,44 +100,46 @@ public class ShortByteTool {
 	/********************************* tests ***********************************************/
 
 	public static class Tests{
-		@Test public void testGetOrderedBytes(){
-			short a = Short.MIN_VALUE;
+		@Test
+		public void testGetOrderedBytes(){
+			short shortA = Short.MIN_VALUE;
 			byte[] ab = new byte[]{0,0};
-			Assert.assertArrayEquals(ab, getComparableBytes(a));
+			Assert.assertArrayEquals(ab, getComparableBytes(shortA));
 			byte[] ac = new byte[]{5,5};//5's are just filler
-			toComparableBytes(a, ac, 0);
+			toComparableBytes(shortA, ac, 0);
 			Assert.assertArrayEquals(ab, ac);
 
-			short b = Short.MAX_VALUE;
+			short shortB = Short.MAX_VALUE;
 			byte[] bb = new byte[]{-1,-1};
-			Assert.assertArrayEquals(bb, getComparableBytes(b));
+			Assert.assertArrayEquals(bb, getComparableBytes(shortB));
 			byte[] bc = new byte[]{5,5};
-			toComparableBytes(b, bc, 0);
+			toComparableBytes(shortB, bc, 0);
 			Assert.assertArrayEquals(bb, bc);
 
-			short c = Short.MIN_VALUE + 1;
+			short shortC = Short.MIN_VALUE + 1;
 			byte[] cb = new byte[]{0,1};
-			Assert.assertArrayEquals(cb, getComparableBytes(c));
+			Assert.assertArrayEquals(cb, getComparableBytes(shortC));
 			byte[] cc = new byte[]{5,5};
-			toComparableBytes(c, cc, 0);
+			toComparableBytes(shortC, cc, 0);
 			Assert.assertArrayEquals(cb, cc);
 
-			short d = Short.MAX_VALUE - 3;
+			short shortD = Short.MAX_VALUE - 3;
 			byte[] db = new byte[]{-1,-4};
-			Assert.assertArrayEquals(db, getComparableBytes(d));
+			Assert.assertArrayEquals(db, getComparableBytes(shortD));
 			byte[] dc = new byte[]{5,5};
-			toComparableBytes(d, dc, 0);
+			toComparableBytes(shortD, dc, 0);
 			Assert.assertArrayEquals(db, dc);
 
-			short z = 0;
+			short shortZ = 0;
 			byte[] zb = new byte[]{Byte.MIN_VALUE,0};
-			Assert.assertArrayEquals(zb, getComparableBytes(z));
+			Assert.assertArrayEquals(zb, getComparableBytes(shortZ));
 			byte[] zc = new byte[]{5,5};
-			toComparableBytes(z, zc, 0);
+			toComparableBytes(shortZ, zc, 0);
 			Assert.assertArrayEquals(zb, zc);
 		}
 
-		@Test public void testArrays(){
+		@Test
+		public void testArrays(){
 			byte[] p5 = getComparableBytes((short)5);
 			byte[] n3 = getComparableBytes((short)-3);
 			byte[] n7 = getComparableBytes((short)-7);
@@ -147,41 +147,32 @@ public class ShortByteTool {
 			Assert.assertTrue(DrByteTool.bitwiseCompare(p5, n7) > 0);
 		}
 
-		@Test public void testRoundTrip(){
+		@Test
+		public void testRoundTrip(){
 			short[] subjects = new short[]{
-					Short.MIN_VALUE,Short.MIN_VALUE+1,
+					Short.MIN_VALUE,Short.MIN_VALUE + 1,
 					0,1,127,128,
-					Short.MAX_VALUE-1,Short.MAX_VALUE};
+					Short.MAX_VALUE - 1,Short.MAX_VALUE};
 			for(short subject : subjects){
-//				System.out.println("roundTrip "+Integer.toHexString(subjects[i]));
-//				System.out.println("origi "+toBitString(subjects[i]));
 				byte[] bytes = getComparableBytes(subject);
-//				System.out.println("bytes "+ByteTool.getBinaryStringBigEndian(bytes));
 				int roundTripped = fromComparableByteArray(bytes)[0];
-//				System.out.println("round "+toBitString(roundTripped));
 				Assert.assertEquals(subject, roundTripped);
 			}
 		}
 
-		@Test public void testRoundTrips(){
-			short i = Short.MIN_VALUE;
-			byte[] lastBytes = getComparableBytes(i);
-			++i;
+		@Test
+		public void testRoundTrips(){
+			short shortValue = Short.MIN_VALUE;
+			byte[] lastBytes = getComparableBytes(shortValue);
+			++shortValue;
 			int counter = 0;
-			for(; i<Short.MAX_VALUE; i+=1){
-//				System.out.println("#"+counter++);
-//				System.out.println("hex   "+Integer.toHexString(i));
-//				System.out.println("bin   "+Integer.toBinaryString(i));
-				byte[] bytes = getComparableBytes(i);
-//				System.out.println("bytes "+ByteTool.getBinaryStringBigEndian(bytes));
+			for(; shortValue < Short.MAX_VALUE; shortValue += 1){
+				byte[] bytes = getComparableBytes(shortValue);
 				short roundTripped = fromComparableByteArray(bytes)[0];
 				try{
 					Assert.assertTrue(DrByteTool.bitwiseCompare(lastBytes, bytes) < 0);
-					Assert.assertEquals(i, roundTripped);
+					Assert.assertEquals(shortValue, roundTripped);
 				}catch(AssertionError e){
-//					System.out.println(i+" -> "+roundTripped);
-//					System.out.println("lastBytes:"+ByteTool.getBinaryStringBigEndian(lastBytes));
-//					System.out.println("thisBytes:"+ByteTool.getBinaryStringBigEndian(bytes));
 					throw e;
 				}
 				lastBytes = bytes;
@@ -190,15 +181,17 @@ public class ShortByteTool {
 			Assert.assertTrue(counter > 1000);//make sure we did a lot of tests
 		}
 
-		@Test public void testUnsignedRoundTrips(){
-//			for(short i=0; i <= Short.MAX_VALUE; ++i){//infinite loop
-			short i=0;
+		@Test
+		public void testUnsignedRoundTrips(){
+			short shortValue = 0;
 			while(true){
-				byte[] bytes = getUInt15Bytes(i);
+				byte[] bytes = getUInt15Bytes(shortValue);
 				short roundTripped = fromUInt15Bytes(bytes, 0);
-				Assert.assertEquals(i, roundTripped);
-				if(i==Short.MAX_VALUE){ break; }
-				++i;
+				Assert.assertEquals(shortValue, roundTripped);
+				if(shortValue == Short.MAX_VALUE){
+					break;
+				}
+				++shortValue;
 			}
 		}
 	}

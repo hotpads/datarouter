@@ -89,8 +89,8 @@ public class DrArrayTool{
 		if(isEmpty(array)){
 			return false;
 		}
-		for(byte element : array){
-			if(element == key){
+		for(int i = 0; i < array.length; ++i){
+			if(array[i] == key){
 				return true;
 			}
 		}

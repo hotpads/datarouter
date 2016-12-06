@@ -13,8 +13,8 @@ import com.hotpads.datarouter.util.core.DrByteTool;
 /*
  * methods for converting ints into bytes
  */
-public class IntegerByteTool {
-	public static final int NULL = Integer.MIN_VALUE;
+public class IntegerByteTool{
+	private static final int NULL = Integer.MIN_VALUE;
 	/*
 	 * int32
 	 *
@@ -42,20 +42,20 @@ public class IntegerByteTool {
 	}
 
 	public static int fromRawBytes(final byte[] bytes, final int offset){
-		return (bytes[offset    ] & 0xff) << 24
+		return (bytes[offset] & 0xff) << 24
 		| (bytes[offset + 1] & 0xff) << 16
-		| (bytes[offset + 2] & 0xff) <<  8
-		|  bytes[offset + 3] & 0xff;
+		| (bytes[offset + 2] & 0xff) << 8
+		| bytes[offset + 3] & 0xff;
 	}
 
-	public static byte[] getBytesNullable(Integer value){
+	private static byte[] getBytesNullable(Integer value){
 		if(value == null){
 			return getComparableBytes(NULL);
 		}
 		return getComparableBytes(value);
 	}
 
-	public static Integer fromBytesNullable(byte[] bytes, int offset){
+	private static Integer fromBytesNullable(byte[] bytes, int offset){
 		Integer fromBytes = fromComparableBytes(bytes, offset);
 		if(fromBytes == NULL){
 			return null;
@@ -78,38 +78,42 @@ public class IntegerByteTool {
 	}
 
 	public static List<Integer> fromIntegerByteArray(final byte[] bytes, final int startIdx){
-		int numIntegers = (bytes.length - startIdx)/4;
+		int numIntegers = (bytes.length - startIdx) / 4;
 		List<Integer> integers = new ArrayList<>();
 		byte[] arrayToCopy = new byte[4];
 		for(int i = 0; i < numIntegers; i++){
-			System.arraycopy(bytes, i*4+startIdx, arrayToCopy, 0, 4);
+			System.arraycopy(bytes, i * 4 + startIdx, arrayToCopy, 0, 4);
 			integers.add(fromBytesNullable(arrayToCopy, 0));
 		}
 		return integers;
 	}
 
 	public static byte[] getIntegerByteArray(List<Integer> valuesWithNulls){
-		if(valuesWithNulls==null){return null;}
-		byte[] out = new byte[4*valuesWithNulls.size()];
+		if(valuesWithNulls == null){
+			return null;
+		}
+		byte[] out = new byte[4 * valuesWithNulls.size()];
 		for(int i = 0; i < valuesWithNulls.size(); ++i){
-			System.arraycopy(getBytesNullable(valuesWithNulls.get(i)), 0, out, i*4, 4);
+			System.arraycopy(getBytesNullable(valuesWithNulls.get(i)), 0, out, i * 4, 4);
 		}
 		return out;
 	}
 
 	public static byte[] getComparableByteArray(int[] values){
-		byte[] out = new byte[4*values.length];
-		for(int i=0; i < values.length; ++i){
-			System.arraycopy(getComparableBytes(values[i]), 0, out, i*4, 4);
+		byte[] out = new byte[4 * values.length];
+		for(int i = 0; i < values.length; ++i){
+			System.arraycopy(getComparableBytes(values[i]), 0, out, i * 4, 4);
 		}
 		return out;
 	}
 
 	public static int[] fromComparableByteArray(final byte[] bytes){
-		if(DrArrayTool.isEmpty(bytes)){ return new int[0]; }
+		if(DrArrayTool.isEmpty(bytes)){
+			return new int[0];
+		}
 		int[] out = new int[bytes.length / 4];
-		for(int i=0; i < out.length; ++i){
-			int startIdx = i*4;
+		for(int i = 0; i < out.length; ++i){
+			int startIdx = i * 4;
 
 			/*
 			 * i think the first bitwise operation causes the operand to be zero-padded
@@ -120,10 +124,10 @@ public class IntegerByteTool {
 
 			//more compact
 			out[i] = Integer.MIN_VALUE ^ (
-						  (bytes[startIdx    ] & 0xff) << 24
+						  (bytes[startIdx] & 0xff) << 24
 						| (bytes[startIdx + 1] & 0xff) << 16
-						| (bytes[startIdx + 2] & 0xff) <<  8
-						|  bytes[startIdx + 3] & 0xff);
+						| (bytes[startIdx + 2] & 0xff) << 8
+						| bytes[startIdx + 3] & 0xff);
 		}
 		return out;
 	}
@@ -146,49 +150,52 @@ public class IntegerByteTool {
 
 	public static int fromUInt31Bytes(final byte[] bytes, final int startIdx){
 		return
-		  (bytes[startIdx    ] & 0xff) << 24
+		  (bytes[startIdx] & 0xff) << 24
 		| (bytes[startIdx + 1] & 0xff) << 16
-		| (bytes[startIdx + 2] & 0xff) <<  8
-		|  bytes[startIdx + 3] & 0xff;
+		| (bytes[startIdx + 2] & 0xff) << 8
+		| bytes[startIdx + 3] & 0xff;
 	}
 
 	/************************ tests ***************************************/
 
 	public static class Tests{
 		//verify that -128 in bytes gets converted to -128 long.  Bitwise cast would be +128
-		@Test public void testCasting(){
-			byte b0=0,b1=1,b127=127,bn128=-128,bn1=-1;
+		@Test
+		public void testCasting(){
+			byte b0 = 0, b1 = 1, b127 = 127, bn128 = -128, bn1 = -1;
 			Assert.assertEquals(0L, b0);
 			Assert.assertEquals(1L, b1);
 			Assert.assertEquals(127L, b127);
 			Assert.assertEquals(-128L, bn128);
 			Assert.assertEquals(-1L, bn1);
 		}
-		@Test public void testGetOrderedBytes(){
-			int a = Integer.MIN_VALUE;
+
+		@Test
+		public void testGetOrderedBytes(){
+			int intA = Integer.MIN_VALUE;
 			byte[] ab = new byte[]{0,0,0,0};
-			Assert.assertArrayEquals(ab, getComparableBytes(a));
+			Assert.assertArrayEquals(ab, getComparableBytes(intA));
 
-			int b = Integer.MAX_VALUE;
+			int intB = Integer.MAX_VALUE;
 			byte[] bb = new byte[]{-1,-1,-1,-1};
-			Assert.assertArrayEquals(bb, getComparableBytes(b));
+			Assert.assertArrayEquals(bb, getComparableBytes(intB));
 
-			int c = Integer.MIN_VALUE + 1;
+			int intC = Integer.MIN_VALUE + 1;
 			byte[] cb = new byte[]{0,0,0,1};
-//			System.out.println(ByteTool.getBinaryStringBigEndian(cb));
-			byte[] cout = getComparableBytes(c);
+			byte[] cout = getComparableBytes(intC);
 			Assert.assertArrayEquals(cb, cout);
 
-			int d = Integer.MAX_VALUE - 3;
+			int intD = Integer.MAX_VALUE - 3;
 			byte[] db = new byte[]{-1,-1,-1,-4};
-			Assert.assertArrayEquals(db, getComparableBytes(d));
+			Assert.assertArrayEquals(db, getComparableBytes(intD));
 
-			int e = 0;
+			int intE = 0;
 			byte[] eb = new byte[]{-128,0,0,0};
-			Assert.assertArrayEquals(eb, getComparableBytes(e));
+			Assert.assertArrayEquals(eb, getComparableBytes(intE));
 		}
 
-		@Test public void testArrays(){
+		@Test
+		public void testArrays(){
 			byte[] p5 = getComparableBytes(5);
 			byte[] n3 = getComparableBytes(-3);
 			byte[] n7 = getComparableBytes(-7);
@@ -196,42 +203,33 @@ public class IntegerByteTool {
 			Assert.assertTrue(DrByteTool.bitwiseCompare(p5, n7) > 0);
 		}
 
-		@Test public void testRoundTrip(){
+		@Test
+		public void testRoundTrip(){
 			int[] subjects = new int[]{
-					Integer.MIN_VALUE,Integer.MIN_VALUE+1,
+					Integer.MIN_VALUE,Integer.MIN_VALUE + 1,
 					0,1,127,128,
-					Integer.MAX_VALUE-1,Integer.MAX_VALUE};
+					Integer.MAX_VALUE - 1,Integer.MAX_VALUE};
 			for(int subject : subjects){
-//				System.out.println("roundTrip "+Integer.toHexString(subjects[i]));
-//				System.out.println("origi "+toBitString(subjects[i]));
 				byte[] bytes = getComparableBytes(subject);
-//				System.out.println("bytes "+ByteTool.getBinaryStringBigEndian(bytes));
 				int roundTripped = fromComparableByteArray(bytes)[0];
-//				System.out.println("round "+toBitString(roundTripped));
 				Assert.assertEquals(subject, roundTripped);
 			}
 		}
 
-		@Test public void testRoundTrips(){
-			Random r = new Random();
-			int i=Integer.MIN_VALUE;
-			byte[] lastBytes = getComparableBytes(i);
-			++i;
+		@Test
+		public void testRoundTrips(){
+			Random random = new Random();
+			int intValue = Integer.MIN_VALUE;
+			byte[] lastBytes = getComparableBytes(intValue);
+			++intValue;
 			int counter = 0;
-			for(; i<Integer.MAX_VALUE/2; i+=1+Math.abs(r.nextInt()%53*47*991)){
-//				System.out.println("#"+counter++);
-//				System.out.println("hex   "+Integer.toHexString(i));
-//				System.out.println("bin   "+Integer.toBinaryString(i));
-				byte[] bytes = getComparableBytes(i);
-//				System.out.println("bytes "+ByteTool.getBinaryStringBigEndian(bytes));
+			for(; intValue < Integer.MAX_VALUE / 2; intValue += 1 + Math.abs(random.nextInt() % 53 * 47 * 991)){
+				byte[] bytes = getComparableBytes(intValue);
 				int roundTripped = fromComparableByteArray(bytes)[0];
 				try{
 					Assert.assertTrue(DrByteTool.bitwiseCompare(lastBytes, bytes) < 0);
-					Assert.assertEquals(i, roundTripped);
+					Assert.assertEquals(intValue, roundTripped);
 				}catch(AssertionError e){
-//					System.out.println(i+" -> "+roundTripped);
-//					System.out.println("lastBytes:"+ByteTool.getBinaryStringBigEndian(lastBytes));
-//					System.out.println("thisBytes:"+ByteTool.getBinaryStringBigEndian(bytes));
 					throw e;
 				}
 				lastBytes = bytes;

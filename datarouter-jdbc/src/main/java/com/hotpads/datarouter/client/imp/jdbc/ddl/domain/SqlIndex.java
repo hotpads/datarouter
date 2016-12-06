@@ -8,18 +8,12 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn.SqlColumnNameTypeComparator;
-import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrComparableTool;
 
 public class SqlIndex implements Comparable<SqlIndex>{
 
-	/********************** fields *************************/
-
-	protected String name;
-	protected List<SqlColumn> columns;
-
-
-	/********************** constructors **********************/
+	private String name;
+	private List<SqlColumn> columns;
 
 	public SqlIndex(String name, List<SqlColumn> columns){
 		this.name = name;
@@ -28,17 +22,13 @@ public class SqlIndex implements Comparable<SqlIndex>{
 
 	public SqlIndex(String name){
 		this.name = name;
-		this.columns=new ArrayList<>();
+		this.columns = new ArrayList<>();
 	}
-
-
-	/******************* methods ****************************/
 
 	public SqlIndex addColumn(SqlColumn col){
 		columns.add(col);
 		return this;
 	}
-
 
 	/******************* Object methods **********************/
 
@@ -58,28 +48,25 @@ public class SqlIndex implements Comparable<SqlIndex>{
 
 	@Override
 	public boolean equals(Object obj){
-		if (this == obj){
+		if(this == obj){
 			return true;
 		}
-		if (obj == null){
+		if(!(obj instanceof SqlIndex)){
 			return false;
 		}
-		if (!(obj instanceof SqlIndex)){
-			return false;
-		}
-		SqlIndex other = (SqlIndex) obj;
-		if (columns == null){
-			if (other.columns != null){
+		SqlIndex other = (SqlIndex)obj;
+		if(columns == null){
+			if(other.columns != null){
 				return false;
 			}
-		} else if (!columns.equals(other.columns)){
+		}else if(!columns.equals(other.columns)){
 			return false;
 		}
-		if (name == null){
-			if (other.name != null){
+		if(name == null){
+			if(other.name != null){
 				return false;
 			}
-		} else if (!name.equals(other.name)){
+		}else if(!name.equals(other.name)){
 			return false;
 		}
 		return true;
@@ -92,22 +79,9 @@ public class SqlIndex implements Comparable<SqlIndex>{
 		return name;
 	}
 
-	public void setName(String name){
-		this.name = name;
-	}
-
 	public List<SqlColumn> getColumns(){
 		return columns;
 	}
-
-	public void setColumns(List<SqlColumn> columns){
-		this.columns = columns;
-	}
-
-	public int getNumberOfColumns(){
-		return DrCollectionTool.size(columns);
-	}
-
 
 	/********************* comparators **********************************/
 
@@ -115,21 +89,25 @@ public class SqlIndex implements Comparable<SqlIndex>{
 
 		@Override
 		public int compare(SqlIndex index1, SqlIndex index2){
-			int c = DrComparableTool.nullFirstCompareTo(index1.getName(), index2.getName());
-			if(c!=0){ return c; }
+			int diff = DrComparableTool.nullFirstCompareTo(index1.getName(), index2.getName());
+			if(diff != 0){
+				return diff;
+			}
 			SqlColumnNameTypeComparator nameTypeColumnComparator = new SqlColumnNameTypeComparator(true);
 			for(int i = 0; i < Math.min(index1.getColumns().size(), index2.getColumns().size()); i++){
-				c=DrComparableTool.nullFirstCompareTo(index1.getColumns().get(i), index2.getColumns().get(i));
-				if(index1.getColumns().get(i)==null && index2.getColumns().get(i)==null){
-					c = 0;
-				}else if(index1.getColumns().get(i)==null){
-					c = -1;
-				}else if(index2.getColumns().get(i)==null){
-					c = 1;
+				diff = DrComparableTool.nullFirstCompareTo(index1.getColumns().get(i), index2.getColumns().get(i));
+				if(index1.getColumns().get(i) == null && index2.getColumns().get(i) == null){
+					diff = 0;
+				}else if(index1.getColumns().get(i) == null){
+					diff = -1;
+				}else if(index2.getColumns().get(i) == null){
+					diff = 1;
 				}else{
-					c = nameTypeColumnComparator.compare(index1.getColumns().get(i), index2.getColumns().get(i));
+					diff = nameTypeColumnComparator.compare(index1.getColumns().get(i), index2.getColumns().get(i));
 				}
-				if(c!=0){ return c; }
+				if(diff != 0){
+					return diff;
+				}
 			}
 			return 0;
 		}
@@ -137,39 +115,44 @@ public class SqlIndex implements Comparable<SqlIndex>{
 	}
 
 	@Override
-	public int compareTo(SqlIndex o){
-			int c = DrComparableTool.nullFirstCompareTo(name, o.name);
-			if(c!=0){ return c; }
-			SqlColumnNameTypeComparator nameTypeColumnComparator = new SqlColumnNameTypeComparator(true);
-			for(int i=0; i < Math.min(columns.size(), o.columns.size()); i++){
-				c=DrComparableTool.nullFirstCompareTo(columns.get(i),o.columns.get(i));
-				if(columns.get(i)==null && o.columns.get(i)==null){
-					c = 0;
-				}else if(columns.get(i)==null){
-					c = -1;
-				}else if(o.columns.get(i)==null){
-					c = 1;
-				}else{
-					c = nameTypeColumnComparator.compare(columns.get(i), o.columns.get(i));
-				}
-				if(c!=0){ return c; }
+	public int compareTo(SqlIndex obj){
+		int diff = DrComparableTool.nullFirstCompareTo(name, obj.name);
+		if(diff != 0){
+			return diff;
+		}
+		SqlColumnNameTypeComparator nameTypeColumnComparator = new SqlColumnNameTypeComparator(true);
+		for(int i = 0; i < Math.min(columns.size(), obj.columns.size()); i++){
+			diff = DrComparableTool.nullFirstCompareTo(columns.get(i), obj.columns.get(i));
+			if(columns.get(i) == null && obj.columns.get(i) == null){
+				diff = 0;
+			}else if(columns.get(i) == null){
+				diff = -1;
+			}else if(obj.columns.get(i) == null){
+				diff = 1;
+			}else{
+				diff = nameTypeColumnComparator.compare(columns.get(i), obj.columns.get(i));
 			}
-			return 0;
+			if(diff != 0){
+				return diff;
+			}
+		}
+		return 0;
 	}
 
 
 	/**************************** tests *******************************************/
 
 	public static class SqlIndexTests{
-		@Test public void equalsTester(){
-			SqlColumn a = new SqlColumn("a", MySqlColumnType.BIGINT);
-			SqlColumn b = new SqlColumn("b", MySqlColumnType.BIGINT);
-			SqlColumn aa=new SqlColumn("a", MySqlColumnType.VARBINARY);
-			SqlColumn bb=new SqlColumn("b", MySqlColumnType.VARCHAR);
+		@Test
+		public void equalsTester(){
+			SqlColumn columnA = new SqlColumn("a", MySqlColumnType.BIGINT);
+			SqlColumn columnB = new SqlColumn("b", MySqlColumnType.BIGINT);
+			SqlColumn aa = new SqlColumn("a", MySqlColumnType.VARBINARY);
+			SqlColumn bb = new SqlColumn("b", MySqlColumnType.VARCHAR);
 			SqlIndex index1 = new SqlIndex("index");
 			SqlIndex index2 = new SqlIndex("index");
 
-			index1.addColumn(a).addColumn(b);
+			index1.addColumn(columnA).addColumn(columnB);
 			index2.addColumn(aa).addColumn(bb);
 
 			Assert.assertTrue(index1.equals(index2));

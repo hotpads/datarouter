@@ -21,7 +21,7 @@ public enum StandardServerType implements ServerType, StringEnum<StandardServerT
 	}
 
 	@Override
-	public List<HtmlSelectOptionBean> getHTMLSelectOptionsVarNames(){
+	public List<HtmlSelectOptionBean> getHtmlSelectOptionsVarNames(){
 		return null;
 	}
 

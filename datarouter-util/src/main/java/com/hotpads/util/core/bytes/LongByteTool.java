@@ -43,14 +43,14 @@ public class LongByteTool{
 	}
 
 	public static long fromRawBytes(final byte[] bytes, final int byteOffset){
-		return (bytes[byteOffset    ] & (long)0xff) << 56
+		return (bytes[byteOffset] & (long)0xff) << 56
 		| (bytes[byteOffset + 1] & (long)0xff) << 48
 		| (bytes[byteOffset + 2] & (long)0xff) << 40
 		| (bytes[byteOffset + 3] & (long)0xff) << 32
 		| (bytes[byteOffset + 4] & (long)0xff) << 24
 		| (bytes[byteOffset + 5] & (long)0xff) << 16
-		| (bytes[byteOffset + 6] & (long)0xff) <<  8
-		|  bytes[byteOffset + 7] & (long)0xff;
+		| (bytes[byteOffset + 6] & (long)0xff) << 8
+		| bytes[byteOffset + 7] & (long)0xff;
 	}
 
 	/*
@@ -144,14 +144,14 @@ public class LongByteTool{
 
 	public static Long fromUInt63Bytes(final byte[] bytes, final int byteOffset){
 		return
-		  (bytes[byteOffset    ] & (long)0xff) << 56
+		  (bytes[byteOffset] & (long)0xff) << 56
 		| (bytes[byteOffset + 1] & (long)0xff) << 48
 		| (bytes[byteOffset + 2] & (long)0xff) << 40
 		| (bytes[byteOffset + 3] & (long)0xff) << 32
 		| (bytes[byteOffset + 4] & (long)0xff) << 24
 		| (bytes[byteOffset + 5] & (long)0xff) << 16
-		| (bytes[byteOffset + 6] & (long)0xff) <<  8
-		|  bytes[byteOffset + 7] & (long)0xff;
+		| (bytes[byteOffset + 6] & (long)0xff) << 8
+		| bytes[byteOffset + 7] & (long)0xff;
 	}
 
 	//************ arrays and collections
@@ -195,90 +195,91 @@ public class LongByteTool{
 
 	public static class Tests{
 
-		@Test public void testBuildingLong(){
-			long l = 0;
-			l |= (byte)-2;
-//			System.out.println(LongTool.toBitString(l));
-			Assert.assertEquals(-2, l);
-			l = (l << 8) + (-2+128);
-//			System.out.println(LongTool.toBitString(l));
+		@Test
+		public void testBuildingLong(){
+			long longValue = 0;
+			longValue |= (byte)-2;
+			Assert.assertEquals(-2, longValue);
+			// l = (l << 8) + (-2+128);
 		}
 
-		@Test public void testGetOrderedBytes(){
-			long a = Long.MIN_VALUE;
+		@Test
+		public void testGetOrderedBytes(){
+			long longA = Long.MIN_VALUE;
 			byte[] ab = new byte[]{0,0,0,0,0,0,0,0};
-			Assert.assertArrayEquals(ab, getComparableBytes(a));
+			Assert.assertArrayEquals(ab, getComparableBytes(longA));
 
-			long b = Long.MAX_VALUE;
+			long longB = Long.MAX_VALUE;
 			byte[] bb = new byte[]{-1,-1,-1,-1,-1,-1,-1,-1};
-			Assert.assertArrayEquals(bb, getComparableBytes(b));
+			Assert.assertArrayEquals(bb, getComparableBytes(longB));
 
-			long c = Long.MIN_VALUE + 1;
+			long longC = Long.MIN_VALUE + 1;
 			byte[] cb = new byte[]{0,0,0,0,0,0,0,1};
-			Assert.assertArrayEquals(cb, getComparableBytes(c));
+			Assert.assertArrayEquals(cb, getComparableBytes(longC));
 
-			long d = Long.MAX_VALUE - 3;
+			long longD = Long.MAX_VALUE - 3;
 			byte[] db = new byte[]{-1,-1,-1,-1,-1,-1,-1,-4};
-			Assert.assertArrayEquals(db, getComparableBytes(d));
+			Assert.assertArrayEquals(db, getComparableBytes(longD));
 
-			long e = 127;
+			long longE = 127;
 			byte[] eb = new byte[]{-128,0,0,0,0,0,0,127};
-			Assert.assertArrayEquals(eb, getComparableBytes(e));
+			Assert.assertArrayEquals(eb, getComparableBytes(longE));
 
-			long f = 128;
+			long longF = 128;
 			byte[] fb = new byte[]{-128,0,0,0,0,0,0,-128};
-			Assert.assertArrayEquals(fb, getComparableBytes(f));
+			Assert.assertArrayEquals(fb, getComparableBytes(longF));
 
-			long g = -128;
+			long longG = -128;
 			byte[] gb = new byte[]{127,-1,-1,-1,-1,-1,-1,-128};
-			Assert.assertArrayEquals(gb, getComparableBytes(g));
+			Assert.assertArrayEquals(gb, getComparableBytes(longG));
 		}
-		@Test public void testFromOrderedBytes(){
-			long a = Long.MIN_VALUE;
+
+		@Test
+		public void testFromOrderedBytes(){
+			long longA = Long.MIN_VALUE;
 			byte[] ab = new byte[]{0,0,0,0,0,0,0,0};
-			Assert.assertEquals(a, fromComparableByteArray(ab)[0]);
+			Assert.assertEquals(longA, fromComparableByteArray(ab)[0]);
 
-			long b = Long.MAX_VALUE;
+			long longB = Long.MAX_VALUE;
 			byte[] bb = new byte[]{-1,-1,-1,-1,-1,-1,-1,-1};
-			Assert.assertEquals(b, fromComparableByteArray(bb)[0]);
+			Assert.assertEquals(longB, fromComparableByteArray(bb)[0]);
 
-			long c = Long.MIN_VALUE + 1;
+			long longC = Long.MIN_VALUE + 1;
 			byte[] cb = new byte[]{0,0,0,0,0,0,0,1};
-			Assert.assertEquals(c, fromComparableByteArray(cb)[0]);
+			Assert.assertEquals(longC, fromComparableByteArray(cb)[0]);
 
-			long d = Long.MAX_VALUE - 3;
+			long longD = Long.MAX_VALUE - 3;
 			byte[] db = new byte[]{-1,-1,-1,-1,-1,-1,-1,-4};
-			Assert.assertEquals(d, fromComparableByteArray(db)[0]);
+			Assert.assertEquals(longD, fromComparableByteArray(db)[0]);
 
-			long e = 3;
+			long longE = 3;
 			byte[] eb = new byte[]{-128,0,0,0,0,0,0,3};
-			Assert.assertEquals(e, fromComparableByteArray(eb)[0]);
+			Assert.assertEquals(longE, fromComparableByteArray(eb)[0]);
 		}
-		@Test public void testRoundTrip(){
+
+		@Test
+		public void testRoundTrip(){
 			long[] subjects = new long[]{
-					Long.MIN_VALUE,Long.MIN_VALUE+1,
+					Long.MIN_VALUE,Long.MIN_VALUE + 1,
 					0,1,127,128,
-					Long.MAX_VALUE-1,Long.MAX_VALUE,
+					Long.MAX_VALUE - 1,Long.MAX_VALUE,
 					-9223372036845049055L};
 			for(long subject : subjects){
-//				System.out.println("roundTrip "+Integer.toHexString(subjects[i]));
-//				System.out.println("origi "+toBitString(subjects[i]));
 				byte[] bytes = getComparableBytes(subject);
-//				System.out.println("bytes "+ByteTool.getBinaryStringBigEndian(bytes));
 				long roundTripped = fromComparableByteArray(bytes)[0];
-//				System.out.println("round "+toBitString(roundTripped));
 				Assert.assertEquals(subject, roundTripped);
 			}
 		}
 
-		@Test public void testRoundTrips(){
-			Random r = new Random();
-			long value=Long.MIN_VALUE;
+		@Test
+		public void testRoundTrips(){
+			Random random = new Random();
+			long value = Long.MIN_VALUE;
 			byte[] lastBytes = getComparableBytes(value);
 			long lastValue = value;
 			++value;
 			int counter = 0;
-			long stopAt = Long.MAX_VALUE-2*(long)Integer.MAX_VALUE;
+			long stopAt = Long.MAX_VALUE - 2 * (long)Integer.MAX_VALUE;
 			Assert.assertTrue(stopAt > Integer.MAX_VALUE);
 			do{
 				if(counter < 1000){
@@ -288,27 +289,18 @@ public class LongByteTool{
 				long roundTripped = fromComparableByteArray(bytes)[0];
 				try{
 					Assert.assertTrue(value > lastValue);
-//					System.out.println("#"+counter);
-//					System.out.println("hex   "+Long.toHexString(value));
-//					System.out.println("bin   "+Long.toBinaryString(value));
-//					System.out.println("bytes "+ByteTool.getBinaryStringBigEndian(bytes));
 					Assert.assertTrue(DrByteTool.bitwiseCompare(lastBytes, bytes) < 0);
 					Assert.assertEquals(value, roundTripped);
 				}catch(AssertionError e){
-					System.out.println("counter: "+counter);
-					System.out.println(value+" -> "+roundTripped);
-					System.out.println("lastBytes:"+DrByteTool.getBinaryStringBigEndian(lastBytes));
-					System.out.println("thisBytes:"+DrByteTool.getBinaryStringBigEndian(bytes));
 					throw e;
 				}
 				lastBytes = bytes;
 				++counter;
 				lastValue = value;
-				long incrementor = r.nextLong() >>> 18;
+				long incrementor = random.nextLong() >>> 18;
 				value = value + incrementor;
-			}while(value < stopAt && value > lastValue);//watch out for overflowing and going back negative
+			}while(value < stopAt && value > lastValue);// watch out for overflowing and going back negative
 			Assert.assertTrue(counter > 1000);//make sure we did a lot of tests
-//			System.out.println(counter);
 		}
 	}
 }
