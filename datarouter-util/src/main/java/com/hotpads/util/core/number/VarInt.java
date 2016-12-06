@@ -10,7 +10,7 @@ import java.nio.channels.ReadableByteChannel;
 import java.util.Random;
 
 import org.junit.Assert;
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import com.hotpads.datarouter.util.core.DrByteTool;
 
@@ -132,6 +132,11 @@ public class VarInt{
 			Assert.assertEquals(28, new VarInt(new byte[]{-1,-1,28}, 2).value);
 		}
 
+		@Test(expectedExceptions = IllegalArgumentException.class)
+		public void testInvalidOffset(){
+			new VarInt(new byte[]{0,0,0}, 4);
+		}
+
 		@Test
 		public void testNumBytes(){
 			Assert.assertEquals(1, numBytes(0));
@@ -179,16 +184,9 @@ public class VarInt{
 			}
 		}
 
-		@Test
+		@Test(expectedExceptions = IllegalArgumentException.class)
 		public void testEmptyInputStream() throws IOException{
-			ByteArrayInputStream is = new ByteArrayInputStream(new byte[0]);
-			int numExceptions = 0;
-			try{
-				new VarInt(is);
-			}catch(IllegalArgumentException iae){
-				++numExceptions;
-			}
-			Assert.assertEquals(1, numExceptions);
+			new VarInt(new ByteArrayInputStream(new byte[0]));
 		}
 
 		@Test
@@ -208,16 +206,14 @@ public class VarInt{
 			Assert.assertEquals(3195, v3195.getValue());
 		}
 
-		@Test
+		@Test(expectedExceptions = IllegalArgumentException.class)
 		public void testEmptyFileChannel() throws IOException{
-			ByteArrayInputStream is = new ByteArrayInputStream(new byte[0]);
-			int numExceptions = 0;
-			try{
-				new VarInt(is);
-			}catch(IllegalArgumentException iae){
-				++numExceptions;
-			}
-			Assert.assertEquals(1, numExceptions);
+			new VarInt(new ByteArrayInputStream(new byte[0]));
+		}
+
+		@Test(expectedExceptions = IllegalArgumentException.class)
+		public void testNegativeInteger(){
+			new VarInt(-1);
 		}
 
 		@Test
