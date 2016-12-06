@@ -395,15 +395,6 @@ public class RequestTool {
 		return uri.substring(idx+1, uri.length());
 	}
 
-
-	public static URL getFullyQualifiedUrl(String path, HttpServletRequest similarRequest){
-		if(!path.startsWith("/")){
-			path = "/"+path;
-		}
-		String requestUrl = similarRequest.getRequestURL().toString();
-		return getFullyQualifiedUrl(path, requestUrl, similarRequest.getServerName(), similarRequest.getServerPort());
-	}
-
 	public static URL getFullyQualifiedUrl(String path, String similarUrl, String serverName, int port){
 		if(!path.startsWith("/")){
 			path = "/"+path;
@@ -418,6 +409,15 @@ public class RequestTool {
 		}catch(MalformedURLException e){
 			throw new IllegalArgumentException(e);
 		}
+	}
+
+
+	public static URL getFullyQualifiedUrl(String path, HttpServletRequest similarRequest){
+		if(!path.startsWith("/")){
+			path = "/"+path;
+		}
+		String requestUrl = similarRequest.getRequestURL().toString();
+		return getFullyQualifiedUrl(path, requestUrl, similarRequest.getServerName(), similarRequest.getServerPort());
 	}
 
 	public static String getReferer(HttpServletRequest request){

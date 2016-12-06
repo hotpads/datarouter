@@ -72,7 +72,7 @@ public class DrRegionList{
 				regions.add(new DrRegionInfo(regionNum++, tableName, primaryKeyClass, hregionInfo, serverName, node,
 						regionLoad, compactionInfo));
 			}catch(RuntimeException e){
-				logger.warn("couldn't build DRHRegionList for region:"+hregionInfo.getEncodedName());
+				logger.warn("couldn't build DRHRegionList for region:" + hregionInfo.getEncodedName());
 				throw e;
 			}
 		}
@@ -149,7 +149,7 @@ public class DrRegionList{
 
 	public LinkedHashMap<String,List<DrRegionInfo<?>>> getRegionsGroupedBy(String groupBy){
 		LinkedHashMap<String,List<DrRegionInfo<?>>> regionsByGroup = new LinkedHashMap<>();
-		if(null == groupBy){
+		if("all".equals(groupBy)){
 			regionsByGroup.put("all", regions);
 		}else if("serverName".equals(groupBy)){
 			for(Map.Entry<String,List<DrRegionInfo<?>>> entry : getRegionsByServerName().entrySet()){

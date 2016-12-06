@@ -26,11 +26,11 @@
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 		<!-- guava 17 removes the public Stopwatch() constructor which causes errors in hbase-1.1.2 -->
-		<dependency>
-			<groupId>com.google.guava</groupId>
-			<artifactId>guava</artifactId>
-			<version>16.0.1</version>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>com.google.guava</groupId> -->
+<!-- 			<artifactId>guava</artifactId> -->
+<!-- 			<version>16.0.1</version> -->
+<!-- 		</dependency> -->
 		<dependency><!-- used by UuidTool -->
 			<groupId>com.fasterxml.uuid</groupId>
 			<artifactId>java-uuid-generator</artifactId>

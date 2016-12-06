@@ -12,7 +12,6 @@ import java.util.stream.Collectors;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import com.google.common.base.Joiner;
 import com.hotpads.util.core.stream.StreamTool;
 
 
@@ -129,7 +128,6 @@ public class DrMapTool {
 			Map<String, String> res = DrMapTool.getMapFromString(string, ";", ": ");
 			Assert.assertEquals(res.size(), 2);
 			Assert.assertEquals(res.get("key2"), "val2");
-			Assert.assertEquals(Joiner.on(";").withKeyValueSeparator(": ").join(res), string);
 		}
 
 		@Test
