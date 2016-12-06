@@ -1,23 +1,23 @@
-package com.hotpads.spark.data.jobs;
+package com.hotpads.spark.data.exporter.implementations;
 
 import com.hotpads.spark.data.compressors.DataCompressor;
-import com.hotpads.spark.data.downloaders.DataDownloader;
+import com.hotpads.spark.data.exporter.DataExporter;
 import com.hotpads.spark.data.uploaders.DataUploader;
 
-public class DataPipeline{
-	private final DataDownloader dataDownloader;
+class ExportTaskPipeline{
+	private final DataExporter dataExporter;
 	private final DataCompressor dataCompressor;
 	private final DataUploader dataUploader;
 
-	public DataPipeline(DataDownloader dataDownloader, DataCompressor dataCompressor,
+	public ExportTaskPipeline(DataExporter dataExporter, DataCompressor dataCompressor,
 			DataUploader dataUploader){
-		this.dataDownloader = dataDownloader;
+		this.dataExporter = dataExporter;
 		this.dataCompressor = dataCompressor;
 		this.dataUploader = dataUploader;
 	}
 
-	public DataDownloader getDataDownloader(){
-		return dataDownloader;
+	public DataExporter getDataExporter(){
+		return dataExporter;
 	}
 
 	public DataCompressor getDataCompressor(){

@@ -55,12 +55,18 @@ public class S3DataUploader implements DataUploader{
 				progressEvent -> logger.info("Transferred bytes: " + progressEvent.getBytesTransferred());
 		upload.addProgressListener(progressListener);
 
-		try {
+		try{
 			upload.waitForCompletion();
 			logger.info("Upload of file {} is complete.", pathToFile);
-		} catch (AmazonClientException amazonClientException) {
+		}catch(AmazonClientException amazonClientException){
 			logger.error("Unable to upload file, upload was aborted.", amazonClientException);
 		}
+	}
+
+	/**************************** getter *******************************/
+
+	public String getUploadLocation(){
+		return uploadLocation;
 	}
 
 	public static void main(String[] args) throws IOException, URISyntaxException, InterruptedException{
@@ -69,5 +75,4 @@ public class S3DataUploader implements DataUploader{
 		uploadDataToS3Job.upload(args[2]);
 		System.exit(0);
 	}
-
 }

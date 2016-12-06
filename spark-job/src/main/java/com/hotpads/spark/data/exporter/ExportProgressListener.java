@@ -1,5 +1,5 @@
-package com.hotpads.spark.data;
+package com.hotpads.spark.data.exporter;
 
-public interface ProgressListener<T>{
+public interface ExportProgressListener<T>{
 	void update(T args);
 }
