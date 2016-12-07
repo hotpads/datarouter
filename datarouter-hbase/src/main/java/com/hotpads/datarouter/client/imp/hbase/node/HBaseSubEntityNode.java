@@ -27,6 +27,7 @@ import com.hotpads.datarouter.node.entity.EntityNodeParams;
 import com.hotpads.datarouter.node.entity.SubEntitySortedMapStorageNode;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.PhysicalSortedMapStorageNode;
 import com.hotpads.datarouter.node.op.index.HBaseIncrement;
+import com.hotpads.datarouter.node.op.raw.MapStorage;
 import com.hotpads.datarouter.node.op.raw.write.StorageWriter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
@@ -54,8 +55,18 @@ public class HBaseSubEntityNode<
 extends HBaseSubEntityReaderNode<EK,E,PK,D,F>
 implements SubEntitySortedMapStorageNode<EK,PK,D,F>, PhysicalSortedMapStorageNode<PK,D>, HBaseIncrement<PK>{
 
+	private final CountingBatchCallback<?> putMultiCallback;
+	private final CountingBatchCallback<?> deleteAllCallback;
+	private final CountingBatchCallback<?> deleteMultiCallback;
+
 	public HBaseSubEntityNode(EntityNodeParams<EK,E> entityNodeParams, NodeParams<PK,D,F> params){
 		super(entityNodeParams, params);
+		this.putMultiCallback = new CountingBatchCallback<>(DRCounters.INSTANCE, getClient(), getTableName(),
+				StorageWriter.OP_putMulti);
+		this.deleteAllCallback = new CountingBatchCallback<>(DRCounters.INSTANCE, getClient(), getTableName(),
+				MapStorage.OP_deleteAll);
+		this.deleteMultiCallback = new CountingBatchCallback<>(DRCounters.INSTANCE, getClient(), getTableName(),
+				MapStorage.OP_deleteMulti);
 	}
 
 	@Override
@@ -141,8 +152,7 @@ implements SubEntitySortedMapStorageNode<EK,PK,D,F>, PhysicalSortedMapStorageNod
 				DRCounters.incClientNodeCustom(client.getType(), "entities put", getClientName(), getNodeName(),
 						numEntitiesPut);
 				if(DrCollectionTool.notEmpty(actions)){
-					table.batchCallback(actions, new Object[actions.size()], new CountingBatchCallback<>(
-							DRCounters.INSTANCE, client, getTableName(), StorageWriter.OP_putMulti));
+					table.batchCallback(actions, new Object[actions.size()], putMultiCallback);
 				}
 				return null;
 			}
@@ -176,12 +186,12 @@ implements SubEntitySortedMapStorageNode<EK,PK,D,F>, PhysicalSortedMapStorageNod
 					}
 					batchToDelete.add(delete);
 					if(batchToDelete.size() % 100 == 0){
-						table.batch(batchToDelete);
+						table.batchCallback(batchToDelete, new Object[batchToDelete.size()], deleteAllCallback);
 						batchToDelete.clear();
 					}
 				}
 				if(DrCollectionTool.notEmpty(batchToDelete)){
-					table.batch(batchToDelete);
+					table.batchCallback(batchToDelete, new Object[batchToDelete.size()], deleteAllCallback);
 				}
 				return null;
 			}
@@ -227,7 +237,7 @@ implements SubEntitySortedMapStorageNode<EK,PK,D,F>, PhysicalSortedMapStorageNod
 						deletes.add(delete);
 					}
 				}
-				table.batch(deletes);
+				table.batchCallback(deletes, new Object[deletes.size()], deleteMultiCallback);
 				return null;
 			}
 		}).call();
