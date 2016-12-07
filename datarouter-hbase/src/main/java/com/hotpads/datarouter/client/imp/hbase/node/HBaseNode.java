@@ -15,6 +15,7 @@ import org.apache.hadoop.hbase.client.Table;
 
 import com.hotpads.datarouter.client.imp.hbase.client.HBaseClient;
 import com.hotpads.datarouter.client.imp.hbase.client.HBaseClientFactory;
+import com.hotpads.datarouter.client.imp.hbase.node.callback.CountingBatchCallback;
 import com.hotpads.datarouter.client.imp.hbase.op.write.HBaseIncrementOp;
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseMultiAttemptTask;
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseTask;
@@ -24,6 +25,7 @@ import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.PhysicalSortedMapStorageNode;
 import com.hotpads.datarouter.node.op.index.HBaseIncrement;
+import com.hotpads.datarouter.node.op.raw.write.StorageWriter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
@@ -117,7 +119,8 @@ implements PhysicalSortedMapStorageNode<PK,D>, HBaseIncrement<PK>{
 						DRCounters.incClientNodeCustom(client.getType(), "cells delete", getClientName(), getName(),
 								numCellsDeleted);
 						if(DrCollectionTool.notEmpty(actions)){
-							htable.batch(actions);
+							htable.batchCallback(actions, new Object[actions.size()], new CountingBatchCallback<>(
+									DRCounters.INSTANCE, client, getTableName(), StorageWriter.OP_putMulti));
 						}
 						return null;
 					}

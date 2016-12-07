@@ -16,6 +16,7 @@ import org.apache.hadoop.hbase.client.Table;
 import org.apache.hadoop.hbase.filter.ColumnPrefixFilter;
 
 import com.hotpads.datarouter.client.imp.hbase.client.HBaseClient;
+import com.hotpads.datarouter.client.imp.hbase.node.callback.CountingBatchCallback;
 import com.hotpads.datarouter.client.imp.hbase.op.write.HBaseSubEntityIncrementOp;
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseMultiAttemptTask;
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseTask;
@@ -26,6 +27,7 @@ import com.hotpads.datarouter.node.entity.EntityNodeParams;
 import com.hotpads.datarouter.node.entity.SubEntitySortedMapStorageNode;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.PhysicalSortedMapStorageNode;
 import com.hotpads.datarouter.node.op.index.HBaseIncrement;
+import com.hotpads.datarouter.node.op.raw.write.StorageWriter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.entity.Entity;
@@ -139,7 +141,8 @@ implements SubEntitySortedMapStorageNode<EK,PK,D,F>, PhysicalSortedMapStorageNod
 				DRCounters.incClientNodeCustom(client.getType(), "entities put", getClientName(), getNodeName(),
 						numEntitiesPut);
 				if(DrCollectionTool.notEmpty(actions)){
-					table.batch(actions);
+					table.batchCallback(actions, new Object[actions.size()], new CountingBatchCallback<>(
+							DRCounters.INSTANCE, client, getTableName(), StorageWriter.OP_putMulti));
 				}
 				return null;
 			}

@@ -1,10 +1,14 @@
 package com.hotpads.datarouter.util;
 
+import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.profile.counter.Counters;
 
 public class DRCounters{
+
+	@Deprecated
+	public static final DRCounters INSTANCE = new DRCounters();
 
 	public static final String
 		PREFIX = "Datarouter",
@@ -14,7 +18,8 @@ public class DRCounters{
 		AGGREGATION_op = "op",
 		AGGREGATION_client = "client",
 		AGGREGATION_table = "table",
-		AGGREGATION_node = "node";
+		AGGREGATION_node = "node",
+		AGGREGATION_region = "region";
 
 
 	/********* inc single ************/
@@ -67,6 +72,12 @@ public class DRCounters{
 		incClient(type, key, clientName, delta);
 		String compoundKey = clientName + " " + nodeName + " custom " + key;
 		incInternal(AGGREGATION_node, type, compoundKey, delta);
+	}
+
+	public static void incClientTableOpRegion(Client client, String tableName, String opName,
+			String regionName, long delta){
+		String compoundKey = client.getName() + " " + tableName+ " " + opName + " " + regionName;
+		incInternal(AGGREGATION_region, client.getType(), compoundKey, delta);
 	}
 
 	public static void incFromCounterAdapter(PhysicalNode<?,?> physicalNode, String key, long delta){
