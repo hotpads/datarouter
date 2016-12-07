@@ -15,7 +15,9 @@ import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.client.Table;
 import org.apache.hadoop.hbase.filter.ColumnPrefixFilter;
 
+import com.hotpads.datarouter.client.DefaultClientTypes;
 import com.hotpads.datarouter.client.imp.hbase.client.HBaseClient;
+import com.hotpads.datarouter.client.imp.hbase.node.callback.CountingBatchCallback;
 import com.hotpads.datarouter.client.imp.hbase.op.write.HBaseSubEntityIncrementOp;
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseMultiAttemptTask;
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseTask;
@@ -26,6 +28,8 @@ import com.hotpads.datarouter.node.entity.EntityNodeParams;
 import com.hotpads.datarouter.node.entity.SubEntitySortedMapStorageNode;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.PhysicalSortedMapStorageNode;
 import com.hotpads.datarouter.node.op.index.HBaseIncrement;
+import com.hotpads.datarouter.node.op.raw.MapStorage;
+import com.hotpads.datarouter.node.op.raw.write.StorageWriter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.entity.Entity;
@@ -52,8 +56,21 @@ public class HBaseSubEntityNode<
 extends HBaseSubEntityReaderNode<EK,E,PK,D,F>
 implements SubEntitySortedMapStorageNode<EK,PK,D,F>, PhysicalSortedMapStorageNode<PK,D>, HBaseIncrement<PK>{
 
+	private final CountingBatchCallback<?> putMultiCallback;
+	private final CountingBatchCallback<?> deleteAllCallback;
+	private final CountingBatchCallback<?> deleteMultiCallback;
+
 	public HBaseSubEntityNode(EntityNodeParams<EK,E> entityNodeParams, NodeParams<PK,D,F> params){
 		super(entityNodeParams, params);
+		//can't access "client" yet, so extract these strings from elsewhere
+		String clientTypeString = DefaultClientTypes.CLIENT_TYPE_hbase;//TODO pass this in
+		String clientName = getClientTableNodeNames().getClientName();
+		this.putMultiCallback = new CountingBatchCallback<>(clientTypeString, clientName, getTableName(),
+				StorageWriter.OP_putMulti);
+		this.deleteAllCallback = new CountingBatchCallback<>(clientTypeString, clientName, getTableName(),
+				MapStorage.OP_deleteAll);
+		this.deleteMultiCallback = new CountingBatchCallback<>(clientTypeString, clientName, getTableName(),
+				MapStorage.OP_deleteMulti);
 	}
 
 	@Override
@@ -139,7 +156,7 @@ implements SubEntitySortedMapStorageNode<EK,PK,D,F>, PhysicalSortedMapStorageNod
 				DRCounters.incClientNodeCustom(client.getType(), "entities put", getClientName(), getNodeName(),
 						numEntitiesPut);
 				if(DrCollectionTool.notEmpty(actions)){
-					table.batch(actions);
+					table.batchCallback(actions, new Object[actions.size()], putMultiCallback);
 				}
 				return null;
 			}
@@ -173,12 +190,12 @@ implements SubEntitySortedMapStorageNode<EK,PK,D,F>, PhysicalSortedMapStorageNod
 					}
 					batchToDelete.add(delete);
 					if(batchToDelete.size() % 100 == 0){
-						table.batch(batchToDelete);
+						table.batchCallback(batchToDelete, new Object[batchToDelete.size()], deleteAllCallback);
 						batchToDelete.clear();
 					}
 				}
 				if(DrCollectionTool.notEmpty(batchToDelete)){
-					table.batch(batchToDelete);
+					table.batchCallback(batchToDelete, new Object[batchToDelete.size()], deleteAllCallback);
 				}
 				return null;
 			}
@@ -224,7 +241,7 @@ implements SubEntitySortedMapStorageNode<EK,PK,D,F>, PhysicalSortedMapStorageNod
 						deletes.add(delete);
 					}
 				}
-				table.batch(deletes);
+				table.batchCallback(deletes, new Object[deletes.size()], deleteMultiCallback);
 				return null;
 			}
 		}).call();

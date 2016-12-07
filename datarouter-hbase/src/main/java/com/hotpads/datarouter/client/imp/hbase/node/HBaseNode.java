@@ -13,8 +13,10 @@ import org.apache.hadoop.hbase.client.Row;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.client.Table;
 
+import com.hotpads.datarouter.client.DefaultClientTypes;
 import com.hotpads.datarouter.client.imp.hbase.client.HBaseClient;
 import com.hotpads.datarouter.client.imp.hbase.client.HBaseClientFactory;
+import com.hotpads.datarouter.client.imp.hbase.node.callback.CountingBatchCallback;
 import com.hotpads.datarouter.client.imp.hbase.op.write.HBaseIncrementOp;
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseMultiAttemptTask;
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseTask;
@@ -24,6 +26,8 @@ import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.PhysicalSortedMapStorageNode;
 import com.hotpads.datarouter.node.op.index.HBaseIncrement;
+import com.hotpads.datarouter.node.op.raw.MapStorage;
+import com.hotpads.datarouter.node.op.raw.write.StorageWriter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
@@ -42,8 +46,21 @@ public class HBaseNode<
 extends HBaseReaderNode<PK,D,F>
 implements PhysicalSortedMapStorageNode<PK,D>, HBaseIncrement<PK>{
 
+	private final CountingBatchCallback<?> putMultiCallback;
+	private final CountingBatchCallback<?> deleteAllCallback;
+	private final CountingBatchCallback<?> deleteMultiCallback;
+
 	public HBaseNode(NodeParams<PK,D,F> params){
 		super(params);
+		//can't access "client" yet, so extract these strings from elsewhere
+		String clientTypeString = DefaultClientTypes.CLIENT_TYPE_hbase;//TODO pass this in
+		String clientName = getClientTableNodeNames().getClientName();
+		this.putMultiCallback = new CountingBatchCallback<>(clientTypeString, clientName, getTableName(),
+				StorageWriter.OP_putMulti);
+		this.deleteAllCallback = new CountingBatchCallback<>(clientTypeString, clientName, getTableName(),
+				MapStorage.OP_deleteAll);
+		this.deleteMultiCallback = new CountingBatchCallback<>(clientTypeString, clientName, getTableName(),
+				MapStorage.OP_deleteMulti);
 	}
 
 	@Override
@@ -73,8 +90,8 @@ implements PhysicalSortedMapStorageNode<PK,D>, HBaseIncrement<PK>{
 			return;
 		}
 		final Config nullSafeConfig = Config.nullSafe(config);
-		new HBaseMultiAttemptTask<>(new HBaseTask<Void>(getDatarouter(), getClientTableNodeNames(), "putMulti",
-				nullSafeConfig){
+		new HBaseMultiAttemptTask<>(new HBaseTask<Void>(getDatarouter(), getClientTableNodeNames(),
+				StorageWriter.OP_putMulti, nullSafeConfig){
 					@Override
 					public Void hbaseCall(Table htable, HBaseClient client, ResultScanner managedResultScanner)
 					throws Exception{
@@ -117,7 +134,7 @@ implements PhysicalSortedMapStorageNode<PK,D>, HBaseIncrement<PK>{
 						DRCounters.incClientNodeCustom(client.getType(), "cells delete", getClientName(), getName(),
 								numCellsDeleted);
 						if(DrCollectionTool.notEmpty(actions)){
-							htable.batch(actions);
+							htable.batchCallback(actions, new Object[actions.size()], putMultiCallback);
 						}
 						return null;
 					}
@@ -137,7 +154,7 @@ implements PhysicalSortedMapStorageNode<PK,D>, HBaseIncrement<PK>{
 	public void deleteAll(final Config config) {
 		final Config nullSafeConfig = Config.nullSafe(config);
 		new HBaseMultiAttemptTask<>(new HBaseTask<Void>(getDatarouter(), getClientTableNodeNames(),
-				"deleteAll", nullSafeConfig){
+				MapStorage.OP_deleteAll, nullSafeConfig){
 					@Override
 					public Void hbaseCall(Table htable, HBaseClient client, ResultScanner managedResultScanner)
 					throws Exception{
@@ -149,12 +166,13 @@ implements PhysicalSortedMapStorageNode<PK,D>, HBaseIncrement<PK>{
 							}
 							batchToDelete.add(new Delete(row.getRow()));
 							if(batchToDelete.size() % 1000 == 0){
-								htable.batch(batchToDelete);
+								htable.batchCallback(batchToDelete, new Object[batchToDelete.size()],
+										deleteAllCallback);
 								batchToDelete.clear();
 							}
 						}
 						if(DrCollectionTool.notEmpty(batchToDelete)){
-							htable.batch(batchToDelete);
+							htable.batchCallback(batchToDelete, new Object[batchToDelete.size()], deleteAllCallback);
 						}
 						return null;
 					}
@@ -175,7 +193,7 @@ implements PhysicalSortedMapStorageNode<PK,D>, HBaseIncrement<PK>{
 		}
 		final Config nullSafeConfig = Config.nullSafe(config);
 		new HBaseMultiAttemptTask<>(new HBaseTask<Void>(getDatarouter(), getClientTableNodeNames(),
-				"deleteMulti", nullSafeConfig){
+				MapStorage.OP_deleteMulti, nullSafeConfig){
 					@Override
 					public Void hbaseCall(Table htable, HBaseClient client, ResultScanner managedResultScanner)
 					throws Exception{
@@ -185,7 +203,7 @@ implements PhysicalSortedMapStorageNode<PK,D>, HBaseIncrement<PK>{
 							Delete delete = new Delete(keyBytes);
 							deletes.add(delete);
 						}
-						htable.batch(deletes);
+						htable.batchCallback(deletes, new Object[deletes.size()], deleteMultiCallback);
 						return null;
 					}
 		}).call();
