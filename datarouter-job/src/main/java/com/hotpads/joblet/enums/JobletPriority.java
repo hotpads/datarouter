@@ -1,5 +1,8 @@
 package com.hotpads.joblet.enums;
 
+import java.util.Arrays;
+import java.util.List;
+
 import com.hotpads.datarouter.util.core.DrStringTool;
 
 public enum JobletPriority{
@@ -33,6 +36,10 @@ public enum JobletPriority{
 
 	public String getComparableName(){
 		return comparableName;
+	}
+
+	public static List<JobletPriority> valuesList(){
+		return Arrays.asList(values());
 	}
 
 }

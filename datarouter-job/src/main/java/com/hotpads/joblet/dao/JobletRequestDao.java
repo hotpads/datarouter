@@ -11,21 +11,27 @@ import com.google.common.base.Objects;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.config.Isolation;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
-import com.hotpads.joblet.JobletNodes;
 import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.databean.JobletRequestKey;
+import com.hotpads.joblet.enums.JobletPriority;
 import com.hotpads.joblet.enums.JobletStatus;
 import com.hotpads.joblet.enums.JobletType;
+import com.hotpads.joblet.enums.JobletTypeFactory;
+import com.hotpads.util.core.stream.StreamTool;
 
 @Singleton
 public class JobletRequestDao{
 
-	private SortedMapStorageNode<JobletRequestKey,JobletRequest> node;
+	private final SortedMapStorageNode<JobletRequestKey,JobletRequest> node;
+	private final JobletTypeFactory jobletTypeFactory;
 
 	@Inject
-	public JobletRequestDao(JobletNodes jobletNodes){
-		this.node = jobletNodes.jobletRequest();
+	public JobletRequestDao(SortedMapStorageNode<JobletRequestKey,JobletRequest> node,
+			JobletTypeFactory jobletTypeFactory){
+		this.node = node;
+		this.jobletTypeFactory = jobletTypeFactory;
 	}
+
 
 	public JobletRequest getReservedRequest(JobletType<?> jobletType, String reservedBy){
 		JobletRequestKey prefix = JobletRequestKey.create(jobletType, null, null, null);
@@ -38,15 +44,28 @@ public class JobletRequestDao{
 				.orElse(null);
 	}
 
+	public List<JobletRequest> getWithStatus(JobletStatus status){
+		return node.stream(null, null)
+				.filter(request -> status == request.getStatus())
+				.collect(Collectors.toList());
+	}
+
+	/*---------------- streams -------------------*/
+
 	public Stream<JobletRequest> streamType(JobletType<?> type, boolean slaveOk){
 		JobletRequestKey prefix = JobletRequestKey.create(type, null, null, null);
 		return node.streamWithPrefix(prefix, new Config().setSlaveOk(slaveOk));
 	}
 
-	public List<JobletRequest> getWithStatus(JobletStatus status){
-		return node.stream(null, null)
-				.filter(request -> status == request.getStatus())
-				.collect(Collectors.toList());
+	public Stream<JobletRequest> streamTypeAndPriority(JobletType<?> type, JobletPriority priority, boolean slaveOk){
+		JobletRequestKey prefix = JobletRequestKey.create(type, priority.getExecutionOrder(), null, null);
+		return node.streamWithPrefix(prefix, new Config().setSlaveOk(slaveOk));
+	}
+
+	public List<Stream<JobletRequest>> getStreamForEachTypeAndPriority(){
+		List<JobletRequestKey> prefixes = JobletRequestKey.createPrefixesForTypesAndPriorities(jobletTypeFactory
+				.getAllTypes(), JobletPriority.valuesList());
+		return StreamTool.map(prefixes, prefix -> node.streamWithPrefix(prefix, null));
 	}
 
 }
