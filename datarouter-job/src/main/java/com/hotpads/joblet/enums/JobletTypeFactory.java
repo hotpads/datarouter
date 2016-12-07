@@ -93,6 +93,7 @@ public class JobletTypeFactory{
 		return jobletRequest == null ? null : fromJobletKey(jobletRequest.getKey());
 	}
 
+	//TODO rename fromJobletRequestKey
 	public JobletType<?> fromJobletKey(JobletRequestKey jobletKey){
 		return jobletKey == null ? null : fromPersistentInt(jobletKey.getTypeCode());
 	}

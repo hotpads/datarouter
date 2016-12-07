@@ -2,9 +2,7 @@ package com.hotpads.joblet;
 
 import java.time.Duration;
 import java.util.EnumSet;
-import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -16,31 +14,30 @@ import org.testng.annotations.Test;
 
 import com.hotpads.datarouter.config.Configs;
 import com.hotpads.joblet.databean.JobletRequest;
+import com.hotpads.joblet.enums.ActiveJobletTypeFactory;
 import com.hotpads.joblet.enums.JobletStatus;
-import com.hotpads.joblet.enums.JobletType;
 import com.hotpads.joblet.enums.JobletTypeFactory;
 import com.hotpads.joblet.setting.JobletSettings;
-import com.hotpads.joblet.setting.JobletThreadCountSettings;
 
 @Singleton
 public class JobletScaler{
 	private static final Logger logger = LoggerFactory.getLogger(JobletScaler.class);
 
-	private static final long BACKUP_PERIOD_MS = Duration.ofMinutes(5).toMillis();
+	public static final Duration BACKUP_PERIOD = Duration.ofMinutes(5);
 	private static final int NUM_EXTRA_SERVERS_PER_BACKUP_PERIOD = 2;
 	private static final Set<JobletStatus> STATUSES_TO_CONSIDER = EnumSet.of(JobletStatus.created);
 
+	private final ActiveJobletTypeFactory activeJobletTypeFactory;
 	private final JobletTypeFactory jobletTypeFactory;
 	private final JobletSettings jobletSettings;
-	private final JobletThreadCountSettings jobletThreadCountSettings;
 	private final JobletNodes jobletNodes;
 
 	@Inject
-	private JobletScaler(JobletTypeFactory jobletTypeFactory, JobletSettings jobletSettings,
-			JobletThreadCountSettings jobletThreadCountSettings, JobletNodes jobletNodes){
+	private JobletScaler(ActiveJobletTypeFactory activeJobletTypeFactory, JobletTypeFactory jobletTypeFactory,
+			JobletSettings jobletSettings, JobletNodes jobletNodes){
+		this.activeJobletTypeFactory = activeJobletTypeFactory;
 		this.jobletTypeFactory = jobletTypeFactory;
 		this.jobletSettings = jobletSettings;
-		this.jobletThreadCountSettings = jobletThreadCountSettings;
 		this.jobletNodes = jobletNodes;
 	}
 
@@ -55,7 +52,7 @@ public class JobletScaler{
 		int minServers = jobletSettings.minJobletServers.getValue();
 		int maxServers = jobletSettings.maxJobletServers.getValue();
 		JobletRequest oldestJobletRequest = JobletRequest.getOldestForTypesAndStatuses(jobletTypeFactory,
-				jobletRequests, getEnabledTypesCausingScaling(), STATUSES_TO_CONSIDER);
+				jobletRequests, activeJobletTypeFactory.getActiveTypesCausingScaling(), STATUSES_TO_CONSIDER);
 		if(oldestJobletRequest == null){
 			return minServers;
 		}
@@ -68,14 +65,8 @@ public class JobletScaler{
 		return targetServers;
 	}
 
-	private List<JobletType<?>> getEnabledTypesCausingScaling(){
-		return jobletTypeFactory.getTypesCausingScaling().stream()
-				.filter(type -> jobletThreadCountSettings.getThreadCountForJobletType(type) > 0)
-				.collect(Collectors.toList());
-	}
-
 	private static int getTargetServersForQueueAge(int minServers, int maxServers, Duration age){
-		int numPeriodsPending = (int)(age.toMillis() / BACKUP_PERIOD_MS);
+		int numPeriodsPending = (int)(age.toMillis() / BACKUP_PERIOD.toMillis());
 		int targetServers = minServers + NUM_EXTRA_SERVERS_PER_BACKUP_PERIOD * numPeriodsPending;
 		int cappedTargetServers = Math.min(targetServers, maxServers);
 		return cappedTargetServers;

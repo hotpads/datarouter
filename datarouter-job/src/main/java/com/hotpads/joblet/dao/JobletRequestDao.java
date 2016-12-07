@@ -17,7 +17,6 @@ import com.hotpads.joblet.enums.JobletPriority;
 import com.hotpads.joblet.enums.JobletStatus;
 import com.hotpads.joblet.enums.JobletType;
 import com.hotpads.joblet.enums.JobletTypeFactory;
-import com.hotpads.util.core.stream.StreamTool;
 
 @Singleton
 public class JobletRequestDao{
@@ -60,12 +59,6 @@ public class JobletRequestDao{
 	public Stream<JobletRequest> streamTypeAndPriority(JobletType<?> type, JobletPriority priority, boolean slaveOk){
 		JobletRequestKey prefix = JobletRequestKey.create(type, priority.getExecutionOrder(), null, null);
 		return node.streamWithPrefix(prefix, new Config().setSlaveOk(slaveOk));
-	}
-
-	public List<Stream<JobletRequest>> getStreamForEachTypeAndPriority(){
-		List<JobletRequestKey> prefixes = JobletRequestKey.createPrefixesForTypesAndPriorities(jobletTypeFactory
-				.getAllTypes(), JobletPriority.valuesList());
-		return StreamTool.map(prefixes, prefix -> node.streamWithPrefix(prefix, null));
 	}
 
 }
