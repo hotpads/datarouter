@@ -77,6 +77,12 @@ implements IndexListener<PK,D>{
 	}
 
 	@Override
+	public void onDeleteMultiDatabeans(Collection<D> databeans, Config config){
+		List<IE> indexEntries = getIndexEntriesFromDatabeans(databeans);
+		indexNode.deleteMulti(DatabeanTool.getKeys(indexEntries), config);
+	}
+
+	@Override
 	public void onPut(D databean, Config config){
 		if(databean==null){
 			throw new IllegalArgumentException("invalid null databean");
