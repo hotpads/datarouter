@@ -104,7 +104,7 @@ implements MultiDatabeanExporter<PK, D>{
 		if(!tableExisting){
 			ExportTaskPipeline pipeline = downloadTable(downloadOptions);
 			exportTaskPipelines.add(pipeline);
-			return s3ExportPathResolver.getS3Url(pipeline.getDataUploader().getUploadLocation());
+			return pipeline.getDataUploader().getUploadFolderUri();
 		}else{
 			return s3ExportPathResolver.getS3Url(downloadOptions.getTableName(),
 					downloadedTableVersionId);

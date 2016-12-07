@@ -13,6 +13,7 @@ import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.event.ProgressListener;
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.AmazonS3URI;
 import com.amazonaws.services.s3.transfer.TransferManager;
 import com.amazonaws.services.s3.transfer.TransferManagerConfiguration;
 import com.amazonaws.services.s3.transfer.Upload;
@@ -24,20 +25,25 @@ public class S3DataUploader implements DataUploader{
 
 	private static final long DEFAULT_HDFS_BLOCK_SIZE = 128 * 1024 * 1024;
 
-	private final String bucketName;
-	private final String uploadLocation;
+	private final AmazonS3URI s3Uri;
 	private AWSCredentials credentials;
 
 	public S3DataUploader(String bucketName, String uploadLocation,AWSCredentials credentials){
-		this.bucketName = bucketName;
-		this.uploadLocation = uploadLocation;
+		this("s3://" + bucketName + "/" + uploadLocation, credentials);
+	}
+
+	public S3DataUploader(String s3Uri, AWSCredentials credentials){
+		this(new AmazonS3URI(ensureEndsWithSlash(s3Uri)), credentials);
+	}
+
+	public S3DataUploader(AmazonS3URI s3Uri, AWSCredentials credentials){
+		this.s3Uri = s3Uri;
 		this.credentials = credentials;
 	}
 
 	@Override
 	public void upload(String pathToFile) throws InterruptedException{
-		logger.info("About to upload file {}. S3 bucket: {}, upload location: {}", pathToFile, bucketName,
-				uploadLocation);
+		logger.info("About to upload file {} to: {}", pathToFile, s3Uri);
 		File outputFile = new File(pathToFile);
 		TransferManager transferManager = new TransferManager(new AmazonS3Client(credentials),
 				Executors.newFixedThreadPool(NUM_TRANSFER_THREADS));
@@ -48,8 +54,7 @@ public class S3DataUploader implements DataUploader{
 		transferManager.setConfiguration(transferManagerConfiguration);
 		// TransferManager processes all transfers asynchronously,
 		// so this call will return immediately.
-		Upload upload = transferManager.upload(bucketName + File.separator + uploadLocation,
-				outputFile.getName(), outputFile);
+		Upload upload = transferManager.upload(s3Uri.getBucket(), s3Uri.getKey() + outputFile.getName(), outputFile);
 
 		ProgressListener progressListener =
 				progressEvent -> logger.info("Transferred bytes: " + progressEvent.getBytesTransferred());
@@ -65,8 +70,13 @@ public class S3DataUploader implements DataUploader{
 
 	/**************************** getter *******************************/
 
-	public String getUploadLocation(){
-		return uploadLocation;
+	@Override
+	public String getUploadFolderUri(){
+		return s3Uri.toString();
+	}
+
+	private static String ensureEndsWithSlash(String path){
+		return path.endsWith("/") ? path : path + '/';
 	}
 
 	public static void main(String[] args) throws IOException, URISyntaxException, InterruptedException{
