@@ -8,13 +8,13 @@ import com.hotpads.notification.databean.NotificationRequest;
 import com.hotpads.notification.destination.NotificationDestinationApp;
 import com.hotpads.notification.destination.NotificationDestinationAppEnum;
 import com.hotpads.notification.sender.template.NotificationTemplate;
-import com.hotpads.notification.timing.NotificationTimingStrategy;
+import com.hotpads.notification.timing.NotificationTimingStrategyInt;
 
 public interface NotificationType{
 
 	String getName();
 
-	Class<? extends NotificationTimingStrategy> getTimingStrategyClass(String channel);
+	Class<? extends NotificationTimingStrategyInt> getTimingStrategyClass(String channel);
 
 	boolean isMergeableWith(NotificationType that);
 
@@ -27,5 +27,4 @@ public interface NotificationType{
 	String getDescription(NotificationItemLog notificationItemLog);
 
 	void onSuccess(List<NotificationRequest> requests);
-
 }
