@@ -99,15 +99,13 @@ implements MultiDatabeanExporter<PK, D>{
 		String downloadedTableVersionId = getDownloadedTableVersionId(
 				downloadOptions.getTableName(),
 				downloadOptions.getHoursToRedownload());
-		boolean tableExisting = isTableAlreadyDownloaded(downloadOptions.getTableName(),
-				downloadedTableVersionId);
+		boolean tableExisting = isTableAlreadyDownloaded(downloadOptions.getTableName(), downloadedTableVersionId);
 		if(!tableExisting){
 			ExportTaskPipeline pipeline = downloadTable(downloadOptions);
 			exportTaskPipelines.add(pipeline);
 			return pipeline.getDataUploader().getUploadFolderUri();
 		}else{
-			return s3ExportPathResolver.getS3Url(downloadOptions.getTableName(),
-					downloadedTableVersionId);
+			return s3ExportPathResolver.getS3Url(downloadOptions.getTableName(), downloadedTableVersionId);
 		}
 	}
 
