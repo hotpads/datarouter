@@ -11,6 +11,7 @@ import com.google.common.base.Objects;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.config.Isolation;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
+import com.hotpads.joblet.JobletNodes;
 import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.databean.JobletRequestKey;
 import com.hotpads.joblet.enums.JobletPriority;
@@ -23,8 +24,8 @@ public class JobletRequestDao{
 	private final SortedMapStorageNode<JobletRequestKey,JobletRequest> node;
 
 	@Inject
-	public JobletRequestDao(SortedMapStorageNode<JobletRequestKey,JobletRequest> node){
-		this.node = node;
+	public JobletRequestDao(JobletNodes jobletNodes){
+		this.node = jobletNodes.jobletRequest();
 	}
 
 
