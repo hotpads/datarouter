@@ -18,9 +18,10 @@ public abstract class WebSocketConfig implements ServerApplicationConfig{
 	private static final Logger logger = LoggerFactory.getLogger(WebSocketConfig.class);
 
 	public static final String
-		WEBSOCKET_URI_PREFIX = "ws",
-		EVERYTHING_BUT_NOT_WEBSOCKET = "(?!/" + WebSocketConfig.WEBSOCKET_URI_PREFIX + ").*"
-		;
+		WEBSOCKET_URI_PREFIX = "/ws/",
+		EVERYTHING_BUT_NOT_WEBSOCKET = "(?!" + WebSocketConfig.WEBSOCKET_URI_PREFIX + ").*",
+		ECHO_ENDPOINT = "echo",
+		SERVICES_ENDPOINT = "services";
 
 	private final DatarouterWebSocketConfigurator webSocketConfigurator;
 
@@ -33,12 +34,12 @@ public abstract class WebSocketConfig implements ServerApplicationConfig{
 		logger.warn("Initializing websocket endpoint");
 		Set<ServerEndpointConfig> result = new HashSet<>();
 		ServerEndpointConfig echoEndpointConfig = Builder
-				.create(SwedishEchoEndpoint.class, "/" + WEBSOCKET_URI_PREFIX + "/echo")
+				.create(SwedishEchoEndpoint.class, WEBSOCKET_URI_PREFIX + ECHO_ENDPOINT)
 				.configurator(webSocketConfigurator)
 				.build();
 		result.add(echoEndpointConfig);
 		ServerEndpointConfig servicesEndpointConfig = Builder
-				.create(WebSocketServicesEndpoint.class, "/" + WEBSOCKET_URI_PREFIX + "/services")
+				.create(WebSocketServicesEndpoint.class, WEBSOCKET_URI_PREFIX + SERVICES_ENDPOINT)
 				.configurator(webSocketConfigurator)
 				.build();
 		result.add(servicesEndpointConfig);

@@ -4,7 +4,6 @@ import javax.inject.Inject;
 import javax.websocket.MessageHandler;
 
 import com.hotpads.websocket.endpoint.WebSocketServicesMessageHandler.WebSocketServicesMessageHandlerFactory;
-import com.hotpads.websocket.session.WebSocketSession;
 
 public class WebSocketServicesEndpoint extends BaseEndpoint{
 
@@ -12,7 +11,7 @@ public class WebSocketServicesEndpoint extends BaseEndpoint{
 	private WebSocketServicesMessageHandlerFactory webSocketServicesMessageHandlerFactory;
 
 	@Override
-	protected MessageHandler getMessageHandler(WebSocketSession webSocketSession){
+	protected MessageHandler getMessageHandler(){
 		return webSocketServicesMessageHandlerFactory.create(webSocketSession);
 	}
 
