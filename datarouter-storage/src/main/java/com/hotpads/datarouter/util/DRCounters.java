@@ -1,6 +1,5 @@
 package com.hotpads.datarouter.util;
 
-import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.profile.counter.Counters;
@@ -74,10 +73,10 @@ public class DRCounters{
 		incInternal(AGGREGATION_node, type, compoundKey, delta);
 	}
 
-	public static void incClientTableOpRegion(Client client, String tableName, String opName,
-			String regionName, long delta){
-		String compoundKey = client.getName() + " " + tableName+ " " + opName + " " + regionName;
-		incInternal(AGGREGATION_region, client.getType(), compoundKey, delta);
+	public static void incClientTableOpRegion(String clientTypeString, String clientName, String tableName,
+			String opName, String regionName, long delta){
+		String compoundKey = clientName + " " + tableName + " " + opName + " " + regionName;
+		incInternalString(AGGREGATION_region, clientTypeString, compoundKey, delta);
 	}
 
 	public static void incFromCounterAdapter(PhysicalNode<?,?> physicalNode, String key, long delta){
@@ -95,5 +94,9 @@ public class DRCounters{
 	private static void incInternal(String aggregationLevel, ClientType clientType, String key, long delta) {
 		String clientTypeString = clientType != null ? clientType.getName() : CLIENT_TYPE_virtual;
 		Counters.inc(PREFIX+" "+aggregationLevel+" "+clientTypeString+" "+key, delta);
+	}
+
+	private static void incInternalString(String aggregationLevel, String clientTypeString, String key, long delta){
+		Counters.inc(PREFIX + " " + aggregationLevel + " " + clientTypeString + " " + key, delta);
 	}
 }
