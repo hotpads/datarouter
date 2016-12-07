@@ -62,7 +62,7 @@ public class JobletRequeueJob extends BaseJob{
 		List<JobletRequestKey> prefixes = JobletRequestKey.createPrefixesForTypesAndPriorities(activeJobletTypeFactory
 				.getActiveTypes(), JobletPriority.valuesList());
 		prefixes.stream()
-				.filter(anyNewRequests)//only consider requests in queues that aren't congested
+				.filter(anyNewRequests.negate())//only consider requests in queues that aren't congested
 				.forEach(prefix -> {
 						Iterable<JobletRequest> possiblyStuckRequests = jobletNodes.jobletRequest().streamWithPrefix(
 								prefix, null)
