@@ -1,6 +1,7 @@
 package com.hotpads.joblet.job;
 
 import java.util.List;
+import java.util.function.Predicate;
 
 import javax.inject.Inject;
 
@@ -51,27 +52,30 @@ public class JobletShepherdJob extends BaseJob{
 
 	@Override
 	public void run(){
-		List<JobletRequestKey> prefixes = JobletRequestKey.createPrefixesForTypesAndPriorities(activeJobletTypeFactory
-				.getActiveTypes(), JobletPriority.valuesList());
 		long createdBeforeMs = System.currentTimeMillis() - JobletScaler.BACKUP_PERIOD.toMillis();
-		prefixes.forEach(prefix -> {
-			boolean anyNew = jobletNodes.jobletRequest().streamWithPrefix(prefix, null)
+		final Predicate<JobletRequestKey> anyNewRequests = prefix -> {
+			return jobletNodes.jobletRequest().streamWithPrefix(prefix, null)
 					.filter(request -> request.getStatus() == JobletStatus.created)
 					.filter(request -> request.getKey().getCreated() >= createdBeforeMs)
 					.findAny()
 					.isPresent();
-			if(anyNew){
-				return;//wait till the old requests look more like outliers (could be smarter)
-			}
-			Iterable<JobletRequest> possiblyStuckRequests = jobletNodes.jobletRequest().streamWithPrefix(prefix, null)
-					.filter(request -> request.getStatus() == JobletStatus.created)
-					.filter(request -> request.getKey().getCreated() < createdBeforeMs)::iterator;
-			JobletRequestQueueKey queueKey = jobletRequestQueueManager.getQueueKey(prefix);
-			for(List<JobletRequest> possiblyStuckBatch : new BatchingIterable<>(possiblyStuckRequests, 100)){
-				jobletNodes.jobletRequestQueueByKey().get(queueKey).putMulti(possiblyStuckBatch, null);
-				logger.warn("requeued {} of {}", possiblyStuckBatch.size(), prefix);
-			}
-		});
+		};
+
+		List<JobletRequestKey> prefixes = JobletRequestKey.createPrefixesForTypesAndPriorities(activeJobletTypeFactory
+				.getActiveTypes(), JobletPriority.valuesList());
+		prefixes.stream()
+			.filter(anyNewRequests)
+			.forEach(prefix -> {
+					Iterable<JobletRequest> possiblyStuckRequests = jobletNodes.jobletRequest().streamWithPrefix(prefix,
+							null)
+							.filter(request -> request.getStatus() == JobletStatus.created)
+							.filter(request -> request.getKey().getCreated() < createdBeforeMs)::iterator;
+					JobletRequestQueueKey queueKey = jobletRequestQueueManager.getQueueKey(prefix);
+					for(List<JobletRequest> possiblyStuckBatch : new BatchingIterable<>(possiblyStuckRequests, 100)){
+						jobletNodes.jobletRequestQueueByKey().get(queueKey).putMulti(possiblyStuckBatch, null);
+						logger.warn("requeued {} of {}", possiblyStuckBatch.size(), prefix);
+					}
+			});
 	}
 
 }
