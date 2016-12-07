@@ -6,9 +6,6 @@ import com.hotpads.datarouter.profile.counter.Counters;
 
 public class DRCounters{
 
-	@Deprecated
-	public static final DRCounters INSTANCE = new DRCounters();
-
 	public static final String
 		PREFIX = "Datarouter",
 

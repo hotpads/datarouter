@@ -55,12 +55,12 @@ implements PhysicalSortedMapStorageNode<PK,D>, HBaseIncrement<PK>{
 		//can't access "client" yet, so extract these strings from elsewhere
 		String clientTypeString = DefaultClientTypes.CLIENT_TYPE_hbase;//TODO pass this in
 		String clientName = getClientTableNodeNames().getClientName();
-		this.putMultiCallback = new CountingBatchCallback<>(DRCounters.INSTANCE, clientTypeString, clientName,
-				getTableName(), StorageWriter.OP_putMulti);
-		this.deleteAllCallback = new CountingBatchCallback<>(DRCounters.INSTANCE, clientTypeString, clientName,
-				getTableName(), MapStorage.OP_deleteAll);
-		this.deleteMultiCallback = new CountingBatchCallback<>(DRCounters.INSTANCE, clientTypeString, clientName,
-				getTableName(), MapStorage.OP_deleteMulti);
+		this.putMultiCallback = new CountingBatchCallback<>(clientTypeString, clientName, getTableName(),
+				StorageWriter.OP_putMulti);
+		this.deleteAllCallback = new CountingBatchCallback<>(clientTypeString, clientName, getTableName(),
+				MapStorage.OP_deleteAll);
+		this.deleteMultiCallback = new CountingBatchCallback<>(clientTypeString, clientName, getTableName(),
+				MapStorage.OP_deleteMulti);
 	}
 
 	@Override
