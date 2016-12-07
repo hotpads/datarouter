@@ -37,7 +37,7 @@ public class JobletRequestQueueManager{
 	}
 
 	public JobletRequestQueueKey getQueueKey(JobletRequestKey jobletRequestKey){
-		return new JobletRequestQueueKey(jobletTypeFactory.fromJobletKey(jobletRequestKey), jobletRequestKey
+		return new JobletRequestQueueKey(jobletTypeFactory.fromJobletRequestKey(jobletRequestKey), jobletRequestKey
 				.getPriority());
 	}
 

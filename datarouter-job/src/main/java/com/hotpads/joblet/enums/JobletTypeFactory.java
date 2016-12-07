@@ -90,11 +90,10 @@ public class JobletTypeFactory{
 	}
 
 	public JobletType<?> fromJobletRequest(JobletRequest jobletRequest){
-		return jobletRequest == null ? null : fromJobletKey(jobletRequest.getKey());
+		return jobletRequest == null ? null : fromJobletRequestKey(jobletRequest.getKey());
 	}
 
-	//TODO rename fromJobletRequestKey
-	public JobletType<?> fromJobletKey(JobletRequestKey jobletKey){
+	public JobletType<?> fromJobletRequestKey(JobletRequestKey jobletKey){
 		return jobletKey == null ? null : fromPersistentInt(jobletKey.getTypeCode());
 	}
 
