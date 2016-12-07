@@ -24,7 +24,6 @@ public class CountingBatchCallback<R> implements Batch.Callback<R>{
 
 	@Override
 	public void update(byte[] region, byte[] row, R result){
-//		String regionString = Bytes.toString(region);
 		String encodedRegionName = HRegionInfo.encodeRegionName(region);
 		String opString = opName + " rows";
 		datarouterCounters.incClientTableOpRegion(client, tableName, opString, encodedRegionName, 1);
