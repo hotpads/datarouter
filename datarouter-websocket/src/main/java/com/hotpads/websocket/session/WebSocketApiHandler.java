@@ -26,10 +26,10 @@ public class WebSocketApiHandler extends BaseHandler{
 	/**
 	 * same name as WebSocketCommandName.PUSH.getPath()
 	 */
-	@Handler(encoder=JsonEncoder.class)
+	@Handler(encoder = JsonEncoder.class)
 	private boolean push(@P(DTO_NAME) WebSocketCommand webSocketCommand) throws IOException{
 		Session session = webSocketConnectionStore.get(webSocketCommand.getWebSocketSessionKey());
-		if(session == null) {
+		if(session == null){
 			logger.error("Trying to send a message to not anymore connected seession ({})", webSocketCommand
 					.getWebSocketSessionKey());
 			return false;
@@ -42,7 +42,7 @@ public class WebSocketApiHandler extends BaseHandler{
 	/**
 	 * same name as WebSocketCommandName.IS_ALIVE.getPath()
 	 */
-	@Handler(encoder=JsonEncoder.class)
+	@Handler(encoder = JsonEncoder.class)
 	private boolean isAlive(@P(DTO_NAME) WebSocketCommand webSocketCommand){
 		Session session = webSocketConnectionStore.get(webSocketCommand.getWebSocketSessionKey());
 		return session != null;
