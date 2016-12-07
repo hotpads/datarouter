@@ -39,14 +39,6 @@ public class JobletRequestDao{
 				.orElse(null);
 	}
 
-	public List<JobletRequest> getWithStatus(JobletStatus status){
-		return node.stream(null, null)
-				.filter(request -> status == request.getStatus())
-				.collect(Collectors.toList());
-	}
-
-	/*---------------- streams -------------------*/
-
 	public Stream<JobletRequest> streamType(JobletType<?> type, boolean slaveOk){
 		JobletRequestKey prefix = JobletRequestKey.create(type, null, null, null);
 		return node.streamWithPrefix(prefix, new Config().setSlaveOk(slaveOk));
@@ -55,6 +47,12 @@ public class JobletRequestDao{
 	public Stream<JobletRequest> streamTypeAndPriority(JobletType<?> type, JobletPriority priority, boolean slaveOk){
 		JobletRequestKey prefix = JobletRequestKey.create(type, priority.getExecutionOrder(), null, null);
 		return node.streamWithPrefix(prefix, new Config().setSlaveOk(slaveOk));
+	}
+
+	public List<JobletRequest> getWithStatus(JobletStatus status){
+		return node.stream(null, null)
+				.filter(request -> status == request.getStatus())
+				.collect(Collectors.toList());
 	}
 
 }
