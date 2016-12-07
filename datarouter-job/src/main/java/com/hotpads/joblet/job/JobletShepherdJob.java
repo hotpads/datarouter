@@ -64,7 +64,7 @@ public class JobletShepherdJob extends BaseJob{
 		List<JobletRequestKey> prefixes = JobletRequestKey.createPrefixesForTypesAndPriorities(activeJobletTypeFactory
 				.getActiveTypes(), JobletPriority.valuesList());
 		prefixes.stream()
-			.filter(anyNewRequests)
+			.filter(anyNewRequests)//only consider requests in queues that aren't congested
 			.forEach(prefix -> {
 					Iterable<JobletRequest> possiblyStuckRequests = jobletNodes.jobletRequest().streamWithPrefix(prefix,
 							null)
