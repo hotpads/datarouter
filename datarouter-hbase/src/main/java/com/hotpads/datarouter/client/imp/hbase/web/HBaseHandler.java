@@ -49,7 +49,7 @@ import com.hotpads.util.core.concurrent.ThreadTool;
 import com.hotpads.util.core.profile.PhaseTimer;
 import com.hotpads.util.http.RequestTool;
 
-public class HBaseHandler extends BaseHandler {
+public class HBaseHandler extends BaseHandler{
 	private static final Logger logger = LoggerFactory.getLogger(HBaseHandler.class);
 
 	private static final String PATH_JSP_HBASE = "/jsp/admin/datarouter/hbase/";
@@ -152,14 +152,14 @@ public class HBaseHandler extends BaseHandler {
 	}
 
 	@Handler
-	private Mav viewHBaseServers() throws IOException {
+	private Mav viewHBaseServers() throws IOException{
 		initialize();
 		mav.setViewName(PATH_JSP_HBASE + "hbaseServers.jsp");
 		ClusterStatus clusterStatus = routerParams.getClient().getAdmin().getClusterStatus();
 		mav.put("clusterStatus", clusterStatus);
 		Collection<ServerName> serverNames = new TreeSet<>(clusterStatus.getServers());
 		List<DrServerInfo> servers = new ArrayList<>();
-		for (ServerName serverName : DrIterableTool.nullSafe(serverNames)) {
+		for(ServerName serverName : DrIterableTool.nullSafe(serverNames)){
 			ServerLoad serverLoad = clusterStatus.getLoad(serverName);
 			servers.add(new DrServerInfo(serverName, serverLoad));
 		}
@@ -204,7 +204,7 @@ public class HBaseHandler extends BaseHandler {
 	private Mav viewHBaseTableRegions(){
 		initialize();
 		mav = new Mav(PATH_JSP_HBASE + "hbaseTableRegions.jsp");
-		String groupBy = RequestTool.get(request, "groupBy", null);
+		String groupBy = params.optional("groupBy").orElse("all");
 
 		mav.put("regionsByGroup", regionList.getRegionsGroupedBy(groupBy));
 		DrServerList serverList = new DrServerList(hbaseConfig);
@@ -228,17 +228,13 @@ public class HBaseHandler extends BaseHandler {
 		try{
 			admin.disableTable(TableName.valueOf(routerParams.getTableName()));
 			logger.warn("table disabled");
-			Long maxFileSizeMb = RequestTool.getLong(request, PARAM_maxFileSizeMb, null);
-			if(maxFileSizeMb != null){
-				table.setMaxFileSize(maxFileSizeMb * 1024 * 1024);
-			}
-			Long memstoreFlushSizeMb = RequestTool.getLong(request, PARAM_memstoreFlushSizeMb,
-					null);
-			if(memstoreFlushSizeMb != null){
-				table.setMemStoreFlushSize(memstoreFlushSizeMb * 1024 * 1024);
-			}
-			admin.modifyTable(TableName.valueOf(StringByteTool.getUtf8Bytes(routerParams.getTableName())),
-					table);
+			params.optionalLong(PARAM_maxFileSizeMb)
+					.map(maxFileSizeMb -> maxFileSizeMb * 1024 * 1024)
+					.ifPresent(table::setMaxFileSize);
+			params.optionalLong(PARAM_memstoreFlushSizeMb)
+					.map(memstoreFlushSizeMb -> memstoreFlushSizeMb * 1024 * 1024)
+					.ifPresent(table::setMemStoreFlushSize);
+			admin.modifyTable(TableName.valueOf(StringByteTool.getUtf8Bytes(routerParams.getTableName())), table);
 		}catch(Exception e){
 			throw new RuntimeException(e);
 		}finally{
@@ -264,18 +260,18 @@ public class HBaseHandler extends BaseHandler {
 		}catch(IOException e){
 			throw new RuntimeException(e);
 		}
-		String columnName = RequestTool.get(request, RoutersHandler.PARAM_columnName);
+		String columnName = params.required(RoutersHandler.PARAM_columnName);
 		HColumnDescriptor column = table.getFamily(columnName.getBytes());
 		try{
 			// validate all settings before disabling table
 			for(String colParam : DrIterableTool.nullSafe(DrTableSettings.COLUMN_SETTINGS)){
-				String value = RequestTool.get(request, colParam);
+				String value = params.required(colParam);
 				DrTableSettings.validateColumnFamilySetting(colParam, value);
 			}
 			admin.disableTable(TableName.valueOf(routerParams.getTableName()));
 			logger.warn("table disabled");
 			for(String colParam : DrIterableTool.nullSafe(DrTableSettings.COLUMN_SETTINGS)){
-				String value = RequestTool.get(request, colParam);
+				String value = params.required(colParam);
 				column.setValue(colParam, value.trim());
 			}
 			admin.modifyColumn(TableName.valueOf(routerParams.getTableName()), column);
@@ -322,7 +318,7 @@ public class HBaseHandler extends BaseHandler {
 	}
 
 	@Handler
-	private Mav moveHBaseTableRegions() throws IOException {
+	private Mav moveHBaseTableRegions() throws IOException{
 		initialize();
 		String tableName = params.required(PARAM_tableName);
 		String destinationServer = params.required(PARAM_destinationServerName);
@@ -338,7 +334,7 @@ public class HBaseHandler extends BaseHandler {
 			logger.warn(timer.add("HBase moved region " + encodedRegionNameString + " to server "
 					+ serverName).toString());
 		}
-		return new MessageMav("moved regions:"+encodedRegionNameStrings);
+		return new MessageMav("moved regions:" + encodedRegionNameStrings);
 	}
 
 
@@ -357,7 +353,7 @@ public class HBaseHandler extends BaseHandler {
 			}
 
 		}
-		return new MessageMav("compactions requested for regions:"+encodedRegionNameStrings);
+		return new MessageMav("compactions requested for regions:" + encodedRegionNameStrings);
 	}
 
 	@Handler
@@ -383,7 +379,7 @@ public class HBaseHandler extends BaseHandler {
 				throw new RuntimeException(e);
 			}
 		}
-		return new MessageMav("submitted major compaction requests for regions: "+encodedRegionNameStrings);
+		return new MessageMav("submitted major compaction requests for regions: " + encodedRegionNameStrings);
 	}
 
 	@Handler
@@ -401,7 +397,7 @@ public class HBaseHandler extends BaseHandler {
 	/********************** Flush Handlers ***************/
 
 	@Handler
-	private Mav flushHBaseTableRegions() {
+	private Mav flushHBaseTableRegions(){
 		initialize();
 		for(int i = 0; i < encodedRegionNameStrings.size(); ++i){
 			String encodedRegionNameString = encodedRegionNameStrings.get(i);
@@ -412,7 +408,7 @@ public class HBaseHandler extends BaseHandler {
 				throw new RuntimeException(e);
 			}
 		}
-		return new MessageMav("flushes requested for regions: "+encodedRegionNameStrings);
+		return new MessageMav("flushes requested for regions: " + encodedRegionNameStrings);
 	}
 
 	@Handler
@@ -428,36 +424,6 @@ public class HBaseHandler extends BaseHandler {
 
 
 	/********************** Merge Handlers ***************/
-
-//	@Handler
-//	private Mav mergeFollowingHBaseTableRegions() {
-//		initialize();
-//		Merge merge = new Merge(hbaseConfig);
-//		for (int i = 0; i < encodedRegionNameStrings.size(); ++i) {
-//			PhaseTimer timer = new PhaseTimer("merge " + i + "/" + numRegions + " on " + routerParams.getTableName());
-//			DrRegionInfo<?> regionA = regionList.getRegionByEncodedName(encodedRegionNameStrings.get(i));
-//			if (regionA == null) {
-//				logger.warn(timer.add("couldn't find " + routerParams.getTableName() + " region "
-//						+ encodedRegionNameStrings.get(i)).toString());
-//				continue;
-//			}
-//			DrRegionInfo<?> regionB = regionList.getRegionAfter(encodedRegionNameStrings.get(i));
-//			try {
-//				routerParams.getClient().getHBaseAdmin().flush(regionA.getRegion().getRegionName());
-//				routerParams.getClient().getHBaseAdmin().flush(regionB.getRegion().getRegionName());
-//				merge.run(new String[] { routerParams.getTableName(),
-//						regionA.getRegion().getRegionNameAsString(),
-//						regionB.getRegion().getRegionNameAsString() });
-//				logger.warn(timer.add("merged "
-//						+ regionA.getRegion().getRegionNameAsString() + " and "
-//						+ regionB.getRegion().getRegionNameAsString()).toString());
-//			} catch (Exception e) {
-//				throw new RuntimeException(e);
-//			}
-//
-//		}
-//		return new MessageMav("Merged HBase table regions ");
-//	}
 
 	private static Map<String,Map<String,String>> parseTableAttributeMap(Collection<HColumnDescriptor> families){
 		Map<String,Map<String,String>> familyAttributeByNameByFamilyName = new TreeMap<>();
@@ -507,7 +473,7 @@ public class HBaseHandler extends BaseHandler {
 			ACTION_updateHBaseColumnAttribute = "updateHBaseColumnAttribute";
 
 	private static final List<String> NEEDS_CLIENT = new ArrayList<>();
-	static {
+	static{
 		NEEDS_CLIENT.add(RoutersHandler.ACTION_inspectClient);
 		NEEDS_CLIENT.add(ACTION_moveRegionsToCorrectServer);
 		NEEDS_CLIENT.add(ACTION_moveHBaseTableRegions);
@@ -527,7 +493,7 @@ public class HBaseHandler extends BaseHandler {
 	}
 
 	private static final List<String> NEEDS_ROUTER = new ArrayList<>();
-	static {
+	static{
 		NEEDS_ROUTER.addAll(NEEDS_CLIENT);
 		NEEDS_ROUTER.add(RoutersHandler.ACTION_inspectRouter);
 		NEEDS_ROUTER.add(ACTION_copyHBaseTable);
@@ -535,7 +501,7 @@ public class HBaseHandler extends BaseHandler {
 	}
 
 	private static final List<String> NEEDS_NODE = new ArrayList<>();
-	static {
+	static{
 		NEEDS_NODE.add(ACTION_copyHBaseTable);
 		NEEDS_NODE.add(ACTION_exportNodeToHFile);
 		NEEDS_NODE.add(ACTION_compactHBaseTableRegions);
@@ -546,8 +512,8 @@ public class HBaseHandler extends BaseHandler {
 		NEEDS_NODE.add(ACTION_viewHBaseTableRegions);
 	}
 
-	private static final HashMap<String, List<String>> HBASE_NEEDS = new HashMap<>();
-	static {
+	private static final HashMap<String,List<String>> HBASE_NEEDS = new HashMap<>();
+	static{
 		HBASE_NEEDS.put(RouterParams.NEEDS_CLIENT, NEEDS_CLIENT);
 		HBASE_NEEDS.put(RouterParams.NEEDS_ROUTER, NEEDS_ROUTER);
 		HBASE_NEEDS.put(RouterParams.NEEDS_NODE, NEEDS_NODE);
@@ -559,7 +525,7 @@ public class HBaseHandler extends BaseHandler {
 			HBASE_TABLE_PARAM_MEMSTORE_FLUSHSIZE = "MEMSTORE_FLUSHSIZE";
 
 	private static final List<String> HBASE_TABLE_PARAMS = new ArrayList<>();
-	static {
+	static{
 		HBASE_TABLE_PARAMS.add(HBASE_TABLE_PARAM_MAX_FILESIZE);
 		HBASE_TABLE_PARAMS.add(HBASE_TABLE_PARAM_MEMSTORE_FLUSHSIZE);
 	}
