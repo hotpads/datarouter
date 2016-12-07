@@ -14,7 +14,6 @@ import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNod
 import com.hotpads.joblet.JobletNodes;
 import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.databean.JobletRequestKey;
-import com.hotpads.joblet.enums.JobletPriority;
 import com.hotpads.joblet.enums.JobletStatus;
 import com.hotpads.joblet.enums.JobletType;
 
@@ -42,11 +41,6 @@ public class JobletRequestDao{
 
 	public Stream<JobletRequest> streamType(JobletType<?> type, boolean slaveOk){
 		JobletRequestKey prefix = JobletRequestKey.create(type, null, null, null);
-		return node.streamWithPrefix(prefix, new Config().setSlaveOk(slaveOk));
-	}
-
-	public Stream<JobletRequest> streamTypeAndPriority(JobletType<?> type, JobletPriority priority, boolean slaveOk){
-		JobletRequestKey prefix = JobletRequestKey.create(type, priority.getExecutionOrder(), null, null);
 		return node.streamWithPrefix(prefix, new Config().setSlaveOk(slaveOk));
 	}
 
