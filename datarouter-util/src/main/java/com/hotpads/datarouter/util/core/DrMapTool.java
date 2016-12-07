@@ -14,30 +14,29 @@ import org.testng.annotations.Test;
 
 import com.hotpads.util.core.stream.StreamTool;
 
-
-public class DrMapTool {
+public class DrMapTool{
 
 	/*********************** size ******************************************************/
 
-	public static <K,V> boolean isEmpty(Map<K,V> map){
-		if(map==null){
+	private static <K,V> boolean isEmpty(Map<K,V> map){
+		if(map == null){
 			return true;
 		}
 		return map.isEmpty();
 	}
 
 	public static <K,V> boolean notEmpty(Map<K,V> map){
-		return ! isEmpty(map);
+		return !isEmpty(map);
 	}
 
 	public static <K,V> int size(Map<K,V> map){
-		return map==null?0:map.size();
+		return map == null ? 0 : map.size();
 	}
 
 	/****************************** null safe ******************************************/
 
 	public static <K,V> Map<K,V> nullSafe(Map<K,V> in){
-		if(in==null){
+		if(in == null){
 			return new HashMap<>();
 		}
 		return in;
@@ -61,17 +60,17 @@ public class DrMapTool {
 		return map.get(key);
 	}
 
-	//2 levels: Map<T,Map<U,Long>>
-	public static <T,U> Long increment(Map<T,Map<U,Long>> tMap, T t, U u, Long delta){
-		if(!tMap.containsKey(t)){
-			tMap.put(t, new TreeMap<U,Long>());
+	// 2 levels: Map<T,Map<U,Long>>
+	public static <T,U> Long increment(Map<T,Map<U,Long>> map, T element, U subElement, Long delta){
+		if(!map.containsKey(element)){
+			map.put(element, new TreeMap<U,Long>());
 		}
-		Map<U,Long> uMap = tMap.get(t);
-		if(!uMap.containsKey(u)){
-			uMap.put(u, 0L);
+		Map<U,Long> subMap = map.get(element);
+		if(!subMap.containsKey(subElement)){
+			subMap.put(subElement, 0L);
 		}
-		uMap.put(u, uMap.get(u) + delta);
-		return uMap.get(u);
+		subMap.put(subElement, subMap.get(subElement) + delta);
+		return subMap.get(subElement);
 	}
 
 	/********************** filtering ****************************/
@@ -93,15 +92,15 @@ public class DrMapTool {
 	 * @param keyValueSeparator The separator between the key and the value
 	 * @return a {@link Map}
 	 */
-	public static Map<String, String> getMapFromString(String string, String entrySeperator, String keyValueSeparator) {
-		Map<String, String> map = new TreeMap<>();
-		if (DrStringTool.isEmpty(string)) {
+	public static Map<String,String> getMapFromString(String string, String entrySeperator, String keyValueSeparator){
+		Map<String,String> map = new TreeMap<>();
+		if(DrStringTool.isEmpty(string)){
 			return map;
 		}
 		String[] entries = string.split(entrySeperator);
 		String[] keyVal;
-		for (String entry : entries) {
-			if (DrStringTool.notEmpty(entry)) {
+		for(String entry : entries){
+			if(DrStringTool.notEmpty(entry)){
 				keyVal = entry.split(keyValueSeparator);
 				map.put(keyVal[0], keyVal.length > 1 ? keyVal[1] : null);
 			}
@@ -120,12 +119,12 @@ public class DrMapTool {
 
 	/***************** tests ***************************/
 
-	public static class MapToolTests {
+	public static class MapToolTests{
 
 		@Test
-		public void getMapFromString() {
+		public void getMapFromString(){
 			String string = "key1: val1;key2: val2";
-			Map<String, String> res = DrMapTool.getMapFromString(string, ";", ": ");
+			Map<String,String> res = DrMapTool.getMapFromString(string, ";", ": ");
 			Assert.assertEquals(res.size(), 2);
 			Assert.assertEquals(res.get("key2"), "val2");
 		}
