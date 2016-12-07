@@ -22,11 +22,9 @@ import com.hotpads.joblet.queue.JobletRequestQueueManager;
 import com.hotpads.joblet.setting.JobletSettings;
 import com.hotpads.util.core.iterable.BatchingIterable;
 
-/**
- * Schedule every 10 minutes or so to tidy up.
- */
-public class JobletShepherdJob extends BaseJob{
-	private static final Logger logger = LoggerFactory.getLogger(JobletShepherdJob.class);
+
+public class JobletRequeueJob extends BaseJob{
+	private static final Logger logger = LoggerFactory.getLogger(JobletRequeueJob.class);
 
 	private final JobletSettings jobletSettings;
 	private final ActiveJobletTypeFactory activeJobletTypeFactory;
@@ -34,7 +32,7 @@ public class JobletShepherdJob extends BaseJob{
 	private final JobletRequestQueueManager jobletRequestQueueManager;
 
 	@Inject
-	public JobletShepherdJob(JobEnvironment jobEnvironment, JobletSettings jobletSettings,
+	public JobletRequeueJob(JobEnvironment jobEnvironment, JobletSettings jobletSettings,
 			ActiveJobletTypeFactory activeJobletTypeFactory, JobletNodes jobletNodes,
 			JobletRequestQueueManager jobletRequestQueueManager){
 		super(jobEnvironment);
@@ -47,7 +45,7 @@ public class JobletShepherdJob extends BaseJob{
 
 	@Override
 	public boolean shouldRun(){
-		return jobletSettings.runJobletCounterJob.getValue();
+		return jobletSettings.runJobletRequeueJob.getValue();
 	}
 
 	@Override
@@ -64,18 +62,19 @@ public class JobletShepherdJob extends BaseJob{
 		List<JobletRequestKey> prefixes = JobletRequestKey.createPrefixesForTypesAndPriorities(activeJobletTypeFactory
 				.getActiveTypes(), JobletPriority.valuesList());
 		prefixes.stream()
-			.filter(anyNewRequests)//only consider requests in queues that aren't congested
-			.forEach(prefix -> {
-					Iterable<JobletRequest> possiblyStuckRequests = jobletNodes.jobletRequest().streamWithPrefix(prefix,
-							null)
-							.filter(request -> request.getStatus() == JobletStatus.created)
-							.filter(request -> request.getKey().getCreated() < createdBeforeMs)::iterator;
-					JobletRequestQueueKey queueKey = jobletRequestQueueManager.getQueueKey(prefix);
-					for(List<JobletRequest> possiblyStuckBatch : new BatchingIterable<>(possiblyStuckRequests, 100)){
-						jobletNodes.jobletRequestQueueByKey().get(queueKey).putMulti(possiblyStuckBatch, null);
-						logger.warn("requeued {} of {}", possiblyStuckBatch.size(), prefix);
-					}
-			});
+				.filter(anyNewRequests)//only consider requests in queues that aren't congested
+				.forEach(prefix -> {
+						Iterable<JobletRequest> possiblyStuckRequests = jobletNodes.jobletRequest().streamWithPrefix(
+								prefix, null)
+								.filter(request -> request.getStatus() == JobletStatus.created)
+								.filter(request -> request.getKey().getCreated() < createdBeforeMs)::iterator;
+						JobletRequestQueueKey queueKey = jobletRequestQueueManager.getQueueKey(prefix);
+						for(List<JobletRequest> possiblyStuckBatch : new BatchingIterable<>(possiblyStuckRequests,
+								100)){
+							jobletNodes.jobletRequestQueueByKey().get(queueKey).putMulti(possiblyStuckBatch, null);
+							logger.warn("requeued {} of {}", possiblyStuckBatch.size(), prefix);
+						}
+				});
 	}
 
 }
