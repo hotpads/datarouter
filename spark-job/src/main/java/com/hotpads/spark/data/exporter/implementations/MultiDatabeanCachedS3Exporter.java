@@ -36,14 +36,14 @@ implements MultiDatabeanExporter<PK, D>{
 	private final String awsAccessKey;
 	private final String awsSecretKey;
 	private final List<ExportTaskPipeline> exportTaskPipelines = new ArrayList<>();
-	private final String jobId;
+	private final String exportId;
 	private final Map<Class<? extends Databean<PK, D>>, ExportParameters<PK, D>> databeanClassToParameters;
 	private final S3ExportPathResolver s3ExportPathResolver;
 
-	public MultiDatabeanCachedS3Exporter(String jobId,
+	public MultiDatabeanCachedS3Exporter(
 			Map<Class<? extends Databean<PK, D>>, ExportParameters<PK, D>> databeanClassToParameters,
 			S3ExportPathResolver s3ExportPathResolver, String awsAccessKey, String awsSecretKey){
-		this.jobId = jobId;
+		this.exportId = Long.toString(System.currentTimeMillis());
 		this.databeanClassToParameters = databeanClassToParameters;
 		this.s3ExportPathResolver = s3ExportPathResolver;
 		this.awsAccessKey = awsAccessKey;
@@ -74,7 +74,8 @@ implements MultiDatabeanExporter<PK, D>{
 		DataCompressor dataCompressor = new SnappyDataCompressor();
 		String s3UploadLocation = s3ExportPathResolver.getVersionedTablePath(parameters.getTableName(),
 				Long.toString(System.currentTimeMillis()));
-		DataExporter tableDownloader = new DatabeanExporter<>(jobId, parameters.getTableName(),
+		// the DatabeanExporter only export to a temp. local path.
+		DataExporter tableDownloader = new DatabeanExporter<>(exportId, parameters.getTableName(),
 				parameters.getColumnNameCsv(), ReflectionTool.create(
 				parameters.getFielderClass()),
 				parameters.getSortedStorageReader(), OUTPUT_DIR_PATH);
