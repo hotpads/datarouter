@@ -33,7 +33,8 @@ public class HtmlSelectOptionBean{
 		return "<option value=\"" + value + "\"" + (selected ? " selected" : "") + ">" + name + "</option>";
 	}
 
-	private String getName(){
+	//used in blockedListings.jsp
+	public String getName(){
 		return name;
 	}
 
