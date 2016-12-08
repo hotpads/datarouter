@@ -2,30 +2,44 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>DR ${param.tableName}</title>
+	<title>HBase Regions - ${param.tableName}</title>
 	<%@ include file="/jsp/generic/datarouterHead.jsp"%>
 	<script type="text/javascript">
 		require(["sorttable", "bootstrap"]);
 	</script>
+	<style>
+	td{
+		white-space:nowrap;
+	}
+	</style>
 </head>
 <body>
+	<%@ include file="/jsp/menu/common-navbar.jsp" %>
+	<%@ include file="/jsp/menu/dr-navbar.jsp" %>
 	<form method="post" action="?" name="mainform">
-
-		<div class="container">
-			<h2>DR ${param.tableName}</h2>
-			<a href="${contextPath}/datarouter/routers">Datarouter Home</a>
-			&nbsp;&nbsp;&#62;&#62;&nbsp;&nbsp; <a
-				href="${contextPath}/datarouter/routers?submitAction=inspectRouter&routerName=${param.routerName}">router:
-				${param.routerName}</a> &nbsp;&nbsp;&#62;&#62;&nbsp;&nbsp; <a
-				href="${contextPath}/datarouter/clients/hbase?submitAction=inspectClient&routerName=${param.routerName}
-		&clientName=${param.clientName}">client:
-				${param.clientName}</a> &nbsp;&nbsp;>>&nbsp;&nbsp; table:
-			${param.tableName} <a
-				href="?submitAction=viewHBaseTableSettings&routerName=${param.routerName}&clientName=${param.clientName}&tableName=${param.tableName}">
-				(settings)</a><br />
-			<h3 style="width: 100%; border-bottom: 1px solid gray;">Regions</h3>
-			<div class="row-fluid">
-				<div class="span4">
+		<div class="container-fluid">
+			<h2 class="page-header">${param.tableName}</h2>
+			<ol class="breadcrumb">
+				<li><a href="${contextPath}/datarouter/routers">Datarouter Home</a></li>
+				<li>
+					<a href="${contextPath}/datarouter/routers?submitAction=inspectRouter&routerName=${param.routerName}">
+						router: ${param.routerName}
+					</a>
+				</li>
+				<li>
+					<a href="${contextPath}/datarouter/clients/hbase?submitAction=inspectClient&routerName=${param.routerName}&clientName=${param.clientName}">
+						client: ${param.clientName}
+					</a>
+				</li>
+				<li>
+					<a href="?submitAction=viewHBaseTableSettings&routerName=${param.routerName}&clientName=${param.clientName}&tableName=${param.tableName}">
+						table: ${param.tableName}
+					</a>
+				</li>
+			</ol>
+			<h3 class="page-header">Regions</h3>
+			<div class="row">
+				<div class="col-xs-12 col-md-6">
 					<ul>
 						<li>move regions to correct server: <span
 							class="button confirmation-button"><span
@@ -48,7 +62,7 @@
 						</li>
 					</ul>
 				</div>
-				<div class="span6">
+				<div class="col-xs-12 col-md-6">
 					<ul>
 						<li>compact: <span class="button confirmation-button"><span
 								class="button-left"> <a
@@ -85,10 +99,7 @@
 							</span></span></li>
 					</ul>
 				</div>
-
 			</div>
-		</div>
-		<div class="wide-container">
 			groupBy:
 			<c:set var="groupByUrlBase"
 				value="?submitAction=viewHBaseTableRegions&routerName=${param.routerName}
@@ -103,9 +114,8 @@
 				varStatus="groupStatus">
 				<br />
 				<b>${group.key}</b>: ${fn:length(group.value)} regions<br />
-				<br />"
-	<table
-					class="table table-striped table-bordered table-collapse sortable">
+				<br />
+				<table class="table table-striped table-bordered table-collapse sortable">
 					<tr>
 						<th>#</th>
 						<th></th>
@@ -161,11 +171,10 @@
 				</table>
 			</c:forEach>
 			<br />
+			<input type="hidden" name="routerName" value="${param.routerName}" />
+			<input type="hidden" name="clientName" value="${param.clientName}" />
+			<input type="hidden" name="tableName" value="${param.tableName}" />
 		</div>
-		<input type="hidden" name="routerName" value="${param.routerName}" />
-		<input type="hidden" name="clientName" value="${param.clientName}" />
-		<input type="hidden" name="tableName" value="${param.tableName}" />
 	</form>
-
 </body>
 </html>
