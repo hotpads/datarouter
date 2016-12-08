@@ -11,7 +11,7 @@ public class DoubleCachedSetting extends CachedSetting<Double>{
 
 	@Override
 	protected Double reload(){
-		return finder.getValue(name).map(Double::valueOf).orElse(defaultValue);
+		return finder.getSettingValue(name).map(Double::valueOf).orElse(defaultValue);
 	}
 
 	//Not a great implementation but at that time,

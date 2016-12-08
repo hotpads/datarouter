@@ -11,7 +11,7 @@ public class StringCachedSetting extends CachedSetting<String>{
 
 	@Override
 	protected String reload(){
-		return finder.getValue(name).orElse(defaultValue);
+		return finder.getSettingValue(name).orElse(defaultValue);
 	}
 
 	@Override

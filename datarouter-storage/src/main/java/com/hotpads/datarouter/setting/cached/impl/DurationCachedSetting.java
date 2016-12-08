@@ -12,7 +12,7 @@ public class DurationCachedSetting extends CachedSetting<Duration>{
 
 	@Override
 	protected Duration reload(){
-		return finder.getValue(name).map(Duration::new).orElse(defaultValue);
+		return finder.getSettingValue(name).map(Duration::new).orElse(defaultValue);
 	}
 
 	@Override

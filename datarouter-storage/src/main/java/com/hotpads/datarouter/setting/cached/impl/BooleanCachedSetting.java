@@ -12,7 +12,7 @@ public class BooleanCachedSetting extends CachedSetting<Boolean>{
 
 	@Override
 	protected Boolean reload(){
-		return finder.getValue(name).map(DrBooleanTool::isTrue).orElse(defaultValue);
+		return finder.getSettingValue(name).map(DrBooleanTool::isTrue).orElse(defaultValue);
 	}
 
 	@Override
