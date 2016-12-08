@@ -14,6 +14,7 @@ public interface IndexListener<
 	void onPutMulti(Collection<D> databeans, Config config);
 
 	void onDelete(PK key, Config config);
+	void onDeleteDatabean(D databean, Config config);
 	void onDeleteMulti(Collection<PK> keys, Config config);
 	void onDeleteMultiDatabeans(Collection<D> databeans, Config config);
 	void onDeleteAll(Config config);

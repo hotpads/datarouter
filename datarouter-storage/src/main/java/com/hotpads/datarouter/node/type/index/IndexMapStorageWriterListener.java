@@ -54,12 +54,16 @@ implements IndexListener<PK,D>{
 			((KeyIndexEntry<IK,IE,PK,D>)indexEntry).fromPrimaryKey(key);
 			indexNode.delete(indexEntry.getKey(), config);
 		}else{
-			//there is currently no way to delete an index entry whose PK can't be calculated from the target PK.
-			// options:
-			//  1) read the databean before deleting
-			//  2) user provides the indexEntry key (maybe he read the whole databean moments earlier)
-			//  3) don't delete it and vacuum the whole table later
+			throw new IllegalArgumentException("Unable to find index from PK, please call "
+					+ "deleteDatabean method instead");
 		}
+	}
+
+	@Override
+	public void onDeleteDatabean(D databean, Config config){
+		IE sampleIndexEntry = createIndexEntry();
+		List<IE> indexEntriesFromSingleDatabean = sampleIndexEntry.createFromDatabean(databean);
+		indexNode.deleteMulti(DatabeanTool.getKeys(indexEntriesFromSingleDatabean), config);
 	}
 
 	@Override
@@ -111,7 +115,8 @@ implements IndexListener<PK,D>{
 				((UniqueKeyIndexEntry<IK,IE,PK,D>)indexEntry).fromPrimaryKey(key);
 				indexEntries.add(indexEntry);
 			}else{
-				//we don't know enough.  don't return anything
+				throw new IllegalArgumentException("Unable to find index from PK, please call "
+						+ "deleteMultiDatabeans method instead");
 			}
 		}
 		return indexEntries;

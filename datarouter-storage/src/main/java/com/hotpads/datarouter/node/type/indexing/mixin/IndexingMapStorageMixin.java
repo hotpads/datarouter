@@ -28,6 +28,14 @@ extends MapStorage<PK,D>{
 		getBackingNode().delete(key, config);
 	}
 
+	//this method is not used right now but added it for completion
+	default void deleteDatabean(D databean, Config config){
+		for(IndexListener<PK,D> indexNode : getIndexNodes()){
+			indexNode.onDeleteDatabean(databean, config);
+		}
+		getBackingNode().delete(databean.getKey(), config);
+	}
+
 	@Override
 	default void deleteAll(Config config) {
 		for(IndexListener<PK,D> indexNode : getIndexNodes()){
