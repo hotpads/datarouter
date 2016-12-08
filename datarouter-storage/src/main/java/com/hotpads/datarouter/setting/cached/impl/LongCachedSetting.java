@@ -10,7 +10,7 @@ public class LongCachedSetting extends CachedSetting<Long>{
 
 	@Override
 	protected Long reload(){
-		return finder.getLong(name, defaultValue);
+		return finder.getValue(name).map(Long::valueOf).orElse(defaultValue);
 	}
 
 	@Override

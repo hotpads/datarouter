@@ -1,9 +1,13 @@
 package com.hotpads.datarouter.setting;
 
+import java.util.Optional;
+
 import com.hotpads.util.core.Duration;
 import com.hotpads.util.core.date.CronExpression;
 
 public interface SettingFinder{
+
+	Optional<String> getValue(String name);
 
 	Boolean getBoolean(String name, Boolean defaultValue);
 

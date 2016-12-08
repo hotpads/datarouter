@@ -11,8 +11,7 @@ public class StringCachedSetting extends CachedSetting<String>{
 
 	@Override
 	protected String reload(){
-		if(defaultValue == null){ return finder.getString(name, null); }
-		return finder.getString(name, defaultValue);
+		return finder.getValue(name).orElse(defaultValue);
 	}
 
 	@Override
