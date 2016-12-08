@@ -10,8 +10,8 @@ public class DoubleCachedSetting extends CachedSetting<Double>{
 	}
 
 	@Override
-	protected Double reload(){
-		return finder.getSettingValue(name).map(Double::valueOf).orElse(defaultValue);
+	protected Double parseStringValue(String stringValue){
+		return Double.valueOf(stringValue);
 	}
 
 	//Not a great implementation but at that time,

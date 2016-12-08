@@ -11,8 +11,8 @@ public class BooleanCachedSetting extends CachedSetting<Boolean>{
 	}
 
 	@Override
-	protected Boolean reload(){
-		return finder.getSettingValue(name).map(DrBooleanTool::isTrue).orElse(defaultValue);
+	protected Boolean parseStringValue(String stringValue){
+		return DrBooleanTool.isTrue(stringValue);
 	}
 
 	@Override

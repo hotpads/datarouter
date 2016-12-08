@@ -10,8 +10,8 @@ public class StringCachedSetting extends CachedSetting<String>{
 	}
 
 	@Override
-	protected String reload(){
-		return finder.getSettingValue(name).orElse(defaultValue);
+	protected String parseStringValue(String stringValue){
+		return stringValue;
 	}
 
 	@Override
