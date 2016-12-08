@@ -8,6 +8,7 @@ import com.hotpads.datarouter.node.op.raw.MapStorage;
 import com.hotpads.datarouter.node.op.raw.MapStorage.MapStorageNode;
 import com.hotpads.datarouter.node.op.raw.index.IndexListener;
 import com.hotpads.datarouter.storage.databean.Databean;
+import com.hotpads.datarouter.storage.databean.DatabeanTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
 public interface IndexingMapStorageMixin<
@@ -27,6 +28,14 @@ extends MapStorage<PK,D>{
 		getBackingNode().delete(key, config);
 	}
 
+	//this method is not used right now but added it for completion
+	default void deleteDatabean(D databean, Config config){
+		for(IndexListener<PK,D> indexNode : getIndexNodes()){
+			indexNode.onDeleteDatabean(databean, config);
+		}
+		getBackingNode().delete(databean.getKey(), config);
+	}
+
 	@Override
 	default void deleteAll(Config config) {
 		for(IndexListener<PK,D> indexNode : getIndexNodes()){
@@ -41,6 +50,13 @@ extends MapStorage<PK,D>{
 			indexNode.onDeleteMulti(keys, config);
 		}
 		getBackingNode().deleteMulti(keys, config);
+	}
+
+	default void deleteMultiDatabeans(Collection<D> databeans, Config config){
+		for(IndexListener<PK,D> indexNode : getIndexNodes()){
+			indexNode.onDeleteMultiDatabeans(databeans, config);
+		}
+		getBackingNode().deleteMulti(DatabeanTool.getKeys(databeans), config);
 	}
 
 	@Override
