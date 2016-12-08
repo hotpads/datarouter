@@ -9,7 +9,7 @@ public class LongCachedSetting extends CachedSetting<Long>{
 	}
 
 	@Override
-	protected Long parseStringValue(String stringValue){
+	public Long parseStringValue(String stringValue){
 		return Long.valueOf(stringValue);
 	}
 

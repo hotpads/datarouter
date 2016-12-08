@@ -9,7 +9,7 @@ public class IntegerCachedSetting extends CachedSetting<Integer>{
 	}
 
 	@Override
-	protected Integer parseStringValue(String stringValue){
+	public Integer parseStringValue(String stringValue){
 		return Integer.valueOf(stringValue);
 	}
 

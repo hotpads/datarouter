@@ -11,7 +11,7 @@ public class BooleanCachedSetting extends CachedSetting<Boolean>{
 	}
 
 	@Override
-	protected Boolean parseStringValue(String stringValue){
+	public Boolean parseStringValue(String stringValue){
 		return DrBooleanTool.isTrue(stringValue);
 	}
 

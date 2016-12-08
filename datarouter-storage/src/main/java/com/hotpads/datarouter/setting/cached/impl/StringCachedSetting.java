@@ -10,7 +10,7 @@ public class StringCachedSetting extends CachedSetting<String>{
 	}
 
 	@Override
-	protected String parseStringValue(String stringValue){
+	public String parseStringValue(String stringValue){
 		return stringValue;
 	}
 

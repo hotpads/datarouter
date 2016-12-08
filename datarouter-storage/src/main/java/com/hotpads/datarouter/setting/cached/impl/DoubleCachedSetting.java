@@ -10,7 +10,7 @@ public class DoubleCachedSetting extends CachedSetting<Double>{
 	}
 
 	@Override
-	protected Double parseStringValue(String stringValue){
+	public Double parseStringValue(String stringValue){
 		return Double.valueOf(stringValue);
 	}
 

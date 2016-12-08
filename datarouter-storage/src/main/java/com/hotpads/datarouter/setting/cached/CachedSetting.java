@@ -27,7 +27,7 @@ implements Setting<T>{
 
 	/******************* Setting methods *************************/
 
-	protected abstract T parseStringValue(String stringValue);
+	public abstract T parseStringValue(String stringValue);
 
 	@Override
 	protected T reload(){

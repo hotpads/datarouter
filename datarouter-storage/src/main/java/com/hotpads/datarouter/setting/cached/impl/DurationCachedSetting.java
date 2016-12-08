@@ -11,7 +11,7 @@ public class DurationCachedSetting extends CachedSetting<Duration>{
 	}
 
 	@Override
-	protected Duration parseStringValue(String stringValue){
+	public Duration parseStringValue(String stringValue){
 		return new Duration(stringValue);
 	}
 
