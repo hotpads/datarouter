@@ -10,5 +10,6 @@ public interface Setting<T>{
 	boolean getHasCustomValue();
 	boolean getHasRedundantCustomValue();
 	boolean isValid(String value);
+	T parseStringValue(String stringValue);
 
 }
