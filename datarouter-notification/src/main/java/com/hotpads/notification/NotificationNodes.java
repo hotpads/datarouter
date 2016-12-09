@@ -4,10 +4,11 @@ import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage.IndexedSorte
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import com.hotpads.datarouter.node.type.index.UniqueIndexNode;
-import com.hotpads.datarouter.routing.Router;
+import com.hotpads.datarouter.node.type.indexing.IndexingSortedMapStorageNode;
 import com.hotpads.notification.databean.NotificationItemLog;
 import com.hotpads.notification.databean.NotificationItemLogKey;
 import com.hotpads.notification.databean.NotificationLog;
+import com.hotpads.notification.databean.NotificationLog.NotificationLogFielder;
 import com.hotpads.notification.databean.NotificationLogKey;
 import com.hotpads.notification.databean.NotificationRequest;
 import com.hotpads.notification.databean.NotificationRequestKey;
@@ -22,10 +23,11 @@ import com.hotpads.notification.preference.NotificationPreferenceKey;
 import com.hotpads.notification.tracking.NotificationTrackingEvent;
 import com.hotpads.notification.tracking.NotificationTrackingEventKey;
 
-public interface NotificationNodes extends Router{
+public interface NotificationNodes{
 	public SortedMapStorageNode<NotificationRequestKey,NotificationRequest> getNotificationRequest();
 
-	public SortedMapStorageNode<NotificationLogKey,NotificationLog> getNotificationLog();
+	public IndexingSortedMapStorageNode<NotificationLogKey,NotificationLog,NotificationLogFielder,
+			SortedMapStorageNode<NotificationLogKey,NotificationLog>> getNotificationLog();
 	public UniqueIndexNode<NotificationLogKey,NotificationLog,NotificationLogByIdKey,NotificationLogById>
 			getNotificationLogById();
 

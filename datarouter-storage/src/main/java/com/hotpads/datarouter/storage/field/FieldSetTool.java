@@ -32,14 +32,16 @@ import com.hotpads.util.core.bytes.ByteRange;
 import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.collections.Pair;
 import com.hotpads.util.core.java.ReflectionTool;
-import com.hotpads.util.core.number.VarLong;
+import com.hotpads.util.core.number.VarInt;
 
 public class FieldSetTool{
 
 	public static int getNumNonNullLeadingFields(FieldSet<?> prefix){
 		int numNonNullFields = 0;
 		for(Object value : DrCollectionTool.nullSafe(prefix.getFieldValues())){
-			if(value == null){ break; }
+			if(value == null){
+				break;
+			}
 			++numNonNullFields;
 
 		}
@@ -71,17 +73,17 @@ public class FieldSetTool{
 		return sb.toString();
 	}
 
-	public static <T> Map<String, Pair<Field<T>, Field<T>>> getFieldDifferences(Collection<Field<?>> left,
-			Collection<Field<?>> right) {
+	public static <T> Map<String,Pair<Field<T>,Field<T>>> getFieldDifferences(Collection<Field<?>> left,
+			Collection<Field<?>> right){
 
-		Map<String, Pair<Field<T>, Field<T>>> diffMap = Maps.newHashMap();
+		Map<String,Pair<Field<T>,Field<T>>> diffMap = Maps.newHashMap();
 
-		Map<String, Field<?>> leftMap = generateFieldMap(left), rightMap = generateFieldMap(right);
-		for (String key : Sets.union(leftMap.keySet(), rightMap.keySet())) {
+		Map<String,Field<?>> leftMap = generateFieldMap(left), rightMap = generateFieldMap(right);
+		for(String key : Sets.union(leftMap.keySet(), rightMap.keySet())){
 			Field<T> leftField = (Field<T>) leftMap.get(key), rightField = (Field<T>) rightMap.get(key);
 
-			if (DrObjectTool.isOneNullButNotTheOther(leftField, rightField)
-					|| DrObjectTool.notEquals(leftField.getValue(), rightField.getValue())) {
+			if(DrObjectTool.isOneNullButNotTheOther(leftField, rightField)
+					|| DrObjectTool.notEquals(leftField.getValue(), rightField.getValue())){
 				diffMap.put(key, Pair.create(leftField, rightField));
 			}
 		}
@@ -89,14 +91,14 @@ public class FieldSetTool{
 		return diffMap;
 	}
 
-	public static Map<String, Field<?>> generateFieldMap(Collection<Field<?>> fields) {
-		Map<String, Field<?>> fieldMap = Maps.newTreeMap();
-		if (fields == null) {
+	public static Map<String,Field<?>> generateFieldMap(Collection<Field<?>> fields){
+		Map<String,Field<?>> fieldMap = Maps.newTreeMap();
+		if(fields == null){
 			return fieldMap;
 		}
 
 		Iterator<Field<?>> fieldIter = fields.iterator();
-		while (fieldIter.hasNext()) {
+		while(fieldIter.hasNext()){
 			Field<?> field = fieldIter.next();
 			fieldMap.put(field.getKey().getName(), field);
 		}
@@ -115,9 +117,9 @@ public class FieldSetTool{
 
 	/***************************** construct fieldsets using reflection ***************************/
 
-	public static <F> F fieldSetFromByteStream(Supplier<F> supplier,
-			Map<String,Field<?>> fieldByPrefixedName, InputStream is) throws IOException{
-		int databeanLength = (int)new VarLong(is).getValue();
+	public static <F> F fieldSetFromByteStream(Supplier<F> supplier, Map<String,Field<?>> fieldByPrefixedName,
+			InputStream is) throws IOException{
+		int databeanLength = VarInt.fromInputStream(is).getValue();
 		return fieldSetFromByteStreamKnownLength(supplier, fieldByPrefixedName, is, databeanLength);
 	}
 
@@ -132,21 +134,22 @@ public class FieldSetTool{
 		F targetFieldSet = supplier.get();
 		int numBytesThroughDatabean = 0;
 		while(true){
-			VarLong nameLength = new VarLong(is);//will throw IllegalArgumentException at the end of the stream
-			byte[] nameBytes = new byte[nameLength.getValueInt()];
+			//will throw IllegalArgumentException at the end of the stream
+			VarInt nameLength = VarInt.fromInputStream(is);
+			byte[] nameBytes = new byte[nameLength.getValue()];
 			is.read(nameBytes);
-			numBytesThroughDatabean += nameLength.getNumBytes() + nameLength.getValueInt();
+			numBytesThroughDatabean += nameLength.getNumBytes() + nameLength.getValue();
 			String prefixedName = StringByteTool.fromUtf8Bytes(nameBytes);
 			Field<?> field = fieldByPrefixedName.get(prefixedName);
-			if(field==null){
+			if(field == null){
 				continue;
 			}
-			VarLong valueLength = new VarLong(is);
+			VarInt valueLength = VarInt.fromInputStream(is);
 			numBytesThroughDatabean += valueLength.getNumBytes();
-			byte[] valueBytes = new byte[valueLength.getValueInt()];
+			byte[] valueBytes = new byte[valueLength.getValue()];
 			if(valueLength.getValue() > 0){
 				is.read(valueBytes);
-				numBytesThroughDatabean += valueLength.getValueInt();
+				numBytesThroughDatabean += valueLength.getValue();
 			}
 			Object value = field.fromBytesButDoNotSet(valueBytes, 0);
 			field.setUsingReflection(targetFieldSet, value);
@@ -157,17 +160,22 @@ public class FieldSetTool{
 		return targetFieldSet;
 	}
 
-	public static <F extends FieldSet<?>> F fromConcatenatedValueBytes(Class<F> cls, List<Field<?>> fields, byte[] bytes){
+	public static <F extends FieldSet<?>> F fromConcatenatedValueBytes(Class<F> cls, List<Field<?>> fields,
+			byte[] bytes){
 		F fieldSet = ReflectionTool.create(cls);
-		if(DrArrayTool.isEmpty(bytes)){ return fieldSet; }
+		if(DrArrayTool.isEmpty(bytes)){
+			return fieldSet;
+		}
 
 		int byteOffset = 0;
 		for(Field<?> field : fields){
-			if(byteOffset==bytes.length){ break; }//ran out of bytes.  leave remaining fields blank
+			if(byteOffset == bytes.length){// ran out of bytes. leave remaining fields blank
+				break;
+			}
 			int numBytesWithSeparator = field.numBytesWithSeparator(bytes, byteOffset);
 			Object value = field.fromBytesWithSeparatorButDoNotSet(bytes, byteOffset);
 			field.setUsingReflection(fieldSet, value);
-			byteOffset+=numBytesWithSeparator;
+			byteOffset += numBytesWithSeparator;
 		}
 
 		return fieldSet;
@@ -179,7 +187,7 @@ public class FieldSetTool{
 	public static class FieldSetToolTests{
 
 		@Test
-		public void testGetConcatenatedValueBytes() {
+		public void testGetConcatenatedValueBytes(){
 			int someInt = 55;
 			String someStringA = "abc";
 			String someStringB = "xyz";
@@ -197,7 +205,7 @@ public class FieldSetTool{
 		}
 
 		@Test
-		public void testGenerateFieldMap() {
+		public void testGenerateFieldMap(){
 			int testInt = 127;
 			String someStr0 = "first", someStr1 = "second";
 
@@ -212,9 +220,9 @@ public class FieldSetTool{
 		}
 
 		@Test
-		public <T> void testGetFieldDifferences() {
+		public <T> void testGetFieldDifferences(){
 			String one = "one", two = "two", three = "three", four = "four", five = "five", six = "six";
-			Long sameRefLong = new Long(123456789000l);
+			Long sameRefLong = new Long(123456789000L);
 
 			List<Field<?>> left = Arrays.asList(
 					new StringField(one, "help", MySqlColumnType.MAX_LENGTH_VARCHAR),

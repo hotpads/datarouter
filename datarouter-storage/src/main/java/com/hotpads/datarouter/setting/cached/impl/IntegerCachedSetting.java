@@ -9,8 +9,8 @@ public class IntegerCachedSetting extends CachedSetting<Integer>{
 	}
 
 	@Override
-	protected Integer reload(){
-		return finder.getInteger(name, defaultValue);
+	public Integer parseStringValue(String stringValue){
+		return Integer.valueOf(stringValue);
 	}
 
 	@Override
