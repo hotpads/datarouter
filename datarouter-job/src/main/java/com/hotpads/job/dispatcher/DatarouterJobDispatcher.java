@@ -6,7 +6,6 @@ import com.hotpads.handler.dispatcher.DatarouterWebDispatcher;
 import com.hotpads.job.record.LongRunningTasksHandler;
 import com.hotpads.job.web.TriggerHandler;
 import com.hotpads.joblet.handler.JobletHandler;
-import com.hotpads.joblet.handler.JobletScalingHandler;
 
 public class DatarouterJobDispatcher extends BaseDispatcher{
 
@@ -26,7 +25,6 @@ public class DatarouterJobDispatcher extends BaseDispatcher{
 		handle(URL_DATAROUTER + TRIGGERS).withHandler(TriggerHandler.class);
 		handle(URL_DATAROUTER + LONG_RUNNING_TASKS).withHandler(LongRunningTasksHandler.class);
 		handleDir(URL_DATAROUTER + JOBLETS).withHandler(JobletHandler.class);
-		handle(URL_DATAROUTER + JOBLET_SCALING).withHandler(JobletScalingHandler.class);
 	}
 
 }
