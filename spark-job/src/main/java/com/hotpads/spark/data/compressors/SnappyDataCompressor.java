@@ -1,19 +1,15 @@
 package com.hotpads.spark.data.compressors;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.io.compress.CompressionCodec;
-import org.apache.hadoop.io.compress.SnappyCodec;
-import org.apache.hadoop.util.ReflectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xerial.snappy.SnappyOutputStream;
 
 //TODO snappy is not splittable and S3 will split before uploading
 public class SnappyDataCompressor implements DataCompressor{
@@ -23,22 +19,20 @@ public class SnappyDataCompressor implements DataCompressor{
 
 	@Override
 	public boolean compress(String inputPath, String outputPath) throws IOException{
-		try {
+		try{
 			logger.info("About to compress {} -> {}", inputPath, outputPath);
-			CompressionCodec codec = ReflectionUtils.newInstance(SnappyCodec.class, new Configuration());
-
 			InputStream inputStream = new BufferedInputStream(new FileInputStream(inputPath));
-			OutputStream outputStream = codec.createOutputStream(new BufferedOutputStream(
-					new FileOutputStream(outputPath)));
+			// SnappyOutputStream already does buffering
+			OutputStream outputStream = new SnappyOutputStream(new FileOutputStream(outputPath));
 			int readCount;
 			byte[] buffer = new byte[BUFFER_SIZE];
-			while ((readCount = inputStream.read(buffer)) > 0) {
+			while ((readCount = inputStream.read(buffer)) > 0){
 				outputStream.write(buffer, 0, readCount);
 			}
 			inputStream.close();
 			outputStream.close();
 			logger.info("File Compressed");
-		} catch (Exception e) {
+		}catch (Exception e){
 			logger.error("Exception during compression", e);
 			return false;
 		}

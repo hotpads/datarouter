@@ -86,7 +86,8 @@ implements DataExporter{
 			logger.info("Downloaded table {} with columns {} into output dir {}", tableName, columnsToSelect,
 					outputDirPath);
 		}catch(Exception e){
-			logger.error("Exception while downloading data from DB: " + e.getMessage());
+			logger.error("Exception while downloading data from DB: " + e.getMessage(), e);
+			// todo: why do we swallow exception here? may need to fix. filed RDA-271
 		}finally{
 			if(writer != null){
 				writer.close();
