@@ -3,7 +3,6 @@ package com.hotpads.notification;
 import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
-import com.hotpads.datarouter.node.op.raw.MapStorage.MapStorageNode;
 import com.hotpads.datarouter.node.type.index.UniqueIndexNode;
 import com.hotpads.datarouter.routing.Router;
 import com.hotpads.notification.databean.NotificationItemLog;
@@ -45,8 +44,8 @@ public interface NotificationNodes extends Router{
 	public IndexedSortedMapStorageNode<NotificationTrackingEventKey, NotificationTrackingEvent>
 			getNotificationTrackingEvent();
 
-	public MapStorageNode<NotificationTimingStrategyKey,NotificationTimingStrategy> getNotificationTimingStrategy();
-	public MapStorageNode<NotificationTimingStrategyMappingKey,NotificationTimingStrategyMapping>
+	public SortedMapStorageNode<NotificationTimingStrategyKey,NotificationTimingStrategy> getNotificationTimingStrategy();
+	public SortedMapStorageNode<NotificationTimingStrategyMappingKey,NotificationTimingStrategyMapping>
 		getNotificationTimingStrategyMapping();
 
 }
