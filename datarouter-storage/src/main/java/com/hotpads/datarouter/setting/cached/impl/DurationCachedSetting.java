@@ -11,8 +11,8 @@ public class DurationCachedSetting extends CachedSetting<Duration>{
 	}
 
 	@Override
-	protected Duration reload(){
-		return finder.getDuration(name, defaultValue);
+	public Duration parseStringValue(String stringValue){
+		return new Duration(stringValue);
 	}
 
 	@Override
