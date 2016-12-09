@@ -18,7 +18,7 @@ import com.hotpads.datarouter.util.core.DrObjectTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.java.ReflectionTool;
-import com.hotpads.util.core.number.VarLong;
+import com.hotpads.util.core.number.VarInt;
 
 public class FieldTool{
 
@@ -54,17 +54,17 @@ public class FieldTool{
 			boolean terminateIntermediateString, boolean terminateFinalString){
 		int totalFields = DrCollectionTool.size(fields);
 		int numNonNullFields = FieldTool.countNonNullLeadingFields(fields);
-		if(numNonNullFields==0){
+		if(numNonNullFields == 0){
 			return null;
 		}
 		byte[][] fieldArraysWithSeparators = new byte[DrCollectionTool.size(fields)][];
-		int fieldIdx=-1;
+		int fieldIdx = -1;
 		for(Field<?> field : DrIterableTool.nullSafe(fields)){
 			++fieldIdx;
 			boolean finalField = fieldIdx == totalFields - 1;
 			boolean lastNonNullField = fieldIdx == numNonNullFields - 1;
-			if(!allowNulls && field.getValue()==null){
-				throw new IllegalArgumentException("field:"+field.getKey().getName()+" cannot be null in");
+			if(!allowNulls && field.getValue() == null){
+				throw new IllegalArgumentException("field:" + field.getKey().getName() + " cannot be null in");
 			}
 			if(finalField){
 				if(terminateFinalString){
@@ -94,7 +94,7 @@ public class FieldTool{
 	public static byte[] getBytesForNonNullFieldsWithNoTrailingSeparator(List<Field<?>> fields){
 		int numNonNullFields = countNonNullLeadingFields(fields);
 		byte[][] fieldArraysWithSeparators = new byte[numNonNullFields][];
-		int fieldIdx=-1;
+		int fieldIdx = -1;
 		for(Field<?> field : DrIterableTool.nullSafe(fields)){
 			++fieldIdx;
 			if(fieldIdx == numNonNullFields - 1){//last field
@@ -124,9 +124,9 @@ public class FieldTool{
 			}else{
 				keyBytes = field.getKey().getColumnNameBytes();
 			}
-			VarLong keyLength = new VarLong(DrArrayTool.length(keyBytes));
+			VarInt keyLength = new VarInt(DrArrayTool.length(keyBytes));
 			byte[] valueBytes = field.getBytes();
-			VarLong valueLength = new VarLong(DrArrayTool.length(valueBytes));
+			VarInt valueLength = new VarInt(DrArrayTool.length(valueBytes));
 			//abort if value is 0 bytes
 			if(valueBytes == null && skipNullValues){
 				continue;
@@ -176,12 +176,12 @@ public class FieldTool{
 	}
 
 	public static List<String> getCsvColumnNamesList(Iterable<Field<?>> fields,
-			Map<String, String> columnNameToCsvHeaderName) {
+			Map<String,String> columnNameToCsvHeaderName){
 		List<String> csvRow = new LinkedList<>();
-		for (Field<?> field : DrIterableTool.nullSafe(fields)) {
+		for(Field<?> field : DrIterableTool.nullSafe(fields)){
 			String columnName = field.getKey().getColumnName();
-			if (columnNameToCsvHeaderName != null
-					&& columnNameToCsvHeaderName.containsKey(field.getKey().getColumnName())) {
+			if(columnNameToCsvHeaderName != null
+					&& columnNameToCsvHeaderName.containsKey(field.getKey().getColumnName())){
 				columnName = columnNameToCsvHeaderName.get(field.getKey().getColumnName());
 			}
 			csvRow.add(columnName);
@@ -274,7 +274,7 @@ public class FieldTool{
 		}
 		List<String> fieldNames = DrListTool.createArrayList(field.getPrefix().split("\\."));
 		Object current = object;
-		for(int i=0; i < fieldNames.size(); ++i){//return the FieldSet, not the actual Integer (or whatever) field
+		for(int i = 0; i < fieldNames.size(); ++i){//return the FieldSet, not the actual Integer (or whatever) field
 			current = ReflectionTool.get(fieldNames.get(i), current);
 		}
 		return current;
