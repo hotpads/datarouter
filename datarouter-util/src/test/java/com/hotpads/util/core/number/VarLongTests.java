@@ -6,7 +6,7 @@ import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.util.Random;
 
-import org.junit.Assert;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 
@@ -17,43 +17,43 @@ public class VarLongTests{
 
 	@Test
 	public void testNumBytes(){
-		Assert.assertEquals(1, new VarLong(0).getNumBytes());
-		Assert.assertEquals(1, new VarLong(1).getNumBytes());
-		Assert.assertEquals(1, new VarLong(100).getNumBytes());
-		Assert.assertEquals(1, new VarLong(126).getNumBytes());
-		Assert.assertEquals(1, new VarLong(127).getNumBytes());
-		Assert.assertEquals(2, new VarLong(128).getNumBytes());
-		Assert.assertEquals(2, new VarLong(129).getNumBytes());
-		Assert.assertEquals(5, new VarLong(Integer.MAX_VALUE).getNumBytes());
-		Assert.assertEquals(9, new VarLong(Long.MAX_VALUE).getNumBytes());
+		Assert.assertEquals(new VarLong(0).getNumBytes(), 1);
+		Assert.assertEquals(new VarLong(1).getNumBytes(), 1);
+		Assert.assertEquals(new VarLong(100).getNumBytes(), 1);
+		Assert.assertEquals(new VarLong(126).getNumBytes(), 1);
+		Assert.assertEquals(new VarLong(127).getNumBytes(), 1);
+		Assert.assertEquals(new VarLong(128).getNumBytes(), 2);
+		Assert.assertEquals(new VarLong(129).getNumBytes(), 2);
+		Assert.assertEquals(new VarLong(Integer.MAX_VALUE).getNumBytes(), 5);
+		Assert.assertEquals(new VarLong(Long.MAX_VALUE).getNumBytes(), 9);
 	}
 
 	@Test
 	public void testToBytes(){
 		VarLong v0 = new VarLong(0);
-		Assert.assertArrayEquals(new byte[]{0}, v0.getBytes());
+		Assert.assertEquals(v0.getBytes(), new byte[]{0});
 		VarLong v1 = new VarLong(1);
-		Assert.assertArrayEquals(new byte[]{1}, v1.getBytes());
+		Assert.assertEquals(v1.getBytes(), new byte[]{1});
 		VarLong v63 = new VarLong(63);
-		Assert.assertArrayEquals(new byte[]{63}, v63.getBytes());
+		Assert.assertEquals(v63.getBytes(), new byte[]{63});
 		VarLong v127 = new VarLong(127);
-		Assert.assertArrayEquals(new byte[]{127}, v127.getBytes());
+		Assert.assertEquals(v127.getBytes(), new byte[]{127});
 		VarLong v128 = new VarLong(128);
-		Assert.assertArrayEquals(new byte[]{-128, 1}, v128.getBytes());
+		Assert.assertEquals(v128.getBytes(), new byte[]{-128, 1});
 		VarLong v155 = new VarLong(155);
-		Assert.assertArrayEquals(new byte[]{-128 + 27, 1}, v155.getBytes());
+		Assert.assertEquals(v155.getBytes(), new byte[]{-128 + 27, 1});
 		VarLong maxLong = new VarLong(Long.MAX_VALUE);
-		Assert.assertArrayEquals(LONG_MAX_VALUE_BYTES, maxLong.getBytes());
+		Assert.assertEquals(maxLong.getBytes(), LONG_MAX_VALUE_BYTES);
 		VarLong maxInt = new VarLong(Integer.MAX_VALUE);
-		Assert.assertArrayEquals(INT_MAX_VALUE_BYTES, maxInt.getBytes());
+		Assert.assertEquals(maxInt.getBytes(), INT_MAX_VALUE_BYTES);
 	}
 
 	@Test
 	public void testFromBytes(){
 		VarLong maxLong = VarLong.fromByteArray(LONG_MAX_VALUE_BYTES);
-		Assert.assertEquals(Long.MAX_VALUE, maxLong.getValue());
+		Assert.assertEquals(maxLong.getValue(), Long.MAX_VALUE);
 		VarLong maxInt = VarLong.fromByteArray(INT_MAX_VALUE_BYTES);
-		Assert.assertEquals(Integer.MAX_VALUE, maxInt.getValue());
+		Assert.assertEquals(maxInt.getValue(), Integer.MAX_VALUE);
 	}
 
 	@Test
@@ -63,7 +63,7 @@ public class VarLongTests{
 			long value = RandomTool.nextPositiveLong(random);
 			byte[] bytes = new VarLong(value).getBytes();
 			long roundTripped = VarLong.fromByteArray(bytes).getValue();
-			Assert.assertEquals(value, roundTripped);
+			Assert.assertEquals(roundTripped, value);
 		}
 	}
 
@@ -72,21 +72,21 @@ public class VarLongTests{
 		ByteArrayInputStream is;
 		is = new ByteArrayInputStream(new byte[]{0});
 		VarLong v0 = VarLong.fromInputStream(is);
-		Assert.assertEquals(0, v0.getValue());
+		Assert.assertEquals(v0.getValue(), 0);
 		is = new ByteArrayInputStream(new byte[]{5});
 		VarLong v5 = VarLong.fromInputStream(is);
-		Assert.assertEquals(5, v5.getValue());
+		Assert.assertEquals(v5.getValue(), 5);
 		is = new ByteArrayInputStream(new byte[]{-128 + 27, 1});
 		VarLong v155 = VarLong.fromInputStream(is);
-		Assert.assertEquals(155, v155.getValue());
+		Assert.assertEquals(v155.getValue(), 155);
 		is = new ByteArrayInputStream(new byte[]{-5, 24});
 		VarLong v3195 = VarLong.fromInputStream(is);
-		Assert.assertEquals(3195, v3195.getValue());
+		Assert.assertEquals(v3195.getValue(), 3195);
 	}
 
 	@Test
 	public void testOffset(){
-		Assert.assertEquals(28, VarLong.fromByteArray(new byte[]{-1,-1,28}, 2).getValue());
+		Assert.assertEquals(VarLong.fromByteArray(new byte[]{-1,-1,28}, 2).getValue(), 28);
 	}
 
 	@Test(expectedExceptions = IllegalArgumentException.class)
@@ -111,11 +111,10 @@ public class VarLongTests{
 
 	@Test
 	public void testFileChannels() throws IOException{
-		ByteArrayInputStream is;
-		is = new ByteArrayInputStream(new byte[]{0});
+		ByteArrayInputStream is = new ByteArrayInputStream(new byte[]{0});
 		ReadableByteChannel channel = Channels.newChannel(is);
 		VarLong v0 = VarLong.fromReadableByteChannel(channel);
-		Assert.assertEquals(0, v0.getValue());
+		Assert.assertEquals(v0.getValue(), 0);
 	}
 
 }
