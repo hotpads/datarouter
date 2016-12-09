@@ -11,7 +11,7 @@ import com.hotpads.datarouter.storage.field.imp.positive.UInt63Field;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt63FieldKey;
 import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
 
-public class WebSocketSessionKey extends BasePrimaryKey<WebSocketSessionKey> {
+public class WebSocketSessionKey extends BasePrimaryKey<WebSocketSessionKey>{
 
 	private String userToken;
 	private Long id;

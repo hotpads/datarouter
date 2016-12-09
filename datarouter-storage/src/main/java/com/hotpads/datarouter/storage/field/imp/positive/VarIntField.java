@@ -41,24 +41,24 @@ public class VarIntField extends BasePrimitiveField<Integer>{
 		if(DrStringTool.isEmpty(str) || "null".equals(str)){
 			return null;
 		}
-		return assertInRange(str==null?null:Integer.valueOf(str));
+		return assertInRange(str == null ? null : Integer.valueOf(str));
 	}
 
 	/*********************** ByteEncodedField ***********************/
 
 	@Override
 	public byte[] getBytes(){
-		return value==null?null:new VarInt(value).getBytes();
+		return value == null ? null : new VarInt(value).getBytes();
 	}
 
 	@Override
 	public int numBytesWithSeparator(byte[] bytes, int offset){
-		return new VarInt(bytes, offset).getNumBytes();
+		return VarInt.fromByteArray(bytes, offset).getNumBytes();
 	}
 
 	@Override
 	public Integer fromBytesButDoNotSet(byte[] bytes, int offset){
-		return new VarInt(bytes, offset).getValue();
+		return VarInt.fromByteArray(bytes, offset).getValue();
 	}
 
 	/***************************** validate *****************************************/

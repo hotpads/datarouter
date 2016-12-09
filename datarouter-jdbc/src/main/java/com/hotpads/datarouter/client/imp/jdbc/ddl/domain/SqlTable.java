@@ -6,10 +6,8 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import org.testng.Assert;
-import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
-import com.hotpads.datarouter.client.imp.jdbc.TestDatarouterJdbcModuleFactory;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.SqlCreateTableGenerator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.SqlTableDiffGenerator;
 
@@ -248,7 +246,6 @@ public class SqlTable{
 
 
 	/******************** tests *********************************/
-	@Guice(moduleFactory = TestDatarouterJdbcModuleFactory.class)
 	public static class SqlTableTests{
 		@Test
 		public void testGetHeader(){
