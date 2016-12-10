@@ -27,13 +27,13 @@ public class SnappyDataCompressor implements DataCompressor{
 			OutputStream outputStream = new SnappyOutputStream(fileOutputStream);
 			int readCount;
 			byte[] buffer = new byte[BUFFER_SIZE];
-			while ((readCount = inputStream.read(buffer)) > 0){
+			while((readCount = inputStream.read(buffer)) > 0){
 				outputStream.write(buffer, 0, readCount);
 			}
 			inputStream.close();
 			outputStream.close();
 			logger.info("File Compressed");
-		}catch (Exception e){
+		}catch(Exception e){
 			logger.error("Exception during compression", e);
 			return false;
 		}
