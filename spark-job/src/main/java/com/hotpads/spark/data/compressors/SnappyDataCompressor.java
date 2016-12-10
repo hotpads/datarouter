@@ -21,7 +21,7 @@ public class SnappyDataCompressor implements DataCompressor{
 	public boolean compress(String inputPath, String outputPath) throws IOException{
 		logger.info("About to compress {} -> {}", inputPath, outputPath);
 		try(FileInputStream fileInputStream = new FileInputStream(inputPath); FileOutputStream fileOutputStream =
-				new FileOutputStream(outputPath);){
+				new FileOutputStream(outputPath)){
 			InputStream inputStream = new BufferedInputStream(fileInputStream);
 			// SnappyOutputStream already does buffering
 			OutputStream outputStream = new SnappyOutputStream(fileOutputStream);
