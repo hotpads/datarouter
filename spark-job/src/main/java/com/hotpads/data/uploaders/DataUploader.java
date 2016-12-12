@@ -1,4 +1,4 @@
-package com.hotpads.spark.data.uploaders;
+package com.hotpads.data.uploaders;
 
 
 public interface DataUploader{

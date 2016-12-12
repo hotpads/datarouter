@@ -1,4 +1,4 @@
-package com.hotpads.spark.data.exporter;
+package com.hotpads.data.exporter;
 
 /**
  * Resolver for getting the final S3 path destination the exported file will be uploaded to. This path is not a

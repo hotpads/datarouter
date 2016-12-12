@@ -1,4 +1,4 @@
-package com.hotpads.spark.data.uploaders;
+package com.hotpads.data.uploaders;
 
 import java.io.File;
 import java.io.IOException;

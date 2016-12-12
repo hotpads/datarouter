@@ -1,4 +1,4 @@
-package com.hotpads.spark.data.compressors;
+package com.hotpads.data.compressors;
 
 import java.io.IOException;
 

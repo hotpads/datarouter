@@ -1,8 +1,8 @@
-package com.hotpads.spark.data.exporter.implementations;
+package com.hotpads.data.exporter.implementations;
 
-import com.hotpads.spark.data.compressors.DataCompressor;
-import com.hotpads.spark.data.exporter.DataExporter;
-import com.hotpads.spark.data.uploaders.DataUploader;
+import com.hotpads.data.compressors.DataCompressor;
+import com.hotpads.data.exporter.DataExporter;
+import com.hotpads.data.uploaders.DataUploader;
 
 class ExportTaskPipeline{
 	private final DataExporter dataExporter;

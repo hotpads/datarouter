@@ -1,4 +1,4 @@
-package com.hotpads.spark.data.exporter.implementations;
+package com.hotpads.data.exporter.implementations;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -14,15 +14,15 @@ import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.spark.data.compressors.DataCompressor;
-import com.hotpads.spark.data.compressors.SnappyDataCompressor;
-import com.hotpads.spark.data.exporter.DataExporter;
-import com.hotpads.spark.data.exporter.ExportParameters;
-import com.hotpads.spark.data.exporter.MultiDatabeanExporter;
-import com.hotpads.spark.data.exporter.S3ExportPathResolver;
-import com.hotpads.spark.data.uploaders.DataUploader;
-import com.hotpads.spark.data.uploaders.S3DataUploader;
-import com.hotpads.spark.data.uploaders.S3MetaDataProvider;
+import com.hotpads.data.compressors.DataCompressor;
+import com.hotpads.data.compressors.SnappyDataCompressor;
+import com.hotpads.data.exporter.DataExporter;
+import com.hotpads.data.exporter.ExportParameters;
+import com.hotpads.data.exporter.MultiDatabeanExporter;
+import com.hotpads.data.exporter.S3ExportPathResolver;
+import com.hotpads.data.uploaders.DataUploader;
+import com.hotpads.data.uploaders.S3DataUploader;
+import com.hotpads.data.uploaders.S3MetaDataProvider;
 import com.hotpads.util.core.java.ReflectionTool;
 import com.hotpads.util.core.profile.PhaseTimer;
 

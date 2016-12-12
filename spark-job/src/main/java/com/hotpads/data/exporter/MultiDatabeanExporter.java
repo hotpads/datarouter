@@ -1,4 +1,4 @@
-package com.hotpads.spark.data.exporter;
+package com.hotpads.data.exporter;
 
 import java.util.Map;
 import java.util.concurrent.ExecutionException;

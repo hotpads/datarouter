@@ -1,4 +1,4 @@
-package com.hotpads.spark.data.exporter.implementations;
+package com.hotpads.data.exporter.implementations;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -6,7 +6,7 @@ import java.util.concurrent.ExecutionException;
 
 import com.amazonaws.AmazonServiceException;
 import com.hotpads.datarouter.storage.databean.Databean;
-import com.hotpads.spark.data.exporter.MultiDatabeanExporter;
+import com.hotpads.data.exporter.MultiDatabeanExporter;
 
 public class NoopMultiDatabeanExporter implements MultiDatabeanExporter{
 	@Override

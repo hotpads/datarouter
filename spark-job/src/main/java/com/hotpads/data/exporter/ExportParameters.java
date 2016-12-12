@@ -1,4 +1,4 @@
-package com.hotpads.spark.data.exporter;
+package com.hotpads.data.exporter;
 
 import com.hotpads.datarouter.node.op.raw.read.SortedStorageReader;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;

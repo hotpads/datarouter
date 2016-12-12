@@ -1,4 +1,4 @@
-package com.hotpads.spark.data.exporter.implementations;
+package com.hotpads.data.exporter.implementations;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -13,8 +13,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.hotpads.spark.data.compressors.DataCompressor;
-import com.hotpads.spark.data.exporter.DataExporter;
+import com.hotpads.data.compressors.DataCompressor;
+import com.hotpads.data.exporter.DataExporter;
 
 class ExportPipelineParallelExecutor{
 	private static final int EXECUTOR_THREADS = 5;
