@@ -14,7 +14,7 @@ import com.hotpads.datarouter.storage.field.imp.StringFieldKey;
 import com.hotpads.datarouter.storage.field.imp.enums.StringEnumField;
 import com.hotpads.datarouter.storage.field.imp.enums.StringEnumFieldKey;
 import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
-import com.hotpads.server.databean.WebAppInstance;
+import com.hotpads.webappinstance.databean.WebAppInstance;
 
 public class ClusterSettingKey extends BasePrimaryKey<ClusterSettingKey>{
 

@@ -7,8 +7,7 @@ import javax.inject.Inject;
 
 import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.mav.Mav;
-import com.hotpads.server.WebAppInstanceNodes;
-import com.hotpads.server.databean.WebAppInstance;
+import com.hotpads.webappinstance.databean.WebAppInstance;
 
 public class WebAppInstanceHandler extends BaseHandler{
 	@Inject

@@ -15,9 +15,8 @@ import com.hotpads.datarouter.config.Configs;
 import com.hotpads.datarouter.config.DatarouterProperties;
 import com.hotpads.datarouter.setting.ServerType;
 import com.hotpads.handler.GitProperties;
-import com.hotpads.server.WebAppInstanceNodes;
-import com.hotpads.server.databean.WebAppInstance;
-import com.hotpads.server.databean.WebAppInstanceKey;
+import com.hotpads.webappinstance.databean.WebAppInstance;
+import com.hotpads.webappinstance.databean.WebAppInstanceKey;
 
 @Singleton
 public class WebAppInstanceDao{

@@ -12,7 +12,7 @@ import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.StringFieldKey;
-import com.hotpads.server.databean.WebAppInstance;
+import com.hotpads.webappinstance.databean.WebAppInstance;
 
 public class ClusterSetting extends BaseDatabean<ClusterSettingKey,ClusterSetting>{
 

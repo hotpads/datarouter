@@ -1,4 +1,4 @@
-package com.hotpads.server.databean;
+package com.hotpads.webappinstance.databean;
 
 import java.util.Arrays;
 import java.util.List;

@@ -10,9 +10,9 @@ import org.slf4j.LoggerFactory;
 import com.hotpads.datarouter.storage.databean.DatabeanTool;
 import com.hotpads.job.trigger.BaseJob;
 import com.hotpads.job.trigger.JobEnvironment;
-import com.hotpads.server.WebAppInstanceNodes;
-import com.hotpads.server.databean.WebAppInstanceKey;
 import com.hotpads.webappinstance.WebAppInstanceDao;
+import com.hotpads.webappinstance.WebAppInstanceNodes;
+import com.hotpads.webappinstance.databean.WebAppInstanceKey;
 import com.hotpads.webappinstance.setting.WebAppInstanceSettings;
 
 public class WebAppInstanceVacuumJob extends BaseJob{

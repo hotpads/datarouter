@@ -9,8 +9,8 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import com.hotpads.datarouter.setting.Setting;
-import com.hotpads.server.databean.WebAppInstance;
 import com.hotpads.webappinstance.WebAppInstanceDao;
+import com.hotpads.webappinstance.databean.WebAppInstance;
 
 @Singleton
 public class ClusterSettingService{
