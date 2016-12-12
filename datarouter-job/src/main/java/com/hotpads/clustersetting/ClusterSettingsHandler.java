@@ -24,6 +24,7 @@ import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.dispatcher.DatarouterWebDispatcher;
 import com.hotpads.handler.mav.Mav;
 import com.hotpads.handler.user.session.CurrentUserInfo;
+import com.hotpads.job.dispatcher.DatarouterJobDispatcher;
 import com.hotpads.util.core.collections.KeyRangeTool;
 import com.hotpads.util.core.collections.Range;
 
@@ -53,10 +54,8 @@ public class ClusterSettingsHandler extends BaseHandler{
 			V_settingGroups = "settingGroups",
 			V_settingGroupsByScope = "settingGroupsByScope",
 
-			DIR_settings = "/settings",
-
-			URL_settings = DatarouterWebDispatcher.PATH_datarouter + DIR_settings,
-			URL_modify = DatarouterWebDispatcher.PATH_datarouter + DIR_settings
+			URL_settings = DatarouterWebDispatcher.PATH_datarouter + DatarouterJobDispatcher.SETTINGS,
+			URL_modify = DatarouterWebDispatcher.PATH_datarouter + DatarouterJobDispatcher.SETTINGS
 					+ "?submitAction=browseSettings&name=",
 
 			JSP_editSettings = "/jsp/admin/datarouter/setting/editSettings.jsp",
