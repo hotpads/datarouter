@@ -2,16 +2,12 @@ package com.hotpads.datarouter.setting.cached.impl;
 
 import com.hotpads.datarouter.setting.SettingFinder;
 import com.hotpads.datarouter.setting.cached.CachedSetting;
+import com.hotpads.datarouter.setting.type.DoubleSetting;
 
-public class DoubleCachedSetting extends CachedSetting<Double>{
+public class DoubleCachedSetting extends CachedSetting<Double> implements DoubleSetting{
 
 	public DoubleCachedSetting(SettingFinder finder, String name, Double defaultValue){
 		super(finder, name, defaultValue);
-	}
-
-	@Override
-	public Double parseStringValue(String stringValue){
-		return Double.valueOf(stringValue);
 	}
 
 	//Not a great implementation but at that time,

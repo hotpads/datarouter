@@ -27,8 +27,6 @@ implements Setting<T>{
 
 	/******************* Setting methods *************************/
 
-	public abstract T parseStringValue(String stringValue);
-
 	@Override
 	protected T reload(){
 		return finder.getSettingValue(name).map(this::parseStringValue).orElse(defaultValue);

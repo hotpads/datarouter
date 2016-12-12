@@ -20,12 +20,13 @@ import com.hotpads.joblet.enums.JobletType;
 @Singleton
 public class JobletRequestDao{
 
-	private SortedMapStorageNode<JobletRequestKey,JobletRequest> node;
+	private final SortedMapStorageNode<JobletRequestKey,JobletRequest> node;
 
 	@Inject
 	public JobletRequestDao(JobletNodes jobletNodes){
 		this.node = jobletNodes.jobletRequest();
 	}
+
 
 	public JobletRequest getReservedRequest(JobletType<?> jobletType, String reservedBy){
 		JobletRequestKey prefix = JobletRequestKey.create(jobletType, null, null, null);

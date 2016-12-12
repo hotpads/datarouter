@@ -1,6 +1,8 @@
 package com.hotpads.datarouter.setting.constant;
 
-public class ConstantIntegerSetting extends ConstantSetting<Integer>{
+import com.hotpads.datarouter.setting.type.IntegerSetting;
+
+public class ConstantIntegerSetting extends ConstantSetting<Integer> implements IntegerSetting{
 
 	private final int value;
 

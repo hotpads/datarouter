@@ -2,7 +2,9 @@ package com.hotpads.datarouter.setting;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class MutableBooleanSetting implements Setting<Boolean>{
+import com.hotpads.datarouter.setting.type.BooleanSetting;
+
+public class MutableBooleanSetting implements BooleanSetting{
 
 	private final AtomicBoolean value;
 
