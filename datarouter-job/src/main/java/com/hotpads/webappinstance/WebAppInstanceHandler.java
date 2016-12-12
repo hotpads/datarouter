@@ -1,4 +1,4 @@
-package com.hotpads.handler.server;
+package com.hotpads.webappinstance;
 
 import java.util.Collection;
 import java.util.stream.Collectors;
