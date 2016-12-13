@@ -2,9 +2,9 @@ package com.hotpads.example.config.http;
 
 import javax.inject.Singleton;
 
-import com.hotpads.handler.GuiceDispatcherServlet;
 import com.hotpads.handler.dispatcher.DatarouterCoreDispatcher;
 import com.hotpads.handler.dispatcher.DatarouterWebDispatcher;
+import com.hotpads.handler.dispatcher.GuiceDispatcherServlet;
 import com.hotpads.job.dispatcher.DatarouterJobDispatcher;
 
 @Singleton

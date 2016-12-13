@@ -5,7 +5,7 @@ import org.testng.annotations.Test;
 
 import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.util.core.DrStringTool;
-import com.hotpads.handler.DatarouterCookieKeys;
+import com.hotpads.handler.user.DatarouterCookieKeys;
 
 public abstract class BaseDatarouterAuthenticationConfig
 implements DatarouterAuthenticationConfig{

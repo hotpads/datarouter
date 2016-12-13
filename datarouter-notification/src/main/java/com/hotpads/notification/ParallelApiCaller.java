@@ -26,10 +26,10 @@ import org.slf4j.LoggerFactory;
 import com.hotpads.datarouter.inject.guice.executor.DatarouterExecutorGuiceModule;
 import com.hotpads.datarouter.util.DatarouterEmailTool;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
-import com.hotpads.datarouter.util.core.DrExceptionTool;
 import com.hotpads.handler.exception.ExceptionHandlingConfig;
 import com.hotpads.handler.exception.ExceptionRecord;
 import com.hotpads.notification.databean.NotificationRequest;
+import com.hotpads.util.DrExceptionTool;
 import com.hotpads.util.core.collections.Pair;
 import com.hotpads.util.http.security.UrlScheme;
 

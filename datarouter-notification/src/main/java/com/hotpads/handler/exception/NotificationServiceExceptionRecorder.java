@@ -7,11 +7,11 @@ import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.exception.ExceptionCategory;
 import com.hotpads.datarouter.exception.UnknownExceptionCategory;
-import com.hotpads.datarouter.util.core.DrExceptionTool;
 import com.hotpads.notification.ParallelApiCaller;
 import com.hotpads.notification.databean.NotificationRequest;
 import com.hotpads.notification.databean.NotificationUserId;
 import com.hotpads.notification.databean.NotificationUserType;
+import com.hotpads.util.DrExceptionTool;
 import com.hotpads.util.http.security.UrlScheme;
 
 public class NotificationServiceExceptionRecorder implements ExceptionRecorder{

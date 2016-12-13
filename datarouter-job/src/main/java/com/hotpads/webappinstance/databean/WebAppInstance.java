@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.hotpads.datarouter.config.DatarouterProperties;
+import com.hotpads.datarouter.monitoring.GitProperties;
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
@@ -17,7 +18,6 @@ import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.StringFieldKey;
 import com.hotpads.datarouter.util.core.DrDateTool;
 import com.hotpads.datarouter.util.core.DrIterableTool;
-import com.hotpads.handler.GitProperties;
 
 public class WebAppInstance extends BaseDatabean<WebAppInstanceKey,WebAppInstance> {
 

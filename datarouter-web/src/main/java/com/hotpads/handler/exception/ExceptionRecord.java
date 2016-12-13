@@ -14,7 +14,7 @@ import com.hotpads.datarouter.storage.field.imp.DateField;
 import com.hotpads.datarouter.storage.field.imp.DateFieldKey;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.StringFieldKey;
-import com.hotpads.datarouter.util.core.DrExceptionTool;
+import com.hotpads.util.DrExceptionTool;
 import com.hotpads.util.core.lang.ClassTool;
 /**
  * The record of an Exception

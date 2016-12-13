@@ -8,8 +8,8 @@ import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 
 import com.hotpads.datarouter.config.ServletContextProvider;
+import com.hotpads.datarouter.monitoring.MemoryMonitoringHandler.MemoryUsageForDisplay;
 import com.hotpads.handler.BaseHandler;
-import com.hotpads.handler.MemoryMonitoringHandler.MemoryUsageForDisplay;
 import com.hotpads.handler.encoder.JsonEncoder;
 import com.hotpads.util.core.Duration;
 

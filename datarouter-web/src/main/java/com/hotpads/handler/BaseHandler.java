@@ -29,7 +29,9 @@ import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.handler.encoder.HandlerEncoder;
 import com.hotpads.handler.encoder.MavEncoder;
 import com.hotpads.handler.exception.ExceptionRecorder;
+import com.hotpads.handler.exception.HandledException;
 import com.hotpads.handler.mav.imp.MessageMav;
+import com.hotpads.handler.params.Params;
 import com.hotpads.handler.types.DefaultDecoder;
 import com.hotpads.handler.types.HandlerDecoder;
 import com.hotpads.handler.types.HandlerTypingHelper;
@@ -92,7 +94,7 @@ public abstract class BaseHandler{
 		boolean defaultHandler() default false;
 	}
 
-	protected void handleWrapper(){//dispatcher servlet calls this
+	public void handleWrapper(){//dispatcher servlet calls this
 		try{
 			permitted();
 			String methodName = handlerMethodName();

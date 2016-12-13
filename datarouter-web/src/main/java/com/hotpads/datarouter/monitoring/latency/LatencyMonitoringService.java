@@ -24,7 +24,7 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hotpads.WebAppName;
+import com.hotpads.datarouter.app.WebAppName;
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.DatarouterClients;
 import com.hotpads.datarouter.client.LazyClientProvider;

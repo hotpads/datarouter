@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
-import com.hotpads.WebAppName;
+import com.hotpads.datarouter.app.WebAppName;
 import com.hotpads.datarouter.setting.ServerType;
 import com.hotpads.datarouter.setting.Setting;
 import com.hotpads.datarouter.setting.SettingNode;
