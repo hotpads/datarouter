@@ -34,7 +34,7 @@ public class JobletRequestKey extends BasePrimaryKey<JobletRequestKey>{
 	}
 
 	@Override
-	public List<Field<?>> getFields() {
+	public List<Field<?>> getFields(){
 		return Arrays.asList(
 				new IntegerField(FieldKeys.typeCode, typeCode),
 				new IntegerField(FieldKeys.executionOrder, executionOrder),
@@ -86,35 +86,35 @@ public class JobletRequestKey extends BasePrimaryKey<JobletRequestKey>{
 
 	/*----------------------- get/set -----------------------*/
 
-	public Long getCreated() {
+	public Long getCreated(){
 		return created;
 	}
 
-	public void setCreated(Long created) {
+	public void setCreated(Long created){
 		this.created = created;
 	}
 
-	public Integer getExecutionOrder() {
+	public Integer getExecutionOrder(){
 		return executionOrder;
 	}
 
-	public void setExecutionOrder(Integer executionOrder) {
+	public void setExecutionOrder(Integer executionOrder){
 		this.executionOrder = executionOrder;
 	}
 
-	public Integer getBatchSequence() {
+	public Integer getBatchSequence(){
 		return batchSequence;
 	}
 
-	public void setBatchSequence(Integer batchSequence) {
+	public void setBatchSequence(Integer batchSequence){
 		this.batchSequence = batchSequence;
 	}
 
-	public Integer getTypeCode() {
+	public Integer getTypeCode(){
 		return typeCode;
 	}
 
-	public void setTypeCode(Integer typeCode) {
+	public void setTypeCode(Integer typeCode){
 		this.typeCode = typeCode;
 	}
 

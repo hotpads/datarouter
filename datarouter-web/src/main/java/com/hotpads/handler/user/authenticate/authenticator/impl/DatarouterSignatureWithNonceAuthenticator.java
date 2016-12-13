@@ -32,9 +32,9 @@ public class DatarouterSignatureWithNonceAuthenticator extends DatarouterSignatu
 	}
 
 	@Override
-	protected DatarouterSession getSession(HttpServletRequest request) {
+	protected DatarouterSession getSession(HttpServletRequest request){
 		String timestamp = request.getParameter(authenticationConfig.getTimestampParam());
-		if(!isTimestampValid(timestamp)) {
+		if(!isTimestampValid(timestamp)){
 			throw new InvalidApiCallException("invalid timestamp specified");
 		}
 
@@ -63,13 +63,13 @@ public class DatarouterSignatureWithNonceAuthenticator extends DatarouterSignatu
 
 	private ApiRequest lookupNonceProtectedRequestAndValidate(String apiKey, String nonce, String signature,
 			String timestamp){
-		if (DrStringTool.isNullOrEmpty(apiKey)) {
+		if(DrStringTool.isNullOrEmpty(apiKey)){
 			throw new InvalidApiCallException("no api key specified");
 		}
-		if (DrStringTool.isNullOrEmpty(nonce)) {
+		if(DrStringTool.isNullOrEmpty(nonce)){
 			throw new InvalidApiCallException("no nonce specified");
 		}
-		if (DrStringTool.isNullOrEmpty(signature)) {
+		if(DrStringTool.isNullOrEmpty(signature)){
 			throw new InvalidApiCallException("no signature specified");
 		}
 
@@ -77,19 +77,19 @@ public class DatarouterSignatureWithNonceAuthenticator extends DatarouterSignatu
 				new ApiRequestKey(apiKey, nonce, signature, timestamp),
 				null);
 
-		if(testRequest != null) {
+		if(testRequest != null){
 			throw new InvalidApiCallException("exact request has already be made");
 		}
 
 		return new ApiRequest(apiKey, nonce, signature, timestamp);
 	}
 
-	private static boolean isTimestampValid(String timestampParameter) {
+	private static boolean isTimestampValid(String timestampParameter){
 		Date timestampDate;
-		try {
+		try{
 			long timestampInMillisecond = Long.valueOf(timestampParameter) * 1000;
 			timestampDate = new Date(timestampInMillisecond);
-		} catch(Exception e) {
+		}catch(Exception e){
 			throw new InvalidApiCallException("invalid timestamp specified");
 		}
 		long timeDifferenceInSeconds = Math.round(DrDateTool.getSecondsBetween(new Date(), timestampDate));
@@ -99,7 +99,7 @@ public class DatarouterSignatureWithNonceAuthenticator extends DatarouterSignatu
 
 	/************************** tests ******************************/
 
-	public static class Tests {
+	public static class Tests{
 
 		private static final int NUM_VALID_TIME_DIFF_IN_MILLISECONDS = 100000;
 		private static final int NUM_INVALID_TIME_DIFF_IN_MILLISECONDS = Integer.MAX_VALUE;
@@ -107,37 +107,37 @@ public class DatarouterSignatureWithNonceAuthenticator extends DatarouterSignatu
 		private static String invalidStringTimestamp = "NOT_AN_ACTUAL_NUMBER";
 		private static String emptyStringTimestamp = "";
 
-		private String getStringTimestamp(int timeDiffenceInMilliseconds) {
+		private String getStringTimestamp(int timeDiffenceInMilliseconds){
 			long timeInSeconds = (new Date().getTime() + timeDiffenceInMilliseconds) / 1000;
 
 			return String.valueOf(timeInSeconds);
 		}
 
 		@Test
-		public void testIsTimestampValid() {
+		public void testIsTimestampValid(){
 			Assert.assertTrue(isTimestampValid(getStringTimestamp(NUM_VALID_TIME_DIFF_IN_MILLISECONDS)));
 			Assert.assertTrue(isTimestampValid(getStringTimestamp(-NUM_VALID_TIME_DIFF_IN_MILLISECONDS)));
 			Assert.assertFalse(isTimestampValid(getStringTimestamp(NUM_INVALID_TIME_DIFF_IN_MILLISECONDS)));
 			Assert.assertFalse(isTimestampValid(getStringTimestamp(-NUM_INVALID_TIME_DIFF_IN_MILLISECONDS)));
 		}
 
-		@Test(expected=InvalidApiCallException.class)
-		public void testIsTimestampValidWithInvalidString() {
+		@Test(expected = InvalidApiCallException.class)
+		public void testIsTimestampValidWithInvalidString(){
 			isTimestampValid(invalidStringTimestamp);
 		}
 
-		@Test(expected=InvalidApiCallException.class)
-		public void testIsTimestampValidExceptionWithLargeNumber() {
+		@Test(expected = InvalidApiCallException.class)
+		public void testIsTimestampValidExceptionWithLargeNumber(){
 			isTimestampValid(invalidTimestamp);
 		}
 
-		@Test(expected=InvalidApiCallException.class)
-		public void testIsTimestampValidExceptionWithEmptyString() {
+		@Test(expected = InvalidApiCallException.class)
+		public void testIsTimestampValidExceptionWithEmptyString(){
 			isTimestampValid(emptyStringTimestamp);
 		}
 
-		@Test(expected=InvalidApiCallException.class)
-		public void testIsTimestampValidExceptionWithNull() {
+		@Test(expected = InvalidApiCallException.class)
+		public void testIsTimestampValidExceptionWithNull(){
 			isTimestampValid(null);
 		}
 

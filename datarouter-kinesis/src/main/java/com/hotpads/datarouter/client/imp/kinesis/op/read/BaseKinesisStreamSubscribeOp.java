@@ -68,7 +68,7 @@ extends KinesisOp<PK,D,F,BlockingQueue<StreamRecord<PK,D>>>{
 		this.initialPositionInStream = initialPositionInStream;
 		this.timestamp = timestamp;
 		this.kclApplicationName = explicitKclApplicationName != null ? explicitKclApplicationName
-				:(kclNamespace + "-" + subscriberName + "-" + streamName);
+				: (kclNamespace + "-" + subscriberName + "-" + streamName);
 		this.streamSubscriberAccessorSetter = subscriberAccessorSetter;
 		this.blockingQueueSize = blockingQueueSize;
 		this.maxRecordsPerRequest = maxRecordsPerRequest;

@@ -28,7 +28,7 @@ public enum JobExecutionStatus implements StringEnum<JobExecutionStatus>{
 	}
 
 	@Override
-	public JobExecutionStatus fromPersistentString(String str) {
+	public JobExecutionStatus fromPersistentString(String str){
 		return fromPersistentStringStatic(str);
 	}
 

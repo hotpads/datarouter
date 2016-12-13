@@ -5,7 +5,7 @@ public abstract class BaseHoldingScanner<T> extends BaseScanner<T>{
 	protected T current;
 
 	@Override
-	public T getCurrent() {
+	public T getCurrent(){
 		return current;
 	}
 }

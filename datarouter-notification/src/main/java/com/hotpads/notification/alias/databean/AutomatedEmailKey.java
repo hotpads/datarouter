@@ -8,7 +8,7 @@ import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.comparable.LongField;
 import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
 
-public class AutomatedEmailKey extends BasePrimaryKey<AutomatedEmailKey> {
+public class AutomatedEmailKey extends BasePrimaryKey<AutomatedEmailKey>{
 
 	/** fields ****************************************************************/
 
@@ -17,7 +17,7 @@ public class AutomatedEmailKey extends BasePrimaryKey<AutomatedEmailKey> {
 
 	/** columns ***************************************************************/
 
-	public static class F {
+	public static class F{
 		public static final String
 			reverseCreatedMs = "reverseCreatedMs",
 			nanoTime = "nanoTime";
@@ -37,8 +37,8 @@ public class AutomatedEmailKey extends BasePrimaryKey<AutomatedEmailKey> {
 		this.nanoTime = System.nanoTime();
 	}
 
-	public static Long getReverseDate(Date date) {
-		if (date == null) {
+	public static Long getReverseDate(Date date){
+		if(date == null){
 			return null;
 		}
 		return Long.MAX_VALUE - date.getTime();

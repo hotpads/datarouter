@@ -23,7 +23,7 @@ implements Filter<D>{
 
 
 	@Override
-	public boolean include(D d){
-		return partition == partitionedNode.getPhysicalNode(d.getKey());
+	public boolean include(D databean){
+		return partition == partitionedNode.getPhysicalNode(databean.getKey());
 	}
 }

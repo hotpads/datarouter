@@ -23,7 +23,7 @@ public class PutOpTestBean extends BaseDatabean<PutOpTestBeanKey, PutOpTestBean>
 		this.c = c;
 	}
 
-	public static class PutOpTestBeanFielder extends BaseDatabeanFielder<PutOpTestBeanKey, PutOpTestBean> {
+	public static class PutOpTestBeanFielder extends BaseDatabeanFielder<PutOpTestBeanKey,PutOpTestBean>{
 
 		@Override
 		public Class<? extends Fielder<PutOpTestBeanKey>> getKeyFielderClass(){

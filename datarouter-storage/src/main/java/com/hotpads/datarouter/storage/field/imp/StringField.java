@@ -64,7 +64,7 @@ public class StringField extends BaseField<String>{
 
 	@Override
 	public int compareTo(Field<String> other){
-		if(other==null){
+		if(other == null){
 			return -1;
 		}
 		return DrComparableTool.nullFirstCompareTo(this.getValue(), other.getValue());
@@ -105,16 +105,16 @@ public class StringField extends BaseField<String>{
 		if(DrArrayTool.isEmpty(dataBytes)){
 			return new byte[]{SEPARATOR};
 		}
-		byte[] allBytes = new byte[dataBytes.length+1];
+		byte[] allBytes = new byte[dataBytes.length + 1];
 		System.arraycopy(dataBytes, 0, allBytes, 0, dataBytes.length);
-		allBytes[allBytes.length-1] = SEPARATOR;//Ascii "null" will compare first in lexicographical bytes comparison
+		allBytes[allBytes.length - 1] = SEPARATOR;// Ascii "null" will compare first in lexicographical bytes comparison
 		return allBytes;
 	}
 
 	@Override
 	public int numBytesWithSeparator(byte[] bytes, int offset){
-		for(int i=offset; i < bytes.length; ++i){
-			if(bytes[i]==SEPARATOR){
+		for(int i = offset; i < bytes.length; ++i){
+			if(bytes[i] == SEPARATOR){
 				return i - offset + 1;//plus 1 for the separator
 			}
 		}
@@ -133,14 +133,14 @@ public class StringField extends BaseField<String>{
 	public String fromBytesWithSeparatorButDoNotSet(byte[] bytes, int offset){
 		int lengthIncludingSeparator = numBytesWithSeparator(bytes, offset);
 		if(lengthIncludingSeparator <= 0){
-			throw new RuntimeException("lengthIncludingSeparator="+lengthIncludingSeparator+", but should be >= 1");
+			throw new RuntimeException("lengthIncludingSeparator=" + lengthIncludingSeparator + ", but should be >= 1");
 		}
 		boolean lastByteIsSeparator = bytes[offset + lengthIncludingSeparator - 1] == SEPARATOR;
 		int lengthWithoutSeparator = lengthIncludingSeparator;
 		if(lastByteIsSeparator){
 			--lengthWithoutSeparator;
 		}
-		if (lengthWithoutSeparator == -1) {
+		if(lengthWithoutSeparator == -1){
 			lengthWithoutSeparator = 0;
 		}
 		return new String(bytes, offset, lengthWithoutSeparator, StringByteTool.CHARSET_UTF8);
