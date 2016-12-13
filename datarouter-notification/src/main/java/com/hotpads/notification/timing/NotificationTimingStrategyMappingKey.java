@@ -11,21 +11,21 @@ import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
 public class NotificationTimingStrategyMappingKey extends BasePrimaryKey<NotificationTimingStrategyMappingKey> {
   private String type;
 
-  private String channel;
+  private String channelPrefix;
 
   public NotificationTimingStrategyMappingKey() {
   }
 
-  public NotificationTimingStrategyMappingKey(String type, String channel) {
+  public NotificationTimingStrategyMappingKey(String type, String channelPrefix) {
     this.type = type;
-    this.channel = channel;
+    this.channelPrefix = channelPrefix;
   }
 
   @Override
   public List<Field<?>> getFields() {
     return Arrays.asList(
         new StringField(FieldKeys.type, type),
-        new StringField(FieldKeys.channel, channel));
+        new StringField(FieldKeys.channelPrefix, channelPrefix));
   }
 
   public String getType() {
@@ -36,17 +36,16 @@ public class NotificationTimingStrategyMappingKey extends BasePrimaryKey<Notific
     this.type = type;
   }
 
-  public String getChannel() {
-    return channel;
+  public String getChannelPrefix() {
+    return channelPrefix;
   }
 
-  public void setChannel(String channel) {
-    this.channel = channel;
+  public void setChannelPrefix(String channelPrefix) {
+    this.channelPrefix = channelPrefix;
   }
 
   public static class FieldKeys {
     public static final StringFieldKey type = new StringFieldKey("type");
-
-    public static final StringFieldKey channel = new StringFieldKey("channel");
+    public static final StringFieldKey channelPrefix = new StringFieldKey("channelPrefix");
   }
 }

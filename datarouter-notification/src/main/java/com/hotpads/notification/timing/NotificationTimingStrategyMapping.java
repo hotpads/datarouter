@@ -18,8 +18,8 @@ public class NotificationTimingStrategyMapping extends BaseDatabean<Notification
     this.key = new NotificationTimingStrategyMappingKey();
   }
 
-  public NotificationTimingStrategyMapping(String type, String channel, String timingStrategy) {
-    this.key = new NotificationTimingStrategyMappingKey(type, channel);
+  public NotificationTimingStrategyMapping(String type, String channelPrefix, String timingStrategy) {
+    this.key = new NotificationTimingStrategyMappingKey(type, channelPrefix);
     this.timingStrategy = timingStrategy;
   }
 

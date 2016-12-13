@@ -19,7 +19,7 @@ public class NotificationTimingStrategyHandler extends BaseHandler{
 			P_TIMINGS = "timings",
 			//NotificationTimingStrategyMapping
 			P_TYPE = "type",
-			P_CHANNEL = "channel",
+			P_CHANNEL_PREFIX = "channelPrefix",
 			P_TIMING_STRATEGY = "timingStrategy",
 			//NotificationTimingStrategy
 			P_NAME = "name",
@@ -56,7 +56,7 @@ public class NotificationTimingStrategyHandler extends BaseHandler{
 	//TODO check that value (timing) exists? if not fail?
 	protected void addOrUpdateMapping(){
 		NotificationTimingStrategyMapping mapping = new NotificationTimingStrategyMapping(params.required(P_TYPE),
-				params.required(P_CHANNEL),
+				params.required(P_CHANNEL_PREFIX),
 				params.required(P_TIMING_STRATEGY));
 		//TODO check if timing exists
 		notificationNodes.getNotificationTimingStrategyMapping().put(mapping, null);
@@ -65,7 +65,7 @@ public class NotificationTimingStrategyHandler extends BaseHandler{
 	@Handler()
 	protected void deleteMapping(){
 		NotificationTimingStrategyMappingKey mapping = new NotificationTimingStrategyMappingKey(params.required(P_TYPE),
-				params.required(P_CHANNEL));
+				params.required(P_CHANNEL_PREFIX));
 		notificationNodes.getNotificationTimingStrategyMapping().delete(mapping, null);
 	}
 
