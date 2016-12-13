@@ -7,6 +7,7 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.StringFieldKey;
 import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
+import com.hotpads.notification.databean.NotificationRequest;
 
 public class NotificationTimingStrategyMappingKey extends BasePrimaryKey<NotificationTimingStrategyMappingKey> {
   private String type;
@@ -20,6 +21,11 @@ public class NotificationTimingStrategyMappingKey extends BasePrimaryKey<Notific
     this.type = type;
     this.channelPrefix = channelPrefix;
   }
+
+  public NotificationTimingStrategyMappingKey(NotificationRequest request) {
+	    this.type = request.getShortType();
+	    this.channelPrefix = request.getChannel();
+	  }
 
   @Override
   public List<Field<?>> getFields() {
