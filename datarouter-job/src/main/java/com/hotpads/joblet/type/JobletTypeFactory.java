@@ -1,4 +1,4 @@
-package com.hotpads.joblet.enums;
+package com.hotpads.joblet.type;
 
 import java.util.ArrayList;
 import java.util.Collection;

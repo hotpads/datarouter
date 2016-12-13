@@ -6,9 +6,9 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import com.hotpads.joblet.JobletCounters;
-import com.hotpads.joblet.enums.JobletType;
 import com.hotpads.joblet.queue.JobletRequestQueueManager;
 import com.hotpads.joblet.setting.JobletSettings;
+import com.hotpads.joblet.type.JobletType;
 
 @Singleton
 public class JobletProcessorFactory{

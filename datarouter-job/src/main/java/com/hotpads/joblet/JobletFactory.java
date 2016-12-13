@@ -5,8 +5,8 @@ import javax.inject.Singleton;
 
 import com.hotpads.datarouter.inject.DatarouterInjector;
 import com.hotpads.joblet.databean.JobletRequest;
-import com.hotpads.joblet.enums.JobletType;
-import com.hotpads.joblet.enums.JobletTypeFactory;
+import com.hotpads.joblet.type.JobletType;
+import com.hotpads.joblet.type.JobletTypeFactory;
 
 @Singleton
 public class JobletFactory{

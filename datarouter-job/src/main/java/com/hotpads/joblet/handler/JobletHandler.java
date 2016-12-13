@@ -33,14 +33,14 @@ import com.hotpads.joblet.dto.JobletSummary;
 import com.hotpads.joblet.dto.JobletTypeSummary;
 import com.hotpads.joblet.enums.JobletPriority;
 import com.hotpads.joblet.enums.JobletStatus;
-import com.hotpads.joblet.enums.JobletType;
-import com.hotpads.joblet.enums.JobletTypeFactory;
 import com.hotpads.joblet.execute.JobletProcessors;
 import com.hotpads.joblet.queue.JobletRequestQueueKey;
 import com.hotpads.joblet.queue.JobletRequestQueueManager;
 import com.hotpads.joblet.setting.JobletSettings;
 import com.hotpads.joblet.test.SleepingJoblet;
 import com.hotpads.joblet.test.SleepingJoblet.SleepingJobletParams;
+import com.hotpads.joblet.type.JobletType;
+import com.hotpads.joblet.type.JobletTypeFactory;
 import com.hotpads.util.core.iterable.BatchingIterable;
 
 public class JobletHandler extends BaseHandler{
