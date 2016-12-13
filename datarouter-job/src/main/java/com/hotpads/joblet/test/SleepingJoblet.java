@@ -3,8 +3,8 @@ package com.hotpads.joblet.test;
 import com.hotpads.joblet.BaseJoblet;
 import com.hotpads.joblet.codec.BaseGsonJobletCodec;
 import com.hotpads.joblet.databean.JobletRequest;
-import com.hotpads.joblet.enums.JobletType;
 import com.hotpads.joblet.test.SleepingJoblet.SleepingJobletParams;
+import com.hotpads.joblet.type.JobletType;
 import com.hotpads.util.core.concurrent.ThreadTool;
 
 public class SleepingJoblet extends BaseJoblet<SleepingJobletParams>{

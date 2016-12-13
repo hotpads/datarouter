@@ -2,8 +2,8 @@ package com.hotpads.joblet.dto;
 
 import java.util.Collection;
 
-import com.hotpads.joblet.enums.JobletType;
 import com.hotpads.joblet.execute.JobletProcessor;
+import com.hotpads.joblet.type.JobletType;
 
 public class JobletTypeSummary{
 	private final JobletType<?> jobletTypeEnum;

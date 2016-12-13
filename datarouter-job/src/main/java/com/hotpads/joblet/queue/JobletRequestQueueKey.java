@@ -4,7 +4,7 @@ import java.util.Objects;
 
 import com.hotpads.datarouter.util.core.DrComparableTool;
 import com.hotpads.joblet.enums.JobletPriority;
-import com.hotpads.joblet.enums.JobletType;
+import com.hotpads.joblet.type.JobletType;
 import com.hotpads.util.core.lang.ClassTool;
 
 public class JobletRequestQueueKey implements Comparable<JobletRequestQueueKey>{

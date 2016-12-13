@@ -16,10 +16,10 @@ import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.databean.JobletRequestKey;
 import com.hotpads.joblet.enums.JobletPriority;
 import com.hotpads.joblet.enums.JobletStatus;
-import com.hotpads.joblet.enums.JobletType;
 import com.hotpads.joblet.queue.JobletRequestQueueKey;
 import com.hotpads.joblet.queue.JobletRequestQueueManager;
 import com.hotpads.joblet.queue.JobletRequestSelector;
+import com.hotpads.joblet.type.JobletType;
 import com.hotpads.util.core.profile.PhaseTimer;
 
 public class SqsJobletRequestSelector implements JobletRequestSelector{

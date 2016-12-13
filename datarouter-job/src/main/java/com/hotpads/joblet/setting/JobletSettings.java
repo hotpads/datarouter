@@ -11,7 +11,7 @@ import com.hotpads.datarouter.setting.SettingFinder;
 import com.hotpads.datarouter.setting.SettingNode;
 import com.hotpads.datarouter.util.core.DrRuntimeTool;
 import com.hotpads.joblet.enums.JobletQueueMechanism;
-import com.hotpads.joblet.enums.JobletType;
+import com.hotpads.joblet.type.JobletType;
 
 public class JobletSettings
 extends SettingNode{

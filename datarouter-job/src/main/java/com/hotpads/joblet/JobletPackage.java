@@ -8,7 +8,7 @@ import java.util.Objects;
 import com.hotpads.joblet.databean.JobletData;
 import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.enums.JobletPriority;
-import com.hotpads.joblet.enums.JobletType;
+import com.hotpads.joblet.type.JobletType;
 import com.hotpads.util.core.number.RandomTool;
 import com.hotpads.util.core.stream.StreamTool;
 

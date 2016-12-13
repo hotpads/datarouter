@@ -29,8 +29,8 @@ import com.hotpads.datarouter.util.core.DrNumberTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.joblet.enums.JobletPriority;
 import com.hotpads.joblet.enums.JobletStatus;
-import com.hotpads.joblet.enums.JobletType;
-import com.hotpads.joblet.enums.JobletTypeFactory;
+import com.hotpads.joblet.type.JobletType;
+import com.hotpads.joblet.type.JobletTypeFactory;
 import com.hotpads.util.datastructs.MutableBoolean;
 
 public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{

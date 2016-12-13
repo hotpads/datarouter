@@ -9,10 +9,10 @@ import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodec
 import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.joblet.JobletNodes;
 import com.hotpads.joblet.databean.JobletRequest;
-import com.hotpads.joblet.enums.JobletType;
 import com.hotpads.joblet.jdbc.GetJobletRequest;
 import com.hotpads.joblet.jdbc.JobletRequestSqlBuilder;
 import com.hotpads.joblet.queue.JobletRequestSelector;
+import com.hotpads.joblet.type.JobletType;
 import com.hotpads.util.core.profile.PhaseTimer;
 
 @Singleton
