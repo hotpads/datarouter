@@ -63,7 +63,7 @@ extends BasePhysicalEntityNode<EK,E>{
 
 	@Override
 	public E getEntity(final EK ek, final Config paramConfig){
-		if(ek == null) {
+		if(ek == null){
 			return null;
 		}
 		final Config config = Config.nullSafe(paramConfig);

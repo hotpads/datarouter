@@ -72,7 +72,9 @@ extends BaseHandler{
 		Mav mav = new Mav("/jsp/admin/viewNodeData.jsp");
 		String nodeName = RequestTool.get(request, PARAM_nodeName);
 		node = nodes.getNode(nodeName);
-		if(node == null){ return new MessageMav("Cannot find node " + nodeName); }
+		if(node == null){
+			return new MessageMav("Cannot find node " + nodeName);
+		}
 		mav.put("node", node);
 
 		limit = RequestTool.getIntegerAndPut(request, PARAM_limit, 100, mav);
@@ -87,7 +89,9 @@ extends BaseHandler{
 	@Handler
 	public Mav countKeys(){
 		Mav mav = preHandle();
-		if(!(node instanceof SortedStorageWriter<?,?>)){ return new MessageMav("Cannot browse unsorted node"); }
+		if(!(node instanceof SortedStorageWriter<?,?>)){
+			return new MessageMav("Cannot browse unsorted node");
+		}
 		SortedStorageReader<PK,D> sortedNode = (SortedStorageReader<PK,D>)node;
 		int iterateBatchSize = params.optionalInteger("iterateBatchSize", 100);
 		Iterable<PK> iterable = sortedNode.scanKeys(null, new Config().setIterateBatchSize(
@@ -99,7 +103,7 @@ extends BaseHandler{
 		long batchStartMs = System.currentTimeMillis() - 1;
 		for(PK pk : iterable){
 			if(DrComparableTool.lt(pk, last)){
-				logger.warn(pk+" was < "+last);//shouldn't happen, but seems to once in 10mm times
+				logger.warn(pk + " was < " + last);// shouldn't happen, but seems to once in 10mm times
 			}
 			++count;
 			if(count > 0 && count % printBatchSize == 0){
@@ -110,7 +114,9 @@ extends BaseHandler{
 			}
 			last = pk;
 		}
-		if(count < 1){ return new MessageMav("no rows found"); }
+		if(count < 1){
+			return new MessageMav("no rows found");
+		}
 		long ms = System.currentTimeMillis() - startMs;
 		double avgRps = count * 1000 / ms;
 		String message = "finished at " + DrNumberFormatter.addCommas(count) + " " + last.toString() + " @" + avgRps
@@ -127,8 +133,9 @@ extends BaseHandler{
 //		String where = params.optional(PARAM_where, null);
 //		List<String> clientNames = node.getClientNames();
 //		Long count = node.getRouter().run(new CountWhereTxn(datarouter, clientNames, tableName, where));
-//		Mav mav = new MessageMav("found "+DrNumberFormatter.addCommas(count)+" rows in "+tableName+" ("+node.getName()+")");
-//		return mav;
+	// Mav mav = new MessageMav("found "+DrNumberFormatter.addCommas(count)+" rows in "+tableName+"
+	// ("+node.getName()+")");
+	//		return mav;
 //	}
 
 	@Handler
@@ -225,7 +232,9 @@ extends BaseHandler{
 
 	private Map<String,String> getFieldAbbreviationByFieldName(DatabeanFielder fielder,
 			Collection<? extends Databean<?,?>> databeans){
-		if(DrCollectionTool.isEmpty(databeans)){ return new HashMap<>(); }
+		if(DrCollectionTool.isEmpty(databeans)){
+			return new HashMap<>();
+		}
 		Databean<?,?> first = DrIterableTool.first(databeans);
 		List<String> fieldNames = FieldTool.getFieldNames(fielder.getFields(first));
 		List<Integer> maxLengths = DrListTool.createArrayListAndInitialize(fieldNames.size());
