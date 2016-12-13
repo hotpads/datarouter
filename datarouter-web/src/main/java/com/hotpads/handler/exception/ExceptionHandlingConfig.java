@@ -2,7 +2,7 @@ package com.hotpads.handler.exception;
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.hotpads.exception.analysis.ExceptionDto;
+import com.hotpads.datarouter.monitoring.exception.ExceptionDto;
 
 public interface ExceptionHandlingConfig{
 

@@ -1,10 +1,10 @@
 package com.hotpads.handler.exception;
 
 import com.hotpads.datarouter.client.imp.noop.NoOpNode;
+import com.hotpads.datarouter.monitoring.exception.HttpRequestRecord;
+import com.hotpads.datarouter.monitoring.exception.HttpRequestRecordKey;
 import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage;
-import com.hotpads.exception.analysis.HttpRequestRecord;
-import com.hotpads.exception.analysis.HttpRequestRecordKey;
 
 public class NoOpExceptionNodes implements ExceptionNodes{
 

@@ -2,7 +2,7 @@ package com.hotpads.job.dispatcher;
 
 import com.hotpads.clustersetting.ClusterSettingsHandler;
 import com.hotpads.datarouter.inject.DatarouterInjector;
-import com.hotpads.handler.BaseDispatcher;
+import com.hotpads.handler.dispatcher.BaseDispatcher;
 import com.hotpads.handler.dispatcher.DatarouterWebDispatcher;
 import com.hotpads.job.record.LongRunningTasksHandler;
 import com.hotpads.job.web.TriggerHandler;

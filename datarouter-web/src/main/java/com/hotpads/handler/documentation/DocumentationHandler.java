@@ -6,9 +6,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.hotpads.handler.BaseDispatcher;
 import com.hotpads.handler.BaseHandler;
-import com.hotpads.handler.DispatchRule;
+import com.hotpads.handler.dispatcher.BaseDispatcher;
+import com.hotpads.handler.dispatcher.DispatchRule;
 import com.hotpads.handler.types.optional.OptionalParameter;
 
 public class DocumentationHandler extends BaseHandler{

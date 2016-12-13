@@ -8,11 +8,11 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import com.hotpads.datarouter.browse.RoutersHandler;
+import com.hotpads.datarouter.browse.dto.RouterParams;
 import com.hotpads.datarouter.client.imp.memcached.client.MemcachedClientImp;
 import com.hotpads.datarouter.routing.Datarouter;
-import com.hotpads.datarouter.routing.RouterParams;
 import com.hotpads.handler.BaseHandler;
-import com.hotpads.handler.admin.RoutersHandler;
 import com.hotpads.handler.mav.Mav;
 
 public class MemcachedHandler extends BaseHandler {

@@ -8,7 +8,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.hotpads.handler.HandledException;
+import com.hotpads.handler.exception.HandledException;
 import com.hotpads.util.http.ResponseTool;
 
 public class InputStreamHandlerEncoder implements HandlerEncoder{
