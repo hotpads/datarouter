@@ -28,32 +28,34 @@ public class HBaseManyFieldIntegrationTests extends BaseManyFieldIntegrationTest
 
 	@Test
 	public void testIncrement(){
-		if(!isHBase()){ return; }
+		if(!isHBase()){
+			return;
+		}
 		@SuppressWarnings("unchecked")
-		HBaseNode<ManyFieldBeanKey, ManyFieldBean, ?> hBaseNode = (HBaseNode<ManyFieldBeanKey,ManyFieldBean,?>)mapNode
+		HBaseNode<ManyFieldBeanKey,ManyFieldBean,?> hbaseNode = (HBaseNode<ManyFieldBeanKey,ManyFieldBean,?>) mapNode
 				.getPhysicalNodeIfApplicable();
 		ManyFieldBean bean = new ManyFieldBean();
 
 		//increment by 3
 		Map<ManyFieldBeanKey,Map<String,Long>> increments = new HashMap<>();
-		DrMapTool.increment(increments, bean.getKey(), ManyFieldBean.F.incrementField, 3L);
-		hBaseNode.increment(increments, null);
+		DrMapTool.increment(increments, bean.getKey(), ManyFieldBean.F.incrementField, 30L);
+		hbaseNode.increment(increments, null);
 		ManyFieldBean result1 = mapNode.get(bean.getKey(), null);
-		AssertJUnit.assertEquals(new Long(3), result1.getIncrementField());
+		AssertJUnit.assertEquals(new Long(30), result1.getIncrementField());
 
 		//decrement by 11
 		increments.clear();
 		DrMapTool.increment(increments, bean.getKey(), ManyFieldBean.F.incrementField, -11L);
-		hBaseNode.increment(increments, null);
+		hbaseNode.increment(increments, null);
 		ManyFieldBean result2 = mapNode.get(bean.getKey(), null);
-		AssertJUnit.assertEquals(new Long(-8), result2.getIncrementField());
+		AssertJUnit.assertEquals(new Long(19), result2.getIncrementField());
 
-		//increment by 17 (expecting 3 - 11 + 17 => 9)
+		//increment by 17 (expecting 30 - 11 + 17 => 36)
 		increments.clear();
 		DrMapTool.increment(increments, bean.getKey(), ManyFieldBean.F.incrementField, 17L);
-		hBaseNode.increment(increments, null);
+		hbaseNode.increment(increments, null);
 		ManyFieldBean result3 = mapNode.get(bean.getKey(), null);
-		AssertJUnit.assertEquals(new Long(9), result3.getIncrementField());
+		AssertJUnit.assertEquals(new Long(36), result3.getIncrementField());
 
 		recordKey(bean.getKey());
 	}
