@@ -11,12 +11,14 @@ import com.hotpads.notification.timing.NotificationTimingStrategy;
 import com.hotpads.notification.timing.NotificationTimingStrategyKey;
 import com.hotpads.notification.timing.NotificationTimingStrategyMapping;
 import com.hotpads.notification.timing.NotificationTimingStrategyMappingKey;
+import com.hotpads.util.core.Duration;
 
 public class NotificationTimingStrategyHandler extends BaseHandler{
 
 	private static final String
 			P_MAPPINGS = "mappings",
 			P_TIMINGS = "timings",
+			P_DURATION_PATTERN = "pattern",
 			//NotificationTimingStrategyMapping
 			P_TYPE = "type",
 			P_CHANNEL_PREFIX = "channelPrefix",
@@ -44,10 +46,10 @@ public class NotificationTimingStrategyHandler extends BaseHandler{
 		List<NotificationTimingStrategyMapping> mappings = notificationNodes.getNotificationTimingStrategyMapping()
 				.stream(null, null).collect(Collectors.toList());
 		mav.put(P_MAPPINGS, mappings);
-
 		List<NotificationTimingStrategy> timings = notificationNodes.getNotificationTimingStrategy()
 				.stream(null, null).collect(Collectors.toList());
 		mav.put(P_TIMINGS, timings);
+		mav.put(P_DURATION_PATTERN, Duration.REGEX);
 
 		return mav;
 	}
