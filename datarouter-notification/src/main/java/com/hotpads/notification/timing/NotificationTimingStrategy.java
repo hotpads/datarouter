@@ -2,13 +2,15 @@ package com.hotpads.notification.timing;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.imp.comparable.LongField;
 import com.hotpads.datarouter.storage.field.imp.comparable.LongFieldKey;
-
+import com.hotpads.util.core.Duration;
+//TODO formatting is all wrong?
 public class NotificationTimingStrategy extends BaseDatabean<NotificationTimingStrategyKey, NotificationTimingStrategy> {
   private NotificationTimingStrategyKey key;
 
@@ -43,6 +45,26 @@ public class NotificationTimingStrategy extends BaseDatabean<NotificationTimingS
     this.maxDelayMs = maxDelayMs;
   }
 
+  public NotificationTimingStrategy(String name, String minSendableAge, Long maxItems, String droppableAge,
+		  String delayForChannel, String minDelay, String standardDelay, String maxDelay) {
+    this.key = new NotificationTimingStrategyKey(name);
+    this.minSendableAgeMs = fromDurationString(minSendableAge);
+    this.maxItems = maxItems;
+    this.droppableAgeMs = fromDurationString(droppableAge);
+    this.delayForChannelMs = fromDurationString(delayForChannel);
+    this.minDelayMs = fromDurationString(minDelay);
+    this.standardDelayMs = fromDurationString(standardDelay);
+    this.maxDelayMs = fromDurationString(maxDelay);
+  }
+
+  private static String toDurationString(long value){
+	  return new Duration(value, TimeUnit.MILLISECONDS).toString();
+  }
+
+  private static long fromDurationString(String duration){
+	  return new Duration(duration).to(TimeUnit.MILLISECONDS);
+  }
+
   @Override
   public Class<NotificationTimingStrategyKey> getKeyClass() {
     return NotificationTimingStrategyKey.class;
@@ -55,6 +77,10 @@ public class NotificationTimingStrategy extends BaseDatabean<NotificationTimingS
 
   public Long getMinSendableAgeMs() {
     return minSendableAgeMs;
+  }
+
+  public String getMinSendableAge(){
+	  return toDurationString(minSendableAgeMs);
   }
 
   public void setMinSendableAgeMs(Long minSendableAgeMs) {
@@ -73,12 +99,20 @@ public class NotificationTimingStrategy extends BaseDatabean<NotificationTimingS
     return droppableAgeMs;
   }
 
+  public String getDroppableAge(){
+	return toDurationString(droppableAgeMs);
+  }
+
   public void setDroppableAgeMs(Long droppableAgeMs) {
     this.droppableAgeMs = droppableAgeMs;
   }
 
   public Long getDelayForChannelMs() {
     return delayForChannelMs;
+  }
+
+  public String getDelayForChannel(){
+	return toDurationString(delayForChannelMs);
   }
 
   public void setDelayForChannelMs(Long delayForChannelMs) {
@@ -89,6 +123,10 @@ public class NotificationTimingStrategy extends BaseDatabean<NotificationTimingS
     return minDelayMs;
   }
 
+  public String getMinDelay(){
+	return toDurationString(minDelayMs);
+  }
+
   public void setMinDelayMs(Long minDelayMs) {
     this.minDelayMs = minDelayMs;
   }
@@ -97,12 +135,20 @@ public class NotificationTimingStrategy extends BaseDatabean<NotificationTimingS
     return standardDelayMs;
   }
 
+  public String getStandardDelay(){
+	return toDurationString(standardDelayMs);
+  }
+
   public void setStandardDelayMs(Long standardDelayMs) {
     this.standardDelayMs = standardDelayMs;
   }
 
   public Long getMaxDelayMs() {
     return maxDelayMs;
+  }
+
+  public String getMaxDelay(){
+	return toDurationString(maxDelayMs);
   }
 
   public void setMaxDelayMs(Long maxDelayMs) {

@@ -53,12 +53,10 @@ public class NotificationTimingStrategyHandler extends BaseHandler{
 	}
 
 	@Handler()
-	//TODO check that value (timing) exists? if not fail?
 	protected void addOrUpdateMapping(){
 		NotificationTimingStrategyMapping mapping = new NotificationTimingStrategyMapping(params.required(P_TYPE),
 				params.required(P_CHANNEL_PREFIX),
 				params.required(P_TIMING_STRATEGY));
-		//TODO check if timing exists
 		notificationNodes.getNotificationTimingStrategyMapping().put(mapping, null);
 	}
 
@@ -72,19 +70,18 @@ public class NotificationTimingStrategyHandler extends BaseHandler{
 	@Handler()
 	protected void addOrUpdateTiming(){
 		NotificationTimingStrategy timing = new NotificationTimingStrategy(params.required(P_NAME),
-				params.requiredLong(P_MIN_SENDABLE_AGE),
+				params.required(P_MIN_SENDABLE_AGE),
 				params.requiredLong(P_MAX_ITEMS),
-				params.requiredLong(P_DROPPABLE_AGE),
-				params.requiredLong(P_DELAY_FOR_CHANNEL),
-				params.requiredLong(P_MIN_DELAY),
-				params.requiredLong(P_STANDARD_DELAY),
-				params.requiredLong(P_MAX_DELAY));
+				params.required(P_DROPPABLE_AGE),
+				params.required(P_DELAY_FOR_CHANNEL),
+				params.required(P_MIN_DELAY),
+				params.required(P_STANDARD_DELAY),
+				params.required(P_MAX_DELAY));
 		notificationNodes.getNotificationTimingStrategy().put(timing, null);
 	}
 
 	@Handler()
 	protected void deleteTiming(){
-		//TODO FK considerations/check if this is mapped
 		NotificationTimingStrategyKey timing = new NotificationTimingStrategyKey(params.required(P_NAME));
 		notificationNodes.getNotificationTimingStrategy().delete(timing, null);
 	}
