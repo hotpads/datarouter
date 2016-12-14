@@ -25,7 +25,7 @@ com.hotpads.notification.databean.alias.Moderator{
 }
 
 */
-public class Moderator extends BaseDatabean<ModeratorKey,Moderator> {
+public class Moderator extends BaseDatabean<ModeratorKey,Moderator>{
 
 	/** fields ****************************************************************/
 
@@ -37,7 +37,7 @@ public class Moderator extends BaseDatabean<ModeratorKey,Moderator> {
 
 	/** columns ***************************************************************/
 
-	public static class F {
+	public static class F{
 		public static final String
 			membershipDate = "membershipDate",
 			membershipAuthor = "membershipAuthor";
@@ -51,15 +51,15 @@ public class Moderator extends BaseDatabean<ModeratorKey,Moderator> {
 		}
 
 		@Override
-		public Class<ModeratorKey> getKeyFielderClass() {
+		public Class<ModeratorKey> getKeyFielderClass(){
 			return ModeratorKey.class;
 		}
 
 		@Override
-		public List<Field<?>> getNonKeyFields(Moderator d){
+		public List<Field<?>> getNonKeyFields(Moderator databean){
 			return FieldTool.createList(
-				new DateField(F.membershipDate, d.membershipDate),
-				new StringField(F.membershipAuthor, d.membershipAuthor, MySqlColumnType.MAX_LENGTH_VARCHAR));
+				new DateField(F.membershipDate, databean.membershipDate),
+				new StringField(F.membershipAuthor, databean.membershipAuthor, MySqlColumnType.MAX_LENGTH_VARCHAR));
 		}
 
 	}
@@ -79,18 +79,18 @@ public class Moderator extends BaseDatabean<ModeratorKey,Moderator> {
 	/** databean **************************************************************/
 
 	@Override
-	public Class<ModeratorKey> getKeyClass() {
+	public Class<ModeratorKey> getKeyClass(){
 		return ModeratorKey.class;
 	}
 
 	@Override
-	public ModeratorKey getKey() {
+	public ModeratorKey getKey(){
 		return key;
 	}
 
 	/** get/set ***************************************************************/
 
-	public void setKey(ModeratorKey key) {
+	public void setKey(ModeratorKey key){
 		this.key = key;
 	}
 

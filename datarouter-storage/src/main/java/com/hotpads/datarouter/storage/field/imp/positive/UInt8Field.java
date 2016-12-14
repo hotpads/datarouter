@@ -37,7 +37,7 @@ public class UInt8Field extends BasePrimitiveField<Byte>{
 
 	@Override
 	public byte[] getBytes(){
-		return value==null?null:new byte[]{value};
+		return value == null ? null : new byte[]{value};
 	}
 
 	@Override

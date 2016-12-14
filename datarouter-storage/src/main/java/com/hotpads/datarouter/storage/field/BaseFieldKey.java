@@ -47,7 +47,7 @@ implements FieldKey<T>{
 	/******************************** methods *******************************/
 
 	@Override
-	public String toString() {
+	public String toString(){
 		return "[" + getClass().getSimpleName() + ":" + name + "]";
 	}
 
@@ -75,7 +75,7 @@ implements FieldKey<T>{
 	/********************************** get/set ******************************************/
 
 	@Override
-	public String getName() {
+	public String getName(){
 		return name;
 	}
 
@@ -85,7 +85,7 @@ implements FieldKey<T>{
 	}
 
 	@Override
-	public boolean isNullable() {
+	public boolean isNullable(){
 		return nullable;
 	}
 
