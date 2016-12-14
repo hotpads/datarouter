@@ -25,7 +25,7 @@ public class DocumentationHandler extends BaseHandler{
 		List<DocumentedEndpoint> endpoints = new ArrayList<>();
 		Class<? extends BaseHandler> handler = rule.getHandlerClass();
 		while(handler != null && !handler.getName().equals(BaseHandler.class.getName())){
-			for (Method method : handler.getDeclaredMethods()){
+			for(Method method : handler.getDeclaredMethods()){
 				if(!method.isAnnotationPresent(Handler.class)){
 					continue;
 				}

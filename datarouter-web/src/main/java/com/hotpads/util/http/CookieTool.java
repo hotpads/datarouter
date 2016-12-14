@@ -9,7 +9,7 @@ public class CookieTool{
 	public static void addCookie(HttpServletResponse response, String cookieName, String value, String path,
 			int maxAge){
 		Cookie cookie = new Cookie(cookieName, value);
-		if (path != null) {
+		if(path != null){
 			cookie.setPath(path);
 		}
 		cookie.setMaxAge(maxAge);
@@ -19,13 +19,13 @@ public class CookieTool{
 
 	public static String getCookieValue(HttpServletRequest request, String cookieName){
 		// Don't build a useless map every time we look for a cookie:
-		Cookie cookie = getCookie( request.getCookies(), cookieName );
+		Cookie cookie = getCookie(request.getCookies(), cookieName);
 		return cookie == null ? null : cookie.getValue();
 	}
 
-	public static String getCookieValue(Cookie[] cookies, String cookieName,String defaultValue) {
+	public static String getCookieValue(Cookie[] cookies, String cookieName, String defaultValue){
 		Cookie cookie = getCookie(cookies,cookieName);
-		if(cookie==null) {
+		if(cookie == null){
 			return defaultValue;
 		}
 		return cookie.getValue();
@@ -33,7 +33,7 @@ public class CookieTool{
 
 	public static Boolean getCookieBoolean(Cookie[] cookies, String cookieName){
 		String value = getCookieValue(cookies, cookieName, null);
-		if(value == null) {
+		if(value == null){
 			return null;
 		}
 		try{
@@ -46,7 +46,7 @@ public class CookieTool{
 
 	public static Boolean getCookieBooleanDefault(Cookie[] cookies, String cookieName, Boolean defaultValue){
 		String value = getCookieValue(cookies, cookieName, null);
-		if(value == null) {
+		if(value == null){
 			return defaultValue;
 		}
 		try{
@@ -75,11 +75,11 @@ public class CookieTool{
 		return value;
 	}
 
-	public static Cookie getCookie(Cookie[] cookies, String cookieName) {
-		if (cookies != null && cookieName!=null) {
-			for (int i = 0; i < cookies.length; i++) {
+	public static Cookie getCookie(Cookie[] cookies, String cookieName){
+		if(cookies != null && cookieName != null){
+			for(int i = 0; i < cookies.length; i++){
 				Cookie cookie = cookies[i];
-				if (cookieName.equals(cookie.getName())){
+				if(cookieName.equals(cookie.getName())){
 					return cookie;
 				}
 			}

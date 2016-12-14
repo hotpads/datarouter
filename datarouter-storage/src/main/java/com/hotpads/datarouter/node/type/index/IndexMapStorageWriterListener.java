@@ -46,7 +46,7 @@ implements IndexListener<PK,D>{
 
 	@Override
 	public void onDelete(PK key, Config config){
-		if(key==null){
+		if(key == null){
 			throw new IllegalArgumentException("invalid null key");
 		}
 		IE indexEntry = createIndexEntry();
@@ -88,7 +88,7 @@ implements IndexListener<PK,D>{
 
 	@Override
 	public void onPut(D databean, Config config){
-		if(databean==null){
+		if(databean == null){
 			throw new IllegalArgumentException("invalid null databean");
 		}
 		IE sampleIndexEntry = createIndexEntry();
