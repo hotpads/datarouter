@@ -1,6 +1,6 @@
 package com.hotpads.notification;
 
-public class NotificationRequestDto {
+public class NotificationRequestDto{
 
 	private String userType;
 	private String userId;
@@ -8,7 +8,7 @@ public class NotificationRequestDto {
 	private String data;
 	private String channel;
 
-	public NotificationRequestDto(String userType, String userId, String type, String data, String channel) {
+	public NotificationRequestDto(String userType, String userId, String type, String data, String channel){
 		this.userType = userType;
 		this.userId = userId;
 		this.type = type;
@@ -16,23 +16,23 @@ public class NotificationRequestDto {
 		this.channel = channel;
 	}
 
-	public String getUserType() {
+	public String getUserType(){
 		return userType;
 	}
 
-	public String getUserId() {
+	public String getUserId(){
 		return userId;
 	}
 
-	public String getType() {
+	public String getType(){
 		return type;
 	}
 
-	public String getData() {
+	public String getData(){
 		return data;
 	}
 
-	public String getChannel() {
+	public String getChannel(){
 		return channel;
 	}
 

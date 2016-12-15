@@ -6,7 +6,7 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 public abstract class BaseIntegerLookup<PK extends PrimaryKey<PK>>
 extends BaseSingleFieldLookup<PK,Integer>{
 
-	public BaseIntegerLookup(Integer id) {
+	public BaseIntegerLookup(Integer id){
 		super(id);
 	}
 

@@ -31,7 +31,7 @@ public class FilteringSortedScanner<T extends Comparable<? super T>> extends Bas
 	}
 
 	@Override
-	public T getCurrent() {
+	public T getCurrent(){
 		return scanner.getCurrent();
 	}
 }
