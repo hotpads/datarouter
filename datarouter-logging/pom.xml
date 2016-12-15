@@ -41,23 +41,18 @@
 			<plugin>
 				<groupId>org.bsc.maven</groupId>
 				<artifactId>maven-processor-plugin</artifactId>
-				<version>2.2.1</version>
+				<version>3.2.0</version>
 				<executions>
 					<execution>
 						<id>process</id>
 						<goals>
 							<goal>process</goal>
 						</goals>
-						<phase>process-sources</phase>
 					</execution>
 				</executions>
-				<dependencies>
-					<dependency>
-						<groupId>org.apache.logging.log4j</groupId>
-						<artifactId>log4j-core</artifactId>
-						<version>${log4j2Version}</version>
-					</dependency>
-				</dependencies>
+				<configuration>
+					<processors>org.apache.logging.log4j.core.config.plugins.processor.PluginProcessor</processors>
+				</configuration>
 			</plugin>
 			<plugin>
 			    <groupId>com.mycila</groupId>
