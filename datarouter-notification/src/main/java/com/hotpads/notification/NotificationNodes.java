@@ -44,7 +44,8 @@ public interface NotificationNodes extends Router{
 	public IndexedSortedMapStorageNode<NotificationTrackingEventKey, NotificationTrackingEvent>
 			getNotificationTrackingEvent();
 
-	public SortedMapStorageNode<NotificationTimingStrategyKey,NotificationTimingStrategy> getNotificationTimingStrategy();
+	public SortedMapStorageNode<NotificationTimingStrategyKey,NotificationTimingStrategy>
+			getNotificationTimingStrategy();
 	public SortedMapStorageNode<NotificationTimingStrategyMappingKey,NotificationTimingStrategyMapping>
 		getNotificationTimingStrategyMapping();
 

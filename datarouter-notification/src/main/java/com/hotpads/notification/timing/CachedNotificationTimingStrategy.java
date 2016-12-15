@@ -5,8 +5,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
-import com.google.inject.Singleton;
 import com.hotpads.notification.NotificationNodes;
 import com.hotpads.util.core.cache.Cached;
 
@@ -23,10 +23,8 @@ public class CachedNotificationTimingStrategy extends Cached<Map<String, Notific
 
 	@Override
 	protected Map<String, NotificationTimingStrategy> reload(){
-		Map<String, NotificationTimingStrategy> timings = notificationNodes
-				.getNotificationTimingStrategy()
+		return notificationNodes.getNotificationTimingStrategy()
 				.stream(null, null)
 				.collect(Collectors.toMap(timing -> timing.getKey().getName(),timing -> timing));
-		return timings;//TODO just for debugging. remove later
 	}
 }

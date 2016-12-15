@@ -21,7 +21,7 @@ public class DatarouterNotificationDispatcher extends BaseDispatcher{
 
 		handleDir(URL_DATAROUTER + NOTIFICATION_ALIAS).withHandler(NotificationAliasHandler.class);
 		handleDir(URL_DATAROUTER + NOTIFICATION_TESTER).withHandler(NotificationTesterHandler.class);
-		handle(URL_DATAROUTER + NOTIFICATION_TIMING).withHandler(NotificationTimingStrategyHandler.class);//TODO handleDir?
+		handle(URL_DATAROUTER + NOTIFICATION_TIMING).withHandler(NotificationTimingStrategyHandler.class);
 	}
 
 }

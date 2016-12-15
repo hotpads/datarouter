@@ -38,7 +38,7 @@ public class NotificationTimingStrategyHandler extends BaseHandler{
 	@Inject
 	private NotificationNodes notificationNodes;
 
-	@Handler(defaultHandler=true)
+	@Handler(defaultHandler = true)
 	protected Mav showPage(){
 		Mav mav = new Mav(JSP_NOTIFICATION_TIMING);
 
