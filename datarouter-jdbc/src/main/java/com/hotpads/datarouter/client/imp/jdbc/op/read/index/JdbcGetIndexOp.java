@@ -69,7 +69,7 @@ extends BaseJdbcOp<List<IE>>{
 					databeans.add(databean);
 				}
 			}catch(Exception e){
-				String message = "error executing sql:"+sql.toString();
+				String message = "error executing sql:" + sql.toString();
 				throw new DataAccessException(message, e);
 			}
 		}

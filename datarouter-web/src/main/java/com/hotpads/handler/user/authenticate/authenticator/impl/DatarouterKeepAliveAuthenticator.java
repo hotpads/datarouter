@@ -7,19 +7,19 @@ import com.hotpads.handler.user.authenticate.authenticator.BaseDatarouterAuthent
 import com.hotpads.handler.user.authenticate.config.DatarouterAuthenticationConfig;
 import com.hotpads.handler.user.session.DatarouterSession;
 
-public class DatarouterKeepAliveAuthenticator extends BaseDatarouterAuthenticator {
+public class DatarouterKeepAliveAuthenticator extends BaseDatarouterAuthenticator{
 
 	private DatarouterAuthenticationConfig authenticationConfig;
 
 	public DatarouterKeepAliveAuthenticator(HttpServletRequest request, HttpServletResponse response,
-			DatarouterAuthenticationConfig authenticationConfig) {
+			DatarouterAuthenticationConfig authenticationConfig){
 		super(request, response);
 		this.authenticationConfig = authenticationConfig;
 	}
 
 	@Override
-	public DatarouterSession getSession() {
-		if(!request.getRequestURI().endsWith(authenticationConfig.getKeepAlivePath())) {
+	public DatarouterSession getSession(){
+		if(!request.getRequestURI().endsWith(authenticationConfig.getKeepAlivePath())){
 			return null;
 		}
 		DatarouterSession session = DatarouterSession.createAnonymousSession(null);

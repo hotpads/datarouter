@@ -39,7 +39,7 @@ public class CharacterField extends BasePrimitiveField<Character>{
 
 	@Override
 	public byte[] getBytes(){
-		return value==null?null:StringByteTool.getUtf8Bytes(value.toString());
+		return value == null ? null : StringByteTool.getUtf8Bytes(value.toString());
 	}
 
 	@Override
@@ -48,17 +48,17 @@ public class CharacterField extends BasePrimitiveField<Character>{
 		if(DrArrayTool.isEmpty(dataBytes)){
 			return new byte[]{StringField.SEPARATOR};
 		}
-		byte[] allBytes = new byte[dataBytes.length+1];
+		byte[] allBytes = new byte[dataBytes.length + 1];
 		System.arraycopy(dataBytes, 0, allBytes, 0, dataBytes.length);
-		allBytes[allBytes.length-1] = StringField.SEPARATOR;
+		allBytes[allBytes.length - 1] = StringField.SEPARATOR;
 		return allBytes;
 	}
 
 	@Override
 	public int numBytesWithSeparator(byte[] bytes, int offset){
 		//TODO this should be reviewed for correctness
-		for(int i=offset; i < bytes.length; ++i){
-			if(bytes[i]==StringField.SEPARATOR){
+		for(int i = offset; i < bytes.length; ++i){
+			if(bytes[i] == StringField.SEPARATOR){
 				return i - offset + 1;//plus 1 for the separator
 			}
 		}

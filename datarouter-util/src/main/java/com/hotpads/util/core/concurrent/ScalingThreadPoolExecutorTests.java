@@ -23,7 +23,7 @@ public class ScalingThreadPoolExecutorTests{
 		Phaser phaser = new Phaser(1);
 
 		List<Future<?>> futures = new ArrayList<>();
-		for(int i = 0 ; i < MAX_THREADS ; i++){
+		for(int i = 0; i < MAX_THREADS; i++){
 			Assert.assertEquals(executor.getActiveCount(), i);
 			Assert.assertEquals(executor.getPoolSize(), i);
 			Assert.assertEquals(executor.getQueue().size(), 0);

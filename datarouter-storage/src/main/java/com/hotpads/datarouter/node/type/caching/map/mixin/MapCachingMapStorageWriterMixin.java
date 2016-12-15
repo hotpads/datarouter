@@ -62,7 +62,9 @@ implements MapStorageWriter<PK,D>{
 
 	@Override
 	public void put(D databean, Config config){
-		if(databean==null || databean.getKey()==null){ return; }
+		if(databean == null || databean.getKey() == null){
+			return;
+		}
 		if(BaseMapCachingNode.useCache(config)){
 			target.updateLastAttemptedContact();
 			if(cacheWrites){
@@ -77,7 +79,9 @@ implements MapStorageWriter<PK,D>{
 
 	@Override
 	public void putMulti(Collection<D> databeans, Config config){
-		if(DrCollectionTool.isEmpty(databeans)){ return; }
+		if(DrCollectionTool.isEmpty(databeans)){
+			return;
+		}
 		if(BaseMapCachingNode.useCache(config)){
 			target.updateLastAttemptedContact();
 			if(cacheWrites){

@@ -14,7 +14,7 @@ import com.amazonaws.services.securitytoken.model.Credentials;
 
 public class KinesisAwsCredentialsProvider implements AWSCredentialsProvider{
 	private static final int ASSUME_ROLE_SESSION_DURATION_SECONDS = (int)TimeUnit.MINUTES.toSeconds(60);//aws max
-	private static final int ASSUME_ROLE_SESSION_REFRESH_THRESHOLD_MS = (int)TimeUnit.MINUTES.toMillis(1) ;
+	private static final int ASSUME_ROLE_SESSION_REFRESH_THRESHOLD_MS = (int)TimeUnit.MINUTES.toMillis(1);
 
 	private final AWSCredentials basicCredentials;
 	private final String arnRole;
