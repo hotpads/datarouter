@@ -45,7 +45,7 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 	/******************** constructor ****************************/
 
 	public HBaseTask(Datarouter datarouter, ClientTableNodeNames names, String taskName, Config config){
-		super("HBaseTask."+taskName);
+		super("HBaseTask." + taskName);
 		this.datarouter = datarouter;
 		this.clientName = names.getClientName();
 		this.nodeName = names.getNodeName();
@@ -60,7 +60,7 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 	public V wrappedCall(){
 		//clearPreviousAttemptState();
 		MutableString progress = new MutableString("");
-		progress.set("starting attemptNumOneBased:"+attemptNumOneBased);
+		progress.set("starting attemptNumOneBased:" + attemptNumOneBased);
 		ResultScanner managedResultScanner = null;
 		Table table = null;
 		HBaseClient client = null;
@@ -68,7 +68,7 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 		boolean possiblyTarnishedHTable = false;
 
 		try{
-			TracerTool.startSpan(TracerThreadLocal.get(), nodeName+" "+taskName);
+			TracerTool.startSpan(TracerThreadLocal.get(), nodeName + " " + taskName);
 			recordDetailedTraceInfo();
 			Pair<Table,HBaseClient> pair = prepClientAndTableEtc(progress);
 			table = pair.getLeft();
@@ -82,11 +82,11 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 
 		}catch(Exception e){
 			possiblyTarnishedHTable = true;
-			logger.warn("rethrowing "+e.getClass().getSimpleName()+" as DataAccessException", e);
+			logger.warn("rethrowing " + e.getClass().getSimpleName() + " as DataAccessException", e);
 			throw new DataAccessException(e);
 		}finally{
-			progress.set("starting finally block attemptNumOneBased:"+attemptNumOneBased);
-			if(managedResultScanner!=null){
+			progress.set("starting finally block attemptNumOneBased:" + attemptNumOneBased);
+			if(managedResultScanner != null){
 				try{
 					managedResultScanner.close();
 				}catch(Exception e){
@@ -108,7 +108,7 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 			}
 			//table = null;//reset to null since this HBaseTask will get reused
 			TracerTool.finishSpan(TracerThreadLocal.get());
-			progress.set("ending finally block attemptNumOneBased:"+attemptNumOneBased);
+			progress.set("ending finally block attemptNumOneBased:" + attemptNumOneBased);
 		}
 	}
 
@@ -122,27 +122,32 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 //		managedResultScanner = null;
 //	}
 
-	protected void recordDetailedTraceInfo() {
+	protected void recordDetailedTraceInfo(){
 		if(DrNumberTool.nullSafe(numAttempts) > 1){
-			TracerTool.appendToThreadInfo(TracerThreadLocal.get(), "[attempt "+attemptNumOneBased+"/"+numAttempts+"]");
+			TracerTool.appendToThreadInfo(TracerThreadLocal.get(), "[attempt " + attemptNumOneBased + "/" + numAttempts
+					+ "]");
 		}
-		if( ! DrNumberTool.isMax(timeoutMs)){
-			TracerTool.appendToThreadInfo(TracerThreadLocal.get(), "[timeoutMs="+timeoutMs+"]");
+		if(!DrNumberTool.isMax(timeoutMs)){
+			TracerTool.appendToThreadInfo(TracerThreadLocal.get(), "[timeoutMs=" + timeoutMs + "]");
 		}
 	}
 
 	protected Pair<Table,HBaseClient> prepClientAndTableEtc(MutableString progress) throws IOException{
 		//get a fresh copy of the client
 		//Preconditions.checkState(client==null);//make sure we cleared this from the previous attempt
-		HBaseClient client = (HBaseClient)datarouter.getClientPool().getClient(clientName);//be sure to get a new client for each attempt/task in case the client was refreshed behind the scenes
+		HBaseClient client = (HBaseClient)datarouter.getClientPool().getClient(clientName);// be sure to get a new
+																							// client for each
+																							// attempt/task in case the
+																							// client was refreshed
+																							// behind the scenes
 		Preconditions.checkNotNull(client);
-		progress.set("got client attemptNumOneBased:"+attemptNumOneBased);
+		progress.set("got client attemptNumOneBased:" + attemptNumOneBased);
 
 		//get a fresh htable
 		//Preconditions.checkState(table==null);//make sure we cleared this from the previous attempt
 		Table table = client.checkOutTable(tableName, progress);
 		Preconditions.checkNotNull(table);
-		progress.set("got HTable attemptNumOneBased:"+attemptNumOneBased);
+		progress.set("got HTable attemptNumOneBased:" + attemptNumOneBased);
 
 		return new Pair(table, client);
 		//assert null

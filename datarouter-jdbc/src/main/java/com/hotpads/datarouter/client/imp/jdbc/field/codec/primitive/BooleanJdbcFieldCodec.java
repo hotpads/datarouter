@@ -25,20 +25,21 @@ extends BasePrimitiveJdbcFieldCodec<Boolean,Field<Boolean>>{
 
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
-		String defaultValue = field.getKey().getDefaultValue() == null ? null : field.getKey().getDefaultValue().toString();
+		String defaultValue = field.getKey().getDefaultValue() == null ? null
+				: field.getKey().getDefaultValue().toString();
 		return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.TINYINT, 1, field.getKey().isNullable(),
 				false, defaultValue, null, null);
 	}
 
 	@Override
 	public Boolean parseJdbcValueButDoNotSet(Object obj){
-		return obj==null?null:(Boolean)obj;
+		return obj == null ? null : (Boolean)obj;
 	}
 
 	@Override
 	public void setPreparedStatementValue(PreparedStatement ps, int parameterIndex){
 		try{
-			if(field.getValue()==null){
+			if(field.getValue() == null){
 				ps.setNull(parameterIndex, Types.TINYINT);
 			}else{
 				ps.setBoolean(parameterIndex, field.getValue());
@@ -52,7 +53,7 @@ extends BasePrimitiveJdbcFieldCodec<Boolean,Field<Boolean>>{
 	public Boolean fromJdbcResultSetButDoNotSet(ResultSet rs){
 		try{
 			boolean value = rs.getBoolean(field.getKey().getColumnName());
-			return rs.wasNull()?null:value;
+			return rs.wasNull() ? null : value;
 		}catch(SQLException e){
 			throw new DataAccessException(e);
 		}

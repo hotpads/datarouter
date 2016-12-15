@@ -24,7 +24,7 @@ public enum ClusterSettingScope implements StringEnum<ClusterSettingScope>{
 
 	/******************** constructors *********************/
 
-	private ClusterSettingScope(int specificity) {
+	private ClusterSettingScope(int specificity){
 		this.specificity = specificity;
 	}
 
@@ -32,7 +32,7 @@ public enum ClusterSettingScope implements StringEnum<ClusterSettingScope>{
 	/****************** Datarouter *******************************/
 
 	@Override
-	public String getPersistentString() {
+	public String getPersistentString(){
 		return toString();
 	}
 
@@ -41,7 +41,7 @@ public enum ClusterSettingScope implements StringEnum<ClusterSettingScope>{
 	}
 
 	@Override
-	public ClusterSettingScope fromPersistentString(String str) {
+	public ClusterSettingScope fromPersistentString(String str){
 		return fromPersistentStringStatic(str);
 	}
 
@@ -64,7 +64,7 @@ public enum ClusterSettingScope implements StringEnum<ClusterSettingScope>{
 
 	/*********************** get/set *********************************/
 
-	public int getSpecificity() {
+	public int getSpecificity(){
 		return specificity;
 	}
 
