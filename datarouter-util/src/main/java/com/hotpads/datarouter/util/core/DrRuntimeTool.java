@@ -17,10 +17,10 @@ public class DrRuntimeTool{
 	 */
 	public static boolean is64BitVM(){
 		String bits = System.getProperty("sun.arch.data.model", "?");
-		if(bits.equals("64")){
+		if("64".equals(bits)){
 			return true;
 		}
-		if(bits.equals("?")){
+		if("?".equals(bits)){
 			// probably sun.arch.data.model isn't available
 			// maybe not a Sun JVM?
 			// try with the vm.name property

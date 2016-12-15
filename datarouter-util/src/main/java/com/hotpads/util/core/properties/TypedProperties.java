@@ -45,7 +45,8 @@ public class TypedProperties{
 	public Boolean getBoolean(String key){
 		String val = getString(key);
 		if(val == null){
-			return null; }
+			return null;
+		}
 		return DrBooleanTool.isTrue(val);
 	}
 
