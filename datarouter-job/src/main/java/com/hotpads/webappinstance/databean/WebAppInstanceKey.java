@@ -8,7 +8,7 @@ import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.StringFieldKey;
 import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
 
-public class WebAppInstanceKey extends BasePrimaryKey<WebAppInstanceKey> {
+public class WebAppInstanceKey extends BasePrimaryKey<WebAppInstanceKey>{
 
 	/** fields ****************************************************************/
 
@@ -17,7 +17,7 @@ public class WebAppInstanceKey extends BasePrimaryKey<WebAppInstanceKey> {
 
 	/** columns ***************************************************************/
 
-	public static class FieldKeys {
+	public static class FieldKeys{
 		public static final StringFieldKey
 			webAppName = new StringFieldKey("webAppName"),
 			serverName = new StringFieldKey("serverName");

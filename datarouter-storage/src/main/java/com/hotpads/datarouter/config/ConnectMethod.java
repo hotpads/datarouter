@@ -35,8 +35,8 @@ public enum ConnectMethod implements StringEnum<ConnectMethod>, IntegerEnum<Conn
 	}
 
 	@Override
-	public ConnectMethod fromPersistentInteger(Integer i){
-		return DatarouterEnumTool.getEnumFromInteger(values(), i, null);
+	public ConnectMethod fromPersistentInteger(Integer in){
+		return DatarouterEnumTool.getEnumFromInteger(values(), in, null);
 	}
 
 
@@ -48,8 +48,8 @@ public enum ConnectMethod implements StringEnum<ConnectMethod>, IntegerEnum<Conn
 	}
 
 	@Override
-	public ConnectMethod fromPersistentString(String s){
-		return DatarouterEnumTool.getEnumFromString(values(), s, null);
+	public ConnectMethod fromPersistentString(String str){
+		return DatarouterEnumTool.getEnumFromString(values(), str, null);
 	}
 
 }

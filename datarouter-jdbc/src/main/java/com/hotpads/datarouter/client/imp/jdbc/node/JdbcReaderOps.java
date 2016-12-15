@@ -54,14 +54,14 @@ public class JdbcReaderOps<
 
 	/************************************ MapStorageReader methods ****************************/
 
-	public List<D> getMulti(final Collection<PK> keys, final Config config) {
+	public List<D> getMulti(final Collection<PK> keys, final Config config){
 		String opName = MapStorageReader.OP_getMulti;
 		JdbcGetOp<PK,D,F> op = new JdbcGetOp<>(node, fieldCodecFactory, opName, keys, Config.nullSafe(config));
 		List<D> results = new SessionExecutorImpl<>(op, getTraceName(opName)).call();
 		return results;
 	}
 
-	public List<PK> getKeys(final Collection<PK> keys, final Config config) {
+	public List<PK> getKeys(final Collection<PK> keys, final Config config){
 		String opName = MapStorageReader.OP_getKeys;
 		JdbcGetKeysOp<PK,D,F> op = new JdbcGetKeysOp<>(node, fieldCodecFactory, opName, keys, config);
 		List<PK> results = new SessionExecutorImpl<>(op, getTraceName(opName)).call();
@@ -75,8 +75,8 @@ public class JdbcReaderOps<
 		JdbcLookupUniqueOp<PK,D,F> op = new JdbcLookupUniqueOp<>(node, fieldCodecFactory, DrListTool
 				.wrap(uniqueKey), config);
 		List<D> result = new SessionExecutorImpl<>(op, getTraceName(opName)).call();
-		if(DrCollectionTool.size(result)>1){
-			throw new DataAccessException("found >1 databeans with unique index key="+uniqueKey);
+		if(DrCollectionTool.size(result) > 1){
+			throw new DataAccessException("found >1 databeans with unique index key=" + uniqueKey);
 		}
 		return DrCollectionTool.getFirst(result);
 	}
@@ -91,14 +91,14 @@ public class JdbcReaderOps<
 	}
 
 	//TODO pay attention to wildcardLastField
-	public List<D> lookup(final Lookup<PK> lookup, final boolean wildcardLastField, final Config config) {
+	public List<D> lookup(final Lookup<PK> lookup, final boolean wildcardLastField, final Config config){
 		String opName = IndexedStorageReader.OP_lookup;
 		JdbcLookupOp<PK,D,F> op = new JdbcLookupOp<>(node, fieldCodecFactory, DrListTool.wrap(lookup),
 				wildcardLastField, config);
 		return new SessionExecutorImpl<>(op, getTraceName(opName)).call();
 	}
 
-	public List<D> lookupMulti(final Collection<? extends Lookup<PK>> lookups, final Config config) {
+	public List<D> lookupMulti(final Collection<? extends Lookup<PK>> lookups, final Config config){
 		String opName = IndexedStorageReader.OP_lookupMulti;
 		if(DrCollectionTool.isEmpty(lookups)){
 			return new LinkedList<>();
@@ -147,15 +147,14 @@ public class JdbcReaderOps<
 
 	/************************************ SortedStorageReader methods ****************************/
 
-	public List<D> getWithPrefixes(final Collection<PK> prefixes, final boolean wildcardLastField,
-			final Config config) {
+	public List<D> getWithPrefixes(final Collection<PK> prefixes, final boolean wildcardLastField, final Config config){
 		String opName = SortedStorageReader.OP_getWithPrefixes;
 		JdbcGetWithPrefixesOp<PK,D,F> op = new JdbcGetWithPrefixesOp<>(node, fieldCodecFactory, prefixes,
 				wildcardLastField, config);
 		return new SessionExecutorImpl<>(op, getTraceName(opName)).call();
 	}
 
-	public List<PK> getKeysInRanges(Collection<Range<PK>> ranges, final Config config) {
+	public List<PK> getKeysInRanges(Collection<Range<PK>> ranges, final Config config){
 		if(ranges.stream().allMatch(Range::isEmpty)){
 			return Collections.emptyList();
 		}
@@ -165,7 +164,7 @@ public class JdbcReaderOps<
 		return result;
 	}
 
-	public List<D> getRanges(final Collection<Range<PK>> ranges, final Config config) {
+	public List<D> getRanges(final Collection<Range<PK>> ranges, final Config config){
 		if(ranges.stream().allMatch(Range::isEmpty)){
 			return Collections.emptyList();
 		}
