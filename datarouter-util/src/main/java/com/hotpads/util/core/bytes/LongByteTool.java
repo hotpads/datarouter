@@ -5,6 +5,8 @@ import java.util.Random;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.util.core.DrArrayTool;
 import com.hotpads.datarouter.util.core.DrByteTool;
@@ -14,6 +16,7 @@ import com.hotpads.util.core.collections.arrays.LongArray;
  * methods for converting longs into bytes
  */
 public class LongByteTool{
+	private static final Logger logger = LoggerFactory.getLogger(LongByteTool.class);
 
 	/****************** serialize to bytes ****************************/
 
@@ -130,7 +133,7 @@ public class LongByteTool{
 
 	public static byte[] getUInt63Bytes(final long value){
 		if(value < 0 && value != Long.MIN_VALUE){//need to allow Long.MIN_VALUE in for nulls
-			throw new IllegalArgumentException("no negatives: " + value);
+			logger.warn("", new IllegalArgumentException("no negatives: " + value));
 		}
 		return getRawBytes(value);
 	}
@@ -138,7 +141,7 @@ public class LongByteTool{
 	public static long fromUInt63Bytes(final byte[] bytes, final int byteOffset){
 		long longValue = fromRawBytes(bytes, byteOffset);
 		if(longValue < 0 && longValue != Long.MIN_VALUE){
-			throw new IllegalArgumentException("no negatives: " + longValue);
+			logger.warn("", new IllegalArgumentException("no negatives: " + longValue));
 		}
 		return longValue;
 	}
