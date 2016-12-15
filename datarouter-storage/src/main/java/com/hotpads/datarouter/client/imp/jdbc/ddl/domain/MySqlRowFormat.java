@@ -26,7 +26,7 @@ public enum MySqlRowFormat implements StringEnum<MySqlRowFormat>{
 		return fromPersistentStringStatic(string);
 	}
 
-	public static MySqlRowFormat fromPersistentStringStatic(String str) {
+	public static MySqlRowFormat fromPersistentStringStatic(String str){
 		return DatarouterEnumTool.getEnumFromString(values(), str, null);
 	}
 

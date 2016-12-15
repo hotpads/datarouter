@@ -6,7 +6,7 @@ import com.hotpads.datarouter.storage.field.enums.IntegerEnum;
 import com.hotpads.util.core.enums.EnumTool;
 import com.hotpads.util.core.enums.HpEnum;
 
-public enum StandardStatus implements HpEnum, IntegerEnum<StandardStatus> {
+public enum StandardStatus implements HpEnum, IntegerEnum<StandardStatus>{
 
 	UNKNOWN(-1, "Unknown"),
 	NEW(9, "New"),
@@ -41,12 +41,12 @@ public enum StandardStatus implements HpEnum, IntegerEnum<StandardStatus> {
 	}
 
 	@Override
-	public String getDisplay() {
+	public String getDisplay(){
 		return display;
 	}
 
 	@Override
-	public Integer getInteger() {
+	public Integer getInteger(){
 		return persistentInteger;
 	}
 
@@ -54,7 +54,7 @@ public enum StandardStatus implements HpEnum, IntegerEnum<StandardStatus> {
 		return STABLE_STATUSES.contains(this);
 	}
 
-	public static StandardStatus fromDisplay(String display) {
+	public static StandardStatus fromDisplay(String display){
 		return EnumTool.getEnumFromDisplay(values(), display, UNKNOWN);
 	}
 }

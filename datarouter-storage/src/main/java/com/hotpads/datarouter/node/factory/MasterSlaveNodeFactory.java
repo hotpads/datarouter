@@ -125,7 +125,7 @@ public class MasterSlaveNodeFactory{
 					(IndexedSortedMapStorageNode<PK,D>)master, (List<IndexedSortedMapStorageNode<PK,D>>)slaves);
 			return new IndexedSortedMapStorageCallsiteAdapter<>(nodeParams, backingNode);
 		}else{
-			throw new IllegalArgumentException("StorageType "+storageType+" not supported");
+			throw new IllegalArgumentException("StorageType " + storageType + " not supported");
 		}
 
 	}

@@ -2,14 +2,14 @@ package com.hotpads.notification.alias;
 
 public class NotificationAlias{
 
-	public static class F {
+	public static class F{
 		public static final String
 		persistentName = "persistentName";
 	}
 
 	private final String persistentName;
 	private final String displayName;
-	private final boolean omitReplyTo ;
+	private final boolean omitReplyTo;
 
 	public NotificationAlias(String persistentName){
 		this(persistentName, persistentName);

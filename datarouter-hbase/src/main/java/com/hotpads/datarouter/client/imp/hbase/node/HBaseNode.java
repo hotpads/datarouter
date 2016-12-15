@@ -64,7 +64,7 @@ implements PhysicalSortedMapStorageNode<PK,D>, HBaseIncrement<PK>{
 	}
 
 	@Override
-	public Node<PK,D> getMaster() {
+	public Node<PK,D> getMaster(){
 		return this;
 	}
 
@@ -76,8 +76,8 @@ implements PhysicalSortedMapStorageNode<PK,D>, HBaseIncrement<PK>{
 
 
 	@Override
-	public void put(final D databean, final Config config) {
-		if(databean==null){
+	public void put(final D databean, final Config config){
+		if(databean == null){
 			return;
 		}
 		putMulti(DrListTool.wrap(databean), config);
@@ -85,7 +85,7 @@ implements PhysicalSortedMapStorageNode<PK,D>, HBaseIncrement<PK>{
 
 
 	@Override
-	public void putMulti(final Collection<D> databeans, final Config config) {
+	public void putMulti(final Collection<D> databeans, final Config config){
 		if(DrCollectionTool.isEmpty(databeans)){
 			return;
 		}
@@ -99,7 +99,7 @@ implements PhysicalSortedMapStorageNode<PK,D>, HBaseIncrement<PK>{
 						int numCellsPut = 0, numCellsDeleted = 0;
 						long batchStartTime = System.currentTimeMillis();
 						for(D databean : databeans){//TODO obey Config.commitBatchSize
-							if(databean==null){
+							if(databean == null){
 								continue;
 							}
 							PK key = databean.getKey();
@@ -109,7 +109,7 @@ implements PhysicalSortedMapStorageNode<PK,D>, HBaseIncrement<PK>{
 							List<Field<?>> fields = fieldInfo.getNonKeyFieldsWithValues(databean);
 							for(Field<?> field : fields){//TODO only put modified fields
 								byte[] fieldBytes = field.getBytes();
-								if(fieldBytes==null){
+								if(fieldBytes == null){
 									if(DrBooleanTool.isFalseOrNull(config.getIgnoreNullFields())){
 										delete.deleteColumn(FAM, field.getKey().getColumnNameBytes(), batchStartTime);
 										++numCellsDeleted;
@@ -151,7 +151,7 @@ implements PhysicalSortedMapStorageNode<PK,D>, HBaseIncrement<PK>{
 
 	//alternative method would be to truncate the table
 	@Override
-	public void deleteAll(final Config config) {
+	public void deleteAll(final Config config){
 		final Config nullSafeConfig = Config.nullSafe(config);
 		new HBaseMultiAttemptTask<>(new HBaseTask<Void>(getDatarouter(), getClientTableNodeNames(),
 				MapStorage.OP_deleteAll, nullSafeConfig){
@@ -181,7 +181,7 @@ implements PhysicalSortedMapStorageNode<PK,D>, HBaseIncrement<PK>{
 
 
 	@Override
-	public void delete(PK key, Config config) {
+	public void delete(PK key, Config config){
 		deleteMulti(DrListTool.wrap(key), config);
 	}
 
@@ -211,7 +211,7 @@ implements PhysicalSortedMapStorageNode<PK,D>, HBaseIncrement<PK>{
 
 	/*************************** util **************************************/
 
-	public D getDatabean(Result row) {
+	public D getDatabean(Result row){
 		return HBaseResultTool.getDatabean(row, fieldInfo);
 	}
 

@@ -1,6 +1,6 @@
 package com.hotpads.notification.timing;
 
-public interface NotificationTimingStrategy {
+public interface NotificationTimingStrategy{
 
 	static final long MS_PER_SECOND = 1000L;
 
