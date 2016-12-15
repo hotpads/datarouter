@@ -17,21 +17,21 @@ public class PrimaryKeyStringConverter{
 	}
 
 	public static <PK extends PrimaryKey<PK>> PK primaryKeyFromString(Class<PK> pkClass, PrimaryKeyFielder<PK> fielder,
-			String s){
-		if(s == null){
+			String str){
+		if(str == null){
 			return null;
 		}
 		PK pk = ReflectionTool.create(pkClass);
-		String[] tokens = s.split("_");
-		int i = 0;
+		String[] tokens = str.split("_");
+		int tokenCounter = 0;
 		for(Field<?> field : fielder.getFields(pk)){
-			if(i > tokens.length - 1){
+			if(tokenCounter > tokens.length - 1){
 				break;
 			}
-			field.fromString(tokens[i]);
+			field.fromString(tokens[tokenCounter]);
 			field.setUsingReflection(pk, field.getValue());
 			field.setValue(null);// to be safe until Field logic is cleaned up
-			++i;
+			++tokenCounter;
 		}
 		return pk;
 	}

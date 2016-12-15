@@ -32,13 +32,13 @@ extends BasePrimitiveJdbcFieldCodec<Date,Field<Date>>{
 	}
 	@Override
 	public Date parseJdbcValueButDoNotSet(Object obj){
-		return obj==null?null:new Date(((BigInteger)obj).longValue());
+		return obj == null ? null : new Date(((BigInteger)obj).longValue());
 	}
 
 	@Override
 	public void setPreparedStatementValue(PreparedStatement ps, int parameterIndex){
 		try{
-			if(field.getValue()==null){
+			if(field.getValue() == null){
 				ps.setNull(parameterIndex, Types.BIGINT);
 			}else{
 				ps.setLong(parameterIndex, field.getValue().getTime());
@@ -52,7 +52,7 @@ extends BasePrimitiveJdbcFieldCodec<Date,Field<Date>>{
 	public Date fromJdbcResultSetButDoNotSet(ResultSet rs){
 		try{
 			long value = rs.getLong(field.getKey().getColumnName());
-			return rs.wasNull()?null:new Date(value);
+			return rs.wasNull() ? null : new Date(value);
 		}catch(SQLException e){
 			throw new DataAccessException(e);
 		}
@@ -63,6 +63,6 @@ extends BasePrimitiveJdbcFieldCodec<Date,Field<Date>>{
 		if(field.getValue() == null){
 			return "null";
 		}
-		return field.getValue().getTime()+"";
+		return field.getValue().getTime() + "";
 	}
 }

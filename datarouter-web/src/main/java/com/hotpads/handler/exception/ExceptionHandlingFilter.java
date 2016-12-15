@@ -24,12 +24,12 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hotpads.WebAppName;
+import com.hotpads.datarouter.app.WebAppName;
 import com.hotpads.datarouter.inject.DatarouterInjector;
 import com.hotpads.datarouter.inject.InjectorRetriever;
+import com.hotpads.datarouter.monitoring.exception.HttpRequestRecord;
 import com.hotpads.datarouter.profile.counter.Counters;
-import com.hotpads.datarouter.util.core.DrExceptionTool;
-import com.hotpads.exception.analysis.HttpRequestRecord;
+import com.hotpads.util.DrExceptionTool;
 import com.hotpads.util.core.collections.Pair;
 import com.hotpads.util.http.HttpHeaders;
 import com.hotpads.util.http.RequestTool;
@@ -71,11 +71,11 @@ public abstract class ExceptionHandlingFilter implements Filter, InjectorRetriev
 			throw error;
 		}catch(Exception e){
 			logger.error("ExceptionHandlingFilter caught an exception:", e);
-			writeExceptionToResponseWriter(response, e, request);
 			Optional<ExceptionRecordKey> recordKey = tryRecordExceptionAndRequestNotification(request, e, receivedAt);
 			if(recordKey.isPresent()){
 				response.setHeader(HttpHeaders.X_EXCEPTION_ID, recordKey.get().getId());
 			}
+			writeExceptionToResponseWriter(response, e, request);
 		}
 		Counters.inc(webAppName + " response " + response.getStatus());
 		if(statusToLog.contains(response.getStatus())){
@@ -215,7 +215,9 @@ public abstract class ExceptionHandlingFilter implements Filter, InjectorRetriev
 
 	private void writeExceptionToResponseWriter(HttpServletResponse response, Exception exception,
 			HttpServletRequest request){
-		response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+		if(response.getStatus() == HttpServletResponse.SC_OK){
+			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+		}
 		response.setContentType("text/html");
 		try{
 			PrintWriter out = response.getWriter();

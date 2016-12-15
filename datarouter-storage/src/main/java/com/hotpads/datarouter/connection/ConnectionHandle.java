@@ -1,6 +1,6 @@
 package com.hotpads.datarouter.connection;
 
-public class ConnectionHandle {
+public class ConnectionHandle{
 
 	public static final int OUTERMOST_TICKET_NUMBER = 1;
 
@@ -11,13 +11,12 @@ public class ConnectionHandle {
 	private long handleNum;
 	private int numTickets;
 
-	public ConnectionHandle(Thread thread, String clientName, long handleNum, int numTickets) {
+	public ConnectionHandle(Thread thread, String clientName, long handleNum, int numTickets){
 		this(thread.getId(), clientName, handleNum, numTickets);
 		this.thread = thread;
 	}
 
-	protected ConnectionHandle(long threadId, String clientName, long handleNum, int numTickets) {
-		super();
+	protected ConnectionHandle(long threadId, String clientName, long handleNum, int numTickets){
 		this.threadId = threadId;
 		this.clientName = clientName;
 		this.handleNum = handleNum;
@@ -43,11 +42,11 @@ public class ConnectionHandle {
 
 	@Override
 	public String toString(){
-		return "["+threadId+","+clientName+","+handleNum+"]#"+numTickets+"-"+thread.getName();
+		return "[" + threadId + "," + clientName + "," + handleNum + "]#" + numTickets + "-" + thread.getName();
 	}
 
 	@Override
-	public int hashCode() {
+	public int hashCode(){
 		final int prime = 31;
 		int result = 1;
 		result = prime * result
@@ -66,28 +65,28 @@ public class ConnectionHandle {
 	 *   - most NOT include: numTickets
 	 */
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj){
+	public boolean equals(Object obj){
+		if(this == obj){
 			return true;
 		}
-		if (obj == null){
+		if(obj == null){
 			return false;
 		}
-		if (getClass() != obj.getClass()){
+		if(getClass() != obj.getClass()){
 			return false;
 		}
-		ConnectionHandle other = (ConnectionHandle) obj;
-		if (clientName == null) {
-			if (other.clientName != null){
+		ConnectionHandle other = (ConnectionHandle)obj;
+		if(clientName == null){
+			if(other.clientName != null){
 				return false;
 			}
-		} else if (!clientName.equals(other.clientName)){
+		}else if(!clientName.equals(other.clientName)){
 			return false;
 		}
-		if (handleNum != other.handleNum){
+		if(handleNum != other.handleNum){
 			return false;
 		}
-		if (threadId != other.threadId){
+		if(threadId != other.threadId){
 			return false;
 		}
 		return true;
@@ -95,39 +94,36 @@ public class ConnectionHandle {
 
 	/**************************** get/set *************************/
 
-	public String getClientName() {
+	public String getClientName(){
 		return clientName;
 	}
 
-	public void setClientName(String clientName) {
+	public void setClientName(String clientName){
 		this.clientName = clientName;
 	}
 
-
-	public long getHandleNum() {
+	public long getHandleNum(){
 		return handleNum;
 	}
 
-	public void setHandleNum(long handleNum) {
+	public void setHandleNum(long handleNum){
 		this.handleNum = handleNum;
 	}
 
-	public int getNumTickets() {
+	public int getNumTickets(){
 		return numTickets;
 	}
 
-	public void setNumTickets(int numTickets) {
+	public void setNumTickets(int numTickets){
 		this.numTickets = numTickets;
 	}
 
-	public long getThreadId() {
+	public long getThreadId(){
 		return threadId;
 	}
 
-	public void setThreadId(long threadId) {
+	public void setThreadId(long threadId){
 		this.threadId = threadId;
 	}
-
-
 
 }

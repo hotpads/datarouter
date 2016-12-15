@@ -16,7 +16,7 @@ extends BaseJdbcOp<Long>{
 	private final PhysicalNode<PK,D> node;
 	private final Config config;
 
-	public JdbcDeleteAllOp(PhysicalNode<PK,D> node, Config config) {
+	public JdbcDeleteAllOp(PhysicalNode<PK,D> node, Config config){
 		super(node.getDatarouter(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
 		this.node = node;
 		this.config = config;

@@ -14,7 +14,8 @@ public class DRCounters{
 		AGGREGATION_op = "op",
 		AGGREGATION_client = "client",
 		AGGREGATION_table = "table",
-		AGGREGATION_node = "node";
+		AGGREGATION_node = "node",
+		AGGREGATION_region = "region";
 
 
 	/********* inc single ************/
@@ -69,6 +70,12 @@ public class DRCounters{
 		incInternal(AGGREGATION_node, type, compoundKey, delta);
 	}
 
+	public static void incClientTableOpRegion(String clientTypeString, String clientName, String tableName,
+			String opName, String regionName, long delta){
+		String compoundKey = clientName + " " + tableName + " " + opName + " " + regionName;
+		incInternalString(AGGREGATION_region, clientTypeString, compoundKey, delta);
+	}
+
 	public static void incFromCounterAdapter(PhysicalNode<?,?> physicalNode, String key, long delta){
 		ClientType clientType = physicalNode.getClient().getType();
 		String clientName = physicalNode.getClient().getName();
@@ -81,8 +88,12 @@ public class DRCounters{
 
 	/********* private ***********/
 
-	private static void incInternal(String aggregationLevel, ClientType clientType, String key, long delta) {
+	private static void incInternal(String aggregationLevel, ClientType clientType, String key, long delta){
 		String clientTypeString = clientType != null ? clientType.getName() : CLIENT_TYPE_virtual;
-		Counters.inc(PREFIX+" "+aggregationLevel+" "+clientTypeString+" "+key, delta);
+		Counters.inc(PREFIX + " " + aggregationLevel + " " + clientTypeString + " " + key, delta);
+	}
+
+	private static void incInternalString(String aggregationLevel, String clientTypeString, String key, long delta){
+		Counters.inc(PREFIX + " " + aggregationLevel + " " + clientTypeString + " " + key, delta);
 	}
 }

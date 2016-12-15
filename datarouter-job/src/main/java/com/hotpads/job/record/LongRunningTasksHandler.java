@@ -12,13 +12,12 @@ import com.hotpads.datarouter.config.Configs;
 import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.mav.Mav;
 
-public class LongRunningTasksHandler extends BaseHandler {
+public class LongRunningTasksHandler extends BaseHandler{
 
 	public static final String JSP_longRunningTasks = "/jsp/admin/datarouter/job/longRunningTasks.jsp";
 
 	@Inject
 	private LongRunningTaskNodeProvider longRunningTaskNodeProvider;
-
 
 	@Override
 	@Handler

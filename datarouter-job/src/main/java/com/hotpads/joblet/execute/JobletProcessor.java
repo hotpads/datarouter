@@ -19,9 +19,9 @@ import org.slf4j.LoggerFactory;
 
 import com.hotpads.joblet.JobletCounters;
 import com.hotpads.joblet.dto.RunningJoblet;
-import com.hotpads.joblet.enums.JobletType;
 import com.hotpads.joblet.queue.JobletRequestQueueManager;
 import com.hotpads.joblet.setting.JobletSettings;
+import com.hotpads.joblet.type.JobletType;
 import com.hotpads.util.core.concurrent.NamedThreadFactory;
 import com.hotpads.util.datastructs.MutableBoolean;
 

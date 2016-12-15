@@ -12,8 +12,8 @@ import javax.servlet.http.HttpServletRequest;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import com.hotpads.datarouter.test.TestApiHandler;
-import com.hotpads.datarouter.test.TestApiHandler.FooBar;
+import com.hotpads.handler.TestApiHandler;
+import com.hotpads.handler.TestApiHandler.FooBar;
 import com.hotpads.util.http.json.GsonJsonSerializer;
 
 public class DefaultDecoderTests{

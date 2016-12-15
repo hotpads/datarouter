@@ -1,3 +1,20 @@
+<!--
+
+    Copyright © 2009 HotPads (admin@hotpads.com)
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
@@ -8,6 +25,7 @@
 		<relativePath>../../config/maven</relativePath>
 	</parent>
 	<artifactId>datarouter-logging</artifactId>
+	<inceptionYear>2009</inceptionYear>
 	<properties>
 		<log4j2Version>2.5</log4j2Version>
 	</properties>
@@ -23,23 +41,42 @@
 			<plugin>
 				<groupId>org.bsc.maven</groupId>
 				<artifactId>maven-processor-plugin</artifactId>
-				<version>2.2.1</version>
+				<version>3.2.0</version>
 				<executions>
 					<execution>
 						<id>process</id>
 						<goals>
 							<goal>process</goal>
 						</goals>
-						<phase>process-sources</phase>
 					</execution>
 				</executions>
-				<dependencies>
-					<dependency>
-						<groupId>org.apache.logging.log4j</groupId>
-						<artifactId>log4j-core</artifactId>
-						<version>${log4j2Version}</version>
-					</dependency>
-				</dependencies>
+				<configuration>
+					<processors>
+						<processor>org.apache.logging.log4j.core.config.plugins.processor.PluginProcessor</processor>
+					</processors>
+				</configuration>
+			</plugin>
+			<plugin>
+			    <groupId>com.mycila</groupId>
+			    <artifactId>license-maven-plugin</artifactId>
+			    <version>3.0</version>
+			    <configuration>
+			        <header>com/mycila/maven/plugin/license/templates/APACHE-2.txt</header>
+			        <properties>
+			            <owner>HotPads</owner>
+			            <email>admin@hotpads.com</email>
+			        </properties>
+			        <excludes>
+			            <exclude>src/main/resources/**</exclude>
+			        </excludes>
+			    </configuration>
+			    <executions>
+			        <execution>
+			            <goals>
+			                <goal>check</goal>
+			            </goals>
+			        </execution>
+			    </executions>
 			</plugin>
 		</plugins>
 	</build>

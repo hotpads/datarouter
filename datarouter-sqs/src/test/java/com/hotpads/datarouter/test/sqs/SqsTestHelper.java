@@ -52,7 +52,7 @@ public class SqsTestHelper{
 	public static String makeStringOfByteSize(int requiredSize){
 		Assert.assertEquals(StringByteTool.getUtf8Bytes("a").length, 1);
 		StringBuilder longString = new StringBuilder();
-		for(int size = 0 ; size < requiredSize ; size++){
+		for(int size = 0; size < requiredSize; size++){
 			longString.append("a");
 		}
 		return longString.toString();

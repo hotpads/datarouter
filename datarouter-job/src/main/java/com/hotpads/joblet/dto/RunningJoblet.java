@@ -5,7 +5,7 @@ import java.util.Optional;
 
 import com.hotpads.datarouter.util.core.DrDateTool;
 import com.hotpads.joblet.JobletPackage;
-import com.hotpads.joblet.enums.JobletType;
+import com.hotpads.joblet.type.JobletType;
 
 public class RunningJoblet{
 

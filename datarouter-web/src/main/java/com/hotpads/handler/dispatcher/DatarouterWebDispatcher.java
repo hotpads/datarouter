@@ -1,19 +1,17 @@
 package com.hotpads.handler.dispatcher;
 
 
+import com.hotpads.datarouter.browse.DatabeanViewerHandler;
+import com.hotpads.datarouter.browse.DatarouterHandler;
+import com.hotpads.datarouter.browse.MemoryHandler;
+import com.hotpads.datarouter.browse.RoutersHandler;
+import com.hotpads.datarouter.browse.ViewNodeDataHandler;
+import com.hotpads.datarouter.databeangenerator.DatabeanGeneratorHandler;
 import com.hotpads.datarouter.inject.DatarouterInjector;
-import com.hotpads.datarouter.test.TestApiHandler;
-import com.hotpads.handler.BaseDispatcher;
-import com.hotpads.handler.ExecutorsMonitoringHandler;
-import com.hotpads.handler.MemoryMonitoringHandler;
-import com.hotpads.handler.admin.DatabeanGeneratorHandler;
-import com.hotpads.handler.admin.DatarouterHandler;
-import com.hotpads.handler.admin.RoutersHandler;
-import com.hotpads.handler.admin.StackTracesManagerHandler;
-import com.hotpads.handler.admin.client.memory.MemoryHandler;
-import com.hotpads.handler.datarouter.DatabeanViewerHandler;
-import com.hotpads.handler.datarouter.ViewNodeDataHandler;
-import com.hotpads.handler.server.WebAppInstanceHandler;
+import com.hotpads.datarouter.monitoring.ExecutorsMonitoringHandler;
+import com.hotpads.datarouter.monitoring.MemoryMonitoringHandler;
+import com.hotpads.datarouter.monitoring.StackTracesManagerHandler;
+import com.hotpads.handler.TestApiHandler;
 
 public class DatarouterWebDispatcher extends BaseDispatcher{
 
@@ -31,8 +29,7 @@ public class DatarouterWebDispatcher extends BaseDispatcher{
 			PATH_nodes_browseData = PATH_datarouter + "/nodes/browseData",
 			PATH_executors = PATH_datarouter + "/executors",
 			PATH_data = PATH_datarouter + DATA,
-			PATH_testApi = PATH_datarouter + "/testApi",
-			PATH_webAppInstances = PATH_datarouter + "/webAppInstances";
+			PATH_testApi = PATH_datarouter + "/testApi";
 
 	public DatarouterWebDispatcher(DatarouterInjector injector, String servletContextPath){
 		super(injector, servletContextPath, PATH_datarouter);
@@ -55,7 +52,6 @@ public class DatarouterWebDispatcher extends BaseDispatcher{
 		// /datarouter/data/fadafa/adfadfafqe/abbc_2152
 		handle(PATH_data + REGEX_TWO_DIRECTORY_PLUS).withHandler(DatabeanViewerHandler.class);
 
-		handle(PATH_webAppInstances).withHandler(WebAppInstanceHandler.class);
 	}
 
 }

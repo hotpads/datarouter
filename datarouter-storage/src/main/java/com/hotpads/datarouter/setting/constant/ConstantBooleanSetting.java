@@ -1,6 +1,8 @@
 package com.hotpads.datarouter.setting.constant;
 
-public class ConstantBooleanSetting extends ConstantSetting<Boolean>{
+import com.hotpads.datarouter.setting.type.BooleanSetting;
+
+public class ConstantBooleanSetting extends ConstantSetting<Boolean> implements BooleanSetting{
 
 	private final boolean value;
 

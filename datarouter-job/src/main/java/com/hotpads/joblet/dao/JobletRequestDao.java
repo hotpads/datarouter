@@ -15,17 +15,18 @@ import com.hotpads.joblet.JobletNodes;
 import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.databean.JobletRequestKey;
 import com.hotpads.joblet.enums.JobletStatus;
-import com.hotpads.joblet.enums.JobletType;
+import com.hotpads.joblet.type.JobletType;
 
 @Singleton
 public class JobletRequestDao{
 
-	private SortedMapStorageNode<JobletRequestKey,JobletRequest> node;
+	private final SortedMapStorageNode<JobletRequestKey,JobletRequest> node;
 
 	@Inject
 	public JobletRequestDao(JobletNodes jobletNodes){
 		this.node = jobletNodes.jobletRequest();
 	}
+
 
 	public JobletRequest getReservedRequest(JobletType<?> jobletType, String reservedBy){
 		JobletRequestKey prefix = JobletRequestKey.create(jobletType, null, null, null);

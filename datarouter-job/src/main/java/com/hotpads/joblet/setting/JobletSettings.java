@@ -5,13 +5,13 @@ import java.util.Optional;
 
 import javax.inject.Inject;
 
-import com.hotpads.WebAppName;
+import com.hotpads.datarouter.app.WebAppName;
 import com.hotpads.datarouter.setting.Setting;
 import com.hotpads.datarouter.setting.SettingFinder;
 import com.hotpads.datarouter.setting.SettingNode;
 import com.hotpads.datarouter.util.core.DrRuntimeTool;
 import com.hotpads.joblet.enums.JobletQueueMechanism;
-import com.hotpads.joblet.enums.JobletType;
+import com.hotpads.joblet.type.JobletType;
 
 public class JobletSettings
 extends SettingNode{
@@ -28,6 +28,7 @@ extends SettingNode{
 	public final Setting<Integer> memoryTickets;
 	private final Setting<String> queueMechanism;
 	public final Setting<Boolean> runJobletCounterJob;
+	public final Setting<Boolean> runJobletRequeueJob;
 	public final Setting<Boolean> runJobletInstanceCounterJob;
 
 
@@ -54,6 +55,7 @@ extends SettingNode{
 		queueMechanism = registerString("queueMechanism", JobletQueueMechanism.JDBC_LOCK_FOR_UPDATE
 				.getPersistentString());
 		runJobletCounterJob = registerBoolean("runJobletCounterJob", false);
+		runJobletRequeueJob = registerBoolean("runJobletRequeueJob", false);
 		runJobletInstanceCounterJob = registerBoolean("runJobletInstanceCounterJob", false);
 	}
 

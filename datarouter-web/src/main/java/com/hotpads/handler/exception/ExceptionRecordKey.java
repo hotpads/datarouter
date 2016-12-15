@@ -9,7 +9,7 @@ import com.hotpads.datarouter.storage.field.imp.StringFieldKey;
 import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
 import com.hotpads.util.core.number.RandomTool;
 
-public class ExceptionRecordKey extends BasePrimaryKey<ExceptionRecordKey> {
+public class ExceptionRecordKey extends BasePrimaryKey<ExceptionRecordKey>{
 
 	public static final long ID_TIME_MULTIPLIER = 1000000;
 
@@ -19,18 +19,19 @@ public class ExceptionRecordKey extends BasePrimaryKey<ExceptionRecordKey> {
 		public static final StringFieldKey id = new StringFieldKey("id");
 	}
 
-	public ExceptionRecordKey() {}
+	public ExceptionRecordKey(){
+	}
 
-	public ExceptionRecordKey(String id) {
+	public ExceptionRecordKey(String id){
 		this.id = id;
 	}
 
 	@Override
-	public List<Field<?>> getFields() {
+	public List<Field<?>> getFields(){
 		return Arrays.asList(new StringField(FieldKeys.id, id));
 	}
 
-	public String getId() {
+	public String getId(){
 		return id;
 	}
 

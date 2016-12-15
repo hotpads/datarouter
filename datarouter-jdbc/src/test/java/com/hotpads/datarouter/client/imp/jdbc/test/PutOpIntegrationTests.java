@@ -25,13 +25,13 @@ import com.hotpads.datarouter.test.client.insert.PutOpTestBeanKey;
 import com.hotpads.datarouter.test.client.insert.PutOpTestRouter;
 import com.hotpads.util.core.collections.Pair;
 
-@Guice(moduleFactory=TestDatarouterJdbcModuleFactory.class)
+@Guice(moduleFactory = TestDatarouterJdbcModuleFactory.class)
 public class PutOpIntegrationTests{
 
 	@Inject
 	private Datarouter datarouter;
 	@Inject
-	private	DatarouterSettings datarouterSettings;
+	private DatarouterSettings datarouterSettings;
 	@Inject
 	private NodeFactory nodeFactory;
 
@@ -153,7 +153,7 @@ public class PutOpIntegrationTests{
 				.setIterateBatchSize(testBatchSize)
 				.setPutMethod(PutMethod.INSERT_ON_DUPLICATE_UPDATE);
 		List<PutOpTestBean> databeans = new ArrayList<>();
-		for (int count = 0; count < totalCount; count++){
+		for(int count = 0; count < totalCount; count++){
 			databeans.add(new PutOpTestBean("testMultiInsert", randomString(), randomString()));
 		}
 		router.putOptTest().putMulti(databeans, config);

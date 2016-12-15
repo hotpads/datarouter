@@ -11,7 +11,7 @@ import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.test.DatarouterStorageTestModuleFactory;
 import com.hotpads.trace.node.TraceSubNodes;
 
-@Guice(moduleFactory=DatarouterStorageTestModuleFactory.class)
+@Guice(moduleFactory = DatarouterStorageTestModuleFactory.class)
 public class TraceEntityIntegrationTests{
 
 	private final Datarouter datarouter;

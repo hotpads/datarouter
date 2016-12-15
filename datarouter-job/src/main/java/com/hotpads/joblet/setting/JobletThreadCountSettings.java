@@ -7,12 +7,12 @@ import java.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import com.hotpads.WebAppName;
+import com.hotpads.datarouter.app.WebAppName;
 import com.hotpads.datarouter.setting.Setting;
 import com.hotpads.datarouter.setting.SettingFinder;
 import com.hotpads.datarouter.setting.SettingNode;
-import com.hotpads.joblet.enums.JobletType;
-import com.hotpads.joblet.enums.JobletTypeFactory;
+import com.hotpads.joblet.type.JobletType;
+import com.hotpads.joblet.type.JobletTypeFactory;
 
 @Singleton
 public class JobletThreadCountSettings extends SettingNode{

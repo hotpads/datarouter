@@ -29,8 +29,8 @@ import com.hotpads.datarouter.util.core.DrNumberTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.joblet.enums.JobletPriority;
 import com.hotpads.joblet.enums.JobletStatus;
-import com.hotpads.joblet.enums.JobletType;
-import com.hotpads.joblet.enums.JobletTypeFactory;
+import com.hotpads.joblet.type.JobletType;
+import com.hotpads.joblet.type.JobletTypeFactory;
 import com.hotpads.util.datastructs.MutableBoolean;
 
 public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
@@ -75,13 +75,13 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 		public static final StringFieldKey type = new StringFieldKey("type");
 	}
 
-	public static class JobletRequestFielder extends BaseDatabeanFielder<JobletRequestKey, JobletRequest> {
-		public JobletRequestFielder() {
+	public static class JobletRequestFielder extends BaseDatabeanFielder<JobletRequestKey,JobletRequest>{
+		public JobletRequestFielder(){
 			super(JobletRequestKey.class);
 		}
 
 		@Override
-		public List<Field<?>> getNonKeyFields(JobletRequest databean) {
+		public List<Field<?>> getNonKeyFields(JobletRequest databean){
 			return Arrays.asList(
 					new StringField(FieldKeys.queueId, databean.queueId),
 					new StringEnumField<>(FieldKeys.status, databean.status),
@@ -126,7 +126,7 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 	}
 
 	@Override
-	public JobletRequestKey getKey() {
+	public JobletRequestKey getKey(){
 		return key;
 	}
 
@@ -136,14 +136,14 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 			JobletType<?> type, JobletStatus status, String reservedByPrefix){
 		ArrayList<JobletRequest> outs = new ArrayList<>();
 		for(JobletRequest in : DrIterableTool.nullSafe(ins)){
-			if(type.getPersistentInt() != in.getKey().getTypeCode().intValue()) {
+			if(type.getPersistentInt() != in.getKey().getTypeCode().intValue()){
 				continue;
 			}
-			if(status != in.getStatus()) {
+			if(status != in.getStatus()){
 				continue;
 			}
 			String reservedBy = DrStringTool.nullSafe(in.getReservedBy());
-			if(!reservedBy.startsWith(reservedByPrefix)) {
+			if(!reservedBy.startsWith(reservedByPrefix)){
 				continue;
 			}
 			outs.add(in);
@@ -215,27 +215,27 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 
     /*-------------------- get/set --------------------*/
 
-	public String getReservedBy() {
+	public String getReservedBy(){
 		return reservedBy;
 	}
 
-	public void setReservedBy(String reservedBy) {
+	public void setReservedBy(String reservedBy){
 		this.reservedBy = reservedBy;
 	}
 
-	public Long getReservedAt() {
+	public Long getReservedAt(){
 		return reservedAt;
 	}
 
-	public void setReservedAt(Long reservedAt) {
+	public void setReservedAt(Long reservedAt){
 		this.reservedAt = reservedAt;
 	}
 
-	public JobletStatus getStatus() {
+	public JobletStatus getStatus(){
 		return status;
 	}
 
-	public void setStatus(JobletStatus status) {
+	public void setStatus(JobletStatus status){
 		this.status = status;
 	}
 
@@ -251,19 +251,19 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 		return restartable;
 	}
 
-	public Integer getNumTasks() {
+	public Integer getNumTasks(){
 		return numTasks;
 	}
 
-	public void setNumTasks(Integer numTasks) {
+	public void setNumTasks(Integer numTasks){
 		this.numTasks = numTasks;
 	}
 
-	public Integer getNumFailures() {
+	public Integer getNumFailures(){
 		return numFailures;
 	}
 
-	public void setNumFailures(Integer numFailures) {
+	public void setNumFailures(Integer numFailures){
 		this.numFailures = numFailures;
 	}
 

@@ -10,9 +10,10 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import com.hotpads.joblet.databean.JobletRequest;
+import com.hotpads.joblet.databean.JobletRequestKey;
 import com.hotpads.joblet.enums.JobletPriority;
-import com.hotpads.joblet.enums.JobletType;
-import com.hotpads.joblet.enums.JobletTypeFactory;
+import com.hotpads.joblet.type.JobletType;
+import com.hotpads.joblet.type.JobletTypeFactory;
 
 @Singleton
 public class JobletRequestQueueManager{
@@ -31,9 +32,12 @@ public class JobletRequestQueueManager{
 		getAllQueueKeys().forEach(key -> lastMissByQueue.put(key, 0L));
 	}
 
-
 	public JobletRequestQueueKey getQueueKey(JobletRequest jobletRequest){
-		return new JobletRequestQueueKey(jobletTypeFactory.fromJobletRequest(jobletRequest), jobletRequest.getKey()
+		return getQueueKey(jobletRequest.getKey());
+	}
+
+	public JobletRequestQueueKey getQueueKey(JobletRequestKey jobletRequestKey){
+		return new JobletRequestQueueKey(jobletTypeFactory.fromJobletRequestKey(jobletRequestKey), jobletRequestKey
 				.getPriority());
 	}
 

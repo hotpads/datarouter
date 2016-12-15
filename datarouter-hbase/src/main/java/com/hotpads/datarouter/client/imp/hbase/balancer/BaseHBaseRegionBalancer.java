@@ -52,22 +52,22 @@ implements Callable<Map<DrRegionInfo<?>,ServerName>>{
 
 	public void assertRegionCountsConsistent(){
 		if(drhRegionList.getRegions().size() != serverByRegion.size()){
-			logger.error("regions:"+drhRegionList.getRegions());
-			logger.error("balanced regions:"+serverByRegion.keySet());
-			throw new RuntimeException("region count mismatch: input="+drhRegionList.getRegions().size()
-					+", output="+serverByRegion.size());
+			logger.error("regions:" + drhRegionList.getRegions());
+			logger.error("balanced regions:" + serverByRegion.keySet());
+			throw new RuntimeException("region count mismatch: input=" + drhRegionList.getRegions().size() + ", output="
+					+ serverByRegion.size());
 		}
 	}
 
 	protected String getServerByRegionStringForDebug(){
-		int i = 0;
+		int idx = 0;
 		StringBuilder sb = new StringBuilder();
 		for(Map.Entry<DrRegionInfo<?>,ServerName> entry : serverByRegion.entrySet()){
 			sb.append("\n"
-					+DrStringTool.pad(i+"", ' ', 3)
-					+" "+entry.getKey().getRegion().getEncodedName()
-					+", "+entry.getValue());
-			++i;
+					+ DrStringTool.pad(idx + "", ' ', 3)
+					+ " " + entry.getKey().getRegion().getEncodedName()
+					+ ", " + entry.getValue());
+			++idx;
 		}
 		return sb.toString();
 	}

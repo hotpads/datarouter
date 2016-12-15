@@ -32,7 +32,7 @@ extends BasePrimitiveJdbcFieldCodec<Long,Field<Long>>{
 
 	@Override
 	public Long parseJdbcValueButDoNotSet(Object obj){
-		if(obj==null){
+		if(obj == null){
 			return null;
 		}
 		//currently handling jdbc and hibernate return types.  hibernate returns all sorts of different things
@@ -45,7 +45,7 @@ extends BasePrimitiveJdbcFieldCodec<Long,Field<Long>>{
 	@Override
 	public void setPreparedStatementValue(PreparedStatement ps, int parameterIndex){
 		try{
-			if(field.getValue()==null){
+			if(field.getValue() == null){
 				ps.setNull(parameterIndex, Types.BIGINT);
 			}else{
 				ps.setLong(parameterIndex, field.getValue());
@@ -59,7 +59,7 @@ extends BasePrimitiveJdbcFieldCodec<Long,Field<Long>>{
 	public Long fromJdbcResultSetButDoNotSet(ResultSet rs){
 		try{
 			long value = rs.getLong(field.getKey().getColumnName());
-			return rs.wasNull()?null:value;
+			return rs.wasNull() ? null : value;
 		}catch(SQLException e){
 			throw new DataAccessException(e);
 		}

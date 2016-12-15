@@ -1,6 +1,8 @@
 package com.hotpads.joblet.databean;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
@@ -12,7 +14,7 @@ import com.hotpads.datarouter.storage.field.imp.comparable.LongField;
 import com.hotpads.datarouter.storage.field.imp.comparable.LongFieldKey;
 import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
 import com.hotpads.joblet.enums.JobletPriority;
-import com.hotpads.joblet.enums.JobletType;
+import com.hotpads.joblet.type.JobletType;
 
 
 public class JobletRequestKey extends BasePrimaryKey<JobletRequestKey>{
@@ -32,7 +34,7 @@ public class JobletRequestKey extends BasePrimaryKey<JobletRequestKey>{
 	}
 
 	@Override
-	public List<Field<?>> getFields() {
+	public List<Field<?>> getFields(){
 		return Arrays.asList(
 				new IntegerField(FieldKeys.typeCode, typeCode),
 				new IntegerField(FieldKeys.executionOrder, executionOrder),
@@ -45,7 +47,14 @@ public class JobletRequestKey extends BasePrimaryKey<JobletRequestKey>{
 	JobletRequestKey(){
 	}
 
-	//static method to avoid ambiguity with below constructor
+	public JobletRequestKey(Integer typeCode, Integer executionOrder, Long createdMs, Integer batchSequence){
+		this.typeCode = typeCode;
+		this.executionOrder = executionOrder;
+		this.created = createdMs;
+		this.batchSequence = batchSequence;
+	}
+
+	//static method to avoid ambiguity with constructor
 	public static JobletRequestKey create(JobletType<?> type, Integer executionOrder, Date createdDate,
 			Integer batchSequence){
 		return new JobletRequestKey(type == null ? null : type.getPersistentInt(),
@@ -54,11 +63,15 @@ public class JobletRequestKey extends BasePrimaryKey<JobletRequestKey>{
 				batchSequence);
 	}
 
-	public JobletRequestKey(Integer typeCode, Integer executionOrder, Long createdMs, Integer batchSequence){
-		this.typeCode = typeCode;
-		this.executionOrder = executionOrder;
-		this.created = createdMs;
-		this.batchSequence = batchSequence;
+	public static List<JobletRequestKey> createPrefixesForTypesAndPriorities(Collection<JobletType<?>> types,
+			Collection<JobletPriority> priorities){
+		List<JobletRequestKey> prefixes = new ArrayList<>();
+		for(JobletType<?> type : types){
+			for(JobletPriority priority : priorities){
+				prefixes.add(create(type, priority.getExecutionOrder(), null, null));
+			}
+		}
+		return prefixes;
 	}
 
 	/*----------------------- methods ---------------------------*/
@@ -73,35 +86,35 @@ public class JobletRequestKey extends BasePrimaryKey<JobletRequestKey>{
 
 	/*----------------------- get/set -----------------------*/
 
-	public Long getCreated() {
+	public Long getCreated(){
 		return created;
 	}
 
-	public void setCreated(Long created) {
+	public void setCreated(Long created){
 		this.created = created;
 	}
 
-	public Integer getExecutionOrder() {
+	public Integer getExecutionOrder(){
 		return executionOrder;
 	}
 
-	public void setExecutionOrder(Integer executionOrder) {
+	public void setExecutionOrder(Integer executionOrder){
 		this.executionOrder = executionOrder;
 	}
 
-	public Integer getBatchSequence() {
+	public Integer getBatchSequence(){
 		return batchSequence;
 	}
 
-	public void setBatchSequence(Integer batchSequence) {
+	public void setBatchSequence(Integer batchSequence){
 		this.batchSequence = batchSequence;
 	}
 
-	public Integer getTypeCode() {
+	public Integer getTypeCode(){
 		return typeCode;
 	}
 
-	public void setTypeCode(Integer typeCode) {
+	public void setTypeCode(Integer typeCode){
 		this.typeCode = typeCode;
 	}
 

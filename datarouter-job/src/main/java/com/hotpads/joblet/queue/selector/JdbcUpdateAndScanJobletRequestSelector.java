@@ -11,10 +11,10 @@ import com.hotpads.joblet.JobletService;
 import com.hotpads.joblet.dao.JobletRequestDao;
 import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.enums.JobletStatus;
-import com.hotpads.joblet.enums.JobletType;
 import com.hotpads.joblet.jdbc.JobletRequestSqlBuilder;
 import com.hotpads.joblet.jdbc.ReserveJobletRequest;
 import com.hotpads.joblet.queue.JobletRequestSelector;
+import com.hotpads.joblet.type.JobletType;
 import com.hotpads.util.core.profile.PhaseTimer;
 
 @Singleton

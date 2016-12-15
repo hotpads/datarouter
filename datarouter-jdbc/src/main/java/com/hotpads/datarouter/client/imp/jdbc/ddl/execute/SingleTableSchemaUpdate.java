@@ -103,15 +103,15 @@ implements Callable<Optional<String>>{
 			if(!exists){
 				ddl = new SqlCreateTableGenerator(requested, schemaName).generateDdl();
 				if(executeOptions.getCreateTables()){
-					logger.info("========================================== Creating the table " +tableName
-							+" ============================");
+					logger.info("========================================== Creating the table " + tableName
+							+ " ============================");
 					logger.info(ddl);
 					statement.execute(ddl);
 					logger.info("============================================================================="
-					+"=======================");
+							+ "=======================");
 				}else{
 					logger.info("========================================== Please Execute SchemaUpdate"
-							+" ============================");
+							+ " ============================");
 					logger.info(ddl);
 					printedSchemaUpdate = Optional.of(ddl);
 				}
@@ -125,13 +125,13 @@ implements Callable<Optional<String>>{
 				if(executeAlterTableGenerator.willAlterTable()){
 					ddl = executeAlterTableGenerator.generateDdl();
 					PhaseTimer alterTableTimer = new PhaseTimer();
-					logger.info("--------------- Executing "+getClass().getSimpleName()
-							+" SchemaUpdate ---------------");
+					logger.info("--------------- Executing " + getClass().getSimpleName()
+							+ " SchemaUpdate ---------------");
 					logger.info(ddl);
 					//execute it
 					statement.execute(ddl);
-					alterTableTimer.add("Completed SchemaUpdate for "+tableName);
-					logger.info("----------------- "+alterTableTimer+" -------------------");
+					alterTableTimer.add("Completed SchemaUpdate for " + tableName);
+					logger.info("----------------- " + alterTableTimer + " -------------------");
 				}
 
 				//print the alter table
@@ -149,7 +149,7 @@ implements Callable<Optional<String>>{
 					logger.info("# ========================== Thank You ======================================");
 				}
 			}
-		} catch (Exception e){
+		}catch(Exception e){
 			logger.error("error on {}", ddl, e);
 			throw new RuntimeException(e);
 		} finally{

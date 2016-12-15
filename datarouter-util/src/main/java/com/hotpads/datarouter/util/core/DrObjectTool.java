@@ -2,10 +2,10 @@ package com.hotpads.datarouter.util.core;
 
 import java.util.Objects;
 
-public class DrObjectTool {
+public class DrObjectTool{
 
 	public static <T> boolean notEquals(T first, T second){
-		return ! Objects.equals(first, second);
+		return !Objects.equals(first, second);
 	}
 
 	public static boolean isOneNullButNotTheOther(Object first, Object second){
@@ -13,14 +13,14 @@ public class DrObjectTool {
 	}
 
 	public static boolean bothNull(Object first, Object second){
-		return first==null && second==null;
+		return first == null && second == null;
 	}
 
 	public static <T> T nullSafe(T object, T returnIfNull){
 		return object != null ? object : returnIfNull;
 	}
 
-	public static String nullSafeToString(Object object) {
+	public static String nullSafeToString(Object object){
 		return Objects.toString(object, null);
 	}
 

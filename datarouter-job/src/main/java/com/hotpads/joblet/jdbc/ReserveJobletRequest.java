@@ -10,7 +10,7 @@ import com.hotpads.datarouter.config.Isolation;
 import com.hotpads.datarouter.op.util.ResultMergeTool;
 import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.joblet.JobletNodes;
-import com.hotpads.joblet.enums.JobletType;
+import com.hotpads.joblet.type.JobletType;
 
 public class ReserveJobletRequest extends BaseJdbcOp<Boolean>{
 

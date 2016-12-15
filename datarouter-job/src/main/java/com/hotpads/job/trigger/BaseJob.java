@@ -43,7 +43,7 @@ public abstract class BaseJob implements Job{
 	/************************* constructors *******************/
 
 	@Inject
-	public BaseJob(JobEnvironment jobEnvironment) {
+	public BaseJob(JobEnvironment jobEnvironment){
 		this.triggersRepository = jobEnvironment.getTriggersRepository();
 		this.scheduler = jobEnvironment.getScheduler();
 		this.executor = jobEnvironment.getExecutor();
@@ -69,7 +69,7 @@ public abstract class BaseJob implements Job{
 			return null;
 		}
 		Date nextFireDate = trigger.getNextValidTimeAfter(new Date());
-		if(nextFireDate==null){
+		if(nextFireDate == null){
 			return null;
 		}
 		long delay = nextFireDate.getTime() - System.currentTimeMillis();
@@ -84,12 +84,12 @@ public abstract class BaseJob implements Job{
 			logger.warn("scheduling " + getClass().getSimpleName() + " to run immediately");
 		}else{
 			delay = getDelayBeforeNextFireTimeMs();
-			if(delay==null){
-				logger.warn("couldn't schedule "+getClass()+" because no trigger defined");
+			if(delay == null){
+				logger.warn("couldn't schedule " + getClass() + " because no trigger defined");
 				return;
 			}
 			if(isAlreadyScheduled.get()){
-				logger.warn("couldn't schedule "+getClass()+" because is already scheduled");
+				logger.warn("couldn't schedule " + getClass() + " because is already scheduled");
 				return;
 			}
 		}
@@ -113,14 +113,14 @@ public abstract class BaseJob implements Job{
 			scheduler.getTracker().get(this.getClass()).setRunning(false);
 			getFromTracker().incrementNumberOfErrors();
 			getFromTracker().setLastErrorTime(new Date());
-			logger.warn("exception executing "+getClass(), e);
+			logger.warn("exception executing " + getClass(), e);
 			tryRecordException(e);
 		}finally{
 			try{
 				if(!isAlreadyRunning.get()){
 					getFromTracker().setRunning(false);
 				}else{
-					logger.warn("couldn't run "+getClass()+" because it is already running");
+					logger.warn("couldn't run " + getClass() + " because it is already running");
 				}
 			}catch(Exception e){
 				logger.warn("exception in finally block", e);
@@ -160,13 +160,13 @@ public abstract class BaseJob implements Job{
 			Date nextJobTriggerTime = getTrigger().getNextValidTimeAfter(triggerTime);
 			String jobCompletionLog = "Finished " + getClass().getSimpleName() + " in " + getElapsedRunningTimeMs()
 					+ "ms";
-			if(getStartDelayMs() > 1000) {
+			if(getStartDelayMs() > 1000){
 				jobCompletionLog += ", delayed by " + getStartDelayMs() + "ms";
 			}
-			if(new Date().after(nextJobTriggerTime)) {
+			if(new Date().after(nextJobTriggerTime)){
 				jobCompletionLog += ", missed next trigger";
 			}
-			if(getElapsedRunningTimeMs() > 400) {
+			if(getElapsedRunningTimeMs() > 400){
 				logger.warn(jobCompletionLog);
 			}else{
 				logger.debug(jobCompletionLog);
@@ -194,30 +194,30 @@ public abstract class BaseJob implements Job{
 	}
 
 	protected void assertBaseServicesSet(){
-		if(scheduler==null || executor==null || processJobsSetting==null){
+		if(scheduler == null || executor == null || processJobsSetting == null){
 			logger.error("you must call job.setScheduler(..), job.setExecutor(..), and job.setSettings(..) if"
 					+ " manually instantiating this job.  It is recommended to get an instance from the Injector"
 					+ " instead.");
 		}
-		if(scheduler==null){
+		if(scheduler == null){
 			throw new NullPointerException("please call job.setScheduler(JobScheduler scheduler)");
 		}
-		if(executor==null){
+		if(executor == null){
 			throw new NullPointerException("please call job.setExecutor(ScheduledExecutorService executor)");
 		}
-		if(processJobsSetting==null){
+		if(processJobsSetting == null){
 			throw new NullPointerException("please call job.setProcessJobsSetting(..)");
 		}
 	}
 
 	@Override
-	public Date getNextScheduled() {
+	public Date getNextScheduled(){
 		CronExpression trigger = getTrigger();
 		if(trigger == null){
 			return null;
 		}
 		Date nextFireDate = trigger.getNextValidTimeAfter(new Date());
-		if(nextFireDate==null){
+		if(nextFireDate == null){
 			return null;
 		}
 		getFromTracker().setNextScheduled(nextFireDate);
@@ -230,7 +230,7 @@ public abstract class BaseJob implements Job{
 	}
 
 	@Override
-	public String getLastErrorTime() {
+	public String getLastErrorTime(){
 		if(getFromTracker().getLastErrorTime() == null){
 			return "No error detected";
 		}
@@ -240,7 +240,7 @@ public abstract class BaseJob implements Job{
 	@Override
 	public String getLastIntervalDurationMs(){
 		if(getFromTracker().getLastIntervalDurationMs() != 0){
-			return Long.toString(getFromTracker().getLastIntervalDurationMs())+" ms";
+			return Long.toString(getFromTracker().getLastIntervalDurationMs()) + " ms";
 		}
 		return " - ";
 	}
@@ -248,7 +248,7 @@ public abstract class BaseJob implements Job{
 	@Override
 	public String getLastExecutionDurationMs(){
 		if(getFromTracker().getLastExecutionDurationMs() != -1){
-			return Long.toString(getFromTracker().getLastExecutionDurationMs())+" ms";
+			return Long.toString(getFromTracker().getLastExecutionDurationMs()) + " ms";
 		}
 		return " - ";
 	}
@@ -265,9 +265,8 @@ public abstract class BaseJob implements Job{
 				&& getFromTracker().getNumberOfErrors() == 0){
 			return 0;
 		}
-		double percentage = (double)Math.round((double)(10000*getFromTracker().getNumberOfSuccesses())
-				/(getFromTracker().getNumberOfSuccesses()
-						+getFromTracker().getNumberOfErrors()))/100;
+		double percentage = (double)Math.round((double)(10000 * getFromTracker().getNumberOfSuccesses())
+				/ (getFromTracker().getNumberOfSuccesses() + getFromTracker().getNumberOfErrors())) / 100;
 		return percentage;
 	}
 
@@ -329,13 +328,13 @@ public abstract class BaseJob implements Job{
 	}
 
 	@Override
-	public CronExpression getDefaultTrigger() {
+	public CronExpression getDefaultTrigger(){
 		return triggersRepository.getPackageForClass(getClass()).cronExpression;
 	}
 
 	@Override
 	public int compareTo(Job that){
-		if(that==null){
+		if(that == null){
 			return 1;
 		}
 		return DrComparableTool.nullFirstCompareTo(getClass().getCanonicalName(), that.getClass().getCanonicalName());

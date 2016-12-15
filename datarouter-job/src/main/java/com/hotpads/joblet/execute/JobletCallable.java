@@ -20,7 +20,7 @@ import com.hotpads.joblet.JobletPackage;
 import com.hotpads.joblet.JobletService;
 import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.dto.RunningJoblet;
-import com.hotpads.joblet.enums.JobletType;
+import com.hotpads.joblet.type.JobletType;
 import com.hotpads.util.core.profile.PhaseTimer;
 import com.hotpads.util.datastructs.MutableBoolean;
 

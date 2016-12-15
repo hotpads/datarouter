@@ -3,7 +3,7 @@ package com.hotpads.trace;
 
 public abstract class TracedCallable<V> extends TracedCheckedCallable<V>{
 
-	public TracedCallable(String threadName) {
+	public TracedCallable(String threadName){
 		super(threadName);
 	}
 

@@ -38,7 +38,7 @@ public class RedisTestRouter extends BaseRouter{
 
 	/** get/set **************************************************************/
 
-	public RedisNode<RedisDatabeanKey,RedisDatabean,RedisDatabeanFielder> redisNode() {
+	public RedisNode<RedisDatabeanKey,RedisDatabean,RedisDatabeanFielder> redisNode(){
 		return redisNode;
 	}
 

@@ -29,8 +29,8 @@ public enum TestEnum implements IntegerEnum<TestEnum>, StringEnum<TestEnum>{
 	}
 
 	@Override
-	public TestEnum fromPersistentInteger(Integer i){
-		return DatarouterEnumTool.getEnumFromInteger(values(), i, null);
+	public TestEnum fromPersistentInteger(Integer input){
+		return DatarouterEnumTool.getEnumFromInteger(values(), input, null);
 	}
 
 
@@ -42,8 +42,8 @@ public enum TestEnum implements IntegerEnum<TestEnum>, StringEnum<TestEnum>{
 	}
 
 	@Override
-	public TestEnum fromPersistentString(String s){
-		return DatarouterEnumTool.getEnumFromString(values(), s, null);
+	public TestEnum fromPersistentString(String input){
+		return DatarouterEnumTool.getEnumFromString(values(), input, null);
 	}
 
 }

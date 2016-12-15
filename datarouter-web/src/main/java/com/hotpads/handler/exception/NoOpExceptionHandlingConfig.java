@@ -4,7 +4,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 
-import com.hotpads.exception.analysis.ExceptionDto;
+import com.hotpads.datarouter.monitoring.exception.ExceptionDto;
 import com.hotpads.handler.user.role.DatarouterUserRole;
 import com.hotpads.handler.user.session.DatarouterSessionManager;
 

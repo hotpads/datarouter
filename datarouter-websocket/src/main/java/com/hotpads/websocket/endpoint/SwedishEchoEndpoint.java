@@ -4,7 +4,6 @@ import javax.inject.Inject;
 import javax.websocket.MessageHandler;
 
 import com.hotpads.websocket.endpoint.SwedishEchoMessageHandler.SwedishEchoMessageHandlerFactory;
-import com.hotpads.websocket.session.WebSocketSession;
 
 /**
  * return twice the message received
@@ -16,7 +15,7 @@ public class SwedishEchoEndpoint extends BaseEndpoint{
 	private SwedishEchoMessageHandlerFactory swedishEchoMessageHandlerFactory;
 
 	@Override
-	protected MessageHandler getMessageHandler(WebSocketSession webSocketSession){
+	protected MessageHandler getMessageHandler(){
 		return swedishEchoMessageHandlerFactory.create(webSocketSession.getKey().getUserToken());
 	}
 

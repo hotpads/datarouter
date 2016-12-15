@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.imp.DateField;
@@ -25,7 +24,7 @@ extends BaseDatabean<PK,D>{
 			updated = "updated";
 	}
 
-	public List<Field<?>> getNonKeyFields() {
+	public List<Field<?>> getNonKeyFields(){
 		return Arrays.asList(
 			new DateField(F.created, created),
 			new DateField(F.updated, updated));//this should probably be LongDateField for mysql

@@ -16,7 +16,7 @@ public enum JobletPriority{
 	}
 
 	public static JobletPriority fromExecutionOrder(Integer executionOrder){
-		if(executionOrder==null){
+		if(executionOrder == null){
 			return JobletPriority.LOW;
 		}
 		for(JobletPriority priority : JobletPriority.values()){

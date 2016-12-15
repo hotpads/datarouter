@@ -5,7 +5,7 @@ public class DatarouterSessionKey extends BaseDatarouterSessionDatabeanKey<Datar
 	DatarouterSessionKey(){
 	}
 
-	public DatarouterSessionKey(String sessionToken) {
+	public DatarouterSessionKey(String sessionToken){
 		super(sessionToken);
 	}
 }

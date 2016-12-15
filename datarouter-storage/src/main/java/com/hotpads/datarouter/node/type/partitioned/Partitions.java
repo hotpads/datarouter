@@ -51,7 +51,7 @@ public class Partitions<
 	public void addNode(N node){
 		String nodeName = node.getName();
 		if(nodeByName.keySet().contains(nodeName)){//enforce global node name uniqueness
-			throw new IllegalArgumentException("node already exists:"+nodeName);
+			throw new IllegalArgumentException("node already exists:" + nodeName);
 		}
 		String clientName = node.getClientId().getName();
 		clientNames.add(clientName);
@@ -64,13 +64,13 @@ public class Partitions<
 		nodeByName.put(nodeName, node);
 
 		//nodeNamesByClientName
-		if(nodeNamesByClientName.get(clientName)==null){
+		if(nodeNamesByClientName.get(clientName) == null){
 			nodeNamesByClientName.put(clientName, new ArrayList<String>());
 		}
 		nodeNamesByClientName.get(clientName).add(nodeName);
 
 		//clientNamesByNodeName
-		if(clientNamesByNodeName.get(nodeName)==null){
+		if(clientNamesByNodeName.get(nodeName) == null){
 			clientNamesByNodeName.put(nodeName, new ArrayList<String>());
 		}
 		clientNamesByNodeName.get(nodeName).add(clientName);
@@ -94,7 +94,7 @@ public class Partitions<
 	}
 
 	public List<N> getPhysicalNodesForClient(String clientName){
-		if(clientName==null){
+		if(clientName == null){
 			return getAllNodes();
 		}
 		List<N> nodes = new ArrayList<>();

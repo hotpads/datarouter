@@ -13,8 +13,8 @@ import javax.inject.Singleton;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.joblet.dto.JobletTypeSummary;
 import com.hotpads.joblet.dto.RunningJoblet;
-import com.hotpads.joblet.enums.JobletType;
-import com.hotpads.joblet.enums.JobletTypeFactory;
+import com.hotpads.joblet.type.JobletType;
+import com.hotpads.joblet.type.JobletTypeFactory;
 
 @Singleton
 public class JobletProcessors{

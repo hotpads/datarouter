@@ -63,7 +63,7 @@ public class CallsiteAnalyzer implements Callable<String>{
 				}
 				aggregateStatByKey.get(stat.getKey()).addMetrics(stat);
 				if(numLines % 100000 == 0){
-					logger.warn("scanned "+DrNumberFormatter.addCommas(numLines)+" in "+logPath);
+					logger.warn("scanned " + DrNumberFormatter.addCommas(numLines) + " in " + logPath);
 				}
 			}
 		}
@@ -78,18 +78,18 @@ public class CallsiteAnalyzer implements Callable<String>{
 		int numDaoCallsites = CallsiteStatX.countDaoCallsites(stats);
 		long numSeconds = (lastDate.getTime() - firstDate.getTime()) / 1000;
 		double callsPerSec = (double)numLines / (double)numSeconds;
-		sb.append("          path: "+logPath+"\n");
-		sb.append(" file size (B): "+DrNumberFormatter.addCommas(new File(logPath).length())+"\n");
-		sb.append("         lines: "+DrNumberFormatter.addCommas(numLines)+"\n");
-		sb.append("     callsites: "+DrNumberFormatter.addCommas(stats.size())+"\n");
-		sb.append(" dao callsites: "+DrNumberFormatter.addCommas(numDaoCallsites)+"\n");
-		sb.append("    first date: "+firstDate.toString()+"\n");
-		sb.append("     last date: "+lastDate.toString()+"\n");
-		sb.append("       seconds: "+DrNumberFormatter.addCommas(numSeconds)+"\n");
-		sb.append("     calls/sec: "+DrNumberFormatter.format(callsPerSec, 2)+"\n");
+		sb.append("          path: " + logPath + "\n");
+		sb.append(" file size (B): " + DrNumberFormatter.addCommas(new File(logPath).length()) + "\n");
+		sb.append("         lines: " + DrNumberFormatter.addCommas(numLines) + "\n");
+		sb.append("     callsites: " + DrNumberFormatter.addCommas(stats.size()) + "\n");
+		sb.append(" dao callsites: " + DrNumberFormatter.addCommas(numDaoCallsites) + "\n");
+		sb.append("    first date: " + firstDate.toString() + "\n");
+		sb.append("     last date: " + lastDate.toString() + "\n");
+		sb.append("       seconds: " + DrNumberFormatter.addCommas(numSeconds) + "\n");
+		sb.append("     calls/sec: " + DrNumberFormatter.format(callsPerSec, 2) + "\n");
 		sb.append("\n");
 		int rankWidth = 5;
-		sb.append(DrStringTool.pad("rank", ' ', rankWidth) + CallsiteStatX.getReportHeader(reportMetadata)+"\n");
+		sb.append(DrStringTool.pad("rank", ' ', rankWidth) + CallsiteStatX.getReportHeader(reportMetadata) + "\n");
 		//print top N
 		int row = 0;
 		for(CallsiteStatX stat : stats){
@@ -97,7 +97,7 @@ public class CallsiteAnalyzer implements Callable<String>{
 			if(row > maxResults){
 				break;
 			}
-			sb.append(DrStringTool.pad(row+"", ' ', rankWidth) + stat.getReportLine(reportMetadata) + "\n");
+			sb.append(DrStringTool.pad(row + "", ' ', rankWidth) + stat.getReportLine(reportMetadata) + "\n");
 		}
 		return sb.toString();
 	}

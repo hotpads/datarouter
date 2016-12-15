@@ -6,9 +6,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.hotpads.handler.BaseDispatcher;
 import com.hotpads.handler.BaseHandler;
-import com.hotpads.handler.DispatchRule;
+import com.hotpads.handler.dispatcher.BaseDispatcher;
+import com.hotpads.handler.dispatcher.DispatchRule;
 import com.hotpads.handler.types.optional.OptionalParameter;
 
 public class DocumentationHandler extends BaseHandler{
@@ -25,7 +25,7 @@ public class DocumentationHandler extends BaseHandler{
 		List<DocumentedEndpoint> endpoints = new ArrayList<>();
 		Class<? extends BaseHandler> handler = rule.getHandlerClass();
 		while(handler != null && !handler.getName().equals(BaseHandler.class.getName())){
-			for (Method method : handler.getDeclaredMethods()){
+			for(Method method : handler.getDeclaredMethods()){
 				if(!method.isAnnotationPresent(Handler.class)){
 					continue;
 				}

@@ -10,8 +10,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.hotpads.datarouter.util.core.DrStringTool;
-import com.hotpads.handler.CookieTool;
 import com.hotpads.handler.user.authenticate.config.DatarouterAuthenticationConfig;
+import com.hotpads.util.http.CookieTool;
 
 @Singleton
 public class DatarouterSessionManager{

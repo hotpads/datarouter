@@ -25,23 +25,23 @@ implements IndexedSortedMapStorage<PK,D>,
 
 	protected WriteBehindIndexedStorageWriterMixin<PK,D,N> mixinIndexedWriteOps;
 
-	public WriteBehindIndexedSortedMapStorageNode(Datarouter datarouter, N backingNode) {
+	public WriteBehindIndexedSortedMapStorageNode(Datarouter datarouter, N backingNode){
 		super(datarouter, backingNode);
 		mixinIndexedWriteOps = new WriteBehindIndexedStorageWriterMixin<>(this);
 	}
 
 	@Override
-	public void delete(Lookup<PK> lookup, Config config) {
+	public void delete(Lookup<PK> lookup, Config config){
 		mixinIndexedWriteOps.delete(lookup, config);
 	}
 
 	@Override
-	public void deleteUnique(UniqueKey<PK> uniqueKey, Config config) {
+	public void deleteUnique(UniqueKey<PK> uniqueKey, Config config){
 		mixinIndexedWriteOps.deleteUnique(uniqueKey, config);
 	}
 
 	@Override
-	public void deleteMultiUnique(Collection<? extends UniqueKey<PK>> uniqueKeys, Config config) {
+	public void deleteMultiUnique(Collection<? extends UniqueKey<PK>> uniqueKeys, Config config){
 		mixinIndexedWriteOps.deleteMultiUnique(uniqueKeys, config);
 	}
 

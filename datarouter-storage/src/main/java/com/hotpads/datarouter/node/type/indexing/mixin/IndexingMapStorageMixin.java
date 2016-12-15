@@ -8,6 +8,7 @@ import com.hotpads.datarouter.node.op.raw.MapStorage;
 import com.hotpads.datarouter.node.op.raw.MapStorage.MapStorageNode;
 import com.hotpads.datarouter.node.op.raw.index.IndexListener;
 import com.hotpads.datarouter.storage.databean.Databean;
+import com.hotpads.datarouter.storage.databean.DatabeanTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
 public interface IndexingMapStorageMixin<
@@ -27,8 +28,16 @@ extends MapStorage<PK,D>{
 		getBackingNode().delete(key, config);
 	}
 
+	//this method is not used right now but added it for completion
+	default void deleteDatabean(D databean, Config config){
+		for(IndexListener<PK,D> indexNode : getIndexNodes()){
+			indexNode.onDeleteDatabean(databean, config);
+		}
+		getBackingNode().delete(databean.getKey(), config);
+	}
+
 	@Override
-	default void deleteAll(Config config) {
+	default void deleteAll(Config config){
 		for(IndexListener<PK,D> indexNode : getIndexNodes()){
 			indexNode.onDeleteAll(config);
 		}
@@ -36,15 +45,22 @@ extends MapStorage<PK,D>{
 	}
 
 	@Override
-	default void deleteMulti(Collection<PK> keys, Config config) {
+	default void deleteMulti(Collection<PK> keys, Config config){
 		for(IndexListener<PK,D> indexNode : getIndexNodes()){
 			indexNode.onDeleteMulti(keys, config);
 		}
 		getBackingNode().deleteMulti(keys, config);
 	}
 
+	default void deleteMultiDatabeans(Collection<D> databeans, Config config){
+		for(IndexListener<PK,D> indexNode : getIndexNodes()){
+			indexNode.onDeleteMultiDatabeans(databeans, config);
+		}
+		getBackingNode().deleteMulti(DatabeanTool.getKeys(databeans), config);
+	}
+
 	@Override
-	default void put(D databean, Config config) {
+	default void put(D databean, Config config){
 		for(IndexListener<PK,D> indexNode : getIndexNodes()){
 			indexNode.onPut(databean, config);
 		}
@@ -52,7 +68,7 @@ extends MapStorage<PK,D>{
 	}
 
 	@Override
-	default void putMulti(Collection<D> databeans, Config config) {
+	default void putMulti(Collection<D> databeans, Config config){
 		for(IndexListener<PK,D> indexNode : getIndexNodes()){
 			indexNode.onPutMulti(databeans, config);
 		}
@@ -65,17 +81,17 @@ extends MapStorage<PK,D>{
 	}
 
 	@Override
-	default D get(PK key, Config config) {
+	default D get(PK key, Config config){
 		return getBackingNode().get(key, config);
 	}
 
 	@Override
-	default List<D> getMulti(Collection<PK> keys, Config config) {
+	default List<D> getMulti(Collection<PK> keys, Config config){
 		return getBackingNode().getMulti(keys, config);
 	}
 
 	@Override
-	default List<PK> getKeys(Collection<PK> keys, Config config) {
+	default List<PK> getKeys(Collection<PK> keys, Config config){
 		return getBackingNode().getKeys(keys, config);
 	}
 
