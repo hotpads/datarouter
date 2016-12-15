@@ -15,10 +15,10 @@ extends BaseDatabean<PutOpIdGeneratedManagedTestBeanKey, PutOpIdGeneratedManaged
 implements PutOpGeneratedTestBean<PutOpIdGeneratedManagedTestBeanKey, PutOpIdGeneratedManagedTestBean>{
 
 	private PutOpIdGeneratedManagedTestBeanKey key;
-	private String a;
+	private String foo;
 
-	public static class PutOpIdGeneratedManagedTestBeanFielder extends
-			BaseDatabeanFielder<PutOpIdGeneratedManagedTestBeanKey,PutOpIdGeneratedManagedTestBean>{
+	public static class PutOpIdGeneratedManagedTestBeanFielder
+	extends BaseDatabeanFielder<PutOpIdGeneratedManagedTestBeanKey,PutOpIdGeneratedManagedTestBean>{
 
 		@Override
 		public Class<? extends Fielder<PutOpIdGeneratedManagedTestBeanKey>> getKeyFielderClass(){
@@ -27,7 +27,7 @@ implements PutOpGeneratedTestBean<PutOpIdGeneratedManagedTestBeanKey, PutOpIdGen
 
 		@Override
 		public List<Field<?>> getNonKeyFields(PutOpIdGeneratedManagedTestBean bean){
-			return FieldTool.createList(new StringField("a", bean.a, 10));
+			return FieldTool.createList(new StringField("a", bean.foo, 10));
 		}
 
 	}
@@ -38,7 +38,7 @@ implements PutOpGeneratedTestBean<PutOpIdGeneratedManagedTestBeanKey, PutOpIdGen
 
 	public PutOpIdGeneratedManagedTestBean(String str){
 		this.key = new PutOpIdGeneratedManagedTestBeanKey();
-		this.a = str;
+		this.foo = str;
 	}
 
 	@Override
