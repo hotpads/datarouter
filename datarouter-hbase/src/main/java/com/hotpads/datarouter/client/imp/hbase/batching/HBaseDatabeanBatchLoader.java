@@ -22,8 +22,8 @@ public class HBaseDatabeanBatchLoader<
 extends BaseHBaseBatchLoader<PK,D,F,D>{
 
 	public HBaseDatabeanBatchLoader(final HBaseReaderNode<PK,D,F> node, final List<Field<?>> scatteringPrefix,
-			final Range<PK> range, final Config pConfig, Long batchChainCounter){
-		super(node, scatteringPrefix, range, pConfig, batchChainCounter);
+			final Range<PK> range, final Config config, Long batchChainCounter){
+		super(node, scatteringPrefix, range, config, batchChainCounter);
 	}
 
 	@Override
@@ -38,7 +38,7 @@ extends BaseHBaseBatchLoader<PK,D,F,D>{
 
 	@Override
 	protected PK getLastPrimaryKeyFromBatch(){
-		return getLast()==null ? null : getLast().getKey();
+		return getLast() == null ? null : getLast().getKey();
 	}
 
 	@Override

@@ -31,9 +31,9 @@ extends BaseBatchBackedScanner<IK,IK>{
 		currentBatchIndex = 0;
 		IK lastRowOfPreviousBatch = range.getStart();
 		boolean isStartInclusive = range.getStartInclusive();
-		if (currentBatch != null){
+		if(currentBatch != null){
 			IK endOfLastBatch = DrCollectionTool.getLast(currentBatch);
-			if (endOfLastBatch == null){
+			if(endOfLastBatch == null){
 				currentBatch = null;
 				return;
 			}
@@ -45,7 +45,7 @@ extends BaseBatchBackedScanner<IK,IK>{
 
 		currentBatch = doLoad(batchRange);
 
-		if (DrCollectionTool.size(currentBatch) < config.getIterateBatchSize()){
+		if(DrCollectionTool.size(currentBatch) < config.getIterateBatchSize()){
 			noMoreBatches = true;
 		}
 	}
