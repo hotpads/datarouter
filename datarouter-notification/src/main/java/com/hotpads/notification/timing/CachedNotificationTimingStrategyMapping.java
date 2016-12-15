@@ -21,7 +21,7 @@ public class CachedNotificationTimingStrategyMapping extends
 
 	@Inject
 	public CachedNotificationTimingStrategyMapping(NotificationNodes notificationNodes){
-		super(15, TimeUnit.SECONDS);// TODO change later?
+		super(15, TimeUnit.SECONDS);
 		this.notificationNodes = notificationNodes;
 	}
 
