@@ -114,7 +114,7 @@ public abstract class BaseHandler{
 				}
 			}
 			if(method == null && possibleMethods.size() > 0){
-				response.sendError(400);
+				response.setStatus(400);
 				throw new RuntimeException("missing parameters for method " + methodName);
 			}
 			if(method == null){

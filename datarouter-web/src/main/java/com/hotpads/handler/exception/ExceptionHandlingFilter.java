@@ -71,11 +71,11 @@ public abstract class ExceptionHandlingFilter implements Filter, InjectorRetriev
 			throw error;
 		}catch(Exception e){
 			logger.error("ExceptionHandlingFilter caught an exception:", e);
-			writeExceptionToResponseWriter(response, e, request);
 			Optional<ExceptionRecordKey> recordKey = tryRecordExceptionAndRequestNotification(request, e, receivedAt);
 			if(recordKey.isPresent()){
 				response.setHeader(HttpHeaders.X_EXCEPTION_ID, recordKey.get().getId());
 			}
+			writeExceptionToResponseWriter(response, e, request);
 		}
 		Counters.inc(webAppName + " response " + response.getStatus());
 		if(statusToLog.contains(response.getStatus())){
@@ -215,7 +215,9 @@ public abstract class ExceptionHandlingFilter implements Filter, InjectorRetriev
 
 	private void writeExceptionToResponseWriter(HttpServletResponse response, Exception exception,
 			HttpServletRequest request){
-		response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+		if(response.getStatus() == HttpServletResponse.SC_OK){
+			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+		}
 		response.setContentType("text/html");
 		try{
 			PrintWriter out = response.getWriter();
