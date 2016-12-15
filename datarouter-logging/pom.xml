@@ -51,7 +51,9 @@
 					</execution>
 				</executions>
 				<configuration>
-					<processors>org.apache.logging.log4j.core.config.plugins.processor.PluginProcessor</processors>
+					<processors>
+						<processor>org.apache.logging.log4j.core.config.plugins.processor.PluginProcessor</processor>
+					</processors>
 				</configuration>
 			</plugin>
 			<plugin>
