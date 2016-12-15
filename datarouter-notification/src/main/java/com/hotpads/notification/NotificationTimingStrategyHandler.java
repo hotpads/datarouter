@@ -33,14 +33,13 @@ public class NotificationTimingStrategyHandler extends BaseHandler{
 			P_STANDARD_DELAY = "standardDelay",
 			P_MAX_DELAY = "maxDelay",
 
-			//TODO try to move this and other jsps to dr-notification
 			JSP_NOTIFICATION_TIMING = "/jsp/admin/datarouter/notification/timing.jsp";
 
 	@Inject
 	private NotificationNodes notificationNodes;
 
 	@Handler(defaultHandler=true)
-	protected Mav showPage(){//TODO change to be the view of all mappings (at first) then timing+mapping later?
+	protected Mav showPage(){
 		Mav mav = new Mav(JSP_NOTIFICATION_TIMING);
 
 		List<NotificationTimingStrategyMapping> mappings = notificationNodes.getNotificationTimingStrategyMapping()

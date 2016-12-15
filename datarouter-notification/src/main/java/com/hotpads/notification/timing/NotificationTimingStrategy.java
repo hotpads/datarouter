@@ -57,6 +57,18 @@ public class NotificationTimingStrategy extends BaseDatabean<NotificationTimingS
     this.maxDelayMs = fromDurationString(maxDelay);
   }
 
+  public NotificationTimingStrategy(String name, Duration minSendableAge, Long maxItems, Duration droppableAge,
+		  Duration delayForChannel, Duration minDelay, Duration standardDelay, Duration maxDelay) {
+    this.key = new NotificationTimingStrategyKey(name);
+    this.minSendableAgeMs = minSendableAge.to(TimeUnit.MILLISECONDS);
+    this.maxItems = maxItems;
+    this.droppableAgeMs = droppableAge.to(TimeUnit.MILLISECONDS);
+    this.delayForChannelMs = delayForChannel.to(TimeUnit.MILLISECONDS);
+    this.minDelayMs = minDelay.to(TimeUnit.MILLISECONDS);
+    this.standardDelayMs = standardDelay.to(TimeUnit.MILLISECONDS);
+    this.maxDelayMs = maxDelay.to(TimeUnit.MILLISECONDS);
+  }
+
   private static String toDurationString(long value){
 	  return new Duration(value, TimeUnit.MILLISECONDS).toString();
   }
