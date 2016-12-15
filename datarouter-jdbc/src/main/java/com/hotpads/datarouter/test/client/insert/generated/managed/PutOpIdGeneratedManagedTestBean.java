@@ -27,7 +27,7 @@ implements PutOpGeneratedTestBean<PutOpIdGeneratedManagedTestBeanKey, PutOpIdGen
 
 		@Override
 		public List<Field<?>> getNonKeyFields(PutOpIdGeneratedManagedTestBean bean){
-			return FieldTool.createList(new StringField("a", bean.foo, 10));
+			return FieldTool.createList(new StringField("foo", bean.foo, 10));
 		}
 
 	}
