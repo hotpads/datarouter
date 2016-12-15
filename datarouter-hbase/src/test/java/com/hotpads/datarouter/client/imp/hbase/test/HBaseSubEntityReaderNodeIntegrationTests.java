@@ -25,7 +25,7 @@ import com.hotpads.datarouter.test.node.basic.sorted.SortedBeanKey;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedNodeTestRouter;
 import com.hotpads.util.core.collections.Range;
 
-@Guice(moduleFactory=DatarouterStorageTestModuleFactory.class)
+@Guice(moduleFactory = DatarouterStorageTestModuleFactory.class)
 public class HBaseSubEntityReaderNodeIntegrationTests{
 
 	@Inject

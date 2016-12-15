@@ -3,7 +3,6 @@ package com.hotpads.datarouter.test.node.basic.prefixed;
 import java.util.ArrayList;
 import java.util.List;
 
-
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
@@ -29,7 +28,8 @@ public class ScatteringPrefixBean extends BaseDatabean<ScatteringPrefixBeanKey,S
 		KEY_NAME = "key",
 		COL_f1 = "f1";
 
-	public static class ScatteringPrefixBeanFielder extends BaseDatabeanFielder<ScatteringPrefixBeanKey,ScatteringPrefixBean>{
+	public static class ScatteringPrefixBeanFielder
+	extends BaseDatabeanFielder<ScatteringPrefixBeanKey,ScatteringPrefixBean>{
 
 		public static class ScatteringPrefixBeanScatterer extends BaseScatteringPrefix{
 			public static final Integer
@@ -40,24 +40,26 @@ public class ScatteringPrefixBean extends BaseDatabean<ScatteringPrefixBeanKey,S
 				public static final String
 					prefix = "prefix";
 			}
+
 			@Override
-			public List<Field<?>> getScatteringPrefixFields(FieldSet<?> primaryKey) {
+			public List<Field<?>> getScatteringPrefixFields(FieldSet<?> primaryKey){
 				Long id = ((ScatteringPrefixBeanKey)primaryKey).getId();
-				int mod = id==null ? 0 : (int)(id % NUM_SHARDS);
-				return FieldTool.createList(
-						new UInt8Field("prefix", mod));
+				int mod = id == null ? 0 : (int)(id % NUM_SHARDS);
+				return FieldTool.createList(new UInt8Field("prefix", mod));
 			}
+
 			@Override
-			public List<List<Field<?>>> getAllPossibleScatteringPrefixes() {
+			public List<List<Field<?>>> getAllPossibleScatteringPrefixes(){
 				List<List<Field<?>>> all = new ArrayList<>(NUM_SHARDS);
-				for(int i=0; i < NUM_SHARDS; ++i){
-					//DOH, probably should have used an UnsignedByteField
+				for(int i = 0; i < NUM_SHARDS; ++i){
+					// DOH, probably should have used an UnsignedByteField
 					all.add(FieldTool.createList(new SignedByteField(F.prefix, (byte)i)));
 				}
 				return all;
 			}
+
 			@Override
-			public Integer getNumPrefixBytes() {
+			public Integer getNumPrefixBytes(){
 				return NUM_PREFIX_BYTES;
 			}
 		}
@@ -66,48 +68,47 @@ public class ScatteringPrefixBean extends BaseDatabean<ScatteringPrefixBeanKey,S
 		}
 
 		@Override
-		public Class<? extends ScatteringPrefix> getScatteringPrefixClass() {
+		public Class<? extends ScatteringPrefix> getScatteringPrefixClass(){
 			return ScatteringPrefixBeanScatterer.class;
 		}
+
 		@Override
 		public Class<ScatteringPrefixBeanKey> getKeyFielderClass(){
 			return ScatteringPrefixBeanKey.class;
 		}
+
 		@Override
-		public List<Field<?>> getNonKeyFields(ScatteringPrefixBean d){
-			return FieldTool.createList(
-					new StringField(COL_f1, d.f1, MySqlColumnType.MAX_LENGTH_VARCHAR));
+		public List<Field<?>> getNonKeyFields(ScatteringPrefixBean scatteringPrefix){
+			return FieldTool.createList(new StringField(COL_f1, scatteringPrefix.f1,
+					MySqlColumnType.MAX_LENGTH_VARCHAR));
 		}
 	}
 
 
 	/***************************** constructor **************************************/
 
-	ScatteringPrefixBean() {
+	ScatteringPrefixBean(){
 		this.key = new ScatteringPrefixBeanKey();
 	}
 
 	public ScatteringPrefixBean(String a, Long id, String f1, Integer f2){
 		this.key = new ScatteringPrefixBeanKey(a, id);
 		int prefix = (int)(id % ScatteringPrefixBeanFielder.ScatteringPrefixBeanScatterer.NUM_SHARDS);
-		this.f1 = prefix+"_"+id.toString();
+		this.f1 = prefix + "_" + id.toString();
 
 	}
-
 
 	/************************** databean *******************************************/
 
 	@Override
-	public Class<ScatteringPrefixBeanKey> getKeyClass() {
+	public Class<ScatteringPrefixBeanKey> getKeyClass(){
 		return ScatteringPrefixBeanKey.class;
-	};
-
-	@Override
-	public ScatteringPrefixBeanKey getKey() {
-		return key;
 	}
 
-
+	@Override
+	public ScatteringPrefixBeanKey getKey(){
+		return key;
+	}
 
 	/***************************** get/set **************************************/
 
@@ -120,11 +121,8 @@ public class ScatteringPrefixBean extends BaseDatabean<ScatteringPrefixBeanKey,S
 		this.f1 = f1;
 	}
 
-
-	public void setKey(ScatteringPrefixBeanKey key) {
+	public void setKey(ScatteringPrefixBeanKey key){
 		this.key = key;
 	}
-
-
 
 }

@@ -21,7 +21,7 @@ import com.hotpads.datarouter.test.TestDatabeanKey;
 import com.hotpads.datarouter.test.TestIndexedDatabeanFielder.TestDatabeanByBazLookup;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 
-@Guice(moduleFactory=TestDatarouterJdbcModuleFactory.class)
+@Guice(moduleFactory = TestDatarouterJdbcModuleFactory.class)
 public class LazyReaderIntegrationTests{
 
 	private static final String TEST_NAME = LazyReaderIntegrationTests.class.getSimpleName();

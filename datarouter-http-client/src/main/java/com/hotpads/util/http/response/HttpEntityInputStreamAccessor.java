@@ -20,7 +20,7 @@ public class HttpEntityInputStreamAccessor implements Consumer<HttpEntity>{
 	}
 
 	public InputStream getInputStream() throws IOException{
-		if(capturedException != null) {
+		if(capturedException != null){
 			throw capturedException;
 		}
 		return inputStream;

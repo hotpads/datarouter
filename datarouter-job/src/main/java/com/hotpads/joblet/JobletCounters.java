@@ -8,7 +8,7 @@ import com.hotpads.datarouter.profile.metrics.Metrics;
 import com.hotpads.joblet.type.JobletType;
 
 @Singleton
-public class JobletCounters {
+public class JobletCounters{
 	private static final String PREFIX = "Joblet ";
 
 	@Inject
