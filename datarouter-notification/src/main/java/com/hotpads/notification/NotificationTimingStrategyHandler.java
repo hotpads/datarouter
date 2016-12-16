@@ -19,9 +19,6 @@ public class NotificationTimingStrategyHandler extends BaseHandler{
 			P_MAPPINGS = "mappings",
 			P_TIMINGS = "timings",
 			P_DURATION_PATTERN = "pattern",
-			//fields that can be empty but are required (used for NotificationTimingStrategyMapping)
-			P_CHANNEL_PREFIX = "channelPrefix",
-			P_TIMING_STRATEGY = "timingStrategy",
 			JSP_NOTIFICATION_TIMING = "/jsp/admin/datarouter/notification/timing.jsp";
 
 	@Inject
@@ -43,16 +40,15 @@ public class NotificationTimingStrategyHandler extends BaseHandler{
 	}
 
 	@Handler
-	protected void addOrUpdateMapping(String type){
-		NotificationTimingStrategyMapping mapping = new NotificationTimingStrategyMapping(type,
-				params.required(P_CHANNEL_PREFIX), params.required(P_TIMING_STRATEGY));
+	protected void addOrUpdateMapping(String type, String channelPrefix, String timingStrategy){
+		NotificationTimingStrategyMapping mapping = new NotificationTimingStrategyMapping(type, channelPrefix,
+				timingStrategy);
 		notificationNodes.getNotificationTimingStrategyMapping().put(mapping, null);
 	}
 
 	@Handler
-	protected void deleteMapping(String type){
-		NotificationTimingStrategyMappingKey mapping = new NotificationTimingStrategyMappingKey(type,
-				params.required(P_CHANNEL_PREFIX));
+	protected void deleteMapping(String type, String channelPrefix){
+		NotificationTimingStrategyMappingKey mapping = new NotificationTimingStrategyMappingKey(type, channelPrefix);
 		notificationNodes.getNotificationTimingStrategyMapping().delete(mapping, null);
 	}
 
