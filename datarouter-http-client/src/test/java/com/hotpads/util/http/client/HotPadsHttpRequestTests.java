@@ -11,11 +11,11 @@ import org.junit.Test;
 import com.hotpads.util.http.request.HotPadsHttpRequest;
 import com.hotpads.util.http.request.HotPadsHttpRequest.HttpRequestMethod;
 
-public class HotPadsHttpRequestTests {
+public class HotPadsHttpRequestTests{
 
 	private static final String DTO_PARAM = "moose";
 	private static final String DTO_TYPE_PARAM = "camel";
-	private final HotPadsHttpClientConfig config = new HotPadsHttpClientConfig() {
+	private final HotPadsHttpClientConfig config = new HotPadsHttpClientConfig(){
 		@Override
 		public String getDtoParameterName(){
 			return "moose";
@@ -28,7 +28,7 @@ public class HotPadsHttpRequestTests {
 	};
 	private final HotPadsHttpClient client = new HotPadsHttpClientBuilder().setConfig(config).build();
 
-	private static final class Thing {
+	private static final class Thing{
 		@SuppressWarnings("unused")//serialized
 		private String variable = "test";
 		@SuppressWarnings("unused")//serialized
@@ -38,7 +38,7 @@ public class HotPadsHttpRequestTests {
 	}
 
 	@Test
-	public void testGetParams() {
+	public void testGetParams(){
 		String url = "http://kittens.hotpads.com";
 		HotPadsHttpRequest request = new HotPadsHttpRequest(HttpRequestMethod.GET, url, true);
 		Assert.assertEquals(url, request.getUrl());
@@ -105,7 +105,7 @@ public class HotPadsHttpRequestTests {
 	}
 
 	@Test
-	public void testGetUrlFragment() {
+	public void testGetUrlFragment(){
 		String url;
 		HotPadsHttpRequest request;
 
@@ -123,7 +123,7 @@ public class HotPadsHttpRequestTests {
 	}
 
 	@Test
-	public void testPostParams() {
+	public void testPostParams(){
 		String url = "http://kittens.hotpads.com";
 		HotPadsHttpRequest request = new HotPadsHttpRequest(HttpRequestMethod.POST, url, true);
 
@@ -146,7 +146,7 @@ public class HotPadsHttpRequestTests {
 	}
 
 	@Test
-	public void testAddDtosToPayload() {
+	public void testAddDtosToPayload(){
 		String url = "http://kittens.hotpads.com";
 		HotPadsHttpRequest request = new HotPadsHttpRequest(HttpRequestMethod.POST, url, true);
 
@@ -165,7 +165,7 @@ public class HotPadsHttpRequestTests {
 	}
 
 	@Test
-	public void testAddHeaders() {
+	public void testAddHeaders(){
 		String url = "http://kittens.hotpads.com";
 		HotPadsHttpRequest request = new HotPadsHttpRequest(HttpRequestMethod.POST, url, true);
 
@@ -195,15 +195,15 @@ public class HotPadsHttpRequestTests {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void testNullMethod() {
+	public void testNullMethod(){
 		new HotPadsHttpRequest(null, "http://kittens.hotpads.com", false);
 	}
 	@Test(expected = IllegalArgumentException.class)
-	public void testNullUrl() {
+	public void testNullUrl(){
 		new HotPadsHttpRequest(HttpRequestMethod.HEAD, null, false);
 	}
 	@Test(expected = IllegalArgumentException.class)
-	public void testEmptyUrl() {
+	public void testEmptyUrl(){
 		new HotPadsHttpRequest(HttpRequestMethod.HEAD, "", false);
 	}
 }

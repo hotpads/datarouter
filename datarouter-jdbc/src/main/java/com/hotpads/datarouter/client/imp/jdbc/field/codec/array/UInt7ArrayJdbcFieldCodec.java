@@ -27,14 +27,14 @@ extends BaseListJdbcFieldCodec<Byte,List<Byte>,UInt7ArrayField>{
 
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
-		return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.LONGBLOB, Integer.MAX_VALUE , field
-				.getKey().isNullable(), false);
+		return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.LONGBLOB, Integer.MAX_VALUE, field.getKey()
+				.isNullable(), false);
 	}
 
 	@Override
 	public void setPreparedStatementValue(PreparedStatement ps, int parameterIndex){
 		try{
-			ps.setBytes(parameterIndex, field.getValue()==null?null:DrByteTool.getUInt7Bytes(field.getValue()));
+			ps.setBytes(parameterIndex, field.getValue() == null ? null : DrByteTool.getUInt7Bytes(field.getValue()));
 		}catch(SQLException e){
 			throw new DataAccessException(e);
 		}
