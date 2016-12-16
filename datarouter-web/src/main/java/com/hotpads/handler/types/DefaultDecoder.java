@@ -11,7 +11,6 @@ import javax.inject.Named;
 import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 
-import com.google.gson.JsonSyntaxException;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.handler.encoder.HandlerEncoder;
 import com.hotpads.handler.types.optional.OptionalParameter;
@@ -84,15 +83,11 @@ public class DefaultDecoder implements HandlerDecoder{
 	}
 
 	private Object decode(String string, Type type){
-		try{
-			return deserializer.deserialize(string, type);
-		}catch(JsonSyntaxException e){
-			//If the JSON is malformed and String is expected, just assign the string
-			if(type.equals(String.class)){
-				return string;
-			}
-			throw e;
+		//this prevents empty strings from being decoded as null by gson
+		if(type.equals(String.class)){
+			return string;
 		}
+		return deserializer.deserialize(string, type);
 	}
 
 	private boolean containRequestBodyParam(Parameter[] parameters){

@@ -20,6 +20,10 @@ import com.hotpads.notification.log.NotificationLogById;
 import com.hotpads.notification.log.NotificationLogByIdKey;
 import com.hotpads.notification.preference.NotificationPreference;
 import com.hotpads.notification.preference.NotificationPreferenceKey;
+import com.hotpads.notification.timing.NotificationTimingStrategy;
+import com.hotpads.notification.timing.NotificationTimingStrategyKey;
+import com.hotpads.notification.timing.NotificationTimingStrategyMapping;
+import com.hotpads.notification.timing.NotificationTimingStrategyMappingKey;
 import com.hotpads.notification.tracking.NotificationTrackingEvent;
 import com.hotpads.notification.tracking.NotificationTrackingEventKey;
 
@@ -41,4 +45,10 @@ public interface NotificationNodes{
 
 	public IndexedSortedMapStorageNode<NotificationTrackingEventKey, NotificationTrackingEvent>
 			getNotificationTrackingEvent();
+
+	public SortedMapStorageNode<NotificationTimingStrategyKey,NotificationTimingStrategy>
+			getNotificationTimingStrategy();
+	public SortedMapStorageNode<NotificationTimingStrategyMappingKey,NotificationTimingStrategyMapping>
+			getNotificationTimingStrategyMapping();
+
 }

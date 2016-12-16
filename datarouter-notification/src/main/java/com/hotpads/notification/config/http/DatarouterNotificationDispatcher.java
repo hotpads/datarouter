@@ -4,6 +4,7 @@ import com.hotpads.datarouter.inject.DatarouterInjector;
 import com.hotpads.handler.dispatcher.BaseDispatcher;
 import com.hotpads.handler.dispatcher.DatarouterWebDispatcher;
 import com.hotpads.notification.NotificationTesterHandler;
+import com.hotpads.notification.NotificationTimingStrategyHandler;
 import com.hotpads.notification.alias.NotificationAliasHandler;
 
 public class DatarouterNotificationDispatcher extends BaseDispatcher{
@@ -12,6 +13,7 @@ public class DatarouterNotificationDispatcher extends BaseDispatcher{
 
 	public static final String
 			NOTIFICATION_ALIAS = "/notification/alias",
+			NOTIFICATION_TIMING = "/notification/timing",
 			NOTIFICATION_TESTER = "/notification/tester";
 
 	public DatarouterNotificationDispatcher(DatarouterInjector injector, String servletContextPath){
@@ -19,6 +21,7 @@ public class DatarouterNotificationDispatcher extends BaseDispatcher{
 
 		handleDir(URL_DATAROUTER + NOTIFICATION_ALIAS).withHandler(NotificationAliasHandler.class);
 		handleDir(URL_DATAROUTER + NOTIFICATION_TESTER).withHandler(NotificationTesterHandler.class);
+		handle(URL_DATAROUTER + NOTIFICATION_TIMING).withHandler(NotificationTimingStrategyHandler.class);
 	}
 
 }
