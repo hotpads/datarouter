@@ -61,8 +61,8 @@ public class CallsiteStatX{
 		String avgCallUsString = hideDuration ? "" : DrNumberFormatter.addCommas(getDurationUs() / count);
 		String numItemsString = DrNumberFormatter.addCommas(numItems);
 		String avgItemsString = DrNumberFormatter.addCommas(numItems / count);
-		String type = isDaoCallsite() ? DAO_CALLSITE_INDICATOR : DrStringTool.repeat(' ', DAO_CALLSITE_INDICATOR_LENGTH
-				);
+		String type = isDaoCallsite() ? DAO_CALLSITE_INDICATOR
+				: DrStringTool.repeat(' ', DAO_CALLSITE_INDICATOR_LENGTH);
 		return buildReportLine(metadata, countString, durationString, avgCallUsString, numItemsString, avgItemsString,
 				type, key.getNodeName(), datarouterMethodName, key.getCallsite());
 	}
