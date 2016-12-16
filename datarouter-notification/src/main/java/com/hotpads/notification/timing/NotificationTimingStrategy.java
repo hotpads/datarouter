@@ -190,7 +190,7 @@ public class NotificationTimingStrategy extends BaseDatabean<NotificationTimingS
 	}
 
 	public static class NotificationTimingStrategyFielder
-	extends	BaseDatabeanFielder<NotificationTimingStrategyKey,NotificationTimingStrategy>{
+	extends BaseDatabeanFielder<NotificationTimingStrategyKey,NotificationTimingStrategy>{
 		public NotificationTimingStrategyFielder(){
 			super(NotificationTimingStrategyKey.class);
 		}
