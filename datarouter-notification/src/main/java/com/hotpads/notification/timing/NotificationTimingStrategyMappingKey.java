@@ -11,7 +11,6 @@ import com.hotpads.notification.databean.NotificationRequest;
 
 public class NotificationTimingStrategyMappingKey extends BasePrimaryKey<NotificationTimingStrategyMappingKey>{
 	private String type;
-
 	private String channelPrefix;
 
 	public NotificationTimingStrategyMappingKey(){

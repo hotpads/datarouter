@@ -49,6 +49,6 @@ public interface NotificationNodes{
 	public SortedMapStorageNode<NotificationTimingStrategyKey,NotificationTimingStrategy>
 			getNotificationTimingStrategy();
 	public SortedMapStorageNode<NotificationTimingStrategyMappingKey,NotificationTimingStrategyMapping>
-		getNotificationTimingStrategyMapping();
+			getNotificationTimingStrategyMapping();
 
 }

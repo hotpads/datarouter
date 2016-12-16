@@ -9,10 +9,9 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.StringFieldKey;
 
-public class NotificationTimingStrategyMapping extends
-		BaseDatabean<NotificationTimingStrategyMappingKey,NotificationTimingStrategyMapping>{
+public class NotificationTimingStrategyMapping
+extends BaseDatabean<NotificationTimingStrategyMappingKey,NotificationTimingStrategyMapping>{
 	private NotificationTimingStrategyMappingKey key;
-
 	private String timingStrategy;
 
 	public NotificationTimingStrategyMapping(){
@@ -46,8 +45,8 @@ public class NotificationTimingStrategyMapping extends
 		public static final StringFieldKey timingStrategy = new StringFieldKey("timingStrategy");
 	}
 
-	public static class NotificationTimingStrategyMappingFielder extends
-			BaseDatabeanFielder<NotificationTimingStrategyMappingKey,NotificationTimingStrategyMapping>{
+	public static class NotificationTimingStrategyMappingFielder
+	extends BaseDatabeanFielder<NotificationTimingStrategyMappingKey,NotificationTimingStrategyMapping>{
 		public NotificationTimingStrategyMappingFielder(){
 			super(NotificationTimingStrategyMappingKey.class);
 		}

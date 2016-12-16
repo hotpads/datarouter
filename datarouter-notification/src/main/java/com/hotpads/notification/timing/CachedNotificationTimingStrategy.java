@@ -2,6 +2,7 @@ package com.hotpads.notification.timing;
 
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -25,6 +26,6 @@ public class CachedNotificationTimingStrategy extends Cached<Map<String, Notific
 	protected Map<String, NotificationTimingStrategy> reload(){
 		return notificationNodes.getNotificationTimingStrategy()
 				.stream(null, null)
-				.collect(Collectors.toMap(timing -> timing.getKey().getName(),timing -> timing));
+				.collect(Collectors.toMap(timing -> timing.getKey().getName(), Function.identity()));
 	}
 }

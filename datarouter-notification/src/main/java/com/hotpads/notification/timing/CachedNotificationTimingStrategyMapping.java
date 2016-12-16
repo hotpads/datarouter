@@ -14,8 +14,8 @@ import com.hotpads.notification.NotificationNodes;
 import com.hotpads.util.core.cache.Cached;
 
 @Singleton
-public class CachedNotificationTimingStrategyMapping extends
-		Cached<Map<String,List<NotificationTimingStrategyMapping>>>{
+public class CachedNotificationTimingStrategyMapping
+extends Cached<Map<String,List<NotificationTimingStrategyMapping>>>{
 
 	private final NotificationNodes notificationNodes;
 

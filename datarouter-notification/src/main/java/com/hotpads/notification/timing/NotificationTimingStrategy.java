@@ -11,22 +11,14 @@ import com.hotpads.datarouter.storage.field.imp.comparable.LongField;
 import com.hotpads.datarouter.storage.field.imp.comparable.LongFieldKey;
 import com.hotpads.util.core.Duration;
 
-
 public class NotificationTimingStrategy extends BaseDatabean<NotificationTimingStrategyKey,NotificationTimingStrategy>{
 	private NotificationTimingStrategyKey key;
-
 	private Long minSendableAgeMs;
-
 	private Long maxItems;
-
 	private Long droppableAgeMs;
-
 	private Long delayForChannelMs;
-
 	private Long minDelayMs;
-
 	private Long standardDelayMs;
-
 	private Long maxDelayMs;
 
 	public NotificationTimingStrategy(){
@@ -45,36 +37,32 @@ public class NotificationTimingStrategy extends BaseDatabean<NotificationTimingS
 		this.maxDelayMs = maxDelayMs;
 	}
 
-	public NotificationTimingStrategy(String name, String minSendableAge, Long maxItems, String droppableAge,
-			String delayForChannel, String minDelay, String standardDelay, String maxDelay){
-		this.key = new NotificationTimingStrategyKey(name);
-		this.minSendableAgeMs = fromDurationString(minSendableAge);
-		this.maxItems = maxItems;
-		this.droppableAgeMs = fromDurationString(droppableAge);
-		this.delayForChannelMs = fromDurationString(delayForChannel);
-		this.minDelayMs = fromDurationString(minDelay);
-		this.standardDelayMs = fromDurationString(standardDelay);
-		this.maxDelayMs = fromDurationString(maxDelay);
-	}
-
 	public NotificationTimingStrategy(String name, Duration minSendableAge, Long maxItems, Duration droppableAge,
 			Duration delayForChannel, Duration minDelay, Duration standardDelay, Duration maxDelay){
-		this.key = new NotificationTimingStrategyKey(name);
-		this.minSendableAgeMs = minSendableAge.to(TimeUnit.MILLISECONDS);
-		this.maxItems = maxItems;
-		this.droppableAgeMs = droppableAge.to(TimeUnit.MILLISECONDS);
-		this.delayForChannelMs = delayForChannel.to(TimeUnit.MILLISECONDS);
-		this.minDelayMs = minDelay.to(TimeUnit.MILLISECONDS);
-		this.standardDelayMs = standardDelay.to(TimeUnit.MILLISECONDS);
-		this.maxDelayMs = maxDelay.to(TimeUnit.MILLISECONDS);
+		this(name,
+				minSendableAge.to(TimeUnit.MILLISECONDS),
+				maxItems,
+				droppableAge.to(TimeUnit.MILLISECONDS),
+				delayForChannel.to(TimeUnit.MILLISECONDS),
+				minDelay.to(TimeUnit.MILLISECONDS),
+				standardDelay.to(TimeUnit.MILLISECONDS),
+				maxDelay.to(TimeUnit.MILLISECONDS));
+	}
+
+	public NotificationTimingStrategy(String name, String minSendableAge, Long maxItems, String droppableAge,
+			String delayForChannel, String minDelay, String standardDelay, String maxDelay){
+		this(name,
+				new Duration(minSendableAge),
+				maxItems,
+				new Duration(droppableAge),
+				new Duration(delayForChannel),
+				new Duration(minDelay),
+				new Duration(standardDelay),
+				new Duration(maxDelay));
 	}
 
 	private static String toDurationString(long value){
 		return new Duration(value, TimeUnit.MILLISECONDS).toString();
-	}
-
-	private static long fromDurationString(String duration){
-		return new Duration(duration).to(TimeUnit.MILLISECONDS);
 	}
 
 	@Override
@@ -87,6 +75,9 @@ public class NotificationTimingStrategy extends BaseDatabean<NotificationTimingS
 		return key;
 	}
 
+	/**
+	 * @return The minimum age that a request should have to be processed by the notification service
+	 */
 	public Long getMinSendableAgeMs(){
 		return minSendableAgeMs;
 	}
@@ -99,6 +90,10 @@ public class NotificationTimingStrategy extends BaseDatabean<NotificationTimingS
 		this.minSendableAgeMs = minSendableAgeMs;
 	}
 
+	/**
+	 * @return The max number of requests in a notification
+	 * When the number of requests reach this number the notification is triggered
+	 */
 	public Long getMaxItems(){
 		return maxItems;
 	}
@@ -107,6 +102,9 @@ public class NotificationTimingStrategy extends BaseDatabean<NotificationTimingS
 		this.maxItems = maxItems;
 	}
 
+	/**
+	 * @return The age after which a request can be dropped if not sent
+	 */
 	public Long getDroppableAgeMs(){
 		return droppableAgeMs;
 	}
@@ -119,6 +117,9 @@ public class NotificationTimingStrategy extends BaseDatabean<NotificationTimingS
 		this.droppableAgeMs = droppableAgeMs;
 	}
 
+	/**
+	 * @return Minimum delay between two same type and same channel Notification sends
+	 */
 	public Long getDelayForChannelMs(){
 		return delayForChannelMs;
 	}
@@ -131,6 +132,10 @@ public class NotificationTimingStrategy extends BaseDatabean<NotificationTimingS
 		this.delayForChannelMs = delayForChannelMs;
 	}
 
+	/**
+	 * @return A group where the last request is older than this age will be sent
+	 * If no new notification Request have been received during this delay the group is sent
+	 */
 	public Long getMinDelayMs(){
 		return minDelayMs;
 	}
@@ -143,6 +148,9 @@ public class NotificationTimingStrategy extends BaseDatabean<NotificationTimingS
 		this.minDelayMs = minDelayMs;
 	}
 
+	/**
+	 * @return Minimum delay between two same type Notification sending
+	 */
 	public Long getStandardDelayMs(){
 		return standardDelayMs;
 	}
@@ -155,6 +163,10 @@ public class NotificationTimingStrategy extends BaseDatabean<NotificationTimingS
 		this.standardDelayMs = standardDelayMs;
 	}
 
+	/**
+	 * @return A group where the first request is older than this age will be sent
+	 * Any request older than this delay will definitely trigger the send for its group
+	 */
 	public Long getMaxDelayMs(){
 		return maxDelayMs;
 	}
@@ -169,22 +181,16 @@ public class NotificationTimingStrategy extends BaseDatabean<NotificationTimingS
 
 	public static class FieldKeys{
 		public static final LongFieldKey minSendableAgeMs = new LongFieldKey("minSendableAgeMs");
-
 		public static final LongFieldKey maxItems = new LongFieldKey("maxItems");
-
 		public static final LongFieldKey droppableAgeMs = new LongFieldKey("droppableAgeMs");
-
 		public static final LongFieldKey delayForChannelMs = new LongFieldKey("delayForChannelMs");
-
 		public static final LongFieldKey minDelayMs = new LongFieldKey("minDelayMs");
-
 		public static final LongFieldKey standardDelayMs = new LongFieldKey("standardDelayMs");
-
 		public static final LongFieldKey maxDelayMs = new LongFieldKey("maxDelayMs");
 	}
 
-	public static class NotificationTimingStrategyFielder extends
-			BaseDatabeanFielder<NotificationTimingStrategyKey,NotificationTimingStrategy>{
+	public static class NotificationTimingStrategyFielder
+	extends	BaseDatabeanFielder<NotificationTimingStrategyKey,NotificationTimingStrategy>{
 		public NotificationTimingStrategyFielder(){
 			super(NotificationTimingStrategyKey.class);
 		}
