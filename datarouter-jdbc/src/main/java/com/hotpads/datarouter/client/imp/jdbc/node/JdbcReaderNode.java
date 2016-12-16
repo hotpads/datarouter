@@ -60,7 +60,7 @@ implements PhysicalIndexedSortedMapStorageReaderNode<PK,D>{
 	public static final int DEFAULT_ITERATE_BATCH_SIZE = 1000;
 
 	@Override
-	public boolean exists(PK key, Config config) {
+	public boolean exists(PK key, Config config){
 		return DrCollectionTool.notEmpty(jdbcReaderOps.getMulti(Collections.singleton(key), config));
 	}
 
@@ -70,12 +70,12 @@ implements PhysicalIndexedSortedMapStorageReaderNode<PK,D>{
 	}
 
 	@Override
-	public List<D> getMulti(final Collection<PK> keys, final Config config) {
+	public List<D> getMulti(final Collection<PK> keys, final Config config){
 		return jdbcReaderOps.getMulti(keys, config);
 	}
 
 	@Override
-	public List<PK> getKeys(final Collection<PK> keys, final Config config) {
+	public List<PK> getKeys(final Collection<PK> keys, final Config config){
 		return jdbcReaderOps.getKeys(keys, config);
 	}
 
@@ -94,12 +94,12 @@ implements PhysicalIndexedSortedMapStorageReaderNode<PK,D>{
 
 	@Override
 	//TODO pay attention to wildcardLastField
-	public List<D> lookup(final Lookup<PK> lookup, final boolean wildcardLastField, final Config config) {
+	public List<D> lookup(final Lookup<PK> lookup, final boolean wildcardLastField, final Config config){
 		return jdbcReaderOps.lookup(lookup, wildcardLastField, config);
 	}
 
 	@Override
-	public List<D> lookupMulti(final Collection<? extends Lookup<PK>> lookups, final Config config) {
+	public List<D> lookupMulti(final Collection<? extends Lookup<PK>> lookups, final Config config){
 		return jdbcReaderOps.lookupMulti(lookups, config);
 	}
 
@@ -155,13 +155,13 @@ implements PhysicalIndexedSortedMapStorageReaderNode<PK,D>{
 	/************************************ SortedStorageReader methods ****************************/
 
 	@Override
-	public List<D> getWithPrefix(final PK prefix, final boolean wildcardLastField, final Config config) {
+	public List<D> getWithPrefix(final PK prefix, final boolean wildcardLastField, final Config config){
 		return getWithPrefixes(DrListTool.wrap(prefix), wildcardLastField, config);
 	}
 
 	@Override
 	public List<D> getWithPrefixes(final Collection<PK> prefixes, final boolean wildcardLastField,
-			final Config config) {
+			final Config config){
 		return jdbcReaderOps.getWithPrefixes(prefixes, wildcardLastField, config);
 	}
 

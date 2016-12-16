@@ -9,16 +9,16 @@ public class TracerThreadLocal{
 
 	/************** methods *****************/
 
-	public static Tracer bindToThread(Tracer tracer) {
+	public static Tracer bindToThread(Tracer tracer){
 		tracerThreadLocal.set(tracer);
 		return tracer;
 	}
 
-	public static void clearFromThread() {
+	public static void clearFromThread(){
 		tracerThreadLocal.set(null);
 	}
 
-	public static Tracer get() {
+	public static Tracer get(){
 		return tracerThreadLocal.get();
 	}
 
