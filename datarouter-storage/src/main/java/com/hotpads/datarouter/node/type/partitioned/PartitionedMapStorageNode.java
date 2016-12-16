@@ -19,7 +19,7 @@ public abstract class PartitionedMapStorageNode<
 extends BasePartitionedNode<PK,D,F,N>
 implements MapStorageNode<PK,D>, PartitionedMapStorageMixin<PK,D,N>{
 
-	public PartitionedMapStorageNode(Supplier<D> databeanSupplier, Supplier<F> fielderSupplier, Router router) {
+	public PartitionedMapStorageNode(Supplier<D> databeanSupplier, Supplier<F> fielderSupplier, Router router){
 		super(databeanSupplier, fielderSupplier, router);
 	}
 

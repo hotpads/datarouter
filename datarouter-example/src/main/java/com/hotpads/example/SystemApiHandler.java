@@ -18,12 +18,12 @@ public class SystemApiHandler extends BaseHandler{
 	@Inject
 	private ServletContextProvider servletContextProvider;
 
-	@Handler(encoder=JsonEncoder.class)
+	@Handler(encoder = JsonEncoder.class)
 	private String containerName(){
 		return servletContextProvider.get().getServerInfo();
 	}
 
-	@Handler(encoder=JsonEncoder.class)
+	@Handler(encoder = JsonEncoder.class)
 	private Object memory(Boolean human){
 		if(human == null){
 			return computeMemory(true);
@@ -31,7 +31,7 @@ public class SystemApiHandler extends BaseHandler{
 		return computeMemory(human);
 	}
 
-	@Handler(encoder=JsonEncoder.class)
+	@Handler(encoder = JsonEncoder.class)
 	private Object memory(){
 		return computeMemory(false);
 	}
@@ -44,7 +44,7 @@ public class SystemApiHandler extends BaseHandler{
 		return heap;
 	}
 
-	@Handler(encoder=JsonEncoder.class)
+	@Handler(encoder = JsonEncoder.class)
 	private TimeInfos times(){
 		return new TimeInfos(new Date(), ManagementFactory.getRuntimeMXBean().getUptime());
 	}

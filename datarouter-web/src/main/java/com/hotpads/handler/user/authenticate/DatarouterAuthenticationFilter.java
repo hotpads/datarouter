@@ -23,7 +23,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.util.core.DrBooleanTool;
-import com.hotpads.datarouter.util.core.DrObjectTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.handler.user.DatarouterUserNodes;
 import com.hotpads.handler.user.authenticate.authenticator.DatarouterAuthenticator;
@@ -33,7 +32,6 @@ import com.hotpads.handler.user.session.DatarouterSession;
 import com.hotpads.handler.user.session.DatarouterSessionManager;
 import com.hotpads.util.core.exception.InvalidApiCallException;
 import com.hotpads.util.core.exception.InvalidCredentialsException;
-import com.hotpads.util.core.io.RuntimeIOException;
 import com.hotpads.util.http.RequestTool;
 import com.hotpads.util.http.ResponseTool;
 
@@ -49,7 +47,7 @@ public class DatarouterAuthenticationFilter implements Filter{
 	private DatarouterSessionManager sessionManager;
 
 	@Override
-	public void init(FilterConfig filterConfig) throws ServletException{
+	public void init(FilterConfig filterConfig){
 	}
 
 	@Override
@@ -86,7 +84,7 @@ public class DatarouterAuthenticationFilter implements Filter{
 			logger.warn(e.getMessage());
 			handleBadCredentials(request, response, contextPath, signinFormPath);
 			return;
-		} catch(InvalidApiCallException e) {
+		}catch(InvalidApiCallException e){
 			logger.warn(e.getMessage());
 			handleBadApiCall(response, e.getMessage());
 			return;
@@ -111,7 +109,7 @@ public class DatarouterAuthenticationFilter implements Filter{
 	/****************** private methods **************************/
 
 	private static String getUrlWithQueryString(HttpServletRequest request){
-		String queryString = (request.getQueryString() != null) ? "?" + request.getQueryString() : "";
+		String queryString = request.getQueryString() != null ? "?" + request.getQueryString() : "";
 		return request.getRequestURL().toString() + queryString;
 	}
 
@@ -123,17 +121,17 @@ public class DatarouterAuthenticationFilter implements Filter{
 		try{
 			return new URL(referrerString);
 		}catch(MalformedURLException e){
-			throw new IllegalArgumentException("invalid referer:"+referrerString);
+			throw new IllegalArgumentException("invalid referer:" + referrerString);
 		}
 	}
 
 	private URL getValidTargetUrl(HttpServletRequest request, String signinFormPath){
 		URL targetUrl = sessionManager.getTargetUrlFromCookie(request);
-		if(targetUrl==null){
+		if(targetUrl == null){
 			return null;
 		}
 		if(Objects.equals(signinFormPath, targetUrl.getPath())){
-			logger.warn("ignoring targetUrl "+targetUrl.getPath());
+			logger.warn("ignoring targetUrl " + targetUrl.getPath());
 			return null;
 		}
 		return targetUrl;
@@ -156,7 +154,7 @@ public class DatarouterAuthenticationFilter implements Filter{
 			DatarouterSession session = authenticator.getSession();
 			if(session != null){
 				sessionManager.addToRequest(request, session);
-				if(DrBooleanTool.isTrue(session.getPersistent())) {
+				if(DrBooleanTool.isTrue(session.getPersistent())){
 					sessionManager.addUserTokenCookie(response, session.getUserToken());
 					sessionManager.addSessionTokenCookie(response, session.getSessionToken());
 					userNodes.getSessionNode().put(session, null);
@@ -191,7 +189,7 @@ public class DatarouterAuthenticationFilter implements Filter{
 	private boolean missingRequiredRoles(String path, DatarouterSession datarouterSession){
 		Collection<DatarouterUserRole> requiredRoles = authenticationConfig.getRequiredRoles(path);
 		boolean userHasAllRoles = datarouterSession.getRoles().containsAll(requiredRoles);
-		return ! userHasAllRoles;
+		return !userHasAllRoles;
 	}
 
 	private void handleMissingRoles(HttpServletRequest request, HttpServletResponse response, String url,
@@ -204,7 +202,7 @@ public class DatarouterAuthenticationFilter implements Filter{
 			try{
 				response.sendError(HttpServletResponse.SC_FORBIDDEN);
 			}catch(IOException e){
-				throw new RuntimeIOException(e);
+				throw new RuntimeException(e);
 			}
 		}
 	}

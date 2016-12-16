@@ -47,7 +47,7 @@ extends BaseNode<IK,IE,DatabeanFielder<IK,IE>>{
 	/**************************************************************************/
 
 	@Override
-	public List<String> getClientNames() {
+	public List<String> getClientNames(){
 		return indexNode.getClientNames();
 	}
 
@@ -57,26 +57,26 @@ extends BaseNode<IK,IE,DatabeanFielder<IK,IE>>{
 	}
 
 	@Override
-	public List<String> getClientNamesForPrimaryKeysForSchemaUpdate(Collection<IK> keys) {
+	public List<String> getClientNamesForPrimaryKeysForSchemaUpdate(Collection<IK> keys){
 		return indexNode.getClientNamesForPrimaryKeysForSchemaUpdate(keys);
 	}
 
 	@Override
-	public Node<IK,IE> getMaster() {
+	public Node<IK,IE> getMaster(){
 		return indexNode.getMaster();
 	}
 
 	@Override
 	public List<? extends Node<IK,IE>> getChildNodes(){
-		if(indexNode==null){
+		if(indexNode == null){
 			return new ArrayList<>();
 		}
 		return DrListTool.wrap(indexNode);
 	}
 
 	@Override
-	public String getName() {
-		return indexNode==null ? null : indexNode.getName();
+	public String getName(){
+		return indexNode == null ? null : indexNode.getName();
 	}
 
 	@Override
@@ -87,17 +87,17 @@ extends BaseNode<IK,IE,DatabeanFielder<IK,IE>>{
 	}
 
 	@Override
-	public List<? extends PhysicalNode<IK,IE>> getPhysicalNodes() {
+	public List<? extends PhysicalNode<IK,IE>> getPhysicalNodes(){
 		return indexNode.getPhysicalNodes();
 	}
 
 	@Override
-	public List<? extends PhysicalNode<IK,IE>> getPhysicalNodesForClient(String clientName) {
+	public List<? extends PhysicalNode<IK,IE>> getPhysicalNodesForClient(String clientName){
 		return indexNode.getPhysicalNodesForClient(clientName);
 	}
 
 	@Override
-	public boolean usesClient(String clientName) {
+	public boolean usesClient(String clientName){
 		return indexNode.usesClient(clientName);
 	}
 

@@ -5,7 +5,7 @@ import java.util.List;
 import com.hotpads.notification.databean.NotificationRequest;
 import com.hotpads.notification.sender.NotificationSender;
 
-public interface NotificationTemplate {
+public interface NotificationTemplate{
 
 	Class<? extends NotificationSender> getNotificationSender();
 

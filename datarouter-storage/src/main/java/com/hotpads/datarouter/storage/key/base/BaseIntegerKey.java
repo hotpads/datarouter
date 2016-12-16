@@ -1,15 +1,13 @@
 package com.hotpads.datarouter.storage.key.base;
 
-
 import com.hotpads.datarouter.storage.key.BaseKey;
 import com.hotpads.datarouter.storage.key.Key;
 
-public abstract class BaseIntegerKey<K extends Key<K>>
-extends BaseKey<K>{
+public abstract class BaseIntegerKey<K extends Key<K>>extends BaseKey<K>{
 
 	protected Integer id;
 
-	public BaseIntegerKey(Integer id) {
+	public BaseIntegerKey(Integer id){
 		this.id = id;
 	}
 
@@ -20,7 +18,5 @@ extends BaseKey<K>{
 	public void setId(Integer id){
 		this.id = id;
 	}
-
-
 
 }
