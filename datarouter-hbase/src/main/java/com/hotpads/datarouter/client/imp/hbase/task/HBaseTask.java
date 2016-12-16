@@ -135,11 +135,9 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 	protected Pair<Table,HBaseClient> prepClientAndTableEtc(MutableString progress) throws IOException{
 		//get a fresh copy of the client
 		//Preconditions.checkState(client==null);//make sure we cleared this from the previous attempt
-		HBaseClient client = (HBaseClient)datarouter.getClientPool().getClient(clientName);// be sure to get a new
-																							// client for each
-																							// attempt/task in case the
-																							// client was refreshed
-																							// behind the scenes
+		//Be sure to get a new client for each attempt/task in case the client was refreshed behind the scenes
+		HBaseClient client = (HBaseClient)datarouter.getClientPool().getClient(clientName);
+
 		Preconditions.checkNotNull(client);
 		progress.set("got client attemptNumOneBased:" + attemptNumOneBased);
 
