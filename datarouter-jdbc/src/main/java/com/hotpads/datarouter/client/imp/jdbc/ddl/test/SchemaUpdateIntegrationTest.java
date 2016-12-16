@@ -167,13 +167,10 @@ public class SchemaUpdateIntegrationTest{
 	public void testEnumModified(){
 
 	}
+
 	@Test
 	public void testSetModified(){
 
 	}
-
-
-
-
 
 }

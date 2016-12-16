@@ -25,7 +25,9 @@ public class ReaderTool{
 	}
 
 	public static void close(Reader reader){
-		if(reader == null){ return; }
+		if(reader == null){
+			return;
+		}
 		try{
 			reader.close();
 		}catch(IOException e){
@@ -34,7 +36,9 @@ public class ReaderTool{
 	}
 
 	public static String readLine(BufferedReader reader){
-		if(reader == null){ return null; }
+		if(reader == null){
+			return null;
+		}
 		try{
 			return reader.readLine();
 		}catch(IOException ioe){
@@ -92,7 +96,9 @@ public class ReaderTool{
 		@Override
 		public boolean advance(){
 			line = readLine(reader);
-			if(line != null){ return true; }
+			if(line != null){
+				return true;
+			}
 			close(reader);
 			reader = null;//need to nullify so future calls to advance don't try to readLine on closed reader
 			return false;

@@ -8,20 +8,20 @@ import com.hotpads.notification.databean.NotificationRequest;
 import com.hotpads.notification.destination.NotificationDestinationApp;
 import com.hotpads.util.core.lang.ClassTool;
 
-public abstract class BaseNotificationType implements NotificationType {
+public abstract class BaseNotificationType implements NotificationType{
 
 	@Override
-	public String getName() {
+	public String getName(){
 		return getClass().getName();
 	}
 
 	@Override
-	public boolean isMergeableWith(NotificationType that) {
+	public boolean isMergeableWith(NotificationType that){
 		return ClassTool.sameClass(this, that);
 	}
 
 	@Override
-	public List<NotificationDestinationApp> getDestinationApps() {
+	public List<NotificationDestinationApp> getDestinationApps(){
 		return new ArrayList<>(getTemplateForApp().keySet());
 	}
 
