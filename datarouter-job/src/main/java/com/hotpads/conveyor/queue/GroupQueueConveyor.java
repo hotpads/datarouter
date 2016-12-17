@@ -38,25 +38,18 @@ extends BaseConveyor<PK,D>{
 
 
 	@Override
-	public void run(){
-		try{
-			if(!shouldRun()){
-				return;
-			}
-			for(GroupQueueMessage<PK,D> message : groupQueueStorage.peekUntilEmpty(PEEK_CONFIG)){
-				List<D> databeans = message.getDatabeans();
-				storageWriter.putMulti(databeans, null);
-				ConveyorCounters.inc(this, "putMulti ops", 1);
-				ConveyorCounters.inc(this, "putMulti databeans", databeans.size());
-				groupQueueStorage.ack(message.getKey(), null);
-				ConveyorCounters.inc(this, "ack", 1);
-				if(!shouldRun()){
-					break;
-				}
-			}
-		}catch(Exception e){
-			logger.warn("swallowing exception so ScheduledExecutorService restarts this Runnable", e);
+	public ProcessBatchResult processBatch(){
+		GroupQueueMessage<PK,D> message = groupQueueStorage.peek(PEEK_CONFIG);
+		List<D> databeans = message.getDatabeans();
+		if(databeans.isEmpty()){
+			return new ProcessBatchResult(false);
 		}
+		storageWriter.putMulti(databeans, null);
+		ConveyorCounters.inc(this, "putMulti ops", 1);
+		ConveyorCounters.inc(this, "putMulti databeans", databeans.size());
+		groupQueueStorage.ack(message.getKey(), null);
+		ConveyorCounters.inc(this, "ack", 1);
+		return new ProcessBatchResult(true);
 	}
 
 }
