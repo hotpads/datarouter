@@ -6,7 +6,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hotpads.conveyor.Conveyor;
+import com.hotpads.conveyor.BaseConveyor;
 import com.hotpads.conveyor.ConveyorCounters;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.op.raw.GroupQueueStorage;
@@ -19,22 +19,19 @@ import com.hotpads.datarouter.storage.queue.GroupQueueMessage;
 public class GroupQueueConveyor<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>>
-implements Conveyor{
+extends BaseConveyor<PK,D>{
 	private static final Logger logger = LoggerFactory.getLogger(GroupQueueConveyor.class);
 
 	private static final Duration PEEK_TIMEOUT = Duration.ofSeconds(5);
 	private static final Config PEEK_CONFIG = new Config().setTimeoutMs(PEEK_TIMEOUT.toMillis());
 
-	private final String name;
-	private final Setting<Boolean> shouldRunSetting;
 	private final GroupQueueStorage<PK,D> groupQueueStorage;
 	private final StorageWriter<PK,D> storageWriter;
 
 
 	public GroupQueueConveyor(String name, Setting<Boolean> shouldRunSetting, GroupQueueStorage<PK,D> groupQueueStorage,
 			StorageWriter<PK,D> storageWriter){
-		this.name = name;
-		this.shouldRunSetting = shouldRunSetting;
+		super(name, shouldRunSetting);
 		this.groupQueueStorage = groupQueueStorage;
 		this.storageWriter = storageWriter;
 	}
@@ -60,15 +57,6 @@ implements Conveyor{
 		}catch(Exception e){
 			logger.warn("swallowing exception so ScheduledExecutorService restarts this Runnable", e);
 		}
-	}
-
-	@Override
-	public String getName(){
-		return name;
-	}
-
-	private boolean shouldRun(){
-		return !Thread.currentThread().isInterrupted() && shouldRunSetting.getValue();
 	}
 
 }
