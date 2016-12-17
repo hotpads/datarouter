@@ -43,6 +43,7 @@ implements Conveyor{
 			}
 			processBatch();
 		}catch(Exception e){
+			ConveyorCounters.incException(this);
 			logger.warn("swallowing exception so ScheduledExecutorService restarts this Runnable", e);
 		}
 	}

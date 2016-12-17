@@ -41,10 +41,9 @@ extends BaseConveyor<PK,D>{
 			return new ProcessBatchResult(false);
 		}
 		storageWriter.putMulti(databeans, null);
-		ConveyorCounters.inc(this, "putMulti ops", 1);
-		ConveyorCounters.inc(this, "putMulti databeans", databeans.size());
+		ConveyorCounters.incPutMultiOpAndDatabeans(this, databeans.size());
 		groupQueueStorage.ack(message.getKey(), null);
-		ConveyorCounters.inc(this, "ack", 1);
+		ConveyorCounters.incAck(this);
 		return new ProcessBatchResult(true);
 	}
 

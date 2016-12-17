@@ -37,8 +37,7 @@ extends BaseConveyor<PK,D>{
 		}
 		try{
 			storageWriter.putMulti(databeans, null);
-			ConveyorCounters.inc(this, "putMulti ops", 1);
-			ConveyorCounters.inc(this, "putMulti databeans", databeans.size());
+			ConveyorCounters.incPutMultiOpAndDatabeans(this, databeans.size());
 			return new ProcessBatchResult(true);
 		}catch(Exception putMultiException){
 			databeans.forEach(databeanBuffer::offer);//might as well try to save them for later
