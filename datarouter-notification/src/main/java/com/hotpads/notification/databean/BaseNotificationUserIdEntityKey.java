@@ -20,7 +20,7 @@ public abstract class BaseNotificationUserIdEntityKey<EK extends EntityKey<EK>> 
 	}
 
 	@Override
-	public List<Field<?>> getFields() {
+	public List<Field<?>> getFields(){
 		return Arrays.asList(
 				new StringEnumField<>(NotificationUserId.FieldKeys.userType, userId.getType(), PREFIX_userId),
 				new StringField(PREFIX_userId, NotificationUserId.FieldKeys.userId, userId.getId()));

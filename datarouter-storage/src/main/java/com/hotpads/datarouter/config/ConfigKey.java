@@ -33,11 +33,11 @@ public class ConfigKey extends BasePrimaryKey<ConfigKey>{
 				new LongField(COL_id, id));
 	}
 
-	public Long getId() {
+	public Long getId(){
 		return id;
 	}
 
-	public void setId(Long id) {
+	public void setId(Long id){
 		this.id = id;
 	}
 

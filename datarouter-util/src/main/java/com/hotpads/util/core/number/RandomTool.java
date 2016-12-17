@@ -9,14 +9,18 @@ public class RandomTool{
 	public static short nextPositiveByte(Random random){
 		while(true){
 			int value = random.nextInt();
-			if(value > 0){ return (byte)(value % Byte.MAX_VALUE); }
+			if(value > 0){
+				return (byte)(value % Byte.MAX_VALUE);
+			}
 		}
 	}
 
 	public static short nextPositiveShort(Random random){
 		while(true){
 			int value = random.nextInt();
-			if(value > 0){ return (short)(value % Short.MAX_VALUE); }
+			if(value > 0){
+				return (short)(value % Short.MAX_VALUE);
+			}
 		}
 	}
 
@@ -27,7 +31,9 @@ public class RandomTool{
 	public static int nextPositiveInt(Random random){
 		while(true){
 			int value = random.nextInt();
-			if(value > 0){ return value; }
+			if(value > 0){
+				return value;
+			}
 		}
 	}
 
@@ -38,7 +44,9 @@ public class RandomTool{
 	public static long nextPositiveLong(Random random){
 		while(true){
 			long value = random.nextLong();
-			if(value > 0){ return value; }
+			if(value > 0){
+				return value;
+			}
 		}
 	}
 
@@ -48,7 +56,7 @@ public class RandomTool{
 	 * @param max inclusive
 	 */
 	public static int getRandomIntBetweenTwoNumbers(int min, int max){
-		return (int)Math.floor(Math.random() * (max - min +1)) + min;
+		return (int)Math.floor(Math.random() * (max - min + 1)) + min;
 	}
 
 }

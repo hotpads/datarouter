@@ -17,7 +17,7 @@ public abstract class BaseField<T> implements Field<T>{
 
 	/*************************** constructor *********************************/
 
-	public BaseField(String prefix, T value) {
+	public BaseField(String prefix, T value){
 		this.prefix = DrStringTool.nullSafe(prefix);
 		this.value = value;
 	}
@@ -30,8 +30,8 @@ public abstract class BaseField<T> implements Field<T>{
 	}
 
 	@Override
-	public String toString() {
-		return getPrefixedName()+":"+getValueString();
+	public String toString(){
+		return getPrefixedName() + ":" + getValueString();
 	}
 
 	@Override
@@ -66,7 +66,7 @@ public abstract class BaseField<T> implements Field<T>{
 			javaField.set(nestedFieldSet, fieldValue);
 		}catch(Exception e){
 			String message = e.getClass().getSimpleName()
-					+" on "+targetFieldSet.getClass().getSimpleName()+"."+getKey().getName();
+					+ " on " + targetFieldSet.getClass().getSimpleName() + "." + getKey().getName();
 			throw new DataAccessException(message, e);
 		}
 	}
@@ -97,12 +97,12 @@ public abstract class BaseField<T> implements Field<T>{
 	}
 
 	@Override
-	public T getValue() {
+	public T getValue(){
 		return value;
 	}
 
 	@Override
-	public String getPreparedStatementValue() {
+	public String getPreparedStatementValue(){
 		return "?";
 	}
 

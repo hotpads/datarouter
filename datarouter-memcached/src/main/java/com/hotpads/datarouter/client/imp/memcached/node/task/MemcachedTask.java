@@ -31,7 +31,7 @@ extends TracedCallable<V>{
 	protected Config config;
 
 	public MemcachedTask(String taskName, MemcachedPhysicalNode<?,?> node, Config config){
-		super("MemcachedTask."+taskName);
+		super("MemcachedTask." + taskName);
 		this.taskName = taskName;
 		this.node = node;
 		this.client = node.getClient();
@@ -45,13 +45,13 @@ extends TracedCallable<V>{
 	public V wrappedCall(){
 		try{
 			DRCounters.incClientNodeCustom(client.getType(), taskName, client.getName(), node.getName());
-			TracerTool.startSpan(TracerThreadLocal.get(), node.getName()+" "+taskName);
+			TracerTool.startSpan(TracerThreadLocal.get(), node.getName() + " " + taskName);
 			if(DrNumberTool.nullSafe(numAttempts) > 1){
 				TracerTool.appendToThreadInfo(TracerThreadLocal.get(), "[attempt " + attemptNumOneBased + "/"
 						+ numAttempts + "]");
 			}
-			if( ! DrNumberTool.isMax(timeoutMs)){
-				TracerTool.appendToThreadInfo(TracerThreadLocal.get(), "[timeoutMs="+timeoutMs+"]");
+			if(!DrNumberTool.isMax(timeoutMs)){
+				TracerTool.appendToThreadInfo(TracerThreadLocal.get(), "[timeoutMs=" + timeoutMs + "]");
 			}
 			return memcachedCall();
 		}catch(Exception e){

@@ -27,7 +27,7 @@ implements Node<PK,D>{
 	}
 
 	@Override
-	public N getMaster() {
+	public N getMaster(){
 		return (N)backingNode.getMaster();
 	}
 

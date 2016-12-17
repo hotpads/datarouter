@@ -83,7 +83,7 @@ public class DatarouterClients{
 		}
 	}
 
-	public Stream<LazyClientProvider> registerClientIds(Datarouter context, Collection<ClientId> clientIdsToAdd) {
+	public Stream<LazyClientProvider> registerClientIds(Datarouter context, Collection<ClientId> clientIdsToAdd){
 		clientIdsToAdd.forEach(clientId -> clientIdByClientName.put(clientId.getName(), clientId));
 		return clientIdsToAdd.stream()
 				.map(ClientId::getName)
@@ -101,7 +101,7 @@ public class DatarouterClients{
 		return injector.getInstance(clientTypeClass);
 	}
 
-	private synchronized LazyClientProvider initClientFactoryIfNull(Datarouter datarouter, String clientName) {
+	private synchronized LazyClientProvider initClientFactoryIfNull(Datarouter datarouter, String clientName){
 		return lazyClientProviderByName.computeIfAbsent(clientName, client -> {
 			ClientType clientTypeInstance = getClientTypeInstance(client);
 			ClientFactory clientFactory = clientTypeInstance.createClientFactory(datarouter, client);
@@ -115,14 +115,14 @@ public class DatarouterClients{
 	//TODO shutdown clients in parallel
 	public void shutdown(){
 		for(LazyClientProvider lazyClientProvider : lazyClientProviderByName.values()){
-			if( ! lazyClientProvider.isInitialized()){
+			if(!lazyClientProvider.isInitialized()){
 				continue;
 			}
 			Client client = lazyClientProvider.call();
 			try{
 				client.shutdown();
 			}catch(Exception e){
-				logger.warn("swallowing exception while shutting down client "+client.getName(), e);
+				logger.warn("swallowing exception while shutting down client " + client.getName(), e);
 			}
 		}
 	}

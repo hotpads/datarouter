@@ -21,6 +21,4 @@ extends BaseKey<K>{
 		this.id = id;
 	}
 
-
-
 }

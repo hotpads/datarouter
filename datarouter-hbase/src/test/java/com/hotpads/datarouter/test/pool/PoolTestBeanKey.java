@@ -31,7 +31,7 @@ public class PoolTestBeanKey extends BasePrimaryKey<PoolTestBeanKey>{
 	PoolTestBeanKey(){
 	}
 
-	public PoolTestBeanKey(Long id) {
+	public PoolTestBeanKey(Long id){
 		this.id = id;
 	}
 

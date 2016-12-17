@@ -72,7 +72,7 @@ public class JobletProcessor implements Runnable{
 		driverThread.start();
 	}
 
-	public void requestShutdown() {
+	public void requestShutdown(){
 		shutdownRequested.set(true);
 	}
 

@@ -40,7 +40,7 @@ public class DumbDoubleField extends BasePrimitiveField<Double>{
 
 	@Override
 	public byte[] getBytes(){
-		return value==null?null:DoubleByteTool.getBytes(value);
+		return value == null ? null : DoubleByteTool.getBytes(value);
 	}
 
 	@Override

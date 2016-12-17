@@ -13,34 +13,34 @@ public class Pair<L,R> implements Serializable{
 	protected R right;
 
 	public Pair(L left, R right){
-		this.left=left;
-		this.right=right;
+		this.left = left;
+		this.right = right;
 	}
 
 	public Pair(){}
 
-	@Deprecated //use new Pair<>(..)
-	public static <T,V> Pair<T,V> create(T left,V right) {
-		return new Pair<>(left,right);
+	@Deprecated // use new Pair<>(..)
+	public static <T,V> Pair<T,V> create(T left, V right){
+		return new Pair<>(left, right);
 	}
 
 	public boolean areLeftAndRightEqual(){
 		return Objects.equals(left, right);
 	}
 
-	public L getLeft() {
+	public L getLeft(){
 		return left;
 	}
 
-	public void setLeft(L left) {
+	public void setLeft(L left){
 		this.left = left;
 	}
 
-	public R getRight() {
+	public R getRight(){
 		return right;
 	}
 
-	public void setRight(R right) {
+	public void setRight(R right){
 		this.right = right;
 	}
 
@@ -51,14 +51,14 @@ public class Pair<L,R> implements Serializable{
 
 	@Override
 	public boolean equals(Object other){
-		if(other == null || ! (other instanceof Pair)){
+		if(other == null || !(other instanceof Pair)){
 			return false;
 		}
-		Pair<?,?> pair = (Pair<?,?>)other;
+		Pair<?,?> pair = (Pair<?,?>) other;
 
-		return (pair.getLeft()!=null && pair.getLeft().equals(getLeft())
-					|| pair.getLeft() == null && getLeft() == null)
-				&& (pair.getRight()!=null && pair.getRight().equals(getRight())
+		return (pair.getLeft() != null && pair.getLeft().equals(getLeft())
+				|| pair.getLeft() == null && getLeft() == null)
+				&& (pair.getRight() != null && pair.getRight().equals(getRight())
 						|| pair.getRight() == null && getRight() == null);
 	}
 

@@ -23,7 +23,7 @@ public class ClusterSettingLogKey extends BasePrimaryKey<ClusterSettingLogKey>{
 	}
 
 	@Override
-	public List<Field<?>> getFields() {
+	public List<Field<?>> getFields(){
 		return Arrays.asList(
 				new StringField(ClusterSettingKey.FieldKeys.name, name),
 				new LongField(FieldKeys.reverseCreatedMs, reverseCreatedMs));

@@ -65,7 +65,7 @@ extends BaseNode<PK,D,F> implements MasterSlaveNode<PK,D,N>{
 	}
 
 	@Override
-	public List<PhysicalNode<PK,D>> getPhysicalNodes() {
+	public List<PhysicalNode<PK,D>> getPhysicalNodes(){
 		List<PhysicalNode<PK,D>> all = new LinkedList<>();
 		all.addAll(this.master.getPhysicalNodes());
 		for(N slave : DrCollectionTool.nullSafe(this.slaves)){
@@ -75,7 +75,7 @@ extends BaseNode<PK,D,F> implements MasterSlaveNode<PK,D,N>{
 	}
 
 	@Override
-	public List<PhysicalNode<PK,D>> getPhysicalNodesForClient(String clientName) {
+	public List<PhysicalNode<PK,D>> getPhysicalNodesForClient(String clientName){
 		List<PhysicalNode<PK,D>> all = new LinkedList<>();
 		all.addAll(this.master.getPhysicalNodesForClient(clientName));
 		for(N slave : DrCollectionTool.nullSafe(this.slaves)){
@@ -84,9 +84,8 @@ extends BaseNode<PK,D,F> implements MasterSlaveNode<PK,D,N>{
 		return all;
 	}
 
-
 	@Override
-	public List<String> getClientNames() {
+	public List<String> getClientNames(){
 		SortedSet<String> clientNames = new TreeSet<>();
 		DrSetTool.nullSafeSortedAddAll(clientNames, this.master.getClientNames());
 		for(N slave : this.slaves){
@@ -118,7 +117,7 @@ extends BaseNode<PK,D,F> implements MasterSlaveNode<PK,D,N>{
 	}
 
 	@Override
-	public List<String> getClientNamesForPrimaryKeysForSchemaUpdate(Collection<PK> keys) {
+	public List<String> getClientNamesForPrimaryKeysForSchemaUpdate(Collection<PK> keys){
 		return this.master.getClientNamesForPrimaryKeysForSchemaUpdate(keys);
 	}
 
@@ -137,7 +136,7 @@ extends BaseNode<PK,D,F> implements MasterSlaveNode<PK,D,N>{
 	}
 
 	@Override
-	public N getMaster() {
+	public N getMaster(){
 		return this.master;
 	}
 
@@ -151,7 +150,7 @@ extends BaseNode<PK,D,F> implements MasterSlaveNode<PK,D,N>{
 //		Config c = Config.nullSafe(config);
 		//may want to use the config to get the same slave as was used previously
 		int numSlaves = DrCollectionTool.sizeNullSafe(this.slaves);
-		if(numSlaves==0){
+		if(numSlaves == 0){
 			return master;
 		}
 		int slaveNum = this.slaveRequestCounter.incrementAndGet() % numSlaves;

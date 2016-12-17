@@ -5,6 +5,8 @@ import java.util.Random;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.util.core.DrArrayTool;
 import com.hotpads.datarouter.util.core.DrByteTool;
@@ -14,6 +16,7 @@ import com.hotpads.util.core.collections.arrays.LongArray;
  * methods for converting longs into bytes
  */
 public class LongByteTool{
+	private static final Logger logger = LoggerFactory.getLogger(LongByteTool.class);
 
 	/****************** serialize to bytes ****************************/
 
@@ -114,7 +117,7 @@ public class LongByteTool{
 		long[] out = new long[length / 8];
 		int byteOffset = startIdx;
 		for(int i = 0; i < out.length; ++i){
-			out[i] = Long.MIN_VALUE ^ fromUInt63Bytes(bytes, byteOffset);
+			out[i] = Long.MIN_VALUE ^ fromRawBytes(bytes, byteOffset);
 			byteOffset += 8;
 		}
 		return out;
@@ -129,29 +132,18 @@ public class LongByteTool{
 	//************ single values
 
 	public static byte[] getUInt63Bytes(final long value){
-//		if(value < 0){ throw new IllegalArgumentException("no negatives"); }//need to allow Long.MIN_VALUE in for nulls
-		byte[] out = new byte[8];
-		out[0] = (byte) (value >>> 56);
-		out[1] = (byte) (value >>> 48);
-		out[2] = (byte) (value >>> 40);
-		out[3] = (byte) (value >>> 32);
-		out[4] = (byte) (value >>> 24);
-		out[5] = (byte) (value >>> 16);
-		out[6] = (byte) (value >>> 8);
-		out[7] = (byte) value;
-		return out;
+		if(value < 0 && value != Long.MIN_VALUE){//need to allow Long.MIN_VALUE in for nulls
+			logger.warn("", new IllegalArgumentException("no negatives: " + value));
+		}
+		return getRawBytes(value);
 	}
 
-	public static Long fromUInt63Bytes(final byte[] bytes, final int byteOffset){
-		return
-		  (bytes[byteOffset] & (long)0xff) << 56
-		| (bytes[byteOffset + 1] & (long)0xff) << 48
-		| (bytes[byteOffset + 2] & (long)0xff) << 40
-		| (bytes[byteOffset + 3] & (long)0xff) << 32
-		| (bytes[byteOffset + 4] & (long)0xff) << 24
-		| (bytes[byteOffset + 5] & (long)0xff) << 16
-		| (bytes[byteOffset + 6] & (long)0xff) << 8
-		| bytes[byteOffset + 7] & (long)0xff;
+	public static long fromUInt63Bytes(final byte[] bytes, final int byteOffset){
+		long longValue = fromRawBytes(bytes, byteOffset);
+		if(longValue < 0 && longValue != Long.MIN_VALUE){
+			logger.warn("", new IllegalArgumentException("no negatives: " + longValue));
+		}
+		return longValue;
 	}
 
 	//************ arrays and collections

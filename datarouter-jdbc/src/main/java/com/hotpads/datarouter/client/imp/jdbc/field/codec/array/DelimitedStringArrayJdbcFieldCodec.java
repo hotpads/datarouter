@@ -25,13 +25,15 @@ extends BaseListJdbcFieldCodec<String,List<String>,DelimitedStringArrayField>{
 
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
-		return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.LONGBLOB, Integer.MAX_VALUE , field
-				.getKey().isNullable(), false);
+		return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.LONGBLOB, Integer.MAX_VALUE, field.getKey()
+				.isNullable(), false);
 	}
 
 	@Override
 	public List<String> parseJdbcValueButDoNotSet(Object col){
-		if(col==null){ return null; }
+		if(col == null){
+			return null;
+		}
 		String dbValue = (String)col;
 		return DelimitedStringArrayField.decode(dbValue, field.getSeparator());
 	}

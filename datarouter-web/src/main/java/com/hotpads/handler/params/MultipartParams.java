@@ -27,7 +27,7 @@ public class MultipartParams extends Params{
 		for(FileItem item : items){
 			if(item.isFormField()){
 				paramsMap.put(item.getFieldName(), item.getString());
-			} else {
+			}else{
 				filesMap.put(item.getFieldName(), item);
 			}
 		}

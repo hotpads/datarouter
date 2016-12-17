@@ -24,7 +24,7 @@ import com.hotpads.util.http.json.GsonJsonSerializer;
 public class TestApiHandler extends BaseHandler{
 
 	@Override
-	@Handler(encoder=JsonEncoder.class)
+	@Handler(encoder = JsonEncoder.class)
 	protected String handleDefault(){
 		return "This is not a mav";
 	}
@@ -67,7 +67,7 @@ public class TestApiHandler extends BaseHandler{
 	/*
 	 * These examples show the possibility to return another type than Mav.
 	 */
-	@Handler(encoder=JsonEncoder.class)
+	@Handler(encoder = JsonEncoder.class)
 	public Date now(){
 		return Calendar.getInstance().getTime();
 	}
@@ -88,13 +88,13 @@ public class TestApiHandler extends BaseHandler{
 		}
 	}
 
-	@Handler(encoder=JsonEncoder.class)
+	@Handler(encoder = JsonEncoder.class)
 	public FooBar banana(){
 		FooBar dto = new FooBar("hello", 42, Calendar.getInstance().getTime());
 		return dto;
 	}
 
-	@Handler(encoder=JsonEncoder.class)
+	@Handler(encoder = JsonEncoder.class)
 	public Collection<FooBar> bananas(){
 		FooBar dto = new FooBar("hello", 42, Calendar.getInstance().getTime());
 		FooBar otd = new FooBar("world", 24, Calendar.getInstance().getTime());
@@ -104,7 +104,7 @@ public class TestApiHandler extends BaseHandler{
 	/*
 	 * COMBO
 	 */
-	@Handler(encoder=JsonEncoder.class)
+	@Handler(encoder = JsonEncoder.class)
 	public FooBar first(FooBar[] fooBars){
 		if(fooBars.length == 0){
 			return null;
@@ -151,17 +151,17 @@ public class TestApiHandler extends BaseHandler{
 	/*
 	 * MEGA COMBO
 	 */
-	@Handler(encoder=JsonEncoder.class)
+	@Handler(encoder = JsonEncoder.class)
 	public int size(@P(typeProvider = FooBarCollectionTypeProvider.class) Collection<FooBar> fooBars){
 		return fooBars.size();
 	}
 
-	@Handler(encoder=JsonEncoder.class)
+	@Handler(encoder = JsonEncoder.class)
 	public int size(@RequestBody List<Object> list){
 		return list.size();
 	}
 
-	@Handler(encoder=JsonEncoder.class)
+	@Handler(encoder = JsonEncoder.class)
 	public int length(@RequestBody String string){
 		return string.length();
 	}
@@ -174,7 +174,7 @@ public class TestApiHandler extends BaseHandler{
 		}
 	}
 
-	@Handler(encoder=JsonEncoder.class, decoder=TestApiHandlerDecoder.class)
+	@Handler(encoder = JsonEncoder.class, decoder = TestApiHandlerDecoder.class)
 	public int year(Date date){
 		return DrDateTool.getYearInteger(date);
 	}

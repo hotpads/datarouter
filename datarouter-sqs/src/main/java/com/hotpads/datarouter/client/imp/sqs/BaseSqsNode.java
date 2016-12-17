@@ -27,8 +27,8 @@ implements QueueStorageWriter<PK,D>{
 	//do not change, this is a limit from SQS
 	public static final int MAX_MESSAGES_PER_BATCH = 10;
 	public static final int MAX_TIMEOUT_SECONDS = 20;
-	public static final int MAX_BYTES_PER_MESSAGE = 256*1024;
-	public static final int MAX_BYTES_PER_PAYLOAD = 256*1024;
+	public static final int MAX_BYTES_PER_MESSAGE = 256 * 1024;
+	public static final int MAX_BYTES_PER_PAYLOAD = 256 * 1024;
 	//SQS default is 30 sec
 	public static final long DEFAULT_VISIBILITY_TIMEOUT_MS = Duration.ofSeconds(30).toMillis();
 

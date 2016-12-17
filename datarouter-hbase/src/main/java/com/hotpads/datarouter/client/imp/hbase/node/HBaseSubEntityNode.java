@@ -86,7 +86,7 @@ implements SubEntitySortedMapStorageNode<EK,PK,D,F>, PhysicalSortedMapStorageNod
 
 
 	@Override
-	public void put(final D databean, final Config config) {
+	public void put(final D databean, final Config config){
 		if(databean == null){
 			return;
 		}
@@ -95,7 +95,7 @@ implements SubEntitySortedMapStorageNode<EK,PK,D,F>, PhysicalSortedMapStorageNod
 
 
 	@Override
-	public void putMulti(final Collection<D> databeans, final Config config) {
+	public void putMulti(final Collection<D> databeans, final Config config){
 		if(DrCollectionTool.isEmpty(databeans)){
 			return;
 		}
@@ -121,7 +121,7 @@ implements SubEntitySortedMapStorageNode<EK,PK,D,F>, PhysicalSortedMapStorageNod
 							byte[] fullQualifierBytes = DrByteTool.concatenate(fieldInfo.getEntityColumnPrefixBytes(),
 									qualifierPkBytes, field.getKey().getColumnNameBytes());
 							byte[] fieldValueBytes = field.getBytes();
-							if(fieldValueBytes==null){
+							if(fieldValueBytes == null){
 								if(DrBooleanTool.isFalseOrNull(config.getIgnoreNullFields())){
 									delete.deleteColumn(FAM, fullQualifierBytes, batchStartTime);
 									++numCellsDeleted;
@@ -170,7 +170,7 @@ implements SubEntitySortedMapStorageNode<EK,PK,D,F>, PhysicalSortedMapStorageNod
 	}
 
 	@Override
-	public void deleteAll(final Config config) {
+	public void deleteAll(final Config config){
 		new HBaseMultiAttemptTask<>(new HBaseTask<Void>(getDatarouter(), getClientTableNodeNames(), "deleteAll",
 				Config.nullSafe(config)){
 			@Override
@@ -204,7 +204,7 @@ implements SubEntitySortedMapStorageNode<EK,PK,D,F>, PhysicalSortedMapStorageNod
 
 
 	@Override
-	public void delete(PK key, Config config) {
+	public void delete(PK key, Config config){
 		deleteMulti(DrListTool.wrap(key), config);
 	}
 

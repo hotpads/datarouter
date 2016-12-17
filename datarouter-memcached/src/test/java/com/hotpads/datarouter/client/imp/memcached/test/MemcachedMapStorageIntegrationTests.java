@@ -7,9 +7,8 @@ import com.hotpads.datarouter.test.DatarouterStorageTestModuleFactory;
 import com.hotpads.datarouter.test.DrTestConstants;
 import com.hotpads.datarouter.test.node.basic.map.BaseMapStorageIntegrationTests;
 
-@Guice(moduleFactory=DatarouterStorageTestModuleFactory.class)
+@Guice(moduleFactory = DatarouterStorageTestModuleFactory.class)
 public class MemcachedMapStorageIntegrationTests extends BaseMapStorageIntegrationTests{
-
 	@BeforeClass
 	public void beforeClass(){
 		setup(DrTestConstants.CLIENT_drTestMemcached, false);

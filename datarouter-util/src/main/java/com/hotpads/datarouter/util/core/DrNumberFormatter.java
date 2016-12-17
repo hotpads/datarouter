@@ -6,7 +6,7 @@ import java.text.DecimalFormat;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class DrNumberFormatter {
+public class DrNumberFormatter{
 
 	public static String format(Number number, int numFractionDigits){
 		return format(number, "", "", numFractionDigits, true);
@@ -29,9 +29,12 @@ public class DrNumberFormatter {
 		return df.format(number);
 	}
 
-	public static String addCommas(final Number pValue){
-		if(pValue==null){ return null; }
-		return new DecimalFormat("###,###,###,###,###,###,###,###.#####################").format(pValue);//biggest is 19 digits
+	public static String addCommas(final Number value){
+		if(value == null){
+			return null;
+		}
+		//biggest is 19 digits
+		return new DecimalFormat("###,###,###,###,###,###,###,###.#####################").format(value);
 	}
 
 	public static class Tests{

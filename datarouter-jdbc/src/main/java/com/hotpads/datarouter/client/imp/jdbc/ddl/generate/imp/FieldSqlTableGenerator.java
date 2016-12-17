@@ -29,7 +29,7 @@ public class FieldSqlTableGenerator implements SqlTableGenerator{
 
 	public FieldSqlTableGenerator(JdbcFieldCodecFactory fieldCodecFactory, String tableName,
 			List<Field<?>> primaryKeyFields, List<Field<?>> nonKeyFields,
-			MySqlCollation collation, MySqlCharacterSet characterSet,  MySqlRowFormat rowFormat){
+			MySqlCollation collation, MySqlCharacterSet characterSet, MySqlRowFormat rowFormat){
 		this.fieldCodecFactory = fieldCodecFactory;
 		this.tableName = tableName;
 		this.nonKeyFields = nonKeyFields;
@@ -45,7 +45,7 @@ public class FieldSqlTableGenerator implements SqlTableGenerator{
 	@Override
 	public SqlTable generate(){
 		SqlTable table = new SqlTable(getTableName());
-		SqlIndex primaryKey = new SqlIndex(getTableName() +" primary key");
+		SqlIndex primaryKey = new SqlIndex(getTableName() + " primary key");
 		for(JdbcFieldCodec<?,?> codec : fieldCodecFactory.createCodecs(getPrimaryKeyFields())){
 			primaryKey.addColumn(codec.getSqlColumnDefinition());
 			table.addColumn(codec.getSqlColumnDefinition());
@@ -82,12 +82,12 @@ public class FieldSqlTableGenerator implements SqlTableGenerator{
 	}
 
 	private String getKeyByValue(Map<String,List<Field<?>>> map, List<Field<?>> value){
-		for (Entry<String, List<Field<?>>> entry : map.entrySet()){
-	        if (value.equals(entry.getValue())){
-	            return entry.getKey();
-	        }
-	    }
-	    return null;
+		for(Entry<String,List<Field<?>>> entry : map.entrySet()){
+			if(value.equals(entry.getValue())){
+				return entry.getKey();
+			}
+		}
+		return null;
 	}
 
 

@@ -28,7 +28,7 @@ public class JobletType<P> implements Comparable<JobletType<?>>{
 		this.persistentInt = persistentInt;
 		this.persistentString = persistentString;
 		Preconditions.checkArgument(shortQueueName.length() <= JobletConstants.MAX_LENGTH_SHORT_QUEUE_NAME);
-		this.shortQueueName =  shortQueueName;
+		this.shortQueueName = shortQueueName;
 		this.codecSupplier = codecSupplier;
 		this.clazz = clazz;
 		this.cpuPermits = cpuPermits;

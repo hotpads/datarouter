@@ -10,7 +10,7 @@ public class StringJobletCodec implements JobletCodec<String>{
 	}
 
 	@Override
-	public String unmarshallData(String encodedParams) {
+	public String unmarshallData(String encodedParams){
 		return encodedParams;
 	}
 

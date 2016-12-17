@@ -34,7 +34,7 @@ import com.hotpads.util.core.collections.Pair;
 import com.hotpads.util.http.security.UrlScheme;
 
 @Singleton
-public class ParallelApiCaller {
+public class ParallelApiCaller{
 	private static final Logger logger = LoggerFactory.getLogger(ParallelApiCaller.class);
 
 	private static final int QUEUE_CAPACITY = 4096;
@@ -53,7 +53,7 @@ public class ParallelApiCaller {
 	public ParallelApiCaller(NotificationApiClient notificationApiClient,
 			ExceptionHandlingConfig exceptionHandlingConfig,
 			@Named(DatarouterExecutorGuiceModule.POOL_parallelApiCallerFlusher) ScheduledExecutorService flusher,
-			@Named(DatarouterExecutorGuiceModule.POOL_parallelApiCallerSender) ExecutorService sender) {
+			@Named(DatarouterExecutorGuiceModule.POOL_parallelApiCallerSender) ExecutorService sender){
 		this.notificationApiClient = notificationApiClient;
 		this.queue = new LinkedBlockingQueue<>(QUEUE_CAPACITY);
 		this.sender = sender;
@@ -75,19 +75,19 @@ public class ParallelApiCaller {
 		}
 	}
 
-	private class QueueFlusher implements Runnable {
+	private class QueueFlusher implements Runnable{
 		private static final int BATCH_SIZE = 100;
 		private ExceptionHandlingConfig exceptionHandlingConfig;
 
-		public QueueFlusher(ExceptionHandlingConfig exceptionHandlingConfig) {
+		public QueueFlusher(ExceptionHandlingConfig exceptionHandlingConfig){
 			this.exceptionHandlingConfig = exceptionHandlingConfig;
 		}
 
 		@Override
-		public void run() {
+		public void run(){
 			List<Pair<NotificationRequest, ExceptionRecord>> requests = new ArrayList<>();
-			while (DrCollectionTool.notEmpty(queue)) {
-				if (requests.size() == BATCH_SIZE) {
+			while(DrCollectionTool.notEmpty(queue)){
+				if(requests.size() == BATCH_SIZE){
 					logger.info("Submiting api call attempt with {} notification requet(s)", requests.size());
 					Future<Boolean> future = sender.submit(new ApiCallAttempt(requests));
 					List<Pair<NotificationRequest,ExceptionRecord>> errorRequests = new LinkedList<>();
@@ -103,7 +103,7 @@ public class ParallelApiCaller {
 				}
 				requests.add(queue.poll());
 			}
-			if (DrCollectionTool.notEmpty(requests)) {
+			if(DrCollectionTool.notEmpty(requests)){
 				logger.info("Submiting api call attempt with {} notification requet(s)", requests.size());
 				Future<Boolean> future = sender.submit(new ApiCallAttempt(requests));
 				new FailedTester(future, requests, getTimeoutMs(), exceptionHandlingConfig).start();
@@ -139,15 +139,15 @@ public class ParallelApiCaller {
 		}
 
 		@Override
-		public void run() {
+		public void run(){
 			long start = System.currentTimeMillis();
-			try {
-				if (future.get(timeoutMs, TimeUnit.MILLISECONDS)) {
+			try{
+				if(future.get(timeoutMs, TimeUnit.MILLISECONDS)){
 					logger.info("Request terminated in " + (System.currentTimeMillis() - start) + "ms");
 					return;
 				}
 				logger.warn("Request to NotificationApi failed");
-			} catch (InterruptedException | ExecutionException | TimeoutException e) {
+			}catch(InterruptedException | ExecutionException | TimeoutException e){
 				logger.warn("Request to NotificationApi failed", e);
 			}
 			sendEmail(requests);
@@ -157,7 +157,7 @@ public class ParallelApiCaller {
 			Optional<Pair<NotificationRequest,ExceptionRecord>> optionalPair = requests.stream()
 					.filter(pair -> pair.getRight() != null)
 					.findAny();
-			if(! optionalPair.isPresent()){
+			if(!optionalPair.isPresent()){
 				return;
 			}
 			logger.info("An emergency email will be sent");
@@ -178,7 +178,7 @@ public class ParallelApiCaller {
 			builder.append("<p>Channel : ");
 			builder.append(pair.getLeft().getChannel());
 			builder.append("</p>");
-			for (Pair<NotificationRequest, ExceptionRecord> r : requests) {
+			for(Pair<NotificationRequest,ExceptionRecord> r : requests){
 				if(r.getRight() == null){
 					continue;
 				}

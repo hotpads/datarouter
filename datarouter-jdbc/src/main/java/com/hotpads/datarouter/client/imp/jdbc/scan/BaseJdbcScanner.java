@@ -32,7 +32,7 @@ extends BaseBatchBackedScanner<T,T>{
 	public BaseJdbcScanner(Collection<Range<PK>> ranges, Config config){
 		this.ranges = ranges.stream().filter(Range::notEmpty).collect(Collectors.toCollection(TreeSet::new));
 		this.currentRanges = new TreeSet<>();
-		for(int i = 0 ; i < RANGE_BATCH_SIZE && !this.ranges.isEmpty() ; i++){
+		for(int i = 0; i < RANGE_BATCH_SIZE && !this.ranges.isEmpty(); i++){
 			currentRanges.add(this.ranges.pollFirst());
 		}
 		this.config = Config.nullSafe(config);
@@ -54,7 +54,7 @@ extends BaseBatchBackedScanner<T,T>{
 		currentBatchIndex = 0;
 		if(currentBatch != null){
 			T endOfLastBatch = DrCollectionTool.getLast(currentBatch);
-			if(endOfLastBatch==null){
+			if(endOfLastBatch == null){
 				currentBatch = null;
 				return;
 			}
@@ -101,7 +101,7 @@ extends BaseBatchBackedScanner<T,T>{
 		currentBatch = doLoad(currentRanges, batchConfig);
 		while(currentBatch.isEmpty() && !ranges.isEmpty()){
 			currentRanges.clear();
-			for(int i = 0 ; i < RANGE_BATCH_SIZE && !ranges.isEmpty() ; i++){
+			for(int i = 0; i < RANGE_BATCH_SIZE && !ranges.isEmpty(); i++){
 				currentRanges.add(ranges.pollFirst());
 			}
 			currentBatch = doLoad(currentRanges, batchConfig);

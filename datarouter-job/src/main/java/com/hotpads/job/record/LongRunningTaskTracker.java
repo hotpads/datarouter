@@ -9,7 +9,7 @@ import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage;
 import com.hotpads.datarouter.setting.Setting;
 import com.hotpads.util.datastructs.MutableBoolean;
 
-public class LongRunningTaskTracker {
+public class LongRunningTaskTracker{
 	private static Logger logger = LoggerFactory.getLogger(LongRunningTaskTracker.class);
 
 	private static long HEARTBEAT_PERSIST_PERIOD_MS = 2000L;
@@ -61,7 +61,7 @@ public class LongRunningTaskTracker {
 		if(!shouldPersist()){
 			return;
 		}
-		if(task.getKey().getTriggerTime()==null){
+		if(task.getKey().getTriggerTime() == null){
 			logger.warn("setting null triggerTime to now on {}", task.getDatabeanName());
 			task.setTriggerTime(new Date());
 		}
@@ -81,11 +81,11 @@ public class LongRunningTaskTracker {
 
 	/*--------------------- get/set -------------------------*/
 
-	public IndexedSortedMapStorage<LongRunningTaskKey,LongRunningTask> getNode() {
+	public IndexedSortedMapStorage<LongRunningTaskKey,LongRunningTask> getNode(){
 		return node;
 	}
 
-	public LongRunningTask getTask() {
+	public LongRunningTask getTask(){
 		return task;
 	}
 }

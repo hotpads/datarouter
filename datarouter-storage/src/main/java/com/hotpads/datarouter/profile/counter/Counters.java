@@ -11,23 +11,23 @@ public class Counters{
 
 	public static long
 		s = 1000,//ms in second
-		m = 60*s,//ms in minute
-		h = 60*m,
-		d = 24*h;
+		m = 60 * s,//ms in minute
+		h = 60 * m,
+		d = 24 * h;
 
 	public static long getMs(String stringDuration){
 		int digits = Integer.valueOf(DrStringTool.retainDigits(stringDuration));
 		String units = DrStringTool.retainLetters(stringDuration);
 		if("s".equals(units)){
-			return digits*s;
+			return digits * s;
 		}else if("m".equals(units)){
-			return digits*m;
+			return digits * m;
 		}else if("h".equals(units)){
-			return digits*h;
+			return digits * h;
 		}else if("d".equals(units)){
-			return digits*d;
+			return digits * d;
 		}else{
-			throw new IllegalArgumentException("unknown duration:"+stringDuration);
+			throw new IllegalArgumentException("unknown duration:" + stringDuration);
 		}
 	}
 
@@ -41,7 +41,7 @@ public class Counters{
 		}else if(periodMs >= s){
 			return periodMs / s + "s";
 		}else{
-			throw new IllegalArgumentException("unknown duration:"+periodMs);
+			throw new IllegalArgumentException("unknown duration:" + periodMs);
 		}
 	}
 
@@ -54,7 +54,7 @@ public class Counters{
 	}
 
 	public static void stopAndFlushAll(){
-		for(int i=0; i < collectors.size(); ++i){
+		for(int i = 0; i < collectors.size(); ++i){
 			collectors.get(i).stopAndFlushAll();
 		}
 	}
@@ -66,7 +66,7 @@ public class Counters{
 	}
 
 	public static void inc(String key, long delta){
-		for(int i=0; i < collectors.size(); ++i){
+		for(int i = 0; i < collectors.size(); ++i){
 			collectors.get(i).increment(key.intern(), delta);
 		}
 	}

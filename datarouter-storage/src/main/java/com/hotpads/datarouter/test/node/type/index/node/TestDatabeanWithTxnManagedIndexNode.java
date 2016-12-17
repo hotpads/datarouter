@@ -7,7 +7,7 @@ import com.hotpads.datarouter.routing.Router;
 import com.hotpads.datarouter.test.node.type.index.databean.TestDatabeanWithManagedIndexByBar;
 import com.hotpads.datarouter.test.node.type.index.databean.TestDatabeanWithManagedIndexByBar.TestDatabeanWithManagedIndexByBFielder;
 
-public class TestDatabeanWithTxnManagedIndexNode extends TestDatabeanWithIndexNode {
+public class TestDatabeanWithTxnManagedIndexNode extends TestDatabeanWithIndexNode{
 
 	public TestDatabeanWithTxnManagedIndexNode(NodeFactory nodeFactory, Router router, ClientId clientId){
 		super(nodeFactory, router, clientId);

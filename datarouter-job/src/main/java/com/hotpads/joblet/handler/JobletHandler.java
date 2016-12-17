@@ -77,7 +77,7 @@ public class JobletHandler extends BaseHandler{
 		this.jobletRequestQueueManager = jobletRequestQueueManager;
 	}
 
-	@Handler(defaultHandler=true)
+	@Handler(defaultHandler = true)
 	private Mav list(){
 		Mav mav = new Mav(JSP_joblets);
 		mav.put("minServers", jobletSettings.minJobletServers.getValue());

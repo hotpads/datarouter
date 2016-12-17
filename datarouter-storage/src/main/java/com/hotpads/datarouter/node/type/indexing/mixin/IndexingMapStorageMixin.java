@@ -37,7 +37,7 @@ extends MapStorage<PK,D>{
 	}
 
 	@Override
-	default void deleteAll(Config config) {
+	default void deleteAll(Config config){
 		for(IndexListener<PK,D> indexNode : getIndexNodes()){
 			indexNode.onDeleteAll(config);
 		}
@@ -45,7 +45,7 @@ extends MapStorage<PK,D>{
 	}
 
 	@Override
-	default void deleteMulti(Collection<PK> keys, Config config) {
+	default void deleteMulti(Collection<PK> keys, Config config){
 		for(IndexListener<PK,D> indexNode : getIndexNodes()){
 			indexNode.onDeleteMulti(keys, config);
 		}
@@ -60,7 +60,7 @@ extends MapStorage<PK,D>{
 	}
 
 	@Override
-	default void put(D databean, Config config) {
+	default void put(D databean, Config config){
 		for(IndexListener<PK,D> indexNode : getIndexNodes()){
 			indexNode.onPut(databean, config);
 		}
@@ -68,7 +68,7 @@ extends MapStorage<PK,D>{
 	}
 
 	@Override
-	default void putMulti(Collection<D> databeans, Config config) {
+	default void putMulti(Collection<D> databeans, Config config){
 		for(IndexListener<PK,D> indexNode : getIndexNodes()){
 			indexNode.onPutMulti(databeans, config);
 		}
@@ -81,17 +81,17 @@ extends MapStorage<PK,D>{
 	}
 
 	@Override
-	default D get(PK key, Config config) {
+	default D get(PK key, Config config){
 		return getBackingNode().get(key, config);
 	}
 
 	@Override
-	default List<D> getMulti(Collection<PK> keys, Config config) {
+	default List<D> getMulti(Collection<PK> keys, Config config){
 		return getBackingNode().getMulti(keys, config);
 	}
 
 	@Override
-	default List<PK> getKeys(Collection<PK> keys, Config config) {
+	default List<PK> getKeys(Collection<PK> keys, Config config){
 		return getBackingNode().getKeys(keys, config);
 	}
 

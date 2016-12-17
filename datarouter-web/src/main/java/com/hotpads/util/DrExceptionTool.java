@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.util.core.DrXMLStringTool;
 
-public class DrExceptionTool {
+public class DrExceptionTool{
 	private static final Logger log = LoggerFactory.getLogger(DrExceptionTool.class);
 
 	/**
@@ -25,39 +25,39 @@ public class DrExceptionTool {
 	 * <br>
 	 * <code>logger.warn("", ex);</code>
 	 */
-	public static String getStackTraceAsString(Throwable e){
-		ThrowableProxy proxy = new ThrowableProxy(e);
+	public static String getStackTraceAsString(Throwable exception){
+		ThrowableProxy proxy = new ThrowableProxy(exception);
 		return proxy.getCauseStackTraceAsString();
 	}
 
-	public static String getStackTraceStringForHtmlPreBlock(Throwable e){
-		String stackTrace = (e != null) ? getStackTraceAsString(e) : "No exception defined.";
+	public static String getStackTraceStringForHtmlPreBlock(Throwable exception){
+		String stackTrace = (exception != null) ? getStackTraceAsString(exception) : "No exception defined.";
 		return getColorized(stackTrace);
 	}
 
-	public static String getColorized(String stackTrace) {
+	public static String getColorized(String stackTrace){
 		stackTrace = DrXMLStringTool.escapeXml(stackTrace);
 		String highlightOpener = "<span style='color:red;font-weight:bold;font-size:1.5em;'>";
 		String highlightCloser = "</span>";
 		return stackTrace.replace("hotpads", highlightOpener + "hotpads" + highlightCloser);
 	}
 
-	public static String getShortStackTrace(String fullStackTrace) {
+	public static String getShortStackTrace(String fullStackTrace){
 		BufferedReader br = new BufferedReader(new StringReader(fullStackTrace));
 		String line;
 		String key = "com.hotpads";
 		boolean none = false;
 		int nb = 0;
 		StringBuilder builder = new StringBuilder();
-		try {
-			while ((line = br.readLine()) != null) {
-				if (line.contains(key) && nb < 10) {
+		try{
+			while((line = br.readLine()) != null){
+				if(line.contains(key) && nb < 10){
 					none = false;
 					nb++;
 					builder.append(line);
 					builder.append('\n');
-				} else {
-					if (!none) {
+				}else{
+					if(!none){
 						builder.append("[...]");
 						builder.append('\n');
 						none = true;
@@ -65,7 +65,7 @@ public class DrExceptionTool {
 				}
 			}
 			return getColorized(builder.toString());
-		} catch (IOException e) {
+		}catch(IOException e){
 			log.warn("Error building short stack trace", e);
 			return fullStackTrace;
 		}

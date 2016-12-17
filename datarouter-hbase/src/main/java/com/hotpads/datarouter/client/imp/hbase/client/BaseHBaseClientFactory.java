@@ -148,7 +148,7 @@ implements ClientFactory{
 						family.setDataBlockEncoding(DataBlockEncoding.FAST_DIFF);
 						family.setCompressionType(Algorithm.GZ);
 						if(fieldInfo.getTtlMs().isPresent()){
-							family.setTimeToLive((int)(fieldInfo.getTtlMs().get()/1000));
+							family.setTimeToLive((int)(fieldInfo.getTtlMs().get() / 1000));
 						}else{
 							family.setTimeToLive(HConstants.FOREVER);
 						}
@@ -190,21 +190,21 @@ implements ClientFactory{
 			//remember to skip the first partition
 			int numSplitPoints = partitioner.getNumPartitions() - 1;
 			byte[][] splitPoints = new byte[numSplitPoints][];
-			for(int i=1; i < partitioner.getAllPrefixes().size(); ++i){
-				splitPoints[i-1] = partitioner.getPrefix(i);
+			for(int i = 1; i < partitioner.getAllPrefixes().size(); ++i){
+				splitPoints[i - 1] = partitioner.getPrefix(i);
 			}
 			return splitPoints;
 		}else if(node.getPhysicalNodeIfApplicable() instanceof HBaseReaderNode){
 			DatabeanFieldInfo<?,?,?> fieldInfo = node.getFieldInfo();
 			ScatteringPrefix sampleScatteringPrefix = fieldInfo.getSampleScatteringPrefix();
-			if(sampleScatteringPrefix==null){
+			if(sampleScatteringPrefix == null){
 				return null;
 			}
 			List<List<Field<?>>> allPrefixes = sampleScatteringPrefix.getAllPossibleScatteringPrefixes();
 			List<byte[]> splitPoints = new ArrayList<>();
 			for(List<Field<?>> prefixFields : allPrefixes){
 				Twin<ByteRange> range = HBaseQueryBuilder.getStartEndBytesForPrefix(prefixFields, false);
-				if( ! isSingleEmptyByte(range.getLeft().toArray())){
+				if(!isSingleEmptyByte(range.getLeft().toArray())){
 					splitPoints.add(range.getLeft().toArray());
 				}
 			}
@@ -216,7 +216,7 @@ implements ClientFactory{
 
 
 	private boolean isSingleEmptyByte(byte[] bytes){
-		if(DrArrayTool.length(bytes)!=1){
+		if(DrArrayTool.length(bytes) != 1){
 			return false;
 		}
 		return bytes[0] == Byte.MIN_VALUE;

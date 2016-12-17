@@ -40,14 +40,14 @@ extends BaseSortedScanner<T>{
 	}
 
 	protected boolean isBeforeStartOfRange(PK pk){
-		return range != null && ! range.matchesStart(pk);
+		return range != null && !range.matchesStart(pk);
 	}
 
 	protected boolean isAfterEndOfRange(PK pk){
-		if(range == null || ! range.hasEnd()){
+		if(range == null || !range.hasEnd()){
 			return false;
 		}
-		return ! FieldSetRangeFilter.isCandidateBeforeEndOfRange(pk.getFields(), range.getEnd().getFields(), range
+		return !FieldSetRangeFilter.isCandidateBeforeEndOfRange(pk.getFields(), range.getEnd().getFields(), range
 				.getEndInclusive());
 	}
 }

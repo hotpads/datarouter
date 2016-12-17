@@ -29,7 +29,7 @@ extends BaseListJdbcFieldCodec<Integer,List<Integer>,IntegerArrayField>{
 
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
-		return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.LONGBLOB, Integer.MAX_VALUE , field
+		return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.LONGBLOB, Integer.MAX_VALUE, field
 				.getKey().isNullable(), false);
 	}
 
@@ -45,7 +45,9 @@ extends BaseListJdbcFieldCodec<Integer,List<Integer>,IntegerArrayField>{
 	public List<Integer> fromJdbcResultSetButDoNotSet(ResultSet rs){
 		try{
 			byte[] bytes = rs.getBytes(field.getKey().getColumnName());
-			if(DrArrayTool.isEmpty(bytes)){ return new ArrayList<>(); }
+			if(DrArrayTool.isEmpty(bytes)){
+				return new ArrayList<>();
+			}
 			return IntegerByteTool.fromIntegerByteArray(bytes, 0);
 		}catch(SQLException e){
 			throw new DataAccessException(e);
@@ -55,7 +57,8 @@ extends BaseListJdbcFieldCodec<Integer,List<Integer>,IntegerArrayField>{
 	@Override
 	public void setPreparedStatementValue(PreparedStatement ps, int parameterIndex){
 		try{
-			ps.setBytes(parameterIndex, field.getValue()==null?null:IntegerByteTool.getIntegerByteArray(field.getValue()));
+			ps.setBytes(parameterIndex, field.getValue() == null ? null
+					: IntegerByteTool.getIntegerByteArray(field.getValue()));
 		}catch(SQLException e){
 			throw new DataAccessException(e);
 		}
