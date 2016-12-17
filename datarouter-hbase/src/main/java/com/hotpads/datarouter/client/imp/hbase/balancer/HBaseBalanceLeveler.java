@@ -10,8 +10,6 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.apache.hadoop.hbase.ServerName;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -27,7 +25,6 @@ import com.hotpads.datarouter.util.core.DrObjectTool;
  * D: destination
  */
 public class HBaseBalanceLeveler<I>{
-	private static final Logger logger = LoggerFactory.getLogger(HBaseBalanceLeveler.class);
 
 	public static final boolean PSEUDO_RANDOM_LEVELING = false;
 
@@ -55,7 +52,7 @@ public class HBaseBalanceLeveler<I>{
 	/************* public methods ***********************/
 
 	public SortedMap<I,ServerName> getBalancedDestinationByItem(){
-		while( ! isBalanced()){
+		while(!isBalanced()){
 			ServerName mostLoadedDestination = getMostLoadedDestination();
 			I itemToMove = DrMapTool.getFirstKeyWhereValueEquals(destinationByItem, mostLoadedDestination);
 			ServerName leastLoadedDestination = getLeastLoadedDestination();
@@ -108,7 +105,7 @@ public class HBaseBalanceLeveler<I>{
 					+ " which is greater than " + allDestinations.size());
 		}
 		ensureAllDestinationsInCountByDestination();
-		if(DrObjectTool.notEquals(countByDestination.size(), allDestinations.size())) {
+		if(DrObjectTool.notEquals(countByDestination.size(), allDestinations.size())){
 			throw new IllegalStateException("countByDestination.size() is " + countByDestination.size()
 					+ " but should be " + allDestinations.size());
 		}
@@ -154,7 +151,7 @@ public class HBaseBalanceLeveler<I>{
 		public void testComparator(){
 			final int uniqueServers = 7;
 			Set<ServerName> serverNames = new TreeSet<>(new TablePseudoRandomHostAndPortComparator("MyTableName"));
-			for(int i=0; i < 100; ++i){
+			for(int i = 0; i < 100; ++i){
 				serverNames.add(ServerNameTool.create("SomeServer" + i % uniqueServers, 123, i));
 			}
 			Assert.assertEquals(serverNames.size(), uniqueServers);

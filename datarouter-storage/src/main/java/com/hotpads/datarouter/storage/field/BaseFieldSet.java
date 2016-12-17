@@ -15,7 +15,7 @@ implements FieldSet<F>{
 		if(that == null){
 			return false;
 		}
-		if(!(getClass().equals(that.getClass()))){
+		if(!getClass().equals(that.getClass())){
 			return false;
 		}
 		return 0 == compareTo((FieldSet<?>)that);
@@ -64,8 +64,8 @@ implements FieldSet<F>{
 	//allows us to use the databean itself as the default Fielder
 	//  - eliminates the less user-friendly nested class
 	@Override
-	public List<Field<?>> getFields(F f){
-		return f.getFields();
+	public List<Field<?>> getFields(F fieldset){
+		return fieldset.getFields();
 	}
 
 	/**************************** serialize ******************/
@@ -79,35 +79,23 @@ implements FieldSet<F>{
 	@Override
 	@Deprecated //replace with percent codec
 	public String getTypedPersistentString(){
-		return getClass().getSimpleName()+"_"+getPersistentString();
+		return getClass().getSimpleName() + "_" + getPersistentString();
 	}
 
 	@Override
 	@Deprecated //replace with percent codec
 	public void fromPersistentString(String in){
 		String[] tokens = in.split("_");
-		int i = 0;
+		int index = 0;
 		for(Field<?> field : getFields()){
-			if(i > tokens.length - 1){
+			if(index > tokens.length - 1){
 				break;
 			}
-			field.fromString(tokens[i]);
+			field.fromString(tokens[index]);
 			field.setUsingReflection(this, field.getValue());
 			field.setValue(null);// to be safe until Field logic is cleaned up
-			++i;
+			++index;
 		}
 	}
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
