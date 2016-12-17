@@ -2,9 +2,6 @@ package com.hotpads.conveyor.queue;
 
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.hotpads.conveyor.BaseConveyor;
 import com.hotpads.conveyor.ConveyorCounters;
 import com.hotpads.conveyor.DatabeanBuffer;
@@ -17,7 +14,6 @@ public class DatabeanBufferConveyor<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>>
 extends BaseConveyor<PK,D>{
-	private static final Logger logger = LoggerFactory.getLogger(DatabeanBufferConveyor.class);
 
 	private static final int BATCH_SIZE = 100;
 

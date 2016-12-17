@@ -3,9 +3,6 @@ package com.hotpads.conveyor.queue;
 import java.time.Duration;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.hotpads.conveyor.BaseConveyor;
 import com.hotpads.conveyor.ConveyorCounters;
 import com.hotpads.datarouter.config.Config;
@@ -20,7 +17,6 @@ public class GroupQueueConveyor<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>>
 extends BaseConveyor<PK,D>{
-	private static final Logger logger = LoggerFactory.getLogger(GroupQueueConveyor.class);
 
 	private static final Duration PEEK_TIMEOUT = Duration.ofSeconds(5);
 	private static final Config PEEK_CONFIG = new Config().setTimeoutMs(PEEK_TIMEOUT.toMillis());
