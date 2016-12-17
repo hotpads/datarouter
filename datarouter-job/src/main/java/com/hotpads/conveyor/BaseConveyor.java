@@ -26,6 +26,7 @@ implements Conveyor{
 
 	public abstract ProcessBatchResult processBatch();
 
+
 	protected static class ProcessBatchResult{
 		public final boolean couldContainMoreItems;
 
