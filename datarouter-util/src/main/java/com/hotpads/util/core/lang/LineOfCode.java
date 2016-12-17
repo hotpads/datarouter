@@ -159,7 +159,7 @@ public class LineOfCode implements Comparable<LineOfCode>{
 			Assert.assertEquals("com.hotpads.util.core.lang", lineOfCode.getPackageName());
 			Assert.assertEquals("LineOfCode$LineOfCodeTests", lineOfCode.getClassName());
 			Assert.assertEquals("testSimple", lineOfCode.getMethodName());
-			Assert.assertEquals(new Integer(152), lineOfCode.getLineNumber());
+			Assert.assertEquals(new Integer(158), lineOfCode.getLineNumber());
 		}
 
 		@Test
