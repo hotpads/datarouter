@@ -17,14 +17,6 @@ public class GroupQueueMessage<PK extends PrimaryKey<PK>,D extends Databean<PK,D
 		this.databeans = databeans;
 	}
 
-	public boolean notEmpty(){
-		return DrCollectionTool.notEmpty(databeans);
-	}
-
-	public List<D> getDatabeans(){
-		return databeans;
-	}
-
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>> List<D> getDatabeans(
 			Collection<GroupQueueMessage<PK,D>> messages){
 		List<D> databeans = new ArrayList<>();
@@ -32,5 +24,21 @@ public class GroupQueueMessage<PK extends PrimaryKey<PK>,D extends Databean<PK,D
 			databeans.addAll(message.getDatabeans());
 		}
 		return databeans;
+	}
+
+	public List<D> getDatabeans(){
+		return databeans;
+	}
+
+	public static boolean isEmpty(GroupQueueMessage<?,?> message){
+		return message == null || message.isEmpty();
+	}
+
+	public boolean isEmpty(){
+		return DrCollectionTool.isEmpty(databeans);
+	}
+
+	public boolean notEmpty(){
+		return !isEmpty();
 	}
 }

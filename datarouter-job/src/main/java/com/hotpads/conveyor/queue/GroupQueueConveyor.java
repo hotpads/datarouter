@@ -36,10 +36,10 @@ extends BaseConveyor<PK,D>{
 	@Override
 	public ProcessBatchResult processBatch(){
 		GroupQueueMessage<PK,D> message = groupQueueStorage.peek(PEEK_CONFIG);
-		List<D> databeans = message.getDatabeans();
-		if(databeans.isEmpty()){
+		if(GroupQueueMessage.isEmpty(message)){
 			return new ProcessBatchResult(false);
 		}
+		List<D> databeans = message.getDatabeans();
 		storageWriter.putMulti(databeans, null);
 		ConveyorCounters.incPutMultiOpAndDatabeans(this, databeans.size());
 		groupQueueStorage.ack(message.getKey(), null);
