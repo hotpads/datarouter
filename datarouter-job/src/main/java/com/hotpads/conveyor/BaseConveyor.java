@@ -28,10 +28,10 @@ implements Conveyor{
 
 
 	protected static class ProcessBatchResult{
-		public final boolean couldContainMoreItems;
+		public final boolean shouldContinueImmediately;
 
 		public ProcessBatchResult(boolean couldContainMoreItems){
-			this.couldContainMoreItems = couldContainMoreItems;
+			this.shouldContinueImmediately = couldContainMoreItems;
 		}
 	}
 
@@ -39,10 +39,12 @@ implements Conveyor{
 	@Override
 	public void run(){
 		try{
-			if(!shouldRun()){
-				return;
+			while(shouldRun()){
+				ProcessBatchResult result = processBatch();
+				if(!result.shouldContinueImmediately){
+					return;
+				}
 			}
-			processBatch();
 		}catch(Exception e){
 			ConveyorCounters.incException(this);
 			logger.warn("swallowing exception so ScheduledExecutorService restarts this Runnable", e);
