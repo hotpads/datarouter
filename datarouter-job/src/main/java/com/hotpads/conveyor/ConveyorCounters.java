@@ -25,7 +25,6 @@ public class ConveyorCounters{
 		inc(conveyor, "ack", 1);
 	}
 
-
 	public static void incException(Conveyor conveyor){
 		inc(conveyor, "exception", 1);
 	}
