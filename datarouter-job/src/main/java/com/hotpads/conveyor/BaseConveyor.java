@@ -30,8 +30,8 @@ implements Conveyor{
 	protected static class ProcessBatchResult{
 		public final boolean shouldContinueImmediately;
 
-		public ProcessBatchResult(boolean couldContainMoreItems){
-			this.shouldContinueImmediately = couldContainMoreItems;
+		public ProcessBatchResult(boolean shouldContinueImmediately){
+			this.shouldContinueImmediately = shouldContinueImmediately;
 		}
 	}
 
