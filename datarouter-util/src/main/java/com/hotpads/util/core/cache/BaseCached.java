@@ -14,17 +14,15 @@ public abstract class BaseCached<T>{
 		return value;
 	}
 
-	/*
-	 * todo make this async in case the reload method is slow
-	 */
+	/* todo make this async in case the reload method is slow */
 	protected boolean updateIfExpired(){
-		if(!isExpired()) {
+		if(!isExpired()){
 			return false;
 		}
 		T original;
 		synchronized(this){
 			original = value;
-			if(!isExpired()) {
+			if(!isExpired()){
 				return false;
 			}
 			value = reload();

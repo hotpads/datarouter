@@ -26,7 +26,6 @@ implements MapStorageReaderNode<PK,D>{
 		this.mapStorageReaderMixin = new MapStorageReaderCallsiteAdapterMixin<>(this, backingNode);
 	}
 
-
 	/**************************** MapStorageReader ***********************************/
 
 	@Override
@@ -40,12 +39,12 @@ implements MapStorageReaderNode<PK,D>{
 	}
 
 	@Override
-	public List<D> getMulti(Collection<PK> keys, Config pConfig) {
+	public List<D> getMulti(Collection<PK> keys, Config pConfig){
 		return mapStorageReaderMixin.getMulti(keys, pConfig);
 	}
 
 	@Override
-	public List<PK> getKeys(Collection<PK> keys, Config pConfig) {
+	public List<PK> getKeys(Collection<PK> keys, Config pConfig){
 		return mapStorageReaderMixin.getKeys(keys, pConfig);
 	}
 

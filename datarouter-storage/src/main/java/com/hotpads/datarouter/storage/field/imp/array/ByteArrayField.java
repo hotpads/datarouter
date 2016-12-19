@@ -16,7 +16,6 @@ public class ByteArrayField extends BaseField<byte[]>{
 
 	private ByteArrayFieldKey key;
 
-
 	public ByteArrayField(ByteArrayFieldKey key, byte[] value){
 		super(null, value);
 		this.key = key;
@@ -32,7 +31,6 @@ public class ByteArrayField extends BaseField<byte[]>{
 		super(prefix, value);
 		this.key = new ByteArrayFieldKey(name, size);
 	}
-
 
 	@Override
 	public ByteArrayFieldKey getKey(){
@@ -58,24 +56,23 @@ public class ByteArrayField extends BaseField<byte[]>{
 		return DatatypeConverter.parseBase64Binary(stringValue);
 	}
 
-
 	/*********************** ByteEncodedField ***********************/
 
 	@Override
 	public byte[] getBytes(){
-		return value==null?null:DrByteTool.flipToAndFromComparableByteArray(this.value);
+		return value == null ? null : DrByteTool.flipToAndFromComparableByteArray(this.value);
 	}
 
 	@Override
 	public byte[] getBytesWithSeparator(){
-		if(this.value==null){
+		if(this.value == null){
 			return null;
 		}
-		//prepend the length as a positive integer (not bitwise comparable =( )
-		//TODO replace with varint
-		//TODO write directly to the allBytes array
+		// prepend the length as a positive integer (not bitwise comparable =)
+		// TODO replace with varint
+		// TODO write directly to the allBytes array
 		byte[] dataBytes = DrByteTool.flipToAndFromComparableByteArray(value);
-		byte[] allBytes = new byte[4+DrArrayTool.length(dataBytes)];
+		byte[] allBytes = new byte[4 + DrArrayTool.length(dataBytes)];
 		System.arraycopy(IntegerByteTool.getUInt31Bytes(0), 0, allBytes, 4, 4);
 		System.arraycopy(dataBytes, 0, allBytes, 4, DrArrayTool.length(dataBytes));
 		return allBytes;
@@ -83,7 +80,7 @@ public class ByteArrayField extends BaseField<byte[]>{
 
 	@Override
 	public int numBytesWithSeparator(byte[] bytes, int offset){
-		return IntegerByteTool.fromUInt31Bytes(bytes, offset);//should we be adding 4 here?
+		return IntegerByteTool.fromUInt31Bytes(bytes, offset);// should we be adding 4 here?
 	}
 
 	@Override

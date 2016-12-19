@@ -17,7 +17,10 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 
-public class MemoryNode<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>>
+public class MemoryNode<
+				PK extends PrimaryKey<PK>,
+				D extends Databean<PK,D>,
+				F extends DatabeanFielder<PK,D>>
 extends MemoryReaderNode<PK,D,F>
 implements PhysicalIndexedSortedMapStorageNode<PK,D>{
 
@@ -26,7 +29,7 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D>{
 	}
 
 	@Override
-	public Node<PK,D> getMaster() {
+	public Node<PK,D> getMaster(){
 		return this;
 	}
 
@@ -44,18 +47,16 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D>{
 	}
 
 	@Override
-	public void deleteMulti(Collection<PK> keys, Config config) {
+	public void deleteMulti(Collection<PK> keys, Config config){
 		for(Key<PK> key : DrCollectionTool.nullSafe(keys)){
 			backingMap.remove(key);
 		}
 	}
 
-
 	@Override
-	public void deleteAll(Config config) {
+	public void deleteAll(Config config){
 		backingMap.clear();
 	}
-
 
 	@Override
 	public void put(final D databean, Config config){
@@ -66,9 +67,8 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D>{
 		backingMap.put(databean.getKey(), databean);
 	}
 
-
 	@Override
-	public void putMulti(Collection<D> databeans, Config config) {
+	public void putMulti(Collection<D> databeans, Config config){
 		for(D databean : DrCollectionTool.nullSafe(databeans)){
 			put(databean, config);
 		}

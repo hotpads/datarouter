@@ -2,7 +2,7 @@ package com.hotpads.clustersetting;
 
 import com.hotpads.datarouter.setting.ServerType;
 
-public interface ClusterSettingFinderConfig {
+public interface ClusterSettingFinderConfig{
 
 	ServerType getServerType();
 
