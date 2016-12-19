@@ -102,7 +102,7 @@ public class DefaultDecoder implements HandlerDecoder{
 		}
 		//deserialized successfully as null, but we want empty string instead of null for consistency with Params
 		//(unless it actually is null...)
-		if(string != null && obj == null && !"null".equals(string)){
+		if(string != null && obj == null && type.equals(String.class) && !"null".equals(string)){
 			return "";
 		}
 		return obj;
@@ -125,7 +125,7 @@ public class DefaultDecoder implements HandlerDecoder{
 		DefaultDecoder defaultDecoder;
 
 		@Test
-		public void testDecoding(){
+		public void testDecodingString(){
 			Assert.assertEquals(defaultDecoder.decode("", String.class), "");
 			Assert.assertEquals(defaultDecoder.decode(" ", String.class), "");
 			Assert.assertEquals(defaultDecoder.decode("\"\"", String.class), "");
@@ -136,6 +136,8 @@ public class DefaultDecoder implements HandlerDecoder{
 			Assert.assertEquals(defaultDecoder.decode(null, String.class), null);
 			Assert.assertEquals(defaultDecoder.decode("nulls", String.class), "nulls");
 			Assert.assertEquals(defaultDecoder.decode("\"correct json\"", String.class), "correct json");
+			Assert.assertEquals(defaultDecoder.decode("", Integer.class), null);
+			Assert.assertEquals(defaultDecoder.decode(" ", Integer.class), null);
 		}
 	}
 }
