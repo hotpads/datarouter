@@ -11,6 +11,12 @@ import javax.inject.Named;
 import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 
+import org.testng.Assert;
+import org.testng.annotations.Guice;
+import org.testng.annotations.Test;
+
+import com.google.gson.JsonSyntaxException;
+import com.hotpads.datarouter.test.DatarouterWebTestModuleFactory;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.handler.encoder.HandlerEncoder;
 import com.hotpads.handler.types.optional.OptionalParameter;
@@ -84,10 +90,22 @@ public class DefaultDecoder implements HandlerDecoder{
 
 	private Object decode(String string, Type type){
 		//this prevents empty strings from being decoded as null by gson
-		if(type.equals(String.class)){
-			return string;
+		Object obj;
+		try{
+			obj = deserializer.deserialize(string, type);
+		}catch(JsonSyntaxException e){
+			//If the JSON is malformed and String is expected, just assign the string
+			if(type.equals(String.class)){
+				return string;
+			}
+			throw e;
 		}
-		return deserializer.deserialize(string, type);
+		//deserialized successfully as null, but we want empty string instead of null for consistency with Params
+		//(unless it actually is null...)
+		if(string != null && obj == null && type.equals(String.class) && !"null".equals(string)){
+			return "";
+		}
+		return obj;
 	}
 
 	private boolean containRequestBodyParam(Parameter[] parameters){
@@ -99,5 +117,27 @@ public class DefaultDecoder implements HandlerDecoder{
 		return Arrays.stream(parameters)
 				.filter(parameter -> OptionalParameter.class.isAssignableFrom(parameter.getType()))
 				.count();
+	}
+
+	@Guice(moduleFactory = DatarouterWebTestModuleFactory.class)
+	public static class DefaultDecoderTests{
+		@Inject
+		DefaultDecoder defaultDecoder;
+
+		@Test
+		public void testDecodingString(){
+			Assert.assertEquals(defaultDecoder.decode("", String.class), "");
+			Assert.assertEquals(defaultDecoder.decode(" ", String.class), "");
+			Assert.assertEquals(defaultDecoder.decode("\"\"", String.class), "");
+			Assert.assertEquals(defaultDecoder.decode("\"", String.class), "\"");
+			Assert.assertEquals(defaultDecoder.decode("\" ", String.class), "\" ");
+			Assert.assertEquals(defaultDecoder.decode("\" \"", String.class), " ");
+			Assert.assertEquals(defaultDecoder.decode("null", String.class), null);
+			Assert.assertEquals(defaultDecoder.decode(null, String.class), null);
+			Assert.assertEquals(defaultDecoder.decode("nulls", String.class), "nulls");
+			Assert.assertEquals(defaultDecoder.decode("\"correct json\"", String.class), "correct json");
+			Assert.assertEquals(defaultDecoder.decode("", Integer.class), null);
+			Assert.assertEquals(defaultDecoder.decode(" ", Integer.class), null);
+		}
 	}
 }
