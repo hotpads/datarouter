@@ -228,12 +228,12 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 		public Map<String,List<Field<?>>> getIndexes(ManyFieldBean d){
 			Map<String,List<Field<?>>> indexesByName = new TreeMap<>();
 			indexesByName.put("index_shortInt", FieldTool.createList(
-				new ShortField(F.shortField, d.shortField),
-				new IntegerField(F.integerField, d.integerField)));
+					new ShortField(F.shortField, d.shortField),
+					new IntegerField(F.integerField, d.integerField)));
 			indexesByName.put("index_stringTestUpdate", FieldTool.createList(
-				new StringField(F.stringField, d.stringField, MySqlColumnType.MAX_KEY_LENGTH_UTF8MB4),
-				new StringField(F.testSchemaUpdateField, d.testSchemaUpdateField,
-						MySqlColumnType.MAX_KEY_LENGTH_UTF8MB4)));
+					new StringField(F.stringField, d.stringField, MySqlColumnType.MAX_KEY_LENGTH_UTF8MB4),
+					new StringField(F.testSchemaUpdateField, d.testSchemaUpdateField,
+							MySqlColumnType.MAX_KEY_LENGTH_UTF8MB4)));
 			return indexesByName;
 		}
 

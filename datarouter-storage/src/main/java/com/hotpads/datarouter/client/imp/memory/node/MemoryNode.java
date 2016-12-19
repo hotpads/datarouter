@@ -18,9 +18,9 @@ import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 
 public class MemoryNode<
-				PK extends PrimaryKey<PK>,
-				D extends Databean<PK,D>,
-				F extends DatabeanFielder<PK,D>>
+		PK extends PrimaryKey<PK>,
+		D extends Databean<PK,D>,
+		F extends DatabeanFielder<PK,D>>
 extends MemoryReaderNode<PK,D,F>
 implements PhysicalIndexedSortedMapStorageNode<PK,D>{
 

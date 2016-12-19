@@ -6,8 +6,8 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
 public interface HBasePhysicalNode<
-	PK extends PrimaryKey<PK>,
-	D extends Databean<PK,D>>
+		PK extends PrimaryKey<PK>,
+		D extends Databean<PK,D>>
 extends PhysicalNode<PK,D>{
 
 	@Override

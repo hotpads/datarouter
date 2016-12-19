@@ -19,7 +19,7 @@ import com.hotpads.trace.TracedCallable;
 import com.hotpads.util.DrExceptionTool;
 
 //consider forming base class with commonalities from MemcachedMultiAttemptTash
-public class HBaseMultiAttemptTask<V>extends TracedCallable<V>{
+public class HBaseMultiAttemptTask<V> extends TracedCallable<V>{
 	private static final Logger logger = LoggerFactory.getLogger(HBaseMultiAttemptTask.class);
 
 	private static final int DEFAULT_MAX_ATTEMPTS = 2;
