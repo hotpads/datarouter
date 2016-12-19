@@ -18,12 +18,12 @@ public class NotificationTimingStrategyMappingKey extends BasePrimaryKey<Notific
 
 	public NotificationTimingStrategyMappingKey(String type, String channelPrefix){
 		this.type = type;
-		this.channelPrefix = channelPrefix;
+		this.channelPrefix = channelPrefix == null ? "" : channelPrefix;
 	}
 
 	public NotificationTimingStrategyMappingKey(NotificationRequest request){
 		this.type = request.getShortType();
-		this.channelPrefix = request.getChannel();
+		this.channelPrefix = request.getChannel() == null ? "" : request.getChannel();
 	}
 
 	@Override
