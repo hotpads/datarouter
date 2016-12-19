@@ -26,27 +26,26 @@ implements MapStorageReaderNode<PK,D>{
 		this.mapStorageReaderMixin = new MapStorageReaderCallsiteAdapterMixin<>(this, backingNode);
 	}
 
-
 	/**************************** MapStorageReader ***********************************/
 
 	@Override
-	public boolean exists(PK key, Config pConfig){
-		return mapStorageReaderMixin.exists(key, pConfig);
+	public boolean exists(PK key, Config config){
+		return mapStorageReaderMixin.exists(key, config);
 	}
 
 	@Override
-	public D get(PK key, Config pConfig){
-		return mapStorageReaderMixin.get(key, pConfig);
+	public D get(PK key, Config config){
+		return mapStorageReaderMixin.get(key, config);
 	}
 
 	@Override
-	public List<D> getMulti(Collection<PK> keys, Config pConfig) {
-		return mapStorageReaderMixin.getMulti(keys, pConfig);
+	public List<D> getMulti(Collection<PK> keys, Config config){
+		return mapStorageReaderMixin.getMulti(keys, config);
 	}
 
 	@Override
-	public List<PK> getKeys(Collection<PK> keys, Config pConfig) {
-		return mapStorageReaderMixin.getKeys(keys, pConfig);
+	public List<PK> getKeys(Collection<PK> keys, Config config){
+		return mapStorageReaderMixin.getKeys(keys, config);
 	}
 
 }

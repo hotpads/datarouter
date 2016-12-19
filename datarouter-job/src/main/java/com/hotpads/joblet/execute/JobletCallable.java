@@ -34,12 +34,11 @@ public class JobletCallable implements Callable<Void>{
 	private final JobletCounters jobletCounters;
 
 	private final MutableBoolean shutdownRequested;
-	private final JobletProcessor processor;//for callback
+	private final JobletProcessor processor;// for callback
 	private final JobletType<?> jobletType;
 	private final long id;
 	private final Date startedAt;
 	private Optional<JobletPackage> jobletPackage;
-
 
 	public JobletCallable(DatarouterProperties datarouterProperties, JobletNodes jobletNodes,
 			JobletService jobletService, JobletFactory jobletFactory, JobletCounters jobletCounters,
@@ -94,7 +93,6 @@ public class JobletCallable implements Callable<Void>{
 		}
 	}
 
-
 	private final Optional<JobletPackage> dequeueJobletPackage(PhaseTimer timer){
 		String reservedBy = getReservedByString();
 		Optional<JobletRequest> jobletRequest = jobletService.getJobletRequestForProcessing(timer, jobletType,
@@ -124,7 +122,7 @@ public class JobletCallable implements Callable<Void>{
 		long startTimeMs = System.currentTimeMillis();
 		joblet.process();
 
-		//counters
+		// counters
 		jobletCounters.incNumJobletsProcessed();
 		jobletCounters.incNumJobletsProcessed(jobletType);
 		int numItemsProcessed = Math.max(1, jobletRequest.getNumItems());
@@ -139,7 +137,7 @@ public class JobletCallable implements Callable<Void>{
 		String tasksPerSecond = DrNumberFormatter.format((double)jobletRequest.getNumTasks() / ((double)durationMs
 				/ (double)1000), 1);
 
-		//logging
+		// logging
 		String typeAndQueue = jobletType.getPersistentString();
 		if(DrStringTool.notEmpty(jobletRequest.getQueueId())){
 			typeAndQueue += " " + jobletRequest.getQueueId();
@@ -147,9 +145,9 @@ public class JobletCallable implements Callable<Void>{
 		logger.debug("Finished " + typeAndQueue
 				+ " with " + jobletRequest.getNumItems() + " items"
 				+ " and " + jobletRequest.getNumTasks() + " tasks"
-				+ " in " + DrNumberFormatter.addCommas(durationMs)+"ms"
-				+ " at "+itemsPerSecond+" items/sec"
-				+ " and "+tasksPerSecond+" tasks/sec");
+				+ " in " + DrNumberFormatter.addCommas(durationMs) + "ms"
+				+ " at " + itemsPerSecond + " items/sec"
+				+ " and " + tasksPerSecond + " tasks/sec");
 	}
 
 	public RunningJoblet getRunningJoblet(){

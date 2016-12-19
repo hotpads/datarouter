@@ -21,7 +21,6 @@ public class TraceKey extends BaseEntityPrimaryKey<TraceEntityKey,TraceKey>{
 		public static final LongFieldKey id = new LongFieldKey("id");
 	}
 
-
 	/********************** entity ************************/
 
 	@Override
@@ -30,7 +29,7 @@ public class TraceKey extends BaseEntityPrimaryKey<TraceEntityKey,TraceKey>{
 	}
 
 	@Override
-	public String getEntityKeyName() {
+	public String getEntityKeyName(){
 		return null;
 	}
 
@@ -39,7 +38,7 @@ public class TraceKey extends BaseEntityPrimaryKey<TraceEntityKey,TraceKey>{
 		return new TraceKey(entityKey.getTraceId());
 	}
 
-	@Override//special override because TraceEntityKey calls the column "traceId"
+	@Override // special override because TraceEntityKey calls the column "traceId"
 	public List<Field<?>> getEntityKeyFields(){
 		return Arrays.asList(new LongField(FieldsKeys.id, id));
 	}
@@ -49,10 +48,9 @@ public class TraceKey extends BaseEntityPrimaryKey<TraceEntityKey,TraceKey>{
 		return Collections.emptyList();
 	}
 
-
 	/**************** construct ************************/
 
-	public TraceKey(){//required no-arg
+	public TraceKey(){// required no-arg
 		this.id = RandomTool.nextPositiveLong();
 	}
 
@@ -60,14 +58,13 @@ public class TraceKey extends BaseEntityPrimaryKey<TraceEntityKey,TraceKey>{
 		this.id = id;
 	}
 
-
 	/*************** get/set *************************/
 
-	public Long getId() {
+	public Long getId(){
 		return id;
 	}
 
-	public void setId(Long id) {
+	public void setId(Long id){
 		this.id = id;
 	}
 

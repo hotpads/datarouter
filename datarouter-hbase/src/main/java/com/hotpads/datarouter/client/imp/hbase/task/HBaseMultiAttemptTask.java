@@ -29,7 +29,7 @@ public class HBaseMultiAttemptTask<V> extends TracedCallable<V>{
 		THROTTLE_ERROR_EMAIL_MINUTES = 5,
 		THROTTLE_ERROR_EMAIL_MS = THROTTLE_ERROR_EMAIL_MINUTES * DrDateTool.MILLISECONDS_IN_MINUTE;
 
-	private static long	LAST_EMAIL_SENT_AT_MS = 0;
+	private static long LAST_EMAIL_SENT_AT_MS = 0;
 
 	private static final AtomicLong NUM_FAILED_ATTEMPTS_SINCE_LAST_EMAIL = new AtomicLong(0);
 
@@ -45,10 +45,10 @@ public class HBaseMultiAttemptTask<V> extends TracedCallable<V>{
 	/************************** constructors ***************************/
 
 	public HBaseMultiAttemptTask(HBaseTask<V> task){
-		super(HBaseMultiAttemptTask.class.getSimpleName()+"."+task.getTaskName());
+		super(HBaseMultiAttemptTask.class.getSimpleName() + "." + task.getTaskName());
 		this.datarouter = task.getDatarouter();
 		this.task = task;
-		//temp hack.  in case of replaced client, we still use old client's exec service
+		// temp hack. in case of replaced client, we still use old client's exec service
 		Config config = Config.nullSafe(task.config);
 		this.timeoutMs = getTimeoutMs(config);
 		this.maxAttempts = getMaxAttempts(config);
@@ -56,20 +56,20 @@ public class HBaseMultiAttemptTask<V> extends TracedCallable<V>{
 
 	@Override
 	public V wrappedCall(){
-		for(int i=1; i <= maxAttempts; ++i){
+		for(int i = 1; i <= maxAttempts; ++i){
 			try{
-				//do this client stuff here so inaccessible clients count as normal failures
+				// do this client stuff here so inaccessible clients count as normal failures
 				HBaseClient client = (HBaseClient)datarouter.getClientPool().getClient(task.getClientName());
-				if(client==null){
-					Thread.sleep(timeoutMs);//otherwise will loop through numAttempts as fast as possible
-					throw new DataAccessException("client "+task.getClientName()+" not active");
+				if(client == null){
+					Thread.sleep(timeoutMs);// otherwise will loop through numAttempts as fast as possible
+					throw new DataAccessException("client " + task.getClientName() + " not active");
 				}
 				executorService = client.getExecutorService();
 
-				//set retry params
-				task.setAttemptNumOneBased(i);//pass these in for Tracing purposes
-				task.setNumAttempts(maxAttempts);//Tracing
-				task.setTimeoutMs(timeoutMs);//Tracing
+				// set retry params
+				task.setAttemptNumOneBased(i);// pass these in for Tracing purposes
+				task.setNumAttempts(maxAttempts);// Tracing
+				task.setTimeoutMs(timeoutMs);// Tracing
 				Future<V> future = executorService.submit(task);
 				try{
 					return future.get();
@@ -81,12 +81,12 @@ public class HBaseMultiAttemptTask<V> extends TracedCallable<V>{
 			}catch(Exception attemptException){
 				throwIfInterruped(attemptException);
 				if(isLastAttempt(i)){
-					logger.warn("attempt "+i+"/"+maxAttempts+" failed", attemptException);
-					String errorMessage = "errored "+maxAttempts+" times.  timeoutMs="+timeoutMs;
+					logger.warn("attempt " + i + "/" + maxAttempts + " failed", attemptException);
+					String errorMessage = "errored " + maxAttempts + " times.  timeoutMs=" + timeoutMs;
 					sendThrottledErrorEmail(errorMessage, attemptException);
 					throw new DataAccessException(attemptException);
 				}
-				logger.warn("attempt "+i+"/"+maxAttempts+" failed, retrying");
+				logger.warn("attempt " + i + "/" + maxAttempts + " failed, retrying");
 			}
 		}
 		return null; // Cannot be here
@@ -127,11 +127,11 @@ public class HBaseMultiAttemptTask<V> extends TracedCallable<V>{
 			return;
 		}
 		long numFailures = NUM_FAILED_ATTEMPTS_SINCE_LAST_EMAIL.get();
-		String subject = "HBaseMultiAttempTask failure on "+datarouter.getServerName();
-		String body = "Message throttled for "+throttleEmailSeconds+" seconds"
-				+"\n\n"+timeoutMessage
-				+"\n\n"+numFailures+" since last email attempt "+DrDateTool.getAgoString(LAST_EMAIL_SENT_AT_MS)
-				+"\n\n"+DrExceptionTool.getStackTraceAsString(exception);
+		String subject = "HBaseMultiAttempTask failure on " + datarouter.getServerName();
+		String body = "Message throttled for " + throttleEmailSeconds + " seconds"
+				+ "\n\n" + timeoutMessage
+				+ "\n\n" + numFailures + " since last email attempt " + DrDateTool.getAgoString(LAST_EMAIL_SENT_AT_MS)
+				+ "\n\n" + DrExceptionTool.getStackTraceAsString(exception);
 		DatarouterEmailTool.trySendEmail("noreply@hotpads.com", datarouter.getAdministratorEmail(), subject, body);
 		LAST_EMAIL_SENT_AT_MS = System.currentTimeMillis();
 		NUM_FAILED_ATTEMPTS_SINCE_LAST_EMAIL.set(0L);

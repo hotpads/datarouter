@@ -11,7 +11,7 @@ public class InjectorProvider implements Provider<Injector>{
 
 	private Injector injector;
 
-	public InjectorProvider(Stage stage,Iterable<Module>  modules){
+	public InjectorProvider(Stage stage, Iterable<Module> modules){
 		this.injector = Guice.createInjector(stage, modules);
 	}
 

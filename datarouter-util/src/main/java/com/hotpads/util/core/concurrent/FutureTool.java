@@ -39,15 +39,16 @@ public class FutureTool{
 		return outs;
 	}
 
-
 	/******************* handle multiple *************************/
 
-	public static <T>List<T> submitAndGetAll(Collection<? extends Callable<T>> callables, ExecutorService executorService){
+	public static <T> List<T> submitAndGetAll(Collection<? extends Callable<T>> callables,
+			ExecutorService executorService){
 		List<Future<T>> futures = submitAll(callables, executorService);
 		return getAll(futures);
 	}
 
-	public static <T>List<Future<T>> submitAll(Collection<? extends Callable<T>> callables, ExecutorService executorService){
+	public static <T> List<Future<T>> submitAll(Collection<? extends Callable<T>> callables,
+			ExecutorService executorService){
 		List<Future<T>> futures = new ArrayList<>();
 		for(Callable<T> callable : DrIterableTool.nullSafe(callables)){
 			futures.add(executorService.submit(callable));
@@ -55,7 +56,7 @@ public class FutureTool{
 		return futures;
 	}
 
-	public static <T>List<T> getAll(Collection<Future<T>> ins){
+	public static <T> List<T> getAll(Collection<Future<T>> ins){
 		List<T> outs = DrListTool.createArrayListWithSize(ins);
 		for(Future<T> in : DrIterableTool.nullSafe(ins)){
 			outs.add(get(in));
@@ -63,7 +64,7 @@ public class FutureTool{
 		return outs;
 	}
 
-	public static <T>boolean areAllDone(Collection<Future<T>> futures){
+	public static <T> boolean areAllDone(Collection<Future<T>> futures){
 		for(Future<T> future : futures){
 			if(!future.isDone()){
 				return false;
@@ -72,36 +73,37 @@ public class FutureTool{
 		return true;
 	}
 
-	public static <T>void cancelAll(Collection<Future<T>> futures){
+	public static <T> void cancelAll(Collection<Future<T>> futures){
 		for(Future<T> future : futures){
 			future.cancel(true);
 		}
 	}
+
 	/********************* singles *****************************/
 
-	public static <T>T submitAndGet(Callable<T> callable, ExecutorService executorService){
+	public static <T> T submitAndGet(Callable<T> callable, ExecutorService executorService){
 		return submitAndGet(callable, executorService, null);
 	}
 
-	public static <T>T submitAndGet(Callable<T> callable, ExecutorService executorService, Long timoutMilliseconds){
+	public static <T> T submitAndGet(Callable<T> callable, ExecutorService executorService, Long timoutMilliseconds){
 		return get(submit(callable, executorService), timoutMilliseconds);
 	}
 
-	public static <T>Future<T> submit(Callable<T> callable, ExecutorService executorService){
+	public static <T> Future<T> submit(Callable<T> callable, ExecutorService executorService){
 		return executorService.submit(callable);
 	}
 
-	public static <T>T get(Future<T> future){
+	public static <T> T get(Future<T> future){
 		return get(future, null);
 	}
 
 	public static <T> T get(Future<T> future, Long timeoutMilliseconds){
 		try{
-			if(timeoutMilliseconds==null){
+			if(timeoutMilliseconds == null){
 				return future.get();
 			}
 			return future.get(timeoutMilliseconds, TimeUnit.MILLISECONDS);
-		} catch (InterruptedException | TimeoutException | ExecutionException e) {
+		}catch(InterruptedException | TimeoutException | ExecutionException e){
 			future.cancel(true);
 			throw new RuntimeException(e);
 		}
@@ -112,7 +114,7 @@ public class FutureTool{
 		long deadlineAtMs = System.currentTimeMillis() + timeUnit.toMillis(timeoutLength);
 		List<T> results = new ArrayList<>();
 		for(Future<T> future : DrIterableTool.nullSafe(futures)){
-			long remainingMs = DrNumberTool.max(0L, deadlineAtMs - System.currentTimeMillis());//guard for negatives
+			long remainingMs = DrNumberTool.max(0L, deadlineAtMs - System.currentTimeMillis());// guard for negatives
 			T result = tryGet(future, remainingMs, TimeUnit.MILLISECONDS, timeoutMessage);
 			if(result != null){
 				results.add(result);
@@ -121,11 +123,11 @@ public class FutureTool{
 		return results;
 	}
 
-	public static <T> T tryGet(Future<T> future, long timeoutLength, TimeUnit units, String timeoutMessage) {
+	public static <T> T tryGet(Future<T> future, long timeoutLength, TimeUnit units, String timeoutMessage){
 		try{
-			long nonNegativeTimeoutLength = DrNumberTool.max(0L, timeoutLength);//guard for negatives
+			long nonNegativeTimeoutLength = DrNumberTool.max(0L, timeoutLength);// guard for negatives
 			return future.get(nonNegativeTimeoutLength, units);
-		}catch(InterruptedException|ExecutionException|CancellationException e){
+		}catch(InterruptedException | ExecutionException | CancellationException e){
 			future.cancel(true);
 			logger.error("", e);
 		}catch(TimeoutException e){
@@ -134,7 +136,6 @@ public class FutureTool{
 		}
 		return null;
 	}
-
 
 	/****************** terminate ***********************/
 
