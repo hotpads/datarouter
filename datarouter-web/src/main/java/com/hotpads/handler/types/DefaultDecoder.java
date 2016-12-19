@@ -120,7 +120,7 @@ public class DefaultDecoder implements HandlerDecoder{
 	}
 
 	@Guice(moduleFactory = DatarouterWebTestModuleFactory.class)
-	public static class DefaultDecoderIntegrationTests{
+	public static class DefaultDecoderTests{
 		@Inject
 		DefaultDecoder defaultDecoder;
 
