@@ -352,8 +352,11 @@ public class JavapoetDatabeanGenerator{
 	private static void appendScriptFields(StringBuilder script, String indent, List<NamedFieldDefinition<?>> fields){
 		for(Iterator<NamedFieldDefinition<?>> iter = fields.iterator(); iter.hasNext();){
 			NamedFieldDefinition<?> field = iter.next();
-			script.append(indent).append(field.def.fieldType.toString()).append(' ').append(field.name).append(iter
-					.hasNext() ? ",\n" : "\n");
+			script.append(indent)
+				.append(field.def.fieldType.toString())
+				.append(' ')
+				.append(field.name)
+				.append(iter.hasNext() ? ",\n" : "\n");
 		}
 	}
 
@@ -368,7 +371,8 @@ public class JavapoetDatabeanGenerator{
 		TypeSpec keyType = TypeSpec.classBuilder(keyName)
 				.addModifiers(Modifier.PUBLIC)
 				.superclass(ParameterizedTypeName.get(ClassName.get(BasePrimaryKey.class), keyName))
-				.addFields(keyFieldSpecs).addType(keyfieldKeysType)
+				.addFields(keyFieldSpecs)
+				.addType(keyfieldKeysType)
 				.addMethod(buildGetFieldsMethod(keyNamedFieldDefinitions, keyFieldSpecs, keyfieldKeysType))
 				.addMethod(buildDefaultConstructor())
 				.addMethod(buildParameterizedConstructor(keyFieldSpecs))
@@ -410,8 +414,9 @@ public class JavapoetDatabeanGenerator{
 	}
 
 	private static List<FieldSpec> buildFields(List<NamedFieldDefinition<?>> fieldDefs){
-		return fieldDefs.stream().map(fieldDef -> buildPrivateField(fieldDef.def.type, fieldDef.name)).collect(
-				Collectors.toList());
+		return fieldDefs.stream()
+					.map(fieldDef -> buildPrivateField(fieldDef.def.type, fieldDef.name))
+					.collect(Collectors.toList());
 	}
 
 	private List<TypeSpec> generateLookupTypes(ClassName keyName, TypeSpec fieldKeysType){
@@ -649,13 +654,16 @@ public class JavapoetDatabeanGenerator{
 	}
 
 	private static Iterable<MethodSpec> buildKeyMethods(FieldSpec beanKeyField, TypeName keyClassName){
-		MethodSpec getKeyClass = MethodSpec.methodBuilder("getKeyClass").addAnnotation(Override.class)
+		MethodSpec getKeyClass = MethodSpec.methodBuilder("getKeyClass")
+				.addAnnotation(Override.class)
 				.addModifiers(Modifier.PUBLIC)
 				.returns(ParameterizedTypeName.get(ClassName.get(Class.class), keyClassName))
 				.addStatement("return $T.class", keyClassName)
 				.build();
 
-		MethodSpec getKey = generateGetterBuilder(beanKeyField, "getKey").addAnnotation(Override.class).build();
+		MethodSpec getKey = generateGetterBuilder(beanKeyField, "getKey")
+				.addAnnotation(Override.class)
+				.build();
 
 		return Arrays.asList(getKeyClass, getKey);
 	}
