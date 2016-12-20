@@ -14,7 +14,7 @@ public class StrictHostnameOrHotpadsVerifier implements HostnameVerifier{
 	}
 
 	@Override
-    public final String toString() {
+	public final String toString(){
         return "STRICT_OR_HOTPADS";
     }
 

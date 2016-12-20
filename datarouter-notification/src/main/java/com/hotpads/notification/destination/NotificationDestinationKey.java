@@ -9,13 +9,13 @@ import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.enums.StringEnumField;
 import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
 
-public class NotificationDestinationKey extends BasePrimaryKey<NotificationDestinationKey> {
+public class NotificationDestinationKey extends BasePrimaryKey<NotificationDestinationKey>{
 
 	private String token;
 	private NotificationDestinationAppEnum app;
 	private String deviceId;
 
-	public static class F {
+	public static class F{
 		public static final String
 			token = "token",
 			app = "app",
