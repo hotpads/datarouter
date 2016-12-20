@@ -6,7 +6,7 @@ import com.hotpads.datarouter.util.core.DrHashMethods;
 public class NotificationLogPartitioner16 extends BaseEntityPartitioner<NotificationLogEntityKey>{
 
 	@Override
-	public int getNumPartitions() {
+	public int getNumPartitions(){
 		return 16;
 	}
 

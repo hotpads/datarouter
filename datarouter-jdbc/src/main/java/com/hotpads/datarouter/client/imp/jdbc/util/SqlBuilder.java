@@ -30,15 +30,15 @@ public class SqlBuilder{
 		checkTableName(tableName);
 		StringBuilder sql = new StringBuilder();
 		sql.append("select count(*) from " + tableName);
-		if (keys.size() > 0) {
+		if(keys.size() > 0){
 			sql.append(" where ");
 			appendWhereClauseDisjunction(codecFactory, sql, keys);
 		}
 		return sql.toString();
 	}
 
-	public static String getAll(Config config, String tableName, List<Field<?>> selectFields,
-			String where, List<Field<?>> orderByFields){
+	public static String getAll(Config config, String tableName, List<Field<?>> selectFields, String where,
+			List<Field<?>> orderByFields){
 		StringBuilder sql = new StringBuilder();
 		addSelectFromClause(sql, tableName, selectFields);
 		addWhereClauseWithWhere(sql, where);
@@ -152,17 +152,17 @@ public class SqlBuilder{
 		sql.append("select ");
 		Preconditions.checkArgument(DrCollectionTool.notEmpty(selectFields), "Please provide select fields");
 		FieldTool.appendCsvColumnNames(sql, selectFields);
-		sql.append(" from "+tableName);
+		sql.append(" from " + tableName);
 	}
 
 	private static void addDeleteFromClause(StringBuilder sql, String tableName){
 		checkTableName(tableName);
-		sql.append("delete from "+tableName);
+		sql.append("delete from " + tableName);
 	}
 
 	private static void addWhereClauseWithWhere(StringBuilder sql, String where){
 		if(DrStringTool.notEmpty(where)){
-			sql.append(" where "+where);
+			sql.append(" where " + where);
 		}
 	}
 
@@ -184,7 +184,7 @@ public class SqlBuilder{
 		int counter = 0;
 		StringBuilder sql = new StringBuilder();
 		for(FieldSet<?> key : keys){
-			if(counter>0){
+			if(counter > 0){
 				sql.append(" or ");
 			}
 			addPrefixWhereClause(codecFactory, sql, key, wildcardLastField);
@@ -196,26 +196,26 @@ public class SqlBuilder{
 	private static void addPrefixWhereClause(JdbcFieldCodecFactory codecFactory, StringBuilder sql, FieldSet<?> prefix,
 			boolean wildcardLastField){
 		int numNonNullFields = FieldSetTool.getNumNonNullLeadingFields(prefix);
-		if(numNonNullFields==0){
+		if(numNonNullFields == 0){
 			return;
 		}
 		int numFullFieldsFinished = 0;
 		List<JdbcFieldCodec<?,?>> codecs = codecFactory.createCodecs(prefix.getFields());
 		for(JdbcFieldCodec<?,?> codec : codecs){
 			Field<?> field = codec.getField();
-			if(numFullFieldsFinished >= numNonNullFields) {
+			if(numFullFieldsFinished >= numNonNullFields){
 				break;
 			}
 			if(numFullFieldsFinished > 0){
 				sql.append(" and ");
 			}
-			boolean lastNonNullField = numFullFieldsFinished == numNonNullFields-1;
+			boolean lastNonNullField = numFullFieldsFinished == numNonNullFields - 1;
 			boolean stringField = !(field instanceof BasePrimitiveField<?>);
 			boolean doPrefixMatchOnField = wildcardLastField && lastNonNullField && stringField;
 			if(doPrefixMatchOnField){
 				String sqlEscaped = codec.getSqlEscaped();
-				String sqlEscapedWithWildcard = sqlEscaped.substring(0, sqlEscaped.length()-1) + "%'";
-				sql.append(field.getKey().getColumnName()+" like "+sqlEscapedWithWildcard);
+				String sqlEscapedWithWildcard = sqlEscaped.substring(0, sqlEscaped.length() - 1) + "%'";
+				sql.append(field.getKey().getColumnName() + " like " + sqlEscapedWithWildcard);
 			}else{
 				sql.append(codec.getSqlNameValuePairEscaped());
 			}
@@ -262,7 +262,7 @@ public class SqlBuilder{
 		int numEqualsLeadingFields = 0;
 		if(range.getStart() != null && range.getEnd() != null){
 			int numNonNullLeadingFields = Math.min(numNonNullStartFields, numNonNullEndFields);
-			for(int i = 0 ; i < numNonNullLeadingFields ; i++){
+			for(int i = 0; i < numNonNullLeadingFields; i++){
 				if(startFields.get(i).getValue().equals(endFields.get(i).getValue())){
 					if(i > 0){
 						sql.append(" and ");
@@ -283,24 +283,24 @@ public class SqlBuilder{
 				sql.append(" and ");
 			}
 			sql.append("(");
-			for(int i=numNonNullStartFields; i > numEqualsLeadingFields; --i){
-				if(i<numNonNullStartFields){
+			for(int i = numNonNullStartFields; i > numEqualsLeadingFields; --i){
+				if(i < numNonNullStartFields){
 					sql.append(" or ");
 				}
 				sql.append("(");
-				for(int j=numEqualsLeadingFields; j < i; ++j){
-					if(j>numEqualsLeadingFields){
+				for(int j = numEqualsLeadingFields; j < i; ++j){
+					if(j > numEqualsLeadingFields){
 						sql.append(" and ");
 					}
 					Field<?> startField = startFields.get(j);
 					JdbcFieldCodec<?,?> startCodec = startCodecs.get(j);
-					if(j < i-1){
+					if(j < i - 1){
 						sql.append(startCodec.getSqlNameValuePairEscaped());
 					}else{
-						if(range.getStartInclusive() && i==numNonNullStartFields){
-							sql.append(startField.getKey().getColumnName()+">="+startCodec.getSqlEscaped());
+						if(range.getStartInclusive() && i == numNonNullStartFields){
+							sql.append(startField.getKey().getColumnName() + ">=" + startCodec.getSqlEscaped());
 						}else{
-							sql.append(startField.getKey().getColumnName()+">"+startCodec.getSqlEscaped());
+							sql.append(startField.getKey().getColumnName() + ">" + startCodec.getSqlEscaped());
 						}
 					}
 				}
@@ -314,22 +314,22 @@ public class SqlBuilder{
 				sql.append(" and ");
 			}
 			sql.append("(");
-			for(int i=numEqualsLeadingFields; i < numNonNullEndFields; ++i){
-				if(i>numEqualsLeadingFields){
+			for(int i = numEqualsLeadingFields; i < numNonNullEndFields; ++i){
+				if(i > numEqualsLeadingFields){
 					sql.append(" or ");
 				}
 				sql.append("(");
-				for(int j=numEqualsLeadingFields; j <= i; ++j){
-					if(j>numEqualsLeadingFields){
+				for(int j = numEqualsLeadingFields; j <= i; ++j){
+					if(j > numEqualsLeadingFields){
 						sql.append(" and ");
 					}
 					Field<?> endField = endFields.get(j);
 					JdbcFieldCodec<?,?> endCodec = endCodecs.get(j);
-					if(j==i){
-						if(range.getEndInclusive() && i==numNonNullEndFields-1){
-							sql.append(endField.getKey().getColumnName()+"<="+endCodec.getSqlEscaped());
+					if(j == i){
+						if(range.getEndInclusive() && i == numNonNullEndFields - 1){
+							sql.append(endField.getKey().getColumnName() + "<=" + endCodec.getSqlEscaped());
 						}else{
-							sql.append(endField.getKey().getColumnName()+"<"+endCodec.getSqlEscaped());
+							sql.append(endField.getKey().getColumnName() + "<" + endCodec.getSqlEscaped());
 						}
 					}else{
 						sql.append(endCodec.getSqlNameValuePairEscaped());
@@ -355,7 +355,7 @@ public class SqlBuilder{
 			if(counter > 0){
 				sql.append(", ");
 			}
-			sql.append(field.getKey().getColumnName()+" asc");
+			sql.append(field.getKey().getColumnName() + " asc");
 			++counter;
 		}
 	}
@@ -363,15 +363,14 @@ public class SqlBuilder{
 	public static void addLimitOffsetClause(StringBuilder sql, Config config){
 		config = Config.nullSafe(config);
 
-		if(config.getLimit()!=null && config.getOffset()!=null){
-			sql.append(" limit "+config.getOffset()+", "+config.getLimit());
-		}else if(config.getLimit()!=null){
-			sql.append(" limit "+config.getLimit());
-		}else if(config.getOffset()!=null){
-			sql.append(" limit "+config.getOffset()+", "+Integer.MAX_VALUE);//stupid mysql syntax
+		if(config.getLimit() != null && config.getOffset() != null){
+			sql.append(" limit " + config.getOffset() + ", " + config.getLimit());
+		}else if(config.getLimit() != null){
+			sql.append(" limit " + config.getLimit());
+		}else if(config.getOffset() != null){
+			sql.append(" limit " + config.getOffset() + ", " + Integer.MAX_VALUE);// stupid mysql syntax
 		}
 	}
-
 
 	/************** methods originaly in FieldTool ***********************/
 
@@ -405,11 +404,10 @@ public class SqlBuilder{
 			if(appended > 0){
 				sb.append(",");
 			}
-			sb.append(field.getKey().getColumnName()+"=?");
+			sb.append(field.getKey().getColumnName() + "=?");
 			++appended;
 		}
 	}
-
 
 	/******************** methods originally in FieldSetTool ***********************/
 
@@ -420,13 +418,13 @@ public class SqlBuilder{
 			if(counter > 0){
 				sql.append(" or ");
 			}
-			//heavy on parenthesis.  optimize later
+			// heavy on parenthesis. optimize later
 			sql.append(getSqlNameValuePairsEscapedConjunction(codecFactory, fieldSet.getFields()));
 			++counter;
 		}
 	}
 
-	//Preconditions
+	// Preconditions
 
 	public static void checkTableName(String tableName){
 		if(DrStringTool.isEmpty(tableName)){

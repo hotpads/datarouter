@@ -22,7 +22,7 @@ public class WebAppInstanceUpdateJob extends BaseJob{
 	}
 
 	@Override
-	public void run() {
+	public void run(){
 		webAppInstanceDao.updateWebAppInstanceTable();
 	}
 }

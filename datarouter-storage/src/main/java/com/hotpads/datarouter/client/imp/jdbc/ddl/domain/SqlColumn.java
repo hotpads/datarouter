@@ -65,7 +65,7 @@ public class SqlColumn implements Comparable<SqlColumn>{
 
 	@Override
 	public String toString(){
-		return "\t[" + name + ", " + type + ", " + maxLength + ", " + nullable +  ", " + autoIncrement + "]";
+		return "\t[" + name + ", " + type + ", " + maxLength + ", " + nullable + ", " + autoIncrement + "]";
 	}
 
 	@Override
@@ -86,12 +86,12 @@ public class SqlColumn implements Comparable<SqlColumn>{
 	public int hashCode(){
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + (maxLength == null?0:maxLength.hashCode());
-		result = prime * result + (name == null?0:name.hashCode());
-		result = prime * result + (nullable == null?0:nullable.hashCode());
-		result = prime * result + (type == null?0:type.hashCode());
-		result = prime * result + (autoIncrement == null?0:autoIncrement.hashCode());
-		result = prime * result + (defaultValue == null?0:defaultValue.hashCode());
+		result = prime * result + (maxLength == null ? 0 : maxLength.hashCode());
+		result = prime * result + (name == null ? 0 : name.hashCode());
+		result = prime * result + (nullable == null ? 0 : nullable.hashCode());
+		result = prime * result + (type == null ? 0 : type.hashCode());
+		result = prime * result + (autoIncrement == null ? 0 : autoIncrement.hashCode());
+		result = prime * result + (defaultValue == null ? 0 : defaultValue.hashCode());
 		return result;
 	}
 
@@ -101,19 +101,19 @@ public class SqlColumn implements Comparable<SqlColumn>{
 	@Override
 	public int compareTo(SqlColumn other){
 		int diff = DrComparableTool.nullFirstCompareTo(name, other.name);
-		if(diff!=0){
+		if(diff != 0){
 			return diff;
 		}
 		diff = DrComparableTool.nullFirstCompareTo(type, other.type);
-		if(diff!=0){
+		if(diff != 0){
 			return diff;
 		}
 		diff = DrComparableTool.nullFirstCompareTo(maxLength, other.maxLength);
-		if(diff!=0){
+		if(diff != 0){
 			return diff;
 		}
 		diff = DrComparableTool.nullFirstCompareTo(nullable, other.nullable);
-		if(diff!=0){
+		if(diff != 0){
 			return diff;
 		}
 		diff = DrComparableTool.nullFirstCompareTo(autoIncrement, other.autoIncrement);
@@ -127,13 +127,13 @@ public class SqlColumn implements Comparable<SqlColumn>{
 		}
 		@Override
 		public int compare(SqlColumn colA, SqlColumn colB){
-			if(colA==null && colB==null){
+			if(colA == null && colB == null){
 				return 0;
 			}
-			if(colA==null){
+			if(colA == null){
 				return -1;
 			}
-			if(colB==null){
+			if(colB == null){
 				return 1;
 			}
 			if(caseSensitive){
@@ -150,11 +150,11 @@ public class SqlColumn implements Comparable<SqlColumn>{
 		}
 		@Override
 		public int compare(SqlColumn colA, SqlColumn colB){
-			if(colA==null && colB==null){
+			if(colA == null && colB == null){
 				return 0;
 			}
 			int diff = super.compare(colA, colB);
-			if(diff!=0){
+			if(diff != 0){
 				return diff;
 			}
 			return DrComparableTool.nullFirstCompareTo(colA.type, colB.type);
@@ -169,17 +169,17 @@ public class SqlColumn implements Comparable<SqlColumn>{
 
 		@Override
 		public int compare(SqlColumn colA, SqlColumn colB){
-			if(colA==null && colB==null){
+			if(colA == null && colB == null){
 				return 0;
 			}
 			int diff = super.compare(colA, colB);
-			if(diff!=0){
+			if(diff != 0){
 				return diff;
 			}
 			diff = DrComparableTool.nullFirstCompareTo(colA.maxLength, colB.maxLength);
-			if(diff!=0){
+			if(diff != 0){
 				// adding this case, so that a dateTime without specifying precision deosn't generate alter statements
-				if(colA.type != MySqlColumnType.DATETIME ){
+				if(colA.type != MySqlColumnType.DATETIME){
 					return diff;
 				}
 				if(colA.maxLength < MAX_DATETIME_LENGTH && colB.maxLength == 0){
@@ -260,7 +260,7 @@ public class SqlColumn implements Comparable<SqlColumn>{
 		if(!getNullable()){
 			return NOT_NULL;
 		}
-		if(type.isDefaultValueSupported() && getDefaultValue() !=null){
+		if(type.isDefaultValueSupported() && getDefaultValue() != null){
 			return " default " + getDefaultValue();
 		}
 		return "";
@@ -279,27 +279,27 @@ public class SqlColumn implements Comparable<SqlColumn>{
 			Assert.assertEquals(-1, columnA.compareTo(columnB));
 			Assert.assertFalse(columnA.equals(columnB));
 
-			//new value a2 which equals a
+			// new value a2 which equals a
 			SqlColumn a2 = new SqlColumn("a", MySqlColumnType.BIGINT, 19, false, false);
 			Assert.assertTrue(a2.equals(columnA));
-			Assert.assertFalse(a2==columnA);
+			Assert.assertFalse(a2 == columnA);
 
-			//test adding to SortedSet to test compareTo method
+			// test adding to SortedSet to test compareTo method
 			SortedSet<SqlColumn> columns = new TreeSet<>();
 			columns.add(columnB);
-			columns.add(columnA);//should keep this version of a/a2 since it was added first
+			columns.add(columnA);// should keep this version of a/a2 since it was added first
 			columns.add(a2);
 			List<SqlColumn> columnList = new ArrayList<>(columns);
-			Assert.assertTrue(columnA==columnList.get(0));//it kept the first version
-			Assert.assertTrue(columnB==columnList.get(1));
+			Assert.assertTrue(columnA == columnList.get(0));// it kept the first version
+			Assert.assertTrue(columnB == columnList.get(1));
 
-			//test list sorting
+			// test list sorting
 			List<SqlColumn> sortedList = new ArrayList<>();
 			sortedList.add(columnB);
 			sortedList.add(columnA);
-			Assert.assertTrue(columnB==sortedList.get(0));
+			Assert.assertTrue(columnB == sortedList.get(0));
 			Collections.sort(sortedList);
-			Assert.assertTrue(columnB==sortedList.get(1));
+			Assert.assertTrue(columnB == sortedList.get(1));
 		}
 
 		@Test

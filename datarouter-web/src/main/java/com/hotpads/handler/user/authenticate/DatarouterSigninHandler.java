@@ -11,8 +11,8 @@ public class DatarouterSigninHandler extends BaseHandler{
 	@Inject
 	private DatarouterAuthenticationConfig authenticationConfig;
 
-	@Override
-	protected Mav handleDefault() {
+	@Handler(defaultHandler = true)
+	protected Mav showForm(){
 		Mav mav = new Mav("/jsp/authentication/signinForm.jsp");
 		mav.put("authenticationConfig", authenticationConfig);
 		return mav;
