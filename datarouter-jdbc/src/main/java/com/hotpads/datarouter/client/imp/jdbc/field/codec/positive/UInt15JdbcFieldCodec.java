@@ -32,7 +32,7 @@ extends BasePrimitiveJdbcFieldCodec<Short,UInt15Field>{
 	@Override
 	public void setPreparedStatementValue(PreparedStatement ps, int parameterIndex){
 		try{
-			if(field.getValue()==null){
+			if(field.getValue() == null){
 				ps.setNull(parameterIndex, Types.SMALLINT);
 			}else{
 				ps.setShort(parameterIndex, field.getValue());
@@ -44,14 +44,14 @@ extends BasePrimitiveJdbcFieldCodec<Short,UInt15Field>{
 
 	@Override
 	public Short parseJdbcValueButDoNotSet(Object obj){
-		return obj==null?null:(Short)obj;
+		return obj == null ? null : (Short)obj;
 	}
 
 	@Override
 	public Short fromJdbcResultSetButDoNotSet(ResultSet rs){
 		try{
 			short value = rs.getShort(field.getKey().getColumnName());
-			return rs.wasNull()?null:value;
+			return rs.wasNull() ? null : value;
 		}catch(SQLException e){
 			throw new DataAccessException(e);
 		}

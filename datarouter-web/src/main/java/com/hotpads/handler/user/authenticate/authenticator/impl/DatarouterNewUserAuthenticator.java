@@ -13,7 +13,7 @@ public class DatarouterNewUserAuthenticator extends BaseDatarouterAuthenticator{
 	private DatarouterSessionManager sessionManager;
 
 	public DatarouterNewUserAuthenticator(HttpServletRequest request, HttpServletResponse response,
-			DatarouterSessionManager sessionManager) {
+			DatarouterSessionManager sessionManager){
 		super(request, response);
 		this.sessionManager = sessionManager;
 	}

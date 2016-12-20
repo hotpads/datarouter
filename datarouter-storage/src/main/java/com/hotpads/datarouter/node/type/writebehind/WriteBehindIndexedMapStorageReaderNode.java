@@ -21,29 +21,29 @@ public class WriteBehindIndexedMapStorageReaderNode<
 	D extends Databean<PK, D>,
 	N extends IndexedSortedMapStorageReader<PK,D>>
 extends WriteBehindSortedMapStorageReaderNode<PK,D,N>
-implements IndexedSortedMapStorageReader<PK, D> {
+implements IndexedSortedMapStorageReader<PK, D>{
 
-	public WriteBehindIndexedMapStorageReaderNode(Datarouter datarouter, N backingNode) {
+	public WriteBehindIndexedMapStorageReaderNode(Datarouter datarouter, N backingNode){
 		super(datarouter, backingNode);
 	}
 
 	@Override
-	public D lookupUnique(UniqueKey<PK> uniqueKey, Config config) {
+	public D lookupUnique(UniqueKey<PK> uniqueKey, Config config){
 		return backingNode.lookupUnique(uniqueKey, config);
 	}
 
 	@Override
-	public List<D> lookupMultiUnique(Collection<? extends UniqueKey<PK>> uniqueKeys, Config config) {
+	public List<D> lookupMultiUnique(Collection<? extends UniqueKey<PK>> uniqueKeys, Config config){
 		return backingNode.lookupMultiUnique(uniqueKeys, config);
 	}
 
 	@Override
-	public List<D> lookup(Lookup<PK> lookup, boolean wildcardLastField, Config config) {
+	public List<D> lookup(Lookup<PK> lookup, boolean wildcardLastField, Config config){
 		return backingNode.lookup(lookup, wildcardLastField, config);
 	}
 
 	@Override
-	public List<D> lookupMulti(Collection<? extends Lookup<PK>> lookup, Config config) {
+	public List<D> lookupMulti(Collection<? extends Lookup<PK>> lookup, Config config){
 		return backingNode.lookupMulti(lookup, config);
 	}
 

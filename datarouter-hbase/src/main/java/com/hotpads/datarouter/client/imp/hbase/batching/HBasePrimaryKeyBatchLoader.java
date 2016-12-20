@@ -25,8 +25,8 @@ extends BaseHBaseBatchLoader<PK,D,F,PK>{
 	private static Logger logger = LoggerFactory.getLogger(HBasePrimaryKeyBatchLoader.class);
 
 	public HBasePrimaryKeyBatchLoader(final HBaseReaderNode<PK,D,F> node, final List<Field<?>> scatteringPrefix,
-			final Range<PK> range, final Config pConfig, Long batchChainCounter){
-		super(node, scatteringPrefix, range, pConfig, batchChainCounter);
+			final Range<PK> range, final Config pconfig, Long batchChainCounter){
+		super(node, scatteringPrefix, range, pconfig, batchChainCounter);
 	}
 
 	@Override
