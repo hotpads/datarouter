@@ -2,12 +2,12 @@ package com.hotpads.util.core.concurrent;
 
 import java.util.concurrent.Semaphore;
 
-public class SemaphoreTool {
+public class SemaphoreTool{
 
 	public static void acquire(Semaphore semaphore){
-		try {
+		try{
 			semaphore.acquire();
-		} catch (InterruptedException e) {
+		} catch (InterruptedException e){
 			throw new RuntimeException(e);
 		}
 	}

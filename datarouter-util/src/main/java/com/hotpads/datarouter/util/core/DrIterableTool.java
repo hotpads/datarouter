@@ -18,31 +18,31 @@ import com.hotpads.util.core.iterable.scanner.iterable.SingleUseScannerIterable;
 import com.hotpads.util.core.iterable.scanner.sorted.BaseHoldingScanner;
 
 
-public class DrIterableTool {
+public class DrIterableTool{
 
 	public static <T> Iterable<T> nullSafe(Iterable<T> in){
-		if(in==null){
+		if(in == null){
 			return new ArrayList<>();
 		}
 		return in;
 	}
 
 	public static <T> T next(Iterator<T> iterator){
-		if(iterator==null){
+		if(iterator == null){
 			return null;
 		}
-		return iterator.hasNext()?iterator.next():null;
+		return iterator.hasNext() ? iterator.next() : null;
 	}
 
 	public static <T> T first(Iterable<T> iterable){
-		if(iterable==null){
+		if(iterable == null){
 			return null;
 		}
 		return next(iterable.iterator());
 	}
 
 	public static <T> Long count(Iterable<T> iterable){
-		if(iterable==null){
+		if(iterable == null){
 			return 0L;
 		}
 		if(iterable instanceof Collection){

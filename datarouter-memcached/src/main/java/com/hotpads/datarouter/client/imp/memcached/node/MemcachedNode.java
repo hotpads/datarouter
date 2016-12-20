@@ -39,7 +39,7 @@ implements PhysicalMapStorageNode<PK,D>{
 	}
 
 	@Override
-	public Node<PK,D> getMaster() {
+	public Node<PK,D> getMaster(){
 		return this;
 	}
 
@@ -47,8 +47,8 @@ implements PhysicalMapStorageNode<PK,D>{
 	/************************************ MapStorageWriter methods ****************************/
 
 	@Override
-	public void put(final D databean, final Config config) {
-		if(databean==null){
+	public void put(final D databean, final Config config){
+		if(databean == null){
 			return;
 		}
 		putMulti(DrListTool.wrap(databean), config);
@@ -57,7 +57,7 @@ implements PhysicalMapStorageNode<PK,D>{
 
 	//TODO does spy client not do batched puts?
 	@Override
-	public void putMulti(final Collection<D> databeans, final Config paramConfig) {
+	public void putMulti(final Collection<D> databeans, final Config paramConfig){
 		if(DrCollectionTool.isEmpty(databeans)){
 			return;
 		}
@@ -71,7 +71,7 @@ implements PhysicalMapStorageNode<PK,D>{
 				String key = buildMemcachedKey(databean.getKey());
 				//memcachedClient uses an integer for cache timeout
 				Integer expiration = getExpiration(config);
-				if (bytes.length > 2 * MEGABYTE) {
+				if(bytes.length > 2 * MEGABYTE){
 					//memcached max size is 1mb for a compressed object, so don't PUT things that won't compress well
 					String json = JsonDatabeanTool.fieldsToJson(databean.getKey().getFields()).toString();
 					logger.error("memcached object too big for memcached!" + databean.getDatabeanName() + ", key:"
@@ -80,7 +80,7 @@ implements PhysicalMapStorageNode<PK,D>{
 				}
 				this.getClient().getSpyClient().set(key, expiration, bytes);
 			}
-			TracerTool.appendToSpanInfo(TracerThreadLocal.get(), DrCollectionTool.size(databeans)+"");
+			TracerTool.appendToSpanInfo(TracerThreadLocal.get(), DrCollectionTool.size(databeans) + "");
 		}catch(Exception exception){
 			if(paramConfig.ignoreExceptionOrUse(DEFAULT_IGNORE_EXCEPTION)){
 				logger.error("memcached error on ", exception);
@@ -140,7 +140,7 @@ implements PhysicalMapStorageNode<PK,D>{
 			}else{
 				throw exception;
 			}
-		} finally {
+		}finally{
 			finishTraceSpan();
 		}
 	}
@@ -159,7 +159,7 @@ implements PhysicalMapStorageNode<PK,D>{
 				return null;
 			}
 			throw exception;
-		} finally {
+		}finally{
 			finishTraceSpan();
 		}
 	}
