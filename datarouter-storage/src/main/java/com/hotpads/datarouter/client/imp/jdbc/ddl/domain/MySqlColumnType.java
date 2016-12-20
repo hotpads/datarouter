@@ -132,12 +132,4 @@ public enum MySqlColumnType{
 		return supportsDefaultValue;
 	}
 
-
-	/************************ main ***********************************************/
-
-	public static void main(String[] args){
-		System.out.println(LENGTH_50 + " " +MAX_LENGTH_VARCHAR + " " + MAX_LENGTH_TEXT + " " + " "
-				+ MAX_LENGTH_MEDIUMTEXT + " " + MAX_LENGTH_LONGTEXT);
-	}
-
 }
