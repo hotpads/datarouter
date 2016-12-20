@@ -44,9 +44,9 @@ public class SchemaUpdateOptions{
 
 	public SchemaUpdateOptions(List<Properties> multiProperties, String prefix, boolean printVsExecute){
 		if(printVsExecute){
-			setSchemaUpdateWithPrintOptions(multiProperties,  prefix);
+			setSchemaUpdateWithPrintOptions(multiProperties, prefix);
 		}else{
-			setSchemaUpdateWithExecuteOptions(multiProperties,  prefix);
+			setSchemaUpdateWithExecuteOptions(multiProperties, prefix);
 		}
 	}
 

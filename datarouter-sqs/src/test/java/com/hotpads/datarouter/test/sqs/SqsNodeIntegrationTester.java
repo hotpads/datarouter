@@ -25,7 +25,7 @@ import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.test.TestDatabean;
 
 @Guice(moduleFactory = DatarouterSqsTestModuleFactory.class)
-@Test(singleThreaded=true)
+@Test(singleThreaded = true)
 public class SqsNodeIntegrationTester{
 	private static final Logger logger = LoggerFactory.getLogger(SqsNodeIntegrationTester.class);
 
@@ -69,7 +69,7 @@ public class SqsNodeIntegrationTester{
 		testByteLimit(BaseSqsNode.MAX_BYTES_PER_MESSAGE);
 	}
 
-	@Test(expectedExceptions={SqsDataTooLargeException.class})
+	@Test(expectedExceptions = {SqsDataTooLargeException.class})
 	public void testOverByteLimit(){
 		testByteLimit(BaseSqsNode.MAX_BYTES_PER_MESSAGE + 1);
 	}
@@ -117,7 +117,7 @@ public class SqsNodeIntegrationTester{
 
 	private void putRandomDatabeans(){
 		List<TestDatabean> databeans = new ArrayList<>(DATABEAN_COUNT);
-		for(int i = 0 ; i < DATABEAN_COUNT ; i++){
+		for(int i = 0; i < DATABEAN_COUNT; i++){
 			databeans.add(new TestDatabean(String.valueOf(i), makeRandomString(), makeRandomString()));
 		}
 		router.testDatabean.putMulti(databeans, null);
@@ -132,9 +132,9 @@ public class SqsNodeIntegrationTester{
 		});
 	}
 
-	@Test//Too long to run for every build
+	@Test // Too long to run for every build
 	public void testPollTimeout(){
-		drainQueue(40);//extra cleanup
+		drainQueue(40);// extra cleanup
 		TestDatabean databean = new TestDatabean(makeRandomString(), makeRandomString(), makeRandomString());
 		router.testDatabean.put(databean, null);
 

@@ -1,7 +1,7 @@
 package com.hotpads.notification.preference;
 
 public class NotificationTypeGroup{
-	public static class F {
+	public static class F{
 		public static final String persistentString = "persistentString";
 	}
 

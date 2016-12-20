@@ -55,7 +55,7 @@ public class NotificationLog extends BaseDatabean<NotificationLogKey,Notificatio
 
 	}
 
-	public NotificationLog() {
+	public NotificationLog(){
 		this(new NotificationUserId(null, null), null, null, null, null, null, null, null);
 	}
 
@@ -71,12 +71,12 @@ public class NotificationLog extends BaseDatabean<NotificationLogKey,Notificatio
 	}
 
 	@Override
-	public Class<NotificationLogKey> getKeyClass() {
+	public Class<NotificationLogKey> getKeyClass(){
 		return NotificationLogKey.class;
 	}
 
 	@Override
-	public NotificationLogKey getKey() {
+	public NotificationLogKey getKey(){
 		return key;
 	}
 
@@ -88,11 +88,11 @@ public class NotificationLog extends BaseDatabean<NotificationLogKey,Notificatio
 		return type;
 	}
 
-	public List<String> getItemIds() {
+	public List<String> getItemIds(){
 		return itemIds;
 	}
 
-	public void setItemIds(List<String> itemIds) {
+	public void setItemIds(List<String> itemIds){
 		this.itemIds = itemIds;
 	}
 

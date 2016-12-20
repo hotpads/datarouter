@@ -18,8 +18,8 @@ implements SortedMapStorageNode<PK,D>,
 		IndexingMapStorageMixin<PK,D,N>,
 		IndexingSortedStorageMixin<PK,D,N>{
 
-	public IndexingSortedMapStorageNode(N mainNode) {
-		super(mainNode);//mainNode must have explicit Fielder
+	public IndexingSortedMapStorageNode(N mainNode){
+		super(mainNode);// mainNode must have explicit Fielder
 	}
 
 }

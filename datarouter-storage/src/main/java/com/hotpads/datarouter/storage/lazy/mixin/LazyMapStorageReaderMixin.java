@@ -17,7 +17,7 @@ public interface LazyMapStorageReaderMixin<
 extends LazyReader<PK,D,S>{
 
 	public default Lazy<D> get(final PK key, final Config config){
-		return Lazy.of(() -> getBackingStorage().get(key, config) );
+		return Lazy.of(() -> getBackingStorage().get(key, config));
 	}
 
 	public default Lazy<List<D>> getMulti(final Collection<PK> keys, final Config config){

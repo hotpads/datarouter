@@ -9,7 +9,7 @@ import com.hotpads.handler.mav.Mav;
 /*
  * note: this is a standalone controller since it requires public access
  */
-public class JobletScalingHandler extends BaseHandler {
+public class JobletScalingHandler extends BaseHandler{
 
 	public static final String JSP = "/jsp/joblet/jobletScaling.jsp";
 
@@ -25,7 +25,7 @@ public class JobletScalingHandler extends BaseHandler {
 	}
 
 	@Handler
-	private Mav getRequiredJobletServers() {
+	private Mav getRequiredJobletServers(){
 		final Mav mav = new Mav(JSP);
 		int numServers = jobletScaler.getNumJobletServers();
 		mav.put("serverCount", numServers);

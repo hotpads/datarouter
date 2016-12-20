@@ -117,7 +117,7 @@ extends HBaseEntityQueryBuilder<EK,E>{
 	}
 
 	public byte[] getQualifierPkBytes(PK primaryKey, boolean trailingSeparatorAfterEndingString){
-		if(primaryKey==null){
+		if(primaryKey == null){
 			return new byte[]{};
 		}
 		return FieldTool.getConcatenatedValueBytes(primaryKey.getPostEntityKeyFields(), true,
@@ -177,7 +177,7 @@ extends HBaseEntityQueryBuilder<EK,E>{
 	public Get getPrefixGet(PK pkPrefix, boolean wildcardLastField, Config config){
 		EK ek = pkPrefix.getEntityKey();
 		byte[] rowBytes = getRowBytesWithPartition(ek);//require all EK fields
-		boolean includeTrailingSeparator = ! wildcardLastField;
+		boolean includeTrailingSeparator = !wildcardLastField;
 		byte[] pkQualifierBytes = FieldTool.getConcatenatedValueBytes(pkPrefix.getPostEntityKeyFields(), true,
 				includeTrailingSeparator, includeTrailingSeparator);
 		byte[] qualifierPrefix = DrByteTool.concatenate(fieldInfo.getEntityColumnPrefixBytes(), pkQualifierBytes);
@@ -219,7 +219,7 @@ extends HBaseEntityQueryBuilder<EK,E>{
 
 	public List<Scan> getPrefixScans(EK prefix, boolean wildcardLastField, Config config){
 		List<Scan> scans = new ArrayList<>();
-		for(int partition=0; partition < partitioner.getNumPartitions(); ++partition){
+		for(int partition = 0; partition < partitioner.getNumPartitions(); ++partition){
 			Twin<ByteRange> rowBounds = HBaseQueryBuilder.getStartEndBytesForPrefix(prefix.getFields(),
 					wildcardLastField);
 			Scan scan = getScan(partition, rowBounds, config);
@@ -283,7 +283,7 @@ extends HBaseEntityQueryBuilder<EK,E>{
 	public List<AsyncBatchLoaderScanner<PK>> getBatchingPkScanners(HBaseSubEntityReaderNode<EK,E,PK,D,F> node,
 			Range<PK> range, Config config){
 		List<AsyncBatchLoaderScanner<PK>> scanners = new ArrayList<>();
-		for(int partition=0; partition < partitioner.getNumPartitions(); ++partition){
+		for(int partition = 0; partition < partitioner.getNumPartitions(); ++partition){
 			byte[] partitionBytes = partitioner.getPrefix(partition);
 			BatchLoader<PK> firstBatchLoader = new HBaseEntityPrimaryKeyBatchLoader<>(node, partition, partitionBytes,
 					range, config, 1L);//start the counter at 1
@@ -298,7 +298,7 @@ extends HBaseEntityQueryBuilder<EK,E>{
 	public List<AsyncBatchLoaderScanner<D>> getBatchingDatabeanScanners(HBaseSubEntityReaderNode<EK,E,PK,D,F> node,
 			Range<PK> range, Config config){
 		List<AsyncBatchLoaderScanner<D>> scanners = new ArrayList<>();
-		for(int partition=0; partition < partitioner.getNumPartitions(); ++partition){
+		for(int partition = 0; partition < partitioner.getNumPartitions(); ++partition){
 			byte[] partitionBytes = partitioner.getPrefix(partition);
 			BatchLoader<D> firstBatchLoader = new HBaseEntityDatabeanBatchLoader<>(node, partition,
 					partitionBytes, range, config, 1L);//start the counter at 1

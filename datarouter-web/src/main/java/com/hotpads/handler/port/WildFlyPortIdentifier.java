@@ -20,9 +20,9 @@ public class WildFlyPortIdentifier implements PortIdentifier{
 	private final Lazy<Pair<Integer,Integer>> ports;
 
 	public WildFlyPortIdentifier(){
-		this.ports = Lazy.of(()->{
+		this.ports = Lazy.of(() -> {
 			MBeanServer server = ManagementFactory.getPlatformMBeanServer();
-			try {
+			try{
 				ObjectName objectName = new ObjectName(CompoundPortIdentifier.JBOSS_JMX_DOMAIN + ":" + HTTP);
 				int http = (int)server.getAttribute(objectName, PORT_ATTRIBUTE);
 				objectName = new ObjectName(CompoundPortIdentifier.JBOSS_JMX_DOMAIN + ":" + HTTPS);

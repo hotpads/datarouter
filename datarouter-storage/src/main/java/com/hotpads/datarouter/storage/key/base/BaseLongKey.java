@@ -1,6 +1,5 @@
 package com.hotpads.datarouter.storage.key.base;
 
-
 import com.hotpads.datarouter.storage.key.BaseKey;
 import com.hotpads.datarouter.storage.key.Key;
 
@@ -9,10 +8,9 @@ extends BaseKey<K>{
 
 	protected Long id;
 
-	public BaseLongKey(Long id) {
+	public BaseLongKey(Long id){
 		this.id = id;
 	}
-
 
 	public Long getId(){
 		return id;
@@ -21,6 +19,5 @@ extends BaseKey<K>{
 	public void setId(Long id){
 		this.id = id;
 	}
-
 
 }

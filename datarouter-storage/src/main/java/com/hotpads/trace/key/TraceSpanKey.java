@@ -30,7 +30,7 @@ public class TraceSpanKey extends BaseEntityPrimaryKey<TraceEntityKey,TraceSpanK
 	}
 
 	@Override
-	public String getEntityKeyName() {
+	public String getEntityKeyName(){
 		return null;
 	}
 

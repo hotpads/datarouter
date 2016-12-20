@@ -12,26 +12,26 @@ public class HttpRequestRecordKey extends BasePrimaryKey<HttpRequestRecordKey>{
 
 	private String id;
 
-	private static class F {
+	private static class F{
 		public static String id = "id";
 	}
 
 	HttpRequestRecordKey() {}
 
-	public HttpRequestRecordKey(String id) {
+	public HttpRequestRecordKey(String id){
 		this.id = id;
 	}
 
 	@Override
-	public List<Field<?>> getFields() {
+	public List<Field<?>> getFields(){
 		return FieldTool.createList(new StringField(F.id, id, MySqlColumnType.MAX_LENGTH_VARCHAR));
 	}
 
-	public String getId() {
+	public String getId(){
 		return id;
 	}
 
-	public void setId(String id) {
+	public void setId(String id){
 		this.id = id;
 	}
 

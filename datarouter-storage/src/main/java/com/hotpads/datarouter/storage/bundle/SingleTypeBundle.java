@@ -7,12 +7,14 @@ import java.util.TreeSet;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 
-public class SingleTypeBundle<D extends Databean<?,?>> {
+public class SingleTypeBundle<D extends Databean<?,?>>{
 
 	protected NavigableSet<D> databeans = new TreeSet<>();
 
 	public void add(D databean){
-		if(databean==null){ return; }
+		if(databean == null){
+			return;
+		}
 		this.databeans.add(databean);
 	}
 
