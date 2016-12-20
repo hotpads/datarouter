@@ -88,7 +88,7 @@ public class WebAppInstanceDao{
 		List<WebAppInstance> webAppsInstances = new ArrayList<>();
 		for(WebAppInstance webAppInstance : scanner){
 			Calendar cal = Calendar.getInstance();
-			cal.add(Calendar.MINUTE, - ACCEPTABLE_REFRESH_DELAY_MINUTES);
+			cal.add(Calendar.MINUTE, -ACCEPTABLE_REFRESH_DELAY_MINUTES);
 			if(webAppInstance.getRefreshedLast() == null || webAppInstance.getRefreshedLast().before(cal.getTime())){
 				webAppsInstances.add(webAppInstance);
 			}

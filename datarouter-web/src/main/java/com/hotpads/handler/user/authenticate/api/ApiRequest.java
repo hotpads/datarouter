@@ -9,14 +9,14 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.DateField;
 
-public class ApiRequest extends BaseDatabean<ApiRequestKey, ApiRequest>{
+public class ApiRequest extends BaseDatabean<ApiRequestKey,ApiRequest>{
 
 	/** fields ********************************************************************************************************/
 
 	private ApiRequestKey key;
 	private Date requestDate;
 
-	public static class F {
+	public static class F{
 		public static final String
 			requestDate = "requestDate";
 	}
@@ -24,7 +24,7 @@ public class ApiRequest extends BaseDatabean<ApiRequestKey, ApiRequest>{
 	/** fielder *******************************************************************************************************/
 
 	public static class ApiRequestFielder
-	extends BaseDatabeanFielder<ApiRequestKey, ApiRequest> {
+	extends BaseDatabeanFielder<ApiRequestKey,ApiRequest>{
 
 		@Override
 		public Class<ApiRequestKey> getKeyFielderClass(){
@@ -32,19 +32,19 @@ public class ApiRequest extends BaseDatabean<ApiRequestKey, ApiRequest>{
 		}
 
 		@Override
-		public List<Field<?>> getNonKeyFields(ApiRequest d){
+		public List<Field<?>> getNonKeyFields(ApiRequest request){
 			return FieldTool.createList(
-				new DateField(F.requestDate, d.requestDate));
+					new DateField(F.requestDate, request.requestDate));
 		}
 	}
 
 	/** constructors **************************************************************************************************/
 
-	public ApiRequest() {
+	public ApiRequest(){
 		this.key = new ApiRequestKey();
 	}
 
-	public ApiRequest(String apiKey, String nonce, String signature, String timestamp) {
+	public ApiRequest(String apiKey, String nonce, String signature, String timestamp){
 		this.key = new ApiRequestKey(apiKey, nonce, signature, timestamp);
 	}
 
@@ -62,47 +62,47 @@ public class ApiRequest extends BaseDatabean<ApiRequestKey, ApiRequest>{
 
 	/** getters/setters ***********************************************************************************************/
 
-	public void setKey(ApiRequestKey key) {
+	public void setKey(ApiRequestKey key){
 		this.key = key;
 	}
 
-	public Date getRequestDate() {
+	public Date getRequestDate(){
 		return requestDate;
 	}
 
-	public void setRequestDate(Date requestDate) {
+	public void setRequestDate(Date requestDate){
 		this.requestDate = requestDate;
 	}
 
-	public String getApiKey() {
+	public String getApiKey(){
 		return key.getApiKey();
 	}
 
-	public void setApiKey(String apiKey) {
+	public void setApiKey(String apiKey){
 		this.key.setApiKey(apiKey);
 	}
 
-	public String getNonce() {
+	public String getNonce(){
 		return key.getNonce();
 	}
 
-	public void setNonce(String nonce) {
+	public void setNonce(String nonce){
 		this.key.setNonce(nonce);
 	}
 
-	public String getSignature() {
+	public String getSignature(){
 		return key.getSignature();
 	}
 
-	public void setSignature(String signature) {
+	public void setSignature(String signature){
 		this.key.setSignature(signature);
 	}
 
-	public String getTimestamp() {
+	public String getTimestamp(){
 		return key.getTimestamp();
 	}
 
-	public void setTimestamp(String timestamp) {
+	public void setTimestamp(String timestamp){
 		this.key.setTimestamp(timestamp);
 	}
 

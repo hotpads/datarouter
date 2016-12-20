@@ -81,8 +81,8 @@ extends IndexedStorage<PK,D>, PartitionedNode<PK,D,N>{
 	}
 
 	@Override
-	default D lookupUnique(UniqueKey<PK> uniqueKey, Config config) {
-		if(uniqueKey==null){
+	default D lookupUnique(UniqueKey<PK> uniqueKey, Config config){
+		if(uniqueKey == null){
 			return null;
 		}
 		Collection<N> nodes = getPhysicalNodesForSecondaryKey(uniqueKey);
@@ -98,7 +98,7 @@ extends IndexedStorage<PK,D>, PartitionedNode<PK,D,N>{
 
 
 	@Override
-	default List<D> lookupMultiUnique(Collection<? extends UniqueKey<PK>> uniqueKeys, Config config) {
+	default List<D> lookupMultiUnique(Collection<? extends UniqueKey<PK>> uniqueKeys, Config config){
 		if(DrCollectionTool.isEmpty(uniqueKeys)){
 			return null;
 		}
@@ -114,8 +114,8 @@ extends IndexedStorage<PK,D>, PartitionedNode<PK,D,N>{
 
 
 	@Override
-	default List<D> lookup(Lookup<PK> lookup, boolean wildcardLastField, Config config) {
-		if(lookup==null){
+	default List<D> lookup(Lookup<PK> lookup, boolean wildcardLastField, Config config){
+		if(lookup == null){
 			return null;
 		}
 		Collection<N> nodes = getPhysicalNodesForSecondaryKey(lookup);
@@ -130,7 +130,7 @@ extends IndexedStorage<PK,D>, PartitionedNode<PK,D,N>{
 
 
 	@Override
-	default List<D> lookupMulti(Collection<? extends Lookup<PK>> lookups, Config config) {
+	default List<D> lookupMulti(Collection<? extends Lookup<PK>> lookups, Config config){
 		if(DrCollectionTool.isEmpty(lookups)){
 			return null;
 		}

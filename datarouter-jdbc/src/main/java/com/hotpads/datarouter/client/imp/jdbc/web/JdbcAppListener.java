@@ -17,11 +17,9 @@ import com.mysql.jdbc.AbandonedConnectionCleanupThread;
 public class JdbcAppListener extends DatarouterAppListener{
 	private static final Logger logger = LoggerFactory.getLogger(JdbcAppListener.class);
 
-
 	@Override
 	protected void onStartUp(){
 	}
-
 
 	@Override
 	protected void onShutDown(){
@@ -29,17 +27,16 @@ public class JdbcAppListener extends DatarouterAppListener{
 		cleanupAbandonedConnections();
 	}
 
-
 	/******************** private **********************/
 
 	private static void unregisterDrivers(){
 		Enumeration<Driver> drivers = DriverManager.getDrivers();
-		while (drivers.hasMoreElements()){
+		while(drivers.hasMoreElements()){
 			Driver d = drivers.nextElement();
 			try{
 				DriverManager.deregisterDriver(d);
 				logger.info("Driver unregistered : " + d);
-			}catch (SQLException e){
+			}catch(SQLException e){
 				logger.error("Error while unregistering driver " + d, e);
 			}
 		}
@@ -48,7 +45,7 @@ public class JdbcAppListener extends DatarouterAppListener{
 	private static void cleanupAbandonedConnections(){
 		try{
 			AbandonedConnectionCleanupThread.shutdown();
-		}catch (InterruptedException e){
+		}catch(InterruptedException e){
 			logger.error("Could not shutdown AbandonedConnectionCleanupThread", e);
 		}
 	}

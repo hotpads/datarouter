@@ -10,14 +10,17 @@ import com.hotpads.datarouter.client.imp.jdbc.field.codec.base.BasePrimitiveJdbc
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.Field;
 
-public abstract class BaseByteJdbcFieldCodec<F extends Field<Byte>> extends BasePrimitiveJdbcFieldCodec<Byte,F>{
+public abstract class BaseByteJdbcFieldCodec<F extends Field<Byte>>
+extends BasePrimitiveJdbcFieldCodec<Byte,F>{
 
 	public BaseByteJdbcFieldCodec(F field){
 		super(field);
 	}
 
 	protected abstract Integer getMaxColumnLength();
+
 	protected abstract MySqlColumnType getMysqlColumnType();
+
 	protected abstract Integer getJavaSqlType();
 
 	@Override
@@ -29,7 +32,7 @@ public abstract class BaseByteJdbcFieldCodec<F extends Field<Byte>> extends Base
 	@Override
 	public void setPreparedStatementValue(PreparedStatement ps, int parameterIndex){
 		try{
-			if(field.getValue()==null){
+			if(field.getValue() == null){
 				ps.setNull(parameterIndex, getJavaSqlType());
 			}else{
 				ps.setByte(parameterIndex, field.getValue());
@@ -41,14 +44,14 @@ public abstract class BaseByteJdbcFieldCodec<F extends Field<Byte>> extends Base
 
 	@Override
 	public Byte parseJdbcValueButDoNotSet(Object obj){
-		return obj==null?null:(Byte)obj;
+		return obj == null ? null : (Byte)obj;
 	}
 
 	@Override
 	public Byte fromJdbcResultSetButDoNotSet(ResultSet rs){
 		try{
 			byte value = rs.getByte(field.getKey().getColumnName());
-			return rs.wasNull()?null:value;
+			return rs.wasNull() ? null : value;
 		}catch(SQLException e){
 			throw new DataAccessException(e);
 		}

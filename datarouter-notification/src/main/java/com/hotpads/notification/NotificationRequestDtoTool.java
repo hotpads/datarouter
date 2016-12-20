@@ -14,7 +14,7 @@ import com.hotpads.notification.type.NotificationTypeFactory;
 import com.hotpads.util.core.collections.Pair;
 
 @Singleton
-public class NotificationRequestDtoTool {
+public class NotificationRequestDtoTool{
 
 	@Inject
 	private NotificationTypeFactory notificationTypeFactory;
@@ -22,7 +22,7 @@ public class NotificationRequestDtoTool {
 	public List<NotificationRequest> toDatabeans(NotificationRequestDto[] dtos){
 		List<NotificationRequest> notificationRequests = new ArrayList<>();
 		NotificationUserId userId;
-		for (NotificationRequestDto request : dtos) {
+		for(NotificationRequestDto request : dtos){
 			notificationTypeFactory.create(request.getType());
 			userId = new NotificationUserId(NotificationUserType.valueOf(request.getUserType()), request.getUserId());
 			notificationRequests.add(new NotificationRequest(userId, request.getType(), request.getData(), request
@@ -31,9 +31,9 @@ public class NotificationRequestDtoTool {
 		return notificationRequests;
 	}
 
-	public List<NotificationRequestDto> toDtos(List<Pair<NotificationRequest, ExceptionRecord>> requests) {
+	public List<NotificationRequestDto> toDtos(List<Pair<NotificationRequest,ExceptionRecord>> requests){
 		List<NotificationRequestDto> dtos = new ArrayList<>();
-		for (Pair<NotificationRequest, ExceptionRecord> request : requests) {
+		for(Pair<NotificationRequest,ExceptionRecord> request : requests){
 			dtos.add(new NotificationRequestDto(
 					request.getLeft().getKey().getUserType().toString(),
 					request.getLeft().getKey().getUserId(),
@@ -44,9 +44,9 @@ public class NotificationRequestDtoTool {
 		return dtos;
 	}
 
-	public static List<NotificationRequestDto> convert(List<NotificationRequest> requests) {
+	public static List<NotificationRequestDto> convert(List<NotificationRequest> requests){
 		List<NotificationRequestDto> dtos = new ArrayList<>(requests.size());
-		for (NotificationRequest request : requests) {
+		for(NotificationRequest request : requests){
 			dtos.add(new NotificationRequestDto(
 					request.getKey().getUserType().toString(),
 					request.getKey().getUserId(),

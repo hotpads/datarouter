@@ -15,7 +15,7 @@ import com.hotpads.datarouter.op.aware.ConnectionAware;
 import com.hotpads.datarouter.routing.Datarouter;
 
 public abstract class BaseJdbcOp<T>
-implements TxnOp<T>, ConnectionAware {
+		implements TxnOp<T>, ConnectionAware{
 	private static final Logger logger = LoggerFactory.getLogger(BaseJdbcOp.class);
 
 	private Datarouter datarouter;
@@ -24,7 +24,7 @@ implements TxnOp<T>, ConnectionAware {
 	private boolean autoCommit;
 
 	public BaseJdbcOp(Datarouter datarouter, List<String> clientNames, Isolation isolation,
-			boolean autoCommit) {
+			boolean autoCommit){
 		this.datarouter = datarouter;
 		this.clientNames = clientNames;
 		this.isolation = isolation;
@@ -38,7 +38,7 @@ implements TxnOp<T>, ConnectionAware {
 	@Override
 	public Connection getConnection(String clientName){
 		Client client = getDatarouter().getClientPool().getClient(clientName);
-		if(client==null){
+		if(client == null){
 			return null;
 		}
 		if(client instanceof JdbcConnectionClient){

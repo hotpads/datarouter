@@ -16,4 +16,17 @@ public class ConveyorCounters{
 		Counters.inc(PREFIX + " buffer " + buffer.getName() + " " + action, by);
 	}
 
+	public static void incPutMultiOpAndDatabeans(Conveyor conveyor, long numDatabeans){
+		inc(conveyor, "putMulti ops", 1);
+		inc(conveyor, "putMulti databeans", numDatabeans);
+	}
+
+	public static void incAck(Conveyor conveyor){
+		inc(conveyor, "ack", 1);
+	}
+
+	public static void incException(Conveyor conveyor){
+		inc(conveyor, "exception", 1);
+	}
+
 }

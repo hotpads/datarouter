@@ -139,8 +139,7 @@ public class Config extends BaseDatabean<ConfigKey,Config> implements Cloneable{
 					new StringField(new StringFieldKey(F.callsite, false, LENGTH_CALLSITE),
 							config.callsite.getPersistentString()),
 					new StringField(new StringFieldKey(F.customCallsite, false, LENGTH_CALLSITE),
-							config.customCallsite.getPersistentString())
-					);
+							config.customCallsite.getPersistentString()));
 		}
 	}
 
@@ -193,12 +192,12 @@ public class Config extends BaseDatabean<ConfigKey,Config> implements Cloneable{
 	/************************** databean **************************************/
 
 	@Override
-	public Class<ConfigKey> getKeyClass() {
+	public Class<ConfigKey> getKeyClass(){
 		return ConfigKey.class;
 	}
 
 	@Override
-	public ConfigKey getKey() {
+	public ConfigKey getKey(){
 		return key;
 	}
 
@@ -215,7 +214,7 @@ public class Config extends BaseDatabean<ConfigKey,Config> implements Cloneable{
 	}
 
 	public static Config nullSafe(Config in){
-		if (in != null) {
+		if(in != null){
 			return in;
 		}
 		return new Config();
@@ -224,31 +223,29 @@ public class Config extends BaseDatabean<ConfigKey,Config> implements Cloneable{
 
 	/********************* accessors **************************************/
 
-
-	public Isolation getIsolationOrUse(Isolation theDefault) {
-		if (isolation == null) {
+	public Isolation getIsolationOrUse(Isolation theDefault){
+		if(isolation == null){
 			return theDefault;
 		}
 		return isolation;
 	}
 
-	public Isolation getIsolation() {
+	public Isolation getIsolation(){
 		return isolation;
 	}
 
-	public Config setIsolation(Isolation isolation) {
+	public Config setIsolation(Isolation isolation){
 		this.isolation = isolation;
 		return this;
 	}
 
-
 	/**************** connectMethod **********************/
 
-	public ConnectMethod getConnectMethod() {
+	public ConnectMethod getConnectMethod(){
 		return connectMethod;
 	}
 
-	public Config setConnectMethod(ConnectMethod connectMethod) {
+	public Config setConnectMethod(ConnectMethod connectMethod){
 		this.connectMethod = connectMethod;
 		return this;
 	}
@@ -256,18 +253,18 @@ public class Config extends BaseDatabean<ConfigKey,Config> implements Cloneable{
 
 	/**************** limit **********************/
 
-	public Integer getLimit() {
+	public Integer getLimit(){
 		return limit;
 	}
 
 	public Integer getLimitOrUse(int alternative){
-		if (limit != null) {
+		if(limit != null){
 			return limit;
 		}
 		return alternative;
 	}
 
-	public Config setLimit(Integer limit) {
+	public Config setLimit(Integer limit){
 		this.limit = limit;
 		return this;
 	}
@@ -275,96 +272,91 @@ public class Config extends BaseDatabean<ConfigKey,Config> implements Cloneable{
 
 	/**************** offset **********************/
 
-	public Integer getOffset() {
+	public Integer getOffset(){
 		return offset;
 	}
 
-	public Config setOffset(Integer offset) {
+	public Config setOffset(Integer offset){
 		this.offset = offset;
 		return this;
 	}
 
-
 	/**************** iterateBatchSize **********************/
 
-	public Integer getIterateBatchSize() {
+	public Integer getIterateBatchSize(){
 		return iterateBatchSize;
 	}
 
-	public Config setIterateBatchSize(Integer iterateBatchSize) {
+	public Config setIterateBatchSize(Integer iterateBatchSize){
 		this.iterateBatchSize = iterateBatchSize;
 		return this;
 	}
 
 	/************** commitBatchSize *************************/
 
-	public Integer getCommitBatchSize() {
+	public Integer getCommitBatchSize(){
 		return commitBatchSize;
 	}
 
-	public Config setCommitBatchSize(Integer commitBatchSize) {
+	public Config setCommitBatchSize(Integer commitBatchSize){
 		this.commitBatchSize = commitBatchSize;
 		return this;
 	}
 
-
 	/************** slaveOk *************************/
 
-	public Boolean getSlaveOk() {
+	public Boolean getSlaveOk(){
 		return slaveOk;
 	}
 
-	public Config setSlaveOk(Boolean slaveOk) {
+	public Config setSlaveOk(Boolean slaveOk){
 		this.slaveOk = slaveOk;
 		return this;
 	}
 
-
 	/************** cacheOk *************************/
 
-	public Boolean getCacheOk() {
+	public Boolean getCacheOk(){
 		return cacheOk;
 	}
 
-	public Config setCacheOk(Boolean cacheOk) {
+	public Config setCacheOk(Boolean cacheOk){
 		this.cacheOk = cacheOk;
 		return this;
 	}
 
-
 	/************** useSession *************************/
 
-	public Boolean getUseSession() {
+	public Boolean getUseSession(){
 		return useSession;
 	}
-	public Config setUseSession(Boolean useSession) {
+
+	public Config setUseSession(Boolean useSession){
 		this.useSession = useSession;
 		return this;
 	}
 
-
 	/************** includeStartId *************************/
 
-	public Integer getNumAttempts() {
+	public Integer getNumAttempts(){
 		return numAttempts;
 	}
 
 	public Integer getNumAttemptsOrUse(int alternative){
-		if (numAttempts != null){
+		if(numAttempts != null){
 			return numAttempts;
 		}
 		return alternative;
 	}
 
-	public Config setNumAttempts(Integer numAttempts) {
+	public Config setNumAttempts(Integer numAttempts){
 		this.numAttempts = numAttempts;
 		return this;
 	}
 
-
 	/************** timeoutMs *************************/
 
-	public Long getTimeoutMs() {
+	public Long getTimeoutMs(){
 		return timeoutMs;
 	}
 
@@ -372,7 +364,7 @@ public class Config extends BaseDatabean<ConfigKey,Config> implements Cloneable{
 		return timeoutMs == null ? alternative : timeoutMs;
 	}
 
-	public Config setTimeoutMs(Long timeoutMs) {
+	public Config setTimeoutMs(Long timeoutMs){
 		this.timeoutMs = timeoutMs;
 		return this;
 	}
@@ -387,42 +379,38 @@ public class Config extends BaseDatabean<ConfigKey,Config> implements Cloneable{
 		return this;
 	}
 
-
 	/************** putMethod *************************/
 
-	public PutMethod getPutMethod() {
+	public PutMethod getPutMethod(){
 		return putMethod;
 	}
 
-	public Config setPutMethod(PutMethod putMethod) {
+	public Config setPutMethod(PutMethod putMethod){
 		this.putMethod = putMethod;
 		return this;
 	}
 
-
 	/************** ignoreNullFields *************************/
 
-	public Boolean getIgnoreNullFields() {
+	public Boolean getIgnoreNullFields(){
 		return ignoreNullFields;
 	}
 
-	public Config setIgnoreNullFields(Boolean ignoreNullFields) {
+	public Config setIgnoreNullFields(Boolean ignoreNullFields){
 		this.ignoreNullFields = ignoreNullFields;
 		return this;
 	}
 
-
 	/************** scannerCaching *************************/
 
-	public Boolean getScannerCaching() {
+	public Boolean getScannerCaching(){
 		return scannerCaching;
 	}
 
-	public Config setScannerCaching(Boolean scannerCaching) {
+	public Config setScannerCaching(Boolean scannerCaching){
 		this.scannerCaching = scannerCaching;
 		return this;
 	}
-
 
 	/************** persistentPut *************************/
 
@@ -447,11 +435,10 @@ public class Config extends BaseDatabean<ConfigKey,Config> implements Cloneable{
 		return this;
 	}
 
-
 	/************** messaging *************************/
 
 	public long getVisibilityTimeoutMsOrUse(long alternative){
-		if (visibilityTimeoutMs != null){
+		if(visibilityTimeoutMs != null){
 			return visibilityTimeoutMs;
 		}
 		return alternative;
@@ -505,6 +492,5 @@ public class Config extends BaseDatabean<ConfigKey,Config> implements Cloneable{
 		}
 		return alternative;
 	}
-
 
 }

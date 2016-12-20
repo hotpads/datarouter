@@ -14,7 +14,7 @@ import com.hotpads.handler.encoder.JsonEncoder;
 import com.hotpads.handler.mav.Mav;
 import com.hotpads.util.http.RequestTool;
 
-public class DatabeanGeneratorHandler extends BaseHandler {
+public class DatabeanGeneratorHandler extends BaseHandler{
 	private static final Logger logger = LoggerFactory.getLogger(DatabeanGeneratorHandler.class);
 
 	public static final String PARAM_DATABEAN_NAME = "databeanName";
@@ -35,23 +35,23 @@ public class DatabeanGeneratorHandler extends BaseHandler {
 
 	@Override
 	@Handler
-	protected Mav handleDefault() {
+	protected Mav handleDefault(){
 		Mav mav = new Mav("/jsp/admin/datarouter/generateJavaClasses.jsp");
 		StringBuilder sb = new StringBuilder();
 		StringBuilder sb1 = new StringBuilder("FIELD TYPES:\n------------\n");
 
-		for (Class<?> clazz : sortedFieldTypes) {
+		for(Class<?> clazz : sortedFieldTypes){
 			sb.append("<option value=\"" + clazz.getSimpleName() + "\">" + clazz.getSimpleName() + "</option>");
-			sb1.append(clazz.getSimpleName()+"\n");
+			sb1.append(clazz.getSimpleName() + "\n");
 		}
 		mav.put("fieldTypes", sb.toString());
 		mav.put("fieldTypesAsString", sb1.toString());
 		return mav;
 	}
 
-	@Handler(encoder=JsonEncoder.class)
-	protected String generateJavaCode() {
-		try {
+	@Handler(encoder = JsonEncoder.class)
+	protected String generateJavaCode(){
+		try{
 			JavapoetDatabeanGenerator generator = collectParams();
 
 			StringBuilder javaCode = new StringBuilder();
@@ -62,13 +62,13 @@ public class DatabeanGeneratorHandler extends BaseHandler {
 
 			return javaCode.toString();
 			//logger.warn(javaCode);
-		} catch (Exception e) {
+		}catch(Exception e){
 			logger.error("",e);
 			return "failed";
 		}
 	}
 
-	private JavapoetDatabeanGenerator collectParams() {
+	private JavapoetDatabeanGenerator collectParams(){
 		String createScript = StringEscapeUtils.unescapeHtml4(RequestTool.get(request, PARAM_CREATE_SCRIPT, null));
 		if(DrStringTool.notEmpty(createScript)){
 			return new JavapoetDatabeanGenerator(createScript);
@@ -78,14 +78,14 @@ public class DatabeanGeneratorHandler extends BaseHandler {
 
 		JavapoetDatabeanGenerator generator = new JavapoetDatabeanGenerator(name, packageName);
 
-		for (int i = 0; i < MAX_KEYFIELDS; i++) {
+		for(int i = 0; i < MAX_KEYFIELDS; i++){
 			String fieldType = RequestTool.get(request, PARAM_KEYFIELD_TYPE + i, null);
 			String fieldName = RequestTool.get(request, PARAM_KEYFIELD_NAME + i, null);
 			String fieldEnumType = RequestTool.get(request, PARAM_KEYFIELD_ENUM_TYPE + i, null);
 			generator.addKeyField(fieldType, fieldName, fieldEnumType);
 		}
 
-		for (int i = 0; i < MAX_FIELDS; i++) {
+		for(int i = 0; i < MAX_FIELDS; i++){
 			String fieldType = RequestTool.get(request, PARAM_FIELD_TYPE + i, null);
 			String fieldName = RequestTool.get(request, PARAM_FIELD_NAME + i, null);
 			String fieldEnumType = RequestTool.get(request, PARAM_FIELD_ENUM_TYPE + i, null);

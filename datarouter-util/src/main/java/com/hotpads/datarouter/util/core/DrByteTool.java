@@ -8,13 +8,11 @@ import org.junit.Test;
 
 import com.hotpads.util.core.bytes.IntegerByteTool;
 
-public class DrByteTool {
+public class DrByteTool{
 
 	public static final Integer
-		BYTES_PER_POINTER = (int)DrRuntimeTool.getBytesPerPointer();//do we need to add bytes (4?) for class id?
-
-	public static final Integer	BYTES_PER_INTEGER = 4;
-
+		BYTES_PER_POINTER = (int)DrRuntimeTool.getBytesPerPointer(), // do we need to add bytes (4?) for class id?
+		BYTES_PER_INTEGER = 4;
 
 	public static ArrayList<Byte> getArrayList(byte[] ins){
 		ArrayList<Byte> outs = new ArrayList<>(DrArrayTool.length(ins));
@@ -25,16 +23,16 @@ public class DrByteTool {
 	}
 
 	public static byte toUnsignedByte(final int intValue){
-		//Assert.assertTrue(i >=0 && i <=255);
-//		if(i < 128){ return (byte)i; }
+		// Assert.assertTrue(i >=0 && i <=255);
+		// if(i < 128){ return (byte)i; }
 		int ib = intValue - 128;
-		return (byte)ib;//subtract 256
+		return (byte)ib;// subtract 256
 	}
 
-	//not really sure what this method means anymore
+	// not really sure what this method means anymore
 	public static byte fromUnsignedInt0To255(int unsignedIntValue){
 		if(unsignedIntValue > 127){
-			return (byte)(unsignedIntValue - 0x100);//subtract 256
+			return (byte)(unsignedIntValue - 0x100);// subtract 256
 		}
 		return (byte)unsignedIntValue;
 	}
@@ -43,8 +41,8 @@ public class DrByteTool {
 		int lengthA = DrArrayTool.length(bytesA);
 		int lengthB = DrArrayTool.length(bytesB);
 		for(int i = 0, j = 0; i < lengthA && j < lengthB; ++i, ++j){
-			//need to trick the built in byte comparator which treats 10000000 < 00000000 because it's negative
-			int byteA = bytesA[i] & 0xff;  //boost the "negative" numbers up to 128-255
+			// need to trick the built in byte comparator which treats 10000000 < 00000000 because it's negative
+			int byteA = bytesA[i] & 0xff; // boost the "negative" numbers up to 128-255
 			int byteB = bytesB[j] & 0xff;
 			if(byteA != byteB){
 				return byteA - byteB;
@@ -55,8 +53,8 @@ public class DrByteTool {
 
 	public static int bitwiseCompare(byte[] bytesA, int offsetA, int lengthA, byte[] bytesB, int offsetB, int lengthB){
 		for(int i = offsetA, j = offsetB; i < offsetA + lengthA && j < offsetB + lengthB; ++i, ++j){
-			//need to trick the built in byte comparator which treats 10000000 < 00000000 because it's negative
-			int byteA = bytesA[i] & 0xff;  //boost the "negative" numbers up to 128-255
+			// need to trick the built in byte comparator which treats 10000000 < 00000000 because it's negative
+			int byteA = bytesA[i] & 0xff; // boost the "negative" numbers up to 128-255
 			int byteB = bytesB[j] & 0xff;
 			if(byteA != byteB){
 				return byteA - byteB;
@@ -79,27 +77,27 @@ public class DrByteTool {
 
 	public static byte[] getComparableBytes(byte value){
 		if(value >= 0){
-			return new byte[]{(byte) (value + Byte.MIN_VALUE) };
+			return new byte[]{(byte)(value + Byte.MIN_VALUE)};
 		}
-		return new byte[]{(byte) (value - Byte.MIN_VALUE) };
+		return new byte[]{(byte)(value - Byte.MIN_VALUE)};
 	}
 
 	public static byte getComparableByte(byte value){
 		if(value >= 0){
-			return (byte) (value + Byte.MIN_VALUE);
+			return (byte)(value + Byte.MIN_VALUE);
 		}
-		return (byte) (value - Byte.MIN_VALUE);
+		return (byte)(value - Byte.MIN_VALUE);
 	}
 
 	public static byte[] flipToAndFromComparableByteArray(byte[] ins){
 		return flipToAndFromComparableByteArray(ins, 0, ins.length);
 	}
 
-	//basically a copyOfRange that also flips the bytes
+	// basically a copyOfRange that also flips the bytes
 	public static byte[] flipToAndFromComparableByteArray(byte[] ins, int offset, int length){
 		byte[] outs = new byte[length];
-		for(int i=0; i < length; ++i){
-			outs[i] = getComparableByte(ins[offset+i]);
+		for(int i = 0; i < length; ++i){
+			outs[i] = getComparableByte(ins[offset + i]);
 		}
 		return outs;
 	}
@@ -107,9 +105,9 @@ public class DrByteTool {
 	public static String getBinaryStringBigEndian(byte[] ba){
 		StringBuilder sb = new StringBuilder();
 		int len = DrArrayTool.length(ba);
-		for(int n=0; n < len; ++n){
-			for(int i=7; i >=0; --i){
-				sb.append(ba[n]>>i & 1);
+		for(int n = 0; n < len; ++n){
+			for(int i = 7; i >= 0; --i){
+				sb.append(ba[n] >> i & 1);
 			}
 		}
 		return sb.toString();
@@ -126,16 +124,16 @@ public class DrByteTool {
 		if(copy == null){
 			throw new IllegalArgumentException("cannot increment null array");
 		}
-		for(int i=copy.length-1; i >=0; --i){
-			if(copy[i]==-1){//-1 is all 1-bits, which is the unsigned maximum
+		for(int i = copy.length - 1; i >= 0; --i){
+			if(copy[i] == -1){// -1 is all 1-bits, which is the unsigned maximum
 				copy[i] = 0;
 			}else{
 				++copy[i];
 				return copy;
 			}
 		}
-		//we maxed out the array
-		byte[] out = new byte[copy.length+1];
+		// we maxed out the array
+		byte[] out = new byte[copy.length + 1];
 		out[0] = 1;
 		System.arraycopy(copy, 0, out, 1, copy.length);
 		return out;
@@ -143,8 +141,8 @@ public class DrByteTool {
 
 	public static byte[] unsignedIncrementOverflowToNull(final byte[] in){
 		byte[] out = DrArrayTool.clone(in);
-		for(int i=out.length-1; i >=0; --i){
-			if(out[i]==-1){//-1 is all 1-bits, which is the unsigned maximum
+		for(int i = out.length - 1; i >= 0; --i){
+			if(out[i] == -1){// -1 is all 1-bits, which is the unsigned maximum
 				out[i] = 0;
 			}else{
 				++out[i];
@@ -154,7 +152,6 @@ public class DrByteTool {
 		return null;
 	}
 
-
 	/************************* byte arrays ************************************/
 
 	public static byte[] concatenate(byte[]... ins){
@@ -162,17 +159,17 @@ public class DrByteTool {
 			return new byte[0];
 		}
 		int totalLength = 0;
-		for(int i=0; i < ins.length; ++i){
-			totalLength+=DrArrayTool.length(ins[i]);
+		for(int i = 0; i < ins.length; ++i){
+			totalLength += DrArrayTool.length(ins[i]);
 		}
 		byte[] out = new byte[totalLength];
-		int startIndex=0;
-		for(int i=0; i < ins.length; ++i){
+		int startIndex = 0;
+		for(int i = 0; i < ins.length; ++i){
 			if(ins[i] == null){
 				continue;
 			}
 			System.arraycopy(ins[i], 0, out, startIndex, ins[i].length);
-			startIndex+=ins[i].length;
+			startIndex += ins[i].length;
 		}
 		return out;
 	}
@@ -183,7 +180,6 @@ public class DrByteTool {
 		System.arraycopy(in, 0, out, numPaddingBytes, in.length);
 		return out;
 	}
-
 
 	/************************* serialize ****************************************/
 
@@ -204,7 +200,7 @@ public class DrByteTool {
 	}
 
 	public static byte[] fromUInt7ByteArray(byte[] bytes, int offset, int length){
-		//validate?
+		// validate?
 		return copyOfRange(bytes, offset, length);
 	}
 
@@ -219,6 +215,7 @@ public class DrByteTool {
 			Assert.assertEquals(1, toUnsignedByte(129));
 			Assert.assertEquals(127, toUnsignedByte(255));
 		}
+
 		@Test
 		public void testFromUnsignedInt0To255(){
 			Assert.assertEquals(0, fromUnsignedInt0To255(0));
@@ -226,23 +223,26 @@ public class DrByteTool {
 			Assert.assertEquals(-128, fromUnsignedInt0To255(128));
 			Assert.assertEquals(-1, fromUnsignedInt0To255(255));
 		}
+
 		@Test
 		public void testBitwiseCompare(){
-			byte[] bytesA = new byte[]{1,-1};
+			byte[] bytesA = new byte[]{1, -1};
 			byte[] bytesB = new byte[]{-3};
-			Assert.assertTrue(bitwiseCompare(bytesA, bytesB) < 0);//positive numbers come before negative when bitwise
+			Assert.assertTrue(bitwiseCompare(bytesA, bytesB) < 0);// positive numbers come before negative when bitwise
 			Assert.assertTrue(bitwiseCompare(bytesA, 1, 1, bytesB, 0, 1) > 0);// -1 is after -3
 		}
+
 		@Test
 		public void testEquals(){
-			byte[] a1 = new byte[]{1,-1};
+			byte[] a1 = new byte[]{1, -1};
 			byte[] b1 = new byte[]{-3};
 			Assert.assertFalse(DrByteTool.equals(a1, 0, a1.length, b1, 0, b1.length));
-			byte[] a2 = new byte[]{0,1,2,3,4,5};
-			byte[] b2 = new byte[]{2,3,4,5,6,7};
+			byte[] a2 = new byte[]{0, 1, 2, 3, 4, 5};
+			byte[] b2 = new byte[]{2, 3, 4, 5, 6, 7};
 			Assert.assertTrue(DrByteTool.equals(a2, 2, 4, b2, 0, 4));
 
 		}
+
 		@Test
 		public void testGetOrderedBytes(){
 			byte min = Byte.MIN_VALUE;
@@ -268,31 +268,31 @@ public class DrByteTool {
 		public void testUnsignedIncrement(){
 			byte[] bytesA = IntegerByteTool.getUInt31Bytes(0);
 			int a2 = IntegerByteTool.fromUInt31Bytes(unsignedIncrement(bytesA), 0);
-			Assert.assertTrue(a2==1);
+			Assert.assertTrue(a2 == 1);
 
 			byte[] bytesB = IntegerByteTool.getUInt31Bytes(-1);
 			byte[] actuals = unsignedIncrement(bytesB);
-			byte[] expected = new byte[]{1,0,0,0,0};
+			byte[] expected = new byte[]{1, 0, 0, 0, 0};
 			Assert.assertArrayEquals(expected, actuals);
 
-			byte[] bytesC = IntegerByteTool.getUInt31Bytes(255);//should wrap to the next significant byte
+			byte[] bytesC = IntegerByteTool.getUInt31Bytes(255);// should wrap to the next significant byte
 			int c2 = IntegerByteTool.fromUInt31Bytes(unsignedIncrement(bytesC), 0);
-			Assert.assertTrue(c2==256);
+			Assert.assertTrue(c2 == 256);
 		}
 
 		@Test
 		public void testUnsignedIncrementOverflowToNull(){
 			byte[] bytesA = IntegerByteTool.getUInt31Bytes(0);
 			int a2 = IntegerByteTool.fromUInt31Bytes(unsignedIncrementOverflowToNull(bytesA), 0);
-			Assert.assertTrue(a2==1);
+			Assert.assertTrue(a2 == 1);
 
 			byte[] bytesB = IntegerByteTool.getUInt31Bytes(-1);
 			byte[] b2 = unsignedIncrementOverflowToNull(bytesB);
-			Assert.assertTrue(b2==null);
+			Assert.assertTrue(b2 == null);
 
-			byte[] bytesC = IntegerByteTool.getUInt31Bytes(255);//should wrap to the next significant byte
+			byte[] bytesC = IntegerByteTool.getUInt31Bytes(255);// should wrap to the next significant byte
 			int c2 = IntegerByteTool.fromUInt31Bytes(unsignedIncrementOverflowToNull(bytesC), 0);
-			Assert.assertTrue(c2==256);
+			Assert.assertTrue(c2 == 256);
 		}
 
 		@Test

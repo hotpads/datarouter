@@ -24,7 +24,7 @@ import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.util.core.java.ReflectionTool;
 import com.mysql.jdbc.Driver;
 
-public class JdbcTool {
+public class JdbcTool{
 
 	private static final String JDBC_DRIVER = Driver.class.getName();
 	private static final String TABLE_CATALOG = "TABLE_CAT";
@@ -43,7 +43,7 @@ public class JdbcTool {
 	}
 
 	public static List<String> showTables(Connection connection){
-		try {
+		try{
 			List<String> tableNames = new ArrayList<>();
 			String tableName;
 			ResultSet rs = connection.getMetaData().getTables(null, null, "%", null);
@@ -52,7 +52,7 @@ public class JdbcTool {
 				tableNames.add(tableName);
 			}
 			return tableNames;
-		} catch (SQLException e) {
+		}catch(SQLException e){
 			throw new RuntimeException(e);
 		}
 
@@ -106,7 +106,7 @@ public class JdbcTool {
 			}
 			return databeans;
 		}catch(Exception e){
-			String message = "error executing sql:"+sql.toString();
+			String message = "error executing sql:" + sql.toString();
 			throw new DataAccessException(message, e);
 		}
 	}
@@ -130,7 +130,7 @@ public class JdbcTool {
 			}
 			return keys;
 		}catch(Exception e){
-			String message = "error executing sql:"+sql.toString();
+			String message = "error executing sql:" + sql.toString();
 			throw new DataAccessException(message, e);
 		}
 	}
@@ -141,7 +141,7 @@ public class JdbcTool {
 		try{
 			PreparedStatement ps = connection.prepareStatement(sql.toString());
 			for(int i = 0; i < values.length; i++){
-				ps.setString(i+1, values[i]);
+				ps.setString(i + 1, values[i]);
 			}
 			ps.execute();
 			ResultSet rs = ps.getResultSet();
@@ -153,21 +153,21 @@ public class JdbcTool {
 			}
 			return databeans;
 		}catch(Exception e){
-			String message = "error executing sql:"+sql.toString();
+			String message = "error executing sql:" + sql.toString();
 			throw new DataAccessException(message, e);
 		}
 	}
 
-	public static Long count(Connection connection, String sql) {
-		try {
+	public static Long count(Connection connection, String sql){
+		try{
 			PreparedStatement ps = connection.prepareStatement(sql);
 			ps.execute();
 			ResultSet rs = ps.getResultSet();
 			rs.next();
 			Long count = rs.getLong(1);
 			return count;
-		} catch (Exception e) {
-			String message = "error executing sql:"+sql.toString();
+		}catch(Exception e){
+			String message = "error executing sql:" + sql.toString();
 			throw new DataAccessException(message, e);
 		}
 	}
@@ -183,7 +183,7 @@ public class JdbcTool {
 
 	public static int[] bulkUpdate(Connection conn, String[] sql){
 		try{
-			if(conn==null || DrArrayTool.isEmpty(sql)){
+			if(conn == null || DrArrayTool.isEmpty(sql)){
 				return new int[]{};
 			}
 			int numStatements = DrArrayTool.length(sql);
@@ -193,7 +193,7 @@ public class JdbcTool {
 			PreparedStatement stmt = conn.prepareStatement(sql[0]);
 			stmt.addBatch();
 			if(numStatements > 1){
-				for(int i=1; i < sql.length; ++i){
+				for(int i = 1; i < sql.length; ++i){
 					stmt.addBatch(sql[i]);
 				}
 			}

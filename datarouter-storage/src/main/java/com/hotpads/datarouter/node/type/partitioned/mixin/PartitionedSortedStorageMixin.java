@@ -30,15 +30,15 @@ public interface PartitionedSortedStorageMixin<
 extends SortedStorage<PK,D>, PartitionedNode<PK,D,N>{
 
 	@Override
-	default List<D> getWithPrefix(PK prefix, boolean wildcardLastField, Config config) {
+	default List<D> getWithPrefix(PK prefix, boolean wildcardLastField, Config config){
 		return getWithPrefixes(DrListTool.wrap(prefix), wildcardLastField, config);
 	}
 
 	@Override
 	@Deprecated
-	default List<D> getWithPrefixes(Collection<PK> prefixes, boolean wildcardLastField, Config config) {
+	default List<D> getWithPrefixes(Collection<PK> prefixes, boolean wildcardLastField, Config config){
 		List<D> all = new ArrayList<>();
-		Multimap<N,PK>	prefixesByNode = getPrefixesByPhysicalNode(prefixes, wildcardLastField);
+		Multimap<N,PK> prefixesByNode = getPrefixesByPhysicalNode(prefixes, wildcardLastField);
 		for(N node : prefixesByNode.keySet()){
 			Collection<PK> prefixesForNode = prefixesByNode.get(node);
 			all.addAll(node.getWithPrefixes(prefixesForNode, wildcardLastField, config));
@@ -50,7 +50,7 @@ extends SortedStorage<PK,D>, PartitionedNode<PK,D,N>{
 		return getLimitedCopyOfResultIfNecessary(config, all);
 	}
 
-	//TODO add option to the BasePartitionedNode to skip filtering when not needed
+	// TODO add option to the BasePartitionedNode to skip filtering when not needed
 	@Override
 	default SingleUseScannerIterable<PK> scanKeysMulti(Collection<Range<PK>> ranges, Config config){
 		List<SortedScanner<PK>> subScanners = new ArrayList<>();
@@ -68,7 +68,7 @@ extends SortedStorage<PK,D>, PartitionedNode<PK,D,N>{
 	default Iterable<D> scanMulti(Collection<Range<PK>> ranges, Config config){
 		List<SortedScanner<D>> subScanners = new ArrayList<>();
 		for(N node : getPhysicalNodesForRanges(ranges)){
-			//the scanners are wrapped in a SortedScannerIterable, so we need to unwrap them for the collator
+			// the scanners are wrapped in a SortedScannerIterable, so we need to unwrap them for the collator
 			Scanner<D> scanner = new IteratorScanner<>(node.scanMulti(ranges, config).iterator());
 			Filter<D> filter = getPartitions().getDatabeanFilterForNode(node);
 			FilteringSortedScanner<D> filteredScanner = new FilteringSortedScanner<>(scanner, filter);
@@ -78,14 +78,13 @@ extends SortedStorage<PK,D>, PartitionedNode<PK,D,N>{
 		return new SingleUseScannerIterable<>(collator);
 	}
 
-
 	/************************* helpers ******************************/
 
 	static <T> List<T> getLimitedCopyOfResultIfNecessary(Config config, List<T> result){
-		if(config==null){
+		if(config == null){
 			return result;
 		}
-		if(config.getLimit()==null){
+		if(config.getLimit() == null){
 			return result;
 		}
 		return DrListTool.copyOfRange(result, 0, config.getLimit());

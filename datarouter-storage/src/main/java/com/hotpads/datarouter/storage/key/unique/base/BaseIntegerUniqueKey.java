@@ -10,7 +10,7 @@ public abstract class BaseIntegerUniqueKey<K extends Key<K>>
 extends BaseIntegerKey<K>
 implements UniqueKey<K>{
 
-	public BaseIntegerUniqueKey(Integer key) {
+	public BaseIntegerUniqueKey(Integer key){
 		super(key);
 	}
 

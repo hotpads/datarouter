@@ -33,14 +33,12 @@ extends BaseNode<PK,D,F>{
 	protected N mainNode;
 	protected List<IndexListener<PK,D>> indexListeners;
 
-	public BaseIndexingNode(N mainNode) {
-		super(new NodeParamsBuilder<PK,D,F>(mainNode.getRouter(), mainNode.getFieldInfo().getDatabeanSupplier(),
-				(Supplier<F>)mainNode.getFieldInfo().getFielderSupplier())
-				.build());
+	public BaseIndexingNode(N mainNode){
+		super(new NodeParamsBuilder<>(mainNode.getRouter(), mainNode.getFieldInfo().getDatabeanSupplier(),
+				(Supplier<F>)mainNode.getFieldInfo().getFielderSupplier()).build());
 		this.mainNode = mainNode;
 		this.indexListeners = new ArrayList<>();
 	}
-
 
 	public void registerIndexListener(IndexListener<PK,D> indexListener){
 		this.indexListeners.add(indexListener);
@@ -48,7 +46,7 @@ extends BaseNode<PK,D,F>{
 
 	/*************************** node methods *************************/
 
-	//TODO allow indexes to be on different clients than the master node
+	// TODO allow indexes to be on different clients than the master node
 
 	@Override
 	public Set<String> getAllNames(){
@@ -66,15 +64,14 @@ extends BaseNode<PK,D,F>{
 	}
 
 	@Override
-	public List<PhysicalNode<PK,D>> getPhysicalNodesForClient(String clientName) {
+	public List<PhysicalNode<PK,D>> getPhysicalNodesForClient(String clientName){
 		List<PhysicalNode<PK,D>> all = new LinkedList<>();
 		all.addAll(DrListTool.nullSafe(mainNode.getPhysicalNodesForClient(clientName)));
 		return all;
 	}
 
-
 	@Override
-	public List<String> getClientNames() {
+	public List<String> getClientNames(){
 		SortedSet<String> clientNames = new TreeSet<>();
 		DrSetTool.nullSafeSortedAddAll(clientNames, mainNode.getClientNames());
 		return new ArrayList<>(clientNames);
@@ -91,7 +88,7 @@ extends BaseNode<PK,D,F>{
 	}
 
 	@Override
-	public List<String> getClientNamesForPrimaryKeysForSchemaUpdate(Collection<PK> keys) {
+	public List<String> getClientNamesForPrimaryKeysForSchemaUpdate(Collection<PK> keys){
 		Set<String> clientNames = new HashSet<>();
 		clientNames.addAll(DrCollectionTool.nullSafe(mainNode.getClientNamesForPrimaryKeysForSchemaUpdate(keys)));
 		return new ArrayList<>(clientNames);
@@ -103,7 +100,7 @@ extends BaseNode<PK,D,F>{
 	}
 
 	@Override
-	public Node<PK,D> getMaster() {
+	public Node<PK,D> getMaster(){
 		return this;
 	}
 

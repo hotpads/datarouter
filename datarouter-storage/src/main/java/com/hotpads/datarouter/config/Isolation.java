@@ -29,7 +29,7 @@ public enum Isolation implements IntegerEnum<Isolation>, StringEnum<Isolation>{
 
 	/************* jdbc ***************/
 
-	public Integer getJdbcVal() {
+	public Integer getJdbcVal(){
 		return jdbcVal;
 	}
 

@@ -23,24 +23,21 @@ public class RouterOptions extends TypedProperties{
 		super(propertiesPath);
 	}
 
-
 	protected String getRouterPrefix(String routerName){
-		return "router."+routerName+".";
+		return "router." + routerName + ".";
 	}
 
 	protected String getClientPrefix(String clientName){
-		return "client."+clientName+".";
+		return "client." + clientName + ".";
 	}
 
-
 	protected String prependRouterPrefix(String routerName, String toAppend){
-		return getRouterPrefix(routerName)+toAppend;
+		return getRouterPrefix(routerName) + toAppend;
 	}
 
 	protected String prependClientPrefix(String clientName, String toAppend){
-		return getClientPrefix(clientName)+toAppend;
+		return getClientPrefix(clientName) + toAppend;
 	}
-
 
 	/***************** actual variables *********************************/
 
@@ -48,13 +45,13 @@ public class RouterOptions extends TypedProperties{
 		String typeNameKey = prependClientPrefix(clientName, "type");
 		String typeName = getString(typeNameKey);
 		if(REQUIRE_CLIENT_TYPE){
-			Preconditions.checkState(DrStringTool.notEmpty(typeName), "no value found for "+typeNameKey);
+			Preconditions.checkState(DrStringTool.notEmpty(typeName), "no value found for " + typeNameKey);
 		}else{
 			if(DrStringTool.isEmpty(typeName)){
 				typeName = DEFAULT_CLIENT_TYPE_NAME;
 			}
 		}
-		String typeClassNameKey = "clientType."+typeName;
+		String typeClassNameKey = "clientType." + typeName;
 		String defaultClassNameForType = DefaultClientTypes.CLASS_BY_NAME.get(typeName);
 		String typeClassName = DrObjectTool.nullSafe(getString(typeClassNameKey), defaultClassNameForType);
 		return ClassTool.forName(typeClassName).asSubclass(ClientType.class);

@@ -49,14 +49,14 @@ public class CachingNodeFactory{
 			boolean addAdapter){
 		String clientName = params.getClientName();
 		ClientType clientType = clients.getClientTypeInstance(clientName);
-		Preconditions.checkNotNull(clientType, "clientType not found for clientName:"+clientName);
+		Preconditions.checkNotNull(clientType, "clientType not found for clientName:" + clientName);
 		MapStorageNode<PK,D> node = new MapCachingMapStorageNode<PK,D,F,N>(cacheNode, backingNode, cacheReads,
 				cacheWrites);
 		node = new MapStorageCounterAdapter<>(node);
 		if(addAdapter){
-			node = new MapStorageCallsiteAdapter<>(params, (N)node);
+			node = new MapStorageCallsiteAdapter<>(params, (N) node);
 		}
-		return Preconditions.checkNotNull(node, "cannot build Node for clientType="+clientType);
+		return Preconditions.checkNotNull(node, "cannot build Node for clientType=" + clientType);
 	}
 
 

@@ -22,7 +22,7 @@ com.hotpads.notification.tracking.NotificationTrackingEvent{
 }
 */
 
-public class NotificationTrackingEvent extends BaseDatabean<NotificationTrackingEventKey,NotificationTrackingEvent> {
+public class NotificationTrackingEvent extends BaseDatabean<NotificationTrackingEventKey,NotificationTrackingEvent>{
 
 	/** fields ****************************************************************/
 
@@ -36,7 +36,7 @@ public class NotificationTrackingEvent extends BaseDatabean<NotificationTracking
 
 	public static final String COL_TYPE = "type";
 
-	public static class F {
+	public static class F{
 		public static final String
 			trackingNotificationType = "trackingNotificationType",
 			source = "source";
@@ -82,12 +82,12 @@ public class NotificationTrackingEvent extends BaseDatabean<NotificationTracking
 	/** databean **************************************************************/
 
 	@Override
-	public Class<NotificationTrackingEventKey> getKeyClass() {
+	public Class<NotificationTrackingEventKey> getKeyClass(){
 		return NotificationTrackingEventKey.class;
 	}
 
 	@Override
-	public NotificationTrackingEventKey getKey() {
+	public NotificationTrackingEventKey getKey(){
 		return key;
 	}
 
