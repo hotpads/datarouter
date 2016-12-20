@@ -32,7 +32,7 @@ public class PutOpTestBean extends BaseDatabean<PutOpTestBeanKey, PutOpTestBean>
 
 		@Override
 		public List<Field<?>> getNonKeyFields(PutOpTestBean databean){
-			return FieldTool.createList(new StringField("c", databean.strC, 100));
+			return FieldTool.createList(new StringField("strC", databean.strC, 100));
 		}
 
 	}
