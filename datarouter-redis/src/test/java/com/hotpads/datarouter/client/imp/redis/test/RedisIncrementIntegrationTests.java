@@ -17,7 +17,7 @@ import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.test.DatarouterStorageTestModuleFactory;
 import com.hotpads.datarouter.test.DrTestConstants;
 
-@Guice(moduleFactory=DatarouterStorageTestModuleFactory.class)
+@Guice(moduleFactory = DatarouterStorageTestModuleFactory.class)
 public class RedisIncrementIntegrationTests{
 
 	/** fields ***************************************************************/
