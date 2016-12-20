@@ -20,7 +20,7 @@ public interface JdbcMapStorageWriterMixin<
 extends PhysicalMapStorageWriterNode<PK,D>, JdbcStorageMixin{
 
 	@Override
-	public default void deleteAll(final Config config) {
+	public default void deleteAll(final Config config){
 		String opName = MapStorageWriter.OP_deleteAll;
 		JdbcDeleteAllOp<PK,D> op = new JdbcDeleteAllOp<>(this, config);
 		JdbcOpRetryTool.tryNTimes(new SessionExecutorImpl<>(op, getTraceName(opName)), config);

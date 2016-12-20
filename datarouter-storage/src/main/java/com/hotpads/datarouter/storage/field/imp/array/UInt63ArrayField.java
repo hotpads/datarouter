@@ -45,7 +45,7 @@ public class UInt63ArrayField extends BaseListField<Long,List<Long>>{
 
 	@Override
 	public byte[] getBytes(){
-		return value==null?null:LongByteTool.getUInt63ByteArray(value);
+		return value == null ? null : LongByteTool.getUInt63ByteArray(value);
 	}
 
 	@Override
@@ -56,18 +56,18 @@ public class UInt63ArrayField extends BaseListField<Long,List<Long>>{
 
 	@Override
 	public int numBytesWithSeparator(byte[] bytes, int byteOffset){
-		return bytes==null?0:IntegerByteTool.fromUInt31Bytes(bytes, byteOffset) + 4;
+		return bytes == null ? 0 : IntegerByteTool.fromUInt31Bytes(bytes, byteOffset) + 4;
 	}
 
 	@Override
 	public byte[] getBytesWithSeparator(){
-		if(value==null){
+		if(value == null){
 			return IntegerByteTool.getUInt31Bytes(0);
 		}
-		//prepend the length (in bytes) as a positive integer (not bitwise comparable =( )
+		// prepend the length (in bytes) as a positive integer (not bitwise comparable =()
 		//TODO replace with varint
 		byte[] dataBytes = LongByteTool.getUInt63ByteArray(value);
-		byte[] allBytes = new byte[4+dataBytes.length];
+		byte[] allBytes = new byte[4 + dataBytes.length];
 		System.arraycopy(IntegerByteTool.getUInt31Bytes(dataBytes.length), 0, allBytes, 0, 4);
 		System.arraycopy(dataBytes, 0, allBytes, 4, dataBytes.length);
 		return allBytes;
@@ -93,13 +93,13 @@ public class UInt63ArrayField extends BaseListField<Long,List<Long>>{
 			a1.add(0);
 			UInt63ArrayField field = new UInt63ArrayField("", a1);
 			byte[] bytesNoPrefix = field.getBytes();
-			Assert.assertEquals(a1.size()*8, DrArrayTool.length(bytesNoPrefix));
+			Assert.assertEquals(a1.size() * 8, DrArrayTool.length(bytesNoPrefix));
 			List<Long> a2 = new UInt63ArrayField("", null).fromBytesButDoNotSet(bytesNoPrefix, 0);
 			Assert.assertTrue(DrCollectionTool.equalsAllElementsInIteratorOrder(a1, a2));
 
 			byte[] bytesWithPrefix = field.getBytesWithSeparator();
-			Assert.assertEquals(a1.size()*8, bytesWithPrefix[3]);
-			Assert.assertEquals(a1.size()*8 + 4, field.numBytesWithSeparator(bytesWithPrefix, 0));
+			Assert.assertEquals(a1.size() * 8, bytesWithPrefix[3]);
+			Assert.assertEquals(a1.size() * 8 + 4, field.numBytesWithSeparator(bytesWithPrefix, 0));
 
 			List<Long> a3 = new UInt63ArrayField("", null).fromBytesWithSeparatorButDoNotSet(bytesWithPrefix, 0);
 			Assert.assertTrue(DrCollectionTool.equalsAllElementsInIteratorOrder(a1, a3));

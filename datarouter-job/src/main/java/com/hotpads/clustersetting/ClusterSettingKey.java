@@ -41,7 +41,7 @@ public class ClusterSettingKey extends BasePrimaryKey<ClusterSettingKey>{
 	}
 
 	@Override
-	public List<Field<?>> getFields() {
+	public List<Field<?>> getFields(){
 		return Arrays.asList(
 				new StringField(FieldKeys.name, name),
 				new StringEnumField<>(FieldKeys.scope, scope),

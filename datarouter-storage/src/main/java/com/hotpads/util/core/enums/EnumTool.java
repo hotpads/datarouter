@@ -256,11 +256,11 @@ public class EnumTool{
 			CORPORATE(3, "Corporate Housing", "corporate"),
 			SUBLET(4, "Sublet", "sublet"),
 			ROOM(5, "Room", "room"),
-			VACATION( 6, "Vacation Rental", "vacation"),
+			VACATION(6, "Vacation Rental", "vacation"),
 			ASSISTED(7, "Assisted Living", "assisted"),
 			COMMERCIAL(8, "Commercial", "commercial"),
 			FORECLOSURE(9, "Foreclosure", "foreclosure"),
-			NEW_HOME( 10, "New Home", "newHome"),
+			NEW_HOME(10, "New Home", "newHome"),
 			AUCTION(11, "Auction", "auction"),
 			LAND(12, "Land", "land"),
 			HOTEL(13, "Hotel", "hotel");

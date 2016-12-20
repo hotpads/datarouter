@@ -27,7 +27,7 @@ import com.hotpads.util.core.bytes.LongByteTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.collections.arrays.LongArray;
 
-@Guice(moduleFactory=DatarouterStorageTestModuleFactory.class)
+@Guice(moduleFactory = DatarouterStorageTestModuleFactory.class)
 public abstract class BaseManyFieldIntegrationTests{
 
 	/***************************** fields **************************************/
@@ -35,7 +35,7 @@ public abstract class BaseManyFieldIntegrationTests{
 	@Inject
 	private Datarouter datarouter;
 	@Inject
-	private	DatarouterSettings datarouterSettings;
+	private DatarouterSettings datarouterSettings;
 	@Inject
 	private NodeFactory nodeFactory;
 
@@ -103,7 +103,7 @@ public abstract class BaseManyFieldIntegrationTests{
 
 	@Test
 	public void testNullKey(){
-		if (!isJdbc()){
+		if(!isJdbc()){
 			return;
 		}
 		ManyFieldBean bean = new ManyFieldBean();
@@ -188,7 +188,7 @@ public abstract class BaseManyFieldIntegrationTests{
 		AssertJUnit.assertEquals(bean.getIntegerField(), roundTripped.getIntegerField());
 
 		bean.setIntegerField(-77);
-		int exceptions=0;
+		int exceptions = 0;
 		try{
 			//hibernate should error with this PutMethod
 			mapNode.put(bean, new Config().setPutMethod(PutMethod.INSERT_OR_BUST));
@@ -212,13 +212,13 @@ public abstract class BaseManyFieldIntegrationTests{
 	@Test
 	public void testLong(){
 		ManyFieldBean bean = new ManyFieldBean();
-		long negative6Billion = 3*(long)Integer.MIN_VALUE;
+		long negative6Billion = 3 * (long)Integer.MIN_VALUE;
 		bean.setLongField(negative6Billion);
 		mapNode.put(bean, null);
 
 		ManyFieldBean roundTripped = mapNode.get(bean.getKey(), null);
 		AssertJUnit.assertEquals(bean.getLongField(), roundTripped.getLongField());
-		AssertJUnit.assertTrue(negative6Billion==roundTripped.getLongField());
+		AssertJUnit.assertTrue(negative6Billion == roundTripped.getLongField());
 		recordKey(bean.getKey());
 	}
 
@@ -232,7 +232,7 @@ public abstract class BaseManyFieldIntegrationTests{
 		ManyFieldBean roundTripped = mapNode.get(bean.getKey(), null);
 		AssertJUnit.assertNotNull(roundTripped);
 		AssertJUnit.assertEquals(bean.getFloatField(), roundTripped.getFloatField());
-		AssertJUnit.assertTrue(val==roundTripped.getFloatField());
+		AssertJUnit.assertTrue(val == roundTripped.getFloatField());
 		recordKey(bean.getKey());
 	}
 
@@ -245,7 +245,7 @@ public abstract class BaseManyFieldIntegrationTests{
 
 		ManyFieldBean roundTripped = mapNode.get(bean.getKey(), null);
 		AssertJUnit.assertEquals(bean.getFloatField(), roundTripped.getFloatField());
-		AssertJUnit.assertTrue(val==roundTripped.getFloatField());
+		AssertJUnit.assertTrue(val == roundTripped.getFloatField());
 		recordKey(bean.getKey());
 	}
 
@@ -258,7 +258,7 @@ public abstract class BaseManyFieldIntegrationTests{
 
 		ManyFieldBean roundTripped = mapNode.get(bean.getKey(), null);
 		AssertJUnit.assertEquals(bean.getDoubleField(), roundTripped.getDoubleField());
-		AssertJUnit.assertTrue(val==roundTripped.getDoubleField());
+		AssertJUnit.assertTrue(val == roundTripped.getDoubleField());
 		recordKey(bean.getKey());
 	}
 
@@ -283,7 +283,7 @@ public abstract class BaseManyFieldIntegrationTests{
 
 		ManyFieldBean roundTripped = mapNode.get(bean.getKey(), null);
 		AssertJUnit.assertEquals(bean.getCharacterField(), roundTripped.getCharacterField());
-		AssertJUnit.assertTrue('Q'==roundTripped.getCharacterField());
+		AssertJUnit.assertTrue('Q' == roundTripped.getCharacterField());
 		recordKey(bean.getKey());
 	}
 
@@ -291,7 +291,7 @@ public abstract class BaseManyFieldIntegrationTests{
 	public void testString(){
 		ManyFieldBean bean = new ManyFieldBean();
 		String multiByteUtf8Char = "😀";
-		String val = "abcdef"+multiByteUtf8Char;
+		String val = "abcdef" + multiByteUtf8Char;
 		bean.setStringField(val);
 		bean.setStringByteField(StringByteTool.getByteArray(val, StringByteTool.CHARSET_UTF8));
 		mapNode.put(bean, null);
@@ -308,7 +308,7 @@ public abstract class BaseManyFieldIntegrationTests{
 	public void testByteArray(){
 		ManyFieldBean bean = new ManyFieldBean();
 	//	byte[] value = new byte[]{ 0x1,0x5,-0x8,0x7f,0x25,0x6a,-0x80,-0x12	};
-		byte[] value = new byte[]{ 1,5,-128,127,25,66,-80,-12};
+		byte[] value = new byte[]{1, 5, -128, 127, 25, 66, -80, -12};
 
 		bean.setByteArrayField(value);
 		mapNode.put(bean, null);
@@ -370,7 +370,7 @@ public abstract class BaseManyFieldIntegrationTests{
 
 		ManyFieldBean roundTripped = mapNode.get(bean.getKey(), null);
 		AssertJUnit.assertEquals(bean.getIntEnumField(), roundTripped.getIntEnumField());
-		AssertJUnit.assertTrue(TestEnum.beast==roundTripped.getIntEnumField());
+		AssertJUnit.assertTrue(TestEnum.beast == roundTripped.getIntEnumField());
 		recordKey(bean.getKey());
 	}
 
@@ -382,7 +382,7 @@ public abstract class BaseManyFieldIntegrationTests{
 
 		ManyFieldBean roundTripped = mapNode.get(bean.getKey(), null);
 		AssertJUnit.assertEquals(bean.getVarIntEnumField(), roundTripped.getVarIntEnumField());
-		AssertJUnit.assertTrue(TestEnum.fish==roundTripped.getVarIntEnumField());
+		AssertJUnit.assertTrue(TestEnum.fish == roundTripped.getVarIntEnumField());
 		recordKey(bean.getKey());
 	}
 
@@ -394,7 +394,7 @@ public abstract class BaseManyFieldIntegrationTests{
 
 		ManyFieldBean roundTripped = mapNode.get(bean.getKey(), null);
 		AssertJUnit.assertEquals(bean.getStringEnumField(), roundTripped.getStringEnumField());
-		AssertJUnit.assertTrue(TestEnum.cat==roundTripped.getStringEnumField());
+		AssertJUnit.assertTrue(TestEnum.cat == roundTripped.getStringEnumField());
 		recordKey(bean.getKey());
 	}
 
@@ -425,7 +425,7 @@ public abstract class BaseManyFieldIntegrationTests{
 
 		ManyFieldBean roundTripped = mapNode.get(bean.getKey(), null);
 		AssertJUnit.assertEquals(bean.getIntegerField(), roundTripped.getIntegerField());
-		AssertJUnit.assertTrue(7888==roundTripped.getIntegerField());
+		AssertJUnit.assertTrue(7888 == roundTripped.getIntegerField());
 		recordKey(bean.getKey());
 	}
 
@@ -441,7 +441,7 @@ public abstract class BaseManyFieldIntegrationTests{
 		mapNode.put(bean, null);
 
 		ManyFieldBean roundTripped = mapNode.get(bean.getKey(), null);
-		AssertJUnit.assertTrue(0==DrListTool.compare(bean.getLongArrayField(), roundTripped.getLongArrayField()));
+		AssertJUnit.assertTrue(0 == DrListTool.compare(bean.getLongArrayField(), roundTripped.getLongArrayField()));
 		recordKey(bean.getKey());
 	}
 
@@ -454,7 +454,8 @@ public abstract class BaseManyFieldIntegrationTests{
 		mapNode.put(bean, null);
 
 		ManyFieldBean roundTripped = mapNode.get(bean.getKey(), null);
-		AssertJUnit.assertTrue(0==DrListTool.compare(bean.getBooleanArrayField(), roundTripped.getBooleanArrayField()));
+		AssertJUnit.assertTrue(0 == DrListTool.compare(bean.getBooleanArrayField(), roundTripped
+				.getBooleanArrayField()));
 		recordKey(bean.getKey());
 	}
 
@@ -467,7 +468,8 @@ public abstract class BaseManyFieldIntegrationTests{
 		mapNode.put(bean, null);
 
 		ManyFieldBean roundTripped = mapNode.get(bean.getKey(), null);
-		AssertJUnit.assertTrue(0==DrListTool.compare(bean.getIntegerArrayField(), roundTripped.getIntegerArrayField()));
+		AssertJUnit.assertTrue(0 == DrListTool.compare(bean.getIntegerArrayField(), roundTripped
+				.getIntegerArrayField()));
 		recordKey(bean.getKey());
 	}
 
@@ -482,7 +484,7 @@ public abstract class BaseManyFieldIntegrationTests{
 		mapNode.put(bean, null);
 
 		ManyFieldBean roundTripped = mapNode.get(bean.getKey(), null);
-		AssertJUnit.assertTrue(0==DrListTool.compare(bean.getDoubleArrayField(), roundTripped.getDoubleArrayField()));
+		AssertJUnit.assertTrue(0 == DrListTool.compare(bean.getDoubleArrayField(), roundTripped.getDoubleArrayField()));
 		recordKey(bean.getKey());
 	}
 
