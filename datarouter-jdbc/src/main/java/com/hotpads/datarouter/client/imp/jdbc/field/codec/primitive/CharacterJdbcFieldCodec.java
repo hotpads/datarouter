@@ -31,16 +31,16 @@ extends BasePrimitiveJdbcFieldCodec<Character,Field<Character>>{
 
 	@Override
 	public Character parseJdbcValueButDoNotSet(Object obj){
-		return obj==null?null:(Character)obj;
+		return obj == null ? null : (Character)obj;
 	}
 
 	@Override
 	public void setPreparedStatementValue(PreparedStatement ps, int parameterIndex){
 		try{
-			if(field.getValue()==null){
+			if(field.getValue() == null){
 				ps.setNull(parameterIndex, Types.VARCHAR);
 			}else{
-				ps.setString(parameterIndex, field.getValue()==null?null:field.getValue()+"");
+				ps.setString(parameterIndex, field.getValue() == null ? null : field.getValue() + "");
 			}
 		}catch(SQLException e){
 			throw new DataAccessException(e);
@@ -51,7 +51,7 @@ extends BasePrimitiveJdbcFieldCodec<Character,Field<Character>>{
 	public Character fromJdbcResultSetButDoNotSet(ResultSet rs){
 		try{
 			String value = rs.getString(field.getKey().getColumnName());
-			return rs.wasNull()?null:value.charAt(0);
+			return rs.wasNull() ? null : value.charAt(0);
 		}catch(SQLException e){
 			throw new DataAccessException(e);
 		}

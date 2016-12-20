@@ -68,7 +68,7 @@ extends BaseHBaseRegionBalancer{
 		}
 		for(DrRegionInfo<?> drhRegionInfo : drhRegionList.getRegionsSorted()){
 			Integer partition = drhRegionInfo.getPartition();
-			if(partition == null) {
+			if(partition == null){
 				partition = 0;
 			}
 			regionsByPartition.get(partition).add(drhRegionInfo);

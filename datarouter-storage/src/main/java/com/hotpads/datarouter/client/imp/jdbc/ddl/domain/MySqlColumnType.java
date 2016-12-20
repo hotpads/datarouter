@@ -86,23 +86,23 @@ public enum MySqlColumnType{
 	/*********************** constructors *************************************/
 
 	private MySqlColumnType(boolean specifyLength, boolean supportsDefaultValue){
-		this.specifyLength=specifyLength;
+		this.specifyLength = specifyLength;
 		this.supportsDefaultValue = supportsDefaultValue;
 	}
 
 
 	/************************ static methods ******************************************/
 
-	public static MySqlColumnType parse(String a){
-		String upperCase = DrStringTool.nullSafe(a).toUpperCase();
+	public static MySqlColumnType parse(String str){
+		String upperCase = DrStringTool.nullSafe(str).toUpperCase();
 		for(MySqlColumnType type : values()){
 			if(type.toString().equals(upperCase)){
 				return type;
 			}
 		}
 		MySqlColumnType type = OTHER_NAME_TO_TYPE.get(upperCase);
-		if(type==null){
-			throw new NullPointerException("Unparseable type: "+a);
+		if(type == null){
+			throw new NullPointerException("Unparseable type: " + str);
 		}
 		return type;
 	}
@@ -136,7 +136,8 @@ public enum MySqlColumnType{
 	/************************ main ***********************************************/
 
 	public static void main(String[] args){
-		System.out.println(LENGTH_50 + " " +MAX_LENGTH_VARCHAR + " " + MAX_LENGTH_TEXT + " " + " " + MAX_LENGTH_MEDIUMTEXT + " " + MAX_LENGTH_LONGTEXT);
+		System.out.println(LENGTH_50 + " " +MAX_LENGTH_VARCHAR + " " + MAX_LENGTH_TEXT + " " + " "
+				+ MAX_LENGTH_MEDIUMTEXT + " " + MAX_LENGTH_LONGTEXT);
 	}
 
 }

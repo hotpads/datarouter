@@ -25,7 +25,7 @@ public enum ClusterSettingLogAction implements StringEnum<ClusterSettingLogActio
 		return fromPersistentStringStatic(string);
 	}
 
-	public static ClusterSettingLogAction fromPersistentStringStatic(String str) {
+	public static ClusterSettingLogAction fromPersistentStringStatic(String str){
 		return DatarouterEnumTool.getEnumFromString(values(), str, null);
 	}
 

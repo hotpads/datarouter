@@ -22,10 +22,10 @@ public class TestDdl{
 			// stmt.execute("drop table Cheese");
 			stmt.execute("drop table if exists Cheese;");
 			String sql = "create table Cheese "
-					+"(id varchar(30), "
-					+" country char(2), "
-					+" rating integer, "
-					+" primary key (id))";
+					+ "(id varchar(30), "
+					+ " country char(2), "
+					+ " rating integer, "
+					+ " primary key (id))";
 
 			stmt.executeUpdate(sql);
 
@@ -85,8 +85,12 @@ public class TestDdl{
 			}
 	        indexList.close();
 		}finally{
-			if(stmt!=null){ stmt.close(); }
-			if(conn!=null){ conn.close(); }
+			if(stmt != null){
+				stmt.close();
+			}
+			if(conn != null){
+				conn.close();
+			}
 		}
 	}
 }

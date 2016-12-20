@@ -41,7 +41,7 @@ public class SignatureValidator{
 		MessageDigest md = null;
 		try{
 			md = MessageDigest.getInstance(HASHING_ALGORITHM);
-		}catch (NoSuchAlgorithmException e){
+		}catch(NoSuchAlgorithmException e){
 			throw new RuntimeException(e);
 		}
 		for(String parameterName : map.keySet()){
@@ -51,7 +51,7 @@ public class SignatureValidator{
 			try{
 				md.update(parameterName.concat(map.get(parameterName)).concat(salt).getBytes(Charset.forName("UTF-8")));
 				signature.write(md.digest());
-			}catch (Exception e){
+			}catch(Exception e){
 				throw new RuntimeException(e);
 			}
 		}

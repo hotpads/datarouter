@@ -23,7 +23,7 @@ import com.hotpads.datarouter.test.node.basic.sorted.SortedNodeTestRouter;
 import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.util.core.iterable.BatchingIterable;
 
-@Guice(moduleFactory=DatarouterStorageTestModuleFactory.class)
+@Guice(moduleFactory = DatarouterStorageTestModuleFactory.class)
 public class HBaseEntityNodeIntegrationTests{
 	@Inject
 	private Datarouter datarouter;
@@ -49,7 +49,7 @@ public class HBaseEntityNodeIntegrationTests{
 
 		sortedBeans = new LinkedList<>();
 		String prefix = "testScanForRowDatabean1to1";
-		for(int i = 1; i< 6; i++){
+		for(int i = 1; i < 6; i++){
 			sortedBeans.add(new SortedBean(prefix + "-" + i, prefix + "-2-" + i, i, prefix + "-4-" + i,
 					"string so hbase has at least one field", null, null, null));
 		}
