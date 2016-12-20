@@ -12,7 +12,7 @@ import com.hotpads.datarouter.setting.SettingRoot;
 import com.hotpads.datarouter.storage.failover.FailoverSettings;
 
 @Singleton
-public class DatarouterClusterSettings extends SettingRoot implements DatarouterSettings {
+public class DatarouterClusterSettings extends SettingRoot implements DatarouterSettings{
 
 	private final Setting<Boolean> loggingConfigUpdaterEnabled;
 	private final Setting<Boolean> recordCallsites;

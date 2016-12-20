@@ -48,7 +48,7 @@ public class UInt15Field extends BasePrimitiveField<Short>{
 
 	@Override
 	public byte[] getBytes(){
-		return value==null?null:ShortByteTool.getUInt15Bytes(value);
+		return value == null ? null : ShortByteTool.getUInt15Bytes(value);
 	}
 
 	@Override

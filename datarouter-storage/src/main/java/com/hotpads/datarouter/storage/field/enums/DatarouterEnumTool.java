@@ -16,39 +16,43 @@ public class DatarouterEnumTool{
 
     public static class IntegerEnumComparator<T extends IntegerEnum<T>> implements Comparator<T>{
 	    @Override
-		public int compare(T a, T b){
-	    	if(DrObjectTool.bothNull(a, b)){ return 0; }
-	    	if(DrObjectTool.isOneNullButNotTheOther(a, b)){ return a==null?-1:1; }
+		public int compare(T aval, T bval){
+			if(DrObjectTool.bothNull(aval, bval)){
+				return 0;
+			}
+			if(DrObjectTool.isOneNullButNotTheOther(aval, bval)){
+				return aval == null ? -1 : 1;
+			}
 	        return DrComparableTool.nullFirstCompareTo(
-	        		a.getPersistentInteger(), b.getPersistentInteger());
+	        		aval.getPersistentInteger(), bval.getPersistentInteger());
 	    }
 	}
 
-    public static <T extends IntegerEnum<T>> int compareIntegerEnums(T a, T b){
-    	if(DrObjectTool.bothNull(a, b)){
+	public static <T extends IntegerEnum<T>> int compareIntegerEnums(T aval, T bval){
+    	if(DrObjectTool.bothNull(aval, bval)){
     		return 0;
     	}
-    	if(DrObjectTool.isOneNullButNotTheOther(a, b)){
-    		return a==null?-1:1;
+    	if(DrObjectTool.isOneNullButNotTheOther(aval, bval)){
+			return aval == null ? -1 : 1;
     	}
-        return DrComparableTool.nullFirstCompareTo(a.getPersistentInteger(), b.getPersistentInteger());
+        return DrComparableTool.nullFirstCompareTo(aval.getPersistentInteger(), bval.getPersistentInteger());
     }
 
-    public static <T extends StringEnum<T>> int compareStringEnums(T a, T b){
-    	if(DrObjectTool.bothNull(a, b)){
+    public static <T extends StringEnum<T>> int compareStringEnums(T aval, T bval){
+    	if(DrObjectTool.bothNull(aval, bval)){
     		return 0;
     	}
-    	if(DrObjectTool.isOneNullButNotTheOther(a, b)){
-    		return a==null?-1:1;
+    	if(DrObjectTool.isOneNullButNotTheOther(aval, bval)){
+			return aval == null ? -1 : 1;
     	}
-        return DrComparableTool.nullFirstCompareTo(a.getPersistentString(), b.getPersistentString());
+        return DrComparableTool.nullFirstCompareTo(aval.getPersistentString(), bval.getPersistentString());
     }
 
 
     /********************** methods **************************************/
 
 	public static <T extends IntegerEnum<T>> T getEnumFromInteger(T[] values, Integer value, T defaultEnum){
-		if(value==null){
+		if(value == null){
 			return defaultEnum;
 		}
 		for(T type:values){
@@ -61,12 +65,12 @@ public class DatarouterEnumTool{
 
 	public static <T extends StringEnum<T>> T getEnumFromString(T[] values, String value, T defaultEnum,
 			boolean caseSensitive){
-		if(value==null){
+		if(value == null){
 			return defaultEnum;
 		}
 		for(T type:values){
-			if((caseSensitive && type.getPersistentString().equals(value))
-					|| (!caseSensitive && type.getPersistentString().equalsIgnoreCase(value))){
+			if(caseSensitive && type.getPersistentString().equals(value)
+					|| !caseSensitive && type.getPersistentString().equalsIgnoreCase(value)){
 				return type;
 			}
 		}
@@ -76,8 +80,6 @@ public class DatarouterEnumTool{
 	public static <T extends StringEnum<T>> T getEnumFromString(T[] values, String value, T defaultEnum){
 		return getEnumFromString(values,value,defaultEnum,true);
 	}
-
-
 
 	/***************  multiple values ****************/
 
@@ -100,21 +102,22 @@ public class DatarouterEnumTool{
 
 
 	@SuppressWarnings("unchecked")
-	public static <E extends StringEnum<E>> List<E> uniqueListFromCsvNames( E[] values, String csvNames, boolean defaultAll ) {
+	public static <E extends StringEnum<E>> List<E> uniqueListFromCsvNames(E[] values, String csvNames,
+			boolean defaultAll){
 		List<E> result = new ArrayList<>();
-		if ( DrStringTool.notEmpty( csvNames ) ) {
-			String[] types = csvNames.split( "," );
-			for ( String name : types ) {
+		if(DrStringTool.notEmpty(csvNames)){
+			String[] types = csvNames.split(",");
+			for(String name : types){
 				StringEnum<E> type = getEnumFromString(values, name.trim(), null, false);
-				if ( type != null && !result.contains(type)) {
-					result.add( (E) type );
+				if(type != null && !result.contains(type)){
+					result.add((E)type);
 				}
 			}
 		}
-		if ( result.isEmpty() ) {
-			if ( defaultAll ) {
-				for ( E e : values ) {
-					result.add( e );
+		if(result.isEmpty()){
+			if(defaultAll){
+				for(E e : values){
+					result.add(e);
 				}
 			}
 		}
