@@ -64,7 +64,7 @@ public class UInt63ArrayField extends BaseListField<Long,List<Long>>{
 		if(value == null){
 			return IntegerByteTool.getUInt31Bytes(0);
 		}
-		// prepend the length (in bytes) as a positive integer (not bitwise comparable =( )
+		// prepend the length (in bytes) as a positive integer (not bitwise comparable =()
 		//TODO replace with varint
 		byte[] dataBytes = LongByteTool.getUInt63ByteArray(value);
 		byte[] allBytes = new byte[4 + dataBytes.length];
