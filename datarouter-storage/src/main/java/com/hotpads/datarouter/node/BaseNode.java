@@ -61,8 +61,8 @@ implements Node<PK,D>{
 	}
 
 	@Override
-	public String getName() {
-		return id==null ? null : id.getName();
+	public String getName(){
+		return id == null ? null : id.getName();
 	}
 
 	protected void setId(NodeId<PK,D,F> id){
