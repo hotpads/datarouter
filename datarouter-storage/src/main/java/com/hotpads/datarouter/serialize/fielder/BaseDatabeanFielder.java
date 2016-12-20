@@ -54,7 +54,7 @@ implements DatabeanFielder<PK,D>{
 	}
 
 	@Override
-	public Class<? extends ScatteringPrefix> getScatteringPrefixClass() {
+	public Class<? extends ScatteringPrefix> getScatteringPrefixClass(){
 		return EmptyScatteringPrefix.class;
 	}
 

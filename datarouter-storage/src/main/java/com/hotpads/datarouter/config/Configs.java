@@ -1,6 +1,6 @@
 package com.hotpads.datarouter.config;
 
-public class Configs {
+public class Configs{
 	public static boolean SLAVE_OK = true;
 	public static boolean USE_MASTER = !SLAVE_OK;
 

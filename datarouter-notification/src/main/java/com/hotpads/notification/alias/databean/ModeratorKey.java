@@ -9,7 +9,7 @@ import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
 import com.hotpads.notification.alias.NotificationAlias;
 
-public class ModeratorKey extends BasePrimaryKey<ModeratorKey> {
+public class ModeratorKey extends BasePrimaryKey<ModeratorKey>{
 
 	/** fields ****************************************************************/
 
@@ -18,7 +18,7 @@ public class ModeratorKey extends BasePrimaryKey<ModeratorKey> {
 
 	/** columns ***************************************************************/
 
-	public static class F {
+	public static class F{
 		public static final String
 			alias = "alias",
 			email = "email";

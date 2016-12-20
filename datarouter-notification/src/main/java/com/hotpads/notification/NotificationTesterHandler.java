@@ -65,7 +65,7 @@ public class NotificationTesterHandler extends BaseHandler{
 		if(async){
 			notificationManager.request(notificationRequests);
 			return Optional.empty();
-		} else {
+		}else{
 			return Optional.of(notificationManager.send(notificationRequests));
 		}
 	}
