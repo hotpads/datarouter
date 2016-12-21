@@ -18,14 +18,14 @@ import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrListTool;
 
-public interface JdbcIndexedStorageWriterMixin<PK extends PrimaryKey<PK>, D extends Databean<PK, D>>
-extends PhysicalIndexedStorageWriterNode<PK,D>, JdbcStorageMixin{
+public interface JdbcIndexedStorageWriterMixin<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>extends
+		PhysicalIndexedStorageWriterNode<PK,D>, JdbcStorageMixin{
 
 	@Override
 	public default void deleteUnique(UniqueKey<PK> uniqueKey, Config config){
 		String opName = IndexedStorageWriter.OP_deleteUnique;
-		JdbcUniqueIndexDeleteOp<PK,D> op = new JdbcUniqueIndexDeleteOp<>(this, getFieldCodecFactory(), DrListTool
-				.wrap(uniqueKey), config);
+		JdbcUniqueIndexDeleteOp<PK,D> op = new JdbcUniqueIndexDeleteOp<>(this, getFieldCodecFactory(), DrListTool.wrap(
+				uniqueKey), config);
 		JdbcOpRetryTool.tryNTimes(new SessionExecutorImpl<>(op, getTraceName(opName)), config);
 	}
 
@@ -33,7 +33,7 @@ extends PhysicalIndexedStorageWriterNode<PK,D>, JdbcStorageMixin{
 	public default void deleteMultiUnique(final Collection<? extends UniqueKey<PK>> uniqueKeys, final Config config){
 		String opName = IndexedStorageWriter.OP_deleteMultiUnique;
 		if(DrCollectionTool.isEmpty(uniqueKeys)){
-			return;//avoid starting txn
+			return;// avoid starting txn
 		}
 		JdbcUniqueIndexDeleteOp<PK,D> op = new JdbcUniqueIndexDeleteOp<>(this, getFieldCodecFactory(), uniqueKeys,
 				config);
@@ -41,7 +41,7 @@ extends PhysicalIndexedStorageWriterNode<PK,D>, JdbcStorageMixin{
 	}
 
 	@Override
-	public default void delete(final Lookup<PK> lookup, final Config config) {
+	public default void delete(final Lookup<PK> lookup, final Config config){
 		String opName = IndexedStorageWriter.OP_indexDelete;
 		JdbcIndexDeleteOp<PK,D> op = new JdbcIndexDeleteOp<>(this, getFieldCodecFactory(), lookup, config);
 		JdbcOpRetryTool.tryNTimes(new SessionExecutorImpl<>(op, getTraceName(opName)), config);

@@ -11,15 +11,15 @@ import org.testng.annotations.Test;
 import com.hotpads.datarouter.setting.StandardServerType;
 import com.hotpads.datarouter.util.core.DrObjectTool;
 
-public class ClusterSettingScopeComparator implements Comparator<ClusterSetting> {
+public class ClusterSettingScopeComparator implements Comparator<ClusterSetting>{
 
 	@Override
-	public int compare(ClusterSetting first, ClusterSetting second) {
+	public int compare(ClusterSetting first, ClusterSetting second){
 		if(DrObjectTool.bothNull(first, second)){
 			return 0;
 		}
 		if(DrObjectTool.isOneNullButNotTheOther(first, second)){
-			return first==null?-1:1;
+			return first == null ? -1 : 1;
 		}
 
 		ClusterSettingScope firstScope = first.getScope();
@@ -28,11 +28,11 @@ public class ClusterSettingScopeComparator implements Comparator<ClusterSetting>
 			return 0;
 		}
 		if(DrObjectTool.isOneNullButNotTheOther(firstScope, secondScope)){
-			return firstScope==null?-1:1;
+			return firstScope == null ? -1 : 1;
 		}
 
 		int difference = firstScope.getSpecificity() - secondScope.getSpecificity();
-		if(difference==0){
+		if(difference == 0){
 			return 0;
 		}
 		return difference < 0 ? -1 : 1;

@@ -14,7 +14,7 @@ public class WriteBehindMapStorageNode<
 extends WriteBehindMapStorageReaderNode<PK,D,N>
 implements MapStorage<PK,D>, WriteBehindMapStorageWriterMixin<PK,D,N>{
 
-	public WriteBehindMapStorageNode(Datarouter datarouter, N backingNode) {
+	public WriteBehindMapStorageNode(Datarouter datarouter, N backingNode){
 		super(datarouter, backingNode);
 	}
 
