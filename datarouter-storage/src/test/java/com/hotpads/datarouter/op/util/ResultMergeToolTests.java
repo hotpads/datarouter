@@ -6,8 +6,6 @@ import java.util.Collection;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import com.sun.jmx.mbeanserver.NamedObject;
-
 public class ResultMergeToolTests{
 
 	@Test
@@ -19,9 +17,9 @@ public class ResultMergeToolTests{
 		Assert.assertNull(ResultMergeTool.sum(intA,ints));
 		ints.add(1);
 		ints.add(2);
-		Assert.assertNull(ResultMergeTool.sum(intA,ints));
+		Assert.assertEquals(ResultMergeTool.sum(intA,ints), Integer.valueOf(3));
 		intA = 3;
-		Assert.assertEquals(ResultMergeTool.sum(intA, ints),6D);
+		Assert.assertEquals(ResultMergeTool.sum(intA, ints), Integer.valueOf(6));
 	}
 
 	public void testSumLongs(){
@@ -34,7 +32,7 @@ public class ResultMergeToolTests{
 		longs.add(2L);
 		Assert.assertNull(ResultMergeTool.sum(longA,longs));
 		longA = 3L;
-		Assert.assertEquals(ResultMergeTool.sum(longA, longs),Long.valueOf(6));
+		Assert.assertEquals(ResultMergeTool.sum(longA, longs), Long.valueOf(6));
 	}
 
 	public void testFirst(){
