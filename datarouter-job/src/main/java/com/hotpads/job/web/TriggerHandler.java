@@ -118,7 +118,7 @@ public class TriggerHandler extends BaseHandler {
 		triggerInfo.setRunning(false);
 		sampleJob.trackAfterRun(System.currentTimeMillis());
 		long durationMs = System.currentTimeMillis() - date.getTime();
-		logger.warn("Finished manual trigger of "+sampleJob.getClass().getSimpleName()+" in "+durationMs+"ms");
+		logger.warn("Finished manual trigger of " + sampleJob.getClass().getSimpleName() + " in " + durationMs + "ms");
 		return createRedirectMav();
 	}
 

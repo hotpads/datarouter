@@ -32,13 +32,13 @@ extends BasePrimitiveJdbcFieldCodec<Double,Field<Double>>{
 
 	@Override
 	public Double parseJdbcValueButDoNotSet(Object obj){
-		return obj==null?null:(Double)obj;
+		return obj == null ? null : (Double) obj;
 	}
 
 	@Override
 	public void setPreparedStatementValue(PreparedStatement ps, int parameterIndex){
 		try{
-			if(field.getValue()==null){
+			if(field.getValue() == null){
 				ps.setNull(parameterIndex, Types.DOUBLE);
 			}else{
 				ps.setDouble(parameterIndex, field.getValue());
@@ -52,7 +52,7 @@ extends BasePrimitiveJdbcFieldCodec<Double,Field<Double>>{
 	public Double fromJdbcResultSetButDoNotSet(ResultSet rs){
 		try{
 			double value = rs.getDouble(field.getKey().getColumnName());
-			return rs.wasNull()?null:value;
+			return rs.wasNull() ? null : value;
 		}catch(SQLException e){
 			throw new DataAccessException(e);
 		}

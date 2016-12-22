@@ -23,7 +23,7 @@ public class DrTableSettings{
 		VERSIONS = "VERSIONS";
 
 	public static final SortedSet<String> COLUMN_SETTINGS = new TreeSet<>();
-	static {
+	static{
 		COLUMN_SETTINGS.add(BLOCKCACHE);
 		COLUMN_SETTINGS.add(BLOCKSIZE);
 		COLUMN_SETTINGS.add(BLOOMFILTER);
@@ -50,38 +50,37 @@ public class DrTableSettings{
 
 
 	public static void validateColumnFamilySetting(String setting, String value) {
-		if(BLOCKCACHE.equals(setting)) {
-			if(!validBoolean(value)) {
+		if(BLOCKCACHE.equals(setting)){
+			if(!validBoolean(value)){
 				throw new IllegalArgumentException("invalid " + BLOCKCACHE);
 			}
-		}else if(BLOCKSIZE.equals(setting)) {
+		}else if(BLOCKSIZE.equals(setting)){
 			Long.valueOf(value);
-		}else if(BLOOMFILTER.equals(setting)) {
-			if(!BLOOMFILTER_STRINGS.contains(value)) {
+		}else if(BLOOMFILTER.equals(setting)){
+			if(!BLOOMFILTER_STRINGS.contains(value)){
 				throw new IllegalArgumentException("invalid " + BLOOMFILTER + " " + value);
 			}
-		}else if(COMPRESSION.equals(setting)) {
-			if(!COMPRESSION_STRINGS.contains(value)) {
+		}else if(COMPRESSION.equals(setting)){
+			if(!COMPRESSION_STRINGS.contains(value)){
 				throw new IllegalArgumentException("invalid " + COMPRESSION + " " + value);
 			}
-		}else if(DATA_BLOCK_ENCODING.equals(setting)) {
-			if(!DATA_BLOCK_ENCODING_STRINGS.contains(value)) {
+		}else if(DATA_BLOCK_ENCODING.equals(setting)){
+			if(!DATA_BLOCK_ENCODING_STRINGS.contains(value)){
 				throw new IllegalArgumentException("invalid " + DATA_BLOCK_ENCODING + " " + value);
 			}
-		}else if(ENCODE_ON_DISK.equals(setting)) {
-			if(!validBoolean(value)) {
+		}else if(ENCODE_ON_DISK.equals(setting)){
+			if(!validBoolean(value)){
 				throw new IllegalArgumentException("invalid " + ENCODE_ON_DISK);
 			}
-		}else if(IN_MEMORY.equals(setting)) {
-			if(!validBoolean(value)) {
+		}else if(IN_MEMORY.equals(setting)){
+			if(!validBoolean(value)){
 				throw new IllegalArgumentException("invalid " + IN_MEMORY);
 			}
-		}else if(TTL.equals(setting)) {
+		}else if(TTL.equals(setting)){
 			Long.valueOf(value);
-		}else if(VERSIONS.equals(setting)) {
+		}else if(VERSIONS.equals(setting)){
 			Integer.valueOf(value);
-		}
-		else{
+		}else{
 			throw new IllegalArgumentException("unknown setting " + setting);
 		}
 	}

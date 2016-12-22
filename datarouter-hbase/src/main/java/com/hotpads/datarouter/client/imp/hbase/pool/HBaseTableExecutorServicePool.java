@@ -88,7 +88,7 @@ implements HBaseTablePool{
 				htableExecutorService = executorServiceQueue.poll();
 				setProgress(progress, "polled queue " + (htableExecutorService == null ? "null" : "success"));
 
-				if(htableExecutorService==null){
+				if(htableExecutorService == null){
 					htableExecutorService = new HBaseTableExecutorService(minThreadsPerHTable, maxThreadsPerHTable);
 					setProgress(progress, "new HTableExecutorService()");
 					String counterName = "connection create HTable";
@@ -96,7 +96,7 @@ implements HBaseTablePool{
 					logWithPoolInfo("created new HTableExecutorService", tableName);
 					break;
 				}
-				if( ! htableExecutorService.isExpired()){
+				if(!htableExecutorService.isExpired()){
 					// logger.warn("connection got pooled HTable executor");
 					DRCounters.incClientTable(clientType, "got pooled HTable executor", clientName,
 							tableName);
@@ -136,9 +136,9 @@ implements HBaseTablePool{
 		//do this first otherwise things may get hung up in the "active" map
 		String tableName = htable.getName().getNameAsString();
 		HBaseTableExecutorService htableExecutorService;
-		try {
+		try{
 			htableExecutorService = activeHTables.remove(htable);
-			if(htableExecutorService==null){
+			if(htableExecutorService == null){
 				logWithPoolInfo("HTable returned to pool but HTableExecutorService not found", tableName);
 				DRCounters.incClientTable(clientType, "HTable returned to pool but HTableExecutorService"
 						+ " not found", clientName, tableName);
