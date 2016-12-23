@@ -12,6 +12,6 @@ extends MapStorageReader<PK,D>, IndexedStorageReader<PK,D>{
 	}
 
 	public interface PhysicalIndexedMapStorageReaderNode<PK extends PrimaryKey<PK>, D extends Databean<PK, D>>
-			extends PhysicalMapStorageReaderNode<PK, D>, PhysicalIndexedStorageReaderNode<PK, D>{
+	extends PhysicalMapStorageReaderNode<PK, D>, PhysicalIndexedStorageReaderNode<PK, D>{
 	}
 }
