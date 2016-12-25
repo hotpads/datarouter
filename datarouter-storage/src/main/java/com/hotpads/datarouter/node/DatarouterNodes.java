@@ -49,11 +49,10 @@ public class DatarouterNodes{
 		this.physicalNodeByTableNameByClientName = new TreeMap<>();
 	}
 
-
 	/*********************** methods ************************************/
 
-	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,N extends Node<PK,D>>
-	N register(String routerName, N node){
+	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,N extends Node<PK,D>> N register(String routerName,
+			N node){
 		ensureDuplicateNamesReferToSameNode(node);
 		List<Node<?,?>> nodeWithDescendants = NodeTool.getNodeAndDescendants(node);
 		this.topLevelNodes.add(node);
@@ -61,7 +60,7 @@ public class DatarouterNodes{
 		for(Node<?,?> nodeOrDescendant : nodeWithDescendants){
 			nodeByName.put(nodeOrDescendant.getName(), nodeOrDescendant);
 			if(nodeOrDescendant.isPhysicalNodeOrWrapper()){
-				PhysicalNode<?, ?> physicalNode = (PhysicalNode<?,?>)nodeOrDescendant;
+				PhysicalNode<?,?> physicalNode = (PhysicalNode<?,?>)nodeOrDescendant;
 				String clientName = physicalNode.getClientId().getName();
 				String tableName = physicalNode.getTableName();
 				physicalNodeByTableNameByClientName.computeIfAbsent(clientName, k -> new TreeMap<>()).put(tableName,
@@ -96,7 +95,7 @@ public class DatarouterNodes{
 		SortedSet<PhysicalNode<?,?>> physicalNodesForClient = new TreeSet<>();
 		for(Node<?,?> node : topLevelNodes){
 			List<? extends PhysicalNode<?,?>> physicalNodesForNode = node.getPhysicalNodesForClient(clientName);
-			for(PhysicalNode<?, ?> physicalNode : physicalNodesForNode){
+			for(PhysicalNode<?,?> physicalNode : physicalNodesForNode){
 				physicalNodesForClient.add(physicalNode);
 			}
 		}
@@ -123,19 +122,18 @@ public class DatarouterNodes{
 
 	private void ensureDuplicateNamesReferToSameNode(Node<?,?> node){
 		String thisName = node.getName();
-		Node<?, ?> existingNode = nodeByName.get(thisName);
+		Node<?,?> existingNode = nodeByName.get(thisName);
 		if(existingNode == null || existingNode == node){
 			return;
 		}
 		Class<?> existingNodeClass = existingNode.getClass();
-		throw new IllegalArgumentException("different node with this name already exists:"+thisName+"["
-				+existingNodeClass.getSimpleName()+"]");
+		throw new IllegalArgumentException("different node with this name already exists:" + thisName + "["
+				+ existingNodeClass.getSimpleName() + "]");
 	}
 
 	public PhysicalNode<?,?> getPhyiscalNodeForClientAndTable(String clientName, String tableName){
 		return physicalNodeByTableNameByClientName.getOrDefault(clientName, Collections.emptyMap()).get(tableName);
 	}
-
 
 	/*************************** get/set ****************************************/
 

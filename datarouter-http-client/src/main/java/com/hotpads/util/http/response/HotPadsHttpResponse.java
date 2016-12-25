@@ -36,7 +36,7 @@ public class HotPadsHttpResponse{
 			if(httpEntity == null){
 				return;
 			}
-			if(httpEntityConsumer!=null){
+			if(httpEntityConsumer != null){
 				httpEntityConsumer.accept(httpEntity);
 				return;
 			}

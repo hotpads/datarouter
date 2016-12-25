@@ -5,10 +5,7 @@ import java.util.List;
 
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 
-
 /*
- * DRH=DatarouterHolder, selectively abbreviated because of frequent access
- *
  * Class for accessing Routers.  Currently supports binding itself to threads.
  *
  * Extend this class, add fields for the relevant Router objects, and add a static method createAndBindToThread()
@@ -24,15 +21,15 @@ import com.hotpads.datarouter.util.core.DrCollectionTool;
  *   Then access it in your code by calling the static DRH.asdf()...
  */
 
-@Deprecated//try to replace with combination of Datarouter and Guice
-public abstract class BaseDRH{
+@Deprecated // try to replace with combination of Datarouter and Guice
+public abstract class DatarouterHolder{
 
 	protected final Datarouter datarouter;
 	protected final List<Router> routers;
 
 	/************************ constructors ************************/
 
-	protected BaseDRH(Datarouter datarouter){
+	protected DatarouterHolder(Datarouter datarouter){
 		this.datarouter = datarouter;
 		this.routers = new ArrayList<>();
 	}
@@ -52,5 +49,4 @@ public abstract class BaseDRH{
 		}
 		return null;
 	}
-
 }

@@ -21,12 +21,12 @@ public class HBaseQueryBuilder{
 
 	/****************************** scan helpers ************************************/
 
-	public static Scan getScanForRange(Range<ByteRange> range, Config pConfig){
-		Config config = Config.nullSafe(pConfig);
+	public static Scan getScanForRange(Range<ByteRange> range, Config queryConfig){
+		Config config = Config.nullSafe(queryConfig);
 		byte[] start = null;
 		if(range.hasStart()){
 			start = range.getStart().toArray();
-			if( ! range.getStartInclusive()){
+			if(!range.getStartInclusive()){
 				start = DrByteTool.unsignedIncrement(start);
 			}
 		}
@@ -59,14 +59,14 @@ public class HBaseQueryBuilder{
 			final FieldSet<?> startKey, final boolean startInclusive,
 			final FieldSet<?> endKey, final boolean endInclusive){
 		ByteRange startBytes = null;
-		if(startKey!=null){
+		if(startKey != null){
 			startBytes = new ByteRange(FieldTool.getBytesForNonNullFieldsWithNoTrailingSeparator(startKey.getFields()));
-			if( ! startInclusive){
+			if(!startInclusive){
 				startBytes = startBytes.cloneAndIncrement();
 			}
 		}
 		ByteRange endBytes = null;
-		if(endKey!=null){
+		if(endKey != null){
 			endBytes = new ByteRange(FieldTool.getBytesForNonNullFieldsWithNoTrailingSeparator(endKey.getFields()));
 			if(endInclusive){
 				endBytes = endBytes.cloneAndIncrement();
@@ -80,13 +80,13 @@ public class HBaseQueryBuilder{
 		byte[][] fieldBytes = new byte[numNonNullFields][];
 		int numFullFieldsFinished = 0;
 		for(Field<?> field : DrCollectionTool.nullSafe(prefix)){
-			if(numFullFieldsFinished >= numNonNullFields) {
+			if(numFullFieldsFinished >= numNonNullFields){
 				break;
 			}
-			if(field.getValue()==null) {
+			if(field.getValue() == null){
 				throw new DataAccessException("Prefix query cannot contain intermediate nulls.");
 			}
-			boolean lastNonNullField = numFullFieldsFinished == numNonNullFields-1;
+			boolean lastNonNullField = numFullFieldsFinished == numNonNullFields - 1;
 			boolean doPrefixMatchOnField = wildcardLastField && lastNonNullField;
 			if(doPrefixMatchOnField){//TODO not sure you can actually do wildcard matches
 				fieldBytes[numFullFieldsFinished] = field.getBytes();//wildcard
@@ -98,8 +98,8 @@ public class HBaseQueryBuilder{
 		}
 		byte[] startBytes = DrByteTool.concatenate(fieldBytes);
 		byte[] endBytes = DrByteTool.unsignedIncrementOverflowToNull(startBytes);
-		ByteRange startByteRange = startBytes==null ? null : new ByteRange(startBytes);
-		ByteRange endByteRange = endBytes==null ? null : new ByteRange(endBytes);
+		ByteRange startByteRange = startBytes == null ? null : new ByteRange(startBytes);
+		ByteRange endByteRange = endBytes == null ? null : new ByteRange(endBytes);
 		return new Twin<>(startByteRange, endByteRange);
 	}
 
