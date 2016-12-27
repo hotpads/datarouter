@@ -3,7 +3,6 @@ package com.hotpads.notification.destination;
 import java.util.Arrays;
 import java.util.List;
 
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.StringFieldKey;
@@ -25,19 +24,17 @@ public class NotificationDestinationKey extends BasePrimaryKey<NotificationDesti
 	}
 
 	public static class FieldKeys{
-		public static final StringFieldKey token = new StringFieldKey("token").withSize(
-				MySqlColumnType.MAX_LENGTH_VARCHAR);
+		public static final StringFieldKey token = new StringFieldKey("token");
 		public static final StringEnumFieldKey<NotificationDestinationAppEnum> app = new StringEnumFieldKey<>("app",
-				NotificationDestinationAppEnum.class).withSize(MySqlColumnType.MAX_LENGTH_VARCHAR);
-		public static final StringFieldKey deviceId = new StringFieldKey("deviceId").withSize(
-				MySqlColumnType.MAX_LENGTH_VARCHAR);
+				NotificationDestinationAppEnum.class);
+		public static final StringFieldKey deviceId = new StringFieldKey("deviceId");
 	}
 
 
 	@Override
 	public List<Field<?>> getFields(){
 		return Arrays.asList(new StringField(FieldKeys.token, token),
-				new StringEnumField<NotificationDestinationAppEnum>(FieldKeys.app, app),
+				new StringEnumField<>(FieldKeys.app, app),
 				new StringField(FieldKeys.deviceId, deviceId));
 	}
 
