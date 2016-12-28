@@ -14,7 +14,7 @@ import com.hotpads.datarouter.util.core.DrStringTool;
 public class CaseEnforcingDatabeanUpdate <PK extends PrimaryKey<PK>, D extends Databean<PK,D> & ContentHolder<PK,D>>
 extends DatabeanUpdate<PK,D>{
 
-	public <Storage extends MapStorage<PK,D>> CaseEnforcingDatabeanUpdate(Storage storage) {
+	public <Storage extends MapStorage<PK,D>> CaseEnforcingDatabeanUpdate(Storage storage){
 		super(storage);
 	}
 
@@ -22,7 +22,7 @@ extends DatabeanUpdate<PK,D>{
 	 * replace if the case of any StringField in the key is different but the case insensitive content is the same
 	 */
 	@Override
-	protected boolean replaceInsteadOfMerge(D oldBean, D newBean) {
+	protected boolean replaceInsteadOfMerge(D oldBean, D newBean){
 		return keysEqualWithDifferentCase(oldBean, newBean);
 	}
 
@@ -30,7 +30,7 @@ extends DatabeanUpdate<PK,D>{
 	keysEqualWithDifferentCase(D oldBean, D newBean){
 		Map<String,String> oldStringFieldValues = Maps.newHashMap();
 		for(Field<?> oldKeyField : oldBean.getKeyFields()){
-			if( ! oldKeyField.getClass().isAssignableFrom(StringField.class)){
+			if(!oldKeyField.getClass().isAssignableFrom(StringField.class)){
 				continue;
 			}
 			oldStringFieldValues.put(oldKeyField.getKey().getName(), oldKeyField.getValueString());

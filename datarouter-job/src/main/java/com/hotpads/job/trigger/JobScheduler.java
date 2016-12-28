@@ -20,7 +20,7 @@ import com.hotpads.job.web.TriggersRepository.JobPackage;
 import com.hotpads.util.core.date.CronExpression;
 
 @Singleton
-public class JobScheduler {
+public class JobScheduler{
 	private final DatarouterInjector injector;
 	private final ScheduledExecutorService executor;
 	private final TriggerTracker tracker;
