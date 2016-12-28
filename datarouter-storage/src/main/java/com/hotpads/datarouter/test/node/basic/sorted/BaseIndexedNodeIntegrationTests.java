@@ -12,9 +12,6 @@ import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrListTool;
 
 public abstract class BaseIndexedNodeIntegrationTests extends BaseSortedNodeIntegrationTests{
-//	private static final Logger logger = LoggerFactory.getLogger(IndexedNodeIntegrationTests.class);
-
-
 
 	/***************************** setup/teardown **************************************/
 
@@ -54,7 +51,7 @@ public abstract class BaseIndexedNodeIntegrationTests extends BaseSortedNodeInte
 
 		lookup = new SortedBeanByDcbLookup(STRINGS.first(), 2, null);//matches d=aardvark && c=2 (64 rows)
 		result = router.indexedSortedBean().lookup(lookup, false, null);
-		AssertJUnit.assertEquals(NUM_ELEMENTS*NUM_ELEMENTS, DrCollectionTool.size(result));
+		AssertJUnit.assertEquals(NUM_ELEMENTS * NUM_ELEMENTS, DrCollectionTool.size(result));
 		AssertJUnit.assertTrue(DrListTool.isSorted(result));
 	}
 
@@ -66,7 +63,7 @@ public abstract class BaseIndexedNodeIntegrationTests extends BaseSortedNodeInte
 				new SortedBeanByDcbLookup(STRINGS.last(), 0, STRINGS.first())); //8 rows
 
 		List<SortedBean> result = router.indexedSortedBean().lookupMulti(lookups, null);
-		int expected = NUM_ELEMENTS + NUM_ELEMENTS*NUM_ELEMENTS + NUM_ELEMENTS;
+		int expected = NUM_ELEMENTS + NUM_ELEMENTS * NUM_ELEMENTS + NUM_ELEMENTS;
 		AssertJUnit.assertEquals(expected, DrCollectionTool.size(result));
 		AssertJUnit.assertTrue(DrListTool.isSorted(result));
 	}
