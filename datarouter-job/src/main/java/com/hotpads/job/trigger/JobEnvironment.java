@@ -47,7 +47,7 @@ public class JobEnvironment{
 		return longRunningTaskTrackerFactory;
 	}
 
-	public Setting<Boolean> getShouldSaveLongRunningTasksSetting() {
+	public Setting<Boolean> getShouldSaveLongRunningTasksSetting(){
 		return jobSettings.getSaveLongRunningTasks();
 	}
 

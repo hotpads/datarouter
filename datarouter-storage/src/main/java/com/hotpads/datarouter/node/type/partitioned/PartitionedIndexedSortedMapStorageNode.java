@@ -26,7 +26,7 @@ implements IndexedSortedMapStorageNode<PK,D>,
 		PartitionedSortedStorageMixin<PK,D,N>{
 
 	public PartitionedIndexedSortedMapStorageNode(Supplier<D> databeanSupplier, Supplier<F> fielderSupplier,
-			Router router) {
+			Router router){
 		super(databeanSupplier, fielderSupplier, router);
 	}
 
@@ -34,7 +34,7 @@ implements IndexedSortedMapStorageNode<PK,D>,
 	 * @deprecated use {@link #PartitionedIndexedSortedMapStorageNode(Supplier, Class, Router)}
 	 */
 	@Deprecated
-	public PartitionedIndexedSortedMapStorageNode(Class<D> databeanClass, Class<F> fielderClass, Router router) {
+	public PartitionedIndexedSortedMapStorageNode(Class<D> databeanClass, Class<F> fielderClass, Router router){
 		this(ReflectionTool.supplier(databeanClass), ReflectionTool.supplier(fielderClass), router);
 	}
 

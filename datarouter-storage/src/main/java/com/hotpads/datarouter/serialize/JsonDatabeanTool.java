@@ -36,7 +36,7 @@ public class JsonDatabeanTool{
 	/********************** pk to json *************************/
 
 	public static <PK extends PrimaryKey<PK>>JSONObject primaryKeyToJson(PK pk, Fielder<PK> fielder){
-		if(pk==null){
+		if(pk == null){
 			return null;
 		}
 		return fieldsToJson(fielder.getFields(pk));
@@ -54,7 +54,7 @@ public class JsonDatabeanTool{
 
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 	JSONObject databeanToJson(D databean, DatabeanFielder<PK,D> fielder){
-		if(databean==null){
+		if(databean == null){
 			return null;
 		}
 		JSONObject jsonObject = new JSONObject();
@@ -81,7 +81,7 @@ public class JsonDatabeanTool{
 
 	public static <PK extends PrimaryKey<PK>>
 	PK primaryKeyFromJson(Class<PK> pkClass, Fielder<PK> fielder, JSONObject json){
-		if(json==null){
+		if(json == null){
 			return null;
 		}
 		PK pk = ReflectionTool.create(pkClass);
@@ -90,7 +90,7 @@ public class JsonDatabeanTool{
 	}
 
 	public static <PK extends PrimaryKey<PK>> void primaryKeyFromJson(PK pk, Fielder<PK> fielder, JSONObject json){
-		if(json==null){
+		if(json == null){
 			return;
 		}
 		List<Field<?>> fields = fielder.getFields(pk);
@@ -109,7 +109,7 @@ public class JsonDatabeanTool{
 	public static <PK extends PrimaryKey<PK>> List<PK> primaryKeysFromJson(Class<PK> pkClass, Fielder<PK> fielder,
 			JSONArray json){
 		List<PK> pks = new ArrayList<>();
-		if(json==null){
+		if(json == null){
 			return pks;
 		}
 		Iterator<?> iter = json.iterator();
@@ -136,7 +136,7 @@ public class JsonDatabeanTool{
 
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 	D databeanFromJson(Supplier<D> databeanSupplier, DatabeanFielder<PK,D> fielder, JSONObject json, boolean flatKey){
-		if(json==null){
+		if(json == null){
 			return null;
 		}
 		D databean = databeanSupplier.get();
@@ -151,7 +151,7 @@ public class JsonDatabeanTool{
 		for(Field<?> field : fields){
 			String jsonFieldName = field.getKey().getColumnName();
 			String jsonValueString = json.optString(jsonFieldName, null);
-			if(jsonValueString==null){//careful: only skip nulls, not empty strings
+			if(jsonValueString == null){// careful: only skip nulls, not empty strings
 				continue;
 			}
 			Object value = field.parseStringEncodedValueButDoNotSet(jsonValueString);
@@ -173,7 +173,7 @@ public class JsonDatabeanTool{
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 	List<D> databeansFromJson(Supplier<D> databeanSupplier, DatabeanFielder<PK,D> fielder, JSONArray json){
 		List<D> databeans = new ArrayList<>();
-		if(json==null){
+		if(json == null){
 			return databeans;
 		}
 		Iterator<?> iter = json.iterator();
@@ -200,7 +200,7 @@ public class JsonDatabeanTool{
 		return (JSONArray)JSONSerializer.toJSON(string);
 	}
 
-	public static JSONObject fieldsToJson(List<Field<?>> fields) {
+	public static JSONObject fieldsToJson(List<Field<?>> fields){
 		JSONObject jsonObject = new JSONObject();
 		addFieldsToJsonObject(jsonObject, fields);
 		return jsonObject;

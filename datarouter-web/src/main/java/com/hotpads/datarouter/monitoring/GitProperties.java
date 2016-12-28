@@ -19,11 +19,11 @@ public class GitProperties{
 	private static final String
 			GIT_BRANCH = "git.branch",
 			GIT_COMMIT_ID_ABBREV = "git.commit.id.abbrev",
-			GIT_COMMIT_ID_DESCRIBE_SHORT="git.commit.id.describe-short",
-			GIT_COMMIT_TIME="git.commit.time",
-			GIT_COMMIT_USER_NAME="git.commit.user.name",
+			GIT_COMMIT_ID_DESCRIBE_SHORT = "git.commit.id.describe-short",
+			GIT_COMMIT_TIME = "git.commit.time",
+			GIT_COMMIT_USER_NAME = "git.commit.user.name",
 			GIT_BUILD_TIME = "git.build.time",
-			GIT_TAGS= "git.tags";
+			GIT_TAGS = "git.tags";
 
 	private static final SimpleDateFormat dateParser = new SimpleDateFormat("dd.MM.yyyy @ HH:mm:ss z");
 
@@ -33,7 +33,8 @@ public class GitProperties{
 		ClassLoader classLoader = getClass().getClassLoader();
 		try(InputStream resourceAsStream = classLoader.getResourceAsStream("git.properties")){
 			if(resourceAsStream == null){
-				logger.error("file \"git.properties\" not found. Try to run an eclipse maven update or a full mvn package");
+				logger.error(
+						"file \"git.properties\" not found. Try to run an eclipse maven update or a full mvn package");
 			}else{
 				load(resourceAsStream);
 			}

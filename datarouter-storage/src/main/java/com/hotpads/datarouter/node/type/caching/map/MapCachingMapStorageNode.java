@@ -57,7 +57,4 @@ implements MapStorageNode<PK,D>{
 	public void putMulti(Collection<D> databeans, Config config){
 		mixinMapWriteOps.putMulti(databeans, config);
 	}
-
-
-
 }

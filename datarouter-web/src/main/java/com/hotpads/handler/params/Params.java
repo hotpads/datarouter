@@ -51,7 +51,7 @@ public class Params{
 	 * @deprecated inline it
 	 */
 	@Deprecated
-	public String optionalNotEmpty(String key, String defaultValue) {
+	public String optionalNotEmpty(String key, String defaultValue){
 		return optionalNotEmpty(key).orElse(defaultValue);
 	}
 
@@ -86,7 +86,7 @@ public class Params{
 
 	public Optional<Long> optionalLongSafeParsing(String key){
 		return optional(key)
-				.map(value->DrNumberTool.getLongNullSafe(value,null))
+				.map(value -> DrNumberTool.getLongNullSafe(value,null))
 				.filter(Objects::nonNull);
 	}
 
@@ -130,23 +130,23 @@ public class Params{
 		return Objects.requireNonNull(request.getParameterValues(key));
 	}
 
-	public Integer tryGetInteger(String key, Integer defaultValue) {
-		try {
+	public Integer tryGetInteger(String key, Integer defaultValue){
+		try{
 			return optionalInteger(key, defaultValue);
-		} catch (NumberFormatException e) {
+		}catch(NumberFormatException e){
 			return defaultValue;
 		}
 	}
 
-	public Long tryGetLong(String key, Long defaultValue) {
-		try {
+	public Long tryGetLong(String key, Long defaultValue){
+		try{
 			return optionalLong(key, defaultValue);
-		} catch (NumberFormatException e) {
+		}catch(NumberFormatException e){
 			return defaultValue;
 		}
 	}
 
-	public Date tryGetLongAsDate(String key, Long defaultValue) {
+	public Date tryGetLongAsDate(String key, Long defaultValue){
 		Long value = tryGetLong(key, defaultValue);
 		return new Date(value);
 	}
@@ -169,7 +169,7 @@ public class Params{
 		return request.getContextPath();
 	}
 
-	public DatarouterSession getSession() {
+	public DatarouterSession getSession(){
 		return (DatarouterSession) request.getAttribute("datarouterSession");
 	}
 

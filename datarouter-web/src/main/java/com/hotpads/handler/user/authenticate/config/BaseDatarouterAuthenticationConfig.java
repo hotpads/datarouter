@@ -57,17 +57,17 @@ implements DatarouterAuthenticationConfig{
 
 
 	@Override
-	public String getHomePath() {
+	public String getHomePath(){
 		return PATH_home;
 	}
 
 	@Override
-	public String getKeepAlivePath() {
+	public String getKeepAlivePath(){
 		return PATH_keepalive;
 	}
 
 	@Override
-	public String getDatarouterPath() {
+	public String getDatarouterPath(){
 		return PATH_datarouter;
 	}
 
@@ -77,7 +77,7 @@ implements DatarouterAuthenticationConfig{
 	}
 
 	@Override
-	public String getApiPath() {
+	public String getApiPath(){
 		return PATH_api;
 	}
 
@@ -111,61 +111,61 @@ implements DatarouterAuthenticationConfig{
 	/*********************** password ************************************/
 
 	@Override
-	public String getResetPasswordPath() {
+	public String getResetPasswordPath(){
 		return PATH_resetPassword;
 	}
 
 	@Override
-	public String getResetPasswordSubmitPath() {
+	public String getResetPasswordSubmitPath(){
 		return PATH_resetPasswordSubmit;
 	}
 
 	/*********************** admin ************************************/
 
 	@Override
-	public String getAdminPath() {
+	public String getAdminPath(){
 		return PATH_admin;
 	}
 
 	@Override
-	public String getViewUsersPath() {
+	public String getViewUsersPath(){
 		return PATH_viewUsers;
 	}
 
 	@Override
-	public String getCreateUserPath() {
+	public String getCreateUserPath(){
 		return PATH_createUser;
 	}
 
 	@Override
-	public String getCreateUserSubmitPath() {
+	public String getCreateUserSubmitPath(){
 		return PATH_createUserSubmit;
 	}
 
 	@Override
-	public String getEditUserPath() {
+	public String getEditUserPath(){
 		return PATH_editUser;
 	}
 
 	@Override
-	public String getEditUserSubmitPath() {
+	public String getEditUserSubmitPath(){
 		return PATH_editUserSubmit;
 	}
 
 	@Override
-	public String getResetApiKeySubmitPath() {
+	public String getResetApiKeySubmitPath(){
 		return PATH_resetApiKeySubmit;
 	}
 
 	@Override
-	public String getResetSecretKeySubmitPath() {
+	public String getResetSecretKeySubmitPath(){
 		return PATH_resetSecretKeySubmit;
 	}
 
 	/*********************** params ************************************/
 
 	@Override
-	public String getApiKeyParam() {
+	public String getApiKeyParam(){
 		return PARAM_apiKey;
 	}
 
@@ -180,69 +180,69 @@ implements DatarouterAuthenticationConfig{
 	}
 
 	@Override
-	public String getUserRolesParam() {
+	public String getUserRolesParam(){
 		return PARAM_userRoles;
 	}
 
 	@Override
-	public String getEnabledParam() {
+	public String getEnabledParam(){
 		return PARAM_enabled;
 	}
 
 	@Override
-	public String getUserIdParam() {
+	public String getUserIdParam(){
 		return PARAM_userId;
 	}
 
 	@Override
-	public String getApiEnabledParam() {
+	public String getApiEnabledParam(){
 		return PARAM_apiEnabled;
 	}
 
 	@Override
-	public String getSignatureParam() {
+	public String getSignatureParam(){
 		return PARAM_signature;
 	}
 
 	@Override
-	public String getNonceParam() {
+	public String getNonceParam(){
 		return PARAM_nonce;
 	}
 
 	@Override
-	public String getTimestampParam() {
+	public String getTimestampParam(){
 		return PARAM_timestamp;
 	}
 
 	/*********************** jsp ************************************/
 
 	@Override
-	public String getKeepaliveJsp() {
+	public String getKeepaliveJsp(){
 		return JSP_keepalive;
 	}
 
 	@Override
-	public String getHomeJsp() {
+	public String getHomeJsp(){
 		return JSP_home;
 	}
 
 	@Override
-	public String getViewUsersJsp() {
+	public String getViewUsersJsp(){
 		return JSP_viewUsers;
 	}
 
 	@Override
-	public String getCreateUserJsp() {
+	public String getCreateUserJsp(){
 		return JSP_createUser;
 	}
 
 	@Override
-	public String getEditUserJsp() {
+	public String getEditUserJsp(){
 		return JSP_editUser;
 	}
 
 	@Override
-	public String getResetPasswordJsp() {
+	public String getResetPasswordJsp(){
 		return JSP_resetPassword;
 	}
 
@@ -259,7 +259,7 @@ implements DatarouterAuthenticationConfig{
 	}
 
 	@Override
-	public String getCookiePrefix() {
+	public String getCookiePrefix(){
 		return "";
 	}
 
@@ -274,11 +274,11 @@ implements DatarouterAuthenticationConfig{
 	}
 
 	@Override
-	public String getTargetUrlName() {
+	public String getTargetUrlName(){
 		return addCookiePrefix(DatarouterCookieKeys.targetUrl.toString());
 	}
 
-	private String addCookiePrefix(String cookieName) {
+	private String addCookiePrefix(String cookieName){
 		return getCookiePrefix() + DrStringTool.capitalizeFirstLetter(cookieName);
 	}
 

@@ -1,31 +1,19 @@
 package com.hotpads.notification.alias.databean;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
-import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.DateField;
+import com.hotpads.datarouter.storage.field.imp.DateFieldKey;
 import com.hotpads.datarouter.storage.field.imp.StringField;
+import com.hotpads.datarouter.storage.field.imp.StringFieldKey;
 import com.hotpads.notification.alias.NotificationAlias;
 
-
-/** CREATE SCRIPT
-com.hotpads.notification.databean.alias.Subscriber{
-  PK{
-    StringEnumField<Alias> alias,
-    StringField email
-  }
-  DateField subscriptionDate,
-  StringField subscriptionAuthor
-
-}
-
-*/
-public class Subscriber extends BaseDatabean<SubscriberKey,Subscriber> {
+public class Subscriber extends BaseDatabean<SubscriberKey,Subscriber>{
 
 	/** fields ****************************************************************/
 
@@ -37,28 +25,24 @@ public class Subscriber extends BaseDatabean<SubscriberKey,Subscriber> {
 
 	/** columns ***************************************************************/
 
-	public static class F {
-		public static final String
-			subscriptionDate = "subscriptionDate",
-			subscriptionAuthor = "subscriptionAuthor";
+	public static class FieldKeys{
+		public static final DateFieldKey subscriptionDate = new DateFieldKey("subscriptionDate");
+		public static final StringFieldKey subscriptionAuthor = new StringFieldKey("subscriptionAuthor");
 	}
 
 	/** fielder ***************************************************************/
 
 	public static class SubscriberFielder extends BaseDatabeanFielder<SubscriberKey,Subscriber>{
 
-		private SubscriberFielder(){}
-
-		@Override
-		public Class<SubscriberKey> getKeyFielderClass() {
-			return SubscriberKey.class;
+		private SubscriberFielder(){
+			super(SubscriberKey.class);
 		}
 
 		@Override
-		public List<Field<?>> getNonKeyFields(Subscriber d){
-			return FieldTool.createList(
-				new DateField(F.subscriptionDate, d.subscriptionDate),
-				new StringField(F.subscriptionAuthor, d.subscriptionAuthor, MySqlColumnType.MAX_LENGTH_VARCHAR));
+		public List<Field<?>> getNonKeyFields(Subscriber subscriber){
+			return Arrays.asList(
+				new DateField(FieldKeys.subscriptionDate, subscriber.subscriptionDate),
+				new StringField(FieldKeys.subscriptionAuthor, subscriber.subscriptionAuthor));
 		}
 	}
 
@@ -77,12 +61,12 @@ public class Subscriber extends BaseDatabean<SubscriberKey,Subscriber> {
 	/** databean **************************************************************/
 
 	@Override
-	public Class<SubscriberKey> getKeyClass() {
+	public Class<SubscriberKey> getKeyClass(){
 		return SubscriberKey.class;
 	}
 
 	@Override
-	public SubscriberKey getKey() {
+	public SubscriberKey getKey(){
 		return key;
 	}
 

@@ -10,7 +10,7 @@ public abstract class BaseStringUniqueKey<K extends Key<K>>
 extends BaseStringKey<K>
 implements UniqueKey<K>{
 
-	public BaseStringUniqueKey(String key) {
+	public BaseStringUniqueKey(String key){
 		super(key);
 	}
 

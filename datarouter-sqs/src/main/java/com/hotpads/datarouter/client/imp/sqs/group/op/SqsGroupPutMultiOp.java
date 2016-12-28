@@ -41,7 +41,7 @@ extends SqsOp<PK,D,F,Void>{
 		databeanGroup.write(collectionPrefix, 0, collectionPrefix.length);
 		for(D databean : databeans){
 			byte[] encodedDatabean = StringByteTool.getUtf8Bytes(codec.toString(databean, fielder));
-			if(encodedDatabean.length + 2*collectionPrefix.length > BaseSqsNode.MAX_BYTES_PER_MESSAGE){
+			if(encodedDatabean.length + 2 * collectionPrefix.length > BaseSqsNode.MAX_BYTES_PER_MESSAGE){
 				rejectedDatabeans.add(databean);
 				continue;
 			}

@@ -23,12 +23,12 @@ import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.util.core.profile.PhaseTimer;
 
 //you must run this manually, starting and stopping hbase to verify it reconnects, at least for now
-@Guice(moduleFactory=DatarouterStorageTestModuleFactory.class)
-public class HBaseClientReconnectTester {
+@Guice(moduleFactory = DatarouterStorageTestModuleFactory.class)
+public class HBaseClientReconnectTester{
 	private static final Logger logger = LoggerFactory.getLogger(HBaseClientReconnectTester.class);
 
-	//DoNotCommit//will loop forever in the test suite
-//	static boolean ENABLED = true;
+	// DoNotCommit//will loop forever in the test suite
+	// static boolean ENABLED = true;
 	private static boolean ENABLED = false;
 	private static KeepAliveKey testReconnectBeanKey = new KeepAliveKey("testReconnectBean");
 
@@ -50,8 +50,8 @@ public class HBaseClientReconnectTester {
 	}
 
 	public void resetTable(){
-//		node.deleteAll(null);
-//		Assert.assertEquals(0, CollectionTool.size(node.getAll(null)));
+		// node.deleteAll(null);
+		// Assert.assertEquals(0, CollectionTool.size(node.getAll(null)));
 		KeepAlive txnBean = new KeepAlive(testReconnectBeanKey.getId());
 		node.put(txnBean, null);
 		Assert.assertEquals(1, DrIterableTool.count(node.scan(null, null)).intValue());
@@ -64,9 +64,7 @@ public class HBaseClientReconnectTester {
 		}
 		int periodMs = 5000;
 		while(true){
-			Config config = new Config()
-					.setTimeoutMs((long)periodMs)
-					.setNumAttempts(1);
+			Config config = new Config().setTimeoutMs((long)periodMs).setNumAttempts(1);
 			try{
 				PhaseTimer timer = new PhaseTimer();
 				KeepAlive gotBean = node.get(testReconnectBeanKey, config);

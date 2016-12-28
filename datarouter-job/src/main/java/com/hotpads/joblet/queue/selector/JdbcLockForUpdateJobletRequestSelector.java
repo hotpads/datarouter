@@ -38,8 +38,8 @@ public class JdbcLockForUpdateJobletRequestSelector implements JobletRequestSele
 			if(jobletRequest == null){
 				return Optional.empty();
 			}
-			if( ! jobletRequest.getStatus().isRunning()){
-				continue;//weird flow.  it was probably just marked as timedOut, so skip it
+			if(!jobletRequest.getStatus().isRunning()){
+				continue;// weird flow. it was probably just marked as timedOut, so skip it
 			}
 			return Optional.of(jobletRequest);
 		}

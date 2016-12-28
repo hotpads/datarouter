@@ -56,7 +56,7 @@ public class SqlTable{
 			if(col.getName().equals(primaryKeyColumnName)){
 				List<SqlColumn> list = new ArrayList<>();
 				list.add(col);
-				if(primaryKey==null){
+				if(primaryKey == null){
 					primaryKey = new SqlIndex(name + "_Primary_Key", list);
 				}else{
 					primaryKey.addColumn(col);
@@ -88,7 +88,7 @@ public class SqlTable{
 	}
 
 	public boolean hasPrimaryKey(){
-		return getPrimaryKey()!=null && getPrimaryKey().getColumns().size()>0;
+		return getPrimaryKey() != null && getPrimaryKey().getColumns().size() > 0;
 	}
 
 	public boolean containsColumn(String columnName){
@@ -148,11 +148,11 @@ public class SqlTable{
 	@Override
 	public String toString(){
 		//TODO use StringBuilder
-		StringBuilder sb = new StringBuilder("SqlTable name=" + name + ",\n") ;
+		StringBuilder sb = new StringBuilder("SqlTable name=" + name + ",\n");
 //		for(SqlColumn col : getColumns()){
 //			sb.append(col + "\n");
 //		}
-//		sb.append("PK=" + primaryKey + "\nindexes=" + indexes );
+//		sb.append("PK=" + primaryKey + "\nindexes=" + indexes);
 //		sb.append("\nEngine : " +getEngine());
 
 		//sb.append("The create table statement :\n");
@@ -166,7 +166,7 @@ public class SqlTable{
 			return false;
 		}
 		SqlTable other = (SqlTable)otherObject;
-		return ! new SqlTableDiffGenerator(this, other,true).isTableModified();
+		return !new SqlTableDiffGenerator(this, other,true).isTableModified();
 	}
 
 	/*************************** get/set ********************************/

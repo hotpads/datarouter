@@ -15,7 +15,7 @@ public class RetryableTool{
 		for(int attemptNum = 1; attemptNum <= numAttempts; ++attemptNum){
 			try{
 				return callable.call();
-			}catch (Exception e){
+			}catch(Exception e){
 				if(attemptNum < numAttempts){
 					logger.warn("exception on attempt {}/{}, sleeping {}ms", attemptNum, numAttempts, backoffMs, e);
 					ThreadTool.sleep(backoffMs);

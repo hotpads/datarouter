@@ -19,7 +19,7 @@ import com.hotpads.datarouter.storage.field.imp.StringFieldKey;
 import com.hotpads.datarouter.util.core.DrDateTool;
 import com.hotpads.datarouter.util.core.DrIterableTool;
 
-public class WebAppInstance extends BaseDatabean<WebAppInstanceKey,WebAppInstance> {
+public class WebAppInstance extends BaseDatabean<WebAppInstanceKey,WebAppInstance>{
 
 	/** fields ****************************************************************/
 
@@ -34,7 +34,7 @@ public class WebAppInstance extends BaseDatabean<WebAppInstanceKey,WebAppInstanc
 
 	/** columns ***************************************************************/
 
-	public static class FieldKeys {
+	public static class FieldKeys{
 		public static final StringFieldKey serverType = new StringFieldKey("serverType");
 		public static final StringFieldKey serverPublicIp = new StringFieldKey("serverPublicIp");
 		public static final DateFieldKey refreshedLast = new DateFieldKey("refreshedLast");
@@ -87,12 +87,12 @@ public class WebAppInstance extends BaseDatabean<WebAppInstanceKey,WebAppInstanc
 	/** databean **************************************************************/
 
 	@Override
-	public Class<WebAppInstanceKey> getKeyClass() {
+	public Class<WebAppInstanceKey> getKeyClass(){
 		return WebAppInstanceKey.class;
 	}
 
 	@Override
-	public WebAppInstanceKey getKey() {
+	public WebAppInstanceKey getKey(){
 		return key;
 	}
 

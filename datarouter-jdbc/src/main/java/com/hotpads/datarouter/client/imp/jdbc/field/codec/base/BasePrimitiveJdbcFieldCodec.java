@@ -11,7 +11,7 @@ extends BaseJdbcFieldCodec<T,F>{
 
 	@Override
 	public String getSqlEscaped(){
-		if(field.getValue()==null){
+		if(field.getValue() == null){
 			return "null";
 		}
 		return field.getValue().toString();

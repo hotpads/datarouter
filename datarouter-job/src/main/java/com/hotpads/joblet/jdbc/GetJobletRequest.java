@@ -50,7 +50,7 @@ public class GetJobletRequest extends BaseJdbcOp<JobletRequest>{
 		String selectSql = makeSelectSql();
 		JobletRequest jobletRequest = DrCollectionTool.getFirst(JdbcTool.selectDatabeans(jdbcFieldCodecFactory,
 				connection, jobletNodes.jobletRequest().getFieldInfo(), selectSql));
-		if(jobletRequest == null) {
+		if(jobletRequest == null){
 			return null;
 		}
 

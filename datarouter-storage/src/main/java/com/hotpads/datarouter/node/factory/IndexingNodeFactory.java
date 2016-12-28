@@ -29,7 +29,7 @@ import com.hotpads.datarouter.storage.view.index.multi.MultiIndexEntry;
 import com.hotpads.datarouter.storage.view.index.unique.UniqueIndexEntry;
 import com.hotpads.util.core.java.ReflectionTool;
 
-public class IndexingNodeFactory {
+public class IndexingNodeFactory{
 
 	public static <PK extends PrimaryKey<PK>,
 					D extends Databean<PK,D>>
