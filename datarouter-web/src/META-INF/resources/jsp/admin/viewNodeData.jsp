@@ -58,16 +58,20 @@
 		</c:if>
 		<nav> 
 			<ul class="pager">
-				<li>
-					<a href="?submitAction=${param.submitAction}&routerName=${param.routerName}&nodeName=${param.nodeName}&startAfterKey=&limit=${limit}">
-						Start
-					</a>
-				</li>
-				<li>
-					<a href="?submitAction=${param.submitAction}&routerName=${param.routerName}&nodeName=${param.nodeName}${accesDatabeans}">
-						Next
-					</a>
-				</li>
+				<c:if test="${not empty startAfterKey}">
+					<li>
+						<a href="?submitAction=${param.submitAction}&routerName=${param.routerName}&nodeName=${param.nodeName}&startAfterKey=&limit=${limit}">
+							Start
+						</a>
+					</li>
+				</c:if>
+				<c:if test="${not empty accesDatabeans}">
+					<li>
+						<a href="?submitAction=${param.submitAction}&routerName=${param.routerName}&nodeName=${param.nodeName}${accesDatabeans}">
+							Next
+						</a>
+					</li>
+				</c:if>
 			</ul>
 		</nav>
 		<br />
