@@ -5,7 +5,7 @@ import com.hotpads.handler.dispatcher.DatarouterWebDispatcher;
 import com.hotpads.handler.mav.Mav;
 import com.hotpads.handler.mav.imp.InContextRedirectMav;
 
-public class DatarouterHandler extends BaseHandler {
+public class DatarouterHandler extends BaseHandler{
 
 	@Override
 	@Handler

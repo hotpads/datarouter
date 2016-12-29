@@ -24,7 +24,7 @@ public class JobletQueueKey extends BasePrimaryKey<JobletQueueKey>{
 	}
 
 	@Override
-	public List<Field<?>> getFields() {
+	public List<Field<?>> getFields(){
 		return Arrays.asList(
 				new StringField(FieldKeys.id, id));
 	}
@@ -33,15 +33,15 @@ public class JobletQueueKey extends BasePrimaryKey<JobletQueueKey>{
 	JobletQueueKey(){
 	}
 
-	public JobletQueueKey(String id) {
+	public JobletQueueKey(String id){
 		this.id = id;
 	}
 
-	public String getId() {
+	public String getId(){
 		return id;
 	}
 
-	public void setId(String id) {
+	public void setId(String id){
 		this.id = id;
 	}
 

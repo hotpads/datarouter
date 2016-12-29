@@ -40,7 +40,7 @@ implements ClientFactory{
 
 	@Override
 	public Client call(){
-		logger.info("activating Memcached client "+clientName);
+		logger.info("activating Memcached client " + clientName);
 		PhaseTimer timer = new PhaseTimer(clientName);
 		net.spy.memcached.MemcachedClient spyClient;
 		try{

@@ -34,9 +34,9 @@ extends BaseBatchBackedScanner<IE,IE>{
 		currentBatchIndex = 0;
 		IK lastRowOfPreviousBatch = range.getStart();
 		boolean isStartInclusive = range.getStartInclusive();
-		if (currentBatch != null){
+		if(currentBatch != null){
 			IE endOfLastBatch = DrCollectionTool.getLast(currentBatch);
-			if (endOfLastBatch == null){
+			if(endOfLastBatch == null){
 				currentBatch = null;
 				return;
 			}
