@@ -8,8 +8,8 @@ import com.hotpads.datarouter.storage.field.enums.DatarouterEnumTool;
 import com.hotpads.datarouter.storage.field.enums.StringEnum;
 import com.hotpads.notification.databean.NotificationUserType;
 
-public enum NotificationDestinationAppEnum implements StringEnum<NotificationDestinationAppEnum>,
-		NotificationDestinationApp{
+public enum NotificationDestinationAppEnum
+implements StringEnum<NotificationDestinationAppEnum>, NotificationDestinationApp{
 	@Deprecated
 	HOTPADS_GCM("hotpads_gcm", NotificationDestinationPlatform.GCM),
 	HOTPADS_IOS_GCM("hotpads_ios_gcm", NotificationDestinationPlatform.GCM),

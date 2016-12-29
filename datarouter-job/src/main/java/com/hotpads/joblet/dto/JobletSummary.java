@@ -22,15 +22,16 @@ import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.enums.JobletStatus;
 import com.hotpads.util.core.lang.ClassTool;
 
+
 public class JobletSummary{
 
-	// key fields
+	//key fields
 	private Integer executionOrder;
 	private JobletStatus status;
 	private String typeString;
 	private Integer typeCode;
 	private String queueId;
-	// summary fields
+	//summary fields
 	private Set<String> queueIds = new HashSet<>();
 	private int numFailures;
 	private int numType;
@@ -51,29 +52,53 @@ public class JobletSummary{
 	/*------------------------ static ---------------------------*/
 
 	public static Map<TypeKey,JobletSummary> summarizeByType(Stream<JobletRequest> requests){
-		return requests.map(JobletSummary::new).collect(Collectors.toMap(TypeKey::new, Function.identity(),
-				JobletSummary::absorbStats, TreeMap::new));
+		return requests
+				.map(JobletSummary::new)
+				.collect(Collectors.toMap(
+						TypeKey::new,
+						Function.identity(),
+						JobletSummary::absorbStats,
+						TreeMap::new));
 	}
 
-	public static Map<TypeStatusKey,JobletSummary> summarizeByTypeStatus(Stream<JobletRequest> requests){
-		return requests.map(JobletSummary::new).collect(Collectors.toMap(TypeStatusKey::new, Function.identity(),
-				JobletSummary::absorbStats, TreeMap::new));
+	public static Map<TypeStatusKey,JobletSummary> summarizeByTypeStatus(
+			Stream<JobletRequest> requests){
+		return requests
+				.map(JobletSummary::new)
+				.collect(Collectors.toMap(
+						TypeStatusKey::new,
+						Function.identity(),
+						JobletSummary::absorbStats,
+						TreeMap::new));
 	}
 
 	public static Map<TypeExecutionOrderStatusKey,JobletSummary> summarizeByTypeExecutionOrderStatus(
 			Stream<JobletRequest> requests){
-		return requests.map(JobletSummary::new).collect(Collectors.toMap(TypeExecutionOrderStatusKey::new, Function
-				.identity(), JobletSummary::absorbStats, TreeMap::new));
+		return requests
+				.map(JobletSummary::new)
+				.collect(Collectors.toMap(
+						TypeExecutionOrderStatusKey::new,
+						Function.identity(),
+						JobletSummary::absorbStats,
+						TreeMap::new));
 	}
 
 	public static Map<QueueStatusKey,JobletSummary> summarizeByQueueStatus(Stream<JobletRequest> requests){
-		return requests.map(JobletSummary::new).collect(Collectors.toMap(QueueStatusKey::new, Function.identity(),
-				JobletSummary::absorbStats, TreeMap::new));
+		return requests
+				.map(JobletSummary::new)
+				.collect(Collectors.toMap(
+						QueueStatusKey::new,
+						Function.identity(),
+						JobletSummary::absorbStats,
+						TreeMap::new));
 	}
 
 	public static List<JobletSummary> filterForStatus(Collection<JobletSummary> summaries, JobletStatus status){
-		return summaries.stream().filter(summary -> summary.getStatus() == status).collect(Collectors.toList());
+		return summaries.stream()
+				.filter(summary -> summary.getStatus() == status)
+				.collect(Collectors.toList());
 	}
+
 
 	/*------------------------ private --------------------------*/
 
@@ -117,6 +142,7 @@ public class JobletSummary{
 		return this;
 	}
 
+
 	/*------------------------ public (jsp) --------------------------*/
 
 	public boolean isEmpty(){
@@ -159,6 +185,7 @@ public class JobletSummary{
 		return (double)sumItems / (double)numType;
 	}
 
+
 	/*----------------------- Object ----------------------*/
 
 	@Override
@@ -168,6 +195,7 @@ public class JobletSummary{
 				+ numType + ", sumItems=" + sumItems + ", sumTasks=" + sumTasks + ", firstCreated=" + firstCreated
 				+ ", firstReserved=" + firstReserved + "]";
 	}
+
 
 	/*------------------ keys -----------------------*/
 
@@ -213,7 +241,8 @@ public class JobletSummary{
 				return false;
 			}
 			JobletSummary other = (JobletSummary)obj;
-			return Objects.equals(typeCode, other.typeCode) && Objects.equals(status, other.status);
+			return Objects.equals(typeCode, other.typeCode)
+					&& Objects.equals(status, other.status);
 		}
 
 		@Override
@@ -248,7 +277,8 @@ public class JobletSummary{
 				return false;
 			}
 			JobletSummary other = (JobletSummary)obj;
-			return Objects.equals(typeCode, other.typeCode) && Objects.equals(executionOrder, other.executionOrder)
+			return Objects.equals(typeCode, other.typeCode)
+					&& Objects.equals(executionOrder, other.executionOrder)
 					&& Objects.equals(status, other.status);
 		}
 
@@ -286,7 +316,8 @@ public class JobletSummary{
 				return false;
 			}
 			JobletSummary other = (JobletSummary)obj;
-			return Objects.equals(queueId, other.queueId) && Objects.equals(status, other.status);
+			return Objects.equals(queueId, other.queueId)
+					&& Objects.equals(status, other.status);
 		}
 
 		@Override

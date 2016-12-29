@@ -25,6 +25,7 @@ public class ClusterSetting extends BaseDatabean<ClusterSettingKey,ClusterSettin
 		public static final StringFieldKey value = new StringFieldKey("value");
 	}
 
+
 	public static class ClusterSettingFielder extends BaseDatabeanFielder<ClusterSettingKey,ClusterSetting>{
 
 		public ClusterSettingFielder(){
@@ -33,7 +34,8 @@ public class ClusterSetting extends BaseDatabean<ClusterSettingKey,ClusterSettin
 
 		@Override
 		public List<Field<?>> getNonKeyFields(ClusterSetting databean){
-			return Arrays.asList(new StringField(FieldKeys.value, databean.value));
+			return Arrays.asList(
+					new StringField(FieldKeys.value, databean.value));
 		}
 	}
 
@@ -76,19 +78,21 @@ public class ClusterSetting extends BaseDatabean<ClusterSettingKey,ClusterSettin
 
 	public static List<ClusterSetting> filterForWebAppInstance(List<ClusterSetting> settings,
 			WebAppInstance webAppInstance){
-		return settings.stream().filter(setting -> setting.getKey().appliesToWebAppInstance(webAppInstance)).collect(
-				Collectors.toList());
+		return settings.stream()
+				.filter(setting -> setting.getKey().appliesToWebAppInstance(webAppInstance))
+				.collect(Collectors.toList());
 	}
 
 	public static Optional<ClusterSetting> getMostSpecificSetting(List<ClusterSetting> settings){
-		return settings.isEmpty() ? Optional.empty()
-				: Optional.of(Collections.min(settings, new ClusterSettingScopeComparator()));
+		return settings.isEmpty() ? Optional.empty() : Optional.of(Collections.min(settings,
+				new ClusterSettingScopeComparator()));
 	}
 
 	public static <T> T getTypedValueOrUseDefaultFrom(Optional<ClusterSetting> clusterSetting,
 			Setting<T> settingForTypeAndDefault){
-		return clusterSetting.map(setting -> setting.getTypedValue(settingForTypeAndDefault)).orElse(
-				settingForTypeAndDefault.getDefaultValue());
+		return clusterSetting
+				.map(setting -> setting.getTypedValue(settingForTypeAndDefault))
+				.orElse(settingForTypeAndDefault.getDefaultValue());
 	}
 
 	/***************************** methods **************************************/
