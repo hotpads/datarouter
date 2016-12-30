@@ -40,8 +40,8 @@ implements BatchLoader<T>{
 				&& currentIndex < DrCollectionTool.size(batch);
 	}
 
-	protected boolean isBatchSmallerThan(int i){
-		return DrCollectionTool.size(batch) < i;
+	protected boolean isBatchSmallerThan(int size){
+		return DrCollectionTool.size(batch) < size;
 	}
 
 	protected void updateBatch(List<T> batch){
@@ -56,5 +56,4 @@ implements BatchLoader<T>{
 	protected T getLast(){
 		return DrCollectionTool.getLast(batch);
 	}
-
 }

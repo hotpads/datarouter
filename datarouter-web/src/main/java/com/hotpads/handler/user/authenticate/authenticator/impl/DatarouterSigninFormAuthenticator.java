@@ -26,7 +26,7 @@ public class DatarouterSigninFormAuthenticator extends BaseDatarouterAuthenticat
 
 	public DatarouterSigninFormAuthenticator(HttpServletRequest request, HttpServletResponse response,
 			DatarouterAuthenticationConfig authenticationConfig, DatarouterUserNodes userNodes,
-			DatarouterPasswordService passwordService) {
+			DatarouterPasswordService passwordService){
 		super(request, response);
 		this.authenticationConfig = authenticationConfig;
 		this.userNodes = userNodes;
@@ -60,19 +60,18 @@ public class DatarouterSigninFormAuthenticator extends BaseDatarouterAuthenticat
 
 		DatarouterUser user = userNodes.getUserNode().lookupUnique(new DatarouterUserByUsernameLookup(username), null);
 
-		if(user==null){
-			throw new InvalidCredentialsException("user not found ("+username+")");
+		if(user == null){
+			throw new InvalidCredentialsException("user not found (" + username + ")");
 		}
 		if(DrBooleanTool.isFalseOrNull(user.getEnabled())){
-			throw new InvalidCredentialsException("user not enabled ("+username+")");
+			throw new InvalidCredentialsException("user not enabled (" + username + ")");
 		}
 		if(DrStringTool.isEmpty(password)){
-			throw new InvalidCredentialsException("password cannot be empty ("+username+")");
+			throw new InvalidCredentialsException("password cannot be empty (" + username + ")");
 		}
-		if( ! passwordService.isPasswordCorrect(user, password)){
-			throw new IncorrectPasswordException("invalid password ("+username+")");
+		if(!passwordService.isPasswordCorrect(user, password)){
+			throw new IncorrectPasswordException("invalid password (" + username + ")");
 		}
 		return user;
 	}
-
 }

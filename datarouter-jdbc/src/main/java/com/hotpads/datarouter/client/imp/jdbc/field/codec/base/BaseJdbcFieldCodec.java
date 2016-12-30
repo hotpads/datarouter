@@ -5,8 +5,7 @@ import java.sql.ResultSet;
 import com.hotpads.datarouter.client.imp.jdbc.field.JdbcFieldCodec;
 import com.hotpads.datarouter.storage.field.Field;
 
-public abstract class BaseJdbcFieldCodec<T,F extends Field<T>>
-implements JdbcFieldCodec<T,F>{
+public abstract class BaseJdbcFieldCodec<T,F extends Field<T>> implements JdbcFieldCodec<T,F>{
 
 	protected F field;
 
@@ -29,14 +28,13 @@ implements JdbcFieldCodec<T,F>{
 
 	@Override
 	public void fromJdbcResultSetUsingReflection(Object targetFieldSet, ResultSet resultSet){
-		T v = fromJdbcResultSetButDoNotSet(resultSet);
-		field.setUsingReflection(targetFieldSet, v);
+		T value = fromJdbcResultSetButDoNotSet(resultSet);
+		field.setUsingReflection(targetFieldSet, value);
 	}
 
 	@Override
 	public void fromHibernateResultUsingReflection(Object targetFieldSet, Object col){
-		T v = parseJdbcValueButDoNotSet(col);
-		field.setUsingReflection(targetFieldSet, v);
+		T value = parseJdbcValueButDoNotSet(col);
+		field.setUsingReflection(targetFieldSet, value);
 	}
-
 }

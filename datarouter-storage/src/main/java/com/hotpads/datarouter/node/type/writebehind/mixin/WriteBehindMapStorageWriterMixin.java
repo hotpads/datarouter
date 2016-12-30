@@ -33,12 +33,12 @@ extends MapStorageWriter<PK,D>, WriteBehindNode<PK,D,N>{
 	}
 
 	@Override
-	public default void put(D databean, Config config) {
+	public default void put(D databean, Config config){
 		putMulti(DrListTool.wrap(databean), config);
 	}
 
 	@Override
-	public default void putMulti(Collection<D> databeans, Config config) {
+	public default void putMulti(Collection<D> databeans, Config config){
 		getQueue().offer(new WriteWrapper<>(OP_put, databeans, config));
 	}
 
@@ -56,5 +56,4 @@ extends MapStorageWriter<PK,D>, WriteBehindNode<PK,D,N>{
 		}
 		return true;
 	}
-
 }

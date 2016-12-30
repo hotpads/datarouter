@@ -20,11 +20,10 @@ public class TxnBean extends BaseDatabean<TxnBeanKey,TxnBean>{
 			return TxnBeanKey.class;
 		}
 		@Override
-		public List<Field<?>> getNonKeyFields(TxnBean d){
+		public List<Field<?>> getNonKeyFields(TxnBean bean){
 			return FieldTool.createList();
 		}
 	}
-
 
 	/***************************** constructor **************************************/
 
@@ -32,20 +31,19 @@ public class TxnBean extends BaseDatabean<TxnBeanKey,TxnBean>{
 		this.key = new TxnBeanKey(null);
 	}
 
-	public TxnBean(String id) {
+	public TxnBean(String id){
 		this.key = new TxnBeanKey(id);
 	}
-
 
 	/***************************** method ************************************/
 
 	@Override
-	public Class<TxnBeanKey> getKeyClass() {
+	public Class<TxnBeanKey> getKeyClass(){
 		return TxnBeanKey.class;
-	};
+	}
 
 	@Override
-	public TxnBeanKey getKey() {
+	public TxnBeanKey getKey(){
 		return key;
 	}
 
@@ -57,9 +55,6 @@ public class TxnBean extends BaseDatabean<TxnBeanKey,TxnBean>{
 		this.key = key;
 	}
 
-
-
-
 	public String getId(){
 		return key.getId();
 	}
@@ -68,6 +63,5 @@ public class TxnBean extends BaseDatabean<TxnBeanKey,TxnBean>{
 	public void setId(String id){
 		key.setId(id);
 	}
-
 
 }

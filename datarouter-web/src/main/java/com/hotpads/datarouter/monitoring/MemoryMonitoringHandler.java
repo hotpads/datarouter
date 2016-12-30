@@ -19,7 +19,6 @@ import javax.inject.Inject;
 import com.hotpads.datarouter.app.WebAppName;
 import com.hotpads.datarouter.config.DatarouterProperties;
 import com.hotpads.handler.BaseHandler;
-import com.hotpads.handler.BaseHandler.Handler;
 import com.hotpads.handler.encoder.JsonEncoder;
 import com.hotpads.handler.mav.Mav;
 import com.hotpads.util.core.Duration;
@@ -107,14 +106,14 @@ public class MemoryMonitoringHandler extends BaseHandler{
 		return mav;
 	}
 
-	@Handler(encoder=JsonEncoder.class)
+	@Handler(encoder = JsonEncoder.class)
 	private GarbabeCollectingResult garbageCollector(){
 		String serverName = params.required("serverName");
 		if(!serverName.equals(datarouterProperties.getServerName())){
 			return new GarbabeCollectingResult(false, null, null);
 		}
 		List<MemoryPoolMXBean> memoryPoolMxBeans = ManagementFactory.getMemoryPoolMXBeans();
-		Map<String, Long> map = new HashMap<>();
+		Map<String,Long> map = new HashMap<>();
 		for(MemoryPoolMXBean memoryPoolMxBean : memoryPoolMxBeans){
 			map.put(memoryPoolMxBean.getName(), memoryPoolMxBean.getUsage().getUsed());
 		}
@@ -281,5 +280,4 @@ public class MemoryMonitoringHandler extends BaseHandler{
 		}
 
 	}
-
 }
