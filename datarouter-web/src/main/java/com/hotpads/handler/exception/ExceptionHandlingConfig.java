@@ -7,7 +7,7 @@ import com.hotpads.datarouter.monitoring.exception.ExceptionDto;
 public interface ExceptionHandlingConfig{
 
 	boolean shouldDisplayStackTrace(HttpServletRequest request, Exception exception);
-	boolean shouldReportError(Throwable exception);
+	boolean shouldReportError(ExceptionRecord exceptionRecord);
 	boolean shouldReportError(ExceptionDto dto);
 
 	String getHtmlErrorMessage(Exception exception);

@@ -67,7 +67,7 @@ public class NotificationServiceExceptionRecorder implements ExceptionRecorder{
 				: UrlScheme.DOMAIN_NAME;
 		logger.warn("Exception recorded (https://" + domain + "/analytics/exception/details?exceptionRecord="
 				+ exceptionRecord.getKey().getId() + ")");
-		if(exceptionHandlingConfig.shouldReportError(exception)){
+		if(exceptionHandlingConfig.shouldReportError(exceptionRecord)){
 			NotificationUserId notificationUserId = new NotificationUserId(
 					NotificationUserType.EMAIL,
 					exceptionHandlingConfig.getRecipientEmail());
