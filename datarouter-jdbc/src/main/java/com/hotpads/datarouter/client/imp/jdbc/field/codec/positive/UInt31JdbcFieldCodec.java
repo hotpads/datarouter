@@ -11,17 +11,15 @@ import com.hotpads.datarouter.client.imp.jdbc.field.codec.base.BasePrimitiveJdbc
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.Field;
 
-public class UInt31JdbcFieldCodec
-extends BasePrimitiveJdbcFieldCodec<Integer,Field<Integer>>{
+public class UInt31JdbcFieldCodec extends BasePrimitiveJdbcFieldCodec<Integer,Field<Integer>>{
 
-	public UInt31JdbcFieldCodec(){//no-arg for reflection
+	public UInt31JdbcFieldCodec(){// no-arg for reflection
 		this(null);
 	}
 
 	public UInt31JdbcFieldCodec(Field<Integer> field){
 		super(field);
 	}
-
 
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
@@ -31,13 +29,13 @@ extends BasePrimitiveJdbcFieldCodec<Integer,Field<Integer>>{
 
 	@Override
 	public Integer parseJdbcValueButDoNotSet(Object obj){
-		return obj==null?null:(Integer)obj;
+		return obj == null ? null : (Integer)obj;
 	}
 
 	@Override
 	public void setPreparedStatementValue(PreparedStatement ps, int parameterIndex){
 		try{
-			if(field.getValue()==null){
+			if(field.getValue() == null){
 				ps.setNull(parameterIndex, Types.INTEGER);
 			}else{
 				ps.setInt(parameterIndex, field.getValue());
@@ -51,7 +49,7 @@ extends BasePrimitiveJdbcFieldCodec<Integer,Field<Integer>>{
 	public Integer fromJdbcResultSetButDoNotSet(ResultSet rs){
 		try{
 			int value = rs.getInt(field.getKey().getColumnName());
-			return rs.wasNull()?null:value;
+			return rs.wasNull() ? null : value;
 		}catch(SQLException e){
 			throw new DataAccessException(e);
 		}

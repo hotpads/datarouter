@@ -39,7 +39,7 @@ public class SignedByteField extends BasePrimitiveField<Byte>{
 	//recognizes -128 to -1 using two's complement.  therefore max value is 127
 	@Override
 	public byte[] getBytes(){
-		return value==null?null:DrByteTool.getComparableBytes(value);
+		return value == null ? null : DrByteTool.getComparableBytes(value);
 	}
 
 	@Override

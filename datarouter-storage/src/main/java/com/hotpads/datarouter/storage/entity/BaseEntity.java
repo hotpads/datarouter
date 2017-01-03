@@ -34,7 +34,7 @@ implements Entity<EK>,
 	}
 
 	@Override
-	public int compareTo(BaseEntity<EK> entity) {
+	public int compareTo(BaseEntity<EK> entity){
 		return getKey().compareTo(entity.getKey());
 	}
 
@@ -58,7 +58,7 @@ implements Entity<EK>,
 	void addDatabeansForQualifierPrefix(String qualifierPrefix, Collection<D> databeans){
 		@SuppressWarnings("unchecked") //types enforced by subclasses
 		EntitySection<EK,PK,D> section = (EntitySection<EK,PK,D>)databeansByQualifierPrefix.get(qualifierPrefix);
-		if(section==null){
+		if(section == null){
 			section = new EntitySection<>();
 			databeansByQualifierPrefix.put(qualifierPrefix, section);
 		}
@@ -75,7 +75,7 @@ implements Entity<EK>,
 	TreeSet<D> getDatabeansForQualifierPrefix(Class<D> databeanClass, String qualifierPrefix){
 		//TODO databeanClass is not used. can I remove it?
 		EntitySection<EK,PK,D> section = (EntitySection<EK,PK,D>)databeansByQualifierPrefix.get(qualifierPrefix);
-		return section==null ? null : section.getDatabeans();
+		return section == null ? null : section.getDatabeans();
 	}
 
 	public <PK extends EntityPrimaryKey<EK,PK>,D extends Databean<PK,D>>
@@ -99,7 +99,9 @@ implements Entity<EK>,
 		protected TreeSet<D> databeans = new TreeSet<>();
 
 		public void addAndReSort(D databean){
-			if(databean==null){ return; }
+			if(databean == null){
+				return;
+			}
 			databeans.add(databean);
 		}
 
@@ -118,7 +120,5 @@ implements Entity<EK>,
 		public int getNumDatabeans(){
 			return DrCollectionTool.size(databeans);
 		}
-
 	}
-
 }

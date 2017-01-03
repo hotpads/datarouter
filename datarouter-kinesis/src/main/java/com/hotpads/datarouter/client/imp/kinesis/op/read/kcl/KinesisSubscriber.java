@@ -62,18 +62,18 @@ implements DatarouterStreamSubscriberAccessor{
 				.withRegionName(regionName)
 				.withMetricsLevel(MetricsLevel.SUMMARY);
 
-		if(maxRecordsPerRequest!= null && maxRecordsPerRequest > 0){
+		if(maxRecordsPerRequest != null && maxRecordsPerRequest > 0){
 			kinesisClientLibConfiguration.withMaxRecords(maxRecordsPerRequest);
 		}
-		if(initialLeaseTableReadCapacity!= null && initialLeaseTableReadCapacity > 0){
+		if(initialLeaseTableReadCapacity != null && initialLeaseTableReadCapacity > 0){
 			kinesisClientLibConfiguration.withInitialLeaseTableReadCapacity(initialLeaseTableReadCapacity);
 		}
-		if(initialLeaseTableWriteCapacity!= null && initialLeaseTableWriteCapacity > 0){
+		if(initialLeaseTableWriteCapacity != null && initialLeaseTableWriteCapacity > 0){
 			kinesisClientLibConfiguration.withInitialLeaseTableWriteCapacity(initialLeaseTableWriteCapacity);
 		}
 		if(timestamp != null){
 			kinesisClientLibConfiguration.withTimestampAtInitialPositionInStream(timestamp);
-		} else {
+		}else{
 			kinesisClientLibConfiguration.withInitialPositionInStream(initialPositionInStream);
 		}
 
@@ -94,14 +94,14 @@ implements DatarouterStreamSubscriberAccessor{
 				.withRegion(Regions.fromName(kinesisClientLibConfiguration.getRegionName()));
 		DynamoDB dynamoDb = new DynamoDB(dynamoDbclient);
 		Table table = dynamoDb.getTable(dynamoDbTableName);
-        try {
+        try{
             logger.warn("Issuing DeleteTable request for " + dynamoDbTableName);
             table.delete();
 
             logger.warn("Waiting for " + dynamoDbTableName + " to be deleted...this may take a while...");
 
             table.waitForDelete();
-        } catch (Exception e) {
+        }catch(Exception e){
             logger.error("DeleteTable request failed for " + dynamoDbTableName);
         }
 	}
@@ -146,7 +146,7 @@ implements DatarouterStreamSubscriberAccessor{
 
 	@Override
 	public void unsubscribe(){
-		if(kinesisWorker!=null){
+		if(kinesisWorker != null){
 			kinesisWorker.shutdown();
 		}
 		if(kinesisWorkerThread != null){

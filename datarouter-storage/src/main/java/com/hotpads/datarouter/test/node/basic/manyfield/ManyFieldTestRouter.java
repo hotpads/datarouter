@@ -32,11 +32,9 @@ public class ManyFieldTestRouter extends BaseRouter{
 
 	protected MapStorageNode<ManyFieldBeanKey,ManyFieldBean> manyFieldTypeBeanNode;
 
-
 	/*************************** get/set ***********************************/
 
-	public MapStorageNode<ManyFieldBeanKey,ManyFieldBean> manyFieldTypeBean() {
+	public MapStorageNode<ManyFieldBeanKey,ManyFieldBean> manyFieldTypeBean(){
 		return manyFieldTypeBeanNode;
 	}
-
 }

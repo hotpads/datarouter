@@ -29,7 +29,7 @@ public class GuiceInjector implements DatarouterInjector{
 	}
 
 	@Override
-	public void injectMenbers(Object instance){
+	public void injectMembers(Object instance){
 		injector.injectMembers(instance);
 	}
 

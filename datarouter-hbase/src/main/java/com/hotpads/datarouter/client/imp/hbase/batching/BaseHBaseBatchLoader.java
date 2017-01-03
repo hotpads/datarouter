@@ -113,10 +113,10 @@ extends BaseBatchLoader<T>{
 	}
 
 	private boolean differentScatteringPrefix(Result row){
-		if (scatteringPrefixBytes == null || row == null){
+		if(scatteringPrefixBytes == null || row == null){
 			return false;
 		}
-		return ! DrByteTool.equals(scatteringPrefixBytes, 0, scatteringPrefixBytes.length,
+		return !DrByteTool.equals(scatteringPrefixBytes, 0, scatteringPrefixBytes.length,
 				row.getRow(), 0, scatteringPrefixBytes.length);
 	}
 }

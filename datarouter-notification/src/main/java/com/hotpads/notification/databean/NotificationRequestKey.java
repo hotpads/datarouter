@@ -11,7 +11,7 @@ import com.hotpads.datarouter.storage.field.imp.comparable.LongFieldKey;
 import com.hotpads.datarouter.storage.key.primary.base.BaseEntityPrimaryKey;
 import com.hotpads.notification.request.NotificationRequestEntityKey;
 
-public class NotificationRequestKey extends BaseEntityPrimaryKey<NotificationRequestEntityKey,NotificationRequestKey> {
+public class NotificationRequestKey extends BaseEntityPrimaryKey<NotificationRequestEntityKey,NotificationRequestKey>{
 
 	private NotificationRequestEntityKey entityKey;
 
@@ -51,23 +51,23 @@ public class NotificationRequestKey extends BaseEntityPrimaryKey<NotificationReq
 				new IntegerField(FieldKeys.nanoTime, nanoTime));
 	}
 
-	public NotificationUserId getNotificationUserId() {
+	public NotificationUserId getNotificationUserId(){
 		return entityKey.getUserId();
 	}
 
-	public NotificationUserType getUserType() {
+	public NotificationUserType getUserType(){
 		return entityKey.getUserId().getType();
 	}
 
-	public String getUserId() {
+	public String getUserId(){
 		return entityKey.getUserId().getId();
 	}
 
-	public Long getSentAtMs() {
+	public Long getSentAtMs(){
 		return sentAtMs;
 	}
 
-	public void setSentAtMs(Long sendAtMs) {
+	public void setSentAtMs(Long sendAtMs){
 		this.sentAtMs = sendAtMs;
 	}
 

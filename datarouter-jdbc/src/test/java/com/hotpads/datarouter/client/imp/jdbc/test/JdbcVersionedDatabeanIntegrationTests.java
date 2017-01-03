@@ -10,7 +10,7 @@ import com.hotpads.datarouter.client.imp.jdbc.TestDatarouterJdbcModuleFactory;
 import com.hotpads.datarouter.storage.databean.DatabeanVersioningException;
 import com.hotpads.datarouter.test.TestDatabeanKey;
 
-@Guice(moduleFactory=TestDatarouterJdbcModuleFactory.class)
+@Guice(moduleFactory = TestDatarouterJdbcModuleFactory.class)
 public class JdbcVersionedDatabeanIntegrationTests{
 
 	private static final TestDatabeanKey KEY = new TestDatabeanKey("demat");
