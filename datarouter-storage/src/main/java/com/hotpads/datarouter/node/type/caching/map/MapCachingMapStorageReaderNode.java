@@ -93,7 +93,7 @@ implements MapStorageReaderNode<PK,D>{
 	}
 
 	@Override
-	public List<D> getMulti(final Collection<PK> keys, Config config) {
+	public List<D> getMulti(final Collection<PK> keys, Config config){
 		if(!useCache(config)){
 			return backingNode.getMulti(keys, config);
 		}
@@ -123,7 +123,7 @@ implements MapStorageReaderNode<PK,D>{
 	}
 
 	@Override
-	public List<PK> getKeys(Collection<PK> keys, Config config) {
+	public List<PK> getKeys(Collection<PK> keys, Config config){
 		if(!useCache(config)){
 			return backingNode.getKeys(keys, config);
 		}
@@ -170,15 +170,15 @@ implements MapStorageReaderNode<PK,D>{
 	/************** counters ***************************************/
 
 	private void countHits(){
-		DRCounters.incOp(null, getName()+" hit");
+		DRCounters.incOp(null, getName() + " hit");
 	}
 
 	private void countMisses(){
-		DRCounters.incOp(null, getName()+" miss");
+		DRCounters.incOp(null, getName() + " miss");
 	}
 
 	private void countExceptions(){
-		DRCounters.incOp(null, getName()+" exception");
+		DRCounters.incOp(null, getName() + " exception");
 	}
 
 }

@@ -50,7 +50,7 @@ extends BaseField<E>{
 
 	@Override
 	public String getStringEncodedValue(){
-		if(value==null){
+		if(value == null){
 			return null;
 		}
 		return value.getPersistentInteger().toString();
@@ -69,7 +69,7 @@ extends BaseField<E>{
 
 	@Override
 	public byte[] getBytes(){
-		return value==null?null:IntegerByteTool.getComparableBytes(
+		return value == null?null : IntegerByteTool.getComparableBytes(
 				value.getPersistentInteger());
 	}
 
@@ -84,11 +84,9 @@ extends BaseField<E>{
 				IntegerByteTool.fromComparableBytes(bytes, offset));
 	}
 
-
-
 	@Override
 	public String getValueString(){
-		if(value==null){
+		if(value == null){
 			return "";
 		}//hmm - should this just return null?
 		return String.valueOf(value.getPersistentInteger());

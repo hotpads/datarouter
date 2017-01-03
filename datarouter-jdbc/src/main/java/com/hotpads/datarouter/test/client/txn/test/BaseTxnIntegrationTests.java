@@ -21,12 +21,12 @@ import com.hotpads.datarouter.test.client.txn.txnapp.TestNestedTxn;
 import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrListTool;
 
-public abstract class BaseTxnIntegrationTests {
+public abstract class BaseTxnIntegrationTests{
 
 	@Inject
 	private Datarouter datarouter;
 	@Inject
-	private	DatarouterSettings datarouterSettings;
+	private DatarouterSettings datarouterSettings;
 	@Inject
 	private NodeFactory nodeFactory;
 
