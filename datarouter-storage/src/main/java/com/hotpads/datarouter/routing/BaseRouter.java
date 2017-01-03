@@ -109,7 +109,7 @@ implements Router{
 
 	@Deprecated
 	@Override
-	public Datarouter getContext() {
+	public Datarouter getContext(){
 		return datarouter;
 	}
 
@@ -130,7 +130,7 @@ implements Router{
 	/********************* get/set ******************************/
 
 	@Override
-	public String getName() {
+	public String getName(){
 		return name;
 	}
 

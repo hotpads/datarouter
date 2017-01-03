@@ -161,7 +161,7 @@ public class JobletService{
 		String serverNamePrefix = serverName + "_";//don't want joblet1 to include joblet10
 		List<JobletRequest> jobletRequestsToReset = JobletRequest.filterByTypeStatusReservedByPrefix(jobletRequests,
 				jobletType, JobletStatus.running, serverNamePrefix);
-		logger.warn("found "+DrCollectionTool.size(jobletRequestsToReset)+" jobletRequests to reset");
+		logger.warn("found " + DrCollectionTool.size(jobletRequestsToReset) + " jobletRequests to reset");
 		for(JobletRequest jobletRequest : jobletRequestsToReset){
 			handleJobletInterruption(new PhaseTimer("setJobletRequestsRunningOnServerToCreated " + jobletRequest
 					.toString()), jobletRequest);
@@ -217,7 +217,7 @@ public class JobletService{
 		jobletRequest.setReservedBy(null);
 		jobletRequest.setReservedAt(null);
 		jobletRequest.incrementNumFailures();
-		if(jobletRequest.getRestartable() && ! jobletRequest.hasReachedMaxFailures()){
+		if(jobletRequest.getRestartable() && !jobletRequest.hasReachedMaxFailures()){
 			jobletRequest.setStatus(JobletStatus.created);
 			requeueJobletRequest(timer, jobletRequest);
 		}else{

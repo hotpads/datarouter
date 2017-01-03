@@ -32,7 +32,7 @@ public class DatarouterSignatureAuthenticator extends BaseDatarouterAuthenticato
 
 	@Override
 	public DatarouterSession getSession(){
-		if(!request.getServletPath().startsWith(authenticationConfig.getApiPath())) {
+		if(!request.getServletPath().startsWith(authenticationConfig.getApiPath())){
 			return null;
 		}
 		DatarouterSession session = getSession(request);
@@ -40,7 +40,7 @@ public class DatarouterSignatureAuthenticator extends BaseDatarouterAuthenticato
 		return session;
 	}
 
-	protected DatarouterSession getSession(HttpServletRequest request) {
+	protected DatarouterSession getSession(HttpServletRequest request){
 		String apiKey = request.getParameter(authenticationConfig.getApiKeyParam());
 		String signature = request.getParameter(authenticationConfig.getSignatureParam());
 		DatarouterUser user = lookupUserByApiKeyAndValidate(apiKey);
@@ -58,20 +58,20 @@ public class DatarouterSignatureAuthenticator extends BaseDatarouterAuthenticato
 		return session;
 	}
 
-	protected DatarouterUser lookupUserByApiKeyAndValidate(String apiKey) {
-		if (DrStringTool.isNullOrEmpty(apiKey)) {
+	protected DatarouterUser lookupUserByApiKeyAndValidate(String apiKey){
+		if(DrStringTool.isNullOrEmpty(apiKey)){
 			throw new InvalidApiCallException("no api key specified");
 		}
 
 		DatarouterUser user = userNodes.getUserNode().lookupUnique(new DatarouterUserByApiKeyLookup(apiKey), null);
 
-		if (user == null) {
+		if(user == null){
 			throw new InvalidApiCallException("no user found with provided api key");
 		}
-		if (DrBooleanTool.isFalseOrNull(user.getEnabled())) {
+		if(DrBooleanTool.isFalseOrNull(user.getEnabled())){
 			throw new InvalidApiCallException("user is not enabled");
 		}
-		if (DrBooleanTool.isFalseOrNull(user.getApiEnabled())) {
+		if(DrBooleanTool.isFalseOrNull(user.getApiEnabled())){
 			throw new InvalidApiCallException("user does not have api authorization");
 		}
 
