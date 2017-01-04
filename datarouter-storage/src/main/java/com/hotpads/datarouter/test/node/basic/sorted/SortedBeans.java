@@ -35,7 +35,7 @@ public class SortedBeans{
 	public static final String PREFIX_ch = "ch";
 	public static final int NUM_PREFIX_ch = 1;
 
-	public static final	String
+	public static final String
 			RANGE_al = "al",
 			RANGE_alp = "alp",
 			RANGE_emu = "emu";
@@ -48,13 +48,13 @@ public class SortedBeans{
 
 	public static final int NUM_ELEMENTS = STRINGS.size();
 	public static final List<Integer> INTEGERS = new ArrayList<>(NUM_ELEMENTS);
+	public static final int TOTAL_RECORDS = NUM_ELEMENTS * NUM_ELEMENTS * NUM_ELEMENTS * NUM_ELEMENTS;
+
 	static{
-		for(int i=0; i < NUM_ELEMENTS; ++i){
+		for(int i = 0; i < NUM_ELEMENTS; ++i){
 			INTEGERS.add(i);
 		}
 	}
-
-	public static final int TOTAL_RECORDS = NUM_ELEMENTS*NUM_ELEMENTS*NUM_ELEMENTS*NUM_ELEMENTS;
 
 	public static List<SortedBean> generatedSortedBeans(){
 		List<String> as = new ArrayList<>(STRINGS);
@@ -68,10 +68,10 @@ public class SortedBeans{
 		Collections.shuffle(ds);
 
 		List<SortedBean> beans = new ArrayList<>();//save in periodic batches
-		for(int a=0; a < NUM_ELEMENTS; ++a){
-			for(int b=0; b < NUM_ELEMENTS; ++b){
-				for(int c=0; c < NUM_ELEMENTS; ++c){
-					for(int d=0; d < NUM_ELEMENTS; ++d){
+		for(int a = 0; a < NUM_ELEMENTS; ++a){
+			for(int b = 0; b < NUM_ELEMENTS; ++b){
+				for(int c = 0; c < NUM_ELEMENTS; ++c){
+					for(int d = 0; d < NUM_ELEMENTS; ++d){
 						SortedBean bean = new SortedBean(
 								as.get(a), bs.get(b), cs.get(c), ds.get(d),
 								"string so hbase has at least one field", null, null, null);

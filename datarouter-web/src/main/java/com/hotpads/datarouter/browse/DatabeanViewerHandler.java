@@ -93,7 +93,7 @@ public class DatabeanViewerHandler extends BaseHandler{
 			allTreeNodes.add(topLevelNode);
 			allTreeNodes.addAll(topLevelNode.getChildNodes());
 			for(Node<?,?> node : allTreeNodes){
-				String [] nodeNameSplit = node.getName().split("\\.");
+				String[] nodeNameSplit = node.getName().split("\\.");
 				if(nodeNameSplit.length < 2){
 					logger.error("There might be some problem with the nodeName, where nodeName = " + node.getName());
 				}
