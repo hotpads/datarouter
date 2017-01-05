@@ -2,7 +2,6 @@ package com.hotpads.joblet.databean;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -30,7 +29,6 @@ import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.joblet.enums.JobletPriority;
 import com.hotpads.joblet.enums.JobletStatus;
 import com.hotpads.joblet.type.JobletType;
-import com.hotpads.joblet.type.JobletTypeFactory;
 import com.hotpads.util.datastructs.MutableBoolean;
 
 public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
@@ -149,26 +147,6 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 			outs.add(in);
 		}
 		return outs;
-	}
-
-	public static JobletRequest getOldestForTypesAndStatuses(JobletTypeFactory jobletTypeFactory,
-			Iterable<JobletRequest> jobletRequests, Collection<JobletType<?>> types, Collection<JobletStatus> statuses){
-		JobletRequest oldest = null;
-		long now = System.currentTimeMillis();
-		for(JobletRequest jobletRequest : DrIterableTool.nullSafe(jobletRequests)){
-			JobletType<?> jobletType = jobletTypeFactory.fromJobletRequest(jobletRequest);
-			if(types.contains(jobletType) && statuses.contains(jobletRequest.getStatus())){
-				if(oldest == null){
-					oldest = jobletRequest;
-				}
-				long ageMs = now - jobletRequest.getKey().getCreated();
-				long oldestAgeMs = now - oldest.getKey().getCreated();
-				if(ageMs > oldestAgeMs){
-					oldest = jobletRequest;
-				}
-			}
-		}
-		return oldest;
 	}
 
 	public static List<JobletDataKey> getJobletDataKeys(List<JobletRequest> jobletRequests){
