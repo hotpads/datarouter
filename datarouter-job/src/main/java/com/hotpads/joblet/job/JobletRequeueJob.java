@@ -93,7 +93,7 @@ public class JobletRequeueJob extends BaseJob{
 				break;
 			}
 			jobletNodes.jobletRequestQueueByKey().get(queueKey).put(request, null);
-			logger.warn("requeued {}, {}", request.getTypeString(), request);
+			logger.warn("requeued one for {}-{}, {}", request.getTypeString(), request.getKey().getPriority(), request);
 		}
 	}
 
