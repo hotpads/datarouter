@@ -15,7 +15,7 @@
 	<div class="container-fluid" id="jobletsTable">
 		<div class="page-content-container page-content-thicktop page-single-column">
 			servers: min=${minServers}, max=${maxServers}, target=
-				<a href="${contextPath}/datarouter/jobletScaling">view</a></p>
+				<a href="${contextPath}/jobletScaling">view</a></p>
 				<br/> <br/>totalTickets:${totalTickets}</p>
 
 			<table class="jobletTable sortable table table-bordered table-condensed" style="border-collapse:collapse;">
