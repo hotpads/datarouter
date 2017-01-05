@@ -2,6 +2,8 @@ package com.hotpads.joblet.scaler;
 
 import java.time.Duration;
 import java.util.EnumSet;
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -12,9 +14,10 @@ import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import com.hotpads.datarouter.config.Configs;
 import com.hotpads.joblet.JobletNodes;
 import com.hotpads.joblet.databean.JobletRequest;
+import com.hotpads.joblet.databean.JobletRequestKey;
+import com.hotpads.joblet.enums.JobletPriority;
 import com.hotpads.joblet.enums.JobletStatus;
 import com.hotpads.joblet.setting.JobletSettings;
 import com.hotpads.joblet.type.ActiveJobletTypeFactory;
@@ -27,6 +30,7 @@ public class JobletScaler{
 	public static final Duration BACKUP_PERIOD = Duration.ofMinutes(5);
 	private static final int NUM_EXTRA_SERVERS_PER_BACKUP_PERIOD = 2;
 	private static final Set<JobletStatus> STATUSES_TO_CONSIDER = EnumSet.of(JobletStatus.created);
+	private static final int IGNORE_OLDEST_N_JOBLETS = 100;//in case they are stuck
 
 	private final ActiveJobletTypeFactory activeJobletTypeFactory;
 	private final JobletTypeFactory jobletTypeFactory;
@@ -43,25 +47,33 @@ public class JobletScaler{
 	}
 
 	public int getNumJobletServers(){
-		Iterable<JobletRequest> joblets = jobletNodes.jobletRequest().scan(null, Configs.slaveOk());
-		return calcNumJobletServers(joblets);
-	}
-
-	/*--------------- private -----------------*/
-
-	private int calcNumJobletServers(Iterable<JobletRequest> jobletRequests){
+		List<JobletRequestKey> prefixes = JobletRequestKey.createPrefixesForTypesAndPriorities(
+				activeJobletTypeFactory.getActiveTypesCausingScaling(), EnumSet.allOf(JobletPriority.class));
+		Duration maxAge = Duration.ZERO;
+		Optional<JobletRequest> oldestJobletRequest = Optional.empty();
+		for(JobletRequestKey prefix : prefixes){
+			Optional<JobletRequest> oldestWithPrefix = jobletNodes.jobletRequest().streamWithPrefix(prefix, null)
+					.filter(request -> STATUSES_TO_CONSIDER.contains(request.getStatus()))
+					.skip(IGNORE_OLDEST_N_JOBLETS)
+					.findFirst();
+			if(!oldestWithPrefix.isPresent()){
+				continue;
+			}
+			Duration age = oldestWithPrefix.get().getKey().getAge();
+			if(age.compareTo(maxAge) > 0){
+				maxAge = age;
+				oldestJobletRequest = oldestWithPrefix;
+			}
+		}
 		int minServers = jobletSettings.minJobletServers.getValue();
 		int maxServers = jobletSettings.maxJobletServers.getValue();
-		JobletRequest oldestJobletRequest = JobletRequest.getOldestForTypesAndStatuses(jobletTypeFactory,
-				jobletRequests, activeJobletTypeFactory.getActiveTypesCausingScaling(), STATUSES_TO_CONSIDER);
-		if(oldestJobletRequest == null){
+		if(!oldestJobletRequest.isPresent()){
 			return minServers;
 		}
-		Duration maxAge = Duration.ofMillis(System.currentTimeMillis() - oldestJobletRequest.getKey().getCreated());
 		int targetServers = getTargetServersForQueueAge(minServers, maxServers, maxAge);
 		if(targetServers > minServers){
 			logger.warn("targetServers at {} because of {} with age {}m", targetServers, jobletTypeFactory
-					.fromJobletRequest(oldestJobletRequest), maxAge.toMinutes());
+					.fromJobletRequest(oldestJobletRequest.get()), maxAge.toMinutes());
 		}
 		return targetServers;
 	}
