@@ -8,4 +8,7 @@ public interface NotificationDestinationApp{
 
 	boolean accept(NotificationUserType type);
 
+	public String getPersistentString();
+
+	public NotificationDestinationApp fromPersistentString(String str);
 }

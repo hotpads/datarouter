@@ -8,15 +8,15 @@ import com.hotpads.notification.sender.template.NotificationTemplate;
 public class NotificationSendingResult{
 
 	private NotificationUserId userId;
-	private Class<? extends NotificationTemplate> template;
+	private String template;
 	private NotificationFailureReason failureReason;
 
-	public NotificationSendingResult(NotificationUserId userId, Class<? extends NotificationTemplate> template){
+	public NotificationSendingResult(NotificationUserId userId, String template){
 		this.userId = userId;
 		this.template = template;
 	}
 
-	public Class<? extends NotificationTemplate> getTemplate(){
+	public String getTemplate(){
 		return template;
 	}
 

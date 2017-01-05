@@ -37,8 +37,8 @@ implements StringEnum<NotificationDestinationAppEnum>, NotificationDestinationAp
 	}
 
 	@Override
-	public NotificationDestinationAppEnum fromPersistentString(String s){
-		return DatarouterEnumTool.getEnumFromString(values(), s, null);
+	public NotificationDestinationAppEnum fromPersistentString(String str){
+		return DatarouterEnumTool.getEnumFromString(values(), str, null);
 	}
 
 	@Override
