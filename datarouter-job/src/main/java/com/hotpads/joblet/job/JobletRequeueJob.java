@@ -1,9 +1,8 @@
 package com.hotpads.joblet.job;
 
+import java.time.Duration;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
@@ -19,17 +18,22 @@ import com.hotpads.joblet.enums.JobletPriority;
 import com.hotpads.joblet.enums.JobletStatus;
 import com.hotpads.joblet.queue.JobletRequestQueueKey;
 import com.hotpads.joblet.queue.JobletRequestQueueManager;
-import com.hotpads.joblet.scaler.JobletScaler;
 import com.hotpads.joblet.setting.JobletSettings;
 import com.hotpads.joblet.type.ActiveJobletTypeFactory;
-import com.hotpads.util.core.iterable.BatchingIterable;
+import com.hotpads.util.core.collections.Range;
 
 /**
  * Find joblets that look to be stuck with status=created but apparently aren't in the queue, and requeue them.  If they
- * were in the queue, then the extra message will be ignored.
+ * were already in the queue, then the extra message will be ignored when dequeued.
  */
 public class JobletRequeueJob extends BaseJob{
 	private static final Logger logger = LoggerFactory.getLogger(JobletRequeueJob.class);
+
+	private static final Duration
+			MIDDLE_AGE = Duration.ofMinutes(30),
+			OLD_AGE = Duration.ofHours(1);
+
+	private static final Range<Duration> MIDDLE_AGE_RANGE = new Range<>(MIDDLE_AGE, OLD_AGE);
 
 	private final JobletSettings jobletSettings;
 	private final ActiveJobletTypeFactory activeJobletTypeFactory;
@@ -55,28 +59,41 @@ public class JobletRequeueJob extends BaseJob{
 
 	@Override
 	public void run(){
-		long createdBeforeMs = System.currentTimeMillis() - JobletScaler.BACKUP_PERIOD.toMillis();
-		final Predicate<JobletRequestKey> anyNewRequestsPredicate = prefix -> {
-			return jobletNodes.jobletRequest().streamWithPrefix(prefix, null)
-					.filter(request -> request.getStatus() == JobletStatus.created)
-					.filter(request -> request.getKey().getCreated() >= createdBeforeMs)
-					.findAny()
-					.isPresent();
-		};
 		List<JobletRequestKey> allPrefixes = JobletRequestKey.createPrefixesForTypesAndPriorities(
 				activeJobletTypeFactory.getAllActiveTypes(), EnumSet.allOf(JobletPriority.class));
-		List<JobletRequestKey> prefixesWithoutNewRequests = allPrefixes.stream()
-				.filter(anyNewRequestsPredicate.negate())
-				.collect(Collectors.toList());
-		for(JobletRequestKey prefix : prefixesWithoutNewRequests){
-			Iterable<JobletRequest> possiblyStuckRequests = jobletNodes.jobletRequest().streamWithPrefix(prefix, null)
-					.filter(request -> request.getStatus() == JobletStatus.created)
-					.filter(request -> request.getKey().getCreated() < createdBeforeMs)::iterator;
-			JobletRequestQueueKey queueKey = jobletRequestQueueManager.getQueueKey(prefix);
-			for(List<JobletRequest> possiblyStuckBatch : new BatchingIterable<>(possiblyStuckRequests, 100)){
-				jobletNodes.jobletRequestQueueByKey().get(queueKey).putMulti(possiblyStuckBatch, null);
-				logger.warn("requeued {} of {}", possiblyStuckBatch.size(), prefix);
+		allPrefixes.stream()
+				.filter(this::anyToRequeueWithPrefix)
+				.forEach(this::requeueOldJobletsForPrefix);
+	}
+
+
+	//return if there are any old joblets with a big gap after them
+	private boolean anyToRequeueWithPrefix(JobletRequestKey prefix){
+		boolean anyOld = false;
+		for(JobletRequest request : jobletNodes.jobletRequest().scanWithPrefix(prefix, null)){
+			if(request.getStatus() != JobletStatus.created){
+				continue;
 			}
+			Duration age = request.getKey().getAge();
+			if(age.compareTo(OLD_AGE) > 0){
+				anyOld = true;
+			}else if(MIDDLE_AGE_RANGE.contains(age)){
+				return false;
+			}else{//hit the young joblets without seeing any middle age
+				return anyOld;
+			}
+		}
+		return false;
+	}
+
+	private void requeueOldJobletsForPrefix(JobletRequestKey prefix){
+		JobletRequestQueueKey queueKey = jobletRequestQueueManager.getQueueKey(prefix);
+		for(JobletRequest request : jobletNodes.jobletRequest().scanWithPrefix(prefix, null)){
+			if(request.getKey().getAge().compareTo(OLD_AGE) < 0){
+				break;
+			}
+			jobletNodes.jobletRequestQueueByKey().get(queueKey).put(request, null);
+			logger.warn("requeued {}, {}", request.getTypeString(), request);
 		}
 	}
 
