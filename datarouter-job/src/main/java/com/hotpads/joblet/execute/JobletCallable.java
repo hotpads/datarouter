@@ -1,5 +1,6 @@
 package com.hotpads.joblet.execute;
 
+import java.time.Duration;
 import java.util.Date;
 import java.util.Optional;
 import java.util.concurrent.Callable;
@@ -26,6 +27,8 @@ import com.hotpads.util.datastructs.MutableBoolean;
 
 public class JobletCallable implements Callable<Void>{
 	private static final Logger logger = LoggerFactory.getLogger(JobletCallable.class);
+
+	private static final Duration LOG_JOBLETS_SLOWER_THAN = Duration.ofMinutes(5);
 
 	private final DatarouterProperties datarouterProperties;
 	private final JobletNodes jobletNodes;
@@ -142,12 +145,19 @@ public class JobletCallable implements Callable<Void>{
 		if(DrStringTool.notEmpty(jobletRequest.getQueueId())){
 			typeAndQueue += " " + jobletRequest.getQueueId();
 		}
-		logger.debug("Finished " + typeAndQueue
+		String message = "finished " + typeAndQueue
 				+ " with " + jobletRequest.getNumItems() + " items"
 				+ " and " + jobletRequest.getNumTasks() + " tasks"
 				+ " in " + DrNumberFormatter.addCommas(durationMs) + "ms"
 				+ " at " + itemsPerSecond + " items/sec"
-				+ " and " + tasksPerSecond + " tasks/sec");
+				+ " and " + tasksPerSecond + " tasks/sec";
+		if(durationMs > JobletProcessor.RUNNING_JOBLET_TIMEOUT_MS){
+			logger.warn("finally " + message);
+		}else if(durationMs > LOG_JOBLETS_SLOWER_THAN.toMillis()){
+			logger.warn(message);
+		}else{
+			logger.debug(message);
+		}
 	}
 
 	public RunningJoblet getRunningJoblet(){
