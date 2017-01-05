@@ -161,7 +161,6 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 		return new JobletDataKey(jobletDataId);
 	}
 
-
 	public String getCreatedAgo(){
 		if(this.getKey().getCreated() == null){
 			return "";
