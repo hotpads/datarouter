@@ -1,5 +1,6 @@
 package com.hotpads.joblet.databean;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -82,6 +83,10 @@ public class JobletRequestKey extends BasePrimaryKey<JobletRequestKey>{
 
 	public Date getCreatedDate(){
 		return new Date(created);
+	}
+
+	public Duration getAge(){
+		return Duration.ofMillis(System.currentTimeMillis() - created);
 	}
 
 	/*----------------------- get/set -----------------------*/

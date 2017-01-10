@@ -20,7 +20,7 @@ public class BooleanField extends BasePrimitiveField<Boolean>{
 
 	@Override
 	public String getStringEncodedValue(){
-		if(value==null){
+		if(value == null){
 			return null;
 		}
 		return value.toString();
@@ -38,7 +38,7 @@ public class BooleanField extends BasePrimitiveField<Boolean>{
 
 	@Override
 	public byte[] getBytes(){
-		return value==null?null:BooleanByteTool.getBytes(value);
+		return value == null ? null : BooleanByteTool.getBytes(value);
 	}
 
 	@Override

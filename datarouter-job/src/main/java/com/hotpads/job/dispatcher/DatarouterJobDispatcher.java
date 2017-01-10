@@ -18,8 +18,7 @@ public class DatarouterJobDispatcher extends BaseDispatcher{
 			SETTINGS = "/settings",
 			TRIGGERS = "/triggers",
 			LONG_RUNNING_TASKS = "/longRunningTasks",
-			JOBLETS = "/joblets",
-			JOBLET_SCALING = "/jobletScaling";
+			JOBLETS = "/joblets";
 
 
 	public DatarouterJobDispatcher(DatarouterInjector injector, String servletContextPath){

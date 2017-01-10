@@ -57,7 +57,7 @@ public class SqlTableDiffGenerator{
 		SqlColumnNameComparator comparator = new SqlColumnNameComparator(true);
 		Set<SqlColumn> tableAColumns = new TreeSet<>(comparator);
 		Set<SqlColumn> tableBColumns = new TreeSet<>(comparator);
-		if(tableA==null || tableB==null){
+		if(tableA == null || tableB == null){
 			return new ArrayList<>();
 		}
 		tableAColumns.addAll(tableA.getColumns());
@@ -70,7 +70,7 @@ public class SqlTableDiffGenerator{
 				new SqlColumnNameTypeLengthAutoIncrementDefaultComparator(true);
 		Set<SqlColumn> requestedColumns = new TreeSet<>(comparator);
 		Set<SqlColumn> currentColumns = new TreeSet<>(comparator);
-		if(requested==null || current==null){
+		if(requested == null || current == null){
 			return new ArrayList<>();
 		}
 		requestedColumns.addAll(requested.getColumns());
@@ -153,7 +153,7 @@ public class SqlTableDiffGenerator{
 	/********************* helper methods *******************************/
 
 	public boolean shouldReorderColumns(){
-		return enforceColumnOrder && ! isColumnOrderCorrect();
+		return enforceColumnOrder && !isColumnOrderCorrect();
 	}
 
 	public boolean isColumnOrderCorrect(){
@@ -161,25 +161,25 @@ public class SqlTableDiffGenerator{
 	}
 
 	public boolean isTableModified(){
-		if (isPrimaryKeyModified()){
+		if(isPrimaryKeyModified()){
 			return true;
 		}
 		// TODO too much on one line. extract the sets into their own variables
 		SortedSet<SqlColumn> currentColumns = new TreeSet<>(current.getColumns());
 		SortedSet<SqlColumn> requestedColumns = new TreeSet<>(requested.getColumns());
-		if (!currentColumns.equals(requestedColumns)){
+		if(!currentColumns.equals(requestedColumns)){
 			return true;
 		}
-		if (isIndexesModified()){
+		if(isIndexesModified()){
 			return true;
 		}
-		if (isEngineModified()){
+		if(isEngineModified()){
 			return true;
 		}
-		if (isCharacterSetModified()){
+		if(isCharacterSetModified()){
 			return true;
 		}
-		if (isCollationModified()){
+		if(isCollationModified()){
 			return true;
 		}
 		return false;
@@ -328,8 +328,8 @@ public class SqlTableDiffGenerator{
 			SqlIndex primaryKey1 = new SqlIndex("pk1").addColumn(idCol);
 			SqlIndex primaryKey2 = new SqlIndex("pk2").addColumn(idCol).addColumn(col);
 
-			SqlTable tableA = new SqlTable("Table 1", list1, primaryKey1 );
-			SqlTable tableB = new SqlTable("Table 2", list2, primaryKey2 );
+			SqlTable tableA = new SqlTable("Table 1", list1, primaryKey1);
+			SqlTable tableB = new SqlTable("Table 2", list2, primaryKey2);
 			SqlTable tableA2 = new SqlTable("Table 1", list1, primaryKey2);
 			SqlTable tableA0 = new SqlTable("Table 1"); // without pKey
 
@@ -574,7 +574,7 @@ public class SqlTableDiffGenerator{
 					.addColumn(colMetaDescription)
 					.addColumn(colAttributes)
 					.addColumn(lastModified);
-			SqlTable table2  = new SqlTable("TB").addColumn(colActiveTiny)
+			SqlTable table2 = new SqlTable("TB").addColumn(colActiveTiny)
 					.addColumn(colIncludeInSiteMapTiny)
 					.addColumn(colType)
 					.addColumn(colUseBoundedLayoutTiny)

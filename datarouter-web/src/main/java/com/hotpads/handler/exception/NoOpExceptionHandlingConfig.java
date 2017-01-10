@@ -23,7 +23,7 @@ public class NoOpExceptionHandlingConfig implements ExceptionHandlingConfig{
 	}
 
 	@Override
-	public boolean shouldReportError(Throwable exception){
+	public boolean shouldReportError(ExceptionRecord exceptionRecord){
 		return false;
 	}
 

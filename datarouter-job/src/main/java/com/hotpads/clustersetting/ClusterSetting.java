@@ -45,7 +45,7 @@ public class ClusterSetting extends BaseDatabean<ClusterSettingKey,ClusterSettin
 		this.key = new ClusterSettingKey(null, null, null, null, null);
 	}
 
-	public ClusterSetting(ClusterSettingKey key, String value) {
+	public ClusterSetting(ClusterSettingKey key, String value){
 		this.key = key;
 		this.value = value;
 	}
@@ -64,7 +64,7 @@ public class ClusterSetting extends BaseDatabean<ClusterSettingKey,ClusterSettin
 	}
 
 	@Override
-	public ClusterSettingKey getKey() {
+	public ClusterSettingKey getKey(){
 		return key;
 	}
 

@@ -13,6 +13,6 @@ public interface DatarouterInjector{
 
 	<T> Map<String,T> getInstancesOfType(Class<T> type);
 
-	void injectMenbers(Object instance);
+	void injectMembers(Object instance);
 
 }

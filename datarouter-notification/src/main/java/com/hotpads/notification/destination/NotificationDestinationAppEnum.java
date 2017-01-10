@@ -18,8 +18,7 @@ implements StringEnum<NotificationDestinationAppEnum>, NotificationDestinationAp
 	HOTPADS_EMAIL("hotpads_email", NotificationDestinationPlatform.EMAIL, NotificationUserType.EMAIL),
 	HOTPADS_SMS("hotpads_sms", NotificationDestinationPlatform.SMS, NotificationUserType.PHONE),
 	ZRM_IOS_GCM("zrm_ios_gcm", NotificationDestinationPlatform.GCM),
-	ZRM_ANDROID_GCM("zrm_android_gcm", NotificationDestinationPlatform.GCM),
-	;
+	ZRM_ANDROID_GCM("zrm_android_gcm", NotificationDestinationPlatform.GCM);
 
 	private String persistentString;
 	private NotificationDestinationPlatform platform;
@@ -51,5 +50,4 @@ implements StringEnum<NotificationDestinationAppEnum>, NotificationDestinationAp
 	public boolean accept(NotificationUserType type){
 		return acceptedAutologicalUserTypes.contains(type);
 	}
-
 }

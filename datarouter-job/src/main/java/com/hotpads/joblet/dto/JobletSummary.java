@@ -150,14 +150,14 @@ public class JobletSummary{
 	}
 
 	public String getFirstCreatedAgo(){
-		if(this.firstCreated == null) {
+		if(this.firstCreated == null){
 			return "";
 		}
 		return DrDateTool.getAgoString(this.firstCreated);
 	}
 
 	public String getFirstReservedAgo(){
-		if(this.firstReserved == null) {
+		if(this.firstReserved == null){
 			return "";
 		}
 		return DrDateTool.getAgoString(this.firstReserved);
@@ -337,11 +337,11 @@ public class JobletSummary{
 
 	/*-------------------- get/set --------------------*/
 
-	public Integer getExecutionOrder() {
+	public Integer getExecutionOrder(){
 		return executionOrder;
 	}
 
-	public JobletStatus getStatus() {
+	public JobletStatus getStatus(){
 		return status;
 	}
 
@@ -349,35 +349,35 @@ public class JobletSummary{
 		return typeCode;
 	}
 
-	public String getTypeString() {
+	public String getTypeString(){
 		return typeString;
 	}
 
-	public String getQueueId() {
+	public String getQueueId(){
 		return queueId;
 	}
 
-	public Integer getNumFailures() {
+	public Integer getNumFailures(){
 		return numFailures;
 	}
 
-	public Integer getNumType() {
+	public Integer getNumType(){
 		return numType;
 	}
 
-	public Integer getSumItems() {
+	public Integer getSumItems(){
 		return sumItems;
 	}
 
-	public Integer getSumTasks() {
+	public Integer getSumTasks(){
 		return sumTasks;
 	}
 
-	public Date getFirstCreated() {
+	public Date getFirstCreated(){
 		return firstCreated;
 	}
 
-	public Date getFirstReserved() {
+	public Date getFirstReserved(){
 		return firstReserved;
 	}
 

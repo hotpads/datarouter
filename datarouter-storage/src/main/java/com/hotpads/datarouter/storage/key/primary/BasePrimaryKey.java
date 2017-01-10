@@ -7,7 +7,7 @@ extends BaseUniqueKey<PK>
 implements PrimaryKey<PK>{
 
 	public BasePrimaryKey(){
-		super();
+
 	}
 
 	@Override

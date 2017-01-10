@@ -55,7 +55,7 @@ implements ContentHolder<CaseEnforcingDatabeanUpdateTestBeanKey, CaseEnforcingDa
 
 	/***************************** constructor **************************************/
 
-	CaseEnforcingDatabeanUpdateTestBean() {
+	CaseEnforcingDatabeanUpdateTestBean(){
 		this.key = new CaseEnforcingDatabeanUpdateTestBeanKey();
 	}
 
@@ -72,12 +72,12 @@ implements ContentHolder<CaseEnforcingDatabeanUpdateTestBeanKey, CaseEnforcingDa
 	/************************** databean *******************************************/
 
 	@Override
-	public Class<CaseEnforcingDatabeanUpdateTestBeanKey> getKeyClass() {
+	public Class<CaseEnforcingDatabeanUpdateTestBeanKey> getKeyClass(){
 		return CaseEnforcingDatabeanUpdateTestBeanKey.class;
 	}
 
 	@Override
-	public CaseEnforcingDatabeanUpdateTestBeanKey getKey() {
+	public CaseEnforcingDatabeanUpdateTestBeanKey getKey(){
 		return key;
 	}
 
@@ -85,12 +85,12 @@ implements ContentHolder<CaseEnforcingDatabeanUpdateTestBeanKey, CaseEnforcingDa
 	/** ContentHolder ********************************************************/
 
 	@Override
-	public List<Field<?>> getMetaFields() {
+	public List<Field<?>> getMetaFields(){
 		return Collections.emptyList();
 	}
 
 	@Override
-	public List<Field<?>> getContentFields() {
+	public List<Field<?>> getContentFields(){
 		return Arrays.asList(
 				new StringField(COL_f1, f1, DEFAULT_STRING_LENGTH),
 				new LongField(COL_f2, f2),
@@ -99,7 +99,7 @@ implements ContentHolder<CaseEnforcingDatabeanUpdateTestBeanKey, CaseEnforcingDa
 	}
 
 	@Override
-	public boolean equalsContent(ContentHolder<?, ?> other) {
+	public boolean equalsContent(ContentHolder<?, ?> other){
 		// TODO Auto-generated method stub
 		return false;
 	}

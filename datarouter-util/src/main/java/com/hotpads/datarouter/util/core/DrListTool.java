@@ -52,6 +52,10 @@ public class DrListTool{
 		return out;
 	}
 
+	public static <T> List<T> createLinkedList(Collection<T> in){
+		return new LinkedList<>(in);
+	}
+
 	public static <T> ArrayList<T> createArrayList(T... in){
 		ArrayList<T> out = new ArrayList<>(DrArrayTool.length(in));
 		if(DrArrayTool.isEmpty(in)){
@@ -61,10 +65,6 @@ public class DrListTool{
 			out.add(element);
 		}
 		return out;
-	}
-
-	public static <T> List<T> createLinkedList(Collection<T> in){
-		return new LinkedList<>(in);
 	}
 
 	public static <T> ArrayList<T> createArrayList(Iterable<T> ins){

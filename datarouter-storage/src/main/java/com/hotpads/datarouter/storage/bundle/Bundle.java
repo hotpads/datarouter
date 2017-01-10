@@ -21,7 +21,9 @@ public class Bundle{
 	protected Map<String,SingleTypeBundle<? extends Databean<?,?>>> bundleByType = new HashMap<>();
 
 	protected <D extends Databean<?,?>> Bundle add(D databean){
-		if(databean==null){ return this; }
+		if(databean == null){
+			return this;
+		}
 		this.ensureSingleTypeBundleExists(databean);
 		@SuppressWarnings("unchecked")
 		SingleTypeBundle<D> singleTypeBundle = (SingleTypeBundle<D>)this.bundleByType.get(databean.getClass()
@@ -38,15 +40,21 @@ public class Bundle{
 	}
 
 	protected <D extends Databean<?,?>> D getFirst(Class<D> clazz){
-		if(clazz==null){ return null; }
-		if(this.bundleByType.get(clazz.getName())==null){ return null; }
+		if(clazz == null){
+			return null;
+		}
+		if(this.bundleByType.get(clazz.getName()) == null){
+			return null;
+		}
 		@SuppressWarnings("unchecked")
 		SingleTypeBundle<D> singleTypeBundle = (SingleTypeBundle<D>)this.bundleByType.get(clazz.getName());
 		return singleTypeBundle.getFirst();
 	}
 
 	protected <D extends Databean<?,?>> SortedSet<D> getAllSet(Class<D> clazz){
-		if(clazz==null){ return null; }
+		if(clazz == null){
+			return null;
+		}
 		ensureSingleTypeBundleExists(clazz);
 		@SuppressWarnings("unchecked")
 		SingleTypeBundle<D> singleTypeBundle = (SingleTypeBundle<D>)this.bundleByType.get(clazz.getName());
@@ -62,7 +70,7 @@ public class Bundle{
 	}
 
 	private <D extends Databean<?,?>> void ensureSingleTypeBundleExists(Class<D> clazz){
-		if(this.bundleByType.get(clazz.getName())==null){
+		if(this.bundleByType.get(clazz.getName()) == null){
 			this.bundleByType.put(clazz.getName(), new SingleTypeBundle<D>());
 		}
 	}
@@ -89,25 +97,25 @@ public class Bundle{
 
 	/** tests ****************************************************************/
 
-	public static class BundleTests {
+	public static class BundleTests{
 		@Test
 		public void testModifyCollection(){
-			Bundle b = new Bundle();
-			b.add(new ManyFieldBean(1L));
-			Set<ManyFieldBean> bs = b.getAllSet(ManyFieldBean.class);
+			Bundle bundle = new Bundle();
+			bundle.add(new ManyFieldBean(1L));
+			Set<ManyFieldBean> bs = bundle.getAllSet(ManyFieldBean.class);
 			Assert.assertEquals(1, bs.size());
 
 			//modify collection outside of bundle
 			bs.add(new ManyFieldBean(2L));
-			Assert.assertEquals(2, b.getAllSet(ManyFieldBean.class).size());
+			Assert.assertEquals(2, bundle.getAllSet(ManyFieldBean.class).size());
 
 			//modify empty collection outside bundle
-			b = new Bundle();
-			bs = b.getAllSet(ManyFieldBean.class);
-			Assert.assertEquals(0, b.getAllSet(ManyFieldBean.class).size());
+			bundle = new Bundle();
+			bs = bundle.getAllSet(ManyFieldBean.class);
+			Assert.assertEquals(0, bundle.getAllSet(ManyFieldBean.class).size());
 			Assert.assertEquals(0, bs.size());
 			bs.add(new ManyFieldBean(3L));
-			Assert.assertEquals(1, b.getAllSet(ManyFieldBean.class).size());
+			Assert.assertEquals(1, bundle.getAllSet(ManyFieldBean.class).size());
 
 		}
 	}
