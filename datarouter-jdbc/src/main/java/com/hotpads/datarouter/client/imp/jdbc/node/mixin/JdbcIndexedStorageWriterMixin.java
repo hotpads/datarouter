@@ -18,9 +18,8 @@ import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrListTool;
 
-public interface JdbcIndexedStorageWriterMixin<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>extends
-		PhysicalIndexedStorageWriterNode<PK,D>, JdbcStorageMixin{
-
+public interface JdbcIndexedStorageWriterMixin<PK extends PrimaryKey<PK>, D extends Databean<PK, D>>
+extends PhysicalIndexedStorageWriterNode<PK,D>, JdbcStorageMixin{
 	@Override
 	public default void deleteUnique(UniqueKey<PK> uniqueKey, Config config){
 		String opName = IndexedStorageWriter.OP_deleteUnique;
