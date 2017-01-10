@@ -30,11 +30,11 @@ public class NotificationLogKey extends BaseEntityPrimaryKey<NotificationLogEnti
 		this(new NotificationUserId(null, null));
 	}
 
-	public NotificationLogKey(NotificationUserId userId, Date created, String template) {
+	public NotificationLogKey(NotificationUserId userId, Date created, String template){
 		this(userId, DrDateTool.toReverseDateLong(created), template);
 	}
 
-	public NotificationLogKey(NotificationUserId userId, Long reverseCreatedMs, String template) {
+	public NotificationLogKey(NotificationUserId userId, Long reverseCreatedMs, String template){
 		this(userId);
 		this.reverseCreatedMs = reverseCreatedMs;
 		this.template = template;

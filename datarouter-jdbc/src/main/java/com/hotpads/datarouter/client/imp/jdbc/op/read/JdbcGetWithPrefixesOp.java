@@ -44,7 +44,7 @@ extends BaseJdbcOp<List<D>>{
 	@Override
 	public List<D> runOnce(){
 		List<D> result = new LinkedList<>();
-		if (DrCollectionTool.isEmpty(prefixes)) {
+		if(DrCollectionTool.isEmpty(prefixes)){
 			return result;
 		}
 		Connection connection = getConnection(node.getClientId().getName());

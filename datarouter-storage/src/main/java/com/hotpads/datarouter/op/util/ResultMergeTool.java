@@ -15,41 +15,59 @@ import java.util.TreeSet;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrMapTool;
 
-public class ResultMergeTool {
+public class ResultMergeTool{
 
-	public static Integer sum(Integer a, Collection<Integer> c){
+	public static Integer sum(Integer intA, Collection<Integer> ints){
 		boolean foundValue = false;
 		int sum = 0;
-		if(a != null){ foundValue = true; sum += a; }
-		for(Integer i : DrCollectionTool.nullSafe(c)){
-			if(i != null){ foundValue = true; sum += i; }
+		if(intA != null){
+			foundValue = true;
+			sum += intA;
 		}
-		return foundValue==true? sum : null;
+		for(Integer i : DrCollectionTool.nullSafe(ints)){
+			if(i != null){
+				foundValue = true;
+				sum += i;
+			}
+		}
+		return foundValue ? sum : null;
 	}
 
-	public static Long sum(Long a, Collection<Long> c){
+	public static Long sum(Long varA, Collection<Long> varC){
 		boolean foundValue = false;
 		long sum = 0;
-		if(a != null){ foundValue = true; sum += a; }
-		for(Long i : DrCollectionTool.nullSafe(c)){
-			if(i != null){ foundValue = true; sum += i; }
+		if(varA != null){
+			foundValue = true;
+			sum += varA;
 		}
-		return foundValue==true? sum : null;
+		for(Long i : DrCollectionTool.nullSafe(varC)){
+			if(i != null){
+				foundValue = true;
+				sum += i;
+			}
+		}
+		return foundValue ? sum : null;
 	}
 
-	public static <T,C extends Collection<T>> T first(T a, C bs){
-		if(a != null){ return a; }
-		for(T t : DrCollectionTool.nullSafe(bs)){
-			if(t != null){ return t; }
+	//TODO rename?
+	public static <T,C extends Collection<T>> T first(T objA, C otherObjects){
+		if(objA != null){
+			return objA;
+		}
+		for(T t : DrCollectionTool.nullSafe(otherObjects)){
+			if(t != null){
+				return t;
+			}
 		}
 		return null;
 	}
 
-	public static <T,C extends Collection<T>> List<T> append(C a, Collection<? extends C> bs){
-		int size = DrCollectionTool.sizeNullSafe(a) + DrCollectionTool.getTotalSizeOfCollectionOfCollections(bs);
+	public static <T,C extends Collection<T>> List<T> append(C objA, Collection<? extends C> otherObjects){
+		int size = DrCollectionTool.sizeNullSafe(objA) + DrCollectionTool.getTotalSizeOfCollectionOfCollections(
+				otherObjects);
 		List<T> out = new ArrayList<>(size);
-		out.addAll(DrCollectionTool.nullSafe(a));
-		for(C b : DrCollectionTool.nullSafe(bs)){
+		out.addAll(DrCollectionTool.nullSafe(objA));
+		for(C b : DrCollectionTool.nullSafe(otherObjects)){
 			out.addAll(DrCollectionTool.nullSafe(b));
 		}
 		return out;
@@ -64,19 +82,19 @@ public class ResultMergeTool {
 		return out;
 	}
 
-	public static <T,C extends Collection<T>> SortedSet<T> addAllSorted(C a, Collection<? extends C> bs){
+	public static <T,C extends Collection<T>> SortedSet<T> addAllSorted(C objA, Collection<? extends C> otherObjects){
 		SortedSet<T> out = new TreeSet<>();
-		out.addAll(DrCollectionTool.nullSafe(a));
-		for(C b : DrCollectionTool.nullSafe(bs)){
+		out.addAll(DrCollectionTool.nullSafe(objA));
+		for(C b : DrCollectionTool.nullSafe(otherObjects)){
 			out.addAll(DrCollectionTool.nullSafe(b));
 		}
 		return out;
 	}
 
 	public static <T extends Comparable<? super T>,C extends Collection<T>>
-	ArrayList<T> mergeIntoListAndSort(C a, Collection<? extends C> bs){
+	ArrayList<T> mergeIntoListAndSort(C objA, Collection<? extends C> bs){
 		ArrayList<T> out = new ArrayList<>();
-		out.addAll(DrCollectionTool.nullSafe(a));
+		out.addAll(DrCollectionTool.nullSafe(objA));
 		for(C b : DrCollectionTool.nullSafe(bs)){
 			out.addAll(DrCollectionTool.nullSafe(b));
 		}
@@ -85,8 +103,8 @@ public class ResultMergeTool {
 	}
 
 	public static <T extends Comparable<T>,C extends Collection<T>>
-	List<T> appendAndSort(C a, Collection<? extends C> bs){
-		List<T> appended = append(a, bs);
+	List<T> appendAndSort(C objA, Collection<? extends C> otherObjects){
+		List<T> appended = append(objA, otherObjects);
 		Collections.sort(appended);
 		return appended;
 	}
@@ -109,7 +127,7 @@ public class ResultMergeTool {
 		}
 		for(Map<K,Integer> m : DrCollectionTool.nullSafe(fromEach)){
 			for(Entry<K,Integer> e : m.entrySet()){
-				if(result.get(e.getKey())==null){
+				if(result.get(e.getKey()) == null){
 					result.put(e.getKey(), e.getValue());
 				}else{
 					Integer currentSum = result.get(e.getKey());

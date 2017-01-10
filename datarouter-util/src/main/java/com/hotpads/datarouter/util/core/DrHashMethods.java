@@ -72,7 +72,7 @@ public class DrHashMethods{
 			for(int serverNum = 98; serverNum <= 101; ++serverNum){
 				String serverName = "HadoopNode98:10012:" + serverNum;
 				for(int i = 0; i < 1000; ++i){
-					Long bucket = longMD5DJBHash(StringByteTool.getUtf8Bytes(serverName+i));
+					Long bucket = longMD5DJBHash(StringByteTool.getUtf8Bytes(serverName + i));
 					buckets.add(bucket);
 				}
 			}
