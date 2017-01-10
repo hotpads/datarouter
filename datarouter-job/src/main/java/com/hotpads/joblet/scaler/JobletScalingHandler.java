@@ -11,6 +11,7 @@ import com.hotpads.handler.mav.Mav;
  */
 public class JobletScalingHandler extends BaseHandler{
 
+	public static final String PATH = "/jobletScaling";
 	public static final String JSP = "/jsp/joblet/jobletScaling.jsp";
 
 	@Inject
