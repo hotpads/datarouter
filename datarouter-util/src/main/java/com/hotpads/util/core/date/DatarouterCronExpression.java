@@ -15,7 +15,7 @@ public class DatarouterCronExpression{
 		this.cronExpresssion = new CronExpression(cronExpression);
 	}
 
-	public static DatarouterCronExpression parseCronExpressionUnchecked(String cronExpression) throws RuntimeException{
+	public static DatarouterCronExpression parseCronExpressionUnchecked(String cronExpression){
 		try{
 			return new DatarouterCronExpression(cronExpression);
 		}catch(ParseException e){
@@ -41,8 +41,9 @@ public class DatarouterCronExpression{
 	public static class DatarouterCronExpressionTests{
 
 		@Test
-		public void testCountExecutionsBetween() throws ParseException{
-			DatarouterCronExpression cronExpression = new DatarouterCronExpression("0 0 0 ? * *");
+		public void testCountExecutionsBetween(){
+			DatarouterCronExpression cronExpression = DatarouterCronExpression
+					.parseCronExpressionUnchecked("0 0 0 ? * *");
 			Calendar startCalendar = Calendar.getInstance();
 			startCalendar.set(Calendar.HOUR_OF_DAY, 0);
 			startCalendar.set(Calendar.MINUTE, 0);
@@ -68,19 +69,19 @@ public class DatarouterCronExpression{
 			// back to midnight - 1 second to next midnight
 			endCalendar.add(Calendar.SECOND, -1);
 			end = endCalendar.getTime();
-			cronExpression = new DatarouterCronExpression("0 0 10,20 ? * *");
+			cronExpression = DatarouterCronExpression.parseCronExpressionUnchecked("0 0 10,20 ? * *");
 			Assert.assertEquals(cronExpression.countExecutionsBetween(start, end), 2);
 
-			cronExpression = new DatarouterCronExpression("0 10,20 5,6 ? * *");
+			cronExpression = DatarouterCronExpression.parseCronExpressionUnchecked("0 10,20 5,6 ? * *");
 			Assert.assertEquals(cronExpression.countExecutionsBetween(start, end), 4);
 
-			cronExpression = new DatarouterCronExpression("0 15 3/3 ? * *");
+			cronExpression = DatarouterCronExpression.parseCronExpressionUnchecked("0 15 3/3 ? * *");
 			Assert.assertEquals(cronExpression.countExecutionsBetween(start, end), 7);
 
-			cronExpression = new DatarouterCronExpression("0 20 9-12 ? * *");
+			cronExpression = DatarouterCronExpression.parseCronExpressionUnchecked("0 20 9-12 ? * *");
 			Assert.assertEquals(cronExpression.countExecutionsBetween(start, end), 4);
 
-			cronExpression = new DatarouterCronExpression("0 30 * ? * *");
+			cronExpression = DatarouterCronExpression.parseCronExpressionUnchecked("0 30 * ? * *");
 			Assert.assertEquals(cronExpression.countExecutionsBetween(start, end), 24);
 		}
 	}
