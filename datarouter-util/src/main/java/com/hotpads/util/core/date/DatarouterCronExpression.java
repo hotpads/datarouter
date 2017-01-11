@@ -15,6 +15,14 @@ public class DatarouterCronExpression{
 		this.cronExpresssion = new CronExpression(cronExpression);
 	}
 
+	public static DatarouterCronExpression parseCronExpressionUnchecked(String cronExpression) throws RuntimeException{
+		try{
+			return new DatarouterCronExpression(cronExpression);
+		}catch(ParseException e){
+			throw new RuntimeException(e);
+		}
+	}
+
 	public int countExecutionsBetween(Date start, Date end){
 		Date nextProcessDate = cronExpresssion.getTimeAfter(start);
 		int count = 0;
