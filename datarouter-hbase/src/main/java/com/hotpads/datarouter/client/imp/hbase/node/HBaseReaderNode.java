@@ -47,13 +47,13 @@ import com.hotpads.util.core.iterable.scanner.sorted.SortedScanner;
 import com.hotpads.util.core.stream.StreamTool;
 
 public class HBaseReaderNode<
-	PK extends PrimaryKey<PK>,
-	D extends Databean<PK,D>,
-	F extends DatabeanFielder<PK,D>>
+		PK extends PrimaryKey<PK>,
+		D extends Databean<PK,D>,
+		F extends DatabeanFielder<PK,D>>
 extends BasePhysicalNode<PK,D,F>
 implements HBasePhysicalNode<PK,D>,
-	MapStorageReader<PK,D>,
-	SortedStorageReader<PK,D>{
+		MapStorageReader<PK,D>,
+		SortedStorageReader<PK,D>{
 	private static final Logger logger = LoggerFactory.getLogger(HBaseReaderNode.class);
 
 	private ClientTableNodeNames clientTableNodeNames;

@@ -5,14 +5,13 @@ import java.util.List;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.storage.field.Field;
-import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.StringFieldKey;
 import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
 
-public class ApiRequestKey extends BasePrimaryKey<ApiRequestKey> {
+public class ApiRequestKey extends BasePrimaryKey<ApiRequestKey>{
 
-	public static final int	DEFAULT_STRING_LENGTH = MySqlColumnType.MAX_LENGTH_VARCHAR;
+	public static final int DEFAULT_STRING_LENGTH = MySqlColumnType.MAX_LENGTH_VARCHAR;
 
 	/** fields ********************************************************************************************************/
 
@@ -21,10 +20,10 @@ public class ApiRequestKey extends BasePrimaryKey<ApiRequestKey> {
 	private String signature;
 	private String timestamp;
 
-	public static class FieldKeys {
+	public static class FieldKeys{
 		public static final StringFieldKey apiKey = new StringFieldKey("apiKey");
-		public static final StringFieldKey nonce = new StringFieldKey("nonce"),
-		public static final StringFieldKey signature = new StringFieldKey("signature"),
+		public static final StringFieldKey nonce = new StringFieldKey("nonce");
+		public static final StringFieldKey signature = new StringFieldKey("signature");
 		public static final StringFieldKey timestamp = new StringFieldKey("timestamp");
 	}
 
@@ -40,7 +39,7 @@ public class ApiRequestKey extends BasePrimaryKey<ApiRequestKey> {
 	/** constructors **************************************************************************************************/
 	ApiRequestKey() {}
 
-	public ApiRequestKey(String apiKey, String nonce, String signature, String timestamp) {
+	public ApiRequestKey(String apiKey, String nonce, String signature, String timestamp){
 		this.apiKey = apiKey;
 		this.nonce = nonce;
 		this.signature = signature;
@@ -49,35 +48,35 @@ public class ApiRequestKey extends BasePrimaryKey<ApiRequestKey> {
 
 	/** getters/setters ***********************************************************************************************/
 
-	public String getApiKey() {
+	public String getApiKey(){
 		return apiKey;
 	}
 
-	public void setApiKey(String apiKey) {
+	public void setApiKey(String apiKey){
 		this.apiKey = apiKey;
 	}
 
-	public String getNonce() {
+	public String getNonce(){
 		return nonce;
 	}
 
-	public void setNonce(String nonce) {
+	public void setNonce(String nonce){
 		this.nonce = nonce;
 	}
 
-	public String getSignature() {
+	public String getSignature(){
 		return signature;
 	}
 
-	public void setSignature(String signature) {
+	public void setSignature(String signature){
 		this.signature = signature;
 	}
 
-	public String getTimestamp() {
+	public String getTimestamp(){
 		return timestamp;
 	}
 
-	public void setTimestamp(String timestamp) {
+	public void setTimestamp(String timestamp){
 		this.timestamp = timestamp;
 	}
 

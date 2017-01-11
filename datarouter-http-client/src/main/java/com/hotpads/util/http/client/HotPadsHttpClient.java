@@ -115,7 +115,7 @@ public class HotPadsHttpClient{
 	}
 
 	public HotPadsHttpResponse executeChecked(HotPadsHttpRequest request, Consumer<HttpEntity> httpEntityConsumer)
-			throws HotPadsHttpException{
+	throws HotPadsHttpException{
 		setSecurityProperties(request);
 
 		HttpClientContext context = new HttpClientContext();
