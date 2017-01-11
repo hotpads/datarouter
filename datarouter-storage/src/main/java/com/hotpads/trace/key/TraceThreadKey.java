@@ -27,7 +27,7 @@ public class TraceThreadKey extends BaseEntityPrimaryKey<TraceEntityKey,TraceThr
 	}
 
 	@Override
-	public String getEntityKeyName() {
+	public String getEntityKeyName(){
 		return null;
 	}
 
@@ -41,7 +41,6 @@ public class TraceThreadKey extends BaseEntityPrimaryKey<TraceEntityKey,TraceThr
 		return Arrays.asList(new LongField(FieldKeys.id, id));
 	}
 
-
 	/****************************** constructor ********************************/
 
 	TraceThreadKey(){
@@ -49,7 +48,7 @@ public class TraceThreadKey extends BaseEntityPrimaryKey<TraceEntityKey,TraceThr
 
 	public TraceThreadKey(Long traceId, boolean hasParent){
 		this.traceId = traceId;
-		if( ! hasParent){
+		if(!hasParent){
 			this.id = 0L;
 		}else{
 			this.id = RandomTool.nextPositiveLong();
@@ -61,18 +60,17 @@ public class TraceThreadKey extends BaseEntityPrimaryKey<TraceEntityKey,TraceThr
 		this.id = threadId;
 	}
 
-
 	/****************************** get/set ********************************/
 
-	public Long getTraceId() {
+	public Long getTraceId(){
 		return traceId;
 	}
 
-	public Long getId() {
+	public Long getId(){
 		return id;
 	}
 
-	public void setId(Long id) {
+	public void setId(Long id){
 		this.id = id;
 	}
 

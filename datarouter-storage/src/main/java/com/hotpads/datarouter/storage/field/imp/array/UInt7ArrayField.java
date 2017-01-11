@@ -32,7 +32,7 @@ public class UInt7ArrayField extends BaseListField<Byte,List<Byte>>{
 
 	@Override
 	public byte[] getBytes(){
-		return this.value==null?null:DrByteTool.getUInt7Bytes(this.value);
+		return this.value == null ? null : DrByteTool.getUInt7Bytes(this.value);
 	}
 
 	@Override
