@@ -34,7 +34,7 @@ public class JobletCounterJob extends BaseJob{
 	}
 
 	@Override
-	public boolean shouldRun() {
+	public boolean shouldRun(){
 		return jobletSettings.runJobletCounterJob.getValue();
 	}
 

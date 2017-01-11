@@ -12,17 +12,15 @@ import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.enums.IntegerEnum;
 import com.hotpads.datarouter.storage.field.imp.enums.IntegerEnumField;
 
-public class IntegerEnumJdbcFieldCodec<E extends IntegerEnum<E>>
-extends BaseJdbcFieldCodec<E,IntegerEnumField<E>>{
+public class IntegerEnumJdbcFieldCodec<E extends IntegerEnum<E>> extends BaseJdbcFieldCodec<E,IntegerEnumField<E>>{
 
-	public IntegerEnumJdbcFieldCodec(){//no-arg for reflection
+	public IntegerEnumJdbcFieldCodec(){// no-arg for reflection
 		this(null);
 	}
 
 	public IntegerEnumJdbcFieldCodec(IntegerEnumField<E> field){
 		super(field);
 	}
-
 
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
@@ -32,7 +30,7 @@ extends BaseJdbcFieldCodec<E,IntegerEnumField<E>>{
 
 	@Override
 	public String getSqlEscaped(){
-		if(field.getValue()==null){
+		if(field.getValue() == null){
 			return "null";
 		}
 		return field.getValue().getPersistentInteger().toString();
@@ -40,13 +38,13 @@ extends BaseJdbcFieldCodec<E,IntegerEnumField<E>>{
 
 	@Override
 	public E parseJdbcValueButDoNotSet(Object obj){
-		return obj==null?null:field.getSampleValue().fromPersistentInteger((Integer)obj);
+		return obj == null ? null : field.getSampleValue().fromPersistentInteger((Integer)obj);
 	}
 
 	@Override
 	public void setPreparedStatementValue(PreparedStatement ps, int parameterIndex){
 		try{
-			if(field.getValue()==null){
+			if(field.getValue() == null){
 				ps.setNull(parameterIndex, Types.INTEGER);
 			}else{
 				ps.setInt(parameterIndex, field.getValue().getPersistentInteger());
@@ -60,7 +58,7 @@ extends BaseJdbcFieldCodec<E,IntegerEnumField<E>>{
 	public E fromJdbcResultSetButDoNotSet(ResultSet rs){
 		try{
 			int rsValue = rs.getInt(field.getKey().getColumnName());
-			return rs.wasNull()?null:field.getSampleValue().fromPersistentInteger(rsValue);
+			return rs.wasNull() ? null : field.getSampleValue().fromPersistentInteger(rsValue);
 		}catch(SQLException e){
 			throw new DataAccessException(e);
 		}

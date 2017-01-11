@@ -60,7 +60,7 @@ implements IndexedSortedMapStorageReader<PK,D>{
 	}
 
 	@Override
-	public Node<PK,D> getMaster() {
+	public Node<PK,D> getMaster(){
 		return null;
 	}
 
@@ -72,19 +72,17 @@ implements IndexedSortedMapStorageReader<PK,D>{
 	/************************************ MapStorageReader methods ****************************/
 
 	@Override
-	public boolean exists(PK key, Config config) {
+	public boolean exists(PK key, Config config){
 		return backingMap.containsKey(key);
 	}
 
-
 	@Override
-	public D get(final PK key, Config config) {
+	public D get(final PK key, Config config){
 		return backingMap.get(key);
 	}
 
-
 	@Override
-	public List<D> getMulti(final Collection<PK> keys, Config config) {
+	public List<D> getMulti(final Collection<PK> keys, Config config){
 		List<D> result = new LinkedList<>();
 		for(Key<PK> key : DrCollectionTool.nullSafe(keys)){
 			D value = backingMap.get(key);
@@ -95,9 +93,8 @@ implements IndexedSortedMapStorageReader<PK,D>{
 		return result;
 	}
 
-
 	@Override
-	public List<PK> getKeys(final Collection<PK> keys, Config config) {
+	public List<PK> getKeys(final Collection<PK> keys, Config config){
 		List<PK> result = new LinkedList<>();
 		for(Key<PK> key : DrCollectionTool.nullSafe(keys)){
 			D value = backingMap.get(key);
@@ -159,7 +156,7 @@ implements IndexedSortedMapStorageReader<PK,D>{
 			}
 			Map<String,Field<?>> entryFieldsByColumnName = getFieldInfo().getFieldsWithValues(entry.getValue()).stream()
 					.collect(Collectors.toMap(field -> field.getKey().getColumnName(), Function.identity()));
-			for(int i = 0 ; i < nonNullLeadingStartFields ; i++){
+			for(int i = 0; i < nonNullLeadingStartFields; i++){
 				Field<?> keyField = entryFieldsByColumnName.get(startFields.get(i).getKey().getColumnName());
 				if(i == nonNullLeadingStartFields - 1
 						&& wildcardLastField
@@ -173,7 +170,7 @@ implements IndexedSortedMapStorageReader<PK,D>{
 					continue entryLoop;
 				}
 			}
-			for(int j = 0 ; j < nonNullLeadingEndFields ; j++){
+			for(int j = 0; j < nonNullLeadingEndFields; j++){
 				Field<?> keyField = entryFieldsByColumnName.get(endFields.get(j).getKey().getColumnName());
 				if(j == nonNullLeadingEndFields - 1
 						&& wildcardLastField

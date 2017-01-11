@@ -16,18 +16,17 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.client.imp.jdbc.field.codec.base.BaseJdbcFieldCodec;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.imp.DateField;
+import com.hotpads.datarouter.storage.field.imp.DateFieldKey;
 
-public class DateJdbcFieldCodec
-extends BaseJdbcFieldCodec<Date,DateField>{
+public class DateJdbcFieldCodec extends BaseJdbcFieldCodec<Date,DateField>{
 
-	public DateJdbcFieldCodec(){//no-arg for reflection
+	public DateJdbcFieldCodec(){// no-arg for reflection
 		this(null);
 	}
 
 	public DateJdbcFieldCodec(DateField field){
 		super(field);
 	}
-
 
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
@@ -37,16 +36,17 @@ extends BaseJdbcFieldCodec<Date,DateField>{
 
 	@Override
 	public Date parseJdbcValueButDoNotSet(Object obj){
-		return obj==null?null:(Date)obj;
+		return obj == null ? null : (Date)obj;
 	}
 
 	@Override
 	public void setPreparedStatementValue(PreparedStatement ps, int parameterIndex){
 		try{
-			if(field.getValue()==null){
+			if(field.getValue() == null){
 				ps.setNull(parameterIndex, Types.DATE);
 			}else{
-				ps.setTimestamp(parameterIndex, new Timestamp(field.getValue().getTime())); //sql timestamp is MySQL's datetime
+				// sql timestamp is MySQL's datetime
+				ps.setTimestamp(parameterIndex, new Timestamp(field.getValue().getTime()));
 			}
 		}catch(SQLException e){
 			throw new DataAccessException(e);
@@ -69,26 +69,25 @@ extends BaseJdbcFieldCodec<Date,DateField>{
 
 	@Override
 	public String getSqlEscaped(){
-		return "'" + getSqlDateString(field.getValue())+ "'";
+		return "'" + getSqlDateString(field.getValue()) + "'";
 	}
 
 	public static String getSqlDateString(Date date){
 		return new Timestamp(date.getTime()).toString();
 	}
 
-
 	/*********************** tests ******************************/
 
-	public static class Tests {
+	public static class Tests{
 		@Test
 		public void testGetSqlEscaped() throws Exception{
-			//mysql date format is yyyy-MM-dd HH:mm:ss http://dev.mysql.com/doc/refman/5.1/en/datetime.html
-			//jdbc timestamp escape format" yyyy-MM-dd HH:mm:ss.n where n is nanoseconds (not representable with Date)
+			// mysql date format is yyyy-MM-dd HH:mm:ss http://dev.mysql.com/doc/refman/5.1/en/datetime.html
+			// jdbc timestamp escape format" yyyy-MM-dd HH:mm:ss.n where n is nanoseconds (not representable with Date)
 			// sql insert with a string including the nanosecond value works in mysql
 			String dateString = "2002-11-05 13:14:01";
 			Date date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(dateString);
-			DateField testField = new DateField("test",date);
-			Assert.assertEquals("'"+dateString+".0'", new DateJdbcFieldCodec(testField).getSqlEscaped());
+			DateField testField = new DateField(new DateFieldKey("test"), date);
+			Assert.assertEquals("'" + dateString + ".0'", new DateJdbcFieldCodec(testField).getSqlEscaped());
 		}
 	}
 }
