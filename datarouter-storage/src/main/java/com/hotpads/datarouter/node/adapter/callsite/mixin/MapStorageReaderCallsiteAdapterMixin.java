@@ -4,83 +4,71 @@ import java.util.Collection;
 import java.util.List;
 
 import com.hotpads.datarouter.config.Config;
-import com.hotpads.datarouter.node.adapter.callsite.BaseCallsiteAdapter;
+import com.hotpads.datarouter.node.adapter.callsite.CallsiteAdapter;
 import com.hotpads.datarouter.node.op.raw.read.MapStorageReader;
 import com.hotpads.datarouter.node.op.raw.read.MapStorageReader.MapStorageReaderNode;
-import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
-public class MapStorageReaderCallsiteAdapterMixin<
+public interface MapStorageReaderCallsiteAdapterMixin<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
-		F extends DatabeanFielder<PK,D>,
 		N extends MapStorageReaderNode<PK,D>>
-implements MapStorageReader<PK,D>{
+extends MapStorageReader<PK,D>, CallsiteAdapter{
 
-	private BaseCallsiteAdapter<PK,D,F,N> adapterNode;
-	private N backingNode;
-
-
-	public MapStorageReaderCallsiteAdapterMixin(BaseCallsiteAdapter<PK,D,F,N> adapterNode, N backingNode){
-		this.adapterNode = adapterNode;
-		this.backingNode = backingNode;
-	}
-
-
-	/**************************** MapStorageReader ***********************************/
+	N getBackingNode();
 
 	@Override
-	public boolean exists(PK key, Config otherConfig){
-		Config config = Config.nullSafe(otherConfig).setCallsite(adapterNode.getCallsite());
+	default boolean exists(PK key, Config pConfig){
+		Config config = Config.nullSafe(pConfig).setCallsite(getCallsite());
 		long startNs = System.nanoTime();
 		boolean result = false;
 		try{
-			result = backingNode.exists(key, config);
+			result = getBackingNode().exists(key, config);
 			return result;
 		}finally{
 			int numResults = result ? 1 : 0;
-			adapterNode.recordCallsite(config, startNs, numResults);
+			recordCallsite(config, startNs, numResults);
 		}
 	}
 
 	@Override
-	public D get(PK key, Config otherConfig){
-		Config config = Config.nullSafe(otherConfig).setCallsite(adapterNode.getCallsite());
+	default D get(PK key, Config pConfig){
+		Config config = Config.nullSafe(pConfig).setCallsite(getCallsite());
 		long startNs = System.nanoTime();
 		D result = null;
 		try{
-			result = backingNode.get(key, config);
+			result = getBackingNode().get(key, config);
 			return result;
 		}finally{
 			int numResults = result == null ? 0 : 1;
-			adapterNode.recordCallsite(config, startNs, numResults);
+			recordCallsite(config, startNs, numResults);
 		}
 	}
 
 	@Override
-	public List<D> getMulti(Collection<PK> keys, Config otherConfig){
-		Config config = Config.nullSafe(otherConfig).setCallsite(adapterNode.getCallsite());
+	default List<D> getMulti(Collection<PK> keys, Config pConfig){
+		Config config = Config.nullSafe(pConfig).setCallsite(getCallsite());
 		long startNs = System.nanoTime();
 		List<D> results = null;
 		try{
-			results = backingNode.getMulti(keys, config);
+			results = getBackingNode().getMulti(keys, config);
 			return results;
 		}finally{
-			adapterNode.recordCollectionCallsite(config, startNs, results);
+			recordCollectionCallsite(config, startNs, results);
 		}
 	}
 
 	@Override
-	public List<PK> getKeys(Collection<PK> keys, Config otherConfig){
-		Config config = Config.nullSafe(otherConfig).setCallsite(adapterNode.getCallsite());
+	default List<PK> getKeys(Collection<PK> keys, Config pConfig){
+		Config config = Config.nullSafe(pConfig).setCallsite(getCallsite());
 		long startNs = System.nanoTime();
 		List<PK> results = null;
 		try{
-			results = backingNode.getKeys(keys, config);
+			results = getBackingNode().getKeys(keys, config);
 			return results;
 		}finally{
-			adapterNode.recordCollectionCallsite(config, startNs, results);
+			recordCollectionCallsite(config, startNs, results);
 		}
 	}
 
