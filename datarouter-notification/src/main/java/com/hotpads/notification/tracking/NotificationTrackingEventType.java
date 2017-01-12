@@ -11,10 +11,10 @@ public class NotificationTrackingEventType{
 
 	private static final Map<String, NotificationTrackingEventType> VALUES = new HashMap<>();
 
-	public static final	NotificationTrackingEventType
+	public static final NotificationTrackingEventType
 			DISPLAYED = new NotificationTrackingEventType("displayed"), //the notification was displayed to the user
 			OPENED = new NotificationTrackingEventType("opened"), //the user interacted with the notification
-			VISITED = new NotificationTrackingEventType("visited"), //??
+			VISITED = new NotificationTrackingEventType("visited"), //the user land on the application
 			CONVERTED = new NotificationTrackingEventType("converted"), //the client phones home when the user converts
 			DISMISSED = new NotificationTrackingEventType("dismissed"); //the user dismissed the notification without
 																		//looking at it
