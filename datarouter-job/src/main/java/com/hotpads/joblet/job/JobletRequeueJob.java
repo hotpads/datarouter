@@ -80,10 +80,10 @@ public class JobletRequeueJob extends BaseJob{
 			}else if(MIDDLE_AGE_RANGE.contains(age)){
 				return false;
 			}else{//hit the young joblets without seeing any middle age
-				return anyOld;
+				break;
 			}
 		}
-		return false;
+		return anyOld;
 	}
 
 	private void requeueOldJobletsForPrefix(JobletRequestKey prefix){
