@@ -48,6 +48,13 @@ public class JobletRequestKey extends BasePrimaryKey<JobletRequestKey>{
 	JobletRequestKey(){
 	}
 
+	private JobletRequestKey(JobletRequestKey other){
+		this.typeCode = other.typeCode;
+		this.executionOrder = other.executionOrder;
+		this.created = other.created;
+		this.batchSequence = other.batchSequence;
+	}
+
 	public JobletRequestKey(Integer typeCode, Integer executionOrder, Long createdMs, Integer batchSequence){
 		this.typeCode = typeCode;
 		this.executionOrder = executionOrder;
@@ -76,6 +83,10 @@ public class JobletRequestKey extends BasePrimaryKey<JobletRequestKey>{
 	}
 
 	/*----------------------- methods ---------------------------*/
+
+	public JobletRequestKey copy(){
+		return new JobletRequestKey(this);
+	}
 
 	public JobletPriority getPriority(){
 		return JobletPriority.fromExecutionOrder(executionOrder);

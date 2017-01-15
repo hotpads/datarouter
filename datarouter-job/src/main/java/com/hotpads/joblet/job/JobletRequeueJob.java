@@ -92,7 +92,11 @@ public class JobletRequeueJob extends BaseJob{
 			if(request.getKey().getAge().compareTo(OLD_AGE) < 0){
 				break;
 			}
+			JobletRequestKey oldKey = request.getKey().copy();//capture the old "created" for later delete
+			request.getKey().setCreated(System.currentTimeMillis());
+			jobletNodes.jobletRequest().put(request, null);
 			jobletNodes.jobletRequestQueueByKey().get(queueKey).put(request, null);
+			jobletNodes.jobletRequest().delete(oldKey, null);
 			logger.warn("requeued one for {}-{}, {}", request.getTypeString(), request.getKey().getPriority(), request);
 		}
 	}
