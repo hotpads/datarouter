@@ -1,6 +1,6 @@
 package com.hotpads.datarouter.client.imp.kinesis.op.read.kcl;
 
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.function.Supplier;
@@ -84,13 +84,19 @@ implements IRecordProcessor{
 
 			if(!processedSuccessfully){
 				logger.error("Couldn't process record " + record + ". Skipping the record.");
+				try{
+					String recordDataJson = new String(record.getData().array(), StandardCharsets.UTF_8);
+					logger.debug("JSON for the failed record:\n" + recordDataJson);
+				}catch(Exception e){
+					//swallow - exception creating data to log
+				}
 			}
 		}
 	}
 
 	private void processSingleRecord(Record record) throws InterruptedException{
 		logger.trace("processing record: " + record.getPartitionKey() + " " + record.getSequenceNumber());
-		String recordDataJson = new String(record.getData().array(), Charset.forName("UTF-8"));
+		String recordDataJson = new String(record.getData().array(), StandardCharsets.UTF_8);
 		// helper for codec
 		StringBuilder jsonBuilder = new StringBuilder();
 		jsonBuilder.append("{");
