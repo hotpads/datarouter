@@ -7,6 +7,7 @@ import com.hotpads.datarouter.util.core.DrStringTool;
 
 public abstract class BaseDatarouterProperties implements DatarouterProperties{
 	private static final String SERVER_PUBLIC_IP = "server.publicIp";
+	private static final String SERVER_PRIVATE_IP = "server.privateIp";
 	private static final String SERVER_NAME = "server.name";
 	private static final String SERVER_TYPE = "server.type";
 	private static final String ADMINISTRATOR_EMAIL = "administrator.email";
@@ -18,6 +19,7 @@ public abstract class BaseDatarouterProperties implements DatarouterProperties{
 		this.path = path;
 		this.properties = DrPropertiesTool.parse(path);
 		validatePropertyValue(SERVER_PUBLIC_IP, getServerPublicIp());
+		validatePropertyValue(SERVER_PRIVATE_IP, getServerPrivateIp());
 		validatePropertyValue(SERVER_NAME, getServerName());
 		validatePropertyValue(SERVER_TYPE, getServerTypeString());
 		validatePropertyValue(ADMINISTRATOR_EMAIL, getAdministratorEmail());
@@ -32,6 +34,11 @@ public abstract class BaseDatarouterProperties implements DatarouterProperties{
 	@Override
 	public String getServerPublicIp(){
 		return properties.getProperty(SERVER_PUBLIC_IP);
+	}
+
+	@Override
+	public String getServerPrivateIp(){
+		return properties.getProperty(SERVER_PRIVATE_IP);
 	}
 
 	@Override
