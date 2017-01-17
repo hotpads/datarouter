@@ -84,6 +84,12 @@ implements IRecordProcessor{
 
 			if(!processedSuccessfully){
 				logger.error("Couldn't process record " + record + ". Skipping the record.");
+				try{
+					String recordDataJson = new String(record.getData().array(), Charset.forName("UTF-8"));
+					logger.debug("JSON for the failed record:\n" + recordDataJson);
+				}catch(Exception e){
+					//swallow - exception creating data to log
+				}
 			}
 		}
 	}
