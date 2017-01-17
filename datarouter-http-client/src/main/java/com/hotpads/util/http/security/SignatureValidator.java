@@ -1,7 +1,7 @@
 package com.hotpads.util.http.security;
 
 import java.io.ByteArrayOutputStream;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
@@ -49,7 +49,7 @@ public class SignatureValidator{
 				continue;
 			}
 			try{
-				md.update(parameterName.concat(map.get(parameterName)).concat(salt).getBytes(Charset.forName("UTF-8")));
+				md.update(parameterName.concat(map.get(parameterName)).concat(salt).getBytes(StandardCharsets.UTF_8));
 				signature.write(md.digest());
 			}catch(Exception e){
 				throw new RuntimeException(e);
