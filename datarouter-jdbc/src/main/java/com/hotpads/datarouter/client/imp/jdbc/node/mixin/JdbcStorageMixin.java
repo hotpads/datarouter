@@ -4,7 +4,7 @@ import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodec
 
 public interface JdbcStorageMixin{
 
-	abstract String getTraceName(String opName);
-	abstract JdbcFieldCodecFactory getFieldCodecFactory();
+	String getTraceName(String opName);
+	JdbcFieldCodecFactory getFieldCodecFactory();
 
 }
