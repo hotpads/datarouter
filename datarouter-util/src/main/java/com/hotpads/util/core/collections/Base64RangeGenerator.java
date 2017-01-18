@@ -18,10 +18,19 @@ public class Base64RangeGenerator{
 			"q", "R", "r", "S", "s", "T", "t", "U", "u", "V", "v", "W", "w", "X", "x", "Y", "y", "Z", "z", "0", "1",
 			"2", "3", "4", "5", "6", "7", "8", "9", "-", "_"};
 
+	/**
+	 * See {@link Base64RangeGenerator#generateRangesOfDepth(int, boolean)}. Assumes case sensitivity.
+	 */
 	public static Iterable<Range<String>> generateRangesOfDepth(int depth){
 		return generateRangesOfDepth(depth, true);
 	}
 
+	/**
+	 * Generates Ranges to equally partition all possible Base64 values
+	 * @param depth length of prefixes to use in the generated keys
+	 * @param caseSensitive if true, letter order is A-Za-z; if false, letter order is AaBb, etc.
+	 * @return the Iterable will contain 64^depth ranges, with the first starting at A*depth, and the last going to null
+	 */
 	public static Iterable<Range<String>> generateRangesOfDepth(int depth, boolean caseSensitive){
 		String[] starts = generateRangeStarts(depth, caseSensitive ? CASE_SENSITIVE_ORDER : CASE_INSENSITIVE_ORDER);
 		return rangify(starts);
