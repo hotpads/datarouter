@@ -10,6 +10,7 @@ public class ExceptionDto{
 	public String stackTrace;
 	public String errorClass;
 
+	public String appVersion;
 	public String errorLocation;
 	public Date receivedAt;
 	public String methodName;
@@ -26,7 +27,7 @@ public class ExceptionDto{
 
 	public String ip;
 	public String userRoles;
-	public Long userId;
+	public String userToken;
 
 	public String acceptCharset;
 	public String acceptEncoding;

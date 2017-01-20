@@ -81,7 +81,7 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 
 	private String ip;
 	private String userRoles;
-	private Long userId;
+	private String userToken;
 
 	private String acceptCharset;
 	private String acceptEncoding;
@@ -126,7 +126,7 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 				.withSize(MySqlColumnType.MAX_LENGTH_LONGBLOB);
 		public static final StringFieldKey ip = new StringFieldKey("ip").withSize(39);
 		public static final StringFieldKey userRoles = new StringFieldKey("userRoles");
-		public static final LongFieldKey userId = new LongFieldKey("userId");
+		public static final StringFieldKey userToken = new StringFieldKey("userToken");
 		public static final StringFieldKey acceptCharset = new StringFieldKey("acceptCharset");
 		public static final StringFieldKey acceptEncoding = new StringFieldKey("acceptEncoding");
 		public static final StringFieldKey acceptLanguage = new StringFieldKey("acceptLanguage");
@@ -184,7 +184,7 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 
 					new StringField(FieldKeys.ip, record.ip),
 					new StringField(FieldKeys.userRoles, record.userRoles),
-					new LongField(FieldKeys.userId, record.userId),
+					new StringField(FieldKeys.userToken, record.userToken),
 
 					new StringField(FieldKeys.acceptCharset, record.acceptCharset),
 					new StringField(FieldKeys.acceptEncoding, record.acceptEncoding),
@@ -225,7 +225,7 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 	}
 
 	public HttpRequestRecord(Date receivedAt, String exceptionRecordId, String methodName, int lineNumber,
-			HttpServletRequest request, String sessionRoles, Long userId){
+			HttpServletRequest request, String sessionRoles, String userToken){
 		this(
 				receivedAt,
 				exceptionRecordId,
@@ -242,13 +242,13 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 				RequestTool.tryGetBodyAsByteArray(request),
 				RequestTool.getIpAddress(request),
 				sessionRoles,
-				userId,
+				userToken,
 				new HttpHeaders(request));
 	}
 
 	private HttpRequestRecord(Date receivedAt, String exceptionRecordId, String methodName, int lineNumber,
 			String httpMethod, String httpParams, String protocol, String hostname, int port, String contextPath,
-			String path, String queryString, byte[] binaryBody, String ip, String sessionRoles, Long userId,
+			String path, String queryString, byte[] binaryBody, String ip, String sessionRoles, String userToken,
 			HttpHeaders headersWrapper){
 		this.key = new HttpRequestRecordKey(UuidTool.generateV1Uuid());
 		this.created = new Date();
@@ -274,7 +274,7 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 
 		this.ip = ip;
 		this.userRoles = sessionRoles;
-		this.userId = userId;
+		this.userToken = userToken;
 
 		this.acceptCharset = headersWrapper.getAcceptCharset();
 		this.acceptEncoding = headersWrapper.getAcceptEncoding();
@@ -326,7 +326,7 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 
 		this.ip = exceptionDto.ip;
 		this.userRoles = exceptionDto.userRoles;
-		this.userId = exceptionDto.userId;
+		this.userToken = exceptionDto.userToken;
 
 		this.acceptCharset = exceptionDto.acceptCharset;
 		this.acceptEncoding = exceptionDto.acceptEncoding;
@@ -425,7 +425,7 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 
 	public static HttpRequestRecord createEmptyForTesting(){
 		return new HttpRequestRecord(null, null, null, 0, null, null, null, null, 0, null, null, null, null, null, null,
-				0L, new HttpHeaders(null));
+				null, new HttpHeaders(null));
 	}
 
 	/*************** getters / setters ******************/
@@ -513,8 +513,8 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 		return userRoles.substring(1, userRoles.length() - 1);
 	}
 
-	public Long getUserId(){
-		return userId;
+	public String getUserToken(){
+		return userToken;
 	}
 
 	public String getAcceptCharset(){
