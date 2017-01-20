@@ -29,6 +29,7 @@ import com.hotpads.datarouter.inject.DatarouterInjector;
 import com.hotpads.datarouter.inject.InjectorRetriever;
 import com.hotpads.datarouter.monitoring.exception.HttpRequestRecord;
 import com.hotpads.datarouter.profile.counter.Counters;
+import com.hotpads.handler.user.session.CurrentUserInfo;
 import com.hotpads.util.DrExceptionTool;
 import com.hotpads.util.core.collections.Pair;
 import com.hotpads.util.http.HttpHeaders;
@@ -45,6 +46,7 @@ public abstract class ExceptionHandlingFilter implements Filter, InjectorRetriev
 	private ExceptionNodes exceptionNodes;
 	private WebAppName webAppName;
 	private ExceptionRecorder exceptionRecorder;
+	private CurrentUserInfo currentUserInfo;
 
 	@Override
 	public void init(FilterConfig filterConfig){
@@ -62,7 +64,7 @@ public abstract class ExceptionHandlingFilter implements Filter, InjectorRetriev
 
 		Date receivedAt = new Date();
 		req.setAttribute(REQUEST_RECEIVED_AT, receivedAt);
-		try {
+		try{
 			fc.doFilter(req, res);
 		}catch(OutOfMemoryError error){
 			logger.error("The current number of threads at OOM are: "
@@ -109,6 +111,8 @@ public abstract class ExceptionHandlingFilter implements Filter, InjectorRetriev
 			place = pair.getLeft();
 			lineNumber = pair.getRight();
 
+			Optional<String> userToken = currentUserInfo.getUserToken(request);
+
 			ExceptionRecord exceptionRecord = exceptionRecorder.recordException(exception,
 					WebExceptionCategory.HTTP_REQUEST, place);
 
@@ -119,8 +123,7 @@ public abstract class ExceptionHandlingFilter implements Filter, InjectorRetriev
 					lineNumber == null ? -1 : lineNumber,
 					request,
 					"unknown user roles",
-					-1L
-					);
+					userToken.orElse(null));
 			exceptionNodes.getHttpRequestRecordNode().put(httpRequestRecord, null);
 			return Optional.of(exceptionRecord.getKey());
 		}catch(Exception e){
