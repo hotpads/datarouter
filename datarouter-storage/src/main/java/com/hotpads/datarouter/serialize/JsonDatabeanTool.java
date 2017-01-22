@@ -6,8 +6,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.function.Supplier;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -157,10 +157,16 @@ public class JsonDatabeanTool{
 		for(Field<?> field : fields){
 			String jsonFieldName = field.getKey().getColumnName();
 			JsonElement jsonValue = json.get(jsonFieldName);
-			if(jsonValue == null || jsonValue instanceof JsonNull){// careful: only skip nulls, not empty strings
+			if(jsonValue == null || jsonValue.isJsonNull()){// careful: only skip nulls, not empty strings
 				continue;
 			}
-			Object value = field.parseStringEncodedValueButDoNotSet(jsonValue.getAsString());
+			String valueString;
+			if(jsonValue.isJsonObject()){
+				valueString = jsonValue.toString();
+			}else{
+				valueString = jsonValue.getAsString();
+			}
+			Object value = field.parseStringEncodedValueButDoNotSet(valueString);
 			field.setUsingReflection(databean, value);
 		}
 		return databean;
@@ -225,35 +231,54 @@ public class JsonDatabeanTool{
 		private ManyFieldTypeBeanFielder fielder = new ManyFieldTypeBeanFielder();
 		private SortedBeanFielder sortedBeanFielder = new SortedBeanFielder();
 
+		private static ManyFieldBean makeTestBean(){
+			ManyFieldBean bean = new ManyFieldBean(33333L);
+			bean.setBooleanField(false);
+			bean.setByteField((byte)-55);
+			bean.setCharacterField('Z');
+			bean.setDoubleField(-78.2345);
+			bean.setFloatField(45.12345f);
+			bean.setIntegerField(-9876);
+			bean.setIntEnumField(TestEnum.fish);
+			bean.setLongDateField(new Date());
+			bean.setLongField(-87658765876L);
+			bean.setShortField((short)-30000);
+			bean.setStringEnumField(TestEnum.beast);
+			bean.setStringField("_%crazy-string\\asdf");
+			bean.setVarIntEnumField(TestEnum.cat);
+			bean.setVarIntField(5555);
+			return bean;
+		}
+
 		@Test
 		public void testRoundTrip(){
 			ManyFieldBeanKey keyIn = new ManyFieldBeanKey(12345L);
 			JsonObject keyJsonObject = primaryKeyToJson(keyIn, fielder.getKeyFielder());
 			ManyFieldBeanKey keyOut = primaryKeyFromJson(ManyFieldBeanKey.class, fielder.getKeyFielder(),
 					keyJsonObject);
-			Assert.assertEquals(keyIn, keyOut);
+			AssertJUnit.assertEquals(keyIn, keyOut);
 
-			ManyFieldBean beanIn = new ManyFieldBean(33333L);
-			beanIn.setBooleanField(false);
-			beanIn.setByteField((byte)-55);
-			beanIn.setCharacterField('Z');
-			beanIn.setDoubleField(-78.2345);
-			beanIn.setFloatField(45.12345f);
-			beanIn.setIntegerField(-9876);
-			beanIn.setIntEnumField(TestEnum.fish);
-			beanIn.setLongDateField(new Date());
-			beanIn.setLongField(-87658765876L);
-			beanIn.setShortField((short)-30000);
-			beanIn.setStringEnumField(TestEnum.beast);
-			beanIn.setStringField("_%crazy-string\\asdf");
-			beanIn.setVarIntEnumField(TestEnum.cat);
-			beanIn.setVarIntField(5555);
+			ManyFieldBean beanIn = makeTestBean();
 
 			JsonObject databeanJson = databeanToJson(beanIn, fielder);
 			Supplier<ManyFieldBean> supplier = ReflectionTool.supplier(ManyFieldBean.class);
 			ManyFieldBean beanOut = databeanFromJson(supplier, fielder, databeanJson);
-			Assert.assertTrue(beanIn.equalsAllPersistentFields(beanOut));
+			AssertJUnit.assertTrue(beanIn.equalsAllPersistentFields(beanOut));
 		}
+
+		@Test
+		public void testBeanWithJson(){
+			ManyFieldBean beanIn = makeTestBean();
+			JsonObject databeanJson = databeanToJson(beanIn, fielder);
+			JsonObject innerJson = new JsonObject();
+			innerJson.addProperty("snorkle", "bazooka");
+			databeanJson.add(ManyFieldBean.F.stringField, innerJson);
+			beanIn.setStringField(innerJson.toString());
+			Supplier<ManyFieldBean> supplier = ReflectionTool.supplier(ManyFieldBean.class);
+			ManyFieldBean beanOut = databeanFromJson(supplier, fielder, databeanJson);
+			AssertJUnit.assertTrue(beanIn.equalsAllPersistentFields(beanOut));
+		}
+
 		@Test
 		public void testMultiRoundTrip(){
 			SortedBeanKey key0 = new SortedBeanKey("a", "b", 0, "d");
@@ -263,8 +288,8 @@ public class JsonDatabeanTool{
 			JsonArray jsonKeys = primaryKeysToJson(keysIn, sortedBeanFielder.getKeyFielder());
 			List<SortedBeanKey> keysOut = primaryKeysFromJson(SortedBeanKey.class, sortedBeanFielder.getKeyFielder(),
 					jsonKeys);
-			Assert.assertEquals(3, DrCollectionTool.size(keysOut));
-			Assert.assertArrayEquals(keysIn.toArray(), keysOut.toArray());
+			AssertJUnit.assertEquals(3, DrCollectionTool.size(keysOut));
+			AssertJUnit.assertArrayEquals(keysIn.toArray(), keysOut.toArray());
 
 			SortedBean bean0 = new SortedBean(key0, "1", 2L, null, 45.67d);
 			SortedBean bean1 = new SortedBean(key1, "ert", -987654L, "cheesetoast", -45.67d);
@@ -272,9 +297,9 @@ public class JsonDatabeanTool{
 			JsonArray jsonDatabeans = databeansToJson(databeansIn, sortedBeanFielder);
 			List<SortedBean> databeansOut = databeansFromJson(ReflectionTool.supplier(SortedBean.class),
 					sortedBeanFielder, jsonDatabeans);
-			Assert.assertEquals(2, DrCollectionTool.size(databeansOut));
-			Assert.assertArrayEquals(databeansIn.toArray(), databeansOut.toArray());
-			Assert.assertArrayEquals(keysIn.subList(0,2).toArray(), DatabeanTool.getKeys(databeansOut).toArray());
+			AssertJUnit.assertEquals(2, DrCollectionTool.size(databeansOut));
+			AssertJUnit.assertArrayEquals(databeansIn.toArray(), databeansOut.toArray());
+			AssertJUnit.assertArrayEquals(keysIn.subList(0,2).toArray(), DatabeanTool.getKeys(databeansOut).toArray());
 		}
 	}
 }
