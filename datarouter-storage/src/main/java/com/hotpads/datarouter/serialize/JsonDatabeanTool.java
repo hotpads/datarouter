@@ -6,7 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.function.Supplier;
 
-import org.testng.AssertJUnit;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import com.google.gson.JsonArray;
@@ -256,14 +256,14 @@ public class JsonDatabeanTool{
 			JsonObject keyJsonObject = primaryKeyToJson(keyIn, fielder.getKeyFielder());
 			ManyFieldBeanKey keyOut = primaryKeyFromJson(ManyFieldBeanKey.class, fielder.getKeyFielder(),
 					keyJsonObject);
-			AssertJUnit.assertEquals(keyIn, keyOut);
+			Assert.assertEquals(keyOut, keyIn);
 
 			ManyFieldBean beanIn = makeTestBean();
 
 			JsonObject databeanJson = databeanToJson(beanIn, fielder);
 			Supplier<ManyFieldBean> supplier = ReflectionTool.supplier(ManyFieldBean.class);
 			ManyFieldBean beanOut = databeanFromJson(supplier, fielder, databeanJson);
-			AssertJUnit.assertTrue(beanIn.equalsAllPersistentFields(beanOut));
+			Assert.assertTrue(beanIn.equalsAllPersistentFields(beanOut));
 		}
 
 		@Test
@@ -276,7 +276,7 @@ public class JsonDatabeanTool{
 			beanIn.setStringField(innerJson.toString());
 			Supplier<ManyFieldBean> supplier = ReflectionTool.supplier(ManyFieldBean.class);
 			ManyFieldBean beanOut = databeanFromJson(supplier, fielder, databeanJson);
-			AssertJUnit.assertTrue(beanIn.equalsAllPersistentFields(beanOut));
+			Assert.assertTrue(beanIn.equalsAllPersistentFields(beanOut));
 		}
 
 		@Test
@@ -288,8 +288,8 @@ public class JsonDatabeanTool{
 			JsonArray jsonKeys = primaryKeysToJson(keysIn, sortedBeanFielder.getKeyFielder());
 			List<SortedBeanKey> keysOut = primaryKeysFromJson(SortedBeanKey.class, sortedBeanFielder.getKeyFielder(),
 					jsonKeys);
-			AssertJUnit.assertEquals(3, DrCollectionTool.size(keysOut));
-			AssertJUnit.assertArrayEquals(keysIn.toArray(), keysOut.toArray());
+			Assert.assertEquals(DrCollectionTool.size(keysOut), 3);
+			Assert.assertEquals(keysOut.toArray(), keysIn.toArray());
 
 			SortedBean bean0 = new SortedBean(key0, "1", 2L, null, 45.67d);
 			SortedBean bean1 = new SortedBean(key1, "ert", -987654L, "cheesetoast", -45.67d);
@@ -297,9 +297,9 @@ public class JsonDatabeanTool{
 			JsonArray jsonDatabeans = databeansToJson(databeansIn, sortedBeanFielder);
 			List<SortedBean> databeansOut = databeansFromJson(ReflectionTool.supplier(SortedBean.class),
 					sortedBeanFielder, jsonDatabeans);
-			AssertJUnit.assertEquals(2, DrCollectionTool.size(databeansOut));
-			AssertJUnit.assertArrayEquals(databeansIn.toArray(), databeansOut.toArray());
-			AssertJUnit.assertArrayEquals(keysIn.subList(0,2).toArray(), DatabeanTool.getKeys(databeansOut).toArray());
+			Assert.assertEquals(DrCollectionTool.size(databeansOut), 2);
+			Assert.assertEquals(databeansOut.toArray(), databeansIn.toArray());
+			Assert.assertEquals(DatabeanTool.getKeys(databeansOut).toArray(), keysIn.subList(0,2).toArray());
 		}
 	}
 }
