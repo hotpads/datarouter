@@ -54,7 +54,7 @@ extends RedisReaderNode<PK,D,F> implements PhysicalMapStorageNode<PK,D>{
 		}
 		Long ttl = null;
 		if(config != null && config.getTtlMs() != null){
-			ttl =  getTtlMs(config);;
+			ttl = getTtlMs(config);
 		}
 		String jsonBean = JsonDatabeanTool.databeanToJsonString(databean, fieldInfo.getSampleFielder());
 		try{

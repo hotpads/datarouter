@@ -47,12 +47,12 @@ public class CallsiteRecord{
 
 		String afterThreadName = line.substring(line.indexOf("]") + 1);
 		String[] lineTokens = afterThreadName.split(" ");
-		int i = 3;
-		String nodeName = lineTokens[i++];
-		String datarouterMethodName = lineTokens[i++];
-		String callsite = lineTokens[i++];
-		Integer numItems = Integer.valueOf(lineTokens[i++]);
-		Long microseconds = Long.valueOf(lineTokens[i++]);
+		int index = 3;
+		String nodeName = lineTokens[index++];
+		String datarouterMethodName = lineTokens[index++];
+		String callsite = lineTokens[index++];
+		Integer numItems = Integer.valueOf(lineTokens[index++]);
+		Long microseconds = Long.valueOf(lineTokens[index++]);
 		Long nanoseconds = 1000 * microseconds;
 		return new CallsiteRecord(timestamp, nodeName, datarouterMethodName, callsite, numItems, nanoseconds);
 	}

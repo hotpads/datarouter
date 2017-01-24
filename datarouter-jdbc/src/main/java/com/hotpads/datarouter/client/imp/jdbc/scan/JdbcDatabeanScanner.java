@@ -30,7 +30,7 @@ extends BaseJdbcScanner<PK,D,D>{
 	}
 
 	@Override
-	protected void setCurrentFromResult(D result) {
+	protected void setCurrentFromResult(D result){
 		current = result;
 	}
 }

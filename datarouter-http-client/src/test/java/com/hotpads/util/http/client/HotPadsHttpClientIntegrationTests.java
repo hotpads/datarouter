@@ -30,48 +30,48 @@ import com.hotpads.util.http.security.DefaultApiKeyPredicate;
 import com.hotpads.util.http.security.SecurityParameters;
 import com.hotpads.util.http.security.SignatureValidator;
 
-public class HotPadsHttpClientIntegrationTests {
+public class HotPadsHttpClientIntegrationTests{
 	private static final Logger logger = LoggerFactory.getLogger(HotPadsHttpClientIntegrationTests.class);
 	private static final int PORT = 9091;
 	private static final String URL = "http://localhost:" + PORT + "/";
 	private static final Random RANDOM = new Random(115509410414623L);
 	private static SimpleHttpResponseServer server;
 
-	private static class SimpleHttpResponseServer extends Thread {
+	private static class SimpleHttpResponseServer extends Thread{
 		private volatile boolean done = false;
 		private volatile int status = 200;
 		private volatile int sleepMs = 0;
 		private volatile String response = "hello world";
 
 		@Override
-		public void run() {
-			try (ServerSocket server = new ServerSocket(PORT)) {
-				while (!done) {
+		public void run(){
+			try(ServerSocket server = new ServerSocket(PORT)){
+				while(!done){
 					accept(server);
 					sleep(100);
 				}
-			} catch (IOException | InterruptedException e) {
+			}catch(IOException | InterruptedException e){
 				throw new RuntimeException(e);
 			}
 		}
 
-		private synchronized void done() {
+		private synchronized void done(){
 			done = true;
 		}
 
-		private synchronized void setResponse(int status, String response) {
+		private synchronized void setResponse(int status, String response){
 			this.status = status;
 			this.response = response;
 		}
 
-		private synchronized void setResponseDelay(int sleepMs) {
+		private synchronized void setResponseDelay(int sleepMs){
 			this.sleepMs = sleepMs;
 		}
 
-		private void accept(ServerSocket server) throws IOException, InterruptedException {
-			try (PrintWriter out = new PrintWriter(server.accept().getOutputStream())) {
+		private void accept(ServerSocket server) throws IOException, InterruptedException{
+			try(PrintWriter out = new PrintWriter(server.accept().getOutputStream())){
 				logger.debug("connection accepted");
-				if (sleepMs > 0) {
+				if(sleepMs > 0){
 					logger.debug("begin sleep");
 					sleep(sleepMs);
 					logger.debug("end sleep");
@@ -89,32 +89,32 @@ public class HotPadsHttpClientIntegrationTests {
 	}
 
 	@BeforeClass
-	public static void setUp() {
+	public static void setUp(){
 		server = new SimpleHttpResponseServer();
 		server.start();
 	}
 
 	@AfterClass
-	public static void tearDown() {
+	public static void tearDown(){
 		server.done();
 	}
 
 	@Test(expected = HotPadsHttpRuntimeException.class)
-	public void testUncheckedException() {
+	public void testUncheckedException(){
 		HotPadsHttpClient client = new HotPadsHttpClientBuilder().build();
 		HotPadsHttpRequest request = new HotPadsHttpRequest(HttpRequestMethod.GET, "invalidLocation", false);
 		client.execute(request);
 	}
 
 	@Test(expected = HotPadsHttpRequestFutureTimeoutException.class, timeout = 1000)
-	public void testRequestFutureTimeoutException() throws HotPadsHttpException {
+	public void testRequestFutureTimeoutException() throws HotPadsHttpException{
 		HotPadsHttpClient client = new HotPadsHttpClientBuilder().build();
 		HotPadsHttpRequest request = new HotPadsHttpRequest(HttpRequestMethod.GET, URL, false).setFutureTimeoutMs(0L);
 		client.executeChecked(request);
 	}
 
 	@Test(expected = HotPadsHttpConnectionAbortedException.class)
-	public void testRequestTimeoutException() throws HotPadsHttpException {
+	public void testRequestTimeoutException() throws HotPadsHttpException{
 		server.setResponseDelay(200);
 		try{
 			HotPadsHttpClient client = new HotPadsHttpClientBuilder().build();
@@ -126,14 +126,14 @@ public class HotPadsHttpClientIntegrationTests {
 	}
 
 	@Test(expected = HotPadsHttpConnectionAbortedException.class, timeout = 1000)
-	public void testInvalidLocation() throws HotPadsHttpException {
+	public void testInvalidLocation() throws HotPadsHttpException{
 		HotPadsHttpClient client = new HotPadsHttpClientBuilder().build();
 		HotPadsHttpRequest request = new HotPadsHttpRequest(HttpRequestMethod.GET, "invalidLocation", false);
 		client.executeChecked(request);
 	}
 
 	@Test(expected = HotPadsHttpConnectionAbortedException.class)
-	public void testInvalidRequestHeader() throws HotPadsHttpException {
+	public void testInvalidRequestHeader() throws HotPadsHttpException{
 		server.setResponse(301, "301 status code throws exception when not provided a location header");
 		HotPadsHttpClient client = new HotPadsHttpClientBuilder().build();
 		HotPadsHttpRequest request = new HotPadsHttpRequest(HttpRequestMethod.GET, URL, false);
@@ -141,19 +141,19 @@ public class HotPadsHttpClientIntegrationTests {
 	}
 
 	@Test(expected = HotPadsHttpConnectionAbortedException.class, timeout = 1500)
-	public void testRetryFailure() throws HotPadsHttpException {
+	public void testRetryFailure() throws HotPadsHttpException{
 		server.setResponseDelay(200);
-		try {
+		try{
 			HotPadsHttpClient client = new HotPadsHttpClientBuilder().setRetryCount(10).build();
 			HotPadsHttpRequest request = new HotPadsHttpRequest(HttpRequestMethod.GET, URL, true).setTimeoutMs(100);
 			client.executeChecked(request);
-		} finally {
+		}finally{
 			server.setResponseDelay(0);
 		}
 	}
 
 	@Test
-	public void testSuccessfulRequests() {
+	public void testSuccessfulRequests(){
 		int status = HttpStatus.SC_OK;
 		String expectedResponse = UUID.randomUUID().toString();
 		server.setResponse(status, expectedResponse);
@@ -165,15 +165,15 @@ public class HotPadsHttpClientIntegrationTests {
 	}
 
 	@Test(expected = HotPadsHttpResponseException.class)
-	public void testBadRequestFailure() throws HotPadsHttpException {
-		try {
+	public void testBadRequestFailure() throws HotPadsHttpException{
+		try{
 			int status = HttpStatus.SC_BAD_REQUEST;
 			String expectedResponse = UUID.randomUUID().toString();
 			server.setResponse(status, expectedResponse);
 			HotPadsHttpClient client = new HotPadsHttpClientBuilder().build();
 			HotPadsHttpRequest request = new HotPadsHttpRequest(HttpRequestMethod.GET, URL, false);
 			client.executeChecked(request);
-		} catch (HotPadsHttpResponseException e) {
+		}catch(HotPadsHttpResponseException e){
 			Assert.assertTrue(e.isClientError());
 			HotPadsHttpResponse response = e.getResponse();
 			Assert.assertNotNull(response);
@@ -183,15 +183,15 @@ public class HotPadsHttpClientIntegrationTests {
 	}
 
 	@Test(expected = HotPadsHttpResponseException.class)
-	public void testServiceUnavailableFailure() throws HotPadsHttpException {
-		try {
+	public void testServiceUnavailableFailure() throws HotPadsHttpException{
+		try{
 			int status = HttpStatus.SC_SERVICE_UNAVAILABLE;
 			String expectedResponse = UUID.randomUUID().toString();
 			server.setResponse(status, expectedResponse);
 			HotPadsHttpClient client = new HotPadsHttpClientBuilder().build();
 			HotPadsHttpRequest request = new HotPadsHttpRequest(HttpRequestMethod.GET, URL, false);
 			client.executeChecked(request);
-		} catch (HotPadsHttpResponseException e) {
+		}catch(HotPadsHttpResponseException e){
 			Assert.assertTrue(e.isServerError());
 			HotPadsHttpResponse response = e.getResponse();
 			Assert.assertNotNull(response);
@@ -201,7 +201,7 @@ public class HotPadsHttpClientIntegrationTests {
 	}
 
 	@Test
-	public void testSecurityComponents() {
+	public void testSecurityComponents(){
 		HotPadsHttpClient client;
 		HotPadsHttpRequest request;
 		HotPadsHttpResponse response;

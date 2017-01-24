@@ -27,13 +27,13 @@ import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.collections.Range;
 
-@Guice(moduleFactory=DatarouterStorageTestModuleFactory.class)
+@Guice(moduleFactory = DatarouterStorageTestModuleFactory.class)
 public abstract class BaseScatteringPrefixIntegrationTests{
 
 	@Inject
 	private Datarouter datarouter;
 	@Inject
-	private	DatarouterSettings datarouterSettings;
+	private DatarouterSettings datarouterSettings;
 	@Inject
 	private NodeFactory nodeFactory;
 
@@ -128,7 +128,7 @@ public abstract class BaseScatteringPrefixIntegrationTests{
 		int expectedSize1 = 2;//confusing... just looked at mysql
 
 		Iterable<ScatteringPrefixBeanKey> scanner0 = router.scatteringPrefixBean().scanKeys(
-				Range.create(a190, true, b6, true), null);
+				new Range<>(a190, true, b6, true), null);
 		List<ScatteringPrefixBeanKey> result0 = DrListTool.createArrayList(scanner0);
 		AssertJUnit.assertEquals(expectedSize1, DrCollectionTool.size(result0));
 		AssertJUnit.assertTrue(DrListTool.isSorted(result0));
@@ -153,7 +153,3 @@ public abstract class BaseScatteringPrefixIntegrationTests{
 	}
 
 }
-
-
-
-

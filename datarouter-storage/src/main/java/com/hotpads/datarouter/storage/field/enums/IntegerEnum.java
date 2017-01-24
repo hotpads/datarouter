@@ -4,6 +4,6 @@ public interface IntegerEnum<E>
 extends Comparable<E>{
 
 	Integer getPersistentInteger();
-	E fromPersistentInteger(Integer i);
+	E fromPersistentInteger(Integer value);
 
 }

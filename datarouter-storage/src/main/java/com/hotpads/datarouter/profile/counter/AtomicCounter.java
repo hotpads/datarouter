@@ -21,14 +21,14 @@ public class AtomicCounter implements CountCollectorPeriod{
 		this.lengthMs = lengthMs;
 		this.countByKey = new ConcurrentHashMap<>(INITIAL_CAPACITY);
 		Thread createdByThread = Thread.currentThread();
-		this.createdByThreadId = createdByThread.getId()+"-"+createdByThread.getName();
+		this.createdByThreadId = createdByThread.getId() + "-" + createdByThread.getName();
 	}
 
 	@Override
 	public String toString(){
 		String time = DrDateTool.getYyyyMmDdHhMmSsMmmWithPunctuationNoSpaces(startTimeMs);
-		return getClass().getSimpleName()+"["+time+","+Counters.getSuffix(lengthMs)
-				+","+System.identityHashCode(this)+","+createdByThreadId+"]";
+		return getClass().getSimpleName() + "[" + time + "," + Counters.getSuffix(lengthMs)
+				+ "," + System.identityHashCode(this) + "," + createdByThreadId + "]";
 	}
 
 	@Override
@@ -64,7 +64,7 @@ public class AtomicCounter implements CountCollectorPeriod{
 	public void merge(CountCollector other){
 		for(Map.Entry<String,AtomicLong> otherEntry : DrMapTool.nullSafe(other.getCountByKey()).entrySet()){
 			AtomicLong existingValue = countByKey.get(otherEntry.getKey());
-			if(existingValue != null) {
+			if(existingValue != null){
 				existingValue.addAndGet(otherEntry.getValue().longValue());
 			}else{
 				countByKey.put(otherEntry.getKey(), new AtomicLong(otherEntry.getValue().longValue()));
@@ -74,7 +74,7 @@ public class AtomicCounter implements CountCollectorPeriod{
 
 	private AtomicLong getOrCreate(String key){
 		AtomicLong count = countByKey.get(key);
-		if(count != null) {
+		if(count != null){
 			return count;
 		}
 		AtomicLong newVal = new AtomicLong(0L);// could be wasted

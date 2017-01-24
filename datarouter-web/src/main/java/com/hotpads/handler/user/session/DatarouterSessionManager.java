@@ -21,7 +21,7 @@ public class DatarouterSessionManager{
 
 	/************* static fields **********************/
 
-	private final static String REQUEST_ATTRIBUTE_NAME = "datarouterSession";
+	private static final String REQUEST_ATTRIBUTE_NAME = "datarouterSession";
 	private static final int
 		TARGET_URL_COOKIE_EXPIRATION_SECONDS = 30 * 60,
 		USER_TOKEN_COOKIE_EXPIRATION_SECONDS = 365 * 24 * 3600;
@@ -36,11 +36,13 @@ public class DatarouterSessionManager{
 
 	public URL getTargetUrlFromCookie(HttpServletRequest request){
 		String targetUrlString = CookieTool.getCookieValue(request, config.getTargetUrlName());
-		if(DrStringTool.isEmpty(targetUrlString)){ return null; }
+		if(DrStringTool.isEmpty(targetUrlString)){
+			return null;
+		}
 		try{
 			return new URL(targetUrlString);
 		}catch(MalformedURLException e){
-			throw new IllegalArgumentException("invalid targetUrl:"+targetUrlString);
+			throw new IllegalArgumentException("invalid targetUrl:" + targetUrlString);
 		}
 	}
 
@@ -83,11 +85,11 @@ public class DatarouterSessionManager{
 
 	/************ add/remove session from request *********/
 
-	public void addToRequest(HttpServletRequest request, DatarouterSession userSession) {
+	public void addToRequest(HttpServletRequest request, DatarouterSession userSession){
 		request.setAttribute(REQUEST_ATTRIBUTE_NAME, userSession);
 	}
 
-	public Optional<DatarouterSession> getFromRequest(HttpServletRequest request) {
+	public Optional<DatarouterSession> getFromRequest(HttpServletRequest request){
 		return Optional.ofNullable((DatarouterSession)request.getAttribute(REQUEST_ATTRIBUTE_NAME));
 	}
 

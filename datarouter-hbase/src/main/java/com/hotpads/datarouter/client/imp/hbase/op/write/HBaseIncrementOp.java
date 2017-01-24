@@ -47,7 +47,7 @@ extends HBaseTask<Void>{
 
 	@Override
 	public Void hbaseCall(Table table, HBaseClient client, ResultScanner managedResultScanner) throws Exception{
-		if(countByColumnByKey==null){
+		if(countByColumnByKey == null){
 			return null;
 		}
 		List<Row> actions = new ArrayList<>();
@@ -70,7 +70,7 @@ extends HBaseTask<Void>{
 				node.getName(), numCellsIncremented);
 		DRCounters.incClientNodeCustom(client.getType(), "rows incremented", node.getClientId().getName(),
 				node.getName(), numRowsIncremented);
-		if (DrCollectionTool.notEmpty(actions)){
+		if(DrCollectionTool.notEmpty(actions)){
 			table.batch(actions);
 		}
 		return null;
@@ -80,8 +80,8 @@ extends HBaseTask<Void>{
 	private void assertColumnIsUInt63Field(String columnName){
 		Class<? extends Field> columnType = node.getFieldInfo().getFieldTypeForColumn(columnName);
 		if(DrObjectTool.notEquals(columnType, UInt63Field.class)){
-			throw new IllegalArgumentException(columnName+" is a "+columnType.getClass()
-					+", but you can only increment a UInt63Field");
+		throw new IllegalArgumentException(columnName + " is a " + columnType.getClass()
+				+ ", but you can only increment a UInt63Field");
 		}
 	}
 

@@ -38,7 +38,6 @@ public class ConnectionSqlTableGenerator implements SqlTableGenerator{
 	private final String schemaName;
 
 	public ConnectionSqlTableGenerator(Connection connection, String tableName, String schemaName){
-		super();
 		this.connection = connection;
 		this.tableName = tableName;
 		this.schemaName = schemaName;
@@ -50,7 +49,7 @@ public class ConnectionSqlTableGenerator implements SqlTableGenerator{
 		try{
 			Statement stmt = connection.createStatement();
 			stmt = connection.createStatement();
-			String sql = "select * from " + tableName +" limit 1";
+			String sql = "select * from " + tableName + " limit 1";
 			ResultSet rs = stmt.executeQuery(sql);
 			ResultSetMetaData metaData = rs.getMetaData();
 			int rowCount = metaData.getColumnCount();
@@ -70,7 +69,7 @@ public class ConnectionSqlTableGenerator implements SqlTableGenerator{
 
 			for(int i = 0; i < rowCount; i++){
 				boolean nullable = true; // nullable by default
-				if(metaData.isNullable(i + 1) == ResultSetMetaData.columnNoNulls) {
+				if(metaData.isNullable(i + 1) == ResultSetMetaData.columnNoNulls){
 					nullable = false;
 				}
 				boolean autoIncrement = metaData.isAutoIncrement(i + 1);
@@ -135,7 +134,7 @@ public class ConnectionSqlTableGenerator implements SqlTableGenerator{
 			indexList.close();
 
 			rs = stmt.executeQuery("select engine, row_format from information_schema.tables where table_name='"
-					+ tableName + "' and table_schema = '" + schemaName +"';");
+					+ tableName + "' and table_schema = '" + schemaName + "';");
 			rs.next();
 			table.setEngine(MySqlTableEngine.parse(rs.getString(1)));
 			table.setRowFormat(MySqlRowFormat.fromPersistentStringStatic(rs.getString(2)));
@@ -144,7 +143,7 @@ public class ConnectionSqlTableGenerator implements SqlTableGenerator{
 					+ "information_schema.`COLLATION_CHARACTER_SET_APPLICABILITY` CCSA"
 					+ "\nWHERE CCSA.collation_name = T.table_collation "
 					+ "\nAND T.table_schema=\"" + schemaName + "\" "
-					+ "\nAND T.table_name=\"" + tableName +"\";";
+					+ "\nAND T.table_name=\"" + tableName + "\";";
 			rs = stmt.executeQuery(sql);
 			rs.next();
 			table.setCollation(MySqlCollation.parse(rs.getString(1)));
@@ -154,7 +153,7 @@ public class ConnectionSqlTableGenerator implements SqlTableGenerator{
 					+ "information_schema.`COLLATION_CHARACTER_SET_APPLICABILITY` CCSA"
 					+ "\nWHERE CCSA.collation_name = T.table_collation "
 					+ "\nAND T.table_schema=\"" + schemaName + "\" "
-					+ "\nAND T.table_name=\"" + tableName +"\";";
+					+ "\nAND T.table_name=\"" + tableName + "\";";
 			rs = stmt.executeQuery(sql);
 			rs.next();
 			table.setCharSet(MySqlCharacterSet.parse(rs.getString(1)));
@@ -183,7 +182,7 @@ public class ConnectionSqlTableGenerator implements SqlTableGenerator{
 				break;
 			}
 		}
-		if(index==null){
+		if(index == null){
 			return;
 		}
 		for(SqlColumn col : DrIterableTool.nullSafe(columns)){
