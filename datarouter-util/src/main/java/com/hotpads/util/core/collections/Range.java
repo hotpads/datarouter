@@ -48,7 +48,7 @@ public class Range<T extends Comparable<? super T>> implements Comparable<Range<
 	/** static constructors **********************************************/
 
 	public static <T extends Comparable<? super T>> Range<T> nullSafe(Range<T> in){
-		if(in != null) {
+		if(in != null){
 			return in;
 		}
 		return everything();
@@ -108,7 +108,7 @@ public class Range<T extends Comparable<? super T>> implements Comparable<Range<
 	}
 
 	public boolean matchesStart(T item){
-		if( ! hasStart()){
+		if(!hasStart()){
 			return true;
 		}
 		int diff = item.compareTo(start);
@@ -116,7 +116,7 @@ public class Range<T extends Comparable<? super T>> implements Comparable<Range<
 	}
 
 	public boolean matchesEnd(T item){
-		if( ! hasEnd()){
+		if(!hasEnd()){
 			return true;
 		}
 		int diff = item.compareTo(end);
@@ -167,34 +167,34 @@ public class Range<T extends Comparable<? super T>> implements Comparable<Range<
 	//auto-gen
 	@Override
 	public boolean equals(Object obj){
-		if(this == obj) {
+		if(this == obj){
 			return true;
 		}
-		if(obj == null) {
+		if(obj == null){
 			return false;
 		}
-		if(getClass() != obj.getClass()) {
+		if(getClass() != obj.getClass()){
 			return false;
 		}
 		Range<?> other = (Range<?>)obj;
 		if(end == null){
-			if(other.end != null) {
+			if(other.end != null){
 				return false;
 			}
-		}else if(!end.equals(other.end)) {
+		}else if(!end.equals(other.end)){
 			return false;
 		}
-		if(endInclusive != other.endInclusive) {
+		if(endInclusive != other.endInclusive){
 			return false;
 		}
 		if(start == null){
-			if(other.start != null) {
+			if(other.start != null){
 				return false;
 			}
-		}else if(!start.equals(other.start)) {
+		}else if(!start.equals(other.start)){
 			return false;
 		}
-		if(startInclusive != other.startInclusive) {
+		if(startInclusive != other.startInclusive){
 			return false;
 		}
 		return true;
@@ -211,11 +211,11 @@ public class Range<T extends Comparable<? super T>> implements Comparable<Range<
 	}
 
 	public static <T extends Comparable<? super T>> int compareStarts(Range<T> itemA, Range<T> itemB){
-		if(itemA == itemB) {
+		if(itemA == itemB){
 			return 0;
 		}
 		int diff = DrComparableTool.nullFirstCompareTo(itemA.start, itemB.start);
-		if(diff != 0) {
+		if(diff != 0){
 			return diff;
 		}
 		if(itemA.startInclusive){

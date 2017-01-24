@@ -21,7 +21,7 @@ import com.hotpads.util.http.security.DefaultApiKeyPredicate;
 import com.hotpads.util.http.security.SignatureValidator;
 
 @Singleton
-public class NotificationApiClient {
+public class NotificationApiClient{
 	private static final String CIPHER_KEY = "mcs,8<iBTizAAw<':m5{Mm3SSE&{LBGMFFA4e[*(";
 	private static final String SALT = "5znm$#0D&~Z_B@]7<+;bVTM%XVbJ_iqzp]Vk[<J|";
 	private static final String API_KEY = "W^m<-m80dcn+tb[M)EOWBG'+;K?y/2";
@@ -51,7 +51,7 @@ public class NotificationApiClient {
 		this.httpClient = httpClient;
 	}
 
-	public void call(List<Pair<NotificationRequest, ExceptionRecord>> requests) throws HotPadsHttpException {
+	public void call(List<Pair<NotificationRequest,ExceptionRecord>> requests) throws HotPadsHttpException{
 		String url = exceptionHandlingConfig.getNotificationApiEndPoint();
 		HotPadsHttpRequest request = new HotPadsHttpRequest(HttpRequestMethod.POST, url, false);
 		httpClient.addDtoToPayload(request, dtoTool.toDtos(requests), null).executeChecked(request);

@@ -14,7 +14,7 @@ public enum JobletStatus implements StringEnum<JobletStatus>{
 	timedOut("timedOut", false);
 
 	private String varName;
-	private boolean isRunning=false;
+	private boolean isRunning;
 
 	private JobletStatus(String varName, boolean isRunning){
 		this.isRunning = isRunning;
