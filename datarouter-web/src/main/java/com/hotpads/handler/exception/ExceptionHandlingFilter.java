@@ -55,6 +55,7 @@ public abstract class ExceptionHandlingFilter implements Filter, InjectorRetriev
 		exceptionNodes = injector.getInstance(ExceptionNodes.class);
 		webAppName = injector.getInstance(WebAppName.class);
 		exceptionRecorder = injector.getInstance(ExceptionRecorder.class);
+		currentUserInfo = injector.getInstance(CurrentUserInfo.class);
 	}
 
 	@Override
