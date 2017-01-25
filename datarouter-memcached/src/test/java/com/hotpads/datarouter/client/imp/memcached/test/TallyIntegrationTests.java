@@ -17,7 +17,7 @@ import com.hotpads.datarouter.profile.tally.TallyKey;
 import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.test.DatarouterStorageTestModuleFactory;
 
-@Guice(moduleFactory=DatarouterStorageTestModuleFactory.class)
+@Guice(moduleFactory = DatarouterStorageTestModuleFactory.class)
 public class TallyIntegrationTests{
 
 	/***************************** fields **************************************/
@@ -62,7 +62,7 @@ public class TallyIntegrationTests{
 	}
 
 
-	@Test(expectedExceptions=NullPointerException.class)
+	@Test(expectedExceptions = NullPointerException.class)
 	public void testDelete(){
 		Tally bean = new Tally("testKey2");
 		tallyNode.put(bean, null);
@@ -112,7 +112,7 @@ public class TallyIntegrationTests{
 		// Wait for 4 seconds
 		try{
 			Thread.sleep(4 * 1000);
-		} catch (InterruptedException e){
+		}catch(InterruptedException e){
 			Thread.currentThread().interrupt();
 		}
 		Assert.assertEquals(tallyNode.getTallyCount(bean.getKey(), null), null);
@@ -135,7 +135,7 @@ public class TallyIntegrationTests{
 		// Wait for 4 seconds
 		try{
 			Thread.sleep(4 * 1000);
-		} catch (InterruptedException e){
+		}catch(InterruptedException e){
 			Thread.currentThread().interrupt();
 		}
 		Assert.assertEquals(tallyNode.getTallyCount(bean.getKey(), null), null);
@@ -155,7 +155,7 @@ public class TallyIntegrationTests{
 		// Wait for 4 seconds
 		try{
 			Thread.sleep(4 * 1000);
-		} catch (InterruptedException e){
+		}catch(InterruptedException e){
 			Thread.currentThread().interrupt();
 		}
 		Assert.assertEquals(tallyNode.getTallyCount(bean.getKey(), null), null);
