@@ -26,7 +26,7 @@ import com.hotpads.util.core.logging.Log4j2Configurator;
 
 public final class TestDatarouterLog4j2Configuration extends HotPadsLog4j2Configuration{
 
-	public static final String TEST_FILE_NAME = "/hotpads/tests/logging/testFile.log";
+	public static final String TEST_FILE_NAME = "testFile.log";
 	public static final String TEST_APPENDER_NAME = "testFile";
 
 	public TestDatarouterLog4j2Configuration(){
