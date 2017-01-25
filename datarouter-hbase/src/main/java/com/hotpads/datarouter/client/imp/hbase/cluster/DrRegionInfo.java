@@ -142,7 +142,7 @@ public class DrRegionInfo<PK extends PrimaryKey<PK>> implements Comparable<DrReg
 			return totalKvsString;
 		}
 		int percentCompacted = (int)((double)100 * (double)compactingKvs / totalKvs);
-		return totalKvsString + " ["+percentCompacted+"%]";
+		return totalKvsString + " [" + percentCompacted + "%]";
 	}
 
 
@@ -171,7 +171,7 @@ public class DrRegionInfo<PK extends PrimaryKey<PK>> implements Comparable<DrReg
 	}
 
 	@Override
-	public int compareTo(DrRegionInfo<?> other) {
+	public int compareTo(DrRegionInfo<?> other){
 		return Bytes.compareTo(regionInfo.getStartKey(), other.getRegion().getStartKey());
 	}
 

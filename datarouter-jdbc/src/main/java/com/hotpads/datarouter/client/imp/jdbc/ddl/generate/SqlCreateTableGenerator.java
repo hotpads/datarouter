@@ -16,7 +16,7 @@ public class SqlCreateTableGenerator implements DdlGenerator{
 	/************************** fields *************************/
 
 	protected SqlTable table;
-	protected String databaseName="";
+	protected String databaseName = "";
 
 
 	/******************* construct ****************************/
@@ -34,7 +34,7 @@ public class SqlCreateTableGenerator implements DdlGenerator{
 
 	@Override
 	public String generateDdl(){
-		StringBuilder sb=new StringBuilder("create table " );
+		StringBuilder sb = new StringBuilder("create table ");
 		if(!DrStringTool.isEmpty(databaseName)){
 			sb.append(databaseName + ".");
 		}
@@ -43,7 +43,7 @@ public class SqlCreateTableGenerator implements DdlGenerator{
 		SqlColumn col;
 		String typeString;
 		MySqlColumnType type;
-		for(int i=0; i<numberOfColumns; i++){
+		for(int i = 0; i < numberOfColumns; i++){
 			col = table.getColumns().get(i);
 			type = col.getType();
 			typeString = type.toString().toLowerCase();
@@ -52,7 +52,7 @@ public class SqlCreateTableGenerator implements DdlGenerator{
 				sb.append("(" + col.getMaxLength() + ")");
 			}
 			sb.append(col.getDefaultValueStatement());
-			if (col.getAutoIncrement()) {
+			if(col.getAutoIncrement()){
 				sb.append(" auto_increment");
 			}
 			if(i < numberOfColumns-1){
@@ -63,11 +63,11 @@ public class SqlCreateTableGenerator implements DdlGenerator{
 		if(table.hasPrimaryKey()){
 			sb.append(",\n");
 			sb.append(" primary key (");
-			int numberOfColumnsInPrimaryKey=table.getPrimaryKey().getColumns().size();
-			for(int i=0; i< numberOfColumnsInPrimaryKey; i++){
+			int numberOfColumnsInPrimaryKey = table.getPrimaryKey().getColumns().size();
+			for(int i = 0; i < numberOfColumnsInPrimaryKey; i++){
 				col = table.getPrimaryKey().getColumns().get(i);
 				sb.append(col.getName());
-				if(i != numberOfColumnsInPrimaryKey -1){
+				if(i != numberOfColumnsInPrimaryKey - 1){
 					sb.append(",");
 				}
 			}
@@ -75,7 +75,7 @@ public class SqlCreateTableGenerator implements DdlGenerator{
 		}
 		for(SqlIndex index : DrIterableTool.nullSafe(table.getUniqueIndexes())){
 			sb.append(",\n");
-			sb.append(" unique index "+ index.getName() +" (");
+			sb.append(" unique index " + index.getName() + " (");
 			boolean appendedAnyCol = false;
 			for(SqlColumn column : DrIterableTool.nullSafe(index.getColumns())){
 				if(appendedAnyCol){
@@ -98,21 +98,21 @@ public class SqlCreateTableGenerator implements DdlGenerator{
 				sb.append(",\n");
 			}
 			appendedAnyIndex = true;
-			sb.append(" index "+ index.getName() +" (");
+			sb.append(" index " + index.getName() + " (");
 
 			boolean appendedAnyIndexCol = false;
 			for(SqlColumn column : DrIterableTool.nullSafe(index.getColumns())){
 				if(appendedAnyIndexCol){
 					sb.append(", ");
 				}
-				appendedAnyIndexCol= true;
+				appendedAnyIndexCol = true;
 				sb.append(column.getName());
 			}
 			sb.append(")");
 		}
 		sb.append(")");
 		sb.append(" engine=" + table.getEngine() + " character set = " + table.getCharacterSet() + " collate "
-				+ table.getCollation()+ " row_format = " + table.getRowFormat().getPersistentString());
+				+ table.getCollation() + " row_format = " + table.getRowFormat().getPersistentString());
 		sb.append(";");
 		return sb.toString();
 
@@ -121,9 +121,9 @@ public class SqlCreateTableGenerator implements DdlGenerator{
 
 	/******************** tests *************************/
 
-	public static class  SqlCreateTableGeneratorTester{
+	public static class SqlCreateTableGeneratorTester{
 		@Test
-		public void testAutoIncrement() {
+		public void testAutoIncrement(){
 			String nameOfTable = "AutoIncrement";
 			SqlColumn colId = new SqlColumn("id", MySqlColumnType.BIGINT, 8, false, true);
 			SqlColumn colString = new SqlColumn("string", MySqlColumnType.VARCHAR, 100, true, false);
