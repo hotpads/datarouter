@@ -5,7 +5,9 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Spliterator;
 import java.util.Spliterators;
+import java.util.Spliterators.AbstractSpliterator;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BinaryOperator;
 import java.util.function.Consumer;
@@ -51,6 +53,34 @@ public class StreamTool{
 		};
     }
 
+	public static <T> Stream<List<T>> batch(Stream<T> stream, int batchSize){
+		return StreamSupport.stream(new BatchingSpliterator<>(stream.spliterator(), batchSize), false);
+	}
+
+	private static class BatchingSpliterator<T> extends AbstractSpliterator<List<T>>{
+
+		private final int batchSize;
+		private final Spliterator<T> original;
+
+		private BatchingSpliterator(Spliterator<T> original, int batchSize){
+			super(original.estimateSize() / batchSize, original.characteristics());
+			this.original = original;
+			this.batchSize = batchSize;
+		}
+
+		@Override
+		public boolean tryAdvance(Consumer<? super List<T>> action){
+			List<T> batch = new ArrayList<>(batchSize);
+			while(batch.size() < batchSize && original.tryAdvance(batch::add));
+			if(batch.isEmpty()){
+				return false;
+			}
+			action.accept(batch);
+			return true;
+		}
+
+	}
+
 	/************** Tests *******************/
 
 	public static class StreamToolTests{
@@ -93,6 +123,20 @@ public class StreamTool{
 		public void testNullItemSafeStreamWithoutNullItem(){
 			List<Integer> inputs = Arrays.asList(1, 2, 3, 4);
 			Assert.assertEquals(nullItemSafeStream(inputs).count(), 4L);
+		}
+
+		@Test
+		public void testBatch(){
+			List<Integer> original = Arrays.asList(3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5);
+			List<List<Integer>> expected = Arrays.asList(
+					Arrays.asList(3, 1),
+					Arrays.asList(4, 1),
+					Arrays.asList(5, 9),
+					Arrays.asList(2, 6),
+					Arrays.asList(5, 3),
+					Arrays.asList(5));
+			List<List<Integer>> batched = batch(original.stream(), 2).collect(Collectors.toList());
+			Assert.assertEquals(batched, expected);
 		}
 
 	}
