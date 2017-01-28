@@ -7,6 +7,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Optional;
@@ -25,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.inject.DatarouterInjector;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.handler.encoder.HandlerEncoder;
 import com.hotpads.handler.encoder.MavEncoder;
@@ -48,6 +50,7 @@ public abstract class BaseHandler{
 	private static final Logger logger = LoggerFactory.getLogger(BaseHandler.class);
 
 	private static final String DEFAULT_HANDLER_METHOD_NAME = "handleDefault";
+	private static final String MISSING_PARAMETERS_HANDLER_METHOD_NAME = "handleMissingParameters";
 
 	@Inject
 	private HandlerTypingHelper handlerTypingHelper;
@@ -77,6 +80,21 @@ public abstract class BaseHandler{
 		MessageMav mav = new MessageMav("no default handler method found, please specify " + handlerMethodParamName());
 		mav.setStatusCode(HttpServletResponse.SC_NOT_FOUND);
 		return mav;
+	}
+
+	@Handler
+	protected Object handleMissingParameters(Method method){
+		response.setStatus(400);
+		String missingParameters = streamMissingParameterNames(method).collect(Collectors.joining(", "));
+		MessageMav mav = new MessageMav("missing parameters for method: " + missingParameters);
+		mav.setStatusCode(HttpServletResponse.SC_BAD_REQUEST);
+		return mav;
+	}
+
+	protected Stream<String> streamMissingParameterNames(Method method){
+		return Stream.of(method.getParameters())
+				.map(Parameter::getName)
+				.filter(param -> !params.toMap().keySet().contains(param));
 	}
 
 	/*
@@ -113,13 +131,14 @@ public abstract class BaseHandler{
 					args = pair.getRight();
 				}
 			}
-			if(method == null && possibleMethods.size() > 0){
-				response.setStatus(400);
-				throw new RuntimeException("missing parameters for method " + methodName);
-			}
 			if(method == null){
-				methodName = DEFAULT_HANDLER_METHOD_NAME;
-				method = ReflectionTool.getDeclaredMethodFromHierarchy(getClass(), methodName);
+				if(possibleMethods.size() > 0){
+					methodName = MISSING_PARAMETERS_HANDLER_METHOD_NAME;
+					args = new Object[]{DrCollectionTool.getFirst(possibleMethods)};
+				}else{
+					methodName = DEFAULT_HANDLER_METHOD_NAME;
+				}
+				method = ReflectionTool.getDeclaredMethodFromHierarchy(getClass(), methodName, Method.class);
 			}
 
 			HandlerEncoder encoder;
@@ -161,6 +180,11 @@ public abstract class BaseHandler{
 
 
 	/****************** optionally override these *************************/
+
+	protected HttpServletResponse makeMissingRequiredParameterResponse(HttpServletResponse response){
+		response.setStatus(400);
+		return response;
+	}
 
 	private boolean permitted(){
 		//allow everyone by default
