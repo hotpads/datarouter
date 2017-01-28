@@ -181,11 +181,6 @@ public abstract class BaseHandler{
 
 	/****************** optionally override these *************************/
 
-	protected HttpServletResponse makeMissingRequiredParameterResponse(HttpServletResponse response){
-		response.setStatus(400);
-		return response;
-	}
-
 	private boolean permitted(){
 		//allow everyone by default
 		return true;
