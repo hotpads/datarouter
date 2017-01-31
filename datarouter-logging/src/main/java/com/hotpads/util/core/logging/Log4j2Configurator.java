@@ -48,10 +48,10 @@ public class Log4j2Configurator{
 	public static ConsoleAppender createConsoleAppender(String name, Target target, String pattern){
 		PatternLayout layout = createLayout(pattern);
 		return ConsoleAppender.newBuilder()
-			.withLayout(layout)
-			.setTarget(target)
-			.withName(name)
-			.build();
+				.withLayout(layout)
+				.setTarget(target)
+				.withName(name)
+				.build();
 	}
 
 	public static FileAppender createFileAppender(String name, String fileName, String pattern){
