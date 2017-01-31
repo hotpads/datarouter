@@ -35,6 +35,8 @@ public class JobletRequeueJob extends BaseJob{
 
 	private static final Range<Duration> MIDDLE_AGE_RANGE = new Range<>(MIDDLE_AGE, OLD_AGE);
 
+	private static final int MAX_REQUEUES_PER_QUEUE = 10;
+
 	private final JobletSettings jobletSettings;
 	private final ActiveJobletTypeFactory activeJobletTypeFactory;
 	private final JobletNodes jobletNodes;
@@ -88,6 +90,7 @@ public class JobletRequeueJob extends BaseJob{
 
 	private void requeueOldCreatedJobletsForPrefix(JobletRequestKey prefix){
 		JobletRequestQueueKey queueKey = jobletRequestQueueManager.getQueueKey(prefix);
+		int numRequeued = 0;
 		for(JobletRequest request : jobletNodes.jobletRequest().scanWithPrefix(prefix, null)){
 			if(request.getKey().getAge().compareTo(OLD_AGE) < 0){
 				break;
@@ -101,6 +104,10 @@ public class JobletRequeueJob extends BaseJob{
 			jobletNodes.jobletRequestQueueByKey().get(queueKey).put(request, null);
 			jobletNodes.jobletRequest().delete(oldKey, null);
 			logger.warn("requeued one for {}-{}, {}", request.getTypeString(), request.getKey().getPriority(), request);
+			++numRequeued;
+			if(numRequeued >= MAX_REQUEUES_PER_QUEUE){
+				break;
+			}
 		}
 	}
 
