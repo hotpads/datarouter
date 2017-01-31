@@ -47,13 +47,20 @@ public class Log4j2Configurator{
 
 	public static ConsoleAppender createConsoleAppender(String name, Target target, String pattern){
 		PatternLayout layout = createLayout(pattern);
-		return ConsoleAppender.createAppender(layout, null, target, name, false, true);
+		return ConsoleAppender.newBuilder()
+			.withLayout(layout)
+			.setTarget(target)
+			.withName(name)
+			.build();
 	}
 
 	public static FileAppender createFileAppender(String name, String fileName, String pattern){
 		PatternLayout layout = createLayout(pattern);
-		return FileAppender.createAppender(fileName, null, null, name, null, null, null, null, layout, null, null, null,
-				null);
+		return FileAppender.newBuilder()
+				.withFileName(fileName)
+				.withName(name)
+				.withLayout(layout)
+				.build();
 	}
 
 	private LoggerContext ctx;
