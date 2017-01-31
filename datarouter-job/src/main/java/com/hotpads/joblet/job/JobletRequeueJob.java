@@ -63,7 +63,7 @@ public class JobletRequeueJob extends BaseJob{
 				activeJobletTypeFactory.getAllActiveTypes(), EnumSet.allOf(JobletPriority.class));
 		allPrefixes.stream()
 				.filter(this::anyToRequeueWithPrefix)
-				.forEach(this::requeueOldJobletsForPrefix);
+				.forEach(this::requeueOldCreatedJobletsForPrefix);
 	}
 
 
@@ -86,11 +86,14 @@ public class JobletRequeueJob extends BaseJob{
 		return anyOld;
 	}
 
-	private void requeueOldJobletsForPrefix(JobletRequestKey prefix){
+	private void requeueOldCreatedJobletsForPrefix(JobletRequestKey prefix){
 		JobletRequestQueueKey queueKey = jobletRequestQueueManager.getQueueKey(prefix);
 		for(JobletRequest request : jobletNodes.jobletRequest().scanWithPrefix(prefix, null)){
 			if(request.getKey().getAge().compareTo(OLD_AGE) < 0){
 				break;
+			}
+			if(request.getStatus() != JobletStatus.created){
+				continue;
 			}
 			JobletRequestKey oldKey = request.getKey().copy();//capture the old "created" for later delete
 			request.getKey().setCreated(System.currentTimeMillis());

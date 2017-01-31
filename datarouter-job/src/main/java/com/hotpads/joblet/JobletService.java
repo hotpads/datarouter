@@ -3,6 +3,7 @@ package com.hotpads.joblet;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
@@ -120,6 +121,8 @@ public class JobletService{
 
 	public JobletPackage getJobletPackageForJobletRequest(JobletRequest jobletRequest){
 		JobletData jobletData = jobletNodes.jobletData().get(jobletRequest.getJobletDataKey(), null);
+		Objects.requireNonNull(jobletData, "null jobletData " + jobletRequest.getJobletDataId() + " for "
+				+ jobletRequest);
 		return new JobletPackage(jobletRequest, jobletData);
 	}
 
