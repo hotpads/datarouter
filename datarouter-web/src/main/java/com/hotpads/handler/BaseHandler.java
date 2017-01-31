@@ -10,6 +10,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -83,18 +84,11 @@ public abstract class BaseHandler{
 	}
 
 	@Handler
-	protected Object handleMissingParameters(Method method){
-		response.setStatus(400);
-		String missingParameters = streamMissingParameterNames(method).collect(Collectors.joining(", "));
-		MessageMav mav = new MessageMav("missing parameters for method: " + missingParameters);
+	protected Object handleMissingParameters(List<String> missingParameters, String methodName){
+		MessageMav mav = new MessageMav("missing parameters for " + methodName + ": "
+				+ String.join(", ", missingParameters));
 		mav.setStatusCode(HttpServletResponse.SC_BAD_REQUEST);
 		return mav;
-	}
-
-	protected Stream<String> streamMissingParameterNames(Method method){
-		return Stream.of(method.getParameters())
-				.map(Parameter::getName)
-				.filter(param -> !params.toMap().keySet().contains(param));
 	}
 
 	/*
@@ -133,12 +127,17 @@ public abstract class BaseHandler{
 			}
 			if(method == null){
 				if(possibleMethods.size() > 0){
+					Method desiredMethod = DrCollectionTool.getFirst(possibleMethods);
+					List<String> missingParameters = getMissingParameterNames(desiredMethod);
+					args = new Object[]{missingParameters, desiredMethod.getName()};
+
 					methodName = MISSING_PARAMETERS_HANDLER_METHOD_NAME;
-					args = new Object[]{DrCollectionTool.getFirst(possibleMethods)};
+					method = ReflectionTool.getDeclaredMethodFromHierarchy(getClass(), methodName, List.class,
+							String.class);
 				}else{
 					methodName = DEFAULT_HANDLER_METHOD_NAME;
+					method = ReflectionTool.getDeclaredMethodFromHierarchy(getClass(), methodName);
 				}
-				method = ReflectionTool.getDeclaredMethodFromHierarchy(getClass(), methodName, Method.class);
 			}
 
 			HandlerEncoder encoder;
@@ -214,6 +213,13 @@ public abstract class BaseHandler{
 
 	protected String handlerMethodParamName(){
 		return "submitAction";
+	}
+
+	private List<String> getMissingParameterNames(Method method){
+		return Stream.of(method.getParameters())
+				.map(Parameter::getName)
+				.filter(param -> !params.toMap().keySet().contains(param))
+				.collect(Collectors.toList());
 	}
 
 	/****************** get/set *******************************************/
