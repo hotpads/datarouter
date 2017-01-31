@@ -60,13 +60,6 @@
 			<version>3.0.1</version>
 			<scope>provided</scope>
 		</dependency>
-		<!-- dependency to fix JSPServletException -->
-	    <dependency>
-	        <groupId>org.apache.tomcat</groupId>
-	        <artifactId>jsp-api</artifactId>
-	        <version>6.0.32</version>
-	        <scope>provided</scope>               
-	    </dependency>
 		<!-- hbase -->
 		<dependency><!-- need newer version for google apis, so override hbase's 2.4 -->
 			<groupId>com.google.protobuf</groupId>
