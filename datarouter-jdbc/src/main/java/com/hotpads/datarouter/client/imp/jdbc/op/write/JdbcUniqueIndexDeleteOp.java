@@ -1,6 +1,7 @@
 package com.hotpads.datarouter.client.imp.jdbc.op.write;
 
 import java.util.Collection;
+import java.util.Optional;
 
 import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.client.imp.jdbc.op.BaseJdbcOp;
@@ -32,7 +33,8 @@ public class JdbcUniqueIndexDeleteOp<PK extends PrimaryKey<PK>, D extends Databe
 
 	@Override
 	public Long runOnce(){
-		String sql = SqlBuilder.deleteMulti(fieldCodecFactory, config, node.getTableName(), uniqueKeys);
+		String sql = SqlBuilder.deleteMulti(fieldCodecFactory, config, node.getTableName(), uniqueKeys, Optional.of(node
+				.getFieldInfo().getCharacterSet()), Optional.of(node.getFieldInfo().getCollation()));
 		long numModified = JdbcTool.update(getConnection(node.getClientId().getName()), sql.toString());
 		return numModified;
 	}

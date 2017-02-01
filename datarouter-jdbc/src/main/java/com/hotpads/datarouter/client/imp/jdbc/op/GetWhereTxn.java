@@ -2,6 +2,7 @@ package com.hotpads.datarouter.client.imp.jdbc.op;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
@@ -10,6 +11,7 @@ import com.hotpads.datarouter.client.imp.jdbc.util.JdbcTool;
 import com.hotpads.datarouter.client.imp.jdbc.util.SqlBuilder;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.op.util.ResultMergeTool;
+import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
@@ -52,12 +54,14 @@ extends BaseJdbcOp<List<D>>{
 		StringBuilder whereClause = new StringBuilder();
 		if(startAfterKey != null){
 			Range<PK> range = new Range<>(startAfterKey, false, null, true);
-			SqlBuilder.addRangeWhereClause(fieldCodecFactory, whereClause, range);
+			DatabeanFieldInfo<PK,D,F> fieldInfo = node.getFieldInfo();
+			SqlBuilder.addRangeWhereClause(fieldCodecFactory, whereClause, range, Optional.of(fieldInfo
+					.getCharacterSet()), Optional.of(fieldInfo.getCollation()));
 			if(DrStringTool.notEmpty(whereClauseFromUser)){
 				whereClause.append(" and ");
 			}
 		}
-		whereClause.append(" "+whereClauseFromUser);
+		whereClause.append(" " + whereClauseFromUser);
 		String sql = SqlBuilder.getAll(config, tableName, node.getFieldInfo().getFields(), whereClause.toString(),
 				node.getFieldInfo().getPrimaryKeyFields());
 		return JdbcTool.selectDatabeans(fieldCodecFactory, getConnection(client.getName()), node.getFieldInfo(), sql);

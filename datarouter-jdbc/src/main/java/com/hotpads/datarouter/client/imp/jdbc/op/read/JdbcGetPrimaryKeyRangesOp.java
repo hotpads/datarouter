@@ -2,6 +2,7 @@ package com.hotpads.datarouter.client.imp.jdbc.op.read;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
@@ -47,7 +48,8 @@ extends BaseJdbcOp<List<PK>>{
 
 		List<Field<?>> fieldsToSelect = node.getFieldInfo().getPrimaryKeyFields();
 		String sql = SqlBuilder.getInRanges(fieldCodecFactory, config, node.getTableName(), fieldsToSelect, ranges,
-				node.getFieldInfo().getPrimaryKeyFields());
+				node.getFieldInfo().getPrimaryKeyFields(), Optional.empty(),//TODO use key name to force index here?
+				Optional.of(node.getFieldInfo().getCharacterSet()), Optional.of(node.getFieldInfo().getCollation()));
 		List<PK> result = JdbcTool.selectPrimaryKeys(fieldCodecFactory, getConnection(node.getClientId().getName()),
 				node.getFieldInfo(), sql);
 

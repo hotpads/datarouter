@@ -3,6 +3,8 @@ package com.hotpads.datarouter.storage.field;
 import java.util.Collections;
 import java.util.List;
 
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSet;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCollation;
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.databean.FieldlessIndexEntry;
@@ -15,8 +17,21 @@ public class FieldlessIndexEntryFielder<
 		D extends Databean<PK,D>>
 extends BaseDatabeanFielder<IK,FieldlessIndexEntry<IK,PK,D>>{
 
+	private MySqlCharacterSet characterSet = DEFAULT_CHARACTER_SET;
+	private MySqlCollation collation = DEFAULT_COLLATION;
+
 	public FieldlessIndexEntryFielder(Class<IK> keyClass){
 		super(keyClass);
+	}
+
+	public FieldlessIndexEntryFielder(Class<IK> keyClass, MySqlCharacterSet characterSet, MySqlCollation collation){
+		this(keyClass);
+		if(characterSet != null){
+			this.characterSet = characterSet;
+		}
+		if(collation != null){
+			this.collation = collation;
+		}
 	}
 
 	@Override
@@ -24,4 +39,13 @@ extends BaseDatabeanFielder<IK,FieldlessIndexEntry<IK,PK,D>>{
 		return Collections.emptyList();
 	}
 
+	@Override
+	public MySqlCharacterSet getCharacterSet(){
+		return characterSet;
+	}
+
+	@Override
+	public MySqlCollation getCollation(){
+		return collation;
+	}
 }

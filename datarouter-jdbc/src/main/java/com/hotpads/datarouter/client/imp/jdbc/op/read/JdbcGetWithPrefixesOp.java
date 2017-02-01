@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 
 import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.client.imp.jdbc.node.JdbcReaderNode;
@@ -54,9 +55,10 @@ extends BaseJdbcOp<List<D>>{
 		return result;
 	}
 
-	private List<D> runBatch(Connection connection, Collection<PK> batch) {
+	private List<D> runBatch(Connection connection, Collection<PK> batch){
 		String sql = SqlBuilder.getWithPrefixes(fieldCodecFactory, config, node.getTableName(), node.getFieldInfo()
-				.getFields(), batch, wildcardLastField, node.getFieldInfo().getPrimaryKeyFields());
+				.getFields(), batch, wildcardLastField, node.getFieldInfo().getPrimaryKeyFields(),
+				Optional.of(node.getFieldInfo().getCharacterSet()), Optional.of(node.getFieldInfo().getCollation()));
 		return JdbcTool.selectDatabeans(fieldCodecFactory, connection, node.getFieldInfo(), sql);
 	}
 }

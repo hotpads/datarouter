@@ -1,7 +1,9 @@
 package com.hotpads.datarouter.client.imp.jdbc.op.read.index;
 
 import java.sql.Connection;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.client.imp.jdbc.op.BaseJdbcOp;
@@ -42,8 +44,13 @@ extends BaseJdbcOp<List<IK>>{
 
 	@Override
 	public List<IK> runOnce(){
-		String sql = SqlBuilder.getInRange(fieldCodecFactory, config, node.getTableName(),
-				fieldInfo.getPrimaryKeyFields(), range, fieldInfo.getPrimaryKeyFields());
+		//TODO test if collation and charset came through
+		//TODO test if right info?
+		Optional<String> indexName = Optional.of(fieldInfo.getTableName());
+		String sql = SqlBuilder.getInRanges(fieldCodecFactory, config, node.getTableName(),
+				fieldInfo.getPrimaryKeyFields(), Arrays.asList(range), fieldInfo.getPrimaryKeyFields(), indexName,
+				Optional.of(fieldInfo.getCharacterSet()), Optional.of(fieldInfo.getCollation()));
+		System.out.println(sql);
 		Connection connection = getConnection(node.getClientId().getName());
 		return JdbcTool.selectIndexEntryKeys(fieldCodecFactory, connection, fieldInfo, sql);
 	}

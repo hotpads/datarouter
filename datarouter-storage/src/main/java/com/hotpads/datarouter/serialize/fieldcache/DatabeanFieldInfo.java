@@ -371,10 +371,6 @@ public class DatabeanFieldInfo<
 		this.fields = fields;
 	}
 
-	public MySqlCharacterSet getCharacter_set(){
-		return characterSet;
-	}
-
 	public Class<PrimaryKeyFielder<PK>> getPrimaryKeyFielderClass(){
 		return primaryKeyFielderClass;
 	}

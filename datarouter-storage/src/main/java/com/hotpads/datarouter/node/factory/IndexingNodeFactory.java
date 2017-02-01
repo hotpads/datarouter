@@ -110,7 +110,7 @@ public class IndexingNodeFactory{
 	ManagedUniqueIndexNode<PK,D,IK,FieldlessIndexEntry<IK,PK,D>,FieldlessIndexEntryFielder<IK,PK,D>>
 			newKeyOnlyManagedUnique(Router router, IndexedMapStorage<PK, D> backingNode, boolean manageTxn,
 					Class<IK> indexKeyClass){
-		return newManagedUnique(router, backingNode, () -> new FieldlessIndexEntryFielder<>(indexKeyClass),
+		return newManagedUnique(router, backingNode, () -> new FieldlessIndexEntryFielder<>(indexKeyClass),//TODO update here, too?
 				() -> new FieldlessIndexEntry<>(indexKeyClass), manageTxn, indexKeyClass.getSimpleName());
 	}
 

@@ -8,6 +8,8 @@ import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.LazyClientProvider;
 import com.hotpads.datarouter.client.RouterOptions;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSet;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCollation;
 import com.hotpads.datarouter.client.imp.jdbc.node.index.TxnManagedUniqueIndexNode;
 import com.hotpads.datarouter.config.DatarouterSettings;
 import com.hotpads.datarouter.node.Node;
@@ -16,6 +18,7 @@ import com.hotpads.datarouter.node.NodeParams.NodeParamsBuilder;
 import com.hotpads.datarouter.node.factory.BaseNodeFactory;
 import com.hotpads.datarouter.node.op.NodeOps;
 import com.hotpads.datarouter.node.op.combo.IndexedMapStorage;
+import com.hotpads.datarouter.node.op.combo.IndexedMapStorage.IndexedMapStorageNode;
 import com.hotpads.datarouter.node.type.index.UniqueIndexNode;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
@@ -199,16 +202,18 @@ implements Router{
 			D extends Databean<PK,D>,
 			IK extends FieldlessIndexEntryPrimaryKey<IK,PK,D>>
 	ManagedNodeBuilder<PK,D,IK,FieldlessIndexEntry<IK,PK,D>,FieldlessIndexEntryFielder<IK,PK,D>>
-	createKeyOnlyManagedIndex(Class<IK> indexEntryKeyClass, IndexedMapStorage<PK,D> backingNode){
+	createKeyOnlyManagedIndex(Class<IK> indexEntryKeyClass, IndexedMapStorageNode<PK,D> backingNode){
+		MySqlCharacterSet characterSet = backingNode.getFieldInfo().getCharacterSet();
+		MySqlCollation collation = backingNode.getFieldInfo().getCollation();
 		return new ManagedNodeBuilder<>(indexEntryKeyClass, () -> new FieldlessIndexEntry<>(indexEntryKeyClass),
-				() -> new FieldlessIndexEntryFielder<>(indexEntryKeyClass), backingNode);
+				() -> new FieldlessIndexEntryFielder<>(indexEntryKeyClass, characterSet, collation), backingNode);
 	}
 
 	protected <PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			IK extends FieldlessIndexEntryPrimaryKey<IK,PK,D>>
 	UniqueIndexNode<PK,D,IK,FieldlessIndexEntry<IK,PK,D>> buildKeyOnlyManagedIndex(Class<IK> indexEntryKeyClass,
-			IndexedMapStorage<PK,D> backingNode){
+			IndexedMapStorageNode<PK,D> backingNode){
 		return createKeyOnlyManagedIndex(indexEntryKeyClass, backingNode).build();
 	}
 

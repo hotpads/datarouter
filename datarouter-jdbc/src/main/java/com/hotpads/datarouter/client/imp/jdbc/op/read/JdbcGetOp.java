@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
@@ -51,7 +52,8 @@ extends BaseJdbcOp<List<D>>{
 		Connection connection = getConnection(node.getClientId().getName());
 		for(List<? extends Key<PK>> keyBatch : new BatchingIterable<>(dedupedKeys, config.getIterateBatchSize())){
 			String sql = SqlBuilder.getMulti(fieldCodecFactory, config, node.getTableName(), node.getFieldInfo()
-					.getFields(), keyBatch);
+					.getFields(), keyBatch, Optional.of(node.getFieldInfo().getCharacterSet()), Optional.of(node
+					.getFieldInfo().getCollation()));
 			DRCounters.incClientNodeCustom(node.getClient().getType(), opName + " selects", node.getClientId()
 					.getName(), node.getName());
 			result.addAll(JdbcTool.selectDatabeans(fieldCodecFactory, connection, node.getFieldInfo(), sql));

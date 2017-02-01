@@ -62,7 +62,6 @@ public class StandardJdbcFieldCodecFactory implements JdbcFieldCodecFactory{
 		return ReflectionTool.createWithParameters(codecType, Arrays.asList(field));
 	}
 
-
 	@Override
 	public List<JdbcFieldCodec<?,?>> createCodecs(Collection<Field<?>> fields){
 		List<JdbcFieldCodec<?,?>> codecs = DrListTool.createArrayListWithSize(fields);
@@ -73,7 +72,7 @@ public class StandardJdbcFieldCodecFactory implements JdbcFieldCodecFactory{
 	}
 
 
-
+//TODO update tests?
 	/************************ test *****************************/
 
 	@Guice(moduleFactory = TestDatarouterJdbcModuleFactory.class)

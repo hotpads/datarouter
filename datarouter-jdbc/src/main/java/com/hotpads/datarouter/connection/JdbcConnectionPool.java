@@ -90,7 +90,27 @@ public class JdbcConnectionPool{
 	}
 
 	public Connection checkOut() throws SQLException{
-		return pool.getConnection();
+		Connection connection = pool.getConnection();
+//		System.out.println("global");
+//		fuckYou(connection, "show global variables like 'character_set_%'");
+//		fuckYou(connection, "show global variables like 'collation_%'");
+//		System.out.println("session");
+//		fuckYou(connection, "show session variables like 'character_set_%'");
+//		fuckYou(connection, "show session variables like 'collation_%'");
+
+		return connection;
+	}
+
+	public void fuckYou(Connection connection, String sql){
+		try{
+			java.sql.Statement s = connection.createStatement();
+			java.sql.ResultSet rs = s.executeQuery(sql);
+			while(rs.next()){
+				System.out.println(rs.getString(1) + ": " + rs.getString(2));
+			}
+		}catch(Throwable t){
+			t.printStackTrace();
+		}
 	}
 
 	public void checkIn(Connection connection){

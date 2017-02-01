@@ -63,7 +63,7 @@ public abstract class BaseNodeFactory{
 	}
 
 	/**
-	 * @deprecated use {@link BaseRouter#create(ClientId, Supplier, Supplier)}
+	 * @deprecated use {@link Base BaseRouter#create(ClientId, Supplier, Supplier)}
 	 */
 	@Deprecated
 	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,
