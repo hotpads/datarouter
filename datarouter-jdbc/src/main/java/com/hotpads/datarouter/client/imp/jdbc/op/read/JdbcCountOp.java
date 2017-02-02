@@ -1,7 +1,6 @@
 package com.hotpads.datarouter.client.imp.jdbc.op.read;
 
 import java.sql.Connection;
-import java.util.Optional;
 
 import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.client.imp.jdbc.node.JdbcReaderNode;
@@ -35,8 +34,8 @@ extends BaseJdbcOp<Long>{
 	@Override
 	public Long runOnce(){
 		Connection connection = getConnection(node.getClientId().getName());
-		String sql = SqlBuilder.getCount(fieldCodecFactory, node.getTableName(), DrListTool.wrap(lookup), Optional.of(
-				node.getFieldInfo().getCharacterSet()), Optional.of(node.getFieldInfo().getCollation()));
+		String sql = SqlBuilder.getCount(fieldCodecFactory, node.getTableName(), DrListTool.wrap(lookup), node
+				.getFieldInfo());
 		return JdbcTool.count(connection, sql);
 	}
 

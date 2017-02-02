@@ -6,7 +6,6 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Supplier;
 
 import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
@@ -59,8 +58,7 @@ extends BaseJdbcOp<List<IE>>{
 		for(List<IK> batch : new BatchingIterable<>(uniqueKeys, JdbcReaderNode.DEFAULT_ITERATE_BATCH_SIZE)){
 			List<? extends Key<IK>> keys = new ArrayList<>(batch);
 			String sql = SqlBuilder.getMulti(fieldCodecFactory, config, mainNode.getTableName(), indexFielder.getFields(
-					indexEntry), keys, Optional.of(mainNode.getFieldInfo().getCharacterSet()), Optional.of(mainNode
-					.getFieldInfo().getCollation()));
+					indexEntry), keys, mainNode.getFieldInfo());
 			System.out.println(sql);
 			try{
 				PreparedStatement ps = connection.prepareStatement(sql);

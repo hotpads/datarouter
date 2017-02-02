@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSet;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSetCollationOpt;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCollation;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlRowFormat;
 import com.hotpads.datarouter.node.NodeParams;
@@ -36,7 +37,7 @@ import com.hotpads.util.core.java.ReflectionTool;
 public class DatabeanFieldInfo<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
-		F extends DatabeanFielder<PK,D>>{
+		F extends DatabeanFielder<PK,D>> implements MySqlCharacterSetCollationOpt {
 	private static Logger logger = LoggerFactory.getLogger(DatabeanFieldInfo.class);
 
 	private static final byte ENTITY_PREFIX_TERMINATOR = 0;
@@ -339,12 +340,22 @@ public class DatabeanFieldInfo<
 		return collation;
 	}
 
+	@Override
+	public Optional<MySqlCollation> getCollationOpt(){
+		return Optional.of(getCollation());
+	}
+
 	public MySqlRowFormat getRowFormat(){
 		return rowFormat;
 	}
 
 	public MySqlCharacterSet getCharacterSet(){
 		return characterSet;
+	}
+
+	@Override
+	public Optional<MySqlCharacterSet> getCharacterSetOpt(){
+		return Optional.of(getCharacterSet());
 	}
 
 	public Map<String,Field<?>> getPrimaryKeyFieldByName(){

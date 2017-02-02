@@ -49,7 +49,7 @@ extends BaseJdbcOp<List<IK>>{
 		Optional<String> indexName = Optional.of(fieldInfo.getTableName());
 		String sql = SqlBuilder.getInRanges(fieldCodecFactory, config, node.getTableName(),
 				fieldInfo.getPrimaryKeyFields(), Arrays.asList(range), fieldInfo.getPrimaryKeyFields(), indexName,
-				Optional.of(fieldInfo.getCharacterSet()), Optional.of(fieldInfo.getCollation()));
+				fieldInfo);
 		System.out.println(sql);
 		Connection connection = getConnection(node.getClientId().getName());
 		return JdbcTool.selectIndexEntryKeys(fieldCodecFactory, connection, fieldInfo, sql);

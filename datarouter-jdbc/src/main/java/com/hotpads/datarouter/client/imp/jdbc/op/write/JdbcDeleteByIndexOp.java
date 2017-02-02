@@ -2,7 +2,6 @@ package com.hotpads.datarouter.client.imp.jdbc.op.write;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 
 import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.client.imp.jdbc.node.JdbcReaderNode;
@@ -38,8 +37,8 @@ public class JdbcDeleteByIndexOp<PK extends PrimaryKey<PK>, D extends Databean<P
 	public Long runOnce(){
 		long numModified = 0;
 		for(List<IK> batch : new BatchingIterable<>(entryKeys, JdbcReaderNode.DEFAULT_ITERATE_BATCH_SIZE)){
-			String sql = SqlBuilder.deleteMulti(fieldCodecFactory, config, node.getTableName(), batch, Optional.of(
-					node.getFieldInfo().getCharacterSet()), Optional.of(node.getFieldInfo().getCollation()));
+			String sql = SqlBuilder.deleteMulti(fieldCodecFactory, config, node.getTableName(), batch, node
+					.getFieldInfo());
 			numModified += JdbcTool.update(getConnection(node.getClientId().getName()), sql.toString());
 		}
 

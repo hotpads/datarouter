@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.client.imp.jdbc.node.JdbcReaderNode;
@@ -57,8 +56,7 @@ extends BaseJdbcOp<List<PK>>{
 		Connection connection = getConnection(node.getClientId().getName());
 		for(List<? extends Key<PK>> keyBatch : new BatchingIterable<>(sortedKeys, batchSize)){
 			String sql = SqlBuilder.getMulti(fieldCodecFactory, config, node.getTableName(), node.getFieldInfo()
-					.getPrimaryKeyFields(), keyBatch, Optional.of(node.getFieldInfo().getCharacterSet()), Optional.of(
-					node.getFieldInfo().getCollation()));
+					.getPrimaryKeyFields(), keyBatch, node.getFieldInfo());
 			List<PK> batch = JdbcTool.selectPrimaryKeys(fieldCodecFactory, connection, node.getFieldInfo(), sql);
 			DRCounters.incClientNodeCustom(node.getClient().getType(), opName + " selects", node.getClientId()
 					.getName(), node.getName());

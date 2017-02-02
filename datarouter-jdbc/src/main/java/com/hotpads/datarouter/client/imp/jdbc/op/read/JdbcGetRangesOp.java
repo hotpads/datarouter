@@ -48,8 +48,8 @@ extends BaseJdbcOp<List<D>>{
 
 		List<Field<?>> fieldsToSelect = node.getFieldInfo().getFields();
 		String sql = SqlBuilder.getInRanges(fieldCodecFactory, config, node.getTableName(), fieldsToSelect, ranges,
-				node.getFieldInfo().getPrimaryKeyFields(), Optional.empty(),//TODO use key name to force index here?
-				Optional.of(node.getFieldInfo().getCharacterSet()), Optional.of(node.getFieldInfo().getCollation()));
+				node.getFieldInfo().getPrimaryKeyFields(), Optional.empty(), node.getFieldInfo());
+		//TODO ^ use key name to force index here?
 		List<D> result = JdbcTool.selectDatabeans(fieldCodecFactory, getConnection(node.getClientId().getName()), node
 				.getFieldInfo(), sql);
 

@@ -12,6 +12,7 @@ import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
 import com.hotpads.datarouter.client.imp.jdbc.TestDatarouterJdbcModuleFactory;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.EmptyMySqlCharacterSetCollationOpt;
 import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.storage.field.Field;
@@ -36,16 +37,18 @@ public class SqlBuilderIntegrationTests{
 
 	@Test
 	public void testCount(){
-		Assert.assertEquals(SqlBuilder.getCount(jdbcFieldCodecFactory, "TestTable", Collections.emptyList(), Optional
-				.empty(), Optional.empty()), "select count(*) from TestTable");
-		Assert.assertEquals(SqlBuilder.getCount(jdbcFieldCodecFactory, "TestTable", ONE_KEY, Optional.empty(), Optional
-				.empty()), "select count(*) from TestTable where foo=42 and bar='baz'");
+		Assert.assertEquals(SqlBuilder.getCount(jdbcFieldCodecFactory, "TestTable", Collections.emptyList(), new
+				EmptyMySqlCharacterSetCollationOpt()), "select count(*) from TestTable");
+		Assert.assertEquals(SqlBuilder.getCount(jdbcFieldCodecFactory, "TestTable", ONE_KEY, new
+				EmptyMySqlCharacterSetCollationOpt()), "select count(*) from TestTable where foo=42 and "
+				+ "bar='baz'");
 		//TODO test with introducers
 	}
 
 	@Test(expectedExceptions = {IllegalArgumentException.class})
 	public void testErrorOnMissingTableName(){
-		SqlBuilder.getCount(jdbcFieldCodecFactory, null, Collections.emptyList(), Optional.empty(), Optional.empty());
+		SqlBuilder.getCount(jdbcFieldCodecFactory, null, Collections.emptyList(), new
+				EmptyMySqlCharacterSetCollationOpt());
 	}
 
 	@Test
@@ -70,105 +73,110 @@ public class SqlBuilderIntegrationTests{
 	@Test
 	public void testGetMulti(){
 		Assert.assertEquals(SqlBuilder.getMulti(jdbcFieldCodecFactory, config, "TestTable", KEY_1.getFields(), ONE_KEY,
-				Optional.empty(), Optional.empty()), "select foo, bar from TestTable where foo=42 and bar='baz' limit "
+				new EmptyMySqlCharacterSetCollationOpt()), "select foo, bar from TestTable where foo=42 and "
+				+ "bar='baz' limit "
 				+ "5, 10");
 		Assert.assertEquals(SqlBuilder.getMulti(jdbcFieldCodecFactory, config, "TestTable", KEY_1.getFields(), null,
-				Optional.empty(), Optional.empty()), "select foo, bar from TestTable limit 5, 10");
+				new EmptyMySqlCharacterSetCollationOpt()), "select foo, bar from TestTable limit 5, 10");
 		Assert.assertEquals(SqlBuilder.getMulti(jdbcFieldCodecFactory, config, "TestTable", KEY_1.getFields(),
-				TWO_KEYS, Optional.empty(), Optional.empty()), "select foo, bar from TestTable where foo=42 and "
-				+ "bar='baz' or foo=24 and bar='degemer' limit 5, 10");
+				TWO_KEYS, new EmptyMySqlCharacterSetCollationOpt()), "select foo, bar from TestTable where foo=42 "
+				+ "and bar='baz' or foo=24 and bar='degemer' limit 5, 10");
 		//TODO test with introducers
 	}
 
 	@Test
 	public void testDeleteMulti(){
-		Assert.assertEquals(SqlBuilder.deleteMulti(jdbcFieldCodecFactory, config, "TestTable", null, Optional.empty(),
-				Optional.empty()), "delete from TestTable limit 5, 10");
-		Assert.assertEquals(SqlBuilder.deleteMulti(jdbcFieldCodecFactory, config, "TestTable", ONE_KEY,
-				Optional.empty(), Optional.empty()), "delete from TestTable where foo=42 and bar='baz' limit 5, 10");
+		Assert.assertEquals(SqlBuilder.deleteMulti(jdbcFieldCodecFactory, config, "TestTable", null, new
+				EmptyMySqlCharacterSetCollationOpt()), "delete from TestTable limit 5, 10");
+		Assert.assertEquals(SqlBuilder.deleteMulti(jdbcFieldCodecFactory, config, "TestTable", ONE_KEY, new
+				EmptyMySqlCharacterSetCollationOpt()), "delete from TestTable where foo=42 and bar='baz' limit 5, "
+				+ "10");
 		//TODO test with introducers, too
 	}
 
 	@Test
 	public void testGetWithPrefixes(){
 		Assert.assertEquals(SqlBuilder.getWithPrefixes(jdbcFieldCodecFactory, config, "TestTable", KEY_1.getFields(),
-				ONE_KEY, false, KEY_1.getFields(), Optional.empty(), Optional.empty()), "select foo, bar from TestTable"
-				+ " where foo=42 and bar='baz' order by foo asc, bar asc limit 5, 10");
+				ONE_KEY, false, KEY_1.getFields(), new EmptyMySqlCharacterSetCollationOpt()), "select foo, bar "
+				+ "from TestTable where foo=42 and bar='baz' order by foo asc, bar asc limit 5, 10");
 		Assert.assertEquals(SqlBuilder.getWithPrefixes(jdbcFieldCodecFactory, config, "TestTable", KEY_1.getFields(),
-				TWO_KEYS, false, KEY_1.getFields(), Optional.empty(), Optional.empty()), "select foo, bar from "
-				+ "TestTable where foo=42 and bar='baz' or foo=24 and bar='degemer' order by foo asc, bar asc limit 5, "
-				+ "10");
+				TWO_KEYS, false, KEY_1.getFields(), new EmptyMySqlCharacterSetCollationOpt()), "select foo, bar "
+				+ "from TestTable where foo=42 and bar='baz' or foo=24 and bar='degemer' order by foo asc, bar asc "
+				+ "limit 5, 10");
 		Assert.assertEquals(SqlBuilder.getWithPrefixes(jdbcFieldCodecFactory, config, "TestTable", KEY_1.getFields(),
-				null, false, null, Optional.empty(), Optional.empty()), "select foo, bar from TestTable limit 5, 10");
+				null, false, null, new EmptyMySqlCharacterSetCollationOpt()), "select foo, bar from TestTable "
+				+ "limit 5, 10");
 
 		List<TestKey> oneNullPrefix = Arrays.asList(new TestKey(null, null));
 		Assert.assertEquals(SqlBuilder.getWithPrefixes(jdbcFieldCodecFactory, config, "TestTable", KEY_1.getFields(),
-				oneNullPrefix, false, KEY_1.getFields(), Optional.empty(), Optional.empty()), "select foo, bar from "
-				+ "TestTable order by foo asc, bar asc limit 5, 10");
+				oneNullPrefix, false, KEY_1.getFields(), new EmptyMySqlCharacterSetCollationOpt()), "select foo, "
+				+ "bar from TestTable order by foo asc, bar asc limit 5, 10");
 		List<TestKey> onePrefix = Arrays.asList(new TestKey(42, null));
 		Assert.assertEquals(SqlBuilder.getWithPrefixes(jdbcFieldCodecFactory, config, "TestTable", KEY_1.getFields(),
-				onePrefix, false, KEY_1.getFields(), Optional.empty(), Optional.empty()), "select foo, bar from "
-				+ "TestTable where foo=42 order by foo asc, bar asc limit 5, 10");
+				onePrefix, false, KEY_1.getFields(), new EmptyMySqlCharacterSetCollationOpt()), "select foo, bar "
+				+ "from TestTable where foo=42 order by foo asc, bar asc limit 5, 10");
 		Assert.assertEquals(SqlBuilder.getWithPrefixes(jdbcFieldCodecFactory, config, "TestTable", KEY_1.getFields(),
-				ONE_KEY, true, KEY_1.getFields(), Optional.empty(), Optional.empty()), "select foo, bar from TestTable "
-				+ "where foo=42 and bar like 'baz%' order by foo asc, bar asc limit 5, 10");
+				ONE_KEY, true, KEY_1.getFields(), new EmptyMySqlCharacterSetCollationOpt()), "select foo, bar "
+				+ "from TestTable where foo=42 and bar like 'baz%' order by foo asc, bar asc limit 5, 10");
 		List<OtherKey> oneOtherKey = Arrays.asList(new OtherKey("baz", 42));
 		Assert.assertEquals(SqlBuilder.getWithPrefixes(jdbcFieldCodecFactory, config, "TestTable", KEY_1.getFields(),
-				oneOtherKey, true, KEY_1.getFields(), Optional.empty(), Optional.empty()), "select foo, bar from "
-				+ "TestTable where bar='baz' and foo=42 order by foo asc, bar asc limit 5, 10");
+				oneOtherKey, true, KEY_1.getFields(), new EmptyMySqlCharacterSetCollationOpt()), "select foo, bar "
+				+ "from TestTable where bar='baz' and foo=42 order by foo asc, bar asc limit 5, 10");
 		//TODO test introducers, too
 	}
 
 	@Test
 	public void testGetInRanges(){
 		Assert.assertEquals(SqlBuilder.getInRanges(jdbcFieldCodecFactory, config, "TestTable", KEY_1.getFields(),
-				Arrays.asList(new Range<>(KEY_1)), null, Optional.empty(), Optional.empty(), Optional.empty()),
+				Arrays.asList(new Range<>(KEY_1)), null, Optional.empty(), new EmptyMySqlCharacterSetCollationOpt()),
 				"select foo, bar from TestTable where ((foo=42 and bar>='baz') or (foo>42)) limit 5, 10");
 		Assert.assertEquals(SqlBuilder.getInRanges(jdbcFieldCodecFactory, config, "TestTable", KEY_1.getFields(),
-				Arrays.asList(new Range<>(KEY_1, false, new TestKey(null, null), true)), null, Optional.empty(),
-				Optional.empty(), Optional.empty()), "select foo, bar from TestTable where ((foo=42 and bar>'baz') or "
-				+ "(foo>42)) limit 5, 10");
+				Arrays.asList(new Range<>(KEY_1, false, new TestKey(null, null), true)), null, Optional.empty(), new
+				EmptyMySqlCharacterSetCollationOpt()), "select foo, bar from TestTable where ((foo=42 and bar>'baz') or"
+				+ " (foo>42)) limit 5, 10");
 		Assert.assertEquals(SqlBuilder.getInRanges(jdbcFieldCodecFactory, config, "TestTable", KEY_1.getFields(),
-				Arrays.asList(new Range<TestKey>(null)), null, Optional.empty(), Optional.empty(), Optional.empty()),
-				"select foo, bar from TestTable limit 5, 10");
+				Arrays.asList(new Range<TestKey>(null)), null, Optional.empty(), new
+				EmptyMySqlCharacterSetCollationOpt()), "select foo, bar from TestTable limit 5, 10");
 		Assert.assertEquals(SqlBuilder.getInRanges(jdbcFieldCodecFactory, config, "TestTable", KEY_1.getFields(),
 				Arrays.asList(new Range<>(new TestKey(null, null), new TestKey(null, null))), null, Optional.empty(),
-				Optional.empty(), Optional.empty()), "select foo, bar from TestTable limit 5, 10");
+				new EmptyMySqlCharacterSetCollationOpt()), "select foo, bar from TestTable limit 5, 10");
 		Assert.assertEquals(SqlBuilder.getInRanges(jdbcFieldCodecFactory, config, "TestTable", KEY_1.getFields(),
-				Arrays.asList(new Range<>(new TestKey(null, null), KEY_2)), null, Optional.empty(), Optional.empty(),
-				Optional.empty()), "select foo, bar from TestTable where ((foo<24) or (foo=24 and bar<'degemer')) limit"
-				+ " 5, 10");
+				Arrays.asList(new Range<>(new TestKey(null, null), KEY_2)), null, Optional.empty(), new
+				EmptyMySqlCharacterSetCollationOpt()), "select foo, bar from TestTable where ((foo<24) or (foo=24 and "
+				+ "bar<'degemer')) limit 5, 10");
 		Assert.assertEquals(SqlBuilder.getInRanges(jdbcFieldCodecFactory, config, "TestTable", KEY_1.getFields(),
-				Arrays.asList(new Range<>(null, KEY_2)), null, Optional.empty(), Optional.empty(), Optional.empty()),
-				"select foo, bar from TestTable where ((foo<24) or (foo=24 and bar<'degemer')) limit 5, 10");
+				Arrays.asList(new Range<>(null, KEY_2)), null, Optional.empty(), new
+				EmptyMySqlCharacterSetCollationOpt()), "select foo, bar from TestTable where ((foo<24) or (foo=24 and "
+				+ "bar<'degemer')) limit 5, 10");
 		Assert.assertEquals(SqlBuilder.getInRanges(jdbcFieldCodecFactory, config, "TestTable", KEY_1.getFields(),
-				Arrays.asList(new Range<>(KEY_1, true, KEY_2, true)), null, Optional.empty(), Optional.empty(),
-				Optional.empty()), "select foo, bar from TestTable where ((foo=42 and bar>='baz') or (foo>42)) and "
-				+ "((foo<24) or (foo=24 and bar<='degemer')) limit 5, 10");
+				Arrays.asList(new Range<>(KEY_1, true, KEY_2, true)), null, Optional.empty(), new
+				EmptyMySqlCharacterSetCollationOpt()), "select foo, bar from TestTable where ((foo=42 and bar>='baz') "
+				+ "or (foo>42)) and ((foo<24) or (foo=24 and bar<='degemer')) limit 5, 10");
 		Assert.assertEquals(SqlBuilder.getInRanges(jdbcFieldCodecFactory, config, "TestTable", KEY_1.getFields(),
-				Arrays.asList(new Range<>(KEY_1, true, KEY_3, true)), null, Optional.empty(), Optional.empty(),
-				Optional.empty()), "select foo, bar from TestTable where (foo=42 and ((bar>='baz')) and ((bar<='mat')))"
-				+ " limit 5, 10");
+				Arrays.asList(new Range<>(KEY_1, true, KEY_3, true)), null, Optional.empty(), new
+				EmptyMySqlCharacterSetCollationOpt()), "select foo, bar from TestTable where (foo=42 and ((bar>='baz'))"
+				+ " and ((bar<='mat'))) limit 5, 10");
 		Assert.assertEquals(SqlBuilder.getInRanges(jdbcFieldCodecFactory, config, "TestTable", KEY_1.getFields(),
-				Arrays.asList(new Range<>(KEY_1, true, KEY_1, true)), null, Optional.empty(), Optional.empty(),
-				Optional.empty()), "select foo, bar from TestTable where (foo=42 and bar='baz') limit 5, 10");
+				Arrays.asList(new Range<>(KEY_1, true, KEY_1, true)), null, Optional.empty(), new
+				EmptyMySqlCharacterSetCollationOpt()), "select foo, bar from TestTable where (foo=42 and bar='baz') "
+				+ "limit 5, 10");
 		Assert.assertEquals(SqlBuilder.getInRanges(jdbcFieldCodecFactory, config, "TestTable", KEY_1.getFields(),
-				Arrays.asList(new Range<>(KEY_1, false, KEY_1, true)), null, Optional.empty(), Optional.empty(),
-				Optional.empty()), "select foo, bar from TestTable where 0 limit 5, 10");
+				Arrays.asList(new Range<>(KEY_1, false, KEY_1, true)), null, Optional.empty(), new
+				EmptyMySqlCharacterSetCollationOpt()), "select foo, bar from TestTable where 0 limit 5, 10");
 		Assert.assertEquals(SqlBuilder.getInRanges(jdbcFieldCodecFactory, config, "TestTable", KEY_1.getFields(),
-				Arrays.asList(new Range<>(KEY_1, true, KEY_1, false)), null, Optional.empty(), Optional.empty(),
-				Optional.empty()), "select foo, bar from TestTable where 0 limit 5, 10");
+				Arrays.asList(new Range<>(KEY_1, true, KEY_1, false)), null, Optional.empty(), new
+				EmptyMySqlCharacterSetCollationOpt()), "select foo, bar from TestTable where 0 limit 5, 10");
 
 		Assert.assertEquals(SqlBuilder.getInRanges(jdbcFieldCodecFactory, config, "TestTable", KEY_1.getFields(),
 				Arrays.asList(new Range<>(new TestKey(KEY_1.foo, null), true, KEY_1, true)), null,
-				Optional.of("SomeIndex"), Optional.empty(), Optional.empty()), "select foo, bar from TestTable force "
-				+ "index (SomeIndex) where (foo=42 and ((bar<='baz'))) limit 5, 10");
+				Optional.of("SomeIndex"), new EmptyMySqlCharacterSetCollationOpt()), "select foo, bar from TestTable "
+				+ "force index (SomeIndex) where (foo=42 and ((bar<='baz'))) limit 5, 10");
 
 		List<Range<TestKey>> ranges = Arrays.asList(new Range<>(new TestKey(4, "a"), new TestKey(6, "c")), new Range<>(
 				new TestKey(8, "a"), new TestKey(10, "c")));
 		Assert.assertEquals(SqlBuilder.getInRanges(jdbcFieldCodecFactory, config, "TestTable", KEY_1.getFields(),
-				ranges, null, Optional.empty(), Optional.empty(), Optional.empty()), "select foo, bar from TestTable "
-				+ "where ((foo=4 and bar>='a') or (foo>4)) and ((foo<6) or (foo=6 and bar<'c')) or "
+				ranges, null, Optional.empty(), new EmptyMySqlCharacterSetCollationOpt()), "select foo, bar from "
+				+ "TestTable where ((foo=4 and bar>='a') or (foo>4)) and ((foo<6) or (foo=6 and bar<'c')) or "
 				+ "((foo=8 and bar>='a') or (foo>8)) and ((foo<10) or (foo=10 and bar<'c')) limit 5," + " 10");
 
 		//TODO test introducers, too

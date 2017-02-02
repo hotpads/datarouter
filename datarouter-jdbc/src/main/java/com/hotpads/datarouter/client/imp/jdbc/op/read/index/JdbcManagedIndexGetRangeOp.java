@@ -46,8 +46,7 @@ extends BaseJdbcOp<List<IE>>{
 	public List<IE> runOnce(){
 		Optional<String> indexName = Optional.of(fieldInfo.getTableName());
 		String sql = SqlBuilder.getInRanges(fieldCodecFactory, config, node.getTableName(), fieldInfo.getFields(),
-				Arrays.asList(range), fieldInfo.getPrimaryKeyFields(), indexName,
-				Optional.of(fieldInfo.getCharacterSet()), Optional.of(fieldInfo.getCollation()));//TODO test right info?
+				Arrays.asList(range), fieldInfo.getPrimaryKeyFields(), indexName, fieldInfo);//TODO test right info?
 		System.out.println(sql);
 		Connection connection = getConnection(node.getClientId().getName());
 		List<IE> result = JdbcTool.selectDatabeans(fieldCodecFactory, connection, fieldInfo, sql);

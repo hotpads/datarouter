@@ -3,7 +3,6 @@ package com.hotpads.datarouter.client.imp.jdbc.op.write;
 import java.sql.Connection;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 
 import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.client.imp.jdbc.op.BaseJdbcOp;
@@ -40,8 +39,8 @@ extends BaseJdbcOp<Long>{
 		Connection connection = getConnection(node.getClientId().getName());
 		long numModified = 0;
 		for(List<PK> keyBatch : new BatchingIterable<>(keys, config.getIterateBatchSize())){
-			String sql = SqlBuilder.deleteMulti(fieldCodecFactory, config, node.getTableName(), keyBatch,Optional.of(
-					node.getFieldInfo().getCharacterSet()), Optional.of(node.getFieldInfo().getCollation()));
+			String sql = SqlBuilder.deleteMulti(fieldCodecFactory, config, node.getTableName(), keyBatch, node
+					.getFieldInfo());
 			numModified += JdbcTool.update(connection, sql);
 		}
 		return numModified;

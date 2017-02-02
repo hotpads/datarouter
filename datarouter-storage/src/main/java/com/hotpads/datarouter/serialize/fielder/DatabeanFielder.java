@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSet;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSetCollationOpt;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCollation;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlRowFormat;
 import com.hotpads.datarouter.serialize.StringDatabeanCodec;
@@ -15,7 +16,7 @@ import com.hotpads.datarouter.storage.prefix.ScatteringPrefix;
 
 public interface DatabeanFielder<
 		PK extends PrimaryKey<PK>,
-		D extends Databean<PK,D>>{
+		D extends Databean<PK,D>> extends MySqlCharacterSetCollationOpt{
 
 	Class<? extends ScatteringPrefix> getScatteringPrefixClass();
 
@@ -32,6 +33,17 @@ public interface DatabeanFielder<
 
 	MySqlCollation getCollation();
 	MySqlCharacterSet getCharacterSet();
+
+	@Override
+	default Optional<MySqlCollation> getCollationOpt(){
+		return Optional.of(getCollation());
+	}
+
+	@Override
+	default Optional<MySqlCharacterSet> getCharacterSetOpt(){
+		return Optional.of(getCharacterSet());
+	}
+
 	MySqlRowFormat getRowFormat();
 	Optional<Long> getTtlMs();
 

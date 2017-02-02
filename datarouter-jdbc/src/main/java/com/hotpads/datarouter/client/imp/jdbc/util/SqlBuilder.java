@@ -6,8 +6,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.google.common.base.Preconditions;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSet;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCollation;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSetCollationOpt;
 import com.hotpads.datarouter.client.imp.jdbc.field.JdbcFieldCodec;
 import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.config.Config;
@@ -27,14 +26,13 @@ public class SqlBuilder{
 	/*************************** primary methods ***************************************/
 
 	public static String getCount(JdbcFieldCodecFactory codecFactory, String tableName,
-			Collection<? extends FieldSet<?>> keys, Optional<MySqlCharacterSet> characterSet,
-					Optional<MySqlCollation> collation){
+			Collection<? extends FieldSet<?>> keys, MySqlCharacterSetCollationOpt characterSetCollation){
 		checkTableName(tableName);
 		StringBuilder sql = new StringBuilder();
 		sql.append("select count(*) from " + tableName);
 		if(keys.size() > 0){
 			sql.append(" where ");
-			appendWhereClauseDisjunction(codecFactory, sql, keys, characterSet, collation);
+			appendWhereClauseDisjunction(codecFactory, sql, keys, characterSetCollation);
 		}
 		return sql.toString();
 	}
@@ -58,25 +56,24 @@ public class SqlBuilder{
 
 	public static String getMulti(JdbcFieldCodecFactory codecFactory, Config config, String tableName,
 			List<Field<?>> selectFields, Collection<? extends FieldSet<?>> keys,
-			Optional<MySqlCharacterSet> characterSet, Optional<MySqlCollation> collation){
+			MySqlCharacterSetCollationOpt characterSetCollation){
 		StringBuilder sql = new StringBuilder();
 		addSelectFromClause(sql, tableName, selectFields);
 		if(DrCollectionTool.notEmpty(keys)){
 			sql.append(" where ");
-			appendWhereClauseDisjunction(codecFactory, sql, keys, characterSet, collation);
+			appendWhereClauseDisjunction(codecFactory, sql, keys, characterSetCollation);
 		}
 		addLimitOffsetClause(sql, config);
 		return sql.toString();
 	}
 
 	public static String deleteMulti(JdbcFieldCodecFactory codecFactory, Config config, String tableName,
-			Collection<? extends FieldSet<?>> keys, Optional<MySqlCharacterSet> characterSet,
-			Optional<MySqlCollation> collation){
+			Collection<? extends FieldSet<?>> keys, MySqlCharacterSetCollationOpt characterSetCollation){
 		StringBuilder sql = new StringBuilder();
 		addDeleteFromClause(sql, tableName);
 		if(DrCollectionTool.notEmpty(keys)){
 			sql.append(" where ");
-			appendWhereClauseDisjunction(codecFactory, sql, keys, characterSet, collation);
+			appendWhereClauseDisjunction(codecFactory, sql, keys, characterSetCollation);
 		}
 		addLimitOffsetClause(sql, config);
 		return sql.toString();
@@ -84,10 +81,10 @@ public class SqlBuilder{
 
 	public static String getWithPrefixes(JdbcFieldCodecFactory codecFactory, Config config, String tableName,
 			List<Field<?>> selectFields, Collection<? extends FieldSet<?>> keys, boolean wildcardLastField,
-			List<Field<?>> orderByFields, Optional<MySqlCharacterSet> characterSet, Optional<MySqlCollation> collation){
+			List<Field<?>> orderByFields, MySqlCharacterSetCollationOpt characterSetCollation){
 		StringBuilder sql = new StringBuilder();
 		addSelectFromClause(sql, tableName, selectFields);
-		addFullPrefixWhereClauseDisjunction(codecFactory, sql, keys, wildcardLastField, characterSet, collation);
+		addFullPrefixWhereClauseDisjunction(codecFactory, sql, keys, wildcardLastField, characterSetCollation);
 		addOrderByClause(sql, orderByFields);
 		addLimitOffsetClause(sql, config);
 		return sql.toString();
@@ -103,7 +100,7 @@ public class SqlBuilder{
 
 	public static <T extends FieldSet<T>> String getInRanges(JdbcFieldCodecFactory codecFactory, Config config,
 			String tableName, List<Field<?>> selectFields, Iterable<Range<T>> ranges, List<Field<?>> orderByFields,
-			Optional<String> indexName, Optional<MySqlCharacterSet> characterSet, Optional<MySqlCollation> collation){
+			Optional<String> indexName, MySqlCharacterSetCollationOpt characterSetCollation){
 		StringBuilder sql = new StringBuilder();
 		addSelectFromClause(sql, tableName, selectFields);
 		indexName.ifPresent(name -> addForceIndexClause(sql, name));
@@ -116,7 +113,7 @@ public class SqlBuilder{
 					sql.append(" where ");
 					hasWhereClause = true;
 				}
-				addRangeWhereClause(codecFactory, sql, range, characterSet, collation);
+				addRangeWhereClause(codecFactory, sql, range, characterSetCollation);
 			}
 		}
 		addOrderByClause(sql, orderByFields);
@@ -150,13 +147,13 @@ public class SqlBuilder{
 	}
 
 	private static void addFullPrefixWhereClauseDisjunction(JdbcFieldCodecFactory codecFactory, StringBuilder sql,
-			Collection<? extends FieldSet<?>> keys, boolean wildcardLastField, Optional<MySqlCharacterSet> characterSet,
-					Optional<MySqlCollation> collation){
+			Collection<? extends FieldSet<?>> keys, boolean wildcardLastField,
+			MySqlCharacterSetCollationOpt characterSetCollation){
 		if(DrCollectionTool.isEmpty(keys)){
 			return;
 		}
 		StringBuilder prefixWhereClauseDisjunction = getPrefixWhereClauseDisjunction(codecFactory, keys,
-				wildcardLastField, characterSet, collation);
+				wildcardLastField, characterSetCollation);
 		if(prefixWhereClauseDisjunction.length() > 0){
 			sql.append(" where ");
 			sql.append(prefixWhereClauseDisjunction);
@@ -164,22 +161,22 @@ public class SqlBuilder{
 	}
 
 	private static StringBuilder getPrefixWhereClauseDisjunction(JdbcFieldCodecFactory codecFactory,
-			Collection<? extends FieldSet<?>> keys, boolean wildcardLastField, Optional<MySqlCharacterSet> characterSet,
-					Optional<MySqlCollation> collation){
+			Collection<? extends FieldSet<?>> keys, boolean wildcardLastField,
+			MySqlCharacterSetCollationOpt characterSetCollation){
 		int counter = 0;
 		StringBuilder sql = new StringBuilder();
 		for(FieldSet<?> key : keys){
 			if(counter > 0){
 				sql.append(" or ");
 			}
-			addPrefixWhereClause(codecFactory, sql, key, wildcardLastField, characterSet, collation);
+			addPrefixWhereClause(codecFactory, sql, key, wildcardLastField, characterSetCollation);
 			++counter;
 		}
 		return sql;
 	}
 
 	private static void addPrefixWhereClause(JdbcFieldCodecFactory codecFactory, StringBuilder sql, FieldSet<?> prefix,
-			boolean wildcardLastField, Optional<MySqlCharacterSet> characterSet, Optional<MySqlCollation> collation){
+			boolean wildcardLastField, MySqlCharacterSetCollationOpt characterSetCollation){
 		int numNonNullFields = FieldSetTool.getNumNonNullLeadingFields(prefix);
 		if(numNonNullFields == 0){
 			return;
@@ -202,7 +199,7 @@ public class SqlBuilder{
 				String sqlEscapedWithWildcard = sqlEscaped.substring(0, sqlEscaped.length() - 1) + "%'";
 				sql.append(field.getKey().getColumnName() + " like " + sqlEscapedWithWildcard);
 			}else{
-				sql.append(getSqlNameValuePairEscaped(codec, characterSet, collation));
+				sql.append(getSqlNameValuePairEscaped(codec, characterSetCollation));
 			}
 			++numFullFieldsFinished;
 		}
@@ -214,41 +211,38 @@ public class SqlBuilder{
 	}
 
 	//TODO basically a substitute for codec.getSqlEscaped until column-level charset and collation are available
-	private static String getLiteral(JdbcFieldCodec<?,?> codec, Optional<MySqlCharacterSet> characterSet,
-			Optional<MySqlCollation> collation){
+	private static String getLiteral(JdbcFieldCodec<?,?> codec, MySqlCharacterSetCollationOpt characterSetCollation){
 		if(codec.getField().getValue() == null || !codec.getSqlColumnDefinition().getType().isIntroducible()){
 			return codec.getSqlEscaped();
 		}
-		return introduceString(codec.getSqlEscaped(), characterSet, collation);
+		return introduceString(codec.getSqlEscaped(), characterSetCollation);
 	}
 
 	//TODO basically a substitute for codec.getSqlNameValuePairEscaped until column-level charset and collation are
 	//available
 	private static String getSqlNameValuePairEscaped(JdbcFieldCodec<?,?> codec,
-			Optional<MySqlCharacterSet> characterSet, Optional<MySqlCollation> collation){
+			MySqlCharacterSetCollationOpt characterSetCollation){
 		if(codec.getField().getValue() == null || !codec.getSqlColumnDefinition().getType().isIntroducible()){
 			return codec.getSqlNameValuePairEscaped();
 		}
-		return codec.getField().getKey().getColumnName() + "=" + introduceString(codec.getSqlEscaped(), characterSet,
-				collation);
+		return codec.getField().getKey().getColumnName() + "=" + introduceString(codec.getSqlEscaped(),
+				characterSetCollation);
 	}
 
-	private static String introduceString(String str, Optional<MySqlCharacterSet> characterSet,
-			Optional<MySqlCollation> collation){
+	private static String introduceString(String str, MySqlCharacterSetCollationOpt characterSetCollation){
 		StringBuilder introducedLiteral = new StringBuilder();
-		if(characterSet.isPresent()){
-			introducedLiteral.append("_").append(characterSet.get().name()).append(" ");
+		if(characterSetCollation.getCharacterSetOpt().isPresent()){
+			introducedLiteral.append("_").append(characterSetCollation.getCharacterSetOpt().get().name()).append(" ");
 		}
 		introducedLiteral.append(str);
-		if(collation.isPresent()){
-			introducedLiteral.append(" COLLATE ").append(collation.get().name());
+		if(characterSetCollation.getCollationOpt().isPresent()){
+			introducedLiteral.append(" COLLATE ").append(characterSetCollation.getCollationOpt().get().name());
 		}
 		return introducedLiteral.toString();
 	}
 
 	public static void addRangeWhereClause(JdbcFieldCodecFactory codecFactory, StringBuilder sql,
-			Range<? extends FieldSet<?>> range, Optional<MySqlCharacterSet> characterSet,
-			Optional<MySqlCollation> collation){
+			Range<? extends FieldSet<?>> range, MySqlCharacterSetCollationOpt characterSetCollation){
 		if(range.isEmpty()){
 			sql.append("0");
 			return;
@@ -289,7 +283,7 @@ public class SqlBuilder{
 						sql.append("(");
 					}
 					sql.append(startFields.get(i).getKey().getColumnName() + "=" + getLiteral(startCodecs.get(i),
-							characterSet, collation));
+							characterSetCollation));
 					numEqualsLeadingFields++;
 				}else{
 					break;
@@ -315,14 +309,14 @@ public class SqlBuilder{
 					Field<?> startField = startFields.get(j);
 					JdbcFieldCodec<?,?> startCodec = startCodecs.get(j);
 					if(j < i - 1){
-						sql.append(getSqlNameValuePairEscaped(startCodec, characterSet, collation));
+						sql.append(getSqlNameValuePairEscaped(startCodec, characterSetCollation));
 					}else{
 						if(range.getStartInclusive() && i == numNonNullStartFields){
 							sql.append(startField.getKey().getColumnName() + ">=");
 						}else{
 							sql.append(startField.getKey().getColumnName() + ">");
 						}
-						sql.append(getLiteral(startCodec, characterSet, collation));
+						sql.append(getLiteral(startCodec, characterSetCollation));
 					}
 				}
 				sql.append(")");
@@ -352,9 +346,9 @@ public class SqlBuilder{
 						}else{
 							sql.append(endField.getKey().getColumnName() + "<");
 						}
-						sql.append(getLiteral(endCodec, characterSet, collation));
+						sql.append(getLiteral(endCodec, characterSetCollation));
 					}else{
-						sql.append(getSqlNameValuePairEscaped(endCodec, characterSet, collation));
+						sql.append(getSqlNameValuePairEscaped(endCodec, characterSetCollation));
 					}
 				}
 				sql.append(")");
@@ -395,17 +389,17 @@ public class SqlBuilder{
 	}
 
 	public static List<String> getSqlNameValuePairsEscaped(JdbcFieldCodecFactory codecFactory,
-			Collection<Field<?>> fields, Optional<MySqlCharacterSet> characterSet, Optional<MySqlCollation> collation){
+			Collection<Field<?>> fields, MySqlCharacterSetCollationOpt characterSetCollation){
 		List<String> sql = new ArrayList<>();
 		for(JdbcFieldCodec<?,?> codec : codecFactory.createCodecs(fields)){
-			sql.add(getSqlNameValuePairEscaped(codec, characterSet, collation));
+			sql.add(getSqlNameValuePairEscaped(codec, characterSetCollation));
 		}
 		return sql;
 	}
 
 	public static String getSqlNameValuePairsEscapedConjunction(JdbcFieldCodecFactory codecFactory,
-			Collection<Field<?>> fields, Optional<MySqlCharacterSet> characterSet, Optional<MySqlCollation> collation){
-		List<String> nameValuePairs = getSqlNameValuePairsEscaped(codecFactory, fields, characterSet, collation);
+			Collection<Field<?>> fields, MySqlCharacterSetCollationOpt characterSetCollation){
+		List<String> nameValuePairs = getSqlNameValuePairsEscaped(codecFactory, fields, characterSetCollation);
 		StringBuilder sb = new StringBuilder();
 		int numAppended = 0;
 		for(String nameValuePair : nameValuePairs){
@@ -430,15 +424,14 @@ public class SqlBuilder{
 	}
 
 	public static void appendWhereClauseDisjunction(JdbcFieldCodecFactory codecFactory, StringBuilder sql,
-			Collection<? extends FieldSet<?>> fieldSets, Optional<MySqlCharacterSet> characterSet,
-			Optional<MySqlCollation> collation){
+			Collection<? extends FieldSet<?>> fieldSets, MySqlCharacterSetCollationOpt characterSetCollation){
 		int counter = 0;
 		for(FieldSet<?> fieldSet : DrIterableTool.nullSafe(fieldSets)){
 			if(counter > 0){
 				sql.append(" or ");
 			}
-			sql.append(getSqlNameValuePairsEscapedConjunction(codecFactory, fieldSet.getFields(), characterSet,
-					collation));
+			sql.append(getSqlNameValuePairsEscapedConjunction(codecFactory, fieldSet.getFields(),
+					characterSetCollation));
 			++counter;
 		}
 	}

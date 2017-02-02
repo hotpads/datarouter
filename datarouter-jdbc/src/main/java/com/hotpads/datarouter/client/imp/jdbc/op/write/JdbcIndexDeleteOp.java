@@ -1,7 +1,5 @@
 package com.hotpads.datarouter.client.imp.jdbc.op.write;
 
-import java.util.Optional;
-
 import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.client.imp.jdbc.op.BaseJdbcOp;
 import com.hotpads.datarouter.client.imp.jdbc.util.JdbcTool;
@@ -35,7 +33,7 @@ extends BaseJdbcOp<Long>{
 	@Override
 	public Long runOnce(){
 		String sql = SqlBuilder.deleteMulti(fieldCodecFactory, config, node.getTableName(), DrListTool.wrap(lookup),
-				Optional.of(node.getFieldInfo().getCharacterSet()), Optional.of(node.getFieldInfo().getCollation()));
+				node.getFieldInfo());
 		long numModified = JdbcTool.update(getConnection(node.getClientId().getName()), sql.toString());
 		return numModified;
 	}

@@ -91,12 +91,12 @@ public class JdbcConnectionPool{
 
 	public Connection checkOut() throws SQLException{
 		Connection connection = pool.getConnection();
-//		System.out.println("global");
-//		fuckYou(connection, "show global variables like 'character_set_%'");
-//		fuckYou(connection, "show global variables like 'collation_%'");
-//		System.out.println("session");
-//		fuckYou(connection, "show session variables like 'character_set_%'");
-//		fuckYou(connection, "show session variables like 'collation_%'");
+		System.out.println("global");
+		fuckYou(connection, "show global variables like 'character_set_%'");
+		fuckYou(connection, "show global variables like 'collation_%'");
+		System.out.println("session");
+		fuckYou(connection, "show session variables like 'character_set_%'");
+		fuckYou(connection, "show session variables like 'collation_%'");
 
 		return connection;
 	}

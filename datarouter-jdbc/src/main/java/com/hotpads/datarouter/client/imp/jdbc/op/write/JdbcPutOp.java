@@ -274,8 +274,7 @@ extends BaseJdbcOp<Void>{
 			whereFields.add(new LongField(BaseVersionedDatabeanFielder.FieldKeys.version,
 					versionedDatabean.getVersion() - 1));
 		}
-		sb.append(SqlBuilder.getSqlNameValuePairsEscapedConjunction(fieldCodecFactory, whereFields,
-				Optional.of(fieldInfo.getCharacterSet()), Optional.of(fieldInfo.getCollation())));
+		sb.append(SqlBuilder.getSqlNameValuePairsEscapedConjunction(fieldCodecFactory, whereFields, fieldInfo));
 		int numUpdated;
 		try{
 			PreparedStatement ps = connection.prepareStatement(sb.toString());

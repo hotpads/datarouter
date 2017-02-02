@@ -2,7 +2,6 @@ package com.hotpads.datarouter.client.imp.jdbc.op;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
@@ -55,8 +54,7 @@ extends BaseJdbcOp<List<D>>{
 		if(startAfterKey != null){
 			Range<PK> range = new Range<>(startAfterKey, false, null, true);
 			DatabeanFieldInfo<PK,D,F> fieldInfo = node.getFieldInfo();
-			SqlBuilder.addRangeWhereClause(fieldCodecFactory, whereClause, range, Optional.of(fieldInfo
-					.getCharacterSet()), Optional.of(fieldInfo.getCollation()));
+			SqlBuilder.addRangeWhereClause(fieldCodecFactory, whereClause, range, fieldInfo);
 			if(DrStringTool.notEmpty(whereClauseFromUser)){
 				whereClause.append(" and ");
 			}

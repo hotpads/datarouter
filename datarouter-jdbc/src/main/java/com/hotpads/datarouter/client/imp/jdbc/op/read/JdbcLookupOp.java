@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,8 +63,7 @@ extends BaseJdbcOp<List<D>>{
 		for(List<? extends Lookup<PK>> batch : new BatchingIterable<>(lookups, batchSize)){
 			//for performance reasons, pass null for orderBy and sort in java if desired
 			String sql = SqlBuilder.getWithPrefixes(fieldCodecFactory, config, node.getTableName(), node.getFieldInfo()
-					.getFields(), batch, wildcardLastField, null, Optional.of(node.getFieldInfo().getCharacterSet()),
-					Optional.of(node.getFieldInfo().getCollation()));
+					.getFields(), batch, wildcardLastField, null, node.getFieldInfo());
 			result.addAll(JdbcTool.selectDatabeans(fieldCodecFactory, getConnection(node.getClientId().getName()), node
 					.getFieldInfo(), sql));
 			if(config.getLimit() != null && result.size() >= config.getLimit()){
