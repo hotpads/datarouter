@@ -2,9 +2,6 @@ package com.hotpads.datarouter.client.imp.jdbc.field.codec.base;
 
 import java.sql.ResultSet;
 
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSet;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCollation;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.client.imp.jdbc.field.JdbcFieldCodec;
 import com.hotpads.datarouter.storage.field.Field;
 
@@ -14,13 +11,6 @@ public abstract class BaseJdbcFieldCodec<T,F extends Field<T>> implements JdbcFi
 
 	public BaseJdbcFieldCodec(F field){
 		this.field = field;
-	}
-
-	public BaseJdbcFieldCodec(F field, MySqlCharacterSet characterSet, MySqlCollation collation){
-		this(field);
-		SqlColumn columnDef = this.getSqlColumnDefinition();//TODO does this work?
-		columnDef.setCharacterSet(characterSet);
-		columnDef.setCollation(collation);
 	}
 
 	@Override
