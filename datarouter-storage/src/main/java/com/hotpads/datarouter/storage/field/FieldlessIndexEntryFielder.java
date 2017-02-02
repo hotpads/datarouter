@@ -27,10 +27,10 @@ extends BaseDatabeanFielder<IK,FieldlessIndexEntry<IK,PK,D>>{
 
 	public FieldlessIndexEntryFielder(Class<IK> keyClass, MySqlCharacterSetCollationOpt characterSetCollation){
 		this(keyClass);
-		if(characterSet != null){
+		if(characterSetCollation.getCharacterSetOpt().isPresent()){
 			this.characterSet = characterSetCollation.getCharacterSetOpt().get();
 		}
-		if(collation != null){
+		if(characterSetCollation.getCollationOpt().isPresent()){
 			this.collation = characterSetCollation.getCollationOpt().get();
 		}
 	}
