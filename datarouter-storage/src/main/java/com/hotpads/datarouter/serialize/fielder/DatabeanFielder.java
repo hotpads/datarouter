@@ -16,7 +16,8 @@ import com.hotpads.datarouter.storage.prefix.ScatteringPrefix;
 
 public interface DatabeanFielder<
 		PK extends PrimaryKey<PK>,
-		D extends Databean<PK,D>> extends MySqlCharacterSetCollationOpt{
+		D extends Databean<PK,D>>
+extends MySqlCharacterSetCollationOpt{
 
 	Class<? extends ScatteringPrefix> getScatteringPrefixClass();
 

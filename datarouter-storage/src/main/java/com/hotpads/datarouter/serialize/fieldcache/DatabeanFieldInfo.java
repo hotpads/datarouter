@@ -37,7 +37,8 @@ import com.hotpads.util.core.java.ReflectionTool;
 public class DatabeanFieldInfo<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
-		F extends DatabeanFielder<PK,D>> implements MySqlCharacterSetCollationOpt {
+		F extends DatabeanFielder<PK,D>>
+implements MySqlCharacterSetCollationOpt{
 	private static Logger logger = LoggerFactory.getLogger(DatabeanFieldInfo.class);
 
 	private static final byte ENTITY_PREFIX_TERMINATOR = 0;

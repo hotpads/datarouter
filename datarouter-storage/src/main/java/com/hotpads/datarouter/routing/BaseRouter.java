@@ -8,8 +8,6 @@ import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.LazyClientProvider;
 import com.hotpads.datarouter.client.RouterOptions;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSet;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCollation;
 import com.hotpads.datarouter.client.imp.jdbc.node.index.TxnManagedUniqueIndexNode;
 import com.hotpads.datarouter.config.DatarouterSettings;
 import com.hotpads.datarouter.node.Node;
@@ -203,10 +201,8 @@ implements Router{
 			IK extends FieldlessIndexEntryPrimaryKey<IK,PK,D>>
 	ManagedNodeBuilder<PK,D,IK,FieldlessIndexEntry<IK,PK,D>,FieldlessIndexEntryFielder<IK,PK,D>>
 	createKeyOnlyManagedIndex(Class<IK> indexEntryKeyClass, IndexedMapStorageNode<PK,D> backingNode){
-		MySqlCharacterSet characterSet = backingNode.getFieldInfo().getCharacterSet();
-		MySqlCollation collation = backingNode.getFieldInfo().getCollation();
 		return new ManagedNodeBuilder<>(indexEntryKeyClass, () -> new FieldlessIndexEntry<>(indexEntryKeyClass),
-				() -> new FieldlessIndexEntryFielder<>(indexEntryKeyClass, characterSet, collation), backingNode);
+				() -> new FieldlessIndexEntryFielder<>(indexEntryKeyClass, backingNode.getFieldInfo()), backingNode);
 	}
 
 	protected <PK extends PrimaryKey<PK>,
