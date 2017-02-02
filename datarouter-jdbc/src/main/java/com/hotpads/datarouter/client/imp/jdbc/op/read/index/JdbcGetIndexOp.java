@@ -59,7 +59,6 @@ extends BaseJdbcOp<List<IE>>{
 			List<? extends Key<IK>> keys = new ArrayList<>(batch);
 			String sql = SqlBuilder.getMulti(fieldCodecFactory, config, mainNode.getTableName(), indexFielder.getFields(
 					indexEntry), keys, mainNode.getFieldInfo());
-			System.out.println(sql);
 			try{
 				PreparedStatement ps = connection.prepareStatement(sql);
 				ps.execute();

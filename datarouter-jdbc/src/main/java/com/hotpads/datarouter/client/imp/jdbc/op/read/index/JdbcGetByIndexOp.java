@@ -44,7 +44,6 @@ extends BaseJdbcOp<List<D>>{
 		for(List<IK> batch : new BatchingIterable<>(entryKeys, JdbcReaderNode.DEFAULT_ITERATE_BATCH_SIZE)){
 			String sql = SqlBuilder.getWithPrefixes(fieldCodecFactory, config, node.getTableName(), node.getFieldInfo()
 					.getFields(), batch, wildcardLastField, null, node.getFieldInfo());
-			System.out.println(sql);
 			result.addAll(JdbcTool.selectDatabeans(fieldCodecFactory, getConnection(node.getClientId().getName()), node
 					.getFieldInfo(), sql));
 		}

@@ -50,7 +50,6 @@ extends BaseJdbcOp<List<IK>>{
 		String sql = SqlBuilder.getInRanges(fieldCodecFactory, config, node.getTableName(),
 				fieldInfo.getPrimaryKeyFields(), Arrays.asList(range), fieldInfo.getPrimaryKeyFields(), indexName,
 				fieldInfo);
-		System.out.println(sql);
 		Connection connection = getConnection(node.getClientId().getName());
 		return JdbcTool.selectIndexEntryKeys(fieldCodecFactory, connection, fieldInfo, sql);
 	}
