@@ -10,6 +10,7 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSetCollat
 import com.hotpads.datarouter.client.imp.jdbc.field.JdbcFieldCodec;
 import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.config.Config;
+import com.hotpads.datarouter.connection.JdbcConnectionPool;
 import com.hotpads.datarouter.storage.field.BasePrimitiveField;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldSet;
@@ -89,14 +90,6 @@ public class SqlBuilder{
 		addLimitOffsetClause(sql, config);
 		return sql.toString();
 	}
-
-	 //TODO maybe add this back later if this level of type specificity makes sense/is remotely possible
-//	public static <T extends FieldSet<T> & PrimaryKey<T>,
-//	D extends Databean<T,D>,
-//	F extends DatabeanFielder<T,D>>
-//	 String getInRanges(JdbcFieldCodecFactory codecFactory, Config config,
-//			String tableName, List<Field<?>> selectFields, Iterable<Range<T>> ranges, List<Field<?>> orderByFields,
-//			Optional<String> indexName, Optional<DatabeanFieldInfo<T,D,F>> fieldInfo){
 
 	public static <T extends FieldSet<T>> String getInRanges(JdbcFieldCodecFactory codecFactory, Config config,
 			String tableName, List<Field<?>> selectFields, Iterable<Range<T>> ranges, List<Field<?>> orderByFields,
@@ -210,31 +203,46 @@ public class SqlBuilder{
 				|| end != null && FieldTool.countNonNullLeadingFields(end.getFields()) > 0;
 	}
 
-	//TODO basically a substitute for codec.getSqlEscaped until column-level charset and collation are available
-	private static String getLiteral(JdbcFieldCodec<?,?> codec, MySqlCharacterSetCollationOpt characterSetCollation){
-		if(codec.getField().getValue() == null || !codec.getSqlColumnDefinition().getType().isIntroducible()){
-			return codec.getSqlEscaped();
+	private static boolean shouldIntroduceLiteral(JdbcFieldCodec<?,?> codec,
+			MySqlCharacterSetCollationOpt characterSetCollation){
+		if(codec.getField().getValue() == null){
+			return false;//NULL is not introducible
 		}
-		return introduceString(codec.getSqlEscaped(), characterSetCollation);
+		if(!codec.getSqlColumnDefinition().getType().isIntroducible()){
+			return false;//column is not an introducible type
+		}
+		if(!characterSetCollation.getCharacterSetOpt().isPresent() && !characterSetCollation
+				.getCollationOpt().isPresent()){
+			return false;//expected column character set and collation not passed in, so can't introduce
+		}
+		boolean characterSetConnectionMismatch = characterSetCollation.getCharacterSetOpt().orElse(JdbcConnectionPool
+				.CHARACTER_SET_CONNECTION) != JdbcConnectionPool.CHARACTER_SET_CONNECTION;
+		boolean collationConnectionMismatch = characterSetCollation.getCollationOpt().orElse(JdbcConnectionPool
+				.COLLATION_CONNECTION) != JdbcConnectionPool.COLLATION_CONNECTION;
+		//literals only benefit from introducer if the column's settings differ from the connection's settings
+		return characterSetConnectionMismatch || collationConnectionMismatch;
 	}
 
 	//TODO basically a substitute for codec.getSqlNameValuePairEscaped until column-level charset and collation are
 	//available
 	private static String getSqlNameValuePairEscaped(JdbcFieldCodec<?,?> codec,
 			MySqlCharacterSetCollationOpt characterSetCollation){
-		if(codec.getField().getValue() == null || !codec.getSqlColumnDefinition().getType().isIntroducible()){
+		if(codec.getField().getValue() == null){
 			return codec.getSqlNameValuePairEscaped();
 		}
-		return codec.getField().getKey().getColumnName() + "=" + introduceString(codec.getSqlEscaped(),
-				characterSetCollation);
+		return codec.getField().getKey().getColumnName() + "=" + getLiteral(codec, characterSetCollation);
 	}
 
-	private static String introduceString(String str, MySqlCharacterSetCollationOpt characterSetCollation){
+	//TODO basically a substitute for codec.getSqlEscaped until column-level charset and collation are available
+	private static String getLiteral(JdbcFieldCodec<?,?> codec, MySqlCharacterSetCollationOpt characterSetCollation){
+		if(!shouldIntroduceLiteral(codec, characterSetCollation)){
+			return codec.getSqlEscaped();
+		}
 		StringBuilder introducedLiteral = new StringBuilder();
 		if(characterSetCollation.getCharacterSetOpt().isPresent()){
 			introducedLiteral.append("_").append(characterSetCollation.getCharacterSetOpt().get().name()).append(" ");
 		}
-		introducedLiteral.append(str);
+		introducedLiteral.append(codec.getSqlEscaped());
 		if(characterSetCollation.getCollationOpt().isPresent()){
 			introducedLiteral.append(" COLLATE ").append(characterSetCollation.getCollationOpt().get().name());
 		}

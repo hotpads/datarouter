@@ -11,6 +11,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Joiner;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSet;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCollation;
 import com.hotpads.datarouter.client.imp.jdbc.factory.JdbcOptions;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
@@ -25,6 +27,9 @@ public class JdbcConnectionPool{
 	public static final String UTF8MB4_CHARSET = "utf8mb4";
 	private static final String UTF8MB4_COLLATION = UTF8MB4_CHARSET + "_bin";
 	private static final String UTF8 = StandardCharsets.UTF_8.name();
+
+	public static MySqlCharacterSet CHARACTER_SET_CONNECTION = MySqlCharacterSet.valueOf(UTF8MB4_CHARSET);
+	public static MySqlCollation COLLATION_CONNECTION = MySqlCollation.valueOf(UTF8MB4_COLLATION);
 
 	private final String name;
 	private final ComboPooledDataSource pool;
