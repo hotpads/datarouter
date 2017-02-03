@@ -15,15 +15,37 @@ import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.mav.Mav;
 
-public class MemcachedHandler extends BaseHandler {
+public class MemcachedHandler extends BaseHandler{
+
+	private static final List<String> NEEDS_CLIENT = new ArrayList<>();
+	private static final List<String> NEEDS_ROUTER = new ArrayList<>();
+	private static final List<String> NEEDS_NODE = new ArrayList<>();
+	private static final HashMap<String, List<String>> MEMCHACHED_NEEDS = new HashMap<>();
+
+	static{
+		NEEDS_CLIENT.add(RoutersHandler.ACTION_inspectClient);
+
+	}
+
+	static{
+		NEEDS_ROUTER.addAll(NEEDS_CLIENT);
+	}
+
+	static{
+	}
+
+	static{
+		MEMCHACHED_NEEDS.put(RouterParams.NEEDS_CLIENT, NEEDS_CLIENT);
+		MEMCHACHED_NEEDS.put(RouterParams.NEEDS_ROUTER, NEEDS_ROUTER);
+		MEMCHACHED_NEEDS.put(RouterParams.NEEDS_NODE, NEEDS_NODE);
+	}
 
 	@Inject
 	private Datarouter datarouter;
-
 	private RouterParams<MemcachedClientImp> paramsRouter;
 
 	@Handler
-	protected Mav inspectClient() {
+	protected Mav inspectClient(){
 		initialize();
 		Mav mav = new Mav(
 				"/jsp/admin/datarouter/memcached/memcachedClientSummary.jsp");
@@ -35,32 +57,10 @@ public class MemcachedHandler extends BaseHandler {
 		return mav;
 	}
 
-	private void initialize() {
+	private void initialize(){
 		paramsRouter = new RouterParams<>(datarouter, params,
 				MEMCHACHED_NEEDS);
 
-	}
-
-	private static final List<String> NEEDS_CLIENT = new ArrayList<>();
-	static {
-		NEEDS_CLIENT.add(RoutersHandler.ACTION_inspectClient);
-
-	}
-
-	private static final List<String> NEEDS_ROUTER = new ArrayList<>();
-	static {
-		NEEDS_ROUTER.addAll(NEEDS_CLIENT);
-	}
-
-	private static final List<String> NEEDS_NODE = new ArrayList<>();
-	static {
-	}
-
-	private static final HashMap<String, List<String>> MEMCHACHED_NEEDS = new HashMap<>();
-	static {
-		MEMCHACHED_NEEDS.put(RouterParams.NEEDS_CLIENT, NEEDS_CLIENT);
-		MEMCHACHED_NEEDS.put(RouterParams.NEEDS_ROUTER, NEEDS_ROUTER);
-		MEMCHACHED_NEEDS.put(RouterParams.NEEDS_NODE, NEEDS_NODE);
 	}
 
 }

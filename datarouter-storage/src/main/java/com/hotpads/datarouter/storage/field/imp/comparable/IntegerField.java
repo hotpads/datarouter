@@ -46,17 +46,17 @@ public class IntegerField extends BasePrimitiveField<Integer>{
 
 	@Override
 	public byte[] getBytes(){
-		return value==null?null:IntegerByteTool.getComparableBytes(value);
-	}
-
-	@Override
-	public int numBytesWithSeparator(byte[] bytes, int offset){
-		return 4;
+		return value == null ? null : IntegerByteTool.getComparableBytes(value);
 	}
 
 	@Override
 	public Integer fromBytesButDoNotSet(byte[] bytes, int offset){
 		return IntegerByteTool.fromComparableBytes(bytes, offset);
+	}
+
+	@Override
+	public int numBytesWithSeparator(byte[] bytes, int offset){
+		return 4;
 	}
 
 }

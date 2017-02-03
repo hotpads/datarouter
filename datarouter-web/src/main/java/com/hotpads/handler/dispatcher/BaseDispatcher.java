@@ -39,14 +39,14 @@ public abstract class BaseDispatcher{
 
 	/*---------------- create DispatchRules -----------------*/
 
+	protected DispatchRule handleDir(String regex){
+		return handle(regex + REGEX_ONE_DIRECTORY);
+	}
+
 	protected DispatchRule handle(String regex){
 		DispatchRule rule = new DispatchRule(regex);
 		this.dispatchRules.add(rule);
 		return rule;
-	}
-
-	protected DispatchRule handleDir(String regex){
-		return handle(regex + REGEX_ONE_DIRECTORY);
 	}
 
 	protected DispatchRule handleAnySuffix(String suffix){
@@ -100,7 +100,7 @@ public abstract class BaseDispatcher{
 			}catch(FileUploadException e){
 				throw new ServletException(e);
 			}
-		} else {
+		}else{
 			handler.setParams(new Params(request));
 		}
 		handler.handleWrapper();
@@ -121,6 +121,7 @@ public abstract class BaseDispatcher{
 	/*--------------------- tests -------------------*/
 
 	public static class BaseDispatcherTests{
+
 		@Test
 		public void testMatches(){
 			String prefix = "fjalfdja";

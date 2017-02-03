@@ -17,11 +17,11 @@ import com.hotpads.datarouter.storage.view.index.IndexEntry;
 import com.hotpads.util.core.collections.Range;
 
 public class WriteBehindIndexedMapStorageReaderNode<
-	PK extends PrimaryKey<PK>,
-	D extends Databean<PK, D>,
-	N extends IndexedSortedMapStorageReader<PK,D>>
-extends WriteBehindSortedMapStorageReaderNode<PK,D,N>
-implements IndexedSortedMapStorageReader<PK, D>{
+		PK extends PrimaryKey<PK>,
+		D extends Databean<PK, D>,
+		N extends IndexedSortedMapStorageReader<PK, D>>
+		extends WriteBehindSortedMapStorageReaderNode<PK, D, N>
+		implements IndexedSortedMapStorageReader<PK, D>{
 
 	public WriteBehindIndexedMapStorageReaderNode(Datarouter datarouter, N backingNode){
 		super(datarouter, backingNode);
@@ -81,15 +81,15 @@ implements IndexedSortedMapStorageReader<PK, D>{
 
 	@Override
 	public <IK extends PrimaryKey<IK>,
-			IE extends IndexEntry<IK,IE,PK,D>,
-			IF extends DatabeanFielder<IK,IE>,
-			MN extends ManagedNode<PK,D,IK,IE,IF>>
+			IE extends IndexEntry<IK, IE, PK, D>,
+			IF extends DatabeanFielder<IK, IE>,
+			MN extends ManagedNode<PK, D, IK, IE, IF>>
 	MN registerManaged(MN managedNode){
 		return backingNode.registerManaged(managedNode);
 	}
 
 	@Override
-	public List<ManagedNode<PK,D,?,?,?>> getManagedNodes(){
+	public List<ManagedNode<PK, D, ?, ?, ?>> getManagedNodes(){
 		return backingNode.getManagedNodes();
 	}
 

@@ -13,9 +13,11 @@ import com.hotpads.datarouter.storage.field.imp.DateField;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.comparable.LongField;
 
-public class DataExportItem extends BaseDatabean<DataExportItemKey,DataExportItem>{
+public class DataExportItem extends BaseDatabean<DataExportItemKey, DataExportItem>{
 
-	/** fields ****************************************************************/
+	/**
+	 * fields
+	 ****************************************************************/
 
 	private DataExportItemKey key;
 	private String routerName;
@@ -25,53 +27,9 @@ public class DataExportItem extends BaseDatabean<DataExportItemKey,DataExportIte
 	private Long maxRows;
 	private Date dateCreated;
 
-	public static class F{
-		public static final String
-			routerName = "routerName",
-			nodeName = "nodeName",
-			startAfterKey = "startAfterKey",
-			endBeforeKey = "endBeforeKey",
-			maxRows = "maxRows"	,
-			dateCreated = "dateCreated"
-			;
-	}
-
-	public static class DataExportItemFielder extends BaseDatabeanFielder<DataExportItemKey,DataExportItem>{
-		public DataExportItemFielder(){
-		}
-
-		@Override
-		public Class<DataExportItemKey> getKeyFielderClass(){
-			return DataExportItemKey.class;
-		}
-
-		@Override
-		public List<Field<?>> getNonKeyFields(DataExportItem databean){
-			return FieldTool.createList(
-					new StringField(F.routerName, databean.routerName, MySqlColumnType.MAX_LENGTH_VARCHAR),
-					new StringField(F.nodeName, databean.nodeName, MySqlColumnType.MAX_LENGTH_VARCHAR),
-					new StringField(F.startAfterKey, databean.startAfterKey, MySqlColumnType.MAX_LENGTH_VARCHAR),
-					new StringField(F.endBeforeKey, databean.endBeforeKey, MySqlColumnType.MAX_LENGTH_VARCHAR),
-					new LongField(F.maxRows, databean.maxRows),
-					new DateField(F.dateCreated, databean.dateCreated));
-		}
-
-	}
-
-	/** databean ****************************************************************/
-
-	@Override
-	public Class<DataExportItemKey> getKeyClass(){
-		return DataExportItemKey.class;
-	}
-
-	@Override
-	public DataExportItemKey getKey(){
-		return key;
-	}
-
-
-	/** construct *************************************************************/
+	/**
+	 * construct
+	 *************************************************************/
 
 	public DataExportItem(){
 		this.key = new DataExportItemKey(null, null);
@@ -88,7 +46,23 @@ public class DataExportItem extends BaseDatabean<DataExportItemKey,DataExportIte
 		this.dateCreated = new Date();
 	}
 
-	/** get/set ***************************************************************/
+	/**
+	 * databean
+	 ****************************************************************/
+
+	@Override
+	public Class<DataExportItemKey> getKeyClass(){
+		return DataExportItemKey.class;
+	}
+
+	@Override
+	public DataExportItemKey getKey(){
+		return key;
+	}
+
+	/**
+	 * get/set
+	 ***************************************************************/
 
 	public void setKey(DataExportItemKey key){
 		this.key = key;
@@ -132,6 +106,40 @@ public class DataExportItem extends BaseDatabean<DataExportItemKey,DataExportIte
 
 	public void setMaxRows(Long maxRows){
 		this.maxRows = maxRows;
+	}
+
+	public static class F{
+
+		public static final String
+				routerName = "routerName",
+				nodeName = "nodeName",
+				startAfterKey = "startAfterKey",
+				endBeforeKey = "endBeforeKey",
+				maxRows = "maxRows",
+				dateCreated = "dateCreated";
+	}
+
+	public static class DataExportItemFielder extends BaseDatabeanFielder<DataExportItemKey, DataExportItem>{
+
+		public DataExportItemFielder(){
+		}
+
+		@Override
+		public Class<DataExportItemKey> getKeyFielderClass(){
+			return DataExportItemKey.class;
+		}
+
+		@Override
+		public List<Field<?>> getNonKeyFields(DataExportItem databean){
+			return FieldTool.createList(
+					new StringField(F.routerName, databean.routerName, MySqlColumnType.MAX_LENGTH_VARCHAR),
+					new StringField(F.nodeName, databean.nodeName, MySqlColumnType.MAX_LENGTH_VARCHAR),
+					new StringField(F.startAfterKey, databean.startAfterKey, MySqlColumnType.MAX_LENGTH_VARCHAR),
+					new StringField(F.endBeforeKey, databean.endBeforeKey, MySqlColumnType.MAX_LENGTH_VARCHAR),
+					new LongField(F.maxRows, databean.maxRows),
+					new DateField(F.dateCreated, databean.dateCreated));
+		}
+
 	}
 
 }

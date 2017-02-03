@@ -36,25 +36,24 @@ import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.iterable.BatchingIterable;
 import com.hotpads.util.core.profile.PhaseTimer;
 
-@Guice(moduleFactory=DatarouterStorageTestModuleFactory.class)
+@Guice(moduleFactory = DatarouterStorageTestModuleFactory.class)
 public abstract class BaseSortedNodeIntegrationTests{
+
 	private static final Logger logger = LoggerFactory.getLogger(BaseSortedNodeIntegrationTests.class);
 
 	/***************************** fields **************************************/
 
 	@Inject
 	protected Datarouter datarouter;
+	protected SortedNodeTestRouter router;
+	protected SortedMapStorage<SortedBeanKey, SortedBean> sortedNode;
+	protected List<SortedBean> allBeans = SortedBeans.generatedSortedBeans();
 	@Inject
 	private DatarouterSettings datarouterSettings;
 	@Inject
 	private EntityNodeFactory entityNodeFactory;
 	@Inject
 	private NodeFactory nodeFactory;
-
-	protected SortedNodeTestRouter router;
-	protected SortedMapStorage<SortedBeanKey,SortedBean> sortedNode;
-	protected List<SortedBean> allBeans = SortedBeans.generatedSortedBeans();
-
 
 	/***************************** setup/teardown **************************************/
 
@@ -103,9 +102,12 @@ public abstract class BaseSortedNodeIntegrationTests{
 		//deleteMulti
 		AssertJUnit.assertEquals(remainingElements, DrIterableTool.count(sortedNode.scan(null, null)).intValue());
 		List<SortedBeanKey> keys = Arrays.asList(
-			new SortedBeanKey(SortedBeans.STRINGS.last(), SortedBeans.STRINGS.last(), 1, SortedBeans.STRINGS.last()),
-			new SortedBeanKey(SortedBeans.STRINGS.last(), SortedBeans.STRINGS.last(), 2, SortedBeans.STRINGS.last()),
-			new SortedBeanKey(SortedBeans.STRINGS.last(), SortedBeans.STRINGS.last(), 3, SortedBeans.STRINGS.last()));
+				new SortedBeanKey(SortedBeans.STRINGS.last(), SortedBeans.STRINGS.last(), 1,
+						SortedBeans.STRINGS.last()),
+				new SortedBeanKey(SortedBeans.STRINGS.last(), SortedBeans.STRINGS.last(), 2,
+						SortedBeans.STRINGS.last()),
+				new SortedBeanKey(SortedBeans.STRINGS.last(), SortedBeans.STRINGS.last(), 3,
+						SortedBeans.STRINGS.last()));
 		sortedNode.deleteMulti(keys, null);
 		remainingElements -= 3;
 		AssertJUnit.assertEquals(remainingElements, DrIterableTool.count(sortedNode.scan(null, null)).intValue());
@@ -148,7 +150,8 @@ public abstract class BaseSortedNodeIntegrationTests{
 	/********************** junit methods *********************************************/
 	@Test
 	public void testGetKeys(){
-		SortedBeanKey key1 = new SortedBeanKey(SortedBeans.S_aardvark, SortedBeans.S_aardvark, 0, SortedBeans.S_alpaca);
+		SortedBeanKey key1 = new SortedBeanKey(SortedBeans.S_aardvark, SortedBeans.S_aardvark, 0, SortedBeans
+				.S_alpaca);
 		SortedBeanKey key2 = new SortedBeanKey("blah", "blah", 1000, "blah");
 		SortedBeanKey key3 = new SortedBeanKey(SortedBeans.S_aardvark, SortedBeans.S_albatross, 2, SortedBeans.S_emu);
 		List<SortedBeanKey> keysToGet = DrListTool.create(key1, key2, key3);
@@ -205,15 +208,6 @@ public abstract class BaseSortedNodeIntegrationTests{
 		testGetKeysOrDatabeanInRange(sortedNode::scanKeys);
 	}
 
-	@Test
-	public void testGetInRange(){
-		testGetKeysOrDatabeanInRange(sortedNode::scan);
-	}
-
-	private interface ScanBySortedBeanKeyProvider<T>{
-		public Iterable<T> scan(Range<SortedBeanKey> range, Config config);
-	}
-
 	private static <T extends Comparable<? super T>> void testGetKeysOrDatabeanInRange(ScanBySortedBeanKeyProvider<T>
 			scanProvider){
 		SortedBeanKey alp1 = new SortedBeanKey(SortedBeans.RANGE_alp, null, null, null);
@@ -227,7 +221,7 @@ public abstract class BaseSortedNodeIntegrationTests{
 
 		Range<SortedBeanKey> range1b = new Range<>(alp1, true, emu1, false);
 		List<T> result1b = DrListTool.createArrayList(scanProvider.scan(range1b, null));
-		int expectedSize1b = (SortedBeans.RANGE_LENGTH_alp_emu_inc-1) * SortedBeans.NUM_ELEMENTS
+		int expectedSize1b = (SortedBeans.RANGE_LENGTH_alp_emu_inc - 1) * SortedBeans.NUM_ELEMENTS
 				* SortedBeans.NUM_ELEMENTS * SortedBeans.NUM_ELEMENTS;
 		AssertJUnit.assertEquals(expectedSize1b, DrCollectionTool.size(result1b));
 		AssertJUnit.assertTrue(DrListTool.isSorted(result1b));
@@ -239,6 +233,11 @@ public abstract class BaseSortedNodeIntegrationTests{
 		int expectedSize2 = SortedBeans.RANGE_LENGTH_alp_emu_inc * SortedBeans.NUM_ELEMENTS * SortedBeans.NUM_ELEMENTS;
 		AssertJUnit.assertEquals(expectedSize2, DrCollectionTool.size(result2));
 		AssertJUnit.assertTrue(DrListTool.isSorted(result2));
+	}
+
+	@Test
+	public void testGetInRange(){
+		testGetKeysOrDatabeanInRange(sortedNode::scan);
 	}
 
 	@Test //small batch sizes to make sure we're resuming each batch from the correct spot
@@ -318,7 +317,7 @@ public abstract class BaseSortedNodeIntegrationTests{
 		Assert.assertEquals(scanKeysAndCountWithConfig(new Config().setIterateBatchSize(555)), count);
 		Assert.assertEquals(scanKeysAndCountWithConfig(new Config().setLimit((int)count)), count);
 		Assert.assertEquals(scanKeysAndCountWithConfig(new Config().setLimit(10)), 10);
-		Assert.assertEquals(scanKeysAndCountWithConfig(new Config().setLimit((int)(2*count))), count);
+		Assert.assertEquals(scanKeysAndCountWithConfig(new Config().setLimit((int)(2 * count))), count);
 		Assert.assertEquals(scanKeysAndCountWithConfig(new Config().setIterateBatchSize(25).setLimit(100)), 100);
 		Assert.assertEquals(scanKeysAndCountWithConfig(new Config().setIterateBatchSize(15).setLimit(23)), 23);
 	}
@@ -338,7 +337,7 @@ public abstract class BaseSortedNodeIntegrationTests{
 		timer.add("2");
 		Assert.assertEquals(scanAndCountWithConfig(new Config().setLimit(10)), 10);
 		timer.add("3");
-		Assert.assertEquals(scanAndCountWithConfig(new Config().setLimit((int)(2*count))), count);
+		Assert.assertEquals(scanAndCountWithConfig(new Config().setLimit((int)(2 * count))), count);
 		timer.add("4");
 		Assert.assertEquals(scanAndCountWithConfig(new Config().setIterateBatchSize(25).setLimit(100)), 100);
 		timer.add("5");
@@ -391,7 +390,8 @@ public abstract class BaseSortedNodeIntegrationTests{
 	@Test
 	public void testEmptyLastBatchRangeScan(){
 		SortedBeanKey startKey = new SortedBeanKey(SortedBeans.S_alpaca, SortedBeans.S_ostrich, 7, SortedBeans.S_emu);
-		SortedBeanKey endKey = new SortedBeanKey(SortedBeans.S_alpaca, SortedBeans.S_ostrich, 7, SortedBeans.S_pelican);
+		SortedBeanKey endKey = new SortedBeanKey(SortedBeans.S_alpaca, SortedBeans.S_ostrich, 7, SortedBeans
+				.S_pelican);
 		Range<SortedBeanKey> rangeWithFourRows = new Range<>(startKey, true, endKey, true);
 		Assert.assertEquals(sortedNode.streamKeys(rangeWithFourRows, new Config().setIterateBatchSize(2)).count(), 4);
 	}
@@ -405,7 +405,8 @@ public abstract class BaseSortedNodeIntegrationTests{
 
 	@Test
 	public void testSortedStorageCountingTool(){
-		Assert.assertEquals(SortedStorageCountingTool.count(sortedNode, Range.everything()), SortedBeans.TOTAL_RECORDS);
+		Assert.assertEquals(SortedStorageCountingTool.count(sortedNode, Range.everything()), SortedBeans
+				.TOTAL_RECORDS);
 	}
 
 	@Test
@@ -430,7 +431,8 @@ public abstract class BaseSortedNodeIntegrationTests{
 		Range<SortedBeanKey> range1 = new Range<>(startKey1, endKey1);
 		SortedBeanKey startKey2 = new SortedBeanKey(SortedBeans.S_albatross, SortedBeans.S_ostrich, 3,
 				SortedBeans.S_aardvark);
-		SortedBeanKey endKey2 = new SortedBeanKey(SortedBeans.S_albatross, SortedBeans.S_ostrich, 3, SortedBeans.S_emu);
+		SortedBeanKey endKey2 = new SortedBeanKey(SortedBeans.S_albatross, SortedBeans.S_ostrich, 3, SortedBeans
+				.S_emu);
 		Range<SortedBeanKey> range2 = new Range<>(startKey2, endKey2);
 		Set<SortedBean> beans = sortedNode.streamMulti(Arrays.asList(range1, range2),
 				new Config().setIterateBatchSize(4)).collect(Collectors.toSet());
@@ -438,6 +440,11 @@ public abstract class BaseSortedNodeIntegrationTests{
 				.collect(Collectors.toSet());
 		Assert.assertTrue(expected.size() > 0);
 		Assert.assertEquals(beans, expected);
+	}
+
+	private interface ScanBySortedBeanKeyProvider<T>{
+
+		public Iterable<T> scan(Range<SortedBeanKey> range, Config config);
 	}
 
 }

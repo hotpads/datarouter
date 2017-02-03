@@ -5,12 +5,12 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
 
 public abstract class BaseLookup<PK extends PrimaryKey<PK>>
-extends BaseKey<PK>
-implements Lookup<PK>{
+		extends BaseKey<PK>
+		implements Lookup<PK>{
 
 	protected PK key;
 
-	public BaseLookup() {
+	public BaseLookup(){
 	}
 
 	public PK getPrimaryKey(){

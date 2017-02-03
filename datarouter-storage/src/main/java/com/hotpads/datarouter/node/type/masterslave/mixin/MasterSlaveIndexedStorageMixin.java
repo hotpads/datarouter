@@ -19,9 +19,9 @@ import com.hotpads.util.core.collections.Range;
 
 public interface MasterSlaveIndexedStorageMixin<
 		PK extends PrimaryKey<PK>,
-		D extends Databean<PK,D>,
-		N extends IndexedStorageNode<PK,D>>
-extends MasterSlaveNode<PK,D,N>, IndexedStorage<PK,D>{
+		D extends Databean<PK, D>,
+		N extends IndexedStorageNode<PK, D>>
+		extends MasterSlaveNode<PK, D, N>, IndexedStorage<PK, D>{
 
 	@Override
 	public default D lookupUnique(UniqueKey<PK> uniqueKey, Config config){
@@ -40,7 +40,7 @@ extends MasterSlaveNode<PK,D,N>, IndexedStorage<PK,D>{
 
 
 	@Override
-	public default List<D> lookup(Lookup<PK> lookup, boolean wildcardLastField, Config config) {
+	public default List<D> lookup(Lookup<PK> lookup, boolean wildcardLastField, Config config){
 		boolean slaveOk = Config.nullSafe(config).getSlaveOk();
 		N node = slaveOk ? chooseSlave(config) : getMaster();
 		return node.lookup(lookup, wildcardLastField, config);
@@ -48,7 +48,7 @@ extends MasterSlaveNode<PK,D,N>, IndexedStorage<PK,D>{
 
 
 	@Override
-	public default List<D> lookupMulti(Collection<? extends Lookup<PK>> lookups, Config config) {
+	public default List<D> lookupMulti(Collection<? extends Lookup<PK>> lookups, Config config){
 		boolean slaveOk = Config.nullSafe(config).getSlaveOk();
 		N node = slaveOk ? chooseSlave(config) : getMaster();
 		return node.lookupMulti(lookups, config);
@@ -96,9 +96,9 @@ extends MasterSlaveNode<PK,D,N>, IndexedStorage<PK,D>{
 
 	@Override
 	public default <IK extends PrimaryKey<IK>,
-			IE extends IndexEntry<IK,IE,PK,D>,
-			IF extends DatabeanFielder<IK,IE>,
-			MN extends ManagedNode<PK,D,IK,IE,IF>>
+			IE extends IndexEntry<IK, IE, PK, D>,
+			IF extends DatabeanFielder<IK, IE>,
+			MN extends ManagedNode<PK, D, IK, IE, IF>>
 	MN registerManaged(MN managedNode){
 		for(N node : getChildNodes()){
 			node.registerManaged(managedNode);
@@ -107,22 +107,22 @@ extends MasterSlaveNode<PK,D,N>, IndexedStorage<PK,D>{
 	}
 
 	@Override
-	public default List<ManagedNode<PK,D,?,?,?>> getManagedNodes(){
+	public default List<ManagedNode<PK, D, ?, ?, ?>> getManagedNodes(){
 		return getMaster().getManagedNodes();
 	}
 
 	@Override
-	public default void delete(Lookup<PK> lookup, Config config) {
+	public default void delete(Lookup<PK> lookup, Config config){
 		getMaster().delete(lookup, config);
 	}
 
 	@Override
-	public default void deleteUnique(UniqueKey<PK> uniqueKey, Config config) {
+	public default void deleteUnique(UniqueKey<PK> uniqueKey, Config config){
 		getMaster().deleteUnique(uniqueKey, config);
 	}
 
 	@Override
-	public default void deleteMultiUnique(Collection<? extends UniqueKey<PK>> uniqueKeys, Config config) {
+	public default void deleteMultiUnique(Collection<? extends UniqueKey<PK>> uniqueKeys, Config config){
 		getMaster().deleteMultiUnique(uniqueKeys, config);
 	}
 

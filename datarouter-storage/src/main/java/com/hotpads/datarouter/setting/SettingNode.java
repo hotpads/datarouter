@@ -14,16 +14,16 @@ import com.hotpads.datarouter.setting.cached.impl.LongCachedSetting;
 import com.hotpads.datarouter.setting.cached.impl.StringCachedSetting;
 import com.hotpads.util.core.Duration;
 
-public abstract class SettingNode {
+public abstract class SettingNode{
 
 
 	/*********** fields ***********/
 
 	private final String parentName;
 	private final String name;
-	private final SortedMap<String,SettingNode> children;
+	private final SortedMap<String, SettingNode> children;
 
-	private final SortedMap<String,Setting<?>> settings;
+	private final SortedMap<String, Setting<?>> settings;
 	private final SettingFinder finder;
 
 	private final Boolean isGroup;
@@ -38,8 +38,8 @@ public abstract class SettingNode {
 	public SettingNode(SettingFinder finder, String name, String parentName, Boolean isGroup){
 		this.name = name;
 		this.parentName = parentName;
-		this.children = Collections.synchronizedSortedMap(new TreeMap<String,SettingNode>());
-		this.settings = Collections.synchronizedSortedMap(new TreeMap<String,Setting<?>>());
+		this.children = Collections.synchronizedSortedMap(new TreeMap<String, SettingNode>());
+		this.settings = Collections.synchronizedSortedMap(new TreeMap<String, Setting<?>>());
 		this.finder = finder;
 		this.isGroup = isGroup;
 	}
@@ -54,9 +54,10 @@ public abstract class SettingNode {
 		return child;
 	}
 
-	private <S extends Setting<?>> S register(S setting){
-		settings.put(setting.getName(), setting);
-		return setting;
+	/*********** get/set ***********/
+
+	public String getName(){
+		return name;
 	}
 
 	public SettingNode getNodeByName(String nameParam){
@@ -68,7 +69,7 @@ public abstract class SettingNode {
 		}
 		String nextChildShortName = nameParam.substring(getName().length());
 		int index = nextChildShortName.indexOf('.');
-		String nextChildPath = getName()+nextChildShortName.substring(0, index+1);
+		String nextChildPath = getName() + nextChildShortName.substring(0, index + 1);
 		if(getChildren().containsKey(nextChildPath)){
 			return getChildren().get(nextChildPath).getNodeByName(nameParam);
 		}
@@ -83,7 +84,7 @@ public abstract class SettingNode {
 		}
 		String nextChildShortName = nameParam.substring(getName().length());
 		int index = nextChildShortName.indexOf('.');
-		String nextChildPath = getName()+nextChildShortName.substring(0, index+1);
+		String nextChildPath = getName() + nextChildShortName.substring(0, index + 1);
 		if(getChildren().containsKey(nextChildPath)){
 			list.add(this);
 			list.addAll(getChildren().get(nextChildPath).getDescendanceByName(nameParam));
@@ -100,7 +101,7 @@ public abstract class SettingNode {
 		}
 		String nextChildShortName = settingNameParam.substring(getName().length());
 		int index = nextChildShortName.indexOf('.');
-		String nextChildPath = getName()+nextChildShortName.substring(0, index+1);
+		String nextChildPath = getName() + nextChildShortName.substring(0, index + 1);
 		if(getChildren().containsKey(nextChildPath)){
 			return getChildren().get(nextChildPath).getDescendantSettingByName(settingNameParam);
 		}
@@ -109,7 +110,7 @@ public abstract class SettingNode {
 
 	public List<SettingNode> getListChildren(){
 		ArrayList<SettingNode> list = new ArrayList<>();
-		for (String childName : children.keySet()){
+		for(String childName : children.keySet()){
 			list.add(children.get(childName));
 		}
 		return list;
@@ -121,11 +122,20 @@ public abstract class SettingNode {
 
 	public String getShortName(){
 		String shortName = getName().substring(getParentName().length());
-		return shortName.substring(0, shortName.length()-1);
+		return shortName.substring(0, shortName.length() - 1);
+	}
+
+	public String getParentName(){
+		return parentName;
 	}
 
 	protected StringCachedSetting registerString(String name, String defaultValue){
 		return register(new StringCachedSetting(finder, getName() + name, defaultValue));
+	}
+
+	private <S extends Setting<?>> S register(S setting){
+		settings.put(setting.getName(), setting);
+		return setting;
 	}
 
 	protected BooleanCachedSetting registerBoolean(String name, Boolean defaultValue){
@@ -148,21 +158,11 @@ public abstract class SettingNode {
 		return register(new DurationCachedSetting(finder, getName() + name, defaultValue));
 	}
 
-	/*********** get/set ***********/
-
-	public String getName(){
-		return name;
-	}
-
-	public String getParentName(){
-		return parentName;
-	}
-
-	public SortedMap<String,Setting<?>> getSettings(){
+	public SortedMap<String, Setting<?>> getSettings(){
 		return settings;
 	}
 
-	public SortedMap<String,SettingNode> getChildren(){
+	public SortedMap<String, SettingNode> getChildren(){
 		return children;
 	}
 

@@ -20,29 +20,26 @@ import com.hotpads.trace.TracerThreadLocal;
 import com.hotpads.trace.TracerTool;
 
 public class SessionExecutorImpl<T>
-extends BaseTxnExecutor<T>
-implements SessionExecutor, Callable<T>{
-	private static Logger logger = LoggerFactory.getLogger(SessionExecutorImpl.class);
+		extends BaseTxnExecutor<T>
+		implements SessionExecutor, Callable<T>{
 
 	public static final boolean EAGER_SESSION_FLUSH = true;
-
 	//TODO have custom SessionExecutors for each module so we can compile-check this
 	public static final Set<String> ROLLED_BACK_EXCEPTION_SIMPLE_NAMES = ImmutableSet.of(
 			"MySQLTransactionRollbackException");
-
+	private static Logger logger = LoggerFactory.getLogger(SessionExecutorImpl.class);
 	private final TxnOp<T> parallelTxnOp;
 	private String traceName;
 
-	public SessionExecutorImpl(TxnOp<T> parallelTxnOp) {
-		super(parallelTxnOp.getDatarouter(), parallelTxnOp);
-		this.parallelTxnOp = parallelTxnOp;
-	}
-
-	public SessionExecutorImpl(TxnOp<T> parallelTxnOp, String traceName) {
+	public SessionExecutorImpl(TxnOp<T> parallelTxnOp, String traceName){
 		this(parallelTxnOp);
 		this.traceName = traceName;
 	}
 
+	public SessionExecutorImpl(TxnOp<T> parallelTxnOp){
+		super(parallelTxnOp.getDatarouter(), parallelTxnOp);
+		this.parallelTxnOp = parallelTxnOp;
+	}
 
 	/*******************************************************************/
 
@@ -98,18 +95,21 @@ implements SessionExecutor, Callable<T>{
 				logger.warn("EXCEPTION THROWN DURING RELEASE OF CONNECTIONS", e);
 			}
 		}
-		T mergedResult = parallelTxnOp.mergeResults(onceResult, clientResults);
-		return mergedResult;
+		return parallelTxnOp.mergeResults(onceResult, clientResults);
 	}
 
-
+	private void startTrace(){
+		if(shouldTrace()){
+			TracerTool.startSpan(TracerThreadLocal.get(), traceName);
+		}
+	}
 
 	/********************* session code **********************************/
 
 	@Override
 	public void openSessions(){
 		for(Client client : DrCollectionTool.nullSafe(getClients())){
-			if( ! (client instanceof SessionClient) ){
+			if(!(client instanceof SessionClient)){
 				continue;
 			}
 			SessionClient sessionClient = (SessionClient)client;
@@ -122,7 +122,7 @@ implements SessionExecutor, Callable<T>{
 	@Override
 	public void flushSessions(){
 		for(Client client : DrCollectionTool.nullSafe(getClients())){
-			if( ! (client instanceof SessionClient) ){
+			if(!(client instanceof SessionClient)){
 				continue;
 			}
 			SessionClient sessionClient = (SessionClient)client;
@@ -135,32 +135,13 @@ implements SessionExecutor, Callable<T>{
 	@Override
 	public void cleanupSessions(){
 		for(Client client : DrCollectionTool.nullSafe(getClients())){
-			if( ! (client instanceof SessionClient) ){
+			if(!(client instanceof SessionClient)){
 				continue;
 			}
 			SessionClient sessionClient = (SessionClient)client;
 			sessionClient.cleanupSession();
 //			logger.warn("cleanupSession on "+sessionClient.getExistingHandle());
 			DRCounters.incClient(sessionClient.getType(), "cleanupSession", sessionClient.getName());
-		}
-	}
-
-
-	/********************** helper ******************************/
-
-	private boolean shouldTrace(){
-		return DrStringTool.notEmpty(traceName);
-	}
-
-	private void startTrace(){
-		if(shouldTrace()){
-			TracerTool.startSpan(TracerThreadLocal.get(), traceName);
-		}
-	}
-
-	private void finishTrace(){
-		if(shouldTrace()){
-			TracerTool.finishSpan(TracerThreadLocal.get());
 		}
 	}
 
@@ -172,13 +153,19 @@ implements SessionExecutor, Callable<T>{
 			return true;
 		}
 		Throwable cause = exception.getCause();//unwrap hibernate exception
-		if(cause == null){
-			return false;
+		return cause != null && ROLLED_BACK_EXCEPTION_SIMPLE_NAMES.contains(cause.getClass().getSimpleName());
+	}
+
+	private void finishTrace(){
+		if(shouldTrace()){
+			TracerTool.finishSpan(TracerThreadLocal.get());
 		}
-		if(ROLLED_BACK_EXCEPTION_SIMPLE_NAMES.contains(cause.getClass().getSimpleName())){
-			return true;
-		}
-		return false;
+	}
+
+	/********************** helper ******************************/
+
+	private boolean shouldTrace(){
+		return DrStringTool.notEmpty(traceName);
 	}
 
 }

@@ -14,16 +14,9 @@ public class JobletDataKey extends BasePrimaryKey<JobletDataKey>{
 	private Long id;
 
 
-	public static class FieldKeys{
-		public static final UInt63FieldKey id = new UInt63FieldKey("id");
+	public JobletDataKey(){
+		this(RandomTool.nextPositiveLong());
 	}
-
-	@Override
-	public List<Field<?>> getFields() {
-		return Arrays.asList(
-				new UInt63Field(FieldKeys.id, id));
-	}
-
 
 	/******************** construct *************************/
 
@@ -31,15 +24,21 @@ public class JobletDataKey extends BasePrimaryKey<JobletDataKey>{
 		this.id = id;
 	}
 
-	public JobletDataKey(){
-		this(RandomTool.nextPositiveLong());
+	@Override
+	public List<Field<?>> getFields(){
+		return Arrays.asList(
+				new UInt63Field(FieldKeys.id, id));
 	}
-
 
 	/******************* get/set *******************************/
 
 	public Long getId(){
 		return id;
+	}
+
+	public static class FieldKeys{
+
+		public static final UInt63FieldKey id = new UInt63FieldKey("id");
 	}
 
 }
