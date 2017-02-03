@@ -46,12 +46,10 @@ public class StandardJdbcFieldCodecFactory implements JdbcFieldCodecFactory{
 		codecTypeByFieldType.put(fieldType, codecType);
 	}
 
-
 	@Override
 	public <T,F extends Field<T>> boolean hasCodec(Class<F> fieldType){
 		return codecTypeByFieldType.containsKey(fieldType);
 	}
-
 
 	@Override
 	public <T,F extends Field<T>,C extends JdbcFieldCodec<T,F>> C createCodec(F field){
@@ -71,8 +69,6 @@ public class StandardJdbcFieldCodecFactory implements JdbcFieldCodecFactory{
 		return codecs;
 	}
 
-
-//TODO update tests?
 	/************************ test *****************************/
 
 	@Guice(moduleFactory = TestDatarouterJdbcModuleFactory.class)
@@ -101,5 +97,4 @@ public class StandardJdbcFieldCodecFactory implements JdbcFieldCodecFactory{
 			Assert.assertTrue(hasAllCodecs);
 		}
 	}
-
 }

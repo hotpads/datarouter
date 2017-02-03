@@ -28,8 +28,8 @@ implements DatabeanFielder<PK,D>{
 	private final Fielder<PK> primaryKeyFielder;
 	private final StringDatabeanCodec stringDatabeanCodec;
 
-	protected static final MySqlCharacterSet DEFAULT_CHARACTER_SET = MySqlCharacterSet.utf8;//TODO share with connections
-	protected static final MySqlCollation DEFAULT_COLLATION = MySqlCollation.utf8_bin;//TODO share with connections
+	protected static final MySqlCharacterSet DEFAULT_CHARACTER_SET = MySqlCharacterSet.utf8;
+	protected static final MySqlCollation DEFAULT_COLLATION = MySqlCollation.utf8_bin;
 
 	protected BaseDatabeanFielder(Class<? extends Fielder<PK>> primaryKeyFielderClass){
 		this.primaryKeyFielder = ReflectionTool.create(primaryKeyFielderClass);

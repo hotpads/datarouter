@@ -133,7 +133,14 @@ public enum MySqlColumnType{
 		return supportsDefaultValue;
 	}
 
-	public boolean isIntroducible(){//TODO add explanation
+	/**
+	 * This states whether the type can handle introducers in literals (in SQL queries).
+	 * Only non-binary text types support this, because it affects the character set and collation that literals are
+	 * interpreted as.
+	 * Example: "_utf8 'hello' COLLATE utf8_bin" is an introduced form of "'hello'", which tells the DB that no
+	 * conversion from the connection settings' character set/collation (defaulted to utf8mb4/utf8mb_bin) is necessary.
+	 */
+	public boolean isIntroducible(){
 		return isIntroducible;
 	}
 
