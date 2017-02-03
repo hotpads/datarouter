@@ -40,7 +40,6 @@ extends BaseJdbcOp<List<D>>{
 	@Override
 	public List<D> runOnce(){
 		List<D> result = new ArrayList<>();
-		//TODO test if right info?
 		for(List<IK> batch : new BatchingIterable<>(entryKeys, JdbcReaderNode.DEFAULT_ITERATE_BATCH_SIZE)){
 			String sql = SqlBuilder.getWithPrefixes(fieldCodecFactory, config, node.getTableName(), node.getFieldInfo()
 					.getFields(), batch, wildcardLastField, null, node.getFieldInfo());

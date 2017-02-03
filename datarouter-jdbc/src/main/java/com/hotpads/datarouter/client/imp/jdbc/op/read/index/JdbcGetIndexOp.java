@@ -52,7 +52,7 @@ extends BaseJdbcOp<List<IE>>{
 	}
 
 	@Override
-	public List<IE> runOnce(){//TODO does this use introducers?
+	public List<IE> runOnce(){
 		Connection connection = getConnection(mainNode.getClientId().getName());
 		List<IE> databeans = new ArrayList<>();
 		for(List<IK> batch : new BatchingIterable<>(uniqueKeys, JdbcReaderNode.DEFAULT_ITERATE_BATCH_SIZE)){

@@ -24,6 +24,8 @@ import com.hotpads.util.core.collections.Range;
 
 public class SqlBuilder{
 
+	public static final Optional<String> PRIMARY_KEY_INDEX_NAME_OPTIONAL = Optional.of("PRIMARY");
+
 	/*************************** primary methods ***************************************/
 
 	public static String getCount(JdbcFieldCodecFactory codecFactory, String tableName,
