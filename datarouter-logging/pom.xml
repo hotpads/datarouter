@@ -27,7 +27,7 @@
 	<artifactId>datarouter-logging</artifactId>
 	<inceptionYear>2009</inceptionYear>
 	<properties>
-		<log4j2Version>2.5</log4j2Version>
+		<log4j2Version>2.8</log4j2Version>
 	</properties>
 	<build>
 		<plugins>
@@ -90,7 +90,7 @@
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
-			<version>1.7.21</version>
+			<version>1.7.22</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
