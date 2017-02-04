@@ -208,7 +208,7 @@ public class SqlBuilder{
 	private static boolean shouldIntroduceLiteral(JdbcFieldCodec<?,?> codec,
 			MySqlCharacterSetCollationOpt characterSetCollation){
 		if(codec.getField().getValue() == null){
-			return false;//NULL is not introducible
+			return false;//NULL is not introducible (this code is currently unreachable, but not necessarily forever.)
 		}
 		if(!codec.getSqlColumnDefinition().getType().isIntroducible()){
 			return false;//column is not an introducible type
@@ -453,5 +453,4 @@ public class SqlBuilder{
 			throw new IllegalArgumentException("Please provide a table name");
 		}
 	}
-
 }
