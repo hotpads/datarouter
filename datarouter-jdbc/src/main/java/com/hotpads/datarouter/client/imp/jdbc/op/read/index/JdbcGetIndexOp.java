@@ -58,7 +58,7 @@ extends BaseJdbcOp<List<IE>>{
 		for(List<IK> batch : new BatchingIterable<>(uniqueKeys, JdbcReaderNode.DEFAULT_ITERATE_BATCH_SIZE)){
 			List<? extends Key<IK>> keys = new ArrayList<>(batch);
 			String sql = SqlBuilder.getMulti(fieldCodecFactory, config, mainNode.getTableName(), indexFielder.getFields(
-					indexEntry), keys);
+					indexEntry), keys, mainNode.getFieldInfo());
 			try{
 				PreparedStatement ps = connection.prepareStatement(sql);
 				ps.execute();

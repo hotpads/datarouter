@@ -46,12 +46,10 @@ public class StandardJdbcFieldCodecFactory implements JdbcFieldCodecFactory{
 		codecTypeByFieldType.put(fieldType, codecType);
 	}
 
-
 	@Override
 	public <T,F extends Field<T>> boolean hasCodec(Class<F> fieldType){
 		return codecTypeByFieldType.containsKey(fieldType);
 	}
-
 
 	@Override
 	public <T,F extends Field<T>,C extends JdbcFieldCodec<T,F>> C createCodec(F field){
@@ -62,7 +60,6 @@ public class StandardJdbcFieldCodecFactory implements JdbcFieldCodecFactory{
 		return ReflectionTool.createWithParameters(codecType, Arrays.asList(field));
 	}
 
-
 	@Override
 	public List<JdbcFieldCodec<?,?>> createCodecs(Collection<Field<?>> fields){
 		List<JdbcFieldCodec<?,?>> codecs = DrListTool.createArrayListWithSize(fields);
@@ -71,8 +68,6 @@ public class StandardJdbcFieldCodecFactory implements JdbcFieldCodecFactory{
 		}
 		return codecs;
 	}
-
-
 
 	/************************ test *****************************/
 
@@ -102,5 +97,4 @@ public class StandardJdbcFieldCodecFactory implements JdbcFieldCodecFactory{
 			Assert.assertTrue(hasAllCodecs);
 		}
 	}
-
 }

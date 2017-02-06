@@ -54,9 +54,9 @@ extends BaseJdbcOp<List<D>>{
 		return result;
 	}
 
-	private List<D> runBatch(Connection connection, Collection<PK> batch) {
+	private List<D> runBatch(Connection connection, Collection<PK> batch){
 		String sql = SqlBuilder.getWithPrefixes(fieldCodecFactory, config, node.getTableName(), node.getFieldInfo()
-				.getFields(), batch, wildcardLastField, node.getFieldInfo().getPrimaryKeyFields());
+				.getFields(), batch, wildcardLastField, node.getFieldInfo().getPrimaryKeyFields(), node.getFieldInfo());
 		return JdbcTool.selectDatabeans(fieldCodecFactory, connection, node.getFieldInfo(), sql);
 	}
 }

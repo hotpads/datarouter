@@ -39,7 +39,8 @@ extends BaseJdbcOp<Long>{
 		Connection connection = getConnection(node.getClientId().getName());
 		long numModified = 0;
 		for(List<PK> keyBatch : new BatchingIterable<>(keys, config.getIterateBatchSize())){
-			String sql = SqlBuilder.deleteMulti(fieldCodecFactory, config, node.getTableName(), keyBatch);
+			String sql = SqlBuilder.deleteMulti(fieldCodecFactory, config, node.getTableName(), keyBatch, node
+					.getFieldInfo());
 			numModified += JdbcTool.update(connection, sql);
 		}
 		return numModified;
