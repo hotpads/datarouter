@@ -3,7 +3,7 @@ package com.hotpads.datarouter.client.imp.redis;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import org.junit.Assert;
+import org.testng.Assert;
 import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
@@ -98,7 +98,7 @@ public class RedisClientType extends BaseClientType{
 		@Test
 		public void testClassLocation(){
 			String actualClassName = RedisClientType.class.getCanonicalName();
-			Assert.assertEquals(DefaultClientTypes.CLIENT_CLASS_redis, actualClassName);
+			Assert.assertEquals(actualClassName, DefaultClientTypes.CLIENT_CLASS_redis);
 			injector.getInstance(ClassTool.forName(DefaultClientTypes.CLIENT_CLASS_redis));
 		}
 	}
