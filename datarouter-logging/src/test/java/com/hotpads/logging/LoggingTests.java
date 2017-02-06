@@ -42,8 +42,11 @@ public class LoggingTests{
 	private static final String TEST_APPENDER_2_NAME = "testFile2";
 	private static final String ERR_CONSOLE_APPENDER_NAME = "second-console-appender";
 
+	private final Log4j2Configurator configurator = new Log4j2Configurator();
+
 	@AfterClass
 	public void after(){
+		configurator.shutdown();
 		TEST_FILE.delete();
 		TEST_FILE_2.delete();
 	}
@@ -53,7 +56,6 @@ public class LoggingTests{
 		logger.debug("hello");
 		logger.debug("password");//excluded by filter
 
-		Log4j2Configurator configurator = new Log4j2Configurator();
 		configurator.updateOrCreateLoggerConfig(getClass().getPackage(), Level.OFF, false,
 				TestDatarouterLog4j2Configuration.TEST_APPENDER_NAME);
 		logger.debug("goodbye");//excluded because Level is OFF

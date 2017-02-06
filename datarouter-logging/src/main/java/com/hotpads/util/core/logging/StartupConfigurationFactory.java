@@ -23,6 +23,7 @@ import java.util.LinkedList;
 
 import org.apache.logging.log4j.core.Appender;
 import org.apache.logging.log4j.core.Filter;
+import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.AbstractConfiguration;
 import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.ConfigurationFactory;
@@ -40,14 +41,13 @@ public class StartupConfigurationFactory extends ConfigurationFactory{
 
 	@Override
 	public String[] getSupportedTypes(){
-		// LOGGER.setLevel(Level.ALL); // Enable this to debug logging config
+		// ((StatusLogger)LOGGER).setLevel(Level.ALL); // Enable this to debug logging config
 		return new String[]{".hotpads"};
 	}
 
 	@Override
-	public Configuration getConfiguration(ConfigurationSource source){
-		@SuppressWarnings("serial")
-		Configuration configuration = new AbstractConfiguration(ConfigurationSource.NULL_SOURCE){};
+	public Configuration getConfiguration(LoggerContext loggerContext, ConfigurationSource source){
+		Configuration configuration = new AbstractConfiguration(loggerContext, ConfigurationSource.NULL_SOURCE){};
 		String fullyQualifiedClassName;
 		try(BufferedReader reader = new BufferedReader(new InputStreamReader(source.getInputStream()))){
 			fullyQualifiedClassName = reader.readLine();
