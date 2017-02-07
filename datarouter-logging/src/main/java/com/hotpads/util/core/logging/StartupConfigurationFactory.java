@@ -41,7 +41,7 @@ public class StartupConfigurationFactory extends ConfigurationFactory{
 
 	@Override
 	public String[] getSupportedTypes(){
-		// LOGGER.setLevel(Level.ALL); // Enable this to debug logging config
+		// ((StatusLogger)LOGGER).setLevel(Level.ALL); // Enable this to debug logging config
 		return new String[]{".hotpads"};
 	}
 

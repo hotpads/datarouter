@@ -63,15 +63,15 @@ public class Log4j2Configurator{
 				.build();
 	}
 
-	private LoggerContext ctx;
-	private Configuration config;
-	private LoggerConfig rootLoggerConfig;
+	private final LoggerContext ctx;
+	private final Configuration config;
+	private final LoggerConfig rootLoggerConfig;
 
 	public Log4j2Configurator(){
-		ctx = (LoggerContext)LogManager.getContext(false);
-		config = ctx.getConfiguration();
+		this.ctx = (LoggerContext)LogManager.getContext(false);
+		this.config = ctx.getConfiguration();
 		Logger root = LogManager.getRootLogger();
-		rootLoggerConfig = config.getLoggerConfig(root.getName());
+		this.rootLoggerConfig = config.getLoggerConfig(root.getName());
 	}
 
 	public void updateOrCreateLoggerConfig(Class<?> clazz, Level level, boolean additive, String... appendersRef){
@@ -152,6 +152,10 @@ public class Log4j2Configurator{
 	public void addFileAppender(String name, String fileName, String pattern){
 		Appender appender = Log4j2Configurator.createFileAppender(name, fileName, pattern);
 		addAppender(appender);
+	}
+
+	public void shutdown(){
+		ctx.stop();
 	}
 
 }

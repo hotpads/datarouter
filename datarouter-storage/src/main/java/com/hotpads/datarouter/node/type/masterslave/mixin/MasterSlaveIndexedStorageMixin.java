@@ -19,9 +19,9 @@ import com.hotpads.util.core.collections.Range;
 
 public interface MasterSlaveIndexedStorageMixin<
 		PK extends PrimaryKey<PK>,
-		D extends Databean<PK, D>,
-		N extends IndexedStorageNode<PK, D>>
-		extends MasterSlaveNode<PK, D, N>, IndexedStorage<PK, D>{
+		D extends Databean<PK,D>,
+		N extends IndexedStorageNode<PK,D>>
+extends MasterSlaveNode<PK,D,N>, IndexedStorage<PK,D>{
 
 	@Override
 	public default D lookupUnique(UniqueKey<PK> uniqueKey, Config config){
@@ -56,16 +56,16 @@ public interface MasterSlaveIndexedStorageMixin<
 
 	@Override
 	public default <IK extends PrimaryKey<IK>,
-			IE extends IndexEntry<IK, IE, PK, D>,
-			IF extends DatabeanFielder<IK, IE>>
-	List<IE> getMultiFromIndex(Collection<IK> keys, Config config, DatabeanFieldInfo<IK, IE, IF> indexEntryFieldInfo){
+			IE extends IndexEntry<IK,IE,PK,D>,
+			IF extends DatabeanFielder<IK,IE>>
+	List<IE> getMultiFromIndex(Collection<IK> keys, Config config, DatabeanFieldInfo<IK,IE,IF> indexEntryFieldInfo){
 		boolean slaveOk = Config.nullSafe(config).getSlaveOk();
 		N node = slaveOk ? chooseSlave(config) : getMaster();
 		return node.getMultiFromIndex(keys, config, indexEntryFieldInfo);
 	}
 
 	@Override
-	public default <IK extends PrimaryKey<IK>, IE extends IndexEntry<IK, IE, PK, D>> List<D> getMultiByIndex(
+	public default <IK extends PrimaryKey<IK>, IE extends IndexEntry<IK,IE,PK,D>> List<D> getMultiByIndex(
 			Collection<IK> keys, Config config){
 		boolean slaveOk = Config.nullSafe(config).getSlaveOk();
 		N node = slaveOk ? chooseSlave(config) : getMaster();
@@ -74,9 +74,9 @@ public interface MasterSlaveIndexedStorageMixin<
 
 	@Override
 	public default <IK extends PrimaryKey<IK>,
-			IE extends IndexEntry<IK, IE, PK, D>,
-			IF extends DatabeanFielder<IK, IE>>
-	Iterable<IE> scanIndex(DatabeanFieldInfo<IK, IE, IF> indexEntryFieldInfo, Range<IK> range,
+			IE extends IndexEntry<IK,IE,PK,D>,
+			IF extends DatabeanFielder<IK,IE>>
+	Iterable<IE> scanIndex(DatabeanFieldInfo<IK,IE,IF> indexEntryFieldInfo, Range<IK> range,
 			Config config){
 		boolean slaveOk = Config.nullSafe(config).getSlaveOk();
 		N node = slaveOk ? chooseSlave(config) : getMaster();
@@ -85,9 +85,9 @@ public interface MasterSlaveIndexedStorageMixin<
 
 	@Override
 	public default <IK extends PrimaryKey<IK>,
-			IE extends IndexEntry<IK, IE, PK, D>,
-			IF extends DatabeanFielder<IK, IE>>
-	Iterable<IK> scanIndexKeys(DatabeanFieldInfo<IK, IE, IF> indexEntryFieldInfo, Range<IK> range,
+			IE extends IndexEntry<IK,IE,PK,D>,
+			IF extends DatabeanFielder<IK,IE>>
+	Iterable<IK> scanIndexKeys(DatabeanFieldInfo<IK,IE,IF> indexEntryFieldInfo, Range<IK> range,
 			Config config){
 		boolean slaveOk = Config.nullSafe(config).getSlaveOk();
 		N node = slaveOk ? chooseSlave(config) : getMaster();
@@ -96,9 +96,9 @@ public interface MasterSlaveIndexedStorageMixin<
 
 	@Override
 	public default <IK extends PrimaryKey<IK>,
-			IE extends IndexEntry<IK, IE, PK, D>,
-			IF extends DatabeanFielder<IK, IE>,
-			MN extends ManagedNode<PK, D, IK, IE, IF>>
+			IE extends IndexEntry<IK,IE,PK,D>,
+			IF extends DatabeanFielder<IK,IE>,
+			MN extends ManagedNode<PK,D,IK,IE,IF>>
 	MN registerManaged(MN managedNode){
 		for(N node : getChildNodes()){
 			node.registerManaged(managedNode);
@@ -107,7 +107,7 @@ public interface MasterSlaveIndexedStorageMixin<
 	}
 
 	@Override
-	public default List<ManagedNode<PK, D, ?, ?, ?>> getManagedNodes(){
+	public default List<ManagedNode<PK,D,?,?,?>> getManagedNodes(){
 		return getMaster().getManagedNodes();
 	}
 
