@@ -1,30 +1,17 @@
 package com.hotpads.example.config;
 
-import java.util.Objects;
-
 import javax.inject.Singleton;
 
-import com.hotpads.datarouter.config.BaseDatarouterProperties;
-import com.hotpads.datarouter.setting.StandardServerType;
+import com.hotpads.datarouter.config.DatarouterProperties;
 
 @Singleton
-public class ExampleDatarouterProperties extends BaseDatarouterProperties{
+public class ExampleDatarouterProperties extends DatarouterProperties{
 
 	private static final String CONFIG_PATH = "/hotpads/config/datarouter-example.properties";
 
 
 	public ExampleDatarouterProperties(){
 		super(CONFIG_PATH);
-	}
-
-	@Override
-	public String getConfigPath(){
-		return CONFIG_PATH;
-	}
-
-	@Override
-	public StandardServerType getServerType(){
-		return StandardServerType.fromPersistentStringStatic(Objects.requireNonNull(getServerTypeString()));
 	}
 
 }
