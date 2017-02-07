@@ -51,7 +51,7 @@ extends BaseJdbcOp<List<D>>{
 		Connection connection = getConnection(node.getClientId().getName());
 		for(List<? extends Key<PK>> keyBatch : new BatchingIterable<>(dedupedKeys, config.getIterateBatchSize())){
 			String sql = SqlBuilder.getMulti(fieldCodecFactory, config, node.getTableName(), node.getFieldInfo()
-					.getFields(), keyBatch);
+					.getFields(), keyBatch, node.getFieldInfo());
 			DRCounters.incClientNodeCustom(node.getClient().getType(), opName + " selects", node.getClientId()
 					.getName(), node.getName());
 			result.addAll(JdbcTool.selectDatabeans(fieldCodecFactory, connection, node.getFieldInfo(), sql));

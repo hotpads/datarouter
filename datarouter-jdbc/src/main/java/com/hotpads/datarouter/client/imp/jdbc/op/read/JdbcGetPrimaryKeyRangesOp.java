@@ -47,7 +47,8 @@ extends BaseJdbcOp<List<PK>>{
 
 		List<Field<?>> fieldsToSelect = node.getFieldInfo().getPrimaryKeyFields();
 		String sql = SqlBuilder.getInRanges(fieldCodecFactory, config, node.getTableName(), fieldsToSelect, ranges,
-				node.getFieldInfo().getPrimaryKeyFields());
+				node.getFieldInfo().getPrimaryKeyFields(), SqlBuilder.PRIMARY_KEY_INDEX_NAME_OPTIONAL, node
+				.getFieldInfo());
 		List<PK> result = JdbcTool.selectPrimaryKeys(fieldCodecFactory, getConnection(node.getClientId().getName()),
 				node.getFieldInfo(), sql);
 
