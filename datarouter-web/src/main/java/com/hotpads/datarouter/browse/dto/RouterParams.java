@@ -43,24 +43,24 @@ public class RouterParams<C extends Client> {
 
 	public void initializeGlobalParameters(Datarouter datarouter, Params params){
 
-		if (DrCollectionTool.nullSafe(needs.get(NEEDS_ROUTER)).contains(action)) {
+		if(DrCollectionTool.nullSafe(needs.get(NEEDS_ROUTER)).contains(action)){
 			routerName = params.required(PARAM_routerName);
 			router = datarouter.getRouter(routerName);
 		}
-		if (DrCollectionTool.nullSafe(needs.get(NEEDS_CLIENT)).contains(action)) {
+		if(DrCollectionTool.nullSafe(needs.get(NEEDS_CLIENT)).contains(action)){
 			clientName = params.required(PARAM_clientName);
 			client = (C)datarouter.getRouter(routerName).getClient(clientName);
 			tableName = params.optional(PARAM_tableName, null);
 
 		}
-		if (DrCollectionTool.nullSafe(needs.get(NEEDS_NODE)).contains(action)) {
+		if(DrCollectionTool.nullSafe(needs.get(NEEDS_NODE)).contains(action)){
 			nodeName = params.optional(PARAM_nodeName, null);
 			tableName = params.required(PARAM_tableName);
-			if (DrStringTool.notEmpty(nodeName)) {
+			if(DrStringTool.notEmpty(nodeName)){
 				node = datarouter.getRouter(routerName).getContext().getNodes().getNode(nodeName);
-			} else {
+			}else{
 				setTableName(params.optional(PARAM_tableName, null));
-				if (getTableName() != null) {
+				if(getTableName() != null){
 					node = datarouter.getRouter(routerName).getContext().getNodes()
 							.getPhyiscalNodeForClientAndTable(clientName, getTableName());
 				}
@@ -72,72 +72,72 @@ public class RouterParams<C extends Client> {
 		return this.getContext().getNodes();
 	}
 
-	public HashMap<String, List<String>> getNeeds() {
-		return needs;
+	public Datarouter getContext(){
+		return this.router.getContext();
 	}
 
-	public String getClientName() {
-		return clientName;
+	public String getAction(){
+		return action;
 	}
 
-	public String getRouterName() {
-		return routerName;
-	}
-
-	public String getNodeName() {
-		return nodeName;
-	}
-
-	public C getClient() {
-		return client;
-	}
-
-	public Router getRouter() {
-		return router;
-	}
-
-	public Node<?,?> getNode() {
-		return node;
-	}
-
-	public void setAction(String action) {
+	public void setAction(String action){
 		this.action = action;
 	}
 
-	public void setNeeds(HashMap<String, List<String>> needs) {
+	public HashMap<String, List<String>> getNeeds(){
+		return needs;
+	}
+
+	public void setNeeds(HashMap<String, List<String>> needs){
 		this.needs = needs;
 	}
 
-	public void setClientName(String clientName) {
+	public String getClientName(){
+		return clientName;
+	}
+
+	public void setClientName(String clientName){
 		this.clientName = clientName;
 	}
 
-	public void setRouterName(String routerName) {
+	public String getRouterName(){
+		return routerName;
+	}
+
+	public void setRouterName(String routerName){
 		this.routerName = routerName;
 	}
 
-	public void setNodeName(String nodeName) {
+	public String getNodeName(){
+		return nodeName;
+	}
+
+	public void setNodeName(String nodeName){
 		this.nodeName = nodeName;
 	}
 
-	public void setClient(C client) {
+	public C getClient(){
+		return client;
+	}
+
+	public void setClient(C client){
 		this.client = client;
 	}
 
-	public void setRouter(Router router) {
+	public Router getRouter(){
+		return router;
+	}
+
+	public void setRouter(Router router){
 		this.router = router;
 	}
 
-	public void setNode(Node<?,?> node) {
+	public Node<?, ?> getNode(){
+		return node;
+	}
+
+	public void setNode(Node<?, ?> node){
 		this.node = node;
-	}
-
-	public String getTableName() {
-		return tableName;
-	}
-
-	public void setTableName(String tableName) {
-		this.tableName = tableName;
 	}
 
 	public String getTableName(){
