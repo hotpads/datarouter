@@ -21,17 +21,14 @@ public class DrNumberTool{
 	}
 
 	public static boolean isMax(Long number){
-		if(number == null) {
-			return false;
-		}
-		return number == Long.MAX_VALUE;
+		return number != null && number == Long.MAX_VALUE;
 	}
 
 	public static Long max(Long n1, Long n2){
-		if(n1 == null) {
+		if(n1 == null){
 			return n2;
 		}
-		if(n2 == null) {
+		if(n2 == null){
 			return n1;
 		}
 		return Math.max(n1, n2);
@@ -40,21 +37,21 @@ public class DrNumberTool{
 	/************************ numeric null safe *******************************/
 
 	public static Integer nullSafe(Integer in){
-		if(in == null) {
+		if(in == null){
 			return 0;
 		}
 		return in;
 	}
 
-	public static Long nullSafeLong(Long in){
+	public static Long nullSafeLong(Long in, Long defaultValue){
 		if(in == null){
-			return 0L;
+			return defaultValue;
 		}
 		return in;
 	}
 
 	public static Long longValue(Number number){
-		if(number == null) {
+		if(number == null){
 			return null;
 		}
 		return number.longValue();
@@ -67,12 +64,12 @@ public class DrNumberTool{
 	}
 
 	public static Double getDoubleNullSafe(String toDouble, Double alternate, boolean filterInput){
-		if(toDouble == null) {
+		if(toDouble == null){
 			return alternate;
 		}
-		if(filterInput) {
+		if(filterInput){
 			toDouble = DrStringTool.enforceNumeric(toDouble);
-			if(toDouble == null) {
+			if(toDouble == null){
 				return alternate;
 			}
 		}
@@ -98,7 +95,7 @@ public class DrNumberTool{
 	}
 
 	public static Long getLongNullSafe(String toLong, Long alternate){
-		if(toLong == null) {
+		if(toLong == null){
 			return alternate;
 		}
 		try{

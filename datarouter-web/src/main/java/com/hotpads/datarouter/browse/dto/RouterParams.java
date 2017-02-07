@@ -132,11 +132,11 @@ public class RouterParams<C extends Client> {
 		this.router = router;
 	}
 
-	public Node<?, ?> getNode(){
+	public Node<?,?> getNode(){
 		return node;
 	}
 
-	public void setNode(Node<?, ?> node){
+	public void setNode(Node<?,?> node){
 		this.node = node;
 	}
 

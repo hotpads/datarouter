@@ -21,7 +21,7 @@ public class WriteBehindIndexedMapStorageReaderNode<
 		D extends Databean<PK,D>,
 		N extends IndexedSortedMapStorageReader<PK,D>>
 extends WriteBehindSortedMapStorageReaderNode<PK,D,N>
-		implements IndexedSortedMapStorageReader<PK,D>{
+implements IndexedSortedMapStorageReader<PK,D>{
 
 	public WriteBehindIndexedMapStorageReaderNode(Datarouter datarouter, N backingNode){
 		super(datarouter, backingNode);
