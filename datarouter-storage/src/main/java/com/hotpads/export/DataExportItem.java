@@ -26,18 +26,17 @@ public class DataExportItem extends BaseDatabean<DataExportItemKey,DataExportIte
 	private Date dateCreated;
 
 	public static class F{
-
 		public static final String
-				routerName = "routerName",
-				nodeName = "nodeName",
-				startAfterKey = "startAfterKey",
-				endBeforeKey = "endBeforeKey",
-				maxRows = "maxRows",
-				dateCreated = "dateCreated";
+			routerName = "routerName",
+			nodeName = "nodeName",
+			startAfterKey = "startAfterKey",
+			endBeforeKey = "endBeforeKey",
+			maxRows = "maxRows"	,
+			dateCreated = "dateCreated"
+			;
 	}
 
-	public static class DataExportItemFielder extends BaseDatabeanFielder<DataExportItemKey, DataExportItem>{
-
+	public static class DataExportItemFielder extends BaseDatabeanFielder<DataExportItemKey,DataExportItem>{
 		public DataExportItemFielder(){
 		}
 
@@ -74,21 +73,38 @@ public class DataExportItem extends BaseDatabean<DataExportItemKey,DataExportIte
 
 	/** construct *************************************************************/
 
-	public DataExportItem(){
-		this.key = new DataExportItemKey(null, null);
+		public static final String
+				routerName = "routerName",
+				nodeName = "nodeName",
+				startAfterKey = "startAfterKey",
+				endBeforeKey = "endBeforeKey",
+				maxRows = "maxRows",
+				dateCreated = "dateCreated";
 	}
 
-	public DataExportItem(Long exportId, Integer rowId, String routerName, String nodeName, String startAfterKey,
-			String endBeforeKey, Long maxRows){
-		this.key = new DataExportItemKey(exportId, rowId);
-		this.routerName = routerName;
-		this.nodeName = nodeName;
-		this.startAfterKey = startAfterKey;
-		this.endBeforeKey = endBeforeKey;
-		this.maxRows = maxRows;
-		this.dateCreated = new Date();
-	}
+	public static class DataExportItemFielder extends BaseDatabeanFielder<DataExportItemKey, DataExportItem>{
 
+		public DataExportItemFielder(){
+		}
+
+		@Override
+		public Class<DataExportItemKey> getKeyFielderClass(){
+			return DataExportItemKey.class;
+		}
+
+		@Override
+		public List<Field<?>> getNonKeyFields(DataExportItem databean){
+			return FieldTool.createList(
+					new StringField(F.routerName, databean.routerName, MySqlColumnType.MAX_LENGTH_VARCHAR),
+					new StringField(F.nodeName, databean.nodeName, MySqlColumnType.MAX_LENGTH_VARCHAR),
+					new StringField(F.startAfterKey, databean.startAfterKey, MySqlColumnType.MAX_LENGTH_VARCHAR),
+					new StringField(F.endBeforeKey, databean.endBeforeKey, MySqlColumnType.MAX_LENGTH_VARCHAR),
+					new LongField(F.maxRows, databean.maxRows),
+					new DateField(F.dateCreated, databean.dateCreated));
+		}
+
+	}
+	
 	/** get/set ***************************************************************/
 
 	public void setKey(DataExportItemKey key){

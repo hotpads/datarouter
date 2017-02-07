@@ -81,7 +81,7 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 	}
 
 	@Override
-	public Class<LongRunningTaskKey> getKeyClass(){
+	public Class<LongRunningTaskKey> getKeyClass() {
 		return LongRunningTaskKey.class;
 	}
 
@@ -142,59 +142,59 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 		key.setTriggerTime(date);
 	}
 
-	public Date getStartTime(){
+	public Date getStartTime() {
 		return startTime;
 	}
 
-	public void setStartTime(Date startTime){
+	public void setStartTime(Date startTime) {
 		this.startTime = startTime;
 	}
 
-	public Boolean getInterrupt(){
+	public Boolean getInterrupt() {
 		return interrupt;
 	}
 
-	public void setInterrupt(Boolean interrupt){
+	public void setInterrupt(Boolean interrupt) {
 		this.interrupt = interrupt;
 	}
 
-	public Date getFinishTime(){
+	public Date getFinishTime() {
 		return finishTime;
 	}
 
-	public void setFinishTime(Date finishTime){
+	public void setFinishTime(Date finishTime) {
 		this.finishTime = finishTime;
 	}
 
-	public Date getHeartbeatTime(){
+	public Date getHeartbeatTime() {
 		return heartbeatTime;
 	}
 
-	public void setHeartbeatTime(Date heartbeatTime){
+	public void setHeartbeatTime(Date heartbeatTime) {
 		this.heartbeatTime = heartbeatTime;
 	}
 
-	public JobExecutionStatus getJobExecutionStatus(){
+	public JobExecutionStatus getJobExecutionStatus() {
 		return jobExecutionStatus;
 	}
 
-	public void setJobExecutionStatus(JobExecutionStatus jobExecutionStatus){
+	public void setJobExecutionStatus(JobExecutionStatus jobExecutionStatus) {
 		this.jobExecutionStatus = jobExecutionStatus;
 	}
 
-	public String getTriggeredBy(){
+	public String getTriggeredBy() {
 		return triggeredBy;
 	}
 
-	public LongRunningTaskType getType(){
+	public LongRunningTaskType getType() {
 		return type;
 	}
 
-	public Long getNumItemsProcessed(){
+	public Long getNumItemsProcessed() {
 		return numItemsProcessed;
 	}
 
-	public void setNumItemsProcessed(Long numItemsProcessed){
+	public void setNumItemsProcessed(Long numItemsProcessed) {
 		this.numItemsProcessed = numItemsProcessed;
 	}
 }

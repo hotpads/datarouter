@@ -10,7 +10,7 @@ implements Lookup<PK>{
 
 	protected PK key;
 
-	public BaseLookup(){
+	public BaseLookup() {
 	}
 
 	public PK getPrimaryKey(){

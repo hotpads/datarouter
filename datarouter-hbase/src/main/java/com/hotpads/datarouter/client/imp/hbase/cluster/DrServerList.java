@@ -23,12 +23,11 @@ import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrListTool;
 
 public class DrServerList{
-
 	private static final Logger logger = LoggerFactory.getLogger(DrServerList.class);
 
 	private final List<DrServerInfo> servers;
 	private final List<ServerName> serverNames;
-	private final Map<ServerName, DrServerInfo> drhServerInfoByServerName;
+	private final Map<ServerName,DrServerInfo> drhServerInfoByServerName;
 	private final SortedSet<DrServerInfo> serversSortedByDescendingLoad;
 
 
@@ -79,8 +78,8 @@ public class DrServerList{
 
 	public ServerLoad getHServerLoad(ServerName serverName){
 		DrServerInfo drhServerInfo = drhServerInfoByServerName.get(serverName);
-		if(drhServerInfo == null){
-			logger.warn("unexpected DRHServerInfo null for " + serverName.getHostAndPort());
+		if(drhServerInfo==null){
+			logger.warn("unexpected DRHServerInfo null for "+serverName.getHostAndPort());
 			return null;
 		}
 		return drhServerInfo.getServerLoad();

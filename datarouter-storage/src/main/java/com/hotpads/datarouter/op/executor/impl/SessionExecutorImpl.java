@@ -31,15 +31,16 @@ implements SessionExecutor, Callable<T>{
 	private final TxnOp<T> parallelTxnOp;
 	private String traceName;
 
-	public SessionExecutorImpl(TxnOp<T> parallelTxnOp, String traceName){
+	public SessionExecutorImpl(TxnOp<T> parallelTxnOp) {
+		super(parallelTxnOp.getDatarouter(), parallelTxnOp);
+		this.parallelTxnOp = parallelTxnOp;
+	}
+
+	public SessionExecutorImpl(TxnOp<T> parallelTxnOp, String traceName) {
 		this(parallelTxnOp);
 		this.traceName = traceName;
 	}
 
-	public SessionExecutorImpl(TxnOp<T> parallelTxnOp){
-		super(parallelTxnOp.getDatarouter(), parallelTxnOp);
-		this.parallelTxnOp = parallelTxnOp;
-	}
 
 
 	/*******************************************************************/
@@ -96,7 +97,8 @@ implements SessionExecutor, Callable<T>{
 				logger.warn("EXCEPTION THROWN DURING RELEASE OF CONNECTIONS", e);
 			}
 		}
-		return parallelTxnOp.mergeResults(onceResult, clientResults);
+		T mergedResult = parallelTxnOp.mergeResults(onceResult, clientResults);
+		return mergedResult;
 	}
 
 
@@ -105,7 +107,7 @@ implements SessionExecutor, Callable<T>{
 	@Override
 	public void openSessions(){
 		for(Client client : DrCollectionTool.nullSafe(getClients())){
-			if(!(client instanceof SessionClient)){
+			if( ! (client instanceof SessionClient) ){
 				continue;
 			}
 			SessionClient sessionClient = (SessionClient)client;
@@ -118,7 +120,7 @@ implements SessionExecutor, Callable<T>{
 	@Override
 	public void flushSessions(){
 		for(Client client : DrCollectionTool.nullSafe(getClients())){
-			if(!(client instanceof SessionClient)){
+			if( ! (client instanceof SessionClient) ){
 				continue;
 			}
 			SessionClient sessionClient = (SessionClient)client;
@@ -131,7 +133,7 @@ implements SessionExecutor, Callable<T>{
 	@Override
 	public void cleanupSessions(){
 		for(Client client : DrCollectionTool.nullSafe(getClients())){
-			if(!(client instanceof SessionClient)){
+			if( ! (client instanceof SessionClient) ){
 				continue;
 			}
 			SessionClient sessionClient = (SessionClient)client;

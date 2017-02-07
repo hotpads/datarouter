@@ -100,7 +100,7 @@ public abstract class BaseDispatcher{
 			}catch(FileUploadException e){
 				throw new ServletException(e);
 			}
-		}else{
+		} else {
 			handler.setParams(new Params(request));
 		}
 		handler.handleWrapper();

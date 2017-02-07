@@ -68,7 +68,7 @@ public abstract class SettingNode {
 		}
 		String nextChildShortName = nameParam.substring(getName().length());
 		int index = nextChildShortName.indexOf('.');
-		String nextChildPath = getName() + nextChildShortName.substring(0, index + 1);
+		String nextChildPath = getName()+nextChildShortName.substring(0, index+1);
 		if(getChildren().containsKey(nextChildPath)){
 			return getChildren().get(nextChildPath).getNodeByName(nameParam);
 		}
@@ -83,7 +83,7 @@ public abstract class SettingNode {
 		}
 		String nextChildShortName = nameParam.substring(getName().length());
 		int index = nextChildShortName.indexOf('.');
-		String nextChildPath = getName() + nextChildShortName.substring(0, index + 1);
+		String nextChildPath = getName()+nextChildShortName.substring(0, index+1);
 		if(getChildren().containsKey(nextChildPath)){
 			list.add(this);
 			list.addAll(getChildren().get(nextChildPath).getDescendanceByName(nameParam));
@@ -100,7 +100,7 @@ public abstract class SettingNode {
 		}
 		String nextChildShortName = settingNameParam.substring(getName().length());
 		int index = nextChildShortName.indexOf('.');
-		String nextChildPath = getName() + nextChildShortName.substring(0, index + 1);
+		String nextChildPath = getName()+nextChildShortName.substring(0, index+1);
 		if(getChildren().containsKey(nextChildPath)){
 			return getChildren().get(nextChildPath).getDescendantSettingByName(settingNameParam);
 		}
@@ -109,7 +109,7 @@ public abstract class SettingNode {
 
 	public List<SettingNode> getListChildren(){
 		ArrayList<SettingNode> list = new ArrayList<>();
-		for(String childName : children.keySet()){
+		for (String childName : children.keySet()){
 			list.add(children.get(childName));
 		}
 		return list;

@@ -36,7 +36,7 @@ import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.iterable.BatchingIterable;
 import com.hotpads.util.core.profile.PhaseTimer;
 
-@Guice(moduleFactory = DatarouterStorageTestModuleFactory.class)
+@Guice(moduleFactory=DatarouterStorageTestModuleFactory.class)
 public abstract class BaseSortedNodeIntegrationTests{
 	private static final Logger logger = LoggerFactory.getLogger(BaseSortedNodeIntegrationTests.class);
 
@@ -103,12 +103,9 @@ public abstract class BaseSortedNodeIntegrationTests{
 		//deleteMulti
 		AssertJUnit.assertEquals(remainingElements, DrIterableTool.count(sortedNode.scan(null, null)).intValue());
 		List<SortedBeanKey> keys = Arrays.asList(
-				new SortedBeanKey(SortedBeans.STRINGS.last(), SortedBeans.STRINGS.last(), 1,
-						SortedBeans.STRINGS.last()),
-				new SortedBeanKey(SortedBeans.STRINGS.last(), SortedBeans.STRINGS.last(), 2,
-						SortedBeans.STRINGS.last()),
-				new SortedBeanKey(SortedBeans.STRINGS.last(), SortedBeans.STRINGS.last(), 3,
-						SortedBeans.STRINGS.last()));
+			new SortedBeanKey(SortedBeans.STRINGS.last(), SortedBeans.STRINGS.last(), 1, SortedBeans.STRINGS.last()),
+			new SortedBeanKey(SortedBeans.STRINGS.last(), SortedBeans.STRINGS.last(), 2, SortedBeans.STRINGS.last()),
+			new SortedBeanKey(SortedBeans.STRINGS.last(), SortedBeans.STRINGS.last(), 3, SortedBeans.STRINGS.last()));
 		sortedNode.deleteMulti(keys, null);
 		remainingElements -= 3;
 		AssertJUnit.assertEquals(remainingElements, DrIterableTool.count(sortedNode.scan(null, null)).intValue());
@@ -230,7 +227,7 @@ public abstract class BaseSortedNodeIntegrationTests{
 
 		Range<SortedBeanKey> range1b = new Range<>(alp1, true, emu1, false);
 		List<T> result1b = DrListTool.createArrayList(scanProvider.scan(range1b, null));
-		int expectedSize1b = (SortedBeans.RANGE_LENGTH_alp_emu_inc - 1) * SortedBeans.NUM_ELEMENTS
+		int expectedSize1b = (SortedBeans.RANGE_LENGTH_alp_emu_inc-1) * SortedBeans.NUM_ELEMENTS
 				* SortedBeans.NUM_ELEMENTS * SortedBeans.NUM_ELEMENTS;
 		AssertJUnit.assertEquals(expectedSize1b, DrCollectionTool.size(result1b));
 		AssertJUnit.assertTrue(DrListTool.isSorted(result1b));
@@ -321,7 +318,7 @@ public abstract class BaseSortedNodeIntegrationTests{
 		Assert.assertEquals(scanKeysAndCountWithConfig(new Config().setIterateBatchSize(555)), count);
 		Assert.assertEquals(scanKeysAndCountWithConfig(new Config().setLimit((int)count)), count);
 		Assert.assertEquals(scanKeysAndCountWithConfig(new Config().setLimit(10)), 10);
-		Assert.assertEquals(scanKeysAndCountWithConfig(new Config().setLimit((int)(2 * count))), count);
+		Assert.assertEquals(scanKeysAndCountWithConfig(new Config().setLimit((int)(2*count))), count);
 		Assert.assertEquals(scanKeysAndCountWithConfig(new Config().setIterateBatchSize(25).setLimit(100)), 100);
 		Assert.assertEquals(scanKeysAndCountWithConfig(new Config().setIterateBatchSize(15).setLimit(23)), 23);
 	}
@@ -341,7 +338,7 @@ public abstract class BaseSortedNodeIntegrationTests{
 		timer.add("2");
 		Assert.assertEquals(scanAndCountWithConfig(new Config().setLimit(10)), 10);
 		timer.add("3");
-		Assert.assertEquals(scanAndCountWithConfig(new Config().setLimit((int)(2 * count))), count);
+		Assert.assertEquals(scanAndCountWithConfig(new Config().setLimit((int)(2*count))), count);
 		timer.add("4");
 		Assert.assertEquals(scanAndCountWithConfig(new Config().setIterateBatchSize(25).setLimit(100)), 100);
 		timer.add("5");

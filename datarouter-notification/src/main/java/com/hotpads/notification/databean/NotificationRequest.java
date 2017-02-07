@@ -108,7 +108,7 @@ public class NotificationRequest extends BaseDatabean<NotificationRequestKey,Not
 	}
 
 	@Override
-	public String toString(){
+	public String toString() {
 		return "NotificationRequest(" + key + ", " + type + ", " + data + ")";
 	}
 

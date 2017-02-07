@@ -7,7 +7,7 @@ import com.hotpads.util.core.iterable.scanner.sorted.BaseSortedScanner;
 import com.hotpads.util.core.iterable.scanner.sorted.SortedScanner;
 
 public class PriorityQueueCollator<T extends Comparable<? super T>>
-		extends BaseSortedScanner<T>{
+extends BaseSortedScanner<T>{
 
 	//all scanners in pq should be active, meaning scanner.getCurrent() != null
 	private final PriorityQueue<SortedScanner<T>> pq = new PriorityQueue<>();
@@ -15,10 +15,6 @@ public class PriorityQueueCollator<T extends Comparable<? super T>>
 	private long offset;
 	private T current;
 	private SortedScanner<T> nextScanner;
-
-	public PriorityQueueCollator(Iterable<? extends SortedScanner<T>> scanners){
-		this(scanners, null);
-	}
 
 	public PriorityQueueCollator(Iterable<? extends SortedScanner<T>> scanners, Long limit){
 		this.limit = limit;
@@ -31,8 +27,13 @@ public class PriorityQueueCollator<T extends Comparable<? super T>>
 		this.nextScanner = pq.poll();
 	}
 
+	public PriorityQueueCollator(Iterable<? extends SortedScanner<T>> scanners){
+		this(scanners, null);
+	}
+
+
 	@Override
-	public T getCurrent(){
+	public T getCurrent() {
 		return current;
 	}
 
@@ -54,7 +55,7 @@ public class PriorityQueueCollator<T extends Comparable<? super T>>
 
 
 	private void updateNextScanner(){
-		if(!nextScanner.advance()){//this scanner finished.  grab one from the pq
+		if( ! nextScanner.advance()){//this scanner finished.  grab one from the pq
 			nextScanner = pq.poll();
 			return;
 		}

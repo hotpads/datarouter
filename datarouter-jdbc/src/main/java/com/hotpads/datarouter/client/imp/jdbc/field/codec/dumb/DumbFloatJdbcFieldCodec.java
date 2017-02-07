@@ -32,7 +32,7 @@ extends BasePrimitiveJdbcFieldCodec<Float,Field<Float>>{
 
 	@Override
 	public Float parseJdbcValueButDoNotSet(Object obj){
-		return obj == null ? null : (Float)obj;
+		return obj==null?null:(Float)obj;
 	}
 
 	@Override
