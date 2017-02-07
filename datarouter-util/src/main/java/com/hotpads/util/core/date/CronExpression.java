@@ -488,8 +488,8 @@ public final class CronExpression implements Serializable, Cloneable{
 
 				StringTokenizer vTok = new StringTokenizer(expr, ",");
 				while(vTok.hasMoreTokens()){
-					String v = vTok.nextToken();
-					storeExpressionVals(0, v, exprOn);
+					String val = vTok.nextToken();
+					storeExpressionVals(0, val, exprOn);
 				}
 
 				exprOn++;
@@ -863,40 +863,15 @@ public final class CronExpression implements Serializable, Cloneable{
 
 	public String getExpressionSummary(){
 
-		return "seconds: " +
-				getExpressionSetSummary(seconds) +
-				"\n" +
-				"minutes: " +
-				getExpressionSetSummary(minutes) +
-				"\n" +
-				"hours: " +
-				getExpressionSetSummary(hours) +
-				"\n" +
-				"daysOfMonth: " +
-				getExpressionSetSummary(daysOfMonth) +
-				"\n" +
-				"months: " +
-				getExpressionSetSummary(months) +
-				"\n" +
-				"daysOfWeek: " +
-				getExpressionSetSummary(daysOfWeek) +
-				"\n" +
-				"lastdayOfWeek: " +
-				lastdayOfWeek +
-				"\n" +
-				"nearestWeekday: " +
-				nearestWeekday +
-				"\n" +
-				"NthDayOfWeek: " +
-				nthdayOfWeek +
-				"\n" +
-				"lastdayOfMonth: " +
-				lastdayOfMonth +
-				"\n" +
-				"years: " +
-				getExpressionSetSummary(years) +
-				"\n";
-    }
+		return "seconds: "
+				+ getExpressionSetSummary(seconds)
+				+ "\n" + "minutes: " + getExpressionSetSummary(minutes) + "\n" + "hours: "
+				+ getExpressionSetSummary(hours) + "\n" + "daysOfMonth: " + getExpressionSetSummary(daysOfMonth) + "\n"
+				+ "months: " + getExpressionSetSummary(months) + "\n" + "daysOfWeek: "
+				+ getExpressionSetSummary(daysOfWeek) + "\n" + "lastdayOfWeek: " + lastdayOfWeek + "\n"
+				+ "nearestWeekday: " + nearestWeekday + "\n" + "NthDayOfWeek: " + nthdayOfWeek + "\n"
+				+ "lastdayOfMonth: " + lastdayOfMonth + "\n" + "years: " + getExpressionSetSummary(years) + "\n";
+	}
 
 	protected String getExpressionSetSummary(java.util.Set<Integer> set){
 
@@ -1201,8 +1176,6 @@ public final class CronExpression implements Serializable, Cloneable{
 		boolean gotOne = false;
 		// loop until we've computed the next time, or we've past the endTime
 		while(!gotOne){
-
-			//if (endTime != null && cl.getTime().after(endTime)) return null;
 			if(cl.get(Calendar.YEAR) > 2999){ // prevent endless loop...
 				return null;
 			}
