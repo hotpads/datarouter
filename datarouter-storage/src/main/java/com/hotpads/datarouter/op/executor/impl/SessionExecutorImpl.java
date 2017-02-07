@@ -20,14 +20,14 @@ import com.hotpads.trace.TracerThreadLocal;
 import com.hotpads.trace.TracerTool;
 
 public class SessionExecutorImpl<T>
-		extends BaseTxnExecutor<T>
-		implements SessionExecutor, Callable<T>{
+extends BaseTxnExecutor<T>
+implements SessionExecutor, Callable<T>{
+	private static Logger logger = LoggerFactory.getLogger(SessionExecutorImpl.class);
 
-	public static final boolean EAGER_SESSION_FLUSH = true;
 	//TODO have custom SessionExecutors for each module so we can compile-check this
 	public static final Set<String> ROLLED_BACK_EXCEPTION_SIMPLE_NAMES = ImmutableSet.of(
 			"MySQLTransactionRollbackException");
-	private static Logger logger = LoggerFactory.getLogger(SessionExecutorImpl.class);
+
 	private final TxnOp<T> parallelTxnOp;
 	private String traceName;
 
@@ -41,12 +41,13 @@ public class SessionExecutorImpl<T>
 		this.parallelTxnOp = parallelTxnOp;
 	}
 
+
 	/*******************************************************************/
 
 
 	@Override
 	public T call(){
-		T onceResult = null;
+		T onceResult;
 		Collection<T> clientResults = new LinkedList<>();
 		Collection<Client> clients = getClients();
 		try{
@@ -98,11 +99,6 @@ public class SessionExecutorImpl<T>
 		return parallelTxnOp.mergeResults(onceResult, clientResults);
 	}
 
-	private void startTrace(){
-		if(shouldTrace()){
-			TracerTool.startSpan(TracerThreadLocal.get(), traceName);
-		}
-	}
 
 	/********************* session code **********************************/
 
@@ -145,6 +141,25 @@ public class SessionExecutorImpl<T>
 		}
 	}
 
+
+	/********************** helper ******************************/
+
+	private boolean shouldTrace(){
+		return DrStringTool.notEmpty(traceName);
+	}
+
+	private void startTrace(){
+		if(shouldTrace()){
+			TracerTool.startSpan(TracerThreadLocal.get(), traceName);
+		}
+	}
+
+	private void finishTrace(){
+		if(shouldTrace()){
+			TracerTool.finishSpan(TracerThreadLocal.get());
+		}
+	}
+
 	private boolean wasRolledBackAndShouldRetry(Exception exception){
 		if(exception == null){
 			return false;
@@ -154,18 +169,6 @@ public class SessionExecutorImpl<T>
 		}
 		Throwable cause = exception.getCause();//unwrap hibernate exception
 		return cause != null && ROLLED_BACK_EXCEPTION_SIMPLE_NAMES.contains(cause.getClass().getSimpleName());
-	}
-
-	private void finishTrace(){
-		if(shouldTrace()){
-			TracerTool.finishSpan(TracerThreadLocal.get());
-		}
-	}
-
-	/********************** helper ******************************/
-
-	private boolean shouldTrace(){
-		return DrStringTool.notEmpty(traceName);
 	}
 
 }

@@ -20,7 +20,7 @@ import com.hotpads.datarouter.storage.field.imp.enums.StringEnumField;
 import com.hotpads.datarouter.storage.field.imp.enums.StringEnumFieldKey;
 import com.hotpads.datarouter.util.core.DrDateTool;
 
-public class LongRunningTask extends BaseDatabean<LongRunningTaskKey, LongRunningTask>{
+public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunningTask>{
 
 	public static final int DEFAULT_STRING_LENGTH = MySqlColumnType.MAX_LENGTH_VARCHAR;
 
@@ -45,16 +45,39 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey, LongRunnin
 	private String triggeredBy;
 	private Long numItemsProcessed;
 
-	/****************** construct ************************/
+	/**************************** columns ****************************************/
 
-	public LongRunningTask(){
-		this.key = new LongRunningTaskKey();
+	public static class FieldKeys{
+		public static final StringEnumFieldKey<LongRunningTaskType> type = new StringEnumFieldKey<>("type",
+				LongRunningTaskType.class);
+		public static final DateFieldKey startTime = new DateFieldKey("startTime");
+		public static final BooleanFieldKey interrupt = new BooleanFieldKey("interrupt");
+		public static final DateFieldKey finishTime = new DateFieldKey("finishTime");
+		public static final DateFieldKey heartbeatTime = new DateFieldKey("heartbeatTime");
+		public static final StringEnumFieldKey<JobExecutionStatus> jobExecutionStatus = new StringEnumFieldKey<>(
+				"jobExecutionStatus", JobExecutionStatus.class);
+		public static final StringFieldKey triggeredBy = new StringFieldKey("triggeredBy");
+		public static final LongFieldKey numItemsProcessed = new LongFieldKey("numItemsProcessed");
 	}
 
-	public LongRunningTask(String jobClass, String serverName, LongRunningTaskType type, String triggeredBy){
-		this.key = new LongRunningTaskKey(jobClass, serverName);
-		this.type = type;
-		this.triggeredBy = triggeredBy;
+	/********************** databean *****************************************/
+
+	public static class LongRunningTaskFielder extends BaseDatabeanFielder<LongRunningTaskKey,LongRunningTask>{
+		public LongRunningTaskFielder(){
+			super(LongRunningTaskKey.class);
+		}
+		@Override
+		public List<Field<?>> getNonKeyFields(LongRunningTask databean){
+			return Arrays.asList(
+					new StringEnumField<>(FieldKeys.type, databean.type),
+					new DateField(FieldKeys.startTime, databean.startTime),
+					new BooleanField(FieldKeys.interrupt, databean.interrupt),
+					new DateField(FieldKeys.finishTime, databean.finishTime),
+					new DateField(FieldKeys.heartbeatTime, databean.heartbeatTime),
+					new StringEnumField<>(FieldKeys.jobExecutionStatus, databean.jobExecutionStatus),
+					new StringField(FieldKeys.triggeredBy, databean.triggeredBy),
+					new LongField(FieldKeys.numItemsProcessed, databean.numItemsProcessed));
+		}
 	}
 
 	@Override
@@ -65,6 +88,18 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey, LongRunnin
 	@Override
 	public LongRunningTaskKey getKey(){
 		return key;
+	}
+
+	/****************** construct ************************/
+
+	public LongRunningTask(){
+		this.key = new LongRunningTaskKey();
+	}
+
+	public LongRunningTask(String jobClass, String serverName, LongRunningTaskType type, String triggeredBy){
+		this.key = new LongRunningTaskKey(jobClass, serverName);
+		this.type = type;
+		this.triggeredBy = triggeredBy;
 	}
 
 	/****************** helper methods ************************/
@@ -161,43 +196,5 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey, LongRunnin
 
 	public void setNumItemsProcessed(Long numItemsProcessed){
 		this.numItemsProcessed = numItemsProcessed;
-	}
-
-	/**************************** columns ****************************************/
-
-	public static class FieldKeys{
-
-		public static final StringEnumFieldKey<LongRunningTaskType> type = new StringEnumFieldKey<>("type",
-				LongRunningTaskType.class);
-		public static final DateFieldKey startTime = new DateFieldKey("startTime");
-		public static final BooleanFieldKey interrupt = new BooleanFieldKey("interrupt");
-		public static final DateFieldKey finishTime = new DateFieldKey("finishTime");
-		public static final DateFieldKey heartbeatTime = new DateFieldKey("heartbeatTime");
-		public static final StringEnumFieldKey<JobExecutionStatus> jobExecutionStatus = new StringEnumFieldKey<>(
-				"jobExecutionStatus", JobExecutionStatus.class);
-		public static final StringFieldKey triggeredBy = new StringFieldKey("triggeredBy");
-		public static final LongFieldKey numItemsProcessed = new LongFieldKey("numItemsProcessed");
-	}
-
-	/********************** databean *****************************************/
-
-	public static class LongRunningTaskFielder extends BaseDatabeanFielder<LongRunningTaskKey, LongRunningTask>{
-
-		public LongRunningTaskFielder(){
-			super(LongRunningTaskKey.class);
-		}
-
-		@Override
-		public List<Field<?>> getNonKeyFields(LongRunningTask databean){
-			return Arrays.asList(
-					new StringEnumField<>(FieldKeys.type, databean.type),
-					new DateField(FieldKeys.startTime, databean.startTime),
-					new BooleanField(FieldKeys.interrupt, databean.interrupt),
-					new DateField(FieldKeys.finishTime, databean.finishTime),
-					new DateField(FieldKeys.heartbeatTime, databean.heartbeatTime),
-					new StringEnumField<>(FieldKeys.jobExecutionStatus, databean.jobExecutionStatus),
-					new StringField(FieldKeys.triggeredBy, databean.triggeredBy),
-					new LongField(FieldKeys.numItemsProcessed, databean.numItemsProcessed));
-		}
 	}
 }

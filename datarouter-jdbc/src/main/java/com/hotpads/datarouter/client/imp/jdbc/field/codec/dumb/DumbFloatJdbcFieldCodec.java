@@ -13,7 +13,7 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.imp.dumb.DumbFloatField;
 
 public class DumbFloatJdbcFieldCodec
-		extends BasePrimitiveJdbcFieldCodec<Float, Field<Float>>{
+extends BasePrimitiveJdbcFieldCodec<Float,Field<Float>>{
 
 	public DumbFloatJdbcFieldCodec(){//no-arg for reflection
 		this(null);
@@ -36,16 +36,6 @@ public class DumbFloatJdbcFieldCodec
 	}
 
 	@Override
-	public Float fromJdbcResultSetButDoNotSet(ResultSet rs){
-		try{
-			float value = rs.getFloat(field.getKey().getColumnName());
-			return rs.wasNull() ? null : value;
-		}catch(SQLException e){
-			throw new DataAccessException(e);
-		}
-	}
-
-	@Override
 	public void setPreparedStatementValue(PreparedStatement ps, int parameterIndex){
 		try{
 			if(field.getValue() == null){
@@ -53,6 +43,16 @@ public class DumbFloatJdbcFieldCodec
 			}else{
 				ps.setFloat(parameterIndex, field.getValue());
 			}
+		}catch(SQLException e){
+			throw new DataAccessException(e);
+		}
+	}
+
+	@Override
+	public Float fromJdbcResultSetButDoNotSet(ResultSet rs){
+		try{
+			float value = rs.getFloat(field.getKey().getColumnName());
+			return rs.wasNull() ? null : value;
 		}catch(SQLException e){
 			throw new DataAccessException(e);
 		}

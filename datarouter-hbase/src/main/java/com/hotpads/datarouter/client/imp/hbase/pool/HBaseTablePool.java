@@ -7,11 +7,9 @@ import com.hotpads.util.datastructs.MutableString;
 public interface HBaseTablePool{
 
 	Table checkOut(String tableName, MutableString progress);
-
 	void checkIn(Table table, boolean possiblyTarnished);
 
 	Integer getTotalPoolSize();
 
 	void shutdown();
-
 }

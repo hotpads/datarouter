@@ -382,9 +382,10 @@ public abstract class BaseSortedNodeIntegrationTests{
 		int offset = 10;
 		Assert.assertEquals(sortedNode.streamKeys(Range.everything(), new Config().setOffset(offset)).count(),
 				SortedBeans.TOTAL_RECORDS - offset);
-		Assert.assertEquals(sortedNode.streamKeys(Range.everything(), new Config().setOffset(offset).setLimit(1))
-				.findFirst().get(), sortedNode.streamKeys(Range.everything(), new Config().setLimit(offset + 1))
-				.skip(offset).findFirst().get());
+		Assert.assertEquals(sortedNode.streamKeys(Range.everything(), new Config().setLimit(offset + 1))
+						.skip(offset).findFirst().get(),
+				sortedNode.streamKeys(Range.everything(), new Config().setOffset(offset).setLimit(1))
+						.findFirst().get());
 	}
 
 	@Test

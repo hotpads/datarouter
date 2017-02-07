@@ -39,14 +39,14 @@ public abstract class BaseDispatcher{
 
 	/*---------------- create DispatchRules -----------------*/
 
-	protected DispatchRule handleDir(String regex){
-		return handle(regex + REGEX_ONE_DIRECTORY);
-	}
-
 	protected DispatchRule handle(String regex){
 		DispatchRule rule = new DispatchRule(regex);
 		this.dispatchRules.add(rule);
 		return rule;
+	}
+
+	protected DispatchRule handleDir(String regex){
+		return handle(regex + REGEX_ONE_DIRECTORY);
 	}
 
 	protected DispatchRule handleAnySuffix(String suffix){
@@ -109,7 +109,7 @@ public abstract class BaseDispatcher{
 
 	private boolean isMultipart(HttpServletRequest request){
 		return request.getContentType() != null
-				&& request.getContentType().toLowerCase().indexOf("multipart/form-data") > -1;
+				&& request.getContentType().toLowerCase().contains("multipart/form-data");
 	}
 
 	/*------------------ getters -------------------*/
@@ -121,7 +121,6 @@ public abstract class BaseDispatcher{
 	/*--------------------- tests -------------------*/
 
 	public static class BaseDispatcherTests{
-
 		@Test
 		public void testMatches(){
 			String prefix = "fjalfdja";

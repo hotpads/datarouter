@@ -13,15 +13,8 @@ public class JobletDataKey extends BasePrimaryKey<JobletDataKey>{
 
 	private Long id;
 
-
-	public JobletDataKey(){
-		this(RandomTool.nextPositiveLong());
-	}
-
-	/******************** construct *************************/
-
-	public JobletDataKey(Long id){
-		this.id = id;
+	public static class FieldKeys{
+		public static final UInt63FieldKey id = new UInt63FieldKey("id");
 	}
 
 	@Override
@@ -30,15 +23,22 @@ public class JobletDataKey extends BasePrimaryKey<JobletDataKey>{
 				new UInt63Field(FieldKeys.id, id));
 	}
 
+
+	/******************** construct *************************/
+
+	public JobletDataKey(Long id){
+		this.id = id;
+	}
+
+	public JobletDataKey(){
+		this(RandomTool.nextPositiveLong());
+	}
+
+
 	/******************* get/set *******************************/
 
 	public Long getId(){
 		return id;
-	}
-
-	public static class FieldKeys{
-
-		public static final UInt63FieldKey id = new UInt63FieldKey("id");
 	}
 
 }

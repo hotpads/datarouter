@@ -118,7 +118,7 @@ public class TraceSpan extends BaseDatabean<TraceSpanKey,TraceSpan>{
 		Long sum = 0L;
 		for(TraceSpan s : DrIterableTool.nullSafe(spans)){
 			if(s.isTopLevel()){
-				sum += DrNumberTool.nullSafeLong(s.getDuration(), 0L);
+				sum += DrNumberTool.nullSafeLong(s.getDuration());
 			}
 		}
 		return sum;

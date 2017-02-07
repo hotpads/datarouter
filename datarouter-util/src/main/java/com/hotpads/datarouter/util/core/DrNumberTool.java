@@ -43,9 +43,9 @@ public class DrNumberTool{
 		return in;
 	}
 
-	public static Long nullSafeLong(Long in, Long defaultValue){
+	public static Long nullSafeLong(Long in){
 		if(in == null){
-			return defaultValue;
+			return 0L;
 		}
 		return in;
 	}
@@ -87,11 +87,11 @@ public class DrNumberTool{
 
 	// e.g. For "5.3", it will return 5
 	public static Integer parseIntegerFromNumberString(String toInteger, Integer alternate, boolean filterInput){
-		Double d = getDoubleNullSafe(toInteger, null, filterInput);
-		if(d == null){
+		Double dub = getDoubleNullSafe(toInteger, null, filterInput);
+		if(dub == null){
 			return alternate;
 		}
-		return d.intValue();
+		return dub.intValue();
 	}
 
 	public static Long getLongNullSafe(String toLong, Long alternate){
@@ -111,18 +111,18 @@ public class DrNumberTool{
 
 		@Test
 		public void testIsNullOrZero(){
-			Byte b = 0;
-			Short s = 0;
-			Integer i = 0;
-			Long l = 0L;
-			Float f = 0.0f;
-			Double d = 0.0;
-			Assert.assertTrue(isNullOrZero(b));
-			Assert.assertTrue(isNullOrZero(s));
-			Assert.assertTrue(isNullOrZero(i));
-			Assert.assertTrue(isNullOrZero(l));
-			Assert.assertTrue(isNullOrZero(f));
-			Assert.assertTrue(isNullOrZero(d));
+			Byte byt = 0;
+			Short shrt = 0;
+			Integer intgr = 0;
+			Long lng = 0L;
+			Float flt = 0.0f;
+			Double dub = 0.0;
+			Assert.assertTrue(isNullOrZero(byt));
+			Assert.assertTrue(isNullOrZero(shrt));
+			Assert.assertTrue(isNullOrZero(intgr));
+			Assert.assertTrue(isNullOrZero(lng));
+			Assert.assertTrue(isNullOrZero(flt));
+			Assert.assertTrue(isNullOrZero(dub));
 		}
 
 		@Test

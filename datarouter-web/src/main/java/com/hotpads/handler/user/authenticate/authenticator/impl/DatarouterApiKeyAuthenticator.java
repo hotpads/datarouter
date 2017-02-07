@@ -13,7 +13,7 @@ import com.hotpads.handler.user.authenticate.config.DatarouterAuthenticationConf
 import com.hotpads.handler.user.session.DatarouterSession;
 import com.hotpads.util.core.exception.InvalidApiCallException;
 
-public class DatarouterApiKeyAuthenticator extends BaseDatarouterAuthenticator{
+public class DatarouterApiKeyAuthenticator extends BaseDatarouterAuthenticator {
 
 	private DatarouterAuthenticationConfig authenticationConfig;
 	private DatarouterUserNodes userNodes;

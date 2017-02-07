@@ -14,15 +14,16 @@ import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.handler.params.Params;
 import com.hotpads.util.http.RequestTool;
 
-public class RouterParams<C extends Client>{
+public class RouterParams<C extends Client> {
 
-	public static final String NEEDS_CLIENT = "NEEDS_CLIENT";
-	public static final String NEEDS_ROUTER = "NEEDS_ROUTER";
-	public static final String NEEDS_NODE = "NEEDS_NODE";
 	private static final String PARAM_routerName = "routerName";
 	private static final String PARAM_clientName = "clientName";
 	private static final String PARAM_nodeName = "nodeName";
 	private static final String PARAM_tableName = "tableName";
+	public static final String NEEDS_CLIENT = "NEEDS_CLIENT";
+	public static final String NEEDS_ROUTER = "NEEDS_ROUTER";
+	public static final String NEEDS_NODE = "NEEDS_NODE";
+
 	private String action;
 	private HashMap<String, List<String>> needs;
 	private String clientName;
@@ -31,10 +32,10 @@ public class RouterParams<C extends Client>{
 	private String nodeName;
 	private C client;
 	private Router router;
-	private Node<?, ?> node;
+	private Node<?,?> node;
 	private String tableName;
 
-	public RouterParams(Datarouter datarouter, Params params, HashMap<String, List<String>> needs){
+	public RouterParams(Datarouter datarouter, Params params, HashMap<String,List<String>> needs){
 		this.action = params.optional(RequestTool.SUBMIT_ACTION, RoutersHandler.ACTION_listRouters);
 		this.needs = needs;
 		initializeGlobalParameters(datarouter, params);
@@ -65,14 +66,6 @@ public class RouterParams<C extends Client>{
 				}
 			}
 		}
-	}
-
-	public String getTableName(){
-		return tableName;
-	}
-
-	public void setTableName(String tableName){
-		this.tableName = tableName;
 	}
 
 	public DatarouterNodes getNodes(){
@@ -145,5 +138,13 @@ public class RouterParams<C extends Client>{
 
 	public void setNode(Node<?, ?> node){
 		this.node = node;
+	}
+
+	public String getTableName(){
+		return tableName;
+	}
+
+	public void setTableName(String tableName){
+		this.tableName = tableName;
 	}
 }

@@ -50,13 +50,13 @@ public class IntegerField extends BasePrimitiveField<Integer>{
 	}
 
 	@Override
-	public Integer fromBytesButDoNotSet(byte[] bytes, int offset){
-		return IntegerByteTool.fromComparableBytes(bytes, offset);
+	public int numBytesWithSeparator(byte[] bytes, int offset){
+		return 4;
 	}
 
 	@Override
-	public int numBytesWithSeparator(byte[] bytes, int offset){
-		return 4;
+	public Integer fromBytesButDoNotSet(byte[] bytes, int offset){
+		return IntegerByteTool.fromComparableBytes(bytes, offset);
 	}
 
 }
