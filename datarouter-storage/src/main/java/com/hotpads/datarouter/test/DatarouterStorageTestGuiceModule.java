@@ -16,7 +16,7 @@ public class DatarouterStorageTestGuiceModule extends AbstractModule{
 		bind(DatarouterSettings.class).to(NoOpDatarouterSettings.class);
 		bind(SettingFinder.class).to(MemorySettingFinder.class);
 		bind(DatarouterProperties.class).to(TestDatarouterProperties.class);
-		bind(ServerType.class).to(StandardServerType.class);
+		bind(ServerType.class).toInstance(StandardServerType.DEV);
 	}
 
 }
