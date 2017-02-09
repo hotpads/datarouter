@@ -2,8 +2,8 @@ package com.hotpads.datarouter.client.imp.redis.test;
 
 import javax.inject.Inject;
 
-import org.junit.AfterClass;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
