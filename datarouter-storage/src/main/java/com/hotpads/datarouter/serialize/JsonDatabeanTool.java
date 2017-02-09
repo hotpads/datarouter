@@ -68,7 +68,7 @@ public class JsonDatabeanTool{
 		JsonObject jsonObject = new JsonObject();
 		if(flatKey){
 			addFieldsToJsonObject(jsonObject, fielder.getKeyFields(databean));
-		} else {
+		}else{
 			jsonObject.add(databean.getKeyFieldName(), primaryKeyToJson(databean.getKey(), fielder.getKeyFielder()));
 		}
 		addFieldsToJsonObject(jsonObject, fielder.getNonKeyFields(databean));
