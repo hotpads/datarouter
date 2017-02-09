@@ -31,11 +31,14 @@ public class DrExceptionTool{
 	}
 
 	public static String getStackTraceStringForHtmlPreBlock(Throwable exception){
-		String stackTrace = (exception != null) ? getStackTraceAsString(exception) : "No exception defined.";
+		String stackTrace = exception != null ? getStackTraceAsString(exception) : "No exception defined.";
 		return getColorized(stackTrace);
 	}
 
 	public static String getColorized(String stackTrace){
+		if(stackTrace == null){
+			return null;
+		}
 		stackTrace = DrXMLStringTool.escapeXml(stackTrace);
 		String highlightOpener = "<span style='color:red;font-weight:bold;font-size:1.5em;'>";
 		String highlightCloser = "</span>";
@@ -43,6 +46,9 @@ public class DrExceptionTool{
 	}
 
 	public static String getShortStackTrace(String fullStackTrace){
+		if(fullStackTrace == null){
+			return null;
+		}
 		BufferedReader br = new BufferedReader(new StringReader(fullStackTrace));
 		String line;
 		String key = "com.hotpads";
