@@ -8,8 +8,8 @@ import com.hotpads.datarouter.storage.field.enums.DatarouterEnumTool;
 import com.hotpads.datarouter.storage.field.enums.StringEnum;
 import com.hotpads.notification.databean.NotificationUserType;
 
-public enum NotificationDestinationAppEnum
-implements StringEnum<NotificationDestinationAppEnum>{
+public enum HotpadsNotificationDestinationApp
+implements StringEnum<HotpadsNotificationDestinationApp>{
 	@Deprecated
 	HOTPADS_GCM("hotpads_gcm", NotificationDestinationPlatform.GCM),
 	HOTPADS_IOS_GCM("hotpads_ios_gcm", NotificationDestinationPlatform.GCM),
@@ -24,7 +24,7 @@ implements StringEnum<NotificationDestinationAppEnum>{
 	private NotificationDestinationPlatform platform;
 	private Set<NotificationUserType> acceptedAutologicalUserTypes;
 
-	private NotificationDestinationAppEnum(String persistentString, NotificationDestinationPlatform platform,
+	private HotpadsNotificationDestinationApp(String persistentString, NotificationDestinationPlatform platform,
 			NotificationUserType... userTypes){
 		this.app = new NotificationDestinationApp(persistentString);
 		this.platform = platform;
@@ -37,7 +37,7 @@ implements StringEnum<NotificationDestinationAppEnum>{
 	}
 
 	@Override
-	public NotificationDestinationAppEnum fromPersistentString(String str){
+	public HotpadsNotificationDestinationApp fromPersistentString(String str){
 		return DatarouterEnumTool.getEnumFromString(values(), str, null);
 	}
 
@@ -53,7 +53,7 @@ implements StringEnum<NotificationDestinationAppEnum>{
 		return app;
 	}
 
-	public static NotificationDestinationAppEnum fromApp(NotificationDestinationApp app){
-		return NotificationDestinationAppEnum.HOTPADS_ANDROID_GCM.fromPersistentString(app.persistentString);
+	public static HotpadsNotificationDestinationApp fromApp(NotificationDestinationApp app){
+		return HotpadsNotificationDestinationApp.HOTPADS_ANDROID_GCM.fromPersistentString(app.persistentString);
 	}
 }
