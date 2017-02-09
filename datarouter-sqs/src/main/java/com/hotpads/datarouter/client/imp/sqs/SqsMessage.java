@@ -2,7 +2,6 @@ package com.hotpads.datarouter.client.imp.sqs;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
 
 import com.hotpads.datarouter.serialize.StringDatabeanCodec;
 import com.hotpads.datarouter.serialize.codec.FlatKeyJsonDatabeanCodec;
@@ -43,8 +42,8 @@ public class SqsMessage extends BaseDatabean<SqsMessageKey,SqsMessage>{
 		this.key = new SqsMessageKey();
 	}
 
-	public SqsMessage(String message){
-		this.key = new SqsMessageKey(UUID.randomUUID().toString());
+	public SqsMessage(String messageId, String message){
+		this.key = new SqsMessageKey(messageId);
 		this.message = message;
 	}
 
