@@ -57,18 +57,32 @@ public class JsonDatabeanTool{
 
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 	JsonObject databeanToJson(D databean, DatabeanFielder<PK,D> fielder){
+		return databeanToJson(databean, fielder, false);
+	}
+
+	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
+	JsonObject databeanToJson(D databean, DatabeanFielder<PK,D> fielder, boolean flatKey){
 		if(databean == null){
 			return null;
 		}
 		JsonObject jsonObject = new JsonObject();
-		jsonObject.add(databean.getKeyFieldName(), primaryKeyToJson(databean.getKey(), fielder.getKeyFielder()));
+		if(flatKey){
+			addFieldsToJsonObject(jsonObject, fielder.getKeyFields(databean));
+		} else {
+			jsonObject.add(databean.getKeyFieldName(), primaryKeyToJson(databean.getKey(), fielder.getKeyFielder()));
+		}
 		addFieldsToJsonObject(jsonObject, fielder.getNonKeyFields(databean));
 		return jsonObject;
 	}
 
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 	String databeanToJsonString(D databean, DatabeanFielder<PK,D> fielder){
-		return databeanToJson(databean, fielder).toString();
+		return databeanToJsonString(databean, fielder, false);
+	}
+
+	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
+	String databeanToJsonString(D databean, DatabeanFielder<PK,D> fielder, boolean flatKey){
+		return databeanToJson(databean, fielder, flatKey).toString();
 	}
 
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
@@ -228,8 +242,8 @@ public class JsonDatabeanTool{
 	/***************** tests **************************/
 
 	public static class JsonDatabeanToolTests{
-		private ManyFieldTypeBeanFielder fielder = new ManyFieldTypeBeanFielder();
-		private SortedBeanFielder sortedBeanFielder = new SortedBeanFielder();
+		private final ManyFieldTypeBeanFielder fielder = new ManyFieldTypeBeanFielder();
+		private final SortedBeanFielder sortedBeanFielder = new SortedBeanFielder();
 
 		private static ManyFieldBean makeTestBean(){
 			ManyFieldBean bean = new ManyFieldBean(33333L);
