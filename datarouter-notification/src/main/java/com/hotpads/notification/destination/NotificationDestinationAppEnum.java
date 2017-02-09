@@ -9,7 +9,7 @@ import com.hotpads.datarouter.storage.field.enums.StringEnum;
 import com.hotpads.notification.databean.NotificationUserType;
 
 public enum NotificationDestinationAppEnum
-implements StringEnum<NotificationDestinationAppEnum>, NotificationDestinationApp{
+implements StringEnum<NotificationDestinationAppEnum>{
 	@Deprecated
 	HOTPADS_GCM("hotpads_gcm", NotificationDestinationPlatform.GCM),
 	HOTPADS_IOS_GCM("hotpads_ios_gcm", NotificationDestinationPlatform.GCM),
@@ -20,20 +20,20 @@ implements StringEnum<NotificationDestinationAppEnum>, NotificationDestinationAp
 	ZRM_IOS_GCM("zrm_ios_gcm", NotificationDestinationPlatform.GCM),
 	ZRM_ANDROID_GCM("zrm_android_gcm", NotificationDestinationPlatform.GCM);
 
-	private String persistentString;
+	private NotificationDestinationApp app;
 	private NotificationDestinationPlatform platform;
 	private Set<NotificationUserType> acceptedAutologicalUserTypes;
 
 	private NotificationDestinationAppEnum(String persistentString, NotificationDestinationPlatform platform,
 			NotificationUserType... userTypes){
-		this.persistentString = persistentString;
+		this.app = new NotificationDestinationApp(persistentString);
 		this.platform = platform;
 		this.acceptedAutologicalUserTypes = new HashSet<>(Arrays.asList(userTypes));
 	}
 
 	@Override
 	public String getPersistentString(){
-		return persistentString;
+		return app.persistentString;
 	}
 
 	@Override
@@ -41,13 +41,19 @@ implements StringEnum<NotificationDestinationAppEnum>, NotificationDestinationAp
 		return DatarouterEnumTool.getEnumFromString(values(), str, null);
 	}
 
-	@Override
 	public NotificationDestinationPlatform getPlatform(){
 		return platform;
 	}
 
-	@Override
 	public boolean accept(NotificationUserType type){
 		return acceptedAutologicalUserTypes.contains(type);
+	}
+
+	public NotificationDestinationApp getApp(){
+		return app;
+	}
+
+	public static NotificationDestinationAppEnum fromApp(NotificationDestinationApp app){
+		return NotificationDestinationAppEnum.HOTPADS_ANDROID_GCM.fromPersistentString(app.persistentString);
 	}
 }

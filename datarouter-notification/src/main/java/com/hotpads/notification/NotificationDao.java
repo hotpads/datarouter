@@ -2,13 +2,11 @@ package com.hotpads.notification;
 
 import java.util.Collections;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import com.hotpads.notification.destination.NotificationDestinationApp;
-import com.hotpads.notification.destination.NotificationDestinationAppEnum;
 import com.hotpads.notification.timing.CachedNotificationTimingStrategy;
 import com.hotpads.notification.timing.CachedNotificationTimingStrategyMapping;
 import com.hotpads.notification.timing.NotificationTimingStrategy;
@@ -44,10 +42,7 @@ public class NotificationDao{
 	}
 
 	public Map<NotificationDestinationApp, String> getDestinationAppToTemplateMappingForType(NotificationType type){
-		Map<NotificationDestinationApp, String> result =
-				typeAndDestinationToTemplateMap.get().getOrDefault(type.getClass().getSimpleName(), Collections.emptyMap()).entrySet().stream()
-				.collect(Collectors.toMap(entry -> NotificationDestinationAppEnum.HOTPADS_ANDROID_GCM.fromPersistentString(entry.getKey()),
-						Map.Entry::getValue));//TODO test
-		return result;//TODO remove
+		return typeAndDestinationToTemplateMap.get().getOrDefault(type.getClass().getSimpleName(), Collections
+				.emptyMap());
 	}
 }

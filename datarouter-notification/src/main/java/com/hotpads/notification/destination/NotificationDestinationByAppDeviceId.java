@@ -10,7 +10,7 @@ import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.view.index.unique.UniqueIndexEntry;
 
-public class NotificationDestinationByAppDeviceId
+public class NotificationDestinationByAppDeviceId//TODO check if still functional
 extends BaseDatabean<NotificationDestinationByAppDeviceIdKey,NotificationDestinationByAppDeviceId>
 implements UniqueIndexEntry<NotificationDestinationByAppDeviceIdKey,NotificationDestinationByAppDeviceId,
 NotificationDestinationKey,NotificationDestination>{
@@ -22,7 +22,7 @@ NotificationDestinationKey,NotificationDestination>{
 		this(null, null, null);
 	}
 
-	public NotificationDestinationByAppDeviceId(String app, String deviceId, String token){
+	public NotificationDestinationByAppDeviceId(NotificationDestinationApp app, String deviceId, String token){
 		this.key = new NotificationDestinationByAppDeviceIdKey(app, deviceId, token);
 	}
 

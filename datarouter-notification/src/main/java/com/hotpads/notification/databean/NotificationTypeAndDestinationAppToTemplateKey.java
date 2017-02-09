@@ -7,16 +7,18 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.StringFieldKey;
 import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
+import com.hotpads.notification.destination.NotificationDestinationApp;
 
 public class NotificationTypeAndDestinationAppToTemplateKey
 extends BasePrimaryKey<NotificationTypeAndDestinationAppToTemplateKey>{
 	private String notificationType;
-	private String notificationDestinationApp;
+	private NotificationDestinationApp notificationDestinationApp;
 
 	public NotificationTypeAndDestinationAppToTemplateKey(){
 	}
 
-	public NotificationTypeAndDestinationAppToTemplateKey(String notificationType, String notificationDestinationApp){
+	public NotificationTypeAndDestinationAppToTemplateKey(String notificationType,
+			NotificationDestinationApp notificationDestinationApp){
 		this.notificationType = notificationType;
 		this.notificationDestinationApp = notificationDestinationApp;
 	}
@@ -25,7 +27,8 @@ extends BasePrimaryKey<NotificationTypeAndDestinationAppToTemplateKey>{
 	public List<Field<?>> getFields(){
 		return Arrays.asList(
 				new StringField(FieldKeys.notificationType, notificationType),
-				new StringField(FieldKeys.notificationDestinationApp, notificationDestinationApp));
+				new StringField("notificationDestinationApp", FieldKeys.notificationDestinationApp,
+						notificationDestinationApp == null ? null : notificationDestinationApp.persistentString));
 	}
 
 	public String getNotificationType(){
@@ -36,17 +39,17 @@ extends BasePrimaryKey<NotificationTypeAndDestinationAppToTemplateKey>{
 		this.notificationType = notificationType;
 	}
 
-	public String getNotificationDestinationApp(){
+	public NotificationDestinationApp getNotificationDestinationApp(){
 		return notificationDestinationApp;
 	}
 
-	public void setNotificationDestinationApp(String notificationDestinationApp){
+	public void setNotificationDestinationApp(NotificationDestinationApp notificationDestinationApp){
 		this.notificationDestinationApp = notificationDestinationApp;
 	}
 
 	public static class FieldKeys{
 		public static final StringFieldKey notificationType = new StringFieldKey("notificationType");
-		public static final StringFieldKey notificationDestinationApp = new StringFieldKey(
+		public static final StringFieldKey notificationDestinationApp = NotificationDestinationApp.key.withColumnName(
 				"notificationDestinationApp");
 	}
 }

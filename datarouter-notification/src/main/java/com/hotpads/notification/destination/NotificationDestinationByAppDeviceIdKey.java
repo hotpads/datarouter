@@ -10,20 +10,18 @@ import com.hotpads.notification.destination.NotificationDestinationKey.FieldKeys
 
 public class NotificationDestinationByAppDeviceIdKey extends BasePrimaryKey<NotificationDestinationByAppDeviceIdKey>{
 
-	private String app;//TODO change to wrapper class
+	private NotificationDestinationApp app;
 	private String deviceId;
 	private String token;
 
-	@SuppressWarnings("unused") // used by datarouter reflection
-	private NotificationDestinationByAppDeviceIdKey(){
-		this(null, null, null);
+	NotificationDestinationByAppDeviceIdKey(){
 	}
 
-	public NotificationDestinationByAppDeviceIdKey(String app, String deviceId){
+	public NotificationDestinationByAppDeviceIdKey(NotificationDestinationApp app, String deviceId){
 		this(app, deviceId, null);
 	}
 
-	public NotificationDestinationByAppDeviceIdKey(String app, String deviceId, String token){
+	public NotificationDestinationByAppDeviceIdKey(NotificationDestinationApp app, String deviceId, String token){
 		this.app = app;
 		this.deviceId = deviceId;
 		this.token = token;
@@ -31,13 +29,13 @@ public class NotificationDestinationByAppDeviceIdKey extends BasePrimaryKey<Noti
 
 	@Override
 	public List<Field<?>> getFields(){
-		return Arrays.asList(new StringField(FieldKeys.app, app),
+		return Arrays.asList(new StringField("app", FieldKeys.app, app == null ? null : app.persistentString),
 				new StringField(FieldKeys.deviceId, deviceId),
 				new StringField(FieldKeys.token, token));
 	}
 
-	public String getApp(){
-		return app;
+	public NotificationDestinationApp getApp(){
+		return app;//TODO search for equals from all users
 	}
 
 	public String getDeviceId(){

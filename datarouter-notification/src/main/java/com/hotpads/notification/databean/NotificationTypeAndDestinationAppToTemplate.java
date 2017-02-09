@@ -8,6 +8,7 @@ import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.StringFieldKey;
+import com.hotpads.notification.destination.NotificationDestinationApp;
 
 public class NotificationTypeAndDestinationAppToTemplate
 extends BaseDatabean<NotificationTypeAndDestinationAppToTemplateKey,NotificationTypeAndDestinationAppToTemplate>{
@@ -18,9 +19,16 @@ extends BaseDatabean<NotificationTypeAndDestinationAppToTemplateKey,Notification
 		this.key = new NotificationTypeAndDestinationAppToTemplateKey();
 	}
 
+	public NotificationTypeAndDestinationAppToTemplate(String notificationType,
+			NotificationDestinationApp notificationDestinationApp, String notificationTemplate){
+		this.key = new NotificationTypeAndDestinationAppToTemplateKey(notificationType, notificationDestinationApp);
+		this.notificationTemplate = notificationTemplate;
+	}
+
 	public NotificationTypeAndDestinationAppToTemplate(String notificationType, String notificationDestinationApp,
 			String notificationTemplate){
-		this.key = new NotificationTypeAndDestinationAppToTemplateKey(notificationType, notificationDestinationApp);
+		this.key = new NotificationTypeAndDestinationAppToTemplateKey(notificationType,
+				new NotificationDestinationApp(notificationDestinationApp));
 		this.notificationTemplate = notificationTemplate;
 	}
 
