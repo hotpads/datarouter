@@ -48,7 +48,7 @@
 					paramUrl += paramContent;
 				}
 			});
-			var requestUrl = '/listing-tools' + url + (paramUrl ? '?' + paramUrl : '');
+			var requestUrl = '/${urlPrefix}' + url + (paramUrl ? '?' + paramUrl : '');
 			$.get(requestUrl, function(response, textStatus, request){
 				$("#" + responseDivId).show();
 				var json = JSON.stringify(response, undefined, 2);
