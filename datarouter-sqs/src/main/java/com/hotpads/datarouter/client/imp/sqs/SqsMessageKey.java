@@ -12,6 +12,13 @@ public class SqsMessageKey extends BasePrimaryKey<SqsMessageKey>{
 
 	private String messageId;
 
+	public SqsMessageKey(){
+	}
+
+	public SqsMessageKey(String messageId){
+		this.messageId = messageId;
+	}
+
 	private static class FieldKeys{
 		private static final StringFieldKey messageId = new StringFieldKey("messageId").withColumnName("MessageId");
 	}
