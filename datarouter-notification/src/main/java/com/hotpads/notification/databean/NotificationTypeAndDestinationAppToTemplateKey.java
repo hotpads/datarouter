@@ -15,12 +15,14 @@ extends BasePrimaryKey<NotificationTypeAndDestinationAppToTemplateKey>{
 	private NotificationDestinationApp notificationDestinationApp;
 
 	public NotificationTypeAndDestinationAppToTemplateKey(){
+		this.notificationDestinationApp = new NotificationDestinationApp();
 	}
 
 	public NotificationTypeAndDestinationAppToTemplateKey(String notificationType,
 			NotificationDestinationApp notificationDestinationApp){
 		this.notificationType = notificationType;
-		this.notificationDestinationApp = notificationDestinationApp;
+		this.notificationDestinationApp = notificationDestinationApp == null ? new NotificationDestinationApp() :
+			notificationDestinationApp;
 	}
 
 	@Override
@@ -28,7 +30,7 @@ extends BasePrimaryKey<NotificationTypeAndDestinationAppToTemplateKey>{
 		return Arrays.asList(
 				new StringField(FieldKeys.notificationType, notificationType),
 				new StringField("notificationDestinationApp", FieldKeys.notificationDestinationApp,
-						notificationDestinationApp == null ? null : notificationDestinationApp.persistentString));
+						notificationDestinationApp.persistentString));
 	}
 
 	public String getNotificationType(){

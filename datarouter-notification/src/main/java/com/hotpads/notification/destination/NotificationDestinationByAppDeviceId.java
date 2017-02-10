@@ -10,7 +10,7 @@ import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.view.index.unique.UniqueIndexEntry;
 
-public class NotificationDestinationByAppDeviceId//TODO check if still functional
+public class NotificationDestinationByAppDeviceId
 extends BaseDatabean<NotificationDestinationByAppDeviceIdKey,NotificationDestinationByAppDeviceId>
 implements UniqueIndexEntry<NotificationDestinationByAppDeviceIdKey,NotificationDestinationByAppDeviceId,
 NotificationDestinationKey,NotificationDestination>{

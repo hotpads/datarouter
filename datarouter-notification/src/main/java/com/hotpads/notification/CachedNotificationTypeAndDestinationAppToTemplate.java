@@ -25,11 +25,9 @@ extends Cached<Map<String, Map<NotificationDestinationApp, String>>>{
 
 	@Override
 	protected Map<String, Map<NotificationDestinationApp, String>> reload(){
-		Map<String, Map<NotificationDestinationApp, String>> result =
-				notificationNodes.getNotificationTypeAndDestinationAppToTemplate().stream(null, null)
+		return notificationNodes.getNotificationTypeAndDestinationAppToTemplate().stream(null, null)
 				.collect(Collectors.groupingBy(bean -> bean.getKey().getNotificationType(),
 						Collectors.toMap(bean -> bean.getKey().getNotificationDestinationApp(),
 								NotificationTypeAndDestinationAppToTemplate::getNotificationTemplate)));
-		return result;//TODO remove
 	}
 }

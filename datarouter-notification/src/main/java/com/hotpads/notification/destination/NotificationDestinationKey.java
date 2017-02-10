@@ -24,16 +24,17 @@ public class NotificationDestinationKey extends BasePrimaryKey<NotificationDesti
 	@Override
 	public List<Field<?>> getFields(){
 		return Arrays.asList(new StringField(FieldKeys.token, token),
-				new StringField("app", FieldKeys.app, app == null ? null : app.persistentString),
+				new StringField("app", FieldKeys.app, app.persistentString),
 				new StringField(FieldKeys.deviceId, deviceId));
 	}
 
 	NotificationDestinationKey(){
+		this.app = new NotificationDestinationApp();
 	}
 
 	public NotificationDestinationKey(String token, NotificationDestinationApp app, String deviceId){
 		this.token = token;
-		this.app = app;
+		this.app = app == null ? new NotificationDestinationApp() : app;
 		this.deviceId = deviceId;
 	}
 

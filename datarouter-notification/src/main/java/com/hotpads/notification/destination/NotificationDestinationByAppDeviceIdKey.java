@@ -15,6 +15,7 @@ public class NotificationDestinationByAppDeviceIdKey extends BasePrimaryKey<Noti
 	private String token;
 
 	NotificationDestinationByAppDeviceIdKey(){
+		this.app = new NotificationDestinationApp();
 	}
 
 	public NotificationDestinationByAppDeviceIdKey(NotificationDestinationApp app, String deviceId){
@@ -22,7 +23,7 @@ public class NotificationDestinationByAppDeviceIdKey extends BasePrimaryKey<Noti
 	}
 
 	public NotificationDestinationByAppDeviceIdKey(NotificationDestinationApp app, String deviceId, String token){
-		this.app = app;
+		this.app = app == null ? new NotificationDestinationApp() : app;
 		this.deviceId = deviceId;
 		this.token = token;
 	}
@@ -35,7 +36,7 @@ public class NotificationDestinationByAppDeviceIdKey extends BasePrimaryKey<Noti
 	}
 
 	public NotificationDestinationApp getApp(){
-		return app;//TODO search for equals from all users
+		return app;
 	}
 
 	public String getDeviceId(){
