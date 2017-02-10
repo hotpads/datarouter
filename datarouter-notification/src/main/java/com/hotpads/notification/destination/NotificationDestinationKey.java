@@ -38,7 +38,7 @@ public class NotificationDestinationKey extends BasePrimaryKey<NotificationDesti
 		this.deviceId = deviceId;
 	}
 
-	public NotificationDestinationApp getApp(){//TODO search for equals from all users
+	public NotificationDestinationApp getApp(){
 		return app;
 	}
 

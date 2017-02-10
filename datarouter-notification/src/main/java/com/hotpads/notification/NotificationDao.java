@@ -16,17 +16,12 @@ import com.hotpads.notification.type.NotificationType;
 
 @Singleton
 public class NotificationDao{
-//TODO figure out how to remove these injected classes from spring's file.
-//this isn't in services, so I don't know why it matters
 	@Inject
 	private CachedNotificationTimingStrategyMapping notificationTimingMappings;
 	@Inject
 	private CachedNotificationTimingStrategy notificationTimings;
 	@Inject
 	private CachedNotificationTypeAndDestinationAppToTemplate typeAndDestinationToTemplateMap;
-
-//	@Inject
-//	private NotificationDestinationApp anyNotificationDestinationApp;//TODO use this (Spring sucks)
 
 	public NotificationTimingStrategy getTiming(NotificationTimingStrategyMappingKey key){
 		//get every mapping that matches the type
