@@ -13,7 +13,7 @@ import com.hotpads.datarouter.storage.field.imp.StringFieldKey;
 
 public class SqsMessage extends BaseDatabean<SqsMessageKey,SqsMessage>{
 
-	private final SqsMessageKey key;
+	private SqsMessageKey key;
 	private String message;
 
 	private static class FieldKeys{
