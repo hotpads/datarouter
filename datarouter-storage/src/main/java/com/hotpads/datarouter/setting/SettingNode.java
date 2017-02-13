@@ -121,7 +121,7 @@ public abstract class SettingNode {
 
 	public String getShortName(){
 		String shortName = getName().substring(getParentName().length());
-		return shortName.substring(0, shortName.length()-1);
+		return shortName.substring(0, shortName.length() - 1);
 	}
 
 	protected StringCachedSetting registerString(String name, String defaultValue){

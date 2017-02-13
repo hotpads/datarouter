@@ -15,8 +15,8 @@ public class SqlAlterTableClause{
 		return alterTable;
 	}
 
-	public void setAlterTable(String s){
-		this.alterTable = s;
+	public void setAlterTable(String str){
+		this.alterTable = str;
 	}
 
 	public SqlAlterTypes getType(){

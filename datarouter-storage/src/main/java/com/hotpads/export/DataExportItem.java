@@ -26,17 +26,18 @@ public class DataExportItem extends BaseDatabean<DataExportItemKey,DataExportIte
 	private Date dateCreated;
 
 	public static class F{
+
 		public static final String
-			routerName = "routerName",
-			nodeName = "nodeName",
-			startAfterKey = "startAfterKey",
-			endBeforeKey = "endBeforeKey",
-			maxRows = "maxRows"	,
-			dateCreated = "dateCreated"
-			;
+				routerName = "routerName",
+				nodeName = "nodeName",
+				startAfterKey = "startAfterKey",
+				endBeforeKey = "endBeforeKey",
+				maxRows = "maxRows",
+				dateCreated = "dateCreated";
 	}
 
-	public static class DataExportItemFielder extends BaseDatabeanFielder<DataExportItemKey,DataExportItem>{
+	public static class DataExportItemFielder extends BaseDatabeanFielder<DataExportItemKey, DataExportItem>{
+
 		public DataExportItemFielder(){
 		}
 
