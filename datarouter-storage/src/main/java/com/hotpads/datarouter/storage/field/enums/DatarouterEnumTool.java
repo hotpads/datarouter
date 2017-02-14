@@ -3,8 +3,11 @@ package com.hotpads.datarouter.storage.field.enums;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
+import com.hotpads.datarouter.util.Validated;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrComparableTool;
 import com.hotpads.datarouter.util.core.DrObjectTool;
@@ -98,26 +101,43 @@ public class DatarouterEnumTool{
 		return enums;
 	}
 
+	public static <E extends StringEnum<E>> Validated<Set<E>> getValidListOfCsvNames(E[] values, String csvNames,
+			boolean defaultAll){
+		Set<E> result = new LinkedHashSet<>();
+		Validated<Set<E>> validated = new Validated<>();
 
-	@SuppressWarnings("unchecked")
-	public static <E extends StringEnum<E>> List<E> uniqueListFromCsvNames( E[] values, String csvNames, boolean defaultAll ) {
+		if(DrStringTool.notEmpty(csvNames)){
+			String[] types = csvNames.split("[,\\s]+");
+			for(String name : types){
+				if(DrStringTool.isEmpty(name)){
+					continue;
+				}
+				E type = getEnumFromString(values, name, null, false);
+				if(type == null){
+					validated.addError(name);
+				}else{
+					result.add(type);
+				}
+			}
+		}
+		if(result.isEmpty()){
+			if(defaultAll){
+				for(E e : values){
+					result.add(e);
+				}
+			}else{
+				validated.addError("No value found");
+			}
+		}
+		validated.set(result);
+		return validated;
+	}
+
+	public static <E extends StringEnum<E>> List<E> uniqueListFromCsvNames(E[] values, String csvNames,
+			boolean defaultAll){
 		List<E> result = new ArrayList<>();
-		if ( DrStringTool.notEmpty( csvNames ) ) {
-			String[] types = csvNames.split( "," );
-			for ( String name : types ) {
-				StringEnum<E> type = getEnumFromString(values, name.trim(), null, false);
-				if ( type != null && !result.contains(type)) {
-					result.add( (E) type );
-				}
-			}
-		}
-		if ( result.isEmpty() ) {
-			if ( defaultAll ) {
-				for ( E e : values ) {
-					result.add( e );
-				}
-			}
-		}
+		Validated<Set<E>> validated = getValidListOfCsvNames(values, csvNames, defaultAll);
+		result.addAll(validated.get());
 		return result;
 	}
 }
