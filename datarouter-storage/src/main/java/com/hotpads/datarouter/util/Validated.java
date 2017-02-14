@@ -4,10 +4,6 @@ public class Validated<T>{
 	private String errorMessage;
 	private T value;
 
-	public T get(){
-		return value;
-	}
-
 	public Validated(){
 	}
 
@@ -18,6 +14,10 @@ public class Validated<T>{
 	public Validated(T value, String errorMessage){
 		set(value);
 		addError(errorMessage);
+	}
+
+	public T get(){
+		return value;
 	}
 
 	public void set(T value){
