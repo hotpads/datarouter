@@ -19,13 +19,16 @@ import javax.inject.Singleton;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.apache.http.client.CookieStore;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.entity.ContentType;
+import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+import org.apache.http.impl.cookie.BasicClientCookie;
 import org.apache.http.pool.PoolStats;
 import org.apache.http.protocol.HttpContext;
 import org.slf4j.Logger;
@@ -120,6 +123,11 @@ public class HotPadsHttpClient{
 
 		HttpClientContext context = new HttpClientContext();
 		context.setAttribute(HotPadsRetryHandler.RETRY_SAFE_ATTRIBUTE, request.getRetrySafe());
+		CookieStore cookieStore = new BasicCookieStore();
+		for(BasicClientCookie cookie : request.getCookies()){
+			cookieStore.addCookie(cookie);
+		}
+		context.setCookieStore(cookieStore);
 
 		HotPadsHttpException ex;
 		int timeoutMs = request.getTimeoutMs() == null ? this.requestTimeoutMs : request.getTimeoutMs().intValue();

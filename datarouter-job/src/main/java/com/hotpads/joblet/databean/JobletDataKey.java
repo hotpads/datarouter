@@ -13,13 +13,12 @@ public class JobletDataKey extends BasePrimaryKey<JobletDataKey>{
 
 	private Long id;
 
-
 	public static class FieldKeys{
 		public static final UInt63FieldKey id = new UInt63FieldKey("id");
 	}
 
 	@Override
-	public List<Field<?>> getFields() {
+	public List<Field<?>> getFields(){
 		return Arrays.asList(
 				new UInt63Field(FieldKeys.id, id));
 	}
