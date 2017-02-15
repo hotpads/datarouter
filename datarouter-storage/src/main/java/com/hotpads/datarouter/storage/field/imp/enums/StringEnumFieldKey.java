@@ -3,7 +3,7 @@ package com.hotpads.datarouter.storage.field.imp.enums;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.storage.field.BaseFieldKey;
 import com.hotpads.datarouter.storage.field.encoding.FieldGeneratorType;
-import com.hotpads.datarouter.storage.field.enums.StringEnum;
+import com.hotpads.util.core.enums.StringEnum;
 import com.hotpads.util.core.java.ReflectionTool;
 
 public class StringEnumFieldKey<E extends StringEnum<E>>

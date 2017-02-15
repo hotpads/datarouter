@@ -9,8 +9,8 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.client.imp.jdbc.field.codec.base.BaseJdbcFieldCodec;
 import com.hotpads.datarouter.exception.DataAccessException;
-import com.hotpads.datarouter.storage.field.enums.IntegerEnum;
 import com.hotpads.datarouter.storage.field.imp.enums.IntegerEnumField;
+import com.hotpads.util.core.enums.IntegerEnum;
 
 public class IntegerEnumJdbcFieldCodec<E extends IntegerEnum<E>> extends BaseJdbcFieldCodec<E,IntegerEnumField<E>>{
 

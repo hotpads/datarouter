@@ -1,8 +1,8 @@
 package com.hotpads.datarouter.config;
 
-import com.hotpads.datarouter.storage.field.enums.DatarouterEnumTool;
-import com.hotpads.datarouter.storage.field.enums.IntegerEnum;
-import com.hotpads.datarouter.storage.field.enums.StringEnum;
+import com.hotpads.util.core.enums.DatarouterEnumTool;
+import com.hotpads.util.core.enums.IntegerEnum;
+import com.hotpads.util.core.enums.StringEnum;
 
 /*
  * Method for obtaining a database connection from a client

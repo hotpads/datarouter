@@ -4,9 +4,9 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.hotpads.datarouter.storage.field.enums.DatarouterEnumTool;
-import com.hotpads.datarouter.storage.field.enums.StringEnum;
 import com.hotpads.notification.databean.NotificationUserType;
+import com.hotpads.util.core.enums.DatarouterEnumTool;
+import com.hotpads.util.core.enums.StringEnum;
 
 public enum NotificationDestinationAppEnum
 implements StringEnum<NotificationDestinationAppEnum>, NotificationDestinationApp{
