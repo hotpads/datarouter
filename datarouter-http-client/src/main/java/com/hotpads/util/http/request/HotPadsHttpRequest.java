@@ -225,14 +225,14 @@ public class HotPadsHttpRequest{
 	}
 
 	/** This method expects parameters to not be URL encoded. Params are UTF-8 encoded upon request execution. */
-	public HotPadsHttpRequest addGetParams(Map<String,String> params){
-		return addEntriesToMap(this.queryParams, params);
+	public HotPadsHttpRequest addGetParam(String name, String value){
+		queryParams.put(name, value);
+		return this;
 	}
 
 	/** This method expects parameters to not be URL encoded. Params are UTF-8 encoded upon request execution. */
-	public HotPadsHttpRequest addGetParams(String name, String value){
-		queryParams.put(name, value);
-		return this;
+	public HotPadsHttpRequest addGetParams(Map<String,String> params){
+		return addEntriesToMap(this.queryParams, params);
 	}
 
 	public HotPadsHttpRequest addGetParams(HttpRequestConfig config){
