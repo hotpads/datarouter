@@ -62,6 +62,10 @@ public class HotPadsHttpResponse{
 		return response.getFirstHeader(name);
 	}
 
+	public Header[] getHeaders(String name){
+		return response.getHeaders(name);
+	}
+
 	public List<Cookie> getCookies(){
 		return cookies;
 	}

@@ -29,6 +29,7 @@ import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.cookie.BasicClientCookie;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.Args;
 import org.apache.http.util.EntityUtils;
@@ -51,6 +52,7 @@ public class HotPadsHttpRequest{
 	private Map<String, String> postParams;
 	private HotPadsHttpClientConfig config;
 	private HttpHost proxy;
+	private final List<BasicClientCookie> cookies;
 
 	public enum HttpRequestMethod{
 		DELETE, GET, HEAD, PATCH, POST, PUT
@@ -89,6 +91,7 @@ public class HotPadsHttpRequest{
 		this.headers = new HashMap<>();
 		this.queryParams = queryParams;
 		this.postParams = new HashMap<>();
+		this.cookies = new ArrayList<>();
 	}
 
 	private Map<String,String> extractQueryParams(String queryString){
@@ -108,7 +111,7 @@ public class HotPadsHttpRequest{
 
 	public HttpRequestBase getRequest(){
 		String url = getUrl();
-		HttpRequestBase request = getRequest(method, url);
+		HttpRequestBase request = getRequest(url);
 		if(!headers.isEmpty()){
 			for(Map.Entry<String,String> header : headers.entrySet()){
 				request.addHeader(header.getKey(), header.getValue());
@@ -132,7 +135,7 @@ public class HotPadsHttpRequest{
 		return request;
 	}
 
-	private HttpRequestBase getRequest(HttpRequestMethod method, String url){
+	private HttpRequestBase getRequest(String url){
 		switch(method){
 		case DELETE:
 			return new HttpDelete(url);
@@ -219,6 +222,12 @@ public class HotPadsHttpRequest{
 	/** Entities only exist in HttpPut, HttpPatch, HttpPost */
 	public boolean canHaveEntity(){
 		return method == HttpRequestMethod.PATCH || method == HttpRequestMethod.POST || method == HttpRequestMethod.PUT;
+	}
+
+	/** This method expects parameters to not be URL encoded. Params are UTF-8 encoded upon request execution. */
+	public HotPadsHttpRequest addGetParam(String name, String value){
+		queryParams.put(name, value);
+		return this;
 	}
 
 	/** This method expects parameters to not be URL encoded. Params are UTF-8 encoded upon request execution. */
@@ -354,6 +363,15 @@ public class HotPadsHttpRequest{
 	public HotPadsHttpRequest setProxy(HttpHost proxy){
 		this.proxy = proxy;
 		return this;
+	}
+
+	public HotPadsHttpRequest addCookie(BasicClientCookie cookie){
+		cookies.add(cookie);
+		return this;
+	}
+
+	public List<BasicClientCookie> getCookies(){
+		return cookies;
 	}
 
 }
