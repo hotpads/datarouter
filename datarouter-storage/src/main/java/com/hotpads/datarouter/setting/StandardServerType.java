@@ -2,8 +2,8 @@ package com.hotpads.datarouter.setting;
 
 import java.util.List;
 
-import com.hotpads.datarouter.storage.field.enums.DatarouterEnumTool;
-import com.hotpads.datarouter.storage.field.enums.StringEnum;
+import com.hotpads.util.core.enums.DatarouterEnumTool;
+import com.hotpads.util.core.enums.StringEnum;
 import com.hotpads.util.core.web.HtmlSelectOptionBean;
 
 public enum StandardServerType implements ServerType, StringEnum<StandardServerType>{

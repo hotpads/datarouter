@@ -1,6 +1,4 @@
-package com.hotpads.datarouter.storage.field.enums;
-
-import com.hotpads.util.core.enums.PersistentString;
+package com.hotpads.util.core.enums;
 
 public interface StringEnum<E>
 extends Comparable<E>, PersistentString{

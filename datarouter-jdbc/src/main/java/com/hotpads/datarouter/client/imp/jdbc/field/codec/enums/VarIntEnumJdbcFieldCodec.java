@@ -5,8 +5,8 @@ import java.sql.ResultSet;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.client.imp.jdbc.field.codec.base.BaseJdbcFieldCodec;
-import com.hotpads.datarouter.storage.field.enums.IntegerEnum;
 import com.hotpads.datarouter.storage.field.imp.enums.VarIntEnumField;
+import com.hotpads.util.core.enums.IntegerEnum;
 
 public class VarIntEnumJdbcFieldCodec<E extends IntegerEnum<E>>
 extends BaseJdbcFieldCodec<E,VarIntEnumField<E>>{

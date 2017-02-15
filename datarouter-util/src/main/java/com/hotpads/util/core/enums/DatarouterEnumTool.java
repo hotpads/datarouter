@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.storage.field.enums;
+package com.hotpads.util.core.enums;
 
 import java.util.ArrayList;
 import java.util.Collection;

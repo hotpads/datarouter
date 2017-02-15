@@ -2,10 +2,10 @@ package com.hotpads.datarouter.storage.field.imp.enums;
 
 import com.hotpads.datarouter.storage.field.BaseField;
 import com.hotpads.datarouter.storage.field.Field;
-import com.hotpads.datarouter.storage.field.enums.DatarouterEnumTool;
-import com.hotpads.datarouter.storage.field.enums.IntegerEnum;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.util.core.bytes.IntegerByteTool;
+import com.hotpads.util.core.enums.DatarouterEnumTool;
+import com.hotpads.util.core.enums.IntegerEnum;
 
 public class IntegerEnumField<E extends IntegerEnum<E>>
 extends BaseField<E>{

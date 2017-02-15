@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.storage.field.enums;
+package com.hotpads.util.core.enums;
 
 public interface IntegerEnum<E>
 extends Comparable<E>{

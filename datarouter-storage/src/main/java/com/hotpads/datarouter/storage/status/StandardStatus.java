@@ -2,9 +2,9 @@ package com.hotpads.datarouter.storage.status;
 
 import java.util.EnumSet;
 
-import com.hotpads.datarouter.storage.field.enums.IntegerEnum;
 import com.hotpads.util.core.enums.EnumTool;
 import com.hotpads.util.core.enums.HpEnum;
+import com.hotpads.util.core.enums.IntegerEnum;
 
 public enum StandardStatus implements HpEnum, IntegerEnum<StandardStatus>{
 

@@ -2,9 +2,9 @@ package com.hotpads.datarouter.config;
 
 import java.sql.Connection;
 
-import com.hotpads.datarouter.storage.field.enums.DatarouterEnumTool;
-import com.hotpads.datarouter.storage.field.enums.IntegerEnum;
-import com.hotpads.datarouter.storage.field.enums.StringEnum;
+import com.hotpads.util.core.enums.DatarouterEnumTool;
+import com.hotpads.util.core.enums.IntegerEnum;
+import com.hotpads.util.core.enums.StringEnum;
 
 public enum Isolation implements IntegerEnum<Isolation>, StringEnum<Isolation>{
 

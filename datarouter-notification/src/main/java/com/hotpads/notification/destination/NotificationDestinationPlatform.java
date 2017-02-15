@@ -1,7 +1,7 @@
 package com.hotpads.notification.destination;
 
-import com.hotpads.datarouter.storage.field.enums.DatarouterEnumTool;
-import com.hotpads.datarouter.storage.field.enums.StringEnum;
+import com.hotpads.util.core.enums.DatarouterEnumTool;
+import com.hotpads.util.core.enums.StringEnum;
 
 public enum NotificationDestinationPlatform implements StringEnum<NotificationDestinationPlatform>{
 	GCM("gcm"),// Google Cloud Messaging
