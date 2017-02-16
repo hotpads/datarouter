@@ -3,8 +3,11 @@ package com.hotpads.util.core.enums;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
+import com.hotpads.datarouter.util.Validated;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrComparableTool;
 import com.hotpads.datarouter.util.core.DrObjectTool;
@@ -98,26 +101,37 @@ public class DatarouterEnumTool{
 		return enums;
 	}
 
+	public static <E extends StringEnum<E>> Validated<List<E>> uniqueListFromCsvNames(E[] values, String csvNames,
+			boolean defaultAll){
+		Set<E> result = new LinkedHashSet<>();
+		Validated<List<E>> validated = new Validated<>();
 
-	@SuppressWarnings("unchecked")
-	public static <E extends StringEnum<E>> List<E> uniqueListFromCsvNames( E[] values, String csvNames, boolean defaultAll ) {
-		List<E> result = new ArrayList<>();
-		if ( DrStringTool.notEmpty( csvNames ) ) {
-			String[] types = csvNames.split( "," );
-			for ( String name : types ) {
-				StringEnum<E> type = getEnumFromString(values, name.trim(), null, false);
-				if ( type != null && !result.contains(type)) {
-					result.add( (E) type );
+		if(DrStringTool.notEmpty(csvNames)){
+			String[] types = csvNames.split("[,\\s]+");
+			for(String name : types){
+				if(DrStringTool.isEmpty(name)){
+					continue;
+				}
+				E type = getEnumFromString(values, name, null, false);
+				if(type == null){
+					validated.addError(name);
+				}else{
+					result.add(type);
 				}
 			}
 		}
-		if ( result.isEmpty() ) {
-			if ( defaultAll ) {
-				for ( E e : values ) {
-					result.add( e );
+		if(result.isEmpty()){
+			if(defaultAll){
+				for(E e : values){
+					result.add(e);
 				}
+			}else{
+				validated.addError("No value found");
 			}
 		}
-		return result;
+		List<E> listResult = new ArrayList<>();
+		listResult.addAll(result);
+		validated.set(listResult);
+		return validated;
 	}
 }
