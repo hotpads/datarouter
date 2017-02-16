@@ -101,10 +101,10 @@ public class DatarouterEnumTool{
 		return enums;
 	}
 
-	public static <E extends StringEnum<E>> Validated<Set<E>> getValidListOfCsvNames(E[] values, String csvNames,
+	public static <E extends StringEnum<E>> Validated<List<E>> uniqueListFromCsvNames(E[] values, String csvNames,
 			boolean defaultAll){
 		Set<E> result = new LinkedHashSet<>();
-		Validated<Set<E>> validated = new Validated<>();
+		Validated<List<E>> validated = new Validated<>();
 
 		if(DrStringTool.notEmpty(csvNames)){
 			String[] types = csvNames.split("[,\\s]+");
@@ -129,15 +129,9 @@ public class DatarouterEnumTool{
 				validated.addError("No value found");
 			}
 		}
-		validated.set(result);
+		List<E> listResult = new ArrayList<>();
+		listResult.addAll(result);
+		validated.set(listResult);
 		return validated;
-	}
-
-	public static <E extends StringEnum<E>> List<E> uniqueListFromCsvNames(E[] values, String csvNames,
-			boolean defaultAll){
-		List<E> result = new ArrayList<>();
-		Validated<Set<E>> validated = getValidListOfCsvNames(values, csvNames, defaultAll);
-		result.addAll(validated.get());
-		return result;
 	}
 }
