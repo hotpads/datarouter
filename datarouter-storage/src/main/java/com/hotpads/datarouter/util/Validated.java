@@ -1,7 +1,10 @@
 package com.hotpads.datarouter.util;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Validated<T>{
-	private String errorMessage;
+	private List<String> errors = new ArrayList<>();
 	private T value;
 
 	public Validated(){
@@ -25,26 +28,25 @@ public class Validated<T>{
 	}
 
 	public Validated<T> addError(String errorMessage){
-		if(errorMessage == null){
-			return this;
-		}
-		if(this.errorMessage == null){
-			this.errorMessage = errorMessage;
-		}else{
-			this.errorMessage += ";" + errorMessage;
+		if(errorMessage != null && !errorMessage.isEmpty()){
+			errors.add(errorMessage);
 		}
 		return this;
 	}
 
 	public boolean isValid(){
-		return errorMessage == null;
+		return errors.isEmpty();
 	}
 
 	public boolean hasErrors(){
-		return errorMessage != null;
+		return !errors.isEmpty();
 	}
 
 	public String getErrorMessage(){
-		return errorMessage;
+		return isValid() ? null : String.join(";", errors);
+	}
+
+	public List<String> getErrors(){
+		return errors;
 	}
 }
