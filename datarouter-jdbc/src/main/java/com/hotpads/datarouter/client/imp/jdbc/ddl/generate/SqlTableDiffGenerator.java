@@ -1,8 +1,6 @@
 package com.hotpads.datarouter.client.imp.jdbc.ddl.generate;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -11,9 +9,6 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
-import org.testng.Assert;
-import org.testng.annotations.Test;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSet;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCollation;
@@ -24,7 +19,6 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn.SqlColumnName
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlIndex;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlIndex.SqlIndexNameComparator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlTable;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.test.SqlTableMocks;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 
 public class SqlTableDiffGenerator{
@@ -189,155 +183,6 @@ public class SqlTableDiffGenerator{
 	private boolean haveTheSameColumnsinTheSameOrder(List<SqlColumn> currentPrimaryKeyColumns,
 			List<SqlColumn> requestedPrimaryKeyColumns){
 		return currentPrimaryKeyColumns.equals(requestedPrimaryKeyColumns);
-	}
-
-	public static class SqlTableDiffGeneratorTests{
-
-		@Test
-		public void testGetColumnsToAdd(){
-			Assert.assertEquals(SqlTableMocks.DIFF_ABERFELDY_ABERLOUR.getColumnsToAdd(),
-					Arrays.asList(SqlTableMocks.CHARRETTE));
-			Assert.assertEquals(SqlTableMocks.DIFF_ABERLOUR_ABERFELDY.getColumnsToAdd(),
-					Arrays.asList(SqlTableMocks.SAFARI));
-			Assert.assertEquals(SqlTableMocks.DIFF_ABERLOUR_ABERLOUR.getColumnsToAdd(), Collections.emptyList());
-		}
-
-		@Test
-		public void testGetColumnsToRemove(){
-			Assert.assertEquals(SqlTableMocks.DIFF_ABERFELDY_ABERLOUR.getColumnsToRemove(),
-					Arrays.asList(SqlTableMocks.SAFARI));
-			Assert.assertEquals(SqlTableMocks.DIFF_ABERLOUR_ABERFELDY.getColumnsToRemove(),
-					Arrays.asList(SqlTableMocks.CHARRETTE));
-			Assert.assertEquals(SqlTableMocks.DIFF_ABERLOUR_ABERLOUR.getColumnsToRemove(), Collections.emptyList());
-		}
-
-		@Test
-		public void testGetColumnsToModify(){
-			Assert.assertEquals(SqlTableMocks.DIFF_ABERFELDY_ABERLOUR.getColumnsToModify(),
-					Arrays.asList(SqlTableMocks.KWILU));
-			Assert.assertEquals(SqlTableMocks.DIFF_ABERLOUR_ABERFELDY.getColumnsToModify(),
-					Arrays.asList(SqlTableMocks.KWILU_TEXT));
-			Assert.assertEquals(SqlTableMocks.DIFF_ABERLOUR_ABERLOUR.getColumnsToModify(), Collections.emptyList());
-		}
-
-		@Test
-		public void testGetColumnsWithCharsetOrCollationToConvert(){
-			Assert.assertEquals(SqlTableMocks.DIFF_ABERFELDY_ABERLOUR.getColumnsWithCharsetOrCollationToConvert(),
-					Arrays.asList(SqlTableMocks.SAVANNA));
-			Assert.assertEquals(SqlTableMocks.DIFF_ABERLOUR_ABERFELDY.getColumnsWithCharsetOrCollationToConvert(),
-					Arrays.asList(SqlTableMocks.SAVANNA_BIN));
-			Assert.assertEquals(new SqlTableDiffGenerator(SqlTableMocks.ABHAINN_DEARG, SqlTableMocks.ABERFELDY)
-					.getColumnsWithCharsetOrCollationToConvert(), Arrays.asList(SqlTableMocks.SAVANNA_LATIN));
-			Assert.assertEquals(SqlTableMocks.DIFF_ABERLOUR_ABERLOUR.getColumnsWithCharsetOrCollationToConvert(),
-					Collections.emptyList());
-		}
-
-		@Test
-		public void testGetIndexesToAdd(){
-			Assert.assertEquals(SqlTableMocks.DIFF_ABERFELDY_ABERLOUR.getIndexesToAdd(), Collections.emptyList());
-			Assert.assertEquals(SqlTableMocks.DIFF_ABERLOUR_ABERFELDY.getIndexesToAdd(),
-					Arrays.asList(SqlTableMocks.BOMBORA));
-			Assert.assertEquals(SqlTableMocks.DIFF_ABERLOUR_ABERLOUR.getIndexesToAdd(), Collections.emptyList());
-		}
-
-		@Test
-		public void testGetIndexesToRemove(){
-			Assert.assertEquals(SqlTableMocks.DIFF_ABERFELDY_ABERLOUR.getIndexesToRemove(),
-					Arrays.asList(SqlTableMocks.BOMBORA));
-			Assert.assertEquals(SqlTableMocks.DIFF_ABERLOUR_ABERFELDY.getIndexesToRemove(), Collections.emptyList());
-			Assert.assertEquals(SqlTableMocks.DIFF_ABERLOUR_ABERLOUR.getIndexesToRemove(), Collections.emptyList());
-		}
-
-		@Test
-		public void testGetUniqueIndexesToAdd(){
-			Assert.assertEquals(SqlTableMocks.DIFF_ABERFELDY_ABERLOUR.getUniqueIndexesToAdd(),
-					Arrays.asList(SqlTableMocks.COORANBONG));
-			Assert.assertEquals(SqlTableMocks.DIFF_ABERLOUR_ABERFELDY.getUniqueIndexesToAdd(), Collections.emptyList());
-			Assert.assertEquals(SqlTableMocks.DIFF_ABERLOUR_ABERLOUR.getUniqueIndexesToAdd(), Collections.emptyList());
-		}
-
-		@Test
-		public void testGetUniqueIndexesToRemove(){
-			Assert.assertEquals(SqlTableMocks.DIFF_ABERFELDY_ABERLOUR.getUniqueIndexesToRemove(),
-					Collections.emptyList());
-			Assert.assertEquals(SqlTableMocks.DIFF_ABERLOUR_ABERFELDY.getUniqueIndexesToRemove(),
-					Arrays.asList(SqlTableMocks.COORANBONG));
-			Assert.assertEquals(SqlTableMocks.DIFF_ABERLOUR_ABERLOUR.getUniqueIndexesToRemove(),
-					Collections.emptyList());
-		}
-
-		@Test
-		public void testIsTableModified(){
-			Assert.assertTrue(SqlTableMocks.DIFF_ABERFELDY_ABERLOUR.isTableModified());
-			Assert.assertTrue(new SqlTableDiffGenerator(SqlTableMocks.ALISA_BAY, SqlTableMocks.ABERFELDY)
-					.isTableModified());
-			Assert.assertTrue(new SqlTableDiffGenerator(SqlTableMocks.ALLT_A_BHAINNE, SqlTableMocks.ABERFELDY)
-					.isTableModified());
-			Assert.assertTrue(new SqlTableDiffGenerator(SqlTableMocks.ANNANDALE, SqlTableMocks.ABERFELDY)
-					.isTableModified());
-			Assert.assertTrue(new SqlTableDiffGenerator(SqlTableMocks.ARBIKIE, SqlTableMocks.ABERFELDY)
-					.isTableModified());
-			Assert.assertTrue(new SqlTableDiffGenerator(SqlTableMocks.ARDBEG, SqlTableMocks.ABERFELDY)
-					.isTableModified());
-			Assert.assertFalse(SqlTableMocks.DIFF_ABERLOUR_ABERLOUR.isTableModified());
-		}
-
-		@Test
-		public void testAreColumnsModified(){
-			Assert.assertTrue(SqlTableMocks.DIFF_ABERFELDY_ABERLOUR.areColumnsModified());
-			Assert.assertTrue(SqlTableMocks.DIFF_ABERLOUR_ABERFELDY.areColumnsModified());
-			Assert.assertFalse(SqlTableMocks.DIFF_ABERLOUR_ABERLOUR.areColumnsModified());
-		}
-
-		@Test
-		public void testIsEngineModified(){
-			Assert.assertTrue(SqlTableMocks.DIFF_ABERFELDY_ABERLOUR.isEngineModified());
-			Assert.assertTrue(SqlTableMocks.DIFF_ABERLOUR_ABERFELDY.isEngineModified());
-			Assert.assertFalse(SqlTableMocks.DIFF_ABERLOUR_ABERLOUR.isEngineModified());
-		}
-
-		@Test
-		public void testIsCharacterSetModified(){
-			Assert.assertTrue(SqlTableMocks.DIFF_ABERFELDY_ABERLOUR.isCharacterSetModified());
-			Assert.assertTrue(SqlTableMocks.DIFF_ABERLOUR_ABERFELDY.isCharacterSetModified());
-			Assert.assertFalse(SqlTableMocks.DIFF_ABERLOUR_ABERLOUR.isCharacterSetModified());
-		}
-
-		@Test
-		public void testIsCollationModified(){
-			Assert.assertTrue(SqlTableMocks.DIFF_ABERFELDY_ABERLOUR.isCollationModified());
-			Assert.assertTrue(SqlTableMocks.DIFF_ABERLOUR_ABERFELDY.isCollationModified());
-			Assert.assertFalse(SqlTableMocks.DIFF_ABERLOUR_ABERLOUR.isCollationModified());
-		}
-
-		@Test
-		public void testIsRowFormatModified(){
-			Assert.assertTrue(SqlTableMocks.DIFF_ABERFELDY_ABERLOUR.isRowFormatModified());
-			Assert.assertTrue(SqlTableMocks.DIFF_ABERLOUR_ABERFELDY.isRowFormatModified());
-			Assert.assertFalse(SqlTableMocks.DIFF_ABERLOUR_ABERLOUR.isRowFormatModified());
-		}
-
-		@Test
-		public void testIsIndexesModified(){
-			Assert.assertTrue(SqlTableMocks.DIFF_ABERFELDY_ABERLOUR.isIndexesModified());
-			Assert.assertTrue(SqlTableMocks.DIFF_ABERLOUR_ABERFELDY.isIndexesModified());
-			Assert.assertFalse(SqlTableMocks.DIFF_ABERLOUR_ABERLOUR.isIndexesModified());
-		}
-
-		@Test
-		public void testIsUniqueIndexesModified(){
-			Assert.assertTrue(SqlTableMocks.DIFF_ABERFELDY_ABERLOUR.isUniqueIndexesModified());
-			Assert.assertTrue(SqlTableMocks.DIFF_ABERLOUR_ABERFELDY.isUniqueIndexesModified());
-			Assert.assertFalse(SqlTableMocks.DIFF_ABERLOUR_ABERLOUR.isUniqueIndexesModified());
-		}
-
-		@Test
-		public void testIsPrimaryKeyModified(){
-			Assert.assertTrue(SqlTableMocks.DIFF_ABERFELDY_ABERLOUR.isPrimaryKeyModified());
-			Assert.assertTrue(SqlTableMocks.DIFF_ABERLOUR_ABERFELDY.isPrimaryKeyModified());
-			Assert.assertFalse(SqlTableMocks.DIFF_ABERLOUR_ABERLOUR.isPrimaryKeyModified());
-		}
-
 	}
 
 }
