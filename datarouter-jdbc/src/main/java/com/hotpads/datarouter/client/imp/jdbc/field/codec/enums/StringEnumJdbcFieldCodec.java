@@ -46,7 +46,7 @@ extends BaseJdbcFieldCodec<E,StringEnumField<E>>{
 	@Override
 	public E fromJdbcResultSetButDoNotSet(ResultSet rs){
 		String string = stringJdbcFieldCodec.fromJdbcResultSetButDoNotSet(rs);
-		return string == null ? null : field.getSampleValue().fromPersistentString(string);
+		return field.getSampleValue().fromPersistentString(string);
 	}
 
 }
