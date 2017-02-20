@@ -222,11 +222,19 @@ public class JdbcTool{
 		return targetFieldSet;
 	}
 
-	public static ResultSet execute(JdbcConnectionPool connectionPool, String sql){
+	public static boolean execute(JdbcConnectionPool connectionPool, String sql){
+		try(Connection connection = connectionPool.checkOut()){
+			return connection.createStatement().execute(sql);
+		}catch(SQLException e){
+			throw new RuntimeException(sql, e);
+		}
+	}
+
+	public static ResultSet executeQuery(JdbcConnectionPool connectionPool, String sql){
 		try(Connection connection = connectionPool.checkOut()){
 			return connection.createStatement().executeQuery(sql);
 		}catch(SQLException e){
-			throw new RuntimeException(e);
+			throw new RuntimeException(sql, e);
 		}
 	}
 

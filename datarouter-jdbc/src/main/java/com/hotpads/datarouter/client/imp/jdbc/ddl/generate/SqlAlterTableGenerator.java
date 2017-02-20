@@ -93,8 +93,7 @@ public class SqlAlterTableGenerator{
 
 	private static List<SqlAlterTableClause> getAlterTableForAddingColumns(List<SqlColumn> colsToAdd){
 		return colsToAdd.stream()
-				.map(SqlAlterTableGenerator::makeColumnDefinition)
-				.map(new StringBuilder("add ")::append)
+				.map(SqlAlterTableGenerator::makeAddColumnDefinition)
 				.map(SqlAlterTableClause::new)
 				.collect(Collectors.toList());
 	}
@@ -102,23 +101,29 @@ public class SqlAlterTableGenerator{
 	private static List<SqlAlterTableClause> getAlterTableForRemovingColumns(List<SqlColumn> colsToRemove){
 		return colsToRemove.stream()
 				.map(SqlColumn::getName)
-				.map(new StringBuilder("drop column ")::append)
+				.map("drop column "::concat)
 				.map(SqlAlterTableClause::new)
 				.collect(Collectors.toList());
 	}
 
 	private static List<SqlAlterTableClause> getAlterTableForModifyingColumns(List<SqlColumn> columnsToModify){
 		return columnsToModify.stream()
-				.map(SqlAlterTableGenerator::makeColumnDefinition)
-				.map(new StringBuilder("modify ")::append)
-				.map(sql -> sql.append(","))
+				.map(SqlAlterTableGenerator::makeModifyColumnDefinition)
 				.map(SqlAlterTableClause::new)
 				.collect(Collectors.toList());
 	}
 
-	private static StringBuilder makeColumnDefinition(SqlColumn column){
+	private static StringBuilder makeModifyColumnDefinition(SqlColumn column){
+		return makeColumnDefinition(column, "modify ");
+	}
+
+	private static StringBuilder makeAddColumnDefinition(SqlColumn column){
+		return makeColumnDefinition(column, "add ");
+	}
+
+	private static StringBuilder makeColumnDefinition(SqlColumn column, String prefix){
 		MySqlColumnType type = column.getType();
-		StringBuilder sb = new StringBuilder("modify ").append(column.getName()).append(" ")
+		StringBuilder sb = new StringBuilder(prefix).append(column.getName()).append(" ")
 				.append(type.toString().toLowerCase());
 		if(type.shouldSpecifyLength(column.getMaxLength())){
 			sb.append("(").append(column.getMaxLength()).append(")");
@@ -133,7 +138,7 @@ public class SqlAlterTableGenerator{
 	private static List<SqlAlterTableClause> getAlterTableForRemovingIndexes(SortedSet<SqlIndex> indexesToDrop){
 		return indexesToDrop.stream()
 				.map(SqlIndex::getName)
-				.map(new StringBuilder("drop index ")::append)
+				.map("drop index "::concat)
 				.map(SqlAlterTableClause::new)
 				.collect(Collectors.toList());
 	}

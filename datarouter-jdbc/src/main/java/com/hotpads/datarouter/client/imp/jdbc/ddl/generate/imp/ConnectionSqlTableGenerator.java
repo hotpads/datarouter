@@ -79,14 +79,16 @@ public class ConnectionSqlTableGenerator{
 			List<SqlColumn> currentIndexColumns = new ArrayList<>();
 			boolean currentIndexUnique = false;
 			while(indexList.next()){
-				if(currentIndexName != indexList.getString("INDEX_NAME")){
-					SqlIndex index = new SqlIndex(currentIndexName, currentIndexColumns);
-					if(primaryKey == null){
-						primaryKey = index;
-					}else if(currentIndexUnique){
-						uniqueIndexes.add(index);
-					}else{
-						indexes.add(index);
+				if(!indexList.getString("INDEX_NAME").equals(currentIndexName)){
+					if(currentIndexName != null){
+						SqlIndex index = new SqlIndex(currentIndexName, currentIndexColumns);
+						if(primaryKey == null){
+							primaryKey = index;
+						}else if(currentIndexUnique){
+							uniqueIndexes.add(index);
+						}else{
+							indexes.add(index);
+						}
 					}
 					currentIndexName = indexList.getString("INDEX_NAME");
 					currentIndexUnique = DrBooleanTool.isFalse(indexList.getString("NON_UNIQUE"));
