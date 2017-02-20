@@ -32,8 +32,8 @@ public class NotificationDao{
 				.max((left, right) -> Integer.compare(left.getKey().getChannelPrefix().length(),
 						right.getKey().getChannelPrefix().length()))
 				.map(NotificationTimingStrategyMapping::getTimingStrategy)
-				.map(timingName -> notificationTimings.get().get(timingName))
-				.orElse(null);
+				.map(notificationTimings.get()::get)
+				.orElseThrow(() -> new RuntimeException("Failed to find NotificationTimingStrategy from key: " + key));
 	}
 
 	public Map<NotificationDestinationApp, String> getDestinationAppToTemplateMappingForType(NotificationType type){
