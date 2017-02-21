@@ -165,7 +165,7 @@ implements Serializable {
 		return getRoles().contains(DatarouterUserRole.apiUser);
 	}
 
-	public boolean isDocUser() {
+	public boolean isDocUser(){
 		return getRoles().contains(DatarouterUserRole.docUser);
 	}
 
