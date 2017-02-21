@@ -13,6 +13,7 @@ public enum DatarouterUserRole
 implements StringEnum<DatarouterUserRole>{
 
 	datarouterAdmin("datarouterAdmin"),
+	docUser("docUser"),
 	admin("admin"),
 	user("user"),
 	apiUser("apiUser");
