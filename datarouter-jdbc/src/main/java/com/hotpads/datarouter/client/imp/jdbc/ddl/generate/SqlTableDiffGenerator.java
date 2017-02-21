@@ -10,9 +10,6 @@ import java.util.TreeSet;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSet;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCollation;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlTableEngine;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn.SqlColumnNameComparator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn.SqlColumnNameTypeLengthAutoIncrementDefaultComparator;
@@ -51,7 +48,7 @@ public class SqlTableDiffGenerator{
 	public List<SqlColumn> getColumnsToModify(){
 		Set<SqlColumn> modifiedColumns = new TreeSet<>(new SqlColumnNameTypeLengthAutoIncrementDefaultComparator());
 		modifiedColumns.addAll(requested.getColumns());// start with all requested columns
-		modifiedColumns.removeAll(current.getColumns());// remove current columns that don't need changes
+		current.getColumns().forEach(modifiedColumns::remove);// remove current columns that don't need changes
 		modifiedColumns.removeAll(getColumnsToAdd());// remove new columns
 		return new ArrayList<>(modifiedColumns);
 	}
@@ -61,10 +58,12 @@ public class SqlTableDiffGenerator{
 				.collect(Collectors.toMap(SqlColumn::getName, Function.identity()));
 		List<SqlColumn> columnsWithCharsetOrCollationToConvert = new ArrayList<>();
 		for(SqlColumn column : current.getColumns()){
-			SqlColumn requestedColum = requestedColumnsByName.get(column.getName());
-			if(requestedColum == null
-					|| Objects.equals(column.getCharacterSet(), requestedColum.getCharacterSet())
-							&& Objects.equals(column.getCollation(), requestedColum.getCollation())){
+			SqlColumn requestedColumn = requestedColumnsByName.get(column.getName());
+			if(requestedColumn == null
+					|| column.getCharacterSet() == null
+					|| column.getCollation() == null
+					|| Objects.equals(column.getCharacterSet(), requestedColumn.getCharacterSet())
+							&& Objects.equals(column.getCollation(), requestedColumn.getCollation())){
 				continue;
 			}
 			columnsWithCharsetOrCollationToConvert.add(column);
@@ -132,27 +131,25 @@ public class SqlTableDiffGenerator{
 	}
 
 	private boolean areColumnsModified(){
-		SortedSet<SqlColumn> currentColumns = new TreeSet<>(current.getColumns());
-		SortedSet<SqlColumn> requestedColumns = new TreeSet<>(requested.getColumns());
+		SortedSet<SqlColumn> currentColumns = new TreeSet<>(
+				new SqlColumnNameTypeLengthAutoIncrementDefaultComparator());
+		currentColumns.addAll(current.getColumns());
+		SortedSet<SqlColumn> requestedColumns = new TreeSet<>(
+				new SqlColumnNameTypeLengthAutoIncrementDefaultComparator());
+		requestedColumns.addAll(requested.getColumns());
 		return !currentColumns.equals(requestedColumns);
 	}
 
 	public boolean isEngineModified(){
-		MySqlTableEngine currentEngine = MySqlTableEngine.valueOf(current.getEngine().toString());
-		MySqlTableEngine requestedEngine = MySqlTableEngine.valueOf(requested.getEngine().toString());
-		return currentEngine != requestedEngine;
+		return current.getEngine() != requested.getEngine();
 	}
 
 	public boolean isCharacterSetModified(){
-		MySqlCharacterSet currentCharacterSet = MySqlCharacterSet.valueOf(current.getCharacterSet().toString());
-		MySqlCharacterSet requestedCharacterSet = MySqlCharacterSet.valueOf(requested.getCharacterSet().toString());
-		return currentCharacterSet != requestedCharacterSet;
+		return current.getCharacterSet() != requested.getCharacterSet();
 	}
 
 	public boolean isCollationModified(){
-		MySqlCollation currentCollation = MySqlCollation.valueOf(current.getCollation().toString());
-		MySqlCollation requestedCollation = MySqlCollation.valueOf(requested.getCollation().toString());
-		return currentCollation != requestedCollation;
+		return current.getCollation() != requested.getCollation();
 	}
 
 	public boolean isRowFormatModified(){

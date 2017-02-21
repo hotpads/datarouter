@@ -114,8 +114,9 @@ implements Callable<Optional<String>>{
 			}
 
 			//print the alter table
+			SqlTable printCurrent = ConnectionSqlTableGenerator.generate(connectionPool, tableName, schemaName);
 			SqlAlterTableGenerator printAlterTableGenerator = new SqlAlterTableGenerator(printOptions,
-					executeCurrent, requested, schemaName);
+					printCurrent, requested, schemaName);
 			ddl = printAlterTableGenerator.generateDdl();
 			if(ddl.isPresent()){
 				logger.info(generateFullWidthMessage("Please Execute SchemaUpdate"));
