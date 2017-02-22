@@ -10,12 +10,12 @@ import java.util.Random;
 import java.util.UUID;
 
 import org.apache.http.HttpStatus;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 
 import com.hotpads.util.http.request.HotPadsHttpRequest;
 import com.hotpads.util.http.request.HotPadsHttpRequest.HttpRequestMethod;
@@ -99,21 +99,21 @@ public class HotPadsHttpClientIntegrationTests{
 		server.done();
 	}
 
-	@Test(expected = HotPadsHttpRuntimeException.class)
+	@Test(expectedExceptions = HotPadsHttpRuntimeException.class)
 	public void testUncheckedException(){
 		HotPadsHttpClient client = new HotPadsHttpClientBuilder().build();
 		HotPadsHttpRequest request = new HotPadsHttpRequest(HttpRequestMethod.GET, "invalidLocation", false);
 		client.execute(request);
 	}
 
-	@Test(expected = HotPadsHttpRequestFutureTimeoutException.class, timeout = 1000)
+	@Test(expectedExceptions = HotPadsHttpRequestFutureTimeoutException.class, timeOut = 1000)
 	public void testRequestFutureTimeoutException() throws HotPadsHttpException{
 		HotPadsHttpClient client = new HotPadsHttpClientBuilder().build();
 		HotPadsHttpRequest request = new HotPadsHttpRequest(HttpRequestMethod.GET, URL, false).setFutureTimeoutMs(0L);
 		client.executeChecked(request);
 	}
 
-	@Test(expected = HotPadsHttpConnectionAbortedException.class)
+	@Test(expectedExceptions = HotPadsHttpConnectionAbortedException.class)
 	public void testRequestTimeoutException() throws HotPadsHttpException{
 		server.setResponseDelay(200);
 		try{
@@ -125,14 +125,14 @@ public class HotPadsHttpClientIntegrationTests{
 		}
 	}
 
-	@Test(expected = HotPadsHttpConnectionAbortedException.class, timeout = 1000)
+	@Test(expectedExceptions = HotPadsHttpConnectionAbortedException.class, timeOut = 1000)
 	public void testInvalidLocation() throws HotPadsHttpException{
 		HotPadsHttpClient client = new HotPadsHttpClientBuilder().build();
 		HotPadsHttpRequest request = new HotPadsHttpRequest(HttpRequestMethod.GET, "invalidLocation", false);
 		client.executeChecked(request);
 	}
 
-	@Test(expected = HotPadsHttpConnectionAbortedException.class)
+	@Test(expectedExceptions = HotPadsHttpConnectionAbortedException.class)
 	public void testInvalidRequestHeader() throws HotPadsHttpException{
 		server.setResponse(301, "301 status code throws exception when not provided a location header");
 		HotPadsHttpClient client = new HotPadsHttpClientBuilder().build();
@@ -140,7 +140,7 @@ public class HotPadsHttpClientIntegrationTests{
 		client.executeChecked(request);
 	}
 
-	@Test(expected = HotPadsHttpConnectionAbortedException.class, timeout = 1500)
+	@Test(expectedExceptions = HotPadsHttpConnectionAbortedException.class, timeOut = 1500)
 	public void testRetryFailure() throws HotPadsHttpException{
 		server.setResponseDelay(200);
 		try{
@@ -160,11 +160,11 @@ public class HotPadsHttpClientIntegrationTests{
 		HotPadsHttpClient client = new HotPadsHttpClientBuilder().build();
 		HotPadsHttpRequest request = new HotPadsHttpRequest(HttpRequestMethod.GET, URL, false);
 		HotPadsHttpResponse response = client.execute(request);
-		Assert.assertEquals(expectedResponse, response.getEntity());
-		Assert.assertEquals(status, response.getStatusCode());
+		Assert.assertEquals(response.getEntity(), expectedResponse);
+		Assert.assertEquals(response.getStatusCode(), status);
 	}
 
-	@Test(expected = HotPadsHttpResponseException.class)
+	@Test(expectedExceptions = HotPadsHttpResponseException.class)
 	public void testBadRequestFailure() throws HotPadsHttpException{
 		try{
 			int status = HttpStatus.SC_BAD_REQUEST;
@@ -177,12 +177,12 @@ public class HotPadsHttpClientIntegrationTests{
 			Assert.assertTrue(e.isClientError());
 			HotPadsHttpResponse response = e.getResponse();
 			Assert.assertNotNull(response);
-			Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, response.getStatusCode());
+			Assert.assertEquals(response.getStatusCode(), HttpStatus.SC_BAD_REQUEST);
 			throw e;
 		}
 	}
 
-	@Test(expected = HotPadsHttpResponseException.class)
+	@Test(expectedExceptions = HotPadsHttpResponseException.class)
 	public void testServiceUnavailableFailure() throws HotPadsHttpException{
 		try{
 			int status = HttpStatus.SC_SERVICE_UNAVAILABLE;
@@ -195,7 +195,7 @@ public class HotPadsHttpClientIntegrationTests{
 			Assert.assertTrue(e.isServerError());
 			HotPadsHttpResponse response = e.getResponse();
 			Assert.assertNotNull(response);
-			Assert.assertEquals(HttpStatus.SC_SERVICE_UNAVAILABLE, response.getStatusCode());
+			Assert.assertEquals(response.getStatusCode(), HttpStatus.SC_SERVICE_UNAVAILABLE);
 			throw e;
 		}
 	}
@@ -230,8 +230,8 @@ public class HotPadsHttpClientIntegrationTests{
 		request = new HotPadsHttpRequest(HttpRequestMethod.GET, URL, false).addPostParams(params);
 		response = client.execute(request);
 		postParams = request.getPostParams();
-		Assert.assertEquals(expectedResponse, response.getEntity());
-		Assert.assertEquals(params.size(), postParams.size());
+		Assert.assertEquals(response.getEntity(), expectedResponse);
+		Assert.assertEquals(postParams.size(), params.size());
 		Assert.assertNull(postParams.get(SecurityParameters.CSRF_IV));
 		Assert.assertNull(postParams.get(SecurityParameters.CSRF_TOKEN));
 		Assert.assertNull(postParams.get(SecurityParameters.API_KEY));
@@ -244,8 +244,8 @@ public class HotPadsHttpClientIntegrationTests{
 		request = new HotPadsHttpRequest(HttpRequestMethod.POST, URL, false);
 		response = client.execute(request);
 		postParams = request.getPostParams();
-		Assert.assertEquals(expectedResponse, response.getEntity());
-		Assert.assertEquals(4, request.getPostParams().size());
+		Assert.assertEquals(response.getEntity(), expectedResponse);
+		Assert.assertEquals(request.getPostParams().size(), 4);
 		Assert.assertNotNull(postParams.get(SecurityParameters.CSRF_IV));
 		Assert.assertNotNull(postParams.get(SecurityParameters.CSRF_TOKEN));
 		Assert.assertNotNull(postParams.get(SecurityParameters.API_KEY));
@@ -258,8 +258,8 @@ public class HotPadsHttpClientIntegrationTests{
 		request = new HotPadsHttpRequest(HttpRequestMethod.PATCH, URL, false).setEntity(params).addPostParams(params);
 		response = client.execute(request);
 		postParams = request.getPostParams();
-		Assert.assertEquals(expectedResponse, response.getEntity());
-		Assert.assertEquals(3, postParams.size());
+		Assert.assertEquals(response.getEntity(), expectedResponse);
+		Assert.assertEquals(postParams.size(), 3);
 		Assert.assertNull(postParams.get(SecurityParameters.CSRF_IV));
 		Assert.assertNull(postParams.get(SecurityParameters.CSRF_TOKEN));
 		Assert.assertNull(postParams.get(SecurityParameters.API_KEY));
@@ -272,8 +272,8 @@ public class HotPadsHttpClientIntegrationTests{
 		request = new HotPadsHttpRequest(HttpRequestMethod.POST, URL, false).addPostParams(params);
 		response = client.execute(request);
 		postParams = request.getPostParams();
-		Assert.assertEquals(expectedResponse, response.getEntity());
-		Assert.assertEquals(params.size() + 4, postParams.size());
+		Assert.assertEquals(response.getEntity(), expectedResponse);
+		Assert.assertEquals(postParams.size(), params.size() + 4);
 		Assert.assertNotNull(postParams.get(SecurityParameters.CSRF_IV));
 		Assert.assertNotNull(postParams.get(SecurityParameters.CSRF_TOKEN));
 		Assert.assertNotNull(postParams.get(SecurityParameters.API_KEY));
@@ -285,8 +285,8 @@ public class HotPadsHttpClientIntegrationTests{
 		request = new HotPadsHttpRequest(HttpRequestMethod.PUT, URL, false).addPostParams(params);
 		response = client.execute(request);
 		postParams = request.getPostParams();
-		Assert.assertEquals(expectedResponse, response.getEntity());
-		Assert.assertEquals(params.size() + 2, postParams.size());
+		Assert.assertEquals(response.getEntity(), expectedResponse);
+		Assert.assertEquals(postParams.size(), params.size() + 2);
 		Assert.assertNotNull(postParams.get(SecurityParameters.CSRF_IV));
 		Assert.assertNotNull(postParams.get(SecurityParameters.CSRF_TOKEN));
 		Assert.assertNull(postParams.get(SecurityParameters.API_KEY));
@@ -297,8 +297,8 @@ public class HotPadsHttpClientIntegrationTests{
 		request = new HotPadsHttpRequest(HttpRequestMethod.PATCH, URL, false).addPostParams(params);
 		response = client.execute(request);
 		postParams = request.getPostParams();
-		Assert.assertEquals(expectedResponse, response.getEntity());
-		Assert.assertEquals(params.size() + 1, postParams.size());
+		Assert.assertEquals(response.getEntity(), expectedResponse);
+		Assert.assertEquals(postParams.size(), params.size() + 1);
 		Assert.assertNull(postParams.get(SecurityParameters.CSRF_IV));
 		Assert.assertNull(postParams.get(SecurityParameters.CSRF_TOKEN));
 		Assert.assertNotNull(postParams.get(SecurityParameters.API_KEY));
