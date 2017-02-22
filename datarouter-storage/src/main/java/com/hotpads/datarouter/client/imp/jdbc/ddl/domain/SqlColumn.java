@@ -163,8 +163,8 @@ public class SqlColumn implements Comparable<SqlColumn>{
 	}
 
 	public static class SqlColumnNameTypeLengthAutoIncrementDefaultComparator extends SqlColumnNameTypeComparator{
-		public SqlColumnNameTypeLengthAutoIncrementDefaultComparator(boolean caseSensitive){
-			super(caseSensitive);
+		public SqlColumnNameTypeLengthAutoIncrementDefaultComparator(){
+			super(true);
 		}
 
 		@Override
@@ -335,7 +335,7 @@ public class SqlColumn implements Comparable<SqlColumn>{
 		@Test
 		public void testDateTime(){
 			SqlColumnNameTypeLengthAutoIncrementDefaultComparator comparator =
-					new SqlColumnNameTypeLengthAutoIncrementDefaultComparator(true);
+					new SqlColumnNameTypeLengthAutoIncrementDefaultComparator();
 
 			SqlColumn dateTimeRequested = new SqlColumn("a", MySqlColumnType.DATETIME, 0, true, false);
 			SqlColumn dateTimeCurrent = new SqlColumn("a", MySqlColumnType.DATETIME, 19, true, false);

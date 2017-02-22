@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 
 import com.hotpads.datarouter.client.imp.jdbc.field.JdbcFieldCodec;
 import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
+import com.hotpads.datarouter.connection.JdbcConnectionPool;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
@@ -219,6 +220,22 @@ public class JdbcTool{
 			field.fromJdbcResultSetUsingReflection(targetFieldSet, rs);
 		}
 		return targetFieldSet;
+	}
+
+	public static boolean execute(JdbcConnectionPool connectionPool, String sql){
+		try(Connection connection = connectionPool.checkOut()){
+			return connection.createStatement().execute(sql);
+		}catch(SQLException e){
+			throw new RuntimeException(sql, e);
+		}
+	}
+
+	public static ResultSet executeQuery(JdbcConnectionPool connectionPool, String sql){
+		try(Connection connection = connectionPool.checkOut()){
+			return connection.createStatement().executeQuery(sql);
+		}catch(SQLException e){
+			throw new RuntimeException(sql, e);
+		}
 	}
 
 }

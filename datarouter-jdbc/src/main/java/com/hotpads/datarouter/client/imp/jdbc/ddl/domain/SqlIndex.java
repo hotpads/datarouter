@@ -1,36 +1,25 @@
 package com.hotpads.datarouter.client.imp.jdbc.ddl.domain;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn.SqlColumnNameTypeComparator;
 import com.hotpads.datarouter.util.core.DrComparableTool;
 
 public class SqlIndex implements Comparable<SqlIndex>{
 
-	private String name;
-	private List<SqlColumn> columns;
+	private final String name;
+	private final List<SqlColumn> columns;
 
 	public SqlIndex(String name, List<SqlColumn> columns){
 		this.name = name;
 		this.columns = columns;
 	}
-
-	public SqlIndex(String name){
-		this.name = name;
-		this.columns = new ArrayList<>();
-	}
-
-	public SqlIndex addColumn(SqlColumn col){
-		columns.add(col);
-		return this;
-	}
-
-	/******************* Object methods **********************/
 
 	@Override
 	public String toString(){
@@ -39,11 +28,7 @@ public class SqlIndex implements Comparable<SqlIndex>{
 
 	@Override
 	public int hashCode(){
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + (columns == null ? 0 : columns.hashCode());
-		result = prime * result + (name == null ? 0 : name.hashCode());
-		return result;
+		return Objects.hash(name, columns);
 	}
 
 	@Override
@@ -55,25 +40,10 @@ public class SqlIndex implements Comparable<SqlIndex>{
 			return false;
 		}
 		SqlIndex other = (SqlIndex)obj;
-		if(columns == null){
-			if(other.columns != null){
-				return false;
-			}
-		}else if(!columns.equals(other.columns)){
-			return false;
-		}
-		if(name == null){
-			if(other.name != null){
-				return false;
-			}
-		}else if(!name.equals(other.name)){
-			return false;
-		}
-		return true;
+		return Objects.equals(name, other.name)
+				&& Objects.equals(columns, other.columns);
 	}
 
-
-	/****************** get/set ****************************/
 
 	public String getName(){
 		return name;
@@ -144,18 +114,14 @@ public class SqlIndex implements Comparable<SqlIndex>{
 
 	public static class SqlIndexTests{
 		@Test
-		public void equalsTester(){
+		public void testEquals(){
 			SqlColumn columnA = new SqlColumn("a", MySqlColumnType.BIGINT);
 			SqlColumn columnB = new SqlColumn("b", MySqlColumnType.BIGINT);
 			SqlColumn aa = new SqlColumn("a", MySqlColumnType.VARBINARY);
 			SqlColumn bb = new SqlColumn("b", MySqlColumnType.VARCHAR);
-			SqlIndex index1 = new SqlIndex("index");
-			SqlIndex index2 = new SqlIndex("index");
-
-			index1.addColumn(columnA).addColumn(columnB);
-			index2.addColumn(aa).addColumn(bb);
-
-			Assert.assertTrue(index1.equals(index2));
+			SqlIndex index1 = new SqlIndex("index", Arrays.asList(columnA, columnB));
+			SqlIndex index2 = new SqlIndex("index", Arrays.asList(aa, bb));
+			Assert.assertEquals(index1, index2);
 		}
 	}
 
