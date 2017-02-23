@@ -15,25 +15,25 @@ import com.hotpads.joblet.type.JobletType;
 import com.hotpads.joblet.type.JobletTypeFactory;
 
 @Singleton
-public class JobletThreadCountSettings extends SettingNode{
+public class JobletClusterThreadCountSettings extends SettingNode{
 
-	public static final String NAME = "threadCount";
+	public static final String NAME = "clusterThreadCount";
 
 	private final Map<JobletType<?>,Setting<Integer>> settingByJobletType = new HashMap<>();
 
 	@Inject
-	public JobletThreadCountSettings(SettingFinder finder, WebAppName webAppName, JobletTypeFactory jobletTypeFactory){
-		super(finder, webAppName + ".joblet.threadCount.", webAppName + ".joblet.");
+	public JobletClusterThreadCountSettings(SettingFinder finder, WebAppName webAppName, JobletTypeFactory jobletTypeFactory){
+		super(finder, webAppName + ".joblet.clusterThreadCount.", webAppName + ".joblet.");
 
 		for(JobletType<?> jobletType : jobletTypeFactory.getAllTypes()){
-			Setting<Integer> setting = registerThreadCountSetting(jobletType, jobletType.getPersistentString(), 1);
+			Setting<Integer> setting = registerSetting(jobletType, jobletType.getPersistentString(), 0);
 			settingByJobletType.put(jobletType, setting);
 		}
 	}
 
 	/*-------------- methods ----------------------*/
 
-	public Setting<Integer> registerThreadCountSetting(JobletType<?> jobletType, String name, Integer defaultValue){
+	public Setting<Integer> registerSetting(JobletType<?> jobletType, String name, Integer defaultValue){
 		Setting<Integer> setting = registerInteger(name, defaultValue);
 		settingByJobletType.put(jobletType, setting);
 		return setting;
@@ -43,7 +43,7 @@ public class JobletThreadCountSettings extends SettingNode{
 		return settingByJobletType.get(type);
 	}
 
-	public int getThreadCountForJobletType(JobletType<?> type){
+	public int getClusterThreadCountForJobletType(JobletType<?> type){
 		return Optional.ofNullable(settingByJobletType.get(type).getValue()).orElse(0);
 	}
 

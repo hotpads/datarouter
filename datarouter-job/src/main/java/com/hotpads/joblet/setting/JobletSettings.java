@@ -34,10 +34,12 @@ extends SettingNode{
 
 	@Inject
 	public JobletSettings(SettingFinder finder, WebAppName webAppName,
-			JobletThreadCountSettings jobletThreadCountSettings){
+			JobletThreadCountSettings jobletThreadCountSettings,
+			JobletClusterThreadCountSettings jobletClusterThreadCountSettings){
 		super(finder, webAppName + ".joblet.", webAppName + ".");
 
 		registerChild(jobletThreadCountSettings);
+		registerChild(jobletClusterThreadCountSettings);
 
 		runJoblets = registerBoolean("runJoblets", false);
 		maxJobletServers = registerInteger("maxJobletServers", 16);
