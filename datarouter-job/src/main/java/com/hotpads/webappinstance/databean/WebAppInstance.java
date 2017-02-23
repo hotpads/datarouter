@@ -1,5 +1,6 @@
 package com.hotpads.webappinstance.databean;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -121,6 +122,12 @@ public class WebAppInstance extends BaseDatabean<WebAppInstanceKey,WebAppInstanc
 
 	public String getBuildDatePrintable(){
 		return DrDateTool.getDateTime(buildDate);
+	}
+
+	public Duration getDurationSinceLastUpdated(){
+		long nowMs = System.currentTimeMillis();
+		long refreshedLastOrNowMs = refreshedLast == null ? nowMs : refreshedLast.getTime();
+		return Duration.ofMillis(nowMs - refreshedLastOrNowMs);
 	}
 
 	/** get/set ***************************************************************/

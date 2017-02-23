@@ -1,6 +1,7 @@
 package com.hotpads.webappinstance;
 
 import java.lang.management.ManagementFactory;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -69,15 +70,12 @@ public class WebAppInstanceDao{
 	 * Callers should use {@link WebAppInstance#getUniqueServerNames} on result if only serverNames are desired
 	 * (not each webApp on the server)
 	 */
-	public List<WebAppInstance> getWebAppInstancesWithType(ServerType type){
+	public List<WebAppInstance> getWebAppInstancesOfType(ServerType type, Duration heartbeatWithin){
 		String typeString = type.getPersistentString();
-		List<WebAppInstance> webAppInstances = new ArrayList<>();
-		for(WebAppInstance webAppInstance : webAppInstanceNodes.getWebAppInstance().scan(null, null)){
-			if(typeString.equals(webAppInstance.getServerType())){
-				webAppInstances.add(webAppInstance);
-			}
-		}
-		return webAppInstances;
+		return webAppInstanceNodes.getWebAppInstance().stream(null, null)
+				.filter(webAppInstance -> typeString.equals(webAppInstance.getServerType()))
+				.filter(webAppInstance -> webAppInstance.getDurationSinceLastUpdated().compareTo(heartbeatWithin) < 0)
+				.collect(Collectors.toList());
 	}
 
 	/**
