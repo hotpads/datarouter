@@ -19,7 +19,7 @@ import com.hotpads.joblet.type.JobletTypeFactory;
 @Singleton
 public class JobletProcessors{
 
-	private final JobletProcessorFactory jobletProcessorV2Factory;
+	private final JobletProcessorFactory jobletProcessorFactory;
 	private final JobletTypeFactory jobletTypeFactory;
 
 	private final AtomicLong idGenerator;
@@ -28,7 +28,7 @@ public class JobletProcessors{
 
 	@Inject
 	public JobletProcessors(JobletProcessorFactory jobletProcessorV2Factory, JobletTypeFactory jobletTypeFactory){
-		this.jobletProcessorV2Factory = jobletProcessorV2Factory;
+		this.jobletProcessorFactory = jobletProcessorV2Factory;
 		this.jobletTypeFactory = jobletTypeFactory;
 
 		this.idGenerator = new AtomicLong(0);
@@ -37,7 +37,7 @@ public class JobletProcessors{
 
 	public void createAndStartProcessors(){
 		this.processorByType = jobletTypeFactory.getAllTypes().stream()
-				.map(jobletType -> jobletProcessorV2Factory.create(idGenerator, jobletType))
+				.map(jobletType -> jobletProcessorFactory.create(idGenerator, jobletType))
 				.collect(Collectors.toMap(JobletProcessor::getJobletType, Function.identity()));
 	}
 
