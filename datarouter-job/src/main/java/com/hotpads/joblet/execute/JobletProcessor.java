@@ -35,7 +35,7 @@ public class JobletProcessor implements Runnable{
 	private static final Duration MAX_WAIT_FOR_EXECUTOR = Duration.ofSeconds(5);
 	private static final Duration SLEEP_TIME_AFTER_EXCEPTION = Duration.ofSeconds(5);
 	public static final Long RUNNING_JOBLET_TIMEOUT_MS = 1000L * 60 * 10;  //10 minutes
-	private static final boolean ENABLE_CLUSTER_THREAD_LIMITS = false;
+	public static final boolean ENABLE_CLUSTER_THREAD_LIMITS = false;
 
 	//injectable
 	private final JobletSettings jobletSettings;

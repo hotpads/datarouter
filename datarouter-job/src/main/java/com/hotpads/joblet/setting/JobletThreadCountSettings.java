@@ -11,6 +11,7 @@ import com.hotpads.datarouter.app.WebAppName;
 import com.hotpads.datarouter.setting.Setting;
 import com.hotpads.datarouter.setting.SettingFinder;
 import com.hotpads.datarouter.setting.SettingNode;
+import com.hotpads.joblet.execute.JobletProcessor;
 import com.hotpads.joblet.type.JobletType;
 import com.hotpads.joblet.type.JobletTypeFactory;
 
@@ -19,6 +20,8 @@ public class JobletThreadCountSettings extends SettingNode{
 
 	public static final String NAME = "threadCount";
 
+	private static final int DEFAULT_NUM_THREADS = JobletProcessor.ENABLE_CLUSTER_THREAD_LIMITS ? 1 : 0;
+
 	private final Map<JobletType<?>,Setting<Integer>> settingByJobletType = new HashMap<>();
 
 	@Inject
@@ -26,7 +29,8 @@ public class JobletThreadCountSettings extends SettingNode{
 		super(finder, webAppName + ".joblet.threadCount.", webAppName + ".joblet.");
 
 		for(JobletType<?> jobletType : jobletTypeFactory.getAllTypes()){
-			Setting<Integer> setting = registerThreadCountSetting(jobletType, jobletType.getPersistentString(), 1);
+			Setting<Integer> setting = registerThreadCountSetting(jobletType, jobletType.getPersistentString(),
+					DEFAULT_NUM_THREADS);
 			settingByJobletType.put(jobletType, setting);
 		}
 	}
