@@ -9,7 +9,7 @@ import com.hotpads.joblet.JobletCounters;
 import com.hotpads.joblet.queue.JobletRequestQueueManager;
 import com.hotpads.joblet.setting.JobletSettings;
 import com.hotpads.joblet.type.JobletType;
-import com.hotpads.webappinstance.CachedNumServersAliveOfType;
+import com.hotpads.webappinstance.CachedNumServersAliveOfThisType;
 
 @Singleton
 public class JobletProcessorFactory{
@@ -22,10 +22,10 @@ public class JobletProcessorFactory{
 	@Inject
 	private JobletCounters jobletCounters;
 	@Inject
-	private CachedNumServersAliveOfType cachedNumServersOfType;
+	private CachedNumServersAliveOfThisType cachedNumServersOfThisType;
 
 	public JobletProcessor create(AtomicLong idGenerator, JobletType<?> jobletType){
 		return new JobletProcessor(jobletSettings, jobletRequestQueueManager, jobletCallableFactory, jobletCounters,
-				cachedNumServersOfType, idGenerator, jobletType);
+				cachedNumServersOfThisType, idGenerator, jobletType);
 	}
 }

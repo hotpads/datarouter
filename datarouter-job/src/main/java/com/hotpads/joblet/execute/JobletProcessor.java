@@ -24,7 +24,7 @@ import com.hotpads.joblet.setting.JobletSettings;
 import com.hotpads.joblet.type.JobletType;
 import com.hotpads.util.core.concurrent.NamedThreadFactory;
 import com.hotpads.util.datastructs.MutableBoolean;
-import com.hotpads.webappinstance.CachedNumServersAliveOfType;
+import com.hotpads.webappinstance.CachedNumServersAliveOfThisType;
 
 public class JobletProcessor implements Runnable{
 	private static final Logger logger = LoggerFactory.getLogger(JobletProcessor.class);
@@ -35,13 +35,14 @@ public class JobletProcessor implements Runnable{
 	private static final Duration MAX_WAIT_FOR_EXECUTOR = Duration.ofSeconds(5);
 	private static final Duration SLEEP_TIME_AFTER_EXCEPTION = Duration.ofSeconds(5);
 	public static final Long RUNNING_JOBLET_TIMEOUT_MS = 1000L * 60 * 10;  //10 minutes
+	private static final boolean ENABLE_CLUSTER_THREAD_LIMITS = false;
 
 	//injectable
 	private final JobletSettings jobletSettings;
 	private final JobletRequestQueueManager jobletRequestQueueManager;
 	private final JobletCallableFactory jobletCallableFactory;
 	private final JobletCounters jobletCounters;
-	private final CachedNumServersAliveOfType cachedNumServersAliveOfType;
+	private final CachedNumServersAliveOfThisType cachedNumServersAliveOfThisType;
 	//not injectable
 	private final AtomicLong idGenerator;
 	private final JobletType<?> jobletType;
@@ -54,12 +55,12 @@ public class JobletProcessor implements Runnable{
 
 	public JobletProcessor(JobletSettings jobletSettings, JobletRequestQueueManager jobletRequestQueueManager,
 			JobletCallableFactory jobletCallableFactory, JobletCounters jobletCounters,
-			CachedNumServersAliveOfType cachedNumServersAliveOfType, AtomicLong idGenerator, JobletType<?> jobletType){
+			CachedNumServersAliveOfThisType cachedNumServersAliveOfType, AtomicLong idGenerator, JobletType<?> jobletType){
 		this.jobletSettings = jobletSettings;
 		this.jobletRequestQueueManager = jobletRequestQueueManager;
 		this.jobletCallableFactory = jobletCallableFactory;
 		this.jobletCounters = jobletCounters;
-		this.cachedNumServersAliveOfType = cachedNumServersAliveOfType;
+		this.cachedNumServersAliveOfThisType = cachedNumServersAliveOfType;
 
 		this.idGenerator = idGenerator;
 		this.jobletType = jobletType;
@@ -126,7 +127,7 @@ public class JobletProcessor implements Runnable{
 	 */
 	private void tryEnqueueJobletCallable(){
 		int numThreads = getThreadCountFromSettings();
-		exec.setMaximumPoolSize(numThreads);//must be >0
+		exec.setMaximumPoolSize(Math.max(1, numThreads));//must be > 0
 		long startMs = System.currentTimeMillis();
 		long backoffMs = 10L;
 		while(System.currentTimeMillis() - startMs < MAX_WAIT_FOR_EXECUTOR.toMillis()){
@@ -176,14 +177,17 @@ public class JobletProcessor implements Runnable{
 	}
 
 	public int getThreadCountFromSettings(){
-		int numInstancesOfThisType = cachedNumServersAliveOfType.get();
+		if(!ENABLE_CLUSTER_THREAD_LIMITS){
+			return jobletSettings.getThreadCountForJobletType(jobletType);
+		}
+		int numInstancesOfThisType = cachedNumServersAliveOfThisType.get();
 		int clusterLimit = jobletSettings.getClusterThreadCountForJobletType(jobletType);
 		int perInstanceClusterLimit = (int)Math.ceil((double)clusterLimit / (double)numInstancesOfThisType);
 		int instanceLimit = jobletSettings.getThreadCountForJobletType(jobletType);
 		int min = Math.min(perInstanceClusterLimit, instanceLimit);
-//		logger.warn(
-//				"jobletType={}, numInstancesOfThisType={}, clusterLimit={}, perInstanceClusterLimit={}, instanceLimit={}, min={}",
-//				jobletType, numInstancesOfThisType, clusterLimit, perInstanceClusterLimit, instanceLimit, min);
+		logger.debug("jobletType={}, numInstancesOfThisType={}, clusterLimit={}, perInstanceClusterLimit={}"
+				+ ", instanceLimit={}, min={}", jobletType, numInstancesOfThisType, clusterLimit,
+				perInstanceClusterLimit, instanceLimit, min);
 		return min;
 	}
 

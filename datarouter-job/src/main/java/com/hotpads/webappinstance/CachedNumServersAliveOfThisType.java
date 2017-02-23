@@ -10,7 +10,7 @@ import com.hotpads.datarouter.config.DatarouterProperties;
 import com.hotpads.util.core.cache.Cached;
 
 @Singleton
-public class CachedNumServersAliveOfType extends Cached<Integer>{
+public class CachedNumServersAliveOfThisType extends Cached<Integer>{
 
 	private static final Duration HEARTBEAT_WITHIN = Duration.ofMinutes(3);
 
@@ -19,7 +19,7 @@ public class CachedNumServersAliveOfType extends Cached<Integer>{
 
 
 	@Inject
-	public CachedNumServersAliveOfType(DatarouterProperties datarouterProperties, WebAppInstanceDao webAppInstanceDao){
+	public CachedNumServersAliveOfThisType(DatarouterProperties datarouterProperties, WebAppInstanceDao webAppInstanceDao){
 		super(20, TimeUnit.SECONDS);
 		this.datarouterProperties = datarouterProperties;
 		this.webAppInstanceDao = webAppInstanceDao;
