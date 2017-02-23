@@ -20,16 +20,17 @@ import com.hotpads.webappinstance.databean.WebAppInstanceKey;
 
 @Singleton
 public class WebAppInstanceDao{
-	//needs to be long enough for an index server branch to load
+	//needs to be long enough for a modelIndex server branch to load
 	public static final int ACCEPTABLE_REFRESH_DELAY_MINUTES = 20;
 
-	private final Date startTime;
-	/************** inject **************************/
-
+	//injected
 	private final WebAppInstanceNodes webAppInstanceNodes;
 	private final WebAppName webAppName;
 	private final GitProperties gitProperties;
 	private final DatarouterProperties datarouterProperties;
+
+	//not injected
+	private final Date startTime;
 
 	@Inject
 	public WebAppInstanceDao(WebAppInstanceNodes webAppInstanceNodes, WebAppName webAppName, GitProperties
