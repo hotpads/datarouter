@@ -63,6 +63,11 @@ extends SettingNode{
 
 	/*------------------ methods -----------------------*/
 
+	public Integer getClusterThreadCountForJobletType(JobletType<?> jobletType){
+		return Optional.ofNullable(getClusterThreadCountSettings().getClusterThreadCountForJobletType(jobletType))
+				.orElse(0);
+	}
+
 	public Integer getThreadCountForJobletType(JobletType<?> jobletType){
 		return Optional.ofNullable(getThreadCountSettings().getThreadCountForJobletType(jobletType)).orElse(0);
 	}
@@ -72,6 +77,11 @@ extends SettingNode{
 	}
 
 	/*------------------ node getters ------------------*/
+
+	public JobletClusterThreadCountSettings getClusterThreadCountSettings(){
+		String name = getName() + JobletClusterThreadCountSettings.NAME + ".";
+		return Objects.requireNonNull((JobletClusterThreadCountSettings)getChildren().get(name));
+	}
 
 	public JobletThreadCountSettings getThreadCountSettings(){
 		String name = getName() + JobletThreadCountSettings.NAME + ".";
