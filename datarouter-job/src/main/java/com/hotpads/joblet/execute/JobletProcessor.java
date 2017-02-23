@@ -17,6 +17,8 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.hotpads.datarouter.config.DatarouterProperties;
+import com.hotpads.datarouter.setting.ServerType;
 import com.hotpads.joblet.JobletCounters;
 import com.hotpads.joblet.dto.RunningJoblet;
 import com.hotpads.joblet.queue.JobletRequestQueueManager;
@@ -37,6 +39,7 @@ public class JobletProcessor implements Runnable{
 	public static final Long RUNNING_JOBLET_TIMEOUT_MS = 1000L * 60 * 10;  //10 minutes
 
 	//injectable
+	private final DatarouterProperties datarouterProperties;
 	private final JobletSettings jobletSettings;
 	private final JobletRequestQueueManager jobletRequestQueueManager;
 	private final JobletCallableFactory jobletCallableFactory;
@@ -52,9 +55,11 @@ public class JobletProcessor implements Runnable{
 	private final Thread driverThread;
 
 
-	public JobletProcessor(JobletSettings jobletSettings, JobletRequestQueueManager jobletRequestQueueManager,
-			JobletCallableFactory jobletCallableFactory, JobletCounters jobletCounters,
-			WebAppInstanceDao webAppInstanceDao, AtomicLong idGenerator, JobletType<?> jobletType){
+	public JobletProcessor(DatarouterProperties datarouterProperties, JobletSettings jobletSettings,
+			JobletRequestQueueManager jobletRequestQueueManager, JobletCallableFactory jobletCallableFactory,
+			JobletCounters jobletCounters, WebAppInstanceDao webAppInstanceDao, AtomicLong idGenerator,
+			JobletType<?> jobletType){
+		this.datarouterProperties = datarouterProperties;
 		this.jobletSettings = jobletSettings;
 		this.jobletRequestQueueManager = jobletRequestQueueManager;
 		this.jobletCallableFactory = jobletCallableFactory;
@@ -176,9 +181,11 @@ public class JobletProcessor implements Runnable{
 	}
 
 	public int getThreadCountFromSettings(){
+		ServerType serverType = datarouterProperties.getServerType();
+		//TODO get cached value since this gets called often
+		int numInstancesOfThisType = webAppInstanceDao.getWebAppInstancesWithType(serverType).size();
 		int clusterLimit = jobletSettings.getClusterThreadCountForJobletType(jobletType);
-		int numJobletInstances = webAppInstanceDao.getWebAppInstancesWithType(serverType);//need to provide HotPadsServerType.JOBLET
-		int perInstanceClusterLimit = (int)Math.ceil((double)clusterLimit / (double)numJobletInstances);
+		int perInstanceClusterLimit = (int)Math.ceil((double)clusterLimit / (double)numInstancesOfThisType);
 		int instanceLimit = jobletSettings.getThreadCountForJobletType(jobletType);
 		return Math.min(perInstanceClusterLimit, instanceLimit);
 	}
