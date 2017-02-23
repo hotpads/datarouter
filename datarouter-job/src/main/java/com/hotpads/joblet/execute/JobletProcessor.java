@@ -24,6 +24,7 @@ import com.hotpads.joblet.setting.JobletSettings;
 import com.hotpads.joblet.type.JobletType;
 import com.hotpads.util.core.concurrent.NamedThreadFactory;
 import com.hotpads.util.datastructs.MutableBoolean;
+import com.hotpads.webappinstance.WebAppInstanceDao;
 
 public class JobletProcessor implements Runnable{
 	private static final Logger logger = LoggerFactory.getLogger(JobletProcessor.class);
@@ -40,6 +41,7 @@ public class JobletProcessor implements Runnable{
 	private final JobletRequestQueueManager jobletRequestQueueManager;
 	private final JobletCallableFactory jobletCallableFactory;
 	private final JobletCounters jobletCounters;
+	private final WebAppInstanceDao webAppInstanceDao;
 	//not injectable
 	private final AtomicLong idGenerator;
 	private final JobletType<?> jobletType;
@@ -51,12 +53,14 @@ public class JobletProcessor implements Runnable{
 
 
 	public JobletProcessor(JobletSettings jobletSettings, JobletRequestQueueManager jobletRequestQueueManager,
-			JobletCallableFactory jobletCallableFactory, JobletCounters jobletCounters, AtomicLong idGenerator,
-			JobletType<?> jobletType){
+			JobletCallableFactory jobletCallableFactory, JobletCounters jobletCounters,
+			WebAppInstanceDao webAppInstanceDao, AtomicLong idGenerator, JobletType<?> jobletType){
 		this.jobletSettings = jobletSettings;
 		this.jobletRequestQueueManager = jobletRequestQueueManager;
 		this.jobletCallableFactory = jobletCallableFactory;
 		this.jobletCounters = jobletCounters;
+		this.webAppInstanceDao = webAppInstanceDao;
+
 		this.idGenerator = idGenerator;
 		this.jobletType = jobletType;
 		//create a separate shutdownRequested for each processor so we can disable them independently
@@ -121,7 +125,7 @@ public class JobletProcessor implements Runnable{
 	 * TODO make a BlockingRejectedExecutionHandler?
 	 */
 	private void tryEnqueueJobletCallable(){
-		int numThreads = jobletSettings.getThreadCountForJobletType(jobletType);
+		int numThreads = getThreadCountFromSettings();
 		exec.setMaximumPoolSize(numThreads);//must be >0
 		long startMs = System.currentTimeMillis();
 		long backoffMs = 10L;
@@ -172,7 +176,11 @@ public class JobletProcessor implements Runnable{
 	}
 
 	public int getThreadCountFromSettings(){
-		return jobletSettings.getThreadCountForJobletType(jobletType);
+		int clusterLimit = jobletSettings.getClusterThreadCountForJobletType(jobletType);
+		int numJobletInstances = webAppInstanceDao.getWebAppInstancesWithType(serverType);//need to provide HotPadsServerType.JOBLET
+		int perInstanceClusterLimit = (int)Math.ceil((double)clusterLimit / (double)numJobletInstances);
+		int instanceLimit = jobletSettings.getThreadCountForJobletType(jobletType);
+		return Math.min(perInstanceClusterLimit, instanceLimit);
 	}
 
 	/*---------------- Object methods ----------------*/
