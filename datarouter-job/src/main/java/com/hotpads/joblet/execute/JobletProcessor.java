@@ -17,8 +17,6 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hotpads.datarouter.config.DatarouterProperties;
-import com.hotpads.datarouter.setting.ServerType;
 import com.hotpads.joblet.JobletCounters;
 import com.hotpads.joblet.dto.RunningJoblet;
 import com.hotpads.joblet.queue.JobletRequestQueueManager;
@@ -26,7 +24,7 @@ import com.hotpads.joblet.setting.JobletSettings;
 import com.hotpads.joblet.type.JobletType;
 import com.hotpads.util.core.concurrent.NamedThreadFactory;
 import com.hotpads.util.datastructs.MutableBoolean;
-import com.hotpads.webappinstance.WebAppInstanceDao;
+import com.hotpads.webappinstance.CachedNumServersOfType;
 
 public class JobletProcessor implements Runnable{
 	private static final Logger logger = LoggerFactory.getLogger(JobletProcessor.class);
@@ -39,12 +37,11 @@ public class JobletProcessor implements Runnable{
 	public static final Long RUNNING_JOBLET_TIMEOUT_MS = 1000L * 60 * 10;  //10 minutes
 
 	//injectable
-	private final DatarouterProperties datarouterProperties;
 	private final JobletSettings jobletSettings;
 	private final JobletRequestQueueManager jobletRequestQueueManager;
 	private final JobletCallableFactory jobletCallableFactory;
 	private final JobletCounters jobletCounters;
-	private final WebAppInstanceDao webAppInstanceDao;
+	private final CachedNumServersOfType cachedNumServersOfType;
 	//not injectable
 	private final AtomicLong idGenerator;
 	private final JobletType<?> jobletType;
@@ -55,16 +52,14 @@ public class JobletProcessor implements Runnable{
 	private final Thread driverThread;
 
 
-	public JobletProcessor(DatarouterProperties datarouterProperties, JobletSettings jobletSettings,
-			JobletRequestQueueManager jobletRequestQueueManager, JobletCallableFactory jobletCallableFactory,
-			JobletCounters jobletCounters, WebAppInstanceDao webAppInstanceDao, AtomicLong idGenerator,
-			JobletType<?> jobletType){
-		this.datarouterProperties = datarouterProperties;
+	public JobletProcessor(JobletSettings jobletSettings, JobletRequestQueueManager jobletRequestQueueManager,
+			JobletCallableFactory jobletCallableFactory, JobletCounters jobletCounters,
+			CachedNumServersOfType cachedNumServersOfType, AtomicLong idGenerator, JobletType<?> jobletType){
 		this.jobletSettings = jobletSettings;
 		this.jobletRequestQueueManager = jobletRequestQueueManager;
 		this.jobletCallableFactory = jobletCallableFactory;
 		this.jobletCounters = jobletCounters;
-		this.webAppInstanceDao = webAppInstanceDao;
+		this.cachedNumServersOfType = cachedNumServersOfType;
 
 		this.idGenerator = idGenerator;
 		this.jobletType = jobletType;
@@ -181,9 +176,7 @@ public class JobletProcessor implements Runnable{
 	}
 
 	public int getThreadCountFromSettings(){
-		ServerType serverType = datarouterProperties.getServerType();
-		//TODO get cached value since this gets called often
-		int numInstancesOfThisType = webAppInstanceDao.getWebAppInstancesWithType(serverType).size();
+		int numInstancesOfThisType = cachedNumServersOfType.get();
 		int clusterLimit = jobletSettings.getClusterThreadCountForJobletType(jobletType);
 		int perInstanceClusterLimit = (int)Math.ceil((double)clusterLimit / (double)numInstancesOfThisType);
 		int instanceLimit = jobletSettings.getThreadCountForJobletType(jobletType);

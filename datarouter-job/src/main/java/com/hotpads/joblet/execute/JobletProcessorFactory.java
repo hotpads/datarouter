@@ -5,17 +5,14 @@ import java.util.concurrent.atomic.AtomicLong;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import com.hotpads.datarouter.config.DatarouterProperties;
 import com.hotpads.joblet.JobletCounters;
 import com.hotpads.joblet.queue.JobletRequestQueueManager;
 import com.hotpads.joblet.setting.JobletSettings;
 import com.hotpads.joblet.type.JobletType;
-import com.hotpads.webappinstance.WebAppInstanceDao;
+import com.hotpads.webappinstance.CachedNumServersOfType;
 
 @Singleton
 public class JobletProcessorFactory{
-	@Inject
-	private DatarouterProperties datarouterProperties;
 	@Inject
 	private JobletSettings jobletSettings;
 	@Inject
@@ -25,10 +22,10 @@ public class JobletProcessorFactory{
 	@Inject
 	private JobletCounters jobletCounters;
 	@Inject
-	private WebAppInstanceDao webAppInstanceDao;
+	private CachedNumServersOfType cachedNumServersOfType;
 
 	public JobletProcessor create(AtomicLong idGenerator, JobletType<?> jobletType){
-		return new JobletProcessor(datarouterProperties, jobletSettings, jobletRequestQueueManager,
-				jobletCallableFactory, jobletCounters, webAppInstanceDao, idGenerator, jobletType);
+		return new JobletProcessor(jobletSettings, jobletRequestQueueManager, jobletCallableFactory, jobletCounters,
+				cachedNumServersOfType, idGenerator, jobletType);
 	}
 }
