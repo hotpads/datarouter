@@ -88,10 +88,10 @@ public class JobletProcessor implements Runnable{
 
 	/*----------------- private --------------------*/
 
-	private boolean shouldRun(){
+	private boolean shouldRun(int numThreads){
 		return !shutdownRequested.get()
 				&& jobletSettings.runJoblets.getValue()
-				&& jobletSettings.getThreadCountForJobletType(jobletType) > 0;
+				&& numThreads > 0;
 	}
 
 	//this method must continue indefinitely, so be sure to catch all exceptions
@@ -99,7 +99,8 @@ public class JobletProcessor implements Runnable{
 	public void run(){
 		while(true){
 			try{
-				if(!shouldRun()){
+				int numThreads = getThreadCountFromSettings();
+				if(!shouldRun(numThreads)){
 					sleepABit(SLEEP_TIME_WHEN_DISABLED, "shouldRun=false");
 					continue;
 				}
@@ -107,7 +108,7 @@ public class JobletProcessor implements Runnable{
 					sleepABit(SLEEP_TIME_WHEN_NO_WORK, "shouldCheckAnyQueues=false");
 					continue;
 				}
-				tryEnqueueJobletCallable();
+				tryEnqueueJobletCallable(numThreads);
 			}catch(Exception e){//catch everything; don't let the loop break
 				logger.error("", e);
 				try{
@@ -125,9 +126,8 @@ public class JobletProcessor implements Runnable{
 	 *
 	 * TODO make a BlockingRejectedExecutionHandler?
 	 */
-	private void tryEnqueueJobletCallable(){
-		int numThreads = getThreadCountFromSettings();
-		exec.setMaximumPoolSize(Math.max(1, numThreads));//must be > 0
+	private void tryEnqueueJobletCallable(int numThreads){
+		exec.setMaximumPoolSize(numThreads);//must be > 0
 		long startMs = System.currentTimeMillis();
 		long backoffMs = 10L;
 		while(System.currentTimeMillis() - startMs < MAX_WAIT_FOR_EXECUTOR.toMillis()){
@@ -183,15 +183,15 @@ public class JobletProcessor implements Runnable{
 		int numInstancesOfThisType = cachedNumServersAliveOfThisType.get();
 		int clusterLimit = jobletSettings.getClusterThreadCountForJobletType(jobletType);
 		int perInstanceClusterLimit = (int)Math.ceil((double)clusterLimit / (double)numInstancesOfThisType);
-		int instanceLimit = jobletSettings.getThreadCountForJobletType(jobletType);
-		int min = Math.min(perInstanceClusterLimit, instanceLimit);
+		int hardInstanceLimit = jobletSettings.getThreadCountForJobletType(jobletType);
+		int effectiveLimit = Math.min(perInstanceClusterLimit, hardInstanceLimit);
 		logger.debug("jobletType={}, numInstancesOfThisType={}, clusterLimit={}, perInstanceClusterLimit={}"
-				+ ", instanceLimit={}, min={}", jobletType, numInstancesOfThisType, clusterLimit,
-				perInstanceClusterLimit, instanceLimit, min);
-		return min;
+				+ ", hardInstanceLimit={}, effectiveLimit={}", jobletType, numInstancesOfThisType, clusterLimit,
+				perInstanceClusterLimit, hardInstanceLimit, effectiveLimit);
+		return effectiveLimit;
 	}
 
-	/*---------------- Object methods ----------------*/
+	/*--effectiveLimit---- Object methods ----------------*/
 
 	@Override
 	public String toString(){
