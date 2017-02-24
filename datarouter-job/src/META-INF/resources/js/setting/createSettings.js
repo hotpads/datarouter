@@ -151,8 +151,8 @@ define('settings-tools', ['jquery-ui'], function(){
 	    		break;
 	    	}
 		},
-		getValidatorOptionsWithHandler: function(submitHandler, formElem, skipValue){
-			formElem = formElem || $('#form');
+		getValidatorOptionsWithHandler: function(submitHandler){
+			formElem = $('#form');
 			return {
 				rules: {
 					name: "required",
@@ -166,11 +166,6 @@ define('settings-tools', ['jquery-ui'], function(){
 					application: {
 						required: function() {
 							return formElem.find('.scope option[value="application"]').prop('selected') == true;
-						}
-					},
-					value: {
-						required: function() {
-							return !skipValue;
 						}
 					}
 				},
