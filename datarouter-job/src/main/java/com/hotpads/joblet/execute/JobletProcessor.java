@@ -3,6 +3,7 @@ package com.hotpads.joblet.execute;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
@@ -55,7 +56,8 @@ public class JobletProcessor implements Runnable{
 
 	public JobletProcessor(JobletSettings jobletSettings, JobletRequestQueueManager jobletRequestQueueManager,
 			JobletCallableFactory jobletCallableFactory, JobletCounters jobletCounters,
-			CachedNumServersAliveOfThisType cachedNumServersAliveOfType, AtomicLong idGenerator, JobletType<?> jobletType){
+			CachedNumServersAliveOfThisType cachedNumServersAliveOfType, AtomicLong idGenerator,
+			JobletType<?> jobletType){
 		this.jobletSettings = jobletSettings;
 		this.jobletRequestQueueManager = jobletRequestQueueManager;
 		this.jobletCallableFactory = jobletCallableFactory;
@@ -185,9 +187,11 @@ public class JobletProcessor implements Runnable{
 		int perInstanceClusterLimit = (int)Math.ceil((double)clusterLimit / (double)numInstancesOfThisType);
 		int hardInstanceLimit = jobletSettings.getThreadCountForJobletType(jobletType);
 		int effectiveLimit = Math.min(perInstanceClusterLimit, hardInstanceLimit);
-		logger.debug("jobletType={}, numInstancesOfThisType={}, clusterLimit={}, perInstanceClusterLimit={}"
-				+ ", hardInstanceLimit={}, effectiveLimit={}", jobletType, numInstancesOfThisType, clusterLimit,
-				perInstanceClusterLimit, hardInstanceLimit, effectiveLimit);
+		if(Objects.equals(jobletType.getPersistentString(), "TableSpanSamplerJoblet")){//can remove after rollout
+			logger.warn("jobletType={}, numInstancesOfThisType={}, clusterLimit={}, perInstanceClusterLimit={}"
+					+ ", hardInstanceLimit={}, effectiveLimit={}", jobletType, numInstancesOfThisType, clusterLimit,
+					perInstanceClusterLimit, hardInstanceLimit, effectiveLimit);
+		}
 		return effectiveLimit;
 	}
 
