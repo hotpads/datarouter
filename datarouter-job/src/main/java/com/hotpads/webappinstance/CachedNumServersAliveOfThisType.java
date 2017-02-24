@@ -19,7 +19,8 @@ public class CachedNumServersAliveOfThisType extends Cached<Integer>{
 
 
 	@Inject
-	public CachedNumServersAliveOfThisType(DatarouterProperties datarouterProperties, WebAppInstanceDao webAppInstanceDao){
+	public CachedNumServersAliveOfThisType(DatarouterProperties datarouterProperties,
+			WebAppInstanceDao webAppInstanceDao){
 		super(20, TimeUnit.SECONDS);
 		this.datarouterProperties = datarouterProperties;
 		this.webAppInstanceDao = webAppInstanceDao;
@@ -27,7 +28,7 @@ public class CachedNumServersAliveOfThisType extends Cached<Integer>{
 
 
 	@Override
-	protected Integer reload() {
+	protected Integer reload(){
 		return webAppInstanceDao.getWebAppInstancesOfType(datarouterProperties.getServerType(), HEARTBEAT_WITHIN)
 				.size();
 	}
