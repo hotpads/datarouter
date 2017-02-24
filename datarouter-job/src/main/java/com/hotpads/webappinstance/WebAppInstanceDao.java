@@ -21,7 +21,7 @@ import com.hotpads.webappinstance.databean.WebAppInstanceKey;
 
 @Singleton
 public class WebAppInstanceDao{
-	//needs to be long enough for a modelIndex server branch to load
+
 	public static final int ACCEPTABLE_REFRESH_DELAY_MINUTES = 20;
 
 	//injected
