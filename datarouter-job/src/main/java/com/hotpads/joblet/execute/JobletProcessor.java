@@ -195,7 +195,7 @@ public class JobletProcessor implements Runnable{
 		return effectiveLimit;
 	}
 
-	/*--effectiveLimit---- Object methods ----------------*/
+	/*------------ Object methods ----------------*/
 
 	@Override
 	public String toString(){
