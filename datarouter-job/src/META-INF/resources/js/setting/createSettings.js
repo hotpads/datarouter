@@ -151,7 +151,7 @@ define('settings-tools', ['jquery-ui'], function(){
 	    		break;
 	    	}
 		},
-		getValidatorOptionsWithHandler: function(submitHandlerm, formElem){
+		getValidatorOptionsWithHandler: function(submitHandler, formElem){
 			formElem = formElem || $('#form');
 			return {
 				rules: {
