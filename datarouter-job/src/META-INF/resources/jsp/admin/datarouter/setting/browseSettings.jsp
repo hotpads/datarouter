@@ -176,7 +176,7 @@
 					settingsTools.updateFields($(this).closest('form'));
 				});
 				$("#form").validate(settingsTools.getValidatorOptionsWithHandler(createSetting, $('#form')));
-				$("#group-form").validate(settingsTools.getValidatorOptionsWithHandler(addGroupScope, $('#group-form'), true));
+				$("#group-form").validate(settingsTools.getValidatorOptionsWithHandler(addGroupScope, $('#group-form')));
 				
 				//table update/delete events
 				//these are delegated so they don't need to be bound to each newly added row
