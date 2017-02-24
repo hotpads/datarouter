@@ -1,11 +1,39 @@
 package com.hotpads.notification.destination;
 
-import com.hotpads.notification.databean.NotificationUserType;
+import com.hotpads.datarouter.storage.field.imp.StringFieldKey;
 
-public interface NotificationDestinationApp{
+public class NotificationDestinationApp{
 
-	NotificationDestinationPlatform getPlatform();
+	public static final StringFieldKey key = new StringFieldKey("persistentString");
 
-	boolean accept(NotificationUserType type);
+	public final String persistentString;
 
+	public NotificationDestinationApp(String persistentString){
+		this.persistentString = persistentString;
+	}
+
+	public NotificationDestinationApp(){
+		this(null);
+	}
+
+	@Override
+	public boolean equals(Object obj){
+		if(this == obj){
+			return true;
+		}
+		if(obj == null || !(obj instanceof NotificationDestinationApp)){
+			return false;
+		}
+		NotificationDestinationApp other = (NotificationDestinationApp)obj;
+
+		if(persistentString == null){
+			return other.persistentString == null;
+		}
+		return persistentString.equals(other.persistentString);
+	}
+
+	@Override
+	public int hashCode(){
+		return persistentString == null ? 0 : persistentString.hashCode();
+	}
 }

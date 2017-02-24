@@ -8,8 +8,8 @@ import com.hotpads.notification.databean.NotificationUserType;
 import com.hotpads.util.core.enums.DatarouterEnumTool;
 import com.hotpads.util.core.enums.StringEnum;
 
-public enum NotificationDestinationAppEnum
-implements StringEnum<NotificationDestinationAppEnum>, NotificationDestinationApp{
+public enum HotpadsNotificationDestinationApp
+implements StringEnum<HotpadsNotificationDestinationApp>{
 	@Deprecated
 	HOTPADS_GCM("hotpads_gcm", NotificationDestinationPlatform.GCM),
 	HOTPADS_IOS_GCM("hotpads_ios_gcm", NotificationDestinationPlatform.GCM),
@@ -20,34 +20,40 @@ implements StringEnum<NotificationDestinationAppEnum>, NotificationDestinationAp
 	ZRM_IOS_GCM("zrm_ios_gcm", NotificationDestinationPlatform.GCM),
 	ZRM_ANDROID_GCM("zrm_android_gcm", NotificationDestinationPlatform.GCM);
 
-	private String persistentString;
+	private NotificationDestinationApp app;
 	private NotificationDestinationPlatform platform;
 	private Set<NotificationUserType> acceptedAutologicalUserTypes;
 
-	private NotificationDestinationAppEnum(String persistentString, NotificationDestinationPlatform platform,
+	private HotpadsNotificationDestinationApp(String persistentString, NotificationDestinationPlatform platform,
 			NotificationUserType... userTypes){
-		this.persistentString = persistentString;
+		this.app = new NotificationDestinationApp(persistentString);
 		this.platform = platform;
 		this.acceptedAutologicalUserTypes = new HashSet<>(Arrays.asList(userTypes));
 	}
 
 	@Override
 	public String getPersistentString(){
-		return persistentString;
+		return app.persistentString;
 	}
 
 	@Override
-	public NotificationDestinationAppEnum fromPersistentString(String s){
-		return DatarouterEnumTool.getEnumFromString(values(), s, null);
+	public HotpadsNotificationDestinationApp fromPersistentString(String str){
+		return DatarouterEnumTool.getEnumFromString(values(), str, null);
 	}
 
-	@Override
 	public NotificationDestinationPlatform getPlatform(){
 		return platform;
 	}
 
-	@Override
 	public boolean accept(NotificationUserType type){
 		return acceptedAutologicalUserTypes.contains(type);
+	}
+
+	public NotificationDestinationApp getApp(){
+		return app;
+	}
+
+	public static HotpadsNotificationDestinationApp fromApp(NotificationDestinationApp app){
+		return HotpadsNotificationDestinationApp.HOTPADS_ANDROID_GCM.fromPersistentString(app.persistentString);
 	}
 }

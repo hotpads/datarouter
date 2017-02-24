@@ -36,7 +36,7 @@ public class NotificationTesterHandler extends BaseHandler{
 			if(results.isPresent()){
 				String failures = results.get().stream()
 						.filter(result -> result.getFailureReason() != null)
-						.map(result -> result.getTemplate().getName() + ": " + result.getFailureReason())
+						.map(result -> result.getTemplate() + ": " + result.getFailureReason())
 						.collect(Collectors.joining(", "));
 				mav.put("failures", failures);
 				mav.put("numAttempted", results.get().size());
