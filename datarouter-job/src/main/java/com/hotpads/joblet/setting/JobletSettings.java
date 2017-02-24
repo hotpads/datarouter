@@ -64,12 +64,12 @@ extends SettingNode{
 	/*------------------ methods -----------------------*/
 
 	public Integer getClusterThreadCountForJobletType(JobletType<?> jobletType){
-		return Optional.ofNullable(getClusterThreadCountSettings().getClusterThreadCountForJobletType(jobletType))
+		return Optional.ofNullable(getClusterThreadCountSettings().getCountForJobletType(jobletType))
 				.orElse(0);
 	}
 
 	public Integer getThreadCountForJobletType(JobletType<?> jobletType){
-		return Optional.ofNullable(getThreadCountSettings().getThreadCountForJobletType(jobletType)).orElse(0);
+		return Optional.ofNullable(getThreadCountSettings().getCountForJobletType(jobletType)).orElse(0);
 	}
 
 	public JobletQueueMechanism getQueueMechanismEnum(){

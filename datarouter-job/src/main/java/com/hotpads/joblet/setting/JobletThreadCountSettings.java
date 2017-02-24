@@ -29,7 +29,7 @@ public class JobletThreadCountSettings extends SettingNode{
 		super(finder, webAppName + ".joblet.threadCount.", webAppName + ".joblet.");
 
 		for(JobletType<?> jobletType : jobletTypeFactory.getAllTypes()){
-			Setting<Integer> setting = registerThreadCountSetting(jobletType, jobletType.getPersistentString(),
+			Setting<Integer> setting = registerSetting(jobletType, jobletType.getPersistentString(),
 					DEFAULT_NUM_THREADS);
 			settingByJobletType.put(jobletType, setting);
 		}
@@ -37,7 +37,7 @@ public class JobletThreadCountSettings extends SettingNode{
 
 	/*-------------- methods ----------------------*/
 
-	public Setting<Integer> registerThreadCountSetting(JobletType<?> jobletType, String name, Integer defaultValue){
+	public Setting<Integer> registerSetting(JobletType<?> jobletType, String name, Integer defaultValue){
 		Setting<Integer> setting = registerInteger(name, defaultValue);
 		settingByJobletType.put(jobletType, setting);
 		return setting;
@@ -47,7 +47,7 @@ public class JobletThreadCountSettings extends SettingNode{
 		return settingByJobletType.get(type);
 	}
 
-	public int getThreadCountForJobletType(JobletType<?> type){
+	public int getCountForJobletType(JobletType<?> type){
 		return Optional.ofNullable(settingByJobletType.get(type).getValue()).orElse(0);
 	}
 

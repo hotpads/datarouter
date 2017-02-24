@@ -22,7 +22,8 @@ public class JobletClusterThreadCountSettings extends SettingNode{
 	private final Map<JobletType<?>,Setting<Integer>> settingByJobletType = new HashMap<>();
 
 	@Inject
-	public JobletClusterThreadCountSettings(SettingFinder finder, WebAppName webAppName, JobletTypeFactory jobletTypeFactory){
+	public JobletClusterThreadCountSettings(SettingFinder finder, WebAppName webAppName,
+			JobletTypeFactory jobletTypeFactory){
 		super(finder, webAppName + ".joblet.clusterThreadCount.", webAppName + ".joblet.");
 
 		for(JobletType<?> jobletType : jobletTypeFactory.getAllTypes()){
@@ -43,7 +44,7 @@ public class JobletClusterThreadCountSettings extends SettingNode{
 		return settingByJobletType.get(type);
 	}
 
-	public int getClusterThreadCountForJobletType(JobletType<?> type){
+	public int getCountForJobletType(JobletType<?> type){
 		return Optional.ofNullable(settingByJobletType.get(type).getValue()).orElse(0);
 	}
 
