@@ -36,4 +36,9 @@ public class NotificationDestinationApp{
 	public int hashCode(){
 		return persistentString == null ? 0 : persistentString.hashCode();
 	}
+
+	//for JSP
+	public String getPersistentString(){
+		return persistentString;
+	}
 }

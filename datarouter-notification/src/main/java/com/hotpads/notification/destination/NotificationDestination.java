@@ -83,7 +83,7 @@ public class NotificationDestination extends BaseDatabean<NotificationDestinatio
 		return active;
 	}
 
-	public void setActive(boolean active){
+	public void setActive(Boolean active){
 		this.active = active;
 	}
 
