@@ -12,8 +12,11 @@ import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import org.apache.commons.codec.binary.Hex;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SignatureValidator{
+	private static final Logger logger = LoggerFactory.getLogger(SignatureValidator.class);
 
 	private static final String HASHING_ALGORITHM = "SHA-256";
 	private String salt;
@@ -24,7 +27,9 @@ public class SignatureValidator{
 
 	public boolean checkHexSignature(Map<String,String> params, String candidateSignature){
 		// params might be reordered, so if that doesn't work use treemap to use same order
+		// goal is to have sign() make the treemap so all signing is consistent
 		if(getHexSignature(params).equals(candidateSignature)){
+			logger.warn("Successfully checked signature using old method");
 			return true;
 		}else{
 			return getHexSignature(new TreeMap<>(params)).equals(candidateSignature);
