@@ -177,7 +177,7 @@ public class HotPadsHttpClient{
 		if(request.canHaveEntity() && request.getEntity() == null){
 			params = request.addPostParams(params).getPostParams();
 			if(signatureValidator != null && !params.isEmpty()){
-				String signature = signatureValidator.getHexSignature(request.getPostParams());
+				String signature = signatureValidator.getHexSignature(new TreeMap<>(request.getPostParams()));
 				signatureParam = Collections.singletonMap(SecurityParameters.SIGNATURE, signature);
 				request.addPostParams(signatureParam);
 			}
