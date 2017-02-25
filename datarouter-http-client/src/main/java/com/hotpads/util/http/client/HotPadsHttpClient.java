@@ -5,6 +5,7 @@ import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
@@ -184,7 +185,8 @@ public class HotPadsHttpClient{
 		}else if(request.getMethod() == HttpRequestMethod.GET){
 			params = request.addGetParams(params).getGetParams();
 			if(signatureValidator != null && !params.isEmpty()){
-				String signature = signatureValidator.getHexSignature(request.getGetParams());
+				// use treemap for signature so the order of params is always the same
+				String signature = signatureValidator.getHexSignature(new TreeMap<>(request.getGetParams()));
 				signatureParam = Collections.singletonMap(SecurityParameters.SIGNATURE, signature);
 				request.addGetParams(signatureParam);
 			}

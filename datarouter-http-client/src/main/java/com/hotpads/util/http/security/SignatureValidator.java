@@ -9,6 +9,7 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.TreeMap;
 
 import org.apache.commons.codec.binary.Hex;
 
@@ -22,7 +23,12 @@ public class SignatureValidator{
 	}
 
 	public boolean checkHexSignature(Map<String,String> params, String candidateSignature){
-		return getHexSignature(params).equals(candidateSignature);
+		// params might be reordered, so if that doesn't work use treemap to use same order
+		if(getHexSignature(params).equals(candidateSignature)){
+			return true;
+		}else{
+			return getHexSignature(new TreeMap<>(params)).equals(candidateSignature);
+		}
 	}
 
 	public boolean checkHexSignatureMulti(Map<String,String[]> params, String candidateSignature){
