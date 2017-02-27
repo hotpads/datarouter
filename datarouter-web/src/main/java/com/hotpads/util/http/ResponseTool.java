@@ -25,7 +25,7 @@ public class ResponseTool{
 		response.setStatus(code);
 		JsonObject jsonObject = new JsonObject();
 		jsonObject.addProperty("message", message);
-		jsonObject.addProperty("httpResponseCode", HttpServletResponse.SC_BAD_REQUEST);
+		jsonObject.addProperty("httpResponseCode", code);
 
 		try{
 			response.getWriter().write(jsonObject.toString());
