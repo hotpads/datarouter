@@ -7,6 +7,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
@@ -14,6 +15,9 @@ import java.util.TreeMap;
 import org.apache.commons.codec.binary.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.Assert;
+import org.testng.annotations.BeforeTest;
+import org.testng.annotations.Test;
 
 public class SignatureValidator{
 	private static final Logger logger = LoggerFactory.getLogger(SignatureValidator.class);
@@ -26,13 +30,12 @@ public class SignatureValidator{
 	}
 
 	public boolean checkHexSignature(Map<String,String> params, String candidateSignature){
-		// params might be reordered, so if that doesn't work use treemap to use same order
-		// goal is to have sign() make the treemap so all signing is consistent
-		if(getHexSignature(params).equals(candidateSignature)){
-			logger.warn("Successfully checked signature using old method");
+		// params might have it's own order, so see if it works without enforcing order first
+		if(getHexSignatureWithoutSettingParameterOrder(params).equals(candidateSignature)){
+			logger.warn("Successfully checked signature without checking parameter order");
 			return true;
 		}else{
-			return getHexSignature(new TreeMap<>(params)).equals(candidateSignature);
+			return getHexSignature(params).equals(candidateSignature);
 		}
 	}
 
@@ -42,12 +45,16 @@ public class SignatureValidator{
 
 	@Deprecated
 	public boolean checkBase64Signature(Map<String, String> map, String candidateString){
-		byte[] signature = sign(map);
+		byte[] signature = signWithoutSettingParameterOrder(map);
 		byte[] candidate = Base64.getDecoder().decode(candidateString);
 		return Arrays.equals(candidate, signature);
 	}
 
-	public byte[] sign(Map<String, String> map){
+	public byte[] sign(Map<String,String> map){
+		return signWithoutSettingParameterOrder(new TreeMap<>(map));
+	}
+
+	public byte[] signWithoutSettingParameterOrder(Map<String, String> map){
 		ByteArrayOutputStream signature = new ByteArrayOutputStream();
 		MessageDigest md = null;
 		try{
@@ -73,8 +80,12 @@ public class SignatureValidator{
 		return Hex.encodeHexString(sign(params));
 	}
 
+	public String getHexSignatureWithoutSettingParameterOrder(Map<String,String> params){
+		return Hex.encodeHexString(signWithoutSettingParameterOrder(params));
+	}
+
 	public byte[] signMulti(Map<String, String[]> data){
-		return sign(multiToSingle(data));
+		return signWithoutSettingParameterOrder(multiToSingle(data));
 	}
 
 	private Map<String, String> multiToSingle(Map<String, String[]> data){
@@ -83,6 +94,63 @@ public class SignatureValidator{
 			map.put(entry.getKey(), entry.getValue()[0]);
 		}
 		return map;
+	}
+
+
+	/*********************** Tests ******************/
+	public static class SignatureValidatorTests{
+
+		Map<String,String> params;
+		SignatureValidator validator;
+
+		@BeforeTest
+		public void setup(){
+			validator = new SignatureValidator("329jfsJLKFj2fjjfL2319Jvn2332we");
+
+			params = new LinkedHashMap<>();
+			params.put("param1", "test1");
+			params.put("param2", "test2");
+			params.put("csrfToken", "B8kgUfjdsa1234jsl9sdfkJ==");
+			params.put("apiKey", "jklfds90j2r13kjJfjklJF923j2rjLKJfjs");
+			params.put("csrfIv", "x92jfjJdslSJFj29lsfjsf==");
+		}
+
+		@Test
+		public void testSettingParameterOrder(){
+			String originalSignature = validator.getHexSignature(params);
+			Map<String,String> reorderedParams = new HashMap<>(params);
+			String reorderedSignature = validator.getHexSignature(reorderedParams);
+
+			Assert.assertEquals(originalSignature, reorderedSignature);
+		}
+
+		@Test
+		public void testNotSettingParameterOrder(){
+			String originalSignature = validator.getHexSignatureWithoutSettingParameterOrder(params);
+			Map<String,String> reorderedParams = new HashMap<>(params);
+			String reorderedSignature = validator.getHexSignatureWithoutSettingParameterOrder(reorderedParams);
+
+			Assert.assertNotEquals(originalSignature, reorderedSignature);
+		}
+
+		@Test
+		public void testCheckHexSignatureHandlesBothCases(){
+			String signatureWithoutSettingOrder = validator.getHexSignatureWithoutSettingParameterOrder(params);
+			Map<String,String> reorderedParams = new HashMap<>(params);
+			String reorderedSignatureWithoutSettingOrder =
+					validator.getHexSignatureWithoutSettingParameterOrder(reorderedParams);
+
+			Assert.assertTrue(validator.checkHexSignature(params, signatureWithoutSettingOrder));
+			Assert.assertTrue(validator.checkHexSignature(reorderedParams, reorderedSignatureWithoutSettingOrder));
+			// check fails if signature was generated without setting order, and params are then reordered
+			Assert.assertFalse(validator.checkHexSignature(reorderedParams, signatureWithoutSettingOrder));
+
+			String signatureSettingOrder = validator.getHexSignature(params);
+			String reorderedSignature = validator.getHexSignature(reorderedParams);
+
+			Assert.assertTrue(validator.checkHexSignature(params, reorderedSignature));
+			Assert.assertTrue(validator.checkHexSignature(reorderedParams, signatureSettingOrder));
+		}
 	}
 
 }
