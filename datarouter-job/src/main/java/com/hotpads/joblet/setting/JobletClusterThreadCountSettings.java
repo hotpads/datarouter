@@ -11,26 +11,23 @@ import com.hotpads.datarouter.app.WebAppName;
 import com.hotpads.datarouter.setting.Setting;
 import com.hotpads.datarouter.setting.SettingFinder;
 import com.hotpads.datarouter.setting.SettingNode;
-import com.hotpads.joblet.execute.JobletProcessor;
 import com.hotpads.joblet.type.JobletType;
 import com.hotpads.joblet.type.JobletTypeFactory;
 
 @Singleton
-public class JobletThreadCountSettings extends SettingNode{
+public class JobletClusterThreadCountSettings extends SettingNode{
 
-	public static final String NAME = "threadCount";
-
-	private static final int DEFAULT_NUM_THREADS = JobletProcessor.ENABLE_CLUSTER_THREAD_LIMITS ? 1 : 0;
+	public static final String NAME = "clusterThreadCount";
 
 	private final Map<JobletType<?>,Setting<Integer>> settingByJobletType = new HashMap<>();
 
 	@Inject
-	public JobletThreadCountSettings(SettingFinder finder, WebAppName webAppName, JobletTypeFactory jobletTypeFactory){
-		super(finder, webAppName + ".joblet.threadCount.", webAppName + ".joblet.");
+	public JobletClusterThreadCountSettings(SettingFinder finder, WebAppName webAppName,
+			JobletTypeFactory jobletTypeFactory){
+		super(finder, webAppName + ".joblet.clusterThreadCount.", webAppName + ".joblet.");
 
 		for(JobletType<?> jobletType : jobletTypeFactory.getAllTypes()){
-			Setting<Integer> setting = registerSetting(jobletType, jobletType.getPersistentString(),
-					DEFAULT_NUM_THREADS);
+			Setting<Integer> setting = registerSetting(jobletType, jobletType.getPersistentString(), 0);
 			settingByJobletType.put(jobletType, setting);
 		}
 	}

@@ -3,6 +3,7 @@ package com.hotpads.joblet.execute;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
@@ -24,6 +25,7 @@ import com.hotpads.joblet.setting.JobletSettings;
 import com.hotpads.joblet.type.JobletType;
 import com.hotpads.util.core.concurrent.NamedThreadFactory;
 import com.hotpads.util.datastructs.MutableBoolean;
+import com.hotpads.webappinstance.CachedNumServersAliveOfThisType;
 
 public class JobletProcessor implements Runnable{
 	private static final Logger logger = LoggerFactory.getLogger(JobletProcessor.class);
@@ -34,12 +36,14 @@ public class JobletProcessor implements Runnable{
 	private static final Duration MAX_WAIT_FOR_EXECUTOR = Duration.ofSeconds(5);
 	private static final Duration SLEEP_TIME_AFTER_EXCEPTION = Duration.ofSeconds(5);
 	public static final Long RUNNING_JOBLET_TIMEOUT_MS = 1000L * 60 * 10;  //10 minutes
+	public static final boolean ENABLE_CLUSTER_THREAD_LIMITS = true;
 
 	//injectable
 	private final JobletSettings jobletSettings;
 	private final JobletRequestQueueManager jobletRequestQueueManager;
 	private final JobletCallableFactory jobletCallableFactory;
 	private final JobletCounters jobletCounters;
+	private final CachedNumServersAliveOfThisType cachedNumServersAliveOfThisType;
 	//not injectable
 	private final AtomicLong idGenerator;
 	private final JobletType<?> jobletType;
@@ -51,12 +55,15 @@ public class JobletProcessor implements Runnable{
 
 
 	public JobletProcessor(JobletSettings jobletSettings, JobletRequestQueueManager jobletRequestQueueManager,
-			JobletCallableFactory jobletCallableFactory, JobletCounters jobletCounters, AtomicLong idGenerator,
+			JobletCallableFactory jobletCallableFactory, JobletCounters jobletCounters,
+			CachedNumServersAliveOfThisType cachedNumServersAliveOfType, AtomicLong idGenerator,
 			JobletType<?> jobletType){
 		this.jobletSettings = jobletSettings;
 		this.jobletRequestQueueManager = jobletRequestQueueManager;
 		this.jobletCallableFactory = jobletCallableFactory;
 		this.jobletCounters = jobletCounters;
+		this.cachedNumServersAliveOfThisType = cachedNumServersAliveOfType;
+
 		this.idGenerator = idGenerator;
 		this.jobletType = jobletType;
 		//create a separate shutdownRequested for each processor so we can disable them independently
@@ -83,10 +90,10 @@ public class JobletProcessor implements Runnable{
 
 	/*----------------- private --------------------*/
 
-	private boolean shouldRun(){
+	private boolean shouldRun(int numThreads){
 		return !shutdownRequested.get()
 				&& jobletSettings.runJoblets.getValue()
-				&& jobletSettings.getThreadCountForJobletType(jobletType) > 0;
+				&& numThreads > 0;
 	}
 
 	//this method must continue indefinitely, so be sure to catch all exceptions
@@ -94,7 +101,8 @@ public class JobletProcessor implements Runnable{
 	public void run(){
 		while(true){
 			try{
-				if(!shouldRun()){
+				int numThreads = getThreadCountFromSettings();
+				if(!shouldRun(numThreads)){
 					sleepABit(SLEEP_TIME_WHEN_DISABLED, "shouldRun=false");
 					continue;
 				}
@@ -102,7 +110,7 @@ public class JobletProcessor implements Runnable{
 					sleepABit(SLEEP_TIME_WHEN_NO_WORK, "shouldCheckAnyQueues=false");
 					continue;
 				}
-				tryEnqueueJobletCallable();
+				tryEnqueueJobletCallable(numThreads);
 			}catch(Exception e){//catch everything; don't let the loop break
 				logger.error("", e);
 				try{
@@ -120,9 +128,8 @@ public class JobletProcessor implements Runnable{
 	 *
 	 * TODO make a BlockingRejectedExecutionHandler?
 	 */
-	private void tryEnqueueJobletCallable(){
-		int numThreads = jobletSettings.getThreadCountForJobletType(jobletType);
-		exec.setMaximumPoolSize(numThreads);//must be >0
+	private void tryEnqueueJobletCallable(int numThreads){
+		exec.setMaximumPoolSize(numThreads);//must be > 0
 		long startMs = System.currentTimeMillis();
 		long backoffMs = 10L;
 		while(System.currentTimeMillis() - startMs < MAX_WAIT_FOR_EXECUTOR.toMillis()){
@@ -172,10 +179,23 @@ public class JobletProcessor implements Runnable{
 	}
 
 	public int getThreadCountFromSettings(){
-		return jobletSettings.getThreadCountForJobletType(jobletType);
+		if(!ENABLE_CLUSTER_THREAD_LIMITS){
+			return jobletSettings.getThreadCountForJobletType(jobletType);
+		}
+		int numInstancesOfThisType = cachedNumServersAliveOfThisType.get();
+		int clusterLimit = jobletSettings.getClusterThreadCountForJobletType(jobletType);
+		int perInstanceClusterLimit = (int)Math.ceil((double)clusterLimit / (double)numInstancesOfThisType);
+		int hardInstanceLimit = jobletSettings.getThreadCountForJobletType(jobletType);
+		int effectiveLimit = Math.min(perInstanceClusterLimit, hardInstanceLimit);
+		if(Objects.equals(jobletType.getPersistentString(), "TableSpanSamplerJoblet")){//can remove after rollout
+			logger.warn("jobletType={}, numInstancesOfThisType={}, clusterLimit={}, perInstanceClusterLimit={}"
+					+ ", hardInstanceLimit={}, effectiveLimit={}", jobletType, numInstancesOfThisType, clusterLimit,
+					perInstanceClusterLimit, hardInstanceLimit, effectiveLimit);
+		}
+		return effectiveLimit;
 	}
 
-	/*---------------- Object methods ----------------*/
+	/*------------ Object methods ----------------*/
 
 	@Override
 	public String toString(){

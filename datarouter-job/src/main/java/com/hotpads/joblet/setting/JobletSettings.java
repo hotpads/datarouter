@@ -34,10 +34,12 @@ extends SettingNode{
 
 	@Inject
 	public JobletSettings(SettingFinder finder, WebAppName webAppName,
-			JobletThreadCountSettings jobletThreadCountSettings){
+			JobletThreadCountSettings jobletThreadCountSettings,
+			JobletClusterThreadCountSettings jobletClusterThreadCountSettings){
 		super(finder, webAppName + ".joblet.", webAppName + ".");
 
 		registerChild(jobletThreadCountSettings);
+		registerChild(jobletClusterThreadCountSettings);
 
 		runJoblets = registerBoolean("runJoblets", false);
 		maxJobletServers = registerInteger("maxJobletServers", 16);
@@ -61,8 +63,13 @@ extends SettingNode{
 
 	/*------------------ methods -----------------------*/
 
+	public Integer getClusterThreadCountForJobletType(JobletType<?> jobletType){
+		return Optional.ofNullable(getClusterThreadCountSettings().getCountForJobletType(jobletType))
+				.orElse(0);
+	}
+
 	public Integer getThreadCountForJobletType(JobletType<?> jobletType){
-		return Optional.ofNullable(getThreadCountSettings().getThreadCountForJobletType(jobletType)).orElse(0);
+		return Optional.ofNullable(getThreadCountSettings().getCountForJobletType(jobletType)).orElse(0);
 	}
 
 	public JobletQueueMechanism getQueueMechanismEnum(){
@@ -70,6 +77,11 @@ extends SettingNode{
 	}
 
 	/*------------------ node getters ------------------*/
+
+	public JobletClusterThreadCountSettings getClusterThreadCountSettings(){
+		String name = getName() + JobletClusterThreadCountSettings.NAME + ".";
+		return Objects.requireNonNull((JobletClusterThreadCountSettings)getChildren().get(name));
+	}
 
 	public JobletThreadCountSettings getThreadCountSettings(){
 		String name = getName() + JobletThreadCountSettings.NAME + ".";
