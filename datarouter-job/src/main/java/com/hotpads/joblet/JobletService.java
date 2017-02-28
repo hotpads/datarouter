@@ -41,6 +41,7 @@ import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.iterable.BatchingIterable;
 import com.hotpads.util.core.profile.PhaseTimer;
 import com.hotpads.util.core.stream.StreamTool;
+import com.hotpads.webappinstance.CachedNumServersAliveOfThisType;
 
 @Singleton
 public class JobletService{
@@ -56,12 +57,13 @@ public class JobletService{
 	private final JobletRequestSelectorFactory jobletRequestSelectorFactory;
 	private final JobletTypeFactory jobletTypeFactory;
 	private final JobletCounters jobletCounters;
+	private final CachedNumServersAliveOfThisType cachedNumServersAliveOfThisType;
 
 	@Inject
 	public JobletService(JobletRequestQueueManager jobletRequestQueueManager, JobletNodes jobletNodes,
 			JobletRequestDao jobletRequestDao, ExceptionRecorder exceptionRecorder, JobletSettings jobletSettings,
 			JobletRequestSelectorFactory jobletRequestSelectorFactory, JobletTypeFactory jobletTypeFactory,
-			JobletCounters jobletCounters){
+			JobletCounters jobletCounters, CachedNumServersAliveOfThisType cachedNumServersAliveOfThisType){
 		this.jobletRequestQueueManager = jobletRequestQueueManager;
 		this.jobletNodes = jobletNodes;
 		this.jobletRequestDao = jobletRequestDao;
@@ -70,6 +72,7 @@ public class JobletService{
 		this.jobletRequestSelectorFactory = jobletRequestSelectorFactory;
 		this.jobletTypeFactory = jobletTypeFactory;
 		this.jobletCounters = jobletCounters;
+		this.cachedNumServersAliveOfThisType = cachedNumServersAliveOfThisType;
 	}
 
 	/*--------------------- create ------------------------*/
@@ -251,6 +254,22 @@ public class JobletService{
 		jobletNodes.jobletRequestQueueByKey().get(queueKey).put(jobletRequest, new Config().setPutMethod(
 				PutMethod.UPDATE_OR_BUST));
 		timer.add("requeue put");
+	}
+
+	/*------------------------- threads --------------------------------*/
+
+	public int getThreadCountFromSettings(JobletType<?> jobletType){
+		int numInstancesOfThisType = cachedNumServersAliveOfThisType.get();
+		int clusterLimit = jobletSettings.getClusterThreadCountForJobletType(jobletType);
+		int perInstanceClusterLimit = (int)Math.ceil((double)clusterLimit / (double)numInstancesOfThisType);
+		int hardInstanceLimit = jobletSettings.getThreadCountForJobletType(jobletType);
+		int effectiveLimit = Math.min(perInstanceClusterLimit, hardInstanceLimit);
+		if(Objects.equals(jobletType.getPersistentString(), "TableSpanSamplerJoblet")){//can remove after rollout
+			logger.warn("jobletType={}, numInstancesOfThisType={}, clusterLimit={}, perInstanceClusterLimit={}"
+					+ ", hardInstanceLimit={}, effectiveLimit={}", jobletType, numInstancesOfThisType, clusterLimit,
+					perInstanceClusterLimit, hardInstanceLimit, effectiveLimit);
+		}
+		return effectiveLimit;
 	}
 
 }

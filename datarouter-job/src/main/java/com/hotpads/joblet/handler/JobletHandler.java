@@ -14,6 +14,7 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.hotpads.datarouter.util.core.DrHashMethods;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.mav.Mav;
@@ -42,6 +43,9 @@ import com.hotpads.joblet.test.SleepingJoblet.SleepingJobletParams;
 import com.hotpads.joblet.type.JobletType;
 import com.hotpads.joblet.type.JobletTypeFactory;
 import com.hotpads.util.core.iterable.BatchingIterable;
+import com.hotpads.webappinstance.CachedNumServersAliveOfThisType;
+import com.hotpads.webappinstance.CachedWebAppInstancesOfThisType;
+import com.hotpads.webappinstance.databean.WebAppInstance;
 
 public class JobletHandler extends BaseHandler{
 	private static final Logger logger = LoggerFactory.getLogger(JobletHandler.class);
@@ -54,28 +58,28 @@ public class JobletHandler extends BaseHandler{
 		JSP_joblets = "/jsp/joblet/joblets.jsp",
 		JSP_queues = "/jsp/joblet/queues.jsp",
 		JSP_threads = "/jsp/joblet/threads.jsp",
+		JSP_threadCounts = "/jsp/joblet/threadCounts.jsp",
 	 	JSP_exceptions = "/jsp/joblet/jobletExceptions.jsp";
 
-	private final JobletTypeFactory jobletTypeFactory;
-	private final JobletNodes jobletNodes;
-	private final JobletProcessors jobletProcessors;
-	private final JobletService jobletService;
-	private final JobletSettings jobletSettings;
-	private final JobletRequestDao jobletRequestDao;
-	private final JobletRequestQueueManager jobletRequestQueueManager;
-
 	@Inject
-	public JobletHandler(JobletTypeFactory jobletTypeFactory, JobletNodes jobletNodes,
-			JobletProcessors jobletProcessors, JobletService jobletService, JobletSettings jobletSettings,
-			JobletRequestDao jobletRequestDao, JobletRequestQueueManager jobletRequestQueueManager){
-		this.jobletTypeFactory = jobletTypeFactory;
-		this.jobletNodes = jobletNodes;
-		this.jobletProcessors = jobletProcessors;
-		this.jobletService = jobletService;
-		this.jobletSettings = jobletSettings;
-		this.jobletRequestDao = jobletRequestDao;
-		this.jobletRequestQueueManager = jobletRequestQueueManager;
-	}
+	private JobletTypeFactory jobletTypeFactory;
+	@Inject
+	private JobletNodes jobletNodes;
+	@Inject
+	private JobletProcessors jobletProcessors;
+	@Inject
+	private JobletService jobletService;
+	@Inject
+	private JobletSettings jobletSettings;
+	@Inject
+	private JobletRequestDao jobletRequestDao;
+	@Inject
+	private JobletRequestQueueManager jobletRequestQueueManager;
+	@Inject
+	private CachedNumServersAliveOfThisType cachedNumServersAliveOfThisType;
+	@Inject
+	private CachedWebAppInstancesOfThisType cachedWebAppInstancesOfThisType;
+
 
 	@Handler(defaultHandler = true)
 	private Mav list(){
@@ -203,6 +207,48 @@ public class JobletHandler extends BaseHandler{
 		long threadId = params.requiredLong("threadId");
 		jobletProcessors.killThread(threadId);
 		return new InContextRedirectMav(params, URL_JOBLETS_IN_CONTEXT);
+	}
+
+	@Handler
+	private Mav threadCounts(){
+		Mav mav = new Mav(JSP_threadCounts);
+		List<JobletThreadCountDto> jobletThreadCountDtos = new ArrayList<>();
+		List<WebAppInstance> instances = cachedWebAppInstancesOfThisType.get();
+		int numInstances = instances.size();
+		for(JobletType<?> jobletType : jobletTypeFactory.getAllTypes()){
+			long jobletTypeHash = DrHashMethods.longDJBHash(jobletType.getPersistentString());
+			int clusterLimit = jobletSettings.getClusterThreadCountForJobletType(jobletType);
+			double instanceAvg = (double)clusterLimit / (double)numInstances;
+			int instanceLimit = jobletSettings.getThreadCountForJobletType(jobletType);
+			int numExtraThreads = clusterLimit % numInstances;
+			double hashFractionOfOne = (double)jobletTypeHash / (double)Long.MAX_VALUE;
+			int startIdxInclusive = (int)Math.floor(hashFractionOfOne * numInstances);
+			int endIdxExclusive = (startIdxInclusive + numExtraThreads) % numInstances;
+			WebAppInstance firstExtraInstance = instances.get(startIdxInclusive);
+			jobletThreadCountDtos.add(new JobletThreadCountDto(jobletType, clusterLimit, instanceAvg, instanceLimit,
+					numExtraThreads, firstExtraInstance.getKey().getServerName()));
+		}
+		mav.put("jobletThreadCountDtos", jobletThreadCountDtos);
+		return mav;
+	}
+
+	static class JobletThreadCountDto{
+		JobletType<?> jobletType;
+		int clusterLimit;
+		double instanceAvg;
+		int instanceLimit;
+		int numExtraThreads;
+		String firstExtraInstance;
+
+		public JobletThreadCountDto(JobletType<?> jobletType, int clusterLimit, double instanceAvg, int instanceLimit,
+				int numExtraThreads, String firstExtraInstance){
+			this.jobletType = jobletType;
+			this.clusterLimit = clusterLimit;
+			this.instanceAvg = instanceAvg;
+			this.instanceLimit = instanceLimit;
+			this.numExtraThreads = numExtraThreads;
+			this.firstExtraInstance = firstExtraInstance;
+		}
 	}
 
 	/*

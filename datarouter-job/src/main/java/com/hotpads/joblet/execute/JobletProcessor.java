@@ -3,7 +3,6 @@ package com.hotpads.joblet.execute;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
@@ -19,13 +18,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hotpads.joblet.JobletCounters;
+import com.hotpads.joblet.JobletService;
 import com.hotpads.joblet.dto.RunningJoblet;
 import com.hotpads.joblet.queue.JobletRequestQueueManager;
 import com.hotpads.joblet.setting.JobletSettings;
 import com.hotpads.joblet.type.JobletType;
 import com.hotpads.util.core.concurrent.NamedThreadFactory;
 import com.hotpads.util.datastructs.MutableBoolean;
-import com.hotpads.webappinstance.CachedNumServersAliveOfThisType;
 
 public class JobletProcessor implements Runnable{
 	private static final Logger logger = LoggerFactory.getLogger(JobletProcessor.class);
@@ -42,7 +41,7 @@ public class JobletProcessor implements Runnable{
 	private final JobletRequestQueueManager jobletRequestQueueManager;
 	private final JobletCallableFactory jobletCallableFactory;
 	private final JobletCounters jobletCounters;
-	private final CachedNumServersAliveOfThisType cachedNumServersAliveOfThisType;
+	private final JobletService jobletService;
 	//not injectable
 	private final AtomicLong idGenerator;
 	private final JobletType<?> jobletType;
@@ -54,14 +53,13 @@ public class JobletProcessor implements Runnable{
 
 
 	public JobletProcessor(JobletSettings jobletSettings, JobletRequestQueueManager jobletRequestQueueManager,
-			JobletCallableFactory jobletCallableFactory, JobletCounters jobletCounters,
-			CachedNumServersAliveOfThisType cachedNumServersAliveOfType, AtomicLong idGenerator,
+			JobletCallableFactory jobletCallableFactory, JobletCounters jobletCounters, JobletService jobletService, AtomicLong idGenerator,
 			JobletType<?> jobletType){
 		this.jobletSettings = jobletSettings;
 		this.jobletRequestQueueManager = jobletRequestQueueManager;
 		this.jobletCallableFactory = jobletCallableFactory;
 		this.jobletCounters = jobletCounters;
-		this.cachedNumServersAliveOfThisType = cachedNumServersAliveOfType;
+		this.jobletService = jobletService;
 
 		this.idGenerator = idGenerator;
 		this.jobletType = jobletType;
@@ -100,7 +98,7 @@ public class JobletProcessor implements Runnable{
 	public void run(){
 		while(true){
 			try{
-				int numThreads = getThreadCountFromSettings();
+				int numThreads = jobletService.getThreadCountFromSettings(jobletType);
 				if(!shouldRun(numThreads)){
 					sleepABit(SLEEP_TIME_WHEN_DISABLED, "shouldRun=false");
 					continue;
@@ -175,20 +173,6 @@ public class JobletProcessor implements Runnable{
 
 	public int getNumRunningJoblets(){
 		return jobletCallableById.size();
-	}
-
-	public int getThreadCountFromSettings(){
-		int numInstancesOfThisType = cachedNumServersAliveOfThisType.get();
-		int clusterLimit = jobletSettings.getClusterThreadCountForJobletType(jobletType);
-		int perInstanceClusterLimit = (int)Math.ceil((double)clusterLimit / (double)numInstancesOfThisType);
-		int hardInstanceLimit = jobletSettings.getThreadCountForJobletType(jobletType);
-		int effectiveLimit = Math.min(perInstanceClusterLimit, hardInstanceLimit);
-		if(Objects.equals(jobletType.getPersistentString(), "TableSpanSamplerJoblet")){//can remove after rollout
-			logger.warn("jobletType={}, numInstancesOfThisType={}, clusterLimit={}, perInstanceClusterLimit={}"
-					+ ", hardInstanceLimit={}, effectiveLimit={}", jobletType, numInstancesOfThisType, clusterLimit,
-					perInstanceClusterLimit, hardInstanceLimit, effectiveLimit);
-		}
-		return effectiveLimit;
 	}
 
 	/*------------ Object methods ----------------*/
