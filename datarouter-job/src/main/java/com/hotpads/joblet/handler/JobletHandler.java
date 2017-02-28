@@ -14,6 +14,7 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.hotpads.datarouter.config.DatarouterProperties;
 import com.hotpads.datarouter.util.core.DrHashMethods;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.handler.BaseHandler;
@@ -61,6 +62,8 @@ public class JobletHandler extends BaseHandler{
 		JSP_threadCounts = "/jsp/joblet/threadCounts.jsp",
 	 	JSP_exceptions = "/jsp/joblet/jobletExceptions.jsp";
 
+	@Inject
+	private DatarouterProperties datarouterProperties;
 	@Inject
 	private JobletTypeFactory jobletTypeFactory;
 	@Inject
@@ -224,10 +227,17 @@ public class JobletHandler extends BaseHandler{
 			double hashFractionOfOne = (double)jobletTypeHash / (double)Long.MAX_VALUE;
 			int startIdxInclusive = (int)Math.floor(hashFractionOfOne * numInstances);
 			int endIdxExclusive = (startIdxInclusive + numExtraThreads) % numInstances;
+			List<String> instanceNamesWithExtraThread = new ArrayList<>();
+			for(int i = 0; i < numExtraThreads; ++i){
+				int instanceIdx = (startIdxInclusive + i) % numInstances;
+				instanceNamesWithExtraThread.add(instances.get(i).getKey().getServerName());
+			}
 			WebAppInstance firstExtraInstance = instances.get(startIdxInclusive);
+			boolean thisInstanceRunsExtraThread = instanceNamesWithExtraThread.contains(datarouterProperties
+					.getServerName());
 			jobletThreadCountDtos.add(new JobletThreadCountDto(jobletType.getPersistentString(), clusterLimit,
 					instanceAvg, instanceLimit, numExtraThreads, startIdxInclusive, firstExtraInstance.getKey()
-							.getServerName()));
+							.getServerName(), thisInstanceRunsExtraThread));
 		}
 		mav.put("numInstances", numInstances);
 		mav.put("jobletThreadCountDtos", jobletThreadCountDtos);
@@ -243,9 +253,11 @@ public class JobletHandler extends BaseHandler{
 		int numExtraThreads;
 		int firstExtraInstanceIndex;
 		String firstExtraInstanceServerName;
+		boolean thisInstanceRunsExtraThread;
 
 		public JobletThreadCountDto(String jobletType, int clusterLimit, double instanceAvg, int instanceLimit,
-				int numExtraThreads, int firstExtraInstanceIndex, String firstExtraInstanceServerName){
+				int numExtraThreads, int firstExtraInstanceIndex, String firstExtraInstanceServerName,
+				boolean thisInstanceRunsExtraThread){
 			this.jobletType = jobletType;
 			this.clusterLimit = clusterLimit;
 			this.instanceAvg = instanceAvg;
@@ -253,8 +265,10 @@ public class JobletHandler extends BaseHandler{
 			this.numExtraThreads = numExtraThreads;
 			this.firstExtraInstanceIndex = firstExtraInstanceIndex;
 			this.firstExtraInstanceServerName = firstExtraInstanceServerName;
+			this.thisInstanceRunsExtraThread = thisInstanceRunsExtraThread;
 		}
 
+		//getters for jsp
 		public String getJobletType(){
 			return jobletType;
 		}
@@ -281,6 +295,10 @@ public class JobletHandler extends BaseHandler{
 
 		public String getFirstExtraInstanceServerName(){
 			return firstExtraInstanceServerName;
+		}
+
+		public boolean getThisInstanceRunsExtraThread(){
+			return thisInstanceRunsExtraThread;
 		}
 
 	}

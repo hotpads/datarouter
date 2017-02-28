@@ -26,6 +26,7 @@
 					<th>numExtraThreads</td>
 					<th>firstExtraInstanceIndex</td>
 					<th>firstExtraInstanceServerName</td>
+					<th>thisInstanceRunsExtraThread</td>
 				</tr>
 				<c:forEach items="${jobletThreadCountDtos}" var="dto">
 					<tr>
@@ -36,6 +37,7 @@
 						<td>${dto.numExtraThreads}</td>
 						<td>${dto.firstExtraInstanceIndex}</td>
 						<td>${dto.firstExtraInstanceServerName}</td>
+						<td>${dto.thisInstanceRunsExtraThread}</td>
 					</tr>
 				</c:forEach>
 			</table>

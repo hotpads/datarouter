@@ -14,6 +14,8 @@ import com.hotpads.webappinstance.databean.WebAppInstance;
 @Singleton
 public class CachedWebAppInstancesOfThisType extends Cached<List<WebAppInstance>>{
 
+	private static final Duration HEARTBEAT_WITHIN = Duration.ofMinutes(3);
+
 	private final DatarouterProperties datarouterProperties;
 	private final WebAppInstanceDao webAppInstanceDao;
 
@@ -29,7 +31,7 @@ public class CachedWebAppInstancesOfThisType extends Cached<List<WebAppInstance>
 
 	@Override
 	protected List<WebAppInstance> reload(){
-		return webAppInstanceDao.getWebAppInstancesOfType(datarouterProperties.getServerType(), Duration.ofDays(1));
+		return webAppInstanceDao.getWebAppInstancesOfType(datarouterProperties.getServerType(), HEARTBEAT_WITHIN);
 	}
 
 }
