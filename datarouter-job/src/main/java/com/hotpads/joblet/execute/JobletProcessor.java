@@ -98,7 +98,7 @@ public class JobletProcessor implements Runnable{
 	public void run(){
 		while(true){
 			try{
-				int numThreads = jobletService.getThreadCountFromSettings(jobletType);
+				int numThreads = jobletService.getNumThreadsForThisInstance(jobletType);
 				if(!shouldRun(numThreads)){
 					sleepABit(SLEEP_TIME_WHEN_DISABLED, "shouldRun=false");
 					continue;
@@ -176,7 +176,7 @@ public class JobletProcessor implements Runnable{
 	}
 
 	public int getThreadCount(){
-		return jobletService.getThreadCountFromSettings(jobletType);
+		return jobletService.getNumThreadsForThisInstance(jobletType);
 	}
 
 	/*------------ Object methods ----------------*/

@@ -258,7 +258,7 @@ public class JobletService{
 
 	/*------------------------- threads --------------------------------*/
 
-	public int getThreadCountFromSettings(JobletType<?> jobletType){
+	public int getNumThreadsForThisInstance(JobletType<?> jobletType){
 		int numInstancesOfThisType = cachedNumServersAliveOfThisType.get();
 		int clusterLimit = jobletSettings.getClusterThreadCountForJobletType(jobletType);
 		int perInstanceClusterLimit = (int)Math.ceil((double)clusterLimit / (double)numInstancesOfThisType);

@@ -9,6 +9,7 @@ import javax.inject.Singleton;
 import com.hotpads.datarouter.config.DatarouterProperties;
 import com.hotpads.util.core.cache.Cached;
 
+@Deprecated //reminder, remove?
 @Singleton
 public class CachedNumServersAliveOfThisType extends Cached<Integer>{
 
