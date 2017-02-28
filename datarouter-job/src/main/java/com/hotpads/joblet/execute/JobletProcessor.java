@@ -53,8 +53,8 @@ public class JobletProcessor implements Runnable{
 
 
 	public JobletProcessor(JobletSettings jobletSettings, JobletRequestQueueManager jobletRequestQueueManager,
-			JobletCallableFactory jobletCallableFactory, JobletCounters jobletCounters, JobletService jobletService, AtomicLong idGenerator,
-			JobletType<?> jobletType){
+			JobletCallableFactory jobletCallableFactory, JobletCounters jobletCounters, JobletService jobletService,
+			AtomicLong idGenerator, JobletType<?> jobletType){
 		this.jobletSettings = jobletSettings;
 		this.jobletRequestQueueManager = jobletRequestQueueManager;
 		this.jobletCallableFactory = jobletCallableFactory;
@@ -173,6 +173,10 @@ public class JobletProcessor implements Runnable{
 
 	public int getNumRunningJoblets(){
 		return jobletCallableById.size();
+	}
+
+	public int getThreadCount(){
+		return jobletService.getThreadCountFromSettings(jobletType);
 	}
 
 	/*------------ Object methods ----------------*/
