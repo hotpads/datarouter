@@ -12,6 +12,8 @@
 	<div class="container">
 		<h2 class="page-header">Joblet Thread Counts</h2>
 		<div class="page-content-container page-content-thicktop page-single-column">
+			numInstances: ${numInstances}<br/>
+			<br/>
 			<table class="sortable table table-bordered table-condensed">
 				<tr>
 					<th>jobletType</td>
@@ -19,7 +21,8 @@
 					<th>instanceAvg</td>
 					<th>instanceLimit</td>
 					<th>numExtraThreads</td>
-					<th>firstExtraInstance</td>
+					<th>firstExtraInstanceIndex</td>
+					<th>firstExtraInstanceServerName</td>
 				</tr>
 				<c:forEach items="${jobletThreadCountDtos}" var="dto">
 					<tr>
@@ -28,7 +31,8 @@
 						<td>${dto.instanceAvg}</td>
 						<td>${dto.instanceLimit}</td>
 						<td>${dto.numExtraThreads}</td>
-						<td>${dto.firstExtraInstance}</td>
+						<td>${dto.firstExtraInstanceIndex}</td>
+						<td>${dto.firstExtraInstanceServerName}</td>
 					</tr>
 				</c:forEach>
 			</table>

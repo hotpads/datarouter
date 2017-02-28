@@ -226,8 +226,9 @@ public class JobletHandler extends BaseHandler{
 			int endIdxExclusive = (startIdxInclusive + numExtraThreads) % numInstances;
 			WebAppInstance firstExtraInstance = instances.get(startIdxInclusive);
 			jobletThreadCountDtos.add(new JobletThreadCountDto(jobletType, clusterLimit, instanceAvg, instanceLimit,
-					numExtraThreads, firstExtraInstance.getKey().getServerName()));
+					numExtraThreads, startIdxInclusive, firstExtraInstance.getKey().getServerName()));
 		}
+		mav.put("numInstances", numInstances);
 		mav.put("jobletThreadCountDtos", jobletThreadCountDtos);
 		return mav;
 	}
@@ -238,17 +239,20 @@ public class JobletHandler extends BaseHandler{
 		double instanceAvg;
 		int instanceLimit;
 		int numExtraThreads;
-		String firstExtraInstance;
+		int firstExtraInstanceIndex;
+		String firstExtraInstanceServerName;
 
 		public JobletThreadCountDto(JobletType<?> jobletType, int clusterLimit, double instanceAvg, int instanceLimit,
-				int numExtraThreads, String firstExtraInstance){
+				int numExtraThreads, int firstExtraInstanceIndex, String firstExtraInstanceServerName){
 			this.jobletType = jobletType;
 			this.clusterLimit = clusterLimit;
 			this.instanceAvg = instanceAvg;
 			this.instanceLimit = instanceLimit;
 			this.numExtraThreads = numExtraThreads;
-			this.firstExtraInstance = firstExtraInstance;
+			this.firstExtraInstanceIndex = firstExtraInstanceIndex;
+			this.firstExtraInstanceServerName = firstExtraInstanceServerName;
 		}
+
 	}
 
 	/*
