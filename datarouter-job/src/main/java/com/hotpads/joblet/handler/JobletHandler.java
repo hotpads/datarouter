@@ -225,16 +225,18 @@ public class JobletHandler extends BaseHandler{
 			int startIdxInclusive = (int)Math.floor(hashFractionOfOne * numInstances);
 			int endIdxExclusive = (startIdxInclusive + numExtraThreads) % numInstances;
 			WebAppInstance firstExtraInstance = instances.get(startIdxInclusive);
-			jobletThreadCountDtos.add(new JobletThreadCountDto(jobletType, clusterLimit, instanceAvg, instanceLimit,
-					numExtraThreads, startIdxInclusive, firstExtraInstance.getKey().getServerName()));
+			jobletThreadCountDtos.add(new JobletThreadCountDto(jobletType.getPersistentString(), clusterLimit,
+					instanceAvg, instanceLimit, numExtraThreads, startIdxInclusive, firstExtraInstance.getKey()
+							.getServerName()));
 		}
 		mav.put("numInstances", numInstances);
 		mav.put("jobletThreadCountDtos", jobletThreadCountDtos);
+		logger.warn("{}", mav);
 		return mav;
 	}
 
-	static class JobletThreadCountDto{
-		JobletType<?> jobletType;
+	public static class JobletThreadCountDto{
+		String jobletType;
 		int clusterLimit;
 		double instanceAvg;
 		int instanceLimit;
@@ -242,7 +244,7 @@ public class JobletHandler extends BaseHandler{
 		int firstExtraInstanceIndex;
 		String firstExtraInstanceServerName;
 
-		public JobletThreadCountDto(JobletType<?> jobletType, int clusterLimit, double instanceAvg, int instanceLimit,
+		public JobletThreadCountDto(String jobletType, int clusterLimit, double instanceAvg, int instanceLimit,
 				int numExtraThreads, int firstExtraInstanceIndex, String firstExtraInstanceServerName){
 			this.jobletType = jobletType;
 			this.clusterLimit = clusterLimit;
@@ -251,6 +253,34 @@ public class JobletHandler extends BaseHandler{
 			this.numExtraThreads = numExtraThreads;
 			this.firstExtraInstanceIndex = firstExtraInstanceIndex;
 			this.firstExtraInstanceServerName = firstExtraInstanceServerName;
+		}
+
+		public String getJobletType(){
+			return jobletType;
+		}
+
+		public int getClusterLimit(){
+			return clusterLimit;
+		}
+
+		public double getInstanceAvg(){
+			return instanceAvg;
+		}
+
+		public int getInstanceLimit(){
+			return instanceLimit;
+		}
+
+		public int getNumExtraThreads(){
+			return numExtraThreads;
+		}
+
+		public int getFirstExtraInstanceIndex(){
+			return firstExtraInstanceIndex;
+		}
+
+		public String getFirstExtraInstanceServerName(){
+			return firstExtraInstanceServerName;
 		}
 
 	}
