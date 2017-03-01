@@ -28,7 +28,7 @@
 					<th>firstExtraInstanceServerName</td>
 					<th>thisInstanceRunsExtraThread</td>
 				</tr>
-				<c:forEach items="${jobletThreadCountDtos}" var="dto">
+				<c:forEach items="${threadCountDtos}" var="dto">
 					<tr>
 						<td>${dto.jobletType}</td>
 						<td>${dto.clusterLimit}</td>

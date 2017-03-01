@@ -31,6 +31,7 @@ import com.hotpads.joblet.JobletService;
 import com.hotpads.joblet.dao.JobletRequestDao;
 import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.databean.JobletRequestKey;
+import com.hotpads.joblet.dto.JobletHandlerThreadCountDto;
 import com.hotpads.joblet.dto.JobletSummary;
 import com.hotpads.joblet.dto.JobletTypeSummary;
 import com.hotpads.joblet.enums.JobletPriority;
@@ -215,7 +216,7 @@ public class JobletHandler extends BaseHandler{
 	@Handler
 	private Mav threadCounts(){
 		Mav mav = new Mav(JSP_threadCounts);
-		List<JobletThreadCountDto> jobletThreadCountDtos = new ArrayList<>();
+		List<JobletHandlerThreadCountDto> threadCountDtos = new ArrayList<>();
 		List<WebAppInstance> instances = cachedWebAppInstancesOfThisType.get();
 		int numInstances = instances.size();
 		for(JobletType<?> jobletType : jobletTypeFactory.getAllTypes()){
@@ -226,81 +227,22 @@ public class JobletHandler extends BaseHandler{
 			int numExtraThreads = clusterLimit % numInstances;
 			double hashFractionOfOne = (double)jobletTypeHash / (double)Long.MAX_VALUE;
 			int startIdxInclusive = (int)Math.floor(hashFractionOfOne * numInstances);
-			int endIdxExclusive = (startIdxInclusive + numExtraThreads) % numInstances;
 			List<String> instanceNamesWithExtraThread = new ArrayList<>();
 			for(int i = 0; i < numExtraThreads; ++i){
 				int instanceIdx = (startIdxInclusive + i) % numInstances;
-				instanceNamesWithExtraThread.add(instances.get(i).getKey().getServerName());
+				instanceNamesWithExtraThread.add(instances.get(instanceIdx).getKey().getServerName());
 			}
 			WebAppInstance firstExtraInstance = instances.get(startIdxInclusive);
 			boolean thisInstanceRunsExtraThread = instanceNamesWithExtraThread.contains(datarouterProperties
 					.getServerName());
-			jobletThreadCountDtos.add(new JobletThreadCountDto(jobletType.getPersistentString(), clusterLimit,
+			threadCountDtos.add(new JobletHandlerThreadCountDto(jobletType.getPersistentString(), clusterLimit,
 					instanceAvg, instanceLimit, numExtraThreads, startIdxInclusive, firstExtraInstance.getKey()
 							.getServerName(), thisInstanceRunsExtraThread));
 		}
 		mav.put("numInstances", numInstances);
-		mav.put("jobletThreadCountDtos", jobletThreadCountDtos);
+		mav.put("threadCountDtos", threadCountDtos);
 		logger.warn("{}", mav);
 		return mav;
-	}
-
-	public static class JobletThreadCountDto{
-		String jobletType;
-		int clusterLimit;
-		double instanceAvg;
-		int instanceLimit;
-		int numExtraThreads;
-		int firstExtraInstanceIndex;
-		String firstExtraInstanceServerName;
-		boolean thisInstanceRunsExtraThread;
-
-		public JobletThreadCountDto(String jobletType, int clusterLimit, double instanceAvg, int instanceLimit,
-				int numExtraThreads, int firstExtraInstanceIndex, String firstExtraInstanceServerName,
-				boolean thisInstanceRunsExtraThread){
-			this.jobletType = jobletType;
-			this.clusterLimit = clusterLimit;
-			this.instanceAvg = instanceAvg;
-			this.instanceLimit = instanceLimit;
-			this.numExtraThreads = numExtraThreads;
-			this.firstExtraInstanceIndex = firstExtraInstanceIndex;
-			this.firstExtraInstanceServerName = firstExtraInstanceServerName;
-			this.thisInstanceRunsExtraThread = thisInstanceRunsExtraThread;
-		}
-
-		//getters for jsp
-		public String getJobletType(){
-			return jobletType;
-		}
-
-		public int getClusterLimit(){
-			return clusterLimit;
-		}
-
-		public double getInstanceAvg(){
-			return instanceAvg;
-		}
-
-		public int getInstanceLimit(){
-			return instanceLimit;
-		}
-
-		public int getNumExtraThreads(){
-			return numExtraThreads;
-		}
-
-		public int getFirstExtraInstanceIndex(){
-			return firstExtraInstanceIndex;
-		}
-
-		public String getFirstExtraInstanceServerName(){
-			return firstExtraInstanceServerName;
-		}
-
-		public boolean getThisInstanceRunsExtraThread(){
-			return thisInstanceRunsExtraThread;
-		}
-
 	}
 
 	/*

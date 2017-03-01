@@ -7,6 +7,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import javax.inject.Inject;
@@ -17,9 +18,11 @@ import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.config.Configs;
+import com.hotpads.datarouter.config.DatarouterProperties;
 import com.hotpads.datarouter.config.PutMethod;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrHashMethods;
 import com.hotpads.handler.exception.ExceptionRecord;
 import com.hotpads.handler.exception.ExceptionRecorder;
 import com.hotpads.job.trigger.JobExceptionCategory;
@@ -42,6 +45,9 @@ import com.hotpads.util.core.iterable.BatchingIterable;
 import com.hotpads.util.core.profile.PhaseTimer;
 import com.hotpads.util.core.stream.StreamTool;
 import com.hotpads.webappinstance.CachedNumServersAliveOfThisType;
+import com.hotpads.webappinstance.CachedWebAppInstancesOfThisType;
+import com.hotpads.webappinstance.databean.WebAppInstance;
+import com.hotpads.webappinstance.databean.WebAppInstanceKey;
 
 @Singleton
 public class JobletService{
@@ -49,6 +55,7 @@ public class JobletService{
 
 	public static final int MAX_JOBLET_RETRIES = 10;
 
+	private final DatarouterProperties datarouterProperties;
 	private final JobletRequestQueueManager jobletRequestQueueManager;
 	private final JobletNodes jobletNodes;
 	private final JobletRequestDao jobletRequestDao;
@@ -58,12 +65,16 @@ public class JobletService{
 	private final JobletTypeFactory jobletTypeFactory;
 	private final JobletCounters jobletCounters;
 	private final CachedNumServersAliveOfThisType cachedNumServersAliveOfThisType;
+	private final CachedWebAppInstancesOfThisType cachedWebAppInstancesOfThisType;
 
 	@Inject
-	public JobletService(JobletRequestQueueManager jobletRequestQueueManager, JobletNodes jobletNodes,
-			JobletRequestDao jobletRequestDao, ExceptionRecorder exceptionRecorder, JobletSettings jobletSettings,
-			JobletRequestSelectorFactory jobletRequestSelectorFactory, JobletTypeFactory jobletTypeFactory,
-			JobletCounters jobletCounters, CachedNumServersAliveOfThisType cachedNumServersAliveOfThisType){
+	public JobletService(DatarouterProperties datarouterProperties, JobletRequestQueueManager jobletRequestQueueManager,
+			JobletNodes jobletNodes, JobletRequestDao jobletRequestDao, ExceptionRecorder exceptionRecorder,
+			JobletSettings jobletSettings, JobletRequestSelectorFactory jobletRequestSelectorFactory,
+			JobletTypeFactory jobletTypeFactory, JobletCounters jobletCounters,
+			CachedNumServersAliveOfThisType cachedNumServersAliveOfThisType,
+			CachedWebAppInstancesOfThisType cachedWebAppInstancesOfThisType){
+		this.datarouterProperties = datarouterProperties;
 		this.jobletRequestQueueManager = jobletRequestQueueManager;
 		this.jobletNodes = jobletNodes;
 		this.jobletRequestDao = jobletRequestDao;
@@ -73,6 +84,7 @@ public class JobletService{
 		this.jobletTypeFactory = jobletTypeFactory;
 		this.jobletCounters = jobletCounters;
 		this.cachedNumServersAliveOfThisType = cachedNumServersAliveOfThisType;
+		this.cachedWebAppInstancesOfThisType = cachedWebAppInstancesOfThisType;
 	}
 
 	/*--------------------- create ------------------------*/
@@ -270,6 +282,70 @@ public class JobletService{
 					perInstanceClusterLimit, hardInstanceLimit, effectiveLimit);
 		}
 		return effectiveLimit;
+	}
+
+	public JobletServiceThreadCountResponse getSpecificNumThreadsForThisInstance(JobletType<?> jobletType){
+		//get cached inputs
+		List<WebAppInstance> instances = cachedWebAppInstancesOfThisType.get();
+		int clusterLimit = jobletSettings.getClusterThreadCountForJobletType(jobletType);
+		int instanceLimit = jobletSettings.getThreadCountForJobletType(jobletType);
+		//calculate intermediate things
+		int numInstances = instances.size();
+		int minThreadsPerInstance = clusterLimit / numInstances;//round down
+		int numExtraThreads = clusterLimit % numInstances;
+		long jobletTypeHash = DrHashMethods.longDJBHash(jobletType.getPersistentString());
+		double hashFractionOfOne = (double)jobletTypeHash / (double)Long.MAX_VALUE;
+		int startIdxInclusive = (int)Math.floor(hashFractionOfOne * numInstances);
+		//calculate effective limit
+		int effectiveLimit = minThreadsPerInstance;
+		if(minThreadsPerInstance >= instanceLimit){
+			effectiveLimit = instanceLimit;
+		}else{
+			String thisServerName = datarouterProperties.getServerName();
+			//to stream
+			effectiveLimit = IntStream.range(0, numExtraThreads)
+					.mapToObj(i -> (startIdxInclusive + i) % numInstances)
+					.map(instances::get)
+					.map(Databean::getKey)
+					.map(WebAppInstanceKey::getServerName)
+					.filter(thisServerName::equals)
+					.findAny()
+					.map(ignore -> minThreadsPerInstance + 1)
+					.orElse(minThreadsPerInstance);
+			//or not to stream?
+//			for(int threadIdx = 0; threadIdx < numExtraThreads; ++threadIdx){
+//				int instanceIdx = (startIdxInclusive + threadIdx) % numInstances;
+//				if(thisServerName.equals(instances.get(instanceIdx).getKey().getServerName())){
+//					++effectiveLimit;
+//					break;
+//				}
+//			}
+		}
+		return new JobletServiceThreadCountResponse(jobletType, clusterLimit, instanceLimit, minThreadsPerInstance,
+				numExtraThreads, startIdxInclusive, effectiveLimit);
+	}
+
+	public static class JobletServiceThreadCountResponse{
+		JobletType<?> jobletType;
+		int clusterLimit;
+		int instanceLimit;
+		int minThreadsPerInstance;
+		int numExtraThreads;
+		int startIdxInclusive;
+		int effectiveLimit;
+
+		public JobletServiceThreadCountResponse(JobletType<?> jobletType, int clusterLimit, int instanceLimit,
+				int minThreadsPerInstance, int numExtraThreads, int startIdxInclusive, int effectiveLimit){
+			this.jobletType = jobletType;
+			this.clusterLimit = clusterLimit;
+			this.instanceLimit = instanceLimit;
+			this.minThreadsPerInstance = minThreadsPerInstance;
+			this.numExtraThreads = numExtraThreads;
+			this.startIdxInclusive = startIdxInclusive;
+			this.effectiveLimit = effectiveLimit;
+		}
+
+
 	}
 
 }
