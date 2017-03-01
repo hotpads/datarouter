@@ -15,7 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.config.DatarouterProperties;
-import com.hotpads.datarouter.util.core.DrHashMethods;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.mav.Mav;
@@ -28,6 +27,7 @@ import com.hotpads.job.dispatcher.DatarouterJobDispatcher;
 import com.hotpads.joblet.JobletNodes;
 import com.hotpads.joblet.JobletPackage;
 import com.hotpads.joblet.JobletService;
+import com.hotpads.joblet.JobletService.JobletServiceThreadCountResponse;
 import com.hotpads.joblet.dao.JobletRequestDao;
 import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.databean.JobletRequestKey;
@@ -218,32 +218,48 @@ public class JobletHandler extends BaseHandler{
 		Mav mav = new Mav(JSP_threadCounts);
 		List<JobletHandlerThreadCountDto> threadCountDtos = new ArrayList<>();
 		List<WebAppInstance> instances = cachedWebAppInstancesOfThisType.get();
-		int numInstances = instances.size();
 		for(JobletType<?> jobletType : jobletTypeFactory.getAllTypes()){
-			long jobletTypeHash = DrHashMethods.longDJBHash(jobletType.getPersistentString());
-			int clusterLimit = jobletSettings.getClusterThreadCountForJobletType(jobletType);
-			double instanceAvg = (double)clusterLimit / (double)numInstances;
-			int instanceLimit = jobletSettings.getThreadCountForJobletType(jobletType);
-			int numExtraThreads = clusterLimit % numInstances;
-			double hashFractionOfOne = (double)jobletTypeHash / (double)Long.MAX_VALUE;
-			int startIdxInclusive = (int)Math.floor(hashFractionOfOne * numInstances);
-			List<String> instanceNamesWithExtraThread = new ArrayList<>();
-			for(int i = 0; i < numExtraThreads; ++i){
-				int instanceIdx = (startIdxInclusive + i) % numInstances;
-				instanceNamesWithExtraThread.add(instances.get(instanceIdx).getKey().getServerName());
-			}
-			WebAppInstance firstExtraInstance = instances.get(startIdxInclusive);
-			boolean thisInstanceRunsExtraThread = instanceNamesWithExtraThread.contains(datarouterProperties
-					.getServerName());
-			threadCountDtos.add(new JobletHandlerThreadCountDto(jobletType.getPersistentString(), clusterLimit,
-					instanceAvg, instanceLimit, numExtraThreads, startIdxInclusive, firstExtraInstance.getKey()
-							.getServerName(), thisInstanceRunsExtraThread));
+			JobletServiceThreadCountResponse threadCountResponse = jobletService.getSpecificNumThreadsForThisInstance(
+					jobletType);
+			threadCountDtos.add(new JobletHandlerThreadCountDto(instances, threadCountResponse));
 		}
-		mav.put("numInstances", numInstances);
+		mav.put("numInstances", instances.size());
 		mav.put("threadCountDtos", threadCountDtos);
 		logger.warn("{}", mav);
 		return mav;
 	}
+
+//	@Handler
+//	private Mav threadCountsOld(){
+//		Mav mav = new Mav(JSP_threadCounts);
+//		List<JobletHandlerThreadCountDto> threadCountDtos = new ArrayList<>();
+//		List<WebAppInstance> instances = cachedWebAppInstancesOfThisType.get();
+//		int numInstances = instances.size();
+//		for(JobletType<?> jobletType : jobletTypeFactory.getAllTypes()){
+//			long jobletTypeHash = DrHashMethods.longDJBHash(jobletType.getPersistentString());
+//			int clusterLimit = jobletSettings.getClusterThreadCountForJobletType(jobletType);
+//			double instanceAvg = (double)clusterLimit / (double)numInstances;
+//			int instanceLimit = jobletSettings.getThreadCountForJobletType(jobletType);
+//			int numExtraThreads = clusterLimit % numInstances;
+//			double hashFractionOfOne = (double)jobletTypeHash / (double)Long.MAX_VALUE;
+//			int startIdxInclusive = (int)Math.floor(hashFractionOfOne * numInstances);
+//			List<String> instanceNamesWithExtraThread = new ArrayList<>();
+//			for(int i = 0; i < numExtraThreads; ++i){
+//				int instanceIdx = (startIdxInclusive + i) % numInstances;
+//				instanceNamesWithExtraThread.add(instances.get(instanceIdx).getKey().getServerName());
+//			}
+//			WebAppInstance firstExtraInstance = instances.get(startIdxInclusive);
+//			boolean thisInstanceRunsExtraThread = instanceNamesWithExtraThread.contains(datarouterProperties
+//					.getServerName());
+//			threadCountDtos.add(new JobletHandlerThreadCountDto(jobletType.getPersistentString(), clusterLimit,
+//					instanceAvg, instanceLimit, numExtraThreads, startIdxInclusive, firstExtraInstance.getKey()
+//							.getServerName(), thisInstanceRunsExtraThread));
+//		}
+//		mav.put("numInstances", numInstances);
+//		mav.put("threadCountDtos", threadCountDtos);
+//		logger.warn("{}", mav);
+//		return mav;
+//	}
 
 	/*
 	 /datarouter/joblets/createSleepingJoblets

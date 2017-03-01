@@ -295,7 +295,7 @@ public class JobletService{
 		int numExtraThreads = clusterLimit % numInstances;
 		long jobletTypeHash = DrHashMethods.longDJBHash(jobletType.getPersistentString());
 		double hashFractionOfOne = (double)jobletTypeHash / (double)Long.MAX_VALUE;
-		int startIdxInclusive = (int)Math.floor(hashFractionOfOne * numInstances);
+		int firstExtraInstanceIdx = (int)Math.floor(hashFractionOfOne * numInstances);
 		//calculate effective limit
 		int effectiveLimit = minThreadsPerInstance;
 		if(minThreadsPerInstance >= instanceLimit){
@@ -304,7 +304,7 @@ public class JobletService{
 			String thisServerName = datarouterProperties.getServerName();
 			//to stream
 			effectiveLimit = IntStream.range(0, numExtraThreads)
-					.mapToObj(i -> (startIdxInclusive + i) % numInstances)
+					.mapToObj(i -> (firstExtraInstanceIdx + i) % numInstances)
 					.map(instances::get)
 					.map(Databean::getKey)
 					.map(WebAppInstanceKey::getServerName)
@@ -314,7 +314,7 @@ public class JobletService{
 					.orElse(minThreadsPerInstance);
 			//or not to stream?
 //			for(int threadIdx = 0; threadIdx < numExtraThreads; ++threadIdx){
-//				int instanceIdx = (startIdxInclusive + threadIdx) % numInstances;
+//				int instanceIdx = (firstExtraInstanceIdx + threadIdx) % numInstances;
 //				if(thisServerName.equals(instances.get(instanceIdx).getKey().getServerName())){
 //					++effectiveLimit;
 //					break;
@@ -322,26 +322,26 @@ public class JobletService{
 //			}
 		}
 		return new JobletServiceThreadCountResponse(jobletType, clusterLimit, instanceLimit, minThreadsPerInstance,
-				numExtraThreads, startIdxInclusive, effectiveLimit);
+				numExtraThreads, firstExtraInstanceIdx, effectiveLimit);
 	}
 
 	public static class JobletServiceThreadCountResponse{
-		JobletType<?> jobletType;
-		int clusterLimit;
-		int instanceLimit;
-		int minThreadsPerInstance;
-		int numExtraThreads;
-		int startIdxInclusive;
-		int effectiveLimit;
+		public final JobletType<?> jobletType;
+		public final int clusterLimit;
+		public final int instanceLimit;
+		public final int minThreadsPerInstance;
+		public final int numExtraThreads;
+		public final int firstExtraInstanceIdxInclusive;
+		public final int effectiveLimit;
 
 		public JobletServiceThreadCountResponse(JobletType<?> jobletType, int clusterLimit, int instanceLimit,
-				int minThreadsPerInstance, int numExtraThreads, int startIdxInclusive, int effectiveLimit){
+				int minThreadsPerInstance, int numExtraThreads, int firstExtraInstanceIdxInclusive, int effectiveLimit){
 			this.jobletType = jobletType;
 			this.clusterLimit = clusterLimit;
 			this.instanceLimit = instanceLimit;
 			this.minThreadsPerInstance = minThreadsPerInstance;
 			this.numExtraThreads = numExtraThreads;
-			this.startIdxInclusive = startIdxInclusive;
+			this.firstExtraInstanceIdxInclusive = firstExtraInstanceIdxInclusive;
 			this.effectiveLimit = effectiveLimit;
 		}
 

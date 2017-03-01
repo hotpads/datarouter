@@ -26,7 +26,7 @@
 					<th>numExtraThreads</td>
 					<th>firstExtraInstanceIndex</td>
 					<th>firstExtraInstanceServerName</td>
-					<th>thisInstanceRunsExtraThread</td>
+<!-- 					<th>thisInstanceRunsExtraThread</td> -->
 				</tr>
 				<c:forEach items="${threadCountDtos}" var="dto">
 					<tr>
@@ -37,7 +37,7 @@
 						<td>${dto.numExtraThreads}</td>
 						<td>${dto.firstExtraInstanceIndex}</td>
 						<td>${dto.firstExtraInstanceServerName}</td>
-						<td>${dto.thisInstanceRunsExtraThread}</td>
+<%-- 						<td>${dto.thisInstanceRunsExtraThread}</td> --%>
 					</tr>
 				</c:forEach>
 			</table>
