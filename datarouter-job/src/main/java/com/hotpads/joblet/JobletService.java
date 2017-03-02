@@ -44,7 +44,6 @@ import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.iterable.BatchingIterable;
 import com.hotpads.util.core.profile.PhaseTimer;
 import com.hotpads.util.core.stream.StreamTool;
-import com.hotpads.webappinstance.CachedNumServersAliveOfThisType;
 import com.hotpads.webappinstance.CachedWebAppInstancesOfThisType;
 import com.hotpads.webappinstance.databean.WebAppInstance;
 import com.hotpads.webappinstance.databean.WebAppInstanceKey;
@@ -64,7 +63,6 @@ public class JobletService{
 	private final JobletRequestSelectorFactory jobletRequestSelectorFactory;
 	private final JobletTypeFactory jobletTypeFactory;
 	private final JobletCounters jobletCounters;
-	private final CachedNumServersAliveOfThisType cachedNumServersAliveOfThisType;
 	private final CachedWebAppInstancesOfThisType cachedWebAppInstancesOfThisType;
 
 	@Inject
@@ -72,7 +70,6 @@ public class JobletService{
 			JobletNodes jobletNodes, JobletRequestDao jobletRequestDao, ExceptionRecorder exceptionRecorder,
 			JobletSettings jobletSettings, JobletRequestSelectorFactory jobletRequestSelectorFactory,
 			JobletTypeFactory jobletTypeFactory, JobletCounters jobletCounters,
-			CachedNumServersAliveOfThisType cachedNumServersAliveOfThisType,
 			CachedWebAppInstancesOfThisType cachedWebAppInstancesOfThisType){
 		this.datarouterProperties = datarouterProperties;
 		this.jobletRequestQueueManager = jobletRequestQueueManager;
@@ -83,7 +80,6 @@ public class JobletService{
 		this.jobletRequestSelectorFactory = jobletRequestSelectorFactory;
 		this.jobletTypeFactory = jobletTypeFactory;
 		this.jobletCounters = jobletCounters;
-		this.cachedNumServersAliveOfThisType = cachedNumServersAliveOfThisType;
 		this.cachedWebAppInstancesOfThisType = cachedWebAppInstancesOfThisType;
 	}
 
@@ -270,21 +266,7 @@ public class JobletService{
 
 	/*------------------------- threads --------------------------------*/
 
-	public int getNumThreadsForThisInstance(JobletType<?> jobletType){
-		int numInstancesOfThisType = cachedNumServersAliveOfThisType.get();
-		int clusterLimit = jobletSettings.getClusterThreadCountForJobletType(jobletType);
-		int perInstanceClusterLimit = (int)Math.ceil((double)clusterLimit / (double)numInstancesOfThisType);
-		int hardInstanceLimit = jobletSettings.getThreadCountForJobletType(jobletType);
-		int effectiveLimit = Math.min(perInstanceClusterLimit, hardInstanceLimit);
-		if(Objects.equals(jobletType.getPersistentString(), "TableSpanSamplerJoblet")){//can remove after rollout
-			logger.warn("jobletType={}, numInstancesOfThisType={}, clusterLimit={}, perInstanceClusterLimit={}"
-					+ ", hardInstanceLimit={}, effectiveLimit={}", jobletType, numInstancesOfThisType, clusterLimit,
-					perInstanceClusterLimit, hardInstanceLimit, effectiveLimit);
-		}
-		return effectiveLimit;
-	}
-
-	public JobletServiceThreadCountResponse getSpecificNumThreadsForThisInstance(JobletType<?> jobletType){
+	public JobletServiceThreadCountResponse getThreadCOuntInfoForThisInstance(JobletType<?> jobletType){
 		//get cached inputs
 		List<WebAppInstance> instances = cachedWebAppInstancesOfThisType.get();
 		int clusterLimit = jobletSettings.getClusterThreadCountForJobletType(jobletType);
