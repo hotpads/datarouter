@@ -2,12 +2,15 @@ package com.hotpads.handler.dispatcher;
 
 import java.util.regex.Pattern;
 
+import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hotpads.handler.BaseHandler;
+import com.hotpads.handler.user.CurrentDatarouterUserPredicate;
+import com.hotpads.handler.user.DatarouterUser;
 import com.hotpads.util.http.RequestTool;
 import com.hotpads.util.http.security.ApiKeyPredicate;
 import com.hotpads.util.http.security.CsrfValidator;
@@ -22,9 +25,14 @@ public class DispatchRule{
 	private Class<? extends BaseHandler> handlerClass;
 	private ApiKeyPredicate apiKeyPredicate;
 	private CsrfValidator csrfValidator;
+	private Long csrfTokenTimeout;
 	private SignatureValidator signatureValidator;
 	private boolean requireHttps;
+	private boolean userAuthentication;
+	private DatarouterUser user = null;
+	private CurrentDatarouterUserPredicate userPredicate;
 
+	@Inject
 	public DispatchRule(String regex){
 		this.regex = regex;
 		this.pattern = Pattern.compile(regex);
@@ -47,6 +55,11 @@ public class DispatchRule{
 		return this;
 	}
 
+	public DispatchRule withCsrfTokenTimeout(Long csrfTokenTimeout){
+		this.csrfTokenTimeout = csrfTokenTimeout;
+		return this;
+	}
+
 	public DispatchRule withSignature(SignatureValidator signatureValidator){
 		this.signatureValidator = signatureValidator;
 		return this;
@@ -54,6 +67,12 @@ public class DispatchRule{
 
 	public DispatchRule requireHttps(){
 		requireHttps = true;
+		return this;
+	}
+
+	public DispatchRule withUserAuthentication(CurrentDatarouterUserPredicate userPredicate){
+		userAuthentication = true;
+		this.userPredicate = userPredicate;
 		return this;
 	}
 
@@ -86,7 +105,7 @@ public class DispatchRule{
 	private boolean checkApiKey(HttpServletRequest request){
 		boolean result = apiKeyPredicate == null || apiKeyPredicate.check(request.getParameter(
 				SecurityParameters.API_KEY));
-		if(!result) {
+		if(!result){
 			logFailure("API key check failed", request);
 		}
 		return result;
@@ -95,22 +114,32 @@ public class DispatchRule{
 	private boolean checkCsrfToken(HttpServletRequest request){
 		String csrfToken = request.getParameter(SecurityParameters.CSRF_TOKEN);
 		String csrfIv = request.getParameter(SecurityParameters.CSRF_IV);
+		if(userAuthentication){
+			if(csrfTokenTimeout == null){
+				csrfValidator = new CsrfValidator(user.getSecretKey());
+			}else{
+				csrfValidator = new CsrfValidator(user.getSecretKey(), csrfTokenTimeout);
+			}
+		}
 		boolean result = csrfValidator == null || csrfValidator.check(csrfToken, csrfIv);
 		if(!result){
 			Long requestTimeMs = csrfValidator.getRequestTimeMs(csrfToken, csrfIv);
 			Long differenceMs = null;
-			if(requestTimeMs!=null){
+			if(requestTimeMs != null){
 				differenceMs = System.currentTimeMillis() - requestTimeMs;
 			}
 
-			logFailure("CSRF token check failed, request time:"+requestTimeMs+" is "+differenceMs+"ms > current time",
-					request);
+			logFailure("CSRF token check failed, request time:" + requestTimeMs + " is " + differenceMs
+					+ "ms > current time", request);
 		}
 		return result;
 	}
 
 	private boolean checkSignature(HttpServletRequest request){
-		String signature =  request.getParameter(SecurityParameters.SIGNATURE);
+		String signature = request.getParameter(SecurityParameters.SIGNATURE);
+		if(userAuthentication){
+			signatureValidator = new SignatureValidator(user.getSecretKey());
+		}
 		boolean result = signatureValidator == null
 				|| signatureValidator.checkHexSignatureMulti(request.getParameterMap(), signature);
 		if(!result){
@@ -128,14 +157,21 @@ public class DispatchRule{
 	}
 
 	private void logFailure(String message, HttpServletRequest request){
-		logger.warn(message+". IP:[{}] URI:[{}]", RequestTool.getIpAddress(request), request.getRequestURI());
+		logger.warn(message + ". IP:[{}] URI:[{}]", RequestTool.getIpAddress(request), request.getRequestURI());
 	}
 
 	public boolean apply(HttpServletRequest request){
+		if(userAuthentication){
+			user = getUserFromApiKey(request);
+		}
 		return checkApiKey(request)
 				&& checkCsrfToken(request)
 				&& checkSignature(request)
 				&& checkHttps(request);
+	}
+
+	private DatarouterUser getUserFromApiKey(HttpServletRequest request){
+		return userPredicate.get(request.getParameter(SecurityParameters.API_KEY));
 	}
 
 	/*-------------------- Object -------------------------*/
