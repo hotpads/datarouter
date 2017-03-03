@@ -219,7 +219,6 @@ public class JobletHandler extends BaseHandler{
 		}
 		mav.put("numInstances", instances.size());
 		mav.put("threadCountDtos", threadCountDtos);
-		logger.warn("{}", mav);
 		return mav;
 	}
 
