@@ -48,7 +48,7 @@ import com.hotpads.util.http.response.exception.HotPadsHttpRuntimeException;
 import com.hotpads.util.http.security.ApiKeyPredicate;
 import com.hotpads.util.http.security.DefaultCsrfValidator;
 import com.hotpads.util.http.security.SecurityParameters;
-import com.hotpads.util.http.security.SignatureValidator;
+import com.hotpads.util.http.security.DefaultSignatureValidator;
 
 @Singleton
 public class HotPadsHttpClient{
@@ -58,7 +58,7 @@ public class HotPadsHttpClient{
 
 	private final CloseableHttpClient httpClient;
 	private final JsonSerializer jsonSerializer;
-	private final SignatureValidator signatureValidator;
+	private final DefaultSignatureValidator signatureValidator;
 	private final DefaultCsrfValidator csrfValidator;
 	private final ApiKeyPredicate apiKeyPredicate;
 	private final HotPadsHttpClientConfig config;
@@ -68,7 +68,7 @@ public class HotPadsHttpClient{
 	private final PoolingHttpClientConnectionManager connectionManager;
 
 	HotPadsHttpClient(CloseableHttpClient httpClient, JsonSerializer jsonSerializer,
-			SignatureValidator signatureValidator, DefaultCsrfValidator csrfValidator, ApiKeyPredicate apiKeyPredicate,
+			DefaultSignatureValidator signatureValidator, DefaultCsrfValidator csrfValidator, ApiKeyPredicate apiKeyPredicate,
 			HotPadsHttpClientConfig config, ExecutorService executor, Integer requestTimeoutMs, Long futureTimeoutMs,
 			Integer retryCount, PoolingHttpClientConnectionManager connectionManager){
 		this.httpClient = httpClient;

@@ -13,9 +13,9 @@ import com.hotpads.handler.user.CurrentDatarouterUserPredicate;
 import com.hotpads.handler.user.DatarouterUser;
 import com.hotpads.util.http.RequestTool;
 import com.hotpads.util.http.security.ApiKeyPredicate;
-import com.hotpads.util.http.security.DefaultCsrfValidator;
+import com.hotpads.util.http.security.CsrfValidator;
 import com.hotpads.util.http.security.SecurityParameters;
-import com.hotpads.util.http.security.SignatureValidator;
+import com.hotpads.util.http.security.DefaultSignatureValidator;
 
 public class DispatchRule{
 	private static final Logger logger = LoggerFactory.getLogger(DispatchRule.class);
@@ -24,9 +24,9 @@ public class DispatchRule{
 	private final Pattern pattern;
 	private Class<? extends BaseHandler> handlerClass;
 	private ApiKeyPredicate apiKeyPredicate;
-	private DefaultCsrfValidator csrfValidator;
+	private CsrfValidator csrfValidator;
 	private Long csrfTokenTimeout;
-	private SignatureValidator signatureValidator;
+	private DefaultSignatureValidator signatureValidator;
 	private boolean requireHttps;
 	private boolean userAuthentication;
 	private DatarouterUser user = null;
@@ -50,7 +50,7 @@ public class DispatchRule{
 		return this;
 	}
 
-	public DispatchRule withCsrfToken(DefaultCsrfValidator csrfValidator){
+	public DispatchRule withCsrfToken(CsrfValidator csrfValidator){
 		this.csrfValidator = csrfValidator;
 		return this;
 	}
@@ -60,7 +60,7 @@ public class DispatchRule{
 		return this;
 	}
 
-	public DispatchRule withSignature(SignatureValidator signatureValidator){
+	public DispatchRule withSignature(DefaultSignatureValidator signatureValidator){
 		this.signatureValidator = signatureValidator;
 		return this;
 	}
@@ -114,14 +114,8 @@ public class DispatchRule{
 	private boolean checkCsrfToken(HttpServletRequest request){
 		String csrfToken = request.getParameter(SecurityParameters.CSRF_TOKEN);
 		String csrfIv = request.getParameter(SecurityParameters.CSRF_IV);
-		if(userAuthentication){
-			if(csrfTokenTimeout == null){
-				csrfValidator = new DefaultCsrfValidator(user.getSecretKey());
-			}else{
-				csrfValidator = new DefaultCsrfValidator(user.getSecretKey(), csrfTokenTimeout);
-			}
-		}
-		boolean result = csrfValidator == null || csrfValidator.check(csrfToken, csrfIv);
+		String apiKey = request.getParameter(SecurityParameters.API_KEY);
+		boolean result = csrfValidator == null || csrfValidator.check(csrfToken, csrfIv, apiKey);
 		if(!result){
 			Long requestTimeMs = csrfValidator.getRequestTimeMs(csrfToken, csrfIv);
 			Long differenceMs = null;
@@ -138,7 +132,7 @@ public class DispatchRule{
 	private boolean checkSignature(HttpServletRequest request){
 		String signature = request.getParameter(SecurityParameters.SIGNATURE);
 		if(userAuthentication){
-			signatureValidator = new SignatureValidator(user.getSecretKey());
+			signatureValidator = new DefaultSignatureValidator(user.getSecretKey());
 		}
 		boolean result = signatureValidator == null
 				|| signatureValidator.checkHexSignatureMulti(request.getParameterMap(), signature);

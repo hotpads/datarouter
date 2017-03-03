@@ -28,7 +28,7 @@ import com.hotpads.util.http.response.exception.HotPadsHttpRuntimeException;
 import com.hotpads.util.http.security.DefaultCsrfValidator;
 import com.hotpads.util.http.security.DefaultApiKeyPredicate;
 import com.hotpads.util.http.security.SecurityParameters;
-import com.hotpads.util.http.security.SignatureValidator;
+import com.hotpads.util.http.security.DefaultSignatureValidator;
 
 public class HotPadsHttpClientIntegrationTests{
 	private static final Logger logger = LoggerFactory.getLogger(HotPadsHttpClientIntegrationTests.class);
@@ -211,7 +211,7 @@ public class HotPadsHttpClientIntegrationTests{
 		String cipherKey = "kirg king kind " + UUID.randomUUID().toString();
 		String apiKey = "apiKey advanced placement incremental key " + UUID.randomUUID().toString();
 
-		SignatureValidator signatureValidator = new SignatureValidator(salt);
+		DefaultSignatureValidator signatureValidator = new DefaultSignatureValidator(salt);
 		DefaultCsrfValidator csrfValidator = new DefaultCsrfValidator(cipherKey);
 		DefaultApiKeyPredicate apiKeyPredicate = new DefaultApiKeyPredicate(apiKey);
 

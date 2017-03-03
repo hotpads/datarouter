@@ -12,12 +12,12 @@ import java.util.Map.Entry;
 
 import org.apache.commons.codec.binary.Hex;
 
-public class SignatureValidator{
+public class DefaultSignatureValidator{
 
 	private static final String HASHING_ALGORITHM = "SHA-256";
 	private String salt;
 
-	public SignatureValidator(String salt){
+	public DefaultSignatureValidator(String salt){
 		this.salt = salt;
 	}
 

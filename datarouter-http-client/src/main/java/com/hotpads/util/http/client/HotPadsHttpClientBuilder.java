@@ -26,7 +26,7 @@ import com.hotpads.util.http.json.GsonJsonSerializer;
 import com.hotpads.util.http.json.JsonSerializer;
 import com.hotpads.util.http.security.DefaultCsrfValidator;
 import com.hotpads.util.http.security.DefaultApiKeyPredicate;
-import com.hotpads.util.http.security.SignatureValidator;
+import com.hotpads.util.http.security.DefaultSignatureValidator;
 
 public class HotPadsHttpClientBuilder{
 
@@ -42,7 +42,7 @@ public class HotPadsHttpClientBuilder{
 	private HotPadsRetryHandler retryHandler;
 	private JsonSerializer jsonSerializer;
 	private CloseableHttpClient customHttpClient;
-	private SignatureValidator signatureValidator;
+	private DefaultSignatureValidator signatureValidator;
 	private DefaultCsrfValidator csrfValidator;
 	private DefaultApiKeyPredicate apiKeyPredicate;
 	private HotPadsHttpClientConfig config;
@@ -124,7 +124,7 @@ public class HotPadsHttpClientBuilder{
 		return this;
 	}
 
-	public HotPadsHttpClientBuilder setSignatureValidator(SignatureValidator signatureValidator){
+	public HotPadsHttpClientBuilder setSignatureValidator(DefaultSignatureValidator signatureValidator){
 		this.signatureValidator = signatureValidator;
 		return this;
 	}
