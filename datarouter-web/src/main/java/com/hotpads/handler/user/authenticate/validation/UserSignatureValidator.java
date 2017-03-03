@@ -9,23 +9,19 @@ import com.hotpads.handler.user.DatarouterUser;
 import com.hotpads.handler.user.DatarouterUser.DatarouterUserByApiKeyLookup;
 import com.hotpads.handler.user.DatarouterUserNodes;
 import com.hotpads.util.http.security.DefaultSignatureValidator;
+import com.hotpads.util.http.security.SignatureValidator;
 
 @Singleton
-public class UserSignatureValidator extends DefaultSignatureValidator{
-
-	private final DatarouterUserNodes userNodes;
+public class UserSignatureValidator implements SignatureValidator{
 
 	@Inject
-	public UserSignatureValidator(DatarouterUserNodes userNodes){
-		super(null);
-		this.userNodes = userNodes;
-	}
+	private DatarouterUserNodes userNodes;
 
 	@Override
 	public boolean checkHexSignatureMulti(Map<String,String[]> params, String candidateSignature, String apiKey){
 		DatarouterUser user = userNodes.getUserNode().lookupUnique(new DatarouterUserByApiKeyLookup(apiKey), null);
-		this.salt = user.getSecretKey();
-		return super.checkHexSignatureMulti(params, candidateSignature, apiKey);
+		DefaultSignatureValidator signatureValidator = new DefaultSignatureValidator(user.getSecretKey());
+		return signatureValidator.checkHexSignatureMulti(params, candidateSignature, apiKey);
 	}
 
 }

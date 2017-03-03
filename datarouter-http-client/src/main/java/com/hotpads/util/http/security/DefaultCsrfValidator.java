@@ -51,7 +51,7 @@ public class DefaultCsrfValidator implements CsrfValidator{
 
 	@Override
 	public boolean check(String token, String cipherIv, String apiKey){
-		Long requestTime = getRequestTimeMs(token, cipherIv);
+		Long requestTime = getRequestTimeMs(token, cipherIv, apiKey);
 		if(requestTime == null){
 			return false;
 		}
@@ -69,7 +69,7 @@ public class DefaultCsrfValidator implements CsrfValidator{
 	}
 
 	@Override
-	public Long getRequestTimeMs(String token, String cipherIv){
+	public Long getRequestTimeMs(String token, String cipherIv, String apiKey){
 		try{
 			Cipher aes = getCipher(Cipher.DECRYPT_MODE, cipherIv);
 			return Long.parseLong(new String(aes.doFinal(Base64.getDecoder().decode(token))));

@@ -4,5 +4,5 @@ public interface CsrfValidator{
 
 	public boolean check(String csrfToken, String cipherIv, String apiKey);
 
-	public Long getRequestTimeMs(String csrfToken, String csrfIv);
+	public Long getRequestTimeMs(String csrfToken, String csrfIv, String apiKey);
 }

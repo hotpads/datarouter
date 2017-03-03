@@ -109,7 +109,7 @@ public class DispatchRule{
 		String apiKey = request.getParameter(SecurityParameters.API_KEY);
 		boolean result = csrfValidator == null || csrfValidator.check(csrfToken, csrfIv, apiKey);
 		if(!result){
-			Long requestTimeMs = csrfValidator.getRequestTimeMs(csrfToken, csrfIv);
+			Long requestTimeMs = csrfValidator.getRequestTimeMs(csrfToken, csrfIv, apiKey);
 			Long differenceMs = null;
 			if(requestTimeMs != null){
 				differenceMs = System.currentTimeMillis() - requestTimeMs;
