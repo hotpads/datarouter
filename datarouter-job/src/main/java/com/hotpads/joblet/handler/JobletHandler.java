@@ -213,7 +213,7 @@ public class JobletHandler extends BaseHandler{
 		List<JobletHandlerThreadCountDto> threadCountDtos = new ArrayList<>();
 		List<WebAppInstance> instances = cachedWebAppInstancesOfThisType.get();
 		for(JobletType<?> jobletType : jobletTypeFactory.getAllTypes()){
-			JobletServiceThreadCountResponse threadCountResponse = jobletService.getThreadCOuntInfoForThisInstance(
+			JobletServiceThreadCountResponse threadCountResponse = jobletService.getThreadCountInfoForThisInstance(
 					jobletType);
 			threadCountDtos.add(new JobletHandlerThreadCountDto(instances, threadCountResponse));
 		}

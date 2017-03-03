@@ -266,7 +266,7 @@ public class JobletService{
 
 	/*------------------------- threads --------------------------------*/
 
-	public JobletServiceThreadCountResponse getThreadCOuntInfoForThisInstance(JobletType<?> jobletType){
+	public JobletServiceThreadCountResponse getThreadCountInfoForThisInstance(JobletType<?> jobletType){
 		//get cached inputs
 		List<WebAppInstance> instances = cachedWebAppInstancesOfThisType.get();
 		int clusterLimit = jobletSettings.getClusterThreadCountForJobletType(jobletType);

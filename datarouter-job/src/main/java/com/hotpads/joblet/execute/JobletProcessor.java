@@ -176,7 +176,7 @@ public class JobletProcessor implements Runnable{
 	}
 
 	public int getThreadCount(){
-		return jobletService.getThreadCOuntInfoForThisInstance(jobletType).effectiveLimit;
+		return jobletService.getThreadCountInfoForThisInstance(jobletType).effectiveLimit;
 	}
 
 	/*------------ Object methods ----------------*/
