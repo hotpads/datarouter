@@ -12,10 +12,10 @@ import java.util.Map.Entry;
 
 import org.apache.commons.codec.binary.Hex;
 
-public class DefaultSignatureValidator{
+public class DefaultSignatureValidator implements SignatureValidator{
 
 	private static final String HASHING_ALGORITHM = "SHA-256";
-	private String salt;
+	protected String salt;
 
 	public DefaultSignatureValidator(String salt){
 		this.salt = salt;
@@ -25,7 +25,8 @@ public class DefaultSignatureValidator{
 		return getHexSignature(params).equals(candidateSignature);
 	}
 
-	public boolean checkHexSignatureMulti(Map<String,String[]> params, String candidateSignature){
+	@Override
+	public boolean checkHexSignatureMulti(Map<String,String[]> params, String candidateSignature, String apiKey){
 		return checkHexSignature(multiToSingle(params), candidateSignature);
 	}
 

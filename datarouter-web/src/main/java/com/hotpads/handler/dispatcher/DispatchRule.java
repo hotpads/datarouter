@@ -10,12 +10,12 @@ import org.slf4j.LoggerFactory;
 
 import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.user.CurrentDatarouterUserPredicate;
-import com.hotpads.handler.user.DatarouterUser;
 import com.hotpads.util.http.RequestTool;
 import com.hotpads.util.http.security.ApiKeyPredicate;
 import com.hotpads.util.http.security.CsrfValidator;
-import com.hotpads.util.http.security.SecurityParameters;
 import com.hotpads.util.http.security.DefaultSignatureValidator;
+import com.hotpads.util.http.security.SecurityParameters;
+import com.hotpads.util.http.security.SignatureValidator;
 
 public class DispatchRule{
 	private static final Logger logger = LoggerFactory.getLogger(DispatchRule.class);
@@ -26,10 +26,8 @@ public class DispatchRule{
 	private ApiKeyPredicate apiKeyPredicate;
 	private CsrfValidator csrfValidator;
 	private Long csrfTokenTimeout;
-	private DefaultSignatureValidator signatureValidator;
+	private SignatureValidator signatureValidator;
 	private boolean requireHttps;
-	private boolean userAuthentication;
-	private DatarouterUser user = null;
 	private CurrentDatarouterUserPredicate userPredicate;
 
 	@Inject
@@ -67,12 +65,6 @@ public class DispatchRule{
 
 	public DispatchRule requireHttps(){
 		requireHttps = true;
-		return this;
-	}
-
-	public DispatchRule withUserAuthentication(CurrentDatarouterUserPredicate userPredicate){
-		userAuthentication = true;
-		this.userPredicate = userPredicate;
 		return this;
 	}
 
@@ -131,11 +123,9 @@ public class DispatchRule{
 
 	private boolean checkSignature(HttpServletRequest request){
 		String signature = request.getParameter(SecurityParameters.SIGNATURE);
-		if(userAuthentication){
-			signatureValidator = new DefaultSignatureValidator(user.getSecretKey());
-		}
+		String apiKey = request.getParameter(SecurityParameters.API_KEY);
 		boolean result = signatureValidator == null
-				|| signatureValidator.checkHexSignatureMulti(request.getParameterMap(), signature);
+				|| signatureValidator.checkHexSignatureMulti(request.getParameterMap(), signature, apiKey);
 		if(!result){
 			logFailure("Signature validation failed", request);
 		}
@@ -155,17 +145,10 @@ public class DispatchRule{
 	}
 
 	public boolean apply(HttpServletRequest request){
-		if(userAuthentication){
-			user = getUserFromApiKey(request);
-		}
 		return checkApiKey(request)
 				&& checkCsrfToken(request)
 				&& checkSignature(request)
 				&& checkHttps(request);
-	}
-
-	private DatarouterUser getUserFromApiKey(HttpServletRequest request){
-		return userPredicate.get(request.getParameter(SecurityParameters.API_KEY));
 	}
 
 	/*-------------------- Object -------------------------*/
