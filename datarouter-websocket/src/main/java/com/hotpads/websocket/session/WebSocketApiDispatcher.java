@@ -2,7 +2,7 @@ package com.hotpads.websocket.session;
 
 import com.hotpads.datarouter.inject.DatarouterInjector;
 import com.hotpads.handler.dispatcher.BaseDispatcher;
-import com.hotpads.util.http.security.CsrfValidator;
+import com.hotpads.util.http.security.DefaultCsrfValidator;
 import com.hotpads.util.http.security.DefaultApiKeyPredicate;
 import com.hotpads.util.http.security.SignatureValidator;
 
@@ -16,7 +16,7 @@ public class WebSocketApiDispatcher extends BaseDispatcher{
 		handleDir(urlPrefix + WEBSOCKET_COMMAND)
 				.withHandler(WebSocketApiHandler.class)
 				.withApiKey(new DefaultApiKeyPredicate(PushServiceHttpClientProvider.API_KEY))
-				.withCsrfToken(new CsrfValidator(PushServiceHttpClientProvider.CIPHER_KEY))
+				.withCsrfToken(new DefaultCsrfValidator(PushServiceHttpClientProvider.CIPHER_KEY))
 				.withSignature(new SignatureValidator(PushServiceHttpClientProvider.SALT));
 	}
 

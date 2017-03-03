@@ -25,7 +25,7 @@ import com.hotpads.util.http.response.exception.HotPadsHttpException;
 import com.hotpads.util.http.response.exception.HotPadsHttpRequestFutureTimeoutException;
 import com.hotpads.util.http.response.exception.HotPadsHttpResponseException;
 import com.hotpads.util.http.response.exception.HotPadsHttpRuntimeException;
-import com.hotpads.util.http.security.CsrfValidator;
+import com.hotpads.util.http.security.DefaultCsrfValidator;
 import com.hotpads.util.http.security.DefaultApiKeyPredicate;
 import com.hotpads.util.http.security.SecurityParameters;
 import com.hotpads.util.http.security.SignatureValidator;
@@ -212,7 +212,7 @@ public class HotPadsHttpClientIntegrationTests{
 		String apiKey = "apiKey advanced placement incremental key " + UUID.randomUUID().toString();
 
 		SignatureValidator signatureValidator = new SignatureValidator(salt);
-		CsrfValidator csrfValidator = new CsrfValidator(cipherKey);
+		DefaultCsrfValidator csrfValidator = new DefaultCsrfValidator(cipherKey);
 		DefaultApiKeyPredicate apiKeyPredicate = new DefaultApiKeyPredicate(apiKey);
 
 		client = new HotPadsHttpClientBuilder().setSignatureValidator(signatureValidator)

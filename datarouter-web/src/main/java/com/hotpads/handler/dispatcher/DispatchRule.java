@@ -13,7 +13,7 @@ import com.hotpads.handler.user.CurrentDatarouterUserPredicate;
 import com.hotpads.handler.user.DatarouterUser;
 import com.hotpads.util.http.RequestTool;
 import com.hotpads.util.http.security.ApiKeyPredicate;
-import com.hotpads.util.http.security.CsrfValidator;
+import com.hotpads.util.http.security.DefaultCsrfValidator;
 import com.hotpads.util.http.security.SecurityParameters;
 import com.hotpads.util.http.security.SignatureValidator;
 
@@ -24,7 +24,7 @@ public class DispatchRule{
 	private final Pattern pattern;
 	private Class<? extends BaseHandler> handlerClass;
 	private ApiKeyPredicate apiKeyPredicate;
-	private CsrfValidator csrfValidator;
+	private DefaultCsrfValidator csrfValidator;
 	private Long csrfTokenTimeout;
 	private SignatureValidator signatureValidator;
 	private boolean requireHttps;
@@ -50,7 +50,7 @@ public class DispatchRule{
 		return this;
 	}
 
-	public DispatchRule withCsrfToken(CsrfValidator csrfValidator){
+	public DispatchRule withCsrfToken(DefaultCsrfValidator csrfValidator){
 		this.csrfValidator = csrfValidator;
 		return this;
 	}
@@ -116,9 +116,9 @@ public class DispatchRule{
 		String csrfIv = request.getParameter(SecurityParameters.CSRF_IV);
 		if(userAuthentication){
 			if(csrfTokenTimeout == null){
-				csrfValidator = new CsrfValidator(user.getSecretKey());
+				csrfValidator = new DefaultCsrfValidator(user.getSecretKey());
 			}else{
-				csrfValidator = new CsrfValidator(user.getSecretKey(), csrfTokenTimeout);
+				csrfValidator = new DefaultCsrfValidator(user.getSecretKey(), csrfTokenTimeout);
 			}
 		}
 		boolean result = csrfValidator == null || csrfValidator.check(csrfToken, csrfIv);

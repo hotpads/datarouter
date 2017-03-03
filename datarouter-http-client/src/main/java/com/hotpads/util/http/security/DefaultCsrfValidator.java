@@ -13,7 +13,7 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
-public class CsrfValidator{
+public class DefaultCsrfValidator{
 	private static final String HASHING_ALGORITHM = "SHA-256";
 	// AES/CBC requires IV to be generated for every encrypted message!!
 	// More details here: https://tools.ietf.org/html/rfc3602
@@ -28,11 +28,11 @@ public class CsrfValidator{
 	private final String cipherKey;
 	private final long requestTimeoutMs;
 
-	public CsrfValidator(String cipherKey){
+	public DefaultCsrfValidator(String cipherKey){
 		this(cipherKey, DEFAULT_REQUEST_TIMEOUT_IN_MS);
 	}
 
-	public CsrfValidator(String cipherKey, Long requestTimeoutMs){
+	public DefaultCsrfValidator(String cipherKey, Long requestTimeoutMs){
 		this.cipherKey = cipherKey;
 		this.requestTimeoutMs = requestTimeoutMs;
 	}

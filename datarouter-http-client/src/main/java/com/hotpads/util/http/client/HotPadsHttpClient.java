@@ -46,7 +46,7 @@ import com.hotpads.util.http.response.exception.HotPadsHttpRequestInterruptedExc
 import com.hotpads.util.http.response.exception.HotPadsHttpResponseException;
 import com.hotpads.util.http.response.exception.HotPadsHttpRuntimeException;
 import com.hotpads.util.http.security.ApiKeyPredicate;
-import com.hotpads.util.http.security.CsrfValidator;
+import com.hotpads.util.http.security.DefaultCsrfValidator;
 import com.hotpads.util.http.security.SecurityParameters;
 import com.hotpads.util.http.security.SignatureValidator;
 
@@ -59,7 +59,7 @@ public class HotPadsHttpClient{
 	private final CloseableHttpClient httpClient;
 	private final JsonSerializer jsonSerializer;
 	private final SignatureValidator signatureValidator;
-	private final CsrfValidator csrfValidator;
+	private final DefaultCsrfValidator csrfValidator;
 	private final ApiKeyPredicate apiKeyPredicate;
 	private final HotPadsHttpClientConfig config;
 	private final ExecutorService executor;
@@ -68,7 +68,7 @@ public class HotPadsHttpClient{
 	private final PoolingHttpClientConnectionManager connectionManager;
 
 	HotPadsHttpClient(CloseableHttpClient httpClient, JsonSerializer jsonSerializer,
-			SignatureValidator signatureValidator, CsrfValidator csrfValidator, ApiKeyPredicate apiKeyPredicate,
+			SignatureValidator signatureValidator, DefaultCsrfValidator csrfValidator, ApiKeyPredicate apiKeyPredicate,
 			HotPadsHttpClientConfig config, ExecutorService executor, Integer requestTimeoutMs, Long futureTimeoutMs,
 			Integer retryCount, PoolingHttpClientConnectionManager connectionManager){
 		this.httpClient = httpClient;
@@ -165,7 +165,7 @@ public class HotPadsHttpClient{
 	private void setSecurityProperties(HotPadsHttpRequest request){
 		Map<String,String> params = new HashMap<>();
 		if(csrfValidator != null){
-			String csrfIv = CsrfValidator.generateCsrfIv();
+			String csrfIv = DefaultCsrfValidator.generateCsrfIv();
 			params.put(SecurityParameters.CSRF_IV, csrfIv);
 			params.put(SecurityParameters.CSRF_TOKEN, csrfValidator.generateCsrfToken(csrfIv));
 		}

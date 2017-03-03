@@ -24,7 +24,7 @@ import org.apache.http.ssl.SSLContextBuilder;
 
 import com.hotpads.util.http.json.GsonJsonSerializer;
 import com.hotpads.util.http.json.JsonSerializer;
-import com.hotpads.util.http.security.CsrfValidator;
+import com.hotpads.util.http.security.DefaultCsrfValidator;
 import com.hotpads.util.http.security.DefaultApiKeyPredicate;
 import com.hotpads.util.http.security.SignatureValidator;
 
@@ -43,7 +43,7 @@ public class HotPadsHttpClientBuilder{
 	private JsonSerializer jsonSerializer;
 	private CloseableHttpClient customHttpClient;
 	private SignatureValidator signatureValidator;
-	private CsrfValidator csrfValidator;
+	private DefaultCsrfValidator csrfValidator;
 	private DefaultApiKeyPredicate apiKeyPredicate;
 	private HotPadsHttpClientConfig config;
 	private boolean ignoreSsl;
@@ -129,7 +129,7 @@ public class HotPadsHttpClientBuilder{
 		return this;
 	}
 
-	public HotPadsHttpClientBuilder setCsrfValidator(CsrfValidator csrfValidator){
+	public HotPadsHttpClientBuilder setCsrfValidator(DefaultCsrfValidator csrfValidator){
 		this.csrfValidator = csrfValidator;
 		return this;
 	}
