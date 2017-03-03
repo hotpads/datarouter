@@ -13,7 +13,7 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
-public class DefaultCsrfValidator{
+public class DefaultCsrfValidator implements CsrfValidator{
 	private static final String HASHING_ALGORITHM = "SHA-256";
 	// AES/CBC requires IV to be generated for every encrypted message!!
 	// More details here: https://tools.ietf.org/html/rfc3602
@@ -25,8 +25,8 @@ public class DefaultCsrfValidator{
 	private static final String CIPHER_ALGORITHM = MAIN_CIPHER_ALGORITHM + "/" + SUB_CIPHER_ALGORITHM;
 	private static final Long DEFAULT_REQUEST_TIMEOUT_IN_MS = 10000L;
 
-	private final String cipherKey;
-	private final long requestTimeoutMs;
+	protected String cipherKey;
+	protected long requestTimeoutMs;
 
 	public DefaultCsrfValidator(String cipherKey){
 		this(cipherKey, DEFAULT_REQUEST_TIMEOUT_IN_MS);
@@ -49,7 +49,8 @@ public class DefaultCsrfValidator{
 		return Base64.getEncoder().encodeToString(salt);
 	}
 
-	public boolean check(String token, String cipherIv){
+	@Override
+	public boolean check(String token, String cipherIv, String apiKey){
 		Long requestTime = getRequestTimeMs(token, cipherIv);
 		if(requestTime == null){
 			return false;
@@ -67,6 +68,7 @@ public class DefaultCsrfValidator{
 		}
 	}
 
+	@Override
 	public Long getRequestTimeMs(String token, String cipherIv){
 		try{
 			Cipher aes = getCipher(Cipher.DECRYPT_MODE, cipherIv);
