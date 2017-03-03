@@ -13,7 +13,6 @@ import com.hotpads.handler.user.CurrentDatarouterUserPredicate;
 import com.hotpads.util.http.RequestTool;
 import com.hotpads.util.http.security.ApiKeyPredicate;
 import com.hotpads.util.http.security.CsrfValidator;
-import com.hotpads.util.http.security.DefaultSignatureValidator;
 import com.hotpads.util.http.security.SecurityParameters;
 import com.hotpads.util.http.security.SignatureValidator;
 
@@ -58,7 +57,7 @@ public class DispatchRule{
 		return this;
 	}
 
-	public DispatchRule withSignature(DefaultSignatureValidator signatureValidator){
+	public DispatchRule withSignature(SignatureValidator signatureValidator){
 		this.signatureValidator = signatureValidator;
 		return this;
 	}
