@@ -6,7 +6,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Base64;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -68,7 +68,7 @@ public class DefaultSignatureValidator implements SignatureValidator{
 	}
 
 	private Map<String, String> multiToSingle(Map<String, String[]> data){
-		Map<String, String> map = new LinkedHashMap<>();
+		Map<String, String> map = new HashMap<>();
 		for(Entry<String, String[]> entry : data.entrySet()){
 			map.put(entry.getKey(), entry.getValue()[0]);
 		}
