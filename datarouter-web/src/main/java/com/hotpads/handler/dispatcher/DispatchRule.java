@@ -2,14 +2,12 @@ package com.hotpads.handler.dispatcher;
 
 import java.util.regex.Pattern;
 
-import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hotpads.handler.BaseHandler;
-import com.hotpads.handler.user.CurrentDatarouterUserPredicate;
 import com.hotpads.util.http.RequestTool;
 import com.hotpads.util.http.security.ApiKeyPredicate;
 import com.hotpads.util.http.security.CsrfValidator;
@@ -24,12 +22,9 @@ public class DispatchRule{
 	private Class<? extends BaseHandler> handlerClass;
 	private ApiKeyPredicate apiKeyPredicate;
 	private CsrfValidator csrfValidator;
-	private Long csrfTokenTimeout;
 	private SignatureValidator signatureValidator;
 	private boolean requireHttps;
-	private CurrentDatarouterUserPredicate userPredicate;
 
-	@Inject
 	public DispatchRule(String regex){
 		this.regex = regex;
 		this.pattern = Pattern.compile(regex);
@@ -49,11 +44,6 @@ public class DispatchRule{
 
 	public DispatchRule withCsrfToken(CsrfValidator csrfValidator){
 		this.csrfValidator = csrfValidator;
-		return this;
-	}
-
-	public DispatchRule withCsrfTokenTimeout(Long csrfTokenTimeout){
-		this.csrfTokenTimeout = csrfTokenTimeout;
 		return this;
 	}
 
