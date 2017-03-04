@@ -25,8 +25,8 @@ public class DefaultCsrfValidator implements CsrfValidator{
 	private static final String CIPHER_ALGORITHM = MAIN_CIPHER_ALGORITHM + "/" + SUB_CIPHER_ALGORITHM;
 	private static final Long DEFAULT_REQUEST_TIMEOUT_IN_MS = 10000L;
 
-	protected String cipherKey;
-	protected long requestTimeoutMs;
+	private final String cipherKey;
+	private final long requestTimeoutMs;
 
 	public DefaultCsrfValidator(String cipherKey){
 		this(cipherKey, DEFAULT_REQUEST_TIMEOUT_IN_MS);
