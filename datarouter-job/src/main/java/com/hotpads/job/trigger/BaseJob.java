@@ -31,9 +31,9 @@ public abstract class BaseJob implements Job{
 	protected final LongRunningTaskTracker tracker;
 	protected final Setting<Boolean> shouldSaveLongRunningTasks;
 	private final TriggersRepository triggersRepository;
-	private final String jobClass;
+	protected final String jobClass;//TODO reorder these by visibility
 	private final Date createdAt;//timestamp at construction, before queueing in the scheduler
-	private Date triggerTime;
+	protected Date triggerTime;
 	private Date startedAt;//timestamp after queue, when processing begins
 	private Date finishedAt;
 
