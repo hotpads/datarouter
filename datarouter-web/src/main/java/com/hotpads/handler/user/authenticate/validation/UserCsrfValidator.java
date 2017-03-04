@@ -1,19 +1,20 @@
 package com.hotpads.handler.user.authenticate.validation;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import com.hotpads.handler.user.DatarouterUser;
 import com.hotpads.handler.user.DatarouterUser.DatarouterUserByApiKeyLookup;
 import com.hotpads.handler.user.DatarouterUserNodes;
 import com.hotpads.util.http.security.CsrfValidator;
 import com.hotpads.util.http.security.DefaultCsrfValidator;
 
-@Singleton
 public class UserCsrfValidator implements CsrfValidator{
 
-	@Inject
+	private Long requestTimeoutMs;
 	private DatarouterUserNodes userNodes;
+
+	public UserCsrfValidator(DatarouterUserNodes userNodes, Long requestTimeoutMs){
+		this.requestTimeoutMs = requestTimeoutMs;
+		this.userNodes = userNodes;
+	}
 
 	@Override
 	public boolean check(String csrfToken, String cipherIv, String apiKey){
@@ -27,7 +28,7 @@ public class UserCsrfValidator implements CsrfValidator{
 
 	private DefaultCsrfValidator getCsrfValidatorForUserWithApiKey(String apiKey){
 		DatarouterUser user = userNodes.getUserNode().lookupUnique(new DatarouterUserByApiKeyLookup(apiKey), null);
-		return new DefaultCsrfValidator(user.getSecretKey());
+		return new DefaultCsrfValidator(user.getSecretKey(), requestTimeoutMs);
 	}
 
 }
