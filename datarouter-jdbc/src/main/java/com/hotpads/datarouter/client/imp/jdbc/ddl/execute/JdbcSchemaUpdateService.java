@@ -21,7 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.SchemaUpdateOptions;
-import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.imp.FieldSqlTableGenerator;
 import com.hotpads.datarouter.client.imp.jdbc.util.JdbcTool;
 import com.hotpads.datarouter.config.DatarouterProperties;
 import com.hotpads.datarouter.connection.JdbcConnectionPool;
@@ -43,13 +43,13 @@ public class JdbcSchemaUpdateService{
 		@Inject
 		private DatarouterProperties datarouterProperties;
 		@Inject
-		private JdbcFieldCodecFactory fieldCodecFactory;
+		private FieldSqlTableGenerator fieldSqlTableGenerator;
 		@Inject
 		@Named(DatarouterExecutorGuiceModule.POOL_schemaUpdateScheduler)
 		private ScheduledExecutorService executor;
 
 		public JdbcSchemaUpdateService create(JdbcConnectionPool connectionPool){
-			return new JdbcSchemaUpdateService(datarouter, datarouterProperties, fieldCodecFactory, executor,
+			return new JdbcSchemaUpdateService(datarouter, datarouterProperties, fieldSqlTableGenerator, executor,
 					connectionPool);
 		}
 
@@ -64,7 +64,7 @@ public class JdbcSchemaUpdateService{
 
 	private final Datarouter datarouter;
 	private final DatarouterProperties datarouterProperties;
-	private final JdbcFieldCodecFactory fieldCodecFactory;
+	private final FieldSqlTableGenerator fieldSqlTableGenerator;
 	private final JdbcConnectionPool connectionPool;
 	private final SchemaUpdateOptions printOptions;
 	private final SchemaUpdateOptions executeOptions;
@@ -73,14 +73,14 @@ public class JdbcSchemaUpdateService{
 	private final List<Future<Optional<String>>> futures;
 
 	private JdbcSchemaUpdateService(Datarouter datarouter, DatarouterProperties datarouterProperties,
-			JdbcFieldCodecFactory fieldCodecFactory, ScheduledExecutorService executor,
+			FieldSqlTableGenerator fieldSqlTableGenerator, ScheduledExecutorService executor,
 			JdbcConnectionPool connectionPool){
 		this.datarouter = datarouter;
 		this.datarouterProperties = datarouterProperties;
-		this.fieldCodecFactory = fieldCodecFactory;
+		this.fieldSqlTableGenerator = fieldSqlTableGenerator;
 		this.connectionPool = connectionPool;
 		List<Properties> multiProperties = DrPropertiesTool.fromFiles(datarouter.getConfigFilePaths());
-		this.printOptions = new SchemaUpdateOptions(multiProperties , PRINT_PREFIX, true);
+		this.printOptions = new SchemaUpdateOptions(multiProperties, PRINT_PREFIX, true);
 		this.executeOptions = new SchemaUpdateOptions(multiProperties, EXECUTE_PREFIX, false);
 		this.printedSchemaUpdates = new ArrayList<>();
 		this.futures = Collections.synchronizedList(new ArrayList<>());
@@ -90,18 +90,22 @@ public class JdbcSchemaUpdateService{
 
 	public Future<Optional<String>> queueNodeForSchemaUpdate(String clientName, PhysicalNode<?,?> node){
 		Future<Optional<String>> future = datarouter.getExecutorService().submit(new SingleTableSchemaUpdate(
-				fieldCodecFactory, clientName, connectionPool, existingTableNames, printOptions, executeOptions,
+				fieldSqlTableGenerator, clientName, connectionPool, existingTableNames, printOptions, executeOptions,
 				node));
 		futures.add(future);
 		return future;
 	}
 
-	public synchronized void gatherSchemaUpdates(){
-		boolean shouldNotify = !printedSchemaUpdates.isEmpty();
+	private void gatherSchemaUpdates(){
+		gatherSchemaUpdates(false);
+	}
+
+	public synchronized void gatherSchemaUpdates(boolean wait){
+		boolean shouldNotify = true;
 		Iterator<Future<Optional<String>>> futureIterator = futures.iterator();
 		while(futureIterator.hasNext()){
 			Future<Optional<String>> future = futureIterator.next();
-			if(future.isDone()){
+			if(wait || future.isDone()){
 				try{
 					future.get().ifPresent(printedSchemaUpdates::add);
 				}catch(InterruptedException | ExecutionException e){
@@ -119,7 +123,7 @@ public class JdbcSchemaUpdateService{
 	}
 
 	private void sendEmail(){
-		if (printedSchemaUpdates.isEmpty()){
+		if(printedSchemaUpdates.isEmpty()){
 			return;
 		}
 		String subject = "SchemaUpdate request from " + datarouterProperties.getServerName();

@@ -5,8 +5,8 @@ import javax.inject.Singleton;
 
 import com.hotpads.datarouter.inject.DatarouterInjector;
 import com.hotpads.joblet.databean.JobletRequest;
-import com.hotpads.joblet.enums.JobletType;
-import com.hotpads.joblet.enums.JobletTypeFactory;
+import com.hotpads.joblet.type.JobletType;
+import com.hotpads.joblet.type.JobletTypeFactory;
 
 @Singleton
 public class JobletFactory{
@@ -18,9 +18,11 @@ public class JobletFactory{
 
 	public <P> Joblet<?> createForPackage(JobletPackage jobletPackage){
 		@SuppressWarnings("unchecked")
-		JobletType<P> jobletType = (JobletType<P>)jobletTypeFactory.fromJobletRequest(jobletPackage.getJobletRequest());
+		JobletType<P> jobletType = (JobletType<P>)jobletTypeFactory.fromJobletRequest(
+				jobletPackage.getJobletRequest());
 		JobletCodec<P> jobletCodec = jobletType.getCodecSupplier().get();
-		P jobletParams = jobletCodec.unmarshallData(jobletPackage.getJobletData().getData());
+		P jobletParams = jobletCodec.unmarshallData(
+				jobletPackage.getJobletData().getData());
 		return create(jobletType, jobletPackage.getJobletRequest(), jobletParams);
 	}
 

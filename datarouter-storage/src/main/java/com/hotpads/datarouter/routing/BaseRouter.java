@@ -16,6 +16,7 @@ import com.hotpads.datarouter.node.NodeParams.NodeParamsBuilder;
 import com.hotpads.datarouter.node.factory.BaseNodeFactory;
 import com.hotpads.datarouter.node.op.NodeOps;
 import com.hotpads.datarouter.node.op.combo.IndexedMapStorage;
+import com.hotpads.datarouter.node.op.combo.IndexedMapStorage.IndexedMapStorageNode;
 import com.hotpads.datarouter.node.type.index.UniqueIndexNode;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
@@ -109,7 +110,7 @@ implements Router{
 
 	@Deprecated
 	@Override
-	public Datarouter getContext() {
+	public Datarouter getContext(){
 		return datarouter;
 	}
 
@@ -130,7 +131,7 @@ implements Router{
 	/********************* get/set ******************************/
 
 	@Override
-	public String getName() {
+	public String getName(){
 		return name;
 	}
 
@@ -199,16 +200,16 @@ implements Router{
 			D extends Databean<PK,D>,
 			IK extends FieldlessIndexEntryPrimaryKey<IK,PK,D>>
 	ManagedNodeBuilder<PK,D,IK,FieldlessIndexEntry<IK,PK,D>,FieldlessIndexEntryFielder<IK,PK,D>>
-	createKeyOnlyManagedIndex(Class<IK> indexEntryKeyClass, IndexedMapStorage<PK,D> backingNode){
+	createKeyOnlyManagedIndex(Class<IK> indexEntryKeyClass, IndexedMapStorageNode<PK,D> backingNode){
 		return new ManagedNodeBuilder<>(indexEntryKeyClass, () -> new FieldlessIndexEntry<>(indexEntryKeyClass),
-				() -> new FieldlessIndexEntryFielder<>(indexEntryKeyClass), backingNode);
+				() -> new FieldlessIndexEntryFielder<>(indexEntryKeyClass, backingNode.getFieldInfo()), backingNode);
 	}
 
 	protected <PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			IK extends FieldlessIndexEntryPrimaryKey<IK,PK,D>>
 	UniqueIndexNode<PK,D,IK,FieldlessIndexEntry<IK,PK,D>> buildKeyOnlyManagedIndex(Class<IK> indexEntryKeyClass,
-			IndexedMapStorage<PK,D> backingNode){
+			IndexedMapStorageNode<PK,D> backingNode){
 		return createKeyOnlyManagedIndex(indexEntryKeyClass, backingNode).build();
 	}
 

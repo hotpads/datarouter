@@ -20,8 +20,8 @@ implements SortedMapStorageNode<PK,D>,
 		RedundantMapStorageMixin<PK,D,N>,
 		RedundantSortedStorageMixin<PK,D,N>{
 
-	public RedundantSortedMapStorageNode(Supplier<D> databeanSupplier, Router router,
-			Collection<N> writeNodes, N readNode) {
+	public RedundantSortedMapStorageNode(Supplier<D> databeanSupplier, Router router, Collection<N> writeNodes,
+			N readNode){
 		super(databeanSupplier, router, writeNodes, readNode);
 	}
 

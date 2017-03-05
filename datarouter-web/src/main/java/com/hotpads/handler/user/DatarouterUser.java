@@ -13,13 +13,13 @@ import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
-import com.hotpads.datarouter.storage.field.enums.DatarouterEnumTool;
 import com.hotpads.datarouter.storage.field.imp.DateField;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.array.DelimitedStringArrayField;
 import com.hotpads.datarouter.storage.field.imp.comparable.BooleanField;
 import com.hotpads.datarouter.storage.key.unique.base.BaseStringUniqueKey;
 import com.hotpads.handler.user.role.DatarouterUserRole;
+import com.hotpads.util.core.enums.DatarouterEnumTool;
 
 public class DatarouterUser extends BaseDatabean<DatarouterUserKey, DatarouterUser> {
 

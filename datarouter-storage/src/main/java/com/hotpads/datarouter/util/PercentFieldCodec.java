@@ -59,7 +59,7 @@ public class PercentFieldCodec{
 	}
 
 	public static boolean isValidExternalSeparator(char separator){
-		return ! ILLEGAL_EXTERNAL_SEPARATORS.contains(separator);
+		return !ILLEGAL_EXTERNAL_SEPARATORS.contains(separator);
 	}
 
 

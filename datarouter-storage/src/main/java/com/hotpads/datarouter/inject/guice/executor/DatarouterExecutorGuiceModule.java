@@ -27,11 +27,14 @@ public class DatarouterExecutorGuiceModule extends BaseExecutorGuiceModule{
 		POOL_schemaUpdateScheduler = "schemaUpdateScheduler",
 		POOL_latencyMonitoring = "latencyMonitoring",
 		POOL_tableSampler = "tableSampler",
-		POOL_metricsAggregation = "metricsAggregation";
+		POOL_metricsAggregation = "metricsAggregation",
+		POOL_parallelScanning = "parallelScanning";
 
 	private static final ThreadGroup
 		datarouter = new ThreadGroup("datarouter"),
 		flushers = new ThreadGroup(datarouter, "flushers");
+
+	public static final int HBASE_CLIENT_EXECUTOR_MAX_THREADS = 100;
 
 	@Override
 	protected void configure(){
@@ -83,6 +86,9 @@ public class DatarouterExecutorGuiceModule extends BaseExecutorGuiceModule{
 		bind(ExecutorService.class)
 				.annotatedWith(Names.named(POOL_metricsAggregation))
 				.toInstance(createMetricsAggregationExecutor());
+		bind(ExecutorService.class)
+				.annotatedWith(Names.named(POOL_parallelScanning))
+				.toInstance(createParallelScanningExecutor());
 	}
 
 	//The following factory methods are for Spring
@@ -128,8 +134,10 @@ public class DatarouterExecutorGuiceModule extends BaseExecutorGuiceModule{
 				new NamedThreadFactory(datarouter, POOL_parallelApiCallerSender, true));
 	}
 
+	//keep the maxThreads here in sync with the HBaseTableExecutorServicePool.maxHTables
 	private ExecutorService createHbaseClientExecutor(){
-		return createThreadPool(datarouter, POOL_hbaseClientExecutor, 10, 10, 1, new CallerRunsPolicy());
+		return createThreadPool(datarouter, POOL_hbaseClientExecutor, HBASE_CLIENT_EXECUTOR_MAX_THREADS,
+				HBASE_CLIENT_EXECUTOR_MAX_THREADS, 1, new CallerRunsPolicy());
 	}
 
 	private ExecutorService createBigTableClientExecutor(){
@@ -151,6 +159,10 @@ public class DatarouterExecutorGuiceModule extends BaseExecutorGuiceModule{
 
 	private ExecutorService createMetricsAggregationExecutor(){
 		return createScalingPool(datarouter, POOL_metricsAggregation, 10);
+	}
+
+	private ExecutorService createParallelScanningExecutor(){
+		return Executors.newCachedThreadPool(new NamedThreadFactory(datarouter, POOL_parallelScanning, true));
 	}
 
 }

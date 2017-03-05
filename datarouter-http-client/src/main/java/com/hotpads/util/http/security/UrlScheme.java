@@ -3,7 +3,7 @@ package com.hotpads.util.http.security;
 import java.util.HashSet;
 import java.util.Set;
 
-public enum UrlScheme {
+public enum UrlScheme{
 	HTTP("http"),
 	HTTPS("https"),
 	ANY("any");
@@ -20,7 +20,7 @@ public enum UrlScheme {
 
 	public static final String LOCAL_DEV_SERVER = LOCAL_HOST + ":" + PORT_HTTP_DEV;
 	public static final String LOCAL_DEV_SERVER_HTTPS = LOCAL_HOST + ":" + PORT_HTTPS_DEV;
-	public static final String LOCAL_DEV_SERVER_URL = HTTP.stringRepresentation +"://" + LOCAL_HOST + ":"
+	public static final String LOCAL_DEV_SERVER_URL = HTTP.stringRepresentation + "://" + LOCAL_HOST + ":"
 			+ PORT_HTTP_DEV;
 	public static final String LOCAL_DEV_SERVER_HTTPS_URL = HTTPS.stringRepresentation + "://" + LOCAL_HOST + ":"
 			+ PORT_HTTPS_DEV;
@@ -33,7 +33,7 @@ public enum UrlScheme {
 		this.stringRepresentation = stringRepresentation;
 	}
 
-	public String getStringRepresentation() {
+	public String getStringRepresentation(){
 		return stringRepresentation;
 	}
 

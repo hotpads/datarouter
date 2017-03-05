@@ -1,5 +1,7 @@
 package com.hotpads.datarouter.client.imp.hbase.compaction;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Date;
 
 import org.slf4j.Logger;
@@ -8,14 +10,14 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.client.imp.hbase.cluster.DrRegionInfo;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.datarouter.util.core.DrDailyCalendarTool;
 import com.hotpads.datarouter.util.core.DrDateTool;
 import com.hotpads.datarouter.util.core.DrHashMethods;
 
 public class DrhCompactionScheduler<PK extends PrimaryKey<PK>>{
 	private static final Logger logger = LoggerFactory.getLogger(DrhCompactionScheduler.class);
 
-	private static final long COMPACTION_EPOCH = DrDailyCalendarTool.parseYYYYMMDDEastern("20110301").getTimeInMillis();
+	private static final long COMPACTION_EPOCH = LocalDate.parse("2011-03-01").atStartOfDay(ZoneId.of("US/Eastern"))
+			.toInstant().toEpochMilli();
 
 	private Long windowStartMs, windowEndMs;//start inclusive, end exclusive
 	private DrRegionInfo<PK> regionInfo;
@@ -31,8 +33,8 @@ public class DrhCompactionScheduler<PK extends PrimaryKey<PK>>{
 
 	public boolean shouldCompact(){
 		//tease out NPE's and return false if we hit one.  this happens occasionally for some reason
-		if(regionInfo.getLoad()==null){
-			logger.warn("regionInfo.getLoad()==null on "+regionInfo.getTableName()+" "+regionInfo.getName());
+		if(regionInfo.getLoad() == null){
+			logger.warn("regionInfo.getLoad()==null on " + regionInfo.getTableName() + " " + regionInfo.getName());
 			return false;
 		}
 

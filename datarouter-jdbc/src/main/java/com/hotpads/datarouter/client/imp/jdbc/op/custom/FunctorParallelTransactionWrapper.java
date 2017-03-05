@@ -2,19 +2,18 @@ package com.hotpads.datarouter.client.imp.jdbc.op.custom;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Function;
 
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.imp.jdbc.op.BaseJdbcOp;
 import com.hotpads.datarouter.op.util.ResultMergeTool;
 import com.hotpads.datarouter.routing.Datarouter;
-import com.hotpads.util.core.Functor;
 
 public class FunctorParallelTransactionWrapper extends BaseJdbcOp<Integer>{
 
-	private final Functor<?,Client> func;
+	private final Function<Client,?> func;
 
-	public FunctorParallelTransactionWrapper(Datarouter datarouter, List<String> clientNames,
-			Functor<?,Client> func){
+	public FunctorParallelTransactionWrapper(Datarouter datarouter, List<String> clientNames, Function<Client,?> func){
 		super(datarouter, clientNames);
 		this.func = func;
 	}
@@ -26,7 +25,7 @@ public class FunctorParallelTransactionWrapper extends BaseJdbcOp<Integer>{
 
 	@Override
 	public Integer runOncePerClient(Client client){
-		func.invoke(client);
+		func.apply(client);
 		return 0;
 	}
 

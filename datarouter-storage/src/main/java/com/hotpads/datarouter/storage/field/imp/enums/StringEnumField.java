@@ -2,19 +2,20 @@ package com.hotpads.datarouter.storage.field.imp.enums;
 
 import com.hotpads.datarouter.storage.field.BaseField;
 import com.hotpads.datarouter.storage.field.Field;
-import com.hotpads.datarouter.storage.field.enums.DatarouterEnumTool;
-import com.hotpads.datarouter.storage.field.enums.StringEnum;
 import com.hotpads.datarouter.storage.field.imp.StringField;
+import com.hotpads.datarouter.storage.field.imp.StringFieldKey;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.util.core.bytes.StringByteTool;
+import com.hotpads.util.core.enums.DatarouterEnumTool;
+import com.hotpads.util.core.enums.StringEnum;
 
-public class StringEnumField<E extends StringEnum<E>> extends BaseField<E>{
+public class StringEnumField<E extends StringEnum<E>>extends BaseField<E>{
 
 	private final StringEnumFieldKey<E> key;
 	private final StringField stringField;
 
 	public StringEnumField(StringEnumFieldKey<E> key, E value){
-		this(key,value,null);
+		this(key, value, null);
 	}
 
 	public StringEnumField(StringEnumFieldKey<E> key, E value, String prefix){
@@ -57,7 +58,7 @@ public class StringEnumField<E extends StringEnum<E>> extends BaseField<E>{
 
 	@Override
 	public String getStringEncodedValue(){
-		if(value==null){
+		if(value == null){
 			return null;
 		}
 		return value.getPersistentString();
@@ -123,9 +124,10 @@ public class StringEnumField<E extends StringEnum<E>> extends BaseField<E>{
 		if(stringEnumField.getValue() != null){
 			value = stringEnumField.getValue().getPersistentString();
 		}
-		return new StringField(stringEnumField.getPrefix(), stringEnumField.key.getName(),
-				stringEnumField.key.getColumnName(), stringEnumField.key.isNullable(),
-				value, stringEnumField.getSize());
-	}
 
+		StringFieldKey key = new StringFieldKey(stringEnumField.key.getName(), stringEnumField.key.getColumnName(),
+				stringEnumField.key.isNullable(), stringEnumField.getSize());
+
+		return new StringField(stringEnumField.getPrefix(), key, value);
+	}
 }

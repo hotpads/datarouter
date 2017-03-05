@@ -32,15 +32,13 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D>,
 
 	private final JdbcFieldCodecFactory fieldCodecFactory;
 
-
 	public JdbcNode(NodeParams<PK,D,F> params, JdbcFieldCodecFactory fieldCodecFactory){
 		super(params, fieldCodecFactory);
 		this.fieldCodecFactory = fieldCodecFactory;
 	}
 
-
 	@Override
-	public Node<PK,D> getMaster() {
+	public Node<PK,D> getMaster(){
 		return this;
 	}
 
@@ -52,17 +50,17 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D>,
 	/************************************ MapStorageWriter methods ****************************/
 
 	@Override
-	public void put(final D databean, final Config config) {
+	public void put(final D databean, final Config config){
 		String opName = MapStorageWriter.OP_put;
 		JdbcPutOp<PK,D,F> op = new JdbcPutOp<>(this, fieldCodecFactory, DrListTool.wrap(databean), config);
 		JdbcOpRetryTool.tryNTimes(new SessionExecutorImpl<>(op, getTraceName(opName)), config);
 	}
 
 	@Override
-	public void putMulti(Collection<D> databeans, final Config config) {
+	public void putMulti(Collection<D> databeans, final Config config){
 		String opName = MapStorageWriter.OP_putMulti;
 		if(DrCollectionTool.isEmpty(databeans)){
-			return;//avoid starting txn
+			return;// avoid starting txn
 		}
 		JdbcPutOp<PK,D,F> op = new JdbcPutOp<>(this, fieldCodecFactory, databeans, config);
 		JdbcOpRetryTool.tryNTimes(new SessionExecutorImpl<>(op, getTraceName(opName)), config);

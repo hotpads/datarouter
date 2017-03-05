@@ -22,7 +22,7 @@ implements IndexedMapStorageNode<PK,D>,
 		PartitionedMapStorageMixin<PK,D,N>,
 		PartitionedIndexedStorageMixin<PK,D,N>{
 
-	public PartitionedIndexedMapStorageNode(Supplier<D> databeanSupplier, Supplier<F> fielderSupplier, Router router) {
+	public PartitionedIndexedMapStorageNode(Supplier<D> databeanSupplier, Supplier<F> fielderSupplier, Router router){
 		super(databeanSupplier, fielderSupplier, router);
 	}
 

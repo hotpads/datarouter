@@ -25,7 +25,7 @@ public abstract class DatabeanUpdate <PK extends PrimaryKey<PK>, D extends Datab
 		SortedMap<PK,D> newBeansByKey = DatabeanTool.getByKeySorted(newBeans);
 		for(D oldBean : DrCollectionTool.nullSafe(oldBeans)){
 			D newBean = newBeansByKey.get(oldBean.getKey());
-			if(newBean!=null){
+			if(newBean != null){
 				update(oldBean,newBean);
 			}else{
 				storage.delete(oldBean.getKey(), null);
@@ -39,9 +39,9 @@ public abstract class DatabeanUpdate <PK extends PrimaryKey<PK>, D extends Datab
 		if(ContentTool.equalsContent(oldBean,newBean)){
 			return;
 		}
-		if(oldBean==null && newBean!=null){
+		if(oldBean == null && newBean != null){
 			storage.put(newBean, Configs.insertOrBust());
-		}else if(oldBean!=null && newBean==null){
+		}else if(oldBean != null && newBean == null){
 			storage.delete(oldBean.getKey(),null);
 		}else{
 			Config putConfig = Configs.merge();
@@ -59,10 +59,6 @@ public abstract class DatabeanUpdate <PK extends PrimaryKey<PK>, D extends Datab
 	 * value (replace) or merge the new values into the existing row.  Usually replacement is desired if the key of the
 	 * row has changed (but the row still holds data about the same object), such as a case change in a case-insensitive
 	 * database.
-	 *
-	 * @param oldBean
-	 * @param newBean
-	 * @return
 	 */
 	protected abstract boolean replaceInsteadOfMerge(D oldBean, D newBean);
 }

@@ -24,8 +24,6 @@ extends BaseTxnExecutor<T>
 implements SessionExecutor, Callable<T>{
 	private static Logger logger = LoggerFactory.getLogger(SessionExecutorImpl.class);
 
-	public static final boolean EAGER_SESSION_FLUSH = true;
-
 	//TODO have custom SessionExecutors for each module so we can compile-check this
 	public static final Set<String> ROLLED_BACK_EXCEPTION_SIMPLE_NAMES = ImmutableSet.of(
 			"MySQLTransactionRollbackException");
@@ -33,23 +31,21 @@ implements SessionExecutor, Callable<T>{
 	private final TxnOp<T> parallelTxnOp;
 	private String traceName;
 
-	public SessionExecutorImpl(TxnOp<T> parallelTxnOp) {
+	public SessionExecutorImpl(TxnOp<T> parallelTxnOp){
 		super(parallelTxnOp.getDatarouter(), parallelTxnOp);
 		this.parallelTxnOp = parallelTxnOp;
 	}
 
-	public SessionExecutorImpl(TxnOp<T> parallelTxnOp, String traceName) {
+	public SessionExecutorImpl(TxnOp<T> parallelTxnOp, String traceName){
 		this(parallelTxnOp);
 		this.traceName = traceName;
 	}
 
-
 	/*******************************************************************/
-
 
 	@Override
 	public T call(){
-		T onceResult = null;
+		T onceResult;
 		Collection<T> clientResults = new LinkedList<>();
 		Collection<Client> clients = getClients();
 		try{
@@ -98,10 +94,8 @@ implements SessionExecutor, Callable<T>{
 				logger.warn("EXCEPTION THROWN DURING RELEASE OF CONNECTIONS", e);
 			}
 		}
-		T mergedResult = parallelTxnOp.mergeResults(onceResult, clientResults);
-		return mergedResult;
+		return parallelTxnOp.mergeResults(onceResult, clientResults);
 	}
-
 
 
 	/********************* session code **********************************/
@@ -109,7 +103,7 @@ implements SessionExecutor, Callable<T>{
 	@Override
 	public void openSessions(){
 		for(Client client : DrCollectionTool.nullSafe(getClients())){
-			if( ! (client instanceof SessionClient) ){
+			if(!(client instanceof SessionClient)){
 				continue;
 			}
 			SessionClient sessionClient = (SessionClient)client;
@@ -122,7 +116,7 @@ implements SessionExecutor, Callable<T>{
 	@Override
 	public void flushSessions(){
 		for(Client client : DrCollectionTool.nullSafe(getClients())){
-			if( ! (client instanceof SessionClient) ){
+			if(!(client instanceof SessionClient)){
 				continue;
 			}
 			SessionClient sessionClient = (SessionClient)client;
@@ -135,7 +129,7 @@ implements SessionExecutor, Callable<T>{
 	@Override
 	public void cleanupSessions(){
 		for(Client client : DrCollectionTool.nullSafe(getClients())){
-			if( ! (client instanceof SessionClient) ){
+			if(!(client instanceof SessionClient)){
 				continue;
 			}
 			SessionClient sessionClient = (SessionClient)client;
@@ -172,13 +166,7 @@ implements SessionExecutor, Callable<T>{
 			return true;
 		}
 		Throwable cause = exception.getCause();//unwrap hibernate exception
-		if(cause == null){
-			return false;
-		}
-		if(ROLLED_BACK_EXCEPTION_SIMPLE_NAMES.contains(cause.getClass().getSimpleName())){
-			return true;
-		}
-		return false;
+		return cause != null && ROLLED_BACK_EXCEPTION_SIMPLE_NAMES.contains(cause.getClass().getSimpleName());
 	}
 
 }

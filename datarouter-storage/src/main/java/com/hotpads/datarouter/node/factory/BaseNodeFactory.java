@@ -38,12 +38,12 @@ public abstract class BaseNodeFactory{
 	N create(NodeParams<PK,D,F> params, boolean addAdapter){
 		String clientName = params.getClientId().getName();
 		ClientType clientType = clients.getClientTypeInstance(clientName);
-		Preconditions.checkNotNull(clientType, "clientType not found for clientName:"+clientName);
+		Preconditions.checkNotNull(clientType, "clientType not found for clientName:" + clientName);
 		Node<PK, D> node = clientType.createNode(params);
 		if(addAdapter){
 			node = clientType.createAdapter(params, node);
 		}
-		return (N) Preconditions.checkNotNull(node, "cannot build Node for clientType="+clientType);
+		return (N)Preconditions.checkNotNull(node, "cannot build Node for clientType=" + clientType);
 	}
 
 
@@ -126,8 +126,7 @@ public abstract class BaseNodeFactory{
 			ClientId clientId,
 			Class<D> databeanClass,
 			Class<F> fielderClass,
-			String entityNodePrefix
-			){
+			String entityNodePrefix){
 		return subEntityNode(router, entityNodeParams, clientId, ReflectionTool.supplier(databeanClass),
 				ReflectionTool.supplier(fielderClass), entityNodePrefix);
 	}
@@ -144,8 +143,7 @@ public abstract class BaseNodeFactory{
 			ClientId clientId,
 			Supplier<D> databeanSupplier,
 			Supplier<F> fielderSupplier,
-			String entityNodePrefix
-			){
+			String entityNodePrefix){
 		NodeParamsBuilder<PK,D,F> paramsBuilder = new NodeParamsBuilder<>(router, databeanSupplier, fielderSupplier)
 				.withClientId(clientId)
 				.withParentName(entityNodeParams.getNodeName())
@@ -153,9 +151,9 @@ public abstract class BaseNodeFactory{
 				.withDiagnostics(getRecordCallsites());
 		NodeParams<PK,D,F> nodeParams = paramsBuilder.build();
 		ClientType clientType = clients.getClientTypeInstance(clientId.getName());
-		Preconditions.checkNotNull(clientType, "clientType not found for clientName:"+clientId.getName());
+		Preconditions.checkNotNull(clientType, "clientType not found for clientName:" + clientId.getName());
 		Node<PK,D> node = clientType.createSubEntityNode(entityNodeParams, nodeParams);
-		return (N) Preconditions.checkNotNull(node, "cannot build Node for clientType="+clientType);
+		return (N)Preconditions.checkNotNull(node, "cannot build Node for clientType=" + clientType);
 	}
 
 	protected abstract Setting<Boolean> getRecordCallsites();

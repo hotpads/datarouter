@@ -1,3 +1,18 @@
+/**
+ * Copyright © 2009 HotPads (admin@hotpads.com)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.hotpads.util.core.logging;
 
 import java.io.BufferedReader;
@@ -8,6 +23,7 @@ import java.util.LinkedList;
 
 import org.apache.logging.log4j.core.Appender;
 import org.apache.logging.log4j.core.Filter;
+import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.AbstractConfiguration;
 import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.ConfigurationFactory;
@@ -25,14 +41,13 @@ public class StartupConfigurationFactory extends ConfigurationFactory{
 
 	@Override
 	public String[] getSupportedTypes(){
-		// LOGGER.setLevel(Level.ALL); // Enable this to debug logging config
+		// ((StatusLogger)LOGGER).setLevel(Level.ALL); // Enable this to debug logging config
 		return new String[]{".hotpads"};
 	}
 
 	@Override
-	public Configuration getConfiguration(ConfigurationSource source){
-		@SuppressWarnings("serial")
-		Configuration configuration = new AbstractConfiguration(ConfigurationSource.NULL_SOURCE){};
+	public Configuration getConfiguration(LoggerContext loggerContext, ConfigurationSource source){
+		Configuration configuration = new AbstractConfiguration(loggerContext, ConfigurationSource.NULL_SOURCE){};
 		String fullyQualifiedClassName;
 		try(BufferedReader reader = new BufferedReader(new InputStreamReader(source.getInputStream()))){
 			fullyQualifiedClassName = reader.readLine();

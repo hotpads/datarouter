@@ -2,29 +2,30 @@ package com.hotpads.datarouter.client;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 import com.hotpads.datarouter.util.core.DrCollectionTool;
-import com.hotpads.datarouter.util.core.DrComparableTool;
 import com.hotpads.datarouter.util.core.DrListTool;
 
 public class ClientId implements Comparable<ClientId>{
 
-	protected String name;
-	protected Boolean writable;
+	private String name;
+	private boolean writable;
+	private boolean disableable;
 
-	public ClientId(String name, Boolean writable){
-		if(name==null){ throw new IllegalArgumentException("name cannot be null"); }
+	public ClientId(String name, boolean writable){
+		this(name, writable, true);
+	}
+
+	public ClientId(String name, boolean writable, boolean disableable){
 		this.name = name;
 		this.writable = writable;
+		this.disableable = disableable;
 	}
 
 	@Override
 	public int hashCode(){
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((name == null)?0:name.hashCode());
-		result = prime * result + ((writable == null)?0:writable.hashCode());
-		return result;
+		return Objects.hash(name, writable, disableable);
 	}
 
 	@Override
@@ -32,25 +33,17 @@ public class ClientId implements Comparable<ClientId>{
 		if(this == obj){
 			return true;
 		}
-		if(obj == null){
-			return false;
-		}
 		if(!(obj instanceof ClientId)){
 			return false;
 		}
 		ClientId other = (ClientId)obj;
-		if(name == null){
-			if(other.name != null){
-				return false;
-			}
-		}else if(!name.equals(other.name)){
+		if(!name.equals(other.name)){
 			return false;
 		}
-		if(writable == null){
-			if(other.writable != null){
-				return false;
-			}
-		}else if(!writable.equals(other.writable)){
+		if(writable != other.writable){
+			return false;
+		}
+		if(disableable != other.disableable){
 			return false;
 		}
 		return true;
@@ -58,14 +51,20 @@ public class ClientId implements Comparable<ClientId>{
 
 	@Override
 	public int compareTo(ClientId other){
-		int c = DrComparableTool.nullFirstCompareTo(name, other.name);
-		if(c!=0) { return c; }
-		return DrComparableTool.nullFirstCompareTo(writable, other.writable);
+		int diff = name.compareTo(other.name);
+		if(diff != 0){
+			return diff;
+		}
+		diff = Boolean.compare(writable, other.writable);
+		if(diff != 0){
+			return diff;
+		}
+		return Boolean.compare(disableable, disableable);
 	}
 
 	@Override
 	public String toString(){
-		return "ClientId["+name+","+writable+"]";
+		return "ClientId[" + name + "," + writable + "," + disableable + "]";
 	}
 
 	public static List<String> getNames(Collection<ClientId> ids){
@@ -79,7 +78,9 @@ public class ClientId implements Comparable<ClientId>{
 	public static List<String> getWritableNames(Collection<ClientId> ids){
 		List<String> names = DrListTool.createArrayListWithSize(ids);
 		for(ClientId id : DrCollectionTool.nullSafe(ids)){
-			if(id.writable){ names.add(id.name); }
+			if(id.writable){
+				names.add(id.name);
+			}
 		}
 		return names;
 	}
@@ -88,9 +89,12 @@ public class ClientId implements Comparable<ClientId>{
 		return name;
 	}
 
-	public Boolean getWritable(){
+	public boolean getWritable(){
 		return writable;
 	}
 
+	public boolean getDisableable(){
+		return disableable;
+	}
 
 }

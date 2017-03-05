@@ -1,38 +1,44 @@
 package com.hotpads.handler.exception;
 
+import java.util.Arrays;
 import java.util.List;
 
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.storage.field.Field;
-import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.StringField;
+import com.hotpads.datarouter.storage.field.imp.StringFieldKey;
 import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
-import com.hotpads.handler.exception.ExceptionRecord.F;
+import com.hotpads.util.core.number.RandomTool;
 
-public class ExceptionRecordKey extends BasePrimaryKey<ExceptionRecordKey> {
+public class ExceptionRecordKey extends BasePrimaryKey<ExceptionRecordKey>{
 
-	public static int
-		LENGTH_id = MySqlColumnType.MAX_LENGTH_VARCHAR;
+	public static final long ID_TIME_MULTIPLIER = 1000000;
 
 	private String id;
 
-	ExceptionRecordKey() {}
+	public static class FieldKeys{
+		public static final StringFieldKey id = new StringFieldKey("id");
+	}
 
-	public ExceptionRecordKey(String id) {
+	public ExceptionRecordKey(){
+	}
+
+	public ExceptionRecordKey(String id){
 		this.id = id;
 	}
 
 	@Override
-	public List<Field<?>> getFields() {
-		return FieldTool.createList(new StringField(F.id, id, LENGTH_id));
+	public List<Field<?>> getFields(){
+		return Arrays.asList(new StringField(FieldKeys.id, id));
 	}
 
-	public String getId() {
+	public String getId(){
 		return id;
 	}
 
-	public void setId(String id) {
-		this.id = id;
+	public static ExceptionRecordKey generate(){
+		Long id = System.currentTimeMillis() * ID_TIME_MULTIPLIER
+				+ RandomTool.nextPositiveLong() % ID_TIME_MULTIPLIER;
+		return new ExceptionRecordKey(id.toString());
 	}
 
 }

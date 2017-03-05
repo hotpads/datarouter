@@ -22,9 +22,10 @@ public class ResponseTool{
 
 	public static void sendErrorInJson(HttpServletResponse response, int code, String message){
 		response.setContentType(CONTENT_TYPE_APPLICATION_JSON);
+		response.setStatus(code);
 		JsonObject jsonObject = new JsonObject();
 		jsonObject.addProperty("message", message);
-		jsonObject.addProperty("httpResponseCode", HttpServletResponse.SC_BAD_REQUEST);
+		jsonObject.addProperty("httpResponseCode", code);
 
 		try{
 			response.getWriter().write(jsonObject.toString());

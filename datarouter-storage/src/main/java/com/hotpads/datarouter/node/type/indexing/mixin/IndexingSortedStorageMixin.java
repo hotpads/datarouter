@@ -22,13 +22,13 @@ extends SortedStorage<PK,D>{
 
 	@Override
 	@Deprecated
-	default List<D> getWithPrefix(PK prefix, boolean wildcardLastField, Config config) {
+	default List<D> getWithPrefix(PK prefix, boolean wildcardLastField, Config config){
 		return getBackingNode().getWithPrefix(prefix,wildcardLastField, config);
 	}
 
 	@Override
 	@Deprecated
-	default List<D> getWithPrefixes(Collection<PK> prefixes, boolean wildcardLastField, Config config) {
+	default List<D> getWithPrefixes(Collection<PK> prefixes, boolean wildcardLastField, Config config){
 		return getBackingNode().getWithPrefixes(prefixes, wildcardLastField, config);
 	}
 

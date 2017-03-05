@@ -20,8 +20,7 @@ import org.junit.Test;
 import com.hotpads.util.core.date.DurationUnit;
 import com.hotpads.util.core.date.DurationWithCarriedUnits;
 
-
-public final class DrDateTool {
+public final class DrDateTool{
 
 	public static final int
 		MILLISECONDS_IN_DAY = 24 * 60 * 60 * 1000,
@@ -71,7 +70,7 @@ public final class DrDateTool {
 	 * validate the result and try alternate date formats.
 	 */
 	public static Date parseUserInputDate(String date, Integer minimumYear){
-		if(date==null){
+		if(date == null){
 			return null;
 		}
 		date = date.replaceAll("[\\W\\s_]+"," ");
@@ -81,7 +80,7 @@ public final class DrDateTool {
 		Matcher ordinalMatcher = ordinalPattern.matcher(strippedDate);
 		while(ordinalMatcher.find()){
 			int ordinalIndex = ordinalMatcher.end();
-			String start = strippedDate.substring(0,ordinalIndex-2);
+			String start = strippedDate.substring(0, ordinalIndex - 2);
 			String end = strippedDate.substring(ordinalIndex);
 			strippedDate = start + end;
 			ordinalMatcher = ordinalPattern.matcher(strippedDate);
@@ -109,7 +108,7 @@ public final class DrDateTool {
 					parsed = calendar.getTime();
 				}
 				return parsed;
-			} catch(ParseException pe){
+			}catch(ParseException pe){
 				//expected
 			}
 		}
@@ -157,6 +156,10 @@ public final class DrDateTool {
 		return timeMs - timeMs % periodMs;
 	}
 
+	public static String getDateTime(Date date){
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		return dateFormat.format(date);
+	}
 
 	/************************ time elapsed *********************************/
 
@@ -168,7 +171,7 @@ public final class DrDateTool {
 	 * note: 24 hr periods. partial days like DST switch and leap seconds are not 24 hours. use getDatesBetween
 	 */
 	public static double getSecondsBetween(Date d1, Date d2){
-		return getPeriodsBetween(d1 ,d2, MILLISECONDS_IN_SECOND);
+		return getPeriodsBetween(d1, d2, MILLISECONDS_IN_SECOND);
 	}
 	public static double getPeriodsBetween(Date d1, Date d2, long periodLengthMs){
 		long msDif = Math.abs(getMillisecondDifference(d1,d2));
@@ -217,7 +220,7 @@ public final class DrDateTool {
     	return getAgoString(new Date(dateMs));
     }
 
-    public static String getAgoString(Date date, int maxUnits) {
+	public static String getAgoString(Date date, int maxUnits){
 		if(date == null){
 			return null;
 		}
@@ -235,15 +238,15 @@ public final class DrDateTool {
      * @param maxUnits - the desired maximum number of units in the returned string.
      * @return a labeled,
      */
-    public static String getMillisAsString(long timeMillis, int maxUnits, DurationUnit maxPrecision) {
+	public static String getMillisAsString(long timeMillis, int maxUnits, DurationUnit maxPrecision){
     	DurationWithCarriedUnits wud = new DurationWithCarriedUnits(timeMillis);
     	return wud.toStringByMaxUnitsMaxPrecision(maxPrecision, maxUnits);
     }
 
 	public static int getDatesBetween(Date oldDate, Date newDate){
 		//round everything > .95 up to handle partial days due to DST and leap seconds
-		double daysBetween =DrDateTool.getDaysBetween(oldDate, newDate);
-		return (int)Math.ceil(daysBetween-.95d);
+		double daysBetween = DrDateTool.getDaysBetween(oldDate, newDate);
+		return (int) Math.ceil(daysBetween - .95d);
 	}
 
 	public static double getDaysBetween(Date d1, Date d2){
@@ -282,11 +285,11 @@ public final class DrDateTool {
 		return FRIDAY_INDEX == getDayInteger(date);
 	}
 
-	public static Long toReverseDateLong(Date date) {
+	public static Long toReverseDateLong(Date date){
 		return date == null ? null : Long.MAX_VALUE - date.getTime();
 	}
 
-	public static Date fromReverseDateLong(Long dateLong) {
+	public static Date fromReverseDateLong(Long dateLong){
 		return dateLong == null ? null : new Date(Long.MAX_VALUE - dateLong);
 	}
 
@@ -294,30 +297,36 @@ public final class DrDateTool {
 
 	public static class Tests{
 
+		private static final SimpleDateFormat df = new SimpleDateFormat("MM-dd-yyyy");
+
 		@Test
 		public void testParseCommonDate(){
 			/*
 			{"MM dd yy","MMM dd yy","MMMMM dd yy",
 				"MM dd", "MMM dd","MMMMM dd", };*/
-			SimpleDateFormat df = new SimpleDateFormat("MM-dd-yyyy");
-			Assert.assertEquals("11-05-2008", df.format(parseUserInputDate("11-05-08", null)));
-			Assert.assertEquals("11-05-2008", df.format(parseUserInputDate("11-05-2008", null)));
-			Assert.assertEquals("11-05-1982", df.format(parseUserInputDate("11-05-82", null)));
-			Assert.assertEquals("11-05-1982", df.format(parseUserInputDate("11-05-1982", null)));
-			Assert.assertEquals("11-05-2008", df.format(parseUserInputDate("Nov 5, 2008", null)));
-			Assert.assertEquals("11-05-2008", df.format(parseUserInputDate("Nov 5, 08", null)));
-			Assert.assertEquals("11-05-2008", df.format(parseUserInputDate("November 5, 2008", null)));
-			Assert.assertEquals("11-05-2008", df.format(parseUserInputDate("November 05, 2008", null)));
-			Assert.assertEquals("07-15-2011", df.format(parseUserInputDate("July 15th, 2011", null)));
+			testParseUserInputDate("11-05-2008", "11-05-08");
+			testParseUserInputDate("11-05-2008", "11-05-2008");
+			testParseUserInputDate("11-05-1982", "11-05-82");
+			testParseUserInputDate("11-05-1982", "11-05-1982");
+			testParseUserInputDate("11-05-2008", "Nov 5, 2008");
+			testParseUserInputDate("11-05-2008", "Nov 5, 08");
+			testParseUserInputDate("11-05-2008", "November 5, 2008");
+			testParseUserInputDate("11-05-2008", "November 05, 2008");
+			testParseUserInputDate("07-15-2011", "July 15th, 2011");
+			testParseUserInputDate("01-01-2008", "1/1/2008");
+			testParseUserInputDate("01-01-2008", "01/01/2008");
+			testParseUserInputDate("01-05-2008", "01/05/2008");
+			testParseUserInputDate("01-05-2008", "1/5/08");
+			testParseUserInputDate("06-01-2010", "June 2010");
+			testParseUserInputDate("06-01-2010", "201006");
+			testParseUserInputDate("06-01-2010", "20100601");
+
 			Assert.assertEquals("07-15-" + DrDateTool.getYearInteger(), df.format(parseUserInputDate("July 15th",
 					2000)));
-			Assert.assertEquals("01-01-2008", df.format(parseUserInputDate("1/1/2008", null)));
-			Assert.assertEquals("01-01-2008", df.format(parseUserInputDate("01/01/2008", null)));
-			Assert.assertEquals("01-05-2008", df.format(parseUserInputDate("01/05/2008", null)));
-			Assert.assertEquals("01-05-2008", df.format(parseUserInputDate("1/5/08", null)));
-			Assert.assertEquals("06-01-2010", df.format(parseUserInputDate("June 2010", null)));
-			Assert.assertEquals("06-01-2010", df.format(parseUserInputDate("201006", null)));
-			Assert.assertEquals("06-01-2010", df.format(parseUserInputDate("20100601", null)));
+		}
+
+		private void testParseUserInputDate(String expected, String original){
+			Assert.assertEquals(expected, df.format(parseUserInputDate(original, null)));
 		}
 
 		@Test
@@ -361,17 +370,16 @@ public final class DrDateTool {
 		}
 
 		@Test
-		public void testGetDaysBetween() throws Exception{
+		public void testGetDaysBetween(){
 			Date d1 = new Date(1352059736026L);
 			int daysApart = 4;
-			Date d2 = new Date(d1.getTime()+ MILLISECONDS_IN_DAY*daysApart);
-			Assert.assertEquals(daysApart, getDaysBetween(d1, d2), 1>>20);
-			d2 = new Date(d1.getTime()+ MILLISECONDS_IN_DAY*daysApart-4);
+			Date d2 = new Date(d1.getTime() + MILLISECONDS_IN_DAY * daysApart);
+			Assert.assertEquals(daysApart, getDaysBetween(d1, d2), 1 >> 20);
+			d2 = new Date(d1.getTime() + MILLISECONDS_IN_DAY * daysApart - 4);
 			Assert.assertTrue(daysApart > getDaysBetween(d1, d2));
-			Assert.assertTrue(daysApart-1 < getDaysBetween(d1, d2));
+			Assert.assertTrue(daysApart - 1 < getDaysBetween(d1, d2));
 		}
 
 	}
-
 
 }

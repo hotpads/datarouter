@@ -15,7 +15,7 @@
 	<div class="container-fluid" id="jobletsTable">
 		<div class="page-content-container page-content-thicktop page-single-column">
 			servers: min=${minServers}, max=${maxServers}, target=
-				<a href="${contextPath}/datarouter/jobletScaling">view</a></p>
+				<a href="${contextPath}/jobletScaling">view</a></p>
 				<br/> <br/>totalTickets:${totalTickets}</p>
 
 			<table class="jobletTable sortable table table-bordered table-condensed" style="border-collapse:collapse;">
@@ -44,27 +44,23 @@
 						<td>${s.numType}</td>
 						<td>
 							<c:if test="${s.numQueueIds > 0}">
-								<a href="joblets/queues?jobletType=${s.typeString}&executionOrder=${s.executionOrder}">${s.numQueueIds} queues</a>
+								<a href="joblets/queues?jobletType=${s.typeString}&jobletTypeCode=${s.typeCode}&executionOrder=${s.executionOrder}">${s.numQueueIds} queues</a>
 							</c:if>
 						</td>
 						<td>${s.firstReservedAgo}</td>
 						<td>${s.firstCreatedAgo}</td>
 						<td>${s.sumItems}</td>
-						<td>${s.avgItems}</td>
+						<td>${s.avgItemsString}</td>
 						<td>${s.sumTasks}</td>
-						<td>${s.avgTasks}</td>
+						<td>${s.avgTasksString}</td>
 					</tr>
 				</c:forEach>
 			</table>
-
-			<c:forEach items="${runningJobletThreads}" var="jobletThreads">
-				<h4>${jobletThreads.key} (running)</h4>
-				<%@ include file="/jsp/joblet/jobletThreadTable.jspf"%>
-			</c:forEach>
-			<c:forEach items="${waitingJobletThreads}" var="jobletThreads">
-				<h4>${jobletThreads.key} (waiting)</h4>
-				<%@ include file="/jsp/joblet/jobletThreadTable.jspf"%>
-			</c:forEach>
+			
+			<br/>
+			<br/>
+			RunningJoblets:
+			<%@ include file="/jsp/joblet/runningJoblets.jspf"%>
 		</div>
 	</div>
 </body>

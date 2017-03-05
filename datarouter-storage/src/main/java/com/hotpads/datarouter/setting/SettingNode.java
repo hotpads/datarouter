@@ -26,21 +26,32 @@ public abstract class SettingNode {
 	private final SortedMap<String,Setting<?>> settings;
 	private final SettingFinder finder;
 
+	private final Boolean isGroup;
+
 
 	/*********** construct ***********/
 
 	public SettingNode(SettingFinder finder, String name, String parentName){
+		this(finder, name, parentName, false);
+	}
+
+	public SettingNode(SettingFinder finder, String name, String parentName, Boolean isGroup){
 		this.name = name;
 		this.parentName = parentName;
 		this.children = Collections.synchronizedSortedMap(new TreeMap<String,SettingNode>());
 		this.settings = Collections.synchronizedSortedMap(new TreeMap<String,Setting<?>>());
 		this.finder = finder;
+		this.isGroup = isGroup;
 	}
 
 	/*********** methods ***********/
 
-	protected void registerChild(SettingNode child){
-		children.put(child.name, child);
+	protected <N extends SettingNode> N registerChild(N child){
+		if(isGroup){//groups have no children
+			throw new RuntimeException("No children allowed for groups");
+		}
+		children.put(child.getName(), child);
+		return child;
 	}
 
 	private <S extends Setting<?>> S register(S setting){
@@ -84,6 +95,9 @@ public abstract class SettingNode {
 		if(getSettings().containsKey(settingNameParam)){
 			return getSettings().get(settingNameParam);
 		}
+		if(isGroup){//groups have no children
+			return null;
+		}
 		String nextChildShortName = settingNameParam.substring(getName().length());
 		int index = nextChildShortName.indexOf('.');
 		String nextChildPath = getName()+nextChildShortName.substring(0, index+1);
@@ -107,7 +121,7 @@ public abstract class SettingNode {
 
 	public String getShortName(){
 		String shortName = getName().substring(getParentName().length());
-		return shortName.substring(0, shortName.length()-1);
+		return shortName.substring(0, shortName.length() - 1);
 	}
 
 	protected StringCachedSetting registerString(String name, String defaultValue){
@@ -150,6 +164,10 @@ public abstract class SettingNode {
 
 	public SortedMap<String,SettingNode> getChildren(){
 		return children;
+	}
+
+	public Boolean isGroup(){
+		return isGroup;
 	}
 
 }

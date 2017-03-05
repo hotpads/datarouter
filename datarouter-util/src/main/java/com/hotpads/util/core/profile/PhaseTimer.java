@@ -38,11 +38,6 @@ public class PhaseTimer{
 
 	/*********************** methods ****************************************/
 
-	public <T> T time(T returnVal, String eventName){
-		add(eventName);
-		return returnVal;
-	}
-
 	public PhaseTimer add(String eventName){
 		long newMarker = System.currentTimeMillis();
 		phaseNamesAndTimes.add(new Pair<>(eventName, newMarker - lastMarker));
@@ -64,7 +59,7 @@ public class PhaseTimer{
 
 	public Long getPhaseTime(String eventName){
 		int phaseIndex = getIndexOf(eventName);
-		if(phaseIndex>=0){
+		if(phaseIndex >= 0){
 			return phaseNamesAndTimes.get(phaseIndex).getRight();
 		}
 		return null;
@@ -96,7 +91,7 @@ public class PhaseTimer{
 		return toString(delimiter, Integer.MIN_VALUE);
 	}
 
-	public String toString(String delimiter,int showPhasesAtLeastThisMsLong){
+	private String toString(String delimiter,int showPhasesAtLeastThisMsLong){
 		StringBuilder sb = new StringBuilder();
 		sb.append("[total:" + DrNumberFormatter.addCommas(getElapsedTimeBetweenFirstAndLastEvent()) + "ms]");
 		if(name != null){
@@ -139,10 +134,6 @@ public class PhaseTimer{
 
 	public void setName(String name){
 		this.name = name;
-	}
-
-	public String getName(){
-		return name;
 	}
 
 	public static class Tests{

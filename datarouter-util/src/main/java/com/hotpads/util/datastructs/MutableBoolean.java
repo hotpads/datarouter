@@ -9,10 +9,6 @@ public class MutableBoolean extends AtomicBoolean{
 		super(initialValue);
 	}
 
-	public boolean isFalse(){
-		return !get();
-	}
-
 	public boolean isTrue(){
 		return get();
 	}

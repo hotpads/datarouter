@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.imp.hbase.BaseHBaseClientType;
 import com.hotpads.datarouter.client.imp.hbase.client.HBaseOptions;
+import com.hotpads.datarouter.inject.guice.executor.DatarouterExecutorGuiceModule;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.datarouter.util.core.DrNumberFormatter;
@@ -30,7 +31,6 @@ public class HBaseTableExecutorServicePool
 implements HBaseTablePool{
 	private static final Logger logger = LoggerFactory.getLogger(HBaseTableExecutorServicePool.class);
 
-	private static final int DEFAULT_MAX_HTABLES = 10;
 	private static final int DEFAULT_MIN_THREADS_PER_HTABLE = 1;
 	//practically, you will get only one thread per regionserver, but it doesn't hurt to have a high ceiling that won't
 	// exhaust all server threads
@@ -62,7 +62,7 @@ implements HBaseTablePool{
 		this.clientName = clientName;
 		this.primaryKeyClassByName = primaryKeyClassByName;
 		this.clientType = clientType;
-		this.maxHTables = hbaseOptions.maxHTables(DEFAULT_MAX_HTABLES);
+		this.maxHTables = hbaseOptions.maxHTables(DatarouterExecutorGuiceModule.HBASE_CLIENT_EXECUTOR_MAX_THREADS);
 		this.minThreadsPerHTable = hbaseOptions.minThreadsPerHTable(DEFAULT_MIN_THREADS_PER_HTABLE);
 		this.maxThreadsPerHTable = hbaseOptions.maxThreadsPerHTable(DEFAULT_MAX_THREADS_PER_HTABLE);
 
@@ -88,7 +88,7 @@ implements HBaseTablePool{
 				htableExecutorService = executorServiceQueue.poll();
 				setProgress(progress, "polled queue " + (htableExecutorService == null ? "null" : "success"));
 
-				if(htableExecutorService==null){
+				if(htableExecutorService == null){
 					htableExecutorService = new HBaseTableExecutorService(minThreadsPerHTable, maxThreadsPerHTable);
 					setProgress(progress, "new HTableExecutorService()");
 					String counterName = "connection create HTable";
@@ -96,7 +96,7 @@ implements HBaseTablePool{
 					logWithPoolInfo("created new HTableExecutorService", tableName);
 					break;
 				}
-				if( ! htableExecutorService.isExpired()){
+				if(!htableExecutorService.isExpired()){
 					// logger.warn("connection got pooled HTable executor");
 					DRCounters.incClientTable(clientType, "got pooled HTable executor", clientName,
 							tableName);
@@ -136,9 +136,9 @@ implements HBaseTablePool{
 		//do this first otherwise things may get hung up in the "active" map
 		String tableName = htable.getName().getNameAsString();
 		HBaseTableExecutorService htableExecutorService;
-		try {
+		try{
 			htableExecutorService = activeHTables.remove(htable);
-			if(htableExecutorService==null){
+			if(htableExecutorService == null){
 				logWithPoolInfo("HTable returned to pool but HTableExecutorService not found", tableName);
 				DRCounters.incClientTable(clientType, "HTable returned to pool but HTableExecutorService"
 						+ " not found", clientName, tableName);

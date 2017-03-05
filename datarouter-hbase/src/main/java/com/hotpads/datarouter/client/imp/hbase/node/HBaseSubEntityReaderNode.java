@@ -85,7 +85,7 @@ implements HBasePhysicalNode<PK,D>,
 	/************************************ MapStorageReader methods ****************************/
 
 	@Override
-	public boolean exists(PK key, Config config) {
+	public boolean exists(PK key, Config config){
 		//should probably make a getKey method
 		return get(key, config) != null;
 	}
@@ -93,7 +93,7 @@ implements HBasePhysicalNode<PK,D>,
 
 	@Override
 	public D get(final PK key, final Config config){
-		if(key==null){
+		if(key == null){
 			return null;
 		}
 		return DrCollectionTool.getFirst(getMulti(DrListTool.wrap(key), Config.nullSafe(config)));
@@ -124,7 +124,7 @@ implements HBasePhysicalNode<PK,D>,
 
 
 	@Override
-	public List<PK> getKeys(final Collection<PK> pks, final Config config) {
+	public List<PK> getKeys(final Collection<PK> pks, final Config config){
 		if(DrCollectionTool.isEmpty(pks)){
 			return new LinkedList<>();
 		}
@@ -134,7 +134,7 @@ implements HBasePhysicalNode<PK,D>,
 				public List<PK> hbaseCall(Table htable, HBaseClient client, ResultScanner managedResultScanner)
 				throws Exception{
 					DRCounters.incClientNodeCustom(client.getType(), "getKeys requested", getClientName(),
-							getNodeName() , DrCollectionTool.size(pks));
+						getNodeName(), DrCollectionTool.size(pks));
 					List<Get> gets = queryBuilder.getGets(pks, true);
 					Result[] hbaseResults = htable.get(gets);
 					List<PK> pks = resultParser.getPrimaryKeysWithMatchingQualifierPrefixMulti(hbaseResults);
@@ -207,7 +207,7 @@ implements HBasePhysicalNode<PK,D>,
 							//TODO compute a limit to pass here
 							List<D> singleRowResults = resultParser.getDatabeansWithMatchingQualifierPrefix(row, null);
 							results.addAll(singleRowResults);
-							if(config.getLimit()!=null && results.size()>=config.getLimit()){
+							if(config.getLimit() != null && results.size() >= config.getLimit()){
 								break;
 							}
 						}
@@ -331,10 +331,10 @@ implements HBasePhysicalNode<PK,D>,
 						continue;
 					}
 					results.add(row);
-					if(config.getIterateBatchSize()!=null && results.size()>=config.getIterateBatchSize()){
+					if(config.getIterateBatchSize() != null && results.size() >= config.getIterateBatchSize()){
 						break;
 					}
-					if(config.getLimit()!=null && results.size()>=config.getLimit()){
+					if(config.getLimit() != null && results.size() >= config.getLimit()){
 						break;
 					}
 				}

@@ -42,7 +42,7 @@ extends BaseJdbcOp<List<D>>{
 			return new LinkedList<>();
 		}
 		String sql = SqlBuilder.getMulti(fieldCodecFactory, config, node.getTableName(), node.getFieldInfo()
-				.getFields(), uniqueKeys);
+				.getFields(), uniqueKeys, node.getFieldInfo());
 		List<D> result = JdbcTool.selectDatabeans(fieldCodecFactory, getConnection(node.getClientId().getName()), node
 				.getFieldInfo(), sql);
 		return result;

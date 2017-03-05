@@ -100,7 +100,7 @@ public class Datarouter{
 		return clients.registerClientIds(this, clientIds);
 	}
 
-	public synchronized void register(Router router) {
+	public synchronized void register(Router router){
 		routers.add(router);
 		addConfigIfNew(router);
 	}
@@ -111,7 +111,7 @@ public class Datarouter{
 			return;
 		}
 
-		logger.warn("adding datarouter config from "+configPath+", currentRouters:"+routers);
+		logger.warn("adding datarouter config from " + configPath + ", currentRouters:" + routers);
 		configFilePaths.add(configPath);
 		multiProperties.add(DrPropertiesTool.parse(configPath));
 
@@ -119,15 +119,16 @@ public class Datarouter{
 		if(DrStringTool.isEmpty(serverName)){
 			serverName = newServerName;
 		}else if(DrObjectTool.notEquals(serverName, newServerName)){
-			logger.warn("not replacing existing serverName "+serverName+" with "+newServerName+" from "+configPath);
+			logger.warn("not replacing existing serverName " + serverName + " with " + newServerName + " from "
+					+ configPath);
 		}
 
 		String newAdministratorEmail = DrPropertiesTool.getFirstOccurrence(multiProperties, CONFIG_ADMINISTRATOR_EMAIL);
 		if(DrStringTool.isEmpty(administratorEmail)){
 			administratorEmail = newAdministratorEmail;
 		}else if(DrObjectTool.notEquals(administratorEmail, newAdministratorEmail)){
-			logger.warn("not replacing existing administratorEmail "+administratorEmail+" with "+newAdministratorEmail
-					+" from "+configPath);
+			logger.warn("not replacing existing administratorEmail " + administratorEmail + " with "
+					+ newAdministratorEmail + " from " + configPath);
 		}
 	}
 
@@ -165,7 +166,7 @@ public class Datarouter{
 	public Router getRouterForClient(Client client){
 		for(Router router : routers){
 			for(Client c : router.getAllClients()){
-				if(c==client){
+				if(c == client){
 					return router;
 				}
 			}

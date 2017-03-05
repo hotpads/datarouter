@@ -23,7 +23,7 @@ public class EntityNodeFactory{
 	public <EK extends EntityKey<EK>,E extends Entity<EK>>
 	EntityNode<EK,E> create(String clientName, Router router, EntityNodeParams<EK,E> params){
 		ClientType clientType = clients.getClientTypeInstance(clientName);
-		Preconditions.checkNotNull(clientType, "clientType not found for clientName:"+clientName);
+		Preconditions.checkNotNull(clientType, "clientType not found for clientName:" + clientName);
 		EntityNode<EK,E> entityNode = clientType.createEntityNode(nodeFactory, router, params, clientName);
 		return entityNode;
 	}

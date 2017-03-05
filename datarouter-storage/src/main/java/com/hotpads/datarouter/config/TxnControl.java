@@ -1,11 +1,9 @@
 package com.hotpads.datarouter.config;
 
-public enum TxnControl {
-
+public enum TxnControl{
 	none,
 	startIfNone,
 	startNew,
 	support;
-
 
 }

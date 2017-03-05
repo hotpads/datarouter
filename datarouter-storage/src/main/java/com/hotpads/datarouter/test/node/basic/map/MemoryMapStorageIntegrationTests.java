@@ -6,7 +6,7 @@ import org.testng.annotations.Guice;
 import com.hotpads.datarouter.test.DatarouterStorageTestModuleFactory;
 import com.hotpads.datarouter.test.DrTestConstants;
 
-@Guice(moduleFactory=DatarouterStorageTestModuleFactory.class)
+@Guice(moduleFactory = DatarouterStorageTestModuleFactory.class)
 public class MemoryMapStorageIntegrationTests extends BaseMapStorageIntegrationTests{
 
 	@BeforeClass

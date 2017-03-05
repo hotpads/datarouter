@@ -76,12 +76,6 @@
 			<version>3.3</version>
 		</dependency>
 		<!-- other -->
-		<dependency><!-- used by JsonDatabeanTool -->
-			<groupId>net.sf.json-lib</groupId>
-			<artifactId>json-lib</artifactId>
-			<version>2.3</version>
-			<classifier>jdk15</classifier>
-		</dependency>
 		<dependency><!-- used by DatarouterEmailTool -->
 			<groupId>javax.mail</groupId>
 			<artifactId>mail</artifactId>
@@ -96,6 +90,12 @@
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
 			<version>${gson-version}</version>
+		</dependency>
+		<!-- guava 17 removes the public Stopwatch() constructor which causes errors in hbase-1.1.2 -->
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>16.0.1</version>
 		</dependency>
 	</dependencies>
 </project>

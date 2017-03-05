@@ -1,7 +1,7 @@
 package com.hotpads.handler.mav.imp;
 
-import com.hotpads.handler.Params;
 import com.hotpads.handler.mav.Mav;
+import com.hotpads.handler.params.Params;
 
 public class InContextRedirectMav extends Mav{
 

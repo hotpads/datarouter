@@ -1,3 +1,18 @@
+/**
+ * Copyright © 2009 HotPads (admin@hotpads.com)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.hotpads.util.core.logging;
 
 import java.util.Arrays;
@@ -32,24 +47,31 @@ public class Log4j2Configurator{
 
 	public static ConsoleAppender createConsoleAppender(String name, Target target, String pattern){
 		PatternLayout layout = createLayout(pattern);
-		return ConsoleAppender.createAppender(layout, null, target, name, false, true);
+		return ConsoleAppender.newBuilder()
+				.withLayout(layout)
+				.setTarget(target)
+				.withName(name)
+				.build();
 	}
 
 	public static FileAppender createFileAppender(String name, String fileName, String pattern){
 		PatternLayout layout = createLayout(pattern);
-		return FileAppender.createAppender(fileName, null, null, name, null, null, null, null, layout, null, null, null,
-				null);
+		return FileAppender.newBuilder()
+				.withFileName(fileName)
+				.withName(name)
+				.withLayout(layout)
+				.build();
 	}
 
-	private LoggerContext ctx;
-	private Configuration config;
-	private LoggerConfig rootLoggerConfig;
+	private final LoggerContext ctx;
+	private final Configuration config;
+	private final LoggerConfig rootLoggerConfig;
 
 	public Log4j2Configurator(){
-		ctx = (LoggerContext)LogManager.getContext(false);
-		config = ctx.getConfiguration();
+		this.ctx = (LoggerContext)LogManager.getContext(false);
+		this.config = ctx.getConfiguration();
 		Logger root = LogManager.getRootLogger();
-		rootLoggerConfig = config.getLoggerConfig(root.getName());
+		this.rootLoggerConfig = config.getLoggerConfig(root.getName());
 	}
 
 	public void updateOrCreateLoggerConfig(Class<?> clazz, Level level, boolean additive, String... appendersRef){
@@ -130,6 +152,10 @@ public class Log4j2Configurator{
 	public void addFileAppender(String name, String fileName, String pattern){
 		Appender appender = Log4j2Configurator.createFileAppender(name, fileName, pattern);
 		addAppender(appender);
+	}
+
+	public void shutdown(){
+		ctx.stop();
 	}
 
 }

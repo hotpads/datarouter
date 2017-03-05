@@ -25,7 +25,7 @@ implements IndexedSortedMapStorageNode<PK,D>,
 
 
 	public RedundantIndexedSortedMapStorageNode(Supplier<D> databeanSupplier, Router router,
-			Collection<N> writeNodes, N readNode) {
+			Collection<N> writeNodes, N readNode){
 		super(databeanSupplier, router, writeNodes, readNode);
 	}
 

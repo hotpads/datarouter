@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import com.hotpads.datarouter.SchemaUpdateOptions;
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.ClientFactory;
-import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.client.availability.ClientAvailabilitySettings;
 import com.hotpads.datarouter.client.imp.jdbc.JdbcClientImp;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.execute.DatabaseCreator;
@@ -77,14 +76,14 @@ implements ClientFactory{
 	}
 
 	private boolean isWritableClient(){
-		return ClientId.getWritableNames(datarouter.getClientPool().getClientIds()).contains(clientName);
+		return datarouter.getClientPool().getClientId(clientName).getWritable();
 	}
 
 	protected JdbcConnectionPool initConnectionPool(){
 		// check if the createDatabase option is set to true before checking for missing databases.
 		if(doSchemaUpdate()){
-			new DatabaseCreator(jdbcOptions, defaultJdbcOptions, clientName, schemaUpdatePrintOptions,
-					schemaUpdateExecuteOptions).call();
+			new DatabaseCreator(jdbcOptions, defaultJdbcOptions, schemaUpdatePrintOptions, schemaUpdateExecuteOptions)
+					.call();
 		}
 		return new JdbcConnectionPool(clientName, isWritableClient(), defaultJdbcOptions, jdbcOptions);
 	}

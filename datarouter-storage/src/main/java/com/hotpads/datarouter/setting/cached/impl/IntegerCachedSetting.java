@@ -2,15 +2,12 @@ package com.hotpads.datarouter.setting.cached.impl;
 
 import com.hotpads.datarouter.setting.SettingFinder;
 import com.hotpads.datarouter.setting.cached.CachedSetting;
+import com.hotpads.datarouter.setting.type.IntegerSetting;
 
-public class IntegerCachedSetting extends CachedSetting<Integer>{
+public class IntegerCachedSetting extends CachedSetting<Integer> implements IntegerSetting{
+
 	public IntegerCachedSetting(SettingFinder finder, String name, Integer defaultValue){
 		super(finder, name, defaultValue);
-	}
-
-	@Override
-	protected Integer reload(){
-		return finder.getInteger(name, defaultValue);
 	}
 
 	@Override

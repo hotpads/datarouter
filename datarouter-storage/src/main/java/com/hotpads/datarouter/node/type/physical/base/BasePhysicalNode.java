@@ -47,7 +47,7 @@ implements PhysicalNode<PK,D>{
 	}
 
 	@Override
-	public List<String> getClientNamesForPrimaryKeysForSchemaUpdate(Collection<PK> keys) {
+	public List<String> getClientNamesForPrimaryKeysForSchemaUpdate(Collection<PK> keys){
 		return DrListTool.createLinkedList(fieldInfo.getClientId().getName());
 	}
 
@@ -64,7 +64,7 @@ implements PhysicalNode<PK,D>{
 	}
 
 	@Override
-	public List<String> getClientNames() {
+	public List<String> getClientNames(){
 		return Collections.singletonList(getClientId().getName());
 	}
 
@@ -74,12 +74,12 @@ implements PhysicalNode<PK,D>{
 	}
 
 	@Override
-	public boolean usesClient(String clientName) {
+	public boolean usesClient(String clientName){
 		return Objects.equals(getClientId().getName(), clientName);
 	}
 
 	@Override
-	public Node<PK,D> getMaster() {
+	public Node<PK,D> getMaster(){
 		return null;
 	}
 
@@ -89,14 +89,14 @@ implements PhysicalNode<PK,D>{
 	}
 
 	@Override
-	public List<? extends PhysicalNode<PK,D>> getPhysicalNodes() {
+	public List<? extends PhysicalNode<PK,D>> getPhysicalNodes(){
 		List<PhysicalNode<PK,D>> physicalNodes = new LinkedList<>();
 		physicalNodes.add(this);
 		return physicalNodes;
 	}
 
 	@Override
-	public List<PhysicalNode<PK,D>> getPhysicalNodesForClient(String clientName) {
+	public List<PhysicalNode<PK,D>> getPhysicalNodesForClient(String clientName){
 		List<PhysicalNode<PK,D>> physicalNodes = new LinkedList<>();
 		if(clientName.equals(getClientId().getName())){
 			physicalNodes.add(this);
@@ -105,7 +105,7 @@ implements PhysicalNode<PK,D>{
 	}
 
 	@Override
-	public String getTableName() {
+	public String getTableName(){
 		return fieldInfo.getTableName();
 	}
 

@@ -28,21 +28,21 @@ implements EntityPartitioner<EK>{
 
 	public BaseEntityPartitioner(){
 		this.allPartitions = new ArrayList<>();
-		for(int i=0; i < getNumPartitions(); ++i){
+		for(int i = 0; i < getNumPartitions(); ++i){
 			allPartitions.add(i);
 		}
 
 		this.allPrefixes = new ArrayList<>();
-		if(getNumPartitions()==1){
+		if(getNumPartitions() == 1){
 			allPrefixes.add(new byte[0]);
 		}else{
-			for(int i=0; i < getNumPartitions(); ++i){
+			for(int i = 0; i < getNumPartitions(); ++i){
 				allPrefixes.add(getPrefix(i));
 			}
 		}
 
 		this.allPrefixesArray = new byte[allPrefixes.size()][];
-		for(int i=0; i < allPrefixes.size(); ++i){
+		for(int i = 0; i < allPrefixes.size(); ++i){
 			allPrefixesArray[i] = allPrefixes.get(i);
 		}
 	}
@@ -117,17 +117,23 @@ implements EntityPartitioner<EK>{
 		if(numPartitions < MIN_PARTITIONS){
 			throw new IllegalArgumentException("must have at least one partition");
 		}
-		if(numPartitions == 1){ return 0; }
-		if(numPartitions <= MAX_ONE_BYTE_NUM_PARTITIONS){ return 1; }
-		if(numPartitions <= MAX_PARTITIONS){ return 2; }
-		throw new IllegalArgumentException("max partitions is "+MAX_PARTITIONS);
+		if(numPartitions == 1){
+			return 0;
+		}
+		if(numPartitions <= MAX_ONE_BYTE_NUM_PARTITIONS){
+			return 1;
+		}
+		if(numPartitions <= MAX_PARTITIONS){
+			return 2;
+		}
+		throw new IllegalArgumentException("max partitions is " + MAX_PARTITIONS);
 	}
 
 
 	/************** tests ***********************/
 
 	public static class BaseEntityPartitionerTests{
-		@Test(expected=IllegalArgumentException.class)
+		@Test(expected = IllegalArgumentException.class)
 		public void testMinBound(){
 			getNumPrefixBytesStatic(0);
 		}
@@ -141,7 +147,7 @@ implements EntityPartitioner<EK>{
 			Assert.assertEquals(2, getNumPrefixBytesStatic(65535));
 			Assert.assertEquals(2, getNumPrefixBytesStatic(65536));
 		}
-		@Test(expected=IllegalArgumentException.class)
+		@Test(expected = IllegalArgumentException.class)
 		public void testMaxBound(){
 			getNumPrefixBytesStatic(65537);
 		}

@@ -12,7 +12,8 @@ public interface NotificationTrackingService{
 
 	public String generateId();
 
-	public void saveSent(TrackingNotificationType type, NotificationUserId userId, String notificationId);
+	public void saveSent(TrackingNotificationType type, NotificationUserId userId, String notificationId,
+			String deviceId);
 
 	String sign(String notificationId);
 

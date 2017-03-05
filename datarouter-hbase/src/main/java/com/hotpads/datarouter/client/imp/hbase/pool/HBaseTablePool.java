@@ -12,5 +12,4 @@ public interface HBaseTablePool {
 	Integer getTotalPoolSize();
 
 	void shutdown();
-
 }

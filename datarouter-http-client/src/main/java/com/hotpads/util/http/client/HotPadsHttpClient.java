@@ -19,13 +19,16 @@ import javax.inject.Singleton;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.apache.http.client.CookieStore;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.entity.ContentType;
+import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+import org.apache.http.impl.cookie.BasicClientCookie;
 import org.apache.http.pool.PoolStats;
 import org.apache.http.protocol.HttpContext;
 import org.slf4j.Logger;
@@ -48,7 +51,7 @@ import com.hotpads.util.http.security.SecurityParameters;
 import com.hotpads.util.http.security.SignatureValidator;
 
 @Singleton
-public class HotPadsHttpClient {
+public class HotPadsHttpClient{
 	private static final Logger logger = LoggerFactory.getLogger(HotPadsHttpClient.class);
 	private static final int DEFAULT_REQUEST_TIMEOUT_MS = 3000;
 	private static final int EXTRA_FUTURE_TIME_MS = 1000;
@@ -67,7 +70,7 @@ public class HotPadsHttpClient {
 	HotPadsHttpClient(CloseableHttpClient httpClient, JsonSerializer jsonSerializer,
 			SignatureValidator signatureValidator, CsrfValidator csrfValidator, ApiKeyPredicate apiKeyPredicate,
 			HotPadsHttpClientConfig config, ExecutorService executor, Integer requestTimeoutMs, Long futureTimeoutMs,
-			Integer retryCount, PoolingHttpClientConnectionManager connectionManager) {
+			Integer retryCount, PoolingHttpClientConnectionManager connectionManager){
 		this.httpClient = httpClient;
 		this.jsonSerializer = jsonSerializer;
 		this.signatureValidator = signatureValidator;
@@ -81,10 +84,10 @@ public class HotPadsHttpClient {
 				: futureTimeoutMs.longValue();
 	}
 
-	public HotPadsHttpResponse execute(HotPadsHttpRequest request) {
-		try {
+	public HotPadsHttpResponse execute(HotPadsHttpRequest request){
+		try{
 			return executeChecked(request);
-		} catch (HotPadsHttpException e) {
+		}catch(HotPadsHttpException e){
 			throw new HotPadsHttpRuntimeException(e);
 		}
 	}
@@ -97,15 +100,15 @@ public class HotPadsHttpClient {
 		}
 	}
 
-	public <E> E execute(HotPadsHttpRequest request, Type deserializeToType) {
-		try {
+	public <E> E execute(HotPadsHttpRequest request, Type deserializeToType){
+		try{
 			return executeChecked(request, deserializeToType);
-		} catch (HotPadsHttpException e) {
+		}catch(HotPadsHttpException e){
 			throw new HotPadsHttpRuntimeException(e);
 		}
 	}
 
-	public <E> E executeChecked(HotPadsHttpRequest request, Type deserializeToType) throws HotPadsHttpException {
+	public <E> E executeChecked(HotPadsHttpRequest request, Type deserializeToType) throws HotPadsHttpException{
 		String entity = executeChecked(request).getEntity();
 		return jsonSerializer.deserialize(entity, deserializeToType);
 	}
@@ -114,68 +117,73 @@ public class HotPadsHttpClient {
 		return executeChecked(request, (Consumer<HttpEntity>)null);
 	}
 
-	public HotPadsHttpResponse executeChecked(HotPadsHttpRequest request,
-			Consumer<HttpEntity> httpEntityConsumer) throws HotPadsHttpException {
+	public HotPadsHttpResponse executeChecked(HotPadsHttpRequest request, Consumer<HttpEntity> httpEntityConsumer)
+	throws HotPadsHttpException{
 		setSecurityProperties(request);
 
 		HttpClientContext context = new HttpClientContext();
 		context.setAttribute(HotPadsRetryHandler.RETRY_SAFE_ATTRIBUTE, request.getRetrySafe());
+		CookieStore cookieStore = new BasicCookieStore();
+		for(BasicClientCookie cookie : request.getCookies()){
+			cookieStore.addCookie(cookie);
+		}
+		context.setCookieStore(cookieStore);
 
 		HotPadsHttpException ex;
 		int timeoutMs = request.getTimeoutMs() == null ? this.requestTimeoutMs : request.getTimeoutMs().intValue();
-		long futureTimeoutMs = request.getFutureTimeoutMs() == null ? this.futureTimeoutMs : request
-				.getFutureTimeoutMs().longValue();
+		long futureTimeoutMs = request.getFutureTimeoutMs() == null ? this.futureTimeoutMs
+				: request.getFutureTimeoutMs().longValue();
 		HttpRequestBase internalHttpRequest = null;
 		HttpRequestCallable requestCallable = null;
-		try {
+		try{
 			internalHttpRequest = request.getRequest();
 			requestCallable = new HttpRequestCallable(httpClient, internalHttpRequest, context);
 			Future<HttpResponse> httpResponseFuture = executor.submit(requestCallable);
 			HttpResponse httpResponse = httpResponseFuture.get(futureTimeoutMs, TimeUnit.MILLISECONDS);
 			HotPadsHttpResponse response = new HotPadsHttpResponse(httpResponse, context, httpEntityConsumer);
-			if (response.getStatusCode() >= HttpStatus.SC_BAD_REQUEST) {
+			if(response.getStatusCode() >= HttpStatus.SC_BAD_REQUEST){
 				throw new HotPadsHttpResponseException(response, requestCallable.getRequestStartTimeMs());
 			}
 			return response;
-		} catch (TimeoutException e) {
+		}catch(TimeoutException e){
 			ex = new HotPadsHttpRequestFutureTimeoutException(e, timeoutMs);
-		} catch (CancellationException | InterruptedException e) {
+		}catch(CancellationException | InterruptedException e){
 			ex = new HotPadsHttpRequestInterruptedException(e, requestCallable.getRequestStartTimeMs());
-		} catch (ExecutionException e) {
-			if (e.getCause() instanceof IOException) {
+		}catch(ExecutionException e){
+			if(e.getCause() instanceof IOException){
 				ex = new HotPadsHttpConnectionAbortedException(e, requestCallable.getRequestStartTimeMs());
-			} else {
+			}else{
 				ex = new HotPadsHttpRequestExecutionException(e, requestCallable.getRequestStartTimeMs());
 			}
 		}
-		if (internalHttpRequest != null) {
+		if(internalHttpRequest != null){
 			forceAbortRequestUnchecked(internalHttpRequest);
 		}
 		throw ex;
 	}
 
 	private void setSecurityProperties(HotPadsHttpRequest request){
-		Map<String, String> params = new HashMap<>();
-		if (csrfValidator != null) {
+		Map<String,String> params = new HashMap<>();
+		if(csrfValidator != null){
 			String csrfIv = CsrfValidator.generateCsrfIv();
 			params.put(SecurityParameters.CSRF_IV, csrfIv);
 			params.put(SecurityParameters.CSRF_TOKEN, csrfValidator.generateCsrfToken(csrfIv));
 		}
-		if (apiKeyPredicate != null) {
+		if(apiKeyPredicate != null){
 			params.put(SecurityParameters.API_KEY, apiKeyPredicate.getApiKey());
 		}
-		Map<String, String> signatureParam;
-		if (request.canHaveEntity() && request.getEntity() == null) {
+		Map<String,String> signatureParam;
+		if(request.canHaveEntity() && request.getEntity() == null){
 			params = request.addPostParams(params).getPostParams();
-			if (signatureValidator != null && !params.isEmpty()) {
+			if(signatureValidator != null && !params.isEmpty()){
 				String signature = signatureValidator.getHexSignature(request.getPostParams());
 				signatureParam = Collections.singletonMap(SecurityParameters.SIGNATURE, signature);
 				request.addPostParams(signatureParam);
 			}
 			request.setEntity(request.getPostParams());
-		}else if (request.getMethod() == HttpRequestMethod.GET){
+		}else if(request.getMethod() == HttpRequestMethod.GET){
 			params = request.addGetParams(params).getGetParams();
-			if (signatureValidator != null && !params.isEmpty()) {
+			if(signatureValidator != null && !params.isEmpty()){
 				String signature = signatureValidator.getHexSignature(request.getGetParams());
 				signatureParam = Collections.singletonMap(SecurityParameters.SIGNATURE, signature);
 				request.addGetParams(signatureParam);
@@ -187,57 +195,55 @@ public class HotPadsHttpClient {
 		executor.shutdownNow();
 		try{
 			httpClient.close();
-		}catch (IOException e){
+		}catch(IOException e){
 			throw new RuntimeException(e);
 		}
 	}
 
-	private static void forceAbortRequestUnchecked(HttpRequestBase internalHttpRequest) {
-		try {
+	private static void forceAbortRequestUnchecked(HttpRequestBase internalHttpRequest){
+		try{
 			internalHttpRequest.abort();
-		} catch (Exception e) {
+		}catch(Exception e){
 			logger.error("aborting internal http request failed", e);
 		}
 	}
 
-	private static long getFutureTimeoutMs(int requestTimeoutMs, Integer retryCount) {
-		/*
-		 * we want the request future to time out after all of the individual request timeouts combined,
-		 * so requestTimeout * (total number of requests + 2)
-		 */
+	private static long getFutureTimeoutMs(int requestTimeoutMs, Integer retryCount){
+		/* we want the request future to time out after all of the individual request timeouts combined, so
+		 * requestTimeout * (total number of requests + 2) */
 		int totalPossibleRequests = 1 + (retryCount == null ? 0 : retryCount);
 		return requestTimeoutMs * totalPossibleRequests + EXTRA_FUTURE_TIME_MS;
 	}
 
-	private static class HttpRequestCallable implements Callable<HttpResponse> {
+	private static class HttpRequestCallable implements Callable<HttpResponse>{
 		private final HttpClient httpClient;
 		private final HttpUriRequest request;
 		private final HttpContext context;
 		private long requestStartTimeMs;
 
-		HttpRequestCallable(HttpClient httpClient, HttpUriRequest request, HttpContext context) {
+		HttpRequestCallable(HttpClient httpClient, HttpUriRequest request, HttpContext context){
 			this.httpClient = httpClient;
 			this.request = request;
 			this.context = context;
 		}
 
 		@Override
-		public HttpResponse call() throws IOException {
+		public HttpResponse call() throws IOException{
 			requestStartTimeMs = System.currentTimeMillis();
 			return httpClient.execute(request, context);
 		}
 
-		public long getRequestStartTimeMs() {
+		public long getRequestStartTimeMs(){
 			return requestStartTimeMs;
 		}
 	}
 
-	public HotPadsHttpClient addDtoToPayload(HotPadsHttpRequest request, Object dto, String dtoType) {
+	public HotPadsHttpClient addDtoToPayload(HotPadsHttpRequest request, Object dto, String dtoType){
 		String serializedDto = jsonSerializer.serialize(dto);
 		String dtoTypeNullSafe = dtoType;
-		if(dtoType == null) {
+		if(dtoType == null){
 			if(dto instanceof Iterable){
-				Iterable<?> dtos = (Iterable<?>) dto;
+				Iterable<?> dtos = (Iterable<?>)dto;
 				dtoTypeNullSafe = dtos.iterator().hasNext() ? dtos.iterator().next().getClass().getCanonicalName() : "";
 			}else{
 				dtoTypeNullSafe = dto.getClass().getCanonicalName();
@@ -259,6 +265,10 @@ public class HotPadsHttpClient {
 
 	public PoolStats getPoolStats(){
 		return connectionManager.getTotalStats();
+	}
+
+	public CloseableHttpClient getApacheHttpClient(){
+		return httpClient;
 	}
 
 }

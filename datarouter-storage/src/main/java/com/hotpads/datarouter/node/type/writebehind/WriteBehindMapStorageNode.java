@@ -14,16 +14,14 @@ public class WriteBehindMapStorageNode<
 extends WriteBehindMapStorageReaderNode<PK,D,N>
 implements MapStorage<PK,D>, WriteBehindMapStorageWriterMixin<PK,D,N>{
 
-	public WriteBehindMapStorageNode(Datarouter datarouter, N backingNode) {
+	public WriteBehindMapStorageNode(Datarouter datarouter, N backingNode){
 		super(datarouter, backingNode);
 	}
 
 	@Override
 	public boolean handleWriteWrapperInternal(WriteWrapper<?> writeWrapper){
-		if(super.handleWriteWrapperInternal(writeWrapper)){
-			return true;
-		}
-		return WriteBehindMapStorageWriterMixin.super.handleWriteWrapperInternal(writeWrapper);
+		return super.handleWriteWrapperInternal(writeWrapper) || WriteBehindMapStorageWriterMixin.super
+				.handleWriteWrapperInternal(writeWrapper);
 	}
 
 }

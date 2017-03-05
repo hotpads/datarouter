@@ -18,15 +18,13 @@ public class DatabaseCreator{
 
 	private final JdbcOptions jdbcOptions;
 	private final JdbcOptions defaultJdbcOptions;
-	private final String clientName;
 	private final SchemaUpdateOptions printOptions;
 	private final SchemaUpdateOptions executeOptions;
 
-	public DatabaseCreator(JdbcOptions jdbcOptions, JdbcOptions defaultJdbcOptions, String clientName,
-			SchemaUpdateOptions printOptions, SchemaUpdateOptions executeOptions){
+	public DatabaseCreator(JdbcOptions jdbcOptions, JdbcOptions defaultJdbcOptions, SchemaUpdateOptions printOptions,
+			SchemaUpdateOptions executeOptions){
 		this.jdbcOptions = jdbcOptions;
 		this.defaultJdbcOptions = defaultJdbcOptions;
-		this.clientName = clientName;
 		this.printOptions = printOptions;
 		this.executeOptions = executeOptions;
 	}
@@ -38,7 +36,7 @@ public class DatabaseCreator{
 	}
 
 	private void checkDatabaseExist(){
-		String url =  jdbcOptions.url();
+		String url = jdbcOptions.url();
 		String user = jdbcOptions.user(defaultJdbcOptions.user("root"));
 		String password = jdbcOptions.password(defaultJdbcOptions.password(""));
 		String hostname = DrStringTool.getStringBeforeLastOccurrence(':',url);
@@ -51,20 +49,20 @@ public class DatabaseCreator{
 
 		//if database does not exist, create database
 		if(!existingDatabases.contains(databaseName)){
-			generateCreateDatabaseSchema(connection, clientName);
+			generateCreateDatabaseSchema(connection, databaseName);
 		}
 	}
 
 	private void generateCreateDatabaseSchema(Connection connection, String databaseName){
 		logger.info("========================================== Creating the database " + databaseName
 				+ " ============================");
-		String sql = "Create database "+ databaseName +" ;";
+		String sql = "Create database " + databaseName + " ;";
 		if(!executeOptions.getCreateDatabases()){
-			logger.info("Please execute: "+sql);
+			logger.info("Please execute: " + sql);
 			// TODO email the admin ?
 		}else{
 			try{
-				logger.info(" Executing "+sql);
+				logger.info(" Executing " + sql);
 				Statement statement = connection.createStatement();
 				statement.execute(sql);
 			}catch(SQLException e){

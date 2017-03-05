@@ -19,7 +19,7 @@ extends MasterSlaveNode<PK,D,N>, SortedStorage<PK,D>{
 
 	@Override
 	@Deprecated
-	default List<D> getWithPrefix(PK prefix, boolean wildcardLastField, Config config) {
+	default List<D> getWithPrefix(PK prefix, boolean wildcardLastField, Config config){
 		boolean slaveOk = Config.nullSafe(config).getSlaveOk();
 		N node = slaveOk ? chooseSlave(config) : getMaster();
 		return node.getWithPrefix(prefix,wildcardLastField, config);

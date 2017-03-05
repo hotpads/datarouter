@@ -37,30 +37,30 @@ public class LongRunningTaskKey extends BasePrimaryKey<LongRunningTaskKey>{
 	public LongRunningTaskKey(){
 	}
 
-	public LongRunningTaskKey(String jobClass, String serverName) {
+	public LongRunningTaskKey(String jobClass, String serverName){
 		this.jobClass = jobClass;
 		this.serverName = serverName;
 	}
 
-	public LongRunningTaskKey(Class<? extends Job> jobClass) {
+	public LongRunningTaskKey(Class<? extends Job> jobClass){
 		this(jobClass.getSimpleName(), null);
 	}
 
 	/******************* get/set ***************************/
 
-	public Date getTriggerTime() {
+	public Date getTriggerTime(){
 		return triggerTime;
 	}
 
-	public void setTriggerTime(Date triggerTime) {
+	public void setTriggerTime(Date triggerTime){
 		this.triggerTime = triggerTime;
 	}
 
-	public String getJobClass() {
+	public String getJobClass(){
 		return jobClass;
 	}
 
-	public String getServerName() {
+	public String getServerName(){
 		return serverName;
 	}
 }

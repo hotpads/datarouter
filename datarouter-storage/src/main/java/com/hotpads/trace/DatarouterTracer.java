@@ -37,7 +37,7 @@ public class DatarouterTracer implements Tracer{
 
 	@Override
 	public Long getCurrentThreadId(){
-		if(getCurrentThread() == null) {
+		if(getCurrentThread() == null){
 			return null;
 		}
 		return getCurrentThread().getId();
@@ -52,10 +52,10 @@ public class DatarouterTracer implements Tracer{
 	@Override
 	public void createThread(String name){
 		Long traceId = getTraceId();
-		if(traceId==null){
+		if(traceId == null){
 			return;
 		}
-		boolean hasParent = getTraceThreadParentId()!=null;
+		boolean hasParent = getTraceThreadParentId() != null;
 		TraceThread thread = new TraceThread(traceId, hasParent);
 		thread.setParentId(getTraceThreadParentId());
 		thread.setServerId(getServerName());
@@ -65,7 +65,7 @@ public class DatarouterTracer implements Tracer{
 
 	@Override
 	public void startThread(){
-		if(getCurrentThread()==null){
+		if(getCurrentThread() == null){
 			return;
 		}
 		getCurrentThread().markStart();
@@ -73,7 +73,7 @@ public class DatarouterTracer implements Tracer{
 
 	@Override
 	public void appendToThreadName(String text){
-		if(getCurrentThread()==null){
+		if(getCurrentThread() == null){
 			return;
 		}
 		TraceThread thread = getCurrentThread();
@@ -83,7 +83,7 @@ public class DatarouterTracer implements Tracer{
 
 	@Override
 	public void appendToThreadInfo(String text){
-		if(getCurrentThread()==null){
+		if(getCurrentThread() == null){
 			return;
 		}
 		TraceThread thread = getCurrentThread();
@@ -93,7 +93,7 @@ public class DatarouterTracer implements Tracer{
 
 	@Override
 	public void finishThread(){
-		if(getCurrentThread()==null){
+		if(getCurrentThread() == null){
 			return;
 		}
 		TraceThread thread = getCurrentThread();
@@ -108,12 +108,12 @@ public class DatarouterTracer implements Tracer{
 	@Override
 	public void startSpan(String name){
 		Counters.inc(name);
-		if(currentThread==null){
+		if(currentThread == null){
 			return;
 		}
 		Integer parentSequence = null;
 		if(DrCollectionTool.notEmpty(getSpanStack())){
-			TraceSpan parent = getSpanStack().get(getSpanStack().size()-1);
+			TraceSpan parent = getSpanStack().get(getSpanStack().size() - 1);
 			parentSequence = parent.getSequence();
 		}
 		TraceSpan span = new TraceSpan(
@@ -133,7 +133,7 @@ public class DatarouterTracer implements Tracer{
 	 */
 	@Override
 	public void appendToSpanName(String text){
-		if(getCurrentSpan()==null){
+		if(getCurrentSpan() == null){
 			return;
 		}
 		TraceSpan span = getCurrentSpan();
@@ -144,7 +144,7 @@ public class DatarouterTracer implements Tracer{
 
 	@Override
 	public void appendToSpanInfo(String text){
-		if(getCurrentSpan()==null){
+		if(getCurrentSpan() == null){
 			return;
 		}
 		TraceSpan span = getCurrentSpan();
@@ -154,7 +154,7 @@ public class DatarouterTracer implements Tracer{
 
 	@Override
 	public void finishSpan(){
-		if(getCurrentSpan()==null){
+		if(getCurrentSpan() == null){
 			return;
 		}
 		getCurrentSpan().markFinish();
@@ -165,14 +165,14 @@ public class DatarouterTracer implements Tracer{
 	/*************** private TraceSpan methods ***************************************/
 
 	private TraceSpan getCurrentSpan(){
-		if(DrCollectionTool.isEmpty(spanStack)) {
+		if(DrCollectionTool.isEmpty(spanStack)){
 			return null;
 		}
 		return spanStack.get(spanStack.size() - 1);
 	}
 
 	private TraceSpan popSpanFromStack(){
-		if(DrCollectionTool.isEmpty(spanStack)) {
+		if(DrCollectionTool.isEmpty(spanStack)){
 			return null;
 		}
 		TraceSpan span = getCurrentSpan();
@@ -184,7 +184,7 @@ public class DatarouterTracer implements Tracer{
 
 	@Override
 	public String toString(){
-		return getClass().getSimpleName()+"["+currentThread.getName()+"]";
+		return getClass().getSimpleName() + "[" + currentThread.getName() + "]";
 	}
 
 

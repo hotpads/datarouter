@@ -21,10 +21,7 @@ import com.hotpads.datarouter.util.core.DrObjectTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.java.ReflectionTool;
 
-public class HBaseEntityResultParser<
-		EK extends EntityKey<EK>,
-		E extends Entity<EK>>{
-
+public class HBaseEntityResultParser<EK extends EntityKey<EK>,E extends Entity<EK>>{
 
 	private final EntityFieldInfo<EK,E> entityFieldInfo;
 	private final Map<String,HBaseSubEntityReaderNode<EK,E,?,?,?>> nodeByQualifierPrefix;
@@ -36,7 +33,7 @@ public class HBaseEntityResultParser<
 	}
 
 	public E parseEntity(EK ek, Result row){
-		if(row == null) {
+		if(row == null){
 			return null;
 		}
 		Class<E> entityClass = entityFieldInfo.getEntityClass();
@@ -48,12 +45,12 @@ public class HBaseEntityResultParser<
 			List<? extends Databean<?,?>> databeans = databeansByQualifierPrefix.get(qualifierPrefix);
 			entity.addDatabeansForQualifierPrefixUnchecked(subNode.getEntityNodePrefix(), databeans);
 		}
-		//TODO add empty collections for empty prefixes since we were supposed to get all sub-entities
+		// TODO add empty collections for empty prefixes since we were supposed to get all sub-entities
 		return entity;
 	}
 
 	private Map<String,List<? extends Databean<?,?>>> getDatabeansByQualifierPrefix(Result row){
-		if(row == null) {
+		if(row == null){
 			return Collections.emptyMap();
 		}
 		Map<String,List<Cell>> cellsByQp = getKvsByQualifierPrefix(row);
@@ -72,11 +69,11 @@ public class HBaseEntityResultParser<
 		return databeansByQp;
 	}
 
-	private Map<String, List<Cell>> getKvsByQualifierPrefix(Result row){
-		Map<String, List<Cell>> cellsByQp = new HashMap<>();
+	private Map<String,List<Cell>> getKvsByQualifierPrefix(Result row){
+		Map<String,List<Cell>> cellsByQp = new HashMap<>();
 		List<Cell> cellsForQp = new ArrayList<>();
 		String previousQp = null;
-		for(Cell cell : DrIterableTool.nullSafe(row.listCells())){//row.list() can return null
+		for(Cell cell : DrIterableTool.nullSafe(row.listCells())){// row.list() can return null
 			String qp = getQualifierPrefix(cell);
 			if(DrObjectTool.notEquals(previousQp, qp)){
 				cellsForQp = new ArrayList<>();
@@ -98,7 +95,7 @@ public class HBaseEntityResultParser<
 		int qualifierOffset = cell.getQualifierOffset();
 		int qualifierLength = cell.getQualifierLength();
 		byte[] buffer = cell.getValueArray();
-		for(int prefixLength=0; prefixLength < qualifierLength; ++prefixLength){
+		for(int prefixLength = 0; prefixLength < qualifierLength; ++prefixLength){
 			if(buffer[qualifierOffset + prefixLength] == EntityFieldInfo.ENTITY_PREFIX_TERMINATOR){
 				return prefixLength;
 			}

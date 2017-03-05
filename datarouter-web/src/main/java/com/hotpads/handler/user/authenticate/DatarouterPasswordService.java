@@ -12,7 +12,6 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.hotpads.datarouter.util.core.DrObjectTool;
 import com.hotpads.handler.user.DatarouterUser;
 import com.hotpads.handler.user.DatarouterUser.DatarouterUserByUsernameLookup;
 import com.hotpads.handler.user.DatarouterUserNodes;
@@ -30,15 +29,17 @@ public class DatarouterPasswordService{
 
 
 	public String digest(String salt, String rawPassword){
-		String s = salt + rawPassword;
-		for(int i=0; i < NUM_DIGEST_ITERATIONS; ++i){
-			s = DigestUtils.sha256Hex(s);
+		String sr = salt + rawPassword;
+		for(int i = 0; i < NUM_DIGEST_ITERATIONS; ++i){
+			sr = DigestUtils.sha256Hex(sr);
 		}
-		return s;
+		return sr;
 	}
 
 	public boolean isPasswordCorrect(DatarouterUser user, String rawPassword){
-		if(user==null || rawPassword==null){ return false; }
+		if(user == null || rawPassword == null){
+			return false;
+		}
 		String passwordDigest = digest(user.getPasswordSalt(), rawPassword);
 		return Objects.equals(user.getPasswordDigest(), passwordDigest);
 	}
@@ -61,7 +62,7 @@ public class DatarouterPasswordService{
         return StringByteTool.fromUtf8Bytes(base64Salt);
 	}
 
-	public void updateUserPassword(DatarouterUser user, String password) {
+	public void updateUserPassword(DatarouterUser user, String password){
 		String passwordSalt = generateSaltForNewUser();
 		String passwordDigest = digest(passwordSalt, password);
 		user.setPasswordSalt(passwordSalt);
@@ -76,10 +77,9 @@ public class DatarouterPasswordService{
 		@Test
 		public void testDigest(){
 			long startNs = System.nanoTime();
-			new DatarouterPasswordService().digest(System.currentTimeMillis()+"", "IrregularAustralia56");
+			new DatarouterPasswordService().digest(System.currentTimeMillis() + "", "IrregularAustralia56");
 			long elapsedNs = System.nanoTime() - startNs;
-			System.out.println(elapsedNs);
-			Assert.assertTrue(elapsedNs < 300*1000*1000);//less than 300ms (taking 81ms in testing)
+			Assert.assertTrue(elapsedNs < 300 * 1000 * 1000);// less than 300ms (taking 81ms in testing)
 		}
 	}
 }

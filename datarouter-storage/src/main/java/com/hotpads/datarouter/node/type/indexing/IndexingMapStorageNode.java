@@ -15,7 +15,7 @@ public class IndexingMapStorageNode<
 extends BaseIndexingNode<PK,D,F,N>
 implements MapStorageNode<PK,D>, IndexingMapStorageMixin<PK,D,N>{
 
-	public IndexingMapStorageNode(N mainNode) {
+	public IndexingMapStorageNode(N mainNode){
 		super(mainNode);//mainNode must have explicit Fielder
 	}
 

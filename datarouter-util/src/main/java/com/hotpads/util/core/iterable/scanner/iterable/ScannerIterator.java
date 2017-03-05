@@ -16,8 +16,8 @@ public class ScannerIterator<T> implements Iterator<T>{
 
 
 	@Override
-	public boolean hasNext() {
-		if(peeked!=null){
+	public boolean hasNext(){
+		if(peeked != null){
 			return true;
 		}
 		if(!scanner.advance()){
@@ -28,7 +28,7 @@ public class ScannerIterator<T> implements Iterator<T>{
 	}
 
 	@Override
-	public T next() {
+	public T next(){
 		if(!hasNext()){
 			return null;
 		}
@@ -43,7 +43,7 @@ public class ScannerIterator<T> implements Iterator<T>{
 	}
 
 	@Override
-	public void remove() {
+	public void remove(){
 		throw new NotImplementedException();
 	}
 

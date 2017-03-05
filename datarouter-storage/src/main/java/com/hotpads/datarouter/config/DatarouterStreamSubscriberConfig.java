@@ -30,7 +30,7 @@ public class DatarouterStreamSubscriberConfig implements DatarouterStreamSubscri
 		return this;
 	}
 
-	public DatarouterStreamSubscriberConfig withTimestampAtInitialPositionInStreamAtTimestamp(Date timestamp) {
+	public DatarouterStreamSubscriberConfig withTimestampAtInitialPositionInStreamAtTimestamp(Date timestamp){
 		this.timestamp = timestamp;
 		this.drInitialPositionInStream = DrInitialPositionInStream.AT_TIMESTAMP;
 		return this;

@@ -11,9 +11,15 @@ import javax.inject.Named;
 import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 
+import org.testng.Assert;
+import org.testng.annotations.Guice;
+import org.testng.annotations.Test;
+
 import com.google.gson.JsonSyntaxException;
+import com.hotpads.datarouter.test.DatarouterWebTestModuleFactory;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.handler.encoder.HandlerEncoder;
+import com.hotpads.handler.types.optional.OptionalParameter;
 import com.hotpads.util.core.java.ReflectionTool;
 import com.hotpads.util.http.RequestTool;
 import com.hotpads.util.http.json.JsonSerializer;
@@ -39,7 +45,7 @@ public class DefaultDecoder implements HandlerDecoder{
 		}else{
 			bodyParamCount = 0;
 		}
-		if(queryParams.size() + bodyParamCount < parameters.length){
+		if(queryParams.size() + bodyParamCount + getOptionalParameterCount(parameters) < parameters.length){
 			return null;
 		}
 		String body = null;
@@ -70,18 +76,23 @@ public class DefaultDecoder implements HandlerDecoder{
 				args[i] = decode(body, parameterType);
 			}else{
 				String[] queryParam = queryParams.get(parameterName);
-				if(queryParam == null){
+				boolean isOptional = OptionalParameter.class.isAssignableFrom(parameter.getType());
+				if(queryParam == null && !isOptional){
 					return null;
 				}
-				args[i] = decode(queryParam[0], parameterType);
+				String parameterValue = queryParam == null ? null : queryParam[0];
+				args[i] = isOptional ? OptionalParameter.makeOptionalParameter(parameterValue, parameterType)
+						: decode(parameterValue, parameterType);
 			}
 		}
 		return args;
 	}
 
 	private Object decode(String string, Type type){
+		//this prevents empty strings from being decoded as null by gson
+		Object obj;
 		try{
-			return deserializer.deserialize(string, type);
+			obj = deserializer.deserialize(string, type);
 		}catch(JsonSyntaxException e){
 			//If the JSON is malformed and String is expected, just assign the string
 			if(type.equals(String.class)){
@@ -89,6 +100,12 @@ public class DefaultDecoder implements HandlerDecoder{
 			}
 			throw e;
 		}
+		//deserialized successfully as null, but we want empty string instead of null for consistency with Params
+		//(unless it actually is null...)
+		if(string != null && obj == null && type.equals(String.class) && !"null".equals(string)){
+			return "";
+		}
+		return obj;
 	}
 
 	private boolean containRequestBodyParam(Parameter[] parameters){
@@ -96,4 +113,31 @@ public class DefaultDecoder implements HandlerDecoder{
 				.anyMatch(parameter -> parameter.isAnnotationPresent(RequestBody.class));
 	}
 
+	private long getOptionalParameterCount(Parameter[] parameters){
+		return Arrays.stream(parameters)
+				.filter(parameter -> OptionalParameter.class.isAssignableFrom(parameter.getType()))
+				.count();
+	}
+
+	@Guice(moduleFactory = DatarouterWebTestModuleFactory.class)
+	public static class DefaultDecoderTests{
+		@Inject
+		DefaultDecoder defaultDecoder;
+
+		@Test
+		public void testDecodingString(){
+			Assert.assertEquals(defaultDecoder.decode("", String.class), "");
+			Assert.assertEquals(defaultDecoder.decode(" ", String.class), "");
+			Assert.assertEquals(defaultDecoder.decode("\"\"", String.class), "");
+			Assert.assertEquals(defaultDecoder.decode("\"", String.class), "\"");
+			Assert.assertEquals(defaultDecoder.decode("\" ", String.class), "\" ");
+			Assert.assertEquals(defaultDecoder.decode("\" \"", String.class), " ");
+			Assert.assertEquals(defaultDecoder.decode("null", String.class), null);
+			Assert.assertEquals(defaultDecoder.decode(null, String.class), null);
+			Assert.assertEquals(defaultDecoder.decode("nulls", String.class), "nulls");
+			Assert.assertEquals(defaultDecoder.decode("\"correct json\"", String.class), "correct json");
+			Assert.assertEquals(defaultDecoder.decode("", Integer.class), null);
+			Assert.assertEquals(defaultDecoder.decode(" ", Integer.class), null);
+		}
+	}
 }

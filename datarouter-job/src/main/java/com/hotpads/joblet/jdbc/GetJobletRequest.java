@@ -15,7 +15,7 @@ import com.hotpads.joblet.JobletNodes;
 import com.hotpads.joblet.JobletService;
 import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.enums.JobletStatus;
-import com.hotpads.joblet.enums.JobletType;
+import com.hotpads.joblet.type.JobletType;
 
 public class GetJobletRequest extends BaseJdbcOp<JobletRequest>{
 
@@ -50,7 +50,7 @@ public class GetJobletRequest extends BaseJdbcOp<JobletRequest>{
 		String selectSql = makeSelectSql();
 		JobletRequest jobletRequest = DrCollectionTool.getFirst(JdbcTool.selectDatabeans(jdbcFieldCodecFactory,
 				connection, jobletNodes.jobletRequest().getFieldInfo(), selectSql));
-		if(jobletRequest == null) {
+		if(jobletRequest == null){
 			return null;
 		}
 

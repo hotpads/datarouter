@@ -30,14 +30,13 @@ public class EntityFieldInfo<
 		//careful as i think the PK may override these
 //		this.entityKeyFields = sampleEntityKey.getFields();
 		this.entityPartitionerClass = params.getEntityPartitionerClass();
-		if(entityPartitionerClass==null){
+		if(entityPartitionerClass == null){
 			this.entityPartitioner = new NoOpEntityPartitioner<>();
 		}else{
 			this.entityPartitioner = ReflectionTool.create(entityPartitionerClass);
 		}
 		this.entityClass = params.getEntityClass();
 	}
-
 
 
 	public static byte getEntityPrefixTerminator(){

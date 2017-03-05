@@ -7,7 +7,7 @@ import com.hotpads.datarouter.test.DatarouterStorageTestModuleFactory;
 import com.hotpads.datarouter.test.DrTestConstants;
 import com.hotpads.datarouter.test.node.basic.map.BaseMapStorageIntegrationTests;
 
-@Guice(moduleFactory=DatarouterStorageTestModuleFactory.class)
+@Guice(moduleFactory = DatarouterStorageTestModuleFactory.class)
 public class RedisMapStorageIntegrationTests extends BaseMapStorageIntegrationTests{
 
 	@BeforeClass

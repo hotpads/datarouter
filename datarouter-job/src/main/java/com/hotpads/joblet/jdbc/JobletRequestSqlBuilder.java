@@ -7,13 +7,14 @@ import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodec
 import com.hotpads.datarouter.client.imp.jdbc.util.SqlBuilder;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.comparable.BooleanField;
+import com.hotpads.datarouter.storage.field.imp.comparable.IntegerField;
 import com.hotpads.datarouter.storage.field.imp.enums.StringEnumField;
+import com.hotpads.joblet.JobletConstants;
 import com.hotpads.joblet.JobletNodes;
 import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.databean.JobletRequestKey;
 import com.hotpads.joblet.enums.JobletStatus;
-import com.hotpads.joblet.enums.JobletType;
-import com.hotpads.joblet.execute.ParallelJobletProcessor;
+import com.hotpads.joblet.type.JobletType;
 
 @Singleton
 public class JobletRequestSqlBuilder{
@@ -57,8 +58,9 @@ public class JobletRequestSqlBuilder{
 	}
 
 	private String makeTypeClause(JobletType<?> jobletType){
-		StringField typeField = new StringField(JobletRequestKey.FieldKeys.type, jobletType.getPersistentString());
-		return jdbcFieldCodecFactory.createCodec(typeField).getSqlNameValuePairEscaped();
+		IntegerField typeCodeField = new IntegerField(JobletRequestKey.FieldKeys.typeCode,
+				jobletType.getPersistentInt());
+		return jdbcFieldCodecFactory.createCodec(typeCodeField).getSqlNameValuePairEscaped();
 	}
 
 	private String makeStatusClause(){
@@ -76,6 +78,6 @@ public class JobletRequestSqlBuilder{
 	}
 
 	private Long computeReservedBeforeMs(){
-		return System.currentTimeMillis() - ParallelJobletProcessor.RUNNING_JOBLET_TIMEOUT_MS;
+		return System.currentTimeMillis() - JobletConstants.RUNNING_JOBLET_TIMEOUT_MS;
 	}
 }

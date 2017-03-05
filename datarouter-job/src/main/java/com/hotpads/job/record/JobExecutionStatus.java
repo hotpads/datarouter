@@ -1,7 +1,7 @@
 package com.hotpads.job.record;
 
-import com.hotpads.datarouter.storage.field.enums.DatarouterEnumTool;
-import com.hotpads.datarouter.storage.field.enums.StringEnum;
+import com.hotpads.util.core.enums.DatarouterEnumTool;
+import com.hotpads.util.core.enums.StringEnum;
 
 public enum JobExecutionStatus implements StringEnum<JobExecutionStatus>{
 
@@ -28,7 +28,7 @@ public enum JobExecutionStatus implements StringEnum<JobExecutionStatus>{
 	}
 
 	@Override
-	public JobExecutionStatus fromPersistentString(String str) {
+	public JobExecutionStatus fromPersistentString(String str){
 		return fromPersistentStringStatic(str);
 	}
 

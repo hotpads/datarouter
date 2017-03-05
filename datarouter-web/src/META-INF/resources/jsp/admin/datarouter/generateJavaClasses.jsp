@@ -8,6 +8,7 @@
 	<title>Databean class generator</title>
 	<script type="text/javascript">
 	require(['jquery'], function(){
+		var DEMO_SCRIPT='com.hotpads.databean.Test{\n  PK{\n    BooleanField boolk,\n    ByteArrayField bytesk,\n    CharacterField charfk,\n    DumbFloatField dumbfloatk,\n    IntegerEnumField<StandardStatus> intenumk,\n    LongDateField longdatek,\n    ShortField shortfk,\n    SignedByteField signedbytek,\n    StringEnumField<ListingType> stringenumk,\n    StringField stringfk,\n    UInt31Field uint31k,\n    UInt63Field uint63k,\n    UInt7Field uint7k,\n    VarIntField varintk\n  }\n  BooleanArrayField bools,\n  BooleanField bool,\n  ByteArrayField bytes,\n  CharacterField charf,\n  DateField date,\n  DelimitedStringArrayField strings,\n  DoubleArrayField doubles,\n  DumbDoubleField dumbdouble,\n  DumbFloatField dumbfloat,\n  IntegerArrayField ints,\n  IntegerEnumField<StandardStatus> intenum,\n  IntegerField intf,\n  LongDateField longdate,\n  LongField longf,\n  ShortField shortf,\n  SignedByteField signedbyte,\n  StringEnumField<ListingType> stringenum,\n  StringField stringf,\n  UInt15Field uint15,\n  UInt31Field uint31,\n  UInt63ArrayField uint63s,\n  UInt63Field uint63,\n  UInt7ArrayField uint7s,\n  UInt7Field uint7,\n  UInt8Field uint8,\n  VarIntField varint,\n  index(date),\n  index(stringenum, uint63)\n}';
 		var numKeyFields = 0;
 		var numFields = 0;
 		var fieldTypesHtml = '${fieldTypes}';
@@ -37,45 +38,31 @@
 			
 			$('#loadDataBean').click(loadDataBean);
 			$('#generateDataBean').click(generateDataBean);
+			$('#getDemoScript').click(function(){
+				$("#createScript").val(DEMO_SCRIPT);
+			});
+			$('.save').click(function(){
+				save($(this).siblings('textarea').prop('id'));
+			});
 		});
 		
-		function saveAs(id){
+		function save(id){
 			var fileName = $("#databeanName").html();
 			
-			if(id==='#generatedCode2'){
+			if(id === 'generatedCode2'){
 				fileName += 'Key'
 			}
 			fileName += '.java';
-			download1(fileName, $(id).val());
+			download(fileName, $('#'+id).val());
 		}
 		
-		function download(fileName, content){
-			alert(fileName);
-			alert(content);
-		    var downloadble = document.createElement('a');
-		    	downloadble.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(content));
-		    	downloadble.setAttribute('download', fileName);
-		    	downloadble.click();
-		}
-		
-		function download1(filename, content, contentType){
+		function download(filename, content, contentType){
 		    if(!contentType) contentType = 'application/octet-stream';
 		        var a = document.createElement('a');
 		        var blob = new Blob([content], {'type':contentType});
 		        a.href = window.URL.createObjectURL(blob);
 		        a.download = filename;
 		        a.click();
-		}
-		
-		function getDemoScript(){
-			$("#createScript").val("");
-			$.ajax({
-				type: 'GET',
-				url: '${contextPath}/datarouter/databeanGenerator?submitAction=getDemoScript', 
-				success: function(data){
-					addDemoScriptCode(data);
-				}
-			});
 		}
 		
 		function generateDataBean(){
@@ -296,28 +283,22 @@
 				
 			}
 		
-		
-			function addDemoScriptCode(code){
-				 $("#createScript").val(code);
-				 $("#createScript").focus();
-				}
-		
-			
 			function addGeneratedCode(code){
-				if(code.indexOf("~~##~~")!=-1){
-					$("#databeanName").html(code.split("~~##~~")[0]);
-					 code = code.split("~~##~~")[1];		
+				var parts = code.split("~~##~~"); 
+				if(parts.length === 2){
+					$("#databeanName").html(parts[0]);
+					code = parts[1];		
 				}
 				 
-			 if(code.indexOf("/****************************************************/")!=-1){
-				 $("#generatedCode1").val(code.split("/****************************************************/")[0]);
-				 $("#generatedCode2").val(code.split("/****************************************************/")[1]);	 
-			 } else {
-				 $("#generatedCode1").val(code);
-				 $("#generatedCode2").val(code);
-			 }
-			 
-			 $("#generatedCode1").focus();
+				 if(code.indexOf("/****************************************************/")!=-1){
+					 $("#generatedCode1").val(code.split("/****************************************************/")[0]);
+					 $("#generatedCode2").val(code.split("/****************************************************/")[1]);	 
+				 } else {
+					 $("#generatedCode1").val(code);
+					 $("#generatedCode2").val(code);
+				 }
+				 
+				 $("#generatedCode1").focus();
 			}
 		
 			function addRow(tableId){
@@ -357,8 +338,8 @@
 	<%@ include file="/jsp/menu/dr-navbar.jsp" %>
 	<div class="container">
 		<h2>Databean class generator</h2>
-		<div class="divButton" onclick="location.reload();">CLEAR</div>
-		<div class="divButton" id="getDemoScript" onclick="getDemoScript();">Get DEMO script</div>
+		<div class="divButton" onclick="location.reload();">REFRESH</div>
+		<div class="divButton" id="getDemoScript">Get DEMO script</div>
 		<fieldset style="margin:0 0; padding:10px;">
 			<legend style="color:#317eac; font-size:20px;">Databean Script</legend>
 			<div>
@@ -452,7 +433,7 @@
 	</div>
 	<div class="container generatedCode1">
 		<h4>Java code for databean</h4>
-		<div class="divButton" onclick="saveAs('#generatedCode1');">Save to File</div>
+		<div class="divButton save">Save to File</div>
 		<div style="display: none" id="databeanName"></div>
 		<textarea id="generatedCode1" class="javaCode" spellcheck=false>
 			
@@ -461,7 +442,7 @@
 	
 	<div class="container generatedCode2">
 		<h4>Java code for databean key</h4>
-		<div class="divButton" onclick="saveAs('#generatedCode2');">Save to File</div>
+		<div class="divButton save">Save to File</div>
 		<textarea id="generatedCode2" class="javaCode" spellcheck=false>
 			
 		</textarea>

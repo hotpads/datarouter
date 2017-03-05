@@ -6,23 +6,23 @@ import java.util.List;
 import javax.inject.Inject;
 
 import com.google.common.collect.ImmutableList;
+import com.hotpads.datarouter.browse.RoutersHandler;
+import com.hotpads.datarouter.browse.dto.RouterParams;
 import com.hotpads.datarouter.client.imp.jdbc.JdbcClientImp;
 import com.hotpads.datarouter.node.DatarouterNodes;
 import com.hotpads.datarouter.routing.Datarouter;
-import com.hotpads.datarouter.routing.RouterParams;
 import com.hotpads.handler.BaseHandler;
-import com.hotpads.handler.admin.RoutersHandler;
 import com.hotpads.handler.mav.Mav;
 
-public class JdbcHandler extends BaseHandler {
+public class JdbcHandler extends BaseHandler{
 
 	/*************** constants *******************/
 
 	private static final List<String> NEEDS_CLIENT = ImmutableList.of(RoutersHandler.ACTION_inspectClient);
 	private static final List<String> NEEDS_ROUTER = NEEDS_CLIENT;
 
-	private static final HashMap<String, List<String>> JDBC_NEEDS = new HashMap<>();
-	static {
+	private static final HashMap<String,List<String>> JDBC_NEEDS = new HashMap<>();
+	static{
 		JDBC_NEEDS.put(RouterParams.NEEDS_ROUTER, NEEDS_ROUTER);
 		JDBC_NEEDS.put(RouterParams.NEEDS_CLIENT, NEEDS_CLIENT);
 	}
@@ -36,10 +36,9 @@ public class JdbcHandler extends BaseHandler {
 
 	private RouterParams<JdbcClientImp> paramsRouter;
 
-
 	/**************** methods ********************/
 
-	private void initialize() {
+	private void initialize(){
 		paramsRouter = new RouterParams<>(datarouter, params, JDBC_NEEDS);
 	}
 

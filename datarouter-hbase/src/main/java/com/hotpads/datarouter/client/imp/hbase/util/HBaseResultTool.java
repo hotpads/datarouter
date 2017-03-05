@@ -26,7 +26,9 @@ public class HBaseResultTool{
 	List<PK> getPrimaryKeys(List<Result> rows, DatabeanFieldInfo<PK,D,F> fieldInfo){
 		List<PK> results = DrListTool.createArrayListWithSize(rows);
 		for(Result row : rows){
-			if(row==null || row.isEmpty()){ continue; }
+			if(row == null || row.isEmpty()){
+				continue;
+			}
 			PK result = getPrimaryKey(row.getRow(), fieldInfo);
 			results.add(result);
 		}
@@ -37,7 +39,9 @@ public class HBaseResultTool{
 	List<D> getDatabeans(List<Result> rows, DatabeanFieldInfo<PK,D,F> fieldInfo){
 		List<D> results = DrListTool.createArrayListWithSize(rows);
 		for(Result row : rows){
-			if(row==null || row.isEmpty()){ continue; }
+			if(row == null || row.isEmpty()){
+				continue;
+			}
 			D result = getDatabean(row, fieldInfo);
 			results.add(result);
 		}
@@ -57,17 +61,21 @@ public class HBaseResultTool{
 	PK getPrimaryKeyUnchecked(byte[] rowBytes, DatabeanFieldInfo<?,?,?> fieldInfo){
 		@SuppressWarnings("unchecked")
 		PK primaryKey = (PK)ReflectionTool.create(fieldInfo.getPrimaryKeyClass());
-		if(DrArrayTool.isEmpty(rowBytes)){ return primaryKey; }
+		if(DrArrayTool.isEmpty(rowBytes)){
+			return primaryKey;
+		}
 
 		byte[] keyBytesWithoutScatteringPrefix = getKeyBytesWithoutScatteringPrefix(fieldInfo, rowBytes);
 		//copied from above
 		int byteOffset = 0;
 		for(Field<?> field : fieldInfo.getPrimaryKeyFields()){
-			if(byteOffset==keyBytesWithoutScatteringPrefix.length){ break; }//ran out of bytes.  leave remaining fields blank
+			if(byteOffset == keyBytesWithoutScatteringPrefix.length){
+				break;
+			}//ran out of bytes.  leave remaining fields blank
 			int numBytesWithSeparator = field.numBytesWithSeparator(keyBytesWithoutScatteringPrefix, byteOffset);
 			Object value = field.fromBytesWithSeparatorButDoNotSet(keyBytesWithoutScatteringPrefix, byteOffset);
 			field.setUsingReflection(primaryKey, value);
-			byteOffset+=numBytesWithSeparator;
+			byteOffset += numBytesWithSeparator;
 		}
 
 		return primaryKey;
@@ -77,25 +85,28 @@ public class HBaseResultTool{
 	D getDatabean(Result row, DatabeanFieldInfo<PK,D,F> fieldInfo){
 		D databean = fieldInfo.getDatabeanSupplier().get();
 		byte[] keyBytes = getKeyBytesWithoutScatteringPrefix(fieldInfo, row.getRow());
-		HBaseRow hBaseRow = new HBaseRow(keyBytes, row.getMap());//so we can see a better toString value
+		HBaseRow hbaseRow = new HBaseRow(keyBytes, row.getMap()); //so we can see a better toString value
 		setPrimaryKeyFields(databean.getKey(), keyBytes, fieldInfo.getPrimaryKeyFields());
 		//TODO use row.raw() to avoid building all these TreeMaps
-		for(Map.Entry<byte[], NavigableMap<byte[], NavigableMap<Long, byte[]>>> family : hBaseRow.map.entrySet()){
+		for(Map.Entry<byte[], NavigableMap<byte[], NavigableMap<Long, byte[]>>> family : hbaseRow.map.entrySet()){
 			for(Map.Entry<byte[], NavigableMap<Long, byte[]>> column : family.getValue().entrySet()){
 				byte[] latestValue = column.getValue().lastEntry().getValue();
 				String fieldName = StringByteTool.fromUtf8Bytes(column.getKey());
-				Field<?> field = fieldInfo.getNonKeyFieldByColumnName().get(fieldName);//skip key fields which may have been accidenally inserted
-				if(field==null){ continue; }//skip dummy fields and fields that may have existed in the past
+				//skip key fields which may have been accidenally inserted
+				Field<?> field = fieldInfo.getNonKeyFieldByColumnName().get(fieldName);
+				if(field == null){ //skip dummy fields and fields that may have existed in the past
+					continue;
+				}
 				//someListener.handleUnmappedColumn(.....
-				if(DrArrayTool.isEmpty(latestValue)){ continue; }
+				if(DrArrayTool.isEmpty(latestValue)){
+					continue;
+				}
 				Object value = field.fromBytesButDoNotSet(latestValue, 0);
 				field.setUsingReflection(databean, value);
 			}
 		}
 		return databean;
 	}
-
-
 
 	/*********************** helper *********************************/
 
@@ -110,7 +121,7 @@ public class HBaseResultTool{
 				value = field.fromBytesWithSeparatorButDoNotSet(bytes, byteOffset);
 			}
 			field.setUsingReflection(primaryKey, value);
-			byteOffset+=numBytesWithSeparator;
+			byteOffset += numBytesWithSeparator;
 		}
 	}
 
@@ -120,7 +131,7 @@ public class HBaseResultTool{
 		if(numScatteringPrefixBytes == 0){
 			return keyBytesWithScatteringPrefix;
 		}
-		byte[] keyBytesWithoutScatteringPrefix= Arrays.copyOfRange(keyBytesWithScatteringPrefix,
+		byte[] keyBytesWithoutScatteringPrefix = Arrays.copyOfRange(keyBytesWithScatteringPrefix,
 				numScatteringPrefixBytes, keyBytesWithScatteringPrefix.length);
 		return keyBytesWithoutScatteringPrefix;
 	}

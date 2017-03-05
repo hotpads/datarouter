@@ -46,7 +46,9 @@ extends BaseListJdbcFieldCodec<Boolean,List<Boolean>,Field<List<Boolean>>>{
 	public List<Boolean> fromJdbcResultSetButDoNotSet(ResultSet rs){
 		try{
 			byte[] bytes = rs.getBytes(field.getKey().getColumnName());
-			if(DrArrayTool.isEmpty(bytes)){ return new ArrayList<>(); }
+			if(DrArrayTool.isEmpty(bytes)){
+				return new ArrayList<>();
+			}
 			return BooleanByteTool.fromBooleanByteArray(bytes, 0);
 		}catch(SQLException e){
 			throw new DataAccessException(e);

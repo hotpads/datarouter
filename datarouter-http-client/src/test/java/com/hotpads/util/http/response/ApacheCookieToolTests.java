@@ -8,13 +8,13 @@ import org.apache.http.impl.cookie.BasicClientCookie;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-public class ApacheCookieToolTests {
+public class ApacheCookieToolTests{
 
 	private final Cookie shortBreadCookie = new BasicClientCookie("shortBreadCookie", "ThumbPrint");
 	private final Cookie sandwichCookie = new BasicClientCookie("sandwichCookie", "Oreo");
 
 	@Test
-	public void testGetCookie() {
+	public void testGetCookie(){
 		List<Cookie> cookies = new ArrayList<>();
 		cookies.add(shortBreadCookie);
 		cookies.add(sandwichCookie);
@@ -24,7 +24,7 @@ public class ApacheCookieToolTests {
 	}
 
 	@Test
-	public void testGetCookieValue() {
+	public void testGetCookieValue(){
 		List<Cookie> cookies = new ArrayList<>();
 		cookies.add(shortBreadCookie);
 

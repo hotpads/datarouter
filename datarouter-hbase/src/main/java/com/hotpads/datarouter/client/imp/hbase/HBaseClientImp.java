@@ -114,7 +114,7 @@ implements HBaseClient{
 
 	@Override
 	public void shutdown(){
-		logger.warn("shutting down client:"+getName());
+		logger.warn("shutting down client:" + getName());
 		FutureTool.finishAndShutdown(executorService, 5L, TimeUnit.SECONDS);
 		pool.shutdown();
 	}
@@ -142,8 +142,8 @@ implements HBaseClient{
 			throw new RuntimeException(e);
 		}
 		for(HColumnDescriptor column : desc.getColumnFamilies()){
-			long requestedTtlSeconds = fieldInfo.getTtlMs().get()/1000;
-			if(DrObjectTool.notEquals(requestedTtlSeconds, column.getTimeToLive())) {
+			long requestedTtlSeconds = fieldInfo.getTtlMs().get() / 1000;
+			if(DrObjectTool.notEquals(requestedTtlSeconds, column.getTimeToLive())){
 				logger.warn("Please alter the TTL of " + clientName + "." + tableName + " to "
 						+ requestedTtlSeconds + " seconds");
 			}

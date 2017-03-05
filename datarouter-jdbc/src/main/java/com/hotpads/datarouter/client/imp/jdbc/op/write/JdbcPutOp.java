@@ -51,7 +51,7 @@ extends BaseJdbcOp<Void>{
 	private final Config config;
 
 	public JdbcPutOp(JdbcNode<PK,D,F> node, JdbcFieldCodecFactory fieldCodecFactory, Collection<D> databeans,
-			Config config) {
+			Config config){
 		super(node.getDatarouter(), node.getClientNames(), getIsolation(config), shouldAutoCommit(databeans, config));
 		this.node = node;
 		this.fieldInfo = node.getFieldInfo();
@@ -84,7 +84,7 @@ extends BaseJdbcOp<Void>{
 						throw new DatabeanVersioningException();
 					}
 					versionedDatabean.incrementVersion();
-					jdbcUpdate(connection, databean);
+					jdbcUpdate(connection, databean, false);
 				}
 			}
 		}else if(PutMethod.INSERT_ON_DUPLICATE_UPDATE == config.getPutMethod()
@@ -103,7 +103,7 @@ extends BaseJdbcOp<Void>{
 	/******************** private **********************************************/
 
 	private static Isolation getIsolation(Config config){
-		if(config==null){
+		if(config == null){
 			return Config.DEFAULT_ISOLATION;
 		}
 		return config.getIsolationOrUse(Config.DEFAULT_ISOLATION);
@@ -128,17 +128,17 @@ extends BaseJdbcOp<Void>{
 		}else if(PutMethod.INSERT_OR_BUST == putMethod){
 			jdbcInsert(connection, databean);
 		}else if(PutMethod.UPDATE_OR_BUST == putMethod){
-			jdbcUpdate(connection, databean);
+			jdbcUpdate(connection, databean, false);
 		}else if(PutMethod.INSERT_OR_UPDATE == putMethod){
 			try{
 				jdbcInsert(connection, databean);
 			}catch(RuntimeException e){
 				//TODO this will not work inside a txn if not all of the rows already exist
-				jdbcUpdate(connection, databean);
+				jdbcUpdate(connection, databean, false);
 			}
 		}else if(PutMethod.UPDATE_OR_INSERT == putMethod){
 			try{
-				jdbcUpdate(connection, databean);
+				jdbcUpdate(connection, databean, false);
 			}catch(RuntimeException e){
 				//TODO this will not work inside a txn if some of the rows already exist
 				jdbcInsert(connection, databean);
@@ -146,16 +146,18 @@ extends BaseJdbcOp<Void>{
 		}else if(PutMethod.MERGE == putMethod){
 			//not really a jdbc concept, but usually an update (?)
 			try{
-				jdbcUpdate(connection, databean);
+				jdbcUpdate(connection, databean, false);
 			}catch(RuntimeException e){
 				jdbcInsert(connection, databean);
 			}
 		}else if(PutMethod.INSERT_IGNORE == putMethod){
 			jdbcInsert(connection, databean, true);
+		}else if(PutMethod.UPDATE_IGNORE == putMethod){
+			jdbcUpdate(connection, databean, true);
 		}else{
 			boolean alreadyExists = node.exists(databean.getKey(), null);
 			if(alreadyExists){//select before update like hibernate's saveOrUpdate
-				jdbcUpdate(connection, databean);
+				jdbcUpdate(connection, databean, false);
 			}else{
 				jdbcInsert(connection, databean);
 			}
@@ -192,7 +194,7 @@ extends BaseJdbcOp<Void>{
 			if(e instanceof SQLException && ((SQLException) e).getErrorCode() == MysqlErrorNumbers.ER_DUP_ENTRY){
 				throw new DuplicateEntrySqlException(e);
 			}
-			throw new DataAccessException("error inserting into "+node.getTableName(),e);
+			throw new DataAccessException("error inserting into " + node.getTableName(), e);
 		}
 	}
 
@@ -201,7 +203,7 @@ extends BaseJdbcOp<Void>{
 		sb.append(" on duplicate key update ");
 		boolean doneOne = false;
 		for(Field<?> field : fieldInfo.getFields()){
-			if(doneOne) {
+			if(doneOne){
 				sb.append(",");
 			}
 			sb.append(field.getKey().getColumnName() + "=VALUES(" + field.getKey().getColumnName() + ")");
@@ -213,7 +215,7 @@ extends BaseJdbcOp<Void>{
 			if(e instanceof SQLException && ((SQLException) e).getErrorCode() == MysqlErrorNumbers.ER_DUP_ENTRY){
 				throw new DuplicateEntrySqlException(e);
 			}
-			throw new DataAccessException("error inserting into "+node.getTableName(),e);
+			throw new DataAccessException("error inserting into " + node.getTableName(), e);
 		}
 	}
 
@@ -238,11 +240,11 @@ extends BaseJdbcOp<Void>{
 		if(ignore){
 			sb.append(" ignore");
 		}
-		sb.append(" into "+node.getTableName()+" (");
+		sb.append(" into " + node.getTableName() + " (");
 		FieldTool.appendCsvColumnNames(sb, fieldInfo.getFields());
 		sb.append(") values ");
 		boolean doneOne = false;
-		for(int count = 0 ; count < databeans.size() ; count++){
+		for(int count = 0; count < databeans.size(); count++){
 			if(doneOne){
 				sb.append(",");
 			}
@@ -254,7 +256,7 @@ extends BaseJdbcOp<Void>{
 		return sb;
 	}
 
-	private void jdbcUpdate(Connection connection, D databean){
+	private void jdbcUpdate(Connection connection, D databean, boolean ignore){
 		//it doesn't make sense to update a row without PK fields.  updating the PK will move the row
 		List<Field<?>> emptyNonKeyFields = fieldInfo.getNonKeyFields();
 		if(DrCollectionTool.isEmpty(emptyNonKeyFields)){
@@ -263,7 +265,7 @@ extends BaseJdbcOp<Void>{
 
 //		logger.warn("JDBC update");
 		StringBuilder sb = new StringBuilder();
-		sb.append("update "+node.getTableName()+" set ");
+		sb.append("update " + node.getTableName() + " set ");
 		SqlBuilder.appendSqlUpdateClauses(sb, emptyNonKeyFields);
 		sb.append(" where ");
 		List<Field<?>> whereFields = new ArrayList<>(databean.getKeyFields());
@@ -272,7 +274,7 @@ extends BaseJdbcOp<Void>{
 			whereFields.add(new LongField(BaseVersionedDatabeanFielder.FieldKeys.version,
 					versionedDatabean.getVersion() - 1));
 		}
-		sb.append(SqlBuilder.getSqlNameValuePairsEscapedConjunction(fieldCodecFactory, whereFields));
+		sb.append(SqlBuilder.getSqlNameValuePairsEscapedConjunction(fieldCodecFactory, whereFields, fieldInfo));
 		int numUpdated;
 		try{
 			PreparedStatement ps = connection.prepareStatement(sb.toString());
@@ -284,14 +286,16 @@ extends BaseJdbcOp<Void>{
 			}
 			numUpdated = ps.executeUpdate();
 		}catch(SQLException e){
-			throw new DataAccessException("error updating "+node.getTableName(), e);
+			throw new DataAccessException("error updating " + node.getTableName(), e);
 		}
-		if(numUpdated!=1){
-			if(fieldInfo.getIsVersioned()){
-				throw new DatabeanVersioningException();
+		if(!ignore){
+			if(numUpdated != 1){
+				if(fieldInfo.getIsVersioned()){
+					throw new DatabeanVersioningException();
+				}
+				throw new DataAccessException(node.getTableName() + " row " + databean.getKey().toString()
+						+ " not found so could not be updated");
 			}
-			throw new DataAccessException(node.getTableName()+" row "+databean.getKey().toString()
-					+" not found so could not be updated");
 		}
 	}
 }

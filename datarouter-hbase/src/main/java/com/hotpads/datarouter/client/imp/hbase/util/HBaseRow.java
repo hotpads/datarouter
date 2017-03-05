@@ -28,7 +28,8 @@ public class HBaseRow{
 					Long version = cell.getKey();
 					int numBytes = DrArrayTool.length(cell.getValue());
 					String valueString = StringByteTool.fromUtf8Bytes(cell.getValue());
-					sb.append("\t"+version+":"+familyName+":"+columnName+"("+numBytes+"b)="+valueString+"\n");
+					sb.append("\t" + version + ":" + familyName + ":" + columnName + "(" + numBytes + "b)="
+							+ valueString + "\n");
 				}
 			}
 		}

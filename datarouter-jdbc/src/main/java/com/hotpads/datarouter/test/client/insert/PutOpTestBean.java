@@ -12,18 +12,18 @@ import com.hotpads.datarouter.storage.field.imp.StringField;
 public class PutOpTestBean extends BaseDatabean<PutOpTestBeanKey, PutOpTestBean>{
 
 	private PutOpTestBeanKey key;
-	private String c;
+	private String strC;
 
 	PutOpTestBean(){
 		key = new PutOpTestBeanKey();
 	}
 
-	public PutOpTestBean(String a, String b, String c){
-		key = new PutOpTestBeanKey(a, b);
-		this.c = c;
+	public PutOpTestBean(String strA, String strB, String strC){
+		key = new PutOpTestBeanKey(strA, strB);
+		this.strC = strC;
 	}
 
-	public static class PutOpTestBeanFielder extends BaseDatabeanFielder<PutOpTestBeanKey, PutOpTestBean> {
+	public static class PutOpTestBeanFielder extends BaseDatabeanFielder<PutOpTestBeanKey,PutOpTestBean>{
 
 		@Override
 		public Class<? extends Fielder<PutOpTestBeanKey>> getKeyFielderClass(){
@@ -32,7 +32,7 @@ public class PutOpTestBean extends BaseDatabean<PutOpTestBeanKey, PutOpTestBean>
 
 		@Override
 		public List<Field<?>> getNonKeyFields(PutOpTestBean databean){
-			return FieldTool.createList(new StringField("c", databean.c, 100));
+			return FieldTool.createList(new StringField("strC", databean.strC, 100));
 		}
 
 	}
@@ -52,10 +52,10 @@ public class PutOpTestBean extends BaseDatabean<PutOpTestBeanKey, PutOpTestBean>
 	}
 
 	public String getC(){
-		return c;
+		return strC;
 	}
 
-	public void setC(String c){
-		this.c = c;
+	public void setC(String strC){
+		this.strC = strC;
 	}
 }

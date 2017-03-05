@@ -7,8 +7,13 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.inject.Inject;
 import javax.servlet.ServletContext;
@@ -22,11 +27,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.inject.DatarouterInjector;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.handler.encoder.HandlerEncoder;
 import com.hotpads.handler.encoder.MavEncoder;
 import com.hotpads.handler.exception.ExceptionRecorder;
+import com.hotpads.handler.exception.HandledException;
 import com.hotpads.handler.mav.imp.MessageMav;
+import com.hotpads.handler.params.Params;
 import com.hotpads.handler.types.DefaultDecoder;
 import com.hotpads.handler.types.HandlerDecoder;
 import com.hotpads.handler.types.HandlerTypingHelper;
@@ -40,8 +48,10 @@ import com.hotpads.util.http.ResponseTool;
  * a dispatcher servlet sets necessary parameters and then calls "handle()"
  */
 public abstract class BaseHandler{
-
 	private static final Logger logger = LoggerFactory.getLogger(BaseHandler.class);
+
+	private static final String DEFAULT_HANDLER_METHOD_NAME = "handleDefault";
+	private static final String MISSING_PARAMETERS_HANDLER_METHOD_NAME = "handleMissingParameters";
 
 	@Inject
 	private HandlerTypingHelper handlerTypingHelper;
@@ -61,12 +71,24 @@ public abstract class BaseHandler{
 	@Deprecated
 	protected Lazy<PrintWriter> out;
 
-	protected static final String DEFAULT_HANDLER_METHOD_NAME = "handleDefault";
 
+	/**
+	 * @deprecated  Replaced with @Handler(defaultHandler = true) annotation
+	 */
+	@Deprecated
 	@Handler
 	protected Object handleDefault() throws Exception{
-		response.sendError(404);
-		return new MessageMav("no default handler method found, please specify " + handlerMethodParamName());
+		MessageMav mav = new MessageMav("no default handler method found, please specify " + handlerMethodParamName());
+		mav.setStatusCode(HttpServletResponse.SC_NOT_FOUND);
+		return mav;
+	}
+
+	@Handler
+	protected Object handleMissingParameters(List<String> missingParameters, String methodName){
+		MessageMav mav = new MessageMav("missing parameters for " + methodName + ": "
+				+ String.join(", ", missingParameters));
+		mav.setStatusCode(HttpServletResponse.SC_BAD_REQUEST);
+		return mav;
 	}
 
 	/*
@@ -75,15 +97,16 @@ public abstract class BaseHandler{
 	 */
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.METHOD)
-	public @interface Handler {
+	public @interface Handler{
 		Class<?>[] expectedParameterClasses() default {};
 		Class<?> expectedParameterClassesProvider() default Object.class;
 		String description() default "";
 		Class<? extends HandlerEncoder> encoder() default MavEncoder.class;
 		Class<? extends HandlerDecoder> decoder() default DefaultDecoder.class;
+		boolean defaultHandler() default false;
 	}
 
-	protected void handleWrapper(){//dispatcher servlet calls this
+	public void handleWrapper(){//dispatcher servlet calls this
 		try{
 			permitted();
 			String methodName = handlerMethodName();
@@ -94,13 +117,27 @@ public abstract class BaseHandler{
 			Pair<Method, Object[]> pair = handlerTypingHelper.findMethodByName(possibleMethods, request);
 			Method method = pair.getLeft();
 			Object[] args = pair.getRight();
-			if(method == null && possibleMethods.size() > 0){
-				response.sendError(400);
-				throw new RuntimeException("missing parameters for method " + methodName);
+			if(method == null){
+				Optional<Method> defaultHandlerMethod = getDefaultHandlerMethod();
+				if(defaultHandlerMethod.isPresent()){
+					pair = handlerTypingHelper.findMethodByName(Arrays.asList(defaultHandlerMethod.get()), request);
+					method = pair.getLeft();
+					args = pair.getRight();
+				}
 			}
 			if(method == null){
-				methodName = DEFAULT_HANDLER_METHOD_NAME;
-				method = ReflectionTool.getDeclaredMethodFromHierarchy(getClass(), methodName);
+				if(possibleMethods.size() > 0){
+					Method desiredMethod = DrCollectionTool.getFirst(possibleMethods);
+					List<String> missingParameters = getMissingParameterNames(desiredMethod);
+					args = new Object[]{missingParameters, desiredMethod.getName()};
+
+					methodName = MISSING_PARAMETERS_HANDLER_METHOD_NAME;
+					method = ReflectionTool.getDeclaredMethodFromHierarchy(getClass(), methodName, List.class,
+							String.class);
+				}else{
+					methodName = DEFAULT_HANDLER_METHOD_NAME;
+					method = ReflectionTool.getDeclaredMethodFromHierarchy(getClass(), methodName);
+				}
 			}
 
 			HandlerEncoder encoder;
@@ -156,7 +193,18 @@ public abstract class BaseHandler{
 		return params.optional(handlerMethodParamName()).orElse(lastPathSegment);
 	}
 
-	private String getLastPathSegment(String uri) {
+	private Optional<Method> getDefaultHandlerMethod(){
+		Optional<Method> defaultHandlerMethod = Stream.of(getClass().getDeclaredMethods())
+				.filter(possibleMethod -> possibleMethod.isAnnotationPresent(Handler.class))
+				.filter(possibleMethod -> possibleMethod.getDeclaredAnnotation(Handler.class).defaultHandler())
+				.findFirst();
+		if(defaultHandlerMethod.isPresent()){
+			defaultHandlerMethod.get().setAccessible(true);
+		}
+		return defaultHandlerMethod;
+	}
+
+	private String getLastPathSegment(String uri){
 		if(uri == null){
 			return "";
 		}
@@ -165,6 +213,13 @@ public abstract class BaseHandler{
 
 	protected String handlerMethodParamName(){
 		return "submitAction";
+	}
+
+	private List<String> getMissingParameterNames(Method method){
+		return Stream.of(method.getParameters())
+				.map(Parameter::getName)
+				.filter(param -> !params.toMap().keySet().contains(param))
+				.collect(Collectors.toList());
 	}
 
 	/****************** get/set *******************************************/
@@ -190,17 +245,17 @@ public abstract class BaseHandler{
 		this.out = Lazy.of(() -> ResponseTool.getWriter(response));
 	}
 
-	public static class BaseHandlerTests {
+	public static class BaseHandlerTests{
 
-		BaseHandler test;
+		private BaseHandler test;
 
 		@Before
-		public void setup() {
+		public void setup(){
 			test = new AdminEditUserHandler();
 		}
 
 		@Test
-		public void testGetLastPathSegment() {
+		public void testGetLastPathSegment(){
 			Assert.assertEquals("something", test.getLastPathSegment("/something"));
 			Assert.assertEquals("something", test.getLastPathSegment("~/something"));
 			Assert.assertEquals("viewUsers", test.getLastPathSegment("/admin/edit/reputation/viewUsers"));

@@ -13,17 +13,17 @@ public class MemcachedOptions extends TypedProperties{
 
 	public MemcachedOptions(List<Properties> multiProperties, String clientName){
 		super(multiProperties);
-		this.clientPrefix = "client."+clientName+".memcached.";
+		this.clientPrefix = "client." + clientName + ".memcached.";
 	}
 
 	public Integer getNumServers(){
-		return getInteger(clientPrefix+"numServers");
+		return getInteger(clientPrefix + "numServers");
 	}
 
 	public InetSocketAddress[] getServers(){
 		List<InetSocketAddress> servers = new LinkedList<>();
-		for(int i=0; i < getNumServers(); ++i){
-			String key = clientPrefix+"server."+i;
+		for(int i = 0; i < getNumServers(); ++i){
+			String key = clientPrefix + "server." + i;
 			String hostNameAndPort = getString(key);
 			String[] hostnameAndPortTokens = hostNameAndPort.split(":");
 			String hostname = hostnameAndPortTokens[0];

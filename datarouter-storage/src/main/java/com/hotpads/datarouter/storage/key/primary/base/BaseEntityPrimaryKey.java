@@ -12,12 +12,11 @@ import com.hotpads.datarouter.util.core.DrStringTool;
 
 public abstract class BaseEntityPrimaryKey<EK extends EntityKey<EK>,PK extends EntityPrimaryKey<EK,PK>>
 extends BasePrimaryKey<PK>
-implements EntityPrimaryKey<EK,PK>
-{
+implements EntityPrimaryKey<EK,PK>{
 
 	private static final String DEFAULT_ENTITY_KEY_FIELD_NAME = "entityKey";
 
-	public String getEntityKeyName() {
+	public String getEntityKeyName(){
 		return DEFAULT_ENTITY_KEY_FIELD_NAME;
 	}
 

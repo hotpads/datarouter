@@ -18,7 +18,7 @@ public class ScalingThreadPoolExecutor extends ThreadPoolExecutor{
 			ThreadFactory threadFactory){
 		super(corePoolSize, maximumPoolSize, keepAliveTime, unit, new ScalingThreadPoolExecutorQueue(), threadFactory,
 				new ForceQueuePolicy());
-		((ScalingThreadPoolExecutorQueue) getQueue()).setExecutor(this);
+		((ScalingThreadPoolExecutorQueue)getQueue()).setExecutor(this);
 		this.activeCount = new AtomicInteger();
 	}
 
@@ -57,7 +57,7 @@ public class ScalingThreadPoolExecutor extends ThreadPoolExecutor{
 		public void rejectedExecution(Runnable runnable, ThreadPoolExecutor executor){
 			try{
 				executor.getQueue().put(runnable);
-			}catch (InterruptedException e){
+			}catch(InterruptedException e){
 				throw new RejectedExecutionException(e);
 			}
 		}

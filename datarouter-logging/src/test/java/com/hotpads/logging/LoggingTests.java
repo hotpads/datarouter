@@ -1,3 +1,18 @@
+/**
+ * Copyright © 2009 HotPads (admin@hotpads.com)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.hotpads.logging;
 
 import java.io.BufferedReader;
@@ -6,17 +21,14 @@ import java.io.FileReader;
 import java.io.IOException;
 
 import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.core.appender.ConsoleAppender.Target;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.testng.AssertJUnit;
+import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 
-import com.hotpads.logging.ClassA.Class1;
-import com.hotpads.logging.ClassA.Class1.Class11;
-import com.hotpads.logging.ClassA.Class2;
-import com.hotpads.logging.another.Class4;
-import com.hotpads.logging.apackage.Class3;
+import com.hotpads.util.core.logging.HotPadsLog4j2Configuration;
 import com.hotpads.util.core.logging.Log4j2Configurator;
 
 /*
@@ -24,55 +36,79 @@ import com.hotpads.util.core.logging.Log4j2Configurator;
  */
 public class LoggingTests{
 	private static final Logger logger = LoggerFactory.getLogger(LoggingTests.class);
+	private static final File TEST_FILE = new File(TestDatarouterLog4j2Configuration.TEST_FILE_NAME);
+	private static final String TEST_FILE_2_NAME = TestDatarouterLog4j2Configuration.TEST_FILE_NAME + "2";
+	private static final File TEST_FILE_2 = new File(TEST_FILE_2_NAME);
+	private static final String TEST_APPENDER_2_NAME = "testFile2";
+	private static final String ERR_CONSOLE_APPENDER_NAME = "second-console-appender";
+
+	private final Log4j2Configurator configurator = new Log4j2Configurator();
 
 	@AfterClass
 	public void after(){
-		new File(TestDatarouterLog4j2Configuration.TEST_FILE_NAME).delete();
+		configurator.shutdown();
+		TEST_FILE.delete();
+		TEST_FILE_2.delete();
 	}
 
 	@Test
-	public void staticTest() throws IOException {
-		new Class1().logYourName();
-		new Class11().logYourName();
-		new Class2().logYourName();
-		new Class3().logYourName();
-		new Class4().logYourName();
+	public void test() throws IOException{
+		logger.debug("hello");
+		logger.debug("password");//excluded by filter
 
-		logger.warn("mException", new Exception(new Exception(new NullPointerException())));
+		configurator.updateOrCreateLoggerConfig(getClass().getPackage(), Level.OFF, false,
+				TestDatarouterLog4j2Configuration.TEST_APPENDER_NAME);
+		logger.debug("goodbye");//excluded because Level is OFF
 
-		int numberOfLines = getNumberOfLineInLogFile();
-		AssertJUnit.assertEquals(5, numberOfLines);
-	}
+		configurator.updateOrCreateLoggerConfig(getClass(), Level.ALL, false,
+				TestDatarouterLog4j2Configuration.TEST_APPENDER_NAME);
+		logger.debug("foo");
 
-	@Test
-	public void dynamiqueTest(){
-		Log4j2Configurator log4j2Configurator = new Log4j2Configurator();
-		logOneOfEachLevel();
-		log4j2Configurator.getRootLoggerConfig().setLevel(Level.DEBUG);
-		logOneOfEachLevel();
+		configurator.updateOrCreateLoggerConfig(getClass().getName(), Level.ALL, false, (Iterable<String>)null);
+		logger.debug("bar");
 
-		log4j2Configurator.updateOrCreateLoggerConfig(Class11.class, Level.INFO, false,
-				TestDatarouterLog4j2Configuration.CONSOLE_ERR_REF);
-		new Class11().logYourName();
-	}
+		configurator.updateOrCreateLoggerConfig(getClass(), Level.ALL, false, "appender-not-found");
+		logger.debug("baz");//excluded because appender not found
 
-	private int getNumberOfLineInLogFile() throws IOException{
-		BufferedReader bufferedReader = new BufferedReader(new FileReader(
-				TestDatarouterLog4j2Configuration.TEST_FILE_NAME));
-		int lineCount = 0;
-		while(bufferedReader.readLine() != null){
-			lineCount++;
+		Assert.assertTrue(configurator.getConfigs().keySet().contains(getClass().getName()));
+		configurator.deleteLoggerConfig(getClass().getName());
+		logger.debug("demat");//excluded because Level is OFF (package rule)
+		Assert.assertFalse(configurator.getConfigs().keySet().contains(getClass().getName()));
+
+		try(BufferedReader reader = new BufferedReader(new FileReader(TEST_FILE))){
+			Assert.assertTrue(reader.readLine().endsWith("hello"));
+			Assert.assertTrue(reader.readLine().endsWith("foo"));
+			Assert.assertTrue(reader.readLine().endsWith("bar"));
+			Assert.assertNull(reader.readLine());
 		}
-		bufferedReader.close();
-		return lineCount;
-	}
 
-	private void logOneOfEachLevel(){
-		logger.trace("trace");
-		logger.debug("debug");
-		logger.info("info");
-		logger.warn("warn");
-		logger.error("error");
+
+		Assert.assertNull(configurator.getAppender(TEST_APPENDER_2_NAME));
+		configurator.addFileAppender(TEST_APPENDER_2_NAME, TEST_FILE_2_NAME, HotPadsLog4j2Configuration.defaultPattern);
+		Assert.assertNotNull(configurator.getAppender(TEST_APPENDER_2_NAME));
+
+		configurator.updateOrCreateLoggerConfig(getClass(), Level.ALL, false, TEST_APPENDER_2_NAME);
+		logger.warn("degemer");
+
+		configurator.addConsoleAppender("second-console-appender", Target.SYSTEM_ERR,
+				HotPadsLog4j2Configuration.defaultPattern);
+		configurator.updateOrCreateLoggerConfig(getClass(), Level.ALL, false, ERR_CONSOLE_APPENDER_NAME);
+		logger.warn("ar");//going to err console
+
+		try(BufferedReader reader = new BufferedReader(new FileReader(TEST_FILE_2))){
+			Assert.assertTrue(reader.readLine().endsWith("degemer"));
+			Assert.assertNull(reader.readLine());
+		}
+
+		configurator.deleteAppender(TEST_APPENDER_2_NAME);
+		Assert.assertNull(configurator.getAppender(TEST_APPENDER_2_NAME));
+
+		Assert.assertTrue(configurator.getAppenders().keySet().contains(
+				TestDatarouterLog4j2Configuration.TEST_APPENDER_NAME));
+		Assert.assertTrue(configurator.getAppenders().keySet().contains(
+				DatarouterLog4j2Configuration.CONSOLE_APPENDER_NAME));
+
+		Assert.assertEquals(configurator.getRootLoggerConfig().getName(), "");
 	}
 
 }

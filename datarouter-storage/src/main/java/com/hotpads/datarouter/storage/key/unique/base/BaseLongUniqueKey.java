@@ -10,7 +10,7 @@ public abstract class BaseLongUniqueKey<K extends Key<K>>
 extends BaseLongKey<K>
 implements UniqueKey<K>{
 
-	public BaseLongUniqueKey(Long key) {
+	public BaseLongUniqueKey(Long key){
 		super(key);
 	}
 

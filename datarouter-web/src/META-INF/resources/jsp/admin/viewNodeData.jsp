@@ -4,99 +4,83 @@
 <head>
 	<title>Datarouter</title>
 	<%@ include file="/jsp/generic/datarouterHead.jsp" %>
+	<style>
+		td{
+			white-space:nowrap;
+		}
+	</style>
 </head>
 <body>
 	<%@ include file="/jsp/menu/common-navbar.jsp" %>
 	<%@ include file="/jsp/menu/dr-navbar.jsp"%>
-	<h2 class="container">Datarouter</h2>
-	<div class="wide-container">
-		<a href="${contextPath}/datarouter/routers">Datarouter Home</a> &nbsp;&nbsp;&#62;&#62;&nbsp;&nbsp; <a href="${contextPath}/datarouter/routers?submitAction=inspectRouter&routerName=${param.routerName}">Router: ${param.routerName}</a> &nbsp;&nbsp;&#62;&#62; &nbsp;&nbsp;
-		node: <b>${node.name}</b><br /> <br />
+	<div class="container-fluid">
+		<h2 class="page-header">Datarouter</h2>
+		<ol class="breadcrumb">
+			<li><a href="${contextPath}/datarouter/routers">Datarouter Home</a></li>
+			<li>
+				<a href="${contextPath}/datarouter/routers?submitAction=inspectRouter&routerName=${param.routerName}">
+					Router: ${param.routerName}
+				</a>
+			</li>
+			<li>node: <b>${node.name}</b></li>
+		</ol>
 		<form method="get" action="?">
-			<div class="label-above row-fluid">
-				<ul class="span6">
-					<li><b>RouterName:</b></li>
-					<li><input name="routerName" value="${param.routerName}" type="text" /></li>
-				</ul>
-				<ul class="span5">
-					<li><b>NodeName:</b></li>
-					<li><input name="nodeName" value="${node.name}" type="text" /></li>
-				</ul>
+			<div class="form-group">
+				<label>RouterName</label>
+				<input name="routerName" value="${param.routerName}" type="text" class="form-control" />
 			</div>
-			<div class="label-above row-fluid">
- 				<ul class="span6">
-					<li><b>DatabeanType:</b></li>
-					<li>${node.fieldInfo.sampleDatabean['class']}</li>
-				</ul>
-				<ul class="span5">
-					<li><b>NodeType:</b></li>
-					<li>${node['class'].simpleName}</li>
-				</ul>
+			<div class="form-group">
+				<label>NodeName</label>
+				<input name="nodeName" value="${node.name}" type="text" class="form-control" />
 			</div>
-			<div class="label-above row-fluid">
-				<ul class="span6">
-					<li><b>StartAfterKey (changes each page):</b></li>
-					<li><input name="startAfterKey" value="${startAfterKey}" type="text" /></li>
-				</ul>
-				<ul class="span5">
-					<li><b>Limit:</b>&nbsp;<%/*(<b>offset:</b>${offset})*/%></li>
-					<li><input name="limit" value="${limit}" type="text" /></li>
-				</ul>
+			<div class="form-group">
+				<label>DatabeanType</label>
+				${node.fieldInfo.sampleDatabean['class']}
 			</div>
-			<div class="label-above row-fluid">
-				<ul class="span12">
-					<li></li>
-					<li><input type="submit" name="submitAction" value="browseData" class="btn btn-success" /></li>
-				</ul>
+			<div class="form-group">
+				<label>NodeType</label>
+				${node['class'].simpleName}
 			</div>
-			<div class="label-above row-fluid">
-				<ul class="span6">
-					<li><b>where:</b></li>
-					<li><input name="where" value="${param.where}" type="text" /></li>
-				</ul>
-				<ul class="span6">
-					<li></li>
-<!-- 					<li class="span3"><input type="submit" name="submitAction" value="countWhere" class="btn btn-success" /> -->
-					<li class="span3"><input type="submit" name="submitAction" value="getWhere" class="btn btn-success" /></li>
-				</ul>
+			<div class="form-group">
+				<label>StartAfterKey (changes each page):</label>
+				<input name="startAfterKey" value="${startAfterKey}" type="text" class="form-control" />
 			</div>
+			<div class="form-group">
+				<label>Limit:</label>
+				<input name="limit" value="${limit}" type="text" class="form-control" />
+			</div>
+			<input type="submit" name="submitAction" value="browseData" class="btn btn-success" />
 		</form>
 		
-		
-		<c:if test="${offset > 0}">
-			<a href="?submitAction=${param.submitAction}&routerName=${param.routerName}&nodeName=${param.nodeName}
-				&startAfterKey=
-				&limit=${limit}&offset=0&where=${param.where}"><b>start</b></a>&nbsp;-&nbsp;
-		</c:if>
-		<c:if test="${!(offset > 0)}">
-			<b>start</b>&nbsp;-&nbsp;
-		</c:if>
-		<c:if test="${offset > 0 and not empty backKey}">
-			<a href="?submitAction=${param.submitAction}&routerName=${param.routerName}&nodeName=${param.nodeName}
-				&startAfterKey=${backKey}
-				&limit=${limit}&offset=${offset-limit}&where=${param.where}"><b>previous</b></a>&nbsp;-&nbsp;
-		</c:if>
-		<c:if test="${not (offset > 0 and not empty backKey)}">
-			<b>previous&nbsp;</b>-&nbsp;
-		</c:if>
 		<c:set var="accesDatabeans" value=""></c:set>
 		<c:if test="${fn:length(databeans) >= limit}">
-		<c:set var="accesDatabeans" value="&backKey=${startAfterKey}&startAfterKey=${nextKey}
-				&limit=${limit}&offset=${offset+limit}&where=${param.where}"></c:set>
+			<c:set var="accesDatabeans" value="&startAfterKey=${nextKey}&limit=${limit}"></c:set>
 		</c:if>
-				<a href="?submitAction=${param.submitAction}&routerName=${param.routerName}&nodeName=${param.nodeName}${accesDatabeans}">next</a>
-		
+		<nav> 
+			<ul class="pager">
+				<c:if test="${not empty startAfterKey}">
+					<li>
+						<a href="?submitAction=${param.submitAction}&routerName=${param.routerName}&nodeName=${param.nodeName}&startAfterKey=&limit=${limit}">
+							Start
+						</a>
+					</li>
+				</c:if>
+				<c:if test="${not empty accesDatabeans}">
+					<li>
+						<a href="?submitAction=${param.submitAction}&routerName=${param.routerName}&nodeName=${param.nodeName}${accesDatabeans}">
+							Next
+						</a>
+					</li>
+				</c:if>
+			</ul>
+		</nav>
 		<br />
-		${param.nodeName} is${nonFieldAware}
-		
-		<br />
-		<c:forEach items="${fields}" var="field">
-				${field.key.name},&nbsp;
+		<c:forEach items="${fields}" var="field" varStatus="loop">
+			${field.key.name}<c:if test="${!loop.last}">,</c:if>
 		</c:forEach>
 		<table class="viewNodeDataTable data sortable table table-condensed table-bordered table-hover">
 			<thead>
 				<tr>
-					<th>#</th>
 					<c:forEach items="${fields}" var="field">
 						<th id="fieldAbbreviation.${field.key.name}">${abbreviatedFieldNameByFieldName[field.key.name]}</th>
 					</c:forEach>
@@ -106,7 +90,6 @@
 				<c:if test="${empty rowsOfFields}">
 					<c:forEach items="${databeans}" var="databean" varStatus="status">
 						<tr <c:if test="${status.index%5==0}"> class="highlighted"</c:if>>
-							<td>${offset + status.index}</td>
 							<c:forEach items="${databean.fields}" var="field">
 								<c:if test="${! field.key.collection}">
 									<td>${field.valueString}</td>
@@ -124,7 +107,6 @@
 				<c:if test="${not empty rowsOfFields}">
 					<c:forEach items="${rowsOfFields}" var="rowOfFields" varStatus="status">
 						<tr <c:if test="${status.index%5==0}"> class="highlighted"</c:if>>
-							<td>${offset + status.index}</td>
 							<c:forEach items="${rowOfFields}" var="field">
 								<c:if test="${! field.key.collection}">
 									<td>${field.valueString}</td>

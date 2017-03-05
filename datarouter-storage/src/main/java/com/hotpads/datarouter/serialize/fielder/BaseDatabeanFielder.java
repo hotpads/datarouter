@@ -28,6 +28,9 @@ implements DatabeanFielder<PK,D>{
 	private final Fielder<PK> primaryKeyFielder;
 	private final StringDatabeanCodec stringDatabeanCodec;
 
+	protected static final MySqlCharacterSet DEFAULT_CHARACTER_SET = MySqlCharacterSet.utf8;
+	protected static final MySqlCollation DEFAULT_COLLATION = MySqlCollation.utf8_bin;
+
 	protected BaseDatabeanFielder(Class<? extends Fielder<PK>> primaryKeyFielderClass){
 		this.primaryKeyFielder = ReflectionTool.create(primaryKeyFielderClass);
 		this.primaryKeyFielderClass = primaryKeyFielderClass;
@@ -54,7 +57,7 @@ implements DatabeanFielder<PK,D>{
 	}
 
 	@Override
-	public Class<? extends ScatteringPrefix> getScatteringPrefixClass() {
+	public Class<? extends ScatteringPrefix> getScatteringPrefixClass(){
 		return EmptyScatteringPrefix.class;
 	}
 
@@ -88,12 +91,12 @@ implements DatabeanFielder<PK,D>{
 
 	@Override
 	public MySqlCollation getCollation(){
-		return MySqlCollation.utf8_bin;
+		return DEFAULT_COLLATION;
 	}
 
 	@Override
 	public MySqlCharacterSet getCharacterSet(){
-		return MySqlCharacterSet.utf8;
+		return DEFAULT_CHARACTER_SET;
 	}
 
 	@Override

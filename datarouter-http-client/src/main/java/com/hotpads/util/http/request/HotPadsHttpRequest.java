@@ -29,13 +29,14 @@ import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.cookie.BasicClientCookie;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.Args;
 import org.apache.http.util.EntityUtils;
 
 import com.hotpads.util.http.client.HotPadsHttpClientConfig;
 
-public class HotPadsHttpRequest {
+public class HotPadsHttpRequest{
 
 	private static final String CONTENT_TYPE = "Content-Type";
 
@@ -51,8 +52,9 @@ public class HotPadsHttpRequest {
 	private Map<String, String> postParams;
 	private HotPadsHttpClientConfig config;
 	private HttpHost proxy;
+	private final List<BasicClientCookie> cookies;
 
-	public enum HttpRequestMethod {
+	public enum HttpRequestMethod{
 		DELETE, GET, HEAD, PATCH, POST, PUT
 	}
 
@@ -60,15 +62,15 @@ public class HotPadsHttpRequest {
 	 * Expects query string parameters to already be UTF-8 encoded. See AdvancedStringTool.makeUrlParameters().
 	 * URL fragment is stripped from URL when sent to server.
 	 */
-	public HotPadsHttpRequest(HttpRequestMethod method, final String url, boolean retrySafe) {
+	public HotPadsHttpRequest(HttpRequestMethod method, final String url, boolean retrySafe){
 		Args.notBlank(url, "request url");
 		Args.notNull(method, "http method");
 
 		String fragment;
 		int fragmentIndex = url.indexOf('#');
-		if (fragmentIndex > 0 && fragmentIndex < url.length() - 1) {
+		if(fragmentIndex > 0 && fragmentIndex < url.length() - 1){
 			fragment = url.substring(fragmentIndex + 1);
-		} else {
+		}else{
 			fragmentIndex = url.length();
 			fragment = "";
 		}
@@ -76,10 +78,10 @@ public class HotPadsHttpRequest {
 
 		Map<String, String> queryParams;
 		int queryIndex = path.indexOf("?");
-		if (queryIndex > 0) {
+		if(queryIndex > 0){
 			queryParams = extractQueryParams(path.substring(queryIndex + 1));
 			path = path.substring(0, queryIndex);
-		} else {
+		}else{
 			queryParams = new LinkedHashMap<>();
 		}
 		this.method = method;
@@ -89,35 +91,36 @@ public class HotPadsHttpRequest {
 		this.headers = new HashMap<>();
 		this.queryParams = queryParams;
 		this.postParams = new HashMap<>();
+		this.cookies = new ArrayList<>();
 	}
 
-	private Map<String, String> extractQueryParams(String queryString) {
+	private Map<String,String> extractQueryParams(String queryString){
 		Map<String, String> queryParams = new LinkedHashMap<>();
 		String[] params = queryString.split("&");
-		for (String param : params) {
+		for(String param : params){
 			String[] parts = param.split("=", 2);
 			String part = urlDecode(parts[0]);
-			if (parts.length == 1) {
+			if(parts.length == 1){
 				queryParams.put(part, null);
-			} else if (parts.length == 2) {
+			}else if(parts.length == 2){
 				queryParams.put(part, urlDecode(parts[1]));
 			}
 		}
 		return queryParams;
 	}
 
-	public HttpRequestBase getRequest() {
+	public HttpRequestBase getRequest(){
 		String url = getUrl();
-		HttpRequestBase request = getRequest(method, url);
-		if (!headers.isEmpty()) {
-			for (Map.Entry<String, String> header : headers.entrySet()) {
+		HttpRequestBase request = getRequest(url);
+		if(!headers.isEmpty()){
+			for(Map.Entry<String,String> header : headers.entrySet()){
 				request.addHeader(header.getKey(), header.getValue());
 			}
 		}
-		if (entity != null && canHaveEntity()) {
+		if(entity != null && canHaveEntity()){
 			((HttpEntityEnclosingRequest) request).setEntity(entity);
 		}
-		if (timeoutMs != null || proxy != null) {
+		if(timeoutMs != null || proxy != null){
 			Builder builder = RequestConfig.custom();
 			if(timeoutMs != null){
 				builder.setConnectTimeout(timeoutMs).setConnectionRequestTimeout(timeoutMs).setSocketTimeout(timeoutMs);
@@ -132,8 +135,8 @@ public class HotPadsHttpRequest {
 		return request;
 	}
 
-	private HttpRequestBase getRequest(HttpRequestMethod method, String url) {
-		switch (method) {
+	private HttpRequestBase getRequest(String url){
+		switch(method){
 		case DELETE:
 			return new HttpDelete(url);
 		case GET:
@@ -151,20 +154,20 @@ public class HotPadsHttpRequest {
 		}
 	}
 
-	public String getUrl() {
+	public String getUrl(){
 		return path + (queryParams.isEmpty() ? "" : getQueryString());
 	}
 
-	public HttpRequestMethod getMethod() {
+	public HttpRequestMethod getMethod(){
 		return method;
 	}
 
-	public String getUrlFragment() {
+	public String getUrlFragment(){
 		return fragment;
 	}
 
 	/** Entities only exist in HttpPut, HttpPatch, HttpPost */
-	public HttpEntity getEntity() {
+	public HttpEntity getEntity(){
 		return entity;
 	}
 
@@ -178,63 +181,69 @@ public class HotPadsHttpRequest {
 	}
 
 	/** Entities only exist in HttpPut, HttpPatch, HttpPost */
-	public HotPadsHttpRequest setEntity(String entity, ContentType contentType) {
+	public HotPadsHttpRequest setEntity(String entity, ContentType contentType){
 		this.entity = new StringEntity(entity, contentType);
 		this.setContentType(contentType);
 		return this;
 	}
 
 	/** Entities only exist in HttpPut, HttpPatch, HttpPost */
-	public HotPadsHttpRequest setEntity(Map<String, String> entity) {
+	public HotPadsHttpRequest setEntity(Map<String,String> entity){
 		this.entity = new UrlEncodedFormEntity(urlEncodeFromMap(entity), StandardCharsets.UTF_8);
 		return this;
 	}
 
-	public HotPadsHttpRequest setEntity(HttpEntity httpEntity) {
+	public HotPadsHttpRequest setEntity(HttpEntity httpEntity){
 		this.entity = httpEntity;
 		return this;
 	}
 
-	public HotPadsHttpRequest addHeaders(Map<String, String> headers) {
+	public HotPadsHttpRequest addHeaders(Map<String,String> headers){
 		return addEntriesToMap(this.headers, headers);
 	}
 
-	public HotPadsHttpRequest setContentType(ContentType contentType) {
-		if (contentType != null) {
+	public HotPadsHttpRequest setContentType(ContentType contentType){
+		if(contentType != null){
 			headers.put(CONTENT_TYPE, contentType.getMimeType());
 		}
 		return this;
 	}
 
 	/** Post params are signed anded to the entity upon request execution. */
-	public HotPadsHttpRequest addPostParams(HttpRequestConfig config) {
+	public HotPadsHttpRequest addPostParams(HttpRequestConfig config){
 		return config == null ? this : addPostParams(config.getParameterMap());
 	}
 
 	/** Post params are signed anded to the entity upon request execution. */
-	public HotPadsHttpRequest addPostParams(Map<String, String> params) {
+	public HotPadsHttpRequest addPostParams(Map<String,String> params){
 		return addEntriesToMap(this.postParams, params);
 	}
 
 	/** Entities only exist in HttpPut, HttpPatch, HttpPost */
-	public boolean canHaveEntity() {
+	public boolean canHaveEntity(){
 		return method == HttpRequestMethod.PATCH || method == HttpRequestMethod.POST || method == HttpRequestMethod.PUT;
 	}
 
 	/** This method expects parameters to not be URL encoded. Params are UTF-8 encoded upon request execution. */
-	public HotPadsHttpRequest addGetParams(Map<String, String> params) {
+	public HotPadsHttpRequest addGetParam(String name, String value){
+		queryParams.put(name, value);
+		return this;
+	}
+
+	/** This method expects parameters to not be URL encoded. Params are UTF-8 encoded upon request execution. */
+	public HotPadsHttpRequest addGetParams(Map<String,String> params){
 		return addEntriesToMap(this.queryParams, params);
 	}
 
-	public HotPadsHttpRequest addGetParams(HttpRequestConfig config) {
+	public HotPadsHttpRequest addGetParams(HttpRequestConfig config){
 		return config == null ? this : addGetParams(config.getParameterMap());
 	}
 
-	private HotPadsHttpRequest addEntriesToMap(Map<String, String> map, Map<String, String> entriesToAdd) {
-		if (entriesToAdd != null) {
-			for (Map.Entry<String, String> entry : entriesToAdd.entrySet()) {
+	private HotPadsHttpRequest addEntriesToMap(Map<String,String> map, Map<String,String> entriesToAdd){
+		if(entriesToAdd != null){
+			for(Map.Entry<String,String> entry : entriesToAdd.entrySet()){
 				String key = entry.getKey();
-				if (key == null || key.trim().isEmpty()) {
+				if(key == null || key.trim().isEmpty()){
 					continue;
 				}
 				map.put(key.trim(), entry.getValue());
@@ -251,45 +260,50 @@ public class HotPadsHttpRequest {
 		return this;
 	}
 
+	public HotPadsHttpRequest addBearerAuthorizationHeader(String accessToken){
+		headers.put("Authorization", "Bearer " + accessToken);
+		return this;
+	}
+
 	// from AdvancedStringTool
-	private String urlEncode(String unencoded) {
-		try {
+	private String urlEncode(String unencoded){
+		try{
 			return unencoded == null ? "" : URLEncoder.encode(unencoded, "UTF-8");
-		} catch (UnsupportedEncodingException e) {
+		}catch(UnsupportedEncodingException e){
 			// unthinkable
 			throw new RuntimeException("UTF-8 is unsupported", e);
 		}
 	}
 
-	private String urlDecode(String encoded) {
-		try {
+	private String urlDecode(String encoded){
+		try{
 			return encoded == null ? "" : URLDecoder.decode(encoded, "UTF-8");
-		} catch (UnsupportedEncodingException e) {
+		}catch(UnsupportedEncodingException e){
 			// unthinkable
 			throw new RuntimeException("UTF-8 is unsupported", e);
 		}
 	}
 
-	private String getQueryString() {
+	private String getQueryString(){
 		StringBuilder query = new StringBuilder();
-		for (Entry<String, String> param : queryParams.entrySet()) {
+		for(Entry<String,String> param : queryParams.entrySet()){
 			String key = param.getKey();
-			if (key == null || key.trim().isEmpty()) {
+			if(key == null || key.trim().isEmpty()){
 				continue;
 			}
 			query.append('&').append(urlEncode(key.trim()));
 			String value = param.getValue();
-			if (value != null && !value.isEmpty()) {
+			if(value != null && !value.isEmpty()){
 				query.append('=').append(urlEncode(value));
 			}
 		}
 		return "?" + query.substring(1);
 	}
 
-	private List<NameValuePair> urlEncodeFromMap(Map<String, String> data) {
+	private List<NameValuePair> urlEncodeFromMap(Map<String,String> data){
 		List<NameValuePair> params = new ArrayList<>();
-		if (data != null && !data.isEmpty()) {
-			for (Entry<String, String> entry : data.entrySet()) {
+		if(data != null && !data.isEmpty()){
+			for(Entry<String,String> entry : data.entrySet()){
 				params.add(new BasicNameValuePair(entry.getKey(), entry.getValue()));
 			}
 		}
@@ -308,47 +322,56 @@ public class HotPadsHttpRequest {
 		return this;
 	}
 
-	public Map<String, String> getHeaders() {
+	public Map<String,String> getHeaders(){
 		return headers;
 	}
 
-	public Map<String, String> getGetParams() {
+	public Map<String,String> getGetParams(){
 		return queryParams;
 	}
 
-	public Map<String, String> getPostParams() {
+	public Map<String,String> getPostParams(){
 		return postParams;
 	}
 
-	public boolean getRetrySafe() {
+	public boolean getRetrySafe(){
 		return retrySafe;
 	}
 
-	public Integer getTimeoutMs() {
+	public Integer getTimeoutMs(){
 		return timeoutMs;
 	}
 
-	public HotPadsHttpRequest setTimeoutMs(Integer timeoutMs) {
+	public HotPadsHttpRequest setTimeoutMs(Integer timeoutMs){
 		this.timeoutMs = timeoutMs;
 		return this;
 	}
 
-	public Long getFutureTimeoutMs() {
+	public Long getFutureTimeoutMs(){
 		return futureTimeoutMs;
 	}
 
-	public HotPadsHttpRequest setFutureTimeoutMs(Long futureTimeoutMs) {
+	public HotPadsHttpRequest setFutureTimeoutMs(Long futureTimeoutMs){
 		this.futureTimeoutMs = futureTimeoutMs;
 		return this;
 	}
 
-	public HttpHost getProxy() {
+	public HttpHost getProxy(){
 		return proxy;
 	}
 
-	public HotPadsHttpRequest setProxy(HttpHost proxy) {
+	public HotPadsHttpRequest setProxy(HttpHost proxy){
 		this.proxy = proxy;
 		return this;
+	}
+
+	public HotPadsHttpRequest addCookie(BasicClientCookie cookie){
+		cookies.add(cookie);
+		return this;
+	}
+
+	public List<BasicClientCookie> getCookies(){
+		return cookies;
 	}
 
 }

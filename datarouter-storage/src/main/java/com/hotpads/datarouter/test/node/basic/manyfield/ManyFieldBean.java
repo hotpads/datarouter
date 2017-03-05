@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
 
-
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSet;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCollation;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
@@ -41,7 +40,6 @@ import com.hotpads.datarouter.storage.field.imp.positive.VarIntField;
 import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrObjectTool;
 import com.hotpads.util.core.collections.arrays.LongArray;
-
 
 public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 
@@ -81,7 +79,6 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 	private String testSchemaUpdateField;
 	private Long incrementField;
 
-
 	public static class F{
 		public static final String
 			KEY_NAME = "key",
@@ -112,31 +109,81 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 	}
 
 	public boolean equalsAllPersistentFields(ManyFieldBean that){
-		if(DrObjectTool.notEquals(key, that.key)){ return false; }
-		if(DrObjectTool.notEquals(booleanField, that.booleanField)){ return false; }
-		if(DrObjectTool.notEquals(byteField, that.byteField)){ return false; }
-		if(DrObjectTool.notEquals(shortField, that.shortField)){ return false; }
-		if(DrObjectTool.notEquals(integerField, that.integerField)){ return false; }
-		if(DrObjectTool.notEquals(longField, that.longField)){ return false; }
-		if(DrObjectTool.notEquals(floatField, that.floatField)){ return false; }
-		if(DrObjectTool.notEquals(doubleField, that.doubleField)){ return false; }
-		if(DrObjectTool.notEquals(longDateField, that.longDateField)){ return false; }
-		if(DrObjectTool.notEquals(characterField, that.characterField)){ return false; }
-		if(DrObjectTool.notEquals(stringField, that.stringField)){ return false; }
-		if(DrObjectTool.notEquals(varIntField, that.varIntField)){ return false; }
-		if(DrObjectTool.notEquals(intEnumField, that.intEnumField)){ return false; }
-		if(DrObjectTool.notEquals(varIntEnumField, that.varIntEnumField)){ return false; }
-		if(DrObjectTool.notEquals(stringEnumField, that.stringEnumField)){ return false; }
-		if(DrObjectTool.notEquals(stringByteField, that.stringByteField)){ return false; }
-		if(DrObjectTool.notEquals(data, that.data)){ return false; }
-		if(DrObjectTool.notEquals(longArrayField, that.longArrayField)){ return false; }
-		if(DrObjectTool.notEquals(booleanArrayField, that.booleanArrayField)){ return false; }
-		if(DrObjectTool.notEquals(integerArrayField, that.integerArrayField)){ return false; }
-		if(DrObjectTool.notEquals(byteArrayField, that.byteArrayField)){ return false; }
-		if(DrObjectTool.notEquals(doubleArrayField, that.doubleArrayField)){ return false; }
-		if(DrObjectTool.notEquals(delimitedStringArrayField, that.delimitedStringArrayField)){ return false; }
-		if(DrObjectTool.notEquals(testSchemaUpdateField, that.testSchemaUpdateField)){ return false; }
-		if(DrObjectTool.notEquals(incrementField, that.incrementField)){ return false; }
+		if(DrObjectTool.notEquals(key, that.key)){
+			return false;
+		}
+		if(DrObjectTool.notEquals(booleanField, that.booleanField)){
+			return false;
+		}
+		if(DrObjectTool.notEquals(byteField, that.byteField)){
+			return false;
+		}
+		if(DrObjectTool.notEquals(shortField, that.shortField)){
+			return false;
+		}
+		if(DrObjectTool.notEquals(integerField, that.integerField)){
+			return false;
+		}
+		if(DrObjectTool.notEquals(longField, that.longField)){
+			return false;
+		}
+		if(DrObjectTool.notEquals(floatField, that.floatField)){
+			return false;
+		}
+		if(DrObjectTool.notEquals(doubleField, that.doubleField)){
+			return false;
+		}
+		if(DrObjectTool.notEquals(longDateField, that.longDateField)){
+			return false;
+		}
+		if(DrObjectTool.notEquals(characterField, that.characterField)){
+			return false;
+		}
+		if(DrObjectTool.notEquals(stringField, that.stringField)){
+			return false;
+		}
+		if(DrObjectTool.notEquals(varIntField, that.varIntField)){
+			return false;
+		}
+		if(DrObjectTool.notEquals(intEnumField, that.intEnumField)){
+			return false;
+		}
+		if(DrObjectTool.notEquals(varIntEnumField, that.varIntEnumField)){
+			return false;
+		}
+		if(DrObjectTool.notEquals(stringEnumField, that.stringEnumField)){
+			return false;
+		}
+		if(DrObjectTool.notEquals(stringByteField, that.stringByteField)){
+			return false;
+		}
+		if(DrObjectTool.notEquals(data, that.data)){
+			return false;
+		}
+		if(DrObjectTool.notEquals(longArrayField, that.longArrayField)){
+			return false;
+		}
+		if(DrObjectTool.notEquals(booleanArrayField, that.booleanArrayField)){
+			return false;
+		}
+		if(DrObjectTool.notEquals(integerArrayField, that.integerArrayField)){
+			return false;
+		}
+		if(DrObjectTool.notEquals(byteArrayField, that.byteArrayField)){
+			return false;
+		}
+		if(DrObjectTool.notEquals(doubleArrayField, that.doubleArrayField)){
+			return false;
+		}
+		if(DrObjectTool.notEquals(delimitedStringArrayField, that.delimitedStringArrayField)){
+			return false;
+		}
+		if(DrObjectTool.notEquals(testSchemaUpdateField, that.testSchemaUpdateField)){
+			return false;
+		}
+		if(DrObjectTool.notEquals(incrementField, that.incrementField)){
+			return false;
+		}
 		return true;
 	}
 
@@ -161,13 +208,14 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 			fields.add(new VarIntField(F.varIntField, d.varIntField));
 			fields.add(new IntegerEnumField<>(TestEnum.class, F.intEnumField, d.intEnumField));
 			fields.add(new VarIntEnumField<>(TestEnum.class, F.varIntEnumField, d.varIntEnumField));
-			fields.add(new StringEnumField<>(TestEnum.class, F.stringEnumField, d.stringEnumField, LEN_STRING_ENUM_FIELD));
+			fields.add(new StringEnumField<>(TestEnum.class, F.stringEnumField, d.stringEnumField,
+					LEN_STRING_ENUM_FIELD));
 			fields.add(new ByteArrayField(F.stringByteField, d.stringByteField, MySqlColumnType.MAX_LENGTH_LONGBLOB));
 			fields.add(new ByteArrayField(F.data, d.data, MySqlColumnType.MAX_LENGTH_LONGBLOB));
 			fields.add(new UInt63ArrayField(F.longArrayField, d.longArrayField));
 			fields.add(new BooleanArrayField(F.booleanArrayField, d.booleanArrayField));
 			fields.add(new IntegerArrayField(F.integerArrayField, d.integerArrayField));
-			fields.add(new ByteArrayField(F.byteArrayField, d.byteArrayField,MySqlColumnType.MAX_LENGTH_VARBINARY));
+			fields.add(new ByteArrayField(F.byteArrayField, d.byteArrayField, MySqlColumnType.MAX_LENGTH_VARBINARY));
 			fields.add(new DoubleArrayField(F.doubleArrayField, d.doubleArrayField));
 			fields.add(new DelimitedStringArrayField(F.delimitedStringArrayField, ",", d.delimitedStringArrayField));
 			fields.add(new StringField(F.testSchemaUpdateField, d.testSchemaUpdateField,
@@ -200,22 +248,20 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 		}
 	}
 
-
 	/***************************** constructor **************************************/
 
-	public ManyFieldBean(){//no-arg and public
-		this.key = new ManyFieldBeanKey();//let the key generate a random value
+	public ManyFieldBean(){// no-arg and public
+		this.key = new ManyFieldBeanKey();// let the key generate a random value
 	}
 
 	public ManyFieldBean(Long id){
 		this.key = new ManyFieldBeanKey(id);
 	}
 
-
 	/************************* databean *********************************************/
 
 	@Override
-	public Class<ManyFieldBeanKey> getKeyClass() {
+	public Class<ManyFieldBeanKey> getKeyClass(){
 		return ManyFieldBeanKey.class;
 	};
 
@@ -224,11 +270,10 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 		return key;
 	}
 
-//	@Override
-//	public String getKeyFieldName(){
-//		//same as default, so not necssary to override
-//	}
-
+	// @Override
+	// public String getKeyFieldName(){
+	// //same as default, so not necssary to override
+	// }
 
 	/***************************** static methods *****************************/
 
@@ -242,36 +287,44 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 		return outs;
 	}
 
-
 	/***************************** methods ************************************/
 
 	public List<Long> appendToLongArrayField(long val){
-		if(longArrayField==null){ longArrayField = new LongArray(); }
+		if(longArrayField == null){
+			longArrayField = new LongArray();
+		}
 		longArrayField.add(val);
 		return longArrayField;
 	}
 
 	public List<Boolean> appendToBooleanArrayField(Boolean val){
-		if(booleanArrayField==null){ booleanArrayField = new ArrayList<>(); }
+		if(booleanArrayField == null){
+			booleanArrayField = new ArrayList<>();
+		}
 		booleanArrayField.add(val);
 		return booleanArrayField;
 	}
 
 	public List<Double> appendToDoubleArrayField(Double val){
-		if(doubleArrayField==null){ doubleArrayField = new ArrayList<>(); }
+		if(doubleArrayField == null){
+			doubleArrayField = new ArrayList<>();
+		}
 		doubleArrayField.add(val);
 		return doubleArrayField;
 	}
 
 	public List<Integer> appendToIntegerArrayField(Integer val){
-		if(integerArrayField==null){ integerArrayField = new ArrayList<>(); }
+		if(integerArrayField == null){
+			integerArrayField = new ArrayList<>();
+		}
 		integerArrayField.add(val);
 		return integerArrayField;
 	}
 
-
 	public List<String> appendToDelimitedStringArrayField(String val){
-		if(delimitedStringArrayField==null){ delimitedStringArrayField = new ArrayList<>(); }
+		if(delimitedStringArrayField == null){
+			delimitedStringArrayField = new ArrayList<>();
+		}
 		delimitedStringArrayField.add(val);
 		return delimitedStringArrayField;
 	}
@@ -370,11 +423,9 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 		this.stringByteField = stringByteField;
 	}
 
-
 	public List<Long> getLongArrayField(){
 		return longArrayField;
 	}
-
 
 	public void setLongArrayField(List<Long> longArrayField){
 		this.longArrayField = longArrayField;
@@ -384,7 +435,6 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 		return booleanArrayField;
 	}
 
-
 	public void setBooleanArrayField(List<Boolean> booleanArrayField){
 		this.booleanArrayField = booleanArrayField;
 	}
@@ -392,7 +442,6 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 	public List<Double> getDoubleArrayField(){
 		return doubleArrayField;
 	}
-
 
 	public void setDoubleArrayField(List<Double> doubleArrayField){
 		this.doubleArrayField = doubleArrayField;
@@ -402,7 +451,6 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 		return integerArrayField;
 	}
 
-
 	public void setIntegerArrayField(List<Integer> integerArrayField){
 		this.integerArrayField = integerArrayField;
 	}
@@ -411,11 +459,9 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 		return byteArrayField;
 	}
 
-
 	public void setByteArrayField(byte[] byteArrayField){
 		this.byteArrayField = byteArrayField;
 	}
-
 
 	public Date getLongDateField(){
 		return longDateField;
@@ -441,31 +487,25 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 		this.intEnumField = intEnumField;
 	}
 
-
 	public TestEnum getVarIntEnumField(){
 		return varIntEnumField;
 	}
-
 
 	public void setVarIntEnumField(TestEnum varIntEnumField){
 		this.varIntEnumField = varIntEnumField;
 	}
 
-
 	public TestEnum getStringEnumField(){
 		return stringEnumField;
 	}
-
 
 	public void setStringEnumField(TestEnum stringEnumField){
 		this.stringEnumField = stringEnumField;
 	}
 
-
 	public Boolean getBooleanField(){
 		return booleanField;
 	}
-
 
 	public void setBooleanField(Boolean booleanField){
 		this.booleanField = booleanField;

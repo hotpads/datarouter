@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<groupId>com.hotpads</groupId>
+	<artifactId>datarouter</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<modelVersion>4.0.0</modelVersion>
+	<packaging>pom</packaging>
+	<modules>
+		<module>datarouter-bigtable</module>
+		<module>datarouter-core</module>
+		<module>datarouter-example</module>
+		<module>datarouter-hbase</module>
+		<module>datarouter-http-client</module>
+		<module>datarouter-jdbc</module>
+		<module>datarouter-job</module>
+		<module>datarouter-kinesis</module>
+		<module>datarouter-logging</module>
+		<module>datarouter-memcached</module>
+		<module>datarouter-notification</module>
+		<module>datarouter-redis</module>
+		<module>datarouter-sqs</module>
+		<module>datarouter-storage</module>
+		<module>datarouter-web</module>
+		<module>datarouter-websocket</module>
+		<module>datarouter-util</module>
+	</modules>
+</project>

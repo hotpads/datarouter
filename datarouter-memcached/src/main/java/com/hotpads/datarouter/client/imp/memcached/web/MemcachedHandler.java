@@ -8,14 +8,14 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import com.hotpads.datarouter.browse.RoutersHandler;
+import com.hotpads.datarouter.browse.dto.RouterParams;
 import com.hotpads.datarouter.client.imp.memcached.client.MemcachedClientImp;
 import com.hotpads.datarouter.routing.Datarouter;
-import com.hotpads.datarouter.routing.RouterParams;
 import com.hotpads.handler.BaseHandler;
-import com.hotpads.handler.admin.RoutersHandler;
 import com.hotpads.handler.mav.Mav;
 
-public class MemcachedHandler extends BaseHandler {
+public class MemcachedHandler extends BaseHandler{
 
 	@Inject
 	private Datarouter datarouter;
@@ -42,22 +42,22 @@ public class MemcachedHandler extends BaseHandler {
 	}
 
 	private static final List<String> NEEDS_CLIENT = new ArrayList<>();
-	static {
+	static{
 		NEEDS_CLIENT.add(RoutersHandler.ACTION_inspectClient);
 
 	}
 
 	private static final List<String> NEEDS_ROUTER = new ArrayList<>();
-	static {
+	static{
 		NEEDS_ROUTER.addAll(NEEDS_CLIENT);
 	}
 
 	private static final List<String> NEEDS_NODE = new ArrayList<>();
-	static {
+	static{
 	}
 
 	private static final HashMap<String, List<String>> MEMCHACHED_NEEDS = new HashMap<>();
-	static {
+	static{
 		MEMCHACHED_NEEDS.put(RouterParams.NEEDS_CLIENT, NEEDS_CLIENT);
 		MEMCHACHED_NEEDS.put(RouterParams.NEEDS_ROUTER, NEEDS_ROUTER);
 		MEMCHACHED_NEEDS.put(RouterParams.NEEDS_NODE, NEEDS_NODE);

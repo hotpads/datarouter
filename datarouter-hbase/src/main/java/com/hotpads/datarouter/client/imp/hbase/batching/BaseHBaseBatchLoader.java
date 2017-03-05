@@ -56,7 +56,7 @@ extends BaseBatchLoader<T>{
 	public BaseHBaseBatchLoader<PK,D,F,T> call(){
 		//these should handle null scattering prefixes and null pks
 		ByteRange startBytes = new ByteRange(node.getKeyBytesWithScatteringPrefix(scatteringPrefix, range.getStart()));
-		boolean incrementStartBytes = !range.getStartInclusive();
+		boolean incrementStartBytes = !range.getStartInclusive() && range.getStart() != null;
 		if(incrementStartBytes){
 			startBytes = new ByteRange(startBytes.copyToArrayNewArrayAndIncrement());
 		}
@@ -113,10 +113,10 @@ extends BaseBatchLoader<T>{
 	}
 
 	private boolean differentScatteringPrefix(Result row){
-		if (scatteringPrefixBytes == null || row == null){
+		if(scatteringPrefixBytes == null || row == null){
 			return false;
 		}
-		return ! DrByteTool.equals(scatteringPrefixBytes, 0, scatteringPrefixBytes.length,
+		return !DrByteTool.equals(scatteringPrefixBytes, 0, scatteringPrefixBytes.length,
 				row.getRow(), 0, scatteringPrefixBytes.length);
 	}
 }

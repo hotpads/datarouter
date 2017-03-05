@@ -2,9 +2,9 @@ package com.hotpads.datarouter.storage.field.imp.enums;
 
 import com.hotpads.datarouter.storage.field.BaseField;
 import com.hotpads.datarouter.storage.field.Field;
-import com.hotpads.datarouter.storage.field.enums.DatarouterEnumTool;
-import com.hotpads.datarouter.storage.field.enums.IntegerEnum;
 import com.hotpads.datarouter.util.core.DrStringTool;
+import com.hotpads.util.core.enums.DatarouterEnumTool;
+import com.hotpads.util.core.enums.IntegerEnum;
 import com.hotpads.util.core.number.VarInt;
 
 public class VarIntEnumField<E extends IntegerEnum<E>> extends BaseField<E>{
@@ -40,7 +40,7 @@ public class VarIntEnumField<E extends IntegerEnum<E>> extends BaseField<E>{
 
 	@Override
 	public String getStringEncodedValue(){
-		if(value==null){
+		if(value == null){
 			return null;
 		}
 		return value.getPersistentInteger().toString();
@@ -59,23 +59,23 @@ public class VarIntEnumField<E extends IntegerEnum<E>> extends BaseField<E>{
 
 	@Override
 	public byte[] getBytes(){
-		return value==null?null:new VarInt(value.getPersistentInteger()).getBytes();
+		return value == null ? null : new VarInt(value.getPersistentInteger()).getBytes();
 	}
 
 	@Override
 	public int numBytesWithSeparator(byte[] bytes, int offset){
-		return new VarInt(bytes, offset).getNumBytes();
+		return VarInt.fromByteArray(bytes, offset).getNumBytes();
 	}
 
 	@Override
 	public E fromBytesButDoNotSet(byte[] bytes, int offset){
-		Integer intValue = new VarInt(bytes, offset).getValue();
+		Integer intValue = VarInt.fromByteArray(bytes, offset).getValue();
 		return key.getSampleValue().fromPersistentInteger(intValue);
 	}
 
 	@Override
 	public String getValueString(){
-		if(value==null){
+		if(value == null){
 			return "";//hmm - should this just return null?
 		}
 		return String.valueOf(value.getPersistentInteger());

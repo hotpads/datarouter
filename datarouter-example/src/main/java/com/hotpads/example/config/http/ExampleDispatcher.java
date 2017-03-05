@@ -3,7 +3,7 @@ package com.hotpads.example.config.http;
 import com.hotpads.datarouter.inject.DatarouterInjector;
 import com.hotpads.example.SystemApiHandler;
 import com.hotpads.example.handler.DatarouterExampleDefaultHandler;
-import com.hotpads.handler.BaseDispatcher;
+import com.hotpads.handler.dispatcher.BaseDispatcher;
 
 public class ExampleDispatcher extends BaseDispatcher{
 

@@ -19,7 +19,6 @@ import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.multi.Lookup;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.util.core.iterable.BatchingIterable;
 
@@ -31,6 +30,7 @@ extends BaseJdbcOp<List<D>>{
 	private static final Logger logger = LoggerFactory.getLogger(JdbcLookupOp.class);
 
 	private static final int LARGE_LOOKUP_ALERT_THRESHOLD = 1000;
+	private static final String ALERT_PREFIX = "JDBC lookup exceeded alert threshold";
 
 	private final JdbcReaderNode<PK,D,F> node;
 	private final JdbcFieldCodecFactory fieldCodecFactory;
@@ -55,15 +55,15 @@ extends BaseJdbcOp<List<D>>{
 		}
 		Integer batchSize = config.getLimit();
 		int configuredBatchSize = config.getIterateBatchSize();
-		if (batchSize == null || batchSize > configuredBatchSize){
+		if(batchSize == null || batchSize > configuredBatchSize){
 			batchSize = configuredBatchSize;
 		}
 		//TODO undefined behavior on trailing nulls
 		List<D> result = new ArrayList<>();
-		for (List<? extends Lookup<PK>> batch : new BatchingIterable<>(lookups, batchSize)){
+		for(List<? extends Lookup<PK>> batch : new BatchingIterable<>(lookups, batchSize)){
 			//for performance reasons, pass null for orderBy and sort in java if desired
 			String sql = SqlBuilder.getWithPrefixes(fieldCodecFactory, config, node.getTableName(), node.getFieldInfo()
-					.getFields(), batch, wildcardLastField, null);
+					.getFields(), batch, wildcardLastField, null, node.getFieldInfo());
 			result.addAll(JdbcTool.selectDatabeans(fieldCodecFactory, getConnection(node.getClientId().getName()), node
 					.getFieldInfo(), sql));
 			if(config.getLimit() != null && result.size() >= config.getLimit()){
@@ -71,10 +71,15 @@ extends BaseJdbcOp<List<D>>{
 			}
 		}
 		if(result.size() > LARGE_LOOKUP_ALERT_THRESHOLD){
-			logger.warn("JDBC lookup exceeded alert threshold : " + result.size() + ">" + LARGE_LOOKUP_ALERT_THRESHOLD,
+			logger.warn(ALERT_PREFIX + " : " + result.size() + ">" + LARGE_LOOKUP_ALERT_THRESHOLD,
 					new Exception());
-			Counters.inc("JDBC lookup exceeded alert threshold");
-			DRCounters.incNode("JDBC lookup exceeded alert threshold", node.getName(), 1);
+			Counters.inc(ALERT_PREFIX);
+			lookups.stream()
+					.map(Object::getClass)
+					.distinct()
+					.map(Class::getSimpleName)
+					.map((ALERT_PREFIX + " ")::concat)
+					.forEach(Counters::inc);
 		}
 		if(config.getLimit() != null && result.size() > config.getLimit()){
 			return new ArrayList<>(result.subList(0, config.getLimit()));

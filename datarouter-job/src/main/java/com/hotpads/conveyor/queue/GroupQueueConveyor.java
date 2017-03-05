@@ -3,14 +3,11 @@ package com.hotpads.conveyor.queue;
 import java.time.Duration;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.hotpads.conveyor.Conveyor;
+import com.hotpads.conveyor.BaseConveyor;
 import com.hotpads.conveyor.ConveyorCounters;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.op.raw.GroupQueueStorage;
-import com.hotpads.datarouter.node.op.raw.MapStorage;
+import com.hotpads.datarouter.node.op.raw.write.StorageWriter;
 import com.hotpads.datarouter.setting.Setting;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
@@ -19,56 +16,35 @@ import com.hotpads.datarouter.storage.queue.GroupQueueMessage;
 public class GroupQueueConveyor<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>>
-implements Runnable, Conveyor{
-	private static final Logger logger = LoggerFactory.getLogger(GroupQueueConveyor.class);
+extends BaseConveyor<PK,D>{
 
 	private static final Duration PEEK_TIMEOUT = Duration.ofSeconds(5);
 	private static final Config PEEK_CONFIG = new Config().setTimeoutMs(PEEK_TIMEOUT.toMillis());
 
-	private final String name;
-	private final Setting<Boolean> shouldRunSetting;
 	private final GroupQueueStorage<PK,D> groupQueueStorage;
-	private final MapStorage<PK,D> mapStorage;
+	private final StorageWriter<PK,D> storageWriter;
 
 
 	public GroupQueueConveyor(String name, Setting<Boolean> shouldRunSetting, GroupQueueStorage<PK,D> groupQueueStorage,
-			MapStorage<PK,D> mapStorage){
-		this.name = name;
-		this.shouldRunSetting = shouldRunSetting;
+			StorageWriter<PK,D> storageWriter){
+		super(name, shouldRunSetting);
 		this.groupQueueStorage = groupQueueStorage;
-		this.mapStorage = mapStorage;
+		this.storageWriter = storageWriter;
 	}
 
 
 	@Override
-	public void run(){
-		try{
-			if(!shouldRun()){
-				return;
-			}
-			for(GroupQueueMessage<PK,D> message : groupQueueStorage.peekUntilEmpty(PEEK_CONFIG)){
-				List<D> databeans = message.getDatabeans();
-				mapStorage.putMulti(databeans, null);
-				ConveyorCounters.inc(this, "putMulti ops", 1);
-				ConveyorCounters.inc(this, "putMulti databeans", databeans.size());
-				groupQueueStorage.ack(message.getKey(), null);
-				ConveyorCounters.inc(this, "ack", 1);
-				if(!shouldRun()){
-					break;
-				}
-			}
-		}catch(Exception e){
-			logger.warn("swallowing exception so ScheduledExecutorService restarts this Runnable", e);
+	public ProcessBatchResult processBatch(){
+		GroupQueueMessage<PK,D> message = groupQueueStorage.peek(PEEK_CONFIG);
+		if(GroupQueueMessage.isEmpty(message)){
+			return new ProcessBatchResult(false);
 		}
-	}
-
-	@Override
-	public String getName(){
-		return name;
-	}
-
-	private boolean shouldRun(){
-		return !Thread.currentThread().isInterrupted() && shouldRunSetting.getValue();
+		List<D> databeans = message.getDatabeans();
+		storageWriter.putMulti(databeans, null);
+		ConveyorCounters.incPutMultiOpAndDatabeans(this, databeans.size());
+		groupQueueStorage.ack(message.getKey(), null);
+		ConveyorCounters.incAck(this);
+		return new ProcessBatchResult(true);
 	}
 
 }

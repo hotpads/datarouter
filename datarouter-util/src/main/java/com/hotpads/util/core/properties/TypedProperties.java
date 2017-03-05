@@ -20,7 +20,7 @@ public class TypedProperties{
 
 	public TypedProperties(String path){
 		Properties properties = DrPropertiesTool.parse(path);
-		if(properties!=null){
+		if(properties != null){
 			this.propertiesList = DrListTool.wrap(properties);
 		}
 	}
@@ -29,91 +29,85 @@ public class TypedProperties{
 	/********************* defaultable ******************************/
 
 	public String getString(String key, String def){
-		String v = getString(key);
-		return v==null?def:v;
+		String val = getString(key);
+		return val == null ? def : val;
+	}
+
+	public String getString(String key){
+		return DrPropertiesTool.getFirstOccurrence(propertiesList, key);
 	}
 
 	public Boolean getBoolean(String key, boolean def){
-		Boolean v = getBoolean(key);
-		return v==null?def:v;
+		Boolean val = getBoolean(key);
+		return val == null ? def : val;
 	}
 
-	public Short getShort(String key, short def){
-		Short v = getShort(key);
-		return v==null?def:v;
+	public Boolean getBoolean(String key){
+		String val = getString(key);
+		if(val == null){
+			return null;
+		}
+		return DrBooleanTool.isTrue(val);
 	}
 
 	public Integer getInteger(String key, int def){
-		Integer v = getInteger(key);
-		return v==null?def:v;
+		Integer val = getInteger(key);
+		return val == null ? def : val;
 	}
 
-	public Long getLong(String key, long def){
-		Long v = getLong(key);
-		return v==null?def:v;
-	}
-
-	public Float getFloat(String key, float def){
-		Float v = getFloat(key);
-		return v==null?def:v;
-	}
-
-	public Double getDouble(String key, double def){
-		Double v = getDouble(key);
-		return v==null?def:v;
+	public Integer getInteger(String key){
+		String val = getString(key);
+		if(val == null){
+			return null;
+		}
+		return Integer.valueOf(val);
 	}
 
 	/********************** typed ***********************************/
 
-	public Boolean getBoolean(String key){
-		String sVal = getString(key);
-		if(sVal==null){ return null; }
-		return DrBooleanTool.isTrue(sVal);
-	}
-
 	public Short getShort(String key){
-		String sVal = getString(key);
-		if(sVal==null){ return null; }
-		return Short.valueOf(sVal);
-	}
-
-	public Integer getInteger(String key){
-		String sVal = getString(key);
-		if(sVal==null){ return null; }
-		return Integer.valueOf(sVal);
+		String val = getString(key);
+		if(val == null){
+			return null;
+		}
+		return Short.valueOf(val);
 	}
 
 	public Long getLong(String key){
-		String sVal = getString(key);
-		if(sVal==null){ return null; }
-		return Long.valueOf(sVal);
+		String val = getString(key);
+		if(val == null){
+			return null;
+		}
+		return Long.valueOf(val);
 	}
 
 	public Float getFloat(String key){
-		String sVal = getString(key);
-		if(sVal==null){ return null; }
-		return Float.valueOf(sVal);
+		String val = getString(key);
+		if(val == null){
+			return null;
+		}
+		return Float.valueOf(val);
 	}
 
 	public Double getDouble(String key){
-		String sVal = getString(key);
-		if(sVal==null){ return null; }
-		return Double.valueOf(sVal);
+		String val = getString(key);
+		if(val == null){
+			return null;
+		}
+		return Double.valueOf(val);
 	}
 
 	/***************** required **********************************/
 
 	public String getRequiredString(String key){
-		String s = getString(key);
-		if(s==null){ throw new IllegalArgumentException("cannot find required String "+key); }
-		return s;
+		String str = getString(key);
+		if(str == null){
+			throw new IllegalArgumentException("cannot find required String " + key);
+		}
+		return str;
 	}
 
 	/****************** basic ************************************/
-
-	public String getString(String key){
-		return DrPropertiesTool.getFirstOccurrence(propertiesList, key);
-	}
 
 	public List<Properties> getUnmodifiablePropertiesList(){
 		return Collections.unmodifiableList(propertiesList);

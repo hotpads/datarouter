@@ -38,7 +38,7 @@ extends BasePrimitiveJdbcFieldCodec<Float,Field<Float>>{
 	@Override
 	public void setPreparedStatementValue(PreparedStatement ps, int parameterIndex){
 		try{
-			if(field.getValue()==null){
+			if(field.getValue() == null){
 				ps.setNull(parameterIndex, Types.FLOAT);
 			}else{
 				ps.setFloat(parameterIndex, field.getValue());
@@ -52,7 +52,7 @@ extends BasePrimitiveJdbcFieldCodec<Float,Field<Float>>{
 	public Float fromJdbcResultSetButDoNotSet(ResultSet rs){
 		try{
 			float value = rs.getFloat(field.getKey().getColumnName());
-			return rs.wasNull()?null:value;
+			return rs.wasNull() ? null : value;
 		}catch(SQLException e){
 			throw new DataAccessException(e);
 		}

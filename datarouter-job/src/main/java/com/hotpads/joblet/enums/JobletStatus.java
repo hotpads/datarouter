@@ -1,7 +1,7 @@
 package com.hotpads.joblet.enums;
 
-import com.hotpads.datarouter.storage.field.enums.DatarouterEnumTool;
-import com.hotpads.datarouter.storage.field.enums.StringEnum;
+import com.hotpads.util.core.enums.DatarouterEnumTool;
+import com.hotpads.util.core.enums.StringEnum;
 
 public enum JobletStatus implements StringEnum<JobletStatus>{
 
@@ -14,7 +14,7 @@ public enum JobletStatus implements StringEnum<JobletStatus>{
 	timedOut("timedOut", false);
 
 	private String varName;
-	private boolean isRunning=false;
+	private boolean isRunning;
 
 	private JobletStatus(String varName, boolean isRunning){
 		this.isRunning = isRunning;

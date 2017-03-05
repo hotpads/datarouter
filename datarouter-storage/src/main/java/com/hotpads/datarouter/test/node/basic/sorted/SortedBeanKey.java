@@ -3,7 +3,6 @@ package com.hotpads.datarouter.test.node.basic.sorted;
 import java.util.Arrays;
 import java.util.List;
 
-
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.imp.StringField;
@@ -39,7 +38,7 @@ public class SortedBeanKey extends BaseEntityPrimaryKey<SortedBeanEntityKey,Sort
 	}
 
 	@Override
-	public String getEntityKeyName() {
+	public String getEntityKeyName(){
 		return null;
 	}
 

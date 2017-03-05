@@ -25,6 +25,7 @@ public class NotificationLog extends BaseDatabean<NotificationLogKey,Notificatio
 	private List<String> itemIds;
 	private String channel;
 	private String id;
+	private String deviceId;
 
 	public static class FieldKeys{
 		public static final DateFieldKey created = new DateFieldKey("created");
@@ -32,6 +33,7 @@ public class NotificationLog extends BaseDatabean<NotificationLogKey,Notificatio
 		public static final DelimitedStringArrayFieldKey itemIds = new DelimitedStringArrayFieldKey("itemIds", ",");
 		public static final StringFieldKey channel = new StringFieldKey("channel");
 		public static final StringFieldKey id = new StringFieldKey("id").withSize(LENGTH_id);
+		public static final StringFieldKey deviceId = new StringFieldKey("deviceId");
 	}
 
 	public static class NotificationLogFielder extends BaseDatabeanFielder<NotificationLogKey, NotificationLog>{
@@ -47,32 +49,34 @@ public class NotificationLog extends BaseDatabean<NotificationLogKey,Notificatio
 					new StringField(FieldKeys.type, notificationLog.type),
 					new DelimitedStringArrayField(FieldKeys.itemIds, notificationLog.itemIds),
 					new StringField(FieldKeys.channel, notificationLog.channel),
-					new StringField(FieldKeys.id, notificationLog.id));
+					new StringField(FieldKeys.id, notificationLog.id),
+					new StringField(FieldKeys.deviceId, notificationLog.deviceId));
 		}
 
 	}
 
-	public NotificationLog() {
-		this(new NotificationUserId(null, null), null, null, null, null, null, null);
+	public NotificationLog(){
+		this(new NotificationUserId(null, null), null, null, null, null, null, null, null);
 	}
 
 	public NotificationLog(NotificationUserId userId, Date created, String template,
-			String type, List<String> itemIds, String channel, String id){
+			String type, List<String> itemIds, String channel, String id, String deviceId){
 		this.key = new NotificationLogKey(userId, created, template);
 		this.created = created;
 		this.type = type;
 		this.itemIds = itemIds;
 		this.channel = channel;
 		this.id = id;
+		this.deviceId = deviceId;
 	}
 
 	@Override
-	public Class<NotificationLogKey> getKeyClass() {
+	public Class<NotificationLogKey> getKeyClass(){
 		return NotificationLogKey.class;
 	}
 
 	@Override
-	public NotificationLogKey getKey() {
+	public NotificationLogKey getKey(){
 		return key;
 	}
 
@@ -84,11 +88,11 @@ public class NotificationLog extends BaseDatabean<NotificationLogKey,Notificatio
 		return type;
 	}
 
-	public List<String> getItemIds() {
+	public List<String> getItemIds(){
 		return itemIds;
 	}
 
-	public void setItemIds(List<String> itemIds) {
+	public void setItemIds(List<String> itemIds){
 		this.itemIds = itemIds;
 	}
 

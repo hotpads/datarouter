@@ -30,7 +30,6 @@ public abstract class BaseMapCachingNode<
 		N extends Node<PK,D>>
 extends BaseNode<PK,D,F>{
 
-
 	/***************************** Node pass-through stuff **********************************/
 
 	protected N cachingNode;
@@ -47,7 +46,8 @@ extends BaseNode<PK,D,F>{
 		this.backingNode = backingNode;
 		//use the inputs to make a unique name.  randomness will not place nicely with the counters
 		this.setId(new NodeId<PK,D,F>(getClass().getSimpleName(), backingNode.getFieldInfo().getSampleDatabean()
-				.getDatabeanName(), backingNode.getRouter().getName(), null, null, backingNode.getName()+".cache"));
+				.getDatabeanName(), backingNode.getRouter().getName(), null, null,
+				backingNode.getName() + ".cache"));
 	}
 
 	public void updateLastAttemptedContact(){
@@ -61,7 +61,7 @@ extends BaseNode<PK,D,F>{
 	/************************* util ***************************/
 
 	public static boolean useCache(final Config config){
-		if(config==null || config.getCacheOk()==null){
+		if(config == null || config.getCacheOk() == null){
 			return Config.DEFAULT_CACHE_OK;
 		}
 		return config.getCacheOk();
@@ -70,7 +70,7 @@ extends BaseNode<PK,D,F>{
 	/**************************************************************************/
 
 	@Override
-	public List<String> getClientNames() {
+	public List<String> getClientNames(){
 		SortedSet<String> clientNames = new TreeSet<>();
 		DrSetTool.nullSafeSortedAddAll(clientNames, cachingNode.getClientNames());
 		DrSetTool.nullSafeSortedAddAll(clientNames, backingNode.getClientNames());
@@ -85,18 +85,18 @@ extends BaseNode<PK,D,F>{
 	}
 
 	@Override
-	public List<String> getClientNamesForPrimaryKeysForSchemaUpdate(Collection<PK> keys) {
+	public List<String> getClientNamesForPrimaryKeysForSchemaUpdate(Collection<PK> keys){
 		return backingNode.getClientNamesForPrimaryKeysForSchemaUpdate(keys);
 	}
 
 	@Override
-	public Node<PK,D> getMaster() {
+	public Node<PK,D> getMaster(){
 		return backingNode.getMaster();
 	}
 
 	@Override
 	public List<? extends Node<PK,D>> getChildNodes(){
-		if(backingNode==null){
+		if(backingNode == null){
 			return new ArrayList<>();
 		}
 		return DrListTool.wrap(backingNode);
@@ -112,17 +112,17 @@ extends BaseNode<PK,D,F>{
 	}
 
 	@Override
-	public List<? extends PhysicalNode<PK,D>> getPhysicalNodes() {
+	public List<? extends PhysicalNode<PK,D>> getPhysicalNodes(){
 		return backingNode.getPhysicalNodes();
 	}
 
 	@Override
-	public List<? extends PhysicalNode<PK,D>> getPhysicalNodesForClient(String clientName) {
+	public List<? extends PhysicalNode<PK,D>> getPhysicalNodesForClient(String clientName){
 		return backingNode.getPhysicalNodesForClient(clientName);
 	}
 
 	@Override
-	public boolean usesClient(String clientName) {
+	public boolean usesClient(String clientName){
 		return cachingNode.usesClient(clientName) || backingNode.usesClient(clientName);
 	}
 
@@ -130,11 +130,8 @@ extends BaseNode<PK,D,F>{
 		return backingNode;
 	}
 
-
 	public N getCachingNode(){
 		return cachingNode;
 	}
-
-
 
 }

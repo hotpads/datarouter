@@ -1,12 +1,11 @@
 package com.hotpads.datarouter.connection.keepalive;
 
+import java.util.Arrays;
 import java.util.List;
-
 
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
-import com.hotpads.datarouter.storage.field.FieldTool;
 
 /*
  * Databean for auto-generating a table called KeepAlive that can be queried to
@@ -18,7 +17,7 @@ import com.hotpads.datarouter.storage.field.FieldTool;
  */
 public class KeepAlive extends BaseDatabean<KeepAliveKey,KeepAlive>{
 
-	public static final String TABLE_NAME = "KeepAlive";//if you want to modify, you will have to change other stuff as well
+	public static final String TABLE_NAME = "KeepAlive";//if you want to modify, you'll have to change other stuff also
 
 	private KeepAliveKey key;
 
@@ -31,8 +30,8 @@ public class KeepAlive extends BaseDatabean<KeepAliveKey,KeepAlive>{
 			return KeepAliveKey.class;
 		}
 		@Override
-		public List<Field<?>> getNonKeyFields(KeepAlive d){
-			return FieldTool.createList();
+		public List<Field<?>> getNonKeyFields(KeepAlive databean){
+			return Arrays.asList();
 		}
 	}
 
@@ -43,7 +42,7 @@ public class KeepAlive extends BaseDatabean<KeepAliveKey,KeepAlive>{
 		this.key = new KeepAliveKey(null);
 	}
 
-	public KeepAlive(String id) {
+	public KeepAlive(String id){
 		this.key = new KeepAliveKey(id);
 	}
 
@@ -51,25 +50,21 @@ public class KeepAlive extends BaseDatabean<KeepAliveKey,KeepAlive>{
 	/***************************** method ************************************/
 
 	@Override
-	public Class<KeepAliveKey> getKeyClass() {
+	public Class<KeepAliveKey> getKeyClass(){
 		return KeepAliveKey.class;
-	};
+	}
 
 	@Override
-	public KeepAliveKey getKey() {
+	public KeepAliveKey getKey(){
 		return key;
 	}
 
 
 	/***************************** get/set **************************************/
 
-
 	public void setKey(KeepAliveKey key){
 		this.key = key;
 	}
-
-
-
 
 	public String getId(){
 		return key.getId();

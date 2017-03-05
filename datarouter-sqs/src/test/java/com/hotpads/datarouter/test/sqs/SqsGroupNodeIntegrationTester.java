@@ -25,7 +25,7 @@ import com.hotpads.datarouter.test.TestDatabeanKey;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 
 @Guice(moduleFactory = DatarouterSqsTestModuleFactory.class)
-@Test(singleThreaded=true)
+@Test(singleThreaded = true)
 public class SqsGroupNodeIntegrationTester{
 	private static final Logger logger = LoggerFactory.getLogger(SqsGroupNodeIntegrationTester.class);
 
@@ -63,8 +63,9 @@ public class SqsGroupNodeIntegrationTester{
 	@Test
 	public void testPutMultiAndPollMulti(){
 		List<TestDatabean> databeans = new ArrayList<>(DATABEAN_COUNT);
-		String longString = SqsTestHelper.makeStringOfByteSize(BaseSqsNode.MAX_BYTES_PER_MESSAGE / (DATABEAN_COUNT-1));
-		for(int i = 0 ; i < DATABEAN_COUNT ; i++){
+		String longString = SqsTestHelper.makeStringOfByteSize(BaseSqsNode.MAX_BYTES_PER_MESSAGE / (DATABEAN_COUNT
+				- 1));
+		for(int i = 0; i < DATABEAN_COUNT; i++){
 			databeans.add(new TestDatabean(longString, makeRandomString(), makeRandomString()));
 		}
 		router.groupTestDatabean.putMulti(databeans, null);

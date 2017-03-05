@@ -3,7 +3,6 @@ package com.hotpads.datarouter.test.client.txn;
 import java.util.Arrays;
 import java.util.List;
 
-
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.imp.StringField;
@@ -32,7 +31,7 @@ public class TxnBeanKey extends BasePrimaryKey<TxnBeanKey>{
 	TxnBeanKey(){
 	}
 
-	public TxnBeanKey(String id) {
+	public TxnBeanKey(String id){
 		this.id = id;
 	}
 

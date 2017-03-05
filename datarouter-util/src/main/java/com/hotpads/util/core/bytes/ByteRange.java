@@ -67,7 +67,7 @@ public class ByteRange implements Comparable<ByteRange>{
 	}
 
 	private boolean isFullArray(){
-		return offset==0 && length==bytes.length;
+		return offset == 0 && length == bytes.length;
 	}
 
 	public byte[] toArray(){
@@ -121,10 +121,6 @@ public class ByteRange implements Comparable<ByteRange>{
 
 	public byte[] getBytes(){
 		return bytes;
-	}
-
-	public int getOffset(){
-		return offset;
 	}
 
 	public int getLength(){

@@ -35,7 +35,7 @@ public class HotPadsRetryHandler implements HttpRequestRetryHandler{
 		return true;
 	}
 
-	public int getRetryCount() {
+	public int getRetryCount(){
 		return retryCount;
 	}
 

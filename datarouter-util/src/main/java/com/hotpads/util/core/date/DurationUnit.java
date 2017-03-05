@@ -10,21 +10,12 @@ public enum DurationUnit{
 	SECONDS(5, "second"),
 	MILLISECONDS(6, "millisecond");
 
-	Integer index;
-	String display;
+	private Integer index;
+	private String display;
 
 	private DurationUnit(Integer index, String display){
 		this.index = index;
 		this.display = display;
-	}
-
-	public static DurationUnit fromIndex(int index){
-		for (DurationUnit du : values()){
-			if (index == du.index){
-				return du;
-			}
-		}
-		return null;
 	}
 
 	public Integer getIndex(){

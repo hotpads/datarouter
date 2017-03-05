@@ -17,35 +17,35 @@ public interface RedundantMapStorageMixin<
 extends MapStorage<PK,D>, RedundantNode<PK,D,N>{
 
 	@Override
-	default void delete(PK key, Config config) {
+	default void delete(PK key, Config config){
 		for(N n : getWriteNodes()){
 			n.delete(key, config);
 		}
 	}
 
 	@Override
-	default void deleteAll(Config config) {
+	default void deleteAll(Config config){
 		for(N n : getWriteNodes()){
 			n.deleteAll(config);
 		}
 	}
 
 	@Override
-	default void deleteMulti(Collection<PK> keys, Config config) {
+	default void deleteMulti(Collection<PK> keys, Config config){
 		for(N n : getWriteNodes()){
 			n.deleteMulti(keys, config);
 		}
 	}
 
 	@Override
-	default void put(D databean, Config config) {
+	default void put(D databean, Config config){
 		for(N n : getWriteNodes()){
 			n.put(databean, config);
 		}
 	}
 
 	@Override
-	default void putMulti(Collection<D> databeans, Config config) {
+	default void putMulti(Collection<D> databeans, Config config){
 		for(N n : getWriteNodes()){
 			n.putMulti(databeans, config);
 		}
@@ -57,17 +57,17 @@ extends MapStorage<PK,D>, RedundantNode<PK,D,N>{
 	}
 
 	@Override
-	default D get(PK key, Config config) {
+	default D get(PK key, Config config){
 		return getReadNode().get(key, config);
 	}
 
 	@Override
-	default List<D> getMulti(Collection<PK> keys, Config config) {
+	default List<D> getMulti(Collection<PK> keys, Config config){
 		return getReadNode().getMulti(keys, config);
 	}
 
 	@Override
-	default List<PK> getKeys(Collection<PK> keys, Config config) {
+	default List<PK> getKeys(Collection<PK> keys, Config config){
 		return getReadNode().getKeys(keys, config);
 	}
 

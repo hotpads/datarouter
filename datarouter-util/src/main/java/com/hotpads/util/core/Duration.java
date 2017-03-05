@@ -4,14 +4,18 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.testng.Assert;
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
 
 public class Duration{
 
 	public static final Duration ZERO = new Duration(0, TimeUnit.MILLISECONDS);
 
 	public static final Duration MAX_VALUE = new Duration(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+
+	public static final String REGEX =
+			"^0$|^(m|M)(a|A)(x|X)$|^((\\d+d)?(\\d+h)?(\\d+m)?(\\d+s)?(\\d+ms)?(\\d+us)?){1,1}$";
 
 	private static final TimeUnit[] timeUnits = new TimeUnit[]{
 		TimeUnit.DAYS,
@@ -39,7 +43,11 @@ public class Duration{
 			return;
 		}
 		string = string.toLowerCase().replaceAll("\\s", "");
-		String[] values = string.split("[a-z]");
+		if("max".equals(string)){
+			nano = Long.MAX_VALUE;
+			return;
+		}
+		String[] values = string.split("[a-z]+");
 		String[] unites = string.split("\\d+");
 		List<String> asList = Arrays.asList(strings);
 		for(int i = 0; i < values.length; i++){
@@ -68,9 +76,9 @@ public class Duration{
 		return toString(TimeUnit.MILLISECONDS);
 	}
 
-	public String toString(TimeUnit presision){
-		int maxIndex = Arrays.asList(timeUnits).indexOf(presision);
-		if (maxIndex == -1) {
+	public String toString(TimeUnit precision){
+		int maxIndex = Arrays.asList(timeUnits).indexOf(precision);
+		if(maxIndex == -1){
 			maxIndex = timeUnits.length - 1;
 		}
 		long rest = nano;
@@ -87,26 +95,10 @@ public class Duration{
 	}
 
 	public static boolean isDuration(String string){
-		if("0".equals(string)){
-			return true;
-		}
-		string = string.toLowerCase().replaceAll("\\s", "");
-		String[] values = string.split("[a-z]");
-		String[] units = string.split("\\d+");
-		if(values.length != units.length - 1){
+		try{
+			new Duration(string);
+		}catch(RuntimeException e){
 			return false;
-		}
-		List<String> stringUnits = Arrays.asList(strings);
-		for(int i = 0 ; i < values.length ; i++){
-			//Is there a better way to know if a string is parsable to Long?
-			try{
-				Long.parseLong(values[i]);
-			}catch(NumberFormatException e){
-				return false;
-			}
-			if(!stringUnits.contains(units[i+1])){
-				return false;
-			}
 		}
 		return true;
 	}
@@ -116,24 +108,31 @@ public class Duration{
 		@Test
 		public void parserAndtoStringTest(){
 			Duration duration = new Duration(3, TimeUnit.DAYS);
-			Assert.assertEquals("3d", duration.toString());
+			AssertJUnit.assertEquals("3d", duration.toString());
 			duration = new Duration("1d2h65m15s");
-			Assert.assertEquals("1d3h5m15s", duration.toString());
+			AssertJUnit.assertEquals("1d3h5m15s", duration.toString());
 			duration = new Duration("2h1d65m15s");
-			Assert.assertEquals("1d3h5m15s", duration.toString());
+			AssertJUnit.assertEquals("1d3h5m15s", duration.toString());
 			duration = new Duration("15s");
-			Assert.assertEquals(15, duration.toSecond());
-			Assert.assertEquals("15s", duration.toString());
+			AssertJUnit.assertEquals(15, duration.toSecond());
+			AssertJUnit.assertEquals("15s", duration.toString());
 			duration = new Duration("100000d5s123ms");
-			Assert.assertEquals("100000d5s123ms", duration.toString());
+			AssertJUnit.assertEquals("100000d5s123ms", duration.toString());
 			duration = new Duration("100000 d 5s 123 ms");
-			Assert.assertEquals("100000d5s123ms", duration.toString());
+			AssertJUnit.assertEquals("100000d5s123ms", duration.toString());
 			duration = new Duration("48h");
-			Assert.assertEquals("2d", duration.toString());
+			AssertJUnit.assertEquals("2d", duration.toString());
 			duration = new Duration("0");
-			Assert.assertEquals("0ms", duration.toString());
+			AssertJUnit.assertEquals("0ms", duration.toString());
+			duration = new Duration("max");
+			AssertJUnit.assertEquals(MAX_VALUE.toString(TimeUnit.NANOSECONDS), duration.toString(TimeUnit.NANOSECONDS));
+			duration = new Duration("1d1d");
+			AssertJUnit.assertEquals("2d", duration.toString());
+			duration = new Duration("4ms1us");
+			AssertJUnit.assertEquals("4ms1us", duration.toString(TimeUnit.MICROSECONDS));
 			duration = new Duration(1234, TimeUnit.NANOSECONDS);
-			Assert.assertEquals("1us", duration.toString(TimeUnit.MICROSECONDS));
+			AssertJUnit.assertEquals("1us", duration.toString(TimeUnit.MICROSECONDS));
+			AssertJUnit.assertEquals("1us", duration.toString(TimeUnit.NANOSECONDS));
 		}
 
 		@Test
@@ -146,16 +145,18 @@ public class Duration{
 			Assert.assertTrue(isDuration("100000 d 5s 123 ms"));
 			Assert.assertTrue(isDuration("48h"));
 			Assert.assertTrue(isDuration("0"));
+			Assert.assertTrue(isDuration("1d1d"));
+			Assert.assertTrue(isDuration("4ms1us"));
+			Assert.assertTrue(isDuration("MAX"));
 			Assert.assertFalse(isDuration("1banana"));
 			Assert.assertFalse(isDuration("1.5d7m"));
-			Assert.assertFalse(isDuration("1.5d7"));
+			Assert.assertFalse(isDuration("1d7"));
+			Assert.assertFalse(isDuration("max5d"));
 		}
 
 		@Test
 		public void testConvertion(){
-			Assert.assertEquals(1000, new Duration(1, TimeUnit.SECONDS).to(TimeUnit.MILLISECONDS));
+			AssertJUnit.assertEquals(1000, new Duration(1, TimeUnit.SECONDS).toMillis());
 		}
-
 	}
-
 }

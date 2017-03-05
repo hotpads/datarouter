@@ -3,11 +3,12 @@ package com.hotpads.joblet;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 import com.hotpads.joblet.databean.JobletData;
 import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.enums.JobletPriority;
-import com.hotpads.joblet.enums.JobletType;
+import com.hotpads.joblet.type.JobletType;
 import com.hotpads.util.core.number.RandomTool;
 import com.hotpads.util.core.stream.StreamTool;
 
@@ -17,8 +18,8 @@ public class JobletPackage {
 	private final JobletData jobletData;
 
 	public JobletPackage(JobletRequest jobletRequest, JobletData jobletData) {
-		this.jobletRequest = jobletRequest;
-		this.jobletData = jobletData;
+		this.jobletRequest = Objects.requireNonNull(jobletRequest);
+		this.jobletData = Objects.requireNonNull(jobletData);
 	}
 
 	public void updateJobletDataIdReference(){

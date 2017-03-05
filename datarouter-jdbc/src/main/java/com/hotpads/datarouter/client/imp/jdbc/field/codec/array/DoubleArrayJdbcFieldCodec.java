@@ -26,26 +26,24 @@ extends BaseListJdbcFieldCodec<Double,List<Double>,Field<List<Double>>>{
 		super(field);
 	}
 
-
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
-		return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.LONGBLOB, Integer.MAX_VALUE , field
-				.getKey().isNullable(), false);
+		return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.LONGBLOB, Integer.MAX_VALUE,
+				field.getKey().isNullable(), false);
 	}
 
 	@Override
 	public List<Double> parseJdbcValueButDoNotSet(Object col){
 		throw new NotImplementedException("code needs testing");
-//		if(obj==null){ return null; }
-//		byte[] bytes = (byte[])obj;
-//		return DoubleByteTool.fromDoubleBytes(bytes);
 	}
 
 	@Override
 	public List<Double> fromJdbcResultSetButDoNotSet(ResultSet rs){
 		try{
 			byte[] bytes = rs.getBytes(field.getKey().getColumnName());
-			if(DrArrayTool.isEmpty(bytes)){ return new ArrayList<>(); }
+			if(DrArrayTool.isEmpty(bytes)){
+				return new ArrayList<>();
+			}
 			return DoubleByteTool.fromDoubleByteArray(bytes, 0);
 		}catch(SQLException e){
 			throw new DataAccessException(e);
@@ -55,7 +53,8 @@ extends BaseListJdbcFieldCodec<Double,List<Double>,Field<List<Double>>>{
 	@Override
 	public void setPreparedStatementValue(PreparedStatement ps, int parameterIndex){
 		try{
-			ps.setBytes(parameterIndex, field.getValue()==null?null:DoubleByteTool.getDoubleByteArray(field.getValue()));
+			ps.setBytes(parameterIndex,
+					field.getValue() == null ? null : DoubleByteTool.getDoubleByteArray(field.getValue()));
 		}catch(SQLException e){
 			throw new DataAccessException(e);
 		}

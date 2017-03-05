@@ -14,56 +14,55 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.Lists;
-import com.hotpads.datarouter.storage.field.enums.StringEnum;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
-import com.hotpads.util.core.web.HTMLSelectOptionBean;
+import com.hotpads.util.core.web.HtmlSelectOptionBean;
 
 public class EnumTool{
 
 	private static final Pattern NO = Pattern.compile("(^(no ))|( no )|(/no )|(:no )|(:no$)|(: no$)");
 
-	public static List<HTMLSelectOptionBean> getHtmlSelectOptions(HpEnum[] values){
+	public static List<HtmlSelectOptionBean> getHtmlSelectOptions(HpEnum[] values){
 		return getHtmlSelectOptions(values, null);
 	}
 
-	public static List<HTMLSelectOptionBean> getHtmlSelectOptions(HpEnum[] values, Integer ignoredValue){
-		List<HTMLSelectOptionBean> options = new ArrayList<>();
+	public static List<HtmlSelectOptionBean> getHtmlSelectOptions(HpEnum[] values, Integer ignoredValue){
+		List<HtmlSelectOptionBean> options = new ArrayList<>();
 		for(HpEnum type : values){
 			if(ignoredValue != null && ignoredValue == type.getInteger()){
 				continue;
 			}
-			options.add(new HTMLSelectOptionBean(type.getDisplay(), type.getInteger().toString()));
+			options.add(new HtmlSelectOptionBean(type.getDisplay(), type.getInteger().toString()));
 		}
 		return options;
 	}
 
-	public static List<HTMLSelectOptionBean> getHtmlSelectOptions(Iterable<? extends StringPersistedEnum> values){
+	public static List<HtmlSelectOptionBean> getHtmlSelectOptions(Iterable<? extends StringPersistedEnum> values){
 		return getHtmlSelectOptions(values, Collections.emptyList());
 	}
 
-	public static List<HTMLSelectOptionBean> getHtmlSelectOptions(StringPersistedEnum[] values,
+	public static List<HtmlSelectOptionBean> getHtmlSelectOptions(StringPersistedEnum[] values,
 			String... ignoredValues){
 		return getHtmlSelectOptions(Arrays.asList(values), Arrays.asList(ignoredValues));
 	}
 
-	private static List<HTMLSelectOptionBean> getHtmlSelectOptions(Iterable<? extends StringPersistedEnum> values,
+	private static List<HtmlSelectOptionBean> getHtmlSelectOptions(Iterable<? extends StringPersistedEnum> values,
 			Collection<String> ignoredValues){
-		List<HTMLSelectOptionBean> options = new ArrayList<>();
+		List<HtmlSelectOptionBean> options = new ArrayList<>();
 		for(StringPersistedEnum type : values){
 			if(ignoredValues.contains(type.getPersistentString())){
 				continue;
 			}
-			options.add(new HTMLSelectOptionBean(type.getDisplay(), type.getPersistentString()));
+			options.add(new HtmlSelectOptionBean(type.getDisplay(), type.getPersistentString()));
 		}
 		return options;
 	}
 
-	public static List<HTMLSelectOptionBean> getHtmlSelectOptionsVarNames(HpVarEnum[] values){
-		List<HTMLSelectOptionBean> options = new ArrayList<>();
+	public static List<HtmlSelectOptionBean> getHtmlSelectOptionsVarNames(HpVarEnum[] values){
+		List<HtmlSelectOptionBean> options = new ArrayList<>();
 		for(HpVarEnum type : values){
-			options.add(new HTMLSelectOptionBean(type.getDisplay(), type.getVarName()));
+			options.add(new HtmlSelectOptionBean(type.getDisplay(), type.getVarName()));
 		}
 		return options;
 	}
@@ -256,11 +255,11 @@ public class EnumTool{
 			CORPORATE(3, "Corporate Housing", "corporate"),
 			SUBLET(4, "Sublet", "sublet"),
 			ROOM(5, "Room", "room"),
-			VACATION( 6, "Vacation Rental", "vacation"),
+			VACATION(6, "Vacation Rental", "vacation"),
 			ASSISTED(7, "Assisted Living", "assisted"),
 			COMMERCIAL(8, "Commercial", "commercial"),
 			FORECLOSURE(9, "Foreclosure", "foreclosure"),
-			NEW_HOME( 10, "New Home", "newHome"),
+			NEW_HOME(10, "New Home", "newHome"),
 			AUCTION(11, "Auction", "auction"),
 			LAND(12, "Land", "land"),
 			HOTEL(13, "Hotel", "hotel");

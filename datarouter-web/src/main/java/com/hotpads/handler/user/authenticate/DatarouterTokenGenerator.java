@@ -16,7 +16,7 @@ public class DatarouterTokenGenerator{
 		SecureRandom secureRandom;
 		try{
 			secureRandom = SecureRandom.getInstance("SHA1PRNG");
-		} catch (NoSuchAlgorithmException e) {
+		}catch(NoSuchAlgorithmException e){
 			throw new RuntimeException("misconfigured - no secure random");
 		}
 		byte[] sha1Bytes = new byte[32];

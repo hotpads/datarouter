@@ -1,7 +1,6 @@
 package com.hotpads.notification.destination;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -9,11 +8,12 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
-import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.DateField;
+import com.hotpads.datarouter.storage.field.imp.DateFieldKey;
 import com.hotpads.datarouter.storage.field.imp.StringField;
+import com.hotpads.datarouter.storage.field.imp.StringFieldKey;
 import com.hotpads.datarouter.storage.field.imp.comparable.BooleanField;
-import com.hotpads.datarouter.util.core.DrBooleanTool;
+import com.hotpads.datarouter.storage.field.imp.comparable.BooleanFieldKey;
 
 /* CREATE SCRIPT
 com.hotpads.notification.destination.NotificationDestination{
@@ -28,7 +28,7 @@ com.hotpads.notification.destination.NotificationDestination{
 }
 */
 
-public class NotificationDestination extends BaseDatabean<NotificationDestinationKey,NotificationDestination> {
+public class NotificationDestination extends BaseDatabean<NotificationDestinationKey,NotificationDestination>{
 
 	private NotificationDestinationKey key;
 
@@ -36,27 +36,26 @@ public class NotificationDestination extends BaseDatabean<NotificationDestinatio
 	private Boolean active;
 	private Date created;
 
-	public static class F {
-		public static final String
-			deviceName = "deviceName",
-			active = "active",
-			created = "created";
+	public static class FieldKeys{
+		public static final StringFieldKey deviceName = new StringFieldKey("deviceName")
+				.withSize(MySqlColumnType.INT_LENGTH_LONGTEXT);
+		public static final BooleanFieldKey active = new BooleanFieldKey("active");
+		public static final DateFieldKey created = new DateFieldKey("created");
 	}
 
 	public static class NotificationDestinationFielder
-		extends BaseDatabeanFielder<NotificationDestinationKey, NotificationDestination>{
+	extends BaseDatabeanFielder<NotificationDestinationKey,NotificationDestination>{
 
-		@Override
-		public Class<NotificationDestinationKey> getKeyFielderClass() {
-			return NotificationDestinationKey.class;
+		public NotificationDestinationFielder(){
+			super(NotificationDestinationKey.class);
 		}
 
 		@Override
-		public List<Field<?>> getNonKeyFields(NotificationDestination d){
-			return FieldTool.createList(
-				new StringField(F.deviceName, d.deviceName, MySqlColumnType.MAX_LENGTH_VARCHAR),
-				new BooleanField(F.active, d.active),
-				new DateField(F.created, d.created));
+		public List<Field<?>> getNonKeyFields(NotificationDestination databean){
+			return Arrays.asList(
+					new StringField(FieldKeys.deviceName, databean.deviceName),
+					new BooleanField(FieldKeys.active, databean.active),
+					new DateField(FieldKeys.created, databean.created));
 		}
 
 	}
@@ -65,18 +64,18 @@ public class NotificationDestination extends BaseDatabean<NotificationDestinatio
 		this.key = new NotificationDestinationKey();
 	}
 
-	public NotificationDestination(String token, NotificationDestinationAppEnum app, String deviceId){
+	public NotificationDestination(String token, NotificationDestinationApp app, String deviceId){
 		this.key = new NotificationDestinationKey(token, app, deviceId);
 		this.active = true;
 	}
 
 	@Override
-	public Class<NotificationDestinationKey> getKeyClass() {
+	public Class<NotificationDestinationKey> getKeyClass(){
 		return NotificationDestinationKey.class;
 	}
 
 	@Override
-	public NotificationDestinationKey getKey() {
+	public NotificationDestinationKey getKey(){
 		return key;
 	}
 
@@ -84,18 +83,8 @@ public class NotificationDestination extends BaseDatabean<NotificationDestinatio
 		return active;
 	}
 
-	public void setActive(boolean active){
+	public void setActive(Boolean active){
 		this.active = active;
-	}
-
-	public static List<NotificationDestination> filterForAppAndActive(Iterable<NotificationDestination> destinations, Collection<NotificationDestinationApp> apps){
-		ArrayList<NotificationDestination> activeDestinations = new ArrayList<>();
-		for(NotificationDestination destination : destinations){
-			if(DrBooleanTool.isTrue(destination.getActive()) && apps.contains(destination.getKey().getApp())){
-				activeDestinations.add(destination);
-			}
-		}
-		return activeDestinations;
 	}
 
 	public void setDeviceName(String deviceName){
@@ -115,4 +104,3 @@ public class NotificationDestination extends BaseDatabean<NotificationDestinatio
 	}
 
 }
-

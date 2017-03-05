@@ -1,4 +1,3 @@
-<%@page import="com.hotpads.util.core.web.HTMLSelectOptionBean"%>
 <%@ include file="/WEB-INF/prelude.jspf"%>
 <!DOCTYPE html>
 <html lang="en">

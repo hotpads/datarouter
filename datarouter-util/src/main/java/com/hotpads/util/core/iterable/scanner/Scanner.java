@@ -17,7 +17,7 @@ public interface Scanner<T>{
 	 * @return true if the scanner was advanced by the offset
 	 */
 	default boolean advanceBy(Integer count){
-		for(int i = 0 ; i < Optional.ofNullable(count).orElse(0) ; i++){
+		for(int i = 0; i < Optional.ofNullable(count).orElse(0); i++){
 			if(!advance()){
 				return false;
 			}

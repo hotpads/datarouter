@@ -109,16 +109,6 @@ public class DrArrayTool{
 		return array;
 	}
 
-	public static void copyInto(byte[] destination, byte[] source, int offset){
-		for(int i = 0; i < source.length; i++){
-			try{
-				destination[offset + i] = source[i];
-			}catch(ArrayIndexOutOfBoundsException e){
-				throw new ArrayIndexOutOfBoundsException("array1 + offset is shorter than array2");
-			}
-		}
-	}
-
 	public static class Tests{
 		@Test
 		public void simpleCompare(){

@@ -23,15 +23,11 @@ import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.util.core.lang.ClassTool;
 
-public class ReflectionTool {
+public class ReflectionTool{
 	private static final Logger logger = LoggerFactory.getLogger(ReflectionTool.class);
 
 	public static <T> Supplier<T> supplier(Class<T> type){
 		return () -> ReflectionTool.create(type);
-	}
-
-	public static <T> T createAsSubclass(String className, Class<T> superClass){
-		return create(getAsSubClass(className, superClass));
 	}
 
 	private static Class<?> getClass(String className){
@@ -48,14 +44,14 @@ public class ReflectionTool {
 
 	public static <T> T createWithParameters(Class<T> type, Collection<?> requiredParameters){
 		for(Constructor<?> constructor : type.getDeclaredConstructors()){
-			if( ! canParamsCallParamTypes(requiredParameters, Arrays.asList(constructor.getParameterTypes()))){
+			if(!canParamsCallParamTypes(requiredParameters, Arrays.asList(constructor.getParameterTypes()))){
 				continue;
 			}
 			try{
 				constructor.setAccessible(true);
 				return type.cast(constructor.newInstance(requiredParameters.toArray()));
-			}catch (SecurityException | InstantiationException | IllegalAccessException
-					| IllegalArgumentException | InvocationTargetException e){
+			}catch(SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException
+					| InvocationTargetException e){
 				throw new RuntimeException(e);
 			}
 		}
@@ -66,16 +62,16 @@ public class ReflectionTool {
 		return create(getClass(fullyQualifiedClassName));
 	}
 
-	public static <T> T create(Class<T> cls, String exceptionMessage){
+	private static <T> T create(Class<T> cls, String exceptionMessage){
 		try{
 			if(cls.isEnum()){
 				T enumValue = cls.getEnumConstants()[0];
 				if(enumValue == null){
-					throw new IllegalArgumentException("no values in enum class:"+cls.getName());
+					throw new IllegalArgumentException("no values in enum class:" + cls.getName());
 				}
 				return enumValue;
 			}
-			//use getDeclaredConstructor to access non-public constructors
+			// use getDeclaredConstructor to access non-public constructors
 			Constructor<T> constructor = cls.getDeclaredConstructor();
 			constructor.setAccessible(true);
 			T databeanInstance = constructor.newInstance();
@@ -101,7 +97,7 @@ public class ReflectionTool {
 			field.setAccessible(true);
 			try{
 				return field.get(object);
-			}catch(IllegalArgumentException|IllegalAccessException e){
+			}catch(IllegalArgumentException | IllegalAccessException e){
 				throw new RuntimeException(e);
 			}
 		}
@@ -111,7 +107,7 @@ public class ReflectionTool {
 	public static void set(Field field, Object object, Object value){
 		try{
 			field.set(object, value);
-		}catch(IllegalArgumentException|IllegalAccessException e){
+		}catch(IllegalArgumentException | IllegalAccessException e){
 			throw new RuntimeException(e);
 		}
 	}
@@ -148,7 +144,7 @@ public class ReflectionTool {
 		return null;
 	}
 
-	private static class FieldInClass {
+	private static class FieldInClass{
 		public Class<?> cls;
 		public String fieldName;
 
@@ -165,6 +161,7 @@ public class ReflectionTool {
 			result = prime * result + (fieldName == null ? 0 : fieldName.hashCode());
 			return result;
 		}
+
 		@Override
 		public boolean equals(Object obj){
 			if(obj instanceof FieldInClass){
@@ -175,7 +172,7 @@ public class ReflectionTool {
 		}
 	}
 
-	private static ConcurrentHashMap<FieldInClass, Field> cachedDeclaredFields = new ConcurrentHashMap<>();
+	private static ConcurrentHashMap<FieldInClass,Field> cachedDeclaredFields = new ConcurrentHashMap<>();
 
 	public static Field getCachedDeclaredFieldFromHierarchy(Class<?> cls, String fieldName){
 		FieldInClass fieldInClass = new FieldInClass(cls, fieldName);
@@ -192,16 +189,16 @@ public class ReflectionTool {
 			String fieldName = DrCollectionTool.getFirst(fieldNames);
 			Field field = getDeclaredFieldFromHierarchy(object.getClass(), fieldName);
 			field.setAccessible(true);
-			if(DrCollectionTool.size(fieldNames)==1){
+			if(DrCollectionTool.size(fieldNames) == 1){
 				return field;
 			}
-			if(field.get(object)==null){//initialize the field
+			if(field.get(object) == null){// initialize the field
 				field.set(object, create(field.getType()));
 			}
 			return getNestedField(field.get(object), fieldNames.subList(1, fieldNames.size()));
 		}catch(Exception e){
-			String message = "could not set field: " + object.getClass().getName() + "."
-					+ DrStringTool.concatenate(fieldNames, ".");
+			String message = "could not set field: " + object.getClass().getName() + "." + DrStringTool.concatenate(
+					fieldNames, ".");
 			throw new RuntimeException(message, e);
 		}
 	}
@@ -225,21 +222,21 @@ public class ReflectionTool {
 	public static Method getDeclaredMethodFromHierarchy(Class<?> clazz, String methodName, Class<?>... parameterTypes){
 		try{
 			Method method = clazz.getDeclaredMethod(methodName, parameterTypes);
-			if(method!=null){
+			if(method != null){
 				method.setAccessible(true);
 				return method;
 			}
 		}catch(NoSuchMethodException nsfe){
-			//continue
+			// continue
 		}
 		for(Class<?> cls : getAllSuperClassesAndInterfaces(clazz)){
 			try{
 				Method superMethod = cls.getDeclaredMethod(methodName, parameterTypes);
-				if(superMethod!=null){
+				if(superMethod != null){
 					return superMethod;
 				}
 			}catch(NoSuchMethodException nsfe){
-				//continue
+				// continue
 			}
 		}
 		return null;
@@ -272,7 +269,7 @@ public class ReflectionTool {
 			if(ClassTool.isEquivalentBoxedType(typeA, typeB)){
 				continue;
 			}
-			if( ! typeB.isAssignableFrom(typeA)){
+			if(!typeB.isAssignableFrom(typeA)){
 				return false;
 			}
 		}
@@ -294,7 +291,6 @@ public class ReflectionTool {
 		}
 		return null;
 	}
-
 
 	/********************* Tests ******************************************/
 
@@ -328,7 +324,7 @@ public class ReflectionTool {
 			Assert.assertNotNull(createWithParameters(DummyDto.class, Arrays.asList(params1)));
 		}
 
-		@Test(expectedExceptions={Exception.class})
+		@Test(expectedExceptions = {Exception.class})
 		public void testCreateWithParametersInvalid(){
 			Object[] params0 = new Object[]{new Object(), "square peg", 5.5d};
 			DummyDto dummyDto = createWithParameters(DummyDto.class, Arrays.asList(params0));

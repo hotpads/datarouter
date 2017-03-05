@@ -2,15 +2,12 @@ package com.hotpads.datarouter.setting.cached.impl;
 
 import com.hotpads.datarouter.setting.SettingFinder;
 import com.hotpads.datarouter.setting.cached.CachedSetting;
+import com.hotpads.datarouter.setting.type.LongSetting;
 
-public class LongCachedSetting extends CachedSetting<Long>{
+public class LongCachedSetting extends CachedSetting<Long> implements LongSetting{
+
 	public LongCachedSetting(SettingFinder finder, String name, Long defaultValue){
 		super(finder, name, defaultValue);
-	}
-
-	@Override
-	protected Long reload(){
-		return finder.getLong(name, defaultValue);
 	}
 
 	@Override

@@ -20,15 +20,15 @@ public interface PartitionedMapStorageMixin<
 extends MapStorage<PK,D>, PartitionedNode<PK,D,N>{
 
 	@Override
-	default void delete(PK key, Config config) {
+	default void delete(PK key, Config config){
 		N node = getPhysicalNode(key);
 		node.delete(key, config);
 	}
 
 	@Override
-	default void deleteMulti(Collection<PK> pks, Config config) {
+	default void deleteMulti(Collection<PK> pks, Config config){
 		Multimap<N,PK> keysByNode = getPrimaryKeysByPhysicalNode(pks);
-		if(keysByNode==null){
+		if(keysByNode == null){
 			return;
 		}
 		for(N node : keysByNode.keySet()){
@@ -40,22 +40,22 @@ extends MapStorage<PK,D>, PartitionedNode<PK,D,N>{
 	}
 
 	@Override
-	default void deleteAll(Config config) {
+	default void deleteAll(Config config){
 		for(N node : DrCollectionTool.nullSafe(getPhysicalNodes())){
 			node.deleteAll(config);
 		}
 	}
 
 	@Override
-	default void put(D databean, Config config) {
+	default void put(D databean, Config config){
 		N node = getPhysicalNode(databean.getKey());
 		node.put(databean, config);
 	}
 
 	@Override
-	default void putMulti(Collection<D> databeans, Config config) {
+	default void putMulti(Collection<D> databeans, Config config){
 		Multimap<N,D> databeansByNode = getDatabeansByPhysicalNode(databeans);
-		if(databeansByNode==null){
+		if(databeansByNode == null){
 			return;
 		}
 		for(N node : databeansByNode.keySet()){
@@ -80,7 +80,7 @@ extends MapStorage<PK,D>, PartitionedNode<PK,D,N>{
 	}
 
 	@Override
-	default D get(PK key, Config config) {
+	default D get(PK key, Config config){
 		N node = getPhysicalNode(key);
 		if(node == null){
 			return null;
@@ -93,7 +93,7 @@ extends MapStorage<PK,D>, PartitionedNode<PK,D,N>{
 	}
 
 	@Override
-	default List<D> getMulti(Collection<PK> keys, Config config) {
+	default List<D> getMulti(Collection<PK> keys, Config config){
 		Multimap<N,PK> keysByNode = getPrimaryKeysByPhysicalNode(keys);
 		List<D> all = new ArrayList<>();
 		if(keysByNode == null){
@@ -111,7 +111,7 @@ extends MapStorage<PK,D>, PartitionedNode<PK,D,N>{
 	}
 
 	@Override
-	default List<PK> getKeys(Collection<PK> keys, Config config) {
+	default List<PK> getKeys(Collection<PK> keys, Config config){
 		Multimap<N,PK> keysByNode = getPrimaryKeysByPhysicalNode(keys);
 		List<PK> all = new ArrayList<>();
 		if(keysByNode == null){

@@ -42,7 +42,7 @@ extends BaseJdbcOp<List<D>>{
 		List<D> result = new ArrayList<>();
 		for(List<IK> batch : new BatchingIterable<>(entryKeys, JdbcReaderNode.DEFAULT_ITERATE_BATCH_SIZE)){
 			String sql = SqlBuilder.getWithPrefixes(fieldCodecFactory, config, node.getTableName(), node.getFieldInfo()
-					.getFields(), batch, wildcardLastField, null);
+					.getFields(), batch, wildcardLastField, null, node.getFieldInfo());
 			result.addAll(JdbcTool.selectDatabeans(fieldCodecFactory, getConnection(node.getClientId().getName()), node
 					.getFieldInfo(), sql));
 		}

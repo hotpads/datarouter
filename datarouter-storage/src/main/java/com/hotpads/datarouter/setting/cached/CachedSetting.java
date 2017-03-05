@@ -5,7 +5,6 @@ import java.util.concurrent.TimeUnit;
 
 import com.hotpads.datarouter.setting.Setting;
 import com.hotpads.datarouter.setting.SettingFinder;
-import com.hotpads.datarouter.util.core.DrObjectTool;
 import com.hotpads.util.core.cache.Cached;
 
 //object hierarchy is weird here.  consider using composition
@@ -27,6 +26,11 @@ implements Setting<T>{
 	}
 
 	/******************* Setting methods *************************/
+
+	@Override
+	protected T reload(){
+		return finder.getSettingValue(name).map(this::parseStringValue).orElse(defaultValue);
+	}
 
 	@Override
 	public String getName(){

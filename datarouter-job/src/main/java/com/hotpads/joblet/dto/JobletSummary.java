@@ -1,7 +1,9 @@
 package com.hotpads.joblet.dto;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -13,6 +15,7 @@ import java.util.stream.Stream;
 import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.util.core.DrComparableTool;
 import com.hotpads.datarouter.util.core.DrDateTool;
+import com.hotpads.datarouter.util.core.DrNumberFormatter;
 import com.hotpads.datarouter.util.core.DrNumberTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.joblet.databean.JobletRequest;
@@ -26,6 +29,7 @@ public class JobletSummary{
 	private Integer executionOrder;
 	private JobletStatus status;
 	private String typeString;
+	private Integer typeCode;
 	private String queueId;
 	//summary fields
 	private Set<String> queueIds = new HashSet<>();
@@ -37,19 +41,12 @@ public class JobletSummary{
 	private Date firstReserved;
 
 	public JobletSummary(JobletRequest request){
+		this.typeCode = request.getKey().getTypeCode();
 		this.typeString = request.getTypeString();
 		this.executionOrder = request.getKey().getExecutionOrder();
 		this.status = request.getStatus();
 		this.queueId = request.getQueueId();
 		absorbJobletRequestStats(request);
-	}
-
-	public JobletSummary(String typeString, Integer sumItems, Long created){
-		this.typeString = typeString;
-		this.sumItems = sumItems;
-		if(created != null){
-			this.firstCreated = new Date(created);
-		}
 	}
 
 	/*------------------------ static ---------------------------*/
@@ -59,6 +56,17 @@ public class JobletSummary{
 				.map(JobletSummary::new)
 				.collect(Collectors.toMap(
 						TypeKey::new,
+						Function.identity(),
+						JobletSummary::absorbStats,
+						TreeMap::new));
+	}
+
+	public static Map<TypeStatusKey,JobletSummary> summarizeByTypeStatus(
+			Stream<JobletRequest> requests){
+		return requests
+				.map(JobletSummary::new)
+				.collect(Collectors.toMap(
+						TypeStatusKey::new,
 						Function.identity(),
 						JobletSummary::absorbStats,
 						TreeMap::new));
@@ -83,6 +91,12 @@ public class JobletSummary{
 						Function.identity(),
 						JobletSummary::absorbStats,
 						TreeMap::new));
+	}
+
+	public static List<JobletSummary> filterForStatus(Collection<JobletSummary> summaries, JobletStatus status){
+		return summaries.stream()
+				.filter(summary -> summary.getStatus() == status)
+				.collect(Collectors.toList());
 	}
 
 
@@ -136,14 +150,14 @@ public class JobletSummary{
 	}
 
 	public String getFirstCreatedAgo(){
-		if(this.firstCreated == null) {
+		if(this.firstCreated == null){
 			return "";
 		}
 		return DrDateTool.getAgoString(this.firstCreated);
 	}
 
 	public String getFirstReservedAgo(){
-		if(this.firstReserved == null) {
+		if(this.firstReserved == null){
 			return "";
 		}
 		return DrDateTool.getAgoString(this.firstReserved);
@@ -153,11 +167,21 @@ public class JobletSummary{
 		return queueIds.size();
 	}
 
-	public double getAvgItems(){
+	public String getAvgItemsString(){
+		return DrNumberFormatter.format(getAvgItems(), 1);
+	}
+
+	public String getAvgTasksString(){
+		return DrNumberFormatter.format(getAvgTasks(), 1);
+	}
+
+	/*-------------------- private ----------------------*/
+
+	private double getAvgItems(){
 		return (double)sumItems / (double)numType;
 	}
 
-	public double getAvgTasks(){
+	private double getAvgTasks(){
 		return (double)sumItems / (double)numType;
 	}
 
@@ -176,10 +200,10 @@ public class JobletSummary{
 	/*------------------ keys -----------------------*/
 
 	private static class TypeKey implements Comparable<TypeKey>{
-		private final String typeString;
+		private final int typeCode;
 
 		public TypeKey(JobletSummary summary){
-			this.typeString = summary.typeString;
+			this.typeCode = summary.typeCode;
 		}
 
 		@Override
@@ -188,27 +212,61 @@ public class JobletSummary{
 				return false;
 			}
 			JobletSummary other = (JobletSummary)obj;
-			return Objects.equals(typeString, other.typeString);
+			return Objects.equals(typeCode, other.typeCode);
 		}
 
 		@Override
 		public int hashCode(){
-			return Objects.hash(typeString);
+			return Objects.hash(typeCode);
 		}
 
 		@Override
 		public int compareTo(TypeKey other){
-			return DrComparableTool.nullFirstCompareTo(typeString, other.typeString);
+			return DrComparableTool.nullFirstCompareTo(typeCode, other.typeCode);
+		}
+	}
+
+	private static class TypeStatusKey implements Comparable<TypeStatusKey>{
+		private final int typeCode;
+		private final JobletStatus status;
+
+		public TypeStatusKey(JobletSummary summary){
+			this.typeCode = summary.typeCode;
+			this.status = summary.status;
+		}
+
+		@Override
+		public boolean equals(Object obj){
+			if(ClassTool.differentClass(this, obj)){
+				return false;
+			}
+			JobletSummary other = (JobletSummary)obj;
+			return Objects.equals(typeCode, other.typeCode)
+					&& Objects.equals(status, other.status);
+		}
+
+		@Override
+		public int hashCode(){
+			return Objects.hash(typeCode, status);
+		}
+
+		@Override
+		public int compareTo(TypeStatusKey other){
+			int diff = DrComparableTool.nullFirstCompareTo(typeCode, other.typeCode);
+			if(diff != 0){
+				return diff;
+			}
+			return DrComparableTool.nullFirstCompareTo(status, other.status);
 		}
 	}
 
 	private static class TypeExecutionOrderStatusKey implements Comparable<TypeExecutionOrderStatusKey>{
-		private final String typeString;
+		private final int typeCode;
 		private final Integer executionOrder;
 		private final JobletStatus status;
 
 		public TypeExecutionOrderStatusKey(JobletSummary summary){
-			this.typeString = summary.typeString;
+			this.typeCode = summary.typeCode;
 			this.executionOrder = summary.executionOrder;
 			this.status = summary.status;
 		}
@@ -219,19 +277,19 @@ public class JobletSummary{
 				return false;
 			}
 			JobletSummary other = (JobletSummary)obj;
-			return Objects.equals(typeString, other.typeString)
+			return Objects.equals(typeCode, other.typeCode)
 					&& Objects.equals(executionOrder, other.executionOrder)
 					&& Objects.equals(status, other.status);
 		}
 
 		@Override
 		public int hashCode(){
-			return Objects.hash(typeString, executionOrder, status);
+			return Objects.hash(typeCode, executionOrder, status);
 		}
 
 		@Override
 		public int compareTo(TypeExecutionOrderStatusKey other){
-			int diff = DrComparableTool.nullFirstCompareTo(typeString, other.typeString);
+			int diff = DrComparableTool.nullFirstCompareTo(typeCode, other.typeCode);
 			if(diff != 0){
 				return diff;
 			}
@@ -279,43 +337,47 @@ public class JobletSummary{
 
 	/*-------------------- get/set --------------------*/
 
-	public Integer getExecutionOrder() {
+	public Integer getExecutionOrder(){
 		return executionOrder;
 	}
 
-	public JobletStatus getStatus() {
+	public JobletStatus getStatus(){
 		return status;
 	}
 
-	public String getTypeString() {
+	public Integer getTypeCode(){
+		return typeCode;
+	}
+
+	public String getTypeString(){
 		return typeString;
 	}
 
-	public String getQueueId() {
+	public String getQueueId(){
 		return queueId;
 	}
 
-	public Integer getNumFailures() {
+	public Integer getNumFailures(){
 		return numFailures;
 	}
 
-	public Integer getNumType() {
+	public Integer getNumType(){
 		return numType;
 	}
 
-	public Integer getSumItems() {
+	public Integer getSumItems(){
 		return sumItems;
 	}
 
-	public Integer getSumTasks() {
+	public Integer getSumTasks(){
 		return sumTasks;
 	}
 
-	public Date getFirstCreated() {
+	public Date getFirstCreated(){
 		return firstCreated;
 	}
 
-	public Date getFirstReserved() {
+	public Date getFirstReserved(){
 		return firstReserved;
 	}
 

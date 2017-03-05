@@ -24,7 +24,7 @@ com.hotpads.notification.alias.AutomatedEmail{
 }
 
 */
-public class AutomatedEmail extends BaseDatabean<AutomatedEmailKey,AutomatedEmail> {
+public class AutomatedEmail extends BaseDatabean<AutomatedEmailKey,AutomatedEmail>{
 
 	/** fields ****************************************************************/
 
@@ -38,7 +38,7 @@ public class AutomatedEmail extends BaseDatabean<AutomatedEmailKey,AutomatedEmai
 
 	/** columns ***************************************************************/
 
-	public static class F {
+	public static class F{
 		public static final String
 			subject = "subject",
 			content = "content",
@@ -86,12 +86,12 @@ public class AutomatedEmail extends BaseDatabean<AutomatedEmailKey,AutomatedEmai
 	/** databean **************************************************************/
 
 	@Override
-	public Class<AutomatedEmailKey> getKeyClass() {
+	public Class<AutomatedEmailKey> getKeyClass(){
 		return AutomatedEmailKey.class;
 	}
 
 	@Override
-	public AutomatedEmailKey getKey() {
+	public AutomatedEmailKey getKey(){
 		return key;
 	}
 

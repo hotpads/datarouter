@@ -48,10 +48,10 @@ public class NodeId<
 		// slaves, partitions, etc
 		if(DrStringTool.notEmpty(clientName)){
 			String parentPrefix = DrStringTool.isEmpty(parentNodeName) ? "" : parentNodeName + ".";
-			return parentPrefix+clientName+"." + databeanClassName;
+			return parentPrefix + clientName + "." + databeanClassName;
 		}
 
 		//default case where there is no clientName (like MasterSlaveNode)
-		return databeanClassName + "."+nodeClassSimpleName;
+		return databeanClassName + "." + nodeClassSimpleName;
 	}
 }
