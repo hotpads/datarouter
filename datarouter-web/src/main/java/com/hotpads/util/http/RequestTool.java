@@ -1,11 +1,13 @@
 package com.hotpads.util.http;
 
-import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
@@ -14,6 +16,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
+import java.util.Optional;
 import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -495,16 +498,19 @@ public class RequestTool{
 	}
 
 	public static String getBodyAsString(ServletRequest request){
-		StringBuilder builder = new StringBuilder();
-		try(BufferedReader reader = request.getReader()){
-			String line;
-			while((line = reader.readLine()) != null){
-				builder.append(line).append(System.lineSeparator());
+		try(InputStream inputStream = request.getInputStream()){
+			ByteArrayOutputStream result = new ByteArrayOutputStream();
+			byte[] buffer = new byte[1024];
+			int length;
+			while((length = inputStream.read(buffer)) != -1){
+			    result.write(buffer, 0, length);
 			}
+			String charsetName = Optional.ofNullable(request.getCharacterEncoding())
+					.orElse(StandardCharsets.UTF_8.name());
+			return result.toString(charsetName);
 		}catch(IOException e){
 			throw new RuntimeException(e);
 		}
-		return builder.toString();
 	}
 
 	public static byte[] tryGetBodyAsByteArray(ServletRequest request){
