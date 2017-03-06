@@ -39,17 +39,12 @@ public class DefaultDecoder implements HandlerDecoder{
 	public Object[] decode(HttpServletRequest request, Method method){
 		Map<String, String[]> queryParams = request.getParameterMap();
 		Parameter[] parameters = method.getParameters();
-		int bodyParamCount;
-		if(containRequestBodyParam(parameters)){
-			bodyParamCount = 1;
-		}else{
-			bodyParamCount = 0;
-		}
+		long bodyParamCount = countRequestBodyParam(parameters);
 		if(queryParams.size() + bodyParamCount + getOptionalParameterCount(parameters) < parameters.length){
 			return null;
 		}
 		String body = null;
-		if(bodyParamCount == 1){
+		if(bodyParamCount >= 1){
 			body = RequestTool.getBodyAsString(request);
 			if(DrStringTool.isEmpty(body)){
 				return null;
@@ -71,9 +66,10 @@ public class DefaultDecoder implements HandlerDecoder{
 					}
 				}
 			}
-			boolean isBodyParameter = parameter.isAnnotationPresent(RequestBody.class);
-			if(isBodyParameter){
+			if(parameter.isAnnotationPresent(RequestBody.class)){
 				args[i] = decode(body, parameterType);
+			}else if(parameter.isAnnotationPresent(RequestBodyString.class)){
+				args[i] = body;
 			}else{
 				String[] queryParam = queryParams.get(parameterName);
 				boolean isOptional = OptionalParameter.class.isAssignableFrom(parameter.getType());
@@ -108,12 +104,14 @@ public class DefaultDecoder implements HandlerDecoder{
 		return obj;
 	}
 
-	private boolean containRequestBodyParam(Parameter[] parameters){
+	private static long countRequestBodyParam(Parameter[] parameters){
 		return Arrays.stream(parameters)
-				.anyMatch(parameter -> parameter.isAnnotationPresent(RequestBody.class));
+				.filter(parameter -> parameter.isAnnotationPresent(RequestBody.class)
+						|| parameter.isAnnotationPresent(RequestBodyString.class))
+				.count();
 	}
 
-	private long getOptionalParameterCount(Parameter[] parameters){
+	private static long getOptionalParameterCount(Parameter[] parameters){
 		return Arrays.stream(parameters)
 				.filter(parameter -> OptionalParameter.class.isAssignableFrom(parameter.getType()))
 				.count();
