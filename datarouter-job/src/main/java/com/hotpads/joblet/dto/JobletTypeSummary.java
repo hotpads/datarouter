@@ -12,7 +12,7 @@ public class JobletTypeSummary{
 
 	public JobletTypeSummary(JobletProcessor processor){
 		this.jobletTypeEnum = processor.getJobletType();
-		this.numThreads = processor.getThreadCountFromSettings();
+		this.numThreads = processor.getThreadCount();
 		this.numRunning = processor.getNumRunningJoblets();
 	}
 

@@ -26,9 +26,11 @@ import com.hotpads.job.dispatcher.DatarouterJobDispatcher;
 import com.hotpads.joblet.JobletNodes;
 import com.hotpads.joblet.JobletPackage;
 import com.hotpads.joblet.JobletService;
+import com.hotpads.joblet.JobletService.JobletServiceThreadCountResponse;
 import com.hotpads.joblet.dao.JobletRequestDao;
 import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.databean.JobletRequestKey;
+import com.hotpads.joblet.dto.JobletHandlerThreadCountDto;
 import com.hotpads.joblet.dto.JobletSummary;
 import com.hotpads.joblet.dto.JobletTypeSummary;
 import com.hotpads.joblet.enums.JobletPriority;
@@ -42,6 +44,8 @@ import com.hotpads.joblet.test.SleepingJoblet.SleepingJobletParams;
 import com.hotpads.joblet.type.JobletType;
 import com.hotpads.joblet.type.JobletTypeFactory;
 import com.hotpads.util.core.iterable.BatchingIterable;
+import com.hotpads.webappinstance.CachedWebAppInstancesOfThisType;
+import com.hotpads.webappinstance.databean.WebAppInstance;
 
 public class JobletHandler extends BaseHandler{
 	private static final Logger logger = LoggerFactory.getLogger(JobletHandler.class);
@@ -54,28 +58,26 @@ public class JobletHandler extends BaseHandler{
 		JSP_joblets = "/jsp/joblet/joblets.jsp",
 		JSP_queues = "/jsp/joblet/queues.jsp",
 		JSP_threads = "/jsp/joblet/threads.jsp",
+		JSP_threadCounts = "/jsp/joblet/threadCounts.jsp",
 	 	JSP_exceptions = "/jsp/joblet/jobletExceptions.jsp";
 
-	private final JobletTypeFactory jobletTypeFactory;
-	private final JobletNodes jobletNodes;
-	private final JobletProcessors jobletProcessors;
-	private final JobletService jobletService;
-	private final JobletSettings jobletSettings;
-	private final JobletRequestDao jobletRequestDao;
-	private final JobletRequestQueueManager jobletRequestQueueManager;
-
 	@Inject
-	public JobletHandler(JobletTypeFactory jobletTypeFactory, JobletNodes jobletNodes,
-			JobletProcessors jobletProcessors, JobletService jobletService, JobletSettings jobletSettings,
-			JobletRequestDao jobletRequestDao, JobletRequestQueueManager jobletRequestQueueManager){
-		this.jobletTypeFactory = jobletTypeFactory;
-		this.jobletNodes = jobletNodes;
-		this.jobletProcessors = jobletProcessors;
-		this.jobletService = jobletService;
-		this.jobletSettings = jobletSettings;
-		this.jobletRequestDao = jobletRequestDao;
-		this.jobletRequestQueueManager = jobletRequestQueueManager;
-	}
+	private JobletTypeFactory jobletTypeFactory;
+	@Inject
+	private JobletNodes jobletNodes;
+	@Inject
+	private JobletProcessors jobletProcessors;
+	@Inject
+	private JobletService jobletService;
+	@Inject
+	private JobletSettings jobletSettings;
+	@Inject
+	private JobletRequestDao jobletRequestDao;
+	@Inject
+	private JobletRequestQueueManager jobletRequestQueueManager;
+	@Inject
+	private CachedWebAppInstancesOfThisType cachedWebAppInstancesOfThisType;
+
 
 	@Handler(defaultHandler = true)
 	private Mav list(){
@@ -204,6 +206,22 @@ public class JobletHandler extends BaseHandler{
 		jobletProcessors.killThread(threadId);
 		return new InContextRedirectMav(params, URL_JOBLETS_IN_CONTEXT);
 	}
+
+	@Handler
+	private Mav threadCounts(){
+		Mav mav = new Mav(JSP_threadCounts);
+		List<JobletHandlerThreadCountDto> threadCountDtos = new ArrayList<>();
+		List<WebAppInstance> instances = cachedWebAppInstancesOfThisType.get();
+		for(JobletType<?> jobletType : jobletTypeFactory.getAllTypes()){
+			JobletServiceThreadCountResponse threadCountResponse = jobletService.getThreadCountInfoForThisInstance(
+					jobletType);
+			threadCountDtos.add(new JobletHandlerThreadCountDto(instances, threadCountResponse));
+		}
+		mav.put("numInstances", instances.size());
+		mav.put("threadCountDtos", threadCountDtos);
+		return mav;
+	}
+
 
 	/*
 	 /datarouter/joblets/createSleepingJoblets

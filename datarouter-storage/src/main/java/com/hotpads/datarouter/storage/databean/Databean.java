@@ -19,10 +19,6 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
  * different storage formats, and the ability to serialize to arbitrary formats like JSON, Memcached, a file, or
  * HBase. Databeans are often the foundation of a project, and comprise a minority of the code so the trade-off is
  * usually worthwhile.
- *
- * To create a databean you can copy/paste/modify a similar existing databean or use the web tool. If you prefer a
- * lighter-weight format, you can omit the Fielder definition and add Hibernate annotations, but this isn't recommended
- * as it's comparable work to define a Fielder.
  */
 public interface Databean<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 extends Comparable<Databean<?,?>>{
