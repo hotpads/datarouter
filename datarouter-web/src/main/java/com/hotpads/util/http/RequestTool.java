@@ -36,7 +36,7 @@ import com.hotpads.util.core.profile.ThreadSafePhaseTimer;
 import com.hotpads.util.datastructs.DefaultableHashMap;
 import com.hotpads.util.http.security.UrlScheme;
 
-public class RequestTool {
+public class RequestTool{
 	private static final String INACCESSIBLE_BODY = "INACCESSIBLE BODY: ";
 	public static final String SUBMIT_ACTION = "submitAction";
 	public static final String REQUEST_PHASE_TIMER = "requestPhaseTimer";
@@ -499,7 +499,7 @@ public class RequestTool {
 		try(BufferedReader reader = request.getReader()){
 			String line;
 			while((line = reader.readLine()) != null){
-				builder.append(line);
+				builder.append(line).append(System.lineSeparator());
 			}
 		}catch(IOException e){
 			throw new RuntimeException(e);
