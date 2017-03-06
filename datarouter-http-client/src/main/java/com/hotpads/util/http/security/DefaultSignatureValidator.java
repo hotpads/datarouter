@@ -12,6 +12,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.codec.binary.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,8 +43,9 @@ public class DefaultSignatureValidator implements SignatureValidator{
 	}
 
 	@Override
-	public boolean checkHexSignatureMulti(Map<String,String[]> params, String candidateSignature, String apiKey){
-		return checkHexSignature(multiToSingle(params), candidateSignature);
+	public boolean checkHexSignatureMulti(HttpServletRequest request){
+		return checkHexSignature(multiToSingle(request.getParameterMap()),
+				request.getParameter(SecurityParameters.SIGNATURE));
 	}
 
 	@Deprecated

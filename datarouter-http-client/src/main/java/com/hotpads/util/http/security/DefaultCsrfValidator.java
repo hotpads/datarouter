@@ -12,6 +12,7 @@ import javax.crypto.Cipher;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
+import javax.servlet.http.HttpServletRequest;
 
 public class DefaultCsrfValidator implements CsrfValidator{
 	private static final String HASHING_ALGORITHM = "SHA-256";
@@ -50,8 +51,8 @@ public class DefaultCsrfValidator implements CsrfValidator{
 	}
 
 	@Override
-	public boolean check(String token, String cipherIv, String apiKey){
-		Long requestTime = getRequestTimeMs(token, cipherIv, apiKey);
+	public boolean check(HttpServletRequest request){
+		Long requestTime = getRequestTimeMs(request);
 		if(requestTime == null){
 			return false;
 		}
@@ -69,10 +70,12 @@ public class DefaultCsrfValidator implements CsrfValidator{
 	}
 
 	@Override
-	public Long getRequestTimeMs(String token, String cipherIv, String apiKey){
+	public Long getRequestTimeMs(HttpServletRequest request){
+		String csrfToken = request.getParameter(SecurityParameters.CSRF_TOKEN);
+		String cipherIv = request.getParameter(SecurityParameters.CSRF_IV);
 		try{
 			Cipher aes = getCipher(Cipher.DECRYPT_MODE, cipherIv);
-			return Long.parseLong(new String(aes.doFinal(Base64.getDecoder().decode(token))));
+			return Long.parseLong(new String(aes.doFinal(Base64.getDecoder().decode(csrfToken))));
 		}catch(Exception e){
 			throw new RuntimeException(e);
 		}

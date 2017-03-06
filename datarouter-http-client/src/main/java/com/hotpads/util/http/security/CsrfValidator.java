@@ -1,8 +1,10 @@
 package com.hotpads.util.http.security;
 
+import javax.servlet.http.HttpServletRequest;
+
 public interface CsrfValidator{
 
-	public boolean check(String csrfToken, String cipherIv, String apiKey);
+	public boolean check(HttpServletRequest request);
 
-	public Long getRequestTimeMs(String csrfToken, String csrfIv, String apiKey);
+	public Long getRequestTimeMs(HttpServletRequest request);
 }

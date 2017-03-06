@@ -1,9 +1,9 @@
 package com.hotpads.util.http.security;
 
-import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
 
 public interface SignatureValidator{
 
-	boolean checkHexSignatureMulti(Map<String,String[]> parameterMap, String signature, String apiKey);
+	boolean checkHexSignatureMulti(HttpServletRequest request);
 
 }

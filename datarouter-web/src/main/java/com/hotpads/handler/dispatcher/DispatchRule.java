@@ -93,12 +93,9 @@ public class DispatchRule{
 	}
 
 	private boolean checkCsrfToken(HttpServletRequest request){
-		String csrfToken = request.getParameter(SecurityParameters.CSRF_TOKEN);
-		String csrfIv = request.getParameter(SecurityParameters.CSRF_IV);
-		String apiKey = request.getParameter(SecurityParameters.API_KEY);
-		boolean result = csrfValidator == null || csrfValidator.check(csrfToken, csrfIv, apiKey);
+		boolean result = csrfValidator == null || csrfValidator.check(request);
 		if(!result){
-			Long requestTimeMs = csrfValidator.getRequestTimeMs(csrfToken, csrfIv, apiKey);
+			Long requestTimeMs = csrfValidator.getRequestTimeMs(request);
 			Long differenceMs = null;
 			if(requestTimeMs != null){
 				differenceMs = System.currentTimeMillis() - requestTimeMs;
@@ -111,10 +108,8 @@ public class DispatchRule{
 	}
 
 	private boolean checkSignature(HttpServletRequest request){
-		String signature = request.getParameter(SecurityParameters.SIGNATURE);
-		String apiKey = request.getParameter(SecurityParameters.API_KEY);
 		boolean result = signatureValidator == null
-				|| signatureValidator.checkHexSignatureMulti(request.getParameterMap(), signature, apiKey);
+				|| signatureValidator.checkHexSignatureMulti(request);
 		if(!result){
 			logFailure("Signature validation failed", request);
 		}
