@@ -28,9 +28,17 @@ public class LongRunningTaskTracker{
 		this.persistSetting = persistSetting;
 	}
 
-
 	public LongRunningTaskTracker heartbeat(long numItemsProcessed){
+		return heartbeat(numItemsProcessed, null);
+	}
+
+	public LongRunningTaskTracker heartbeat(String lastItemProcessed){
+		return heartbeat(null, lastItemProcessed);
+	}
+
+	public LongRunningTaskTracker heartbeat(Long numItemsProcessed, String lastItemProcessed){
 		task.setNumItemsProcessed(numItemsProcessed);
+		task.setLastItemProcessed(lastItemProcessed);
 		return heartbeat();
 	}
 

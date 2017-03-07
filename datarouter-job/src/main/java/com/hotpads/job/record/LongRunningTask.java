@@ -44,6 +44,7 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 	private JobExecutionStatus jobExecutionStatus;
 	private String triggeredBy;
 	private Long numItemsProcessed;
+	private String lastItemProcessed;
 
 	/**************************** columns ****************************************/
 
@@ -58,6 +59,8 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 				"jobExecutionStatus", JobExecutionStatus.class);
 		public static final StringFieldKey triggeredBy = new StringFieldKey("triggeredBy");
 		public static final LongFieldKey numItemsProcessed = new LongFieldKey("numItemsProcessed");
+		private static final StringFieldKey lastItemProcessed = new StringFieldKey("lastItemProcessed").withSize(
+				MySqlColumnType.INT_LENGTH_LONGTEXT);
 	}
 
 	/********************** databean *****************************************/
@@ -76,12 +79,13 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 					new DateField(FieldKeys.heartbeatTime, databean.heartbeatTime),
 					new StringEnumField<>(FieldKeys.jobExecutionStatus, databean.jobExecutionStatus),
 					new StringField(FieldKeys.triggeredBy, databean.triggeredBy),
-					new LongField(FieldKeys.numItemsProcessed, databean.numItemsProcessed));
+					new LongField(FieldKeys.numItemsProcessed, databean.numItemsProcessed),
+					new StringField(FieldKeys.lastItemProcessed, databean.lastItemProcessed));
 		}
 	}
 
 	@Override
-	public Class<LongRunningTaskKey> getKeyClass() {
+	public Class<LongRunningTaskKey> getKeyClass(){
 		return LongRunningTaskKey.class;
 	}
 
@@ -142,59 +146,67 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 		key.setTriggerTime(date);
 	}
 
-	public Date getStartTime() {
+	public Date getStartTime(){
 		return startTime;
 	}
 
-	public void setStartTime(Date startTime) {
+	public void setStartTime(Date startTime){
 		this.startTime = startTime;
 	}
 
-	public Boolean getInterrupt() {
+	public Boolean getInterrupt(){
 		return interrupt;
 	}
 
-	public void setInterrupt(Boolean interrupt) {
+	public void setInterrupt(Boolean interrupt){
 		this.interrupt = interrupt;
 	}
 
-	public Date getFinishTime() {
+	public Date getFinishTime(){
 		return finishTime;
 	}
 
-	public void setFinishTime(Date finishTime) {
+	public void setFinishTime(Date finishTime){
 		this.finishTime = finishTime;
 	}
 
-	public Date getHeartbeatTime() {
+	public Date getHeartbeatTime(){
 		return heartbeatTime;
 	}
 
-	public void setHeartbeatTime(Date heartbeatTime) {
+	public void setHeartbeatTime(Date heartbeatTime){
 		this.heartbeatTime = heartbeatTime;
 	}
 
-	public JobExecutionStatus getJobExecutionStatus() {
+	public JobExecutionStatus getJobExecutionStatus(){
 		return jobExecutionStatus;
 	}
 
-	public void setJobExecutionStatus(JobExecutionStatus jobExecutionStatus) {
+	public void setJobExecutionStatus(JobExecutionStatus jobExecutionStatus){
 		this.jobExecutionStatus = jobExecutionStatus;
 	}
 
-	public String getTriggeredBy() {
+	public String getTriggeredBy(){
 		return triggeredBy;
 	}
 
-	public LongRunningTaskType getType() {
+	public LongRunningTaskType getType(){
 		return type;
 	}
 
-	public Long getNumItemsProcessed() {
+	public Long getNumItemsProcessed(){
 		return numItemsProcessed;
 	}
 
-	public void setNumItemsProcessed(Long numItemsProcessed) {
+	public void setNumItemsProcessed(Long numItemsProcessed){
 		this.numItemsProcessed = numItemsProcessed;
+	}
+
+	public String getLastItemProcessed(){
+		return lastItemProcessed;
+	}
+
+	public void setLastItemProcessed(String lastItemProcessed){
+		this.lastItemProcessed = lastItemProcessed;
 	}
 }
