@@ -33,11 +33,4 @@ public abstract class BaseCached<T>{
 	}
 
 	protected abstract boolean isExpired();
-
-	public void expire(){
-		synchronized(this){
-			cachedAtMs = 0L;
-			value = null;
-		}
-	}
 }
