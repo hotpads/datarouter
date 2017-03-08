@@ -18,12 +18,8 @@ public class BigTableOptions extends TypedProperties{
 		return getString(clientPrefix + "projectId");
 	}
 
-	public String zone(){
-		return getString(clientPrefix + "zone");
-	}
-
-	public String clusterId(){
-		return getString(clientPrefix + "clusterId");
+	public String instanceId(){
+		return getString(clientPrefix + "instanceId");
 	}
 
 }

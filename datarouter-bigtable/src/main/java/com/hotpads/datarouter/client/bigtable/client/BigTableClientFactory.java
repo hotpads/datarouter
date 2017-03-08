@@ -24,9 +24,8 @@ public class BigTableClientFactory extends BaseHBaseClientFactory{
 	@Override
 	protected Connection makeConnection(){
 		String projectId = bigTableOptions.projectId();
-		String zone = bigTableOptions.zone();
-		String clusterId = bigTableOptions.clusterId();
-		return BigtableConfiguration.connect(projectId, zone, clusterId);
+		String instanceId = bigTableOptions.instanceId();
+		return BigtableConfiguration.connect(projectId, instanceId);
 	}
 
 
