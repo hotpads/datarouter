@@ -81,11 +81,11 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-	<dependency>
-		<groupId>io.netty</groupId>
-		<artifactId>netty-tcnative</artifactId>
-		<version>1.1.33.Fork26</version>
-		<classifier>linux-x86_64</classifier>
-	</dependency>
+		<dependency>
+			<groupId>io.netty</groupId>
+			<artifactId>netty-tcnative</artifactId>
+			<version>1.1.33.Fork26</version>
+			<classifier>linux-x86_64</classifier>
+		</dependency>
 	</dependencies>
 </project>
