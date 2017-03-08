@@ -74,22 +74,10 @@
 			<artifactId>protobuf-java</artifactId>
 			<version>2.6.1</version>
 		</dependency>
-		<!-- https://cloud.google.com/bigtable/docs/using-maven#encryption -->
-		<dependency>
-			<groupId>io.netty</groupId>
-			<artifactId>netty-tcnative-boringssl-static</artifactId>
-			<version>1.1.33.Fork19</version>
-		</dependency>
-		<!-- need at least 4.1.0.CR4, per https://github.com/netty/netty-tcnative/issues/136 -->
-		<dependency>
-		    <groupId>io.netty</groupId>
-		    <artifactId>netty-all</artifactId>
-		    <version>4.1.6.Final</version>
-		</dependency>
 		<dependency>
 			<groupId>com.google.cloud.bigtable</groupId>
 			<artifactId>bigtable-hbase-1.2</artifactId>
-			<version>0.3.0</version>
+			<version>0.9.5.1</version>
 			<exclusions>
 				<exclusion>
 					<groupId>org.slf4j</groupId>
@@ -101,5 +89,11 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
+	<dependency>
+		<groupId>io.netty</groupId>
+		<artifactId>netty-tcnative</artifactId>
+		<version>1.1.33.Fork26</version>
+		<classifier>linux-x86_64</classifier>
+	</dependency>
 	</dependencies>
 </project>
