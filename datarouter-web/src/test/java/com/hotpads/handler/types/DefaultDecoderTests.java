@@ -5,7 +5,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -29,6 +31,7 @@ public class DefaultDecoderTests{
 	private static final String kenavo = "kenavo";
 	private static final int[] intArray = new int[]{1, 2, 3, 125};
 	private static final int base = 2;
+	private static final String[] stringArray = new String[]{"degemer", "mat", "ar", "gouel"};
 
 	// Used via reflection in testMethodParameterNameInclusionAtRuntime
 	@SuppressWarnings("unused")
@@ -147,6 +150,20 @@ public class DefaultDecoderTests{
 		Assert.assertEquals(args.length, 2);
 		Assert.assertEquals(args[0], intArray);
 		Assert.assertEquals(args[1], base);
+	}
+
+	@Test
+	public void testTimeContains() throws NoSuchMethodException, SecurityException{
+		Method method = TestApiHandler.class.getMethod("timeContains", Set.class, String.class, String.class);
+		HttpServletRequest request = new HttpRequestBuilder()
+				.withBody(Arrays.toString(stringArray))
+				.withParameter("needle", stringArray[2])
+				.build();
+		Object[] args = decoder.decode(request, method);
+		Assert.assertEquals(args.length, 3);
+		Assert.assertEquals(args[0], new HashSet<>(Arrays.asList(stringArray)));
+		Assert.assertEquals(args[1], stringArray[2]);
+		Assert.assertEquals(args[2], Arrays.toString(stringArray));
 	}
 
 }

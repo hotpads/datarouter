@@ -2,7 +2,6 @@ package com.hotpads.util.core.profile;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -107,10 +106,11 @@ public class ThreadSafePhaseTimer extends PhaseRecord implements PhaseRecorder<T
 		if(other == null || other == this || other.phases.isEmpty()){
 			return;
 		}
-		Iterator<PhaseRecord> otherRecords = other.phases.iterator();
+		int otherIndex = 0;
 		int position = 0;
-		while(otherRecords.hasNext()){
-			position = insertSingleRecord(otherRecords.next(), position);
+		// Avoid use of iterators => ConcurrentModificationException e.g. when other is updated by another thread.
+		while(otherIndex < other.phases.size()){
+			position = insertSingleRecord(other.phases.get(otherIndex++), position);
 		}
 	}
 
@@ -120,12 +120,14 @@ public class ThreadSafePhaseTimer extends PhaseRecord implements PhaseRecorder<T
 		}
 		long min = 0;
 		long max = 0;
-		for(PhaseRecord p : phases){
-			if(p.time > max){
-				max = p.time;
+
+		for(int index = 0; index < phases.size(); index++){
+			PhaseRecord record = phases.get(index);
+			if(record.time > max){
+				max = record.time;
 			}
-			if(p.time < min || min == 0){
-				min = p.time;
+			if(record.time < min || min == 0){
+				min = record.time;
 			}
 		}
 		return max - min;

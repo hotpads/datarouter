@@ -86,33 +86,30 @@ public class DispatchRule{
 	private boolean checkApiKey(HttpServletRequest request){
 		boolean result = apiKeyPredicate == null || apiKeyPredicate.check(request.getParameter(
 				SecurityParameters.API_KEY));
-		if(!result) {
+		if(!result){
 			logFailure("API key check failed", request);
 		}
 		return result;
 	}
 
 	private boolean checkCsrfToken(HttpServletRequest request){
-		String csrfToken = request.getParameter(SecurityParameters.CSRF_TOKEN);
-		String csrfIv = request.getParameter(SecurityParameters.CSRF_IV);
-		boolean result = csrfValidator == null || csrfValidator.check(csrfToken, csrfIv);
+		boolean result = csrfValidator == null || csrfValidator.check(request);
 		if(!result){
-			Long requestTimeMs = csrfValidator.getRequestTimeMs(csrfToken, csrfIv);
+			Long requestTimeMs = csrfValidator.getRequestTimeMs(request);
 			Long differenceMs = null;
-			if(requestTimeMs!=null){
+			if(requestTimeMs != null){
 				differenceMs = System.currentTimeMillis() - requestTimeMs;
 			}
 
-			logFailure("CSRF token check failed, request time:"+requestTimeMs+" is "+differenceMs+"ms > current time",
-					request);
+			logFailure("CSRF token check failed, request time:" + requestTimeMs + " is " + differenceMs
+					+ "ms > current time", request);
 		}
 		return result;
 	}
 
 	private boolean checkSignature(HttpServletRequest request){
-		String signature =  request.getParameter(SecurityParameters.SIGNATURE);
 		boolean result = signatureValidator == null
-				|| signatureValidator.checkHexSignatureMulti(request.getParameterMap(), signature);
+				|| signatureValidator.checkHexSignatureMulti(request);
 		if(!result){
 			logFailure("Signature validation failed", request);
 		}
@@ -128,7 +125,7 @@ public class DispatchRule{
 	}
 
 	private void logFailure(String message, HttpServletRequest request){
-		logger.warn(message+". IP:[{}] URI:[{}]", RequestTool.getIpAddress(request), request.getRequestURI());
+		logger.warn(message + ". IP:[{}] URI:[{}]", RequestTool.getIpAddress(request), request.getRequestURI());
 	}
 
 	public boolean apply(HttpServletRequest request){

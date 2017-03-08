@@ -1,7 +1,9 @@
 package com.hotpads.handler.types;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 import java.security.Principal;
 import java.util.Collection;
 import java.util.Enumeration;
@@ -43,7 +45,7 @@ public class MockHttpRequest implements HttpServletRequest{
 
 	@Override
 	public String getCharacterEncoding(){
-		throw new UnsupportedOperationException();
+		return StandardCharsets.UTF_8.toString();
 	}
 
 	@Override
@@ -64,7 +66,12 @@ public class MockHttpRequest implements HttpServletRequest{
 
 	@Override
 	public ServletInputStream getInputStream(){
-		throw new UnsupportedOperationException();
+		return new ServletInputStream(){
+			@Override
+			public int read() throws IOException{
+				return reader.read();
+			}
+		};
 	}
 
 	@Override
