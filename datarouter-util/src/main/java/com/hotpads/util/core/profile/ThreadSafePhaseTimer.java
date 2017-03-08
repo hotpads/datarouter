@@ -33,6 +33,10 @@ public class ThreadSafePhaseTimer extends PhaseRecord implements PhaseRecorder<T
 		return this;
 	}
 
+	public void end(){
+		record("end");
+	}
+
 	public String toString(int showPhasesAtLeastThisMsLong){
 		return toString(DEFAULT_DELIM,showPhasesAtLeastThisMsLong);
 	}
