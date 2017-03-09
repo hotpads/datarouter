@@ -33,6 +33,10 @@ public class ThreadSafePhaseTimer extends PhaseRecord implements PhaseRecorder<T
 		return this;
 	}
 
+	public void end(){
+		record("end");
+	}
+
 	public String toString(int showPhasesAtLeastThisMsLong){
 		return toString(DEFAULT_DELIM,showPhasesAtLeastThisMsLong);
 	}
@@ -53,38 +57,37 @@ public class ThreadSafePhaseTimer extends PhaseRecord implements PhaseRecorder<T
 			.append(phases.size())
 			.append(" records]");
 		Map<String,List<PhaseRecord>> threads = buildThreadMap();
+
+
 		for(String thread : threads.keySet()){
 			List<PhaseRecord> phases = threads.get(thread);
 			long elapsed = totalize(phases);
-			long previous = this.getTime();
 			PhaseRecord phase = phases.get(0);
-			if(!phase.getThreadId().equals(this.getThreadId())){
-				previous = phase.time;
-			}
-			if(threads.size() > 1){
+			long previous = phase.time;
+
+			if(threads.size() > 0){
 				sb.append(delimiter)
 				.append("[")
 				.append(thread)
 				.append(":total:")
 				.append(DrNumberFormatter.addCommas(elapsed))
-				.append("ms]");
+				.append("ms");
 			}
+			String delim = " - ";
 			for(int i = 0; i < phases.size(); ++i){
 				phase = phases.get(i);
 				long diff = phase.time - previous;
 				if(diff >= showPhasesAtLeastThisMsLong){
-					sb.append(delimiter).append("[");
-					if(threads.size() > 1){
-						sb.append(thread)
-						.append(":");
-					}
+					sb.append(delimiter).append(delim);
+					delim = " ";
 					sb.append(phase.name)
 					.append(":")
 					.append(DrNumberFormatter.addCommas(diff))
-					.append("ms]");
+					.append("ms");
 					previous = phase.time;
 				}
 			}
+			sb.append("]");
 		}
 		return sb.toString();
 	}
@@ -201,7 +204,6 @@ public class ThreadSafePhaseTimer extends PhaseRecord implements PhaseRecorder<T
 			int totalDone = 0;
 			while(totalDone < threads.size()){
 				totalDone = 0;
-
 				for(TestThread thread : threads){
 					if(thread.isComplete()){
 						totalDone++;
