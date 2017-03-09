@@ -4,6 +4,7 @@ import org.apache.hadoop.hbase.HRegionInfo;
 import org.apache.hadoop.hbase.HRegionLocation;
 import org.apache.hadoop.hbase.ServerName;
 import org.apache.hadoop.hbase.TableName;
+import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.RegionLocator;
 import org.apache.hadoop.hbase.client.coprocessor.Batch;
 import org.slf4j.Logger;
@@ -50,11 +51,14 @@ public class CountingBatchCallback<R> implements Batch.Callback<R>{
 	public void update(byte[] region, byte[] row, R result){
 		try{
 			String regionName = HRegionInfo.encodeRegionName(region);
-			RegionLocator regionLocator = getClient().getConnection().getRegionLocator(TableName.valueOf(tableName));
+			//separate lines for easier NPE identification
+			HBaseClient client = getClient();
+			Connection connection = client.getConnection();
+			RegionLocator regionLocator = connection.getRegionLocator(TableName.valueOf(tableName));
 			HRegionLocation regionLocation = regionLocator.getRegionLocation(row);
 			ServerName serverName = regionLocation.getServerName();
 			String hostname = serverName.getHostname();//could add port and serverStartCode in the future
-			logger.debug("{}, {}, {}", tableName, hostname, opName);
+			logger.debug("{}, {}, {}, {}, {}", clientName, tableName, opName, regionName, hostname);
 			DRCounters.onHBaseRowCallback(clientName, tableName, opName, regionName, hostname, 1L);
 		}catch(Exception e){
 			logger.warn("", e);
