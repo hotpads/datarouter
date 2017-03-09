@@ -13,7 +13,8 @@ public class DRCounters{
 		AGGREGATION_client = "client",
 		AGGREGATION_table = "table",
 		AGGREGATION_node = "node",
-		AGGREGATION_region = "region";
+		AGGREGATION_region = "region",
+		AGGREGATION_server = "server";
 
 	/********* inc single ************/
 

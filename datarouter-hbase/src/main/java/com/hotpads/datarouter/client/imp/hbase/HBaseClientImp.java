@@ -70,6 +70,11 @@ implements HBaseClient{
 	/****************************** HBaseClient methods *************************/
 
 	@Override
+	public Connection getConnection(){
+		return connection;
+	}
+	
+	@Override
 	public Admin getAdmin(){
 		return admin;
 	}
