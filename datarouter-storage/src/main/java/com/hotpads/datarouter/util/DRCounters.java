@@ -107,7 +107,6 @@ public class DRCounters{
 	private static void onHBaseRowCallbackClientServer(String clientName, String serverName, long delta){
 		String key = clientName + " " + serverName;
 		onHBaseRowCallbackInternal(AGGREGATION_client_server, key, delta);
-		logger.warn("{}", key);
 	}
 
 	private static void onHBaseRowCallbackClientServerTable(String clientName, String tableName, String serverName,

@@ -19,6 +19,7 @@ public class CountingBatchCallback<R> implements Batch.Callback<R>{
 
 	private final HBaseNode<?,?,?> node;
 	private final HBaseSubEntityNode<?,?,?,?,?> subEntityNode;
+	@SuppressWarnings("unused")//will probably want; not trivial to add back
 	private final String clientTypeString;
 	private final String clientName;
 	private final String tableName;
