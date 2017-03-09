@@ -14,7 +14,10 @@ public class DRCounters{
 		AGGREGATION_table = "table",
 		AGGREGATION_node = "node",
 		AGGREGATION_region = "region",
-		AGGREGATION_server = "server";
+		AGGREGATION_client_server_table = "client-server-table",
+		AGGREGATION_client_server_table_op = "client-server-table-op",
+		AGGREGATION_client_table_server = "client-table-server",
+		AGGREGATION_client_table_server_op = "client-table-server-op";
 
 
 	public static void incClient(ClientType type, String key, String clientName){
@@ -80,51 +83,53 @@ public class DRCounters{
 	public static void incClientTableOpRegion(String clientTypeString, String clientName, String tableName,
 			String opName, String regionName, long delta){
 		String compoundKey = clientName + " " + tableName + " " + opName + " " + regionName;
-		incInternalString(AGGREGATION_region, clientTypeString, compoundKey, delta);
+		incInternalStringWithClientType(AGGREGATION_region, clientTypeString, compoundKey, delta);
 	}
 
 	/*------------ server -------------------*/
 
-	public static void incServer(String clientTypeString, String clientName, String tableName, String opName,
-			String serverName, long delta){
-		incClientServerTable(clientTypeString, clientName, tableName, serverName, delta);
-		incClientServerTableOp(clientTypeString, clientName, tableName, serverName, opName, delta);
-		incClientTableServer(clientTypeString, clientName, tableName, serverName, delta);
-		incClientTableServerOp(clientTypeString, clientName, tableName, serverName, opName, delta);
+	public static void incServer(String clientName, String tableName, String opName, String serverName, long delta){
+		incClientServerTable(clientName, tableName, serverName, delta);
+		incClientServerTableOp(clientName, tableName, serverName, opName, delta);
+		incClientTableServer(clientName, tableName, serverName, delta);
+		incClientTableServerOp(clientName, tableName, serverName, opName, delta);
 	}
 
-	private static void incClientServerTable(String clientTypeString, String clientName, String tableName,
-			String serverName, long delta){
+	private static void incClientServerTable(String clientName, String tableName, String serverName, long delta){
 		String compoundKey = clientName + " " + serverName + " " + tableName;
-		incInternalString(AGGREGATION_server, clientTypeString, compoundKey, delta);
+		incInternalString(AGGREGATION_client_server_table, compoundKey, delta);
 	}
 
-	private static void incClientServerTableOp(String clientTypeString, String clientName, String tableName,
-			String serverName, String opName, long delta){
+	private static void incClientServerTableOp(String clientName, String tableName, String serverName, String opName,
+			long delta){
 		String compoundKey = clientName + " " + serverName + " " + tableName + " " + opName;
-		incInternalString(AGGREGATION_server, clientTypeString, compoundKey, delta);
+		incInternalString(AGGREGATION_client_server_table_op, compoundKey, delta);
 	}
 
-	private static void incClientTableServer(String clientTypeString, String clientName, String tableName,
-			String serverName, long delta){
+	private static void incClientTableServer(String clientName, String tableName, String serverName, long delta){
 		String compoundKey = clientName + " " + tableName + " " + serverName;
-		incInternalString(AGGREGATION_server, clientTypeString, compoundKey, delta);
+		incInternalString(AGGREGATION_client_table_server, compoundKey, delta);
 	}
 
-	private static void incClientTableServerOp(String clientTypeString, String clientName, String tableName,
-			String serverName, String opName, long delta){
+	private static void incClientTableServerOp(String clientName, String tableName, String serverName, String opName,
+			long delta){
 		String compoundKey = clientName + " " + tableName + " " + serverName + " " + opName;
-		incInternalString(AGGREGATION_server, clientTypeString, compoundKey, delta);
+		incInternalString(AGGREGATION_client_table_server_op, compoundKey, delta);
 	}
 
 	/*------------ private -------------------*/
 
 	private static void incInternal(String aggregationLevel, ClientType clientType, String key, long delta){
 		String clientTypeString = clientType != null ? clientType.getName() : CLIENT_TYPE_virtual;
-		incInternalString(aggregationLevel, clientTypeString, key, delta);
+		incInternalStringWithClientType(aggregationLevel, clientTypeString, key, delta);
 	}
 
-	private static void incInternalString(String aggregationLevel, String clientTypeString, String key, long delta){
+	private static void incInternalStringWithClientType(String aggregationLevel, String clientTypeString, String key,
+			long delta){
 		Counters.inc(PREFIX + " " + aggregationLevel + " " + clientTypeString + " " + key, delta);
+	}
+
+	private static void incInternalString(String aggregationLevel, String key, long delta){
+		Counters.inc(PREFIX + " " + aggregationLevel + " " + key, delta);
 	}
 }
