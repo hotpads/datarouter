@@ -47,16 +47,14 @@ public class CountingBatchCallback<R> implements Batch.Callback<R>{
 
 	@Override
 	public void update(byte[] region, byte[] row, R result){
-		String encodedRegionName = HRegionInfo.encodeRegionName(region);
-		String opString = opName + " rows";
-		DRCounters.incClientTableOpRegion(clientTypeString, clientName, tableName, opString, encodedRegionName, 1);
 		try{
+			String regionName = HRegionInfo.encodeRegionName(region);
 			RegionLocator regionLocator = getClient().getConnection().getRegionLocator(TableName.valueOf(tableName));
 			HRegionLocation regionLocation = regionLocator.getRegionLocation(row);
 			ServerName serverName = regionLocation.getServerName();
 			String hostname = serverName.getHostname();//could add port and serverStartCode in the future
 			logger.debug("{}, {}, {}", tableName, hostname, opName);
-			DRCounters.incServer(clientName, tableName, opName, hostname, 1L);
+			DRCounters.onHBaseRowCallback(clientName, tableName, opName, regionName, hostname, 1L);
 		}catch(Exception e){
 			logger.warn("", e);
 		}

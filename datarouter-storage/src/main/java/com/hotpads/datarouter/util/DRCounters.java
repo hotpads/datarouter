@@ -1,10 +1,14 @@
 package com.hotpads.datarouter.util;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.profile.counter.Counters;
 
 public class DRCounters{
+	private static final Logger logger = LoggerFactory.getLogger(DRCounters.class);
 
 	public static final String
 		PREFIX = "Datarouter",
@@ -14,7 +18,9 @@ public class DRCounters{
 		AGGREGATION_table = "table",
 		AGGREGATION_node = "node",
 		AGGREGATION_region = "region",
+		AGGREGATION_client_server = "client-server",
 		AGGREGATION_client_server_table = "client-server-table",
+		AGGREGATION_client_server_table_region = "client-server-table-region",
 		AGGREGATION_client_server_table_op = "client-server-table-op",
 		AGGREGATION_client_table_server = "client-table-server",
 		AGGREGATION_client_table_server_op = "client-table-server-op";
@@ -86,35 +92,56 @@ public class DRCounters{
 		incInternalStringWithClientType(AGGREGATION_region, clientTypeString, compoundKey, delta);
 	}
 
-	/*------------ server -------------------*/
+	/*------------ region (hbase only right now) -------------------*/
 
-	public static void incServer(String clientName, String tableName, String opName, String serverName, long delta){
-		incClientServerTable(clientName, tableName, serverName, delta);
-		incClientServerTableOp(clientName, tableName, serverName, opName, delta);
-		incClientTableServer(clientName, tableName, serverName, delta);
-		incClientTableServerOp(clientName, tableName, serverName, opName, delta);
+	public static void onHBaseRowCallback(String clientName, String tableName, String opName, String regionName,
+			String serverName, long delta){
+		onHBaseRowCallbackClientServer(clientName, serverName, delta);
+		onHBaseRowCallbackClientServerTable(clientName, tableName, serverName, delta);
+		onHBaseRowCallbackClientServerTableRegion(clientName, tableName, serverName, regionName, delta);
+		onHBaseRowCallbackClientServerTableOp(clientName, tableName, serverName, opName, delta);
+		onHBaseRowCallbackClientTableServer(clientName, tableName, serverName, delta);
+		onHBaseRowCallbackClientTableServerOp(clientName, tableName, serverName, opName, delta);
 	}
 
-	private static void incClientServerTable(String clientName, String tableName, String serverName, long delta){
-		String compoundKey = clientName + " " + serverName + " " + tableName;
-		incInternalString(AGGREGATION_client_server_table, compoundKey, delta);
+	private static void onHBaseRowCallbackClientServer(String clientName, String serverName, long delta){
+		String key = clientName + " " + serverName;
+		onHBaseRowCallbackInternal(AGGREGATION_client_server, key, delta);
+		logger.warn("{}", key);
 	}
 
-	private static void incClientServerTableOp(String clientName, String tableName, String serverName, String opName,
+	private static void onHBaseRowCallbackClientServerTable(String clientName, String tableName, String serverName,
 			long delta){
-		String compoundKey = clientName + " " + serverName + " " + tableName + " " + opName;
-		incInternalString(AGGREGATION_client_server_table_op, compoundKey, delta);
+		String key = clientName + " " + serverName + " " + tableName;
+		onHBaseRowCallbackInternal(AGGREGATION_client_server_table, key, delta);
 	}
 
-	private static void incClientTableServer(String clientName, String tableName, String serverName, long delta){
-		String compoundKey = clientName + " " + tableName + " " + serverName;
-		incInternalString(AGGREGATION_client_table_server, compoundKey, delta);
+	private static void onHBaseRowCallbackClientServerTableRegion(String clientName, String tableName,
+			String serverName, String regionName, long delta){
+		String key = clientName + " " + serverName + " " + tableName + " " + regionName;
+		onHBaseRowCallbackInternal(AGGREGATION_client_server_table_region, key, delta);
 	}
 
-	private static void incClientTableServerOp(String clientName, String tableName, String serverName, String opName,
+	private static void onHBaseRowCallbackClientServerTableOp(String clientName, String tableName, String serverName,
+			String opName, long delta){
+		String key = clientName + " " + serverName + " " + tableName + " " + opName;
+		onHBaseRowCallbackInternal(AGGREGATION_client_server_table_op, key, delta);
+	}
+
+	private static void onHBaseRowCallbackClientTableServer(String clientName, String tableName, String serverName,
 			long delta){
-		String compoundKey = clientName + " " + tableName + " " + serverName + " " + opName;
-		incInternalString(AGGREGATION_client_table_server_op, compoundKey, delta);
+		String key = clientName + " " + tableName + " " + serverName;
+		onHBaseRowCallbackInternal(AGGREGATION_client_table_server, key, delta);
+	}
+
+	private static void onHBaseRowCallbackClientTableServerOp(String clientName, String tableName, String serverName,
+			String opName, long delta){
+		String key = clientName + " " + tableName + " " + serverName + " " + opName;
+		onHBaseRowCallbackInternal(AGGREGATION_client_table_server_op, key, delta);
+	}
+
+	private static void onHBaseRowCallbackInternal(String aggregationLevel, String key, long delta){
+		Counters.inc(PREFIX + " " + aggregationLevel + " rows " + key, delta);
 	}
 
 	/*------------ private -------------------*/
@@ -127,9 +154,5 @@ public class DRCounters{
 	private static void incInternalStringWithClientType(String aggregationLevel, String clientTypeString, String key,
 			long delta){
 		Counters.inc(PREFIX + " " + aggregationLevel + " " + clientTypeString + " " + key, delta);
-	}
-
-	private static void incInternalString(String aggregationLevel, String key, long delta){
-		Counters.inc(PREFIX + " " + aggregationLevel + " " + key, delta);
 	}
 }
