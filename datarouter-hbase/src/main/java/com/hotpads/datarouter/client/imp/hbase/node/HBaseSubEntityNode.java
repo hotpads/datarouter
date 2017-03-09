@@ -64,13 +64,9 @@ implements SubEntitySortedMapStorageNode<EK,PK,D,F>, PhysicalSortedMapStorageNod
 		super(entityNodeParams, params);
 		//can't access "client" yet, so extract these strings from elsewhere
 		String clientTypeString = DefaultClientTypes.CLIENT_TYPE_hbase;//TODO pass this in
-		String clientName = getClientTableNodeNames().getClientName();
-		this.putMultiCallback = new CountingBatchCallback<>(clientTypeString, clientName, getTableName(),
-				StorageWriter.OP_putMulti);
-		this.deleteAllCallback = new CountingBatchCallback<>(clientTypeString, clientName, getTableName(),
-				MapStorage.OP_deleteAll);
-		this.deleteMultiCallback = new CountingBatchCallback<>(clientTypeString, clientName, getTableName(),
-				MapStorage.OP_deleteMulti);
+		this.putMultiCallback = new CountingBatchCallback<>(this, clientTypeString, StorageWriter.OP_putMulti);
+		this.deleteAllCallback = new CountingBatchCallback<>(this, clientTypeString, MapStorage.OP_deleteAll);
+		this.deleteMultiCallback = new CountingBatchCallback<>(this, clientTypeString, MapStorage.OP_deleteMulti);
 	}
 
 	@Override
