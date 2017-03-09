@@ -21,7 +21,7 @@ public class LongRunningTaskDao{
 	private final IndexedSortedMapStorage<LongRunningTaskKey,LongRunningTask> node;
 
 	@Inject
-	LongRunningTaskDao(LongRunningTaskNodeProvider nodeProvider){
+	public LongRunningTaskDao(LongRunningTaskNodeProvider nodeProvider){
 		this.node = nodeProvider.get();
 	}
 
