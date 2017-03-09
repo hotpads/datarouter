@@ -56,8 +56,9 @@ public class CountingBatchCallback<R> implements Batch.Callback<R>{
 			RegionLocator regionLocator = getClient().getConnection().getRegionLocator(TableName.valueOf(tableName));
 			HRegionLocation regionLocation = regionLocator.getRegionLocation(row);
 			ServerName serverName = regionLocation.getServerName();
-			String serverString = serverName.toShortString();
-			logger.warn("{}, {}, {}", tableName, serverString, opName);
+			String hostname = serverName.getHostname();//could add port and serverStartCode in the future
+//			logger.warn("{}, {}, {}", tableName, hostname, opName);
+			DRCounters.incServer(clientTypeString, clientName, tableName, opName, hostname, 1L);
 		}catch(IOException e){
 			logger.warn("", e);
 		}
