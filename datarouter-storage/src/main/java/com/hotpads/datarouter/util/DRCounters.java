@@ -26,19 +26,6 @@ public class DRCounters{
 		AGGREGATION_client_table_server_op = "client-table-server-op";
 
 
-	public static void incClient(ClientType type, String key, String clientName){
-		incClient(type, key, clientName, 1L);
-	}
-
-	public static void incClientTable(ClientType type, String key, String clientName, String tableName){
-		incClientTable(type, key, clientName, tableName, 1L);
-	}
-
-	// node name is usually of the format clientName.nodeName, so don't need separate client field
-	public static void incClientNodeCustom(ClientType type, String key, String clientName, String nodeName){
-		incClientNodeCustom(type, key, clientName, nodeName, 1L);
-	}
-
 	/*------------ node -------------------*/
 
 	public static void incOp(ClientType type, String key){

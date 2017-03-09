@@ -73,7 +73,7 @@ implements HBaseClient{
 	public Connection getConnection(){
 		return connection;
 	}
-	
+
 	@Override
 	public Admin getAdmin(){
 		return admin;

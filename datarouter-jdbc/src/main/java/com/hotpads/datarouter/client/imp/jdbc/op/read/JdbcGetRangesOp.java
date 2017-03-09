@@ -43,7 +43,7 @@ extends BaseJdbcOp<List<D>>{
 	public List<D> runOnce(){
 		Client client = node.getClient();
 		String opName = SortedStorageReader.OP_getRange;
-		DRCounters.incClientNodeCustom(client.getType(), opName, client.getName(), node.getName());
+		DRCounters.incClientNodeCustom(client.getType(), opName, client.getName(), node.getName(), 1L);
 
 		List<Field<?>> fieldsToSelect = node.getFieldInfo().getFields();
 		String sql = SqlBuilder.getInRanges(fieldCodecFactory, config, node.getTableName(), fieldsToSelect, ranges,
