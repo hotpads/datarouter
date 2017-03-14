@@ -12,15 +12,12 @@ import com.hotpads.util.core.bytes.LongByteTool;
 
 public class DateField extends BasePrimitiveField<Date>{
 
-	private DateFieldKey key;
-
 	public DateField(DateFieldKey key, Date value){
 		this(null, key, value);
 	}
 
 	public DateField(String prefix, DateFieldKey key, Date value){
 		super(prefix, key, value);
-		this.key = key;
 	}
 
 	@Deprecated
@@ -34,7 +31,7 @@ public class DateField extends BasePrimitiveField<Date>{
 	}
 
 	public int getNumDecimalSeconds(){
-		return key.getNumDecimalSeconds();
+		return ((DateFieldKey) getKey()).getNumDecimalSeconds();
 	}
 
 	/*********************** StringEncodedField ***********************/
