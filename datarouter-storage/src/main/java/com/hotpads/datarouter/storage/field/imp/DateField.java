@@ -11,29 +11,16 @@ import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.util.core.bytes.LongByteTool;
 
 public class DateField extends BasePrimitiveField<Date>{
-	public static final int
-		BACKWARDS_COMPATIBLE_NUM_DECIMAL_SECONDS = 0,
-		DEFAULT_DECIMAL_SECONDS = 3;//match java's millisecond precision
 
-	private final int numDecimalSeconds;
+	private DateFieldKey key;
 
-	/**
-	 * Defines a date field with milliseconds precision
-	 */
-	public static DateField createWithMillis(DateFieldKey key, Date value){
-		return new DateField(null, key, value, DEFAULT_DECIMAL_SECONDS);
-	}
-
-	/**
-	 * Defines a date field with seconds precision
-	 */
 	public DateField(DateFieldKey key, Date value){
 		this(null, key, value);
 	}
 
 	public DateField(String prefix, DateFieldKey key, Date value){
 		super(prefix, key, value);
-		this.numDecimalSeconds = BACKWARDS_COMPATIBLE_NUM_DECIMAL_SECONDS;
+		this.key = key;
 	}
 
 	@Deprecated
@@ -46,13 +33,8 @@ public class DateField extends BasePrimitiveField<Date>{
 		this(prefix, new DateFieldKey(name), value);
 	}
 
-	private DateField(String prefix, DateFieldKey key, Date value, int numDecimalSeconds){
-		super(prefix, key, value);
-		this.numDecimalSeconds = numDecimalSeconds;
-	}
-
 	public int getNumDecimalSeconds(){
-		return numDecimalSeconds;
+		return key.getNumDecimalSeconds();
 	}
 
 	/*********************** StringEncodedField ***********************/
