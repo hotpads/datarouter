@@ -22,4 +22,8 @@ public class BigTableOptions extends TypedProperties{
 		return getString(clientPrefix + "instanceId");
 	}
 
+	public String credentialsLocation(){
+		return getString(clientPrefix + "credentialsLocation");
+	}
+
 }

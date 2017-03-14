@@ -2,7 +2,7 @@ package com.hotpads.util.core.cache;
 
 import java.util.concurrent.TimeUnit;
 
-//TODO rename to TimeCached?
+//TODO rename to TimeCached? and move the cachedAtMs field from BaseCached to here.
 public abstract class Cached<T> extends BaseCached<T>{
 
 	protected volatile long cacheForMs;
@@ -16,4 +16,10 @@ public abstract class Cached<T> extends BaseCached<T>{
 		return System.currentTimeMillis() - cachedAtMs > cacheForMs;
 	}
 
+	public void expire(){
+		synchronized(this){
+			cachedAtMs = 0L;
+			value = null;
+		}
+	}
 }

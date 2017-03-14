@@ -111,12 +111,12 @@ implements Scanner<Cell>{
 				return false;
 			}
 			DRCounters.incClientNodeCustom(client.getType(), scanKeysVsRowsNumRows, clientTableNodeNames
-					.getClientName(), clientTableNodeNames.getNodeName());
+					.getClientName(), clientTableNodeNames.getNodeName(), 1L);
 			if(result.isPartial()){
 				logger.info("partial result on {}, {}", clientTableNodeNames.getNodeName(), Bytes.toStringBinary(result
 						.getRow()));
 				DRCounters.incClientNodeCustom(client.getType(), "partial result", clientTableNodeNames
-						.getClientName(), clientTableNodeNames.getNodeName());
+						.getClientName(), clientTableNodeNames.getNodeName(), 1L);
 			}
 			if(!result.isEmpty()){//else continue till we find a result with data
 				break;

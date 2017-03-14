@@ -83,7 +83,7 @@ implements HBaseTablePool{
 		HBaseTableExecutorService htableExecutorService = null;
 		Table htable = null;
 		try{
-			DRCounters.incClientTable(clientType, "connection getHTable", clientName, tableName);
+			DRCounters.incClientTable(clientType, "connection getHTable", clientName, tableName, 1L);
 			while(true){
 				htableExecutorService = executorServiceQueue.poll();
 				setProgress(progress, "polled queue " + (htableExecutorService == null ? "null" : "success"));
@@ -92,14 +92,14 @@ implements HBaseTablePool{
 					htableExecutorService = new HBaseTableExecutorService(minThreadsPerHTable, maxThreadsPerHTable);
 					setProgress(progress, "new HTableExecutorService()");
 					String counterName = "connection create HTable";
-					DRCounters.incClientTable(clientType, counterName, clientName, tableName);
+					DRCounters.incClientTable(clientType, counterName, clientName, tableName, 1L);
 					logWithPoolInfo("created new HTableExecutorService", tableName);
 					break;
 				}
 				if(!htableExecutorService.isExpired()){
 					// logger.warn("connection got pooled HTable executor");
 					DRCounters.incClientTable(clientType, "got pooled HTable executor", clientName,
-							tableName);
+							tableName, 1L);
 					break;// done. we got an unexpired one, exit the while loop
 				}
 
@@ -141,11 +141,11 @@ implements HBaseTablePool{
 			if(htableExecutorService == null){
 				logWithPoolInfo("HTable returned to pool but HTableExecutorService not found", tableName);
 				DRCounters.incClientTable(clientType, "HTable returned to pool but HTableExecutorService"
-						+ " not found", clientName, tableName);
+						+ " not found", clientName, tableName, 1L);
 				//don't release the semaphore
 				return;
 			}
-		}catch(Exception e) {
+		}catch(Exception e){
 			throw new RuntimeException(e);
 		}
 		try{
@@ -154,31 +154,31 @@ implements HBaseTablePool{
 			if(possiblyTarnished){//discard
 				logWithPoolInfo("ThreadPoolExecutor possibly tarnished, discarding", tableName);
 				DRCounters.incClientTable(clientType, "HTable executor possiblyTarnished", clientName,
-						tableName);
+						tableName, 1L);
 				htableExecutorService.terminateAndBlockUntilFinished(tableName);
 			}else if(htableExecutorService.isDyingOrDead(tableName)){//discard
 				logWithPoolInfo("ThreadPoolExecutor not reusable, discarding", tableName);
 				DRCounters.incClientTable(clientType, "HTable executor isDyingOrDead", clientName,
-						tableName);
+						tableName, 1L);
 				htableExecutorService.terminateAndBlockUntilFinished(tableName);
 			}else if(!htableExecutorService.isTaskQueueEmpty()){//discard
 				logWithPoolInfo("ThreadPoolExecutor taskQueue not empty, discarding", tableName);
 				DRCounters.incClientTable(clientType, "HTable executor taskQueue not empty", clientName,
-						tableName);
+						tableName, 1L);
 				htableExecutorService.terminateAndBlockUntilFinished(tableName);
 			}else if(!htableExecutorService.waitForActiveThreadsToSettle(tableName)){//discard
 				logWithPoolInfo("active thread count would not settle to 0", tableName);
 				DRCounters.incClientTable(clientType, "HTable executor pool active threads won't quit",
-						clientName, tableName);
+						clientName, tableName, 1L);
 				htableExecutorService.terminateAndBlockUntilFinished(tableName);
 			}else{
 				if(executorServiceQueue.offer(htableExecutorService)){//keep it!
 					DRCounters.incClientTable(clientType, "connection HTable returned to pool",
-							clientName, tableName);
+							clientName, tableName, 1L);
 				}else{//discard
 					logWithPoolInfo("checkIn HTable but queue already full, so close and discard", tableName);
 					DRCounters.incClientTable(clientType, "HTable executor pool overflow", clientName,
-							tableName);
+							tableName, 1L);
 					htableExecutorService.terminateAndBlockUntilFinished(tableName);
 				}
 			}
@@ -252,7 +252,7 @@ implements HBaseTablePool{
 			return;
 		}
 		if(checkOutDurationMs > 1){
-			DRCounters.incClientTable(clientType, "connection open > 1ms", clientName, tableName);
+			DRCounters.incClientTable(clientType, "connection open > 1ms", clientName, tableName, 1L);
 //			logger.warn("slow reserveConnection:"+checkOutDurationMs+"ms on "+clientName);
 		}
 	}
