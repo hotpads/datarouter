@@ -80,23 +80,14 @@ public abstract class DatarouterProperties{
 	}
 
 	private String findPublicIp(Optional<Properties> configFileProperties){
-		if(configFileProperties == null){
-			return null;
-		}
 		return configFileProperties.map(properties -> properties.getProperty(SERVER_PUBLIC_IP)).orElse(null);
 	}
 
 	private String findPrivateIp(Optional<Properties> configFileProperties){
-		if(configFileProperties == null){
-			return null;
-		}
 		return configFileProperties.map(properties -> properties.getProperty(SERVER_PRIVATE_IP)).orElse(null);
 	}
 
 	private String findAdministratorEmail(Optional<Properties> configFileProperties){
-		if(configFileProperties == null){
-			return null;
-		}
 		return configFileProperties.map(properties -> properties.getProperty(ADMINISTRATOR_EMAIL)).orElse(null);
 	}
 
