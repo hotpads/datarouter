@@ -9,7 +9,7 @@ import com.hotpads.util.core.enums.StringPersistedEnum;
 import com.hotpads.util.core.web.HtmlSelectOptionBean;
 
 public enum ExampleServerType implements ServerType, StringPersistedEnum, StringEnum<ExampleServerType>{
-	ALL("all"),//when used as a factory
+	ALL("all"),//for factory-like usage
 	DEV("dev"),
 	EXAMPLE("example");
 
