@@ -5,7 +5,7 @@ import org.testng.annotations.BeforeClass;
 import com.hotpads.datarouter.test.DrTestConstants;
 import com.hotpads.datarouter.test.node.basic.manyfield.BaseManyFieldIntegrationTests;
 
-//TODO rename to IntegrationTests after it works
+// need to configure jenkins
 public class BigTableManyFieldIntegrationTester extends BaseManyFieldIntegrationTests{
 
 	@BeforeClass
