@@ -11,7 +11,7 @@ public class ExampleDatarouterProperties extends DatarouterProperties{
 
 
 	public ExampleDatarouterProperties(){
-		super(CONFIG_PATH);
+		super(ExampleServerType.ALL, CONFIG_PATH);
 	}
 
 }
