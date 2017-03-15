@@ -11,7 +11,7 @@ public class TestDatarouterProperties extends DatarouterProperties{
 	private static final String CONFIG_PATH = "/hotpads/config/datarouter-test.properties";
 
 	public TestDatarouterProperties(){
-		super(StandardServerType.UNKNOWN, CONFIG_PATH);
+		super(StandardServerType.ALL, CONFIG_PATH);
 	}
 
 }
