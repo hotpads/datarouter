@@ -37,6 +37,7 @@ public abstract class DatarouterProperties{
 	protected DatarouterProperties(ServerType serverTypeOptions, String filePath){
 		this.configPath = Optional.ofNullable(filePath);
 		logger.error("configPath={}", configPath.orElse("unknown"));
+		logger.warn("configPath={}", configPath.orElse("unknown"));
 		this.serverName = findServerName();
 		Optional<Properties> configFileProperties = Optional.empty();
 		if(configPath.isPresent()){
