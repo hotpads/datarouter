@@ -60,6 +60,7 @@ public abstract class DatarouterProperties{
 		this.publicIp = findPublicIp(configFileProperties);
 	}
 
+	/*--------------- methods to find config values -----------------*/
 
 	private String findServerName(){
 		try{
@@ -69,7 +70,7 @@ public abstract class DatarouterProperties{
 				hostname = hostname.substring(0, hostname.indexOf('.'));//drop the dns suffixes
 				source += ".substring(0, hostname.indexOf('.')";
 			}
-			logger.warn("found {}={} from {}", SERVER_NAME, hostname, source);
+			logSource(SERVER_NAME, hostname, source);
 			return hostname;
 		}catch(UnknownHostException e){
 			throw new RuntimeException(e);
@@ -79,12 +80,12 @@ public abstract class DatarouterProperties{
 	private String findServerTypeString(Optional<Properties> configFileProperties){
 		String jvmArg = System.getProperty(SERVER_TYPE);
 		if(jvmArg != null){
-			logger.warn("found {}={} from {}", SERVER_TYPE, jvmArg, "JVM arg");
+			logSource(SERVER_TYPE, jvmArg, "JVM arg");
 			return jvmArg;
 		}
 		if(configFileProperties.isPresent()){
 			String serverType = configFileProperties.map(properties -> properties.getProperty(SERVER_TYPE)).get();
-			logger.warn("found {}={} from {}", SERVER_TYPE, jvmArg, configPath.get());
+			logSource(SERVER_TYPE, jvmArg, configPath.get());
 			return serverType;
 		}
 		logger.error("couldn't find {}", SERVER_TYPE);
@@ -94,14 +95,14 @@ public abstract class DatarouterProperties{
 	private String findAdministratorEmail(Optional<Properties> configFileProperties){
 		String jvmArg = System.getProperty(ADMINISTRATOR_EMAIL);
 		if(jvmArg != null){
-			logger.warn("found {}={} from {}", ADMINISTRATOR_EMAIL, jvmArg, "JVM arg");
+			logSource(ADMINISTRATOR_EMAIL, jvmArg, "JVM arg");
 			return jvmArg;
 		}
 		if(configFileProperties.isPresent()){
 			Optional<String> value = configFileProperties.map(properties -> properties.getProperty(
 					ADMINISTRATOR_EMAIL));
 			if(value.isPresent()){
-				logger.warn("found {}={} from {}", ADMINISTRATOR_EMAIL, value.get(), configPath);
+				logSource(ADMINISTRATOR_EMAIL, value.get(), configPath.get());
 				return value.get();
 			}
 		}
@@ -113,14 +114,14 @@ public abstract class DatarouterProperties{
 		if(configFileProperties.isPresent()){
 			Optional<String> value = configFileProperties.map(properties -> properties.getProperty(SERVER_PRIVATE_IP));
 			if(value.isPresent()){
-				logger.warn("found {}={} from {}", SERVER_PRIVATE_IP, value.get(), configPath);
+				logSource(SERVER_PRIVATE_IP, value.get(), configPath.get());
 				return value.get();
 			}
 		}
 		if(isEc2()){
 			Optional<String> ip = curl(EC2_PRIVATE_IP_URL, true);
 			if(ip.isPresent()){
-				logger.warn("found {}={} from {}", SERVER_PRIVATE_IP, ip.get(), EC2_PRIVATE_IP_URL);
+				logSource(SERVER_PRIVATE_IP, ip.get(), EC2_PRIVATE_IP_URL);
 				return ip.get();
 			}
 		}
@@ -132,14 +133,14 @@ public abstract class DatarouterProperties{
 		if(configFileProperties.isPresent()){
 			Optional<String> value = configFileProperties.map(properties -> properties.getProperty(SERVER_PUBLIC_IP));
 			if(value.isPresent()){
-				logger.warn("found {}={} from {}", SERVER_PUBLIC_IP, value.get(), configPath);
+				logSource(SERVER_PUBLIC_IP, value.get(), configPath.get());
 				return value.get();
 			}
 		}
 		if(isEc2()){
 			Optional<String> ip = curl(EC2_PUBLIC_IP_URL, true);
 			if(ip.isPresent()){
-				logger.warn("found {}={} from {}", SERVER_PUBLIC_IP, ip.get(), EC2_PUBLIC_IP_URL);
+				logSource(SERVER_PUBLIC_IP, ip.get(), EC2_PUBLIC_IP_URL);
 				return ip.get();
 			}
 		}
@@ -147,11 +148,17 @@ public abstract class DatarouterProperties{
 		return null;
 	}
 
+	/*------------------- private -------------------------*/
+
 	private void logConfigFileProperties(final Optional<Properties> configFileProperties){
 		configFileProperties.get().stringPropertyNames().stream()
 				.map(name -> name + "=" + configFileProperties.get().getProperty(name))
 				.sorted()
 				.forEach(logger::error);
+	}
+
+	private void logSource(String name, String value, String source){
+		logger.warn("found {}={} from {}", name, value, source);
 	}
 
 	private boolean isEc2(){
