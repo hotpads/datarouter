@@ -21,7 +21,7 @@ public abstract class DatarouterProperties{
 	private static final String ADMINISTRATOR_EMAIL = "administrator.email";
 
 	private final Optional<String> configPath;
-	
+
 	private final String serverName;
 	private final ServerType serverType;
 	private final String administratorEmail;
@@ -83,11 +83,12 @@ public abstract class DatarouterProperties{
 
 	private String findAdministratorEmail(Optional<Properties> configFileProperties){
 		if(configFileProperties.isPresent()){
-			Optional<String> value = configFileProperties.map(properties -> properties.getProperty(ADMINISTRATOR_EMAIL));
+			Optional<String> value = configFileProperties.map(properties -> properties.getProperty(
+					ADMINISTRATOR_EMAIL));
 			if(value.isPresent()){
 				logger.warn("found {}={} from {}", ADMINISTRATOR_EMAIL, value.get(), configPath);
+				return value.get();
 			}
-			return value.get();
 		}
 		logger.error("couldn't find {}", ADMINISTRATOR_EMAIL);
 		return null;
@@ -98,8 +99,8 @@ public abstract class DatarouterProperties{
 			Optional<String> value = configFileProperties.map(properties -> properties.getProperty(SERVER_PRIVATE_IP));
 			if(value.isPresent()){
 				logger.warn("found {}={} from {}", SERVER_PRIVATE_IP, value.get(), configPath);
+				return value.get();
 			}
-			return value.get();
 		}
 		logger.error("couldn't find {}", SERVER_PRIVATE_IP);
 		return null;
@@ -110,8 +111,8 @@ public abstract class DatarouterProperties{
 			Optional<String> value = configFileProperties.map(properties -> properties.getProperty(SERVER_PUBLIC_IP));
 			if(value.isPresent()){
 				logger.warn("found {}={} from {}", SERVER_PUBLIC_IP, value.get(), configPath);
+				return value.get();
 			}
-			return value.get();
 		}
 		logger.error("couldn't find {}", SERVER_PUBLIC_IP);
 		return null;
