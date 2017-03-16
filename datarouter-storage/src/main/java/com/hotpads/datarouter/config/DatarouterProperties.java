@@ -28,8 +28,6 @@ public abstract class DatarouterProperties{
 	private final String privateIp;
 	private final String publicIp;
 
-
-
 	/*----------------- construct ------------------*/
 
 	protected DatarouterProperties(ServerType serverTypeOptions){
