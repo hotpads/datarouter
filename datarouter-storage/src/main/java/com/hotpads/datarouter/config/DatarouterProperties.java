@@ -38,7 +38,7 @@ public abstract class DatarouterProperties{
 
 	protected DatarouterProperties(ServerType serverTypeOptions, String filePath){
 		this.configPath = Optional.ofNullable(filePath);
-		logger.warn("configPath={}", configPath.orElse("unknown"));
+		logger.error("configPath={}", configPath.orElse("unknown"));
 		this.serverName = findServerName();
 		Optional<Properties> configFileProperties = Optional.empty();
 		if(configPath.isPresent()){
@@ -46,7 +46,7 @@ public abstract class DatarouterProperties{
 				configFileProperties = Optional.of(DrPropertiesTool.parse(configPath.get()));
 				logConfigFileProperties(configFileProperties);
 			}catch(Exception e){
-				logger.warn("couldn't parse configFileProperties at configPath={}", configPath);
+				logger.error("couldn't parse configFileProperties at configPath={}", configPath);
 			}
 		}
 		this.serverType = serverTypeOptions.fromPersistentString(findServerTypeString(configFileProperties));
@@ -59,7 +59,7 @@ public abstract class DatarouterProperties{
 	private String findServerName(){
 		try{
 			String hostname = InetAddress.getLocalHost().getHostName();
-			logger.warn("found {}={} from InetAddress.getLocalHost().getHostName()", SERVER_NAME, hostname);
+			logger.error("found {}={} from InetAddress.getLocalHost().getHostName()", SERVER_NAME, hostname);
 			return hostname;
 		}catch(UnknownHostException e){
 			throw new RuntimeException(e);
@@ -69,12 +69,12 @@ public abstract class DatarouterProperties{
 	private String findServerTypeString(Optional<Properties> configFileProperties){
 		String jvmArg = System.getProperty(SERVER_TYPE);
 		if(jvmArg != null){
-			logger.warn("found {}={} from JVM arg", SERVER_TYPE, jvmArg);
+			logger.error("found {}={} from JVM arg", SERVER_TYPE, jvmArg);
 			return jvmArg;
 		}
 		if(configFileProperties.isPresent()){
 			String serverType = configFileProperties.map(properties -> properties.getProperty(SERVER_TYPE)).get();
-			logger.warn("found {}={} from {}", SERVER_TYPE, jvmArg, configPath);
+			logger.error("found {}={} from {}", SERVER_TYPE, jvmArg, configPath);
 			return serverType;
 		}
 		logger.error("couldn't find {}", SERVER_TYPE);
@@ -86,7 +86,7 @@ public abstract class DatarouterProperties{
 			Optional<String> value = configFileProperties.map(properties -> properties.getProperty(
 					ADMINISTRATOR_EMAIL));
 			if(value.isPresent()){
-				logger.warn("found {}={} from {}", ADMINISTRATOR_EMAIL, value.get(), configPath);
+				logger.error("found {}={} from {}", ADMINISTRATOR_EMAIL, value.get(), configPath);
 				return value.get();
 			}
 		}
@@ -98,7 +98,7 @@ public abstract class DatarouterProperties{
 		if(configFileProperties.isPresent()){
 			Optional<String> value = configFileProperties.map(properties -> properties.getProperty(SERVER_PRIVATE_IP));
 			if(value.isPresent()){
-				logger.warn("found {}={} from {}", SERVER_PRIVATE_IP, value.get(), configPath);
+				logger.error("found {}={} from {}", SERVER_PRIVATE_IP, value.get(), configPath);
 				return value.get();
 			}
 		}
@@ -110,7 +110,7 @@ public abstract class DatarouterProperties{
 		if(configFileProperties.isPresent()){
 			Optional<String> value = configFileProperties.map(properties -> properties.getProperty(SERVER_PUBLIC_IP));
 			if(value.isPresent()){
-				logger.warn("found {}={} from {}", SERVER_PUBLIC_IP, value.get(), configPath);
+				logger.error("found {}={} from {}", SERVER_PUBLIC_IP, value.get(), configPath);
 				return value.get();
 			}
 		}
@@ -122,7 +122,7 @@ public abstract class DatarouterProperties{
 		configFileProperties.get().stringPropertyNames().stream()
 				.map(name -> name + "=" + configFileProperties.get().getProperty(name))
 				.sorted()
-				.forEach(logger::warn);
+				.forEach(logger::error);
 	}
 
 	/*------------------ methods ---------------*/
