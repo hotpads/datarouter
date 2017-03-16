@@ -16,22 +16,18 @@ public abstract class DatarouterProperties{
 
 	private static final String SERVER_PUBLIC_IP = "server.publicIp";
 	private static final String SERVER_PRIVATE_IP = "server.privateIp";
-//	private static final String SERVER_NAME = "server.name";
+	private static final String SERVER_NAME = "server.name";
 	private static final String SERVER_TYPE = "server.type";
 	private static final String ADMINISTRATOR_EMAIL = "administrator.email";
 
-	//dynamic from InetAddress.getLocalHost().getHostName()
-	private final String serverName;
-
-	//JVM args
 	private final Optional<String> configPath;
-
-	//from config file
-	private final String publicIp;
-	private final String privateIp;
+	
+	private final String serverName;
+	private final ServerType serverType;
 	private final String administratorEmail;
+	private final String privateIp;
+	private final String publicIp;
 
-	private ServerType serverType;
 
 
 	/*----------------- construct ------------------*/
@@ -54,41 +50,71 @@ public abstract class DatarouterProperties{
 			}
 		}
 		this.serverType = serverTypeOptions.fromPersistentString(findServerTypeString(configFileProperties));
-		this.publicIp = findPublicIp(configFileProperties);
-		this.privateIp = findPrivateIp(configFileProperties);
 		this.administratorEmail = findAdministratorEmail(configFileProperties);
+		this.privateIp = findPrivateIp(configFileProperties);
+		this.publicIp = findPublicIp(configFileProperties);
 	}
 
 
 	private String findServerName(){
 		try{
-			return InetAddress.getLocalHost().getHostName();
+			String hostname = InetAddress.getLocalHost().getHostName();
+			logger.warn("found {}={} from InetAddress.getLocalHost().getHostName()", SERVER_NAME, hostname);
+			return hostname;
 		}catch(UnknownHostException e){
 			throw new RuntimeException(e);
 		}
 	}
 
 	private String findServerTypeString(Optional<Properties> configFileProperties){
-		String arg = System.getProperty(SERVER_TYPE);
-		if(arg != null){
-			logger.warn("found server.type={} from JVM arg", arg);
-			return arg;
+		String jvmArg = System.getProperty(SERVER_TYPE);
+		if(jvmArg != null){
+			logger.warn("found {}={} from JVM arg", SERVER_TYPE, jvmArg);
+			return jvmArg;
 		}
-		String prop = configFileProperties.map(properties -> properties.getProperty(SERVER_TYPE)).orElse(null);
-		logger.warn("found server.type={} from {}", arg, configPath);
-		return prop;
-	}
-
-	private String findPublicIp(Optional<Properties> configFileProperties){
-		return configFileProperties.map(properties -> properties.getProperty(SERVER_PUBLIC_IP)).orElse(null);
-	}
-
-	private String findPrivateIp(Optional<Properties> configFileProperties){
-		return configFileProperties.map(properties -> properties.getProperty(SERVER_PRIVATE_IP)).orElse(null);
+		if(configFileProperties.isPresent()){
+			String serverType = configFileProperties.map(properties -> properties.getProperty(SERVER_TYPE)).get();
+			logger.warn("found {}={} from {}", SERVER_TYPE, jvmArg, configPath);
+			return serverType;
+		}
+		logger.error("couldn't find {}", SERVER_TYPE);
+		return null;
 	}
 
 	private String findAdministratorEmail(Optional<Properties> configFileProperties){
-		return configFileProperties.map(properties -> properties.getProperty(ADMINISTRATOR_EMAIL)).orElse(null);
+		if(configFileProperties.isPresent()){
+			Optional<String> value = configFileProperties.map(properties -> properties.getProperty(ADMINISTRATOR_EMAIL));
+			if(value.isPresent()){
+				logger.warn("found {}={} from {}", ADMINISTRATOR_EMAIL, value.get(), configPath);
+			}
+			return value.get();
+		}
+		logger.error("couldn't find {}", ADMINISTRATOR_EMAIL);
+		return null;
+	}
+
+	private String findPrivateIp(Optional<Properties> configFileProperties){
+		if(configFileProperties.isPresent()){
+			Optional<String> value = configFileProperties.map(properties -> properties.getProperty(SERVER_PRIVATE_IP));
+			if(value.isPresent()){
+				logger.warn("found {}={} from {}", SERVER_PRIVATE_IP, value.get(), configPath);
+			}
+			return value.get();
+		}
+		logger.error("couldn't find {}", SERVER_PRIVATE_IP);
+		return null;
+	}
+
+	private String findPublicIp(Optional<Properties> configFileProperties){
+		if(configFileProperties.isPresent()){
+			Optional<String> value = configFileProperties.map(properties -> properties.getProperty(SERVER_PUBLIC_IP));
+			if(value.isPresent()){
+				logger.warn("found {}={} from {}", SERVER_PUBLIC_IP, value.get(), configPath);
+			}
+			return value.get();
+		}
+		logger.error("couldn't find {}", SERVER_PUBLIC_IP);
+		return null;
 	}
 
 	private void logConfigFileProperties(final Optional<Properties> configFileProperties){
