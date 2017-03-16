@@ -64,10 +64,6 @@ public class DrArrayTool{
 		return false;
 	}
 
-	public static boolean notEmpty(byte[] array){
-		return !isEmpty(array);
-	}
-
 	public static boolean notEmpty(Object[] array){
 		return !isEmpty(array);
 	}
