@@ -18,6 +18,8 @@ import com.hotpads.util.core.io.ReaderTool;
 public abstract class DatarouterProperties{
 	private static final Logger logger = LoggerFactory.getLogger(DatarouterProperties.class);
 
+	private static final String JVM_ARG_PREFIX = "datarouter.";
+
 	private static final String SERVER_PUBLIC_IP = "server.publicIp";
 	private static final String SERVER_PRIVATE_IP = "server.privateIp";
 	private static final String SERVER_NAME = "server.name";
@@ -78,9 +80,10 @@ public abstract class DatarouterProperties{
 	}
 
 	private String findServerTypeString(Optional<Properties> configFileProperties){
-		String jvmArg = System.getProperty(SERVER_TYPE);
+		String jvmArgName = JVM_ARG_PREFIX + SERVER_TYPE;
+		String jvmArg = System.getProperty(jvmArgName);
 		if(jvmArg != null){
-			logSource(SERVER_TYPE, jvmArg, "JVM arg");
+			logSource(SERVER_TYPE, jvmArg, jvmArgName + " JVM arg");
 			return jvmArg;
 		}
 		if(configFileProperties.isPresent()){
@@ -93,9 +96,10 @@ public abstract class DatarouterProperties{
 	}
 
 	private String findAdministratorEmail(Optional<Properties> configFileProperties){
-		String jvmArg = System.getProperty(ADMINISTRATOR_EMAIL);
+		String jvmArgName = JVM_ARG_PREFIX + ADMINISTRATOR_EMAIL;
+		String jvmArg = System.getProperty(jvmArgName);
 		if(jvmArg != null){
-			logSource(ADMINISTRATOR_EMAIL, jvmArg, "JVM arg");
+			logSource(ADMINISTRATOR_EMAIL, jvmArg, jvmArgName + " JVM arg");
 			return jvmArg;
 		}
 		if(configFileProperties.isPresent()){
