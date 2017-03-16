@@ -82,6 +82,11 @@ public abstract class DatarouterProperties{
 	}
 
 	private String findAdministratorEmail(Optional<Properties> configFileProperties){
+		String jvmArg = System.getProperty(ADMINISTRATOR_EMAIL);
+		if(jvmArg != null){
+			logger.error("found {}={} from JVM arg", ADMINISTRATOR_EMAIL, jvmArg);
+			return jvmArg;
+		}
 		if(configFileProperties.isPresent()){
 			Optional<String> value = configFileProperties.map(properties -> properties.getProperty(
 					ADMINISTRATOR_EMAIL));
