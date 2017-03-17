@@ -37,10 +37,11 @@
 		<h2>Datarouter</h2>
 		<h3>Server Info</h3>
 		<table class="table table-striped table-bordered table-hover table-condensed">
-			<tr><td>server.type</td><td>${serverType}</td></tr>
 			<tr><td>server.name</td><td>${serverName}</td></tr>
-			<tr><td>server.publicIp</td><td>${serverPublicIp}</td></tr>
+			<tr><td>server.type</td><td>${serverType}</td></tr>
 			<tr><td>administrator.email</td><td>${administratorEmail}</td></tr>
+			<tr><td>server.privateIp</td><td>${serverPrivateIp}</td></tr>
+			<tr><td>server.publicIp</td><td>${serverPublicIp}</td></tr>
 		</table>
 		
 		<h3 class="">Routers and Clients</h3>

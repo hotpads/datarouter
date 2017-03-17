@@ -9,7 +9,7 @@ import com.hotpads.util.core.web.HtmlSelectOptionBean;
 public enum StandardServerType implements ServerType, StringEnum<StandardServerType>{
 
 	UNKNOWN(ServerType.UNKNOWN),
-	ALL(ServerType.ALL),
+	ALL(ServerType.ALL),//for factory-like usage
 	WEB("web"),
 	JOBLET("joblet"),
 	DEV(ServerType.DEV);
