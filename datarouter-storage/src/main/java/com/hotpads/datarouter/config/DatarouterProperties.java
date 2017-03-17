@@ -13,12 +13,14 @@ import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.setting.ServerType;
 import com.hotpads.datarouter.util.core.DrPropertiesTool;
+import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.util.core.io.ReaderTool;
 
 public abstract class DatarouterProperties{
 	private static final Logger logger = LoggerFactory.getLogger(DatarouterProperties.class);
 
 	private static final String JVM_ARG_PREFIX = "datarouter.";
+	private static final String CONFIG_DIRECTORY = "config.directory";
 
 	private static final String SERVER_PUBLIC_IP = "server.publicIp";
 	private static final String SERVER_PRIVATE_IP = "server.privateIp";
@@ -29,6 +31,7 @@ public abstract class DatarouterProperties{
 	private static final String EC2_PRIVATE_IP_URL = "http://instance-data/latest/meta-data/local-ipv4";
 	private static final String EC2_PUBLIC_IP_URL = "http://instance-data/latest/meta-data/public-ipv4";
 
+	private final Optional<String> configDirectory;
 	private final Optional<String> configPath;
 
 	private final String serverName;
@@ -40,12 +43,26 @@ public abstract class DatarouterProperties{
 	/*----------------- construct ------------------*/
 
 	protected DatarouterProperties(ServerType serverTypeOptions){
-		this(serverTypeOptions, System.getProperty("configDirectory"));
+		this(serverTypeOptions, System.getProperty(JVM_ARG_PREFIX + CONFIG_DIRECTORY), null);
 	}
 
-	protected DatarouterProperties(ServerType serverTypeOptions, String filePath){
-		this.configPath = Optional.ofNullable(filePath);
-		logger.warn("configPath={}", configPath.orElse("unknown"));
+	/**
+	 * @deprecated pass path via JVM arg
+	 */
+	@Deprecated
+	protected DatarouterProperties(ServerType serverTypeOptions, String directory, String filename){
+		this.configDirectory = Optional.ofNullable(directory);
+		if(configDirectory.isPresent()){
+			logSource(CONFIG_DIRECTORY, configDirectory.get(), "?");
+		}
+		if(configDirectory.isPresent() && DrStringTool.notEmpty(filename)){
+			this.configPath = Optional.of(configDirectory.get() + "/" + filename);
+		}else{
+			this.configPath = Optional.empty();
+		}
+		if(configPath.isPresent()){
+			logSource("config file", configPath.get(), "constructor");
+		}
 		this.serverName = findServerName();
 		Optional<Properties> configFileProperties = Optional.empty();
 		if(configPath.isPresent()){
