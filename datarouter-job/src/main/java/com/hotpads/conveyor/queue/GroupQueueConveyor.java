@@ -48,7 +48,7 @@ extends BaseConveyor<PK,D>{
 		List<D> databeans = message.getDatabeans();
 		logger.info("peeked conveyor={} messageCount={}", name, databeans.size());
 		if(DrCollectionTool.isEmpty(databeans)){
-			return new ProcessBatchResult(false);
+			return new ProcessBatchResult(true);
 		}
 		storageWriter.putMulti(databeans, null);
 		logger.info("wrote conveyor={} messageCount={}", name, databeans.size());
