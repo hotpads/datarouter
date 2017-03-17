@@ -189,7 +189,7 @@ public abstract class DatarouterProperties{
 		configFileProperties.get().stringPropertyNames().stream()
 				.map(name -> name + "=" + configFileProperties.get().getProperty(name))
 				.sorted()
-				.forEach(logger::error);
+				.forEach(logger::info);
 	}
 
 	private void logSource(String name, String value, String source){
