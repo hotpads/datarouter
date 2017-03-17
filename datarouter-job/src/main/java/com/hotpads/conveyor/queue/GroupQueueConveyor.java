@@ -15,7 +15,6 @@ import com.hotpads.datarouter.setting.Setting;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.queue.GroupQueueMessage;
-import com.hotpads.datarouter.util.core.DrCollectionTool;
 
 public class GroupQueueConveyor<
 		PK extends PrimaryKey<PK>,
@@ -47,9 +46,6 @@ extends BaseConveyor<PK,D>{
 		}
 		List<D> databeans = message.getDatabeans();
 		logger.info("peeked conveyor={} messageCount={}", name, databeans.size());
-		if(DrCollectionTool.isEmpty(databeans)){
-			return new ProcessBatchResult(true);
-		}
 		storageWriter.putMulti(databeans, null);
 		logger.info("wrote conveyor={} messageCount={}", name, databeans.size());
 		ConveyorCounters.incPutMultiOpAndDatabeans(this, databeans.size());
