@@ -5,7 +5,7 @@ import java.util.Map;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import javax.websocket.MessageHandler.Whole;
+import javax.websocket.MessageHandler;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +14,7 @@ import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.handler.exception.ExceptionRecorder;
 import com.hotpads.websocket.session.WebSocketSession;
 
-public class WebSocketServicesMessageHandler implements Whole<String>{
+public class WebSocketServicesMessageHandler implements ClosableMessageHandler, MessageHandler.Whole<String>{
 	private static final Logger logger = LoggerFactory.getLogger(WebSocketServicesMessageHandler.class);
 
 	private final WebSocketServices services;
@@ -79,6 +79,11 @@ public class WebSocketServicesMessageHandler implements Whole<String>{
 		Exception exception = new Exception(errorMessage);
 		logger.warn("Error dispatching websocket message to service", exception);
 		exceptionRecorder.tryRecordException(exception, getClass().toString());
+	}
+
+	@Override
+	public void onClose(){
+		openedServices.forEach((unused, service) -> service.onClose());
 	}
 
 }

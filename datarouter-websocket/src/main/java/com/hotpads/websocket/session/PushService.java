@@ -45,6 +45,12 @@ public class PushService{
 				.forEach(session -> forward(session, message));
 	}
 
+	public void forward(String userToken, Long sessionId, String message){
+		WebSocketSession session = webSocketSessionNode.get(new WebSocketSessionKey(userToken, sessionId), null);
+		//TODO protect against null?
+		forward(session, message);
+	}
+
 	public void forward(WebSocketSession webSocketSession, String message){
 		HotPadsHttpResponse response = executeCommand(WebSocketCommandName.PUSH, webSocketSession, message);
 		boolean success = Boolean.parseBoolean(response.getEntity());
