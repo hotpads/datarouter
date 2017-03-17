@@ -29,11 +29,13 @@ public class LongRunningTaskTracker{
 	}
 
 	public LongRunningTaskTracker heartbeat(long numItemsProcessed){
-		return heartbeat(numItemsProcessed, null);
+		task.setNumItemsProcessed(numItemsProcessed);
+		return heartbeat();
 	}
 
 	public LongRunningTaskTracker heartbeat(String lastItemProcessed){
-		return heartbeat(null, lastItemProcessed);
+		task.setLastItemProcessed(lastItemProcessed);
+		return heartbeat();
 	}
 
 	public LongRunningTaskTracker heartbeat(Long numItemsProcessed, String lastItemProcessed){

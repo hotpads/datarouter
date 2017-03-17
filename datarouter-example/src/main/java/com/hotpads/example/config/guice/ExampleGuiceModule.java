@@ -4,8 +4,10 @@ import com.google.inject.AbstractModule;
 import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.StandardJdbcFieldCodecFactory;
 import com.hotpads.datarouter.config.DatarouterProperties;
+import com.hotpads.datarouter.setting.ServerType;
 import com.hotpads.datarouter.setting.SettingFinder;
 import com.hotpads.example.config.ExampleDatarouterProperties;
+import com.hotpads.example.config.ExampleServerType;
 import com.hotpads.example.config.ExampleSettingFinder;
 import com.hotpads.example.config.http.ExampleAuthenticationConfig;
 import com.hotpads.handler.exception.ExceptionHandlingConfig;
@@ -22,6 +24,7 @@ public class ExampleGuiceModule extends AbstractModule{
 
 	@Override
 	protected void configure(){
+		bind(ServerType.class).toInstance(ExampleServerType.ALL);
 		bind(SettingFinder.class).to(ExampleSettingFinder.class);
 		bind(DatarouterProperties.class).to(ExampleDatarouterProperties.class);
 		bind(ExceptionHandlingConfig.class).to(NoOpExceptionHandlingConfig.class);

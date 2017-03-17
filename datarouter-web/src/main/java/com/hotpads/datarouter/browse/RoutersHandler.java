@@ -15,7 +15,7 @@ import com.hotpads.handler.dispatcher.DatarouterWebDispatcher;
 import com.hotpads.handler.mav.Mav;
 import com.hotpads.handler.mav.imp.InContextRedirectMav;
 
-public class RoutersHandler extends BaseHandler {
+public class RoutersHandler extends BaseHandler{
 
 	public static final String
 		ACTION_listRouters = "listRouters",
@@ -46,10 +46,11 @@ public class RoutersHandler extends BaseHandler {
 	protected Mav handleDefault(){
 		Mav mav = new Mav(JSP_datarouterMenu);
 		//DatarouterProperties info
-		mav.put("serverType", datarouterProperties.getServerTypeString());
 		mav.put("serverName", datarouterProperties.getServerName());
-		mav.put("serverPublicIp", datarouterProperties.getServerPublicIp());
+		mav.put("serverType", datarouterProperties.getServerTypeString());
 		mav.put("administratorEmail", datarouterProperties.getAdministratorEmail());
+		mav.put("serverPrivateIp", datarouterProperties.getServerPrivateIp());
+		mav.put("serverPublicIp", datarouterProperties.getServerPublicIp());
 		//Routers, nodes, clients
 		mav.put("routers", datarouter.getRouters());
 		mav.put("lazyClientProviderByName", datarouterClients.getLazyClientProviderByName());

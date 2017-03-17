@@ -1,7 +1,6 @@
 package com.hotpads.websocket.endpoint;
 
 import javax.inject.Inject;
-import javax.websocket.MessageHandler;
 
 import com.hotpads.websocket.endpoint.SwedishEchoMessageHandler.SwedishEchoMessageHandlerFactory;
 
@@ -15,7 +14,7 @@ public class SwedishEchoEndpoint extends BaseEndpoint{
 	private SwedishEchoMessageHandlerFactory swedishEchoMessageHandlerFactory;
 
 	@Override
-	protected MessageHandler getMessageHandler(){
+	protected SwedishEchoMessageHandler getMessageHandler(){
 		return swedishEchoMessageHandlerFactory.create(webSocketSession.getKey().getUserToken());
 	}
 

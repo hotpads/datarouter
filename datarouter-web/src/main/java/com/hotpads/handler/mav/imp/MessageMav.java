@@ -17,4 +17,9 @@ public class MessageMav extends Mav{
 		put(VAR_NAME, message);
 	}
 
+	public MessageMav(String message, int code){
+		this(message);
+		this.setStatusCode(code);
+	}
+
 }

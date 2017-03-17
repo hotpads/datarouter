@@ -14,7 +14,7 @@ implements Conveyor{
 	private static final Logger logger = LoggerFactory.getLogger(BaseConveyor.class);
 
 
-	private final String name;
+	protected final String name;
 	private final Setting<Boolean> shouldRunSetting;
 
 
