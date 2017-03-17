@@ -8,10 +8,8 @@ import com.hotpads.datarouter.setting.StandardServerType;
 @Singleton
 public class TestDatarouterProperties extends DatarouterProperties{
 
-	private static final String CONFIG_PATH = "/hotpads/config/datarouter-test.properties";
-
 	public TestDatarouterProperties(){
-		super(StandardServerType.ALL, CONFIG_PATH);
+		super(StandardServerType.ALL, "/hotpads/config", "datarouter-test.properties");
 	}
 
 }
