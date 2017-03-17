@@ -203,7 +203,7 @@ public abstract class DatarouterProperties{
 	/*------------------ methods ---------------*/
 
 	public String getServerTypeString(){
-		return serverType.getPersistentString();
+		return Optional.ofNullable(serverType).map(ServerType::getPersistentString).orElse(null);
 	}
 
 	public String getConfigPath(){
