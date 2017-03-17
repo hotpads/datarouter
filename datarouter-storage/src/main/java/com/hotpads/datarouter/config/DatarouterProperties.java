@@ -63,7 +63,6 @@ public abstract class DatarouterProperties{
 		if(configPath.isPresent()){
 			logSource("config file", configPath.get(), "constructor");
 		}
-		this.serverName = findServerName();
 		Optional<Properties> configFileProperties = Optional.empty();
 		if(configPath.isPresent()){
 			try{
@@ -73,6 +72,7 @@ public abstract class DatarouterProperties{
 				logger.warn("couldn't parse configFileProperties at configPath={}", configPath.get());
 			}
 		}
+		this.serverName = findServerName(configFileProperties);
 		this.serverType = serverTypeOptions.fromPersistentString(findServerTypeString(configFileProperties));
 		this.administratorEmail = findAdministratorEmail(configFileProperties);
 		this.privateIp = findPrivateIp(configFileProperties);
@@ -81,7 +81,15 @@ public abstract class DatarouterProperties{
 
 	/*--------------- methods to find config values -----------------*/
 
-	private String findServerName(){
+	//prefer configFile then hostname
+	private String findServerName(Optional<Properties> configFileProperties){
+		if(configFileProperties.isPresent()){
+			Optional<String> value = configFileProperties.map(properties -> properties.getProperty(SERVER_NAME));
+			if(value.isPresent()){
+				logSource(SERVER_NAME, value.get(), configPath.get());
+				return value.get();
+			}
+		}
 		try{
 			String hostname = InetAddress.getLocalHost().getHostName();
 			String source = "InetAddress.getLocalHost().getHostName()";
@@ -96,6 +104,7 @@ public abstract class DatarouterProperties{
 		}
 	}
 
+	//prefer jvmArg then configFile
 	private String findServerTypeString(Optional<Properties> configFileProperties){
 		String jvmArgName = JVM_ARG_PREFIX + SERVER_TYPE;
 		String jvmArg = System.getProperty(jvmArgName);
@@ -104,14 +113,17 @@ public abstract class DatarouterProperties{
 			return jvmArg;
 		}
 		if(configFileProperties.isPresent()){
-			String serverType = configFileProperties.map(properties -> properties.getProperty(SERVER_TYPE)).get();
-			logSource(SERVER_TYPE, jvmArg, configPath.get());
-			return serverType;
+			Optional<String> value = configFileProperties.map(properties -> properties.getProperty(SERVER_TYPE));
+			if(value.isPresent()){
+				logSource(SERVER_TYPE, value.get(), configPath.get());
+				return value.get();
+			}
 		}
 		logger.error("couldn't find {}", SERVER_TYPE);
 		return null;
 	}
 
+	//prefer jvmArg then configFile
 	private String findAdministratorEmail(Optional<Properties> configFileProperties){
 		String jvmArgName = JVM_ARG_PREFIX + ADMINISTRATOR_EMAIL;
 		String jvmArg = System.getProperty(jvmArgName);
@@ -131,6 +143,7 @@ public abstract class DatarouterProperties{
 		return null;
 	}
 
+	//prefer configFile then api call
 	private String findPrivateIp(Optional<Properties> configFileProperties){
 		if(configFileProperties.isPresent()){
 			Optional<String> value = configFileProperties.map(properties -> properties.getProperty(SERVER_PRIVATE_IP));
@@ -150,6 +163,7 @@ public abstract class DatarouterProperties{
 		return null;
 	}
 
+	//prefer configFile then api call
 	private String findPublicIp(Optional<Properties> configFileProperties){
 		if(configFileProperties.isPresent()){
 			Optional<String> value = configFileProperties.map(properties -> properties.getProperty(SERVER_PUBLIC_IP));
