@@ -15,6 +15,7 @@ implements StringEnum<HotpadsNotificationDestinationApp>{
 	HOTPADS_IOS_GCM("hotpads_ios_gcm", NotificationDestinationPlatform.GCM),
 	HOTPADS_ANDROID_GCM("hotpads_android_gcm", NotificationDestinationPlatform.GCM),
 	HOTPADS_BROWSER_GCM("hotpads_browser_gcm", NotificationDestinationPlatform.GCM),
+	HOTPADS_WEBSOCKET("hotpads_websocket", null),
 	HOTPADS_EMAIL("hotpads_email", NotificationDestinationPlatform.EMAIL, NotificationUserType.EMAIL),
 	HOTPADS_SMS("hotpads_sms", NotificationDestinationPlatform.SMS, NotificationUserType.PHONE),
 	ZRM_IOS_GCM("zrm_ios_gcm", NotificationDestinationPlatform.GCM),

@@ -8,4 +8,6 @@ public interface WebSocketService{
 
 	void onMessage(WebSocketSession webSocketSession, String message);
 
+	default void onClose(){}
+
 }
