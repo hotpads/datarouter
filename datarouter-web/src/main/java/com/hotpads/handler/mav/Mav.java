@@ -5,7 +5,7 @@ import java.util.Map;
 
 import com.hotpads.datarouter.util.core.DrStringTool;
 
-public class Mav {
+public class Mav{
 
 	public static final String REDIRECT = "redirect:";
 
@@ -33,7 +33,7 @@ public class Mav {
 		this.setViewName(viewName);
 	}
 
-	public Mav(String viewName, Map<String,Object> model) {
+	public Mav(String viewName, Map<String,Object> model){
 		this.setViewName(viewName);
 		this.model = model;
 	}
@@ -91,22 +91,23 @@ public class Mav {
 		return this;
 	}
 
-	public void setGlobalRedirectUrl(String globalRedirectUrl) {
+	public Mav setGlobalRedirectUrl(String globalRedirectUrl){
 		redirect = true;
 		this.globalRedirectUrl = globalRedirectUrl;
+		return this;
 	}
 
 	/************************** get/set ***********************************/
 
-	public Map<String, Object> getModel() {
+	public Map<String,Object> getModel(){
 		return model;
 	}
 
-	public String getViewName() {
+	public String getViewName(){
 		return viewName;
 	}
 
-	public String getContext() {
+	public String getContext(){
 		return context;
 	}
 
@@ -118,11 +119,11 @@ public class Mav {
 		this.contentType = contentType;
 	}
 
-	public int getStatusCode() {
+	public int getStatusCode(){
 		return statusCode;
 	}
 
-	public void setStatusCode(int statusCode) {
+	public void setStatusCode(int statusCode){
 		this.statusCode = statusCode;
 	}
 
