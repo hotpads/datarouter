@@ -13,6 +13,14 @@ import org.testng.internal.junit.ArrayAsserts;
 
 public class DrStringTool{
 
+	public static boolean equals(String left, String right){
+		return Objects.equals(left, right);
+	}
+
+	public static boolean notEquals(String left, String right){
+		return ! Objects.equals(left, right);
+	}
+
 	public static boolean notEmpty(String input){
 		return input != null && input.length() > 0;
 	}

@@ -5,6 +5,7 @@ import java.io.Reader;
 import java.net.InetAddress;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
 
@@ -19,8 +20,11 @@ import com.hotpads.util.core.io.ReaderTool;
 public abstract class DatarouterProperties{
 	private static final Logger logger = LoggerFactory.getLogger(DatarouterProperties.class);
 
+	public static final String CONFIG_STRATEGY_NONE = "none";
+
 	private static final String JVM_ARG_PREFIX = "datarouter.";
 	private static final String CONFIG_DIRECTORY = "config.directory";
+	private static final String CONFIG_STRATEGY = "config.strategy";
 
 	private static final String SERVER_PUBLIC_IP = "server.publicIp";
 	private static final String SERVER_PRIVATE_IP = "server.privateIp";
@@ -31,7 +35,8 @@ public abstract class DatarouterProperties{
 	private static final String EC2_PRIVATE_IP_URL = "http://instance-data/latest/meta-data/local-ipv4";
 	private static final String EC2_PUBLIC_IP_URL = "http://instance-data/latest/meta-data/public-ipv4";
 
-	private final Optional<String> configDirectory;
+	private final String configDirectory;
+	private final String configStrategy;
 	private final Optional<String> configPath;
 
 	private final String serverName;
@@ -51,12 +56,11 @@ public abstract class DatarouterProperties{
 	 */
 	@Deprecated
 	protected DatarouterProperties(ServerType serverTypeOptions, String directory, String filename){
-		this.configDirectory = Optional.ofNullable(directory);
-		if(configDirectory.isPresent()){
-			logSource(CONFIG_DIRECTORY, configDirectory.get(), "?");
-		}
-		if(configDirectory.isPresent() && DrStringTool.notEmpty(filename)){
-			this.configPath = Optional.of(configDirectory.get() + "/" + filename);
+		this.configStrategy = findConfigStrategy();
+		this.configDirectory = Objects.requireNonNull(directory);
+		logSource(CONFIG_DIRECTORY, configDirectory, "?");
+		if(DrStringTool.notEmpty(filename)){
+			this.configPath = Optional.of(configDirectory + "/" + filename);
 		}else{
 			this.configPath = Optional.empty();
 		}
@@ -80,6 +84,17 @@ public abstract class DatarouterProperties{
 	}
 
 	/*--------------- methods to find config values -----------------*/
+
+	private String findConfigStrategy(){
+		String jvmArgName = JVM_ARG_PREFIX + CONFIG_STRATEGY;
+		Optional<String> value = Optional.ofNullable(System.getProperty(jvmArgName));
+		if(value.isPresent()){
+			logSource(CONFIG_STRATEGY, value.get(), " JVM arg");
+		}else{
+			logger.warn("JVM arg {} not found, setting to {}", jvmArgName, CONFIG_STRATEGY_NONE);
+		}
+		return value.orElse(CONFIG_STRATEGY_NONE);
+	}
 
 	//prefer configFile then hostname
 	private String findServerName(Optional<Properties> configFileProperties){
@@ -224,6 +239,10 @@ public abstract class DatarouterProperties{
 		return configPath.orElse(null);
 	}
 
+	public boolean hasConfigStrategy(){
+		return DrStringTool.notEquals(configStrategy, CONFIG_STRATEGY_NONE);
+	}
+
 	/*---------------- getters -------------------*/
 
 	public String getServerName(){
@@ -244,6 +263,14 @@ public abstract class DatarouterProperties{
 
 	public String getAdministratorEmail(){
 		return administratorEmail;
+	}
+
+	public String getConfigDirectory(){
+		return configDirectory;
+	}
+
+	public String getConfigStrategy(){
+		return configStrategy;
 	}
 
 }
