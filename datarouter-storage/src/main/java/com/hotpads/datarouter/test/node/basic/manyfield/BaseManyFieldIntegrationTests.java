@@ -1,5 +1,7 @@
 package com.hotpads.datarouter.test.node.basic.manyfield;
 
+import java.time.LocalDateTime;
+import java.time.Month;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -272,6 +274,19 @@ public abstract class BaseManyFieldIntegrationTests{
 		ManyFieldBean roundTripped = mapNode.get(bean.getKey(), null);
 		AssertJUnit.assertEquals(bean.getLongDateField(), roundTripped.getLongDateField());
 		AssertJUnit.assertTrue(val.equals(roundTripped.getLongDateField()));
+		recordKey(bean.getKey());
+	}
+
+	@Test
+	public void testDateTime(){
+		ManyFieldBean bean = new ManyFieldBean();
+		LocalDateTime val = LocalDateTime.of(2016, Month.AUGUST, 21, 7, 6, 21);
+		bean.setDateTimeField(val);
+		mapNode.put(bean, null);
+
+		ManyFieldBean roundTripped = mapNode.get(bean.getKey(), null);
+		AssertJUnit.assertEquals(bean.getDateTimeField(), roundTripped.getDateTimeField());
+		AssertJUnit.assertTrue(val.equals(roundTripped.getDateTimeField()));
 		recordKey(bean.getKey());
 	}
 
