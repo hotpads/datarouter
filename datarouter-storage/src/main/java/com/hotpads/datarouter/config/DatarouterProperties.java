@@ -100,10 +100,10 @@ public abstract class DatarouterProperties{
 		Optional<String> value = Optional.ofNullable(System.getProperty(jvmArgName));
 		if(value.isPresent()){
 			logJvmArgSource(CONFIG_STRATEGY, value.get(), jvmArgName);
-		}else{
-			logger.warn("JVM arg {} not found, setting to {}", jvmArgName, CONFIG_STRATEGY_NONE);
+			return value.get();
 		}
-		return value.orElse(CONFIG_STRATEGY_NONE);
+		logger.warn("JVM arg {} not found, setting to {}", jvmArgName, CONFIG_STRATEGY_NONE);
+		return CONFIG_STRATEGY_NONE;
 	}
 
 	//prefer configFile then hostname
