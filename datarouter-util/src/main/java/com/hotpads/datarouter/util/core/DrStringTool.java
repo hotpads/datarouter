@@ -18,7 +18,7 @@ public class DrStringTool{
 	}
 
 	public static boolean notEquals(String left, String right){
-		return ! Objects.equals(left, right);
+		return !Objects.equals(left, right);
 	}
 
 	public static boolean notEmpty(String input){
