@@ -106,7 +106,7 @@ public class LatencyMonitoringService{
 	private int getNumLastChecksToRetain(LatencyCheck check){
 		if(check instanceof DatarouterClientLatencyCheck){
 			String clientName = ((DatarouterClientLatencyCheck)check).getClientName();
-			return Math.max(MIN_LAST_CHECKS_TO_RETAIN, switchThresholdSettings.getSwitchThreshold(clientName)
+			return Math.max(MIN_LAST_CHECKS_TO_RETAIN, 2 * switchThresholdSettings.getSwitchThreshold(clientName)
 					.getValue());
 		}
 		return MIN_LAST_CHECKS_TO_RETAIN;
