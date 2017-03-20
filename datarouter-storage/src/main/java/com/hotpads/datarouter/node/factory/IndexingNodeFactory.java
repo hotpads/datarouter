@@ -117,6 +117,10 @@ public class IndexingNodeFactory{
 				.getSimpleName());
 	}
 
+	/**
+	 * WARNING: make sure the IF you pass in returns the same result as D's fielder for
+	 * {@link MySqlCharacterSetCollationOpt} methods (or risk having incorrect, performance-hurting introducers in SQL)
+	 */
 	public static <PK extends PrimaryKey<PK>,
 					D extends Databean<PK,D>,
 					IK extends PrimaryKey<IK>,
