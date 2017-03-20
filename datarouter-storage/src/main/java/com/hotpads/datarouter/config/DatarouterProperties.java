@@ -48,24 +48,34 @@ public abstract class DatarouterProperties{
 	/*----------------- construct ------------------*/
 
 	protected DatarouterProperties(ServerType serverTypeOptions){
-		this(serverTypeOptions, System.getProperty(JVM_ARG_PREFIX + CONFIG_DIRECTORY), null);
+		this(serverTypeOptions, System.getProperty(JVM_ARG_PREFIX + CONFIG_DIRECTORY), true, null);
 	}
 
 	/**
-	 * @deprecated pass path via JVM arg
+	 * @deprecated pass directory via JVM arg
 	 */
 	@Deprecated
 	protected DatarouterProperties(ServerType serverTypeOptions, String directory, String filename){
+		this(serverTypeOptions, directory, false, filename);
+	}
+
+	@Deprecated
+	private DatarouterProperties(ServerType serverTypeOptions, String directory, boolean directoryFromJvmArg,
+			String filename){
 		this.configStrategy = findConfigStrategy();
 		this.configDirectory = Objects.requireNonNull(directory);
-		logSource(CONFIG_DIRECTORY, configDirectory, "?");
+		if(directoryFromJvmArg){
+			logJvmArgSource(CONFIG_DIRECTORY, configDirectory, JVM_ARG_PREFIX + CONFIG_DIRECTORY);
+		}else{
+			logSource(CONFIG_DIRECTORY, configDirectory, "constant");
+		}
 		if(DrStringTool.notEmpty(filename)){
 			this.configPath = Optional.of(configDirectory + "/" + filename);
 		}else{
 			this.configPath = Optional.empty();
 		}
 		if(configPath.isPresent()){
-			logSource("config file", configPath.get(), "constructor");
+			logSource("config file", configPath.get(), "constant");
 		}
 		Optional<Properties> configFileProperties = Optional.empty();
 		if(configPath.isPresent()){
@@ -89,7 +99,7 @@ public abstract class DatarouterProperties{
 		String jvmArgName = JVM_ARG_PREFIX + CONFIG_STRATEGY;
 		Optional<String> value = Optional.ofNullable(System.getProperty(jvmArgName));
 		if(value.isPresent()){
-			logSource(CONFIG_STRATEGY, value.get(), " JVM arg");
+			logJvmArgSource(CONFIG_STRATEGY, value.get(), jvmArgName);
 		}else{
 			logger.warn("JVM arg {} not found, setting to {}", jvmArgName, CONFIG_STRATEGY_NONE);
 		}
@@ -124,7 +134,7 @@ public abstract class DatarouterProperties{
 		String jvmArgName = JVM_ARG_PREFIX + SERVER_TYPE;
 		String jvmArg = System.getProperty(jvmArgName);
 		if(jvmArg != null){
-			logSource(SERVER_TYPE, jvmArg, jvmArgName + " JVM arg");
+			logJvmArgSource(SERVER_TYPE, jvmArg, jvmArgName);
 			return jvmArg;
 		}
 		if(configFileProperties.isPresent()){
@@ -143,7 +153,7 @@ public abstract class DatarouterProperties{
 		String jvmArgName = JVM_ARG_PREFIX + ADMINISTRATOR_EMAIL;
 		String jvmArg = System.getProperty(jvmArgName);
 		if(jvmArg != null){
-			logSource(ADMINISTRATOR_EMAIL, jvmArg, jvmArgName + " JVM arg");
+			logJvmArgSource(ADMINISTRATOR_EMAIL, jvmArg, jvmArgName);
 			return jvmArg;
 		}
 		if(configFileProperties.isPresent()){
@@ -209,6 +219,10 @@ public abstract class DatarouterProperties{
 
 	private void logSource(String name, String value, String source){
 		logger.warn("found {}={} from {}", name, value, source);
+	}
+
+	private void logJvmArgSource(String name, String value, String jvmArgName){
+		logger.warn("found {}={} from -D{} JVM arg", name, value, jvmArgName);
 	}
 
 	private boolean isEc2(){
