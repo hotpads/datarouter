@@ -5,16 +5,15 @@ import java.util.Optional;
 
 import javax.inject.Inject;
 
-import com.hotpads.datarouter.app.WebAppName;
 import com.hotpads.datarouter.setting.Setting;
 import com.hotpads.datarouter.setting.SettingFinder;
-import com.hotpads.datarouter.setting.SettingNode;
+import com.hotpads.datarouter.setting.SettingRoot;
 import com.hotpads.datarouter.util.core.DrRuntimeTool;
 import com.hotpads.joblet.enums.JobletQueueMechanism;
 import com.hotpads.joblet.type.JobletType;
 
 public class JobletSettings
-extends SettingNode{
+extends SettingRoot{
 
 	public static final int PERMITS_PER_HARDWARE_THREAD = 10;//TODO move this near joblets
 	public static final int MAX_MEMORY_PERMITS = 1000;
@@ -33,10 +32,9 @@ extends SettingNode{
 
 
 	@Inject
-	public JobletSettings(SettingFinder finder, WebAppName webAppName,
-			JobletThreadCountSettings jobletThreadCountSettings,
+	public JobletSettings(SettingFinder finder, JobletThreadCountSettings jobletThreadCountSettings,
 			JobletClusterThreadCountSettings jobletClusterThreadCountSettings){
-		super(finder, webAppName + ".joblet.", webAppName + ".");
+		super(finder, "datarouterJoblet.", "");
 
 		registerChild(jobletThreadCountSettings);
 		registerChild(jobletClusterThreadCountSettings);

@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import com.hotpads.datarouter.app.WebAppName;
 import com.hotpads.datarouter.setting.Setting;
 import com.hotpads.datarouter.setting.SettingFinder;
 import com.hotpads.datarouter.setting.SettingNode;
@@ -15,9 +14,9 @@ public class BaseJobletThreadCountSettings extends SettingNode{
 
 	private final Map<JobletType<?>,Setting<Integer>> settingByJobletType = new HashMap<>();
 
-	public BaseJobletThreadCountSettings(SettingFinder finder, WebAppName webAppName,
-			JobletTypeFactory jobletTypeFactory, String nodeName, int defaultNumThreads){
-		super(finder, webAppName + ".joblet." + nodeName + ".", webAppName + ".joblet.");
+	public BaseJobletThreadCountSettings(SettingFinder finder, JobletTypeFactory jobletTypeFactory, String nodeName,
+			int defaultNumThreads){
+		super(finder, "datarouterJoblet." + nodeName + ".", "datarouterJoblet.");
 
 		for(JobletType<?> jobletType : jobletTypeFactory.getAllTypes()){
 			Setting<Integer> setting = registerSetting(jobletType, jobletType.getPersistentString(), defaultNumThreads);

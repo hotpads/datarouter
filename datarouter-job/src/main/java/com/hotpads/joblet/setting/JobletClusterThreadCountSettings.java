@@ -3,7 +3,6 @@ package com.hotpads.joblet.setting;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import com.hotpads.datarouter.app.WebAppName;
 import com.hotpads.datarouter.setting.SettingFinder;
 import com.hotpads.joblet.type.JobletTypeFactory;
 
@@ -14,9 +13,8 @@ public class JobletClusterThreadCountSettings extends BaseJobletThreadCountSetti
 
 
 	@Inject
-	public JobletClusterThreadCountSettings(SettingFinder finder, WebAppName webAppName,
-			JobletTypeFactory jobletTypeFactory){
-		super(finder, webAppName, jobletTypeFactory, NAME, 0);
+	public JobletClusterThreadCountSettings(SettingFinder finder, JobletTypeFactory jobletTypeFactory){
+		super(finder, jobletTypeFactory, NAME, 0);
 	}
 
 }
