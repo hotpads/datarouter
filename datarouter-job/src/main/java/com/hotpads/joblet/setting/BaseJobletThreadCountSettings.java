@@ -16,7 +16,7 @@ public class BaseJobletThreadCountSettings extends SettingNode{
 
 	public BaseJobletThreadCountSettings(SettingFinder finder, JobletTypeFactory jobletTypeFactory, String nodeName,
 			int defaultNumThreads){
-		super(finder, "datarouterJob.joblet." + nodeName + ".", "datarouterJob.joblet.");
+		super(finder, "datarouterJoblet." + nodeName + ".", "datarouterJoblet.");
 
 		for(JobletType<?> jobletType : jobletTypeFactory.getAllTypes()){
 			Setting<Integer> setting = registerSetting(jobletType, jobletType.getPersistentString(), defaultNumThreads);
