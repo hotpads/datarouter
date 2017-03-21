@@ -16,8 +16,8 @@ import com.hotpads.util.core.bytes.LongByteTool;
 
 public class DateTimeField extends BaseField<LocalDateTime>{
 
-	public static final String pattern = "yyyy-MM-dd HH:mm:ss";
-	public static final int BACKWARDS_COMPATIBLE_NUM_DECIMAL_SECONDS = 0;
+	public static final String pattern = "yyyy-MM-dd HH:mm:ss.SSS";
+	public static final int BACKWARDS_COMPATIBLE_NUM_DECIMAL_SECONDS = 3;
 
 	private final DateTimeFieldKey key;
 	private final int numDecimalSeconds;
@@ -32,7 +32,7 @@ public class DateTimeField extends BaseField<LocalDateTime>{
 		this.numDecimalSeconds = BACKWARDS_COMPATIBLE_NUM_DECIMAL_SECONDS;
 	}
 
-	public Integer getNumDecimalSeconds(){
+	public int getNumDecimalSeconds(){
 		return numDecimalSeconds;
 	}
 
@@ -89,13 +89,13 @@ public class DateTimeField extends BaseField<LocalDateTime>{
 	public static class DateFieldTester{
 		@Test
 		public void testParseStringEncodedValueButDoNotSet(){
-			String dateStr = "2016-06-22 19:20:14";
-			String dateStr2 = "2015-06-22 00:00:00";
+			String dateStr = "2016-06-22 19:20:14.100";
+			String dateStr2 = "2015-06-22 00:00:00.200";
 			DateTimeField field = new DateTimeField(new DateTimeFieldKey("test"), null);
 			ZonedDateTime date = field.parseStringEncodedValueButDoNotSet(dateStr).atZone(ZoneId.systemDefault());
-			Assert.assertEquals(date.toInstant().toEpochMilli(), 1466648414000L);
+			Assert.assertEquals(date.toInstant().toEpochMilli(), 1466648414100L);
 			ZonedDateTime date2 = field.parseStringEncodedValueButDoNotSet(dateStr2).atZone(ZoneId.systemDefault());
-			Assert.assertEquals(date2.toInstant().toEpochMilli(), 1434956400000L);
+			Assert.assertEquals(date2.toInstant().toEpochMilli(), 1434956400200L);
 			Assert.assertNotNull(date);
 		}
 	}

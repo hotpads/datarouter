@@ -1,7 +1,6 @@
 package com.hotpads.datarouter.test.node.basic.manyfield;
 
 import java.time.LocalDateTime;
-import java.time.Month;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -280,13 +279,27 @@ public abstract class BaseManyFieldIntegrationTests{
 	@Test
 	public void testDateTime(){
 		ManyFieldBean bean = new ManyFieldBean();
-		LocalDateTime val = LocalDateTime.of(2016, Month.AUGUST, 21, 7, 6, 21);
+		// LocalDateTime.now() uses the system clock as default so it will always get fractional seconds up to 3 digits
+		// (i.e. milliseconds) and no more.
+		LocalDateTime val = LocalDateTime.now();
 		bean.setDateTimeField(val);
 		mapNode.put(bean, null);
 
 		ManyFieldBean roundTripped = mapNode.get(bean.getKey(), null);
 		AssertJUnit.assertEquals(bean.getDateTimeField(), roundTripped.getDateTimeField());
 		AssertJUnit.assertTrue(val.equals(roundTripped.getDateTimeField()));
+
+		// LocalDateTime.of can set the value of nanoseconds in a range from 0 to 999,999,999
+		// MySql.DateTime cannot handle this level of granularity and will truncate the fractional second value
+		// so the value of the LocalDateTime retrieved from the database will not be equal to the LocalDateTime saved
+		LocalDateTime valOutOfBounds = LocalDateTime.of(2015, 12, 24, 2, 3, 4, 50);
+		bean.setDateTimeField(val);
+		mapNode.put(bean, null);
+
+		ManyFieldBean roundTripped2 = mapNode.get(bean.getKey(), null);
+		AssertJUnit.assertNotSame(bean.getDateTimeField(), roundTripped2.getDateTimeField());
+		AssertJUnit.assertFalse(valOutOfBounds.equals(roundTripped2.getDateTimeField()));
+
 		recordKey(bean.getKey());
 	}
 
