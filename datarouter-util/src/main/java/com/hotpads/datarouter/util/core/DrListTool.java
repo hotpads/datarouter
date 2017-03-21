@@ -211,6 +211,13 @@ public class DrListTool{
 		return copy;
 	}
 
+	public static <T> List<T> getFirstNElements(List<T> in, int indexN){
+		if(DrCollectionTool.isEmpty(in) || indexN <= 0){
+			return create();
+		}
+		return copyOfRange(in, 0, Math.max(0, indexN));
+	}
+
 	/****************** tests *********************/
 
 	public static class Tests{
