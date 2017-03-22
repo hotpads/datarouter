@@ -28,7 +28,7 @@ public class LocalDateTimeField extends BaseField<LocalDateTime>{
 	public static final String pattern = "yyyy-MM-dd HH:mm:ss.SSS";
 	public static final int TOTAL_NUM_FRACTIONAL_SECONDS = 9;
 	public static final int BACKWARDS_COMPATIBLE_NUM_FRACTIONAL_SECONDS = 3;
-	private static final int NUM_BYTES = 28;
+	private static final int NUM_BYTES = 15;
 	public static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
 
 	private final LocalDateTimeFieldKey key;
