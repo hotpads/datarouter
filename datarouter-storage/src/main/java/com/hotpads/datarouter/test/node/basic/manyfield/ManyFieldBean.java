@@ -30,8 +30,8 @@ import com.hotpads.datarouter.storage.field.imp.comparable.IntegerField;
 import com.hotpads.datarouter.storage.field.imp.comparable.LongField;
 import com.hotpads.datarouter.storage.field.imp.comparable.ShortField;
 import com.hotpads.datarouter.storage.field.imp.comparable.SignedByteField;
-import com.hotpads.datarouter.storage.field.imp.custom.DateTimeField;
-import com.hotpads.datarouter.storage.field.imp.custom.DateTimeFieldKey;
+import com.hotpads.datarouter.storage.field.imp.custom.LocalDateTimeField;
+import com.hotpads.datarouter.storage.field.imp.custom.LocalDateTimeFieldKey;
 import com.hotpads.datarouter.storage.field.imp.custom.LongDateField;
 import com.hotpads.datarouter.storage.field.imp.dumb.DumbDoubleField;
 import com.hotpads.datarouter.storage.field.imp.dumb.DumbFloatField;
@@ -62,7 +62,7 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 	private Float floatField;
 	private Double doubleField;
 	private Date longDateField;
-	private LocalDateTime dateTimeField;
+	private LocalDateTime localDateTimeField;
 	private Character characterField;
 	private String stringField;
 	private Integer varIntField;
@@ -94,7 +94,7 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 			floatField = "floatField",
 			doubleField = "doubleField",
 			longDateField = "longDateField",
-			dateTimeField = "dateTimeField",
+			localDateTimeField = "localDateTimeField",
 			characterField = "characterField",
 			stringField = "stringField",
 			varIntField = "varIntField",
@@ -141,7 +141,7 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 		if(DrObjectTool.notEquals(longDateField, that.longDateField)){
 			return false;
 		}
-		if(DrObjectTool.notEquals(dateTimeField, that.dateTimeField)){
+		if(DrObjectTool.notEquals(localDateTimeField, that.localDateTimeField)){
 			return false;
 		}
 		if(DrObjectTool.notEquals(characterField, that.characterField)){
@@ -211,7 +211,7 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 			fields.add(new DumbFloatField(F.floatField, d.floatField));
 			fields.add(new DumbDoubleField(F.doubleField, d.doubleField));
 			fields.add(new LongDateField(F.longDateField, d.longDateField));
-			fields.add(new DateTimeField(new DateTimeFieldKey(F.dateTimeField), d.dateTimeField));
+			fields.add(new LocalDateTimeField(new LocalDateTimeFieldKey(F.localDateTimeField), d.localDateTimeField));
 			fields.add(new CharacterField(F.characterField, d.characterField));
 			fields.add(new StringField(F.stringField, d.stringField, MySqlColumnType.MAX_KEY_LENGTH_UTF8MB4));
 			fields.add(new VarIntField(F.varIntField, d.varIntField));
@@ -481,11 +481,11 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 	}
 
 	public LocalDateTime getDateTimeField(){
-		return dateTimeField;
+		return localDateTimeField;
 	}
 
 	public void setDateTimeField(LocalDateTime dateTimeField){
-		this.dateTimeField = dateTimeField;
+		this.localDateTimeField = dateTimeField;
 	}
 
 	public Integer getVarIntField(){

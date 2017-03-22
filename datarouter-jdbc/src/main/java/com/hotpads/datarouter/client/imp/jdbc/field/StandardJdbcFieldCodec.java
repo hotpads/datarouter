@@ -1,6 +1,6 @@
 package com.hotpads.datarouter.client.imp.jdbc.field;
 
-import com.hotpads.datarouter.client.imp.jdbc.field.codec.DateTimeJdbcFieldCodec;
+import com.hotpads.datarouter.client.imp.jdbc.field.codec.LocalDateTimeJdbcFieldCodec;
 import com.hotpads.datarouter.client.imp.jdbc.field.codec.array.BooleanArrayJdbcFieldCodec;
 import com.hotpads.datarouter.client.imp.jdbc.field.codec.array.ByteArrayJdbcFieldCodec;
 import com.hotpads.datarouter.client.imp.jdbc.field.codec.array.DelimitedStringArrayJdbcFieldCodec;
@@ -46,7 +46,7 @@ import com.hotpads.datarouter.storage.field.imp.comparable.IntegerField;
 import com.hotpads.datarouter.storage.field.imp.comparable.LongField;
 import com.hotpads.datarouter.storage.field.imp.comparable.ShortField;
 import com.hotpads.datarouter.storage.field.imp.comparable.SignedByteField;
-import com.hotpads.datarouter.storage.field.imp.custom.DateTimeField;
+import com.hotpads.datarouter.storage.field.imp.custom.LocalDateTimeField;
 import com.hotpads.datarouter.storage.field.imp.custom.LongDateField;
 import com.hotpads.datarouter.storage.field.imp.dumb.DumbDoubleField;
 import com.hotpads.datarouter.storage.field.imp.dumb.DumbFloatField;
@@ -74,7 +74,7 @@ public enum StandardJdbcFieldCodec{
 	STRING(StringField.class, StringJdbcFieldCodec.class),
 	DATE(DateField.class, DateJdbcFieldCodec.class),
 	LONG_DATE(LongDateField.class, LongDateJdbcFieldCodec.class),
-	DATE_TIME(DateTimeField.class, DateTimeJdbcFieldCodec.class),
+	DATE_TIME(LocalDateTimeField.class, LocalDateTimeJdbcFieldCodec.class),
 
 	//enums
 	INTEGER_ENUM(IntegerEnumField.class, IntegerEnumJdbcFieldCodec.class),
