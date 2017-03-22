@@ -54,6 +54,9 @@ public class LocalDateTimeField extends BaseField<LocalDateTime>{
 			return null;
 		}
 		int divideBy = (int) Math.pow(10, TOTAL_NUM_FRACTIONAL_SECONDS - getNumFractionalSeconds());
+		if(divideBy < 1){
+			throw new RuntimeException("numFractionalSeconds is greater or equal to 9");
+		}
 		int numNanoSeconds = (value.getNano() / divideBy) * divideBy;
 		return value.withNano(numNanoSeconds);
 	}
