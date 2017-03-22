@@ -11,8 +11,8 @@ public class LocalDateTimeFieldKey extends BaseFieldKey<LocalDateTime>{
 		super(name);
 	}
 
-	private LocalDateTimeFieldKey(String name, String columnName, boolean nullable, FieldGeneratorType fieldGeneratorType,
-			LocalDateTime defaultValue){
+	private LocalDateTimeFieldKey(String name, String columnName, boolean nullable,
+			FieldGeneratorType fieldGeneratorType, LocalDateTime defaultValue){
 		super(name, columnName, nullable, fieldGeneratorType, defaultValue);
 	}
 

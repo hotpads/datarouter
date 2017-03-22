@@ -297,9 +297,10 @@ public abstract class BaseManyFieldIntegrationTests{
 		Assert.assertNotEquals(bean.getDateTimeField(), roundTripped2.getDateTimeField());
 		Assert.assertFalse(valOutOfBounds.equals(roundTripped2.getDateTimeField()));
 
-		// LocalDateTime.of can set the value of nanoseconds in a range from 0 to 999,999,999
-		// MySql.DateTime cannot handle this level of granularity and will truncate the fractional second value
-		// so the value of the LocalDateTime retrieved from the database will not be equal to the LocalDateTime saved
+		/* LocalDateTime.of can set the value of nanoseconds in a range from 0 to 999,999,999
+		MySql.DateTime cannot handle this level of granularity and will truncate the fractional second value
+		to 3 digits so the value of the LocalDateTime retrieved from the database will not be equal to the
+		LocalDateTime saved */
 		LocalDateTime localDateTimeWithNano = LocalDateTime.of(2015, 12, 24, 2, 3, 4, 423060750);
 		LocalDateTime localDateTimeTruncated = LocalDateTime.of(2015, 12, 24, 2, 3, 4, 423000000);
 		bean.setDateTimeField(localDateTimeWithNano);

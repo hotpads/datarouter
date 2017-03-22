@@ -12,6 +12,7 @@ import com.hotpads.datarouter.storage.field.BaseField;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldKey;
 import com.hotpads.util.core.bytes.IntegerByteTool;
+import com.hotpads.util.core.bytes.ShortByteTool;
 
 /*  LocalDateTime stores the value of nanoseconds in a range from 0 to 999,999,999 However, the MySql.DateTime column
  *  type cannot handle this level of granularity (it can handle at most 6 digits of fractional seconds).
@@ -27,7 +28,7 @@ public class LocalDateTimeField extends BaseField<LocalDateTime>{
 	public static final String pattern = "yyyy-MM-dd HH:mm:ss.SSS";
 	public static final int TOTAL_NUM_FRACTIONAL_SECONDS = 9;
 	public static final int BACKWARDS_COMPATIBLE_NUM_FRACTIONAL_SECONDS = 3;
-	private static final int numBytes = 28;
+	private static final int NUM_BYTES = 28;
 	public static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
 
 	private final LocalDateTimeFieldKey key;
@@ -53,7 +54,7 @@ public class LocalDateTimeField extends BaseField<LocalDateTime>{
 			return null;
 		}
 		int divideBy = (int) Math.pow(10, TOTAL_NUM_FRACTIONAL_SECONDS - getNumFractionalSeconds());
-		int numNanoSeconds = (value.getNano()/divideBy) * divideBy;
+		int numNanoSeconds = (value.getNano() / divideBy) * divideBy;
 		return value.withNano(numNanoSeconds);
 	}
 
@@ -91,38 +92,35 @@ public class LocalDateTimeField extends BaseField<LocalDateTime>{
 		if(value == null){
 			return null;
 		}
-		byte[] bytes = new byte[numBytes];
+		byte[] bytes = new byte[NUM_BYTES];
 		int offset = 0;
-		offset += IntegerByteTool.toRawBytes(value.getYear(), bytes, offset);
-		offset += IntegerByteTool.toRawBytes(value.getMonthValue(), bytes, offset);
-		offset += IntegerByteTool.toRawBytes(value.getDayOfMonth(), bytes, offset);
-		offset += IntegerByteTool.toRawBytes(value.getHour(), bytes, offset);
-		offset += IntegerByteTool.toRawBytes(value.getMinute(), bytes, offset);
-		offset += IntegerByteTool.toRawBytes(value.getSecond(), bytes, offset);
-		offset += IntegerByteTool.toRawBytes(value.getNano(), bytes, offset);
+		offset += IntegerByteTool.toComparableBytes(value.getYear(), bytes, offset);
+		offset += ShortByteTool.toComparableBytes((short) value.getMonthValue(), bytes, offset);
+		offset += ShortByteTool.toComparableBytes((short) value.getDayOfMonth(), bytes, offset);
+		bytes[offset++] = (byte) value.getHour();
+		bytes[offset++] = (byte) value.getMinute();
+		bytes[offset++] = (byte) value.getSecond();
+		offset += IntegerByteTool.toComparableBytes(value.getNano(), bytes, offset);
 		return bytes;
 	}
 
 	@Override
 	public int numBytesWithSeparator(byte[] bytes, int offset){
-		return numBytes;
+		return NUM_BYTES;
 	}
 
 	@Override
 	public LocalDateTime fromBytesButDoNotSet(byte[] bytes, int offset){
-		int year = IntegerByteTool.fromRawBytes(bytes, offset);
+		int year = IntegerByteTool.fromComparableBytes(bytes, offset);
 		offset += 4;
-		int month = IntegerByteTool.fromRawBytes(bytes, offset);
-		offset += 4;
-		int day = IntegerByteTool.fromRawBytes(bytes, offset);
-		offset += 4;
-		int hour = IntegerByteTool.fromRawBytes(bytes, offset);
-		offset += 4;
-		int minute = IntegerByteTool.fromRawBytes(bytes, offset);
-		offset += 4;
-		int second = IntegerByteTool.fromRawBytes(bytes, offset);
-		offset += 4;
-		int nano = IntegerByteTool.fromRawBytes(bytes, offset);
+		int month = ShortByteTool.fromComparableBytes(bytes, offset);
+		offset += 2;
+		int day = ShortByteTool.fromComparableBytes(bytes, offset);
+		offset += 2;
+		int hour = bytes[offset++];
+		int minute = bytes[offset++];
+		int second = bytes[offset++];
+		int nano = IntegerByteTool.fromComparableBytes(bytes, offset);
 		return LocalDateTime.of(year, month, day, hour, minute, second, nano);
 	}
 
