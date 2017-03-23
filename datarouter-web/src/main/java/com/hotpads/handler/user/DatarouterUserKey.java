@@ -8,11 +8,11 @@ import com.hotpads.datarouter.storage.field.imp.positive.UInt63Field;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt63FieldKey;
 import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
 
-public class DatarouterUserKey extends BasePrimaryKey<DatarouterUserKey> {
+public class DatarouterUserKey extends BasePrimaryKey<DatarouterUserKey>{
 
 	private Long id;
 
-	public static class FieldKeys {
+	public static class FieldKeys{
 		public static final UInt63FieldKey id = new UInt63FieldKey("id");
 	}
 
