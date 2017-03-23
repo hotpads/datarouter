@@ -4,6 +4,7 @@ import java.lang.reflect.Type;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 import com.google.common.collect.ImmutableSet;
 import com.hotpads.util.core.java.ReflectionTool;
@@ -64,6 +65,10 @@ public abstract class OptionalParameter<T>{
 
     public <U> Optional<U> map(Function<? super T, ? extends U> mapper){
         return opt.map(mapper);
+    }
+
+    public Optional<T> filter(Predicate<? super T> predicate){
+    	return opt.filter(predicate);
     }
 
     /*--------------- Object ------------------*/
