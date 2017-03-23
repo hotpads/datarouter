@@ -35,9 +35,9 @@ public abstract class DatarouterProperties{
 	private static final String EC2_PRIVATE_IP_URL = "http://instance-data/latest/meta-data/local-ipv4";
 	private static final String EC2_PUBLIC_IP_URL = "http://instance-data/latest/meta-data/public-ipv4";
 
-	private final String configDirectory;
-	private final String configStrategy;
-	private final Optional<String> configPath;
+	protected final String configDirectory;
+	protected final String configStrategy;
+	protected final Optional<String> configPath;
 
 	private final String serverName;
 	private final ServerType serverType;
@@ -62,13 +62,16 @@ public abstract class DatarouterProperties{
 	@Deprecated
 	private DatarouterProperties(ServerType serverTypeOptions, String directory, boolean directoryFromJvmArg,
 			String filename){
+		//find configStrategy
 		this.configStrategy = findConfigStrategy();
+		//find configDirectory
 		this.configDirectory = Objects.requireNonNull(directory);
 		if(directoryFromJvmArg){
 			logJvmArgSource(CONFIG_DIRECTORY, configDirectory, JVM_ARG_PREFIX + CONFIG_DIRECTORY);
 		}else{
 			logSource(CONFIG_DIRECTORY, configDirectory, "constant");
 		}
+		//find configPath
 		if(DrStringTool.notEmpty(filename)){
 			this.configPath = Optional.of(configDirectory + "/" + filename);
 		}else{
@@ -77,15 +80,17 @@ public abstract class DatarouterProperties{
 		if(configPath.isPresent()){
 			logSource("config file", configPath.get(), "constant");
 		}
+		//maybe parse configFileProperties
 		Optional<Properties> configFileProperties = Optional.empty();
 		if(configPath.isPresent()){
 			try{
 				configFileProperties = Optional.of(DrPropertiesTool.parse(configPath.get()));
 				logConfigFileProperties(configFileProperties);
 			}catch(Exception e){
-				logger.warn("couldn't parse configFileProperties at configPath={}", configPath.get());
+				logger.error("couldn't parse configFileProperties at configPath={}", configPath.get());
 			}
 		}
+		//find remaining fields
 		this.serverName = findServerName(configFileProperties);
 		this.serverType = serverTypeOptions.fromPersistentString(findServerTypeString(configFileProperties));
 		this.administratorEmail = findAdministratorEmail(configFileProperties);
