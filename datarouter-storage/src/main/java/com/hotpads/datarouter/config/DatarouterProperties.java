@@ -225,6 +225,7 @@ public abstract class DatarouterProperties{
 		logger.warn("found {}={} from -D{} JVM arg", name, value, jvmArgName);
 	}
 
+	//TODO http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/identify_ec2_instances.html
 	private boolean isEc2(){
 		return curl(EC2_PRIVATE_IP_URL, false).isPresent();
 	}
