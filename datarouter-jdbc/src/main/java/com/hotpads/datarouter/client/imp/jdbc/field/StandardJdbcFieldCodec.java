@@ -74,7 +74,7 @@ public enum StandardJdbcFieldCodec{
 	STRING(StringField.class, StringJdbcFieldCodec.class),
 	DATE(DateField.class, DateJdbcFieldCodec.class),
 	LONG_DATE(LongDateField.class, LongDateJdbcFieldCodec.class),
-	DATE_TIME(LocalDateTimeField.class, LocalDateTimeJdbcFieldCodec.class),
+	LOCAL_DATE_TIME(LocalDateTimeField.class, LocalDateTimeJdbcFieldCodec.class),
 
 	//enums
 	INTEGER_ENUM(IntegerEnumField.class, IntegerEnumJdbcFieldCodec.class),
