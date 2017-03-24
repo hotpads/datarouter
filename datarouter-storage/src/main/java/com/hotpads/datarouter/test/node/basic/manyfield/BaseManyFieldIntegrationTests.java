@@ -315,13 +315,13 @@ public abstract class BaseManyFieldIntegrationTests{
 	@Test
 	public void testCharacter(){
 		ManyFieldBean bean = new ManyFieldBean();
-		Character q = 'Q';
-		bean.setCharacterField(q);
+		Character charQ = 'Q';
+		bean.setCharacterField(charQ);
 		mapNode.put(bean, null);
 
 		ManyFieldBean roundTripped = mapNode.get(bean.getKey(), null);
 		Assert.assertEquals(roundTripped.getCharacterField(), bean.getCharacterField());
-		Assert.assertEquals(roundTripped.getCharacterField(), q);
+		Assert.assertEquals(roundTripped.getCharacterField(), charQ);
 		recordKey(bean.getKey());
 	}
 
