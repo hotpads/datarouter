@@ -68,6 +68,10 @@ public class DrArrayTool{
 		return !isEmpty(array);
 	}
 
+	public static boolean notEmpty(byte[] array){
+		return !isEmpty(array);
+	}
+
 	public static byte[] concatenate(byte[]... arrays){
 		int totalLength = 0;
 		for(int i = 0; i < length(arrays); ++i){

@@ -111,7 +111,7 @@ public class Datarouter{
 			return;
 		}
 
-		logger.warn("adding datarouter config from " + configPath + ", currentRouters:" + routers);
+		logger.warn("adding router config from " + configPath + ", currentRouters:" + routers);
 		configFilePaths.add(configPath);
 		multiProperties.add(DrPropertiesTool.parse(configPath));
 

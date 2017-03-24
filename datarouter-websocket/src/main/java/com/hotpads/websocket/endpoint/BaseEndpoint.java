@@ -4,7 +4,6 @@ import javax.inject.Inject;
 import javax.websocket.CloseReason;
 import javax.websocket.Endpoint;
 import javax.websocket.EndpointConfig;
-import javax.websocket.MessageHandler;
 import javax.websocket.Session;
 
 import org.slf4j.Logger;
@@ -30,6 +29,7 @@ public abstract class BaseEndpoint extends Endpoint{
 	private ExceptionRecorder exceptionRecorder;
 
 	protected WebSocketSession webSocketSession;
+	private ClosableMessageHandler messageHandler;
 
 	@Override
 	public void onOpen(Session session, EndpointConfig endpointConfig){
@@ -39,15 +39,16 @@ public abstract class BaseEndpoint extends Endpoint{
 		webSocketSession = new WebSocketSession(userToken, serverAddress);
 		pushService.register(webSocketSession);
 		webSocketConnectionStore.put(webSocketSession, session);
-		MessageHandler messageHandler = getMessageHandler();
+		messageHandler = getMessageHandler();
 		session.addMessageHandler(messageHandler);
 	}
 
-	protected abstract MessageHandler getMessageHandler();
+	protected abstract ClosableMessageHandler getMessageHandler();
 
 	@Override
-	public void onClose(Session session, CloseReason closeReason){
+	public void onClose(Session session, CloseReason closeReason){ // TODO handle exception
 		logger.info("Closing websocket session {} because {}", webSocketSession, closeReason);
+		messageHandler.onClose();
 		pushService.unregister(webSocketSession.getKey());
 		webSocketConnectionStore.remove(webSocketSession.getKey());
 	}

@@ -7,11 +7,8 @@ import com.hotpads.datarouter.config.DatarouterProperties;
 @Singleton
 public class ExampleDatarouterProperties extends DatarouterProperties{
 
-	private static final String CONFIG_PATH = "/hotpads/config/datarouter-example.properties";
-
-
 	public ExampleDatarouterProperties(){
-		super(CONFIG_PATH);
+		super(ExampleServerType.ALL, "/hotpads/config", "datarouter-example.properties");
 	}
 
 }

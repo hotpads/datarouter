@@ -39,7 +39,7 @@ public class SettingRoot extends SettingNode{
 
 	public List<SettingNode> getRootNodesOrdered(){
 		List<SettingNode> list = new ArrayList<>(rootNodes);
-		Collections.reverse(list);
+		Collections.reverse(list);//TODO make this tree-aware
 		return list;
 	}
 

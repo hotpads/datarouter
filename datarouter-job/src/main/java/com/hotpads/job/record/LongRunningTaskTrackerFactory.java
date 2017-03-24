@@ -8,7 +8,7 @@ import com.hotpads.datarouter.setting.constant.ConstantBooleanSetting;
 import com.hotpads.job.trigger.JobSettings;
 
 @Singleton
-public class LongRunningTaskTrackerFactory {
+public class LongRunningTaskTrackerFactory{
 
 	private final DatarouterProperties datarouterProperties;
 	private final LongRunningTaskNodeProvider longRunningTaskNodeProvider;

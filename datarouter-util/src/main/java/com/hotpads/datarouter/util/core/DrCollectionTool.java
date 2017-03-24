@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -116,6 +117,10 @@ public class DrCollectionTool{
 	}
 
 	/************************ sub-collection **********************************/
+
+	public static <T> Optional<T> findFirst(Collection<T> collection){
+		return Optional.ofNullable(getFirst(collection));
+	}
 
 	public static <T> T getFirst(Collection<T> collection){
 		return getItemAtIndex(collection, 0);

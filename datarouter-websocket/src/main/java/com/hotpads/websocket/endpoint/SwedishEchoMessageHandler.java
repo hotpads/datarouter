@@ -2,11 +2,11 @@ package com.hotpads.websocket.endpoint;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import javax.websocket.MessageHandler.Whole;
+import javax.websocket.MessageHandler;
 
 import com.hotpads.websocket.session.PushService;
 
-public class SwedishEchoMessageHandler implements Whole<String>{
+public class SwedishEchoMessageHandler implements ClosableMessageHandler, MessageHandler.Whole<String>{
 
 	@Singleton
 	public static class SwedishEchoMessageHandlerFactory{
