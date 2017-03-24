@@ -14,24 +14,26 @@ import com.hotpads.datarouter.storage.field.FieldKey;
 import com.hotpads.util.core.bytes.IntegerByteTool;
 import com.hotpads.util.core.bytes.ShortByteTool;
 
-/*  LocalDateTime stores the value of nanoseconds in a range from 0 to 999,999,999.
+/**
+ * LocalDateTime stores the value of nanoseconds in a range from 0 to 999,999,999.
  *  However, the MySql.DateTime column type cannot handle this level of granularity
  *  (it can handle at most 6 digits of fractional seconds).
  *
  *  LocalDateTimeField defaults to a truncation of the LocalDateTime nanosecond value of up to 3 fractional seconds
  *  as this corresponds to the fractional seconds granularity of System.currentTimeMillis() and LocalDateTime.now().
- *  This is the recommended use, but can be overwritten to store the full value.
+ *  This is the recommended use, but can be overridden to store the full value.
  *
  *  A LocalDateTime object created using LocalDateTime::of might not be equivalent to a LocalDateTime retrieved from
  *  MySql because of the truncation of nanoseconds. Use .now() or use the LocalDateTime::of method that
- *  ignores the nanoseconds field */
+ *  ignores the nanoseconds field
+ *  */
 
 public class LocalDateTimeField extends BaseField<LocalDateTime>{
 
-	public static final String pattern = "yyyy-MM-dd HH:mm:ss.SSS";
+	private static final int NUM_BYTES = 15;
 	public static final int TOTAL_NUM_FRACTIONAL_SECONDS = 9;
 	public static final int BACKWARDS_COMPATIBLE_NUM_FRACTIONAL_SECONDS = 3;
-	private static final int NUM_BYTES = 15;
+	public static final String pattern = "yyyy-MM-dd HH:mm:ss.SSS";
 	public static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
 
 	private final LocalDateTimeFieldKey key;
@@ -130,7 +132,7 @@ public class LocalDateTimeField extends BaseField<LocalDateTime>{
 		return LocalDateTime.of(year, month, day, hour, minute, second, nano);
 	}
 
-	public static class DateFieldTester{
+	public static class LocalDateFieldTester{
 		@Test
 		public void testParseStringEncodedValueButDoNotSet(){
 			String dateStr = "2016-06-22 19:20:14.100";

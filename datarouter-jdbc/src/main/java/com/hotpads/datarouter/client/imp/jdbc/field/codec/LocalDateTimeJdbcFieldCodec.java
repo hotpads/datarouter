@@ -8,7 +8,6 @@ import java.sql.Types;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -21,9 +20,6 @@ import com.hotpads.datarouter.storage.field.imp.custom.LocalDateTimeField;
 import com.hotpads.datarouter.storage.field.imp.custom.LocalDateTimeFieldKey;
 
 public class LocalDateTimeJdbcFieldCodec extends BaseJdbcFieldCodec<LocalDateTime,LocalDateTimeField>{
-
-	public static final String pattern = "yyyy-MM-dd HH:mm:ss.SSS";
-	public static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
 
 	public LocalDateTimeJdbcFieldCodec(){// no-arg for reflection
 		this(null);
@@ -79,7 +75,7 @@ public class LocalDateTimeJdbcFieldCodec extends BaseJdbcFieldCodec<LocalDateTim
 	}
 
 	public static String getSqlDateString(LocalDateTime date){
-		return date.format(formatter);
+		return date.format(LocalDateTimeField.formatter);
 	}
 
 	/*********************** tests ******************************/
@@ -92,8 +88,9 @@ public class LocalDateTimeJdbcFieldCodec extends BaseJdbcFieldCodec<LocalDateTim
 			// sql insert with a string including the nanosecond value works in mysql
 			String dateString = "2002-11-05 13:14:01.100";
 			String dateStringZeroFractionalSeconds = "2002-11-05 13:14:01.000";
-			LocalDateTime dateTime = LocalDateTime.parse(dateString, formatter);
-			LocalDateTime dateTimeNoNanoSeconds = LocalDateTime.parse(dateStringZeroFractionalSeconds, formatter);
+			LocalDateTime dateTime = LocalDateTime.parse(dateString, LocalDateTimeField.formatter);
+			LocalDateTime dateTimeNoNanoSeconds = LocalDateTime.parse(dateStringZeroFractionalSeconds,
+					LocalDateTimeField.formatter);
 			LocalDateTime dateTimeNow = LocalDateTime.now();
 			String dateStringNow = getSqlDateString(dateTimeNow);
 			Assert.assertEquals(dateTime.getNano(), 100000000);
