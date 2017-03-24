@@ -91,9 +91,9 @@ public class LocalDateTimeJdbcFieldCodec extends BaseJdbcFieldCodec<LocalDateTim
 			// jdbc timestamp escape format" yyyy-MM-dd HH:mm:ss.n where n is nanoseconds (not representable with Date)
 			// sql insert with a string including the nanosecond value works in mysql
 			String dateString = "2002-11-05 13:14:01.100";
-			String dateStringNoFractionalSeconds = "2002-11-05 13:14:01.000";
+			String dateStringZeroFractionalSeconds = "2002-11-05 13:14:01.000";
 			LocalDateTime dateTime = LocalDateTime.parse(dateString, formatter);
-			LocalDateTime dateTimeNoNanoSeconds = LocalDateTime.parse(dateStringNoFractionalSeconds, formatter);
+			LocalDateTime dateTimeNoNanoSeconds = LocalDateTime.parse(dateStringZeroFractionalSeconds, formatter);
 			LocalDateTime dateTimeNow = LocalDateTime.now();
 			String dateStringNow = getSqlDateString(dateTimeNow);
 			Assert.assertEquals(dateTime.getNano(), 100000000);

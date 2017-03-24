@@ -14,14 +14,17 @@ import com.hotpads.datarouter.storage.field.FieldKey;
 import com.hotpads.util.core.bytes.IntegerByteTool;
 import com.hotpads.util.core.bytes.ShortByteTool;
 
-/*  LocalDateTime stores the value of nanoseconds in a range from 0 to 999,999,999 However, the MySql.DateTime column
- *  type cannot handle this level of granularity (it can handle at most 6 digits of fractional seconds).
- *  LocalDateTimeField enforces a truncation of the LocalDateTime nanosecond value of up to
- *  6 fractional seconds (microseconds) with a default of 3 fractional seconds (milliseconds) as this corresponds
- *  to the fractional seconds granularity of System.currentTimeMillis() and LocalDateTime.now().
- *  This is the recommended use.
+/*  LocalDateTime stores the value of nanoseconds in a range from 0 to 999,999,999.
+ *  However, the MySql.DateTime column type cannot handle this level of granularity
+ *  (it can handle at most 6 digits of fractional seconds).
+ *
+ *  LocalDateTimeField defaults to a truncation of the LocalDateTime nanosecond value of up to 3 fractional seconds
+ *  as this corresponds to the fractional seconds granularity of System.currentTimeMillis() and LocalDateTime.now().
+ *  This is the recommended use, but can be overwritten to store the full value.
+ *
  *  A LocalDateTime object created using LocalDateTime::of might not be equivalent to a LocalDateTime retrieved from
- *  MySql because of the truncation of nanoseconds */
+ *  MySql because of the truncation of nanoseconds. Use .now() or use the LocalDateTime::of method that
+ *  ignores the nanoseconds field */
 
 public class LocalDateTimeField extends BaseField<LocalDateTime>{
 
