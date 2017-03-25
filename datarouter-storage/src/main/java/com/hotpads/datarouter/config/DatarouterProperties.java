@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.setting.ServerType;
+import com.hotpads.datarouter.util.core.DrFileUtils;
 import com.hotpads.datarouter.util.core.DrPropertiesTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.util.core.io.ReaderTool;
@@ -33,7 +34,7 @@ public abstract class DatarouterProperties{
 	private static final String EC2_PRIVATE_IP_URL = "http://instance-data/latest/meta-data/local-ipv4";
 	private static final String EC2_PUBLIC_IP_URL = "http://instance-data/latest/meta-data/public-ipv4";
 
-	protected final String configDirectory;
+	protected final String configDirectory;//required for now, but could go without
 	protected final Optional<String> configStrategy;
 	protected final Optional<String> configPath;
 
@@ -64,6 +65,7 @@ public abstract class DatarouterProperties{
 		this.configStrategy = findConfigStrategy();
 		//find configDirectory
 		this.configDirectory = Objects.requireNonNull(directory);
+		DrFileUtils.createFileParents(configDirectory + "/anything");
 		if(directoryFromJvmArg){
 			logJvmArgSource(CONFIG_DIRECTORY, configDirectory, JVM_ARG_PREFIX + CONFIG_DIRECTORY);
 		}else{
