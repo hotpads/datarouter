@@ -10,15 +10,15 @@ import org.slf4j.LoggerFactory;
 import com.google.common.io.Files;
 import com.hotpads.datarouter.app.ApplicationPaths;
 
-public class CopyWebappFileConfigStrategy implements ConfigStrategy{
-	private static final Logger logger = LoggerFactory.getLogger(CopyWebappFileConfigStrategy.class);
+public class CopyWebappFileConfigStrategyRunner implements ConfigStrategyRunner{
+	private static final Logger logger = LoggerFactory.getLogger(CopyWebappFileConfigStrategyRunner.class);
 
 	private final ApplicationPaths applicationPaths;
 	private final String sourceFileLocation;
 	private final String destinationFileLocation;
 
 
-	public CopyWebappFileConfigStrategy(ApplicationPaths applicationPaths, String sourceFileLocation,
+	public CopyWebappFileConfigStrategyRunner(ApplicationPaths applicationPaths, String sourceFileLocation,
 			String destinationFileLocation){
 		this.applicationPaths = applicationPaths;
 		this.sourceFileLocation = sourceFileLocation;
