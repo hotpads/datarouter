@@ -272,6 +272,7 @@ public abstract class DatarouterProperties{
 		return Optional.ofNullable(serverType).map(ServerType::getPersistentString).orElse(null);
 	}
 
+	@Deprecated
 	public String getConfigPath(){
 		return optConfigFileLocation.orElse(null);
 	}
@@ -307,12 +308,16 @@ public abstract class DatarouterProperties{
 		return administratorEmail;
 	}
 
-	public Optional<String> getConfigDirectory(){
+	public Optional<String> getOptConfigDirectory(){
 		return optConfigDirectory;
 	}
 
-	public Optional<String> getConfigStrategy(){
+	public Optional<String> getOptConfigStrategy(){
 		return optConfigStrategy;
+	}
+
+	public Optional<String> getOptConfigFileLocation(){
+		return optConfigFileLocation;
 	}
 
 }
