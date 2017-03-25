@@ -5,13 +5,13 @@ import java.io.Reader;
 import java.net.InetAddress;
 import java.net.URL;
 import java.net.UnknownHostException;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.setting.ServerType;
 import com.hotpads.datarouter.util.core.DrFileUtils;
 import com.hotpads.datarouter.util.core.DrPropertiesTool;
@@ -34,7 +34,7 @@ public abstract class DatarouterProperties{
 	private static final String EC2_PRIVATE_IP_URL = "http://instance-data/latest/meta-data/local-ipv4";
 	private static final String EC2_PUBLIC_IP_URL = "http://instance-data/latest/meta-data/public-ipv4";
 
-	protected final String configDirectory;//required for now, but could go without
+	protected final Optional<String> configDirectory;//required for now, but could go without
 	protected final Optional<String> configStrategy;
 	protected final Optional<String> configPath;
 
@@ -46,40 +46,50 @@ public abstract class DatarouterProperties{
 
 	/*----------------- construct ------------------*/
 
-	protected DatarouterProperties(ServerType serverTypeOptions){
-		this(serverTypeOptions, System.getProperty(JVM_ARG_PREFIX + CONFIG_DIRECTORY), true, null);
+	//require directory from jvmArgs
+	protected DatarouterProperties(ServerType serverTypeOptions, boolean directoryRequired){
+		this(serverTypeOptions, System.getProperty(JVM_ARG_PREFIX + CONFIG_DIRECTORY), directoryRequired, true, null,
+				false);
 	}
 
-	/**
-	 * @deprecated pass directory via JVM arg
-	 */
-	@Deprecated
+	//require directory and filename constants
 	protected DatarouterProperties(ServerType serverTypeOptions, String directory, String filename){
-		this(serverTypeOptions, directory, false, filename);
+		this(serverTypeOptions, directory, true, false, filename, true);
 	}
 
 	@Deprecated
-	private DatarouterProperties(ServerType serverTypeOptions, String directory, boolean directoryFromJvmArg,
-			String filename){
+	private DatarouterProperties(ServerType serverTypeOptions, String directory, boolean directoryRequired,
+			boolean directoryFromJvmArg, String filename, boolean fileRequired){
+		boolean fileRequiredWithoutDirectoryRequired = fileRequired && !directoryRequired;
+		Preconditions.checkState(!fileRequiredWithoutDirectoryRequired, "directory is required if file is required");
+
 		//find configStrategy
 		this.configStrategy = findConfigStrategy();
+
 		//find configDirectory
-		this.configDirectory = Objects.requireNonNull(directory);
-		DrFileUtils.createFileParents(configDirectory + "/anything");
-		if(directoryFromJvmArg){
-			logJvmArgSource(CONFIG_DIRECTORY, configDirectory, JVM_ARG_PREFIX + CONFIG_DIRECTORY);
+		this.configDirectory = Optional.of(directory);
+		if(configDirectory.isPresent()){
+			DrFileUtils.createFileParents(configDirectory + "/anything");
+			if(directoryFromJvmArg){
+				logJvmArgSource(CONFIG_DIRECTORY, configDirectory.get(), JVM_ARG_PREFIX + CONFIG_DIRECTORY);
+			}else{
+				logSource(CONFIG_DIRECTORY, configDirectory.get(), "constant");
+			}
 		}else{
-			logSource(CONFIG_DIRECTORY, configDirectory, "constant");
+			Preconditions.checkState(!directoryRequired, "configDirectory required but not found");
 		}
+
 		//find configPath
-		if(DrStringTool.notEmpty(filename)){
-			this.configPath = Optional.of(configDirectory + "/" + filename);
-		}else{
+		if(DrStringTool.isEmpty(filename)){
+			Preconditions.checkState(!fileRequired);
 			this.configPath = Optional.empty();
+		}else{
+			this.configPath = Optional.of(configDirectory + "/" + filename);
 		}
 		if(configPath.isPresent()){
 			logSource("config file", configPath.get(), "constant");
 		}
+
 		//maybe parse configFileProperties
 		Optional<Properties> configFileProperties = Optional.empty();
 		if(configPath.isPresent()){
@@ -90,6 +100,7 @@ public abstract class DatarouterProperties{
 				logger.error("couldn't parse configFileProperties at configPath={}", configPath.get());
 			}
 		}
+
 		//find remaining fields
 		this.serverName = findServerName(configFileProperties);
 		this.serverType = serverTypeOptions.fromPersistentString(findServerTypeString(configFileProperties));
@@ -281,7 +292,7 @@ public abstract class DatarouterProperties{
 		return administratorEmail;
 	}
 
-	public String getConfigDirectory(){
+	public Optional<String> getConfigDirectory(){
 		return configDirectory;
 	}
 
