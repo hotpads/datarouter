@@ -25,7 +25,7 @@ public abstract class CopyFileConfigStrategyRunner implements ConfigStrategyRunn
 	@Override
 	public void configure(Optional<String> configDirectory){
 		File sourceFile = new File(sourceFileLocation);
-		File destinationFile = new File(configDirectory + "/" + destinationFileName);
+		File destinationFile = new File(configDirectory.get() + "/" + destinationFileName);
 		if(destinationFile.exists()){
 			logger.warn("replacing {} with {}", destinationFile.getAbsolutePath(), sourceFile.getAbsolutePath());
 		}else{
