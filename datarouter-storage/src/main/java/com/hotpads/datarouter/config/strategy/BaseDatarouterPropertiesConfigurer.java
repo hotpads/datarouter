@@ -2,6 +2,7 @@ package com.hotpads.datarouter.config.strategy;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -22,10 +23,11 @@ public abstract class BaseDatarouterPropertiesConfigurer{
 	}
 
 	public void configure(Optional<String> strategyName, Optional<String> optConfigDirectory){
-		if(strategyName.isPresent()){
-			runnerByName.get(strategyName.get()).configure(optConfigDirectory);
-		}else{
+		if(!strategyName.isPresent()){
 			logger.warn("no configStrategy provided");
 		}
+		ConfigStrategyRunner strategy = runnerByName.get(strategyName.get());
+		Objects.requireNonNull(strategy, "couldn't find registered configStrategy with name " + strategyName.get());
+		strategy.configure(optConfigDirectory);
 	}
 }
