@@ -20,8 +20,6 @@ import com.hotpads.util.core.io.ReaderTool;
 public abstract class DatarouterProperties{
 	private static final Logger logger = LoggerFactory.getLogger(DatarouterProperties.class);
 
-	public static final String CONFIG_STRATEGY_NONE = "none";
-
 	private static final String JVM_ARG_PREFIX = "datarouter.";
 	private static final String CONFIG_DIRECTORY = "config.directory";
 	private static final String CONFIG_STRATEGY = "config.strategy";
@@ -36,7 +34,7 @@ public abstract class DatarouterProperties{
 	private static final String EC2_PUBLIC_IP_URL = "http://instance-data/latest/meta-data/public-ipv4";
 
 	protected final String configDirectory;
-	protected final String configStrategy;
+	protected final Optional<String> configStrategy;
 	protected final Optional<String> configPath;
 
 	private final String serverName;
@@ -100,15 +98,15 @@ public abstract class DatarouterProperties{
 
 	/*--------------- methods to find config values -----------------*/
 
-	private String findConfigStrategy(){
+	private Optional<String> findConfigStrategy(){
 		String jvmArgName = JVM_ARG_PREFIX + CONFIG_STRATEGY;
 		Optional<String> value = Optional.ofNullable(System.getProperty(jvmArgName));
 		if(value.isPresent()){
 			logJvmArgSource(CONFIG_STRATEGY, value.get(), jvmArgName);
-			return value.get();
+		}else{
+			logger.warn("JVM arg {} not found", jvmArgName);
 		}
-		logger.warn("JVM arg {} not found, setting to {}", jvmArgName, CONFIG_STRATEGY_NONE);
-		return CONFIG_STRATEGY_NONE;
+		return value;
 	}
 
 	//prefer configFile then hostname
@@ -259,10 +257,6 @@ public abstract class DatarouterProperties{
 		return configPath.orElse(null);
 	}
 
-	public boolean hasConfigStrategy(){
-		return DrStringTool.notEquals(configStrategy, CONFIG_STRATEGY_NONE);
-	}
-
 	/*---------------- getters -------------------*/
 
 	public String getServerName(){
@@ -289,7 +283,7 @@ public abstract class DatarouterProperties{
 		return configDirectory;
 	}
 
-	public String getConfigStrategy(){
+	public Optional<String> getConfigStrategy(){
 		return configStrategy;
 	}
 
