@@ -51,19 +51,19 @@ public abstract class DatarouterProperties{
 	//require directory from jvmArgs
 	protected DatarouterProperties(BaseDatarouterPropertiesConfigurer configurer, ServerType serverTypeOptions,
 			boolean directoryRequired){
-		this(configurer, serverTypeOptions, System.getProperty(JVM_ARG_PREFIX + CONFIG_DIRECTORY), directoryRequired,
-				true, null, false);
+		this(Optional.of(configurer), serverTypeOptions, System.getProperty(JVM_ARG_PREFIX + CONFIG_DIRECTORY),
+				directoryRequired, true, null, false);
 	}
 
 	// require directory and filename constants
-	protected DatarouterProperties(BaseDatarouterPropertiesConfigurer configurer, ServerType serverTypeOptions,
+	protected DatarouterProperties(ServerType serverTypeOptions,
 			String directory, String filename){
-		this(configurer, serverTypeOptions, directory, true, false, filename, true);
+		this(Optional.empty(), serverTypeOptions, directory, true, false, filename, true);
 	}
 
-	private DatarouterProperties(BaseDatarouterPropertiesConfigurer configurer, ServerType serverTypeOptions,
-			String directory, boolean directoryRequired, boolean directoryFromJvmArg, String filename,
-			boolean fileRequired){
+	private DatarouterProperties(Optional<BaseDatarouterPropertiesConfigurer> optConfigurer,
+			ServerType serverTypeOptions, String directory, boolean directoryRequired, boolean directoryFromJvmArg,
+			String filename, boolean fileRequired){
 		boolean fileRequiredWithoutDirectoryRequired = fileRequired && !directoryRequired;
 		Preconditions.checkState(!fileRequiredWithoutDirectoryRequired, "directory is required if file is required");
 
@@ -82,7 +82,11 @@ public abstract class DatarouterProperties{
 
 		//run the configurer to populate the configDirectory
 		this.optConfigStrategy = findConfigStrategy();
-		configurer.configure(optConfigStrategy, optConfigDirectory);
+		if(optConfigurer.isPresent()){
+			optConfigurer.get().configure(optConfigStrategy, optConfigDirectory);
+		}else{
+			logger.warn("not running configurer because none provided");
+		}
 
 		//find configPath
 		if(DrStringTool.isEmpty(filename)){
