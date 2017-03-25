@@ -22,21 +22,16 @@ public class CopyLocalFileConfigStrategy implements Callable<Void>{
 	}
 
 	@Override
-	public Void call(){
+	public Void call() throws IOException{
 		File sourceFile = new File(sourceFileLocation);
 		File destinationFile = new File(destinationFileLocation);
-		try{
-			if(destinationFile.exists()){
-				logger.warn("replacing {} with {}", destinationFile.getAbsolutePath(), sourceFile.getAbsolutePath());
-			}else{
-				logger.warn("creating {} from {}", destinationFile.getAbsolutePath(), sourceFile.getAbsolutePath());
-			}
-			Files.copy(sourceFile, destinationFile);
-			return null;
-		}catch(IOException e){
-			logger.error("", e);
-			throw new RuntimeException(e);
+		if(destinationFile.exists()){
+			logger.warn("replacing {} with {}", destinationFile.getAbsolutePath(), sourceFile.getAbsolutePath());
+		}else{
+			logger.warn("creating {} from {}", destinationFile.getAbsolutePath(), sourceFile.getAbsolutePath());
 		}
+		Files.copy(sourceFile, destinationFile);
+		return null;
 	}
 
 }
