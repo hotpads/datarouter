@@ -35,7 +35,7 @@ public abstract class DatarouterProperties{
 	private static final String EC2_PRIVATE_IP_URL = "http://instance-data/latest/meta-data/local-ipv4";
 	private static final String EC2_PUBLIC_IP_URL = "http://instance-data/latest/meta-data/public-ipv4";
 
-	protected final Optional<String> configDirectory;//required for now, but could go without
+	protected final Optional<String> configDirectory;
 	protected final Optional<String> configStrategy;
 	protected final Optional<String> configPath;
 
