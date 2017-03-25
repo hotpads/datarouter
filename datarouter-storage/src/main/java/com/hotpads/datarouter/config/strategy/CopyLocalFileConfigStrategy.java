@@ -21,6 +21,7 @@ public class CopyLocalFileConfigStrategy implements Callable<Void>{
 		this.destinationFileLocation = destinationFileLocation;
 	}
 
+
 	@Override
 	public Void call() throws IOException{
 		File sourceFile = new File(sourceFileLocation);

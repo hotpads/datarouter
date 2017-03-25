@@ -58,7 +58,6 @@ public abstract class DatarouterProperties{
 		this(serverTypeOptions, directory, true, false, filename, true);
 	}
 
-	@Deprecated
 	private DatarouterProperties(ServerType serverTypeOptions, String directory, boolean directoryRequired,
 			boolean directoryFromJvmArg, String filename, boolean fileRequired){
 		boolean fileRequiredWithoutDirectoryRequired = fileRequired && !directoryRequired;
