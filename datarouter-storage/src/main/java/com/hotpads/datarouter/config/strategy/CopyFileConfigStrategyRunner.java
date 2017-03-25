@@ -12,19 +12,19 @@ import com.google.common.io.Files;
 public abstract class CopyFileConfigStrategyRunner implements ConfigStrategyRunner{
 	private static final Logger logger = LoggerFactory.getLogger(CopyFileConfigStrategyRunner.class);
 
-	private final String sourceLocation;
+	private final String sourceFileLocation;
 	private final String destinationFileName;
 
 
-	public CopyFileConfigStrategyRunner(String sourceLocation, String destinationFileName){
-		this.sourceLocation = sourceLocation;
+	public CopyFileConfigStrategyRunner(String sourceFileLocation, String destinationFileName){
+		this.sourceFileLocation = sourceFileLocation;
 		this.destinationFileName = destinationFileName;
 	}
 
 
 	@Override
 	public void configure(Optional<String> configDirectory){
-		File sourceFile = new File(sourceLocation);
+		File sourceFile = new File(sourceFileLocation);
 		File destinationFile = new File(configDirectory + "/" + destinationFileName);
 		if(destinationFile.exists()){
 			logger.warn("replacing {} with {}", destinationFile.getAbsolutePath(), sourceFile.getAbsolutePath());
