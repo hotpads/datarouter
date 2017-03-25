@@ -48,16 +48,18 @@ public abstract class DatarouterProperties{
 
 	/*----------------- construct ------------------*/
 
-	//require directory from jvmArgs
 	protected DatarouterProperties(BaseDatarouterPropertiesConfigurer configurer, ServerType serverTypeOptions,
 			boolean directoryRequired){
 		this(Optional.of(configurer), serverTypeOptions, System.getProperty(JVM_ARG_PREFIX + CONFIG_DIRECTORY),
 				directoryRequired, true, null, false);
 	}
 
-	// require directory and filename constants
-	protected DatarouterProperties(ServerType serverTypeOptions,
+	protected DatarouterProperties(BaseDatarouterPropertiesConfigurer configurer, ServerType serverTypeOptions,
 			String directory, String filename){
+		this(Optional.of(configurer), serverTypeOptions, directory, true, false, filename, true);
+	}
+
+	protected DatarouterProperties(ServerType serverTypeOptions, String directory, String filename){
 		this(Optional.empty(), serverTypeOptions, directory, true, false, filename, true);
 	}
 
