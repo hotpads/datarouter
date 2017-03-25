@@ -95,7 +95,7 @@ public abstract class DatarouterProperties{
 			Preconditions.checkState(!fileRequired);
 			this.optConfigFileLocation = Optional.empty();
 		}else{
-			this.optConfigFileLocation = Optional.of(optConfigDirectory + "/" + filename);
+			this.optConfigFileLocation = Optional.of(optConfigDirectory.get() + "/" + filename);
 		}
 		if(optConfigFileLocation.isPresent()){
 			logSource("config file", optConfigFileLocation.get(), "constant");
