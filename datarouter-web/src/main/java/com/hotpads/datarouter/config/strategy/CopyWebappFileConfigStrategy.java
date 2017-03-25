@@ -2,9 +2,9 @@ package com.hotpads.datarouter.config.strategy;
 
 import com.hotpads.datarouter.app.ApplicationPaths;
 
-public abstract class CopyWebappFileConfigStrategyRunner extends CopyFileConfigStrategyRunner{
+public abstract class CopyWebappFileConfigStrategy extends CopyFileConfigStrategy{
 
-	public CopyWebappFileConfigStrategyRunner(ApplicationPaths applicationPaths, String sourceFileLocation,
+	public CopyWebappFileConfigStrategy(ApplicationPaths applicationPaths, String sourceFileLocation,
 			String destinationFileName){
 		super(applicationPaths.getResourcesPath() + "/" + sourceFileLocation, destinationFileName);
 	}

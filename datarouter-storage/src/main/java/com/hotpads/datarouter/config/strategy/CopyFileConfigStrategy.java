@@ -9,14 +9,14 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.io.Files;
 
-public abstract class CopyFileConfigStrategyRunner implements ConfigStrategyRunner{
-	private static final Logger logger = LoggerFactory.getLogger(CopyFileConfigStrategyRunner.class);
+public abstract class CopyFileConfigStrategy implements ConfigStrategy{
+	private static final Logger logger = LoggerFactory.getLogger(CopyFileConfigStrategy.class);
 
 	private final String sourceFileLocation;
 	private final String destinationFileName;
 
 
-	public CopyFileConfigStrategyRunner(String sourceFileLocation, String destinationFileName){
+	public CopyFileConfigStrategy(String sourceFileLocation, String destinationFileName){
 		this.sourceFileLocation = sourceFileLocation;
 		this.destinationFileName = destinationFileName;
 	}

@@ -2,7 +2,7 @@ package com.hotpads.datarouter.config.strategy;
 
 import java.util.Optional;
 
-public interface ConfigStrategyRunner{
+public interface ConfigStrategy{
 
 	void configure(Optional<String> optConfigDirectory);
 
