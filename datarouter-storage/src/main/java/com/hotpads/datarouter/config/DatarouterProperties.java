@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
+import com.hotpads.datarouter.config.strategy.BaseDatarouterPropertiesConfigurer;
 import com.hotpads.datarouter.setting.ServerType;
 import com.hotpads.datarouter.util.core.DrFileUtils;
 import com.hotpads.datarouter.util.core.DrPropertiesTool;
@@ -35,9 +36,9 @@ public abstract class DatarouterProperties{
 	private static final String EC2_PRIVATE_IP_URL = "http://instance-data/latest/meta-data/local-ipv4";
 	private static final String EC2_PUBLIC_IP_URL = "http://instance-data/latest/meta-data/public-ipv4";
 
-	protected final Optional<String> configDirectory;
-	protected final Optional<String> configStrategy;
-	protected final Optional<String> configPath;
+	protected final Optional<String> optConfigDirectory;
+	protected final Optional<String> optConfigStrategy;
+	protected final Optional<String> optConfigFileLocation;
 
 	private final String serverName;
 	private final ServerType serverType;
@@ -48,56 +49,60 @@ public abstract class DatarouterProperties{
 	/*----------------- construct ------------------*/
 
 	//require directory from jvmArgs
-	protected DatarouterProperties(ServerType serverTypeOptions, boolean directoryRequired){
-		this(serverTypeOptions, System.getProperty(JVM_ARG_PREFIX + CONFIG_DIRECTORY), directoryRequired, true, null,
-				false);
+	protected DatarouterProperties(BaseDatarouterPropertiesConfigurer configurer, ServerType serverTypeOptions,
+			boolean directoryRequired){
+		this(configurer, serverTypeOptions, System.getProperty(JVM_ARG_PREFIX + CONFIG_DIRECTORY), directoryRequired,
+				true, null, false);
 	}
 
-	//require directory and filename constants
-	protected DatarouterProperties(ServerType serverTypeOptions, String directory, String filename){
-		this(serverTypeOptions, directory, true, false, filename, true);
+	// require directory and filename constants
+	protected DatarouterProperties(BaseDatarouterPropertiesConfigurer configurer, ServerType serverTypeOptions,
+			String directory, String filename){
+		this(configurer, serverTypeOptions, directory, true, false, filename, true);
 	}
 
-	private DatarouterProperties(ServerType serverTypeOptions, String directory, boolean directoryRequired,
-			boolean directoryFromJvmArg, String filename, boolean fileRequired){
+	private DatarouterProperties(BaseDatarouterPropertiesConfigurer configurer, ServerType serverTypeOptions,
+			String directory, boolean directoryRequired, boolean directoryFromJvmArg, String filename,
+			boolean fileRequired){
 		boolean fileRequiredWithoutDirectoryRequired = fileRequired && !directoryRequired;
 		Preconditions.checkState(!fileRequiredWithoutDirectoryRequired, "directory is required if file is required");
 
-		//find configStrategy
-		this.configStrategy = findConfigStrategy();
-
-		//find configDirectory
-		this.configDirectory = Optional.of(directory);
-		if(configDirectory.isPresent()){
-			DrFileUtils.createFileParents(configDirectory + "/anything");
+		//find configDirectory first
+		this.optConfigDirectory = Optional.of(directory);
+		if(optConfigDirectory.isPresent()){
+			DrFileUtils.createFileParents(optConfigDirectory + "/anything");
 			if(directoryFromJvmArg){
-				logJvmArgSource(CONFIG_DIRECTORY, configDirectory.get(), JVM_ARG_PREFIX + CONFIG_DIRECTORY);
+				logJvmArgSource(CONFIG_DIRECTORY, optConfigDirectory.get(), JVM_ARG_PREFIX + CONFIG_DIRECTORY);
 			}else{
-				logSource(CONFIG_DIRECTORY, configDirectory.get(), "constant");
+				logSource(CONFIG_DIRECTORY, optConfigDirectory.get(), "constant");
 			}
 		}else{
 			Preconditions.checkState(!directoryRequired, "configDirectory required but not found");
 		}
 
+		//run the configurer to populate the configDirectory
+		this.optConfigStrategy = findConfigStrategy();
+		configurer.configure(optConfigStrategy, optConfigDirectory);
+
 		//find configPath
 		if(DrStringTool.isEmpty(filename)){
 			Preconditions.checkState(!fileRequired);
-			this.configPath = Optional.empty();
+			this.optConfigFileLocation = Optional.empty();
 		}else{
-			this.configPath = Optional.of(configDirectory + "/" + filename);
+			this.optConfigFileLocation = Optional.of(optConfigDirectory + "/" + filename);
 		}
-		if(configPath.isPresent()){
-			logSource("config file", configPath.get(), "constant");
+		if(optConfigFileLocation.isPresent()){
+			logSource("config file", optConfigFileLocation.get(), "constant");
 		}
 
 		//maybe parse configFileProperties
 		Optional<Properties> configFileProperties = Optional.empty();
-		if(configPath.isPresent()){
+		if(optConfigFileLocation.isPresent()){
 			try{
-				configFileProperties = Optional.of(DrPropertiesTool.parse(configPath.get()));
+				configFileProperties = Optional.of(DrPropertiesTool.parse(optConfigFileLocation.get()));
 				logConfigFileProperties(configFileProperties);
 			}catch(Exception e){
-				logger.error("couldn't parse configFileProperties at configPath={}", configPath.get());
+				logger.error("couldn't parse configFileProperties at configPath={}", optConfigFileLocation.get());
 			}
 		}
 
@@ -127,7 +132,7 @@ public abstract class DatarouterProperties{
 		if(configFileProperties.isPresent()){
 			Optional<String> value = configFileProperties.map(properties -> properties.getProperty(SERVER_NAME));
 			if(value.isPresent()){
-				logSource(SERVER_NAME, value.get(), configPath.get());
+				logSource(SERVER_NAME, value.get(), optConfigFileLocation.get());
 				return value.get();
 			}
 		}
@@ -156,7 +161,7 @@ public abstract class DatarouterProperties{
 		if(configFileProperties.isPresent()){
 			Optional<String> value = configFileProperties.map(properties -> properties.getProperty(SERVER_TYPE));
 			if(value.isPresent()){
-				logSource(SERVER_TYPE, value.get(), configPath.get());
+				logSource(SERVER_TYPE, value.get(), optConfigFileLocation.get());
 				return value.get();
 			}
 		}
@@ -176,7 +181,7 @@ public abstract class DatarouterProperties{
 			Optional<String> value = configFileProperties.map(properties -> properties.getProperty(
 					ADMINISTRATOR_EMAIL));
 			if(value.isPresent()){
-				logSource(ADMINISTRATOR_EMAIL, value.get(), configPath.get());
+				logSource(ADMINISTRATOR_EMAIL, value.get(), optConfigFileLocation.get());
 				return value.get();
 			}
 		}
@@ -189,7 +194,7 @@ public abstract class DatarouterProperties{
 		if(configFileProperties.isPresent()){
 			Optional<String> value = configFileProperties.map(properties -> properties.getProperty(SERVER_PRIVATE_IP));
 			if(value.isPresent()){
-				logSource(SERVER_PRIVATE_IP, value.get(), configPath.get());
+				logSource(SERVER_PRIVATE_IP, value.get(), optConfigFileLocation.get());
 				return value.get();
 			}
 		}
@@ -209,7 +214,7 @@ public abstract class DatarouterProperties{
 		if(configFileProperties.isPresent()){
 			Optional<String> value = configFileProperties.map(properties -> properties.getProperty(SERVER_PUBLIC_IP));
 			if(value.isPresent()){
-				logSource(SERVER_PUBLIC_IP, value.get(), configPath.get());
+				logSource(SERVER_PUBLIC_IP, value.get(), optConfigFileLocation.get());
 				return value.get();
 			}
 		}
@@ -223,6 +228,7 @@ public abstract class DatarouterProperties{
 		logger.error("couldn't find {}", SERVER_PUBLIC_IP);
 		return null;
 	}
+
 
 	/*------------------- private -------------------------*/
 
@@ -267,11 +273,11 @@ public abstract class DatarouterProperties{
 	}
 
 	public String getConfigPath(){
-		return configPath.orElse(null);
+		return optConfigFileLocation.orElse(null);
 	}
 
 	public void assertConfigFileExists(String filename){
-		String fileLocation = configDirectory.get() + "/" + filename;
+		String fileLocation = optConfigDirectory.get() + "/" + filename;
 		File file = new File(fileLocation);
 		if(!file.exists()){
 			throw new RuntimeException("required file " + file.getAbsolutePath() + " is missing");
@@ -302,11 +308,11 @@ public abstract class DatarouterProperties{
 	}
 
 	public Optional<String> getConfigDirectory(){
-		return configDirectory;
+		return optConfigDirectory;
 	}
 
 	public Optional<String> getConfigStrategy(){
-		return configStrategy;
+		return optConfigStrategy;
 	}
 
 }
