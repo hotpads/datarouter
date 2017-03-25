@@ -9,14 +9,14 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.io.Files;
 
-public class CopyLocalFileConfigStrategy implements Callable<Void>{
-	private static final Logger logger = LoggerFactory.getLogger(CopyLocalFileConfigStrategy.class);
+public class CopyWebappFileConfigStrategy implements Callable<Void>{
+	private static final Logger logger = LoggerFactory.getLogger(CopyWebappFileConfigStrategy.class);
 
 	private final String sourceFileLocation;
 	private final String destinationFileLocation;
 
 
-	public CopyLocalFileConfigStrategy(String sourceFileLocation, String destinationFileLocation){
+	public CopyWebappFileConfigStrategy(String sourceFileLocation, String destinationFileLocation){
 		this.sourceFileLocation = sourceFileLocation;
 		this.destinationFileLocation = destinationFileLocation;
 	}
