@@ -1,12 +1,11 @@
 package com.hotpads.datarouter.config.strategy;
 
-import java.util.concurrent.Callable;
+import java.util.Optional;
 
-public class NoneConfigStrategy implements Callable<Void>{
+public class NoneConfigStrategy implements ConfigStrategy{
 
 	@Override
-	public Void call(){
-		return null;
+	public void configure(Optional<String> optConfigDirectory){
 	}
 
 }
