@@ -1,6 +1,7 @@
 package com.hotpads.datarouter.config.strategy;
 
 import com.hotpads.datarouter.app.ApplicationPaths;
+import com.hotpads.datarouter.config.configurer.strategy.CopyFileConfigStrategy;
 
 public abstract class CopyWebappFileConfigStrategy extends CopyFileConfigStrategy{
 

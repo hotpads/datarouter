@@ -13,7 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
-import com.hotpads.datarouter.config.strategy.BaseDatarouterPropertiesConfigurer;
+import com.hotpads.datarouter.config.configurer.BaseDatarouterPropertiesConfigurer;
 import com.hotpads.datarouter.setting.ServerType;
 import com.hotpads.datarouter.util.core.DrFileUtils;
 import com.hotpads.datarouter.util.core.DrPropertiesTool;

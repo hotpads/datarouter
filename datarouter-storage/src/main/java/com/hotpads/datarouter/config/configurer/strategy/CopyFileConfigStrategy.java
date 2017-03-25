@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.config.strategy;
+package com.hotpads.datarouter.config.configurer.strategy;
 
 import java.io.File;
 import java.io.IOException;
