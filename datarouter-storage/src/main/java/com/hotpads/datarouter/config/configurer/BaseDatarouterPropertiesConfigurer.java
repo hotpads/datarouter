@@ -27,6 +27,7 @@ public abstract class BaseDatarouterPropertiesConfigurer{
 	public void configure(Optional<String> strategyName, Optional<String> optConfigDirectory){
 		if(!strategyName.isPresent()){
 			logger.warn("no configStrategy provided");
+			return;
 		}
 		ConfigStrategy strategy = configStrategyByName.get(strategyName.get());
 		Objects.requireNonNull(strategy, "couldn't find registered configStrategy with name " + strategyName.get());
