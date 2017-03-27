@@ -31,19 +31,19 @@ public class JobEnvironment{
 		this.triggersRepository = triggersRepository;
 	}
 
-	public final JobScheduler getScheduler(){
+	public JobScheduler getScheduler(){
 		return scheduler;
 	}
 
-	public final ScheduledExecutorService getExecutor(){
+	public ScheduledExecutorService getExecutor(){
 		return executor;
 	}
 
-	public final Setting<Boolean> getProcessJobsSetting(){
+	public Setting<Boolean> getProcessJobsSetting(){
 		return jobSettings.getProcessJobs();
 	}
 
-	public final LongRunningTaskTrackerFactory getLongRunningTaskTrackerFactory(){
+	public LongRunningTaskTrackerFactory getLongRunningTaskTrackerFactory(){
 		return longRunningTaskTrackerFactory;
 	}
 
