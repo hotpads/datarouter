@@ -95,7 +95,7 @@ public abstract class BaseManyFieldIntegrationTests{
 		mapNode.put(bean, null);
 
 		ManyFieldBean roundTripped = mapNode.get(bean.getKey(), null);
-		Assert.assertEquals(bean, roundTripped);
+		Assert.assertEquals(roundTripped, bean);
 
 		mapNode.delete(bean.getKey(), null);
 		Assert.assertNull(mapNode.get(bean.getKey(), null));
@@ -121,9 +121,9 @@ public abstract class BaseManyFieldIntegrationTests{
 		mapNode.put(bean, null);
 		ManyFieldBean roundTripped = mapNode.get(bean.getKey(), null);
 		if(isMemory()){
-			Assert.assertSame(bean, roundTripped);
+			Assert.assertSame(roundTripped, bean);
 		}else{
-			Assert.assertNotSame(bean, roundTripped);
+			Assert.assertNotSame(roundTripped, bean);
 		}
 		Assert.assertEquals(roundTripped.getBooleanField(), bean.getBooleanField());
 
@@ -132,9 +132,9 @@ public abstract class BaseManyFieldIntegrationTests{
 		mapNode.put(bean, null);
 		ManyFieldBean roundTrippedFalse = mapNode.get(bean.getKey(), null);
 		if(isMemory()){
-			Assert.assertSame(bean, roundTrippedFalse);
+			Assert.assertSame(roundTrippedFalse, bean);
 		}else{
-			Assert.assertNotSame(bean, roundTrippedFalse);
+			Assert.assertNotSame(roundTrippedFalse, bean);
 		}
 		Assert.assertEquals(roundTrippedFalse.getBooleanField(), bean.getBooleanField());
 
@@ -149,9 +149,9 @@ public abstract class BaseManyFieldIntegrationTests{
 
 		ManyFieldBean roundTripped = mapNode.get(bean.getKey(), null);
 		if(isMemory()){
-			Assert.assertSame(bean, roundTripped);
+			Assert.assertSame(roundTripped, bean);
 		}else{
-			Assert.assertNotSame(bean, roundTripped);
+			Assert.assertNotSame(roundTripped, bean);
 		}
 		Assert.assertEquals(roundTripped.getByteField(), bean.getByteField());
 		recordKey(bean.getKey());
@@ -165,9 +165,9 @@ public abstract class BaseManyFieldIntegrationTests{
 
 		ManyFieldBean roundTripped = mapNode.get(bean.getKey(), null);
 		if(isMemory()){
-			Assert.assertSame(bean, roundTripped);
+			Assert.assertSame(roundTripped, bean);
 		}else{
-			Assert.assertNotSame(bean, roundTripped);
+			Assert.assertNotSame(roundTripped, bean);
 		}
 		Assert.assertEquals(roundTripped.getShortField(), bean.getShortField());
 		recordKey(bean.getKey());
@@ -245,7 +245,7 @@ public abstract class BaseManyFieldIntegrationTests{
 
 		ManyFieldBean roundTripped = mapNode.get(bean.getKey(), null);
 		Assert.assertEquals(roundTripped.getFloatField(), bean.getFloatField());
-		Assert.assertTrue(val == roundTripped.getFloatField());
+		Assert.assertEquals(roundTripped.getFloatField(), val);
 		recordKey(bean.getKey());
 	}
 
