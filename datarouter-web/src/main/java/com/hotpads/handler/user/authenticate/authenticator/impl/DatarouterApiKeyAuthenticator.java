@@ -13,21 +13,21 @@ import com.hotpads.handler.user.authenticate.config.DatarouterAuthenticationConf
 import com.hotpads.handler.user.session.DatarouterSession;
 import com.hotpads.util.core.exception.InvalidApiCallException;
 
-public class DatarouterApiKeyAuthenticator extends BaseDatarouterAuthenticator {
+public class DatarouterApiKeyAuthenticator extends BaseDatarouterAuthenticator{
 
-	private DatarouterAuthenticationConfig authenticationConfig;
-	private DatarouterUserNodes userNodes;
+	protected DatarouterAuthenticationConfig authenticationConfig;
+	protected DatarouterUserNodes userNodes;
 
 	public DatarouterApiKeyAuthenticator(HttpServletRequest request, HttpServletResponse response,
-			DatarouterAuthenticationConfig authenticationConfig, DatarouterUserNodes userNodes) {
+			DatarouterAuthenticationConfig authenticationConfig, DatarouterUserNodes userNodes){
 		super(request, response);
 		this.authenticationConfig = authenticationConfig;
 		this.userNodes = userNodes;
 	}
 
 	@Override
-	public DatarouterSession getSession() {
-		if(!request.getServletPath().startsWith(authenticationConfig.getApiPath())) {
+	public DatarouterSession getSession(){
+		if(!request.getServletPath().startsWith(authenticationConfig.getApiPath())){
 			return null;
 		}
 		String apiKey = request.getParameter(authenticationConfig.getApiKeyParam());
@@ -37,20 +37,20 @@ public class DatarouterApiKeyAuthenticator extends BaseDatarouterAuthenticator {
 		return session;
 	}
 
-	private DatarouterUser lookupUserByApiKey(String apiKey) {
-		if (DrStringTool.isNullOrEmpty(apiKey)) {
+	protected DatarouterUser lookupUserByApiKey(String apiKey){
+		if(DrStringTool.isNullOrEmpty(apiKey)){
 			throw new InvalidApiCallException("no api key specified");
 		}
 
 		DatarouterUser user = userNodes.getUserNode().lookupUnique(new DatarouterUserByApiKeyLookup(apiKey), null);
 
-		if (user == null) {
+		if(user == null){
 			throw new InvalidApiCallException("no user found with provided api key");
 		}
-		if (DrBooleanTool.isFalseOrNull(user.getEnabled())) {
+		if(DrBooleanTool.isFalseOrNull(user.getEnabled())){
 			throw new InvalidApiCallException("user is not enabled");
 		}
-		if (DrBooleanTool.isFalseOrNull(user.getApiEnabled())) {
+		if(DrBooleanTool.isFalseOrNull(user.getApiEnabled())){
 			throw new InvalidApiCallException("user does not have api authorization");
 		}
 
