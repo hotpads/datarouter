@@ -36,7 +36,7 @@ public abstract class DatarouterProperties{
 	private static final String EC2_PRIVATE_IP_URL = "http://instance-data/latest/meta-data/local-ipv4";
 	private static final String EC2_PUBLIC_IP_URL = "http://instance-data/latest/meta-data/public-ipv4";
 
-	protected final Optional<String> optConfigDirectory;
+	protected final String configDirectory;
 	protected final Optional<String> optConfigStrategy;
 	protected final Optional<String> optConfigFileLocation;
 
@@ -70,13 +70,13 @@ public abstract class DatarouterProperties{
 		Preconditions.checkState(!fileRequiredWithoutDirectoryRequired, "directory is required if file is required");
 
 		//find configDirectory first
-		this.optConfigDirectory = Optional.of(directory);
-		if(optConfigDirectory.isPresent()){
-			DrFileUtils.createFileParents(optConfigDirectory + "/anything");
+		this.configDirectory = directory;
+		if(configDirectory != null){
+			DrFileUtils.createFileParents(configDirectory + "/anything");
 			if(directoryFromJvmArg){
-				logJvmArgSource(CONFIG_DIRECTORY, optConfigDirectory.get(), JVM_ARG_PREFIX + CONFIG_DIRECTORY);
+				logJvmArgSource(CONFIG_DIRECTORY, configDirectory, JVM_ARG_PREFIX + CONFIG_DIRECTORY);
 			}else{
-				logSource(CONFIG_DIRECTORY, optConfigDirectory.get(), "constant");
+				logSource(CONFIG_DIRECTORY, configDirectory, "constant");
 			}
 		}else{
 			Preconditions.checkState(!directoryRequired, "configDirectory required but not found");
@@ -85,7 +85,7 @@ public abstract class DatarouterProperties{
 		//run the configurer to populate the configDirectory
 		this.optConfigStrategy = findConfigStrategy();
 		if(optConfigurer.isPresent()){
-			optConfigurer.get().configure(optConfigStrategy, optConfigDirectory);
+			optConfigurer.get().configure(optConfigStrategy.orElse(null), configDirectory);
 		}else{
 			logger.warn("not running configurer because none provided");
 		}
@@ -95,7 +95,7 @@ public abstract class DatarouterProperties{
 			Preconditions.checkState(!fileRequired);
 			this.optConfigFileLocation = Optional.empty();
 		}else{
-			this.optConfigFileLocation = Optional.of(optConfigDirectory.get() + "/" + filename);
+			this.optConfigFileLocation = Optional.of(configDirectory + "/" + filename);
 		}
 		if(optConfigFileLocation.isPresent()){
 			logSource("config file", optConfigFileLocation.get(), "constant");
@@ -284,7 +284,7 @@ public abstract class DatarouterProperties{
 	}
 
 	public void assertConfigFileExists(String filename){
-		String fileLocation = optConfigDirectory.get() + "/" + filename;
+		String fileLocation = configDirectory + "/" + filename;
 		File file = new File(fileLocation);
 		if(!file.exists()){
 			throw new RuntimeException("required file " + file.getAbsolutePath() + " is missing");
@@ -314,8 +314,8 @@ public abstract class DatarouterProperties{
 		return administratorEmail;
 	}
 
-	public Optional<String> getOptConfigDirectory(){
-		return optConfigDirectory;
+	public String getConfigDirectory(){
+		return configDirectory;
 	}
 
 	public Optional<String> getOptConfigStrategy(){
