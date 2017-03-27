@@ -170,6 +170,26 @@ public class LocalDateTimeField extends BaseField<LocalDateTime>{
 			Assert.assertEquals(field1.getTruncatedLocalDateTime(localDateTime1), localDateTimeFromBytes1);
 			Assert.assertEquals(field2.getTruncatedLocalDateTime(localDateTime2), localDateTimeFromBytes2);
 		}
+
+		@Test
+		public void testGetTruncatedLocalDateTime(){
+			String dateStr = "2014-06-24 03:20:14.210998531";
+			DateTimeFormatter formatterWithNano = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSSSSS");
+			LocalDateTime localDateTime = LocalDateTime.parse(dateStr, formatterWithNano);
+			LocalDateTime localDateTimeTest = LocalDateTime.parse(dateStr, formatterWithNano);
+			LocalDateTimeField field1 = new LocalDateTimeField(new LocalDateTimeFieldKey("test")
+					.overrideNumFractionalSeconds(3), localDateTime);
+			LocalDateTimeField field2 = new LocalDateTimeField(new LocalDateTimeFieldKey("test")
+					.overrideNumFractionalSeconds(7), localDateTime);
+			LocalDateTimeField field3 = new LocalDateTimeField(new LocalDateTimeFieldKey("test")
+					.overrideNumFractionalSeconds(0), localDateTime);
+			LocalDateTimeField field4 = new LocalDateTimeField(new LocalDateTimeFieldKey("test")
+					.overrideNumFractionalSeconds(9), localDateTime);
+			Assert.assertEquals(field1.getTruncatedLocalDateTime(localDateTime), localDateTimeTest.withNano(210000000));
+			Assert.assertEquals(field2.getTruncatedLocalDateTime(localDateTime), localDateTimeTest.withNano(210998500));
+			Assert.assertEquals(field3.getTruncatedLocalDateTime(localDateTime), localDateTimeTest.withNano(0));
+			Assert.assertEquals(field4.getTruncatedLocalDateTime(localDateTime), localDateTimeTest.withNano(210998531));
+		}
 	}
 
 }

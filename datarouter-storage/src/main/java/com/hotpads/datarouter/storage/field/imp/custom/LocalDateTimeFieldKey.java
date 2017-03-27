@@ -34,4 +34,15 @@ public class LocalDateTimeFieldKey extends BaseFieldKey<LocalDateTime>{
 		return new LocalDateTimeFieldKey(name, columnNameOverride, nullable, fieldGeneratorType, defaultValue,
 				numFractionalSeconds);
 	}
+
+	/**
+	 * Defines a LocalDateFieldKey with 0-9 fractional seconds of precision
+	 */
+	public LocalDateTimeFieldKey overrideNumFractionalSeconds(int numFractionalSeconds){
+		if(numFractionalSeconds < 0 || numFractionalSeconds > 9){
+			throw new RuntimeException("numFractionalSeconds cannot be less than 0 or greater than 9");
+		}
+		return new LocalDateTimeFieldKey(name, columnName, nullable, fieldGeneratorType, defaultValue,
+				numFractionalSeconds);
+	}
 }
