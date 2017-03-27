@@ -31,6 +31,6 @@ public abstract class BaseDatarouterPropertiesConfigurer{
 		}
 		ConfigStrategy strategy = configStrategyByName.get(strategyName.get());
 		Objects.requireNonNull(strategy, "couldn't find registered configStrategy with name " + strategyName.get());
-		strategy.configure(optConfigDirectory);
+		strategy.configure(optConfigDirectory.get());
 	}
 }

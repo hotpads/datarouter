@@ -2,7 +2,6 @@ package com.hotpads.datarouter.config.configurer.strategy;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,9 +22,9 @@ public abstract class CopyFileConfigStrategy implements ConfigStrategy{
 
 
 	@Override
-	public void configure(Optional<String> configDirectory){
+	public void configure(String configDirectory){
 		File sourceFile = new File(sourceFileLocation);
-		File destinationFile = new File(configDirectory.get() + "/" + destinationFileName);
+		File destinationFile = new File(configDirectory + "/" + destinationFileName);
 		if(destinationFile.exists()){
 			logger.warn("replacing {} with {}", destinationFile.getAbsolutePath(), sourceFile.getAbsolutePath());
 		}else{
