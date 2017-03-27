@@ -37,7 +37,7 @@ public abstract class DatarouterProperties{
 	private static final String EC2_PUBLIC_IP_URL = "http://instance-data/latest/meta-data/public-ipv4";
 
 	protected final String configDirectory;
-	protected final Optional<String> optConfigStrategy;
+	protected final String configStrategy;
 	protected final Optional<String> optConfigFileLocation;
 
 	private final String serverName;
@@ -83,9 +83,9 @@ public abstract class DatarouterProperties{
 		}
 
 		//run the configurer to populate the configDirectory
-		this.optConfigStrategy = findConfigStrategy();
+		this.configStrategy = findConfigStrategy();
 		if(optConfigurer.isPresent()){
-			optConfigurer.get().configure(optConfigStrategy.orElse(null), configDirectory);
+			optConfigurer.get().configure(configStrategy, configDirectory);
 		}else{
 			logger.warn("not running configurer because none provided");
 		}
@@ -122,11 +122,11 @@ public abstract class DatarouterProperties{
 
 	/*--------------- methods to find config values -----------------*/
 
-	private Optional<String> findConfigStrategy(){
+	private String findConfigStrategy(){
 		String jvmArgName = JVM_ARG_PREFIX + CONFIG_STRATEGY;
-		Optional<String> value = Optional.ofNullable(System.getProperty(jvmArgName));
-		if(value.isPresent()){
-			logJvmArgSource(CONFIG_STRATEGY, value.get(), jvmArgName);
+		String value = System.getProperty(jvmArgName);
+		if(value != null){
+			logJvmArgSource(CONFIG_STRATEGY, value, jvmArgName);
 		}else{
 			logger.warn("JVM arg {} not found", jvmArgName);
 		}
@@ -318,8 +318,8 @@ public abstract class DatarouterProperties{
 		return configDirectory;
 	}
 
-	public Optional<String> getOptConfigStrategy(){
-		return optConfigStrategy;
+	public String getConfigStrategy(){
+		return configStrategy;
 	}
 
 	public Optional<String> getOptConfigFileLocation(){
