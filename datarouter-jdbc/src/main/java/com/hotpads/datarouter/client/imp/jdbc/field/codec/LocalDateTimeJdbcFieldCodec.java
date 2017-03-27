@@ -95,9 +95,11 @@ public class LocalDateTimeJdbcFieldCodec extends BaseJdbcFieldCodec<LocalDateTim
 			String dateStringNow = getSqlDateString(dateTimeNow);
 			Assert.assertEquals(dateTime.getNano(), 100000000);
 			Assert.assertEquals(dateTimeNoNanoSeconds.getNano(), 0);
-			LocalDateTimeField testField = new LocalDateTimeField(new LocalDateTimeFieldKey("test"), dateTime);
+			LocalDateTimeField testField = new LocalDateTimeField(new LocalDateTimeFieldKey("test"),
+					dateTime);
 			Assert.assertEquals("'" + dateString + "'", new LocalDateTimeJdbcFieldCodec(testField).getSqlEscaped());
-			LocalDateTimeField testFieldNow = new LocalDateTimeField(new LocalDateTimeFieldKey("test"), dateTimeNow);
+			LocalDateTimeField testFieldNow = new LocalDateTimeField(new LocalDateTimeFieldKey("test"),
+					dateTimeNow);
 			Assert.assertEquals("'" + dateStringNow + "'",
 					new LocalDateTimeJdbcFieldCodec(testFieldNow).getSqlEscaped());
 		}

@@ -31,13 +31,11 @@ import com.hotpads.util.core.bytes.ShortByteTool;
 public class LocalDateTimeField extends BaseField<LocalDateTime>{
 
 	private static final int NUM_BYTES = 15;
-	public static final int TOTAL_NUM_FRACTIONAL_SECONDS = 9;
-	public static final int BACKWARDS_COMPATIBLE_NUM_FRACTIONAL_SECONDS = 3;
+	private static final int TOTAL_NUM_FRACTIONAL_SECONDS = 9;
 	public static final String pattern = "yyyy-MM-dd HH:mm:ss.SSS";
 	public static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
 
 	private final LocalDateTimeFieldKey key;
-	private final int numFractionalSeconds;
 
 	public LocalDateTimeField(LocalDateTimeFieldKey key, LocalDateTime value){
 		this(null, key, value);
@@ -46,12 +44,7 @@ public class LocalDateTimeField extends BaseField<LocalDateTime>{
 	public LocalDateTimeField(String prefix, LocalDateTimeFieldKey key, LocalDateTime value){
 		super(prefix, value);
 		this.key = key;
-		this.numFractionalSeconds = BACKWARDS_COMPATIBLE_NUM_FRACTIONAL_SECONDS;
 		this.setValue(getTruncatedLocalDateTime(value));
-	}
-
-	public int getNumFractionalSeconds(){
-		return numFractionalSeconds;
 	}
 
 	public LocalDateTime getTruncatedLocalDateTime(LocalDateTime value){
@@ -64,6 +57,10 @@ public class LocalDateTimeField extends BaseField<LocalDateTime>{
 		}
 		int numNanoSeconds = (value.getNano() / divideBy) * divideBy;
 		return value.withNano(numNanoSeconds);
+	}
+
+	public int getNumFractionalSeconds(){
+		return ((LocalDateTimeFieldKey) getKey()).getNumFractionalSeconds();
 	}
 
 	@Override
