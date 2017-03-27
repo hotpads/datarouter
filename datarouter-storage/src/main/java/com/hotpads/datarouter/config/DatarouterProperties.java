@@ -38,7 +38,7 @@ public abstract class DatarouterProperties{
 
 	protected final String configDirectory;
 	protected final String configStrategy;
-	protected final Optional<String> optConfigFileLocation;
+	protected final String configFileLocation;
 
 	private final String serverName;
 	private final ServerType serverType;
@@ -93,22 +93,22 @@ public abstract class DatarouterProperties{
 		//find configPath
 		if(DrStringTool.isEmpty(filename)){
 			Preconditions.checkState(!fileRequired);
-			this.optConfigFileLocation = Optional.empty();
+			this.configFileLocation = null;
 		}else{
-			this.optConfigFileLocation = Optional.of(configDirectory + "/" + filename);
+			this.configFileLocation = configDirectory + "/" + filename;
 		}
-		if(optConfigFileLocation.isPresent()){
-			logSource("config file", optConfigFileLocation.get(), "constant");
+		if(configFileLocation != null){
+			logSource("config file", configFileLocation, "constant");
 		}
 
 		//maybe parse configFileProperties
 		Optional<Properties> configFileProperties = Optional.empty();
-		if(optConfigFileLocation.isPresent()){
+		if(configFileLocation != null){
 			try{
-				configFileProperties = Optional.of(DrPropertiesTool.parse(optConfigFileLocation.get()));
+				configFileProperties = Optional.of(DrPropertiesTool.parse(configFileLocation));
 				logConfigFileProperties(configFileProperties);
 			}catch(Exception e){
-				logger.error("couldn't parse configFileProperties at configPath={}", optConfigFileLocation.get());
+				logger.error("couldn't parse configFileProperties at configFileLocation={}", configFileLocation);
 			}
 		}
 
@@ -138,7 +138,7 @@ public abstract class DatarouterProperties{
 		if(configFileProperties.isPresent()){
 			Optional<String> value = configFileProperties.map(properties -> properties.getProperty(SERVER_NAME));
 			if(value.isPresent()){
-				logSource(SERVER_NAME, value.get(), optConfigFileLocation.get());
+				logSource(SERVER_NAME, value.get(), configFileLocation);
 				return value.get();
 			}
 		}
@@ -167,7 +167,7 @@ public abstract class DatarouterProperties{
 		if(configFileProperties.isPresent()){
 			Optional<String> value = configFileProperties.map(properties -> properties.getProperty(SERVER_TYPE));
 			if(value.isPresent()){
-				logSource(SERVER_TYPE, value.get(), optConfigFileLocation.get());
+				logSource(SERVER_TYPE, value.get(), configFileLocation);
 				return value.get();
 			}
 		}
@@ -187,7 +187,7 @@ public abstract class DatarouterProperties{
 			Optional<String> value = configFileProperties.map(properties -> properties.getProperty(
 					ADMINISTRATOR_EMAIL));
 			if(value.isPresent()){
-				logSource(ADMINISTRATOR_EMAIL, value.get(), optConfigFileLocation.get());
+				logSource(ADMINISTRATOR_EMAIL, value.get(), configFileLocation);
 				return value.get();
 			}
 		}
@@ -200,7 +200,7 @@ public abstract class DatarouterProperties{
 		if(configFileProperties.isPresent()){
 			Optional<String> value = configFileProperties.map(properties -> properties.getProperty(SERVER_PRIVATE_IP));
 			if(value.isPresent()){
-				logSource(SERVER_PRIVATE_IP, value.get(), optConfigFileLocation.get());
+				logSource(SERVER_PRIVATE_IP, value.get(), configFileLocation);
 				return value.get();
 			}
 		}
@@ -220,7 +220,7 @@ public abstract class DatarouterProperties{
 		if(configFileProperties.isPresent()){
 			Optional<String> value = configFileProperties.map(properties -> properties.getProperty(SERVER_PUBLIC_IP));
 			if(value.isPresent()){
-				logSource(SERVER_PUBLIC_IP, value.get(), optConfigFileLocation.get());
+				logSource(SERVER_PUBLIC_IP, value.get(), configFileLocation);
 				return value.get();
 			}
 		}
@@ -280,7 +280,7 @@ public abstract class DatarouterProperties{
 
 	@Deprecated
 	public String getConfigPath(){
-		return optConfigFileLocation.orElse(null);
+		return configFileLocation;
 	}
 
 	public void assertConfigFileExists(String filename){
@@ -322,8 +322,8 @@ public abstract class DatarouterProperties{
 		return configStrategy;
 	}
 
-	public Optional<String> getOptConfigFileLocation(){
-		return optConfigFileLocation;
+	public String getConfigFileLocation(){
+		return configFileLocation;
 	}
 
 }
