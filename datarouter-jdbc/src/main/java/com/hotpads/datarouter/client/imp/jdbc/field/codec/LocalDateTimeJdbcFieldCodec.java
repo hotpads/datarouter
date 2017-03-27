@@ -49,6 +49,7 @@ public class LocalDateTimeJdbcFieldCodec extends BaseJdbcFieldCodec<LocalDateTim
 				// sql timestamp is MySQL's datetime
 				LocalDateTime value = field.getValue();
 				Timestamp timestamp = new Timestamp(value.atZone(ZoneOffset.UTC).toInstant().toEpochMilli());
+				timestamp.setNanos(value.getNano());
 				ps.setTimestamp(parameterIndex, timestamp);
 			}
 		}catch(SQLException e){
@@ -59,15 +60,17 @@ public class LocalDateTimeJdbcFieldCodec extends BaseJdbcFieldCodec<LocalDateTim
 	@Override
 	public LocalDateTime fromJdbcResultSetButDoNotSet(ResultSet rs){
 		try{
-			Timestamp timeStamp = rs.getTimestamp(field.getKey().getColumnName());
+			Timestamp timestamp = rs.getTimestamp(field.getKey().getColumnName());
 			if(rs.wasNull()){
 				return null;
 			}
-			return LocalDateTime.ofInstant(Instant.ofEpochMilli(timeStamp.getTime()), ZoneOffset.UTC);
+			LocalDateTime time = LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp.getTime()), ZoneOffset.UTC);
+			return time.withNano(timestamp.getNanos());
 		}catch(SQLException e){
 			throw new DataAccessException(e);
 		}
 	}
+
 
 	@Override
 	public String getSqlEscaped(){
@@ -102,6 +105,18 @@ public class LocalDateTimeJdbcFieldCodec extends BaseJdbcFieldCodec<LocalDateTim
 					dateTimeNow);
 			Assert.assertEquals("'" + dateStringNow + "'",
 					new LocalDateTimeJdbcFieldCodec(testFieldNow).getSqlEscaped());
+		}
+
+		@Test
+		public void testSetNanoSeconds(){
+			int nano = 314102705;
+			LocalDateTime value = LocalDateTime.of(2015, 3, 21, 5, 6, 31, nano);
+			Timestamp timestamp = new Timestamp(value.atZone(ZoneOffset.UTC).toInstant().toEpochMilli());
+			Assert.assertNotEquals(timestamp.getNanos(), nano);
+			timestamp.setNanos(value.getNano());
+			LocalDateTime time = LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp.getTime()), ZoneOffset.UTC);
+			Assert.assertNotEquals(time, value);
+			Assert.assertEquals(time.withNano(nano), value);
 		}
 	}
 }
