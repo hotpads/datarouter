@@ -8,11 +8,6 @@ import com.hotpads.notification.databean.NotificationRequest;
 import com.hotpads.notification.tracking.NotificationTrackingEventType;
 
 public interface NotificationType{
-
-	String getName();
-
-	boolean isMergeableWith(NotificationType that);
-
 	List<NotificationRequest> filterOutIrrelevantNotificationRequests(List<NotificationRequest> originalRequests);
 
 	String getDescription(NotificationItemLog notificationItemLog);
@@ -20,5 +15,4 @@ public interface NotificationType{
 	void onSuccess(List<NotificationRequest> requests);
 
 	default void onTrackingEvent(NotificationTrackingEventType eventType, NotificationLog notificationLog){}
-
 }

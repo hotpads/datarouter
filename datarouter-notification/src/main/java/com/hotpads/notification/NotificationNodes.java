@@ -16,6 +16,8 @@ import com.hotpads.notification.databean.NotificationTemplateBean;
 import com.hotpads.notification.databean.NotificationTemplateBeanKey;
 import com.hotpads.notification.databean.NotificationTypeAndDestinationAppToTemplate;
 import com.hotpads.notification.databean.NotificationTypeAndDestinationAppToTemplateKey;
+import com.hotpads.notification.databean.NotificationTypeConfig;
+import com.hotpads.notification.databean.NotificationTypeConfigKey;
 import com.hotpads.notification.destination.NotificationDestination;
 import com.hotpads.notification.destination.NotificationDestinationByAppDeviceId;
 import com.hotpads.notification.destination.NotificationDestinationByAppDeviceIdKey;
@@ -32,6 +34,7 @@ import com.hotpads.notification.tracking.NotificationTrackingEvent;
 import com.hotpads.notification.tracking.NotificationTrackingEventKey;
 
 public interface NotificationNodes{
+	public SortedMapStorageNode<NotificationTypeConfigKey,NotificationTypeConfig> getNotificationTypeConfig();
 	public SortedMapStorageNode<NotificationRequestKey,NotificationRequest> getNotificationRequest();
 
 	public IndexingSortedMapStorageNode<NotificationLogKey,NotificationLog,NotificationLogFielder,

@@ -4,19 +4,8 @@ import java.util.List;
 
 import com.hotpads.notification.databean.NotificationItemLog;
 import com.hotpads.notification.databean.NotificationRequest;
-import com.hotpads.util.core.lang.ClassTool;
 
 public abstract class BaseNotificationType implements NotificationType{
-
-	@Override
-	public String getName(){
-		return getClass().getName();
-	}
-
-	@Override
-	public boolean isMergeableWith(NotificationType that){
-		return ClassTool.sameClass(this, that);
-	}
 
 	@Override
 	public List<NotificationRequest> filterOutIrrelevantNotificationRequests(
@@ -26,7 +15,7 @@ public abstract class BaseNotificationType implements NotificationType{
 
 	@Override
 	public String getDescription(NotificationItemLog notificationItemLog){
-		return getName();
+		return getClass().getName();
 	}
 
 	@Override
