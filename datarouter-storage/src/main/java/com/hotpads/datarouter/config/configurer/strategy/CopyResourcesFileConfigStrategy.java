@@ -1,13 +1,13 @@
 package com.hotpads.datarouter.config.configurer.strategy;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.stream.Collectors;
+import java.nio.file.StandardCopyOption;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,12 +34,11 @@ public class CopyResourcesFileConfigStrategy implements ConfigStrategy{
 		}else{
 			logger.warn("creating {} from classpath:{}", destinationFile.getAbsolutePath(), sourceFileLocation);
 		}
+		InputStream sourceInputStream = getClass().getResourceAsStream(sourceFileLocation);
 		try{
-			BufferedReader reader = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(
-					sourceFileLocation)));
-			Files.write(destinationPath, reader.lines().collect(Collectors.toList()));
+			Files.copy(sourceInputStream, destinationPath, StandardCopyOption.REPLACE_EXISTING);
 		}catch(IOException e){
-			throw new RuntimeException(e);
+			throw new UncheckedIOException(e);
 		}
 	}
 
