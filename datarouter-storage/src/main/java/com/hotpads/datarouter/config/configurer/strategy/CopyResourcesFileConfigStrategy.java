@@ -34,8 +34,7 @@ public class CopyResourcesFileConfigStrategy implements ConfigStrategy{
 		}else{
 			logger.warn("creating {} from classpath:{}", destinationFile.getAbsolutePath(), sourceFileLocation);
 		}
-		InputStream sourceInputStream = getClass().getResourceAsStream(sourceFileLocation);
-		try{
+		try(InputStream sourceInputStream = getClass().getResourceAsStream(sourceFileLocation)){
 			Files.copy(sourceInputStream, destinationPath, StandardCopyOption.REPLACE_EXISTING);
 		}catch(IOException e){
 			throw new UncheckedIOException(e);
