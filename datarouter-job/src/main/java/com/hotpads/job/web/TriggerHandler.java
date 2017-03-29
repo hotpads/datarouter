@@ -101,10 +101,9 @@ public class TriggerHandler extends BaseHandler {
 		String jobKey = params.required(P_name);
 		Job sampleJob = injector.getInstance(Class.forName(jobKey).asSubclass(Job.class));
 		TriggerInfo triggerInfo = jobScheduler.getTracker().get(sampleJob.getClass());
-		if(triggerInfo.isRunning()){
+		if(triggerInfo.switchToRunning()){
 			return new MessageMav("Unable to run job, it is already running on this server");
 		}
-		triggerInfo.setRunning(true);
 		triggerInfo.setJob(sampleJob);
 		Date date = new Date();
 		sampleJob.setTriggerTime(date);
@@ -113,6 +112,7 @@ public class TriggerHandler extends BaseHandler {
 			sampleJob.run();
 		}catch(Exception e){
 			triggerInfo.setRunning(false);
+			logger.error("cannot run job " + jobKey, e);
 			throw e;
 		}
 		triggerInfo.setRunning(false);
