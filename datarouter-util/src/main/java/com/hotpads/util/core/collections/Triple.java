@@ -40,9 +40,11 @@ public class Triple<A,B,C> implements Serializable{
 		}
 		Triple<?,?,?> otherTriple = (Triple<?,?,?>)other;
 		return (first != null && first.equals(otherTriple.getFirst())
-				|| first == null && otherTriple.getFirst() == null) && (second != null && second.equals(otherTriple
-						.getSecond()) || second == null && otherTriple.getSecond() == null) && (third != null && third
-								.equals(otherTriple.getThird()) || third == null && otherTriple.getThird() == null);
+				|| first == null && otherTriple.getFirst() == null)
+		&& (second != null && second.equals(otherTriple.getSecond())
+				|| second == null && otherTriple.getSecond() == null)
+		&& (third != null && third.equals(otherTriple.getThird())
+				|| third == null && otherTriple.getThird() == null);
 	}
 
 	@Override
