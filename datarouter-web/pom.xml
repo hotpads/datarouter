@@ -52,7 +52,7 @@
 			<groupId>com.hotpads</groupId>
 			<artifactId>datarouter-http-client</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
-		</dependency>		
+		</dependency>
 		<dependency>
 			<groupId>com.hotpads</groupId>
 			<artifactId>datarouter-storage</artifactId>
