@@ -30,7 +30,7 @@ import com.hotpads.util.core.enums.DatarouterEnumTool;
 @SuppressWarnings("serial")
 public class DatarouterSession
 extends BaseDatarouterSessionDatabean<DatarouterSessionKey, DatarouterSession>
-implements Serializable {
+implements Serializable{
 //	private static Logger logger = LoggerFactory.getLogger(DatarouterSession.class);
 
 	/****************** fields **************************/
@@ -44,7 +44,7 @@ implements Serializable {
 	private List<String> roles;
 	private Boolean persistent = true;
 
-	public class F {
+	public class F{
 		public static final String
 				KEY_NAME = "key",
 				userId = "userId",
@@ -84,7 +84,7 @@ implements Serializable {
 	}
 
 	@Override
-	public Class<DatarouterSessionKey> getKeyClass() {
+	public Class<DatarouterSessionKey> getKeyClass(){
 		return DatarouterSessionKey.class;
 	}
 
@@ -118,7 +118,7 @@ implements Serializable {
 	/*********************** static methods ************************************/
 
 	public static DatarouterSession nullSafe(DatarouterSession in){
-		return in==null ? new DatarouterSession() : in;
+		return in == null ? new DatarouterSession() : in;
 	}
 
 
@@ -143,7 +143,7 @@ implements Serializable {
 		Collections.sort(roles);
 	}
 
-	public boolean doesUserHaveRole(DatarouterUserRole requiredRole) {
+	public boolean doesUserHaveRole(DatarouterUserRole requiredRole){
 		return getRoles().contains(requiredRole);
 	}
 
@@ -155,13 +155,13 @@ implements Serializable {
 		return getRoles().contains(DatarouterUserRole.datarouterAdmin);
 	}
 
-	public boolean isAdmin() {
+	public boolean isAdmin(){
 		Collection<DatarouterUserRole> rolesNullSafe = getRoles();
 		return rolesNullSafe.contains(DatarouterUserRole.datarouterAdmin)
 				|| rolesNullSafe.contains(DatarouterUserRole.admin);
 	}
 
-	public boolean isApiUser() {
+	public boolean isApiUser(){
 		return getRoles().contains(DatarouterUserRole.apiUser);
 	}
 
@@ -172,28 +172,28 @@ implements Serializable {
 	/*********************** get/set ************************************/
 
 	@Override
-	public DatarouterSessionKey getKey() {
+	public DatarouterSessionKey getKey(){
 		return key;
 	}
 
 	@Override
-	public void setKey(DatarouterSessionKey key) {
+	public void setKey(DatarouterSessionKey key){
 		this.key = key;
 	}
 
-	public String getUsername() {
+	public String getUsername(){
 		return username;
 	}
 
-	public void setUsername(String username) {
+	public void setUsername(String username){
 		this.username = username;
 	}
 
-	public Long getId() {
+	public Long getId(){
 		return userId;
 	}
 
-	public void setId(Long id) {
+	public void setId(Long id){
 		this.userId = id;
 	}
 
@@ -221,11 +221,11 @@ implements Serializable {
 		this.userCreated = userCreated;
 	}
 
-	public Boolean getPersistent() {
+	public Boolean getPersistent(){
 		return persistent;
 	}
 
-	public void setPersistent(Boolean persistent) {
+	public void setPersistent(Boolean persistent){
 		this.persistent = persistent;
 	}
 }

@@ -65,7 +65,7 @@ extends HBaseTask<Void>{
 			Increment increment = new Increment(ekBytes);
 			for(PK key : keysByEntityKey.get(ek)){
 				byte[] qualifierPkBytes = queryBuilder.getQualifierPkBytes(key, true);
-				for(Entry<String, Long> entry : countByColumnByKey.get(key).entrySet()) {
+				for(Entry<String, Long> entry : countByColumnByKey.get(key).entrySet()){
 					assertColumnIsUInt63Field(entry.getKey());
 					byte[] fullQualifierBytes = DrByteTool.concatenate(node.getFieldInfo().getEntityColumnPrefixBytes(),
 							qualifierPkBytes, StringByteTool.getUtf8Bytes(entry.getKey()));
@@ -77,7 +77,7 @@ extends HBaseTask<Void>{
 			increment.setWriteToWAL(config.getPersistentPut());
 			actions.add(increment);
 		}
-		if (DrCollectionTool.notEmpty(actions)){
+		if(DrCollectionTool.notEmpty(actions)){
 			table.batch(actions);
 		}
 		DRCounters.incClientNodeCustom(client.getType(), "cells incremented", node.getClientId().getName(),
@@ -91,8 +91,8 @@ extends HBaseTask<Void>{
 	private void assertColumnIsUInt63Field(String columnName){
 		Class<? extends Field> columnType = node.getFieldInfo().getFieldTypeForColumn(columnName);
 		if(DrObjectTool.notEquals(columnType, UInt63Field.class)){
-			throw new IllegalArgumentException(columnName+" is a "+columnType.getClass()
-					+", but you can only increment a UInt63Field");
+			throw new IllegalArgumentException(columnName + " is a " + columnType.getClass()
+					+ ", but you can only increment a UInt63Field");
 		}
 	}
 

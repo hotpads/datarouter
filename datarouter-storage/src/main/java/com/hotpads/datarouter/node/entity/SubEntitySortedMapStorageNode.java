@@ -12,7 +12,5 @@ public interface SubEntitySortedMapStorageNode<
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>>
 extends SubEntitySortedMapStorageReaderNode<EK,PK,D,F>,
-		SortedMapStorageNode<PK,D>
-{
-
+		SortedMapStorageNode<PK,D>{
 }

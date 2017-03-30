@@ -36,11 +36,11 @@ implements UniqueIndexNode<PK, D, IK, IE>{
 
 	@Override
 	public D lookupUnique(IK uniqueKey, Config config){
-		if(uniqueKey==null){
+		if(uniqueKey == null){
 			return null;
 		}
 		IE indexEntry = indexNode.get(uniqueKey, config);
-		if(indexEntry==null){
+		if(indexEntry == null){
 			return null;
 		}
 		PK primaryKey = indexEntry.getTargetKey();
@@ -63,11 +63,11 @@ implements UniqueIndexNode<PK, D, IK, IE>{
 
 	@Override
 	public void deleteUnique(IK indexKey, Config config){
-		if(indexKey==null){
+		if(indexKey == null){
 			return;
 		}
 		IE indexEntry = indexNode.get(indexKey, config);
-		if(indexEntry==null){
+		if(indexEntry == null){
 			return;
 		}
 		PK primaryKey = indexEntry.getTargetKey();

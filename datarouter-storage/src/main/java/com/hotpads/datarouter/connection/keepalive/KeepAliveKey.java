@@ -2,7 +2,6 @@ package com.hotpads.datarouter.connection.keepalive;
 
 import java.util.List;
 
-
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
@@ -32,7 +31,7 @@ public class KeepAliveKey extends BasePrimaryKey<KeepAliveKey>{
 	KeepAliveKey(){
 	}
 
-	public KeepAliveKey(String id) {
+	public KeepAliveKey(String id){
 		this.id = id;
 	}
 
@@ -46,8 +45,5 @@ public class KeepAliveKey extends BasePrimaryKey<KeepAliveKey>{
 	public void setId(String id){
 		this.id = id;
 	}
-
-
-
 
 }
