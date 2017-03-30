@@ -24,12 +24,12 @@ extends BaseSqsPeekMultiOp<PK,D,F,QueueMessage<PK,D>>{
 	}
 
 	@Override
-	protected List<QueueMessage<PK, D>> extractDatabeans(List<Message> messages){
+	protected List<QueueMessage<PK,D>> extractDatabeans(List<Message> messages){
 		List<QueueMessage<PK,D>> results = new ArrayList<>(messages.size());
 		for(Message message : messages){
 			D databean = codec.fromString(message.getBody(), fielder, databeanSupplier);
 			byte[] receiptHandle = StringByteTool.getUtf8Bytes(message.getReceiptHandle());
-			results.add(new QueueMessage<>(receiptHandle , databean));
+			results.add(new QueueMessage<>(receiptHandle, databean));
 		}
 		return results;
 	}

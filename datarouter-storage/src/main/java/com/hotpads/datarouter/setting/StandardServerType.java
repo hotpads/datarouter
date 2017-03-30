@@ -2,14 +2,14 @@ package com.hotpads.datarouter.setting;
 
 import java.util.List;
 
-import com.hotpads.datarouter.storage.field.enums.DatarouterEnumTool;
-import com.hotpads.datarouter.storage.field.enums.StringEnum;
+import com.hotpads.util.core.enums.DatarouterEnumTool;
+import com.hotpads.util.core.enums.StringEnum;
 import com.hotpads.util.core.web.HtmlSelectOptionBean;
 
 public enum StandardServerType implements ServerType, StringEnum<StandardServerType>{
 
 	UNKNOWN(ServerType.UNKNOWN),
-	ALL(ServerType.ALL),
+	ALL(ServerType.ALL),//for factory-like usage
 	WEB("web"),
 	JOBLET("joblet"),
 	DEV(ServerType.DEV);

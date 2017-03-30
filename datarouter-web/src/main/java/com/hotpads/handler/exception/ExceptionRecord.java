@@ -5,7 +5,6 @@ import java.util.Date;
 import java.util.List;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlRowFormat;
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.databean.Databean;
@@ -16,17 +15,15 @@ import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.StringFieldKey;
 import com.hotpads.util.DrExceptionTool;
 import com.hotpads.util.core.lang.ClassTool;
-/**
- * The record of an Exception
- */
-public class ExceptionRecord extends BaseDatabean<ExceptionRecordKey, ExceptionRecord> {
 
+public class ExceptionRecord extends BaseDatabean<ExceptionRecordKey,ExceptionRecord>{
 
 	private ExceptionRecordKey key;
 	private Date created;
 	private String serverName;
 	private String stackTrace;
 	private String type;
+	private String appVersion;
 	private String exceptionLocation;
 
 	public static class FieldKeys{
@@ -35,89 +32,93 @@ public class ExceptionRecord extends BaseDatabean<ExceptionRecordKey, ExceptionR
 		public static final StringFieldKey stackTrace = new StringFieldKey("stackTrace")
 				.withSize(MySqlColumnType.MAX_LENGTH_MEDIUMTEXT);
 		public static final StringFieldKey type = new StringFieldKey("type");
+		public static final StringFieldKey appVersion = new StringFieldKey("appVersion");
 		public static final StringFieldKey exceptionLocation = new StringFieldKey("exceptionLocation");
 	}
 
-	public static class ExceptionRecordFielder extends BaseDatabeanFielder<ExceptionRecordKey, ExceptionRecord> {
+	public static class ExceptionRecordFielder extends BaseDatabeanFielder<ExceptionRecordKey,ExceptionRecord>{
 
-		public ExceptionRecordFielder() {
+		public ExceptionRecordFielder(){
 			super(ExceptionRecordKey.class);
 		}
 
 		@Override
-		public List<Field<?>> getNonKeyFields(ExceptionRecord record) {
+		public List<Field<?>> getNonKeyFields(ExceptionRecord record){
 			return Arrays.asList(
 					new DateField(FieldKeys.created, record.created),
 					new StringField(FieldKeys.serverName, record.serverName),
 					new StringField(FieldKeys.stackTrace, record.stackTrace),
 					new StringField(FieldKeys.type, record.type),
+					new StringField(FieldKeys.appVersion, record.appVersion),
 					new StringField(FieldKeys.exceptionLocation, record.exceptionLocation));
-		}
-
-		@Override
-		public MySqlRowFormat getRowFormat(){
-			return MySqlRowFormat.COMPACT;
 		}
 
 	}
 
 	/********************** construct ********************/
 
-	public ExceptionRecord() {
+	public ExceptionRecord(){
 		this.key = new ExceptionRecordKey();
 	}
 
-	public ExceptionRecord(String serverName, String stackTrace, String type, String exceptionLocation) {
-		this(System.currentTimeMillis(), serverName, stackTrace, type, exceptionLocation);
+	public ExceptionRecord(String serverName, String stackTrace, String type, String appVersion,
+			String exceptionLocation){
+		this(System.currentTimeMillis(), serverName, stackTrace, type, appVersion, exceptionLocation);
 	}
 
-	public ExceptionRecord(long dateMs, String serverName, String stackTrace, String type, String exceptionLocation){
+	public ExceptionRecord(long dateMs, String serverName, String stackTrace, String type, String appVersion,
+			String exceptionLocation){
 		this.key = ExceptionRecordKey.generate();
 		this.created = new Date(dateMs);
 		this.serverName = serverName;
 		this.stackTrace = stackTrace;
 		this.type = type;
+		this.appVersion = appVersion;
 		this.exceptionLocation = exceptionLocation;
 	}
 
 	@Override
-	public Class<ExceptionRecordKey> getKeyClass() {
+	public Class<ExceptionRecordKey> getKeyClass(){
 		return ExceptionRecordKey.class;
 	}
 
 	/*************** getters / setters ******************/
 
 	@Override
-	public ExceptionRecordKey getKey() {
+	public ExceptionRecordKey getKey(){
 		return key;
 	}
 
-	public Date getCreated() {
+	public Date getCreated(){
 		return created;
 	}
 
-	public void setCreated(Date created) {
+	public void setCreated(Date created){
 		this.created = created;
 	}
 
-	public String getServerName() {
+	public String getServerName(){
 		return serverName;
 	}
 
-	public String getStackTrace() {
+	public String getStackTrace(){
 		return stackTrace;
 	}
 
-	public String getColoredStackTrace() {
+	public String getColoredStackTrace(){
 		return DrExceptionTool.getColorized(stackTrace);
 	}
 
-	public String getShortStackTrace() {
+	public String getShortStackTrace(){
 		return DrExceptionTool.getShortStackTrace(stackTrace);
 	}
 
-	public String getType() {
+	public String getType(){
 		return type;
+	}
+
+	public String getAppVersion(){
+		return appVersion;
 	}
 
 	public String getExceptionLocation(){
@@ -131,11 +132,12 @@ public class ExceptionRecord extends BaseDatabean<ExceptionRecordKey, ExceptionR
 	}
 
 	@Override
-	public int compareTo(Databean<?, ?> that) {
+	public int compareTo(Databean<?,?> that){
 		int diff = ClassTool.compareClass(this, that);
 		if(diff != 0){
 			return diff;
 		}
 		return created.compareTo(((ExceptionRecord)that).getCreated());
 	}
+
 }

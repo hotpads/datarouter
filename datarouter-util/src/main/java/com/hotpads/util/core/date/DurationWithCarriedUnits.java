@@ -18,12 +18,14 @@ public class DurationWithCarriedUnits {
 
 	public DurationWithCarriedUnits(long millis){
 		unitValues[DurationUnit.MILLISECONDS.getIndex()] = millis % 1000;
-		unitValues[DurationUnit.SECONDS.getIndex()] = (millis / (1000l)) % 60;
-		unitValues[DurationUnit.MINUTES.getIndex()] = (millis / (1000l * 60)) % 60;
-		unitValues[DurationUnit.HOURS.getIndex()] = (millis / (1000l * 60 * 60)) % 24;
-		unitValues[DurationUnit.DAYS.getIndex()] = (millis / (1000l * 60 * 60 * 24)) % (365/12); //not exact for millis > 1 year due to rounding on the 365/12
-		unitValues[DurationUnit.MONTHS.getIndex()] = new Double(Math.floor(millis / (1000.0 * 60.0 * 60.0 * 24.0 * (365.0/12.0)))).longValue() % 12;
-		unitValues[DurationUnit.YEARS.getIndex()] = (millis / (1000l * 60 * 60 * 24 * 365));
+		unitValues[DurationUnit.SECONDS.getIndex()] = (millis / 1000L) % 60;
+		unitValues[DurationUnit.MINUTES.getIndex()] = (millis / (1000L * 60)) % 60;
+		unitValues[DurationUnit.HOURS.getIndex()] = (millis / (1000L * 60 * 60)) % 24;
+		//not exact for millis > 1 year due to rounding on the 365/12
+		unitValues[DurationUnit.DAYS.getIndex()] = (millis / (1000L * 60 * 60 * 24)) % (365 / 12);
+		unitValues[DurationUnit.MONTHS.getIndex()] = new Double(Math.floor(millis / (1000.0 * 60.0 * 60.0 * 24.0
+				* (365.0 / 12.0)))).longValue() % 12;
+		unitValues[DurationUnit.YEARS.getIndex()] = millis / (1000L * 60 * 60 * 24 * 365);
 	}
 
 	public long get(int field){
@@ -35,33 +37,27 @@ public class DurationWithCarriedUnits {
 		return toStringByMaxUnits(Integer.MAX_VALUE);
 	}
 
-	public String toStringByMaxUnits(int numUnits) {
+	public String toStringByMaxUnits(int numUnits){
 		return toStringByMaxUnits(numUnits, DEFAULT_DELIMITER);
 	}
 
-	public String toStringByMaxUnits(int maxUnits, String delimiter) {
+	public String toStringByMaxUnits(int maxUnits, String delimiter){
 		return toStringByMaxUnitsMaxPrecision(DurationUnit.MILLISECONDS, maxUnits);
 	}
 
-	public String toStringByMaxPrecision(DurationUnit maxPrecision) {
-		return toStringByMaxPrecision(maxPrecision, DEFAULT_DELIMITER);
-	}
-
-	public String toStringByMaxPrecision(DurationUnit maxPrecision, String delimiter) {
-		return toStringByMaxUnitsMaxPrecision(maxPrecision, Integer.MAX_VALUE);
-	}
-
-	public String toStringByMaxUnitsMaxPrecision(DurationUnit maxPrecision, int maxUnits) {
+	public String toStringByMaxUnitsMaxPrecision(DurationUnit maxPrecision, int maxUnits){
 		return toStringByMaxUnitsMaxPrecision(maxPrecision, maxUnits, DEFAULT_DELIMITER);
 	}
 
-	public String toStringByMaxUnitsMaxPrecision(DurationUnit maxPrecision, int maxUnits, String delimiter) {
+	public String toStringByMaxUnitsMaxPrecision(DurationUnit maxPrecision, int maxUnits, String delimiter){
 		List<String> units = getNonZeroUnitStrings(maxPrecision, maxUnits);
-		if (units.size() > 0){
+		if(units.size() > 0){
 			StringBuilder sb = new StringBuilder();
 			int appended = 0;
 			for(String unit : units){
-				if(appended > 0){ sb.append(delimiter); }
+				if(appended > 0){
+					sb.append(delimiter);
+				}
 				sb.append(unit);
 				++appended;
 			}
@@ -71,24 +67,32 @@ public class DurationWithCarriedUnits {
 		return LESS_THAN_ONE + " " + maxPrecision.getDisplay();
 	}
 
+	public String toStringByMaxPrecision(DurationUnit maxPrecision){
+		return toStringByMaxPrecision(maxPrecision, DEFAULT_DELIMITER);
+	}
+
+	public String toStringByMaxPrecision(DurationUnit maxPrecision, String delimiter){
+		return toStringByMaxUnitsMaxPrecision(maxPrecision, Integer.MAX_VALUE);
+	}
+
 	private List<String> getNonZeroUnitStrings(DurationUnit mostPreciseUnit, int maxUnits){
 		ArrayList<String> unitStrings = new ArrayList<>();
 
 		Iterator<DurationUnit> iter = Arrays.asList(DurationUnit.values()).iterator();
 		int unitsSinceLargestNonzero = 0;
-		while (iter.hasNext() && unitsSinceLargestNonzero < maxUnits){
+		while(iter.hasNext() && unitsSinceLargestNonzero < maxUnits){
 			DurationUnit du = iter.next();
 
-			if (du.getIndex() > mostPreciseUnit.getIndex()){
+			if(du.getIndex() > mostPreciseUnit.getIndex()){
 				break;
 			}
 
 			long val = get(du.getIndex());
-			if (val > 0){
+			if(val > 0){
 				unitStrings.add(val + " " + ((val > 1) ? du.getDisplayPlural() : du.getDisplay()));
 			}
 
-			if (unitStrings.size() > 0){
+			if(unitStrings.size() > 0){
 				unitsSinceLargestNonzero++;
 			}
 		}
@@ -153,13 +157,13 @@ public class DurationWithCarriedUnits {
 
 		}
 
-		@Test public void testMonths() {
+		@Test public void testMonths(){
 			long millis = convert(0, 3,5,0,0,0,0);
 			DurationWithCarriedUnits wpd = new DurationWithCarriedUnits(millis);
 			Assert.assertEquals("3 months", wpd.toStringByMaxUnits(1));
 		}
 
-		@Test public void testYears() {
+		@Test public void testYears(){
 			long millis = convert(2,3,0,0,0,0,0);
 			DurationWithCarriedUnits wpd = new DurationWithCarriedUnits(millis);
 			Assert.assertEquals("2 years", wpd.toStringByMaxUnits(1));
@@ -167,15 +171,15 @@ public class DurationWithCarriedUnits {
 
 		}
 
-		private static long convert(int years, int months, int d, int h, int m, int s, int ms){
+		private static long convert(int years, int months, int day, int hour, int minute, int sec, int ms){
 			long millis = 0;
 			millis += ms;
-			millis += s * 1000l;
-			millis += m * 1000l * 60;
-			millis += h * 1000l * 60 * 60;
-			millis += d * 1000l * 60 * 60 * 24;
-			millis += (long) (months * (365.0/12) * 1000l * 60 * 60 * 24);
-			millis += years * 365 * 1000l * 60 * 60 * 24;
+			millis += sec * 1000L;
+			millis += minute * 1000L * 60;
+			millis += hour * 1000L * 60 * 60;
+			millis += day * 1000L * 60 * 60 * 24;
+			millis += (long) (months * (365.0 / 12) * 1000L * 60 * 60 * 24);
+			millis += years * 365 * 1000L * 60 * 60 * 24;
 			return millis;
 		}
 	}

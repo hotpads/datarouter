@@ -2,9 +2,11 @@ package com.hotpads.datarouter.client.bigtable.client;
 
 import java.util.concurrent.ExecutorService;
 
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.client.Connection;
 
 import com.google.cloud.bigtable.hbase.BigtableConfiguration;
+import com.google.cloud.bigtable.hbase.BigtableOptionsFactory;
 import com.hotpads.datarouter.client.availability.ClientAvailabilitySettings;
 import com.hotpads.datarouter.client.bigtable.BigTableClientType;
 import com.hotpads.datarouter.client.imp.hbase.client.BaseHBaseClientFactory;
@@ -24,10 +26,11 @@ public class BigTableClientFactory extends BaseHBaseClientFactory{
 	@Override
 	protected Connection makeConnection(){
 		String projectId = bigTableOptions.projectId();
-		String zone = bigTableOptions.zone();
-		String clusterId = bigTableOptions.clusterId();
-		return BigtableConfiguration.connect(projectId, zone, clusterId);
+		String instanceId = bigTableOptions.instanceId();
+		Configuration config = BigtableConfiguration.configure(projectId, instanceId);
+		String credsLocation = bigTableOptions.credentialsLocation();
+		config.set(BigtableOptionsFactory.BIGTABLE_SERVICE_ACCOUNT_JSON_KEYFILE_LOCATION_KEY, credsLocation);
+		return BigtableConfiguration.connect(config);
 	}
-
 
 }

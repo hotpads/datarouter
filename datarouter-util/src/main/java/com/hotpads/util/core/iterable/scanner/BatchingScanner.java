@@ -25,7 +25,7 @@ public class BatchingScanner<T> implements Scanner<List<T>>{
 	@Override
 	public boolean advance(){
 		batch = new ArrayList<>();
-		while( ! fullBatch()){
+		while(!fullBatch()){
 			if(!scanner.advance()){
 				break;
 			}

@@ -47,12 +47,8 @@ public class PhaseRecord{
 		this.time = time;
 	}
 
-	public long getDuration(){
-		return duration;
-	}
-
-	public void setDuration(long duration){
-		this.duration = duration;
+	public long getElapsedTime(){
+		return System.currentTimeMillis() - time;
 	}
 
 	/***

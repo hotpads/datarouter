@@ -8,19 +8,18 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
+public class DrComparableTool{
 
-public class DrComparableTool {
-
-	public static <T extends Comparable<? super T>> boolean lt(T a, T b){
-		int diff = nullFirstCompareTo(a, b);
+	public static <T extends Comparable<? super T>> boolean lt(T object1, T object2){
+		int diff = nullFirstCompareTo(object1, object2);
 		return diff < 0;
 	}
 
 	/**
 	 * is a > b
 	 */
-	public static <T extends Comparable<? super T>> boolean gt(T a, T b){
-		int diff = nullFirstCompareTo(a, b);
+	public static <T extends Comparable<? super T>> boolean gt(T object1, T object2){
+		int diff = nullFirstCompareTo(object1, object2);
 		return diff > 0;
 	}
 
@@ -29,40 +28,46 @@ public class DrComparableTool {
 			T min, boolean minInclusive, T value, T max, boolean maxInclusive){
 		int minDiff = nullFirstCompareTo(value, min);
 		int maxDiff = nullLastCompareTo(value, max);
-		if(minInclusive && minDiff==0){ return true; }
-		if(maxInclusive && maxDiff==0){ return true; }
+		if(minInclusive && minDiff == 0){
+			return true;
+		}
+		if(maxInclusive && maxDiff == 0){
+			return true;
+		}
 		return minDiff > 0 && maxDiff < 0;
 	}
 
-	public static <T extends Comparable<? super T>> int nullFirstCompareTo(T a, T b){
-		if(a==null && b==null){
+	public static <T extends Comparable<? super T>> int nullFirstCompareTo(T object1, T object2){
+		if(object1 == null && object2 == null){
 			return 0;
-		}else if(a==null){
+		}else if(object1 == null){
 			return -1;
-		}else if(b==null){
+		}else if(object2 == null){
 			return 1;
 		}else{
-			return a.compareTo(b);
+			return object1.compareTo(object2);
 		}
 	}
 
-	public static <T extends Comparable<? super T>> int nullLastCompareTo(T a, T b){
-		if(a==null && b==null){
+	public static <T extends Comparable<? super T>> int nullLastCompareTo(T object1, T object2){
+		if(object1 == null && object2 == null){
 			return 0;
-		}else if(a==null){
+		}else if(object1 == null){
 			return 1;
-		}else if(b==null){
+		}else if(object2 == null){
 			return -1;
 		}else{
-			return a.compareTo(b);
+			return object1.compareTo(object2);
 		}
 	}
 
 	//smallest
-	public static <T extends Comparable<T>> T getFirst(Collection<T> c){
-		if(DrCollectionTool.isEmpty(c)){ return null; }
-		T first = DrCollectionTool.getFirst(c);
-		for(T i : c){
+	public static <T extends Comparable<T>> T getFirst(Collection<T> collection){
+		if(DrCollectionTool.isEmpty(collection)){
+			return null;
+		}
+		T first = DrCollectionTool.getFirst(collection);
+		for(T i : collection){
 			if(i.compareTo(first) < 0){
 				first = i;
 			}
@@ -71,10 +76,12 @@ public class DrComparableTool {
 	}
 
 	//biggest
-	public static  <T extends Comparable<T>> T getLast(Collection<T> c){
-		if(DrCollectionTool.isEmpty(c)){ return null; }
-		T last = DrCollectionTool.getFirst(c);
-		for(T i : c){
+	public static <T extends Comparable<T>> T getLast(Collection<T> collection){
+		if(DrCollectionTool.isEmpty(collection)){
+			return null;
+		}
+		T last = DrCollectionTool.getFirst(collection);
+		for(T i : collection){
 			if(i.compareTo(last) > 0){
 				last = i;
 			}
@@ -83,23 +90,31 @@ public class DrComparableTool {
 	}
 
 	public static <T extends Comparable<? super T>> boolean isSorted(Iterable<? extends T> ins){
-		if(ins==null){ return true; }//null is considered sorted
+		if(ins == null){
+			return true;
+		}//null is considered sorted
 		Iterator<? extends T> iter = ins.iterator();
-		if(!iter.hasNext()){ return true; }//0 elements is sorted
+		if(!iter.hasNext()){
+			return true;
+		}//0 elements is sorted
 		T previous = iter.next();
-		if(!iter.hasNext()){ return true; }//1 element is sorted
+		if(!iter.hasNext()){
+			return true;
+		}//1 element is sorted
 		T current = null;
 		while(iter.hasNext()){
 			current = iter.next();
-			if(previous.compareTo(current) > 0){ return false; }
+			if(previous.compareTo(current) > 0){
+				return false;
+			}
 			previous = current;
 		}
 		return true;
 	}
 
-	public static <T extends Comparable<? super T>> int compareAndAssertReflexive(T a, T b){
-		int forwardDiff = nullFirstCompareTo(a, b);
-		int backwardDiff = nullFirstCompareTo(b, a);
+	public static <T extends Comparable<? super T>> int compareAndAssertReflexive(T object1, T object2){
+		int forwardDiff = nullFirstCompareTo(object1, object2);
+		int backwardDiff = nullFirstCompareTo(object2, object1);
 		Assert.assertEquals(forwardDiff, -backwardDiff);
 		return forwardDiff;
 	}
@@ -124,15 +139,16 @@ public class DrComparableTool {
 			Assert.assertFalse(between(-3f, false, -17.5f, 7f, false));
 			Assert.assertTrue(between(-3f, true, -3f, 7f, false));
 			Assert.assertTrue(between(0, true, 0, 0, false));
-			Assert.assertTrue(between(null, true, 12345, null, true));//treat start=null as -Infinity, end=null as Infinity
+			Assert.assertTrue(between(null, true, 12345,
+					null, true));//treat start=null as -Infinity, end=null as Infinity
 		}
 		@Test public void testIsSorted(){
 			Assert.assertTrue(isSorted(null));
 			Assert.assertTrue(isSorted(new ArrayList<Integer>()));
-			List<Integer> a = DrListTool.create(1,2,3,4);
-			Assert.assertTrue(isSorted(a));
-			List<Integer> b = DrListTool.create(1,2,55,4);
-			Assert.assertFalse(isSorted(b));
+			List<Integer> listA = DrListTool.create(1,2,3,4);
+			Assert.assertTrue(isSorted(listA));
+			List<Integer> listB = DrListTool.create(1,2,55,4);
+			Assert.assertFalse(isSorted(listB));
 
 		}
 	}

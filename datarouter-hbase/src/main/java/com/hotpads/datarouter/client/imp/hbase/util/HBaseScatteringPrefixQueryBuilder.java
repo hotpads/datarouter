@@ -29,7 +29,7 @@ import com.hotpads.util.core.collections.Twin;
 import com.hotpads.util.core.iterable.scanner.batch.AsyncBatchLoaderScanner;
 import com.hotpads.util.core.iterable.scanner.batch.BatchLoader;
 
-public class HBaseScatteringPrefixQueryBuilder {
+public class HBaseScatteringPrefixQueryBuilder{
 	private static final Logger logger = LoggerFactory.getLogger(HBaseScatteringPrefixQueryBuilder.class);
 
 	public static List<Scan> getPrefixScanners(DatabeanFieldInfo<?,?,?> fieldInfo, FieldSet<?> prefix,
@@ -69,11 +69,11 @@ public class HBaseScatteringPrefixQueryBuilder {
 		List<List<Field<?>>> allScatteringPrefixFields = fieldInfo.getSampleScatteringPrefix()
 				.getAllPossibleScatteringPrefixes();
 		for(List<Field<?>> scatteringPrefixFields : allScatteringPrefixFields){
-			if(DrCollectionTool.isEmpty(scatteringPrefixFields) && pk==null){
+			if(DrCollectionTool.isEmpty(scatteringPrefixFields) && pk == null){
 				outs.add(null);
 			}else{
 				SimpleFieldSet<?> scatteringPrefixPlusPk = new SimpleFieldSet<>(scatteringPrefixFields);
-				if (pk != null){
+				if(pk != null){
 					scatteringPrefixPlusPk.add(pk.getFields());
 				}
 				outs.add(scatteringPrefixPlusPk);
@@ -96,7 +96,7 @@ public class HBaseScatteringPrefixQueryBuilder {
 			endInclusiveOverride = true;
 		}
 
-		for(int i=0; i < prefixedStartKeys.size(); ++i){
+		for(int i = 0; i < prefixedStartKeys.size(); ++i){
 			Twin<ByteRange> byteRange = HBaseQueryBuilder.getStartEndBytesForRange(
 					prefixedStartKeys.get(i), startInclusive, prefixedEndKeys.get(i), endInclusiveOverride);
 			ranges.add(byteRange);
@@ -135,7 +135,7 @@ public class HBaseScatteringPrefixQueryBuilder {
 				.getAllPossibleScatteringPrefixes();
 		ArrayList<AsyncBatchLoaderScanner<D>> scanners = new ArrayList<>();
 		for(List<Field<?>> scatteringPrefix : allScatteringPrefixes){
-			logger.debug("including scanner for scatteringPrefix:"+scatteringPrefix);
+			logger.debug("including scanner for scatteringPrefix:" + scatteringPrefix);
 			BatchLoader<D> firstBatchLoaderForPrefix = new HBaseDatabeanBatchLoader<>(node, scatteringPrefix,
 					pkRange, config, 1L);//start the counter at 1
 			AsyncBatchLoaderScanner<D> scanner = new AsyncBatchLoaderScanner<>(executorService,

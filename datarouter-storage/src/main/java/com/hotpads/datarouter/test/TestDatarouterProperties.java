@@ -1,29 +1,15 @@
 package com.hotpads.datarouter.test;
 
-import java.util.Objects;
-
 import javax.inject.Singleton;
 
-import com.hotpads.datarouter.config.BaseDatarouterProperties;
+import com.hotpads.datarouter.config.DatarouterProperties;
 import com.hotpads.datarouter.setting.StandardServerType;
 
 @Singleton
-public class TestDatarouterProperties extends BaseDatarouterProperties{
-
-	private static final String CONFIG_PATH = "/hotpads/config/datarouter-test.properties";
+public class TestDatarouterProperties extends DatarouterProperties{
 
 	public TestDatarouterProperties(){
-		super(CONFIG_PATH);
-	}
-
-	@Override
-	public String getConfigPath(){
-		return CONFIG_PATH;
-	}
-
-	@Override
-	public StandardServerType getServerType(){
-		return StandardServerType.fromPersistentStringStatic(Objects.requireNonNull(getServerTypeString()));
+		super(StandardServerType.ALL, "/hotpads/config", "datarouter-test.properties");
 	}
 
 }

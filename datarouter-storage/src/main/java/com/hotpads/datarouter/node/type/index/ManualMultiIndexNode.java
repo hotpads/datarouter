@@ -42,7 +42,7 @@ implements MultiIndexNode<PK, D, IK, IE>{
 
 	@Override
 	public List<D> lookupMulti(IK indexKey, Config config){
-		if(indexKey==null){
+		if(indexKey == null){
 			return new LinkedList<>();
 		}
 		//hard-coding startInclusive to true because it will usually be true on the first call,

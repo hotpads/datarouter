@@ -6,8 +6,8 @@ import java.sql.ResultSet;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.client.imp.jdbc.field.StringJdbcFieldCodec;
 import com.hotpads.datarouter.client.imp.jdbc.field.codec.base.BaseJdbcFieldCodec;
-import com.hotpads.datarouter.storage.field.enums.StringEnum;
 import com.hotpads.datarouter.storage.field.imp.enums.StringEnumField;
+import com.hotpads.util.core.enums.StringEnum;
 
 public class StringEnumJdbcFieldCodec<E extends StringEnum<E>>
 extends BaseJdbcFieldCodec<E,StringEnumField<E>>{
@@ -46,7 +46,7 @@ extends BaseJdbcFieldCodec<E,StringEnumField<E>>{
 	@Override
 	public E fromJdbcResultSetButDoNotSet(ResultSet rs){
 		String string = stringJdbcFieldCodec.fromJdbcResultSetButDoNotSet(rs);
-		return string == null ? null : field.getSampleValue().fromPersistentString(string);
+		return field.getSampleValue().fromPersistentString(string);
 	}
 
 }

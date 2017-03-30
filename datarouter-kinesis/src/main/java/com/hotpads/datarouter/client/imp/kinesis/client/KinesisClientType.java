@@ -2,7 +2,7 @@ package com.hotpads.datarouter.client.imp.kinesis.client;
 
 import javax.inject.Inject;
 
-import org.junit.Assert;
+import org.testng.Assert;
 import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
@@ -90,7 +90,7 @@ public class KinesisClientType extends BaseClientType implements StreamClientTyp
 		@Test
 		public void testClassLocation(){
 			String actualClassName = KinesisClientType.class.getCanonicalName();
-			Assert.assertEquals(DefaultClientTypes.CLIENT_CLASS_kinesis, actualClassName);
+			Assert.assertEquals(actualClassName, DefaultClientTypes.CLIENT_CLASS_kinesis);
 			injector.getInstance(ClassTool.forName(DefaultClientTypes.CLIENT_CLASS_kinesis));
 		}
 	}

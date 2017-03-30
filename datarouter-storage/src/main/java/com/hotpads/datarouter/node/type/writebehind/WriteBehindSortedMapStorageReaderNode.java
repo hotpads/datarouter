@@ -23,13 +23,13 @@ implements SortedMapStorageReader<PK,D>{
 
 	@Override
 	@Deprecated
-	public List<D> getWithPrefix(PK prefix, boolean wildcardLastField, Config config) {
+	public List<D> getWithPrefix(PK prefix, boolean wildcardLastField, Config config){
 		return backingNode.getWithPrefix(prefix,wildcardLastField, config);
 	}
 
 	@Override
 	@Deprecated
-	public List<D> getWithPrefixes(Collection<PK> prefixes, boolean wildcardLastField, Config config) {
+	public List<D> getWithPrefixes(Collection<PK> prefixes, boolean wildcardLastField, Config config){
 		return backingNode.getWithPrefixes(prefixes, wildcardLastField, config);
 	}
 

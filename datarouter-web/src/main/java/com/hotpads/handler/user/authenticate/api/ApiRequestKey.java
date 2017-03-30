@@ -1,16 +1,17 @@
 package com.hotpads.handler.user.authenticate.api;
 
+import java.util.Arrays;
 import java.util.List;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.storage.field.Field;
-import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.StringField;
+import com.hotpads.datarouter.storage.field.imp.StringFieldKey;
 import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
 
-public class ApiRequestKey extends BasePrimaryKey<ApiRequestKey> {
+public class ApiRequestKey extends BasePrimaryKey<ApiRequestKey>{
 
-	public static final int	DEFAULT_STRING_LENGTH = MySqlColumnType.MAX_LENGTH_VARCHAR;
+	public static final int DEFAULT_STRING_LENGTH = MySqlColumnType.MAX_LENGTH_VARCHAR;
 
 	/** fields ********************************************************************************************************/
 
@@ -19,27 +20,26 @@ public class ApiRequestKey extends BasePrimaryKey<ApiRequestKey> {
 	private String signature;
 	private String timestamp;
 
-	public static class F {
-		public static final String
-			apiKey = "apiKey",
-			nonce = "nonce",
-			signature = "signature",
-			timestamp = "timestamp";
+	public static class FieldKeys{
+		public static final StringFieldKey apiKey = new StringFieldKey("apiKey");
+		public static final StringFieldKey nonce = new StringFieldKey("nonce");
+		public static final StringFieldKey signature = new StringFieldKey("signature");
+		public static final StringFieldKey timestamp = new StringFieldKey("timestamp");
 	}
 
 	@Override
 	public List<Field<?>> getFields(){
-		return FieldTool.createList(
-				new StringField(F.apiKey, apiKey, DEFAULT_STRING_LENGTH),
-				new StringField(F.nonce, nonce, DEFAULT_STRING_LENGTH),
-				new StringField(F.signature, signature, DEFAULT_STRING_LENGTH),
-				new StringField(F.timestamp, timestamp, DEFAULT_STRING_LENGTH));
+		return Arrays.asList(
+				new StringField(FieldKeys.apiKey, apiKey),
+				new StringField(FieldKeys.nonce, nonce),
+				new StringField(FieldKeys.signature, signature),
+				new StringField(FieldKeys.timestamp, timestamp));
 	}
 
 	/** constructors **************************************************************************************************/
 	ApiRequestKey() {}
 
-	public ApiRequestKey(String apiKey, String nonce, String signature, String timestamp) {
+	public ApiRequestKey(String apiKey, String nonce, String signature, String timestamp){
 		this.apiKey = apiKey;
 		this.nonce = nonce;
 		this.signature = signature;
@@ -48,35 +48,35 @@ public class ApiRequestKey extends BasePrimaryKey<ApiRequestKey> {
 
 	/** getters/setters ***********************************************************************************************/
 
-	public String getApiKey() {
+	public String getApiKey(){
 		return apiKey;
 	}
 
-	public void setApiKey(String apiKey) {
+	public void setApiKey(String apiKey){
 		this.apiKey = apiKey;
 	}
 
-	public String getNonce() {
+	public String getNonce(){
 		return nonce;
 	}
 
-	public void setNonce(String nonce) {
+	public void setNonce(String nonce){
 		this.nonce = nonce;
 	}
 
-	public String getSignature() {
+	public String getSignature(){
 		return signature;
 	}
 
-	public void setSignature(String signature) {
+	public void setSignature(String signature){
 		this.signature = signature;
 	}
 
-	public String getTimestamp() {
+	public String getTimestamp(){
 		return timestamp;
 	}
 
-	public void setTimestamp(String timestamp) {
+	public void setTimestamp(String timestamp){
 		this.timestamp = timestamp;
 	}
 

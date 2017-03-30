@@ -1,7 +1,7 @@
 package com.hotpads.util.core.bytes;
 
 import java.nio.charset.Charset;
-import java.util.Map;
+import java.nio.charset.StandardCharsets;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -11,119 +11,102 @@ import com.hotpads.datarouter.util.core.DrStringTool;
 
 public class StringByteTool{
 
-
+	/**
+	 * @deprecated inline
+	 */
+	@Deprecated
 	public static final Charset
-		CHARSET_USASCII = Charset.forName("US-ASCII"),
-		CHARSET_WINDOWS1252 = Charset.forName("windows-1252"),
-		CHARSET_LATIN1 = Charset.forName("ISO-8859-1"),
-		CHARSET_UTF8 = Charset.forName("UTF-8"),
-		CHARSET_UTF16BE = Charset.forName("UTF-16BE");//java internal "char" representation.  Need to investigate BOM more
+			CHARSET_USASCII = StandardCharsets.US_ASCII,
+			CHARSET_UTF8 = StandardCharsets.UTF_8;
 
-
-	public static byte[] getByteArray(String s, Charset charset){
-		if(s==null){ return null; }
-		return s.getBytes(charset);
+	public static byte[] getByteArray(String str, Charset charset){
+		if(str == null){
+			return null;
+		}
+		return str.getBytes(charset);
 	}
 
-	public static int numUtf8Bytes(String s){
-		return getUtf8Bytes(s).length;
+	public static int numUtf8Bytes(String str){
+		return getUtf8Bytes(str).length;
 	}
 
-	public static byte[] getUtf8Bytes(String s){
-		if(s==null){ return null; }
-		return s.getBytes(CHARSET_UTF8);
+	public static byte[] getUtf8Bytes(String str){
+		if(str == null){
+			return null;
+		}
+		return str.getBytes(StandardCharsets.UTF_8);
 	}
 
-	public static int toUtf8Bytes(String s, byte[] destination, int offset){
-		byte[] bytes = getUtf8Bytes(s);
+	public static int toUtf8Bytes(String str, byte[] destination, int offset){
+		byte[] bytes = getUtf8Bytes(str);
 		System.arraycopy(bytes, 0, destination, offset, bytes.length);
 		return bytes.length;
 	}
 
+	public static String fromUtf8Bytes(byte[] bytes, int offset, int length){
+		return new String(bytes, offset, length, StandardCharsets.UTF_8);
+	}
+
 	public static String fromUtf8Bytes(byte[] bytes){
-		return new String(bytes, CHARSET_UTF8);
+		return new String(bytes, StandardCharsets.UTF_8);
 	}
 
 	public static String fromUtf8BytesOffset(byte[] bytes, int offset){
 		int length = bytes.length - offset;
-		return new String(bytes, offset, length, CHARSET_UTF8);
-	}
-
-	public static String fromUtf8Bytes(byte[] bytes, int offset, int length){
-		return new String(bytes, offset, length, CHARSET_UTF8);
+		return new String(bytes, offset, length, StandardCharsets.UTF_8);
 	}
 
 	public static class Tests{
 
-		String a = "a";
-		byte[] aLatin1 = getByteArray(a, StringByteTool.CHARSET_LATIN1);
-		byte[] aUsAscii = getByteArray(a, StringByteTool.CHARSET_USASCII);
-		byte[] aUtf16 = getByteArray(a, StringByteTool.CHARSET_UTF16BE);
-		byte[] aUtf8 = getByteArray(a, StringByteTool.CHARSET_UTF8);
+		private String letterA = "a";
+		private byte[] letterAUsAscii = getByteArray(letterA, StandardCharsets.US_ASCII);
+		private byte[] letterAUtf16 = getByteArray(letterA, StandardCharsets.UTF_16BE);
+		private byte[] letterAUtf8 = getByteArray(letterA, StandardCharsets.UTF_8);
 
-		String euroFromUsAscii = new String(
-				new byte[]{DrByteTool.fromUnsignedInt0To255(128),DrByteTool.fromUnsignedInt0To255(128)},
-				StringByteTool.CHARSET_USASCII);
+		private String euroFromUsAscii = new String(new byte[]{DrByteTool.fromUnsignedInt0To255(128), DrByteTool
+				.fromUnsignedInt0To255(128)}, StandardCharsets.US_ASCII);
 
-		String euroFromLatin1 = new String(
-				new byte[]{DrByteTool.fromUnsignedInt0To255(128)},
-				StringByteTool.CHARSET_LATIN1);
+		private String euroFromLatin1 = new String(new byte[]{DrByteTool.fromUnsignedInt0To255(128)},
+				StandardCharsets.ISO_8859_1);
 
-		String quarterSymbolFromWindows1252 = new String(
-				new byte[]{DrByteTool.fromUnsignedInt0To255(128)},
-				StringByteTool.CHARSET_WINDOWS1252);
+		private Character unknownCharacter = euroFromUsAscii.charAt(0);
+		private Integer unknownCharacterInt = (int)unknownCharacter.charValue();
 
-		Character unknownCharacter = euroFromUsAscii.charAt(0);
-		Integer unknownCharacterInt = (int)unknownCharacter.charValue();
+		private String euro = euroFromLatin1;
+		private byte[] euroUsAscii = getByteArray(euro, StandardCharsets.US_ASCII);
+		private byte[] euroUtf16 = getByteArray(euro, StandardCharsets.UTF_16BE);
+		private byte[] euroUtf8 = getByteArray(euro, StandardCharsets.UTF_8);
 
-		String b = euroFromLatin1;
-		byte[] bLatin1 = getByteArray(b, StringByteTool.CHARSET_LATIN1);
-		byte[] bUsAscii = getByteArray(b, StringByteTool.CHARSET_USASCII);
-		byte[] bUtf16 = getByteArray(b, StringByteTool.CHARSET_UTF16BE);
-		byte[] bUtf8 = getByteArray(b, StringByteTool.CHARSET_UTF8);
+		@Test
+		public void testUnicode(){
+			Assert.assertEquals(2, letterAUtf16.length);
+			Assert.assertEquals(1, letterAUtf8.length);
+			Assert.assertEquals(1, letterAUsAscii.length);
 
-		@Test public void testUnicode(){
-			Assert.assertEquals(2, aUtf16.length);
-			Assert.assertEquals(1, aUtf8.length);
-			Assert.assertEquals(1, aUsAscii.length);
-
-			Assert.assertEquals(2, bUtf16.length);
-			Assert.assertEquals(2, bUtf8.length);
-			Assert.assertEquals(1, bUsAscii.length);
+			Assert.assertEquals(2, euroUtf16.length);
+			Assert.assertEquals(2, euroUtf8.length);
+			Assert.assertEquals(1, euroUsAscii.length);
 
 			Assert.assertFalse(euroFromUsAscii.equals(euroFromLatin1));
 		}
 
-		@Test public void testAsciiExtensions(){
+		@Test
+		public void testAsciiExtensions(){
 			Assert.assertTrue(unknownCharacterInt.equals(65533));
 
-			for(int i=0; i <256; ++i){
-				String ascii = new String(
-						new byte[]{DrByteTool.fromUnsignedInt0To255(i)},
-						StringByteTool.CHARSET_USASCII);
+			for(int i = 0; i < 256; ++i){
+				String ascii = new String(new byte[]{DrByteTool.fromUnsignedInt0To255(i)}, StandardCharsets.US_ASCII);
 
-				String latin1 = new String(
-						new byte[]{DrByteTool.fromUnsignedInt0To255(i)},
-						StringByteTool.CHARSET_LATIN1);
+				String latin1 = new String(new byte[]{DrByteTool.fromUnsignedInt0To255(i)},
+						StandardCharsets.ISO_8859_1);
 
-				String windows1252 = new String(
-						new byte[]{DrByteTool.fromUnsignedInt0To255(i)},
-						StringByteTool.CHARSET_WINDOWS1252);
+				String windows1252 = new String(new byte[]{DrByteTool.fromUnsignedInt0To255(i)}, Charset.forName(
+						"windows-1252"));
 
-				String utf16be = new String(
-						new byte[]{(byte)0, DrByteTool.fromUnsignedInt0To255(i)},
-						StringByteTool.CHARSET_UTF16BE);
+				String utf16be = new String(new byte[]{(byte)0, DrByteTool.fromUnsignedInt0To255(i)},
+						StandardCharsets.UTF_16BE);
 
-				String utf8 = new String(
-						new byte[]{DrByteTool.fromUnsignedInt0To255(i)},
-						StringByteTool.CHARSET_UTF8);
-
-//				System.out.print("\n"+StringTool.pad(""+i, ' ', 3));
-//				System.out.print(" "+(int)ascii.charAt(0));
-//				System.out.print(" "+(int)latin1.charAt(0));
-//				System.out.print(" "+(int)windows1252.charAt(0));
-//				System.out.print(" "+(int)utf16be.charAt(0));
-//				System.out.print(" "+(int)utf8.charAt(0));
+				String utf8 = new String(new byte[]{DrByteTool.fromUnsignedInt0To255(i)}, StandardCharsets.UTF_8);
 
 				if(i < 0x80){
 					Assert.assertEquals(ascii, latin1);
@@ -131,33 +114,24 @@ public class StringByteTool{
 					Assert.assertEquals(windows1252, utf16be);
 					Assert.assertEquals(utf16be, utf8);
 				}else if(i < 160){
-					Assert.assertEquals(ascii, unknownCharacter.toString());//invalid octet
-					Assert.assertEquals(i, latin1.charAt(0));//valid octet, but not not mapped to any character
+					Assert.assertEquals(ascii, unknownCharacter.toString());// invalid octet
+					Assert.assertEquals(i, latin1.charAt(0));// valid octet, but not not mapped to any character
 					Assert.assertTrue(DrStringTool.notEmpty(windows1252));
 					Assert.assertTrue(latin1.equals(utf16be));
-					Assert.assertTrue( ! windows1252.equals(utf16be));
-					Assert.assertEquals(utf8, unknownCharacter.toString());//utf8 will expect 2 bytes here, so our 1 byte is junk
+					Assert.assertTrue(!windows1252.equals(utf16be));
+					Assert.assertEquals(utf8, unknownCharacter.toString());// utf8 will expect 2 bytes here, so our 1
+																			// byte is junk
 				}else{
-					Assert.assertEquals(ascii, unknownCharacter.toString());//invalid octet
+					Assert.assertEquals(ascii, unknownCharacter.toString());// invalid octet
 					Assert.assertTrue(DrStringTool.notEmpty(latin1));
 					Assert.assertTrue(DrStringTool.notEmpty(windows1252));
 					Assert.assertEquals(latin1, windows1252);
 					Assert.assertEquals(windows1252, utf16be);
-					Assert.assertEquals(utf8, unknownCharacter.toString());//utf8 will expect 2 bytes here, so our 1 byte is junk
+					Assert.assertEquals(utf8, unknownCharacter.toString());// utf8 will expect 2 bytes here, so our 1
+																			// byte is junk
 				}
-
 			}
-
 		}
-
-	}
-
-	public static void main(String... args){
-		for(Map.Entry<String,Charset> charsetByName : Charset.availableCharsets().entrySet()){
-			System.out.println(charsetByName.getKey());
-		}
-
-		System.out.println("System Default:"+Charset.defaultCharset());
 
 	}
 

@@ -94,14 +94,18 @@ public enum MySqlCollation{
 	geostd8_general_ci,
 	geostd8_bin;
 
-	 public static MySqlCollation parse(String stringValue){
-		 String lowerCase = DrStringTool.toLowerCase(stringValue);
-		 for(MySqlCollation collation : values()){
-			 if(collation.toString().equals(lowerCase)){
-				 return collation;
-			 }
-		 }
-		 return null;
-	 }
+	public static MySqlCollation parse(String stringValue){
+		String lowerCase = DrStringTool.toLowerCase(stringValue);
+		for(MySqlCollation collation : values()){
+			if(collation.toString().equals(lowerCase)){
+				return collation;
+			}
+		}
+		return null;
+	}
+
+	public boolean isBinary(){
+		return name().endsWith("bin");
+	}
 
 }

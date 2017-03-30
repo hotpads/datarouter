@@ -30,10 +30,16 @@ public class WebSocketSessionKey extends BasePrimaryKey<WebSocketSessionKey>{
 	}
 
 	public WebSocketSessionKey(){
+		this(null);
 	}
 
 	public WebSocketSessionKey(String userToken){
+		this(userToken, null);
+	}
+
+	public WebSocketSessionKey(String userToken, Long id){
 		this.userToken = userToken;
+		this.id = id;
 	}
 
 	public String getUserToken(){

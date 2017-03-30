@@ -28,7 +28,7 @@ extends BaseJdbcOp<Long>{
 
 	@Override
 	public Long runOncePerClient(Client client){
-		String sql = "select count(*) from "+tableName;
+		String sql = "select count(*) from " + tableName;
 		if(DrStringTool.notEmpty(where)){
 			sql += " where " + where;
 		}

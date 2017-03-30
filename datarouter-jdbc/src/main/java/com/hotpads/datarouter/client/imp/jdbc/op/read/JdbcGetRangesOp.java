@@ -31,7 +31,7 @@ extends BaseJdbcOp<List<D>>{
 	private final Config config;
 
 	public JdbcGetRangesOp(JdbcReaderNode<PK,D,F> node, JdbcFieldCodecFactory fieldCodecFactory,
-			Collection<Range<PK>> ranges, Config config) {
+			Collection<Range<PK>> ranges, Config config){
 		super(node.getDatarouter(), node.getClientNames(), config.getIsolationOrUse(Config.DEFAULT_ISOLATION), true);
 		this.node = node;
 		this.fieldCodecFactory = fieldCodecFactory;
@@ -43,11 +43,12 @@ extends BaseJdbcOp<List<D>>{
 	public List<D> runOnce(){
 		Client client = node.getClient();
 		String opName = SortedStorageReader.OP_getRange;
-		DRCounters.incClientNodeCustom(client.getType(), opName, client.getName(), node.getName());
+		DRCounters.incClientNodeCustom(client.getType(), opName, client.getName(), node.getName(), 1L);
 
 		List<Field<?>> fieldsToSelect = node.getFieldInfo().getFields();
 		String sql = SqlBuilder.getInRanges(fieldCodecFactory, config, node.getTableName(), fieldsToSelect, ranges,
-				node.getFieldInfo().getPrimaryKeyFields());
+				node.getFieldInfo().getPrimaryKeyFields(), SqlBuilder.PRIMARY_KEY_INDEX_NAME_OPTIONAL, node
+				.getFieldInfo());
 		List<D> result = JdbcTool.selectDatabeans(fieldCodecFactory, getConnection(node.getClientId().getName()), node
 				.getFieldInfo(), sql);
 

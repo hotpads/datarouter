@@ -56,10 +56,10 @@ extends BaseJdbcOp<List<PK>>{
 		Connection connection = getConnection(node.getClientId().getName());
 		for(List<? extends Key<PK>> keyBatch : new BatchingIterable<>(sortedKeys, batchSize)){
 			String sql = SqlBuilder.getMulti(fieldCodecFactory, config, node.getTableName(), node.getFieldInfo()
-					.getPrimaryKeyFields(), keyBatch);
+					.getPrimaryKeyFields(), keyBatch, node.getFieldInfo());
 			List<PK> batch = JdbcTool.selectPrimaryKeys(fieldCodecFactory, connection, node.getFieldInfo(), sql);
 			DRCounters.incClientNodeCustom(node.getClient().getType(), opName + " selects", node.getClientId()
-					.getName(), node.getName());
+					.getName(), node.getName(), 1L);
 			if(DrCollectionTool.notEmpty(batch)){
 				Collections.sort(batch);//should prob remove
 				result.addAll(batch);

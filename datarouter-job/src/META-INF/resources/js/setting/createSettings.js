@@ -1,5 +1,5 @@
 define('settings-tools', ['jquery-ui'], function(){
-	
+
 	//clears and disables all 'disableable' inputs
 	function disableAndClearAll() {
 		$('.disableable').each(function(index, element){
@@ -8,7 +8,7 @@ define('settings-tools', ['jquery-ui'], function(){
 			element.val('');
 		});
 	}
-	
+
 	function getRowData(row){
 		var retVal = {};
 		retVal["name"] = (row.find(".setting-name").val() === "") ? row.find(".setting-name").text() : row.find(".setting-name").val() ;
@@ -19,7 +19,7 @@ define('settings-tools', ['jquery-ui'], function(){
 		retVal["value"] = row.find(".setting-value").val();	
 		return retVal;
 	}
-	
+
 	function getGroupRowData(row){
 		var settings = {};
 		settings['nodeName'] = row.closest('tbody').find('.group-name').val();
@@ -27,17 +27,17 @@ define('settings-tools', ['jquery-ui'], function(){
 		row.children('.setting').each(function(){
 			settings[$(this).find('.setting-name').val()] = $(this).find('.setting-value').val();
 		});
-		
+
 		return settings;
 	}
-	
+
 	function sameSettings(rowData, settings) {
 		return rowData["name"] === settings["name"] 
 			&& rowData["serverType"] === settings["serverType"]
 			&& rowData["serverName"] === settings["serverName"]
 			&& rowData["application"] === settings["application"];
 	}
-	
+
 	function update(setting){
 		var flag = false;
 		$('.settings-table').find('tr').each(function(i, row){
@@ -51,7 +51,7 @@ define('settings-tools', ['jquery-ui'], function(){
 		});
 		return flag;
 	}
-	
+
 	function getFormData(form) {
 		var retVal = {};
 		retVal["name"] = form.find('.name').val();
@@ -64,7 +64,7 @@ define('settings-tools', ['jquery-ui'], function(){
 		retVal["scope"] = form.find('.scope').val();
 		return retVal;
 	}
-	
+
 	return {
 		//this is here because one of the backslashes kept getting stripped when in jsp
 		escape: function(id){
@@ -151,7 +151,7 @@ define('settings-tools', ['jquery-ui'], function(){
 	    		break;
 	    	}
 		},
-		getValidatorOptionsWithHandler: function(submitHandler, formElem, skipValue){
+		getValidatorOptionsWithHandler: function(submitHandler, formElem){
 			formElem = formElem || $('#form');
 			return {
 				rules: {
@@ -166,11 +166,6 @@ define('settings-tools', ['jquery-ui'], function(){
 					application: {
 						required: function() {
 							return formElem.find('.scope option[value="application"]').prop('selected') == true;
-						}
-					},
-					value: {
-						required: function() {
-							return !skipValue;
 						}
 					}
 				},

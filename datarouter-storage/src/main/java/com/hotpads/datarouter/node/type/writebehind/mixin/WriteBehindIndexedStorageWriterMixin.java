@@ -25,22 +25,22 @@ implements IndexedStorageWriter<PK,D>{
 
 	private BaseWriteBehindNode<PK,D,N> node;
 
-	public WriteBehindIndexedStorageWriterMixin(BaseWriteBehindNode<PK,D,N> node) {
+	public WriteBehindIndexedStorageWriterMixin(BaseWriteBehindNode<PK,D,N> node){
 		this.node = node;
 	}
 
 	@Override
-	public void delete(Lookup<PK> lookup, Config config) {
+	public void delete(Lookup<PK> lookup, Config config){
 		node.getQueue().offer(new WriteWrapper<>(OP_indexDelete, DrListTool.wrap(lookup), config));
 	}
 
 	@Override
-	public void deleteUnique(UniqueKey<PK> uniqueKey, Config config) {
+	public void deleteUnique(UniqueKey<PK> uniqueKey, Config config){
 		node.getQueue().offer(new WriteWrapper<>(OP_deleteUnique, DrListTool.wrap(uniqueKey), config));
 	}
 
 	@Override
-	public void deleteMultiUnique(Collection<? extends UniqueKey<PK>> uniqueKeys, Config config) {
+	public void deleteMultiUnique(Collection<? extends UniqueKey<PK>> uniqueKeys, Config config){
 		node.getQueue().offer(new WriteWrapper<>(OP_deleteUnique, uniqueKeys, config));
 	}
 

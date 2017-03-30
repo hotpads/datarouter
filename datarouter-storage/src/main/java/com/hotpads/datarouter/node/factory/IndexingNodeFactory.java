@@ -2,11 +2,13 @@ package com.hotpads.datarouter.node.factory;
 
 import java.util.function.Supplier;
 
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSetCollationOpt;
 import com.hotpads.datarouter.client.imp.jdbc.node.index.NoTxnManagedUniqueIndexNode;
 import com.hotpads.datarouter.client.imp.jdbc.node.index.TxnManagedUniqueIndexNode;
 import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.NodeParams.NodeParamsBuilder;
 import com.hotpads.datarouter.node.op.combo.IndexedMapStorage;
+import com.hotpads.datarouter.node.op.combo.IndexedMapStorage.IndexedMapStorageNode;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import com.hotpads.datarouter.node.op.raw.MapStorage;
 import com.hotpads.datarouter.node.op.raw.MapStorage.MapStorageNode;
@@ -29,7 +31,7 @@ import com.hotpads.datarouter.storage.view.index.multi.MultiIndexEntry;
 import com.hotpads.datarouter.storage.view.index.unique.UniqueIndexEntry;
 import com.hotpads.util.core.java.ReflectionTool;
 
-public class IndexingNodeFactory {
+public class IndexingNodeFactory{
 
 	public static <PK extends PrimaryKey<PK>,
 					D extends Databean<PK,D>>
@@ -108,12 +110,17 @@ public class IndexingNodeFactory {
 			D extends Databean<PK,D>,
 			IK extends FieldlessIndexEntryPrimaryKey<IK,PK,D>>
 	ManagedUniqueIndexNode<PK,D,IK,FieldlessIndexEntry<IK,PK,D>,FieldlessIndexEntryFielder<IK,PK,D>>
-			newKeyOnlyManagedUnique(Router router, IndexedMapStorage<PK, D> backingNode, boolean manageTxn,
+			newKeyOnlyManagedUnique(Router router, IndexedMapStorageNode<PK, D> backingNode, boolean manageTxn,
 					Class<IK> indexKeyClass){
-		return newManagedUnique(router, backingNode, () -> new FieldlessIndexEntryFielder<>(indexKeyClass),
-				() -> new FieldlessIndexEntry<>(indexKeyClass), manageTxn, indexKeyClass.getSimpleName());
+		return newManagedUnique(router, backingNode, () -> new FieldlessIndexEntryFielder<>(indexKeyClass, backingNode
+				.getFieldInfo()), () -> new FieldlessIndexEntry<>(indexKeyClass), manageTxn, indexKeyClass
+				.getSimpleName());
 	}
 
+	/**
+	 * WARNING: make sure the IF you pass in returns the same result as D's fielder for
+	 * {@link MySqlCharacterSetCollationOpt} methods (or risk having incorrect, performance-hurting introducers in SQL)
+	 */
 	public static <PK extends PrimaryKey<PK>,
 					D extends Databean<PK,D>,
 					IK extends PrimaryKey<IK>,
@@ -130,6 +137,10 @@ public class IndexingNodeFactory {
 		return new NoTxnManagedUniqueIndexNode<>(backingNode, params, indexName);
 	}
 
+	/**
+	 * WARNING: make sure the IF you pass in returns the same result as D's fielder for
+	 * {@link MySqlCharacterSetCollationOpt} methods (or risk having incorrect, performance-hurting introducers in SQL)
+	 */
 	public static <PK extends PrimaryKey<PK>,
 					D extends Databean<PK,D>,
 					IK extends PrimaryKey<IK>,

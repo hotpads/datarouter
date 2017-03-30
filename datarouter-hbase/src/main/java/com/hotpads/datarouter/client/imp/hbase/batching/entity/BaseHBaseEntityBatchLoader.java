@@ -26,7 +26,8 @@ public abstract class BaseHBaseEntityBatchLoader<
 		PK extends EntityPrimaryKey<EK,PK>,
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>,
-		T extends Comparable<? super T>> //T will be either PK or D, but not going to express that (or think about how to)
+		T extends Comparable<? super T>> //T will be either PK or D,
+										//but not going to express that (or think about how to)
 extends BaseBatchLoader<T>{
 
 	private static final boolean ASSERT_PARTITION = true;
@@ -63,7 +64,7 @@ extends BaseBatchLoader<T>{
 		List<Result> hbaseRows = node.getResultsInSubRange(partition, range, isKeysOnly(), config);
 		List<T> outs = new ArrayList<>();
 		for(Result row : hbaseRows){
-			if (row == null || row.isEmpty()){
+			if(row == null || row.isEmpty()){
 				continue;
 			}
 			if(ASSERT_PARTITION){

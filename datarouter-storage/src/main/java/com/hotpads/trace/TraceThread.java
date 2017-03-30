@@ -82,12 +82,12 @@ public class TraceThread extends BaseDatabean<TraceThreadKey,TraceThread>{
 	/************************** databean **************************************/
 
 	@Override
-	public Class<TraceThreadKey> getKeyClass() {
+	public Class<TraceThreadKey> getKeyClass(){
 		return TraceThreadKey.class;
 	}
 
 	@Override
-	public TraceThreadKey getKey() {
+	public TraceThreadKey getKey(){
 		return key;
 	}
 

@@ -56,16 +56,16 @@ extends MasterSlaveNode<PK,D,N>, IndexedStorage<PK,D>{
 
 	@Override
 	public default <IK extends PrimaryKey<IK>,
-			IE extends IndexEntry<IK, IE, PK, D>,
-			IF extends DatabeanFielder<IK, IE>>
-	List<IE> getMultiFromIndex(Collection<IK> keys, Config config, DatabeanFieldInfo<IK, IE, IF> indexEntryFieldInfo){
+			IE extends IndexEntry<IK,IE,PK,D>,
+			IF extends DatabeanFielder<IK,IE>>
+	List<IE> getMultiFromIndex(Collection<IK> keys, Config config, DatabeanFieldInfo<IK,IE,IF> indexEntryFieldInfo){
 		boolean slaveOk = Config.nullSafe(config).getSlaveOk();
 		N node = slaveOk ? chooseSlave(config) : getMaster();
 		return node.getMultiFromIndex(keys, config, indexEntryFieldInfo);
 	}
 
 	@Override
-	public default <IK extends PrimaryKey<IK>, IE extends IndexEntry<IK, IE, PK, D>> List<D> getMultiByIndex(
+	public default <IK extends PrimaryKey<IK>, IE extends IndexEntry<IK,IE,PK,D>> List<D> getMultiByIndex(
 			Collection<IK> keys, Config config){
 		boolean slaveOk = Config.nullSafe(config).getSlaveOk();
 		N node = slaveOk ? chooseSlave(config) : getMaster();
@@ -74,9 +74,9 @@ extends MasterSlaveNode<PK,D,N>, IndexedStorage<PK,D>{
 
 	@Override
 	public default <IK extends PrimaryKey<IK>,
-			IE extends IndexEntry<IK, IE, PK, D>,
-			IF extends DatabeanFielder<IK, IE>>
-	Iterable<IE> scanIndex(DatabeanFieldInfo<IK, IE, IF> indexEntryFieldInfo, Range<IK> range,
+			IE extends IndexEntry<IK,IE,PK,D>,
+			IF extends DatabeanFielder<IK,IE>>
+	Iterable<IE> scanIndex(DatabeanFieldInfo<IK,IE,IF> indexEntryFieldInfo, Range<IK> range,
 			Config config){
 		boolean slaveOk = Config.nullSafe(config).getSlaveOk();
 		N node = slaveOk ? chooseSlave(config) : getMaster();
@@ -85,9 +85,9 @@ extends MasterSlaveNode<PK,D,N>, IndexedStorage<PK,D>{
 
 	@Override
 	public default <IK extends PrimaryKey<IK>,
-			IE extends IndexEntry<IK, IE, PK, D>,
-			IF extends DatabeanFielder<IK, IE>>
-	Iterable<IK> scanIndexKeys(DatabeanFieldInfo<IK, IE, IF> indexEntryFieldInfo, Range<IK> range,
+			IE extends IndexEntry<IK,IE,PK,D>,
+			IF extends DatabeanFielder<IK,IE>>
+	Iterable<IK> scanIndexKeys(DatabeanFieldInfo<IK,IE,IF> indexEntryFieldInfo, Range<IK> range,
 			Config config){
 		boolean slaveOk = Config.nullSafe(config).getSlaveOk();
 		N node = slaveOk ? chooseSlave(config) : getMaster();

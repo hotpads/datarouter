@@ -3,7 +3,7 @@ package com.hotpads.datarouter.client.imp.memcached;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import org.junit.Assert;
+import org.testng.Assert;
 import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
@@ -100,7 +100,7 @@ public class MemcachedClientType extends BaseClientType{
 		@Test
 		public void testClassLocation(){
 			String actualClassName = MemcachedClientType.class.getCanonicalName();
-			Assert.assertEquals(DefaultClientTypes.CLIENT_CLASS_memcached, actualClassName);
+			Assert.assertEquals(actualClassName, DefaultClientTypes.CLIENT_CLASS_memcached);
 			injector.getInstance(ClassTool.forName(DefaultClientTypes.CLIENT_CLASS_memcached));
 		}
 	}

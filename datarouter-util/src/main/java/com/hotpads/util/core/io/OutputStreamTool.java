@@ -5,9 +5,9 @@ import java.io.OutputStream;
 
 public class OutputStreamTool{
 
-	public static void write(OutputStream os, byte b){
+	public static void write(OutputStream os, byte octet){
 		try{
-			os.write(b);
+			os.write(octet);
 		}catch(IOException e){
 			throw new RuntimeException(e);
 		}

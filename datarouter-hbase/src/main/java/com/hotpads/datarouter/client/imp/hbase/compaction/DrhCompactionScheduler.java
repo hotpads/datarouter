@@ -33,8 +33,8 @@ public class DrhCompactionScheduler<PK extends PrimaryKey<PK>>{
 
 	public boolean shouldCompact(){
 		//tease out NPE's and return false if we hit one.  this happens occasionally for some reason
-		if(regionInfo.getLoad()==null){
-			logger.warn("regionInfo.getLoad()==null on "+regionInfo.getTableName()+" "+regionInfo.getName());
+		if(regionInfo.getLoad() == null){
+			logger.warn("regionInfo.getLoad()==null on " + regionInfo.getTableName() + " " + regionInfo.getName());
 			return false;
 		}
 

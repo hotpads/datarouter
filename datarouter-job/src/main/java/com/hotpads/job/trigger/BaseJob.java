@@ -30,10 +30,11 @@ public abstract class BaseJob implements Job{
 	protected final AtomicBoolean isAlreadyRunning = new AtomicBoolean(false);
 	protected final LongRunningTaskTracker tracker;
 	protected final Setting<Boolean> shouldSaveLongRunningTasks;
+	protected final String jobClass;
+	protected Date triggerTime;
+
 	private final TriggersRepository triggersRepository;
-	private final String jobClass;
 	private final Date createdAt;//timestamp at construction, before queueing in the scheduler
-	private Date triggerTime;
 	private Date startedAt;//timestamp after queue, when processing begins
 	private Date finishedAt;
 

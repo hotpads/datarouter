@@ -33,5 +33,4 @@ public abstract class BaseCached<T>{
 	}
 
 	protected abstract boolean isExpired();
-
 }

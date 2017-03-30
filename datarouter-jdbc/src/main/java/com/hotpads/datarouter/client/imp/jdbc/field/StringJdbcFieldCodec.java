@@ -48,7 +48,7 @@ extends BaseJdbcFieldCodec<String,StringField>{
 			return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.LONGTEXT, null, field.getKey()
 					.isNullable(), false);
 		}
-		throw new IllegalArgumentException("Unknown size:"+field.getSize());
+		throw new IllegalArgumentException("Unknown size:" + field.getSize());
 	}
 
 	@Override
@@ -57,7 +57,7 @@ extends BaseJdbcFieldCodec<String,StringField>{
 	}
 
 	public static String escapeString(final String string){
-		if(string==null){
+		if(string == null){
 			return "null";
 		}
 		String stringValue = string;
@@ -73,7 +73,7 @@ extends BaseJdbcFieldCodec<String,StringField>{
 	@Override
 	public void setPreparedStatementValue(PreparedStatement ps, int parameterIndex){
 		try{
-			if(field.getValue()==null){
+			if(field.getValue() == null){
 				ps.setNull(parameterIndex, Types.VARCHAR);
 			}else{
 				ps.setString(parameterIndex, field.getValue());
@@ -85,7 +85,7 @@ extends BaseJdbcFieldCodec<String,StringField>{
 
 	@Override
 	public String parseJdbcValueButDoNotSet(Object obj){
-		return obj==null?null:(String)obj;
+		return obj == null ? null : (String)obj;
 	}
 
 	@Override
@@ -108,7 +108,7 @@ extends BaseJdbcFieldCodec<String,StringField>{
 		}else if(size <= MySqlColumnType.MAX_LENGTH_LONGTEXT){
 			return new SqlColumn(name, MySqlColumnType.LONGTEXT, null, nullable, false, characterSet, collation);
 		}
-		throw new IllegalArgumentException("Unknown size:"+size);
+		throw new IllegalArgumentException("Unknown size:" + size);
 	}
 
 

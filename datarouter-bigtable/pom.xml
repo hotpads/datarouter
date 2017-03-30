@@ -5,10 +5,20 @@
 		<groupId>com.hotpads</groupId>
 		<artifactId>hotpads</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
-		<relativePath>../../config/maven</relativePath> 
+		<relativePath>../../config/maven</relativePath>
 	</parent>
 	<artifactId>datarouter-bigtable</artifactId>
+	<properties>
+		<os.detection.classifierWithLikes>fedora</os.detection.classifierWithLikes>
+	</properties>
 	<build>
+		<extensions>
+			<extension>
+				<groupId>kr.motd.maven</groupId>
+				<artifactId>os-maven-plugin</artifactId>
+				<version>1.5.0.Final</version>
+			</extension>
+		</extensions>
 		<plugins>
 			<plugin>
 				<groupId>pl.project13.maven</groupId>
@@ -60,15 +70,9 @@
 			<version>3.0.1</version>
 			<scope>provided</scope>
 		</dependency>
-		<!-- dependency to fix JSPServletException -->
-	    <dependency>
-			<groupId>org.apache.tomcat</groupId>
-			<artifactId>jsp-api</artifactId>
-			<version>6.0.32</version>
-			<scope>provided</scope>               
-	    </dependency>
 		<!-- hbase -->
-		<dependency><!-- need newer version for google apis, so override hbase's 2.4 -->
+		<!-- need newer version for google apis, so override hbase's 2.4 -->
+		<dependency>
 			<groupId>com.google.protobuf</groupId>
 			<artifactId>protobuf-java</artifactId>
 			<version>2.6.1</version>
@@ -76,7 +80,7 @@
 		<dependency>
 			<groupId>com.google.cloud.bigtable</groupId>
 			<artifactId>bigtable-hbase-1.2</artifactId>
-			<version>0.3.0</version>
+			<version>0.9.5.1</version>
 			<exclusions>
 				<exclusion>
 					<groupId>org.slf4j</groupId>
@@ -86,7 +90,36 @@
 					<artifactId>slf4j-log4j12</artifactId>
 					<groupId>org.slf4j</groupId>
 				</exclusion>
+				<exclusion> <!-- Breaks javax emailing -->
+					<groupId>com.google.appengine</groupId>
+					<artifactId>appengine-api-1.0-sdk</artifactId>
+				</exclusion>
 			</exclusions>
+		</dependency>
+		<dependency> <!-- here to have code in eclipse / not sure how runtime work without this -->
+			<groupId>com.google.cloud.bigtable</groupId>
+			<artifactId>bigtable-hbase</artifactId>
+			<version>0.9.5.1</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-api</artifactId>
+				</exclusion>
+				<exclusion>
+					<artifactId>slf4j-log4j12</artifactId>
+					<groupId>org.slf4j</groupId>
+				</exclusion>
+				<exclusion> <!-- Breaks javax emailing -->
+					<groupId>com.google.appengine</groupId>
+					<artifactId>appengine-api-1.0-sdk</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>io.netty</groupId>
+			<artifactId>netty-tcnative</artifactId>
+			<version>1.1.33.Fork26</version>
+			<classifier>${os.detected.classifier}</classifier> <!-- check if breaking muliplatform deploy -->
 		</dependency>
 	</dependencies>
 </project>

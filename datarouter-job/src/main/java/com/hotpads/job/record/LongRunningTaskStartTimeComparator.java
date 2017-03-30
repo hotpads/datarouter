@@ -13,7 +13,7 @@ public class LongRunningTaskStartTimeComparator implements Comparator<LongRunnin
 	}
 
 	@Override
-	public int compare(LongRunningTask left, LongRunningTask right) {
+	public int compare(LongRunningTask left, LongRunningTask right){
 		int compare = DrComparableTool.nullFirstCompareTo(left.getStartTime(), right.getStartTime());
 		return ascending ? compare : -1 * compare;
 	}

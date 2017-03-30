@@ -4,9 +4,9 @@ import javax.inject.Provider;
 
 import com.hotpads.util.http.client.HotPadsHttpClient;
 import com.hotpads.util.http.client.HotPadsHttpClientBuilder;
-import com.hotpads.util.http.security.CsrfValidator;
+import com.hotpads.util.http.security.DefaultCsrfValidator;
 import com.hotpads.util.http.security.DefaultApiKeyPredicate;
-import com.hotpads.util.http.security.SignatureValidator;
+import com.hotpads.util.http.security.DefaultSignatureValidator;
 
 public class PushServiceHttpClientProvider implements Provider<HotPadsHttpClient>{
 	public static final String
@@ -17,8 +17,8 @@ public class PushServiceHttpClientProvider implements Provider<HotPadsHttpClient
 	@Override
 	public HotPadsHttpClient get(){
 		return new HotPadsHttpClientBuilder()
-				.setSignatureValidator(new SignatureValidator(SALT))
-				.setCsrfValidator(new CsrfValidator(CIPHER_KEY))
+				.setSignatureValidator(new DefaultSignatureValidator(SALT))
+				.setCsrfValidator(new DefaultCsrfValidator(CIPHER_KEY))
 				.setApiKeyPredicate(new DefaultApiKeyPredicate(API_KEY))
 				.build();
 	}

@@ -1,7 +1,7 @@
 package com.hotpads.notification.databean;
 
-import com.hotpads.datarouter.storage.field.enums.DatarouterEnumTool;
-import com.hotpads.datarouter.storage.field.enums.StringEnum;
+import com.hotpads.util.core.enums.DatarouterEnumTool;
+import com.hotpads.util.core.enums.StringEnum;
 
 public enum NotificationUserType implements StringEnum<NotificationUserType> {
 

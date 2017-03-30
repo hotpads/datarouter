@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.exception.ExceptionCategory;
 import com.hotpads.datarouter.exception.UnknownExceptionCategory;
+import com.hotpads.datarouter.monitoring.GitProperties;
 import com.hotpads.notification.ParallelApiCaller;
 import com.hotpads.notification.databean.NotificationRequest;
 import com.hotpads.notification.databean.NotificationUserId;
@@ -25,6 +26,8 @@ public class NotificationServiceExceptionRecorder implements ExceptionRecorder{
 	private ExceptionHandlingConfig exceptionHandlingConfig;
 	@Inject
 	private ExceptionNotificationTypeFinder exceptionNotificationTypeFinder;
+	@Inject
+	private GitProperties gitProperties;
 
 
 	@Override
@@ -61,13 +64,14 @@ public class NotificationServiceExceptionRecorder implements ExceptionRecorder{
 		ExceptionCounters.inc(location);
 		ExceptionCounters.inc(exception.getClass().getName() + " " + location);
 		ExceptionRecord exceptionRecord = new ExceptionRecord(exceptionHandlingConfig.getServerName(), DrExceptionTool
-				.getStackTraceAsString(exception), exception.getClass().getName(), location);
+				.getStackTraceAsString(exception), exception.getClass().getName(), gitProperties.getIdAbbrev(),
+				location);
 		exceptionNodes.getExceptionRecordNode().put(exceptionRecord, null);
 		String domain = exceptionHandlingConfig.isDevServer() ? UrlScheme.LOCAL_DEV_SERVER_HTTPS
 				: UrlScheme.DOMAIN_NAME;
 		logger.warn("Exception recorded (https://" + domain + "/analytics/exception/details?exceptionRecord="
 				+ exceptionRecord.getKey().getId() + ")");
-		if(exceptionHandlingConfig.shouldReportError(exception)){
+		if(exceptionHandlingConfig.shouldReportError(exceptionRecord)){
 			NotificationUserId notificationUserId = new NotificationUserId(
 					NotificationUserType.EMAIL,
 					exceptionHandlingConfig.getRecipientEmail());

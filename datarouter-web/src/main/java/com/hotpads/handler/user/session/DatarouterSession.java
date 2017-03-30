@@ -12,7 +12,6 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCollation;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.field.Field;
-import com.hotpads.datarouter.storage.field.enums.DatarouterEnumTool;
 import com.hotpads.datarouter.storage.field.imp.DateField;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.array.DelimitedStringArrayField;
@@ -22,6 +21,7 @@ import com.hotpads.handler.user.DatarouterUser;
 import com.hotpads.handler.user.DatarouterUserKey;
 import com.hotpads.handler.user.authenticate.DatarouterTokenGenerator;
 import com.hotpads.handler.user.role.DatarouterUserRole;
+import com.hotpads.util.core.enums.DatarouterEnumTool;
 
 /*
  * A single user may have multiple sessions via different computers, browsers, tabs, etc.  Create one of these for each
@@ -165,6 +165,9 @@ implements Serializable{
 		return getRoles().contains(DatarouterUserRole.apiUser);
 	}
 
+	public boolean isDocUser(){
+		return getRoles().contains(DatarouterUserRole.docUser);
+	}
 
 	/*********************** get/set ************************************/
 

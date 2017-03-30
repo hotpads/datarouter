@@ -24,7 +24,7 @@ public class LongDateField extends BasePrimitiveField<Date>{
 		if(value == null){
 			return null;
 		}
-		return value.getTime()+"";
+		return value.getTime() + "";
 	}
 
 	@Override
@@ -40,7 +40,7 @@ public class LongDateField extends BasePrimitiveField<Date>{
 
 	@Override
 	public byte[] getBytes(){
-		return value==null?null:LongByteTool.getUInt63Bytes(value.getTime());
+		return value == null ? null : LongByteTool.getUInt63Bytes(value.getTime());
 	}
 
 	@Override

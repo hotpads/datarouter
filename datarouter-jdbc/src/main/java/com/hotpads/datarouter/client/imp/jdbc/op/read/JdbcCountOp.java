@@ -34,7 +34,8 @@ extends BaseJdbcOp<Long>{
 	@Override
 	public Long runOnce(){
 		Connection connection = getConnection(node.getClientId().getName());
-		String sql = SqlBuilder.getCount(fieldCodecFactory, node.getTableName(), DrListTool.wrap(lookup));
+		String sql = SqlBuilder.getCount(fieldCodecFactory, node.getTableName(), DrListTool.wrap(lookup), node
+				.getFieldInfo());
 		return JdbcTool.count(connection, sql);
 	}
 

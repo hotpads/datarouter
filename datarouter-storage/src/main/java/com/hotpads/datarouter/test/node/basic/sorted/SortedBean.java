@@ -76,25 +76,25 @@ public class SortedBean extends BaseDatabean<SortedBeanKey,SortedBean>{
 	/************************** databean *******************************************/
 
 	@Override
-	public Class<SortedBeanKey> getKeyClass() {
+	public Class<SortedBeanKey> getKeyClass(){
 		return SortedBeanKey.class;
 	}
 
 	@Override
-	public SortedBeanKey getKey() {
+	public SortedBeanKey getKey(){
 		return key;
 	}
 
 
 	/***************************** index *************************************/
 
-	public static class SortedBeanByDCBLookup extends BaseLookup<SortedBeanKey>{
+	public static class SortedBeanByDcbLookup extends BaseLookup<SortedBeanKey>{
 
 		private String d;
 		private Integer c;
 		private String b;
 
-		public SortedBeanByDCBLookup(String d, Integer c, String b){
+		public SortedBeanByDcbLookup(String d, Integer c, String b){
 			this.d = d;
 			this.c = c;
 			this.b = b;

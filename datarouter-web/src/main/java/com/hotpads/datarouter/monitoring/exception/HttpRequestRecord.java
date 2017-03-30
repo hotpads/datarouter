@@ -35,12 +35,17 @@ import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.imp.DateField;
+import com.hotpads.datarouter.storage.field.imp.DateFieldKey;
 import com.hotpads.datarouter.storage.field.imp.StringField;
+import com.hotpads.datarouter.storage.field.imp.StringFieldKey;
 import com.hotpads.datarouter.storage.field.imp.array.ByteArrayField;
 import com.hotpads.datarouter.storage.field.imp.array.ByteArrayFieldKey;
 import com.hotpads.datarouter.storage.field.imp.comparable.IntegerField;
+import com.hotpads.datarouter.storage.field.imp.comparable.IntegerFieldKey;
 import com.hotpads.datarouter.storage.field.imp.comparable.LongField;
+import com.hotpads.datarouter.storage.field.imp.comparable.LongFieldKey;
 import com.hotpads.datarouter.storage.field.imp.custom.LongDateField;
+import com.hotpads.datarouter.storage.field.imp.custom.LongDateFieldKey;
 import com.hotpads.datarouter.storage.key.multi.BaseLookup;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 import com.hotpads.datarouter.util.UuidTool;
@@ -53,13 +58,6 @@ import com.hotpads.util.http.RequestTool;
 public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRequestRecord>{
 
 	private static final Gson gson = new Gson();
-
-	private static final int
-		LENGTH_httpMethod = 16,
-		LENGTH_protocol = 5,
-		LENGTH_ip = 39;
-
-	/******************* fields ************************/
 
 	private HttpRequestRecordKey key;
 	private Date created;
@@ -83,7 +81,7 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 
 	private String ip;
 	private String userRoles;
-	private Long userId;
+	private String userToken;
 
 	private String acceptCharset;
 	private String acceptEncoding;
@@ -108,111 +106,107 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 	private String otherHeaders;
 
 	public static class FieldKeys{
+		public static final DateFieldKey created = new DateFieldKey("created");
+		public static final LongDateFieldKey receivedAt = new LongDateFieldKey("receivedAt");
+		public static final LongFieldKey duration = new LongFieldKey("duration");
+		public static final StringFieldKey exceptionRecordId = new StringFieldKey("exceptionRecordId");
+		public static final StringFieldKey methodName = new StringFieldKey("methodName");
+		public static final IntegerFieldKey lineNumber = new IntegerFieldKey("lineNumber");
+		public static final StringFieldKey httpMethod = new StringFieldKey("httpMethod").withSize(16);
+		public static final StringFieldKey httpParams = new StringFieldKey("httpParams")
+				.withSize(MySqlColumnType.INT_LENGTH_LONGTEXT);
+		public static final StringFieldKey protocol = new StringFieldKey("protocol").withSize(5);
+		public static final StringFieldKey hostname = new StringFieldKey("hostname");
+		public static final IntegerFieldKey port = new IntegerFieldKey("port");
+		public static final StringFieldKey contextPath = new StringFieldKey("contextPath");
+		public static final StringFieldKey path = new StringFieldKey("path");
+		public static final StringFieldKey queryString = new StringFieldKey("queryString")
+				.withSize(MySqlColumnType.INT_LENGTH_LONGTEXT);
 		public static final ByteArrayFieldKey binaryBody = new ByteArrayFieldKey("binaryBody")
 				.withSize(MySqlColumnType.MAX_LENGTH_LONGBLOB);
-	}
-
-	private static class F {
-		public static String
-		created = "created",
-
-		exceptionRecordId = "exceptionRecordId",
-		methodName = "methodName",
-		lineNumber = "lineNumber",
-
-		httpMethod = "httpMethod",
-		httpParams = "httpParams",
-
-		protocol = "protocol",
-		hostname = "hostname",
-		port = "port",
-		contextPath = "contextPath",
-		path = "path",
-		queryString = "queryString",
-
-		ip = "ip",
-		userRoles="userRoles",
-		userId = "userId",
-
-		acceptCharset = "acceptCharset",
-		acceptEncoding = "acceptEncoding",
-		acceptLanguage = "acceptLanguage",
-		accept = "accept",
-		cacheControl = "cacheControl",
-		connection = "connection",
-		contentEncoding = "contentEncoding",
-		contentLanguage = "contentLanguage",
-		contentLength = "contentLength",
-		contentType = "contentType",
-		cookie = "cookie",
-		dnt = "dnt",
-		host = "host",
-		ifModifiedSince = "ifModifiedSince",
-		origin = "origin",
-		pragma = "pragma",
-		referer = "referer",
-		userAgent = "userAgent",
-		xForwardedFor = "xForwardedFor",
-		xRequestedWith = "xRequestedWith",
-		others = "otherHeaders",
-		receivedAt = "receivedAt",
-		duration = "duration";
+		public static final StringFieldKey ip = new StringFieldKey("ip").withSize(39);
+		public static final StringFieldKey userRoles = new StringFieldKey("userRoles");
+		public static final StringFieldKey userToken = new StringFieldKey("userToken");
+		public static final StringFieldKey acceptCharset = new StringFieldKey("acceptCharset");
+		public static final StringFieldKey acceptEncoding = new StringFieldKey("acceptEncoding");
+		public static final StringFieldKey acceptLanguage = new StringFieldKey("acceptLanguage");
+		public static final StringFieldKey accept = new StringFieldKey("accept");
+		public static final StringFieldKey cacheControl = new StringFieldKey("cacheControl");
+		public static final StringFieldKey connection = new StringFieldKey("connection");
+		public static final StringFieldKey contentEncoding = new StringFieldKey("contentEncoding");
+		public static final StringFieldKey contentLanguage = new StringFieldKey("contentLanguage");
+		public static final StringFieldKey contentLength = new StringFieldKey("contentLength");
+		public static final StringFieldKey contentType = new StringFieldKey("contentType");
+		public static final StringFieldKey cookie = new StringFieldKey("cookie")
+				.withSize(MySqlColumnType.INT_LENGTH_LONGTEXT);
+		public static final StringFieldKey dnt = new StringFieldKey("dnt");
+		public static final StringFieldKey host = new StringFieldKey("host");
+		public static final StringFieldKey ifModifiedSince = new StringFieldKey("ifModifiedSince");
+		public static final StringFieldKey origin = new StringFieldKey("origin");
+		public static final StringFieldKey pragma = new StringFieldKey("pragma");
+		public static final StringFieldKey referer = new StringFieldKey("referer")
+				.withSize(MySqlColumnType.INT_LENGTH_LONGTEXT);
+		public static final StringFieldKey userAgent = new StringFieldKey("userAgent")
+				.withSize(MySqlColumnType.INT_LENGTH_LONGTEXT);
+		public static final StringFieldKey xForwardedFor = new StringFieldKey("xForwardedFor");
+		public static final StringFieldKey xRequestedWith = new StringFieldKey("xRequestedWith");
+		public static final StringFieldKey otherHeaders = new StringFieldKey("otherHeaders")
+				.withSize(MySqlColumnType.INT_LENGTH_LONGTEXT);
 	}
 
 	public static class HttpRequestRecordFielder extends BaseDatabeanFielder<HttpRequestRecordKey, HttpRequestRecord>{
 
-		public HttpRequestRecordFielder() {
+		public HttpRequestRecordFielder(){
 			super(HttpRequestRecordKey.class);
 		}
 
 		@Override
 		public List<Field<?>> getNonKeyFields(HttpRequestRecord record){
 			return Arrays.asList(
-					new DateField(F.created, record.created),
-					new LongDateField(F.receivedAt, record.receivedAt),
-					new LongField(F.duration, record.duration),
+					new DateField(FieldKeys.created, record.created),
+					new LongDateField(FieldKeys.receivedAt, record.receivedAt),
+					new LongField(FieldKeys.duration, record.duration),
 
-					new StringField(F.exceptionRecordId, record.exceptionRecordId, MySqlColumnType.MAX_LENGTH_VARCHAR),
-					new StringField(F.methodName, record.methodName, MySqlColumnType.MAX_LENGTH_VARCHAR),
-					new IntegerField(F.lineNumber, record.lineNumber),
+					new StringField(FieldKeys.exceptionRecordId, record.exceptionRecordId),
+					new StringField(FieldKeys.methodName, record.methodName),
+					new IntegerField(FieldKeys.lineNumber, record.lineNumber),
 
-					new StringField(F.httpMethod, record.httpMethod, LENGTH_httpMethod),
-					new StringField(F.httpParams, record.httpParams, MySqlColumnType.INT_LENGTH_LONGTEXT),
+					new StringField(FieldKeys.httpMethod, record.httpMethod),
+					new StringField(FieldKeys.httpParams, record.httpParams),
 
-					new StringField(F.protocol, record.protocol, LENGTH_protocol),
-					new StringField(F.hostname, record.hostname, MySqlColumnType.MAX_LENGTH_VARCHAR),
-					new IntegerField(F.port, record.port),
-					new StringField(F.contextPath, record.contextPath, MySqlColumnType.MAX_LENGTH_VARCHAR),
-					new StringField(F.path, record.path, MySqlColumnType.MAX_LENGTH_VARCHAR),
-					new StringField(F.queryString, record.queryString, MySqlColumnType.INT_LENGTH_LONGTEXT),
+					new StringField(FieldKeys.protocol, record.protocol),
+					new StringField(FieldKeys.hostname, record.hostname),
+					new IntegerField(FieldKeys.port, record.port),
+					new StringField(FieldKeys.contextPath, record.contextPath),
+					new StringField(FieldKeys.path, record.path),
+					new StringField(FieldKeys.queryString, record.queryString),
 					new ByteArrayField(FieldKeys.binaryBody, record.binaryBody),
 
-					new StringField(F.ip, record.ip, LENGTH_ip),
-					new StringField(F.userRoles, record.userRoles, MySqlColumnType.MAX_LENGTH_VARCHAR),
-					new LongField(F.userId, record.userId),
+					new StringField(FieldKeys.ip, record.ip),
+					new StringField(FieldKeys.userRoles, record.userRoles),
+					new StringField(FieldKeys.userToken, record.userToken),
 
-					new StringField(F.acceptCharset, record.acceptCharset, MySqlColumnType.MAX_LENGTH_VARCHAR),
-					new StringField(F.acceptEncoding, record.acceptEncoding, MySqlColumnType.MAX_LENGTH_VARCHAR),
-					new StringField(F.acceptLanguage, record.acceptLanguage, MySqlColumnType.MAX_LENGTH_VARCHAR),
-					new StringField(F.accept, record.accept, MySqlColumnType.MAX_LENGTH_VARCHAR),
-					new StringField(F.cacheControl, record.cacheControl, MySqlColumnType.MAX_LENGTH_VARCHAR),
-					new StringField(F.connection, record.connection, MySqlColumnType.MAX_LENGTH_VARCHAR),
-					new StringField(F.contentEncoding, record.contentEncoding, MySqlColumnType.MAX_LENGTH_VARCHAR),
-					new StringField(F.contentLanguage, record.contentLanguage, MySqlColumnType.MAX_LENGTH_VARCHAR),
-					new StringField(F.contentLength, record.contentLength, MySqlColumnType.MAX_LENGTH_VARCHAR),
-					new StringField(F.contentType, record.contentType, MySqlColumnType.MAX_LENGTH_VARCHAR),
-					new StringField(F.cookie, record.cookie, MySqlColumnType.INT_LENGTH_LONGTEXT),
-					new StringField(F.dnt, record.dnt, MySqlColumnType.MAX_LENGTH_VARCHAR),
-					new StringField(F.host, record.host, MySqlColumnType.MAX_LENGTH_VARCHAR),
-					new StringField(F.ifModifiedSince, record.ifModifiedSince, MySqlColumnType.MAX_LENGTH_VARCHAR),
-					new StringField(F.origin, record.origin, MySqlColumnType.MAX_LENGTH_VARCHAR),
-					new StringField(F.pragma, record.pragma, MySqlColumnType.MAX_LENGTH_VARCHAR),
-					new StringField(F.referer, record.referer, MySqlColumnType.INT_LENGTH_LONGTEXT),
-					new StringField(F.userAgent, record.userAgent, MySqlColumnType.INT_LENGTH_LONGTEXT),
-					new StringField(F.xForwardedFor, record.xForwardedFor, MySqlColumnType.MAX_LENGTH_VARCHAR),
-					new StringField(F.xRequestedWith, record.xRequestedWith, MySqlColumnType.MAX_LENGTH_VARCHAR),
-					new StringField(F.others, record.otherHeaders, MySqlColumnType.INT_LENGTH_LONGTEXT)
-					);
+					new StringField(FieldKeys.acceptCharset, record.acceptCharset),
+					new StringField(FieldKeys.acceptEncoding, record.acceptEncoding),
+					new StringField(FieldKeys.acceptLanguage, record.acceptLanguage),
+					new StringField(FieldKeys.accept, record.accept),
+					new StringField(FieldKeys.cacheControl, record.cacheControl),
+					new StringField(FieldKeys.connection, record.connection),
+					new StringField(FieldKeys.contentEncoding, record.contentEncoding),
+					new StringField(FieldKeys.contentLanguage, record.contentLanguage),
+					new StringField(FieldKeys.contentLength, record.contentLength),
+					new StringField(FieldKeys.contentType, record.contentType),
+					new StringField(FieldKeys.cookie, record.cookie),
+					new StringField(FieldKeys.dnt, record.dnt),
+					new StringField(FieldKeys.host, record.host),
+					new StringField(FieldKeys.ifModifiedSince, record.ifModifiedSince),
+					new StringField(FieldKeys.origin, record.origin),
+					new StringField(FieldKeys.pragma, record.pragma),
+					new StringField(FieldKeys.referer, record.referer),
+					new StringField(FieldKeys.userAgent, record.userAgent),
+					new StringField(FieldKeys.xForwardedFor, record.xForwardedFor),
+					new StringField(FieldKeys.xRequestedWith, record.xRequestedWith),
+					new StringField(FieldKeys.otherHeaders, record.otherHeaders));
 		}
 
 		@Override
@@ -226,12 +220,12 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 
 	/********************** construct ********************/
 
-	HttpRequestRecord() {
-		key = new HttpRequestRecordKey();
+	public HttpRequestRecord(){
+		this.key = new HttpRequestRecordKey();
 	}
 
 	public HttpRequestRecord(Date receivedAt, String exceptionRecordId, String methodName, int lineNumber,
-			HttpServletRequest request, String sessionRoles, Long userId){
+			HttpServletRequest request, String sessionRoles, String userToken){
 		this(
 				receivedAt,
 				exceptionRecordId,
@@ -248,19 +242,18 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 				RequestTool.tryGetBodyAsByteArray(request),
 				RequestTool.getIpAddress(request),
 				sessionRoles,
-				userId,
-				new HttpHeaders(request)
-				);
+				userToken,
+				new HttpHeaders(request));
 	}
 
 	private HttpRequestRecord(Date receivedAt, String exceptionRecordId, String methodName, int lineNumber,
 			String httpMethod, String httpParams, String protocol, String hostname, int port, String contextPath,
-			String path, String queryString, byte[] binaryBody, String ip, String sessionRoles, Long userId,
+			String path, String queryString, byte[] binaryBody, String ip, String sessionRoles, String userToken,
 			HttpHeaders headersWrapper){
 		this.key = new HttpRequestRecordKey(UuidTool.generateV1Uuid());
 		this.created = new Date();
 		this.receivedAt = receivedAt;
-		if(receivedAt != null) {
+		if(receivedAt != null){
 			this.duration = created.getTime() - receivedAt.getTime();
 		}
 
@@ -281,7 +274,7 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 
 		this.ip = ip;
 		this.userRoles = sessionRoles;
-		this.userId = userId;
+		this.userToken = userToken;
 
 		this.acceptCharset = headersWrapper.getAcceptCharset();
 		this.acceptEncoding = headersWrapper.getAcceptEncoding();
@@ -311,7 +304,7 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 		this.key = new HttpRequestRecordKey(UuidTool.generateV1Uuid());
 		this.created = new Date(exceptionDto.dateMs);
 		this.receivedAt = exceptionDto.receivedAt;
-		if(receivedAt != null) {
+		if(receivedAt != null){
 			this.duration = created.getTime() - receivedAt.getTime();
 		}
 
@@ -333,7 +326,7 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 
 		this.ip = exceptionDto.ip;
 		this.userRoles = exceptionDto.userRoles;
-		this.userId = exceptionDto.userId;
+		this.userToken = exceptionDto.userToken;
 
 		this.acceptCharset = exceptionDto.acceptCharset;
 		this.acceptEncoding = exceptionDto.acceptEncoding;
@@ -360,31 +353,32 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 	}
 
 	@Override
-	public Class<HttpRequestRecordKey> getKeyClass() {
+	public Class<HttpRequestRecordKey> getKeyClass(){
 		return HttpRequestRecordKey.class;
 	}
 
 	/********************************Lookup*************************************/
 	public static class HttpRequestRecordByExceptionRecord extends BaseLookup<HttpRequestRecordKey>
-	implements UniqueKey<HttpRequestRecordKey> {
+	implements UniqueKey<HttpRequestRecordKey>{
 
 		private String exceptionRecordId;
 
-		private HttpRequestRecordByExceptionRecord(){}
+		private HttpRequestRecordByExceptionRecord(){
+		}
 
-		public HttpRequestRecordByExceptionRecord(ExceptionRecord exceptionRecord) {
+		public HttpRequestRecordByExceptionRecord(ExceptionRecord exceptionRecord){
 			this.exceptionRecordId = exceptionRecord.getKey().getId();
 		}
 
 		@Override
-		public List<Field<?>> getFields() {
+		public List<Field<?>> getFields(){
 			return Arrays.asList(
-					new StringField(F.exceptionRecordId, exceptionRecordId, MySqlColumnType.MAX_LENGTH_VARCHAR));
+					new StringField(FieldKeys.exceptionRecordId, exceptionRecordId));
 		}
 	}
 
 	/******* tools *****/
-	public Map<String, String> getHeaders() {
+	public Map<String,String> getHeaders(){
 		Map<String, String> map = new TreeMap<>();
 		map.put(ACCEPT_CHARSET, acceptCharset);
 		map.put(ACCEPT_ENCODING, acceptEncoding);
@@ -408,19 +402,19 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 		return map;
 	}
 
-	public Map<String, String[]> getOtherHeadersMap() {
-		return gson.fromJson(otherHeaders, new TypeToken<Map<String, String[]>>(){}.getType());
+	public Map<String,String[]> getOtherHeadersMap(){
+		return gson.fromJson(otherHeaders, new TypeToken<Map<String,String[]>>(){}.getType());
 	}
 
-	public Map<String, String[]> getHttpParamsMap() {
-		return gson.fromJson(httpParams, new TypeToken<Map<String, String[]>>(){}.getType());
+	public Map<String,String[]> getHttpParamsMap(){
+		return gson.fromJson(httpParams, new TypeToken<Map<String,String[]>>(){}.getType());
 	}
 
-	public Map<String, String> getCookiesMap() {
+	public Map<String,String> getCookiesMap(){
 		return DrMapTool.getMapFromString(cookie, "; ", "=");
 	}
 
-	public boolean isFromAjax() {
+	public boolean isFromAjax(){
 		return "XMLHttpRequest".equals(xRequestedWith);
 	}
 
@@ -430,25 +424,21 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 	}
 
 	public static HttpRequestRecord createEmptyForTesting(){
-		return new HttpRequestRecord(null, null, null, 0, null, null, null, null, 0, null, null, null, null,
-				null, null, 0L, new HttpHeaders(null));
+		return new HttpRequestRecord(null, null, null, 0, null, null, null, null, 0, null, null, null, null, null, null,
+				null, new HttpHeaders(null));
 	}
 
 	/*************** getters / setters ******************/
 	@Override
-	public HttpRequestRecordKey getKey() {
+	public HttpRequestRecordKey getKey(){
 		return key;
 	}
 
-	public void setKey(HttpRequestRecordKey key) {
-		this.key = key;
-	}
-
-	public Date getCreated() {
+	public Date getCreated(){
 		return created;
 	}
 
-	public void setCreated(Date created) {
+	public void setCreated(Date created){
 		this.created = created;
 	}
 
@@ -456,92 +446,52 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 		return new ExceptionRecordKey(exceptionRecordId);
 	}
 
-	public String getExceptionRecordId() {
+	public String getExceptionRecordId(){
 		return exceptionRecordId;
 	}
 
-	public void setExceptionRecordId(String exceptionRecordId) {
+	public void setExceptionRecordId(String exceptionRecordId){
 		this.exceptionRecordId = exceptionRecordId;
 	}
 
-	public String getMethodName() {
+	public String getMethodName(){
 		return methodName;
 	}
 
-	public void setMethodName(String methodName) {
-		this.methodName = methodName;
-	}
-
-	public int getLineNumber() {
+	public int getLineNumber(){
 		return lineNumber;
 	}
 
-	public void setLineNumber(int lineNumber) {
-		this.lineNumber = lineNumber;
-	}
-
-	public String getHttpMethod() {
+	public String getHttpMethod(){
 		return httpMethod;
 	}
 
-	public void setHttpMethod(String httpMethod) {
-		this.httpMethod = httpMethod;
-	}
-
-	public String getHttpParams() {
+	public String getHttpParams(){
 		return httpParams;
 	}
 
-	public void setHttpParams(String httpParams) {
-		this.httpParams = httpParams;
-	}
-
-	public String getProtocol() {
+	public String getProtocol(){
 		return protocol;
 	}
 
-	public void setProtocol(String protocol) {
-		this.protocol = protocol;
-	}
-
-	public String getHostname() {
+	public String getHostname(){
 		return hostname;
 	}
 
-	public void setHostname(String hostname) {
-		this.hostname = hostname;
-	}
-
-	public int getPort() {
+	public int getPort(){
 		return port;
 	}
 
-	public void setPort(int port) {
-		this.port = port;
-	}
-
-	public String getContextPath() {
+	public String getContextPath(){
 		return contextPath;
 	}
 
-	public void setContextPath(String contextPath) {
-		this.contextPath = contextPath;
-	}
-
-	public String getPath() {
+	public String getPath(){
 		return path;
 	}
 
-	public void setPath(String path) {
-		this.path = path;
-	}
-
-	public String getQueryString() {
+	public String getQueryString(){
 		return queryString;
-	}
-
-	public void setQueryString(String queryString) {
-		this.queryString = queryString;
 	}
 
 	public String getStringBody(){
@@ -551,200 +501,104 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 		return null;
 	}
 
-	public String getIp() {
+	public String getIp(){
 		return ip;
 	}
 
-	public void setIp(String ip) {
-		this.ip = ip;
-	}
-
-	public String getUserRoles() {
+	public String getUserRoles(){
 		return userRoles;
 	}
 
-	public void setUserRoles(String userRoles) {
-		this.userRoles = userRoles;
-	}
-
-	public String getShorterRoles() {
+	public String getShorterRoles(){
 		return userRoles.substring(1, userRoles.length() - 1);
 	}
 
-	public Long getUserId() {
-		return userId;
+	public String getUserToken(){
+		return userToken;
 	}
 
-	public void setUserId(Long userId) {
-		this.userId = userId;
-	}
-
-	public String getAcceptCharset() {
+	public String getAcceptCharset(){
 		return acceptCharset;
 	}
 
-	public void setAcceptCharset(String acceptCharset) {
-		this.acceptCharset = acceptCharset;
-	}
-
-	public String getAcceptEncoding() {
+	public String getAcceptEncoding(){
 		return acceptEncoding;
 	}
 
-	public void setAcceptEncoding(String acceptEncoding) {
-		this.acceptEncoding = acceptEncoding;
-	}
-
-	public String getAcceptLanguage() {
+	public String getAcceptLanguage(){
 		return acceptLanguage;
 	}
 
-	public void setAcceptLanguage(String acceptLanguage) {
-		this.acceptLanguage = acceptLanguage;
-	}
-
-	public String getAccept() {
+	public String getAccept(){
 		return accept;
 	}
 
-	public void setAccept(String accept) {
-		this.accept = accept;
-	}
-
-	public String getCacheControl() {
+	public String getCacheControl(){
 		return cacheControl;
 	}
 
-	public void setCacheControl(String cacheControl) {
-		this.cacheControl = cacheControl;
-	}
-
-	public String getConnection() {
+	public String getConnection(){
 		return connection;
 	}
 
-	public void setConnection(String connection) {
-		this.connection = connection;
-	}
-
-	public String getContentEncoding() {
+	public String getContentEncoding(){
 		return contentEncoding;
 	}
 
-	public void setContentEncoding(String contentEncoding) {
-		this.contentEncoding = contentEncoding;
-	}
-
-	public String getContentLanguage() {
+	public String getContentLanguage(){
 		return contentLanguage;
 	}
 
-	public void setContentLanguage(String contentLanguage) {
-		this.contentLanguage = contentLanguage;
-	}
-
-	public String getContentLength() {
+	public String getContentLength(){
 		return contentLength;
 	}
 
-	public void setContentLength(String contentLength) {
-		this.contentLength = contentLength;
-	}
-
-	public String getContentType() {
+	public String getContentType(){
 		return contentType;
 	}
 
-	public void setContentType(String contentType) {
-		this.contentType = contentType;
-	}
-
-	public String getCookie() {
+	public String getCookie(){
 		return cookie;
 	}
 
-	public void setCookie(String cookie) {
-		this.cookie = cookie;
-	}
-
-	public String getDnt() {
+	public String getDnt(){
 		return dnt;
 	}
 
-	public void setDnt(String dnt) {
-		this.dnt = dnt;
-	}
-
-	public String getHost() {
+	public String getHost(){
 		return host;
 	}
 
-	public void setHost(String host) {
-		this.host = host;
-	}
-
-	public String getIfModifiedSince() {
+	public String getIfModifiedSince(){
 		return ifModifiedSince;
 	}
 
-	public void setIfModifiedSince(String ifModifiedSince) {
-		this.ifModifiedSince = ifModifiedSince;
-	}
-
-	public String getOrigin() {
+	public String getOrigin(){
 		return origin;
 	}
 
-	public void setOrigin(String origin) {
-		this.origin = origin;
-	}
-
-	public String getPragma() {
+	public String getPragma(){
 		return pragma;
 	}
 
-	public void setPragma(String pragma) {
-		this.pragma = pragma;
-	}
-
-	public String getReferer() {
+	public String getReferer(){
 		return referer;
 	}
 
-	public void setReferer(String referer) {
-		this.referer = referer;
-	}
-
-	public String getUserAgent() {
+	public String getUserAgent(){
 		return userAgent;
 	}
 
-	public void setUserAgent(String userAgent) {
-		this.userAgent = userAgent;
-	}
-
-	public String getxForwardedFor() {
+	public String getxForwardedFor(){
 		return xForwardedFor;
 	}
 
-	public void setxForwardedFor(String xForwardedFor) {
-		this.xForwardedFor = xForwardedFor;
-	}
-
-	public String getxRequestedWith() {
+	public String getxRequestedWith(){
 		return xRequestedWith;
 	}
 
-	public void setxRequestedWith(String xRequestedWith) {
-		this.xRequestedWith = xRequestedWith;
-	}
-
-	public String getOtherHeaders() {
+	public String getOtherHeaders(){
 		return otherHeaders;
-	}
-
-	public void setOtherHeaders(String otherHeaders) {
-		this.otherHeaders = otherHeaders;
 	}
 
 	public Long getDuration(){

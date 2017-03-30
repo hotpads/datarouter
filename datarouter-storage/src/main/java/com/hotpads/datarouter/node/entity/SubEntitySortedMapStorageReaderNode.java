@@ -11,8 +11,7 @@ public interface SubEntitySortedMapStorageReaderNode<
 		PK extends EntityPrimaryKey<EK,PK>,
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>>
-extends SortedMapStorageReaderNode<PK,D>
-{
+extends SortedMapStorageReaderNode<PK,D>{
 
 	public String getEntityNodePrefix();
 

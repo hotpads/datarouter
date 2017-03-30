@@ -6,9 +6,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.function.Supplier;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.serialize.fielder.Fielder;
 import com.hotpads.datarouter.storage.databean.Databean;
@@ -27,25 +32,23 @@ import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.java.ReflectionTool;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-import net.sf.json.JSONSerializer;
-
 public class JsonDatabeanTool{
+
+	private static final JsonParser jsonParser = new JsonParser();
 
 	/********************** pk to json *************************/
 
-	public static <PK extends PrimaryKey<PK>>JSONObject primaryKeyToJson(PK pk, Fielder<PK> fielder){
-		if(pk==null){
+	public static <PK extends PrimaryKey<PK>> JsonObject primaryKeyToJson(PK pk, Fielder<PK> fielder){
+		if(pk == null){
 			return null;
 		}
 		return fieldsToJson(fielder.getFields(pk));
 	}
 
-	public static <PK extends PrimaryKey<PK>>JSONArray primaryKeysToJson(Iterable<PK> pks, Fielder<PK> fielder){
-		JSONArray array = new JSONArray();
+	public static <PK extends PrimaryKey<PK>> JsonArray primaryKeysToJson(Iterable<PK> pks, Fielder<PK> fielder){
+		JsonArray array = new JsonArray();
 		for(PK pk : DrIterableTool.nullSafe(pks)){
-			array.add(addFieldsToJsonObject(new JSONObject(), fielder.getFields(pk)));
+			array.add(addFieldsToJsonObject(new JsonObject(), fielder.getFields(pk)));
 		}
 		return array;
 	}
@@ -53,24 +56,38 @@ public class JsonDatabeanTool{
 	/********************** databean to json *************************/
 
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
-	JSONObject databeanToJson(D databean, DatabeanFielder<PK,D> fielder){
-		if(databean==null){
+	JsonObject databeanToJson(D databean, DatabeanFielder<PK,D> fielder){
+		return databeanToJson(databean, fielder, false);
+	}
+
+	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
+	JsonObject databeanToJson(D databean, DatabeanFielder<PK,D> fielder, boolean flatKey){
+		if(databean == null){
 			return null;
 		}
-		JSONObject jsonObject = new JSONObject();
-		jsonObject.element(databean.getKeyFieldName(), primaryKeyToJson(databean.getKey(), fielder.getKeyFielder()));
+		JsonObject jsonObject = new JsonObject();
+		if(flatKey){
+			addFieldsToJsonObject(jsonObject, fielder.getKeyFields(databean));
+		}else{
+			jsonObject.add(databean.getKeyFieldName(), primaryKeyToJson(databean.getKey(), fielder.getKeyFielder()));
+		}
 		addFieldsToJsonObject(jsonObject, fielder.getNonKeyFields(databean));
 		return jsonObject;
 	}
 
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 	String databeanToJsonString(D databean, DatabeanFielder<PK,D> fielder){
-		return databeanToJson(databean, fielder).toString();
+		return databeanToJsonString(databean, fielder, false);
 	}
 
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
-	JSONArray databeansToJson(Iterable<D> databeans, DatabeanFielder<PK,D> fielder){
-		JSONArray array = new JSONArray();
+	String databeanToJsonString(D databean, DatabeanFielder<PK,D> fielder, boolean flatKey){
+		return databeanToJson(databean, fielder, flatKey).toString();
+	}
+
+	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
+	JsonArray databeansToJson(Iterable<D> databeans, DatabeanFielder<PK,D> fielder){
+		JsonArray array = new JsonArray();
 		for(D databean : DrIterableTool.nullSafe(databeans)){
 			array.add(databeanToJson(databean, fielder));
 		}
@@ -79,9 +96,9 @@ public class JsonDatabeanTool{
 
 	/******************** pk from json **************************/
 
-	public static <PK extends PrimaryKey<PK>>
-	PK primaryKeyFromJson(Class<PK> pkClass, Fielder<PK> fielder, JSONObject json){
-		if(json==null){
+	private static <PK extends PrimaryKey<PK>>
+	PK primaryKeyFromJson(Class<PK> pkClass, Fielder<PK> fielder, JsonObject json){
+		if(json == null){
 			return null;
 		}
 		PK pk = ReflectionTool.create(pkClass);
@@ -89,15 +106,18 @@ public class JsonDatabeanTool{
 		return pk;
 	}
 
-	public static <PK extends PrimaryKey<PK>> void primaryKeyFromJson(PK pk, Fielder<PK> fielder, JSONObject json){
-		if(json==null){
+	private static <PK extends PrimaryKey<PK>> void primaryKeyFromJson(PK pk, Fielder<PK> fielder, JsonObject json){
+		if(json == null){
 			return;
 		}
 		List<Field<?>> fields = fielder.getFields(pk);
 		for(Field<?> field : fields){
 			String jsonFieldName = field.getKey().getColumnName();
-			String jsonValueString = json.getString(jsonFieldName);//PK fields are required
-			Object value = field.parseStringEncodedValueButDoNotSet(jsonValueString);
+			JsonElement jsonValue = json.get(jsonFieldName);
+			if(jsonValue == null || jsonValue instanceof JsonNull){//PK fields are required
+				throw new IllegalStateException(json + " does not contain required key " + jsonFieldName);
+			}
+			Object value = field.parseStringEncodedValueButDoNotSet(jsonValue.getAsString());
 			field.setUsingReflection(pk, value);
 		}
 	}
@@ -107,14 +127,14 @@ public class JsonDatabeanTool{
 	}
 
 	public static <PK extends PrimaryKey<PK>> List<PK> primaryKeysFromJson(Class<PK> pkClass, Fielder<PK> fielder,
-			JSONArray json){
+			JsonArray json){
 		List<PK> pks = new ArrayList<>();
-		if(json==null){
+		if(json == null){
 			return pks;
 		}
-		Iterator<?> iter = json.iterator();
+		Iterator<JsonElement> iter = json.iterator();
 		while(iter.hasNext()){
-			JSONObject jsonPk = (JSONObject)iter.next();
+			JsonObject jsonPk = iter.next().getAsJsonObject();
 			PK pk = ReflectionTool.create(pkClass);
 			primaryKeyFromJson(pk, fielder, jsonPk);
 			pks.add(pk);
@@ -130,31 +150,37 @@ public class JsonDatabeanTool{
 	/********************** databean from json *************************/
 
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
-	D databeanFromJson(Supplier<D> databeanSupplier, DatabeanFielder<PK,D> fielder, JSONObject json){
+	D databeanFromJson(Supplier<D> databeanSupplier, DatabeanFielder<PK,D> fielder, JsonObject json){
 		return databeanFromJson(databeanSupplier, fielder, json, false);
 	}
 
-	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
-	D databeanFromJson(Supplier<D> databeanSupplier, DatabeanFielder<PK,D> fielder, JSONObject json, boolean flatKey){
-		if(json==null){
+	private static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
+	D databeanFromJson(Supplier<D> databeanSupplier, DatabeanFielder<PK,D> fielder, JsonObject json, boolean flatKey){
+		if(json == null){
 			return null;
 		}
 		D databean = databeanSupplier.get();
-		JSONObject pkJson;
+		JsonObject pkJson;
 		if(flatKey){
 			pkJson = json;
 		}else{
-			pkJson = json.getJSONObject(databean.getKeyFieldName());
+			pkJson = json.getAsJsonObject(databean.getKeyFieldName());
 		}
 		primaryKeyFromJson(databean.getKey(), fielder.getKeyFielder(), pkJson);
 		List<Field<?>> fields = fielder.getNonKeyFields(databean);
 		for(Field<?> field : fields){
 			String jsonFieldName = field.getKey().getColumnName();
-			String jsonValueString = json.optString(jsonFieldName, null);
-			if(jsonValueString==null){//careful: only skip nulls, not empty strings
+			JsonElement jsonValue = json.get(jsonFieldName);
+			if(jsonValue == null || jsonValue.isJsonNull()){// careful: only skip nulls, not empty strings
 				continue;
 			}
-			Object value = field.parseStringEncodedValueButDoNotSet(jsonValueString);
+			String valueString;
+			if(jsonValue.isJsonObject()){
+				valueString = jsonValue.toString();
+			}else{
+				valueString = jsonValue.getAsString();
+			}
+			Object value = field.parseStringEncodedValueButDoNotSet(valueString);
 			field.setUsingReflection(databean, value);
 		}
 		return databean;
@@ -171,14 +197,14 @@ public class JsonDatabeanTool{
 	}
 
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
-	List<D> databeansFromJson(Supplier<D> databeanSupplier, DatabeanFielder<PK,D> fielder, JSONArray json){
+	List<D> databeansFromJson(Supplier<D> databeanSupplier, DatabeanFielder<PK,D> fielder, JsonArray json){
 		List<D> databeans = new ArrayList<>();
-		if(json==null){
+		if(json == null){
 			return databeans;
 		}
-		Iterator<?> iter = json.iterator();
+		Iterator<JsonElement> iter = json.iterator();
 		while(iter.hasNext()){
-			JSONObject jsonDatabean = (JSONObject)iter.next();
+			JsonObject jsonDatabean = iter.next().getAsJsonObject();
 			D databean = databeanFromJson(databeanSupplier, fielder, jsonDatabean);
 			databeans.add(databean);
 		}
@@ -192,23 +218,23 @@ public class JsonDatabeanTool{
 
 	/********************** util ****************************/
 
-	public static JSONObject stringToJsonObject(String string){
-		return (JSONObject)JSONSerializer.toJSON(string);
+	private static JsonObject stringToJsonObject(String string){
+		return jsonParser.parse(string).getAsJsonObject();
 	}
 
-	public static JSONArray stringToJsonArray(String string){
-		return (JSONArray)JSONSerializer.toJSON(string);
+	private static JsonArray stringToJsonArray(String string){
+		return jsonParser.parse(string).getAsJsonArray();
 	}
 
-	public static JSONObject fieldsToJson(List<Field<?>> fields) {
-		JSONObject jsonObject = new JSONObject();
+	public static JsonObject fieldsToJson(List<Field<?>> fields){
+		JsonObject jsonObject = new JsonObject();
 		addFieldsToJsonObject(jsonObject, fields);
 		return jsonObject;
 	}
 
-	private static JSONObject addFieldsToJsonObject(JSONObject jsonObject, List<Field<?>> fields){
+	private static JsonObject addFieldsToJsonObject(JsonObject jsonObject, List<Field<?>> fields){
 		for(Field<?> f : DrIterableTool.nullSafe(fields)){
-			jsonObject.element(f.getKey().getColumnName(), f.getStringEncodedValue());
+			jsonObject.addProperty(f.getKey().getColumnName(), f.getStringEncodedValue());
 		}
 		return jsonObject;
 	}
@@ -216,60 +242,78 @@ public class JsonDatabeanTool{
 	/***************** tests **************************/
 
 	public static class JsonDatabeanToolTests{
-		private ManyFieldTypeBeanFielder fielder = new ManyFieldTypeBeanFielder();
-		private SortedBeanFielder sortedBeanFielder = new SortedBeanFielder();
+		private final ManyFieldTypeBeanFielder fielder = new ManyFieldTypeBeanFielder();
+		private final SortedBeanFielder sortedBeanFielder = new SortedBeanFielder();
+
+		private static ManyFieldBean makeTestBean(){
+			ManyFieldBean bean = new ManyFieldBean(33333L);
+			bean.setBooleanField(false);
+			bean.setByteField((byte)-55);
+			bean.setCharacterField('Z');
+			bean.setDoubleField(-78.2345);
+			bean.setFloatField(45.12345f);
+			bean.setIntegerField(-9876);
+			bean.setIntEnumField(TestEnum.fish);
+			bean.setLongDateField(new Date());
+			bean.setLongField(-87658765876L);
+			bean.setShortField((short)-30000);
+			bean.setStringEnumField(TestEnum.beast);
+			bean.setStringField("_%crazy-string\\asdf");
+			bean.setVarIntEnumField(TestEnum.cat);
+			bean.setVarIntField(5555);
+			return bean;
+		}
 
 		@Test
 		public void testRoundTrip(){
 			ManyFieldBeanKey keyIn = new ManyFieldBeanKey(12345L);
-			JSONObject keyJsonObject = primaryKeyToJson(keyIn, fielder.getKeyFielder());
+			JsonObject keyJsonObject = primaryKeyToJson(keyIn, fielder.getKeyFielder());
 			ManyFieldBeanKey keyOut = primaryKeyFromJson(ManyFieldBeanKey.class, fielder.getKeyFielder(),
 					keyJsonObject);
-			Assert.assertEquals(keyIn, keyOut);
+			Assert.assertEquals(keyOut, keyIn);
 
-			ManyFieldBean beanIn = new ManyFieldBean(33333L);
-			beanIn.setBooleanField(false);
-			beanIn.setByteField((byte)-55);
-			beanIn.setCharacterField('Z');
-			beanIn.setDoubleField(-78.2345);
-			beanIn.setFloatField(45.12345f);
-			beanIn.setIntegerField(-9876);
-			beanIn.setIntEnumField(TestEnum.fish);
-			beanIn.setLongDateField(new Date());
-			beanIn.setLongField(-87658765876L);
-			beanIn.setShortField((short)-30000);
-			beanIn.setStringEnumField(TestEnum.beast);
-			beanIn.setStringField("_%crazy-string\\asdf");
-			beanIn.setVarIntEnumField(TestEnum.cat);
-			beanIn.setVarIntField(5555);
+			ManyFieldBean beanIn = makeTestBean();
 
-			JSONObject databeanJson = databeanToJson(beanIn, fielder);
+			JsonObject databeanJson = databeanToJson(beanIn, fielder);
 			Supplier<ManyFieldBean> supplier = ReflectionTool.supplier(ManyFieldBean.class);
-			ManyFieldBean beanOut = databeanFromJson(supplier, fielder,
-					databeanJson);
+			ManyFieldBean beanOut = databeanFromJson(supplier, fielder, databeanJson);
 			Assert.assertTrue(beanIn.equalsAllPersistentFields(beanOut));
 		}
+
+		@Test
+		public void testBeanWithJson(){
+			ManyFieldBean beanIn = makeTestBean();
+			JsonObject databeanJson = databeanToJson(beanIn, fielder);
+			JsonObject innerJson = new JsonObject();
+			innerJson.addProperty("snorkle", "bazooka");
+			databeanJson.add(ManyFieldBean.F.stringField, innerJson);
+			beanIn.setStringField(innerJson.toString());
+			Supplier<ManyFieldBean> supplier = ReflectionTool.supplier(ManyFieldBean.class);
+			ManyFieldBean beanOut = databeanFromJson(supplier, fielder, databeanJson);
+			Assert.assertTrue(beanIn.equalsAllPersistentFields(beanOut));
+		}
+
 		@Test
 		public void testMultiRoundTrip(){
 			SortedBeanKey key0 = new SortedBeanKey("a", "b", 0, "d");
 			SortedBeanKey key1 = new SortedBeanKey("a", "b", 1, "dasdf");
 			SortedBeanKey key2 = new SortedBeanKey("a", "basdf", 2, "sdsdsd");
 			List<SortedBeanKey> keysIn = DrListTool.createArrayList(key0, key1, key2);
-			JSONArray jsonKeys = primaryKeysToJson(keysIn, sortedBeanFielder.getKeyFielder());
+			JsonArray jsonKeys = primaryKeysToJson(keysIn, sortedBeanFielder.getKeyFielder());
 			List<SortedBeanKey> keysOut = primaryKeysFromJson(SortedBeanKey.class, sortedBeanFielder.getKeyFielder(),
 					jsonKeys);
-			Assert.assertEquals(3, DrCollectionTool.size(keysOut));
-			Assert.assertArrayEquals(keysIn.toArray(), keysOut.toArray());
+			Assert.assertEquals(DrCollectionTool.size(keysOut), 3);
+			Assert.assertEquals(keysOut.toArray(), keysIn.toArray());
 
 			SortedBean bean0 = new SortedBean(key0, "1", 2L, null, 45.67d);
 			SortedBean bean1 = new SortedBean(key1, "ert", -987654L, "cheesetoast", -45.67d);
 			List<SortedBean> databeansIn = DrListTool.createArrayList(bean0, bean1);
-			JSONArray jsonDatabeans = databeansToJson(databeansIn, sortedBeanFielder);
+			JsonArray jsonDatabeans = databeansToJson(databeansIn, sortedBeanFielder);
 			List<SortedBean> databeansOut = databeansFromJson(ReflectionTool.supplier(SortedBean.class),
 					sortedBeanFielder, jsonDatabeans);
-			Assert.assertEquals(2, DrCollectionTool.size(databeansOut));
-			Assert.assertArrayEquals(databeansIn.toArray(), databeansOut.toArray());
-			Assert.assertArrayEquals(keysIn.subList(0,2).toArray(), DatabeanTool.getKeys(databeansOut).toArray());
+			Assert.assertEquals(DrCollectionTool.size(databeansOut), 2);
+			Assert.assertEquals(databeansOut.toArray(), databeansIn.toArray());
+			Assert.assertEquals(DatabeanTool.getKeys(databeansOut).toArray(), keysIn.subList(0,2).toArray());
 		}
 	}
 }

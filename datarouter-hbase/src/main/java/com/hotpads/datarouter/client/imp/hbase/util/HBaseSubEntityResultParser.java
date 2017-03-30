@@ -83,7 +83,7 @@ public class HBaseSubEntityResultParser<
 	public List<PK> getPrimaryKeysWithMatchingQualifierPrefixMulti(Result[] rows){
 		List<PK> results = new ArrayList<>();
 		for(Result row : rows){
-			if(row.isEmpty()) {
+			if(row.isEmpty()){
 				continue;
 			}
 			ArrayList<PK> pksFromSingleGet = getPrimaryKeysWithMatchingQualifierPrefix(row);
@@ -95,7 +95,7 @@ public class HBaseSubEntityResultParser<
 	public List<D> getDatabeansWithMatchingQualifierPrefixMulti(Result[] rows){
 		List<D> results = new ArrayList<>();
 		for(Result row : rows){
-			if(row.isEmpty()) {
+			if(row.isEmpty()){
 				continue;
 			}
 			List<D> databeansFromSingleGet = getDatabeansWithMatchingQualifierPrefix(row, null);
@@ -112,14 +112,14 @@ public class HBaseSubEntityResultParser<
 	}
 
 	public ArrayList<PK> getPrimaryKeysWithMatchingQualifierPrefix(Result row, Integer limit){
-		if(row == null) {
+		if(row == null){
 			return new ArrayList<>(0);
 		}
 		//unfortunately, we expect a bunch of duplicate PK's
 		ArrayList<PK> pks = new ArrayList<>();
 		PK previousPk = null;
 		for(Cell cell : DrIterableTool.nullSafe(row.listCells())){//row.list() can return null
-			if(!matchesNodePrefix(cell)) {
+			if(!matchesNodePrefix(cell)){
 				continue;
 			}
 			Pair<PK,String> pkAndFieldName = parsePrimaryKeyAndFieldName(cell);
@@ -137,20 +137,20 @@ public class HBaseSubEntityResultParser<
 	}
 
 	public List<D> getDatabeansWithMatchingQualifierPrefix(Result row, Integer limit){
-		if(row == null) {
+		if(row == null){
 			return Collections.emptyList();
 		}
 		return getDatabeansForKvsWithMatchingQualifierPrefix(row.listCells(), limit);
 	}
 
 	public List<D> getDatabeansForKvsWithMatchingQualifierPrefix(List<Cell> cells, Integer limit){
-		if(DrCollectionTool.isEmpty(cells)) {
+		if(DrCollectionTool.isEmpty(cells)){
 			return Collections.emptyList();
 		}
 		List<D> databeans = new ArrayList<>();
 		D databean = null;
 		for(Cell cell : cells){
-			if(!matchesNodePrefix(cell)) {
+			if(!matchesNodePrefix(cell)){
 				continue;
 			}
 			Pair<PK,String> pkAndFieldName = parsePrimaryKeyAndFieldName(cell);

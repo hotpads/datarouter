@@ -40,7 +40,7 @@ extends BaseJdbcFieldCodec<byte[],ByteArrayField>{
 	@Override
 	public void setPreparedStatementValue(PreparedStatement ps, int parameterIndex){
 		try{
-			ps.setBytes(parameterIndex, field.getValue()==null?null:field.getValue());
+			ps.setBytes(parameterIndex, field.getValue() == null ? null : field.getValue());
 		}catch(SQLException e){
 			throw new DataAccessException(e);
 		}
@@ -65,8 +65,10 @@ extends BaseJdbcFieldCodec<byte[],ByteArrayField>{
 
 	@Override
 	public String getSqlEscaped(){
-		//This method is called by the 'alreadyExists' condition inside jdbcPutOp.java, when ByteArrayField belongs to a PK.
-		// Adding Ox prefix is equivalent to wrapping the string with quotes, both works. ["'"+Hex.encodeHexString(value)+"'"]
-		return "0x"+Hex.encodeHexString(field.getValue());
+		//This method is called by the 'alreadyExists' condition inside jdbcPutOp.java, when ByteArrayField belongs
+		// to a PK.
+		// Adding Ox prefix is equivalent to wrapping the string with quotes, both works.
+		// ["'"+Hex.encodeHexString(value)+"'"]
+		return "0x" + Hex.encodeHexString(field.getValue());
 	}
 }

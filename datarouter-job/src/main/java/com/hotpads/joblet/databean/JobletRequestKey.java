@@ -1,5 +1,6 @@
 package com.hotpads.joblet.databean;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -47,6 +48,13 @@ public class JobletRequestKey extends BasePrimaryKey<JobletRequestKey>{
 	JobletRequestKey(){
 	}
 
+	private JobletRequestKey(JobletRequestKey other){
+		this.typeCode = other.typeCode;
+		this.executionOrder = other.executionOrder;
+		this.created = other.created;
+		this.batchSequence = other.batchSequence;
+	}
+
 	public JobletRequestKey(Integer typeCode, Integer executionOrder, Long createdMs, Integer batchSequence){
 		this.typeCode = typeCode;
 		this.executionOrder = executionOrder;
@@ -76,12 +84,20 @@ public class JobletRequestKey extends BasePrimaryKey<JobletRequestKey>{
 
 	/*----------------------- methods ---------------------------*/
 
+	public JobletRequestKey copy(){
+		return new JobletRequestKey(this);
+	}
+
 	public JobletPriority getPriority(){
 		return JobletPriority.fromExecutionOrder(executionOrder);
 	}
 
 	public Date getCreatedDate(){
 		return new Date(created);
+	}
+
+	public Duration getAge(){
+		return Duration.ofMillis(System.currentTimeMillis() - created);
 	}
 
 	/*----------------------- get/set -----------------------*/

@@ -26,7 +26,7 @@ public class LoadedLibraries{
 	public LoadedLibraries(ApplicationPaths applicationPaths){
 		hotpads = new HashMap<>();
 		nonHotpads = new ArrayList<>();
-		String var = applicationPaths.getRootPath()+"/WEB-INF/lib";
+		String var = applicationPaths.getRootPath() + "/WEB-INF/lib";
 
 		for(File file : new File(var).listFiles()){
 			if(file.getName().endsWith(HOTPADS_MARKER)){
@@ -34,8 +34,8 @@ public class LoadedLibraries{
 					ZipEntry entry = zf.getEntry("git.properties");
 					GitProperties gitProperties = new GitProperties(zf.getInputStream(entry));
 					hotpads.put(file.getName().replace(HOTPADS_MARKER, ""), gitProperties);
-				} catch (IOException e) {
-					throw new RuntimeException(e);
+				}catch(IOException ex){
+					throw new RuntimeException(ex);
 				}
 			}else if(file.getName().endsWith(".jar")){
 				nonHotpads.add(file.getName());

@@ -36,7 +36,7 @@ public class HotPadsHttpResponse{
 			if(httpEntity == null){
 				return;
 			}
-			if(httpEntityConsumer!=null){
+			if(httpEntityConsumer != null){
 				httpEntityConsumer.accept(httpEntity);
 				return;
 			}
@@ -60,6 +60,10 @@ public class HotPadsHttpResponse{
 
 	public Header getFirstHeader(String name){
 		return response.getFirstHeader(name);
+	}
+
+	public Header[] getHeaders(String name){
+		return response.getHeaders(name);
 	}
 
 	public List<Cookie> getCookies(){

@@ -1,7 +1,7 @@
 package com.hotpads.clustersetting;
 
-import com.hotpads.datarouter.storage.field.enums.DatarouterEnumTool;
-import com.hotpads.datarouter.storage.field.enums.StringEnum;
+import com.hotpads.util.core.enums.DatarouterEnumTool;
+import com.hotpads.util.core.enums.StringEnum;
 
 public enum ClusterSettingLogAction implements StringEnum<ClusterSettingLogAction>{
 	INSERTED("inserted"),
@@ -25,7 +25,7 @@ public enum ClusterSettingLogAction implements StringEnum<ClusterSettingLogActio
 		return fromPersistentStringStatic(string);
 	}
 
-	public static ClusterSettingLogAction fromPersistentStringStatic(String str) {
+	public static ClusterSettingLogAction fromPersistentStringStatic(String str){
 		return DatarouterEnumTool.getEnumFromString(values(), str, null);
 	}
 

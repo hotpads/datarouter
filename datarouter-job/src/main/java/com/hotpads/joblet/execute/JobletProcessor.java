@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hotpads.joblet.JobletCounters;
+import com.hotpads.joblet.JobletService;
 import com.hotpads.joblet.dto.RunningJoblet;
 import com.hotpads.joblet.queue.JobletRequestQueueManager;
 import com.hotpads.joblet.setting.JobletSettings;
@@ -40,6 +41,7 @@ public class JobletProcessor implements Runnable{
 	private final JobletRequestQueueManager jobletRequestQueueManager;
 	private final JobletCallableFactory jobletCallableFactory;
 	private final JobletCounters jobletCounters;
+	private final JobletService jobletService;
 	//not injectable
 	private final AtomicLong idGenerator;
 	private final JobletType<?> jobletType;
@@ -51,12 +53,14 @@ public class JobletProcessor implements Runnable{
 
 
 	public JobletProcessor(JobletSettings jobletSettings, JobletRequestQueueManager jobletRequestQueueManager,
-			JobletCallableFactory jobletCallableFactory, JobletCounters jobletCounters, AtomicLong idGenerator,
-			JobletType<?> jobletType){
+			JobletCallableFactory jobletCallableFactory, JobletCounters jobletCounters, JobletService jobletService,
+			AtomicLong idGenerator, JobletType<?> jobletType){
 		this.jobletSettings = jobletSettings;
 		this.jobletRequestQueueManager = jobletRequestQueueManager;
 		this.jobletCallableFactory = jobletCallableFactory;
 		this.jobletCounters = jobletCounters;
+		this.jobletService = jobletService;
+
 		this.idGenerator = idGenerator;
 		this.jobletType = jobletType;
 		//create a separate shutdownRequested for each processor so we can disable them independently
@@ -83,10 +87,10 @@ public class JobletProcessor implements Runnable{
 
 	/*----------------- private --------------------*/
 
-	private boolean shouldRun(){
+	private boolean shouldRun(int numThreads){
 		return !shutdownRequested.get()
 				&& jobletSettings.runJoblets.getValue()
-				&& jobletSettings.getThreadCountForJobletType(jobletType) > 0;
+				&& numThreads > 0;
 	}
 
 	//this method must continue indefinitely, so be sure to catch all exceptions
@@ -94,7 +98,8 @@ public class JobletProcessor implements Runnable{
 	public void run(){
 		while(true){
 			try{
-				if(!shouldRun()){
+				int numThreads = getThreadCount();
+				if(!shouldRun(numThreads)){
 					sleepABit(SLEEP_TIME_WHEN_DISABLED, "shouldRun=false");
 					continue;
 				}
@@ -102,7 +107,7 @@ public class JobletProcessor implements Runnable{
 					sleepABit(SLEEP_TIME_WHEN_NO_WORK, "shouldCheckAnyQueues=false");
 					continue;
 				}
-				tryEnqueueJobletCallable();
+				tryEnqueueJobletCallable(numThreads);
 			}catch(Exception e){//catch everything; don't let the loop break
 				logger.error("", e);
 				try{
@@ -120,9 +125,8 @@ public class JobletProcessor implements Runnable{
 	 *
 	 * TODO make a BlockingRejectedExecutionHandler?
 	 */
-	private void tryEnqueueJobletCallable(){
-		int numThreads = jobletSettings.getThreadCountForJobletType(jobletType);
-		exec.setMaximumPoolSize(numThreads);//must be >0
+	private void tryEnqueueJobletCallable(int numThreads){
+		exec.setMaximumPoolSize(numThreads);//must be > 0
 		long startMs = System.currentTimeMillis();
 		long backoffMs = 10L;
 		while(System.currentTimeMillis() - startMs < MAX_WAIT_FOR_EXECUTOR.toMillis()){
@@ -171,11 +175,11 @@ public class JobletProcessor implements Runnable{
 		return jobletCallableById.size();
 	}
 
-	public int getThreadCountFromSettings(){
-		return jobletSettings.getThreadCountForJobletType(jobletType);
+	public int getThreadCount(){
+		return jobletService.getThreadCountInfoForThisInstance(jobletType).effectiveLimit;
 	}
 
-	/*---------------- Object methods ----------------*/
+	/*------------ Object methods ----------------*/
 
 	@Override
 	public String toString(){

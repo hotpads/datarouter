@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import com.hotpads.datarouter.setting.cached.impl.BooleanCachedSetting;
 import com.hotpads.datarouter.setting.cached.impl.DoubleCachedSetting;
@@ -121,7 +122,7 @@ public abstract class SettingNode {
 
 	public String getShortName(){
 		String shortName = getName().substring(getParentName().length());
-		return shortName.substring(0, shortName.length()-1);
+		return shortName.substring(0, shortName.length() - 1);
 	}
 
 	protected StringCachedSetting registerString(String name, String defaultValue){
@@ -170,4 +171,11 @@ public abstract class SettingNode {
 		return isGroup;
 	}
 
+	public SortedMap<String,Object> getSettingValues(){
+		String baseName = getName();
+		return settings.keySet().stream()
+				.collect(Collectors.toMap(
+						key -> key.replace(baseName, ""),
+	                    key -> settings.get(key).getValue(), (p1, p2) -> p1, TreeMap::new));
+	}
 }

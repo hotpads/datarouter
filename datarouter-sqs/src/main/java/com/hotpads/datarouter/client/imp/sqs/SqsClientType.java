@@ -2,7 +2,7 @@ package com.hotpads.datarouter.client.imp.sqs;
 
 import javax.inject.Inject;
 
-import org.junit.Assert;
+import org.testng.Assert;
 import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
@@ -103,7 +103,7 @@ public class SqsClientType extends BaseClientType implements QueueClientType{
 		@Test
 		public void testClassLocation(){
 			String actualClassName = SqsClientType.class.getCanonicalName();
-			Assert.assertEquals(DefaultClientTypes.CLIENT_CLASS_sqs, actualClassName);
+			Assert.assertEquals(actualClassName, DefaultClientTypes.CLIENT_CLASS_sqs);
 			injector.getInstance(ClassTool.forName(DefaultClientTypes.CLIENT_CLASS_sqs));
 		}
 	}

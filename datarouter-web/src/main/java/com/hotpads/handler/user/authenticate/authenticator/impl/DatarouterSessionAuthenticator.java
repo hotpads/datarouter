@@ -47,8 +47,8 @@ public class DatarouterSessionAuthenticator extends BaseDatarouterAuthenticator{
 		//verify session's userToken matches cookie userToken.  if not, delete session to be safe
 		String cookieUserToken = sessionManager.getUserTokenFromCookie(request);
 		if(DrObjectTool.notEquals(cookieUserToken, session.getUserToken())){
-			logger.warn("session userToken "+session.getUserToken()+" != cookie userToken "+cookieUserToken
-					+", deleting session");
+			logger.warn("session userToken " + session.getUserToken() + " != cookie userToken " + cookieUserToken
+					+ ", deleting session");
 			userNodes.getSessionNode().delete(session.getKey(), null);
 			sessionManager.clearSessionTokenCookie(response);
 			return null;

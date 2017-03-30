@@ -17,7 +17,7 @@ public class DataExportItemKey extends BasePrimaryKey<DataExportItemKey>{
 	public static class F{
 		public static final String
 			exportId = "exportId",
-			rowId="rowId"
+			rowId = "rowId"
 			;
 	}
 

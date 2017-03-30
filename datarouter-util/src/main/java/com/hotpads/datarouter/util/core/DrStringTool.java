@@ -13,6 +13,14 @@ import org.testng.internal.junit.ArrayAsserts;
 
 public class DrStringTool{
 
+	public static boolean equals(String left, String right){
+		return Objects.equals(left, right);
+	}
+
+	public static boolean notEquals(String left, String right){
+		return !Objects.equals(left, right);
+	}
+
 	public static boolean notEmpty(String input){
 		return input != null && input.length() > 0;
 	}
@@ -88,6 +96,10 @@ public class DrStringTool{
 	}
 
 	public static ArrayList<String> splitOnCharNoRegex(String input, char separator){
+		return splitOnCharNoRegex(input, separator, true);
+	}
+
+	public static ArrayList<String> splitOnCharNoRegex(String input, char separator, boolean keepEmptySegments){
 		ArrayList<String> results = new ArrayList<>();
 		if(input == null){
 			return results;
@@ -95,7 +107,10 @@ public class DrStringTool{
 		int leftIndex = 0;
 		for(int rightIndex = 0; rightIndex <= input.length(); ++rightIndex){
 			if(rightIndex == input.length() || separator == input.charAt(rightIndex)){
-				results.add(input.substring(leftIndex, rightIndex));
+				String segment = input.substring(leftIndex, rightIndex);
+				if(!segment.isEmpty() || keepEmptySegments){
+					results.add(segment);
+				}
 				leftIndex = rightIndex + 1;// move to start of next token
 			}
 		}
@@ -342,6 +357,33 @@ public class DrStringTool{
 			return "";
 		}
 		return inString.substring(0, index);
+	}
+
+	public static boolean containsCharactersOutsideRange(final String input, int bottom, int top){
+		char[] chars = input.toCharArray();
+		for(char c : chars){
+			if(c > top || c < bottom){
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public static boolean containsOnlyNumbers(String data){
+		return !isEmpty(data) && !containsCharactersOutsideRange(data, 48, 57);
+	}
+
+	public static boolean containsNumbers(String data){
+		return !isEmpty(data) && containsCharactersInRange(data, 48, 57);
+	}
+
+	public static boolean containsCharactersInRange(final String input, int bottom, int top){
+		for(int i = 0; i < input.length(); i++){
+			if(input.charAt(i) <= top && input.charAt(i) >= bottom){
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/** TESTS *****************************************************************/

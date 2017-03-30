@@ -15,7 +15,7 @@ import com.hotpads.util.core.iterable.scanner.batch.imp.ListBackedBatchLoader;
 import com.hotpads.util.core.iterable.scanner.sorted.BaseSortedScanner;
 
 public class AsyncBatchLoaderScanner<T extends Comparable<? super T>>
-extends	BaseSortedScanner<T>{
+extends BaseSortedScanner<T>{
 
 	private ExecutorService executorService;
 	private Future<BatchLoader<T>> currentBatchFuture;
@@ -32,9 +32,9 @@ extends	BaseSortedScanner<T>{
 	/****************** methods *************************************/
 
 	@Override
-	public boolean advance() {
+	public boolean advance(){
 		BatchLoader<T> currentLoader = getCurrentLoader();//synchronous wait for the batch to load
-		if(currentLoader==null){
+		if(currentLoader == null){
 			return false;
 		}
 
@@ -58,7 +58,7 @@ extends	BaseSortedScanner<T>{
 	@Override
 	public T getCurrent(){
 		BatchLoader<T> currentBatch = getCurrentLoader();
-		if(currentBatch==null){
+		if(currentBatch == null){
 			return null;
 		}
 		return currentBatch.getCurrent();
@@ -67,8 +67,8 @@ extends	BaseSortedScanner<T>{
 	private void triggerInitialPrefetchIfNotDoneAlready(){
 		BatchLoader<T> currentBatch = getCurrentLoader();
 		if(!didInitialPrefetch
-				&& currentBatch!=null
-				&& ! currentBatch.isLastBatch()){
+				&& currentBatch != null
+				&& !currentBatch.isLastBatch()){
 			loadingBatchFuture = executorService.submit(currentBatch.getNextLoader());
 			didInitialPrefetch = true;
 		}
@@ -77,7 +77,7 @@ extends	BaseSortedScanner<T>{
 	private void advanceTheLoaders(){
 		BatchLoader<T> loadingBatch = FutureTool.get(loadingBatchFuture);
 		currentBatchFuture = loadingBatchFuture;
-		if( ! loadingBatch.isLastBatch()){
+		if(!loadingBatch.isLastBatch()){
 			loadingBatchFuture = executorService.submit(loadingBatch.getNextLoader());
 		}else{
 			loadingBatchFuture = null;
@@ -94,7 +94,7 @@ extends	BaseSortedScanner<T>{
 		private static final int MULTIPLIER = 3;
 		private List<Integer> createTestArray(int numElements){
 			List<Integer> testArray = new ArrayList<>();
-			for(int i=0; i < numElements; ++i){
+			for(int i = 0; i < numElements; ++i){
 				testArray.add(i * MULTIPLIER);//separate the values from the indexes
 			}
 			return testArray;
@@ -104,8 +104,8 @@ extends	BaseSortedScanner<T>{
 		public void testNumElements(){
 //			testIndividualNumElements(0, 1);//for debugging
 
-			for(int numElements=0; numElements < 30; ++numElements){//run 50 times with different batch sizes
-				for(int batchSize=1; batchSize < 10; ++batchSize){//watch out: batchSize=0 is no good
+			for(int numElements = 0; numElements < 30; ++numElements){//run 50 times with different batch sizes
+				for(int batchSize = 1; batchSize < 10; ++batchSize){//watch out: batchSize=0 is no good
 					testIndividualNumElements(numElements, batchSize);
 				}
 			}

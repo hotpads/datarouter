@@ -8,7 +8,7 @@ public abstract class TracedCheckedCallable<V> implements Callable<V>{
 	protected final Thread parentThread;
 	protected final Tracer parentCtx;
 
-	public TracedCheckedCallable(String threadName) {
+	public TracedCheckedCallable(String threadName){
 		this.threadName = threadName;
 		this.parentThread = Thread.currentThread();
 		this.parentCtx = TracerThreadLocal.get();
@@ -22,8 +22,10 @@ public abstract class TracedCheckedCallable<V> implements Callable<V>{
 			//probably don't do this because i think it screws things up with CallerRuns strategy.  need to investigate
 //			currentThread.setName(threadName);
 
-			boolean hasParent = parentCtx!=null;//no use tracing if there's no parent to give them to.
-			boolean isParent = parentThread.getId()==Thread.currentThread().getId();//when the parent runs the callable
+			boolean hasParent = parentCtx != null; //no use tracing if there's no parent to give them to.
+
+			//when the parent runs the callable
+			boolean isParent = parentThread.getId() == Thread.currentThread().getId();
 			boolean shouldStartNestedTrace = hasParent && !isParent;
 
 			DatarouterTracer ctx = null;
@@ -58,7 +60,7 @@ public abstract class TracedCheckedCallable<V> implements Callable<V>{
 		return new FunctionalTracedCheckedCallable<>(callable);
 	}
 
-	private static class FunctionalTracedCheckedCallable<V> extends TracedCheckedCallable<V> {
+	private static class FunctionalTracedCheckedCallable<V> extends TracedCheckedCallable<V>{
 
 		private final Callable<V> callable;
 

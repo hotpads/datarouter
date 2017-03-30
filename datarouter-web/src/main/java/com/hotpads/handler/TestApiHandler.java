@@ -5,6 +5,7 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import javax.inject.Singleton;
 
@@ -18,7 +19,9 @@ import com.hotpads.handler.mav.imp.MessageMav;
 import com.hotpads.handler.types.DefaultDecoder;
 import com.hotpads.handler.types.P;
 import com.hotpads.handler.types.RequestBody;
+import com.hotpads.handler.types.RequestBodyString;
 import com.hotpads.handler.types.TypeProvider;
+import com.hotpads.util.core.profile.PhaseTimer;
 import com.hotpads.util.http.json.GsonJsonSerializer;
 
 public class TestApiHandler extends BaseHandler{
@@ -129,6 +132,16 @@ public class TestApiHandler extends BaseHandler{
 			}
 		}
 		return new MessageMav(Integer.toString(sum));
+	}
+
+	@Handler
+	public Mav timeContains(@RequestBody Set<String> haystack, String needle, @RequestBodyString String strHaystack){
+		PhaseTimer timer = new PhaseTimer();
+		strHaystack.contains(needle);
+		timer.add("String.contains");
+		haystack.contains(needle);
+		timer.add("Set.contains");
+		return new MessageMav(timer.toString());
 	}
 
 	/*

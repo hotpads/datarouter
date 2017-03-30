@@ -42,6 +42,11 @@ public class SqsMessage extends BaseDatabean<SqsMessageKey,SqsMessage>{
 		this.key = new SqsMessageKey();
 	}
 
+	public SqsMessage(String messageId, String message){
+		this.key = new SqsMessageKey(messageId);
+		this.message = message;
+	}
+
 	@Override
 	public Class<SqsMessageKey> getKeyClass(){
 		return SqsMessageKey.class;

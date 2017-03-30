@@ -36,12 +36,15 @@ extends SqsOp<PK,D,F,Void>{
 
 	@Override
 	protected Void run(){
+		if(databeans.size() == 0){
+			return null;
+		}
 		List<D> rejectedDatabeans = new ArrayList<>();
 		ByteArrayOutputStream databeanGroup = new ByteArrayOutputStream();
 		databeanGroup.write(collectionPrefix, 0, collectionPrefix.length);
 		for(D databean : databeans){
 			byte[] encodedDatabean = StringByteTool.getUtf8Bytes(codec.toString(databean, fielder));
-			if(encodedDatabean.length + 2*collectionPrefix.length > BaseSqsNode.MAX_BYTES_PER_MESSAGE){
+			if(encodedDatabean.length + 2 * collectionPrefix.length > BaseSqsNode.MAX_BYTES_PER_MESSAGE){
 				rejectedDatabeans.add(databean);
 				continue;
 			}
@@ -67,6 +70,9 @@ extends SqsOp<PK,D,F,Void>{
 	}
 
 	private void flush(ByteArrayOutputStream group){
+		if(group.size() <= collectionPrefix.length){
+			return;
+		}
 		group.write(collectionSuffix, 0, collectionSuffix.length);
 		String stringGroup = StringByteTool.fromUtf8Bytes(group.toByteArray());
 		SendMessageRequest request = new SendMessageRequest(queueUrl, stringGroup);

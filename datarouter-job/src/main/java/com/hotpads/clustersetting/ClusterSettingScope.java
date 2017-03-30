@@ -3,10 +3,10 @@ package com.hotpads.clustersetting;
 import java.util.Objects;
 
 import com.hotpads.datarouter.setting.ServerType;
-import com.hotpads.datarouter.storage.field.enums.DatarouterEnumTool;
-import com.hotpads.datarouter.storage.field.enums.StringEnum;
 import com.hotpads.datarouter.util.core.DrObjectTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
+import com.hotpads.util.core.enums.DatarouterEnumTool;
+import com.hotpads.util.core.enums.StringEnum;
 
 public enum ClusterSettingScope implements StringEnum<ClusterSettingScope>{
 

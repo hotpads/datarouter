@@ -13,6 +13,8 @@ import com.hotpads.handler.types.optional.OptionalParameter;
 
 public class DocumentationHandler extends BaseHandler{
 
+	protected static final String JSP_DISPATCHER_DOCS = "/jsp/docs/dispatcherDocs.jsp";
+
 	protected List<DocumentedEndpoint> buildDocumentation(BaseDispatcher apiDispatcher, String apiUrlContext){
 		return apiDispatcher.getDispatchRules().stream()
 				.filter(rule -> rule.getPattern().pattern().startsWith(apiUrlContext))

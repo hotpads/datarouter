@@ -41,7 +41,7 @@ extends BaseHBaseEntityBatchLoader<EK,E,PK,D,F,D>{
 
 	@Override
 	protected List<D> parseHBaseResult(Result result){
-		//the first and last entity may include results outside the range
+		// the first and last entity may include results outside the range
 		List<D> unfilteredResults = node.getResultParser().getDatabeansWithMatchingQualifierPrefix(result, null);
 		DRCounters.incClientNodeCustom(node.getClient().getType(), "scan databean numRows unfiltered", node.getClient()
 				.getName(), node.getName(), DrCollectionTool.size(unfilteredResults));
@@ -58,7 +58,7 @@ extends BaseHBaseEntityBatchLoader<EK,E,PK,D,F,D>{
 
 	@Override
 	protected PK getLastPrimaryKeyFromBatch(){
-		PK last = getLast()==null ? null : getLast().getKey();
+		PK last = getLast() == null ? null : getLast().getKey();
 		return last;
 	}
 

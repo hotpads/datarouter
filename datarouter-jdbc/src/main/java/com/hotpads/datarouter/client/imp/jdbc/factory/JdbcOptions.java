@@ -11,31 +11,31 @@ public class JdbcOptions extends TypedProperties{
 
 	public JdbcOptions(Iterable<Properties> multiProperties, String clientName){
 		super(DrListTool.createArrayList(multiProperties));
-		this.clientPrefix = "client."+clientName+".";
+		this.clientPrefix = "client." + clientName + ".";
 	}
 
 	public String url(){
-		return getRequiredString(clientPrefix+"url");
+		return getRequiredString(clientPrefix + "url");
 	}
 
 	public String user(String def){
-		return getString(clientPrefix+"user", def);
+		return getString(clientPrefix + "user", def);
 	}
 
 	public String password(String def){
-		return getString(clientPrefix+"password", def);
+		return getString(clientPrefix + "password", def);
 	}
 
 	public Integer minPoolSize(Integer def){
-		return getInteger(clientPrefix+"minPoolSize", def);
+		return getInteger(clientPrefix + "minPoolSize", def);
 	}
 
 	public Integer maxPoolSize(Integer def){
-		return getInteger(clientPrefix+"maxPoolSize", def);
+		return getInteger(clientPrefix + "maxPoolSize", def);
 	}
 
 	public Boolean logging(Boolean def){
-		return getBoolean(clientPrefix+"logging", def);
+		return getBoolean(clientPrefix + "logging", def);
 	}
 
 }

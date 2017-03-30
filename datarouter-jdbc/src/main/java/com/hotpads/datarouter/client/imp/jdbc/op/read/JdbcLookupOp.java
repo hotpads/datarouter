@@ -55,15 +55,15 @@ extends BaseJdbcOp<List<D>>{
 		}
 		Integer batchSize = config.getLimit();
 		int configuredBatchSize = config.getIterateBatchSize();
-		if (batchSize == null || batchSize > configuredBatchSize){
+		if(batchSize == null || batchSize > configuredBatchSize){
 			batchSize = configuredBatchSize;
 		}
 		//TODO undefined behavior on trailing nulls
 		List<D> result = new ArrayList<>();
-		for (List<? extends Lookup<PK>> batch : new BatchingIterable<>(lookups, batchSize)){
+		for(List<? extends Lookup<PK>> batch : new BatchingIterable<>(lookups, batchSize)){
 			//for performance reasons, pass null for orderBy and sort in java if desired
 			String sql = SqlBuilder.getWithPrefixes(fieldCodecFactory, config, node.getTableName(), node.getFieldInfo()
-					.getFields(), batch, wildcardLastField, null);
+					.getFields(), batch, wildcardLastField, null, node.getFieldInfo());
 			result.addAll(JdbcTool.selectDatabeans(fieldCodecFactory, getConnection(node.getClientId().getName()), node
 					.getFieldInfo(), sql));
 			if(config.getLimit() != null && result.size() >= config.getLimit()){

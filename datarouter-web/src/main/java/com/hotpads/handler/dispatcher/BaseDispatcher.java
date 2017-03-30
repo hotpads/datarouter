@@ -109,7 +109,7 @@ public abstract class BaseDispatcher{
 
 	private boolean isMultipart(HttpServletRequest request){
 		return request.getContentType() != null
-				&& request.getContentType().toLowerCase().indexOf("multipart/form-data") > -1;
+				&& request.getContentType().toLowerCase().contains("multipart/form-data");
 	}
 
 	/*------------------ getters -------------------*/

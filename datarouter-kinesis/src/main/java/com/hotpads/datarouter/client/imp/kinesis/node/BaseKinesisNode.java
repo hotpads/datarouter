@@ -22,7 +22,7 @@ public abstract class BaseKinesisNode<
 extends BasePhysicalNode<PK,D,F> implements StorageWriter<PK,D>{
 
 	//do not change, this is a limit from Kinesis
-	public static final int MAX_BYTES_PER_RECORD = (int)(1*ByteUnitTool.MiB);
+	public static final int MAX_BYTES_PER_RECORD = (int)(1 * ByteUnitTool.MiB);
 
 	private final String streamName;
 	private final String regionName;

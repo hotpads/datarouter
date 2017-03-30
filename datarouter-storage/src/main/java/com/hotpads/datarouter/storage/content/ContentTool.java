@@ -10,7 +10,7 @@ import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrObjectTool;
 import com.hotpads.util.core.lang.ClassTool;
 
-public class ContentTool {
+public class ContentTool{
 
 	public static <PK extends PrimaryKey<PK>,
 					D extends Databean<PK,D>,
@@ -27,10 +27,14 @@ public class ContentTool {
 	public static <PK extends PrimaryKey<PK>,
 					D extends Databean<PK,D>,
 					C extends ContentHolder<PK,D>>
-	boolean equalsContent(C a, C b){
-		if(ClassTool.differentClass(a, b)){ return false; }
-		if(DrObjectTool.bothNull(a, b)){ return true; }
-		return a.equalsContent(b);
+	boolean equalsContent(C first, C second){
+		if(ClassTool.differentClass(first, second)){
+			return false;
+		}
+		if(DrObjectTool.bothNull(first, second)){
+			return true;
+		}
+		return first.equalsContent(second);
 	}
 
 
@@ -38,13 +42,19 @@ public class ContentTool {
 					D extends Databean<PK,D>,
 					C extends ContentHolder<PK,D>>
 	boolean equalsContent(Collection<C> as, Collection<C> bs){
-		if(DrCollectionTool.differentSize(as, bs)){ return false; }
-		if(DrObjectTool.bothNull(as, bs)){ return true; }
+		if(DrCollectionTool.differentSize(as, bs)){
+			return false;
+		}
+		if(DrObjectTool.bothNull(as, bs)){
+			return true;
+		}
 		Map<PK,C> asContentByKey = ContentTool.getByKey(as);
-		if(DrCollectionTool.differentSize(asContentByKey.keySet(), as)){ return false; }//means there were duplicates
+		if(DrCollectionTool.differentSize(asContentByKey.keySet(), as)){
+			return false;//means there were duplicates
+		}
 		for(C b : bs){
-			C a = asContentByKey.get(b.getKey());
-			if(a==null ||  ! b.equalsContent(a)){
+			C contentA = asContentByKey.get(b.getKey());
+			if(contentA == null || !b.equalsContent(contentA)){
 				return false;
 			}
 		}

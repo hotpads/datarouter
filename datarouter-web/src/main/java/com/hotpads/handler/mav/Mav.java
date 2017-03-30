@@ -91,14 +91,15 @@ public class Mav{
 		return this;
 	}
 
-	public void setGlobalRedirectUrl(String globalRedirectUrl){
+	public Mav setGlobalRedirectUrl(String globalRedirectUrl){
 		redirect = true;
 		this.globalRedirectUrl = globalRedirectUrl;
+		return this;
 	}
 
 	/************************** get/set ***********************************/
 
-	public Map<String, Object> getModel(){
+	public Map<String,Object> getModel(){
 		return model;
 	}
 

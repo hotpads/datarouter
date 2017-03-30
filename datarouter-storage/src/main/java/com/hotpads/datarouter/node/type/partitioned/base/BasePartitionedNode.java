@@ -67,7 +67,7 @@ extends BaseNode<PK,D,F> implements PartitionedNode<PK,D,N>{
 	}
 
 	@Override
-	public Node<PK,D> getMaster() {
+	public Node<PK,D> getMaster(){
 		return this;
 	}
 
@@ -77,7 +77,7 @@ extends BaseNode<PK,D,F> implements PartitionedNode<PK,D,N>{
 	}
 
 	@Override
-	public List<String> getClientNames() {
+	public List<String> getClientNames(){
 		return partitions.getClientNames();
 	}
 
@@ -97,10 +97,10 @@ extends BaseNode<PK,D,F> implements PartitionedNode<PK,D,N>{
 	}
 
 	@Override
-	public List<String> getClientNamesForPrimaryKeysForSchemaUpdate(Collection<PK> keys) {
+	public List<String> getClientNamesForPrimaryKeysForSchemaUpdate(Collection<PK> keys){
 		ArrayListMultimap<N,PK> keysByPhysicalNode = getPrimaryKeysByPhysicalNode(keys);
 		List<String> clientNames = new LinkedList<>();
-		if(keysByPhysicalNode==null){
+		if(keysByPhysicalNode == null){
 			return clientNames;
 		}
 		for(PhysicalNode<PK,D> node : DrIterableTool.nullSafe(keysByPhysicalNode.keySet())){
@@ -118,12 +118,12 @@ extends BaseNode<PK,D,F> implements PartitionedNode<PK,D,N>{
 	}
 
 	@Override
-	public List<N> getPhysicalNodes() {
+	public List<N> getPhysicalNodes(){
 		return partitions.getAllNodes();
 	}
 
 	@Override
-	public List<N> getPhysicalNodesForClient(String clientName) {
+	public List<N> getPhysicalNodesForClient(String clientName){
 		return partitions.getPhysicalNodesForClient(clientName);
 	}
 
@@ -148,7 +148,7 @@ extends BaseNode<PK,D,F> implements PartitionedNode<PK,D,N>{
 		ArrayListMultimap<N,PK> primaryKeysByPhysicalNode = ArrayListMultimap.create();
 		for(PK pk : DrIterableTool.nullSafe(pks)){
 			N node = getPhysicalNode(pk);
-			if(node==null){
+			if(node == null){
 				continue;
 			}
 			primaryKeysByPhysicalNode.put(node, pk);
@@ -161,7 +161,7 @@ extends BaseNode<PK,D,F> implements PartitionedNode<PK,D,N>{
 		ArrayListMultimap<N,D> databeansByPhysicalNode = ArrayListMultimap.create();
 		for(D databean : DrIterableTool.nullSafe(databeans)){
 			N node = getPhysicalNode(databean.getKey());
-			if(node==null){
+			if(node == null){
 				continue;
 			}
 			databeansByPhysicalNode.get(node).add(databean);

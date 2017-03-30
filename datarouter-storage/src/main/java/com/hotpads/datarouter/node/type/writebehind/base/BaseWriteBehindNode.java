@@ -32,7 +32,7 @@ implements WriteBehindNode<PK,D,N>{
 
 	public static final int FLUSH_RATE_MS = 500;
 	private static final int FLUSH_BATCH_SIZE = 100;
-	private static final long DEFAULT_TIMEOUT_MS = 60*1000;
+	private static final long DEFAULT_TIMEOUT_MS = 60 * 1000;
 
 	protected N backingNode;
 	protected long timeoutMs;//TODO also limit by queue length
@@ -43,7 +43,7 @@ implements WriteBehindNode<PK,D,N>{
 
 
 	public BaseWriteBehindNode(Datarouter datarouter, N backingNode){
-		if(backingNode==null){
+		if(backingNode == null){
 			throw new IllegalArgumentException("backingNode cannot be null.");
 		}
 		this.backingNode = backingNode;

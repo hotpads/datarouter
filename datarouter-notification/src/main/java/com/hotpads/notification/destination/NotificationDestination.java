@@ -1,8 +1,6 @@
 package com.hotpads.notification.destination;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
@@ -16,7 +14,6 @@ import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.StringFieldKey;
 import com.hotpads.datarouter.storage.field.imp.comparable.BooleanField;
 import com.hotpads.datarouter.storage.field.imp.comparable.BooleanFieldKey;
-import com.hotpads.datarouter.util.core.DrBooleanTool;
 
 /* CREATE SCRIPT
 com.hotpads.notification.destination.NotificationDestination{
@@ -54,11 +51,11 @@ public class NotificationDestination extends BaseDatabean<NotificationDestinatio
 		}
 
 		@Override
-		public List<Field<?>> getNonKeyFields(NotificationDestination d){
+		public List<Field<?>> getNonKeyFields(NotificationDestination databean){
 			return Arrays.asList(
-					new StringField(FieldKeys.deviceName, d.deviceName),
-					new BooleanField(FieldKeys.active, d.active),
-					new DateField(FieldKeys.created, d.created));
+					new StringField(FieldKeys.deviceName, databean.deviceName),
+					new BooleanField(FieldKeys.active, databean.active),
+					new DateField(FieldKeys.created, databean.created));
 		}
 
 	}
@@ -67,7 +64,7 @@ public class NotificationDestination extends BaseDatabean<NotificationDestinatio
 		this.key = new NotificationDestinationKey();
 	}
 
-	public NotificationDestination(String token, NotificationDestinationAppEnum app, String deviceId){
+	public NotificationDestination(String token, NotificationDestinationApp app, String deviceId){
 		this.key = new NotificationDestinationKey(token, app, deviceId);
 		this.active = true;
 	}
@@ -86,19 +83,8 @@ public class NotificationDestination extends BaseDatabean<NotificationDestinatio
 		return active;
 	}
 
-	public void setActive(boolean active){
+	public void setActive(Boolean active){
 		this.active = active;
-	}
-
-	public static List<NotificationDestination> filterForAppAndActive(Iterable<NotificationDestination> destinations,
-			Collection<NotificationDestinationApp> apps){
-		ArrayList<NotificationDestination> activeDestinations = new ArrayList<>();
-		for(NotificationDestination destination : destinations){
-			if(DrBooleanTool.isTrue(destination.getActive()) && apps.contains(destination.getKey().getApp())){
-				activeDestinations.add(destination);
-			}
-		}
-		return activeDestinations;
 	}
 
 	public void setDeviceName(String deviceName){

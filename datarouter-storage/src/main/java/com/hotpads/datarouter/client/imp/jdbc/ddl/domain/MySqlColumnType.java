@@ -13,43 +13,43 @@ public enum MySqlColumnType{
 	 * NOT TAKING INTO ACCOUNT OPTIONS AVAILABLE FOR THE DIFFERENT TYPES
 	 */
 	 //  Numeric Type Overview
-	BIT(true, false),
-	TINYINT(true, true),
-	BOOL(true, false),
-	BOOLEAN(true, true),
-	SMALLINT(true, false),
-	MEDIUMINT(false, false),
-	INT(true, false),
-	INTEGER(true, false),
-	BIGINT(true, false),
-	DECIMAL(true, false),
-	DEC(true, false) /* SIMILAR TO DECIMAL, HAS 'FIXED' FOR COMPATIBILITY */,
-	FLOAT(false, false),
-	DOUBLE(false, false),
-	DOUBLE_PRECISION(false, false), /* FLOAT(P) */
+	BIT(true, false, false),
+	TINYINT(true, true, false),
+	BOOL(true, false, false),
+	BOOLEAN(true, true, false),
+	SMALLINT(true, false, false),
+	MEDIUMINT(false, false, false),
+	INT(true, false, false),
+	INTEGER(true, false, false),
+	BIGINT(true, false, false),
+	DECIMAL(true, false, false),
+	DEC(true, false, false) /* SIMILAR TO DECIMAL, HAS 'FIXED' FOR COMPATIBILITY */,
+	FLOAT(false, false, false),
+	DOUBLE(false, false, false),
+	DOUBLE_PRECISION(false, false, false), /* FLOAT(P) */
 	// Date and Time Type Overview
-	DATE(false, false),
-	DATETIME(true, false),
-	TIMESTAMP(false, false),
-	TIME(false, false),
-	YEAR(false, false),
+	DATE(false, false, false),
+	DATETIME(true, false, false),
+	TIMESTAMP(false, false, false),
+	TIME(false, false, false),
+	YEAR(false, false, false),
 
 	// String Type Overview
-	CHAR(true, false),
-	VARCHAR(true, false),
-	BINARY(true, false),
-	VARBINARY(true, false),
-	TINYBLOB(false, false),
-	TINYTEXT(false, false),
-	BLOB(false, false), //"Binary Long Array of Bytes"
-	TEXT(false, false),
-	MEDIUMBLOB(false, false),
-	MEDIUMTEXT(false, false),
-	LONGBLOB(false, false),
-	LONGTEXT(false, false),
-	ENUM(true, false),
-	SET(true, false),
-	GEOMETRY(false, false);
+	CHAR(true, false, true),
+	VARCHAR(true, false, true),
+	BINARY(true, false, false),
+	VARBINARY(true, false, false),
+	TINYBLOB(false, false, false),
+	TINYTEXT(false, false, true),
+	BLOB(false, false, false), //"Binary Long Array of Bytes"
+	TEXT(false, false, true),
+	MEDIUMBLOB(false, false, false),
+	MEDIUMTEXT(false, false, true),
+	LONGBLOB(false, false, false),
+	LONGTEXT(false, false, true),
+	ENUM(true, false, true),
+	SET(true, false, true),
+	GEOMETRY(false, false, false);
 
 	private static Map<String,MySqlColumnType> OTHER_NAME_TO_TYPE = Maps.newHashMap();
 	static{
@@ -81,28 +81,29 @@ public enum MySqlColumnType{
 
 	private boolean specifyLength;
 	private boolean supportsDefaultValue;
-
+	private boolean isIntroducible;
 
 	/*********************** constructors *************************************/
 
-	private MySqlColumnType(boolean specifyLength, boolean supportsDefaultValue){
-		this.specifyLength=specifyLength;
+	private MySqlColumnType(boolean specifyLength, boolean supportsDefaultValue, boolean isIntroducible){
+		this.specifyLength = specifyLength;
 		this.supportsDefaultValue = supportsDefaultValue;
+		this.isIntroducible = isIntroducible;
 	}
 
 
 	/************************ static methods ******************************************/
 
-	public static MySqlColumnType parse(String a){
-		String upperCase = DrStringTool.nullSafe(a).toUpperCase();
+	public static MySqlColumnType parse(String str){
+		String upperCase = DrStringTool.nullSafe(str).toUpperCase();
 		for(MySqlColumnType type : values()){
 			if(type.toString().equals(upperCase)){
 				return type;
 			}
 		}
 		MySqlColumnType type = OTHER_NAME_TO_TYPE.get(upperCase);
-		if(type==null){
-			throw new NullPointerException("Unparseable type: "+a);
+		if(type == null){
+			throw new NullPointerException("Unparseable type: " + str);
 		}
 		return type;
 	}
@@ -132,11 +133,15 @@ public enum MySqlColumnType{
 		return supportsDefaultValue;
 	}
 
-
-	/************************ main ***********************************************/
-
-	public static void main(String[] args){
-		System.out.println(LENGTH_50 + " " +MAX_LENGTH_VARCHAR + " " + MAX_LENGTH_TEXT + " " + " " + MAX_LENGTH_MEDIUMTEXT + " " + MAX_LENGTH_LONGTEXT);
+	/**
+	 * This states whether the type can handle introducers in literals (in SQL queries).
+	 * Only non-binary text types support this, because it affects the character set and collation that literals are
+	 * interpreted as.
+	 * Example: "_utf8 'hello' COLLATE utf8_bin" is an introduced form of "'hello'", which tells the DB that no
+	 * conversion from the connection settings' character set/collation (defaulted to utf8mb4/utf8mb_bin) is necessary.
+	 */
+	public boolean isIntroducible(){
+		return isIntroducible;
 	}
 
 }
