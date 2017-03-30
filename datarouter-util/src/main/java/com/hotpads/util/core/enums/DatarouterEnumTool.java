@@ -17,44 +17,46 @@ public class DatarouterEnumTool{
 
 	/*************************** comparator that compares the persistent values ***********/
 
-    public static class IntegerEnumComparator<T extends IntegerEnum<T>> implements Comparator<T>{
-	    @Override
-		public int compare(T a, T b){
-	    	if(DrObjectTool.bothNull(a, b)){ return 0; }
-	    	if(DrObjectTool.isOneNullButNotTheOther(a, b)){ return a==null?-1:1; }
-	        return DrComparableTool.nullFirstCompareTo(
-	        		a.getPersistentInteger(), b.getPersistentInteger());
-	    }
+	public static class IntegerEnumComparator<T extends IntegerEnum<T>> implements Comparator<T>{
+		@Override
+		public int compare(T valueA, T valueB){
+			if(DrObjectTool.bothNull(valueA, valueB)){
+				return 0;
+			}
+			if(DrObjectTool.isOneNullButNotTheOther(valueA, valueB)){
+				return valueA == null ? -1 : 1;
+			}
+			return DrComparableTool.nullFirstCompareTo(valueA.getPersistentInteger(), valueB.getPersistentInteger());
+		}
 	}
 
-    public static <T extends IntegerEnum<T>> int compareIntegerEnums(T a, T b){
-    	if(DrObjectTool.bothNull(a, b)){
-    		return 0;
-    	}
-    	if(DrObjectTool.isOneNullButNotTheOther(a, b)){
-    		return a==null?-1:1;
-    	}
-        return DrComparableTool.nullFirstCompareTo(a.getPersistentInteger(), b.getPersistentInteger());
-    }
+	public static <T extends IntegerEnum<T>> int compareIntegerEnums(T valueA, T valueB){
+		if(DrObjectTool.bothNull(valueA, valueB)){
+			return 0;
+		}
+		if(DrObjectTool.isOneNullButNotTheOther(valueA, valueB)){
+			return valueA == null ? -1 : 1;
+		}
+		return DrComparableTool.nullFirstCompareTo(valueA.getPersistentInteger(), valueB.getPersistentInteger());
+	}
 
-    public static <T extends StringEnum<T>> int compareStringEnums(T a, T b){
-    	if(DrObjectTool.bothNull(a, b)){
-    		return 0;
-    	}
-    	if(DrObjectTool.isOneNullButNotTheOther(a, b)){
-    		return a==null?-1:1;
-    	}
-        return DrComparableTool.nullFirstCompareTo(a.getPersistentString(), b.getPersistentString());
-    }
+	public static <T extends StringEnum<T>> int compareStringEnums(T valueA, T valueB){
+		if(DrObjectTool.bothNull(valueA, valueB)){
+			return 0;
+		}
+		if(DrObjectTool.isOneNullButNotTheOther(valueA, valueB)){
+			return valueA == null ? -1 : 1;
+		}
+		return DrComparableTool.nullFirstCompareTo(valueA.getPersistentString(), valueB.getPersistentString());
+	}
 
-
-    /********************** methods **************************************/
+	/********************** methods **************************************/
 
 	public static <T extends IntegerEnum<T>> T getEnumFromInteger(T[] values, Integer value, T defaultEnum){
-		if(value==null){
+		if(value == null){
 			return defaultEnum;
 		}
-		for(T type:values){
+		for(T type : values){
 			if(type.getPersistentInteger().equals(value)){
 				return type;
 			}
@@ -64,12 +66,12 @@ public class DatarouterEnumTool{
 
 	public static <T extends StringEnum<T>> T getEnumFromString(T[] values, String value, T defaultEnum,
 			boolean caseSensitive){
-		if(value==null){
+		if(value == null){
 			return defaultEnum;
 		}
-		for(T type:values){
-			if((caseSensitive && type.getPersistentString().equals(value))
-					|| (!caseSensitive && type.getPersistentString().equalsIgnoreCase(value))){
+		for(T type : values){
+			if(caseSensitive && type.getPersistentString().equals(value)
+					|| !caseSensitive && type.getPersistentString().equalsIgnoreCase(value)){
 				return type;
 			}
 		}
@@ -77,12 +79,10 @@ public class DatarouterEnumTool{
 	}
 
 	public static <T extends StringEnum<T>> T getEnumFromString(T[] values, String value, T defaultEnum){
-		return getEnumFromString(values,value,defaultEnum,true);
+		return getEnumFromString(values, value, defaultEnum, true);
 	}
 
-
-
-	/***************  multiple values ****************/
+	/*************** multiple values ****************/
 
 	public static <E extends StringEnum<E>> List<String> getPersistentStrings(Collection<E> enums){
 		List<String> strings = new ArrayList<>();
