@@ -11,6 +11,7 @@ import org.testng.annotations.Test;
 import com.hotpads.datarouter.storage.field.BaseField;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldKey;
+import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.util.core.bytes.IntegerByteTool;
 import com.hotpads.util.core.bytes.ShortByteTool;
 
@@ -83,12 +84,18 @@ public class LocalDateTimeField extends BaseField<LocalDateTime>{
 
 	@Override
 	public String getStringEncodedValue(){
+		if(value == null){
+			return null;
+		}
 		return value.format(formatter);
 	}
 
 	@Override
-	public LocalDateTime parseStringEncodedValueButDoNotSet(String value){
-		LocalDateTime dateTime = LocalDateTime.parse(value, formatter);
+	public LocalDateTime parseStringEncodedValueButDoNotSet(String str){
+		if(DrStringTool.isNullOrEmpty(str)){
+			return null;
+		}
+		LocalDateTime dateTime = LocalDateTime.parse(str, formatter);
 		return dateTime;
 	}
 
