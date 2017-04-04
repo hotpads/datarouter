@@ -92,7 +92,7 @@ public class LocalDateTimeField extends BaseField<LocalDateTime>{
 
 	@Override
 	public LocalDateTime parseStringEncodedValueButDoNotSet(String str){
-		if(DrStringTool.isEmpty(str) || "null".equals(str)){
+		if(DrStringTool.isNullOrEmpty(str)){
 			return null;
 		}
 		LocalDateTime dateTime = LocalDateTime.parse(str, formatter);
