@@ -294,9 +294,13 @@ public abstract class BaseManyFieldIntegrationTests{
 		bean.setDateTimeField(valOutOfBounds);
 		mapNode.put(bean, null);
 		ManyFieldBean roundTripped2 = mapNode.get(bean.getKey(), null);
-		Assert.assertNotEquals(roundTripped2.getDateTimeField(), bean.getDateTimeField());
-		Assert.assertNotEquals(roundTripped2.getDateTimeField(), valOutOfBounds);
-
+		if(isMemory()){
+			Assert.assertEquals(roundTripped2.getDateTimeField(), bean.getDateTimeField());
+			Assert.assertEquals(roundTripped2.getDateTimeField(), valOutOfBounds);
+		}else{
+			Assert.assertNotEquals(roundTripped2.getDateTimeField(), bean.getDateTimeField());
+			Assert.assertNotEquals(roundTripped2.getDateTimeField(), valOutOfBounds);
+		}
 		/* LocalDateTime.of can set the value of nanoseconds in a range from 0 to 999,999,999
 		MySql.DateTime cannot handle this level of granularity and will truncate the fractional second value
 		to 3 digits so the value of the LocalDateTime retrieved from the database will not be equal to the
@@ -307,7 +311,11 @@ public abstract class BaseManyFieldIntegrationTests{
 		mapNode.put(bean, null);
 		ManyFieldBean roundTripped3 = mapNode.get(bean.getKey(), null);
 		Assert.assertNotEquals(localDateTimeWithNano, localDateTimeTruncated);
-		Assert.assertEquals(roundTripped3.getDateTimeField(), localDateTimeTruncated);
+		if(isMemory()){
+			Assert.assertEquals(roundTripped3.getDateTimeField(), localDateTimeWithNano);
+		}else{
+			Assert.assertEquals(roundTripped3.getDateTimeField(), localDateTimeTruncated);
+		}
 
 		recordKey(bean.getKey());
 	}
