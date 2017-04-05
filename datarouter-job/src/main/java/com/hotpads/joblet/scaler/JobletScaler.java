@@ -19,6 +19,7 @@ import org.testng.annotations.Test;
 import com.hotpads.clustersetting.ClusterSettingService;
 import com.hotpads.datarouter.setting.Setting;
 import com.hotpads.datarouter.storage.databean.Databean;
+import com.hotpads.datarouter.util.core.DrNumberFormatter;
 import com.hotpads.joblet.JobletNodes;
 import com.hotpads.joblet.databean.JobletRequestKey;
 import com.hotpads.joblet.enums.JobletStatus;
@@ -80,13 +81,12 @@ public class JobletScaler{
 			int targetServers = getTargetServersForQueueAge(minServers, age);
 			int clusterLimit = getClusterLimit(jobletInstance, jobletType);
 			int instanceLimit = getInstanceLimit(jobletInstance, jobletType);
-			int maxNeededForJobletType = (int)Math.ceil((double)clusterLimit / (double)instanceLimit);
+			double maxNeedeForJobletTypeDbl = (double)clusterLimit / (double)instanceLimit;
+			int maxNeededForJobletType = (int)Math.ceil(maxNeedeForJobletTypeDbl);
 			int withClusterThreadCap = Math.min(targetServers, maxNeededForJobletType);
-			if(targetServers > maxNeededForJobletType){
-				logger.warn("{} with age {}m requesting {} but limiting to {} (clusterLimit={}, instanceLimit={})",
-						jobletType, age.toMinutes(), targetServers, maxNeededForJobletType, clusterLimit,
-						instanceLimit);
-			}
+			logger.warn("{} with age {}m requesting {}, limiting to {} (clusterLimit={}, instanceLimit={} -> {})",
+					jobletType, age.toMinutes(), targetServers, maxNeededForJobletType, clusterLimit, instanceLimit,
+					DrNumberFormatter.format(maxNeedeForJobletTypeDbl, 2));
 			if(withClusterThreadCap > minServers){
 				requestedNumServersByJobletType.put(jobletType, withClusterThreadCap);
 			}
