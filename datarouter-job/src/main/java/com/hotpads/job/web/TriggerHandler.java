@@ -101,7 +101,7 @@ public class TriggerHandler extends BaseHandler {
 		String jobKey = params.required(P_name);
 		Job sampleJob = injector.getInstance(Class.forName(jobKey).asSubclass(Job.class));
 		TriggerInfo triggerInfo = jobScheduler.getTracker().get(sampleJob.getClass());
-		if(triggerInfo.switchToRunning()){
+		if(!triggerInfo.switchToRunning()){
 			return new MessageMav("Unable to run job, it is already running on this server");
 		}
 		triggerInfo.setJob(sampleJob);
@@ -111,11 +111,11 @@ public class TriggerHandler extends BaseHandler {
 		try{
 			sampleJob.run();
 		}catch(Exception e){
-			triggerInfo.setRunning(false);
 			logger.error("cannot run job " + jobKey, e);
 			throw e;
+		}finally{
+			triggerInfo.setRunning(false);
 		}
-		triggerInfo.setRunning(false);
 		sampleJob.trackAfterRun(System.currentTimeMillis());
 		long durationMs = System.currentTimeMillis() - date.getTime();
 		logger.warn("Finished manual trigger of " + sampleJob.getClass().getSimpleName() + " in " + durationMs + "ms");
