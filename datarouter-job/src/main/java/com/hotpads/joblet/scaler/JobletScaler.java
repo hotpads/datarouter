@@ -16,6 +16,8 @@ import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import com.hotpads.clustersetting.ClusterSettingService;
+import com.hotpads.datarouter.setting.Setting;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.joblet.JobletNodes;
 import com.hotpads.joblet.databean.JobletRequestKey;
@@ -23,6 +25,7 @@ import com.hotpads.joblet.enums.JobletStatus;
 import com.hotpads.joblet.setting.JobletSettings;
 import com.hotpads.joblet.type.ActiveJobletTypeFactory;
 import com.hotpads.joblet.type.JobletType;
+import com.hotpads.webappinstance.databean.WebAppInstance;
 
 @Singleton
 public class JobletScaler{
@@ -33,19 +36,26 @@ public class JobletScaler{
 	private static final Set<JobletStatus> STATUSES_TO_CONSIDER = EnumSet.of(JobletStatus.created);
 	private static final int IGNORE_OLDEST_N_JOBLETS = 100;//in case they are stuck
 
+	private final ClusterSettingService clusterSettingService;
 	private final ActiveJobletTypeFactory activeJobletTypeFactory;
 	private final JobletSettings jobletSettings;
 	private final JobletNodes jobletNodes;
 
 	@Inject
-	private JobletScaler(ActiveJobletTypeFactory activeJobletTypeFactory, JobletSettings jobletSettings,
-			JobletNodes jobletNodes){
+	private JobletScaler(ClusterSettingService clusterSettingService, ActiveJobletTypeFactory activeJobletTypeFactory,
+			JobletSettings jobletSettings, JobletNodes jobletNodes){
+		this.clusterSettingService = clusterSettingService;
 		this.activeJobletTypeFactory = activeJobletTypeFactory;
 		this.jobletSettings = jobletSettings;
 		this.jobletNodes = jobletNodes;
 	}
 
-	public int getNumJobletServers(){
+	public int getNumJobletServers(WebAppInstance jobletInstance){
+		int minServers = jobletSettings.minJobletServers.getValue();
+		if(jobletInstance == null){
+			return minServers;
+		}
+
 		//find JobletRequests that would trigger scaling
 		Map<JobletType<?>,Duration> oldestAgeByJobletType = new TreeMap<>();
 		for(JobletType<?> jobletType : activeJobletTypeFactory.getActiveTypesCausingScaling()){
@@ -63,14 +73,13 @@ public class JobletScaler{
 		}
 
 		//calculate desired numServers by type
-		int minServers = jobletSettings.minJobletServers.getValue();
 		int maxServers = jobletSettings.maxJobletServers.getValue();
 		Map<JobletType<?>,Integer> requestedNumServersByJobletType = new TreeMap<>();
 		for(JobletType<?> jobletType : oldestAgeByJobletType.keySet()){
 			Duration age = oldestAgeByJobletType.get(jobletType);
 			int targetServers = getTargetServersForQueueAge(minServers, age);
-			int clusterLimit = jobletSettings.getClusterThreadCountForJobletType(jobletType);
-			int instanceLimit = jobletSettings.getThreadCountForJobletType(jobletType);
+			int clusterLimit = getClusterLimit(jobletInstance, jobletType);
+			int instanceLimit = getInstanceLimit(jobletInstance, jobletType);
 			int maxNeededForJobletType = (int)Math.ceil((double)clusterLimit / (double)instanceLimit);
 			int withClusterThreadCap = Math.min(targetServers, maxNeededForJobletType);
 			if(targetServers > maxNeededForJobletType){
@@ -105,6 +114,18 @@ public class JobletScaler{
 					highestType, hungriestTypeAge.toMinutes());
 		}
 		return targetServers;
+	}
+
+	private int getClusterLimit(WebAppInstance instance, JobletType<?> jobletType){
+		Setting<Integer> clusterLimitSetting = jobletSettings.getClusterThreadCountSettings().getSettingForJobletType(
+				jobletType);
+		return clusterSettingService.getSettingValueForWebAppInstance(clusterLimitSetting, instance);
+	}
+
+	private int getInstanceLimit(WebAppInstance instance, JobletType<?> jobletType){
+		Setting<Integer> instanceLimitSetting = jobletSettings.getThreadCountSettings().getSettingForJobletType(
+				jobletType);
+		return clusterSettingService.getSettingValueForWebAppInstance(instanceLimitSetting, instance);
 	}
 
 	private static int getTargetServersForQueueAge(int minServers, Duration age){

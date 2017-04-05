@@ -71,7 +71,10 @@ public class WebAppInstanceDao{
 	 * (not each webApp on the server)
 	 */
 	public List<WebAppInstance> getWebAppInstancesOfType(ServerType type, Duration heartbeatWithin){
-		String typeString = type.getPersistentString();
+		return getWebAppInstancesWithTypeString(type.getPersistentString(), heartbeatWithin);
+	}
+
+	public List<WebAppInstance> getWebAppInstancesWithTypeString(String typeString, Duration heartbeatWithin){
 		return webAppInstanceNodes.getWebAppInstance().stream(null, null)
 				.filter(webAppInstance -> typeString.equals(webAppInstance.getServerType()))
 				.filter(webAppInstance -> webAppInstance.getDurationSinceLastUpdated().compareTo(heartbeatWithin) < 0)
