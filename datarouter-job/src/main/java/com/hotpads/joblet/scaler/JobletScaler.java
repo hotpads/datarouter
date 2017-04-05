@@ -69,8 +69,15 @@ public class JobletScaler{
 		for(JobletType<?> jobletType : oldestAgeByJobletType.keySet()){
 			Duration age = oldestAgeByJobletType.get(jobletType);
 			int targetServers = getTargetServersForQueueAge(minServers, age);
-			int maxNeededForJobletType = (int)Math.ceil(maxNeededForJobletType(jobletType));
+			int clusterLimit = jobletSettings.getClusterThreadCountForJobletType(jobletType);
+			int instanceLimit = jobletSettings.getThreadCountForJobletType(jobletType);
+			int maxNeededForJobletType = (int)Math.ceil((double)clusterLimit / (double)instanceLimit);
 			int withClusterThreadCap = Math.min(targetServers, maxNeededForJobletType);
+			if(targetServers > maxNeededForJobletType){
+				logger.warn("{} with age {}m requesting {} but limiting to {} (clusterLimit={}, instanceLimit={})",
+						jobletType, age.toMinutes(), targetServers, maxNeededForJobletType, clusterLimit,
+						instanceLimit);
+			}
 			if(withClusterThreadCap > minServers){
 				requestedNumServersByJobletType.put(jobletType, withClusterThreadCap);
 			}
@@ -90,7 +97,9 @@ public class JobletScaler{
 
 		//cap at maxServers, log it, and return
 		targetServers = Math.min(targetServers, maxServers);
-		if(highestType != null){
+		if(highestType == null){
+			logger.warn("targetServers at minimum of {}", minServers);
+		}else{
 			Duration hungriestTypeAge = oldestAgeByJobletType.get(highestType);
 			logger.warn("targetServers at {} of max {} because of {} with age {}m", targetServers, maxServers,
 					highestType, hungriestTypeAge.toMinutes());
@@ -101,12 +110,6 @@ public class JobletScaler{
 	private static int getTargetServersForQueueAge(int minServers, Duration age){
 		int numPeriodsPending = (int)(age.toMillis() / BACKUP_PERIOD.toMillis());
 		return minServers + NUM_EXTRA_SERVERS_PER_BACKUP_PERIOD * numPeriodsPending;
-	}
-
-	private double maxNeededForJobletType(JobletType<?> jobletType){
-		int clusterLimit = jobletSettings.getClusterThreadCountForJobletType(jobletType);
-		int instanceLimit = jobletSettings.getThreadCountForJobletType(jobletType);
-		return (double)clusterLimit / (double)instanceLimit;
 	}
 
 
