@@ -1,6 +1,7 @@
 package com.hotpads.joblet.scaler;
 
 import java.time.Duration;
+import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.Map;
 import java.util.Optional;
@@ -15,8 +16,8 @@ import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.joblet.JobletNodes;
-import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.databean.JobletRequestKey;
 import com.hotpads.joblet.enums.JobletStatus;
 import com.hotpads.joblet.setting.JobletSettings;
@@ -46,15 +47,18 @@ public class JobletScaler{
 
 	public int getNumJobletServers(){
 		//find JobletRequests that would trigger scaling
-		Map<JobletType<?>,JobletRequest> oldestJobletRequestByType = new TreeMap<>();
+		Map<JobletType<?>,Duration> oldestAgeByJobletType = new TreeMap<>();
 		for(JobletType<?> jobletType : activeJobletTypeFactory.getActiveTypesCausingScaling()){
 			JobletRequestKey prefix = JobletRequestKey.create(jobletType, null, null, null);
-			Optional<JobletRequest> optRequest = jobletNodes.jobletRequest().streamWithPrefix(prefix, null)
+			Optional<Duration> optRequest = jobletNodes.jobletRequest().streamWithPrefix(prefix, null)
 					.filter(request -> STATUSES_TO_CONSIDER.contains(request.getStatus()))
-					.skip(IGNORE_OLDEST_N_JOBLETS)
+					.map(Databean::getKey)
+					.map(JobletRequestKey::getAge)
+					.sorted(Comparator.reverseOrder())
+					.limit(IGNORE_OLDEST_N_JOBLETS)
 					.findFirst();
 			if(optRequest.isPresent()){
-				oldestJobletRequestByType.put(jobletType, optRequest.get());
+				oldestAgeByJobletType.put(jobletType, optRequest.get());
 			}
 		}
 
@@ -62,8 +66,8 @@ public class JobletScaler{
 		int minServers = jobletSettings.minJobletServers.getValue();
 		int maxServers = jobletSettings.maxJobletServers.getValue();
 		Map<JobletType<?>,Integer> requestedNumServersByJobletType = new TreeMap<>();
-		for(JobletType<?> jobletType : oldestJobletRequestByType.keySet()){
-			Duration age = oldestJobletRequestByType.get(jobletType).getKey().getAge();
+		for(JobletType<?> jobletType : oldestAgeByJobletType.keySet()){
+			Duration age = oldestAgeByJobletType.get(jobletType);
 			int targetServers = getTargetServersForQueueAge(minServers, age);
 			int maxNeededForJobletType = (int)Math.ceil(maxNeededForJobletType(jobletType));
 			int withClusterThreadCap = Math.min(targetServers, maxNeededForJobletType);
@@ -87,7 +91,7 @@ public class JobletScaler{
 		//cap at maxServers, log it, and return
 		targetServers = Math.min(targetServers, maxServers);
 		if(highestType != null){
-			Duration hungriestTypeAge = oldestJobletRequestByType.get(highestType).getKey().getAge();
+			Duration hungriestTypeAge = oldestAgeByJobletType.get(highestType);
 			logger.warn("targetServers at {} of max {} because of {} with age {}m", targetServers, maxServers,
 					highestType, hungriestTypeAge.toMinutes());
 		}
