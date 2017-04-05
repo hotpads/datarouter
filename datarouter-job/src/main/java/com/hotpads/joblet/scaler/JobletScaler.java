@@ -67,13 +67,12 @@ public class JobletScaler{
 			int targetServers = getTargetServersForQueueAge(minServers, age);
 			int maxNeededForJobletType = (int)Math.ceil(maxNeededForJobletType(jobletType));
 			int withClusterThreadCap = Math.min(targetServers, maxNeededForJobletType);
-			int withAbsoluteCap = Math.min(withClusterThreadCap, maxServers);
-			if(withAbsoluteCap > minServers){
-				requestedNumServersByJobletType.put(jobletType, withAbsoluteCap);
+			if(withClusterThreadCap > minServers){
+				requestedNumServersByJobletType.put(jobletType, withClusterThreadCap);
 			}
 		}
 
-		//find highest request
+		//find highest request among jobletTypes
 		int targetServers = minServers;
 		JobletType<?> highestType = null;
 		for(JobletType<?> jobletType : requestedNumServersByJobletType.keySet()){
@@ -84,10 +83,13 @@ public class JobletScaler{
 				highestType = jobletType;
 			}
 		}
+
+		//cap at maxServers, log it, and return
+		targetServers = Math.min(targetServers, maxServers);
 		if(highestType != null){
 			Duration hungriestTypeAge = oldestJobletRequestByType.get(highestType).getKey().getAge();
-			logger.warn("targetServers at {} because of {} with age {}m", targetServers, highestType, hungriestTypeAge
-					.toMinutes());
+			logger.warn("targetServers at {} of max {} because of {} with age {}m", targetServers, maxServers,
+					highestType, hungriestTypeAge.toMinutes());
 		}
 		return targetServers;
 	}
