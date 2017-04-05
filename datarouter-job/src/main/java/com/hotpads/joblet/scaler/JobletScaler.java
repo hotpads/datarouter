@@ -81,13 +81,13 @@ public class JobletScaler{
 			int targetServers = getTargetServersForQueueAge(minServers, age);
 			int clusterLimit = getClusterLimit(jobletInstance, jobletType);
 			int instanceLimit = getInstanceLimit(jobletInstance, jobletType);
-			double maxNeedeForJobletTypeDbl = (double)clusterLimit / (double)instanceLimit;
-			int maxNeededForJobletType = (int)Math.ceil(maxNeedeForJobletTypeDbl);
+			double maxNeededForJobletTypeDbl = (double)clusterLimit / (double)instanceLimit;
+			int maxNeededForJobletType = (int)Math.ceil(maxNeededForJobletTypeDbl);
 			int withClusterThreadCap = Math.min(targetServers, maxNeededForJobletType);
 			if(targetServers > minServers){
 				logger.warn("{} with age {}m requesting {}, limiting to {} (clusterLimit={}, instanceLimit={} -> {})",
 						jobletType, age.toMinutes(), targetServers, maxNeededForJobletType, clusterLimit, instanceLimit,
-						DrNumberFormatter.format(maxNeedeForJobletTypeDbl, 2));
+						DrNumberFormatter.format(maxNeededForJobletTypeDbl, 2));
 			}
 			if(withClusterThreadCap > minServers){
 				requestedNumServersByJobletType.put(jobletType, withClusterThreadCap);

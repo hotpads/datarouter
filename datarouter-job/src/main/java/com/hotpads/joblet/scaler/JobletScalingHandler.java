@@ -32,7 +32,7 @@ public class JobletScalingHandler extends BaseHandler{
 
 	/**
 	 * @param jobletServerType serverType of a jobletServer with per-instance and cluster thread limits configured
-	 * @return the recommended number of joblet servers to run
+	 * @return the recommended number of joblet servers to run (in proprietary html format)
 	 */
 	@Handler(defaultHandler = true)
 	Mav getRecommendedJobletServerCount(String jobletServerType){
