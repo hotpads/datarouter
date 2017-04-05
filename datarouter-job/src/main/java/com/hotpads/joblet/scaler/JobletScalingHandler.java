@@ -20,6 +20,8 @@ public class JobletScalingHandler extends BaseHandler{
 	public static final String PATH = "/jobletScaling";
 	public static final String JSP = "/jsp/joblet/jobletScaling.jsp";
 
+	public static final Duration HEARTBEAT_WITHIN = Duration.ofMinutes(3);
+
 	@Inject
 	private WebAppInstanceDao webAppInstanceDao;
 	@Inject
@@ -45,7 +47,7 @@ public class JobletScalingHandler extends BaseHandler{
 	//optionally override this in a subclass handler
 	protected WebAppInstance findJobletWebAppInstance(String serverTypeString){
 		List<WebAppInstance> jobletInstances = webAppInstanceDao.getWebAppInstancesWithTypeString(serverTypeString,
-				Duration.ofMinutes(2));
+				HEARTBEAT_WITHIN);
 		return DrCollectionTool.getFirst(jobletInstances);
 	}
 }

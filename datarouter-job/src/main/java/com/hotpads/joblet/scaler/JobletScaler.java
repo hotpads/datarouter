@@ -84,9 +84,11 @@ public class JobletScaler{
 			double maxNeedeForJobletTypeDbl = (double)clusterLimit / (double)instanceLimit;
 			int maxNeededForJobletType = (int)Math.ceil(maxNeedeForJobletTypeDbl);
 			int withClusterThreadCap = Math.min(targetServers, maxNeededForJobletType);
-			logger.warn("{} with age {}m requesting {}, limiting to {} (clusterLimit={}, instanceLimit={} -> {})",
-					jobletType, age.toMinutes(), targetServers, maxNeededForJobletType, clusterLimit, instanceLimit,
-					DrNumberFormatter.format(maxNeedeForJobletTypeDbl, 2));
+			if(targetServers > minServers){
+				logger.warn("{} with age {}m requesting {}, limiting to {} (clusterLimit={}, instanceLimit={} -> {})",
+						jobletType, age.toMinutes(), targetServers, maxNeededForJobletType, clusterLimit, instanceLimit,
+						DrNumberFormatter.format(maxNeedeForJobletTypeDbl, 2));
+			}
 			if(withClusterThreadCap > minServers){
 				requestedNumServersByJobletType.put(jobletType, withClusterThreadCap);
 			}
@@ -97,7 +99,6 @@ public class JobletScaler{
 		JobletType<?> highestType = null;
 		for(JobletType<?> jobletType : requestedNumServersByJobletType.keySet()){
 			int numForType = requestedNumServersByJobletType.get(jobletType);
-			logger.warn("{} requesting {} servers", jobletType, numForType);
 			if(numForType > targetServers){
 				targetServers = numForType;
 				highestType = jobletType;
