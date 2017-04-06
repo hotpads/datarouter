@@ -153,8 +153,8 @@ public abstract class BaseHandler{
 				if(args == null){
 					args = new Object[]{};
 				}
-				result = method.invoke(this, args);
 				handlerCounters.incMethodInvocation(this, method);
+				result = method.invoke(this, args);
 				encoder.finishRequest(result, servletContext, response, request);
 			}catch(IllegalAccessException e){
 				throw new RuntimeException(e);
