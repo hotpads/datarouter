@@ -59,6 +59,8 @@ public abstract class BaseHandler{
 	private DatarouterInjector injector;
 	@Inject
 	private ExceptionRecorder exceptionRecorder;
+	@Inject
+	private HandlerCounters handlerCounters;
 
 	//these are available to all handlers without passing them around
 	protected ServletContext servletContext;
@@ -152,6 +154,7 @@ public abstract class BaseHandler{
 					args = new Object[]{};
 				}
 				result = method.invoke(this, args);
+				handlerCounters.incMethodInvocation(this, method);
 				encoder.finishRequest(result, servletContext, response, request);
 			}catch(IllegalAccessException e){
 				throw new RuntimeException(e);
