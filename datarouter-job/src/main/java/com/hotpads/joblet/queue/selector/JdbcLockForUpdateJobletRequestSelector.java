@@ -7,10 +7,13 @@ import javax.inject.Singleton;
 
 import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.routing.Datarouter;
+import com.hotpads.joblet.JobletCounters;
 import com.hotpads.joblet.JobletNodes;
 import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.jdbc.GetJobletRequest;
 import com.hotpads.joblet.jdbc.JobletRequestSqlBuilder;
+import com.hotpads.joblet.queue.JobletRequestQueueKey;
+import com.hotpads.joblet.queue.JobletRequestQueueManager;
 import com.hotpads.joblet.queue.JobletRequestSelector;
 import com.hotpads.joblet.type.JobletType;
 import com.hotpads.util.core.profile.PhaseTimer;
@@ -26,6 +29,11 @@ public class JdbcLockForUpdateJobletRequestSelector implements JobletRequestSele
 	private JdbcFieldCodecFactory jdbcFieldCodecFactory;
 	@Inject
 	private JobletRequestSqlBuilder jobletRequestSqlBuilder;
+	@Inject
+	private JobletRequestQueueManager jobletRequestQueueManager;
+	@Inject
+	private JobletCounters jobletCounters;
+
 
 	@Override
 	public Optional<JobletRequest> getJobletRequestForProcessing(PhaseTimer timer, JobletType<?> type,
@@ -36,11 +44,14 @@ public class JdbcLockForUpdateJobletRequestSelector implements JobletRequestSele
 			JobletRequest jobletRequest = datarouter.run(jdbcOp);
 			timer.add("GetJobletRequest");
 			if(jobletRequest == null){
+				jobletRequestQueueManager.onJobletRequestMissForAllPriorities(type);//for back-off
 				return Optional.empty();
 			}
 			if(!jobletRequest.getStatus().isRunning()){
 				continue;// weird flow. it was probably just marked as timedOut, so skip it
 			}
+			JobletRequestQueueKey queueKey = new JobletRequestQueueKey(type, jobletRequest.getKey().getPriority());
+			jobletCounters.incQueueHit(queueKey.getQueueName());
 			return Optional.of(jobletRequest);
 		}
 	}

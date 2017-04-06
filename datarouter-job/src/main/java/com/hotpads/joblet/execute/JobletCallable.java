@@ -91,6 +91,9 @@ public class JobletCallable implements Callable<Void>{
 			}
 			logger.info(timer.toString());
 			return null;
+		}catch(Exception e){
+			logger.error("", e);
+			throw e;
 		}finally{
 			processor.onCompletion(id);
 		}

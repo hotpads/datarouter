@@ -48,7 +48,6 @@ public class SqsJobletRequestSelector implements JobletRequestSelector{
 					.peek(config);
 			timer.add("peek");
 			if(message == null){
-				jobletCounters.incQueueMiss(queueKey.getQueueName());
 				jobletRequestQueueManager.onJobletRequestQueueMiss(queueKey);
 				continue;
 			}
