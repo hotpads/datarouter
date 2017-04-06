@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.hadoop.hbase.client.Delete;
-import org.apache.hadoop.hbase.client.Durability;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
@@ -94,6 +93,7 @@ implements PhysicalSortedMapStorageNode<PK,D>, HBaseIncrement<PK>{
 					throws Exception{
 						List<Row> actions = new ArrayList<>();
 						int numCellsPut = 0, numCellsDeleted = 0;
+						long batchStartTime = System.currentTimeMillis();
 						for(D databean : databeans){//TODO obey Config.commitBatchSize
 							if(databean == null){
 								continue;
@@ -107,19 +107,19 @@ implements PhysicalSortedMapStorageNode<PK,D>, HBaseIncrement<PK>{
 								byte[] fieldBytes = field.getBytes();
 								if(fieldBytes == null){
 									if(DrBooleanTool.isFalseOrNull(config.getIgnoreNullFields())){
-										delete.addColumn(FAM, field.getKey().getColumnNameBytes());
+										delete.deleteColumn(FAM, field.getKey().getColumnNameBytes(), batchStartTime);
 										++numCellsDeleted;
 									}
 								}else{
-									put.addColumn(FAM, field.getKey().getColumnNameBytes(), field.getBytes());
+									put.add(FAM, field.getKey().getColumnNameBytes(), field.getBytes());
 									++numCellsPut;
 								}
 							}
 							if(put.isEmpty()){
 								Field<?> dummyField = new SignedByteField(DUMMY, (byte)0);
-								put.addColumn(FAM, dummyField.getKey().getColumnNameBytes(), dummyField.getBytes());
+								put.add(FAM, dummyField.getKey().getColumnNameBytes(), dummyField.getBytes());
 							}
-							put.setDurability(config.getPersistentPut() ? Durability.USE_DEFAULT : Durability.SKIP_WAL);
+							put.setWriteToWAL(config.getPersistentPut());
 							actions.add(put);
 							if(!delete.isEmpty()){
 								actions.add(delete);
