@@ -5,10 +5,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.hadoop.hbase.Cell;
-import org.apache.hadoop.hbase.CellUtil;
+import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Delete;
-import org.apache.hadoop.hbase.client.Durability;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
@@ -104,6 +102,7 @@ implements SubEntitySortedMapStorageNode<EK,PK,D,F>, PhysicalSortedMapStorageNod
 			throws Exception{
 				List<Row> actions = new ArrayList<>();
 				int numCellsPut = 0, numCellsDeleted = 0;
+				long batchStartTime = System.currentTimeMillis();
 				Map<EK,List<D>> databeansByEntityKey = EntityTool.getDatabeansByEntityKey(databeans);
 				for(EK ek : databeansByEntityKey.keySet()){
 					byte[] ekBytes = queryBuilder.getRowBytesWithPartition(ek);
@@ -120,12 +119,12 @@ implements SubEntitySortedMapStorageNode<EK,PK,D,F>, PhysicalSortedMapStorageNod
 							byte[] fieldValueBytes = field.getBytes();
 							if(fieldValueBytes == null){
 								if(DrBooleanTool.isFalseOrNull(config.getIgnoreNullFields())){
-									delete.addColumn(FAM, fullQualifierBytes);
+									delete.deleteColumn(FAM, fullQualifierBytes, batchStartTime);
 									++numCellsDeleted;
 								}
 							}else{
 								didAtLeastOneField = true;
-								put.addColumn(FAM, fullQualifierBytes, fieldValueBytes);
+								put.add(FAM, fullQualifierBytes, fieldValueBytes);
 								++numCellsPut;
 							}
 						}
@@ -133,13 +132,13 @@ implements SubEntitySortedMapStorageNode<EK,PK,D,F>, PhysicalSortedMapStorageNod
 							Field<?> dummyField = new SignedByteField(DUMMY, (byte)0);
 							byte[] dummyQualifierBytes = DrByteTool.concatenate(fieldInfo.getEntityColumnPrefixBytes(),
 									qualifierPkBytes, dummyField.getKey().getColumnNameBytes());
-							put.addColumn(FAM, dummyQualifierBytes, dummyField.getBytes());
+							put.add(FAM, dummyQualifierBytes, dummyField.getBytes());
 						}
 						if(!delete.isEmpty()){
 							actions.add(delete);
 						}
 					}
-					put.setDurability(config.getPersistentPut() ? Durability.USE_DEFAULT : Durability.SKIP_WAL);
+					put.setWriteToWAL(config.getPersistentPut());
 					actions.add(put);
 				}
 				int numEntitiesPut = DrMapTool.size(databeansByEntityKey);
@@ -182,8 +181,8 @@ implements SubEntitySortedMapStorageNode<EK,PK,D,F>, PhysicalSortedMapStorageNod
 						continue;
 					}
 					Delete delete = new Delete(row.getRow());
-					for(Cell cell : DrIterableTool.nullSafe(row.listCells())){//row.listCells() can return null
-						delete.addColumns(CellUtil.cloneFamily(cell), CellUtil.cloneQualifier(cell));
+					for(KeyValue kv : DrIterableTool.nullSafe(row.list())){//row.list() can return null
+						delete.deleteColumns(kv.getFamily(), kv.getQualifier());
 					}
 					batchToDelete.add(delete);
 					if(batchToDelete.size() % 100 == 0){
@@ -226,7 +225,7 @@ implements SubEntitySortedMapStorageNode<EK,PK,D,F>, PhysicalSortedMapStorageNod
 						for(String columnName : nonKeyColumnNames){//TODO only put modified fields
 							Delete delete = new Delete(rowBytes);
 							byte[] qualifier = queryBuilder.getQualifier(pk, columnName);
-							delete.addColumns(FAM, qualifier);
+							delete.deleteColumns(FAM, qualifier);
 							deletes.add(delete);
 						}
 						byte[] qualifierPkBytes = queryBuilder.getQualifierPkBytes(pk, true);
@@ -234,7 +233,7 @@ implements SubEntitySortedMapStorageNode<EK,PK,D,F>, PhysicalSortedMapStorageNod
 						Field<?> dummyField = new SignedByteField(DUMMY, (byte)0);
 						byte[] dummyQualifierBytes = DrByteTool.concatenate(fieldInfo.getEntityColumnPrefixBytes(),
 								qualifierPkBytes, dummyField.getKey().getColumnNameBytes());
-						delete.addColumns(FAM, dummyQualifierBytes);
+						delete.deleteColumns(FAM, dummyQualifierBytes);
 						deletes.add(delete);
 					}
 				}
