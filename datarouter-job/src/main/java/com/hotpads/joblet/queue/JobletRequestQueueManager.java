@@ -9,6 +9,7 @@ import java.util.concurrent.ConcurrentMap;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import com.hotpads.joblet.JobletCounters;
 import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.databean.JobletRequestKey;
 import com.hotpads.joblet.enums.JobletPriority;
@@ -22,12 +23,14 @@ public class JobletRequestQueueManager{
 
 	//injected
 	private final JobletTypeFactory jobletTypeFactory;
+	private final JobletCounters jobletCounters;
 
 	private final ConcurrentMap<JobletRequestQueueKey,Long> lastMissByQueue;
 
 	@Inject
-	public JobletRequestQueueManager(JobletTypeFactory jobletTypeFactory){
+	public JobletRequestQueueManager(JobletTypeFactory jobletTypeFactory, JobletCounters jobletCounters){
 		this.jobletTypeFactory = jobletTypeFactory;
+		this.jobletCounters = jobletCounters;
 		this.lastMissByQueue = new ConcurrentHashMap<>();
 		getAllQueueKeys().forEach(key -> lastMissByQueue.put(key, 0L));
 	}
@@ -51,8 +54,16 @@ public class JobletRequestQueueManager{
 		return queueKeys;
 	}
 
+	public void onJobletRequestMissForAllPriorities(JobletType<?> type){
+		for(JobletPriority priority : JobletPriority.values()){
+			JobletRequestQueueKey queueKey = new JobletRequestQueueKey(type, priority);
+			onJobletRequestQueueMiss(queueKey);
+		}
+	}
+
 	public void onJobletRequestQueueMiss(JobletRequestQueueKey queueKey){
 		lastMissByQueue.put(queueKey, System.currentTimeMillis());
+		jobletCounters.incQueueMiss(queueKey.getQueueName());
 	}
 
 	public boolean shouldSkipQueue(JobletRequestQueueKey queueKey){
