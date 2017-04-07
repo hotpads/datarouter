@@ -14,9 +14,7 @@
 	<%@ include file="/jsp/joblet/jobletsNavbar.jspf" %>
 	<div class="container-fluid" id="jobletsTable">
 		<div class="page-content-container page-content-thicktop page-single-column">
-			servers: min=${minServers}, max=${maxServers}, target=
-				<a href="${contextPath}/jobletScaling">view</a></p>
-				<br/> <br/>totalTickets:${totalTickets}</p>
+			servers: min=${minServers}, max=${maxServers}<br/>
 
 			<table class="jobletTable sortable table table-bordered table-condensed" style="border-collapse:collapse;">
 				<tr>
