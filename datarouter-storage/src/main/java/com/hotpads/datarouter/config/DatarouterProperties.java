@@ -278,11 +278,6 @@ public abstract class DatarouterProperties{
 		return Optional.ofNullable(serverType).map(ServerType::getPersistentString).orElse(null);
 	}
 
-	@Deprecated
-	public String getConfigPath(){
-		return configFileLocation;
-	}
-
 	public void assertConfigFileExists(String filename){
 		String fileLocation = configDirectory + "/" + filename;
 		File file = new File(fileLocation);
