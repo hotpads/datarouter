@@ -7,7 +7,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
-import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
@@ -29,7 +28,6 @@ import com.hotpads.datarouter.inject.guice.executor.DatarouterExecutorGuiceModul
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.util.DatarouterEmailTool;
-import com.hotpads.datarouter.util.core.DrPropertiesTool;
 import com.hotpads.util.core.concurrent.Lazy;
 
 public class JdbcSchemaUpdateService{
@@ -79,9 +77,8 @@ public class JdbcSchemaUpdateService{
 		this.datarouterProperties = datarouterProperties;
 		this.fieldSqlTableGenerator = fieldSqlTableGenerator;
 		this.connectionPool = connectionPool;
-		List<Properties> multiProperties = DrPropertiesTool.fromFiles(datarouter.getConfigFilePaths());
-		this.printOptions = new SchemaUpdateOptions(multiProperties, PRINT_PREFIX, true);
-		this.executeOptions = new SchemaUpdateOptions(multiProperties, EXECUTE_PREFIX, false);
+		this.printOptions = new SchemaUpdateOptions(datarouterProperties.getConfigDirectory(), PRINT_PREFIX, true);
+		this.executeOptions = new SchemaUpdateOptions(datarouterProperties.getConfigDirectory(), EXECUTE_PREFIX, false);
 		this.printedSchemaUpdates = new ArrayList<>();
 		this.futures = Collections.synchronizedList(new ArrayList<>());
 		this.existingTableNames = Lazy.of(this::fetchExistingTables);

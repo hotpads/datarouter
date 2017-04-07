@@ -15,6 +15,7 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.execute.JdbcSchemaUpdateServic
 import com.hotpads.datarouter.client.imp.jdbc.factory.JdbcSimpleClientFactory;
 import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.client.imp.jdbc.node.JdbcNode;
+import com.hotpads.datarouter.config.DatarouterProperties;
 import com.hotpads.datarouter.inject.DatarouterInjector;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams;
@@ -40,14 +41,16 @@ public class JdbcClientType extends BaseClientType{
 	public static JdbcClientType INSTANCE;//TODO get rid of
 
 	//injected
+	private final DatarouterProperties datarouterProperties;
 	private final JdbcFieldCodecFactory fieldCodecFactory;
 	private final ClientAvailabilitySettings clientAvailabilitySettings;
 	private final JdbcSchemaUpdateServiceFactory schemaUpdateServiceFactory;
 
 	@Inject
-	public JdbcClientType(JdbcFieldCodecFactory fieldCodecFactory,
+	public JdbcClientType(DatarouterProperties datarouterProperties, JdbcFieldCodecFactory fieldCodecFactory,
 			ClientAvailabilitySettings clientAvailabilitySettings,
 			JdbcSchemaUpdateServiceFactory schemaUpdateServiceFactory){
+		this.datarouterProperties = datarouterProperties;
 		this.fieldCodecFactory = fieldCodecFactory;
 		this.clientAvailabilitySettings = clientAvailabilitySettings;
 		this.schemaUpdateServiceFactory = schemaUpdateServiceFactory;
@@ -61,7 +64,7 @@ public class JdbcClientType extends BaseClientType{
 
 	@Override
 	public ClientFactory createClientFactory(Datarouter datarouter, String clientName){
-		return new JdbcSimpleClientFactory(datarouter, clientName, clientAvailabilitySettings,
+		return new JdbcSimpleClientFactory(datarouterProperties, datarouter, clientName, clientAvailabilitySettings,
 				schemaUpdateServiceFactory);
 	}
 
