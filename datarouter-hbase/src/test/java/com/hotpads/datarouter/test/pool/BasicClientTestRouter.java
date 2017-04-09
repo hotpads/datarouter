@@ -37,9 +37,9 @@ extends BaseRouter{
 		super(datarouter, datarouterProperties.getTestRouterConfigFileLocation(), name, nodeFactory,
 				datarouterSettings);
 
-		keepAliveHBase = register(nodeFactory.create(DatarouterTestClientIds.CLIENT_drTestHBase, KeepAlive.class,
+		keepAliveHBase = register(nodeFactory.create(DatarouterTestClientIds.hbase, KeepAlive.class,
 				KeepAliveFielder.class, this, false));
-		poolTestBeanHBase = register(nodeFactory.create(DatarouterTestClientIds.CLIENT_drTestHBase, PoolTestBean.class,
+		poolTestBeanHBase = register(nodeFactory.create(DatarouterTestClientIds.hbase, PoolTestBean.class,
 				PoolTestBeanFielder.class, this, false));
 
 	}

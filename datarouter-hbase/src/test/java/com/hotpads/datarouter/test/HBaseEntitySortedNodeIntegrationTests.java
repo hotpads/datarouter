@@ -27,7 +27,7 @@ public class HBaseEntitySortedNodeIntegrationTests extends BaseSortedNodeIntegra
 
 	@BeforeClass
 	public void beforeClass(){
-		setup(DatarouterTestClientIds.CLIENT_drTestHBase, true);
+		setup(DatarouterTestClientIds.hbase, true);
 		this.sortedBeanEntityNode = router.sortedBeanEntity();
 	}
 
