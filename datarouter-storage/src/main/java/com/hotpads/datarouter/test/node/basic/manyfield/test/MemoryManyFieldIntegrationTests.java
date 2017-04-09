@@ -9,7 +9,7 @@ public class MemoryManyFieldIntegrationTests extends BaseManyFieldIntegrationTes
 
 	@BeforeClass
 	public void beforeClass(){
-		setup(DatarouterTestClientIds.CLIENT_drTestMemory);
+		setup(DatarouterTestClientIds.memory);
 	}
 
 	@Override

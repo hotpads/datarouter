@@ -9,7 +9,7 @@ public class MemoryIndexedSortedNodeIntegrationTests extends BaseIndexedNodeInte
 
 	@BeforeClass
 	public void beforeClass(){
-		setup(DatarouterTestClientIds.CLIENT_drTestMemory, false);
+		setup(DatarouterTestClientIds.memory, false);
 	}
 
 	@AfterClass

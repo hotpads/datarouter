@@ -9,6 +9,6 @@ import com.hotpads.datarouter.test.DatarouterTestClientIds;
 public class MemoryManagedIndexIntegrationTests extends BaseManagedIndexIntegrationTests{
 
 	public MemoryManagedIndexIntegrationTests(){
-		super(DatarouterTestClientIds.CLIENT_drTestMemory);
+		super(DatarouterTestClientIds.memory);
 	}
 }
