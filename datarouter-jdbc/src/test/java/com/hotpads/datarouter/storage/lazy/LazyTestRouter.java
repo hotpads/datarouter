@@ -8,7 +8,7 @@ import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage;
 import com.hotpads.datarouter.routing.BaseRouter;
 import com.hotpads.datarouter.routing.Datarouter;
-import com.hotpads.datarouter.test.DrTestConstants;
+import com.hotpads.datarouter.test.DatarouterTestClientIds;
 import com.hotpads.datarouter.test.TestDatabean;
 import com.hotpads.datarouter.test.TestDatabeanKey;
 import com.hotpads.datarouter.test.TestDatarouterProperties;
@@ -28,7 +28,7 @@ public class LazyTestRouter extends BaseRouter{
 		super(datarouter, datarouterProperties.getTestRouterConfigFileLocation(), NAME, nodeFactory,
 				datarouterSettings);
 
-		testDatabean = register(nodeFactory.create(DrTestConstants.CLIENT_drTestJdbc0, TestDatabean.class,
+		testDatabean = register(nodeFactory.create(DatarouterTestClientIds.CLIENT_drTestJdbc0, TestDatabean.class,
 				TestIndexedDatabeanFielder.class, this, true));
 		lazyTestDatabean = new LazyIndexedSortedMapStorageReader<>(testDatabean);
 

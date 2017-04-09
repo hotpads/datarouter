@@ -15,7 +15,7 @@ import com.hotpads.datarouter.client.imp.redis.databean.RedisDatabeanKey;
 import com.hotpads.datarouter.client.imp.redis.node.RedisNode;
 import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.test.DatarouterStorageTestModuleFactory;
-import com.hotpads.datarouter.test.DrTestConstants;
+import com.hotpads.datarouter.test.DatarouterTestClientIds;
 import com.hotpads.datarouter.test.TestDatarouterProperties;
 
 @Guice(moduleFactory = DatarouterStorageTestModuleFactory.class)
@@ -37,7 +37,7 @@ public class RedisIncrementIntegrationTests{
 	@BeforeClass
 	public void beforeClass(){
 		RedisTestRouter router = new RedisTestRouter(datarouterProperties, datarouter, datarouterClients,
-				DrTestConstants.CLIENT_drTestRedis);
+				DatarouterTestClientIds.CLIENT_drTestRedis);
 		redisNode = router.redisNode();
 	}
 

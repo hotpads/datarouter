@@ -3,7 +3,7 @@ package com.hotpads.datarouter.test;
 import com.hotpads.datarouter.client.ClientId;
 
 
-public class DrTestConstants{
+public class DatarouterTestClientIds{
 
 	public static final ClientId
 		CLIENT_drTestMemory = new ClientId("memory0", true),

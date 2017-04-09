@@ -10,6 +10,6 @@ public class HBaseMapStorageIntegrationTests extends BaseMapStorageIntegrationTe
 
 	@BeforeClass
 	public void beforeClass(){
-		setup(DrTestConstants.CLIENT_drTestHBase, false);
+		setup(DatarouterTestClientIds.CLIENT_drTestHBase, false);
 	}
 }

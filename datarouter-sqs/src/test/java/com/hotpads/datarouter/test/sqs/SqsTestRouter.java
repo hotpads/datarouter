@@ -10,7 +10,7 @@ import com.hotpads.datarouter.node.op.raw.GroupQueueStorage;
 import com.hotpads.datarouter.node.op.raw.QueueStorage;
 import com.hotpads.datarouter.routing.BaseRouter;
 import com.hotpads.datarouter.routing.Datarouter;
-import com.hotpads.datarouter.test.DrTestConstants;
+import com.hotpads.datarouter.test.DatarouterTestClientIds;
 import com.hotpads.datarouter.test.TestDatabean;
 import com.hotpads.datarouter.test.TestDatabeanFielder;
 import com.hotpads.datarouter.test.TestDatabeanKey;
@@ -29,10 +29,10 @@ public class SqsTestRouter extends BaseRouter{
 			QueueNodeFactory queueNodeFactory, NodeFactory nodeFactory, DatarouterSettings datarouterSettings){
 		super(context, datarouterProperties.getTestRouterConfigFileLocation(), NAME, nodeFactory, datarouterSettings);
 
-		testDatabean = register(queueNodeFactory.createSingleQueueNode(DrTestConstants.CLIENT_drTestSqs, this,
+		testDatabean = register(queueNodeFactory.createSingleQueueNode(DatarouterTestClientIds.CLIENT_drTestSqs, this,
 				TestDatabean::new, null, TestDatabeanFielder::new, true));
 		//Use a different table name to prevent test suites from interfering
-		groupTestDatabean = register(queueNodeFactory.createGroupQueueNode(DrTestConstants.CLIENT_drTestSqs, this,
+		groupTestDatabean = register(queueNodeFactory.createGroupQueueNode(DatarouterTestClientIds.CLIENT_drTestSqs, this,
 				TestDatabean::new, "GroupTestDatabean", TestDatabeanFielder::new, true));
 	}
 

@@ -8,7 +8,7 @@ public class HBaseScatteringPrefixIntegrationTests extends BaseScatteringPrefixI
 
 	@BeforeClass
 	public void beforeClass(){
-		setup(DrTestConstants.CLIENT_drTestHBase);
+		setup(DatarouterTestClientIds.CLIENT_drTestHBase);
 	}
 
 }

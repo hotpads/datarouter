@@ -18,7 +18,7 @@ import com.hotpads.datarouter.profile.tally.Tally.TallyFielder;
 import com.hotpads.datarouter.profile.tally.TallyKey;
 import com.hotpads.datarouter.routing.BaseRouter;
 import com.hotpads.datarouter.routing.Datarouter;
-import com.hotpads.datarouter.test.DrTestConstants;
+import com.hotpads.datarouter.test.DatarouterTestClientIds;
 import com.hotpads.datarouter.test.TestDatarouterProperties;
 
 @Singleton
@@ -41,7 +41,7 @@ public class TallyTestRouter extends BaseRouter{
 				nodeFactory, datarouterSettings);
 
 		this.datarouterClients = datarouterClients;
-		this.tallyNode = buildTallyNode(DrTestConstants.CLIENT_drTestMemcached);
+		this.tallyNode = buildTallyNode(DatarouterTestClientIds.CLIENT_drTestMemcached);
 	}
 
 

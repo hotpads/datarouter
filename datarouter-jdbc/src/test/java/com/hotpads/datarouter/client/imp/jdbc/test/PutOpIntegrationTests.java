@@ -19,7 +19,7 @@ import com.hotpads.datarouter.config.PutMethod;
 import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.storage.databean.DatabeanTool;
-import com.hotpads.datarouter.test.DrTestConstants;
+import com.hotpads.datarouter.test.DatarouterTestClientIds;
 import com.hotpads.datarouter.test.TestDatarouterProperties;
 import com.hotpads.datarouter.test.client.insert.PutOpTestBean;
 import com.hotpads.datarouter.test.client.insert.PutOpTestBeanKey;
@@ -43,7 +43,7 @@ public class PutOpIntegrationTests{
 	@BeforeClass
 	public void beforeClass(){
 		router = new PutOpTestRouter(datarouterProperties, datarouter, datarouterSettings, nodeFactory,
-				DrTestConstants.CLIENT_drTestJdbc0);
+				DatarouterTestClientIds.CLIENT_drTestJdbc0);
 
 		resetTable();
 	}

@@ -9,7 +9,7 @@ import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.node.op.raw.MapStorage;
 import com.hotpads.datarouter.routing.BaseRouter;
 import com.hotpads.datarouter.routing.Datarouter;
-import com.hotpads.datarouter.test.DrTestConstants;
+import com.hotpads.datarouter.test.DatarouterTestClientIds;
 import com.hotpads.datarouter.test.TestDatabeanKey;
 import com.hotpads.datarouter.test.TestDatarouterProperties;
 
@@ -24,7 +24,7 @@ public class VersionedDatabeanRouter extends BaseRouter{
 		super(datarouter, datarouterProperties.getTestRouterConfigFileLocation(), VersionedDatabeanRouter.class
 				.getSimpleName(), nodeFactory, datarouterSettings);
 
-		versionedTestDatabean = createAndRegister(DrTestConstants.CLIENT_drTestJdbc0, TestVersionedDatabean::new,
+		versionedTestDatabean = createAndRegister(DatarouterTestClientIds.CLIENT_drTestJdbc0, TestVersionedDatabean::new,
 				TestVersionedDatabeanFielder::new);
 	}
 
