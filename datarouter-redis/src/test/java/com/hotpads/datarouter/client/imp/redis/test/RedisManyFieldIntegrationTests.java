@@ -9,7 +9,7 @@ public class RedisManyFieldIntegrationTests extends BaseManyFieldIntegrationTest
 
 	@BeforeClass
 	public void beforeClass(){
-		setup(DatarouterTestClientIds.CLIENT_drTestRedis);
+		setup(DatarouterTestClientIds.redis);
 	}
 
 	@Override

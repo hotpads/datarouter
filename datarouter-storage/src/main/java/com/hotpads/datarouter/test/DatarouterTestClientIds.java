@@ -11,7 +11,7 @@ public class DatarouterTestClientIds{
 			hbase = new ClientId("drTestHBase", true),
 			bigTable = new ClientId("drTestBigTable", true),
 			memcached = new ClientId("drTestMemcached", true),
-			CLIENT_drTestRedis = new ClientId("drTestRedis", true),
+			redis = new ClientId("drTestRedis", true),
 			CLIENT_drTestSqs = new ClientId("drTestSqs", true),
 			CLIENT_drTestKinesis = new ClientId("drTestKinesis", true);
 }

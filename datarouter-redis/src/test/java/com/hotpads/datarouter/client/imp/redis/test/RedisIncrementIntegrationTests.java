@@ -37,7 +37,7 @@ public class RedisIncrementIntegrationTests{
 	@BeforeClass
 	public void beforeClass(){
 		RedisTestRouter router = new RedisTestRouter(datarouterProperties, datarouter, datarouterClients,
-				DatarouterTestClientIds.CLIENT_drTestRedis);
+				DatarouterTestClientIds.redis);
 		redisNode = router.redisNode();
 	}
 
