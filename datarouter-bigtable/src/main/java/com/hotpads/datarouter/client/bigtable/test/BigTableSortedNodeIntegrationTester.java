@@ -11,7 +11,7 @@ public class BigTableSortedNodeIntegrationTester extends BaseSortedNodeIntegrati
 
 	@BeforeClass
 	public void beforeClass(){
-		setup(DatarouterTestClientIds.CLIENT_drTestBigTable, false);
+		setup(DatarouterTestClientIds.bigTable, false);
 	}
 
 	@AfterClass

@@ -10,7 +10,7 @@ public class BigTableManyFieldIntegrationTester extends BaseManyFieldIntegration
 
 	@BeforeClass
 	public void beforeClass(){
-		setup(DatarouterTestClientIds.CLIENT_drTestBigTable);
+		setup(DatarouterTestClientIds.bigTable);
 	}
 
 	@Override

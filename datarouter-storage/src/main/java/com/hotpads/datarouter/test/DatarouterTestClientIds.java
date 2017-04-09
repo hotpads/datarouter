@@ -9,7 +9,7 @@ public class DatarouterTestClientIds{
 			memory = new ClientId("memory0", true),
 			jdbc0 = new ClientId("drTestJdbc0", true),
 			hbase = new ClientId("drTestHBase", true),
-			CLIENT_drTestBigTable = new ClientId("drTestBigTable", true),
+			bigTable = new ClientId("drTestBigTable", true),
 			CLIENT_drTestMemcached = new ClientId("drTestMemcached", true),
 			CLIENT_drTestRedis = new ClientId("drTestRedis", true),
 			CLIENT_drTestSqs = new ClientId("drTestSqs", true),
