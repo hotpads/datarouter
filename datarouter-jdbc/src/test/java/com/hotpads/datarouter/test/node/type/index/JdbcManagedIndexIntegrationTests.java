@@ -9,7 +9,7 @@ import com.hotpads.datarouter.test.DatarouterTestClientIds;
 public class JdbcManagedIndexIntegrationTests extends BaseManagedIndexIntegrationTests{
 
 	public JdbcManagedIndexIntegrationTests(){
-		super(DatarouterTestClientIds.CLIENT_drTestJdbc0);
+		super(DatarouterTestClientIds.jdbc0);
 	}
 
 }

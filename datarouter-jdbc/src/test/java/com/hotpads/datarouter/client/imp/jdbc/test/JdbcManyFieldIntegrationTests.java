@@ -12,7 +12,7 @@ public class JdbcManyFieldIntegrationTests extends BaseManyFieldIntegrationTests
 
 	@BeforeClass
 	public void beforeClass(){
-		setup(DatarouterTestClientIds.CLIENT_drTestJdbc0);
+		setup(DatarouterTestClientIds.jdbc0);
 	}
 
 	@Override

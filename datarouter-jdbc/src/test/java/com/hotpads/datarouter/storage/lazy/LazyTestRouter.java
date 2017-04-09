@@ -28,7 +28,7 @@ public class LazyTestRouter extends BaseRouter{
 		super(datarouter, datarouterProperties.getTestRouterConfigFileLocation(), NAME, nodeFactory,
 				datarouterSettings);
 
-		testDatabean = register(nodeFactory.create(DatarouterTestClientIds.CLIENT_drTestJdbc0, TestDatabean.class,
+		testDatabean = register(nodeFactory.create(DatarouterTestClientIds.jdbc0, TestDatabean.class,
 				TestIndexedDatabeanFielder.class, this, true));
 		lazyTestDatabean = new LazyIndexedSortedMapStorageReader<>(testDatabean);
 

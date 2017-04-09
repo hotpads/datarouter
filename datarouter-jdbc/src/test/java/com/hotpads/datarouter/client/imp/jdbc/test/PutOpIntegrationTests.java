@@ -43,7 +43,7 @@ public class PutOpIntegrationTests{
 	@BeforeClass
 	public void beforeClass(){
 		router = new PutOpTestRouter(datarouterProperties, datarouter, datarouterSettings, nodeFactory,
-				DatarouterTestClientIds.CLIENT_drTestJdbc0);
+				DatarouterTestClientIds.jdbc0);
 
 		resetTable();
 	}

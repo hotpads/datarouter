@@ -12,7 +12,7 @@ public class JdbcTxnIntegrationTests extends BaseTxnIntegrationTests{
 
 	@BeforeClass
 	public void beforeClass(){
-		setup(DatarouterTestClientIds.CLIENT_drTestJdbc0, true);
+		setup(DatarouterTestClientIds.jdbc0, true);
 		resetTable();
 	}
 }
