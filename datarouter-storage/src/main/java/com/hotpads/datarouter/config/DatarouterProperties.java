@@ -50,20 +50,16 @@ public abstract class DatarouterProperties{
 
 	protected DatarouterProperties(BaseDatarouterPropertiesConfigurer configurer, ServerType serverTypeOptions,
 			boolean directoryRequired){
-		this(Optional.of(configurer), serverTypeOptions, System.getProperty(JVM_ARG_PREFIX + CONFIG_DIRECTORY),
+		this(configurer, serverTypeOptions, System.getProperty(JVM_ARG_PREFIX + CONFIG_DIRECTORY),
 				directoryRequired, true, null, false);
 	}
 
 	protected DatarouterProperties(BaseDatarouterPropertiesConfigurer configurer, ServerType serverTypeOptions,
 			String directory, String filename){
-		this(Optional.of(configurer), serverTypeOptions, directory, true, false, filename, true);
+		this(configurer, serverTypeOptions, directory, true, false, filename, true);
 	}
 
-	protected DatarouterProperties(ServerType serverTypeOptions, String directory, String filename){
-		this(Optional.empty(), serverTypeOptions, directory, true, false, filename, true);
-	}
-
-	private DatarouterProperties(Optional<BaseDatarouterPropertiesConfigurer> optConfigurer,
+	private DatarouterProperties(BaseDatarouterPropertiesConfigurer configurer,
 			ServerType serverTypeOptions, String directory, boolean directoryRequired, boolean directoryFromJvmArg,
 			String filename, boolean fileRequired){
 		boolean fileRequiredWithoutDirectoryRequired = fileRequired && !directoryRequired;
@@ -84,8 +80,8 @@ public abstract class DatarouterProperties{
 
 		//run the configurer to populate the configDirectory
 		this.configStrategy = findConfigStrategy();
-		if(optConfigurer.isPresent()){
-			optConfigurer.get().configure(configStrategy, configDirectory);
+		if(configurer != null){
+			configurer.configure(configStrategy, configDirectory);
 		}else{
 			logger.warn("not running configurer because none provided");
 		}

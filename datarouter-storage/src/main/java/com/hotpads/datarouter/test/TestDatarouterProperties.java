@@ -13,7 +13,7 @@ public class TestDatarouterProperties extends DatarouterProperties{
 	public static final String TEST_ROUTER_CONFIG_FILE_NAME = "datarouter-test.properties";
 
 	public TestDatarouterProperties(){
-		super(StandardServerType.ALL, CONFIG_DIRECTORY, SERVER_CONFIG_FILE_NAME);
+		super(null, StandardServerType.ALL, CONFIG_DIRECTORY, SERVER_CONFIG_FILE_NAME);
 	}
 
 	public String getTestRouterConfigFileLocation(){
