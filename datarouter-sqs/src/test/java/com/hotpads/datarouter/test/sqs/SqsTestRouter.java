@@ -29,10 +29,10 @@ public class SqsTestRouter extends BaseRouter{
 			QueueNodeFactory queueNodeFactory, NodeFactory nodeFactory, DatarouterSettings datarouterSettings){
 		super(context, datarouterProperties.getTestRouterConfigFileLocation(), NAME, nodeFactory, datarouterSettings);
 
-		testDatabean = register(queueNodeFactory.createSingleQueueNode(DatarouterTestClientIds.CLIENT_drTestSqs, this,
+		testDatabean = register(queueNodeFactory.createSingleQueueNode(DatarouterTestClientIds.sqs, this,
 				TestDatabean::new, null, TestDatabeanFielder::new, true));
 		//Use a different table name to prevent test suites from interfering
-		groupTestDatabean = register(queueNodeFactory.createGroupQueueNode(DatarouterTestClientIds.CLIENT_drTestSqs, this,
+		groupTestDatabean = register(queueNodeFactory.createGroupQueueNode(DatarouterTestClientIds.sqs, this,
 				TestDatabean::new, "GroupTestDatabean", TestDatabeanFielder::new, true));
 	}
 
