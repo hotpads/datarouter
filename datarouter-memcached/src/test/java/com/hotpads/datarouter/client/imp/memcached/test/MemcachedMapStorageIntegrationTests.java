@@ -11,6 +11,6 @@ import com.hotpads.datarouter.test.node.basic.map.BaseMapStorageIntegrationTests
 public class MemcachedMapStorageIntegrationTests extends BaseMapStorageIntegrationTests{
 	@BeforeClass
 	public void beforeClass(){
-		setup(DatarouterTestClientIds.CLIENT_drTestMemcached, false);
+		setup(DatarouterTestClientIds.memcached, false);
 	}
 }

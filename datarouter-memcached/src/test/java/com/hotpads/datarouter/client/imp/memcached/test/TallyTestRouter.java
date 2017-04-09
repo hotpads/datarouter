@@ -41,7 +41,7 @@ public class TallyTestRouter extends BaseRouter{
 				nodeFactory, datarouterSettings);
 
 		this.datarouterClients = datarouterClients;
-		this.tallyNode = buildTallyNode(DatarouterTestClientIds.CLIENT_drTestMemcached);
+		this.tallyNode = buildTallyNode(DatarouterTestClientIds.memcached);
 	}
 
 

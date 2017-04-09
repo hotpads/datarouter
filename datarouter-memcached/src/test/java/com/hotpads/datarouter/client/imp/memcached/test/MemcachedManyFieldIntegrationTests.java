@@ -9,7 +9,7 @@ public class MemcachedManyFieldIntegrationTests extends BaseManyFieldIntegration
 
 	@BeforeClass
 	public void beforeClass(){
-		setup(DatarouterTestClientIds.CLIENT_drTestMemcached);
+		setup(DatarouterTestClientIds.memcached);
 	}
 
 	@Override
