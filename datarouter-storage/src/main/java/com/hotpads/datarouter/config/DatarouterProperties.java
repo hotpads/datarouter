@@ -108,7 +108,7 @@ public abstract class DatarouterProperties{
 				configFileProperties = Optional.of(DrPropertiesTool.parse(configFileLocation));
 				logConfigFileProperties(configFileProperties);
 			}catch(Exception e){
-				logger.error("couldn't parse configFileProperties at configFileLocation={}", configFileLocation);
+				logger.error("couldn't parse properties file {}", configFileLocation);
 			}
 		}
 
