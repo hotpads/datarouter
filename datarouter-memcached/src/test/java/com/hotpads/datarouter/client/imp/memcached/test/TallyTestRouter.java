@@ -19,6 +19,7 @@ import com.hotpads.datarouter.profile.tally.TallyKey;
 import com.hotpads.datarouter.routing.BaseRouter;
 import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.test.DrTestConstants;
+import com.hotpads.datarouter.test.TestDatarouterProperties;
 
 @Singleton
 public class TallyTestRouter extends BaseRouter{
@@ -34,10 +35,10 @@ public class TallyTestRouter extends BaseRouter{
 	/******************************* constructor *****************************/
 
 	@Inject
-	public TallyTestRouter(Datarouter datarouter, DatarouterClients datarouterClients, NodeFactory nodeFactory,
-			DatarouterSettings datarouterSettings){
-		super(datarouter, DrTestConstants.CONFIG_PATH, TallyTestRouter.class.getSimpleName(), nodeFactory,
-				datarouterSettings);
+	public TallyTestRouter(TestDatarouterProperties datarouterProperties, Datarouter datarouter,
+			DatarouterClients datarouterClients, NodeFactory nodeFactory, DatarouterSettings datarouterSettings){
+		super(datarouter, datarouterProperties.getTestRouterConfigFileLocation(), TallyTestRouter.class.getSimpleName(),
+				nodeFactory, datarouterSettings);
 
 		this.datarouterClients = datarouterClients;
 		this.tallyNode = buildTallyNode(DrTestConstants.CLIENT_drTestMemcached);
@@ -46,7 +47,7 @@ public class TallyTestRouter extends BaseRouter{
 
 	/*************************** get/set *************************************/
 
-	public MemcachedNode<TallyKey,Tally,TallyFielder> tally() {
+	public MemcachedNode<TallyKey,Tally,TallyFielder> tally(){
 		return tallyNode;
 	}
 

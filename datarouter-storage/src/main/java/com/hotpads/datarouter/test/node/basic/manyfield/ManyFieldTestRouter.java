@@ -11,17 +11,17 @@ import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.node.op.raw.MapStorage.MapStorageNode;
 import com.hotpads.datarouter.routing.BaseRouter;
 import com.hotpads.datarouter.routing.Datarouter;
-import com.hotpads.datarouter.test.DrTestConstants;
+import com.hotpads.datarouter.test.TestDatarouterProperties;
 import com.hotpads.datarouter.test.node.basic.manyfield.ManyFieldBean.ManyFieldTypeBeanFielder;
 
 @Singleton
 public class ManyFieldTestRouter extends BaseRouter{
 
 	@Inject
-	public ManyFieldTestRouter(Datarouter datarouter, DatarouterSettings datarouterSettings, NodeFactory nodeFactory,
-			ClientId clientId){
-		super(datarouter, DrTestConstants.CONFIG_PATH, ManyFieldTestRouter.class.getSimpleName(), nodeFactory,
-				datarouterSettings);
+	public ManyFieldTestRouter(TestDatarouterProperties datarouterProperties, Datarouter datarouter,
+			DatarouterSettings datarouterSettings, NodeFactory nodeFactory, ClientId clientId){
+		super(datarouter, datarouterProperties.getTestRouterConfigFileLocation(), ManyFieldTestRouter.class
+				.getSimpleName(), nodeFactory, datarouterSettings);
 
 		this.manyFieldTypeBeanNode = create(clientId, ManyFieldBean::new, ManyFieldTypeBeanFielder::new)
 				.withSchemaVersion(new Random().nextInt()).buildAndRegister();

@@ -13,6 +13,7 @@ import com.hotpads.datarouter.node.op.raw.MapStorage;
 import com.hotpads.datarouter.routing.BaseRouter;
 import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.test.DrTestConstants;
+import com.hotpads.datarouter.test.TestDatarouterProperties;
 import com.hotpads.datarouter.test.pool.PoolTestBean.PoolTestBeanFielder;
 
 @Singleton
@@ -31,9 +32,10 @@ extends BaseRouter{
 	/********************************* constructor *****************************/
 
 	@Inject
-	public BasicClientTestRouter(Datarouter datarouter,
+	public BasicClientTestRouter(TestDatarouterProperties datarouterProperties, Datarouter datarouter,
 			DatarouterSettings datarouterSettings, NodeFactory nodeFactory){
-		super(datarouter, DrTestConstants.CONFIG_PATH, name, nodeFactory, datarouterSettings);
+		super(datarouter, datarouterProperties.getTestRouterConfigFileLocation(), name, nodeFactory,
+				datarouterSettings);
 
 		keepAliveHBase = register(nodeFactory.create(DrTestConstants.CLIENT_drTestHBase, KeepAlive.class,
 				KeepAliveFielder.class, this, false));

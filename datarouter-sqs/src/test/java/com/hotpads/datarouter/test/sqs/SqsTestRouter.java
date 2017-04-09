@@ -14,6 +14,7 @@ import com.hotpads.datarouter.test.DrTestConstants;
 import com.hotpads.datarouter.test.TestDatabean;
 import com.hotpads.datarouter.test.TestDatabeanFielder;
 import com.hotpads.datarouter.test.TestDatabeanKey;
+import com.hotpads.datarouter.test.TestDatarouterProperties;
 
 @Singleton
 public class SqsTestRouter extends BaseRouter{
@@ -24,9 +25,9 @@ public class SqsTestRouter extends BaseRouter{
 	public final GroupQueueStorage<TestDatabeanKey,TestDatabean> groupTestDatabean;
 
 	@Inject
-	public SqsTestRouter(Datarouter context, QueueNodeFactory queueNodeFactory, NodeFactory nodeFactory,
-			DatarouterSettings datarouterSettings){
-		super(context, DrTestConstants.CONFIG_PATH, NAME, nodeFactory, datarouterSettings);
+	public SqsTestRouter(TestDatarouterProperties datarouterProperties, Datarouter context,
+			QueueNodeFactory queueNodeFactory, NodeFactory nodeFactory, DatarouterSettings datarouterSettings){
+		super(context, datarouterProperties.getTestRouterConfigFileLocation(), NAME, nodeFactory, datarouterSettings);
 
 		testDatabean = register(queueNodeFactory.createSingleQueueNode(DrTestConstants.CLIENT_drTestSqs, this,
 				TestDatabean::new, null, TestDatabeanFielder::new, true));

@@ -16,12 +16,15 @@ import com.hotpads.datarouter.client.imp.redis.node.RedisNode;
 import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.test.DatarouterStorageTestModuleFactory;
 import com.hotpads.datarouter.test.DrTestConstants;
+import com.hotpads.datarouter.test.TestDatarouterProperties;
 
 @Guice(moduleFactory = DatarouterStorageTestModuleFactory.class)
 public class RedisIncrementIntegrationTests{
 
 	/** fields ***************************************************************/
 
+	@Inject
+	private TestDatarouterProperties datarouterProperties;
 	@Inject
 	private Datarouter datarouter;
 	@Inject
@@ -33,7 +36,8 @@ public class RedisIncrementIntegrationTests{
 
 	@BeforeClass
 	public void beforeClass(){
-		RedisTestRouter router = new RedisTestRouter(datarouter, datarouterClients, DrTestConstants.CLIENT_drTestRedis);
+		RedisTestRouter router = new RedisTestRouter(datarouterProperties, datarouter, datarouterClients,
+				DrTestConstants.CLIENT_drTestRedis);
 		redisNode = router.redisNode();
 	}
 
