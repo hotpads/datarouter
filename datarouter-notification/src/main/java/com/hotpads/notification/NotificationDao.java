@@ -6,7 +6,7 @@ import java.util.Map;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import com.hotpads.notification.destination.NotificationDestinationApp;
+import com.hotpads.notification.destination.NotificationDestinationAppName;
 import com.hotpads.notification.timing.CachedNotificationTimingStrategy;
 import com.hotpads.notification.timing.CachedNotificationTimingStrategyMapping;
 import com.hotpads.notification.timing.NotificationTimingStrategy;
@@ -35,7 +35,8 @@ public class NotificationDao{
 				.orElseThrow(() -> new RuntimeException("Failed to find NotificationTimingStrategy from key: " + key));
 	}
 
-	public Map<NotificationDestinationApp, String> getDestinationAppToTemplateMappingForType(String notificationType){
+	public Map<NotificationDestinationAppName, String>
+			getDestinationAppToTemplateMappingForType(String notificationType){
 		return typeAndDestinationToTemplateMap.get().getOrDefault(notificationType, Collections.emptyMap());
 	}
 }

@@ -3,7 +3,7 @@ package com.hotpads.notification.destination;
 import com.hotpads.util.core.enums.DatarouterEnumTool;
 import com.hotpads.util.core.enums.StringEnum;
 
-public enum NotificationDestinationPlatform implements StringEnum<NotificationDestinationPlatform>{
+public enum NotificationPlatform implements StringEnum<NotificationPlatform>{
 	GCM("gcm"),// Google Cloud Messaging
 	APNS("apns"),// Apple Push Notification Service
 	SMS("sms"),
@@ -12,7 +12,7 @@ public enum NotificationDestinationPlatform implements StringEnum<NotificationDe
 
 	private String persistentString;
 
-	NotificationDestinationPlatform(String persistentString){
+	NotificationPlatform(String persistentString){
 		this.persistentString = persistentString;
 	}
 
@@ -22,7 +22,7 @@ public enum NotificationDestinationPlatform implements StringEnum<NotificationDe
 	}
 
 	@Override
-	public NotificationDestinationPlatform fromPersistentString(String s){
+	public NotificationPlatform fromPersistentString(String s){
 		return DatarouterEnumTool.getEnumFromString(values(), s, null);
 	}
 

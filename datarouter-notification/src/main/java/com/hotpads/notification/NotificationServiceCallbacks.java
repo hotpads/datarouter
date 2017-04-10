@@ -9,7 +9,7 @@ import com.hotpads.notification.databean.NotificationLog;
 import com.hotpads.notification.databean.NotificationRequest;
 import com.hotpads.notification.databean.NotificationUserId;
 import com.hotpads.notification.destination.NotificationDestination;
-import com.hotpads.notification.destination.NotificationDestinationApp;
+import com.hotpads.notification.destination.NotificationDestinationAppName;
 import com.hotpads.notification.tracking.NotificationTrackingEventType;
 
 //TODO some of these signatures are definitely ugly and should be temporary
@@ -26,11 +26,9 @@ public interface NotificationServiceCallbacks{
 
 	//other services
 	List<NotificationDestination> getActiveDestinations(NotificationUserId userId,
-			Collection<NotificationDestinationApp> apps);
-	List<NotificationDestination> getDestinations(Collection<NotificationDestinationApp> apps,
-			NotificationUserId userId);
-	Map<NotificationDestination,String> filterOutOptedOut(String notificationTypeString,
-			List<NotificationDestination> destinations, Map<NotificationDestinationApp,String> appToTemplateMap);
+			Collection<NotificationDestinationAppName> apps);
+//	List<NotificationDestination> getDestinations(Collection<NotificationDestinationAppName> apps,
+//			NotificationUserId userId);
 	void removeDisabledSearchDestinationApps(String notificationTypeString,
-			Map<NotificationDestinationApp,String> appToTemplateMap);
+			Map<NotificationDestinationAppName,String> appToTemplateMap);
 }

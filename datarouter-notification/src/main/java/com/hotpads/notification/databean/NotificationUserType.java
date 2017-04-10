@@ -4,7 +4,7 @@ import com.hotpads.util.core.enums.DatarouterEnumTool;
 import com.hotpads.util.core.enums.StringEnum;
 
 public enum NotificationUserType implements StringEnum<NotificationUserType> {
-
+//TODO make these more general, less HP/ZRM-specific
 	HOTPADS_TOKEN("token", true),
 	EMAIL("email", false),
 	PHONE("phone", false),

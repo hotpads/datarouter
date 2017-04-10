@@ -5,6 +5,8 @@ import com.hotpads.datarouter.node.op.combo.SortedMapStorage;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import com.hotpads.datarouter.node.type.index.UniqueIndexNode;
 import com.hotpads.datarouter.node.type.indexing.IndexingSortedMapStorageNode;
+import com.hotpads.notification.databean.NotificationDestinationApp;
+import com.hotpads.notification.databean.NotificationDestinationAppKey;
 import com.hotpads.notification.databean.NotificationItemLog;
 import com.hotpads.notification.databean.NotificationItemLogKey;
 import com.hotpads.notification.databean.NotificationLog;
@@ -47,6 +49,8 @@ public interface NotificationNodes{
 	public IndexedSortedMapStorageNode<NotificationDestinationKey,NotificationDestination> getNotificationDestination();
 	public UniqueIndexNode<NotificationDestinationKey,NotificationDestination, NotificationDestinationByAppDeviceIdKey,
 			NotificationDestinationByAppDeviceId> getNotificationDestinationByAppDeviceId();
+	public SortedMapStorageNode<NotificationDestinationAppKey,NotificationDestinationApp>
+			getNotificationDestinationApp();
 
 	public SortedMapStorage<NotificationPreferenceKey,NotificationPreference> getNotificationPreference();
 

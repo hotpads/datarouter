@@ -1,18 +1,18 @@
-package com.hotpads.notification.destination;
+package com.hotpads.notification.databean;
 
 import com.hotpads.datarouter.storage.field.imp.StringFieldKey;
 
-public class NotificationDestinationApp{
+public abstract class BaseStringWrapperField{
 
 	public static final StringFieldKey key = new StringFieldKey("persistentString");
 
 	public final String persistentString;
 
-	public NotificationDestinationApp(String persistentString){
+	public BaseStringWrapperField(String persistentString){
 		this.persistentString = persistentString;
 	}
 
-	public NotificationDestinationApp(){
+	public BaseStringWrapperField(){
 		this(null);
 	}
 
@@ -21,10 +21,10 @@ public class NotificationDestinationApp{
 		if(this == obj){
 			return true;
 		}
-		if(obj == null || !(obj instanceof NotificationDestinationApp)){
+		if(obj == null || !(obj instanceof BaseStringWrapperField)){
 			return false;
 		}
-		NotificationDestinationApp other = (NotificationDestinationApp)obj;
+		BaseStringWrapperField other = (BaseStringWrapperField)obj;
 
 		if(persistentString == null){
 			return other.persistentString == null;

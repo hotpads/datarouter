@@ -10,25 +10,28 @@ import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.StringFieldKey;
 import com.hotpads.datarouter.storage.field.imp.comparable.BooleanField;
 import com.hotpads.datarouter.storage.field.imp.comparable.BooleanFieldKey;
+import com.hotpads.notification.preference.NotificationTypeGroupName;
 
 public class NotificationTypeConfig extends BaseDatabean<NotificationTypeConfigKey,NotificationTypeConfig>{
 	private NotificationTypeConfigKey key;
 
 	private String name;
-	private String group;
+	private NotificationTypeGroupName groupName;
 	private Boolean needsRemoveDisabledCallback;
 	private Boolean needsFilterOutIrrelevantCallback;
 	private Boolean needsOnSuccessCallback;
 
 	public NotificationTypeConfig(){
 		this.key = new NotificationTypeConfigKey();
+		this.groupName = new NotificationTypeGroupName();
 	}
 
-	public NotificationTypeConfig(String type, String name, String group, Boolean needsRemoveDisabledCallback,
-			Boolean needsFilterOutIrrelevantCallback, Boolean needsOnSuccessCallback){
+	public NotificationTypeConfig(String type, String name, NotificationTypeGroupName groupName,
+			Boolean needsRemoveDisabledCallback, Boolean needsFilterOutIrrelevantCallback,
+			Boolean needsOnSuccessCallback){
 		this.key = new NotificationTypeConfigKey(type);
 		this.name = name;
-		this.group = group;
+		this.groupName = groupName == null ? new NotificationTypeGroupName() : groupName;
 		this.needsRemoveDisabledCallback = needsRemoveDisabledCallback;
 		this.needsFilterOutIrrelevantCallback = needsFilterOutIrrelevantCallback;
 		this.needsOnSuccessCallback = needsOnSuccessCallback;
@@ -52,12 +55,12 @@ public class NotificationTypeConfig extends BaseDatabean<NotificationTypeConfigK
 		this.name = name;
 	}
 
-	public String getGroup(){
-		return group;
+	public NotificationTypeGroupName getGroupName(){
+		return groupName;
 	}
 
-	public void setGroup(String group){
-		this.group = group;
+	public void setGroup(NotificationTypeGroupName groupName){
+		this.groupName = groupName;
 	}
 
 	public Boolean getNeedsRemoveDisabledCallback(){
@@ -86,7 +89,7 @@ public class NotificationTypeConfig extends BaseDatabean<NotificationTypeConfigK
 
 	public static class FieldKeys{
 		public static final StringFieldKey name = new StringFieldKey("name");
-		public static final StringFieldKey group = new StringFieldKey("group");
+		public static final StringFieldKey groupName = NotificationTypeGroupName.key.withColumnName("groupName");
 		public static final BooleanFieldKey needsRemoveDisabledCallback = new BooleanFieldKey(
 				"needsRemoveDisabledCallback");
 		public static final BooleanFieldKey needsFilterOutIrrelevantCallback = new BooleanFieldKey(
@@ -94,9 +97,9 @@ public class NotificationTypeConfig extends BaseDatabean<NotificationTypeConfigK
 		public static final BooleanFieldKey needsOnSuccessCallback = new BooleanFieldKey("needsOnSuccessCallback");
 	}
 
-	public static class NotificationTypeBeanFielder
+	public static class NotificationTypeConfigFielder
 	extends BaseDatabeanFielder<NotificationTypeConfigKey,NotificationTypeConfig>{
-		public NotificationTypeBeanFielder(){
+		public NotificationTypeConfigFielder(){
 			super(NotificationTypeConfigKey.class);
 		}
 
@@ -104,7 +107,7 @@ public class NotificationTypeConfig extends BaseDatabean<NotificationTypeConfigK
 		public List<Field<?>> getNonKeyFields(NotificationTypeConfig databean){
 			return Arrays.asList(
 					new StringField(FieldKeys.name, databean.name),
-					new StringField(FieldKeys.group, databean.group),
+					new StringField("groupName", FieldKeys.groupName, databean.groupName.persistentString),
 					new BooleanField(FieldKeys.needsRemoveDisabledCallback, databean.needsRemoveDisabledCallback),
 					new BooleanField(FieldKeys.needsFilterOutIrrelevantCallback, databean
 							.needsFilterOutIrrelevantCallback),

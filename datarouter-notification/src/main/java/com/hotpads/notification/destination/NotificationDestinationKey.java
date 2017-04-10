@@ -11,12 +11,12 @@ import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
 public class NotificationDestinationKey extends BasePrimaryKey<NotificationDestinationKey>{
 
 	private String token;
-	private NotificationDestinationApp app;
+	private NotificationDestinationAppName app;
 	private String deviceId;
 
 	public static class FieldKeys{
 		public static final StringFieldKey token = new StringFieldKey("token");
-		public static final StringFieldKey app = NotificationDestinationApp.key.withColumnName("app");
+		public static final StringFieldKey app = NotificationDestinationAppName.key.withColumnName("app");
 		public static final StringFieldKey deviceId = new StringFieldKey("deviceId");
 	}
 
@@ -29,20 +29,20 @@ public class NotificationDestinationKey extends BasePrimaryKey<NotificationDesti
 	}
 
 	NotificationDestinationKey(){
-		this.app = new NotificationDestinationApp();
+		this.app = new NotificationDestinationAppName();
 	}
 
-	public NotificationDestinationKey(String token, NotificationDestinationApp app, String deviceId){
+	public NotificationDestinationKey(String token, NotificationDestinationAppName app, String deviceId){
 		this.token = token;
-		this.app = app == null ? new NotificationDestinationApp() : app;
+		this.app = app == null ? new NotificationDestinationAppName() : app;
 		this.deviceId = deviceId;
 	}
 
-	public NotificationDestinationApp getApp(){
+	public NotificationDestinationAppName getApp(){
 		return app;
 	}
 
-	public void setApp(NotificationDestinationApp app){
+	public void setApp(NotificationDestinationAppName app){
 		this.app = app;
 	}
 

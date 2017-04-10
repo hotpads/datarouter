@@ -37,7 +37,7 @@ public class NotificationPreference extends BaseDatabean<NotificationPreferenceK
 		this.key = new NotificationPreferenceKey();
 	}
 
-	public NotificationPreference(String userToken, NotificationDeviceGroup deviceGroup, NotificationTypeGroup
+	public NotificationPreference(String userToken, NotificationDestinationAppGroupName deviceGroup, NotificationTypeGroupName
 			typeGroup){
 		this.key = new NotificationPreferenceKey(userToken, deviceGroup, typeGroup);
 		this.created = new Date();
