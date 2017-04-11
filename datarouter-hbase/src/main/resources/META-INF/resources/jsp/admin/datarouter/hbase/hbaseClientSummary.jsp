@@ -2,13 +2,13 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>DR ${param.clientName}</title>
+	<title>Datarouter ${param.clientName}</title>
 	<%@ include file="/jsp/generic/datarouterHead.jsp"%>
 </head>
 <body>
 	<%@ include file="/jsp/menu/dr-navbar.jsp"%>
 	<div class="container">
-		<h2>DR ${param.clientName}</h2>
+		<h2>Datarouter ${param.clientName}</h2>
 		<a href="${contextPath}/datarouter/routers">
 			Datarouter Home
 		</a>
