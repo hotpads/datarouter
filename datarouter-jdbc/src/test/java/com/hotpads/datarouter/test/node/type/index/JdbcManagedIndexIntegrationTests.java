@@ -5,7 +5,7 @@ import org.testng.annotations.Guice;
 import com.hotpads.datarouter.client.imp.jdbc.TestDatarouterJdbcModuleFactory;
 import com.hotpads.datarouter.test.DrTestConstants;
 
-@Guice(moduleFactory=TestDatarouterJdbcModuleFactory.class)
+@Guice(moduleFactory = TestDatarouterJdbcModuleFactory.class)
 public class JdbcManagedIndexIntegrationTests extends BaseManagedIndexIntegrationTests{
 
 	public JdbcManagedIndexIntegrationTests(){

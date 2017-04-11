@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.CharSequenceSqlColumn;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSet;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCollation;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlRowFormat;
@@ -28,35 +29,38 @@ public class FieldSqlTableGenerator{
 			MySqlCollation collation, MySqlCharacterSet characterSet, MySqlRowFormat rowFormat,
 			Map<String,List<Field<?>>> indexes, Map<String,List<Field<?>>> uniqueIndexes){
 
-		List<SqlColumn> primaryKeyColumns = makeSqlColumns(primaryKeyFields);
-		List<SqlColumn> columns = makeSqlColumns(nonKeyFields);
+		List<SqlColumn> primaryKeyColumns = makeSqlColumns(primaryKeyFields, false);
+		List<SqlColumn> columns = makeSqlColumns(nonKeyFields, true);
 		columns.addAll(primaryKeyColumns);
 
-		SqlIndex primaryKey = new SqlIndex(tableName + " primary key", primaryKeyColumns);
+		SqlIndex primaryKey = SqlIndex.createPrimaryKey(primaryKeyColumns);
 
 		Set<SqlIndex> sqlIndexes = makeSqlIndexes(indexes);
 		Set<SqlIndex> sqlUniqueIndexes = makeSqlIndexes(uniqueIndexes);
 
-		//TODO pass the charset and collation to JdbcFieldCodec::getSqlColumnDefinition
-		columns.forEach(column -> {
-			column.setCharacterSet(characterSet);
-			column.setCollation(collation);
-		});
+		//TODO set charset and collation elsewhere
+		columns.stream()
+				.filter(column -> column instanceof CharSequenceSqlColumn)
+				.map(CharSequenceSqlColumn.class::cast)
+				.forEach(column -> {
+					column.setCharacterSet(characterSet);
+					column.setCollation(collation);
+				});
 
 		return new SqlTable(tableName, primaryKey, columns, sqlIndexes, sqlUniqueIndexes, characterSet, collation,
 				rowFormat, MySqlTableEngine.INNODB);
 	}
 
-	private List<SqlColumn> makeSqlColumns(List<Field<?>> fields){
+	private List<SqlColumn> makeSqlColumns(List<Field<?>> fields, boolean allowNullable){
 		return fields.stream()
 				.map((Function<Field<?>, JdbcFieldCodec<?,?>>)fieldCodecFactory::createCodec)
-				.map(JdbcFieldCodec::getSqlColumnDefinition)
+				.map(codec -> codec.getSqlColumnDefinition(allowNullable))
 				.collect(Collectors.toList());
 	}
 
 	private Set<SqlIndex> makeSqlIndexes(Map<String,List<Field<?>>> indexes){
 		return indexes.entrySet().stream()
-				.map(entry -> new SqlIndex(entry.getKey(), makeSqlColumns(entry.getValue())))
+				.map(entry -> new SqlIndex(entry.getKey(), makeSqlColumns(entry.getValue(), true)))
 				.collect(Collectors.toSet());
 	}
 

@@ -23,8 +23,8 @@ extends BasePrimitiveJdbcFieldCodec<Integer,VarIntField>{
 
 
 	@Override
-	public SqlColumn getSqlColumnDefinition(){
-		return uint31JdbcFieldCodec.getSqlColumnDefinition();
+	public SqlColumn getSqlColumnDefinition(boolean allowNullable){
+		return uint31JdbcFieldCodec.getSqlColumnDefinition(allowNullable);
 	}
 
 	@Override

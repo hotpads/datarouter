@@ -24,9 +24,9 @@ extends BasePrimitiveJdbcFieldCodec<Character,Field<Character>>{
 
 
 	@Override
-	public SqlColumn getSqlColumnDefinition(){
-		return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.CHAR, 1, field.getKey().isNullable(),
-				false);
+	public SqlColumn getSqlColumnDefinition(boolean allowNullable){
+		return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.CHAR, 1,
+				allowNullable && field.getKey().isNullable(), false);
 	}
 
 	@Override

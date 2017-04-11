@@ -27,15 +27,16 @@ extends BaseListJdbcFieldCodec<Long,List<Long>,UInt63ArrayField>{
 
 
 	@Override
-	public SqlColumn getSqlColumnDefinition(){
-		return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.LONGBLOB, Integer.MAX_VALUE, field
-				.getKey().isNullable(), false);
+	public SqlColumn getSqlColumnDefinition(boolean allowNullable){
+		return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.LONGBLOB, Integer.MAX_VALUE,
+				allowNullable && field.getKey().isNullable(), false);
 	}
 
 	@Override
 	public void setPreparedStatementValue(PreparedStatement ps, int parameterIndex){
 		try{
-			ps.setBytes(parameterIndex, field.getValue()==null?null:LongByteTool.getUInt63ByteArray(field.getValue()));
+			ps.setBytes(parameterIndex, field.getValue() == null ? null
+					: LongByteTool.getUInt63ByteArray(field.getValue()));
 		}catch(SQLException e){
 			throw new DataAccessException(e);
 		}

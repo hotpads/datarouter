@@ -26,13 +26,15 @@ extends BaseJdbcFieldCodec<byte[],ByteArrayField>{
 
 
 	@Override
-	public SqlColumn getSqlColumnDefinition(){
+	public SqlColumn getSqlColumnDefinition(boolean allowNullable){
+		boolean nullable = allowNullable && field.getKey().isNullable();
 		if(field.getSize() <= MySqlColumnType.MAX_LENGTH_VARBINARY){
-			return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.VARBINARY, field.getSize(),
-					field.getKey().isNullable(), false);
-		}else if(field.getSize() <= MySqlColumnType.MAX_LENGTH_LONGBLOB){
-			return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.LONGBLOB, Integer.MAX_VALUE, field
-					.getKey().isNullable(), false);
+			return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.VARBINARY, field.getSize(), nullable,
+					false);
+		}
+		if(field.getSize() <= MySqlColumnType.MAX_LENGTH_LONGBLOB){
+			return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.LONGBLOB, Integer.MAX_VALUE, nullable,
+					false);
 		}
 		throw new IllegalArgumentException("Unknown size:" + field.getSize());
 	}

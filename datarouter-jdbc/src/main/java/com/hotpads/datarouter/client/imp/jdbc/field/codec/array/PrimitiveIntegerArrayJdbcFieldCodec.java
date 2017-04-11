@@ -21,7 +21,7 @@ extends BaseJdbcFieldCodec<int[],Field<int[]>>{
 
 
 	@Override
-	public SqlColumn getSqlColumnDefinition(){
+	public SqlColumn getSqlColumnDefinition(boolean allowNullable){
 		throw new NotImplementedException();
 	}
 

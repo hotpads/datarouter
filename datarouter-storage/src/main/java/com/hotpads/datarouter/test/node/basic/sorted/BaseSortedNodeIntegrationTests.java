@@ -123,11 +123,12 @@ public abstract class BaseSortedNodeIntegrationTests{
 		SortedBean nonBlankDatabean = new SortedBean("a", "b", 1, "d2", "non blank", null, null, null);
 		sortedNode.putMulti(Arrays.asList(nonBlankDatabean, blankDatabean), config);
 		SortedBean blankDatabeanFromDb = sortedNode.get(blankDatabean.getKey(), config);
+		Assert.assertNotNull(blankDatabeanFromDb);
 		new SortedBeanFielder().getNonKeyFields(blankDatabeanFromDb).stream()
 				.map(Field::getValue)
-				.forEach(AssertJUnit::assertNull);
+				.forEach(Assert::assertNull);
 		sortedNode.deleteMulti(DatabeanTool.getKeys(Arrays.asList(blankDatabean, nonBlankDatabean)), config);
-		AssertJUnit.assertNull(sortedNode.get(blankDatabean.getKey(), config));
+		Assert.assertNull(sortedNode.get(blankDatabean.getKey(), config));
 	}
 
 	protected void testIgnoreNull(){

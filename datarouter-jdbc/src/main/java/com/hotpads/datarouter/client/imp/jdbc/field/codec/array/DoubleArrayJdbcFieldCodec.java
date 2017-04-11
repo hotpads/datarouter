@@ -27,9 +27,9 @@ extends BaseListJdbcFieldCodec<Double,List<Double>,Field<List<Double>>>{
 	}
 
 	@Override
-	public SqlColumn getSqlColumnDefinition(){
+	public SqlColumn getSqlColumnDefinition(boolean allowNullable){
 		return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.LONGBLOB, Integer.MAX_VALUE,
-				field.getKey().isNullable(), false);
+				allowNullable && field.getKey().isNullable(), false);
 	}
 
 	@Override
