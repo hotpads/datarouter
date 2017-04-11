@@ -107,7 +107,7 @@ implements PhysicalSortedMapStorageNode<PK,D>, HBaseIncrement<PK>{
 								byte[] fieldBytes = field.getBytes();
 								if(fieldBytes == null){
 									if(DrBooleanTool.isFalseOrNull(config.getIgnoreNullFields())){
-										delete.addColumn(FAM, field.getKey().getColumnNameBytes());
+										delete.addColumns(FAM, field.getKey().getColumnNameBytes());
 										++numCellsDeleted;
 									}
 								}else{
