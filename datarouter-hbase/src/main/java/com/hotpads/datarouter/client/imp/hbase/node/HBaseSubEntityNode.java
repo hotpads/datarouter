@@ -120,7 +120,7 @@ implements SubEntitySortedMapStorageNode<EK,PK,D,F>, PhysicalSortedMapStorageNod
 							byte[] fieldValueBytes = field.getBytes();
 							if(fieldValueBytes == null){
 								if(DrBooleanTool.isFalseOrNull(config.getIgnoreNullFields())){
-									delete.addColumn(FAM, fullQualifierBytes);
+									delete.addColumns(FAM, fullQualifierBytes);
 									++numCellsDeleted;
 								}
 							}else{
