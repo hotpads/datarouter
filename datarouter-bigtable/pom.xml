@@ -27,33 +27,6 @@
 					<dotGitDirectory>${project.basedir}/../.git</dotGitDirectory>
 				</configuration>
 			</plugin>
-			<plugin>
-				<artifactId>maven-resources-plugin</artifactId>
-				<version>2.6</version>
-				<executions>
-					<!-- Is needed to copy all the shared jsp, js and css for all the project -->
-					<execution>
-						<id>copy-resources-META-INF</id>
-						<phase>validate</phase>
-						<goals>
-							<goal>copy-resources</goal>
-						</goals>
-						<configuration>
-							<outputDirectory>${project.build.directory}/classes/META-INF/resources/</outputDirectory>
-							<resources>
-								<resource>
-									<directory>${project.basedir}/src/META-INF/resources/
-									</directory>
-									<filtering>false</filtering>
-									<includes>
-										<include>**/*</include>
-									</includes>
-								</resource>
-							</resources>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
 		</plugins>
 	</build>
 	<dependencies>

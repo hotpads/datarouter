@@ -9,13 +9,25 @@
 	<%@ include file="/jsp/menu/dr-navbar.jsp"%>
 	<div class="container">
 		<h2>DR ${param.clientName}</h2>
-		<a href="${contextPath}/datarouter/routers">Datarouter Home</a>
-		&nbsp;&nbsp;&#62;&#62;&nbsp;&nbsp; <a
-			href="${contextPath}/datarouter/routers?submitAction=inspectRouter&routerName=${param.routerName}">Router:
-			${param.routerName}</a> &nbsp;&nbsp;&#62;&#62;&nbsp;&nbsp; <b>Client:
-		</b> ${param.clientName} <br /> <br /> <b>zookeeper.quorum: </b>
-		${address}<br /> <br /> These are not node names. They are table names
-		from HBaseAdmin.listTables();<br /> <br />
+		<a href="${contextPath}/datarouter/routers">
+			Datarouter Home
+		</a>
+		&nbsp;&nbsp;&#62;&#62;&nbsp;&nbsp;
+		<a href="${contextPath}/datarouter/routers?submitAction=inspectRouter&routerName=${param.routerName}">
+			Router: ${param.routerName}
+		</a>
+		&nbsp;&nbsp;&#62;&#62;&nbsp;&nbsp;
+		<b>Client: </b>
+		${param.clientName}
+		<br>
+		<br>
+		<b>zookeeper.quorum: </b>
+		${address}
+		<br>
+		<br>
+		These are not node names. They are table names from HBaseAdmin.listTables();
+		<br>
+		<br>
 		<table class="table table-striped table-bordered table-hover table-condensed sortable">
 			<thead>
 				<tr>
