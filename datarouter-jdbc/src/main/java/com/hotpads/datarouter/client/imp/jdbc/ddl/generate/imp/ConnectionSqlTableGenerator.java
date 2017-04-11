@@ -107,7 +107,6 @@ public class ConnectionSqlTableGenerator{
 			resultSet.next();
 			MySqlCollation collation = MySqlCollation.parse(resultSet.getString(1));
 
-			MySqlCharacterSet characterSet;
 			sql = "SELECT CCSA.character_set_name "
 					+ "FROM information_schema.`TABLES` T, "
 					+ "information_schema.`COLLATION_CHARACTER_SET_APPLICABILITY` CCSA"
@@ -116,7 +115,7 @@ public class ConnectionSqlTableGenerator{
 					+ "\nAND T.table_name=\"" + tableName + "\";";
 			resultSet = statement.executeQuery(sql);
 			resultSet.next();
-			characterSet = MySqlCharacterSet.parse(resultSet.getString(1));
+			MySqlCharacterSet characterSet = MySqlCharacterSet.parse(resultSet.getString(1));
 
 			return new SqlTable(tableName, primaryKey, new ArrayList<>(columnsByName.values()), indexes,
 					uniqueIndexes, characterSet, collation, rowFormat, engine);
