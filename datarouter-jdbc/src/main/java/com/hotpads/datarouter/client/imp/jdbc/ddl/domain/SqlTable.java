@@ -35,23 +35,8 @@ public class SqlTable{
 		this.engine = engine;
 	}
 
-	public SqlTable addColumn(SqlColumn column){
-		columns.add(column);
-		return this;
-	}
-
-	public SqlTable addIndex(SqlIndex tableIndex){
-		indexes.add(tableIndex);
-		return this;
-	}
-
-	public SqlTable addUniqueIndex(SqlIndex tableUniqueIndex){
-		uniqueIndexes.add(tableUniqueIndex);
-		return this;
-	}
-
 	public boolean hasPrimaryKey(){
-		return getPrimaryKey() != null && getPrimaryKey().getColumns().size() > 0;
+		return getPrimaryKey() != null && getPrimaryKey().getColumnNames().size() > 0;
 	}
 
 	public boolean containsColumn(String columnName){
@@ -113,7 +98,6 @@ public class SqlTable{
 	public String getName(){
 		return name;
 	}
-
 
 	public List<SqlColumn> getColumns(){
 		return columns;

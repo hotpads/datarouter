@@ -3,11 +3,10 @@ package com.hotpads.datarouter.client.imp.jdbc.ddl.generate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.SortedSet;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.hotpads.datarouter.SchemaUpdateOptions;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlIndex;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlTable;
@@ -37,8 +36,12 @@ public class SqlAlterTableGenerator{
 					+ new SqlCreateTableGenerator(requested, databaseName).generateDdl());
 		}
 
+		List<SqlAlterTableClause> alters = generate(diff);
+		if(alters.isEmpty()){
+			return Optional.empty();
+		}
 		String alterTablePrefix = "alter table " + databaseName + "." + current.getName() + "\n";
-		return Optional.of(generate(diff).stream()
+		return Optional.of(alters.stream()
 				.map(SqlAlterTableClause::getAlterTable)
 				.collect(Collectors.joining(",\n", alterTablePrefix, ";")));
 	}
@@ -58,9 +61,7 @@ public class SqlAlterTableGenerator{
 			if(current.hasPrimaryKey()){
 				alters.add(new SqlAlterTableClause("drop primary key"));
 			}
-			List<SqlColumn> listOfColumnsInPkey = requested.getPrimaryKey().getColumns();
-			alters.add(new SqlAlterTableClause(listOfColumnsInPkey.stream()
-					.map(SqlColumn::getName)
+			alters.add(new SqlAlterTableClause(requested.getPrimaryKey().getColumnNames().stream()
 					.collect(Collectors.joining(",", "add primary key (", ")"))));
 		}
 		if(options.getDropIndexes()){
@@ -76,12 +77,10 @@ public class SqlAlterTableGenerator{
 		}
 		if(options.getModifyCharacterSetOrCollation()
 				&& (diff.isCharacterSetModified()
-						|| diff.isCollationModified()
-						|| diff.getColumnsWithCharsetOrCollationToConvert().size() > 0)){
+						|| diff.isCollationModified())){
 			String collation = requested.getCollation().toString();
 			String characterSet = requested.getCharacterSet().toString();
 			String alterClause = "character set " + characterSet + " collate " + collation;
-			alters.add(new SqlAlterTableClause("convert to " + alterClause));
 			alters.add(new SqlAlterTableClause(alterClause));
 		}
 		if(options.getModifyRowFormat() && diff.isRowFormatModified()){
@@ -114,28 +113,14 @@ public class SqlAlterTableGenerator{
 	}
 
 	private static StringBuilder makeModifyColumnDefinition(SqlColumn column){
-		return makeColumnDefinition(column, "modify ");
+		return column.makeColumnDefinition("modify ");
 	}
 
 	private static StringBuilder makeAddColumnDefinition(SqlColumn column){
-		return makeColumnDefinition(column, "add ");
+		return column.makeColumnDefinition("add ");
 	}
 
-	private static StringBuilder makeColumnDefinition(SqlColumn column, String prefix){
-		MySqlColumnType type = column.getType();
-		StringBuilder sb = new StringBuilder(prefix).append(column.getName()).append(" ")
-				.append(type.toString().toLowerCase());
-		if(type.shouldSpecifyLength(column.getMaxLength())){
-			sb.append("(").append(column.getMaxLength()).append(")");
-		}
-		sb.append(column.getDefaultValueStatement());
-		if(column.getAutoIncrement()){
-			sb.append(" auto_increment");
-		}
-		return sb;
-	}
-
-	private static List<SqlAlterTableClause> getAlterTableForRemovingIndexes(SortedSet<SqlIndex> indexesToDrop){
+	private static List<SqlAlterTableClause> getAlterTableForRemovingIndexes(Set<SqlIndex> indexesToDrop){
 		return indexesToDrop.stream()
 				.map(SqlIndex::getName)
 				.map("drop index "::concat)
@@ -143,12 +128,11 @@ public class SqlAlterTableGenerator{
 				.collect(Collectors.toList());
 	}
 
-	private static List<SqlAlterTableClause> getAlterTableForAddingIndexes(SortedSet<SqlIndex> indexesToAdd,
+	private static List<SqlAlterTableClause> getAlterTableForAddingIndexes(Set<SqlIndex> indexesToAdd,
 			boolean unique){
 		return indexesToAdd.stream()
 				.map(index -> {
-					String csvColumns = index.getColumns().stream()
-							.map(SqlColumn::getName)
+					String csvColumns = index.getColumnNames().stream()
 							.collect(Collectors.joining(",", "(", ")"));
 					StringBuilder sb = new StringBuilder("add ");
 					if(unique){

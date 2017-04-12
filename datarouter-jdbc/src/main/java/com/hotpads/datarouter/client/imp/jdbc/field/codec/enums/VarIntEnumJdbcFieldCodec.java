@@ -25,8 +25,8 @@ extends BaseJdbcFieldCodec<E,VarIntEnumField<E>>{
 	/*********************** SqlEncodedField ***********************/
 
 	@Override
-	public SqlColumn getSqlColumnDefinition(){
-		return integerEnumJdbcFieldCodec.getSqlColumnDefinition();
+	public SqlColumn getSqlColumnDefinition(boolean allowNullable){
+		return integerEnumJdbcFieldCodec.getSqlColumnDefinition(allowNullable);
 	}
 
 	@Override

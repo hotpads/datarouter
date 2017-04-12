@@ -1,25 +1,17 @@
 package com.hotpads.datarouter.client.imp.jdbc.ddl.generate;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn.SqlColumnNameComparator;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn.SqlColumnNameTypeLengthAutoIncrementDefaultComparator;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn.SqlColumnByName;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlIndex;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlIndex.SqlIndexNameComparator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlTable;
-import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.util.core.stream.StreamTool;
 
 public class SqlTableDiffGenerator{
-
 	private final SqlTable current;
 	private final SqlTable requested;
 
@@ -29,81 +21,46 @@ public class SqlTableDiffGenerator{
 	}
 
 	public List<SqlColumn> getColumnsToAdd(){
-		return minusColumns(requested, current);
+		return findDifferentColumnsByName(requested, current);
 	}
 
 	public List<SqlColumn> getColumnsToRemove(){
-		return minusColumns(current,requested);
+		return findDifferentColumnsByName(current, requested);
 	}
 
-	private static List<SqlColumn> minusColumns(SqlTable tableA, SqlTable tableB){
-		SqlColumnNameComparator comparator = new SqlColumnNameComparator(true);
-		Set<SqlColumn> tableAColumns = new TreeSet<>(comparator);
-		Set<SqlColumn> tableBColumns = new TreeSet<>(comparator);
-		tableAColumns.addAll(tableA.getColumns());
-		tableBColumns.addAll(tableB.getColumns());
-		return new ArrayList<>(DrCollectionTool.minus(tableAColumns, tableBColumns, comparator));
+	private static List<SqlColumn> findDifferentColumnsByName(SqlTable first, SqlTable second){
+		Set<SqlColumnByName> differentColumns = SqlColumnByName.wrap(first.getColumns());
+		differentColumns.removeAll(SqlColumnByName.wrap(second.getColumns()));
+		return StreamTool.map(differentColumns, SqlColumnByName::getSqlColumn);
 	}
 
 	public List<SqlColumn> getColumnsToModify(){
-		Set<SqlColumn> modifiedColumns = new TreeSet<>(new SqlColumnNameTypeLengthAutoIncrementDefaultComparator());
-		modifiedColumns.addAll(requested.getColumns());// start with all requested columns
-		current.getColumns().forEach(modifiedColumns::remove);// remove current columns that don't need changes
+		Set<SqlColumn> modifiedColumns = new HashSet<>(requested.getColumns());// start with all requested columns
+		modifiedColumns.removeAll(current.getColumns());// remove current columns that don't need changes
 		modifiedColumns.removeAll(getColumnsToAdd());// remove new columns
 		return new ArrayList<>(modifiedColumns);
 	}
 
-	public List<SqlColumn> getColumnsWithCharsetOrCollationToConvert(){
-		Map<String,SqlColumn> requestedColumnsByName = requested.getColumns().stream()
-				.collect(Collectors.toMap(SqlColumn::getName, Function.identity()));
-		List<SqlColumn> columnsWithCharsetOrCollationToConvert = new ArrayList<>();
-		for(SqlColumn column : current.getColumns()){
-			SqlColumn requestedColumn = requestedColumnsByName.get(column.getName());
-			if(requestedColumn == null
-					|| column.getCharacterSet() == null
-					|| column.getCollation() == null
-					|| Objects.equals(column.getCharacterSet(), requestedColumn.getCharacterSet())
-							&& Objects.equals(column.getCollation(), requestedColumn.getCollation())){
-				continue;
-			}
-			columnsWithCharsetOrCollationToConvert.add(column);
-		}
-		return columnsWithCharsetOrCollationToConvert;
+	public Set<SqlIndex> getIndexesToAdd(){
+		return findDifferentIndexes(requested.getIndexes(), current.getIndexes());
 	}
 
-	public SortedSet<SqlIndex> getIndexesToAdd(){
-		return minusIndexes(requested, current);
+	public Set<SqlIndex> getIndexesToRemove(){
+		return findDifferentIndexes(current.getIndexes(), requested.getIndexes());
 	}
 
-	public SortedSet<SqlIndex> getIndexesToRemove(){
-		return minusIndexes(current, requested);
+	public Set<SqlIndex> getUniqueIndexesToAdd(){
+		return findDifferentIndexes(requested.getUniqueIndexes(), current.getUniqueIndexes());
 	}
 
-	public SortedSet<SqlIndex> getUniqueIndexesToAdd(){
-		return minusUniqueIndexes(requested, current);
+	public Set<SqlIndex> getUniqueIndexesToRemove(){
+		return findDifferentIndexes(current.getUniqueIndexes(), requested.getUniqueIndexes());
 	}
 
-	public SortedSet<SqlIndex> getUniqueIndexesToRemove(){
-		return minusUniqueIndexes(current, requested);
-	}
-
-	/**
-	 * returns tableA.indexes - tableB.indexes
-	 */
-	private static SortedSet<SqlIndex> minusIndexes(SqlTable tableA, SqlTable tableB){
-		Set<SqlIndex> tableAIndexes = tableA.getIndexes();
-		Set<SqlIndex> tableBIndexes = tableB.getIndexes();
-		TreeSet<SqlIndex> indexesToRemove = DrCollectionTool.minus(tableAIndexes, tableBIndexes,
-				new SqlIndexNameComparator());
-		return new TreeSet<>(indexesToRemove);
-	}
-
-	private static SortedSet<SqlIndex> minusUniqueIndexes(SqlTable tableA, SqlTable tableB){
-		Set<SqlIndex> tableAUniqueIndexes = tableA.getUniqueIndexes();
-		Set<SqlIndex> tableBUniqueIndexes = tableB.getUniqueIndexes();
-		TreeSet<SqlIndex> uniqueIndexesToRemove = DrCollectionTool.minus(tableAUniqueIndexes, tableBUniqueIndexes,
-				new SqlIndexNameComparator());
-		return new TreeSet<>(uniqueIndexesToRemove);
+	private static Set<SqlIndex> findDifferentIndexes(Set<SqlIndex> first, Set<SqlIndex> second){
+		Set<SqlIndex> differentIndexes = new HashSet<>(first);
+		differentIndexes.removeAll(second);
+		return differentIndexes;
 	}
 
 	/********************* helper methods *******************************/
@@ -131,13 +88,7 @@ public class SqlTableDiffGenerator{
 	}
 
 	private boolean areColumnsModified(){
-		SortedSet<SqlColumn> currentColumns = new TreeSet<>(
-				new SqlColumnNameTypeLengthAutoIncrementDefaultComparator());
-		currentColumns.addAll(current.getColumns());
-		SortedSet<SqlColumn> requestedColumns = new TreeSet<>(
-				new SqlColumnNameTypeLengthAutoIncrementDefaultComparator());
-		requestedColumns.addAll(requested.getColumns());
-		return !currentColumns.equals(requestedColumns);
+		return !new HashSet<>(current.getColumns()).equals(new HashSet<>(requested.getColumns()));
 	}
 
 	public boolean isEngineModified(){
@@ -157,29 +108,15 @@ public class SqlTableDiffGenerator{
 	}
 
 	public boolean isIndexesModified(){
-		SortedSet<SqlIndex> currentIndexes = new TreeSet<>(current.getIndexes());
-		SortedSet<SqlIndex> requestedIndexes = new TreeSet<>(requested.getIndexes());
-		return !currentIndexes.equals(requestedIndexes);
+		return !current.getIndexes().equals(requested.getIndexes());
 	}
 
 	public boolean isUniqueIndexesModified(){
-		SortedSet<SqlIndex> currentUniqueIndexes = new TreeSet<>(current.getUniqueIndexes());
-		SortedSet<SqlIndex> requestedUniqueIndexes = new TreeSet<>(requested.getUniqueIndexes());
-		return !currentUniqueIndexes.equals(requestedUniqueIndexes);
+		return !current.getUniqueIndexes().equals(requested.getUniqueIndexes());
 	}
 
 	public boolean isPrimaryKeyModified(){
-		List<SqlColumn> currentPrimaryKeyColumns = current.getPrimaryKey().getColumns();
-		List<SqlColumn> requestedPrimaryKeyColumns = requested.getPrimaryKey().getColumns();
-		if(!haveTheSameColumnsinTheSameOrder(currentPrimaryKeyColumns, requestedPrimaryKeyColumns)){
-			return true;
-		}
-		return false;
-	}
-
-	private boolean haveTheSameColumnsinTheSameOrder(List<SqlColumn> currentPrimaryKeyColumns,
-			List<SqlColumn> requestedPrimaryKeyColumns){
-		return currentPrimaryKeyColumns.equals(requestedPrimaryKeyColumns);
+		return !current.getPrimaryKey().equals(requested.getPrimaryKey());
 	}
 
 }

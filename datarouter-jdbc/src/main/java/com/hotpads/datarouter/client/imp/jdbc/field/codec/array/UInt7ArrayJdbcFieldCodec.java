@@ -26,9 +26,9 @@ extends BaseListJdbcFieldCodec<Byte,List<Byte>,UInt7ArrayField>{
 
 
 	@Override
-	public SqlColumn getSqlColumnDefinition(){
-		return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.LONGBLOB, Integer.MAX_VALUE, field.getKey()
-				.isNullable(), false);
+	public SqlColumn getSqlColumnDefinition(boolean allowNullable){
+		return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.LONGBLOB, Integer.MAX_VALUE,
+				allowNullable && field.getKey().isNullable(), false);
 	}
 
 	@Override

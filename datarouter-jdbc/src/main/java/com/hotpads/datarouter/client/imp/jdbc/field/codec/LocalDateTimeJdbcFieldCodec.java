@@ -30,9 +30,9 @@ public class LocalDateTimeJdbcFieldCodec extends BaseJdbcFieldCodec<LocalDateTim
 	}
 
 	@Override
-	public SqlColumn getSqlColumnDefinition(){
+	public SqlColumn getSqlColumnDefinition(boolean allowNullable){
 		return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.DATETIME, field.getNumFractionalSeconds(),
-				field.getKey().isNullable(), false);
+				allowNullable && field.getKey().isNullable(), false);
 	}
 
 	@Override
@@ -85,7 +85,7 @@ public class LocalDateTimeJdbcFieldCodec extends BaseJdbcFieldCodec<LocalDateTim
 
 	public static class Tests{
 		@Test
-		public void testGetSqlEscaped() throws Exception{
+		public void testGetSqlEscaped(){
 			// mysql date format is yyyy-MM-dd HH:mm:ss http://dev.mysql.com/doc/refman/5.1/en/datetime.html
 			// jdbc timestamp escape format" yyyy-MM-dd HH:mm:ss.n where n is nanoseconds (not representable with Date)
 			// sql insert with a string including the nanosecond value works in mysql

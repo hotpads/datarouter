@@ -139,6 +139,7 @@ implements Callable<Optional<String>>{
 			fullWidthMessage.append("=");
 		}
 		fullWidthMessage.append(" ").append(message).append(" ");
+		chars += message.length();
 		for(; chars < CONSOLE_WIDTH; chars++){
 			fullWidthMessage.append("=");
 		}

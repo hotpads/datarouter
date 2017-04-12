@@ -3,6 +3,7 @@ package com.hotpads.datarouter.test.node.basic.sorted;
 import java.util.Arrays;
 import java.util.List;
 
+import com.google.gson.Gson;
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
@@ -114,6 +115,11 @@ public class SortedBean extends BaseDatabean<SortedBeanKey,SortedBean>{
 
 	public String getF3(){
 		return f3;
+	}
+
+	@Override
+	public String toString(){
+		return new Gson().toJson(this);
 	}
 
 }

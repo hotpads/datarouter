@@ -24,8 +24,8 @@ extends BaseJdbcFieldCodec<E,StringEnumField<E>>{
 	}
 
 	@Override
-	public SqlColumn getSqlColumnDefinition(){
-		return stringJdbcFieldCodec.getSqlColumnDefinition();
+	public SqlColumn getSqlColumnDefinition(boolean allowNullable){
+		return stringJdbcFieldCodec.getSqlColumnDefinition(allowNullable);
 	}
 
 	@Override
