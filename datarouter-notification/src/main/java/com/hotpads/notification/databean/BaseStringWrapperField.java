@@ -21,7 +21,7 @@ public abstract class BaseStringWrapperField{
 		if(this == obj){
 			return true;
 		}
-		if(obj == null || !(obj instanceof BaseStringWrapperField)){
+		if(obj == null || !(obj instanceof BaseStringWrapperField)){//TODO consider comparing getClass as well...
 			return false;
 		}
 		BaseStringWrapperField other = (BaseStringWrapperField)obj;
