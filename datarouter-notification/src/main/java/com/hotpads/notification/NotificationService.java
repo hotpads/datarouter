@@ -2,6 +2,7 @@ package com.hotpads.notification;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -10,6 +11,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -35,9 +37,7 @@ import com.hotpads.notification.databean.NotificationLogKey;
 import com.hotpads.notification.databean.NotificationRequest;
 import com.hotpads.notification.databean.NotificationRequestKey;
 import com.hotpads.notification.databean.NotificationTypeConfig;
-import com.hotpads.notification.databean.NotificationTypeConfigKey;
 import com.hotpads.notification.databean.NotificationUserId;
-import com.hotpads.notification.databean.NotificationUserType;
 import com.hotpads.notification.destination.NotificationDestination;
 import com.hotpads.notification.destination.NotificationDestinationAppName;
 import com.hotpads.notification.preference.NotificationDestinationAppGroupName;
@@ -55,7 +55,6 @@ import com.hotpads.notification.timing.NotificationTimingStrategyMappingKey;
 import com.hotpads.notification.tracking.NotificationTrackingService;
 import com.hotpads.notification.type.NotificationTypeFactory;
 import com.hotpads.util.core.collections.Range;
-import com.hotpads.util.core.stream.StreamTool;
 
 @Singleton
 public class NotificationService{
@@ -92,57 +91,49 @@ public class NotificationService{
 
 	public List<NotificationSendingResult> sendNotifications(List<NotificationRequest> requests, String jobName){
 		NotificationRequest firstRequest = requests.get(0);
-		NotificationUserId userId = firstRequest.getKey().getNotificationUserId();
-		NotificationUserType userType = userId.getType();
-
-		List<NotificationSendingResult> results = new ArrayList<>();
-		List<NotificationDestination> destinations;
-
-		//TODO there was no try/catch about typeFactory here. why not?
-		//TODO convert all tables to use one of these two (type or name)? could easily confuse someone currently
-		String notificationType = firstRequest.getType();//fully qualified name (package + class)
-		//TODO try catch for more useful message?
-		//TODO add configs to DB
-		NotificationTypeConfig typeConfig = notificationNodes.getNotificationTypeConfig().get(//TODO cache later
-				new NotificationTypeConfigKey(notificationType), null);
+		String notificationType = firstRequest.getType();//fully qualified name (package + class) TODO remove
+		NotificationTypeConfig typeConfig = notificationDao.getNotificationTypeConfig(notificationType);//TODO test
+		if(typeConfig == null){
+			throw new RuntimeException("Requested notification type not configured: " + notificationType);
+		}
 		String simpleName = typeConfig.getName();
 
 		Map<NotificationDestinationAppName,String> appToTemplateMap = notificationDao
-				.getDestinationAppToTemplateMappingForType(simpleName);
-
-		if(typeConfig.getNeedsRemoveDisabledCallback()){
-			//TODO combine with getActiveDestinations?
-			callbacks.removeDisabledSearchDestinationApps(firstRequest.getType(), appToTemplateMap);//works fine for inferred
+				.getDestinationAppToTemplateMappingForType(notificationType);
+		if(typeConfig.getNeedsRemoveDisabledCallback() && !appToTemplateMap.isEmpty()){
+			//TODO test again
+			//filter the keys, then make a new map with only the filtered entries
+			appToTemplateMap = callbacks.filterOutDisabledDestinationApps(notificationType, appToTemplateMap.keySet())
+					.stream()
+					.collect(Collectors.toMap(Function.identity(), appToTemplateMap::get));
+		}
+		if(appToTemplateMap.isEmpty()){
+			return finishSendNotificationsWithoutSend(requests);
 		}
 
-		//TODO use a cache?
-		Set<NotificationDestinationApp> destinationApps = notificationNodes.getNotificationDestinationApp()
-				.streamWithPrefixes(StreamTool.map(appToTemplateMap.keySet(), NotificationDestinationAppKey::new), null)
-				.collect(Collectors.toSet());
-
-		if(userType.needNotificationDestinationService()){
-			//TODO combine with removeDisabledSearchDestinationApps?
+		List<NotificationDestination> destinations;
+		NotificationUserId userId = firstRequest.getKey().getNotificationUserId();
+		Set<NotificationDestinationApp> destinationApps = notificationDao.getNotificationDestinationAppsByName(
+				appToTemplateMap.keySet());
+		if(userId.getType().needNotificationDestinationService()){
 			destinations = callbacks.getActiveDestinations(userId, appToTemplateMap.keySet());
 		}else{
 			destinations = filterAppsAndGetDestinations(destinationApps, userId);
 		}
-
 		Map<NotificationDestination,String> tempByDest = filterOutOptedOut(typeConfig.getGroupName(),
 				destinations, destinationApps, appToTemplateMap);
-
 		if(tempByDest.isEmpty()){
-			remove(requests);
-			return results;
+			return finishSendNotificationsWithoutSend(requests);
 		}
 
 		List<NotificationRequest> selectedRequests = typeConfig.getNeedsFilterOutIrrelevantCallback()
 				? callbacks.filterOutIrrelevantNotificationRequests(notificationType, requests) : requests;
 		if(selectedRequests.isEmpty()){
-			remove(requests);
-			return results;
+			return finishSendNotificationsWithoutSend(requests);
 		}
 
 		boolean sent = false;
+		List<NotificationSendingResult> results = new ArrayList<>();
 		List<String> sentNotificationIds = new ArrayList<>();
 		for(Entry<NotificationDestination,String> entry : tempByDest.entrySet()){
 			NotificationDestination notificationDestination = entry.getKey();
@@ -235,6 +226,11 @@ public class NotificationService{
 		return results;
 	}
 
+	private List<NotificationSendingResult> finishSendNotificationsWithoutSend(List<NotificationRequest> requests){
+		remove(requests);
+		return Collections.emptyList();
+	}
+
 	private void logItems(Collection<NotificationRequest> requests, List<String> notificationIds){
 		String idsString = gson.toJson(DrListTool.getFirstNElements(notificationIds, MAX_NOTIFICATION_IDS_STORABLE));
 		List<NotificationItemLog> itemLogs = requests.stream()
@@ -291,10 +287,10 @@ public class NotificationService{
 		try{
 			typeFactory.create(userRequest.getType());
 			//TODO figure out how to recreate the overall behavior of this try/catch, which potentially prevents worse
-			//errors from happening later (that might affect more than one request)
-			//original behavior would have skipped this specific request but continued on with the process. how to make
+			//errors from happening later (that might affect more than this one request).
+			//Original behavior would have skipped this specific request but continued on with the process. How to make
 			//sure that the type is valid? just check DB to make sure it's been registered as a type? let the client
-			//worry about their registered types actually existing in the callbacks.
+			//worry about their registered types actually existing in the callbacks?
 		}catch(Exception e){
 			logger.warn("Error creating " + userRequest.getType() + ", notification request " + userRequest
 					+ " not handled", e);
@@ -391,7 +387,7 @@ public class NotificationService{
 				|| first.getChannel() != null && first.getChannel().equals(request.getChannel());
 	}
 
-	//TODO below here maybe in own service or a dao
+	//TODO test
 	public Map<NotificationDestination,String> filterOutOptedOut(NotificationTypeGroupName typeGroup,
 			List<NotificationDestination> destinations, Set<NotificationDestinationApp> destinationApps,
 			Map<NotificationDestinationAppName,String> appToTemplateMap){
@@ -404,11 +400,12 @@ public class NotificationService{
 
 		Map<NotificationDestination,String> matchingTemplates = new HashMap<>();
 		for(NotificationDestination destination : destinations){
-			//TODO this get is unnecessary except to detect and ignore missing templates
-			//TODO one optimization is to not do the get until checking that it's not opted out.
-			String templateClass = notificationTemplates.get().get(appToTemplateMap.get(destination.getKey().getApp()));
-			if(templateClass != null && !optedOutApps.contains(destination.getKey().getApp())){
-				matchingTemplates.put(destination, templateClass);
+			if(!optedOutApps.contains(destination.getKey().getApp())){
+				String templateClass = notificationTemplates.get().get(appToTemplateMap.get(destination.getKey()
+						.getApp()));
+				if(templateClass != null){
+					matchingTemplates.put(destination, templateClass);
+				}
 			}
 		}
 		return matchingTemplates;
@@ -430,7 +427,6 @@ public class NotificationService{
 			return new HashSet<>();
 		}
 
-		//TODO cache?
 		Set<NotificationDestinationAppGroupName> optedOutGroupNames = notificationNodes.getNotificationPreference()
 				.getMulti(preferenceKeys, null)
 				.stream()
@@ -448,13 +444,12 @@ public class NotificationService{
 	//TODO test
 	public List<NotificationDestination> filterAppsAndGetDestinations(Collection<NotificationDestinationApp> apps,
 			NotificationUserId userId){
-		apps.removeIf(app -> !app.getAcceptedUserTypes().contains(userId.getType()));//TODO test
+		apps.removeIf(app -> !app.getAcceptedUserTypes().contains(userId.getType()));//intentional side effect
 		return apps.stream()
 				.map(app -> new NotificationDestination(null, app.getKey().getName(), userId.getId()))
 				.collect(Collectors.toList());
 	}
 
-	//TODO some of these would be more appropriate in the client side
 //	@Guice(moduleFactory = ServicesModuleFactory.class)
 //	public static class NotificationServiceIntegrationTests{
 //
