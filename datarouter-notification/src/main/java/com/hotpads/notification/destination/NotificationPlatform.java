@@ -22,8 +22,8 @@ public enum NotificationPlatform implements StringEnum<NotificationPlatform>{
 	}
 
 	@Override
-	public NotificationPlatform fromPersistentString(String s){
-		return DatarouterEnumTool.getEnumFromString(values(), s, null);
+	public NotificationPlatform fromPersistentString(String str){
+		return DatarouterEnumTool.getEnumFromString(values(), str, null);
 	}
 
 }

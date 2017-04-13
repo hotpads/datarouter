@@ -51,7 +51,7 @@ extends BasePrimaryKey<NotificationTypeAndDestinationAppToTemplateKey>{
 
 	public static class FieldKeys{
 		public static final StringFieldKey notificationType = new StringFieldKey("notificationType");
-		public static final StringFieldKey notificationDestinationApp = NotificationDestinationAppName.key.withColumnName(
-				"notificationDestinationApp");
+		public static final StringFieldKey notificationDestinationApp = NotificationDestinationAppName.key
+				.withColumnName("notificationDestinationApp");
 	}
 }
