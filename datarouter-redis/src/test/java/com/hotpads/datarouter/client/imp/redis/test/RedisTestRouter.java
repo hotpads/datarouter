@@ -15,7 +15,7 @@ import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.NodeParams.NodeParamsBuilder;
 import com.hotpads.datarouter.routing.BaseRouter;
 import com.hotpads.datarouter.routing.Datarouter;
-import com.hotpads.datarouter.test.DrTestConstants;
+import com.hotpads.datarouter.test.TestDatarouterProperties;
 
 public class RedisTestRouter extends BaseRouter{
 
@@ -30,8 +30,10 @@ public class RedisTestRouter extends BaseRouter{
 	/** constructor **********************************************************/
 
 	@Inject
-	public RedisTestRouter(Datarouter datarouter, DatarouterClients datarouterClients, ClientId clientId){
-		super(datarouter, DrTestConstants.CONFIG_PATH, RedisTestRouter.class.getSimpleName(), null, null);
+	public RedisTestRouter(TestDatarouterProperties datarouterProperties, Datarouter datarouter,
+			DatarouterClients datarouterClients, ClientId clientId){
+		super(datarouter, datarouterProperties.getTestRouterConfigFileLocation(), RedisTestRouter.class.getSimpleName(),
+				null, null);
 		this.datarouterClients = datarouterClients;
 		this.redisNode = buildRedisNode(clientId);
 	}

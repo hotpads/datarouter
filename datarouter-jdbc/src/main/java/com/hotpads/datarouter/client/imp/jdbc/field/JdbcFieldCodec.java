@@ -10,7 +10,7 @@ public interface JdbcFieldCodec<T,F extends Field<T>>{
 
 	F getField();
 
-	SqlColumn getSqlColumnDefinition();
+	SqlColumn getSqlColumnDefinition(boolean allowNullable);
 	String getSqlNameValuePairEscaped();
 	String getSqlEscaped();
 	T parseJdbcValueButDoNotSet(Object col);

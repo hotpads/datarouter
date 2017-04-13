@@ -24,9 +24,9 @@ extends BasePrimitiveJdbcFieldCodec<Byte,F>{
 	protected abstract Integer getJavaSqlType();
 
 	@Override
-	public SqlColumn getSqlColumnDefinition(){
+	public SqlColumn getSqlColumnDefinition(boolean allowNullable){
 		return new SqlColumn(field.getKey().getColumnName(), getMysqlColumnType(), getMaxColumnLength(),
-				field.getKey().isNullable(), false);
+				allowNullable && field.getKey().isNullable(), false);
 	}
 
 	@Override

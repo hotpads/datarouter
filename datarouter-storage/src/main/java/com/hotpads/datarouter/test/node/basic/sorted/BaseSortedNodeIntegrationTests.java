@@ -28,6 +28,7 @@ import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.storage.databean.DatabeanTool;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.test.DatarouterStorageTestModuleFactory;
+import com.hotpads.datarouter.test.TestDatarouterProperties;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBean.SortedBeanFielder;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrIterableTool;
@@ -36,12 +37,14 @@ import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.iterable.BatchingIterable;
 import com.hotpads.util.core.profile.PhaseTimer;
 
-@Guice(moduleFactory=DatarouterStorageTestModuleFactory.class)
+@Guice(moduleFactory = DatarouterStorageTestModuleFactory.class)
 public abstract class BaseSortedNodeIntegrationTests{
 	private static final Logger logger = LoggerFactory.getLogger(BaseSortedNodeIntegrationTests.class);
 
 	/***************************** fields **************************************/
 
+	@Inject
+	private TestDatarouterProperties datarouterProperties;
 	@Inject
 	protected Datarouter datarouter;
 	@Inject
@@ -59,7 +62,7 @@ public abstract class BaseSortedNodeIntegrationTests{
 	/***************************** setup/teardown **************************************/
 
 	protected void setup(ClientId clientId, boolean entity){
-		router = new SortedNodeTestRouter(datarouter, datarouterSettings, entityNodeFactory,
+		router = new SortedNodeTestRouter(datarouterProperties, datarouter, datarouterSettings, entityNodeFactory,
 				SortedBeanEntityNode.ENTITY_NODE_PARAMS_1, nodeFactory, clientId, entity);
 		sortedNode = router.sortedBean();
 
@@ -123,11 +126,12 @@ public abstract class BaseSortedNodeIntegrationTests{
 		SortedBean nonBlankDatabean = new SortedBean("a", "b", 1, "d2", "non blank", null, null, null);
 		sortedNode.putMulti(Arrays.asList(nonBlankDatabean, blankDatabean), config);
 		SortedBean blankDatabeanFromDb = sortedNode.get(blankDatabean.getKey(), config);
+		Assert.assertNotNull(blankDatabeanFromDb);
 		new SortedBeanFielder().getNonKeyFields(blankDatabeanFromDb).stream()
 				.map(Field::getValue)
-				.forEach(AssertJUnit::assertNull);
+				.forEach(Assert::assertNull);
 		sortedNode.deleteMulti(DatabeanTool.getKeys(Arrays.asList(blankDatabean, nonBlankDatabean)), config);
-		AssertJUnit.assertNull(sortedNode.get(blankDatabean.getKey(), config));
+		Assert.assertNull(sortedNode.get(blankDatabean.getKey(), config));
 	}
 
 	protected void testIgnoreNull(){
@@ -227,7 +231,7 @@ public abstract class BaseSortedNodeIntegrationTests{
 
 		Range<SortedBeanKey> range1b = new Range<>(alp1, true, emu1, false);
 		List<T> result1b = DrListTool.createArrayList(scanProvider.scan(range1b, null));
-		int expectedSize1b = (SortedBeans.RANGE_LENGTH_alp_emu_inc-1) * SortedBeans.NUM_ELEMENTS
+		int expectedSize1b = (SortedBeans.RANGE_LENGTH_alp_emu_inc - 1) * SortedBeans.NUM_ELEMENTS
 				* SortedBeans.NUM_ELEMENTS * SortedBeans.NUM_ELEMENTS;
 		AssertJUnit.assertEquals(expectedSize1b, DrCollectionTool.size(result1b));
 		AssertJUnit.assertTrue(DrListTool.isSorted(result1b));

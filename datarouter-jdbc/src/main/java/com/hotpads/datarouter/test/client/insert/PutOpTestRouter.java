@@ -8,7 +8,7 @@ import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.node.op.raw.MapStorage;
 import com.hotpads.datarouter.routing.BaseRouter;
 import com.hotpads.datarouter.routing.Datarouter;
-import com.hotpads.datarouter.test.DrTestConstants;
+import com.hotpads.datarouter.test.TestDatarouterProperties;
 import com.hotpads.datarouter.test.client.insert.PutOpTestBean.PutOpTestBeanFielder;
 
 @Singleton
@@ -24,9 +24,10 @@ extends BaseRouter{
 
 	/********************************* constructor *****************************/
 
-	public PutOpTestRouter(Datarouter datarouter, DatarouterSettings datarouterSettings, NodeFactory nodeFactory,
-			ClientId clientId){
-		super(datarouter, DrTestConstants.CONFIG_PATH, name, nodeFactory, datarouterSettings);
+	public PutOpTestRouter(TestDatarouterProperties datarouterProperties, Datarouter datarouter,
+			DatarouterSettings datarouterSettings, NodeFactory nodeFactory, ClientId clientId){
+		super(datarouter, datarouterProperties.getTestRouterConfigFileLocation(), name, nodeFactory,
+				datarouterSettings);
 
 		this.putOptTest = register(nodeFactory.create(clientId, PutOpTestBean.class, PutOpTestBeanFielder.class, this,
 				false));

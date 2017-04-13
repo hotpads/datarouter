@@ -1,5 +1,7 @@
 package com.hotpads.datarouter.storage.field.imp;
 
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSet;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCollation;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.storage.field.BaseFieldKey;
 import com.hotpads.datarouter.storage.field.encoding.FieldGeneratorType;
@@ -7,6 +9,10 @@ import com.hotpads.datarouter.storage.field.encoding.FieldGeneratorType;
 public class StringFieldKey extends BaseFieldKey<String>{
 
 	private static final int DEFAULT_MAX_SIZE = MySqlColumnType.MAX_LENGTH_VARCHAR;
+
+	//TODO expose key configuration for those defaults
+	public static final MySqlCharacterSet DEFAULT_CHARACTER_SET = MySqlCharacterSet.utf8mb4;
+	public static final MySqlCollation DEFAULT_COLLATION = MySqlCollation.utf8mb4_bin;
 
 	private final int size;
 

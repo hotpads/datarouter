@@ -7,7 +7,8 @@ import com.hotpads.datarouter.node.factory.EntityNodeFactory;
 import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.routing.BaseRouter;
 import com.hotpads.datarouter.routing.Datarouter;
-import com.hotpads.datarouter.test.DrTestConstants;
+import com.hotpads.datarouter.test.DatarouterTestClientIds;
+import com.hotpads.datarouter.test.TestDatarouterProperties;
 import com.hotpads.trace.node.TraceEntityNode;
 
 
@@ -22,11 +23,12 @@ public class TraceTestRouter extends BaseRouter{
 	private final TraceEntityNode traceEntity;
 
 	@Inject
-	public TraceTestRouter(Datarouter datarouter, DatarouterSettings datarouterSettings,
-			EntityNodeFactory entityNodeFactory, NodeFactory nodeFactory){
-		super(datarouter, DrTestConstants.CONFIG_PATH, NAME, nodeFactory, datarouterSettings);
+	public TraceTestRouter(TestDatarouterProperties datarouterProperties, Datarouter datarouter,
+			DatarouterSettings datarouterSettings, EntityNodeFactory entityNodeFactory, NodeFactory nodeFactory){
+		super(datarouter, datarouterProperties.getTestRouterConfigFileLocation(), NAME, nodeFactory,
+				datarouterSettings);
 
-		traceEntity = new TraceEntityNode(entityNodeFactory, nodeFactory, this, DrTestConstants.CLIENT_drTestHBase,
+		traceEntity = new TraceEntityNode(entityNodeFactory, nodeFactory, this, DatarouterTestClientIds.hbase,
 				TraceEntityNode.ENTITY_NODE_PARAMS_TraceEntityTest);
 	}
 

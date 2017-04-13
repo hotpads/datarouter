@@ -52,10 +52,9 @@ public class SqlCreateTableGenerator{
 		if(table.hasPrimaryKey()){
 			sb.append(",\n");
 			sb.append(" primary key (");
-			int numberOfColumnsInPrimaryKey = table.getPrimaryKey().getColumns().size();
+			int numberOfColumnsInPrimaryKey = table.getPrimaryKey().getColumnNames().size();
 			for(int i = 0; i < numberOfColumnsInPrimaryKey; i++){
-				col = table.getPrimaryKey().getColumns().get(i);
-				sb.append(col.getName());
+				sb.append(table.getPrimaryKey().getColumnNames().get(i));
 				if(i != numberOfColumnsInPrimaryKey - 1){
 					sb.append(",");
 				}
@@ -66,12 +65,12 @@ public class SqlCreateTableGenerator{
 			sb.append(",\n");
 			sb.append(" unique index " + index.getName() + " (");
 			boolean appendedAnyCol = false;
-			for(SqlColumn column : DrIterableTool.nullSafe(index.getColumns())){
+			for(String columnName: index.getColumnNames()){
 				if(appendedAnyCol){
 					 sb.append(", ");
 				}
 				appendedAnyCol = true;
-				sb.append(column.getName());
+				sb.append(columnName);
 			}
 			sb.append(")");
 		}
@@ -90,12 +89,12 @@ public class SqlCreateTableGenerator{
 			sb.append(" index " + index.getName() + " (");
 
 			boolean appendedAnyIndexCol = false;
-			for(SqlColumn column : DrIterableTool.nullSafe(index.getColumns())){
+			for(String columnName : index.getColumnNames()){
 				if(appendedAnyIndexCol){
 					sb.append(", ");
 				}
 				appendedAnyIndexCol = true;
-				sb.append(column.getName());
+				sb.append(columnName);
 			}
 			sb.append(")");
 		}

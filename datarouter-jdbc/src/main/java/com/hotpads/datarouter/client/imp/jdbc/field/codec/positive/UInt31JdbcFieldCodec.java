@@ -22,9 +22,9 @@ public class UInt31JdbcFieldCodec extends BasePrimitiveJdbcFieldCodec<Integer,Fi
 	}
 
 	@Override
-	public SqlColumn getSqlColumnDefinition(){
-		return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.INT, 11, field.getKey().isNullable(),
-				false);
+	public SqlColumn getSqlColumnDefinition(boolean allowNullable){
+		return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.INT, 11,
+				allowNullable && field.getKey().isNullable(), false);
 	}
 
 	@Override

@@ -10,17 +10,17 @@ import com.hotpads.datarouter.node.op.combo.SortedMapStorage;
 import com.hotpads.datarouter.node.op.raw.SortedStorage;
 import com.hotpads.datarouter.routing.BaseRouter;
 import com.hotpads.datarouter.routing.Datarouter;
-import com.hotpads.datarouter.test.DrTestConstants;
+import com.hotpads.datarouter.test.TestDatarouterProperties;
 import com.hotpads.datarouter.test.node.basic.prefixed.ScatteringPrefixBean.ScatteringPrefixBeanFielder;
 
 @Singleton
 public class ScatteringPrefixTestRouter extends BaseRouter{
 
 	@Inject
-	public ScatteringPrefixTestRouter(Datarouter datarouter, DatarouterSettings datarouterSettings,
-			NodeFactory nodeFactory, ClientId clientId){
-		super(datarouter, DrTestConstants.CONFIG_PATH, ScatteringPrefixTestRouter.class.getSimpleName(), nodeFactory,
-				datarouterSettings);
+	public ScatteringPrefixTestRouter(TestDatarouterProperties datarouterProperties, Datarouter datarouter,
+			DatarouterSettings datarouterSettings, NodeFactory nodeFactory, ClientId clientId){
+		super(datarouter, datarouterProperties.getTestRouterConfigFileLocation(), ScatteringPrefixTestRouter.class
+				.getSimpleName(), nodeFactory, datarouterSettings);
 
 		scatteringPrefixBeanNode = register(nodeFactory.create(clientId, ScatteringPrefixBean.class,
 				ScatteringPrefixBeanFielder.class, this, false));

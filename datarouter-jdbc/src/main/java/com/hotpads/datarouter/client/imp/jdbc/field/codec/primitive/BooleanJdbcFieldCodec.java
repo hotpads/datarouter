@@ -24,11 +24,11 @@ extends BasePrimitiveJdbcFieldCodec<Boolean,Field<Boolean>>{
 
 
 	@Override
-	public SqlColumn getSqlColumnDefinition(){
+	public SqlColumn getSqlColumnDefinition(boolean allowNullable){
 		String defaultValue = field.getKey().getDefaultValue() == null ? null
 				: field.getKey().getDefaultValue().toString();
-		return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.TINYINT, 1, field.getKey().isNullable(),
-				false, defaultValue, null, null);
+		return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.TINYINT, 1,
+				allowNullable && field.getKey().isNullable(), false, defaultValue);
 	}
 
 	@Override

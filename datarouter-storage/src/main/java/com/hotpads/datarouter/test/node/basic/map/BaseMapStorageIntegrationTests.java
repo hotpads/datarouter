@@ -18,6 +18,7 @@ import com.hotpads.datarouter.node.op.raw.MapStorage.MapStorageNode;
 import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.storage.databean.DatabeanTool;
 import com.hotpads.datarouter.storage.field.Field;
+import com.hotpads.datarouter.test.TestDatarouterProperties;
 import com.hotpads.datarouter.test.node.basic.map.databean.MapStorageBean;
 import com.hotpads.datarouter.test.node.basic.map.databean.MapStorageBean.MapStorageBeanFielder;
 import com.hotpads.datarouter.test.node.basic.map.databean.MapStorageBeanKey;
@@ -26,6 +27,8 @@ public abstract class BaseMapStorageIntegrationTests{
 
 	/** fields ***************************************************************/
 
+	@Inject
+	private TestDatarouterProperties datarouterProperties;
 	@Inject
 	private Datarouter datarouter;
 	@Inject
@@ -40,8 +43,9 @@ public abstract class BaseMapStorageIntegrationTests{
 	/** setup/teardown *******************************************************/
 
 	protected void setup(ClientId clientId, boolean entity){
-		mapStorageNode = new MapStorageTestRouter(datarouter, nodeFactory, clientId, datarouterSettings, entity,
-				entityNodeFactory, MapStorageEntityNode.ENTITY_NODE_PARAMS_1).mapStorageNode;
+		mapStorageNode = new MapStorageTestRouter(datarouterProperties, datarouter, nodeFactory, clientId,
+				datarouterSettings, entity, entityNodeFactory,
+				MapStorageEntityNode.ENTITY_NODE_PARAMS_1).mapStorageNode;
 	}
 
 	@AfterClass

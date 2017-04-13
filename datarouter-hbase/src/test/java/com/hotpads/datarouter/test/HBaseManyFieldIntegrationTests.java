@@ -17,7 +17,7 @@ public class HBaseManyFieldIntegrationTests extends BaseManyFieldIntegrationTest
 
 	@BeforeClass
 	public void beforeClass(){
-		setup(DrTestConstants.CLIENT_drTestHBase);
+		setup(DatarouterTestClientIds.hbase);
 	}
 
 	@Override
