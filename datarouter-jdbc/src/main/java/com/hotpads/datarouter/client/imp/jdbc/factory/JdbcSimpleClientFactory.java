@@ -16,6 +16,7 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.execute.DatabaseCreator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.execute.JdbcSchemaUpdateService;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.execute.JdbcSchemaUpdateService.JdbcSchemaUpdateServiceFactory;
 import com.hotpads.datarouter.client.type.JdbcClient;
+import com.hotpads.datarouter.config.DatarouterProperties;
 import com.hotpads.datarouter.connection.JdbcConnectionPool;
 import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.util.core.DrBooleanTool;
@@ -29,6 +30,7 @@ implements ClientFactory{
 	private static final String
 			POOL_DEFAULT = "default";
 
+	private final DatarouterProperties datarouterProperties;
 	private final Datarouter datarouter;
 	private final ClientAvailabilitySettings clientAvailabilitySettings;
 	private final JdbcSchemaUpdateServiceFactory jdbcSchemaUpdateServiceFactory;
@@ -40,9 +42,10 @@ implements ClientFactory{
 	private final SchemaUpdateOptions schemaUpdateExecuteOptions;
 	private final boolean schemaUpdateEnabled;
 
-	public JdbcSimpleClientFactory(Datarouter datarouter, String clientName,
+	public JdbcSimpleClientFactory(DatarouterProperties datarouterProperties, Datarouter datarouter, String clientName,
 			ClientAvailabilitySettings clientAvailabilitySettings,
 			JdbcSchemaUpdateServiceFactory jdbcSchemaUpdateServiceFactory){
+		this.datarouterProperties = datarouterProperties;
 		this.datarouter = datarouter;
 		this.clientAvailabilitySettings = clientAvailabilitySettings;
 		this.clientName = clientName;
@@ -51,9 +54,9 @@ implements ClientFactory{
 		List<Properties> multiProperties = DrPropertiesTool.fromFiles(configFilePaths);
 		this.jdbcOptions = new JdbcOptions(multiProperties, clientName);
 		this.defaultJdbcOptions = new JdbcOptions(multiProperties, POOL_DEFAULT);
-		this.schemaUpdatePrintOptions = new SchemaUpdateOptions(multiProperties, JdbcSchemaUpdateService.PRINT_PREFIX,
-				true);
-		this.schemaUpdateExecuteOptions = new SchemaUpdateOptions(multiProperties,
+		this.schemaUpdatePrintOptions = new SchemaUpdateOptions(datarouterProperties.getConfigDirectory(),
+				JdbcSchemaUpdateService.PRINT_PREFIX, true);
+		this.schemaUpdateExecuteOptions = new SchemaUpdateOptions(datarouterProperties.getConfigDirectory(),
 				JdbcSchemaUpdateService.EXECUTE_PREFIX, false);
 		this.schemaUpdateEnabled = DrBooleanTool.isTrue(DrPropertiesTool.getFirstOccurrence(multiProperties,
 				SchemaUpdateOptions.SCHEMA_UPDATE_ENABLE));

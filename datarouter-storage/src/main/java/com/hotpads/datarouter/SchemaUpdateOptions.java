@@ -1,16 +1,22 @@
 package com.hotpads.datarouter;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.util.core.DrBooleanTool;
 import com.hotpads.datarouter.util.core.DrPropertiesTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
 
 public class SchemaUpdateOptions{
+	private static final Logger logger = LoggerFactory.getLogger(SchemaUpdateOptions.class);
 
-	public static final String
-			SCHEMA_UPDATE_ENABLE = "schemaUpdate.enable";
+	public static final String SCHEMA_UPDATE_FILENAME = "schema-update.properties";
+
+	public static final String SCHEMA_UPDATE_ENABLE = "schemaUpdate.enable";
 
 	private static final String
 			SUFFIX_createDatabases = ".createDatabases",
@@ -42,7 +48,15 @@ public class SchemaUpdateOptions{
 	// set nothing, use in tests
 	public SchemaUpdateOptions(){}
 
-	public SchemaUpdateOptions(List<Properties> multiProperties, String prefix, boolean printVsExecute){
+	public SchemaUpdateOptions(String configDirectory, String prefix, boolean printVsExecute){
+		String configFileLocation = configDirectory + "/" + SCHEMA_UPDATE_FILENAME;
+		List<Properties> multiProperties;
+		try{
+			multiProperties = Arrays.asList(DrPropertiesTool.parse(configFileLocation));
+		}catch(Exception e){
+			logger.warn("error parsing {}, using default schema-update options", configFileLocation);
+			multiProperties = Arrays.asList(new Properties());
+		}
 		if(printVsExecute){
 			setSchemaUpdateWithPrintOptions(multiProperties, prefix);
 		}else{
