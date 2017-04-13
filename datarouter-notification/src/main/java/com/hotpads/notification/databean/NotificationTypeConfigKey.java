@@ -9,29 +9,29 @@ import com.hotpads.datarouter.storage.field.imp.StringFieldKey;
 import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
 
 public class NotificationTypeConfigKey extends BasePrimaryKey<NotificationTypeConfigKey>{
-	private String type;
+	private String name;
 
 	public NotificationTypeConfigKey(){
 	}
 
-	public NotificationTypeConfigKey(String type){
-		this.type = type;
+	public NotificationTypeConfigKey(String name){
+		this.name = name;
 	}
 
 	@Override
 	public List<Field<?>> getFields(){
-		return Arrays.asList(new StringField(FieldKeys.type, type));
+		return Arrays.asList(new StringField(FieldKeys.name, name));
 	}
 
-	public String getType(){
-		return type;
+	public String getName(){
+		return name;
 	}
 
-	public void setType(String type){
-		this.type = type;
+	public void setName(String name){
+		this.name = name;
 	}
 
 	public static class FieldKeys{
-		public static final StringFieldKey type = new StringFieldKey("type");
+		public static final StringFieldKey name = new StringFieldKey("name");
 	}
 }

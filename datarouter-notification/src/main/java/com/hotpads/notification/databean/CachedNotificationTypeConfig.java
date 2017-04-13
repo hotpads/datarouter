@@ -24,17 +24,7 @@ extends Cached<Map<String, NotificationTypeConfig>>{
 
 	@Override
 	protected Map<String, NotificationTypeConfig> reload(){
-//		return notificationNodes.getNotificationTimingStrategyMapping()
-//				.stream(null, null)
-//				.collect(Collectors.toMap(
-//						mapping -> mapping.getKey().getType(),
-//						mapping -> Arrays.asList(mapping),
-//						(left, right) -> {
-//							List<NotificationTimingStrategyMapping> result = new ArrayList<>(left);
-//							result.addAll(right);
-//							return result;
-//						}));
 		return notificationNodes.getNotificationTypeConfig().stream(null, null)
-				.collect(Collectors.toMap(config -> config.getKey().getType(), Function.identity()));
+				.collect(Collectors.toMap(config -> config.getKey().getName(), Function.identity()));
 	}
 }
