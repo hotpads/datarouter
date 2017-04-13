@@ -3,12 +3,12 @@ package com.hotpads.datarouter.test.node.type.index;
 import org.testng.annotations.Guice;
 
 import com.hotpads.datarouter.test.DatarouterStorageTestModuleFactory;
-import com.hotpads.datarouter.test.DrTestConstants;
+import com.hotpads.datarouter.test.DatarouterTestClientIds;
 
 @Guice(moduleFactory = DatarouterStorageTestModuleFactory.class)
 public class MemoryManagedIndexIntegrationTests extends BaseManagedIndexIntegrationTests{
 
 	public MemoryManagedIndexIntegrationTests(){
-		super(DrTestConstants.CLIENT_drTestMemory);
+		super(DatarouterTestClientIds.memory);
 	}
 }

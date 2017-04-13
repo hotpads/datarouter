@@ -7,19 +7,12 @@ import java.util.List;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
+import org.testng.Assert;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 import org.testng.internal.junit.ArrayAsserts;
 
 public class DrStringTool{
-
-	public static boolean equals(String left, String right){
-		return Objects.equals(left, right);
-	}
-
-	public static boolean notEquals(String left, String right){
-		return !Objects.equals(left, right);
-	}
 
 	public static boolean notEmpty(String input){
 		return input != null && input.length() > 0;
@@ -29,15 +22,11 @@ public class DrStringTool{
 		return input == null || input.length() <= 0;
 	}
 
-	public static boolean isNull(String input){
-		return input == null || "null".equalsIgnoreCase(input);
-	}
-
 	public static boolean isNullOrEmpty(String input){
 		return input == null || input.length() <= 0 || "null".equalsIgnoreCase(input);
 	}
 
-	private static boolean isEmptyOrWhitespace(String input){
+	public static boolean isEmptyOrWhitespace(String input){
 		if(input == null){
 			return true;
 		}
@@ -84,15 +73,6 @@ public class DrStringTool{
 
 	public static boolean equalsCaseInsensitiveButNotCaseSensitive(String left, String right){
 		return !Objects.equals(left, right) && equalsCaseInsensitive(left, right);
-	}
-
-	public static boolean containsCharactersBesidesWhitespace(String in){
-		for(int i = 0; i < in.length(); ++i){
-			if(in.charAt(i) != ' ' && in.charAt(i) != '\n' && in.charAt(i) != '\t'){
-				return true;
-			}
-		}
-		return false;
 	}
 
 	public static ArrayList<String> splitOnCharNoRegex(String input, char separator){
@@ -220,7 +200,7 @@ public class DrStringTool{
 		return sb.toString();
 	}
 
-	private static String replaceCharsAbove126(final String input, char replacement){
+	public static String replaceCharsAbove126(final String input, char replacement){
 		if(input == null){
 			return null;
 		}
@@ -236,7 +216,7 @@ public class DrStringTool{
 		return result;
 	}
 
-	private static String replaceCharactersInRange(final String input, int bottom, int top, char replacement){
+	public static String replaceCharactersInRange(final String input, int bottom, int top, char replacement){
 		String range = DrRegexTool.makeCharacterClassFromRange(bottom, top, true);
 		return input.replaceAll(range, "" + replacement);
 	}
@@ -262,7 +242,7 @@ public class DrStringTool{
 		return fromString.substring(startEnd[0], startEnd[1]);
 	}
 
-	private static int[] getIndicesOfStringSurroundedWith(String fromString, String left, String right){
+	public static int[] getIndicesOfStringSurroundedWith(String fromString, String left, String right){
 		int textStart = fromString.indexOf(left);
 		if(textStart < 0){
 			return null;
@@ -316,7 +296,7 @@ public class DrStringTool{
 		return changeFirstCharacterCase(input, true);
 	}
 
-	private static String changeFirstCharacterCase(String input, boolean capitalize){
+	public static String changeFirstCharacterCase(String input, boolean capitalize){
 		if(isEmpty(input)){
 			return input;
 		}
@@ -333,7 +313,7 @@ public class DrStringTool{
 		return getStringAfterLastOccurrence(Character.toString(ch), sourceString);
 	}
 
-	private static String getStringAfterLastOccurrence(String searchFor, String inString){
+	public static String getStringAfterLastOccurrence(String searchFor, String inString){
 		if(inString != null){
 			int index = inString.lastIndexOf(searchFor);
 			if(index >= 0 && inString.length() > searchFor.length()){
@@ -489,6 +469,13 @@ public class DrStringTool{
 			AssertJUnit.assertEquals("nothing", replaceStart("something", "some", "no"));
 			AssertJUnit.assertEquals("something", replaceStart("something", "12", "yikes"));
 			AssertJUnit.assertEquals("something", replaceStart("something", "thing", "yikes"));
+		}
+
+		@Test
+		public void testNumbers(){
+			Assert.assertTrue(containsNumbers("a1dkfjaldk"));
+			Assert.assertFalse(containsOnlyNumbers("a1dlkafj"));
+			Assert.assertTrue(containsOnlyNumbers("01234567890123412341352109472813740198715"));
 		}
 
 	}

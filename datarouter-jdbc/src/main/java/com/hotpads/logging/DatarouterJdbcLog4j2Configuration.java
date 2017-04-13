@@ -15,6 +15,7 @@ public class DatarouterJdbcLog4j2Configuration extends HotPadsLog4j2Configuratio
 		Appender schemaUpdateAppender = Log4j2Configurator.createConsoleAppender("SchemaUpdate", Target.SYSTEM_OUT,
 				"%msg%n");
 
+		registerParent(DatarouterLog4j2Configuration.class);
 		addAppender(schemaUpdateAppender);
 		addLoggerConfig(SingleTableSchemaUpdate.class.getName(), Level.INFO, false, schemaUpdateAppender);
 		addLoggerConfig(DatabaseCreator.class.getName(), Level.INFO, false, schemaUpdateAppender);

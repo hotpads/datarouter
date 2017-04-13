@@ -29,9 +29,9 @@ public class DateJdbcFieldCodec extends BaseJdbcFieldCodec<Date,DateField>{
 	}
 
 	@Override
-	public SqlColumn getSqlColumnDefinition(){
+	public SqlColumn getSqlColumnDefinition(boolean allowNullable){
 		return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.DATETIME, field.getNumDecimalSeconds(),
-				field.getKey().isNullable(), false);
+				allowNullable && field.getKey().isNullable(), false);
 	}
 
 	@Override

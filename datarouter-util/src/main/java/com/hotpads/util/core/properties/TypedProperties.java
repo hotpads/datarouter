@@ -9,6 +9,7 @@ import java.util.Properties;
 import com.hotpads.datarouter.util.core.DrBooleanTool;
 import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.datarouter.util.core.DrPropertiesTool;
+import com.hotpads.datarouter.util.core.DrStringTool;
 
 public class TypedProperties{
 
@@ -37,6 +38,8 @@ public class TypedProperties{
 		return DrPropertiesTool.getFirstOccurrence(propertiesList, key);
 	}
 
+	/*************** typed **********************/
+
 	public Boolean getBoolean(String key, boolean def){
 		Boolean val = getBoolean(key);
 		return val == null ? def : val;
@@ -44,7 +47,7 @@ public class TypedProperties{
 
 	public Boolean getBoolean(String key){
 		String val = getString(key);
-		if(val == null){
+		if(DrStringTool.isEmpty(val)){
 			return null;
 		}
 		return DrBooleanTool.isTrue(val);
@@ -57,17 +60,15 @@ public class TypedProperties{
 
 	public Integer getInteger(String key){
 		String val = getString(key);
-		if(val == null){
+		if(DrStringTool.isEmpty(val)){
 			return null;
 		}
 		return Integer.valueOf(val);
 	}
 
-	/********************** typed ***********************************/
-
 	public Short getShort(String key){
 		String val = getString(key);
-		if(val == null){
+		if(DrStringTool.isEmpty(val)){
 			return null;
 		}
 		return Short.valueOf(val);
@@ -75,7 +76,7 @@ public class TypedProperties{
 
 	public Long getLong(String key){
 		String val = getString(key);
-		if(val == null){
+		if(DrStringTool.isEmpty(val)){
 			return null;
 		}
 		return Long.valueOf(val);
@@ -83,7 +84,7 @@ public class TypedProperties{
 
 	public Float getFloat(String key){
 		String val = getString(key);
-		if(val == null){
+		if(DrStringTool.isEmpty(val)){
 			return null;
 		}
 		return Float.valueOf(val);
@@ -91,7 +92,7 @@ public class TypedProperties{
 
 	public Double getDouble(String key){
 		String val = getString(key);
-		if(val == null){
+		if(DrStringTool.isEmpty(val)){
 			return null;
 		}
 		return Double.valueOf(val);

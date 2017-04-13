@@ -12,6 +12,7 @@ import com.hotpads.datarouter.config.Isolation;
 import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import com.hotpads.datarouter.routing.Datarouter;
+import com.hotpads.datarouter.test.TestDatarouterProperties;
 import com.hotpads.datarouter.test.client.txn.TxnBean;
 import com.hotpads.datarouter.test.client.txn.TxnBeanKey;
 import com.hotpads.datarouter.test.client.txn.TxnTestRouter;
@@ -23,6 +24,8 @@ import com.hotpads.datarouter.util.core.DrListTool;
 
 public abstract class BaseTxnIntegrationTests{
 
+	@Inject
+	private TestDatarouterProperties datarouterProperties;
 	@Inject
 	private Datarouter datarouter;
 	@Inject
@@ -37,7 +40,8 @@ public abstract class BaseTxnIntegrationTests{
 
 	protected void setup(ClientId clientId, boolean useFielder){
 		this.clientId = clientId;
-		router = new TxnTestRouter(datarouter, datarouterSettings, nodeFactory, clientId, useFielder);
+		router = new TxnTestRouter(datarouterProperties, datarouter, datarouterSettings, nodeFactory, clientId,
+				useFielder);
 		node = router.txnBean();
 	}
 

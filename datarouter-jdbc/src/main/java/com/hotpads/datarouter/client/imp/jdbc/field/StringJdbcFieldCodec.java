@@ -9,13 +9,13 @@ import java.util.regex.Matcher;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSet;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCollation;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.CharSequenceSqlColumn;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.client.imp.jdbc.field.codec.base.BaseJdbcFieldCodec;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.imp.StringField;
+import com.hotpads.datarouter.storage.field.imp.StringFieldKey;
 import com.hotpads.datarouter.util.core.DrRegexTool;
 
 public class StringJdbcFieldCodec
@@ -33,20 +33,24 @@ extends BaseJdbcFieldCodec<String,StringField>{
 
 
 	@Override
-	public SqlColumn getSqlColumnDefinition(){
+	public SqlColumn getSqlColumnDefinition(boolean allowNullable){
+		boolean nullable = allowNullable && field.getKey().isNullable();
 		if(field.getSize() <= MySqlColumnType.MAX_LENGTH_VARCHAR){
-			return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.VARCHAR, field.getSize(), field
-					.getKey().isNullable(), false);
+			return new CharSequenceSqlColumn(field.getKey().getColumnName(), MySqlColumnType.VARCHAR, field.getSize(),
+					nullable, false, field.getKey().getDefaultValue(), StringFieldKey.DEFAULT_CHARACTER_SET,
+					StringFieldKey.DEFAULT_COLLATION);
 		}else if(field.getSize() <= MySqlColumnType.MAX_LENGTH_TEXT){
-			return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.TEXT,
-					null/*MySqlColumnType.MAX_LENGTH_TEXT.intValue()*/, field.getKey().isNullable(), false);
+			return new CharSequenceSqlColumn(field.getKey().getColumnName(), MySqlColumnType.TEXT,
+					MySqlColumnType.MAX_LENGTH_TEXT, nullable, false, field.getKey()
+							.getDefaultValue(), StringFieldKey.DEFAULT_CHARACTER_SET, StringFieldKey.DEFAULT_COLLATION);
 		}else if(field.getSize() <= MySqlColumnType.MAX_LENGTH_MEDIUMTEXT){
-			return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.MEDIUMTEXT,
-					null/*MySqlColumnType.MAX_LENGTH_MEDIUMTEXT.intValue()*/,
-					field.getKey().isNullable(), false);
+			return new CharSequenceSqlColumn(field.getKey().getColumnName(), MySqlColumnType.MEDIUMTEXT,
+					MySqlColumnType.MAX_LENGTH_MEDIUMTEXT, nullable, false, field.getKey()
+							.getDefaultValue(), StringFieldKey.DEFAULT_CHARACTER_SET, StringFieldKey.DEFAULT_COLLATION);
 		}else if(field.getSize() <= MySqlColumnType.MAX_LENGTH_LONGTEXT){
-			return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.LONGTEXT, null, field.getKey()
-					.isNullable(), false);
+			return new CharSequenceSqlColumn(field.getKey().getColumnName(), MySqlColumnType.LONGTEXT,
+					MySqlColumnType.INT_LENGTH_LONGTEXT, nullable, false, field.getKey().getDefaultValue(),
+					StringFieldKey.DEFAULT_CHARACTER_SET, StringFieldKey.DEFAULT_COLLATION);
 		}
 		throw new IllegalArgumentException("Unknown size:" + field.getSize());
 	}
@@ -97,16 +101,18 @@ extends BaseJdbcFieldCodec<String,StringField>{
 		}
 	}
 
-	public static SqlColumn getMySqlTypeFromSize(String name, int size, boolean nullable,
-			MySqlCharacterSet characterSet, MySqlCollation collation){
+	public static MySqlColumnType getMySqlTypeFromSize(int size){
 		if(size <= MySqlColumnType.MAX_LENGTH_VARCHAR){
-			return new SqlColumn(name, MySqlColumnType.VARCHAR, size, nullable, false, characterSet, collation);
-		}else if(size <= MySqlColumnType.MAX_LENGTH_TEXT){
-			return new SqlColumn(name, MySqlColumnType.TEXT, null, nullable, false, characterSet, collation);
-		}else if(size <= MySqlColumnType.MAX_LENGTH_MEDIUMTEXT){
-			return new SqlColumn(name, MySqlColumnType.MEDIUMTEXT, null, nullable, false, characterSet, collation);
-		}else if(size <= MySqlColumnType.MAX_LENGTH_LONGTEXT){
-			return new SqlColumn(name, MySqlColumnType.LONGTEXT, null, nullable, false, characterSet, collation);
+			return MySqlColumnType.VARCHAR;
+		}
+		if(size <= MySqlColumnType.MAX_LENGTH_TEXT){
+			return MySqlColumnType.TEXT;
+		}
+		if(size <= MySqlColumnType.MAX_LENGTH_MEDIUMTEXT){
+			return MySqlColumnType.MEDIUMTEXT;
+		}
+		if(size <= MySqlColumnType.MAX_LENGTH_LONGTEXT){
+			return MySqlColumnType.LONGTEXT;
 		}
 		throw new IllegalArgumentException("Unknown size:" + size);
 	}

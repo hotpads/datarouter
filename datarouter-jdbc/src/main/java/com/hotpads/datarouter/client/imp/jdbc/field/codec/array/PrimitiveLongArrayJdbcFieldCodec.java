@@ -21,7 +21,7 @@ extends BaseJdbcFieldCodec<long[],PrimitiveLongArrayField>{
 
 
 	@Override
-	public SqlColumn getSqlColumnDefinition(){
+	public SqlColumn getSqlColumnDefinition(boolean allowNullable){
 		throw new NotImplementedException();
 	}
 

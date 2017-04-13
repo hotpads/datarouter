@@ -15,8 +15,6 @@ public interface NotificationTrackingService{
 	public void saveSent(TrackingNotificationType type, NotificationUserId userId, String notificationId,
 			String deviceId);
 
-	String sign(String notificationId);
-
 	void saveEvent(NotificationTrackingEventType eventType, String notificationId, String source);
 
 }

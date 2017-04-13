@@ -160,11 +160,11 @@ public class HttpHeaders{
 		return headerMap.get(X_FORWARDED_FOR);
 	}
 
-	public String getXRequestedWith() {
+	public String getXRequestedWith(){
 		return headerMap.get(X_REQUESTED_WITH);
 	}
 
-	public String getOthers() {
+	public String getOthers(){
 		return headerMap.get("others");
 	}
 }

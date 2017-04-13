@@ -4,13 +4,13 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Guice;
 
 import com.hotpads.datarouter.test.DatarouterStorageTestModuleFactory;
-import com.hotpads.datarouter.test.DrTestConstants;
+import com.hotpads.datarouter.test.DatarouterTestClientIds;
 
 @Guice(moduleFactory = DatarouterStorageTestModuleFactory.class)
 public class MemoryMapStorageIntegrationTests extends BaseMapStorageIntegrationTests{
 
 	@BeforeClass
 	public void beforeClass(){
-		setup(DrTestConstants.CLIENT_drTestMemory, false);
+		setup(DatarouterTestClientIds.memory, false);
 	}
 }

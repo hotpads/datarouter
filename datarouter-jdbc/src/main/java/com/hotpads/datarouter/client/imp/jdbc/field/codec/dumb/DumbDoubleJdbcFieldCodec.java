@@ -25,9 +25,14 @@ extends BasePrimitiveJdbcFieldCodec<Double,Field<Double>>{
 
 
 	@Override
-	public SqlColumn getSqlColumnDefinition(){
-		return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.DOUBLE, 22, field.getKey().isNullable(),
-				false);
+	public SqlColumn getSqlColumnDefinition(boolean allowNullable){
+		boolean nullable = allowNullable && field.getKey().isNullable();
+		String defaultValue = null;
+		if(field.getKey().getDefaultValue() != null){
+			defaultValue = field.getKey().getDefaultValue().toString();
+		}
+		return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.DOUBLE, null, nullable, false,
+				defaultValue);
 	}
 
 	@Override

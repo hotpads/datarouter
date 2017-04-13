@@ -10,13 +10,13 @@ import io.netty.handler.ssl.OpenSsl;
 public class BigTableOpenSslTests{
 
 	@Test
-	public void testOpenSslAvailable(){
+	public void testOpenSslAvailable() throws Throwable{
 		if(!BigtableSession.isAlpnProviderEnabled()){
 			if(OpenSsl.isAvailable()){
 				// Should not happen
 				Assert.fail("big table alpn provider is not enable even if open ssl is available");
 			}else{
-				Assert.fail("open ssl is not available because: " + OpenSsl.unavailabilityCause());
+				throw OpenSsl.unavailabilityCause();
 			}
 		}
 	}

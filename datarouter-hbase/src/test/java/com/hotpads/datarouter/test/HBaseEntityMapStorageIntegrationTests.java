@@ -5,11 +5,11 @@ import org.testng.annotations.Guice;
 
 import com.hotpads.datarouter.test.node.basic.map.BaseMapStorageIntegrationTests;
 
-@Guice(moduleFactory=DatarouterStorageTestModuleFactory.class)
+@Guice(moduleFactory = DatarouterStorageTestModuleFactory.class)
 public class HBaseEntityMapStorageIntegrationTests extends BaseMapStorageIntegrationTests{
 
 	@BeforeClass
 	public void beforeClass(){
-		setup(DrTestConstants.CLIENT_drTestHBase, true);
+		setup(DatarouterTestClientIds.hbase, true);
 	}
 }

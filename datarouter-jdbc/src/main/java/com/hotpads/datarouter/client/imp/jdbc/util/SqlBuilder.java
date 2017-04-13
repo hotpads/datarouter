@@ -210,7 +210,7 @@ public class SqlBuilder{
 		if(codec.getField().getValue() == null){
 			return false;//NULL is not introducible (this code is currently unreachable, but not necessarily forever.)
 		}
-		if(!codec.getSqlColumnDefinition().getType().isIntroducible()){
+		if(!codec.getSqlColumnDefinition(false).getType().isIntroducible()){
 			return false;//column is not an introducible type
 		}
 		if(!characterSetCollation.getCharacterSetOpt().isPresent() && !characterSetCollation

@@ -128,6 +128,16 @@ public class TriggerInfo{
 		this.isRunning.set(isRunning);
 	}
 
+	/**
+	 * atomically changes isRunning flag to true if the current value is false
+	 * @return true if successful
+	 */
+	public boolean switchToRunning(){
+		boolean initialValue = false;
+		boolean newValue = true;
+		return isRunning.compareAndSet(initialValue, newValue);
+	}
+
 	public int getNumberOfSuccesses(){
 		return numberOfSuccesses;
 	}

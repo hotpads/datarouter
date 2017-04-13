@@ -74,7 +74,7 @@ implements RedundantNode<PK,D,N>{
 	}
 
 	@Override
-	public List<PhysicalNode<PK,D>> getPhysicalNodesForClient(String clientName) {
+	public List<PhysicalNode<PK,D>> getPhysicalNodesForClient(String clientName){
 		List<PhysicalNode<PK,D>> all = new LinkedList<>();
 		for(N backingNode : DrCollectionTool.nullSafe(writeNodes)){
 			all.addAll(DrListTool.nullSafe(backingNode.getPhysicalNodesForClient(clientName)));
@@ -83,7 +83,7 @@ implements RedundantNode<PK,D,N>{
 	}
 
 	@Override
-	public List<String> getClientNames() {
+	public List<String> getClientNames(){
 		SortedSet<String> clientNames = new TreeSet<>();
 		for(N backingNode : writeNodes){
 			DrSetTool.nullSafeSortedAddAll(clientNames, backingNode.getClientNames());
@@ -111,7 +111,7 @@ implements RedundantNode<PK,D,N>{
 	}
 
 	@Override
-	public List<String> getClientNamesForPrimaryKeysForSchemaUpdate(Collection<PK> keys) {
+	public List<String> getClientNamesForPrimaryKeysForSchemaUpdate(Collection<PK> keys){
 		Set<String> clientNames = new HashSet<>();
 		for(N backingNode : writeNodes){
 			clientNames.addAll(DrCollectionTool.nullSafe(
@@ -126,7 +126,7 @@ implements RedundantNode<PK,D,N>{
 	}
 
 	@Override
-	public Node<PK,D> getMaster() {
+	public Node<PK,D> getMaster(){
 		return readNode;
 	}
 

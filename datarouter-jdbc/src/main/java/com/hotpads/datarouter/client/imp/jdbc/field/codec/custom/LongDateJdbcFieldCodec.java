@@ -26,9 +26,9 @@ extends BasePrimitiveJdbcFieldCodec<Date,Field<Date>>{
 
 
 	@Override
-	public SqlColumn getSqlColumnDefinition(){
-		return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.BIGINT, 20, field.getKey().isNullable(),
-				false);
+	public SqlColumn getSqlColumnDefinition(boolean allowNullable){
+		return new SqlColumn(field.getKey().getColumnName(), MySqlColumnType.BIGINT, 20,
+				allowNullable && field.getKey().isNullable(), false);
 	}
 	@Override
 	public Date parseJdbcValueButDoNotSet(Object obj){
