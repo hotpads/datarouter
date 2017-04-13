@@ -48,6 +48,7 @@ import com.hotpads.notification.timing.NotificationTimingStrategy;
 import com.hotpads.notification.timing.NotificationTimingStrategyMappingKey;
 import com.hotpads.notification.tracking.NotificationTrackingService;
 import com.hotpads.util.core.collections.Range;
+import com.hotpads.util.core.profile.PhaseTimer;
 
 @Singleton
 public class NotificationService{
@@ -253,10 +254,12 @@ public class NotificationService{
 	}
 
 	public int processUser(List<NotificationRequest> userRequests, String jobName){
+		PhaseTimer timer = new PhaseTimer();
 		List<List<NotificationRequest>> groups = new ArrayList<>();
 		Map<NotificationTimingStrategyMappingKey, NotificationTimingStrategy> timingCache = new HashMap<>();
 		for(NotificationRequest request : userRequests){
 			processUserRequest(request, groups, timingCache);
+			timer.sum("processUserRequest");
 		}
 		int notificationSent = 0;
 		Set<NotificationRequestKey> toDelete = new HashSet<>();
@@ -269,6 +272,7 @@ public class NotificationService{
 					logger.warn("Error sending " + firstInGroup.getType() + " group (first notification request "
 							+ firstInGroup + ").", e);
 				}
+				timer.sum("sendNotifications");
 			}else{
 				for(NotificationRequest request : group){
 					if(canBeDropped(request, timingCache)){
@@ -277,9 +281,12 @@ public class NotificationService{
 						NotificationCounters.inc("dropped");
 					}
 				}
+				timer.sum("noNotifications");
 			}
 		}
 		notificationNodes.getNotificationRequest().deleteMulti(toDelete, null);
+		timer.add("deleteMulti");
+		logger.info(timer.toString());
 		return notificationSent;
 	}
 
