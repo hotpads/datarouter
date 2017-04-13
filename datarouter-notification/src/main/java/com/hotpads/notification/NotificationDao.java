@@ -64,7 +64,7 @@ public class NotificationDao{
 		return typeAndDestinationToTemplateMap.get().getOrDefault(notificationType, Collections.emptyMap());
 	}
 
-	public NotificationTypeConfig getNotificationTypeConfig(String type){//TODO maybe just inline...
+	public NotificationTypeConfig getNotificationTypeConfig(String type){
 		return typeConfigs.get().get(type);
 	}
 

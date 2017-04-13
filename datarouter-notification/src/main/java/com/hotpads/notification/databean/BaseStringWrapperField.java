@@ -21,7 +21,8 @@ public abstract class BaseStringWrapperField{
 		if(this == obj){
 			return true;
 		}
-		if(obj == null || !(obj instanceof BaseStringWrapperField)){//TODO consider comparing getClass as well...
+		if(obj == null || !(obj instanceof BaseStringWrapperField) || !this.getClass().getCanonicalName().equals(
+				obj.getClass().getCanonicalName())){
 			return false;
 		}
 		BaseStringWrapperField other = (BaseStringWrapperField)obj;
@@ -34,7 +35,7 @@ public abstract class BaseStringWrapperField{
 
 	@Override
 	public int hashCode(){
-		return persistentString == null ? 0 : persistentString.hashCode();
+		return (this.getClass().getCanonicalName() + persistentString == null ? "" : persistentString).hashCode();
 	}
 
 	//for JSP
