@@ -3,7 +3,7 @@ package com.hotpads.datarouter.client.bigtable.test;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 
-import com.hotpads.datarouter.test.DrTestConstants;
+import com.hotpads.datarouter.test.DatarouterTestClientIds;
 import com.hotpads.datarouter.test.node.basic.sorted.BaseSortedNodeIntegrationTests;
 
 //TODO need to configure jenkins
@@ -11,7 +11,7 @@ public class BigTableSortedNodeIntegrationTester extends BaseSortedNodeIntegrati
 
 	@BeforeClass
 	public void beforeClass(){
-		setup(DrTestConstants.CLIENT_drTestBigTable, false);
+		setup(DatarouterTestClientIds.bigTable, false);
 	}
 
 	@AfterClass

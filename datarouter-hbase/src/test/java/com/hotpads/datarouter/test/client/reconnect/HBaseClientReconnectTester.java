@@ -18,6 +18,7 @@ import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage;
 import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.test.DatarouterStorageTestModuleFactory;
+import com.hotpads.datarouter.test.TestDatarouterProperties;
 import com.hotpads.datarouter.test.pool.BasicClientTestRouter;
 import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.util.core.profile.PhaseTimer;
@@ -33,6 +34,8 @@ public class HBaseClientReconnectTester{
 	private static KeepAliveKey testReconnectBeanKey = new KeepAliveKey("testReconnectBean");
 
 	@Inject
+	private TestDatarouterProperties datarouterProperties;
+	@Inject
 	private Datarouter datarouter;
 	@Inject
 	private DatarouterSettings datarouterSettings;
@@ -44,7 +47,7 @@ public class HBaseClientReconnectTester{
 
 	@BeforeClass
 	public void beforeClass(){
-		router = new BasicClientTestRouter(datarouter, datarouterSettings, nodeFactory);
+		router = new BasicClientTestRouter(datarouterProperties, datarouter, datarouterSettings, nodeFactory);
 		node = router.keepAliveHBase();
 		resetTable();
 	}

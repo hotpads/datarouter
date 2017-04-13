@@ -21,6 +21,7 @@ import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.node.op.raw.MapStorage.MapStorageNode;
 import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.test.DatarouterStorageTestModuleFactory;
+import com.hotpads.datarouter.test.TestDatarouterProperties;
 import com.hotpads.datarouter.util.core.DrArrayTool;
 import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.bytes.LongByteTool;
@@ -32,6 +33,8 @@ public abstract class BaseManyFieldIntegrationTests{
 
 	/***************************** fields **************************************/
 
+	@Inject
+	private TestDatarouterProperties datarouterProperties;
 	@Inject
 	private Datarouter datarouter;
 	@Inject
@@ -47,7 +50,8 @@ public abstract class BaseManyFieldIntegrationTests{
 	/***************************** constructors **************************************/
 
 	public void setup(ClientId clientId){
-		ManyFieldTestRouter router = new ManyFieldTestRouter(datarouter, datarouterSettings, nodeFactory, clientId);
+		ManyFieldTestRouter router = new ManyFieldTestRouter(datarouterProperties, datarouter, datarouterSettings,
+				nodeFactory, clientId);
 		mapNode = router.manyFieldTypeBean();
 
 		resetTable();

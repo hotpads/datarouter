@@ -19,7 +19,8 @@ import com.hotpads.datarouter.config.PutMethod;
 import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.storage.databean.DatabeanTool;
-import com.hotpads.datarouter.test.DrTestConstants;
+import com.hotpads.datarouter.test.DatarouterTestClientIds;
+import com.hotpads.datarouter.test.TestDatarouterProperties;
 import com.hotpads.datarouter.test.client.insert.PutOpTestBean;
 import com.hotpads.datarouter.test.client.insert.PutOpTestBeanKey;
 import com.hotpads.datarouter.test.client.insert.PutOpTestRouter;
@@ -28,6 +29,8 @@ import com.hotpads.util.core.collections.Pair;
 @Guice(moduleFactory = TestDatarouterJdbcModuleFactory.class)
 public class PutOpIntegrationTests{
 
+	@Inject
+	private TestDatarouterProperties datarouterProperties;
 	@Inject
 	private Datarouter datarouter;
 	@Inject
@@ -39,7 +42,8 @@ public class PutOpIntegrationTests{
 
 	@BeforeClass
 	public void beforeClass(){
-		router = new PutOpTestRouter(datarouter, datarouterSettings, nodeFactory, DrTestConstants.CLIENT_drTestJdbc0);
+		router = new PutOpTestRouter(datarouterProperties, datarouter, datarouterSettings, nodeFactory,
+				DatarouterTestClientIds.jdbc0);
 
 		resetTable();
 	}

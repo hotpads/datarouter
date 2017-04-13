@@ -11,6 +11,6 @@ public class JdbcMapStorageIntegrationTests extends BaseMapStorageIntegrationTes
 
 	@BeforeClass
 	public void beforeClass(){
-		setup(DrTestConstants.CLIENT_drTestJdbc0, false);
+		setup(DatarouterTestClientIds.jdbc0, false);
 	}
 }

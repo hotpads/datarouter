@@ -10,7 +10,7 @@ import com.hotpads.datarouter.node.op.combo.SortedMapStorage;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import com.hotpads.datarouter.routing.BaseRouter;
 import com.hotpads.datarouter.routing.Datarouter;
-import com.hotpads.datarouter.test.DrTestConstants;
+import com.hotpads.datarouter.test.TestDatarouterProperties;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBean.SortedBeanFielder;
 
 public class SortedNodeTestRouter extends BaseRouter{
@@ -25,11 +25,12 @@ public class SortedNodeTestRouter extends BaseRouter{
 	private SortedMapStorageNode<SortedBeanKey,SortedBean> sortedBeanNode;
 	private SortedBeanEntityNode sortedBeanEntityNode;
 
-	public SortedNodeTestRouter(Datarouter datarouter, DatarouterSettings datarouterSettings,
-			EntityNodeFactory entityNodeFactory,
+	public SortedNodeTestRouter(TestDatarouterProperties datarouterProperties, Datarouter datarouter,
+			DatarouterSettings datarouterSettings, EntityNodeFactory entityNodeFactory,
 			EntityNodeParams<SortedBeanEntityKey,SortedBeanEntity> entityNodeParams, NodeFactory nodeFactory,
 			ClientId clientId, boolean entity){
-		super(datarouter, DrTestConstants.CONFIG_PATH, NAME, nodeFactory, datarouterSettings);
+		super(datarouter, datarouterProperties.getTestRouterConfigFileLocation(), NAME, nodeFactory,
+				datarouterSettings);
 
 		String tableName = TABLE_NAME_SortedBean;
 		if(entity){

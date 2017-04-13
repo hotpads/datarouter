@@ -9,7 +9,7 @@ import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import com.hotpads.datarouter.routing.BaseRouter;
 import com.hotpads.datarouter.routing.Datarouter;
-import com.hotpads.datarouter.test.DrTestConstants;
+import com.hotpads.datarouter.test.TestDatarouterProperties;
 import com.hotpads.datarouter.test.client.txn.TxnBean.TxnBeanFielder;
 
 @Singleton
@@ -21,10 +21,10 @@ public class TxnTestRouter extends BaseRouter{
 	/********************************* constructor *****************************/
 
 	@Inject
-	public TxnTestRouter(Datarouter datarouter,
+	public TxnTestRouter(TestDatarouterProperties datarouterProperties, Datarouter datarouter,
 			DatarouterSettings datarouterSettings, NodeFactory nodeFactory, ClientId clientId, boolean useFielder){
-		super(datarouter, DrTestConstants.CONFIG_PATH, TxnTestRouter.class.getSimpleName() + "Router", nodeFactory,
-				datarouterSettings);
+		super(datarouter, datarouterProperties.getTestRouterConfigFileLocation(), TxnTestRouter.class.getSimpleName()
+				+ "Router", nodeFactory, datarouterSettings);
 
 		Class<TxnBeanFielder> fielderClass = useFielder ? TxnBeanFielder.class : null;
 		txnBean = register(nodeFactory.create(clientId, TxnBean.class, fielderClass, this, false));

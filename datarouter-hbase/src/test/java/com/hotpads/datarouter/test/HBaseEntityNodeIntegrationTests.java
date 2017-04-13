@@ -25,6 +25,9 @@ import com.hotpads.util.core.iterable.BatchingIterable;
 
 @Guice(moduleFactory = DatarouterStorageTestModuleFactory.class)
 public class HBaseEntityNodeIntegrationTests{
+
+	@Inject
+	private TestDatarouterProperties datarouterProperties;
 	@Inject
 	private Datarouter datarouter;
 	@Inject
@@ -39,8 +42,9 @@ public class HBaseEntityNodeIntegrationTests{
 
 	@BeforeClass
 	public void beforeClass(){
-		SortedNodeTestRouter router = new SortedNodeTestRouter(datarouter, datarouterSettings, entityNodeFactory,
-				SortedBeanEntityNode.ENTITY_NODE_PARAMS_3, nodeFactory, DrTestConstants.CLIENT_drTestHBase, true);
+		SortedNodeTestRouter router = new SortedNodeTestRouter(datarouterProperties, datarouter, datarouterSettings,
+				entityNodeFactory, SortedBeanEntityNode.ENTITY_NODE_PARAMS_3, nodeFactory,
+				DatarouterTestClientIds.hbase, true);
 		sortedBeanEntityNode = router.sortedBeanEntity();
 
 		for(List<SortedBean> batch : new BatchingIterable<>(SortedBeans.generatedSortedBeans(), 1000)){

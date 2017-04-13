@@ -17,6 +17,7 @@ import com.hotpads.datarouter.config.PutMethod;
 import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.test.DatarouterStorageTestModuleFactory;
+import com.hotpads.datarouter.test.TestDatarouterProperties;
 import com.hotpads.datarouter.test.node.basic.prefixed.ScatteringPrefixBean;
 import com.hotpads.datarouter.test.node.basic.prefixed.ScatteringPrefixBean.ScatteringPrefixBeanFielder.ScatteringPrefixBeanScatterer;
 import com.hotpads.datarouter.test.node.basic.prefixed.ScatteringPrefixBeanKey;
@@ -31,6 +32,8 @@ import com.hotpads.util.core.collections.Range;
 public abstract class BaseScatteringPrefixIntegrationTests{
 
 	@Inject
+	private TestDatarouterProperties datarouterProperties;
+	@Inject
 	private Datarouter datarouter;
 	@Inject
 	private DatarouterSettings datarouterSettings;
@@ -40,7 +43,8 @@ public abstract class BaseScatteringPrefixIntegrationTests{
 	private ScatteringPrefixTestRouter router;
 
 	public void setup(ClientId clientId){
-		router = new ScatteringPrefixTestRouter(datarouter, datarouterSettings, nodeFactory, clientId);
+		router = new ScatteringPrefixTestRouter(datarouterProperties, datarouter, datarouterSettings, nodeFactory,
+				clientId);
 
 		resetTable();
 	}

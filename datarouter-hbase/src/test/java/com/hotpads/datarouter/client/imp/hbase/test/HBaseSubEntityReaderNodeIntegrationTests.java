@@ -18,7 +18,8 @@ import com.hotpads.datarouter.node.op.combo.SortedMapStorage;
 import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.storage.databean.DatabeanTool;
 import com.hotpads.datarouter.test.DatarouterStorageTestModuleFactory;
-import com.hotpads.datarouter.test.DrTestConstants;
+import com.hotpads.datarouter.test.DatarouterTestClientIds;
+import com.hotpads.datarouter.test.TestDatarouterProperties;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBean;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBeanEntityNode;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBeanKey;
@@ -28,6 +29,8 @@ import com.hotpads.util.core.collections.Range;
 @Guice(moduleFactory = DatarouterStorageTestModuleFactory.class)
 public class HBaseSubEntityReaderNodeIntegrationTests{
 
+	@Inject
+	private TestDatarouterProperties datarouterProperties;
 	@Inject
 	protected Datarouter datarouter;
 	@Inject
@@ -43,8 +46,9 @@ public class HBaseSubEntityReaderNodeIntegrationTests{
 	@BeforeClass
 	public void beforeClass(){
 		//Use SortedBeanEntityNode.ENTITY_NODE_PARAMS_2 to avoid conflicting with HBaseEntitySortedNodeIntegrationTests
-		SortedNodeTestRouter router = new SortedNodeTestRouter(datarouter, datarouterSettings, entityNodeFactory,
-				SortedBeanEntityNode.ENTITY_NODE_PARAMS_2, nodeFactory, DrTestConstants.CLIENT_drTestHBase, true);
+		SortedNodeTestRouter router = new SortedNodeTestRouter(datarouterProperties, datarouter, datarouterSettings,
+				entityNodeFactory, SortedBeanEntityNode.ENTITY_NODE_PARAMS_2, nodeFactory,
+				DatarouterTestClientIds.hbase, true);
 		sortedBean = router.sortedBean();
 
 		sortedBeans = new ArrayList<>();
