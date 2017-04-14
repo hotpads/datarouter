@@ -11,6 +11,8 @@ import javax.inject.Named;
 import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
@@ -26,6 +28,7 @@ import com.hotpads.util.http.json.JsonSerializer;
 
 @Singleton
 public class DefaultDecoder implements HandlerDecoder{
+	private static final Logger logger = LoggerFactory.getLogger(DefaultDecoder.class);
 
 	//TODO Rename JsonSerializer or add Serializer, we just want a (de)serializer here
 	private JsonSerializer deserializer;
@@ -94,7 +97,7 @@ public class DefaultDecoder implements HandlerDecoder{
 			if(type.equals(String.class)){
 				return string;
 			}
-			throw e;
+			throw new RuntimeException("failed to decode " + string + " to a " + type, e);
 		}
 		//deserialized successfully as null, but we want empty string instead of null for consistency with Params
 		//(unless it actually is null...)
