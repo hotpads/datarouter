@@ -131,6 +131,12 @@ public abstract class DatarouterProperties{
 
 	//prefer configFile then hostname
 	private String findServerName(Optional<Properties> configFileProperties){
+		String jvmArgName = JVM_ARG_PREFIX + SERVER_NAME;
+		String jvmArg = System.getProperty(jvmArgName);
+		if(jvmArg != null){
+			logJvmArgSource(SERVER_NAME, jvmArg, jvmArgName);
+			return jvmArg;
+		}
 		if(configFileProperties.isPresent()){
 			Optional<String> value = configFileProperties.map(properties -> properties.getProperty(SERVER_NAME));
 			if(value.isPresent()){
