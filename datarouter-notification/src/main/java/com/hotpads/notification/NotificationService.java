@@ -205,7 +205,7 @@ public class NotificationService{
 				callbacks.onSuccess(clientId, selectedRequests);
 			}
 			if(availabilitySettings.getAvailabilityForClientName(HBASE1_NAME).write.getValue() || jobName != null){
-				logItems(selectedRequests, sentNotificationIds);
+				notificationDao.logItems(selectedRequests, sentNotificationIds);
 				remove(requests);
 			}
 		}
