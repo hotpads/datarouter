@@ -47,4 +47,8 @@ public abstract class BaseStringWrapperField{
 	public String toString(){
 		return this.getClass().getSimpleName() + (persistentString == null ? "_" : "_" + persistentString);
 	}
+
+	public static Boolean nonNull(BaseStringWrapperField field){
+		return field != null && field.persistentString != null;
+	}
 }

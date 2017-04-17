@@ -3,6 +3,7 @@ package com.hotpads.notification;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
@@ -11,10 +12,15 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import com.google.gson.Gson;
+import com.hotpads.datarouter.util.core.DrListTool;
+import com.hotpads.notification.databean.BaseStringWrapperField;
 import com.hotpads.notification.databean.CachedNotificationDestinationApp;
 import com.hotpads.notification.databean.CachedNotificationTypeConfig;
 import com.hotpads.notification.databean.NotificationDestinationApp;
 import com.hotpads.notification.databean.NotificationDestinationAppKey;
+import com.hotpads.notification.databean.NotificationItemLog;
+import com.hotpads.notification.databean.NotificationRequest;
 import com.hotpads.notification.databean.NotificationTypeConfig;
 import com.hotpads.notification.destination.NotificationDestination;
 import com.hotpads.notification.destination.NotificationDestinationAppName;
@@ -31,6 +37,12 @@ import com.hotpads.notification.timing.NotificationTimingStrategyMappingKey;
 
 @Singleton
 public class NotificationDao{
+	/**
+	 * @deprecated shrink the number of notificationIds stored while still on mysql
+	 */
+	@Deprecated
+	private static final int MAX_NOTIFICATION_IDS_STORABLE = 6;
+
 	@Inject
 	private NotificationNodes notificationNodes;
 	@Inject
@@ -45,6 +57,8 @@ public class NotificationDao{
 	private CachedNotificationDestinationApp destinationApps;
 	@Inject
 	private CachedNotificationTemplate notificationTemplates;
+	@Inject
+	private Gson gson;
 
 	public NotificationTimingStrategy getTiming(NotificationTimingStrategyMappingKey key){
 		//get every mapping that matches the type
@@ -76,14 +90,17 @@ public class NotificationDao{
 				.collect(Collectors.toSet());
 	}
 
-	//TODO test
 	public Set<NotificationDestination> filterOutOptedOut(NotificationTypeGroupName typeGroup,
 			Set<NotificationDestination> destinations, Set<NotificationDestinationApp> destinationApps){
-		if(typeGroup == null || destinations.isEmpty() || destinationApps.isEmpty()){
+		if(typeGroup == null || typeGroup.persistentString == null || destinations.isEmpty() || destinationApps
+				.isEmpty()){
 			return destinations;
 		}
 
 		String userToken = destinations.iterator().next().getKey().getToken();
+		if(userToken == null){
+			return destinations;
+		}
 		Set<NotificationDestinationAppName> optedOutApps = getOptedOutApps(typeGroup, userToken, destinationApps);
 
 		return destinations.stream()
@@ -91,19 +108,12 @@ public class NotificationDao{
 				.collect(Collectors.toSet());
 	}
 
-	//TODO test
-	public Map<NotificationDestination,String> buildTemplateClassMap(Set<NotificationDestination> destinations,
-			Map<NotificationDestinationAppName,String> appToTemplateMap){
-		return destinations.stream()
-				.collect(Collectors.toMap(Function.identity(), destination -> notificationTemplates.get().get(
-						appToTemplateMap.get(destination.getKey().getApp()))));
-	}
-
-	//TODO test
 	private Set<NotificationDestinationAppName> getOptedOutApps(NotificationTypeGroupName typeGroup, String userToken,
 			Collection<NotificationDestinationApp> destinationApps){
+
 		Set<NotificationPreferenceKey> preferenceKeys = destinationApps.stream()
 				.map(NotificationDestinationApp::getGroupName)
+				.filter(BaseStringWrapperField::nonNull)
 				.map(appGroup -> new NotificationPreferenceKey(userToken, appGroup, typeGroup))
 				.collect(Collectors.toSet());
 		if(preferenceKeys.size() == 0){
@@ -122,5 +132,22 @@ public class NotificationDao{
 				.map(NotificationDestinationApp::getKey)
 				.map(NotificationDestinationAppKey::getName)
 				.collect(Collectors.toSet());
+	}
+
+	//TODO test
+	public Map<NotificationDestination,String> buildTemplateClassMap(Set<NotificationDestination> destinations,
+			Map<NotificationDestinationAppName,String> appToTemplateMap){
+		return destinations.stream()
+				.collect(Collectors.toMap(Function.identity(), destination -> notificationTemplates.get().get(
+						appToTemplateMap.get(destination.getKey().getApp()))));
+	}
+
+	public void logItems(Collection<NotificationRequest> requests, List<String> notificationIds){
+		String idsString = gson.toJson(DrListTool.getFirstNElements(notificationIds, MAX_NOTIFICATION_IDS_STORABLE));
+		List<NotificationItemLog> itemLogs = requests.stream()
+				.map(request -> new NotificationItemLog(request, idsString))
+				.collect(Collectors.toList());
+
+		notificationNodes.getNotificationItemLog().putMulti(itemLogs, null);
 	}
 }

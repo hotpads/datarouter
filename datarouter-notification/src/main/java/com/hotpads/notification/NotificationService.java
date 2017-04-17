@@ -1,7 +1,6 @@
 package com.hotpads.notification;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -20,7 +19,6 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gson.Gson;
 import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.client.availability.ClientAvailabilitySettings;
 import com.hotpads.datarouter.config.Config;
@@ -30,7 +28,6 @@ import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.handler.exception.ExceptionRecorder;
 import com.hotpads.notification.databean.NotificationDestinationApp;
-import com.hotpads.notification.databean.NotificationItemLog;
 import com.hotpads.notification.databean.NotificationLog;
 import com.hotpads.notification.databean.NotificationLogKey;
 import com.hotpads.notification.databean.NotificationRequest;
@@ -54,11 +51,6 @@ import com.hotpads.util.core.profile.PhaseTimer;
 public class NotificationService{
 	private static final Logger logger = LoggerFactory.getLogger(NotificationService.class);
 	private static final String HBASE1_NAME = new ClientId("hbase1", true).getName();
-	/**
-	 * @deprecated shrink the number of notificationIds stored while still on mysql
-	 */
-	@Deprecated
-	private static final int MAX_NOTIFICATION_IDS_STORABLE = 6;
 
 	@Inject
 	private DatarouterInjector injector;
@@ -72,8 +64,6 @@ public class NotificationService{
 	NotificationServiceCallbacks callbacks;
 	@Inject
 	private NotificationNodes notificationNodes;
-	@Inject
-	private Gson gson;
 	@Inject
 	private ClientAvailabilitySettings availabilitySettings;
 	@Inject
@@ -227,15 +217,6 @@ public class NotificationService{
 		return Collections.emptyList();
 	}
 
-	private void logItems(Collection<NotificationRequest> requests, List<String> notificationIds){
-		String idsString = gson.toJson(DrListTool.getFirstNElements(notificationIds, MAX_NOTIFICATION_IDS_STORABLE));
-		List<NotificationItemLog> itemLogs = requests.stream()
-				.map(request -> new NotificationItemLog(request, idsString))
-				.collect(Collectors.toList());
-
-		notificationNodes.getNotificationItemLog().putMulti(itemLogs, null);
-	}
-
 	private void log(List<NotificationRequest> requests, Class<? extends NotificationTemplate> template, String uuid,
 			String deviceId){
 		List<String> itemIds = new ArrayList<>();
@@ -387,121 +368,4 @@ public class NotificationService{
 		return first.getChannel() == null && request.getChannel() == null
 				|| first.getChannel() != null && first.getChannel().equals(request.getChannel());
 	}
-
-//	@Guice(moduleFactory = ServicesModuleFactory.class)
-//	public static class NotificationServiceIntegrationTests{
-//
-//		@Inject
-//		public NotificationService notificationService;
-//		@Inject
-//		public NotificationDao notificationDao;
-//		@Inject
-//		private NotificationNodes notificationNodes;
-//		@Inject
-//		public Datarouter datarouter;
-//
-//		private NotificationUserId userId = new NotificationUserId(NotificationUserType.HOTPADS_TOKEN,
-//				"testUserLogItems");
-//
-//		private static final String FIND_TIMING_FAILED = "Failed to find NotificationTimingStrategy from key";
-//
-//		@Test
-//		public void logItemsTest(){
-//			NotificationRequest request1 = new NotificationRequest(userId, SavedSearchNotificationType.class,
-//					"testDataLogItems", null);
-//			NotificationRequest request2 = new NotificationRequest(userId, RecommendedSearchNotificationType.class,
-//					"testDataLogItems", null);
-//			notificationService.logItems(Arrays.asList(request1), Arrays.asList(UuidTool.generateV1Uuid()));
-//			List<String> notificationIds = Arrays.asList(
-//					UuidTool.generateV1Uuid(),
-//					UuidTool.generateV1Uuid(),
-//					UuidTool.generateV1Uuid(),
-//					UuidTool.generateV1Uuid(),
-//					UuidTool.generateV1Uuid(),
-//					UuidTool.generateV1Uuid(),
-//					UuidTool.generateV1Uuid());
-//			notificationService.logItems(Arrays.asList(request2), notificationIds);
-//		}
-//
-//		@Test
-//		public void testGetTiming(){
-//			//set up timings
-//			NotificationTimingStrategy
-//					one = new NotificationTimingStrategy("one", 0L, 0L, 0L, 0L, 0L, 0L, 0L),
-//					two = new NotificationTimingStrategy("two", 0L, 0L, 0L, 0L, 0L, 0L, 0L),
-//					three = new NotificationTimingStrategy("three", 0L, 0L, 0L, 0L, 0L, 0L, 0L),
-//					four = new NotificationTimingStrategy("four", 0L, 0L, 0L, 0L, 0L, 0L, 0L);
-//
-//			notificationNodes.getNotificationTimingStrategy().putMulti(Arrays.asList(one, two, three, four), null);
-//
-//			//set up mappings
-//			final String sharedType = "same";
-//			NotificationTimingStrategyMapping
-//					noPrefix = new NotificationTimingStrategyMapping(sharedType, "", "one"),
-//					shortPrefix = new NotificationTimingStrategyMapping(sharedType, "fight", "two"),
-//					longPrefix = new NotificationTimingStrategyMapping(sharedType, "fighter", "three"),
-//					otherType = new NotificationTimingStrategyMapping("other", "", "four"),
-//					emptyTiming = new NotificationTimingStrategyMapping("emptyTiming", "", ""),
-//					missingTiming = new NotificationTimingStrategyMapping("missingTiming", "", "nonexistent");
-//
-//			notificationNodes.getNotificationTimingStrategyMapping().putMulti(Arrays.asList(noPrefix, shortPrefix,
-//					longPrefix, otherType, emptyTiming, missingTiming), null);
-//
-//			//test prefix behavior
-//			Assert.assertEquals(one,
-//					notificationDao.getTiming(new NotificationTimingStrategyMappingKey(sharedType, "")));
-//			Assert.assertEquals(one,
-//					notificationDao.getTiming(new NotificationTimingStrategyMappingKey(sharedType,
-//							"weirdchannel")));
-//			Assert.assertEquals(two,
-//					notificationDao.getTiming(new NotificationTimingStrategyMappingKey(sharedType, "fight")));
-//			Assert.assertEquals(two,
-//					notificationDao.getTiming(new NotificationTimingStrategyMappingKey(sharedType, "fights")));
-//			Assert.assertEquals(three,
-//					notificationDao.getTiming(new NotificationTimingStrategyMappingKey(sharedType, "fighter")));
-//			Assert.assertEquals(three,
-//					notificationDao.getTiming(new NotificationTimingStrategyMappingKey(sharedType, "fighters")));
-//			Assert.assertEquals(four,
-//					notificationDao.getTiming(new NotificationTimingStrategyMappingKey("other", "anything")));
-//			Assert.assertEquals(four,
-//					notificationDao.getTiming(new NotificationTimingStrategyMappingKey("other", null)));
-//
-//			//test behavior when mapping doesn't point to anything or is missing
-//			try{
-//				notificationDao.getTiming(new NotificationTimingStrategyMappingKey("emptyTiming", ""));
-//			}catch(RuntimeException e){
-//				Assert.assertEquals(e.getMessage().startsWith(FIND_TIMING_FAILED), true);
-//			}
-//			try{
-//				notificationDao.getTiming(new NotificationTimingStrategyMappingKey("missingTiming", ""));
-//			}catch(RuntimeException e){
-//				Assert.assertEquals(e.getMessage().startsWith(FIND_TIMING_FAILED), true);
-//			}
-//			try{
-//				notificationDao.getTiming(new NotificationTimingStrategyMappingKey("noMapping", ""));
-//			}catch(RuntimeException e){
-//				Assert.assertEquals(e.getMessage().startsWith(FIND_TIMING_FAILED), true);
-//			}
-//
-//			//remove everything
-//			notificationNodes.getNotificationTimingStrategy().deleteMulti(
-//					Arrays.asList(one.getKey(), two.getKey(), three.getKey(), four.getKey()), null);
-//			notificationNodes.getNotificationTimingStrategyMapping().deleteMulti(Arrays.asList(noPrefix.getKey(),
-//					shortPrefix.getKey(), longPrefix.getKey(), otherType.getKey(), emptyTiming.getKey(),
-//					missingTiming.getKey()), null);
-//		}
-//
-//		@AfterSuite
-//		public void afterSuite(){
-//			NotificationItemLogKey prefix = new NotificationItemLogKey(userId, null, null, null);
-//			Range<NotificationItemLogKey> range = new Range<>(prefix, true, prefix, true);
-//			for(NotificationItemLogKey key : notificationNodes.getNotificationItemLog().scanKeys(range, null)){
-//				notificationNodes.getNotificationItemLog().delete(key, null);
-//			}
-//
-//			datarouter.shutdown();
-//		}
-//
-//	}
-
 }
