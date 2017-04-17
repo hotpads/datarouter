@@ -11,6 +11,10 @@ import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
 public class NotificationTypeConfigKey extends BasePrimaryKey<NotificationTypeConfigKey>{
 	private String name;
 
+	public static class FieldKeys{
+		public static final StringFieldKey name = new StringFieldKey("name");
+	}
+
 	public NotificationTypeConfigKey(){
 	}
 
@@ -29,9 +33,5 @@ public class NotificationTypeConfigKey extends BasePrimaryKey<NotificationTypeCo
 
 	public void setName(String name){
 		this.name = name;
-	}
-
-	public static class FieldKeys{
-		public static final StringFieldKey name = new StringFieldKey("name");
 	}
 }

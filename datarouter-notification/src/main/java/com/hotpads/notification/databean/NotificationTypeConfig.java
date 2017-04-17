@@ -21,6 +21,16 @@ public class NotificationTypeConfig extends BaseDatabean<NotificationTypeConfigK
 	private Boolean needsFilterOutIrrelevantCallback;
 	private Boolean needsOnSuccessCallback;
 
+	public static class FieldKeys{
+		public static final StringFieldKey clientId = new StringFieldKey("clientId");
+		public static final StringFieldKey groupName = NotificationTypeGroupName.key.withColumnName("groupName");
+		public static final BooleanFieldKey needsRemoveDisabledCallback = new BooleanFieldKey(
+				"needsRemoveDisabledCallback");
+		public static final BooleanFieldKey needsFilterOutIrrelevantCallback = new BooleanFieldKey(
+				"needsFilterOutIrrelevantCallback");
+		public static final BooleanFieldKey needsOnSuccessCallback = new BooleanFieldKey("needsOnSuccessCallback");
+	}
+
 	public NotificationTypeConfig(){
 		this.key = new NotificationTypeConfigKey();
 		this.groupName = new NotificationTypeGroupName();
@@ -35,6 +45,24 @@ public class NotificationTypeConfig extends BaseDatabean<NotificationTypeConfigK
 		this.needsRemoveDisabledCallback = needsRemoveDisabledCallback;
 		this.needsFilterOutIrrelevantCallback = needsFilterOutIrrelevantCallback;
 		this.needsOnSuccessCallback = needsOnSuccessCallback;
+	}
+
+	public static class NotificationTypeConfigFielder
+	extends BaseDatabeanFielder<NotificationTypeConfigKey,NotificationTypeConfig>{
+		public NotificationTypeConfigFielder(){
+			super(NotificationTypeConfigKey.class);
+		}
+
+		@Override
+		public List<Field<?>> getNonKeyFields(NotificationTypeConfig databean){
+			return Arrays.asList(
+					new StringField(FieldKeys.clientId, databean.clientId),
+					new StringField("groupName", FieldKeys.groupName, databean.groupName.persistentString),
+					new BooleanField(FieldKeys.needsRemoveDisabledCallback, databean.needsRemoveDisabledCallback),
+					new BooleanField(FieldKeys.needsFilterOutIrrelevantCallback, databean
+							.needsFilterOutIrrelevantCallback),
+					new BooleanField(FieldKeys.needsOnSuccessCallback, databean.needsOnSuccessCallback));
+		}
 	}
 
 	@Override
@@ -85,33 +113,5 @@ public class NotificationTypeConfig extends BaseDatabean<NotificationTypeConfigK
 
 	public void setNeedsOnSuccessCallback(Boolean needsOnSuccessCallback){
 		this.needsOnSuccessCallback = needsOnSuccessCallback;
-	}
-
-	public static class FieldKeys{
-		public static final StringFieldKey clientId = new StringFieldKey("clientId");
-		public static final StringFieldKey groupName = NotificationTypeGroupName.key.withColumnName("groupName");
-		public static final BooleanFieldKey needsRemoveDisabledCallback = new BooleanFieldKey(
-				"needsRemoveDisabledCallback");
-		public static final BooleanFieldKey needsFilterOutIrrelevantCallback = new BooleanFieldKey(
-				"needsFilterOutIrrelevantCallback");
-		public static final BooleanFieldKey needsOnSuccessCallback = new BooleanFieldKey("needsOnSuccessCallback");
-	}
-
-	public static class NotificationTypeConfigFielder
-	extends BaseDatabeanFielder<NotificationTypeConfigKey,NotificationTypeConfig>{
-		public NotificationTypeConfigFielder(){
-			super(NotificationTypeConfigKey.class);
-		}
-
-		@Override
-		public List<Field<?>> getNonKeyFields(NotificationTypeConfig databean){
-			return Arrays.asList(
-					new StringField(FieldKeys.clientId, databean.clientId),
-					new StringField("groupName", FieldKeys.groupName, databean.groupName.persistentString),
-					new BooleanField(FieldKeys.needsRemoveDisabledCallback, databean.needsRemoveDisabledCallback),
-					new BooleanField(FieldKeys.needsFilterOutIrrelevantCallback, databean
-							.needsFilterOutIrrelevantCallback),
-					new BooleanField(FieldKeys.needsOnSuccessCallback, databean.needsOnSuccessCallback));
-		}
 	}
 }

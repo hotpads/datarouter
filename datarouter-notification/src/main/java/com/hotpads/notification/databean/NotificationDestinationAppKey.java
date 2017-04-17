@@ -12,6 +12,10 @@ import com.hotpads.notification.destination.NotificationDestinationAppName;
 public class NotificationDestinationAppKey extends BasePrimaryKey<NotificationDestinationAppKey>{
 	private NotificationDestinationAppName name;
 
+	public static class FieldKeys{
+		public static final StringFieldKey name = NotificationDestinationAppName.key.withColumnName("name");
+	}
+
 	public NotificationDestinationAppKey(){
 		name = new NotificationDestinationAppName();
 	}
@@ -31,9 +35,5 @@ public class NotificationDestinationAppKey extends BasePrimaryKey<NotificationDe
 
 	public void setName(NotificationDestinationAppName name){
 		this.name = name;
-	}
-
-	public static class FieldKeys{
-		public static final StringFieldKey name = NotificationDestinationAppName.key.withColumnName("name");
 	}
 }

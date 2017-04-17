@@ -204,7 +204,7 @@ public class NotificationService{
 			if(typeConfig.getNeedsOnSuccessCallback()){
 				callbacks.onSuccess(clientId, selectedRequests);
 			}
-			if(availabilitySettings.getAvailabilityForClientName(HBASE1_NAME).write.getValue() || jobName != null){
+			if(notificationNodes.getNotificationLog().areAllPhysicalNodesAvailableForWrite() || jobName != null){
 				notificationDao.logItems(selectedRequests, sentNotificationIds);
 				remove(requests);
 			}

@@ -25,7 +25,6 @@ import com.hotpads.notification.databean.NotificationTypeConfig;
 import com.hotpads.notification.destination.NotificationDestination;
 import com.hotpads.notification.destination.NotificationDestinationAppName;
 import com.hotpads.notification.preference.NotificationDestinationAppGroupName;
-import com.hotpads.notification.preference.NotificationPreference;
 import com.hotpads.notification.preference.NotificationPreferenceKey;
 import com.hotpads.notification.preference.NotificationTypeGroupName;
 import com.hotpads.notification.sender.template.CachedNotificationTemplate;
@@ -121,9 +120,8 @@ public class NotificationDao{
 		}
 
 		Set<NotificationDestinationAppGroupName> optedOutGroupNames = notificationNodes.getNotificationPreference()
-				.getMulti(preferenceKeys, null)
+				.getKeys(preferenceKeys, null)
 				.stream()
-				.map(NotificationPreference::getKey)
 				.map(NotificationPreferenceKey::getDeviceGroup)
 				.collect(Collectors.toSet());
 
