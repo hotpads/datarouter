@@ -12,15 +12,14 @@ public class NotificationPreferenceKey extends BasePrimaryKey<NotificationPrefer
 
 	public static class FieldKeys{
 		public static final StringFieldKey userToken = new StringFieldKey("userToken");
-		public static final StringFieldKey deviceGroup = new StringFieldKey(NotificationDeviceGroup.F.persistentString)
-				.withColumnName("deviceGroup");
-		public static final StringFieldKey typeGroup = new StringFieldKey(NotificationTypeGroup.F.persistentString)
-				.withColumnName("typeGroup");
+		public static final StringFieldKey deviceGroup = NotificationDestinationAppGroupName.key.withColumnName(
+				"deviceGroup");
+		public static final StringFieldKey typeGroup = NotificationTypeGroupName.key.withColumnName("typeGroup");
 	}
 
 	private String userToken;
-	private NotificationDeviceGroup deviceGroup;
-	private NotificationTypeGroup typeGroup;
+	private NotificationDestinationAppGroupName deviceGroup;
+	private NotificationTypeGroupName typeGroup;
 
 	@Override
 	public List<Field<?>> getFields(){
@@ -30,26 +29,26 @@ public class NotificationPreferenceKey extends BasePrimaryKey<NotificationPrefer
 				new StringField("typeGroup", FieldKeys.typeGroup, typeGroup.persistentString));
 	}
 
-	public NotificationPreferenceKey(String userToken, NotificationDeviceGroup deviceGroup, NotificationTypeGroup
-			typeGroup){
+	public NotificationPreferenceKey(String userToken, NotificationDestinationAppGroupName deviceGroup,
+			NotificationTypeGroupName typeGroup){
 		this.userToken = userToken;
-		this.deviceGroup = deviceGroup == null ? new NotificationDeviceGroup() : deviceGroup;
-		this.typeGroup = typeGroup == null ? new NotificationTypeGroup() : typeGroup;
+		this.deviceGroup = deviceGroup == null ? new NotificationDestinationAppGroupName() : deviceGroup;
+		this.typeGroup = typeGroup == null ? new NotificationTypeGroupName() : typeGroup;
 	}
 
 	public NotificationPreferenceKey(String userToken){
-		this(userToken, new NotificationDeviceGroup(), new NotificationTypeGroup());
+		this(userToken, new NotificationDestinationAppGroupName(), new NotificationTypeGroupName());
 	}
 
 	public NotificationPreferenceKey(){
 		this(null);
 	}
 
-	public NotificationDeviceGroup getDeviceGroup(){
+	public NotificationDestinationAppGroupName getDeviceGroup(){
 		return deviceGroup;
 	}
 
-	public NotificationTypeGroup getTypeGroup(){
+	public NotificationTypeGroupName getTypeGroup(){
 		return typeGroup;
 	}
 

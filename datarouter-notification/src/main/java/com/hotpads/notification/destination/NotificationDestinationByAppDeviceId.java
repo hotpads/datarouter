@@ -22,7 +22,7 @@ NotificationDestinationKey,NotificationDestination>{
 		this(null, null, null);
 	}
 
-	public NotificationDestinationByAppDeviceId(NotificationDestinationApp app, String deviceId, String token){
+	public NotificationDestinationByAppDeviceId(NotificationDestinationAppName app, String deviceId, String token){
 		this.key = new NotificationDestinationByAppDeviceIdKey(app, deviceId, token);
 	}
 

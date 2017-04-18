@@ -4,11 +4,13 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.routing.Router;
 import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
+import com.hotpads.datarouter.setting.Setting;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
@@ -47,4 +49,11 @@ extends Comparable<Node<PK,D>>{
 	Node<PK,D> getMaster();
 	List<? extends Node<PK,D>> getChildNodes();
 
+	default boolean areAllPhysicalNodesAvailableForWrite(){
+		return getPhysicalNodes().stream()
+				.map(PhysicalNode::getClient)
+				.map(Client::getAvailability)
+				.map(availability -> availability.write)
+				.allMatch(Setting::getValue);
+	}
 }

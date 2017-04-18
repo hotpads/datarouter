@@ -8,12 +8,12 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import com.hotpads.notification.databean.NotificationTypeAndDestinationAppToTemplate;
-import com.hotpads.notification.destination.NotificationDestinationApp;
+import com.hotpads.notification.destination.NotificationDestinationAppName;
 import com.hotpads.util.core.cache.Cached;
 
 @Singleton
 public class CachedNotificationTypeAndDestinationAppToTemplate
-extends Cached<Map<String, Map<NotificationDestinationApp, String>>>{
+extends Cached<Map<String, Map<NotificationDestinationAppName, String>>>{
 
 	private final NotificationNodes notificationNodes;
 
@@ -24,7 +24,7 @@ extends Cached<Map<String, Map<NotificationDestinationApp, String>>>{
 	}
 
 	@Override
-	protected Map<String, Map<NotificationDestinationApp, String>> reload(){
+	protected Map<String, Map<NotificationDestinationAppName, String>> reload(){
 		return notificationNodes.getNotificationTypeAndDestinationAppToTemplate().stream(null, null)
 				.collect(Collectors.groupingBy(bean -> bean.getKey().getNotificationType(),
 						Collectors.toMap(bean -> bean.getKey().getNotificationDestinationApp(),

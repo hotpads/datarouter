@@ -10,20 +10,20 @@ import com.hotpads.notification.destination.NotificationDestinationKey.FieldKeys
 
 public class NotificationDestinationByAppDeviceIdKey extends BasePrimaryKey<NotificationDestinationByAppDeviceIdKey>{
 
-	private NotificationDestinationApp app;
+	private NotificationDestinationAppName app;
 	private String deviceId;
 	private String token;
 
 	NotificationDestinationByAppDeviceIdKey(){
-		this.app = new NotificationDestinationApp();
+		this.app = new NotificationDestinationAppName();
 	}
 
-	public NotificationDestinationByAppDeviceIdKey(NotificationDestinationApp app, String deviceId){
+	public NotificationDestinationByAppDeviceIdKey(NotificationDestinationAppName app, String deviceId){
 		this(app, deviceId, null);
 	}
 
-	public NotificationDestinationByAppDeviceIdKey(NotificationDestinationApp app, String deviceId, String token){
-		this.app = app == null ? new NotificationDestinationApp() : app;
+	public NotificationDestinationByAppDeviceIdKey(NotificationDestinationAppName app, String deviceId, String token){
+		this.app = app == null ? new NotificationDestinationAppName() : app;
 		this.deviceId = deviceId;
 		this.token = token;
 	}
@@ -35,7 +35,7 @@ public class NotificationDestinationByAppDeviceIdKey extends BasePrimaryKey<Noti
 				new StringField(FieldKeys.token, token));
 	}
 
-	public NotificationDestinationApp getApp(){
+	public NotificationDestinationAppName getApp(){
 		return app;
 	}
 
