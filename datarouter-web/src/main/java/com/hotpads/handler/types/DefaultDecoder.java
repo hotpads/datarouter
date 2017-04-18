@@ -94,7 +94,7 @@ public class DefaultDecoder implements HandlerDecoder{
 			if(type.equals(String.class)){
 				return string;
 			}
-			throw e;
+			throw new RuntimeException("failed to decode " + string + " to a " + type, e);
 		}
 		//deserialized successfully as null, but we want empty string instead of null for consistency with Params
 		//(unless it actually is null...)

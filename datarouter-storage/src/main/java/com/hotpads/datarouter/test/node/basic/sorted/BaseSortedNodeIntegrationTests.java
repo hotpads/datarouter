@@ -34,6 +34,7 @@ import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.collections.Range;
+import com.hotpads.util.core.concurrent.ThreadTool;
 import com.hotpads.util.core.iterable.BatchingIterable;
 import com.hotpads.util.core.profile.PhaseTimer;
 
@@ -140,6 +141,7 @@ public abstract class BaseSortedNodeIntegrationTests{
 		String f3 = "Kenavo";
 		SortedBean databean = new SortedBean(pk, f1, null, null, null);
 		sortedNode.put(databean, null);
+		ThreadTool.sleep(1);//fix flaky test. see DATAROUTER-487
 		databean = new SortedBean(pk, null, null, f3, null);
 		sortedNode.put(databean, new Config().setIgnoreNullFields(true));
 		databean = sortedNode.get(pk, null);
