@@ -32,19 +32,6 @@ public class NotificationDestinationApp extends BaseDatabean<NotificationDestina
 				"acceptedUserTypes");
 	}
 
-	public NotificationDestinationApp(){
-		this.key = new NotificationDestinationAppKey();
-		this.groupName = new NotificationDestinationAppGroupName();
-	}
-
-	public NotificationDestinationApp(NotificationDestinationAppName name, NotificationPlatform platform,
-			NotificationDestinationAppGroupName groupName, List<NotificationUserType> acceptedUserTypes){
-		this.key = new NotificationDestinationAppKey(name);
-		this.groupName = groupName == null ? new NotificationDestinationAppGroupName() : groupName;
-		this.platform = platform;
-		this.acceptedUserTypes = StreamTool.map(acceptedUserTypes, NotificationUserType::getPersistentString);
-	}
-
 	public static class NotificationDestinationAppFielder
 	extends BaseDatabeanFielder<NotificationDestinationAppKey,NotificationDestinationApp>{
 		public NotificationDestinationAppFielder(){
@@ -58,6 +45,19 @@ public class NotificationDestinationApp extends BaseDatabean<NotificationDestina
 					new StringEnumField<>(FieldKeys.platform, databean.platform),
 					new DelimitedStringArrayField(FieldKeys.acceptedUserTypes, databean.acceptedUserTypes));
 		}
+	}
+
+	public NotificationDestinationApp(){
+		this.key = new NotificationDestinationAppKey();
+		this.groupName = new NotificationDestinationAppGroupName();
+	}
+
+	public NotificationDestinationApp(NotificationDestinationAppName name, NotificationPlatform platform,
+			NotificationDestinationAppGroupName groupName, List<NotificationUserType> acceptedUserTypes){
+		this.key = new NotificationDestinationAppKey(name);
+		this.groupName = groupName == null ? new NotificationDestinationAppGroupName() : groupName;
+		this.platform = platform;
+		this.acceptedUserTypes = StreamTool.map(acceptedUserTypes, NotificationUserType::getPersistentString);
 	}
 
 	@Override

@@ -31,22 +31,6 @@ public class NotificationTypeConfig extends BaseDatabean<NotificationTypeConfigK
 		public static final BooleanFieldKey needsOnSuccessCallback = new BooleanFieldKey("needsOnSuccessCallback");
 	}
 
-	public NotificationTypeConfig(){
-		this.key = new NotificationTypeConfigKey();
-		this.groupName = new NotificationTypeGroupName();
-	}
-
-	public NotificationTypeConfig(String name, String clientId, NotificationTypeGroupName groupName,
-			Boolean needsRemoveDisabledCallback, Boolean needsFilterOutIrrelevantCallback,
-			Boolean needsOnSuccessCallback){
-		this.key = new NotificationTypeConfigKey(name);
-		this.clientId = clientId;
-		this.groupName = groupName == null ? new NotificationTypeGroupName() : groupName;
-		this.needsRemoveDisabledCallback = needsRemoveDisabledCallback;
-		this.needsFilterOutIrrelevantCallback = needsFilterOutIrrelevantCallback;
-		this.needsOnSuccessCallback = needsOnSuccessCallback;
-	}
-
 	public static class NotificationTypeConfigFielder
 	extends BaseDatabeanFielder<NotificationTypeConfigKey,NotificationTypeConfig>{
 		public NotificationTypeConfigFielder(){
@@ -63,6 +47,22 @@ public class NotificationTypeConfig extends BaseDatabean<NotificationTypeConfigK
 							.needsFilterOutIrrelevantCallback),
 					new BooleanField(FieldKeys.needsOnSuccessCallback, databean.needsOnSuccessCallback));
 		}
+	}
+
+	public NotificationTypeConfig(){
+		this.key = new NotificationTypeConfigKey();
+		this.groupName = new NotificationTypeGroupName();
+	}
+
+	public NotificationTypeConfig(String name, String clientId, NotificationTypeGroupName groupName,
+			Boolean needsRemoveDisabledCallback, Boolean needsFilterOutIrrelevantCallback,
+			Boolean needsOnSuccessCallback){
+		this.key = new NotificationTypeConfigKey(name);
+		this.clientId = clientId;
+		this.groupName = groupName == null ? new NotificationTypeGroupName() : groupName;
+		this.needsRemoveDisabledCallback = needsRemoveDisabledCallback;
+		this.needsFilterOutIrrelevantCallback = needsFilterOutIrrelevantCallback;
+		this.needsOnSuccessCallback = needsOnSuccessCallback;
 	}
 
 	@Override

@@ -133,7 +133,6 @@ public class NotificationDao{
 				.collect(Collectors.toSet());
 	}
 
-	//TODO test
 	public Map<NotificationDestination,String> buildTemplateClassMap(Set<NotificationDestination> destinations,
 			Map<NotificationDestinationAppName,String> appToTemplateMap){
 		return destinations.stream()
