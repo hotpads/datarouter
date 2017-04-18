@@ -33,6 +33,7 @@ import com.hotpads.notification.timing.CachedNotificationTimingStrategyMapping;
 import com.hotpads.notification.timing.NotificationTimingStrategy;
 import com.hotpads.notification.timing.NotificationTimingStrategyMapping;
 import com.hotpads.notification.timing.NotificationTimingStrategyMappingKey;
+import com.hotpads.util.core.iterable.BatchingIterable;
 
 @Singleton
 public class NotificationDao{
@@ -142,10 +143,11 @@ public class NotificationDao{
 
 	public void logItems(Collection<NotificationRequest> requests, List<String> notificationIds){
 		String idsString = gson.toJson(DrListTool.getFirstNElements(notificationIds, MAX_NOTIFICATION_IDS_STORABLE));
-		List<NotificationItemLog> itemLogs = requests.stream()
-				.map(request -> new NotificationItemLog(request, idsString))
-				.collect(Collectors.toList());
-
-		notificationNodes.getNotificationItemLog().putMulti(itemLogs, null);
+		for(List<NotificationRequest> requestBatch : new BatchingIterable<>(requests, 100)){
+			List<NotificationItemLog> itemLogs = requestBatch.stream()
+					.map(request -> new NotificationItemLog(request, idsString))
+					.collect(Collectors.toList());
+			notificationNodes.getNotificationItemLog().putMulti(itemLogs, null);
+		}
 	}
 }
