@@ -24,15 +24,15 @@ import org.apache.http.ssl.SSLContextBuilder;
 
 import com.hotpads.util.http.json.GsonJsonSerializer;
 import com.hotpads.util.http.json.JsonSerializer;
-import com.hotpads.util.http.security.DefaultCsrfValidator;
 import com.hotpads.util.http.security.DefaultApiKeyPredicate;
+import com.hotpads.util.http.security.DefaultCsrfValidator;
 import com.hotpads.util.http.security.DefaultSignatureValidator;
 
 public class HotPadsHttpClientBuilder{
 
 	private static final int DEFAULT_TIMEOUT_MS = 3000;
 	private static final int DEFAULT_MAX_TOTAL_CONNECTION = 20;
-	private static final int DEFAULT_MAX_CONNECTION_PER_ROUTE = 2;
+	private static final int DEFAULT_MAX_CONNECTION_PER_ROUTE = 20;
 
 	private int timeoutMs; // must be int due to RequestConfig.set*Timeout() methods
 	private Long futureTimeoutMs;
