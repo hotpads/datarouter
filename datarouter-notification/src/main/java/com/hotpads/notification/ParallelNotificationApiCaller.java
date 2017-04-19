@@ -34,8 +34,8 @@ import com.hotpads.util.core.collections.Pair;
 import com.hotpads.util.http.security.UrlScheme;
 
 @Singleton
-public class ParallelApiCaller{
-	private static final Logger logger = LoggerFactory.getLogger(ParallelApiCaller.class);
+public class ParallelNotificationApiCaller{
+	private static final Logger logger = LoggerFactory.getLogger(ParallelNotificationApiCaller.class);
 
 	private static final int QUEUE_CAPACITY = 4096;
 	private static final long FLUSH_PERIOD_MS = 1000;
@@ -45,21 +45,21 @@ public class ParallelApiCaller{
 
 	private ScheduledExecutorService flusher;
 	private ExecutorService sender;
-	private Queue<Pair<NotificationRequest, ExceptionRecord>> queue;
+	private Queue<Pair<NotificationRequest, ExceptionRecord>> notificationAndExceptionQueue;
 	private NotificationApiClient notificationApiClient;
 	private boolean alreadyConnected;
 
 	@Inject
-	public ParallelApiCaller(NotificationApiClient notificationApiClient,
+	public ParallelNotificationApiCaller(NotificationApiClient notificationApiClient,
 			ExceptionHandlingConfig exceptionHandlingConfig,
 			@Named(DatarouterExecutorGuiceModule.POOL_parallelApiCallerFlusher) ScheduledExecutorService flusher,
 			@Named(DatarouterExecutorGuiceModule.POOL_parallelApiCallerSender) ExecutorService sender){
 		this.notificationApiClient = notificationApiClient;
-		this.queue = new LinkedBlockingQueue<>(QUEUE_CAPACITY);
+		this.notificationAndExceptionQueue = new LinkedBlockingQueue<>(QUEUE_CAPACITY);
 		this.sender = sender;
 		this.flusher = flusher;
-		this.flusher.scheduleWithFixedDelay(new QueueFlusher(exceptionHandlingConfig), 0, FLUSH_PERIOD_MS,
-				TimeUnit.MILLISECONDS);
+		this.flusher.scheduleWithFixedDelay(new NotificationRequestQueueFlusher(exceptionHandlingConfig), 0,
+				FLUSH_PERIOD_MS, TimeUnit.MILLISECONDS);
 	}
 
 	public void add(NotificationRequest request){
@@ -69,24 +69,24 @@ public class ParallelApiCaller{
 	public void add(NotificationRequest request, ExceptionRecord exceptionRecord){
 		logger.info("Adding {} to queue", request);
 		try{
-			queue.add(new Pair<>(request, exceptionRecord));
+			notificationAndExceptionQueue.add(new Pair<>(request, exceptionRecord));
 		}catch(Exception e){
 			logger.warn("", e);
 		}
 	}
 
-	private class QueueFlusher implements Runnable{
+	private class NotificationRequestQueueFlusher implements Runnable{
 		private static final int BATCH_SIZE = 100;
 		private ExceptionHandlingConfig exceptionHandlingConfig;
 
-		public QueueFlusher(ExceptionHandlingConfig exceptionHandlingConfig){
+		public NotificationRequestQueueFlusher(ExceptionHandlingConfig exceptionHandlingConfig){
 			this.exceptionHandlingConfig = exceptionHandlingConfig;
 		}
 
 		@Override
 		public void run(){
 			List<Pair<NotificationRequest, ExceptionRecord>> requests = new ArrayList<>();
-			while(DrCollectionTool.notEmpty(queue)){
+			while(DrCollectionTool.notEmpty(notificationAndExceptionQueue)){
 				if(requests.size() == BATCH_SIZE){
 					logger.info("Submiting api call attempt with {} notification requet(s)", requests.size());
 					Future<Boolean> future = sender.submit(new ApiCallAttempt(requests));
@@ -97,18 +97,19 @@ public class ParallelApiCaller{
 						}
 					}
 					if(errorRequests.size() > 0){
-						new FailedTester(future, requests, getTimeoutMs(), exceptionHandlingConfig).start();
+						new FallbackNotificationSender(future, requests, getTimeoutMs(), exceptionHandlingConfig)
+								.start();
 					}
 					requests = new ArrayList<>();
 				}
-				requests.add(queue.poll());
+				requests.add(notificationAndExceptionQueue.poll());
 			}
 			if(DrCollectionTool.notEmpty(requests)){
 				logger.info("Submiting api call attempt with {} notification requet(s)", requests.size());
 				Future<Boolean> future = sender.submit(new ApiCallAttempt(requests));
-				new FailedTester(future, requests, getTimeoutMs(), exceptionHandlingConfig).start();
+				new FallbackNotificationSender(future, requests, getTimeoutMs(), exceptionHandlingConfig).start();
 			}
-			logger.debug("Notification API client queue size is now {}", queue.size());
+			logger.debug("Notification API client queue size is now {}", notificationAndExceptionQueue.size());
 		}
 
 	}
@@ -124,14 +125,16 @@ public class ParallelApiCaller{
 		return FLUSH_TIMEOUT_MS;
 	}
 
-	private static class FailedTester extends Thread{
+	private static class FallbackNotificationSender extends Thread{
 		private Future<Boolean> future;
 		private List<Pair<NotificationRequest, ExceptionRecord>> requests;
 		private long timeoutMs;
 		private ExceptionHandlingConfig exceptionHandlingConfig;
 
-		public FailedTester(Future<Boolean> future, List<Pair<NotificationRequest,ExceptionRecord>> requests,
-				long timeoutMs, ExceptionHandlingConfig exceptionHandlingConfig){
+		public FallbackNotificationSender(Future<Boolean> future,
+				List<Pair<NotificationRequest,ExceptionRecord>> requests,
+				long timeoutMs,
+				ExceptionHandlingConfig exceptionHandlingConfig){
 			this.future = future;
 			this.requests = requests;
 			this.timeoutMs = timeoutMs;
@@ -154,29 +157,30 @@ public class ParallelApiCaller{
 		}
 
 		private void sendEmail(List<Pair<NotificationRequest, ExceptionRecord>> requests){
-			Optional<Pair<NotificationRequest,ExceptionRecord>> optionalPair = requests.stream()
+			Optional<Pair<NotificationRequest,ExceptionRecord>> notificationAndException = requests.stream()
 					.filter(pair -> pair.getRight() != null)
 					.findAny();
-			if(!optionalPair.isPresent()){
+			if(!notificationAndException.isPresent()){
 				return;
 			}
-			logger.info("An emergency email will be sent");
-			Pair<NotificationRequest,ExceptionRecord> pair = optionalPair.get();
+			logger.info("A fallback email will be sent");
+			NotificationRequest notification = notificationAndException.get().getLeft();
+			ExceptionRecord exception = notificationAndException.get().getRight();
 			String domain = exceptionHandlingConfig.isDevServer() ? UrlScheme.LOCAL_DEV_SERVER_HTTPS
 					: UrlScheme.DOMAIN_NAME;
-			String recipient = pair.getLeft().getKey().getUserId();
+			String recipient = notification.getKey().getUserId();
 			String fromEmail = "noreply@hotpads.com";
-			String object = pair.getRight() != null ? "ERROR : " : "";
-			String subject = "(EMERGENCY notification) " + object + pair.getLeft().getChannel();
+			String subject = "(Fallback Notification) " + (exception != null ? "ERROR : " : "")
+					+ notification.getChannel();
 			StringBuilder builder = new StringBuilder();
 			builder.append("<h1>" + requests.size() + " error" + (requests.size() > 1 ? "s" : "") + " occurred </h1>");
 			builder.append("<h2>You received this direct e-mail because the notification service did not respond in "
 					+ "time.</h2>");
 			builder.append("<p>Type : ");
-			builder.append(pair.getLeft().getType());
+			builder.append(notification.getType());
 			builder.append("</p>");
 			builder.append("<p>Channel : ");
-			builder.append(pair.getLeft().getChannel());
+			builder.append(notification.getChannel());
 			builder.append("</p>");
 			for(Pair<NotificationRequest,ExceptionRecord> r : requests){
 				if(r.getRight() == null){
@@ -201,24 +205,23 @@ public class ParallelApiCaller{
 
 	}
 
-	private class ApiCallAttempt implements Callable<Boolean> {
+	private class ApiCallAttempt implements Callable<Boolean>{
 		private List<Pair<NotificationRequest, ExceptionRecord>> requests;
 
-		public ApiCallAttempt(List<Pair<NotificationRequest, ExceptionRecord>> requests) {
+		public ApiCallAttempt(List<Pair<NotificationRequest,ExceptionRecord>> requests){
 			this.requests = requests;
 		}
 
 		@Override
-		public Boolean call() {
-			try {
+		public Boolean call(){
+			try{
 				notificationApiClient.call(requests);
 				return true;
-			} catch(Exception e) {
+			}catch(Exception e){
 				logger.error("",e);
 				return false;
 			}
 		}
-
 	}
 
 }
