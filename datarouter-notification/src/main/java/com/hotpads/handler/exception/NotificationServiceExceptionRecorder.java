@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 import com.hotpads.datarouter.exception.ExceptionCategory;
 import com.hotpads.datarouter.exception.UnknownExceptionCategory;
 import com.hotpads.datarouter.monitoring.GitProperties;
-import com.hotpads.notification.ParallelApiCaller;
+import com.hotpads.notification.ParallelNotificationApiCaller;
 import com.hotpads.notification.databean.NotificationRequest;
 import com.hotpads.notification.databean.NotificationUserId;
 import com.hotpads.notification.databean.NotificationUserType;
@@ -21,7 +21,7 @@ public class NotificationServiceExceptionRecorder implements ExceptionRecorder{
 	@Inject
 	private ExceptionNodes exceptionNodes;
 	@Inject
-	private ParallelApiCaller notificationApiCaller;
+	private ParallelNotificationApiCaller notificationApiCaller;
 	@Inject
 	private ExceptionHandlingConfig exceptionHandlingConfig;
 	@Inject
