@@ -70,6 +70,7 @@ public class NotificationService{
 	private NotificationDao notificationDao;
 
 	public List<NotificationSendingResult> sendNotifications(List<NotificationRequest> requests, String jobName){
+		PhaseTimer timer = new PhaseTimer();
 		NotificationRequest firstRequest = requests.get(0);
 		String typeName = firstRequest.getShortType();
 		NotificationTypeConfig typeConfig = notificationDao.getNotificationTypeConfig(typeName);
@@ -164,8 +165,11 @@ public class NotificationService{
 			NotificationCounters.inc("send attempt " + sender.getClass().getSimpleName() + " " + appName);
 			NotificationCounters.inc("send attempt " + template.getClass().getSimpleName());
 			NotificationCounters.inc("send attempt " + template.getClass().getSimpleName() + " " + appName);
+			timer.add("misc1");
 			try{
-				if(sender.send(result)){
+				boolean senderSent = sender.send(result);
+				timer.add("senderSent");
+				if(senderSent){
 					NotificationCounters.inc("send success");
 					NotificationCounters.inc("send success " + typeName);
 					NotificationCounters.inc("send success " + typeName + " "
@@ -209,6 +213,8 @@ public class NotificationService{
 				remove(requests);
 			}
 		}
+		timer.add("postProcess");
+		logger.info(timer.toString());
 		return results;
 	}
 
@@ -245,7 +251,9 @@ public class NotificationService{
 		int notificationSent = 0;
 		Set<NotificationRequestKey> toDelete = new HashSet<>();
 		for(List<NotificationRequest> group : groups){
-			if(shouldBeSent(group, timingCache)){
+			boolean shouldBSent = shouldBeSent(group, timingCache);
+			timer.sum("shouldBeSent");
+			if(shouldBSent){
 				try{
 					notificationSent += NotificationSendingResult.countSuccesses(sendNotifications(group, jobName));
 				}catch(Exception e){
