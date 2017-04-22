@@ -8,7 +8,7 @@ import com.hotpads.datarouter.setting.StandardServerType;
 @Singleton
 public class TestDatarouterProperties extends DatarouterProperties{
 
-	private static final String SERVICE_NAME = "test";
+	private static final String SERVICE_NAME = "datarouter-test";
 	public static final String CONFIG_DIRECTORY = "/hotpads/config";
 	public static final String SERVER_CONFIG_FILE_NAME = "server.properties";
 	public static final String TEST_ROUTER_CONFIG_FILE_NAME = "datarouter-test.properties";
