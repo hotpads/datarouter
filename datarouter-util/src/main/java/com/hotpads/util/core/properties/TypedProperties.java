@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 
 import com.hotpads.datarouter.util.core.DrBooleanTool;
@@ -36,6 +37,10 @@ public class TypedProperties{
 
 	public String getString(String key){
 		return DrPropertiesTool.getFirstOccurrence(propertiesList, key);
+	}
+
+	public Optional<String> optString(String key){
+		return Optional.ofNullable(getString(key));
 	}
 
 	/*************** typed **********************/

@@ -27,6 +27,7 @@ public abstract class DatarouterProperties{
 	private static final String CONFIG_DIRECTORY = "config.directory";
 	private static final String CONFIG_STRATEGY = "config.strategy";
 
+	private static final String ENVIRONMENT = "environment";
 	private static final String SERVER_PUBLIC_IP = "server.publicIp";
 	private static final String SERVER_PRIVATE_IP = "server.privateIp";
 	private static final String SERVER_NAME = "server.name";
@@ -36,10 +37,12 @@ public abstract class DatarouterProperties{
 	private static final String EC2_PRIVATE_IP_URL = "http://instance-data/latest/meta-data/local-ipv4";
 	private static final String EC2_PUBLIC_IP_URL = "http://instance-data/latest/meta-data/public-ipv4";
 
+	private final String serviceName;
 	protected final String configDirectory;
 	protected final String configStrategy;
 	protected final String configFileLocation;
 
+	private final String environment;
 	private final String serverName;
 	private final ServerType serverType;
 	private final String administratorEmail;
@@ -48,22 +51,24 @@ public abstract class DatarouterProperties{
 
 	/*----------------- construct ------------------*/
 
-	protected DatarouterProperties(BaseDatarouterPropertiesConfigurer configurer, ServerType serverTypeOptions,
+	protected DatarouterProperties(BaseDatarouterPropertiesConfigurer configurer, ServerType serverTypeOptions, String serviceName,
 			boolean directoryRequired){
-		this(configurer, serverTypeOptions, System.getProperty(JVM_ARG_PREFIX + CONFIG_DIRECTORY),
+		this(configurer, serverTypeOptions, serviceName, System.getProperty(JVM_ARG_PREFIX + CONFIG_DIRECTORY),
 				directoryRequired, true, null, false);
 	}
 
-	protected DatarouterProperties(BaseDatarouterPropertiesConfigurer configurer, ServerType serverTypeOptions,
+	protected DatarouterProperties(BaseDatarouterPropertiesConfigurer configurer, ServerType serverTypeOptions, String serviceName,
 			String directory, String filename){
-		this(configurer, serverTypeOptions, directory, true, false, filename, true);
+		this(configurer, serverTypeOptions, serviceName, directory, true, false, filename, true);
 	}
 
 	private DatarouterProperties(BaseDatarouterPropertiesConfigurer configurer,
-			ServerType serverTypeOptions, String directory, boolean directoryRequired, boolean directoryFromJvmArg,
+			ServerType serverTypeOptions, String serviceName, String directory, boolean directoryRequired, boolean directoryFromJvmArg,
 			String filename, boolean fileRequired){
 		boolean fileRequiredWithoutDirectoryRequired = fileRequired && !directoryRequired;
 		Preconditions.checkState(!fileRequiredWithoutDirectoryRequired, "directory is required if file is required");
+
+		this.serviceName = serviceName;
 
 		//find configDirectory first
 		this.configDirectory = directory;
@@ -109,6 +114,7 @@ public abstract class DatarouterProperties{
 		}
 
 		//find remaining fields
+		this.environment = findEnvironment(configFileProperties);
 		this.serverName = findServerName(configFileProperties);
 		this.serverType = serverTypeOptions.fromPersistentString(findServerTypeString(configFileProperties));
 		this.administratorEmail = findAdministratorEmail(configFileProperties);
@@ -127,6 +133,25 @@ public abstract class DatarouterProperties{
 			logger.warn("JVM arg {} not found", jvmArgName);
 		}
 		return value;
+	}
+
+	//prefer jvmArg then configFile
+	private String findEnvironment(Optional<Properties> configFileProperties){
+		String jvmArgName = JVM_ARG_PREFIX + ENVIRONMENT;
+		String jvmArg = System.getProperty(jvmArgName);
+		if(jvmArg != null){
+			logJvmArgSource(ENVIRONMENT, jvmArg, jvmArgName);
+			return jvmArg;
+		}
+		if(configFileProperties.isPresent()){
+			Optional<String> value = configFileProperties.map(properties -> properties.getProperty(ENVIRONMENT));
+			if(value.isPresent()){
+				logSource(ENVIRONMENT, value.get(), configFileLocation);
+				return value.get();
+			}
+		}
+		logger.error("couldn't find {}", ENVIRONMENT);
+		return null;
 	}
 
 	//prefer configFile then hostname
@@ -321,6 +346,14 @@ public abstract class DatarouterProperties{
 
 	public String getConfigFileLocation(){
 		return configFileLocation;
+	}
+
+	public String getEnvironment(){
+		return environment;
+	}
+
+	public String getServiceName(){
+		return serviceName;
 	}
 
 }
