@@ -49,10 +49,6 @@ public abstract class BaseJdbcOp<T>
 		return null;
 	}
 
-	public Logger getLogger(){
-		return logger;
-	}
-
 	/****************** abstract methods default to no-op ******************/
 
 	@Override
