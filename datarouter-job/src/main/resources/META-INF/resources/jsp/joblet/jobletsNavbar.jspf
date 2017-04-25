@@ -22,7 +22,8 @@
 					<a href="#" class="dropdown-toggle" data-toggle="dropdown">Counters <span class="caret"></span></a>
 					<ul class="dropdown-menu">
 						<li><a href="/analytics/counters?submitAction=listCounters&webApps=All&servers=ALL&periods=300000&archive=databean+300000&nameLike=Joblet+first+created">First Created</a></li>
-						<li><a href="/analytics/counters?submitAction=listCounters&webApps=All&servers=ALL&periods=300000&archive=databean+300000&nameLike=Joblet+queue+length">Queue Length</a></li>
+						<li><a href="/analytics/counters?submitAction=listCounters&webApps=All&servers=ALL&periods=300000&archive=databean+300000&nameLike=Joblet+queue+length+joblets">Queue Length Joblets</a></li>
+						<li><a href="/analytics/counters?submitAction=listCounters&webApps=All&servers=ALL&periods=300000&archive=databean+300000&nameLike=Joblet+queue+length+items">Queue Length Items</a></li>
 						<li><a href="/analytics/counters?submitAction=listCounters&webApps=All&servers=ALL&periods=300000&archive=databean+300000&nameLike=Joblet+inserted">Joblets Inserted</a></li>
 						<li><a href="/analytics/counters?submitAction=listCounters&webApps=All&servers=ALL&periods=300000&archive=databean+300000&nameLike=Joblet+processed">Joblets Processed</a></li>
 						<li><a href="/analytics/counters?submitAction=listCounters&webApps=All&servers=ALL&periods=300000&archive=databean+300000&nameLike=Joblet+items+processed">Items Processed</a></li>

@@ -37,7 +37,7 @@
 						<td>${s.executionOrder}</td>
 						<td>${s.status}</td>
 						<td>
-							<a href="/analytics/counters?submitAction=viewCounters&webApps=All&servers=All&periods=300000&counters=Joblet%20queue%20length%20${s.typeString}&frequency=second&archive=databean%20300000">${s.typeString}</a>
+							<a href="/analytics/counters?submitAction=viewCounters&webApps=All&servers=All&periods=300000&counters=Joblet%20queue%20length%20items%20${s.typeString}&frequency=second&archive=databean%20300000">${s.typeString}</a>
 						</td>
 						<td>${s.numType}</td>
 						<td>
