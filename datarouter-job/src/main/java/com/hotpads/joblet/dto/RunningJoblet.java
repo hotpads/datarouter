@@ -25,6 +25,17 @@ public class RunningJoblet{
 		}
 	}
 
+	private RunningJoblet(String name, String id, Date startedAt, String queueId, String jobletData){
+		this.name = name;
+		this.id = id;
+		this.startedAt = startedAt;
+		this.queueId = queueId;
+		this.jobletData = jobletData;
+	}
+
+	public RunningJoblet withoutData(){
+		return new RunningJoblet(name, id, startedAt, queueId, null);
+	}
 
 	public boolean hasPayload(){
 		return jobletData != null;
