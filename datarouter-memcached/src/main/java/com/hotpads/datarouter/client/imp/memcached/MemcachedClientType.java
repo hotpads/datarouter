@@ -13,6 +13,7 @@ import com.hotpads.datarouter.client.availability.ClientAvailabilitySettings;
 import com.hotpads.datarouter.client.imp.BaseClientType;
 import com.hotpads.datarouter.client.imp.memcached.client.MemcachedSimpleClientFactory;
 import com.hotpads.datarouter.client.imp.memcached.node.MemcachedNode;
+import com.hotpads.datarouter.config.DatarouterProperties;
 import com.hotpads.datarouter.inject.DatarouterInjector;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams;
@@ -54,7 +55,8 @@ public class MemcachedClientType extends BaseClientType{
 	}
 
 	@Override
-	public ClientFactory createClientFactory(Datarouter datarouter, String clientName){
+	public ClientFactory createClientFactory(DatarouterProperties datarouterProperties, Datarouter datarouter,
+			String clientName){
 		return new MemcachedSimpleClientFactory(datarouter, clientName, clientAvailabilitySettings);
 	}
 

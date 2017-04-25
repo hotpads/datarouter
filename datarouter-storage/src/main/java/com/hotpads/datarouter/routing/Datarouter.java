@@ -51,12 +51,12 @@ public class Datarouter{
 	/*************************** fields *****************************/
 
 	//injected
+	private final DatarouterProperties datarouterProperties;
 	private final DatarouterClients clients;
 	private final DatarouterNodes nodes;
 	private final ExecutorService executorService;//for async client init and monitoring
 	private final ScheduledExecutorService writeBehindScheduler;
 	private final ExecutorService writeBehindExecutor;
-	private final DatarouterProperties datarouterProperties;
 
 	private SortedSet<Router> routers;
 	private Set<String> configFilePaths;
@@ -69,13 +69,14 @@ public class Datarouter{
 
 	@Inject
 	public Datarouter(
+			DatarouterProperties datarouterProperties,
 			DatarouterClients clients,
 			DatarouterNodes nodes,
 			@Named(DatarouterExecutorGuiceModule.POOL_datarouterExecutor) ExecutorService executorService,
 			@Named(DatarouterExecutorGuiceModule.POOL_writeBehindExecutor) ExecutorService writeBehindExecutor,
 			@Named(DatarouterExecutorGuiceModule.POOL_writeBehindScheduler) ScheduledExecutorService
-				writeBehindScheduler, DatarouterProperties datarouterProperties){
-
+				writeBehindScheduler){
+		this.datarouterProperties = datarouterProperties;
 		this.executorService = executorService;
 		this.clients = clients;
 		this.nodes = nodes;
@@ -85,8 +86,6 @@ public class Datarouter{
 		this.configFilePaths = new TreeSet<>();
 		this.multiProperties = new ArrayList<>();
 		this.routers = new TreeSet<>();
-
-		this.datarouterProperties = datarouterProperties;
 	}
 
 
@@ -97,7 +96,7 @@ public class Datarouter{
 	}
 
 	public Stream<LazyClientProvider> registerClientIds(Collection<ClientId> clientIds){
-		return clients.registerClientIds(this, clientIds);
+		return clients.registerClientIds(datarouterProperties, this, clientIds);
 	}
 
 	public synchronized void register(Router router){

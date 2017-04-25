@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.client;
 
+import com.hotpads.datarouter.config.DatarouterProperties;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.entity.EntityNode;
@@ -20,7 +21,8 @@ public interface ClientType{
 	@Deprecated//should not reserve names
 	String getName();
 
-	ClientFactory createClientFactory(Datarouter datarouter, String clientName);
+	ClientFactory createClientFactory(DatarouterProperties datarouterProperties, Datarouter datarouter,
+			String clientName);
 
 	<PK extends PrimaryKey<PK>, D extends Databean<PK, D>, F extends DatabeanFielder<PK, D>>
 	PhysicalNode<PK,D> createNode(NodeParams<PK, D, F> nodeParams);
