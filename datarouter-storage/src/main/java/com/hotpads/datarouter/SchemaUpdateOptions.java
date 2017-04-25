@@ -16,7 +16,7 @@ public class SchemaUpdateOptions{
 
 	public static final String SCHEMA_UPDATE_FILENAME = "schema-update.properties";
 
-	public static final String SCHEMA_UPDATE_ENABLE = "schemaUpdate.enable";
+	private static final String SCHEMA_UPDATE_ENABLE = "schemaUpdate.enable";
 
 	private static final String
 			SUFFIX_createDatabases = ".createDatabases",
