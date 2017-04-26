@@ -2,7 +2,6 @@ package com.hotpads.datarouter.storage.field.imp.enums;
 
 import com.hotpads.datarouter.storage.field.BaseField;
 import com.hotpads.datarouter.storage.field.Field;
-import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.util.core.enums.DatarouterEnumTool;
 import com.hotpads.util.core.enums.IntegerEnum;
 import com.hotpads.util.core.number.VarInt;
@@ -48,10 +47,10 @@ public class VarIntEnumField<E extends IntegerEnum<E>> extends BaseField<E>{
 
 	@Override
 	public E parseStringEncodedValueButDoNotSet(String string){
-		if(DrStringTool.isEmpty(string)){
+		if(string == null){
 			return null;
 		}
-		return key.getSampleValue().fromPersistentInteger(Integer.valueOf(string));
+		return IntegerEnum.fromPersistentIntegerSafe(key.getSampleValue(), Integer.valueOf(string));
 	}
 
 
@@ -69,8 +68,8 @@ public class VarIntEnumField<E extends IntegerEnum<E>> extends BaseField<E>{
 
 	@Override
 	public E fromBytesButDoNotSet(byte[] bytes, int offset){
-		Integer intValue = VarInt.fromByteArray(bytes, offset).getValue();
-		return key.getSampleValue().fromPersistentInteger(intValue);
+		return IntegerEnum.fromPersistentIntegerSafe(key.getSampleValue(), VarInt.fromByteArray(bytes, offset)
+				.getValue());
 	}
 
 	@Override
