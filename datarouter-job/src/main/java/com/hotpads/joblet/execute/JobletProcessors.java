@@ -1,5 +1,8 @@
 package com.hotpads.joblet.execute;
 
+import java.util.AbstractMap;
+import java.util.AbstractMap.SimpleEntry;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -10,11 +13,11 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.joblet.dto.JobletTypeSummary;
 import com.hotpads.joblet.dto.RunningJoblet;
 import com.hotpads.joblet.type.JobletType;
 import com.hotpads.joblet.type.JobletTypeFactory;
+import com.hotpads.util.core.stream.StreamTool;
 
 @Singleton
 public class JobletProcessors{
@@ -47,8 +50,10 @@ public class JobletProcessors{
 
 	public Map<JobletType<?>,List<RunningJoblet>> getRunningJobletsByType(){
 		return processorByType.values().stream()
-				.filter(processor -> DrCollectionTool.notEmpty(processor.getRunningJoblets()))
-				.collect(Collectors.toMap(JobletProcessor::getJobletType, JobletProcessor::getRunningJoblets));
+				.map(proc -> new AbstractMap.SimpleEntry<>(proc.getJobletType(), proc.getRunningJoblets()))
+				.filter(entry -> !entry.getValue().isEmpty())
+				.collect(Collectors.toMap(SimpleEntry::getKey, entry -> StreamTool.map(entry.getValue(), RunningJoblet
+						::withoutData)));
 	}
 
 	public List<JobletTypeSummary> getTypeSummaries(){
@@ -63,4 +68,12 @@ public class JobletProcessors{
 		processorByType.values().forEach(processor -> processor.killThread(threadId));
 	}
 
+	public String getRunningJoblet(long threadId){
+		return processorByType.values().stream()
+				.map(JobletProcessor::getRunningJoblets)
+				.flatMap(Collection::stream)
+				.filter(joblet -> joblet.getId().equals(((Long)threadId).toString()))
+				.map(RunningJoblet::getJobletData)
+				.collect(Collectors.joining(", "));
+	}
 }
