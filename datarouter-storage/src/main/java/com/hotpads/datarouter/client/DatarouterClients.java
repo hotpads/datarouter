@@ -24,6 +24,7 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.hotpads.datarouter.config.DatarouterProperties;
 import com.hotpads.datarouter.inject.DatarouterInjector;
 import com.hotpads.datarouter.inject.guice.executor.DatarouterExecutorGuiceModule;
 import com.hotpads.datarouter.routing.Datarouter;
@@ -83,11 +84,12 @@ public class DatarouterClients{
 		}
 	}
 
-	public Stream<LazyClientProvider> registerClientIds(Datarouter context, Collection<ClientId> clientIdsToAdd){
+	public Stream<LazyClientProvider> registerClientIds(DatarouterProperties datarouterProperties,
+			Datarouter datarouter, Collection<ClientId> clientIdsToAdd){
 		clientIdsToAdd.forEach(clientId -> clientIdByClientName.put(clientId.getName(), clientId));
 		return clientIdsToAdd.stream()
 				.map(ClientId::getName)
-				.map(name -> initClientFactoryIfNull(context, name));
+				.map(name -> initClientFactoryIfNull(datarouterProperties, datarouter, name));
 	}
 
 	/********************************** initialize ******************************/
@@ -101,10 +103,12 @@ public class DatarouterClients{
 		return injector.getInstance(clientTypeClass);
 	}
 
-	private synchronized LazyClientProvider initClientFactoryIfNull(Datarouter datarouter, String clientName){
+	private synchronized LazyClientProvider initClientFactoryIfNull(DatarouterProperties datarouterProperties,
+			Datarouter datarouter, String clientName){
 		return lazyClientProviderByName.computeIfAbsent(clientName, client -> {
 			ClientType clientTypeInstance = getClientTypeInstance(client);
-			ClientFactory clientFactory = clientTypeInstance.createClientFactory(datarouter, client);
+			ClientFactory clientFactory = clientTypeInstance.createClientFactory(datarouterProperties, datarouter,
+					client);
 			return new LazyClientProvider(clientFactory, datarouter.getNodes());
 		});
 	}

@@ -15,6 +15,7 @@ import com.hotpads.datarouter.client.DefaultClientTypes;
 import com.hotpads.datarouter.client.availability.ClientAvailabilitySettings;
 import com.hotpads.datarouter.client.bigtable.client.BigTableClientFactory;
 import com.hotpads.datarouter.client.imp.hbase.BaseHBaseClientType;
+import com.hotpads.datarouter.config.DatarouterProperties;
 import com.hotpads.datarouter.inject.DatarouterInjector;
 import com.hotpads.datarouter.inject.guice.executor.DatarouterExecutorGuiceModule;
 import com.hotpads.datarouter.routing.Datarouter;
@@ -40,8 +41,10 @@ public class BigTableClientType extends BaseHBaseClientType{
 	}
 
 	@Override
-	public ClientFactory createClientFactory(Datarouter datarouter, String clientName){
-		return new BigTableClientFactory(datarouter, clientName, clientAvailabilitySettings, executor, this);
+	public ClientFactory createClientFactory(DatarouterProperties datarouterProperties, Datarouter datarouter,
+			String clientName){
+		return new BigTableClientFactory(datarouterProperties, datarouter, clientName, clientAvailabilitySettings,
+				executor, this);
 	}
 
 	/********************** tests ****************************/

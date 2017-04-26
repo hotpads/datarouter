@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import com.hotpads.datarouter.client.availability.ClientAvailabilitySettings;
 import com.hotpads.datarouter.client.imp.hbase.HBaseClientType;
 import com.hotpads.datarouter.client.imp.hbase.HBaseStaticContext;
+import com.hotpads.datarouter.config.DatarouterProperties;
 import com.hotpads.datarouter.exception.UnavailableException;
 import com.hotpads.datarouter.routing.Datarouter;
 
@@ -23,9 +24,10 @@ extends BaseHBaseClientFactory{
 	private static final Logger logger = LoggerFactory.getLogger(HBaseClientFactory.class);
 
 
-	public HBaseClientFactory(Datarouter datarouter, String clientName, ClientAvailabilitySettings
-			clientAvailabilitySettings, ExecutorService executor, HBaseClientType clientType){
-		super(datarouter, clientName, clientAvailabilitySettings, executor, clientType);
+	public HBaseClientFactory(DatarouterProperties datarouterProperties, Datarouter datarouter, String clientName,
+			ClientAvailabilitySettings clientAvailabilitySettings, ExecutorService executor,
+			HBaseClientType clientType){
+		super(datarouterProperties, datarouter, clientName, clientAvailabilitySettings, executor, clientType);
 	}
 
 
@@ -33,7 +35,7 @@ extends BaseHBaseClientFactory{
 	protected Connection makeConnection(){
 		String zkQuorum = hbaseOptions.zookeeperQuorum();
 		Configuration hbaseConfig = HBaseStaticContext.CONFIG_BY_ZK_QUORUM.get(zkQuorum);
-		if(hbaseConfig==null){
+		if(hbaseConfig == null){
 			hbaseConfig = HBaseConfiguration.create();
 			hbaseConfig.set(HConstants.ZOOKEEPER_QUORUM, zkQuorum);
 		}

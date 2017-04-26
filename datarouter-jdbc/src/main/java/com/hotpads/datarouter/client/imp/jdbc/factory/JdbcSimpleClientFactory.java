@@ -19,7 +19,6 @@ import com.hotpads.datarouter.client.type.JdbcClient;
 import com.hotpads.datarouter.config.DatarouterProperties;
 import com.hotpads.datarouter.connection.JdbcConnectionPool;
 import com.hotpads.datarouter.routing.Datarouter;
-import com.hotpads.datarouter.util.core.DrBooleanTool;
 import com.hotpads.datarouter.util.core.DrPropertiesTool;
 import com.hotpads.util.core.profile.PhaseTimer;
 
@@ -30,7 +29,6 @@ implements ClientFactory{
 	private static final String
 			POOL_DEFAULT = "default";
 
-	private final DatarouterProperties datarouterProperties;
 	private final Datarouter datarouter;
 	private final ClientAvailabilitySettings clientAvailabilitySettings;
 	private final JdbcSchemaUpdateServiceFactory jdbcSchemaUpdateServiceFactory;
@@ -45,7 +43,6 @@ implements ClientFactory{
 	public JdbcSimpleClientFactory(DatarouterProperties datarouterProperties, Datarouter datarouter, String clientName,
 			ClientAvailabilitySettings clientAvailabilitySettings,
 			JdbcSchemaUpdateServiceFactory jdbcSchemaUpdateServiceFactory){
-		this.datarouterProperties = datarouterProperties;
 		this.datarouter = datarouter;
 		this.clientAvailabilitySettings = clientAvailabilitySettings;
 		this.clientName = clientName;
@@ -58,8 +55,7 @@ implements ClientFactory{
 				JdbcSchemaUpdateService.PRINT_PREFIX, true);
 		this.schemaUpdateExecuteOptions = new SchemaUpdateOptions(datarouterProperties.getConfigDirectory(),
 				JdbcSchemaUpdateService.EXECUTE_PREFIX, false);
-		this.schemaUpdateEnabled = DrBooleanTool.isTrue(DrPropertiesTool.getFirstOccurrence(multiProperties,
-				SchemaUpdateOptions.SCHEMA_UPDATE_ENABLE));
+		this.schemaUpdateEnabled = schemaUpdatePrintOptions.getEnabled();//use either print or execute options
 	}
 
 	@Override

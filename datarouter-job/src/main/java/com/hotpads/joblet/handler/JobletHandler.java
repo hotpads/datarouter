@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.handler.BaseHandler;
+import com.hotpads.handler.encoder.JsonEncoder;
 import com.hotpads.handler.mav.Mav;
 import com.hotpads.handler.mav.imp.InContextRedirectMav;
 import com.hotpads.handler.mav.imp.MessageMav;
@@ -207,6 +208,12 @@ public class JobletHandler extends BaseHandler{
 		return new InContextRedirectMav(params, URL_JOBLETS_IN_CONTEXT);
 	}
 
+	@Handler(encoder = JsonEncoder.class)
+	private String getJobletThreadData(){
+		long threadId = params.requiredLong("threadId");
+		return jobletProcessors.getRunningJoblet(threadId);
+	}
+
 	@Handler
 	private Mav threadCounts(){
 		Mav mav = new Mav(JSP_threadCounts);
@@ -247,8 +254,7 @@ public class JobletHandler extends BaseHandler{
 					batchSequence, true, null, params);
 			jobletPackages.add(jobletPackage);
 		}
-		jobletService.submitJobletPackagesOfSameType(jobletPackages);
+		jobletService.submitJobletPackages(jobletPackages);
 		return new MessageMav("created " + numJoblets + " @" + sleepMs + "ms");
 	}
-
 }
