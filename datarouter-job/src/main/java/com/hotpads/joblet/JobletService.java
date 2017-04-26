@@ -85,14 +85,14 @@ public class JobletService{
 
 	/*--------------------- create ------------------------*/
 
-	public void submitJobletPackagesOfDifferentTypes(Collection<JobletPackage> jobletPackages){
+	public void submitJobletPackages(Collection<JobletPackage> jobletPackages){
 		jobletPackages.stream()
 				.collect(Collectors.groupingBy(jobletPackage -> jobletPackage.getJobletRequest().getTypeString()))
 				.values()
 				.forEach(this::submitJobletPackagesOfSameType);
 	}
 
-	public void submitJobletPackagesOfSameType(Collection<JobletPackage> jobletPackages){
+	private void submitJobletPackagesOfSameType(Collection<JobletPackage> jobletPackages){
 		JobletType<?> jobletType = jobletTypeFactory.fromJobletPackage(DrCollectionTool.getFirst(jobletPackages));
 		JobletType.assertAllSameShortQueueName(StreamTool.map(jobletPackages, jobletTypeFactory::fromJobletPackage));
 		for(List<JobletPackage> batch : new BatchingIterable<>(jobletPackages, 100)){
