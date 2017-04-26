@@ -4,7 +4,6 @@ import com.hotpads.datarouter.storage.field.BaseField;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.StringFieldKey;
-import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.enums.DatarouterEnumTool;
 import com.hotpads.util.core.enums.StringEnum;
@@ -66,10 +65,7 @@ public class StringEnumField<E extends StringEnum<E>>extends BaseField<E>{
 
 	@Override
 	public E parseStringEncodedValueButDoNotSet(String string){
-		if(DrStringTool.isEmpty(string)){
-			return null;
-		}
-		return key.getSampleValue().fromPersistentString(string);
+		return StringEnum.fromPersistentStringSafe(getSampleValue(), string);
 	}
 
 	/*********************** ByteEncodedField ***********************/
@@ -94,13 +90,13 @@ public class StringEnumField<E extends StringEnum<E>>extends BaseField<E>{
 	@Override
 	public E fromBytesButDoNotSet(byte[] bytes, int offset){
 		String stringValue = stringField.fromBytesButDoNotSet(bytes, offset);
-		return key.getSampleValue().fromPersistentString(stringValue);
+		return StringEnum.fromPersistentStringSafe(getSampleValue(), stringValue);
 	}
 
 	@Override
 	public E fromBytesWithSeparatorButDoNotSet(byte[] bytes, int offset){
 		String stringValue = stringField.fromBytesWithSeparatorButDoNotSet(bytes, offset);
-		return key.getSampleValue().fromPersistentString(stringValue);
+		return StringEnum.fromPersistentStringSafe(getSampleValue(), stringValue);
 	}
 
 	@Override

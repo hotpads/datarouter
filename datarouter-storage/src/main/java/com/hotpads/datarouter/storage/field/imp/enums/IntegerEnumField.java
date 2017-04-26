@@ -2,7 +2,6 @@ package com.hotpads.datarouter.storage.field.imp.enums;
 
 import com.hotpads.datarouter.storage.field.BaseField;
 import com.hotpads.datarouter.storage.field.Field;
-import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.util.core.bytes.IntegerByteTool;
 import com.hotpads.util.core.enums.DatarouterEnumTool;
 import com.hotpads.util.core.enums.IntegerEnum;
@@ -58,10 +57,10 @@ extends BaseField<E>{
 
 	@Override
 	public E parseStringEncodedValueButDoNotSet(String str){
-		if(DrStringTool.isEmpty(str)){
+		if(str == null){
 			return null;
 		}
-		return key.getSampleValue().fromPersistentInteger(Integer.valueOf(str));
+		return IntegerEnum.fromPersistentIntegerSafe(getSampleValue(), Integer.valueOf(str));
 	}
 
 
@@ -69,8 +68,7 @@ extends BaseField<E>{
 
 	@Override
 	public byte[] getBytes(){
-		return value == null?null : IntegerByteTool.getComparableBytes(
-				value.getPersistentInteger());
+		return value == null ? null : IntegerByteTool.getComparableBytes(value.getPersistentInteger());
 	}
 
 	@Override
@@ -80,8 +78,8 @@ extends BaseField<E>{
 
 	@Override
 	public E fromBytesButDoNotSet(byte[] bytes, int offset){
-		return key.getSampleValue().fromPersistentInteger(
-				IntegerByteTool.fromComparableBytes(bytes, offset));
+		return IntegerEnum.fromPersistentIntegerSafe(getSampleValue(), IntegerByteTool.fromComparableBytes(bytes,
+				offset));
 	}
 
 	@Override

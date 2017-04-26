@@ -38,7 +38,7 @@ public class IntegerEnumJdbcFieldCodec<E extends IntegerEnum<E>> extends BaseJdb
 
 	@Override
 	public E parseJdbcValueButDoNotSet(Object obj){
-		return obj == null ? null : field.getSampleValue().fromPersistentInteger((Integer)obj);
+		return IntegerEnum.fromPersistentIntegerSafe(field.getSampleValue(), (Integer)obj);
 	}
 
 	@Override
@@ -58,7 +58,7 @@ public class IntegerEnumJdbcFieldCodec<E extends IntegerEnum<E>> extends BaseJdb
 	public E fromJdbcResultSetButDoNotSet(ResultSet rs){
 		try{
 			int rsValue = rs.getInt(field.getKey().getColumnName());
-			return rs.wasNull() ? null : field.getSampleValue().fromPersistentInteger(rsValue);
+			return rs.wasNull() ? null : IntegerEnum.fromPersistentIntegerSafe(field.getSampleValue(), rsValue);
 		}catch(SQLException e){
 			throw new DataAccessException(e);
 		}
