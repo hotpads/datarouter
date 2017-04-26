@@ -9,7 +9,7 @@ extends Comparable<E>, PersistentString{
 			return null;
 		}
 		E enumValue = sampleValue.fromPersistentString(persistentString);
-		if(enumValue == null || persistentString != enumValue.getPersistentString()){
+		if(enumValue == null || !persistentString.equals(enumValue.getPersistentString())){
 			throw new RuntimeException(sampleValue.getClass().getSimpleName() + ".fromPersistentString returned "
 					+ enumValue == null ? "null" : enumValue.getPersistentString() + " instead of " + persistentString);
 		}
