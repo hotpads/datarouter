@@ -13,6 +13,7 @@ import com.hotpads.datarouter.client.imp.BaseClientType;
 import com.hotpads.datarouter.client.imp.QueueClientType;
 import com.hotpads.datarouter.client.imp.sqs.group.SqsGroupNode;
 import com.hotpads.datarouter.client.imp.sqs.single.SqsNode;
+import com.hotpads.datarouter.config.DatarouterProperties;
 import com.hotpads.datarouter.inject.DatarouterInjector;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams;
@@ -51,7 +52,8 @@ public class SqsClientType extends BaseClientType implements QueueClientType{
 	}
 
 	@Override
-	public ClientFactory createClientFactory(Datarouter datarouter, String clientName){
+	public ClientFactory createClientFactory(DatarouterProperties datarouterProperties, Datarouter datarouter,
+			String clientName){
 		SqsOptions sqsOptions = new SqsOptions(datarouter, clientName);
 		return new SqsClientFactory(clientName, this, sqsOptions, clientAvailabilitySettings);
 	}

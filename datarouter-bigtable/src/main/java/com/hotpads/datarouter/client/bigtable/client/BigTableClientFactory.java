@@ -10,16 +10,17 @@ import com.google.cloud.bigtable.hbase.BigtableOptionsFactory;
 import com.hotpads.datarouter.client.availability.ClientAvailabilitySettings;
 import com.hotpads.datarouter.client.bigtable.BigTableClientType;
 import com.hotpads.datarouter.client.imp.hbase.client.BaseHBaseClientFactory;
+import com.hotpads.datarouter.config.DatarouterProperties;
 import com.hotpads.datarouter.routing.Datarouter;
 
 public class BigTableClientFactory extends BaseHBaseClientFactory{
 
 	private final BigTableOptions bigTableOptions;
 
-	public BigTableClientFactory(Datarouter datarouter, String clientName,
+	public BigTableClientFactory(DatarouterProperties datarouterProperties, Datarouter datarouter, String clientName,
 			ClientAvailabilitySettings clientAvailabilitySettings, ExecutorService executor,
 			BigTableClientType clientType){
-		super(datarouter, clientName, clientAvailabilitySettings, executor, clientType);
+		super(datarouterProperties, datarouter, clientName, clientAvailabilitySettings, executor, clientType);
 		this.bigTableOptions = new BigTableOptions(multiProperties, clientName);
 	}
 

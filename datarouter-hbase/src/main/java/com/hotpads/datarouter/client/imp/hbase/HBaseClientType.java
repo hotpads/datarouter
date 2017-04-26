@@ -14,6 +14,7 @@ import com.hotpads.datarouter.client.ClientFactory;
 import com.hotpads.datarouter.client.DefaultClientTypes;
 import com.hotpads.datarouter.client.availability.ClientAvailabilitySettings;
 import com.hotpads.datarouter.client.imp.hbase.client.HBaseClientFactory;
+import com.hotpads.datarouter.config.DatarouterProperties;
 import com.hotpads.datarouter.inject.DatarouterInjector;
 import com.hotpads.datarouter.inject.guice.executor.DatarouterExecutorGuiceModule;
 import com.hotpads.datarouter.routing.Datarouter;
@@ -39,8 +40,10 @@ public class HBaseClientType extends BaseHBaseClientType{
 	}
 
 	@Override
-	public ClientFactory createClientFactory(Datarouter datarouter, String clientName){
-		return new HBaseClientFactory(datarouter, clientName, clientAvailabilitySettings, executor, this);
+	public ClientFactory createClientFactory(DatarouterProperties datarouterProperties, Datarouter datarouter,
+			String clientName){
+		return new HBaseClientFactory(datarouterProperties, datarouter, clientName, clientAvailabilitySettings,
+				executor, this);
 	}
 
 	/********************** tests ****************************/
