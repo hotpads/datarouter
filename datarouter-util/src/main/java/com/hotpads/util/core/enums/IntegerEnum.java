@@ -11,7 +11,7 @@ extends Comparable<E>{
 			return null;
 		}
 		E enumValue = sampleValue.fromPersistentInteger(persistentInteger);
-		if(enumValue == null || persistentInteger != enumValue.getPersistentInteger()){
+		if(enumValue == null || !persistentInteger.equals(enumValue.getPersistentInteger())){
 			throw new RuntimeException(sampleValue.getClass().getSimpleName() + ".fromPersistentInteger returned "
 					+ enumValue == null ? "null" : enumValue.getPersistentInteger() + " instead of "
 					+ persistentInteger);
