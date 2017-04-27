@@ -34,6 +34,7 @@ public interface DatarouterAuthenticationConfig{
 	String getResetSecretKeySubmitPath();
 	String getCreateUserSubmitPath();
 	String getEditUserSubmitPath();
+	String getAccountManagerPath();
 
 	String getApiKeyParam();
 	String getUsernameParam();

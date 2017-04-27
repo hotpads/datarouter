@@ -13,6 +13,7 @@ import com.hotpads.datarouter.client.imp.BaseClientType;
 import com.hotpads.datarouter.client.imp.StreamClientType;
 import com.hotpads.datarouter.client.imp.kinesis.node.KinesisNode;
 import com.hotpads.datarouter.client.imp.kinesis.node.KinesisNodeFactory;
+import com.hotpads.datarouter.config.DatarouterProperties;
 import com.hotpads.datarouter.inject.DatarouterInjector;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams;
@@ -50,7 +51,8 @@ public class KinesisClientType extends BaseClientType implements StreamClientTyp
 	}
 
 	@Override
-	public ClientFactory createClientFactory(Datarouter datarouter, String clientName){
+	public ClientFactory createClientFactory(DatarouterProperties datarouterProperties, Datarouter datarouter,
+			String clientName){
 		KinesisOptions kinesisOptions = new KinesisOptions(datarouter, clientName);
 		return new KinesisClientFactory(clientName, this, kinesisOptions, clientAvailabilitySettings);
 	}

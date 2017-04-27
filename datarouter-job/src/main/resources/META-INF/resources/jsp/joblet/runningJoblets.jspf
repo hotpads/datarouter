@@ -1,10 +1,27 @@
+<script>
+	require(['sorttable'], function(){
+		function updateThreadData(threadId, data){
+			data = data || 'No data found. Thread probably finished.'
+			$('input:hidden[value="' + threadId + '"]').next().next().val(data)
+		}
+
+		$('.data-loader').click(function(e){
+			e.preventDefault();
+			var threadId = $(this).prev().val();
+			$.post('?submitAction=getJobletThreadData&threadId=' + threadId, '', function(data){
+				updateThreadData(threadId, data);
+			});
+		});
+	})
+</script>
+
 <table class="sortable table table-bordered table-condensed">
 	<tr>
 		<th>type</th>
 		<th>id</th>
 		<th>running time</th>
 		<th>queue</th>
-		<th>current task</th>
+		<th>current task data</th>
 		<th>kill</th>
 	</tr>
 	<c:forEach items="${runningJobletsByType}" var="runningJobletsOfType">
@@ -15,9 +32,9 @@
 				<td>${runningJoblet.runningTimeString}</td>
 				<td>${runningJoblet.queueId}</td>
 				<td>
-					<c:if test="${not empty runningJoblet.jobletData}">
-						<textarea cols="15" rows="1">${runningJoblet.jobletData}</textarea>
-					</c:if>
+					<input type="hidden" value="${runningJoblet.id}">
+					<a href="" class="data-loader" style="vertical-align:middle;">(Re)Load</a>
+					<textarea placeholder="Click link to load data" cols="80" rows="1" style="vertical-align:middle;"></textarea>
 				</td>
 				<td>
 					<a href="?submitAction=killJobletThread&threadId=${runningJoblet.id}">kill</a>

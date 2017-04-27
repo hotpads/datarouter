@@ -45,7 +45,8 @@ public class JobletCounterJob extends BaseJob{
 		List<JobletSummary> createdSummaries = JobletSummary.filterForStatus(summaries, JobletStatus.created);
 		for(JobletSummary summary : createdSummaries){
 			Duration age = Duration.ofMillis(new Date().getTime() - summary.getFirstCreated().getTime());
-			jobletCounters.saveQueueLength(summary.getTypeString(), summary.getSumItems());
+			jobletCounters.saveQueueLengthJoblets(summary.getTypeString(), summary.getNumType());
+			jobletCounters.saveQueueLengthItems(summary.getTypeString(), summary.getSumItems());
 			jobletCounters.saveFirstCreated(summary.getTypeString(), age.toMinutes());
 		}
 	}

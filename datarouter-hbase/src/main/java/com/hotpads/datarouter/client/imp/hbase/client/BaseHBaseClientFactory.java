@@ -33,6 +33,7 @@ import com.hotpads.datarouter.client.imp.hbase.node.HBaseSubEntityReaderNode;
 import com.hotpads.datarouter.client.imp.hbase.pool.HBaseTableExecutorServicePool;
 import com.hotpads.datarouter.client.imp.hbase.pool.HBaseTablePool;
 import com.hotpads.datarouter.client.imp.hbase.util.HBaseQueryBuilder;
+import com.hotpads.datarouter.config.DatarouterProperties;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
@@ -42,7 +43,6 @@ import com.hotpads.datarouter.storage.key.entity.EntityPartitioner;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.prefix.ScatteringPrefix;
 import com.hotpads.datarouter.util.core.DrArrayTool;
-import com.hotpads.datarouter.util.core.DrBooleanTool;
 import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrPropertiesTool;
 import com.hotpads.util.core.bytes.ByteRange;
@@ -77,7 +77,7 @@ implements ClientFactory{
 	private final BaseHBaseClientType clientType;
 	private final boolean schemaUpdateEnabled;
 
-	public BaseHBaseClientFactory(Datarouter datarouter, String clientName,
+	public BaseHBaseClientFactory(DatarouterProperties datarouterProperties, Datarouter datarouter, String clientName,
 			ClientAvailabilitySettings clientAvailabilitySettings, ExecutorService executor,
 			BaseHBaseClientType clientType){
 		this.datarouter = datarouter;
@@ -88,8 +88,9 @@ implements ClientFactory{
 		this.hbaseOptions = new HBaseOptions(multiProperties, clientName);
 		this.clientAvailabilitySettings = clientAvailabilitySettings;
 		this.executor = executor;
-		this.schemaUpdateEnabled = DrBooleanTool.isTrue(DrPropertiesTool.getFirstOccurrence(multiProperties,
-				SchemaUpdateOptions.SCHEMA_UPDATE_ENABLE));
+		//TODO possibly use an hbase-specific SchemaUpdateOptons
+		this.schemaUpdateEnabled = new SchemaUpdateOptions(datarouterProperties.getConfigDirectory(), "", true)
+				.getEnabled();
 	}
 
 	protected abstract Connection makeConnection();

@@ -14,8 +14,12 @@ public class JobletCounters{
 	@Inject
 	private Metrics metrics;
 
-	public void saveQueueLength(String key, long queueLength){
-		metrics.save(PREFIX + "queue length " + key, queueLength);
+	public void saveQueueLengthJoblets(String key, long queueLength){
+		metrics.save(PREFIX + "queue length joblets " + key, queueLength);
+	}
+
+	public void saveQueueLengthItems(String key, long queueLength){
+		metrics.save(PREFIX + "queue length items " + key, queueLength);
 	}
 
 	public void saveFirstCreated(String key, long firstCreated){

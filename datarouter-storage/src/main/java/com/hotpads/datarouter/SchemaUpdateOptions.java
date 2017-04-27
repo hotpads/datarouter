@@ -16,7 +16,7 @@ public class SchemaUpdateOptions{
 
 	public static final String SCHEMA_UPDATE_FILENAME = "schema-update.properties";
 
-	public static final String SCHEMA_UPDATE_ENABLE = "schemaUpdate.enable";
+	private static final String SCHEMA_UPDATE_ENABLE = "schemaUpdate.enable";
 
 	private static final String
 			SUFFIX_createDatabases = ".createDatabases",
@@ -32,6 +32,7 @@ public class SchemaUpdateOptions{
 			SUFFIX_modifyRowFormat = ".modifyRowFormat",
 			SUFFIX_modifyCharacterSetOrCollation = ".modifyCharacterSetOrCollation";
 
+	private boolean enabled;
 	private boolean createDatabases;
 	private boolean createTables;
 	private boolean addColumns;
@@ -57,6 +58,8 @@ public class SchemaUpdateOptions{
 			logger.warn("error parsing {}, using default schema-update options", configFileLocation);
 			multiProperties = Arrays.asList(new Properties());
 		}
+		this.enabled = DrBooleanTool.isTrue(DrPropertiesTool.getFirstOccurrence(multiProperties,
+				SchemaUpdateOptions.SCHEMA_UPDATE_ENABLE));
 		if(printVsExecute){
 			setSchemaUpdateWithPrintOptions(multiProperties, prefix);
 		}else{
@@ -208,4 +211,7 @@ public class SchemaUpdateOptions{
 		return modifyRowFormat;
 	}
 
+	public boolean getEnabled(){
+		return enabled;
+	}
 }
