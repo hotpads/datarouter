@@ -1,5 +1,7 @@
 package com.hotpads.handler.account;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -20,6 +22,19 @@ public class DatarouterAccountDao{
 				.map(DatarouterUserAccountMapKey::getDatarouterAccountKey)
 				.map(DatarouterAccountKey::getAccountName)
 				.collect(Collectors.toSet());
+
+	}
+
+	public Map<DatarouterUserKey,Set<String>> findAccountNamesForUsers(List<DatarouterUserKey> userKeys){
+		List<DatarouterUserAccountMapKey> prefixes = userKeys.stream()
+				.map(DatarouterUserKey::getId)
+				.map(userId -> new DatarouterUserAccountMapKey(userId, null))
+				.collect(Collectors.toList());
+		return datarouterAccountNodes.datarouterUserAccountMap().streamKeysWithPrefixes(prefixes, null)
+				.collect(Collectors.groupingBy(DatarouterUserAccountMapKey::getDatarouterUserKey,
+						Collectors.mapping(DatarouterUserAccountMapKey::getDatarouterAccountKey,
+						Collectors.mapping(DatarouterAccountKey::getAccountName,
+						Collectors.toSet()))));
 
 	}
 

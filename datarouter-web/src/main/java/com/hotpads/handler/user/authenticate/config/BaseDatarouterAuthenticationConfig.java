@@ -32,6 +32,7 @@ implements DatarouterAuthenticationConfig{
 	private static final String PATH_editUserSubmit = PATH_admin + "/editUserSubmit";
 	private static final String PATH_resetApiKeySubmit = PATH_admin + "/resetApiKeySubmit";
 	private static final String PATH_resetSecretKeySubmit = PATH_admin + "/resetSecretKeySubmit";
+	private static final String PATH_accountManager = PATH_admin + "/accounts";
 
 	private static final String PATH_api = "/api";
 
@@ -160,6 +161,11 @@ implements DatarouterAuthenticationConfig{
 	@Override
 	public String getResetSecretKeySubmitPath(){
 		return PATH_resetSecretKeySubmit;
+	}
+
+	@Override
+	public String getAccountManagerPath(){
+		return PATH_accountManager;
 	}
 
 	/*********************** params ************************************/
@@ -301,29 +307,16 @@ implements DatarouterAuthenticationConfig{
 	}
 
 	public static boolean pathAContainsB(String rawA, String rawB){
-		String a = normalizePath(rawA);
-		String b = normalizePath(rawB);
-		if(a.equals(b)){ return true; }
+		String normalizedA = normalizePath(rawA);
+		String normalizedB = normalizePath(rawB);
+		if(normalizedA.equals(normalizedB)){
+			return true;
+		}
 
 		// a=/fl should NOT contain b=/flowbee
-		String aAsDirectory = a + "/";
-		return b.startsWith(aAsDirectory);
+		String aAsDirectory = normalizedA + "/";
+		return normalizedB.startsWith(aAsDirectory);
 	}
-
-//	@Override
-//	public Iterable<BaseDatarouterAuthenticator> getAuthenticators(HttpServletRequest request,
-//			HttpServletResponse response){
-//
-//		List<DatarouterAuthenticator> authenticators = ListTool.createArrayList();
-//		authenticators.add(new DatarouterLoginFormAuthenticator(request, response, HotPadsAuthenticationFilter.loginSubmitURI, PARAM_USERNAME,
-//				PARAM_PASSWORD, routers.user(), routers.userSearch(), routers.event(), userItemRecordDao));
-//
-//		authenticators.add(new SessionAuthenticator(request, response));
-//		authenticators.add(new RememberMeCookieAuthenticator(request, response));
-//		authenticators.add(new UserTokenAuthenticator(request, response));
-//		authenticators.add(new NewUserAuthenticator(request, response));
-//		return authenticators;
-//	}
 
 
 	/***************** tests ************************/
