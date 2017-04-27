@@ -8,6 +8,7 @@ import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt63Field;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt63FieldKey;
 import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
+import com.hotpads.handler.user.DatarouterUserKey;
 
 public class DatarouterUserAccountMapKey extends BasePrimaryKey<DatarouterUserAccountMapKey>{
 
@@ -32,6 +33,10 @@ public class DatarouterUserAccountMapKey extends BasePrimaryKey<DatarouterUserAc
 		return Arrays.asList(
 				new UInt63Field(FieldKeys.userId, userId),
 				new StringField(DatarouterAccountKey.FieldKeys.accountName, accountName));
+	}
+
+	public DatarouterUserKey getDatarouterUserKey(){
+		return new DatarouterUserKey(userId);
 	}
 
 	public DatarouterAccountKey getDatarouterAccountKey(){
