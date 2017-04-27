@@ -51,19 +51,19 @@ public abstract class DatarouterProperties{
 
 	/*----------------- construct ------------------*/
 
-	protected DatarouterProperties(BaseDatarouterPropertiesConfigurer configurer, ServerType serverTypeOptions, String serviceName,
-			boolean directoryRequired){
+	protected DatarouterProperties(BaseDatarouterPropertiesConfigurer configurer, ServerType serverTypeOptions,
+			String serviceName, boolean directoryRequired){
 		this(configurer, serverTypeOptions, serviceName, System.getProperty(JVM_ARG_PREFIX + CONFIG_DIRECTORY),
 				directoryRequired, true, null, false);
 	}
 
-	protected DatarouterProperties(BaseDatarouterPropertiesConfigurer configurer, ServerType serverTypeOptions, String serviceName,
-			String directory, String filename){
+	protected DatarouterProperties(BaseDatarouterPropertiesConfigurer configurer, ServerType serverTypeOptions,
+			String serviceName, String directory, String filename){
 		this(configurer, serverTypeOptions, serviceName, directory, true, false, filename, true);
 	}
 
-	private DatarouterProperties(BaseDatarouterPropertiesConfigurer configurer,
-			ServerType serverTypeOptions, String serviceName, String directory, boolean directoryRequired, boolean directoryFromJvmArg,
+	private DatarouterProperties(BaseDatarouterPropertiesConfigurer configurer, ServerType serverTypeOptions,
+			String serviceName, String directory, boolean directoryRequired, boolean directoryFromJvmArg,
 			String filename, boolean fileRequired){
 		boolean fileRequiredWithoutDirectoryRequired = fileRequired && !directoryRequired;
 		Preconditions.checkState(!fileRequiredWithoutDirectoryRequired, "directory is required if file is required");
