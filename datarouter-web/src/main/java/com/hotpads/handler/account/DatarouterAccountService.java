@@ -11,7 +11,7 @@ import javax.inject.Singleton;
 import com.hotpads.handler.user.DatarouterUserKey;
 
 @Singleton
-public class DatarouterAccountDao{
+public class DatarouterAccountService{
 
 	@Inject
 	private DatarouterAccountNodes datarouterAccountNodes;

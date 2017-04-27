@@ -8,7 +8,7 @@ import javax.inject.Inject;
 import com.hotpads.datarouter.storage.databean.DatabeanTool;
 import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.handler.BaseHandler;
-import com.hotpads.handler.account.DatarouterAccountDao;
+import com.hotpads.handler.account.DatarouterAccountService;
 import com.hotpads.handler.mav.Mav;
 import com.hotpads.handler.mav.imp.InContextRedirectMav;
 import com.hotpads.handler.user.DatarouterUser;
@@ -38,7 +38,7 @@ public class AdminEditUserHandler extends BaseHandler{
 	@Inject
 	private DatarouterUserNodes userNodes;
 	@Inject
-	private DatarouterAccountDao datarouterAccountDao;
+	private DatarouterAccountService datarouterAccountService;
 
 	@Override
 	protected Mav handleDefault(){
@@ -51,7 +51,8 @@ public class AdminEditUserHandler extends BaseHandler{
 		List<DatarouterUser> userList = DrListTool.createArrayList(userNodes.getUserNode().scan(null, null));
 		mav.put(AUTHENTICATION_CONFIG, authenticationConfig);
 		mav.put(USER_LIST, userList);
-		mav.put("accountNamesByUser", datarouterAccountDao.findAccountNamesForUsers(DatabeanTool.getKeys(userList)));
+		mav.put("accountNamesByUser", datarouterAccountService.findAccountNamesForUsers(DatabeanTool.getKeys(
+				userList)));
 		return mav;
 	}
 
