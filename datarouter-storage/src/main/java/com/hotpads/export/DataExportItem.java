@@ -49,10 +49,10 @@ public class DataExportItem extends BaseDatabean<DataExportItemKey,DataExportIte
 		@Override
 		public List<Field<?>> getNonKeyFields(DataExportItem databean){
 			return FieldTool.createList(
-					new StringField(F.routerName, databean.routerName, MySqlColumnType.MAX_LENGTH_VARCHAR),
-					new StringField(F.nodeName, databean.nodeName, MySqlColumnType.MAX_LENGTH_VARCHAR),
-					new StringField(F.startAfterKey, databean.startAfterKey, MySqlColumnType.MAX_LENGTH_VARCHAR),
-					new StringField(F.endBeforeKey, databean.endBeforeKey, MySqlColumnType.MAX_LENGTH_VARCHAR),
+					new StringField(F.routerName, databean.routerName, MySqlColumnType.DEFAULT_LENGTH_VARCHAR),
+					new StringField(F.nodeName, databean.nodeName, MySqlColumnType.DEFAULT_LENGTH_VARCHAR),
+					new StringField(F.startAfterKey, databean.startAfterKey, MySqlColumnType.DEFAULT_LENGTH_VARCHAR),
+					new StringField(F.endBeforeKey, databean.endBeforeKey, MySqlColumnType.DEFAULT_LENGTH_VARCHAR),
 					new LongField(F.maxRows, databean.maxRows),
 					new DateField(F.dateCreated, databean.dateCreated));
 		}

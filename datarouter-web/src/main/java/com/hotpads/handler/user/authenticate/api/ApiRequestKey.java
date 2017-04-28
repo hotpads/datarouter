@@ -11,7 +11,7 @@ import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
 
 public class ApiRequestKey extends BasePrimaryKey<ApiRequestKey>{
 
-	public static final int DEFAULT_STRING_LENGTH = MySqlColumnType.MAX_LENGTH_VARCHAR;
+	public static final int DEFAULT_STRING_LENGTH = MySqlColumnType.DEFAULT_LENGTH_VARCHAR;
 
 	/** fields ********************************************************************************************************/
 

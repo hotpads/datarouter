@@ -25,7 +25,7 @@ extends BasePrimaryKey<PK>{
 	@Override
 	public List<Field<?>> getFields(){
 		return FieldTool.createList(
-			new StringField(F.sessionToken, sessionToken, MySqlColumnType.MAX_LENGTH_VARCHAR));
+			new StringField(F.sessionToken, sessionToken, MySqlColumnType.DEFAULT_LENGTH_VARCHAR));
 	}
 
 

@@ -57,9 +57,9 @@ public class AutomatedEmail extends BaseDatabean<AutomatedEmailKey,AutomatedEmai
 		@Override
 		public List<Field<?>> getNonKeyFields(AutomatedEmail automatedEmail){
 			return Arrays.asList(
-				new StringField(F.subject, automatedEmail.subject, MySqlColumnType.MAX_LENGTH_VARCHAR),
+				new StringField(F.subject, automatedEmail.subject, MySqlColumnType.DEFAULT_LENGTH_VARCHAR),
 				new StringField(F.content, automatedEmail.content, MySqlColumnType.INT_LENGTH_LONGTEXT),
-				new StringField(F.serverName, automatedEmail.serverName, MySqlColumnType.MAX_LENGTH_VARCHAR),
+				new StringField(F.serverName, automatedEmail.serverName, MySqlColumnType.DEFAULT_LENGTH_VARCHAR),
 				new BooleanField(F.html, automatedEmail.html));
 		}
 

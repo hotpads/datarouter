@@ -28,8 +28,8 @@ public class SubscriberKey extends BasePrimaryKey<SubscriberKey>{
 	public List<Field<?>> getFields(){
 		return Arrays.asList(
 			new StringField(F.alias, NotificationAlias.F.persistentName, F.alias, true, alias.getPersistentName(),
-					MySqlColumnType.MAX_LENGTH_VARCHAR),
-			new StringField(F.email, email, MySqlColumnType.MAX_LENGTH_VARCHAR));
+					MySqlColumnType.DEFAULT_LENGTH_VARCHAR),
+			new StringField(F.email, email, MySqlColumnType.DEFAULT_LENGTH_VARCHAR));
 	}
 
 	/** construct *************************************************************/

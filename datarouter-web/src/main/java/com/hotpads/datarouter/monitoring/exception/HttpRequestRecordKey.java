@@ -24,7 +24,7 @@ public class HttpRequestRecordKey extends BasePrimaryKey<HttpRequestRecordKey>{
 
 	@Override
 	public List<Field<?>> getFields(){
-		return FieldTool.createList(new StringField(F.id, id, MySqlColumnType.MAX_LENGTH_VARCHAR));
+		return FieldTool.createList(new StringField(F.id, id, MySqlColumnType.DEFAULT_LENGTH_VARCHAR));
 	}
 
 	public String getId(){

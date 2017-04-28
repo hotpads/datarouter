@@ -59,7 +59,7 @@ public class Moderator extends BaseDatabean<ModeratorKey,Moderator>{
 		public List<Field<?>> getNonKeyFields(Moderator databean){
 			return FieldTool.createList(
 				new DateField(F.membershipDate, databean.membershipDate),
-				new StringField(F.membershipAuthor, databean.membershipAuthor, MySqlColumnType.MAX_LENGTH_VARCHAR));
+				new StringField(F.membershipAuthor, databean.membershipAuthor, MySqlColumnType.DEFAULT_LENGTH_VARCHAR));
 		}
 
 	}

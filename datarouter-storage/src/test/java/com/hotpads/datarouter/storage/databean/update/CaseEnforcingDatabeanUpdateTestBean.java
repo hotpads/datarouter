@@ -18,7 +18,7 @@ public class CaseEnforcingDatabeanUpdateTestBean
 extends BaseDatabean<CaseEnforcingDatabeanUpdateTestBeanKey,CaseEnforcingDatabeanUpdateTestBean>
 implements ContentHolder<CaseEnforcingDatabeanUpdateTestBeanKey, CaseEnforcingDatabeanUpdateTestBean>{
 
-	public static final int DEFAULT_STRING_LENGTH = MySqlColumnType.MAX_LENGTH_VARCHAR;
+	public static final int DEFAULT_STRING_LENGTH = MySqlColumnType.DEFAULT_LENGTH_VARCHAR;
 
 	private CaseEnforcingDatabeanUpdateTestBeanKey key;
 

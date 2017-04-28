@@ -1,5 +1,6 @@
 package com.hotpads.handler.user;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -11,52 +12,47 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
-import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.DateField;
+import com.hotpads.datarouter.storage.field.imp.DateFieldKey;
 import com.hotpads.datarouter.storage.field.imp.StringField;
+import com.hotpads.datarouter.storage.field.imp.StringFieldKey;
 import com.hotpads.datarouter.storage.field.imp.array.DelimitedStringArrayField;
+import com.hotpads.datarouter.storage.field.imp.array.DelimitedStringArrayFieldKey;
 import com.hotpads.datarouter.storage.field.imp.comparable.BooleanField;
+import com.hotpads.datarouter.storage.field.imp.comparable.BooleanFieldKey;
 import com.hotpads.datarouter.storage.key.unique.base.BaseStringUniqueKey;
 import com.hotpads.handler.user.role.DatarouterUserRole;
 import com.hotpads.util.core.enums.DatarouterEnumTool;
 
-public class DatarouterUser extends BaseDatabean<DatarouterUserKey, DatarouterUser> {
-
-	/********************* fields *************************/
+public class DatarouterUser extends BaseDatabean<DatarouterUserKey,DatarouterUser>{
 
 	private DatarouterUserKey key;
-
 	private String username;
 	private String userToken;
 	private String passwordSalt;
 	private String passwordDigest;
 	private Boolean enabled;
 	private List<String> roles;
-
 	private Date created;
 	private Date lastLoggedIn;
-
 	private Boolean apiEnabled;
 	private String apiKey;
 	private String secretKey;
 
-
-	public static class F {
-		public static final String
-			username = "username",
-			userToken = "userToken",
-			passwordSalt = "passwordSalt",
-			passwordDigest = "passwordDigest",
-			enabled = "enabled",
-			roles = "roles",
-			created = "created",
-			lastLoggedIn = "lastLoggedIn",
-			apiEnabled = "apiEnabled",
-			apiKey = "apiKey",
-			secretKey = "secretKey";
+	public static class FieldKeys{
+		public static final StringFieldKey username = new StringFieldKey("username");
+		public static final StringFieldKey userToken = new StringFieldKey("userToken");
+		public static final StringFieldKey passwordSalt = new StringFieldKey("passwordSalt");
+		public static final StringFieldKey passwordDigest = new StringFieldKey("passwordDigest")
+				.withSize(MySqlColumnType.MAX_LENGTH_TEXT);
+		public static final BooleanFieldKey enabled = new BooleanFieldKey("enabled");
+		public static final DelimitedStringArrayFieldKey roles = new DelimitedStringArrayFieldKey("roles");
+		public static final DateFieldKey created = new DateFieldKey("created");
+		public static final DateFieldKey lastLoggedIn = new DateFieldKey("lastLoggedIn");
+		public static final BooleanFieldKey apiEnabled = new BooleanFieldKey("apiEnabled");
+		public static final StringFieldKey apiKey = new StringFieldKey("apiKey");
+		public static final StringFieldKey secretKey = new StringFieldKey("secretKey");
 	}
-
-	/****************** fielder *****************************/
 
 	public static class DatarouterUserFielder extends BaseDatabeanFielder<DatarouterUserKey,DatarouterUser>{
 
@@ -65,19 +61,19 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey, DatarouterUs
 		}
 
 		@Override
-		public List<Field<?>> getNonKeyFields(DatarouterUser d) {
-			return FieldTool.createList(
-					new StringField(F.username, d.username, MySqlColumnType.MAX_LENGTH_VARCHAR),
-					new StringField(F.userToken, d.userToken, MySqlColumnType.MAX_LENGTH_VARCHAR),
-					new StringField(F.passwordSalt, d.passwordSalt, MySqlColumnType.MAX_LENGTH_VARCHAR),
-					new StringField(F.passwordDigest, d.passwordDigest, MySqlColumnType.MAX_LENGTH_TEXT),
-					new BooleanField(F.enabled, d.enabled),
-					new DelimitedStringArrayField(F.roles, ",", d.roles),
-					new DateField(F.created, d.created),
-					new DateField(F.lastLoggedIn, d.lastLoggedIn),
-					new BooleanField(F.apiEnabled, d.apiEnabled),
-					new StringField(F.apiKey, d.apiKey, MySqlColumnType.MAX_LENGTH_VARCHAR),
-					new StringField(F.secretKey	, d.secretKey, MySqlColumnType.MAX_LENGTH_VARCHAR));
+		public List<Field<?>> getNonKeyFields(DatarouterUser user){
+			return Arrays.asList(
+					new StringField(FieldKeys.username, user.username),
+					new StringField(FieldKeys.userToken, user.userToken),
+					new StringField(FieldKeys.passwordSalt, user.passwordSalt),
+					new StringField(FieldKeys.passwordDigest, user.passwordDigest),
+					new BooleanField(FieldKeys.enabled, user.enabled),
+					new DelimitedStringArrayField(FieldKeys.roles, user.roles),
+					new DateField(FieldKeys.created, user.created),
+					new DateField(FieldKeys.lastLoggedIn, user.lastLoggedIn),
+					new BooleanField(FieldKeys.apiEnabled, user.apiEnabled),
+					new StringField(FieldKeys.apiKey, user.apiKey),
+					new StringField(FieldKeys.secretKey, user.secretKey));
 		}
 		@Override
 		public Map<String, List<Field<?>>> getIndexes(DatarouterUser databean){
@@ -122,29 +118,25 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey, DatarouterUs
 		return user;
 	}
 
-	/******** databean ***********************************/
-
 	@Override
-	public Class<DatarouterUserKey> getKeyClass() {
+	public Class<DatarouterUserKey> getKeyClass(){
 		return DatarouterUserKey.class;
 	}
 
 	@Override
-	public DatarouterUserKey getKey() {
+	public DatarouterUserKey getKey(){
 		return this.key;
 	}
-
-
-	/***************** indexes *****************/
 
 	public static class DatarouterUserByUsernameLookup extends BaseStringUniqueKey<DatarouterUserKey>{
 		public DatarouterUserByUsernameLookup(String username){
 			super(username);
 		}
+
 		@Override
 		public List<Field<?>> getFields(){
-			return FieldTool.createList(
-				new StringField(F.username, id, MySqlColumnType.MAX_LENGTH_VARCHAR));
+			return Arrays.asList(
+				new StringField(FieldKeys.username, id));
 		}
 	}
 
@@ -154,8 +146,8 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey, DatarouterUs
 		}
 		@Override
 		public List<Field<?>> getFields(){
-			return FieldTool.createList(
-				new StringField(F.apiKey, id, MySqlColumnType.MAX_LENGTH_VARCHAR));
+			return Arrays.asList(
+				new StringField(FieldKeys.apiKey, id));
 		}
 	}
 
@@ -165,8 +157,8 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey, DatarouterUs
 		}
 		@Override
 		public List<Field<?>> getFields(){
-			return FieldTool.createList(
-				new StringField(F.userToken, id, MySqlColumnType.MAX_LENGTH_VARCHAR));
+			return Arrays.asList(
+				new StringField(FieldKeys.userToken, id));
 		}
 	}
 
@@ -176,26 +168,18 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey, DatarouterUs
 		}
 		@Override
 		public List<Field<?>> getFields(){
-			return FieldTool.createList(
-				new StringField(F.secretKey, id, MySqlColumnType.MAX_LENGTH_VARCHAR));
+			return Arrays.asList(
+				new StringField(FieldKeys.secretKey, id));
 		}
 	}
-
-	/***************** methods *****************/
 
 	public List<DatarouterUserRole> getRoles(){
 		return DatarouterEnumTool.fromPersistentStrings(DatarouterUserRole.user, roles);
 	}
 
-	public void setRoles(Collection<DatarouterUserRole> roleEnums) {
+	public void setRoles(Collection<DatarouterUserRole> roleEnums){
 		roles = DatarouterEnumTool.getPersistentStrings(roleEnums);
 		Collections.sort(roles);
-	}
-
-	/***************** get/ set ***********/
-
-	public void setKey(DatarouterUserKey key) {
-		this.key = key;
 	}
 
 	public Date getCreated(){
@@ -262,27 +246,27 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey, DatarouterUs
 		this.lastLoggedIn = lastLoggedIn;
 	}
 
-	public Boolean getApiEnabled() {
+	public Boolean getApiEnabled(){
 		return apiEnabled;
 	}
 
-	public void setApiEnabled(Boolean apiEnabled) {
+	public void setApiEnabled(Boolean apiEnabled){
 		this.apiEnabled = apiEnabled;
 	}
 
-	public String getApiKey() {
+	public String getApiKey(){
 		return apiKey;
 	}
 
-	public void setApiKey(String apiKey) {
+	public void setApiKey(String apiKey){
 		this.apiKey = apiKey;
 	}
 
-	public String getSecretKey() {
+	public String getSecretKey(){
 		return secretKey;
 	}
 
-	public void setSecretKey(String secretKey) {
+	public void setSecretKey(String secretKey){
 		this.secretKey = secretKey;
 	}
 

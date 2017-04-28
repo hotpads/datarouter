@@ -22,7 +22,7 @@ public class OpOptimizedBatchSizeKey extends BasePrimaryKey<OpOptimizedBatchSize
 
 	@Override
 	public List<Field<?>> getFields(){
-		return Arrays.asList(new StringField(F.opName, opName, MySqlColumnType.MAX_LENGTH_VARCHAR));
+		return Arrays.asList(new StringField(F.opName, opName, MySqlColumnType.DEFAULT_LENGTH_VARCHAR));
 	}
 
 	public String getOpName(){

@@ -55,8 +55,8 @@ public class NotificationTrackingEvent extends BaseDatabean<NotificationTracking
 		public List<Field<?>> getNonKeyFields(NotificationTrackingEvent trackingEvent){
 			return Arrays.asList(
 				new StringField(F.trackingNotificationType, TrackingNotificationType.F.name, COL_TYPE, false,
-						trackingEvent.trackingNotificationType.name, MySqlColumnType.MAX_LENGTH_VARCHAR),
-				new StringField(F.source, trackingEvent.source, MySqlColumnType.MAX_LENGTH_VARCHAR));
+						trackingEvent.trackingNotificationType.name, MySqlColumnType.DEFAULT_LENGTH_VARCHAR),
+				new StringField(F.source, trackingEvent.source, MySqlColumnType.DEFAULT_LENGTH_VARCHAR));
 		}
 
 		@Override
