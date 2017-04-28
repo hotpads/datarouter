@@ -39,9 +39,9 @@ extends BaseJdbcFieldCodec<String,StringField>{
 			return new CharSequenceSqlColumn(field.getKey().getColumnName(), MySqlColumnType.VARCHAR, field.getSize(),
 					nullable, false, field.getKey().getDefaultValue(), StringFieldKey.DEFAULT_CHARACTER_SET,
 					StringFieldKey.DEFAULT_COLLATION);
-		}else if(field.getSize() <= MySqlColumnType.MAX_LENGTH_TEXT){
+		}else if(field.getSize() <= MySqlColumnType.MAX_LENGTH_VARCHAR){
 			return new CharSequenceSqlColumn(field.getKey().getColumnName(), MySqlColumnType.TEXT,
-					MySqlColumnType.MAX_LENGTH_TEXT, nullable, false, field.getKey()
+					MySqlColumnType.MAX_LENGTH_VARCHAR, nullable, false, field.getKey()
 							.getDefaultValue(), StringFieldKey.DEFAULT_CHARACTER_SET, StringFieldKey.DEFAULT_COLLATION);
 		}else if(field.getSize() <= MySqlColumnType.MAX_LENGTH_MEDIUMTEXT){
 			return new CharSequenceSqlColumn(field.getKey().getColumnName(), MySqlColumnType.MEDIUMTEXT,
@@ -105,7 +105,7 @@ extends BaseJdbcFieldCodec<String,StringField>{
 		if(size <= MySqlColumnType.DEFAULT_LENGTH_VARCHAR){
 			return MySqlColumnType.VARCHAR;
 		}
-		if(size <= MySqlColumnType.MAX_LENGTH_TEXT){
+		if(size <= MySqlColumnType.MAX_LENGTH_VARCHAR){
 			return MySqlColumnType.TEXT;
 		}
 		if(size <= MySqlColumnType.MAX_LENGTH_MEDIUMTEXT){
