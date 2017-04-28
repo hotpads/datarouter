@@ -44,7 +44,7 @@ public class SettingRoot extends SettingNode{
 	}
 
 	public Setting<?> getSettingByName(String name){
-		SettingNode node = getNodeByName(name.substring(0, name.lastIndexOf(".") + 1));
+		SettingNode node = getNode(name.substring(0, name.lastIndexOf(".") + 1));
 		if(node == null){
 			return null;
 		}

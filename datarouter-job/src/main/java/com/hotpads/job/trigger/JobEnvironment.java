@@ -40,7 +40,7 @@ public class JobEnvironment{
 	}
 
 	public Setting<Boolean> getProcessJobsSetting(){
-		return jobSettings.getProcessJobs();
+		return jobSettings.processJobs;
 	}
 
 	public LongRunningTaskTrackerFactory getLongRunningTaskTrackerFactory(){
@@ -48,7 +48,7 @@ public class JobEnvironment{
 	}
 
 	public Setting<Boolean> getShouldSaveLongRunningTasksSetting(){
-		return jobSettings.getSaveLongRunningTasks();
+		return jobSettings.saveLongRunningTasks;
 	}
 
 	public TriggersRepository getTriggersRepository(){

@@ -22,16 +22,16 @@ import com.hotpads.handler.dispatcher.DatarouterWebDispatcher;
 import com.hotpads.handler.mav.Mav;
 import com.hotpads.handler.mav.imp.MessageMav;
 import com.hotpads.job.dispatcher.DatarouterJobDispatcher;
+import com.hotpads.job.record.DatarouterJobRouter;
 import com.hotpads.job.record.JobExecutionStatus;
 import com.hotpads.job.record.LongRunningTask;
-import com.hotpads.job.record.LongRunningTaskNodeProvider;
 import com.hotpads.job.trigger.Job;
 import com.hotpads.job.trigger.JobScheduler;
 import com.hotpads.job.trigger.TriggerInfo;
 import com.hotpads.job.web.TriggersRepository.JobPackage;
 import com.hotpads.util.core.enums.EnumTool;
 
-public class TriggerHandler extends BaseHandler {
+public class TriggerHandler extends BaseHandler{
 	private static final Logger logger = LoggerFactory.getLogger(TriggerHandler.class);
 
 	public static final String
@@ -51,7 +51,7 @@ public class TriggerHandler extends BaseHandler {
 	@Inject
 	private DatarouterInjector injector;
 	@Inject
-	private LongRunningTaskNodeProvider longRunningTaskNodeProvider;
+	private DatarouterJobRouter datarouterJobRouter;
 	@Inject
 	private JobScheduler jobScheduler;
 	@Inject
@@ -60,7 +60,7 @@ public class TriggerHandler extends BaseHandler {
 	private DatarouterProperties datarouterProperties;
 
 	@Override
-	protected Mav handleDefault() {
+	protected Mav handleDefault(){
 		return list();
 	}
 
@@ -68,18 +68,18 @@ public class TriggerHandler extends BaseHandler {
 	public Mav list(){
 		Mav mav = new Mav(JSP_triggers);
 		mav.put("serverName", datarouterProperties.getServerName());
-		Iterable<LongRunningTask> tasks = longRunningTaskNodeProvider.get().scan(null, Configs.slaveOk());
+		Iterable<LongRunningTask> tasks = datarouterJobRouter.longRunningTask.scan(null, Configs.slaveOk());
 		Map<String, LongRunningTask> lastCompletions = new HashMap<>();
 		Map<String, LongRunningTask> currentlyRunningTasks = new HashMap<>();
-		for (LongRunningTask task : tasks){
-			if (task.getJobExecutionStatus() == JobExecutionStatus.RUNNING
+		for(LongRunningTask task : tasks){
+			if(task.getJobExecutionStatus() == JobExecutionStatus.RUNNING
 					&& (currentlyRunningTasks.get(task.getKey().getJobClass()) == null
 					|| task.getStartTime().after(currentlyRunningTasks.get(task.getKey().getJobClass())
 							.getStartTime()))){
 				currentlyRunningTasks.put(task.getKey().getJobClass(), task);
 			}
-			if (task.getJobExecutionStatus() == JobExecutionStatus.SUCCESS){
-				if (lastCompletions.get(task.getKey().getJobClass()) == null
+			if(task.getJobExecutionStatus() == JobExecutionStatus.SUCCESS){
+				if(lastCompletions.get(task.getKey().getJobClass()) == null
 					|| task.getFinishTime().after(lastCompletions.get(task.getKey().getJobClass()).getFinishTime())){
 					lastCompletions.put(task.getKey().getJobClass(), task);
 				}
@@ -149,7 +149,7 @@ public class TriggerHandler extends BaseHandler {
 
 	/***********helper************/
 
-	public List<Job> getTriggeredJobsListFiltered(String keyword, Optional<JobCategory> category) {
+	public List<Job> getTriggeredJobsListFiltered(String keyword, Optional<JobCategory> category){
 		final boolean defaultOff = DrStringTool.equalsCaseInsensitive(params.optional(P_default).orElse(""), "");
 		final boolean customOff = DrStringTool.equalsCaseInsensitive(params.optional(P_custom).orElse(""), "");
 		final boolean disabledOff = DrStringTool.equalsCaseInsensitive(params.optional(P_hideDisabledJobs).orElse(""),
