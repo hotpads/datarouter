@@ -67,9 +67,9 @@ public enum MySqlColumnType{
 		NUM_DECIMAL_SECONDS = 3, //setting the Fractional Seconds Precision to 3 for Datetime datatype
 		LENGTH_50 = 50,
 		DEFAULT_LENGTH_VARCHAR = (1 << 8) - 1,
-		MAX_LENGTH_VARCHAR = (1 << 16) - 1,
 		MAX_LENGTH_VARBINARY = 767,
 		MAX_LENGTH_LONGBLOB = (1 << 24) - 1,
+		MAX_LENGTH_VARCHAR = (1 << 16) - 1,
 		MAX_LENGTH_MEDIUMTEXT = (1 << 24) - 1,
 		INT_LENGTH_LONGTEXT = Integer.MAX_VALUE;//use this to get schema-update to create a LONGTEXT field
 

@@ -35,24 +35,9 @@ extends BaseJdbcFieldCodec<String,StringField>{
 	@Override
 	public SqlColumn getSqlColumnDefinition(boolean allowNullable){
 		boolean nullable = allowNullable && field.getKey().isNullable();
-		if(field.getSize() <= MySqlColumnType.DEFAULT_LENGTH_VARCHAR){
-			return new CharSequenceSqlColumn(field.getKey().getColumnName(), MySqlColumnType.VARCHAR, field.getSize(),
-					nullable, false, field.getKey().getDefaultValue(), StringFieldKey.DEFAULT_CHARACTER_SET,
-					StringFieldKey.DEFAULT_COLLATION);
-		}else if(field.getSize() <= MySqlColumnType.MAX_LENGTH_VARCHAR){
-			return new CharSequenceSqlColumn(field.getKey().getColumnName(), MySqlColumnType.TEXT,
-					MySqlColumnType.MAX_LENGTH_VARCHAR, nullable, false, field.getKey()
-							.getDefaultValue(), StringFieldKey.DEFAULT_CHARACTER_SET, StringFieldKey.DEFAULT_COLLATION);
-		}else if(field.getSize() <= MySqlColumnType.MAX_LENGTH_MEDIUMTEXT){
-			return new CharSequenceSqlColumn(field.getKey().getColumnName(), MySqlColumnType.MEDIUMTEXT,
-					MySqlColumnType.MAX_LENGTH_MEDIUMTEXT, nullable, false, field.getKey()
-							.getDefaultValue(), StringFieldKey.DEFAULT_CHARACTER_SET, StringFieldKey.DEFAULT_COLLATION);
-		}else if(field.getSize() <= MySqlColumnType.MAX_LENGTH_LONGTEXT){
-			return new CharSequenceSqlColumn(field.getKey().getColumnName(), MySqlColumnType.LONGTEXT,
-					MySqlColumnType.INT_LENGTH_LONGTEXT, nullable, false, field.getKey().getDefaultValue(),
-					StringFieldKey.DEFAULT_CHARACTER_SET, StringFieldKey.DEFAULT_COLLATION);
-		}
-		throw new IllegalArgumentException("Unknown size:" + field.getSize());
+		return new CharSequenceSqlColumn(field.getKey().getColumnName(), getMySqlTypeFromSize(field.getSize()),
+				field.getSize(), nullable, false, field.getKey().getDefaultValue(),
+				StringFieldKey.DEFAULT_CHARACTER_SET, StringFieldKey.DEFAULT_COLLATION);
 	}
 
 	@Override
@@ -102,11 +87,8 @@ extends BaseJdbcFieldCodec<String,StringField>{
 	}
 
 	public static MySqlColumnType getMySqlTypeFromSize(int size){
-		if(size <= MySqlColumnType.DEFAULT_LENGTH_VARCHAR){
-			return MySqlColumnType.VARCHAR;
-		}
 		if(size <= MySqlColumnType.MAX_LENGTH_VARCHAR){
-			return MySqlColumnType.TEXT;
+			return MySqlColumnType.VARCHAR;
 		}
 		if(size <= MySqlColumnType.MAX_LENGTH_MEDIUMTEXT){
 			return MySqlColumnType.MEDIUMTEXT;
