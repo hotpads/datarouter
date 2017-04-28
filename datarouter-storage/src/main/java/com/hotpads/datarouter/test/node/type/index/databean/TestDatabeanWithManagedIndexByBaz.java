@@ -33,7 +33,7 @@ implements MultiIndexEntry<
 
 		@Override
 		public List<Field<?>> getNonKeyFields(TestDatabeanWithManagedIndexByBaz databean){
-			return Arrays.asList(new StringField("foo", databean.foo, MySqlColumnType.MAX_LENGTH_VARCHAR));
+			return Arrays.asList(new StringField("foo", databean.foo, MySqlColumnType.DEFAULT_LENGTH_VARCHAR));
 		}
 
 	}

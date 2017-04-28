@@ -9,7 +9,7 @@ import com.hotpads.util.core.java.ReflectionTool;
 public class StringEnumFieldKey<E extends StringEnum<E>>
 extends BaseFieldKey<E>{
 
-	private static final int DEFAULT_MAX_SIZE = MySqlColumnType.MAX_LENGTH_VARCHAR;
+	private static final int DEFAULT_MAX_SIZE = MySqlColumnType.DEFAULT_LENGTH_VARCHAR;
 
 	private final int size;
 	private final E sampleValue;

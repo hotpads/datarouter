@@ -22,7 +22,7 @@ public class TestDatabeanKey extends BasePrimaryKey<TestDatabeanKey>{
 
 	@Override
 	public List<Field<?>> getFields(){
-		return Arrays.asList(new StringField("foo", foo, MySqlColumnType.MAX_LENGTH_VARCHAR));
+		return Arrays.asList(new StringField("foo", foo, MySqlColumnType.DEFAULT_LENGTH_VARCHAR));
 	}
 
 	public String getFoo(){

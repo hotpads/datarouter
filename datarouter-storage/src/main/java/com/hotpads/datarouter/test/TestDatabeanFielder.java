@@ -17,8 +17,8 @@ public class TestDatabeanFielder extends BaseDatabeanFielder<TestDatabeanKey, Te
 	@Override
 	public List<Field<?>> getNonKeyFields(TestDatabean databean){
 		return Arrays.asList(
-				new StringField("bar", databean.getBar(), MySqlColumnType.MAX_LENGTH_VARCHAR),
-				new StringField("baz", databean.getBaz(), MySqlColumnType.MAX_LENGTH_VARCHAR));
+				new StringField("bar", databean.getBar(), MySqlColumnType.DEFAULT_LENGTH_VARCHAR),
+				new StringField("baz", databean.getBaz(), MySqlColumnType.DEFAULT_LENGTH_VARCHAR));
 	}
 
 }

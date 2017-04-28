@@ -193,8 +193,8 @@ public class FieldSetTool{
 			String someStringB = "xyz";
 			List<Field<?>> fields = Arrays.asList(
 					new UInt31Field("someInt", someInt),
-					new StringField("someStringA", someStringA, MySqlColumnType.MAX_LENGTH_VARCHAR),
-					new StringField("someStringB", someStringB, MySqlColumnType.MAX_LENGTH_VARCHAR));
+					new StringField("someStringA", someStringA, MySqlColumnType.DEFAULT_LENGTH_VARCHAR),
+					new StringField("someStringB", someStringB, MySqlColumnType.DEFAULT_LENGTH_VARCHAR));
 			ByteRange withTrailingByte = new ByteRange(FieldTool.getConcatenatedValueBytes(fields, false, true, true));
 			ByteRange withoutTrailingByte = new ByteRange(FieldTool.getConcatenatedValueBytes(fields, false, true,
 					false));
@@ -210,8 +210,8 @@ public class FieldSetTool{
 			String someStr0 = "first", someStr1 = "second";
 
 			List<Field<?>> fields = Arrays.asList(
-					new StringField("hahah", someStr0, MySqlColumnType.MAX_LENGTH_VARCHAR),
-					new StringField("moose", someStr1, MySqlColumnType.MAX_LENGTH_VARCHAR),
+					new StringField("hahah", someStr0, MySqlColumnType.DEFAULT_LENGTH_VARCHAR),
+					new StringField("moose", someStr1, MySqlColumnType.DEFAULT_LENGTH_VARCHAR),
 					new UInt31Field("integ", testInt));
 
 			Map<String, Field<?>> fieldMap = generateFieldMap(fields);
@@ -225,16 +225,16 @@ public class FieldSetTool{
 			Long sameRefLong = new Long(123456789000L);
 
 			List<Field<?>> left = Arrays.asList(
-					new StringField(one, "help", MySqlColumnType.MAX_LENGTH_VARCHAR),
-					new StringField(two, "smite", MySqlColumnType.MAX_LENGTH_VARCHAR),
+					new StringField(one, "help", MySqlColumnType.DEFAULT_LENGTH_VARCHAR),
+					new StringField(two, "smite", MySqlColumnType.DEFAULT_LENGTH_VARCHAR),
 					new BooleanField(three, true),
 					new LongField(four, sameRefLong),
 					new DumbDoubleField(five, 5e6));
 					// omitted six
 
 			List<Field<?>> right = Arrays.asList(
-					new StringField(one, "help", MySqlColumnType.MAX_LENGTH_VARCHAR),
-					new StringField(two, two, MySqlColumnType.MAX_LENGTH_VARCHAR),
+					new StringField(one, "help", MySqlColumnType.DEFAULT_LENGTH_VARCHAR),
+					new StringField(two, two, MySqlColumnType.DEFAULT_LENGTH_VARCHAR),
 					new BooleanField(three, null),
 					new LongField(four, sameRefLong),
 					// omitted five

@@ -20,7 +20,7 @@ import com.hotpads.joblet.type.JobletType;
 
 public class JobletRequestKey extends BasePrimaryKey<JobletRequestKey>{
 
-	public static final int DEFAULT_STRING_LENGTH = MySqlColumnType.MAX_LENGTH_VARCHAR;
+	public static final int DEFAULT_STRING_LENGTH = MySqlColumnType.DEFAULT_LENGTH_VARCHAR;
 
 	private Integer typeCode;
 	private Integer executionOrder = Integer.MAX_VALUE;

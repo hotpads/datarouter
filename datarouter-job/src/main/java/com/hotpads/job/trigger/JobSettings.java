@@ -11,9 +11,10 @@ import com.hotpads.datarouter.setting.SettingRoot;
 @Singleton
 public class JobSettings extends SettingRoot{
 
-	private final Setting<Boolean> saveLongRunningTasks;
-	private final Setting<Boolean> scheduleMissedJobsOnStartup;
-	private final Setting<Boolean> processJobs;
+	public final Setting<Boolean> saveLongRunningTasks;
+	public final Setting<Boolean> runLongRunningTaskVacuum;
+	public final Setting<Boolean> scheduleMissedJobsOnStartup;
+	public final Setting<Boolean> processJobs;
 
 
 	@Inject
@@ -22,21 +23,9 @@ public class JobSettings extends SettingRoot{
 		dependsOn(datarouterSettings);
 
 		this.saveLongRunningTasks = registerBoolean("saveLongRunningTasks", false);
+		this.runLongRunningTaskVacuum = registerBoolean("runLongRunningTaskVacuum", false);
 		this.scheduleMissedJobsOnStartup = registerBoolean("scheduleMissedJobsOnStartup", false);
 		this.processJobs = registerBoolean("processJobs", true);
-	}
-
-
-	public Setting<Boolean> getSaveLongRunningTasks(){
-		return saveLongRunningTasks;
-	}
-
-	public Setting<Boolean> getScheduleMissedJobsOnStartup(){
-		return scheduleMissedJobsOnStartup;
-	}
-
-	public Setting<Boolean> getProcessJobs(){
-		return processJobs;
 	}
 
 }

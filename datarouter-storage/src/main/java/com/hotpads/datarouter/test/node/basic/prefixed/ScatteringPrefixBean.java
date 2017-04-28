@@ -80,7 +80,7 @@ public class ScatteringPrefixBean extends BaseDatabean<ScatteringPrefixBeanKey,S
 		@Override
 		public List<Field<?>> getNonKeyFields(ScatteringPrefixBean scatteringPrefix){
 			return FieldTool.createList(new StringField(COL_f1, scatteringPrefix.f1,
-					MySqlColumnType.MAX_LENGTH_VARCHAR));
+					MySqlColumnType.DEFAULT_LENGTH_VARCHAR));
 		}
 	}
 

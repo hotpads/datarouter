@@ -22,7 +22,7 @@ public class TestDatabeanWithManagedIndexByBazKey extends BasePrimaryKey<TestDat
 
 	@Override
 	public List<Field<?>> getFields(){
-		return Arrays.asList(new StringField("baz", baz, MySqlColumnType.MAX_LENGTH_VARCHAR));
+		return Arrays.asList(new StringField("baz", baz, MySqlColumnType.DEFAULT_LENGTH_VARCHAR));
 	}
 
 	public String getC(){

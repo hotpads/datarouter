@@ -17,14 +17,14 @@ public class LongRunningTasksHandler extends BaseHandler{
 	public static final String JSP_longRunningTasks = "/jsp/admin/datarouter/job/longRunningTasks.jsp";
 
 	@Inject
-	private LongRunningTaskNodeProvider longRunningTaskNodeProvider;
+	private DatarouterJobRouter datarouterJobRouter;
 
 	@Override
 	@Handler
 	protected Mav handleDefault(){
 		Mav mav = new Mav(JSP_longRunningTasks);
 		Map<String,LongRunningTask> lastCompletions = new HashMap<>();
-		Iterable<LongRunningTask> tasks = longRunningTaskNodeProvider.get().scan(null, Configs.slaveOk());
+		Iterable<LongRunningTask> tasks = datarouterJobRouter.longRunningTask.scan(null, Configs.slaveOk());
 		List<LongRunningTask> currentlyRunningTasks = new ArrayList<>();
 		for(LongRunningTask task : tasks){
 			if(task.getJobExecutionStatus() == JobExecutionStatus.RUNNING){

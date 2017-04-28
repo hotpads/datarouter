@@ -35,7 +35,7 @@ extends BaseJdbcFieldCodec<String,StringField>{
 	@Override
 	public SqlColumn getSqlColumnDefinition(boolean allowNullable){
 		boolean nullable = allowNullable && field.getKey().isNullable();
-		if(field.getSize() <= MySqlColumnType.MAX_LENGTH_VARCHAR){
+		if(field.getSize() <= MySqlColumnType.DEFAULT_LENGTH_VARCHAR){
 			return new CharSequenceSqlColumn(field.getKey().getColumnName(), MySqlColumnType.VARCHAR, field.getSize(),
 					nullable, false, field.getKey().getDefaultValue(), StringFieldKey.DEFAULT_CHARACTER_SET,
 					StringFieldKey.DEFAULT_COLLATION);
@@ -102,7 +102,7 @@ extends BaseJdbcFieldCodec<String,StringField>{
 	}
 
 	public static MySqlColumnType getMySqlTypeFromSize(int size){
-		if(size <= MySqlColumnType.MAX_LENGTH_VARCHAR){
+		if(size <= MySqlColumnType.DEFAULT_LENGTH_VARCHAR){
 			return MySqlColumnType.VARCHAR;
 		}
 		if(size <= MySqlColumnType.MAX_LENGTH_TEXT){

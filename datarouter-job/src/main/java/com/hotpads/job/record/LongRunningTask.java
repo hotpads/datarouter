@@ -22,7 +22,7 @@ import com.hotpads.datarouter.util.core.DrDateTool;
 
 public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunningTask>{
 
-	public static final int DEFAULT_STRING_LENGTH = MySqlColumnType.MAX_LENGTH_VARCHAR;
+	public static final int DEFAULT_STRING_LENGTH = MySqlColumnType.DEFAULT_LENGTH_VARCHAR;
 
 	public static final long
 			LAST_HEARTBEAT_WARNING_THRESHOLD = 2L * DrDateTool.MILLISECONDS_IN_SECOND,
