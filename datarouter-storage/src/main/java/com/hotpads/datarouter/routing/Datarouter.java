@@ -29,9 +29,7 @@ import com.hotpads.datarouter.node.DatarouterNodes;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.op.TxnOp;
 import com.hotpads.datarouter.op.executor.impl.SessionExecutorImpl;
-import com.hotpads.datarouter.util.core.DrObjectTool;
 import com.hotpads.datarouter.util.core.DrPropertiesTool;
-import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.trace.TracerThreadLocal;
 import com.hotpads.trace.TracerTool;
 
@@ -43,10 +41,6 @@ import com.hotpads.trace.TracerTool;
 @Singleton
 public class Datarouter{
 	private static final Logger logger = LoggerFactory.getLogger(Datarouter.class);
-
-	private static final String
-			CONFIG_SERVER_NAME = "server.name",
-			CONFIG_ADMINISTRATOR_EMAIL = "administrator.email";
 
 	/*************************** fields *****************************/
 
@@ -61,8 +55,6 @@ public class Datarouter{
 	private SortedSet<Router> routers;
 	private Set<String> configFilePaths;
 	private List<Properties> multiProperties;
-	private String serverName;
-	private String administratorEmail;
 
 
 	/************************** constructors ***************************/
@@ -109,26 +101,9 @@ public class Datarouter{
 		if(configFilePaths.contains(configPath)){
 			return;
 		}
-
 		logger.warn("adding router config from " + configPath + ", currentRouters:" + routers);
 		configFilePaths.add(configPath);
 		multiProperties.add(DrPropertiesTool.parse(configPath));
-
-		String newServerName = DrPropertiesTool.getFirstOccurrence(multiProperties, CONFIG_SERVER_NAME);
-		if(DrStringTool.isEmpty(serverName)){
-			serverName = newServerName;
-		}else if(DrObjectTool.notEquals(serverName, newServerName)){
-			logger.warn("not replacing existing serverName " + serverName + " with " + newServerName + " from "
-					+ configPath);
-		}
-
-		String newAdministratorEmail = DrPropertiesTool.getFirstOccurrence(multiProperties, CONFIG_ADMINISTRATOR_EMAIL);
-		if(DrStringTool.isEmpty(administratorEmail)){
-			administratorEmail = newAdministratorEmail;
-		}else if(DrObjectTool.notEquals(administratorEmail, newAdministratorEmail)){
-			logger.warn("not replacing existing administratorEmail " + administratorEmail + " with "
-					+ newAdministratorEmail + " from " + configPath);
-		}
 	}
 
 	public void initializeEagerClients(){
@@ -230,13 +205,8 @@ public class Datarouter{
 		return configFilePaths;
 	}
 
-	@Deprecated//use DatarouterProperties.getServerName()
-	public String getServerName(){
-		return datarouterProperties.getServerName();
+	public DatarouterProperties getDatarouterProperties(){
+		return datarouterProperties;
 	}
 
-	@Deprecated//use DatarouterProperties.getAdministratorEmail()
-	public String getAdministratorEmail(){
-		return datarouterProperties.getAdministratorEmail();
-	}
 }

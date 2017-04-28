@@ -97,8 +97,8 @@ implements SubEntitySortedMapStorageNode<EK,PK,D,F>, PhysicalSortedMapStorageNod
 		if(DrCollectionTool.isEmpty(databeans)){
 			return;
 		}
-		new HBaseMultiAttemptTask<>(new HBaseTask<Void>(getDatarouter(), getClientTableNodeNames(), "putMulti",
-				Config.nullSafe(config)){
+		new HBaseMultiAttemptTask<>(new HBaseTask<Void>(datarouterProperties, getDatarouter(),
+				getClientTableNodeNames(), "putMulti", Config.nullSafe(config)){
 			@Override
 			public Void hbaseCall(Table table, HBaseClient client, ResultScanner managedResultScanner)
 			throws Exception{
@@ -168,8 +168,8 @@ implements SubEntitySortedMapStorageNode<EK,PK,D,F>, PhysicalSortedMapStorageNod
 
 	@Override
 	public void deleteAll(final Config config){
-		new HBaseMultiAttemptTask<>(new HBaseTask<Void>(getDatarouter(), getClientTableNodeNames(), "deleteAll",
-				Config.nullSafe(config)){
+		new HBaseMultiAttemptTask<>(new HBaseTask<Void>(datarouterProperties, getDatarouter(),
+				getClientTableNodeNames(), "deleteAll", Config.nullSafe(config)){
 			@Override
 			public Void hbaseCall(Table table, HBaseClient client, ResultScanner managedResultScanner)
 			throws Exception{
@@ -212,8 +212,8 @@ implements SubEntitySortedMapStorageNode<EK,PK,D,F>, PhysicalSortedMapStorageNod
 		if(DrCollectionTool.isEmpty(keys)){
 			return;
 		}
-		new HBaseMultiAttemptTask<>(new HBaseTask<Void>(getDatarouter(), getClientTableNodeNames(), "deleteMulti",
-				Config.nullSafe(config)){
+		new HBaseMultiAttemptTask<>(new HBaseTask<Void>(datarouterProperties, getDatarouter(),
+				getClientTableNodeNames(), "deleteMulti", Config.nullSafe(config)){
 			@Override
 			public Void hbaseCall(Table table, HBaseClient client, ResultScanner managedResultScanner)
 			throws Exception{

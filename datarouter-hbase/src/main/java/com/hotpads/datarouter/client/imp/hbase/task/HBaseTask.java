@@ -11,6 +11,7 @@ import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.client.ClientTableNodeNames;
 import com.hotpads.datarouter.client.imp.hbase.client.HBaseClient;
 import com.hotpads.datarouter.config.Config;
+import com.hotpads.datarouter.config.DatarouterProperties;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.util.DRCounters;
@@ -28,7 +29,8 @@ import com.hotpads.util.datastructs.MutableString;
 public abstract class HBaseTask<V> extends TracedCallable<V>{
 	static Logger logger = LoggerFactory.getLogger(HBaseTask.class);
 
-	protected Datarouter datarouter;
+	private final DatarouterProperties datarouterProperties;
+	protected final Datarouter datarouter;
 
 	//variables for TraceThreads and TraceSpans
 	// breaking encapsulation in favor of tracing
@@ -44,8 +46,10 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 
 	/******************** constructor ****************************/
 
-	public HBaseTask(Datarouter datarouter, ClientTableNodeNames names, String taskName, Config config){
+	public HBaseTask(DatarouterProperties datarouterProperties, Datarouter datarouter, ClientTableNodeNames names,
+			String taskName, Config config){
 		super("HBaseTask." + taskName);
+		this.datarouterProperties = datarouterProperties;
 		this.datarouter = datarouter;
 		this.clientName = names.getClientName();
 		this.nodeName = names.getNodeName();
@@ -189,6 +193,10 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 
 	public void setTimeoutMs(Long timeoutMs){
 		this.timeoutMs = timeoutMs;
+	}
+
+	public DatarouterProperties getDatarouterProperties(){
+		return datarouterProperties;
 	}
 
 	public Datarouter getDatarouter(){

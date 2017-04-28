@@ -68,8 +68,8 @@ extends BasePhysicalEntityNode<EK,E>{
 		}
 		final Config config = Config.nullSafe(paramConfig);
 		try{
-			return new HBaseMultiAttemptTask<>(new HBaseTask<E>(getContext(), getClientTableNodeNames(), "getEntity",
-					config){
+			return new HBaseMultiAttemptTask<>(new HBaseTask<E>(datarouterProperties, getContext(),
+					getClientTableNodeNames(), "getEntity", config){
 				@Override
 				public E hbaseCall(Table table, HBaseClient client, ResultScanner managedResultScanner)
 				throws Exception{
