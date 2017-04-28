@@ -38,7 +38,7 @@ extends BasePhysicalEntityNode<EK,E>{
 
 	public HBaseEntityReaderNode(NodeFactory nodeFactory, Router router, EntityNodeParams<EK,E> entityNodeParams,
 			ClientTableNodeNames clientTableNodeNames){
-		super(router.getContext(), entityNodeParams, clientTableNodeNames);
+		super(router.getDatarouter(), entityNodeParams, clientTableNodeNames);
 		this.nodeFactory = nodeFactory;
 		this.entityNodeParams = entityNodeParams;
 		this.clientTableNodeNames = clientTableNodeNames;
@@ -68,8 +68,8 @@ extends BasePhysicalEntityNode<EK,E>{
 		}
 		final Config config = Config.nullSafe(paramConfig);
 		try{
-			return new HBaseMultiAttemptTask<>(new HBaseTask<E>(getContext(), getClientTableNodeNames(), "getEntity",
-					config){
+			return new HBaseMultiAttemptTask<>(new HBaseTask<E>(datarouterProperties, getContext(),
+					getClientTableNodeNames(), "getEntity", config){
 				@Override
 				public E hbaseCall(Table table, HBaseClient client, ResultScanner managedResultScanner)
 				throws Exception{

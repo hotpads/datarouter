@@ -42,7 +42,7 @@ public interface Router extends Comparable<Router>{
 	void registerWithContext() throws IOException;
 
 	@Deprecated
-	Datarouter getContext();
+	Datarouter getDatarouter();
 
 
 	/************************************** getting clients *************************/

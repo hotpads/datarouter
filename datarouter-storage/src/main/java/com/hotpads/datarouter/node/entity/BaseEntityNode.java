@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import com.hotpads.datarouter.config.DatarouterProperties;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.op.combo.reader.SortedMapStorageReader.SortedMapStorageReaderNode;
 import com.hotpads.datarouter.routing.Datarouter;
@@ -17,12 +18,14 @@ public abstract class BaseEntityNode<
 		E extends Entity<EK>>
 implements EntityNode<EK,E>{
 
+	protected final DatarouterProperties datarouterProperties;
 	private Datarouter datarouter;
 	private String name;
 	private List<Node<?,?>> subEntityNodes;
 
 
 	public BaseEntityNode(Datarouter datarouter, String name){
+		this.datarouterProperties = datarouter.getDatarouterProperties();
 		this.datarouter = datarouter;
 		this.name = name;
 		this.subEntityNodes = new ArrayList<>();

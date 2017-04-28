@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.imp.hbase.client.HBaseClient;
 import com.hotpads.datarouter.config.Config;
+import com.hotpads.datarouter.config.DatarouterProperties;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.util.DatarouterEmailTool;
@@ -35,6 +36,7 @@ public class HBaseMultiAttemptTask<V> extends TracedCallable<V>{
 
 	/*************************** fields *****************************/
 
+	private final DatarouterProperties datarouterProperties;
 	private final Datarouter datarouter;
 
 	private final HBaseTask<V> task;
@@ -46,6 +48,7 @@ public class HBaseMultiAttemptTask<V> extends TracedCallable<V>{
 
 	public HBaseMultiAttemptTask(HBaseTask<V> task){
 		super(HBaseMultiAttemptTask.class.getSimpleName() + "." + task.getTaskName());
+		this.datarouterProperties = task.getDatarouterProperties();
 		this.datarouter = task.getDatarouter();
 		this.task = task;
 		// temp hack. in case of replaced client, we still use old client's exec service
@@ -127,12 +130,13 @@ public class HBaseMultiAttemptTask<V> extends TracedCallable<V>{
 			return;
 		}
 		long numFailures = NUM_FAILED_ATTEMPTS_SINCE_LAST_EMAIL.get();
-		String subject = "HBaseMultiAttempTask failure on " + datarouter.getServerName();
+		String subject = "HBaseMultiAttempTask failure on " + datarouterProperties.getServerName();
 		String body = "Message throttled for " + throttleEmailSeconds + " seconds"
 				+ "\n\n" + timeoutMessage
 				+ "\n\n" + numFailures + " since last email attempt " + DrDateTool.getAgoString(LAST_EMAIL_SENT_AT_MS)
 				+ "\n\n" + DrExceptionTool.getStackTraceAsString(exception);
-		DatarouterEmailTool.trySendEmail("noreply@hotpads.com", datarouter.getAdministratorEmail(), subject, body);
+		DatarouterEmailTool.trySendEmail("noreply@hotpads.com", datarouterProperties.getAdministratorEmail(), subject,
+				body);
 		LAST_EMAIL_SENT_AT_MS = System.currentTimeMillis();
 		NUM_FAILED_ATTEMPTS_SINCE_LAST_EMAIL.set(0L);
 	}

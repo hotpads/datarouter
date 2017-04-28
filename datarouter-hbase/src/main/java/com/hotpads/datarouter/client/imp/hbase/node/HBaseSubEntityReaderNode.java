@@ -105,8 +105,8 @@ implements HBasePhysicalNode<PK,D>,
 		if(DrCollectionTool.isEmpty(pks)){
 			return new LinkedList<>();
 		}
-		return new HBaseMultiAttemptTask<>(new HBaseTask<List<D>>(getDatarouter(), getClientTableNodeNames(),
-				"getMulti", Config.nullSafe(config)){
+		return new HBaseMultiAttemptTask<>(new HBaseTask<List<D>>(datarouterProperties, getDatarouter(),
+				getClientTableNodeNames(), "getMulti", Config.nullSafe(config)){
 			@Override
 			public List<D> hbaseCall(Table htable, HBaseClient client, ResultScanner managedResultScanner)
 			throws Exception{
@@ -128,8 +128,8 @@ implements HBasePhysicalNode<PK,D>,
 		if(DrCollectionTool.isEmpty(pks)){
 			return new LinkedList<>();
 		}
-		return new HBaseMultiAttemptTask<>(new HBaseTask<List<PK>>(getDatarouter(), getClientTableNodeNames(),
-				"getKeys", Config.nullSafe(config)){
+		return new HBaseMultiAttemptTask<>(new HBaseTask<List<PK>>(datarouterProperties, getDatarouter(),
+				getClientTableNodeNames(), "getKeys", Config.nullSafe(config)){
 				@Override
 				public List<PK> hbaseCall(Table htable, HBaseClient client, ResultScanner managedResultScanner)
 				throws Exception{
@@ -174,7 +174,7 @@ implements HBasePhysicalNode<PK,D>,
 		}
 
 		//execute the single-row queries in a big multi-Get
-		List<D> singleEntityResults = new HBaseMultiAttemptTask<>(new HBaseTask<List<D>>(
+		List<D> singleEntityResults = new HBaseMultiAttemptTask<>(new HBaseTask<List<D>>(datarouterProperties,
 				getDatarouter(), getClientTableNodeNames(), "getWithPrefixes", nullSafeConfig){
 				@Override
 				public List<D> hbaseCall(Table htable, HBaseClient client, ResultScanner managedResultScanner)
@@ -193,7 +193,7 @@ implements HBasePhysicalNode<PK,D>,
 			final List<Scan> allPartitionScans = queryBuilder.getPrefixScans(ekPrefix, wildcardLastField,
 					nullSafeConfig);
 			for(final Scan singlePartitionScan : allPartitionScans){
-			List<D> singleScanResults = new HBaseMultiAttemptTask<>(new HBaseTask<List<D>>(
+			List<D> singleScanResults = new HBaseMultiAttemptTask<>(new HBaseTask<List<D>>(datarouterProperties,
 					getDatarouter(), getClientTableNodeNames(), "getWithPrefixes", nullSafeConfig){
 					@Override
 					public List<D> hbaseCall(Table htable, HBaseClient client, ResultScanner managedResultScanner)
@@ -234,8 +234,8 @@ implements HBasePhysicalNode<PK,D>,
 		if(USE_ASYNC_SCANNERS){
 			//single row. use Get. gets all pks in entity. no way to limit rows
 			if(queryBuilder.isSingleEntity(nullSafeRange)){
-				List<PK> pks = new HBaseMultiAttemptTask<>(new HBaseTask<List<PK>>(getDatarouter(),
-						getClientTableNodeNames(), "scanPksInEntity", nullSafeConfig){
+				List<PK> pks = new HBaseMultiAttemptTask<>(new HBaseTask<List<PK>>(datarouterProperties,
+						getDatarouter(), getClientTableNodeNames(), "scanPksInEntity", nullSafeConfig){
 					@Override
 					public List<PK> hbaseCall(Table htable, HBaseClient client, ResultScanner managedResultScanner)
 					throws Exception{
@@ -275,8 +275,8 @@ implements HBasePhysicalNode<PK,D>,
 		if(USE_ASYNC_SCANNERS){
 			//single row. use Get. gets all databeans in entity. no way to limit rows
 			if(queryBuilder.isSingleEntity(nullSafeRange)){
-				List<D> databeans = new HBaseMultiAttemptTask<>(new HBaseTask<List<D>>(getDatarouter(),
-						getClientTableNodeNames(), "scanInEntity", nullSafeConfig){
+				List<D> databeans = new HBaseMultiAttemptTask<>(new HBaseTask<List<D>>(datarouterProperties,
+						getDatarouter(), getClientTableNodeNames(), "scanInEntity", nullSafeConfig){
 					@Override
 					public List<D> hbaseCall(Table htable, HBaseClient client, ResultScanner managedResultScanner)
 					throws Exception{
@@ -318,7 +318,7 @@ implements HBasePhysicalNode<PK,D>,
 		final Config nullSafeConfig = Config.nullSafe(config);
 		final String scanKeysVsRowsNumBatches = "scan " + (keysOnly ? "pk" : "entity") + " numBatches";
 		final String scanKeysVsRowsNumRows = "scan " + (keysOnly ? "pk" : "entity") + " numRows";
-		return new HBaseMultiAttemptTask<>(new HBaseTask<List<Result>>(getDatarouter(),
+		return new HBaseMultiAttemptTask<>(new HBaseTask<List<Result>>(datarouterProperties, getDatarouter(),
 				getClientTableNodeNames(), scanKeysVsRowsNumBatches, nullSafeConfig){
 			@Override
 			public List<Result> hbaseCall(Table htable, HBaseClient client, ResultScanner managedResultScanner)

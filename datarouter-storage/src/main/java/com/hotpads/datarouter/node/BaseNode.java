@@ -2,6 +2,7 @@ package com.hotpads.datarouter.node;
 
 import java.util.List;
 
+import com.hotpads.datarouter.config.DatarouterProperties;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.routing.Router;
@@ -18,6 +19,7 @@ public abstract class BaseNode<
 		F extends DatabeanFielder<PK,D>>
 implements Node<PK,D>{
 
+	protected final DatarouterProperties datarouterProperties;
 	private Datarouter datarouter;
 	private Router router;
 	private NodeId<PK,D,F> id;
@@ -27,7 +29,8 @@ implements Node<PK,D>{
 	/*************** construct *********************/
 
 	public BaseNode(NodeParams<PK,D,F> params){
-		this.datarouter = params.getRouter().getContext();
+		this.datarouterProperties = params.getRouter().getDatarouter().getDatarouterProperties();
+		this.datarouter = params.getRouter().getDatarouter();
 		this.router = params.getRouter();
 		try{
 			this.fieldInfo = new DatabeanFieldInfo<>(getName(), params);

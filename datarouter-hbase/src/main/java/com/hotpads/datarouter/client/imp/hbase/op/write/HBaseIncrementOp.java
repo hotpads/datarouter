@@ -38,8 +38,8 @@ extends HBaseTask<Void>{
 	private Config config;
 
 	public HBaseIncrementOp(HBaseNode<PK,D,F> node, Map<PK,Map<String,Long>> countByColumnByKey, Config config){
-		super(node.getDatarouter(), new ClientTableNodeNames(node.getClientId().getName(), node.getTableName(),
-				node.getName()), "HBaseTask." + OP_increment, config);
+		super(node.getDatarouter().getDatarouterProperties(), node.getDatarouter(), new ClientTableNodeNames(node
+				.getClientId().getName(), node.getTableName(), node.getName()), "HBaseTask." + OP_increment, config);
 		this.node = node;
 		this.countByColumnByKey = countByColumnByKey;
 		this.config = Config.nullSafe(config);

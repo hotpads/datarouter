@@ -110,7 +110,7 @@ implements Router{
 
 	@Deprecated
 	@Override
-	public Datarouter getContext(){
+	public Datarouter getDatarouter(){
 		return datarouter;
 	}
 
