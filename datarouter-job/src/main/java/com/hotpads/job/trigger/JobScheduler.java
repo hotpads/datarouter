@@ -42,7 +42,7 @@ public class JobScheduler{
 	public void scheduleJobPackage(JobPackage jobPackage){
 		tracker.createNewTriggerInfo(jobPackage.jobClass);
 		Job sampleJob = injector.getInstance(jobPackage.jobClass);
-		if(!jobSettings.getScheduleMissedJobsOnStartup().getValue() || !sampleJob.shouldRun()){
+		if(!jobSettings.scheduleMissedJobsOnStartup.getValue() || !sampleJob.shouldRun()){
 			sampleJob.scheduleNextRun(false);
 			return;
 		}

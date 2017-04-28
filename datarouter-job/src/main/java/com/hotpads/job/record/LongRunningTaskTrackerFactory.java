@@ -25,8 +25,7 @@ public class LongRunningTaskTrackerFactory{
 
 	public LongRunningTaskTracker create(String jobClass, LongRunningTaskType type, String triggeredBy){
 		LongRunningTask task = new LongRunningTask(jobClass, datarouterProperties.getServerName(), type, triggeredBy);
-		return new LongRunningTaskTracker(datarouterJobRouter.longRunningTask, task, jobSettings
-				.getSaveLongRunningTasks());
+		return new LongRunningTaskTracker(datarouterJobRouter.longRunningTask, task, jobSettings.saveLongRunningTasks);
 	}
 
 	//TODO do we need the factory for this, or could we have a NoOpLongRunningTaskTracker implementation?
