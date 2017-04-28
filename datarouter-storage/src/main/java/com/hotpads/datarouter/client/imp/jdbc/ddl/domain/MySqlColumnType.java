@@ -66,7 +66,7 @@ public enum MySqlColumnType{
 		MAX_KEY_LENGTH_UTF8MB4 = 191, // 767 / 4
 		NUM_DECIMAL_SECONDS = 3, //setting the Fractional Seconds Precision to 3 for Datetime datatype
 		LENGTH_50 = 50,
-		MAX_LENGTH_VARCHAR = (1 << 8) - 1,
+		DEFAULT_LENGTH_VARCHAR = (1 << 8) - 1,
 		MAX_LENGTH_VARBINARY = 767,
 		MAX_LENGTH_LONGBLOB = (1 << 24) - 1,
 		MAX_LENGTH_TEXT = (1 << 16) - 1,

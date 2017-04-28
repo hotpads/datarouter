@@ -8,7 +8,7 @@ import com.hotpads.datarouter.storage.field.encoding.FieldGeneratorType;
 
 public class StringFieldKey extends BaseFieldKey<String>{
 
-	private static final int DEFAULT_MAX_SIZE = MySqlColumnType.MAX_LENGTH_VARCHAR;
+	private static final int DEFAULT_MAX_SIZE = MySqlColumnType.DEFAULT_LENGTH_VARCHAR;
 
 	//TODO expose key configuration for those defaults
 	public static final MySqlCharacterSet DEFAULT_CHARACTER_SET = MySqlCharacterSet.utf8mb4;

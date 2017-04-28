@@ -29,7 +29,7 @@ public class OpPerformanceRecordKey extends BasePrimaryKey<OpPerformanceRecordKe
 	@Override
 	public List<Field<?>> getFields(){
 		return FieldTool.createList(
-				new StringField(F.opName, opName, MySqlColumnType.MAX_LENGTH_VARCHAR),
+				new StringField(F.opName, opName, MySqlColumnType.DEFAULT_LENGTH_VARCHAR),
 				new LongField(F.timestamp, timestamp),
 				new LongField(F.nanotime, nanotime));
 	}

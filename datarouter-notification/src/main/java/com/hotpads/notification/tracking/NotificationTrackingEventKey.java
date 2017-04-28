@@ -31,9 +31,9 @@ public class NotificationTrackingEventKey extends BasePrimaryKey<NotificationTra
 	public List<Field<?>> getFields(){
 		return Arrays.asList(
 				new StringField(F.eventType, NotificationTrackingEventType.F.name, F.eventType, true, eventType.name,
-						MySqlColumnType.MAX_LENGTH_VARCHAR),
+						MySqlColumnType.DEFAULT_LENGTH_VARCHAR),
 				new LongDateField(F.created, created),
-				new StringField(F.notificationId, notificationId, MySqlColumnType.MAX_LENGTH_VARCHAR));
+				new StringField(F.notificationId, notificationId, MySqlColumnType.DEFAULT_LENGTH_VARCHAR));
 	}
 
 	/** construct *************************************************************/

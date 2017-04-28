@@ -46,7 +46,7 @@ import com.hotpads.util.core.collections.arrays.LongArray;
 
 public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 
-	public static final int DEFAULT_STRING_LENGTH = MySqlColumnType.MAX_LENGTH_VARCHAR;
+	public static final int DEFAULT_STRING_LENGTH = MySqlColumnType.DEFAULT_LENGTH_VARCHAR;
 
 	private static final int LEN_STRING_ENUM_FIELD = 20;
 

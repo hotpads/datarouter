@@ -67,17 +67,17 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey, DatarouterUs
 		@Override
 		public List<Field<?>> getNonKeyFields(DatarouterUser d) {
 			return FieldTool.createList(
-					new StringField(F.username, d.username, MySqlColumnType.MAX_LENGTH_VARCHAR),
-					new StringField(F.userToken, d.userToken, MySqlColumnType.MAX_LENGTH_VARCHAR),
-					new StringField(F.passwordSalt, d.passwordSalt, MySqlColumnType.MAX_LENGTH_VARCHAR),
+					new StringField(F.username, d.username, MySqlColumnType.DEFAULT_LENGTH_VARCHAR),
+					new StringField(F.userToken, d.userToken, MySqlColumnType.DEFAULT_LENGTH_VARCHAR),
+					new StringField(F.passwordSalt, d.passwordSalt, MySqlColumnType.DEFAULT_LENGTH_VARCHAR),
 					new StringField(F.passwordDigest, d.passwordDigest, MySqlColumnType.MAX_LENGTH_TEXT),
 					new BooleanField(F.enabled, d.enabled),
 					new DelimitedStringArrayField(F.roles, ",", d.roles),
 					new DateField(F.created, d.created),
 					new DateField(F.lastLoggedIn, d.lastLoggedIn),
 					new BooleanField(F.apiEnabled, d.apiEnabled),
-					new StringField(F.apiKey, d.apiKey, MySqlColumnType.MAX_LENGTH_VARCHAR),
-					new StringField(F.secretKey	, d.secretKey, MySqlColumnType.MAX_LENGTH_VARCHAR));
+					new StringField(F.apiKey, d.apiKey, MySqlColumnType.DEFAULT_LENGTH_VARCHAR),
+					new StringField(F.secretKey	, d.secretKey, MySqlColumnType.DEFAULT_LENGTH_VARCHAR));
 		}
 		@Override
 		public Map<String, List<Field<?>>> getIndexes(DatarouterUser databean){
@@ -144,7 +144,7 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey, DatarouterUs
 		@Override
 		public List<Field<?>> getFields(){
 			return FieldTool.createList(
-				new StringField(F.username, id, MySqlColumnType.MAX_LENGTH_VARCHAR));
+				new StringField(F.username, id, MySqlColumnType.DEFAULT_LENGTH_VARCHAR));
 		}
 	}
 
@@ -155,7 +155,7 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey, DatarouterUs
 		@Override
 		public List<Field<?>> getFields(){
 			return FieldTool.createList(
-				new StringField(F.apiKey, id, MySqlColumnType.MAX_LENGTH_VARCHAR));
+				new StringField(F.apiKey, id, MySqlColumnType.DEFAULT_LENGTH_VARCHAR));
 		}
 	}
 
@@ -166,7 +166,7 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey, DatarouterUs
 		@Override
 		public List<Field<?>> getFields(){
 			return FieldTool.createList(
-				new StringField(F.userToken, id, MySqlColumnType.MAX_LENGTH_VARCHAR));
+				new StringField(F.userToken, id, MySqlColumnType.DEFAULT_LENGTH_VARCHAR));
 		}
 	}
 
@@ -177,7 +177,7 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey, DatarouterUs
 		@Override
 		public List<Field<?>> getFields(){
 			return FieldTool.createList(
-				new StringField(F.secretKey, id, MySqlColumnType.MAX_LENGTH_VARCHAR));
+				new StringField(F.secretKey, id, MySqlColumnType.DEFAULT_LENGTH_VARCHAR));
 		}
 	}
 

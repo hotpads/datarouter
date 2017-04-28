@@ -12,7 +12,7 @@ import com.hotpads.util.core.bytes.StringByteTool;
 
 public class StringField extends BaseField<String>{
 
-	public static final int DEFAULT_STRING_LENGTH = MySqlColumnType.MAX_LENGTH_VARCHAR;
+	public static final int DEFAULT_STRING_LENGTH = MySqlColumnType.DEFAULT_LENGTH_VARCHAR;
 
 	private final StringFieldKey key;
 

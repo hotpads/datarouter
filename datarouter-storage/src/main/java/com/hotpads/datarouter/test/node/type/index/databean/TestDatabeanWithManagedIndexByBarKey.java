@@ -22,7 +22,7 @@ public class TestDatabeanWithManagedIndexByBarKey extends BasePrimaryKey<TestDat
 
 	@Override
 	public List<Field<?>> getFields(){
-		return Arrays.asList(new StringField("bar", bar, MySqlColumnType.MAX_LENGTH_VARCHAR));
+		return Arrays.asList(new StringField("bar", bar, MySqlColumnType.DEFAULT_LENGTH_VARCHAR));
 	}
 
 	public String getBar(){

@@ -64,8 +64,8 @@ implements Serializable{
 		public List<Field<?>> getNonKeyFields(DatarouterSession databean){
 			List<Field<?>> nonKeyFields = new ArrayList<>(databean.getNonKeyFields());
 			nonKeyFields.add(new UInt63Field(F.userId, databean.userId));
-			nonKeyFields.add(new StringField(F.userToken, databean.userToken, MySqlColumnType.MAX_LENGTH_VARCHAR));
-			nonKeyFields.add(new StringField(F.username, databean.username, MySqlColumnType.MAX_LENGTH_VARCHAR));
+			nonKeyFields.add(new StringField(F.userToken, databean.userToken, MySqlColumnType.DEFAULT_LENGTH_VARCHAR));
+			nonKeyFields.add(new StringField(F.username, databean.username, MySqlColumnType.DEFAULT_LENGTH_VARCHAR));
 			nonKeyFields.add(new DelimitedStringArrayField(F.roles, ",", databean.roles));
 			nonKeyFields.add(new DateField(F.userCreated, databean.userCreated));
 			return nonKeyFields;

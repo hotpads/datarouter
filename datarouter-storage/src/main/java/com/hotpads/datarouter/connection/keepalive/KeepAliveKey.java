@@ -22,7 +22,7 @@ public class KeepAliveKey extends BasePrimaryKey<KeepAliveKey>{
 	@Override
 	public List<Field<?>> getFields(){
 		return FieldTool.createList(
-				new StringField(COL_id, id, MySqlColumnType.MAX_LENGTH_VARCHAR));
+				new StringField(COL_id, id, MySqlColumnType.DEFAULT_LENGTH_VARCHAR));
 	}
 
 

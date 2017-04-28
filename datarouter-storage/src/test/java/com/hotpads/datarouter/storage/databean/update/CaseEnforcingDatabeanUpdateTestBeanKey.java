@@ -11,7 +11,7 @@ import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
 
 public class CaseEnforcingDatabeanUpdateTestBeanKey extends BasePrimaryKey<CaseEnforcingDatabeanUpdateTestBeanKey>{
 
-	public static final int DEFAULT_STRING_LENGTH = MySqlColumnType.MAX_LENGTH_VARCHAR;
+	public static final int DEFAULT_STRING_LENGTH = MySqlColumnType.DEFAULT_LENGTH_VARCHAR;
 
 	private String aa;
 	private String bb;
