@@ -11,21 +11,21 @@ import com.hotpads.job.trigger.JobSettings;
 public class LongRunningTaskTrackerFactory{
 
 	private final DatarouterProperties datarouterProperties;
-	private final LongRunningTaskNodeProvider longRunningTaskNodeProvider;
+	private final DatarouterJobRouter datarouterJobRouter;
 	private final JobSettings jobSettings;
 
 	@Inject
 	public LongRunningTaskTrackerFactory(DatarouterProperties datarouterProperties,
-			LongRunningTaskNodeProvider longRunningTaskNodeProvider, JobSettings jobSettings){
+			DatarouterJobRouter datarouterJobRouter, JobSettings jobSettings){
 		this.datarouterProperties = datarouterProperties;
-		this.longRunningTaskNodeProvider = longRunningTaskNodeProvider;
+		this.datarouterJobRouter = datarouterJobRouter;
 		this.jobSettings = jobSettings;
 	}
 
 
 	public LongRunningTaskTracker create(String jobClass, LongRunningTaskType type, String triggeredBy){
 		LongRunningTask task = new LongRunningTask(jobClass, datarouterProperties.getServerName(), type, triggeredBy);
-		return new LongRunningTaskTracker(longRunningTaskNodeProvider.get(), task, jobSettings
+		return new LongRunningTaskTracker(datarouterJobRouter.longRunningTask, task, jobSettings
 				.getSaveLongRunningTasks());
 	}
 
@@ -33,7 +33,7 @@ public class LongRunningTaskTrackerFactory{
 	public LongRunningTaskTracker createNoOpTracker(String jobClass){
 		LongRunningTask task = new LongRunningTask(jobClass, datarouterProperties.getServerName(),
 				LongRunningTaskType.NOOP, null);
-		return new LongRunningTaskTracker(longRunningTaskNodeProvider.get(), task, ConstantBooleanSetting.FALSE);
+		return new LongRunningTaskTracker(datarouterJobRouter.longRunningTask, task, ConstantBooleanSetting.FALSE);
 	}
 
 }

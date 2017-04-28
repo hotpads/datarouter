@@ -10,12 +10,11 @@ import javax.inject.Singleton;
 
 import com.hotpads.datarouter.inject.DatarouterInjector;
 import com.hotpads.datarouter.inject.guice.executor.DatarouterExecutorGuiceModule;
-import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage;
 import com.hotpads.datarouter.util.core.DrObjectTool;
+import com.hotpads.job.record.DatarouterJobRouter;
 import com.hotpads.job.record.JobExecutionStatus;
 import com.hotpads.job.record.LongRunningTask;
 import com.hotpads.job.record.LongRunningTaskKey;
-import com.hotpads.job.record.LongRunningTaskNodeProvider;
 import com.hotpads.job.web.TriggersRepository.JobPackage;
 import com.hotpads.util.core.date.CronExpression;
 
@@ -24,18 +23,18 @@ public class JobScheduler{
 	private final DatarouterInjector injector;
 	private final ScheduledExecutorService executor;
 	private final TriggerTracker tracker;
-	private final IndexedSortedMapStorage<LongRunningTaskKey,LongRunningTask> longRunningTaskNode;
+	private final DatarouterJobRouter datarouterJobRouter;
 	private final JobSettings jobSettings;
 
 	@Inject
-	public JobScheduler(DatarouterInjector injector, TriggerTracker tracker,
-			LongRunningTaskNodeProvider longRunningTaskNodeProvider, JobSettings jobSettings,
+	public JobScheduler(DatarouterInjector injector, TriggerTracker tracker, DatarouterJobRouter datarouterJobRouter,
+			JobSettings jobSettings,
 			@Named(DatarouterExecutorGuiceModule.POOL_datarouterJobExecutor) ScheduledExecutorService executor){
 		this.injector = injector;
 		this.tracker = tracker;
 		this.jobSettings = jobSettings;
 		this.executor = executor;
-		this.longRunningTaskNode = longRunningTaskNodeProvider.get();
+		this.datarouterJobRouter = datarouterJobRouter;
 	}
 
 	/***************methods***************/
@@ -47,8 +46,8 @@ public class JobScheduler{
 			sampleJob.scheduleNextRun(false);
 			return;
 		}
-		Optional<Date> jobsLastCompletion = longRunningTaskNode.streamWithPrefix(new LongRunningTaskKey(
-				jobPackage.jobClass), null)
+		Optional<Date> jobsLastCompletion = datarouterJobRouter.longRunningTask.streamWithPrefix(
+				new LongRunningTaskKey(jobPackage.jobClass), null)
 				.filter(task -> task.getJobExecutionStatus() == JobExecutionStatus.SUCCESS)
 				.map(LongRunningTask::getFinishTime)
 				.max(Date::compareTo);
