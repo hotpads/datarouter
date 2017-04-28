@@ -57,11 +57,11 @@ public class RouterParams<C extends Client> {
 			nodeName = params.optional(PARAM_nodeName, null);
 			tableName = params.required(PARAM_tableName);
 			if(DrStringTool.notEmpty(nodeName)){
-				node = datarouter.getRouter(routerName).getContext().getNodes().getNode(nodeName);
+				node = datarouter.getRouter(routerName).getDatarouter().getNodes().getNode(nodeName);
 			}else{
 				setTableName(params.optional(PARAM_tableName, null));
 				if(getTableName() != null){
-					node = datarouter.getRouter(routerName).getContext().getNodes()
+					node = datarouter.getRouter(routerName).getDatarouter().getNodes()
 							.getPhyiscalNodeForClientAndTable(clientName, getTableName());
 				}
 			}
@@ -73,7 +73,7 @@ public class RouterParams<C extends Client> {
 	}
 
 	public Datarouter getContext(){
-		return this.router.getContext();
+		return this.router.getDatarouter();
 	}
 
 	public String getAction(){

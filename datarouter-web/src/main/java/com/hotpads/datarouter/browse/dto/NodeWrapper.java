@@ -22,7 +22,7 @@ public class NodeWrapper{
 
 	public static List<NodeWrapper> getNodeWrappers(Router router){
 		List<NodeWrapper> outs = new ArrayList<>();
-		Collection<Node<?,?>> topLevelNodes = router.getContext().getNodes().getTopLevelNodesByRouterName().get(
+		Collection<Node<?,?>> topLevelNodes = router.getDatarouter().getNodes().getTopLevelNodesByRouterName().get(
 				router.getName());
 		for(Node<?,?> node : topLevelNodes){
 			addNodeAndChildren(node, outs, 0);

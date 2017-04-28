@@ -38,7 +38,7 @@ extends BasePhysicalEntityNode<EK,E>{
 
 	public HBaseEntityReaderNode(NodeFactory nodeFactory, Router router, EntityNodeParams<EK,E> entityNodeParams,
 			ClientTableNodeNames clientTableNodeNames){
-		super(router.getContext(), entityNodeParams, clientTableNodeNames);
+		super(router.getDatarouter(), entityNodeParams, clientTableNodeNames);
 		this.nodeFactory = nodeFactory;
 		this.entityNodeParams = entityNodeParams;
 		this.clientTableNodeNames = clientTableNodeNames;

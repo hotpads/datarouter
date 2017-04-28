@@ -29,8 +29,8 @@ implements Node<PK,D>{
 	/*************** construct *********************/
 
 	public BaseNode(NodeParams<PK,D,F> params){
-		this.datarouterProperties = params.getRouter().getContext().getDatarouterProperties();
-		this.datarouter = params.getRouter().getContext();
+		this.datarouterProperties = params.getRouter().getDatarouter().getDatarouterProperties();
+		this.datarouter = params.getRouter().getDatarouter();
 		this.router = params.getRouter();
 		try{
 			this.fieldInfo = new DatabeanFieldInfo<>(getName(), params);
