@@ -12,12 +12,12 @@ import com.hotpads.joblet.type.JobletType;
 import com.hotpads.util.core.number.RandomTool;
 import com.hotpads.util.core.stream.StreamTool;
 
-public class JobletPackage {
+public class JobletPackage{
 
 	private final JobletRequest jobletRequest;
 	private final JobletData jobletData;
 
-	public JobletPackage(JobletRequest jobletRequest, JobletData jobletData) {
+	public JobletPackage(JobletRequest jobletRequest, JobletData jobletData){
 		this.jobletRequest = Objects.requireNonNull(jobletRequest);
 		this.jobletData = Objects.requireNonNull(jobletData);
 	}
@@ -26,7 +26,7 @@ public class JobletPackage {
 		getJobletRequest().setJobletDataId(getJobletData().getId());
 	}
 
-	public JobletRequest getJobletRequest() {
+	public JobletRequest getJobletRequest(){
 		return jobletRequest;
 	}
 
@@ -72,6 +72,12 @@ public class JobletPackage {
 
 	public static List<JobletData> getJobletDatas(Collection<JobletPackage> jobletPackages){
 		return StreamTool.map(jobletPackages, JobletPackage::getJobletData);
+	}
+
+	public static <P> P unmarshallJobletData(JobletType<P> jobletType, JobletPackage jobletPackage){
+		JobletCodec<P> jobletCodec = jobletType.getCodecSupplier().get();
+		return jobletCodec.unmarshallData(
+				jobletPackage.getJobletData().getData());
 	}
 
 }
