@@ -18,7 +18,6 @@ import com.hotpads.util.core.profile.PhaseTimer;
 
 import net.spy.memcached.KetamaConnectionFactory;
 
-
 public class MemcachedSimpleClientFactory
 implements ClientFactory{
 	private static Logger logger = LoggerFactory.getLogger(MemcachedSimpleClientFactory.class);
@@ -29,8 +28,8 @@ implements ClientFactory{
 	private MemcachedOptions options;
 	private final ClientAvailabilitySettings clientAvailabilitySettings;
 
-	public MemcachedSimpleClientFactory(Datarouter datarouter, String clientName, ClientAvailabilitySettings
-			clientAvailabilitySettings){
+	public MemcachedSimpleClientFactory(Datarouter datarouter, String clientName,
+			ClientAvailabilitySettings clientAvailabilitySettings){
 		this.clientName = clientName;
 		this.clientAvailabilitySettings = clientAvailabilitySettings;
 		this.configFilePaths = datarouter.getConfigFilePaths();
@@ -42,9 +41,11 @@ implements ClientFactory{
 	public Client call(){
 		logger.info("activating Memcached client " + clientName);
 		PhaseTimer timer = new PhaseTimer(clientName);
+		// Configure logging before any call to spy.memcached
+		System.setProperty("net.spy.log.LoggerImpl", net.spy.memcached.compat.log.SLF4JLogger.class.getName());
 		net.spy.memcached.MemcachedClient spyClient;
 		try{
-			//use KetamaConnectionFactory for consistent hashing between memcached servers
+			// use KetamaConnectionFactory for consistent hashing between memcached servers
 			spyClient = new net.spy.memcached.MemcachedClient(new KetamaConnectionFactory(), Arrays.asList(
 					options.getServers()));
 		}catch(IOException e){
