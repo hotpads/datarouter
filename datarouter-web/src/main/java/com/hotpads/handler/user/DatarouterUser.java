@@ -44,7 +44,7 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey,DatarouterUse
 		public static final StringFieldKey userToken = new StringFieldKey("userToken");
 		public static final StringFieldKey passwordSalt = new StringFieldKey("passwordSalt");
 		public static final StringFieldKey passwordDigest = new StringFieldKey("passwordDigest")
-				.withSize(MySqlColumnType.MAX_LENGTH_VARCHAR);
+				.withSize(MySqlColumnType.MAX_LENGTH_TEXT);
 		public static final BooleanFieldKey enabled = new BooleanFieldKey("enabled");
 		public static final DelimitedStringArrayFieldKey roles = new DelimitedStringArrayFieldKey("roles");
 		public static final DateFieldKey created = new DateFieldKey("created");
