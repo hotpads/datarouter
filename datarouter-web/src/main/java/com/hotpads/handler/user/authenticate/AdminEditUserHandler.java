@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.inject.Inject;
 
@@ -148,7 +149,9 @@ public class AdminEditUserHandler extends BaseHandler{
 
 		userNodes.getUserNode().put(userToEdit, null);
 
-		Set<DatarouterAccountKey> requestedAccounts = Arrays.stream(params.getRequest().getParameterValues("accounts"))
+		Set<DatarouterAccountKey> requestedAccounts = params.optionalArray("accounts")
+				.map(Arrays::stream)
+				.orElseGet(Stream::empty)
 				.map(DatarouterAccountKey::new)
 				.collect(Collectors.toSet());
 		List<DatarouterUserAccountMapKey> accountsToDelete = datarouterAccountNodes.datarouterUserAccountMap()
