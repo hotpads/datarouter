@@ -34,6 +34,8 @@ import com.hotpads.util.core.lang.ClassTool;
 public class SqsClientType extends BaseClientType implements QueueClientType{
 
 	@Inject
+	private DatarouterProperties datarouterProperties;
+	@Inject
 	private SqsNodeFactory sqsNodeFactory;
 	@Inject
 	private ClientAvailabilitySettings clientAvailabilitySettings;
@@ -54,7 +56,7 @@ public class SqsClientType extends BaseClientType implements QueueClientType{
 	@Override
 	public ClientFactory createClientFactory(DatarouterProperties datarouterProperties, Datarouter datarouter,
 			String clientName){
-		SqsOptions sqsOptions = new SqsOptions(datarouter, clientName);
+		SqsOptions sqsOptions = new SqsOptions(datarouterProperties, datarouter, clientName);
 		return new SqsClientFactory(clientName, this, sqsOptions, clientAvailabilitySettings);
 	}
 
