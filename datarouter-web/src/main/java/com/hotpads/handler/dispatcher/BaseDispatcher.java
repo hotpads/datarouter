@@ -1,5 +1,6 @@
 package com.hotpads.handler.dispatcher;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -14,9 +15,14 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import com.hotpads.datarouter.inject.DatarouterInjector;
+import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.params.MultipartParams;
 import com.hotpads.handler.params.Params;
+import com.hotpads.handler.user.authenticate.config.DatarouterAuthenticationConfig;
+import com.hotpads.handler.user.session.DatarouterSession;
+import com.hotpads.handler.user.session.DatarouterSessionManager;
+import com.hotpads.util.http.ResponseTool;
 
 public abstract class BaseDispatcher{
 
@@ -25,13 +31,18 @@ public abstract class BaseDispatcher{
 	public static final String MATCHING_ANY = ".*";
 
 	private final DatarouterInjector injector;
+	private final DatarouterSessionManager sessionManager;
+	private final DatarouterAuthenticationConfig authenticationConfig;
 	private final String servletContextPath;
 	private final String combinedPrefix;
 	private final List<DispatchRule> dispatchRules;
 	private Class<? extends BaseHandler> defaultHandlerClass;
 
+	//TODO bring easier injection here
 	public BaseDispatcher(DatarouterInjector injector, String servletContextPath, String urlPrefix){
 		this.injector = injector;
+		this.sessionManager = injector.getInstance(DatarouterSessionManager.class);
+		this.authenticationConfig = injector.getInstance(DatarouterAuthenticationConfig.class);
 		this.servletContextPath = servletContextPath;
 		this.combinedPrefix = servletContextPath + urlPrefix;
 		this.dispatchRules = new ArrayList<>();
@@ -40,7 +51,7 @@ public abstract class BaseDispatcher{
 	/*---------------- create DispatchRules -----------------*/
 
 	protected DispatchRule handle(String regex){
-		DispatchRule rule = new DispatchRule(regex);
+		DispatchRule rule = applyDefault(new DispatchRule(regex));
 		this.dispatchRules.add(rule);
 		return rule;
 	}
@@ -62,6 +73,10 @@ public abstract class BaseDispatcher{
 		return this;
 	}
 
+	protected DispatchRule applyDefault(DispatchRule rule){
+		return rule;
+	}
+
 	/*------------------ handle -------------------*/
 
 	public boolean handleRequestIfUrlMatch(ServletContext servletContext, HttpServletRequest request,
@@ -78,6 +93,10 @@ public abstract class BaseDispatcher{
 					// TODO improve this. Right now it returns 404 and log "dispatcher could not find Handler for /uri"
 					// while it's more an "access denied"
 					return false;
+				}
+				if(authenticationConfig.useDatarouterAuthentication() && !checkRoles(rule, request)){
+					handleMissingRoles(request, response);
+					return true;
 				}
 				handler = injector.getInstance(rule.getHandlerClass());
 				break;
@@ -100,11 +119,39 @@ public abstract class BaseDispatcher{
 			}catch(FileUploadException e){
 				throw new ServletException(e);
 			}
-		} else {
+		}else{
 			handler.setParams(new Params(request));
 		}
 		handler.handleWrapper();
 		return true;
+	}
+
+	public boolean checkRoles(DispatchRule dispatchRule, HttpServletRequest request){
+		if(dispatchRule.getAllowAnonymous()){
+			return true;
+		}
+		return sessionManager.getFromRequest(request)
+				.map(DatarouterSession::getRoles)
+				.map(roles -> roles.stream().anyMatch(dispatchRule.getAllowedRoles()::contains))
+				.orElse(false);
+	}
+
+	private void handleMissingRoles(HttpServletRequest request, HttpServletResponse response){
+		boolean isAnonymous = sessionManager.getFromRequest(request)
+				.map(DatarouterSession::isAnonymous)
+				.orElse(true);
+		if(isAnonymous){
+			String url = request.getRequestURL() + DrStringTool.nullSafe(request.getQueryString());
+			sessionManager.addTargetUrlCookie(response, url);
+			ResponseTool.sendRedirect(request, response, HttpServletResponse.SC_SEE_OTHER, request.getContextPath()
+					+ authenticationConfig.getSigninPath());
+		}else{
+			try{
+				response.sendError(HttpServletResponse.SC_FORBIDDEN);
+			}catch(IOException e){
+				throw new RuntimeException(e);
+			}
+		}
 	}
 
 	private boolean isMultipart(HttpServletRequest request){

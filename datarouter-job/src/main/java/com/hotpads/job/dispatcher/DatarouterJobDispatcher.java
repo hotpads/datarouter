@@ -4,6 +4,8 @@ import com.hotpads.clustersetting.ClusterSettingsHandler;
 import com.hotpads.datarouter.inject.DatarouterInjector;
 import com.hotpads.handler.dispatcher.BaseDispatcher;
 import com.hotpads.handler.dispatcher.DatarouterWebDispatcher;
+import com.hotpads.handler.dispatcher.DispatchRule;
+import com.hotpads.handler.user.role.DatarouterUserRole;
 import com.hotpads.job.record.LongRunningTasksHandler;
 import com.hotpads.job.web.TriggerHandler;
 import com.hotpads.joblet.handler.JobletHandler;
@@ -30,6 +32,11 @@ public class DatarouterJobDispatcher extends BaseDispatcher{
 		handle(URL_DATAROUTER + TRIGGERS).withHandler(TriggerHandler.class);
 		handle(URL_DATAROUTER + LONG_RUNNING_TASKS).withHandler(LongRunningTasksHandler.class);
 		handleDir(URL_DATAROUTER + JOBLETS).withHandler(JobletHandler.class);
+	}
+
+	@Override
+	protected DispatchRule applyDefault(DispatchRule rule){
+		return rule.allowRoles(DatarouterUserRole.datarouterAdmin);
 	}
 
 }

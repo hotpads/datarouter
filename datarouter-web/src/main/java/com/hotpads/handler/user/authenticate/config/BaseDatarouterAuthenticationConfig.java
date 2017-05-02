@@ -255,6 +255,11 @@ implements DatarouterAuthenticationConfig{
 	/*********************** methods ************************************/
 
 	@Override
+	public boolean useDatarouterAuthentication(){
+		return true;
+	}
+
+	@Override
 	public Integer getUserTokenTimeoutSeconds(){
 		return 365 * 24 * 60 * 60;//365 days * 24 hours * 60 minutes * 60 seconds => 1 year
 	}
