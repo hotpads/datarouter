@@ -56,7 +56,7 @@ public class SqsClientType extends BaseClientType implements QueueClientType{
 	@Override
 	public ClientFactory createClientFactory(DatarouterProperties datarouterProperties, Datarouter datarouter,
 			String clientName){
-		SqsOptions sqsOptions = new SqsOptions(datarouterProperties, datarouter, clientName);
+		SqsOptions sqsOptions = new SqsOptions(datarouter, clientName);
 		return new SqsClientFactory(clientName, this, sqsOptions, clientAvailabilitySettings);
 	}
 
