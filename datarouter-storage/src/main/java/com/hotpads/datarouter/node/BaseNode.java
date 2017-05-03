@@ -20,10 +20,11 @@ public abstract class BaseNode<
 implements Node<PK,D>{
 
 	protected final DatarouterProperties datarouterProperties;
-	private Datarouter datarouter;
-	private Router router;
+	private final Datarouter datarouter;
+	private final Router router;
 	private NodeId<PK,D,F> id;
-	protected DatabeanFieldInfo<PK,D,F> fieldInfo;
+	protected final NodeParams<PK,D,F> params;
+	protected final DatabeanFieldInfo<PK,D,F> fieldInfo;
 
 
 	/*************** construct *********************/
@@ -32,6 +33,7 @@ implements Node<PK,D>{
 		this.datarouterProperties = params.getRouter().getDatarouter().getDatarouterProperties();
 		this.datarouter = params.getRouter().getDatarouter();
 		this.router = params.getRouter();
+		this.params = params;
 		try{
 			this.fieldInfo = new DatabeanFieldInfo<>(getName(), params);
 		}catch(Exception probablyNoPkInstantiated){

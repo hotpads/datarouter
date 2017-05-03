@@ -2,6 +2,10 @@ package com.hotpads.datarouter.client.imp.sqs;
 
 import java.time.Duration;
 import java.util.Collection;
+import java.util.Optional;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.amazonaws.services.sqs.AmazonSQSClient;
 import com.amazonaws.services.sqs.model.CreateQueueRequest;
@@ -15,7 +19,6 @@ import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.queue.QueueMessageKey;
-import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.util.core.concurrent.Lazy;
 
 public abstract class BaseSqsNode<
@@ -24,6 +27,7 @@ public abstract class BaseSqsNode<
 		F extends DatabeanFielder<PK,D>>
 extends BasePhysicalNode<PK,D,F>
 implements QueueStorageWriter<PK,D>{
+	private static final Logger logger = LoggerFactory.getLogger(BaseSqsNode.class);
 
 	//do not change, this is a limit from SQS
 	public static final int MAX_MESSAGES_PER_BATCH = 10;
@@ -40,7 +44,7 @@ implements QueueStorageWriter<PK,D>{
 	public BaseSqsNode(Datarouter datarouter, NodeParams<PK,D,F> params){
 		super(params);
 		this.datarouter = datarouter;
-		this.queueUrl = Lazy.of(() -> getOrCreateQueueUrl(params.getQueueUrl()));
+		this.queueUrl = Lazy.of(() -> getOrCreateQueueUrl());
 		this.sqsOpFactory = new SqsOpFactory<>(this);
 	}
 
@@ -49,17 +53,37 @@ implements QueueStorageWriter<PK,D>{
 		return getSqsClient();
 	}
 
-	private String getOrCreateQueueUrl(String queueUrl){
-		if(queueUrl != null){
-			return queueUrl;
+	private String getOrCreateQueueUrl(){
+		String queueUrl;
+		if(params.getQueueUrl() != null){
+			queueUrl = params.getQueueUrl();
+			//don't issue the createQueue request because it is probably someone else's queue
+		}else{
+			String prefix = getNamespace();
+			if(!prefix.isEmpty()){
+				prefix += "-";
+			}
+			String queueName = prefix + getTableName();
+			CreateQueueRequest createQueueRequest = new CreateQueueRequest(queueName);
+			queueUrl = getAmazonSqsClient().createQueue(createQueueRequest).getQueueUrl();
 		}
-		String prefix = fieldInfo.getNamespace().orElse(null);
-		if(DrStringTool.notEmpty(prefix)){
-			prefix += "-";
+		logger.warn("nodeName={}, queueName={}", getName(), queueUrl);
+		return queueUrl;
+	}
+
+	//SQS max queue name length is 80 chars.
+	//TODO limit namespace to 30
+	private String getNamespace(){
+		String configFileNamespace = getSqsClient().getSqsOptions().getNamespace();
+		if(configFileNamespace != null){
+			return configFileNamespace;
 		}
-		String queueName = prefix + getTableName();
-		CreateQueueRequest createQueueRequest = new CreateQueueRequest(queueName);
-		return getAmazonSqsClient().createQueue(createQueueRequest).getQueueUrl();
+		Optional<String> nodeNamespace = params.getNamespace();
+		if(nodeNamespace.isPresent()){
+			return nodeNamespace.get();
+		}
+		String defaultNamespace = datarouterProperties.getEnvironment() + "-" + datarouterProperties.getServiceName();
+		return defaultNamespace;
 	}
 
 	public Lazy<String> getQueueUrl(){

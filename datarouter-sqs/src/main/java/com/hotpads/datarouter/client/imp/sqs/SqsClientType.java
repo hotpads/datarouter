@@ -34,8 +34,6 @@ import com.hotpads.util.core.lang.ClassTool;
 public class SqsClientType extends BaseClientType implements QueueClientType{
 
 	@Inject
-	private DatarouterProperties datarouterProperties;
-	@Inject
 	private SqsNodeFactory sqsNodeFactory;
 	@Inject
 	private ClientAvailabilitySettings clientAvailabilitySettings;

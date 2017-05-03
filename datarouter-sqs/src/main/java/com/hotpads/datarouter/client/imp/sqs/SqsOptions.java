@@ -21,4 +21,9 @@ public class SqsOptions extends TypedProperties{
 		return getRequiredString(clientPrefix + "secretKey");
 	}
 
+
+	@Deprecated // will be deleted after migration
+	public String getNamespace(){
+		return getString(clientPrefix + "namespace");
+	}
 }
