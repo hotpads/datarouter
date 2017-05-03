@@ -1,5 +1,8 @@
 package com.hotpads.handler.dispatcher;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
@@ -8,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hotpads.handler.BaseHandler;
+import com.hotpads.handler.user.role.DatarouterUserRole;
 import com.hotpads.util.http.RequestTool;
 import com.hotpads.util.http.security.ApiKeyPredicate;
 import com.hotpads.util.http.security.CsrfValidator;
@@ -24,10 +28,13 @@ public class DispatchRule{
 	private CsrfValidator csrfValidator;
 	private SignatureValidator signatureValidator;
 	private boolean requireHttps;
+	private Set<DatarouterUserRole> allowedRoles;
+	private boolean allowAnonymous;
 
 	public DispatchRule(String regex){
 		this.regex = regex;
 		this.pattern = Pattern.compile(regex);
+		this.allowedRoles = new HashSet<>();
 	}
 
 	/**** builder pattern methods *******/
@@ -57,6 +64,16 @@ public class DispatchRule{
 		return this;
 	}
 
+	public DispatchRule allowRoles(DatarouterUserRole... roles){
+		allowedRoles.addAll(Arrays.asList(roles));
+		return this;
+	}
+
+	public DispatchRule allowAnonymous(){
+		allowAnonymous = true;
+		return this;
+	}
+
 	/**** getters *****/
 
 	public Pattern getPattern(){
@@ -81,6 +98,14 @@ public class DispatchRule{
 
 	public boolean hasHttps(){
 		return requireHttps;
+	}
+
+	public boolean getAllowAnonymous(){
+		return allowAnonymous;
+	}
+
+	public Set<DatarouterUserRole> getAllowedRoles(){
+		return allowedRoles;
 	}
 
 	private boolean checkApiKey(HttpServletRequest request){

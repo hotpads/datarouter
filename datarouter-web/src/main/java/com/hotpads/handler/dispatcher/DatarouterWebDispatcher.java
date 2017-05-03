@@ -12,6 +12,7 @@ import com.hotpads.datarouter.monitoring.ExecutorsMonitoringHandler;
 import com.hotpads.datarouter.monitoring.MemoryMonitoringHandler;
 import com.hotpads.datarouter.monitoring.StackTracesManagerHandler;
 import com.hotpads.handler.TestApiHandler;
+import com.hotpads.handler.user.role.DatarouterUserRole;
 
 public class DatarouterWebDispatcher extends BaseDispatcher{
 
@@ -52,6 +53,11 @@ public class DatarouterWebDispatcher extends BaseDispatcher{
 		// /datarouter/data/fadafa/adfadfafqe/abbc_2152
 		handle(PATH_data + REGEX_TWO_DIRECTORY_PLUS).withHandler(DatabeanViewerHandler.class);
 
+	}
+
+	@Override
+	protected DispatchRule applyDefault(DispatchRule rule){
+		return rule.allowRoles(DatarouterUserRole.datarouterAdmin);
 	}
 
 }
