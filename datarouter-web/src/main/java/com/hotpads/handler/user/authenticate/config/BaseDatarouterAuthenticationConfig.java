@@ -256,7 +256,7 @@ implements DatarouterAuthenticationConfig{
 
 	@Override
 	public boolean useDatarouterAuthentication(){
-		return true;
+		return false;
 	}
 
 	@Override
