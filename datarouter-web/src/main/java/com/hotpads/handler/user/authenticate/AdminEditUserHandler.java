@@ -1,14 +1,21 @@
 package com.hotpads.handler.user.authenticate;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.inject.Inject;
 
 import com.hotpads.datarouter.storage.databean.DatabeanTool;
 import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.handler.BaseHandler;
+import com.hotpads.handler.account.DatarouterAccountKey;
+import com.hotpads.handler.account.DatarouterAccountNodes;
 import com.hotpads.handler.account.DatarouterAccountService;
+import com.hotpads.handler.account.DatarouterUserAccountMap;
+import com.hotpads.handler.account.DatarouterUserAccountMapKey;
 import com.hotpads.handler.mav.Mav;
 import com.hotpads.handler.mav.imp.InContextRedirectMav;
 import com.hotpads.handler.user.DatarouterUser;
@@ -39,6 +46,8 @@ public class AdminEditUserHandler extends BaseHandler{
 	private DatarouterUserNodes userNodes;
 	@Inject
 	private DatarouterAccountService datarouterAccountService;
+	@Inject
+	private DatarouterAccountNodes datarouterAccountNodes;
 
 	@Override
 	protected Mav handleDefault(){
@@ -115,7 +124,9 @@ public class AdminEditUserHandler extends BaseHandler{
 		mav.put(AUTHENTICATION_CONFIG, authenticationConfig);
 		mav.put(DATAROUTER_USER_ROLES, DatarouterUserRole.getPermissibleRolesForUser(currentUser, isSelf));
 		mav.put(USER_ROLES, userToEdit.getRoles());
-
+		mav.put("datarouterAccounts", datarouterAccountNodes.datarouterAccount().stream(null, null)
+				.collect(Collectors.toList()));
+		mav.put("userAccounts", datarouterAccountService.findAccountNamesForUser(new DatarouterUserKey(userId)));
 		return mav;
 	}
 
@@ -138,8 +149,22 @@ public class AdminEditUserHandler extends BaseHandler{
 
 		userNodes.getUserNode().put(userToEdit, null);
 
-		Mav mav = redirectWithContext(authenticationConfig.getViewUsersPath());
-		return mav;
+		Set<DatarouterAccountKey> requestedAccounts = params.optionalArray("accounts")
+				.map(Arrays::stream)
+				.orElseGet(Stream::empty)
+				.map(DatarouterAccountKey::new)
+				.collect(Collectors.toSet());
+		List<DatarouterUserAccountMapKey> accountsToDelete = datarouterAccountNodes.datarouterUserAccountMap()
+				.streamKeysWithPrefix(new DatarouterUserAccountMapKey(userId, null), null)
+				.filter(userAccountKey -> !requestedAccounts.contains(userAccountKey.getDatarouterAccountKey()))
+				.collect(Collectors.toList());
+		datarouterAccountNodes.datarouterUserAccountMap().deleteMulti(accountsToDelete, null);
+		List<DatarouterUserAccountMap> accountsToAdd = requestedAccounts.stream()
+				.map(accountKey -> new DatarouterUserAccountMap(userId, accountKey.getAccountName()))
+				.collect(Collectors.toList());
+		datarouterAccountNodes.datarouterUserAccountMap().putMulti(accountsToAdd, null);
+
+		return redirectWithContext(authenticationConfig.getEditUserPath() + "?userId=" + userId);
 	}
 
 	@Handler

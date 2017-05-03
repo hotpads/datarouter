@@ -1,10 +1,12 @@
 package com.hotpads.handler.user.authenticate.config;
 
 import java.util.Collection;
+import java.util.Collections;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.hotpads.handler.dispatcher.DispatchRule;
 import com.hotpads.handler.user.authenticate.authenticator.DatarouterAuthenticator;
 import com.hotpads.handler.user.role.DatarouterUserRole;
 
@@ -65,6 +67,13 @@ public interface DatarouterAuthenticationConfig{
 	Iterable<DatarouterAuthenticator> getAuthenticators(HttpServletRequest request,
 			HttpServletResponse response);
 
-	Collection<DatarouterUserRole> getRequiredRoles(String path);
+	/**
+	 * @deprecated use {@link DispatchRule#allowAnonymous()} and {@link DispatchRule#allowRoles(DatarouterUserRole...)}
+	 */
+	@Deprecated
+	default Collection<DatarouterUserRole> getRequiredRoles(String path){
+		return Collections.emptyList();
+	}
 
+	boolean useDatarouterAuthentication();
 }
