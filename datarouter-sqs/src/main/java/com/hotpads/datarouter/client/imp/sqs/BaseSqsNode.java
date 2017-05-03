@@ -2,7 +2,6 @@ package com.hotpads.datarouter.client.imp.sqs;
 
 import java.time.Duration;
 import java.util.Collection;
-import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,13 +58,9 @@ implements QueueStorageWriter<PK,D>{
 			queueUrl = params.getQueueUrl();
 			//don't issue the createQueue request because it is probably someone else's queue
 		}else{
-			String prefix = getNamespace();
-			if(!prefix.isEmpty()){
-				prefix += "-";
-			}
-			String queueName = prefix + getTableName();
-			CreateQueueRequest createQueueRequest = new CreateQueueRequest(queueName);
-			queueUrl = getAmazonSqsClient().createQueue(createQueueRequest).getQueueUrl();
+			String namespace = getNamespace();
+			String queueName = namespace == null ? getTableName() : namespace + "-" + getTableName();
+			queueUrl = tryCreateQueueAndGetUrl(queueName);
 		}
 		logger.warn("nodeName={}, queueName={}", getName(), queueUrl);
 		return queueUrl;
@@ -78,12 +73,13 @@ implements QueueStorageWriter<PK,D>{
 		if(configFileNamespace != null){
 			return configFileNamespace;
 		}
-		Optional<String> nodeNamespace = params.getNamespace();
-		if(nodeNamespace.isPresent()){
-			return nodeNamespace.get();
-		}
-		String defaultNamespace = datarouterProperties.getEnvironment() + "-" + datarouterProperties.getServiceName();
-		return defaultNamespace;
+		return params.getNamespace()
+				.orElse(datarouterProperties.getEnvironment() + "-" + datarouterProperties.getServiceName());
+	}
+
+	private String tryCreateQueueAndGetUrl(String queueName){
+		CreateQueueRequest createQueueRequest = new CreateQueueRequest(queueName);
+		return getAmazonSqsClient().createQueue(createQueueRequest).getQueueUrl();
 	}
 
 	public Lazy<String> getQueueUrl(){
