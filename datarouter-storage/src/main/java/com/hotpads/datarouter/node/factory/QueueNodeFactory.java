@@ -71,11 +71,12 @@ public class QueueNodeFactory{
 			F extends DatabeanFielder<PK,D>,
 			N extends Node<PK,D>>
 		N createGroupQueueNode(ClientId clientId, Router router, Supplier<D> databeanSupplier, String queueName,
-			Supplier<F> fielderSupplier, boolean addAdapter, String namespace, String queueUrl){
+			Supplier<F> fielderSupplier, boolean addAdapter, String namespace, String queueUrl, String nodeName){
 		NodeParams<PK,D,F> params = new NodeParamsBuilder<>(router, databeanSupplier, fielderSupplier)
 				.withClientId(clientId)
-				.withTableName(queueName)
+				.withNodeName(nodeName)
 				.withNamespace(namespace)
+				.withTableName(queueName)
 				.withQueueUrl(queueUrl)
 				.build();
 		QueueClientType clientType = getClientType(params);
@@ -89,7 +90,7 @@ public class QueueNodeFactory{
 	N createGroupQueueNode(ClientId clientId, Router router, Supplier<D> databeanSupplier, String queueName,
 			Supplier<F> fielderSupplier, boolean addAdapter){
 		return createGroupQueueNode(clientId, router, databeanSupplier, queueName, fielderSupplier, addAdapter, null,
-				null);
+				null, null);
 	}
 
 	/*---------------- private ---------------------*/

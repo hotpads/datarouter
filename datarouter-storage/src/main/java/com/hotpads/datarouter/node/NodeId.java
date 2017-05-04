@@ -1,5 +1,7 @@
 package com.hotpads.datarouter.node;
 
+import java.util.Optional;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,24 +20,25 @@ public class NodeId<
 	private final String nodeClassSimpleName;
 	private final String databeanClassName;
 	private final String clientName;
-	private final String parentNodeName;
+	private final String tableName;
 	private final String explicitName;
 
 	private final String name;
 
 
 	public NodeId(String nodeClassSimpleName, NodeParams<PK,D,F> nodeParams, String explicitName){
-		this(nodeClassSimpleName, nodeParams.getDatabeanName(), nodeParams.getRouter().getName(),
-				nodeParams.getClientName(), nodeParams.getParentName(), explicitName);
+		this(nodeClassSimpleName, nodeParams.getDatabeanName(), nodeParams.getRouter().getName(), nodeParams
+				.getClientName(), nodeParams.getPhysicalName(), Optional.ofNullable(
+						explicitName).orElse(nodeParams.getNodeName()));
 	}
 
 	public NodeId(String nodeClassSimpleName, String databeanClassName, String routerName, String clientName,
-			String parentNodeName, String explicitName){
+			String tableName, String explicitName){
 		this.nodeClassSimpleName = Preconditions.checkNotNull(nodeClassSimpleName);
 		this.databeanClassName = databeanClassName;
 		Preconditions.checkNotNull(routerName);
 		this.clientName = clientName;
-		this.parentNodeName = parentNodeName;
+		this.tableName = tableName;
 		this.explicitName = explicitName;
 
 		this.name = calculateName();
@@ -46,17 +49,21 @@ public class NodeId<
 		String source;
 		String name;
 		if(DrStringTool.notEmpty(explicitName)){
-			source = "explicitName";
+			source = "explicit";
 			name = explicitName;
 		}else if(DrStringTool.notEmpty(clientName)){
-			source = "client";
-			String parentPrefix = DrStringTool.isEmpty(parentNodeName) ? "" : parentNodeName + ".";
-			name = parentPrefix + clientName + "." + databeanClassName;
+			if(tableName != null){
+				source = "client/table";
+				name = clientName + "." + tableName;
+			}else{
+				source = "client/class";
+				name = clientName + "." + databeanClassName;
+			}
 		}else{
 			source = "virtual";
 			name = databeanClassName + "." + nodeClassSimpleName;
 		}
-		logger.warn("source={}, name={}", source, name);
+		logger.info("source={}, name={}", source, name);
 		return name;
 	}
 
