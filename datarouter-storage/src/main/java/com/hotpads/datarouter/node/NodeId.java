@@ -3,7 +3,6 @@ package com.hotpads.datarouter.node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
@@ -15,48 +14,30 @@ public class NodeId<
 		F extends DatabeanFielder<PK,D>>{
 	private static final Logger logger = LoggerFactory.getLogger(NodeId.class);
 
-	private final String nodeClassSimpleName;
-	private final String databeanClassName;
-	private final String clientName;
-	private final String tableName;
-	private final String explicitName;
-
 	private final String name;
 
 
 	public NodeId(String nodeClassSimpleName, String databeanClassName, String clientName, String tableName,
 			String explicitName){
-		this.nodeClassSimpleName = Preconditions.checkNotNull(nodeClassSimpleName);
-		this.databeanClassName = databeanClassName;
-		this.clientName = clientName;
-		this.tableName = tableName;
-		this.explicitName = explicitName;
-
-		this.name = calculateName();
-	}
-
-
-	private String calculateName(){
 		String source;
-		String name;
 		if(DrStringTool.notEmpty(explicitName)){
 			source = "explicit";
-			name = explicitName;
+			this.name = explicitName;
 		}else if(DrStringTool.notEmpty(clientName)){
 			if(tableName != null){
 				source = "client/table";
-				name = clientName + "." + tableName;
+				this.name = clientName + "." + tableName;
 			}else{
 				source = "client/class";
-				name = clientName + "." + databeanClassName;
+				this.name = clientName + "." + databeanClassName;
 			}
 		}else{
 			source = "virtual";
-			name = databeanClassName + "." + nodeClassSimpleName;
+			this.name = databeanClassName + "." + nodeClassSimpleName;
 		}
 		logger.info("source={}, name={}", source, name);
-		return name;
 	}
+
 
 	public String getName(){
 		return name;
