@@ -2,18 +2,7 @@ package com.hotpads.util.core.concurrent;
 
 import java.util.function.Supplier;
 
-public abstract class Lazy<R> extends CheckedLazy<R,Exception> implements Supplier<R>{
-
-	@Override
-	public R get(){
-		try{
-			return super.get();
-		}catch(RuntimeException e){
-			throw e;
-		}catch(Exception e){
-			throw new RuntimeException(e);
-		}
-	}
+public abstract class Lazy<R> extends CheckedLazy<R,RuntimeException> implements Supplier<R>{
 
 	public static <R> Lazy<R> of(Supplier<R> supplier){
 		return new LazyFunctional<>(supplier);
