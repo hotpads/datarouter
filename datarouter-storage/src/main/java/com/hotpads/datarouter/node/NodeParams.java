@@ -29,6 +29,7 @@ public class NodeParams<
 	private final Integer schemaVersion;
 
 	//name the table different than the databean class
+	private final String nodeName;
 	private final String physicalName;
 	private final Optional<String> namespace;
 
@@ -49,7 +50,7 @@ public class NodeParams<
 	private final String queueUrl;
 
 	public NodeParams(Router router, ClientId clientId, String parentName, Supplier<D> databeanSupplier,
-			Supplier<F> fielderSupplier, Integer schemaVersion, String physicalName, String namespace,
+			Supplier<F> fielderSupplier, Integer schemaVersion, String nodeName, String physicalName, String namespace,
 			String entityNodePrefix, String remoteRouterName, String remoteNodeName, Setting<Boolean> recordCallsites,
 			String streamName, String regionName, String queueUrl){
 		this.router = router;
@@ -60,6 +61,7 @@ public class NodeParams<
 		this.databeanName = databeanSupplier.get().getDatabeanName();
 		this.fielderSupplier = fielderSupplier;
 		this.schemaVersion = schemaVersion;
+		this.nodeName = nodeName;
 		this.physicalName = physicalName;
 		this.entityNodePrefix = entityNodePrefix;
 		this.remoteRouterName = remoteRouterName;
@@ -83,6 +85,7 @@ public class NodeParams<
 		private String parentName;
 		private ClientId clientId;
 		private Integer schemaVersion;
+		private String nodeName;
 		private String physicalName;
 		private String namespace;
 		private String entityNodePrefix;
@@ -118,6 +121,11 @@ public class NodeParams<
 
 		public NodeParamsBuilder<PK,D,F> withSchemaVersion(Integer schemaVersion){
 			this.schemaVersion = schemaVersion;
+			return this;
+		}
+
+		public NodeParamsBuilder<PK,D,F> withNodeName(String nodeName){
+			this.nodeName = nodeName;
 			return this;
 		}
 
@@ -166,8 +174,8 @@ public class NodeParams<
 
 		public NodeParams<PK,D,F> build(){
 			return new NodeParams<>(router, clientId, parentName, databeanSupplier, fielderSupplier, schemaVersion,
-					physicalName, namespace, entityNodePrefix, remoteRouterName, remoteNodeName, recordCallsites,
-					streamName, regionName, queueUrl);
+					nodeName, physicalName, namespace, entityNodePrefix, remoteRouterName, remoteNodeName,
+					recordCallsites, streamName, regionName, queueUrl);
 		}
 	}
 
@@ -207,6 +215,10 @@ public class NodeParams<
 
 	public Integer getSchemaVersion(){
 		return schemaVersion;
+	}
+
+	public String getNodeName(){
+		return nodeName;
 	}
 
 	public String getPhysicalName(){
