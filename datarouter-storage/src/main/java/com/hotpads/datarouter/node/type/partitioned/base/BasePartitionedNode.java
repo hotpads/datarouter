@@ -47,7 +47,7 @@ extends BaseNode<PK,D,F> implements PartitionedNode<PK,D,N>{
 	public BasePartitionedNode(Supplier<D> databeanSupplier, Supplier<F> fielderSupplier, Router router, String name){
 		super(new NodeParamsBuilder<>(router, databeanSupplier, fielderSupplier).build());
 		this.partitions = new Partitions<>(this);
-		this.setId(new NodeId<PK,D,F>(getClass().getSimpleName(), databeanSupplier.get().getDatabeanName(),
+		this.overrideId(new NodeId<PK,D,F>(getClass().getSimpleName(), databeanSupplier.get().getDatabeanName(),
 				router.getName(), null, null, name));
 	}
 

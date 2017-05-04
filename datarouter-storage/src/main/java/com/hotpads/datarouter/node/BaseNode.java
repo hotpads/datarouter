@@ -42,7 +42,7 @@ implements Node<PK,D>{
 					probablyNoPkInstantiated);
 		}
 		//this default id is frequently overridden
-		this.setId(new NodeId<>(getClass().getSimpleName(), params, fieldInfo.getExplicitNodeName()));
+		this.id = new NodeId<>(getClass().getSimpleName(), params, fieldInfo.getExplicitNodeName());
 	}
 
 	@Override
@@ -70,7 +70,7 @@ implements Node<PK,D>{
 		return id == null ? null : id.getName();
 	}
 
-	protected void setId(NodeId<PK,D,F> id){
+	protected void overrideId(NodeId<PK,D,F> id){
 //		logger.warn("setId:"+id.getName());
 		this.id = id;
 	}

@@ -79,7 +79,7 @@ public class QueueNodeFactory{
 				.withQueueUrl(queueUrl)
 				.build();
 		QueueClientType clientType = getClientType(params);
-		return wrapWithAdapterIfNecessary(clientType, clientType.createSingleQueueNode(params), addAdapter, params);
+		return wrapWithAdapterIfNecessary(clientType, clientType.createGroupQueueNode(params), addAdapter, params);
 	}
 
 	public <PK extends PrimaryKey<PK>,

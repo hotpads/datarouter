@@ -1,5 +1,8 @@
 package com.hotpads.datarouter.node;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
@@ -10,12 +13,15 @@ public class NodeId<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>>{
+	private static final Logger logger = LoggerFactory.getLogger(NodeId.class);
 
-	private String nodeClassSimpleName;
-	private String databeanClassName;
-	private String clientName;
-	private String parentNodeName;
-	private String explicitName;
+	private final String nodeClassSimpleName;
+	private final String databeanClassName;
+	private final String clientName;
+	private final String parentNodeName;
+	private final String explicitName;
+
+	private final String name;
 
 
 	public NodeId(String nodeClassSimpleName, NodeParams<PK,D,F> nodeParams, String explicitName){
@@ -31,27 +37,30 @@ public class NodeId<
 		this.clientName = clientName;
 		this.parentNodeName = parentNodeName;
 		this.explicitName = explicitName;
+
+		this.name = calculateName();
+	}
+
+
+	private String calculateName(){
+		String source;
+		String name;
+		if(DrStringTool.notEmpty(explicitName)){
+			source = "explicitName";
+			name = explicitName;
+		}else if(DrStringTool.notEmpty(clientName)){
+			source = "client";
+			String parentPrefix = DrStringTool.isEmpty(parentNodeName) ? "" : parentNodeName + ".";
+			name = parentPrefix + clientName + "." + databeanClassName;
+		}else{
+			source = "virtual";
+			name = databeanClassName + "." + nodeClassSimpleName;
+		}
+		logger.warn("source={}, name={}", source, name);
+		return name;
 	}
 
 	public String getName(){
-		//if name is specified
-		if(DrStringTool.notEmpty(explicitName)){
-			return explicitName;
-		}
-
-		//example: TraceEntity.TraceSpan.TS
-//		if(nodeParams != null && StringTool.notEmpty(nodeParams.getEntityNodeName())){
-//		return nodeParams.getEntityNodeName()+"."+databeanClass.getSimpleName()+"."+nodeParams.getEntityNodePrefix();
-//		}
-
-		//for PhysicalNodes that have a specific client.  this can distinguish a databean class between many masters,
-		// slaves, partitions, etc
-		if(DrStringTool.notEmpty(clientName)){
-			String parentPrefix = DrStringTool.isEmpty(parentNodeName) ? "" : parentNodeName + ".";
-			return parentPrefix + clientName + "." + databeanClassName;
-		}
-
-		//default case where there is no clientName (like MasterSlaveNode)
-		return databeanClassName + "." + nodeClassSimpleName;
+		return name;
 	}
 }

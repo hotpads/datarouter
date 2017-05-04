@@ -45,7 +45,7 @@ extends BaseNode<PK,D,F>{
 		this.cachingNode = cacheNode;
 		this.backingNode = backingNode;
 		//use the inputs to make a unique name.  randomness will not place nicely with the counters
-		this.setId(new NodeId<PK,D,F>(getClass().getSimpleName(), backingNode.getFieldInfo().getSampleDatabean()
+		this.overrideId(new NodeId<PK,D,F>(getClass().getSimpleName(), backingNode.getFieldInfo().getSampleDatabean()
 				.getDatabeanName(), backingNode.getRouter().getName(), null, null,
 				backingNode.getName() + ".cache"));
 	}
