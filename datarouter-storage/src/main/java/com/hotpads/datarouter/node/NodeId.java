@@ -1,7 +1,5 @@
 package com.hotpads.datarouter.node;
 
-import java.util.Optional;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,17 +24,10 @@ public class NodeId<
 	private final String name;
 
 
-	public NodeId(String nodeClassSimpleName, NodeParams<PK,D,F> nodeParams, String explicitName){
-		this(nodeClassSimpleName, nodeParams.getDatabeanName(), nodeParams.getRouter().getName(), nodeParams
-				.getClientName(), nodeParams.getPhysicalName(), Optional.ofNullable(
-						explicitName).orElse(nodeParams.getNodeName()));
-	}
-
-	public NodeId(String nodeClassSimpleName, String databeanClassName, String routerName, String clientName,
-			String tableName, String explicitName){
+	public NodeId(String nodeClassSimpleName, String databeanClassName, String clientName, String tableName,
+			String explicitName){
 		this.nodeClassSimpleName = Preconditions.checkNotNull(nodeClassSimpleName);
 		this.databeanClassName = databeanClassName;
-		Preconditions.checkNotNull(routerName);
 		this.clientName = clientName;
 		this.tableName = tableName;
 		this.explicitName = explicitName;

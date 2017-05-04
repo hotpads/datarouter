@@ -1,6 +1,7 @@
 package com.hotpads.datarouter.node;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.hotpads.datarouter.config.DatarouterProperties;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
@@ -41,8 +42,14 @@ implements Node<PK,D>{
 					.getDatabeanName() + ". Check that the primary key is instantiated in the databean constructor.",
 					probablyNoPkInstantiated);
 		}
+		String explicitName = Optional.ofNullable(fieldInfo.getExplicitNodeName()).orElse(params.getNodeName());
 		//this default id is frequently overridden
-		this.id = new NodeId<>(getClass().getSimpleName(), params, fieldInfo.getExplicitNodeName());
+		this.id = new NodeId<>(
+				getClass().getSimpleName(),
+				params.getDatabeanName(),
+				params.getClientName(),
+				params.getPhysicalName(),
+				explicitName);
 	}
 
 	@Override

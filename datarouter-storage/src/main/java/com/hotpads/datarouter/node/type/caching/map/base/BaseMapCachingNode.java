@@ -46,8 +46,7 @@ extends BaseNode<PK,D,F>{
 		this.backingNode = backingNode;
 		//use the inputs to make a unique name.  randomness will not place nicely with the counters
 		this.overrideId(new NodeId<PK,D,F>(getClass().getSimpleName(), backingNode.getFieldInfo().getSampleDatabean()
-				.getDatabeanName(), backingNode.getRouter().getName(), null, null,
-				backingNode.getName() + ".cache"));
+				.getDatabeanName(), null, null, backingNode.getName() + ".cache"));
 	}
 
 	public void updateLastAttemptedContact(){
