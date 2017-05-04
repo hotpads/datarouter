@@ -48,7 +48,6 @@ public abstract class DispatcherServlet extends HttpServlet implements InjectorR
 			}
 		}
 
-
 		if(!handled){
 			response.setStatus(404);
 			PrintWriter out = response.getWriter();
