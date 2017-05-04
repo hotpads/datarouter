@@ -70,6 +70,7 @@ implements Node<PK,D>{
 		return id == null ? null : id.getName();
 	}
 
+	@Deprecated//bad method.  id should be final
 	protected void overrideId(NodeId<PK,D,F> id){
 //		logger.warn("setId:"+id.getName());
 		this.id = id;
