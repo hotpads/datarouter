@@ -1,54 +1,8 @@
 package com.hotpads.util.core.concurrent;
 
-import java.util.concurrent.Callable;
 import java.util.function.Supplier;
 
-import com.hotpads.datarouter.util.async.Ref;
-
-public abstract class Lazy<R> implements Callable<R>, Ref<R>{
-
-	private volatile R value;
-
-	/**
-	 * @deprecated use {@link Lazy#of(Supplier)}
-	 */
-	@Deprecated
-	public Lazy(){}
-
-	//work done in load will only happen once
-	protected abstract R load();
-
-	@Override
-	public R get(){
-		if(value != null){
-			return value;
-		}
-		synchronized (this){
-			if(value != null){
-				return value;
-			}
-			value = load();
-			return value;
-		}
-	}
-
-	public boolean isInitialized(){
-		return value != null;
-	}
-
-	public R getIfInitialized(){
-		return value;
-	}
-
-	/*-------------- Callable -----------------*/
-
-	//allow another thread to trigger the Lazy
-	@Override
-	public R call(){
-		return get();
-	}
-
-	/*----------- LazyFunctional ---------------*/
+public abstract class Lazy<R> extends CheckedLazy<R,RuntimeException> implements Supplier<R>{
 
 	public static <R> Lazy<R> of(Supplier<R> supplier){
 		return new LazyFunctional<>(supplier);

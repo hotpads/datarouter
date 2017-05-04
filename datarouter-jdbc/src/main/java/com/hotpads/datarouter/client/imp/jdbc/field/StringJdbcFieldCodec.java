@@ -35,24 +35,9 @@ extends BaseJdbcFieldCodec<String,StringField>{
 	@Override
 	public SqlColumn getSqlColumnDefinition(boolean allowNullable){
 		boolean nullable = allowNullable && field.getKey().isNullable();
-		if(field.getSize() <= MySqlColumnType.DEFAULT_LENGTH_VARCHAR){
-			return new CharSequenceSqlColumn(field.getKey().getColumnName(), MySqlColumnType.VARCHAR, field.getSize(),
-					nullable, false, field.getKey().getDefaultValue(), StringFieldKey.DEFAULT_CHARACTER_SET,
-					StringFieldKey.DEFAULT_COLLATION);
-		}else if(field.getSize() <= MySqlColumnType.MAX_LENGTH_TEXT){
-			return new CharSequenceSqlColumn(field.getKey().getColumnName(), MySqlColumnType.TEXT,
-					MySqlColumnType.MAX_LENGTH_TEXT, nullable, false, field.getKey()
-							.getDefaultValue(), StringFieldKey.DEFAULT_CHARACTER_SET, StringFieldKey.DEFAULT_COLLATION);
-		}else if(field.getSize() <= MySqlColumnType.MAX_LENGTH_MEDIUMTEXT){
-			return new CharSequenceSqlColumn(field.getKey().getColumnName(), MySqlColumnType.MEDIUMTEXT,
-					MySqlColumnType.MAX_LENGTH_MEDIUMTEXT, nullable, false, field.getKey()
-							.getDefaultValue(), StringFieldKey.DEFAULT_CHARACTER_SET, StringFieldKey.DEFAULT_COLLATION);
-		}else if(field.getSize() <= MySqlColumnType.MAX_LENGTH_LONGTEXT){
-			return new CharSequenceSqlColumn(field.getKey().getColumnName(), MySqlColumnType.LONGTEXT,
-					MySqlColumnType.INT_LENGTH_LONGTEXT, nullable, false, field.getKey().getDefaultValue(),
-					StringFieldKey.DEFAULT_CHARACTER_SET, StringFieldKey.DEFAULT_COLLATION);
-		}
-		throw new IllegalArgumentException("Unknown size:" + field.getSize());
+		return new CharSequenceSqlColumn(field.getKey().getColumnName(), getMySqlTypeFromSize(), getNormalizedSize(),
+				nullable, false, field.getKey().getDefaultValue(), StringFieldKey.DEFAULT_CHARACTER_SET,
+				StringFieldKey.DEFAULT_COLLATION);
 	}
 
 	@Override
@@ -101,20 +86,36 @@ extends BaseJdbcFieldCodec<String,StringField>{
 		}
 	}
 
-	public static MySqlColumnType getMySqlTypeFromSize(int size){
-		if(size <= MySqlColumnType.DEFAULT_LENGTH_VARCHAR){
+	private int getNormalizedSize(){
+		if(field.getSize() <= MySqlColumnType.DEFAULT_LENGTH_VARCHAR){
+			return field.getSize();
+		}
+		if(field.getSize() <= MySqlColumnType.MAX_LENGTH_TEXT){
+			return MySqlColumnType.MAX_LENGTH_TEXT;
+		}
+		if(field.getSize() <= MySqlColumnType.MAX_LENGTH_MEDIUMTEXT){
+			return MySqlColumnType.MAX_LENGTH_MEDIUMTEXT;
+		}
+		if(field.getSize() <= MySqlColumnType.MAX_LENGTH_LONGTEXT){
+			return MySqlColumnType.INT_LENGTH_LONGTEXT;
+		}
+		throw new IllegalArgumentException("Unknown size:" + field.getSize());
+	}
+
+	private MySqlColumnType getMySqlTypeFromSize(){
+		if(field.getSize() <= MySqlColumnType.DEFAULT_LENGTH_VARCHAR){
 			return MySqlColumnType.VARCHAR;
 		}
-		if(size <= MySqlColumnType.MAX_LENGTH_TEXT){
+		if(field.getSize() <= MySqlColumnType.MAX_LENGTH_TEXT){
 			return MySqlColumnType.TEXT;
 		}
-		if(size <= MySqlColumnType.MAX_LENGTH_MEDIUMTEXT){
+		if(field.getSize() <= MySqlColumnType.MAX_LENGTH_MEDIUMTEXT){
 			return MySqlColumnType.MEDIUMTEXT;
 		}
-		if(size <= MySqlColumnType.MAX_LENGTH_LONGTEXT){
+		if(field.getSize() <= MySqlColumnType.MAX_LENGTH_LONGTEXT){
 			return MySqlColumnType.LONGTEXT;
 		}
-		throw new IllegalArgumentException("Unknown size:" + size);
+		throw new IllegalArgumentException("Unknown size:" + field.getSize());
 	}
 
 
