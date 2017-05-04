@@ -69,12 +69,15 @@ implements QueueStorageWriter<PK,D>{
 	//SQS max queue name length is 80 chars.
 	//TODO limit namespace to 30
 	private String getNamespace(){
+		if(params.getNamespace().isPresent()){
+			return params.getNamespace().get();
+		}
+		//TODO remove after migration
 		String configFileNamespace = getSqsClient().getSqsOptions().getNamespace();
 		if(configFileNamespace != null){
 			return configFileNamespace;
 		}
-		return params.getNamespace()
-				.orElse(datarouterProperties.getEnvironment() + "-" + datarouterProperties.getServiceName());
+		return datarouterProperties.getEnvironment() + "-" + datarouterProperties.getServiceName();
 	}
 
 	private String tryCreateQueueAndGetUrl(String queueName){
