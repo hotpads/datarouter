@@ -27,13 +27,13 @@ public class ResponseTool{
 		sendErrorInJson(response, code, jsonObject.toString());
 	}
 
-	public static void sendErrorInJson(HttpServletResponse response, int code, String encodedJson){
+	public static void sendErrorInJson(HttpServletResponse response, int code, String body){
 		response.setContentType(CONTENT_TYPE_APPLICATION_JSON);
 		response.setStatus(code);
 		try{
-			response.getWriter().write(encodedJson);
+			response.getWriter().write(body);
 		}catch(IOException e){
-			sendError(response, code, encodedJson);
+			sendError(response, code, body);
 		}
 	}
 

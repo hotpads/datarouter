@@ -9,11 +9,11 @@ public interface HandledException{
 
 	String getMessage();
 
-	default int getResponseStatusCode(){
+	default int getHttpResponseCode(){
 		return HttpServletResponse.SC_BAD_REQUEST;
 	}
 
-	default Object getResponseBody(){
+	default Object getHttpResponseBody(){
 		return null;
 	}
 

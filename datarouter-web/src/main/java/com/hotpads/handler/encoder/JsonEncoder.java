@@ -33,13 +33,13 @@ public class JsonEncoder implements HandlerEncoder{
 	@Override
 	public void sendExceptionResponse(HandledException exception, ServletContext servletContext,
 			HttpServletResponse response, HttpServletRequest request){
-		Object responseBody = exception.getResponseBody();
+		Object responseBody = exception.getHttpResponseBody();
 		if(responseBody == null){
-			ResponseTool.sendErrorInJsonForMessage(response, exception.getResponseStatusCode(), exception.getMessage());
+			ResponseTool.sendErrorInJsonForMessage(response, exception.getHttpResponseCode(), exception.getMessage());
 			return;
 		}
-		ResponseTool.sendErrorInJson(response, exception.getResponseStatusCode(),
-				jsonSerializer.serialize(exception.getResponseBody()));
+		ResponseTool.sendErrorInJson(response, exception.getHttpResponseCode(),
+				jsonSerializer.serialize(exception.getHttpResponseBody()));
 	}
 
 }
