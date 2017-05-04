@@ -3,6 +3,9 @@ package com.hotpads.datarouter.client.imp.sqs;
 import java.time.Duration;
 import java.util.Collection;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.amazonaws.services.sqs.AmazonSQSClient;
 import com.amazonaws.services.sqs.model.CreateQueueRequest;
 import com.hotpads.datarouter.client.Client;
@@ -23,6 +26,7 @@ public abstract class BaseSqsNode<
 		F extends DatabeanFielder<PK,D>>
 extends BasePhysicalNode<PK,D,F>
 implements QueueStorageWriter<PK,D>{
+	private static final Logger logger = LoggerFactory.getLogger(BaseSqsNode.class);
 
 	//do not change, this is a limit from SQS
 	public static final int MAX_MESSAGES_PER_BATCH = 10;
@@ -39,7 +43,7 @@ implements QueueStorageWriter<PK,D>{
 	public BaseSqsNode(Datarouter datarouter, NodeParams<PK,D,F> params){
 		super(params);
 		this.datarouter = datarouter;
-		this.queueUrl = Lazy.of(() -> getOrCreateQueueUrl(params.getQueueUrl()));
+		this.queueUrl = Lazy.of(() -> getOrCreateQueueUrl());
 		this.sqsOpFactory = new SqsOpFactory<>(this);
 	}
 
@@ -48,15 +52,35 @@ implements QueueStorageWriter<PK,D>{
 		return getSqsClient();
 	}
 
-	private String getOrCreateQueueUrl(String queueUrl){
-		if(queueUrl != null){
-			return queueUrl;
+	private String getOrCreateQueueUrl(){
+		String queueUrl;
+		if(params.getQueueUrl() != null){
+			queueUrl = params.getQueueUrl();
+			//don't issue the createQueue request because it is probably someone else's queue
+		}else{
+			String namespace = getNamespace();
+			String queueName = namespace == null ? getTableName() : namespace + "-" + getTableName();
+			queueUrl = tryCreateQueueAndGetUrl(queueName);
 		}
-		String prefix = fieldInfo.getNamespace().orElse(getSqsClient().getSqsOptions().getNamespace());
-		if(!prefix.isEmpty()){
-			prefix += "-";
+		logger.warn("nodeName={}, queueName={}", getName(), queueUrl);
+		return queueUrl;
+	}
+
+	//SQS max queue name length is 80 chars.
+	//TODO limit namespace to 30
+	private String getNamespace(){
+		if(params.getNamespace().isPresent()){
+			return params.getNamespace().get();
 		}
-		String queueName = prefix + getTableName();
+		//TODO remove after migration
+		String configFileNamespace = getSqsClient().getSqsOptions().getNamespace();
+		if(configFileNamespace != null){
+			return configFileNamespace;
+		}
+		return datarouterProperties.getEnvironment() + "-" + datarouterProperties.getServiceName();
+	}
+
+	private String tryCreateQueueAndGetUrl(String queueName){
 		CreateQueueRequest createQueueRequest = new CreateQueueRequest(queueName);
 		return getAmazonSqsClient().createQueue(createQueueRequest).getQueueUrl();
 	}

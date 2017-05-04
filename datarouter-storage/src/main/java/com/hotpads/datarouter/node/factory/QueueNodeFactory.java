@@ -64,19 +64,36 @@ public class QueueNodeFactory{
 				null);
 	}
 
+	/*------------------- GroupQueue -----------------*/
+
+	public <PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>,
+			N extends Node<PK,D>>
+		N createGroupQueueNode(ClientId clientId, Router router, Supplier<D> databeanSupplier, String queueName,
+			Supplier<F> fielderSupplier, boolean addAdapter, String namespace, String queueUrl, String nodeName){
+		NodeParams<PK,D,F> params = new NodeParamsBuilder<>(router, databeanSupplier, fielderSupplier)
+				.withClientId(clientId)
+				.withNodeName(nodeName)
+				.withNamespace(namespace)
+				.withTableName(queueName)
+				.withQueueUrl(queueUrl)
+				.build();
+		QueueClientType clientType = getClientType(params);
+		return wrapWithAdapterIfNecessary(clientType, clientType.createGroupQueueNode(params), addAdapter, params);
+	}
+
 	public <PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>,
 			N extends Node<PK,D>>
 	N createGroupQueueNode(ClientId clientId, Router router, Supplier<D> databeanSupplier, String queueName,
 			Supplier<F> fielderSupplier, boolean addAdapter){
-		NodeParams<PK,D,F> params = new NodeParamsBuilder<>(router, databeanSupplier, fielderSupplier)
-				.withClientId(clientId)
-				.withTableName(queueName)
-				.build();
-		QueueClientType clientType = getClientType(params);
-		return wrapWithAdapterIfNecessary(clientType, clientType.createGroupQueueNode(params), addAdapter, params);
+		return createGroupQueueNode(clientId, router, databeanSupplier, queueName, fielderSupplier, addAdapter, null,
+				null, null);
 	}
+
+	/*---------------- private ---------------------*/
 
 	private QueueClientType getClientType(NodeParams<?,?,?> params){
 		String clientName = params.getClientId().getName();

@@ -46,6 +46,7 @@ implements MySqlCharacterSetCollationOpt{
 	//these 4 fields only apply to physical nodes, but cleanest to add them here for now
 	private ClientId clientId;
 	private String tableName;
+	@Deprecated //calculate this externally and pass in via NodeParams.nodeName
 	private String explicitNodeName;
 	private Optional<String> namespace;
 
@@ -168,11 +169,6 @@ implements MySqlCharacterSetCollationOpt{
 		}else if(DrStringTool.notEmpty(params.getPhysicalName())){
 			//explicitly set tableName.  do after entity check since that also sets a table name
 			this.tableName = params.getPhysicalName();
-			if(clientId != null){
-				this.explicitNodeName = clientId.getName() + "." + tableName;
-				logger.info("client:" + clientId.getName() + " " + sampleDatabean.getDatabeanName() + " overridden -> "
-						+ tableName);
-			}
 		}else{//default to using the databean's name as the table name
 			this.tableName = sampleDatabean.getDatabeanName();
 		}

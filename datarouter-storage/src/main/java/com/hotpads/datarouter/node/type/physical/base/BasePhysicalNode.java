@@ -11,7 +11,6 @@ import java.util.Set;
 import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.node.BaseNode;
 import com.hotpads.datarouter.node.Node;
-import com.hotpads.datarouter.node.NodeId;
 import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
@@ -31,7 +30,6 @@ implements PhysicalNode<PK,D>{
 
 	public BasePhysicalNode(NodeParams<PK,D,F> params){
 		super(params);
-		this.setId(new NodeId<>(getClass().getSimpleName(), params, fieldInfo.getExplicitNodeName()));
 	}
 
 	/****************************** node methods ********************************/

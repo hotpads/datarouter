@@ -1,6 +1,7 @@
 package com.hotpads.datarouter.node;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.hotpads.datarouter.config.DatarouterProperties;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
@@ -20,10 +21,11 @@ public abstract class BaseNode<
 implements Node<PK,D>{
 
 	protected final DatarouterProperties datarouterProperties;
-	private Datarouter datarouter;
-	private Router router;
+	private final Datarouter datarouter;
+	private final Router router;
 	private NodeId<PK,D,F> id;
-	protected DatabeanFieldInfo<PK,D,F> fieldInfo;
+	protected final NodeParams<PK,D,F> params;
+	protected final DatabeanFieldInfo<PK,D,F> fieldInfo;
 
 
 	/*************** construct *********************/
@@ -32,6 +34,7 @@ implements Node<PK,D>{
 		this.datarouterProperties = params.getRouter().getDatarouter().getDatarouterProperties();
 		this.datarouter = params.getRouter().getDatarouter();
 		this.router = params.getRouter();
+		this.params = params;
 		try{
 			this.fieldInfo = new DatabeanFieldInfo<>(getName(), params);
 		}catch(Exception probablyNoPkInstantiated){
@@ -39,8 +42,14 @@ implements Node<PK,D>{
 					.getDatabeanName() + ". Check that the primary key is instantiated in the databean constructor.",
 					probablyNoPkInstantiated);
 		}
+		String explicitName = Optional.ofNullable(fieldInfo.getExplicitNodeName()).orElse(params.getNodeName());
 		//this default id is frequently overridden
-		this.setId(new NodeId<>(getClass().getSimpleName(), params, fieldInfo.getExplicitNodeName()));
+		this.id = new NodeId<>(
+				getClass().getSimpleName(),
+				params.getDatabeanName(),
+				params.getClientName(),
+				params.getPhysicalName(),
+				explicitName);
 	}
 
 	@Override
@@ -68,8 +77,8 @@ implements Node<PK,D>{
 		return id == null ? null : id.getName();
 	}
 
-	protected void setId(NodeId<PK,D,F> id){
-//		logger.warn("setId:"+id.getName());
+	@Deprecated//bad method.  id should be final
+	protected void overrideId(NodeId<PK,D,F> id){
 		this.id = id;
 	}
 
