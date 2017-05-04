@@ -35,7 +35,7 @@ extends BaseJdbcFieldCodec<String,StringField>{
 	@Override
 	public SqlColumn getSqlColumnDefinition(boolean allowNullable){
 		boolean nullable = allowNullable && field.getKey().isNullable();
-		return new CharSequenceSqlColumn(field.getKey().getColumnName(), getMySqlTypeFromSize(), field.getSize(),
+		return new CharSequenceSqlColumn(field.getKey().getColumnName(), getMySqlTypeFromSize(), getNormalizedSize(),
 				nullable, false, field.getKey().getDefaultValue(), StringFieldKey.DEFAULT_CHARACTER_SET,
 				StringFieldKey.DEFAULT_COLLATION);
 	}
@@ -84,6 +84,22 @@ extends BaseJdbcFieldCodec<String,StringField>{
 		}catch(SQLException e){
 			throw new DataAccessException(e);
 		}
+	}
+
+	private int getNormalizedSize(){
+		if(field.getSize() <= MySqlColumnType.DEFAULT_LENGTH_VARCHAR){
+			return field.getSize();
+		}
+		if(field.getSize() <= MySqlColumnType.MAX_LENGTH_TEXT){
+			return MySqlColumnType.MAX_LENGTH_TEXT;
+		}
+		if(field.getSize() <= MySqlColumnType.MAX_LENGTH_MEDIUMTEXT){
+			return MySqlColumnType.MAX_LENGTH_MEDIUMTEXT;
+		}
+		if(field.getSize() <= MySqlColumnType.MAX_LENGTH_LONGTEXT){
+			return MySqlColumnType.INT_LENGTH_LONGTEXT;
+		}
+		throw new IllegalArgumentException("Unknown size:" + field.getSize());
 	}
 
 	private MySqlColumnType getMySqlTypeFromSize(){
