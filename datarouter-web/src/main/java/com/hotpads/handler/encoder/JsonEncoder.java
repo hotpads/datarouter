@@ -1,6 +1,8 @@
 package com.hotpads.handler.encoder;
 
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -27,7 +29,9 @@ public class JsonEncoder implements HandlerEncoder{
 	public void finishRequest(Object result, ServletContext servletContext, HttpServletResponse response,
 			HttpServletRequest request) throws IOException{
 		response.setContentType(ResponseTool.CONTENT_TYPE_APPLICATION_JSON);
-		response.getWriter().append(jsonSerializer.serialize(result));
+		new OutputStreamWriter(response.getOutputStream(), StandardCharsets.UTF_8)
+				.append(jsonSerializer.serialize(result))
+				.close();
 	}
 
 	@Override

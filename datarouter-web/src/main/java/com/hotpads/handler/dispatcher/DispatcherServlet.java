@@ -48,13 +48,13 @@ public abstract class DispatcherServlet extends HttpServlet implements InjectorR
 			}
 		}
 
-		PrintWriter out = response.getWriter();
+
 		if(!handled){
 			response.setStatus(404);
+			PrintWriter out = response.getWriter();
 			out.print(getClass().getCanonicalName() + " could not find Handler for " + request.getRequestURI());
+			out.close(); // Tomcat is already closing this for us.
 		}
-
-		out.close();
 	}
 
 }
