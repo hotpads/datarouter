@@ -1,7 +1,20 @@
 package com.hotpads.handler.exception;
 
-/* Exceptions implementing this interface will be caught by the BaseHandler and returned to the client via an encoder.
+import javax.servlet.http.HttpServletResponse;
+
+/**
+ * Exceptions implementing this interface will be caught by the BaseHandler and returned to the client via an encoder.
  */
 public interface HandledException{
-	public String getMessage();
+
+	String getMessage();
+
+	default int getResponseStatusCode(){
+		return HttpServletResponse.SC_BAD_REQUEST;
+	}
+
+	default Object getResponseBody(){
+		return null;
+	}
+
 }

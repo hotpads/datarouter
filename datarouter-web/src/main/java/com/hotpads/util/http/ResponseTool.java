@@ -20,17 +20,20 @@ public class ResponseTool{
 		}
 	}
 
-	public static void sendErrorInJson(HttpServletResponse response, int code, String message){
-		response.setContentType(CONTENT_TYPE_APPLICATION_JSON);
-		response.setStatus(code);
+	public static void sendErrorInJsonForMessage(HttpServletResponse response, int code, String message){
 		JsonObject jsonObject = new JsonObject();
 		jsonObject.addProperty("message", message);
 		jsonObject.addProperty("httpResponseCode", code);
+		sendErrorInJson(response, code, jsonObject.toString());
+	}
 
+	public static void sendErrorInJson(HttpServletResponse response, int code, String encodedJson){
+		response.setContentType(CONTENT_TYPE_APPLICATION_JSON);
+		response.setStatus(code);
 		try{
-			response.getWriter().write(jsonObject.toString());
+			response.getWriter().write(encodedJson);
 		}catch(IOException e){
-			sendError(response, code, message);
+			sendError(response, code, encodedJson);
 		}
 	}
 
@@ -42,10 +45,9 @@ public class ResponseTool{
 		String fullyQualifiedUrl = urlPath;
 		if(!urlPath.contains("://")){
 			//really is just path, create fullUrl
-			fullyQualifiedUrl =
-				RequestTool.getFullyQualifiedUrl(urlPath, request).toString();
+			fullyQualifiedUrl = RequestTool.getFullyQualifiedUrl(urlPath, request).toString();
 		}
-		sendRedirect(response,code,fullyQualifiedUrl);
+		sendRedirect(response, code, fullyQualifiedUrl);
 	}
 
 	public static void sendRedirect(
@@ -61,5 +63,4 @@ public class ResponseTool{
 			throw new RuntimeException(e);
 		}
 	}
-
 }
