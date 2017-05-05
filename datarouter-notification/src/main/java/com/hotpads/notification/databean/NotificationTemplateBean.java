@@ -8,10 +8,13 @@ import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.StringFieldKey;
+import com.hotpads.datarouter.storage.field.imp.comparable.BooleanField;
+import com.hotpads.datarouter.storage.field.imp.comparable.BooleanFieldKey;
 
 public class NotificationTemplateBean extends BaseDatabean<NotificationTemplateBeanKey,NotificationTemplateBean>{
 	private NotificationTemplateBeanKey key;
 	private String fullClassName;
+	private Boolean shouldUseNewSender;
 
 	public NotificationTemplateBean(){
 		this.key = new NotificationTemplateBeanKey();
@@ -20,6 +23,13 @@ public class NotificationTemplateBean extends BaseDatabean<NotificationTemplateB
 	public NotificationTemplateBean(String name, String fullClassName){
 		this.key = new NotificationTemplateBeanKey(name);
 		this.fullClassName = fullClassName;
+		this.shouldUseNewSender = false;
+	}
+
+	public NotificationTemplateBean(String name, String fullClassName, Boolean shouldUseNewSender){
+		this.key = new NotificationTemplateBeanKey(name);
+		this.fullClassName = fullClassName;
+		this.shouldUseNewSender = shouldUseNewSender;
 	}
 
 	@Override
@@ -40,8 +50,13 @@ public class NotificationTemplateBean extends BaseDatabean<NotificationTemplateB
 		this.fullClassName = fullClassName;
 	}
 
+	public Boolean getShouldUseNewSender(){
+		return shouldUseNewSender;
+	}
+
 	public static class FieldKeys{
 		public static final StringFieldKey fullClassName = new StringFieldKey("fullClassName");
+		public static final BooleanFieldKey shouldUseNewSender = new BooleanFieldKey("shouldUseNewSender");
 	}
 
 	public static class NotificationTemplateBeanFielder
@@ -52,7 +67,9 @@ public class NotificationTemplateBean extends BaseDatabean<NotificationTemplateB
 
 		@Override
 		public List<Field<?>> getNonKeyFields(NotificationTemplateBean databean){
-			return Arrays.asList(new StringField(FieldKeys.fullClassName, databean.fullClassName));
+			return Arrays.asList(
+					new StringField(FieldKeys.fullClassName, databean.fullClassName),
+					new BooleanField(FieldKeys.shouldUseNewSender, databean.shouldUseNewSender));
 		}
 	}
 }

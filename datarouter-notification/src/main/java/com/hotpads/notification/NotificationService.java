@@ -19,8 +19,6 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hotpads.datarouter.client.ClientId;
-import com.hotpads.datarouter.client.availability.ClientAvailabilitySettings;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.inject.DatarouterInjector;
 import com.hotpads.datarouter.storage.databean.DatabeanTool;
@@ -55,7 +53,6 @@ import com.hotpads.util.core.profile.PhaseTimer;
 @Singleton
 public class NotificationService{
 	private static final Logger logger = LoggerFactory.getLogger(NotificationService.class);
-	private static final String HBASE1_NAME = new ClientId("hbase1", true).getName();
 
 	@Inject
 	private DatarouterInjector injector;
@@ -69,8 +66,6 @@ public class NotificationService{
 	NotificationServiceCallbacks callbacks;
 	@Inject
 	private NotificationNodes notificationNodes;
-	@Inject
-	private ClientAvailabilitySettings availabilitySettings;
 	@Inject
 	private NotificationDao notificationDao;
 
@@ -137,7 +132,7 @@ public class NotificationService{
 			NotificationTemplate oldTemplate = null;//TODO make sure new/old is exclusive
 			NewNotificationSender newSender = null;
 			BaseBuiltTemplate newTemplate = null;
-			boolean shouldUseNewSender = false;//TODO get in setting
+			boolean shouldUseNewSender = notificationDao.shouldUseNewSender(templateClass);
 			try{
 				if(shouldUseNewSender){
 					try{
