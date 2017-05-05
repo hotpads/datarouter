@@ -8,14 +8,17 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.config.Isolation;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import com.hotpads.joblet.JobletNodes;
 import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.databean.JobletRequestKey;
+import com.hotpads.joblet.enums.JobletPriority;
 import com.hotpads.joblet.enums.JobletStatus;
 import com.hotpads.joblet.type.JobletType;
+import com.hotpads.util.core.collections.Range;
 
 @Singleton
 public class JobletRequestDao{
@@ -50,4 +53,28 @@ public class JobletRequestDao{
 				.collect(Collectors.toList());
 	}
 
+	/**
+	 * Count JobletRequests of jobletType that have the jobletStatus and higher than the minPriority
+	 * @return true count or countLimit if true count is eq/gt
+	 */
+	public int countRequests(JobletType<?> jobletType, JobletPriority minPriority, JobletStatus jobletStatus,
+			int countLimit){
+		// select * from Joblet where typeCode=$type and executionOrder>=INT_MIN and executionOrder<$minPriority
+		JobletRequestKey startKey = JobletRequestKey.create(jobletType, Integer.MIN_VALUE, null, null);
+		JobletRequestKey endKey = JobletRequestKey.create(jobletType, minPriority.getExecutionOrder(), null, null);
+		Preconditions.checkState(JobletPriority.isHigher(startKey.getExecutionOrder(), endKey.getExecutionOrder()));
+		Range<JobletRequestKey> range = new Range<>(startKey, true, endKey, false);
+		int count = 0;
+		for(JobletRequest jobletRequest : node.scan(range, null)){
+			if(jobletRequest.getStatus() == jobletStatus){
+				count++;
+				if(count == countLimit){
+					break;
+				}
+			}
+		}
+		return count;
+	}
+
 }
+

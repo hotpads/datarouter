@@ -27,6 +27,13 @@ public enum JobletPriority{
 		return JobletPriority.LOW;
 	}
 
+	/**
+	 * return true if A has higher priority than B
+	 */
+	public static boolean isHigher(int executionOrderA, int executionOrderB){
+		return executionOrderA < executionOrderB;
+	}
+
 	public Integer getExecutionOrder(){
 		return this.executionOrder;
 	}
