@@ -58,26 +58,13 @@ implements QueueStorageWriter<PK,D>{
 			queueUrl = params.getQueueUrl();
 			//don't issue the createQueue request because it is probably someone else's queue
 		}else{
-			String namespace = getNamespace();
+			String namespace = params.getNamespace()
+					.orElse(datarouterProperties.getEnvironment() + "-" + datarouterProperties.getServiceName());
 			String queueName = namespace == null ? getTableName() : namespace + "-" + getTableName();
 			queueUrl = tryCreateQueueAndGetUrl(queueName);
 		}
 		logger.warn("nodeName={}, queueName={}", getName(), queueUrl);
 		return queueUrl;
-	}
-
-	//SQS max queue name length is 80 chars.
-	//TODO limit namespace to 30
-	private String getNamespace(){
-		if(params.getNamespace().isPresent()){
-			return params.getNamespace().get();
-		}
-		//TODO remove after migration
-		String configFileNamespace = getSqsClient().getSqsOptions().getNamespace();
-		if(configFileNamespace != null){
-			return configFileNamespace;
-		}
-		return datarouterProperties.getEnvironment() + "-" + datarouterProperties.getServiceName();
 	}
 
 	private String tryCreateQueueAndGetUrl(String queueName){
