@@ -6,15 +6,13 @@ import com.hotpads.notification.sender.SenderType;
 
 public class BuiltGcmTemplate extends BaseBuiltTemplate{
 
-	public NotificationSendingAction notificationSendingAction;//TODO move
-	public JsonObject jsonData;
-	public String notificationText;
-	public Integer badgeCount;
-	public String clickAction;
-	public String gcmKey;
-	public Boolean isIos;
-
-	//TODO why are these public?
+	private NotificationSendingAction notificationSendingAction;
+	private JsonObject jsonData;
+	private String notificationText;
+	private Integer badgeCount;
+	private String clickAction;
+	private String gcmKey;
+	private Boolean isIos;
 
 	public BuiltGcmTemplate(NotificationSendingAction notificationSendingAction, JsonObject jsonData,
 			String notificationText, Integer badgeCount, String clickAction, String gcmKey, Boolean isIos){

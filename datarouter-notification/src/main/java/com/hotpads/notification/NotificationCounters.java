@@ -1,6 +1,7 @@
 package com.hotpads.notification;
 
 import com.hotpads.datarouter.profile.counter.Counters;
+import com.hotpads.datarouter.util.core.DrStringTool;
 
 public class NotificationCounters{
 
@@ -12,34 +13,35 @@ public class NotificationCounters{
 
 	public static void inc(String key, long delta){
 		Counters.inc(PREFIX + " " + key, delta);
+		System.out.println(PREFIX + " " + key);//TODO remove
 	}
 
 	public static void sendAttempt(String typeName, String appName, Class<?> senderClass,
-			String templateName){
-		send("attempt", typeName, appName, senderClass, templateName);
+			String templateClass){
+		send("attempt", typeName, appName, senderClass, templateClass);
 	}
 
 	public static void sendSuccess(String typeName, String appName, Class<?> senderClass,
-			String templateName){
-		send("success", typeName, appName, senderClass, templateName);
+			String templateClass){
+		send("success", typeName, appName, senderClass, templateClass);
 	}
 
 	public static void sendFailed(String typeName, String appName, Class<?> senderClass,
-			String templateName){
-		send("failed", typeName, appName, senderClass, templateName);
+			String templateClass){
+		send("failed", typeName, appName, senderClass, templateClass);
 	}
 
-	//TODO test strings and spaces
 	public static void send(String description, String typeName, String appName,
-			Class<?> senderClass, String templateName){
-		//TODO template class simple name template.getClass().getSimpleName() => clientId?
+			Class<?> senderClass, String templateClass){
 		String prefix = "send " + description + " ";
 		NotificationCounters.inc(prefix.trim());
 		NotificationCounters.inc(prefix + typeName);
 		NotificationCounters.inc(prefix + typeName + " " + appName);
-		NotificationCounters.inc(prefix + senderClass.getSimpleName());//TODO might need to combine New/Old for this...
+		NotificationCounters.inc(prefix + senderClass.getSimpleName());
 		NotificationCounters.inc(prefix + senderClass.getSimpleName() + " " + appName);
-		NotificationCounters.inc(prefix + templateName);
-		NotificationCounters.inc(prefix + templateName + " " + appName);
+		//templateName might include package
+		templateClass = DrStringTool.getSimpleClassName(templateClass);
+		NotificationCounters.inc(prefix + templateClass);
+		NotificationCounters.inc(prefix + templateClass + " " + appName);
 	}
 }

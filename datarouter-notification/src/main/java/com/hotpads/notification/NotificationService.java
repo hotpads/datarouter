@@ -136,9 +136,9 @@ public class NotificationService{
 			try{
 				if(shouldUseNewSender){
 					try{
-					newTemplate = callbacks.buildRequests(new NotificationTemplateRequest(templateClass, userId,
-							notificationDestination, uuid, selectedRequests)).getSendable();
-					newSender = getSender(newTemplate);
+						newTemplate = callbacks.buildRequests(new NotificationTemplateRequest(templateClass, userId,
+								notificationDestination, uuid, selectedRequests)).getSendable();
+						newSender = getSender(newTemplate);
 					}catch(Exception e){
 						logger.error("Error creating new notification sender and template. Falling back to old. "
 								+ "Template: " + templateClass, e);
@@ -175,11 +175,8 @@ public class NotificationService{
 				oldTemplate.setRequests(selectedRequests);
 				oldTemplate.setNotificationId(uuid);
 			}
-			//TODO how to recreate failure behavior above?
 
 			String appName = notificationDestination.getKey().getApp().persistentString;
-			//TODO ensure templateClass here is same as old logging
-			//TODO want same sender class here or not?
 			NotificationCounters.sendAttempt(typeName, appName, shouldUseNewSender ? newSender.getClass() : oldSender
 					.getClass(), templateClass);
 			timer.add("misc1");
@@ -188,13 +185,6 @@ public class NotificationService{
 				if(shouldUseNewSender){
 					try{
 						senderSent = newSender.send(newTemplate, notificationDestination, userId, result);
-					}catch(IllegalArgumentException e){//TODO can this still happen?
-						logger.warn(userId + " does not fit the requirements for " + templateClass + " (new send "
-								+ "attempt)", e);
-						NotificationCounters.inc("wrong UserId new");
-						result.setFail(NotificationFailureReason.WRONG_USER_ID);
-						remove(requests);//TODO improve multiple device
-						continue;
 					}catch(Exception e){
 						logger.error("Failed to send with new sender. Template: " + templateClass, e);
 						throw e;
@@ -208,7 +198,6 @@ public class NotificationService{
 							: oldSender.getClass(), templateClass);
 					sent = true;
 					sentNotificationIds.add(uuid);
-					//TODO only log successes (after senders/templates can have successes and failures)
 					log(selectedRequests, templateClass, uuid, notificationDestination.getKey().getDeviceId());
 				}else{
 					result.setFailIfnotSet(NotificationFailureReason.DISCARD_BY_SENDER);
@@ -233,7 +222,6 @@ public class NotificationService{
 				callbacks.onSuccess(clientId, selectedRequests);
 			}
 			if(notificationNodes.getNotificationLog().areAllPhysicalNodesAvailableForWrite() || jobName != null){
-				//TODO only log successes (after senders/templates can have successes and failures)
 				notificationDao.logItems(selectedRequests, sentNotificationIds);
 				remove(requests);
 			}
@@ -263,8 +251,7 @@ public class NotificationService{
 		return Collections.emptyList();
 	}
 
-	//TODO ensure log with string instead of class is still the same
-	private void log(List<NotificationRequest> requests, String template, String uuid, String deviceId){
+	private void log(List<NotificationRequest> requests, String templateClass, String uuid, String deviceId){
 		List<String> itemIds = new ArrayList<>();
 
 		for(NotificationRequest request : requests){
@@ -272,7 +259,7 @@ public class NotificationService{
 		}
 		NotificationRequest firstRequest = requests.get(0);
 		NotificationLog notificationLog = new NotificationLog(firstRequest.getKey().getNotificationUserId(), new Date(),
-				template, firstRequest.getType(), itemIds, firstRequest.getChannel(), uuid, deviceId);
+				templateClass, firstRequest.getType(), itemIds, firstRequest.getChannel(), uuid, deviceId);
 		notificationNodes.getNotificationLog().put(notificationLog, null);
 	}
 

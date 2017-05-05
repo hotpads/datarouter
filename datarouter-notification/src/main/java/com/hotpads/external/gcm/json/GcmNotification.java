@@ -19,4 +19,8 @@ public class GcmNotification{
 		this.clickAction = clickAction;
 	}
 
+	public String getString(){
+		return body + "\n" + badge + "\n" + clickAction;
+	}
+
 }

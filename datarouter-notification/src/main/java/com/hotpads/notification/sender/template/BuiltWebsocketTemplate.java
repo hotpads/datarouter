@@ -4,12 +4,11 @@ import com.hotpads.notification.sender.SenderType;
 
 public class BuiltWebsocketTemplate extends BaseBuiltTemplate{
 
-	public String userToken;
-	public Long sessionId;
-	public String messageType;
-	public String notificationId;
-	public Object payload;
-	//TODO why are these public?
+	private String userToken;
+	private Long sessionId;
+	private String messageType;
+	private String notificationId;
+	private Object payload;
 
 	public BuiltWebsocketTemplate(String userToken, Long sessionId, String messageType, String notificationId,
 			Object payload){

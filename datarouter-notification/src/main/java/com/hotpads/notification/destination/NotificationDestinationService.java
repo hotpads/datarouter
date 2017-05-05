@@ -37,7 +37,6 @@ public class NotificationDestinationService{
 	}
 
 	public void deactivateDestinationByTokenAndDevice(NotificationDestinationKey destinationKey){
-		//TODO safe enough?
 		if(DrStringTool.isNullOrEmptyOrWhitespace(destinationKey.getToken())){
 			return;
 		}

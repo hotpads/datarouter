@@ -12,7 +12,7 @@ import com.hotpads.notification.databean.NotificationTemplateBean;
 import com.hotpads.util.core.cache.Cached;
 
 @Singleton
-public class CachedNewSenderTemplate extends Cached<Set<String>>{//TODO remove s
+public class CachedNewSenderTemplate extends Cached<Set<String>>{
 
 	private final NotificationNodes notificationNodes;
 

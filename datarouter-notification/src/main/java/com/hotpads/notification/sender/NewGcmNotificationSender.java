@@ -29,7 +29,7 @@ public class NewGcmNotificationSender implements NewNotificationSender{
 	@Override
 	public boolean send(BaseBuiltTemplate builtTemplate, NotificationDestination notificationDestination,
 			NotificationUserId notificationUserId, NotificationSendingResult notificationResult){
-		BuiltGcmTemplate template = (BuiltGcmTemplate)builtTemplate;//TODO how to recreate the commented out behavior in sender.setTemplate?
+		BuiltGcmTemplate template = (BuiltGcmTemplate)builtTemplate;
 
 		String deviceId = notificationDestination.getKey().getDeviceId();
 		NotificationSendingAction action = template.getNotificationSendingAction();
@@ -48,6 +48,15 @@ public class NewGcmNotificationSender implements NewNotificationSender{
 		GcmRequest request = new GcmRequest(deviceId, notification, jsonData);
 		GcmJsonSender sender = new GcmJsonSender(template.getGcmKey());
 		GcmResponse response;
+//TODO remove
+//		System.out.println(request.contentAvailble);
+//		System.out.println(request.data);
+//		System.out.println(request.priority);
+//		System.out.println(request.to);
+//		System.out.println(template.getNotificationText());
+//		System.out.println(template.getBadgeCount());
+//		System.out.println(template.getClickAction());
+
 		try{
 			response = sender.send(request, 3);
 		}catch(Exception e){
@@ -64,7 +73,7 @@ public class NewGcmNotificationSender implements NewNotificationSender{
 						|| error == GcmResultError.INVALID_REGISTRATION){
 					Counters.inc("GcmSender deactivating destination " + error);
 					notificationDestinationService.deactivateDestinationByTokenAndDevice(notificationDestination
-							.getKey());//TODO check destination creation logic for which key fields can be duplicated
+							.getKey());
 				}
 				if(error == null){
 					unknownErrors.add(result.getError());

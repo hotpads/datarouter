@@ -105,7 +105,9 @@ public class NotificationDao{
 			return destinations;
 		}
 		Set<NotificationDestinationAppName> optedOutApps = getOptedOutApps(typeGroup, userToken, destinationApps);
-
+		if(optedOutApps.isEmpty()){
+			return destinations;
+		}
 		return destinations.stream()
 				.filter(destination -> !optedOutApps.contains(destination.getKey().getApp()))
 				.collect(Collectors.toSet());

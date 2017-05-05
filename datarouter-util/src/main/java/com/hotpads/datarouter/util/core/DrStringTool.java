@@ -366,6 +366,11 @@ public class DrStringTool{
 		return false;
 	}
 
+	public static String getSimpleClassName(String className){
+		int lastIndexOfDot = className.lastIndexOf('.');
+		return lastIndexOfDot == -1 ? className : className.substring(lastIndexOfDot + 1);
+	}
+
 	/** TESTS *****************************************************************/
 
 	public static class Tests{
@@ -476,6 +481,12 @@ public class DrStringTool{
 			Assert.assertTrue(containsNumbers("a1dkfjaldk"));
 			Assert.assertFalse(containsOnlyNumbers("a1dlkafj"));
 			Assert.assertTrue(containsOnlyNumbers("01234567890123412341352109472813740198715"));
+		}
+
+		@Test
+		public void testGetSimpleClassName(){
+			Assert.assertEquals(getSimpleClassName("bar.Foo"), "Foo");
+			Assert.assertEquals(getSimpleClassName("Foo"), "Foo");
 		}
 
 	}
