@@ -67,7 +67,7 @@ public class JobletScaler{
 					.sorted(Comparator.reverseOrder())
 					.skip(IGNORE_OLDEST_N_JOBLETS)
 					.findFirst()
-					.ifPresent(age -> oldestAgeByJobletType.put(jobletType, age));;
+					.ifPresent(age -> oldestAgeByJobletType.put(jobletType, age));
 		}
 
 		//calculate desired numServers by type
