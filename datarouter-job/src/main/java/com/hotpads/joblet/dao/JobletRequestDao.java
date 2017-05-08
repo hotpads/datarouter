@@ -18,7 +18,6 @@ import com.hotpads.joblet.enums.JobletPriority;
 import com.hotpads.joblet.enums.JobletStatus;
 import com.hotpads.joblet.type.JobletType;
 import com.hotpads.util.core.collections.Range;
-import com.hotpads.util.core.stream.StreamTool;
 
 @Singleton
 public class JobletRequestDao{
@@ -68,7 +67,7 @@ public class JobletRequestDao{
 			return 0;
 		}
 		Range<JobletRequestKey> range = new Range<>(startKey, true, endKey, false);
-		long count = StreamTool.stream(node.scan(range, null))
+		long count = node.stream(range, null)
 				.filter(jobletRequest -> jobletRequest.getStatus() == jobletStatus)
 				.limit(countLimit)
 				.count();
