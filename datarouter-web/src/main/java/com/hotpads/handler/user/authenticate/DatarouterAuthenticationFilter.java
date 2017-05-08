@@ -37,6 +37,7 @@ import com.hotpads.util.http.ResponseTool;
 
 @Singleton
 public class DatarouterAuthenticationFilter implements Filter{
+
 	private static Logger logger = LoggerFactory.getLogger(DatarouterAuthenticationFilter.class);
 
 	@Inject
@@ -69,12 +70,10 @@ public class DatarouterAuthenticationFilter implements Filter{
 		final URL targetUrl = getValidTargetUrl(request, signinFormPath);
 		final URL referrerUrl = getReferrerUrl(request);
 
-
 		//special case where they clicked sign-in from a random page and we want to bounce them back to that page
 		if(shouldBounceBack(request, path, signinFormPath, referrerUrl, targetUrl)){
 			sessionManager.addTargetUrlCookie(response, referrerUrl.toExternalForm());
 		}
-
 
 		//obtain a valid datarouterSession or redirect to the login form
 		DatarouterSession datarouterSession;
@@ -104,7 +103,6 @@ public class DatarouterAuthenticationFilter implements Filter{
 
 		filterChain.doFilter(req, res);
 	}
-
 
 	/****************** private methods **************************/
 
@@ -183,7 +181,7 @@ public class DatarouterAuthenticationFilter implements Filter{
 	}
 
 	private void handleBadApiCall(HttpServletResponse response, String message){
-		ResponseTool.sendErrorInJson(response, HttpServletResponse.SC_BAD_REQUEST, message);
+		ResponseTool.sendErrorInJsonForMessage(response, HttpServletResponse.SC_BAD_REQUEST, message);
 	}
 
 	private boolean missingRequiredRoles(String path, DatarouterSession datarouterSession){
@@ -217,4 +215,5 @@ public class DatarouterAuthenticationFilter implements Filter{
 		}
 		ResponseTool.sendRedirect(request, response, HttpServletResponse.SC_SEE_OTHER, redirectTo);
 	}
+
 }
