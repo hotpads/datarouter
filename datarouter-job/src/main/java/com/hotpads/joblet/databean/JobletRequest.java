@@ -106,7 +106,7 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 	/*-------------------- construct --------------------*/
 
 	public JobletRequest(){
-		this.key = new JobletRequestKey(null, null, null, null);
+		this.key = new JobletRequestKey((Integer) null, null, null, null);
 	}
 
 	public JobletRequest(JobletType<?> type, JobletPriority priority, Date createdDate, Integer batchSequence,

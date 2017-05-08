@@ -28,10 +28,10 @@ public enum JobletPriority{
 	}
 
 	/**
-	 * return true if A has higher priority than B
+	 * return true if this has higher priority than the other
 	 */
-	public static boolean isHigher(int executionOrderA, int executionOrderB){
-		return executionOrderA < executionOrderB;
+	public boolean isHigher(JobletPriority other){
+		return executionOrder < other.executionOrder;
 	}
 
 	public Integer getExecutionOrder(){

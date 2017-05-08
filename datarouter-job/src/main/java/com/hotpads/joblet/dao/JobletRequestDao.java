@@ -8,7 +8,6 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.config.Isolation;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
@@ -19,6 +18,7 @@ import com.hotpads.joblet.enums.JobletPriority;
 import com.hotpads.joblet.enums.JobletStatus;
 import com.hotpads.joblet.type.JobletType;
 import com.hotpads.util.core.collections.Range;
+import com.hotpads.util.core.stream.StreamTool;
 
 @Singleton
 public class JobletRequestDao{
@@ -59,22 +59,24 @@ public class JobletRequestDao{
 	 */
 	public int countRequests(JobletType<?> jobletType, JobletPriority minPriority, JobletStatus jobletStatus,
 			int countLimit){
-		// select * from Joblet where typeCode=$type and executionOrder>=INT_MIN and executionOrder<$minPriority
-		JobletRequestKey startKey = JobletRequestKey.create(jobletType, Integer.MIN_VALUE, null, null);
-		JobletRequestKey endKey = JobletRequestKey.create(jobletType, minPriority.getExecutionOrder(), null, null);
-		Preconditions.checkState(JobletPriority.isHigher(startKey.getExecutionOrder(), endKey.getExecutionOrder()));
-		Range<JobletRequestKey> range = new Range<>(startKey, true, endKey, false);
-		int count = 0;
-		for(JobletRequest jobletRequest : node.scan(range, null)){
-			if(jobletRequest.getStatus() == jobletStatus){
-				count++;
-				if(count == countLimit){
-					break;
-				}
-			}
+		// select * from Joblet where typeCode=$type and execOrder>=$highestPriority and execOrder<$minPriority
+		JobletPriority startPriority = findHighestJobletPriority();
+		JobletRequestKey startKey = new JobletRequestKey(jobletType, startPriority, null, null);
+		JobletRequestKey endKey = new JobletRequestKey(jobletType, minPriority, null, null);
+
+		if(!startPriority.isHigher(minPriority)){
+			return 0;
 		}
-		return count;
+		Range<JobletRequestKey> range = new Range<>(startKey, true, endKey, false);
+		long count = StreamTool.stream(node.scan(range, null))
+				.filter(jobletRequest -> jobletRequest.getStatus() == jobletStatus)
+				.limit(countLimit)
+				.count();
+		return Math.toIntExact(count);
 	}
 
+	private JobletPriority findHighestJobletPriority(){
+		return JobletPriority.values()[0];
+	}
 }
 
