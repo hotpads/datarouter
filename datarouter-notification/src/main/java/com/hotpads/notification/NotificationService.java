@@ -129,7 +129,7 @@ public class NotificationService{
 			results.add(result);
 			String uuid = notificationTrackingService.generateId();
 			NotificationSender oldSender = null;
-			NotificationTemplate oldTemplate = null;//TODO make sure new/old is exclusive
+			NotificationTemplate oldTemplate = null;
 			NewNotificationSender newSender = null;
 			BaseBuiltTemplate newTemplate = null;
 			boolean shouldUseNewSender = notificationDao.shouldUseNewSender(templateClass);

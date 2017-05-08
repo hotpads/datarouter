@@ -48,14 +48,6 @@ public class NewGcmNotificationSender implements NewNotificationSender{
 		GcmRequest request = new GcmRequest(deviceId, notification, jsonData);
 		GcmJsonSender sender = new GcmJsonSender(template.getGcmKey());
 		GcmResponse response;
-//TODO remove
-//		System.out.println(request.contentAvailble);
-//		System.out.println(request.data);
-//		System.out.println(request.priority);
-//		System.out.println(request.to);
-//		System.out.println(template.getNotificationText());
-//		System.out.println(template.getBadgeCount());
-//		System.out.println(template.getClickAction());
 
 		try{
 			response = sender.send(request, 3);

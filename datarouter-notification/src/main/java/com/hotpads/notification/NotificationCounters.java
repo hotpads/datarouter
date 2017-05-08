@@ -13,7 +13,6 @@ public class NotificationCounters{
 
 	public static void inc(String key, long delta){
 		Counters.inc(PREFIX + " " + key, delta);
-		System.out.println(PREFIX + " " + key);//TODO remove
 	}
 
 	public static void sendAttempt(String typeName, String appName, Class<?> senderClass,

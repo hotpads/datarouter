@@ -21,6 +21,7 @@ public class NewWebsocketSender implements NewNotificationSender{
 	public boolean send(BaseBuiltTemplate builtTemplate, NotificationDestination notificationDestination,
 			NotificationUserId notificationUserId,NotificationSendingResult result){
 		BuiltWebsocketTemplate template = (BuiltWebsocketTemplate)builtTemplate;
+
 		pushService.forward(template.getUserToken(), template.getSessionId(), gson.toJson(
 				new WebSocketNotificationMessage(template.getMessageType(), template.getNotificationId(), template
 				.getPayload())));
