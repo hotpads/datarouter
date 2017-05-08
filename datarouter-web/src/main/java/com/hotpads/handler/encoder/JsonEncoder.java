@@ -42,8 +42,7 @@ public class JsonEncoder implements HandlerEncoder{
 			ResponseTool.sendErrorInJsonForMessage(response, exception.getHttpResponseCode(), exception.getMessage());
 			return;
 		}
-		ResponseTool.sendErrorInJson(response, exception.getHttpResponseCode(),
-				jsonSerializer.serialize(exception.getHttpResponseBody()));
+		ResponseTool.sendErrorInJson(response, exception.getHttpResponseCode(), jsonSerializer.serialize(responseBody));
 	}
 
 }
