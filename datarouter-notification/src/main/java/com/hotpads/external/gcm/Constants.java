@@ -18,7 +18,7 @@ package com.hotpads.external.gcm;
 /**
  * Constants used on GCM service communication.
  */
-public final class Constants {
+public final class Constants{
 
   /**
    * Endpoint for sending messages.
@@ -128,7 +128,7 @@ public final class Constants {
   /**
    * Time to Live value passed is less than zero or more than maximum.
    */
-  public static final String ERROR_INVALID_TTL= "InvalidTtl";
+  public static final String ERROR_INVALID_TTL = "InvalidTtl";
 
   /**
    * Token returned by GCM when a message was successfully sent.
@@ -192,7 +192,7 @@ public final class Constants {
    */
   public static final String JSON_MESSAGE_ID = "message_id";
 
-  private Constants() {
+  private Constants(){
     throw new UnsupportedOperationException();
   }
 

@@ -85,7 +85,6 @@ public class GcmJsonSender{
 	 * @throws IOException              if message could not be sent.
 	 */
 	public GcmResponse send(GcmRequest request, int retries) throws IOException{
-		System.out.println(request);
 		int attempt = 0;
 		GcmResponse result;
 		int backoff = BACKOFF_INITIAL_DELAY;
