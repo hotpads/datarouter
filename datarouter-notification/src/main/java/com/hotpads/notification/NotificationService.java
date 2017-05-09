@@ -202,7 +202,8 @@ public class NotificationService{
 				}else{
 					result.setFailIfnotSet(NotificationFailureReason.DISCARD_BY_SENDER);
 					NotificationCounters.inc("discard");
-					logger.info("{} discared by the sender", typeName);
+					NotificationCounters.sendDiscarded(typeName, appName, shouldUseNewSender ? newSender.getClass()
+							: oldSender.getClass(), templateClass);
 					remove(requests);//TODO improve multiple device
 				}
 			}catch(Exception e){

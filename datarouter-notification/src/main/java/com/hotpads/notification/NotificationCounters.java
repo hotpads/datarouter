@@ -20,6 +20,11 @@ public class NotificationCounters{
 		send("attempt", typeName, appName, senderClass, templateClass);
 	}
 
+	public static void sendDiscarded(String typeName, String appName, Class<?> senderClass,
+			String templateClass){
+		send("discarded", typeName, appName, senderClass, templateClass);
+	}
+
 	public static void sendSuccess(String typeName, String appName, Class<?> senderClass,
 			String templateClass){
 		send("success", typeName, appName, senderClass, templateClass);
