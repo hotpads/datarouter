@@ -19,8 +19,6 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hotpads.datarouter.client.ClientId;
-import com.hotpads.datarouter.client.availability.ClientAvailabilitySettings;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.inject.DatarouterInjector;
 import com.hotpads.datarouter.storage.databean.DatabeanTool;
@@ -38,9 +36,14 @@ import com.hotpads.notification.destination.NotificationDestination;
 import com.hotpads.notification.destination.NotificationDestinationAppName;
 import com.hotpads.notification.result.NotificationFailureReason;
 import com.hotpads.notification.result.NotificationSendingResult;
+import com.hotpads.notification.sender.NewGcmNotificationSender;
+import com.hotpads.notification.sender.NewNotificationSender;
+import com.hotpads.notification.sender.NewWebsocketSender;
 import com.hotpads.notification.sender.NotificationSender;
+import com.hotpads.notification.sender.template.BaseBuiltTemplate;
 import com.hotpads.notification.sender.template.NotificationTemplate;
 import com.hotpads.notification.sender.template.NotificationTemplateFactory;
+import com.hotpads.notification.sender.template.NotificationTemplateRequest;
 import com.hotpads.notification.timing.NotificationTimingStrategy;
 import com.hotpads.notification.timing.NotificationTimingStrategyMappingKey;
 import com.hotpads.notification.tracking.NotificationTrackingService;
@@ -50,7 +53,6 @@ import com.hotpads.util.core.profile.PhaseTimer;
 @Singleton
 public class NotificationService{
 	private static final Logger logger = LoggerFactory.getLogger(NotificationService.class);
-	private static final String HBASE1_NAME = new ClientId("hbase1", true).getName();
 
 	@Inject
 	private DatarouterInjector injector;
@@ -64,8 +66,6 @@ public class NotificationService{
 	NotificationServiceCallbacks callbacks;
 	@Inject
 	private NotificationNodes notificationNodes;
-	@Inject
-	private ClientAvailabilitySettings availabilitySettings;
 	@Inject
 	private NotificationDao notificationDao;
 
@@ -128,11 +128,27 @@ public class NotificationService{
 			NotificationSendingResult result = new NotificationSendingResult(userId, templateClass);
 			results.add(result);
 			String uuid = notificationTrackingService.generateId();
-			NotificationSender sender;
-			NotificationTemplate template;
+			NotificationSender oldSender = null;
+			NotificationTemplate oldTemplate = null;
+			NewNotificationSender newSender = null;
+			BaseBuiltTemplate newTemplate = null;
+			boolean shouldUseNewSender = notificationDao.shouldUseNewSender(templateClass);
 			try{
-				template = templateFactory.create(templateClass);
-				sender = injector.getInstance(template.getNotificationSender());
+				if(shouldUseNewSender){
+					try{
+						newTemplate = callbacks.buildRequests(new NotificationTemplateRequest(templateClass, userId,
+								notificationDestination, uuid, selectedRequests)).getSendable();
+						newSender = getSender(newTemplate);
+					}catch(Exception e){
+						logger.error("Error creating new notification sender and template. Falling back to old. "
+								+ "Template: " + templateClass, e);
+						shouldUseNewSender = false;
+					}
+				}
+				if(!shouldUseNewSender){
+					oldTemplate = templateFactory.create(templateClass);
+					oldSender = injector.getInstance(oldTemplate.getNotificationSender());
+				}
 			}catch(RuntimeException e){
 				logger.error("Error creating notification sender and template", e);
 				result.setFail(NotificationFailureReason.FAILED_TO_GET_NEEDED_INSTANCES);
@@ -143,44 +159,46 @@ public class NotificationService{
 				}
 				continue;
 			}
-			sender.setUserId(userId, notificationDestination);
-			try{
-				sender.setTemplate(template);
-			}catch(IllegalArgumentException e){
-				logger.warn(userId + " does not fit the requirements for "
-						+ template.getClass().getSimpleName() + ": " + e.getMessage());
-				NotificationCounters.inc("wrong UserId");
-				result.setFail(NotificationFailureReason.WRONG_USER_ID);
-				remove(requests);//TODO improve multiple device
-				continue;
+
+			if(!shouldUseNewSender){
+				oldSender.setUserId(userId, notificationDestination);
+				try{
+					oldSender.setTemplate(oldTemplate);
+				}catch(IllegalArgumentException e){
+					logger.warn(userId + " does not fit the requirements for "
+							+ oldTemplate.getClass().getSimpleName() + ": " + e.getMessage());
+					NotificationCounters.inc("wrong UserId");
+					result.setFail(NotificationFailureReason.WRONG_USER_ID);
+					remove(requests);//TODO improve multiple device
+					continue;
+				}
+				oldTemplate.setRequests(selectedRequests);
+				oldTemplate.setNotificationId(uuid);
 			}
-			template.setRequests(selectedRequests);
-			template.setNotificationId(uuid);
 
 			String appName = notificationDestination.getKey().getApp().persistentString;
-			NotificationCounters.inc("send attempt");
-			NotificationCounters.inc("send attempt " + typeName);
-			NotificationCounters.inc("send attempt " + typeName + " " + appName);
-			NotificationCounters.inc("send attempt " + sender.getClass().getSimpleName());
-			NotificationCounters.inc("send attempt " + sender.getClass().getSimpleName() + " " + appName);
-			NotificationCounters.inc("send attempt " + template.getClass().getSimpleName());
-			NotificationCounters.inc("send attempt " + template.getClass().getSimpleName() + " " + appName);
+			NotificationCounters.sendAttempt(typeName, appName, shouldUseNewSender ? newSender.getClass() : oldSender
+					.getClass(), templateClass);
 			timer.add("misc1");
 			try{
-				boolean senderSent = sender.send(result);
+				boolean senderSent;
+				if(shouldUseNewSender){
+					try{
+						senderSent = newSender.send(newTemplate, notificationDestination, userId, result);
+					}catch(Exception e){
+						logger.error("Failed to send with new sender. Template: " + templateClass, e);
+						throw e;
+					}
+				}else{
+					senderSent = oldSender.send(result);
+				}
 				timer.add("senderSent");
 				if(senderSent){
-					NotificationCounters.inc("send success");
-					NotificationCounters.inc("send success " + typeName);
-					NotificationCounters.inc("send success " + typeName + " "
-							+ appName);
-					NotificationCounters.inc("send success " + sender.getClass().getSimpleName());
-					NotificationCounters.inc("send success " + sender.getClass().getSimpleName() + " " + appName);
-					NotificationCounters.inc("send success " + template.getClass().getSimpleName());
-					NotificationCounters.inc("send success " + template.getClass().getSimpleName() + " " + appName);
+					NotificationCounters.sendSuccess(typeName, appName, shouldUseNewSender ? newSender.getClass()
+							: oldSender.getClass(), templateClass);
 					sent = true;
 					sentNotificationIds.add(uuid);
-					log(selectedRequests, template.getClass(), uuid, notificationDestination.getKey().getDeviceId());
+					log(selectedRequests, templateClass, uuid, notificationDestination.getKey().getDeviceId());
 				}else{
 					result.setFailIfnotSet(NotificationFailureReason.DISCARD_BY_SENDER);
 					NotificationCounters.inc("discard");
@@ -189,13 +207,8 @@ public class NotificationService{
 				}
 			}catch(Exception e){
 				result.setFail(NotificationFailureReason.SENDER_FAILED);
-				NotificationCounters.inc("send failed");
-				NotificationCounters.inc("send failed " + typeName);
-				NotificationCounters.inc("send failed " + typeName + " " + appName);
-				NotificationCounters.inc("send failed " + sender.getClass().getSimpleName());
-				NotificationCounters.inc("send failed " + sender.getClass().getSimpleName() + " " + appName);
-				NotificationCounters.inc("send failed " + template.getClass().getSimpleName());
-				NotificationCounters.inc("send failed " + template.getClass().getSimpleName() + " " + appName);
+				NotificationCounters.sendFailed(typeName, appName, shouldUseNewSender ? newSender.getClass() : oldSender
+						.getClass(), templateClass);
 				if(jobName != null){
 					exceptionRecorder.tryRecordException(e, jobName);
 				}else{
@@ -218,13 +231,27 @@ public class NotificationService{
 		return results;
 	}
 
+	private NewNotificationSender getSender(BaseBuiltTemplate template){
+		Class<? extends NewNotificationSender> senderClass;
+		switch(template.getSenderType()){
+		case GCM:
+			senderClass = NewGcmNotificationSender.class;
+			break;
+		case WEBSOCKET:
+			senderClass = NewWebsocketSender.class;
+			break;
+		default:
+			throw new RuntimeException("Unknown SenderType: " + template.getSenderType());
+		}
+		return injector.getInstance(senderClass);
+	}
+
 	private List<NotificationSendingResult> finishSendNotificationsWithoutSend(List<NotificationRequest> requests){
 		remove(requests);
 		return Collections.emptyList();
 	}
 
-	private void log(List<NotificationRequest> requests, Class<? extends NotificationTemplate> template, String uuid,
-			String deviceId){
+	private void log(List<NotificationRequest> requests, String templateClass, String uuid, String deviceId){
 		List<String> itemIds = new ArrayList<>();
 
 		for(NotificationRequest request : requests){
@@ -232,7 +259,7 @@ public class NotificationService{
 		}
 		NotificationRequest firstRequest = requests.get(0);
 		NotificationLog notificationLog = new NotificationLog(firstRequest.getKey().getNotificationUserId(), new Date(),
-				template.getName(), firstRequest.getType(), itemIds, firstRequest.getChannel(), uuid, deviceId);
+				templateClass, firstRequest.getType(), itemIds, firstRequest.getChannel(), uuid, deviceId);
 		notificationNodes.getNotificationLog().put(notificationLog, null);
 	}
 

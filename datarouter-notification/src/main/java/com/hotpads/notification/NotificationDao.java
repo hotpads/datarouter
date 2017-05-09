@@ -27,6 +27,7 @@ import com.hotpads.notification.destination.NotificationDestinationAppName;
 import com.hotpads.notification.preference.NotificationDestinationAppGroupName;
 import com.hotpads.notification.preference.NotificationPreferenceKey;
 import com.hotpads.notification.preference.NotificationTypeGroupName;
+import com.hotpads.notification.sender.template.CachedNewSenderTemplate;
 import com.hotpads.notification.sender.template.CachedNotificationTemplate;
 import com.hotpads.notification.timing.CachedNotificationTimingStrategy;
 import com.hotpads.notification.timing.CachedNotificationTimingStrategyMapping;
@@ -57,6 +58,8 @@ public class NotificationDao{
 	private CachedNotificationDestinationApp destinationApps;
 	@Inject
 	private CachedNotificationTemplate notificationTemplates;
+	@Inject
+	private CachedNewSenderTemplate newSenderTemplates;
 	@Inject
 	private Gson gson;
 
@@ -102,7 +105,9 @@ public class NotificationDao{
 			return destinations;
 		}
 		Set<NotificationDestinationAppName> optedOutApps = getOptedOutApps(typeGroup, userToken, destinationApps);
-
+		if(optedOutApps.isEmpty()){
+			return destinations;
+		}
 		return destinations.stream()
 				.filter(destination -> !optedOutApps.contains(destination.getKey().getApp()))
 				.collect(Collectors.toSet());
@@ -148,5 +153,9 @@ public class NotificationDao{
 					.collect(Collectors.toList());
 			notificationNodes.getNotificationItemLog().putMulti(itemLogs, null);
 		}
+	}
+
+	public Boolean shouldUseNewSender(String templateClass){
+		return newSenderTemplates.get().contains(templateClass);
 	}
 }

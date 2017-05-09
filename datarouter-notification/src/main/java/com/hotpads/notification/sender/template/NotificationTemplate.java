@@ -13,4 +13,7 @@ public interface NotificationTemplate{
 
 	void setNotificationId(String notificationId);
 
+	default NotificationTemplateResponse buildRemote(@SuppressWarnings("unused") NotificationTemplateRequest request){
+		throw new RuntimeException(this.getClass().getName() + " does not support remote building.");
+	}
 }
