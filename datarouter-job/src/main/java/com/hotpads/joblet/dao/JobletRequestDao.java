@@ -14,8 +14,10 @@ import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNod
 import com.hotpads.joblet.JobletNodes;
 import com.hotpads.joblet.databean.JobletRequest;
 import com.hotpads.joblet.databean.JobletRequestKey;
+import com.hotpads.joblet.enums.JobletPriority;
 import com.hotpads.joblet.enums.JobletStatus;
 import com.hotpads.joblet.type.JobletType;
+import com.hotpads.util.core.collections.Range;
 
 @Singleton
 public class JobletRequestDao{
@@ -50,4 +52,30 @@ public class JobletRequestDao{
 				.collect(Collectors.toList());
 	}
 
+	/**
+	 * Count JobletRequests of jobletType that have the jobletStatus and higher than the minPriority
+	 * @return true count or countLimit if true count is eq/gt
+	 */
+	public int countRequests(JobletType<?> jobletType, JobletPriority minPriority, JobletStatus jobletStatus,
+			int countLimit){
+		// select * from Joblet where typeCode=$type and execOrder>=$highestPriority and execOrder<$minPriority
+		JobletPriority startPriority = findHighestJobletPriority();
+		JobletRequestKey startKey = new JobletRequestKey(jobletType, startPriority, null, null);
+		JobletRequestKey endKey = new JobletRequestKey(jobletType, minPriority, null, null);
+
+		if(!startPriority.isHigher(minPriority)){
+			return 0;
+		}
+		Range<JobletRequestKey> range = new Range<>(startKey, true, endKey, false);
+		long count = node.stream(range, null)
+				.filter(jobletRequest -> jobletRequest.getStatus() == jobletStatus)
+				.limit(countLimit)
+				.count();
+		return Math.toIntExact(count);
+	}
+
+	private JobletPriority findHighestJobletPriority(){
+		return JobletPriority.values()[0];
+	}
 }
+

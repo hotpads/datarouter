@@ -46,7 +46,7 @@ public class Pair<L,R> implements Serializable{
 
 	@Override
 	public String toString(){
-		return "(" + left.toString() + ", " + right.toString() + ")";
+		return "(" + String.valueOf(left) + ", " + String.valueOf(right) + ")";
 	}
 
 	@Override

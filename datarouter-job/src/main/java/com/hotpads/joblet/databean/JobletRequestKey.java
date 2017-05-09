@@ -62,6 +62,10 @@ public class JobletRequestKey extends BasePrimaryKey<JobletRequestKey>{
 		this.batchSequence = batchSequence;
 	}
 
+	public JobletRequestKey(JobletType<?> type, JobletPriority jobletPriority, Long createdMs, Integer batchSequence){
+		this(type.getPersistentInt(), jobletPriority.getExecutionOrder(), createdMs, batchSequence);
+	}
+
 	//static method to avoid ambiguity with constructor
 	public static JobletRequestKey create(JobletType<?> type, Integer executionOrder, Date createdDate,
 			Integer batchSequence){
