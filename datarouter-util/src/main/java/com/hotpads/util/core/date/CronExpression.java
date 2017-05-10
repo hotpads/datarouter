@@ -215,8 +215,8 @@ public final class CronExpression implements Serializable, Cloneable {
     protected static final Integer ALL_SPEC = ALL_SPEC_INT;
     protected static final Integer NO_SPEC = NO_SPEC_INT;
 
-    protected static final Map<String, Integer> monthMap = new HashMap<>(20);
-    protected static final Map<String, Integer> dayMap = new HashMap<>(60);
+    protected static final Map<String, Integer> monthMap = new HashMap<String, Integer>(20);
+    protected static final Map<String, Integer> dayMap = new HashMap<String, Integer>(60);
     static {
         monthMap.put("JAN", 0);
         monthMap.put("FEB", 1);
@@ -444,25 +444,25 @@ public final class CronExpression implements Serializable, Cloneable {
         try {
 
             if (seconds == null) {
-                seconds = new TreeSet<>();
+                seconds = new TreeSet<Integer>();
             }
             if (minutes == null) {
-                minutes = new TreeSet<>();
+                minutes = new TreeSet<Integer>();
             }
             if (hours == null) {
-                hours = new TreeSet<>();
+                hours = new TreeSet<Integer>();
             }
             if (daysOfMonth == null) {
-                daysOfMonth = new TreeSet<>();
+                daysOfMonth = new TreeSet<Integer>();
             }
             if (months == null) {
-                months = new TreeSet<>();
+                months = new TreeSet<Integer>();
             }
             if (daysOfWeek == null) {
-                daysOfWeek = new TreeSet<>();
+                daysOfWeek = new TreeSet<Integer>();
             }
             if (years == null) {
-                years = new TreeSet<>();
+                years = new TreeSet<Integer>();
             }
 
             int exprOn = SECOND;
