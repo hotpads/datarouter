@@ -48,8 +48,7 @@ public class LocalDateTimeJdbcFieldCodec extends BaseJdbcFieldCodec<LocalDateTim
 			}else{
 				// sql timestamp is MySQL's datetime
 				LocalDateTime value = field.getValue();
-				Timestamp timestamp = Timestamp.from(value.atZone(ZoneOffset.systemDefault()).toInstant());
-				timestamp.setNanos(value.getNano());
+				Timestamp timestamp = Timestamp.valueOf(value);
 				ps.setTimestamp(parameterIndex, timestamp);
 			}
 		}catch(SQLException e){
@@ -64,8 +63,7 @@ public class LocalDateTimeJdbcFieldCodec extends BaseJdbcFieldCodec<LocalDateTim
 			if(rs.wasNull()){
 				return null;
 			}
-			LocalDateTime time = timestamp.toLocalDateTime();
-			return time.withNano(timestamp.getNanos());
+			return timestamp.toLocalDateTime();
 		}catch(SQLException e){
 			throw new DataAccessException(e);
 		}
