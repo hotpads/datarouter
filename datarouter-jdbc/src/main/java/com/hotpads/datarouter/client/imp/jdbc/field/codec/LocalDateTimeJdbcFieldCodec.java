@@ -48,8 +48,7 @@ public class LocalDateTimeJdbcFieldCodec extends BaseJdbcFieldCodec<LocalDateTim
 			}else{
 				// sql timestamp is MySQL's datetime
 				LocalDateTime value = field.getValue();
-				Timestamp timestamp = new Timestamp(value.atZone(ZoneOffset.UTC).toInstant().toEpochMilli());
-				timestamp.setNanos(value.getNano());
+				Timestamp timestamp = Timestamp.valueOf(value);
 				ps.setTimestamp(parameterIndex, timestamp);
 			}
 		}catch(SQLException e){
@@ -64,13 +63,11 @@ public class LocalDateTimeJdbcFieldCodec extends BaseJdbcFieldCodec<LocalDateTim
 			if(rs.wasNull()){
 				return null;
 			}
-			LocalDateTime time = LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp.getTime()), ZoneOffset.UTC);
-			return time.withNano(timestamp.getNanos());
+			return timestamp.toLocalDateTime();
 		}catch(SQLException e){
 			throw new DataAccessException(e);
 		}
 	}
-
 
 	@Override
 	public String getSqlEscaped(){
@@ -91,20 +88,26 @@ public class LocalDateTimeJdbcFieldCodec extends BaseJdbcFieldCodec<LocalDateTim
 			// sql insert with a string including the nanosecond value works in mysql
 			String dateString = "2002-11-05 13:14:01.100";
 			String dateStringZeroFractionalSeconds = "2002-11-05 13:14:01.000";
+			LocalDateTimeFieldKey localDateTimeFieldKey = new LocalDateTimeFieldKey("test");
+
 			LocalDateTime dateTime = LocalDateTime.parse(dateString, LocalDateTimeField.formatter);
 			LocalDateTime dateTimeNoNanoSeconds = LocalDateTime.parse(dateStringZeroFractionalSeconds,
 					LocalDateTimeField.formatter);
-			LocalDateTime dateTimeNow = LocalDateTime.now();
-			String dateStringNow = getSqlDateString(dateTimeNow);
 			Assert.assertEquals(dateTime.getNano(), 100000000);
 			Assert.assertEquals(dateTimeNoNanoSeconds.getNano(), 0);
-			LocalDateTimeField testField = new LocalDateTimeField(new LocalDateTimeFieldKey("test"),
-					dateTime);
-			Assert.assertEquals("'" + dateString + "'", new LocalDateTimeJdbcFieldCodec(testField).getSqlEscaped());
-			LocalDateTimeField testFieldNow = new LocalDateTimeField(new LocalDateTimeFieldKey("test"),
-					dateTimeNow);
+
+			LocalDateTime dateTimeNow = LocalDateTime.now();
+			String dateStringNow = getSqlDateString(dateTimeNow);
+			LocalDateTimeField testFieldNow = new LocalDateTimeField(localDateTimeFieldKey, dateTimeNow);
 			Assert.assertEquals("'" + dateStringNow + "'",
 					new LocalDateTimeJdbcFieldCodec(testFieldNow).getSqlEscaped());
+
+			String dateString1 = "2017-05-08 00:00:00.000";
+			LocalDateTime localDateTime1 = LocalDateTime.parse(dateString1, LocalDateTimeField.formatter);
+			Assert.assertEquals(getSqlDateString(localDateTime1), dateString1);
+
+			LocalDateTimeField testField = new LocalDateTimeField(localDateTimeFieldKey, localDateTime1);
+			Assert.assertEquals("'" + dateString1 + "'", new LocalDateTimeJdbcFieldCodec(testField).getSqlEscaped());
 		}
 
 		@Test
