@@ -6,6 +6,7 @@
 		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 		xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://www.oracle.com/webfolder/technetwork/jsc/xml/ns/javaee/web-app_3_0.xsd"
 	>
+	<display-name>example</display-name>
 	<listener>
 		<listener-class>com.hotpads.example.config.guice.ExampleGuiceServletContextListener</listener-class>
 	</listener>
