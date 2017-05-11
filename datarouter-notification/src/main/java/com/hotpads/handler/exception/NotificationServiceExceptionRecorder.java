@@ -16,7 +16,7 @@ import com.hotpads.util.DrExceptionTool;
 import com.hotpads.util.http.security.UrlScheme;
 
 public class NotificationServiceExceptionRecorder implements ExceptionRecorder{
-	private static final Logger logger = LoggerFactory.getLogger(ExceptionRecorder.class);
+	private static final Logger logger = LoggerFactory.getLogger(NotificationServiceExceptionRecorder.class);
 
 	@Inject
 	private ExceptionNodes exceptionNodes;
