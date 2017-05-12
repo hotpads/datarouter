@@ -109,8 +109,8 @@ public class DispatchRule{
 	}
 
 	private boolean checkApiKey(HttpServletRequest request){
-		boolean result = apiKeyPredicate == null || apiKeyPredicate.check(request.getParameter(
-				SecurityParameters.API_KEY));
+		String apiKeyCandidate = request.getParameter(SecurityParameters.API_KEY);
+		boolean result = apiKeyPredicate == null || apiKeyCandidate != null && apiKeyPredicate.check(apiKeyCandidate);
 		if(!result){
 			logFailure("API key check failed", request);
 		}

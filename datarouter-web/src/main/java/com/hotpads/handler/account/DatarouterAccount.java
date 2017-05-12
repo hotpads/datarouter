@@ -8,6 +8,7 @@ import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.StringFieldKey;
+import com.hotpads.handler.user.authenticate.DatarouterPasswordService;
 
 public class DatarouterAccount extends BaseDatabean<DatarouterAccountKey,DatarouterAccount>{
 
@@ -24,6 +25,7 @@ public class DatarouterAccount extends BaseDatabean<DatarouterAccountKey,Datarou
 
 	public DatarouterAccount(String accountName){
 		this.key = new DatarouterAccountKey(accountName);
+		resetApiKey();
 	}
 
 	public static class DatarouterAccountFielder extends BaseDatabeanFielder<DatarouterAccountKey,DatarouterAccount>{
@@ -48,6 +50,14 @@ public class DatarouterAccount extends BaseDatabean<DatarouterAccountKey,Datarou
 	@Override
 	public DatarouterAccountKey getKey(){
 		return key;
+	}
+
+	public String getApiKey(){
+		return apiKey;
+	}
+
+	public void resetApiKey(){
+		apiKey = DatarouterPasswordService.generateSaltForNewUser();
 	}
 
 }

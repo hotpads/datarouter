@@ -49,7 +49,7 @@ public class DatarouterPasswordService{
 		return isPasswordCorrect(user, rawPassword);
 	}
 
-	public String generateSaltForNewUser(){
+	public static String generateSaltForNewUser(){
         SecureRandom sr;
 		try{
 			sr = SecureRandom.getInstance("SHA1PRNG", "SUN");
