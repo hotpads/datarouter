@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.hotpads.datarouter.inject.DatarouterInjector;
 import com.hotpads.datarouter.inject.InjectorRetriever;
+import com.hotpads.pontoon.config.Dispatcher;
 
 @SuppressWarnings("serial")
 @Singleton
@@ -22,12 +23,14 @@ public abstract class DispatcherServlet extends HttpServlet implements InjectorR
 	protected DatarouterInjector injector;
 
 	protected List<BaseDispatcher> dispatchers = new ArrayList<>();
-	// ...add more dispatchers
+
+	private Dispatcher dizpatcher;
 
 	@Override
 	public void init(){
 		servletContextPath = getServletContext().getContextPath();
 		injector = getInjector(getServletContext());
+		dizpatcher = injector.getInstance(Dispatcher.class);
 		registerDispatchers();
 	}
 
@@ -42,7 +45,7 @@ public abstract class DispatcherServlet extends HttpServlet implements InjectorR
 
 		boolean handled = false;
 		for(BaseDispatcher dispatcher : dispatchers){
-			handled = dispatcher.handleRequestIfUrlMatch(getServletContext(), request, response);
+			handled = dizpatcher.handleRequestIfUrlMatch(request, response, dispatcher);
 			if(handled){
 				break;
 			}
