@@ -1,5 +1,6 @@
 package com.hotpads.handler;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -17,6 +18,7 @@ import java.util.stream.Stream;
 
 import javax.inject.Inject;
 import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -154,13 +156,12 @@ public abstract class BaseHandler{
 				encoder = new MavEncoder();
 			}
 			Object result;
+			if(args == null){
+				args = new Object[]{};
+			}
+			handlerCounters.incMethodInvocation(this, method);
 			try{
-				if(args == null){
-					args = new Object[]{};
-				}
-				handlerCounters.incMethodInvocation(this, method);
 				result = method.invoke(this, args);
-				encoder.finishRequest(result, servletContext, response, request);
 			}catch(IllegalAccessException e){
 				throw new RuntimeException(e);
 			}catch(InvocationTargetException e){
@@ -171,16 +172,15 @@ public abstract class BaseHandler{
 					exceptionRecorder.tryRecordException(handledException, exceptionLocation);
 					encoder.sendExceptionResponse((HandledException)cause, servletContext, response, request);
 					logger.warn(e.getMessage());
+					return;
 				}else if(cause instanceof RuntimeException){
 					throw (RuntimeException)cause;
 				}else{
 					throw new RuntimeException(cause);
 				}
 			}
-		}catch(Exception e){
-			if(e instanceof RuntimeException){
-				throw (RuntimeException)e;
-			}
+			encoder.finishRequest(result, servletContext, response, request);
+		}catch(IOException | ServletException e){
 			throw new RuntimeException(e);
 		}
 	}

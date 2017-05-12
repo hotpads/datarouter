@@ -1,8 +1,6 @@
 package com.hotpads.handler.encoder;
 
 import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.nio.charset.StandardCharsets;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -28,21 +26,18 @@ public class JsonEncoder implements HandlerEncoder{
 	@Override
 	public void finishRequest(Object result, ServletContext servletContext, HttpServletResponse response,
 			HttpServletRequest request) throws IOException{
-		response.setContentType(ResponseTool.CONTENT_TYPE_APPLICATION_JSON);
-		new OutputStreamWriter(response.getOutputStream(), StandardCharsets.UTF_8)
-				.append(jsonSerializer.serialize(result))
-				.close();
+		ResponseTool.sendJson(response, jsonSerializer.serialize(result));
 	}
 
 	@Override
 	public void sendExceptionResponse(HandledException exception, ServletContext servletContext,
-			HttpServletResponse response, HttpServletRequest request){
+			HttpServletResponse response, HttpServletRequest request) throws IOException{
 		Object responseBody = exception.getHttpResponseBody();
 		if(responseBody == null){
-			ResponseTool.sendErrorInJsonForMessage(response, exception.getHttpResponseCode(), exception.getMessage());
+			ResponseTool.sendJsonForMessage(response, exception.getHttpResponseCode(), exception.getMessage());
 			return;
 		}
-		ResponseTool.sendErrorInJson(response, exception.getHttpResponseCode(), jsonSerializer.serialize(responseBody));
+		ResponseTool.sendJson(response, exception.getHttpResponseCode(), jsonSerializer.serialize(responseBody));
 	}
 
 }
