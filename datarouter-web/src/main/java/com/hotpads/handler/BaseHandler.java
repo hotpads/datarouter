@@ -29,6 +29,8 @@ import org.slf4j.LoggerFactory;
 import com.hotpads.datarouter.inject.DatarouterInjector;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
+import com.hotpads.handler.account.DatarouterAccount;
+import com.hotpads.handler.account.DatarouterAccountService;
 import com.hotpads.handler.encoder.HandlerEncoder;
 import com.hotpads.handler.encoder.MavEncoder;
 import com.hotpads.handler.exception.ExceptionRecorder;
@@ -43,6 +45,7 @@ import com.hotpads.util.core.collections.Pair;
 import com.hotpads.util.core.concurrent.Lazy;
 import com.hotpads.util.core.java.ReflectionTool;
 import com.hotpads.util.http.ResponseTool;
+import com.hotpads.util.http.security.SecurityParameters;
 
 /*
  * a dispatcher servlet sets necessary parameters and then calls "handle()"
@@ -61,6 +64,8 @@ public abstract class BaseHandler{
 	private ExceptionRecorder exceptionRecorder;
 	@Inject
 	private HandlerCounters handlerCounters;
+	@Inject
+	private DatarouterAccountService datarouterAccountService;
 
 	//these are available to all handlers without passing them around
 	protected ServletContext servletContext;
@@ -226,6 +231,11 @@ public abstract class BaseHandler{
 	}
 
 	/****************** get/set *******************************************/
+
+	protected final Optional<DatarouterAccount> getCurrentDatarouterAccount(){
+		return params.optional(SecurityParameters.API_KEY)
+				.flatMap(datarouterAccountService::findAccountForApiKey);
+	}
 
 	public HttpServletRequest getRequest(){
 		return request;
