@@ -25,7 +25,11 @@ public abstract class BaseDispatcher{
 		this.dispatchRules = new ArrayList<>();
 	}
 
+	/**
+	 * @deprecated use {@link BaseDispatcher#BaseDispatcher(String)}
+	 */
 	@Deprecated
+	@SuppressWarnings("unused")
 	public BaseDispatcher(DatarouterInjector injector, String servletContextPath, String urlPrefix){
 		this(urlPrefix);
 	}

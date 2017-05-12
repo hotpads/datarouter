@@ -36,8 +36,7 @@ public class Dispatcher{
 	private DatarouterSessionManager sessionManager;
 
 	public boolean handleRequestIfUrlMatch(HttpServletRequest request, HttpServletResponse response,
-			BaseDispatcher dispatcher)
-	throws ServletException{
+			BaseDispatcher dispatcher) throws ServletException{
 		String uri = request.getRequestURI();
 		if(!uri.startsWith(servletContextProvider.get().getContextPath() + dispatcher.getUrlPrefix())){
 			return false;
@@ -84,7 +83,7 @@ public class Dispatcher{
 		return true;
 	}
 
-	public boolean checkRoles(DispatchRule dispatchRule, HttpServletRequest request){
+	private boolean checkRoles(DispatchRule dispatchRule, HttpServletRequest request){
 		if(dispatchRule.getAllowAnonymous()){
 			return true;
 		}
@@ -112,7 +111,7 @@ public class Dispatcher{
 		}
 	}
 
-	private boolean isMultipart(HttpServletRequest request){
+	private static boolean isMultipart(HttpServletRequest request){
 		return request.getContentType() != null
 				&& request.getContentType().toLowerCase().contains("multipart/form-data");
 	}
