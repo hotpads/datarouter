@@ -22,15 +22,15 @@ public abstract class DispatcherServlet extends HttpServlet implements InjectorR
 	protected String servletContextPath;
 	protected DatarouterInjector injector;
 
-	protected List<BaseDispatcher> dispatchers = new ArrayList<>();
+	protected List<BaseDispatcherRoutes> dispatchers = new ArrayList<>();
 
-	private Dispatcher dizpatcher;
+	private Dispatcher dispatcher;
 
 	@Override
 	public void init(){
 		servletContextPath = getServletContext().getContextPath();
 		injector = getInjector(getServletContext());
-		dizpatcher = injector.getInstance(Dispatcher.class);
+		dispatcher = injector.getInstance(Dispatcher.class);
 		registerDispatchers();
 	}
 
@@ -44,8 +44,8 @@ public abstract class DispatcherServlet extends HttpServlet implements InjectorR
 		response.setHeader("X-Frame-Options", "SAMEORIGIN"); //clickjacking protection
 
 		boolean handled = false;
-		for(BaseDispatcher dispatcher : dispatchers){
-			handled = dizpatcher.handleRequestIfUrlMatch(request, response, dispatcher);
+		for(BaseDispatcherRoutes dispatcherRoutes : dispatchers){
+			handled = dispatcher.handleRequestIfUrlMatch(request, response, dispatcherRoutes);
 			if(handled){
 				break;
 			}

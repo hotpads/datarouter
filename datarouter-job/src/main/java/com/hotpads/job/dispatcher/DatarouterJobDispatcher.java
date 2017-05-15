@@ -2,7 +2,7 @@ package com.hotpads.job.dispatcher;
 
 import com.hotpads.clustersetting.ClusterSettingsHandler;
 import com.hotpads.datarouter.inject.DatarouterInjector;
-import com.hotpads.handler.dispatcher.BaseDispatcher;
+import com.hotpads.handler.dispatcher.BaseDispatcherRoutes;
 import com.hotpads.handler.dispatcher.DatarouterWebDispatcher;
 import com.hotpads.handler.dispatcher.DispatchRule;
 import com.hotpads.handler.user.role.DatarouterUserRole;
@@ -11,7 +11,7 @@ import com.hotpads.job.web.TriggerHandler;
 import com.hotpads.joblet.handler.JobletHandler;
 import com.hotpads.webappinstance.WebAppInstanceHandler;
 
-public class DatarouterJobDispatcher extends BaseDispatcher{
+public class DatarouterJobDispatcher extends BaseDispatcherRoutes{
 
 	public static final String URL_DATAROUTER = DatarouterWebDispatcher.PATH_datarouter;
 

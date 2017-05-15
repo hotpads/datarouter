@@ -10,7 +10,7 @@ import org.testng.annotations.Test;
 import com.hotpads.datarouter.inject.DatarouterInjector;
 import com.hotpads.handler.BaseHandler;
 
-public abstract class BaseDispatcher{
+public abstract class BaseDispatcherRoutes{
 
 	public static final String REGEX_ONE_DIRECTORY = "[/]?[^/]*";
 	public static final String REGEX_TWO_DIRECTORY_PLUS = "/\\w+/\\w+[/]?.*";
@@ -20,17 +20,17 @@ public abstract class BaseDispatcher{
 	private final List<DispatchRule> dispatchRules;
 	private Class<? extends BaseHandler> defaultHandlerClass;
 
-	public BaseDispatcher(String urlPrefix){
+	public BaseDispatcherRoutes(String urlPrefix){
 		this.urlPrefix = urlPrefix;
 		this.dispatchRules = new ArrayList<>();
 	}
 
 	/**
-	 * @deprecated use {@link BaseDispatcher#BaseDispatcher(String)}
+	 * @deprecated use {@link BaseDispatcherRoutes#BaseDispatcherRoutes(String)}
 	 */
 	@Deprecated
 	@SuppressWarnings("unused")
-	public BaseDispatcher(DatarouterInjector injector, String servletContextPath, String urlPrefix){
+	public BaseDispatcherRoutes(DatarouterInjector injector, String servletContextPath, String urlPrefix){
 		this(urlPrefix);
 	}
 
@@ -54,7 +54,7 @@ public abstract class BaseDispatcher{
 		return handle(prefix + MATCHING_ANY);
 	}
 
-	protected BaseDispatcher handleOthers(Class<? extends BaseHandler> defaultHandlerClass){
+	protected BaseDispatcherRoutes handleOthers(Class<? extends BaseHandler> defaultHandlerClass){
 		this.defaultHandlerClass = defaultHandlerClass;
 		return this;
 	}

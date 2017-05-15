@@ -1,12 +1,12 @@
 package com.hotpads.datarouter.client.imp.jdbc.web;
 
 import com.hotpads.datarouter.inject.DatarouterInjector;
-import com.hotpads.handler.dispatcher.BaseDispatcher;
+import com.hotpads.handler.dispatcher.BaseDispatcherRoutes;
 import com.hotpads.handler.dispatcher.DatarouterWebDispatcher;
 import com.hotpads.handler.dispatcher.DispatchRule;
 import com.hotpads.handler.user.role.DatarouterUserRole;
 
-public class DatarouterJdbcDispatcher extends BaseDispatcher{
+public class DatarouterJdbcDispatcher extends BaseDispatcherRoutes{
 
 	public static final String
 			PREFIX = DatarouterWebDispatcher.PATH_clients,
