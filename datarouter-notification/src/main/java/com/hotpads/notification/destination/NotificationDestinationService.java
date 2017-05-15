@@ -46,8 +46,7 @@ public class NotificationDestinationService{
 				logger.warn("deactivating destination with partial key {}", notificationDestinationKey);
 			}
 		}
-		destinations.addAll(notificationNodes.getNotificationDestination().getMulti(
-				destinationKeys, null));
+		destinations.addAll(notificationNodes.getNotificationDestination().getMulti(destinationKeys, null));
 		destinations.forEach(d -> d.setActive(false));
 		notificationNodes.getNotificationDestination().putMulti(destinations, null);
 	}
