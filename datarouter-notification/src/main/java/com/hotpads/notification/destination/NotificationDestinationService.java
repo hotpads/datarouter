@@ -16,7 +16,6 @@ import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.notification.NotificationNodes;
-import com.hotpads.util.core.collections.Range;
 
 @Singleton
 public class NotificationDestinationService{
@@ -26,12 +25,10 @@ public class NotificationDestinationService{
 	private NotificationNodes notificationNodes;
 
 	public void deactivateDestination(NotificationDestinationByAppDeviceIdKey destinationByAppDeviceIdKey){
-		Range<NotificationDestinationByAppDeviceIdKey> prefix = new Range<>(destinationByAppDeviceIdKey, true,
-				destinationByAppDeviceIdKey, true);
-		Iterable<NotificationDestinationByAppDeviceId> destinationByAppDeviceIds = notificationNodes
-				.getNotificationDestinationByAppDeviceId().scan(prefix, null);
-		List<NotificationDestinationKey> destinationKeys = NotificationDestinationByAppDeviceId.getDestinationKeys(
-				destinationByAppDeviceIds);
+		List<NotificationDestinationKey> destinationKeys = notificationNodes.getNotificationDestinationByAppDeviceId()
+				.streamWithPrefix(destinationByAppDeviceIdKey, null)
+				.map(NotificationDestinationByAppDeviceId::getTargetKey)
+				.collect(Collectors.toList());
 		deactivateDestination(destinationKeys);
 	}
 
@@ -42,8 +39,8 @@ public class NotificationDestinationService{
 			NotificationDestinationKey notificationDestinationKey = destinationKeyiterator.next();
 			if(notificationDestinationKey.getApp() == null){
 				notificationNodes.getNotificationDestination().streamWithPrefix(notificationDestinationKey, null)
-						.filter(destination -> destination.getKey().getDeviceId()
-								== notificationDestinationKey.getDeviceId())
+						.filter(destination -> destination.getKey().getDeviceId().equals(notificationDestinationKey
+								.getDeviceId()))
 						.forEach(destinations::add);
 				destinationKeyiterator.remove();
 				logger.warn("deactivating destination with partial key {}", notificationDestinationKey);
