@@ -1,10 +1,10 @@
 package com.hotpads.datarouter.client.imp.memcached.web;
 
 import com.hotpads.datarouter.inject.DatarouterInjector;
-import com.hotpads.handler.dispatcher.BaseDispatcher;
+import com.hotpads.handler.dispatcher.BaseRouteSet;
 import com.hotpads.handler.dispatcher.DatarouterWebDispatcher;
 
-public class DatarouterMemcachedDispatcher extends BaseDispatcher{
+public class DatarouterMemcachedDispatcher extends BaseRouteSet{
 
 	public static final String
 			PREFIX = DatarouterWebDispatcher.PATH_clients,
