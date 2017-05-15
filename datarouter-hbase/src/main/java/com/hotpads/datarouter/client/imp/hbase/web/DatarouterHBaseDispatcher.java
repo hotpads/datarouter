@@ -1,10 +1,10 @@
 package com.hotpads.datarouter.client.imp.hbase.web;
 
 import com.hotpads.datarouter.inject.DatarouterInjector;
-import com.hotpads.handler.dispatcher.BaseDispatcherRoutes;
+import com.hotpads.handler.dispatcher.BaseRouteSet;
 import com.hotpads.handler.dispatcher.DatarouterWebDispatcher;
 
-public class DatarouterHBaseDispatcher extends BaseDispatcherRoutes{
+public class DatarouterHBaseDispatcher extends BaseRouteSet{
 
 	public static final String
 			PREFIX = DatarouterWebDispatcher.PATH_clients,

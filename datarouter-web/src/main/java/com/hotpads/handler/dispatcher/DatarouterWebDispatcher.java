@@ -14,7 +14,7 @@ import com.hotpads.datarouter.monitoring.StackTracesManagerHandler;
 import com.hotpads.handler.TestApiHandler;
 import com.hotpads.handler.user.role.DatarouterUserRole;
 
-public class DatarouterWebDispatcher extends BaseDispatcherRoutes{
+public class DatarouterWebDispatcher extends BaseRouteSet{
 
 	public static final String
 			DATA = "/data";

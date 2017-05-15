@@ -1,10 +1,10 @@
 package com.hotpads.datarouter.client.imp.redis.web;
 
 import com.hotpads.datarouter.inject.DatarouterInjector;
-import com.hotpads.handler.dispatcher.BaseDispatcherRoutes;
+import com.hotpads.handler.dispatcher.BaseRouteSet;
 import com.hotpads.handler.dispatcher.DatarouterWebDispatcher;
 
-public class DatarouterRedisDispatcher extends BaseDispatcherRoutes{
+public class DatarouterRedisDispatcher extends BaseRouteSet{
 
 	public static final String
 			PREFIX = DatarouterWebDispatcher.PATH_clients,

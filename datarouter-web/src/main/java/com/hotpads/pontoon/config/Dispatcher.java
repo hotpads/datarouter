@@ -14,7 +14,7 @@ import com.hotpads.datarouter.config.ServletContextProvider;
 import com.hotpads.datarouter.inject.DatarouterInjector;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.handler.BaseHandler;
-import com.hotpads.handler.dispatcher.BaseDispatcherRoutes;
+import com.hotpads.handler.dispatcher.BaseRouteSet;
 import com.hotpads.handler.dispatcher.DispatchRule;
 import com.hotpads.handler.params.MultipartParams;
 import com.hotpads.handler.params.Params;
@@ -36,7 +36,7 @@ public class Dispatcher{
 	private DatarouterSessionManager sessionManager;
 
 	public boolean handleRequestIfUrlMatch(HttpServletRequest request, HttpServletResponse response,
-			BaseDispatcherRoutes dispatcher) throws ServletException{
+			BaseRouteSet dispatcher) throws ServletException{
 		String uri = request.getRequestURI();
 		if(!uri.startsWith(servletContextProvider.get().getContextPath() + dispatcher.getUrlPrefix())){
 			return false;

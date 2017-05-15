@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.hotpads.handler.BaseHandler;
-import com.hotpads.handler.dispatcher.BaseDispatcherRoutes;
+import com.hotpads.handler.dispatcher.BaseRouteSet;
 import com.hotpads.handler.dispatcher.DispatchRule;
 import com.hotpads.handler.types.optional.OptionalParameter;
 
@@ -15,7 +15,7 @@ public class DocumentationHandler extends BaseHandler{
 
 	protected static final String JSP_DISPATCHER_DOCS = "/jsp/docs/dispatcherDocs.jsp";
 
-	protected List<DocumentedEndpoint> buildDocumentation(BaseDispatcherRoutes apiDispatcher, String apiUrlContext){
+	protected List<DocumentedEndpoint> buildDocumentation(BaseRouteSet apiDispatcher, String apiUrlContext){
 		return apiDispatcher.getDispatchRules().stream()
 				.filter(rule -> rule.getPattern().pattern().startsWith(apiUrlContext))
 				.map(this::buildEndpointDocumentation)
@@ -33,7 +33,7 @@ public class DocumentationHandler extends BaseHandler{
 				}
 				String urlSuffix = method.getAnnotation(Handler.class).defaultHandler() ? "" : "/" + method.getName();
 				DocumentedEndpoint endpoint = new DocumentedEndpoint();
-				endpoint.url = rule.getPattern().pattern().replace(BaseDispatcherRoutes.REGEX_ONE_DIRECTORY, "") + urlSuffix;
+				endpoint.url = rule.getPattern().pattern().replace(BaseRouteSet.REGEX_ONE_DIRECTORY, "") + urlSuffix;
 				endpoint.parameters = new ArrayList<>();
 				endpoint.description = method.getAnnotation(Handler.class).description();
 				Parameter[] parameters = method.getParameters();
