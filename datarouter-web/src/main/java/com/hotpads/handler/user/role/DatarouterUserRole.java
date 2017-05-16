@@ -11,7 +11,7 @@ import com.hotpads.util.core.enums.StringEnum;
 
 public enum DatarouterUserRole
 implements StringEnum<DatarouterUserRole>{
-
+//TODO which of these matter?
 	datarouterAdmin("datarouterAdmin"),
 	docUser("docUser"),
 	admin("admin"),
