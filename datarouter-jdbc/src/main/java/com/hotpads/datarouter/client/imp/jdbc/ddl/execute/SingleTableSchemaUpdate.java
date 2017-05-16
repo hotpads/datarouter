@@ -24,6 +24,7 @@ import com.hotpads.datarouter.node.type.index.ManagedNode;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
 import com.hotpads.datarouter.storage.field.Field;
+import com.hotpads.util.core.collections.Pair;
 import com.hotpads.util.core.concurrent.Lazy;
 import com.hotpads.util.core.profile.PhaseTimer;
 
@@ -99,29 +100,25 @@ implements Callable<Optional<String>>{
 				printedSchemaUpdate = Optional.of(ddl);
 			}
 		}else{
-			//execute the alter table
 			SqlTable executeCurrent = ConnectionSqlTableGenerator.generate(connectionPool, tableName, schemaName);
 			SqlAlterTableGenerator executeAlterTableGenerator = new SqlAlterTableGenerator(
-					executeOptions, executeCurrent, requested, schemaName);
-			Optional<String> ddl = executeAlterTableGenerator.generateDdl();
-			if(ddl.isPresent()){
+					executeOptions, printOptions, executeCurrent, requested, schemaName);
+			//execute the alter table
+			Pair<Optional<String>,Optional<String>> ddl = executeAlterTableGenerator.generateDdl();
+			if(ddl.getLeft().isPresent()){
 				PhaseTimer alterTableTimer = new PhaseTimer();
 				logger.info(generateFullWidthMessage("Executing " + getClass().getSimpleName() + " SchemaUpdate"));
-				logger.info(ddl.get());
-				JdbcTool.execute(connectionPool, ddl.get());
+				logger.info(ddl.getLeft().get());
+				JdbcTool.execute(connectionPool, ddl.getLeft().get());
 				alterTableTimer.add("Completed SchemaUpdate for " + tableName);
 				logger.info(generateFullWidthMessage(alterTableTimer.toString()));
 			}
 
 			//print the alter table
-			SqlTable printCurrent = ConnectionSqlTableGenerator.generate(connectionPool, tableName, schemaName);
-			SqlAlterTableGenerator printAlterTableGenerator = new SqlAlterTableGenerator(printOptions,
-					printCurrent, requested, schemaName);
-			ddl = printAlterTableGenerator.generateDdl();
-			if(ddl.isPresent()){
+			if(ddl.getRight().isPresent()){
 				logger.info(generateFullWidthMessage("Please Execute SchemaUpdate"));
-				printedSchemaUpdate = ddl;
-				logger.info(ddl.get());
+				printedSchemaUpdate = ddl.getRight();
+				logger.info(ddl.getRight().get());
 				logger.info(generateFullWidthMessage("Thank You"));
 			}
 		}
