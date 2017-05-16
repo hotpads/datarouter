@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
-import com.hotpads.datarouter.serialize.fielder.Fielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.view.index.unique.UniqueIndexEntry;
@@ -50,9 +49,8 @@ NotificationDestinationKey,NotificationDestination>{
 	public static class NotificationDestinationByAppDeviceIdFielder
 	extends BaseDatabeanFielder<NotificationDestinationByAppDeviceIdKey, NotificationDestinationByAppDeviceId>{
 
-		@Override
-		public Class<? extends Fielder<NotificationDestinationByAppDeviceIdKey>> getKeyFielderClass(){
-			return NotificationDestinationByAppDeviceIdKey.class;
+		public NotificationDestinationByAppDeviceIdFielder(){
+			super(NotificationDestinationByAppDeviceIdKey.class);
 		}
 
 		@Override
@@ -60,15 +58,6 @@ NotificationDestinationKey,NotificationDestination>{
 			return new ArrayList<>();
 		}
 
-	}
-
-	public static List<NotificationDestinationKey> getDestinationKeys(
-			Iterable<NotificationDestinationByAppDeviceId> destinationByAppDeviceIds){
-		List<NotificationDestinationKey> destinationKeys = new ArrayList<>();
-		for(NotificationDestinationByAppDeviceId notificationDestinationByAppDeviceId : destinationByAppDeviceIds){
-			destinationKeys.add(notificationDestinationByAppDeviceId.getTargetKey());
-		}
-		return destinationKeys;
 	}
 
 }
