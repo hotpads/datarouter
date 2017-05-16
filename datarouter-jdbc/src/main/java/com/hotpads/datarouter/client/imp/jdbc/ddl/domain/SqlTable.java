@@ -6,7 +6,6 @@ import java.util.Set;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.SqlCreateTableGenerator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.SqlTableDiffGenerator;
 
 public class SqlTable{
@@ -76,13 +75,6 @@ public class SqlTable{
 	}
 
 	/********************** Object methods ****************************/
-
-	@Override
-	public String toString(){
-		StringBuilder sb = new StringBuilder("SqlTable name=").append(name).append(",\n");
-		sb.append(new SqlCreateTableGenerator(this).generateDdl());
-		return sb.toString();
-	}
 
 	@Override
 	public boolean equals(Object otherObject){

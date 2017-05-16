@@ -1,28 +1,34 @@
 package com.hotpads.datarouter.client.imp.jdbc.ddl.generate;
 
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlIndex;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlTable;
+import com.hotpads.datarouter.config.DatarouterProperties;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
 
+@Singleton
 public class SqlCreateTableGenerator{
 
-	private final SqlTable table;
-	private final String databaseName;
+	private DatarouterProperties datarouterProperties;
 
-	public SqlCreateTableGenerator(SqlTable table){
-		this(table, "");
+	@Inject
+	public SqlCreateTableGenerator(DatarouterProperties datarouterProperties){
+		this.datarouterProperties = datarouterProperties;
 	}
 
-	public SqlCreateTableGenerator(SqlTable table, String databaseName){
-		this.table = table;
-		this.databaseName = databaseName;
-	}
-
-	public String generateDdl(){
+	public String generateDdl(SqlTable table, String databaseName){
 		StringBuilder sb = new StringBuilder("create table ");
 		if(!DrStringTool.isEmpty(databaseName)){
 			sb.append(databaseName + ".");
@@ -99,8 +105,17 @@ public class SqlCreateTableGenerator{
 			sb.append(")");
 		}
 		sb.append(")");
-		sb.append(" engine=" + table.getEngine() + " character set = " + table.getCharacterSet() + " collate "
-				+ table.getCollation() + " row_format = " + table.getRowFormat().getPersistentString());
+		Map<String,String> tableOptions = new LinkedHashMap<>();
+		tableOptions.put("engine", table.getEngine().toString());
+		tableOptions.put("character set", table.getCharacterSet().toString());
+		tableOptions.put("collate", table.getCollation().toString());
+		String comment = "created by " + datarouterProperties.getServerName() + " ["
+				+ DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(ZonedDateTime.now()) + "]";
+		tableOptions.put("comment", "'" + comment + "'");
+		tableOptions.put("row_format", table.getRowFormat().getPersistentString());
+		tableOptions.entrySet().stream()
+				.map(entry -> entry.getKey() + " " + entry.getValue())
+				.collect(Collectors.collectingAndThen(Collectors.joining(", "), sb::append));
 		sb.append(";");
 		return sb.toString();
 
