@@ -33,7 +33,7 @@ public abstract class DatarouterProperties{
 	private static final String SERVER_NAME = "server.name";
 	private static final String SERVER_TYPE = "server.type";
 	private static final String ADMINISTRATOR_EMAIL = "administrator.email";
-	protected static final String INTERNAL_CONFIG_DIRECTORY = "internal.config.directory";
+	protected static final String INTERNAL_CONFIG_DIRECTORY = "internalConfigDirectory";
 
 	private static final String EC2_PRIVATE_IP_URL = "http://instance-data/latest/meta-data/local-ipv4";
 	private static final String EC2_PUBLIC_IP_URL = "http://instance-data/latest/meta-data/public-ipv4";
