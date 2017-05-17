@@ -59,6 +59,9 @@ public class SqlAlterTableGeneratorFactory{
 		}
 
 		private Optional<String> makeStatementFromClauses(String alterTablePrefix, List<SqlAlterTableClause> alters){
+			if(alters.isEmpty()){
+				return Optional.empty();
+			}
 			return Optional.of(alters.stream()
 					.map(SqlAlterTableClause::getAlterTable)
 					.collect(Collectors.joining(",\n", alterTablePrefix, ";")));
