@@ -33,6 +33,7 @@ public abstract class DatarouterProperties{
 	private static final String SERVER_NAME = "server.name";
 	private static final String SERVER_TYPE = "server.type";
 	private static final String ADMINISTRATOR_EMAIL = "administrator.email";
+	private static final String INTERNAL_CONFIG_DIRECTORY = "internal.config.directory";
 
 	private static final String EC2_PRIVATE_IP_URL = "http://instance-data/latest/meta-data/local-ipv4";
 	private static final String EC2_PUBLIC_IP_URL = "http://instance-data/latest/meta-data/public-ipv4";
@@ -48,6 +49,7 @@ public abstract class DatarouterProperties{
 	private final String administratorEmail;
 	private final String privateIp;
 	private final String publicIp;
+	protected final String internalConfigDirectory;
 
 	/*----------------- construct ------------------*/
 
@@ -58,12 +60,12 @@ public abstract class DatarouterProperties{
 	}
 
 	protected DatarouterProperties(BaseDatarouterPropertiesConfigurer configurer, ServerType serverTypeOptions,
-			String serviceName, String directory, String filename){
-		this(configurer, serverTypeOptions, serviceName, directory, true, false, filename, true);
+			String serviceName, String configDirectory, String filename){
+		this(configurer, serverTypeOptions, serviceName, configDirectory, true, false, filename, true);
 	}
 
 	private DatarouterProperties(BaseDatarouterPropertiesConfigurer configurer, ServerType serverTypeOptions,
-			String serviceName, String directory, boolean directoryRequired, boolean directoryFromJvmArg,
+			String serviceName, String configDirectory, boolean directoryRequired, boolean directoryFromJvmArg,
 			String filename, boolean fileRequired){
 		boolean fileRequiredWithoutDirectoryRequired = fileRequired && !directoryRequired;
 		Preconditions.checkState(!fileRequiredWithoutDirectoryRequired, "directory is required if file is required");
@@ -71,7 +73,7 @@ public abstract class DatarouterProperties{
 		this.serviceName = serviceName;
 
 		//find configDirectory first
-		this.configDirectory = directory;
+		this.configDirectory = configDirectory;
 		if(configDirectory != null){
 			DrFileUtils.createFileParents(configDirectory + "/anything");
 			if(directoryFromJvmArg){
@@ -120,6 +122,7 @@ public abstract class DatarouterProperties{
 		this.administratorEmail = findAdministratorEmail(configFileProperties);
 		this.privateIp = findPrivateIp(configFileProperties);
 		this.publicIp = findPublicIp(configFileProperties);
+		this.internalConfigDirectory = findInternalConfigDirectory(configFileProperties);
 	}
 
 	/*--------------- methods to find config values -----------------*/
@@ -259,6 +262,20 @@ public abstract class DatarouterProperties{
 			}
 		}
 		logger.error("couldn't find {}", SERVER_PUBLIC_IP);
+		return null;
+	}
+
+	//prefer configFile
+	private String findInternalConfigDirectory(Optional<Properties> configFileProperties){
+		if(configFileProperties.isPresent()){
+			Optional<String> value = configFileProperties.map(properties -> properties.getProperty(
+					INTERNAL_CONFIG_DIRECTORY));
+			if(value.isPresent()){
+				logSource(INTERNAL_CONFIG_DIRECTORY, value.get(), configFileLocation);
+				return value.get();
+			}
+		}
+		logger.error("couldn't find {}", INTERNAL_CONFIG_DIRECTORY);
 		return null;
 	}
 
