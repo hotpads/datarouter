@@ -37,7 +37,7 @@ public class NotificationDestinationService{
 		Iterator<NotificationDestinationKey> destinationKeyiterator = destinationKeys.iterator();
 		while(destinationKeyiterator.hasNext()){
 			NotificationDestinationKey notificationDestinationKey = destinationKeyiterator.next();
-			if(notificationDestinationKey.getApp() == null){
+			if(notificationDestinationKey.getApp().persistentString == null){
 				notificationNodes.getNotificationDestination().streamWithPrefix(notificationDestinationKey, null)
 						.filter(destination -> destination.getKey().getDeviceId().equals(notificationDestinationKey
 								.getDeviceId()))
