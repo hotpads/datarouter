@@ -19,7 +19,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.SchemaUpdateOptions;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.imp.FieldSqlTableGenerator;
 import com.hotpads.datarouter.client.imp.jdbc.util.JdbcTool;
 import com.hotpads.datarouter.config.DatarouterProperties;
 import com.hotpads.datarouter.connection.JdbcConnectionPool;
@@ -34,7 +33,7 @@ public class JdbcSchemaUpdateServiceFactory{
 	@Inject
 	private DatarouterProperties datarouterProperties;
 	@Inject
-	private FieldSqlTableGenerator fieldSqlTableGenerator;
+	private SingleTableSchemaUpdateFactory singleTableSchemaUpdateFactory;
 	@Inject
 	@Named(DatarouterExecutorGuiceModule.POOL_schemaUpdateScheduler)
 	private ScheduledExecutorService executor;
@@ -69,8 +68,9 @@ public class JdbcSchemaUpdateServiceFactory{
 		}
 
 		public Future<Optional<String>> queueNodeForSchemaUpdate(String clientName, PhysicalNode<?,?> node){
-			Future<Optional<String>> future = executor.submit(new SingleTableSchemaUpdate(fieldSqlTableGenerator,
-					clientName, connectionPool, existingTableNames, printOptions, executeOptions, node));
+			Future<Optional<String>> future = executor.submit(singleTableSchemaUpdateFactory
+					.new SingleTableSchemaUpdate(clientName, connectionPool, existingTableNames, printOptions,
+							executeOptions, node));
 			futures.add(future);
 			return future;
 		}
