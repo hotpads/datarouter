@@ -33,6 +33,7 @@ public class NotificationDestinationService{
 	}
 
 	private void deactivateDestination(List<NotificationDestinationKey> destinationKeys){
+		destinationKeys = new ArrayList<>(destinationKeys);
 		List<NotificationDestination> destinations = new ArrayList<>();
 		Iterator<NotificationDestinationKey> destinationKeyiterator = destinationKeys.iterator();
 		while(destinationKeyiterator.hasNext()){
