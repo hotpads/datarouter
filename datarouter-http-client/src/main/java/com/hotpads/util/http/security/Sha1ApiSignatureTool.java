@@ -10,12 +10,12 @@ import org.apache.commons.codec.binary.Base64;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-public class ZillowApiSignatureTool{
+public class Sha1ApiSignatureTool{
 
 	private String secretKey;
 	private static final String HMAC_SHA1 = "HmacSHA1";
 
-	public ZillowApiSignatureTool(String secretKey){
+	public Sha1ApiSignatureTool(String secretKey){
 		this.secretKey = secretKey;
 	}
 
@@ -32,13 +32,13 @@ public class ZillowApiSignatureTool{
 	}
 
 	/** tests ****************************************************************/
-	public static class Tests{
+	public static class Sha1ApiSignatureToolTests{
 		@Test
 		public void testGetSignature() throws GeneralSecurityException{
-			ZillowApiSignatureTool zigner = new ZillowApiSignatureTool("06356d75-7e80-476b-a949-a4e371ebebeb");
+			Sha1ApiSignatureTool zigner = new Sha1ApiSignatureTool("06356d75-7e80-476b-a949-a4e371ebebeb");
 			Assert.assertEquals("MPet95hJOOS8ifLKUeNlfFVnGWc=", zigner.getSignature(
 					"https://www.zillow.com/webservice/internal/UnblockListingForZpid.htm?zpid=13775149"));
-			zigner = new ZillowApiSignatureTool("a440aea1-eae1-4833-9e08-bcaf82de647a");
+			zigner = new Sha1ApiSignatureTool("a440aea1-eae1-4833-9e08-bcaf82de647a");
 			Assert.assertEquals("KJxvMCmG893evqLroroJzhvPH1s=", zigner.getSignature(
 					"https://www.tes600.zillow.local/webservice/internal/UnblockListingForZpid.htm?zpid=48663404"));
 		}
