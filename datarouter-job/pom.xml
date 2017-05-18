@@ -22,7 +22,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>com.hotpads</groupId>
-			<artifactId>datarouter-jdbc</artifactId>
+			<artifactId>datarouter-mysql</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 		<!-- servlet -->
