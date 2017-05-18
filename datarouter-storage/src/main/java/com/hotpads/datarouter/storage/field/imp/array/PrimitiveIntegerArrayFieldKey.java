@@ -5,7 +5,7 @@ import com.hotpads.datarouter.storage.field.BaseFieldKey;
 public class PrimitiveIntegerArrayFieldKey extends BaseFieldKey<int[]>{
 
 	public PrimitiveIntegerArrayFieldKey(String name){
-		super(name);
+		super(name, int[].class);
 	}
 
 

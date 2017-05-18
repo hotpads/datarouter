@@ -2,7 +2,7 @@ package com.hotpads.datarouter.storage.field.imp.array;
 
 import java.util.List;
 
-import com.google.gson.reflect.TypeToken;
+import com.google.common.reflect.TypeToken;
 import com.hotpads.datarouter.storage.field.BaseListField;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.util.core.DrArrayTool;
@@ -18,14 +18,14 @@ public class UInt7ArrayField extends BaseListField<Byte,List<Byte>>{
 
 	@Deprecated
 	public UInt7ArrayField(String name, List<Byte> value){
-		super(name, value);
+		super(name, value, new TypeToken<List<Byte>>(){});
 	}
 
 	/*********************** StringEncodedField ******************************/
 
 	@Override
 	public List<Byte> parseStringEncodedValueButDoNotSet(String value){
-		return gson.fromJson(value, new TypeToken<List<Byte>>(){}.getType());
+		return gson.fromJson(value, getKey().getValueType());
 	}
 
 	/*********************** ByteEncodedField ********************************/

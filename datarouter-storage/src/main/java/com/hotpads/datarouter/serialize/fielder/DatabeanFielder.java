@@ -52,4 +52,6 @@ extends MySqlCharacterSetCollationOpt{
 	StringDatabeanCodec getStringDatabeanCodec();
 
 	boolean isVersioned();
+
+	Class<D> getDatabeanClass();
 }

@@ -5,7 +5,7 @@ import com.hotpads.datarouter.storage.field.PrimitiveFieldKey;
 public class VarIntFieldKey extends PrimitiveFieldKey<Integer>{
 
 	public VarIntFieldKey(String name){
-		super(name);
+		super(name, Integer.class);
 	}
 
 }

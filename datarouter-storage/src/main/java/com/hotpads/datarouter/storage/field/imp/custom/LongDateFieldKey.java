@@ -8,12 +8,12 @@ import com.hotpads.datarouter.storage.field.encoding.FieldGeneratorType;
 public class LongDateFieldKey extends PrimitiveFieldKey<Date>{
 
 	public LongDateFieldKey(String name){
-		super(name);
+		super(name, Date.class);
 	}
 
 	private LongDateFieldKey(String name, String columnName, boolean nullable, FieldGeneratorType fieldGeneratorType,
 			Date defaultValue){
-		super(name, columnName, nullable, fieldGeneratorType, defaultValue);
+		super(name, columnName, nullable, Date.class, fieldGeneratorType, defaultValue);
 	}
 
 	public LongDateFieldKey withColumnName(String columnName){

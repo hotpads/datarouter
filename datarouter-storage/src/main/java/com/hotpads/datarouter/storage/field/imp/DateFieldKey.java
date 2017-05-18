@@ -16,13 +16,13 @@ public class DateFieldKey extends PrimitiveFieldKey<Date>{
 	 * Defines a DateFieldKey with seconds precision
 	 */
 	public DateFieldKey(String name){
-		super(name);
+		super(name, Date.class);
 		this.numDecimalSeconds = BACKWARDS_COMPATIBLE_NUM_DECIMAL_SECONDS;
 	}
 
 	private DateFieldKey(String name, String columnName, boolean nullable, FieldGeneratorType fieldGeneratorType,
 			Date defaultValue, int numDecimalSeconds){
-		super(name, columnName, nullable, fieldGeneratorType, defaultValue);
+		super(name, columnName, nullable, Date.class, fieldGeneratorType, defaultValue);
 		this.numDecimalSeconds = numDecimalSeconds;
 	}
 

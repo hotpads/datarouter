@@ -5,7 +5,7 @@ import com.hotpads.datarouter.storage.field.PrimitiveFieldKey;
 public class UInt7FieldKey extends PrimitiveFieldKey<Byte>{
 
 	public UInt7FieldKey(String name){
-		super(name);
+		super(name, Byte.class);
 	}
 
 }

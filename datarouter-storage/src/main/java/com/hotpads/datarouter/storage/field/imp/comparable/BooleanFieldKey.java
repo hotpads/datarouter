@@ -6,12 +6,12 @@ import com.hotpads.datarouter.storage.field.encoding.FieldGeneratorType;
 public class BooleanFieldKey extends PrimitiveFieldKey<Boolean>{
 
 	public BooleanFieldKey(String name){
-		super(name);
+		super(name, Boolean.class);
 	}
 
 	private BooleanFieldKey(String name, String columnName, boolean nullable, FieldGeneratorType fieldGeneratorType,
 			Boolean defaultValue){
-		super(name, columnName, nullable, fieldGeneratorType, defaultValue);
+		super(name, columnName, nullable, Boolean.class, fieldGeneratorType, defaultValue);
 	}
 
 	public BooleanFieldKey withDefaultValue(Boolean defaultValueOverride){

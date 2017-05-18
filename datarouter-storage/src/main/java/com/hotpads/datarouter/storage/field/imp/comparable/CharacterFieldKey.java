@@ -5,7 +5,7 @@ import com.hotpads.datarouter.storage.field.PrimitiveFieldKey;
 public class CharacterFieldKey extends PrimitiveFieldKey<Character>{
 
 	public CharacterFieldKey(String name){
-		super(name);
+		super(name, Character.class);
 	}
 
 }

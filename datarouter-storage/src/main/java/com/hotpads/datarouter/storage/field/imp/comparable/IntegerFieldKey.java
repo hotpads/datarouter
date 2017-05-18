@@ -7,12 +7,12 @@ import com.hotpads.util.core.number.RandomTool;
 public class IntegerFieldKey extends PrimitiveFieldKey<Integer>{
 
 	public IntegerFieldKey(String name){
-		super(name);
+		super(name, Integer.class);
 	}
 
 	private IntegerFieldKey(String name, String columnName, boolean nullable, FieldGeneratorType fieldGeneratorType,
 			Integer defaultValue){
-		super(name, columnName, nullable, fieldGeneratorType, defaultValue);
+		super(name, columnName, nullable, Integer.class, fieldGeneratorType, defaultValue);
 	}
 
 	public IntegerFieldKey withFieldGeneratorType(FieldGeneratorType fieldGeneratorTypeOverride){
