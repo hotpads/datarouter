@@ -6,6 +6,9 @@ import java.io.Reader;
 import java.net.InetAddress;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
 
@@ -329,6 +332,15 @@ public abstract class DatarouterProperties{
 			throw new RuntimeException("required file " + file.getAbsolutePath() + " is missing");
 		}
 		logger.warn("required file {} exists", file.getAbsolutePath());
+	}
+
+	protected String findConfigFile(String filename){
+		String externalLocation = configDirectory + "/" + filename;
+		if(Files.exists(Paths.get(externalLocation))){
+			return externalLocation;
+		}
+		Objects.requireNonNull(internalConfigDirectory, "required " + INTERNAL_CONFIG_DIRECTORY + " not found");
+		return "/config/" + internalConfigDirectory + "/" + filename;
 	}
 
 	/*---------------- getters -------------------*/
