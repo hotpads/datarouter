@@ -20,7 +20,7 @@ public class CascadeIterableTests{
 	private AtomicInteger counter;
 
 	@BeforeMethod
-	public void setupData(){
+	public void beforeMethod(){
 		twoLists = new ArrayList<>();
 		twoLists.add(new ArrayList<>(Arrays.asList(1, 2, 3)));
 		twoLists.add(new ArrayList<>(Arrays.asList(400, 500)));
