@@ -32,7 +32,7 @@ public class RedisTestRouter extends BaseRouter{
 	@Inject
 	public RedisTestRouter(TestDatarouterProperties datarouterProperties, Datarouter datarouter,
 			DatarouterClients datarouterClients, ClientId clientId){
-		super(datarouter, datarouterProperties.getTestRouterConfigFileLocation(), RedisTestRouter.class.getSimpleName(),
+		super(datarouter, datarouterProperties.getDatarouterTestFileLocation(), RedisTestRouter.class.getSimpleName(),
 				null, null);
 		this.datarouterClients = datarouterClients;
 		this.redisNode = buildRedisNode(clientId);

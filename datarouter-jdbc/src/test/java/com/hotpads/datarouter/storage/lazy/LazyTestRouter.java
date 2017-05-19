@@ -25,7 +25,7 @@ public class LazyTestRouter extends BaseRouter{
 	@Inject
 	public LazyTestRouter(TestDatarouterProperties datarouterProperties, Datarouter datarouter,
 			DatarouterSettings datarouterSettings, NodeFactory nodeFactory){
-		super(datarouter, datarouterProperties.getTestRouterConfigFileLocation(), NAME, nodeFactory,
+		super(datarouter, datarouterProperties.getDatarouterTestFileLocation(), NAME, nodeFactory,
 				datarouterSettings);
 
 		testDatabean = register(nodeFactory.create(DatarouterTestClientIds.jdbc0, TestDatabean.class,

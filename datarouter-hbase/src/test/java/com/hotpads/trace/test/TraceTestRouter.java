@@ -25,7 +25,7 @@ public class TraceTestRouter extends BaseRouter{
 	@Inject
 	public TraceTestRouter(TestDatarouterProperties datarouterProperties, Datarouter datarouter,
 			DatarouterSettings datarouterSettings, EntityNodeFactory entityNodeFactory, NodeFactory nodeFactory){
-		super(datarouter, datarouterProperties.getTestRouterConfigFileLocation(), NAME, nodeFactory,
+		super(datarouter, datarouterProperties.getDatarouterTestFileLocation(), NAME, nodeFactory,
 				datarouterSettings);
 
 		traceEntity = new TraceEntityNode(entityNodeFactory, nodeFactory, this, DatarouterTestClientIds.hbase,

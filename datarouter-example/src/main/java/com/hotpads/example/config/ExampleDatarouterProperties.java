@@ -23,7 +23,7 @@ public class ExampleDatarouterProperties extends DatarouterProperties{
 	}
 
 
-	public String getExampleRouterConfigFileLocation(){
+	public String getDatarouterExampleFileLocation(){
 		return datarouterExampleFileLocation;
 	}
 

@@ -26,7 +26,7 @@ public class MapStorageTestRouter extends BaseRouter{
 			NodeFactory nodeFactory, ClientId clientId, DatarouterSettings datarouterSettings, boolean entity,
 			EntityNodeFactory entityNodeFactory,
 			EntityNodeParams<MapStorageBeanEntityKey,MapStorageBeanEntity> entityNodeParams){
-		super(datarouter, datarouterProperties.getTestRouterConfigFileLocation(), NAME, nodeFactory,
+		super(datarouter, datarouterProperties.getDatarouterTestFileLocation(), NAME, nodeFactory,
 				datarouterSettings);
 
 		if(entity){

@@ -29,7 +29,7 @@ public class SortedNodeTestRouter extends BaseRouter{
 			DatarouterSettings datarouterSettings, EntityNodeFactory entityNodeFactory,
 			EntityNodeParams<SortedBeanEntityKey,SortedBeanEntity> entityNodeParams, NodeFactory nodeFactory,
 			ClientId clientId, boolean entity){
-		super(datarouter, datarouterProperties.getTestRouterConfigFileLocation(), NAME, nodeFactory,
+		super(datarouter, datarouterProperties.getDatarouterTestFileLocation(), NAME, nodeFactory,
 				datarouterSettings);
 
 		String tableName = TABLE_NAME_SortedBean;
