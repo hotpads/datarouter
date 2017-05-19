@@ -1,10 +1,10 @@
 package com.hotpads.datarouter.util.core;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
@@ -35,7 +35,7 @@ public class DrPropertiesTool{
 	}
 
 	private static InputStream getInputStream(String pathToFile) throws IOException{
-		Path path = new File(pathToFile).toPath();
+		Path path = Paths.get(pathToFile);
 		if(Files.exists(path)){
 			return Files.newInputStream(path);
 		}
