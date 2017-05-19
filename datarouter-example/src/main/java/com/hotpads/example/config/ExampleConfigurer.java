@@ -21,7 +21,7 @@ public class ExampleConfigurer extends BaseDatarouterPropertiesConfigurer{
 	@Singleton
 	public static class ServicesDevConfigStrategy extends CopyResourcesFileConfigStrategy{
 
-		private static final String TARGET_FILE = ExampleDatarouterProperties.EXAMPLE_ROUTER_CONFIG_FILE_NAME;
+		private static final String TARGET_FILE = ExampleDatarouterProperties.DATAROUTER_EXAMPLE_FILE_NAME;
 
 		public ServicesDevConfigStrategy(){
 			super("/datarouter-example-dev.properties", TARGET_FILE);
