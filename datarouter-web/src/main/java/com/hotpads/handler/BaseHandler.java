@@ -30,7 +30,6 @@ import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.inject.DatarouterInjector;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
-import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.handler.account.DatarouterAccount;
 import com.hotpads.handler.account.DatarouterAccountService;
 import com.hotpads.handler.encoder.HandlerEncoder;
@@ -46,6 +45,7 @@ import com.hotpads.handler.user.authenticate.AdminEditUserHandler;
 import com.hotpads.util.core.collections.Pair;
 import com.hotpads.util.core.concurrent.Lazy;
 import com.hotpads.util.core.java.ReflectionTool;
+import com.hotpads.util.http.RequestTool;
 import com.hotpads.util.http.ResponseTool;
 import com.hotpads.util.http.security.SecurityParameters;
 
@@ -196,7 +196,7 @@ public abstract class BaseHandler{
 	}
 
 	private String handlerMethodName(){
-		String fullPath = request.getServletPath() + DrStringTool.nullSafe(request.getPathInfo());
+		String fullPath = RequestTool.getPath(request);
 		String lastPathSegment = getLastPathSegment(fullPath);
 		return params.optional(handlerMethodParamName()).orElse(lastPathSegment);
 	}
