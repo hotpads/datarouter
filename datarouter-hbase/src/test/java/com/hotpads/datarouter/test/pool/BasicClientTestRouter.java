@@ -34,7 +34,7 @@ extends BaseRouter{
 	@Inject
 	public BasicClientTestRouter(TestDatarouterProperties datarouterProperties, Datarouter datarouter,
 			DatarouterSettings datarouterSettings, NodeFactory nodeFactory){
-		super(datarouter, datarouterProperties.getTestRouterConfigFileLocation(), name, nodeFactory,
+		super(datarouter, datarouterProperties.getDatarouterTestFileLocation(), name, nodeFactory,
 				datarouterSettings);
 
 		keepAliveHBase = register(nodeFactory.create(DatarouterTestClientIds.hbase, KeepAlive.class,

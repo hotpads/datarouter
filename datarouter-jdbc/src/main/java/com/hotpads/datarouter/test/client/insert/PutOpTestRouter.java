@@ -26,7 +26,7 @@ extends BaseRouter{
 
 	public PutOpTestRouter(TestDatarouterProperties datarouterProperties, Datarouter datarouter,
 			DatarouterSettings datarouterSettings, NodeFactory nodeFactory, ClientId clientId){
-		super(datarouter, datarouterProperties.getTestRouterConfigFileLocation(), name, nodeFactory,
+		super(datarouter, datarouterProperties.getDatarouterTestFileLocation(), name, nodeFactory,
 				datarouterSettings);
 
 		this.putOptTest = register(nodeFactory.create(clientId, PutOpTestBean.class, PutOpTestBeanFielder.class, this,

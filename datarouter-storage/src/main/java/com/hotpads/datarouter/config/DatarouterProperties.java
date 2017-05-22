@@ -1,6 +1,5 @@
 package com.hotpads.datarouter.config;
 
-import java.io.File;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.InetAddress;
@@ -323,15 +322,6 @@ public abstract class DatarouterProperties{
 
 	public String getServerTypeString(){
 		return Optional.ofNullable(serverType).map(ServerType::getPersistentString).orElse(null);
-	}
-
-	public void assertConfigFileExists(String filename){
-		String fileLocation = configDirectory + "/" + filename;
-		File file = new File(fileLocation);
-		if(!file.exists()){
-			throw new RuntimeException("required file " + file.getAbsolutePath() + " is missing");
-		}
-		logger.warn("required file {} exists", file.getAbsolutePath());
 	}
 
 	protected String findConfigFile(String filename){

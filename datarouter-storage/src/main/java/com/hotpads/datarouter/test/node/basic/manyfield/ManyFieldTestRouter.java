@@ -20,7 +20,7 @@ public class ManyFieldTestRouter extends BaseRouter{
 	@Inject
 	public ManyFieldTestRouter(TestDatarouterProperties datarouterProperties, Datarouter datarouter,
 			DatarouterSettings datarouterSettings, NodeFactory nodeFactory, ClientId clientId){
-		super(datarouter, datarouterProperties.getTestRouterConfigFileLocation(), ManyFieldTestRouter.class
+		super(datarouter, datarouterProperties.getDatarouterTestFileLocation(), ManyFieldTestRouter.class
 				.getSimpleName(), nodeFactory, datarouterSettings);
 
 		this.manyFieldTypeBeanNode = create(clientId, ManyFieldBean::new, ManyFieldTypeBeanFielder::new)
