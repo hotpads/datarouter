@@ -2,10 +2,12 @@ package com.hotpads.datarouter.util.core;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
+import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -113,9 +115,14 @@ public class DrMapTool{
 
 	public static <K,V> Map<K,V> getBy(Iterable<V> values, Function<V,K> keyMapper){
 		return StreamTool.stream(values)
-				.collect(Collectors.toMap(keyMapper, Function.identity()));
+				.collect(Collectors.toMap(keyMapper, Function.identity(), throwingMerger(), LinkedHashMap::new));
 	}
 
+	private static <T> BinaryOperator<T> throwingMerger(){
+		return (key, value) -> {
+			throw new IllegalStateException(String.format("Duplicate key %s", key));
+		};
+	}
 
 	/***************** tests ***************************/
 
@@ -131,10 +138,11 @@ public class DrMapTool{
 
 		@Test
 		public void testGetBy(){
-			List<String> strings = Arrays.asList("a", "b", "c");
+			List<String> strings = Arrays.asList("bb", "aa", "cc", "dd", "ee", "ff");
 			Map<Integer,String> stringByHashCode = getBy(strings, String::hashCode);
-			Assert.assertEquals(size(stringByHashCode), 3);
+			Assert.assertEquals(size(stringByHashCode), strings.size());
 			strings.forEach(string -> Assert.assertTrue(stringByHashCode.containsValue(string)));
+			Assert.assertEquals(stringByHashCode.values(), strings);
 		}
 
 	}
