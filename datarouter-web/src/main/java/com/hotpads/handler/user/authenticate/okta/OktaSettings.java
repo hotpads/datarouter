@@ -29,7 +29,7 @@ public class OktaSettings extends SettingRoot{
 		//orgUrl = registerString("orgUrl", "https://dev-907596-admin.oktapreview.com");
 		//apiKey = registerString("apiKey", "004dX4J_CeoyztfSFIc_2HTHQmqzdGwWyXgv-AHurl");
 		orgUrl = registerString("orgUrl", "zillow.okta.com");
-		apiKey = registerString("apiKey", "");//TODO remove key string
+		apiKey = registerString("apiKey", "");
 
 		isLive = !ServerType.DEV.equals(datarouterProperties.getServerType().getPersistentString());
 	}
