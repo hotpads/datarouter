@@ -48,7 +48,7 @@ public class DatarouterAuthenticationFilter implements Filter{
 	private DatarouterSessionManager sessionManager;
 
 	@Override
-	public void init(FilterConfig filterConfig){
+	public void init(@SuppressWarnings("unused") FilterConfig filterConfig){
 	}
 
 	@Override
@@ -206,12 +206,12 @@ public class DatarouterAuthenticationFilter implements Filter{
 	}
 
 	private void handleSuccessfulLogin(HttpServletRequest request, HttpServletResponse response, URL targetUrl){
-		String redirectTo;
+		String redirectTo = request.getContextPath();
 		if(targetUrl != null){
-			redirectTo = targetUrl.toExternalForm();
+			if(!targetUrl.getPath().equals(request.getContextPath() + authenticationConfig.getSigninPath())){
+				redirectTo = targetUrl.toExternalForm();
+			}
 			sessionManager.clearTargetUrlCookie(response);
-		}else{
-			redirectTo = request.getContextPath();
 		}
 		ResponseTool.sendRedirect(request, response, HttpServletResponse.SC_SEE_OTHER, redirectTo);
 	}
