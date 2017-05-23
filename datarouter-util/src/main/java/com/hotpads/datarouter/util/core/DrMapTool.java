@@ -2,6 +2,7 @@ package com.hotpads.datarouter.util.core;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -113,9 +114,9 @@ public class DrMapTool{
 
 	public static <K,V> Map<K,V> getBy(Iterable<V> values, Function<V,K> keyMapper){
 		return StreamTool.stream(values)
-				.collect(Collectors.toMap(keyMapper, Function.identity()));
+				.collect(Collectors.toMap(keyMapper, Function.identity(), StreamTool.throwingMerger(),
+						LinkedHashMap::new));
 	}
-
 
 	/***************** tests ***************************/
 
@@ -131,10 +132,11 @@ public class DrMapTool{
 
 		@Test
 		public void testGetBy(){
-			List<String> strings = Arrays.asList("a", "b", "c");
+			List<String> strings = Arrays.asList("bb", "aa", "cc", "dd", "ee", "ff");
 			Map<Integer,String> stringByHashCode = getBy(strings, String::hashCode);
-			Assert.assertEquals(size(stringByHashCode), 3);
+			Assert.assertEquals(size(stringByHashCode), strings.size());
 			strings.forEach(string -> Assert.assertTrue(stringByHashCode.containsValue(string)));
+			Assert.assertEquals(stringByHashCode.values(), strings);
 		}
 
 	}
