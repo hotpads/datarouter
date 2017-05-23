@@ -44,6 +44,10 @@ public class RequestTool{
 	public static final String SUBMIT_ACTION = "submitAction";
 	public static final String REQUEST_PHASE_TIMER = "requestPhaseTimer";
 
+	public static String getPath(HttpServletRequest request){
+		return request.getServletPath() + DrStringTool.nullSafe(request.getPathInfo());
+	}
+
 	public static String getSubmitAction(HttpServletRequest request){
 		String submitAction = request.getParameter(SUBMIT_ACTION);
 		if(submitAction != null){

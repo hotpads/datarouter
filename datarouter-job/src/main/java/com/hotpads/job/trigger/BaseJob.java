@@ -10,7 +10,9 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.hotpads.datarouter.profile.counter.Counters;
 import com.hotpads.datarouter.setting.Setting;
+import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.datarouter.util.core.DrBooleanTool;
 import com.hotpads.datarouter.util.core.DrComparableTool;
 import com.hotpads.handler.exception.ExceptionRecorder;
@@ -22,6 +24,8 @@ import com.hotpads.util.core.date.CronExpression;
 
 public abstract class BaseJob implements Job{
 	private static final Logger logger = LoggerFactory.getLogger(BaseJob.class);
+
+	private static final String COUNTER_PREFIX = "job";
 
 	protected final JobScheduler scheduler;
 	protected final ScheduledExecutorService executor;
@@ -83,6 +87,7 @@ public abstract class BaseJob implements Job{
 		if(immediate){
 			delay = 0L;
 			logger.warn("scheduling " + getClass().getSimpleName() + " to run immediately");
+			count("scheduling immediately");
 		}else{
 			delay = getDelayBeforeNextFireTimeMs();
 			if(delay == null){
@@ -115,6 +120,7 @@ public abstract class BaseJob implements Job{
 			getFromTracker().incrementNumberOfErrors();
 			getFromTracker().setLastErrorTime(new Date());
 			logger.warn("exception executing " + getClass(), e);
+			count("exception");
 			tryRecordException(e);
 		}finally{
 			try{
@@ -149,6 +155,7 @@ public abstract class BaseJob implements Job{
 	@Override
 	public void runInternal() throws Exception{
 		if(shouldRunInternal()){
+			count("started");
 			startedAt = new Date();
 			scheduler.getTracker().get(this.getClass()).setRunning(true);
 			scheduler.getTracker().get(this.getClass()).setJob(this);
@@ -161,10 +168,13 @@ public abstract class BaseJob implements Job{
 			Date nextJobTriggerTime = getTrigger().getNextValidTimeAfter(triggerTime);
 			String jobCompletionLog = "Finished " + getClass().getSimpleName() + " in " + getElapsedRunningTimeMs()
 					+ "ms";
+			count("finished");
 			if(getStartDelayMs() > 1000){
+				count("started after long delay"); // do we want to trigger this at the begining?
 				jobCompletionLog += ", delayed by " + getStartDelayMs() + "ms";
 			}
 			if(new Date().after(nextJobTriggerTime)){
+				count("missed next trigger");
 				jobCompletionLog += ", missed next trigger";
 			}
 			if(getElapsedRunningTimeMs() > 400){
@@ -353,6 +363,11 @@ public abstract class BaseJob implements Job{
 
 	public void tryRecordException(Exception exception){
 		exceptionRecorder.tryRecordException(exception, getClass().getName(), JobExceptionCategory.JOB);
+	}
+
+	private void count(String name){
+		Counters.inc(DRCounters.PREFIX + " " + COUNTER_PREFIX + " " + name);
+		Counters.inc(DRCounters.PREFIX + " " + COUNTER_PREFIX + " " + getClass().getSimpleName() + " " + name);
 	}
 
 }

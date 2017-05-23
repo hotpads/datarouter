@@ -1,11 +1,13 @@
 package com.hotpads.datarouter.config;
 
-import java.io.File;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.InetAddress;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
 
@@ -33,6 +35,7 @@ public abstract class DatarouterProperties{
 	private static final String SERVER_NAME = "server.name";
 	private static final String SERVER_TYPE = "server.type";
 	private static final String ADMINISTRATOR_EMAIL = "administrator.email";
+	protected static final String INTERNAL_CONFIG_DIRECTORY = "internalConfigDirectory";
 
 	private static final String EC2_PRIVATE_IP_URL = "http://instance-data/latest/meta-data/local-ipv4";
 	private static final String EC2_PUBLIC_IP_URL = "http://instance-data/latest/meta-data/public-ipv4";
@@ -48,6 +51,7 @@ public abstract class DatarouterProperties{
 	private final String administratorEmail;
 	private final String privateIp;
 	private final String publicIp;
+	protected final String internalConfigDirectory;
 
 	/*----------------- construct ------------------*/
 
@@ -58,12 +62,12 @@ public abstract class DatarouterProperties{
 	}
 
 	protected DatarouterProperties(BaseDatarouterPropertiesConfigurer configurer, ServerType serverTypeOptions,
-			String serviceName, String directory, String filename){
-		this(configurer, serverTypeOptions, serviceName, directory, true, false, filename, true);
+			String serviceName, String configDirectory, String filename){
+		this(configurer, serverTypeOptions, serviceName, configDirectory, true, false, filename, true);
 	}
 
 	private DatarouterProperties(BaseDatarouterPropertiesConfigurer configurer, ServerType serverTypeOptions,
-			String serviceName, String directory, boolean directoryRequired, boolean directoryFromJvmArg,
+			String serviceName, String configDirectory, boolean directoryRequired, boolean directoryFromJvmArg,
 			String filename, boolean fileRequired){
 		boolean fileRequiredWithoutDirectoryRequired = fileRequired && !directoryRequired;
 		Preconditions.checkState(!fileRequiredWithoutDirectoryRequired, "directory is required if file is required");
@@ -71,7 +75,7 @@ public abstract class DatarouterProperties{
 		this.serviceName = serviceName;
 
 		//find configDirectory first
-		this.configDirectory = directory;
+		this.configDirectory = configDirectory;
 		if(configDirectory != null){
 			DrFileUtils.createFileParents(configDirectory + "/anything");
 			if(directoryFromJvmArg){
@@ -120,6 +124,7 @@ public abstract class DatarouterProperties{
 		this.administratorEmail = findAdministratorEmail(configFileProperties);
 		this.privateIp = findPrivateIp(configFileProperties);
 		this.publicIp = findPublicIp(configFileProperties);
+		this.internalConfigDirectory = findInternalConfigDirectory(configFileProperties);
 	}
 
 	/*--------------- methods to find config values -----------------*/
@@ -262,6 +267,20 @@ public abstract class DatarouterProperties{
 		return null;
 	}
 
+	//prefer configFile
+	private String findInternalConfigDirectory(Optional<Properties> configFileProperties){
+		if(configFileProperties.isPresent()){
+			Optional<String> value = configFileProperties.map(properties -> properties.getProperty(
+					INTERNAL_CONFIG_DIRECTORY));
+			if(value.isPresent()){
+				logSource(INTERNAL_CONFIG_DIRECTORY, value.get(), configFileLocation);
+				return value.get();
+			}
+		}
+		logger.error("couldn't find {}", INTERNAL_CONFIG_DIRECTORY);
+		return null;
+	}
+
 
 	/*------------------- private -------------------------*/
 
@@ -305,13 +324,13 @@ public abstract class DatarouterProperties{
 		return Optional.ofNullable(serverType).map(ServerType::getPersistentString).orElse(null);
 	}
 
-	public void assertConfigFileExists(String filename){
-		String fileLocation = configDirectory + "/" + filename;
-		File file = new File(fileLocation);
-		if(!file.exists()){
-			throw new RuntimeException("required file " + file.getAbsolutePath() + " is missing");
+	protected String findConfigFile(String filename){
+		String externalLocation = configDirectory + "/" + filename;
+		if(Files.exists(Paths.get(externalLocation))){
+			return externalLocation;
 		}
-		logger.warn("required file {} exists", file.getAbsolutePath());
+		Objects.requireNonNull(internalConfigDirectory, "required " + INTERNAL_CONFIG_DIRECTORY + " not found");
+		return "/config/" + internalConfigDirectory + "/" + filename;
 	}
 
 	/*---------------- getters -------------------*/

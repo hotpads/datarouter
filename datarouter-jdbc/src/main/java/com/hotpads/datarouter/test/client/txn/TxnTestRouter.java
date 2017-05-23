@@ -23,7 +23,7 @@ public class TxnTestRouter extends BaseRouter{
 	@Inject
 	public TxnTestRouter(TestDatarouterProperties datarouterProperties, Datarouter datarouter,
 			DatarouterSettings datarouterSettings, NodeFactory nodeFactory, ClientId clientId, boolean useFielder){
-		super(datarouter, datarouterProperties.getTestRouterConfigFileLocation(), TxnTestRouter.class.getSimpleName()
+		super(datarouter, datarouterProperties.getDatarouterTestFileLocation(), TxnTestRouter.class.getSimpleName()
 				+ "Router", nodeFactory, datarouterSettings);
 
 		Class<TxnBeanFielder> fielderClass = useFielder ? TxnBeanFielder.class : null;

@@ -5,7 +5,7 @@ import org.apache.logging.log4j.core.Appender;
 import org.apache.logging.log4j.core.appender.ConsoleAppender.Target;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.execute.DatabaseCreator;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.execute.SingleTableSchemaUpdate;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.execute.SingleTableSchemaUpdateFactory;
 import com.hotpads.util.core.logging.HotPadsLog4j2Configuration;
 import com.hotpads.util.core.logging.Log4j2Configurator;
 
@@ -17,7 +17,7 @@ public class DatarouterJdbcLog4j2Configuration extends HotPadsLog4j2Configuratio
 
 		registerParent(DatarouterLog4j2Configuration.class);
 		addAppender(schemaUpdateAppender);
-		addLoggerConfig(SingleTableSchemaUpdate.class.getName(), Level.INFO, false, schemaUpdateAppender);
+		addLoggerConfig(SingleTableSchemaUpdateFactory.class.getName(), Level.INFO, false, schemaUpdateAppender);
 		addLoggerConfig(DatabaseCreator.class.getName(), Level.INFO, false, schemaUpdateAppender);
 	}
 }

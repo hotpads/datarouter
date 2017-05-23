@@ -1,13 +1,13 @@
 package com.hotpads.notification.config.http;
 
 import com.hotpads.datarouter.inject.DatarouterInjector;
-import com.hotpads.handler.dispatcher.BaseDispatcher;
+import com.hotpads.handler.dispatcher.BaseRouteSet;
 import com.hotpads.handler.dispatcher.DatarouterWebDispatcher;
 import com.hotpads.notification.NotificationTesterHandler;
 import com.hotpads.notification.NotificationTimingStrategyHandler;
 import com.hotpads.notification.alias.NotificationAliasHandler;
 
-public class DatarouterNotificationDispatcher extends BaseDispatcher{
+public class DatarouterNotificationDispatcher extends BaseRouteSet{
 
 	public static final String URL_DATAROUTER = DatarouterWebDispatcher.PATH_datarouter;
 
