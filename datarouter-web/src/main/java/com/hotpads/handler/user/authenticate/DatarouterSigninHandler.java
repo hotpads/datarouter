@@ -11,7 +11,6 @@ public class DatarouterSigninHandler extends BaseHandler{
 
 	@Inject
 	private DatarouterAuthenticationConfig authenticationConfig;
-
 	@Inject
 	private OktaSettings oktaSettings;
 
@@ -20,10 +19,9 @@ public class DatarouterSigninHandler extends BaseHandler{
 		Mav mav = new Mav("/jsp/authentication/signinForm.jsp");
 		mav.put("authenticationConfig", authenticationConfig);
 		mav.put("allowOkta", oktaSettings.getShouldProcess());
-		mav.put("requireOkta", oktaSettings.getIsOktaRequired().getValue());
-		mav.put("orgUrl", oktaSettings.getOrgUrl().getValue());
+		mav.put("requireOkta", oktaSettings.isOktaRequired.getValue());
+		mav.put("orgUrl", oktaSettings.orgUrl.getValue());
 		mav.put("redirectUrl", request.getRequestURL());
-
 		return mav;
 	}
 }

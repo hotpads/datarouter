@@ -12,10 +12,10 @@ import com.hotpads.datarouter.setting.SettingRoot;
 @Singleton
 public class OktaSettings extends SettingRoot{
 
-	private final Setting<Boolean> isOktaAllowed;
-	private final Setting<Boolean> isOktaRequired;
-	private final Setting<String> orgUrl;
-	private final Setting<String> apiKey;
+	public final Setting<Boolean> isOktaAllowed;
+	public final Setting<Boolean> isOktaRequired;
+	public final Setting<String> orgUrl;
+	public final Setting<String> apiKey;
 
 	private final Boolean isLive;
 
@@ -32,22 +32,6 @@ public class OktaSettings extends SettingRoot{
 		apiKey = registerString("apiKey", "");
 
 		isLive = !ServerType.DEV.equals(datarouterProperties.getServerType().getPersistentString());
-	}
-
-	public Setting<Boolean> getIsOktaAllowed(){
-		return isOktaAllowed;
-	}
-
-	public Setting<Boolean> getIsOktaRequired(){
-		return isOktaRequired;
-	}
-
-	public Setting<String> getOrgUrl(){
-		return orgUrl;
-	}
-
-	public Setting<String> getApiKey(){
-		return apiKey;
 	}
 
 	public Boolean getShouldProcess(){

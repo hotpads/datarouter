@@ -48,7 +48,7 @@ public class DatarouterAuthenticationFilter implements Filter{
 	private DatarouterSessionManager sessionManager;
 
 	@Override
-	public void init(@SuppressWarnings("unused") FilterConfig filterConfig){
+	public void init(FilterConfig filterConfig){
 	}
 
 	@Override

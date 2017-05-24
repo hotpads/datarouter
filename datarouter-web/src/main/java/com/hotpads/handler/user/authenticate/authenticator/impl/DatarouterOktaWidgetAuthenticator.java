@@ -6,7 +6,9 @@ import java.util.Date;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.google.gson.Gson;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.hotpads.datarouter.util.core.DrBooleanTool;
 import com.hotpads.datarouter.util.core.DrObjectTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
@@ -27,6 +29,7 @@ import com.hotpads.util.http.request.HotPadsHttpRequest.HttpRequestMethod;
 import com.hotpads.util.http.response.exception.HotPadsHttpRuntimeException;
 
 public class DatarouterOktaWidgetAuthenticator extends BaseDatarouterAuthenticator{
+	private static final Logger logger = LoggerFactory.getLogger(DatarouterOktaWidgetAuthenticator.class);
 
 	private static final String SESSIONS_PATH = "/api/v1/sessions/";
 	private static final String API_KEY_PREFIX = "SSWS ";
@@ -37,17 +40,15 @@ public class DatarouterOktaWidgetAuthenticator extends BaseDatarouterAuthenticat
 	private final DatarouterUserNodes userNodes;
 	private final OktaSettings oktaSettings;
 	private final HotPadsHttpClient httpClient;
-	private final Gson gson;
 
 	public DatarouterOktaWidgetAuthenticator(HttpServletRequest request, HttpServletResponse response,
 			DatarouterAuthenticationConfig authenticationConfig, DatarouterUserNodes userNodes,
-			OktaSettings oktaSettings, Gson gson){
+			OktaSettings oktaSettings){
 		super(request, response);
 		this.authenticationConfig = authenticationConfig;
 		this.userNodes = userNodes;
 		this.oktaSettings = oktaSettings;
 		this.httpClient = new HotPadsHttpClientBuilder().build();
-		this.gson = gson;
 	}
 
 	@Override
@@ -71,16 +72,16 @@ public class DatarouterOktaWidgetAuthenticator extends BaseDatarouterAuthenticat
 	}
 
 	private DatarouterUser getUserByOktaSession(String oktaSessionId, String oktaLogin){
-		HotPadsHttpRequest oktaRequest = new HotPadsHttpRequest(HttpRequestMethod.GET, oktaSettings.getOrgUrl()
+		HotPadsHttpRequest oktaRequest = new HotPadsHttpRequest(HttpRequestMethod.GET, oktaSettings.orgUrl
 				.getValue() + SESSIONS_PATH + oktaSessionId, false);
-		oktaRequest.addHeaders(Collections.singletonMap("Authorization", API_KEY_PREFIX + oktaSettings.getApiKey()
+		oktaRequest.addHeaders(Collections.singletonMap("Authorization", API_KEY_PREFIX + oktaSettings.apiKey
 				.getValue()));
 
 		try{
-			OktaSessionResponse oktaResponse = gson.fromJson(httpClient.execute(oktaRequest).getEntity(),
-					OktaSessionResponse.class);
+			OktaSessionResponse oktaResponse = httpClient.execute(oktaRequest, OktaSessionResponse.class);
 			return lookupAndValidateUser(oktaLogin, oktaResponse);
 		}catch(HotPadsHttpRuntimeException e){
+			logger.error("Failed to authenticate with Okta", e);
 			throw new InvalidCredentialsException("Failed to authenticate with Okta");
 		}
 	}

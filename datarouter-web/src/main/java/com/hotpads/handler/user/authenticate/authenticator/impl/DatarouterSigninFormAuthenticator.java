@@ -48,7 +48,7 @@ public class DatarouterSigninFormAuthenticator extends BaseDatarouterAuthenticat
 			return null;
 		}
 
-		if(oktaSettings.getShouldProcess() && oktaSettings.getIsOktaRequired().getValue()){
+		if(oktaSettings.getShouldProcess() && oktaSettings.isOktaRequired.getValue()){
 			logger.info("Okta sign-in required.");
 			return null;
 		}
