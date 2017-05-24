@@ -180,8 +180,8 @@ public class DatarouterAuthenticationFilter implements Filter{
 				+ errorParam);
 	}
 
-	private void handleBadApiCall(HttpServletResponse response, String message){
-		ResponseTool.sendErrorInJsonForMessage(response, HttpServletResponse.SC_BAD_REQUEST, message);
+	private void handleBadApiCall(HttpServletResponse response, String message) throws IOException{
+		ResponseTool.sendJsonForMessage(response, HttpServletResponse.SC_BAD_REQUEST, message);
 	}
 
 	private boolean missingRequiredRoles(String path, DatarouterSession datarouterSession){

@@ -37,7 +37,7 @@ public class TallyTestRouter extends BaseRouter{
 	@Inject
 	public TallyTestRouter(TestDatarouterProperties datarouterProperties, Datarouter datarouter,
 			DatarouterClients datarouterClients, NodeFactory nodeFactory, DatarouterSettings datarouterSettings){
-		super(datarouter, datarouterProperties.getTestRouterConfigFileLocation(), TallyTestRouter.class.getSimpleName(),
+		super(datarouter, datarouterProperties.getDatarouterTestFileLocation(), TallyTestRouter.class.getSimpleName(),
 				nodeFactory, datarouterSettings);
 
 		this.datarouterClients = datarouterClients;

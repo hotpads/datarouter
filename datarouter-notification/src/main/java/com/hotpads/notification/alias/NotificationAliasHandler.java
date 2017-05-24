@@ -65,7 +65,7 @@ public class NotificationAliasHandler extends BaseHandler{
 	}
 
 	private NotificationAlias getSelectedAlias(){
-		if(request.getPathInfo().matches(COMMAND_REGEX + ".+")){
+		if(RequestTool.getPath(request).matches(COMMAND_REGEX + ".+")){
 			String aliasName;
 			try{
 				aliasName = URLDecoder.decode(request.getPathInfo().replaceAll(COMMAND_REGEX, ""), "UTF-8");

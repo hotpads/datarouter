@@ -21,7 +21,7 @@ public class VersionedDatabeanRouter extends BaseRouter{
 	@Inject
 	public VersionedDatabeanRouter(TestDatarouterProperties datarouterProperties, Datarouter datarouter,
 			NodeFactory nodeFactory, DatarouterSettings datarouterSettings){
-		super(datarouter, datarouterProperties.getTestRouterConfigFileLocation(), VersionedDatabeanRouter.class
+		super(datarouter, datarouterProperties.getDatarouterTestFileLocation(), VersionedDatabeanRouter.class
 				.getSimpleName(), nodeFactory, datarouterSettings);
 
 		versionedTestDatabean = createAndRegister(DatarouterTestClientIds.jdbc0, TestVersionedDatabean::new,

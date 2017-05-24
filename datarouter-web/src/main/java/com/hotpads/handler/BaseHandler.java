@@ -1,5 +1,6 @@
 package com.hotpads.handler;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -17,6 +18,7 @@ import java.util.stream.Stream;
 
 import javax.inject.Inject;
 import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -28,7 +30,8 @@ import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.inject.DatarouterInjector;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
-import com.hotpads.datarouter.util.core.DrStringTool;
+import com.hotpads.handler.account.DatarouterAccount;
+import com.hotpads.handler.account.DatarouterAccountService;
 import com.hotpads.handler.encoder.HandlerEncoder;
 import com.hotpads.handler.encoder.MavEncoder;
 import com.hotpads.handler.exception.ExceptionRecorder;
@@ -42,7 +45,9 @@ import com.hotpads.handler.user.authenticate.AdminEditUserHandler;
 import com.hotpads.util.core.collections.Pair;
 import com.hotpads.util.core.concurrent.Lazy;
 import com.hotpads.util.core.java.ReflectionTool;
+import com.hotpads.util.http.RequestTool;
 import com.hotpads.util.http.ResponseTool;
+import com.hotpads.util.http.security.SecurityParameters;
 
 /*
  * a dispatcher servlet sets necessary parameters and then calls "handle()"
@@ -61,6 +66,8 @@ public abstract class BaseHandler{
 	private ExceptionRecorder exceptionRecorder;
 	@Inject
 	private HandlerCounters handlerCounters;
+	@Inject
+	private DatarouterAccountService datarouterAccountService;
 
 	//these are available to all handlers without passing them around
 	protected ServletContext servletContext;
@@ -149,13 +156,12 @@ public abstract class BaseHandler{
 				encoder = new MavEncoder();
 			}
 			Object result;
+			if(args == null){
+				args = new Object[]{};
+			}
+			handlerCounters.incMethodInvocation(this, method);
 			try{
-				if(args == null){
-					args = new Object[]{};
-				}
-				handlerCounters.incMethodInvocation(this, method);
 				result = method.invoke(this, args);
-				encoder.finishRequest(result, servletContext, response, request);
 			}catch(IllegalAccessException e){
 				throw new RuntimeException(e);
 			}catch(InvocationTargetException e){
@@ -166,16 +172,15 @@ public abstract class BaseHandler{
 					exceptionRecorder.tryRecordException(handledException, exceptionLocation);
 					encoder.sendExceptionResponse((HandledException)cause, servletContext, response, request);
 					logger.warn(e.getMessage());
+					return;
 				}else if(cause instanceof RuntimeException){
 					throw (RuntimeException)cause;
 				}else{
 					throw new RuntimeException(cause);
 				}
 			}
-		}catch(Exception e){
-			if(e instanceof RuntimeException){
-				throw (RuntimeException)e;
-			}
+			encoder.finishRequest(result, servletContext, response, request);
+		}catch(IOException | ServletException e){
 			throw new RuntimeException(e);
 		}
 	}
@@ -191,7 +196,7 @@ public abstract class BaseHandler{
 	}
 
 	private String handlerMethodName(){
-		String fullPath = request.getServletPath() + DrStringTool.nullSafe(request.getPathInfo());
+		String fullPath = RequestTool.getPath(request);
 		String lastPathSegment = getLastPathSegment(fullPath);
 		return params.optional(handlerMethodParamName()).orElse(lastPathSegment);
 	}
@@ -226,6 +231,11 @@ public abstract class BaseHandler{
 	}
 
 	/****************** get/set *******************************************/
+
+	protected final Optional<DatarouterAccount> getCurrentDatarouterAccount(){
+		return params.optional(SecurityParameters.API_KEY)
+				.flatMap(datarouterAccountService::findAccountForApiKey);
+	}
 
 	public HttpServletRequest getRequest(){
 		return request;

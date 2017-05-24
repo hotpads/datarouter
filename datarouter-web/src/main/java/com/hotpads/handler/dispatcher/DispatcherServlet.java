@@ -13,25 +13,43 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.hotpads.datarouter.inject.DatarouterInjector;
 import com.hotpads.datarouter.inject.InjectorRetriever;
+import com.hotpads.pontoon.config.Dispatcher;
 
 @SuppressWarnings("serial")
 @Singleton
 public abstract class DispatcherServlet extends HttpServlet implements InjectorRetriever{
 
+	/**
+	 * @deprecated use {@link #register(BaseRouteSet)}
+	 */
+	@Deprecated
+	protected List<BaseRouteSet> dispatchers = new ArrayList<>();
+	/**
+	 * @deprecated you should not need that
+	 */
+	@Deprecated
 	protected String servletContextPath;
+	/**
+	 * @deprecated you should not need that
+	 */
+	@Deprecated
 	protected DatarouterInjector injector;
 
-	protected List<BaseDispatcher> dispatchers = new ArrayList<>();
-	// ...add more dispatchers
+	private Dispatcher dispatcher;
 
 	@Override
 	public void init(){
-		servletContextPath = getServletContext().getContextPath();
-		injector = getInjector(getServletContext());
+		DatarouterInjector injector = getInjector(getServletContext());
+		this.injector = injector;
+		dispatcher = injector.getInstance(Dispatcher.class);
 		registerDispatchers();
 	}
 
-	public abstract void registerDispatchers();
+	protected abstract void registerDispatchers();
+
+	protected final void register(BaseRouteSet routeSet){
+		dispatchers.add(routeSet);
+	}
 
 	@Override
 	protected void service(HttpServletRequest request, HttpServletResponse response)
@@ -41,8 +59,8 @@ public abstract class DispatcherServlet extends HttpServlet implements InjectorR
 		response.setHeader("X-Frame-Options", "SAMEORIGIN"); //clickjacking protection
 
 		boolean handled = false;
-		for(BaseDispatcher dispatcher : dispatchers){
-			handled = dispatcher.handleRequestIfUrlMatch(getServletContext(), request, response);
+		for(BaseRouteSet dispatcherRoutes : dispatchers){
+			handled = dispatcher.handleRequestIfUrlMatch(request, response, dispatcherRoutes);
 			if(handled){
 				break;
 			}

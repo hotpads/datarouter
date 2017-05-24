@@ -14,7 +14,7 @@ import com.hotpads.datarouter.util.core.DrStringTool;
 public class SchemaUpdateOptions{
 	private static final Logger logger = LoggerFactory.getLogger(SchemaUpdateOptions.class);
 
-	public static final String SCHEMA_UPDATE_FILENAME = "schema-update.properties";
+	private static final String SCHEMA_UPDATE_FILENAME = "schema-update.properties";
 
 	private static final String SCHEMA_UPDATE_ENABLE = "schemaUpdate.enable";
 
@@ -131,28 +131,6 @@ public class SchemaUpdateOptions{
 		return this;
 	}
 
-	public SchemaUpdateOptions setAllTrue(){
-		createTables = true;
-		addColumns = true;
-		deleteColumns = true;
-		modifyColumns = true;
-		addIndexes = true;
-		dropIndexes = true;
-		modifyEngine = true;
-		return this;
-	}
-
-	public SchemaUpdateOptions setAllFalse(){
-		createTables = false;
-		addColumns = false;
-		deleteColumns = false;
-		modifyColumns = false;
-		addIndexes = false;
-		dropIndexes = false;
-		modifyEngine = false;
-		return this;
-	}
-
 	public Boolean getCreateTables(){
 		return createTables;
 	}
@@ -165,11 +143,6 @@ public class SchemaUpdateOptions{
 		return addColumns;
 	}
 
-	public SchemaUpdateOptions setAddColumns(Boolean addColumns){
-		this.addColumns = addColumns;
-		return this;
-	}
-
 	public Boolean getDeleteColumns(){
 		return deleteColumns;
 	}
@@ -180,11 +153,6 @@ public class SchemaUpdateOptions{
 
 	public Boolean getAddIndexes(){
 		return addIndexes;
-	}
-
-	public SchemaUpdateOptions setAddIndexes(Boolean addIndexes){
-		this.addIndexes = addIndexes;
-		return this;
 	}
 
 	public Boolean getDropIndexes(){
@@ -214,4 +182,9 @@ public class SchemaUpdateOptions{
 	public boolean getEnabled(){
 		return enabled;
 	}
+
+	public boolean getModifyPrimaryKey(){
+		return addIndexes && dropIndexes;
+	}
+
 }

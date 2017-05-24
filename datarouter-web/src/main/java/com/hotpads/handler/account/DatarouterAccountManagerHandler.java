@@ -29,16 +29,25 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 	}
 
 	@Handler(encoder = JsonEncoder.class)
-	public List<String> list(){
-		return datarouterAccountNodes.datarouterAccount().streamKeys(null, null)
-				.map(DatarouterAccountKey::getAccountName)
+	public List<DatarouterAccount> list(){
+		return datarouterAccountNodes.datarouterAccount().stream(null, null)
 				.collect(Collectors.toList());
 	}
 
-	@Handler
-	public void add(String accountName){
+	@Handler(encoder = JsonEncoder.class)
+	public DatarouterAccount add(String accountName){
 		DatarouterAccount account = new DatarouterAccount(accountName);
 		datarouterAccountNodes.datarouterAccount().put(account, null);
+		return account;
+	}
+
+	@Handler(encoder = JsonEncoder.class)
+	public DatarouterAccount resetApiKey(String accountName){
+		DatarouterAccount account = datarouterAccountNodes.datarouterAccount().get(new DatarouterAccountKey(
+				accountName), null);
+		account.resetApiKey();
+		datarouterAccountNodes.datarouterAccount().put(account, null);
+		return account;
 	}
 
 	@Handler

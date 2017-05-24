@@ -1,12 +1,12 @@
 package com.hotpads.websocket.session;
 
 import com.hotpads.datarouter.inject.DatarouterInjector;
-import com.hotpads.handler.dispatcher.BaseDispatcher;
+import com.hotpads.handler.dispatcher.BaseRouteSet;
 import com.hotpads.util.http.security.DefaultApiKeyPredicate;
 import com.hotpads.util.http.security.DefaultCsrfValidator;
 import com.hotpads.util.http.security.DefaultSignatureValidator;
 
-public class WebSocketApiDispatcher extends BaseDispatcher{
+public class WebSocketApiDispatcher extends BaseRouteSet{
 
 	public static final String WEBSOCKET_COMMAND = "/websocketCommand";
 

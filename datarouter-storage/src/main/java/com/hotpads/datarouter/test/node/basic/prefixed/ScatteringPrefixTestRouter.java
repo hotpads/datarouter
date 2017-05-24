@@ -19,7 +19,7 @@ public class ScatteringPrefixTestRouter extends BaseRouter{
 	@Inject
 	public ScatteringPrefixTestRouter(TestDatarouterProperties datarouterProperties, Datarouter datarouter,
 			DatarouterSettings datarouterSettings, NodeFactory nodeFactory, ClientId clientId){
-		super(datarouter, datarouterProperties.getTestRouterConfigFileLocation(), ScatteringPrefixTestRouter.class
+		super(datarouter, datarouterProperties.getDatarouterTestFileLocation(), ScatteringPrefixTestRouter.class
 				.getSimpleName(), nodeFactory, datarouterSettings);
 
 		scatteringPrefixBeanNode = register(nodeFactory.create(clientId, ScatteringPrefixBean.class,

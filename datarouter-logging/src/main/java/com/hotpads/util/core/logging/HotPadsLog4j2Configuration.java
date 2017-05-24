@@ -29,7 +29,8 @@ import org.apache.logging.log4j.core.config.LoggerConfig;
 
 public abstract class HotPadsLog4j2Configuration{
 
-	public static final String defaultPattern = "%d %-5level [%t] %logger{36}:%line - %msg%n%rEx";
+	public static final String defaultPattern = "%d %-5level [%t] <${web:servletContextName}>"
+			+ " %logger{36}:%line - %msg%n%rEx";
 
 	private final Map<String,Appender> appenders = new HashMap<>();
 	private final List<Filter> filters = new ArrayList<>();

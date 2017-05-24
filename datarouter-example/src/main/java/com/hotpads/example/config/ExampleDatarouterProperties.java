@@ -11,17 +11,20 @@ public class ExampleDatarouterProperties extends DatarouterProperties{
 	private static final String SERVICE_NAME = "example";
 	public static final String CONFIG_DIRECTORY = "/hotpads/config";
 	public static final String SERVER_CONFIG_FILE_NAME = "server.properties";
-	public static final String EXAMPLE_ROUTER_CONFIG_FILE_NAME = "datarouter-example.properties";
+	public static final String DATAROUTER_EXAMPLE_FILE_NAME = "datarouter-example.properties";
+
+	private final String datarouterExampleFileLocation;
+
 
 	@Inject
 	public ExampleDatarouterProperties(ExampleConfigurer configurer){
 		super(configurer, ExampleServerType.ALL, SERVICE_NAME, CONFIG_DIRECTORY, SERVER_CONFIG_FILE_NAME);
-		assertConfigFileExists(EXAMPLE_ROUTER_CONFIG_FILE_NAME);
+		this.datarouterExampleFileLocation = findConfigFile(DATAROUTER_EXAMPLE_FILE_NAME);
 	}
 
 
-	public String getReputationRouterConfigFileLocation(){
-		return configDirectory + "/" + EXAMPLE_ROUTER_CONFIG_FILE_NAME;
+	public String getDatarouterExampleFileLocation(){
+		return datarouterExampleFileLocation;
 	}
 
 }

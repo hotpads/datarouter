@@ -2,6 +2,7 @@ package com.hotpads.handler.account;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -15,6 +16,12 @@ public class DatarouterAccountService{
 
 	@Inject
 	private DatarouterAccountNodes datarouterAccountNodes;
+
+	public Optional<DatarouterAccount> findAccountForApiKey(String apiKey){
+		return datarouterAccountNodes.datarouterAccount().stream(null, null)
+				.filter(account -> account.getApiKey().equals(apiKey))
+				.findAny();
+	}
 
 	public Set<String> findAccountNamesForUser(DatarouterUserKey userKey){
 		DatarouterUserAccountMapKey prefix = new DatarouterUserAccountMapKey(userKey.getId(), null);

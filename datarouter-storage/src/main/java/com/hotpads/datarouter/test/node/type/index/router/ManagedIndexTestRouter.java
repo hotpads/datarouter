@@ -39,7 +39,7 @@ public class ManagedIndexTestRouter extends BaseRouter{
 
 	private ManagedIndexTestRouter(TestDatarouterProperties datarouterProperties, Datarouter datarouter,
 			DatarouterSettings datarouterSettings, NodeFactory nodeFactory, ClientId clientId){
-		super(datarouter, datarouterProperties.getTestRouterConfigFileLocation(), NAME, nodeFactory,
+		super(datarouter, datarouterProperties.getDatarouterTestFileLocation(), NAME, nodeFactory,
 				datarouterSettings);
 		testDatabeanWithManagedIndex = new TestDatabeanWithManagedIndexNode(nodeFactory, this, clientId);
 		testDatabeanWithTxnManagedIndex = new TestDatabeanWithTxnManagedIndexNode(nodeFactory, this, clientId);

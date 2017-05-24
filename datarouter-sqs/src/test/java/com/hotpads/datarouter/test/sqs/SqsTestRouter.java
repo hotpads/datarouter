@@ -27,7 +27,7 @@ public class SqsTestRouter extends BaseRouter{
 	@Inject
 	public SqsTestRouter(TestDatarouterProperties datarouterProperties, Datarouter context,
 			QueueNodeFactory queueNodeFactory, NodeFactory nodeFactory, DatarouterSettings datarouterSettings){
-		super(context, datarouterProperties.getTestRouterConfigFileLocation(), NAME, nodeFactory, datarouterSettings);
+		super(context, datarouterProperties.getDatarouterTestFileLocation(), NAME, nodeFactory, datarouterSettings);
 
 		testDatabean = register(queueNodeFactory.createSingleQueueNode(DatarouterTestClientIds.sqs, this,
 				TestDatabean::new, null, TestDatabeanFielder::new, true));
