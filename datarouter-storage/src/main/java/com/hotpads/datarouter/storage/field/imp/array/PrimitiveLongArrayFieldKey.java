@@ -5,7 +5,7 @@ import com.hotpads.datarouter.storage.field.BaseFieldKey;
 public class PrimitiveLongArrayFieldKey extends BaseFieldKey<long[]>{
 
 	public PrimitiveLongArrayFieldKey(String name){
-		super(name);
+		super(name, long[].class);
 	}
 
 

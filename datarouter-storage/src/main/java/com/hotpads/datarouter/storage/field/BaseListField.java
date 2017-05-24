@@ -3,6 +3,7 @@ package com.hotpads.datarouter.storage.field;
 import java.util.List;
 import java.util.Optional;
 
+import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.hotpads.datarouter.storage.field.imp.array.KeyedListField;
 
@@ -15,12 +16,12 @@ extends KeyedListField<V,L,ListFieldKey<V,L>>{
 		super(key, value);
 	}
 
-	public BaseListField(String name, L value){
-		this(null, name, value);
+	public BaseListField(String name, L value, TypeToken<L> valueType){
+		this(null, name, value, valueType);
 	}
 
-	public BaseListField(String prefix, String name, L value){
-		super(prefix, new ListFieldKey<>(name), value);
+	public BaseListField(String prefix, String name, L value, TypeToken<L> valueType){
+		super(prefix, new ListFieldKey<>(name, valueType), value);
 	}
 
 	@Override

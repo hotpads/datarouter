@@ -6,6 +6,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -62,6 +63,9 @@ public final class DrDateTool{
 		MONTH_ABBREVIATIONS.add("Nov");
 		MONTH_ABBREVIATIONS.add("Dec");
 	}
+
+	public static final DateTimeFormatter JAVA_TIME_INTERNET_FORMATTER =
+			DateTimeFormatter.ISO_INSTANT.withZone(ZoneId.of("GMT+00:00"));
 
 
 	/**
@@ -186,6 +190,10 @@ public final class DrDateTool{
     	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
     	sdf.setTimeZone(tz);
     	return sdf.format(date);
+    }
+
+    public static String getInternetDate(TemporalAccessor temporalValue){
+		return JAVA_TIME_INTERNET_FORMATTER.format(temporalValue);
     }
 
     public static String getYyyyMmDdHhMmSsMmmWithPunctuationNoSpaces(Long ms){

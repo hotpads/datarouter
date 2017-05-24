@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.serialize.fielder;
 
+import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -122,5 +123,11 @@ implements DatabeanFielder<PK,D>{
 	@Override
 	public Optional<Long> getTtlMs(){
 		return Optional.empty();
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public Class<D> getDatabeanClass(){
+		return (Class<D>)((ParameterizedType)getClass().getGenericSuperclass()).getActualTypeArguments()[1];
 	}
 }

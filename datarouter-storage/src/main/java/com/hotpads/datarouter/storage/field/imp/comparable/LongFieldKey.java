@@ -6,12 +6,12 @@ import com.hotpads.datarouter.storage.field.encoding.FieldGeneratorType;
 public class LongFieldKey extends PrimitiveFieldKey<Long>{
 
 	public LongFieldKey(String name){
-		super(name);
+		super(name, Long.class);
 	}
 
 	private LongFieldKey(String name, String columnName, boolean nullable, FieldGeneratorType fieldGeneratorType,
 			Long defaultValue){
-		super(name, columnName, nullable, fieldGeneratorType, defaultValue);
+		super(name, columnName, nullable, Long.class, fieldGeneratorType, defaultValue);
 	}
 
 	public LongFieldKey withColumnName(String columnName){

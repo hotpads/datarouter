@@ -5,7 +5,7 @@ import com.hotpads.datarouter.storage.field.PrimitiveFieldKey;
 public class SignedByteFieldKey extends PrimitiveFieldKey<Byte>{
 
 	public SignedByteFieldKey(String name){
-		super(name);
+		super(name, Byte.class);
 	}
 
 }

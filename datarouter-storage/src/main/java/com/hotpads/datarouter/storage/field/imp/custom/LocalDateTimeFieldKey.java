@@ -16,13 +16,13 @@ public class LocalDateTimeFieldKey extends BaseFieldKey<LocalDateTime>{
 	 * Defines a LocalDateFieldKey with millis precision
 	 */
 	public LocalDateTimeFieldKey(String name){
-		super(name);
+		super(name, LocalDateTime.class);
 		this.numFractionalSeconds = DEFAULT_NUM_FRACTIONAL_SECONDS;
 	}
 
 	private LocalDateTimeFieldKey(String name, String columnName, boolean nullable,
 			FieldGeneratorType fieldGeneratorType, LocalDateTime defaultValue, int numFractionalSeconds){
-		super(name, columnName, nullable, fieldGeneratorType, defaultValue);
+		super(name, columnName, nullable, LocalDateTime.class, fieldGeneratorType, defaultValue);
 		this.numFractionalSeconds = numFractionalSeconds;
 	}
 

@@ -7,12 +7,12 @@ import com.hotpads.util.core.number.RandomTool;
 public class UInt63FieldKey extends PrimitiveFieldKey<Long>{
 
 	public UInt63FieldKey(String name){
-		super(name);
+		super(name, Long.class);
 	}
 
 	private UInt63FieldKey(String name, String columnName, boolean nullable, FieldGeneratorType fieldGeneratorType,
 			Long defaultValue){
-		super(name, columnName, nullable, fieldGeneratorType, defaultValue);
+		super(name, columnName, nullable, Long.class, fieldGeneratorType, defaultValue);
 	}
 
 	public UInt63FieldKey withFieldGeneratorType(FieldGeneratorType fieldGeneratorTypeOverride){

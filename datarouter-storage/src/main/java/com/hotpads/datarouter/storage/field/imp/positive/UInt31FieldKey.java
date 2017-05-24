@@ -6,12 +6,12 @@ import com.hotpads.datarouter.storage.field.encoding.FieldGeneratorType;
 public class UInt31FieldKey extends PrimitiveFieldKey<Integer>{
 
 	public UInt31FieldKey(String name){
-		super(name);
+		super(name, Integer.class);
 	}
 
 	private UInt31FieldKey(String name, String columnName, boolean nullable, FieldGeneratorType fieldGeneratorType,
 			Integer defaultValue){
-		super(name, columnName, nullable, fieldGeneratorType, defaultValue);
+		super(name, columnName, nullable, Integer.class, fieldGeneratorType, defaultValue);
 	}
 
 	/*-------------------- with -------------------------*/

@@ -1,7 +1,9 @@
 package com.hotpads.datarouter.storage.field;
 
+import java.lang.reflect.Type;
 import java.util.Objects;
 
+import com.google.common.reflect.TypeToken;
 import com.hotpads.datarouter.storage.field.encoding.FieldGeneratorType;
 import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.exception.NotImplementedException;
@@ -14,32 +16,56 @@ implements FieldKey<T>{
 	protected final boolean nullable;
 	protected final FieldGeneratorType fieldGeneratorType;
 	protected final T defaultValue;
+	protected final Type valueType;
 
 	/*************************** constructor *********************************/
 
-	public BaseFieldKey(String name){
-		this(name, true, FieldGeneratorType.NONE);
+	public BaseFieldKey(String name, TypeToken<T> valueType){
+		this(name, true, valueType, FieldGeneratorType.NONE);
 	}
 
-	public BaseFieldKey(String name, T defaultValue){
-		this(name, name, true, FieldGeneratorType.NONE, defaultValue);
+	public BaseFieldKey(String name, Class<T> valueType){
+		this(name, TypeToken.of(valueType));
+	}
+
+	public BaseFieldKey(String name, TypeToken<T> valueType, T defaultValue){
+		this(name, name, true, valueType, FieldGeneratorType.NONE, defaultValue);
+	}
+
+	public BaseFieldKey(String name, Class<T> valueType, T defaultValue){
+		this(name, TypeToken.of(valueType), defaultValue);
 	}
 
 	//use java field name for columnName
-	public BaseFieldKey(String name, boolean nullable, FieldGeneratorType fieldGeneratorType){
-		this(name, name, nullable, fieldGeneratorType, null);
+	public BaseFieldKey(String name, boolean nullable, TypeToken<T> valueType, FieldGeneratorType fieldGeneratorType){
+		this(name, name, nullable, valueType, fieldGeneratorType, null);
 	}
 
-	public BaseFieldKey(String name, String columnName, boolean nullable,
+	public BaseFieldKey(String name, boolean nullable, Class<T> valueType, FieldGeneratorType fieldGeneratorType){
+		this(name, nullable, TypeToken.of(valueType), fieldGeneratorType);
+	}
+
+	public BaseFieldKey(String name, String columnName, boolean nullable, TypeToken<T> valueType,
 			FieldGeneratorType fieldGeneratorType){
-		this(name, columnName, nullable, fieldGeneratorType, null);
+		this(name, columnName, nullable, valueType, fieldGeneratorType, null);
 	}
 
-	public BaseFieldKey(String name, String columnName, boolean nullable,
+	public BaseFieldKey(String name, String columnName, boolean nullable, Class<T> valueType,
+			FieldGeneratorType fieldGeneratorType){
+		this(name, columnName, nullable, TypeToken.of(valueType), fieldGeneratorType);
+	}
+
+	public BaseFieldKey(String name, String columnName, boolean nullable, Class<T> valueType,
+			FieldGeneratorType fieldGeneratorType, T defaultValue){
+		this(name, columnName, nullable, TypeToken.of(valueType), fieldGeneratorType, defaultValue);
+	}
+
+	public BaseFieldKey(String name, String columnName, boolean nullable, TypeToken<T> valueType,
 			FieldGeneratorType fieldGeneratorType, T defaultValue){
 		this.name = name;
 		this.columnName = columnName;
 		this.nullable = nullable;
+		this.valueType = valueType.getType();
 		this.fieldGeneratorType = fieldGeneratorType;
 		this.defaultValue = defaultValue;
 	}
@@ -70,6 +96,11 @@ implements FieldKey<T>{
 	@Override
 	public T getDefaultValue(){
 		return defaultValue;
+	}
+
+	@Override
+	public Type getValueType(){
+		return valueType;
 	}
 
 	/********************************** get/set ******************************************/

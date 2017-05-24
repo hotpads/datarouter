@@ -10,7 +10,7 @@ public class VarIntEnumFieldKey<E extends IntegerEnum<E>> extends BaseFieldKey<E
 	private final E sampleValue;
 
 	public VarIntEnumFieldKey(String name, Class<E> enumClass){
-		super(name);
+		super(name, enumClass);
 		this.enumClass = enumClass;
 		this.sampleValue = ReflectionTool.create(enumClass);
 	}

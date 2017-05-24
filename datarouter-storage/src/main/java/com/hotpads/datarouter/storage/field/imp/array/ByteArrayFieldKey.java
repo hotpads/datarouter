@@ -9,7 +9,7 @@ public class ByteArrayFieldKey extends BaseFieldKey<byte[]>{
 	private final int size;
 
 	public ByteArrayFieldKey(String name){
-		super(name);
+		super(name, byte[].class);
 		this.size = MySqlColumnType.MAX_KEY_LENGTH;
 	}
 
@@ -18,13 +18,13 @@ public class ByteArrayFieldKey extends BaseFieldKey<byte[]>{
 	 */
 	@Deprecated
 	public ByteArrayFieldKey(String name, int size){
-		super(name);
+		super(name, byte[].class);
 		this.size = size;
 	}
 
 	private ByteArrayFieldKey(String name, String columnName, boolean nullable, FieldGeneratorType fieldGeneratorType,
 			byte[] defaultValue, int size){
-		super(name, columnName, nullable, fieldGeneratorType, defaultValue);
+		super(name, columnName, nullable, byte[].class, fieldGeneratorType, defaultValue);
 		this.size = size;
 	}
 

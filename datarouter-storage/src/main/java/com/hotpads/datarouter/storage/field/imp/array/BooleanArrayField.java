@@ -2,7 +2,7 @@ package com.hotpads.datarouter.storage.field.imp.array;
 
 import java.util.List;
 
-import com.google.gson.reflect.TypeToken;
+import com.google.common.reflect.TypeToken;
 import com.hotpads.datarouter.storage.field.BaseListField;
 import com.hotpads.util.core.bytes.BooleanByteTool;
 
@@ -14,14 +14,14 @@ public class BooleanArrayField extends BaseListField<Boolean,List<Boolean>>{
 
 	@Deprecated
 	public BooleanArrayField(String name, List<Boolean> value){
-		super(name, value);
+		super(name, value, new TypeToken<List<Boolean>>(){});
 	}
 
 	/*********************** StringEncodedField ******************************/
 
 	@Override
 	public List<Boolean> parseStringEncodedValueButDoNotSet(String value){
-		return gson.fromJson(value, new TypeToken<List<Boolean>>(){}.getType());
+		return gson.fromJson(value, getKey().getValueType());
 	}
 
 	/*********************** ByteEncodedField ********************************/
