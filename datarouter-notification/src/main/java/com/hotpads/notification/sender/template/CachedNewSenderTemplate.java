@@ -26,7 +26,8 @@ public class CachedNewSenderTemplate extends Cached<Set<String>>{
 	protected Set<String> reload(){
 		return notificationNodes.getNotificationTemplate()
 				.stream(null, null)
-				.filter(template -> template.getShouldUseNewSender() != null && template.getShouldUseNewSender())
+				.filter(template -> template.getShouldUseNewSender() != null)
+				.filter(NotificationTemplateBean::getShouldUseNewSender)
 				.map(NotificationTemplateBean::getFullClassName)
 				.collect(Collectors.toSet());
 	}
