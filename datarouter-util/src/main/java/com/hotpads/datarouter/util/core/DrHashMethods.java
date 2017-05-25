@@ -33,7 +33,7 @@ public class DrHashMethods{
 		for(int i = 0; i < str.length(); i++){
 			hash = ((hash << 5) + hash) + str.charAt(i);
 		}
-		return (hash & 0x7FFFFFFFFFFFFFFFL);
+		return hash & 0x7FFFFFFFFFFFFFFFL;
 	}
 
 	public static long longDJBHash(byte[] in){
@@ -41,7 +41,7 @@ public class DrHashMethods{
 		for(int i = 0; i < in.length; i++){
 			hash = ((hash << 5) + hash) + in[i];
 		}
-		return (hash & 0x7FFFFFFFFFFFFFFFL);
+		return hash & 0x7FFFFFFFFFFFFFFFL;
 	}
 
 	public static Long longMD5DJBHash(String in){
@@ -60,14 +60,16 @@ public class DrHashMethods{
 	}
 
 
-	public static class Tests{
+	public static class DrHashMethodsTests{
 		@Test
 		public void testLongDjb(){
 			long hash1 = longDJBHash("public-school_HOLMES ELEMENTARY_4902 MT. ARARAT DR_SAN DIEGO_CA_92111");
 			long hash2 = longDJBHash("private-school_Burleson Adventist School_1635 Fox Lane_Burleson_TX_76028");
 			Assert.assertFalse(hash1 == hash2);
 		}
-		@Test public void testMd5() throws NoSuchAlgorithmException{
+
+		@Test
+		public void testMd5(){
 			Set<Long> buckets = new TreeSet<>();
 			for(int serverNum = 98; serverNum <= 101; ++serverNum){
 				String serverName = "HadoopNode98:10012:" + serverNum;
@@ -82,7 +84,6 @@ public class DrHashMethods{
 				avg = (avg * counter + b) / (counter + 1);
 				++counter;
 			}
-			double halfLong = Long.MAX_VALUE / 2;
 		}
 	}
 }
