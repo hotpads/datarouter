@@ -9,9 +9,9 @@ import com.hotpads.datarouter.util.core.DrListTool;
 
 public class ClientId implements Comparable<ClientId>{
 
-	private String name;
-	private boolean writable;
-	private boolean disableable;
+	private final String name;
+	private final boolean writable;
+	private final boolean disableable;
 
 	public ClientId(String name, boolean writable){
 		this(name, writable, true);
