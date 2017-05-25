@@ -79,13 +79,7 @@ public class Bundle{
 		this.bundleByType.put(clazz.getName(), new SingleTypeBundle<D>());
 	}
 
-	/**
-	 * @param <D>
-	 * @param clazz needed to allow setting empty
-	 * @param databeans
-	 */
-	protected <D extends Databean<?,?>> void set(
-			Class<D> clazz, Collection<D> databeans){
+	protected <D extends Databean<?,?>> void set(Class<D> clazz, Collection<D> databeans){
 		this.removeAll(clazz);
 		this.add(databeans);
 	}

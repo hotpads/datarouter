@@ -67,12 +67,12 @@ public class Trace extends BaseDatabean<TraceKey,Trace>{
 	/************************** databean **************************************/
 
 	@Override
-	public Class<TraceKey> getKeyClass() {
+	public Class<TraceKey> getKeyClass(){
 		return TraceKey.class;
 	}
 
 	@Override
-	public TraceKey getKey() {
+	public TraceKey getKey(){
 		return key;
 	}
 
@@ -96,7 +96,7 @@ public class Trace extends BaseDatabean<TraceKey,Trace>{
 	}
 
 	public String getRequestString(){
-		return DrStringTool.nullSafe(context)+"/"+type+"?"+DrStringTool.nullSafe(params);
+		return DrStringTool.nullSafe(context) + "/" + type + "?" + DrStringTool.nullSafe(params);
 	}
 
 	public Date getTime(){

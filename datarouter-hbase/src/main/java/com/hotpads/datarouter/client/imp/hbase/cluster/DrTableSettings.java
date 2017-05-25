@@ -49,7 +49,7 @@ public class DrTableSettings{
 		DEFAULT_ENCODE_ON_DISK = "true";
 
 
-	public static void validateColumnFamilySetting(String setting, String value) {
+	public static void validateColumnFamilySetting(String setting, String value){
 		if(BLOCKCACHE.equals(setting)){
 			if(!validBoolean(value)){
 				throw new IllegalArgumentException("invalid " + BLOCKCACHE);
@@ -86,7 +86,7 @@ public class DrTableSettings{
 	}
 
 
-	protected static boolean validBoolean(String value) {
+	protected static boolean validBoolean(String value){
 		return "TRUE".equalsIgnoreCase(value) || "FALSE".equalsIgnoreCase(value);
 	}
 }

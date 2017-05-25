@@ -21,13 +21,13 @@ implements TxnExecutor{
 
 	private TxnOp<T> parallelTxnOp;
 
-	public BaseTxnExecutor(Datarouter datarouter, TxnOp<T> parallelTxnOp) {
+	public BaseTxnExecutor(Datarouter datarouter, TxnOp<T> parallelTxnOp){
 		super(datarouter, parallelTxnOp);
 		this.parallelTxnOp = parallelTxnOp;
 	}
 
 	@Override
-	public Isolation getIsolation() {
+	public Isolation getIsolation(){
 		return parallelTxnOp.getIsolation();
 	}
 
@@ -36,7 +36,7 @@ implements TxnExecutor{
 	@Override
 	public void beginTxns(){
 		for(Client client : DrCollectionTool.nullSafe(getClients())){
-			if( ! (client instanceof TxnClient) ){
+			if(!(client instanceof TxnClient)){
 				continue;
 			}
 			TxnClient txnClient = (TxnClient)client;
@@ -52,7 +52,7 @@ implements TxnExecutor{
 	@Override
 	public void commitTxns(){
 		for(Client client : DrCollectionTool.nullSafe(getClients())){
-			if( ! (client instanceof TxnClient) ){
+			if(!(client instanceof TxnClient)){
 				continue;
 			}
 			TxnClient txnClient = (TxnClient)client;
@@ -68,7 +68,7 @@ implements TxnExecutor{
 	@Override
 	public void rollbackTxns(){
 		for(Client client : DrCollectionTool.nullSafe(getClients())){
-			if( ! (client instanceof TxnClient) ){
+			if(!(client instanceof TxnClient)){
 				continue;
 			}
 			TxnClient txnClient = (TxnClient)client;
@@ -78,8 +78,8 @@ implements TxnExecutor{
 				DRCounters.incClient(txnClient.getType(), "rollbackTxn", txnClient.getName(), 1L);
 			}catch(Exception e){
 				logger.warn("", e);
-				throw new DataAccessException("EXCEPTION THROWN DURING ROLLBACK OF SINGLE TXN:"
-						+txnClient.getExistingHandle(), e);
+				throw new DataAccessException("EXCEPTION THROWN DURING ROLLBACK OF SINGLE TXN:" + txnClient
+						.getExistingHandle(), e);
 			}
 		}
 	}

@@ -6,16 +6,16 @@ import java.io.FileOutputStream;
 import com.hotpads.datarouter.util.core.DrFileUtils;
 import com.hotpads.datarouter.util.core.DrRuntimeTool;
 
-public class DrFileIOFactory {
+public class DrFileIoFactory{
 
 	public static FileOutputStream makeFileOutputStream(
 			String fileLocation, boolean create, boolean append)
 	throws FileNotFoundException{
-		File f = new File((DrRuntimeTool.isWindows()?"c:":"")+fileLocation);
+		File file = new File((DrRuntimeTool.isWindows() ? "c:" : "") + fileLocation);
 		if(create){
-			DrFileUtils.createFileParents(f);
+			DrFileUtils.createFileParents(file);
 		}
-		return new FileOutputStream(f,append);
+		return new FileOutputStream(file,append);
 	}
 
 }

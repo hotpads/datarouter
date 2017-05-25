@@ -19,7 +19,9 @@ extends BaseFieldSet<F>{
 	}
 
 	public void add(Field<?> field){
-		if(field==null){ return; }
+		if(field == null){
+			return;
+		}
 		this.fields.add(field);
 	}
 

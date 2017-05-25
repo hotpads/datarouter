@@ -78,12 +78,12 @@ public class TraceSpan extends BaseDatabean<TraceSpanKey,TraceSpan>{
 	/************************** databean **************************************/
 
 	@Override
-	public Class<TraceSpanKey> getKeyClass() {
+	public Class<TraceSpanKey> getKeyClass(){
 		return TraceSpanKey.class;
 	}
 
 	@Override
-	public TraceSpanKey getKey() {
+	public TraceSpanKey getKey(){
 		return key;
 	}
 

@@ -32,12 +32,12 @@ public class JdbcAppListener extends DatarouterAppListener{
 	private static void unregisterDrivers(){
 		Enumeration<Driver> drivers = DriverManager.getDrivers();
 		while(drivers.hasMoreElements()){
-			Driver d = drivers.nextElement();
+			Driver driver = drivers.nextElement();
 			try{
-				DriverManager.deregisterDriver(d);
-				logger.info("Driver unregistered : " + d);
+				DriverManager.deregisterDriver(driver);
+				logger.info("Driver unregistered : " + driver);
 			}catch(SQLException e){
-				logger.error("Error while unregistering driver " + d, e);
+				logger.error("Error while unregistering driver " + driver, e);
 			}
 		}
 	}

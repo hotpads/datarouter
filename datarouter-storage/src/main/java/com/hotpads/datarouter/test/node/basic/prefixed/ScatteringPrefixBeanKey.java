@@ -2,7 +2,6 @@ package com.hotpads.datarouter.test.node.basic.prefixed;
 
 import java.util.List;
 
-
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
@@ -40,28 +39,22 @@ public class ScatteringPrefixBeanKey extends BasePrimaryKey<ScatteringPrefixBean
 				new UInt63Field(COL_id, id));
 	}
 
-
-
 	/***************************** get/set *******************************/
 
-	public Long getId() {
+	public Long getId(){
 		return id;
 	}
 
-
-	public void setId(Long id) {
+	public void setId(Long id){
 		this.id = id;
 	}
 
-
-	public String getA() {
+	public String getA(){
 		return a;
 	}
 
-
-	public void setA(String a) {
+	public void setA(String a){
 		this.a = a;
 	}
-
 
 }

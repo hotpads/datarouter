@@ -49,7 +49,7 @@ public class NotificationItemLogKey extends BaseEntityPrimaryKey<NotificationIte
 	}
 
 	@Override
-	public List<Field<?>> getPostEntityKeyFields() {
+	public List<Field<?>> getPostEntityKeyFields(){
 		return Arrays.asList(
 				new LongField(FieldKeys.reverseCreatedMs, reverseCreatedMs),
 				new StringField(FieldKeys.notificationType, notificationType),

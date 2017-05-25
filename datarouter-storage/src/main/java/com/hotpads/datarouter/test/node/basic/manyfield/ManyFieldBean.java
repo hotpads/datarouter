@@ -201,47 +201,51 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 		}
 
 		@Override
-		public List<Field<?>> getNonKeyFields(ManyFieldBean d){
+		public List<Field<?>> getNonKeyFields(ManyFieldBean databean){
 			List<Field<?>> fields = new ArrayList<>();
-			fields.add(new BooleanField(F.booleanField, d.booleanField));
-			fields.add(new SignedByteField(F.byteField, d.byteField));
-			fields.add(new ShortField(F.shortField, d.shortField));
-			fields.add(new IntegerField(F.integerField, d.integerField));
-			fields.add(new LongField(F.longField, d.longField));
-			fields.add(new DumbFloatField(F.floatField, d.floatField));
-			fields.add(new DumbDoubleField(F.doubleField, d.doubleField));
-			fields.add(new LongDateField(F.longDateField, d.longDateField));
-			fields.add(new LocalDateTimeField(new LocalDateTimeFieldKey(F.localDateTimeField), d.localDateTimeField));
-			fields.add(new CharacterField(F.characterField, d.characterField));
-			fields.add(new StringField(F.stringField, d.stringField, MySqlColumnType.MAX_KEY_LENGTH_UTF8MB4));
-			fields.add(new VarIntField(F.varIntField, d.varIntField));
-			fields.add(new IntegerEnumField<>(TestEnum.class, F.intEnumField, d.intEnumField));
-			fields.add(new VarIntEnumField<>(TestEnum.class, F.varIntEnumField, d.varIntEnumField));
-			fields.add(new StringEnumField<>(TestEnum.class, F.stringEnumField, d.stringEnumField,
+			fields.add(new BooleanField(F.booleanField, databean.booleanField));
+			fields.add(new SignedByteField(F.byteField, databean.byteField));
+			fields.add(new ShortField(F.shortField, databean.shortField));
+			fields.add(new IntegerField(F.integerField, databean.integerField));
+			fields.add(new LongField(F.longField, databean.longField));
+			fields.add(new DumbFloatField(F.floatField, databean.floatField));
+			fields.add(new DumbDoubleField(F.doubleField, databean.doubleField));
+			fields.add(new LongDateField(F.longDateField, databean.longDateField));
+			fields.add(new LocalDateTimeField(new LocalDateTimeFieldKey(F.localDateTimeField),
+					databean.localDateTimeField));
+			fields.add(new CharacterField(F.characterField, databean.characterField));
+			fields.add(new StringField(F.stringField, databean.stringField, MySqlColumnType.MAX_KEY_LENGTH_UTF8MB4));
+			fields.add(new VarIntField(F.varIntField, databean.varIntField));
+			fields.add(new IntegerEnumField<>(TestEnum.class, F.intEnumField, databean.intEnumField));
+			fields.add(new VarIntEnumField<>(TestEnum.class, F.varIntEnumField, databean.varIntEnumField));
+			fields.add(new StringEnumField<>(TestEnum.class, F.stringEnumField, databean.stringEnumField,
 					LEN_STRING_ENUM_FIELD));
-			fields.add(new ByteArrayField(F.stringByteField, d.stringByteField, MySqlColumnType.MAX_LENGTH_LONGBLOB));
-			fields.add(new ByteArrayField(F.data, d.data, MySqlColumnType.MAX_LENGTH_LONGBLOB));
-			fields.add(new UInt63ArrayField(F.longArrayField, d.longArrayField));
-			fields.add(new BooleanArrayField(F.booleanArrayField, d.booleanArrayField));
-			fields.add(new IntegerArrayField(F.integerArrayField, d.integerArrayField));
-			fields.add(new ByteArrayField(F.byteArrayField, d.byteArrayField, MySqlColumnType.MAX_LENGTH_VARBINARY));
-			fields.add(new DoubleArrayField(F.doubleArrayField, d.doubleArrayField));
-			fields.add(new DelimitedStringArrayField(F.delimitedStringArrayField, ",", d.delimitedStringArrayField));
-			fields.add(new StringField(F.testSchemaUpdateField, d.testSchemaUpdateField,
+			fields.add(new ByteArrayField(F.stringByteField, databean.stringByteField,
+					MySqlColumnType.MAX_LENGTH_LONGBLOB));
+			fields.add(new ByteArrayField(F.data, databean.data, MySqlColumnType.MAX_LENGTH_LONGBLOB));
+			fields.add(new UInt63ArrayField(F.longArrayField, databean.longArrayField));
+			fields.add(new BooleanArrayField(F.booleanArrayField, databean.booleanArrayField));
+			fields.add(new IntegerArrayField(F.integerArrayField, databean.integerArrayField));
+			fields.add(new ByteArrayField(F.byteArrayField, databean.byteArrayField,
+					MySqlColumnType.MAX_LENGTH_VARBINARY));
+			fields.add(new DoubleArrayField(F.doubleArrayField, databean.doubleArrayField));
+			fields.add(new DelimitedStringArrayField(F.delimitedStringArrayField, ",",
+					databean.delimitedStringArrayField));
+			fields.add(new StringField(F.testSchemaUpdateField, databean.testSchemaUpdateField,
 					MySqlColumnType.MAX_KEY_LENGTH_UTF8MB4));
-			fields.add(new UInt63Field(F.incrementField, d.incrementField));
+			fields.add(new UInt63Field(F.incrementField, databean.incrementField));
 			return fields;
 		}
 
 		@Override
-		public Map<String,List<Field<?>>> getIndexes(ManyFieldBean d){
+		public Map<String,List<Field<?>>> getIndexes(ManyFieldBean databean){
 			Map<String,List<Field<?>>> indexesByName = new TreeMap<>();
 			indexesByName.put("index_shortInt", FieldTool.createList(
-					new ShortField(F.shortField, d.shortField),
-					new IntegerField(F.integerField, d.integerField)));
+					new ShortField(F.shortField, databean.shortField),
+					new IntegerField(F.integerField, databean.integerField)));
 			indexesByName.put("index_stringTestUpdate", FieldTool.createList(
-					new StringField(F.stringField, d.stringField, MySqlColumnType.MAX_KEY_LENGTH_UTF8MB4),
-					new StringField(F.testSchemaUpdateField, d.testSchemaUpdateField,
+					new StringField(F.stringField, databean.stringField, MySqlColumnType.MAX_KEY_LENGTH_UTF8MB4),
+					new StringField(F.testSchemaUpdateField, databean.testSchemaUpdateField,
 							MySqlColumnType.MAX_KEY_LENGTH_UTF8MB4)));
 			return indexesByName;
 		}
@@ -272,7 +276,7 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 	@Override
 	public Class<ManyFieldBeanKey> getKeyClass(){
 		return ManyFieldBeanKey.class;
-	};
+	}
 
 	@Override
 	public ManyFieldBeanKey getKey(){

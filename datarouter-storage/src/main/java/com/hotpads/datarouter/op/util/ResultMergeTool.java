@@ -73,10 +73,10 @@ public class ResultMergeTool{
 		return out;
 	}
 
-	public static <T,C extends Collection<T>> Set<T> addAll(C a, Collection<? extends C> bs){
+	public static <T,C extends Collection<T>> Set<T> addAll(C src, Collection<? extends C> dest){
 		Set<T> out = new HashSet<>();
-		out.addAll(DrCollectionTool.nullSafe(a));
-		for(C b : DrCollectionTool.nullSafe(bs)){
+		out.addAll(DrCollectionTool.nullSafe(src));
+		for(C b : DrCollectionTool.nullSafe(dest)){
 			out.addAll(DrCollectionTool.nullSafe(b));
 		}
 		return out;
@@ -120,7 +120,8 @@ public class ResultMergeTool{
 		return result;
 	}
 
-	public static <K> Map<K,Integer> mergeIntegerValueMaps(Map<K,Integer> fromOnce, Collection<Map<K,Integer>> fromEach){
+	public static <K> Map<K,Integer> mergeIntegerValueMaps(Map<K,Integer> fromOnce,
+			Collection<Map<K,Integer>> fromEach){
 		Map<K,Integer> result = new HashMap<>();
 		if(DrMapTool.notEmpty(fromOnce)){
 			result.putAll(fromOnce);

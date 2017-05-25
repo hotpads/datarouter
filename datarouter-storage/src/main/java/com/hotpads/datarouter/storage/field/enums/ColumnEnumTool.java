@@ -8,25 +8,30 @@ import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.comparable.IntegerField;
 import com.hotpads.datarouter.storage.field.imp.comparable.LongField;
 
-public class ColumnEnumTool {
+public class ColumnEnumTool{
 
-	public static String getFieldName(ColumnEnum c){
-		if(c.getPrefix()==null){
-			return c.getColumnName();
+	public static String getFieldName(ColumnEnum columnEnum){
+		if(columnEnum.getPrefix() == null){
+			return columnEnum.getColumnName();
 		}
-		return c.getPrefix()+"."+c.getColumnName();
+		return columnEnum.getPrefix() + "." + columnEnum.getColumnName();
 	}
-	public static StringField field(ColumnEnum c, String value){
-		return new StringField(c.getPrefix(),c.getColumnName(),value, MySqlColumnType.DEFAULT_LENGTH_VARCHAR);
+
+	public static StringField field(ColumnEnum columnEnum, String value){
+		return new StringField(columnEnum.getPrefix(), columnEnum.getColumnName(), value,
+				MySqlColumnType.DEFAULT_LENGTH_VARCHAR);
 	}
-	public static IntegerField field(ColumnEnum c, Integer value){
-		return new IntegerField(c.getPrefix(),c.getColumnName(),value);
+
+	public static IntegerField field(ColumnEnum columnEnum, Integer value){
+		return new IntegerField(columnEnum.getPrefix(), columnEnum.getColumnName(), value);
 	}
-	public static DateField field(ColumnEnum c, Date value){
-		return new DateField(c.getPrefix(),c.getColumnName(),value);
+
+	public static DateField field(ColumnEnum columnEnum, Date value){
+		return new DateField(columnEnum.getPrefix(), columnEnum.getColumnName(), value);
 	}
-	public static LongField field(ColumnEnum c, Long value){
-		return new LongField(c.getPrefix(),c.getColumnName(),value);
+
+	public static LongField field(ColumnEnum columnEnum, Long value){
+		return new LongField(columnEnum.getPrefix(), columnEnum.getColumnName(), value);
 	}
-	//add more field types here if/as needed
+	// add more field types here if/as needed
 }

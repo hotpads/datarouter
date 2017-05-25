@@ -149,7 +149,7 @@ implements IRecordProcessor{
 	@Override
 	public void processRecords(ProcessRecordsInput processRecordsInput){
 		processRecordsWithRetries(processRecordsInput.getRecords());
-		if (System.currentTimeMillis() > nextCheckpointTimeInMillis) {
+		if(System.currentTimeMillis() > nextCheckpointTimeInMillis){
             checkpoint(processRecordsInput.getCheckpointer());
             nextCheckpointTimeInMillis = System.currentTimeMillis() + CHECKPOINT_INTERVAL_MILLIS;
         }

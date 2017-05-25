@@ -86,17 +86,19 @@ implements EntityPartitioner<EK>{
 	}
 
 	@Override
-	public byte[] getNextPrefix(int partition){
-		if(isLastPartition(partition)){ return null; }
-		return getPrefix(partition + 1);
-	}
-
-	@Override
 	//TODO skip intermediate array
 	public byte[] getPrefix(EK ek){
 		int partition = getPartition(ek);
 		byte[] prefix = getPrefix(partition);
 		return prefix;
+	}
+
+	@Override
+	public byte[] getNextPrefix(int partition){
+		if(isLastPartition(partition)){
+			return null;
+		}
+		return getPrefix(partition + 1);
 	}
 
 	@Override

@@ -18,8 +18,7 @@ extends BaseRedundantNode<PK,D,N>
 implements MapStorageNode<PK,D>,
 		RedundantMapStorageMixin<PK,D,N>{
 
-	public RedundantMapStorageNode(Supplier<D> databeanSupplier, Router router,
-			Collection<N> writeNodes, N readNode) {
+	public RedundantMapStorageNode(Supplier<D> databeanSupplier, Router router, Collection<N> writeNodes, N readNode){
 		super(databeanSupplier, router, writeNodes, readNode);
 	}
 
