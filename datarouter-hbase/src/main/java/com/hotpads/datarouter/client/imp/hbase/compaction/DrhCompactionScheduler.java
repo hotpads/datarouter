@@ -61,7 +61,7 @@ public class DrhCompactionScheduler<PK extends PrimaryKey<PK>>{
 				+ regionCompactionPeriodMs * ((windowStartMs - COMPACTION_EPOCH) / regionCompactionPeriodMs);
 
 		String startKeyString = regionInfo.getRegion().getEncodedName();
-		long regionHash = Math.abs(DrHashMethods.longDJBHash(startKeyString));
+		long regionHash = Math.abs(DrHashMethods.longDjbHash(startKeyString));
 
 		//calculate an offset into the current period
 		Double offsetIntoCompactionPeriodPct = 1d * regionHash / Long.MAX_VALUE;

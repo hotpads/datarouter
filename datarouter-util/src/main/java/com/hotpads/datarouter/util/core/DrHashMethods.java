@@ -28,7 +28,7 @@ import com.hotpads.util.core.bytes.StringByteTool;
 
 public class DrHashMethods{
 
-	public static long longDJBHash(String str){
+	public static long longDjbHash(String str){
 		long hash = 5381L;
 		for(int i = 0; i < str.length(); i++){
 			hash = ((hash << 5) + hash) + str.charAt(i);
@@ -36,7 +36,7 @@ public class DrHashMethods{
 		return hash & 0x7FFFFFFFFFFFFFFFL;
 	}
 
-	public static long longDJBHash(byte[] in){
+	public static long longDjbHash(byte[] in){
 		long hash = 5381L;
 		for(int i = 0; i < in.length; i++){
 			hash = ((hash << 5) + hash) + in[i];
@@ -44,16 +44,15 @@ public class DrHashMethods{
 		return hash & 0x7FFFFFFFFFFFFFFFL;
 	}
 
-	public static Long longMD5DJBHash(String in){
-		return longMD5DJBHash(StringByteTool.getUtf8Bytes(in));
+	public static Long longMd5DjbHash(String in){
+		return longMd5DjbHash(StringByteTool.getUtf8Bytes(in));
 	}
 
-	public static Long longMD5DJBHash(byte[] in){
+	public static Long longMd5DjbHash(byte[] in){
 		try{
 			MessageDigest md5 = MessageDigest.getInstance("MD5");
 			md5.update(in);
-			return longDJBHash(md5.digest());
-
+			return longDjbHash(md5.digest());
 		}catch(NoSuchAlgorithmException e){
 			return null;
 		}
@@ -63,8 +62,8 @@ public class DrHashMethods{
 	public static class DrHashMethodsTests{
 		@Test
 		public void testLongDjb(){
-			long hash1 = longDJBHash("public-school_HOLMES ELEMENTARY_4902 MT. ARARAT DR_SAN DIEGO_CA_92111");
-			long hash2 = longDJBHash("private-school_Burleson Adventist School_1635 Fox Lane_Burleson_TX_76028");
+			long hash1 = longDjbHash("public-school_HOLMES ELEMENTARY_4902 MT. ARARAT DR_SAN DIEGO_CA_92111");
+			long hash2 = longDjbHash("private-school_Burleson Adventist School_1635 Fox Lane_Burleson_TX_76028");
 			Assert.assertFalse(hash1 == hash2);
 		}
 
@@ -74,7 +73,7 @@ public class DrHashMethods{
 			for(int serverNum = 98; serverNum <= 101; ++serverNum){
 				String serverName = "HadoopNode98:10012:" + serverNum;
 				for(int i = 0; i < 1000; ++i){
-					Long bucket = longMD5DJBHash(StringByteTool.getUtf8Bytes(serverName + i));
+					Long bucket = longMd5DjbHash(StringByteTool.getUtf8Bytes(serverName + i));
 					buckets.add(bucket);
 				}
 			}

@@ -13,7 +13,7 @@ public class NotificationLogByIdPartitioner16 extends BaseEntityPartitioner<Noti
 	@Override
 	public int getPartition(NotificationLogByIdEntityKey ek){
 		String hashInput = ek.getId();
-		long hash = DrHashMethods.longDJBHash(hashInput);
+		long hash = DrHashMethods.longDjbHash(hashInput);
 		return (int)(hash % getNumPartitions());
 	}
 

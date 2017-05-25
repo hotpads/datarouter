@@ -50,7 +50,7 @@ extends BaseHBaseRegionBalancer{
 		SortedMap<Long,ServerName> consistentHashRing = new TreeMap<>();
 		for(DrServerInfo server : servers.getServers()){
 			for(int i = 0; i < numBucketsPerNode; ++i){
-				long bucketPosition = DrHashMethods.longMD5DJBHash(server.getServerName().getHostAndPort() + i);
+				long bucketPosition = DrHashMethods.longMd5DjbHash(server.getServerName().getHostAndPort() + i);
 				consistentHashRing.put(bucketPosition, server.getServerName());
 			}
 		}
@@ -59,7 +59,7 @@ extends BaseHBaseRegionBalancer{
 
 	public static ServerName calcServerNameForItem(SortedMap<Long,ServerName> consistentHashRing,
 			byte[] consistentHashInput){
-		long hash = DrHashMethods.longMD5DJBHash(consistentHashInput);
+		long hash = DrHashMethods.longMd5DjbHash(consistentHashInput);
 		if(!consistentHashRing.containsKey(hash)){
 			SortedMap<Long,ServerName> tail = consistentHashRing.tailMap(hash);
 			hash = tail.isEmpty() ? consistentHashRing.firstKey() : tail.firstKey();

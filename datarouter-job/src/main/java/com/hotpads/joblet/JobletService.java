@@ -275,7 +275,7 @@ public class JobletService{
 		int numInstances = instances.size();
 		int minThreadsPerInstance = clusterLimit / numInstances;//round down
 		int numExtraThreads = clusterLimit % numInstances;
-		long jobletTypeHash = DrHashMethods.longDJBHash(jobletType.getPersistentString());
+		long jobletTypeHash = DrHashMethods.longDjbHash(jobletType.getPersistentString());
 		double hashFractionOfOne = (double)jobletTypeHash / (double)Long.MAX_VALUE;
 		int firstExtraInstanceIdx = (int)Math.floor(hashFractionOfOne * numInstances);
 		//calculate effective limit
