@@ -10,23 +10,23 @@ import com.hotpads.util.core.lang.ClassTool;
 public class FieldSetComparator implements Comparator<FieldSet<?>>{
 
 	@Override
-	public int compare(FieldSet<?> a, FieldSet<?> b){
-		return compareStatic(a, b);
+	public int compare(FieldSet<?> left, FieldSet<?> right){
+		return compareStatic(left, right);
 	}
 
 
-	public static int compareStatic(FieldSet<?> a, FieldSet<?> b){
+	public static int compareStatic(FieldSet<?> left, FieldSet<?> right){
 		//sort classes alphabetically
-		if(b == null){
+		if(right == null){
 			return 1;
 		}
-		if(ClassTool.differentClass(a, b)){
-			return a.getClass().getName().compareTo(b.getClass().getName());
+		if(ClassTool.differentClass(left, right)){
+			return left.getClass().getName().compareTo(right.getClass().getName());
 		}
 
 		//field by field comparison
-		Iterator<Field<?>> thisIterator = a.getFields().iterator();
-		Iterator<Field<?>> thatIterator = b.getFields().iterator();
+		Iterator<Field<?>> thisIterator = left.getFields().iterator();
+		Iterator<Field<?>> thatIterator = right.getFields().iterator();
 		while(thisIterator.hasNext()){//they will have the same number of fields
 			//if we got past the class checks above, then fields should be the same and arrive in the same order
 			Field thisField = thisIterator.next();

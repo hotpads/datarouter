@@ -23,7 +23,7 @@ public class MemcachedHandler extends BaseHandler{
 	private RouterParams<MemcachedClientImp> paramsRouter;
 
 	@Handler
-	protected Mav inspectClient() {
+	protected Mav inspectClient(){
 		initialize();
 		Mav mav = new Mav(
 				"/jsp/admin/datarouter/memcached/memcachedClientSummary.jsp");
@@ -35,7 +35,7 @@ public class MemcachedHandler extends BaseHandler{
 		return mav;
 	}
 
-	private void initialize() {
+	private void initialize(){
 		paramsRouter = new RouterParams<>(datarouter, params,
 				MEMCHACHED_NEEDS);
 

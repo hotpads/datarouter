@@ -42,7 +42,7 @@ public class TraceTestDataGenerator{
 		for(Trace trace : traces){
 			trace.setContext("blah");
 			trace.setDuration(123L);
-			trace.setDurationNano(123*1000*1000L);
+			trace.setDurationNano(123 * 1000 * 1000L);
 			trace.setParams("paramA=a&paramB=b");
 			trace.setType("mighty");
 		}

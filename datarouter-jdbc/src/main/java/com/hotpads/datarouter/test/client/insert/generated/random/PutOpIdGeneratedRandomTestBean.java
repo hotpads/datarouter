@@ -17,8 +17,8 @@ implements PutOpGeneratedTestBean<PutOpIdGeneratedRandomTestBeanKey, PutOpIdGene
 	private PutOpIdGeneratedRandomTestBeanKey key;
 	private String a;
 
-	public static class PutOpIdGeneratedRandomTestBeanFielder extends
-			BaseDatabeanFielder<PutOpIdGeneratedRandomTestBeanKey, PutOpIdGeneratedRandomTestBean>{
+	public static class PutOpIdGeneratedRandomTestBeanFielder
+	extends BaseDatabeanFielder<PutOpIdGeneratedRandomTestBeanKey, PutOpIdGeneratedRandomTestBean>{
 
 		@Override
 		public Class<? extends Fielder<PutOpIdGeneratedRandomTestBeanKey>> getKeyFielderClass(){

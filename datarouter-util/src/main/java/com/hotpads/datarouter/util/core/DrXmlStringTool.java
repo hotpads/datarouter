@@ -4,7 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-public class DrXMLStringTool{
+public class DrXmlStringTool{
 
 	public static String escapeXml(String input){
 		if(input == null){

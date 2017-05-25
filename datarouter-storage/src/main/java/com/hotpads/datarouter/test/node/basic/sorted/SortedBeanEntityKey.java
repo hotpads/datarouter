@@ -45,7 +45,7 @@ extends BaseEntityKey<SortedBeanEntityKey>{
 		@Override
 		public int getPartition(SortedBeanEntityKey ek){
 			String hashInput = ek.a + ek.b;
-			long hash = DrHashMethods.longDJBHash(hashInput) % getNumPartitions();
+			long hash = DrHashMethods.longDjbHash(hashInput) % getNumPartitions();
 			return (int)(hash % getNumPartitions());
 		}
 	}

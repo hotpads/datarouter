@@ -25,12 +25,12 @@ extends BaseScatteringPrefix{
 	}
 
 	@Override
-	public List<List<Field<?>>> getAllPossibleScatteringPrefixes() {
+	public List<List<Field<?>>> getAllPossibleScatteringPrefixes(){
 		return EMPTY_LIST_LIST;
 	}
 
 	@Override
-	public Integer getNumPrefixBytes() {
+	public Integer getNumPrefixBytes(){
 		return 0;
 	}
 

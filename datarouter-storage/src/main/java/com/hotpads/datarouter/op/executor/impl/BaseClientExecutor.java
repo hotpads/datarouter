@@ -21,7 +21,7 @@ implements ClientExecutor{
 	private Datarouter datarouter;
 	private ClientOp<T> parallelClientOp;
 
-	public BaseClientExecutor(Datarouter datarouter, ClientOp<T> parallelClientOp) {
+	public BaseClientExecutor(Datarouter datarouter, ClientOp<T> parallelClientOp){
 		this.datarouter = datarouter;
 		this.parallelClientOp = parallelClientOp;
 	}
@@ -70,7 +70,7 @@ implements ClientExecutor{
 			}catch(Exception e){
 				logger.warn("", e);
 				throw new DataAccessException("EXCEPTION THROWN DURING RELEASE OF SINGLE CONNECTION, handle now=:"
-						+connectionClient.getExistingHandle(), e);
+						+ connectionClient.getExistingHandle(), e);
 			}
 		}
 	}

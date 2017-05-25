@@ -28,17 +28,17 @@ implements MapStorageReader<PK,D>{
 	}
 
 	@Override
-	public D get(PK key, Config config) {
+	public D get(PK key, Config config){
 		return backingNode.get(key, config);
 	}
 
 	@Override
-	public List<D> getMulti(Collection<PK> keys, Config config) {
+	public List<D> getMulti(Collection<PK> keys, Config config){
 		return backingNode.getMulti(keys, config);
 	}
 
 	@Override
-	public List<PK> getKeys(Collection<PK> keys, Config config) {
+	public List<PK> getKeys(Collection<PK> keys, Config config){
 		return backingNode.getKeys(keys, config);
 	}
 

@@ -3,7 +3,6 @@ package com.hotpads.notification.result;
 import java.util.List;
 
 import com.hotpads.notification.databean.NotificationUserId;
-import com.hotpads.notification.sender.template.NotificationTemplate;
 
 public class NotificationSendingResult{
 

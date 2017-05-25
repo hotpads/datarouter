@@ -46,7 +46,7 @@ public class IntegerField extends BasePrimitiveField<Integer>{
 
 	@Override
 	public byte[] getBytes(){
-		return value==null?null:IntegerByteTool.getComparableBytes(value);
+		return value == null ? null : IntegerByteTool.getComparableBytes(value);
 	}
 
 	@Override

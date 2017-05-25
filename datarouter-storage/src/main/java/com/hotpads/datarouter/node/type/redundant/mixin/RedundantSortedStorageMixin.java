@@ -19,13 +19,13 @@ extends SortedStorage<PK,D>, RedundantNode<PK,D,N>{
 
 	@Override
 	@Deprecated
-	default List<D> getWithPrefix(PK prefix, boolean wildcardLastField, Config config) {
+	default List<D> getWithPrefix(PK prefix, boolean wildcardLastField, Config config){
 		return getReadNode().getWithPrefix(prefix,wildcardLastField, config);
 	}
 
 	@Override
 	@Deprecated
-	default List<D> getWithPrefixes(Collection<PK> prefixes, boolean wildcardLastField, Config config) {
+	default List<D> getWithPrefixes(Collection<PK> prefixes, boolean wildcardLastField, Config config){
 		return getReadNode().getWithPrefixes(prefixes, wildcardLastField, config);
 	}
 

@@ -88,8 +88,8 @@ public class HBaseBalanceLeveler<I>{
 
 		@Override
 		public int compare(ServerName serverA, ServerName serverB){
-			long serverASort = DrHashMethods.longDJBHash(randomSeed + serverA.getHostAndPort());
-			long serverBSort = DrHashMethods.longDJBHash(randomSeed + serverB.getHostAndPort());
+			long serverASort = DrHashMethods.longDjbHash(randomSeed + serverA.getHostAndPort());
+			long serverBSort = DrHashMethods.longDjbHash(randomSeed + serverB.getHostAndPort());
 			return (int)(serverASort - serverBSort);
 		}
 	}

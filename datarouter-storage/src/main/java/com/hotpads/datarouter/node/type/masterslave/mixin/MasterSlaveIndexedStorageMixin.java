@@ -40,7 +40,7 @@ extends MasterSlaveNode<PK,D,N>, IndexedStorage<PK,D>{
 
 
 	@Override
-	public default List<D> lookup(Lookup<PK> lookup, boolean wildcardLastField, Config config) {
+	public default List<D> lookup(Lookup<PK> lookup, boolean wildcardLastField, Config config){
 		boolean slaveOk = Config.nullSafe(config).getSlaveOk();
 		N node = slaveOk ? chooseSlave(config) : getMaster();
 		return node.lookup(lookup, wildcardLastField, config);
@@ -48,7 +48,7 @@ extends MasterSlaveNode<PK,D,N>, IndexedStorage<PK,D>{
 
 
 	@Override
-	public default List<D> lookupMulti(Collection<? extends Lookup<PK>> lookups, Config config) {
+	public default List<D> lookupMulti(Collection<? extends Lookup<PK>> lookups, Config config){
 		boolean slaveOk = Config.nullSafe(config).getSlaveOk();
 		N node = slaveOk ? chooseSlave(config) : getMaster();
 		return node.lookupMulti(lookups, config);
@@ -112,17 +112,17 @@ extends MasterSlaveNode<PK,D,N>, IndexedStorage<PK,D>{
 	}
 
 	@Override
-	public default void delete(Lookup<PK> lookup, Config config) {
+	public default void delete(Lookup<PK> lookup, Config config){
 		getMaster().delete(lookup, config);
 	}
 
 	@Override
-	public default void deleteUnique(UniqueKey<PK> uniqueKey, Config config) {
+	public default void deleteUnique(UniqueKey<PK> uniqueKey, Config config){
 		getMaster().deleteUnique(uniqueKey, config);
 	}
 
 	@Override
-	public default void deleteMultiUnique(Collection<? extends UniqueKey<PK>> uniqueKeys, Config config) {
+	public default void deleteMultiUnique(Collection<? extends UniqueKey<PK>> uniqueKeys, Config config){
 		getMaster().deleteMultiUnique(uniqueKeys, config);
 	}
 

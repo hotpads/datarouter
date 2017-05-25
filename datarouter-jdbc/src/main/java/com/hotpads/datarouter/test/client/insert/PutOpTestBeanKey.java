@@ -35,15 +35,15 @@ public class PutOpTestBeanKey extends BasePrimaryKey<PutOpTestBeanKey>{
 		return first;
 	}
 
-	public void setA(String a){
-		this.first = a;
+	public void setA(String first){
+		this.first = first;
 	}
 
 	public String getB(){
 		return second;
 	}
 
-	public void setB(String b){
-		this.second = b;
+	public void setB(String second){
+		this.second = second;
 	}
 }

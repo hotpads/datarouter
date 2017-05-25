@@ -220,7 +220,7 @@ implements HBaseTablePool{
 		SemaphoreTool.acquire(htableSemaphore);
 		long acquireTimeMs = System.currentTimeMillis() - startAquireMs;
 		if(acquireTimeMs > LOG_SEMAPHORE_ACQUISITIONS_OVER_MS){
-			logger.warn("acquiring semaphore took "+DrNumberFormatter.addCommas(acquireTimeMs)+"ms");
+			logger.warn("acquiring semaphore took " + DrNumberFormatter.addCommas(acquireTimeMs) + "ms");
 		}
 	}
 
@@ -248,7 +248,7 @@ implements HBaseTablePool{
 	/*********************** logging ************************************/
 
 	private void recordSlowCheckout(long checkOutDurationMs, String tableName){
-		if(!LOG_ACTIONS) {
+		if(!LOG_ACTIONS){
 			return;
 		}
 		if(checkOutDurationMs > 1){
@@ -292,7 +292,7 @@ implements HBaseTablePool{
 			if(msSinceLastLog < THROTTLE_INCONSISTENT_LOG_EVERY_X_MS){
 				return;
 			}
-			logWithPoolInfo("inconsistent pool counts on "+(checkOut?"checkOut":"checkIn"), tableName);
+			logWithPoolInfo("inconsistent pool counts on " + (checkOut ? "checkOut" : "checkIn"), tableName);
 		}
 		lastLoggedWarning = System.currentTimeMillis();
 	}
@@ -304,18 +304,18 @@ implements HBaseTablePool{
 		innerLogWithPoolInfo(message, tableName);
 	}
 
-	private void innerLogWithPoolInfo(String message, String tableName) {
-		logger.warn(getPoolInfoLogMessage(tableName)+", "+message);
+	private void innerLogWithPoolInfo(String message, String tableName){
+		logger.warn(getPoolInfoLogMessage(tableName) + ", " + message);
 	}
 
 	private String getPoolInfoLogMessage(String tableName){
-		return "max="+maxHTables
-				+", blocked="+htableSemaphore.getQueueLength()
-				+", idle="+executorServiceQueue.size()
-				+", permits="+htableSemaphoreActivePermits()
-				+", HTables="+activeHTables.size()
-				+", client="+clientName
-				+", table="+tableName;
+		return "max=" + maxHTables
+				+ ", blocked=" + htableSemaphore.getQueueLength()
+				+ ", idle=" + executorServiceQueue.size()
+				+ ", permits=" + htableSemaphoreActivePermits()
+				+ ", HTables=" + activeHTables.size()
+				+ ", client=" + clientName
+				+ ", table=" + tableName;
 	}
 
 }

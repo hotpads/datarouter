@@ -72,7 +72,8 @@ public class BatchSizeOptimizer{
 				}
 				opName = record.getOpName();
 			}
-			statsPerBatchSize.computeIfAbsent(record.getBatchSize(), key->new NodePerformanceStats()).addRecord(record);
+			statsPerBatchSize.computeIfAbsent(record.getBatchSize(), key -> new NodePerformanceStats()).addRecord(
+					record);
 			lastRecord = record;
 		}
 		if(opName != null){
@@ -143,16 +144,16 @@ public class BatchSizeOptimizer{
 		}
 
 		public void addRecord(OpPerformanceRecord record){
-			long factor = record.getRowCount()/record.getBatchSize();
+			long factor = record.getRowCount() / record.getBatchSize();
 			count += factor;
-			speedSum += factor*record.getRowsPerSeconds();
+			speedSum += factor * record.getRowsPerSeconds();
 		}
 
 		public int getMean(){
 			if(count == 0){
 				return 0;
 			}
-			return (int) (speedSum/count);
+			return (int)(speedSum / count);
 		}
 	}
 

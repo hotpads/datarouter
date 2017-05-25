@@ -17,27 +17,27 @@ public interface MasterSlaveMapStorageMixin<
 extends MasterSlaveNode<PK,D,N>, MapStorage<PK,D>{
 
 	@Override
-	public default void delete(PK key, Config config) {
+	public default void delete(PK key, Config config){
 		getMaster().delete(key, config);
 	}
 
 	@Override
-	public default void deleteAll(Config config) {
+	public default void deleteAll(Config config){
 		getMaster().deleteAll(config);
 	}
 
 	@Override
-	public default void deleteMulti(Collection<PK> keys, Config config) {
+	public default void deleteMulti(Collection<PK> keys, Config config){
 		getMaster().deleteMulti(keys, config);
 	}
 
 	@Override
-	public default void put(D databean, Config config) {
+	public default void put(D databean, Config config){
 		getMaster().put(databean, config);
 	}
 
 	@Override
-	public default void putMulti(Collection<D> databeans, Config config) {
+	public default void putMulti(Collection<D> databeans, Config config){
 		getMaster().putMulti(databeans, config);
 	}
 
@@ -49,21 +49,21 @@ extends MasterSlaveNode<PK,D,N>, MapStorage<PK,D>{
 	}
 
 	@Override
-	public default D get(PK key, Config config) {
+	public default D get(PK key, Config config){
 		boolean slaveOk = Config.nullSafe(config).getSlaveOk();
 		N node = slaveOk ? chooseSlave(config) : getMaster();
 		return node.get(key, config);
 	}
 
 	@Override
-	public default List<D> getMulti(Collection<PK> keys, Config config) {
+	public default List<D> getMulti(Collection<PK> keys, Config config){
 		boolean slaveOk = Config.nullSafe(config).getSlaveOk();
 		N node = slaveOk ? chooseSlave(config) : getMaster();
 		return node.getMulti(keys, config);
 	}
 
 	@Override
-	public default List<PK> getKeys(Collection<PK> keys, Config config) {
+	public default List<PK> getKeys(Collection<PK> keys, Config config){
 		boolean slaveOk = Config.nullSafe(config).getSlaveOk();
 		N node = slaveOk ? chooseSlave(config) : getMaster();
 		return node.getKeys(keys, config);

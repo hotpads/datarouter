@@ -324,7 +324,7 @@ public abstract class BaseSortedNodeIntegrationTests{
 		Assert.assertEquals(scanKeysAndCountWithConfig(new Config().setIterateBatchSize(555)), count);
 		Assert.assertEquals(scanKeysAndCountWithConfig(new Config().setLimit((int)count)), count);
 		Assert.assertEquals(scanKeysAndCountWithConfig(new Config().setLimit(10)), 10);
-		Assert.assertEquals(scanKeysAndCountWithConfig(new Config().setLimit((int)(2*count))), count);
+		Assert.assertEquals(scanKeysAndCountWithConfig(new Config().setLimit((int)(2 * count))), count);
 		Assert.assertEquals(scanKeysAndCountWithConfig(new Config().setIterateBatchSize(25).setLimit(100)), 100);
 		Assert.assertEquals(scanKeysAndCountWithConfig(new Config().setIterateBatchSize(15).setLimit(23)), 23);
 	}
@@ -344,7 +344,7 @@ public abstract class BaseSortedNodeIntegrationTests{
 		timer.add("2");
 		Assert.assertEquals(scanAndCountWithConfig(new Config().setLimit(10)), 10);
 		timer.add("3");
-		Assert.assertEquals(scanAndCountWithConfig(new Config().setLimit((int)(2*count))), count);
+		Assert.assertEquals(scanAndCountWithConfig(new Config().setLimit((int)(2 * count))), count);
 		timer.add("4");
 		Assert.assertEquals(scanAndCountWithConfig(new Config().setIterateBatchSize(25).setLimit(100)), 100);
 		timer.add("5");

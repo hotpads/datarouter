@@ -23,7 +23,7 @@ public class PolynomialRegressionOptimumFinder{
 		double s21 = 0;
 		double s11 = 0;
 		double s01 = 0;
-		for (PolynomialRegressionOptimumFinderPoint point : points){
+		for(PolynomialRegressionOptimumFinderPoint point : points){
 			s40 += Math.pow(point.getAbscissa(), 4);
 			s30 += Math.pow(point.getAbscissa(), 3);
 			s20 += Math.pow(point.getAbscissa(), 2);
