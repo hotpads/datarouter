@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.routing;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -32,6 +33,7 @@ import com.hotpads.datarouter.op.executor.impl.SessionExecutorImpl;
 import com.hotpads.datarouter.util.core.DrPropertiesTool;
 import com.hotpads.trace.TracerThreadLocal;
 import com.hotpads.trace.TracerTool;
+import com.hotpads.util.core.collections.Pair;
 
 /**
  * Datarouter is the top-level scope through which various components can share things like clients,
@@ -101,9 +103,10 @@ public class Datarouter{
 		if(configFilePaths.contains(configPath)){
 			return;
 		}
-		logger.warn("adding router config from " + configPath + ", currentRouters:" + routers);
+		Pair<Properties,URL> propertiesAndLocation = DrPropertiesTool.parseAndGetLocation(configPath);
+		logger.warn("adding router config from " + propertiesAndLocation.getRight() + ", currentRouters:" + routers);
 		configFilePaths.add(configPath);
-		multiProperties.add(DrPropertiesTool.parse(configPath));
+		multiProperties.add(propertiesAndLocation.getLeft());
 	}
 
 	public void initializeEagerClients(){
