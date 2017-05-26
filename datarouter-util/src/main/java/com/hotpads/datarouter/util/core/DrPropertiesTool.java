@@ -2,6 +2,7 @@ package com.hotpads.datarouter.util.core;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -9,11 +10,16 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
 
+import com.hotpads.util.core.collections.Pair;
 import com.hotpads.util.core.stream.StreamTool;
 
 public class DrPropertiesTool{
 
 	public static Properties parse(String path){
+		return parseAndGetLocation(path).getLeft();
+	}
+
+	public static Pair<Properties,URL> parseAndGetLocation(String path){
 		try{
 			return fromFile(path);
 		}catch(NullPointerException | IOException e){
@@ -25,22 +31,23 @@ public class DrPropertiesTool{
 		return StreamTool.map(paths, DrPropertiesTool::parse);
 	}
 
-	private static Properties fromFile(String pathToFile) throws IOException{
+	private static Pair<Properties,URL> fromFile(String pathToFile) throws IOException{
 		Objects.requireNonNull(pathToFile);
 		Properties properties = new Properties();
-		try(InputStream in = getInputStream(pathToFile)){
+		URL url = getUrl(pathToFile);
+		try(InputStream in = url.openStream()){
 			properties.load(in);
 		}
-		return properties;
+		return new Pair<>(properties, url);
 	}
 
-	private static InputStream getInputStream(String pathToFile) throws IOException{
+	private static URL getUrl(String pathToFile) throws IOException{
 		Path path = Paths.get(pathToFile);
 		if(Files.exists(path)){
-			return Files.newInputStream(path);
+			return path.toUri().toURL();
 		}
 		// Try the classpath instead
-		return DrPropertiesTool.class.getResourceAsStream(pathToFile);
+		return DrPropertiesTool.class.getResource(pathToFile);
 	}
 
 	public static String getFirstOccurrence(Iterable<Properties> multiProperties, String key){
