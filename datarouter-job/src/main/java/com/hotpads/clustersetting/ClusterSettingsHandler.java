@@ -14,7 +14,6 @@ import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
-import com.hotpads.datarouter.app.WebAppName;
 import com.hotpads.datarouter.setting.ServerType;
 import com.hotpads.datarouter.setting.Setting;
 import com.hotpads.datarouter.setting.SettingNode;
@@ -68,8 +67,6 @@ public class ClusterSettingsHandler extends BaseHandler{
 	private ServerType anyServerType;
 	@Inject
 	private ClusterSettingNodes clusterSettingNodes;
-	@Inject
-	private WebAppName webAppName;
 	@Inject
 	private CurrentUserInfo currentUserInfo;
 
@@ -258,7 +255,7 @@ public class ClusterSettingsHandler extends BaseHandler{
 	Mav browseSettings(){
 		Mav mav = new Mav(JSP_browseSettings);
 
-		SettingNode node = getSettingNode(params.optional(P_name).orElse(webAppName + "."));
+		SettingNode node = getSettingNode(params.optional(P_name).orElse(settingRoot.getName()));
 
 		mav.put(V_nodeName, node.getName());
 		mav.put(V_node, node);
