@@ -8,17 +8,7 @@
 		<relativePath>../../config/maven</relativePath>
 	</parent>
 	<artifactId>datarouter-bigtable</artifactId>
-	<properties>
-		<os.detection.classifierWithLikes>fedora</os.detection.classifierWithLikes>
-	</properties>
 	<build>
-		<extensions>
-			<extension>
-				<groupId>kr.motd.maven</groupId>
-				<artifactId>os-maven-plugin</artifactId>
-				<version>1.5.0.Final</version>
-			</extension>
-		</extensions>
 		<plugins>
 			<plugin>
 				<groupId>pl.project13.maven</groupId>
@@ -90,9 +80,8 @@
 		</dependency>
 		<dependency>
 			<groupId>io.netty</groupId>
-			<artifactId>netty-tcnative</artifactId>
+			<artifactId>netty-tcnative-boringssl-static</artifactId>
 			<version>1.1.33.Fork26</version>
-			<classifier>${os.detected.classifier}</classifier> <!-- check if breaking muliplatform deploy -->
 		</dependency>
 	</dependencies>
 </project>
