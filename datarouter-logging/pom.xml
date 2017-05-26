@@ -44,7 +44,6 @@
 				<version>3.3.1</version>
 				<executions>
 					<execution>
-						<id>process</id>
 						<goals>
 							<goal>process</goal>
 						</goals>
@@ -57,26 +56,26 @@
 				</configuration>
 			</plugin>
 			<plugin>
-			    <groupId>com.mycila</groupId>
-			    <artifactId>license-maven-plugin</artifactId>
-			    <version>3.0</version>
-			    <configuration>
-			        <header>com/mycila/maven/plugin/license/templates/APACHE-2.txt</header>
-			        <properties>
-			            <owner>HotPads</owner>
-			            <email>admin@hotpads.com</email>
-			        </properties>
-			        <excludes>
-			            <exclude>src/main/resources/**</exclude>
-			        </excludes>
-			    </configuration>
-			    <executions>
-			        <execution>
-			            <goals>
-			                <goal>check</goal>
-			            </goals>
-			        </execution>
-			    </executions>
+				<groupId>com.mycila</groupId>
+				<artifactId>license-maven-plugin</artifactId>
+				<version>3.0</version>
+				<configuration>
+					<header>com/mycila/maven/plugin/license/templates/APACHE-2.txt</header>
+					<properties>
+						<owner>HotPads</owner>
+						<email>admin@hotpads.com</email>
+					</properties>
+					<excludes>
+						<exclude>src/main/resources/**</exclude>
+					</excludes>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>check</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>
