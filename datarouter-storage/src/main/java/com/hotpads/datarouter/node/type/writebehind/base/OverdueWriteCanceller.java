@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 import com.hotpads.datarouter.util.DRCounters;
 
 public class OverdueWriteCanceller implements Runnable{
-	private static Logger logger = LoggerFactory.getLogger(OverdueWriteCanceller.class);
+	private static final Logger logger = LoggerFactory.getLogger(OverdueWriteCanceller.class);
 
 	protected final BaseWriteBehindNode<?,?,?> node;
 
@@ -29,9 +29,9 @@ public class OverdueWriteCanceller implements Runnable{
 					break;
 				}
 				boolean overdue = writeWrapper.getAgeMs() > node.timeoutMs;
-				if(writeWrapper.getWrite().isDone() || overdue){
+				if(writeWrapper.write.isDone() || overdue){
 					if(overdue){
-						logger.warn("cancelling overdue write on " + node);
+						logger.warn("cancelling overdue write on {}", writeWrapper.opDesc);
 						DRCounters.incOp(null, "writeBehind timeout on " + node);
 					}
 					node.outstandingWrites.poll();
