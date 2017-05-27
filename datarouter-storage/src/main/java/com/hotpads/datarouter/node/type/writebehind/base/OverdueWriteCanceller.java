@@ -1,6 +1,3 @@
-/**
- *
- */
 package com.hotpads.datarouter.node.type.writebehind.base;
 
 import org.slf4j.Logger;
