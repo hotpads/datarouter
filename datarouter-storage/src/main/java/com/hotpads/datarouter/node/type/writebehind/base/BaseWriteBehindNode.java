@@ -151,7 +151,6 @@ implements WriteBehindNode<PK,D,N>{
 			if(DrCollectionTool.isEmpty(databeans)){
 				return null;
 			}
-
 			String opDesc = writeWrapper.getOp() + " with " + databeans.size() + " " + DrCollectionTool.getFirst(
 					databeans).getClass().getSimpleName();
 			// cloning to prevent from concurrency issues
