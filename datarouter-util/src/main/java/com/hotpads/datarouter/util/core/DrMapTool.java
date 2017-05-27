@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
@@ -124,7 +126,6 @@ public class DrMapTool{
 	/**
 	 * Transforms values into a map with keys and values produced by keyMapper and valueMapper. Exammple:
 	 * <pre>getBy(employees, ssnGetter, phoneGetter) -> Map&lt;SSN, Phone&gt;</pre>
-	 * Note that exception is thrown if mapped keys contain duplicate, or the value is null
 	 */
 	public static <T,K,V> Map<K,V> getBy(Iterable<T> elements, Function<T,K> keyMapper, Function<T,V> valueMapper){
 		return StreamTool.stream(elements).collect(toMap(keyMapper, valueMapper));
@@ -149,11 +150,14 @@ public class DrMapTool{
 	}
 
 	/**
-	 * same as {@link Collectors#toMap(Function, Function)} but creates a LinkedHashMap, not HashMap
+	 * similar to {@link Collectors#toMap(Function, Function)} but: <br/>
+	 * - this creates a LinkedHashMap, not HashMap <br/>
+	 * - in case of duplicate mappings, old value is overwritten with new value.
 	 */
 	public static <T,K,U> Collector<T,?,Map<K,U>> toMap(Function<? super T,? extends K> keyMapper,
 			Function<? super T,? extends U> valueMapper){
-		return Collectors.toMap(keyMapper, valueMapper, StreamTool.throwingMerger(), LinkedHashMap::new);
+		BinaryOperator<U> lastValueFavoringMerger = (oldValue, newValue) -> newValue;
+		return Collectors.toMap(keyMapper, valueMapper, lastValueFavoringMerger, LinkedHashMap::new);
 	}
 
 	/***************** tests ***************************/
@@ -168,32 +172,40 @@ public class DrMapTool{
 			Assert.assertEquals(res.get("key2"), "val2");
 		}
 
-
 		@Test
 		public void testGetByKeyMapper(){
-			List<String> strings = Arrays.asList("aaa", "b", "cc", "eeee");
-			Map<Integer,String> stringByLength = DrMapTool.getBy(strings, String::length);
-			Assert.assertEquals(size(stringByLength), strings.size());
-			strings.forEach(string -> Assert.assertTrue(stringByLength.containsValue(string)));
-			Assert.assertEquals(stringByLength.keySet(), Arrays.asList(3, 1, 2, 4));
-			Assert.assertEquals(stringByLength.values(), strings);
+			List<String> strings = Arrays.asList("aaa", "b", "ca", "eeee", "ca");
+			AtomicLong counterA = new AtomicLong(0);
+			Function<String,String> valueMapper = str -> {
+				if(str.contains("a")){
+					return counterA.incrementAndGet() + "a";
+				}
+				if(str.contains("b")){
+					return "b";
+				}
+				return str;
+			};
+			Map<Integer,String> containsByLength = DrMapTool.getBy(strings, String::length, valueMapper);
+			Assert.assertEquals(containsByLength.keySet(), Arrays.asList(3, 1, 2, 4));
+			Assert.assertEquals(containsByLength.values(), Arrays.asList("1a", "b", "3a", "eeee"));
 		}
 
 		@Test
 		public void testGetByNullableKeyValueMapper(){
 			List<String> strings = Arrays.asList("aaa", "b", "ca", "eeee", "ca");
-			Function<String,Boolean> valueMapper = str -> {
+			AtomicLong counterA = new AtomicLong(0);
+			Function<String,String> valueMapper = str -> {
 				if(str.contains("a")){
-					return true;
+					return counterA.incrementAndGet() + "a";
 				}
 				if(str.contains("b")){
-					return false;
+					return "b";
 				}
 				return null;
 			};
-			Map<Integer,Boolean> containsByLength = DrMapTool.getByNullable(strings, String::length, valueMapper);
+			Map<Integer,String> containsByLength = DrMapTool.getByNullable(strings, String::length, valueMapper);
 			Assert.assertEquals(containsByLength.keySet(), Arrays.asList(3, 1, 2, 4));
-			Assert.assertEquals(containsByLength.values(), Arrays.asList(true, false, true, null));
+			Assert.assertEquals(containsByLength.values(), Arrays.asList("1a", "b", "3a", null));
 		}
 	}
 
