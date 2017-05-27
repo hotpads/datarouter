@@ -1,10 +1,10 @@
 package com.hotpads.datarouter.node.type.writebehind.base;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -147,27 +147,25 @@ implements WriteBehindNode<PK,D,N>{
 		}
 
 		private Future<Void> handleWriteWrapper(WriteWrapper<?> writeWrapper){
-			if(DrCollectionTool.isEmpty(writeWrapper.getObjects())){
+			Collection<?> databeans = writeWrapper.getObjects();
+			if(DrCollectionTool.isEmpty(databeans)){
 				return null;
 			}
+			String opDesc = writeWrapper.getOp() + " with " + databeans.size() + " " + DrCollectionTool.getFirst(
+					databeans).getClass().getSimpleName();
 			// cloning to prevent from concurrency issues
-			final WriteWrapper<?> writeWrapperClone = new WriteWrapper<>(writeWrapper);
-			Future<Void> future = writeExecutor.submit(new Callable<Void>(){
-
-				@Override
-				public Void call(){
-					try{
-						if(!handleWriteWrapperInternal(writeWrapperClone)){
-							logger.error("Not able to handle this op: " + writeWrapperClone.getOp());
-						}
-					}catch(Exception e){
-						logger.error("error on " + writeWrapperClone.getOp() + " with "
-								+ writeWrapperClone.getObjects().size() + " element(s)", e);
+			WriteWrapper<?> writeWrapperClone = new WriteWrapper<>(writeWrapper);
+			Future<Void> future = writeExecutor.submit(() -> {
+				try{
+					if(!handleWriteWrapperInternal(writeWrapperClone)){
+						logger.error("Not able to handle this op: " + writeWrapperClone.getOp());
 					}
-					return null;
+				}catch(Exception e){
+					logger.error("error on {}", opDesc, e);
 				}
+				return null;
 			});
-			outstandingWrites.add(new OutstandingWriteWrapper(System.currentTimeMillis(), future));
+			outstandingWrites.add(new OutstandingWriteWrapper(System.currentTimeMillis(), future, opDesc));
 			return future;
 		}
 
