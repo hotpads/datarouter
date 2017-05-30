@@ -57,8 +57,8 @@ public class MemoryMonitoringHandler extends BaseHandler{
 		mav.put("gitCommitTime", simpleDateFormat.format(gitProperties.getCommitTime()));
 		mav.put("buildTime", simpleDateFormat.format(gitProperties.getBuildTime()));
 		mav.put("gitTags", gitProperties.getTags());
-		mav.put("hotPadsLibraries", loadedLibraries.getHotpadsLibraries());
-		mav.put("nonHotPadsLibraries", loadedLibraries.getNonHotpadsLibraries());
+		mav.put("detailedLibraries", loadedLibraries.getDetailedLibraries());
+		mav.put("otherLibraries", loadedLibraries.getOtherLibraries());
 
 		Runtime runtime = Runtime.getRuntime();
 		MemoryUsage heap = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
