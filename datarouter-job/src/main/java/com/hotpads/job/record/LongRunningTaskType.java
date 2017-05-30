@@ -18,7 +18,7 @@ public enum LongRunningTaskType implements StringEnum<LongRunningTaskType>{
 	}
 
 	@Override
-	public String getPersistentString() {
+	public String getPersistentString(){
 		return varName;
 	}
 
@@ -27,7 +27,7 @@ public enum LongRunningTaskType implements StringEnum<LongRunningTaskType>{
 	}
 
 	@Override
-	public LongRunningTaskType fromPersistentString(String str) {
+	public LongRunningTaskType fromPersistentString(String str){
 		return fromPersistentStringStatic(str);
 	}
 }
