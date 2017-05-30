@@ -79,6 +79,8 @@ public class DatarouterOktaWidgetAuthenticator extends BaseDatarouterAuthenticat
 
 		try{
 			OktaSessionResponse oktaResponse = httpClient.execute(oktaRequest, OktaSessionResponse.class);
+			logger.debug("Okta response: login: {}, status: {}, isActive: {}", oktaResponse.login, oktaResponse.status,
+					oktaResponse.isActive());
 			return lookupAndValidateUser(oktaLogin, oktaResponse);
 		}catch(HotPadsHttpRuntimeException e){
 			logger.error("Failed to authenticate with Okta", e);
