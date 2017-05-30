@@ -7,7 +7,7 @@
 		<version>0.0.1-SNAPSHOT</version>
 		<relativePath>../../config/maven</relativePath> 
 	</parent>
-	<artifactId>datarouter-jdbc</artifactId>
+	<artifactId>datarouter-mysql</artifactId>
 	<build>
 		<plugins>
 			<plugin>
