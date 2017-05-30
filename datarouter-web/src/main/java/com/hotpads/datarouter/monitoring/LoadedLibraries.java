@@ -17,38 +17,36 @@ import com.hotpads.datarouter.app.ApplicationPaths;
 @Singleton
 public class LoadedLibraries{
 
-	private static final String HOTPADS_MARKER = "-0.0.1-SNAPSHOT.jar";
-
-	private Map<String,GitProperties> hotpads;
-	private List<String> nonHotpads;
+	private Map<String,GitProperties> detailedLibraries;
+	private List<String> otherLibraries;
 
 	@Inject
 	public LoadedLibraries(ApplicationPaths applicationPaths){
-		hotpads = new HashMap<>();
-		nonHotpads = new ArrayList<>();
+		detailedLibraries = new HashMap<>();
+		otherLibraries = new ArrayList<>();
 		String var = applicationPaths.getRootPath() + "/WEB-INF/lib";
 
 		for(File file : new File(var).listFiles()){
-			if(file.getName().endsWith(HOTPADS_MARKER)){
-				try (ZipFile zf = new ZipFile(file)){
-					ZipEntry entry = zf.getEntry("git.properties");
+			try (ZipFile zf = new ZipFile(file)){
+				ZipEntry entry = zf.getEntry("git.properties");
+				if(entry != null){
 					GitProperties gitProperties = new GitProperties(zf.getInputStream(entry));
-					hotpads.put(file.getName().replace(HOTPADS_MARKER, ""), gitProperties);
-				}catch(IOException ex){
-					throw new RuntimeException(ex);
+					detailedLibraries.put(file.getName(), gitProperties);
+				}else{
+					otherLibraries.add(file.getName());
 				}
-			}else if(file.getName().endsWith(".jar")){
-				nonHotpads.add(file.getName());
+			}catch(IOException ex){
+				throw new RuntimeException(ex);
 			}
 		}
 	}
 
-	public Map<String, GitProperties> getHotpadsLibraries(){
-		return hotpads;
+	public Map<String,GitProperties> getDetailedLibraries(){
+		return detailedLibraries;
 	}
 
-	public List<String> getNonHotpadsLibraries(){
-		return nonHotpads;
+	public List<String> getOtherLibraries(){
+		return otherLibraries;
 	}
 
 }

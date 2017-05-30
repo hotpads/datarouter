@@ -147,17 +147,17 @@
 		<span class="property tree-level-1">Tags</span>
 		<span class="value">${gitTags}</span>
 		<br>
-		<c:set var="name" value="HotPads libraries"/>
-		<c:set var="escapedName" value="HotPads-libraries"/>
+		<c:set var="name" value="Detailed libraries"/>
+		<c:set var="escapedName" value="Detailed-libraries"/>
 		<c:set var="defaultVisible" value="in"/>
-		<c:set var="libs" value="${hotPadsLibraries}"/>
+		<c:set var="libs" value="${detailedLibraries}"/>
 		<c:set var="map" value="true"/>
 		<%@ include file="libraries.jsp" %>
 
-		<c:set var="name" value="Non-HotPads libraries"/>
-		<c:set var="escapedName" value="Non-HotPads-libraries"/>
+		<c:set var="name" value="Other libraries"/>
+		<c:set var="escapedName" value="Other-libraries"/>
 		<c:set var="defaultVisible" value=""/>
-		<c:set var="libs" value="${nonHotPadsLibraries}"/>
+		<c:set var="libs" value="${otherLibraries}"/>
 		<c:set var="map" value="false"/>
 		<%@ include file="libraries.jsp" %>
 	</div>
