@@ -1,42 +1,40 @@
 package com.hotpads.datarouter.test.node.basic.prefixed;
 
+import java.util.Arrays;
 import java.util.List;
 
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.storage.field.Field;
-import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.StringField;
+import com.hotpads.datarouter.storage.field.imp.StringFieldKey;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt63Field;
+import com.hotpads.datarouter.storage.field.imp.positive.UInt63FieldKey;
 import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
-
-/********************************* indexes ***********************************/
 
 public class ScatteringPrefixBeanKey extends BasePrimaryKey<ScatteringPrefixBeanKey>{
 
-	protected String a;
-	protected Long id;
+	private String foo;
+	private Long id;
 
 	ScatteringPrefixBeanKey(){
-		this.a = null;
-		this.id = null;
 	}
 
 
-	public ScatteringPrefixBeanKey(String a, Long id){
-		this.a = a;
+	public ScatteringPrefixBeanKey(String foo, Long id){
+		this.foo = foo;
 		this.id = id;
 	}
 
-	public static final String
-		COL_a = "a",
-		COL_id = "id";
+	private static class FieldKeys{
+		private static final StringFieldKey foo = new StringFieldKey("foo");
+		private static final UInt63FieldKey id = new UInt63FieldKey("id");
+	}
 
 
 	@Override
 	public List<Field<?>> getFields(){
-		return FieldTool.createList(
-				new StringField(COL_a, a, MySqlColumnType.DEFAULT_LENGTH_VARCHAR),
-				new UInt63Field(COL_id, id));
+		return Arrays.asList(
+				new StringField(FieldKeys.foo, foo),
+				new UInt63Field(FieldKeys.id, id));
 	}
 
 	/***************************** get/set *******************************/
@@ -49,12 +47,12 @@ public class ScatteringPrefixBeanKey extends BasePrimaryKey<ScatteringPrefixBean
 		this.id = id;
 	}
 
-	public String getA(){
-		return a;
+	public String getFoo(){
+		return foo;
 	}
 
-	public void setA(String a){
-		this.a = a;
+	public void setFoo(String foo){
+		this.foo = foo;
 	}
 
 }
