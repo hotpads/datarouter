@@ -7,7 +7,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.BinaryOperator;
 import java.util.function.Function;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import org.testng.Assert;
@@ -112,10 +115,49 @@ public class DrMapTool{
 
 	/****************** transform ***********************/
 
+	/**
+	 * Transforms values into a map with keys produced by keyMapper. Exammple:
+	 * <pre>getBy(employees, ssnGetter) -> Map&lt;SSN, Employee&gt;</pre>
+	 */
 	public static <K,V> Map<K,V> getBy(Iterable<V> values, Function<V,K> keyMapper){
-		return StreamTool.stream(values)
-				.collect(Collectors.toMap(keyMapper, Function.identity(), StreamTool.throwingMerger(),
-						LinkedHashMap::new));
+		return StreamTool.stream(values).collect(toMap(keyMapper));
+	}
+
+	/**
+	 * Transforms values into a map with keys and values produced by keyMapper and valueMapper. Example:
+	 * <pre>getBy(employees, ssnGetter, phoneGetter) -> Map&lt;SSN, Phone&gt;</pre>
+	 */
+	public static <T,K,V> Map<K,V> getBy(Iterable<T> elements, Function<T,K> keyMapper, Function<T,V> valueMapper){
+		return StreamTool.stream(elements).collect(toMap(keyMapper, valueMapper));
+	}
+
+	/**
+	 * same as {@link #getBy(Iterable, Function, Function)} but allows null values and overwrites duplicate keys
+	 */
+	public static <T,K,V> Map<K,V> getByNullable(Iterable<T> elements, Function<T,K> keyMapper,
+			Function<T,V> valueMapper){
+		Map<K,V> map = new LinkedHashMap<>();
+		for(T element : elements){
+			map.put(keyMapper.apply(element), valueMapper.apply(element));
+		}
+		return map;
+	}
+
+	/****************** collectors ***********************/
+
+	public static <V,K> Collector<V,?,Map<K,V>> toMap(Function<V,K> keyMapper){
+		return toMap(keyMapper, Function.identity());
+	}
+
+	/**
+	 * similar to {@link Collectors#toMap(Function, Function)} but: <br/>
+	 * - this creates a LinkedHashMap, not HashMap <br/>
+	 * - in case of duplicate mappings, old value is overwritten with new value.
+	 */
+	public static <T,K,U> Collector<T,?,Map<K,U>> toMap(Function<? super T,? extends K> keyMapper,
+			Function<? super T,? extends U> valueMapper){
+		BinaryOperator<U> lastValueFavoringMerger = (oldValue, newValue) -> newValue;
+		return Collectors.toMap(keyMapper, valueMapper, lastValueFavoringMerger, LinkedHashMap::new);
 	}
 
 	/***************** tests ***************************/
@@ -131,14 +173,40 @@ public class DrMapTool{
 		}
 
 		@Test
-		public void testGetBy(){
-			List<String> strings = Arrays.asList("bb", "aa", "cc", "dd", "ee", "ff");
-			Map<Integer,String> stringByHashCode = getBy(strings, String::hashCode);
-			Assert.assertEquals(size(stringByHashCode), strings.size());
-			strings.forEach(string -> Assert.assertTrue(stringByHashCode.containsValue(string)));
-			Assert.assertEquals(stringByHashCode.values(), strings);
+		public void testGetByKeyMapper(){
+			List<String> strings = Arrays.asList("aaa", "b", "ca", "eeee", "ca");
+			AtomicLong counterA = new AtomicLong(0);
+			Function<String,String> valueMapper = str -> {
+				if(str.contains("a")){
+					return counterA.incrementAndGet() + "a";
+				}
+				if(str.contains("b")){
+					return "b";
+				}
+				return str;
+			};
+			Map<Integer,String> containsByLength = DrMapTool.getBy(strings, String::length, valueMapper);
+			Assert.assertEquals(containsByLength.keySet(), Arrays.asList(3, 1, 2, 4));
+			Assert.assertEquals(containsByLength.values(), Arrays.asList("1a", "b", "3a", "eeee"));
 		}
 
+		@Test
+		public void testGetByNullableKeyValueMapper(){
+			List<String> strings = Arrays.asList("aaa", "b", "ca", "eeee", "ca");
+			AtomicLong counterA = new AtomicLong(0);
+			Function<String,String> valueMapper = str -> {
+				if(str.contains("a")){
+					return counterA.incrementAndGet() + "a";
+				}
+				if(str.contains("b")){
+					return "b";
+				}
+				return null;
+			};
+			Map<Integer,String> containsByLength = DrMapTool.getByNullable(strings, String::length, valueMapper);
+			Assert.assertEquals(containsByLength.keySet(), Arrays.asList(3, 1, 2, 4));
+			Assert.assertEquals(containsByLength.values(), Arrays.asList("1a", "b", "3a", null));
+		}
 	}
 
 }

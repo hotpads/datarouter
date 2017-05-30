@@ -57,6 +57,17 @@ public class StreamTool{
 		return StreamSupport.stream(new BatchingSpliterator<>(stream.spliterator(), batchSize), false);
 	}
 
+	/**
+	 * For filtering by and mapping stream to stream of a subtype. Example:
+	 * <pre>animals.stream()
+	 *		.flatMap(StreamTool.instancesOf(Cat.class))
+	 *		.forEach(Cat::meow);
+	 * </pre>
+	 */
+    public static <E> Function<Object, Stream<E>> instancesOf(Class<E> clazz){
+		return obj -> clazz.isInstance(obj) ? Stream.of(clazz.cast(obj)) : Stream.empty();
+    }
+
 	private static class BatchingSpliterator<T> extends AbstractSpliterator<List<T>>{
 
 		private final int batchSize;
@@ -139,6 +150,15 @@ public class StreamTool{
 			Assert.assertEquals(batched, expected);
 		}
 
+		@Test
+		public void testInstancesOf(){
+			List<CharSequence> charSequences = Arrays.asList(new StringBuilder("a"), "b", "c", new StringBuilder("d"));
+			List<String> strings = charSequences.stream()
+					.flatMap(StreamTool.instancesOf(String.class))
+					.collect(Collectors.toList());
+			List<String> expected = Arrays.asList("b", "c");
+			Assert.assertEquals(strings, expected);
+		}
 	}
 
 }
