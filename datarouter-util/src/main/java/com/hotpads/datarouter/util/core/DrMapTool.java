@@ -124,7 +124,7 @@ public class DrMapTool{
 	}
 
 	/**
-	 * Transforms values into a map with keys and values produced by keyMapper and valueMapper. Exammple:
+	 * Transforms values into a map with keys and values produced by keyMapper and valueMapper. Example:
 	 * <pre>getBy(employees, ssnGetter, phoneGetter) -> Map&lt;SSN, Phone&gt;</pre>
 	 */
 	public static <T,K,V> Map<K,V> getBy(Iterable<T> elements, Function<T,K> keyMapper, Function<T,V> valueMapper){
