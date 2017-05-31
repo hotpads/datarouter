@@ -65,16 +65,16 @@ public class JdbcConnectionPool{
 
 		String urlWithParams = url + "?" + Joiner.on("&").join(urlParams);
 		try{
-			String mysqlUrl;
+			String jdbcUrl;
 			if(logging){
-				// log4mysql - see http://code.google.com/p/log4mysql/
+				// log4jdbc - see http://code.google.com/p/log4jdbc/
 				this.pool.setDriverClass(DriverSpy.class.getName());
-				mysqlUrl = "mysql:log4mysql:mysql://" + urlWithParams;
+				jdbcUrl = "jdbc:log4jdbc:mysql://" + urlWithParams;
 			}else{
-				mysqlUrl = "mysql:mysql://" + urlWithParams;
+				jdbcUrl = "jdbc:mysql://" + urlWithParams;
 				this.pool.setDriverClass(Driver.class.getName());
 			}
-			this.pool.setJdbcUrl(mysqlUrl);
+			this.pool.setJdbcUrl(jdbcUrl);
 		}catch(PropertyVetoException pve){
 			throw new RuntimeException(pve);
 		}
@@ -140,8 +140,8 @@ public class JdbcConnectionPool{
 
 	<bean id="dataSourcePoolSales"
 		class="com.mchange.v2.c3p0.ComboPooledDataSource">
-		<property name="driverClass"><value>com.mysql.mysql.Driver</value></property>
-		<property name="mysqlUrl"><ref local="dataSourceSalesUrl"/></property>
+		<property name="driverClass"><value>com.mysql.jdbc.Driver</value></property>
+		<property name="jdbcUrl"><ref local="dataSourceSalesUrl"/></property>
 		<property name="user"><ref local="dataSourceSalesUser"/></property>
 		<property name="password"><ref local="dataSourceSalesPassword"/></property>
 		<property name="minPoolSize"><value>1</value></property>
