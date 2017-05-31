@@ -4,9 +4,9 @@ import java.sql.Connection;
 import java.util.Collection;
 
 import com.hotpads.datarouter.client.Client;
-import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
-import com.hotpads.datarouter.client.imp.jdbc.op.BaseJdbcOp;
-import com.hotpads.datarouter.client.imp.jdbc.util.JdbcTool;
+import com.hotpads.datarouter.client.imp.mysql.field.codec.factory.JdbcFieldCodecFactory;
+import com.hotpads.datarouter.client.imp.mysql.op.BaseJdbcOp;
+import com.hotpads.datarouter.client.imp.mysql.util.JdbcTool;
 import com.hotpads.datarouter.config.Isolation;
 import com.hotpads.datarouter.op.util.ResultMergeTool;
 import com.hotpads.datarouter.routing.Datarouter;
@@ -22,19 +22,19 @@ public class GetJobletRequest extends BaseJdbcOp<JobletRequest>{
 	private final String tableName;
 	private final String reservedBy;
 	private final JobletType<?> jobletType;
-	private final JdbcFieldCodecFactory jdbcFieldCodecFactory;
+	private final JdbcFieldCodecFactory mysqlFieldCodecFactory;
 	private final JobletNodes jobletNodes;
 	private final JobletRequestSqlBuilder sqlBuilder;
 
 	public GetJobletRequest(String reservedBy, JobletType<?> jobletType,
-			Datarouter datarouter, JobletNodes jobletNodes, JdbcFieldCodecFactory jdbcFieldCodecFactory,
+			Datarouter datarouter, JobletNodes jobletNodes, JdbcFieldCodecFactory mysqlFieldCodecFactory,
 			JobletRequestSqlBuilder sqlBuilder){
 		super(datarouter, jobletNodes.jobletRequest().getMaster().getClientNames(), Isolation.repeatableRead, false);
 		this.jobletNodes = jobletNodes;
 		this.tableName = jobletNodes.jobletRequest().getMaster().getPhysicalNodeIfApplicable().getTableName();
 		this.reservedBy = reservedBy;
 		this.jobletType = jobletType;
-		this.jdbcFieldCodecFactory = jdbcFieldCodecFactory;
+		this.mysqlFieldCodecFactory = mysqlFieldCodecFactory;
 		this.sqlBuilder = sqlBuilder;
 	}
 
@@ -48,7 +48,7 @@ public class GetJobletRequest extends BaseJdbcOp<JobletRequest>{
 		Connection connection = getConnection(client.getName());
 
 		String selectSql = makeSelectSql();
-		JobletRequest jobletRequest = DrCollectionTool.getFirst(JdbcTool.selectDatabeans(jdbcFieldCodecFactory,
+		JobletRequest jobletRequest = DrCollectionTool.getFirst(JdbcTool.selectDatabeans(mysqlFieldCodecFactory,
 				connection, jobletNodes.jobletRequest().getFieldInfo(), selectSql));
 		if(jobletRequest == null){
 			return null;

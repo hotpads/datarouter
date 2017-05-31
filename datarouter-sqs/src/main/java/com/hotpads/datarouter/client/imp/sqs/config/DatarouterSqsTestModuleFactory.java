@@ -3,7 +3,7 @@ package com.hotpads.datarouter.client.imp.sqs.config;
 import java.util.List;
 
 import com.google.inject.Module;
-import com.hotpads.datarouter.client.imp.jdbc.ChildInjectorInjectionFixModule;
+import com.hotpads.datarouter.client.imp.mysql.ChildInjectorInjectionFixModule;
 import com.hotpads.datarouter.test.DatarouterStorageTestModuleFactory;
 
 public class DatarouterSqsTestModuleFactory extends DatarouterStorageTestModuleFactory{

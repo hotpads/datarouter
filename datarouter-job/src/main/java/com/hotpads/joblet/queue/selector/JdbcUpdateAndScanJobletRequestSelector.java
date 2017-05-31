@@ -40,9 +40,9 @@ public class JdbcUpdateAndScanJobletRequestSelector implements JobletRequestSele
 	@Override
 	public Optional<JobletRequest> getJobletRequestForProcessing(PhaseTimer timer, JobletType<?> type,
 			String reservedBy){
-		ReserveJobletRequest jdbcOp = new ReserveJobletRequest(reservedBy, type, datarouter, jobletNodes,
+		ReserveJobletRequest mysqlOp = new ReserveJobletRequest(reservedBy, type, datarouter, jobletNodes,
 				jobletRequestSqlBuilder);
-		while(datarouter.run(jdbcOp)){//returns false if no joblet found
+		while(datarouter.run(mysqlOp)){//returns false if no joblet found
 			JobletRequest jobletRequest = jobletRequestDao.getReservedRequest(type, reservedBy);
 			if(JobletStatus.created == jobletRequest.getStatus()){
 				jobletRequest.setStatus(JobletStatus.running);

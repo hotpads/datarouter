@@ -4,8 +4,8 @@ import java.sql.Connection;
 import java.util.Collection;
 
 import com.hotpads.datarouter.client.Client;
-import com.hotpads.datarouter.client.imp.jdbc.op.BaseJdbcOp;
-import com.hotpads.datarouter.client.imp.jdbc.util.JdbcTool;
+import com.hotpads.datarouter.client.imp.mysql.op.BaseJdbcOp;
+import com.hotpads.datarouter.client.imp.mysql.util.JdbcTool;
 import com.hotpads.datarouter.config.Isolation;
 import com.hotpads.datarouter.op.util.ResultMergeTool;
 import com.hotpads.datarouter.routing.Datarouter;

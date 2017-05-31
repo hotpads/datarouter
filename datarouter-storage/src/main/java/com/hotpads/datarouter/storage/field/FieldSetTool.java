@@ -16,7 +16,7 @@ import org.junit.Test;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
+import com.hotpads.datarouter.client.imp.mysql.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.imp.StringField;

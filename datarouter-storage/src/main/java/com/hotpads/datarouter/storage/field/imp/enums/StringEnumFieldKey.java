@@ -1,6 +1,6 @@
 package com.hotpads.datarouter.storage.field.imp.enums;
 
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
+import com.hotpads.datarouter.client.imp.mysql.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.storage.field.BaseFieldKey;
 import com.hotpads.datarouter.storage.field.encoding.FieldGeneratorType;
 import com.hotpads.util.core.enums.StringEnum;

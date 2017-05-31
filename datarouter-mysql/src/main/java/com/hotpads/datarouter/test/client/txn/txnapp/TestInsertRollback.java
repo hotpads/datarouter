@@ -5,7 +5,7 @@ import java.util.List;
 import org.junit.Assert;
 
 import com.hotpads.datarouter.client.Client;
-import com.hotpads.datarouter.client.imp.jdbc.op.BaseJdbcOp;
+import com.hotpads.datarouter.client.imp.mysql.op.BaseJdbcOp;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.config.Isolation;
 import com.hotpads.datarouter.config.PutMethod;

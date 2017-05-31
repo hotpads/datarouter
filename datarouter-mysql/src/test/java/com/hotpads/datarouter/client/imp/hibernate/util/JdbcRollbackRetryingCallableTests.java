@@ -8,10 +8,10 @@ import com.hotpads.datarouter.op.executor.impl.SessionExecutorImpl;
 public class JdbcRollbackRetryingCallableTests{
 	@Test
 	public void testDeadlockExceptionNames(){
-		//jdbc package
+		//mysql package
 		Assert.assertTrue(SessionExecutorImpl.ROLLED_BACK_EXCEPTION_SIMPLE_NAMES.contains(
 				com.mysql.jdbc.exceptions.MySQLTransactionRollbackException.class.getSimpleName()));
-		//jdbc4 package
+		//mysql4 package
 		Assert.assertTrue(SessionExecutorImpl.ROLLED_BACK_EXCEPTION_SIMPLE_NAMES.contains(
 				com.mysql.jdbc.exceptions.jdbc4.MySQLTransactionRollbackException.class.getSimpleName()));
 	}
