@@ -33,8 +33,7 @@ public class DatarouterAccountRouter extends BaseRouter implements DatarouterAcc
 	@Inject
 	public DatarouterAccountRouter(Datarouter datarouter, NodeFactory nodeFactory,
 			DatarouterSettings datarouterSettings, DatarouterAccountRouterParams params){
-		super(datarouter, params.configFileLocation, NAME, nodeFactory,
-				datarouterSettings);
+		super(datarouter, params.configFileLocation, NAME, nodeFactory, datarouterSettings);
 		datarouterAccount = createAndRegister(params.clientId, DatarouterAccount::new, DatarouterAccountFielder::new);
 		datarouterUserAccountMap = createAndRegister(params.clientId, DatarouterUserAccountMap::new,
 				DatarouterUserAccountMapFielder::new);

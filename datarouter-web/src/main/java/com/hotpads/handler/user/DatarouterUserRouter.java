@@ -33,15 +33,14 @@ public class DatarouterUserRouter extends BaseRouter implements DatarouterUserNo
 
 	private static final String NAME = "datarouterUser";
 
-	private final IndexedSortedMapStorageNode<DatarouterUserKey, DatarouterUser> user;
+	private final IndexedSortedMapStorageNode<DatarouterUserKey,DatarouterUser> user;
 	private final MapStorageNode<DatarouterSessionKey,DatarouterSession> session;
 	private final IndexedSortedMapStorageNode<ApiRequestKey,ApiRequest> apiRequest;
 
 	@Inject
 	public DatarouterUserRouter(Datarouter datarouter, NodeFactory nodeFactory, DatarouterSettings datarouterSettings,
 			DatarouterUserRouterParams params){
-		super(datarouter, params.configFileLocation, NAME, nodeFactory,
-				datarouterSettings);
+		super(datarouter, params.configFileLocation, NAME, nodeFactory, datarouterSettings);
 		user = createAndRegister(params.clientId, DatarouterUser::new, DatarouterUserFielder::new);
 		session = createAndRegister(params.clientId, DatarouterSession::new, DatarouterSessionFielder::new);
 		apiRequest = createAndRegister(params.clientId, ApiRequest::new, ApiRequestFielder::new);

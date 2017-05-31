@@ -33,8 +33,7 @@ public class WebAppInstanceRouter extends BaseRouter implements WebAppInstanceNo
 	@Inject
 	public WebAppInstanceRouter(Datarouter datarouter, NodeFactory nodeFactory, DatarouterSettings datarouterSettings,
 			WebAppInstanceRouterParams params){
-		super(datarouter, params.configFileLocation, NAME, nodeFactory,
-				datarouterSettings);
+		super(datarouter, params.configFileLocation, NAME, nodeFactory, datarouterSettings);
 		webAppInstance = createAndRegister(params.clientId, WebAppInstance::new, WebAppInstanceFielder::new);
 	}
 

@@ -33,8 +33,7 @@ public class ClusterSettingRouter extends BaseRouter implements ClusterSettingNo
 	@Inject
 	public ClusterSettingRouter(Datarouter datarouter, SettinglessNodeFactory settinglessNodeFactory,
 			ClusterSettingRouterParams params){
-		super(datarouter, params.configFileLocation, NAME,
-				settinglessNodeFactory, new NoDbDatarouterSettings());
+		super(datarouter, params.configFileLocation, NAME, settinglessNodeFactory, new NoDbDatarouterSettings());
 		clusterSetting = createAndRegister(params.clientId, ClusterSetting::new, ClusterSettingFielder::new);
 		clusterSettingLog = createAndRegister(params.clientId, ClusterSettingLog::new, ClusterSettingLogFielder::new);
 	}
