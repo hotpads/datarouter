@@ -1,7 +1,13 @@
 package com.hotpads.handler.user.authenticate.authenticator.impl;
 
+import java.util.AbstractMap;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -31,10 +37,23 @@ import com.hotpads.util.http.response.exception.HotPadsHttpRuntimeException;
 public class DatarouterOktaWidgetAuthenticator extends BaseDatarouterAuthenticator{
 	private static final Logger logger = LoggerFactory.getLogger(DatarouterOktaWidgetAuthenticator.class);
 
+	private static final Entry<String, String> CACHE_HEADER = new AbstractMap.SimpleEntry<>(
+			"Cache", "no-cache, no-store");
+	private static final Entry<String, String> CONTENT_TYPE_HEADER = new AbstractMap.SimpleEntry<>(
+			"Content-Type", "application/json");
+	private static final Entry<String, String> ACCEPT_HEADER = new AbstractMap.SimpleEntry<>(
+			"Accept", "application/json");
+
 	private static final String SESSIONS_PATH = "/api/v1/sessions/";
+	private static final String AUTH_HEADER = "Authorization";
 	private static final String API_KEY_PREFIX = "SSWS ";
+
 	private static final String P_OKTA_SESSION_ID = "okta-session-id";
 	private static final String P_OKTA_LOGIN = "okta-login";
+
+	private static final Map<String, String> COMMON_HEADERS = Collections.unmodifiableMap(Stream
+			.of(CACHE_HEADER,CONTENT_TYPE_HEADER, ACCEPT_HEADER)
+			.collect(Collectors.toMap(Entry::getKey, Entry::getValue)));
 
 	private final DatarouterAuthenticationConfig authenticationConfig;
 	private final DatarouterUserNodes userNodes;
@@ -74,8 +93,10 @@ public class DatarouterOktaWidgetAuthenticator extends BaseDatarouterAuthenticat
 	private DatarouterUser getUserByOktaSession(String oktaSessionId, String oktaLogin){
 		HotPadsHttpRequest oktaRequest = new HotPadsHttpRequest(HttpRequestMethod.GET, oktaSettings.orgUrl
 				.getValue() + SESSIONS_PATH + oktaSessionId, false);
-		oktaRequest.addHeaders(Collections.singletonMap("Authorization", API_KEY_PREFIX + oktaSettings.apiKey
-				.getValue()));
+		Map<String, String> headers = new HashMap<>(COMMON_HEADERS);
+		headers.put(AUTH_HEADER, API_KEY_PREFIX + oktaSettings.apiKey.getValue());
+		oktaRequest.addHeaders(headers);
+		debugRequest(oktaRequest);
 
 		try{
 			OktaSessionResponse oktaResponse = httpClient.execute(oktaRequest, OktaSessionResponse.class);
@@ -86,6 +107,27 @@ public class DatarouterOktaWidgetAuthenticator extends BaseDatarouterAuthenticat
 			logger.error("Failed to authenticate with Okta", e);
 			throw new InvalidCredentialsException("Failed to authenticate with Okta");
 		}
+	}
+
+	private void debugRequest(HotPadsHttpRequest oktaRequest){
+		Map<String, String> headers = new HashMap<>(oktaRequest.getHeaders());
+		for(String key : headers.keySet()){
+			if(AUTH_HEADER.equals(key)){
+				String value = headers.get(key);
+				String censored = value.substring(0, API_KEY_PREFIX.length() + 3) + "***" + value.substring(value
+						.length() - 3);
+				headers.put(key, censored);
+			}
+		}
+		StringBuilder debugMessage = new StringBuilder()
+				.append("\nmethod: ").append(oktaRequest.getMethod())
+				.append("\nurl: ").append(oktaRequest.getUrl())
+				.append("\nheaders: ").append(headers.toString())
+				.append("\nget params: ").append(oktaRequest.getGetParams().toString())
+				.append("\nbody params: ").append(oktaRequest.getPostParams().toString())
+				.append("\nentity: ").append(oktaRequest.canHaveEntity() ? oktaRequest.getEntityAsString() : "none");
+
+		logger.debug(debugMessage.toString());
 	}
 
 	private DatarouterUser lookupAndValidateUser(String username, OktaSessionResponse oktaResponse){
