@@ -21,10 +21,6 @@ import com.hotpads.handler.user.session.DatarouterSessionKey;
 @Singleton
 public class DatarouterUserRouter extends BaseRouter implements DatarouterUserNodes{
 
-	public static interface DatarouterUserRouterParamsProvider{
-		DatarouterUserRouterParams getDatarouterUserRouterParams();
-	}
-
 	public static class DatarouterUserRouterParams{
 		private final String configFileLocation;
 		private final ClientId clientId;
@@ -43,10 +39,9 @@ public class DatarouterUserRouter extends BaseRouter implements DatarouterUserNo
 
 	@Inject
 	public DatarouterUserRouter(Datarouter datarouter, NodeFactory nodeFactory, DatarouterSettings datarouterSettings,
-			DatarouterUserRouterParamsProvider paramsProvider){
-		super(datarouter, paramsProvider.getDatarouterUserRouterParams().configFileLocation, NAME, nodeFactory,
+			DatarouterUserRouterParams params){
+		super(datarouter, params.configFileLocation, NAME, nodeFactory,
 				datarouterSettings);
-		DatarouterUserRouterParams params = paramsProvider.getDatarouterUserRouterParams();
 		user = createAndRegister(params.clientId, DatarouterUser::new, DatarouterUserFielder::new);
 		session = createAndRegister(params.clientId, DatarouterSession::new, DatarouterSessionFielder::new);
 		apiRequest = createAndRegister(params.clientId, ApiRequest::new, ApiRequestFielder::new);

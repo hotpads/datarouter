@@ -15,10 +15,6 @@ import com.hotpads.datarouter.routing.Datarouter;
 @Singleton
 public class ClusterSettingRouter extends BaseRouter implements ClusterSettingNodes{
 
-	public static interface ClusterSettingRouterParamsProvider{
-		ClusterSettingRouterParams getClusterSettingRouterParams();
-	}
-
 	public static class ClusterSettingRouterParams{
 		private final String configFileLocation;
 		private final ClientId clientId;
@@ -36,10 +32,9 @@ public class ClusterSettingRouter extends BaseRouter implements ClusterSettingNo
 
 	@Inject
 	public ClusterSettingRouter(Datarouter datarouter, SettinglessNodeFactory settinglessNodeFactory,
-			ClusterSettingRouterParamsProvider paramsProvider){
-		super(datarouter, paramsProvider.getClusterSettingRouterParams().configFileLocation, NAME,
+			ClusterSettingRouterParams params){
+		super(datarouter, params.configFileLocation, NAME,
 				settinglessNodeFactory, new NoDbDatarouterSettings());
-		ClusterSettingRouterParams params = paramsProvider.getClusterSettingRouterParams();
 		clusterSetting = createAndRegister(params.clientId, ClusterSetting::new, ClusterSettingFielder::new);
 		clusterSettingLog = createAndRegister(params.clientId, ClusterSettingLog::new, ClusterSettingLogFielder::new);
 	}

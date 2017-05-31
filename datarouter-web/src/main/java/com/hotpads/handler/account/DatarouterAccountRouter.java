@@ -15,10 +15,6 @@ import com.hotpads.handler.account.DatarouterUserAccountMap.DatarouterUserAccoun
 @Singleton
 public class DatarouterAccountRouter extends BaseRouter implements DatarouterAccountNodes{
 
-	public static interface DatarouterAccountRouterParamsProvider{
-		DatarouterAccountRouterParams getDatarouterAccountRouterParams();
-	}
-
 	public static class DatarouterAccountRouterParams{
 		private final String configFileLocation;
 		private final ClientId clientId;
@@ -36,10 +32,9 @@ public class DatarouterAccountRouter extends BaseRouter implements DatarouterAcc
 
 	@Inject
 	public DatarouterAccountRouter(Datarouter datarouter, NodeFactory nodeFactory,
-			DatarouterSettings datarouterSettings, DatarouterAccountRouterParamsProvider paramsProvider){
-		super(datarouter, paramsProvider.getDatarouterAccountRouterParams().configFileLocation, NAME, nodeFactory,
+			DatarouterSettings datarouterSettings, DatarouterAccountRouterParams params){
+		super(datarouter, params.configFileLocation, NAME, nodeFactory,
 				datarouterSettings);
-		DatarouterAccountRouterParams params = paramsProvider.getDatarouterAccountRouterParams();
 		datarouterAccount = createAndRegister(params.clientId, DatarouterAccount::new, DatarouterAccountFielder::new);
 		datarouterUserAccountMap = createAndRegister(params.clientId, DatarouterUserAccountMap::new,
 				DatarouterUserAccountMapFielder::new);

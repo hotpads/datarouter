@@ -16,10 +16,6 @@ import com.hotpads.webappinstance.databean.WebAppInstanceKey;
 @Singleton
 public class WebAppInstanceRouter extends BaseRouter implements WebAppInstanceNodes{
 
-	public static interface WebAppInstanceRouterParamsProvider{
-		WebAppInstanceRouterParams getWebAppInstanceRouterParams();
-	}
-
 	public static class WebAppInstanceRouterParams{
 		private final String configFileLocation;
 		private final ClientId clientId;
@@ -36,10 +32,9 @@ public class WebAppInstanceRouter extends BaseRouter implements WebAppInstanceNo
 
 	@Inject
 	public WebAppInstanceRouter(Datarouter datarouter, NodeFactory nodeFactory, DatarouterSettings datarouterSettings,
-			WebAppInstanceRouterParamsProvider paramsProvider){
-		super(datarouter, paramsProvider.getWebAppInstanceRouterParams().configFileLocation, NAME, nodeFactory,
+			WebAppInstanceRouterParams params){
+		super(datarouter, params.configFileLocation, NAME, nodeFactory,
 				datarouterSettings);
-		WebAppInstanceRouterParams params = paramsProvider.getWebAppInstanceRouterParams();
 		webAppInstance = createAndRegister(params.clientId, WebAppInstance::new, WebAppInstanceFielder::new);
 	}
 
