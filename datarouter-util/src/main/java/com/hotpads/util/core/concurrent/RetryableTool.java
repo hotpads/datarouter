@@ -12,7 +12,7 @@ public class RetryableTool{
 	public static <T> T tryNTimesWithBackoffUnchecked(Retryable<T> callable, final int numAttempts,
 			final long initialBackoffMs){
 		long backoffMs = initialBackoffMs;
-		for(int attemptNum = 1; attemptNum <= numAttempts; ++attemptNum){
+		for(int attemptNum = 1; attemptNum <= numAttempts && !Thread.interrupted(); ++attemptNum){
 			try{
 				return callable.call();
 			}catch(Exception e){
