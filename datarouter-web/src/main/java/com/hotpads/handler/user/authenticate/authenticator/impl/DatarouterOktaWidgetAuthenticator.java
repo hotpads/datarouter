@@ -51,12 +51,9 @@ public class DatarouterOktaWidgetAuthenticator extends BaseDatarouterAuthenticat
 	private static final String P_OKTA_SESSION_ID = "okta-session-id";
 	private static final String P_OKTA_LOGIN = "okta-login";
 
-	private static final Map<String, String> COMMON_HEADERS;
-	static{
-		COMMON_HEADERS = Collections.unmodifiableMap(Stream.of(CACHE_HEADER, CONTENT_TYPE_HEADER, ACCEPT_HEADER)
-				.collect(Collectors.toMap(Entry::getKey, Entry::getValue)));
-
-	}
+	private static final Map<String, String> COMMON_HEADERS = Collections.unmodifiableMap(Stream
+			.of(CACHE_HEADER,CONTENT_TYPE_HEADER, ACCEPT_HEADER)
+			.collect(Collectors.toMap(Entry::getKey, Entry::getValue)));
 
 	private final DatarouterAuthenticationConfig authenticationConfig;
 	private final DatarouterUserNodes userNodes;
