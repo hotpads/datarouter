@@ -59,7 +59,7 @@ public class JdbcClientType extends BaseClientType{
 
 	@Override
 	public String getName(){
-		return DefaultClientTypes.CLIENT_TYPE_jdbc;
+		return DefaultClientTypes.CLIENT_TYPE_mysql;
 	}
 
 	@Override
@@ -106,8 +106,8 @@ public class JdbcClientType extends BaseClientType{
 		@Test
 		public void testClassLocation(){
 			String actualClassName = JdbcClientType.class.getCanonicalName();
-			Assert.assertEquals(DefaultClientTypes.CLIENT_CLASS_jdbc, actualClassName);
-			injector.getInstance(ClassTool.forName(DefaultClientTypes.CLIENT_CLASS_jdbc));
+			Assert.assertEquals(DefaultClientTypes.CLIENT_CLASS_mysql, actualClassName);
+			injector.getInstance(ClassTool.forName(DefaultClientTypes.CLIENT_CLASS_mysql));
 		}
 	}
 

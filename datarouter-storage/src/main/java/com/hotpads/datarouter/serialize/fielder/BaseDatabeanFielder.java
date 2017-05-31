@@ -7,9 +7,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
 
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSet;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCollation;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlRowFormat;
+import com.hotpads.datarouter.client.imp.mysql.ddl.domain.MySqlCharacterSet;
+import com.hotpads.datarouter.client.imp.mysql.ddl.domain.MySqlCollation;
+import com.hotpads.datarouter.client.imp.mysql.ddl.domain.MySqlRowFormat;
 import com.hotpads.datarouter.serialize.StringDatabeanCodec;
 import com.hotpads.datarouter.serialize.codec.JsonDatabeanCodec;
 import com.hotpads.datarouter.storage.databean.Databean;

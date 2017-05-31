@@ -30,7 +30,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
+import com.hotpads.datarouter.client.imp.mysql.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;

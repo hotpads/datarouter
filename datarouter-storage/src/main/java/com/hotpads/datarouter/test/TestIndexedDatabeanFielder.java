@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
+import com.hotpads.datarouter.client.imp.mysql.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.key.multi.BaseLookup;

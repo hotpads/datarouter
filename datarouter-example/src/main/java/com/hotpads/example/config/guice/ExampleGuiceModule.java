@@ -1,8 +1,8 @@
 package com.hotpads.example.config.guice;
 
 import com.google.inject.AbstractModule;
-import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
-import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.StandardJdbcFieldCodecFactory;
+import com.hotpads.datarouter.client.imp.mysql.field.codec.factory.JdbcFieldCodecFactory;
+import com.hotpads.datarouter.client.imp.mysql.field.codec.factory.StandardJdbcFieldCodecFactory;
 import com.hotpads.datarouter.config.DatarouterProperties;
 import com.hotpads.datarouter.setting.ServerType;
 import com.hotpads.datarouter.setting.SettingFinder;

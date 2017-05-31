@@ -8,7 +8,7 @@ import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.LazyClientProvider;
 import com.hotpads.datarouter.client.RouterOptions;
-import com.hotpads.datarouter.client.imp.jdbc.node.index.TxnManagedUniqueIndexNode;
+import com.hotpads.datarouter.client.imp.mysql.node.index.TxnManagedUniqueIndexNode;
 import com.hotpads.datarouter.config.DatarouterSettings;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams;

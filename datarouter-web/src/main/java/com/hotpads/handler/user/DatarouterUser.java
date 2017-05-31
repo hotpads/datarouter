@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
+import com.hotpads.datarouter.client.imp.mysql.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;

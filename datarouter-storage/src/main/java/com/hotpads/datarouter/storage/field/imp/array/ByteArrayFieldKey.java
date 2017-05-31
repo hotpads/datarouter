@@ -1,6 +1,6 @@
 package com.hotpads.datarouter.storage.field.imp.array;
 
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
+import com.hotpads.datarouter.client.imp.mysql.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.storage.field.BaseFieldKey;
 import com.hotpads.datarouter.storage.field.encoding.FieldGeneratorType;
 

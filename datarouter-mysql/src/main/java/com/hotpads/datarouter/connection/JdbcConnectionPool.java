@@ -11,9 +11,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Joiner;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSet;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCollation;
-import com.hotpads.datarouter.client.imp.jdbc.factory.JdbcOptions;
+import com.hotpads.datarouter.client.imp.mysql.ddl.domain.MySqlCharacterSet;
+import com.hotpads.datarouter.client.imp.mysql.ddl.domain.MySqlCollation;
+import com.hotpads.datarouter.client.imp.mysql.factory.JdbcOptions;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 import com.mchange.v2.c3p0.DataSources;
@@ -65,16 +65,16 @@ public class JdbcConnectionPool{
 
 		String urlWithParams = url + "?" + Joiner.on("&").join(urlParams);
 		try{
-			String jdbcUrl;
+			String mysqlUrl;
 			if(logging){
-				// log4jdbc - see http://code.google.com/p/log4jdbc/
+				// log4mysql - see http://code.google.com/p/log4mysql/
 				this.pool.setDriverClass(DriverSpy.class.getName());
-				jdbcUrl = "jdbc:log4jdbc:mysql://" + urlWithParams;
+				mysqlUrl = "mysql:log4mysql:mysql://" + urlWithParams;
 			}else{
-				jdbcUrl = "jdbc:mysql://" + urlWithParams;
+				mysqlUrl = "mysql:mysql://" + urlWithParams;
 				this.pool.setDriverClass(Driver.class.getName());
 			}
-			this.pool.setJdbcUrl(jdbcUrl);
+			this.pool.setJdbcUrl(mysqlUrl);
 		}catch(PropertyVetoException pve){
 			throw new RuntimeException(pve);
 		}
@@ -140,8 +140,8 @@ public class JdbcConnectionPool{
 
 	<bean id="dataSourcePoolSales"
 		class="com.mchange.v2.c3p0.ComboPooledDataSource">
-		<property name="driverClass"><value>com.mysql.jdbc.Driver</value></property>
-		<property name="jdbcUrl"><ref local="dataSourceSalesUrl"/></property>
+		<property name="driverClass"><value>com.mysql.mysql.Driver</value></property>
+		<property name="mysqlUrl"><ref local="dataSourceSalesUrl"/></property>
 		<property name="user"><ref local="dataSourceSalesUser"/></property>
 		<property name="password"><ref local="dataSourceSalesPassword"/></property>
 		<property name="minPoolSize"><value>1</value></property>

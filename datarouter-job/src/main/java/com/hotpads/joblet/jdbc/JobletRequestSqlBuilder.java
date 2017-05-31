@@ -3,8 +3,8 @@ package com.hotpads.joblet.jdbc;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
-import com.hotpads.datarouter.client.imp.jdbc.util.SqlBuilder;
+import com.hotpads.datarouter.client.imp.mysql.field.codec.factory.JdbcFieldCodecFactory;
+import com.hotpads.datarouter.client.imp.mysql.util.SqlBuilder;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.comparable.BooleanField;
 import com.hotpads.datarouter.storage.field.imp.comparable.IntegerField;
@@ -29,7 +29,7 @@ public class JobletRequestSqlBuilder{
 	@Inject
 	private JobletNodes jobletNodes;
 	@Inject
-	private JdbcFieldCodecFactory jdbcFieldCodecFactory;
+	private JdbcFieldCodecFactory mysqlFieldCodecFactory;
 
 
 	//select for GetJobletRequest
@@ -42,7 +42,7 @@ public class JobletRequestSqlBuilder{
 	//update for ReserveJobletRequest
 	public String makeUpdateClause(String tableName, String reservedBy){
 		StringField reservedByField = new StringField(JobletRequest.FieldKeys.reservedBy, reservedBy);
-		String reservedByClause = jdbcFieldCodecFactory.createCodec(reservedByField).getSqlNameValuePairEscaped();
+		String reservedByClause = mysqlFieldCodecFactory.createCodec(reservedByField).getSqlNameValuePairEscaped();
 		return "update " + tableName + " set " + reservedByClause;
 	}
 
@@ -60,7 +60,7 @@ public class JobletRequestSqlBuilder{
 	private String makeTypeClause(JobletType<?> jobletType){
 		IntegerField typeCodeField = new IntegerField(JobletRequestKey.FieldKeys.typeCode,
 				jobletType.getPersistentInt());
-		return jdbcFieldCodecFactory.createCodec(typeCodeField).getSqlNameValuePairEscaped();
+		return mysqlFieldCodecFactory.createCodec(typeCodeField).getSqlNameValuePairEscaped();
 	}
 
 	private String makeStatusClause(){
@@ -68,13 +68,13 @@ public class JobletRequestSqlBuilder{
 	}
 
 	private String makeStatusCreatedClause(){
-		return jdbcFieldCodecFactory.createCodec(STATUS_CREATED_FIELD).getSqlNameValuePairEscaped();
+		return mysqlFieldCodecFactory.createCodec(STATUS_CREATED_FIELD).getSqlNameValuePairEscaped();
 	}
 
 	private String makeStatusTimedOutClause(){
-		return "(" + jdbcFieldCodecFactory.createCodec(STATUS_RUNNING_FIELD).getSqlNameValuePairEscaped() + " and "
+		return "(" + mysqlFieldCodecFactory.createCodec(STATUS_RUNNING_FIELD).getSqlNameValuePairEscaped() + " and "
 				+ JobletRequest.FieldKeys.reservedAt.getColumnName() + " < " + computeReservedBeforeMs() + " and "
-				+ jdbcFieldCodecFactory.createCodec(RESTARTABLE_FIELD).getSqlNameValuePairEscaped() + ")";
+				+ mysqlFieldCodecFactory.createCodec(RESTARTABLE_FIELD).getSqlNameValuePairEscaped() + ")";
 	}
 
 	private Long computeReservedBeforeMs(){

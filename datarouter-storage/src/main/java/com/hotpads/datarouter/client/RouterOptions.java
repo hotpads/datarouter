@@ -13,7 +13,7 @@ import com.hotpads.util.core.properties.TypedProperties;
 public class RouterOptions extends TypedProperties{
 
 	private static final boolean REQUIRE_CLIENT_TYPE = false;
-	private static final String DEFAULT_CLIENT_TYPE_NAME = DefaultClientTypes.CLIENT_TYPE_jdbc;
+	private static final String DEFAULT_CLIENT_TYPE_NAME = DefaultClientTypes.CLIENT_TYPE_mysql;
 
 	public RouterOptions(Collection<Properties> propertiesList){
 		super(propertiesList);

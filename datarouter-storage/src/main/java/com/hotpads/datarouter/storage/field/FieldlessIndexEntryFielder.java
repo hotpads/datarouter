@@ -3,9 +3,9 @@ package com.hotpads.datarouter.storage.field;
 import java.util.Collections;
 import java.util.List;
 
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSet;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSetCollationOpt;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCollation;
+import com.hotpads.datarouter.client.imp.mysql.ddl.domain.MySqlCharacterSet;
+import com.hotpads.datarouter.client.imp.mysql.ddl.domain.MySqlCharacterSetCollationOpt;
+import com.hotpads.datarouter.client.imp.mysql.ddl.domain.MySqlCollation;
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.databean.FieldlessIndexEntry;

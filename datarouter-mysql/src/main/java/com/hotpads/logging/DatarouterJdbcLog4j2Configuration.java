@@ -4,8 +4,8 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.Appender;
 import org.apache.logging.log4j.core.appender.ConsoleAppender.Target;
 
-import com.hotpads.datarouter.client.imp.jdbc.ddl.execute.DatabaseCreator;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.execute.SingleTableSchemaUpdateFactory;
+import com.hotpads.datarouter.client.imp.mysql.ddl.execute.DatabaseCreator;
+import com.hotpads.datarouter.client.imp.mysql.ddl.execute.SingleTableSchemaUpdateFactory;
 import com.hotpads.util.core.logging.HotPadsLog4j2Configuration;
 import com.hotpads.util.core.logging.Log4j2Configurator;
 

@@ -2,9 +2,9 @@ package com.hotpads.datarouter.node.factory;
 
 import java.util.function.Supplier;
 
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSetCollationOpt;
-import com.hotpads.datarouter.client.imp.jdbc.node.index.NoTxnManagedUniqueIndexNode;
-import com.hotpads.datarouter.client.imp.jdbc.node.index.TxnManagedUniqueIndexNode;
+import com.hotpads.datarouter.client.imp.mysql.ddl.domain.MySqlCharacterSetCollationOpt;
+import com.hotpads.datarouter.client.imp.mysql.node.index.NoTxnManagedUniqueIndexNode;
+import com.hotpads.datarouter.client.imp.mysql.node.index.TxnManagedUniqueIndexNode;
 import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.NodeParams.NodeParamsBuilder;
 import com.hotpads.datarouter.node.op.combo.IndexedMapStorage;

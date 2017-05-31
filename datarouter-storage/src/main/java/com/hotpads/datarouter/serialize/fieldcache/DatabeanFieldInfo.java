@@ -12,10 +12,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.ClientId;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSet;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSetCollationOpt;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCollation;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlRowFormat;
+import com.hotpads.datarouter.client.imp.mysql.ddl.domain.MySqlCharacterSet;
+import com.hotpads.datarouter.client.imp.mysql.ddl.domain.MySqlCharacterSetCollationOpt;
+import com.hotpads.datarouter.client.imp.mysql.ddl.domain.MySqlCollation;
+import com.hotpads.datarouter.client.imp.mysql.ddl.domain.MySqlRowFormat;
 import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.serialize.fielder.PrimaryKeyFielder;

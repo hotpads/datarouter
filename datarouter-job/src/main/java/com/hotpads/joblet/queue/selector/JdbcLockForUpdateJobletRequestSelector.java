@@ -5,7 +5,7 @@ import java.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import com.hotpads.datarouter.client.imp.jdbc.field.codec.factory.JdbcFieldCodecFactory;
+import com.hotpads.datarouter.client.imp.mysql.field.codec.factory.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.joblet.JobletCounters;
 import com.hotpads.joblet.JobletNodes;
@@ -26,7 +26,7 @@ public class JdbcLockForUpdateJobletRequestSelector implements JobletRequestSele
 	@Inject
 	private JobletNodes jobletNodes;
 	@Inject
-	private JdbcFieldCodecFactory jdbcFieldCodecFactory;
+	private JdbcFieldCodecFactory mysqlFieldCodecFactory;
 	@Inject
 	private JobletRequestSqlBuilder jobletRequestSqlBuilder;
 	@Inject
@@ -39,9 +39,9 @@ public class JdbcLockForUpdateJobletRequestSelector implements JobletRequestSele
 	public Optional<JobletRequest> getJobletRequestForProcessing(PhaseTimer timer, JobletType<?> type,
 			String reservedBy){
 		while(true){
-			GetJobletRequest jdbcOp = new GetJobletRequest(reservedBy, type, datarouter, jobletNodes,
-					jdbcFieldCodecFactory, jobletRequestSqlBuilder);
-			JobletRequest jobletRequest = datarouter.run(jdbcOp);
+			GetJobletRequest mysqlOp = new GetJobletRequest(reservedBy, type, datarouter, jobletNodes,
+					mysqlFieldCodecFactory, jobletRequestSqlBuilder);
+			JobletRequest jobletRequest = datarouter.run(mysqlOp);
 			timer.add("GetJobletRequest");
 			if(jobletRequest == null){
 				jobletRequestQueueManager.onJobletRequestMissForAllPriorities(type);//for back-off

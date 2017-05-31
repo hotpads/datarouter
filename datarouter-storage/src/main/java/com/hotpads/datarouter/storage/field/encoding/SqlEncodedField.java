@@ -3,7 +3,7 @@ package com.hotpads.datarouter.storage.field.encoding;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
+import com.hotpads.datarouter.client.imp.mysql.ddl.domain.SqlColumn;
 
 public interface SqlEncodedField<T>{
 

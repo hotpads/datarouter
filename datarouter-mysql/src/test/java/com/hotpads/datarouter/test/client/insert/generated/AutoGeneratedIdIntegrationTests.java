@@ -18,7 +18,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
-import com.hotpads.datarouter.client.imp.jdbc.TestDatarouterJdbcModuleFactory;
+import com.hotpads.datarouter.client.imp.mysql.TestDatarouterJdbcModuleFactory;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage;
 import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.test.client.insert.generated.managed.PutOpIdGeneratedManagedTestBean;
