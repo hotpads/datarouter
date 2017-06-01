@@ -3,17 +3,17 @@ package com.hotpads.datarouter.client;
 import java.util.Collection;
 import java.util.Properties;
 
-import com.google.common.base.Preconditions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.hotpads.datarouter.routing.BaseRouter;
-import com.hotpads.datarouter.util.core.DrObjectTool;
-import com.hotpads.datarouter.util.core.DrStringTool;
-import com.hotpads.util.core.lang.ClassTool;
 import com.hotpads.util.core.properties.TypedProperties;
 
 public class RouterOptions extends TypedProperties{
+	private static final Logger logger = LoggerFactory.getLogger(RouterOptions.class);
 
-	private static final boolean REQUIRE_CLIENT_TYPE = false;
-	private static final String DEFAULT_CLIENT_TYPE_NAME = DefaultClientTypes.CLIENT_TYPE_mysql;
+	//TODO change all configuration files to specify a client type and remove the default
+	private static final String DEFAULT_CLIENT_TYPE = "jdbc";
 
 	public RouterOptions(Collection<Properties> propertiesList){
 		super(propertiesList);
@@ -41,20 +41,14 @@ public class RouterOptions extends TypedProperties{
 
 	/***************** actual variables *********************************/
 
-	public Class<? extends ClientType> getClientType(String clientName){
+	public String getClientType(String clientName){
 		String typeNameKey = prependClientPrefix(clientName, "type");
 		String typeName = getString(typeNameKey);
-		if(REQUIRE_CLIENT_TYPE){
-			Preconditions.checkState(DrStringTool.notEmpty(typeName), "no value found for " + typeNameKey);
-		}else{
-			if(DrStringTool.isEmpty(typeName)){
-				typeName = DEFAULT_CLIENT_TYPE_NAME;
-			}
+		if(typeName != null){
+			return typeName;
 		}
-		String typeClassNameKey = "clientType." + typeName;
-		String defaultClassNameForType = DefaultClientTypes.CLASS_BY_NAME.get(typeName);
-		String typeClassName = DrObjectTool.nullSafe(getString(typeClassNameKey), defaultClassNameForType);
-		return ClassTool.forName(typeClassName).asSubclass(ClientType.class);
+		logger.error("Client {} does not have a client type in its configuration file", clientName);
+		return DEFAULT_CLIENT_TYPE;
 	}
 
 	public String getMode(String routerName){

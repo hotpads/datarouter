@@ -11,19 +11,19 @@ import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
 import com.hotpads.datarouter.client.ClientFactory;
-import com.hotpads.datarouter.client.DefaultClientTypes;
+import com.hotpads.datarouter.client.ClientTypeRegistry;
 import com.hotpads.datarouter.client.availability.ClientAvailabilitySettings;
 import com.hotpads.datarouter.client.bigtable.client.BigTableClientFactory;
 import com.hotpads.datarouter.client.imp.hbase.BaseHBaseClientType;
 import com.hotpads.datarouter.config.DatarouterProperties;
-import com.hotpads.datarouter.inject.DatarouterInjector;
 import com.hotpads.datarouter.inject.guice.executor.DatarouterExecutorGuiceModule;
 import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.test.DatarouterStorageTestModuleFactory;
-import com.hotpads.util.core.lang.ClassTool;
 
 @Singleton
 public class BigTableClientType extends BaseHBaseClientType{
+
+	private static final String NAME = "bigtable";
 
 	private final ClientAvailabilitySettings clientAvailabilitySettings;
 	private final ExecutorService executor;
@@ -37,7 +37,7 @@ public class BigTableClientType extends BaseHBaseClientType{
 
 	@Override
 	public String getName(){
-		return DefaultClientTypes.CLIENT_TYPE_bigtable;
+		return NAME;
 	}
 
 	@Override
@@ -52,13 +52,11 @@ public class BigTableClientType extends BaseHBaseClientType{
 	@Guice(moduleFactory = DatarouterStorageTestModuleFactory.class)
 	public static class BigTableClientTypeTests{
 		@Inject
-		private DatarouterInjector injector;
+		private ClientTypeRegistry clientTypeRegistry;
 
 		@Test
 		public void testClassLocation(){
-			String actualClassName = BigTableClientType.class.getCanonicalName();
-			Assert.assertEquals(DefaultClientTypes.CLIENT_CLASS_bigtable, actualClassName);
-			injector.getInstance(ClassTool.forName(DefaultClientTypes.CLIENT_CLASS_bigtable));
+			Assert.assertEquals(clientTypeRegistry.create(NAME).getClass(), BigTableClientType.class);
 		}
 	}
 }

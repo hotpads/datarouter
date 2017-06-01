@@ -25,7 +25,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.config.DatarouterProperties;
-import com.hotpads.datarouter.inject.DatarouterInjector;
 import com.hotpads.datarouter.inject.guice.executor.DatarouterExecutorGuiceModule;
 import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.util.core.DrPropertiesTool;
@@ -51,23 +50,23 @@ public class DatarouterClients{
 		PARAM_initMode = ".initMode";
 
 	//injected
-	private final DatarouterInjector injector;
+	private final ClientTypeRegistry clientTypeRegistry;
+	private final ExecutorService executorService;
 
 	//not injected
 	private final Set<String> configFilePaths;
 	private final Collection<Properties> multiProperties;
 	private final Map<String,ClientId> clientIdByClientName;
 	private final Map<String,LazyClientProvider> lazyClientProviderByName;
-	private final ExecutorService executorService;
 
 	private RouterOptions routerOptions;
 
 	/******************************* constructors **********************************/
 
 	@Inject
-	public DatarouterClients(DatarouterInjector injector,
+	public DatarouterClients(ClientTypeRegistry clientTypeRegistry,
 			@Named(DatarouterExecutorGuiceModule.POOL_datarouterExecutor) ExecutorService executorService){
-		this.injector = injector;
+		this.clientTypeRegistry = clientTypeRegistry;
 		this.executorService = executorService;
 		this.configFilePaths = new TreeSet<>();
 		this.multiProperties = new ArrayList<>();
@@ -99,8 +98,7 @@ public class DatarouterClients{
 	}
 
 	public ClientType getClientTypeInstance(String clientName){
-		Class<? extends ClientType> clientTypeClass = routerOptions.getClientType(clientName);
-		return injector.getInstance(clientTypeClass);
+		return clientTypeRegistry.create(routerOptions.getClientType(clientName));
 	}
 
 	private synchronized LazyClientProvider initClientFactoryIfNull(DatarouterProperties datarouterProperties,

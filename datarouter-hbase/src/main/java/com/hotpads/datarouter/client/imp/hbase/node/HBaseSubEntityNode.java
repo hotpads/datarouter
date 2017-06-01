@@ -17,7 +17,7 @@ import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.client.Table;
 import org.apache.hadoop.hbase.filter.ColumnPrefixFilter;
 
-import com.hotpads.datarouter.client.DefaultClientTypes;
+import com.hotpads.datarouter.client.imp.hbase.HBaseClientType;
 import com.hotpads.datarouter.client.imp.hbase.client.HBaseClient;
 import com.hotpads.datarouter.client.imp.hbase.node.callback.CountingBatchCallback;
 import com.hotpads.datarouter.client.imp.hbase.op.write.HBaseSubEntityIncrementOp;
@@ -65,7 +65,7 @@ implements SubEntitySortedMapStorageNode<EK,PK,D,F>, PhysicalSortedMapStorageNod
 	public HBaseSubEntityNode(EntityNodeParams<EK,E> entityNodeParams, NodeParams<PK,D,F> params){
 		super(entityNodeParams, params);
 		//can't access "client" yet, so extract these strings from elsewhere
-		String clientTypeString = DefaultClientTypes.CLIENT_TYPE_hbase;//TODO pass this in
+		String clientTypeString = HBaseClientType.NAME;//TODO pass this in
 		this.putMultiCallback = new CountingBatchCallback<>(this, clientTypeString, StorageWriter.OP_putMulti);
 		this.deleteAllCallback = new CountingBatchCallback<>(this, clientTypeString, MapStorage.OP_deleteAll);
 		this.deleteMultiCallback = new CountingBatchCallback<>(this, clientTypeString, MapStorage.OP_deleteMulti);
