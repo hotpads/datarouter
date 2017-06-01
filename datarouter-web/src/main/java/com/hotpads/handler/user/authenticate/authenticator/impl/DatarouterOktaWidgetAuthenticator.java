@@ -179,7 +179,7 @@ public class DatarouterOktaWidgetAuthenticator extends BaseDatarouterAuthenticat
 		if(!userResponse.isActive()){
 			throw new InvalidCredentialsException("Okta session has inactive user");
 		}
-		if(userResponse.lastLogin == null || sessionResponse.createdAt.compareTo(userResponse.lastLogin) != 0){
+		if(userResponse.lastLogin == null || !sessionResponse.createdAt.equals(userResponse.lastLogin)){
 			throw new InvalidCredentialsException("Okta session creation and user login mismatch");
 		}
 	}
