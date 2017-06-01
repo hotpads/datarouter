@@ -1,7 +1,10 @@
 package com.hotpads.datarouter.client.imp.mysql;
 
 import java.sql.Connection;
+import java.sql.Driver;
+import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Enumeration;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -26,6 +29,7 @@ import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.datarouter.util.core.DrMapTool;
+import com.mysql.jdbc.AbandonedConnectionCleanupThread;
 
 public class JdbcClientImp extends BaseClient implements JdbcConnectionClient, TxnClient, JdbcClient{
 	private static final Logger logger = LoggerFactory.getLogger(JdbcClientImp.class);
@@ -251,6 +255,23 @@ public class JdbcClientImp extends BaseClient implements JdbcConnectionClient, T
 	public void shutdown(){
 		connectionPool.shutdown();
 		schemaUpdateService.gatherSchemaUpdates(true);
+		try{
+			AbandonedConnectionCleanupThread.shutdown();
+		}catch(InterruptedException e){
+			// logger deson't work here (already shutdown?)
+		}
+		ClassLoader cl = Thread.currentThread().getContextClassLoader();
+		for(Enumeration<Driver> drivers = DriverManager.getDrivers(); drivers.hasMoreElements();){
+			Driver driver = drivers.nextElement();
+			if(driver.getClass().getClassLoader() == cl){
+				// This driver was registered by the webapp's ClassLoader, so deregister it:
+				try{
+					DriverManager.deregisterDriver(driver);
+				}catch(SQLException ex){
+					// logger deson't work here (already shutdown?)
+				}
+			}
+		}
 	}
 
 	/************************** private *********************************/
