@@ -14,6 +14,11 @@ public class UInt31FieldKey extends PrimitiveFieldKey<Integer>{
 		super(name, columnName, nullable, Integer.class, fieldGeneratorType, defaultValue);
 	}
 
+	@Override
+	public UInt31Field createValueField(final Integer value){
+		return new UInt31Field(this, value);
+	}
+
 	/*-------------------- with -------------------------*/
 
 	public UInt31FieldKey withColumnName(String columnNameOverride){

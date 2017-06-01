@@ -59,6 +59,10 @@ public class DrNumberTool{
 
 	/*************************** parsing **************************************/
 
+	public static Double getDoubleNullSafe(String toDouble){
+		return getDoubleNullSafe(toDouble, null);
+	}
+
 	public static Double getDoubleNullSafe(String toDouble, Double alternate){
 		return getDoubleNullSafe(toDouble, alternate, false);
 	}
@@ -78,6 +82,10 @@ public class DrNumberTool{
 		}catch(NumberFormatException e){
 			return alternate;
 		}
+	}
+
+	public static Integer parseIntegerFromNumberString(String toInteger){
+		return parseIntegerFromNumberString(toInteger, null);
 	}
 
 	// e.g. For "5.3", it will return 5

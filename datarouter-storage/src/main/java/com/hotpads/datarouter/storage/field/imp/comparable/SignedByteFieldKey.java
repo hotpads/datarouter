@@ -8,4 +8,8 @@ public class SignedByteFieldKey extends PrimitiveFieldKey<Byte>{
 		super(name, Byte.class);
 	}
 
+	@Override
+	public SignedByteField createValueField(final Byte value){
+		return new SignedByteField(this, value);
+	}
 }

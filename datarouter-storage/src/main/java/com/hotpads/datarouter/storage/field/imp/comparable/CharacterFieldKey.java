@@ -8,4 +8,8 @@ public class CharacterFieldKey extends PrimitiveFieldKey<Character>{
 		super(name, Character.class);
 	}
 
+	@Override
+	public CharacterField createValueField(final Character value){
+		return new CharacterField(this, value);
+	}
 }

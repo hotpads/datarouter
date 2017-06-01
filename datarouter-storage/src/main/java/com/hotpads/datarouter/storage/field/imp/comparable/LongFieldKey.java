@@ -22,4 +22,8 @@ public class LongFieldKey extends PrimitiveFieldKey<Long>{
 		return new LongFieldKey(name, columnName, nullableOverride, fieldGeneratorType, defaultValue);
 	}
 
+	@Override
+	public LongField createValueField(final Long value){
+		return new LongField(this, value);
+	}
 }

@@ -28,6 +28,11 @@ public class UInt63FieldKey extends PrimitiveFieldKey<Long>{
 	}
 
 	@Override
+	public UInt63Field createValueField(final Long value){
+		return new UInt63Field(this, value);
+	}
+
+	@Override
 	public Long generateRandomValue(){
 		return RandomTool.nextPositiveLong();
 	}

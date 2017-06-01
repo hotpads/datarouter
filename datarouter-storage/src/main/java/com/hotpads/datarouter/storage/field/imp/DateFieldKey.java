@@ -41,4 +41,9 @@ public class DateFieldKey extends PrimitiveFieldKey<Date>{
 	public DateFieldKey withMillis(){
 		return new DateFieldKey(name, columnName, nullable, fieldGeneratorType, defaultValue, DEFAULT_DECIMAL_SECONDS);
 	}
+
+	@Override
+	public DateField createValueField(final Date value){
+		return new DateField(this, value);
+	}
 }

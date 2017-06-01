@@ -2,7 +2,6 @@ package com.hotpads.datarouter.storage.field.imp.array;
 
 import java.util.List;
 
-import com.google.common.reflect.TypeToken;
 import com.hotpads.datarouter.storage.field.BaseListField;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.util.core.DrArrayTool;
@@ -18,7 +17,7 @@ public class UInt7ArrayField extends BaseListField<Byte,List<Byte>>{
 
 	@Deprecated
 	public UInt7ArrayField(String name, List<Byte> value){
-		super(name, value, new TypeToken<List<Byte>>(){});
+		this(new UInt7ArrayFieldKey(name), value);
 	}
 
 	/*********************** StringEncodedField ******************************/

@@ -45,6 +45,10 @@ extends BaseFieldKey<E>{
 				fieldGeneratorType, sampleValue, size);
 	}
 
+	@Override
+	public StringEnumField<E> createValueField(final E value){
+		return new StringEnumField<>(this, value);
+	}
 
 	/*********************** ByteEncodedField ***********************/
 

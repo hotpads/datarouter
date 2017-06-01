@@ -8,4 +8,8 @@ public class DumbFloatFieldKey extends PrimitiveFieldKey<Float>{
 		super(name, Float.class);
 	}
 
+	@Override
+	public DumbFloatField createValueField(final Float value){
+		return new DumbFloatField(this, value);
+	}
 }

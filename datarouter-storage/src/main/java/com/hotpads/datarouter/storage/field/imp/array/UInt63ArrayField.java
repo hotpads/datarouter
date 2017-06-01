@@ -5,7 +5,6 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.google.common.reflect.TypeToken;
 import com.hotpads.datarouter.storage.field.BaseListField;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.util.core.DrArrayTool;
@@ -23,7 +22,7 @@ public class UInt63ArrayField extends BaseListField<Long,List<Long>>{
 
 	@Deprecated
 	public UInt63ArrayField(String name, List<Long> value){
-		super(name, value, new TypeToken<List<Long>>(){});
+		this(new UInt63ArrayFieldKey(name), value);
 	}
 
 	/*********************** Comparable **************************************/

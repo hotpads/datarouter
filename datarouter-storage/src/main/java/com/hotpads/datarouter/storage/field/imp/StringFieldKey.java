@@ -75,4 +75,8 @@ public class StringFieldKey extends BaseFieldKey<String>{
 		return size;
 	}
 
+	@Override
+	public StringField createValueField(final String value){
+		return new StringField(this, value);
+	}
 }

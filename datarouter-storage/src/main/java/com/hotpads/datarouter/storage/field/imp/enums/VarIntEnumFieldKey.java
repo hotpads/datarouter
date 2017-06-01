@@ -23,4 +23,8 @@ public class VarIntEnumFieldKey<E extends IntegerEnum<E>> extends BaseFieldKey<E
 		return sampleValue;
 	}
 
+	@Override
+	public VarIntEnumField<E> createValueField(final E value){
+		return new VarIntEnumField<>(this, value);
+	}
 }

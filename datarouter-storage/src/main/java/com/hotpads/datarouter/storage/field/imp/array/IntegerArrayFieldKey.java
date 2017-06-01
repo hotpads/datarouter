@@ -11,6 +11,10 @@ public class IntegerArrayFieldKey extends ListFieldKey<Integer,List<Integer>>{
 		super(name, new TypeToken<List<Integer>>(){});
 	}
 
+	@Override
+	public IntegerArrayField createValueField(final List<Integer> value){
+		return new IntegerArrayField(this, value);
+	}
 
 	/*********************** ByteEncodedField ***********************/
 

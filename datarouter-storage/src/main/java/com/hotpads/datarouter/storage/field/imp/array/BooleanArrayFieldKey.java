@@ -19,4 +19,8 @@ public class BooleanArrayFieldKey extends ListFieldKey<Boolean,List<Boolean>>{
 		return false;
 	}
 
+	@Override
+	public BooleanArrayField createValueField(final List<Boolean> value){
+		return new BooleanArrayField(this, value);
+	}
 }

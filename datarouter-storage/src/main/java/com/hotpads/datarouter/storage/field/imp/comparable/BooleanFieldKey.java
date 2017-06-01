@@ -21,4 +21,9 @@ public class BooleanFieldKey extends PrimitiveFieldKey<Boolean>{
 	public BooleanFieldKey withColumnName(String columnNameOverride){
 		return new BooleanFieldKey(name, columnNameOverride, nullable, fieldGeneratorType, defaultValue);
 	}
+
+	@Override
+	public BooleanField createValueField(final Boolean value){
+		return new BooleanField(this, value);
+	}
 }

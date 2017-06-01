@@ -21,4 +21,8 @@ public class PrimitiveIntegerArrayFieldKey extends BaseFieldKey<int[]>{
 		return true;
 	}
 
+	@Override
+	public PrimitiveIntegerArrayField createValueField(final int[] value){
+		return new PrimitiveIntegerArrayField(this, value);
+	}
 }
