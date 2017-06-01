@@ -31,7 +31,7 @@ public class JdbcTool{
 
 	public static Connection openConnection(String hostname, int port, String database, String user, String password){
 		try{
-			// - tomcat tries to register drivers to early, so re registering
+			// - tomcat tries to register drivers too early, so re registering
 			// - tests share the same classloader/JVM, at client shutdown we deregister, so need to reregister
 			DriverManager.registerDriver(new Driver());
 			String url = "jdbc:mysql://" + hostname + ":" + port + "/" + DrStringTool.nullSafe(database) + "?user="
@@ -221,17 +221,9 @@ public class JdbcTool{
 		return targetFieldSet;
 	}
 
-	public static boolean execute(JdbcConnectionPool connectionPool, String sql){
+	public static void execute(JdbcConnectionPool connectionPool, String sql){
 		try(Connection connection = connectionPool.checkOut()){
-			return connection.createStatement().execute(sql);
-		}catch(SQLException e){
-			throw new RuntimeException(sql, e);
-		}
-	}
-
-	public static ResultSet executeQuery(JdbcConnectionPool connectionPool, String sql){
-		try(Connection connection = connectionPool.checkOut()){
-			return connection.createStatement().executeQuery(sql);
+			connection.createStatement().execute(sql);
 		}catch(SQLException e){
 			throw new RuntimeException(sql, e);
 		}
