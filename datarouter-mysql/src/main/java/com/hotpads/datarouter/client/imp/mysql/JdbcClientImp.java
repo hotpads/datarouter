@@ -253,22 +253,22 @@ public class JdbcClientImp extends BaseClient implements JdbcConnectionClient, T
 
 	@Override
 	public void shutdown(){
-		connectionPool.shutdown();
 		schemaUpdateService.gatherSchemaUpdates(true);
+		connectionPool.shutdown();
 		try{
 			AbandonedConnectionCleanupThread.shutdown();
 		}catch(InterruptedException e){
-			// logger deson't work here (already shutdown?)
+			// logger doesn't work here (already shutdown?)
 		}
-		ClassLoader cl = Thread.currentThread().getContextClassLoader();
+		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 		for(Enumeration<Driver> drivers = DriverManager.getDrivers(); drivers.hasMoreElements();){
 			Driver driver = drivers.nextElement();
-			if(driver.getClass().getClassLoader() == cl){
+			if(driver.getClass().getClassLoader() == classLoader){
 				// This driver was registered by the webapp's ClassLoader, so deregister it:
 				try{
 					DriverManager.deregisterDriver(driver);
 				}catch(SQLException ex){
-					// logger deson't work here (already shutdown?)
+					// logger doesn't work here (already shutdown?)
 				}
 			}
 		}
