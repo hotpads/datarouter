@@ -14,7 +14,7 @@ import org.apache.hadoop.hbase.client.Row;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.client.Table;
 
-import com.hotpads.datarouter.client.DefaultClientTypes;
+import com.hotpads.datarouter.client.imp.hbase.HBaseClientType;
 import com.hotpads.datarouter.client.imp.hbase.client.HBaseClient;
 import com.hotpads.datarouter.client.imp.hbase.client.HBaseClientFactory;
 import com.hotpads.datarouter.client.imp.hbase.node.callback.CountingBatchCallback;
@@ -54,7 +54,7 @@ implements PhysicalSortedMapStorageNode<PK,D>, HBaseIncrement<PK>{
 	public HBaseNode(NodeParams<PK,D,F> params){
 		super(params);
 		//can't access "client" yet, so extract these strings from elsewhere
-		String clientTypeString = DefaultClientTypes.CLIENT_TYPE_hbase;//TODO pass this in
+		String clientTypeString = HBaseClientType.NAME;//TODO pass this in
 		this.putMultiCallback = new CountingBatchCallback<>(this, clientTypeString, StorageWriter.OP_putMulti);
 		this.deleteAllCallback = new CountingBatchCallback<>(this, clientTypeString, MapStorage.OP_deleteAll);
 		this.deleteMultiCallback = new CountingBatchCallback<>(this, clientTypeString, MapStorage.OP_deleteMulti);

@@ -18,7 +18,6 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
 public interface ClientType{
 
-	@Deprecated//should not reserve names
 	String getName();
 
 	ClientFactory createClientFactory(DatarouterProperties datarouterProperties, Datarouter datarouter,

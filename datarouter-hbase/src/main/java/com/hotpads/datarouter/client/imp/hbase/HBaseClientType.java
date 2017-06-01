@@ -11,18 +11,18 @@ import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
 import com.hotpads.datarouter.client.ClientFactory;
-import com.hotpads.datarouter.client.DefaultClientTypes;
+import com.hotpads.datarouter.client.ClientTypeRegistry;
 import com.hotpads.datarouter.client.availability.ClientAvailabilitySettings;
 import com.hotpads.datarouter.client.imp.hbase.client.HBaseClientFactory;
 import com.hotpads.datarouter.config.DatarouterProperties;
-import com.hotpads.datarouter.inject.DatarouterInjector;
 import com.hotpads.datarouter.inject.guice.executor.DatarouterExecutorGuiceModule;
 import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.test.DatarouterStorageTestModuleFactory;
-import com.hotpads.util.core.lang.ClassTool;
 
 @Singleton
 public class HBaseClientType extends BaseHBaseClientType{
+
+	public static final String NAME = "hbase";
 
 	private final ClientAvailabilitySettings clientAvailabilitySettings;
 	private final ExecutorService executor;
@@ -36,7 +36,7 @@ public class HBaseClientType extends BaseHBaseClientType{
 
 	@Override
 	public String getName(){
-		return DefaultClientTypes.CLIENT_TYPE_hbase;
+		return NAME;
 	}
 
 	@Override
@@ -51,13 +51,11 @@ public class HBaseClientType extends BaseHBaseClientType{
 	@Guice(moduleFactory = DatarouterStorageTestModuleFactory.class)
 	public static class HBaseClientTypeTests{
 		@Inject
-		private DatarouterInjector injector;
+		private ClientTypeRegistry clientTypeRegistry;
 
 		@Test
 		public void testClassLocation(){
-			String actualClassName = HBaseClientType.class.getCanonicalName();
-			Assert.assertEquals(DefaultClientTypes.CLIENT_CLASS_hbase, actualClassName);
-			injector.getInstance(ClassTool.forName(DefaultClientTypes.CLIENT_CLASS_hbase));
+			Assert.assertEquals(clientTypeRegistry.create(NAME).getClass(), HBaseClientType.class);
 		}
 	}
 }

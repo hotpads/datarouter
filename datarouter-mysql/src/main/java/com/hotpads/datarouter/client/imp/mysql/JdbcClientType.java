@@ -8,7 +8,7 @@ import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
 import com.hotpads.datarouter.client.ClientFactory;
-import com.hotpads.datarouter.client.DefaultClientTypes;
+import com.hotpads.datarouter.client.ClientTypeRegistry;
 import com.hotpads.datarouter.client.availability.ClientAvailabilitySettings;
 import com.hotpads.datarouter.client.imp.BaseClientType;
 import com.hotpads.datarouter.client.imp.mysql.ddl.execute.JdbcSchemaUpdateServiceFactory;
@@ -16,7 +16,6 @@ import com.hotpads.datarouter.client.imp.mysql.factory.JdbcSimpleClientFactory;
 import com.hotpads.datarouter.client.imp.mysql.field.codec.factory.JdbcFieldCodecFactory;
 import com.hotpads.datarouter.client.imp.mysql.node.JdbcNode;
 import com.hotpads.datarouter.config.DatarouterProperties;
-import com.hotpads.datarouter.inject.DatarouterInjector;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.adapter.availability.PhysicalIndexedSortedMapStorageAvailabilityAdapter;
@@ -33,10 +32,11 @@ import com.hotpads.datarouter.storage.entity.Entity;
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
 import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.util.core.lang.ClassTool;
 
 @Singleton
 public class JdbcClientType extends BaseClientType{
+
+	private static final String NAME = "jdbc";
 
 	public static JdbcClientType INSTANCE;//TODO get rid of
 
@@ -59,7 +59,7 @@ public class JdbcClientType extends BaseClientType{
 
 	@Override
 	public String getName(){
-		return DefaultClientTypes.CLIENT_TYPE_mysql;
+		return NAME;
 	}
 
 	@Override
@@ -101,13 +101,11 @@ public class JdbcClientType extends BaseClientType{
 	@Guice(moduleFactory = TestDatarouterJdbcModuleFactory.class)
 	public static class JdbcClientTypeIntegrationTests{
 		@Inject
-		private DatarouterInjector injector;
+		private ClientTypeRegistry clientTypeRegistry;
 
 		@Test
 		public void testClassLocation(){
-			String actualClassName = JdbcClientType.class.getCanonicalName();
-			Assert.assertEquals(DefaultClientTypes.CLIENT_CLASS_mysql, actualClassName);
-			injector.getInstance(ClassTool.forName(DefaultClientTypes.CLIENT_CLASS_mysql));
+			Assert.assertEquals(clientTypeRegistry.create(NAME).getClass(), JdbcClientType.class);
 		}
 	}
 

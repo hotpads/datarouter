@@ -3,17 +3,16 @@ package com.hotpads.datarouter.client.imp.memory;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import org.junit.Assert;
+import org.testng.Assert;
 import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
 import com.hotpads.datarouter.client.ClientFactory;
-import com.hotpads.datarouter.client.DefaultClientTypes;
+import com.hotpads.datarouter.client.ClientTypeRegistry;
 import com.hotpads.datarouter.client.availability.ClientAvailabilitySettings;
 import com.hotpads.datarouter.client.imp.BaseClientType;
 import com.hotpads.datarouter.client.imp.memory.node.MemoryNode;
 import com.hotpads.datarouter.config.DatarouterProperties;
-import com.hotpads.datarouter.inject.DatarouterInjector;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.adapter.availability.PhysicalIndexedSortedMapStorageAvailabilityAdapter;
@@ -31,10 +30,11 @@ import com.hotpads.datarouter.storage.key.entity.EntityKey;
 import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.test.DatarouterStorageTestModuleFactory;
-import com.hotpads.util.core.lang.ClassTool;
 
 @Singleton
 public class MemoryClientType extends BaseClientType{
+
+	private static final String NAME = "memory";
 
 	public static MemoryClientType INSTANCE;
 
@@ -48,7 +48,7 @@ public class MemoryClientType extends BaseClientType{
 
 	@Override
 	public String getName(){
-		return DefaultClientTypes.CLIENT_TYPE_memory;
+		return NAME;
 	}
 
 	@Override
@@ -91,13 +91,11 @@ public class MemoryClientType extends BaseClientType{
 	@Guice(moduleFactory = DatarouterStorageTestModuleFactory.class)
 	public static class MemoryClientTypeTests{
 		@Inject
-		private DatarouterInjector injector;
+		private ClientTypeRegistry clientTypeRegistry;
 
 		@Test
 		public void testClassLocation(){
-			String actualClassName = MemoryClientType.class.getCanonicalName();
-			Assert.assertEquals(DefaultClientTypes.CLIENT_CLASS_memory, actualClassName);
-			injector.getInstance(ClassTool.forName(DefaultClientTypes.CLIENT_CLASS_memory));
+			Assert.assertEquals(clientTypeRegistry.create(NAME).getClass(), MemoryClientType.class);
 		}
 	}
 

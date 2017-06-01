@@ -7,14 +7,13 @@ import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
 import com.hotpads.datarouter.client.ClientFactory;
-import com.hotpads.datarouter.client.DefaultClientTypes;
+import com.hotpads.datarouter.client.ClientTypeRegistry;
 import com.hotpads.datarouter.client.availability.ClientAvailabilitySettings;
 import com.hotpads.datarouter.client.imp.BaseClientType;
 import com.hotpads.datarouter.client.imp.StreamClientType;
 import com.hotpads.datarouter.client.imp.kinesis.node.KinesisNode;
 import com.hotpads.datarouter.client.imp.kinesis.node.KinesisNodeFactory;
 import com.hotpads.datarouter.config.DatarouterProperties;
-import com.hotpads.datarouter.inject.DatarouterInjector;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.entity.EntityNodeParams;
@@ -27,9 +26,10 @@ import com.hotpads.datarouter.storage.key.entity.EntityKey;
 import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.test.DatarouterStorageTestModuleFactory;
-import com.hotpads.util.core.lang.ClassTool;
 
 public class KinesisClientType extends BaseClientType implements StreamClientType{
+
+	private static final String NAME = "kinesis";
 
 	@Inject
 	private KinesisNodeFactory kinesisNodeFactory;
@@ -39,7 +39,7 @@ public class KinesisClientType extends BaseClientType implements StreamClientTyp
 
 	@Override
 	public String getName(){
-		return DefaultClientTypes.CLIENT_TYPE_kinesis;
+		return NAME;
 	}
 
 	@Override
@@ -87,13 +87,11 @@ public class KinesisClientType extends BaseClientType implements StreamClientTyp
 	@Guice(moduleFactory = DatarouterStorageTestModuleFactory.class)
 	public static class KinesisClientTypeTests{
 		@Inject
-		private DatarouterInjector injector;
+		private ClientTypeRegistry clientTypeRegistry;
 
 		@Test
 		public void testClassLocation(){
-			String actualClassName = KinesisClientType.class.getCanonicalName();
-			Assert.assertEquals(actualClassName, DefaultClientTypes.CLIENT_CLASS_kinesis);
-			injector.getInstance(ClassTool.forName(DefaultClientTypes.CLIENT_CLASS_kinesis));
+			Assert.assertEquals(clientTypeRegistry.create(NAME).getClass(), KinesisClientType.class);
 		}
 	}
 
