@@ -28,7 +28,7 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 
-import com.hotpads.util.core.logging.HotPadsLog4j2Configuration;
+import com.hotpads.util.core.logging.BaseLog4j2Configuration;
 import com.hotpads.util.core.logging.Log4j2Configurator;
 
 /*
@@ -84,14 +84,14 @@ public class LoggingTests{
 
 
 		Assert.assertNull(configurator.getAppender(TEST_APPENDER_2_NAME));
-		configurator.addFileAppender(TEST_APPENDER_2_NAME, TEST_FILE_2_NAME, HotPadsLog4j2Configuration.defaultPattern);
+		configurator.addFileAppender(TEST_APPENDER_2_NAME, TEST_FILE_2_NAME, BaseLog4j2Configuration.defaultPattern);
 		Assert.assertNotNull(configurator.getAppender(TEST_APPENDER_2_NAME));
 
 		configurator.updateOrCreateLoggerConfig(getClass(), Level.ALL, false, TEST_APPENDER_2_NAME);
 		logger.warn("degemer");
 
 		configurator.addConsoleAppender("second-console-appender", Target.SYSTEM_ERR,
-				HotPadsLog4j2Configuration.defaultPattern);
+				BaseLog4j2Configuration.defaultPattern);
 		configurator.updateOrCreateLoggerConfig(getClass(), Level.ALL, false, ERR_CONSOLE_APPENDER_NAME);
 		logger.warn("ar");//going to err console
 

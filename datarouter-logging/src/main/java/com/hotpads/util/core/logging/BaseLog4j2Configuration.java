@@ -27,9 +27,9 @@ import org.apache.logging.log4j.core.Appender;
 import org.apache.logging.log4j.core.Filter;
 import org.apache.logging.log4j.core.config.LoggerConfig;
 
-public abstract class HotPadsLog4j2Configuration{
+public abstract class BaseLog4j2Configuration{
 
-	public static final String defaultPattern = "%d %-5level [%t] <${web:servletContextName}>"
+	public static final String defaultPattern = "%d %-5level [%t] <${web:servletContextName:-${sys:user.name}}>"
 			+ " %logger{36}:%line - %msg%n%rEx";
 
 	private final Map<String,Appender> appenders = new HashMap<>();
@@ -78,8 +78,8 @@ public abstract class HotPadsLog4j2Configuration{
 		filters.add(filter);
 	}
 
-	protected final void registerParent(Class<? extends HotPadsLog4j2Configuration> clazz){
-		HotPadsLog4j2Configuration configuration;
+	protected final void registerParent(Class<? extends BaseLog4j2Configuration> clazz){
+		BaseLog4j2Configuration configuration;
 		try{
 			configuration = clazz.newInstance();
 		}catch(InstantiationException | IllegalAccessException e){

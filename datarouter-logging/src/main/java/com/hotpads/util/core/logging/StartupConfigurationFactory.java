@@ -41,8 +41,7 @@ public class StartupConfigurationFactory extends ConfigurationFactory{
 
 	@Override
 	public String[] getSupportedTypes(){
-		// ((StatusLogger)LOGGER).setLevel(Level.ALL); // Enable this to debug logging config
-		return new String[]{".hotpads"};
+		return new String[]{".datarouter-logging"};
 	}
 
 	@Override
@@ -56,10 +55,10 @@ public class StartupConfigurationFactory extends ConfigurationFactory{
 		}
 		LOGGER.info("Configuring log4j2 with the class : {}", fullyQualifiedClassName);
 
-		HotPadsLog4j2Configuration log4j2Configuration;
+		BaseLog4j2Configuration log4j2Configuration;
 		try{
-			Class<? extends HotPadsLog4j2Configuration> configurationClass = Class.forName(fullyQualifiedClassName)
-					.asSubclass(HotPadsLog4j2Configuration.class);
+			Class<? extends BaseLog4j2Configuration> configurationClass = Class.forName(fullyQualifiedClassName)
+					.asSubclass(BaseLog4j2Configuration.class);
 			log4j2Configuration = configurationClass.newInstance();
 		}catch(InstantiationException | IllegalAccessException | ClassNotFoundException e){
 			throw new RuntimeException(e);
@@ -75,7 +74,7 @@ public class StartupConfigurationFactory extends ConfigurationFactory{
 		for(Filter filter : log4j2Configuration.getFilters()){
 			configuration.addFilter(filter);
 		}
-		LOGGER.info("HotPadsConfig initiated");
+		LOGGER.info("LoggingConfig initiated");
 		return configuration;
 	}
 
