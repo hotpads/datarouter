@@ -1,12 +1,10 @@
 package com.hotpads.handler.user.authenticate.okta;
 
-public class OktaSessionResponse{
-	private static final String ACTIVE = "ACTIVE";
+import java.util.Date;
 
+public class OktaSessionResponse extends OktaResponse{
+	public String userId;
 	public String login;
-	public String status;
-
-	public Boolean isActive(){
-		return ACTIVE.equals(status);
-	}
+	public Date createdAt;
+	public Date expiresAt;
 }
