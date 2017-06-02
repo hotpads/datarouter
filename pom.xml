@@ -12,11 +12,11 @@
 		<module>datarouter-example</module>
 		<module>datarouter-hbase</module>
 		<module>datarouter-http-client</module>
-		<module>datarouter-jdbc</module>
 		<module>datarouter-job</module>
 		<module>datarouter-kinesis</module>
 		<module>datarouter-logging</module>
 		<module>datarouter-memcached</module>
+		<module>datarouter-mysql</module>
 		<module>datarouter-notification</module>
 		<module>datarouter-redis</module>
 		<module>datarouter-sqs</module>
