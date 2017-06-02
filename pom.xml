@@ -8,7 +8,6 @@
 	<packaging>pom</packaging>
 	<modules>
 		<module>datarouter-bigtable</module>
-		<module>datarouter-core</module>
 		<module>datarouter-example</module>
 		<module>datarouter-hbase</module>
 		<module>datarouter-http-client</module>
