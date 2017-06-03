@@ -15,8 +15,8 @@ public class DocumentationHandler extends BaseHandler{
 
 	protected static final String JSP_DISPATCHER_DOCS = "/jsp/docs/dispatcherDocs.jsp";
 
-	protected List<DocumentedEndpoint> buildDocumentation(BaseRouteSet apiDispatcher, String apiUrlContext){
-		return apiDispatcher.getDispatchRules().stream()
+	protected List<DocumentedEndpoint> buildDocumentation(BaseRouteSet routeSet, String apiUrlContext){
+		return routeSet.getDispatchRules().stream()
 				.filter(rule -> rule.getPattern().pattern().startsWith(apiUrlContext))
 				.map(this::buildEndpointDocumentation)
 				.flatMap(List::stream)
@@ -47,7 +47,7 @@ public class DocumentationHandler extends BaseHandler{
 				}
 				endpoints.add(endpoint);
 			}
-			handler = (Class<? extends BaseHandler>) handler.getSuperclass();
+			handler = handler.getSuperclass().asSubclass(BaseHandler.class);
 		}
 		return endpoints;
 	}
