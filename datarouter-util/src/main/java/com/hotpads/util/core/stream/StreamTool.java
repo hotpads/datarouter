@@ -2,6 +2,7 @@ package com.hotpads.util.core.stream;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
@@ -41,6 +42,10 @@ public class StreamTool{
 
 	public static <T> Stream<T> nullItemSafeStream(Iterable<T> iterable){
 		return stream(iterable).filter(Objects::nonNull);
+	}
+
+	public static <T> Stream<T> nullSafeStream(Collection<T> collection){
+		return collection != null ? collection.stream() : Stream.empty();
 	}
 
 	public static <T> Stream<T> flatten(Stream<Stream<T>> streams){
