@@ -44,10 +44,6 @@ public class StreamTool{
 		return stream(iterable).filter(Objects::nonNull);
 	}
 
-	public static <T> Stream<T> nullSafeStream(Collection<T> collection){
-		return collection != null ? collection.stream() : Stream.empty();
-	}
-
 	public static <T> Stream<T> flatten(Stream<Stream<T>> streams){
 		return streams.reduce(Stream.empty(), Stream::concat);
 	}
