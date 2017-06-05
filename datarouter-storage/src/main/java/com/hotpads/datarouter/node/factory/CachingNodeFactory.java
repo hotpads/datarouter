@@ -6,8 +6,6 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import com.google.common.base.Preconditions;
-import com.hotpads.datarouter.client.ClientType;
-import com.hotpads.datarouter.client.DatarouterClients;
 import com.hotpads.datarouter.config.DatarouterSettings;
 import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.NodeParams.NodeParamsBuilder;
@@ -24,16 +22,12 @@ import com.hotpads.util.core.java.ReflectionTool;
 @Singleton
 public class CachingNodeFactory{
 
-	private final DatarouterClients clients;
 	private final DatarouterSettings drSettings;
 
-
 	@Inject
-	private CachingNodeFactory(DatarouterClients clients, DatarouterSettings drSettings){
-		this.clients = clients;
+	private CachingNodeFactory(DatarouterSettings drSettings){
 		this.drSettings = drSettings;
 	}
-
 
 	/********************* pass any params *****************/
 
@@ -47,16 +41,13 @@ public class CachingNodeFactory{
 			boolean cacheReads,
 			boolean cacheWrites,
 			boolean addAdapter){
-		String clientName = params.getClientName();
-		ClientType clientType = clients.getClientTypeInstance(clientName);
-		Preconditions.checkNotNull(clientType, "clientType not found for clientName:" + clientName);
 		MapStorageNode<PK,D> node = new MapCachingMapStorageNode<PK,D,F,N>(cacheNode, backingNode, cacheReads,
 				cacheWrites);
 		node = new MapStorageCounterAdapter<>(node);
 		if(addAdapter){
 			node = new MapStorageCallsiteAdapter<>(params, (N) node);
 		}
-		return Preconditions.checkNotNull(node, "cannot build Node for clientType=" + clientType);
+		return Preconditions.checkNotNull(node, "cannot build caching Node");
 	}
 
 
