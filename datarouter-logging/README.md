@@ -16,7 +16,6 @@ datarouter-logging extends log4j2 to provide logging configuration using type-sa
 
 ### Default usage
 
-
 By default, datarouter-logging defines an appender for the standard output, and sends everything with level WARN to it. To log, simply define a slf4j logger and use it like that:
 
 ```java
@@ -37,7 +36,7 @@ public class Main{
 
 ### Static logging configuration
 
-To define a custom static logging configuration, you will need to extend `BaseLog4j2Configuration`. In the constructor of your implementation, you can define appenders and logger configuraations, or also use `registerParent` to inherit a configuration.
+To define a custom static logging configuration, you will need to extend `BaseLog4j2Configuration`. In the constructor of your implementation, you can define appenders and logger configurations, or also use `registerParent` to inherit a configuration.
 
 ```java
 package io.datarouter.example;
