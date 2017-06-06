@@ -11,6 +11,10 @@ public class DoubleArrayFieldKey extends ListFieldKey<Double,List<Double>>{
 		super(name, new TypeToken<List<Double>>(){});
 	}
 
+	@Override
+	public DoubleArrayField createValueField(final List<Double> value){
+		return new DoubleArrayField(this, value);
+	}
 
 	/*********************** ByteEncodedField ***********************/
 

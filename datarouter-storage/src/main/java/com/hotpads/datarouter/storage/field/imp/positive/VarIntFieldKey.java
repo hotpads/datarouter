@@ -8,4 +8,8 @@ public class VarIntFieldKey extends PrimitiveFieldKey<Integer>{
 		super(name, Integer.class);
 	}
 
+	@Override
+	public VarIntField createValueField(final Integer value){
+		return new VarIntField(this, value);
+	}
 }

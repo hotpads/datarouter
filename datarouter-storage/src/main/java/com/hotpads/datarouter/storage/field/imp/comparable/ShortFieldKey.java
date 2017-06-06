@@ -8,4 +8,8 @@ public class ShortFieldKey extends PrimitiveFieldKey<Short>{
 		super(name, Short.class);
 	}
 
+	@Override
+	public ShortField createValueField(final Short value){
+		return new ShortField(this, value);
+	}
 }

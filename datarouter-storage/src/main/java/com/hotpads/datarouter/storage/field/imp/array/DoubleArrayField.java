@@ -2,7 +2,6 @@ package com.hotpads.datarouter.storage.field.imp.array;
 
 import java.util.List;
 
-import com.google.common.reflect.TypeToken;
 import com.hotpads.datarouter.storage.field.BaseListField;
 import com.hotpads.util.core.bytes.DoubleByteTool;
 
@@ -14,7 +13,7 @@ public class DoubleArrayField extends BaseListField<Double,List<Double>>{
 
 	@Deprecated
 	public DoubleArrayField(String name, List<Double> value){
-		super(name, value, new TypeToken<List<Double>>(){});
+		this(new DoubleArrayFieldKey(name), value);
 	}
 
 	/*********************** StringEncodedField ******************************/

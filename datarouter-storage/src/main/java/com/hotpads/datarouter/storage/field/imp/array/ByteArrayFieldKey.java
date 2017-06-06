@@ -45,4 +45,8 @@ public class ByteArrayFieldKey extends BaseFieldKey<byte[]>{
 		return size;
 	}
 
+	@Override
+	public ByteArrayField createValueField(final byte[] value){
+		return new ByteArrayField(this, value);
+	}
 }

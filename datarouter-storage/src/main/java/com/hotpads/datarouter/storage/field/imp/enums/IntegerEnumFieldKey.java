@@ -30,4 +30,8 @@ public class IntegerEnumFieldKey<E extends IntegerEnum<E>> extends BaseFieldKey<
 		return sampleValue;
 	}
 
+	@Override
+	public IntegerEnumField<E> createValueField(final E value){
+		return new IntegerEnumField<>(this, value);
+	}
 }

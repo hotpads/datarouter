@@ -45,4 +45,9 @@ public class LocalDateTimeFieldKey extends BaseFieldKey<LocalDateTime>{
 		return new LocalDateTimeFieldKey(name, columnName, nullable, fieldGeneratorType, defaultValue,
 				numFractionalSeconds);
 	}
+
+	@Override
+	public LocalDateTimeField createValueField(final LocalDateTime value){
+		return new LocalDateTimeField(this, value);
+	}
 }

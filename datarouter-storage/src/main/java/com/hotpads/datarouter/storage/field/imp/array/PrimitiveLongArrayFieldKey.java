@@ -21,4 +21,8 @@ public class PrimitiveLongArrayFieldKey extends BaseFieldKey<long[]>{
 		return true;
 	}
 
+	@Override
+	public PrimitiveLongArrayField createValueField(final long[] value){
+		return new PrimitiveLongArrayField(this, value);
+	}
 }

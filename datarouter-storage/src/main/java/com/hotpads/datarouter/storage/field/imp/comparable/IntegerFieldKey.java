@@ -27,4 +27,9 @@ public class IntegerFieldKey extends PrimitiveFieldKey<Integer>{
 	public IntegerFieldKey withColumnName(String columnNameOverride){
 		return new IntegerFieldKey(name, columnNameOverride, nullable, fieldGeneratorType, defaultValue);
 	}
+
+	@Override
+	public IntegerField createValueField(final Integer value){
+		return new IntegerField(this, value);
+	}
 }

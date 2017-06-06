@@ -18,6 +18,10 @@ public class DelimitedStringArrayFieldKey extends ListFieldKey<String,List<Strin
 		this(name, ",");
 	}
 
+	@Override
+	public DelimitedStringArrayField createValueField(final List<String> value){
+		return new DelimitedStringArrayField(this, value);
+	}
 
 	//hmm, why doesn't this override isFixedLength => false
 }

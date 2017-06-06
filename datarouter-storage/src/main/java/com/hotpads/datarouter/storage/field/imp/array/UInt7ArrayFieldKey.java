@@ -11,6 +11,10 @@ public class UInt7ArrayFieldKey extends ListFieldKey<Byte,List<Byte>>{
 		super(name, new TypeToken<List<Byte>>(){});
 	}
 
+	@Override
+	public UInt7ArrayField createValueField(final List<Byte> value){
+		return new UInt7ArrayField(this, value);
+	}
 
 	/*********************** ByteEncodedField ***********************/
 

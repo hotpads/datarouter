@@ -8,4 +8,8 @@ public class UInt7FieldKey extends PrimitiveFieldKey<Byte>{
 		super(name, Byte.class);
 	}
 
+	@Override
+	public UInt7Field createValueField(final Byte value){
+		return new UInt7Field(this, value);
+	}
 }

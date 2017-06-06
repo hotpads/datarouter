@@ -18,4 +18,8 @@ public class DumbDoubleFieldKey extends PrimitiveFieldKey<Double>{
 		return new DumbDoubleFieldKey(name, columnNameOverride, nullable, fieldGeneratorType, defaultValue);
 	}
 
+	@Override
+	public DumbDoubleField createValueField(final Double value){
+		return new DumbDoubleField(this, value);
+	}
 }

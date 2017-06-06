@@ -33,4 +33,5 @@ public interface FieldKey<T>{
 	boolean isCollection();//this is used by viewNodeData.jsp to add line breaks to the table
 	T getDefaultValue();
 
+	Field<T> createValueField(T value);
 }

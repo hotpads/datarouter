@@ -11,6 +11,10 @@ public class UInt63ArrayFieldKey extends ListFieldKey<Long,List<Long>>{
 		super(name, new TypeToken<List<Long>>(){});
 	}
 
+	@Override
+	public UInt63ArrayField createValueField(final List<Long> value){
+		return new UInt63ArrayField(this, value);
+	}
 
 	/*********************** ByteEncodedField ***********************/
 
