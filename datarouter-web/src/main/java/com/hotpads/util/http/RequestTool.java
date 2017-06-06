@@ -27,6 +27,8 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.util.core.DrBooleanTool;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
@@ -40,6 +42,8 @@ import com.hotpads.util.datastructs.DefaultableHashMap;
 import com.hotpads.util.http.security.UrlScheme;
 
 public class RequestTool{
+	private static final Logger logger = LoggerFactory.getLogger(RequestTool.class);
+
 	private static final String INACCESSIBLE_BODY = "INACCESSIBLE BODY: ";
 	public static final String SUBMIT_ACTION = "submitAction";
 	public static final String REQUEST_PHASE_TIMER = "requestPhaseTimer";
@@ -488,6 +492,11 @@ public class RequestTool{
 			}
 		}
 
+		if(DrStringTool.notEmpty(clientIp) || DrStringTool.notEmpty(forwardedFor)){
+			logger.error("Unusable IPs included, falling back to remoteAddr. "
+					+ HttpHeaders.X_CLIENT_IP + ": [" + clientIp + "] "
+					+ HttpHeaders.X_FORWARDED_FOR + ": [" + forwardedFor + "]");
+		}
 		//no x-forwarded-for, use ip straight from http request
 		String remoteAddr = request.getRemoteAddr();
 		if("127.0.0.1".equals(remoteAddr)){//dev server
