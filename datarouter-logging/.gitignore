@@ -4,5 +4,4 @@ target
 .project
 test-output
 .factorypath
-git.properties
 *.iml

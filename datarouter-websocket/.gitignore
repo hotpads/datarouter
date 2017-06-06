@@ -3,5 +3,4 @@
 .settings/
 
 target/
-src/main/resources/git.properties
 *.iml
