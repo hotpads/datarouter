@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.hotpads.logging;
+package io.datarouter.logging;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.Appender;
@@ -21,8 +21,9 @@ import org.apache.logging.log4j.core.Filter.Result;
 import org.apache.logging.log4j.core.appender.FileAppender;
 import org.apache.logging.log4j.core.filter.RegexFilter;
 
-import com.hotpads.util.core.logging.BaseLog4j2Configuration;
-import com.hotpads.util.core.logging.Log4j2Configurator;
+import io.datarouter.logging.BaseLog4j2Configuration;
+import io.datarouter.logging.DatarouterLog4j2Configuration;
+import io.datarouter.logging.Log4j2Configurator;
 
 public final class TestDatarouterLog4j2Configuration extends BaseLog4j2Configuration{
 

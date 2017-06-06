@@ -5,9 +5,10 @@ import org.apache.logging.log4j.core.Appender;
 import org.apache.logging.log4j.core.appender.ConsoleAppender.Target;
 
 import com.hotpads.datarouter.test.sqs.SqsPerformanceTester;
-import com.hotpads.logging.DatarouterLog4j2Configuration;
-import com.hotpads.util.core.logging.BaseLog4j2Configuration;
-import com.hotpads.util.core.logging.Log4j2Configurator;
+
+import io.datarouter.logging.BaseLog4j2Configuration;
+import io.datarouter.logging.DatarouterLog4j2Configuration;
+import io.datarouter.logging.Log4j2Configurator;
 
 public class DatarouterSqsLog4j2Configuration extends BaseLog4j2Configuration{
 

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.hotpads.logging;
+package io.datarouter.logging;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -28,8 +28,9 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 
-import com.hotpads.util.core.logging.BaseLog4j2Configuration;
-import com.hotpads.util.core.logging.Log4j2Configurator;
+import io.datarouter.logging.BaseLog4j2Configuration;
+import io.datarouter.logging.DatarouterLog4j2Configuration;
+import io.datarouter.logging.Log4j2Configurator;
 
 /*
  * The config for these tests to pass is in TestDatarouterLog4j2Configuration
