@@ -2,12 +2,11 @@ package com.hotpads.handler.user.session;
 
 import java.util.List;
 
-
-import com.hotpads.datarouter.client.imp.mysql.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.storage.field.Field;
-import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.StringField;
+import com.hotpads.datarouter.storage.field.imp.StringFieldKey;
 import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
+import com.hotpads.datarouter.util.core.DrListTool;
 
 public class BaseDatarouterSessionDatabeanKey<
 		PK extends BaseDatarouterSessionDatabeanKey<PK>>
@@ -17,17 +16,14 @@ extends BasePrimaryKey<PK>{
 
 	private String sessionToken;
 
-	public class F{
-		private static final String
-			sessionToken = "sessionToken";
+	public static class FieldKeys{
+		public static final StringFieldKey sessionToken = new StringFieldKey("sessionToken");
 	}
 
 	@Override
 	public List<Field<?>> getFields(){
-		return FieldTool.createList(
-			new StringField(F.sessionToken, sessionToken, MySqlColumnType.DEFAULT_LENGTH_VARCHAR));
+		return DrListTool.createArrayList(new StringField(FieldKeys.sessionToken, sessionToken));
 	}
-
 
 	/**************** construct *********************/
 
