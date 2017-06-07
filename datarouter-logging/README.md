@@ -6,7 +6,7 @@ datarouter-logging extends log4j2 to provide logging configuration using type-sa
 
 ```xml
 <dependency>
-	<groupId>com.hotpads</groupId>
+	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-logging</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 </dependency>

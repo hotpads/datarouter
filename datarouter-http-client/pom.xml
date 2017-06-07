@@ -10,7 +10,7 @@
 	<artifactId>datarouter-http-client</artifactId>
 	<dependencies>
 		<dependency>
-			<groupId>com.hotpads</groupId>
+			<groupId>io.datarouter</groupId>
 			<artifactId>datarouter-logging</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>

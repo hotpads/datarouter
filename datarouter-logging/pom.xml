@@ -24,6 +24,7 @@
 		<version>0.0.1-SNAPSHOT</version>
 		<relativePath>../../config/maven</relativePath>
 	</parent>
+	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-logging</artifactId>
 	<inceptionYear>2009</inceptionYear>
 	<properties>
