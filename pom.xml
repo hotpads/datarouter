@@ -180,8 +180,26 @@
 			<version>6.11</version>
 		</dependency>
 	</dependencies>
-	<organization>
-		<name>HotPads</name>
-		<url>https://hotpads.com</url>
-	</organization>
+	<name>datarouter</name>
+	<description>datarouter</description>
+	<url>https://github.com/hotpads/datarouter</url>
+	<licenses>
+		<license>
+			<name>The Apache License, Version 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+		</license>
+	</licenses>
+	<developers>
+		<developer>
+			<name>Calixte Bonsart</name>
+			<email>cbonsart@hotpads.com</email>
+			<organization>HotPads</organization>
+			<organizationUrl>https://hotpads.com</organizationUrl>
+		</developer>
+	</developers>
+	<scm>
+		<connection>scm:git:git@github.com:hotpads/datarouter.git</connection>
+		<developerConnection>scm:git:git@github.com:hotpads/datarouter.git</developerConnection>
+		<url>https://github.com/hotpads/datarouter/tree/master</url>
+	</scm>
 </project>
