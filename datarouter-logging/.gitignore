@@ -1,7 +1,5 @@
 target
-.settings
 .classpath
-.project
 test-output
 .factorypath
 *.iml
