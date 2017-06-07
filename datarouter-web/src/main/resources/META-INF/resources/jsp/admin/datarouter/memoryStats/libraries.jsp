@@ -28,9 +28,6 @@
 							<fmt:formatDate value="${lib.value.buildTime}" pattern="d MMM H:mm"/>
 						</span>
 						<br>
-						<span class="property tree-level-1">Tags</span>
-						<span class="value">${lib.value.tags}</span>
-						<br>
 					</c:when>
 					<c:otherwise>
 						<span class="property tree-level-0">${lib}</span>

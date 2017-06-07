@@ -144,9 +144,6 @@
 		<span class="property tree-level-1">Build time</span>
 		<span class="value">${buildTime}</span>
 		<br>
-		<span class="property tree-level-1">Tags</span>
-		<span class="value">${gitTags}</span>
-		<br>
 		<c:set var="name" value="Detailed libraries"/>
 		<c:set var="escapedName" value="Detailed-libraries"/>
 		<c:set var="defaultVisible" value="in"/>
