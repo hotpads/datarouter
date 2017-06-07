@@ -173,16 +173,6 @@
 			</plugins>
 		</pluginManagement>
 	</build>
-	<distributionManagement>
-		<snapshotRepository>
-			<id>hotpads-snapshots</id><!-- matches server.id in ./m2/settings.xml -->
-			<url>http://nexus.hotterpads.com/nexus/content/repositories/hotpads-snapshots/</url>
-		</snapshotRepository>
-		<repository>
-			<id>nexus-releases</id><!-- matches server.id in ./m2/settings.xml -->
-			<url>http://nexus.hotterpads.com/nexus/content/repositories/hotpads-releases/</url>
-		</repository>
-	</distributionManagement>
 	<dependencies>
 		<dependency>
 			<groupId>org.testng</groupId>
