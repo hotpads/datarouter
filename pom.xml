@@ -1,11 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-	<groupId>com.hotpads</groupId>
-	<artifactId>datarouter</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
 	<modelVersion>4.0.0</modelVersion>
+	<groupId>io.datarouter</groupId>
+	<artifactId>datarouter-parent</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<aws-sdk-version>1.11.126</aws-sdk-version>
+		<gson-version>2.8.0</gson-version>
+	</properties>
 	<modules>
 		<module>datarouter-bigtable</module>
 		<module>datarouter-example</module>
@@ -24,4 +30,168 @@
 		<module>datarouter-websocket</module>
 		<module>datarouter-util</module>
 	</modules>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-failsafe-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>pl.project13.maven</groupId>
+				<artifactId>git-commit-id-plugin</artifactId>
+				<version>2.2.2</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>revision</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<generateGitPropertiesFile>true</generateGitPropertiesFile>
+					<useNativeGit>true</useNativeGit>
+				</configuration>
+			</plugin>
+		</plugins>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<version>3.6.1</version>
+					<configuration>
+						<compilerId>eclipse</compilerId>
+						<source>1.8</source>
+						<target>1.8</target>
+						<optimize>true</optimize>
+						<fork>true</fork>
+						<compilerArguments>
+							<org.eclipse.jdt.core.compiler.codegen.methodParameters>generate</org.eclipse.jdt.core.compiler.codegen.methodParameters>
+						</compilerArguments>
+					</configuration>
+					<dependencies>
+						<dependency>
+							<groupId>org.codehaus.plexus</groupId>
+							<artifactId>plexus-compiler-eclipse</artifactId>
+							<version>2.8.1</version>
+							<exclusions>
+								<exclusion>
+									<groupId>org.eclipse.tycho</groupId>
+									<artifactId>org.eclipse.jdt.core</artifactId>
+								</exclusion>
+							</exclusions>
+						</dependency>
+						<dependency>
+							<groupId>org.eclipse.jdt</groupId>
+							<artifactId>ecj</artifactId>
+							<version>3.12.3</version>
+						</dependency>
+					</dependencies>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-surefire-plugin</artifactId>
+					<version>2.20</version>
+					<executions>
+						<execution>
+							<id>default-test</id>
+							<phase>none</phase>
+						</execution>
+						<execution>
+							<goals>
+								<goal>test</goal>
+							</goals>
+							<id>src/main unit test</id>
+							<configuration>
+								<testClassesDirectory>${project.basedir}/target/classes/</testClassesDirectory>
+							</configuration>
+						</execution>
+						<execution>
+							<goals>
+								<goal>test</goal>
+							</goals>
+							<id>src/test unit test</id>
+							<configuration>
+								<testClassesDirectory>${project.basedir}/target/test-classes/</testClassesDirectory>
+							</configuration>
+						</execution>
+					</executions>
+					<configuration>
+						<includes>
+							<include>**/*Tests.class</include>
+						</includes>
+						<excludes>
+							<exclude>**/*IntegrationTests.class</exclude>
+						</excludes>
+						<reportFormat>plain</reportFormat>
+						<trimStackTrace>false</trimStackTrace>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-failsafe-plugin</artifactId>
+					<version>2.20</version>
+					<executions>
+						<execution>
+							<goals>
+								<goal>integration-test</goal>
+								<goal>verify</goal>
+							</goals>
+							<id>src/main integration test</id>
+							<configuration>
+								<testClassesDirectory>${project.basedir}/target/classes/</testClassesDirectory>
+							</configuration>
+						</execution>
+						<execution>
+							<goals>
+								<goal>integration-test</goal>
+								<goal>verify</goal>
+							</goals>
+							<id>src/test integration test</id>
+							<configuration>
+								<testClassesDirectory>${project.basedir}/target/test-classes/</testClassesDirectory>
+							</configuration>
+						</execution>
+					</executions>
+					<configuration>
+						<testClassesDirectory>${project.basedir}/target/classes/</testClassesDirectory>
+						<forkCount>1C</forkCount><!-- fork is a JVM.  the C multiplies by number of cores -->
+						<reuseForks>true</reuseForks>
+						<threadCount>2</threadCount>
+						<parallel>classesAndMethods</parallel>
+						<includes>
+							<include>**/*IntegrationTests.class</include>
+						</includes>
+						<excludes>
+							<!-- override the default surefire excludes to be able to run inner test classes -->
+							<exclude></exclude>
+						</excludes>
+						<reportFormat>plain</reportFormat>
+						<trimStackTrace>false</trimStackTrace>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+	<distributionManagement>
+		<snapshotRepository>
+			<id>hotpads-snapshots</id><!-- matches server.id in ./m2/settings.xml -->
+			<url>http://nexus.hotterpads.com/nexus/content/repositories/hotpads-snapshots/</url>
+		</snapshotRepository>
+		<repository>
+			<id>nexus-releases</id><!-- matches server.id in ./m2/settings.xml -->
+			<url>http://nexus.hotterpads.com/nexus/content/repositories/hotpads-releases/</url>
+		</repository>
+	</distributionManagement>
+	<dependencies>
+		<dependency>
+			<groupId>org.testng</groupId>
+			<artifactId>testng</artifactId>
+			<version>6.11</version>
+		</dependency>
+	</dependencies>
+	<organization>
+		<name>HotPads</name>
+		<url>https://hotpads.com</url>
+	</organization>
 </project>
