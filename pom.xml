@@ -21,7 +21,7 @@
 
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-parent</artifactId>
-	<version>0.0.1</version>
+	<version>0.0.2</version>
 	<packaging>pom</packaging>
 
 	<name>datarouter-parent</name>
@@ -79,6 +79,29 @@
 
 	<build>
 		<plugins>
+			<plugin>
+				<groupId>ru.yaal.maven</groupId>
+				<artifactId>write-text-files-maven-plugin</artifactId>
+				<version>1.1</version>
+				<executions>
+					<execution>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>write-text-files</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<files>
+						<file>
+							<path>target/classes/build.properties</path>
+							<lines>
+								<line>buildId=${env.BUILD_NUMBER}</line>
+							</lines>
+						</file>
+					</files>
+				</configuration>
+			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-failsafe-plugin</artifactId>
@@ -232,7 +255,7 @@
 							</goals>
 						</execution>
 					</executions>
-			</plugin>
+				</plugin>
 			</plugins>
 		</pluginManagement>
 	</build>

@@ -118,6 +118,7 @@ public class Log4j2Configurator{
 
 	public void deleteLoggerConfig(String name){
 		config.removeLogger(name);
+		ctx.updateLoggers();
 	}
 
 	public void deleteAppender(String name){
