@@ -1,3 +1,18 @@
+/**
+ * Copyright © 2009 HotPads (admin@hotpads.com)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package io.datarouter.util.iterable;
 
 import java.util.ArrayList;
@@ -8,12 +23,17 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.TreeSet;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import io.datarouter.util.StreamTool;
 import io.datarouter.util.iterable.scanner.iterable.SingleUseScannerIterable;
 import io.datarouter.util.iterable.scanner.sorted.BaseHoldingScanner;
 
@@ -25,6 +45,18 @@ public class IterableTool{
 			return new ArrayList<>();
 		}
 		return in;
+	}
+
+	public static <T> void forEach(Iterable<T> iterable, Consumer<? super T> action){
+		StreamTool.stream(iterable).forEach(action);
+	}
+
+	public static <A, T> List<T> map(Iterable<A> iterable, Function<A,T> mapper){
+		return StreamTool.map(StreamTool.stream(iterable), mapper);
+	}
+
+	public static <A> List<A> filter(Iterable<A> iterable, Predicate<A> filter){
+		return StreamTool.stream(iterable).filter(filter).collect(Collectors.toList());
 	}
 
 	public static <T> T next(Iterator<T> iterator){
@@ -115,7 +147,7 @@ public class IterableTool{
 		});
 	}
 
-	public static class DrIterableToolTests{
+	public static class IterableToolTests{
 
 		@Test
 		public void testDedupeSortedIterator(){
@@ -127,12 +159,38 @@ public class IterableTool{
 		}
 
 		@Test
+		public void testMap(){
+			List<String> names = Arrays.asList("Al", "Bob");
+			List<String> greetings = map(names, name -> "Hello " + name);
+			Assert.assertEquals(greetings.getClass(), ArrayList.class);//prefer ArrayList to LinkedList
+			Assert.assertEquals(greetings.size(), 2);
+			Assert.assertEquals(greetings.get(0), "Hello Al");
+			Assert.assertEquals(greetings.get(1), "Hello Bob");
+		}
+
+		@Test
+		public void testFilter(){
+			List<String> names = Arrays.asList("Al", "Bob");
+			List<String> filtered = filter(names, name -> name.equals(names.get(0)));
+			Assert.assertEquals(filtered.size(), 1);
+			Assert.assertEquals(filtered.get(0), names.get(0));
+		}
+
+		@Test
 		public void testSkip(){
 			List<Integer> original = IntStream.range(0, 10).boxed().collect(Collectors.toList());
 			Assert.assertEquals(skip(original, null), original);
 			Assert.assertEquals(skip(original, 0L), original);
 			Assert.assertEquals(skip(original, 3L), original.subList(3, 10));
 			Assert.assertEquals(skip(original, 15L), new ArrayList<>());
+		}
+
+		@Test
+		public void testForEach(){
+			List<Integer> inputs = Arrays.asList(3, 7);
+			AtomicLong total = new AtomicLong();
+			forEach(inputs, input -> total.addAndGet(input));
+			Assert.assertEquals(total.get(), 10);
 		}
 
 	}

@@ -16,30 +16,28 @@
 package io.datarouter.util.serialization;
 
 import java.lang.reflect.Type;
+import java.util.Date;
 
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
-import io.datarouter.util.enums.StringEnum;
+import io.datarouter.util.DateTool;
 
-public class StringEnumSerializer<T extends Enum<T> & StringEnum<T>> implements JsonSerializer<T>, JsonDeserializer<T>{
+public class InternetDateSerializer implements JsonSerializer<Date>, JsonDeserializer<Date>{
 
 	@Override
-	public T deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException{
-		@SuppressWarnings("unchecked")
-		Class<T> classOfT = (Class<T>) typeOfT;
-		T enumValue = classOfT.getEnumConstants()[0];
-		return enumValue.fromPersistentString(json.getAsString());
+	public Date deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context){
+		String dateString = json.getAsString();
+		return DateTool.parseUserInputDate(dateString, null);
 	}
 
 	@Override
-	public JsonElement serialize(T stringEnum, Type typeOfSrc, JsonSerializationContext context){
-		return new JsonPrimitive(stringEnum.getPersistentString());
+	public JsonElement serialize(Date date, Type typeOfSrc, JsonSerializationContext context){
+		return new JsonPrimitive(DateTool.getInternetDate(date));
 	}
 
 }

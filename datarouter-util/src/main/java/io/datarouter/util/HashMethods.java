@@ -1,19 +1,18 @@
-/*
- ********************************************************************
- *                                                                  *
- *                  General Hash Functions Library                  *
- * Author: Arash Partow - 2002                                      *
- * URL: http://www.partow.net                                       *
- *                                                                  *
- * Copyright Notice:                                                *
- * Free use of this library is permitted under the guidelines and   *
- * in accordance with the most current version of the Common Public *
- * License.                                                         *
- * http://www.opensource.org/licenses/cpl.php                       *
- *                                                                  *
- ********************************************************************
+/**
+ * Copyright © 2009 HotPads (admin@hotpads.com)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
-
 package io.datarouter.util;
 
 import java.security.MessageDigest;
@@ -21,11 +20,10 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import io.datarouter.util.bytes.StringByteTool;
-
-import org.testng.Assert;
 
 public class HashMethods{
 
@@ -58,7 +56,6 @@ public class HashMethods{
 			return null;
 		}
 	}
-
 
 	public static class DrHashMethodsTests{
 		@Test

@@ -1,3 +1,18 @@
+/**
+ * Copyright © 2009 HotPads (admin@hotpads.com)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package io.datarouter.util;
 
 import java.util.ArrayList;
@@ -8,7 +23,6 @@ import java.util.Objects;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.Spliterators.AbstractSpliterator;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BinaryOperator;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -31,12 +45,12 @@ public class StreamTool{
 		return StreamSupport.stream(Spliterators.spliteratorUnknownSize(iterator, 0), false);
 	}
 
-	public static <T> void forEach(Iterable<T> iterable, Consumer<? super T> action){
-		stream(iterable).forEach(action);
-	}
-
+	/**
+	 * @deprecated Use {@link IterableTool#map(Iterable, Function)}
+	 */
+	@Deprecated
 	public static <A, T> List<T> map(Iterable<A> iterable, Function<A,T> mapper){
-		return map(stream(iterable), mapper);
+		return IterableTool.map(iterable, mapper);
 	}
 
 	public static <A, T> List<T> map(Stream<A> stream, Function<A,T> mapper){
@@ -103,24 +117,6 @@ public class StreamTool{
 		public void testStreamFromNull(){
 			Stream<?> stream = stream((Iterable<?>)null);
 			Assert.assertEquals(stream.count(), 0L);
-		}
-
-		@Test
-		public void testForEach(){
-			List<Integer> inputs = Arrays.asList(3, 7);
-			AtomicLong total = new AtomicLong();
-			forEach(inputs, input -> total.addAndGet(input));
-			Assert.assertEquals(total.get(), 10);
-		}
-
-		@Test
-		public void testMap(){
-			List<String> names = Arrays.asList("Al", "Bob");
-			List<String> greetings = map(names, name -> "Hello " + name);
-			Assert.assertEquals(greetings.getClass(), ArrayList.class);//prefer ArrayList to LinkedList
-			Assert.assertEquals(greetings.size(), 2);
-			Assert.assertEquals(greetings.get(0), "Hello Al");
-			Assert.assertEquals(greetings.get(1), "Hello Bob");
 		}
 
 		@Test
