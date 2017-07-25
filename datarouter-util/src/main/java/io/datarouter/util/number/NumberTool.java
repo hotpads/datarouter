@@ -15,11 +15,10 @@
  */
 package io.datarouter.util.number;
 
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import io.datarouter.util.string.StringTool;
-
-import org.testng.Assert;
 
 public class NumberTool{
 

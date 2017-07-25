@@ -32,8 +32,6 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import io.datarouter.httpclient.client.DatarouterHttpClient;
-import io.datarouter.httpclient.client.DatarouterHttpClientBuilder;
 import io.datarouter.httpclient.request.DatarouterHttpRequest;
 import io.datarouter.httpclient.request.DatarouterHttpRequest.HttpRequestMethod;
 import io.datarouter.httpclient.response.DatarouterHttpResponse;

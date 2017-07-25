@@ -18,12 +18,11 @@ package io.datarouter.util.bytes;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import io.datarouter.util.array.ArrayTool;
 import io.datarouter.util.collection.CollectionTool;
-
-import org.testng.Assert;
 
 public class ByteTool{
 

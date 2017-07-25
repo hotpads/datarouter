@@ -38,7 +38,7 @@ public class MapTool{
 
 	/*********************** size ******************************************************/
 
-	private static <K,V> boolean isEmpty(Map<K,V> map){
+	public static <K,V> boolean isEmpty(Map<K,V> map){
 		if(map == null){
 			return true;
 		}

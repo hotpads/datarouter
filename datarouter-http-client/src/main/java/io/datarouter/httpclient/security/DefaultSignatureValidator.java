@@ -19,6 +19,7 @@ import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -71,12 +72,16 @@ public class DefaultSignatureValidator implements SignatureValidator{
 		}catch(NoSuchAlgorithmException e){
 			throw new RuntimeException(e);
 		}
-		for(String parameterName : map.keySet()){
+		for(Entry<String,String> entry : map.entrySet()){
+			String parameterName = entry.getKey();
 			if(parameterName.equals(SecurityParameters.SIGNATURE) || "submitAction".equals(parameterName)){
 				continue;
 			}
 			try{
-				md.update(parameterName.concat(map.get(parameterName)).concat(salt).getBytes(StandardCharsets.UTF_8));
+				String value = entry.getValue();
+				String keyValue = parameterName.concat(value == null ? "" : value);
+				String keyValueSalt = keyValue.concat(salt);
+				md.update(keyValueSalt.getBytes(StandardCharsets.UTF_8));
 				signature.write(md.digest());
 			}catch(Exception e){
 				throw new RuntimeException(e);
@@ -104,19 +109,23 @@ public class DefaultSignatureValidator implements SignatureValidator{
 	/*********************** Tests ******************/
 	public static class DefaultSignatureValidatorTests{
 
-		Map<String,String> params;
-		DefaultSignatureValidator validator;
+		private Map<String,String> params;
+		private DefaultSignatureValidator validator;
 
 		@BeforeTest
 		public void setup(){
 			validator = new DefaultSignatureValidator("329jfsJLKFj2fjjfL2319Jvn2332we");
 
 			params = new LinkedHashMap<>();
+			params.put(SecurityParameters.SIGNATURE, "foobar");
+			params.put("submitAction", "showListing");
 			params.put("param1", "test1");
 			params.put("param2", "test2");
+			params.put("paramWithoutValue", null);
 			params.put("csrfToken", "B8kgUfjdsa1234jsl9sdfkJ==");
 			params.put("apiKey", "jklfds90j2r13kjJfjklJF923j2rjLKJfjs");
 			params.put("csrfIv", "x92jfjJdslSJFj29lsfjsf==");
+			params = Collections.unmodifiableMap(params);
 		}
 
 		@Test

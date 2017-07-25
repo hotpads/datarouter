@@ -15,11 +15,10 @@
  */
 package io.datarouter.util.bytes;
 
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import io.datarouter.util.array.ArrayTool;
-
-import org.testng.Assert;
 
 /*
  * methods for converting shorts into bytes

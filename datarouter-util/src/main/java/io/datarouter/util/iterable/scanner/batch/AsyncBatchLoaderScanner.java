@@ -21,14 +21,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import io.datarouter.util.concurrent.FutureTool;
 import io.datarouter.util.iterable.scanner.Scanner;
 import io.datarouter.util.iterable.scanner.batch.imp.ListBackedBatchLoader;
 import io.datarouter.util.iterable.scanner.sorted.BaseSortedScanner;
-
-import org.testng.Assert;
 
 public class AsyncBatchLoaderScanner<T extends Comparable<? super T>>
 extends BaseSortedScanner<T>{

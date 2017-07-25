@@ -21,10 +21,6 @@ import org.apache.logging.log4j.core.Filter.Result;
 import org.apache.logging.log4j.core.appender.FileAppender;
 import org.apache.logging.log4j.core.filter.RegexFilter;
 
-import io.datarouter.logging.BaseLog4j2Configuration;
-import io.datarouter.logging.DatarouterLog4j2Configuration;
-import io.datarouter.logging.Log4j2Configurator;
-
 public final class TestDatarouterLog4j2Configuration extends BaseLog4j2Configuration{
 
 	public static final String TEST_FILE_NAME = "testFile.log";

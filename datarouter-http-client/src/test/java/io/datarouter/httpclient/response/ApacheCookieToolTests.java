@@ -23,8 +23,6 @@ import org.apache.http.impl.cookie.BasicClientCookie;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import io.datarouter.httpclient.response.ApacheCookieTool;
-
 public class ApacheCookieToolTests{
 
 	private final Cookie shortBreadCookie = new BasicClientCookie("shortBreadCookie", "ThumbPrint");

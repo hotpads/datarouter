@@ -18,14 +18,13 @@ package io.datarouter.util.bytes;
 import java.util.List;
 import java.util.Random;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import io.datarouter.util.array.ArrayTool;
 import io.datarouter.util.array.LongArray;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.testng.Assert;
 
 /*
  * methods for converting longs into bytes

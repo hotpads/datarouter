@@ -18,8 +18,8 @@ package io.datarouter.util.tuple;
 import java.io.Serializable;
 import java.util.Objects;
 
-import org.testng.annotations.Test;
 import org.testng.Assert;
+import org.testng.annotations.Test;
 
 @SuppressWarnings("serial")
 public class Pair<L,R> implements Serializable{

@@ -15,8 +15,8 @@
  */
 package io.datarouter.util.bytes;
 
-import org.testng.annotations.Test;
 import org.testng.Assert;
+import org.testng.annotations.Test;
 
 public class FloatByteTool{
 

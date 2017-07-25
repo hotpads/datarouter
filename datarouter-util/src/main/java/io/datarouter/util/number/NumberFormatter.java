@@ -18,8 +18,8 @@ package io.datarouter.util.number;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 
-import org.testng.annotations.Test;
 import org.testng.Assert;
+import org.testng.annotations.Test;
 
 public class NumberFormatter{
 

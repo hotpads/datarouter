@@ -96,7 +96,7 @@ public class ClassTool{
 			Class<?> boxed){
 		return primitive.equals(classA) && primitive.equals(classB)
 				|| primitive.equals(classA) && boxed.equals(classB)
-			    || boxed.equals(classA) && primitive.equals(classB)
+				|| boxed.equals(classA) && primitive.equals(classB)
 				|| boxed.equals(classA) && boxed.equals(classB);
 	}
 

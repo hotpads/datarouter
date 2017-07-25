@@ -20,12 +20,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.util.tuple.Pair;
-
-import org.testng.Assert;
 
 /*
  * create one of these when you want timing to start

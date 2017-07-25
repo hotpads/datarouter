@@ -18,8 +18,6 @@ package io.datarouter.util.iterable.scanner;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import io.datarouter.util.iterable.scanner.Scanner;
-
 public class ScannerTests{
 
 	@Test

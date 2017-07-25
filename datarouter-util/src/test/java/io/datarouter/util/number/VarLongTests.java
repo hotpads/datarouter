@@ -24,7 +24,6 @@ import java.util.Random;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import io.datarouter.util.number.RandomTool;
 import io.datarouter.util.varint.VarLong;
 
 

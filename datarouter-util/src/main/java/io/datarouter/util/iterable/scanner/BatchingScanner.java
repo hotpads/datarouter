@@ -18,13 +18,12 @@ package io.datarouter.util.iterable.scanner;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.collection.ListTool;
 import io.datarouter.util.iterable.scanner.imp.ListBackedSortedScanner;
-
-import org.testng.Assert;
 
 public class BatchingScanner<T> implements Scanner<List<T>>{
 

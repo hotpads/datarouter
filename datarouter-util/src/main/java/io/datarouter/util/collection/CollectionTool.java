@@ -22,11 +22,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import io.datarouter.util.lang.ObjectTool;
-
-import org.testng.Assert;
 
 public class CollectionTool{
 

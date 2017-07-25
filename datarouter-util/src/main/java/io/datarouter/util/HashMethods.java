@@ -48,12 +48,16 @@ public class HashMethods{
 	}
 
 	public static Long longMd5DjbHash(byte[] in){
+		MessageDigest md5 = md5MessageDigest();
+		md5.update(in);
+		return longDjbHash(md5.digest());
+	}
+
+	public static MessageDigest md5MessageDigest(){
 		try{
-			MessageDigest md5 = MessageDigest.getInstance("MD5");
-			md5.update(in);
-			return longDjbHash(md5.digest());
+			return MessageDigest.getInstance("MD5");
 		}catch(NoSuchAlgorithmException e){
-			return null;
+			throw new RuntimeException("MD5 not defined", e);
 		}
 	}
 

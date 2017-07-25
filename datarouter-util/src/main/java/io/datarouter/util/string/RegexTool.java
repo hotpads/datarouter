@@ -17,8 +17,8 @@ package io.datarouter.util.string;
 
 import java.util.regex.Pattern;
 
-import org.testng.annotations.Test;
 import org.testng.Assert;
+import org.testng.annotations.Test;
 
 public class RegexTool{
 

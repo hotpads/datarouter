@@ -15,11 +15,10 @@
  */
 package io.datarouter.util.bytes;
 
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import io.datarouter.util.bytes.ByteUnitType.ByteUnitSystem;
-
-import org.testng.Assert;
 
 public class ByteUnitTool{
 

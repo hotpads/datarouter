@@ -67,7 +67,8 @@ public static class ExampleDataTransferObject{
 }
 
 public static void main(String[] args){
-	DatarouterHttpRequest request = new DatarouterHttpRequest(HttpRequestMethod.GET,
+	DatarouterHttpRequest request = new DatarouterHttpRequest(
+			HttpRequestMethod.GET,
 			"https://example.com/api",
 			true);
 	request.addGetParam("id", "1");

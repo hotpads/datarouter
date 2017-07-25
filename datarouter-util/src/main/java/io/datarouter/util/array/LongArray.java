@@ -21,13 +21,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.collection.ListTool;
 import io.datarouter.util.iterable.IterableTool;
-
-import org.testng.Assert;
 
 public class LongArray implements List<Long>, Comparable<List<Long>>{
 

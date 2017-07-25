@@ -18,11 +18,10 @@ package io.datarouter.util.bytes;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import io.datarouter.util.string.StringTool;
-
-import org.testng.Assert;
 
 public class StringByteTool{
 

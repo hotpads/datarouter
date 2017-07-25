@@ -28,10 +28,6 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 
-import io.datarouter.logging.BaseLog4j2Configuration;
-import io.datarouter.logging.DatarouterLog4j2Configuration;
-import io.datarouter.logging.Log4j2Configurator;
-
 /*
  * The config for these tests to pass is in TestDatarouterLog4j2Configuration
  */

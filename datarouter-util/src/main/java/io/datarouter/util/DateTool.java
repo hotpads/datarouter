@@ -30,12 +30,11 @@ import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import io.datarouter.util.duration.DurationUnit;
 import io.datarouter.util.duration.DurationWithCarriedUnits;
-
-import org.testng.Assert;
 
 public final class DateTool{
 
@@ -199,69 +198,69 @@ public final class DateTool{
 
 	/********************* XsdDateTime *************************************/
 
-    /* as specified in RFC 3339 / ISO 8601 */
-    public static String getInternetDate(Date date){
-    	TimeZone tz = TimeZone.getTimeZone("GMT+00:00");
-    	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-    	sdf.setTimeZone(tz);
-    	return sdf.format(date);
-    }
+	/* as specified in RFC 3339 / ISO 8601 */
+	public static String getInternetDate(Date date){
+		TimeZone tz = TimeZone.getTimeZone("GMT+00:00");
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+		sdf.setTimeZone(tz);
+		return sdf.format(date);
+	}
 
-    public static String getInternetDate(TemporalAccessor temporalValue){
+	public static String getInternetDate(TemporalAccessor temporalValue){
 		return JAVA_TIME_INTERNET_FORMATTER.format(temporalValue);
-    }
+	}
 
-    public static String getYyyyMmDdHhMmSsMmmWithPunctuationNoSpaces(Long ms){
-    	return format("yyyy-MM-dd_HH:mm:ss.SSS", ms);
-    }
+	public static String getYyyyMmDdHhMmSsMmmWithPunctuationNoSpaces(Long ms){
+		return format("yyyy-MM-dd_HH:mm:ss.SSS", ms);
+	}
 
-    public static String format(String pattern, Long ms){
-    	DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
-    	return LocalDateTime.ofInstant(Instant.ofEpochMilli(ms), ZoneId.systemDefault()).format(formatter);
-    }
+	public static String format(String pattern, Long ms){
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
+		return LocalDateTime.ofInstant(Instant.ofEpochMilli(ms), ZoneId.systemDefault()).format(formatter);
+	}
 
-    public static final int DEFAULT_MAX_UNITS = 2;
+	public static final int DEFAULT_MAX_UNITS = 2;
 
-    /**
-     * get the date in the form of "XX days, XX hours ago"
-     * only returns minutes if less than 3 hours ago, and only seconds if
-     * 	less than 1 minute ago
-     *
-     * the inverse of getFromNowString
-     *
-     * @return "XXXXdays, XX hours ago" or "XX minutes ago" or
-     * 	"XX seconds ago" or "less than one second ago"
-     */
-    public static String getAgoString(Date date){
-    	return getAgoString(date, DEFAULT_MAX_UNITS);
-    }
+	/**
+	 * get the date in the form of "XX days, XX hours ago"
+	 * only returns minutes if less than 3 hours ago, and only seconds if
+	 * 	less than 1 minute ago
+	 *
+	 * the inverse of getFromNowString
+	 *
+	 * @return "XXXXdays, XX hours ago" or "XX minutes ago" or
+	 * 	"XX seconds ago" or "less than one second ago"
+	 */
+	public static String getAgoString(Date date){
+		return getAgoString(date, DEFAULT_MAX_UNITS);
+	}
 
-    public static String getAgoString(Long dateMs){
-    	return getAgoString(new Date(dateMs));
-    }
+	public static String getAgoString(Long dateMs){
+		return getAgoString(new Date(dateMs));
+	}
 
 	public static String getAgoString(Date date, int maxUnits){
 		if(date == null){
 			return null;
 		}
-    	long timeMillis = new Date().getTime() - date.getTime();
-    	String suffix = " ago";
+		long timeMillis = new Date().getTime() - date.getTime();
+		String suffix = " ago";
 		if(timeMillis < 0){
 			suffix = " from now";
 		}
-    	return getMillisAsString(timeMillis, maxUnits, DurationUnit.SECONDS) + suffix;
-    }
+		return getMillisAsString(timeMillis, maxUnits, DurationUnit.SECONDS) + suffix;
+	}
 
-    /**
-     * Translates the given milliseconds into a human readable time
+	/**
+	 * Translates the given milliseconds into a human readable time
 	 * string to the specified precision.
-     * @param maxUnits - the desired maximum number of units in the returned string.
-     * @return a labeled,
-     */
+	 * @param maxUnits - the desired maximum number of units in the returned string.
+	 * @return a labeled,
+	 */
 	public static String getMillisAsString(long timeMillis, int maxUnits, DurationUnit maxPrecision){
-    	DurationWithCarriedUnits wud = new DurationWithCarriedUnits(timeMillis);
-    	return wud.toStringByMaxUnitsMaxPrecision(maxPrecision, maxUnits);
-    }
+		DurationWithCarriedUnits wud = new DurationWithCarriedUnits(timeMillis);
+		return wud.toStringByMaxUnitsMaxPrecision(maxPrecision, maxUnits);
+	}
 
 	public static int getDatesBetween(Date oldDate, Date newDate){
 		//round everything > .95 up to handle partial days due to DST and leap seconds
