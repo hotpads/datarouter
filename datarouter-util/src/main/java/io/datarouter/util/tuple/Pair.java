@@ -35,7 +35,9 @@ public class Pair<L,R> implements Serializable{
 	public Pair(){}
 
 	public boolean areLeftAndRightEqual(){
-		return Objects.equals(left, right);
+		@SuppressWarnings("unlikely-arg-type")
+		boolean result = Objects.equals(left, right);
+		return result;
 	}
 
 	public L getLeft(){
@@ -52,6 +54,10 @@ public class Pair<L,R> implements Serializable{
 
 	public void setRight(R right){
 		this.right = right;
+	}
+
+	public Pair<R,L> reversed(){
+		return new Pair<>(right, left);
 	}
 
 	@Override

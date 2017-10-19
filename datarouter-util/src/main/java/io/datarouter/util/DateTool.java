@@ -39,22 +39,22 @@ import io.datarouter.util.duration.DurationWithCarriedUnits;
 public final class DateTool{
 
 	public static final int
-		MILLISECONDS_IN_DAY = 24 * 60 * 60 * 1000,
-		MILLISECONDS_IN_MINUTE = 60 * 1000,
-		MILLISECONDS_IN_SECOND = 1000;
+			MILLISECONDS_IN_DAY = 24 * 60 * 60 * 1000,
+			MILLISECONDS_IN_MINUTE = 60 * 1000,
+			MILLISECONDS_IN_SECOND = 1000;
 
 	private static final int
-		SUNDAY_INDEX = 1,
-		MONDAY_INDEX = 2,
-		TUESDAY_INDEX = 3,
-		WEDNESDAY_INDEX = 4,
-		THURSDAY_INDEX = 5,
-		FRIDAY_INDEX = 6,
-		SATURDAY_INDEX = 7;
+			SUNDAY_INDEX = 1,
+			MONDAY_INDEX = 2,
+			TUESDAY_INDEX = 3,
+			WEDNESDAY_INDEX = 4,
+			THURSDAY_INDEX = 5,
+			FRIDAY_INDEX = 6,
+			SATURDAY_INDEX = 7;
 
 	private static final List<String>
-		DAY_ABBREVIATIONS = new ArrayList<>(),
-		MONTH_ABBREVIATIONS = new ArrayList<>();
+			DAY_ABBREVIATIONS = new ArrayList<>(),
+			MONTH_ABBREVIATIONS = new ArrayList<>();
 
 	static{
 		DAY_ABBREVIATIONS.add("Sun");
@@ -91,7 +91,7 @@ public final class DateTool{
 		if(date == null){
 			return null;
 		}
-		date = date.replaceAll("[\\W\\s_]+"," ");
+		date = date.replaceAll("[\\W\\s_]+", " ");
 
 		Pattern ordinalPattern = Pattern.compile("\\d(th|nd|st)");
 		String strippedDate = date;
@@ -105,9 +105,9 @@ public final class DateTool{
 		}
 		date = strippedDate;
 		String[] commonFormats =
-			{"E MMM dd hh mm ss z yyyy","yyyy MM dd'T'hh mm ss'Z'","yyyy MM dd hh mm ss","MM dd yy","MMM dd yy",
-					"MMMMM dd yy","MMMMM yyyy", "yyyyMMdd", "yyyyMM", "MMMMM dd"
-			};//"MM dd", "MMM dd","MMMMM dd", };
+				{"E MMM dd hh mm ss z yyyy", "yyyy MM dd'T'hh mm ss'Z'", "yyyy MM dd hh mm ss", "MM dd yy", "MMM dd yy",
+						"MMMMM dd yy", "MMMMM yyyy", "yyyyMMdd", "yyyyMM", "MMMMM dd"
+				};//"MM dd", "MMM dd","MMMMM dd", };
 
 		for(String fmt : commonFormats){
 			try{
@@ -144,6 +144,7 @@ public final class DateTool{
 		calendar.setTime(date);
 		return calendar;
 	}
+
 	public static int getCalendarField(Date date, int field){
 		Calendar calendar = dateToCalendar(date);
 		return calendar.get(field);
@@ -179,7 +180,7 @@ public final class DateTool{
 		return dateFormat.format(date);
 	}
 
-	/************************ time elapsed *********************************/
+	/*---------------- time elapsed ----------------*/
 
 	public static long getMillisecondDifference(Date d1, Date d2){
 		return d2.getTime() - d1.getTime();
@@ -191,12 +192,17 @@ public final class DateTool{
 	public static double getSecondsBetween(Date d1, Date d2){
 		return getPeriodsBetween(d1, d2, MILLISECONDS_IN_SECOND);
 	}
+
+	public static double getMinutesBetween(Date d1, Date d2){
+		return getPeriodsBetween(d1, d2, MILLISECONDS_IN_MINUTE);
+	}
+
 	public static double getPeriodsBetween(Date d1, Date d2, long periodLengthMs){
-		long msDif = Math.abs(getMillisecondDifference(d1,d2));
+		long msDif = Math.abs(getMillisecondDifference(d1, d2));
 		return msDif / (double)periodLengthMs;
 	}
 
-	/********************* XsdDateTime *************************************/
+	/*---------------- XsdDateTime ----------------*/
 
 	/* as specified in RFC 3339 / ISO 8601 */
 	public static String getInternetDate(Date date){
@@ -226,8 +232,6 @@ public final class DateTool{
 	 * only returns minutes if less than 3 hours ago, and only seconds if
 	 * 	less than 1 minute ago
 	 *
-	 * the inverse of getFromNowString
-	 *
 	 * @return "XXXXdays, XX hours ago" or "XX minutes ago" or
 	 * 	"XX seconds ago" or "less than one second ago"
 	 */
@@ -248,7 +252,7 @@ public final class DateTool{
 		if(timeMillis < 0){
 			suffix = " from now";
 		}
-		return getMillisAsString(timeMillis, maxUnits, DurationUnit.SECONDS) + suffix;
+		return getMillisAsString(Math.abs(timeMillis), maxUnits, DurationUnit.SECONDS) + suffix;
 	}
 
 	/**
@@ -265,14 +269,14 @@ public final class DateTool{
 	public static int getDatesBetween(Date oldDate, Date newDate){
 		//round everything > .95 up to handle partial days due to DST and leap seconds
 		double daysBetween = DateTool.getDaysBetween(oldDate, newDate);
-		return (int) Math.ceil(daysBetween - .95d);
+		return (int)Math.ceil(daysBetween - .95d);
 	}
 
 	public static double getDaysBetween(Date d1, Date d2){
 		return getPeriodsBetween(d1, d2, MILLISECONDS_IN_DAY);
 	}
 
-	/*************************************************************************/
+	/*---------------- day of week ----------------*/
 
 	public static boolean isWeekday(Date date){
 		int dayInteger = getDayInteger(date);
@@ -300,9 +304,12 @@ public final class DateTool{
 	public static boolean isThursday(Date date){
 		return THURSDAY_INDEX == getDayInteger(date);
 	}
+
 	public static boolean isFriday(Date date){
 		return FRIDAY_INDEX == getDayInteger(date);
 	}
+
+	/*---------------- reverse ------------------*/
 
 	public static Long toReverseDateLong(Date date){
 		return date == null ? null : Long.MAX_VALUE - date.getTime();
@@ -312,9 +319,9 @@ public final class DateTool{
 		return dateLong == null ? null : new Date(Long.MAX_VALUE - dateLong);
 	}
 
-	/************************** tests ******************************/
+	/*---------------- tests ----------------*/
 
-	public static class Tests{
+	public static class DateToolTests{
 
 		private static final SimpleDateFormat df = new SimpleDateFormat("MM-dd-yyyy");
 
@@ -399,6 +406,16 @@ public final class DateTool{
 			Assert.assertTrue(daysApart - 1 < getDaysBetween(d1, d2));
 		}
 
-	}
+		@Test
+		public void testGetMinutesBetween(){
+			Date d1 = new Date(1352059736026L);
+			int minutesApart = 5;
+			Date d2 = new Date(d1.getTime() + MILLISECONDS_IN_MINUTE * minutesApart);
+			Assert.assertEquals(getMinutesBetween(d1, d2), minutesApart, 1 >> 20);
+			d2 = new Date(d1.getTime() + MILLISECONDS_IN_MINUTE * minutesApart - 10);
+			Assert.assertTrue(minutesApart > getMinutesBetween(d1, d2));
+			Assert.assertTrue(minutesApart - 1 < getMinutesBetween(d1, d2));
+		}
 
+	}
 }

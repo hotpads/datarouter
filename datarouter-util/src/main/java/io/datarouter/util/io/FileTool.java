@@ -16,9 +16,19 @@
 package io.datarouter.util.io;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.FileSystems;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.PathMatcher;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import io.datarouter.util.bytes.StringByteTool;
 import io.datarouter.util.string.StringTool;
 
 public final class FileTool{
@@ -63,4 +73,40 @@ public final class FileTool{
 		return false;
 	}
 
+	public static String readFile(File file) throws IOException{
+		byte[] bytes = Files.readAllBytes(file.toPath());
+		return StringByteTool.fromUtf8Bytes(bytes);
+	}
+
+	/**
+	 * Find files matching the globOrRegex pattern.
+	 * @param globOrRegex see FileSystems.getDefault().getPathMatcher(globOrRegex)
+	 */
+	public static List<File> findFiles(String globOrRegex, File startingDir) throws IOException{
+		FileFinder fileFinder = new FileFinder(globOrRegex);
+		Files.walkFileTree(startingDir.toPath(), fileFinder);
+		return fileFinder.results;
+	}
+
+	public static List<File> findFiles(String globOrRegex) throws IOException{
+		File pwd = new File(".").getCanonicalFile();
+		return findFiles(globOrRegex, pwd);
+	}
+
+	private static class FileFinder extends SimpleFileVisitor<Path>{
+		private final PathMatcher pathMatcher;
+		private final List<File> results = new ArrayList<>();
+
+		public FileFinder(String globOrRegex){
+			this.pathMatcher = FileSystems.getDefault().getPathMatcher(globOrRegex);
+		}
+
+		@Override
+		public FileVisitResult visitFile(Path file, BasicFileAttributes attrs){
+			if(pathMatcher.matches(file)){
+				results.add(file.toFile());
+			}
+			return FileVisitResult.CONTINUE;
+		}
+	}
 }

@@ -22,7 +22,7 @@
 	<parent>
 		<groupId>io.datarouter</groupId>
 		<artifactId>datarouter-parent</artifactId>
-		<version>0.0.4</version>
+		<version>0.0.5</version>
 	</parent>
 	
 	<artifactId>datarouter-logging</artifactId>
@@ -31,7 +31,7 @@
 	<description>datarouter-logging</description>
 		
 	<properties>
-		<log4j2Version>2.8.2</log4j2Version>
+		<log4j2Version>2.9.1</log4j2Version>
 	</properties>
 
 	<dependencies>
@@ -41,21 +41,6 @@
 			<version>1</version>
 		</dependency>
 		<!-- logging -->
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
-			<version>1.7.25</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.logging.log4j</groupId>
-			<artifactId>log4j-api</artifactId>
-			<version>${log4j2Version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.logging.log4j</groupId>
-			<artifactId>log4j-core</artifactId>
-			<version>${log4j2Version}</version>
-		</dependency>
 		<!-- http://saltnlight5.blogspot.com/2013/08/how-to-configure-slf4j-with-different.html -->
 		<dependency><!-- Route slf4j to log4j2 -->
 			<groupId>org.apache.logging.log4j</groupId>
@@ -85,7 +70,7 @@
 			<plugin>
 				<groupId>org.bsc.maven</groupId>
 				<artifactId>maven-processor-plugin</artifactId>
-				<version>3.3.1</version>
+				<version>3.3.2</version>
 				<executions>
 					<execution>
 						<goals>

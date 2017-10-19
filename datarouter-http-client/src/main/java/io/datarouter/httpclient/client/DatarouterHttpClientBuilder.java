@@ -18,6 +18,8 @@ package io.datarouter.httpclient.client;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Optional;
+import java.util.function.Supplier;
 
 import org.apache.http.client.RedirectStrategy;
 import org.apache.http.client.config.RequestConfig;
@@ -35,7 +37,6 @@ import org.apache.http.ssl.SSLContextBuilder;
 
 import io.datarouter.httpclient.json.GsonJsonSerializer;
 import io.datarouter.httpclient.json.JsonSerializer;
-import io.datarouter.httpclient.security.DefaultApiKeyPredicate;
 import io.datarouter.httpclient.security.DefaultCsrfValidator;
 import io.datarouter.httpclient.security.DefaultSignatureValidator;
 
@@ -48,13 +49,14 @@ public class DatarouterHttpClientBuilder{
 	private int timeoutMs; // must be int due to RequestConfig.set*Timeout() methods
 	private int maxTotalConnections;
 	private int maxConnectionsPerRoute;
+	private Optional<Integer> validateAfterInactivityMs = Optional.empty();
 	private HttpClientBuilder httpClientBuilder;
 	private DatarouterHttpRetryHandler retryHandler;
 	private JsonSerializer jsonSerializer;
 	private CloseableHttpClient customHttpClient;
 	private DefaultSignatureValidator signatureValidator;
 	private DefaultCsrfValidator csrfValidator;
-	private DefaultApiKeyPredicate apiKeyPredicate;
+	private Supplier<String> apiKeySupplier;
 	private DatarouterHttpClientConfig config;
 	private boolean ignoreSsl;
 
@@ -95,6 +97,9 @@ public class DatarouterHttpClientBuilder{
 		}
 		connectionManager.setMaxTotal(maxTotalConnections);
 		connectionManager.setDefaultMaxPerRoute(maxConnectionsPerRoute);
+		if(validateAfterInactivityMs.isPresent()){
+			connectionManager.setValidateAfterInactivity(validateAfterInactivityMs.get());
+		}
 		httpClientBuilder.setConnectionManager(connectionManager);
 		CloseableHttpClient builtHttpClient;
 		if(customHttpClient == null){
@@ -109,7 +114,7 @@ public class DatarouterHttpClientBuilder{
 			jsonSerializer = new GsonJsonSerializer();
 		}
 		return new DatarouterHttpClient(builtHttpClient, this.jsonSerializer, this.signatureValidator,
-				this.csrfValidator, this.apiKeyPredicate, this.config, connectionManager);
+				this.csrfValidator, this.apiKeySupplier, this.config, connectionManager);
 	}
 
 	public DatarouterHttpClientBuilder setRetryCount(int retryCount){
@@ -140,8 +145,8 @@ public class DatarouterHttpClientBuilder{
 		return this;
 	}
 
-	public DatarouterHttpClientBuilder setApiKeyPredicate(DefaultApiKeyPredicate apiKeyPredicate){
-		this.apiKeyPredicate = apiKeyPredicate;
+	public DatarouterHttpClientBuilder setApiKeySupplier(Supplier<String> apiKeySupplier){
+		this.apiKeySupplier = apiKeySupplier;
 		return this;
 	}
 
@@ -180,4 +185,8 @@ public class DatarouterHttpClientBuilder{
 		return this;
 	}
 
+	public DatarouterHttpClientBuilder setValidateAfterInactivityMs(int validateAfterInactivityMs){
+		this.validateAfterInactivityMs = Optional.of(validateAfterInactivityMs);
+		return this;
+	}
 }

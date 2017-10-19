@@ -15,6 +15,8 @@
  */
 package io.datarouter.util.number;
 
+import java.util.Optional;
+
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -120,6 +122,19 @@ public class NumberTool{
 		}catch(NumberFormatException e){
 			return alternate;
 		}
+	}
+
+	// Optional variants
+	public static Optional<Double> parseDouble(String toDouble){
+		return Optional.ofNullable(getDoubleNullSafe(toDouble, null));
+	}
+
+	public static Optional<Long> parseLong(String toLong){
+		return Optional.ofNullable(getLongNullSafe(toLong, null));
+	}
+
+	public static Optional<Integer> parseInteger(String toInteger){
+		return Optional.ofNullable(parseIntegerFromNumberString(toInteger, null));
 	}
 
 	/****************************** tests *************************************/

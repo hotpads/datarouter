@@ -40,8 +40,16 @@ public class StringTool{
 		return input == null || input.length() <= 0;
 	}
 
+	public static boolean notNullOrEmpty(String input){
+		return !isNullOrEmpty(input);
+	}
+
 	public static boolean isNullOrEmpty(String input){
 		return input == null || input.length() <= 0 || "null".equalsIgnoreCase(input);
+	}
+
+	public static boolean notEmptyOrWhitespace(String input){
+		return !isEmptyOrWhitespace(input);
 	}
 
 	public static boolean isEmptyOrWhitespace(String input){
@@ -387,6 +395,10 @@ public class StringTool{
 	public static String getSimpleClassName(String className){
 		int lastIndexOfDot = className.lastIndexOf('.');
 		return lastIndexOfDot == -1 ? className : className.substring(lastIndexOfDot + 1);
+	}
+
+	public static String ensureEndsWithSlash(String string){
+		return string.endsWith("/") ? string : string + '/';
 	}
 
 	/** TESTS *****************************************************************/

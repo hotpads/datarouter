@@ -26,6 +26,7 @@ import java.util.Objects;
 import java.util.Properties;
 
 import io.datarouter.util.StreamTool;
+import io.datarouter.util.iterable.IterableTool;
 import io.datarouter.util.tuple.Pair;
 
 public class PropertiesTool{
@@ -43,7 +44,7 @@ public class PropertiesTool{
 	}
 
 	public static List<Properties> fromFiles(Iterable<String> paths){
-		return StreamTool.map(paths, PropertiesTool::parse);
+		return IterableTool.map(paths, PropertiesTool::parse);
 	}
 
 	private static Pair<Properties,URL> fromFile(String pathToFile) throws IOException{

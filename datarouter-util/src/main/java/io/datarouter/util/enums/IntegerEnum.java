@@ -15,13 +15,12 @@
  */
 package io.datarouter.util.enums;
 
-public interface IntegerEnum<E>
-extends Comparable<E>{
+public interface IntegerEnum<E> extends Comparable<E>{
 
 	Integer getPersistentInteger();
 	E fromPersistentInteger(Integer value);
 
-	public static <E extends IntegerEnum<E>> E fromPersistentIntegerSafe(E sampleValue, Integer persistentInteger){
+	static <E extends IntegerEnum<E>> E fromPersistentIntegerSafe(E sampleValue, Integer persistentInteger){
 		if(persistentInteger == null){
 			return null;
 		}

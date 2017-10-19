@@ -15,6 +15,8 @@
  */
 package io.datarouter.httpclient.response.exception;
 
+import java.time.Duration;
+
 import org.apache.http.Header;
 import org.apache.http.HttpStatus;
 
@@ -27,18 +29,18 @@ public class DatarouterHttpResponseException extends DatarouterHttpException{
 
 	private final DatarouterHttpResponse response;
 
-	public DatarouterHttpResponseException(DatarouterHttpResponse response, long requestStartTimeMs){
-		super(buildMessage(response, requestStartTimeMs), null);
+	public DatarouterHttpResponseException(DatarouterHttpResponse response, Duration duration){
+		super(buildMessage(response, duration), null);
 		this.response = response;
 	}
 
-	private static String buildMessage(DatarouterHttpResponse response, long requestStartTimeMs){
+	private static String buildMessage(DatarouterHttpResponse response, Duration duration){
 		String message = "HTTP response returned with status code " + response.getStatusCode();
 		Header header = response.getFirstHeader(X_EXCEPTION_ID);
 		if(header != null){
 			message += " and exception id " + header.getValue();
 		}
-		message += " after " + (System.currentTimeMillis() - requestStartTimeMs) + "ms";
+		message += " after " + duration.toMillis() + "ms";
 		message += " with entity:\n" + response.getEntity();
 		return message;
 	}

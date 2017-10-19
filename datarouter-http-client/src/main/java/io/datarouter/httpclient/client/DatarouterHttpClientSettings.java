@@ -13,15 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.util.exception;
+package io.datarouter.httpclient.client;
 
-@SuppressWarnings("serial")
-public class InterruptedRuntimeException extends RuntimeException{
+import java.net.URI;
 
-	public InterruptedRuntimeException(){}
+public interface DatarouterHttpClientSettings{
 
-	public InterruptedRuntimeException(Throwable cause){
-		super(cause);
-	}
+	URI getEndpointUrl();
+	String getApiKey();
+	String getPrivateKey();
 
 }

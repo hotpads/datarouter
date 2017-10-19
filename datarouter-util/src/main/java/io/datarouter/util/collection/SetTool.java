@@ -15,14 +15,19 @@
  */
 package io.datarouter.util.collection;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.function.Supplier;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
+
+import io.datarouter.util.array.ArrayTool;
 
 public class SetTool{
 
@@ -32,6 +37,24 @@ public class SetTool{
 			set.add(element);
 		}
 		return set;
+	}
+
+	public static <T> Set<T> nullsafe(Set<T> in){
+		return in == null ? Collections.emptySet() : in;
+	}
+
+	@SafeVarargs
+	public static <T> Set<T> union(Collection<T>... operands){
+		return unionWithSupplier(HashSet<T>::new, operands);
+	}
+
+	@SafeVarargs
+	public static <T,S extends Set<T>> S unionWithSupplier(Supplier<S> setSupplier, Collection<T>... operands){
+		S union = setSupplier.get();
+		if(ArrayTool.notEmpty(operands)){
+			Arrays.stream(operands).forEach(union::addAll);
+		}
+		return union;
 	}
 
 	private static <T> SortedSet<T> nullSafeTreeSet(SortedSet<T> in){

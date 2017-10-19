@@ -152,15 +152,4 @@ public class FutureTool{
 		return null;
 	}
 
-	/****************** terminate ***********************/
-
-	public static void finishAndShutdown(ExecutorService exec, long timeout, TimeUnit timeUnit){
-		exec.shutdown();
-		try{
-			exec.awaitTermination(timeout, timeUnit);
-		}catch(InterruptedException e){
-			throw new RuntimeException(e);
-		}
-	}
-
 }

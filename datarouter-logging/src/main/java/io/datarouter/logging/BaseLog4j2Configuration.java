@@ -45,9 +45,6 @@ public abstract class BaseLog4j2Configuration{
 	}
 
 	protected final void addAppender(Appender appender){
-		if(appenders.containsKey(appender.getName())){
-			throw new IllegalArgumentException("Duplicate appender declaration : " + appender.getName());
-		}
 		appenders.put(appender.getName(), appender);
 	}
 
@@ -63,9 +60,6 @@ public abstract class BaseLog4j2Configuration{
 		LoggerConfig loggerConfig = new LoggerConfig(name, level, additive);
 		for(Appender appender : appenders){
 			loggerConfig.addAppender(appender, null, null);
-		}
-		if(loggerConfigs.containsKey(loggerConfig.getName())){
-			throw new IllegalArgumentException("Duplicate logger config declaration : " + loggerConfig.getName());
 		}
 		loggerConfigs.put(loggerConfig.getName(), loggerConfig);
 	}

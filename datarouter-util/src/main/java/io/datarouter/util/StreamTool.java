@@ -19,6 +19,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Spliterator;
 import java.util.Spliterators;
@@ -26,6 +28,7 @@ import java.util.Spliterators.AbstractSpliterator;
 import java.util.function.BinaryOperator;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -34,6 +37,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import io.datarouter.util.iterable.IterableTool;
+import io.datarouter.util.tuple.Pair;
 
 public class StreamTool{
 
@@ -159,6 +163,14 @@ public class StreamTool{
 			List<String> expected = Arrays.asList("b", "c");
 			Assert.assertEquals(strings, expected);
 		}
+	}
+
+	public static <A,B> Collector<Pair<A,B>,?,Map<A,B>> pairsToMap(){
+		return Collectors.toMap(Pair::getLeft, Pair::getRight);
+	}
+
+	public static <A,B> Collector<Entry<A,B>,?,Map<A,B>> entriesToMap(){
+		return Collectors.toMap(Entry::getKey, Entry::getValue);
 	}
 
 }

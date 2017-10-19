@@ -13,15 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.util.exception;
+package io.datarouter.httpclient.client;
 
-@SuppressWarnings("serial")
-public class InterruptedRuntimeException extends RuntimeException{
+import io.datarouter.httpclient.request.DatarouterHttpRequestBuilder;
 
-	public InterruptedRuntimeException(){}
+public abstract class BaseApplicationHttpClient{
 
-	public InterruptedRuntimeException(Throwable cause){
-		super(cause);
+	protected final DatarouterHttpClient httpClient;
+	protected final DatarouterHttpRequestBuilder requestBuilder;
+
+	public BaseApplicationHttpClient(DatarouterHttpClient httpClient, DatarouterHttpClientSettings settings){
+		this.httpClient = httpClient;
+		this.requestBuilder = new DatarouterHttpRequestBuilder(settings);
 	}
 
 }

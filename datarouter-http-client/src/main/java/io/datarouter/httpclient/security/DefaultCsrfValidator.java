@@ -15,6 +15,7 @@
  */
 package io.datarouter.httpclient.security;
 
+import java.security.GeneralSecurityException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
@@ -29,7 +30,11 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import javax.servlet.http.HttpServletRequest;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class DefaultCsrfValidator implements CsrfValidator{
+	private static final Logger logger = LoggerFactory.getLogger(DefaultCsrfValidator.class);
 	private static final String HASHING_ALGORITHM = "SHA-256";
 	// AES/CBC requires IV to be generated for every encrypted message!!
 	// More details here: https://tools.ietf.org/html/rfc3602
@@ -67,7 +72,12 @@ public class DefaultCsrfValidator implements CsrfValidator{
 
 	@Override
 	public boolean check(HttpServletRequest request){
-		Long requestTime = getRequestTimeMs(request);
+		Long requestTime = null;
+		try{
+			requestTime = getRequestTimeMs(request);
+		}catch(Exception e){
+			logger.warn("DefaultCsrfValidator failed check. Bad key?", e);
+		}
 		if(requestTime == null){
 			return false;
 		}
@@ -86,14 +96,19 @@ public class DefaultCsrfValidator implements CsrfValidator{
 
 	@Override
 	public Long getRequestTimeMs(HttpServletRequest request){
-		String csrfToken = request.getParameter(SecurityParameters.CSRF_TOKEN);
-		String cipherIv = request.getParameter(SecurityParameters.CSRF_IV);
+		String csrfToken = getParameterOrHeader(request, SecurityParameters.CSRF_TOKEN);
+		String cipherIv = getParameterOrHeader(request, SecurityParameters.CSRF_IV);
 		try{
 			Cipher aes = getCipher(Cipher.DECRYPT_MODE, cipherIv);
 			return Long.parseLong(new String(aes.doFinal(Base64.getDecoder().decode(csrfToken))));
-		}catch(Exception e){
+		}catch(GeneralSecurityException e){
 			throw new RuntimeException(e);
 		}
+	}
+
+	private static String getParameterOrHeader(HttpServletRequest request, String key){
+		String value = request.getParameter(key);
+		return value != null ? value : request.getHeader(key);
 	}
 
 	private SecretKeySpec computeKey(String cipherKey) throws NoSuchAlgorithmException{

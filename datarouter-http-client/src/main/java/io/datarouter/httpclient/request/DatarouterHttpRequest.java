@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,6 +27,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.http.HttpEntity;
@@ -190,8 +192,12 @@ public class DatarouterHttpRequest{
 
 	/** Entities only exist in HttpPut, HttpPatch, HttpPost */
 	public String getEntityAsString(){
+		return getEntityAsString(null);
+	}
+
+	public String getEntityAsString(Charset charset){
 		try{
-			return EntityUtils.toString(entity);
+			return EntityUtils.toString(entity, charset);
 		}catch(IOException e){
 			throw new RuntimeException(e);
 		}
@@ -222,6 +228,18 @@ public class DatarouterHttpRequest{
 	public DatarouterHttpRequest setContentType(ContentType contentType){
 		if(contentType != null){
 			headers.computeIfAbsent(CONTENT_TYPE, $ -> new ArrayList<>()).add(contentType.getMimeType());
+		}
+		return this;
+	}
+
+	public DatarouterHttpRequest addParam(String name, Object value){
+		Objects.requireNonNull(value);
+		if(HttpRequestMethod.GET == method){
+			addGetParam(name, value.toString());
+		}else if(HttpRequestMethod.POST == method){
+			addPostParam(name, value.toString());
+		}else{
+			throw new IllegalArgumentException("Only GET and POST methods supported");
 		}
 		return this;
 	}
@@ -413,6 +431,10 @@ public class DatarouterHttpRequest{
 
 	public List<BasicClientCookie> getCookies(){
 		return cookies;
+	}
+
+	public String getPath(){
+		return path;
 	}
 
 }

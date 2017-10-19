@@ -13,15 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.util.exception;
+package io.datarouter.util.time;
 
-@SuppressWarnings("serial")
-public class InterruptedRuntimeException extends RuntimeException{
+import java.time.Duration;
+import java.util.Date;
+import java.util.Objects;
 
-	public InterruptedRuntimeException(){}
+public class DurationTool{
 
-	public InterruptedRuntimeException(Throwable cause){
-		super(cause);
+	public static Duration durationSinceDate(Date date){
+		Objects.requireNonNull(date);
+		return Duration.ofMillis(System.currentTimeMillis() - date.getTime());
 	}
 
 }

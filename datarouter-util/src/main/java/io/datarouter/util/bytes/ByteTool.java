@@ -125,6 +125,18 @@ public class ByteTool{
 		return sb.toString();
 	}
 
+	public static String getHexString(byte[] bytes){
+		StringBuilder sb = new StringBuilder(bytes.length * 2);
+		for(byte word : bytes){
+			String hex = Integer.toHexString(word & 0xff);
+			if(hex.length() == 1){
+				sb.append("0");
+			}
+			sb.append(hex);
+		}
+		return sb.toString();
+	}
+
 	public static byte[] copyOfRange(byte[] in, int offset, int length){
 		byte[] out = new byte[length];
 		System.arraycopy(in, offset, out, 0, length);
@@ -310,6 +322,14 @@ public class ByteTool{
 		@Test
 		public void testPadPrefix(){
 			Assert.assertEquals(padPrefix(new byte[]{55, -21}, 7), new byte[]{0, 0, 0, 0, 0, 55, -21});
+		}
+
+		@Test
+		public void testGetHexString(){
+			byte[] textBytes = StringByteTool.getUtf8Bytes("hello world!");
+			byte[] allBytes = concatenate(textBytes, new byte[]{0, 127, -128});
+			String hexString = getHexString(allBytes);
+			Assert.assertEquals(hexString, "68656c6c6f20776f726c6421007f80");
 		}
 	}
 }

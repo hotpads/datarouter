@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
+import java.util.function.Supplier;
 
 import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
@@ -39,7 +40,6 @@ import io.datarouter.httpclient.response.exception.DatarouterHttpConnectionAbort
 import io.datarouter.httpclient.response.exception.DatarouterHttpException;
 import io.datarouter.httpclient.response.exception.DatarouterHttpResponseException;
 import io.datarouter.httpclient.response.exception.DatarouterHttpRuntimeException;
-import io.datarouter.httpclient.security.DefaultApiKeyPredicate;
 import io.datarouter.httpclient.security.DefaultCsrfValidator;
 import io.datarouter.httpclient.security.DefaultSignatureValidator;
 import io.datarouter.httpclient.security.SecurityParameters;
@@ -222,10 +222,10 @@ public class DatarouterHttpClientIntegrationTests{
 
 		DefaultSignatureValidator signatureValidator = new DefaultSignatureValidator(salt);
 		DefaultCsrfValidator csrfValidator = new DefaultCsrfValidator(cipherKey);
-		DefaultApiKeyPredicate apiKeyPredicate = new DefaultApiKeyPredicate(apiKey);
+		Supplier<String> apiKeySupplier = () -> apiKey;
 
 		client = new DatarouterHttpClientBuilder().setSignatureValidator(signatureValidator)
-				.setCsrfValidator(csrfValidator).setApiKeyPredicate(apiKeyPredicate).build();
+				.setCsrfValidator(csrfValidator).setApiKeySupplier(apiKeySupplier).build();
 
 		Map<String, String> params = new HashMap<>();
 		params.put("1", UUID.randomUUID().toString());
@@ -247,7 +247,7 @@ public class DatarouterHttpClientIntegrationTests{
 		Assert.assertNull(postParams.get(SecurityParameters.SIGNATURE));
 
 		client = new DatarouterHttpClientBuilder().setSignatureValidator(signatureValidator)
-				.setCsrfValidator(csrfValidator).setApiKeyPredicate(apiKeyPredicate).build();
+				.setCsrfValidator(csrfValidator).setApiKeySupplier(apiKeySupplier).build();
 
 		// entity enclosing request with no entity or params cannot be signed
 		request = new DatarouterHttpRequest(HttpRequestMethod.POST, URL, false);
@@ -261,7 +261,7 @@ public class DatarouterHttpClientIntegrationTests{
 		Assert.assertNotNull(postParams.get(SecurityParameters.SIGNATURE));
 
 		client = new DatarouterHttpClientBuilder().setSignatureValidator(signatureValidator)
-				.setCsrfValidator(csrfValidator).setApiKeyPredicate(apiKeyPredicate).build();
+				.setCsrfValidator(csrfValidator).setApiKeySupplier(apiKeySupplier).build();
 
 		// entity enclosing request already with an entity cannot be signed, even with params
 		request = new DatarouterHttpRequest(HttpRequestMethod.PATCH, URL, false).setEntity(params)
@@ -276,7 +276,7 @@ public class DatarouterHttpClientIntegrationTests{
 		Assert.assertNull(postParams.get(SecurityParameters.SIGNATURE));
 
 		client = new DatarouterHttpClientBuilder().setSignatureValidator(signatureValidator)
-				.setCsrfValidator(csrfValidator).setApiKeyPredicate(apiKeyPredicate).build();
+				.setCsrfValidator(csrfValidator).setApiKeySupplier(apiKeySupplier).build();
 
 		// entity enclosing request is signed with entity from post params
 		request = new DatarouterHttpRequest(HttpRequestMethod.POST, URL, false).addPostParams(params);
@@ -302,7 +302,7 @@ public class DatarouterHttpClientIntegrationTests{
 		Assert.assertNull(postParams.get(SecurityParameters.API_KEY));
 		Assert.assertNull(postParams.get(SecurityParameters.SIGNATURE));
 
-		client = new DatarouterHttpClientBuilder().setApiKeyPredicate(apiKeyPredicate).build();
+		client = new DatarouterHttpClientBuilder().setApiKeySupplier(apiKeySupplier).build();
 
 		request = new DatarouterHttpRequest(HttpRequestMethod.PATCH, URL, false).addPostParams(params);
 		response = client.execute(request);

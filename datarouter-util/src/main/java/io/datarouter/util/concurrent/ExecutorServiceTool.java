@@ -15,25 +15,33 @@
  */
 package io.datarouter.util.concurrent;
 
+import java.time.Duration;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class ExecutorServiceTool{
+	private static final Logger logger = LoggerFactory.getLogger(ExecutorServiceTool.class);
 
-	public static void shutdown(ExecutorService exec){
+	public static void shutdown(ExecutorService exec, Duration timeout){
+		Duration halfTimeout = timeout.dividedBy(2);
+		long halfTimeoutMs = timeout.toMillis();
+		logger.info("shutting down {}", exec);
 		exec.shutdown();
-		awaitTerminationForever(exec);
-	}
-
-	public static void awaitTerminationForever(ExecutorService exec){
-		awaitTermination(exec, Long.MAX_VALUE, TimeUnit.DAYS);
-	}
-
-	public static void awaitTermination(ExecutorService exec, long timeout, TimeUnit unit){
 		try{
-			exec.awaitTermination(timeout, unit);
+			if(!exec.awaitTermination(halfTimeoutMs, TimeUnit.MILLISECONDS)){
+				logger.warn("{} did not shut down after {}, interrupting", exec, halfTimeout);
+				exec.shutdownNow();
+				if(!exec.awaitTermination(halfTimeoutMs, TimeUnit.MILLISECONDS)){
+					logger.error("could not shut down {} after {}", exec, timeout);
+				}
+			}
 		}catch(InterruptedException e){
-			throw new RuntimeException(e);
+			logger.warn("interrupted while waiting for {} to shut down", exec);
+			exec.shutdownNow();
+			Thread.currentThread().interrupt();
 		}
 	}
 

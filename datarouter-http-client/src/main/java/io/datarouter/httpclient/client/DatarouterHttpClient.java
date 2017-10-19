@@ -17,11 +17,13 @@ package io.datarouter.httpclient.client;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.time.Duration;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CancellationException;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import javax.inject.Singleton;
 
@@ -49,7 +51,6 @@ import io.datarouter.httpclient.response.exception.DatarouterHttpException;
 import io.datarouter.httpclient.response.exception.DatarouterHttpRequestInterruptedException;
 import io.datarouter.httpclient.response.exception.DatarouterHttpResponseException;
 import io.datarouter.httpclient.response.exception.DatarouterHttpRuntimeException;
-import io.datarouter.httpclient.security.ApiKeyPredicate;
 import io.datarouter.httpclient.security.DefaultCsrfValidator;
 import io.datarouter.httpclient.security.DefaultSignatureValidator;
 import io.datarouter.httpclient.security.SecurityParameters;
@@ -58,23 +59,25 @@ import io.datarouter.httpclient.security.SecurityParameters;
 public class DatarouterHttpClient{
 	private static final Logger logger = LoggerFactory.getLogger(DatarouterHttpClient.class);
 
+	private static final Duration LOG_SLOW_REQUEST_THRESHOLD = Duration.ofSeconds(10);
+
 	private final CloseableHttpClient httpClient;
 	private final JsonSerializer jsonSerializer;
 	private final DefaultSignatureValidator signatureValidator;
 	private final DefaultCsrfValidator csrfValidator;
-	private final ApiKeyPredicate apiKeyPredicate;
+	private final Supplier<String> apiKeySupplier;
 	private final DatarouterHttpClientConfig config;
 	private final PoolingHttpClientConnectionManager connectionManager;
 
 	DatarouterHttpClient(CloseableHttpClient httpClient, JsonSerializer jsonSerializer,
 			DefaultSignatureValidator signatureValidator, DefaultCsrfValidator csrfValidator,
-			ApiKeyPredicate apiKeyPredicate, DatarouterHttpClientConfig config,
+			Supplier<String> apiKeySupplier, DatarouterHttpClientConfig config,
 			PoolingHttpClientConnectionManager connectionManager){
 		this.httpClient = httpClient;
 		this.jsonSerializer = jsonSerializer;
 		this.signatureValidator = signatureValidator;
 		this.csrfValidator = csrfValidator;
-		this.apiKeyPredicate = apiKeyPredicate;
+		this.apiKeySupplier = apiKeySupplier;
 		this.config = config;
 		this.connectionManager = connectionManager;
 	}
@@ -131,9 +134,13 @@ public class DatarouterHttpClient{
 			internalHttpRequest = request.getRequest();
 			requestStartTimeMs = System.currentTimeMillis();
 			HttpResponse httpResponse = httpClient.execute(internalHttpRequest, context);
+			Duration duration = Duration.ofMillis(System.currentTimeMillis() - requestStartTimeMs);
+			if(duration.compareTo(LOG_SLOW_REQUEST_THRESHOLD) > 0){
+				logger.warn("Slow request target={} duration={}", request.getPath(), duration);
+			}
 			DatarouterHttpResponse response = new DatarouterHttpResponse(httpResponse, context, httpEntityConsumer);
 			if(response.getStatusCode() >= HttpStatus.SC_BAD_REQUEST){
-				throw new DatarouterHttpResponseException(response, requestStartTimeMs);
+				throw new DatarouterHttpResponseException(response, duration);
 			}
 			return response;
 		}catch(IOException e){
@@ -154,8 +161,8 @@ public class DatarouterHttpClient{
 			params.put(SecurityParameters.CSRF_IV, csrfIv);
 			params.put(SecurityParameters.CSRF_TOKEN, csrfValidator.generateCsrfToken(csrfIv));
 		}
-		if(apiKeyPredicate != null){
-			params.put(SecurityParameters.API_KEY, apiKeyPredicate.getApiKey());
+		if(apiKeySupplier != null){
+			params.put(SecurityParameters.API_KEY, apiKeySupplier.get());
 		}
 		Map<String,String> signatureParam;
 		if(request.canHaveEntity() && request.getEntity() == null){
@@ -172,6 +179,12 @@ public class DatarouterHttpClient{
 				String signature = signatureValidator.getHexSignature(request.getFirstGetParams());
 				signatureParam = Collections.singletonMap(SecurityParameters.SIGNATURE, signature);
 				request.addGetParams(signatureParam);
+			}
+		}else{
+			request.addHeaders(params);
+			if(signatureValidator != null && request.getEntity() != null){
+				String signature = signatureValidator.getHexSignature(request.getFirstGetParams(), request.getEntity());
+				request.addHeaders(Collections.singletonMap(SecurityParameters.SIGNATURE, signature));
 			}
 		}
 	}

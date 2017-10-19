@@ -1,5 +1,7 @@
+.classpath
 .settings
 .project
 .checkstyle
 target
+test-output
 *.iml

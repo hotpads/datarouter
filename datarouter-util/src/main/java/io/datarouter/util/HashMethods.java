@@ -23,9 +23,12 @@ import java.util.TreeSet;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import io.datarouter.util.bytes.ByteTool;
 import io.datarouter.util.bytes.StringByteTool;
 
 public class HashMethods{
+
+	private static final MessageDigest cloneableMd5 = initCloneableMd5();
 
 	public static long longDjbHash(String str){
 		long hash = 5381L;
@@ -54,14 +57,50 @@ public class HashMethods{
 	}
 
 	public static MessageDigest md5MessageDigest(){
+		if(cloneableMd5 != null){
+			try{
+				return (MessageDigest)cloneableMd5.clone();
+			}catch(CloneNotSupportedException ignore){
+				return createMd5Instance();
+			}
+		}
+		return createMd5Instance();
+	}
+
+	private static MessageDigest createMd5Instance(){
 		try{
 			return MessageDigest.getInstance("MD5");
 		}catch(NoSuchAlgorithmException e){
-			throw new RuntimeException("MD5 not defined", e);
+			throw new AssertionError("MD5 not defined", e);
 		}
 	}
 
-	public static class DrHashMethodsTests{
+	/**
+	 * get md5 hash of given byte array
+	 */
+	public static String md5Hash(byte[] in){
+		byte[] hash = md5MessageDigest().digest(in);
+		return ByteTool.getHexString(hash);
+	}
+
+	/**
+	 * get md5 hash of given string in UTF-8 charset
+	 */
+	public static String md5Hash(String in){
+		return md5Hash(StringByteTool.getUtf8Bytes(in));
+	}
+
+	private static MessageDigest initCloneableMd5(){
+		try{
+			MessageDigest messageDigest = createMd5Instance();
+			messageDigest.clone();
+			return messageDigest;
+		}catch(CloneNotSupportedException ignore){
+			return null;
+		}
+	}
+
+	public static class HashMethodsTests{
 		@Test
 		public void testLongDjb(){
 			long hash1 = longDjbHash("public-school_HOLMES ELEMENTARY_4902 MT. ARARAT DR_SAN DIEGO_CA_92111");
@@ -70,7 +109,7 @@ public class HashMethods{
 		}
 
 		@Test
-		public void testMd5(){
+		public void testMd5DjbHash(){
 			Set<Long> buckets = new TreeSet<>();
 			for(int serverNum = 98; serverNum <= 101; ++serverNum){
 				String serverName = "HadoopNode98:10012:" + serverNum;
@@ -85,6 +124,12 @@ public class HashMethods{
 				avg = (avg * counter + b) / (counter + 1);
 				++counter;
 			}
+		}
+
+		@Test
+		public void testMd5Hash(){
+			String hash = md5Hash("hello world!");
+			Assert.assertEquals(hash, "fc3ff98e8c6a0d3087d515c0473f8677");
 		}
 	}
 }

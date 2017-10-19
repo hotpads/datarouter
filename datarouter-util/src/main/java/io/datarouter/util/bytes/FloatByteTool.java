@@ -15,6 +15,11 @@
  */
 package io.datarouter.util.bytes;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -39,8 +44,38 @@ public class FloatByteTool{
 		return Float.intBitsToFloat(bits);
 	}
 
+	public static byte[] toComparableBytes(float value){
+		int intBits = Float.floatToRawIntBits(value);
+		if(intBits < 0){
+			intBits ^= Integer.MAX_VALUE;
+		}
+		return IntegerByteTool.getComparableBytes(intBits);
+	}
 
-	public static class Tests{
+	public static float fromComparableBytes(byte[] comparableBytes, int offset){
+		int intBits = IntegerByteTool.fromComparableBytes(comparableBytes, offset);
+		if(intBits < 0){
+			intBits ^= Integer.MAX_VALUE;
+		}
+		return Float.intBitsToFloat(intBits);
+	}
+
+	public static class FloatByteToolTests{
+
+		@Test
+		public void testComparableBytes(){
+			List<Float> interestingFloats = Arrays.asList(Float.NEGATIVE_INFINITY, -Float.MAX_VALUE,
+					-Float.MIN_NORMAL, -Float.MIN_VALUE, -0F, +0F, Float.MIN_VALUE, Float.MIN_NORMAL,
+					Float.MAX_VALUE, Float.POSITIVE_INFINITY, Float.NaN);
+			Collections.sort(interestingFloats);
+			List<Float> roundTripped = interestingFloats.stream()
+					.map(FloatByteTool::toComparableBytes)
+					.sorted(ByteTool::bitwiseCompare)
+					.map(bytes -> fromComparableBytes(bytes, 0))
+					.collect(Collectors.toList());
+			Assert.assertEquals(roundTripped, interestingFloats);
+		}
+
 		@Test
 		public void testBytes1(){
 			float floatA = 123.456f;

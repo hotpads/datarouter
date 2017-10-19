@@ -19,6 +19,6 @@ import javax.servlet.http.HttpServletRequest;
 
 public interface SignatureValidator{
 
-	boolean checkHexSignatureMulti(HttpServletRequest request);
+	SecurityValidationResult validate(HttpServletRequest request);
 
 }

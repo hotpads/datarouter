@@ -16,7 +16,10 @@
 package io.datarouter.util.bytes;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -24,6 +27,22 @@ import org.testng.annotations.Test;
 public class DoubleByteTool{
 
 	private static final long NaN = 0x0010000000000000L;
+
+	public static byte[] toComparableBytes(double value){
+		long longBits = Double.doubleToRawLongBits(value);
+		if(longBits < 0){
+			longBits ^= Long.MAX_VALUE;
+		}
+		return LongByteTool.getComparableBytes(longBits);
+	}
+
+	public static double fromComparableBytes(byte[] comparableBytes, int offset){
+		long longBits = LongByteTool.fromComparableBytes(comparableBytes, offset);
+		if(longBits < 0){
+			longBits ^= Long.MAX_VALUE;
+		}
+		return Double.longBitsToDouble(longBits);
+	}
 
 	private static Double fromBytesNullable(final byte[] bytes, final int offset){
 		Long longValue = LongByteTool.fromRawBytes(bytes, offset);
@@ -78,6 +97,21 @@ public class DoubleByteTool{
 	}
 
 	public static class Tests{
+
+		@Test
+		public void testComparableBytes(){
+			List<Double> interestingDoubles = Arrays.asList(Double.NEGATIVE_INFINITY, -Double.MAX_VALUE,
+					-Double.MIN_NORMAL, -Double.MIN_VALUE, -0D, +0D, Double.MIN_VALUE, Double.MIN_NORMAL,
+					Double.MAX_VALUE, Double.POSITIVE_INFINITY, Double.NaN);
+			Collections.sort(interestingDoubles);
+			List<Double> roundTripped = interestingDoubles.stream()
+					.map(DoubleByteTool::toComparableBytes)
+					.sorted(ByteTool::bitwiseCompare)
+					.map(bytes -> fromComparableBytes(bytes, 0))
+					.collect(Collectors.toList());
+			Assert.assertEquals(roundTripped, interestingDoubles);
+		}
+
 		@Test
 		public void testBytes1(){
 			double valueA = 12354234.456D;

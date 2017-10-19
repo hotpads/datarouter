@@ -217,6 +217,18 @@ public class ReflectionTool{
 		}
 	}
 
+	/**
+	 * This will return a list of all the fields declared in the super types of YourClass. It will NOT include
+	 * the declared fields in YourClass. If you need all the declared field including inherited fields
+	 * you must do:<br>
+	 * <br>
+	 * {@code
+	 * List<Field> fields = ReflectionTool.getAllHierarchyFields(YourClass);
+	 * fields.addAll(ReflectionTool.getAllFields(YourClass);
+	 * }
+	 * @param clazz class from which the field list will be extracted.
+	 * @return a list of the inherited declared Fields not including any declared field from YourClass.
+	 */
 	public static List<Field> getAllHierarchyFields(Class<?> clazz){
 		List<Field> fields = new ArrayList<>();
 		for(Class<?> cls : getAllSuperClassesAndInterfaces(clazz)){
@@ -227,6 +239,17 @@ public class ReflectionTool{
 		return fields;
 	}
 
+	/**
+	 * This is a wrapper for Class.getDeclaredFields(). If you need all the declared field including inherited fields
+	 * you must do:<br>
+	 * <br>
+	 * {@code
+	 * List<Field> fields = ReflectionTool.getAllHierarchyFields(YourClass);
+	 * fields.addAll(ReflectionTool.getAllFields(YourClass);
+	 * }
+	 * @param cls class from which the field list will be extracted.
+	 * @return a list of the declared Fields not including any inherited field.
+	 */
 	public static List<Field> getAllFields(Class<?> cls){
 		return Arrays.asList(cls.getDeclaredFields());
 	}
@@ -340,6 +363,15 @@ public class ReflectionTool{
 			}
 		}
 
+		public static class ExtensionDto extends DummyDto{
+			long field3;
+
+			public ExtensionDto(Object field0, int field1, Double field2, long field3){
+				super(field0, field1, field2);
+				this.field3 = field3;
+			}
+		}
+
 		@Test
 		public void testCanParamsCallParamTypes(){
 			Assert.assertTrue(canParamsCallParamTypes(Arrays.asList(4), Arrays.asList(int.class)));
@@ -361,6 +393,16 @@ public class ReflectionTool{
 			Object[] params0 = new Object[]{new Object(), "square peg", 5.5d};
 			DummyDto dummyDto = createWithParameters(DummyDto.class, Arrays.asList(params0));
 			Assert.assertNotNull(dummyDto);
+		}
+
+		@Test
+		public void testGetAllHierarchyFields(){
+			Assert.assertEquals(getAllHierarchyFields(ExtensionDto.class).size(), 3);
+		}
+
+		@Test
+		public void testGetAllFields(){
+			Assert.assertEquals(getAllFields(ExtensionDto.class).size(), 1);
 		}
 	}
 }
