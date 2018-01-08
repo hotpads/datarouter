@@ -40,7 +40,16 @@ public class StringTool{
 		return input == null || input.length() <= 0;
 	}
 
-	public static boolean notNullOrEmpty(String input){
+	public static boolean anyEmpty(String... inputs){
+		for(String input : inputs){
+			if(StringTool.isEmpty(input)){
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public static boolean notNullNorEmpty(String input){
 		return !isNullOrEmpty(input);
 	}
 
@@ -48,7 +57,7 @@ public class StringTool{
 		return input == null || input.length() <= 0 || "null".equalsIgnoreCase(input);
 	}
 
-	public static boolean notEmptyOrWhitespace(String input){
+	public static boolean notEmptyNorWhitespace(String input){
 		return !isEmptyOrWhitespace(input);
 	}
 

@@ -16,6 +16,7 @@
 package io.datarouter.httpclient.response.exception;
 
 import java.time.Duration;
+import java.util.Optional;
 
 import org.apache.http.Header;
 import org.apache.http.HttpStatus;
@@ -63,5 +64,10 @@ public class DatarouterHttpResponseException extends DatarouterHttpException{
 	public boolean isServerError(){
 		int statusCode = response.getStatusCode();
 		return statusCode >= HttpStatus.SC_INTERNAL_SERVER_ERROR;
+	}
+
+	public Optional<String> getExceptionId(){
+		Header header = response.getFirstHeader(X_EXCEPTION_ID);
+		return Optional.ofNullable(header).map(Header::getValue);
 	}
 }

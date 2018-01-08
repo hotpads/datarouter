@@ -74,4 +74,7 @@ public class RandomTool{
 		return (int)Math.floor(Math.random() * (max - min + 1)) + min;
 	}
 
+	public static int getRandomNonZeroPercent(){
+		return getRandomIntBetweenTwoNumbers(1, 100);
+	}
 }

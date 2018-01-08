@@ -100,12 +100,8 @@ public class FutureTool{
 		return submitAndGet(callable, executorService, null);
 	}
 
-	public static <T> T submitAndGet(Callable<T> callable, ExecutorService executorService, Long timoutMilliseconds){
-		return get(submit(callable, executorService), timoutMilliseconds);
-	}
-
-	public static <T> Future<T> submit(Callable<T> callable, ExecutorService executorService){
-		return executorService.submit(callable);
+	public static <T> T submitAndGet(Callable<T> callable, ExecutorService executorService, Long timeoutMilliseconds){
+		return get(executorService.submit(callable), timeoutMilliseconds);
 	}
 
 	public static <T> T get(Future<T> future){

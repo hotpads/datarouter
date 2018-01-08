@@ -48,15 +48,6 @@ public class DefaultSignatureValidator implements SignatureValidator{
 		this.salt = salt;
 	}
 
-	public boolean checkHexSignature(Map<String,String> params, String candidateSignature){
-		// params might have it's own order, so see if it works without enforcing order first
-		if(getHexSignatureWithoutSettingParameterOrder(params).equals(candidateSignature)){
-			logger.warn("Successfully checked signature without checking parameter order");
-			return true;
-		}
-		return getHexSignature(params).equals(candidateSignature);
-	}
-
 	public boolean checkHexSignature(Map<String,String> params, HttpEntity entity, String candidateSignature){
 		if(getHexSignatureWithoutSettingParameterOrder(params, entity).equals(candidateSignature)){
 			if(!params.isEmpty()){
@@ -152,11 +143,6 @@ public class DefaultSignatureValidator implements SignatureValidator{
 
 	public String getHexSignature(Map<String,String> params){
 		byte[] signature = sign(params);
-		return Hex.encodeHexString(signature);
-	}
-
-	public String getHexSignatureWithoutSettingParameterOrder(Map<String,String> params){
-		byte[] signature = signWithoutSettingParameterOrder(params, null);
 		return Hex.encodeHexString(signature);
 	}
 

@@ -22,9 +22,10 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
@@ -35,6 +36,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import io.datarouter.util.collection.CollectionTool;
+import io.datarouter.util.collection.ListTool;
 import io.datarouter.util.string.StringTool;
 
 public class ReflectionTool{
@@ -103,12 +105,14 @@ public class ReflectionTool{
 	}
 
 	public static Object get(String fieldName, Object object){
-		return get(getCachedDeclaredFieldFromHierarchy(object.getClass(), fieldName), object);
+		return get(getCachedDeclaredFieldIncludingAncestors(object.getClass(), fieldName), object);
 	}
 
 	public static Object get(Field field, Object object){
 		if(field != null && object != null){
-			field.setAccessible(true);
+			if(!field.isAccessible()){
+				field.setAccessible(true);
+			}
 			try{
 				return field.get(object);
 			}catch(IllegalArgumentException | IllegalAccessException e){
@@ -127,7 +131,7 @@ public class ReflectionTool{
 	}
 
 	public static Set<Class<?>> getAllSuperClassesAndInterfaces(Class<?> cls){
-		Set<Class<?>> supersAndInterfaces = new HashSet<>();
+		Set<Class<?>> supersAndInterfaces = new LinkedHashSet<>();
 		for(Class<?> interfaceClass : cls.getInterfaces()){
 			supersAndInterfaces.add(interfaceClass);
 			supersAndInterfaces.addAll(getAllSuperClassesAndInterfaces(interfaceClass));
@@ -142,7 +146,7 @@ public class ReflectionTool{
 
 	/*********************** get fields ***********************************/
 
-	public static Field getDeclaredFieldFromHierarchy(Class<?> clazz, String fieldName){
+	public static Field getDeclaredFieldFromAncestors(Class<?> clazz, String fieldName){
 		Set<Class<?>> supersAndInterfaces = getAllSuperClassesAndInterfaces(clazz);
 		supersAndInterfaces.add(clazz);
 		for(Class<?> cls : supersAndInterfaces){
@@ -186,13 +190,13 @@ public class ReflectionTool{
 		}
 	}
 
-	private static ConcurrentHashMap<FieldInClass,Field> cachedDeclaredFields = new ConcurrentHashMap<>();
+	private static final Map<FieldInClass,Field> cachedDeclaredFields = new ConcurrentHashMap<>();
 
-	public static Field getCachedDeclaredFieldFromHierarchy(Class<?> cls, String fieldName){
+	public static Field getCachedDeclaredFieldIncludingAncestors(Class<?> cls, String fieldName){
 		FieldInClass fieldInClass = new FieldInClass(cls, fieldName);
 		Field field = cachedDeclaredFields.get(fieldInClass);
 		if(field == null){
-			field = getDeclaredFieldFromHierarchy(cls, fieldName);
+			field = getDeclaredFieldFromAncestors(cls, fieldName);
 			cachedDeclaredFields.put(fieldInClass, field);
 		}
 		return field;
@@ -201,7 +205,7 @@ public class ReflectionTool{
 	public static Field getNestedField(Object object, List<String> fieldNames){
 		try{
 			String fieldName = CollectionTool.getFirst(fieldNames);
-			Field field = getDeclaredFieldFromHierarchy(object.getClass(), fieldName);
+			Field field = getDeclaredFieldFromAncestors(object.getClass(), fieldName);
 			field.setAccessible(true);
 			if(CollectionTool.size(fieldNames) == 1){
 				return field;
@@ -219,17 +223,11 @@ public class ReflectionTool{
 
 	/**
 	 * This will return a list of all the fields declared in the super types of YourClass. It will NOT include
-	 * the declared fields in YourClass. If you need all the declared field including inherited fields
-	 * you must do:<br>
-	 * <br>
-	 * {@code
-	 * List<Field> fields = ReflectionTool.getAllHierarchyFields(YourClass);
-	 * fields.addAll(ReflectionTool.getAllFields(YourClass);
-	 * }
+	 * the declared fields in YourClass.
 	 * @param clazz class from which the field list will be extracted.
 	 * @return a list of the inherited declared Fields not including any declared field from YourClass.
 	 */
-	public static List<Field> getAllHierarchyFields(Class<?> clazz){
+	public static List<Field> getDeclaredFieldsFromAncestors(Class<?> clazz){
 		List<Field> fields = new ArrayList<>();
 		for(Class<?> cls : getAllSuperClassesAndInterfaces(clazz)){
 			for(Field field : cls.getDeclaredFields()){
@@ -240,23 +238,27 @@ public class ReflectionTool{
 	}
 
 	/**
-	 * This is a wrapper for Class.getDeclaredFields(). If you need all the declared field including inherited fields
-	 * you must do:<br>
-	 * <br>
-	 * {@code
-	 * List<Field> fields = ReflectionTool.getAllHierarchyFields(YourClass);
-	 * fields.addAll(ReflectionTool.getAllFields(YourClass);
-	 * }
+	 * This will return a list of all the fields declared in the given class and in its super types.
+	 * @param clazz class from which the field list will be extracted.
+	 * @return a list of the inherited declared Fields not including any declared field from YourClass.
+	 */
+	public static List<Field> getDeclaredFieldsIncludingAncestors(Class<?> clazz){
+		return ListTool.concatenate(getDeclaredFields(clazz), getDeclaredFieldsFromAncestors(clazz));
+	}
+
+	/**
+	 * This is a wrapper for Class.getDeclaredFields().
 	 * @param cls class from which the field list will be extracted.
 	 * @return a list of the declared Fields not including any inherited field.
 	 */
-	public static List<Field> getAllFields(Class<?> cls){
-		return Arrays.asList(cls.getDeclaredFields());
+	public static List<Field> getDeclaredFields(Class<?> cls){
+		return ListTool.create(cls.getDeclaredFields());
 	}
 
 	/*********************** get Method ***********************************/
 
-	public static Method getDeclaredMethodFromHierarchy(Class<?> clazz, String methodName, Class<?>... parameterTypes){
+	public static Method getDeclaredMethodIncludingAncestors(Class<?> clazz, String methodName,
+			Class<?>... parameterTypes){
 		try{
 			Method method = clazz.getDeclaredMethod(methodName, parameterTypes);
 			if(method != null){
@@ -396,13 +398,19 @@ public class ReflectionTool{
 		}
 
 		@Test
-		public void testGetAllHierarchyFields(){
-			Assert.assertEquals(getAllHierarchyFields(ExtensionDto.class).size(), 3);
+		public void testGetDeclaredFieldsFromAncestors(){
+			Assert.assertEquals(getDeclaredFieldsFromAncestors(ExtensionDto.class).size(), 3);
 		}
 
 		@Test
-		public void testGetAllFields(){
-			Assert.assertEquals(getAllFields(ExtensionDto.class).size(), 1);
+		public void testGetDeclaredFieldsIncludingAncestors(){
+			Assert.assertEquals(getDeclaredFieldsIncludingAncestors(ExtensionDto.class).size(), 4);
 		}
+
+		@Test
+		public void testGetDeclaredFields(){
+			Assert.assertEquals(getDeclaredFields(ExtensionDto.class).size(), 1);
+		}
+
 	}
 }

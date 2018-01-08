@@ -15,6 +15,7 @@
  */
 package io.datarouter.util.lang;
 
+import java.util.Arrays;
 import java.util.Objects;
 
 public class ObjectTool{
@@ -37,6 +38,11 @@ public class ObjectTool{
 
 	public static String nullSafeToString(Object object){
 		return Objects.toString(object, null);
+	}
+
+	public static void requireNonNulls(Object... objects){
+		Arrays.stream(objects)
+				.forEach(Objects::requireNonNull);
 	}
 
 	public static boolean anyNull(Object... objects){

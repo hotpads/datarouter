@@ -24,7 +24,6 @@ import org.testng.annotations.Test;
 
 import io.datarouter.util.collection.CollectionTool;
 
-
 public class FileToolTests{
 
 	@Test
@@ -38,6 +37,13 @@ public class FileToolTests{
 		String content = FileTool.readFile(file);
 		Assert.assertTrue(content.contains(FileToolTests.class.getSimpleName()));
 		Assert.assertTrue(content.contains(FileToolTests.class.getPackage().getName()));
+	}
+
+	@Test
+	public void hasAStaticFileExtensionTest(){
+		Assert.assertTrue(FileTool.hasAStaticFileExtension("/res/lib.js"));
+		Assert.assertTrue(FileTool.hasAStaticFileExtension("/res/style.css"));
+		Assert.assertFalse(FileTool.hasAStaticFileExtension("/sitemap"));
 	}
 
 }

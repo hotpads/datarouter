@@ -18,7 +18,6 @@ package io.datarouter.httpclient.client;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.time.Duration;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CancellationException;
@@ -164,27 +163,24 @@ public class DatarouterHttpClient{
 		if(apiKeySupplier != null){
 			params.put(SecurityParameters.API_KEY, apiKeySupplier.get());
 		}
-		Map<String,String> signatureParam;
 		if(request.canHaveEntity() && request.getEntity() == null){
 			params = request.addPostParams(params).getFirstPostParams();
 			if(signatureValidator != null && !params.isEmpty()){
 				String signature = signatureValidator.getHexSignature(request.getFirstPostParams());
-				signatureParam = Collections.singletonMap(SecurityParameters.SIGNATURE, signature);
-				request.addPostParams(signatureParam);
+				request.addPostParam(SecurityParameters.SIGNATURE, signature);
 			}
 			request.setEntity(request.getFirstPostParams());
 		}else if(request.getMethod() == HttpRequestMethod.GET){
 			params = request.addGetParams(params).getFirstGetParams();
 			if(signatureValidator != null && !params.isEmpty()){
 				String signature = signatureValidator.getHexSignature(request.getFirstGetParams());
-				signatureParam = Collections.singletonMap(SecurityParameters.SIGNATURE, signature);
-				request.addGetParams(signatureParam);
+				request.addGetParam(SecurityParameters.SIGNATURE, signature);
 			}
 		}else{
 			request.addHeaders(params);
 			if(signatureValidator != null && request.getEntity() != null){
 				String signature = signatureValidator.getHexSignature(request.getFirstGetParams(), request.getEntity());
-				request.addHeaders(Collections.singletonMap(SecurityParameters.SIGNATURE, signature));
+				request.addHeader(SecurityParameters.SIGNATURE, signature);
 			}
 		}
 	}

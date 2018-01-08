@@ -34,6 +34,7 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpHost;
 import org.apache.http.NameValuePair;
+import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.config.RequestConfig.Builder;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -141,6 +142,7 @@ public class DatarouterHttpRequest{
 		}
 		if(timeoutMs != null || proxy != null){
 			Builder builder = RequestConfig.custom();
+			builder.setCookieSpec(CookieSpecs.STANDARD);
 			if(timeoutMs != null){
 				builder.setConnectTimeout(timeoutMs).setConnectionRequestTimeout(timeoutMs).setSocketTimeout(timeoutMs);
 			}
@@ -221,6 +223,11 @@ public class DatarouterHttpRequest{
 		return this;
 	}
 
+	public DatarouterHttpRequest addHeader(String name, String value){
+		headers.computeIfAbsent(name, $ -> new ArrayList<>()).add(value);
+		return this;
+	}
+
 	public DatarouterHttpRequest addHeaders(Map<String,String> headers){
 		return addEntriesToMap(this.headers, headers);
 	}
@@ -294,13 +301,12 @@ public class DatarouterHttpRequest{
 
 	public DatarouterHttpRequest addBasicAuthorizationHeaders(String username, String password){
 		String encodedCredentials = Base64.encodeBase64String((username + ":" + password).getBytes());
-		String authenticationString = "Basic " + encodedCredentials;
-		headers.computeIfAbsent("Authorization", $ -> new ArrayList<>()).add(authenticationString);
+		addHeader("Authorization", "Basic " + encodedCredentials);
 		return this;
 	}
 
 	public DatarouterHttpRequest addBearerAuthorizationHeader(String accessToken){
-		headers.computeIfAbsent("Authorization", $ -> new ArrayList<>()).add("Bearer " + accessToken);
+		addHeader("Authorization", "Bearer " + accessToken);
 		return this;
 	}
 

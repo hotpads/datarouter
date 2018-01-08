@@ -51,13 +51,11 @@ public class BatchingIterable<T> implements Iterable<List<T>>{
 
 	public static class BatchingIterator<T> implements Iterator<List<T>>{
 
-		private Iterator<T> iter;
-		private List<T> batch;
-		private int batchSize;
+		private final Iterator<T> iter;
+		private final int batchSize;
 
-		private BatchingIterator(Iterator<T> iter, int batchSize){
-			this.iter = iter;
-			this.batch = new ArrayList<>();
+		private BatchingIterator(Iterator<T> iterator, int batchSize){
+			this.iter = iterator;
 			this.batchSize = batchSize;
 		}
 
@@ -68,14 +66,11 @@ public class BatchingIterable<T> implements Iterable<List<T>>{
 
 		@Override
 		public List<T> next(){
-			while(true){
-				if(!iter.hasNext() || batch.size() >= batchSize){
-					List<T> result = batch;
-					batch = new ArrayList<>();
-					return result;
-				}
+			List<T> batch = new ArrayList<>(batchSize);
+			while(iter.hasNext() && batch.size() < batchSize){
 				batch.add(iter.next());
 			}
+			return batch;
 		}
 
 	}

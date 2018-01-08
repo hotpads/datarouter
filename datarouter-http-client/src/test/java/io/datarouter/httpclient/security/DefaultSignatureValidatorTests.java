@@ -66,34 +66,6 @@ public class DefaultSignatureValidatorTests{
 	}
 
 	@Test
-	public void testNotSettingParameterOrder(){
-		String originalSignature = validator.getHexSignatureWithoutSettingParameterOrder(params);
-		Map<String,String> reorderedParams = new HashMap<>(params);
-		String reorderedSignature = validator.getHexSignatureWithoutSettingParameterOrder(reorderedParams);
-
-		Assert.assertNotEquals(originalSignature, reorderedSignature);
-	}
-
-	@Test
-	public void testCheckHexSignatureHandlesBothCases(){
-		String signatureWithoutSettingOrder = validator.getHexSignatureWithoutSettingParameterOrder(params);
-		Map<String,String> reorderedParams = new HashMap<>(params);
-		String reorderedSignatureWithoutSettingOrder =
-				validator.getHexSignatureWithoutSettingParameterOrder(reorderedParams);
-
-		Assert.assertTrue(validator.checkHexSignature(params, signatureWithoutSettingOrder));
-		Assert.assertTrue(validator.checkHexSignature(reorderedParams, reorderedSignatureWithoutSettingOrder));
-		// check fails if signature was generated without setting order, and params are then reordered
-		Assert.assertFalse(validator.checkHexSignature(reorderedParams, signatureWithoutSettingOrder));
-
-		String signatureSettingOrder = validator.getHexSignature(params);
-		String reorderedSignature = validator.getHexSignature(reorderedParams);
-
-		Assert.assertTrue(validator.checkHexSignature(params, reorderedSignature));
-		Assert.assertTrue(validator.checkHexSignature(reorderedParams, signatureSettingOrder));
-	}
-
-	@Test
 	public void testCheckHexSignatureEntity(){
 		StringEntity entity = new StringEntity("{ 'key': 'value' }", StandardCharsets.UTF_8);
 		String hexSignature = validator.getHexSignature(params, entity);

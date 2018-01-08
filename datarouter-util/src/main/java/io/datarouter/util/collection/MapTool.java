@@ -23,10 +23,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.stream.Collector;
-import java.util.stream.Collectors;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -136,7 +134,7 @@ public class MapTool{
 	 * <pre>getBy(employees, ssnGetter) -&gt; Map&lt;SSN, Employee&gt;</pre>
 	 */
 	public static <K,V> Map<K,V> getBy(Iterable<V> values, Function<V,K> keyMapper){
-		return StreamTool.stream(values).collect(toMap(keyMapper));
+		return StreamTool.stream(values).collect(CollectorTool.toMap(keyMapper));
 	}
 
 	/**
@@ -144,7 +142,7 @@ public class MapTool{
 	 * <pre>getBy(employees, ssnGetter, phoneGetter) -&gt; Map&lt;SSN, Phone&gt;</pre>
 	 */
 	public static <T,K,V> Map<K,V> getBy(Iterable<T> elements, Function<T,K> keyMapper, Function<T,V> valueMapper){
-		return StreamTool.stream(elements).collect(toMap(keyMapper, valueMapper));
+		return StreamTool.stream(elements).collect(CollectorTool.toMap(keyMapper, valueMapper));
 	}
 
 	/**
@@ -157,23 +155,6 @@ public class MapTool{
 			map.put(keyMapper.apply(element), valueMapper.apply(element));
 		}
 		return map;
-	}
-
-	/****************** collectors ***********************/
-
-	public static <V,K> Collector<V,?,Map<K,V>> toMap(Function<V,K> keyMapper){
-		return toMap(keyMapper, Function.identity());
-	}
-
-	/**
-	 * similar to {@link Collectors#toMap(Function, Function)} but: <br>
-	 * - this creates a LinkedHashMap, not HashMap <br>
-	 * - in case of duplicate mappings, old value is overwritten with new value.
-	 */
-	public static <T,K,U> Collector<T,?,Map<K,U>> toMap(Function<? super T,? extends K> keyMapper,
-			Function<? super T,? extends U> valueMapper){
-		BinaryOperator<U> lastValueFavoringMerger = (oldValue, newValue) -> newValue;
-		return Collectors.toMap(keyMapper, valueMapper, lastValueFavoringMerger, LinkedHashMap::new);
 	}
 
 	/***************** tests ***************************/

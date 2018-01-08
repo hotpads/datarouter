@@ -22,6 +22,7 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 import org.apache.http.client.RedirectStrategy;
+import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;
@@ -72,6 +73,7 @@ public class DatarouterHttpClientBuilder{
 
 	public DatarouterHttpClient build(){
 		RequestConfig defaultRequestConfig = RequestConfig.custom()
+				.setCookieSpec(CookieSpecs.STANDARD)
 				.setConnectTimeout(timeoutMs)
 				.setConnectionRequestTimeout(timeoutMs)
 				.setSocketTimeout(timeoutMs)

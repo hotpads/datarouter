@@ -46,6 +46,12 @@ public abstract class BaseExecutorGuiceModule extends AbstractModule{
 			.toInstance(createFixedPool(threadGroup, name, threadCount));
 	}
 
+	protected void bindScalingPool(ThreadGroup threadGroup, String name, int threadCount){
+		bind(ExecutorService.class)
+			.annotatedWith(Names.named(name))
+			.toInstance(createScalingPool(threadGroup, name, threadCount));
+	}
+
 	protected void bindCached(ThreadGroup threadGroup, String name){
 		bind(ExecutorService.class)
 			.annotatedWith(Names.named(name))
@@ -76,14 +82,14 @@ public abstract class BaseExecutorGuiceModule extends AbstractModule{
 		return new ScalingThreadPoolExecutor(0, maxThreadCount, 1, TimeUnit.MINUTES, threadFactory);
 	}
 
-	protected ScheduledExecutorService createScheduled(ThreadGroup parentGroup, String name, int numThreads){
-		ThreadFactory threadFactory = new NamedThreadFactory(parentGroup, name, true);
-		return Executors.newScheduledThreadPool(numThreads, threadFactory);
-	}
-
 	private ExecutorService createCached(ThreadGroup threadGroup, String name){
 		ThreadFactory threadFactory = new NamedThreadFactory(threadGroup, name, true);
 		return Executors.newCachedThreadPool(threadFactory);
+	}
+
+	protected ScheduledExecutorService createScheduled(ThreadGroup parentGroup, String name, int numThreads){
+		ThreadFactory threadFactory = new NamedThreadFactory(parentGroup, name, true);
+		return Executors.newScheduledThreadPool(numThreads, threadFactory);
 	}
 
 }

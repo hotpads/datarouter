@@ -40,10 +40,11 @@ public final class DateTool{
 
 	public static final int
 			MILLISECONDS_IN_DAY = 24 * 60 * 60 * 1000,
+			MILLISECONDS_IN_HOUR = 60 * 60 * 1000,
 			MILLISECONDS_IN_MINUTE = 60 * 1000,
 			MILLISECONDS_IN_SECOND = 1000;
 
-	private static final int
+	public static final int
 			SUNDAY_INDEX = 1,
 			MONDAY_INDEX = 2,
 			TUESDAY_INDEX = 3,
@@ -52,7 +53,7 @@ public final class DateTool{
 			FRIDAY_INDEX = 6,
 			SATURDAY_INDEX = 7;
 
-	private static final List<String>
+	public static final List<String>
 			DAY_ABBREVIATIONS = new ArrayList<>(),
 			MONTH_ABBREVIATIONS = new ArrayList<>();
 

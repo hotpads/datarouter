@@ -15,6 +15,7 @@
  */
 package io.datarouter.util.properties;
 
+import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -115,6 +116,17 @@ public class TypedProperties{
 			return null;
 		}
 		return Double.valueOf(val);
+	}
+
+	public InetSocketAddress getInetSocketAddress(String hostnameAndPort){
+		String val = getString(hostnameAndPort);
+		if(StringTool.isEmpty(val)){
+			return null;
+		}
+		String[] hostnameAndPortTokens = val.split(":");
+		String hostname = hostnameAndPortTokens[0];
+		int port = Integer.valueOf(hostnameAndPortTokens[1]);
+		return new InetSocketAddress(hostname, port);
 	}
 
 	/***************** required **********************************/

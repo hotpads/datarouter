@@ -28,7 +28,6 @@ public class DatarouterHttpRequestBuilder{
 		this.settings = settings;
 	}
 
-
 	public DatarouterHttpRequest createGet(String path){
 		return new DatarouterHttpRequest(HttpRequestMethod.GET, buildUrl(path), true);
 	}
@@ -37,8 +36,15 @@ public class DatarouterHttpRequestBuilder{
 		return new DatarouterHttpRequest(HttpRequestMethod.POST, buildUrl(path), false);
 	}
 
+	public DatarouterHttpRequest createPut(String path){
+		return new DatarouterHttpRequest(HttpRequestMethod.PUT, buildUrl(path), true);
+	}
 
-	private String buildUrl(String path){
+	public DatarouterHttpRequest createDelete(String path){
+		return new DatarouterHttpRequest(HttpRequestMethod.DELETE, buildUrl(path), true);
+	}
+
+	public String buildUrl(String path){
 		URI endpointUrl = settings.getEndpointUrl();
 		URI finalUrl = URI.create(endpointUrl + "/" + path);
 		return finalUrl.normalize().toString();

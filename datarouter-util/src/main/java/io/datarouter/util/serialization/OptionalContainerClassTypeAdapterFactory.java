@@ -73,8 +73,7 @@ public class OptionalContainerClassTypeAdapterFactory implements TypeAdapterFact
 
 	protected <T> void processOptionalFields(T source, JsonElement toSerialize){
 		JsonObject custom = toSerialize.getAsJsonObject();
-		List<Field> fields = ReflectionTool.getAllHierarchyFields(source.getClass());
-		fields.addAll(ReflectionTool.getAllFields(source.getClass()));
+		List<Field> fields = ReflectionTool.getDeclaredFieldsIncludingAncestors(source.getClass());
 		fields.stream()
 				.filter(field -> !Modifier.isStatic(field.getModifiers()))
 				.filter(field -> field.getType() == Optional.class)

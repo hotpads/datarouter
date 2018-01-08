@@ -25,16 +25,19 @@ import java.nio.file.PathMatcher;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import io.datarouter.util.bytes.StringByteTool;
 import io.datarouter.util.string.StringTool;
 
 public final class FileTool{
 
-	private static final List<String> staticFilesExtensions = Arrays.asList("ttf", "css", "js", "html", "pdf", "png",
-			"jpg", "jpeg", "swf", "woff", "woff2", "map");
+	private static final List<String> staticFilesExtensions = Stream.of("ttf", "css", "js", "html", "pdf", "png",
+			"jpg", "jpeg", "swf", "woff", "woff2", "map")
+			.map("."::concat)
+			.collect(Collectors.toList());
 
 	public static boolean createFileParents(String path){
 		return createFileParents(new File(path));
@@ -54,6 +57,12 @@ public final class FileTool{
 			return false;
 		}
 		return true;
+	}
+
+	public static void requireExists(File file){
+		if(!file.exists()){
+			throw new IllegalArgumentException("expected file not found: " + file);
+		}
 	}
 
 	public static void delete(String path){
