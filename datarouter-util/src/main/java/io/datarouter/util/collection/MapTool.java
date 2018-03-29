@@ -24,7 +24,6 @@ import java.util.Objects;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
-import java.util.stream.Collector;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;

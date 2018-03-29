@@ -62,7 +62,7 @@ public class ClientTypeRegistry{
 		}
 	}
 
-	public ClientType create(String name){
+	public ClientType get(String name){
 		return clientTypesByName.get().get(name);
 	}
 

@@ -39,7 +39,7 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.datarouter.storage.config.guice.DatarouterExecutorGuiceModule;
+import io.datarouter.storage.config.guice.DatarouterStorageExecutorGuiceModule;
 import io.datarouter.storage.node.DatarouterNodes;
 import io.datarouter.util.concurrent.FutureTool;
 import io.datarouter.util.properties.PropertiesTool;
@@ -80,7 +80,7 @@ public class DatarouterClients{
 
 	@Inject
 	public DatarouterClients(DatarouterNodes datarouterNodes, ClientTypeRegistry clientTypeRegistry,
-			@Named(DatarouterExecutorGuiceModule.POOL_datarouterExecutor) ExecutorService executorService){
+			@Named(DatarouterStorageExecutorGuiceModule.POOL_datarouterExecutor) ExecutorService executorService){
 		this.datarouterNodes = datarouterNodes;
 		this.clientTypeRegistry = clientTypeRegistry;
 		this.executorService = executorService;
@@ -113,7 +113,7 @@ public class DatarouterClients{
 	}
 
 	public ClientType getClientTypeInstance(String clientName){
-		return clientTypeRegistry.create(routerOptions.getClientType(clientName));
+		return clientTypeRegistry.get(routerOptions.getClientType(clientName));
 	}
 
 	private synchronized LazyClientProvider initClientFactoryIfNull(String clientName){

@@ -48,7 +48,7 @@ public class DatarouterEmailTool{
 		}
 	}
 
-	private static void sendEmail(String fromEmail, String toEmail, String subject, String body, boolean html)
+	public static void sendEmail(String fromEmail, String toEmail, String subject, String body, boolean html)
 	throws MessagingException{
 		MimeMessage message = new MimeMessage(MAILING_SESSION);
 		message.setFrom(new InternetAddress(fromEmail));

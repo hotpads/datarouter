@@ -28,17 +28,21 @@ public class RetryableTool{
 
 
 	public static <T> T tryNTimesWithBackoffUnchecked(Retryable<T> callable, final int numAttempts,
-			final long initialBackoffMs){
+			final long initialBackoffMs, boolean logExceptions){
 		long backoffMs = initialBackoffMs;
 		for(int attemptNum = 1; attemptNum <= numAttempts && !Thread.interrupted(); ++attemptNum){
 			try{
 				return callable.call();
 			}catch(Exception e){
 				if(attemptNum < numAttempts){
-					logger.warn("exception on attempt {}/{}, sleeping {}ms", attemptNum, numAttempts, backoffMs, e);
+					if(logExceptions){
+						logger.warn("exception on attempt {}/{}, sleeping {}ms", attemptNum, numAttempts, backoffMs, e);
+					}
 					ThreadTool.sleep(backoffMs);
 				}else{
-					logger.error("exception on final attempt {}", attemptNum, e);
+					if(logExceptions){
+						logger.error("exception on final attempt {}", attemptNum, e);
+					}
 					if(e instanceof RuntimeException){
 						throw (RuntimeException)e;
 					}

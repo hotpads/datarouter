@@ -22,19 +22,23 @@ import java.net.URL;
 import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
 
-import io.datarouter.storage.config.configurer.BaseDatarouterPropertiesConfigurer;
-import io.datarouter.storage.setting.ServerType;
-import io.datarouter.storage.util.ReaderTool;
+import io.datarouter.storage.config.profile.ConfigProfile;
+import io.datarouter.storage.servertype.ServerType;
 import io.datarouter.util.io.FileTool;
+import io.datarouter.util.io.ReaderTool;
 import io.datarouter.util.properties.PropertiesTool;
 import io.datarouter.util.string.StringTool;
 
@@ -43,13 +47,14 @@ public abstract class DatarouterProperties{
 
 	private static final String JVM_ARG_PREFIX = "datarouter.";
 	private static final String CONFIG_DIRECTORY = "config.directory";
-	private static final String CONFIG_STRATEGY = "config.strategy";
 
 	private static final String ENVIRONMENT = "environment";
+	private static final String CONFIG_PROFILE = "configProfile";
 	private static final String SERVER_PUBLIC_IP = "server.publicIp";
 	private static final String SERVER_PRIVATE_IP = "server.privateIp";
 	private static final String SERVER_NAME = "server.name";
 	private static final String SERVER_TYPE = "server.type";
+	private static final String SERVER_CLUSTER_DOMAINS = "server.clusterDomains";
 	private static final String ADMINISTRATOR_EMAIL = "administrator.email";
 	protected static final String INTERNAL_CONFIG_DIRECTORY = "internalConfigDirectory";
 
@@ -58,33 +63,28 @@ public abstract class DatarouterProperties{
 
 	private final String serviceName;
 	protected final String configDirectory;
-	protected final String configStrategy;
 	protected final String configFileLocation;
 
 	private final String environment;
+	private final String configProfile;
 	private final String serverName;
 	private final ServerType serverType;
 	private final String administratorEmail;
 	private final String privateIp;
 	private final String publicIp;
+	private final Collection<String> clusterDomains;
 	protected final String internalConfigDirectory;
 
 	/*----------------- construct ------------------*/
 
-	protected DatarouterProperties(BaseDatarouterPropertiesConfigurer configurer, ServerType serverTypeOptions,
-			String serviceName, boolean directoryRequired){
-		this(configurer, serverTypeOptions, serviceName, System.getProperty(JVM_ARG_PREFIX + CONFIG_DIRECTORY),
-				directoryRequired, true, null, false);
+	protected DatarouterProperties(ServerType serverTypeOptions, String serviceName,
+			String configDirectory, String filename){
+		this(serverTypeOptions, serviceName, configDirectory, true, false, filename, true);
 	}
 
-	protected DatarouterProperties(BaseDatarouterPropertiesConfigurer configurer, ServerType serverTypeOptions,
-			String serviceName, String configDirectory, String filename){
-		this(configurer, serverTypeOptions, serviceName, configDirectory, true, false, filename, true);
-	}
-
-	private DatarouterProperties(BaseDatarouterPropertiesConfigurer configurer, ServerType serverTypeOptions,
-			String serviceName, String configDirectory, boolean directoryRequired, boolean directoryFromJvmArg,
-			String filename, boolean fileRequired){
+	private DatarouterProperties(ServerType serverTypeOptions, String serviceName,
+			String configDirectory, boolean directoryRequired, boolean directoryFromJvmArg, String filename,
+			boolean fileRequired){
 		boolean fileRequiredWithoutDirectoryRequired = fileRequired && !directoryRequired;
 		Preconditions.checkState(!fileRequiredWithoutDirectoryRequired, "directory is required if file is required");
 
@@ -101,14 +101,6 @@ public abstract class DatarouterProperties{
 			}
 		}else{
 			Preconditions.checkState(!directoryRequired, "configDirectory required but not found");
-		}
-
-		//run the configurer to populate the configDirectory
-		this.configStrategy = findConfigStrategy();
-		if(configurer != null){
-			configurer.configure(configStrategy, configDirectory);
-		}else{
-			logger.warn("not running configurer because none provided");
 		}
 
 		//find configPath
@@ -135,26 +127,17 @@ public abstract class DatarouterProperties{
 
 		//find remaining fields
 		this.environment = findEnvironment(configFileProperties);
+		this.configProfile = findConfigProfile(configFileProperties);
 		this.serverName = findServerName(configFileProperties);
 		this.serverType = serverTypeOptions.fromPersistentString(findServerTypeString(configFileProperties));
 		this.administratorEmail = findAdministratorEmail(configFileProperties);
 		this.privateIp = findPrivateIp(configFileProperties);
 		this.publicIp = findPublicIp(configFileProperties);
+		this.clusterDomains = findClusterDomains(configFileProperties);
 		this.internalConfigDirectory = findInternalConfigDirectory(configFileProperties);
 	}
 
 	/*--------------- methods to find config values -----------------*/
-
-	private String findConfigStrategy(){
-		String jvmArgName = JVM_ARG_PREFIX + CONFIG_STRATEGY;
-		String value = System.getProperty(jvmArgName);
-		if(value != null){
-			logJvmArgSource(CONFIG_STRATEGY, value, jvmArgName);
-		}else{
-			logger.warn("JVM arg {} not found", jvmArgName);
-		}
-		return value;
-	}
 
 	//prefer jvmArg then configFile
 	private String findEnvironment(Optional<Properties> configFileProperties){
@@ -173,6 +156,26 @@ public abstract class DatarouterProperties{
 		}
 		logger.error("couldn't find {}", ENVIRONMENT);
 		return null;
+	}
+
+	//prefer jvmArg then configFile
+	private String findConfigProfile(Optional<Properties> configFileProperties){
+		String jvmArgName = JVM_ARG_PREFIX + CONFIG_PROFILE;
+		String jvmArg = System.getProperty(jvmArgName);
+		if(jvmArg != null){
+			logJvmArgSource(CONFIG_PROFILE, jvmArg, jvmArgName);
+			return jvmArg;
+		}
+		if(configFileProperties.isPresent()){
+			Optional<String> value = configFileProperties.map(properties -> properties.getProperty(CONFIG_PROFILE));
+			if(value.isPresent()){
+				logSource(CONFIG_PROFILE, value.get(), configFileLocation);
+				return value.get();
+			}
+		}
+		String defaultValue = ConfigProfile.DEVELOPMENT.get().getPersistentString();
+		logger.error("couldn't find {}, defaulting to {}", CONFIG_PROFILE, defaultValue);
+		return defaultValue;
 	}
 
 	//prefer configFile then hostname
@@ -283,8 +286,34 @@ public abstract class DatarouterProperties{
 		return null;
 	}
 
-	//prefer configFile
+	//prefer jvmArg then configFile
+	private Collection<String> findClusterDomains(Optional<Properties> configFileProperties){
+		String jvmArgName = JVM_ARG_PREFIX + SERVER_CLUSTER_DOMAINS;
+		String jvmArg = System.getProperty(jvmArgName);
+		if(jvmArg != null){
+			logJvmArgSource(SERVER_CLUSTER_DOMAINS, jvmArg, jvmArgName);
+			return parseClusterDomains(jvmArg);
+		}
+		if(configFileProperties.isPresent()){
+			Optional<String> value = configFileProperties.map(properties -> properties.getProperty(
+					SERVER_CLUSTER_DOMAINS));
+			if(value.isPresent()){
+				logSource(SERVER_CLUSTER_DOMAINS, value.get(), configFileLocation);
+				return value.map(this::parseClusterDomains).get();
+			}
+		}
+		logger.error("couldn't find {}", SERVER_CLUSTER_DOMAINS);
+		return Collections.emptyList();
+	}
+
+	//prefer jvmArg then configFile
 	private String findInternalConfigDirectory(Optional<Properties> configFileProperties){
+		String jvmArgName = JVM_ARG_PREFIX + INTERNAL_CONFIG_DIRECTORY;
+		String jvmArg = System.getProperty(jvmArgName);
+		if(jvmArg != null){
+			logJvmArgSource(INTERNAL_CONFIG_DIRECTORY, jvmArg, jvmArgName);
+			return jvmArg;
+		}
 		if(configFileProperties.isPresent()){
 			Optional<String> value = configFileProperties.map(properties -> properties.getProperty(
 					INTERNAL_CONFIG_DIRECTORY));
@@ -334,13 +363,23 @@ public abstract class DatarouterProperties{
 		}
 	}
 
+	private Collection<String> parseClusterDomains(String clusterDomainsProperty){
+		if(StringTool.isNullOrEmptyOrWhitespace(clusterDomainsProperty)){
+			return Collections.emptyList();
+		}
+		return Collections.unmodifiableList(Stream.of(clusterDomainsProperty.split(","))
+				.filter(StringTool::notEmptyNorWhitespace)
+				.map(String::trim)
+				.collect(Collectors.toList()));
+	}
+
 	/*------------------ methods ---------------*/
 
 	public String getServerTypeString(){
 		return Optional.ofNullable(serverType).map(ServerType::getPersistentString).orElse(null);
 	}
 
-	protected String findConfigFile(String filename){
+	public String findConfigFile(String filename){
 		String externalLocation = configDirectory + "/" + filename;
 		if(Files.exists(Paths.get(externalLocation))){
 			return externalLocation;
@@ -368,6 +407,10 @@ public abstract class DatarouterProperties{
 		return privateIp;
 	}
 
+	public Collection<String> getServerClusterDomains(){
+		return clusterDomains;
+	}
+
 	public String getAdministratorEmail(){
 		return administratorEmail;
 	}
@@ -376,16 +419,16 @@ public abstract class DatarouterProperties{
 		return configDirectory;
 	}
 
-	public String getConfigStrategy(){
-		return configStrategy;
-	}
-
 	public String getConfigFileLocation(){
 		return configFileLocation;
 	}
 
 	public String getEnvironment(){
 		return environment;
+	}
+
+	public String getConfigProfile(){
+		return configProfile;
 	}
 
 	public String getServiceName(){

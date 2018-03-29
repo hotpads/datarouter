@@ -21,8 +21,7 @@ import io.datarouter.storage.node.entity.EntityNodeParams;
 import io.datarouter.storage.node.entity.SubEntitySortedMapStorageNode;
 import io.datarouter.storage.node.factory.EntityNodeFactory;
 import io.datarouter.storage.node.factory.NodeFactory;
-import io.datarouter.storage.node.op.combo.SortedMapStorage;
-import io.datarouter.storage.routing.Router;
+import io.datarouter.storage.router.Router;
 import io.datarouter.storage.test.node.basic.sorted.SortedBean.SortedBeanFielder;
 import io.datarouter.storage.test.node.basic.sorted.SortedBeanEntityKey.SortedBeanEntityPartitioner4;
 
@@ -39,8 +38,9 @@ public class SortedBeanEntityNode{
 				SortedBeanEntityPartitioner4::new, nodeName);
 	}
 
-	private EntityNode<SortedBeanEntityKey,SortedBeanEntity> entity;
-	private SubEntitySortedMapStorageNode<SortedBeanEntityKey,SortedBeanKey,SortedBean,SortedBeanFielder> sortedBean;
+	public final EntityNode<SortedBeanEntityKey,SortedBeanEntity> entity;
+	public final SubEntitySortedMapStorageNode<SortedBeanEntityKey,SortedBeanKey,SortedBean,SortedBeanFielder>
+			sortedBean;
 
 	public SortedBeanEntityNode(EntityNodeFactory entityNodeFactory, NodeFactory nodeFactory, Router router,
 			ClientId clientId, EntityNodeParams<SortedBeanEntityKey,SortedBeanEntity> entityNodeParams){
@@ -49,17 +49,5 @@ public class SortedBeanEntityNode{
 				SortedBeanFielder::new, SortedBeanEntity.QUALIFIER_PREFIX_SortedBean));
 		entity.register(sortedBean);
 	}
-
-
-	/*********************** get nodes ******************************/
-
-	public EntityNode<SortedBeanEntityKey,SortedBeanEntity> entity(){
-		return entity;
-	}
-
-	public SortedMapStorage<SortedBeanKey,SortedBean> sortedBean(){
-		return sortedBean;
-	}
-
 
 }

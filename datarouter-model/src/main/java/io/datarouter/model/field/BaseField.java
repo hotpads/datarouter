@@ -76,6 +76,9 @@ public abstract class BaseField<T> implements Field<T>{
 			java.lang.reflect.Field javaField = columnNameToFieldMap.get(cacheKey);
 			if(javaField == null){
 				javaField = ReflectionTool.getDeclaredFieldFromAncestors(nestedFieldSet.getClass(), getKey().getName());
+				if(javaField == null){
+					throw new RuntimeException(getKey().getName() + " doesn't exist in " + nestedFieldSet.getClass());
+				}
 				columnNameToFieldMap.put(cacheKey, javaField);
 			}
 			javaField.set(nestedFieldSet, fieldValue);

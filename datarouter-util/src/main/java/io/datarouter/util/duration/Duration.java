@@ -20,8 +20,9 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.testng.Assert;
-import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
+
+import io.datarouter.util.lang.ClassTool;
 
 public class Duration{
 
@@ -70,8 +71,8 @@ public class Duration{
 		}
 	}
 
-	public Duration(long amont, TimeUnit unit){
-		nano = unit.toNanos(amont);
+	public Duration(long amount, TimeUnit unit){
+		nano = unit.toNanos(amount);
 	}
 
 	public long toSecond(){
@@ -118,36 +119,50 @@ public class Duration{
 		return true;
 	}
 
-	public static class DurationTests{
+	@Override
+	public int hashCode(){
+		return Long.hashCode(nano);
+	}
 
+	@Override
+	public boolean equals(Object obj){
+		if(ClassTool.differentClass(this, obj)){
+			return false;
+		}
+		Duration other = (Duration)obj;
+		return nano == other.nano;
+	}
+
+
+	public static class DurationTests{
 		@Test
 		public void parserAndtoStringTest(){
 			Duration duration = new Duration(3, TimeUnit.DAYS);
-			AssertJUnit.assertEquals("3d", duration.toString());
+			Assert.assertEquals(duration.toString(), "3d");
 			duration = new Duration("1d2h65m15s");
-			AssertJUnit.assertEquals("1d3h5m15s", duration.toString());
+			Assert.assertEquals(duration.toString(), "1d3h5m15s");
 			duration = new Duration("2h1d65m15s");
-			AssertJUnit.assertEquals("1d3h5m15s", duration.toString());
+			Assert.assertEquals(duration.toString(), "1d3h5m15s");
 			duration = new Duration("15s");
-			AssertJUnit.assertEquals(15, duration.toSecond());
-			AssertJUnit.assertEquals("15s", duration.toString());
+			Assert.assertEquals(duration.toSecond(), 15);
+			Assert.assertEquals(duration.toString(), "15s");
 			duration = new Duration("100000d5s123ms");
-			AssertJUnit.assertEquals("100000d5s123ms", duration.toString());
+			Assert.assertEquals(duration.toString(), "100000d5s123ms");
 			duration = new Duration("100000 d 5s 123 ms");
-			AssertJUnit.assertEquals("100000d5s123ms", duration.toString());
+			Assert.assertEquals(duration.toString(), "100000d5s123ms");
 			duration = new Duration("48h");
-			AssertJUnit.assertEquals("2d", duration.toString());
+			Assert.assertEquals(duration.toString(), "2d");
 			duration = new Duration("0");
-			AssertJUnit.assertEquals("0ms", duration.toString());
+			Assert.assertEquals(duration.toString(), "0ms");
 			duration = new Duration("max");
-			AssertJUnit.assertEquals(MAX_VALUE.toString(TimeUnit.NANOSECONDS), duration.toString(TimeUnit.NANOSECONDS));
+			Assert.assertEquals(duration.toString(TimeUnit.NANOSECONDS), MAX_VALUE.toString(TimeUnit.NANOSECONDS));
 			duration = new Duration("1d1d");
-			AssertJUnit.assertEquals("2d", duration.toString());
+			Assert.assertEquals(duration.toString(), "2d");
 			duration = new Duration("4ms1us");
-			AssertJUnit.assertEquals("4ms1us", duration.toString(TimeUnit.MICROSECONDS));
+			Assert.assertEquals(duration.toString(TimeUnit.MICROSECONDS), "4ms1us");
 			duration = new Duration(1234, TimeUnit.NANOSECONDS);
-			AssertJUnit.assertEquals("1us", duration.toString(TimeUnit.MICROSECONDS));
-			AssertJUnit.assertEquals("1us", duration.toString(TimeUnit.NANOSECONDS));
+			Assert.assertEquals(duration.toString(TimeUnit.MICROSECONDS), "1us");
+			Assert.assertEquals(duration.toString(TimeUnit.NANOSECONDS), "1us");
 		}
 
 		@Test
@@ -171,7 +186,7 @@ public class Duration{
 
 		@Test
 		public void testConvertion(){
-			AssertJUnit.assertEquals(1000, new Duration(1, TimeUnit.SECONDS).toMillis());
+			Assert.assertEquals(new Duration(1, TimeUnit.SECONDS).toMillis(), 1000);
 		}
 	}
 }

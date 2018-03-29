@@ -19,7 +19,7 @@ import java.util.Random;
 
 public class RandomTool{
 
-	private static Random random = new Random();
+	private static final Random random = new Random();
 
 	public static short nextPositiveByte(Random random){
 		while(true){
@@ -41,6 +41,10 @@ public class RandomTool{
 
 	public static int nextPositiveInt(){
 		return nextPositiveInt(random);
+	}
+
+	public static int nextPositiveInt(int max){
+		return random.nextInt(max);
 	}
 
 	public static int nextPositiveInt(Random random){

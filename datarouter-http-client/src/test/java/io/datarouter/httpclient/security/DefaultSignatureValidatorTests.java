@@ -42,7 +42,7 @@ public class DefaultSignatureValidatorTests{
 
 	@BeforeTest
 	public void beforeTest(){
-		validator = new DefaultSignatureValidator("329jfsJLKFj2fjjfL2319Jvn2332we");
+		validator = new DefaultSignatureValidator(() -> "329jfsJLKFj2fjjfL2319Jvn2332we");
 
 		params = new LinkedHashMap<>();
 		params.put(SecurityParameters.SIGNATURE, "foobar");

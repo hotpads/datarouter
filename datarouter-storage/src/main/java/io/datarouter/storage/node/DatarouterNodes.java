@@ -38,9 +38,9 @@ import com.google.common.collect.TreeMultimap;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
+import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
-import io.datarouter.storage.routing.Datarouter;
 import io.datarouter.util.collection.CollectionTool;
 
 /**
@@ -105,6 +105,14 @@ public class DatarouterNodes{
 
 	public Node<?,?,?> getNode(String nodeName){
 		return nodeByName.get(nodeName);
+	}
+
+	@SuppressWarnings("unchecked")
+	public <PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			N extends Node<PK,D,?>>
+	N getNodeAndCast(String nodeName){
+		return (N)getNode(nodeName);
 	}
 
 	public List<ClientId> getClientIdsForRouter(String routerName){

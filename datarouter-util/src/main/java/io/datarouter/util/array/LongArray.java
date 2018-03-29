@@ -20,6 +20,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.RandomAccess;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -28,7 +29,8 @@ import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.collection.ListTool;
 import io.datarouter.util.iterable.IterableTool;
 
-public class LongArray implements List<Long>, Comparable<List<Long>>{
+//Implement RandomAccess for proper treatment by some JDK utils
+public class LongArray implements List<Long>, Comparable<List<Long>>, RandomAccess{
 
 	public static final int DEFAULT_initialCapacity = 2;
 	public static final long NULL = Long.MIN_VALUE;// compares before all other longs

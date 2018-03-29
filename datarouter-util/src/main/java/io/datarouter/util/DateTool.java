@@ -183,6 +183,10 @@ public final class DateTool{
 
 	/*---------------- time elapsed ----------------*/
 
+	public static boolean hasPassed(Date date){
+		return new Date().after(date);
+	}
+
 	public static long getMillisecondDifference(Date d1, Date d2){
 		return d2.getTime() - d1.getTime();
 	}

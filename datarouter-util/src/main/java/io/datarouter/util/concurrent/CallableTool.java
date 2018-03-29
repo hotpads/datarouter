@@ -17,7 +17,11 @@ package io.datarouter.util.concurrent;
 
 import java.util.concurrent.Callable;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class CallableTool{
+	private static final Logger logger = LoggerFactory.getLogger(CallableTool.class);
 
 	public static <T> T callUnchecked(Callable<T> callable){
 		try{
@@ -27,4 +31,14 @@ public class CallableTool{
 		}
 	}
 
+	public static <T> T tryCall(Callable<T> callable, boolean logException){
+		try{
+			return callable.call();
+		}catch(Exception e){
+			if(logException){
+				logger.error("callable failure", e);
+			}
+			return null;
+		}
+	}
 }

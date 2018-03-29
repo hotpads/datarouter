@@ -47,8 +47,4 @@ implements CounterAdapter<PK,D,F,N>{
 		return counter;
 	}
 
-	@Override
-	public N getBackingNode(){
-		return backingNode;
-	}
 }

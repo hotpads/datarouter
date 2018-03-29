@@ -18,9 +18,7 @@ package io.datarouter.httpclient.response.exception;
 @SuppressWarnings("serial")
 public class DatarouterHttpRuntimeException extends RuntimeException{
 	public DatarouterHttpRuntimeException(Exception exception){
-		super(exception);
-	}
-	public DatarouterHttpRuntimeException(DatarouterHttpException exception){
-		super(exception.getMessage(), exception.getCause());
+		// give null message to avoid duplicating the message of the causing exception
+		super(null, exception);
 	}
 }

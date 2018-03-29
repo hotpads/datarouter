@@ -20,7 +20,7 @@ import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.node.Node;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
-import io.datarouter.storage.util.DrCounters;
+import io.datarouter.storage.util.DatarouterCounters;
 
 public class NodeCounterFormatter<
 		PK extends PrimaryKey<PK>,
@@ -53,9 +53,9 @@ public class NodeCounterFormatter<
 
 	public void count(String key, long delta){
 		if(physicalNode == null){
-			DrCounters.incNode(key, node.getName(), delta);
+			DatarouterCounters.incNode(key, node.getName(), delta);
 		}else{
-			DrCounters.incFromCounterAdapter(physicalNode, key, delta);
+			DatarouterCounters.incFromCounterAdapter(physicalNode, key, delta);
 		}
 	}
 

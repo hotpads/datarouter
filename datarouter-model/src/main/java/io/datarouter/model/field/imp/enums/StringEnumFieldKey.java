@@ -44,14 +44,20 @@ extends BaseFieldKey<E>{
 
 	@SuppressWarnings("unchecked")
 	public StringEnumFieldKey<E> withSize(int sizeOverride){
-		return new StringEnumFieldKey<>(name, sampleValue, columnName, nullable, (Class<E>)getValueType(),
-				fieldGeneratorType, sampleValue, sizeOverride);
+		return new StringEnumFieldKey<>(name, sampleValue, columnName, nullable, (Class<E>)valueType,
+				fieldGeneratorType, defaultValue, sizeOverride);
 	}
 
 	@SuppressWarnings("unchecked")
 	public StringEnumFieldKey<E> withColumnName(String columnNameOverride){
-		return new StringEnumFieldKey<>(name, sampleValue, columnNameOverride, nullable, (Class<E>)getValueType(),
-				fieldGeneratorType, sampleValue, size);
+		return new StringEnumFieldKey<>(name, sampleValue, columnNameOverride, nullable, (Class<E>)valueType,
+				fieldGeneratorType, defaultValue, size);
+	}
+
+	@SuppressWarnings("unchecked")
+	public StringEnumFieldKey<E> withDefaultValue(E defaultValueOverride){
+		return new StringEnumFieldKey<>(name, sampleValue, columnName, nullable, (Class<E>)valueType,
+				fieldGeneratorType, defaultValueOverride, size);
 	}
 
 	@Override

@@ -17,6 +17,7 @@ package io.datarouter.storage.setting;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentSkipListMap;
@@ -28,6 +29,7 @@ import org.testng.annotations.Test;
 import com.google.common.base.Preconditions;
 
 import io.datarouter.storage.setting.cached.impl.BooleanCachedSetting;
+import io.datarouter.storage.setting.cached.impl.CommaSeparatedStringCachedSetting;
 import io.datarouter.storage.setting.cached.impl.DoubleCachedSetting;
 import io.datarouter.storage.setting.cached.impl.DurationCachedSetting;
 import io.datarouter.storage.setting.cached.impl.IntegerCachedSetting;
@@ -36,9 +38,6 @@ import io.datarouter.storage.setting.cached.impl.StringCachedSetting;
 import io.datarouter.util.duration.Duration;
 
 public abstract class SettingNode{
-
-
-	/*********** fields ***********/
 
 	private final String parentName;
 	private final String name;
@@ -49,8 +48,7 @@ public abstract class SettingNode{
 
 	private final Boolean isGroup;
 
-
-	/*********** construct ***********/
+	/*---------- construct ----------*/
 
 	public SettingNode(SettingFinder finder, String name){
 		this(finder, name, findParentName(name), false);
@@ -79,7 +77,7 @@ public abstract class SettingNode{
 		return name.substring(0, name.lastIndexOf(".")) + ".";
 	}
 
-	/*********** methods ***********/
+	/*---------- methods ----------*/
 
 	protected <N extends SettingNode> N registerChild(N child){
 		if(isGroup){//groups have no children
@@ -183,31 +181,72 @@ public abstract class SettingNode{
 		return shortName.substring(0, shortName.length() - 1);
 	}
 
+	/*----------- register ---------------*/
+
 	public StringCachedSetting registerString(String name, String defaultValue){
-		return register(new StringCachedSetting(finder, getName() + name, defaultValue));
+		return registerStrings(name, defaultTo(defaultValue));
+	}
+
+	public CommaSeparatedStringCachedSetting registerCommaSeparatedString(String name, Set<String> defaultValue){
+		return registerCommaSeparatedStrings(name, defaultTo(defaultValue));
 	}
 
 	public BooleanCachedSetting registerBoolean(String name, Boolean defaultValue){
-		return register(new BooleanCachedSetting(finder, getName() + name, defaultValue));
+		return registerBooleans(name, defaultTo(defaultValue));
 	}
 
 	public IntegerCachedSetting registerInteger(String name, Integer defaultValue){
-		return register(new IntegerCachedSetting(finder, getName() + name, defaultValue));
+		return registerIntegers(name, defaultTo(defaultValue));
 	}
 
 	public LongCachedSetting registerLong(String name, Long defaultValue){
-		return register(new LongCachedSetting(finder, getName() + name, defaultValue));
+		return registerLongs(name, defaultTo(defaultValue));
 	}
 
 	public DoubleCachedSetting registerDouble(String name, Double defaultValue){
-		return register(new DoubleCachedSetting(finder, getName() + name, defaultValue));
+		return registerDoubles(name, defaultTo(defaultValue));
 	}
 
 	public DurationCachedSetting registerDuration(String name, Duration defaultValue){
+		return registerDurations(name, defaultTo(defaultValue));
+	}
+
+	/*----------- register with defaults ---------------*/
+
+	public static <T> DefaultSettingValue<T> defaultTo(T globalDefault){
+		return new DefaultSettingValue<>(globalDefault);
+	}
+
+	public StringCachedSetting registerStrings(String name, DefaultSettingValue<String> defaultValue){
+		return register(new StringCachedSetting(finder, getName() + name, defaultValue));
+	}
+
+	public CommaSeparatedStringCachedSetting registerCommaSeparatedStrings(String name,
+			DefaultSettingValue<Set<String>> defaultValue){
+		return register(new CommaSeparatedStringCachedSetting(finder, getName() + name, defaultValue));
+	}
+
+	public BooleanCachedSetting registerBooleans(String name, DefaultSettingValue<Boolean> defaultValue){
+		return register(new BooleanCachedSetting(finder, getName() + name, defaultValue));
+	}
+
+	public IntegerCachedSetting registerIntegers(String name, DefaultSettingValue<Integer> defaultValue){
+		return register(new IntegerCachedSetting(finder, getName() + name, defaultValue));
+	}
+
+	public LongCachedSetting registerLongs(String name, DefaultSettingValue<Long> defaultValue){
+		return register(new LongCachedSetting(finder, getName() + name, defaultValue));
+	}
+
+	public DoubleCachedSetting registerDoubles(String name, DefaultSettingValue<Double> defaultValue){
+		return register(new DoubleCachedSetting(finder, getName() + name, defaultValue));
+	}
+
+	public DurationCachedSetting registerDurations(String name, DefaultSettingValue<Duration> defaultValue){
 		return register(new DurationCachedSetting(finder, getName() + name, defaultValue));
 	}
 
-	/*********** get/set ***********/
+	/*---------- get/set ----------*/
 
 	public String getName(){
 		return name;

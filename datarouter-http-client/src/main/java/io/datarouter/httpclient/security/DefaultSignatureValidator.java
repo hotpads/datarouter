@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.TreeMap;
+import java.util.function.Supplier;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -42,10 +43,10 @@ public class DefaultSignatureValidator implements SignatureValidator{
 	private static final Logger logger = LoggerFactory.getLogger(DefaultSignatureValidator.class);
 
 	private static final String HASHING_ALGORITHM = "SHA-256";
-	private String salt;
+	private Supplier<String> saltSupplier;
 
-	public DefaultSignatureValidator(String salt){
-		this.salt = salt;
+	public DefaultSignatureValidator(Supplier<String> saltSupplier){
+		this.saltSupplier = saltSupplier;
 	}
 
 	public boolean checkHexSignature(Map<String,String> params, HttpEntity entity, String candidateSignature){
@@ -119,7 +120,7 @@ public class DefaultSignatureValidator implements SignatureValidator{
 				}
 				String value = entry.getValue();
 				String keyValue = parameterName.concat(value == null ? "" : value);
-				String keyValueSalt = keyValue.concat(salt);
+				String keyValueSalt = keyValue.concat(saltSupplier.get());
 				md.update(keyValueSalt.getBytes(StandardCharsets.UTF_8));
 				signature.write(md.digest());
 			}
@@ -127,7 +128,7 @@ public class DefaultSignatureValidator implements SignatureValidator{
 			if(entity != null){
 				byte[] bytes = EntityUtils.toByteArray(entity);
 				md.update(bytes);
-				md.update(salt.getBytes(StandardCharsets.UTF_8));
+				md.update(saltSupplier.get().getBytes(StandardCharsets.UTF_8));
 				signature.write(md.digest());
 			}
 		}catch(IOException | NoSuchAlgorithmException e){

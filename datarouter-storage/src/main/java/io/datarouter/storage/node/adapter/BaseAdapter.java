@@ -121,6 +121,10 @@ implements Node<PK,D,F>{
 		return backingNode.compareTo(that);
 	}
 
+	public N getBackingNode(){
+		return backingNode;
+	}
+
 	@Override
 	public String toString(){
 		return getToStringPrefix() + "[" + backingNode.toString() + "]";

@@ -18,6 +18,7 @@ package io.datarouter.storage.setting.cached;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
+import io.datarouter.storage.setting.DefaultSettingValue;
 import io.datarouter.storage.setting.Setting;
 import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.util.cached.Cached;
@@ -29,11 +30,11 @@ implements Setting<T>{
 
 	protected final SettingFinder finder;
 	protected final String name;
-	protected final T defaultValue;
+	protected final DefaultSettingValue<T> defaultValue;
 	protected boolean hasCustomValues;
 	protected boolean hasRedundantCustomValues;
 
-	public CachedSetting(SettingFinder finder, String name, T defaultValue){
+	public CachedSetting(SettingFinder finder, String name, DefaultSettingValue<T> defaultValue){
 		super(15, TimeUnit.SECONDS);
 		this.finder = finder;
 		this.name = name;
@@ -44,7 +45,7 @@ implements Setting<T>{
 
 	@Override
 	protected T reload(){
-		return finder.getSettingValue(name).map(this::parseStringValue).orElse(defaultValue);
+		return finder.getSettingValue(name).map(this::parseStringValue).orElse(getDefaultValue());
 	}
 
 	@Override
@@ -54,7 +55,7 @@ implements Setting<T>{
 
 	@Override
 	public T getDefaultValue(){
-		return defaultValue;
+		return defaultValue.getValue(finder.getConfigProfile(), finder.getServerType());
 	}
 
 	@Override

@@ -18,10 +18,10 @@ package io.datarouter.storage.test.node.type.index.router;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.setting.DatarouterSettings;
 import io.datarouter.storage.node.factory.NodeFactory;
-import io.datarouter.storage.routing.Datarouter;
 import io.datarouter.storage.test.TestDatarouterProperties;
 import io.datarouter.storage.test.node.type.index.node.TestDatabeanWithManagedIndexRouter;
 import io.datarouter.storage.test.node.type.index.node.TestDatabeanWithTxnManagedIndexRouter;

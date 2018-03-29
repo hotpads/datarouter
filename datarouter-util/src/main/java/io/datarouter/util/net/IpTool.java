@@ -23,6 +23,8 @@ import org.testng.annotations.Test;
 
 public class IpTool{
 
+	private static final String LOOPBACK_RANGE = "127.0.0.0/8";
+
 	/**
 	 * Convert long ip representation into ipv4 octet string.
 	 * Same as mysql's INET_NTOA(ipNum)
@@ -92,6 +94,10 @@ public class IpTool{
 		return false;
 	}
 
+	public static boolean isLoopback(String dottedDecimalIp){
+		return isIpAddressInSubnets(dottedDecimalIp, LOOPBACK_RANGE);
+	}
+
 	public static class Tests{
 		@Test
 		public void testGetDottedDecimal(){
@@ -132,6 +138,14 @@ public class IpTool{
 			String endiP = "0.0.1.0";
 			Assert.assertEquals(257, getIpsInRange(getLongValue(startiP), getLongValue(endiP)).size());
 			Assert.assertEquals("0.0.0.255", getIpsInRange(getLongValue(startiP), getLongValue(endiP)).get(255));
+		}
+
+		@Test
+		public void testIsLoopback(){
+			Assert.assertFalse(isLoopback("126.255.255.255"));
+			Assert.assertTrue(isLoopback("127.0.0.0"));
+			Assert.assertTrue(isLoopback("127.0.0.255"));
+			Assert.assertFalse(isLoopback("128.0.0.0"));
 		}
 	}
 

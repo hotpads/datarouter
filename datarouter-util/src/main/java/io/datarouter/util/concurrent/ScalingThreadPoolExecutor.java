@@ -37,6 +37,12 @@ public class ScalingThreadPoolExecutor extends ThreadPoolExecutor{
 		this.activeCount = new AtomicInteger();
 	}
 
+	/**
+	 * Returns the approximate number of threads that are actively executing tasks.
+	 * It is approximate because a task is considered finished before this count can be decremented.
+	 *
+	 * @return the number of threads
+	 */
 	@Override
 	public int getActiveCount(){
 		return activeCount.get();

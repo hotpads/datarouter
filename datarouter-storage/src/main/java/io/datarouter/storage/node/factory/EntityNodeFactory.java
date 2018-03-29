@@ -26,7 +26,7 @@ import io.datarouter.storage.client.ClientType;
 import io.datarouter.storage.client.DatarouterClients;
 import io.datarouter.storage.node.entity.EntityNode;
 import io.datarouter.storage.node.entity.EntityNodeParams;
-import io.datarouter.storage.routing.Router;
+import io.datarouter.storage.router.Router;
 
 @Singleton
 public class EntityNodeFactory{

@@ -15,16 +15,16 @@
  */
 package io.datarouter.storage.test.node.basic.sorted;
 
+import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.setting.DatarouterSettings;
 import io.datarouter.storage.node.entity.EntityNodeParams;
 import io.datarouter.storage.node.factory.EntityNodeFactory;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
+import io.datarouter.storage.router.BaseRouter;
+import io.datarouter.storage.router.TestRouter;
 import io.datarouter.storage.node.op.combo.SortedMapStorage;
-import io.datarouter.storage.routing.BaseRouter;
-import io.datarouter.storage.routing.Datarouter;
-import io.datarouter.storage.routing.TestRouter;
 import io.datarouter.storage.test.TestDatarouterProperties;
 import io.datarouter.storage.test.node.basic.sorted.SortedBean.SortedBeanFielder;
 
@@ -51,7 +51,7 @@ public class SortedNodeTestRouter extends BaseRouter implements TestRouter{
 		if(entity){
 			sortedBeanEntityNode = new SortedBeanEntityNode(entityNodeFactory, nodeFactory, this, clientId,
 					entityNodeParams);
-			sortedBeanNode = sortedBeanEntityNode.sortedBean();
+			sortedBeanNode = sortedBeanEntityNode.sortedBean;
 		}else{
 			sortedBeanNode = create(clientId, SortedBean::new, SortedBeanFielder::new)
 					.withTableName(tableName).buildAndRegister();

@@ -23,6 +23,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.SecureRandom;
 import java.util.Base64;
+import java.util.function.Supplier;
 
 import javax.crypto.Cipher;
 import javax.crypto.NoSuchPaddingException;
@@ -46,15 +47,15 @@ public class DefaultCsrfValidator implements CsrfValidator{
 	private static final String CIPHER_ALGORITHM = MAIN_CIPHER_ALGORITHM + "/" + SUB_CIPHER_ALGORITHM;
 	private static final Long DEFAULT_REQUEST_TIMEOUT_IN_MS = 10000L;
 
-	private final String cipherKey;
+	private final Supplier<String> cipherKeySupplier;
 	private final long requestTimeoutMs;
 
-	public DefaultCsrfValidator(String cipherKey){
-		this(cipherKey, DEFAULT_REQUEST_TIMEOUT_IN_MS);
+	public DefaultCsrfValidator(Supplier<String> cipherKeySupplier){
+		this(cipherKeySupplier, DEFAULT_REQUEST_TIMEOUT_IN_MS);
 	}
 
-	public DefaultCsrfValidator(String cipherKey, Long requestTimeoutMs){
-		this.cipherKey = cipherKey;
+	public DefaultCsrfValidator(Supplier<String> cipherKeySupplier, Long requestTimeoutMs){
+		this.cipherKeySupplier = cipherKeySupplier;
 		this.requestTimeoutMs = requestTimeoutMs;
 	}
 
@@ -120,7 +121,7 @@ public class DefaultCsrfValidator implements CsrfValidator{
 	private Cipher getCipher(int mode, String cipherIv)
 	throws InvalidKeyException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchPaddingException{
 		Cipher aes = Cipher.getInstance(CIPHER_ALGORITHM);
-		aes.init(mode, computeKey(cipherKey), new IvParameterSpec(cipherIv.getBytes(), 0, 16));
+		aes.init(mode, computeKey(cipherKeySupplier.get()), new IvParameterSpec(cipherIv.getBytes(), 0, 16));
 		return aes;
 	}
 

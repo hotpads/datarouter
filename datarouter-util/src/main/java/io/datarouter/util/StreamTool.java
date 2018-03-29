@@ -49,14 +49,6 @@ public class StreamTool{
 		return StreamSupport.stream(Spliterators.spliteratorUnknownSize(iterator, 0), false);
 	}
 
-	/**
-	 * @deprecated Use {@link IterableTool#map(Iterable, Function)}
-	 */
-	@Deprecated
-	public static <A, T> List<T> map(Iterable<A> iterable, Function<A,T> mapper){
-		return IterableTool.map(iterable, mapper);
-	}
-
 	public static <A, T> List<T> map(Stream<A> stream, Function<A,T> mapper){
 		return stream.map(mapper).collect(Collectors.toList());
 	}

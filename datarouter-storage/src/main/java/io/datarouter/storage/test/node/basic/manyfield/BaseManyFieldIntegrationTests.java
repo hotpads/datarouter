@@ -28,11 +28,11 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
+import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.setting.DatarouterSettings;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.raw.MapStorage.MapStorageNode;
-import io.datarouter.storage.routing.Datarouter;
 import io.datarouter.storage.test.DatarouterStorageTestModuleFactory;
 import io.datarouter.storage.test.TestDatarouterProperties;
 import io.datarouter.storage.test.node.basic.manyfield.ManyFieldBean.ManyFieldTypeBeanFielder;

@@ -15,7 +15,7 @@
  */
 package io.datarouter.storage.op.aware;
 
-import io.datarouter.storage.routing.Datarouter;
+import io.datarouter.storage.Datarouter;
 
 public interface DatarouterAware{
 

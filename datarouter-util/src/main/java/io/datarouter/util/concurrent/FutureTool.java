@@ -15,9 +15,11 @@
  */
 package io.datarouter.util.concurrent;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
@@ -96,8 +98,15 @@ public class FutureTool{
 
 	/********************* singles *****************************/
 
+	public static <T> T submitAndGet(Callable<T> callable, ExecutorService executorService, Optional<Duration> timeout){
+		if(timeout.isPresent()){
+			return get(executorService.submit(callable), timeout.get().toMillis());
+		}
+		return get(executorService.submit(callable));
+	}
+
 	public static <T> T submitAndGet(Callable<T> callable, ExecutorService executorService){
-		return submitAndGet(callable, executorService, null);
+		return submitAndGet(callable, executorService, (Long)null);
 	}
 
 	public static <T> T submitAndGet(Callable<T> callable, ExecutorService executorService, Long timeoutMilliseconds){

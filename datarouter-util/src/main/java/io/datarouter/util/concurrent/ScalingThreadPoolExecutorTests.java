@@ -64,7 +64,6 @@ public class ScalingThreadPoolExecutorTests{
 		phaser.arrive();
 		FutureTool.getAllVaried(futures);
 
-		Assert.assertEquals(executor.getActiveCount(), 0);
 		Assert.assertEquals(executor.getCompletedTaskCount(), MAX_THREADS + 2);
 		Assert.assertEquals(executor.getQueue().size(), 0);
 

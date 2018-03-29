@@ -22,7 +22,7 @@
 	<parent>
 		<groupId>io.datarouter</groupId>
 		<artifactId>datarouter-parent</artifactId>
-		<version>0.0.6</version>
+		<version>0.0.7</version>
 	</parent>
 	
 	<artifactId>datarouter-logging</artifactId>
@@ -31,7 +31,7 @@
 	<description>datarouter-logging</description>
 		
 	<properties>
-		<log4j2Version>2.10.0</log4j2Version>
+		<log4j2Version>2.11.0</log4j2Version>
 	</properties>
 
 	<dependencies>
@@ -70,7 +70,7 @@
 			<plugin>
 				<groupId>org.bsc.maven</groupId>
 				<artifactId>maven-processor-plugin</artifactId>
-				<version>3.3.2</version>
+				<version>3.3.3</version>
 				<executions>
 					<execution>
 						<goals>
@@ -87,6 +87,14 @@
 			<plugin>
 				<groupId>com.mycila</groupId>
 				<artifactId>license-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
 			</plugin>
 		</plugins>
 	</build>

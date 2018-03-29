@@ -22,9 +22,9 @@ import io.datarouter.model.entity.Entity;
 import io.datarouter.model.key.entity.EntityKey;
 import io.datarouter.model.key.primary.EntityPrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
+import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.Node;
-import io.datarouter.storage.routing.Datarouter;
 
 public interface EntityNode<
 		EK extends EntityKey<EK>,

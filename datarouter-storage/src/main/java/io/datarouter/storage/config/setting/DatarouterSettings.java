@@ -19,10 +19,6 @@ import io.datarouter.storage.setting.Setting;
 
 public interface DatarouterSettings{
 
-	Setting<Boolean> getLoggingConfigUpdaterEnabled();
-
 	Setting<Boolean> getRecordCallsites();
-
-	Setting<Integer> getNumThreadsForMaxThreadsTest();
 
 }

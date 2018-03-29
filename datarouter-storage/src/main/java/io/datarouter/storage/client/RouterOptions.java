@@ -18,7 +18,6 @@ package io.datarouter.storage.client;
 import java.util.Collection;
 import java.util.Properties;
 
-import io.datarouter.storage.routing.BaseRouter;
 import io.datarouter.util.properties.TypedProperties;
 
 public class RouterOptions extends TypedProperties{
@@ -31,24 +30,6 @@ public class RouterOptions extends TypedProperties{
 		super(propertiesPath);
 	}
 
-	protected String getRouterPrefix(String routerName){
-		return "router." + routerName + ".";
-	}
-
-	protected String getClientPrefix(String clientName){
-		return "client." + clientName + ".";
-	}
-
-	protected String prependRouterPrefix(String routerName, String toAppend){
-		return getRouterPrefix(routerName) + toAppend;
-	}
-
-	protected String prependClientPrefix(String clientName, String toAppend){
-		return getClientPrefix(clientName) + toAppend;
-	}
-
-	/***************** actual variables *********************************/
-
 	public String getClientType(String clientName){
 		String typeNameKey = prependClientPrefix(clientName, "type");
 		String typeName = getString(typeNameKey);
@@ -58,8 +39,12 @@ public class RouterOptions extends TypedProperties{
 		throw new RuntimeException("Client " + clientName + " does not have a client type in its configuration file");
 	}
 
-	public String getMode(String routerName){
-		return getString(prependRouterPrefix(routerName, "mode"), BaseRouter.MODE_production);
+	private String getClientPrefix(String clientName){
+		return "client." + clientName + ".";
+	}
+
+	private String prependClientPrefix(String clientName, String toAppend){
+		return getClientPrefix(clientName) + toAppend;
 	}
 
 }

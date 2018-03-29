@@ -24,7 +24,6 @@ import java.util.RandomAccess;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
-import org.testng.internal.junit.ArrayAsserts;
 
 import io.datarouter.util.ComparableTool;
 import io.datarouter.util.array.ArrayTool;
@@ -270,11 +269,11 @@ public class ListTool{
 			List<Integer> list1To5TestLimitNeg1 = ListTool.getFirstNElements(list1To5TestLimit200, -1);
 
 			Assert.assertEquals(10, list1To10.size());
-			ArrayAsserts.assertArrayEquals(new Integer[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, list1To10.toArray());
+			Assert.assertEquals(list1To10.toArray(), new Integer[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10});
 			Assert.assertEquals(5, list1To5.size());
-			ArrayAsserts.assertArrayEquals(new Integer[]{1, 2, 3, 4, 5}, list1To5.toArray());
+			Assert.assertEquals(list1To5.toArray(), new Integer[]{1, 2, 3, 4, 5});
 			Assert.assertEquals(list1To5.size(), list1To5TestLimit200.size());
-			ArrayAsserts.assertArrayEquals(list1To5.toArray(), list1To5TestLimit200.toArray());
+			Assert.assertEquals(list1To5TestLimit200.toArray(), list1To5.toArray());
 			Assert.assertEquals(0, list1To5TestLimit0.size());
 			Assert.assertEquals(0, list1To5TestLimitNeg1.size());
 		}

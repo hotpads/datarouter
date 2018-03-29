@@ -22,6 +22,7 @@ import javax.inject.Inject;
 import org.testng.Assert;
 import org.testng.annotations.Guice;
 
+import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.config.PutMethod;
@@ -29,7 +30,6 @@ import io.datarouter.storage.config.setting.DatarouterSettings;
 import io.datarouter.storage.node.factory.EntityNodeFactory;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.SortedMapStorage;
-import io.datarouter.storage.routing.Datarouter;
 import io.datarouter.storage.test.DatarouterStorageTestModuleFactory;
 import io.datarouter.storage.test.TestDatarouterProperties;
 import io.datarouter.util.iterable.BatchingIterable;

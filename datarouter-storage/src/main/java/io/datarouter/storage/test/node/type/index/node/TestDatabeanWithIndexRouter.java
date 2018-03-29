@@ -15,15 +15,15 @@
  */
 package io.datarouter.storage.test.node.type.index.node;
 
+import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.setting.DatarouterSettings;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.IndexedMapStorage;
 import io.datarouter.storage.node.op.raw.MapStorage;
 import io.datarouter.storage.node.type.index.UniqueIndexNode;
-import io.datarouter.storage.routing.BaseRouter;
-import io.datarouter.storage.routing.Datarouter;
-import io.datarouter.storage.routing.TestRouter;
+import io.datarouter.storage.router.BaseRouter;
+import io.datarouter.storage.router.TestRouter;
 import io.datarouter.storage.test.TestDatabean;
 import io.datarouter.storage.test.TestDatabeanFielder;
 import io.datarouter.storage.test.TestDatabeanKey;

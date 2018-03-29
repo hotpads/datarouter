@@ -15,13 +15,14 @@
  */
 package io.datarouter.storage.setting.cached.impl;
 
+import io.datarouter.storage.setting.DefaultSettingValue;
 import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.storage.setting.cached.CachedSetting;
 import io.datarouter.storage.setting.type.IntegerSetting;
 
 public class IntegerCachedSetting extends CachedSetting<Integer> implements IntegerSetting{
 
-	public IntegerCachedSetting(SettingFinder finder, String name, Integer defaultValue){
+	public IntegerCachedSetting(SettingFinder finder, String name, DefaultSettingValue<Integer> defaultValue){
 		super(finder, name, defaultValue);
 	}
 

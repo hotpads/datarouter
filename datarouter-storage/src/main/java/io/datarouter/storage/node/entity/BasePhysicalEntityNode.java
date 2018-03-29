@@ -23,9 +23,9 @@ import io.datarouter.model.entity.Entity;
 import io.datarouter.model.key.entity.EntityKey;
 import io.datarouter.model.key.primary.EntityPrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
+import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.Client;
 import io.datarouter.storage.client.ClientTableNodeNames;
-import io.datarouter.storage.routing.Datarouter;
 import io.datarouter.storage.serialize.fieldcache.EntityFieldInfo;
 
 public abstract class BasePhysicalEntityNode<

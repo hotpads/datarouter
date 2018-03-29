@@ -61,7 +61,7 @@ public class SchemaUpdateOptions{
 
 	@Inject
 	public SchemaUpdateOptions(DatarouterProperties datarouterProperties){
-		String configFileLocation = datarouterProperties.getConfigDirectory() + "/" + SCHEMA_UPDATE_FILENAME;
+		String configFileLocation = datarouterProperties.findConfigFile(SCHEMA_UPDATE_FILENAME);
 		try{
 			properties = PropertiesTool.parse(configFileLocation);
 		}catch(Exception e){

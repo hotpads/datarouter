@@ -19,11 +19,19 @@ import java.time.Duration;
 import java.util.Date;
 import java.util.Objects;
 
+import io.datarouter.util.duration.DurationUnit;
+import io.datarouter.util.duration.DurationWithCarriedUnits;
+
 public class DurationTool{
 
 	public static Duration durationSinceDate(Date date){
 		Objects.requireNonNull(date);
 		return Duration.ofMillis(System.currentTimeMillis() - date.getTime());
+	}
+
+	public static String toString(Duration duration){
+		DurationWithCarriedUnits wud = new DurationWithCarriedUnits(duration.toMillis());
+		return wud.toStringByMaxUnitsMaxPrecision(DurationUnit.MILLISECONDS, 2);
 	}
 
 }

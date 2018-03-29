@@ -21,7 +21,7 @@ import io.datarouter.storage.client.ClientType;
 import io.datarouter.storage.node.entity.EntityNode;
 import io.datarouter.storage.node.entity.EntityNodeParams;
 import io.datarouter.storage.node.factory.NodeFactory;
-import io.datarouter.storage.routing.Router;
+import io.datarouter.storage.router.Router;
 
 public abstract class BaseClientType implements ClientType{
 

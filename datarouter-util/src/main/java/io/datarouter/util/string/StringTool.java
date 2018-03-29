@@ -18,14 +18,13 @@ package io.datarouter.util.string;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
 import org.testng.Assert;
-import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
-import org.testng.internal.junit.ArrayAsserts;
 
 import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.lang.ObjectTool;
@@ -416,27 +415,27 @@ public class StringTool{
 
 		@Test
 		public void testGetStringSurroundedWith(){
-			AssertJUnit.assertEquals("wee", getStringSurroundedWith("|wee||", "|", "|"));
-			AssertJUnit.assertEquals("x", getStringSurroundedWith("][x][", "[", "]"));
-			AssertJUnit.assertEquals("a name", getStringSurroundedWith("<span>a name</span>", "<span>", "</span>"));
-			AssertJUnit.assertEquals("", getStringSurroundedWith("<span>a name</span>", "elephant", "</span>"));
+			Assert.assertEquals(getStringSurroundedWith("|wee||", "|", "|"), "wee");
+			Assert.assertEquals(getStringSurroundedWith("][x][", "[", "]"), "x");
+			Assert.assertEquals(getStringSurroundedWith("<span>a name</span>", "<span>", "</span>"), "a name");
+			Assert.assertEquals(getStringSurroundedWith("<span>a name</span>", "elephant", "</span>"), "");
 
-			AssertJUnit.assertEquals("right", getStringSurroundedWith("[wrong][right][x]", "[", "][x]"));
-			AssertJUnit.assertEquals("a", getStringSurroundedWith("|a|b|", "|", "|"));
-			AssertJUnit.assertEquals("b", getStringSurroundedWith("|a|b||", "|", "||"));
+			Assert.assertEquals(getStringSurroundedWith("[wrong][right][x]", "[", "][x]"), "right");
+			Assert.assertEquals(getStringSurroundedWith("|a|b|", "|", "|"), "a");
+			Assert.assertEquals(getStringSurroundedWith("|a|b||", "|", "||"), "b");
 		}
 
 		@Test
 		public void testPad(){
-			AssertJUnit.assertEquals("    asdf", pad("asdf", ' ', 8));
-			AssertJUnit.assertEquals("fdsa___", padEnd("fdsa", '_', 7));
-			AssertJUnit.assertEquals("ffffffffff", repeat('f', 10));
+			Assert.assertEquals(pad("asdf", ' ', 8), "    asdf");
+			Assert.assertEquals(padEnd("fdsa", '_', 7), "fdsa___");
+			Assert.assertEquals(repeat('f', 10), "ffffffffff");
 		}
 
 		@Test
 		public void testReplaceCharactersInRange(){
-			AssertJUnit.assertEquals("00banana 0banana 0banana 0 56", replaceCharactersInRange(
-					"01banana 2banana 3banana 4 56", '1', '4', '0'));
+			Assert.assertEquals(replaceCharactersInRange(
+					"01banana 2banana 3banana 4 56", '1', '4', '0'), "00banana 0banana 0banana 0 56");
 		}
 
 		@Test
@@ -444,19 +443,17 @@ public class StringTool{
 			String input = "//";
 			List<String> expected = Arrays.asList("", "", "");
 			List<String> decoded = splitOnCharNoRegex(input, '/');
-			AssertJUnit.assertEquals(expected, decoded);
+			Assert.assertEquals(decoded, expected);
 		}
 
 		@Test
 		public void testSplitOnCharNoRegex(){
-			ArrayAsserts.assertArrayEquals(new String[]{""}, splitOnCharNoRegex("", '/').toArray());
-			ArrayAsserts.assertArrayEquals(new String[]{}, splitOnCharNoRegex(null, '/').toArray());
-			ArrayAsserts.assertArrayEquals(new String[]{"", ""}, splitOnCharNoRegex("/", '/').toArray());
-			ArrayAsserts.assertArrayEquals(new String[]{"  ", ""}, splitOnCharNoRegex("  /", '/').toArray());
-			ArrayAsserts.assertArrayEquals(new String[]{"abc", "def", "g"}, splitOnCharNoRegex("abc.def.g", '.')
-					.toArray());
-			ArrayAsserts.assertArrayEquals(new String[]{"", "", "def", "g", ""}, splitOnCharNoRegex("..def.g.", '.')
-					.toArray());
+			Assert.assertEquals(splitOnCharNoRegex("", '/'), Arrays.asList(""));
+			Assert.assertEquals(splitOnCharNoRegex(null, '/'), Collections.emptyList());
+			Assert.assertEquals(splitOnCharNoRegex("/", '/'), Arrays.asList("", ""));
+			Assert.assertEquals(splitOnCharNoRegex("  /", '/'), Arrays.asList("  ", ""));
+			Assert.assertEquals(splitOnCharNoRegex("abc.def.g", '.'), Arrays.asList("abc", "def", "g"));
+			Assert.assertEquals(splitOnCharNoRegex("..def.g.", '.'), Arrays.asList("", "", "def", "g", ""));
 		}
 
 		@Test
@@ -464,55 +461,55 @@ public class StringTool{
 			String aa = "dawgy";
 			String bb = "dawGy";
 			String cc = "dawGy";
-			AssertJUnit.assertTrue(equalsCaseInsensitive(aa, bb));
-			AssertJUnit.assertTrue(!Objects.equals(aa, bb));
-			AssertJUnit.assertTrue(equalsCaseInsensitiveButNotCaseSensitive(aa, bb));
-			AssertJUnit.assertTrue(!equalsCaseInsensitiveButNotCaseSensitive(bb, cc));
+			Assert.assertTrue(equalsCaseInsensitive(aa, bb));
+			Assert.assertTrue(!Objects.equals(aa, bb));
+			Assert.assertTrue(equalsCaseInsensitiveButNotCaseSensitive(aa, bb));
+			Assert.assertTrue(!equalsCaseInsensitiveButNotCaseSensitive(bb, cc));
 		}
 
 		@Test
 		public void testEnforceNumeric(){
-			AssertJUnit.assertEquals("-8473.93", enforceNumeric("-8.473.93"));
-			AssertJUnit.assertEquals("8473.93", enforceNumeric("8.473.93"));
-			AssertJUnit.assertEquals("8473.93", enforceNumeric("8473.93"));
-			AssertJUnit.assertEquals("5", enforceNumeric("5"));
-			AssertJUnit.assertEquals("5", enforceNumeric("ff5ff"));
-			AssertJUnit.assertEquals("5", enforceNumeric("ff5%"));
-			AssertJUnit.assertEquals("5", enforceNumeric("5%"));
-			AssertJUnit.assertEquals("5", enforceNumeric("%5"));
-			AssertJUnit.assertEquals("5", enforceNumeric("5."));
-			AssertJUnit.assertEquals("50.0", enforceNumeric("5.0.0."));
-			AssertJUnit.assertEquals("", enforceNumeric("."));
-			AssertJUnit.assertEquals("400000", enforceNumeric("ABC400,000DEF"));
+			Assert.assertEquals(enforceNumeric("-8.473.93"), "-8473.93");
+			Assert.assertEquals(enforceNumeric("8.473.93"), "8473.93");
+			Assert.assertEquals(enforceNumeric("8473.93"), "8473.93");
+			Assert.assertEquals(enforceNumeric("5"), "5");
+			Assert.assertEquals(enforceNumeric("ff5ff"), "5");
+			Assert.assertEquals(enforceNumeric("ff5%"), "5");
+			Assert.assertEquals(enforceNumeric("5%"), "5");
+			Assert.assertEquals(enforceNumeric("%5"), "5");
+			Assert.assertEquals(enforceNumeric("5."), "5");
+			Assert.assertEquals(enforceNumeric("5.0.0."), "50.0");
+			Assert.assertEquals(enforceNumeric("."), "");
+			Assert.assertEquals(enforceNumeric("ABC400,000DEF"), "400000");
 		}
 
 		@Test
 		public void testGetStringAfterLastOccurrence(){
-			AssertJUnit.assertEquals("xyz", getStringAfterLastOccurrence('/', "abc/def/xyz"));
-			AssertJUnit.assertEquals("ef/xyz", getStringAfterLastOccurrence("/d", "abc/def/xyz"));
-			AssertJUnit.assertEquals("", getStringAfterLastOccurrence("/z", "abc/def/xyz"));
+			Assert.assertEquals(getStringAfterLastOccurrence('/', "abc/def/xyz"), "xyz");
+			Assert.assertEquals(getStringAfterLastOccurrence("/d", "abc/def/xyz"), "ef/xyz");
+			Assert.assertEquals(getStringAfterLastOccurrence("/z", "abc/def/xyz"), "");
 		}
 
 		@Test
 		public void testGetStringBeforeLastOccurrence(){
-			AssertJUnit.assertEquals("abc/def.xyz", getStringBeforeLastOccurrence('.', "abc/def.xyz.xml"));
-			AssertJUnit.assertEquals("abc", getStringBeforeLastOccurrence("/d", "abc/def/xyz"));
-			AssertJUnit.assertEquals(null, getStringBeforeLastOccurrence("", null));
-			AssertJUnit.assertEquals("", getStringBeforeLastOccurrence(".", "no_dot"));
+			Assert.assertEquals(getStringBeforeLastOccurrence('.', "abc/def.xyz.xml"), "abc/def.xyz");
+			Assert.assertEquals(getStringBeforeLastOccurrence("/d", "abc/def/xyz"), "abc");
+			Assert.assertEquals(getStringBeforeLastOccurrence("", null), null);
+			Assert.assertEquals(getStringBeforeLastOccurrence(".", "no_dot"), "");
 		}
 
 		@Test
 		public void testEnforceAlphabetic(){
-			AssertJUnit.assertEquals("abc", enforceAlphabetic("abc123"));
-			AssertJUnit.assertEquals("abc", enforceAlphabetic("1abc123,"));
+			Assert.assertEquals(enforceAlphabetic("abc123"), "abc");
+			Assert.assertEquals(enforceAlphabetic("1abc123,"), "abc");
 		}
 
 		@Test
 		public void testReplaceStart(){
-			AssertJUnit.assertEquals("something", replaceStart("something", "something", "something"));
-			AssertJUnit.assertEquals("nothing", replaceStart("something", "some", "no"));
-			AssertJUnit.assertEquals("something", replaceStart("something", "12", "yikes"));
-			AssertJUnit.assertEquals("something", replaceStart("something", "thing", "yikes"));
+			Assert.assertEquals(replaceStart("something", "something", "something"), "something");
+			Assert.assertEquals(replaceStart("something", "some", "no"), "nothing");
+			Assert.assertEquals(replaceStart("something", "12", "yikes"), "something");
+			Assert.assertEquals(replaceStart("something", "thing", "yikes"), "something");
 		}
 
 		@Test

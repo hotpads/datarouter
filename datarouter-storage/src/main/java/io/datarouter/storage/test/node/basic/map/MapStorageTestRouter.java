@@ -15,15 +15,15 @@
  */
 package io.datarouter.storage.test.node.basic.map;
 
+import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.setting.DatarouterSettings;
 import io.datarouter.storage.node.entity.EntityNodeParams;
 import io.datarouter.storage.node.factory.EntityNodeFactory;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.raw.MapStorage;
-import io.datarouter.storage.routing.BaseRouter;
-import io.datarouter.storage.routing.Datarouter;
-import io.datarouter.storage.routing.TestRouter;
+import io.datarouter.storage.router.BaseRouter;
+import io.datarouter.storage.router.TestRouter;
 import io.datarouter.storage.test.TestDatarouterProperties;
 import io.datarouter.storage.test.node.basic.map.databean.MapStorageBean;
 import io.datarouter.storage.test.node.basic.map.databean.MapStorageBean.MapStorageBeanFielder;
@@ -42,12 +42,11 @@ public class MapStorageTestRouter extends BaseRouter implements TestRouter{
 			NodeFactory nodeFactory, ClientId clientId, DatarouterSettings datarouterSettings, boolean entity,
 			EntityNodeFactory entityNodeFactory,
 			EntityNodeParams<MapStorageBeanEntityKey,MapStorageBeanEntity> entityNodeParams){
-		super(datarouter, datarouterProperties.getDatarouterTestFileLocation(), NAME, nodeFactory,
-				datarouterSettings);
+		super(datarouter, datarouterProperties.getDatarouterTestFileLocation(), NAME, nodeFactory, datarouterSettings);
 
 		if(entity){
 			mapStorageNode = new MapStorageEntityNode(entityNodeFactory, nodeFactory, this, clientId, entityNodeParams)
-					.mapStorageNode();
+					.mapStorageNode;
 		}else{
 			mapStorageNode = create(clientId, MapStorageBean::new, MapStorageBeanFielder::new)
 				.withSchemaVersion(VERSION_mapStorageTestRouter)

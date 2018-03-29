@@ -15,13 +15,14 @@
  */
 package io.datarouter.storage.setting.cached.impl;
 
+import io.datarouter.storage.setting.DefaultSettingValue;
 import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.storage.setting.cached.CachedSetting;
 import io.datarouter.storage.setting.type.DoubleSetting;
 
 public class DoubleCachedSetting extends CachedSetting<Double> implements DoubleSetting{
 
-	public DoubleCachedSetting(SettingFinder finder, String name, Double defaultValue){
+	public DoubleCachedSetting(SettingFinder finder, String name, DefaultSettingValue<Double> defaultValue){
 		super(finder, name, defaultValue);
 	}
 

@@ -146,6 +146,10 @@ public class CollectionTool{
 		return null;
 	}
 
+	public static <T> Optional<T> findLast(List<T> list){
+		return Optional.ofNullable(getLast(list));
+	}
+
 	public static <T> T getLast(List<T> list){
 		if(isEmpty(list)){
 			return null;

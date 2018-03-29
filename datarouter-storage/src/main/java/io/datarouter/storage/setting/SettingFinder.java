@@ -17,8 +17,12 @@ package io.datarouter.storage.setting;
 
 import java.util.Optional;
 
+import io.datarouter.storage.servertype.ServerType;
+
 public interface SettingFinder{
 
+	String getConfigProfile();
+	ServerType getServerType();
 	Optional<String> getSettingValue(String name);
 
 }

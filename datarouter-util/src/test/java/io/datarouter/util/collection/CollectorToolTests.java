@@ -25,16 +25,12 @@ import java.util.function.Function;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import io.datarouter.util.collection.CollectorTool;
-
 public class CollectorToolTests{
 
 	@Test
 	public void testToMap(){
 		List<String> list = Arrays.asList("a2", "bb3", "bb9", "c", "ddd4", "eeee5");
-		Function<String,String> keyMapper = key -> {
-			return key.startsWith("e") ? null : key.charAt(0) + "";
-		};
+		Function<String,String> keyMapper = key -> key.startsWith("e") ? null : key.charAt(0) + "";
 		Function<String,Integer> valueMapper = key -> {
 			if(key.equals("c")){
 				return null;

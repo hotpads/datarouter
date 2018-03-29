@@ -78,7 +78,7 @@ public class DatarouterEnumTool{
 		return defaultEnum;
 	}
 
-	public static <T extends StringEnum<T>> T getEnumFromString(T[] values, String value, T defaultEnum,
+	public static <T extends PersistentString> T getEnumFromString(T[] values, String value, T defaultEnum,
 			boolean caseSensitive){
 		if(value == null){
 			return defaultEnum;
@@ -92,7 +92,7 @@ public class DatarouterEnumTool{
 		return defaultEnum;
 	}
 
-	public static <T extends StringEnum<T>> T getEnumFromString(T[] values, String value, T defaultEnum){
+	public static <T extends PersistentString> T getEnumFromString(T[] values, String value, T defaultEnum){
 		return getEnumFromString(values, value, defaultEnum, true);
 	}
 

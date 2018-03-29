@@ -15,6 +15,7 @@
  */
 package io.datarouter.util.concurrent;
 
+import java.time.Duration;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -23,11 +24,24 @@ import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.stream.Stream;
 
 import io.datarouter.util.exception.InterruptedRuntimeException;
 
 public class CompletionServiceTool{
+
+	public static void callAllInSingleUseExecutor(Stream<? extends Callable<?>> callables, int numThreads){
+		ExecutorService executor = Executors.newFixedThreadPool(numThreads);
+		callAll(executor, callables, numThreads);
+		ExecutorServiceTool.shutdown(executor, Duration.ofSeconds(5));
+	}
+
+	public static void callAll(ExecutorService executor, Stream<? extends Callable<?>> callables, int numThreads){
+		Iterator<?> resultIterator = createResultIterator(executor, callables.iterator(), numThreads);
+		resultIterator.forEachRemaining($ -> {});
+	}
 
 	public static <T> Iterator<T> createResultIterator(ExecutorService executor,
 			Iterator<? extends Callable<T>> callableIterator, int numThreads){

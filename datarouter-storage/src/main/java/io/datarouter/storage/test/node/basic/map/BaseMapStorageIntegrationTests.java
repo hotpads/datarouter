@@ -27,12 +27,12 @@ import org.testng.annotations.Test;
 
 import io.datarouter.model.databean.DatabeanTool;
 import io.datarouter.model.field.Field;
+import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.setting.DatarouterSettings;
 import io.datarouter.storage.node.factory.EntityNodeFactory;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.raw.MapStorage;
-import io.datarouter.storage.routing.Datarouter;
 import io.datarouter.storage.test.TestDatarouterProperties;
 import io.datarouter.storage.test.node.basic.map.databean.MapStorageBean;
 import io.datarouter.storage.test.node.basic.map.databean.MapStorageBean.MapStorageBeanFielder;

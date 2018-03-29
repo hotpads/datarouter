@@ -15,6 +15,7 @@
  */
 package io.datarouter.storage.setting.cached.impl;
 
+import io.datarouter.storage.setting.DefaultSettingValue;
 import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.storage.setting.cached.CachedSetting;
 import io.datarouter.storage.setting.type.DurationSetting;
@@ -22,7 +23,7 @@ import io.datarouter.util.duration.Duration;
 
 public class DurationCachedSetting extends CachedSetting<Duration> implements DurationSetting{
 
-	public DurationCachedSetting(SettingFinder finder, String name, Duration defaultValue){
+	public DurationCachedSetting(SettingFinder finder, String name, DefaultSettingValue<Duration> defaultValue){
 		super(finder, name, defaultValue);
 	}
 

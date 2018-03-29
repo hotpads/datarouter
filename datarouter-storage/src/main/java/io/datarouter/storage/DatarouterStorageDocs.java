@@ -31,8 +31,7 @@ import io.datarouter.storage.node.op.raw.write.QueueStorageWriter;
 import io.datarouter.storage.node.op.raw.write.SortedStorageWriter;
 import io.datarouter.storage.node.op.raw.write.StorageWriter;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
-import io.datarouter.storage.routing.Datarouter;
-import io.datarouter.storage.routing.Router;
+import io.datarouter.storage.router.Router;
 
 /**
  * References to notable classes.  Changes to the imports of this file indicate that README links should be updated.

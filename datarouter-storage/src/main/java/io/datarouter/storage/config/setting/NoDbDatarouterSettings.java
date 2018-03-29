@@ -17,23 +17,12 @@ package io.datarouter.storage.config.setting;
 
 import io.datarouter.storage.setting.Setting;
 import io.datarouter.storage.setting.constant.ConstantBooleanSetting;
-import io.datarouter.storage.setting.constant.ConstantIntegerSetting;
 
 public class NoDbDatarouterSettings implements DatarouterSettings{
 
 	@Override
-	public Setting<Boolean> getLoggingConfigUpdaterEnabled(){
-		return ConstantBooleanSetting.TRUE;
-	}
-
-	@Override
 	public Setting<Boolean> getRecordCallsites(){
 		return ConstantBooleanSetting.FALSE;
-	}
-
-	@Override
-	public Setting<Integer> getNumThreadsForMaxThreadsTest(){
-		return new ConstantIntegerSetting(1);
 	}
 
 }

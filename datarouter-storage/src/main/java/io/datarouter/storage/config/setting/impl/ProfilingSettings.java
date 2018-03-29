@@ -25,18 +25,17 @@ import io.datarouter.storage.setting.SettingNode;
 @Singleton
 public class ProfilingSettings extends SettingNode{
 
-	private final Setting<Boolean> saveCounts;
-	private final Setting<Boolean> bufferCountsInSqs;//currently need to restart webapp after changing
-	private final Setting<Boolean> drainSqsCounts;
-	private final Setting<Boolean> bufferTracesInSqs;
-	private final Setting<Boolean> drainSqsTraces;
-	private final Setting<Boolean> runMetricsAggregationJob;
-	private final Setting<Boolean> runServerMonitoringJob;
+	public final Setting<Boolean> saveCounts;
+	public final Setting<Boolean> bufferCountsInSqs;//currently need to restart webapp after changing
+	public final Setting<Boolean> drainSqsCounts;
+	public final Setting<Boolean> bufferTracesInSqs;
+	public final Setting<Boolean> drainSqsTraces;
+	public final Setting<Boolean> runMetricsAggregationJob;
+	public final Setting<Boolean> runServerMonitoringJob;
 	public final Setting<Boolean> runLatencyMonitoringJob;
 	public final Setting<Boolean> saveExecutorsMetrics;
 	public final Setting<Boolean> saveHttpClientsMetrics;
 	public final Setting<Boolean> runAvailabilitySwitchJob;
-	public final Setting<Boolean> runExceptionRecordAggregationJob;
 
 	@Inject
 	public ProfilingSettings(SettingFinder finder){
@@ -53,7 +52,6 @@ public class ProfilingSettings extends SettingNode{
 		saveExecutorsMetrics = registerBoolean("saveExecutorsMetrics", false);
 		saveHttpClientsMetrics = registerBoolean("saveHttpClientsMetrics", false);
 		runAvailabilitySwitchJob = registerBoolean("runAvailabilitySwitchJob", false);
-		runExceptionRecordAggregationJob = registerBoolean("runExceptionRecordAggregationJob", false);
 	}
 
 	public Setting<Boolean> getSaveCounts(){

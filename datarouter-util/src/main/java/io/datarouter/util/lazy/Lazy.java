@@ -19,15 +19,15 @@ import java.util.function.Supplier;
 
 public abstract class Lazy<R> extends CheckedLazy<R,RuntimeException> implements Supplier<R>{
 
-	public static <R> Lazy<R> of(Supplier<R> supplier){
+	public static <R> Lazy<R> of(Supplier<? extends R> supplier){
 		return new LazyFunctional<>(supplier);
 	}
 
 	private static class LazyFunctional<R> extends Lazy<R>{
 
-		private final Supplier<R> supplier;
+		private final Supplier<? extends R> supplier;
 
-		public LazyFunctional(Supplier<R> supplier){
+		public LazyFunctional(Supplier<? extends R> supplier){
 			this.supplier = supplier;
 		}
 

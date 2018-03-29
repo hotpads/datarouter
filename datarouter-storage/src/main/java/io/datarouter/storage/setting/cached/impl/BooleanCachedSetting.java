@@ -15,6 +15,7 @@
  */
 package io.datarouter.storage.setting.cached.impl;
 
+import io.datarouter.storage.setting.DefaultSettingValue;
 import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.storage.setting.cached.CachedSetting;
 import io.datarouter.storage.setting.type.BooleanSetting;
@@ -22,7 +23,7 @@ import io.datarouter.util.BooleanTool;
 
 public class BooleanCachedSetting extends CachedSetting<Boolean> implements BooleanSetting{
 
-	public BooleanCachedSetting(SettingFinder finder, String name, Boolean defaultValue){
+	public BooleanCachedSetting(SettingFinder finder, String name, DefaultSettingValue<Boolean> defaultValue){
 		super(finder, name, defaultValue);
 	}
 

@@ -44,8 +44,8 @@ import io.datarouter.httpclient.security.DefaultSignatureValidator;
 public class DatarouterHttpClientBuilder{
 
 	private static final int DEFAULT_TIMEOUT_MS = 3000;
-	private static final int DEFAULT_MAX_TOTAL_CONNECTION = 20;
-	private static final int DEFAULT_MAX_CONNECTION_PER_ROUTE = 20;
+	private static final int DEFAULT_MAX_TOTAL_CONNECTION = 100;
+	private static final int DEFAULT_MAX_CONNECTION_PER_ROUTE = 100;
 
 	private int timeoutMs; // must be int due to RequestConfig.set*Timeout() methods
 	private int maxTotalConnections;

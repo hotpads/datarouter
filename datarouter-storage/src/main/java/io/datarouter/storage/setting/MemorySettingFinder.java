@@ -19,10 +19,34 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
+import io.datarouter.storage.servertype.ServerType;
+
 public class MemorySettingFinder implements SettingFinder{
 
+	private final String configProfile;
+	private final ServerType serverType;
 	//protected so subclasses can modify the settings
-	protected final Map<String, Object> settings = new ConcurrentHashMap<>();
+	protected final Map<String, Object> settings;
+
+	public MemorySettingFinder(){
+		this(null, null);
+	}
+
+	public MemorySettingFinder(String configProfile, ServerType serverType){
+		this.configProfile = configProfile;
+		this.serverType = serverType;
+		this.settings = new ConcurrentHashMap<>();
+	}
+
+	@Override
+	public String getConfigProfile(){
+		return configProfile;
+	}
+
+	@Override
+	public ServerType getServerType(){
+		return serverType;
+	}
 
 	@Override
 	public Optional<String> getSettingValue(String name){

@@ -15,20 +15,31 @@
  */
 package io.datarouter.storage.config.guice;
 
-import com.google.inject.AbstractModule;
-
 import io.datarouter.inject.DatarouterInjector;
+import io.datarouter.inject.guice.BaseModule;
 import io.datarouter.inject.guice.GuiceInjector;
+import io.datarouter.storage.client.DatarouterClients;
 import io.datarouter.storage.config.setting.DatarouterClusterSettings;
 import io.datarouter.storage.config.setting.DatarouterSettings;
+import io.datarouter.storage.node.DatarouterNodes;
+import io.datarouter.storage.setting.MemorySettingFinder;
+import io.datarouter.storage.setting.SettingFinder;
 
-public class DatarouterStorageGuiceModule extends AbstractModule{
+public class DatarouterStorageGuiceModule extends BaseModule{
 
 	@Override
 	protected void configure(){
+		install(new DatarouterStorageExecutorGuiceModule());
+
 		bind(DatarouterInjector.class).to(GuiceInjector.class);
 		bind(DatarouterSettings.class).to(DatarouterClusterSettings.class);
-		install(new DatarouterExecutorGuiceModule());
+
+		bindOptional(SettingFinder.class).setDefault().to(MemorySettingFinder.class);
+
+		// Necessary explicit bindings when dealing with child injectors
+		bind(GuiceInjector.class);
+		bind(DatarouterNodes.class);
+		bind(DatarouterClients.class);
 	}
 
 }

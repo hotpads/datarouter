@@ -33,10 +33,6 @@ extends BaseAdapter<PK,D,F,N>{
 		super(backingNode);
 	}
 
-	public N getBackingNode(){
-		return backingNode;
-	}
-
 	@Override
 	protected String getToStringPrefix(){
 		return "AvailabilityAdapter";

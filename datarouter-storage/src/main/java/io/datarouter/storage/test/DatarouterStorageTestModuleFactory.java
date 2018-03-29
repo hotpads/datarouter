@@ -15,27 +15,18 @@
  */
 package io.datarouter.storage.test;
 
-import java.util.Collections;
-import java.util.List;
-
-import com.google.inject.Module;
+import java.util.Arrays;
 
 import io.datarouter.inject.testng.ModuleFactory;
-import io.datarouter.storage.client.imp.mysql.ChildInjectorInjectionFixModule;
 import io.datarouter.storage.config.guice.DatarouterStorageGuiceModule;
+import io.datarouter.storage.config.guice.DatarouterStorageTestGuiceModule;
 
 public class DatarouterStorageTestModuleFactory extends ModuleFactory{
 
 	public DatarouterStorageTestModuleFactory(){
-		super(Collections.singleton(new DatarouterStorageGuiceModule()));
-	}
-
-	@Override
-	protected List<Module> getOverriders(){
-		List<Module> modules = super.getOverriders();
-		modules.add(new ChildInjectorInjectionFixModule());
-		modules.add(new DatarouterStorageTestGuiceModule());
-		return modules;
+		super(Arrays.asList(
+				new DatarouterStorageGuiceModule(),
+				new DatarouterStorageTestGuiceModule()));
 	}
 
 }

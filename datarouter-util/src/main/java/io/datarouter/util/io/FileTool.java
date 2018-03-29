@@ -35,7 +35,7 @@ import io.datarouter.util.string.StringTool;
 public final class FileTool{
 
 	private static final List<String> staticFilesExtensions = Stream.of("ttf", "css", "js", "html", "pdf", "png",
-			"jpg", "jpeg", "swf", "woff", "woff2", "map")
+			"jpg", "jpeg", "swf", "woff", "woff2", "map", "jsx")
 			.map("."::concat)
 			.collect(Collectors.toList());
 

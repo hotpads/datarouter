@@ -220,8 +220,8 @@ public class DatarouterHttpClientIntegrationTests{
 		String cipherKey = "kirg king kind " + UUID.randomUUID().toString();
 		String apiKey = "apiKey advanced placement incremental key " + UUID.randomUUID().toString();
 
-		DefaultSignatureValidator signatureValidator = new DefaultSignatureValidator(salt);
-		DefaultCsrfValidator csrfValidator = new DefaultCsrfValidator(cipherKey);
+		DefaultSignatureValidator signatureValidator = new DefaultSignatureValidator(() -> salt);
+		DefaultCsrfValidator csrfValidator = new DefaultCsrfValidator(() -> cipherKey);
 		Supplier<String> apiKeySupplier = () -> apiKey;
 
 		client = new DatarouterHttpClientBuilder().setSignatureValidator(signatureValidator)

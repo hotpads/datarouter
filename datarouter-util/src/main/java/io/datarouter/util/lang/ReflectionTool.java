@@ -197,6 +197,9 @@ public class ReflectionTool{
 		Field field = cachedDeclaredFields.get(fieldInClass);
 		if(field == null){
 			field = getDeclaredFieldFromAncestors(cls, fieldName);
+			if(field == null){
+				throw new RuntimeException(fieldName + " doesn't exist in " + cls);
+			}
 			cachedDeclaredFields.put(fieldInClass, field);
 		}
 		return field;

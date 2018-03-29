@@ -20,11 +20,11 @@ import java.util.Collection;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
+import io.datarouter.storage.callsite.CallsiteRecorder;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.Node;
 import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.adapter.BaseAdapter;
-import io.datarouter.storage.profile.callsite.CallsiteRecorder;
 import io.datarouter.storage.setting.Setting;
 import io.datarouter.util.BooleanTool;
 import io.datarouter.util.collection.CollectionTool;
@@ -69,10 +69,6 @@ extends BaseAdapter<PK,D,F,N> implements CallsiteAdapter{
 		long durationNs = System.nanoTime() - startNs;
 		CallsiteRecorder.record(backingNode.getName(), datarouterMethod.getMethodName(), config.getCallsite(),
 				numItems, durationNs);
-	}
-
-	public N getBackingNode(){
-		return backingNode;
 	}
 
 }

@@ -27,9 +27,9 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import io.datarouter.model.databean.DatabeanTool;
+import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.Config;
-import io.datarouter.storage.routing.Datarouter;
 import io.datarouter.storage.test.TestDatabean;
 import io.datarouter.storage.test.TestDatabeanKey;
 import io.datarouter.storage.test.node.type.index.databean.TestDatabeanWithManagedIndexByBar;

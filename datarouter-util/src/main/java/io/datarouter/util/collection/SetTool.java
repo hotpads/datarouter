@@ -18,6 +18,7 @@ package io.datarouter.util.collection;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.SortedSet;
@@ -70,7 +71,21 @@ public class SetTool{
 		return set;
 	}
 
-	public static class Tests{
+	@SafeVarargs
+	public static <E extends Enum<E>> Set<E> unmodifiableEnumSetOf(E... enums){
+		if(enums == null || enums.length == 0){
+			return Collections.emptySet();
+		}
+		E first = enums[0];
+		EnumSet<E> result = EnumSet.noneOf(first.getDeclaringClass());
+		for(int i = 0; i < enums.length; i++){
+			result.add(enums[i]);
+		}
+		return Collections.unmodifiableSet(result);
+	}
+
+	/* tests *****************************************************************/
+	public static class SetToolTests{
 		@Test
 		public void testNullSafeAddAllWithEmptySet(){
 			SortedSet<String> set = new TreeSet<>();
