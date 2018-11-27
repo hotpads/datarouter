@@ -16,14 +16,13 @@
 						<span class="value">${lib.value.branch}</span>
 						<br>
 						<span class="property tree-level-1">Commit</span>
-						<fmt:formatDate value="${lib.value.commitTime}" pattern="d MMM H:mm" var="commitTimme"/>
-						<span class="value" title="${commitTimme} by ${lib.value.commitUserName}">
+						<span class="value" title="${commitTime} by ${lib.value.commitUserName}">
 							${lib.value.idAbbrev}
 						</span>
 						<br>
 						<span class="property tree-level-1">Build time</span>
 						<span class="value">
-							<fmt:formatDate value="${lib.value.buildTime}" pattern="d MMM H:mm"/>
+							${lib.value.buildTime}
 						</span>
 						<br>
 						<span class="property tree-level-1">Build id</span>

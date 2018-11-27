@@ -9,17 +9,19 @@
 		border-collapse: collapse;
 		font-size: 1em;
 	}
-	
 	th,td {
 		border-bottom: 1px #D0D0D0  solid;
 		border-top: 1px #D0D0D0  solid;
 		padding: 5px;
 		vertical-align: top;
 	}
-	th{
+	th {
 		text-align: left;
 	}
-	pre {outline: 1px solid #ccc; padding: 5px; margin: 5px; }
+	pre {
+		padding: 5px;
+		margin: 5px;
+	}
 	.string { color: green; }
 	.number { color: blue; }
 	.boolean { color: red; }
@@ -66,27 +68,21 @@
 			}
 			var requestUrl = '${contextPath}' + url + (params ? '?' + params : '');
 			$.ajax(requestUrl, options)
-			.done(function(response, textStatus, request){
+			.complete(function(request){
 				$("#" + responseDivId).show();
-				var json = JSON.stringify(response, undefined, 2);
-				document.getElementById(jsonResponseId).innerHTML = syntaxHighlight(json);
+				if(request.getResponseHeader("content-type") == 'application/json'){
+					var json = JSON.stringify(JSON.parse(request.responseText), undefined, 2);
+					document.getElementById(jsonResponseId).innerHTML = syntaxHighlight(json);
+				}else{
+					document.getElementById(jsonResponseId).innerHTML = request.responseText;
+				}
 				document.getElementById(requestUrlId).innerHTML = getFullRequestUrl(requestUrl);
 				document.getElementById(responseCodeId).innerHTML = request.status;
 				document.getElementById(responseHeaderId).innerHTML = request.getAllResponseHeaders();
 				if(requestBody !== undefined){
 					document.getElementById(requestBodyId).innerHTML = requestBody;
 				}
-			})
-			.fail(function(response) {
-				$("#" + responseDivId).show();
-				document.getElementById(jsonResponseId).innerHTML = JSON.stringify(response.responseText);
-				document.getElementById(requestUrlId).innerHTML = getFullRequestUrl(requestUrl);
-				document.getElementById(responseCodeId).innerHTML = response.status;
-				document.getElementById(responseHeaderId).innerHTML = response.getAllResponseHeaders();
-				if(requestBody !== undefined){
-					document.getElementById(requestBodyId).innerHTML = requestBody;
-				}
- 			});
+			});
 		}
 		function getFullRequestUrl(partialUrl){
 			if(location.origin === undefined){
@@ -95,24 +91,24 @@
 			return location.origin + partialUrl;
 		}
 		function syntaxHighlight(json) {
-		    json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-		    return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
-		        var cls = 'number';
-		        if (/^"/.test(match)) {
-		            if (/:$/.test(match)) {
-		                cls = 'key';
-		            } else {
-		                cls = 'string';
-		            }
-		        } else if (/true|false/.test(match)) {
-		            cls = 'boolean';
-		        } else if (/null/.test(match)) {
-		            cls = 'null';
-		        }
-		        return '<span class="' + cls + '">' + match + '</span>';
-		    });
+			json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+			var regex = /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g;
+			return json.replace(regex, function (match) {
+				var cls = 'number';
+				if (/^"/.test(match)) {
+					if (/:$/.test(match)) {
+						cls = 'key';
+					} else {
+						cls = 'string';
+					}
+				} else if (/true|false/.test(match)) {
+					cls = 'boolean';
+				} else if (/null/.test(match)) {
+					cls = 'null';
+				}
+				return '<span class="' + cls + '">' + match + '</span>';
+			});
 		}
-
 	});
 	</script>
 </head>
@@ -132,17 +128,21 @@
 				<c:set var="responseHeaderId" value="responseHeader${loop.index}"></c:set>
 				<c:set var="rowClass" value="rowClass${loop.index}"></c:set>
 				<div class="panel panel-default" id="${panelId}">
-			        <div class="panel-heading">
-			             <h4 class="panel-title">
-				           	<div class="clearfix">
-   								<span style="float: left;"><a data-parent="#accordion" data-toggle="collapse" data-target="#${collapseId}">${endpoint.url}</a></span> 
-    							<span style="float: right;">${endpoint.description}</span>
-						 	</div>	
-			      		</h4>
-			        </div>
-			        <div id="${collapseId}" class="panel-collapse collapse">
-			            <div class="panel-body">
-			            	<h3>Parameters</h3>
+					<div class="panel-heading">
+						 <h4 class="panel-title">
+							<div class="clearfix">
+								<span style="float: left;">
+									<a data-parent="#accordion" data-toggle="collapse" data-target="#${collapseId}">
+										${endpoint.url}
+									</a>
+								</span> 
+								<span style="float: right;">${endpoint.description}</span>
+							</div>	
+						</h4>
+					</div>
+					<div id="${collapseId}" class="panel-collapse collapse">
+						<div class="panel-body">
+							<h3>Parameters</h3>
 							<form id="parameterForm" method="post">
 							<c:choose>
 								<c:when test="${not empty endpoint.parameters}">
@@ -165,21 +165,16 @@
 												<td class="paramName" data-name="${parameter.name}">
 													<c:choose>
 														<c:when test="${parameter.requestBody}">
-															Request Body
+															Request body
 														</c:when>
 														<c:otherwise>
 															${parameter.name}
 														</c:otherwise>
 													</c:choose>
 												</td>
-												<c:choose>
-													<c:when test="${apiKey != null && parameter.name.equals(apiKeyParameterName)}">
-														<c:set var="predefinedValue" value="${apiKey}"></c:set>
-													</c:when>
-													<c:otherwise>
-														<c:set var="predefinedValue" value="${parameter.example}"></c:set>
-													</c:otherwise>
-												</c:choose>
+												<c:if test="${apiKey != null && parameter.name.equals(apiKeyParameterName)}">
+													<c:set var="predefinedValue" value="${apiKey}"></c:set>
+												</c:if>
 												<td>
 													<c:choose>
 														<c:when test="${parameter.requestBody}">
@@ -190,43 +185,54 @@
 														</c:otherwise>
 													</c:choose>
 												</td>
-												<td>${parameter.type}</td>
+												<td> ${parameter.type} 
+													<c:if test="${parameter.description != null}">
+														; ${parameter.description}
+													</c:if>
+												</td>
 											</tr>
 										</c:forEach>
 									</table>
 								</c:when>
 								<c:otherwise>None</c:otherwise>
 							</c:choose>
-					     	<div>
-					   			<button class="table-box" id="sendRequest" type="button" class="btn btn-primary" onclick="callApi('${rowClass}','${loop.index}','${endpoint.url}')">Try It Out</button>
-					   		</div>
-					   		<div id="${responseDivId}" style="display:none;">
-					   			<h3>Response</h3>
-						   		<div>
-						   			<h4>Request URL</h4>
-						   			<pre id="${requestUrlId}">
-						   		</div>
-						   		<div>
-						   			<h4>Request Body</h4>
-						   			<pre id="${requestBodyId}">
-						   		</div>
-						   		<div>
-						   			<h4>Response Body</h4>
-						   			<pre id="${jsonResponseId}">
-						   		</div>
-						   		<div>
-						   		    <h4>Response Code</h4>
-						   			<pre id="${responseCodeId}">
-						   		</div>
-						   		<div>
-						   			<h4>Response Header</h4>
-						   			<pre id="${responseHeaderId}">
-						   		</div>
-					   		</div>
-					   		</pre>			            
-			            </div>
-			        </div>
-		    	</div>
+							<h3>Response</h3>
+							<c:if test="${empty endpoint.response}">
+								Nothing
+							</c:if>
+							<c:if test="${not empty endpoint.response}">
+								<pre>${endpoint.response}</pre>
+							</c:if>
+							<div>
+								<button class="table-box" id="sendRequest" type="button" class="btn btn-primary" onclick="callApi('${rowClass}','${loop.index}','${endpoint.url}')">Try It Out</button>
+							</div>
+							<div id="${responseDivId}" style="display:none;">
+								<h3>Response</h3>
+								<div>
+									<h4>Request URL</h4>
+									<pre id="${requestUrlId}">
+								</div>
+								<div>
+									<h4>Request Body</h4>
+									<pre id="${requestBodyId}">
+								</div>
+								<div>
+									<h4>Response Body</h4>
+									<pre id="${jsonResponseId}">
+								</div>
+								<div>
+									<h4>Response Code</h4>
+									<pre id="${responseCodeId}">
+								</div>
+								<div>
+									<h4>Response Header</h4>
+									<pre id="${responseHeaderId}">
+								</div>
+							</div>
+							</pre>
+						</div>
+					</div>
+				</div>
 			</c:forEach>
 		</div>
 	</div>

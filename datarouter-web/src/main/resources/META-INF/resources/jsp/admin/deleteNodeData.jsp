@@ -11,9 +11,9 @@
 	<div class="container-fluid">
 		<h2 class="page-header">Datarouter</h2>
 		<ol class="breadcrumb">
-			<li><a href="${contextPath}/datarouter/routers">Datarouter Home</a></li>
+			<li><a href="${contextPath}/datarouter">Datarouter Home</a></li>
 			<li>
-				<a href="${contextPath}/datarouter/routers?submitAction=inspectRouter&routerName=${param.routerName}">
+				<a href="${contextPath}/datarouter?submitAction=inspectRouter&routerName=${param.routerName}">
 					Router: ${param.routerName}
 				</a>
 			</li>
@@ -34,11 +34,11 @@
 					<input name="nodeName" value="${node.name}" type="text" class="form-control" />
 				</div>
 			</div>
-			<c:forEach items="${fields}" var="field" varStatus="loop">
+			<c:forEach items="${keyFields}" var="field" varStatus="loop">
 				<div class="form-group">
 					<label class="col-sm-1 control-label">${field.key.name}</label>
 					<div class="col-sm-11">
-						<input name="${field.key.name}" value="${param[field.key.name]}" type="text" class="form-control" />
+						<input name="${FIELD_PREFIX}${field.key.name}" value="${param[field.key.name]}" type="text" class="form-control" />
 					</div>
 				</div>
 			</c:forEach>

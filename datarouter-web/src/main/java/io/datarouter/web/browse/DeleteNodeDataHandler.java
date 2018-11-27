@@ -16,49 +16,36 @@
 package io.datarouter.web.browse;
 
 import java.util.List;
-import java.util.stream.Collectors;
-
-import javax.inject.Inject;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.httpclient.path.PathNode;
 import io.datarouter.model.field.Field;
-import io.datarouter.model.field.FieldKey;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.util.PercentFieldCodec;
-import io.datarouter.storage.node.DatarouterNodes;
 import io.datarouter.storage.node.Node;
 import io.datarouter.storage.node.op.raw.MapStorage.MapStorageNode;
 import io.datarouter.storage.util.PrimaryKeyPercentCodec;
-import io.datarouter.util.string.StringTool;
-import io.datarouter.web.config.DatarouterWebFiles;
-import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.mav.imp.MessageMav;
-import io.datarouter.web.util.http.RequestTool;
 
-public class DeleteNodeDataHandler extends BaseHandler{
+public class DeleteNodeDataHandler extends InspectNodeDataHandler{
 	private static final Logger logger = LoggerFactory.getLogger(DeleteNodeDataHandler.class);
 
-	@Inject
-	private DatarouterNodes nodes;
-	@Inject
-	private DatarouterWebFiles files;
+	@Override
+	protected PathNode getFormPath(){
+		return files.jsp.admin.deleteNodeDataJsp;
+	}
 
+	@Override
+	protected List<Field<?>> getFields(){
+		return node.getFieldInfo().getFields();
+	}
 
-	@Handler(defaultHandler = true)
-	private Mav showForm(){
-		Mav mav = new Mav(files.jsp.admin.deleteNodeDataJsp);
-		String nodeName = RequestTool.get(request, "nodeName");
-		Node<?,?,?> node = nodes.getNode(nodeName);
-		if(node == null){
-			return new MessageMav("Cannot find node " + nodeName);
-		}
-		mav.put("node", node);
-		List<Field<?>> fields = node.getFieldInfo().getSamplePrimaryKey().getFields();
-		mav.put("fields", fields);
-		return mav;
+	@Override
+	protected List<Field<?>> getKeyFields(){
+		return node.getFieldInfo().getSamplePrimaryKey().getFields();
 	}
 
 	@Handler
@@ -66,18 +53,12 @@ public class DeleteNodeDataHandler extends BaseHandler{
 		@SuppressWarnings("unchecked")
 		Node<PK,?,?> node = (Node<PK,?,?>)nodes.getNode(nodeName);
 
-		List<String> fieldValues = node.getFieldInfo().getSamplePrimaryKey().getFields().stream()
-				.map(Field::getKey)
-				.map(FieldKey::getName)
-				.map(params::required)
-				.map(StringTool::nullSafe)
-				.map(StringTool::toLowerCase)
-				.collect(Collectors.toList());
+		List<String> fieldValues = getFieldValues(node);
 
 		String encodedPk = PercentFieldCodec.encode(fieldValues.stream());
 		PK primaryKey;
 		try{
-			primaryKey = PrimaryKeyPercentCodec.decode(node.getPrimaryKeyType(), encodedPk);
+			primaryKey = PrimaryKeyPercentCodec.decode(node.getFieldInfo().getPrimaryKeyClass(), encodedPk);
 		}catch(NumberFormatException e){
 			return new MessageMav("NumberFormatException: " + e);
 		}

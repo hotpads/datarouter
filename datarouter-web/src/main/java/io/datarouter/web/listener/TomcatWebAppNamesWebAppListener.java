@@ -30,6 +30,7 @@ import io.datarouter.util.string.StringTool;
 
 @Singleton
 public class TomcatWebAppNamesWebAppListener extends DatarouterWebAppListener{
+
 	public static final String SERVLET_CONTEXT_ATTRIBUTE_NAME = "webApps";
 
 	public Map<String,String> getTomcatWebApps(){

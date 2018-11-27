@@ -78,4 +78,5 @@ public class PrimitiveLongArrayField extends BaseField<long[]>{
 	public int numBytesWithSeparator(byte[] bytes, int byteOffset){
 		throw new NotImplementedException();
 	}
+
 }

@@ -18,7 +18,7 @@ package io.datarouter.model.field;
 import java.lang.reflect.Type;
 import java.util.Objects;
 
-import com.google.common.reflect.TypeToken;
+import com.google.gson.reflect.TypeToken;
 
 import io.datarouter.model.field.encoding.FieldGeneratorType;
 import io.datarouter.util.bytes.StringByteTool;
@@ -34,14 +34,14 @@ implements FieldKey<T>{
 	protected final T defaultValue;
 	protected final Type valueType;
 
-	/*************************** constructor *********************************/
+	/*---------------------------- constructor ------------------------------*/
 
 	protected BaseFieldKey(String name, TypeToken<T> valueType){
 		this(name, true, valueType, FieldGeneratorType.NONE);
 	}
 
 	public BaseFieldKey(String name, Class<T> valueType){
-		this(name, TypeToken.of(valueType));
+		this(name, TypeToken.get(valueType));
 	}
 
 	private BaseFieldKey(String name, TypeToken<T> valueType, T defaultValue){
@@ -49,7 +49,7 @@ implements FieldKey<T>{
 	}
 
 	protected BaseFieldKey(String name, Class<T> valueType, T defaultValue){
-		this(name, TypeToken.of(valueType), defaultValue);
+		this(name, TypeToken.get(valueType), defaultValue);
 	}
 
 	//use java field name for columnName
@@ -58,7 +58,7 @@ implements FieldKey<T>{
 	}
 
 	protected BaseFieldKey(String name, boolean nullable, Class<T> valueType, FieldGeneratorType fieldGeneratorType){
-		this(name, nullable, TypeToken.of(valueType), fieldGeneratorType);
+		this(name, nullable, TypeToken.get(valueType), fieldGeneratorType);
 	}
 
 	private BaseFieldKey(String name, String columnName, boolean nullable, TypeToken<T> valueType,
@@ -68,12 +68,12 @@ implements FieldKey<T>{
 
 	protected BaseFieldKey(String name, String columnName, boolean nullable, Class<T> valueType,
 			FieldGeneratorType fieldGeneratorType){
-		this(name, columnName, nullable, TypeToken.of(valueType), fieldGeneratorType);
+		this(name, columnName, nullable, TypeToken.get(valueType), fieldGeneratorType);
 	}
 
 	public BaseFieldKey(String name, String columnName, boolean nullable, Class<T> valueType,
 			FieldGeneratorType fieldGeneratorType, T defaultValue){
-		this(name, columnName, nullable, TypeToken.of(valueType), fieldGeneratorType, defaultValue);
+		this(name, columnName, nullable, TypeToken.get(valueType), fieldGeneratorType, defaultValue);
 	}
 
 	private BaseFieldKey(String name, String columnName, boolean nullable, TypeToken<T> valueType,
@@ -86,7 +86,7 @@ implements FieldKey<T>{
 		this.defaultValue = defaultValue;
 	}
 
-	/******************************** methods *******************************/
+	/*---------------------------- methods ----------------------------------*/
 
 	@Override
 	public String toString(){
@@ -119,7 +119,7 @@ implements FieldKey<T>{
 		return valueType;
 	}
 
-	/********************************** get/set ******************************************/
+	/*---------------------------- get/set ----------------------------------*/
 
 	@Override
 	public String getName(){

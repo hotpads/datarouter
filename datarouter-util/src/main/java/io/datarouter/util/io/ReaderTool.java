@@ -30,7 +30,7 @@ import io.datarouter.util.iterable.scanner.Scanner;
 
 public class ReaderTool{
 
-	/*************** wrap exceptions **********************/
+	/*------------------------- wrap exceptions -----------------------------*/
 
 	public static BufferedReader createNewBufferedFileReader(String fullPath){
 		try{
@@ -62,9 +62,9 @@ public class ReaderTool{
 		}
 	}
 
-	/***************** other *********************/
+	/*------------------------- other ---------------------------------------*/
 
-	public static StringBuilder accumulateStringAndClose(Reader reader){
+	public static String accumulateStringAndClose(Reader reader){
 		StringBuilder stringBuilder = new StringBuilder();
 		String line;
 		try(BufferedReader bufferedReader = new BufferedReader(reader)){
@@ -74,14 +74,14 @@ public class ReaderTool{
 		}catch(IOException e){
 			throw new UncheckedIOException(e);
 		}
-		return stringBuilder;
+		return stringBuilder.toString();
 	}
 
-	public static StringBuilder accumulateStringAndClose(InputStream inputStream){
+	public static String accumulateStringAndClose(InputStream inputStream){
 		return accumulateStringAndClose(new InputStreamReader(inputStream));
 	}
 
-	/*************** scanners *******************/
+	/*------------------------- scanners ------------------------------------*/
 
 	public static Scanner<List<String>> scanFileLinesInBatches(String fullPath, int batchSize){
 		BufferedReader bufferedReader = createNewBufferedFileReader(fullPath);

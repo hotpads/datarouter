@@ -25,8 +25,6 @@ import io.datarouter.model.key.primary.BasePrimaryKey;
 
 public class ManyFieldBeanKey extends BasePrimaryKey<ManyFieldBeanKey>{
 
-	/****************************** fields *******************************************/
-
 	protected Long id;
 
 	public static class FieldKeys{
@@ -38,8 +36,6 @@ public class ManyFieldBeanKey extends BasePrimaryKey<ManyFieldBeanKey>{
 		return Arrays.asList(new UInt63Field(FieldKeys.id, id));
 	}
 
-	/***************************** constructors *************************************/
-
 	public ManyFieldBeanKey(){// no-arg and public
 		this.id = UInt63Field.nextPositiveRandom();
 	}
@@ -47,8 +43,6 @@ public class ManyFieldBeanKey extends BasePrimaryKey<ManyFieldBeanKey>{
 	public ManyFieldBeanKey(Long id){
 		this.id = id;
 	}
-
-	/******************************** get/set *******************************************/
 
 	public Long getId(){
 		return id;

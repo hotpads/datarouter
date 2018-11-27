@@ -50,4 +50,5 @@ extends Comparable<Field<T>>,
 	String getValueString();
 	void fromString(String string);
 	String getPreparedStatementValue();
+
 }

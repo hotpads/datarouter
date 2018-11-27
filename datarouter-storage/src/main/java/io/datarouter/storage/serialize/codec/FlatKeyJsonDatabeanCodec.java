@@ -34,8 +34,10 @@ public class FlatKeyJsonDatabeanCodec extends JsonDatabeanCodec{
 	}
 
 	@Override
-	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>> D fromString(
-			String string, F fielder, Supplier<D> databeanSupplier){
+	public <PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>>
+	D fromString(String string, F fielder, Supplier<D> databeanSupplier){
 		return JsonDatabeanTool.databeanFromJson(databeanSupplier, fielder, string, true);
 	}
 

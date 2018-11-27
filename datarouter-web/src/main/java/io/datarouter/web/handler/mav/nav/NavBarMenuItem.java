@@ -26,6 +26,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import io.datarouter.httpclient.path.PathNode;
 import io.datarouter.util.iterable.IterableTool;
 import io.datarouter.util.lazy.Lazy;
 import io.datarouter.web.dispatcher.BaseRouteSet;
@@ -35,7 +36,8 @@ import io.datarouter.web.user.session.DatarouterSession;
 import io.datarouter.web.user.session.DatarouterSession.DatarouterSessionMock;
 
 public class NavBarMenuItem{
-	private final URI href;
+	private final URI href;//this is what will appear in HTML
+	private final URI path;//this is used to look up dispatch rules (no query params)
 	private final String text;
 	private final List<NavBarMenuItem> subItems;
 
@@ -43,16 +45,30 @@ public class NavBarMenuItem{
 
 	public NavBarMenuItem(String text, NavBarMenuItem... subItems){
 		this.href = URI.create("");
+		this.path = href;
 		this.text = text;
 		this.subItems = Collections.unmodifiableList(Arrays.asList(subItems));
 		this.dispatchRule = Lazy.of(Optional::empty);
 	}
 
-	public NavBarMenuItem(String href, String text, NavBar parentNavBar){
-		this.href = URI.create(href);
+	public NavBarMenuItem(String path, String text, NavBar parentNavBar){
+		this(path, "", text, parentNavBar);
+	}
+
+	public NavBarMenuItem(String path, String queryParamStr, String text, NavBar parentNavBar){
+		this.href = URI.create(path + queryParamStr);
+		this.path = URI.create(path);
 		this.text = text;
 		this.subItems = null;
-		this.dispatchRule = Lazy.of(() -> parentNavBar.getDispatchRule(this.href));
+		this.dispatchRule = Lazy.of(() -> parentNavBar.getDispatchRule(this.path));
+	}
+
+	public NavBarMenuItem(PathNode pathNode, String text, NavBar parentNavBar){
+		this(pathNode.toSlashedString(), text, parentNavBar);
+	}
+
+	public NavBarMenuItem(PathNode pathNode, String queryParamString, String text, NavBar parentNavBar){
+		this(pathNode.toSlashedString(), queryParamString, text, parentNavBar);
 	}
 
 	public Boolean isDropdown(){
@@ -93,7 +109,8 @@ public class NavBarMenuItem{
 		private static final HttpServletRequest anonRequest = DatarouterSessionMock.getAnonymousHttpServletRequest();
 		private static final HttpServletRequest userRequest = DatarouterSession.DatarouterSessionMock
 				.getHttpServletRequestWithSessionRoles(DatarouterUserRole.user);
-		private static final HttpServletRequest allRolesRequest = DatarouterSessionMock.getAllRolesHttpServletRequest();
+		private static final HttpServletRequest allDatarouterRolesRequest = DatarouterSessionMock
+				.getAllDatarouterUserRolesHttpServletRequest();
 
 		//constants
 		private static final String ANON_REQ_HREF = BaseRouteSet.BaseRouteSetTests.ANON_PATH;
@@ -153,7 +170,7 @@ public class NavBarMenuItem{
 			NavBarMenuItem anonItem = getSingleItemWithHref(ANON_REQ_HREF, authNavBar);
 			Assert.assertTrue(anonItem.isAllowed(anonRequest));
 			Assert.assertTrue(anonItem.isAllowed(userRequest));
-			Assert.assertTrue(anonItem.isAllowed(allRolesRequest));
+			Assert.assertTrue(anonItem.isAllowed(allDatarouterRolesRequest));
 
 			//anon can't access other roles, but correct roles can
 			NavBarMenuItem userItem = getSingleItemWithHref(USER_REQ_HREF, authNavBar);
@@ -161,7 +178,7 @@ public class NavBarMenuItem{
 			Assert.assertTrue(userItem.isAllowed(userRequest));
 
 			//having multiple roles, including the allowed one, also works
-			Assert.assertTrue(userItem.isAllowed(allRolesRequest));
+			Assert.assertTrue(userItem.isAllowed(allDatarouterRolesRequest));
 		}
 
 		@Test
@@ -190,8 +207,8 @@ public class NavBarMenuItem{
 			Assert.assertEquals(parentItem.getSubItems(anonRequest).get(0), parentItem.subItems.get(0));
 			Assert.assertEquals(parentItem.getSubItems(userRequest).size(), 2);
 			Assert.assertEquals(parentItem.getSubItems(userRequest).get(1), parentItem.subItems.get(1));
-			Assert.assertEquals(parentItem.getSubItems(allRolesRequest).size(), 3);
-			Assert.assertEquals(parentItem.getSubItems(allRolesRequest), parentItem.subItems);
+			Assert.assertEquals(parentItem.getSubItems(allDatarouterRolesRequest).size(), 3);
+			Assert.assertEquals(parentItem.getSubItems(allDatarouterRolesRequest), parentItem.subItems);
 		}
 	}
 }

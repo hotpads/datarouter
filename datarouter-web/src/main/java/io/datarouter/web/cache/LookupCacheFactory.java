@@ -76,22 +76,24 @@ public class LookupCacheFactory{
 		CacheBuilder<Object,Object> builder = CacheBuilder.newBuilder()
 				.maximumSize(config.maximumSize)
 				.expireAfterWrite(config.expireAfterWriteDurationMs, TimeUnit.MILLISECONDS)
-				.refreshAfterWrite(config.refreshAfterWriteDurationMs, TimeUnit.MILLISECONDS)
 				.ticker(ticker.orElse(Ticker.systemTicker()));
+		if(config.refreshAfterWriteDurationMs > 0){
+			builder = builder.refreshAfterWrite(config.refreshAfterWriteDurationMs, TimeUnit.MILLISECONDS);
+		}
 		LoadingCache<K,Optional<V>> cache = builder.build(new CacheLoader<K,Optional<V>>(){
-					@Override
-					public Optional<V> load(K key){
-						LookupCache.logger.debug("Loading {}", key);
-						return Optional.ofNullable(config.lookup.apply(key));
-					}
+			@Override
+			public Optional<V> load(K key){
+				LookupCache.logger.debug("Loading {}", key);
+				return Optional.ofNullable(config.lookup.apply(key));
+			}
 
-					@Override
-					//this just enables asynchronous reloads when using refreshAfterWrite
-					public ListenableFuture<Optional<V>> reload(K key, Optional<V> oldValue){
-						LookupCache.logger.debug("Reloading {}", key);
-						return executorService.submit(() -> load(key));
-					}
-				});
+			@Override
+			//this just enables asynchronous reloads when using refreshAfterWrite
+			public ListenableFuture<Optional<V>> reload(K key, Optional<V> oldValue){
+				LookupCache.logger.debug("Reloading {}", key);
+				return executorService.submit(() -> load(key));
+			}
+		});
 
 		return new LookupCache<>(cache, config.exceptionFunction);
 	}
@@ -169,7 +171,6 @@ public class LookupCacheFactory{
 	 * A cache that asynchronously loads V based on K. See {@link LookupCacheFactoryConfig} for configuration details.
 	 */
 	public static class LookupCache<K,V> implements LookupCacheGetters<K,V>{
-
 		private static final Logger logger = LoggerFactory.getLogger(LookupCache.class);
 
 		private final LoadingCache<K,Optional<V>> cache;
@@ -195,6 +196,28 @@ public class LookupCacheFactory{
 		@Override
 		public Optional<V> get(K key){
 			return getInternal(key);
+		}
+
+		/**
+		 * @return boolean whether the key exists in the cache before inserting
+		 */
+		@Override
+		public boolean load(K key){
+			Objects.requireNonNull(key);
+			// getInternal will insert the key if it does not exist
+			boolean exists = contains(key);
+			getInternal(key);
+			return exists;
+		}
+
+		/**
+		 * 	this also works: return cache.getIfPresent(key) != null;
+		 *
+		 * @return boolean whether the key exists in the cache
+		 */
+		@Override
+		public boolean contains(K key){
+			return cache.asMap().containsKey(key);
 		}
 
 		private Optional<V> getInternal(K key){
@@ -272,7 +295,7 @@ public class LookupCacheFactory{
 			private static Ticker newTestTicker(){
 				return new Ticker(){
 
-					int time = 0;
+					private int time = 0;
 
 					@Override
 					public long read(){
@@ -285,4 +308,5 @@ public class LookupCacheFactory{
 		}
 
 	}
+
 }

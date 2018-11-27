@@ -24,6 +24,8 @@ import io.datarouter.util.string.StringTool;
 
 public class UInt63Field extends BasePrimitiveField<Long>{
 
+	private static final Random random = new Random();
+
 	public UInt63Field(String prefix, UInt63FieldKey key, Long value){
 		super(prefix, key, value);
 	}
@@ -32,15 +34,9 @@ public class UInt63Field extends BasePrimitiveField<Long>{
 		this(null, key, value);
 	}
 
-	/************************ static *********************************/
-
-	private static final Random random = new Random();
-
 	public static long nextPositiveRandom(){
 		return RandomTool.nextPositiveLong(random);
 	}
-
-	/*********************** StringEncodedField ***********************/
 
 	@Override
 	public String getStringEncodedValue(){
@@ -57,8 +53,6 @@ public class UInt63Field extends BasePrimitiveField<Long>{
 		}
 		return Long.valueOf(str);
 	}
-
-	/*********************** ByteEncodedField ***********************/
 
 	@Override
 	public byte[] getBytes(){

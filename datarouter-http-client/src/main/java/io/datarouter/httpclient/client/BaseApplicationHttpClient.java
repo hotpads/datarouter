@@ -24,7 +24,7 @@ public abstract class BaseApplicationHttpClient{
 
 	public BaseApplicationHttpClient(DatarouterHttpClient httpClient, DatarouterHttpClientSettings settings){
 		this.httpClient = httpClient;
-		this.requestBuilder = new DatarouterHttpRequestBuilder(settings);
+		this.requestBuilder = new DatarouterHttpRequestBuilder(settings, httpClient);
 	}
 
 }

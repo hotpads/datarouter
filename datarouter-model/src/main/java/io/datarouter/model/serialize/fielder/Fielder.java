@@ -33,6 +33,6 @@ import io.datarouter.model.field.FieldSet;
  */
 public interface Fielder<F extends FieldSet<F>>{
 
-	public List<Field<?>> getFields(F fieldSet);
+	List<Field<?>> getFields(F fieldSet);
 
 }

@@ -15,12 +15,14 @@
  */
 package io.datarouter.storage.setting;
 
+import java.util.function.Supplier;
 
-public interface Setting<T>{
+public interface Setting<T> extends Supplier<T>{
 
 	String getName();
 	T getDefaultValue();
-	T getValue();
+	@Override
+	T get();
 
 	boolean getHasCustomValue();
 	boolean getHasRedundantCustomValue();

@@ -23,14 +23,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 public interface UserSessionService{
+
 	void setSessionCookies(HttpServletResponse response, Session session);
 	void clearSessionCookies(HttpServletResponse response);
 
-	SessionBasedUser createAuthorizedUser(HttpServletRequest request, String username, String description,
-			Set<Role> roles);
-
-	SessionBasedUser getValidatedCurrentUser(HttpServletRequest request);
-	Optional<SessionBasedUser> findUser(String username);
+	SessionBasedUser createAuthorizedUser(String username, String description, Set<Role> roles);
 
 	//signs in a user with their existing roles
 	default Optional<Session> signInUser(HttpServletRequest request, String username){
@@ -44,8 +41,9 @@ public interface UserSessionService{
 			String descriptionIfCreating){
 		return signInUserWithRoles(request, username, roles)
 				.orElseGet(() -> {
-					createAuthorizedUser(request, username, descriptionIfCreating, roles);
+					createAuthorizedUser(username, descriptionIfCreating, roles);
 					return signInUser(request, username).get();
 				});
 	}
+
 }

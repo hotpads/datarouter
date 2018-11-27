@@ -44,8 +44,6 @@ public class StringEnumField<E extends StringEnum<E>>extends BaseField<E>{
 		return key;
 	}
 
-	/*********************** Comparable ********************************/
-
 	@Override
 	public int compareTo(Field<E> other){
 		/* If we store the string in the database and are using Collating iterators and such, then we pretty much have
@@ -54,8 +52,6 @@ public class StringEnumField<E extends StringEnum<E>>extends BaseField<E>{
 		 * else the java would sort differently depending on which Fielder was being used. */
 		return DatarouterEnumTool.compareStringEnums(value, other.getValue());
 	}
-
-	/*********************** StringEncodedField ***********************/
 
 	@Override
 	public String getStringEncodedValue(){
@@ -69,8 +65,6 @@ public class StringEnumField<E extends StringEnum<E>>extends BaseField<E>{
 	public E parseStringEncodedValueButDoNotSet(String string){
 		return StringEnum.fromPersistentStringSafe(getSampleValue(), string);
 	}
-
-	/*********************** ByteEncodedField ***********************/
 
 	@Override
 	public byte[] getBytes(){
@@ -126,4 +120,5 @@ public class StringEnumField<E extends StringEnum<E>>extends BaseField<E>{
 
 		return new StringField(stringEnumField.getPrefix(), key, value);
 	}
+
 }

@@ -137,7 +137,7 @@ public abstract class NavBar implements DispatcherServletListener{
 			for(DatarouterUserRole role : DatarouterUserRole.values()){
 				String pathForRole = BaseRouteSet.BaseRouteSetTests.getPathForRole(role);
 				Assert.assertTrue(auth.getDispatchRule(URI.create(pathForRole))
-						.orElse(null).getAllowedRoles().contains(role));
+						.orElse(null).getAllowedRoles().contains(role.getRole()));
 			}
 			String path = BaseRouteSet.BaseRouteSetTests.ANON_PATH;
 			Assert.assertTrue(auth.getDispatchRule(URI.create(path)).orElse(null)

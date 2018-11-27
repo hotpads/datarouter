@@ -36,4 +36,5 @@ public class Http400BadRequestException extends HttpException{
 	public Http400BadRequestException(Throwable cause){
 		super(MESSAGE, cause, CODE);
 	}
+
 }

@@ -15,7 +15,6 @@
  */
 package io.datarouter.storage.client;
 
-
 public interface DynamicClientFactory
 extends ClientFactory{
 

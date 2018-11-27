@@ -24,5 +24,4 @@ import io.datarouter.model.key.Key;
  */
 public interface EntityKey<K extends Key<K>>
 extends Key<K>{
-
 }

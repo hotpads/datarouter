@@ -16,7 +16,6 @@
 package io.datarouter.storage.trace.databean;
 
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -29,7 +28,7 @@ import io.datarouter.model.field.imp.positive.UInt63Field;
 import io.datarouter.model.field.imp.positive.UInt63FieldKey;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
 import io.datarouter.model.serialize.fielder.Fielder;
-import io.datarouter.util.ComparableTool;
+import io.datarouter.util.string.StringTool;
 
 public abstract class BaseTraceThread<
 		EK extends BaseTraceEntityKey<EK>,
@@ -38,6 +37,7 @@ public abstract class BaseTraceThread<
 extends BaseDatabean<PK,D>{
 
 	protected PK key;
+
 	protected Long parentId;
 	protected String name;
 	protected String info;
@@ -45,9 +45,6 @@ extends BaseDatabean<PK,D>{
 	protected Long created;
 	protected Long queuedDuration;
 	protected Long runningDuration;
-	protected Long nanoStart;
-	protected Long queuedDurationNano;
-	protected Long runningDurationNano;
 
 	public static class FieldKeys{
 		public static final UInt63FieldKey parentId = new UInt63FieldKey("parentId");
@@ -57,8 +54,6 @@ extends BaseDatabean<PK,D>{
 		public static final UInt63FieldKey created = new UInt63FieldKey("created");
 		public static final UInt63FieldKey queuedDuration = new UInt63FieldKey("queuedDuration");
 		public static final UInt63FieldKey runningDuration = new UInt63FieldKey("runningDuration");
-		public static final UInt63FieldKey queuedDurationNano = new UInt63FieldKey("queuedDurationNano");
-		public static final UInt63FieldKey runningDurationNano = new UInt63FieldKey("runningDurationNano");
 	}
 
 	public static class BaseTraceThreadFielder<
@@ -80,9 +75,7 @@ extends BaseDatabean<PK,D>{
 					new StringField(FieldKeys.serverId, traceThread.getServerId()),
 					new UInt63Field(FieldKeys.created, traceThread.getCreated()),
 					new UInt63Field(FieldKeys.queuedDuration, traceThread.getQueuedDuration()),
-					new UInt63Field(FieldKeys.runningDuration, traceThread.getRunningDuration()),
-					new UInt63Field(FieldKeys.queuedDurationNano, traceThread.getQueuedDurationNano()),
-					new UInt63Field(FieldKeys.runningDurationNano, traceThread.getRunningDurationNano()));
+					new UInt63Field(FieldKeys.runningDuration, traceThread.getRunningDuration()));
 		}
 
 	}
@@ -90,44 +83,16 @@ extends BaseDatabean<PK,D>{
 	/*------------------------------ construct ------------------------------*/
 
 	public BaseTraceThread(){
-		this.created = System.currentTimeMillis();
-		this.nanoStart = System.nanoTime();
 	}
 
 	public BaseTraceThread(TraceThreadDto dto){
-		this.parentId = dto.parentId;
-		this.name = dto.name;
-		this.info = dto.info;
-		this.serverId = dto.serverId;
-		this.created = dto.created;
-		this.queuedDuration = dto.queuedDuration;
-		this.runningDuration = dto.runningDuration;
-		this.queuedDurationNano = dto.queuedDurationNano;
-		this.runningDurationNano = dto.runningDurationNano;
-	}
-
-	/*------------------------------- compare -------------------------------*/
-
-	//not sure this is useful, but TraceThreadGroupComparator extends it
-	public static class TraceThreadComparatorBaseTraceThread<
-			EK extends BaseTraceEntityKey<EK>,
-			PK extends BaseTraceThreadKey<EK,PK>,
-			D extends BaseTraceThread<EK,PK,D>>
-	implements Comparator<D>{
-
-		@Override
-		public int compare(D threadA, D threadB){
-			int d0 = ComparableTool.nullFirstCompareTo(threadA.getParentId(), threadB.getParentId());
-			if(d0 != 0){
-				return d0;
-			}
-			int d1 = ComparableTool.nullFirstCompareTo(threadA.getCreated(), threadB.getCreated());
-			if(d1 != 0){
-				return d1;
-			}
-			return ComparableTool.nullFirstCompareTo(threadA.getName(), threadB.getName());
-		}
-
+		this.parentId = dto.getParentId();
+		this.name = dto.getName();
+		this.info = StringTool.trimToSize(dto.getInfo(), FieldKeys.info.getSize());
+		this.serverId = dto.getServerId();
+		this.created = dto.getCreated();
+		this.queuedDuration = dto.getQueuedDuration();
+		this.runningDuration = dto.getRunningDuration();
 	}
 
 	/*------------------------------- methods -------------------------------*/
@@ -135,16 +100,6 @@ extends BaseDatabean<PK,D>{
 	@Override
 	public String toString(){
 		return super.toString() + "[" + name + "]";
-	}
-
-	public void markStart(){
-		queuedDuration = System.currentTimeMillis() - created;
-		queuedDurationNano = System.nanoTime() - nanoStart;
-	}
-
-	public void markFinish(){
-		runningDuration = System.currentTimeMillis() - queuedDuration - created;
-		runningDurationNano = System.nanoTime() - queuedDurationNano - nanoStart;
 	}
 
 	public Date getTime(){
@@ -160,6 +115,10 @@ extends BaseDatabean<PK,D>{
 	@Override
 	public PK getKey(){
 		return key;
+	}
+
+	public Long getThreadId(){
+		return getKey().getThreadId();
 	}
 
 	// should be serverName
@@ -195,7 +154,7 @@ extends BaseDatabean<PK,D>{
 		this.created = created;
 	}
 
-	public Long getTraceId(){
+	public String getTraceId(){
 		return key.getTraceId();
 	}
 
@@ -213,30 +172,6 @@ extends BaseDatabean<PK,D>{
 
 	public void setRunningDuration(Long runningDuration){
 		this.runningDuration = runningDuration;
-	}
-
-	public Long getQueuedDurationNano(){
-		return queuedDurationNano;
-	}
-
-	public void setQueuedDurationNano(Long queuedDurationNano){
-		this.queuedDurationNano = queuedDurationNano;
-	}
-
-	public Long getRunningDurationNano(){
-		return runningDurationNano;
-	}
-
-	public void setRunningDurationNano(Long runningDurationNano){
-		this.runningDurationNano = runningDurationNano;
-	}
-
-	public Long getNanoStart(){
-		return nanoStart;
-	}
-
-	public void setNanoStart(Long nanoStart){
-		this.nanoStart = nanoStart;
 	}
 
 	public String getInfo(){

@@ -35,6 +35,7 @@ public class InstanceRegistry{
 
 	@Inject
 	private DatarouterInjector datarouterInjector;
+
 	private final Set<Object> set = Collections.newSetFromMap(new ConcurrentHashMap<>());
 
 	public void register(Object obj){

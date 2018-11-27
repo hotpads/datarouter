@@ -1,5 +1,2 @@
 <link rel="stylesheet" href="${contextPath}/bootstrap/css/bootstrap.css">
 <link rel="stylesheet" href="${contextPath}/css/common.css">
-<c:if test="${contextPath == 'job'}">
-	<link rel="stylesheet" href="${contextPath}/css/job.css">
-</c:if>

@@ -21,6 +21,7 @@ import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 
 public class BaseStreamRecord <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>{
+
 	private final StreamRecordKey key;
 	private final Date approximateArrivalTimestamp;
 

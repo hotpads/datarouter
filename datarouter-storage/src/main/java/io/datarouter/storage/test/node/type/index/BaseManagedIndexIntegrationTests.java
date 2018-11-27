@@ -34,7 +34,7 @@ import io.datarouter.storage.test.TestDatabean;
 import io.datarouter.storage.test.TestDatabeanKey;
 import io.datarouter.storage.test.node.type.index.databean.TestDatabeanWithManagedIndexByBar;
 import io.datarouter.storage.test.node.type.index.databean.TestDatabeanWithManagedIndexByBarKey;
-import io.datarouter.storage.test.node.type.index.node.TestDatabeanWithIndexRouter;
+import io.datarouter.storage.test.node.type.index.node.DatarouterTestDatabeanWithIndexRouter;
 import io.datarouter.storage.test.node.type.index.node.TestDatabeanWithManagedIndexRouter;
 import io.datarouter.storage.test.node.type.index.node.TestDatabeanWithTxnManagedIndexRouter;
 import io.datarouter.storage.test.node.type.index.router.ManagedIndexTestRoutersFactory;
@@ -91,7 +91,7 @@ public abstract class BaseManagedIndexIntegrationTests{
 		testLookupUnique(routerWithTxnManaged);
 	}
 
-	private void testLookupUnique(TestDatabeanWithIndexRouter router){
+	private void testLookupUnique(DatarouterTestDatabeanWithIndexRouter router){
 		TestDatabean databean = router.byB.lookupUnique(new TestDatabeanWithManagedIndexByBarKey("martolod"), null);
 		Assert.assertNull(databean);
 		databean = router.byB.lookupUnique(new TestDatabeanWithManagedIndexByBarKey("tra"), null);
@@ -106,7 +106,7 @@ public abstract class BaseManagedIndexIntegrationTests{
 		testLookupMultiUnique(routerWithTxnManaged);
 	}
 
-	private void testLookupMultiUnique(TestDatabeanWithIndexRouter router){
+	private void testLookupMultiUnique(DatarouterTestDatabeanWithIndexRouter router){
 		LinkedList<TestDatabeanWithManagedIndexByBarKey> keys = ListTool.createLinkedList(
 				new TestDatabeanWithManagedIndexByBarKey("martolod"),
 				new TestDatabeanWithManagedIndexByBarKey("kastell"),
@@ -132,7 +132,7 @@ public abstract class BaseManagedIndexIntegrationTests{
 		testLookupIndex(routerWithTxnManaged);
 	}
 
-	private void testLookupIndex(TestDatabeanWithIndexRouter router){
+	private void testLookupIndex(DatarouterTestDatabeanWithIndexRouter router){
 		TestDatabeanWithManagedIndexByBar entry = router.byB.get(new TestDatabeanWithManagedIndexByBarKey(
 				"martolod"), null);
 		Assert.assertNull(entry);
@@ -148,7 +148,7 @@ public abstract class BaseManagedIndexIntegrationTests{
 		testLookupMultiIndex(routerWithTxnManaged);
 	}
 
-	private void testLookupMultiIndex(TestDatabeanWithIndexRouter router){
+	private void testLookupMultiIndex(DatarouterTestDatabeanWithIndexRouter router){
 		LinkedList<TestDatabeanWithManagedIndexByBarKey> keys = ListTool.createLinkedList(
 				new TestDatabeanWithManagedIndexByBarKey("martolod"),
 				new TestDatabeanWithManagedIndexByBarKey("kastell"),
@@ -172,7 +172,7 @@ public abstract class BaseManagedIndexIntegrationTests{
 		testDeleteUnique(routerWithTxnManaged);
 	}
 
-	private void testDeleteUnique(TestDatabeanWithIndexRouter router){
+	private void testDeleteUnique(DatarouterTestDatabeanWithIndexRouter router){
 		TestDatabean databean = new TestDatabean("tri", "martolod", "yaouank");
 		TestDatabeanWithManagedIndexByBarKey databeanIndexKey = new TestDatabeanWithManagedIndexByBarKey("martolod");
 		Assert.assertNull(router.mainNode.get(databean.getKey(), null));
@@ -191,7 +191,7 @@ public abstract class BaseManagedIndexIntegrationTests{
 		testDeleteMultiUnique(routerWithTxnManaged);
 	}
 
-	private void testDeleteMultiUnique(TestDatabeanWithIndexRouter router){
+	private void testDeleteMultiUnique(DatarouterTestDatabeanWithIndexRouter router){
 		List<TestDatabean> databeans = ListTool.createLinkedList(
 				new TestDatabean("tri", "martolod", "yaouank"),
 				new TestDatabean("i vonet", "da", "veajiñ"));
@@ -216,7 +216,7 @@ public abstract class BaseManagedIndexIntegrationTests{
 		testScanUniqueIndex(routerWithTxnManaged);
 	}
 
-	private void testScanUniqueIndex(TestDatabeanWithIndexRouter router){
+	private void testScanUniqueIndex(DatarouterTestDatabeanWithIndexRouter router){
 		TestDatabeanWithManagedIndexByBar previous = null;
 		int count = 0;
 		for(TestDatabeanWithManagedIndexByBar indexEntry : router.byB.scan(null, null)){
@@ -235,7 +235,7 @@ public abstract class BaseManagedIndexIntegrationTests{
 		testScanUnique(routerWithTxnManaged);
 	}
 
-	private void testScanUnique(TestDatabeanWithIndexRouter router){
+	private void testScanUnique(DatarouterTestDatabeanWithIndexRouter router){
 		TestDatabean previous = null;
 		int count = 0;
 		for(TestDatabean databean : router.byB.scanDatabeans(null, null)){

@@ -37,4 +37,5 @@ public class DoubleCachedSetting extends CachedSetting<Double> implements Double
 			return false;
 		}
 	}
+
 }

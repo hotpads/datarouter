@@ -16,6 +16,7 @@
 package io.datarouter.storage.stream;
 
 public class StreamRecordKey{
+
 	private final String sequenceNumber;
 
 	public StreamRecordKey(String sequenceNumber){

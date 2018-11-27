@@ -27,8 +27,6 @@ public class LongDateField extends BasePrimitiveField<Date>{
 		super(key, value);
 	}
 
-	/*********************** StringEncodedField ***********************/
-
 	@Override
 	public String getStringEncodedValue(){
 		if(value == null){
@@ -45,8 +43,6 @@ public class LongDateField extends BasePrimitiveField<Date>{
 		//		return DateTool.parseUserInputDate(s,null);
 		return new Date(Long.valueOf(str));
 	}
-
-	/*********************** ByteEncodedField ***********************/
 
 	@Override
 	public byte[] getBytes(){

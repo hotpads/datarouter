@@ -30,7 +30,6 @@ import io.datarouter.model.field.Field;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.setting.DatarouterSettings;
-import io.datarouter.storage.node.factory.EntityNodeFactory;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.raw.MapStorage;
 import io.datarouter.storage.test.TestDatarouterProperties;
@@ -40,8 +39,6 @@ import io.datarouter.storage.test.node.basic.map.databean.MapStorageBeanKey;
 
 public abstract class BaseMapStorageIntegrationTests{
 
-	/** fields ***************************************************************/
-
 	@Inject
 	private TestDatarouterProperties datarouterProperties;
 	@Inject
@@ -50,25 +47,18 @@ public abstract class BaseMapStorageIntegrationTests{
 	private NodeFactory nodeFactory;
 	@Inject
 	private DatarouterSettings datarouterSettings;
-	@Inject
-	private EntityNodeFactory entityNodeFactory;
 
 	private MapStorage<MapStorageBeanKey,MapStorageBean> mapStorageNode;
 
-	/** setup/teardown *******************************************************/
-
 	protected void setup(ClientId clientId, boolean entity){
-		mapStorageNode = new MapStorageTestRouter(datarouterProperties, datarouter, nodeFactory, clientId,
-				datarouterSettings, entity, entityNodeFactory,
-				MapStorageEntityNode.ENTITY_NODE_PARAMS_1).mapStorageNode;
+		mapStorageNode = new DatarouterMapStorageTestRouter(datarouterProperties, datarouter, nodeFactory, clientId,
+				datarouterSettings, entity).mapStorageNode;
 	}
 
 	@AfterClass
 	public void afterClass(){
 		datarouter.shutdown();
 	}
-
-	/** tests ****************************************************************/
 
 	@Test
 	public void testGet(){
@@ -150,8 +140,6 @@ public abstract class BaseMapStorageIntegrationTests{
 		deleteRecord(bean2);
 	}
 
-	/** private **************************************************************/
-
 	private List<MapStorageBean> initBeans(int size){
 		List<MapStorageBean> beans = new ArrayList<>();
 		for(int i = 0; i < size; i++){
@@ -159,8 +147,6 @@ public abstract class BaseMapStorageIntegrationTests{
 		}
 		return beans;
 	}
-
-	/** remove records *******************************************************/
 
 	private void deleteRecord(MapStorageBean bean){
 		mapStorageNode.delete(bean.getKey(), null);

@@ -26,6 +26,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import io.datarouter.httpclient.json.JsonSerializer;
 import io.datarouter.web.exception.HandledException;
+import io.datarouter.web.handler.validator.RequestParamValidator.RequestParamValidatorErrorResponseDto;
 import io.datarouter.web.util.http.ResponseTool;
 
 @Singleton
@@ -41,18 +42,46 @@ public class JsonEncoder implements HandlerEncoder{
 	@Override
 	public void finishRequest(Object result, ServletContext servletContext, HttpServletResponse response,
 			HttpServletRequest request) throws IOException{
-		ResponseTool.sendJson(response, jsonSerializer.serialize(result));
+		sendRequestJson(response, request, serialize(result));
+	}
+
+	protected String serialize(Object result){
+		return jsonSerializer.serialize(result);
+	}
+
+	protected void sendRequestJson(HttpServletResponse response, @SuppressWarnings("unused") HttpServletRequest request,
+			String json)
+	throws IOException{
+		ResponseTool.sendJson(response, json);
 	}
 
 	@Override
 	public void sendExceptionResponse(HandledException exception, ServletContext servletContext,
 			HttpServletResponse response, HttpServletRequest request) throws IOException{
-		Object responseBody = exception.getHttpResponseBody();
-		if(responseBody == null){
-			ResponseTool.sendJsonForMessage(response, exception.getHttpResponseCode(), exception.getMessage());
-			return;
-		}
-		ResponseTool.sendJson(response, exception.getHttpResponseCode(), jsonSerializer.serialize(responseBody));
+		sendErrorJson(exception.getHttpResponseCode(), getJsonForException(exception), response, request);
 	}
 
+	protected void sendErrorJson(int statusCode, String json, HttpServletResponse response,
+			@SuppressWarnings("unused") HttpServletRequest request) throws IOException{
+		ResponseTool.sendJson(response, statusCode, json);
+	}
+
+	private String getJsonForException(HandledException exception){
+		if(exception.getHttpResponseBody() == null){
+			return ResponseTool.getJsonForMessage(exception.getHttpResponseCode(), exception.getMessage());
+		}
+		return serialize(exception.getHttpResponseBody());
+	}
+
+	@Override
+	public void sendInvalidRequestParamResponse(RequestParamValidatorErrorResponseDto errorResponseDto,
+			ServletContext servletContext, HttpServletResponse response, HttpServletRequest request) throws IOException{
+		String json = getJsonForRequestParamValidatorErrorResponseDto(errorResponseDto);
+		sendErrorJson(errorResponseDto.statusCode, json, response, request);
+	}
+
+	protected String getJsonForRequestParamValidatorErrorResponseDto(
+			RequestParamValidatorErrorResponseDto errorResponseDto){
+		return ResponseTool.getJsonForMessage(errorResponseDto.statusCode, errorResponseDto.message);
+	}
 }

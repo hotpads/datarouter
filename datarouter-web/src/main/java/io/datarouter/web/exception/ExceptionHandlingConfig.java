@@ -26,8 +26,6 @@ public interface ExceptionHandlingConfig{
 	boolean shouldReportError(ExceptionDto dto);
 
 	String getHtmlErrorMessage(Exception exception);
-	String getServerName();
 	boolean isDevServer();
-	String getRecipientEmail();
 
 }

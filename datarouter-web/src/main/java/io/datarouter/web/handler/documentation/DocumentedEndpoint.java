@@ -22,11 +22,13 @@ public class DocumentedEndpoint{
 	private final String url;
 	private final List<DocumentedParameter> parameters;
 	private final String description;
+	private final String response;
 
-	public DocumentedEndpoint(String url, List<DocumentedParameter> parameters, String description){
+	public DocumentedEndpoint(String url, List<DocumentedParameter> parameters, String description, String response){
 		this.url = url;
 		this.parameters = parameters;
 		this.description = description;
+		this.response = response;
 	}
 
 	public String getDescription(){
@@ -40,4 +42,9 @@ public class DocumentedEndpoint{
 	public List<DocumentedParameter> getParameters(){
 		return parameters;
 	}
+
+	public String getResponse(){
+		return response;
+	}
+
 }

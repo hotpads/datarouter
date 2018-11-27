@@ -33,7 +33,7 @@ public class BooleanByteTool{
 		return getBytes(value);
 	}
 
-	private static Boolean fromBytesNullable(final byte[] bytes, final int offset){
+	private static Boolean fromBytesNullable(byte[] bytes, int offset){
 		if(Arrays.equals(bytes, new byte[]{NULL})){
 			return null;
 		}
@@ -67,7 +67,7 @@ public class BooleanByteTool{
 		return out;
 	}
 
-	public static List<Boolean> fromBooleanByteArray(final byte[] bytes, final int startIdx){
+	public static List<Boolean> fromBooleanByteArray(byte[] bytes, int startIdx){
 		int numBooleans = bytes.length - startIdx;
 		List<Boolean> bools = new ArrayList<>();
 		byte[] arrayToCopy = new byte[1];
@@ -78,7 +78,7 @@ public class BooleanByteTool{
 		return bools;
 	}
 
-	/************************** tests ************************************/
+	/*------------------------- tests ---------------------------------------*/
 
 	public static class BooleanByteToolTests{
 		@Test

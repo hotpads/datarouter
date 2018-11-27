@@ -27,4 +27,5 @@ public class CharacterFieldKey extends PrimitiveFieldKey<Character>{
 	public CharacterField createValueField(final Character value){
 		return new CharacterField(this, value);
 	}
+
 }

@@ -35,4 +35,14 @@ public abstract class BaseLookupCacheWrapper<K,V> implements LookupCacheGetters<
 		return delegate.getOrThrow(key);
 	}
 
+	@Override
+	public boolean load(K key){
+		return delegate.load(key);
+	}
+
+	@Override
+	public boolean contains(K key){
+		return delegate.contains(key);
+	}
+
 }

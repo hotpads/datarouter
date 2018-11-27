@@ -43,26 +43,21 @@ public interface SortedStorageReader<
 		D extends Databean<PK,D>>
 extends NodeOps<PK,D>{
 
-	public static final String
-		OP_getWithPrefix = "getWithPrefix",
-		OP_getWithPrefixes = "getWithPrefixes",
-		OP_getKeysInRange = "getKeysInRange",
-		OP_getRange = "getRange",
-		OP_getPrefixedRange = "getPrefixedRange",
-		OP_scanKeys = "scanKeys",
-		OP_scanKeysMulti = "scanKeysMulti",
-		OP_scan = "scan",
-		OP_scanMulti = "scanMulti";
+	public static final String OP_getKeysInRange = "getKeysInRange";
+	public static final String OP_getRange = "getRange";
+	public static final String OP_getPrefixedRange = "getPrefixedRange";
+	public static final String OP_scanKeys = "scanKeys";
+	public static final String OP_scanKeysMulti = "scanKeysMulti";
+	public static final String OP_scan = "scan";
+	public static final String OP_scanMulti = "scanMulti";
 
 	Iterable<D> scanMulti(Collection<Range<PK>> ranges, Config config);
 	Iterable<PK> scanKeysMulti(Collection<Range<PK>> ranges, Config config);
 
+	/*------------------------ default interface methods --------------------*/
 
-	/*******************************************************
-	 * default interface methods
-	 *******************************************************/
 
-	/****************** scan *************************/
+	/*-------------------------------- scan ---------------------------------*/
 
 	/**
 	 * The scan method accepts a Range&lt;PK&gt; which identifies the startKey and endKey, and returns all contiguous
@@ -88,7 +83,7 @@ extends NodeOps<PK,D>{
 		return scanKeysMulti(Arrays.asList(Range.nullSafe(range)), config);
 	}
 
-	/****************** stream *************************/
+	/*-------------------------------- stream -------------------------------*/
 
 	default Stream<D> stream(Range<PK> range, Config config){
 		return StreamTool.stream(scan(range, config));
@@ -106,13 +101,13 @@ extends NodeOps<PK,D>{
 		return StreamTool.stream(scanKeysMulti(ranges, config));
 	}
 
-	/****************** count  *************************/
+	/*-------------------------------- count --------------------------------*/
 
 	default long count(Range<PK> range){
 		return SortedStorageCountingTool.count(this, range);
 	}
 
-	/****************** prefix *************************/
+	/*-------------------------------- prefix -------------------------------*/
 
 	default Stream<PK> streamKeysWithPrefix(PK prefix, Config config){
 		return streamKeys(KeyRangeTool.forPrefix(prefix), config);
@@ -146,13 +141,15 @@ extends NodeOps<PK,D>{
 		return scanMulti(getRangesFromPrefixes(prefixes), config);
 	}
 
-	/************** static methods *************************/
+	/*---------------------------- static methods ---------------------------*/
 
 	static <PK extends PrimaryKey<PK>> List<Range<PK>> getRangesFromPrefixes(Collection<PK> prefixes){
-		return prefixes.stream().map(KeyRangeTool::forPrefix).collect(Collectors.toList());
+		return prefixes.stream()
+				.map(KeyRangeTool::forPrefix)
+				.collect(Collectors.toList());
 	}
 
-	/*************** sub-interfaces ***********************/
+	/*---------------------------- sub-interfaces ---------------------------*/
 
 	public interface SortedStorageReaderNode<
 			PK extends PrimaryKey<PK>,

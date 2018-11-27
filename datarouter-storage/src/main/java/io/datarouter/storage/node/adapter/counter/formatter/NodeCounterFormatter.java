@@ -28,12 +28,8 @@ public class NodeCounterFormatter<
 		F extends DatabeanFielder<PK,D>,
 		N extends Node<PK,D,F>>{
 
-
 	private final N node;
 	private final PhysicalNode<PK,D,F> physicalNode;//may be null
-
-
-	/******************* construct *************************/
 
 	public NodeCounterFormatter(N node){
 		this.node = node;
@@ -43,9 +39,6 @@ public class NodeCounterFormatter<
 			this.physicalNode = null;
 		}
 	}
-
-
-	/********************** methods *****************************/
 
 	public void count(String key){
 		count(key, 1);

@@ -15,8 +15,48 @@
  */
 package io.datarouter.web.user.session.service;
 
-public interface Role{
+import java.util.Objects;
 
-	String getPersistentString();
+public class Role implements Comparable<Role>{
+
+	private final String persistentString;
+
+	public Role(String persistentString){
+		this.persistentString = persistentString;
+	}
+
+	public String getPersistentString(){
+		return persistentString;
+	}
+
+	@Override
+	public int compareTo(Role other){
+		return persistentString.compareTo(other.getPersistentString());
+	}
+
+	@Override
+	public int hashCode(){
+		return persistentString.hashCode();
+	}
+
+	@Override
+	public String toString(){
+		return persistentString;
+	}
+
+	@Override
+	public boolean equals(Object obj){
+		if(!(obj instanceof Role)){
+			return false;
+		}
+		return Role.equals(this, (Role)obj);
+	}
+
+	static boolean equals(Role first, Role second){
+		if(first == null){
+			return second == null;
+		}
+		return second != null && Objects.equals(first.getPersistentString(), second.getPersistentString());
+	}
 
 }

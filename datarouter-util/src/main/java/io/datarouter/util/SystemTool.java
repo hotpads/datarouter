@@ -21,4 +21,8 @@ public class SystemTool{
 		return System.getProperty("user.home");
 	}
 
+	public static String getJavaVersion(){
+		return System.getProperty("java.version");
+	}
+
 }

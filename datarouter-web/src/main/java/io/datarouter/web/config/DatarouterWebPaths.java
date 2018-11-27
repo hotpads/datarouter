@@ -17,25 +17,25 @@ package io.datarouter.web.config;
 
 import javax.inject.Singleton;
 
-import io.datarouter.util.PathNode;
+import io.datarouter.httpclient.path.PathNode;
 
 @Singleton
 public class DatarouterWebPaths extends PathNode{
 
 	public static final String DATAROUTER = "datarouter";
 
-	public final DatarouterPaths datarouter = branch(DatarouterPaths.class, DATAROUTER);
+	public final DatarouterPaths datarouter = branch(DatarouterPaths::new, DATAROUTER);
 
 	public static class DatarouterPaths extends PathNode{
-		public final ClientsPaths clients = branch(ClientsPaths.class, "clients");
+		public final ClientsPaths clients = branch(ClientsPaths::new, "clients");
 		public final PathNode data = leaf("data");
 		public final PathNode executors = leaf("executors");
 		public final PathNode memory = leaf("memory");
-		public final NodesPaths nodes = branch(NodesPaths.class, "nodes");
-		public final PathNode routers = leaf("routers");
+		public final NodesPaths nodes = branch(NodesPaths::new, "nodes");
 		public final PathNode testApi = leaf("testApi");
-		public final PathNode webAppInstances = leaf("webAppInstances");
+		public final PathNode webappInstances = leaf("webappInstances");
 		public final PathNode ipDetection = leaf("ipDetection");
+		public final PathNode deployment = leaf("deployment");
 	}
 
 	public static class ClientsPaths extends PathNode{
@@ -45,6 +45,7 @@ public class DatarouterWebPaths extends PathNode{
 	public static class NodesPaths extends PathNode{
 		public final PathNode browseData = leaf("browseData");
 		public final PathNode deleteData = leaf("deleteData");
+		public final PathNode getData = leaf("getData");
 	}
 
 }

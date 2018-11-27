@@ -93,7 +93,6 @@ public class ShortByteTool{
 	 *
 	 * first bit must be 0, reject others
 	 */
-
 	public static byte[] getUInt15Bytes(final short value){
 //		if(value < 0){ throw new IllegalArgumentException("no negatives"); }
 		byte[] out = new byte[2];
@@ -110,8 +109,6 @@ public class ShortByteTool{
 
 	//TODO copy array methods from IntegerByteTool
 
-
-	/********************************* tests ***********************************************/
 
 	public static class Tests{
 		@Test

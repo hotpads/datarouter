@@ -31,6 +31,7 @@ public abstract class BaseTraceSpanKey<
 extends BaseEntityPrimaryKey<EK,PK>{
 
 	protected EK entityKey;
+
 	protected Long threadId;
 	protected Integer sequence;
 

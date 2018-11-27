@@ -43,7 +43,8 @@ public class DefaultSignatureValidator implements SignatureValidator{
 	private static final Logger logger = LoggerFactory.getLogger(DefaultSignatureValidator.class);
 
 	private static final String HASHING_ALGORITHM = "SHA-256";
-	private Supplier<String> saltSupplier;
+
+	private final Supplier<String> saltSupplier;
 
 	public DefaultSignatureValidator(Supplier<String> saltSupplier){
 		this.saltSupplier = saltSupplier;

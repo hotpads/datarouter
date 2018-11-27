@@ -25,25 +25,25 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.datarouter.util.DateTool;
 import io.datarouter.util.lang.ObjectTool;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.user.DatarouterUserNodes;
 import io.datarouter.web.user.authenticate.authenticator.DatarouterAuthenticator;
+import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
 import io.datarouter.web.user.session.DatarouterSession;
 import io.datarouter.web.user.session.DatarouterSessionKey;
 import io.datarouter.web.user.session.DatarouterSessionManager;
 
 @Singleton
 public class DatarouterSessionAuthenticator implements DatarouterAuthenticator{
-	private static Logger logger = LoggerFactory.getLogger(DatarouterSessionAuthenticator.class);
-
-	public static final Long SESSION_TIMOUT_MS = 30L * DateTool.MILLISECONDS_IN_MINUTE;
+	private static final Logger logger = LoggerFactory.getLogger(DatarouterSessionAuthenticator.class);
 
 	@Inject
 	private DatarouterUserNodes userNodes;
 	@Inject
 	private DatarouterSessionManager sessionManager;
+	@Inject
+	private DatarouterAuthenticationConfig datarouterAuthenticationConfig;
 
 	@Override
 	public DatarouterSession getSession(HttpServletRequest request, HttpServletResponse response){
@@ -52,11 +52,7 @@ public class DatarouterSessionAuthenticator implements DatarouterAuthenticator{
 			return null;
 		}
 		DatarouterSession session = userNodes.getSessionNode().get(new DatarouterSessionKey(sessionToken), null);
-		if(session == null){
-			return null;
-		}
-		long msSinceLastAccess = System.currentTimeMillis() - session.getUpdated().getTime();
-		if(msSinceLastAccess > SESSION_TIMOUT_MS){
+		if(session == null || datarouterAuthenticationConfig.isSessionExpired(session)){
 			return null;
 		}
 

@@ -23,7 +23,7 @@ import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
 import io.datarouter.storage.test.TestDatabean.FieldKeys;
 
-public class TestDatabeanFielder extends BaseDatabeanFielder<TestDatabeanKey, TestDatabean>{
+public class TestDatabeanFielder extends BaseDatabeanFielder<TestDatabeanKey,TestDatabean>{
 
 	public TestDatabeanFielder(){
 		super(TestDatabeanKey.class);

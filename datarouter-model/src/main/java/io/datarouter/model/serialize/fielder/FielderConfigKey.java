@@ -38,4 +38,5 @@ public class FielderConfigKey<T extends FielderConfigValue<T>>{
 		FielderConfigKey<?> other = (FielderConfigKey<?>)obj;
 		return Objects.equals(persistentString, other.persistentString);
 	}
+
 }

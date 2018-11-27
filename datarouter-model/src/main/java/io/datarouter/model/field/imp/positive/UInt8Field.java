@@ -29,8 +29,6 @@ public class UInt8Field extends BasePrimitiveField<Byte>{
 		super(key, ByteTool.toUnsignedByte(intValue));
 	}
 
-	/*********************** StringEncodedField ***********************/
-
 	@Override
 	public String getStringEncodedValue(){
 		if(value == null){
@@ -46,8 +44,6 @@ public class UInt8Field extends BasePrimitiveField<Byte>{
 		}
 		return ByteTool.toUnsignedByte(Integer.valueOf(str));
 	}
-
-	/*********************** ByteEncodedField ***********************/
 
 	@Override
 	public byte[] getBytes(){

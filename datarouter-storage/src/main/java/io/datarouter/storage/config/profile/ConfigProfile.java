@@ -28,7 +28,7 @@ public enum ConfigProfile implements Supplier<DatarouterConfigProfile>{
 
 	private final DatarouterConfigProfile profile;
 
-	private ConfigProfile(String profileName){
+	ConfigProfile(String profileName){
 		this.profile = new DatarouterConfigProfile(profileName);
 	}
 

@@ -33,24 +33,21 @@ import io.datarouter.util.tuple.Range;
 
 /**
  * Methods for reading from storage systems that provide secondary indexing.
- *
- * This storage may be deprecated in favor of MultiIndexReader.
  */
 public interface IndexedStorageReader<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>>
 extends NodeOps<PK,D>, IndexedOps<PK,D>{
 
-	public static final String
-		OP_lookupUnique = "lookupUnique",
-		OP_lookupMultiUnique = "lookupMultiUnique",
-		OP_getFromIndex = "getFromIndex",
-		OP_getByIndex = "getByIndex",
-		OP_getIndexRange = "getIndexRange",
-		OP_getIndexKeyRange = "getIndexKeyRange",
-		OP_scanIndex = "scanIndex",
-		OP_scanByIndex = "scanByIndex",
-		OP_scanIndexKeys = "scanIndexKeys";
+	public static final String OP_lookupUnique = "lookupUnique";
+	public static final String OP_lookupMultiUnique = "lookupMultiUnique";
+	public static final String OP_getFromIndex = "getFromIndex";
+	public static final String OP_getByIndex = "getByIndex";
+	public static final String OP_getIndexRange = "getIndexRange";
+	public static final String OP_getIndexKeyRange = "getIndexKeyRange";
+	public static final String OP_scanIndex = "scanIndex";
+	public static final String OP_scanByIndex = "scanByIndex";
+	public static final String OP_scanIndexKeys = "scanIndexKeys";
 
 
 	D lookupUnique(UniqueKey<PK> uniqueKey, Config config);
@@ -58,32 +55,33 @@ extends NodeOps<PK,D>, IndexedOps<PK,D>{
 
 	<IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK,IE,PK,D>,
-			IF extends DatabeanFielder<IK, IE>>
+			IF extends DatabeanFielder<IK,IE>>
 	List<IE> getMultiFromIndex(Collection<IK> keys, Config config, DatabeanFieldInfo<IK, IE, IF> indexEntryFieldInfo);
 
 	<IK extends PrimaryKey<IK>,
-			IE extends IndexEntry<IK,IE,PK,D>>
-	List<D> getMultiByIndex(Collection<IK> keys, Config config);
+			IE extends IndexEntry<IK,IE,PK,D>,
+			IF extends DatabeanFielder<IK,IE>>
+	List<D> getMultiByIndex(Collection<IK> keys, Config config, DatabeanFieldInfo<IK, IE, IF> indexEntryFieldInfo);
 
 	<IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK,IE,PK,D>,
-			IF extends DatabeanFielder<IK, IE>>
+			IF extends DatabeanFielder<IK,IE>>
 	Iterable<IE> scanMultiIndex(DatabeanFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges,
 			Config config);
 
 	<IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK,IE,PK,D>,
-			IF extends DatabeanFielder<IK, IE>>
+			IF extends DatabeanFielder<IK,IE>>
 	Iterable<D> scanMultiByIndex(DatabeanFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges,
 			Config config);
 
 	<IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK,IE,PK,D>,
-			IF extends DatabeanFielder<IK, IE>>
+			IF extends DatabeanFielder<IK,IE>>
 	Iterable<IK> scanMultiIndexKeys(DatabeanFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges,
 			Config config);
 
-	/*************** sub-interfaces ***********************/
+	/*---------------------------- sub-interfaces ---------------------------*/
 
 	public interface IndexedStorageReaderNode<
 			PK extends PrimaryKey<PK>,
@@ -99,4 +97,5 @@ extends NodeOps<PK,D>, IndexedOps<PK,D>{
 			F extends DatabeanFielder<PK,D>>
 	extends PhysicalNode<PK,D,F>, IndexedStorageReaderNode<PK,D,F>{
 	}
+
 }

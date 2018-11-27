@@ -15,10 +15,10 @@
  */
 package io.datarouter.web.dispatcher;
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -31,9 +31,14 @@ import io.datarouter.httpclient.security.SecurityValidationResult;
 import io.datarouter.httpclient.security.SignatureValidator;
 import io.datarouter.util.lang.ObjectTool;
 import io.datarouter.web.handler.BaseHandler;
-import io.datarouter.web.user.role.DatarouterUserRole;
+import io.datarouter.web.handler.encoder.DefaultEncoder;
+import io.datarouter.web.handler.encoder.HandlerEncoder;
+import io.datarouter.web.handler.types.DefaultDecoder;
+import io.datarouter.web.handler.types.HandlerDecoder;
 import io.datarouter.web.user.session.DatarouterSession;
 import io.datarouter.web.user.session.DatarouterSessionManager;
+import io.datarouter.web.user.session.service.Role;
+import io.datarouter.web.user.session.service.RoleEnum;
 import io.datarouter.web.util.http.RequestTool;
 
 public class DispatchRule{
@@ -42,13 +47,16 @@ public class DispatchRule{
 	private final BaseRouteSet routeSet;
 	private final String regex;
 	private final Pattern pattern;
+
 	private Class<? extends BaseHandler> handlerClass;
 	private ApiKeyPredicate apiKeyPredicate;
 	private CsrfValidator csrfValidator;
 	private SignatureValidator signatureValidator;
 	private boolean requireHttps;
-	private Set<DatarouterUserRole> allowedRoles;
+	private Set<Role> allowedRoles;
 	private boolean allowAnonymous;
+	private Class<? extends HandlerEncoder> defaultHandlerEncoder = DefaultEncoder.class;
+	private Class<? extends HandlerDecoder> defaultHandlerDecoder = DefaultDecoder.class;
 
 	public DispatchRule(BaseRouteSet routeSet, String regex){
 		this.routeSet = routeSet;
@@ -57,9 +65,9 @@ public class DispatchRule{
 		this.allowedRoles = new HashSet<>();
 	}
 
-	/**** builder pattern methods *******/
+	/*---------------------- builder pattern methods ------------------------*/
 
-	public DispatchRule withHandler(Class <? extends BaseHandler> handlerClass){
+	public DispatchRule withHandler(Class<? extends BaseHandler> handlerClass){
 		this.handlerClass = handlerClass;
 		return this;
 	}
@@ -84,8 +92,8 @@ public class DispatchRule{
 		return this;
 	}
 
-	public DispatchRule allowRoles(DatarouterUserRole... roles){
-		allowedRoles.addAll(Arrays.asList(roles));
+	public <T extends RoleEnum<T>> DispatchRule allowRoles(RoleEnum<?>... roles){
+		Stream.of(roles).map(RoleEnum::getRole).forEach(allowedRoles::add);
 		return this;
 	}
 
@@ -94,7 +102,17 @@ public class DispatchRule{
 		return this;
 	}
 
-	/**** getters *****/
+	public DispatchRule withDefaultHandlerEncoder(Class<? extends HandlerEncoder> defaultHandlerEncoder){
+		this.defaultHandlerEncoder = defaultHandlerEncoder;
+		return this;
+	}
+
+	public DispatchRule withDefaultHandlerDecoder(Class<? extends HandlerDecoder> defaultHandlerDecoder){
+		this.defaultHandlerDecoder = defaultHandlerDecoder;
+		return this;
+	}
+
+	/*------------------------------ getters --------------------------------*/
 
 	public BaseRouteSet getRouteSet(){
 		return routeSet;
@@ -102,6 +120,10 @@ public class DispatchRule{
 
 	public Pattern getPattern(){
 		return pattern;
+	}
+
+	public String getRegex(){
+		return regex;
 	}
 
 	public Class<? extends BaseHandler> getHandlerClass(){
@@ -132,8 +154,16 @@ public class DispatchRule{
 		return allowAnonymous;
 	}
 
-	public Set<DatarouterUserRole> getAllowedRoles(){
+	public Set<Role> getAllowedRoles(){
 		return allowedRoles;
+	}
+
+	public Class<? extends HandlerEncoder> getDefaultHandlerEncoder(){
+		return defaultHandlerEncoder;
+	}
+
+	public Class<? extends HandlerDecoder> getDefaultHandlerDecoder(){
+		return defaultHandlerDecoder;
 	}
 
 	private SecurityValidationResult checkApiKey(HttpServletRequest request){
@@ -208,7 +238,7 @@ public class DispatchRule{
 				.orElse(false);
 	}
 
-	/*-------------------- Object -------------------------*/
+	/*------------------------------ object ---------------------------------*/
 
 	@Override
 	public String toString(){

@@ -51,7 +51,7 @@
 
 		<h3 class="">Routers and Clients</h3>
 		<c:if test="${not empty uninitializedClientNames}">
-			[<a href="${contextPath}/datarouter/routers/initAllClients">init remaining clients</a>]
+			[<a href="${contextPath}/datarouter/initAllClients">init remaining clients</a>]
 			<br/>
 			<br/>
 		</c:if>
@@ -63,8 +63,7 @@
 					<tr>
 						<c:choose>
 							<c:when test="${lazyClientProvider.initialized}">
-								<c:set var="checkResult"
-									value="${monitoringService.getLastResultForDatarouterClient(clientName)}"/>
+								<c:set var="checkResult" value="${monitoringService.getLastResultForDatarouterClient(clientName)}"/>
 								<c:set var="client" value="${lazyClientProvider.client}" />
 								<td>
 									<c:choose>
@@ -91,7 +90,7 @@
 									${clientName}
 								</td>
 								<td>
-									[<a href="${contextPath}/datarouter/routers/initClient?clientName=${clientName}">init</a>]
+									[<a href="${contextPath}/datarouter?submitAction=initClient&clientName=${clientName}">init</a>]
 								</td>
 							</c:otherwise>
 						</c:choose>

@@ -27,7 +27,7 @@ public class DatarouterHttpRetryHandler implements HttpRequestRetryHandler{
 	private static final Logger logger = LoggerFactory.getLogger(DatarouterHttpRetryHandler.class);
 
 	public static final String RETRY_SAFE_ATTRIBUTE = "retrySafe";
-	private static final int DEFAULT_RETRY_COUNT = 2;
+	public static final int DEFAULT_RETRY_COUNT = 2;
 
 	private int retryCount;
 	private boolean logOnRetry;

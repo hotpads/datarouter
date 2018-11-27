@@ -38,7 +38,7 @@ public class MutableBooleanSetting implements BooleanSetting{
 	}
 
 	@Override
-	public Boolean getValue(){
+	public Boolean get(){
 		return value.get();
 	}
 

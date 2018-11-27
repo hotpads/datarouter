@@ -15,13 +15,10 @@
  */
 package io.datarouter.storage;
 
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.NavigableSet;
-import java.util.Properties;
-import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.ExecutorService;
@@ -32,22 +29,16 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.datarouter.storage.client.Client;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.DatarouterClients;
 import io.datarouter.storage.client.LazyClientProvider;
-import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.storage.config.guice.DatarouterStorageExecutorGuiceModule;
 import io.datarouter.storage.node.DatarouterNodes;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.storage.router.Router;
 import io.datarouter.storage.router.RouterClasses;
 import io.datarouter.storage.router.TestRouter;
-import io.datarouter.util.properties.PropertiesTool;
-import io.datarouter.util.tuple.Pair;
 
 /**
  * Datarouter is the top-level scope through which various components can share things like clients,
@@ -56,12 +47,8 @@ import io.datarouter.util.tuple.Pair;
  */
 @Singleton
 public class Datarouter{
-	private static final Logger logger = LoggerFactory.getLogger(Datarouter.class);
-
-	/*************************** fields *****************************/
 
 	//injected
-	private final DatarouterProperties datarouterProperties;
 	private final DatarouterClients clients;
 	private final DatarouterNodes nodes;
 	private final ExecutorService executorService;//for async client init and monitoring
@@ -70,37 +57,25 @@ public class Datarouter{
 	private final RouterClasses routerClasses;
 
 	private SortedSet<Router> routers;
-	private Set<String> configFilePaths;
-	private List<Properties> multiProperties;
-
-
-	/************************** constructors ***************************/
 
 	@Inject
 	public Datarouter(
-			DatarouterProperties datarouterProperties,
 			DatarouterClients clients,
 			DatarouterNodes nodes,
 			@Named(DatarouterStorageExecutorGuiceModule.POOL_datarouterExecutor) ExecutorService executorService,
 			@Named(DatarouterStorageExecutorGuiceModule.POOL_writeBehindExecutor) ExecutorService writeBehindExecutor,
 			@Named(DatarouterStorageExecutorGuiceModule.POOL_writeBehindScheduler) ScheduledExecutorService
 				writeBehindScheduler, RouterClasses routerClasses){
-		this.datarouterProperties = datarouterProperties;
 		this.executorService = executorService;
 		this.clients = clients;
 		this.nodes = nodes;
 		this.writeBehindExecutor = writeBehindExecutor;
 		this.writeBehindScheduler = writeBehindScheduler;
 		this.routerClasses = routerClasses;
-		this.configFilePaths = new TreeSet<>();
-		this.multiProperties = new ArrayList<>();
 		this.routers = new TreeSet<>();
 
 		this.nodes.registerDatarouter(this);
 	}
-
-
-	/********************** builder methods ****************************/
 
 	public synchronized void registerConfigFile(String configFilePath){
 		clients.registerConfigFile(configFilePath);
@@ -115,19 +90,10 @@ public class Datarouter{
 			throw new IllegalArgumentException("Unknown router: " + router.getClass().getSimpleName()
 					+ ". Please register it in RouterClasses or have it implement TestRouter if only used for tests");
 		}
-		routers.add(router);
-		addConfigIfNew(router);
-	}
-
-	private void addConfigIfNew(Router router){
-		String configPath = router.getConfigLocation();
-		if(configFilePaths.contains(configPath)){
-			return;
+		if(routers.contains(router)){
+			throw new RuntimeException(router.getName() + " router has already been registered");
 		}
-		Pair<Properties,URL> propertiesAndLocation = PropertiesTool.parseAndGetLocation(configPath);
-		logger.warn("adding router config from " + propertiesAndLocation.getRight() + ", currentRouters:" + routers);
-		configFilePaths.add(configPath);
-		multiProperties.add(propertiesAndLocation.getLeft());
+		routers.add(router);
 	}
 
 	public void initializeEagerClients(){
@@ -140,7 +106,7 @@ public class Datarouter{
 	}
 
 
-	/********************* methods **********************************/
+	/*------------------------------- methods--------------------------------*/
 
 	public Router getRouter(String name){
 		for(Router router : routers){
@@ -207,14 +173,6 @@ public class Datarouter{
 
 	public ScheduledExecutorService getWriteBehindScheduler(){
 		return writeBehindScheduler;
-	}
-
-	public Set<String> getConfigFilePaths(){
-		return configFilePaths;
-	}
-
-	public DatarouterProperties getDatarouterProperties(){
-		return datarouterProperties;
 	}
 
 }

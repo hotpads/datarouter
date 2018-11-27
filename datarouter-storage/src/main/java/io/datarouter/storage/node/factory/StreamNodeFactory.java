@@ -26,7 +26,7 @@ import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.ClientType;
 import io.datarouter.storage.client.DatarouterClients;
-import io.datarouter.storage.client.imp.StreamClientType;
+import io.datarouter.storage.client.imp.StreamClientNodeFactory;
 import io.datarouter.storage.node.Node;
 import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.NodeParams.NodeParamsBuilder;
@@ -50,17 +50,17 @@ public class StreamNodeFactory{
 				.withStreamName(streamName)
 				.withTableName(streamName)
 				.build();
-		StreamClientType clientType = getClientType(params);
+		StreamClientNodeFactory clientType = getClientType(params);
 		return (N)clientType.createSingleStreamNode(params);
 	}
 
-	private StreamClientType getClientType(NodeParams<?,?,?> params){
+	private StreamClientNodeFactory getClientType(NodeParams<?,?,?> params){
 		String clientName = params.getClientId().getName();
-		ClientType clientType = clients.getClientTypeInstance(clientName);
+		ClientType<?> clientType = clients.getClientTypeInstance(clientName);
 		if(clientType == null){
 			throw new NullPointerException("clientType not found for clientName:" + clientName);
 		}
-		return (StreamClientType)clientType;
+		return (StreamClientNodeFactory)clientType;
 	}
 
 }

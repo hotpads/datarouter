@@ -40,11 +40,6 @@ public abstract class BaseSortedBeanIntegrationTests{
 
 	@Inject
 	protected Datarouter datarouter;
-	protected SortedNodeTestRouter router;
-	protected SortedMapStorage<SortedBeanKey,SortedBean> sortedNode;
-	protected List<SortedBean> allBeans = SortedBeans.generatedSortedBeans();
-	/***************************** fields **************************************/
-
 	@Inject
 	private TestDatarouterProperties datarouterProperties;
 	@Inject
@@ -54,12 +49,14 @@ public abstract class BaseSortedBeanIntegrationTests{
 	@Inject
 	private NodeFactory nodeFactory;
 
-	/***************************** setup/teardown **************************************/
+	protected DatarouterSortedNodeTestRouter router;
+	protected SortedMapStorage<SortedBeanKey,SortedBean> sortedNode;
+	protected List<SortedBean> allBeans = SortedBeans.generatedSortedBeans();
 
 	protected void setup(ClientId clientId, boolean entity){
-		router = new SortedNodeTestRouter(datarouterProperties, datarouter, datarouterSettings, entityNodeFactory,
-				SortedBeanEntityNode.ENTITY_NODE_PARAMS_1, nodeFactory, clientId, entity);
-		sortedNode = router.sortedBean();
+		router = new DatarouterSortedNodeTestRouter(datarouterProperties, datarouter, datarouterSettings,
+				entityNodeFactory, SortedBeanEntityNode.ENTITY_NODE_PARAMS_1, nodeFactory, clientId, entity);
+		sortedNode = router.sortedBeanNode;
 
 		resetTable(true);
 	}
@@ -78,4 +75,5 @@ public abstract class BaseSortedBeanIntegrationTests{
 		}
 		Assert.assertEquals(sortedNode.stream(null, null).count(), SortedBeans.TOTAL_RECORDS);
 	}
+
 }

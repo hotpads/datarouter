@@ -29,7 +29,7 @@ import io.datarouter.util.lang.ObjectTool;
 
 public class CollectionTool{
 
-	/************************************ null **************************/
+	/*------------------------- null ----------------------------------------*/
 
 	public static <T> Collection<T> nullSafe(T in){
 		if(in == null){
@@ -47,7 +47,7 @@ public class CollectionTool{
 		return in;
 	}
 
-	/*************************** empty ****************************************/
+	/*------------------------- empty ---------------------------------------*/
 
 	public static <T> boolean isEmpty(Collection<T> collection){
 		if(collection == null || collection.isEmpty()){
@@ -63,7 +63,7 @@ public class CollectionTool{
 		return true;
 	}
 
-	/****************************** size **************************************/
+	/*------------------------- size ----------------------------------------*/
 
 	public static boolean differentSize(Collection<?> collectionA, Collection<?> collectionB){
 		return sizeNullSafe(collectionA) != sizeNullSafe(collectionB);
@@ -103,7 +103,7 @@ public class CollectionTool{
 		return counter;
 	}
 
-	/********************************* equals *********************************/
+	/*------------------------- equals --------------------------------------*/
 
 	public static <T> boolean equalsAllElementsInIteratorOrder(Collection<T> collectionA, Collection<T> collectionB){
 		if(differentSize(collectionA, collectionB)){
@@ -122,7 +122,7 @@ public class CollectionTool{
 		return true;
 	}
 
-	/************************ sub-collection **********************************/
+	/*------------------------- sub-collection ------------------------------*/
 
 	public static <T> Optional<T> findFirst(Collection<T> collection){
 		return Optional.ofNullable(getFirst(collection));
@@ -167,7 +167,7 @@ public class CollectionTool{
 		return lst;
 	}
 
-	/****************************** contains **********************************/
+	/*------------------------- contains ------------------------------------*/
 
 	public static <T> boolean doesNotContain(Collection<T> coll, T item){
 		if(coll == null){
@@ -176,7 +176,7 @@ public class CollectionTool{
 		return !coll.contains(item);
 	}
 
-	/******************************** tests ***********************************/
+	/*------------------------- tests ---------------------------------------*/
 
 	public static class CollectionToolTests{
 

@@ -23,43 +23,38 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.storage.config.DatarouterProperties;
-import io.datarouter.storage.util.DatarouterEmailTool;
+import io.datarouter.storage.util.DatarouterEmailService;
 import io.datarouter.util.collection.MapTool;
-import io.datarouter.util.iterable.IterableTool;
-import io.datarouter.web.app.WebAppName;
+import io.datarouter.web.app.WebappName;
 import io.datarouter.web.user.databean.DatarouterPermissionRequest;
+import io.datarouter.web.user.databean.DatarouterPermissionRequest.DatarouterPermissionRequestResolution;
 import io.datarouter.web.user.databean.DatarouterUser;
 import io.datarouter.web.user.databean.DatarouterUserHistory;
-import io.datarouter.web.user.databean.DatarouterUserHistoryKey;
-import io.datarouter.web.user.databean.DatarouterPermissionRequest.DatarouterPermissionRequestResolution;
 import io.datarouter.web.user.databean.DatarouterUserHistory.DatarouterUserChangeType;
+import io.datarouter.web.user.databean.DatarouterUserHistoryKey;
 
 @Singleton
 public class DatarouterUserHistoryService{
 
-	private final DatarouterUserNodes userNodes;
-	private final DatarouterPermissionRequestDao permissionRequestDao;
-	private final DatarouterUserDao userDao;
-	private final DatarouterProperties datarouterProperties;
-	private final String webAppName;
-
 	@Inject
-	public DatarouterUserHistoryService(DatarouterUserNodes userNodes,
-			DatarouterPermissionRequestDao permissionRequestDao, DatarouterUserDao userDao,
-			DatarouterProperties datarouterProperties, WebAppName webAppName){
-		this.userNodes = userNodes;
-		this.permissionRequestDao = permissionRequestDao;
-		this.userDao = userDao;
-		this.datarouterProperties = datarouterProperties;
-		this.webAppName = webAppName.getName();
-	}
+	private DatarouterUserNodes userNodes;
+	@Inject
+	private DatarouterPermissionRequestDao permissionRequestDao;
+	@Inject
+	private DatarouterUserDao userDao;
+	@Inject
+	private DatarouterEmailService datarouterEmailService;
+	@Inject
+	private WebappName webappName;
+	@Inject
+	private DatarouterUserEditService userEditService;
 
 	//don't call this with unresolved DatarouterPermissionRequests
-	public Map<DatarouterPermissionRequest, String> getResolvedRequestToHistoryChangesMap(
+	public Map<DatarouterPermissionRequest,String> getResolvedRequestToHistoryChangesMap(
 			List<DatarouterPermissionRequest> requests){
-		List<DatarouterUserHistoryKey> historyKeys = IterableTool.map(requests, DatarouterPermissionRequest
-				::toUserHistoryKey);
+		List<DatarouterUserHistoryKey> historyKeys = requests.stream()
+				.map(DatarouterPermissionRequest::toUserHistoryKey)
+				.collect(Collectors.toList());
 		Map<DatarouterUserHistoryKey, String> historyMap = userNodes.getUserHistoryNode().getMulti(historyKeys, null)
 				.stream()
 				.collect(Collectors.toMap(DatarouterUserHistory::getKey, DatarouterUserHistory::getChanges));
@@ -69,33 +64,53 @@ public class DatarouterUserHistoryService{
 				DatarouterPermissionRequestResolution.SUPERCEDED.getPersistentString()));
 	}
 
-	public void recordEdit(DatarouterUser user, DatarouterUserHistory history, String signinUrl){
-		userNodes.getUserNode().put(user, null);
-		userNodes.getUserHistoryNode().put(history, null);
-		userNodes.getPermissionRequestNode().putMulti(permissionRequestDao.streamOpenPermissionRequestsForUser(history
-				.getKey().getUserId())
-				.map(history::resolvePermissionRequest)
-				.collect(Collectors.toList()), null);
-		sendEditEmail(user, history, signinUrl);
-	}
-
 	public void recordCreate(DatarouterUser user, Long editorId, String description){
 		userNodes.getUserNode().put(user, null);
 		userNodes.getUserHistoryNode().put(new DatarouterUserHistory(user.getId(), user.getCreated(), editorId,
 				DatarouterUserChangeType.CREATE, description), null);
 	}
 
-	private void sendEditEmail(DatarouterUser user, DatarouterUserHistory history, String signinUrl){
+	public void recordPasswordChange(DatarouterUser user, DatarouterUserHistory history, String signinUrl){
+		recordEdit(user, history);
+		sendPasswordChangeEmail(user, history, signinUrl);
+	}
+
+	public void recordRoleEdit(DatarouterUser user, DatarouterUserHistory history, String signinUrl){
+		recordEdit(user, history);
+		sendRoleEditEmail(user, history, signinUrl);
+	}
+
+	private void recordEdit(DatarouterUser user, DatarouterUserHistory history){
+		userNodes.getUserNode().put(user, null);
+		userNodes.getUserHistoryNode().put(history, null);
+		userNodes.getPermissionRequestNode().putMulti(permissionRequestDao.streamOpenPermissionRequestsForUser(history
+				.getKey().getUserId())
+				.map(history::resolvePermissionRequest)
+				.collect(Collectors.toList()), null);
+	}
+
+	private void sendPasswordChangeEmail(DatarouterUser user, DatarouterUserHistory history, String signinUrl){
 		DatarouterUser editor = userDao.getUserById(history.getEditor());
+		String recipients = user.getUsername();
+		String subject = userEditService.getPermissionRequestEmailSubject(user, webappName.getName());
+		StringBuilder body = new StringBuilder()
+				.append("Your user (").append(user.getUsername()).append(") password has been changed by user ")
+				.append(editor.getId()).append(" (").append(editor.getUsername()).append(").")
+				.append("\n\nChanges: ").append(history.getChanges())
+				.append("\n\nPlease sign in again to refresh your session: ").append(signinUrl);
+		datarouterEmailService.trySendEmail(user.getUsername(), recipients, subject, body.toString());
+	}
+
+	private void sendRoleEditEmail(DatarouterUser user, DatarouterUserHistory history, String signinUrl){
+		DatarouterUser editor = userDao.getUserById(history.getEditor());
+		String recipients = userEditService.getUserEditEmailRecipients(user, editor);
+		String subject = userEditService.getPermissionRequestEmailSubject(user, webappName.getName());
 		StringBuilder body = new StringBuilder()
 				.append("Your user (").append(user.getUsername()).append(") permissions have been edited by user ")
 				.append(editor.getId()).append(" (").append(editor.getUsername()).append(").")
 				.append("\n\nChanges: ").append(history.getChanges())
 				.append("\n\nPlease sign in again to refresh your session: ").append(signinUrl);
-
-		String subject = "User permissions changed in web app " + webAppName;
-
-		DatarouterEmailTool.trySendEmail(datarouterProperties.getAdministratorEmail(), user.getUsername(), subject,
-				body.toString());
+		datarouterEmailService.trySendEmail(user.getUsername(), recipients, subject, body.toString());
 	}
+
 }

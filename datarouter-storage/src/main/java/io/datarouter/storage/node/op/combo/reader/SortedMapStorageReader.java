@@ -24,14 +24,19 @@ import io.datarouter.storage.node.op.raw.read.SortedStorageReader;
 public interface SortedMapStorageReader<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 extends MapStorageReader<PK,D>, SortedStorageReader<PK,D>{
 
-	public interface SortedMapStorageReaderNode<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,
+	public interface SortedMapStorageReaderNode<
+			PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>
 	extends MapStorageReaderNode<PK,D,F>, SortedStorageReaderNode<PK,D,F>, SortedMapStorageReader<PK,D>{
 	}
 
-	public interface PhysicalSortedMapStorageReaderNode<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,
+	public interface PhysicalSortedMapStorageReaderNode<
+			PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>
 	extends PhysicalMapStorageReaderNode<PK,D,F>, PhysicalSortedStorageReaderNode<PK,D,F>,
 			SortedMapStorageReaderNode<PK,D,F>{
 	}
+
 }

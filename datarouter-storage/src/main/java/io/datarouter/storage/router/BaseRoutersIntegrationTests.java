@@ -24,6 +24,7 @@ import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.DatarouterClients;
 
 public abstract class BaseRoutersIntegrationTests{
+
 	@Inject
 	private Datarouter datarouter;
 	@Inject
@@ -42,5 +43,5 @@ public abstract class BaseRoutersIntegrationTests{
 	public void afterClass(){
 		datarouter.shutdown();
 	}
-}
 
+}

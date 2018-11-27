@@ -15,14 +15,28 @@
  */
 package io.datarouter.util.array;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Stream;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import io.datarouter.util.StreamTool;
 import io.datarouter.util.collection.CollectionTool;
 
 public class ArrayTool{
+
+	@SafeVarargs
+	public static <A,T> Set<T> mapToSet(Function<A,T> mapper, A... values){
+		if(values == null || values.length == 0 || values.length == 1 && values[0] == null){
+			return new HashSet<>();
+		}
+		return StreamTool.mapToSet(Stream.of(values), mapper);
+	}
 
 	public static byte[] clone(byte[] in){
 		if(in == null){
@@ -130,7 +144,18 @@ public class ArrayTool{
 		return array;
 	}
 
+	public static byte[] trimToSize(byte[] ins, int size){
+		if(isEmpty(ins)){
+			return new byte[size];
+		}
+		if(ins.length <= size){
+			return ins;
+		}
+		return Arrays.copyOf(ins, size);
+	}
+
 	public static class Tests{
+
 		@Test
 		public void simpleCompare(){
 			Double one = 1.0;
@@ -145,6 +170,27 @@ public class ArrayTool{
 			byte[] concat = concatenate(new byte[]{0, 1}, new byte[]{2}, new byte[]{3, 4});
 			Assert.assertEquals(concat, new byte[]{0, 1, 2, 3, 4});
 		}
+
+		@Test
+		public void testMapToSet(){
+			Assert.assertEquals(mapToSet(null, (Object)null), new HashSet<>());
+			Object nothing = null;
+			Assert.assertEquals(mapToSet(null, nothing), new HashSet<>());
+			String[] empty = new String[0];
+			Assert.assertEquals(mapToSet(null, empty), new HashSet<>());
+			String[] arr = {"hi", "hello", "hi"};
+			Assert.assertEquals(mapToSet(str -> str + "s", arr), new HashSet<>(Arrays.asList("hellos", "his")));
+		}
+
+		@Test
+		public void testTrimToSize(){
+			byte[] array = new byte[]{0, 1, 2, 3, 4};
+			Assert.assertEquals(trimToSize(new byte[]{}, 2), new byte[2]);
+			Assert.assertEquals(trimToSize(array, 2), new byte[]{0, 1});
+			Assert.assertEquals(trimToSize(array, 5), new byte[]{0, 1, 2, 3, 4});
+			Assert.assertEquals(trimToSize(array, 6), new byte[]{0, 1, 2, 3, 4});
+		}
+
 	}
 
 }

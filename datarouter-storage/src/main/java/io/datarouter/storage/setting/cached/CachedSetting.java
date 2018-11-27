@@ -15,9 +15,13 @@
  */
 package io.datarouter.storage.setting.cached;
 
+import java.util.Collection;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
+import io.datarouter.storage.config.profile.DatarouterConfigProfile;
+import io.datarouter.storage.servertype.ServerType;
 import io.datarouter.storage.setting.DefaultSettingValue;
 import io.datarouter.storage.setting.Setting;
 import io.datarouter.storage.setting.SettingFinder;
@@ -30,7 +34,7 @@ implements Setting<T>{
 
 	protected final SettingFinder finder;
 	protected final String name;
-	protected final DefaultSettingValue<T> defaultValue;
+	protected final DefaultSettingValue<T> defaultSettingValue;
 	protected boolean hasCustomValues;
 	protected boolean hasRedundantCustomValues;
 
@@ -38,10 +42,17 @@ implements Setting<T>{
 		super(15, TimeUnit.SECONDS);
 		this.finder = finder;
 		this.name = name;
-		this.defaultValue = defaultValue;
+		this.defaultSettingValue = defaultValue;
 	}
 
-	/******************* Setting methods *************************/
+	/*----------- Object --------------*/
+
+	@Override
+	public String toString(){
+		return name;
+	}
+
+	/*----------- Setting methods --------------*/
 
 	@Override
 	protected T reload(){
@@ -55,22 +66,54 @@ implements Setting<T>{
 
 	@Override
 	public T getDefaultValue(){
-		return defaultValue.getValue(finder.getConfigProfile(), finder.getServerType());
+		return defaultSettingValue.getValue(finder.getConfigProfile(), finder.getServerType(), finder.getServerName());
 	}
 
 	@Override
-	public T getValue(){
+	public T get(){
 		return super.get();
 	}
 
 	@Override
 	public boolean getHasCustomValue(){
-		return getValue() != null;
+		return get() != null;
 	}
 
 	@Override
 	public boolean getHasRedundantCustomValue(){
-		return Objects.equals(getDefaultValue(), getValue());
+		return Objects.equals(getDefaultValue(), get());
+	}
+
+	/*------------ defaults --------------*/
+
+	public CachedSetting<T> setGlobalDefault(T value){
+		defaultSettingValue.setGlobalDefault(value);
+		return this;
+	}
+
+	public CachedSetting<T> setProfileDefault(Supplier<DatarouterConfigProfile> profile, T value){
+		defaultSettingValue.with(profile, value);
+		return this;
+	}
+
+	public CachedSetting<T> setProfilesDefault(Collection<Supplier<DatarouterConfigProfile>> profiles, T value){
+		profiles.forEach(profile -> setProfileDefault(profile, value));
+		return this;
+	}
+
+	public CachedSetting<T> setServerTypeDefault(Supplier<DatarouterConfigProfile> profile, ServerType serverType,
+			T value){
+		defaultSettingValue.with(profile, serverType, value);
+		return this;
+	}
+
+	public CachedSetting<T> setServerNameDefault(Supplier<DatarouterConfigProfile> profile, String serverName, T value){
+		defaultSettingValue.with(profile, serverName, value);
+		return this;
+	}
+
+	public DefaultSettingValue<T> getDefaultSettingValue(){
+		return defaultSettingValue;
 	}
 
 }

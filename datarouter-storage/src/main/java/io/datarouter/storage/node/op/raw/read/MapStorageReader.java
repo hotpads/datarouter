@@ -17,6 +17,7 @@ package io.datarouter.storage.node.op.raw.read;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
@@ -37,11 +38,10 @@ public interface MapStorageReader<
 		D extends Databean<PK,D>>
 extends NodeOps<PK,D>{
 
-	public static final String
-		OP_exists = "exists",
-		OP_get = "get",
-		OP_getMulti = "getMulti",
-		OP_getKeys = "getKeys";
+	public static final String OP_exists = "exists";
+	public static final String OP_get = "get";
+	public static final String OP_getMulti = "getMulti";
+	public static final String OP_getKeys = "getKeys";
 
 
 	boolean exists(PK key, Config config);
@@ -50,8 +50,11 @@ extends NodeOps<PK,D>{
 	D get(PK key, Config config);
 	List<D> getMulti(Collection<PK> keys, Config config);
 
+	default Optional<D> find(PK key, Config config){
+		return Optional.ofNullable(get(key, config));
+	}
 
-	/*************** sub-interfaces ***********************/
+	/*---------------------------- sub-interfaces ---------------------------*/
 
 	public interface MapStorageReaderNode<
 			PK extends PrimaryKey<PK>,
@@ -67,4 +70,5 @@ extends NodeOps<PK,D>{
 			F extends DatabeanFielder<PK,D>>
 	extends PhysicalNode<PK,D,F>, MapStorageReaderNode<PK,D,F>{
 	}
+
 }

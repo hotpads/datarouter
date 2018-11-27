@@ -146,6 +146,7 @@
 		<br>
 		<span class="property tree-level-1">Build id</span>
 		<span class="value">${buildId}</span>
+		<br>
 	</div>
 	<div class="block">
 		<h2>Threads</h2>

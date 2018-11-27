@@ -25,8 +25,6 @@ public class VarIntField extends BasePrimitiveField<Integer>{
 		super(key, value);
 	}
 
-	/*********************** StringEncodedField ***********************/
-
 	@Override
 	public String getStringEncodedValue(){
 		if(value == null){
@@ -43,8 +41,6 @@ public class VarIntField extends BasePrimitiveField<Integer>{
 		return assertInRange(str == null ? null : Integer.valueOf(str));
 	}
 
-	/*********************** ByteEncodedField ***********************/
-
 	@Override
 	public byte[] getBytes(){
 		return value == null ? null : new VarInt(value).getBytes();
@@ -59,8 +55,6 @@ public class VarIntField extends BasePrimitiveField<Integer>{
 	public Integer fromBytesButDoNotSet(byte[] bytes, int offset){
 		return VarInt.fromByteArray(bytes, offset).getValue();
 	}
-
-	/***************************** validate *****************************************/
 
 	public static Integer assertInRange(Integer value){
 		if(value == null){

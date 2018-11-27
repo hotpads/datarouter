@@ -35,8 +35,8 @@ public class LongArray implements List<Long>, Comparable<List<Long>>, RandomAcce
 	public static final int DEFAULT_initialCapacity = 2;
 	public static final long NULL = Long.MIN_VALUE;// compares before all other longs
 
-	long[] array;
-	int size;
+	private long[] array;
+	private int size;
 
 	public LongArray(){
 		this(DEFAULT_initialCapacity);
@@ -359,8 +359,8 @@ public class LongArray implements List<Long>, Comparable<List<Long>>, RandomAcce
 
 	public static class LongArrayIterator implements ListIterator<Long>{
 
-		LongArray wrapper;
-		int lastIndex;
+		private LongArray wrapper;
+		private int lastIndex;
 
 		public LongArrayIterator(LongArray wrapper){
 			this.wrapper = wrapper;
@@ -421,11 +421,10 @@ public class LongArray implements List<Long>, Comparable<List<Long>>, RandomAcce
 
 	}
 
-	/************************ tests ***************************************/
-
 	public static class Tests{
-		List<Long> list = new LongArray();
-		int max = 150;
+
+		private List<Long> list = new LongArray();
+		private int max = 150;
 
 		@Test
 		public void testBasics(){

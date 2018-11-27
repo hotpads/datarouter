@@ -26,8 +26,6 @@ import io.datarouter.model.field.imp.positive.UInt31FieldKey;
 import io.datarouter.model.key.primary.base.BaseEntityPrimaryKey;
 import io.datarouter.model.util.CommonFieldSizes;
 
-/********************************* indexes ***********************************/
-
 public class SortedBeanKey extends BaseEntityPrimaryKey<SortedBeanEntityKey,SortedBeanKey>{
 
 	private String foo;
@@ -63,9 +61,6 @@ public class SortedBeanKey extends BaseEntityPrimaryKey<SortedBeanEntityKey,Sort
 		return new SortedBeanKey(ek.getFoo(), ek.getBar(), null, null);
 	}
 
-
-	/************************ construct ********************************/
-
 	SortedBeanKey(){
 	}
 
@@ -75,9 +70,6 @@ public class SortedBeanKey extends BaseEntityPrimaryKey<SortedBeanEntityKey,Sort
 		this.baz = baz;
 		this.qux = qux;
 	}
-
-
-	/***************************** get/set *******************************/
 
 	public String getFoo(){
 		return foo;
@@ -94,4 +86,5 @@ public class SortedBeanKey extends BaseEntityPrimaryKey<SortedBeanEntityKey,Sort
 	public String getQux(){
 		return qux;
 	}
+
 }

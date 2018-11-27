@@ -30,14 +30,14 @@ import io.datarouter.storage.node.type.index.ManagedUniqueIndexNode;
 import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.iterable.IterableTool;
 
-public class NoTxnManagedUniqueIndexNode
-		<PK extends PrimaryKey<PK>,
-		D extends Databean<PK, D>,
+public class NoTxnManagedUniqueIndexNode<
+		PK extends PrimaryKey<PK>,
+		D extends Databean<PK,D>,
 		IK extends PrimaryKey<IK>,
-		IE extends UniqueIndexEntry<IK, IE, PK, D>,
+		IE extends UniqueIndexEntry<IK,IE,PK,D>,
 		IF extends DatabeanFielder<IK,IE>>
-extends BaseManagedIndexNode<PK, D, IK, IE, IF>
-implements ManagedUniqueIndexNode<PK, D, IK, IE, IF>{
+extends BaseManagedIndexNode<PK,D,IK,IE,IF>
+implements ManagedUniqueIndexNode<PK,D,IK,IE,IF>{
 
 	public NoTxnManagedUniqueIndexNode(IndexedMapStorage<PK,D> node, NodeParams<IK,IE,IF> params, String name){
 		super(node, params, name);
@@ -63,8 +63,8 @@ implements ManagedUniqueIndexNode<PK, D, IK, IE, IF>{
 	}
 
 	@Override
-	public List<D> lookupMultiUnique(Collection<IK> fromListingKeys, final Config config){
-		List<IE> indexEntries = getMulti(fromListingKeys, config);
+	public List<D> lookupMultiUnique(Collection<IK> keys, final Config config){
+		List<IE> indexEntries = getMulti(keys, config);
 		List<PK> targetKeys = IterableTool.map(indexEntries, IE::getTargetKey);
 		return node.getMulti(targetKeys, config);
 	}

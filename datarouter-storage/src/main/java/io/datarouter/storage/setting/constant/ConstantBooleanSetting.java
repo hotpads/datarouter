@@ -19,17 +19,17 @@ import io.datarouter.storage.setting.type.BooleanSetting;
 
 public class ConstantBooleanSetting extends ConstantSetting<Boolean> implements BooleanSetting{
 
-	private final boolean value;
-
 	public static final ConstantBooleanSetting FALSE = new ConstantBooleanSetting(false);
 	public static final ConstantBooleanSetting TRUE = new ConstantBooleanSetting(true);
+
+	private final boolean value;
 
 	public ConstantBooleanSetting(boolean value){
 		this.value = value;
 	}
 
 	@Override
-	public Boolean getValue(){
+	public Boolean get(){
 		return value;
 	}
 

@@ -28,7 +28,7 @@ import io.datarouter.storage.test.TestDatabean;
 import io.datarouter.storage.test.TestDatabeanKey;
 
 public class TestDatabeanWithManagedIndexByBar
-extends BaseDatabean<TestDatabeanWithManagedIndexByBarKey, TestDatabeanWithManagedIndexByBar>
+extends BaseDatabean<TestDatabeanWithManagedIndexByBarKey,TestDatabeanWithManagedIndexByBar>
 implements UniqueIndexEntry<
 		TestDatabeanWithManagedIndexByBarKey,
 		TestDatabeanWithManagedIndexByBar,
@@ -49,6 +49,7 @@ implements UniqueIndexEntry<
 		public List<Field<?>> getNonKeyFields(TestDatabeanWithManagedIndexByBar databean){
 			return Arrays.asList(new StringField(TestDatabeanKey.FieldKeys.foo, databean.foo));
 		}
+
 	}
 
 	public TestDatabeanWithManagedIndexByBar(){

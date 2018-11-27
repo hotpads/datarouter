@@ -18,6 +18,8 @@ package io.datarouter.storage.config.guice;
 import com.google.inject.AbstractModule;
 
 import io.datarouter.storage.config.DatarouterProperties;
+import io.datarouter.storage.servertype.ServerTypeDetector;
+import io.datarouter.storage.servertype.TestServerTypeDetector;
 import io.datarouter.storage.test.TestDatarouterProperties;
 
 public class DatarouterStorageTestGuiceModule extends AbstractModule{
@@ -25,6 +27,7 @@ public class DatarouterStorageTestGuiceModule extends AbstractModule{
 	@Override
 	protected void configure(){
 		bind(DatarouterProperties.class).to(TestDatarouterProperties.class);
+		bind(ServerTypeDetector.class).to(TestServerTypeDetector.class);
 	}
 
 }

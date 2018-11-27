@@ -65,8 +65,6 @@ extends BaseFieldKey<E>{
 		return new StringEnumField<>(this, value);
 	}
 
-	/*********************** ByteEncodedField ***********************/
-
 	@Override
 	public boolean isFixedLength(){
 		return false;

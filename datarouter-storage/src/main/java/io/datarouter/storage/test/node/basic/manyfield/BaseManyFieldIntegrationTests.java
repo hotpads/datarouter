@@ -45,8 +45,6 @@ import io.datarouter.util.collection.ListTool;
 @Guice(moduleFactory = DatarouterStorageTestModuleFactory.class)
 public abstract class BaseManyFieldIntegrationTests{
 
-	/***************************** fields **************************************/
-
 	@Inject
 	private TestDatarouterProperties datarouterProperties;
 	@Inject
@@ -58,11 +56,9 @@ public abstract class BaseManyFieldIntegrationTests{
 
 	protected MapStorageNode<ManyFieldBeanKey,ManyFieldBean,ManyFieldTypeBeanFielder> mapNode;
 
-	/***************************** constructors **************************************/
-
 	public void setup(ClientId clientId, Supplier<ManyFieldTypeBeanFielder> fielderSupplier){
-		ManyFieldTestRouter router = new ManyFieldTestRouter(datarouterProperties, datarouter, datarouterSettings,
-				nodeFactory, clientId, fielderSupplier);
+		DatarouterManyFieldTestRouter router = new DatarouterManyFieldTestRouter(datarouterProperties, datarouter,
+				datarouterSettings, nodeFactory, clientId, fielderSupplier);
 		mapNode = router.manyFieldTypeBean();
 
 		resetTable();
@@ -80,8 +76,6 @@ public abstract class BaseManyFieldIntegrationTests{
 	public void afterClass(){
 		datarouter.shutdown();
 	}
-
-	/***************************** tests **************************************/
 
 	@Test
 	public void testDelete(){
@@ -285,7 +279,6 @@ public abstract class BaseManyFieldIntegrationTests{
 	@Test
 	public void testByteArray(){
 		ManyFieldBean bean = new ManyFieldBean();
-	//	byte[] value = new byte[]{ 0x1,0x5,-0x8,0x7f,0x25,0x6a,-0x80,-0x12	};
 		byte[] value = new byte[]{1, 5, -128, 127, 25, 66, -80, -12};
 
 		bean.setByteArrayField(value);
@@ -333,7 +326,7 @@ public abstract class BaseManyFieldIntegrationTests{
 
 		ManyFieldBean roundTripped = mapNode.get(bean.getKey(), null);
 		Assert.assertEquals(roundTripped.getIntEnumField(), bean.getIntEnumField());
-		Assert.assertTrue(TestEnum.beast == roundTripped.getIntEnumField());
+		Assert.assertEquals(roundTripped.getIntEnumField(), TestEnum.beast);
 	}
 
 	@Test
@@ -344,7 +337,7 @@ public abstract class BaseManyFieldIntegrationTests{
 
 		ManyFieldBean roundTripped = mapNode.get(bean.getKey(), null);
 		Assert.assertEquals(roundTripped.getVarIntEnumField(), bean.getVarIntEnumField());
-		Assert.assertTrue(TestEnum.fish == roundTripped.getVarIntEnumField());
+		Assert.assertEquals(roundTripped.getVarIntEnumField(), TestEnum.fish);
 	}
 
 	@Test
@@ -355,7 +348,7 @@ public abstract class BaseManyFieldIntegrationTests{
 
 		ManyFieldBean roundTripped = mapNode.get(bean.getKey(), null);
 		Assert.assertEquals(roundTripped.getStringEnumField(), bean.getStringEnumField());
-		Assert.assertTrue(TestEnum.cat == roundTripped.getStringEnumField());
+		Assert.assertEquals(roundTripped.getStringEnumField(), TestEnum.cat);
 	}
 
 	@Test
@@ -384,7 +377,6 @@ public abstract class BaseManyFieldIntegrationTests{
 
 		ManyFieldBean roundTripped = mapNode.get(bean.getKey(), null);
 		Assert.assertEquals(roundTripped.getIntegerField(), bean.getIntegerField());
-		Assert.assertTrue(7888 == roundTripped.getIntegerField());
 	}
 
 	@Test
@@ -399,7 +391,7 @@ public abstract class BaseManyFieldIntegrationTests{
 		mapNode.put(bean, null);
 
 		ManyFieldBean roundTripped = mapNode.get(bean.getKey(), null);
-		Assert.assertTrue(0 == ListTool.compare(bean.getLongArrayField(), roundTripped.getLongArrayField()));
+		Assert.assertEquals(roundTripped.getLongArrayField(), bean.getLongArrayField());
 	}
 
 	@Test
@@ -411,8 +403,7 @@ public abstract class BaseManyFieldIntegrationTests{
 		mapNode.put(bean, null);
 
 		ManyFieldBean roundTripped = mapNode.get(bean.getKey(), null);
-		Assert.assertTrue(0 == ListTool.compare(bean.getBooleanArrayField(), roundTripped
-				.getBooleanArrayField()));
+		Assert.assertEquals(roundTripped.getBooleanArrayField(), bean.getBooleanArrayField());
 	}
 
 	@Test
@@ -424,8 +415,7 @@ public abstract class BaseManyFieldIntegrationTests{
 		mapNode.put(bean, null);
 
 		ManyFieldBean roundTripped = mapNode.get(bean.getKey(), null);
-		Assert.assertTrue(0 == ListTool.compare(bean.getIntegerArrayField(), roundTripped
-				.getIntegerArrayField()));
+		Assert.assertEquals(roundTripped.getIntegerArrayField(), bean.getIntegerArrayField());
 	}
 
 	@Test
@@ -439,7 +429,7 @@ public abstract class BaseManyFieldIntegrationTests{
 		mapNode.put(bean, null);
 
 		ManyFieldBean roundTripped = mapNode.get(bean.getKey(), null);
-		Assert.assertTrue(0 == ListTool.compare(bean.getDoubleArrayField(), roundTripped.getDoubleArrayField()));
+		Assert.assertEquals(roundTripped.getDoubleArrayField(), bean.getDoubleArrayField());
 	}
 
 	@Test

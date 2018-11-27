@@ -25,8 +25,6 @@ public class DoubleField extends BasePrimitiveField<Double>{
 		super(key, value);
 	}
 
-	/*********************** StringEncodedField ***********************/
-
 	@Override
 	public String getStringEncodedValue(){
 		if(value == null){
@@ -42,8 +40,6 @@ public class DoubleField extends BasePrimitiveField<Double>{
 		}
 		return Double.valueOf(str);
 	}
-
-	/*********************** ByteEncodedField ***********************/
 
 	@Override
 	public byte[] getBytes(){

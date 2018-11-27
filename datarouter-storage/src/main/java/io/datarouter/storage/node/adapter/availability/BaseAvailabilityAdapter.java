@@ -18,6 +18,8 @@ package io.datarouter.storage.node.adapter.availability;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
+import io.datarouter.storage.config.setting.impl.DatarouterClientAvailabilitySettings.AvailabilitySettingNode;
+import io.datarouter.storage.config.setting.impl.DatarouterClientAvailabilitySettingsProvider;
 import io.datarouter.storage.exception.UnavailableException;
 import io.datarouter.storage.node.adapter.BaseAdapter;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
@@ -29,8 +31,12 @@ public class BaseAvailabilityAdapter<
 		N extends PhysicalNode<PK,D,F>>
 extends BaseAdapter<PK,D,F,N>{
 
-	public BaseAvailabilityAdapter(N backingNode){
+	private final DatarouterClientAvailabilitySettingsProvider datarouterClientAvailabilitySettingsProvider;
+
+	public BaseAvailabilityAdapter(
+			DatarouterClientAvailabilitySettingsProvider datarouterClientAvailabilitySettingsProvider, N backingNode){
 		super(backingNode);
+		this.datarouterClientAvailabilitySettingsProvider = datarouterClientAvailabilitySettingsProvider;
 	}
 
 	@Override
@@ -39,7 +45,13 @@ extends BaseAdapter<PK,D,F,N>{
 	}
 
 	public UnavailableException makeUnavailableException(){
-		return new UnavailableException("Client " + getBackingNode().getClient().getName() + " is not available.");
+		return new UnavailableException("Client " + getBackingNode().getFieldInfo().getClientId().getName()
+				+ " is not available.");
+	}
+
+	public AvailabilitySettingNode getAvailability(){
+		return datarouterClientAvailabilitySettingsProvider.get().getAvailabilityForClientName(getBackingNode()
+				.getClient().getName());
 	}
 
 }

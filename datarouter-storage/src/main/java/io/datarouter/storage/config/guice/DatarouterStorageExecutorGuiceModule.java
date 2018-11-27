@@ -26,16 +26,16 @@ import io.datarouter.util.concurrent.NamedThreadFactory;
 
 public class DatarouterStorageExecutorGuiceModule extends BaseExecutorGuiceModule{
 
-	//NOTE: these constants' values must exactly match the bean ids in spring
-	public static final String
-			POOL_writeBehindScheduler = "writeBehindScheduler",
-			POOL_writeBehindExecutor = "writeBehindExecutor",
-			POOL_datarouterExecutor = "datarouterExecutor",
-			POOL_schemaUpdateScheduler = "schemaUpdateScheduler";
+	// NOTE: these constants' values must exactly match the bean ids in spring
+	public static final String POOL_writeBehindScheduler = "writeBehindScheduler";
+	public static final String POOL_writeBehindExecutor = "writeBehindExecutor";
+	public static final String POOL_datarouterExecutor = "datarouterExecutor";
+	public static final String POOL_schemaUpdateScheduler = "schemaUpdateScheduler";
 
-	private static final ThreadGroup
-			datarouterStorage = new ThreadGroup("datarouterStorage"),
-			flushers = new ThreadGroup(datarouterStorage, "flushers");
+	private static final ThreadGroup THREAD_GROUP_datarouterStorage = new ThreadGroup("datarouterStorage");
+	private static final ThreadGroup THREAD_GROUP_flushers = new ThreadGroup(THREAD_GROUP_datarouterStorage,
+			"flushers");
+
 
 	@Override
 	protected void configure(){
@@ -55,20 +55,21 @@ public class DatarouterStorageExecutorGuiceModule extends BaseExecutorGuiceModul
 
 	//The following factory methods are for Spring
 	public ScheduledExecutorService createWriteBehindScheduler(){
-		return createScheduled(datarouterStorage, POOL_writeBehindScheduler, 10);
+		return createScheduled(THREAD_GROUP_datarouterStorage, POOL_writeBehindScheduler, 10);
 	}
 
 	public ExecutorService createWriteBehindExecutor(){
-		return createScalingPool(datarouterStorage, POOL_writeBehindExecutor, 100);
+		return createScalingPool(THREAD_GROUP_datarouterStorage, POOL_writeBehindExecutor, 100);
 	}
 
 	public ExecutorService createDatarouterExecutor(){
-		return Executors.newCachedThreadPool(new NamedThreadFactory(datarouterStorage, POOL_datarouterExecutor, true));
+		return Executors.newCachedThreadPool(new NamedThreadFactory(THREAD_GROUP_datarouterStorage,
+				POOL_datarouterExecutor, true));
 	}
 
 	public ScheduledExecutorService createSchemaUpdateScheduler(){
-		return Executors.newSingleThreadScheduledExecutor(new NamedThreadFactory(flushers, POOL_schemaUpdateScheduler,
-				true));
+		return Executors.newSingleThreadScheduledExecutor(new NamedThreadFactory(THREAD_GROUP_flushers,
+				POOL_schemaUpdateScheduler, true));
 	}
 
 }

@@ -73,7 +73,7 @@ public class PrimaryKeyPercentCodec{
 
 	public static <PK extends PrimaryKey<PK>> List<PK> decodeMulti(Class<PK> pkClass, char delimiter,
 			String encodedPks){
-		List<String> eachEncodedPk = StringTool.splitOnCharNoRegex(encodedPks, delimiter);
+		List<String> eachEncodedPk = StringTool.splitOnCharNoRegex(encodedPks, delimiter, false);
 		return eachEncodedPk.stream()
 				.map(encodedPk -> decode(pkClass, encodedPk))
 				.collect(Collectors.toList());
@@ -92,7 +92,7 @@ public class PrimaryKeyPercentCodec{
 
 		@Test
 		public void testSimpleNumericPk(){
-			Long id = 355L;
+			String id = "355";
 			TraceKey pk = new TraceKey(id);
 			String encoded = encode(pk);
 			TraceKey decoded = decode(TraceKey.class, encoded);
@@ -102,11 +102,11 @@ public class PrimaryKeyPercentCodec{
 		@Test
 		public void testMultiNumericPk(){
 			final char delimiter = ',';
-			List<Long> ids = Arrays.asList(23L, 52L, 103L);
+			List<String> ids = Arrays.asList("23", "52", "103");
 			List<TraceKey> pks = IterableTool.map(ids, TraceKey::new);
 			String encoded = encodeMulti(pks, delimiter);
 			List<TraceKey> decodedPks = decodeMulti(TraceKey.class, delimiter, encoded);
-			List<Long> decodedIds = IterableTool.map(decodedPks, TraceKey::getId);
+			List<String> decodedIds = IterableTool.map(decodedPks, TraceKey::getId);
 			Assert.assertEquals(ids, decodedIds);
 		}
 

@@ -36,6 +36,7 @@ public class DatarouterHttpResponse{
 
 	private final HttpResponse response;
 	private final List<Cookie> cookies;
+
 	private int statusCode;
 	private String entity;
 

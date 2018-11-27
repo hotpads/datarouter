@@ -36,16 +36,16 @@ import io.datarouter.web.monitoring.latency.LatencyMonitoringService;
 public class RoutersHandler extends BaseHandler{
 
 	public static final String
-		ACTION_listRouters = "listRouters",
-		ACTION_inspectRouter = "inspectRouter",
-		ACTION_inspectClient = "inspectClient";
+			ACTION_listRouters = "listRouters",
+			ACTION_inspectRouter = "inspectRouter",
+			ACTION_inspectClient = "inspectClient";
 
 	public static final String
-		PARAM_routerName = "routerName",
-		PARAM_clientName = "clientName",
-		PARAM_nodeName = "nodeName",
-		PARAM_tableName = "tableName",
-		PARAM_columnName = "columnName";
+			PARAM_routerName = "routerName",
+			PARAM_clientName = "clientName",
+			PARAM_nodeName = "nodeName",
+			PARAM_tableName = "tableName",
+			PARAM_columnName = "columnName";
 
 	@Inject
 	private Datarouter datarouter;
@@ -85,13 +85,13 @@ public class RoutersHandler extends BaseHandler{
 	@Handler
 	private Mav initClient(String clientName){
 		datarouterClients.getClient(clientName);
-		return new InContextRedirectMav(request, paths.datarouter.routers.toSlashedString());
+		return new InContextRedirectMav(request, paths.datarouter);
 	}
 
 	@Handler
 	private Mav initAllClients(){
 		datarouterClients.getAllClients();
-		return new InContextRedirectMav(request, paths.datarouter.routers.toSlashedString());
+		return new InContextRedirectMav(request, paths.datarouter);
 	}
 
 	@Handler

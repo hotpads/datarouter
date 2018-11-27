@@ -19,5 +19,4 @@ import io.datarouter.model.key.primary.PrimaryKey;
 
 public interface PrimaryKeyFielder<PK extends PrimaryKey<PK>>
 extends Fielder<PK>{
-
 }

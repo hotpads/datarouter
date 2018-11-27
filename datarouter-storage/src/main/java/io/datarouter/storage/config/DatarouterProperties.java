@@ -37,6 +37,7 @@ import com.google.common.base.Preconditions;
 
 import io.datarouter.storage.config.profile.ConfigProfile;
 import io.datarouter.storage.servertype.ServerType;
+import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.io.FileTool;
 import io.datarouter.util.io.ReaderTool;
 import io.datarouter.util.properties.PropertiesTool;
@@ -61,7 +62,7 @@ public abstract class DatarouterProperties{
 	private static final String EC2_PRIVATE_IP_URL = "http://instance-data/latest/meta-data/local-ipv4";
 	private static final String EC2_PUBLIC_IP_URL = "http://instance-data/latest/meta-data/public-ipv4";
 
-	private final String serviceName;
+	private final String webappName;
 	protected final String configDirectory;
 	protected final String configFileLocation;
 
@@ -82,13 +83,13 @@ public abstract class DatarouterProperties{
 		this(serverTypeOptions, serviceName, configDirectory, true, false, filename, true);
 	}
 
-	private DatarouterProperties(ServerType serverTypeOptions, String serviceName,
+	private DatarouterProperties(ServerType serverTypeOptions, String webappName,
 			String configDirectory, boolean directoryRequired, boolean directoryFromJvmArg, String filename,
 			boolean fileRequired){
 		boolean fileRequiredWithoutDirectoryRequired = fileRequired && !directoryRequired;
 		Preconditions.checkState(!fileRequiredWithoutDirectoryRequired, "directory is required if file is required");
 
-		this.serviceName = serviceName;
+		this.webappName = webappName;
 
 		//find configDirectory first
 		this.configDirectory = configDirectory;
@@ -141,11 +142,9 @@ public abstract class DatarouterProperties{
 
 	//prefer jvmArg then configFile
 	private String findEnvironment(Optional<Properties> configFileProperties){
-		String jvmArgName = JVM_ARG_PREFIX + ENVIRONMENT;
-		String jvmArg = System.getProperty(jvmArgName);
-		if(jvmArg != null){
-			logJvmArgSource(ENVIRONMENT, jvmArg, jvmArgName);
-			return jvmArg;
+		Optional<String> jvmValue = getJvmArg(ENVIRONMENT);
+		if(jvmValue.isPresent()){
+			return jvmValue.get();
 		}
 		if(configFileProperties.isPresent()){
 			Optional<String> value = configFileProperties.map(properties -> properties.getProperty(ENVIRONMENT));
@@ -160,11 +159,9 @@ public abstract class DatarouterProperties{
 
 	//prefer jvmArg then configFile
 	private String findConfigProfile(Optional<Properties> configFileProperties){
-		String jvmArgName = JVM_ARG_PREFIX + CONFIG_PROFILE;
-		String jvmArg = System.getProperty(jvmArgName);
-		if(jvmArg != null){
-			logJvmArgSource(CONFIG_PROFILE, jvmArg, jvmArgName);
-			return jvmArg;
+		Optional<String> jvmValue = getJvmArg(CONFIG_PROFILE);
+		if(jvmValue.isPresent()){
+			return jvmValue.get();
 		}
 		if(configFileProperties.isPresent()){
 			Optional<String> value = configFileProperties.map(properties -> properties.getProperty(CONFIG_PROFILE));
@@ -180,11 +177,9 @@ public abstract class DatarouterProperties{
 
 	//prefer configFile then hostname
 	private String findServerName(Optional<Properties> configFileProperties){
-		String jvmArgName = JVM_ARG_PREFIX + SERVER_NAME;
-		String jvmArg = System.getProperty(jvmArgName);
-		if(jvmArg != null){
-			logJvmArgSource(SERVER_NAME, jvmArg, jvmArgName);
-			return jvmArg;
+		Optional<String> jvmValue = getJvmArg(SERVER_NAME);
+		if(jvmValue.isPresent()){
+			return jvmValue.get();
 		}
 		if(configFileProperties.isPresent()){
 			Optional<String> value = configFileProperties.map(properties -> properties.getProperty(SERVER_NAME));
@@ -209,11 +204,9 @@ public abstract class DatarouterProperties{
 
 	//prefer jvmArg then configFile
 	private String findServerTypeString(Optional<Properties> configFileProperties){
-		String jvmArgName = JVM_ARG_PREFIX + SERVER_TYPE;
-		String jvmArg = System.getProperty(jvmArgName);
-		if(jvmArg != null){
-			logJvmArgSource(SERVER_TYPE, jvmArg, jvmArgName);
-			return jvmArg;
+		Optional<String> jvmValue = getJvmArg(SERVER_TYPE);
+		if(jvmValue.isPresent()){
+			return jvmValue.get();
 		}
 		if(configFileProperties.isPresent()){
 			Optional<String> value = configFileProperties.map(properties -> properties.getProperty(SERVER_TYPE));
@@ -228,11 +221,9 @@ public abstract class DatarouterProperties{
 
 	//prefer jvmArg then configFile
 	private String findAdministratorEmail(Optional<Properties> configFileProperties){
-		String jvmArgName = JVM_ARG_PREFIX + ADMINISTRATOR_EMAIL;
-		String jvmArg = System.getProperty(jvmArgName);
-		if(jvmArg != null){
-			logJvmArgSource(ADMINISTRATOR_EMAIL, jvmArg, jvmArgName);
-			return jvmArg;
+		Optional<String> jvmValue = getJvmArg(ADMINISTRATOR_EMAIL);
+		if(jvmValue.isPresent()){
+			return jvmValue.get();
 		}
 		if(configFileProperties.isPresent()){
 			Optional<String> value = configFileProperties.map(properties -> properties.getProperty(
@@ -246,8 +237,12 @@ public abstract class DatarouterProperties{
 		return null;
 	}
 
-	//prefer configFile then api call
+	//prefer jvmArg, configFile then api call
 	private String findPrivateIp(Optional<Properties> configFileProperties){
+		Optional<String> jvmValue = getJvmArg(SERVER_PRIVATE_IP);
+		if(jvmValue.isPresent()){
+			return jvmValue.get();
+		}
 		if(configFileProperties.isPresent()){
 			Optional<String> value = configFileProperties.map(properties -> properties.getProperty(SERVER_PRIVATE_IP));
 			if(value.isPresent()){
@@ -266,8 +261,12 @@ public abstract class DatarouterProperties{
 		return null;
 	}
 
-	//prefer configFile then api call
+	//prefer jvmArg, then, configFile then api call
 	private String findPublicIp(Optional<Properties> configFileProperties){
+		Optional<String> jvmValue = getJvmArg(SERVER_PUBLIC_IP);
+		if(jvmValue.isPresent()){
+			return jvmValue.get();
+		}
 		if(configFileProperties.isPresent()){
 			Optional<String> value = configFileProperties.map(properties -> properties.getProperty(SERVER_PUBLIC_IP));
 			if(value.isPresent()){
@@ -288,11 +287,9 @@ public abstract class DatarouterProperties{
 
 	//prefer jvmArg then configFile
 	private Collection<String> findClusterDomains(Optional<Properties> configFileProperties){
-		String jvmArgName = JVM_ARG_PREFIX + SERVER_CLUSTER_DOMAINS;
-		String jvmArg = System.getProperty(jvmArgName);
-		if(jvmArg != null){
-			logJvmArgSource(SERVER_CLUSTER_DOMAINS, jvmArg, jvmArgName);
-			return parseClusterDomains(jvmArg);
+		Optional<String> jvmValue = getJvmArg(SERVER_CLUSTER_DOMAINS);
+		if(jvmValue.isPresent()){
+			return parseClusterDomains(jvmValue.get());
 		}
 		if(configFileProperties.isPresent()){
 			Optional<String> value = configFileProperties.map(properties -> properties.getProperty(
@@ -308,11 +305,9 @@ public abstract class DatarouterProperties{
 
 	//prefer jvmArg then configFile
 	private String findInternalConfigDirectory(Optional<Properties> configFileProperties){
-		String jvmArgName = JVM_ARG_PREFIX + INTERNAL_CONFIG_DIRECTORY;
-		String jvmArg = System.getProperty(jvmArgName);
-		if(jvmArg != null){
-			logJvmArgSource(INTERNAL_CONFIG_DIRECTORY, jvmArg, jvmArgName);
-			return jvmArg;
+		Optional<String> jvmValue = getJvmArg(INTERNAL_CONFIG_DIRECTORY);
+		if(jvmValue.isPresent()){
+			return jvmValue.get();
 		}
 		if(configFileProperties.isPresent()){
 			Optional<String> value = configFileProperties.map(properties -> properties.getProperty(
@@ -326,8 +321,17 @@ public abstract class DatarouterProperties{
 		return null;
 	}
 
-
 	/*------------------- private -------------------------*/
+
+	private Optional<String> getJvmArg(String jvmArg){
+		String jvmArgName = JVM_ARG_PREFIX + jvmArg;
+		String jvmArgValue = System.getProperty(jvmArgName);
+		if(jvmArgValue == null){
+			return Optional.empty();
+		}
+		logJvmArgSource(jvmArg, jvmArgValue, jvmArgName);
+		return Optional.of(jvmArgValue);
+	}
 
 	private void logConfigFileProperties(final Optional<Properties> configFileProperties){
 		configFileProperties.get().stringPropertyNames().stream()
@@ -353,7 +357,7 @@ public abstract class DatarouterProperties{
 		try{
 			URL url = new URL(location);
 			Reader reader = new InputStreamReader(url.openStream(), "UTF-8");
-			String content = ReaderTool.accumulateStringAndClose(reader).toString();
+			String content = ReaderTool.accumulateStringAndClose(reader);
 			return Optional.of(content);
 		}catch(Exception e){
 			if(logError){
@@ -384,7 +388,7 @@ public abstract class DatarouterProperties{
 		if(Files.exists(Paths.get(externalLocation))){
 			return externalLocation;
 		}
-		Objects.requireNonNull(internalConfigDirectory, externalLocation + "doesn't exist and "
+		Objects.requireNonNull(internalConfigDirectory, externalLocation + " doesn't exist and "
 				+ INTERNAL_CONFIG_DIRECTORY + " property is not set");
 		return "/config/" + internalConfigDirectory + "/" + filename;
 	}
@@ -431,8 +435,14 @@ public abstract class DatarouterProperties{
 		return configProfile;
 	}
 
-	public String getServiceName(){
-		return serviceName;
+	public String getWebappName(){
+		return webappName;
 	}
+
+	public String getFirstServerClusterDomain(){
+		return CollectionTool.getFirst(getServerClusterDomains());
+	}
+
+	public abstract String getDatarouterPropertiesFileLocation();
 
 }

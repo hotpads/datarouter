@@ -26,10 +26,10 @@ public interface UniqueIndexWriter<
 		D extends Databean<PK,D>,
 		IK extends PrimaryKey<IK>>{
 
-	public static final String
-		OP_deleteUnique = "deleteUnique",
-		OP_deleteMultiUnique = "deleteMultiUnique";
+	public static final String OP_deleteUnique = "deleteUnique";
+	public static final String OP_deleteMultiUnique = "deleteMultiUnique";
 
 	void deleteUnique(IK indexKey, Config config);
 	void deleteMultiUnique(Collection<IK> uniqueKeys, Config config);
+
 }

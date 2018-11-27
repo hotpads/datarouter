@@ -38,8 +38,8 @@ public class ManualUniqueIndexNode<
 		IE extends UniqueIndexEntry<IK,IE,PK,D>>
 implements UniqueIndexNode<PK,D,IK,IE>{
 
-	private MapStorage<PK,D> mainNode;
-	private SortedMapStorage<IK,IE> indexNode;
+	private final MapStorage<PK,D> mainNode;
+	private final SortedMapStorage<IK,IE> indexNode;
 
 	public ManualUniqueIndexNode(MapStorage<PK,D> mainNode, SortedMapStorage<IK,IE> indexNode){
 		this.mainNode = mainNode;

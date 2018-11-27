@@ -30,7 +30,7 @@ public abstract class BaseCounterAdapter<
 extends BaseAdapter<PK,D,F,N>
 implements CounterAdapter<PK,D,F,N>{
 
-	protected NodeCounterFormatter<PK,D,F,N> counter;
+	protected final NodeCounterFormatter<PK,D,F,N> counter;
 
 	public BaseCounterAdapter(N backingNode){
 		super(backingNode);

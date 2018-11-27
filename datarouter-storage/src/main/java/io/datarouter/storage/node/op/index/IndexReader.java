@@ -32,7 +32,7 @@ public interface IndexReader<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
 		IK extends PrimaryKey<IK>,
-		IE extends IndexEntry<IK, IE, PK, D>>
+		IE extends IndexEntry<IK,IE,PK,D>>
 extends SortedStorageReader<IK,IE>{
 
 	Iterable<D> scanDatabeansMulti(Collection<Range<IK>> ranges, Config config);

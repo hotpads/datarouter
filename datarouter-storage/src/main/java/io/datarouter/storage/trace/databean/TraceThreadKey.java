@@ -24,12 +24,7 @@ public class TraceThreadKey extends BaseTraceThreadKey<TraceEntityKey,TraceThrea
 		entityKey = new TraceEntityKey();
 	}
 
-	public TraceThreadKey(Long traceId, boolean hasParent){
-		super(hasParent);
-		entityKey = new TraceEntityKey(traceId);
-	}
-
-	public TraceThreadKey(Long traceId, Long threadId){
+	public TraceThreadKey(String traceId, Long threadId){
 		super(threadId);
 		entityKey = new TraceEntityKey(traceId);
 	}

@@ -20,7 +20,9 @@ import java.util.List;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.key.entity.EntityKey;
 
-public interface EntityPrimaryKey<EK extends EntityKey<EK>,PK extends EntityPrimaryKey<EK,PK>>
+public interface EntityPrimaryKey<
+		EK extends EntityKey<EK>,
+		PK extends EntityPrimaryKey<EK,PK>>
 extends PrimaryKey<PK>{
 
 	EK getEntityKey();

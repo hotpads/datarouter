@@ -26,38 +26,31 @@
 				<form class="panel-body" method="POST" action="${contextPath}${authenticationConfig.editUserSubmitPath}">
 					<input type="hidden" name="${authenticationConfig.userIdParam}" value="${user.id}"/>
 					<div class="form-group">
-						<label>Roles</label>
-						<select multiple="multiple" class="form-control" name="${authenticationConfig.userRolesParam}">
-							<c:forEach var="role" items="${datarouterUserRoles}">
-								<option value="${role.name()}"
-										<c:if test="${userRoles.contains(role)}">
-										selected
-										</c:if>
-								>
-									${role.name()}
-								</option>
-							</c:forEach>
-						</select>
+						<label>Roles:</label>
+						<c:forEach var="role" items="${datarouterUserRoles}">
+							<div>
+								<input type="checkbox" value="${role}" id="${role}" name="${authenticationConfig.userRolesParam}"
+										<c:if test="${userRoles.contains(role)}">checked</c:if>/>
+								<label for="${role}">${role}</label>
+							</div>
+						</c:forEach>
 					</div>
 					<div class="form-group">
-						<label>Accounts</label>
-						<select multiple="multiple" class="form-control" name="accounts">
-							<c:forEach var="account" items="${datarouterAccounts}">
-								<option value="${account.key.accountName}"
-										<c:if test="${userAccounts.contains(account.key.accountName)}">
-										selected
-										</c:if>
-								>
-									${account.key.accountName}
-								</option>
-							</c:forEach>
-						</select>
+						<label>Accounts:</label>
+						<c:forEach var="account" items="${datarouterAccounts}">
+							<div>
+								<input type="checkbox" value="${account.key.accountName}" id="${account.key.accountName}" name="accounts"
+										<c:if test="${userAccounts.contains(account.key.accountName)}">checked</c:if>/>
+								<label for="${account.key.accountName}">${account.key.accountName}</label>
+							</div>
+						</c:forEach>
 					</div>
-					<div class="checkbox">
-						<label>
-							<input type="checkbox" name="${authenticationConfig.enabledParam}"
-									<c:if test="${user.enabled}">checked</c:if>/> Enabled
-						</label>
+					<div class="form-group">
+						<label>User Enabled:</label>
+						<div>
+							<input type="checkbox" id="enabled" name="${authenticationConfig.enabledParam}"<c:if test="${user.enabled}">checked</c:if>/>
+							<label for="enabled">Enabled</label>
+						</div>
 					</div>
 					<input type="submit" class="btn btn-default"/>
 				</form>
@@ -66,6 +59,7 @@
 		<div class="row">
 			<div class="col-sm-12">
 				<h3>Permission Requests</h3>
+				<a class="btn btn-primary" role="button" href="${permissionRequestPage}">Create Permission Request</a>
 				<h4>Current Requests</h4>
 				<c:choose>
 					<c:when test="${!currentRequests.isEmpty()}">

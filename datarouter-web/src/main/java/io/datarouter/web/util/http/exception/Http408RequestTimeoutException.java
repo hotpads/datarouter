@@ -37,5 +37,4 @@ public class Http408RequestTimeoutException extends HttpException{
 		super(MESSAGE, cause, CODE);
 	}
 
-
 }

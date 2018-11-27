@@ -15,6 +15,10 @@
  */
 package io.datarouter.web.config;
 
+import javax.inject.Singleton;
+
+import com.google.gson.Gson;
+import com.google.inject.TypeLiteral;
 import com.google.inject.multibindings.OptionalBinder;
 import com.google.inject.name.Names;
 import com.google.inject.servlet.ServletModule;
@@ -37,9 +41,15 @@ import io.datarouter.web.user.NoOpDatarouterUserNodes;
 import io.datarouter.web.user.authenticate.config.BaseDatarouterAuthenticationConfig;
 import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
 import io.datarouter.web.user.authenticate.saml.SamlRegistrar;
+import io.datarouter.web.user.role.DatarouterUserRole;
+import io.datarouter.web.user.session.CurrentUserSessionInfo;
+import io.datarouter.web.user.session.DatarouterCurrentUserSessionInfo;
 import io.datarouter.web.user.session.service.DatarouterRoleManager;
+import io.datarouter.web.user.session.service.DatarouterUserInfo;
 import io.datarouter.web.user.session.service.DatarouterUserSessionService;
+import io.datarouter.web.user.session.service.RoleEnum;
 import io.datarouter.web.user.session.service.RoleManager;
+import io.datarouter.web.user.session.service.UserInfo;
 import io.datarouter.web.user.session.service.UserSessionService;
 
 public class DatarouterWebGuiceModule extends ServletModule{
@@ -50,13 +60,20 @@ public class DatarouterWebGuiceModule extends ServletModule{
 		install(new DatarouterWebExecutorGuiceModule());
 
 		bind(ServletContextProvider.class).toInstance(new ServletContextProvider(getServletContext()));
-		bind(JsonSerializer.class).annotatedWith(Names.named(HandlerEncoder.DEFAULT_HANDLER_SERIALIZER)).to(
-				GsonJsonSerializer.class);
-		bind(PortIdentifier.class).annotatedWith(Names.named(CompoundPortIdentifier.COMPOUND_PORT_IDENTIFIER))
+		bind(JsonSerializer.class)
+				.annotatedWith(Names.named(HandlerEncoder.DEFAULT_HANDLER_SERIALIZER))
+				.to(GsonJsonSerializer.class);
+		bind(PortIdentifier.class)
+				.annotatedWith(Names.named(CompoundPortIdentifier.COMPOUND_PORT_IDENTIFIER))
 				.to(CompoundPortIdentifier.class);
 
 		bindOptional(DatarouterAuthenticationConfig.class).setDefault().to(BaseDatarouterAuthenticationConfig.class);
 		bindOptional(DatarouterUserNodes.class).setDefault().to(NoOpDatarouterUserNodes.class);
+		bindOptional(new TypeLiteral<RoleEnum<? extends RoleEnum<?>>>(){})
+				.setDefault()
+				.toInstance(DatarouterUserRole.admin);
+		bindOptional(CurrentUserSessionInfo.class).setDefault().to(DatarouterCurrentUserSessionInfo.class);
+		bindOptional(UserInfo.class).setDefault().to(DatarouterUserInfo.class);
 		bindOptional(ExceptionRecorder.class);
 		bindOptional(MavPropertiesFactoryConfig.class).setDefault().to(DatarouterMavPropertiesFactoryConfig.class);
 		bindOptional(NavBar.class);
@@ -64,9 +81,16 @@ public class DatarouterWebGuiceModule extends ServletModule{
 		bindOptional(SamlRegistrar.class);
 		bindOptional(SettingFinder.class).setDefault().to(MemorySettingFinder.class);
 		bindOptional(UserSessionService.class).setDefault().to(DatarouterUserSessionService.class);
+
+		// define as singleton for everybody
+		bind(Gson.class).in(Singleton.class);
 	}
 
 	private <T> OptionalBinder<T> bindOptional(Class<T> type){
+		return OptionalBinder.newOptionalBinder(binder(), type);
+	}
+
+	private <T> OptionalBinder<T> bindOptional(TypeLiteral<T> type){
 		return OptionalBinder.newOptionalBinder(binder(), type);
 	}
 

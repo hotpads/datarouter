@@ -24,7 +24,7 @@ import io.datarouter.util.string.StringTool;
 
 public class NumberTool{
 
-	/************************* is this or that methods ************************/
+	/*------------------------- is this or that methods ---------------------*/
 
 	public static boolean isEmpty(Number number){
 		return isNullOrZero(number);
@@ -53,7 +53,7 @@ public class NumberTool{
 		return Math.max(n1, n2);
 	}
 
-	/************************ numeric null safe *******************************/
+	/*------------------------- numeric null safe ---------------------------*/
 
 	public static Integer nullSafe(Integer in){
 		if(in == null){
@@ -76,7 +76,7 @@ public class NumberTool{
 		return number.longValue();
 	}
 
-	/*************************** parsing **************************************/
+	/*------------------------- parsing -------------------------------------*/
 
 	public static Double getDoubleNullSafe(String toDouble, Double alternate){
 		return getDoubleNullSafe(toDouble, alternate, false);
@@ -137,7 +137,17 @@ public class NumberTool{
 		return Optional.ofNullable(parseIntegerFromNumberString(toInteger, null));
 	}
 
-	/****************************** tests *************************************/
+	/**
+	 * Casts a long to an int, with overflows resulting in {@link Integer#MAX_VALUE} or {@link Integer#MIN_VALUE}
+	 */
+	public static int limitLongToIntRange(long in){
+		if(in >= 0){
+			return in > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int)in;
+		}
+		return in < Integer.MIN_VALUE ? Integer.MIN_VALUE : (int)in;
+	}
+
+	/*------------------------- tests ---------------------------------------*/
 
 	public static class Tests{
 		@Test
@@ -169,10 +179,10 @@ public class NumberTool{
 			Assert.assertEquals(parseIntegerFromNumberString("banana", 2), new Integer(2));
 			Assert.assertEquals(parseIntegerFromNumberString("banana", 2), new Integer(2));
 			Assert.assertEquals(parseIntegerFromNumberString("2", 3), new Integer(2));
-			Assert.assertEquals(parseIntegerFromNumberString(Integer.MAX_VALUE + "",
-					null), new Integer(Integer.MAX_VALUE));
-			Assert.assertEquals(parseIntegerFromNumberString(Integer.MIN_VALUE + "",
-					null), new Integer(Integer.MIN_VALUE));
+			Assert.assertEquals(parseIntegerFromNumberString(Integer.MAX_VALUE + "", null),
+					new Integer(Integer.MAX_VALUE));
+			Assert.assertEquals(parseIntegerFromNumberString(Integer.MIN_VALUE + "", null),
+					new Integer(Integer.MIN_VALUE));
 
 			Assert.assertEquals(parseIntegerFromNumberString("$400,000", null, true), new Integer(400000));
 			Assert.assertNull(parseIntegerFromNumberString("$400,000", null, false));
@@ -197,6 +207,23 @@ public class NumberTool{
 			Assert.assertTrue(foo2 <= bar2);
 			Assert.assertTrue(foo2 >= bar2);
 			Assert.assertTrue(foo2 == bar2);
+		}
+
+		@Test
+		public void testCastLongToInt(){
+			long maxIntValue = Integer.MAX_VALUE;
+			long maxIntValuePlusOne = maxIntValue + 1L;
+			long maxIntValueMinusOne = maxIntValue - 1L;
+			Assert.assertEquals(limitLongToIntRange(maxIntValue), Integer.MAX_VALUE);
+			Assert.assertEquals(limitLongToIntRange(maxIntValuePlusOne), Integer.MAX_VALUE);
+			Assert.assertEquals(limitLongToIntRange(maxIntValueMinusOne), Integer.MAX_VALUE - 1);
+
+			long minIntValue = Integer.MIN_VALUE;
+			long minIntValueMinusOne = minIntValue - 1L;
+			long minIntValuePlusOne = minIntValue + 1L;
+			Assert.assertEquals(limitLongToIntRange(minIntValue), Integer.MIN_VALUE);
+			Assert.assertEquals(limitLongToIntRange(minIntValueMinusOne), Integer.MIN_VALUE);
+			Assert.assertEquals(limitLongToIntRange(minIntValuePlusOne), Integer.MIN_VALUE + 1);
 		}
 	}
 

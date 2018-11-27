@@ -23,19 +23,14 @@ import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.util.PercentFieldCodec;
 import io.datarouter.util.lang.ClassTool;
 
-public abstract class BaseDatabean<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
-implements Databean<PK,D>{
+public abstract class BaseDatabean<PK extends PrimaryKey<PK>,D extends Databean<PK,D>> implements Databean<PK,D>{
 
 	public static final String DEFAULT_KEY_FIELD_NAME = "key";
-
-	/********************** databean *********************************/
 
 	@Override
 	public String getDatabeanName(){
 		return getClass().getSimpleName();
 	}
-
-	/*************************** fields ****************************/
 
 	@Override
 	public String getKeyFieldName(){
@@ -46,8 +41,6 @@ implements Databean<PK,D>{
 	public List<Field<?>> getKeyFields(){
 		return FieldTool.prependPrefixes(getKeyFieldName(), getKey().getFields());
 	}
-
-	/************************ standard java *************************/
 
 	@Override
 	public boolean equals(Object obj){

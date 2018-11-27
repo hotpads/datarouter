@@ -18,5 +18,7 @@ package io.datarouter.httpclient.request;
 import java.util.Map;
 
 public interface HttpRequestConfig{
+
 	Map<String,String> getParameterMap();
+
 }

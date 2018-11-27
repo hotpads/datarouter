@@ -19,4 +19,6 @@ import io.datarouter.util.iterable.scanner.Scanner;
 
 public interface SortedScanner<T extends Comparable<? super T>> extends Scanner<T>, Comparable<SortedScanner<T>>{
 
+	default void cleanup(){
+	}
 }

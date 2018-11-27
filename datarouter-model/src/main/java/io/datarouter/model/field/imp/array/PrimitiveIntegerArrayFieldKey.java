@@ -23,9 +23,6 @@ public class PrimitiveIntegerArrayFieldKey extends BaseFieldKey<int[]>{
 		super(name, int[].class);
 	}
 
-
-	/*********************** ByteEncodedField ***********************/
-
 	@Override
 	public boolean isFixedLength(){
 		return false;
@@ -40,4 +37,5 @@ public class PrimitiveIntegerArrayFieldKey extends BaseFieldKey<int[]>{
 	public PrimitiveIntegerArrayField createValueField(final int[] value){
 		return new PrimitiveIntegerArrayField(this, value);
 	}
+
 }

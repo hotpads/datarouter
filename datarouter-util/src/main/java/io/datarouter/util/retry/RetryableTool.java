@@ -16,6 +16,7 @@
 package io.datarouter.util.retry;
 
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.Predicate;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,13 +27,21 @@ import io.datarouter.util.exception.InterruptedRuntimeException;
 public class RetryableTool{
 	private static final Logger logger = LoggerFactory.getLogger(RetryableTool.class);
 
-
 	public static <T> T tryNTimesWithBackoffUnchecked(Retryable<T> callable, final int numAttempts,
 			final long initialBackoffMs, boolean logExceptions){
+		return tryNTimesWithBackoffUnchecked(callable, numAttempts, initialBackoffMs, logExceptions, $ -> true);
+	}
+
+	public static <T> T tryNTimesWithBackoffUnchecked(Retryable<T> callable, final int numAttempts,
+			final long initialBackoffMs, boolean logExceptions, Predicate<T> succesCondition){
 		long backoffMs = initialBackoffMs;
 		for(int attemptNum = 1; attemptNum <= numAttempts && !Thread.interrupted(); ++attemptNum){
 			try{
-				return callable.call();
+				T result = callable.call();
+				if(!succesCondition.test(result)){
+					throw new Exception("invalid result " + result);
+				}
+				return result;
 			}catch(Exception e){
 				if(attemptNum < numAttempts){
 					if(logExceptions){

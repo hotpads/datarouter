@@ -25,11 +25,11 @@ import io.datarouter.util.array.ArrayTool;
  *
  * can contain convenience methods for comparing, printing, cloning,
  * spawning new arrays, copying to other arrays, etc.
- *  *
+ *
  */
 public class ByteRange implements Comparable<ByteRange>{
 
-	/********************** fields *****************************/
+	/*------------------------- fields --------------------------------------*/
 
 	//not making these final.  intention is to reuse objects of this class
 	private byte[] bytes;
@@ -38,7 +38,7 @@ public class ByteRange implements Comparable<ByteRange>{
 	private int hash = 0;
 
 
-	/********************** constructors ***********************/
+	/*------------------------- constructors --------------------------------*/
 
 	public ByteRange(byte[] bytes){
 		set(bytes);
@@ -49,7 +49,7 @@ public class ByteRange implements Comparable<ByteRange>{
 	}
 
 
-	/********************** methods *************************/
+	/*------------------------- methods -------------------------------------*/
 
 	private ByteRange set(byte[] bytes){
 		return set(bytes, 0, bytes.length);
@@ -92,7 +92,7 @@ public class ByteRange implements Comparable<ByteRange>{
 		return ByteBuffer.wrap(bytes, offset, length);
 	}
 
-	/******************* standard methods *********************/
+	/*------------------------- standard methods ----------------------------*/
 
 	@Override
 	public boolean equals(Object thatObject){
@@ -131,7 +131,7 @@ public class ByteRange implements Comparable<ByteRange>{
 				other.bytes, other.offset, other.length);
 	}
 
-	/******************** getters *****************************/
+	/*------------------------- getters -------------------------------------*/
 
 	public byte[] getBytes(){
 		return bytes;

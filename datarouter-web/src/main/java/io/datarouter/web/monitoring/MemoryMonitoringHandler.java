@@ -21,33 +21,41 @@ import java.lang.management.MemoryPoolMXBean;
 import java.lang.management.MemoryUsage;
 import java.lang.management.RuntimeMXBean;
 import java.lang.management.ThreadMXBean;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
 import io.datarouter.storage.config.DatarouterProperties;
+import io.datarouter.util.DateTool;
+import io.datarouter.util.SystemTool;
 import io.datarouter.util.bytes.ByteUnitTool;
+import io.datarouter.util.collection.CollectorTool;
 import io.datarouter.util.duration.Duration;
-import io.datarouter.web.app.WebAppName;
+import io.datarouter.web.app.WebappName;
 import io.datarouter.web.config.DatarouterWebFiles;
+import io.datarouter.web.dispatcher.NonEagerInitHandler;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.encoder.JsonEncoder;
 import io.datarouter.web.handler.mav.Mav;
 
-public class MemoryMonitoringHandler extends BaseHandler{
+/**
+ * This class needs to access a folder containing a library which doesn't exist during unit tests
+ */
+public class MemoryMonitoringHandler extends BaseHandler implements NonEagerInitHandler{
 
-	private static final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("d MMM H:mm");
+	private static final String PATTERN = "d MMM H:mm";
+	private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern(PATTERN);
 
 	@Inject
 	private DatarouterProperties datarouterProperties;
 	@Inject
-	private WebAppName webAppName;
+	private WebappName webappName;
 	@Inject
 	private GitProperties gitProperties;
 	@Inject
@@ -63,22 +71,24 @@ public class MemoryMonitoringHandler extends BaseHandler{
 		RuntimeMXBean runtimeMxBean = ManagementFactory.getRuntimeMXBean();
 		long startTime = runtimeMxBean.getStartTime();
 		long uptime = runtimeMxBean.getUptime();
-		mav.put("startTime", simpleDateFormat.format(new Date(startTime)));
+		Map<String,GitPropertiesJspDto> gitDetailedLibraries = loadedLibraries.gitDetailedLibraries.entrySet().stream()
+				.collect(CollectorTool.toMap(Entry::getKey, entry -> new GitPropertiesJspDto(entry.getValue())));
+		mav.put("startTime", DateTool.format(PATTERN, startTime));
 		mav.put("upTime", new Duration(uptime, TimeUnit.MILLISECONDS).toString(TimeUnit.MINUTES));
 		mav.put("serverName", datarouterProperties.getServerName());
 		mav.put("serverVersion", servletContext.getServerInfo());
-		mav.put("javaVersion", System.getProperty("java.version"));
+		mav.put("javaVersion", SystemTool.getJavaVersion());
 		mav.put("jvmVersion", runtimeMxBean.getVmName() + " (build " + runtimeMxBean.getVmVersion() + ")");
-		mav.put("appName", webAppName);
-		mav.put("gitDescribeShort", gitProperties.getDescribeShort());
-		mav.put("gitBranch", gitProperties.getBranch());
-		mav.put("gitCommit", gitProperties.getIdAbbrev());
-		mav.put("gitCommitUserName", gitProperties.getCommitUserName());
-		mav.put("gitCommitTime", simpleDateFormat.format(gitProperties.getCommitTime()));
-		mav.put("buildTime", simpleDateFormat.format(gitProperties.getBuildTime()));
-		mav.put("gitTags", gitProperties.getTags());
+		mav.put("appName", webappName);
+		mav.put("gitDescribeShort", gitProperties.getDescribeShort().orElse(GitProperties.UNKNOWN_STRING));
+		mav.put("gitBranch", gitProperties.getBranch().orElse(GitProperties.UNKNOWN_STRING));
+		mav.put("gitCommit", gitProperties.getIdAbbrev().orElse(GitProperties.UNKNOWN_STRING));
+		mav.put("gitCommitUserName", gitProperties.getCommitUserName().orElse(GitProperties.UNKNOWN_STRING));
+		mav.put("gitCommitTime", FORMATTER.format(gitProperties.getCommitTime().orElse(GitProperties.UNKNOWN_DATE)));
+		mav.put("buildTime", FORMATTER.format(gitProperties.getBuildTime().orElse(GitProperties.UNKNOWN_DATE)));
+		mav.put("gitTags", gitProperties.getTags().orElse(GitProperties.UNKNOWN_STRING));
 		mav.put("buildId", buildProperties.getBuildId());
-		mav.put("detailedLibraries", loadedLibraries.gitDetailedLibraries);
+		mav.put("detailedLibraries", gitDetailedLibraries);
 		mav.put("buildDetailedLibraries", loadedLibraries.buildDetailedLibraries);
 		mav.put("otherLibraries", loadedLibraries.otherLibraries);
 
@@ -153,6 +163,7 @@ public class MemoryMonitoringHandler extends BaseHandler{
 
 	@SuppressWarnings("unused")
 	private static class GarbabeCollectingResult{
+
 		private final boolean success;
 		private final Long duration;
 		private final List<GcEffect> effects;
@@ -162,6 +173,7 @@ public class MemoryMonitoringHandler extends BaseHandler{
 			this.duration = duration;
 			this.effects = effects;
 		}
+
 	}
 
 	public static class GarbageCollectorForDisplay{

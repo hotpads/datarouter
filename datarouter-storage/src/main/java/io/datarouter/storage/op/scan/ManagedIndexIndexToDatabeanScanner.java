@@ -31,18 +31,17 @@ import io.datarouter.util.iterable.scanner.sorted.BaseHoldingScanner;
 
 public class ManagedIndexIndexToDatabeanScanner<
 		PK extends PrimaryKey<PK>,
-		D extends Databean<PK, D>,
+		D extends Databean<PK,D>,
 		IK extends PrimaryKey<IK>,
-		IE extends IndexEntry<IK, IE, PK, D>>
+		IE extends IndexEntry<IK,IE,PK,D>>
 extends BaseHoldingScanner<D>{
 
-	private Iterator<List<IE>> indexEntryBatchIterator;
-	private MapStorageReader<PK, D> mainNode;
-
-	private Config config;
+	private final MapStorageReader<PK,D> mainNode;
+	private final Iterator<List<IE>> indexEntryBatchIterator;
+	private final Config config;
 
 	private Iterator<IE> indexEntryIterator;
-	private Map<PK, D> keyToDatabeans;
+	private Map<PK,D> keyToDatabeans;
 
 	public ManagedIndexIndexToDatabeanScanner(MapStorageReader<PK,D> mainNode, Iterable<IE> indexIterable,
 			Config config){

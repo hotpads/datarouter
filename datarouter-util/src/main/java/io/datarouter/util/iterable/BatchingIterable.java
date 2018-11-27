@@ -90,9 +90,9 @@ public class BatchingIterable<T> implements Iterable<List<T>>{
 		}
 
 		private void verifyBatches(Iterator<List<Integer>> batches){
-			Assert.assertEquals(Arrays.asList(1, 2), batches.next());
-			Assert.assertEquals(Arrays.asList(3, 4), batches.next());
-			Assert.assertEquals(Arrays.asList(5), batches.next());
+			Assert.assertEquals(batches.next(), Arrays.asList(1, 2));
+			Assert.assertEquals(batches.next(), Arrays.asList(3, 4));
+			Assert.assertEquals(batches.next(), Arrays.asList(5));
 			Assert.assertFalse(batches.hasNext());
 		}
 

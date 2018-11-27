@@ -31,14 +31,14 @@ import io.datarouter.util.lang.ObjectTool;
  */
 public class Range<T extends Comparable<? super T>> implements Comparable<Range<T>>{
 
-	/** fields ****************************************************/
+	/*------------------------- fields --------------------------------------*/
 
 	private T start;
 	private boolean startInclusive;
 	private T end;
 	private boolean endInclusive;
 
-	/** constructors ****************************************************/
+	/*------------------------- constructors --------------------------------*/
 
 	public Range(T start){
 		this(start, true, null, false);
@@ -60,7 +60,7 @@ public class Range<T extends Comparable<? super T>> implements Comparable<Range<
 	}
 
 
-	/** static constructors **********************************************/
+	/*------------------------- static constructors -------------------------*/
 
 	public static <T extends Comparable<? super T>> Range<T> nullSafe(Range<T> in){
 		if(in != null){
@@ -73,7 +73,7 @@ public class Range<T extends Comparable<? super T>> implements Comparable<Range<
 		return new Range<>(null, true);
 	}
 
-	/** methods ******************************************************/
+	/*------------------------- methods -------------------------------------*/
 
 	public Range<T> assertValid(){
 		if(ObjectTool.anyNull(start, end)){
@@ -148,7 +148,7 @@ public class Range<T extends Comparable<? super T>> implements Comparable<Range<
 		return new Range<>(start, startInclusive, end, endInclusive);
 	}
 
-	/** standard ********************************************************/
+	/*------------------------- standard ------------------------------------*/
 
 	//auto-gen
 	@Override
@@ -232,7 +232,7 @@ public class Range<T extends Comparable<? super T>> implements Comparable<Range<
 		return sb.toString();
 	}
 
-	/** get/set ****************************************************/
+	/*------------------------- get/set -------------------------------------*/
 
 	public T getStart(){
 		return start;
@@ -266,8 +266,7 @@ public class Range<T extends Comparable<? super T>> implements Comparable<Range<
 		this.endInclusive = endInclusive;
 	}
 
-
-	/** tests *******************************************************/
+	/*------------------------- tests ---------------------------------------*/
 
 	public static class RangeTests{
 		@Test

@@ -9,8 +9,8 @@
 	<%@ include file="/jsp/menu/dr-navbar.jsp" %>
 	<div class="container">
 		<h2>Datarouter</h2>
-		<a href="${contextPath}/datarouter/routers">Datarouter Home</a> &nbsp;&nbsp;&#62;&#62;&nbsp;&nbsp; 
-		<a href="${contextPath}/datarouter/routers/memory?submitAction=inspectRouter&routerName=${param.routerName}">Router: ${param.routerName}</a>
+		<a href="${contextPath}/datarouter">Datarouter Home</a> &nbsp;&nbsp;&#62;&#62;&nbsp;&nbsp; 
+		<a href="${contextPath}/datarouter/memory?submitAction=inspectRouter&routerName=${param.routerName}">Router: ${param.routerName}</a>
 		&nbsp;&nbsp;&#62;&#62;&nbsp;&nbsp; client: <b>${client.name}</b>
 		<h3 style="width: 100%; border-bottom: 1px solid gray;">Memory Client Summary</h3>
 		<b>routerName: </b>${param.routerName}<br /> <b>clientName: </b>${param.clientName}<br />

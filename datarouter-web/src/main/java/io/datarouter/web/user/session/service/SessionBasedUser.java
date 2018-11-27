@@ -17,7 +17,8 @@ package io.datarouter.web.user.session.service;
 
 public interface SessionBasedUser{
 
-	public String getUsername();
-	public Long getId();
+	String getUsername();
+	String getToken();
+	Long getId();
 
 }

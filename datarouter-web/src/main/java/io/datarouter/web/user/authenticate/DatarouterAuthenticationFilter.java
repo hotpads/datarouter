@@ -51,7 +51,7 @@ import io.datarouter.web.util.http.ResponseTool;
 
 @Singleton
 public class DatarouterAuthenticationFilter implements Filter{
-	private static Logger logger = LoggerFactory.getLogger(DatarouterAuthenticationFilter.class);
+	private static final Logger logger = LoggerFactory.getLogger(DatarouterAuthenticationFilter.class);
 
 	@Inject
 	private DatarouterAuthenticationConfig authenticationConfig;
@@ -108,7 +108,7 @@ public class DatarouterAuthenticationFilter implements Filter{
 		filterChain.doFilter(req, res);
 	}
 
-	/****************** private methods **************************/
+	/*------------------------------ private --------------------------------*/
 
 	private static URL getReferrerUrl(HttpServletRequest request){
 		final String referrerString = request.getHeader("referer"); // misspelled on purpose

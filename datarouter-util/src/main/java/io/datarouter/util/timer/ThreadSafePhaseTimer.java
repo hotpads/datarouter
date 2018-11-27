@@ -28,6 +28,7 @@ import org.testng.annotations.Test;
 import io.datarouter.util.number.NumberFormatter;
 
 public class ThreadSafePhaseTimer extends PhaseRecord implements PhaseRecorder<ThreadSafePhaseTimer>{
+
 	private List<PhaseRecord> phases = Collections.synchronizedList(new ArrayList<PhaseRecord>());
 	private static final String DEFAULT_DELIM = "";
 
@@ -40,7 +41,6 @@ public class ThreadSafePhaseTimer extends PhaseRecord implements PhaseRecorder<T
 		record(name + "-start");
 	}
 
-	/*********************** methods ****************************************/
 	@Override
 	public ThreadSafePhaseTimer record(String eventName){
 		PhaseRecord record = new PhaseRecord(eventName);
@@ -67,10 +67,10 @@ public class ThreadSafePhaseTimer extends PhaseRecord implements PhaseRecorder<T
 			sb.append(name);
 		}
 		sb.append("[Total:")
-			.append(NumberFormatter.addCommas(totalize(phases)))
-			.append("ms and ")
-			.append(phases.size())
-			.append(" records]");
+				.append(NumberFormatter.addCommas(totalize(phases)))
+				.append("ms and ")
+				.append(phases.size())
+				.append(" records]");
 		Map<String,List<PhaseRecord>> threads = buildThreadMap();
 
 
@@ -82,11 +82,11 @@ public class ThreadSafePhaseTimer extends PhaseRecord implements PhaseRecorder<T
 
 			if(threads.size() > 0){
 				sb.append(delimiter)
-				.append("[")
-				.append(thread)
-				.append(":total:")
-				.append(NumberFormatter.addCommas(elapsed))
-				.append("ms");
+						.append("[")
+						.append(thread)
+						.append(":total:")
+						.append(NumberFormatter.addCommas(elapsed))
+						.append("ms");
 			}
 			String delim = " - ";
 			for(int i = 0; i < phases.size(); ++i){
@@ -96,9 +96,9 @@ public class ThreadSafePhaseTimer extends PhaseRecord implements PhaseRecorder<T
 					sb.append(delimiter).append(delim);
 					delim = " ";
 					sb.append(phase.name)
-					.append(":")
-					.append(NumberFormatter.addCommas(diff))
-					.append("ms");
+							.append(":")
+							.append(NumberFormatter.addCommas(diff))
+							.append("ms");
 					previous = phase.time;
 				}
 			}
@@ -167,6 +167,7 @@ public class ThreadSafePhaseTimer extends PhaseRecord implements PhaseRecorder<T
 	}
 
 	public static class SafeTimerTests{
+
 		private class TestThread extends Thread{
 			private ThreadSafePhaseTimer timer;
 			private String name;

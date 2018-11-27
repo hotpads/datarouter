@@ -82,10 +82,8 @@ public class PrimitiveIntegerArrayField extends BaseField<int[]>{
 		throw new NotImplementedException();
 	}
 
-
-	/******************* test ************************/
-
 	public static class Tests{
+
 		@Test
 		public void testByteSerialization(){
 			int[] array = {1, 2, 100};
@@ -93,6 +91,7 @@ public class PrimitiveIntegerArrayField extends BaseField<int[]>{
 					array);
 			Assert.assertEquals(field.fromBytesButDoNotSet(field.getBytes(), 0), array);
 		}
+
 	}
 
 }

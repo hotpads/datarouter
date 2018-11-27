@@ -20,7 +20,7 @@ public class TraceEntityKey extends BaseTraceEntityKey<TraceEntityKey>{
 	public TraceEntityKey(){
 	}
 
-	public TraceEntityKey(Long traceId){
+	public TraceEntityKey(String traceId){
 		super(traceId);
 	}
 

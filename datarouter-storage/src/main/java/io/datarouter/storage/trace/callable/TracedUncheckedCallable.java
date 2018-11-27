@@ -18,7 +18,7 @@ package io.datarouter.storage.trace.callable;
 /**
  * Do not use the "CallerRunsPolicy" RejectedExecutionHandler with TracedUncheckedCallable
  */
-public abstract class TracedUncheckedCallable<T>extends TracedCheckedCallable<T>{
+public abstract class TracedUncheckedCallable<T> extends TracedCheckedCallable<T>{
 
 	public TracedUncheckedCallable(String name){
 		super(name);

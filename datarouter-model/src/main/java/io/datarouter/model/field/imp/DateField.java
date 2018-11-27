@@ -39,8 +39,6 @@ public class DateField extends BasePrimitiveField<Date>{
 		return ((DateFieldKey) getKey()).getNumDecimalSeconds();
 	}
 
-	/*********************** StringEncodedField ***********************/
-
 	@Override
 	public String getStringEncodedValue(){
 		if(value == null){
@@ -56,8 +54,6 @@ public class DateField extends BasePrimitiveField<Date>{
 		}
 		return DateTool.parseUserInputDate(str,null);
 	}
-
-	/*********************** ByteEncodedField ***********************/
 
 	@Override
 	public byte[] getBytes(){
@@ -78,6 +74,7 @@ public class DateField extends BasePrimitiveField<Date>{
 	}
 
 	public static class DateFieldTester{
+
 		@Test
 		public void testParseStringEncodedValueButDoNotSet(){
 			String dateStr = "2016-06-22T19:20:14Z";
@@ -89,5 +86,7 @@ public class DateField extends BasePrimitiveField<Date>{
 			Assert.assertEquals(date2.getTime(), 1434956400000L);
 			Assert.assertNotNull(date);
 		}
+
 	}
+
 }

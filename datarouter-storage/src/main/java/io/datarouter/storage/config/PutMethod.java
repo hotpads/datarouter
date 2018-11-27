@@ -15,33 +15,59 @@
  */
 package io.datarouter.storage.config;
 
-import java.util.HashSet;
 import java.util.Set;
 
+import io.datarouter.util.collection.SetTool;
 import io.datarouter.util.enums.DatarouterEnumTool;
 import io.datarouter.util.enums.IntegerEnum;
 import io.datarouter.util.enums.StringEnum;
 
+/**
+ * Defines the strategy used when writing a databean to a datastore, especially the behavior when trying to put a
+ * databean which has a key that already exists.
+ */
 public enum PutMethod implements IntegerEnum<PutMethod>, StringEnum<PutMethod>{
 
-	SELECT_FIRST_OR_LOOK_AT_PRIMARY_KEY(20, "selectFirstOrLookAtPrimaryKey", false),   //"pessimistic", slow but sure
-	UPDATE_OR_INSERT(20, "updateOrInsert", false),  //"optimistic" when rows are usually there (Events use this)
-	INSERT_OR_UPDATE(21, "insertOrUpdate", false),  // will overwrite whatever's there
+	/**
+	 * Get the primary key first to determine whether to update or insert. Slow, and may not be thread safe.
+	 */
+	SELECT_FIRST_OR_LOOK_AT_PRIMARY_KEY(20, "selectFirstOrLookAtPrimaryKey", false),
+	/**
+	 * Try to update, and in case of failure, issue an insert. Good to use when rows are usually there.
+	 */
+	UPDATE_OR_INSERT(20, "updateOrInsert", false),
+	/**
+	 * Try to insert, and in case of failure, issue an update.
+	 */
+	INSERT_OR_UPDATE(21, "insertOrUpdate", false),
+	/**
+	 * Try to insert the databean, and throw an exception if the primary key already exists.
+	 */
 	INSERT_OR_BUST(22, "insertOrBust", true),
+	/**
+	 * Try to update the row at this primary key, and throw an exception if the primary key does not exist.
+	 */
 	UPDATE_OR_BUST(23, "updateOrBust", true),
-	//use when the object could be on the session already in a different instance with the same identifier
 	MERGE(24, "merge", false),
+	/**
+	 * Try to insert the databean and ignore any error that may come up. If the key already exists, or any other
+	 * error happens, silently abort the put.
+	 */
 	INSERT_IGNORE(25, "insertIgnore", false),
+	/**
+	 * Try to insert, or update all the non-key fields if the key already exists. Performs the put as a single operation
+	 * if the datastore supports it. This is the default.
+	 */
 	INSERT_ON_DUPLICATE_UPDATE(26, "insertOnDuplicateUpdate", false),
+	/**
+	 * Try to update the databean and ignore any error that may come up, like if the primary key does not exist.
+	 */
 	UPDATE_IGNORE(27, "updateIgnore", false);
 
 	//need to flush immediately so we can catch insert/update exceptions if they are thrown,
 	//   otherwise the exception will ruin the whole batch
-	public static Set<PutMethod> METHODS_TO_FLUSH_IMMEDIATELY = new HashSet<>();
-	static{
-		METHODS_TO_FLUSH_IMMEDIATELY.add(UPDATE_OR_INSERT);
-		METHODS_TO_FLUSH_IMMEDIATELY.add(INSERT_OR_UPDATE);
-	}
+	public static final Set<PutMethod> METHODS_TO_FLUSH_IMMEDIATELY = SetTool.unmodifiableEnumSetOf(UPDATE_OR_INSERT,
+			INSERT_OR_UPDATE);
 
 	public static final PutMethod DEFAULT_PUT_METHOD = PutMethod.INSERT_ON_DUPLICATE_UPDATE;
 
@@ -59,7 +85,7 @@ public enum PutMethod implements IntegerEnum<PutMethod>, StringEnum<PutMethod>{
 		return shouldAutoCommit;
 	}
 
-	/***************************** IntegerEnum methods ******************************/
+	/*-------------------------- IntegerEnum methods -------------------------*/
 
 	@Override
 	public Integer getPersistentInteger(){
@@ -72,7 +98,7 @@ public enum PutMethod implements IntegerEnum<PutMethod>, StringEnum<PutMethod>{
 	}
 
 
-	/****************************** StringEnum methods *********************************/
+	/*-------------------------- StringEnum methods -------------------------*/
 
 	@Override
 	public String getPersistentString(){

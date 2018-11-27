@@ -20,14 +20,11 @@ import java.util.List;
 import java.util.Set;
 
 import io.datarouter.model.databean.Databean;
-import io.datarouter.model.field.Field;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
-import io.datarouter.storage.client.Client;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.storage.serialize.fieldcache.DatabeanFieldInfo;
-import io.datarouter.storage.setting.Setting;
 
 /**
  * A Node is the interface through which the application sends Databeans for serialization and storage. It ties together
@@ -41,12 +38,7 @@ extends Comparable<Node<PK,D,F>>{
 	PhysicalNode<PK,D,F> getPhysicalNodeIfApplicable();
 
 	String getName();
-	Class<PK> getPrimaryKeyType();
-	//wildcard the Fielder type so we don't have to put it in the Node's generics (at least for now)
 	DatabeanFieldInfo<PK,D,F> getFieldInfo();
-	List<Field<?>> getFields();
-
-	List<Field<?>> getNonKeyFields(D databean);
 
 	Set<String> getAllNames();
 	List<String> getClientNames();
@@ -58,11 +50,4 @@ extends Comparable<Node<PK,D,F>>{
 	Node<PK,D,F> getMaster();
 	List<? extends Node<PK,D,F>> getChildNodes();
 
-	default boolean areAllPhysicalNodesAvailableForWrite(){
-		return getPhysicalNodes().stream()
-				.map(PhysicalNode::getClient)
-				.map(Client::getAvailability)
-				.map(availability -> availability.write)
-				.allMatch(Setting::getValue);
-	}
 }

@@ -16,6 +16,7 @@
 package io.datarouter.util.time;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.util.Date;
 import java.util.Objects;
 
@@ -24,9 +25,14 @@ import io.datarouter.util.duration.DurationWithCarriedUnits;
 
 public class DurationTool{
 
-	public static Duration durationSinceDate(Date date){
+	public static Duration sinceDate(Date date){
 		Objects.requireNonNull(date);
 		return Duration.ofMillis(System.currentTimeMillis() - date.getTime());
+	}
+
+	public static Duration sinceInstant(Instant from){
+		Objects.requireNonNull(from);
+		return Duration.between(from, Instant.now());
 	}
 
 	public static String toString(Duration duration){

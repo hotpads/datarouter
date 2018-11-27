@@ -27,10 +27,16 @@ import io.datarouter.storage.test.node.basic.sorted.SortedBeanEntityKey.SortedBe
 
 public class SortedBeanEntityNode{
 
-	public static EntityNodeParams<SortedBeanEntityKey,SortedBeanEntity> ENTITY_NODE_PARAMS_1 = createNodeParams(1);
-	public static EntityNodeParams<SortedBeanEntityKey,SortedBeanEntity> ENTITY_NODE_PARAMS_2 = createNodeParams(2);
-	public static EntityNodeParams<SortedBeanEntityKey,SortedBeanEntity> ENTITY_NODE_PARAMS_3 = createNodeParams(3);
-	public static EntityNodeParams<SortedBeanEntityKey,SortedBeanEntity> ENTITY_NODE_PARAMS_4 = createNodeParams(4);
+	public static final EntityNodeParams<SortedBeanEntityKey,SortedBeanEntity> ENTITY_NODE_PARAMS_1 = createNodeParams(
+			1);
+	public static final EntityNodeParams<SortedBeanEntityKey,SortedBeanEntity> ENTITY_NODE_PARAMS_2 = createNodeParams(
+			2);
+	public static final EntityNodeParams<SortedBeanEntityKey,SortedBeanEntity> ENTITY_NODE_PARAMS_3 = createNodeParams(
+			3);
+	public static final EntityNodeParams<SortedBeanEntityKey,SortedBeanEntity> ENTITY_NODE_PARAMS_4 = createNodeParams(
+			4);
+	public static final EntityNodeParams<SortedBeanEntityKey,SortedBeanEntity> ENTITY_NODE_PARAMS_5 = createNodeParams(
+			5);
 
 	private static EntityNodeParams<SortedBeanEntityKey, SortedBeanEntity> createNodeParams(int index){
 		String nodeName = "SortedBeanEntity" + index;

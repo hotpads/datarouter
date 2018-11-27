@@ -50,7 +50,7 @@ public class FieldTool{
 	}
 
 
-	/**************************** bytes ******************/
+	/*------------------------------- bytes ---------------------------------*/
 
 	/*
 	 * the trailingSeparatorAfterEndingString is for backwards compatibility with some early tables
@@ -151,7 +151,7 @@ public class FieldTool{
 	}
 
 
-	/************************* csv ***************************/
+	/*-------------------------------- csv ----------------------------------*/
 
 	public static String getCsvColumnNames(Iterable<Field<?>> fields){
 		StringBuilder sb = new StringBuilder();
@@ -272,7 +272,7 @@ public class FieldTool{
 	}
 
 
-	/************************** reflection ***********************/
+	/*----------------------------- reflection ------------------------------*/
 
 	public static Object getNestedFieldSet(Object object, Field<?> field){
 		if(StringTool.isEmpty(field.getPrefix())){

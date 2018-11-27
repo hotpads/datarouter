@@ -30,14 +30,14 @@ public abstract class BaseField<T> implements Field<T>{
 	private String prefix;//ignore if not needed
 	protected T value;
 
-	/*************************** constructor *********************************/
+	/*---------------------------- constructor ------------------------------*/
 
 	public BaseField(String prefix, T value){
 		this.prefix = StringTool.nullSafe(prefix);
 		this.value = value;
 	}
 
-	/******************************** methods *******************************/
+	/*------------------------------ methods --------------------------------*/
 
 	@Override
 	public int getValueHashCode(){
@@ -54,7 +54,7 @@ public abstract class BaseField<T> implements Field<T>{
 		this.value = parseStringEncodedValueButDoNotSet(valueAsString);
 	}
 
-	/****************************** ByteField ***********************************/
+	/*----------------------------- ByteField -------------------------------*/
 
 	@Override
 	public byte[] getBytesWithSeparator(){
@@ -66,7 +66,7 @@ public abstract class BaseField<T> implements Field<T>{
 		return fromBytesButDoNotSet(bytes, byteOffset);
 	}
 
-	/******************************* reflective setters *******************************/
+	/*------------------------- reflective setters --------------------------*/
 
 	@Override
 	public void setUsingReflection(Object targetFieldSet, Object fieldValue){
@@ -130,10 +130,12 @@ public abstract class BaseField<T> implements Field<T>{
 	}
 
 	public static class FieldColumnNameComparator implements Comparator<Field<?>>{
+
 		@Override
 		public int compare(Field<?> o1, Field<?> o2){
 			return o1.getKey().getColumnName().hashCode() - o2.getKey().getColumnName().hashCode();
 		}
+
 	}
 
 	private String getFieldCacheKey(Object targetFieldSet, Object nestedFieldSet){
@@ -143,4 +145,5 @@ public abstract class BaseField<T> implements Field<T>{
 		}
 		return cacheKey + getPrefixedName();
 	}
+
 }

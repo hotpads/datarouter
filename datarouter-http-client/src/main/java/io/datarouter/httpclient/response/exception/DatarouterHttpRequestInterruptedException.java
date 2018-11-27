@@ -21,4 +21,5 @@ public class DatarouterHttpRequestInterruptedException extends DatarouterHttpExc
 	public DatarouterHttpRequestInterruptedException(Exception ex, long requestStartTimeMs){
 		super("HTTP request interrupted after " + (System.currentTimeMillis() - requestStartTimeMs) + "ms", ex);
 	}
+
 }

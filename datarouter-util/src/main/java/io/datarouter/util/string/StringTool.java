@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.testng.Assert;
@@ -74,6 +75,11 @@ public class StringTool{
 		return isNullOrEmpty(input.trim());
 	}
 
+
+	public static boolean notNullNorEmptyNorWhitespace(String input){
+		return !isNullOrEmptyOrWhitespace(input);
+	}
+
 	public static String nullIfEmpty(String input){
 		if(isEmptyOrWhitespace(input)){
 			return null;
@@ -107,6 +113,16 @@ public class StringTool{
 
 	public static boolean equalsCaseInsensitiveButNotCaseSensitive(String left, String right){
 		return !Objects.equals(left, right) && equalsCaseInsensitive(left, right);
+	}
+
+	public static boolean containsCaseInsensitive(String baseString, String subString){
+		if(ObjectTool.bothNull(baseString, subString)){
+			return true;
+		}
+		if(ObjectTool.isOneNullButNotTheOther(baseString, subString)){
+			return false;
+		}
+		return baseString.toLowerCase().contains(subString.toLowerCase());
 	}
 
 	public static ArrayList<String> splitOnCharNoRegex(String input, char separator){
@@ -193,6 +209,13 @@ public class StringTool{
 			didFirst = true;
 		}
 		return sb.toString();
+	}
+
+	public static String trimToSize(String str, int size){
+		if(length(str) <= size){
+			return str;
+		}
+		return str.substring(0, size);
 	}
 
 	public static int countDigits(String input){
@@ -358,6 +381,17 @@ public class StringTool{
 		return null;
 	}
 
+	public static String getStringBeforeFirstOccurrence(char ch, String sourceString){
+		if(sourceString == null){
+			return null;
+		}
+		int firstOccurence = sourceString.indexOf(ch);
+		if(firstOccurence == -1){
+			return sourceString;
+		}
+		return sourceString.substring(0, firstOccurence);
+	}
+
 	public static String getStringBeforeLastOccurrence(char ch, String sourceString){
 		return getStringBeforeLastOccurrence(Character.toString(ch), sourceString);
 	}
@@ -409,7 +443,21 @@ public class StringTool{
 		return string.endsWith("/") ? string : string + '/';
 	}
 
-	/** TESTS *****************************************************************/
+	public static String escapeString(String string){
+		if(string == null){
+			return "null";
+		}
+		String stringValue = string;
+		//replace \ with \\
+		stringValue = RegexTool.BACKSLASH_PATTERN.matcher(stringValue)
+						.replaceAll(Matcher.quoteReplacement("\\\\"));
+		//replace ' with \'
+		stringValue = RegexTool.APOSTROPHE_PATTERN.matcher(stringValue)
+						.replaceAll(Matcher.quoteReplacement("\\'"));
+		return "'" + stringValue + "'";
+	}
+
+	/*------------------------- tests ---------------------------------------*/
 
 	public static class Tests{
 
@@ -434,8 +482,8 @@ public class StringTool{
 
 		@Test
 		public void testReplaceCharactersInRange(){
-			Assert.assertEquals(replaceCharactersInRange(
-					"01banana 2banana 3banana 4 56", '1', '4', '0'), "00banana 0banana 0banana 0 56");
+			Assert.assertEquals(replaceCharactersInRange("01banana 2banana 3banana 4 56", '1', '4', '0'),
+					"00banana 0banana 0banana 0 56");
 		}
 
 		@Test
@@ -468,6 +516,19 @@ public class StringTool{
 		}
 
 		@Test
+		public void testContainsCaseInsensitive(){
+			String baseS = "HelloHowDYhi";
+			String ss1 = "howdy";
+			String ss2 = "howDy";
+			String ss3 = "HowDy";
+			String ss4 = "Hola";
+			Assert.assertTrue(containsCaseInsensitive(baseS, ss1));
+			Assert.assertTrue(containsCaseInsensitive(baseS, ss2));
+			Assert.assertTrue(containsCaseInsensitive(baseS, ss3));
+			Assert.assertFalse(containsCaseInsensitive(baseS, ss4));
+		}
+
+		@Test
 		public void testEnforceNumeric(){
 			Assert.assertEquals(enforceNumeric("-8.473.93"), "-8473.93");
 			Assert.assertEquals(enforceNumeric("8.473.93"), "8473.93");
@@ -484,7 +545,15 @@ public class StringTool{
 		}
 
 		@Test
+		public void testGetStringBeforeFirstOccurrence(){
+			Assert.assertEquals(getStringBeforeFirstOccurrence('.', "v1.2"), "v1");
+			Assert.assertEquals(getStringBeforeFirstOccurrence('.', "v1"), "v1");
+			Assert.assertEquals(getStringBeforeFirstOccurrence('.', ""), "");
+		}
+
+		@Test
 		public void testGetStringAfterLastOccurrence(){
+			Assert.assertEquals(getStringAfterLastOccurrence('/', "abcdefxyz"), "");
 			Assert.assertEquals(getStringAfterLastOccurrence('/', "abc/def/xyz"), "xyz");
 			Assert.assertEquals(getStringAfterLastOccurrence("/d", "abc/def/xyz"), "ef/xyz");
 			Assert.assertEquals(getStringAfterLastOccurrence("/z", "abc/def/xyz"), "");
@@ -525,6 +594,14 @@ public class StringTool{
 			Assert.assertEquals(getSimpleClassName("Foo"), "Foo");
 		}
 
+		@Test
+		public void testEscapeString(){
+			String string = "bill's";
+			Assert.assertEquals(escapeString(string), "'bill\\'s'");
+			string = "Renter\\\\\\'s Assurance Program";
+			Assert.assertEquals(escapeString(string), "'Renter\\\\\\\\\\\\\\'s Assurance Program'");
+			string = "no apostrophes";
+			Assert.assertEquals(escapeString(string), "'no apostrophes'");
+		}
 	}
-
 }

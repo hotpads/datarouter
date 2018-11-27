@@ -28,8 +28,11 @@ extends MapStorageReader<PK,D>, MapStorageWriter<PK,D>{
 	extends MapStorage<PK,D>, MapStorageReaderNode<PK,D,F>, MapStorageWriterNode<PK,D,F>{
 	}
 
-	public interface PhysicalMapStorageNode<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,
+	public interface PhysicalMapStorageNode<
+			PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>
 	extends MapStorageNode<PK,D,F>, PhysicalMapStorageReaderNode<PK,D,F>, PhysicalMapStorageWriterNode<PK,D,F>{
 	}
+
 }

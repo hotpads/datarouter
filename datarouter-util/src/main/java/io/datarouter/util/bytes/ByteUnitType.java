@@ -33,27 +33,32 @@ public enum ByteUnitType{
 	PiB(TiB.numBytes * ByteUnitName.PiB.unitSystem.step, ByteUnitName.PiB),
 	;
 
-	private ByteUnitType(long numBytes, ByteUnitName unitName){
+	private final long numBytes;
+	private final ByteUnitName unitName;
+
+	ByteUnitType(long numBytes, ByteUnitName unitName){
 		this.numBytes = numBytes;
 		this.unitName = unitName;
 	}
 
 	public enum ByteUnitSystem{
 		DECIMAL(1000),
-		BINARY(1024);
+		BINARY(1024),
+		;
 
-		private long step;
+		private final long step;
 
-		private ByteUnitSystem(long step){
+		ByteUnitSystem(long step){
 			this.step = step;
 		}
 
 		public long getStep(){
 			return step;
 		}
+
 	}
 
-	public enum ByteUnitName{
+	private enum ByteUnitName{
 		BYTE_DEC("B", ByteUnitSystem.DECIMAL),
 		KB("KB", ByteUnitSystem.DECIMAL),
 		MB("MB", ByteUnitSystem.DECIMAL),
@@ -69,22 +74,19 @@ public enum ByteUnitType{
 		PiB("PiB", ByteUnitSystem.BINARY),
 		;
 
-		private ByteUnitName(String shortName, ByteUnitSystem unitSystem){
+		private final String shortName;
+		private final ByteUnitSystem unitSystem;
+
+		ByteUnitName(String shortName, ByteUnitSystem unitSystem){
 			this.shortName = shortName;
 			this.unitSystem = unitSystem;
 		}
 
-		private String shortName;
-		private ByteUnitSystem unitSystem;
-
-		public String getShortName(){
+		private String getShortName(){
 			return shortName;
 		}
 
 	}
-
-	private long numBytes;
-	private ByteUnitName unitName;
 
 	private static final ByteUnitType[] BIN_SORTED_ASC = {BYTE, KiB, MiB, GiB, TiB, PiB};
 	private static final ByteUnitType[] DEC_SORTED_ASC = {BYTE, KB, MB, GB, TB, PB};
@@ -95,7 +97,7 @@ public enum ByteUnitType{
 		DEFAULT_FORMAT.setRoundingMode(RoundingMode.FLOOR);
 	}
 
-	/** getters ***************************************************************************************************/
+	/*------------------------- getters -------------------------------------*/
 
 	public static ByteUnitType[] getAscValues(ByteUnitSystem byteUnitSystem){
 		if(byteUnitSystem == null){

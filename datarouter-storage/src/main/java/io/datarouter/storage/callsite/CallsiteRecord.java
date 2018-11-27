@@ -19,7 +19,6 @@ import java.util.Date;
 
 import io.datarouter.util.DateTool;
 
-
 public class CallsiteRecord{
 
 	private Date timestamp;
@@ -28,9 +27,6 @@ public class CallsiteRecord{
 	private String callsite;
 	private long numItems;
 	private long durationNs;
-
-
-	/************** construct ****************/
 
 	public CallsiteRecord(Date timestamp, String nodeName, String datarouterMethodName, String callsite, long numItems,
 			long durationNs){
@@ -41,9 +37,6 @@ public class CallsiteRecord{
 		this.numItems = numItems;
 		this.durationNs = durationNs;
 	}
-
-
-	/****************** serialize *******************/
 
 	public String getLogMessage(){
 		long durationUs = durationNs / 1000;
@@ -72,15 +65,9 @@ public class CallsiteRecord{
 		return new CallsiteRecord(timestamp, nodeName, datarouterMethodName, callsite, numItems, nanoseconds);
 	}
 
-
-	/**************** methods *************************/
-
 	public long getDurationUs(){
 		return durationNs / 1000;
 	}
-
-
-	/***************** get/set ***********************/
 
 	public String getNodeName(){
 		return nodeName;

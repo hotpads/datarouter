@@ -29,7 +29,7 @@ public class CallsiteStatReportMetadata{
 	private int widthNodeName = 0;
 	private int widthDatarouterMethod = 0;
 
-	public void inspect(CallsiteStatX stat){
+	public void inspect(CallsiteStat stat){
 		maxCount = Math.max(maxCount, stat.getCount());
 		maxDurationUs = Math.max(maxDurationUs, stat.getDurationNs());
 		maxAvgDurationUs = Math.max(maxAvgDurationUs, stat.getAvgDurationUs());
@@ -39,17 +39,11 @@ public class CallsiteStatReportMetadata{
 		widthDatarouterMethod = Math.max(widthDatarouterMethod, StringTool.length(stat.getDatarouterMethodName()));
 	}
 
-
-	/********************* static ******************************/
-
-	public static CallsiteStatReportMetadata inspect(Iterable<CallsiteStatX> stats){
+	public static CallsiteStatReportMetadata inspect(Iterable<CallsiteStat> stats){
 		CallsiteStatReportMetadata reportMetadata = new CallsiteStatReportMetadata();
 		IterableTool.forEach(stats, stat -> reportMetadata.inspect(stat));
 		return reportMetadata;
 	}
-
-
-	/******************* methods ********************************/
 
 	public int getCountLength(){
 		return Math.max(CallsiteReportHeader.count.length(), NumberFormatter.addCommas(maxCount).length());

@@ -23,6 +23,7 @@ public interface SettingFinder{
 
 	String getConfigProfile();
 	ServerType getServerType();
+	String getServerName();
 	Optional<String> getSettingValue(String name);
 
 }

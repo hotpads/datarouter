@@ -53,7 +53,7 @@ public class RouterParamsFactory{
 		public RouterParams(Params params, Class<C> clientClass){
 			this.clientType = params.required(PARAM_clientType);
 			this.clientName = params.required(PARAM_clientName);
-			this.routerName = params.required(PARAM_routerName);
+			this.routerName = params.optional(PARAM_routerName).orElse(null);
 			this.tableName = params.optional(PARAM_tableName).orElse(null);
 			this.client = Lazy.of(() -> clientClass.cast(datarouterClients.getClient(clientName)));
 			this.node = Lazy.of(() -> {

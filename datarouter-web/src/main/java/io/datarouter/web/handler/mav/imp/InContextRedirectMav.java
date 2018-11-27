@@ -19,6 +19,8 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import io.datarouter.httpclient.path.PathNode;
+
 public class InContextRedirectMav extends GlobalRedirectMav{
 
 	public InContextRedirectMav(String url, boolean shouldAppendModelQueryParams){
@@ -27,6 +29,10 @@ public class InContextRedirectMav extends GlobalRedirectMav{
 
 	public InContextRedirectMav(HttpServletRequest request, String inContextUrl){
 		super(request.getContextPath() + inContextUrl);
+	}
+
+	public InContextRedirectMav(HttpServletRequest request, PathNode pathNode){
+		super(request.getContextPath() + pathNode.toSlashedString());
 	}
 
 	public InContextRedirectMav(HttpServletRequest request, String inContextUrl, Map<String, Object> model){

@@ -29,7 +29,7 @@ import io.datarouter.storage.test.DatarouterStorageTestModuleFactory;
 public class SettingByGroupIntegrationTests{
 
 	@Inject
-	private TestSettingNode testSettingNode;
+	private DatarouterTestSettingNode testSettingNode;
 
 	private SettingByGroup<Integer> settingByGroup;
 
@@ -42,17 +42,18 @@ public class SettingByGroupIntegrationTests{
 
 	@Test
 	public void testGetSetting(){
-		int group1Setting = settingByGroup.getSetting("group1").getValue();
+		int group1Setting = settingByGroup.getSetting("group1").get();
 		Assert.assertEquals(group1Setting, 61);
-		int group2Setting = settingByGroup.getSetting("group2").getValue();
+		int group2Setting = settingByGroup.getSetting("group2").get();
 		Assert.assertEquals(group2Setting, 62);
-		int unknownGroupSetting = settingByGroup.getSetting("unknownGroup").getValue();
+		int unknownGroupSetting = settingByGroup.getSetting("unknownGroup").get();
 		Assert.assertEquals(unknownGroupSetting, 60);
 	}
 
 	@Test
 	public void testGetDefaultSetting(){
-		int defaultSetting = settingByGroup.getDefaultSetting().getValue();
+		int defaultSetting = settingByGroup.getDefaultSetting().get();
 		Assert.assertEquals(defaultSetting, 60);
 	}
+
 }

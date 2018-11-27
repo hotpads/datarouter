@@ -20,37 +20,53 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.inject.Inject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import io.datarouter.httpclient.security.SecurityParameters;
+import io.datarouter.util.collection.SetTool;
+import io.datarouter.util.lang.ReflectionTool;
 import io.datarouter.web.config.DatarouterWebFiles;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatchRule;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
+import io.datarouter.web.handler.types.Param;
 import io.datarouter.web.handler.types.RequestBody;
 import io.datarouter.web.handler.types.optional.OptionalParameter;
 
 public class DocumentationHandler extends BaseHandler{
+	private static final Logger logger = LoggerFactory.getLogger(DocumentationHandler.class);
 
-	private static final Gson gson = new GsonBuilder().serializeNulls().setPrettyPrinting().create();
+	private static final Gson gson = new GsonBuilder()
+			.serializeNulls()
+			.setPrettyPrinting()
+			.create();
 
 	@Inject
 	private DatarouterWebFiles files;
 
-	private List<DocumentedEndpoint> buildDocumentation(BaseRouteSet routeSet, String apiUrlContext){
-		return routeSet.getDispatchRules().stream()
+	private List<DocumentedEndpoint> buildDocumentation(String apiUrlContext, BaseRouteSet... routeSets){
+		return Arrays.stream(routeSets)
+				.map(BaseRouteSet::getDispatchRules)
+				.flatMap(Collection::stream)
 				.filter(rule -> rule.getPattern().pattern().startsWith(apiUrlContext))
 				.map(this::buildEndpointDocumentation)
 				.flatMap(List::stream)
@@ -58,8 +74,8 @@ public class DocumentationHandler extends BaseHandler{
 				.collect(Collectors.toList());
 	}
 
-	protected Mav createDocumentationMav(String apiName, String apiUrlContext, BaseRouteSet routeSet){
-		List<DocumentedEndpoint> endpoints = buildDocumentation(routeSet, apiUrlContext);
+	protected Mav createDocumentationMav(String apiName, String apiUrlContext, BaseRouteSet... routeSets){
+		List<DocumentedEndpoint> endpoints = buildDocumentation(apiUrlContext, routeSets);
 		Mav model = new Mav(files.jsp.docs.dispatcherDocsJsp);
 		model.put("endpoints", endpoints);
 		model.put("apiName", apiName);
@@ -80,7 +96,21 @@ public class DocumentationHandler extends BaseHandler{
 				String description = method.getAnnotation(Handler.class).description();
 				parameters.addAll(createApplicableSecurityParameters(rule));
 				parameters.addAll(createMethodParameters(method));
-				DocumentedEndpoint endpoint = new DocumentedEndpoint(url, parameters, description);
+
+				Type genericReturnType = method.getGenericReturnType();
+				String response;
+				if(genericReturnType == Void.TYPE){
+					response = null;
+				}else{
+					try{
+						Object responseExample = createBestExample(genericReturnType, new HashSet<>());
+						response = gson.toJson(responseExample);
+					}catch(Exception e){
+						response = "Impossible to render";
+						logger.warn("Could not create response example for {}", genericReturnType, e);
+					}
+				}
+				DocumentedEndpoint endpoint = new DocumentedEndpoint(url, parameters, description, response);
 				endpoints.add(endpoint);
 			}
 			handler = handler.getSuperclass().asSubclass(BaseHandler.class);
@@ -92,8 +122,17 @@ public class DocumentationHandler extends BaseHandler{
 		List<DocumentedParameter> methodParameters = new ArrayList<>();
 		Parameter[] parameters = method.getParameters();
 		for(Parameter parameter : parameters){
-			methodParameters.add(createDocumentedParameter(parameter.getName(), parameter.getType(),
-					parameter.isAnnotationPresent(RequestBody.class)));
+			String description = null;
+			String name = parameter.getName();
+			Param param = parameter.getAnnotation(Param.class);
+			if(param != null){
+				description = param.description();
+				if(!param.value().isEmpty()){
+					name = param.value();
+				}
+			}
+			methodParameters.add(createDocumentedParameter(name, parameter.getParameterizedType(),
+					parameter.isAnnotationPresent(RequestBody.class), description));
 		}
 		return methodParameters;
 	}
@@ -111,40 +150,61 @@ public class DocumentationHandler extends BaseHandler{
 			applicableSecurityParameterNames.add(SecurityParameters.CSRF_IV);
 		}
 		return applicableSecurityParameterNames.stream()
-				.map(parameterName -> createDocumentedParameter(parameterName, String.class, false))
+				.map(parameterName -> createDocumentedParameter(parameterName, String.class, false, null))
 				.collect(Collectors.toList());
 	}
 
-	private DocumentedParameter createDocumentedParameter(String parameterName, Class<?> parameterType,
-			boolean requestBody){
+	private DocumentedParameter createDocumentedParameter(String parameterName, Type parameterType,
+			boolean requestBody, String description){
 		DocumentedParameter documentedParameter = new DocumentedParameter();
 		documentedParameter.name = parameterName;
-		Class<?> type = OptionalParameter.getOptionalInternalType(parameterType);
-		documentedParameter.type = type.getSimpleName();
+		Type type = OptionalParameter.getOptionalInternalType(parameterType);
+		documentedParameter.type = type instanceof Class ? ((Class<?>)type).getSimpleName() : type.toString();
 		try{
-			documentedParameter.example = gson.toJson(createBestExample(type));
+			documentedParameter.example = gson.toJson(createBestExample(type, new HashSet<>()));
 		}catch(Exception e){
-			// Expected to not been able to build some object (ex: primitives)
+			logger.warn("Could not create parameter example for {}", type, e);
 		}
-		documentedParameter.required = !OptionalParameter.class.isAssignableFrom(parameterType);
+		documentedParameter.required = !(parameterType instanceof Class) || !OptionalParameter.class.isAssignableFrom(
+				(Class<?>)parameterType);
 		documentedParameter.requestBody = requestBody;
+		documentedParameter.description = description;
 		return documentedParameter;
 	}
 
-	private static Object createBestExample(Class<?> type){
-		if(type.isArray()){
-			type.getComponentType();
+	private static Object createBestExample(Type type, Set<Type> parents){
+		if(parents.contains(type)){
+			return null;
+		}
+		if(type instanceof ParameterizedType){
+			ParameterizedType parameterizedType = (ParameterizedType)type;
+			Class<?> rawType = (Class<?>)parameterizedType.getRawType();
+			if(Collection.class.isAssignableFrom(rawType)){
+				return Arrays.asList(createBestExample(parameterizedType.getActualTypeArguments()[0], SetTool
+						.concatenate(parents, type)));
+			}
+			if(AutoBuildable.class.isAssignableFrom(rawType)){
+				AutoBuildable autoBuildable = ReflectionTool.create(rawType.asSubclass(AutoBuildable.class));
+				List<Object> innerObjects = Arrays.stream(parameterizedType.getActualTypeArguments())
+						.map(paramType -> createBestExample(paramType, SetTool.concatenate(parents, type)))
+						.collect(Collectors.toList());
+				return autoBuildable.buildEmpty(innerObjects);
+			}
+			return createBestExample(rawType, SetTool.concatenate(parents, type));
+		}
+		Class<?> clazz = (Class<?>)type;
+		if(clazz.isArray()){
 			Object[] array = new Object[1];
-			array[0] = createBestExample(type.getComponentType());
+			array[0] = createBestExample(clazz.getComponentType(), SetTool.concatenate(parents, type));
 			return array;
 		}
-		Object example = createWithNulls(type);
-		for(Field field : type.getDeclaredFields()){
-			if(type.equals(field.getType())){
+		Object example = createWithNulls(clazz);
+		for(Field field : clazz.getDeclaredFields()){
+			if(clazz.equals(field.getType())){
 				continue;
 			}
 			try{
-				field.set(example, createBestExample(field.getType()));
+				field.set(example, createBestExample(field.getType(), SetTool.concatenate(parents, type)));
 			}catch(Exception e){
 				// Excepted to not been able to set some field (ex inside String)
 			}
@@ -164,9 +224,16 @@ public class DocumentationHandler extends BaseHandler{
 			args = new Object[0];
 		}else{
 			constructor = constructors[0];
-			int length = constructor.getParameterTypes().length;
-			args = Stream.generate(() -> null)
-					.limit(length)
+			args = Arrays.stream(constructor.getParameterTypes())
+					.map(argType -> {
+						if(!argType.isPrimitive()){
+							return null;
+						}
+						if(argType == Boolean.TYPE){ // boolean is the only primitive that doesnt support 0
+							return false;
+						}
+						return 0;
+					})
 					.toArray();
 		}
 		try{
@@ -174,7 +241,8 @@ public class DocumentationHandler extends BaseHandler{
 			return constructor.newInstance(args);
 		}catch(InstantiationException | IllegalAccessException | IllegalArgumentException
 				| InvocationTargetException e){
-			throw new RuntimeException(e);
+			throw new RuntimeException("cannot call " + constructor, e);
 		}
 	}
+
 }

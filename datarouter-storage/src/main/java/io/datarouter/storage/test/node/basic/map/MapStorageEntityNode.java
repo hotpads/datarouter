@@ -16,11 +16,9 @@
 package io.datarouter.storage.test.node.basic.map;
 
 import io.datarouter.storage.client.ClientId;
-import io.datarouter.storage.node.entity.EntityNode;
 import io.datarouter.storage.node.entity.EntityNodeParams;
-import io.datarouter.storage.node.entity.SubEntitySortedMapStorageNode;
-import io.datarouter.storage.node.factory.EntityNodeFactory;
 import io.datarouter.storage.node.factory.NodeFactory;
+import io.datarouter.storage.node.op.raw.MapStorage;
 import io.datarouter.storage.router.Router;
 import io.datarouter.storage.test.node.basic.map.databean.MapStorageBean;
 import io.datarouter.storage.test.node.basic.map.databean.MapStorageBean.MapStorageBeanFielder;
@@ -31,21 +29,19 @@ import io.datarouter.storage.test.node.basic.map.databean.MapStorageBeanKey;
 
 public class MapStorageEntityNode{
 
-	public static EntityNodeParams<MapStorageBeanEntityKey,MapStorageBeanEntity> ENTITY_NODE_PARAMS_1 =
-			new EntityNodeParams<>("MapStorageBeanEntity", MapStorageBeanEntityKey.class, MapStorageBeanEntity::new,
-			MapStorageBeanEntityPartitioner::new, "MapStorageBeanEntity");
+	private static final EntityNodeParams<MapStorageBeanEntityKey,MapStorageBeanEntity> ENTITY_NODE_PARAMS_1 =
+			new EntityNodeParams<>(
+			"MapStorageBeanEntity",
+			MapStorageBeanEntityKey.class,
+			MapStorageBeanEntity::new,
+			MapStorageBeanEntityPartitioner::new,
+			"MapStorageBeanEntity");
 
-	private final EntityNode<MapStorageBeanEntityKey,MapStorageBeanEntity> entity;
+	public final MapStorage<MapStorageBeanKey,MapStorageBean> mapStorageNode;
 
-	public final SubEntitySortedMapStorageNode<MapStorageBeanEntityKey,MapStorageBeanKey,MapStorageBean,
-			MapStorageBeanFielder> mapStorageNode;
-
-	public MapStorageEntityNode(EntityNodeFactory entityNodeFactory, NodeFactory nodeFactory, Router router,
-			ClientId clientId, EntityNodeParams<MapStorageBeanEntityKey,MapStorageBeanEntity> entityNodeParams){
-		this.entity = entityNodeFactory.create(clientId.getName(), router, entityNodeParams);
-		this.mapStorageNode = router.register(nodeFactory.subEntityNode(entityNodeParams, clientId, MapStorageBean::new,
-				MapStorageBeanFielder::new, MapStorageBeanEntity.QUALIFIER_PREFIX_MapStorageBean));
-		entity.register(mapStorageNode);
+	public MapStorageEntityNode(NodeFactory nodeFactory, Router router, ClientId clientId){
+		this.mapStorageNode = router.register(nodeFactory.subEntityNode(ENTITY_NODE_PARAMS_1, clientId,
+				MapStorageBean::new, MapStorageBeanFielder::new, MapStorageBeanEntity.QUALIFIER_PREFIX_MapStorageBean));
 	}
 
 }

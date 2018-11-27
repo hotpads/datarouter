@@ -21,8 +21,7 @@ import io.datarouter.model.entity.BaseEntity;
 
 public class SortedBeanEntity extends BaseEntity<SortedBeanEntityKey>{
 
-	public static final String
-			QUALIFIER_PREFIX_SortedBean = "SB";
+	public static final String QUALIFIER_PREFIX_SortedBean = "SB";
 
 	public SortedBeanEntity(){
 		super(null);
@@ -32,8 +31,6 @@ public class SortedBeanEntity extends BaseEntity<SortedBeanEntityKey>{
 		super(key);
 	}
 
-
-	/********************* get databeans ************************/
 
 	public Collection<SortedBean> getSortedBeans(){
 		return getDatabeansForQualifierPrefix(SortedBean.class, QUALIFIER_PREFIX_SortedBean);

@@ -29,15 +29,15 @@ import org.apache.commons.fileupload.FileUploadException;
 
 import io.datarouter.httpclient.security.SecurityValidationResult;
 import io.datarouter.inject.DatarouterInjector;
-import io.datarouter.util.OptionalTool;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.config.ServletContextProvider;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.params.MultipartParams;
 import io.datarouter.web.handler.params.Params;
 import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
+import io.datarouter.web.user.authenticate.saml.DatarouterSamlSettings;
 import io.datarouter.web.user.authenticate.saml.SamlService;
-import io.datarouter.web.user.authenticate.saml.SamlSettings;
+import io.datarouter.web.user.role.DatarouterUserRole;
 import io.datarouter.web.user.session.DatarouterSession;
 import io.datarouter.web.user.session.DatarouterSessionManager;
 import io.datarouter.web.util.http.ResponseTool;
@@ -58,13 +58,13 @@ public class Dispatcher{
 	@Inject
 	private SamlService samlService;
 	@Inject
-	private SamlSettings samlSettings;
+	private DatarouterSamlSettings samlSettings;
 
-	public boolean handleRequestIfUrlMatch(HttpServletRequest request, HttpServletResponse response,
+	public RoutingResult handleRequestIfUrlMatch(HttpServletRequest request, HttpServletResponse response,
 			BaseRouteSet routeSet) throws ServletException{
 		String uri = request.getRequestURI();
 		if(!uri.startsWith(servletContextProvider.get().getContextPath() + routeSet.getUrlPrefix())){
-			return false;
+			return RoutingResult.NOT_FOUND;
 		}
 		BaseHandler handler = null;
 		String afterContextPath = uri.substring(servletContextProvider.get().getContextPath().length());
@@ -76,15 +76,15 @@ public class Dispatcher{
 				SecurityValidationResult securityCheckResult = rule.applySecurityValidation(request);
 				request = securityCheckResult.getWrappedRequest();
 				if(!securityCheckResult.isSuccess()){
-					// TODO improve this. Right now it returns 404 and log "dispatcher could not find Handler for /uri"
-					// while it's more an "access denied"
-					return false;
+					return RoutingResult.FORBIDDEN;
 				}
 				if(authenticationConfig.useDatarouterAuthentication() && !rule.checkRoles(request)){
 					handleMissingRoles(request, response);
-					return true;
+					return RoutingResult.ROUTED;
 				}
 				handler = injector.getInstance(rule.getHandlerClass());
+				handler.setDefaultHandlerEncoder(rule.getDefaultHandlerEncoder());
+				handler.setDefaultHandlerDecoder(rule.getDefaultHandlerDecoder());
 				break;
 			}
 		}
@@ -92,7 +92,7 @@ public class Dispatcher{
 		Class<? extends BaseHandler> defaultHandlerClass = routeSet.getDefaultHandlerClass();
 		if(handler == null){
 			if(defaultHandlerClass == null){
-				return false;// url not found
+				return RoutingResult.NOT_FOUND;
 			}
 			handler = injector.getInstance(defaultHandlerClass);
 		}
@@ -103,7 +103,7 @@ public class Dispatcher{
 		Params params = parseParams(request, handler.getDefaultMultipartCharset());
 		handler.setParams(params);
 		handler.handleWrapper();
-		return true;
+		return RoutingResult.ROUTED;
 	}
 
 	private Params parseParams(HttpServletRequest request, Charset defaultCharset) throws ServletException{
@@ -119,8 +119,7 @@ public class Dispatcher{
 
 	private void handleMissingRoles(HttpServletRequest request, HttpServletResponse response){
 		Optional<DatarouterSession> session = DatarouterSessionManager.getFromRequest(request);
-		boolean isAnonymous = OptionalTool.mapOrElse(session, DatarouterSession::isAnonymous, true);
-		if(isAnonymous){
+		if(session.map(DatarouterSession::isAnonymous).orElse(true)){
 			String url = request.getRequestURL() + "?" + StringTool.nullSafe(request.getQueryString());
 
 			if(samlSettings.getShouldProcess()){
@@ -132,11 +131,9 @@ public class Dispatcher{
 			}
 			return;
 		}
-
-		boolean isRequestorOnly = OptionalTool.mapOrElse(session, DatarouterSession::isRequestorOnly, false);
-		if(isRequestorOnly){
+		if(session.map(sessionObj -> sessionObj.hasRole(DatarouterUserRole.requestor)).orElse(false)){
 			ResponseTool.sendRedirect(request, response, HttpServletResponse.SC_SEE_OTHER, request.getContextPath()
-					+ authenticationConfig.getPermissionRequestPath());
+					+ authenticationConfig.getPermissionRequestPath() + "?deniedUrl=" + request.getRequestURL());
 			return;
 		}
 

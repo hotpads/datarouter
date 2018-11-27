@@ -15,8 +15,10 @@
  */
 package io.datarouter.instrumentation.trace;
 
+import io.datarouter.instrumentation.response.PublishingResponseDto;
+
 public interface TracePublisher{
 
-	void publish(TraceEntityBatchDto traceEntityBatchDto);
+	PublishingResponseDto add(TraceEntityBatchDto traceEntityBatchDto);
 
 }

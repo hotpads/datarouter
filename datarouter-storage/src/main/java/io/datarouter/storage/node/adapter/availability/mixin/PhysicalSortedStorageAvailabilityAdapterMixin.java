@@ -21,6 +21,7 @@ import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.config.Config;
+import io.datarouter.storage.config.setting.impl.DatarouterClientAvailabilitySettings.AvailabilitySettingNode;
 import io.datarouter.storage.exception.UnavailableException;
 import io.datarouter.storage.node.op.raw.SortedStorage;
 import io.datarouter.storage.node.op.raw.SortedStorage.PhysicalSortedStorageNode;
@@ -34,11 +35,12 @@ public interface PhysicalSortedStorageAvailabilityAdapterMixin<
 extends SortedStorage<PK,D>{
 
 	N getBackingNode();
+	AvailabilitySettingNode getAvailability();
 	UnavailableException makeUnavailableException();
 
 	@Override
 	default Iterable<PK> scanKeysMulti(Collection<Range<PK>> ranges, Config config){
-		if(getBackingNode().getClient().getAvailability().read.getValue()){
+		if(getAvailability().read.get()){
 			return getBackingNode().scanKeysMulti(ranges, config);
 		}
 		throw makeUnavailableException();
@@ -46,7 +48,7 @@ extends SortedStorage<PK,D>{
 
 	@Override
 	default Iterable<PK> scanKeys(Range<PK> range, Config config){
-		if(getBackingNode().getClient().getAvailability().read.getValue()){
+		if(getAvailability().read.get()){
 			return getBackingNode().scanKeys(range, config);
 		}
 		throw makeUnavailableException();
@@ -54,7 +56,7 @@ extends SortedStorage<PK,D>{
 
 	@Override
 	default Iterable<D> scanMulti(Collection<Range<PK>> ranges, Config config){
-		if(getBackingNode().getClient().getAvailability().read.getValue()){
+		if(getAvailability().read.get()){
 			return getBackingNode().scanMulti(ranges, config);
 		}
 		throw makeUnavailableException();
@@ -62,7 +64,7 @@ extends SortedStorage<PK,D>{
 
 	@Override
 	default Iterable<D> scan(Range<PK> range, Config config){
-		if(getBackingNode().getClient().getAvailability().read.getValue()){
+		if(getAvailability().read.get()){
 			return getBackingNode().scan(range, config);
 		}
 		throw makeUnavailableException();

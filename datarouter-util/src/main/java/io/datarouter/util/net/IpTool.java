@@ -21,6 +21,8 @@ import java.util.List;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import io.datarouter.util.string.StringTool;
+
 public class IpTool{
 
 	private static final String LOOPBACK_RANGE = "127.0.0.0/8";
@@ -53,10 +55,11 @@ public class IpTool{
 	 * Same as mysql's INET_ATON(dottedDecimal)
 	 */
 	public static long getLongValue(String dottedDecimal){
-		String[] octets = dottedDecimal.split("\\.");
-		if(octets == null || octets.length != 4){
+		dottedDecimal = formatIp(dottedDecimal);
+		if(dottedDecimal == null){
 			return -1L;
 		}
+		String[] octets = dottedDecimal.split("\\.");
 		long part1 = Long.parseLong(octets[0]);
 		long part2 = Long.parseLong(octets[1]);
 		long part3 = Long.parseLong(octets[2]);
@@ -85,7 +88,33 @@ public class IpTool{
 		return (subnetMask & baseAddress) == (subnetMask & ip);
 	}
 
+	//main use case for this is to allow these methods to work with protocol-prefixed IP addresses
+	private static String formatIp(String input){
+		if(input == null){
+			return null;
+		}
+		String[] components = input.split("\\.");
+		if(components.length != 4){
+			return null;
+		}
+		for(int i = 0; i < 4; i++){
+			components[i] = StringTool.retainDigits(components[i]);
+			if(StringTool.isEmpty(components[i])){
+				return null;
+			}
+			int value = Integer.parseInt(components[i]);
+			if(value > 255){//can't be negative, since '-' won't make it past retainDigits
+				return null;
+			}
+		}
+		return String.join(".", components);
+	}
+
 	public static boolean isIpAddressInSubnets(String dottedDecimalIp, String... subnets){
+		dottedDecimalIp = formatIp(dottedDecimalIp);
+		if(dottedDecimalIp == null){
+			return false;
+		}
 		for(String subnet : subnets){
 			if(isIpAddressInSubnet(dottedDecimalIp, subnet)){
 				return true;
@@ -146,6 +175,21 @@ public class IpTool{
 			Assert.assertTrue(isLoopback("127.0.0.0"));
 			Assert.assertTrue(isLoopback("127.0.0.255"));
 			Assert.assertFalse(isLoopback("128.0.0.0"));
+		}
+
+		@Test
+		public void testFormatIp(){
+			Assert.assertNull(formatIp(null));
+			Assert.assertNull(formatIp("126.255.255.255.5"));
+			Assert.assertNull(formatIp("126.255.255"));
+			Assert.assertNull(formatIp("126.255.255.hello"));
+			Assert.assertNull(formatIp("126.255.255.256"));
+			Assert.assertNull(formatIp("126.255.255."));
+
+			Assert.assertEquals(formatIp("126.255.255.-1"), "126.255.255.1");
+			Assert.assertEquals(formatIp("126.255.255.255."), "126.255.255.255");//due to split behavior
+			Assert.assertEquals(formatIp("1hi28.2sasd55asd.vfds255.255ggd"), "128.255.255.255");
+			Assert.assertEquals(formatIp("https://128.255.255.255"), "128.255.255.255");
 		}
 	}
 

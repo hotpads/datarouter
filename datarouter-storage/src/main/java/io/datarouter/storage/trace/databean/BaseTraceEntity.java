@@ -21,10 +21,9 @@ import io.datarouter.model.key.entity.base.BaseEntityKey;
 public class BaseTraceEntity<EK extends BaseEntityKey<EK>> extends BaseEntity<EK>{
 
 	// BaseEntity relies on these to store databeans, so they must be used by TraceNodes to add databeans to the entity
-	public static final String
-		QUALIFIER_PREFIX_Trace = "T",
-		QUALIFIER_PREFIX_TraceThread = "TT",
-		QUALIFIER_PREFIX_TraceSpan = "TS";
+	public static final String QUALIFIER_PREFIX_Trace = "T";
+	public static final String QUALIFIER_PREFIX_TraceThread = "TT";
+	public static final String QUALIFIER_PREFIX_TraceSpan = "TS";
 
 	public BaseTraceEntity(){
 		super(null);

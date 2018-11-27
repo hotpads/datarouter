@@ -17,17 +17,15 @@ package io.datarouter.storage.client;
 
 public class ClientTableNodeNames{
 
-	private String clientName;
-	private String tableName;
-	private String nodeName;
-
+	private final String clientName;
+	private final String tableName;
+	private final String nodeName;
 
 	public ClientTableNodeNames(String clientName, String tableName, String nodeName){
 		this.clientName = clientName;
 		this.tableName = tableName;
 		this.nodeName = nodeName;
 	}
-
 
 	public String getClientName(){
 		return clientName;
@@ -40,9 +38,6 @@ public class ClientTableNodeNames{
 	public String getNodeName(){
 		return nodeName;
 	}
-
-
-	/********************** eclipse generated ***************************/
 
 	@Override
 	public int hashCode(){
@@ -97,6 +92,5 @@ public class ClientTableNodeNames{
 		return "ClientTableNodeNames [clientName=" + clientName + ", tableName=" + tableName + ", nodeName=" + nodeName
 				+ "]";
 	}
-
 
 }

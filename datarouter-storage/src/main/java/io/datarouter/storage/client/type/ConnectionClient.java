@@ -18,11 +18,10 @@ package io.datarouter.storage.client.type;
 import io.datarouter.storage.client.Client;
 import io.datarouter.storage.client.ConnectionHandle;
 
-public interface ConnectionClient
-extends Client{
+public interface ConnectionClient extends Client{
 
 	ConnectionHandle getExistingHandle();
-	ConnectionHandle reserveConnection();
-	ConnectionHandle releaseConnection();
+	void reserveConnection();
+	void releaseConnection();
 
 }

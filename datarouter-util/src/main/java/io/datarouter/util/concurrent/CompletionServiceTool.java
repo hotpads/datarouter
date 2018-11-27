@@ -28,19 +28,25 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.stream.Stream;
 
+import io.datarouter.util.StreamTool;
 import io.datarouter.util.exception.InterruptedRuntimeException;
 
 public class CompletionServiceTool{
 
-	public static void callAllInSingleUseExecutor(Stream<? extends Callable<?>> callables, int numThreads){
+	public static <T> void callAllInSingleUseExecutor(Stream<? extends Callable<T>> callables, int numThreads){
 		ExecutorService executor = Executors.newFixedThreadPool(numThreads);
 		callAll(executor, callables, numThreads);
 		ExecutorServiceTool.shutdown(executor, Duration.ofSeconds(5));
 	}
 
-	public static void callAll(ExecutorService executor, Stream<? extends Callable<?>> callables, int numThreads){
+	public static <T> void callAll(ExecutorService executor, Stream<? extends Callable<T>> callables, int numThreads){
 		Iterator<?> resultIterator = createResultIterator(executor, callables.iterator(), numThreads);
 		resultIterator.forEachRemaining($ -> {});
+	}
+
+	public static <T> Stream<T> streamResults(ExecutorService executor, Stream<? extends Callable<T>> callables,
+			int numThreads){
+		return StreamTool.stream(new ResultIterator<>(executor, callables.iterator(), numThreads));
 	}
 
 	public static <T> Iterator<T> createResultIterator(ExecutorService executor,

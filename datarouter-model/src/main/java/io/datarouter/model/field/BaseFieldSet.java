@@ -23,8 +23,7 @@ import io.datarouter.model.util.PercentFieldCodec;
 public abstract class BaseFieldSet<F extends FieldSet<F>>
 implements FieldSet<F>{
 
-
-	/******** standard *************************/
+	/*----------------------------- standard --------------------------------*/
 
 	@Override
 	public boolean equals(Object that){
@@ -59,8 +58,7 @@ implements FieldSet<F>{
 		return getClass().getSimpleName() + "." + PercentFieldCodec.encodeFields(getFields());
 	}
 
-
-	/****************** fields ************************/
+	/*------------------------------ fields ---------------------------------*/
 
 	@Override
 	public List<String> getFieldNames(){

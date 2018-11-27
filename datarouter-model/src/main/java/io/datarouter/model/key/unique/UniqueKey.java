@@ -15,10 +15,8 @@
  */
 package io.datarouter.model.key.unique;
 
-
 import io.datarouter.model.key.Key;
 
 public interface UniqueKey<K extends Key<K>>
 extends Key<K>{
-
 }

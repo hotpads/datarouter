@@ -38,7 +38,7 @@ public class JsonDatabeanTool{
 
 	private static final JsonParser jsonParser = new JsonParser();
 
-	/********************** pk to json *************************/
+	/*----------------------------- pk to json ------------------------------*/
 
 	public static <PK extends PrimaryKey<PK>> JsonObject primaryKeyToJson(PK pk, Fielder<PK> fielder){
 		if(pk == null){
@@ -55,7 +55,7 @@ public class JsonDatabeanTool{
 		return array;
 	}
 
-	/********************** databean to json *************************/
+	/*-------------------------- databean to json ---------------------------*/
 
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 	JsonObject databeanToJson(D databean, DatabeanFielder<PK,D> fielder){
@@ -96,7 +96,7 @@ public class JsonDatabeanTool{
 		return array;
 	}
 
-	/******************** pk from json **************************/
+	/*--------------------------- pk from json ------------------------------*/
 
 	public static <PK extends PrimaryKey<PK>>
 	PK primaryKeyFromJson(Class<PK> pkClass, Fielder<PK> fielder, JsonObject json){
@@ -140,7 +140,7 @@ public class JsonDatabeanTool{
 		return pks;
 	}
 
-	/********************** databean from json *************************/
+	/*------------------------ databean from json ---------------------------*/
 
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 	D databeanFromJson(Supplier<D> databeanSupplier, DatabeanFielder<PK,D> fielder, JsonObject json){
@@ -209,7 +209,7 @@ public class JsonDatabeanTool{
 		return databeansFromJson(databeanSupplier, fielder, stringToJsonArray(json));
 	}
 
-	/********************** util ****************************/
+	/*------------------------------- util ----------------------------------*/
 
 	private static JsonObject stringToJsonObject(String string){
 		return jsonParser.parse(string).getAsJsonObject();
@@ -231,4 +231,5 @@ public class JsonDatabeanTool{
 		}
 		return jsonObject;
 	}
+
 }

@@ -23,13 +23,19 @@ import io.datarouter.storage.node.op.raw.write.SortedStorageWriter;
 
 public interface SortedMapStorageWriter<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 extends MapStorageWriter<PK,D>, SortedStorageWriter<PK,D>{
-	public interface SortedMapStorageWriterNode<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,
+
+	public interface SortedMapStorageWriterNode<
+			PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>
 	extends MapStorageWriterNode<PK,D,F>, SortedStorageWriterNode<PK,D,F>{
 	}
 
-	public interface PhysicalSortedMapStorageWriterNode<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,
+	public interface PhysicalSortedMapStorageWriterNode<
+			PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>
 	extends PhysicalMapStorageWriterNode<PK,D,F>, PhysicalSortedStorageWriterNode<PK,D,F>{
 	}
+
 }

@@ -26,8 +26,6 @@ public class SignedByteField extends BasePrimitiveField<Byte>{
 		super(key, value);
 	}
 
-	/*********************** StringEncodedField ***********************/
-
 	@Override
 	public String getStringEncodedValue(){
 		if(value == null){
@@ -43,8 +41,6 @@ public class SignedByteField extends BasePrimitiveField<Byte>{
 		}
 		return Byte.valueOf(str);
 	}
-
-	/*********************** ByteEncodedField ***********************/
 
 	//recognizes -128 to -1 using two's complement.  therefore max value is 127
 	@Override

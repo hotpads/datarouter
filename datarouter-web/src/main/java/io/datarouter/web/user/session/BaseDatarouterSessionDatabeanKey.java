@@ -27,8 +27,6 @@ public class BaseDatarouterSessionDatabeanKey<
 		PK extends BaseDatarouterSessionDatabeanKey<PK>>
 extends BasePrimaryKey<PK>{
 
-	/************** fields ************************/
-
 	private String sessionToken;
 
 	public static class FieldKeys{
@@ -40,17 +38,12 @@ extends BasePrimaryKey<PK>{
 		return ListTool.createArrayList(new StringField(FieldKeys.sessionToken, sessionToken));
 	}
 
-	/**************** construct *********************/
-
 	public BaseDatarouterSessionDatabeanKey(){
 	}
 
 	public BaseDatarouterSessionDatabeanKey(String sessionToken){
 		this.sessionToken = sessionToken;
 	}
-
-
-	/**************** get/set **********************/
 
 	public void setSessionToken(String sessionToken){
 		this.sessionToken = sessionToken;

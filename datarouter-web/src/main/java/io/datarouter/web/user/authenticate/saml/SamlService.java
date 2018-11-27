@@ -37,6 +37,7 @@ import org.opensaml.messaging.context.MessageContext;
 import org.opensaml.saml.common.SAMLObject;
 import org.opensaml.saml.common.messaging.context.SAMLBindingContext;
 import org.opensaml.saml.saml2.core.Assertion;
+import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.xmlsec.config.JavaCryptoValidationInitializer;
 import org.slf4j.Logger;
@@ -46,6 +47,8 @@ import io.datarouter.util.collection.SetTool;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.mav.imp.GlobalRedirectMav;
+import io.datarouter.web.user.databean.SamlAuthnRequestRedirectUrl;
+import io.datarouter.web.user.databean.SamlAuthnRequestRedirectUrlKey;
 import io.datarouter.web.user.session.service.Role;
 import io.datarouter.web.user.session.service.RoleManager;
 import io.datarouter.web.user.session.service.Session;
@@ -55,28 +58,30 @@ import io.datarouter.web.user.session.service.UserSessionService;
  * To configure SAML:<ol>
  * <li>Bind implementations of {@link UserSessionService} and {@link RoleManager}.</li>
  * <li>Serve {@link SamlAssertionConsumerServlet} (BEFORE /*). <li>
- * Add {@link SamlSettings} to your settings and set it up appropriately.</li>
+ * Add {@link DatarouterSamlSettings} to your settings and set it up appropriately.</li>
  * </ol>
  */
 @Singleton
 public class SamlService{
-
 	private static final Logger logger = LoggerFactory.getLogger(SamlService.class);
+
 	private static final String SAML_RESPONSE = "SAMLResponse";
 
-	private final SamlSettings samlSettings;
+	private final DatarouterSamlSettings samlSettings;
 	private final UserSessionService userSessionService;
 	private final RoleManager roleManager;
 	private final Optional<SamlRegistrar> samlRegistrar;
 	private final KeyPair signingKeyPair;
+	private final DatarouterSamlRouter samlRouter;
 
 	@Inject
-	public SamlService(SamlSettings samlSettings, UserSessionService userSessionService, RoleManager roleManager,
-			Optional<SamlRegistrar> jitSamlRegistrar){
+	public SamlService(DatarouterSamlSettings samlSettings, UserSessionService userSessionService,
+			RoleManager roleManager, Optional<SamlRegistrar> jitSamlRegistrar, DatarouterSamlRouter samlRouter){
 		this.samlSettings = samlSettings;
 		this.userSessionService = userSessionService;
 		this.roleManager = roleManager;
 		this.samlRegistrar = jitSamlRegistrar;
+		this.samlRouter = samlRouter;
 
 		if(logger.isDebugEnabled()){
 			logger.debug(Arrays.asList(Security.getProviders()).stream()
@@ -97,7 +102,7 @@ public class SamlService{
 
 	public Mav mavSignout(HttpServletResponse response){
 		userSessionService.clearSessionCookies(response);
-		return new GlobalRedirectMav(samlSettings.idpHomeUrl.getValue());
+		return new GlobalRedirectMav(samlSettings.idpHomeUrl.get());
 	}
 
 	public void redirectToIdentityProvider(HttpServletRequest request, HttpServletResponse response){
@@ -105,29 +110,40 @@ public class SamlService{
 			try{
 				samlRegistrar.ifPresent(registrar -> registrar.register());
 			}catch(RuntimeException e){
-				if(samlSettings.ignoreServiceProviderRegistrationFailures.getValue()){
+				if(samlSettings.ignoreServiceProviderRegistrationFailures.get()){
 					logger.warn("Ignoring failure to register with IdP.", e);
 				}else{
 					throw e;
 				}
 			}
 			AuthnRequestMessageConfig config = new AuthnRequestMessageConfig(
-					samlSettings.entityId.getValue(),
-					SamlTool.getUrlInRequestContext(request, samlSettings.assertionConsumerServicePath.getValue()),
-					samlSettings.idpSamlUrl.getValue(),
-					getUrlWithQueryString(request),
+					samlSettings.entityId.get(),
+					SamlTool.getUrlInRequestContext(request, samlSettings.assertionConsumerServicePath.get()),
+					samlSettings.idpSamlUrl.get(),
+					"",
 					null,
 					signingKeyPair);
 			MessageContext<SAMLObject> authnRequestContext = SamlTool.buildAuthnRequestAndContext(config);
+			persistAuthnRequestIdRedirectUrl(authnRequestContext, request);
 			SamlTool.redirectWithAuthnRequestContext(response, authnRequestContext);
 		}else{
 			throw new RuntimeException("SAML Configuration error");
 		}
 	}
 
-	private static String getUrlWithQueryString(HttpServletRequest request){
+	private void persistAuthnRequestIdRedirectUrl(MessageContext<SAMLObject> authnRequest, HttpServletRequest request){
+		String requestedUrl = request.getRequestURL().toString();
+		if(!isUrlOkForRedirect(requestedUrl)){
+			//skip persisting bad URLs
+			logger.info("URL is not OK for redirect: {}", requestedUrl);
+			return;
+		}
 		String queryString = request.getQueryString() != null ? "?" + request.getQueryString() : "";
-		return request.getRequestURL().toString() + queryString;
+
+		String authnRequestId = ((AuthnRequest)authnRequest.getMessage()).getID();
+		SamlAuthnRequestRedirectUrl redirect = new SamlAuthnRequestRedirectUrl(authnRequestId,
+				requestedUrl + queryString);
+		samlRouter.samlAuthnRequestRedirectUrl.put(redirect, null);
 	}
 
 	public void consumeAssertion(HttpServletRequest request, HttpServletResponse response){
@@ -143,7 +159,7 @@ public class SamlService{
 		for(Assertion assertion : message.getAssertions()){
 			Session session = createAndSetSession(request, response, assertion);
 			if(session != null){
-				redirect(request, response, getRedirectUrlFromResponse(responseMessageContext, request));
+				redirectAfterAuthentication(request, response, responseMessageContext);
 				return;
 			}
 		}
@@ -167,11 +183,11 @@ public class SamlService{
 	}
 
 	private Set<Role> determineRoles(Assertion assertion, Map<String,String> attributeToRoleGroupIdMap){
-		if(!samlSettings.shouldAllowRoleGroups.getValue()){
+		if(!samlSettings.shouldAllowRoleGroups.get()){
 			// if groups are turned off, only return roles that every user should have
-			return roleManager.getDefaultRoles();
+			return roleManager.getRolesForDefaultGroup();
 		}
-		return SetTool.union(roleManager.getDefaultRoles(), SamlTool.streamGroupNameValues(assertion)
+		return SetTool.union(roleManager.getRolesForDefaultGroup(), SamlTool.streamGroupNameValues(assertion)
 				.map(attributeToRoleGroupIdMap::get)
 				.filter(Objects::nonNull)
 				.map(roleManager::getRolesForGroup)
@@ -179,8 +195,9 @@ public class SamlService{
 				.collect(Collectors.toSet()));
 	}
 
-	private void redirect(HttpServletRequest request, HttpServletResponse response, String url){
-		url = url == null ? SamlTool.getUrlInRequestContext(request, "/") : url;
+	private void redirectAfterAuthentication(HttpServletRequest request, HttpServletResponse response,
+			MessageContext<SAMLObject> responseMessageContext){
+		String url = getRedirectUrl(request, responseMessageContext);
 		logger.debug("Redirecting to requested URL: " + url);
 		try{
 			response.sendRedirect(url);
@@ -189,17 +206,37 @@ public class SamlService{
 		}
 	}
 
-	private static String getRedirectUrlFromResponse(MessageContext<SAMLObject> responseContext,
-			HttpServletRequest request){
-		SAMLBindingContext responseBindingContext = responseContext.getSubcontext(SAMLBindingContext.class, true);
-		String url = StringTool.nullSafe(responseBindingContext.getRelayState());
-		String urlForChecking = url.toLowerCase().split("\\?")[0];
+	private String getRedirectUrl(HttpServletRequest request, MessageContext<SAMLObject> responseContext){
+		String authnRequestId = ((Response)responseContext.getMessage()).getInResponseTo();
+		SamlAuthnRequestRedirectUrl redirect = samlRouter.samlAuthnRequestRedirectUrl.get(
+				new SamlAuthnRequestRedirectUrlKey(authnRequestId), null);
+		if(redirect != null){
+			//prefer the URL most recently persisted for this authnRequest (no character limit)
+			return redirect.getRedirectUrl();
+		}
+		return getRedirectUrlFromResponseContext(responseContext, request);
+	}
+
+	private static boolean isUrlOkForRedirect(String url){
+		//get rid of query params if any
+		String urlForChecking = StringTool.nullSafe(url).toLowerCase().split("\\?")[0];
 		//try to avoid infinite login loops
 		if(StringTool.isEmptyOrWhitespace(urlForChecking) || urlForChecking.endsWith("signin") || urlForChecking
 				.endsWith("login")){
-			return request.getContextPath() + "/";
+			return false;
 		}
-		return url;
+		return true;
+	}
+
+	private static String getRedirectUrlFromResponseContext(MessageContext<SAMLObject> responseContext,
+			HttpServletRequest request){
+		SAMLBindingContext responseBindingContext = responseContext.getSubcontext(SAMLBindingContext.class, true);
+		String url = responseBindingContext.getRelayState();
+		if(isUrlOkForRedirect(url)){
+			return url;
+		}
+		logger.info("URL is not OK for redirect: {}", url);
+		return SamlTool.getUrlInRequestContext(request, "/");
 	}
 
 }

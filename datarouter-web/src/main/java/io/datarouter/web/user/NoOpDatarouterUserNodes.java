@@ -15,9 +15,8 @@
  */
 package io.datarouter.web.user;
 
+import io.datarouter.storage.client.imp.noop.NoOpNode;
 import io.datarouter.storage.node.op.combo.IndexedSortedMapStorage;
-import io.datarouter.web.user.authenticate.api.ApiRequest;
-import io.datarouter.web.user.authenticate.api.ApiRequestKey;
 import io.datarouter.web.user.databean.DatarouterPermissionRequest;
 import io.datarouter.web.user.databean.DatarouterPermissionRequestKey;
 import io.datarouter.web.user.databean.DatarouterUser;
@@ -31,28 +30,23 @@ public class NoOpDatarouterUserNodes implements DatarouterUserNodes{
 
 	@Override
 	public IndexedSortedMapStorage<DatarouterUserKey,DatarouterUser> getUserNode(){
-		return null;
+		return new NoOpNode<>();
 	}
 
 	@Override
 	public IndexedSortedMapStorage<DatarouterUserHistoryKey,DatarouterUserHistory> getUserHistoryNode(){
-		return null;
+		return new NoOpNode<>();
 	}
 
 	@Override
 	public IndexedSortedMapStorage<DatarouterPermissionRequestKey,DatarouterPermissionRequest>
 	getPermissionRequestNode(){
-		return null;
+		return new NoOpNode<>();
 	}
 
 	@Override
 	public IndexedSortedMapStorage<DatarouterSessionKey,DatarouterSession> getSessionNode(){
-		return null;
-	}
-
-	@Override
-	public IndexedSortedMapStorage<ApiRequestKey,ApiRequest> getApiRequestNode(){
-		return null;
+		return new NoOpNode<>();
 	}
 
 }

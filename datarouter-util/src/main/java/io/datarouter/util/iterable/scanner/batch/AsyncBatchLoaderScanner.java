@@ -37,14 +37,14 @@ extends BaseSortedScanner<T>{
 	private Future<BatchLoader<T>> loadingBatchFuture;
 	private boolean didInitialPrefetch = false;
 
-	/**************** constructors *******************************/
+	/*------------------------- constructors --------------------------------*/
 
 	public AsyncBatchLoaderScanner(ExecutorService executorService, BatchLoader<T> headOfLoaderChain){
 		this.executorService = executorService;
 		this.currentBatchFuture = this.executorService.submit(headOfLoaderChain);
 	}
 
-	/****************** methods *************************************/
+	/*------------------------- methods -------------------------------------*/
 
 	@Override
 	public boolean advance(){
@@ -103,7 +103,7 @@ extends BaseSortedScanner<T>{
 		return FutureTool.get(currentBatchFuture);
 	}
 
-	/******************* get/set ****************************************/
+	/*------------------------- get/set -------------------------------------*/
 
 	public static class BatchingSortedScannerTests{
 		private static final int MULTIPLIER = 3;
@@ -117,7 +117,7 @@ extends BaseSortedScanner<T>{
 
 		@Test
 		public void testNumElements(){
-//			testIndividualNumElements(0, 1);//for debugging
+			// testIndividualNumElements(0, 1);//for debugging
 
 			for(int numElements = 0; numElements < 30; ++numElements){//run 50 times with different batch sizes
 				for(int batchSize = 1; batchSize < 10; ++batchSize){//watch out: batchSize=0 is no good

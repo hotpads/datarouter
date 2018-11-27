@@ -27,12 +27,11 @@ public interface UniqueIndexReader<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
 		IK extends PrimaryKey<IK>,
-		IE extends UniqueIndexEntry<IK, IE, PK, D>>
+		IE extends UniqueIndexEntry<IK,IE,PK,D>>
 extends IndexReader<PK,D,IK,IE>{
 
-	public static final String
-		OP_lookupUnique = "lookupUnique",
-		OP_lookupMultiUnique = "lookupMultiUnique";
+	public static final String OP_lookupUnique = "lookupUnique";
+	public static final String OP_lookupMultiUnique = "lookupMultiUnique";
 
 	IE get(IK uniqueKey, Config config);
 	List<IE> getMulti(Collection<IK> uniqueKeys, Config config);

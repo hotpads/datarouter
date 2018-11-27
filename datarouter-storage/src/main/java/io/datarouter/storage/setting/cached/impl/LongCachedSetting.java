@@ -36,4 +36,5 @@ public class LongCachedSetting extends CachedSetting<Long> implements LongSettin
 			return false;
 		}
 	}
+
 }

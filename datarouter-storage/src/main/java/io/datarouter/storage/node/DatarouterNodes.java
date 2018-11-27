@@ -50,7 +50,7 @@ import io.datarouter.util.collection.CollectionTool;
 @Singleton
 public class DatarouterNodes{
 
-	/************************ fields *******************************/
+	/*------------------------------ fields ---------------------------------*/
 
 	private final SortedSet<Node<?,?,?>> topLevelNodes;
 	private final Map<String,Node<?,?,?>> nodeByName;
@@ -60,7 +60,7 @@ public class DatarouterNodes{
 	private final Map<String,Map<String,PhysicalNode<?,?,?>>> physicalNodeByTableNameByClientName;
 	private Datarouter datarouter;
 
-	/********************** constructors **********************************/
+	/*---------------------------- constructor ------------------------------*/
 
 	DatarouterNodes(){
 		this.topLevelNodes = new ConcurrentSkipListSet<>();
@@ -75,7 +75,7 @@ public class DatarouterNodes{
 		this.datarouter = datarouter;
 	}
 
-	/*********************** methods ************************************/
+	/*------------------------------ methods --------------------------------*/
 
 	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>,N extends Node<PK,D,F>>
 	N register(String routerName, N node){
@@ -87,8 +87,8 @@ public class DatarouterNodes{
 			nodeByName.put(nodeOrDescendant.getName(), nodeOrDescendant);
 			if(nodeOrDescendant instanceof PhysicalNode<?,?,?>){
 				PhysicalNode<?,?,?> physicalNode = (PhysicalNode<?,?,?>)nodeOrDescendant;
-				String clientName = physicalNode.getClientId().getName();
-				String tableName = physicalNode.getTableName();
+				String clientName = physicalNode.getFieldInfo().getClientId().getName();
+				String tableName = physicalNode.getFieldInfo().getTableName();
 				physicalNodeByTableNameByClientName.computeIfAbsent(clientName, k -> new TreeMap<>()).put(tableName,
 						physicalNode);
 			}
@@ -143,7 +143,7 @@ public class DatarouterNodes{
 	public List<String> getTableNamesForClient(String clientName){
 		Set<String> tableNames = new TreeSet<>();
 		for(PhysicalNode<?,?,?> physicalNode : getPhysicalNodesForClient(clientName)){
-			tableNames.add(physicalNode.getTableName());
+			tableNames.add(physicalNode.getFieldInfo().getTableName());
 		}
 		return new ArrayList<>(tableNames);
 	}
@@ -152,7 +152,7 @@ public class DatarouterNodes{
 		List<String> tableNames = new ArrayList<>();
 		for(PhysicalNode<?,?,?> physicalNode : getPhysicalNodesForClient(clientName)){
 			if(Objects.equals(routerNameByNode.get(physicalNode), routerName)){
-				tableNames.add(physicalNode.getTableName());
+				tableNames.add(physicalNode.getFieldInfo().getTableName());
 			}
 		}
 		return tableNames;
@@ -179,7 +179,7 @@ public class DatarouterNodes{
 		return physicalNodeByTableNameByClientName.getOrDefault(clientName, Collections.emptyMap()).get(tableName);
 	}
 
-	/*************************** get/set ****************************************/
+	/*------------------------------ get/set --------------------------------*/
 
 	public Multimap<String,Node<?,?,?>> getTopLevelNodesByRouterName(){
 		return topLevelNodesByRouterName;

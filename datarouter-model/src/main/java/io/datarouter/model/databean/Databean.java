@@ -35,7 +35,9 @@ import io.datarouter.model.key.primary.PrimaryKey;
  * HBase. Databeans are often the foundation of a project, and comprise a minority of the code so the trade-off is
  * usually worthwhile.
  */
-public interface Databean<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
+public interface Databean<
+		PK extends PrimaryKey<PK>,
+		D extends Databean<PK,D>>
 extends Comparable<Databean<?,?>>{
 
 	String getDatabeanName();

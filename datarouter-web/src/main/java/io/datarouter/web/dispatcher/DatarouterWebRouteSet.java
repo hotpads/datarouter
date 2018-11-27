@@ -20,13 +20,14 @@ import javax.inject.Singleton;
 
 import io.datarouter.web.browse.DatabeanViewerHandler;
 import io.datarouter.web.browse.DatarouterClientHandler;
-import io.datarouter.web.browse.DatarouterHandler;
 import io.datarouter.web.browse.DeleteNodeDataHandler;
+import io.datarouter.web.browse.GetNodeDataHandler;
 import io.datarouter.web.browse.RoutersHandler;
 import io.datarouter.web.browse.ViewNodeDataHandler;
 import io.datarouter.web.config.DatarouterWebPaths;
 import io.datarouter.web.handler.IpDetectionHandler;
 import io.datarouter.web.handler.TestApiHandler;
+import io.datarouter.web.monitoring.DeploymentReportingHandler;
 import io.datarouter.web.monitoring.ExecutorsMonitoringHandler;
 import io.datarouter.web.monitoring.MemoryMonitoringHandler;
 import io.datarouter.web.user.role.DatarouterUserRole;
@@ -43,19 +44,21 @@ public class DatarouterWebRouteSet extends BaseRouteSet{
 
 	@Inject
 	public DatarouterWebRouteSet(DatarouterWebPaths paths){
-		super(paths.datarouter.toSlashedString());
-		handle(paths.datarouter).withHandler(DatarouterHandler.class);
+		super(paths.datarouter);
+		handle(paths.datarouter.toSlashedString() + "|" + paths.datarouter.toSlashedString() + "/")
+				.withHandler(RoutersHandler.class);
 		// example: /datarouter/data/fadafa/adfadfafqe/abc or /datarouter/data/fadafa/adfadfafqe/abc.1341 or
 		// /datarouter/data/fadafa/adfadfafqe/abbc_2152
 		handle(paths.datarouter.data.toSlashedString() + REGEX_TWO_DIRECTORY_PLUS).withHandler(
 				DatabeanViewerHandler.class);
 		handleDir(paths.datarouter.memory).withHandler(MemoryMonitoringHandler.class);
 		handleDir(paths.datarouter.executors).withHandler(ExecutorsMonitoringHandler.class);
-		handle(paths.datarouter.nodes.browseData).withHandler(ViewNodeDataHandler.class);
+		handleDir(paths.datarouter.nodes.browseData).withHandler(ViewNodeDataHandler.class);
 		handle(paths.datarouter.nodes.deleteData).withHandler(DeleteNodeDataHandler.class);
-		handleDir(paths.datarouter.routers).withHandler(RoutersHandler.class);
+		handle(paths.datarouter.nodes.getData).withHandler(GetNodeDataHandler.class);
 		handle(paths.datarouter.clients).withHandler(DatarouterClientHandler.class);
 		handle(paths.datarouter.ipDetection).withHandler(IpDetectionHandler.class).allowAnonymous();
+		handle(paths.datarouter.deployment).withHandler(DeploymentReportingHandler.class).allowAnonymous();
 
 		//example: /testApi or /testApidfadfa  or /testApi/ or /testApi/adfafa
 		handleDir(paths.datarouter.testApi).withHandler(TestApiHandler.class);
@@ -66,4 +69,11 @@ public class DatarouterWebRouteSet extends BaseRouteSet{
 		return rule.allowRoles(DatarouterUserRole.datarouterAdmin);
 	}
 
+	public static class DatarouterWebRouteSetPackageTests extends BaseRouteSetPackageTests{
+
+		public DatarouterWebRouteSetPackageTests(){
+			super("io.datarouter.web.dispatcher.DatarouterWebRouteSet", DatarouterWebRouteSet.class);
+		}
+
+	}
 }

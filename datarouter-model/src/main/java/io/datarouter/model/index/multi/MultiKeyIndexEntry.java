@@ -18,12 +18,10 @@ package io.datarouter.model.index.multi;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 
-//basically a marker interface
 public interface MultiKeyIndexEntry<
 		IK extends PrimaryKey<IK>,
 		IE extends Databean<IK,IE>,
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>>
 extends MultiIndexEntry<IK,IE,PK,D>{
-
 }

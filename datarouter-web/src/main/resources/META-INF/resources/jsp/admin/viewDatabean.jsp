@@ -18,8 +18,6 @@
 				<dd>${databeanWrapper.node['class'].simpleName}</dd>
 				<dt>DatabeanType</dt>
 				<dd>${databeanWrapper.node.fieldInfo.sampleDatabean['class']}</dd>
-				<dt>Field Aware</dt>
-				<dd>${databeanWrapper.fieldAware ? "True" : "False"}</dd>
 			</dl>
 			<table class="table table-condensed table-bordered">
 				<thead>

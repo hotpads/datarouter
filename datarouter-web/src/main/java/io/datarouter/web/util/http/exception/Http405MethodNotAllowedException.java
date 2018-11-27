@@ -36,4 +36,5 @@ public class Http405MethodNotAllowedException extends HttpException{
 	public Http405MethodNotAllowedException(Throwable cause){
 		super(MESSAGE, cause, CODE);
 	}
+
 }

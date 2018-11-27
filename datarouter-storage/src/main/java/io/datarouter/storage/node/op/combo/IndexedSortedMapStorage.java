@@ -27,7 +27,9 @@ extends IndexedMapStorage<PK,D>,
 		IndexedSortedMapStorageReader<PK,D>,
 		IndexedSortedMapStorageWriter<PK,D>{
 
-	public interface IndexedSortedMapStorageNode<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,
+	public interface IndexedSortedMapStorageNode<
+			PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>
 	extends IndexedSortedMapStorage<PK,D>,
 			IndexedMapStorageNode<PK,D,F>,
@@ -35,7 +37,9 @@ extends IndexedMapStorage<PK,D>,
 			IndexedSortedMapStorageReaderNode<PK,D,F>,
 			IndexedSortedMapStorageWriterNode<PK,D,F>{
 	}
-	public interface PhysicalIndexedSortedMapStorageNode<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,
+	public interface PhysicalIndexedSortedMapStorageNode<
+			PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>
 	extends IndexedSortedMapStorageNode<PK,D,F>,
 			PhysicalIndexedMapStorageNode<PK,D,F>,
@@ -43,4 +47,5 @@ extends IndexedMapStorage<PK,D>,
 			PhysicalIndexedSortedMapStorageReaderNode<PK,D,F>,
 			PhysicalIndexedSortedMapStorageWriterNode<PK,D,F>{
 	}
+
 }

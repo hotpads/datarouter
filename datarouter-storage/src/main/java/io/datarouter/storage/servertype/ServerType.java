@@ -21,10 +21,9 @@ import io.datarouter.util.web.HtmlSelectOptionBean;
 
 public interface ServerType{
 
-	public static final String
-			ALL = "all",
-			UNKNOWN = "unknown",
-			DEV = "dev";
+	public static final String ALL = "all";
+	public static final String UNKNOWN = "unknown";
+	public static final String DEV = "dev";
 
 	List<HtmlSelectOptionBean> getHtmlSelectOptionsVarNames();
 

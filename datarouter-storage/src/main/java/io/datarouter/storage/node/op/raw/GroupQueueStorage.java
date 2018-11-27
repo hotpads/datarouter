@@ -24,17 +24,21 @@ import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.op.raw.read.GroupQueueStorageReader;
 import io.datarouter.storage.node.op.raw.write.QueueStorageWriter;
 
-public interface GroupQueueStorage<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
+public interface GroupQueueStorage<
+		PK extends PrimaryKey<PK>,
+		D extends Databean<PK,D>>
 extends QueueStorageWriter<PK,D>, GroupQueueStorageReader<PK,D>{
 
-	public static final String
-			OP_pollMulti = "pollMulti",
-			OP_pollUntilEmpty = "pollUntilEmpty";
+	public static final String OP_pollMulti = "pollMulti";
+	public static final String OP_pollUntilEmpty = "pollUntilEmpty";
 
 	List<D> pollMulti(Config config);
 
-	public interface PhysicalGroupQueueStorageNode<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,
+	public interface PhysicalGroupQueueStorageNode<
+			PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>
 	extends GroupQueueStorage<PK,D>,PhysicalQueueStorageWriterNode<PK,D,F>{
 	}
+
 }

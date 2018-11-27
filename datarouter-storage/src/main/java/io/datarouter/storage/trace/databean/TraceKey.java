@@ -15,15 +15,13 @@
  */
 package io.datarouter.storage.trace.databean;
 
-import io.datarouter.util.number.RandomTool;
-
 public class TraceKey extends BaseTraceKey<TraceEntityKey,TraceKey>{
 
 	public TraceKey(){
-		this(RandomTool.nextPositiveLong());
+		this.entityKey = new TraceEntityKey();
 	}
 
-	public TraceKey(Long traceId){
+	public TraceKey(String traceId){
 		this.entityKey = new TraceEntityKey(traceId);
 	}
 

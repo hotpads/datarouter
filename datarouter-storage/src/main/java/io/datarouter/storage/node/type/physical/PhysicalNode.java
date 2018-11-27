@@ -19,7 +19,6 @@ import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.client.Client;
-import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.node.Node;
 
 /**
@@ -34,9 +33,6 @@ public interface PhysicalNode<
 		F extends DatabeanFielder<PK,D>>
 extends Node<PK,D,F>{
 
-	public ClientId getClientId();
 	Client getClient();
-
-	String getTableName();
 
 }

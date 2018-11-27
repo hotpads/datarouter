@@ -25,16 +25,18 @@ public class MemorySettingFinder implements SettingFinder{
 
 	private final String configProfile;
 	private final ServerType serverType;
+	private final String serverName;
 	//protected so subclasses can modify the settings
 	protected final Map<String, Object> settings;
 
 	public MemorySettingFinder(){
-		this(null, null);
+		this(null, null, null);
 	}
 
-	public MemorySettingFinder(String configProfile, ServerType serverType){
+	public MemorySettingFinder(String configProfile, ServerType serverType, String serverName){
 		this.configProfile = configProfile;
 		this.serverType = serverType;
+		this.serverName = serverName;
 		this.settings = new ConcurrentHashMap<>();
 	}
 
@@ -46,6 +48,11 @@ public class MemorySettingFinder implements SettingFinder{
 	@Override
 	public ServerType getServerType(){
 		return serverType;
+	}
+
+	@Override
+	public String getServerName(){
+		return serverName;
 	}
 
 	@Override
@@ -61,4 +68,5 @@ public class MemorySettingFinder implements SettingFinder{
 	public void clear(){
 		settings.clear();
 	}
+
 }

@@ -22,13 +22,17 @@ import io.datarouter.model.serialize.fielder.DatabeanFielder;
 public interface IndexedSortedMapStorageWriter<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 extends SortedMapStorageWriter<PK,D>, IndexedMapStorageWriter<PK,D>{
 
-	public interface IndexedSortedMapStorageWriterNode<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,
+	public interface IndexedSortedMapStorageWriterNode<
+			PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>
 	extends IndexedSortedMapStorageWriter<PK,D>, SortedMapStorageWriterNode<PK,D,F>,
 			IndexedMapStorageWriterNode<PK,D,F>{
 	}
 
-	public interface PhysicalIndexedSortedMapStorageWriterNode<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,
+	public interface PhysicalIndexedSortedMapStorageWriterNode<
+			PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>
 	extends IndexedSortedMapStorageWriterNode<PK,D,F>,
 			PhysicalIndexedStorageWriterNode<PK,D,F>,

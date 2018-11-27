@@ -15,12 +15,23 @@
  */
 package io.datarouter.web.user.session.service;
 
+import java.util.Collection;
 import java.util.Set;
 
 public interface RoleManager{
 
+	Role getRoleFromPersistentString(String persistentString);
+	Boolean isAdmin(Role role);
+
+	default Boolean isAdmin(Collection<Role> roles){
+		return roles.stream()
+				.anyMatch(this::isAdmin);
+	}
+
+	Set<Role> getAllRoles();
+	Set<Role> getConferrableRoles(Collection<Role> userRoles);
 	Set<Role> getRolesForGroup(String groupId);
-	Set<Role> getSuperRoles();
-	Set<Role> getDefaultRoles();
+	Set<Role> getRolesForSuperGroup();
+	Set<Role> getRolesForDefaultGroup();
 
 }

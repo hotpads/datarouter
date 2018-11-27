@@ -17,31 +17,112 @@ package io.datarouter.instrumentation.trace;
 
 public class TraceThreadDto{
 
-	public final Long traceId;
-	public final Long threadId;
-	public final Long parentId;
-	public final String name;
-	public final String info;
-	public final String serverId;
-	public final Long created;
-	public final Long queuedDuration;
-	public final Long runningDuration;
-	public final Long queuedDurationNano;
-	public final Long runningDurationNano;
+	private String traceId;
+	private Long threadId;
+	private Long parentId;
+	private String name;
+	private String info;
+	private String serverId;
+	private Long created;
+	private Long queuedDuration;
+	private Long runningDuration;
 
-	public TraceThreadDto(Long traceId, Long threadId, Long parentId, String name, String info, String serverId,
-			Long created, Long queuedDuration, Long runningDuration, Long queuedDurationNano, Long runningDurationNano){
+	public TraceThreadDto(String traceId, Long threadId, Long parentId, String serverId, String name, Long created){
 		this.traceId = traceId;
 		this.threadId = threadId;
 		this.parentId = parentId;
-		this.name = name;
-		this.info = info;
 		this.serverId = serverId;
+		this.name = name;
 		this.created = created;
+	}
+
+	public TraceThreadDto(String traceId, Long threadId, Long parentId, String name, String info, String serverId,
+			Long created, Long queuedDuration, Long runningDuration){
+		this(traceId, threadId, parentId, serverId, name, created);
+		this.info = info;
 		this.queuedDuration = queuedDuration;
 		this.runningDuration = runningDuration;
-		this.queuedDurationNano = queuedDurationNano;
-		this.runningDurationNano = runningDurationNano;
 	}
+
+	public void markStart(){
+		queuedDuration = System.currentTimeMillis() - created;
+	}
+
+	public void markFinish(){
+		runningDuration = System.currentTimeMillis() - queuedDuration - created;
+	}
+
+	public String getTraceId(){
+		return traceId;
+	}
+
+	public void setTraceId(String traceId){
+		this.traceId = traceId;
+	}
+
+	public Long getThreadId(){
+		return threadId;
+	}
+
+	public void setThreadId(Long threadId){
+		this.threadId = threadId;
+	}
+
+	public Long getParentId(){
+		return parentId;
+	}
+
+	public void setParentId(Long parentId){
+		this.parentId = parentId;
+	}
+
+	public String getName(){
+		return name;
+	}
+
+	public void setName(String name){
+		this.name = name;
+	}
+
+	public String getInfo(){
+		return info;
+	}
+
+	public void setInfo(String info){
+		this.info = info;
+	}
+
+	public String getServerId(){
+		return serverId;
+	}
+
+	public void setServerId(String serverId){
+		this.serverId = serverId;
+	}
+
+	public Long getCreated(){
+		return created;
+	}
+
+	public void setCreated(Long created){
+		this.created = created;
+	}
+
+	public Long getQueuedDuration(){
+		return queuedDuration;
+	}
+
+	public void setQueuedDuration(Long queuedDuration){
+		this.queuedDuration = queuedDuration;
+	}
+
+	public Long getRunningDuration(){
+		return runningDuration;
+	}
+
+	public void setRunningDuration(Long runningDuration){
+		this.runningDuration = runningDuration;
+	}
+
 
 }

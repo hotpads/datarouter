@@ -24,13 +24,12 @@ import io.datarouter.storage.test.TestDatarouterProperties;
 import io.datarouter.storage.test.node.type.index.databean.TestDatabeanWithManagedIndexByBar;
 import io.datarouter.storage.test.node.type.index.databean.TestDatabeanWithManagedIndexByBar.TestDatabeanWithManagedIndexByBFielder;
 
-public class TestDatabeanWithManagedIndexRouter extends TestDatabeanWithIndexRouter{
+public class TestDatabeanWithManagedIndexRouter extends DatarouterTestDatabeanWithIndexRouter{
 
 	public TestDatabeanWithManagedIndexRouter(Datarouter datarouter, TestDatarouterProperties datarouterProperties,
 			NodeFactory nodeFactory, DatarouterSettings datarouterSettings, ClientId clientId){
 		super(datarouter, datarouterProperties, "managedIndexTest", nodeFactory, datarouterSettings, clientId,
 				"TestDatabeanWithManagedIndex");
-
 		byB = backingMapNode.registerManaged(IndexingNodeFactory.newManagedUnique(backingMapNode,
 				TestDatabeanWithManagedIndexByBFielder.class, TestDatabeanWithManagedIndexByBar.class, false));
 	}

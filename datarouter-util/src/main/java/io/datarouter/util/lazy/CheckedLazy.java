@@ -57,7 +57,7 @@ public abstract class CheckedLazy<R,E extends Exception> implements Callable<R>{
 
 	/*----------- CheckedLazyFunctional ---------------*/
 
-	public static <R, E extends Exception> CheckedLazy<R,E> ofChecked(CheckedSupplier<R,E> supplier){
+	public static <R,E extends Exception> CheckedLazy<R,E> ofChecked(CheckedSupplier<R,E> supplier){
 		return new CheckedLazyFunctional<>(supplier);
 	}
 

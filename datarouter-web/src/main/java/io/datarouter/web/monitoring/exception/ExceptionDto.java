@@ -21,6 +21,7 @@ import java.util.Map;
 public class ExceptionDto{
 
 	public long dateMs;
+	public String appName;
 	public String serverName;
 	public String stackTrace;
 	public String errorClass;
@@ -29,7 +30,7 @@ public class ExceptionDto{
 	public String errorLocation;
 	public Date receivedAt;
 	public String methodName;
-	public int lineNumber;
+	public Integer lineNumber;
 
 	public String httpMethod;
 	public Map<String,String[]> httpParams;

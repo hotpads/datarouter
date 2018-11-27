@@ -15,10 +15,8 @@
  */
 package io.datarouter.storage.client;
 
-import java.util.concurrent.Callable;
+public interface ClientFactory{
 
-
-public interface ClientFactory
-extends Callable<Client>{
+	Client createClient(ClientId clientId);
 
 }

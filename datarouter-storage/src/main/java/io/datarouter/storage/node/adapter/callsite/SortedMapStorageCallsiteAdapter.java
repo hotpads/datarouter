@@ -18,13 +18,12 @@ package io.datarouter.storage.node.adapter.callsite;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
-import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.adapter.callsite.mixin.MapStorageReaderCallsiteAdapterMixin;
 import io.datarouter.storage.node.adapter.callsite.mixin.MapStorageWriterCallsiteAdapterMixin;
 import io.datarouter.storage.node.adapter.callsite.mixin.SortedStorageReaderCallsiteAdapterMixin;
 import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 
-public class SortedMapStorageCallsiteAdapter<
+public abstract class SortedMapStorageCallsiteAdapter<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>,
@@ -35,8 +34,8 @@ implements SortedMapStorageNode<PK,D,F>,
 		SortedStorageReaderCallsiteAdapterMixin<PK,D,F,N>,
 		MapStorageReaderCallsiteAdapterMixin<PK,D,F,N>{
 
-	public SortedMapStorageCallsiteAdapter(NodeParams<PK,D,F> params, N backingNode){
-		super(params, backingNode);
+	public SortedMapStorageCallsiteAdapter(N backingNode){
+		super(backingNode);
 	}
 
 }

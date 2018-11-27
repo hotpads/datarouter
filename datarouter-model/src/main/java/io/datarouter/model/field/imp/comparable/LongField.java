@@ -29,8 +29,6 @@ public class LongField extends BasePrimitiveField<Long>{
 		super(prefix, key, value);
 	}
 
-	/*********************** StringEncodedField ***********************/
-
 	@Override
 	public String getStringEncodedValue(){
 		if(value == null){
@@ -47,8 +45,6 @@ public class LongField extends BasePrimitiveField<Long>{
 		return Long.valueOf(str);
 	}
 
-	/*********************** ByteEncodedField ***********************/
-
 	@Override
 	public byte[] getBytes(){
 		return value == null ? null : LongByteTool.getComparableBytes(value);
@@ -63,4 +59,5 @@ public class LongField extends BasePrimitiveField<Long>{
 	public Long fromBytesButDoNotSet(byte[] bytes, int offset){
 		return LongByteTool.fromComparableBytes(bytes, offset);
 	}
+
 }

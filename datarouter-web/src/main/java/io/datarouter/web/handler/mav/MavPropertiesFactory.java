@@ -44,7 +44,7 @@ public class MavPropertiesFactory{
 
 	public MavProperties get(HttpServletRequest request){
 		return new MavProperties(request, config.getCssVersion(), config.getJsVersion(), config.getIsAdmin(request),
-				tomcatWebApps.get(), navbar);
+				tomcatWebApps.get(), navbar, config.getIsProduction());
 	}
 
 	public static class MavProperties{
@@ -55,23 +55,26 @@ public class MavPropertiesFactory{
 		private static final String CSS_VERSION = "cssVersion";
 		private static final String JS_VERSION = "jsVersion";
 		private static final String IS_ADMIN = "isAdmin";
+		private static final String IS_PRODUCTION = "isProduction";
 
 		private final HttpServletRequest request;
 
 		private final int cssVersion;
 		private final int jsVersion;
 		private final boolean isAdmin;
+		private final boolean isProduction;
 		private final Map<String, String> tomcatWebApps;
 		private final Optional<NavBar> navBar;
 
 		private MavProperties(HttpServletRequest request, int cssVersion, int jsVersion, boolean isAdmin,
-				Map<String, String> tomcatWebApps, Optional<NavBar> navBar){
+				Map<String, String> tomcatWebApps, Optional<NavBar> navBar, boolean isProduction){
 			this.request = request;
 			this.cssVersion = cssVersion;
 			this.jsVersion = jsVersion;
 			this.isAdmin = isAdmin;
 			this.tomcatWebApps = tomcatWebApps;
 			this.navBar = navBar;
+			this.isProduction = isProduction;
 		}
 
 		public Map<String, Object> getAttributes(){
@@ -82,6 +85,7 @@ public class MavPropertiesFactory{
 			attributes.put(CSS_VERSION, getCssVersion());
 			attributes.put(JS_VERSION, getJsVersion());
 			attributes.put(IS_ADMIN, getIsAdmin());
+			attributes.put(IS_PRODUCTION, getIsProduction());
 			return attributes;
 		}
 
@@ -115,6 +119,10 @@ public class MavPropertiesFactory{
 
 		public NavBar getNavBar(){
 			return navBar.orElse(null);
+		}
+
+		public Boolean getIsProduction(){
+			return isProduction;
 		}
 	}
 }

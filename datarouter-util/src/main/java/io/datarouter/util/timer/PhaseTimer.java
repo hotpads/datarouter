@@ -23,7 +23,6 @@ import java.util.Map;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.util.tuple.Pair;
 
 /*
@@ -45,13 +44,13 @@ public class PhaseTimer{
 		this.name = name;
 	}
 
-	/****************** static factories ******************************/
+	/*------------------------- static factories ----------------------------*/
 
 	public static PhaseTimer nullSafe(PhaseTimer timer){
 		return timer == null ? new PhaseTimer() : timer;
 	}
 
-	/*********************** methods ****************************************/
+	/*------------------------- methods -------------------------------------*/
 
 	public PhaseTimer add(String eventName){
 		long newMarker = System.currentTimeMillis();
@@ -106,9 +105,9 @@ public class PhaseTimer{
 		return toString(delimiter, Integer.MIN_VALUE);
 	}
 
-	private String toString(String delimiter,int showPhasesAtLeastThisMsLong){
+	private String toString(String delimiter, int showPhasesAtLeastThisMsLong){
 		StringBuilder sb = new StringBuilder();
-		sb.append("[total:" + NumberFormatter.addCommas(getElapsedTimeBetweenFirstAndLastEvent()) + "ms]");
+		sb.append("[total=" + getElapsedTimeBetweenFirstAndLastEvent() + "]");
 		if(name != null){
 			sb.append("<" + name + ">");
 		}
@@ -117,15 +116,17 @@ public class PhaseTimer{
 			if(nameAndTime.getRight() < showPhasesAtLeastThisMsLong){
 				continue;
 			}
-			sb.append(delimiter + "[" + nameAndTime.getLeft() + ":" + NumberFormatter.addCommas(nameAndTime
-					.getRight()) + "ms]");
+			sb.append(delimiter + "[" + nameAndTime.getLeft() + "=" + nameAndTime.getRight() + "]");
 		}
 		return sb.toString();
 	}
 
 	public long getElapsedTimeBetweenFirstAndLastEvent(){
 		if(phaseNamesAndTimes.size() > 0){
-			return phaseNamesAndTimes.stream().map(Pair::getRight).mapToLong(Long::longValue).sum();
+			return phaseNamesAndTimes.stream()
+					.map(Pair::getRight)
+					.mapToLong(Long::longValue)
+					.sum();
 		}
 		return 0;
 	}
@@ -182,6 +183,7 @@ public class PhaseTimer{
 
 			Thread.sleep(500);
 			timer.add("tres");
+
 			Assert.assertEquals(timer.toString(-1), timer.toString());
 			Assert.assertFalse(timer.toString().equals(timer.toString(100)));
 			Assert.assertFalse(timer.toString().equals(timer.toString(400)));

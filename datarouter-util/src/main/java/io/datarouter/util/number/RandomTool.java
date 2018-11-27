@@ -16,6 +16,7 @@
 package io.datarouter.util.number;
 
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class RandomTool{
 
@@ -56,6 +57,10 @@ public class RandomTool{
 		}
 	}
 
+	public static long nextPositiveLong(long max){
+		return ThreadLocalRandom.current().nextLong(max);
+	}
+
 	public static long nextPositiveLong(){
 		return nextPositiveLong(random);
 	}
@@ -70,7 +75,6 @@ public class RandomTool{
 	}
 
 	/**
-	 *
 	 * @param min inclusive
 	 * @param max inclusive
 	 */

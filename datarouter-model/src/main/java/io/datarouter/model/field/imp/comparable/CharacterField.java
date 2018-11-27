@@ -29,8 +29,6 @@ public class CharacterField extends BasePrimitiveField<Character>{
 		super(key, value);
 	}
 
-	/*********************** StringEncodedField ***********************/
-
 	@Override
 	public String getStringEncodedValue(){
 		if(value == null){
@@ -46,8 +44,6 @@ public class CharacterField extends BasePrimitiveField<Character>{
 		}
 		return str.charAt(0);
 	}
-
-	/*********************** ByteEncodedField ***********************/
 
 	@Override
 	public byte[] getBytes(){

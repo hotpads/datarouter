@@ -29,7 +29,7 @@ import io.datarouter.util.string.StringTool;
 
 public class DatarouterEnumTool{
 
-	/*************************** comparator that compares the persistent values ***********/
+	/*--------------- comparator that compares the persistent values --------*/
 
 	public static class IntegerEnumComparator<T extends IntegerEnum<T>> implements Comparator<T>{
 		@Override
@@ -64,7 +64,7 @@ public class DatarouterEnumTool{
 		return ComparableTool.nullFirstCompareTo(valueA.getPersistentString(), valueB.getPersistentString());
 	}
 
-	/********************** methods **************************************/
+	/*------------------------- methods -------------------------------------*/
 
 	public static <T extends IntegerEnum<T>> T getEnumFromInteger(T[] values, Integer value, T defaultEnum){
 		if(value == null){
@@ -78,15 +78,19 @@ public class DatarouterEnumTool{
 		return defaultEnum;
 	}
 
-	public static <T extends PersistentString> T getEnumFromString(T[] values, String value, T defaultEnum,
+	public static <T extends PersistentString> T getEnumFromString(T[] enumEntries, String value, T defaultEnum,
 			boolean caseSensitive){
-		if(value == null){
-			return defaultEnum;
-		}
-		for(T type : values){
-			if(caseSensitive && type.getPersistentString().equals(value)
-					|| !caseSensitive && type.getPersistentString().equalsIgnoreCase(value)){
-				return type;
+		for(T enumEntry : enumEntries){
+			String persistentString = enumEntry.getPersistentString();
+			if(persistentString == null){
+				if(value == null){
+					return enumEntry;
+				}
+				continue;
+			}
+			if(caseSensitive && persistentString.equals(value)
+					|| !caseSensitive && persistentString.equalsIgnoreCase(value)){
+				return enumEntry;
 			}
 		}
 		return defaultEnum;
@@ -96,7 +100,7 @@ public class DatarouterEnumTool{
 		return getEnumFromString(values, value, defaultEnum, true);
 	}
 
-	/*************** multiple values ****************/
+	/*------------------------- multiple values -----------------------------*/
 
 	public static <E extends StringEnum<E>> List<String> getPersistentStrings(Collection<E> enums){
 		List<String> strings = new ArrayList<>();

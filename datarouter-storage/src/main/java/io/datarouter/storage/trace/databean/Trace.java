@@ -21,13 +21,15 @@ public class Trace extends BaseTrace<TraceEntityKey,TraceKey,Trace>{
 
 	public Trace(){
 		this.key = new TraceKey();
-		this.created = System.currentTimeMillis();
-		this.nanoStart = System.nanoTime();
+	}
+
+	public Trace(String traceId){
+		this.key = new TraceKey(traceId);
 	}
 
 	public Trace(TraceDto dto){
 		super(dto);
-		this.key = new TraceKey(dto.traceId);
+		this.key = new TraceKey(dto.getTraceId());
 	}
 
 	public static class TraceFielder extends BaseTraceFielder<TraceEntityKey,TraceKey,Trace>{
@@ -45,7 +47,7 @@ public class Trace extends BaseTrace<TraceEntityKey,TraceKey,Trace>{
 
 	public TraceDto toDto(){
 		return new TraceDto(
-				getKey().getEntityKey().getTraceEntityId(),
+				getTraceId(),
 				getContext(),
 				getType(),
 				getParams(),

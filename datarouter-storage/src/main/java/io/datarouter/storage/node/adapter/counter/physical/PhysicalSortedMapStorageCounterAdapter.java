@@ -35,7 +35,6 @@ implements PhysicalSortedMapStorageNode<PK,D,F>,
 		MapStorageCounterAdapterMixin<PK,D,F,N>,
 		PhysicalAdapterMixin<PK,D,F,N>{
 
-
 	public PhysicalSortedMapStorageCounterAdapter(N backingNode){
 		super(backingNode);
 	}

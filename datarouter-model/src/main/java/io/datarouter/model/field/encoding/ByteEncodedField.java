@@ -15,7 +15,6 @@
  */
 package io.datarouter.model.field.encoding;
 
-
 public interface ByteEncodedField<T>{
 
 	byte[] getBytes();

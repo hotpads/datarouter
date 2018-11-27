@@ -17,13 +17,12 @@ package io.datarouter.model.field.imp.array;
 
 import java.util.List;
 
-import com.google.common.reflect.TypeToken;
+import com.google.gson.reflect.TypeToken;
 
 import io.datarouter.model.field.ListFieldKey;
 
 public class DoubleArrayFieldKey extends ListFieldKey<Double,List<Double>>{
 
-	@SuppressWarnings("serial")
 	public DoubleArrayFieldKey(String name){
 		super(name, new TypeToken<List<Double>>(){});
 	}
@@ -32,8 +31,6 @@ public class DoubleArrayFieldKey extends ListFieldKey<Double,List<Double>>{
 	public DoubleArrayField createValueField(final List<Double> value){
 		return new DoubleArrayField(this, value);
 	}
-
-	/*********************** ByteEncodedField ***********************/
 
 	@Override
 	public boolean isFixedLength(){

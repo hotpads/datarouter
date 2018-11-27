@@ -18,7 +18,6 @@ package io.datarouter.web.user.session.service;
 import java.util.Date;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -29,11 +28,9 @@ import io.datarouter.util.BooleanTool;
 import io.datarouter.util.collection.SetTool;
 import io.datarouter.web.exception.InvalidCredentialsException;
 import io.datarouter.web.user.DatarouterUserCreationService;
-import io.datarouter.web.user.DatarouterUserDao;
 import io.datarouter.web.user.DatarouterUserNodes;
 import io.datarouter.web.user.cache.DatarouterUserByUsernameCache;
 import io.datarouter.web.user.databean.DatarouterUser;
-import io.datarouter.web.user.role.DatarouterUserRole;
 import io.datarouter.web.user.session.DatarouterSession;
 import io.datarouter.web.user.session.DatarouterSessionManager;
 
@@ -42,8 +39,6 @@ public class DatarouterUserSessionService implements UserSessionService{
 
 	@Inject
 	private DatarouterUserNodes userNodes;
-	@Inject
-	private DatarouterUserDao userDao;
 	@Inject
 	private DatarouterSessionManager datarouterSessionManager;
 	@Inject
@@ -64,18 +59,6 @@ public class DatarouterUserSessionService implements UserSessionService{
 	}
 
 	@Override
-	public SessionBasedUser getValidatedCurrentUser(HttpServletRequest request){
-		return DatarouterSessionManager.getFromRequest(request)
-				.map(userDao::getAndValidateCurrentUser)
-				.get();
-	}
-
-	@Override
-	public Optional<SessionBasedUser> findUser(String username){
-		return Optional.ofNullable(datarouterUserByUsernameCache.get(username).orElse(null));
-	}
-
-	@Override
 	public Optional<Session> signInUserWithRoles(HttpServletRequest request, String username, Set<Role> roles){
 		DatarouterUser user = datarouterUserByUsernameCache.get(username).orElse(null);
 		if(user == null){
@@ -86,7 +69,7 @@ public class DatarouterUserSessionService implements UserSessionService{
 		}
 
 		user.setLastLoggedIn(new Date());
-		user.setRoles(SetTool.union(getDatarouterUserRoles(roles),user.getRoles()));
+		user.setRoles(SetTool.union(roles, user.getRoles()));
 		userNodes.getUserNode().put(user, null);
 
 		DatarouterSession session = DatarouterSession.createFromUser(user);
@@ -95,16 +78,8 @@ public class DatarouterUserSessionService implements UserSessionService{
 	}
 
 	@Override
-	public SessionBasedUser createAuthorizedUser(HttpServletRequest request, String username, String description,
-			Set<Role> roles){
-		return datarouterUserCreationService.createAutomaticUser(username, description, getDatarouterUserRoles(roles));
-	}
-
-	private static Set<DatarouterUserRole> getDatarouterUserRoles(Set<Role> roles){
-		return roles.stream()
-				.map(Role::getPersistentString)
-				.map(DatarouterUserRole::fromPersistentStringStatic)
-				.collect(Collectors.toSet());
+	public SessionBasedUser createAuthorizedUser(String username, String description, Set<Role> roles){
+		return datarouterUserCreationService.createAutomaticUser(username, description, roles);
 	}
 
 }

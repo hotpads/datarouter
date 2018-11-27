@@ -23,9 +23,10 @@ import java.util.regex.Pattern;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import io.datarouter.util.PathNode;
+import io.datarouter.httpclient.path.PathNode;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.user.role.DatarouterUserRole;
+import io.datarouter.web.user.session.service.RoleEnum;
 
 public abstract class BaseRouteSet{
 
@@ -41,6 +42,10 @@ public abstract class BaseRouteSet{
 	public BaseRouteSet(String urlPrefix){
 		this.urlPrefix = urlPrefix;
 		this.dispatchRules = new ArrayList<>();
+	}
+
+	public BaseRouteSet(PathNode pathNode){
+		this(pathNode.toSlashedString());
 	}
 
 	/*---------------- create DispatchRules -----------------*/
@@ -104,7 +109,7 @@ public abstract class BaseRouteSet{
 
 		public static final String ANON_PATH = "/anon";
 
-		public static final String getPathForRole(DatarouterUserRole role){
+		public static final <T extends RoleEnum<T>> String getPathForRole(RoleEnum<T> role){
 			return "/" + role.getPersistentString();
 		}
 
@@ -148,7 +153,6 @@ public abstract class BaseRouteSet{
 			Assert.assertFalse(oneDirectoryPattern.matcher("//abcd").matches());
 			Assert.assertFalse(oneDirectoryPattern.matcher("/abcd/").matches());
 			Assert.assertFalse(oneDirectoryPattern.matcher("/abc/efg").matches());
-
 		}
 	}
 }

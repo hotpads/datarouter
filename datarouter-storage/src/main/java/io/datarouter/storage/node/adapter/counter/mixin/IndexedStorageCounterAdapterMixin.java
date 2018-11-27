@@ -44,7 +44,7 @@ extends IndexedStorage<PK,D>, CounterAdapter<PK,D,F,N>{
 	//Reader
 
 	@Override
-	public default D lookupUnique(UniqueKey<PK> uniqueKey, Config config){
+	default D lookupUnique(UniqueKey<PK> uniqueKey, Config config){
 		String opName = IndexedStorageReader.OP_lookupUnique;
 		getCounter().count(opName);
 		D result = getBackingNode().lookupUnique(uniqueKey, config);
@@ -54,7 +54,7 @@ extends IndexedStorage<PK,D>, CounterAdapter<PK,D,F,N>{
 	}
 
 	@Override
-	public default List<D> lookupMultiUnique(Collection<? extends UniqueKey<PK>> uniqueKeys, Config config){
+	default List<D> lookupMultiUnique(Collection<? extends UniqueKey<PK>> uniqueKeys, Config config){
 		String opName = IndexedStorageReader.OP_lookupMultiUnique;
 		getCounter().count(opName);
 		List<D> results = getBackingNode().lookupMultiUnique(uniqueKeys, config);
@@ -68,7 +68,7 @@ extends IndexedStorage<PK,D>, CounterAdapter<PK,D,F,N>{
 	}
 
 	@Override
-	public default <IK extends PrimaryKey<IK>,
+	default <IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK, IE, PK, D>,
 			IF extends DatabeanFielder<IK, IE>>
 	List<IE> getMultiFromIndex(Collection<IK> keys, Config config, DatabeanFieldInfo<IK, IE, IF> indexEntryFieldInfo){
@@ -84,11 +84,13 @@ extends IndexedStorage<PK,D>, CounterAdapter<PK,D,F,N>{
 	}
 
 	@Override
-	public default <IK extends PrimaryKey<IK>, IE extends IndexEntry<IK, IE, PK, D>> List<D> getMultiByIndex(
-			Collection<IK> keys, Config config){
+	default <IK extends PrimaryKey<IK>,
+			IE extends IndexEntry<IK, IE, PK, D>,
+			IF extends DatabeanFielder<IK,IE>>
+	List<D> getMultiByIndex(Collection<IK> keys, Config config, DatabeanFieldInfo<IK,IE,IF> indexEntryFieldInfo){
 		String opName = IndexedStorageReader.OP_getByIndex;
 		getCounter().count(opName);
-		List<D> results = getBackingNode().getMultiByIndex(keys, config);
+		List<D> results = getBackingNode().getMultiByIndex(keys, config, indexEntryFieldInfo);
 		int numRows = CollectionTool.size(results);
 		getCounter().count(opName + " rows", numRows);
 		if(numRows == 0){
@@ -98,7 +100,7 @@ extends IndexedStorage<PK,D>, CounterAdapter<PK,D,F,N>{
 	}
 
 	@Override
-	public default <IK extends PrimaryKey<IK>,
+	default <IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK, IE, PK, D>,
 			IF extends DatabeanFielder<IK, IE>>
 	Iterable<IE> scanMultiIndex(DatabeanFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges,
@@ -109,7 +111,7 @@ extends IndexedStorage<PK,D>, CounterAdapter<PK,D,F,N>{
 	}
 
 	@Override
-	public default <IK extends PrimaryKey<IK>,
+	default <IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK, IE, PK, D>,
 			IF extends DatabeanFielder<IK, IE>>
 	Iterable<D> scanMultiByIndex(DatabeanFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges,
@@ -120,7 +122,7 @@ extends IndexedStorage<PK,D>, CounterAdapter<PK,D,F,N>{
 	}
 
 	@Override
-	public default <IK extends PrimaryKey<IK>,
+	default <IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK, IE, PK, D>,
 			IF extends DatabeanFielder<IK, IE>>
 	Iterable<IK> scanMultiIndexKeys(DatabeanFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges,
@@ -133,7 +135,7 @@ extends IndexedStorage<PK,D>, CounterAdapter<PK,D,F,N>{
 	//Writer
 
 	@Override
-	public default void deleteUnique(UniqueKey<PK> uniqueKey, Config config){
+	default void deleteUnique(UniqueKey<PK> uniqueKey, Config config){
 		String opName = IndexedStorageWriter.OP_deleteUnique;
 		getCounter().count(opName);
 		getBackingNode().deleteUnique(uniqueKey, config);
@@ -147,13 +149,13 @@ extends IndexedStorage<PK,D>, CounterAdapter<PK,D,F,N>{
 	}
 
 	@Override
-	public default <IK extends PrimaryKey<IK>> void deleteByIndex(Collection<IK> keys, Config config){
+	default <IK extends PrimaryKey<IK>> void deleteByIndex(Collection<IK> keys, Config config){
 		getCounter().count(OP_deleteByIndex);
 		getBackingNode().deleteByIndex(keys, config);
 	}
 
 	@Override
-	public default <IK extends PrimaryKey<IK>,
+	default <IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK,IE,PK,D>,
 			IF extends DatabeanFielder<IK,IE>,
 			MN extends ManagedNode<PK,D,IK,IE,IF>>
@@ -163,7 +165,7 @@ extends IndexedStorage<PK,D>, CounterAdapter<PK,D,F,N>{
 
 
 	@Override
-	public default List<ManagedNode<PK,D,?,?,?>> getManagedNodes(){
+	default List<ManagedNode<PK,D,?,?,?>> getManagedNodes(){
 		return getBackingNode().getManagedNodes();
 	}
 

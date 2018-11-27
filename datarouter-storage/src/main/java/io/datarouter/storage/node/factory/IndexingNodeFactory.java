@@ -42,80 +42,82 @@ import io.datarouter.util.lang.ReflectionTool;
 public class IndexingNodeFactory{
 
 	public static <PK extends PrimaryKey<PK>,
-					D extends Databean<PK,D>,
-					F extends DatabeanFielder<PK,D>>
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>>
 	IndexingMapStorageNode<PK,D,F,MapStorageNode<PK,D,F>> newMap(MapStorageNode<PK,D,F> mainNode){
 		return new IndexingMapStorageNode<>(mainNode);
 	}
 
 	public static <PK extends PrimaryKey<PK>,
-					D extends Databean<PK, D>,
-					F extends DatabeanFielder<PK, D>,
-					N extends SortedMapStorageNode<PK,D,F>>
+			D extends Databean<PK, D>,
+			F extends DatabeanFielder<PK, D>,
+			N extends SortedMapStorageNode<PK,D,F>>
 	IndexingSortedMapStorageNode<PK, D, F, N> newSortedMap(N mainNode){
 		return new IndexingSortedMapStorageNode<>(mainNode);
 	}
 
-	/************************** listener *****************************************/
+	/*----------------------------- listener --------------------------------*/
 
 	public static <PK extends PrimaryKey<PK>,
-					D extends Databean<PK,D>,
-					IK extends PrimaryKey<IK>,
-					IE extends UniqueIndexEntry<IK,IE,PK,D>,
-					IF extends DatabeanFielder<IK,IE>,
-					IN extends SortedMapStorageNode<IK,IE,IF>>
+			D extends Databean<PK,D>,
+			IK extends PrimaryKey<IK>,
+			IE extends UniqueIndexEntry<IK,IE,PK,D>,
+			IF extends DatabeanFielder<IK,IE>,
+			IN extends SortedMapStorageNode<IK,IE,IF>>
 	IndexListener<PK,D> newUniqueListener(Supplier<IE> indexEntrySupplier, IN indexNode){
 		return new IndexMapStorageWriterListener<>(indexEntrySupplier, indexNode);
 	}
 
 	public static <PK extends PrimaryKey<PK>,
-					D extends Databean<PK,D>,
-					IK extends PrimaryKey<IK>,
-					IE extends MultiIndexEntry<IK,IE,PK,D>,
-					IF extends DatabeanFielder<IK,IE>,
-					IN extends SortedMapStorageNode<IK,IE,IF>>
+			D extends Databean<PK,D>,
+			IK extends PrimaryKey<IK>,
+			IE extends MultiIndexEntry<IK,IE,PK,D>,
+			IF extends DatabeanFielder<IK,IE>,
+			IN extends SortedMapStorageNode<IK,IE,IF>>
 	IndexListener<PK,D> newMultiListener(Supplier<IE> indexEntrySupplier, IN indexNode){
 		return new IndexMapStorageWriterListener<>(indexEntrySupplier, indexNode);
 	}
 
-	/******************************* indexing node **************************************/
+	/*--------------------------- indexing node -----------------------------*/
 
-	/**** Manual indexes ****/
+	/*--------------------------- manual indexes ----------------------------*/
+
 	public static <PK extends PrimaryKey<PK>,
-					D extends Databean<PK,D>,
-					IK extends PrimaryKey<IK>,
-					IF extends DatabeanFielder<IK,IE>,
-					IE extends UniqueIndexEntry<IK,IE,PK,D>>
+			D extends Databean<PK,D>,
+			IK extends PrimaryKey<IK>,
+			IF extends DatabeanFielder<IK,IE>,
+			IE extends UniqueIndexEntry<IK,IE,PK,D>>
 	ManualUniqueIndexNode<PK,D,IK,IE> newManualUnique(MapStorage<PK,D> mainNode,
 			SortedMapStorageNode<IK,IE,IF> indexNode){
 		return new ManualUniqueIndexNode<>(mainNode, indexNode);
 	}
 
 	public static <PK extends PrimaryKey<PK>,
-					D extends Databean<PK,D>,
-					IK extends PrimaryKey<IK>,
-					IE extends MultiIndexEntry<IK,IE,PK,D>,
-					IF extends DatabeanFielder<IK,IE>>
+			D extends Databean<PK,D>,
+			IK extends PrimaryKey<IK>,
+			IE extends MultiIndexEntry<IK,IE,PK,D>,
+			IF extends DatabeanFielder<IK,IE>>
 	ManualMultiIndexNode<PK,D,IK,IE> newManualMulti(MapStorage<PK,D> mainNode,
 			SortedMapStorageNode<IK,IE,IF> indexNode){
 		return new ManualMultiIndexNode<>(mainNode, indexNode);
 	}
 
-	/**** Managed indexes ****/
+	/*-------------------------- managed indexes ----------------------------*/
 
 	/**
 	 * WARNING: make sure the index fielder you pass in has the same character set and collation options as the backing
 	 * node's fielder or risk having incorrect, performance-hurting introducers in SQL
 	 */
 	public static <PK extends PrimaryKey<PK>,
-					D extends Databean<PK,D>,
-					IK extends PrimaryKey<IK>,
-					IE extends UniqueIndexEntry<IK,IE,PK,D>,
-					IF extends DatabeanFielder<IK,IE>>
-	ManagedUniqueIndexNode<PK, D, IK, IE, IF> newManagedUnique(IndexedMapStorage<PK, D> backingNode,
+			D extends Databean<PK,D>,
+			IK extends PrimaryKey<IK>,
+			IE extends UniqueIndexEntry<IK,IE,PK,D>,
+			IF extends DatabeanFielder<IK,IE>>
+	ManagedUniqueIndexNode<PK,D,IK,IE,IF> newManagedUnique(IndexedMapStorage<PK, D> backingNode,
 			Supplier<IF> indexFielderSupplier, Supplier<IE> indexEntrySupplier, boolean manageTxn, String indexName){
-		NodeParams<IK, IE, IF> params = new NodeParamsBuilder<>(indexEntrySupplier, indexFielderSupplier)
-				.withTableName(indexName).build();
+		NodeParams<IK,IE,IF> params = new NodeParamsBuilder<>(indexEntrySupplier, indexFielderSupplier)
+				.withTableName(indexName)
+				.build();
 		if(manageTxn){
 			return new TxnManagedUniqueIndexNode<>(backingNode, params, indexName);
 		}
@@ -127,11 +129,11 @@ public class IndexingNodeFactory{
 	 * node's fielder or risk having incorrect, performance-hurting introducers in SQL
 	 */
 	public static <PK extends PrimaryKey<PK>,
-					D extends Databean<PK,D>,
-					IK extends PrimaryKey<IK>,
-					IE extends UniqueIndexEntry<IK,IE,PK,D>,
-					IF extends DatabeanFielder<IK,IE>>
-	ManagedUniqueIndexNode<PK, D, IK, IE, IF> newManagedUnique(IndexedMapStorage<PK, D> backingNode,
+			D extends Databean<PK,D>,
+			IK extends PrimaryKey<IK>,
+			IE extends UniqueIndexEntry<IK,IE,PK,D>,
+			IF extends DatabeanFielder<IK,IE>>
+	ManagedUniqueIndexNode<PK,D,IK,IE,IF> newManagedUnique(IndexedMapStorage<PK, D> backingNode,
 			Class<IF> indexFielder, Class<IE> indexEntryClass, boolean manageTxn){
 		return newManagedUnique(backingNode, ReflectionTool.supplier(indexFielder), ReflectionTool.supplier(
 				indexEntryClass), manageTxn, indexEntryClass.getSimpleName());

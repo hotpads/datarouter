@@ -29,8 +29,6 @@ public class MapStorageBean extends BaseDatabean<MapStorageBeanKey,MapStorageBea
 	private MapStorageBeanKey key;
 	private String data;
 
-	/** column names *********************************************************/
-
 	public static class FieldKeys{
 		public static final StringFieldKey data = new StringFieldKey("data");
 	}
@@ -45,9 +43,8 @@ public class MapStorageBean extends BaseDatabean<MapStorageBeanKey,MapStorageBea
 		public List<Field<?>> getNonKeyFields(MapStorageBean databean){
 			return Arrays.asList(new StringField(FieldKeys.data, databean.data));
 		}
-	}
 
-	/** constructor **********************************************************/
+	}
 
 	public MapStorageBean(){
 		this(null);
@@ -57,8 +54,6 @@ public class MapStorageBean extends BaseDatabean<MapStorageBeanKey,MapStorageBea
 		this.key = new MapStorageBeanKey();
 		this.data = data;
 	}
-
-	/** databean *************************************************************/
 
 	@Override
 	public Class<MapStorageBeanKey> getKeyClass(){
@@ -70,8 +65,6 @@ public class MapStorageBean extends BaseDatabean<MapStorageBeanKey,MapStorageBea
 		return key;
 	}
 
-	/** get/set **************************************************************/
-
 	public String getData(){
 		return data;
 	}
@@ -79,4 +72,5 @@ public class MapStorageBean extends BaseDatabean<MapStorageBeanKey,MapStorageBea
 	public void setData(String data){
 		this.data = data;
 	}
+
 }

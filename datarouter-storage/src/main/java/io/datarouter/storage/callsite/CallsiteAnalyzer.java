@@ -36,16 +36,11 @@ import io.datarouter.util.string.StringTool;
 public class CallsiteAnalyzer implements Callable<String>{
 	private static final Logger logger = LoggerFactory.getLogger(CallsiteAnalyzer.class);
 
-	/****************** fields *********************/
-
 	private final String logPath;
 	private final Integer maxResults;
 	private final CallsiteStatComparator comparatorEnum;
 
-	private Map<CallsiteStatKeyX,CallsiteStatX> aggregateStatByKey = new HashMap<>();
-
-
-	/****************** construct ********************/
+	private Map<CallsiteStatKey,CallsiteStat> aggregateStatByKey = new HashMap<>();
 
 	public CallsiteAnalyzer(String logPath, Integer maxResults, CallsiteStatComparator comparatorEnum){
 		this.logPath = logPath;
@@ -71,8 +66,8 @@ public class CallsiteAnalyzer implements Callable<String>{
 				if(ComparableTool.gt(record.getTimestamp(), lastDate)){
 					lastDate = record.getTimestamp();
 				}
-				CallsiteStatX stat = new CallsiteStatX(record.getCallsite(), record.getNodeName(), record
-						.getDatarouterMethodName(), 1L, record.getDurationNs(), record.getNumItems());
+				CallsiteStat stat = new CallsiteStat(record.getCallsite(), record.getNodeName(),
+						record.getDatarouterMethodName(), 1L, record.getDurationNs(), record.getNumItems());
 				if(!aggregateStatByKey.containsKey(stat.getKey())){
 					aggregateStatByKey.put(stat.getKey(), stat);
 				}
@@ -84,13 +79,13 @@ public class CallsiteAnalyzer implements Callable<String>{
 		}
 
 		//sort
-		List<CallsiteStatX> stats = new ArrayList<>(aggregateStatByKey.values());
+		List<CallsiteStat> stats = new ArrayList<>(aggregateStatByKey.values());
 		Collections.sort(stats, Collections.reverseOrder(comparatorEnum.getComparator()));
 
 		//build report
 		CallsiteStatReportMetadata reportMetadata = CallsiteStatReportMetadata.inspect(stats);
 		StringBuilder sb = new StringBuilder();
-		int numDaoCallsites = CallsiteStatX.countDaoCallsites(stats);
+		int numDaoCallsites = CallsiteStat.countDaoCallsites(stats);
 		long numSeconds = (lastDate.getTime() - firstDate.getTime()) / 1000;
 		double callsPerSec = (double)numLines / (double)numSeconds;
 		sb.append("          path: " + logPath + "\n");
@@ -104,10 +99,10 @@ public class CallsiteAnalyzer implements Callable<String>{
 		sb.append("     calls/sec: " + NumberFormatter.format(callsPerSec, 2) + "\n");
 		sb.append("\n");
 		int rankWidth = 5;
-		sb.append(StringTool.pad("rank", ' ', rankWidth) + CallsiteStatX.getReportHeader(reportMetadata) + "\n");
+		sb.append(StringTool.pad("rank", ' ', rankWidth) + CallsiteStat.getReportHeader(reportMetadata) + "\n");
 		//print top N
 		int row = 0;
-		for(CallsiteStatX stat : stats){
+		for(CallsiteStat stat : stats){
 			++row;
 			if(row > maxResults){
 				break;

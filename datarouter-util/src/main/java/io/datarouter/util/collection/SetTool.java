@@ -32,6 +32,12 @@ import io.datarouter.util.array.ArrayTool;
 
 public class SetTool{
 
+	public static <T> Set<T> concatenate(Set<T> set, T element){
+		HashSet<T> newSet = new HashSet<>(set);
+		newSet.add(element);
+		return newSet;
+	}
+
 	public static <T> Set<T> wrap(T element){
 		Set<T> set = new HashSet<>();
 		if(element != null){
@@ -78,14 +84,14 @@ public class SetTool{
 		}
 		E first = enums[0];
 		EnumSet<E> result = EnumSet.noneOf(first.getDeclaringClass());
-		for(int i = 0; i < enums.length; i++){
-			result.add(enums[i]);
+		for(E enum1 : enums){
+			result.add(enum1);
 		}
 		return Collections.unmodifiableSet(result);
 	}
 
-	/* tests *****************************************************************/
 	public static class SetToolTests{
+
 		@Test
 		public void testNullSafeAddAllWithEmptySet(){
 			SortedSet<String> set = new TreeSet<>();

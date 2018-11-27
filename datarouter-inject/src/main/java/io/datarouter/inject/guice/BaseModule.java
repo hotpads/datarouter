@@ -16,11 +16,16 @@
 package io.datarouter.inject.guice;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.TypeLiteral;
 import com.google.inject.multibindings.OptionalBinder;
 
 public abstract class BaseModule extends AbstractModule{
 
 	protected <T> OptionalBinder<T> bindOptional(Class<T> type){
+		return OptionalBinder.newOptionalBinder(binder(), type);
+	}
+
+	protected <T> OptionalBinder<T> bindOptional(TypeLiteral<T> type){
 		return OptionalBinder.newOptionalBinder(binder(), type);
 	}
 

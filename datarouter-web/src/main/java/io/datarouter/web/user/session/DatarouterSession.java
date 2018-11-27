@@ -17,11 +17,12 @@ package io.datarouter.web.user.session;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -35,13 +36,16 @@ import io.datarouter.model.field.imp.array.DelimitedStringArrayFieldKey;
 import io.datarouter.model.field.imp.positive.UInt63Field;
 import io.datarouter.model.field.imp.positive.UInt63FieldKey;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
+import io.datarouter.util.array.ArrayTool;
 import io.datarouter.util.collection.CollectionTool;
-import io.datarouter.util.enums.DatarouterEnumTool;
+import io.datarouter.util.iterable.IterableTool;
 import io.datarouter.web.handler.types.HttpRequestBuilder;
 import io.datarouter.web.user.authenticate.DatarouterTokenGenerator;
 import io.datarouter.web.user.databean.DatarouterUser;
 import io.datarouter.web.user.databean.DatarouterUserKey;
 import io.datarouter.web.user.role.DatarouterUserRole;
+import io.datarouter.web.user.session.service.Role;
+import io.datarouter.web.user.session.service.RoleEnum;
 import io.datarouter.web.user.session.service.Session;
 
 /*
@@ -50,11 +54,8 @@ import io.datarouter.web.user.session.service.Session;
  */
 @SuppressWarnings("serial")
 public class DatarouterSession
-extends BaseDatarouterSessionDatabean<DatarouterSessionKey, DatarouterSession>
+extends BaseDatarouterSessionDatabean<DatarouterSessionKey,DatarouterSession>
 implements Serializable, Session{
-//	private static Logger logger = LoggerFactory.getLogger(DatarouterSession.class);
-
-	/****************** fields **************************/
 
 	private Long userId;//needed to map back to the DatarouterUser
 
@@ -74,6 +75,7 @@ implements Serializable, Session{
 	}
 
 	public static class DatarouterSessionFielder extends BaseDatabeanFielder<DatarouterSessionKey,DatarouterSession>{
+
 		public DatarouterSessionFielder(){
 			super(DatarouterSessionKey.class);
 		}
@@ -96,8 +98,6 @@ implements Serializable, Session{
 		return DatarouterSessionKey.class;
 	}
 
-	/************************** construct *************************/
-
 	public DatarouterSession(){
 		super(new DatarouterSessionKey(null));
 	}
@@ -109,7 +109,7 @@ implements Serializable, Session{
 		Date now = new Date();
 		session.setCreated(now);
 		session.setUpdated(now);
-		session.setRoles(null);
+		session.setRoles(Collections.emptyList());
 		return session;
 	}
 
@@ -122,15 +122,21 @@ implements Serializable, Session{
 		return session;
 	}
 
-
-	/*********************** static methods ************************************/
-
 	public static DatarouterSession nullSafe(DatarouterSession in){
 		return in == null ? new DatarouterSession() : in;
 	}
 
-
-	/********************** methods *************************************/
+	public static boolean equals(DatarouterSession first, DatarouterSession second){
+		return first.equals(second)
+				&& Objects.equals(first.getUserId(), second.getUserId())
+				&& Objects.equals(first.getUserToken(), second.getUserToken())
+				&& Objects.equals(first.getUsername(), second.getUsername())
+				&& Objects.equals(first.getUserCreated(), second.getUserCreated())
+				&& Objects.equals(first.getRoles(), second.getRoles())
+				&& Objects.equals(first.getPersistent(), second.getPersistent())
+				&& Objects.equals(first.getCreated(), second.getCreated())
+				&& Objects.equals(first.getUpdated(), second.getUpdated());
+	}
 
 	public DatarouterUserKey getUserKey(){
 		if(userId == null){
@@ -139,47 +145,31 @@ implements Serializable, Session{
 		return new DatarouterUserKey(userId);
 	}
 
+	/*---------------------------- Role methods -----------------------------*/
 
-	/************** DatarouterUserRole methods *****************************/
-
-	public Collection<DatarouterUserRole> getRoles(){
-		return DatarouterEnumTool.fromPersistentStrings(DatarouterUserRole.user, roles);
+	public Collection<Role> getRoles(){
+		return IterableTool.map(roles, Role::new);
 	}
 
-	public void setRoles(Collection<DatarouterUserRole> roleEnums){
-		roles = DatarouterEnumTool.getPersistentStrings(roleEnums);
-		Collections.sort(roles);
-	}
-
-	public boolean doesUserHaveRole(DatarouterUserRole requiredRole){
-		return getRoles().contains(requiredRole);
+	public void setRoles(Collection<Role> roles){
+		this.roles = roles.stream()
+				.map(Role::getPersistentString)
+				.sorted()
+				.distinct()
+				.collect(Collectors.toList());
 	}
 
 	public boolean isAnonymous(){
 		return CollectionTool.isEmpty(roles);
 	}
 
-	public boolean isRequestorOnly(){
-		return getRoles().size() == 1 && doesUserHaveRole(DatarouterUserRole.requestor);
+	public boolean hasRole(Role role){
+		return roles.contains(role.getPersistentString());
 	}
 
-	public boolean isDatarouterAdmin(){
-		return doesUserHaveRole(DatarouterUserRole.datarouterAdmin);
+	public boolean hasRole(RoleEnum<?> role){
+		return hasRole(role.getRole());
 	}
-
-	public boolean isAdmin(){
-		return doesUserHaveRole(DatarouterUserRole.datarouterAdmin) || doesUserHaveRole(DatarouterUserRole.admin);
-	}
-
-	public boolean isApiUser(){
-		return doesUserHaveRole(DatarouterUserRole.apiUser);
-	}
-
-	public boolean isDocUser(){
-		return doesUserHaveRole(DatarouterUserRole.docUser);
-	}
-
-	/*********************** get/set ************************************/
 
 	@Override
 	public DatarouterSessionKey getKey(){
@@ -191,6 +181,7 @@ implements Serializable, Session{
 		this.key = key;
 	}
 
+	@Override
 	public String getUsername(){
 		return username;
 	}
@@ -216,6 +207,7 @@ implements Serializable, Session{
 		this.userToken = userToken;
 	}
 
+	@Override
 	public Long getUserId(){
 		return userId;
 	}
@@ -249,23 +241,23 @@ implements Serializable, Session{
 					.build();
 		}
 
-		public static HttpServletRequest getAllRolesHttpServletRequest(){
+		public static HttpServletRequest getAllDatarouterUserRolesHttpServletRequest(){
 			return new HttpRequestBuilder()
 					.withAttribute(DatarouterSessionManager.REQUEST_ATTRIBUTE_NAME, buildSessionWithRoles(
 							DatarouterUserRole.values()))
 					.build();
 		}
 
-		public static HttpServletRequest getHttpServletRequestWithSessionRoles(DatarouterUserRole... roles){
+		public static HttpServletRequest getHttpServletRequestWithSessionRoles(RoleEnum<?>... roles){
 			return new HttpRequestBuilder()
 					.withAttribute(DatarouterSessionManager.REQUEST_ATTRIBUTE_NAME, buildSessionWithRoles(roles))
 					.build();
 		}
 
-		public static DatarouterSession buildSessionWithRoles(DatarouterUserRole... roles){
+		public static DatarouterSession buildSessionWithRoles(RoleEnum<?>... roles){
 			DatarouterSession session = new DatarouterSession();
 			if(roles != null && roles.length > 0){
-				session.setRoles(Arrays.asList(roles));
+				session.setRoles(ArrayTool.mapToSet(RoleEnum::getRole, roles));
 			}
 			return session;
 		}

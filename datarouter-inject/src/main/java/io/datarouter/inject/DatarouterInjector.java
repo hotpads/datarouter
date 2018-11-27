@@ -23,9 +23,7 @@ import java.util.Map;
 public interface DatarouterInjector{
 
 	<T> T getInstance(Class<? extends T> clazz);
-
 	<T> Map<String,T> getInstancesOfType(Class<T> type);
-
 	void injectMembers(Object instance);
 
 }

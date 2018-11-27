@@ -23,19 +23,34 @@ import io.datarouter.storage.node.op.combo.writer.IndexedMapStorageWriter;
 import io.datarouter.storage.node.op.raw.IndexedStorage;
 import io.datarouter.storage.node.op.raw.MapStorage;
 
-public interface IndexedMapStorage<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
-extends MapStorage<PK,D>, IndexedStorage<PK,D>,
-		IndexedMapStorageReader<PK,D>, IndexedMapStorageWriter<PK,D>{
-	public interface IndexedMapStorageNode<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,
+public interface IndexedMapStorage<
+		PK extends PrimaryKey<PK>,
+		D extends Databean<PK,D>>
+extends MapStorage<PK,D>,
+		IndexedStorage<PK,D>,
+		IndexedMapStorageReader<PK,D>,
+		IndexedMapStorageWriter<PK,D>{
+
+	public interface IndexedMapStorageNode<
+			PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>
 	extends IndexedMapStorage<PK,D>,
-			MapStorageNode<PK,D,F>, IndexedStorageNode<PK,D,F>,
-			IndexedMapStorageReaderNode<PK,D,F>, IndexedMapStorageWriterNode<PK,D,F>{
+			MapStorageNode<PK,D,F>,
+			IndexedStorageNode<PK,D,F>,
+			IndexedMapStorageReaderNode<PK,D,F>,
+			IndexedMapStorageWriterNode<PK,D,F>{
 	}
-	public interface PhysicalIndexedMapStorageNode<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,
+
+	public interface PhysicalIndexedMapStorageNode<
+			PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>
 	extends IndexedMapStorageNode<PK,D,F>,
-			PhysicalMapStorageNode<PK,D,F>, PhysicalIndexedStorageNode<PK,D,F>,
-			PhysicalIndexedMapStorageReaderNode<PK,D,F>, PhysicalIndexedMapStorageWriterNode<PK,D,F>{
+			PhysicalMapStorageNode<PK,D,F>,
+			PhysicalIndexedStorageNode<PK,D,F>,
+			PhysicalIndexedMapStorageReaderNode<PK,D,F>,
+			PhysicalIndexedMapStorageWriterNode<PK,D,F>{
 	}
+
 }

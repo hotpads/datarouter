@@ -42,4 +42,5 @@ public class VarIntEnumFieldKey<E extends IntegerEnum<E>> extends BaseFieldKey<E
 	public VarIntEnumField<E> createValueField(final E value){
 		return new VarIntEnumField<>(this, value);
 	}
+
 }

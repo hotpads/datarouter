@@ -21,8 +21,10 @@ import io.datarouter.httpclient.security.UrlScheme;
 
 @Singleton
 public class HttpsOnlyHttpsFilter extends BaseHttpsFilter{
+
 	@Override
 	protected UrlScheme getRequiredScheme(String path){
 		return UrlScheme.HTTPS;
 	}
+
 }

@@ -25,6 +25,7 @@ import javax.servlet.ServletInputStream;
 public class CachingServletInputStream extends ServletInputStream{
 
 	private final InputStream cachedInputStream;
+
 	private boolean finished = false;
 
 	public CachingServletInputStream(InputStream cachedInputStream){

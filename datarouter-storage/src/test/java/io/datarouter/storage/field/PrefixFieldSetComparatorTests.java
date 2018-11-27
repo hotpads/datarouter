@@ -22,21 +22,21 @@ import io.datarouter.model.field.compare.FieldSetRangeFilter;
 import io.datarouter.storage.test.node.basic.sorted.SortedBeanKey;
 import io.datarouter.util.tuple.Range;
 
-/********************* tests *******************************/
-
 public class PrefixFieldSetComparatorTests{
-	SortedBeanKey endOfRange1 = new SortedBeanKey("emu", null, null, null);
-	Range<SortedBeanKey> rangeEndInclusive = new Range<>(null, true, endOfRange1, true);
-	Range<SortedBeanKey> rangeEndExclusive = new Range<>(null, true, endOfRange1, false);
+
+	private static final String NODE_NAME = "SortedNodeTestRouter.SortedBean";
+
+	private SortedBeanKey endOfRange1 = new SortedBeanKey("emu", null, null, null);
+	private Range<SortedBeanKey> rangeEndInclusive = new Range<>(null, true, endOfRange1, true);
 
 	@Test
 	public void testStart(){
 		SortedBeanKey startOfRangeKey = new SortedBeanKey("a", "c", 2, null);
 		SortedBeanKey candidateKey = new SortedBeanKey("a", "c", 2, "d");
 		Assert.assertTrue(FieldSetRangeFilter.isCandidateAfterStartOfRange(candidateKey.getFields(), startOfRangeKey
-				.getFields(), true));
+				.getFields(), true, NODE_NAME));
 		Assert.assertFalse(FieldSetRangeFilter.isCandidateAfterStartOfRange(candidateKey.getFields(), startOfRangeKey
-				.getFields(), false));
+				.getFields(), false, NODE_NAME));
 	}
 
 	@Test
@@ -44,16 +44,16 @@ public class PrefixFieldSetComparatorTests{
 		SortedBeanKey endOfRangeKey = new SortedBeanKey("a", "c", 2, null);
 		SortedBeanKey candidateKey = new SortedBeanKey("a", "c", 2, "d");
 		Assert.assertTrue(FieldSetRangeFilter.isCandidateBeforeEndOfRange(candidateKey.getFields(), endOfRangeKey
-				.getFields(), true));
+				.getFields(), true, NODE_NAME));
 		Assert.assertFalse(FieldSetRangeFilter.isCandidateBeforeEndOfRange(candidateKey.getFields(), endOfRangeKey
-				.getFields(), false));
+				.getFields(), false, NODE_NAME));
 	}
 
 	@Test
 	public void testObviousFailure(){
 		SortedBeanKey candidate1 = new SortedBeanKey("zzz", "zzz", 55, "zzz");
-		Assert.assertTrue(candidate1.compareTo(endOfRange1) > 0);//sanity check
-		Assert.assertFalse(FieldSetRangeFilter.include(candidate1, rangeEndInclusive));
+		Assert.assertTrue(candidate1.compareTo(endOfRange1) > 0);// sanity check
+		Assert.assertFalse(FieldSetRangeFilter.include(candidate1, rangeEndInclusive, NODE_NAME));
 	}
 
 	@Test
@@ -61,10 +61,13 @@ public class PrefixFieldSetComparatorTests{
 		SortedBeanKey endOfRange2 = new SortedBeanKey("emu", "d", 5, "g");
 		Range<SortedBeanKey> rangeEnd2Inclusive = new Range<>(null, true, endOfRange2, true);
 		Range<SortedBeanKey> rangeEnd2Exclusive = new Range<>(null, true, endOfRange2, false);
-		//the candidate would normally compare after the endOfRange, but should be included here
+		// the candidate would normally compare after the endOfRange, but should be included here
 		SortedBeanKey candidate3 = new SortedBeanKey("emu", "d", 5, "g");
 		Assert.assertTrue(candidate3.compareTo(endOfRange2) == 0);
-		Assert.assertTrue(FieldSetRangeFilter.include(candidate3, rangeEnd2Inclusive));//but in the prefix range
-		Assert.assertFalse(FieldSetRangeFilter.include(candidate3, rangeEnd2Exclusive));//even with inclusive=false
+		// but in the prefix range
+		Assert.assertTrue(FieldSetRangeFilter.include(candidate3, rangeEnd2Inclusive, NODE_NAME));
+		// even with inclusive=false
+		Assert.assertFalse(FieldSetRangeFilter.include(candidate3, rangeEnd2Exclusive, NODE_NAME));
 	}
+
 }

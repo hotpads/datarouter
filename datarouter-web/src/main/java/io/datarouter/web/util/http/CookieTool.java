@@ -19,6 +19,8 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import io.datarouter.util.number.NumberTool;
+
 public class CookieTool{
 
 	public static void addCookie(HttpServletResponse response, String cookieName, String value, String path,
@@ -30,6 +32,11 @@ public class CookieTool{
 		cookie.setMaxAge(maxAge);
 		cookie.setHttpOnly(true); //enforce HttpOnly cookies (can't be accessed by javascript) to prevent XSS attacks
 		response.addCookie(cookie);
+	}
+
+	public static void addCookie(HttpServletResponse response, String cookieName, String value, String path,
+			long maxAge){
+		addCookie(response, cookieName, value, path, NumberTool.limitLongToIntRange(maxAge));
 	}
 
 	public static String getCookieValue(HttpServletRequest request, String cookieName){

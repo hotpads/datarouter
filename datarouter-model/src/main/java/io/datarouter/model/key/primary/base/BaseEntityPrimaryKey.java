@@ -25,7 +25,9 @@ import io.datarouter.model.key.primary.EntityPrimaryKey;
 import io.datarouter.util.collection.ListTool;
 import io.datarouter.util.string.StringTool;
 
-public abstract class BaseEntityPrimaryKey<EK extends EntityKey<EK>,PK extends EntityPrimaryKey<EK,PK>>
+public abstract class BaseEntityPrimaryKey<
+		EK extends EntityKey<EK>,
+		PK extends EntityPrimaryKey<EK,PK>>
 extends BasePrimaryKey<PK>
 implements EntityPrimaryKey<EK,PK>{
 

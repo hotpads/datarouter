@@ -20,16 +20,16 @@ import io.datarouter.instrumentation.trace.TraceThreadDto;
 public class TraceThread extends BaseTraceThread<TraceEntityKey,TraceThreadKey,TraceThread>{
 
 	public TraceThread(){
-		this.key = new TraceThreadKey(null, null);
+		this.key = new TraceThreadKey();
 	}
 
-	public TraceThread(Long traceId, boolean hasParent){
-		this.key = new TraceThreadKey(traceId, hasParent);
+	public TraceThread(String traceId, Long threadId){
+		this.key = new TraceThreadKey(traceId, threadId);
 	}
 
 	public TraceThread(TraceThreadDto dto){
 		super(dto);
-		this.key = new TraceThreadKey(dto.traceId, dto.threadId);
+		this.key = new TraceThreadKey(dto.getTraceId(), dto.getThreadId());
 	}
 
 	public static class TraceThreadFielder extends BaseTraceThreadFielder<TraceEntityKey,TraceThreadKey,TraceThread>{
@@ -50,9 +50,7 @@ public class TraceThread extends BaseTraceThread<TraceEntityKey,TraceThreadKey,T
 				getServerId(),
 				getCreated(),
 				getQueuedDuration(),
-				getRunningDuration(),
-				getQueuedDurationNano(),
-				getRunningDurationNano());
+				getRunningDuration());
 	}
 
 	@Override

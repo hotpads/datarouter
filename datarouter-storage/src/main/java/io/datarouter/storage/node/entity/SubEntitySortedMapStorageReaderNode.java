@@ -28,6 +28,6 @@ public interface SubEntitySortedMapStorageReaderNode<
 		F extends DatabeanFielder<PK,D>>
 extends SortedMapStorageReaderNode<PK,D,F>{
 
-	public String getEntityNodePrefix();
+	String getEntityNodePrefix();
 
 }

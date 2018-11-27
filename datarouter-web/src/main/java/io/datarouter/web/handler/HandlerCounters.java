@@ -19,7 +19,7 @@ import java.lang.reflect.Method;
 
 import javax.inject.Singleton;
 
-import io.datarouter.storage.counter.Counters;
+import io.datarouter.instrumentation.count.Counters;
 import io.datarouter.storage.util.DatarouterCounters;
 
 @Singleton

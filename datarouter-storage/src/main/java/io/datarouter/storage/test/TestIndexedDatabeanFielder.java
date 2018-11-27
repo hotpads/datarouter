@@ -24,12 +24,11 @@ import io.datarouter.model.field.Field;
 import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.key.unique.BaseUniqueKey;
 
-
 public class TestIndexedDatabeanFielder extends TestDatabeanFielder{
 
 	@Override
-	public Map<String, List<Field<?>>> getUniqueIndexes(TestDatabean databean){
-		Map<String, List<Field<?>>> indexes = new HashMap<>();
+	public Map<String,List<Field<?>>> getUniqueIndexes(TestDatabean databean){
+		Map<String,List<Field<?>>> indexes = new HashMap<>();
 		indexes.put("byBaz", new TestDatabeanByBazLookup(databean.getBaz()).getFields());
 		return indexes;
 	}

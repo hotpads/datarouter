@@ -26,6 +26,8 @@ import io.datarouter.model.field.imp.DateField;
 import io.datarouter.model.field.imp.DateFieldKey;
 import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.StringFieldKey;
+import io.datarouter.model.field.imp.comparable.IntegerField;
+import io.datarouter.model.field.imp.comparable.IntegerFieldKey;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
 import io.datarouter.model.serialize.fielder.Fielder;
 import io.datarouter.model.util.CommonFieldSizes;
@@ -38,11 +40,14 @@ extends BaseDatabean<PK,D>{
 	protected PK key;
 
 	private Date created;
+	private String appName; // not yet in fielder (will cause a lot of schema update)
 	private String serverName;
 	private String stackTrace;
 	private String type;
 	private String appVersion;
 	private String exceptionLocation;
+	private String methodName;
+	private Integer lineNumber;
 
 	public static class FieldKeys{
 		public static final DateFieldKey created = new DateFieldKey("created");
@@ -52,6 +57,8 @@ extends BaseDatabean<PK,D>{
 		public static final StringFieldKey type = new StringFieldKey("type");
 		public static final StringFieldKey appVersion = new StringFieldKey("appVersion");
 		public static final StringFieldKey exceptionLocation = new StringFieldKey("exceptionLocation");
+		public static final StringFieldKey methodName = new StringFieldKey("methodName");
+		public static final IntegerFieldKey lineNumber = new IntegerFieldKey("lineNumber");
 	}
 
 	public abstract static class BaseExceptionRecordFielder<
@@ -71,36 +78,44 @@ extends BaseDatabean<PK,D>{
 					new StringField(FieldKeys.stackTrace, databean.getStackTrace()),
 					new StringField(FieldKeys.type, databean.getType()),
 					new StringField(FieldKeys.appVersion, databean.getAppVersion()),
-					new StringField(FieldKeys.exceptionLocation, databean.getExceptionLocation()));
+					new StringField(FieldKeys.exceptionLocation, databean.getExceptionLocation()),
+					new StringField(FieldKeys.methodName, databean.getExceptionLocation()),
+					new IntegerField(FieldKeys.lineNumber, databean.getLineNumber()));
 			}
 	}
 
 
-	public BaseExceptionRecord(){
+	public BaseExceptionRecord(){}
+
+	public BaseExceptionRecord(String appName, String serverName, String stackTrace, String type, String appVersion,
+			String exceptionLocation, String methodName, Integer lineNumber){
+		this(System.currentTimeMillis(), appName, serverName, stackTrace, type, appVersion, exceptionLocation,
+				methodName, lineNumber);
 	}
 
-	public BaseExceptionRecord(String serverName, String stackTrace, String type, String appVersion,
-			String exceptionLocation){
-		this(System.currentTimeMillis(), serverName, stackTrace, type, appVersion, exceptionLocation);
-	}
-
-	public BaseExceptionRecord(long dateMs, String serverName, String stackTrace, String type, String appVersion,
-			String exceptionLocation){
+	public BaseExceptionRecord(long dateMs, String appName, String serverName, String stackTrace, String type,
+			String appVersion, String exceptionLocation, String methodName, Integer lineNumber){
 		this.created = new Date(dateMs);
+		this.appName = appName;
 		this.serverName = serverName;
 		this.stackTrace = stackTrace;
 		this.type = type;
 		this.appVersion = appVersion;
 		this.exceptionLocation = exceptionLocation;
+		this.methodName = methodName;
+		this.lineNumber = lineNumber;
 	}
 
 	public BaseExceptionRecord(ExceptionRecordDto exceptionRecordDto){
 		this.created = exceptionRecordDto.created;
+		this.appName = exceptionRecordDto.appName;
 		this.serverName = exceptionRecordDto.serverName;
 		this.stackTrace = exceptionRecordDto.stackTrace;
 		this.type = exceptionRecordDto.type;
 		this.appVersion = exceptionRecordDto.appVersion;
 		this.exceptionLocation = exceptionRecordDto.exceptionLocation;
+		this.methodName = exceptionRecordDto.methodName;
+		this.lineNumber = exceptionRecordDto.lineNumber;
 	}
 
 
@@ -115,6 +130,10 @@ extends BaseDatabean<PK,D>{
 
 	public void setCreated(Date created){
 		this.created = created;
+	}
+
+	public String getAppName(){
+		return appName;
 	}
 
 	public String getServerName(){
@@ -135,6 +154,14 @@ extends BaseDatabean<PK,D>{
 
 	public String getExceptionLocation(){
 		return exceptionLocation;
+	}
+
+	public String getMethodName(){
+		return methodName;
+	}
+
+	public Integer getLineNumber(){
+		return lineNumber;
 	}
 
 }

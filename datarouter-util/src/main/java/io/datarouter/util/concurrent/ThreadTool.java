@@ -15,9 +15,16 @@
  */
 package io.datarouter.util.concurrent;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class ThreadTool{
+	private static final Logger logger = LoggerFactory.getLogger(ThreadTool.class);
 
 	public static void sleep(long ms){
+		if(ms <= 0){//sleep errors on negatives
+			return;
+		}
 		try{
 			Thread.sleep(ms);
 		}catch(InterruptedException e){
@@ -25,4 +32,16 @@ public class ThreadTool{
 			throw new RuntimeException(e);
 		}
 	}
+
+	public static void trySleep(long ms){
+		if(ms <= 0){//sleep errors on negatives
+			return;
+		}
+		try{
+			Thread.sleep(ms);
+		}catch(InterruptedException e){
+			logger.warn("sleep interrupted, continuing");
+		}
+	}
+
 }

@@ -15,29 +15,10 @@
  */
 package io.datarouter.util.io;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
-
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import io.datarouter.util.collection.CollectionTool;
-
 public class FileToolTests{
-
-	@Test
-	public void testFindFiles() throws IOException{
-		String thisJavaFile = "glob:**/" + FileToolTests.class.getSimpleName() + ".java";
-		List<File> files = FileTool.findFiles(thisJavaFile);
-
-		File file = CollectionTool.getFirst(files);
-		Assert.assertNotNull(file);
-
-		String content = FileTool.readFile(file);
-		Assert.assertTrue(content.contains(FileToolTests.class.getSimpleName()));
-		Assert.assertTrue(content.contains(FileToolTests.class.getPackage().getName()));
-	}
 
 	@Test
 	public void hasAStaticFileExtensionTest(){

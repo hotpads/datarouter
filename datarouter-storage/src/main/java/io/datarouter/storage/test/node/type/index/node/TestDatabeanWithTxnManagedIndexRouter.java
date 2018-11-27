@@ -24,7 +24,7 @@ import io.datarouter.storage.test.TestDatarouterProperties;
 import io.datarouter.storage.test.node.type.index.databean.TestDatabeanWithManagedIndexByBar;
 import io.datarouter.storage.test.node.type.index.databean.TestDatabeanWithManagedIndexByBar.TestDatabeanWithManagedIndexByBFielder;
 
-public class TestDatabeanWithTxnManagedIndexRouter extends TestDatabeanWithIndexRouter{
+public class TestDatabeanWithTxnManagedIndexRouter extends DatarouterTestDatabeanWithIndexRouter{
 
 	public TestDatabeanWithTxnManagedIndexRouter(Datarouter datarouter, TestDatarouterProperties datarouterProperties,
 			NodeFactory nodeFactory, DatarouterSettings datarouterSettings, ClientId clientId){

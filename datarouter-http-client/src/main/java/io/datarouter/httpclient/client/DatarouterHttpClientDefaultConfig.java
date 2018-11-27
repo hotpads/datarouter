@@ -26,4 +26,5 @@ public class DatarouterHttpClientDefaultConfig implements DatarouterHttpClientCo
 	public String getDtoTypeParameterName(){
 		return "dataTransferObjectType";
 	}
+
 }

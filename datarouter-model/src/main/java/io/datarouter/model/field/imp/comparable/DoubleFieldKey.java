@@ -37,4 +37,5 @@ public class DoubleFieldKey extends PrimitiveFieldKey<Double>{
 	public DoubleField createValueField(final Double value){
 		return new DoubleField(this, value);
 	}
+
 }

@@ -1,5 +1,8 @@
 <c:if test="${isAdmin}">
-	<nav class="navbar navbar-inverse navbar-static-top navbar-thin">
+	<c:if test="${not isProduction}">
+		<c:set var="extraClass" value="testEnv"/>
+	</c:if>
+	<nav class="navbar navbar-inverse navbar-static-top navbar-thin ${extraClass}">
 		<div class="container-fluid">
 			<div class="navbar-header">
 				<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" 
@@ -23,6 +26,9 @@
 		</div> 
 	</nav>
 	<style>
+		.testEnv{
+			background-color: #205081;
+		}
 		.navbar-thin{
 			margin-bottom:0;
 			min-height:0;

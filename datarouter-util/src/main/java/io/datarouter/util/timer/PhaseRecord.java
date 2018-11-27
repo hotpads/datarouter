@@ -16,10 +16,11 @@
 package io.datarouter.util.timer;
 
 public class PhaseRecord{
-	String name;
-	String threadId;
-	long time;
-	long duration = 0L;
+
+	protected String name;
+	protected String threadId;
+	protected long time;
+	protected long duration = 0L;
 
 	public static final String makeThreadId(long threadId){
 		return "T" + threadId;
@@ -37,7 +38,6 @@ public class PhaseRecord{
 		this.time = System.currentTimeMillis();
 	}
 
-	/*** Standard getters/setters ***/
 	public String getName(){
 		return name;
 	}
@@ -66,9 +66,6 @@ public class PhaseRecord{
 		return System.currentTimeMillis() - time;
 	}
 
-	/***
-	 * Overrides
-	 */
 	@Override
 	public String toString(){
 		return threadId + (name.length() == 0 ? "" : (":" + name) + " @" + time);

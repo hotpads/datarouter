@@ -24,12 +24,16 @@ import io.datarouter.storage.node.op.raw.write.MapStorageWriter;
 public interface IndexedMapStorageWriter<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 extends MapStorageWriter<PK,D>, IndexedStorageWriter<PK,D>{
 
-	public interface IndexedMapStorageWriterNode<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,
+	public interface IndexedMapStorageWriterNode<
+			PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>
 	extends MapStorageWriterNode<PK,D,F>, IndexedStorageWriterNode<PK,D,F>{
 	}
 
-	public interface PhysicalIndexedMapStorageWriterNode<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,
+	public interface PhysicalIndexedMapStorageWriterNode<
+			PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>
 	extends PhysicalMapStorageWriterNode<PK,D,F>, PhysicalIndexedStorageWriterNode<PK,D,F>{
 	}

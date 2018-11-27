@@ -29,17 +29,17 @@ public abstract class ConstantSetting<T> implements Setting<T>{
 
 	@Override
 	public T getDefaultValue(){
-		return getValue();
+		return get();
 	}
 
 	@Override
 	public boolean getHasCustomValue(){
-		return getValue() != null;
+		return get() != null;
 	}
 
 	@Override
 	public boolean getHasRedundantCustomValue(){
-		return Objects.equals(getDefaultValue(), getValue());
+		return Objects.equals(getDefaultValue(), get());
 	}
 
 	@Override

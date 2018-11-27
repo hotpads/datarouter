@@ -42,3 +42,4 @@ public class BooleanFieldKey extends PrimitiveFieldKey<Boolean>{
 		return new BooleanField(this, value);
 	}
 }
+

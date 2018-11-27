@@ -16,6 +16,7 @@
 package io.datarouter.storage.router;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Supplier;
 
 import io.datarouter.model.databean.Databean;
@@ -34,6 +35,7 @@ import io.datarouter.storage.client.ClientType;
 import io.datarouter.storage.client.LazyClientProvider;
 import io.datarouter.storage.client.RouterOptions;
 import io.datarouter.storage.client.imp.TxnManagedUniqueIndexNode;
+import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.storage.config.setting.DatarouterSettings;
 import io.datarouter.storage.node.Node;
 import io.datarouter.storage.node.NodeParams;
@@ -50,23 +52,21 @@ import io.datarouter.util.concurrent.FutureTool;
 public abstract class BaseRouter
 implements Router, NodeSupport{
 
-	public static final String
-		MODE_development = "development",
-		MODE_production = "production";
-
+	public static final String MODE_development = "development";
+	public static final String MODE_production = "production";
 
 	protected final Datarouter datarouter;
+
 	private final String configLocation;
 	private final String name;
 	private final RouterOptions routerOptions;
 	private final BaseNodeFactory nodeFactory;
 	private final DatarouterSettings datarouterSettings;
 
-
-	public BaseRouter(Datarouter datarouter, String configLocation, String name, BaseNodeFactory nodeFactory,
-			DatarouterSettings datarouterSettings){
+	public BaseRouter(Datarouter datarouter, DatarouterProperties datarouterProperties, String name,
+			BaseNodeFactory nodeFactory, DatarouterSettings datarouterSettings){
 		this.datarouter = datarouter;
-		this.configLocation = configLocation;
+		this.configLocation = datarouterProperties.getDatarouterPropertiesFileLocation();
 		this.name = name;
 		this.datarouterSettings = datarouterSettings;
 		this.routerOptions = new RouterOptions(getConfigLocation());
@@ -75,7 +75,7 @@ implements Router, NodeSupport{
 		registerWithContext();
 	}
 
-	/********************************* methods *************************************/
+	/*---------------------------- methods ----------------------------------*/
 
 	@Override
 	public final String getConfigLocation(){
@@ -100,7 +100,7 @@ implements Router, NodeSupport{
 		datarouter.register(this);
 	}
 
-	/************************************** getting clients *************************/
+	/*---------------------------- getting clients --------------------------*/
 
 	@Override
 	public List<ClientId> getClientIds(){
@@ -118,7 +118,7 @@ implements Router, NodeSupport{
 	}
 
 	@Override
-	public ClientType getClientType(String clientName){
+	public ClientType<?> getClientType(String clientName){
 		return datarouter.getClientPool().getClientTypeInstance(clientName);
 	}
 
@@ -127,7 +127,7 @@ implements Router, NodeSupport{
 		return datarouter.getClientPool().getClients(getClientNames());
 	}
 
-	/********************* Object ********************************/
+	/*---------------------------- object -----------------------------------*/
 
 	@Override
 	public String toString(){
@@ -136,11 +136,30 @@ implements Router, NodeSupport{
 
 	@Override
 	public int compareTo(Router otherDatarouter){
-		return getName().compareToIgnoreCase(otherDatarouter.getName());
+		return getName().compareTo(otherDatarouter.getName());
 	}
 
+	@Override
+	public int hashCode(){
+		return Objects.hashCode(name);
+	}
 
-	/********************* get/set ******************************/
+	@Override
+	public boolean equals(Object obj){
+		if(this == obj){
+			return true;
+		}
+		if(obj == null){
+			return false;
+		}
+		if(!(obj instanceof BaseRouter)){
+			return false;
+		}
+		BaseRouter other = (BaseRouter)obj;
+		return Objects.equals(name, other.name);
+	}
+
+	/*---------------------------- get/set ----------------------------------*/
 
 	@Override
 	public String getName(){
@@ -154,31 +173,45 @@ implements Router, NodeSupport{
 
 	/* Node building */
 
-	protected <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>>
+	protected <
+			PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>>
 	NodeBuilder<PK,D,F> create(ClientId clientId, Supplier<D> databeanSupplier, Supplier<F> fielderSupplier){
 		return new NodeBuilder<>(clientId, databeanSupplier, fielderSupplier);
 	}
 
 	@Override
-	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>,N extends Node<PK,D,F>>
+	public <PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>,
+			N extends Node<PK,D,F>>
 	N createAndBuild(ClientId clientId, Supplier<D> databeanSupplier, Supplier<F> fielderSupplier){
 		return new NodeBuilder<>(clientId, databeanSupplier, fielderSupplier).build();
 	}
 
 	@Override
-	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>,
+	public <PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>,
 			N extends Node<PK,D,F>>
 	N createAndRegister(ClientId clientId, Supplier<D> databeanSupplier, Supplier<F> fielderSupplier){
 		return new NodeBuilder<>(clientId, databeanSupplier, fielderSupplier).buildAndRegister();
 	}
 
-	protected <PK extends RegularPrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>>
+	protected <
+			PK extends RegularPrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>>
 	SubEntityNodeBuilder<PK,D,F> createSubEntity(ClientId clientId, Supplier<D> databeanSupplier,
 			Supplier<F> fielderSupplier){
 			return new SubEntityNodeBuilder<>(clientId, databeanSupplier, fielderSupplier);
 	}
 
-	protected <PK extends RegularPrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>,
+	protected <
+			PK extends RegularPrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>,
 			N extends NodeOps<PK,D>>
 	N createAndRegisterSubEntity(ClientId clientId, Supplier<D> databeanSupplier, Supplier<F> fielderSupplier){
 		return new SubEntityNodeBuilder<>(clientId, databeanSupplier, fielderSupplier).buildAndRegister();
@@ -271,7 +304,7 @@ implements Router, NodeSupport{
 					.withSchemaVersion(schemaVersion)
 					.withDiagnostics(datarouterSettings.getRecordCallsites())
 					.build();
-			return nodeFactory.create(params, true);
+			return nodeFactory.create(params);
 		}
 
 		public <N extends NodeOps<PK,D>> N buildAndRegister(){

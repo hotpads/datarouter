@@ -27,7 +27,7 @@ public interface StreamStorage<
 		D extends Databean<PK,D>>
 extends StorageWriter<PK,D>, StreamStorageReader<PK,D>{
 
-	/*************** sub-interfaces ***********************/
+	/*---------------------------- sub-interfaces ---------------------------*/
 
 	public interface PhysicalStreamStorageNode<
 			PK extends PrimaryKey<PK>,
@@ -35,4 +35,5 @@ extends StorageWriter<PK,D>, StreamStorageReader<PK,D>{
 			F extends DatabeanFielder<PK,D>>
 	extends StreamStorage<PK,D>, PhysicalNode<PK,D,F>{
 	}
+
 }

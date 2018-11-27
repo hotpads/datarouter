@@ -22,9 +22,10 @@ public interface PortIdentifier{
 	Integer getHttpPort();
 	Integer getHttpsPort();
 
-	/************ fixed class for testing ***************/
+	/*----------------------- fixed class for testing -----------------------*/
 
 	public static class TestPortIdentifier implements PortIdentifier{
+
 		@Override
 		public Integer getHttpPort(){
 			return UrlConstants.PORT_HTTP_DEV;
@@ -33,6 +34,7 @@ public interface PortIdentifier{
 		public Integer getHttpsPort(){
 			return UrlConstants.PORT_HTTPS_DEV;
 		}
+
 	}
 
 }

@@ -58,19 +58,18 @@ public class BatchingScanner<T> implements Scanner<List<T>>{
 		return batch.size() >= batchSize;
 	}
 
-
-	/**************** tests *************************/
-
 	public static class BatchingScannerTests{
+
 		@Test
 		public void testEmptyInputScanner(){
 			Scanner<Integer> scanner = new ListBackedSortedScanner<>(new ArrayList<Integer>());
 			BatchingScanner<Integer> batchingScanner = new BatchingScanner<>(scanner, 3);
 			Assert.assertFalse(batchingScanner.advance());
 		}
+
 		@Test
 		public void testPartialBatch(){
-			List<Integer> ints = ListTool.createArrayList(0,1);
+			List<Integer> ints = ListTool.createArrayList(0, 1);
 			Scanner<Integer> scanner = new ListBackedSortedScanner<>(ints);
 			BatchingScanner<Integer> batchingScanner = new BatchingScanner<>(scanner, 3);
 			Assert.assertTrue(batchingScanner.advance());
@@ -80,9 +79,10 @@ public class BatchingScanner<T> implements Scanner<List<T>>{
 			Assert.assertEquals(batch.get(1).intValue(), 1);
 			Assert.assertFalse(batchingScanner.advance());
 		}
+
 		@Test
 		public void testMultipleBatches(){
-			List<Integer> ints = ListTool.createArrayList(0,1,2,3,4,5,6,7);
+			List<Integer> ints = ListTool.createArrayList(0, 1, 2, 3, 4, 5, 6, 7);
 			Scanner<Integer> scanner = new ListBackedSortedScanner<>(ints);
 			BatchingScanner<Integer> batchingScanner = new BatchingScanner<>(scanner, 3);
 			List<List<Integer>> batches = new ArrayList<>();

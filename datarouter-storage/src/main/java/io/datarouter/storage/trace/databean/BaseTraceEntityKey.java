@@ -19,37 +19,33 @@ import java.util.Arrays;
 import java.util.List;
 
 import io.datarouter.model.field.Field;
-import io.datarouter.model.field.imp.comparable.LongField;
-import io.datarouter.model.field.imp.comparable.LongFieldKey;
+import io.datarouter.model.field.imp.StringField;
+import io.datarouter.model.field.imp.StringFieldKey;
 import io.datarouter.model.key.entity.base.BaseEntityKey;
 
 public abstract class BaseTraceEntityKey<EK extends BaseEntityKey<EK>>
 extends BaseEntityKey<EK>{
 
-	private Long traceId;
+	private String traceId;
 
 	public static class FieldKeys{
-		public static final LongFieldKey traceId = new LongFieldKey("traceId");
+		public static final StringFieldKey traceId = new StringFieldKey("traceId");
 	}
 
 	@Override
 	public List<Field<?>> getFields(){
-		return Arrays.asList(new LongField(FieldKeys.traceId, traceId));
+		return Arrays.asList(new StringField(FieldKeys.traceId, traceId));
 	}
 
 	public BaseTraceEntityKey(){
 	}
 
-	public BaseTraceEntityKey(Long traceId){
+	public BaseTraceEntityKey(String traceId){
 		this.traceId = traceId;
 	}
 
-	public Long getTraceEntityId(){
+	public String getTraceEntityId(){
 		return traceId;
-	}
-
-	public void setTraceEntityId(Long traceId){
-		this.traceId = traceId;
 	}
 
 }

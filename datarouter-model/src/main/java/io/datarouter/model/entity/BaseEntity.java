@@ -24,8 +24,7 @@ import io.datarouter.model.key.entity.EntityKey;
 import io.datarouter.model.key.primary.EntityPrimaryKey;
 
 public abstract class BaseEntity<EK extends EntityKey<EK>>
-implements Entity<EK>,
-		Comparable<BaseEntity<EK>>{
+implements Entity<EK>, Comparable<BaseEntity<EK>>{
 
 	private EK key;
 	private EntitySections<EK> entitySections;

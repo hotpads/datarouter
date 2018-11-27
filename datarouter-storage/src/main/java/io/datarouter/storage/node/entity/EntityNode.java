@@ -15,14 +15,15 @@
  */
 package io.datarouter.storage.node.entity;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.entity.Entity;
 import io.datarouter.model.key.entity.EntityKey;
 import io.datarouter.model.key.primary.EntityPrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
-import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.Node;
 
@@ -30,7 +31,6 @@ public interface EntityNode<
 		EK extends EntityKey<EK>,
 		E extends Entity<EK>>{
 
-	Datarouter getContext();
 	String getName();
 
 	<PK extends EntityPrimaryKey<EK,PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>>
@@ -38,6 +38,15 @@ public interface EntityNode<
 
 	Collection<Node<?,?,?>> getSubEntityNodes();
 
-	E getEntity(EK key, Config config);
+	E getEntity(EK entityKey, Config config);
+
+	void deleteMultiEntities(Collection<EK> entityKeys, Config config);
+
+	default void deleteEntity(EK entityKey, Config config){
+		deleteMultiEntities(Arrays.asList(entityKey), config);
+	}
+
+	// unsorted
+	List<EK> listEntityKeys(EK startKey, boolean startKeyInclusive, Config config);
 
 }

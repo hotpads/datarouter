@@ -56,4 +56,5 @@ public class GroupQueueMessage<PK extends PrimaryKey<PK>,D extends Databean<PK,D
 	public boolean notEmpty(){
 		return !isEmpty();
 	}
+
 }

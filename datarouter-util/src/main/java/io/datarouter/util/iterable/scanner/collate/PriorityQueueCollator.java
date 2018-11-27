@@ -26,6 +26,7 @@ extends BaseSortedScanner<T>{
 
 	//all scanners in pq should be active, meaning scanner.getCurrent() != null
 	private final PriorityQueue<SortedScanner<T>> pq = new PriorityQueue<>();
+	private final Iterable<? extends SortedScanner<T>> scanners;
 	private final Long limit;
 	private long offset;
 	private T current;
@@ -34,6 +35,7 @@ extends BaseSortedScanner<T>{
 	public PriorityQueueCollator(Iterable<? extends SortedScanner<T>> scanners, Long limit){
 		this.limit = limit;
 		this.offset = 0;
+		this.scanners = scanners;
 		for(SortedScanner<T> scanner : IterableTool.nullSafe(scanners)){
 			if(scanner.advance()){
 				pq.add(scanner);
@@ -55,9 +57,11 @@ extends BaseSortedScanner<T>{
 	public boolean advance(){
 		current = null;
 		if(limit != null && offset >= limit){
+			scanners.forEach(SortedScanner::cleanup);
 			return false;
 		}
 		if(nextScanner == null){
+			scanners.forEach(SortedScanner::cleanup);
 			return false;
 		}
 		current = nextScanner.getCurrent();
@@ -65,7 +69,6 @@ extends BaseSortedScanner<T>{
 		++offset;
 		return true;
 	}
-
 
 	private void updateNextScanner(){
 		if(!nextScanner.advance()){// this scanner finished. grab one from the pq
@@ -82,7 +85,6 @@ extends BaseSortedScanner<T>{
 		SortedScanner<T> tempScanner = nextScanner;
 		nextScanner = pq.poll();//should not be null
 		pq.add(tempScanner);
-
 	}
 
 }

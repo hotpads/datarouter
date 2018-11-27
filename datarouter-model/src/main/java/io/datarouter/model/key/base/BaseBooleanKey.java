@@ -15,12 +15,10 @@
  */
 package io.datarouter.model.key.base;
 
-
 import io.datarouter.model.key.BaseKey;
 import io.datarouter.model.key.Key;
 
-public abstract class BaseBooleanKey<K extends Key<K>>
-extends BaseKey<K>{
+public abstract class BaseBooleanKey<K extends Key<K>> extends BaseKey<K>{
 
 	protected Boolean id;
 

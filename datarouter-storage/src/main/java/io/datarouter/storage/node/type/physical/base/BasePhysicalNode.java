@@ -41,17 +41,13 @@ public abstract class BasePhysicalNode<
 extends BaseNode<PK,D,F>
 implements PhysicalNode<PK,D,F>{
 
-	/****************************** constructors ********************************/
-
 	public BasePhysicalNode(NodeParams<PK,D,F> params){
 		super(params);
 	}
 
-	/****************************** node methods ********************************/
-
 	@Override
 	public final String getName(){
-		String name = getClientId().getName() + "." + getTableName();
+		String name = getFieldInfo().getClientId().getName() + "." + getFieldInfo().getTableName();
 		if(getFieldInfo().getEntityNodePrefix() != null){
 			return name + "." + getFieldInfo().getEntityNodePrefix();
 		}
@@ -68,13 +64,6 @@ implements PhysicalNode<PK,D,F>{
 		return ListTool.createLinkedList(fieldInfo.getClientId().getName());
 	}
 
-	/********************** physical node methods *********************************/
-
-	@Override
-	public ClientId getClientId(){
-		return fieldInfo.getClientId();
-	}
-
 	@Override
 	public Set<String> getAllNames(){
 		return SetTool.wrap(getName());
@@ -82,17 +71,17 @@ implements PhysicalNode<PK,D,F>{
 
 	@Override
 	public List<String> getClientNames(){
-		return Collections.singletonList(getClientId().getName());
+		return Collections.singletonList(getFieldInfo().getClientId().getName());
 	}
 
 	@Override
 	public List<ClientId> getClientIds(){
-		return Collections.singletonList(getClientId());
+		return Collections.singletonList(getFieldInfo().getClientId());
 	}
 
 	@Override
 	public boolean usesClient(String clientName){
-		return Objects.equals(getClientId().getName(), clientName);
+		return Objects.equals(getFieldInfo().getClientId().getName(), clientName);
 	}
 
 	@Override
@@ -115,15 +104,10 @@ implements PhysicalNode<PK,D,F>{
 	@Override
 	public List<PhysicalNode<PK,D,F>> getPhysicalNodesForClient(String clientName){
 		List<PhysicalNode<PK,D,F>> physicalNodes = new LinkedList<>();
-		if(clientName.equals(getClientId().getName())){
+		if(clientName.equals(getFieldInfo().getClientId().getName())){
 			physicalNodes.add(this);
 		}
 		return physicalNodes;
-	}
-
-	@Override
-	public String getTableName(){
-		return fieldInfo.getTableName();
 	}
 
 	@Override

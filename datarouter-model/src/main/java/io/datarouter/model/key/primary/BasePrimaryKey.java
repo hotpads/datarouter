@@ -20,10 +20,4 @@ import io.datarouter.model.key.unique.BaseUniqueKey;
 public abstract class BasePrimaryKey<PK extends PrimaryKey<PK>>
 extends BaseUniqueKey<PK>
 implements PrimaryKey<PK>{
-
-	@Override
-	public PrimaryKey<PK> getPrimaryKey(){
-		return this;
-	}
-
 }

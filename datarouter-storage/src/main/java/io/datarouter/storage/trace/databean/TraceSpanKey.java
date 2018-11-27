@@ -24,7 +24,7 @@ public class TraceSpanKey extends BaseTraceSpanKey<TraceEntityKey,TraceSpanKey>{
 		this.entityKey = new TraceEntityKey();
 	}
 
-	public TraceSpanKey(Long traceId, Long threadId, Integer sequence){
+	public TraceSpanKey(String traceId, Long threadId, Integer sequence){
 		super(threadId, sequence);
 		this.entityKey = new TraceEntityKey(traceId);
 	}

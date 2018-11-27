@@ -27,4 +27,5 @@ public class FloatFieldKey extends PrimitiveFieldKey<Float>{
 	public FloatField createValueField(final Float value){
 		return new FloatField(this, value);
 	}
+
 }

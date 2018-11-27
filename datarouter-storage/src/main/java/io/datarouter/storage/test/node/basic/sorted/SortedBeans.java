@@ -24,15 +24,14 @@ import java.util.TreeSet;
 
 public class SortedBeans{
 
-	public static final String
-			S_aardvark = "aardvark",
-			S_albatross = "albatross",
-			S_alpaca = "alpaca",
-			S_chinchilla = "chinchilla",
-			S_emu = "emu",
-			S_gopher = "gopher",
-			S_ostrich = "ostrich",
-			S_pelican = "pelican";
+	public static final String S_aardvark = "aardvark";
+	public static final String S_albatross = "albatross";
+	public static final String S_alpaca = "alpaca";
+	public static final String S_chinchilla = "chinchilla";
+	public static final String S_emu = "emu";
+	public static final String S_gopher = "gopher";
+	public static final String S_ostrich = "ostrich";
+	public static final String S_pelican = "pelican";
 
 	public static final SortedSet<String> STRINGS = new TreeSet<>(Arrays.asList(
 			S_aardvark,
@@ -50,16 +49,15 @@ public class SortedBeans{
 	public static final String PREFIX_ch = "ch";
 	public static final int NUM_PREFIX_ch = 1;
 
-	public static final String
-			RANGE_al = "al",
-			RANGE_alp = "alp",
-			RANGE_emu = "emu";
+	public static final String RANGE_al = "al";
+	public static final String RANGE_alp = "alp";
+	public static final String RANGE_emu = "emu";
 
-	public static final int
-			RANGE_LENGTH_alp = 6,
-			RANGE_LENGTH_al_b = 2,
-			RANGE_LENGTH_alp_emu_inc = 3,//exclude things that begin with emu without the other 3 key fields
-			RANGE_LENGTH_emu = 4;
+	public static final int RANGE_LENGTH_alp = 6;
+	public static final int RANGE_LENGTH_al_b = 2;
+	// exclude things that begin with emu without the other 3 key fields
+	public static final int RANGE_LENGTH_alp_emu_inc = 3;
+	public static final int RANGE_LENGTH_emu = 4;
 
 	public static final int NUM_ELEMENTS = STRINGS.size();
 	public static final List<Integer> INTEGERS = new ArrayList<>(NUM_ELEMENTS);
@@ -97,4 +95,5 @@ public class SortedBeans{
 		}
 		return beans;
 	}
+
 }

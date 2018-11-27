@@ -24,7 +24,7 @@ import java.util.Map.Entry;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import io.datarouter.util.PathNode;
+import io.datarouter.httpclient.path.PathNode;
 import io.datarouter.util.string.StringTool;
 
 public class Mav{
@@ -32,18 +32,16 @@ public class Mav{
 	public static final String REDIRECT = "redirect:";
 	private static final String UTF8 = "UTF-8";
 
-	/********************** fields *******************************************/
-
 	private boolean redirect = false;
 	private boolean shouldAppendModelQueryParams = false;
 	private String viewName;
 	private String context;
-	private String contentType = "text/html";
+	private String contentType = "text/html; charset=utf-8";
 	private Map<String,Object> model = new HashMap<>();
 	private String globalRedirectUrl;
 	private int statusCode = 200;
 
-	/********************** constructors ****************************************/
+	/*---------------------------- constructors -----------------------------*/
 
 	public Mav(){
 	}
@@ -56,9 +54,17 @@ public class Mav{
 		this.setViewName(viewName);
 	}
 
+	public Mav(String context, PathNode pathNode){
+		this(context, pathNode.toSlashedString());
+	}
+
 	public Mav(String context, String viewName){
 		this(viewName);
 		this.context = context;
+	}
+
+	public Mav(PathNode pathNode, Map<String,Object> model){
+		this(pathNode.toSlashedString(), model);
 	}
 
 	public Mav(String viewName, Map<String,Object> model){
@@ -66,7 +72,7 @@ public class Mav{
 		this.model = model;
 	}
 
-	/********************** methods *******************************************/
+	/*---------------------------------- methods ----------------------------*/
 
 	/**
 	 * This method returns the value you give it to enable things like fetching an object from the database and getting
@@ -133,7 +139,7 @@ public class Mav{
 		return "/WEB-INF/jsp" + viewName + ".jsp";
 	}
 
-	/************************** get/set ***********************************/
+	/*-------------------------------- get/set ------------------------------*/
 
 	public Map<String,Object> getModel(){
 		return model;

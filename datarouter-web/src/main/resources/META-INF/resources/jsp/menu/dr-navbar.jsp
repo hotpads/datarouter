@@ -6,7 +6,7 @@
 				<span class="icon-bar"></span>
 				<span class="icon-bar"></span>
 			</button>
-			<a class="navbar-brand" href="${contextPath}/datarouter/routers">
+			<a class="navbar-brand" href="${contextPath}/datarouter">
 				<img alt="Datarouter logo" src="${contextPath}/jee-assets/datarouter-logo.png" class="logo-brand">
 			</a>
 		</div>
@@ -23,7 +23,7 @@
 								href="${contextPath}/datarouter/longRunningTasks" 
 								title="LongRunningTasks">Long Running Tasks</a>
 							<a data-role="menuitem" 
-								href="${contextPath}/datarouter/triggers" 
+								href="${contextPath}/datarouter/triggers/list" 
 								title="Triggers">Triggers</a>
 							<a data-role="menuitem" 
 								href="${contextPath}/datarouter/joblets" 
@@ -41,6 +41,11 @@
 						</li>
 						<li data-role="presentation">
 							<a data-role="menuitem" 
+								href="${contextPath}/datarouter/settings?submitAction=allSettingsLog"
+								title="Browse Settings">Browse Settings Logs</a>
+						</li>
+						<li data-role="presentation">
+							<a data-role="menuitem" 
 								href="${contextPath}/datarouter/settings" 
 								title="Custom Settings">Custom Settings</a>
 						</li>
@@ -51,8 +56,13 @@
 						</li>
 						<li data-role="presentation">
 							<a data-role="menuitem" 
-								href="${contextPath}/datarouter/tableRowCount/threshold"
+								href="${contextPath}/datarouter/nodewatch/threshold"
 								title="Row Count Settings">Row Count Settings</a>
+						</li>
+						<li data-role="presentation">
+							<a data-role="menuitem" 
+								href="${contextPath}/datarouter/copyTable"
+								title="Copy Table Handler">Copy Table Handler</a>
 						</li>
 						<li role="separator" class="divider"></li>
 						<li data-role="presentation">
@@ -98,7 +108,7 @@
 						</li>
 						<li data-role="presentation">
 							<a data-role="menuitem"
-								href="${contextPath}/datarouter/tableRowCount"
+								href="${contextPath}/datarouter/nodewatch/tableRowCount"
 								title="TableRowCount">TableRowCount</a>
 						</li>
 						<li data-role="presentation">
@@ -108,29 +118,8 @@
 						</li>
 						<li data-role="presentation">
 							<a data-role="menuitem"
-								href="${contextPath}/datarouter/webAppInstances"
-								title="Web App Instances">Web App Instances</a>
-						</li>
-					</ul>
-				</li>
-				<li class="dropdown">
-					<a href="#" id="notification" role="button" class="dropdown-toggle" data-toggle="dropdown">
-						Notifications
-						<b class="caret"></b>
-					</a>
-					<ul class="dropdown-menu" role="menu" aria-labelledby="notification">
-						<li data-role="presentation">
-							<a data-role="menuitem" 
-								href="${contextPath}/datarouter/notification/alias">Aliases</a>
-						</li>
-						<li data-role="presentation">
-							<a data-role="menuitem"
-								title="View and change notification timing settings and addign them to notification types"
-								href="${contextPath}/datarouter/notification/timing">Timing</a>
-						</li>
-						<li data-role="presentation">
-							<a data-role="menuitem" 
-								href="${contextPath}/datarouter/notification/tester">Tester</a>
+								href="${contextPath}/datarouter/webappInstances"
+								title="WebappInstances">WebappInstances</a>
 						</li>
 					</ul>
 				</li>

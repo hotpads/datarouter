@@ -17,27 +17,97 @@ package io.datarouter.instrumentation.trace;
 
 public class TraceSpanDto{
 
-	public final Long traceId;
-	public final Long threadId;
-	public final Integer sequence;
-	public final Integer parentSequence;
-	public final String name;
-	public final String info;
-	public final Long created;
-	public final Long duration;
-	public final Long durationNano;
+	private String traceId;
+	private Long threadId;
+	private Integer sequence;
+	private Integer parentSequence;
+	private String name;
+	private String info;
+	private Long created;
+	private Long duration;
 
-	public TraceSpanDto(Long traceId, Long threadId, Integer sequence, Integer parentSequence, String name, String info,
-			Long created, Long duration, Long durationNano){
+	public TraceSpanDto(String traceId, Long threadId, Integer sequence, Integer parentSequence, Long created){
 		this.traceId = traceId;
 		this.threadId = threadId;
 		this.sequence = sequence;
 		this.parentSequence = parentSequence;
+		this.created = created;
+	}
+
+	public TraceSpanDto(String traceId, Long threadId, Integer sequence, Integer parentSequence, String name,
+			String info, Long created, Long duration){
+		this(traceId, threadId, sequence, parentSequence, created);
 		this.name = name;
 		this.info = info;
-		this.created = created;
 		this.duration = duration;
-		this.durationNano = durationNano;
+	}
+
+	public void markFinish(){
+		this.duration = System.currentTimeMillis() - this.created;
+	}
+
+	public String getTraceId(){
+		return traceId;
+	}
+
+	public void setTraceId(String traceId){
+		this.traceId = traceId;
+	}
+
+	public Long getThreadId(){
+		return threadId;
+	}
+
+	public void setThreadId(Long threadId){
+		this.threadId = threadId;
+	}
+
+	public Integer getSequence(){
+		return sequence;
+	}
+
+	public void setSequence(Integer sequence){
+		this.sequence = sequence;
+	}
+
+	public Integer getParentSequence(){
+		return parentSequence;
+	}
+
+	public void setParentSequence(Integer parentSequence){
+		this.parentSequence = parentSequence;
+	}
+
+	public String getName(){
+		return name;
+	}
+
+	public void setName(String name){
+		this.name = name;
+	}
+
+	public String getInfo(){
+		return info;
+	}
+
+	public void setInfo(String info){
+		this.info = info;
+	}
+
+	public Long getCreated(){
+		return created;
+	}
+
+	public void setCreated(Long created){
+		this.created = created;
+	}
+
+	public Long getDuration(){
+		return duration;
+	}
+
+	public void setDuration(Long duration){
+		this.duration = duration;
 	}
 
 }

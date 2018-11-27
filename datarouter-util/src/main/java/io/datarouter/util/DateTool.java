@@ -134,7 +134,6 @@ public final class DateTool{
 		return null;
 	}
 
-
 	public static String getNumericDate(Date date){
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		return sdf.format(date);
@@ -225,6 +224,13 @@ public final class DateTool{
 		return format("yyyy-MM-dd_HH:mm:ss.SSS", ms);
 	}
 
+	/**
+	 * Easy selecting and searching, like for logs.
+	 */
+	public static String formatAlphanumeric(Long ms){
+		return format("yyyy'y'MM'm'dd'd'HH'h'mm'm'ss's'SSS'ms'", ms);
+	}
+
 	public static String format(String pattern, Long ms){
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
 		return LocalDateTime.ofInstant(Instant.ofEpochMilli(ms), ZoneId.systemDefault()).format(formatter);
@@ -269,6 +275,17 @@ public final class DateTool{
 	public static String getMillisAsString(long timeMillis, int maxUnits, DurationUnit maxPrecision){
 		DurationWithCarriedUnits wud = new DurationWithCarriedUnits(timeMillis);
 		return wud.toStringByMaxUnitsMaxPrecision(maxPrecision, maxUnits);
+	}
+
+	public static Date getDaysAgo(int daysAgo, Date fromDate){
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(fromDate);
+		calendar.add(Calendar.DATE, -1 * daysAgo);
+		return calendar.getTime();
+	}
+
+	public static Date getDaysAgo(int daysAgo){
+		return getDaysAgo(daysAgo, new Date());
 	}
 
 	public static int getDatesBetween(Date oldDate, Date newDate){
@@ -368,8 +385,8 @@ public final class DateTool{
 			Assert.assertEquals(getMillisAsString(360051, 2, DurationUnit.MILLISECONDS), "6 minutes");
 			Assert.assertEquals(getMillisAsString(225950, 2, DurationUnit.MILLISECONDS), "3 minutes, 45 seconds");
 			Assert.assertEquals(getMillisAsString(10225950, 2, DurationUnit.MILLISECONDS), "2 hours, 50 minutes");
-			Assert.assertEquals(getMillisAsString(240225950, 4,
-					DurationUnit.MILLISECONDS), "2 days, 18 hours, 43 minutes, 45 seconds");
+			Assert.assertEquals(getMillisAsString(240225950, 4, DurationUnit.MILLISECONDS),
+					"2 days, 18 hours, 43 minutes, 45 seconds");
 		}
 
 		@Test
@@ -401,6 +418,15 @@ public final class DateTool{
 		}
 
 		@Test
+		public void testGetDaysAgo(){
+			Date date1 = new Date(1527182116155L);
+			Calendar calendar = Calendar.getInstance();
+			calendar.setTimeInMillis(1526836516155L);
+			Date date2 = calendar.getTime();
+			Assert.assertEquals(getDaysAgo(4, date1), date2);
+		}
+
+		@Test
 		public void testGetDaysBetween(){
 			Date d1 = new Date(1352059736026L);
 			int daysApart = 4;
@@ -421,6 +447,5 @@ public final class DateTool{
 			Assert.assertTrue(minutesApart > getMinutesBetween(d1, d2));
 			Assert.assertTrue(minutesApart - 1 < getMinutesBetween(d1, d2));
 		}
-
 	}
 }

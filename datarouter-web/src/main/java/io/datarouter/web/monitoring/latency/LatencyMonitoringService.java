@@ -19,15 +19,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
-import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.TreeMap;
-import java.util.concurrent.Future;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -45,18 +44,19 @@ import io.datarouter.storage.client.DatarouterClients;
 import io.datarouter.storage.client.LazyClientProvider;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.config.DatarouterProperties;
-import io.datarouter.storage.config.setting.impl.ClientAvailabilitySwitchThresholdSettings;
+import io.datarouter.storage.config.setting.impl.DatarouterClientAvailabilitySwitchThresholdSettings;
 import io.datarouter.storage.metric.Metrics;
 import io.datarouter.storage.node.DatarouterNodes;
 import io.datarouter.storage.node.op.raw.MapStorage.PhysicalMapStorageNode;
 import io.datarouter.storage.node.op.raw.SortedStorage;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.storage.serialize.fieldcache.DatabeanFieldInfo;
+import io.datarouter.util.OptionalTool;
 import io.datarouter.util.StreamTool;
 import io.datarouter.util.duration.Duration;
 import io.datarouter.util.lang.ReflectionTool;
 import io.datarouter.util.tuple.Pair;
-import io.datarouter.web.app.WebAppName;
+import io.datarouter.web.app.WebappName;
 
 @Singleton
 public class LatencyMonitoringService{
@@ -79,13 +79,13 @@ public class LatencyMonitoringService{
 	@Inject
 	private DatarouterProperties datarouterProperties;
 	@Inject
-	private WebAppName webApp;
+	private WebappName webappName;
 	@Inject
-	private ClientAvailabilitySwitchThresholdSettings switchThresholdSettings;
+	private DatarouterClientAvailabilitySwitchThresholdSettings switchThresholdSettings;
 
-	private final Map<String,Deque<CheckResult>> lastResultsByName = new HashMap<>();
+	private final Map<String,Deque<CheckResult>> lastResultsByName = new ConcurrentHashMap<>();
 
-	private List<Future<?>> runningChecks = Collections.emptyList();
+	private List<LatencyFuture> runningChecks = Collections.emptyList();
 
 	public void record(LatencyCheck check, Duration duration){
 		metrics.save(METRIC_PREFIX + check.name, duration.to(TimeUnit.MICROSECONDS));
@@ -94,17 +94,15 @@ public class LatencyMonitoringService{
 	}
 
 	private Deque<CheckResult> getLastResults(String checkName){
-		return lastResultsByName.computeIfAbsent(checkName, $ -> new LinkedList<>());
+		return lastResultsByName.computeIfAbsent(checkName, $ -> new ConcurrentLinkedDeque<>());
 	}
 
 	private void addCheckResult(LatencyCheck check, CheckResult checkResult){
 		Deque<CheckResult> lastResults = getLastResults(check.name);
-		synchronized(lastResults){
-			while(lastResults.size() >= getNumLastChecksToRetain(check)){
-				lastResults.pollLast();
-			}
-			lastResults.offerFirst(checkResult);
+		while(lastResults.size() >= getNumLastChecksToRetain(check)){
+			lastResults.pollLast();
 		}
+		lastResults.offerFirst(checkResult);
 	}
 
 	public void recordFailure(LatencyCheck check, String failureMessage){
@@ -123,7 +121,7 @@ public class LatencyMonitoringService{
 		if(check instanceof DatarouterClientLatencyCheck){
 			String clientName = ((DatarouterClientLatencyCheck)check).getClientName();
 			return Math.max(MIN_LAST_CHECKS_TO_RETAIN, 2 * switchThresholdSettings.getSwitchThreshold(clientName)
-					.getValue());
+					.get());
 		}
 		return MIN_LAST_CHECKS_TO_RETAIN;
 	}
@@ -140,8 +138,7 @@ public class LatencyMonitoringService{
 		return lastResultsByName.entrySet().stream().collect(Collectors.toMap(Entry::getKey, entry -> {
 			OptionalDouble average = entry.getValue().stream()
 					.map(CheckResult::getLatency)
-					.filter(Optional::isPresent)
-					.map(Optional::get)
+					.flatMap(OptionalTool::stream)
 					.limit(nb)
 					.mapToLong(duration -> duration.to(TimeUnit.NANOSECONDS))
 					.average();
@@ -165,9 +162,10 @@ public class LatencyMonitoringService{
 	}
 
 	public String getGraphLink(String checkName){
-		String webApps = webApp.getName();
+		String webApps = webappName.getName();
 		String servers = datarouterProperties.getServerName();
 		String counters = METRIC_PREFIX + checkName;
+		// TODO remove
 		return "/analytics/counters?submitAction=viewCounters"
 				+ "&webApps=" + webApps
 				+ "&servers=" + servers
@@ -180,12 +178,18 @@ public class LatencyMonitoringService{
 		return getGraphLink(getCheckNameForDatarouterClient(clientName));
 	}
 
-	public void setRunningChecks(List<Future<?>> runningChecks){
+	public void setRunningChecks(List<LatencyFuture> runningChecks){
 		this.runningChecks = runningChecks;
 	}
 
 	public void cancelRunningChecks(){
-		runningChecks.forEach(future -> future.cancel(true));
+		runningChecks.stream()
+				.filter(check -> !check.future.isDone())
+				.forEach(check -> {
+					logger.warn("canceling {}", check.check.name);
+					recordFailure(check.check, "timeout");
+					check.future.cancel(true);
+				});
 	}
 
 	public List<LatencyCheck> getClientChecks(){
@@ -218,6 +222,7 @@ public class LatencyMonitoringService{
 		checks.addAll(clients.getLazyClientProviderByName().values().stream()
 				.filter(LazyClientProvider::isInitialized)
 				.map(LazyClientProvider::getClient)
+				.filter(Client::monitorLatency)
 				.flatMap(mapClientToFirstSortedStorageNode)
 				.map(pair -> new DatarouterClientLatencyCheck(getCheckNameForDatarouterClient(pair.getLeft().getName()),
 						() -> pair.getRight().stream(null, ONLY_FIRST).findFirst(), pair.getLeft().getName()))

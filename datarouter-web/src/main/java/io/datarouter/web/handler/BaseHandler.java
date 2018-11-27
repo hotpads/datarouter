@@ -48,24 +48,22 @@ import org.testng.annotations.Test;
 
 import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.util.collection.CollectionTool;
+import io.datarouter.util.exception.NotImplementedException;
 import io.datarouter.util.lang.ReflectionTool;
-import io.datarouter.util.string.StringTool;
 import io.datarouter.util.tuple.Pair;
 import io.datarouter.web.exception.ExceptionRecorder;
 import io.datarouter.web.exception.HandledException;
-import io.datarouter.web.handler.encoder.DefaultEncoder;
 import io.datarouter.web.handler.encoder.HandlerEncoder;
 import io.datarouter.web.handler.mav.imp.MessageMav;
 import io.datarouter.web.handler.params.Params;
-import io.datarouter.web.handler.types.DefaultDecoder;
 import io.datarouter.web.handler.types.HandlerDecoder;
 import io.datarouter.web.handler.types.HandlerTypingHelper;
 import io.datarouter.web.handler.types.Param;
 import io.datarouter.web.handler.validator.DefaultRequestParamValidator;
 import io.datarouter.web.handler.validator.RequestParamValidator;
+import io.datarouter.web.handler.validator.RequestParamValidator.RequestParamValidatorErrorResponseDto;
 import io.datarouter.web.handler.validator.RequestParamValidator.RequestParamValidatorResponseDto;
 import io.datarouter.web.util.http.RequestTool;
-import io.datarouter.web.util.http.exception.Http400BadRequestException;
 
 /*
  * a dispatcher servlet sets necessary parameters and then calls "handle()"
@@ -84,6 +82,9 @@ public abstract class BaseHandler{
 	private Optional<ExceptionRecorder> exceptionRecorder;
 	@Inject
 	private HandlerCounters handlerCounters;
+
+	private Class<? extends HandlerEncoder> defaultHandlerEncoder;
+	private Class<? extends HandlerDecoder> defaultHandlerDecoder;
 
 	//these are available to all handlers without passing them around
 	protected ServletContext servletContext;
@@ -119,12 +120,13 @@ public abstract class BaseHandler{
 		Class<?>[] expectedParameterClasses() default {};
 		Class<?> expectedParameterClassesProvider() default Object.class;
 		String description() default "";
-		Class<? extends HandlerEncoder> encoder() default DefaultEncoder.class;
-		Class<? extends HandlerDecoder> decoder() default DefaultDecoder.class;
+		Class<? extends HandlerEncoder> encoder() default NullHandlerEncoder.class;
+		Class<? extends HandlerDecoder> decoder() default NullHandlerDecoder.class;
 		boolean defaultHandler() default false;
 	}
 
-	private void validateRequestParamValidators(Method method, Object[] args){
+	private Optional<RequestParamValidatorErrorResponseDto> validateRequestParamValidators(Method method,
+			Object[] args){
 		Parameter[] parameters = method.getParameters();
 		for(int index = 0; index < parameters.length; index++){
 			Parameter parameter = parameters[index];
@@ -135,21 +137,20 @@ public abstract class BaseHandler{
 			}
 			Object parameterValue = optionalParameterValue.get();
 			Annotation[] parameterAnnotations = parameter.getAnnotations();
-			Arrays.stream(parameterAnnotations)
+			Optional<RequestParamValidatorErrorResponseDto> errorResponseDto = Arrays.stream(parameterAnnotations)
 					.filter(Param.class::isInstance)
 					.map(Param.class::cast)
 					.map(Param::validator)
 					.filter(validatorClass -> !validatorClass.equals(DefaultRequestParamValidator.class))
 					.map(validate(parameterName, parameterValue))
 					.filter(responseDto -> !responseDto.success)
-					.findFirst()
-					.map(responseDto -> StringTool.notEmpty(responseDto.errorMessage)
-							? responseDto.errorMessage
-							: parameterValue + " is not a valid request parameter for " + parameterName)
-					.ifPresent(errorMessage -> {
-						throw new Http400BadRequestException(errorMessage);
-					});
+					.map(RequestParamValidatorErrorResponseDto::fromRequestParamValidatorResponseDto)
+					.findFirst();
+			if(errorResponseDto.isPresent()){
+				return errorResponseDto;
+			}
 		}
+		return Optional.empty();
 	}
 
 	private <T> Function<Class<? extends RequestParamValidator<?>>,RequestParamValidatorResponseDto> validate(
@@ -183,75 +184,105 @@ public abstract class BaseHandler{
 	public void handleWrapper(){//dispatcher servlet calls this
 		try{
 			permitted();
-			String methodName = handlerMethodName();
-			Collection<Method> possibleMethods = ReflectionTool.getDeclaredMethodsWithName(getClass(), methodName)
-					.stream()
-					.filter(possibleMethod -> possibleMethod.isAnnotationPresent(Handler.class))
-					.collect(Collectors.toList());
-			Pair<Method,Object[]> pair = handlerTypingHelper.findMethodByName(possibleMethods, request);
-			Method method = pair.getLeft();
-			Object[] args = pair.getRight();
-			if(method == null){
-				Optional<Method> defaultHandlerMethod = getDefaultHandlerMethod();
-				if(defaultHandlerMethod.isPresent()){
-					pair = handlerTypingHelper.findMethodByName(Collections.singletonList(defaultHandlerMethod.get()),
-							request);
-					method = pair.getLeft();
-					args = pair.getRight();
-				}
-			}
-			if(method == null){
-				if(possibleMethods.size() > 0){
-					Method desiredMethod = CollectionTool.getFirst(possibleMethods);
-					List<String> missingParameters = getMissingParameterNames(desiredMethod);
-					args = new Object[]{missingParameters, desiredMethod.getName()};
 
-					methodName = MISSING_PARAMETERS_HANDLER_METHOD_NAME;
-					method = ReflectionTool.getDeclaredMethodIncludingAncestors(getClass(), methodName, List.class,
-							String.class);
-				}else{
-					methodName = DEFAULT_HANDLER_METHOD_NAME;
-					method = ReflectionTool.getDeclaredMethodIncludingAncestors(getClass(), methodName);
-				}
-			}
+			Pair<Method,Object[]> handlerMethodAndArgs = getHandlerMethodAndArgs();
+			Method method = handlerMethodAndArgs.getLeft();
+			Object[] args = handlerMethodAndArgs.getRight();
 
-			HandlerEncoder encoder;
-			if(method.isAnnotationPresent(Handler.class)){
-				encoder = injector.getInstance(method.getAnnotation(Handler.class).encoder());
-				validateRequestParamValidators(method, args); // only applicable for Handlers
-			}else{
-				encoder = injector.getInstance(DefaultEncoder.class);
+			HandlerEncoder encoder = getHandlerEncoder(method);
+			Optional<RequestParamValidatorErrorResponseDto> errorResponseDtoOptional = validateRequestParamValidators(
+					method, args);
+			if(errorResponseDtoOptional.isPresent()){
+				RequestParamValidatorErrorResponseDto errorResponseDto = errorResponseDtoOptional.get();
+				encoder.sendInvalidRequestParamResponse(errorResponseDto, servletContext, response, request);
+				return;
 			}
-			handlerCounters.incMethodInvocation(this, method);
-
-			Object result;
-			if(args == null){
-				args = new Object[]{};
-			}
-			try{
-				result = method.invoke(this, args);
-			}catch(IllegalAccessException e){
-				throw new RuntimeException(e);
-			}catch(InvocationTargetException e){
-				Throwable cause = e.getCause();
-				if(cause instanceof HandledException){
-					Exception handledException = (Exception)cause;//don't allow HandledExceptions to be Throwable
-					String exceptionLocation = getClass().getName() + "/" + method.getName();
-					exceptionRecorder
-							.ifPresent(recorder -> recorder.tryRecordException(handledException, exceptionLocation));
-					encoder.sendExceptionResponse((HandledException)cause, servletContext, response, request);
-					logger.warn(e.getMessage());
-					return;
-				}else if(cause instanceof RuntimeException){
-					throw (RuntimeException)cause;
-				}else{
-					throw new RuntimeException(cause);
-				}
-			}
-			encoder.finishRequest(result, servletContext, response, request);
+			invokeHandlerMethod(method, args, encoder);
 		}catch(IOException | ServletException e){
 			throw new RuntimeException(e);
 		}
+	}
+
+	private Pair<Method,Object[]> getHandlerMethodAndArgs(){
+		String methodName = handlerMethodName();
+		Collection<Method> possibleMethods = ReflectionTool.getDeclaredMethodsWithName(getClass(), methodName)
+				.stream()
+				.filter(possibleMethod -> possibleMethod.isAnnotationPresent(Handler.class))
+				.collect(Collectors.toList());
+
+		Pair<Method,Object[]> pair = handlerTypingHelper.findMethodByName(possibleMethods, defaultHandlerDecoder,
+				request);
+		Method method = pair.getLeft();
+		Object[] args = pair.getRight();
+		if(method == null){
+			Optional<Method> defaultHandlerMethod = getDefaultHandlerMethod();
+			if(defaultHandlerMethod.isPresent()){
+				pair = handlerTypingHelper.findMethodByName(Collections.singletonList(defaultHandlerMethod.get()),
+						defaultHandlerDecoder, request);
+				method = pair.getLeft();
+				args = pair.getRight();
+			}
+		}
+		if(method == null){
+			if(CollectionTool.notEmpty(possibleMethods)){
+				Method desiredMethod = CollectionTool.getFirst(possibleMethods);
+				List<String> missingParameters = getMissingParameterNames(desiredMethod);
+				args = new Object[]{missingParameters, desiredMethod.getName()};
+
+				methodName = MISSING_PARAMETERS_HANDLER_METHOD_NAME;
+				method = ReflectionTool.getDeclaredMethodIncludingAncestors(getClass(), methodName, List.class,
+						String.class);
+			}else{
+				methodName = DEFAULT_HANDLER_METHOD_NAME;
+				method = ReflectionTool.getDeclaredMethodIncludingAncestors(getClass(), methodName);
+			}
+		}
+		return new Pair<>(method, Optional.ofNullable(args).orElse(new Object[]{}));
+	}
+
+	private HandlerEncoder getHandlerEncoder(Method method){
+		Class<? extends HandlerEncoder> encoderClass = defaultHandlerEncoder;
+		if(method.isAnnotationPresent(Handler.class)){
+			Class<? extends HandlerEncoder> methodEncoder = method.getAnnotation(Handler.class).encoder();
+			if(!methodEncoder.equals(NullHandlerEncoder.class)){
+				encoderClass = methodEncoder;
+			}
+		}
+		return injector.getInstance(encoderClass);
+	}
+
+	public void invokeHandlerMethod(Method method, Object[] args, HandlerEncoder encoder)
+	throws ServletException, IOException{
+		handlerCounters.incMethodInvocation(this, method);
+		Object result;
+		try{
+			result = method.invoke(this, args);
+		}catch(IllegalAccessException e){
+			throw new RuntimeException(e);
+		}catch(InvocationTargetException e){
+			Throwable cause = e.getCause();
+			if(cause instanceof HandledException){
+				Exception handledException = (Exception)cause;//don't allow HandledExceptions to be Throwable
+				String exceptionLocation = getClass().getName() + "/" + method.getName();
+				exceptionRecorder
+						.ifPresent(recorder -> {
+							try{
+								recorder.recordExceptionAndHttpRequest(handledException, exceptionLocation, null,
+										null, request);
+							}catch(Exception recordingException){
+								logger.warn("Error recording exception", recordingException);
+							}
+						});
+				encoder.sendExceptionResponse((HandledException)cause, servletContext, response, request);
+				logger.warn(cause.getMessage());
+				return;
+			}
+			if(cause instanceof RuntimeException){
+				throw (RuntimeException)cause;
+			}
+			throw new RuntimeException(cause);
+		}
+		encoder.finishRequest(result, servletContext, response, request);
 	}
 
 	/*---------------- optionally override these -----------------*/
@@ -297,7 +328,7 @@ public abstract class BaseHandler{
 		return uri.replaceAll("[^?]*/([^/?]+)[/?]?.*", "$1");
 	}
 
-	protected String handlerMethodParamName(){
+	private String handlerMethodParamName(){
 		return "submitAction";
 	}
 
@@ -332,6 +363,43 @@ public abstract class BaseHandler{
 
 	public void setResponse(HttpServletResponse response){
 		this.response = response;
+	}
+
+	public void setDefaultHandlerEncoder(Class<? extends HandlerEncoder> defaultHandlerEncoder){
+		this.defaultHandlerEncoder = defaultHandlerEncoder;
+	}
+
+	public void setDefaultHandlerDecoder(Class<? extends HandlerDecoder> defaultHandlerDecoder){
+		this.defaultHandlerDecoder = defaultHandlerDecoder;
+	}
+
+	private static class NullHandlerEncoder implements HandlerEncoder{
+
+		@Override
+		public void finishRequest(Object result, ServletContext servletContext, HttpServletResponse response,
+				HttpServletRequest request){
+			throw new NotImplementedException();
+		}
+
+		@Override
+		public void sendExceptionResponse(HandledException exception, ServletContext servletContext,
+				HttpServletResponse response, HttpServletRequest request){
+			throw new NotImplementedException();
+		}
+
+		@Override
+		public void sendInvalidRequestParamResponse(RequestParamValidatorErrorResponseDto errorResponseDto,
+				ServletContext servletContext, HttpServletResponse response, HttpServletRequest request){
+			throw new NotImplementedException();
+		}
+	}
+
+	public static class NullHandlerDecoder implements HandlerDecoder{
+
+		@Override
+		public Object[] decode(HttpServletRequest request, Method method){
+			throw new NotImplementedException();
+		}
 	}
 
 	public static class BaseHandlerTests{

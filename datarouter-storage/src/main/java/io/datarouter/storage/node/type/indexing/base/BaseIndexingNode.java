@@ -44,8 +44,8 @@ public abstract class BaseIndexingNode<
 		N extends Node<PK,D,F>>
 extends BaseNode<PK,D,F>{
 
-	protected N mainNode;
-	protected List<IndexListener<PK,D>> indexListeners;
+	protected final N mainNode;
+	protected final List<IndexListener<PK,D>> indexListeners;
 
 	public BaseIndexingNode(N mainNode){
 		super(new NodeParamsBuilder<>(mainNode.getFieldInfo().getDatabeanSupplier(),
@@ -58,7 +58,7 @@ extends BaseNode<PK,D,F>{
 		this.indexListeners.add(indexListener);
 	}
 
-	/*************************** node methods *************************/
+	/*--------------------------- node methods ------------------------------*/
 
 	// TODO allow indexes to be on different clients than the master node
 

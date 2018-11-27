@@ -25,6 +25,7 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.util.string.XmlStringTool;
 import io.datarouter.web.config.DatarouterWebSettings;
 
 @Singleton
@@ -47,7 +48,7 @@ public class ExceptionService{
 		stackTrace = XmlStringTool.escapeXml(stackTrace);
 		String highlightOpener = "<span style='color:red;font-weight:bold;font-size:1.5em;'>";
 		String highlightCloser = "</span>";
-		for(String highlight : datarouterWebSettings.stackTraceHighlights.getValue()){
+		for(String highlight : datarouterWebSettings.stackTraceHighlights.get()){
 			stackTrace = stackTrace.replace(highlight, highlightOpener + highlight + highlightCloser);
 		}
 		return stackTrace;
@@ -64,7 +65,7 @@ public class ExceptionService{
 		StringBuilder builder = new StringBuilder();
 		try{
 			while((line = br.readLine()) != null){
-				boolean lineContainsHighlight = datarouterWebSettings.stackTraceHighlights.getValue().stream()
+				boolean lineContainsHighlight = datarouterWebSettings.stackTraceHighlights.get().stream()
 						.anyMatch(line::contains);
 				if(lineContainsHighlight && nb < 10){
 					none = false;

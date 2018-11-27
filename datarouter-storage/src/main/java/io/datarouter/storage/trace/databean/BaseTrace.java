@@ -16,7 +16,6 @@
 package io.datarouter.storage.trace.databean;
 
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 import io.datarouter.instrumentation.trace.TraceDto;
@@ -28,7 +27,6 @@ import io.datarouter.model.field.imp.positive.UInt63Field;
 import io.datarouter.model.field.imp.positive.UInt63FieldKey;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
 import io.datarouter.model.serialize.fielder.Fielder;
-import io.datarouter.util.iterable.IterableTool;
 import io.datarouter.util.string.StringTool;
 
 public abstract class BaseTrace<
@@ -44,8 +42,6 @@ extends BaseDatabean<PK,D>{
 	protected String params;
 	protected Long created;
 	protected Long duration;
-	protected Long nanoStart;
-	protected Long durationNano;
 
 	public static class FieldKeys{
 		public static final StringFieldKey context = new StringFieldKey("context");
@@ -83,56 +79,11 @@ extends BaseDatabean<PK,D>{
 	}
 
 	public BaseTrace(TraceDto dto){
-		this.context = dto.context;
-		this.type = dto.type;
-		this.params = dto.params;
-		this.created = dto.created;
-		this.duration = dto.duration;
-	}
-
-	/*------------------------------- methods -------------------------------*/
-
-	public void markFinished(){
-		duration = System.currentTimeMillis() - created;
-		durationNano = System.nanoTime() - nanoStart;
-	}
-
-	public String getRequestString(){
-		return StringTool.nullSafe(context) + "/" + type + "?" + StringTool.nullSafe(params);
-	}
-
-	public Date getTime(){
-		return new Date(created);
-	}
-
-	public Long getMsSinceCreated(){
-		return System.currentTimeMillis() - created;
-	}
-
-	/*------------------------------- validate ------------------------------*/
-
-	public void trimStringsToFit(){
-		if(StringTool.exceedsLength(context, FieldKeys.context.getSize())){
-			context = context.substring(0, FieldKeys.context.getSize());
-		}
-		if(StringTool.exceedsLength(type, FieldKeys.type.getSize())){
-			type = type.substring(0, FieldKeys.type.getSize());
-		}
-		if(StringTool.exceedsLength(params, FieldKeys.params.getSize())){
-			params = params.substring(0, FieldKeys.params.getSize());
-		}
-	}
-
-	public static <EK extends BaseTraceEntityKey<EK>,
-			PK extends BaseTraceKey<EK,PK>,
-			D extends BaseTrace<EK,PK,D>>
-	void trimStringsToFitStatic(Iterable<D> traces){
-		for(D trace : IterableTool.nullSafe(traces)){
-			if(trace == null){
-				continue;
-			}
-			trace.trimStringsToFit();
-		}
+		this.context = StringTool.trimToSize(dto.getContext(), FieldKeys.context.getSize());
+		this.type = StringTool.trimToSize(dto.getType(), FieldKeys.type.getSize());
+		this.params = StringTool.trimToSize(dto.getParams(), FieldKeys.params.getSize());
+		this.created = dto.getCreated();
+		this.duration = dto.getDuration();
 	}
 
 	/*------------------------------- get/set -------------------------------*/
@@ -146,17 +97,8 @@ extends BaseDatabean<PK,D>{
 		this.key = key;
 	}
 
-	// for jsp
-	public Long getId(){
+	public String getTraceId(){
 		return key.getEntityKey().getTraceEntityId();
-	}
-
-	public Long getTraceId(){
-		return key.getEntityKey().getTraceEntityId();
-	}
-
-	public void setTraceId(Long traceId){
-		key.entityKey.setTraceEntityId(traceId);
 	}
 
 	public String getParams(){
@@ -197,14 +139,6 @@ extends BaseDatabean<PK,D>{
 
 	public void setDuration(Long duration){
 		this.duration = duration;
-	}
-
-	public Long getDurationNano(){
-		return durationNano;
-	}
-
-	public void setDurationNano(Long durationNano){
-		this.durationNano = durationNano;
 	}
 
 }

@@ -35,8 +35,6 @@ public class DelimitedStringArrayField extends KeyedListField<String,List<String
 		return key.separator;
 	}
 
-	/*********************** StringEncodedField ***********************/
-
 	@Override
 	public String getStringEncodedValue(){
 		return encode(value, key.separator);
@@ -46,8 +44,6 @@ public class DelimitedStringArrayField extends KeyedListField<String,List<String
 	public List<String> parseStringEncodedValueButDoNotSet(String string){
 		return decode(string, key.separator);
 	}
-
-	/*********************** ByteEncodedField ***********************/
 
 	@Override
 	public byte[] getBytes(){
@@ -72,8 +68,6 @@ public class DelimitedStringArrayField extends KeyedListField<String,List<String
 		throw new NotImplementedException();
 	}
 
-	/********************* methods ***********************/
-
 	public static String encode(List<String> inputs, String separator){
 		if(CollectionTool.isEmpty(inputs)){
 			return null;
@@ -96,9 +90,8 @@ public class DelimitedStringArrayField extends KeyedListField<String,List<String
 		return ListTool.create(input.split(separator));
 	}
 
-	/********************* tests ************************/
-
 	public static class Tests{
+
 		@Test
 		public void testRoundTrip(){
 			List<String> inputs = ListTool.createArrayList("abc", "xyz", "def");
@@ -107,6 +100,7 @@ public class DelimitedStringArrayField extends KeyedListField<String,List<String
 			List<String> decoded = decode(encoded, ",");
 			Assert.assertEquals(decoded, inputs);
 		}
+
 	}
 
 }

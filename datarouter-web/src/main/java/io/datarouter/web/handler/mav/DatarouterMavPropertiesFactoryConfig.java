@@ -15,16 +15,33 @@
  */
 package io.datarouter.web.handler.mav;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 
-import io.datarouter.web.user.role.DatarouterUserRole;
-import io.datarouter.web.user.session.DatarouterSessionManager;
+import io.datarouter.storage.servertype.ServerTypeDetector;
+import io.datarouter.web.user.session.CurrentUserSessionInfo;
+import io.datarouter.web.user.session.service.RoleManager;
 
 @Singleton
 public class DatarouterMavPropertiesFactoryConfig implements MavPropertiesFactoryConfig{
+
+	@Inject
+	private RoleManager roleManager;
+	@Inject
+	private CurrentUserSessionInfo currentUserSessionInfo;
+	@Inject
+	private ServerTypeDetector serverTypeDetector;
+
+	@Override
+	public boolean getIsProduction(){
+		return serverTypeDetector.mightBeProduction();
+	}
+
 	@Override
 	public boolean getIsAdmin(HttpServletRequest request){
-		return DatarouterSessionManager.getFromRequest(request).map(DatarouterUserRole::isSessionAdmin).orElse(false);
+		return currentUserSessionInfo.getRoles(request).stream()
+				.anyMatch(roleManager::isAdmin);
 	}
+
 }

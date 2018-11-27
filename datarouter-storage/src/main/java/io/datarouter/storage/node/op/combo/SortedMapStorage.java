@@ -28,8 +28,13 @@ import io.datarouter.storage.node.op.raw.MapStorage;
 import io.datarouter.storage.node.op.raw.SortedStorage;
 import io.datarouter.util.iterable.BatchingIterable;
 
-public interface SortedMapStorage<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
-extends MapStorage<PK,D>, SortedStorage<PK,D>, SortedMapStorageReader<PK,D>, SortedMapStorageWriter<PK,D>{
+public interface SortedMapStorage<
+		PK extends PrimaryKey<PK>,
+		D extends Databean<PK,D>>
+extends MapStorage<PK,D>,
+		SortedStorage<PK,D>,
+		SortedMapStorageReader<PK,D>,
+		SortedMapStorageWriter<PK,D>{
 
 	static final int DELETE_BATCH_SIZE = 100;
 
@@ -45,15 +50,26 @@ extends MapStorage<PK,D>, SortedStorage<PK,D>, SortedMapStorageReader<PK,D>, Sor
 		}
 	}
 
-	public interface SortedMapStorageNode<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,
+	public interface SortedMapStorageNode<
+			PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>
-	extends SortedMapStorage<PK,D>, MapStorageNode<PK,D,F>, SortedStorageNode<PK,D,F>,
+	extends SortedMapStorage<PK,D>,
+			MapStorageNode<PK,D,F>,
+			SortedStorageNode<PK,D,F>,
 			SortedMapStorageReaderNode<PK,D,F>,
 			SortedMapStorageWriterNode<PK,D,F>{
 	}
-	public interface PhysicalSortedMapStorageNode<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,
+
+	public interface PhysicalSortedMapStorageNode<
+			PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>
-	extends SortedMapStorageNode<PK,D,F>, PhysicalMapStorageNode<PK,D,F>, PhysicalSortedStorageNode<PK,D,F>,
-			PhysicalSortedMapStorageReaderNode<PK,D,F>, PhysicalSortedMapStorageWriterNode<PK,D,F>{
+	extends SortedMapStorageNode<PK,D,F>,
+			PhysicalMapStorageNode<PK,D,F>,
+			PhysicalSortedStorageNode<PK,D,F>,
+			PhysicalSortedMapStorageReaderNode<PK,D,F>,
+			PhysicalSortedMapStorageWriterNode<PK,D,F>{
 	}
+
 }

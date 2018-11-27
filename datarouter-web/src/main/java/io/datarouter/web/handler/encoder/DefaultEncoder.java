@@ -27,36 +27,52 @@ import javax.servlet.http.HttpServletResponse;
 
 import io.datarouter.web.exception.HandledException;
 import io.datarouter.web.handler.mav.Mav;
+import io.datarouter.web.handler.validator.RequestParamValidator.RequestParamValidatorErrorResponseDto;
 
 @Singleton
 public class DefaultEncoder implements HandlerEncoder{
 
+	private final MavEncoder mavEncoder;
+	private final InputStreamHandlerEncoder inputStreamHandlerEncoder;
+	private final JsonEncoder jsonEncoder;
+
 	@Inject
-	private MavEncoder mavEncoder;
-	@Inject
-	private InputStreamHandlerEncoder inputStreamHandlerEncoder;
-	@Inject
-	private JsonEncoder jsonEncoder;
+	public DefaultEncoder(MavEncoder mavEncoder, InputStreamHandlerEncoder inputStreamHandlerEncoder,
+			JsonEncoder jsonEncoder){
+		this.mavEncoder = mavEncoder;
+		this.inputStreamHandlerEncoder = inputStreamHandlerEncoder;
+		this.jsonEncoder = jsonEncoder;
+	}
 
 	@Override
 	public void finishRequest(Object result, ServletContext servletContext, HttpServletResponse response,
-			HttpServletRequest request) throws ServletException, IOException{
+			HttpServletRequest request)
+	throws ServletException, IOException{
 		if(result == null){
 			return;
 		}
 		if(result instanceof Mav){
 			mavEncoder.finishRequest(result, servletContext, response, request);
-		}else if(result instanceof InputStream){
-			inputStreamHandlerEncoder.finishRequest(result, servletContext, response, request);
-		}else{
-			jsonEncoder.finishRequest(result, servletContext, response, request);
+			return;
 		}
+		if(result instanceof InputStream){
+			inputStreamHandlerEncoder.finishRequest(result, servletContext, response, request);
+			return;
+		}
+		jsonEncoder.finishRequest(result, servletContext, response, request);
 	}
 
 	@Override
 	public void sendExceptionResponse(HandledException exception, ServletContext servletContext,
 			HttpServletResponse response, HttpServletRequest request) throws IOException{
 		jsonEncoder.sendExceptionResponse(exception, servletContext, response, request);
+	}
+
+	@Override
+	public void sendInvalidRequestParamResponse(RequestParamValidatorErrorResponseDto errorResponseDto,
+			ServletContext servletContext, HttpServletResponse response, HttpServletRequest request)
+	throws IOException{
+		jsonEncoder.sendInvalidRequestParamResponse(errorResponseDto, servletContext, response, request);
 	}
 
 }

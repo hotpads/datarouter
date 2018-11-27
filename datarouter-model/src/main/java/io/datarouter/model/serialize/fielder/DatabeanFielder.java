@@ -30,23 +30,18 @@ public interface DatabeanFielder<
 		D extends Databean<PK,D>>{
 
 	Fielder<PK> getKeyFielder();
-
 	List<Field<?>> getFields(D fieldSet);
 	List<Field<?>> getKeyFields(D databean);
 	List<Field<?>> getNonKeyFields(D databean);
-
 	Map<String,List<Field<?>>> getUniqueIndexes(D databean);
-
-	default void configure(){};
 	void addOption(FielderConfigValue<?> fielderConfigValue);
 	<T extends FielderConfigValue<T>> Optional<T> getOption(FielderConfigKey<T> key);
 	Collection<FielderConfigValue<?>> getOptions();
-
 	Optional<Long> getTtlMs();
-
 	Class<? extends StringDatabeanCodec> getStringDatabeanCodecClass();
 	StringDatabeanCodec getStringDatabeanCodec();
 
-	boolean isVersioned();
+	default void configure(){
+	}
 
 }

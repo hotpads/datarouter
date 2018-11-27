@@ -47,4 +47,5 @@ public class IntegerFieldKey extends PrimitiveFieldKey<Integer>{
 	public IntegerField createValueField(final Integer value){
 		return new IntegerField(this, value);
 	}
+
 }

@@ -83,6 +83,20 @@ public class TestApiHandler extends BaseHandler{
 		return new MessageMav(greeting + " " + firstname + " " + lastname + "!");
 	}
 
+	private static enum Honorific{
+		Mr,
+		Miss,
+		Mrs,
+		Ms,
+		;
+	}
+
+	// deserialize an enum
+	@Handler
+	public Mav hi(Honorific honorific, String name){
+		return new MessageMav("Degemer mat " + honorific + " " + name + "!");
+	}
+
 	/*
 	 * These examples show the possibility to return another type than Mav.
 	 */

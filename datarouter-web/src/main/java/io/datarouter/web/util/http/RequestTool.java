@@ -29,12 +29,10 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
 import java.util.Optional;
-import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -52,12 +50,12 @@ import io.datarouter.httpclient.security.UrlConstants;
 import io.datarouter.util.BooleanTool;
 import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.collection.ListTool;
+import io.datarouter.util.iterable.IterableTool;
 import io.datarouter.util.net.IpTool;
 import io.datarouter.util.number.NumberTool;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.util.timer.ThreadSafePhaseTimer;
 import io.datarouter.util.tuple.DefaultableMap;
-import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.types.HttpRequestBuilder;
 
 public class RequestTool{
@@ -94,7 +92,7 @@ public class RequestTool{
 	public static List<String> getSlashedUriParts(String uri){
 		List<String> uriVars = Arrays.asList(uri.split("/"));
 		//get rid of blanks
-		return uriVars.stream().filter(StringTool::notEmpty).collect(Collectors.toList());
+		return IterableTool.filter(uriVars, StringTool::notEmpty);
 	}
 
 	public static String getStringParameterCheckOverrideVars(
@@ -107,7 +105,7 @@ public class RequestTool{
 		//override if there's something in aux
 		if(overrideVars != null){
 			String override = overrideVars.get(paramName);
-			if(!StringTool.isEmpty(override)){
+			if(StringTool.notEmpty(override)){
 				stringVal = override;
 			}
 		}
@@ -187,14 +185,6 @@ public class RequestTool{
 		return NumberTool.parseIntegerFromNumberString(stringVal, defaultValue);
 	}
 
-	public static Integer getIntegerAndPut(HttpServletRequest request, String paramName, Integer defaultValue,
-			Mav mav){
-		String stringVal = RequestTool.get(request, paramName, null);
-		Integer ret = NumberTool.parseIntegerFromNumberString(stringVal, defaultValue);
-		mav.put(paramName, ret);
-		return ret;
-	}
-
 	public static Double getDouble(HttpServletRequest request, String paramName, Double defaultValue){
 		String stringVal = get(request, paramName, null);
 		return NumberTool.getDoubleNullSafe(stringVal, defaultValue);
@@ -225,7 +215,7 @@ public class RequestTool{
 		if(overrideVars != null){
 			//override if there's something in aux
 			String override = overrideVars.get(paramName);
-			if(!StringTool.isEmpty(override)){
+			if(StringTool.notEmpty(override)){
 				stringVal = override;
 			}
 		}
@@ -253,7 +243,7 @@ public class RequestTool{
 		if(overrideVars != null){
 			//override if there's something in aux
 			String override = overrideVars.get(paramName);
-			if(!StringTool.isEmpty(override)){
+			if(StringTool.notEmpty(override)){
 				stringVal = override;
 			}
 		}
@@ -284,7 +274,7 @@ public class RequestTool{
 		if(overrideVars != null){
 			//override if there's something in aux
 			String override = overrideVars.get(paramName);
-			if(!StringTool.isEmpty(override)){
+			if(StringTool.notEmpty(override)){
 				stringVal = override;
 			}
 		}
@@ -494,9 +484,11 @@ public class RequestTool{
 		}
 
 		if(!clientIp.isEmpty() || !forwardedFor.isEmpty()){
-			logger.error("Unusable IPs included, falling back to remoteAddr. "
-					+ HttpHeaders.X_CLIENT_IP + ": [" + clientIp + "] "
-					+ HttpHeaders.X_FORWARDED_FOR + ": [" + forwardedFor + "]");
+			logger.error("Unusable IPs included, falling back to remoteAddr."
+					+ " " + HttpHeaders.X_CLIENT_IP + "=" + clientIp
+					+ " " + HttpHeaders.X_FORWARDED_FOR + "=" + forwardedFor
+					+ " path=" + getPath(request));
+			logger.debug("", new Exception());
 		}
 
 		//no x-forwarded-for, use ip straight from http request
@@ -565,18 +557,8 @@ public class RequestTool{
 		return "XMLHttpRequest".equalsIgnoreCase(xRequestedWith);
 	}
 
-	public static String getFormattedForwardedForWithAdditionalIp(HttpServletRequest httpServletRequest,
-			String additionalIp){
-		List<String> forwardedFor = getAllHeaderValuesOrdered(httpServletRequest, HttpHeaders.X_FORWARDED_FOR);
-		Set<String> distinctForwardedFor = new LinkedHashSet<>(forwardedFor);
-		if(isAValidIpV4(additionalIp)){
-			distinctForwardedFor.add(additionalIp);
-		}
-		return String.join(HEADER_VALUE_DELIMITER, distinctForwardedFor);
-	}
-
-	/** tests *****************************************************************/
 	public static class RequestToolTests{
+
 		private static final String PRIVATE_IP = "10.95.188.27";
 		private static final String PUBLIC_IP = "209.63.146.244";
 
@@ -599,29 +581,35 @@ public class RequestTool{
 		@Test
 		public void testGetRequestUriWithQueryString(){
 			Assert.assertEquals(getRequestUriWithQueryString("example.com", null), "example.com");
-			Assert.assertEquals(getRequestUriWithQueryString("example.com",
-			"stuff=things"), "example.com?stuff=things");
+			Assert.assertEquals(getRequestUriWithQueryString("example.com", "stuff=things"),
+					"example.com?stuff=things");
 		}
 
 		@Test
 		public void testMakeRedirectUriIfTrailingSlash(){
 			Assert.assertEquals(makeRedirectUriIfTrailingSlash("example.com", null), null);
 			Assert.assertEquals(makeRedirectUriIfTrailingSlash("example.com/", null), "example.com");
-			Assert.assertEquals(makeRedirectUriIfTrailingSlash("example.com/",
-			"stuff=things"), "example.com?stuff=things");
+			Assert.assertEquals(makeRedirectUriIfTrailingSlash("example.com/", "stuff=things"),
+					"example.com?stuff=things");
 			Assert.assertEquals(makeRedirectUriIfTrailingSlash("example.com", "stuff=things"), null);
 		}
 
 		@Test
 		public void testGetFullyQualifiedUrl(){
-			Assert.assertEquals(getFullyQualifiedUrl("aurl", "http://x.com", "x.com", 80).toString(), "http://x.com/aurl");
-			Assert.assertEquals(getFullyQualifiedUrl("/aurl", "http://x.com", "x.com", 80).toString(), "http://x.com/aurl");
-			Assert.assertEquals(getFullyQualifiedUrl("/aurl", "https://x.com", "x.com", 80).toString(), "https://x.com:80/aurl");
-			Assert.assertEquals(getFullyQualifiedUrl("/aurl", "https://x.com", "x.com", 443).toString(), "https://x.com/aurl");
+			Assert.assertEquals(getFullyQualifiedUrl("aurl", "http://x.com", "x.com", 80).toString(),
+					"http://x.com/aurl");
+			Assert.assertEquals(getFullyQualifiedUrl("/aurl", "http://x.com", "x.com", 80).toString(),
+					"http://x.com/aurl");
+			Assert.assertEquals(getFullyQualifiedUrl("/aurl", "https://x.com", "x.com", 80).toString(),
+					"https://x.com:80/aurl");
+			Assert.assertEquals(getFullyQualifiedUrl("/aurl", "https://x.com", "x.com", 443).toString(),
+					"https://x.com/aurl");
 			Assert.assertEquals(getFullyQualifiedUrl("/", "https://x.com", "x.com", 443).toString(), "https://x.com/");
 			Assert.assertEquals(getFullyQualifiedUrl("", "https://x.com", "x.com", 443).toString(), "https://x.com/");
-			Assert.assertEquals(getFullyQualifiedUrl("", "http://x.com:8080", "x.com", 8080).toString(), "http://x.com:8080/");
-			Assert.assertEquals(getFullyQualifiedUrl("snack", "https://x.com", "x.com", 8443).toString(), "https://x.com:8443/snack");
+			Assert.assertEquals(getFullyQualifiedUrl("", "http://x.com:8080", "x.com", 8080).toString(),
+					"http://x.com:8080/");
+			Assert.assertEquals(getFullyQualifiedUrl("snack", "https://x.com", "x.com", 8443).toString(),
+					"https://x.com:8443/snack");
 		}
 
 		@Test
@@ -672,42 +660,6 @@ public class RequestTool{
 					.build();
 			Assert.assertEquals(getIpAddress(request), PUBLIC_IP);
 		}
-
-		@Test
-		public void testGetForwardedFor(){
-			HttpServletRequest request = new HttpRequestBuilder()
-					.withHeader(HttpHeaders.X_FORWARDED_FOR, PRIVATE_IP)
-					.withHeader(HttpHeaders.X_FORWARDED_FOR, PUBLIC_IP)
-					.build();
-			Assert.assertEquals(getFormattedForwardedForWithAdditionalIp(request, null), PRIVATE_IP
-					+ HEADER_VALUE_DELIMITER + PUBLIC_IP);
-
-			request = new HttpRequestBuilder()
-					.withHeader(HttpHeaders.X_FORWARDED_FOR, PUBLIC_IP)
-					.withHeader(HttpHeaders.X_FORWARDED_FOR, PRIVATE_IP)
-					.build();
-			Assert.assertEquals(getFormattedForwardedForWithAdditionalIp(request, null), PUBLIC_IP
-					+ HEADER_VALUE_DELIMITER + PRIVATE_IP);
-			Assert.assertEquals(getFormattedForwardedForWithAdditionalIp(request, "invalid ip"), PUBLIC_IP
-					+ HEADER_VALUE_DELIMITER + PRIVATE_IP);
-			Assert.assertEquals(getFormattedForwardedForWithAdditionalIp(request, "0.0.0.0"), PUBLIC_IP
-					+ HEADER_VALUE_DELIMITER + PRIVATE_IP + HEADER_VALUE_DELIMITER + "0.0.0.0");
-
-			request = new HttpRequestBuilder().withHeader(HttpHeaders.X_FORWARDED_FOR, PRIVATE_IP)
-					.withHeader(HttpHeaders.X_FORWARDED_FOR, "0.0.0.0")
-					.build();
-			Assert.assertEquals(getFormattedForwardedForWithAdditionalIp(request, "0.0.0.0"), PRIVATE_IP
-					+ HEADER_VALUE_DELIMITER + "0.0.0.0");
-
-			request = new HttpRequestBuilder().withHeader(HttpHeaders.X_FORWARDED_FOR, "0.0.0.0").withHeader(
-					HttpHeaders.X_FORWARDED_FOR, PRIVATE_IP).build();
-			Assert.assertEquals(getFormattedForwardedForWithAdditionalIp(request, "0.0.0.0"), "0.0.0.0"
-					+ HEADER_VALUE_DELIMITER + PRIVATE_IP);
-			Assert.assertEquals(getFormattedForwardedForWithAdditionalIp(request, PRIVATE_IP), "0.0.0.0"
-					+ HEADER_VALUE_DELIMITER + PRIVATE_IP);
-			Assert.assertEquals(getFormattedForwardedForWithAdditionalIp(request, "1.1.1.1"), "0.0.0.0"
-					+ HEADER_VALUE_DELIMITER + PRIVATE_IP + HEADER_VALUE_DELIMITER + "1.1.1.1");
-
-		}
 	}
+
 }

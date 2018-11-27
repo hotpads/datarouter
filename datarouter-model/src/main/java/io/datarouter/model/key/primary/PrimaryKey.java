@@ -40,6 +40,4 @@ import io.datarouter.model.serialize.fielder.PrimaryKeyFielder;
 public interface PrimaryKey<PK extends PrimaryKey<PK>>
 extends UniqueKey<PK>, PrimaryKeyFielder<PK>{
 
-	PrimaryKey<PK> getPrimaryKey();
-
 }

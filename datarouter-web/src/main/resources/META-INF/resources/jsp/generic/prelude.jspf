@@ -13,6 +13,7 @@
 <c:set var="cssVersion" value="${mavAttributes['cssVersion']}" />
 <c:set var="jsVersion" value="${mavAttributes['jsVersion']}" />
 <c:set var="isAdmin" value="${mavAttributes['isAdmin']}" />
+<c:set var="isProduction" value="${mavAttributes['isProduction']}" />
 
 <c:set var="tomcatWebApps" value="${mavProperties.getTomcatWebApps()}" />
 <c:set var="webAppNavBar" value="${mavProperties.getNavBar()}" />

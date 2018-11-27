@@ -27,6 +27,8 @@ import io.datarouter.util.bytes.StringByteTool;
 
 public class StringField extends BaseField<String>{
 
+	public static final byte SEPARATOR = 0;
+
 	private final StringFieldKey key;
 
 	public StringField(StringFieldKey key, String value){
@@ -44,8 +46,6 @@ public class StringField extends BaseField<String>{
 		return key;
 	}
 
-	/************************ Comparable ****************************/
-
 	@Override
 	public int compareTo(Field<String> other){
 		if(other == null){
@@ -53,9 +53,6 @@ public class StringField extends BaseField<String>{
 		}
 		return ComparableTool.nullFirstCompareTo(this.getValue(), other.getValue());
 	}
-
-
-	/*********************** StringEncodedField ***********************/
 
 	@Override
 	public String getStringEncodedValue(){
@@ -66,11 +63,6 @@ public class StringField extends BaseField<String>{
 	public String parseStringEncodedValueButDoNotSet(String string){
 		return string;
 	}
-
-
-	/*********************** ByteEncodedField ***********************/
-
-	public static final byte SEPARATOR = 0;
 
 	@Override
 	public byte[] getBytes(){

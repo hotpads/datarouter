@@ -37,6 +37,7 @@ import io.datarouter.storage.node.Node;
 import io.datarouter.storage.node.op.raw.read.MapStorageReader;
 import io.datarouter.storage.node.op.raw.read.MapStorageReader.MapStorageReaderNode;
 import io.datarouter.storage.util.PrimaryKeyPercentCodec;
+import io.datarouter.util.OptionalTool;
 import io.datarouter.web.config.DatarouterWebFiles;
 import io.datarouter.web.config.DatarouterWebPaths;
 import io.datarouter.web.handler.BaseHandler;
@@ -67,8 +68,7 @@ public class DatabeanViewerHandler extends BaseHandler{
 
 		List<DatabeanWrapper> databeanWrappers = nodes.stream()
 				.map(node -> fetchDatabean(node, pathSegments))
-				.filter(Optional::isPresent)
-				.map(Optional::get)
+				.flatMap(OptionalTool::stream)
 				.collect(Collectors.toList());
 
 		if(databeanWrappers.isEmpty()){
@@ -78,23 +78,22 @@ public class DatabeanViewerHandler extends BaseHandler{
 		return mav;
 	}
 
-	private <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>>
+	private <PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>>
 	Optional<DatabeanWrapper> fetchDatabean(MapStorageReaderNode<PK,D,F> node, PathSegments pathSegments){
-		boolean fieldAware = true;
-		List<Field<?>> fields = node.getFields();
-		if(fields == null){
-			fieldAware = false;
-			fields = node.getFieldInfo().getPrimaryKeyFields();
-		}
-		PK pk = PrimaryKeyPercentCodec.decode(node.getPrimaryKeyType(), pathSegments.encodedPk);
+		List<Field<?>> fields = node.getFieldInfo().getFields();
+		PK pk = PrimaryKeyPercentCodec.decode(node.getFieldInfo().getPrimaryKeyClass(), pathSegments.encodedPk);
 		D databean = node.get(pk, null);
 		if(databean != null){
-			return Optional.of(new DatabeanWrapper(fields, getRowsOfFields(node, databean), node, fieldAware));
+			return Optional.of(new DatabeanWrapper(fields, getRowsOfFields(node, databean), node));
 		}
 		return Optional.empty();
 	}
 
-	private <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>>
+	private <PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>>
 	List<Field<?>> getRowsOfFields(Node<PK,D,F> node, D databean){
 		F fielder = node.getFieldInfo().getSampleFielder();
 		if(fielder != null){
@@ -130,17 +129,15 @@ public class DatabeanViewerHandler extends BaseHandler{
 
 
 	public static class DatabeanWrapper{
+
 		private final List<Field<?>> fields;
 		private final List<Field<?>> rowOfFields;
 		private final Node<?,?,?> node;
-		private final boolean fieldAware;
 
-		private DatabeanWrapper(List<Field<?>> fields, List<Field<?>> rowOfFields, Node<?,?,?> node,
-				boolean fieldAware){
+		private DatabeanWrapper(List<Field<?>> fields, List<Field<?>> rowOfFields, Node<?,?,?> node){
 			this.fields = fields;
 			this.rowOfFields = rowOfFields;
 			this.node = node;
-			this.fieldAware = fieldAware;
 		}
 		public List<Field<?>> getFields(){
 			return fields;
@@ -151,12 +148,11 @@ public class DatabeanViewerHandler extends BaseHandler{
 		public Node<?,?,?> getNode(){
 			return node;
 		}
-		public boolean getFieldAware(){
-			return fieldAware;
-		}
+
 	}
 
 	private static class PathSegments{
+
 		public final String routerName;
 		public final String tableName;
 		public final String encodedPk;

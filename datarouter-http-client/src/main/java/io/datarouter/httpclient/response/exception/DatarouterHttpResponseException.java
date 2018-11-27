@@ -70,4 +70,5 @@ public class DatarouterHttpResponseException extends DatarouterHttpException{
 		Header header = response.getFirstHeader(X_EXCEPTION_ID);
 		return Optional.ofNullable(header).map(Header::getValue);
 	}
+
 }

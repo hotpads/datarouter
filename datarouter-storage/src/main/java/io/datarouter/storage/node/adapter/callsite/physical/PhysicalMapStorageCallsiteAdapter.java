@@ -18,7 +18,6 @@ package io.datarouter.storage.node.adapter.callsite.physical;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
-import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.adapter.PhysicalAdapterMixin;
 import io.datarouter.storage.node.adapter.callsite.BaseCallsiteAdapter;
 import io.datarouter.storage.node.adapter.callsite.mixin.MapStorageReaderCallsiteAdapterMixin;
@@ -36,8 +35,8 @@ implements PhysicalMapStorageNode<PK,D,F>,
 		MapStorageWriterCallsiteAdapterMixin<PK,D,F,N>,
 		MapStorageReaderCallsiteAdapterMixin<PK,D,F,N>{
 
-	public PhysicalMapStorageCallsiteAdapter(NodeParams<PK,D,F> params, N backingNode){
-		super(params, backingNode);
+	public PhysicalMapStorageCallsiteAdapter(N backingNode){
+		super(backingNode);
 	}
 
 }

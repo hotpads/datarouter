@@ -19,15 +19,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.SortedMap;
-import java.util.TreeMap;
 import java.util.concurrent.ConcurrentSkipListMap;
-import java.util.stream.Collectors;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import com.google.common.base.Preconditions;
 
+import io.datarouter.storage.setting.cached.CachedSetting;
 import io.datarouter.storage.setting.cached.impl.BooleanCachedSetting;
 import io.datarouter.storage.setting.cached.impl.CommaSeparatedStringCachedSetting;
 import io.datarouter.storage.setting.cached.impl.DoubleCachedSetting;
@@ -43,28 +42,21 @@ public abstract class SettingNode{
 	private final String name;
 	private final SortedMap<String,SettingNode> children;
 
-	private final SortedMap<String,Setting<?>> settings;
+	private final SortedMap<String,CachedSetting<?>> settings;
 	protected final SettingFinder finder;
-
-	private final Boolean isGroup;
 
 	/*---------- construct ----------*/
 
 	public SettingNode(SettingFinder finder, String name){
-		this(finder, name, findParentName(name), false);
+		this(finder, name, findParentName(name));
 	}
 
-	public SettingNode(SettingFinder finder, String name, Boolean isGroup){
-		this(finder, name, findParentName(name), isGroup);
-	}
-
-	private SettingNode(SettingFinder finder, String name, String parentName, Boolean isGroup){
+	private SettingNode(SettingFinder finder, String name, String parentName){
 		this.name = name;
 		this.parentName = parentName;
 		this.children = new ConcurrentSkipListMap<>();
 		this.settings = new ConcurrentSkipListMap<>();
 		this.finder = finder;
-		this.isGroup = isGroup;
 	}
 
 	// "a.b.c." -> "a.b."
@@ -80,14 +72,11 @@ public abstract class SettingNode{
 	/*---------- methods ----------*/
 
 	protected <N extends SettingNode> N registerChild(N child){
-		if(isGroup){//groups have no children
-			throw new RuntimeException("No children allowed for groups");
-		}
 		children.put(child.getName(), child);
 		return child;
 	}
 
-	protected <S extends Setting<?>> S register(S setting){
+	protected <S extends CachedSetting<?>> S register(S setting){
 		settings.put(setting.getName(), setting);
 		return setting;
 	}
@@ -152,9 +141,6 @@ public abstract class SettingNode{
 		if(getSettings().containsKey(settingNameParam)){
 			return getSettings().get(settingNameParam);
 		}
-		if(isGroup){//groups have no children
-			return null;
-		}
 		String nextChildShortName = settingNameParam.substring(getName().length());
 		int index = nextChildShortName.indexOf('.');
 		String nextChildPath = getName() + nextChildShortName.substring(0, index + 1);
@@ -172,7 +158,7 @@ public abstract class SettingNode{
 		return list;
 	}
 
-	public ArrayList<Setting<?>> getListSettings(){
+	public ArrayList<CachedSetting<?>> getListSettings(){
 		return new ArrayList<>(settings.values());
 	}
 
@@ -256,24 +242,12 @@ public abstract class SettingNode{
 		return parentName;
 	}
 
-	public SortedMap<String,Setting<?>> getSettings(){
+	public SortedMap<String,CachedSetting<?>> getSettings(){
 		return settings;
 	}
 
 	public SortedMap<String,SettingNode> getChildren(){
 		return children;
-	}
-
-	public Boolean isGroup(){
-		return isGroup;
-	}
-
-	public SortedMap<String,Object> getSettingValues(){
-		String baseName = getName();
-		return settings.keySet().stream()
-				.collect(Collectors.toMap(
-						key -> key.replace(baseName, ""),
-						key -> settings.get(key).getValue(), (p1, p2) -> p1, TreeMap::new));
 	}
 
 	public static class SettingNodeTests{
@@ -289,5 +263,7 @@ public abstract class SettingNode{
 			node = new SettingNode(null, "services."){};
 			Assert.assertEquals(node.getParentName(), "");
 		}
+
 	}
+
 }

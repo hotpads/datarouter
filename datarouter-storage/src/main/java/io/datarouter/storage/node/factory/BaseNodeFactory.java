@@ -17,8 +17,7 @@ package io.datarouter.storage.node.factory;
 
 import java.util.function.Supplier;
 
-import com.google.common.base.Preconditions;
-
+import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.entity.Entity;
 import io.datarouter.model.key.entity.EntityKey;
@@ -27,6 +26,7 @@ import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.key.primary.RegularPrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.client.ClientId;
+import io.datarouter.storage.client.ClientNodeFactory;
 import io.datarouter.storage.client.ClientType;
 import io.datarouter.storage.client.DatarouterClients;
 import io.datarouter.storage.node.Node;
@@ -34,14 +34,17 @@ import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.NodeParams.NodeParamsBuilder;
 import io.datarouter.storage.node.entity.DefaultEntity;
 import io.datarouter.storage.node.entity.EntityNodeParams;
+import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.storage.setting.Setting;
 
 public abstract class BaseNodeFactory{
 
 	private final DatarouterClients clients;
+	private final DatarouterInjector injector;
 
-	public BaseNodeFactory(DatarouterClients clients){
+	public BaseNodeFactory(DatarouterClients clients, DatarouterInjector injector){
 		this.clients = clients;
+		this.injector = injector;
 	}
 
 	protected abstract Setting<Boolean> getRecordCallsites();
@@ -49,14 +52,11 @@ public abstract class BaseNodeFactory{
 	public <PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>,
-			N extends Node<PK,D,F>>
-	N create(NodeParams<PK,D,F> params, boolean addAdapter){
-		ClientType clientType = getClientTypeInstance(params.getClientId());
-		Node<PK,D,F> node = clientType.createNode(params);
-		if(addAdapter){
-			node = clientType.createAdapter(params, node);
-		}
-		return checkNotNullAndCast(node, clientType);
+			N extends PhysicalNode<PK,D,F>>
+	N create(NodeParams<PK,D,F> params){
+		ClientType<?> clientType = getClientTypeInstance(params.getClientId());
+		ClientNodeFactory clientNodeFactory = getClientFactories(clientType);
+		return cast(clientNodeFactory.createWrappedNode(params));
 	}
 
 	public <PK extends RegularPrimaryKey<PK>,
@@ -64,9 +64,9 @@ public abstract class BaseNodeFactory{
 			F extends DatabeanFielder<PK,D>,
 			N extends Node<PK,D,F>>
 	N createSubEntity(EntityNodeParams<PK,DefaultEntity<PK>> entityNodeParams, NodeParams<PK,D,F> params){
-		ClientType clientType = getClientTypeInstance(params.getClientId());
-		Node<PK,D,F> node = clientType.createSubEntityNode(entityNodeParams, params);
-		return checkNotNullAndCast(node, clientType);
+		ClientType<?> clientType = getClientTypeInstance(params.getClientId());
+		ClientNodeFactory clientNodeFactory = getClientFactories(clientType);
+		return cast(clientNodeFactory.createWrappedSubEntityNode(entityNodeParams, params));
 	}
 
 	public <EK extends EntityKey<EK>,
@@ -86,24 +86,55 @@ public abstract class BaseNodeFactory{
 				.withParentName(entityNodeParams.getNodeName())
 				.withEntity(entityNodeParams.getEntityTableName(), entityNodePrefix)
 				.withDiagnostics(getRecordCallsites());
-		NodeParams<PK,D,F> nodeParams = paramsBuilder.build();
-		ClientType clientType = getClientTypeInstance(clientId);
-		Node<PK,D,F> node = clientType.createSubEntityNode(entityNodeParams, nodeParams);
-		return checkNotNullAndCast(node, clientType);
+		return createSubEntityNode(entityNodeParams, clientId, paramsBuilder);
 	}
 
-	private ClientType getClientTypeInstance(ClientId clientId){
-		String clientName = clientId.getName();
-		ClientType clientType = clients.getClientTypeInstance(clientName);
-		return Preconditions.checkNotNull(clientType, "clientType not found for clientName=%s", clientName);
-	}
-
-	private static <PK extends PrimaryKey<PK>,
+	//specify entityName, entityNodePrefix and tableName
+	public <EK extends EntityKey<EK>,
+			E extends Entity<EK>,
+			PK extends EntityPrimaryKey<EK,PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>,
 			N extends Node<PK,D,F>>
-	N checkNotNullAndCast(Node<PK,D,F> node, ClientType clientType){
-		return cast(Preconditions.checkNotNull(node, "cannot build Node for clientType=%s", clientType));
+	N subEntityNode(
+			EntityNodeParams<EK,E> entityNodeParams,
+			ClientId clientId,
+			Supplier<D> databeanSupplier,
+			Supplier<F> fielderSupplier,
+			String entityNodePrefix,
+			String tableName){
+		NodeParamsBuilder<PK,D,F> paramsBuilder = new NodeParamsBuilder<>(databeanSupplier, fielderSupplier)
+				.withClientId(clientId)
+				.withParentName(entityNodeParams.getNodeName())
+				.withEntity(entityNodeParams.getEntityTableName(), entityNodePrefix)
+				.withDiagnostics(getRecordCallsites())
+				.withTableName(tableName);
+		return createSubEntityNode(entityNodeParams, clientId, paramsBuilder);
+	}
+
+	private <EK extends EntityKey<EK>,
+			E extends Entity<EK>,
+			PK extends EntityPrimaryKey<EK,PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>,
+			N extends Node<PK,D,F>>
+	N createSubEntityNode(
+			EntityNodeParams<EK,E> entityNodeParams,
+			ClientId clientId,
+			NodeParamsBuilder<PK,D,F> paramsBuilder){
+		NodeParams<PK,D,F> nodeParams = paramsBuilder.build();
+		ClientType<?> clientType = getClientTypeInstance(clientId);
+		ClientNodeFactory clientNodeFactory = getClientFactories(clientType);
+		return cast(clientNodeFactory.createWrappedSubEntityNode(entityNodeParams, nodeParams));
+	}
+
+	private ClientType<?> getClientTypeInstance(ClientId clientId){
+		String clientName = clientId.getName();
+		return clients.getClientTypeInstance(clientName);
+	}
+
+	private ClientNodeFactory getClientFactories(ClientType<?> clientType){
+		return injector.getInstance(clientType.getClientNodeFactoryClass());
 	}
 
 	/**

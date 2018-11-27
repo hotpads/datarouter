@@ -31,12 +31,12 @@ public class SamlAssertionConsumerServlet extends HttpServlet{
 	private SamlService samlService;
 
 	@Override
-	public void doPost(final HttpServletRequest request, final HttpServletResponse response){
+	public void doPost(HttpServletRequest request, HttpServletResponse response){
 		samlService.consumeAssertion(request, response);
 	}
 
 	@Override
-	public void doGet(final HttpServletRequest request, final HttpServletResponse response){
+	public void doGet(HttpServletRequest request, HttpServletResponse response){
 		try{
 			response.sendRedirect(getServletContext().getContextPath());
 		}catch(IOException e){

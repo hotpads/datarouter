@@ -187,12 +187,16 @@ public class DatarouterHttpRequest{
 		return fragment;
 	}
 
-	/** Entities only exist in HttpPut, HttpPatch, HttpPost */
+	/**
+	 * Entities only exist in HttpPut, HttpPatch, HttpPost
+	 */
 	public HttpEntity getEntity(){
 		return entity;
 	}
 
-	/** Entities only exist in HttpPut, HttpPatch, HttpPost */
+	/**
+	 * Entities only exist in HttpPut, HttpPatch, HttpPost
+	 */
 	public String getEntityAsString(){
 		return getEntityAsString(null);
 	}
@@ -205,14 +209,18 @@ public class DatarouterHttpRequest{
 		}
 	}
 
-	/** Entities only exist in HttpPut, HttpPatch, HttpPost */
+	/**
+	 * Entities only exist in HttpPut, HttpPatch, HttpPost
+	 */
 	public DatarouterHttpRequest setEntity(String entity, ContentType contentType){
 		this.entity = new StringEntity(entity, contentType);
 		this.setContentType(contentType);
 		return this;
 	}
 
-	/** Entities only exist in HttpPut, HttpPatch, HttpPost */
+	/**
+	 * Entities only exist in HttpPut, HttpPatch, HttpPost
+	 */
 	public DatarouterHttpRequest setEntity(Map<String,String> entity){
 		this.entity = new UrlEncodedFormEntity(urlEncodeFromMap(entity), StandardCharsets.UTF_8);
 		return this;
@@ -256,28 +264,38 @@ public class DatarouterHttpRequest{
 		return this;
 	}
 
-	/** Post params are signed anded to the entity upon request execution. */
+	/**
+	 * Post params are signed anded to the entity upon request execution.
+	 */
 	public DatarouterHttpRequest addPostParams(HttpRequestConfig config){
 		return config == null ? this : addPostParams(config.getParameterMap());
 	}
 
-	/** Post params are signed anded to the entity upon request execution. */
+	/**
+	 * Post params are signed anded to the entity upon request execution.
+	 */
 	public DatarouterHttpRequest addPostParams(Map<String,String> params){
 		return addEntriesToMap(this.postParams, params);
 	}
 
-	/** Entities only exist in HttpPut, HttpPatch, HttpPost */
+	/**
+	 * Entities only exist in HttpPut, HttpPatch, HttpPost
+	 */
 	public boolean canHaveEntity(){
 		return method == HttpRequestMethod.PATCH || method == HttpRequestMethod.POST || method == HttpRequestMethod.PUT;
 	}
 
-	/** This method expects parameters to not be URL encoded. Params are UTF-8 encoded upon request execution. */
+	/**
+	 * This method expects parameters to not be URL encoded. Params are UTF-8 encoded upon request execution.
+	 */
 	public DatarouterHttpRequest addGetParam(String name, String value){
 		queryParams.computeIfAbsent(name, $ -> new ArrayList<>()).add(value);
 		return this;
 	}
 
-	/** This method expects parameters to not be URL encoded. Params are UTF-8 encoded upon request execution. */
+	/**
+	 * This method expects parameters to not be URL encoded. Params are UTF-8 encoded upon request execution.
+	 */
 	public DatarouterHttpRequest addGetParams(Map<String,String> params){
 		return addEntriesToMap(this.queryParams, params);
 	}
@@ -288,7 +306,7 @@ public class DatarouterHttpRequest{
 
 	private DatarouterHttpRequest addEntriesToMap(Map<String,List<String>> map, Map<String,String> entriesToAdd){
 		if(entriesToAdd != null){
-			for(Map.Entry<String,String> entry : entriesToAdd.entrySet()){
+			for(Entry<String,String> entry : entriesToAdd.entrySet()){
 				String key = entry.getKey();
 				if(key == null || key.trim().isEmpty()){
 					continue;

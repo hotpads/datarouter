@@ -127,30 +127,30 @@ public class ListTool{
 
 	public static <T> List<T> asList(Collection<T> coll){
 		if(coll == null){
-			return new LinkedList<>();
+			return new ArrayList<>();
 		}
 		if(coll instanceof List){
 			return (List<T>)coll;
 		}
-		return new LinkedList<>(coll);
+		return new ArrayList<>(coll);
 	}
 
-	/*********************** concatenate ********************************/
+	/*---------------------------- concatenate ------------------------------*/
 
-	public static <T> List<T> concatenate(List<T> listA, List<T> listB){
-		int sizeA = CollectionTool.size(listA);
-		int sizeB = CollectionTool.size(listB);
+	public static <T> List<T> concatenate(Collection<T> collectionA, Collection<T> collectionB){
+		int sizeA = CollectionTool.size(collectionA);
+		int sizeB = CollectionTool.size(collectionB);
 		ArrayList<T> outs = new ArrayList<>(sizeA + sizeB);
 		if(sizeA > 0){
-			outs.addAll(listA);
+			outs.addAll(collectionA);
 		}
 		if(sizeB > 0){
-			outs.addAll(listB);
+			outs.addAll(collectionB);
 		}
 		return outs;
 	}
 
-	/**************************** compare **************************/
+	/*------------------------------ compare --------------------------------*/
 
 	public static <T extends Comparable<T>> int compare(List<T> as, List<T> bs){
 		if(as == null){
@@ -186,7 +186,7 @@ public class ListTool{
 		return true;
 	}
 
-	/************************** modify *******************************/
+	/*------------------------------ modify ---------------------------------*/
 
 	public static <T> List<T> nullSafeLinkedAddAll(List<T> list, T[] newItems){
 		list = nullSafeLinked(list);
@@ -240,23 +240,23 @@ public class ListTool{
 		return copyOfRange(in, 0, Math.max(0, indexN));
 	}
 
-	/****************** tests *********************/
+	/*-------------------------------- test ---------------------------------*/
 
 	public static class Tests{
 		@Test
 		public void copyOfRange(){
 			List<Integer> resultA = ListTool.createLinkedList(1, 2, 3, 4, 5);
 			List<Integer> resultB = ListTool.copyOfRange(resultA, 1, 3);
-			Assert.assertEquals(new Integer[]{2, 3}, resultB.toArray());
+			Assert.assertEquals(resultB.toArray(), new Integer[]{2, 3});
 			List<Integer> resultC = ListTool.copyOfRange(resultA, 4, 27);
-			Assert.assertEquals(new Integer[]{5}, resultC.toArray());
+			Assert.assertEquals(resultC.toArray(), new Integer[]{5});
 
 			List<Integer> one = ListTool.createLinkedList(1);
-			Assert.assertEquals(0, ListTool.copyOfRange(one, 0, 0).size());
-			Assert.assertEquals(0, ListTool.copyOfRange(one, 0, -1).size());
-			Assert.assertEquals(1, ListTool.copyOfRange(one, 0, 1).size());
-			Assert.assertEquals(1, ListTool.copyOfRange(one, 0, 2).size());
-			Assert.assertEquals(0, ListTool.copyOfRange(one, -1, 2).size());
+			Assert.assertEquals(ListTool.copyOfRange(one, 0, 0).size(), 0);
+			Assert.assertEquals(ListTool.copyOfRange(one, 0, -1).size(), 0);
+			Assert.assertEquals(ListTool.copyOfRange(one, 0, 1).size(), 1);
+			Assert.assertEquals(ListTool.copyOfRange(one, 0, 2).size(), 1);
+			Assert.assertEquals(ListTool.copyOfRange(one, -1, 2).size(), 0);
 		}
 
 		@Test
@@ -268,14 +268,14 @@ public class ListTool{
 			List<Integer> list1To5TestLimit0 = ListTool.getFirstNElements(list1To5TestLimit200, 0);
 			List<Integer> list1To5TestLimitNeg1 = ListTool.getFirstNElements(list1To5TestLimit200, -1);
 
-			Assert.assertEquals(10, list1To10.size());
+			Assert.assertEquals(list1To10.size(), 10);
 			Assert.assertEquals(list1To10.toArray(), new Integer[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10});
-			Assert.assertEquals(5, list1To5.size());
+			Assert.assertEquals(list1To5.size(), 5);
 			Assert.assertEquals(list1To5.toArray(), new Integer[]{1, 2, 3, 4, 5});
 			Assert.assertEquals(list1To5.size(), list1To5TestLimit200.size());
-			Assert.assertEquals(list1To5TestLimit200.toArray(), list1To5.toArray());
-			Assert.assertEquals(0, list1To5TestLimit0.size());
-			Assert.assertEquals(0, list1To5TestLimitNeg1.size());
+			Assert.assertEquals(list1To5.toArray(), list1To5TestLimit200.toArray());
+			Assert.assertEquals(list1To5TestLimit0.size(), 0);
+			Assert.assertEquals(list1To5TestLimitNeg1.size(), 0);
 		}
 	}
 }

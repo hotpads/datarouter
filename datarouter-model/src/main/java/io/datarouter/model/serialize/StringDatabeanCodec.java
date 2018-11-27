@@ -42,4 +42,5 @@ public interface StringDatabeanCodec{
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>
 	List<D> fromStringMulti(String string, F fielder, Supplier<D> databeanSupplier);
+
 }

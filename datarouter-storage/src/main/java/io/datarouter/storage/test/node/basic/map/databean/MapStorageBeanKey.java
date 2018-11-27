@@ -29,8 +29,6 @@ public class MapStorageBeanKey extends BaseEntityPrimaryKey<MapStorageBeanEntity
 	private final MapStorageBeanEntityKey entityKey;
 	private final Long id;
 
-	/** fields ***************************************************************/
-
 	public static class FieldKeys{
 		public static final LongFieldKey id = new LongFieldKey("id");
 	}
@@ -40,8 +38,6 @@ public class MapStorageBeanKey extends BaseEntityPrimaryKey<MapStorageBeanEntity
 		return Arrays.asList(new LongField(FieldKeys.id, id));
 	}
 
-	/** constructor **********************************************************/
-
 	public MapStorageBeanKey(){
 		this(new MapStorageBeanEntityKey(UInt63Field.nextPositiveRandom()), UInt63Field.nextPositiveRandom());
 	}
@@ -50,8 +46,6 @@ public class MapStorageBeanKey extends BaseEntityPrimaryKey<MapStorageBeanEntity
 		this.entityKey = entityKey;
 		this.id = id;
 	}
-
-	/** entity ***************************************************************/
 
 	@Override
 	public MapStorageBeanKey prefixFromEntityKey(MapStorageBeanEntityKey entityKey){
@@ -63,8 +57,6 @@ public class MapStorageBeanKey extends BaseEntityPrimaryKey<MapStorageBeanEntity
 		return Arrays.asList(new LongField(FieldKeys.id, id));
 	}
 
-	/** get ******************************************************************/
-
 	@Override
 	public MapStorageBeanEntityKey getEntityKey(){
 		return entityKey;
@@ -73,4 +65,5 @@ public class MapStorageBeanKey extends BaseEntityPrimaryKey<MapStorageBeanEntity
 	public Long getId(){
 		return id;
 	}
+
 }

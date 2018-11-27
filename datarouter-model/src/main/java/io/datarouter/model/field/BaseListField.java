@@ -18,14 +18,13 @@ package io.datarouter.model.field;
 import java.util.List;
 import java.util.Optional;
 
-import com.google.gson.Gson;
-
 import io.datarouter.model.field.imp.array.KeyedListField;
+import io.datarouter.util.serialization.GsonTool;
 
-public abstract class BaseListField<V extends Comparable<V>,L extends List<V>>
+public abstract class BaseListField<
+		V extends Comparable<V>,
+		L extends List<V>>
 extends KeyedListField<V,L,ListFieldKey<V,L>>{
-
-	protected static final Gson gson = new Gson();
 
 	public BaseListField(ListFieldKey<V,L> key, L value){
 		super(key, value);
@@ -33,6 +32,7 @@ extends KeyedListField<V,L,ListFieldKey<V,L>>{
 
 	@Override
 	public String getStringEncodedValue(){
-		return Optional.ofNullable(value).map(gson::toJson).orElse(null);
+		return Optional.ofNullable(value).map(GsonTool.GSON::toJson).orElse(null);
 	}
 }
+

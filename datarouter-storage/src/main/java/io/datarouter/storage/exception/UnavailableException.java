@@ -15,9 +15,8 @@
  */
 package io.datarouter.storage.exception;
 
+@SuppressWarnings("serial")
 public class UnavailableException extends RuntimeException{
-
-	private static final long serialVersionUID = 1L;
 
 	public UnavailableException(){
 	}

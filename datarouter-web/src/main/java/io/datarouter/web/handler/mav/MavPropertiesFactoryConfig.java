@@ -18,11 +18,16 @@ package io.datarouter.web.handler.mav;
 import javax.servlet.http.HttpServletRequest;
 
 public interface MavPropertiesFactoryConfig{
+
 	default int getCssVersion(){
 		return 1;
 	}
+
 	default int getJsVersion(){
 		return 1;
 	}
+
 	boolean getIsAdmin(HttpServletRequest request);
+
+	boolean getIsProduction();
 }

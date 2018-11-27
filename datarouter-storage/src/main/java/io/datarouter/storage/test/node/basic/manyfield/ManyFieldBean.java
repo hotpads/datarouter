@@ -82,8 +82,6 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 
 	private static final int LEN_STRING_ENUM_FIELD = 20;
 
-	/***************************** fields ********************************/
-
 	private ManyFieldBeanKey key;
 
 	private Boolean booleanField;
@@ -272,8 +270,6 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 
 	}
 
-	/***************************** constructor **************************************/
-
 	public ManyFieldBean(){// no-arg and public
 		this.key = new ManyFieldBeanKey();// let the key generate a random value
 	}
@@ -281,8 +277,6 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 	public ManyFieldBean(Long id){
 		this.key = new ManyFieldBeanKey(id);
 	}
-
-	/************************* databean *********************************************/
 
 	@Override
 	public Class<ManyFieldBeanKey> getKeyClass(){
@@ -294,8 +288,6 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 		return key;
 	}
 
-	/***************************** static methods *****************************/
-
 	public static List<ManyFieldBean> filterForStringValue(Collection<ManyFieldBean> ins, String value){
 		List<ManyFieldBean> outs = new LinkedList<>();
 		for(ManyFieldBean in : IterableTool.nullSafe(ins)){
@@ -305,8 +297,6 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 		}
 		return outs;
 	}
-
-	/***************************** methods ************************************/
 
 	public List<Long> appendToLongArrayField(long val){
 		if(longArrayField == null){
@@ -347,8 +337,6 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 		delimitedStringArrayField.add(val);
 		return delimitedStringArrayField;
 	}
-
-	/***************************** get/set **************************************/
 
 	public byte[] getData(){
 		return data;

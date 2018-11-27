@@ -36,16 +36,10 @@ public class VarIntEnumField<E extends IntegerEnum<E>> extends BaseField<E>{
 		return key;
 	}
 
-
-	/*********************** Comparable ********************************/
-
 	@Override
 	public int compareTo(Field<E> other){
 		return DatarouterEnumTool.compareIntegerEnums(value, other.getValue());
 	}
-
-
-	/*********************** StringEncodedField ***********************/
 
 	@Override
 	public String getStringEncodedValue(){
@@ -62,9 +56,6 @@ public class VarIntEnumField<E extends IntegerEnum<E>> extends BaseField<E>{
 		}
 		return IntegerEnum.fromPersistentIntegerSafe(key.getSampleValue(), Integer.valueOf(string));
 	}
-
-
-	/*********************** ByteEncodedField ***********************/
 
 	@Override
 	public byte[] getBytes(){
@@ -93,4 +84,5 @@ public class VarIntEnumField<E extends IntegerEnum<E>> extends BaseField<E>{
 		integerEnumField.setPrefix(field.getPrefix());
 		return integerEnumField;
 	}
+
 }

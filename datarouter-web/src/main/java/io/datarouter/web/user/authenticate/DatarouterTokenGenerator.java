@@ -43,14 +43,14 @@ public class DatarouterTokenGenerator{
 	}
 
 
-	/******************* tests **************************/
-
 	public static class DatarouterTokenGeneratorTests{
+
 		@Test
 		public void testSessionTokenLength(){
 			String sessionToken = generateRandomToken();
 			//expected base64 length: 256 bits / 6 bits/char => 42.667 => 43 chars
 			Assert.assertEquals(sessionToken.length(), 43);
 		}
+
 	}
 }

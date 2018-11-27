@@ -46,12 +46,15 @@ import io.datarouter.httpclient.security.SecurityParameters;
 
 public class DatarouterHttpClientIntegrationTests{
 	private static final Logger logger = LoggerFactory.getLogger(DatarouterHttpClientIntegrationTests.class);
+
 	private static final int PORT = 9091;
 	private static final String URL = "http://localhost:" + PORT + "/";
 	private static final Random RANDOM = new Random(115509410414623L);
+
 	private static SimpleHttpResponseServer server;
 
 	private static class SimpleHttpResponseServer extends Thread{
+
 		private volatile boolean done = false;
 		private volatile int status = 200;
 		private volatile int sleepMs = 0;
@@ -214,7 +217,7 @@ public class DatarouterHttpClientIntegrationTests{
 		DatarouterHttpClient client;
 		DatarouterHttpRequest request;
 		DatarouterHttpResponse response;
-		Map<String, String> postParams;
+		Map<String,String> postParams;
 
 		String salt = "some super secure salty salt " + UUID.randomUUID().toString();
 		String cipherKey = "kirg king kind " + UUID.randomUUID().toString();
@@ -224,10 +227,12 @@ public class DatarouterHttpClientIntegrationTests{
 		DefaultCsrfValidator csrfValidator = new DefaultCsrfValidator(() -> cipherKey);
 		Supplier<String> apiKeySupplier = () -> apiKey;
 
-		client = new DatarouterHttpClientBuilder().setSignatureValidator(signatureValidator)
-				.setCsrfValidator(csrfValidator).setApiKeySupplier(apiKeySupplier).build();
+		client = new DatarouterHttpClientBuilder()
+				.setSignatureValidator(signatureValidator)
+				.setCsrfValidator(csrfValidator)
+				.setApiKeySupplier(apiKeySupplier).build();
 
-		Map<String, String> params = new HashMap<>();
+		Map<String,String> params = new HashMap<>();
 		params.put("1", UUID.randomUUID().toString());
 		params.put("2", Integer.toString(RANDOM.nextInt()));
 		params.put("3", "Everything is awesome! Everything is cool when you're part of a team!");
@@ -246,8 +251,10 @@ public class DatarouterHttpClientIntegrationTests{
 		Assert.assertNull(postParams.get(SecurityParameters.API_KEY));
 		Assert.assertNull(postParams.get(SecurityParameters.SIGNATURE));
 
-		client = new DatarouterHttpClientBuilder().setSignatureValidator(signatureValidator)
-				.setCsrfValidator(csrfValidator).setApiKeySupplier(apiKeySupplier).build();
+		client = new DatarouterHttpClientBuilder()
+				.setSignatureValidator(signatureValidator)
+				.setCsrfValidator(csrfValidator)
+				.setApiKeySupplier(apiKeySupplier).build();
 
 		// entity enclosing request with no entity or params cannot be signed
 		request = new DatarouterHttpRequest(HttpRequestMethod.POST, URL, false);
@@ -264,7 +271,8 @@ public class DatarouterHttpClientIntegrationTests{
 				.setCsrfValidator(csrfValidator).setApiKeySupplier(apiKeySupplier).build();
 
 		// entity enclosing request already with an entity cannot be signed, even with params
-		request = new DatarouterHttpRequest(HttpRequestMethod.PATCH, URL, false).setEntity(params)
+		request = new DatarouterHttpRequest(HttpRequestMethod.PATCH, URL, false)
+				.setEntity(params)
 				.addPostParams(params);
 		response = client.execute(request);
 		postParams = request.getFirstPostParams();
@@ -275,8 +283,10 @@ public class DatarouterHttpClientIntegrationTests{
 		Assert.assertNull(postParams.get(SecurityParameters.API_KEY));
 		Assert.assertNull(postParams.get(SecurityParameters.SIGNATURE));
 
-		client = new DatarouterHttpClientBuilder().setSignatureValidator(signatureValidator)
-				.setCsrfValidator(csrfValidator).setApiKeySupplier(apiKeySupplier).build();
+		client = new DatarouterHttpClientBuilder()
+				.setSignatureValidator(signatureValidator)
+				.setCsrfValidator(csrfValidator)
+				.setApiKeySupplier(apiKeySupplier).build();
 
 		// entity enclosing request is signed with entity from post params
 		request = new DatarouterHttpRequest(HttpRequestMethod.POST, URL, false).addPostParams(params);
@@ -314,4 +324,5 @@ public class DatarouterHttpClientIntegrationTests{
 		Assert.assertNotNull(postParams.get(SecurityParameters.API_KEY));
 		Assert.assertNull(postParams.get(SecurityParameters.SIGNATURE));
 	}
+
 }

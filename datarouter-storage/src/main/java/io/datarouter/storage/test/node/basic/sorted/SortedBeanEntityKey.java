@@ -29,7 +29,6 @@ import io.datarouter.util.HashMethods;
 public class SortedBeanEntityKey
 extends BaseEntityKey<SortedBeanEntityKey>{
 
-	/************* fields *************************/
 	private String foo;
 	private String bar;
 
@@ -48,20 +47,20 @@ extends BaseEntityKey<SortedBeanEntityKey>{
 	}
 
 	public static class SortedBeanEntityPartitioner4 extends BaseEntityPartitioner<SortedBeanEntityKey>{
+
 		@Override
 		public int getNumPartitions(){
 			return 4;
 		}
+
 		@Override
 		public int getPartition(SortedBeanEntityKey ek){
 			String hashInput = ek.foo + ek.bar;
 			long hash = HashMethods.longDjbHash(hashInput) % getNumPartitions();
 			return (int)(hash % getNumPartitions());
 		}
+
 	}
-
-
-	/****************** construct *******************/
 
 	public SortedBeanEntityKey(){
 	}
@@ -71,9 +70,6 @@ extends BaseEntityKey<SortedBeanEntityKey>{
 		this.bar = bar;
 	}
 
-
-	/********************** get/set ***************************/
-
 	public String getFoo(){
 		return foo;
 	}
@@ -81,6 +77,5 @@ extends BaseEntityKey<SortedBeanEntityKey>{
 	public String getBar(){
 		return bar;
 	}
-
 
 }

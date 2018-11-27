@@ -53,12 +53,16 @@ public class NumberFormatter{
 	}
 
 	public static class Tests{
-		@Test public void testFormat(){
+
+		@Test
+		public void testFormat(){
 			double input = 1234567890.1234567890;
-			Assert.assertEquals(format(input,"$","",2), "$1,234,567,890.12");
-			Assert.assertEquals(format(input,"","",0), "1,234,567,890");
+			Assert.assertEquals(format(input, "$", "", 2), "$1,234,567,890.12");
+			Assert.assertEquals(format(input, "", "", 0), "1,234,567,890");
 		}
-		@Test public void testAddCommas(){
+
+		@Test
+		public void testAddCommas(){
 			Short nullShort = null;
 			Assert.assertEquals(addCommas(nullShort), null);
 			Assert.assertEquals(addCommas(0), "0");
@@ -77,11 +81,8 @@ public class NumberFormatter{
 			Assert.assertEquals(addCommas(Long.MIN_VALUE), "-9,223,372,036,854,775,808");
 			Assert.assertEquals(addCommas(Long.MAX_VALUE), "9,223,372,036,854,775,807");
 
-//			System.out.println(addCommas(Double.MAX_VALUE));
-//			System.out.println(addCommas(1234567890.1234567890));
-			Assert.assertEquals(addCommas(1234567890.1234567890), "1,234,567,890.1234567");//precision overflow
+			Assert.assertEquals(addCommas(1234567890.1234567890), "1,234,567,890.1234567");// precision overflow
 			Assert.assertEquals(addCommas(1234.1234567890), "1,234.123456789");
-//			System.out.println(addCommas(1234.1234567890123456789));
 			Assert.assertEquals(addCommas(1234.123456789012), "1,234.123456789012");
 		}
 	}

@@ -79,7 +79,7 @@ public class NodeParams<
 	}
 
 
-	/******************** builder **************************/
+	/*----------------------------- builder ---------------------------------*/
 
 	public static class NodeParamsBuilder<
 			PK extends PrimaryKey<PK>,
@@ -102,14 +102,14 @@ public class NodeParams<
 		private String queueUrl;
 
 
-		/************** construct **************/
+		/*--------------------------- construct -----------------------------*/
 
 		public NodeParamsBuilder(Supplier<D> databeanSupplier, Supplier<F> fielderSupplier){
 			this.databeanSupplier = databeanSupplier;
 			this.fielderSupplier = fielderSupplier;
 		}
 
-		/************* with *******************/
+		/*---------------------------- with ---------------------------------*/
 
 		public NodeParamsBuilder<PK,D,F> withClientId(ClientId clientId){
 			this.clientId = clientId;
@@ -162,7 +162,7 @@ public class NodeParams<
 			return this;
 		}
 
-		/******************* build ***************************/
+		/*----------------------------- build -------------------------------*/
 
 		public NodeParams<PK,D,F> build(){
 			return new NodeParams<>(clientId, parentName, databeanSupplier, fielderSupplier, schemaVersion,
@@ -171,8 +171,7 @@ public class NodeParams<
 		}
 	}
 
-
-	/*********** get ***********************/
+	/*-------------------------------- get ----------------------------------*/
 
 	public ClientId getClientId(){
 		return clientId;
@@ -236,4 +235,5 @@ public class NodeParams<
 	public String getQueueUrl(){
 		return queueUrl;
 	}
+
 }

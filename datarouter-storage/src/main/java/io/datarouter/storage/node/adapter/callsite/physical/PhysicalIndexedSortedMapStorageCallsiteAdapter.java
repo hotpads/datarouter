@@ -18,7 +18,6 @@ package io.datarouter.storage.node.adapter.callsite.physical;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
-import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.adapter.PhysicalAdapterMixin;
 import io.datarouter.storage.node.adapter.callsite.BaseCallsiteAdapter;
 import io.datarouter.storage.node.adapter.callsite.mixin.IndexedStorageCallsiteAdapterMixin;
@@ -41,8 +40,8 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D,F>,
 		PhysicalAdapterMixin<PK,D,F,N>{
 
 
-	public PhysicalIndexedSortedMapStorageCallsiteAdapter(NodeParams<PK,D,F> params, N backingNode){
-		super(params, backingNode);
+	public PhysicalIndexedSortedMapStorageCallsiteAdapter(N backingNode){
+		super(backingNode);
 	}
 
 }

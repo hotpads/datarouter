@@ -25,26 +25,31 @@ import javax.inject.Singleton;
 @Singleton
 public class RouterClasses implements Supplier<Set<Class<? extends Router>>>{
 
-	private final Set<Class<? extends Router>> routerClasses;
+	private final Set<Class<? extends Router>> classes;
 
 	public RouterClasses(){
-		routerClasses = new HashSet<>();
+		classes = new HashSet<>();
 	}
 
 	@SafeVarargs
 	public RouterClasses(Class<? extends Router>... routerClassVarArgs){
-		this.routerClasses = new HashSet<>(Arrays.asList(routerClassVarArgs));
+		this(new HashSet<>(), routerClassVarArgs);
 	}
 
 	@SafeVarargs
 	public RouterClasses(Set<Class<? extends Router>> routerList, Class<? extends Router>... routerClassVarArgs){
-		this.routerClasses = new HashSet<>(routerList);
-		this.routerClasses.addAll(Arrays.asList(routerClassVarArgs));
+		this.classes = new HashSet<>(routerList);
+		this.classes.addAll(Arrays.asList(routerClassVarArgs));
 	}
 
 	@Override
 	public Set<Class<? extends Router>> get(){
-		return routerClasses;
+		return classes;
+	}
+
+	public RouterClasses add(Class<? extends Router> routerClass){
+		classes.add(routerClass);
+		return this;
 	}
 
 }

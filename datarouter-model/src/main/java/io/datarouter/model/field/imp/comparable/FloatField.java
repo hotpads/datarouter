@@ -25,8 +25,6 @@ public class FloatField extends BasePrimitiveField<Float>{
 		super(key, value);
 	}
 
-	/*********************** StringEncodedField ***********************/
-
 	@Override
 	public String getStringEncodedValue(){
 		if(value == null){
@@ -42,8 +40,6 @@ public class FloatField extends BasePrimitiveField<Float>{
 		}
 		return Float.valueOf(str);
 	}
-
-	/*********************** ByteEncodedField ***********************/
 
 	@Override
 	public byte[] getBytes(){

@@ -34,4 +34,5 @@ public class DatarouterUserByIdCache extends BaseDatarouterUserLookupCacheWrappe
 				.withLookup(key -> userNodes.getUserNode().get(new DatarouterUserKey(key), null))
 				.withExceptionFunction(key -> new InvalidCredentialsException("user id not found (" + key + ")")));
 	}
+
 }

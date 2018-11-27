@@ -26,8 +26,6 @@ public class BooleanField extends BasePrimitiveField<Boolean>{
 		super(key, value);
 	}
 
-	/*********************** StringEncodedField ***********************/
-
 	@Override
 	public String getStringEncodedValue(){
 		if(value == null){
@@ -43,8 +41,6 @@ public class BooleanField extends BasePrimitiveField<Boolean>{
 		}
 		return BooleanTool.isTrue(str);
 	}
-
-	/*********************** ByteEncodedField ***********************/
 
 	@Override
 	public byte[] getBytes(){

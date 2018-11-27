@@ -25,8 +25,7 @@ public class ByteArrayFieldTests{
 
 	@Test
 	public void stringEncodedValue(){
-		byte[] value =
-				new byte[]{
+		byte[] value = new byte[]{
 				0x1,
 				0x5,
 				-0x8,
@@ -41,4 +40,5 @@ public class ByteArrayFieldTests{
 				.getStringEncodedValue());
 		Assert.assertEquals(encodedDecodedValue, value);
 	}
+
 }

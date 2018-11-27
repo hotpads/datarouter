@@ -19,7 +19,6 @@ import io.datarouter.model.databean.Databean;
 import io.datarouter.model.index.KeyIndexEntry;
 import io.datarouter.model.key.primary.PrimaryKey;
 
-//basically a marker interface
 public interface UniqueKeyIndexEntry<
 		IK extends PrimaryKey<IK>,
 		IE extends Databean<IK,IE>,
@@ -27,5 +26,4 @@ public interface UniqueKeyIndexEntry<
 		D extends Databean<PK,D>>
 extends UniqueIndexEntry<IK,IE,PK,D>,
 		KeyIndexEntry<IK,IE,PK,D>{
-
 }

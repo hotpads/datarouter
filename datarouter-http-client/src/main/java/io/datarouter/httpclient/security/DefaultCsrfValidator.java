@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory;
 
 public class DefaultCsrfValidator implements CsrfValidator{
 	private static final Logger logger = LoggerFactory.getLogger(DefaultCsrfValidator.class);
+
 	private static final String HASHING_ALGORITHM = "SHA-256";
 	// AES/CBC requires IV to be generated for every encrypted message!!
 	// More details here: https://tools.ietf.org/html/rfc3602

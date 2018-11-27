@@ -39,8 +39,9 @@ public class ClientTypeRegistry{
 
 	private static final String CLIENT_TYPE_CLASS_NAME_LOCATION = "META-INF/datarouter/clientTypes";
 
-	private final Lazy<Map<String,ClientType>> clientTypesByName;
+	private final Lazy<Map<String,ClientType<?>>> clientTypesByName;
 
+	@SuppressWarnings("unchecked")
 	@Inject
 	public ClientTypeRegistry(DatarouterInjector injector){
 		this.clientTypesByName = Lazy.of(() -> streamClientType()
@@ -48,7 +49,7 @@ public class ClientTypeRegistry{
 				.flatMap(List::stream)
 				.distinct()
 				.map(ClassTool::forName)
-				.map(clientTypeClass -> (Class<? extends ClientType>)clientTypeClass.asSubclass(ClientType.class))
+				.map(clientTypeClass -> (Class<? extends ClientType<?>>)clientTypeClass.asSubclass(ClientType.class))
 				.map(injector::getInstance)
 				.collect(Collectors.toMap(ClientType::getName, Function.identity())));
 	}
@@ -62,7 +63,7 @@ public class ClientTypeRegistry{
 		}
 	}
 
-	public ClientType get(String name){
+	public ClientType<?> get(String name){
 		return clientTypesByName.get().get(name);
 	}
 

@@ -36,20 +36,14 @@ extends BaseField<E>{
 		return key;
 	}
 
-
 	public E getSampleValue(){
 		return key.getSampleValue();
 	}
-
-	/*********************** Comparable ********************************/
 
 	@Override
 	public int compareTo(Field<E> other){
 		return DatarouterEnumTool.compareIntegerEnums(value, other.getValue());
 	}
-
-
-	/*********************** StringEncodedField ***********************/
 
 	@Override
 	public String getStringEncodedValue(){
@@ -66,9 +60,6 @@ extends BaseField<E>{
 		}
 		return IntegerEnum.fromPersistentIntegerSafe(getSampleValue(), Integer.valueOf(str));
 	}
-
-
-	/*********************** ByteEncodedField ***********************/
 
 	@Override
 	public byte[] getBytes(){
@@ -90,6 +81,5 @@ extends BaseField<E>{
 	public String getValueString(){
 		return value == null ? "null" : value.getPersistentInteger().toString();
 	}
-
 
 }

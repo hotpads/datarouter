@@ -15,15 +15,18 @@
  */
 package io.datarouter.util.cached;
 
+import java.util.function.Supplier;
+
 import io.datarouter.util.lang.ObjectTool;
 
-public abstract class BaseCached<T>{
+public abstract class BaseCached<T> implements Supplier<T>{
 
 	protected T value;
 	protected volatile long cachedAtMs = -1;
 
 	protected abstract T reload();
 
+	@Override
 	public T get(){
 		updateIfExpired();
 		return value;

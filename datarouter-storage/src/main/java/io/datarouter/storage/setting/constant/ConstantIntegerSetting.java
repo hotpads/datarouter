@@ -26,7 +26,7 @@ public class ConstantIntegerSetting extends ConstantSetting<Integer> implements 
 	}
 
 	@Override
-	public Integer getValue(){
+	public Integer get(){
 		return value;
 	}
 

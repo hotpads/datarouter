@@ -36,4 +36,5 @@ public class IntegerCachedSetting extends CachedSetting<Integer> implements Inte
 			return false;
 		}
 	}
+
 }

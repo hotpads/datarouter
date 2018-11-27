@@ -32,8 +32,6 @@ import org.testng.annotations.Test;
 import io.datarouter.httpclient.json.GsonJsonSerializer;
 import io.datarouter.web.handler.TestApiHandler;
 import io.datarouter.web.handler.TestApiHandler.FooBar;
-import io.datarouter.web.handler.types.DefaultDecoder;
-import io.datarouter.web.handler.types.HttpRequestBuilder;
 
 public class DefaultDecoderTests{
 
@@ -256,4 +254,5 @@ public class DefaultDecoderTests{
 		Assert.assertEquals(args[1], new Integer[]{1, 2});
 		Assert.assertEquals(args[2], new int[]{1});
 	}
+
 }

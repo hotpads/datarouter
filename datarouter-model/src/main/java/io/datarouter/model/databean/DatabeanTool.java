@@ -17,6 +17,7 @@ package io.datarouter.model.databean;
 
 import java.lang.reflect.Constructor;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -24,10 +25,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import io.datarouter.model.exception.DataAccessException;
 import io.datarouter.model.field.Field;
+import io.datarouter.model.field.FieldSetTool;
 import io.datarouter.model.field.FieldTool;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
@@ -35,6 +38,7 @@ import io.datarouter.util.StreamTool;
 import io.datarouter.util.array.ArrayTool;
 import io.datarouter.util.iterable.IterableTool;
 import io.datarouter.util.lang.ReflectionTool;
+import io.datarouter.util.tuple.Pair;
 
 public class DatabeanTool{
 
@@ -111,7 +115,29 @@ public class DatabeanTool{
 	}
 
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>> Set<PK> getKeySet(Collection<D> databeans){
-		return StreamTool.nullItemSafeStream(databeans).map(Databean::getKey).collect(Collectors.toSet());
+		return StreamTool.nullItemSafeStream(databeans)
+				.map(Databean::getKey)
+				.collect(Collectors.toSet());
+	}
+
+	public static <PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>>
+	Map<String,Pair<Field<?>,Field<?>>> getFieldDifferences(D databean1, D databean2, Supplier<F> fielderSupplier){
+		return getFieldDifferencesWithExclusions(databean1, databean2, fielderSupplier, Collections.emptySet());
+	}
+
+	public static <PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>>
+	Map<String,Pair<Field<?>,Field<?>>> getFieldDifferencesWithExclusions(D databean1, D databean2,
+			Supplier<F> fielderSupplier, Set<String> prefixedFieldNameExclusions){
+		F fielder = fielderSupplier.get();
+		Collection<Field<?>> leftFields = databean1 == null ? null : IterableTool.filter(fielder.getFields(databean1),
+				field -> !prefixedFieldNameExclusions.contains(field.getPrefixedName()));
+		Collection<Field<?>> rightFields = databean2 == null ? null : IterableTool.filter(fielder.getFields(databean2),
+				field -> !prefixedFieldNameExclusions.contains(field.getPrefixedName()));
+		return FieldSetTool.getFieldDifferences(leftFields, rightFields);
 	}
 
 }

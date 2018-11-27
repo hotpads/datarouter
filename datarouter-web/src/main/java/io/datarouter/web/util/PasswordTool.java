@@ -42,21 +42,20 @@ public class PasswordTool{
 	}
 
 	public static String generateSalt(){
-        SecureRandom sr;
+		SecureRandom sr;
 		try{
 			sr = SecureRandom.getInstance("SHA1PRNG", "SUN");
 		}catch(NoSuchAlgorithmException | NoSuchProviderException e){
 			throw new RuntimeException("error in SecureRandom.getInstance()");
 		}
-        byte[] salt = new byte[16];
-        sr.nextBytes(salt);
-        byte[] base64Salt = Base64.encodeBase64URLSafe(salt);
-        return StringByteTool.fromUtf8Bytes(base64Salt);
+		byte[] salt = new byte[16];
+		sr.nextBytes(salt);
+		byte[] base64Salt = Base64.encodeBase64URLSafe(salt);
+		return StringByteTool.fromUtf8Bytes(base64Salt);
 	}
 
-	/******************* tests ***********************/
-
 	public static class PasswordToolTests{
+
 		@Test
 		public void testDigest(){
 			long startNs = System.nanoTime();
@@ -64,5 +63,7 @@ public class PasswordTool{
 			long elapsedNs = System.nanoTime() - startNs;
 			Assert.assertTrue(elapsedNs < 300 * 1000 * 1000);// less than 300ms (taking 81ms in testing)
 		}
+
 	}
+
 }

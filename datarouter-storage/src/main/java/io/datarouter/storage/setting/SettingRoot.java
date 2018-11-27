@@ -21,6 +21,9 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import io.datarouter.storage.setting.cached.CachedSetting;
+import io.datarouter.util.string.StringTool;
+
 public class SettingRoot extends SettingNode{
 
 	private final Set<SettingNode> rootNodes = Collections.synchronizedSet(new LinkedHashSet<>());
@@ -68,12 +71,24 @@ public class SettingRoot extends SettingNode{
 		return list;
 	}
 
-	public Setting<?> getSettingByName(String name){
+	public CachedSetting<?> getSettingByName(String name){
 		SettingNode node = getNode(name.substring(0, name.lastIndexOf(".") + 1));
 		if(node == null){
 			return null;
 		}
 		return node.getSettings().get(name);
+	}
+
+	public boolean isRecognized(String settingName){
+		String rootName = StringTool.getStringBeforeFirstOccurrence('.', settingName);
+		return isRecognizedRootName(rootName);
+	}
+
+	public boolean isRecognizedRootName(String rootNameWithoutTrailingDot){
+		return rootNodes.stream()
+				.filter(rootNode -> rootNode.getShortName().equals(rootNameWithoutTrailingDot))
+				.findAny()
+				.isPresent();
 	}
 
 }

@@ -17,10 +17,6 @@ package io.datarouter.model.key;
 
 import io.datarouter.model.field.FieldSet;
 
-
 public interface Key<K extends Key<K>>//Key should probably not reference PrimaryKey?
 extends FieldSet<K>{
-
-//	void fromPersistentString(String s);
-
 }

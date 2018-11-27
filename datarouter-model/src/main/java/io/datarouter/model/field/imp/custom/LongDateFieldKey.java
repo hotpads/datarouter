@@ -39,4 +39,5 @@ public class LongDateFieldKey extends PrimitiveFieldKey<Date>{
 	public LongDateField createValueField(final Date value){
 		return new LongDateField(this, value);
 	}
+
 }

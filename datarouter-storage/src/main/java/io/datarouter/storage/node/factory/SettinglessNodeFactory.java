@@ -18,6 +18,7 @@ package io.datarouter.storage.node.factory;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.storage.client.DatarouterClients;
 import io.datarouter.storage.setting.Setting;
 import io.datarouter.storage.setting.constant.ConstantBooleanSetting;
@@ -26,8 +27,8 @@ import io.datarouter.storage.setting.constant.ConstantBooleanSetting;
 public class SettinglessNodeFactory extends BaseNodeFactory{
 
 	@Inject
-	private SettinglessNodeFactory(DatarouterClients clients){
-		super(clients);
+	private SettinglessNodeFactory(DatarouterClients clients, DatarouterInjector injector){
+		super(clients, injector);
 	}
 
 	@Override

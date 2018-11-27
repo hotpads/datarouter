@@ -48,7 +48,7 @@ import io.datarouter.storage.node.Node;
  */
 public interface Router extends Comparable<Router>{
 
-	/********************************* methods *************************************/
+	/*----------------------------- methods ---------------------------------*/
 
 	String getConfigLocation();
 	RouterOptions getRouterOptions();
@@ -58,16 +58,16 @@ public interface Router extends Comparable<Router>{
 
 	void registerWithContext() throws IOException;
 
-	/************************************** getting clients *************************/
+	/*----------------------------- getting clients -------------------------*/
 
 	List<ClientId> getClientIds();
 	List<String> getClientNames();
 	Client getClient(String clientName);
-	ClientType getClientType(String clientName);
+	ClientType<?> getClientType(String clientName);
 	List<Client> getAllClients();
 
 
-	/********************* get/set ******************************/
+	/*----------------------------- get/set ---------------------------------*/
 
 	String getName();
 

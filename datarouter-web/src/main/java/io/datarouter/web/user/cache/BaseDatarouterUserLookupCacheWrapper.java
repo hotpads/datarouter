@@ -22,7 +22,7 @@ import io.datarouter.web.cache.LookupCacheFactory;
 import io.datarouter.web.cache.LookupCacheFactory.LookupCacheFactoryConfig;
 import io.datarouter.web.user.databean.DatarouterUser;
 
-public class BaseDatarouterUserLookupCacheWrapper <K> extends BaseLookupCacheWrapper<K,DatarouterUser>{
+public class BaseDatarouterUserLookupCacheWrapper<K> extends BaseLookupCacheWrapper<K,DatarouterUser>{
 
 	public BaseDatarouterUserLookupCacheWrapper(LookupCacheFactory lookupCacheFactory,
 			LookupCacheFactoryConfig<K,DatarouterUser> cacheConfig){

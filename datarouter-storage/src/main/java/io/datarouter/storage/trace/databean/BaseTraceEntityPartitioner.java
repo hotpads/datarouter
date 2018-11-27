@@ -16,6 +16,7 @@
 package io.datarouter.storage.trace.databean;
 
 import io.datarouter.model.key.entity.base.BaseEntityPartitioner;
+import io.datarouter.util.HashMethods;
 
 public class BaseTraceEntityPartitioner<EK extends BaseTraceEntityKey<EK>>
 extends BaseEntityPartitioner<EK>{
@@ -27,7 +28,8 @@ extends BaseEntityPartitioner<EK>{
 
 	@Override
 	public int getPartition(EK ek){
-		return (int)(ek.getTraceEntityId() % getNumPartitions());
+		long hash = HashMethods.longDjbHash(ek.getTraceEntityId());
+		return (int)(hash % getNumPartitions());
 	}
 
 }

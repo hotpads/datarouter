@@ -15,10 +15,7 @@
  */
 package io.datarouter.storage.node;
 
-import java.util.List;
-
 import io.datarouter.model.databean.Databean;
-import io.datarouter.model.field.Field;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
@@ -31,14 +28,9 @@ public abstract class BaseNode<
 		F extends DatabeanFielder<PK,D>>
 implements Node<PK,D,F>{
 
-	protected final NodeParams<PK,D,F> params;
 	protected final DatabeanFieldInfo<PK,D,F> fieldInfo;
 
-
-	/*************** construct *********************/
-
 	public BaseNode(NodeParams<PK,D,F> params){
-		this.params = params;
 		try{
 			this.fieldInfo = new DatabeanFieldInfo<>(params);
 		}catch(Exception probablyNoPkInstantiated){
@@ -46,11 +38,6 @@ implements Node<PK,D,F>{
 					.getDatabeanName() + ". Check that the primary key is instantiated in the databean constructor.",
 					probablyNoPkInstantiated);
 		}
-	}
-
-	@Override
-	public Class<PK> getPrimaryKeyType(){
-		return this.fieldInfo.getPrimaryKeyClass();
 	}
 
 	@Override
@@ -64,18 +51,8 @@ implements Node<PK,D,F>{
 	}
 
 	@Override
-	public List<Field<?>> getFields(){
-		return this.fieldInfo.getFields();
-	}
-
-	@Override
 	public int compareTo(Node<PK,D,F> other){
 		return ComparableTool.nullFirstCompareTo(getName(), other.getName());
-	}
-
-	@Override
-	public List<Field<?>> getNonKeyFields(D databean){
-		return fieldInfo.getNonKeyFieldsWithValues(databean);
 	}
 
 	@Override

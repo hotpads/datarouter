@@ -22,7 +22,6 @@ import io.datarouter.model.field.Field;
 import io.datarouter.model.field.imp.comparable.LongField;
 import io.datarouter.model.field.imp.comparable.LongFieldKey;
 import io.datarouter.model.key.primary.base.BaseEntityPrimaryKey;
-import io.datarouter.util.number.RandomTool;
 
 public abstract class BaseTraceThreadKey<
 		EK extends BaseTraceEntityKey<EK>,
@@ -39,10 +38,6 @@ extends BaseEntityPrimaryKey<EK,PK>{
 	public BaseTraceThreadKey(){
 	}
 
-	public BaseTraceThreadKey(boolean hasParent){
-		this.threadId = hasParent ? RandomTool.nextPositiveLong() : 0L;
-	}
-
 	public BaseTraceThreadKey(Long threadId){
 		this.threadId = threadId;
 	}
@@ -57,16 +52,12 @@ extends BaseEntityPrimaryKey<EK,PK>{
 		return Arrays.asList(new LongField(FieldKeys.threadId, threadId));
 	}
 
-	public Long getTraceId(){
+	public String getTraceId(){
 		return entityKey.getTraceEntityId();
 	}
 
 	public Long getThreadId(){
 		return threadId;
-	}
-
-	public void setId(Long threadId){
-		this.threadId = threadId;
 	}
 
 }

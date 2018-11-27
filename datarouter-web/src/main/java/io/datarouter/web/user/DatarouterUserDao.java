@@ -15,31 +15,31 @@
  */
 package io.datarouter.web.user;
 
+import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.storage.node.op.combo.IndexedSortedMapStorage;
+import io.datarouter.util.array.ArrayTool;
 import io.datarouter.web.user.databean.DatarouterUser;
 import io.datarouter.web.user.databean.DatarouterUser.DatarouterUserByUserTokenLookup;
 import io.datarouter.web.user.databean.DatarouterUser.DatarouterUserByUsernameLookup;
 import io.datarouter.web.user.databean.DatarouterUserKey;
 import io.datarouter.web.user.role.DatarouterUserRole;
 import io.datarouter.web.user.session.DatarouterSession;
+import io.datarouter.web.user.session.service.Role;
+import io.datarouter.web.user.session.service.RoleManager;
 import io.datarouter.web.util.PasswordTool;
 
 @Singleton
 public class DatarouterUserDao{
-	private final IndexedSortedMapStorage<DatarouterUserKey, DatarouterUser> userNode;
 
 	@Inject
-	public DatarouterUserDao(DatarouterUserNodes nodes){
-		userNode = nodes.getUserNode();
-	}
-
-	/** DatarouterUser **/
+	private DatarouterUserNodes nodes;
+	@Inject
+	private RoleManager roleManager;
 
 	public DatarouterUser getAndValidateCurrentUser(DatarouterSession session){
 		DatarouterUser user = getUserBySession(session);
@@ -53,27 +53,25 @@ public class DatarouterUserDao{
 		if(session == null || session.getUserId() == null){
 			return null;
 		}
-		return userNode.get(new DatarouterUserKey(session.getUserId()), null);
+		return nodes.getUserNode().get(new DatarouterUserKey(session.getUserId()), null);
 	}
 
 	public DatarouterUser getUserById(Long id){
-		return userNode.get(new DatarouterUserKey(id), null);
+		return nodes.getUserNode().get(new DatarouterUserKey(id), null);
 	}
 
-	/** DatarouterUser permissions and business logic **/
-
-	public static boolean canEditUser(DatarouterUser user, DatarouterUser editor){
+	public boolean canEditUser(DatarouterUser user, DatarouterUser editor){
 		return user.equals(editor)
-				|| !user.getRoles().contains(DatarouterUserRole.datarouterAdmin)
-				&& DatarouterUserRole.isUserAdmin(editor)
+				|| !isAdmin(user)
+				&& roleManager.isAdmin(editor.getRoles())
 				&& editor.getEnabled();
 	}
 
-	public static boolean canHavePassword(DatarouterUser user){
-		return user.getPasswordDigest() != null || user.getRoles().contains(DatarouterUserRole.datarouterAdmin);
+	public boolean canHavePassword(DatarouterUser user){
+		return user.getPasswordDigest() != null || isAdmin(user);
 	}
 
-	public static boolean isPasswordCorrect(DatarouterUser user, String rawPassword){
+	public boolean isPasswordCorrect(DatarouterUser user, String rawPassword){
 		if(user == null || rawPassword == null){
 			return false;
 		}
@@ -82,15 +80,15 @@ public class DatarouterUserDao{
 	}
 
 	public boolean isPasswordCorrect(String email, String rawPassword){
-		DatarouterUser user = userNode.lookupUnique(new DatarouterUserByUsernameLookup(email), null);
+		DatarouterUser user = nodes.getUserNode().lookupUnique(new DatarouterUserByUsernameLookup(email), null);
 		return isPasswordCorrect(user, rawPassword);
 	}
 
-	public static Set<DatarouterUserRole> getAllowedUserRoles(DatarouterUser currentUser, String[] userRoleStrings){
-		Set<DatarouterUserRole> userRoles = DatarouterUserRole.fromStringArray(userRoleStrings);
-		Set<DatarouterUserRole> validRoles = DatarouterUserRole.getPermissibleRolesForUser(currentUser);
+	public Set<Role> getAllowedUserRoles(DatarouterUser currentUser, String[] userRoleStrings){
+		Set<Role> userRoles = ArrayTool.mapToSet(roleManager::getRoleFromPersistentString, userRoleStrings);
+		Collection<Role> validRoles = roleManager.getConferrableRoles(currentUser.getRoles());
 		userRoles.retainAll(validRoles);
-		userRoles.add(DatarouterUserRole.requestor);//everyone should have this
+		userRoles.add(DatarouterUserRole.requestor.getRole());// everyone should have this
 		return userRoles;
 	}
 
@@ -99,15 +97,20 @@ public class DatarouterUserDao{
 		if(userWithId != null){
 			throw new IllegalArgumentException("DatarouterUser already exists with id=" + id);
 		}
-		DatarouterUser userWithUserToken = userNode.lookupUnique(
-				new DatarouterUserByUserTokenLookup(userToken), null);
+		DatarouterUser userWithUserToken = nodes.getUserNode().lookupUnique(new DatarouterUserByUserTokenLookup(
+				userToken), null);
 		if(userWithUserToken != null){
 			throw new IllegalArgumentException("DatarouterUser already exists with userToken=" + userToken);
 		}
-		DatarouterUser userWithEmail = userNode.lookupUnique(
-				new DatarouterUserByUsernameLookup(username), null);
+		DatarouterUser userWithEmail = nodes.getUserNode().lookupUnique(new DatarouterUserByUsernameLookup(username),
+				null);
 		if(userWithEmail != null){
 			throw new IllegalArgumentException("DatarouterUser already exists with username=" + username);
 		}
 	}
+
+	public boolean isAdmin(DatarouterUser user){
+		return user.getRoles().contains(DatarouterUserRole.datarouterAdmin.getRole());
+	}
+
 }

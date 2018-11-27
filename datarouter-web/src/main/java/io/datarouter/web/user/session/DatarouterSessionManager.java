@@ -21,6 +21,7 @@ import java.util.Optional;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -31,22 +32,17 @@ import io.datarouter.web.util.http.CookieTool;
 @Singleton
 public class DatarouterSessionManager{
 
+	public static final String REQUEST_ATTRIBUTE_NAME = "datarouterSession";
+	private static final int TARGET_URL_COOKIE_EXPIRATION_SECONDS = 30 * 60;
+
 	@Inject
 	private DatarouterAuthenticationConfig config;
 
-	/************* static fields **********************/
 
-	public static final String REQUEST_ATTRIBUTE_NAME = "datarouterSession";
-	private static final int
-		TARGET_URL_COOKIE_EXPIRATION_SECONDS = 30 * 60,
-		USER_TOKEN_COOKIE_EXPIRATION_SECONDS = 365 * 24 * 3600;
-
-
-	/************* targetUrl *********************/
+	/*---------------------------- target url -------------------------------*/
 
 	public void addTargetUrlCookie(HttpServletResponse response, String targetUrl){
-		CookieTool.addCookie(response, config.getTargetUrlName(), targetUrl, "/",
-				TARGET_URL_COOKIE_EXPIRATION_SECONDS);
+		CookieTool.addCookie(response, config.getTargetUrlName(), targetUrl, "/", TARGET_URL_COOKIE_EXPIRATION_SECONDS);
 	}
 
 	public URL getTargetUrlFromCookie(HttpServletRequest request){
@@ -66,11 +62,11 @@ public class DatarouterSessionManager{
 	}
 
 
-	/************* sessionToken *********************/
+	/*---------------------------- session token ----------------------------*/
 
 	public void addSessionTokenCookie(HttpServletResponse response, String sessionToken){
-		CookieTool.addCookie(response, config.getSessionTokenCookieName(), sessionToken, "/",
-				config.getSessionTokenTimeoutSeconds());
+		CookieTool.addCookie(response, config.getSessionTokenCookieName(), sessionToken, "/", config
+				.getSessionTokenTimeoutDuration().getSeconds());
 	}
 
 	public String getSessionTokenFromCookie(HttpServletRequest request){
@@ -82,11 +78,11 @@ public class DatarouterSessionManager{
 	}
 
 
-	/************* userToken *********************/
+	/*---------------------------- user token -------------------------------*/
 
 	public void addUserTokenCookie(HttpServletResponse response, String userToken){
-		CookieTool.addCookie(response, config.getUserTokenCookieName(), userToken, "/",
-				USER_TOKEN_COOKIE_EXPIRATION_SECONDS);
+		CookieTool.addCookie(response, config.getUserTokenCookieName(), userToken, "/", config
+				.getUserTokenTimeoutDuration().getSeconds());
 	}
 
 	public String getUserTokenFromCookie(HttpServletRequest request){
@@ -98,13 +94,13 @@ public class DatarouterSessionManager{
 	}
 
 
-	/************ add/remove session from request *********/
+	/*--------------------- update session from request ---------------------*/
 
-	public static void addToRequest(HttpServletRequest request, DatarouterSession userSession){
+	public static void addToRequest(ServletRequest request, DatarouterSession userSession){
 		request.setAttribute(REQUEST_ATTRIBUTE_NAME, userSession);
 	}
 
-	public static Optional<DatarouterSession> getFromRequest(HttpServletRequest request){
+	public static Optional<DatarouterSession> getFromRequest(ServletRequest request){
 		return Optional.ofNullable((DatarouterSession)request.getAttribute(REQUEST_ATTRIBUTE_NAME));
 	}
 

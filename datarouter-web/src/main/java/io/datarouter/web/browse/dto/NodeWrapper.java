@@ -23,13 +23,14 @@ import java.util.stream.Stream;
 
 import io.datarouter.storage.node.Node;
 import io.datarouter.storage.node.op.raw.SortedStorage;
+import io.datarouter.util.net.UrlTool;
 
 public class NodeWrapper{
 
-	public final String name;
-	public final String className;
-	public final int levelsNested;
-	public final boolean sorted;
+	private final String name;
+	private final String className;
+	private final int levelsNested;
+	private final boolean sorted;
 
 	public NodeWrapper(String name, String className, int levelsNested, boolean sorted){
 		this.name = name;
@@ -48,6 +49,10 @@ public class NodeWrapper{
 
 	public String getIndentHtml(){
 		return String.join("", Collections.nCopies(4 * levelsNested, "&nbsp;"));
+	}
+
+	public String getUrlEncodedName(){
+		return UrlTool.encode(name);
 	}
 
 	public boolean isSorted(){

@@ -17,7 +17,7 @@ package io.datarouter.model.field.imp.array;
 
 import java.util.List;
 
-import com.google.common.reflect.TypeToken;
+import com.google.gson.reflect.TypeToken;
 
 import io.datarouter.model.field.ListFieldKey;
 
@@ -25,7 +25,6 @@ public class DelimitedStringArrayFieldKey extends ListFieldKey<String,List<Strin
 
 	public final String separator;
 
-	@SuppressWarnings("serial")
 	public DelimitedStringArrayFieldKey(String name, String separator){
 		super(name, new TypeToken<List<String>>(){});
 		this.separator = separator;

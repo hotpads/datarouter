@@ -28,7 +28,7 @@ import io.datarouter.util.iterable.IterableTool;
 public class EntityTool{
 
 	public static <EK extends EntityKey<EK>,
-		PK extends EntityPrimaryKey<EK,PK>>
+			PK extends EntityPrimaryKey<EK,PK>>
 	NavigableMap<EK,List<PK>> getPrimaryKeysByEntityKey(Iterable<PK> pks){
 		NavigableMap<EK,List<PK>> pksByEntityKey = new TreeMap<>();
 		for(PK pk : IterableTool.nullSafe(pks)){
@@ -44,8 +44,8 @@ public class EntityTool{
 	}
 
 	public static <EK extends EntityKey<EK>,
-		PK extends EntityPrimaryKey<EK,PK>,
-		D extends Databean<PK,D>>
+			PK extends EntityPrimaryKey<EK,PK>,
+			D extends Databean<PK,D>>
 	NavigableMap<EK,List<D>> getDatabeansByEntityKey(Iterable<D> databeans){
 		NavigableMap<EK,List<D>> databeansByEntityKey = new TreeMap<>();
 		for(D databean : IterableTool.nullSafe(databeans)){

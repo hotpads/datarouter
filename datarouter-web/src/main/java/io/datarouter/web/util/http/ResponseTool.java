@@ -38,10 +38,14 @@ public class ResponseTool{
 	}
 
 	public static void sendJsonForMessage(HttpServletResponse response, int code, String message) throws IOException{
+		sendJson(response, code, getJsonForMessage(code, message));
+	}
+
+	public static String getJsonForMessage(int code, String message){
 		JsonObject jsonObject = new JsonObject();
 		jsonObject.addProperty("message", message);
 		jsonObject.addProperty("httpResponseCode", code);
-		sendJson(response, code, jsonObject.toString());
+		return jsonObject.toString();
 	}
 
 	public static void sendJson(HttpServletResponse response, int code, String body) throws IOException{
@@ -51,16 +55,12 @@ public class ResponseTool{
 
 	public static void sendJson(HttpServletResponse response, String body) throws IOException{
 		response.setContentType(ResponseTool.CONTENT_TYPE_APPLICATION_JSON);
-		new OutputStreamWriter(response.getOutputStream(), StandardCharsets.UTF_8)
-				.append(body)
-				.close();
+		try(OutputStreamWriter writer = new OutputStreamWriter(response.getOutputStream(), StandardCharsets.UTF_8)){
+			writer.append(body);
+		}
 	}
 
-	public static void sendRedirect(
-			HttpServletRequest request,
-			HttpServletResponse response,
-			int code,
-			String urlPath){
+	public static void sendRedirect(HttpServletRequest request, HttpServletResponse response, int code, String urlPath){
 		String fullyQualifiedUrl = urlPath;
 		if(!urlPath.contains("://")){
 			// really is just path, create fullUrl
@@ -81,5 +81,4 @@ public class ResponseTool{
 			throw new RuntimeException(e);
 		}
 	}
-
 }

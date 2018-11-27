@@ -27,4 +27,5 @@ public class ShortFieldKey extends PrimitiveFieldKey<Short>{
 	public ShortField createValueField(final Short value){
 		return new ShortField(this, value);
 	}
+
 }

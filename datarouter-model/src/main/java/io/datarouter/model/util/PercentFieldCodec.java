@@ -108,9 +108,8 @@ public class PercentFieldCodec{
 
 	}
 
-	/*---------------- tests -------------------*/
-
 	public static class PercentFieldCodecTests{
+
 		@Test
 		public void testEncodeNulls(){
 			List<String> inputs = new ArrayList<>();
@@ -157,5 +156,7 @@ public class PercentFieldCodec{
 			List<String> decoded = decode(encoded);
 			Assert.assertEquals(decoded, Arrays.asList(inputs));
 		}
+
 	}
+
 }

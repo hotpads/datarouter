@@ -18,12 +18,8 @@ package io.datarouter.storage.node.adapter.callsite.physical;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
-import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.adapter.PhysicalAdapterMixin;
-import io.datarouter.storage.node.adapter.callsite.BaseCallsiteAdapter;
-import io.datarouter.storage.node.adapter.callsite.mixin.MapStorageReaderCallsiteAdapterMixin;
-import io.datarouter.storage.node.adapter.callsite.mixin.MapStorageWriterCallsiteAdapterMixin;
-import io.datarouter.storage.node.adapter.callsite.mixin.SortedStorageReaderCallsiteAdapterMixin;
+import io.datarouter.storage.node.adapter.callsite.SortedMapStorageCallsiteAdapter;
 import io.datarouter.storage.node.op.combo.SortedMapStorage.PhysicalSortedMapStorageNode;
 
 public class PhysicalSortedMapStorageCallsiteAdapter<
@@ -31,15 +27,12 @@ public class PhysicalSortedMapStorageCallsiteAdapter<
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>,
 		N extends PhysicalSortedMapStorageNode<PK,D,F>>
-extends BaseCallsiteAdapter<PK,D,F,N>
+extends SortedMapStorageCallsiteAdapter<PK,D,F,N>
 implements PhysicalSortedMapStorageNode<PK,D,F>,
-		MapStorageWriterCallsiteAdapterMixin<PK,D,F,N>,
-		SortedStorageReaderCallsiteAdapterMixin<PK,D,F,N>,
-		MapStorageReaderCallsiteAdapterMixin<PK,D,F,N>,
 		PhysicalAdapterMixin<PK,D,F,N>{
 
-	public PhysicalSortedMapStorageCallsiteAdapter(NodeParams<PK,D,F> params, N backingNode){
-		super(params, backingNode);
+	public PhysicalSortedMapStorageCallsiteAdapter(N backingNode){
+		super(backingNode);
 	}
 
 }

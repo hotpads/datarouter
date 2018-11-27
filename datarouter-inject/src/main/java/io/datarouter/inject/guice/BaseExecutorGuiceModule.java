@@ -82,7 +82,7 @@ public abstract class BaseExecutorGuiceModule extends AbstractModule{
 		return new ScalingThreadPoolExecutor(0, maxThreadCount, 1, TimeUnit.MINUTES, threadFactory);
 	}
 
-	private ExecutorService createCached(ThreadGroup threadGroup, String name){
+	protected ExecutorService createCached(ThreadGroup threadGroup, String name){
 		ThreadFactory threadFactory = new NamedThreadFactory(threadGroup, name, true);
 		return Executors.newCachedThreadPool(threadFactory);
 	}

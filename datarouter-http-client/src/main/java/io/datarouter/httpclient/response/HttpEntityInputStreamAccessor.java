@@ -22,6 +22,7 @@ import java.util.function.Consumer;
 import org.apache.http.HttpEntity;
 
 public class HttpEntityInputStreamAccessor implements Consumer<HttpEntity>{
+
 	private InputStream inputStream;
 	private IOException capturedException;
 

@@ -18,10 +18,12 @@ package io.datarouter.util.iterable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
@@ -51,8 +53,12 @@ public class IterableTool{
 		StreamTool.stream(iterable).forEach(action);
 	}
 
-	public static <A, T> List<T> map(Iterable<A> iterable, Function<A,T> mapper){
+	public static <A,T> List<T> map(Iterable<A> iterable, Function<A,T> mapper){
 		return StreamTool.map(StreamTool.stream(iterable), mapper);
+	}
+
+	public static <A,T> Set<T> mapToSet(Iterable<A> iterable, Function<A,T> mapper){
+		return StreamTool.mapToSet(StreamTool.stream(iterable), mapper);
 	}
 
 	public static <A> List<A> filter(Iterable<A> iterable, Predicate<A> filter){
@@ -166,6 +172,16 @@ public class IterableTool{
 			Assert.assertEquals(greetings.size(), 2);
 			Assert.assertEquals(greetings.get(0), "Hello Al");
 			Assert.assertEquals(greetings.get(1), "Hello Bob");
+		}
+
+		@Test
+		public void testMapToSet(){
+			List<String> names = Arrays.asList("Al", "Bob", "Bob");
+			Set<String> greetings = mapToSet(names, name -> "Hello " + name);
+			Assert.assertEquals(greetings.getClass(), HashSet.class);
+			Assert.assertEquals(greetings.size(), 2);
+			Assert.assertTrue(greetings.contains("Hello Al"));
+			Assert.assertTrue(greetings.contains("Hello Bob"));
 		}
 
 		@Test

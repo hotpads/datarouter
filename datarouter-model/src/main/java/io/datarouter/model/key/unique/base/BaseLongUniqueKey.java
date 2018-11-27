@@ -15,11 +15,9 @@
  */
 package io.datarouter.model.key.unique.base;
 
-
 import io.datarouter.model.key.Key;
 import io.datarouter.model.key.base.BaseLongKey;
 import io.datarouter.model.key.unique.UniqueKey;
-
 
 public abstract class BaseLongUniqueKey<K extends Key<K>>
 extends BaseLongKey<K>

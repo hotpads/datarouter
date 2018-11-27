@@ -19,6 +19,7 @@ import java.util.List;
 
 import io.datarouter.model.field.BaseListField;
 import io.datarouter.util.bytes.BooleanByteTool;
+import io.datarouter.util.serialization.GsonTool;
 
 public class BooleanArrayField extends BaseListField<Boolean,List<Boolean>>{
 
@@ -26,14 +27,10 @@ public class BooleanArrayField extends BaseListField<Boolean,List<Boolean>>{
 		super(key, value);
 	}
 
-	/*********************** StringEncodedField ******************************/
-
 	@Override
 	public List<Boolean> parseStringEncodedValueButDoNotSet(String value){
-		return gson.fromJson(value, getKey().getValueType());
+		return GsonTool.GSON.fromJson(value, getKey().getValueType());
 	}
-
-	/*********************** ByteEncodedField ********************************/
 
 	@Override
 	public byte[] getBytes(){
@@ -50,7 +47,7 @@ public class BooleanArrayField extends BaseListField<Boolean,List<Boolean>>{
 
 	@Override
 	public int numBytesWithSeparator(byte[] bytes, int byteOffset){
-		// TODO Auto-generated method stub
 		return 0;
 	}
+
 }

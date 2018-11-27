@@ -29,7 +29,6 @@ public class FieldSetComparator implements Comparator<FieldSet<?>>{
 		return compareStatic(left, right);
 	}
 
-
 	public static int compareStatic(FieldSet<?> left, FieldSet<?> right){
 		//sort classes alphabetically
 		if(right == null){
@@ -58,4 +57,5 @@ public class FieldSetComparator implements Comparator<FieldSet<?>>{
 	public static <T> int compareFields(Field<?> field1, Field<?> field2){
 		return ((Field<T>)field1).compareTo((Field<T>)field2);
 	}
+
 }

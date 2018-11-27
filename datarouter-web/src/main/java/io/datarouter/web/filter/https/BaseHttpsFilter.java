@@ -43,13 +43,13 @@ public abstract class BaseHttpsFilter implements Filter{
 		HttpServletRequest request = (HttpServletRequest)req;
 		HttpServletResponse response = (HttpServletResponse)res;
 
-		/********************** parse request ****************************/
+		/*------------------------- parse request ---------------------------*/
 
 		UrlScheme scheme = urlSchemeHandler.fromRequest(req);
 		String path = request.getServletPath();
 		String pathInfo = StringTool.nullSafe(request.getPathInfo());
 
-		/******* catch bogus http requests and redirect if necessary ***********/
+		/*------- catch bogus http requests and redirect if necessary -------*/
 
 		UrlScheme requiredScheme = getRequiredScheme(path + pathInfo);
 
@@ -60,7 +60,7 @@ public abstract class BaseHttpsFilter implements Filter{
 			return;
 		}
 
-		/******* no bogus requests found... continue normally *****************/
+		/*---------- no bogus requests found... continue normally -----------*/
 		fc.doFilter(req, res);
 	}
 

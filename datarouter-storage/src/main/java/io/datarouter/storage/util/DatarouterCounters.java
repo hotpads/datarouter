@@ -15,31 +15,29 @@
  */
 package io.datarouter.storage.util;
 
+import io.datarouter.instrumentation.count.Counters;
 import io.datarouter.storage.client.ClientType;
-import io.datarouter.storage.counter.Counters;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 
 public class DatarouterCounters{
 
-	public static final String
-		PREFIX = "Datarouter",
-		CLIENT_TYPE_virtual = "virtual",
-		AGGREGATION_op = "op",
-		AGGREGATION_client = "client",
-		AGGREGATION_table = "table",
-		AGGREGATION_node = "node",
-		AGGREGATION_region = "region",
-		AGGREGATION_client_server = "client-server",
-		AGGREGATION_client_server_table = "client-server-table",
-		AGGREGATION_client_server_table_region = "client-server-table-region",
-		AGGREGATION_client_server_table_op = "client-server-table-op",
-		AGGREGATION_client_table_server = "client-table-server",
-		AGGREGATION_client_table_server_op = "client-table-server-op";
-
+	public static final String PREFIX = "Datarouter";
+	public static final String CLIENT_TYPE_virtual = "virtual";
+	public static final String AGGREGATION_op = "op";
+	public static final String AGGREGATION_client = "client";
+	public static final String AGGREGATION_table = "table";
+	public static final String AGGREGATION_node = "node";
+	public static final String AGGREGATION_region = "region";
+	public static final String AGGREGATION_client_server = "client-server";
+	public static final String AGGREGATION_client_server_table = "client-server-table";
+	public static final String AGGREGATION_client_server_table_region = "client-server-table-region";
+	public static final String AGGREGATION_client_server_table_op = "client-server-table-op";
+	public static final String AGGREGATION_client_table_server = "client-table-server";
+	public static final String AGGREGATION_client_table_server_op = "client-table-server-op";
 
 	/*------------ node -------------------*/
 
-	public static void incOp(ClientType type, String key){
+	public static void incOp(ClientType<?> type, String key){
 		incInternal(AGGREGATION_op, type, key, 1L);
 	}
 
@@ -52,14 +50,15 @@ public class DatarouterCounters{
 	}
 
 	// allow node implementations to add whatever counts they want, prefixing them with "custom"
-	public static void incClientNodeCustom(ClientType type, String key, String clientName, String nodeName, long delta){
+	public static void incClientNodeCustom(ClientType<?> type, String key, String clientName, String nodeName,
+			long delta){
 		incClient(type, key, clientName, delta);
 		String compoundKey = clientName + " " + nodeName + " custom " + key;
 		incInternal(AGGREGATION_node, type, compoundKey, delta);
 	}
 
 	public static void incFromCounterAdapter(PhysicalNode<?,?,?> physicalNode, String key, long delta){
-		ClientType clientType = physicalNode.getClient().getType();
+		ClientType<?> clientType = physicalNode.getClient().getType();
 		String clientName = physicalNode.getClient().getName();
 		String nodeName = physicalNode.getName();
 		incClient(clientType, key, clientName, delta);
@@ -69,14 +68,14 @@ public class DatarouterCounters{
 
 	/*------------ client -------------------*/
 
-	public static void incClient(ClientType type, String key, String clientName, long delta){
+	public static void incClient(ClientType<?> type, String key, String clientName, long delta){
 		incInternal(AGGREGATION_op, type, key, delta);
 		String compoundKey = clientName + " " + key;
 		incInternal(AGGREGATION_client, type, compoundKey, delta);
 	}
 	/*------------ table -------------------*/
 
-	public static void incClientTable(ClientType type, String key, String clientName, String tableName, long delta){
+	public static void incClientTable(ClientType<?> type, String key, String clientName, String tableName, long delta){
 		incClient(type, key, clientName, delta);
 		String compoundKey = clientName + " " + tableName + " " + key;
 		incInternal(AGGREGATION_table, type, compoundKey, delta);
@@ -92,7 +91,7 @@ public class DatarouterCounters{
 
 	/*------------ private -------------------*/
 
-	private static void incInternal(String aggregationLevel, ClientType clientType, String key, long delta){
+	private static void incInternal(String aggregationLevel, ClientType<?> clientType, String key, long delta){
 		String clientTypeString = clientType != null ? clientType.getName() : CLIENT_TYPE_virtual;
 		incInternalStringWithClientType(aggregationLevel, clientTypeString, key, delta);
 	}
@@ -101,4 +100,5 @@ public class DatarouterCounters{
 			long delta){
 		Counters.inc(PREFIX + " " + aggregationLevel + " " + clientTypeString + " " + key, delta);
 	}
+
 }

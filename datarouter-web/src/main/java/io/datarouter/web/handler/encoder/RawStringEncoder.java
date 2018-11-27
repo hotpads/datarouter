@@ -23,22 +23,31 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import io.datarouter.web.exception.HandledException;
+import io.datarouter.web.handler.validator.RequestParamValidator.RequestParamValidatorErrorResponseDto;
 
 public class RawStringEncoder implements HandlerEncoder{
 
 	@Override
 	public void finishRequest(Object result, ServletContext servletContext, HttpServletResponse response,
-			HttpServletRequest request)
-	throws IOException{
-		PrintWriter writer = response.getWriter();
-		writer.print(result);
+			HttpServletRequest request) throws IOException{
+		try(PrintWriter writer = response.getWriter()){
+			writer.print(result);
+		}
 	}
 
 	@Override
 	public void sendExceptionResponse(HandledException exception, ServletContext servletContext,
-			HttpServletResponse response, HttpServletRequest request)
-	throws IOException{
-		response.sendError(HttpServletResponse.SC_BAD_REQUEST, exception.getMessage());
+			HttpServletResponse response, HttpServletRequest request) throws IOException{
+		sendErrorResponse(HttpServletResponse.SC_BAD_REQUEST, exception.getMessage(), response);
 	}
 
+	@Override
+	public void sendInvalidRequestParamResponse(RequestParamValidatorErrorResponseDto errorResponseDto,
+			ServletContext servletContext, HttpServletResponse response, HttpServletRequest request) throws IOException{
+		sendErrorResponse(errorResponseDto.statusCode, errorResponseDto.message, response);
+	}
+
+	public void sendErrorResponse(int statusCode, String errorMessage, HttpServletResponse response) throws IOException{
+		response.sendError(statusCode, errorMessage);
+	}
 }

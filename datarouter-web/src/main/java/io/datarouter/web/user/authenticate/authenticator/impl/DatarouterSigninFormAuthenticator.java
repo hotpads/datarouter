@@ -34,7 +34,7 @@ import io.datarouter.web.user.DatarouterUserDao;
 import io.datarouter.web.user.DatarouterUserNodes;
 import io.datarouter.web.user.authenticate.authenticator.DatarouterAuthenticator;
 import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
-import io.datarouter.web.user.authenticate.saml.SamlSettings;
+import io.datarouter.web.user.authenticate.saml.DatarouterSamlSettings;
 import io.datarouter.web.user.cache.DatarouterUserByUsernameCache;
 import io.datarouter.web.user.databean.DatarouterUser;
 import io.datarouter.web.user.session.DatarouterSession;
@@ -42,7 +42,6 @@ import io.datarouter.web.util.http.RequestTool;
 
 @Singleton
 public class DatarouterSigninFormAuthenticator implements DatarouterAuthenticator{
-
 	private static final Logger logger = LoggerFactory.getLogger(DatarouterSigninFormAuthenticator.class);
 
 	@Inject
@@ -50,9 +49,11 @@ public class DatarouterSigninFormAuthenticator implements DatarouterAuthenticato
 	@Inject
 	private DatarouterUserNodes userNodes;
 	@Inject
-	private SamlSettings samlSettings;
+	private DatarouterSamlSettings samlSettings;
 	@Inject
 	private DatarouterUserByUsernameCache datarouterUserByUsernameCache;
+	@Inject
+	private DatarouterUserDao datarouterUserDao;
 
 	@Override
 	public DatarouterSession getSession(HttpServletRequest request, HttpServletResponse response){
@@ -92,7 +93,7 @@ public class DatarouterSigninFormAuthenticator implements DatarouterAuthenticato
 		if(StringTool.isEmpty(password)){
 			throw new InvalidCredentialsException("password cannot be empty (" + username + ")");
 		}
-		if(!DatarouterUserDao.isPasswordCorrect(user, password)){
+		if(!datarouterUserDao.isPasswordCorrect(user, password)){
 			throw new IncorrectPasswordException("invalid password (" + username + ")");
 		}
 		return user;

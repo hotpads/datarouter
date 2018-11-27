@@ -17,10 +17,13 @@ package io.datarouter.model.key.entity.base;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import io.datarouter.model.field.Field;
 import io.datarouter.model.key.entity.EntityKey;
 import io.datarouter.model.key.entity.EntityPartitioner;
 import io.datarouter.util.bytes.ByteTool;
@@ -39,7 +42,7 @@ implements EntityPartitioner<EK>{
 	private byte[][] allPrefixesArray;
 
 
-	/****************** construct ********************/
+	/*------------- construct -------------*/
 
 	public BaseEntityPartitioner(){
 		this.allPartitions = new ArrayList<>();
@@ -62,8 +65,7 @@ implements EntityPartitioner<EK>{
 		}
 	}
 
-
-	/**************** methods *********************/
+	/*------------- methods -------------*/
 
 	@Override
 	public List<Integer> getAllPartitions(){
@@ -128,7 +130,27 @@ implements EntityPartitioner<EK>{
 		return IntegerByteTool.fromRawBytes(fourBytePrefix, 0);
 	}
 
-	/*********** static for testing *************/
+	/*------------ standard hashing ---------------*/
+
+	protected int calcPartition(EK ek, Function<String,Long> hashFunction){
+		String hashInput = makeHashInput(ek);
+		long longHash = hashFunction.apply(hashInput);
+		return calcPartitionFromLongHash(longHash);
+	}
+
+	private String makeHashInput(EK ek){
+		return ek.getFields().stream()
+				.map(Field::getValue)
+				.map(Object::toString)
+				.collect(Collectors.joining(""));
+	}
+
+	private int calcPartitionFromLongHash(long hash){
+		long longPartition = hash % getNumPartitions();
+		return (int)longPartition;
+	}
+
+	/*------------- for testing -------------*/
 
 	private static int getNumPrefixBytesStatic(int numPartitions){
 		if(numPartitions < MIN_PARTITIONS){
@@ -147,13 +169,15 @@ implements EntityPartitioner<EK>{
 	}
 
 
-	/************** tests ***********************/
+	/*------------- tests -------------*/
 
 	public static class BaseEntityPartitionerTests{
+
 		@Test(expectedExceptions = IllegalArgumentException.class)
 		public void testMinBound(){
 			getNumPrefixBytesStatic(0);
 		}
+
 		@Test
 		public void testValidNumPartitions(){
 			Assert.assertEquals(getNumPrefixBytesStatic(1), 0);
@@ -164,6 +188,7 @@ implements EntityPartitioner<EK>{
 			Assert.assertEquals(getNumPrefixBytesStatic(65535), 2);
 			Assert.assertEquals(getNumPrefixBytesStatic(65536), 2);
 		}
+
 		@Test(expectedExceptions = IllegalArgumentException.class)
 		public void testMaxBound(){
 			getNumPrefixBytesStatic(65537);

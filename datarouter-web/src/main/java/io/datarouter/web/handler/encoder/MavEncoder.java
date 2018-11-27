@@ -25,13 +25,15 @@ import javax.servlet.http.HttpServletResponse;
 
 import io.datarouter.web.exception.HandledException;
 import io.datarouter.web.handler.mav.Mav;
+import io.datarouter.web.handler.validator.RequestParamValidator.RequestParamValidatorErrorResponseDto;
 import io.datarouter.web.util.http.ResponseTool;
 
 public class MavEncoder implements HandlerEncoder{
 
 	@Override
 	public void finishRequest(Object result, ServletContext servletContext, HttpServletResponse response,
-			HttpServletRequest request) throws ServletException, IOException{
+			HttpServletRequest request)
+	throws ServletException, IOException{
 		if(result == null){
 			return;
 		}
@@ -63,7 +65,17 @@ public class MavEncoder implements HandlerEncoder{
 	@Override
 	public void sendExceptionResponse(HandledException exception, ServletContext servletContext,
 			HttpServletResponse response, HttpServletRequest request){
-		ResponseTool.sendError(response, HttpServletResponse.SC_BAD_REQUEST, exception.getMessage());
+		sendErrorResponse(HttpServletResponse.SC_BAD_REQUEST, exception.getMessage(), response);
+	}
+
+	@Override
+	public void sendInvalidRequestParamResponse(RequestParamValidatorErrorResponseDto errorResponseDto,
+			ServletContext servletContext, HttpServletResponse response, HttpServletRequest request){
+		sendErrorResponse(errorResponseDto.statusCode, errorResponseDto.message, response);
+	}
+
+	private void sendErrorResponse(int statusCode, String errorMessage, HttpServletResponse response){
+		ResponseTool.sendError(response, statusCode, errorMessage);
 	}
 
 }

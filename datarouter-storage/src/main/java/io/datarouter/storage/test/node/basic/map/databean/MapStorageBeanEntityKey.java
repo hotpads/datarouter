@@ -29,8 +29,6 @@ public class MapStorageBeanEntityKey extends BaseEntityKey<MapStorageBeanEntityK
 
 	private static int NUM_PARTITIONS = 4;
 
-	/** fields ***************************************************************/
-
 	private Long entityId;
 
 	public static class FieldKeys{
@@ -41,8 +39,6 @@ public class MapStorageBeanEntityKey extends BaseEntityKey<MapStorageBeanEntityK
 	public List<Field<?>> getFields(){
 		return Arrays.asList(new LongField(FieldKeys.entityId, entityId));
 	}
-
-	/** partitioner **********************************************************/
 
 	public static class MapStorageBeanEntityPartitioner extends BaseEntityPartitioner<MapStorageBeanEntityKey>{
 
@@ -57,22 +53,18 @@ public class MapStorageBeanEntityKey extends BaseEntityKey<MapStorageBeanEntityK
 			long hash = HashMethods.longDjbHash(hashInput) % getNumPartitions();
 			return (int)(hash % getNumPartitions());
 		}
+
 	}
 
-	/** Constructor **********************************************************/
-
-	// for reflection
-	@SuppressWarnings("unused")
-	private MapStorageBeanEntityKey(){
+	public MapStorageBeanEntityKey(){
 	}
 
 	public MapStorageBeanEntityKey(Long entityId){
 		this.entityId = entityId;
 	}
 
-	/** get/set **************************************************************/
-
 	public Long getEntityId(){
 		return entityId;
 	}
+
 }

@@ -17,13 +17,12 @@ package io.datarouter.model.field.imp.array;
 
 import java.util.List;
 
-import com.google.common.reflect.TypeToken;
+import com.google.gson.reflect.TypeToken;
 
 import io.datarouter.model.field.ListFieldKey;
 
 public class UInt7ArrayFieldKey extends ListFieldKey<Byte,List<Byte>>{
 
-	@SuppressWarnings("serial")
 	public UInt7ArrayFieldKey(String name){
 		super(name, new TypeToken<List<Byte>>(){});
 	}
@@ -32,8 +31,6 @@ public class UInt7ArrayFieldKey extends ListFieldKey<Byte,List<Byte>>{
 	public UInt7ArrayField createValueField(final List<Byte> value){
 		return new UInt7ArrayField(this, value);
 	}
-
-	/*********************** ByteEncodedField ***********************/
 
 	@Override
 	public boolean isFixedLength(){

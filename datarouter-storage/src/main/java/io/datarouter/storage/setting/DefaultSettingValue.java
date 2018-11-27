@@ -24,14 +24,16 @@ import io.datarouter.storage.servertype.ServerType;
 
 public class DefaultSettingValue<T>{
 
-	private final T globalDefault;
+	private T globalDefault;
 	private final Map<DatarouterConfigProfile,T> valueByProfile;
 	private final Map<DatarouterConfigProfile,Map<String,T>> valueByServerTypeByProfile;
+	private final Map<DatarouterConfigProfile,Map<String,T>> valueByServerNameByProfile;
 
 	public DefaultSettingValue(T globalDefault){
 		this.globalDefault = globalDefault;
 		this.valueByProfile = new HashMap<>();
 		this.valueByServerTypeByProfile = new HashMap<>();
+		this.valueByServerNameByProfile = new HashMap<>();
 	}
 
 	/*--------- builder ---------------*/
@@ -47,6 +49,12 @@ public class DefaultSettingValue<T>{
 		return this;
 	}
 
+	public DefaultSettingValue<T> with(DatarouterConfigProfile profile, String serverName, T value){
+		valueByServerNameByProfile.putIfAbsent(profile, new HashMap<>());
+		valueByServerNameByProfile.get(profile).put(serverName, value);
+		return this;
+	}
+
 	/*--------- convenience ---------------*/
 
 	//Convenience method so callers can optionally save a method call.
@@ -58,12 +66,61 @@ public class DefaultSettingValue<T>{
 		return with(profile.get(), serverType, value);
 	}
 
+	public DefaultSettingValue<T> with(Supplier<DatarouterConfigProfile> profile, String serverName, T value){
+		return with(profile.get(), serverName, value);
+	}
+
+	/*---------- override ---------------*/
+
+	public DefaultSettingValue<T> setGlobalDefault(T value){
+		this.globalDefault = value;
+		return this;
+	}
+
+	/*---------- getValues --------------*/
+
+	public Map<DatarouterConfigProfile,Map<String,T>> getValueByServerTypeByProfile(){
+		return valueByServerTypeByProfile;
+	}
+
+	public Map<DatarouterConfigProfile,Map<String,T>> getValueByServerNameByProfile(){
+		return valueByServerNameByProfile;
+	}
+
+	public Map<DatarouterConfigProfile,T> getValueByProfile(){
+		return valueByProfile;
+	}
+
+	public Map<String,T> getValueByServerType(DatarouterConfigProfile configProfile){
+		return valueByServerTypeByProfile.get(configProfile);
+	}
+
+	public Map<String,T> getValueByServerName(DatarouterConfigProfile configProfile){
+		return valueByServerNameByProfile.get(configProfile);
+	}
+
 	/*--------- getValue ---------------*/
 
-	public T getValue(DatarouterConfigProfile profile, ServerType serverType){
+	public T getGlobalDefault(){
+		return globalDefault;
+	}
+
+	public T getValue(DatarouterConfigProfile profile, ServerType serverType, String serverName){
+		String serverTypeString = serverType == null ? null : serverType.getPersistentString();
+		return getValue(profile, serverTypeString, serverName);
+	}
+
+	public T getValue(DatarouterConfigProfile profile, String serverTypeString, String serverName){
 		Map<String,T> valueByServerType = valueByServerTypeByProfile.get(profile);
 		if(valueByServerType != null){
-			T value = valueByServerType.get(serverType.getPersistentString());
+			T value = valueByServerType.get(serverTypeString);
+			if(value != null){
+				return value;
+			}
+		}
+		Map<String,T> valueByServerName = valueByServerNameByProfile.get(profile);
+		if(valueByServerName != null){
+			T value = valueByServerName.get(serverName);
 			if(value != null){
 				return value;
 			}
@@ -71,8 +128,8 @@ public class DefaultSettingValue<T>{
 		return valueByProfile.getOrDefault(profile, globalDefault);
 	}
 
-	public T getValue(String configProfileString, ServerType serverType){
-		return getValue(new DatarouterConfigProfile(configProfileString), serverType);
+	public T getValue(String configProfileString, ServerType serverType, String serverName){
+		return getValue(new DatarouterConfigProfile(configProfileString), serverType, serverName);
 	}
 
 }

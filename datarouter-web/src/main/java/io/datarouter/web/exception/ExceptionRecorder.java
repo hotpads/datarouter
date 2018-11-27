@@ -15,11 +15,22 @@
  */
 package io.datarouter.web.exception;
 
+import java.util.Optional;
+
+import javax.servlet.http.HttpServletRequest;
+
 import io.datarouter.storage.exception.ExceptionCategory;
 
 public interface ExceptionRecorder{
 
-	ExceptionRecord tryRecordException(Throwable exception, String fallbackLocation);
-	ExceptionRecord tryRecordException(Throwable exception, String fallbackLocation, ExceptionCategory category);
-	ExceptionRecord recordException(Throwable exception, ExceptionCategory category, String location);
+	Optional<ExceptionRecord> tryRecordException(Throwable exception, String fallbackLocation);
+	Optional<ExceptionRecord> tryRecordException(Throwable exception, String fallbackLocation,
+			ExceptionCategory category);
+	ExceptionRecord recordException(Throwable exception, ExceptionCategory category, String location, String methodName,
+			Integer lineNumber);
+	Optional<ExceptionRecord> tryRecordExceptionAndHttpRequest(Throwable exception, String fallbackLocation,
+			HttpServletRequest request);
+	ExceptionRecord recordExceptionAndHttpRequest(Throwable exception, String location, String methodName,
+			Integer lineNumber, HttpServletRequest request);
+
 }

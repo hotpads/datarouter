@@ -27,4 +27,5 @@ public class VarIntFieldKey extends PrimitiveFieldKey<Integer>{
 	public VarIntField createValueField(final Integer value){
 		return new VarIntField(this, value);
 	}
+
 }

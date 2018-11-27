@@ -79,8 +79,6 @@ public class OptionalTypeAdapterFactory implements TypeAdapterFactory{
 		}
 	}
 
-	/** TESTS *****************************************************************/
-
 	public static class Tests{
 		private Gson gsonNotNull = new GsonBuilder()
 				.registerTypeAdapterFactory(new OptionalTypeAdapterFactory())

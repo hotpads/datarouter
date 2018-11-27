@@ -18,8 +18,6 @@ package io.datarouter.storage.test.node.basic.sorted;
 import java.util.Arrays;
 import java.util.List;
 
-import com.google.gson.Gson;
-
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.imp.StringField;
@@ -29,6 +27,7 @@ import io.datarouter.model.field.imp.comparable.DoubleFieldKey;
 import io.datarouter.model.field.imp.comparable.LongField;
 import io.datarouter.model.field.imp.comparable.LongFieldKey;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
+import io.datarouter.util.serialization.GsonTool;
 
 public class SortedBean extends BaseDatabean<SortedBeanKey,SortedBean>{
 
@@ -45,8 +44,6 @@ public class SortedBean extends BaseDatabean<SortedBeanKey,SortedBean>{
 	private Long f2;
 	private String f3;
 	private Double f4;
-
-	/***************************** columns ******************************/
 
 	public static class SortedBeanFielder extends BaseDatabeanFielder<SortedBeanKey,SortedBean>{
 
@@ -65,8 +62,6 @@ public class SortedBean extends BaseDatabean<SortedBeanKey,SortedBean>{
 
 	}
 
-	/***************************** constructor **************************************/
-
 	public SortedBean(){
 		this.key = new SortedBeanKey();
 	}
@@ -84,9 +79,6 @@ public class SortedBean extends BaseDatabean<SortedBeanKey,SortedBean>{
 		this.f4 = f4;
 	}
 
-
-	/************************** databean *******************************************/
-
 	@Override
 	public Class<SortedBeanKey> getKeyClass(){
 		return SortedBeanKey.class;
@@ -96,9 +88,6 @@ public class SortedBean extends BaseDatabean<SortedBeanKey,SortedBean>{
 	public SortedBeanKey getKey(){
 		return key;
 	}
-
-
-	/***************************** index *************************************/
 
 	public String getF1(){
 		return f1;
@@ -110,7 +99,7 @@ public class SortedBean extends BaseDatabean<SortedBeanKey,SortedBean>{
 
 	@Override
 	public String toString(){
-		return new Gson().toJson(this);
+		return GsonTool.GSON.toJson(this);
 	}
 
 }

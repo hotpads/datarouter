@@ -33,6 +33,7 @@ public class DatarouterHttpRequestTests{
 	private static final String URL = "http://kittens.datarouter.io";
 	private static final String DTO_PARAM = "moose";
 	private static final String DTO_TYPE_PARAM = "camel";
+
 	private final DatarouterHttpClientConfig config = new DatarouterHttpClientConfig(){
 		@Override
 		public String getDtoParameterName(){
@@ -44,14 +45,15 @@ public class DatarouterHttpRequestTests{
 			return "camel";
 		}
 	};
+
 	private final DatarouterHttpClient client = new DatarouterHttpClientBuilder().setConfig(config).build();
 
 	private static final class Thing{
-		@SuppressWarnings("unused")//serialized
+		@SuppressWarnings("unused") // serialized
 		private String variable = "test";
-		@SuppressWarnings("unused")//serialized
+		@SuppressWarnings("unused") // serialized
 		private Integer number = 157;
-		@SuppressWarnings("unused")//serialized
+		@SuppressWarnings("unused") // serialized
 		private int primitive = 55221;
 	}
 
@@ -204,10 +206,12 @@ public class DatarouterHttpRequestTests{
 	public void testNullMethod(){
 		new DatarouterHttpRequest(null, URL, false);
 	}
+
 	@Test(expectedExceptions = IllegalArgumentException.class)
 	public void testNullUrl(){
 		new DatarouterHttpRequest(HttpRequestMethod.HEAD, null, false);
 	}
+
 	@Test(expectedExceptions = IllegalArgumentException.class)
 	public void testEmptyUrl(){
 		new DatarouterHttpRequest(HttpRequestMethod.HEAD, "", false);

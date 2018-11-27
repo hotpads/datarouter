@@ -35,4 +35,5 @@ extends NodeOps<PK,D>{
 	public static final String OP_subscribe = "subscribe";
 
 	BlockingQueue<StreamRecord<PK,D>> subscribe(DatarouterStreamSubscriberConfig streamConfig, Config config);
+
 }

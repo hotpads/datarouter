@@ -33,6 +33,7 @@ import org.testng.annotations.Test;
  */
 public class LoggingTests{
 	private static final Logger logger = LoggerFactory.getLogger(LoggingTests.class);
+
 	private static final File TEST_FILE = new File(TestDatarouterLog4j2Configuration.TEST_FILE_NAME);
 	private static final String TEST_FILE_2_NAME = TestDatarouterLog4j2Configuration.TEST_FILE_NAME + "2";
 	private static final File TEST_FILE_2 = new File(TEST_FILE_2_NAME);

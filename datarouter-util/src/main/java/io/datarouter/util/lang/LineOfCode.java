@@ -25,7 +25,7 @@ public class LineOfCode implements Comparable<LineOfCode>{
 	private static final int OFFSET_FROM_TOP_OF_STACK = 1;//top of stack is our constructor
 
 
-	/**************** fields *********************************/
+	/*------------------------- fields --------------------------------------*/
 
 	private String packageName;
 	private String className;
@@ -33,7 +33,7 @@ public class LineOfCode implements Comparable<LineOfCode>{
 	private Integer lineNumber;
 
 
-	/****************** construct ***************************/
+	/*------------------------- construct -----------------------------------*/
 
 	public LineOfCode(){
 		this(1);//add one for the chained constructor
@@ -49,13 +49,13 @@ public class LineOfCode implements Comparable<LineOfCode>{
 	}
 
 
-	/******************** methods ***************************/
+	/*------------------------- methods -------------------------------------*/
 
 	public String getPersistentString(){
 		return packageName + "." + className + ":" + methodName + ":" + lineNumber;
 	}
 
-	/***************** Object methods *********************/
+	/*-------------------------Object methods -------------------------------*/
 
 	@Override
 	public String toString(){
@@ -120,7 +120,7 @@ public class LineOfCode implements Comparable<LineOfCode>{
 		return true;
 	}
 
-	/**************** Comparable **************************/
+	/*------------------------- Comparable ----------------------------------*/
 
 	@Override
 	public int compareTo(LineOfCode that){
@@ -143,7 +143,7 @@ public class LineOfCode implements Comparable<LineOfCode>{
 	}
 
 
-	/***************** get/set ****************************/
+	/*------------------------- get/set -------------------------------------*/
 
 	public String getPackageName(){
 		return packageName;
@@ -162,7 +162,7 @@ public class LineOfCode implements Comparable<LineOfCode>{
 	}
 
 
-	/******************** tests ******************************/
+	/*------------------------- tests ---------------------------------------*/
 
 	/*
 	 * these can break easily if you modify this class.  just update the test

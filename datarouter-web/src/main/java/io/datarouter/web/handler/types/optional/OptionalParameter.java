@@ -35,6 +35,7 @@ public abstract class OptionalParameter<T>{
 	public OptionalParameter(){
 		this.opt = Optional.empty();
 	}
+
 	public OptionalParameter(T value){
 		this.opt = Optional.ofNullable(value);
 	}
@@ -44,6 +45,7 @@ public abstract class OptionalParameter<T>{
 	}
 
 	public abstract Class<T> getInternalType();
+
 	public abstract OptionalParameter<T> fromString(String stringValue);
 
 	public static OptionalParameter<?> makeOptionalParameter(String stringValue, Type type){
@@ -55,7 +57,7 @@ public abstract class OptionalParameter<T>{
 		return new OptionalString();
 	}
 
-	public static Class<?> getOptionalInternalType(Class<?> parameterClass){
+	public static Type getOptionalInternalType(Type parameterClass){
 		for(Class<? extends OptionalParameter<?>> optClass : OPTIONAL_PARAMATER_TYPES){
 			if(optClass.equals(parameterClass)){
 				OptionalParameter<?> optParameter = ReflectionTool.create(optClass);
@@ -75,37 +77,43 @@ public abstract class OptionalParameter<T>{
 		return opt.isPresent();
 	}
 
-    public T orElse(T other){
-        return opt.orElse(other);
-    }
+	public T orElse(T other){
+		return opt.orElse(other);
+	}
 
-    public <U> Optional<U> map(Function<? super T, ? extends U> mapper){
-        return opt.map(mapper);
-    }
+	public <U> Optional<U> map(Function<? super T,? extends U> mapper){
+		return opt.map(mapper);
+	}
 
-    public Optional<T> filter(Predicate<? super T> predicate){
-    	return opt.filter(predicate);
-    }
+	public Optional<T> filter(Predicate<? super T> predicate){
+		return opt.filter(predicate);
+	}
 
-    /*--------------- Object ------------------*/
+	/*--------------- Object ------------------*/
 
-    @Override
-    public boolean equals(Object obj){
-    	if(this == obj){
-    		return true;
-    	}
-    	if(obj instanceof Optional){
-            return Objects.equals(opt, obj);
-    	}
-    	if(obj instanceof OptionalParameter){
-    		OptionalParameter<?> other = (OptionalParameter<?>)obj;
-            return Objects.equals(opt, other.opt);
-    	}
-    	return false;
-    }
+	@Override
+	public boolean equals(Object obj){
+		if(this == obj){
+			return true;
+		}
+		if(obj instanceof Optional){
+			return Objects.equals(opt, obj);
+		}
+		if(obj instanceof OptionalParameter){
+			OptionalParameter<?> other = (OptionalParameter<?>)obj;
+			return Objects.equals(opt, other.opt);
+		}
+		return false;
+	}
 
-    @Override
-    public int hashCode(){
-        return opt.hashCode();
-    }
+	@Override
+	public int hashCode(){
+		return opt.hashCode();
+	}
+
+	@Override
+	public String toString(){
+		return opt.toString();
+	}
+
 }

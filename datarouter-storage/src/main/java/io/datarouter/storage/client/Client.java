@@ -18,7 +18,6 @@ package io.datarouter.storage.client;
 import java.util.Optional;
 import java.util.concurrent.Future;
 
-import io.datarouter.storage.config.setting.impl.ClientAvailabilitySettings.AvailabilitySettingNode;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 
 /**
@@ -33,13 +32,12 @@ import io.datarouter.storage.node.type.physical.PhysicalNode;
  * JDBC necessitates that connections are assigned to a single "schema" in an RDBMS. Because we want to pool these
  * connections, we create one Client per database, even though many databases may reside in the same MySQL instance.
  */
-public interface Client
-extends Comparable<Client>{
+public interface Client extends Comparable<Client>{
 
 	String getName();
-	ClientType getType();
+	ClientType<?> getType();
 	void shutdown();
-	AvailabilitySettingNode getAvailability();
 	Future<Optional<String>> notifyNodeRegistration(PhysicalNode<?,?,?> node);
+	boolean monitorLatency();
 
 }

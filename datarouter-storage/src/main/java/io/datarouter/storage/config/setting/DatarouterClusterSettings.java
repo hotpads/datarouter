@@ -15,28 +15,38 @@
  */
 package io.datarouter.storage.config.setting;
 
+import java.util.Collections;
+import java.util.Set;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.storage.config.setting.impl.ClientAvailabilitySettings;
-import io.datarouter.storage.config.setting.impl.ProfilingSettings;
+import io.datarouter.storage.config.setting.impl.DatarouterClientAvailabilitySettings;
+import io.datarouter.storage.config.setting.impl.DatarouterEmailSettings;
+import io.datarouter.storage.config.setting.impl.DatarouterProfilingSettings;
 import io.datarouter.storage.setting.Setting;
 import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.storage.setting.SettingRoot;
+import io.datarouter.storage.setting.cached.CachedSetting;
 
 @Singleton
 public class DatarouterClusterSettings extends SettingRoot implements DatarouterSettings{
 
-	private final Setting<Boolean> recordCallsites;
+	private final CachedSetting<Boolean> recordCallsites;
+	public final CachedSetting<Set<String>> additionalAdministratorsCsv;
 
 	@Inject
-	public DatarouterClusterSettings(SettingFinder finder, ProfilingSettings profilingSettings,
-			ClientAvailabilitySettings clientAvailabilitySettings){
+	public DatarouterClusterSettings(SettingFinder finder, DatarouterProfilingSettings profilingSettings,
+			DatarouterClientAvailabilitySettings clientAvailabilitySettings,
+			DatarouterEmailSettings datarouterEmailSettings){
 		super(finder, "datarouter.");
 		registerChild(profilingSettings);
 		registerChild(clientAvailabilitySettings);
+		registerChild(datarouterEmailSettings);
 
 		recordCallsites = registerBoolean("recordCallsites", false);
+		additionalAdministratorsCsv = registerCommaSeparatedString("additionalAdministratorsCsv",
+				Collections.emptySet());
 	}
 
 	@Override

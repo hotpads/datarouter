@@ -19,6 +19,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -122,7 +123,7 @@ public class FieldSetTool{
 	}
 
 
-	/***************************** construct fieldsets using reflection ***************************/
+	/*----------------- construct fieldsets using reflection ----------------*/
 
 	public static <F> F fieldSetFromByteStream(Supplier<F> supplier, Map<String,Field<?>> fieldByPrefixedName,
 			InputStream is) throws IOException{
@@ -180,16 +181,19 @@ public class FieldSetTool{
 				break;
 			}
 			int numBytesWithSeparator = field.numBytesWithSeparator(bytes, byteOffset);
-			Object value = field.fromBytesWithSeparatorButDoNotSet(bytes, byteOffset);
+			Object value;
+			try{
+				value = field.fromBytesWithSeparatorButDoNotSet(bytes, byteOffset);
+			}catch(Exception e){
+				throw new RuntimeException("could not decode class=" + cls.getName() + " field=" + field + " offset="
+						+ byteOffset + " bytes=" + Base64.getEncoder().encodeToString(bytes), e);
+			}
 			field.setUsingReflection(fieldSet, value);
 			byteOffset += numBytesWithSeparator;
 		}
 
 		return fieldSet;
 	}
-
-
-	/*************************** tests *********************************/
 
 	public static class FieldSetToolTests{
 
@@ -280,7 +284,6 @@ public class FieldSetTool{
 
 			test = diffs.get("this test does not exist");
 			Assert.assertNull(test);
-
 		}
 	}
 

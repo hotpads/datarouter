@@ -15,11 +15,15 @@
  */
 package io.datarouter.web.user.authenticate.config;
 
+import java.time.Duration;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import io.datarouter.util.lang.ObjectTool;
+import io.datarouter.util.time.DurationTool;
 import io.datarouter.web.user.authenticate.authenticator.DatarouterAuthenticator;
+import io.datarouter.web.user.session.service.Session;
 
 public interface DatarouterAuthenticationConfig{
 
@@ -58,7 +62,6 @@ public interface DatarouterAuthenticationConfig{
 	String getNonceParam();
 	String getTimestampParam();
 
-	String getKeepaliveJsp();
 	String getHomeJsp();
 	String getViewUsersJsp();
 	String getCreateUserJsp();
@@ -70,8 +73,13 @@ public interface DatarouterAuthenticationConfig{
 	String getSessionTokenCookieName();
 	String getTargetUrlName();
 
-	Integer getUserTokenTimeoutSeconds();
-	Integer getSessionTokenTimeoutSeconds();
+	Duration getUserTokenTimeoutDuration();
+	Duration getSessionTokenTimeoutDuration();
+
+	default boolean isSessionExpired(Session session){
+		ObjectTool.requireNonNulls(session, session.getUpdated());
+		return getSessionTokenTimeoutDuration().minus(DurationTool.sinceDate(session.getUpdated())).isNegative();
+	}
 
 	List<DatarouterAuthenticator> getAuthenticators(HttpServletRequest request);
 

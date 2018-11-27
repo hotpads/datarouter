@@ -25,12 +25,12 @@ import io.datarouter.util.lang.LineOfCode;
 
 public class Config implements Cloneable{
 
-	/****************** static vars *******************************/
+	/*---------------------------- static vars ------------------------------*/
 
 	public static final int DEFAULT_ITERATE_BATCH_SIZE = 100;
 	public static final Boolean DEFAULT_CACHE_OK = true;
 
-	/*************** fields ********************************/
+	/*-------------------------------- fields -------------------------------*/
 
 	//i am trying to move away from setting any values here, so please don't add anything to the defaults!
 
@@ -87,7 +87,7 @@ public class Config implements Cloneable{
 		return Optional.ofNullable((T)configuration.get(key));
 	}
 
-	/******************* clone ******************************************/
+	/*-------------------------------- clone --------------------------------*/
 
 	@Override
 	public Config clone(){
@@ -135,7 +135,7 @@ public class Config implements Cloneable{
 		return new Config();
 	}
 
-	/**************** limit **********************/
+	/*-------------------------------- limit --------------------------------*/
 
 	public Integer getLimit(){
 		return limit;
@@ -154,7 +154,7 @@ public class Config implements Cloneable{
 	}
 
 
-	/**************** offset **********************/
+	/*-------------------------------- offset -------------------------------*/
 
 	public Integer getOffset(){
 		return offset;
@@ -165,7 +165,7 @@ public class Config implements Cloneable{
 		return this;
 	}
 
-	/**************** iterateBatchSize **********************/
+	/*------------------------ iterate batch size ---------------------------*/
 
 	public Integer getIterateBatchSize(){
 		return iterateBatchSize;
@@ -176,7 +176,7 @@ public class Config implements Cloneable{
 		return this;
 	}
 
-	/************** commitBatchSize *************************/
+	/*------------------------ commit batch size ----------------------------*/
 
 	public Integer getCommitBatchSize(){
 		return commitBatchSize;
@@ -187,7 +187,7 @@ public class Config implements Cloneable{
 		return this;
 	}
 
-	/************** slaveOk *************************/
+	/*---------------------------- slave ok ---------------------------------*/
 
 	public Boolean getSlaveOk(){
 		return slaveOk;
@@ -198,7 +198,7 @@ public class Config implements Cloneable{
 		return this;
 	}
 
-	/************** cacheOk *************************/
+	/*---------------------------- cache ok ---------------------------------*/
 
 	public Boolean getCacheOk(){
 		return cacheOk;
@@ -209,7 +209,7 @@ public class Config implements Cloneable{
 		return this;
 	}
 
-	/************** useSession *************************/
+	/*---------------------------- use session ------------------------------*/
 
 	public Boolean getUseSession(){
 		return useSession;
@@ -220,7 +220,7 @@ public class Config implements Cloneable{
 		return this;
 	}
 
-	/************** includeStartId *************************/
+	/*------------------------- include start id ----------------------------*/
 
 	public Integer getNumAttempts(){
 		return numAttempts;
@@ -238,7 +238,7 @@ public class Config implements Cloneable{
 		return this;
 	}
 
-	/************** timeoutMs *************************/
+	/*---------------------------- timeoutMs --------------------------------*/
 
 	public Long getTimeoutMs(){
 		return timeoutMs;
@@ -263,7 +263,7 @@ public class Config implements Cloneable{
 		return this;
 	}
 
-	/************** putMethod *************************/
+	/*---------------------------- put method -------------------------------*/
 
 	public PutMethod getPutMethod(){
 		return putMethod;
@@ -274,7 +274,7 @@ public class Config implements Cloneable{
 		return this;
 	}
 
-	/************** ignoreNullFields *************************/
+	/*--------------------------- ignore null fields ------------------------*/
 
 	public Boolean getIgnoreNullFields(){
 		return ignoreNullFields;
@@ -285,7 +285,7 @@ public class Config implements Cloneable{
 		return this;
 	}
 
-	/************** scannerCaching *************************/
+	/*------------------------- scanner caching -----------------------------*/
 
 	public Boolean getScannerCaching(){
 		return scannerCaching;
@@ -296,7 +296,7 @@ public class Config implements Cloneable{
 		return this;
 	}
 
-	/************** persistentPut *************************/
+	/*---------------------------- persistent put ---------------------------*/
 
 	public Boolean getPersistentPut(){
 		return persistentPut;
@@ -308,7 +308,7 @@ public class Config implements Cloneable{
 	}
 
 
-	/************** ttlMs *************************/
+	/*------------------------------ ttlMs ----------------------------------*/
 
 	public Long getTtlMs(){
 		return ttlMs;
@@ -319,7 +319,7 @@ public class Config implements Cloneable{
 		return this;
 	}
 
-	/************** messaging *************************/
+	/*---------------------------- messaging --------------------------------*/
 
 	public long getVisibilityTimeoutMsOrUse(long alternative){
 		if(visibilityTimeoutMs != null){
@@ -338,7 +338,7 @@ public class Config implements Cloneable{
 	}
 
 
-	/************* callsite ******************************/
+	/*------------------------------- callsite ------------------------------*/
 
 	public LineOfCode getCallsite(){
 		return callsite;
@@ -358,8 +358,7 @@ public class Config implements Cloneable{
 		return this;
 	}
 
-	/******************* error handling ******************/
-
+	/*-------------------------- error handling -----------------------------*/
 
 	public Boolean getIgnoreException(){
 		return ignoreException;

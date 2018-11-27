@@ -15,6 +15,7 @@
  */
 package io.datarouter.web.user.authenticate.config;
 
+import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 
@@ -27,7 +28,7 @@ import org.testng.annotations.Test;
 import com.google.common.base.Preconditions;
 
 import io.datarouter.util.string.StringTool;
-import io.datarouter.web.app.WebAppName;
+import io.datarouter.web.app.WebappName;
 import io.datarouter.web.config.DatarouterWebFiles;
 import io.datarouter.web.user.DatarouterCookieKeys;
 import io.datarouter.web.user.authenticate.authenticator.DatarouterAuthenticator;
@@ -35,7 +36,7 @@ import io.datarouter.web.user.authenticate.authenticator.DatarouterAuthenticator
 public class BaseDatarouterAuthenticationConfig implements DatarouterAuthenticationConfig{
 
 	private static final String PATH_home = "/";
-	private static final String PATH_keepalive = "/keepalive";
+	protected static final String PATH_keepalive = "/keepalive";
 	private static final String PATH_datarouter = "/datarouter";
 	private static final String PATH_shutdown = "/shutdown";
 
@@ -66,13 +67,14 @@ public class BaseDatarouterAuthenticationConfig implements DatarouterAuthenticat
 	private static final String PARAM_nonce = "nonce";
 	private static final String PARAM_timestamp = "timestamp";
 
-	private static final String JSP_keepalive = "/generic/keepAliveTest.jsp";//file doesn't exist in datarouter-web
 	private static final String JSP_home = "/WEB-INF/jsp/home.jsp";//file doesn't exist in datarouter-web
 
 	@Inject
-	private WebAppName webAppName;
+	private WebappName webappName;
 	@Inject
 	private DatarouterWebFiles files;
+	@Inject
+	private DatarouterAuthenticationSettings datarouterAuthenticationSettings;
 
 	@Override
 	public String getHomePath(){
@@ -94,7 +96,7 @@ public class BaseDatarouterAuthenticationConfig implements DatarouterAuthenticat
 		return PATH_datarouter + PATH_shutdown;
 	}
 
-	/*********************** signin/out/up ************************************/
+	/*--------------------------- signin/out/up -----------------------------*/
 
 	@Override
 	public String getSignupPath(){
@@ -121,7 +123,7 @@ public class BaseDatarouterAuthenticationConfig implements DatarouterAuthenticat
 		return PATH_signout;
 	}
 
-	/*********************** password ************************************/
+	/*------------------------------ password -------------------------------*/
 
 	@Override
 	public String getResetPasswordPath(){
@@ -133,7 +135,8 @@ public class BaseDatarouterAuthenticationConfig implements DatarouterAuthenticat
 		return PATH_resetPasswordSubmit;
 	}
 
-	/*********************** admin ************************************/
+	/*------------------------------- admin ---------------------------------*/
+
 
 	@Override
 	public String getAdminPath(){
@@ -175,7 +178,7 @@ public class BaseDatarouterAuthenticationConfig implements DatarouterAuthenticat
 		return PATH_accountManager;
 	}
 
-	/*********************** params ************************************/
+	/*------------------------------- params --------------------------------*/
 
 	@Override
 	public String getUsernameParam(){
@@ -217,12 +220,7 @@ public class BaseDatarouterAuthenticationConfig implements DatarouterAuthenticat
 		return PARAM_timestamp;
 	}
 
-	/*********************** jsp ************************************/
-
-	@Override
-	public String getKeepaliveJsp(){
-		return JSP_keepalive;
-	}
+	/*-------------------------------- jsp ----------------------------------*/
 
 	@Override
 	public String getHomeJsp(){
@@ -249,7 +247,7 @@ public class BaseDatarouterAuthenticationConfig implements DatarouterAuthenticat
 		return files.jsp.authentication.resetPasswordFormJsp.toSlashedString();
 	}
 
-	/*********************** methods ************************************/
+	/*------------------------------ methods --------------------------------*/
 
 	@Override
 	public List<DatarouterAuthenticator> getAuthenticators(HttpServletRequest request){
@@ -262,18 +260,18 @@ public class BaseDatarouterAuthenticationConfig implements DatarouterAuthenticat
 	}
 
 	@Override
-	public Integer getUserTokenTimeoutSeconds(){
-		return 365 * 24 * 60 * 60;//365 days * 24 hours * 60 minutes * 60 seconds => 1 year
+	public final Duration getUserTokenTimeoutDuration(){
+		return datarouterAuthenticationSettings.userTokenTimeoutDuration.get().toJavaDuration();
 	}
 
 	@Override
-	public Integer getSessionTokenTimeoutSeconds(){
-		return 30 * 60;//30 minutes * 60 seconds => 30 minutes
+	public final Duration getSessionTokenTimeoutDuration(){
+		return datarouterAuthenticationSettings.sessionTokenTimeoutDuration.get().toJavaDuration();
 	}
 
 	@Override
 	public String getCookiePrefix(){
-		return webAppName.getName();
+		return StringTool.nullSafe(webappName.getName());
 	}
 
 	@Override
@@ -292,7 +290,11 @@ public class BaseDatarouterAuthenticationConfig implements DatarouterAuthenticat
 	}
 
 	private String addCookiePrefix(String cookieName){
-		return getCookiePrefix() + StringTool.capitalizeFirstLetter(cookieName);
+		String prefix = getCookiePrefix();
+		if(StringTool.isEmpty(prefix)){
+			return cookieName;
+		}
+		return prefix + StringTool.capitalizeFirstLetter(cookieName);
 	}
 
 	public static String normalizePath(String rawPath){
@@ -326,9 +328,10 @@ public class BaseDatarouterAuthenticationConfig implements DatarouterAuthenticat
 	}
 
 
-	/***************** tests ************************/
+	/*------------------------------- tests ---------------------------------*/
 
 	public static class BaseDatarouterAuthenticationConfigTests{
+
 		@Test
 		public void testNormalize(){
 			Assert.assertEquals(normalizePath(""), "");
@@ -348,6 +351,7 @@ public class BaseDatarouterAuthenticationConfig implements DatarouterAuthenticat
 			Assert.assertFalse(pathAContainsB("/fl", "/flowbee"));
 			Assert.assertFalse(pathAContainsB("/flowbee", "/fl"));
 		}
+
 	}
 
 }

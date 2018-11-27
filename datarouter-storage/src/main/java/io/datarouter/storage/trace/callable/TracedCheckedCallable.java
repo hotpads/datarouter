@@ -17,10 +17,10 @@ package io.datarouter.storage.trace.callable;
 
 import java.util.concurrent.Callable;
 
+import io.datarouter.instrumentation.trace.Tracer;
+import io.datarouter.instrumentation.trace.TracerThreadLocal;
+import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.storage.trace.tracer.DatarouterTracer;
-import io.datarouter.storage.trace.tracer.Tracer;
-import io.datarouter.storage.trace.tracer.TracerThreadLocal;
-import io.datarouter.storage.trace.tracer.TracerTool;
 
 public abstract class TracedCheckedCallable<V> implements Callable<V>{
 

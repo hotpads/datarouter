@@ -29,18 +29,15 @@ import io.datarouter.storage.node.type.physical.PhysicalNode;
 
 /**
  * Methods for writing to storage systems that provide secondary indexing.
- *
- * This storage may be deprecated in favor of a future MultiIndexWriter.
  */
 public interface IndexedStorageWriter<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>>
 extends NodeOps<PK,D>, IndexedOps<PK,D>{
 
-	public static final String
-		OP_deleteUnique = "deleteUnique",
-		OP_deleteMultiUnique = "deleteMultiUnique",
-		OP_deleteByIndex = "deleteByIndex";
+	public static final String OP_deleteUnique = "deleteUnique";
+	public static final String OP_deleteMultiUnique = "deleteMultiUnique";
+	public static final String OP_deleteByIndex = "deleteByIndex";
 
 	void deleteUnique(UniqueKey<PK> uniqueKey, Config config);
 	void deleteMultiUnique(Collection<? extends UniqueKey<PK>> uniqueKeys, Config config);
@@ -48,7 +45,7 @@ extends NodeOps<PK,D>, IndexedOps<PK,D>{
 	<IK extends PrimaryKey<IK>> void deleteByIndex(Collection<IK> keys, Config config);
 
 
-	/*************** sub-interfaces ***********************/
+	/*---------------------------- sub-interfaces ---------------------------*/
 
 	public interface IndexedStorageWriterNode<
 			PK extends PrimaryKey<PK>,

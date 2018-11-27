@@ -34,14 +34,9 @@ import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.collection.ListTool;
 import io.datarouter.util.iterable.IterableTool;
 
-/*
- * this assumes that only PK fields are changed... it has no way of detecting, for example, if User.email changes
- *
- * originally written for ModelIndexListingView, where the feedId_feedListingId index is known from the
- *  PK (quad_feedId_feedListingId)... perhaps a rare case, but much easier to implement
- *
- * also fine for cases where you never delete or modify records, like the Event table
- *
+/**
+ * This assumes that only PK fields are changed... It has no way of detecting changes in non primary key fields.
+ * Also fine for cases where you never delete or modify records.
  */
 public class IndexMapStorageWriterListener<
 		PK extends PrimaryKey<PK>,
@@ -59,7 +54,7 @@ implements IndexListener<PK,D>{
 
 	//TODO is passing the configs straight through the right thing to do?
 
-	/********************** writing ******************************/
+	/*------------------------------ writing --------------------------------*/
 
 	@Override
 	public void onDelete(PK key, Config config){
@@ -122,7 +117,7 @@ implements IndexListener<PK,D>{
 		indexNode.putMulti(indexEntries, config);
 	}
 
-	/******************* helper **************************/
+	/*------------------------------ helper ---------------------------------*/
 
 	private List<IE> getIndexEntriesFromPrimaryKeys(Collection<PK> primaryKeys){
 		List<IE> indexEntries = ListTool.createArrayListWithSize(primaryKeys);

@@ -19,7 +19,7 @@ import java.util.function.Supplier;
 
 public class DefaultApiKeyPredicate implements ApiKeyPredicate{
 
-	private Supplier<String> apiKeySupplier;
+	private final Supplier<String> apiKeySupplier;
 
 	public DefaultApiKeyPredicate(Supplier<String> apiKeySupplier){
 		this.apiKeySupplier = apiKeySupplier;

@@ -19,7 +19,6 @@ import java.lang.reflect.Type;
 
 import io.datarouter.model.field.encoding.FieldGeneratorType;
 
-
 /**
  * FieldKey is a mapping from a java field to the datastore. When using an RDBMS, FieldKey defines the column name,
  * datatype, and metadata.
@@ -49,4 +48,5 @@ public interface FieldKey<T>{
 	T getDefaultValue();
 
 	Field<T> createValueField(T value);
+
 }

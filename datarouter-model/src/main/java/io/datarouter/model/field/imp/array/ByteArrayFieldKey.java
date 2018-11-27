@@ -38,14 +38,10 @@ public class ByteArrayFieldKey extends BaseFieldKey<byte[]>{
 		return new ByteArrayFieldKey(name, columnName, nullable, fieldGeneratorType, defaultValue, size);
 	}
 
-	/*********************** ByteEncodedField ***********************/
-
 	@Override
 	public boolean isFixedLength(){
 		return false;
 	}
-
-	/**************************** get/set ****************************/
 
 	public int getSize(){
 		return size;
@@ -55,4 +51,5 @@ public class ByteArrayFieldKey extends BaseFieldKey<byte[]>{
 	public ByteArrayField createValueField(final byte[] value){
 		return new ByteArrayField(this, value);
 	}
+
 }

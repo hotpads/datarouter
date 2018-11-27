@@ -21,5 +21,4 @@ import io.datarouter.model.key.entity.EntityKey;
 public abstract class BaseEntityKey<EK extends EntityKey<EK>>
 extends BaseFieldSet<EK>
 implements EntityKey<EK>{
-
 }

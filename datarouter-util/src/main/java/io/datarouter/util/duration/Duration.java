@@ -87,6 +87,10 @@ public class Duration{
 		return timeUnit.convert(nano, TimeUnit.NANOSECONDS);
 	}
 
+	public java.time.Duration toJavaDuration(){
+		return java.time.Duration.ofNanos(to(TimeUnit.NANOSECONDS));
+	}
+
 	@Override
 	public String toString(){
 		return toString(TimeUnit.MILLISECONDS);

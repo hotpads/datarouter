@@ -26,6 +26,7 @@ import org.testng.annotations.Test;
 import io.datarouter.model.field.BaseField;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.FieldKey;
+import io.datarouter.util.ComparableTool;
 import io.datarouter.util.bytes.IntegerByteTool;
 import io.datarouter.util.bytes.ShortByteTool;
 import io.datarouter.util.string.StringTool;
@@ -43,7 +44,6 @@ import io.datarouter.util.string.StringTool;
  *  MySql because of the truncation of nanoseconds. Use .now() or use the LocalDateTime::of method that
  *  ignores the nanoseconds field
  *  */
-
 public class LocalDateTimeField extends BaseField<LocalDateTime>{
 
 	private static final int NUM_BYTES = 15;
@@ -84,12 +84,13 @@ public class LocalDateTimeField extends BaseField<LocalDateTime>{
 		return key;
 	}
 
+	//same as BasePrimitiveField. should LocalDateTimeField extends BasePrimitiveField ?
 	@Override
 	public int compareTo(Field<LocalDateTime> other){
 		if(other == null){
 			return -1;
 		}
-		return value.compareTo(other.getValue());
+		return ComparableTool.nullFirstCompareTo(value, other.getValue());
 	}
 
 	@Override
@@ -147,6 +148,7 @@ public class LocalDateTimeField extends BaseField<LocalDateTime>{
 	}
 
 	public static class LocalDateFieldTester{
+
 		@Test
 		public void testParseStringEncodedValueButDoNotSet(){
 			String dateStr = "2016-06-22 19:20:14.100";
@@ -177,7 +179,7 @@ public class LocalDateTimeField extends BaseField<LocalDateTime>{
 		public void testfromBytesButDoNotSet(){
 			String dateStr1 = "2016-06-22 19:20:14.100123456";
 			String dateStr2 = "2014-06-24 03:20:14.210998531";
-			DateTimeFormatter formatterWithNano = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSSSSS");;
+			DateTimeFormatter formatterWithNano = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSSSSS");
 			LocalDateTime localDateTime1 = LocalDateTime.parse(dateStr1, formatterWithNano);
 			LocalDateTime localDateTime2 = LocalDateTime.parse(dateStr2, formatterWithNano);
 			LocalDateTimeField field1 = new LocalDateTimeField(new LocalDateTimeFieldKey("test"), localDateTime1);

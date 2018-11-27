@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Set;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.Spliterators.AbstractSpliterator;
@@ -49,8 +50,12 @@ public class StreamTool{
 		return StreamSupport.stream(Spliterators.spliteratorUnknownSize(iterator, 0), false);
 	}
 
-	public static <A, T> List<T> map(Stream<A> stream, Function<A,T> mapper){
+	public static <A,T> List<T> map(Stream<A> stream, Function<A,T> mapper){
 		return stream.map(mapper).collect(Collectors.toList());
+	}
+
+	public static <A,T> Set<T> mapToSet(Stream<A> stream, Function<A,T> mapper){
+		return stream.map(mapper).collect(Collectors.toSet());
 	}
 
 	public static <T> Stream<T> nullItemSafeStream(Iterable<T> iterable){
@@ -58,7 +63,7 @@ public class StreamTool{
 	}
 
 	public static <T> Stream<T> flatten(Stream<Stream<T>> streams){
-		return streams.reduce(Stream.empty(), Stream::concat);
+		return StreamSupport.stream(new FlatMappingSpliterator<>(streams.spliterator()), streams.isParallel());
 	}
 
 	public static <V> BinaryOperator<V> throwingMerger(){
@@ -96,7 +101,8 @@ public class StreamTool{
 		@Override
 		public boolean tryAdvance(Consumer<? super List<T>> action){
 			List<T> batch = new ArrayList<>(batchSize);
-			while(batch.size() < batchSize && original.tryAdvance(batch::add));
+			while(batch.size() < batchSize && original.tryAdvance(batch::add)){
+			}
 			if(batch.isEmpty()){
 				return false;
 			}
@@ -106,7 +112,31 @@ public class StreamTool{
 
 	}
 
-	/************** Tests *******************/
+	private static class FlatMappingSpliterator<E> extends AbstractSpliterator<E>{
+
+		private final Spliterator<Stream<E>> streams;
+		private Spliterator<E> current;
+
+		private FlatMappingSpliterator(Spliterator<Stream<E>> streams){
+			super(streams.estimateSize(), streams.characteristics());
+			this.streams = streams;
+		}
+
+		@Override
+		public boolean tryAdvance(Consumer<? super E> action){
+			do{
+				if(current != null){
+					if(current.tryAdvance(action)){
+						return true;
+					}
+				}
+			}while(streams.tryAdvance(stream -> current = stream.spliterator()));
+			return false;
+		}
+
+	}
+
+	/*--------------------------- Tests --------------------------------*/
 
 	public static class StreamToolTests{
 		@Test
@@ -154,6 +184,13 @@ public class StreamTool{
 					.collect(Collectors.toList());
 			List<String> expected = Arrays.asList("b", "c");
 			Assert.assertEquals(strings, expected);
+		}
+
+		@Test
+		public void testFlatten(){
+			Stream<Stream<Integer>> streams = Stream.of(Stream.of(1, 2), Stream.of(3, 4, 5), Stream.empty(),
+					Stream.of(6));
+			Assert.assertEquals(flatten(streams).collect(Collectors.toList()), Arrays.asList(1, 2, 3, 4, 5, 6));
 		}
 	}
 

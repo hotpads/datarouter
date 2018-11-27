@@ -15,44 +15,38 @@
  */
 package io.datarouter.storage.callsite;
 
+import java.util.Arrays;
 import java.util.Comparator;
 
-import io.datarouter.storage.callsite.CallsiteStatX.CallsiteCountComparator;
-import io.datarouter.storage.callsite.CallsiteStatX.CallsiteDurationComparator;
+import io.datarouter.storage.callsite.CallsiteStat.CallsiteCountComparator;
+import io.datarouter.storage.callsite.CallsiteStat.CallsiteDurationComparator;
 import io.datarouter.util.lang.ReflectionTool;
 
 public enum CallsiteStatComparator{
-
 	COUNT("count", CallsiteCountComparator.class),
 	DURATION("duration", CallsiteDurationComparator.class);
 
-
 	private final String varName;
-	private final Class<? extends Comparator<CallsiteStatX>> comparatorClass;
+	private final Class<? extends Comparator<CallsiteStat>> comparatorClass;
 
-
-	private CallsiteStatComparator(String varName, Class<? extends Comparator<CallsiteStatX>> comparatorClass){
+	CallsiteStatComparator(String varName, Class<? extends Comparator<CallsiteStat>> comparatorClass){
 		this.varName = varName;
 		this.comparatorClass = comparatorClass;
 	}
 
-
 	public static CallsiteStatComparator fromVarName(String string){
-		for(CallsiteStatComparator comparatorEnum : values()){
-			if(comparatorEnum.varName.equals(string)){
-				return comparatorEnum;
-			}
-		}
-		throw new IllegalArgumentException(string + " not found");
+		return Arrays.stream(values())
+				.filter(comparator -> comparator.getVarName().equals(string))
+				.findFirst()
+				.orElseThrow(() -> new IllegalArgumentException(string + " not found"));
 	}
 
-
-	public Comparator<CallsiteStatX> getComparator(){
+	public Comparator<CallsiteStat> getComparator(){
 		return ReflectionTool.create(comparatorClass);
 	}
-
 
 	public String getVarName(){
 		return varName;
 	}
+
 }

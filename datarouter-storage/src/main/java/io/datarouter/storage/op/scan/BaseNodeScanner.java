@@ -36,14 +36,17 @@ extends BaseBatchBackedScanner<T,T>{
 
 	private static final int RANGE_BATCH_SIZE = 10;
 
+	private final NavigableSet<Range<PK>> ranges;
+	private final Config config;
+
 	private long resultCount;
-	private NavigableSet<Range<PK>> ranges;
 	private SortedSet<Range<PK>> currentRanges;
-	private Config config;
 	private Config batchConfig;
 
 	public BaseNodeScanner(Collection<Range<PK>> ranges, Config config){
-		this.ranges = ranges.stream().filter(Range::notEmpty).collect(Collectors.toCollection(TreeSet::new));
+		this.ranges = ranges.stream()
+				.filter(Range::notEmpty)
+				.collect(Collectors.toCollection(TreeSet::new));
 		this.currentRanges = new TreeSet<>();
 		for(int i = 0; i < RANGE_BATCH_SIZE && !this.ranges.isEmpty(); i++){
 			currentRanges.add(this.ranges.pollFirst());
@@ -98,6 +101,8 @@ extends BaseBatchBackedScanner<T,T>{
 			currentRanges.remove(currentRanges.first());
 			if(!firstRange.isEmpty()){
 				currentRanges.add(firstRange);
+			}else if(!ranges.isEmpty()){
+				currentRanges.add(ranges.pollFirst());
 			}else if(currentRanges.isEmpty()){
 				noMoreBatches = true;
 				currentBatch = Collections.emptyList();

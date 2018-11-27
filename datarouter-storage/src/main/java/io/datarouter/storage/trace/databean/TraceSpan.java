@@ -15,48 +15,31 @@
  */
 package io.datarouter.storage.trace.databean;
 
-import java.util.SortedMap;
-import java.util.SortedSet;
-import java.util.TreeMap;
-import java.util.TreeSet;
-
 import io.datarouter.instrumentation.trace.TraceSpanDto;
-import io.datarouter.util.iterable.IterableTool;
 
-public class TraceSpan extends BaseTraceSpan<TraceEntityKey,TraceSpanKey,TraceSpan>{
+public class TraceSpan extends BaseTraceSpan<TraceEntityKey,TraceSpanKey,TraceThreadKey,TraceSpan>{
 
 	public TraceSpan(){
-		this.key = new TraceSpanKey(null, null, null);
+		this.key = new TraceSpanKey();
 	}
 
-	public TraceSpan(Long traceId, Long threadId, Integer sequence, Integer parentSequence){
-		super(parentSequence);
+	public TraceSpan(String traceId, Long threadId, Integer sequence, Integer parentSequence){
 		this.key = new TraceSpanKey(traceId, threadId, sequence);
+		this.parentSequence = parentSequence;
 	}
 
 	public TraceSpan(TraceSpanDto dto){
 		super(dto);
-		this.key = new TraceSpanKey(dto.traceId, dto.threadId, dto.sequence);
+		this.key = new TraceSpanKey(dto.getTraceId(), dto.getThreadId(), dto.getSequence());
 	}
 
-	public static class TraceSpanFielder extends BaseTraceSpanFielder<TraceEntityKey,TraceSpanKey,TraceSpan>{
+	public static class TraceSpanFielder
+	extends BaseTraceSpanFielder<TraceEntityKey,TraceSpanKey,TraceThreadKey,TraceSpan>{
 
 		public TraceSpanFielder(){
 			super(TraceSpanKey.class);
 		}
 
-	}
-
-	public static SortedMap<TraceThreadKey,SortedSet<TraceSpan>> getByThreadKey(Iterable<TraceSpan> spans){
-		SortedMap<TraceThreadKey,SortedSet<TraceSpan>> out = new TreeMap<>();
-		for(TraceSpan span : IterableTool.nullSafe(spans)){
-			TraceThreadKey threadKey = span.getThreadKey();
-			if(out.get(threadKey) == null){
-				out.put(threadKey, new TreeSet<TraceSpan>());
-			}
-			out.get(threadKey).add(span);
-		}
-		return out;
 	}
 
 	public TraceSpanDto toDto(){
@@ -68,8 +51,7 @@ public class TraceSpan extends BaseTraceSpan<TraceEntityKey,TraceSpanKey,TraceSp
 				getName(),
 				getInfo(),
 				getCreated(),
-				getDuration(),
-				getDurationNano());
+				getDuration());
 	}
 
 	@Override
@@ -77,6 +59,7 @@ public class TraceSpan extends BaseTraceSpan<TraceEntityKey,TraceSpanKey,TraceSp
 		return TraceSpanKey.class;
 	}
 
+	@Override
 	public TraceThreadKey getThreadKey(){
 		return new TraceThreadKey(this.getTraceId(), this.getThreadId());
 	}

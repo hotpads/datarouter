@@ -31,10 +31,11 @@ import io.datarouter.util.tuple.Range;
  */
 public class FieldSetRangeFilter{
 
-	public static <FS extends FieldSet<?>> List<FS> filter(Iterable<FS> candidates, Range<? extends FS> range){
+	public static <FS extends FieldSet<?>> List<FS> filter(Iterable<FS> candidates, Range<? extends FS> range,
+			String nodeName){
 		List<FS> matches = new ArrayList<>();
 		for(FS candidate : IterableTool.nullSafe(candidates)){
-			if(include(candidate, range)){
+			if(include(candidate, range, nodeName)){
 				matches.add(candidate);
 			}
 		}
@@ -42,17 +43,18 @@ public class FieldSetRangeFilter{
 	}
 
 
-	public static <FS extends FieldSet<?>> boolean include(FieldSet<?> candidate, Range<? extends FS> range){
+	public static <FS extends FieldSet<?>> boolean include(FieldSet<?> candidate, Range<? extends FS> range,
+			String nodeName){
 		boolean matchesStart = true;
 		if(range.hasStart()){
 			matchesStart = isCandidateAfterStartOfRange(candidate.getFields(), range.getStart().getFields(), range
-					.getStartInclusive());
+					.getStartInclusive(), nodeName);
 		}
 
 		boolean matchesEnd = true;
 		if(range.hasEnd()){
 			matchesEnd = isCandidateBeforeEndOfRange(candidate.getFields(), range.getEnd().getFields(), range
-					.getEndInclusive());
+					.getEndInclusive(), nodeName);
 		}
 
 		return matchesStart && matchesEnd;
@@ -60,7 +62,7 @@ public class FieldSetRangeFilter{
 
 	//is this any better than range.matchesStart(candidate)?
 	public static boolean isCandidateAfterStartOfRange(List<Field<?>> candidateFields,
-			List<Field<?>> startOfRangeFields, boolean inclusive){
+			List<Field<?>> startOfRangeFields, boolean inclusive, String nodeName){
 		if(startOfRangeFields == null){
 			return true;
 		}
@@ -76,7 +78,8 @@ public class FieldSetRangeFilter{
 			@SuppressWarnings("rawtypes")
 			Field candidate = candidateIterator.next();
 			if(candidate.getValue() == null){
-				throw new IllegalArgumentException("currently don't support nulls in candidate");
+				throw new IllegalArgumentException("currently don't support nulls in node=" + nodeName + " candidate="
+						+ candidateFields);
 			}
 			@SuppressWarnings("rawtypes")
 			Field startOfRange = startOfRangeIterator.next();
@@ -101,8 +104,8 @@ public class FieldSetRangeFilter{
 	}
 
 
-	public static boolean isCandidateBeforeEndOfRange(List<Field<?>> candidateFields,
-			List<Field<?>> endOfRangeFields, boolean inclusive){
+	public static boolean isCandidateBeforeEndOfRange(List<Field<?>> candidateFields, List<Field<?>> endOfRangeFields,
+			boolean inclusive, String nodeName){
 		if(endOfRangeFields == null){
 			return true;
 		}
@@ -118,7 +121,8 @@ public class FieldSetRangeFilter{
 			@SuppressWarnings("rawtypes")
 			Field candidate = candidateIterator.next();
 			if(candidate.getValue() == null){
-				throw new IllegalArgumentException("currently don't support nulls in candidate");
+				throw new IllegalArgumentException("currently don't support nulls in node=" + nodeName + " candidate="
+						+ candidateFields);
 			}
 			@SuppressWarnings("rawtypes")
 			Field endOfRange = endOfRangeIterator.next();
@@ -141,4 +145,5 @@ public class FieldSetRangeFilter{
 		}
 		throw new IllegalStateException("shouldn't get here");
 	}
+
 }

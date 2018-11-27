@@ -31,12 +31,11 @@ import io.datarouter.storage.node.type.physical.PhysicalNode;
 public interface MapStorageWriter<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 extends StorageWriter<PK,D>{
 
-	public static final String
-		OP_put = "put",
-		OP_putMulti = "putMulti",
-		OP_delete = "delete",
-		OP_deleteMulti = "deleteMulti",
-		OP_deleteAll = "deleteAll";
+	public static final String OP_put = "put";
+	public static final String OP_putMulti = "putMulti";
+	public static final String OP_delete = "delete";
+	public static final String OP_deleteMulti = "deleteMulti";
+	public static final String OP_deleteAll = "deleteAll";
 
 
 	void delete(PK key, Config config);
@@ -44,7 +43,7 @@ extends StorageWriter<PK,D>{
 	void deleteAll(Config config);
 
 
-	/*************** sub-interfaces ***********************/
+	/*---------------------------- sub-interfaces ---------------------------*/
 
 	public interface MapStorageWriterNode<
 			PK extends PrimaryKey<PK>,
@@ -60,4 +59,5 @@ extends StorageWriter<PK,D>{
 			F extends DatabeanFielder<PK,D>>
 	extends PhysicalNode<PK,D,F>, MapStorageWriterNode<PK,D,F>{
 	}
+
 }

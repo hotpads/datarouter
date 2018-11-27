@@ -46,7 +46,7 @@ public class DefaultSignatureValidatorTests{
 
 		params = new LinkedHashMap<>();
 		params.put(SecurityParameters.SIGNATURE, "foobar");
-		params.put("submitAction", "showListing");
+		params.put("submitAction", "doSomething");
 		params.put("param1", "test1");
 		params.put("param2", "test2");
 		params.put("paramWithoutValue", null);
@@ -124,9 +124,10 @@ public class DefaultSignatureValidatorTests{
 		Assert.assertSame(result.getWrappedRequest(), cachingRequest);
 	}
 
-	private static Map<String, String[]> toParamMap(Map<String, String> input){
-		Map<String, String[]> output = new HashMap<>();
+	private static Map<String,String[]> toParamMap(Map<String,String> input){
+		Map<String,String[]> output = new HashMap<>();
 		input.forEach((key, value) -> output.put(key, new String[]{value}));
 		return output;
 	}
+
 }

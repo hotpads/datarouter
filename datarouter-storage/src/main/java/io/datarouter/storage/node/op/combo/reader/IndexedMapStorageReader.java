@@ -23,13 +23,19 @@ import io.datarouter.storage.node.op.raw.read.MapStorageReader;
 
 public interface IndexedMapStorageReader<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 extends MapStorageReader<PK,D>, IndexedStorageReader<PK,D>{
-	public interface IndexedMapStorageReaderNode<PK extends PrimaryKey<PK>, D extends Databean<PK, D>,
+
+	public interface IndexedMapStorageReaderNode<
+			PK extends PrimaryKey<PK>,
+			D extends Databean<PK, D>,
 			F extends DatabeanFielder<PK,D>>
 	extends MapStorageReaderNode<PK,D,F>, IndexedStorageReaderNode<PK,D,F>{
 	}
 
-	public interface PhysicalIndexedMapStorageReaderNode<PK extends PrimaryKey<PK>, D extends Databean<PK, D>,
+	public interface PhysicalIndexedMapStorageReaderNode<
+			PK extends PrimaryKey<PK>,
+			D extends Databean<PK, D>,
 			F extends DatabeanFielder<PK,D>>
 	extends PhysicalMapStorageReaderNode<PK,D,F>, PhysicalIndexedStorageReaderNode<PK,D,F>{
 	}
+
 }

@@ -23,12 +23,13 @@ public enum DurationUnit{
 	HOURS(3, "hour"),
 	MINUTES(4, "minute"),
 	SECONDS(5, "second"),
-	MILLISECONDS(6, "millisecond");
+	MILLISECONDS(6, "millisecond"),
+	;
 
-	private Integer index;
-	private String display;
+	private final Integer index;
+	private final String display;
 
-	private DurationUnit(Integer index, String display){
+	DurationUnit(Integer index, String display){
 		this.index = index;
 		this.display = display;
 	}
@@ -44,4 +45,5 @@ public enum DurationUnit{
 	public String getDisplayPlural(){
 		return display + "s";
 	}
+
 }

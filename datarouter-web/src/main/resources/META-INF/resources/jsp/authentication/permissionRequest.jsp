@@ -5,10 +5,12 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	<title>Datarouter - Permission Request</title>
-	<%--TODO possible to include a head here, instead of this stuff? --%>
-	<%@ include file="/jsp/css/css-import.jspf"%>
+	<%@ include file="/WEB-INF/jsp/generic/head.jsp"%>
 </head>
 <body>
+<%@ include file="/jsp/menu/common-navbar.jsp"%>
+<%@ include file="/WEB-INF/jsp/menu/navbar.jsp"%>
+<div class="container-fluid">
 	<div>
 		<p>Welcome to ${appName}. <a href="${contextPath}/signout">Sign out</a></p>
 		<c:choose>
@@ -21,7 +23,7 @@
 			</p>
 		</c:when>
 		<c:otherwise>
-			<p>We have created an account for you with no permissions. If you need to use ${appName}, submit the form below, and the administrator will follow up.</p>
+			<p>If you need (additional) permissions to use ${appName}, submit the form below, and the administrator will follow up.</p>
 		</c:otherwise>
 		</c:choose>
 		<p>You will need to <a href="${contextPath}/signout">Sign Out</a> and sign back in to refresh your permissions</p>
@@ -31,10 +33,12 @@
 		<div class="well">
 			<div class="control-group">
 				<div class="controls">
-					<textarea name="reason" placeholder="Why you want to access ${appName}" autofocus="autofocus" rows="4" cols = "50" required></textarea>
+					<label for="reason">Why you want to access ${appName}:</label><br>
+					<textarea name="reason" autofocus="autofocus" rows="4" cols = "50" required></textarea>
 				</div>
 				<div class="controls">
-					<textarea name="specifics" placeholder="(Optional) Additional information, specific functionality you require, etc." rows="4" cols = "50"></textarea>
+					<label for="specifics">(Optional) Additional information, specific functionality you require - roles, accounts, etc...:</label><br>
+					<textarea name="specifics" rows="4" cols = "50">${defaultSpecifics.orElse("")}</textarea>
 				</div>
 				<div class="controls">
 					<button type="submit" class="btn btn-primary">Submit</button>
@@ -42,5 +46,6 @@
 			</div>
 		</div>
 	</form>
+</div>
 </body>
 </html>

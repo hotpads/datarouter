@@ -24,8 +24,6 @@ public class UInt7Field extends BasePrimitiveField<Byte>{
 		super(key, value);
 	}
 
-	/*********************** StringEncodedField ***********************/
-
 	@Override
 	public String getStringEncodedValue(){
 		if(value == null){
@@ -41,8 +39,6 @@ public class UInt7Field extends BasePrimitiveField<Byte>{
 		}
 		return Byte.valueOf(str);
 	}
-
-	/*********************** ByteEncodedField ***********************/
 
 	@Override
 	public byte[] getBytes(){

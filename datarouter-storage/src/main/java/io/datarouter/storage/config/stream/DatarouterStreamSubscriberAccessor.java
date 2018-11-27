@@ -16,5 +16,7 @@
 package io.datarouter.storage.config.stream;
 
 public interface DatarouterStreamSubscriberAccessor{
-	public void unsubscribe();
+
+	void unsubscribe();
+
 }

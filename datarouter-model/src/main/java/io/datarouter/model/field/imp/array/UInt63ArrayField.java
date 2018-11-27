@@ -28,6 +28,7 @@ import io.datarouter.util.bytes.IntegerByteTool;
 import io.datarouter.util.bytes.LongByteTool;
 import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.collection.ListTool;
+import io.datarouter.util.serialization.GsonTool;
 
 public class UInt63ArrayField extends BaseListField<Long,List<Long>>{
 
@@ -35,22 +36,16 @@ public class UInt63ArrayField extends BaseListField<Long,List<Long>>{
 		super(key, value);
 	}
 
-	/*********************** Comparable **************************************/
-
 	//TODO should we even bother?
 	@Override
 	public int compareTo(Field<List<Long>> other){
 		return ListTool.compare(this.value, other.getValue());
 	}
 
-	/*********************** StringEncodedField ******************************/
-
 	@Override
 	public List<Long> parseStringEncodedValueButDoNotSet(String value){
-		return gson.fromJson(value, getKey().getValueType());
+		return GsonTool.GSON.fromJson(value, getKey().getValueType());
 	}
-
-	/*********************** ByteEncodedField ********************************/
 
 	@Override
 	public byte[] getBytes(){
@@ -88,9 +83,6 @@ public class UInt63ArrayField extends BaseListField<Long,List<Long>>{
 		return new LongArray(LongByteTool.fromUInt63ByteArray(bytes, byteOffset + 4, numBytes));
 	}
 
-
-	/*********************** tests ***************************/
-
 	public static class UInt63ArrayFieldTests{
 
 		private static final UInt63ArrayFieldKey FIELD_KEY = new UInt63ArrayFieldKey("");
@@ -116,7 +108,7 @@ public class UInt63ArrayField extends BaseListField<Long,List<Long>>{
 
 			List<Long> a3 = new UInt63ArrayField(FIELD_KEY, null).fromBytesWithSeparatorButDoNotSet(bytesWithPrefix, 0);
 			Assert.assertTrue(CollectionTool.equalsAllElementsInIteratorOrder(a1, a3));
-
 		}
+
 	}
 }

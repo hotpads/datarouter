@@ -26,7 +26,6 @@ import io.datarouter.util.lang.LineOfCode;
 public class CallsiteRecorder{
 	private static final Logger logger = LoggerFactory.getLogger(CallsiteRecorder.class);
 
-
 	public static void record(String nodeName, String datarouterMethodName, LineOfCode callsite, int numItems,
 			long durationNs){
 		if(!logger.isTraceEnabled()){

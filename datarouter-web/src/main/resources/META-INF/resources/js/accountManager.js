@@ -298,6 +298,14 @@ class AccountDetails extends React.Component{
 										value="Reset to Default" />
 								}
 							</dd>
+							<dt>Created</dt>
+							<dd>
+							{this.state.details.account.created}
+							</dd>
+							<dt>Creator</dt>
+							<dd>
+							{this.state.details.account.creator}
+							</dd>
 						</dl>
 						{this.state.availableRouteSets.length == 0 ||
 							<div>

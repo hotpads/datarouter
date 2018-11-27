@@ -25,9 +25,9 @@ public class GuiceStageFinder{
 
 	private static final String PROPERTY_NAME = "guice.stage";
 
-	public Stage getGuiceStage(){
+	public static Stage getGuiceStage(){
 		String stageString = System.getProperty(PROPERTY_NAME);
-		final Stage stage;
+		Stage stage;
 		boolean development = Stage.DEVELOPMENT.name().equals(stageString);
 		boolean production = Stage.PRODUCTION.name().equals(stageString);
 		if(development || production){

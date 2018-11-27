@@ -32,7 +32,7 @@ import io.datarouter.util.array.LongArray;
 public class LongByteTool{
 	private static final Logger logger = LoggerFactory.getLogger(LongByteTool.class);
 
-	/****************** serialize to bytes ****************************/
+	/*------------------------- serialize to bytes --------------------------*/
 
 	public static byte[] getRawBytes(final long in){
 		byte[] out = new byte[8];
@@ -70,13 +70,10 @@ public class LongByteTool{
 		| bytes[byteOffset + 7] & (long)0xff;
 	}
 
-	/*
-	 * int64
-	 *
-	 * flip first bit so bitwiseCompare is always correct
-	 */
 
-	//************ single values
+	// int64 -- flip first bit so bitwiseCompare is always correct
+
+	/*------------------------- single values -------------------------------*/
 
 	public static byte[] getComparableBytes(final long value){
 		long shifted = value ^ Long.MIN_VALUE;
@@ -92,7 +89,7 @@ public class LongByteTool{
 		return Long.MIN_VALUE ^ fromRawBytes(bytes, byteOffset);
 	}
 
-	//************ arrays and collections
+	/*------------------------- arrays and collections ----------------------*/
 
 	public static byte[] getComparableByteArray(List<Long> valuesWithNulls){
 		if(valuesWithNulls == null){
@@ -137,13 +134,9 @@ public class LongByteTool{
 		return out;
 	}
 
-	/*
-	 * uInt63
-	 *
-	 * first bit must be 0, reject others
-	 */
+	// uInt63 -- first bit must be 0, reject others
 
-	//************ single values
+	/*------------------------- single values -------------------------------*/
 
 	public static byte[] getUInt63Bytes(final long value){
 		if(value < 0 && value != Long.MIN_VALUE){//need to allow Long.MIN_VALUE in for nulls
@@ -160,7 +153,7 @@ public class LongByteTool{
 		return longValue;
 	}
 
-	//************ arrays and collections
+	/*------------------------- arrays and collections ----------------------*/
 
 	public static byte[] getUInt63ByteArray(List<Long> valuesWithNulls){
 		if(valuesWithNulls == null){
@@ -197,7 +190,7 @@ public class LongByteTool{
 		return out;
 	}
 
-	/************************ tests ***************************************/
+	/*------------------------- tests ---------------------------------------*/
 
 	public static class Tests{
 

@@ -27,5 +27,4 @@ public abstract class BaseMultiIndexEntry<
 		D extends Databean<PK,D>>
 extends BaseDatabean<IK,IE>
 implements MultiIndexEntry<IK,IE,PK,D>{
-
 }

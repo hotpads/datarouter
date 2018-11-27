@@ -40,8 +40,6 @@ public class ByteArrayField extends BaseField<byte[]>{
 		return key;
 	}
 
-	/*********************** StringEncodedField ***********************/
-
 	@Override
 	public String getStringEncodedValue(){
 		if(value == null){
@@ -54,8 +52,6 @@ public class ByteArrayField extends BaseField<byte[]>{
 	public byte[] parseStringEncodedValueButDoNotSet(String stringValue){
 		return Base64.getDecoder().decode(stringValue);
 	}
-
-	/*********************** ByteEncodedField ***********************/
 
 	@Override
 	public byte[] getBytes(){

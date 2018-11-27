@@ -30,14 +30,13 @@ public class TestDatarouterProperties extends DatarouterProperties{
 
 	private final String datarouterTestFileLocation;
 
-
 	public TestDatarouterProperties(){
 		super(StandardServerType.ALL, SERVICE_NAME, CONFIG_DIRECTORY, SERVER_CONFIG_FILE_NAME);
 		this.datarouterTestFileLocation = findConfigFile(DATAROUTER_TEST_FILE_NAME);
 	}
 
-
-	public String getDatarouterTestFileLocation(){
+	@Override
+	public String getDatarouterPropertiesFileLocation(){
 		return datarouterTestFileLocation;
 	}
 

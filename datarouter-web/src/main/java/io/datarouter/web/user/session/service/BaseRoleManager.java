@@ -23,6 +23,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.inject.Inject;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,15 +32,49 @@ import io.datarouter.util.collection.SetTool;
 import io.datarouter.util.string.StringTool;
 
 public abstract class BaseRoleManager implements RoleManager{
-
 	private static final Logger logger = LoggerFactory.getLogger(BaseRoleManager.class);
+
 	private static final String SUPER_GROUP_ID = "super";
 	private static final String DEFAULT_GROUP_ID = "default";
 
-	private final Map<String,Set<Role>> roleGroups;
+	@Inject
+	private RoleEnum<? extends RoleEnum<?>> roleEnum;
 
-	protected BaseRoleManager(Set<? extends Role> superRoleGroup, Set<? extends Role> defaultRoleGroup,
-			Map<String,Set<? extends Role>> configurableRoleGroups){
+	private Map<String,Set<Role>> roleGroups;
+
+	@Override
+	public Role getRoleFromPersistentString(String persistentString){
+		return roleEnum.fromPersistentString(persistentString).getRole();
+	}
+
+	@Override
+	public final Boolean isAdmin(Role role){
+		return getAdminRoles().contains(role);
+	}
+
+	@Override
+	public final Set<Role> getRolesForGroup(String groupId){
+		if(roleGroups == null){
+			init();
+		}
+		return SetTool.nullsafe(roleGroups.get(StringTool.nullSafe(groupId)));
+	}
+
+	@Override
+	public final Set<Role> getRolesForSuperGroup(){
+		return getRolesForGroup(getSuperUserGroupId());
+	}
+
+	@Override
+	public final Set<Role> getRolesForDefaultGroup(){
+		return getRolesForGroup(getDefaultUserGroupId());
+	}
+
+	private final void init(){
+		Set<Role> superRoleGroup = getSuperRoles();
+		Set<Role> defaultRoleGroup = getDefaultRoles();
+		Map<String,Set<Role>> configurableRoleGroups = getConfigurableRoleGroups();
+
 		//warn about ID collisions and throw exception for missing IDs
 		checkAndWarnOverride(getSuperUserGroupId(), configurableRoleGroups);
 		checkAndWarnOverride(getDefaultUserGroupId(), configurableRoleGroups);
@@ -47,15 +83,19 @@ public abstract class BaseRoleManager implements RoleManager{
 		}
 
 		Map<String,Set<Role>> roleGroups = configurableRoleGroups.entrySet().stream()
-				.collect(Collectors.toMap(Entry::getKey, entry -> Collections.unmodifiableSet(new HashSet<Role>(entry
+				.collect(Collectors.toMap(Entry::getKey, entry -> Collections.unmodifiableSet(new HashSet<>(entry
 						.getValue()))));
 		roleGroups.put(getSuperUserGroupId(), Collections.unmodifiableSet(new HashSet<>(superRoleGroup)));
 		roleGroups.put(getDefaultUserGroupId(), Collections.unmodifiableSet(new HashSet<>(defaultRoleGroup)));
 		this.roleGroups = Collections.unmodifiableMap(roleGroups);
 	}
 
-	protected BaseRoleManager(Set<? extends Role> superRoleGroup, Set<? extends Role> defaultRoleGroup){
-		this(superRoleGroup, defaultRoleGroup, Collections.emptyMap());
+	protected abstract Set<Role> getSuperRoles();
+	protected abstract Set<Role> getDefaultRoles();
+	protected abstract Set<Role> getAdminRoles();
+
+	protected Map<String,Set<Role>> getConfigurableRoleGroups(){
+		return Collections.emptyMap();
 	}
 
 	protected String getSuperUserGroupId(){
@@ -66,22 +106,7 @@ public abstract class BaseRoleManager implements RoleManager{
 		return DEFAULT_GROUP_ID;
 	}
 
-	@Override
-	public final Set<Role> getRolesForGroup(String groupId){
-		return SetTool.nullsafe(roleGroups.get(StringTool.nullSafe(groupId)));
-	}
-
-	@Override
-	public final Set<Role> getSuperRoles(){
-		return getRolesForGroup(getSuperUserGroupId());
-	}
-
-	@Override
-	public final Set<Role> getDefaultRoles(){
-		return getRolesForGroup(getDefaultUserGroupId());
-	}
-
-	private void checkAndWarnOverride(String key, Map<String,Set<? extends Role>> configurableRoleGroups){
+	private void checkAndWarnOverride(String key, Map<String,Set<Role>> configurableRoleGroups){
 		Objects.requireNonNull(key, "Super and default role group IDs must be defined.");
 		if(configurableRoleGroups.containsKey(key)){
 			logger.warn("ConfigurableRoleGroups uses a reserved role group ID, which will be ignored. Override "

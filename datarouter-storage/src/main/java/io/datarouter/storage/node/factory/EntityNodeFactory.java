@@ -20,8 +20,10 @@ import javax.inject.Singleton;
 
 import com.google.common.base.Preconditions;
 
+import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.model.entity.Entity;
 import io.datarouter.model.key.entity.EntityKey;
+import io.datarouter.storage.client.ClientNodeFactory;
 import io.datarouter.storage.client.ClientType;
 import io.datarouter.storage.client.DatarouterClients;
 import io.datarouter.storage.node.entity.EntityNode;
@@ -35,12 +37,16 @@ public class EntityNodeFactory{
 	private DatarouterClients clients;
 	@Inject
 	private NodeFactory nodeFactory;
+	@Inject
+	private DatarouterInjector injector;
 
 	public <EK extends EntityKey<EK>,E extends Entity<EK>>
 	EntityNode<EK,E> create(String clientName, Router router, EntityNodeParams<EK,E> params){
-		ClientType clientType = clients.getClientTypeInstance(clientName);
+		ClientType<?> clientType = clients.getClientTypeInstance(clientName);
 		Preconditions.checkNotNull(clientType, "clientType not found for clientName:" + clientName);
-		EntityNode<EK,E> entityNode = clientType.createEntityNode(nodeFactory, router, params, clientName);
+		ClientNodeFactory clientNodeFactory = injector.getInstance(clientType.getClientNodeFactoryClass());
+		EntityNode<EK,E> entityNode = clientNodeFactory.createEntityNode(nodeFactory, router, params, clientName);
 		return entityNode;
 	}
+
 }

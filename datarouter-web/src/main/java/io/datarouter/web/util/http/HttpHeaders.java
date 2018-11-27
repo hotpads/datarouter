@@ -15,6 +15,8 @@
  */
 package io.datarouter.web.util.http;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -25,79 +27,94 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 
 import com.google.common.base.Joiner;
-import com.google.gson.Gson;
+import com.google.common.collect.TreeMultimap;
 
+import io.datarouter.httpclient.IpExtractor;
 import io.datarouter.httpclient.response.exception.DatarouterHttpResponseException;
+import io.datarouter.util.serialization.GsonTool;
 
 public class HttpHeaders{
 
-	private static final Gson gson = new Gson();
+	public static final String ACCEPT_CHARSET = "accept-charset";
+	public static final String ACCEPT_ENCODING = "accept-encoding";
+	public static final String ACCEPT_LANGUAGE = "accept-language";
+	public static final String ACCEPT = "accept";
+	public static final String CACHE_CONTROL = "cache-control";
+	public static final String CONNECTION = "connection";
+	public static final String CONTENT_ENCODING = "content-encoding";
+	public static final String CONTENT_LANGUAGE = "content-language";
+	public static final String CONTENT_LENGTH = "content-length";
+	public static final String CONTENT_TYPE = "content-type";
+	public static final String COOKIE = "cookie";
+	public static final String DNT = "dnt";
+	public static final String HOST = "host";
+	public static final String IF_MODIFIED_SINCE = "if-modified-since";
+	public static final String ORIGIN = "origin";
+	public static final String PRAGMA = "pragma";
+	public static final String REFERER = "referer";
+	public static final String UPGRADE = "upgrade";
+	public static final String USER_AGENT = "user-agent";
+	public static final String SEC_WEBSOCKET_VERSION = "sec-websocket-version";
+	public static final String X_CLIENT_IP = IpExtractor.X_CLIENT_IP;
+	public static final String X_FORWARDED_FOR = "x-forwarded-for";
+	public static final String X_REQUESTED_WITH = "x-requested-with";
+	public static final String X_EXCEPTION_ID = DatarouterHttpResponseException.X_EXCEPTION_ID;
 
-	public static final String
-			ACCEPT_CHARSET = "accept-charset",
-			ACCEPT_ENCODING = "accept-encoding",
-			ACCEPT_LANGUAGE = "accept-language",
-			ACCEPT = "accept",
-			CACHE_CONTROL = "cache-control",
-			CONNECTION = "connection",
-			CONTENT_ENCODING = "content-encoding",
-			CONTENT_LANGUAGE = "content-language",
-			CONTENT_LENGTH = "content-length",
-			CONTENT_TYPE = "content-type",
-			COOKIE = "cookie",
-			DNT = "dnt",
-			HOST = "host",
-			IF_MODIFIED_SINCE = "if-modified-since",
-			ORIGIN = "origin",
-			PRAGMA = "pragma",
-			REFERER = "referer",
-			UPGRADE = "upgrade",
-			USER_AGENT = "user-agent",
-			SEC_WEBSOCKET_VERSION = "sec-websocket-version",
-			X_CLIENT_IP = "x-client-ip", //custom header that node servers send with the client's ip
-			X_FORWARDED_FOR = "x-forwarded-for",
-			X_REQUESTED_WITH = "x-requested-with",
-			X_EXCEPTION_ID = DatarouterHttpResponseException.X_EXCEPTION_ID;
-
-	private static final String[] recordedHeaders = {
-		ACCEPT_CHARSET,
-		ACCEPT_ENCODING,
-		ACCEPT_LANGUAGE,
-		ACCEPT,
-		CACHE_CONTROL,
-		CONNECTION,
-		CONTENT_ENCODING,
-		CONTENT_LANGUAGE,
-		CONTENT_LENGTH,
-		CONTENT_TYPE,
-		COOKIE,
-		DNT,
-		HOST,
-		IF_MODIFIED_SINCE,
-		ORIGIN,
-		PRAGMA,
-		REFERER,
-		USER_AGENT,
-		X_FORWARDED_FOR,
-		X_REQUESTED_WITH
+	private static final String[] RECORDED_HEADERS = {
+			ACCEPT_CHARSET,
+			ACCEPT_ENCODING,
+			ACCEPT_LANGUAGE,
+			ACCEPT,
+			CACHE_CONTROL,
+			CONNECTION,
+			CONTENT_ENCODING,
+			CONTENT_LANGUAGE,
+			CONTENT_LENGTH,
+			CONTENT_TYPE,
+			COOKIE,
+			DNT,
+			HOST,
+			IF_MODIFIED_SINCE,
+			ORIGIN,
+			PRAGMA,
+			REFERER,
+			USER_AGENT,
+			X_FORWARDED_FOR,
+			X_REQUESTED_WITH,
 	};
 
 	private final Map<String,String> headerMap = new HashMap<>();
 
 	public HttpHeaders(HttpServletRequest request){
-		Joiner listJoiner = Joiner.on(", ");
 		if(request == null){
 			return;
 		}
+		Joiner listJoiner = Joiner.on(", ");
 		List<String> tmpHeaders = Collections.list(request.getHeaderNames());
-		for(String headerKey : recordedHeaders){
+		for(String headerKey : RECORDED_HEADERS){
 			if(tmpHeaders.remove(headerKey)){
 				headerMap.put(headerKey, listJoiner.join(Collections.list(request.getHeaders(headerKey))));
 			}
 		}
 		Map<String,List<String>> others = tmpHeaders.stream()
 				.collect(Collectors.toMap(Function.identity(), name -> Collections.list(request.getHeaders(name))));
-		headerMap.put("others", gson.toJson(others));
+		headerMap.put("others", GsonTool.GSON.toJson(others));
+	}
+
+	public HttpHeaders(TreeMultimap<String,String> sortedHeaders){
+		if(sortedHeaders == null){
+			return;
+		}
+		Joiner listJoiner = Joiner.on(", ");
+		List<String> tmpHeaders = new ArrayList<>(sortedHeaders.keySet());
+		for(String headerKey : RECORDED_HEADERS){
+			if(tmpHeaders.remove(headerKey)){
+				this.headerMap.put(headerKey, listJoiner.join(sortedHeaders.get(headerKey)));
+			}
+		}
+		Map<String,Collection<String>> others = tmpHeaders.stream()
+				.collect(Collectors.toMap(Function.identity(), sortedHeaders::get));
+		this.headerMap.put("others", GsonTool.GSON.toJson(others));
 	}
 
 	public String getAcceptCharset(){
@@ -183,4 +200,5 @@ public class HttpHeaders{
 	public String getOthers(){
 		return headerMap.get("others");
 	}
+
 }

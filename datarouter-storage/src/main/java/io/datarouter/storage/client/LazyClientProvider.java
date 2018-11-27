@@ -29,16 +29,16 @@ public class LazyClientProvider implements Callable<Client>{
 
 	private final Lazy<Client> client;
 
-	public LazyClientProvider(ClientFactory clientFactory, DatarouterNodes datarouterNodes){
+	public LazyClientProvider(ClientFactory clientFactory, ClientId clientId, DatarouterNodes datarouterNodes){
 		this.client = Lazy.of(() -> {
 			try{
-				Client client = clientFactory.call();
+				Client client = clientFactory.createClient(clientId);
 				datarouterNodes.getPhysicalNodesForClient(client.getName()).stream()
 						.map(client::notifyNodeRegistration)
 						.collect(Collectors.collectingAndThen(Collectors.toList(), FutureTool::getAll));
 				return client;
 			}catch(Exception e){
-				throw new RuntimeException(e);
+				throw new RuntimeException("failed to build client id= " + clientId, e);
 			}
 		});
 	}

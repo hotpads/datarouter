@@ -23,6 +23,7 @@ import io.datarouter.util.array.ArrayTool;
 import io.datarouter.util.bytes.ByteTool;
 import io.datarouter.util.bytes.IntegerByteTool;
 import io.datarouter.util.collection.ListTool;
+import io.datarouter.util.serialization.GsonTool;
 
 public class UInt7ArrayField extends BaseListField<Byte,List<Byte>>{
 
@@ -30,14 +31,10 @@ public class UInt7ArrayField extends BaseListField<Byte,List<Byte>>{
 		super(key, value);
 	}
 
-	/*********************** StringEncodedField ******************************/
-
 	@Override
 	public List<Byte> parseStringEncodedValueButDoNotSet(String value){
-		return gson.fromJson(value, getKey().getValueType());
+		return GsonTool.GSON.fromJson(value, getKey().getValueType());
 	}
-
-	/*********************** ByteEncodedField ********************************/
 
 	@Override
 	public byte[] getBytes(){

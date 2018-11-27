@@ -34,9 +34,10 @@ public class HttpRequestBuilder{
 	private final Map<String, Object> attributes = new HashMap<>();
 	private final List<Cookie> cookies = new ArrayList<>();
 	private String serverName;
+	private String method;
 
 	public MockHttpRequest build(){
-		return new MockHttpRequest(parameterMap, reader, headers, attributes, cookies, serverName);
+		return new MockHttpRequest(parameterMap, reader, headers, attributes, cookies, serverName, method);
 	}
 
 	public HttpRequestBuilder withParameter(String key, String value){
@@ -74,4 +75,8 @@ public class HttpRequestBuilder{
 		return this;
 	}
 
+	public HttpRequestBuilder withMethod(String method){
+		this.method = method;
+		return this;
+	}
 }

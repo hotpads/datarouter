@@ -17,25 +17,58 @@ package io.datarouter.web.handler.validator;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.http.HttpStatus;
+
 public abstract class RequestParamValidator<T>{
 
 	protected String parameterName;
 
 	public static class RequestParamValidatorResponseDto{
+
 		public final boolean success;
+		public final int statusCode;
 		public final String errorMessage;
 
-		private RequestParamValidatorResponseDto(boolean success, String errorMessage){
+		private RequestParamValidatorResponseDto(boolean success, int statusCode, String errorMessage){
 			this.success = success;
+			this.statusCode = statusCode;
 			this.errorMessage = errorMessage;
 		}
 
 		public static RequestParamValidatorResponseDto makeErrorResponse(String errorMessage){
-			return new RequestParamValidatorResponseDto(false, errorMessage);
+			return makeErrorResponse(errorMessage, HttpStatus.SC_BAD_REQUEST);
+		}
+
+		private static RequestParamValidatorResponseDto makeErrorResponse(String errorMessage, int statusCode){
+			return new RequestParamValidatorResponseDto(false, statusCode, errorMessage);
+		}
+
+		public static RequestParamValidatorResponseDto makeForbiddenErrorResponse(String errorMessage){
+			return makeErrorResponse(errorMessage, HttpStatus.SC_FORBIDDEN);
 		}
 
 		public static RequestParamValidatorResponseDto makeSuccessResponse(){
-			return new RequestParamValidatorResponseDto(true, null);
+			return makeSuccessResponse(HttpStatus.SC_OK);
+		}
+
+		private static RequestParamValidatorResponseDto makeSuccessResponse(int statusCode){
+			return new RequestParamValidatorResponseDto(true, statusCode, null);
+		}
+	}
+
+	public static class RequestParamValidatorErrorResponseDto{
+
+		public final String message;
+		public final int statusCode;
+
+		public RequestParamValidatorErrorResponseDto(String message, int statusCode){
+			this.message = message;
+			this.statusCode = statusCode;
+		}
+
+		public static RequestParamValidatorErrorResponseDto fromRequestParamValidatorResponseDto(
+				RequestParamValidatorResponseDto responseDto){
+			return new RequestParamValidatorErrorResponseDto(responseDto.errorMessage, responseDto.statusCode);
 		}
 	}
 

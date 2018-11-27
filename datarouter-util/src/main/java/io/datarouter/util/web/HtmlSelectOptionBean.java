@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 public class HtmlSelectOptionBean{
+
 	private static Comparator<HtmlSelectOptionBean> beanByValueComparator = Comparator.comparing(
 			HtmlSelectOptionBean::getName);
 
@@ -48,7 +49,6 @@ public class HtmlSelectOptionBean{
 		return "<option value=\"" + value + "\"" + (selected ? " selected" : "") + ">" + name + "</option>";
 	}
 
-	//used in blockedListings.jsp
 	public String getName(){
 		return name;
 	}

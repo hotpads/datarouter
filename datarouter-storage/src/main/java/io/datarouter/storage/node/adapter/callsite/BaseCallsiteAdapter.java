@@ -23,7 +23,6 @@ import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.callsite.CallsiteRecorder;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.Node;
-import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.adapter.BaseAdapter;
 import io.datarouter.storage.setting.Setting;
 import io.datarouter.util.BooleanTool;
@@ -39,9 +38,9 @@ extends BaseAdapter<PK,D,F,N> implements CallsiteAdapter{
 
 	private final Setting<Boolean> recordCallsites;
 
-	public BaseCallsiteAdapter(NodeParams<PK,D,F> params, N backingNode){
+	public BaseCallsiteAdapter(N backingNode){
 		super(backingNode);
-		this.recordCallsites = params.getRecordCallsites();
+		this.recordCallsites = backingNode.getFieldInfo().getRecordCallsite();
 	}
 
 	@Override
@@ -62,7 +61,7 @@ extends BaseAdapter<PK,D,F,N> implements CallsiteAdapter{
 
 	@Override
 	public void recordCallsite(Config config, long startNs, int numItems){
-		if(recordCallsites == null || BooleanTool.isFalseOrNull(recordCallsites.getValue())){
+		if(recordCallsites == null || BooleanTool.isFalseOrNull(recordCallsites.get())){
 			return;
 		}
 		LineOfCode datarouterMethod = new LineOfCode(2);

@@ -141,6 +141,10 @@ public class Log4j2Configurator{
 		return rootLoggerConfig;
 	}
 
+	public Level getRootLoggerLevel(){
+		return config.getRootLogger().getLevel();
+	}
+
 	public void addAppender(Appender appender){
 		config.addAppender(appender);
 	}

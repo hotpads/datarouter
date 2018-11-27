@@ -16,6 +16,8 @@
 package io.datarouter.web.dispatcher;
 
 public interface DispatcherServletListener{
+
 	void onDispatcherServletInit(DispatcherServlet dispatcherServlet);
 	void onDispatcherServletDestroy(DispatcherServlet dispatcherServlet);
+
 }

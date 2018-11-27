@@ -27,4 +27,5 @@ public class UInt15FieldKey extends PrimitiveFieldKey<Short>{
 	public UInt15Field createValueField(final Short value){
 		return new UInt15Field(this, value);
 	}
+
 }

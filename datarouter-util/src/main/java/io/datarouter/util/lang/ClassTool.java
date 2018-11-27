@@ -101,9 +101,8 @@ public class ClassTool{
 	}
 
 
-	/**************** Tests *************************/
-
 	public static class ClassToolTests{
+
 		@Test
 		public void testIsEquivalentBoxedType(){
 			Assert.assertTrue(isEquivalentBoxedType(int.class, int.class));
@@ -115,5 +114,6 @@ public class ClassTool{
 			Assert.assertFalse(isEquivalentBoxedType(long.class, Integer.class));
 			Assert.assertFalse(isEquivalentBoxedType(String.class, String.class));//not primitive
 		}
+
 	}
 }

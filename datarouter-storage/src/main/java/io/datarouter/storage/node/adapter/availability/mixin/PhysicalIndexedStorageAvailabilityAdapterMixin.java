@@ -24,6 +24,7 @@ import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.key.unique.UniqueKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.config.Config;
+import io.datarouter.storage.config.setting.impl.DatarouterClientAvailabilitySettings.AvailabilitySettingNode;
 import io.datarouter.storage.exception.UnavailableException;
 import io.datarouter.storage.node.op.raw.IndexedStorage;
 import io.datarouter.storage.node.op.raw.IndexedStorage.PhysicalIndexedStorageNode;
@@ -39,11 +40,12 @@ public interface PhysicalIndexedStorageAvailabilityAdapterMixin<
 extends IndexedStorage<PK,D>{
 
 	N getBackingNode();
+	AvailabilitySettingNode getAvailability();
 	UnavailableException makeUnavailableException();
 
 	@Override
 	default D lookupUnique(UniqueKey<PK> uniqueKey, Config config){
-		if(getBackingNode().getClient().getAvailability().read.getValue()){
+		if(getAvailability().read.get()){
 			return getBackingNode().lookupUnique(uniqueKey, config);
 		}
 		throw makeUnavailableException();
@@ -51,7 +53,7 @@ extends IndexedStorage<PK,D>{
 
 	@Override
 	default List<D> lookupMultiUnique(Collection<? extends UniqueKey<PK>> uniqueKeys, Config config){
-		if(getBackingNode().getClient().getAvailability().read.getValue()){
+		if(getAvailability().read.get()){
 			return getBackingNode().lookupMultiUnique(uniqueKeys, config);
 		}
 		throw makeUnavailableException();
@@ -62,17 +64,19 @@ extends IndexedStorage<PK,D>{
 			IE extends IndexEntry<IK, IE, PK, D>,
 			IF extends DatabeanFielder<IK, IE>>
 	List<IE> getMultiFromIndex(Collection<IK> keys, Config config, DatabeanFieldInfo<IK, IE, IF> indexEntryFieldInfo){
-		if(getBackingNode().getClient().getAvailability().read.getValue()){
+		if(getAvailability().read.get()){
 			return getBackingNode().getMultiFromIndex(keys, config, indexEntryFieldInfo);
 		}
 		throw makeUnavailableException();
 	}
 
 	@Override
-	default <IK extends PrimaryKey<IK>, IE extends IndexEntry<IK, IE, PK, D>> List<D> getMultiByIndex(
-			Collection<IK> keys, Config config){
-		if(getBackingNode().getClient().getAvailability().read.getValue()){
-			return getBackingNode().getMultiByIndex(keys, config);
+	default <IK extends PrimaryKey<IK>,
+			IE extends IndexEntry<IK, IE, PK, D>,
+			IF extends DatabeanFielder<IK, IE>>
+	List<D> getMultiByIndex(Collection<IK> keys, Config config, DatabeanFieldInfo<IK, IE, IF> indexEntryFieldInfo){
+		if(getAvailability().read.get()){
+			return getBackingNode().getMultiByIndex(keys, config, indexEntryFieldInfo);
 		}
 		throw makeUnavailableException();
 	}
@@ -83,7 +87,7 @@ extends IndexedStorage<PK,D>{
 			IF extends DatabeanFielder<IK, IE>>
 	Iterable<IE> scanMultiIndex(DatabeanFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges,
 			Config config){
-		if(getBackingNode().getClient().getAvailability().read.getValue()){
+		if(getAvailability().read.get()){
 			return getBackingNode().scanMultiIndex(indexEntryFieldInfo, ranges, config);
 		}
 		throw makeUnavailableException();
@@ -95,7 +99,7 @@ extends IndexedStorage<PK,D>{
 			IF extends DatabeanFielder<IK, IE>>
 	Iterable<D> scanMultiByIndex(DatabeanFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges,
 			Config config){
-		if(getBackingNode().getClient().getAvailability().read.getValue()){
+		if(getAvailability().read.get()){
 			return getBackingNode().scanMultiByIndex(indexEntryFieldInfo, ranges, config);
 		}
 		throw makeUnavailableException();
@@ -107,7 +111,7 @@ extends IndexedStorage<PK,D>{
 			IF extends DatabeanFielder<IK, IE>>
 	Iterable<IK> scanMultiIndexKeys(DatabeanFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges,
 			Config config){
-		if(getBackingNode().getClient().getAvailability().read.getValue()){
+		if(getAvailability().read.get()){
 			return getBackingNode().scanMultiIndexKeys(indexEntryFieldInfo, ranges, config);
 		}
 		throw makeUnavailableException();
@@ -117,7 +121,7 @@ extends IndexedStorage<PK,D>{
 
 	@Override
 	default void deleteUnique(UniqueKey<PK> uniqueKey, Config config){
-		if(getBackingNode().getClient().getAvailability().write.getValue()){
+		if(getAvailability().write.get()){
 			getBackingNode().deleteUnique(uniqueKey, config);
 			return;
 		}
@@ -126,7 +130,7 @@ extends IndexedStorage<PK,D>{
 
 	@Override
 	default void deleteMultiUnique(Collection<? extends UniqueKey<PK>> uniqueKeys, Config config){
-		if(getBackingNode().getClient().getAvailability().write.getValue()){
+		if(getAvailability().write.get()){
 			getBackingNode().deleteMultiUnique(uniqueKeys, config);
 			return;
 		}
@@ -135,7 +139,7 @@ extends IndexedStorage<PK,D>{
 
 	@Override
 	default <IK extends PrimaryKey<IK>> void deleteByIndex(Collection<IK> keys, Config config){
-		if(getBackingNode().getClient().getAvailability().write.getValue()){
+		if(getAvailability().write.get()){
 			getBackingNode().deleteByIndex(keys, config);
 			return;
 		}

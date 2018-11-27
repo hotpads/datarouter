@@ -144,7 +144,7 @@ public class ReflectionTool{
 		return supersAndInterfaces;
 	}
 
-	/*********************** get fields ***********************************/
+	/*------------------------- get fields ----------------------------------*/
 
 	public static Field getDeclaredFieldFromAncestors(Class<?> clazz, String fieldName){
 		Set<Class<?>> supersAndInterfaces = getAllSuperClassesAndInterfaces(clazz);
@@ -163,8 +163,8 @@ public class ReflectionTool{
 	}
 
 	private static class FieldInClass{
-		public Class<?> cls;
-		public String fieldName;
+		private Class<?> cls;
+		private String fieldName;
 
 		public FieldInClass(Class<?> cls, String fieldName){
 			this.cls = cls;
@@ -258,7 +258,7 @@ public class ReflectionTool{
 		return ListTool.create(cls.getDeclaredFields());
 	}
 
-	/*********************** get Method ***********************************/
+	/*------------------------- get Method ----------------------------------*/
 
 	public static Method getDeclaredMethodIncludingAncestors(Class<?> clazz, String methodName,
 			Class<?>... parameterTypes){
@@ -318,7 +318,7 @@ public class ReflectionTool{
 		return true;
 	}
 
-	/*********************** get Value *********************************************************/
+	/*------------------------- get Value -----------------------------------*/
 	public static Object getObjectValueUsingGetterMethod(Object instance, Method method){
 		if(instance == null || method == null){
 			return null;
@@ -352,14 +352,14 @@ public class ReflectionTool{
 		}
 	}
 
-	/********************* Tests ******************************************/
+	/*------------------------- Tests ---------------------------------------*/
 
 	public static class ReflectionToolTests{
 
 		public static class DummyDto{
-			Object field0;
-			int field1;
-			Double field2;
+			public final Object field0;
+			public final int field1;
+			public final Double field2;
 
 			public DummyDto(Object field0, int field1, Double field2){
 				this.field0 = field0;
@@ -369,7 +369,7 @@ public class ReflectionTool{
 		}
 
 		public static class ExtensionDto extends DummyDto{
-			long field3;
+			public final long field3;
 
 			public ExtensionDto(Object field0, int field1, Double field2, long field3){
 				super(field0, field1, field2);

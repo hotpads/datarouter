@@ -18,6 +18,7 @@ package io.datarouter.storage.config.stream;
 import java.util.Date;
 
 public class DatarouterStreamSubscriberConfig implements DatarouterStreamSubscriberAccessorSetter{
+
 	private final Integer blockingQueueSize;
 	private final Integer maxRecordsPerRequest;
 
@@ -106,4 +107,5 @@ public class DatarouterStreamSubscriberConfig implements DatarouterStreamSubscri
 	public Integer getInitialLeaseTableWriteCapacity(){
 		return initialLeaseTableWriteCapacity;
 	}
+
 }

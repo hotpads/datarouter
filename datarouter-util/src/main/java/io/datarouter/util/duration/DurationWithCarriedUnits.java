@@ -23,7 +23,6 @@ import java.util.List;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-
 public class DurationWithCarriedUnits{
 
 	private static final String DEFAULT_DELIMITER = ", ";

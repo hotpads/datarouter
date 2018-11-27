@@ -19,30 +19,20 @@ import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.client.Client;
-import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 
-public interface PhysicalAdapterMixin<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,
-		F extends DatabeanFielder<PK,D>,N extends PhysicalNode<PK,D,F>>
+public interface PhysicalAdapterMixin<
+		PK extends PrimaryKey<PK>,
+		D extends Databean<PK,D>,
+		F extends DatabeanFielder<PK,D>,
+		N extends PhysicalNode<PK,D,F>>
 extends PhysicalNode<PK,D,F>{
 
 	N getBackingNode();
 
 	@Override
-	public default ClientId getClientId(){
-		return getBackingNode().getClientId();
-	}
-
-
-	@Override
-	public default Client getClient(){
+	default Client getClient(){
 		return getBackingNode().getClient();
-	}
-
-
-	@Override
-	public default String getTableName(){
-		return getBackingNode().getTableName();
 	}
 
 }

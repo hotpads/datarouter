@@ -22,19 +22,20 @@ import java.util.function.BiFunction;
 import io.datarouter.util.string.StringTool;
 
 public class SettingByGroup<T>{
-	private final String name;
-	private final Map<String, Setting<T>> settings;
-	private final BiFunction<String, T, Setting<T>> settingRegistrar;
 
-	public SettingByGroup(String name, T defaultValue, BiFunction<String, T, Setting<T>> settingRegistrar){
+	private final String name;
+	private final Map<String,Setting<T>> settings;
+	private final BiFunction<String,T,Setting<T>> settingRegistrar;
+
+	public SettingByGroup(String name, T defaultValue, BiFunction<String,T,Setting<T>> settingRegistrar){
 		this.name = name;
 		this.settings = new ConcurrentHashMap<>();
 		this.settingRegistrar = settingRegistrar;
 		addSetting("", defaultValue);
 	}
 
-	//we can avoid this method if we can register settings on the fly
-	//that is, if the user creates a cluster setting using the UI
+	// we can avoid this method if we can register settings on the fly
+	// that is, if the user creates a cluster setting using the UI
 	public void addSetting(String group, T defaultValue){
 		String settingName = getGroupSettingName(group);
 		settings.put(settingName, settingRegistrar.apply(settingName, defaultValue));
@@ -52,4 +53,5 @@ public class SettingByGroup<T>{
 		String groupSettingPostfix = StringTool.notEmpty(group) ? "." + group : "";
 		return name + groupSettingPostfix;
 	}
+
 }

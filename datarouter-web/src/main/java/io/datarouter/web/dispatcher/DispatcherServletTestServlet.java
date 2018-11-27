@@ -18,6 +18,7 @@ package io.datarouter.web.dispatcher;
 import io.datarouter.web.dispatcher.BaseRouteSet.BaseRouteSetTests;
 
 public class DispatcherServletTestServlet{
+
 	public static final DispatcherServlet getTestServlet(){
 		@SuppressWarnings("serial")
 		DispatcherServlet servlet = new DispatcherServlet(){
@@ -29,4 +30,5 @@ public class DispatcherServletTestServlet{
 		servlet.registerRouteSets();
 		return servlet;
 	}
+
 }

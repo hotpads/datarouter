@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicLong;
@@ -33,7 +34,7 @@ import io.datarouter.util.string.StringTool;
 
 public class MapTool{
 
-	/*********************** size ******************************************************/
+	/*------------------------- size ----------------------------------------*/
 
 	public static <K,V> boolean isEmpty(Map<K,V> map){
 		if(map == null){
@@ -50,7 +51,7 @@ public class MapTool{
 		return map == null ? 0 : map.size();
 	}
 
-	/****************************** null safe ******************************************/
+	/*------------------------- null safe -----------------------------------*/
 
 	public static <K,V> Map<K,V> nullSafe(Map<K,V> in){
 		if(in == null){
@@ -59,7 +60,7 @@ public class MapTool{
 		return in;
 	}
 
-	/******************************* counting ***********************************/
+	/*------------------------- counting ------------------------------------*/
 
 	//convenience method
 	public static <T> Long increment(Map<T,Long> map, T key){
@@ -90,10 +91,10 @@ public class MapTool{
 		return subMap.get(subElement);
 	}
 
-	/********************** filtering ****************************/
+	/*------------------------- filtering -----------------------------------*/
 
 	public static <K,V> K getFirstKeyWhereValueEquals(Map<K,V> map, V value){
-		for(Map.Entry<K,V> entry : nullSafe(map).entrySet()){
+		for(Entry<K,V> entry : nullSafe(map).entrySet()){
 			if(Objects.equals(value, entry.getValue())){
 				return entry.getKey();
 			}
@@ -126,7 +127,7 @@ public class MapTool{
 	}
 
 
-	/****************** transform ***********************/
+	/*------------------------- transform -----------------------------------*/
 
 	/**
 	 * Transforms values into a map with keys produced by keyMapper. Exammple:
@@ -156,7 +157,7 @@ public class MapTool{
 		return map;
 	}
 
-	/***************** tests ***************************/
+	/*------------------------- tests ----------------------------------------*/
 
 	public static class MapToolTests{
 

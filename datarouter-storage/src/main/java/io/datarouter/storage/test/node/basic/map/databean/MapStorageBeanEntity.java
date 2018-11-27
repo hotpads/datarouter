@@ -21,8 +21,6 @@ public class MapStorageBeanEntity extends BaseEntity<MapStorageBeanEntityKey>{
 
 	public static final String QUALIFIER_PREFIX_MapStorageBean = "MSB";
 
-	/** constructor **********************************************************/
-
 	public MapStorageBeanEntity(){
 		super(null);
 	}
@@ -30,4 +28,5 @@ public class MapStorageBeanEntity extends BaseEntity<MapStorageBeanEntityKey>{
 	public MapStorageBeanEntity(MapStorageBeanEntityKey key){
 		super(key);
 	}
+
 }

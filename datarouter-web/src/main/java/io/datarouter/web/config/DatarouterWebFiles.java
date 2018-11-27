@@ -27,7 +27,7 @@ import org.testng.Assert;
 import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
-import io.datarouter.util.PathNode;
+import io.datarouter.httpclient.path.PathNode;
 import io.datarouter.util.SystemTool;
 import io.datarouter.util.io.FileTool;
 
@@ -42,27 +42,27 @@ public class DatarouterWebFiles extends PathNode{
 	public static final String JSP_MessageMav = "/jsp/generic/message.jsp";
 	public static final String JSP_StringMav = "/jsp/generic/string.jsp";
 
-	public final AutocompleteFiles autocomplete = branch(AutocompleteFiles.class, "autocomplete");
-	public final BootstrapFiles bootstrap = branch(BootstrapFiles.class, "bootstrap");
-	public final CssFiles css = branch(CssFiles.class, "css");
-	public final DygraphFiles dygraph = branch(DygraphFiles.class, "dygraph");
-	public final JeeAssetsFiles jeeAssets = branch(JeeAssetsFiles.class, "jee-assets");
-	public final JqueryFiles jquery = branch(JqueryFiles.class, "jquery");
-	public final JqueryFloatThread203Files jqueryFloatThreadFiles203 = branch(JqueryFloatThread203Files.class,
+	public final AutocompleteFiles autocomplete = branch(AutocompleteFiles::new, "autocomplete");
+	public final BootstrapFiles bootstrap = branch(BootstrapFiles::new, "bootstrap");
+	public final CssFiles css = branch(CssFiles::new, "css");
+	public final DygraphFiles dygraph = branch(DygraphFiles::new, "dygraph");
+	public final JeeAssetsFiles jeeAssets = branch(JeeAssetsFiles::new, "jee-assets");
+	public final JqueryFiles jquery = branch(JqueryFiles::new, "jquery");
+	public final JqueryFloatThread203Files jqueryFloatThreadFiles203 = branch(JqueryFloatThread203Files::new,
 			"jQuery.floatThead-2.0.3");
-	public final JsFiles js = branch(JsFiles.class, "js");
-	public final JspFiles jsp = branch(JspFiles.class, "jsp");
-	public final RequirejsFiles requirejs = branch(RequirejsFiles.class, "requirejs");
-	public final SorttableFiles sorttable = branch(SorttableFiles.class, "sorttable");
+	public final JsFiles js = branch(JsFiles::new, "js");
+	public final JspFiles jsp = branch(JspFiles::new, "jsp");
+	public final RequirejsFiles requirejs = branch(RequirejsFiles::new, "requirejs");
+	public final SorttableFiles sorttable = branch(SorttableFiles::new, "sorttable");
 
 	public static class AutocompleteFiles extends PathNode{
 		public final PathNode autocompleteJs = leaf("autocomplete.js");
 	}
 
 	public static class BootstrapFiles extends PathNode{
-		public final BootstrapCssFiles css = branch(BootstrapCssFiles.class, "css");
-		public final BootstrapFontsFiles fonts = branch(BootstrapFontsFiles.class, "fonts");
-		public final BootstrapJsFiles js = branch(BootstrapJsFiles.class, "js");
+		public final BootstrapCssFiles css = branch(BootstrapCssFiles::new, "css");
+		public final BootstrapFontsFiles fonts = branch(BootstrapFontsFiles::new, "fonts");
+		public final BootstrapJsFiles js = branch(BootstrapJsFiles::new, "js");
 	}
 
 	public static class BootstrapCssFiles extends PathNode{
@@ -92,7 +92,7 @@ public class DatarouterWebFiles extends PathNode{
 	}
 
 	public static class JeeAssetsFiles extends PathNode{
-		public final JeeAssetsMultipleSelectFiles multipleSelect = branch(JeeAssetsMultipleSelectFiles.class,
+		public final JeeAssetsMultipleSelectFiles multipleSelect = branch(JeeAssetsMultipleSelectFiles::new,
 				"multiple-select");
 	}
 
@@ -103,7 +103,7 @@ public class DatarouterWebFiles extends PathNode{
 	}
 
 	public static class JqueryFiles extends PathNode{
-		public final JqueryImagesFiles images = branch(JqueryImagesFiles.class, "images");
+		public final JqueryImagesFiles images = branch(JqueryImagesFiles::new, "images");
 		public final PathNode jqueryUiCss = leaf("jquery-ui.css");
 		public final PathNode jqueryUiJs = leaf("jquery-ui.js");
 		public final PathNode jqueryJs = leaf("jquery.js");
@@ -128,7 +128,7 @@ public class DatarouterWebFiles extends PathNode{
 	}
 
 	public static class JqueryFloatThread203Files extends PathNode{
-		public final JqueryFloatThread203JsFiles js = branch(JqueryFloatThread203JsFiles.class, "js");
+		public final JqueryFloatThread203JsFiles js = branch(JqueryFloatThread203JsFiles::new, "js");
 	}
 
 	public static class JqueryFloatThread203JsFiles extends PathNode{
@@ -136,7 +136,7 @@ public class DatarouterWebFiles extends PathNode{
 	}
 
 	public static class JsFiles extends PathNode{
-		public final JsUtilFiles util = branch(JsUtilFiles.class, "util");
+		public final JsUtilFiles util = branch(JsUtilFiles::new, "util");
 		public final PathNode accountManagerJs = leaf("accountManager.js");
 		public final PathNode coreCommonJs = leaf("core-common.js");
 	}
@@ -147,27 +147,28 @@ public class DatarouterWebFiles extends PathNode{
 	}
 
 	public static class JspFiles extends PathNode{
-		public final JspAdminFiles admin = branch(JspAdminFiles.class, "admin");
-		public final JspAuthenticationFiles authentication = branch(JspAuthenticationFiles.class, "authentication");
-		public final JspCssFiles css = branch(JspCssFiles.class, "css");
-		public final JspDocsFiles docs = branch(JspDocsFiles.class, "docs");
-		public final JspGenericFiles generic = branch(JspGenericFiles.class, "generic");
-		public final JspMenuFiles menu = branch(JspMenuFiles.class, "menu");
+		public final JspAdminFiles admin = branch(JspAdminFiles::new, "admin");
+		public final JspAuthenticationFiles authentication = branch(JspAuthenticationFiles::new, "authentication");
+		public final JspCssFiles css = branch(JspCssFiles::new, "css");
+		public final JspDocsFiles docs = branch(JspDocsFiles::new, "docs");
+		public final JspGenericFiles generic = branch(JspGenericFiles::new, "generic");
+		public final JspMenuFiles menu = branch(JspMenuFiles::new, "menu");
 	}
 
 	public static class JspAdminFiles extends PathNode{
-		public final JspAdminDatarouterFiles datarouter = branch(JspAdminDatarouterFiles.class, "datarouter");
+		public final JspAdminDatarouterFiles datarouter = branch(JspAdminDatarouterFiles::new, "datarouter");
 		public final PathNode deleteNodeDataJsp = leaf("deleteNodeData.jsp");
 		public final PathNode viewDatabeanJsp = leaf("viewDatabean.jsp");
 		public final PathNode viewNodeDataJsp = leaf("viewNodeData.jsp");
+		public final PathNode getNodeDataJsp = leaf("getNodeData.jsp");
 	}
 
 	public static class JspAdminDatarouterFiles extends PathNode{
 		public final PathNode datarouterMenuJsp = leaf("datarouterMenu.jsp");
 		public final JspAdminDatarouterExecutorsMonitoringFiles executorsMonitoring = branch(
-				JspAdminDatarouterExecutorsMonitoringFiles.class, "executorsMonitoring");
-		public final JspAdminDatarouterMemoryFiles memory = branch(JspAdminDatarouterMemoryFiles.class, "memory");
-		public final JspAdminDatarouterMemoryStatsFiles memoryStats = branch(JspAdminDatarouterMemoryStatsFiles.class,
+				JspAdminDatarouterExecutorsMonitoringFiles::new, "executorsMonitoring");
+		public final JspAdminDatarouterMemoryFiles memory = branch(JspAdminDatarouterMemoryFiles::new, "memory");
+		public final JspAdminDatarouterMemoryStatsFiles memoryStats = branch(JspAdminDatarouterMemoryStatsFiles::new,
 				"memoryStats");
 		public final PathNode routerSummaryJsp = leaf("routerSummary.jsp");
 		public final PathNode thresholdSettingsJsp = leaf("thresholdSettings.jsp");//TODO move to webapp-utils
@@ -224,7 +225,7 @@ public class DatarouterWebFiles extends PathNode{
 
 
 	public static class RequirejsFiles extends PathNode{
-		public final RequirejsPluginsFiles plugins = branch(RequirejsPluginsFiles.class, "plugins");
+		public final RequirejsPluginsFiles plugins = branch(RequirejsPluginsFiles::new, "plugins");
 		public final PathNode requireJs = leaf("require.js");
 	}
 

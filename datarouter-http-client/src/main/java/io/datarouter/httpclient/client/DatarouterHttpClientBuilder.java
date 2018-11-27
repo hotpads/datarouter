@@ -18,6 +18,7 @@ package io.datarouter.httpclient.client;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.time.Duration;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -43,7 +44,8 @@ import io.datarouter.httpclient.security.DefaultSignatureValidator;
 
 public class DatarouterHttpClientBuilder{
 
-	private static final int DEFAULT_TIMEOUT_MS = 3000;
+	public static final Duration DEFAULT_TIMEOUT = Duration.ofSeconds(3);
+
 	private static final int DEFAULT_MAX_TOTAL_CONNECTION = 100;
 	private static final int DEFAULT_MAX_CONNECTION_PER_ROUTE = 100;
 
@@ -63,7 +65,7 @@ public class DatarouterHttpClientBuilder{
 
 	public DatarouterHttpClientBuilder(){
 		this.retryHandler = new DatarouterHttpRetryHandler();
-		this.timeoutMs = DEFAULT_TIMEOUT_MS;
+		this.timeoutMs = (int)DEFAULT_TIMEOUT.toMillis();
 		this.maxTotalConnections = DEFAULT_MAX_TOTAL_CONNECTION;
 		this.maxConnectionsPerRoute = DEFAULT_MAX_CONNECTION_PER_ROUTE;
 		this.httpClientBuilder = HttpClientBuilder.create()
@@ -115,7 +117,7 @@ public class DatarouterHttpClientBuilder{
 		if(jsonSerializer == null){
 			jsonSerializer = new GsonJsonSerializer();
 		}
-		return new DatarouterHttpClient(builtHttpClient, this.jsonSerializer, this.signatureValidator,
+		return new StandardDatarouterHttpClient(builtHttpClient, this.jsonSerializer, this.signatureValidator,
 				this.csrfValidator, this.apiKeySupplier, this.config, connectionManager);
 	}
 
@@ -167,8 +169,8 @@ public class DatarouterHttpClientBuilder{
 		return this;
 	}
 
-	public DatarouterHttpClientBuilder setTimeoutMs(int timeoutMs){
-		this.timeoutMs = timeoutMs;
+	public DatarouterHttpClientBuilder setTimeout(Duration timeout){
+		this.timeoutMs = (int)timeout.toMillis();
 		return this;
 	}
 
@@ -191,4 +193,5 @@ public class DatarouterHttpClientBuilder{
 		this.validateAfterInactivityMs = Optional.of(validateAfterInactivityMs);
 		return this;
 	}
+
 }

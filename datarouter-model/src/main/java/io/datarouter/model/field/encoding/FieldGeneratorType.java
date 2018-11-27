@@ -16,21 +16,19 @@
 package io.datarouter.model.field.encoding;
 
 public enum FieldGeneratorType{
-
 	NONE(false),
 	MANAGED(true),
-	RANDOM(true)
+	RANDOM(true),
 	;
-
 
 	private final boolean generated;
 
-	private FieldGeneratorType(boolean generated){
+	FieldGeneratorType(boolean generated){
 		this.generated = generated;
 	}
-
 
 	public boolean isGenerated(){
 		return generated;
 	}
+
 }

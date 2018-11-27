@@ -25,8 +25,6 @@ public class UInt15Field extends BasePrimitiveField<Short>{
 		super(key, value);
 	}
 
-	/*********************** StringEncodedField ***********************/
-
 	@Override
 	public String getStringEncodedValue(){
 		if(value == null){
@@ -42,8 +40,6 @@ public class UInt15Field extends BasePrimitiveField<Short>{
 		}
 		return Short.valueOf(str);
 	}
-
-	/*********************** ByteEncodedField ***********************/
 
 	@Override
 	public byte[] getBytes(){

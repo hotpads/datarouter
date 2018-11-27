@@ -38,7 +38,7 @@ public interface MultiIndexReader<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
 		IK extends PrimaryKey<IK>,
-		IE extends MultiIndexEntry<IK, IE, PK, D>>
+		IE extends MultiIndexEntry<IK,IE,PK,D>>
 extends IndexReader<PK,D,IK,IE>{
 
 	List<D> lookupMulti(IK indexKey, Config config);

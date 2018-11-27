@@ -29,7 +29,8 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
-import java.util.Arrays;
+import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.stream.Stream;
@@ -53,6 +54,7 @@ import org.opensaml.core.xml.schema.XSString;
 import org.opensaml.messaging.context.MessageContext;
 import org.opensaml.messaging.decoder.MessageDecodingException;
 import org.opensaml.messaging.encoder.MessageEncodingException;
+import org.opensaml.messaging.handler.MessageHandler;
 import org.opensaml.messaging.handler.MessageHandlerException;
 import org.opensaml.messaging.handler.impl.BasicMessageHandlerChain;
 import org.opensaml.saml.common.SAMLObject;
@@ -102,8 +104,8 @@ import net.shibboleth.utilities.java.support.component.ComponentInitializationEx
 import net.shibboleth.utilities.java.support.security.RandomIdentifierGenerationStrategy;
 
 public class SamlTool{
-
 	private static final Logger logger = LoggerFactory.getLogger(SamlTool.class);
+
 	private static final RandomIdentifierGenerationStrategy secureRandomIdGenerator =
 			new RandomIdentifierGenerationStrategy();
 
@@ -209,7 +211,7 @@ public class SamlTool{
 		// handler to check timing
 		MessageLifetimeSecurityHandler lifetimeSecurityHandler = new MessageLifetimeSecurityHandler();
 		lifetimeSecurityHandler.setClockSkew(1000);
-		lifetimeSecurityHandler.setMessageLifetime(2000);
+		lifetimeSecurityHandler.setMessageLifetime(Duration.ofMinutes(1).toMillis());
 		lifetimeSecurityHandler.setRequiredRule(true);
 
 		// handler to check that this is the right destination
@@ -217,8 +219,11 @@ public class SamlTool{
 		receivedEndpointSecurityHandler.setHttpServletRequest(request);
 
 		// run handlers
+		List<MessageHandler<SAMLObject>> handlers = new ArrayList<>();
+		handlers.add(lifetimeSecurityHandler);
+		handlers.add(receivedEndpointSecurityHandler);
 		BasicMessageHandlerChain<SAMLObject> handlerChain = new BasicMessageHandlerChain<>();
-		handlerChain.setHandlers(Arrays.asList(lifetimeSecurityHandler, receivedEndpointSecurityHandler));
+		handlerChain.setHandlers(handlers);
 		try{
 			handlerChain.initialize();
 			handlerChain.doInvoke(context);

@@ -176,7 +176,7 @@ public class ByteTool{
 		return null;
 	}
 
-	/************************* byte arrays ************************************/
+	/*------------------------- byte arrays ---------------------------------*/
 
 	public static byte[] concatenate(byte[]... ins){
 		if(ins == null){
@@ -205,7 +205,7 @@ public class ByteTool{
 		return out;
 	}
 
-	/************************* serialize ****************************************/
+	/*------------------------- serialize -----------------------------------*/
 
 	public static byte[] getUInt7Bytes(List<Byte> values){
 		if(CollectionTool.isEmpty(values)){
@@ -228,7 +228,7 @@ public class ByteTool{
 		return copyOfRange(bytes, offset, length);
 	}
 
-	/************************* tests ***********************************************/
+	/*------------------------- tests ---------------------------------------*/
 
 	public static class Tests{
 		@Test

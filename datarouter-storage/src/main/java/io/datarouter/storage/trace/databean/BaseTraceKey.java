@@ -41,7 +41,7 @@ extends BaseEntityPrimaryKey<EK,PK>{
 		return entityKey;
 	}
 
-	public Long getId(){
+	public String getId(){
 		return entityKey.getTraceEntityId();
 	}
 

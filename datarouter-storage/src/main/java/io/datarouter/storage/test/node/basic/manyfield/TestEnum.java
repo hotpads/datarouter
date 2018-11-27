@@ -15,7 +15,6 @@
  */
 package io.datarouter.storage.test.node.basic.manyfield;
 
-
 import io.datarouter.util.enums.DatarouterEnumTool;
 import io.datarouter.util.enums.IntegerEnum;
 import io.datarouter.util.enums.StringEnum;
@@ -27,16 +26,13 @@ public enum TestEnum implements IntegerEnum<TestEnum>, StringEnum<TestEnum>{
 	beast(21, "beast"),
 	fish(22, "fish");
 
-	int persistentInteger;
-	String persistentString;
+	private final int persistentInteger;
+	private final String persistentString;
 
-	private TestEnum(int persistentInteger, String persistentString){
+	TestEnum(int persistentInteger, String persistentString){
 		this.persistentInteger = persistentInteger;
 		this.persistentString = persistentString;
 	}
-
-
-	/***************************** IntegerEnum methods ******************************/
 
 	@Override
 	public Integer getPersistentInteger(){
@@ -47,9 +43,6 @@ public enum TestEnum implements IntegerEnum<TestEnum>, StringEnum<TestEnum>{
 	public TestEnum fromPersistentInteger(Integer input){
 		return DatarouterEnumTool.getEnumFromInteger(values(), input, null);
 	}
-
-
-	/****************************** StringEnum methods *********************************/
 
 	@Override
 	public String getPersistentString(){

@@ -43,4 +43,5 @@ public class QueueMessage<PK extends PrimaryKey<PK>,D extends Databean<PK,D>> ex
 		}
 		return databeans;
 	}
+
 }

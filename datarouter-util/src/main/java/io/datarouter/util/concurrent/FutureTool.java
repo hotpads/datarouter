@@ -38,7 +38,7 @@ import io.datarouter.util.number.NumberTool;
 public class FutureTool{
 	private static final Logger logger = LoggerFactory.getLogger(FutureTool.class);
 
-	/********************* multiple of different types ************/
+	/*------------------------- multiple of different types -----------------*/
 
 	public static List<Future<?>> submitAllVaried(Collection<Callable<?>> callables, ExecutorService executorService){
 		List<Future<?>> futures = new ArrayList<>();
@@ -56,7 +56,7 @@ public class FutureTool{
 		return outs;
 	}
 
-	/******************* handle multiple *************************/
+	/*------------------------- handle multiple -----------------------------*/
 
 	public static <T> List<T> submitAndGetAll(Collection<? extends Callable<T>> callables,
 			ExecutorService executorService){
@@ -96,7 +96,7 @@ public class FutureTool{
 		}
 	}
 
-	/********************* singles *****************************/
+	/*------------------------- singles -------------------------------------*/
 
 	public static <T> T submitAndGet(Callable<T> callable, ExecutorService executorService, Optional<Duration> timeout){
 		if(timeout.isPresent()){

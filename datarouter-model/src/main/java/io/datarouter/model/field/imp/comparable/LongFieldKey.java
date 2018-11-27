@@ -41,4 +41,5 @@ public class LongFieldKey extends PrimitiveFieldKey<Long>{
 	public LongField createValueField(final Long value){
 		return new LongField(this, value);
 	}
+
 }

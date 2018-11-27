@@ -18,15 +18,17 @@ package io.datarouter.web.config;
 import java.util.Set;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
-import io.datarouter.storage.setting.Setting;
 import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.storage.setting.SettingRoot;
+import io.datarouter.storage.setting.cached.CachedSetting;
 import io.datarouter.util.collection.SetTool;
 
+@Singleton
 public class DatarouterWebSettings extends SettingRoot{
 
-	public final Setting<Set<String>> stackTraceHighlights;
+	public final CachedSetting<Set<String>> stackTraceHighlights;
 
 	@Inject
 	public DatarouterWebSettings(SettingFinder finder){

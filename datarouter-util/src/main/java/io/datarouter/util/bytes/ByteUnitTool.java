@@ -51,7 +51,8 @@ public class ByteUnitTool{
 		return ByteUnitType.PB.getNumBytesDisplay(sizeInBytes);
 	}
 
-	/** tests *********************************************************************************************************/
+	/*------------------------- tests ---------------------------------------*/
+
 	public static class ByteUnitToolTests{
 		@Test
 		public void testFileSizeUnit(){

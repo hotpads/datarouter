@@ -79,7 +79,9 @@ public class Params{
 	}
 
 	public Long optionalLongEmptySafe(String key, Long defaultValue){
-		return optional(key).filter(str -> !StringTool.isNullOrEmptyOrWhitespace(str)).map(Long::valueOf)
+		return optional(key)
+				.filter(StringTool::notNullNorEmptyNorWhitespace)
+				.map(Long::valueOf)
 				.orElse(defaultValue);
 	}
 
@@ -94,7 +96,9 @@ public class Params{
 	}
 
 	public Integer optionalInteger(String key, Integer defaultValue){
-		return optional(key).filter(str -> !StringTool.isNullOrEmptyOrWhitespace(str)).map(Integer::valueOf)
+		return optional(key)
+				.filter(StringTool::notNullNorEmptyNorWhitespace)
+				.map(Integer::valueOf)
 				.orElse(defaultValue);
 	}
 
@@ -170,7 +174,7 @@ public class Params{
 		return paramsMap;
 	}
 
-	/**************************** fancier methods *************************/
+	/*--------------------------- fancier methods ---------------------------*/
 
 	public DatarouterSession getSession(){
 		return getSession(request);
@@ -180,7 +184,7 @@ public class Params{
 		return (DatarouterSession) request.getAttribute("datarouterSession");
 	}
 
-	/***************************** get/set **********************************/
+	/*--------------------------- get/set -----------------------------------*/
 
 	public HttpServletRequest getRequest(){
 		return request;

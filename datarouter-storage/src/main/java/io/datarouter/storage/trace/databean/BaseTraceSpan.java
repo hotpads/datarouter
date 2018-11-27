@@ -16,7 +16,6 @@
 package io.datarouter.storage.trace.databean;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 
 import io.datarouter.instrumentation.trace.TraceSpanDto;
@@ -30,35 +29,38 @@ import io.datarouter.model.field.imp.positive.UInt63Field;
 import io.datarouter.model.field.imp.positive.UInt63FieldKey;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
 import io.datarouter.model.serialize.fielder.Fielder;
+import io.datarouter.model.util.CommonFieldSizes;
 
 public abstract class BaseTraceSpan<
 		EK extends BaseTraceEntityKey<EK>,
 		PK extends BaseTraceSpanKey<EK,PK>,
-		D extends BaseTraceSpan<EK,PK,D>>
+		TK extends BaseTraceThreadKey<EK,TK>,
+		D extends BaseTraceSpan<EK,PK,TK,D>>
 extends BaseDatabean<PK,D>{
 
 	protected PK key;
+
 	protected Integer parentSequence;
 	protected String name;
 	protected Long created;
 	protected Long duration;
 	protected String info;
 	protected Long nanoStart;
-	protected Long durationNano;
 
 	public static class FieldKeys{
 		public static final UInt31FieldKey parentSequence = new UInt31FieldKey("parentSequence");
-		public static final StringFieldKey name = new StringFieldKey("name");
+		public static final StringFieldKey name = new StringFieldKey("name")
+				.withSize(CommonFieldSizes.MAX_LENGTH_TEXT);
 		public static final StringFieldKey info = new StringFieldKey("info");
 		public static final UInt63FieldKey created = new UInt63FieldKey("created");
 		public static final UInt63FieldKey duration = new UInt63FieldKey("duration");
-		public static final UInt63FieldKey durationNano = new UInt63FieldKey("durationNano");
 	}
 
 	public static class BaseTraceSpanFielder<
 			EK extends BaseTraceEntityKey<EK>,
 			PK extends BaseTraceSpanKey<EK,PK>,
-			D extends BaseTraceSpan<EK,PK,D>>
+			TK extends BaseTraceThreadKey<EK,TK>,
+			D extends BaseTraceSpan<EK,PK,TK,D>>
 	extends BaseDatabeanFielder<PK,D>{
 
 		protected BaseTraceSpanFielder(Class<? extends Fielder<PK>> primaryKeyFielderClass){
@@ -72,8 +74,7 @@ extends BaseDatabean<PK,D>{
 					new StringField(FieldKeys.name, traceSpan.getName()),
 					new StringField(FieldKeys.info, traceSpan.getInfo()),
 					new UInt63Field(FieldKeys.created, traceSpan.getCreated()),
-					new UInt63Field(FieldKeys.duration, traceSpan.getDuration()),
-					new UInt63Field(FieldKeys.durationNano, traceSpan.getDurationNano()));
+					new UInt63Field(FieldKeys.duration, traceSpan.getDuration()));
 		}
 	}
 
@@ -82,19 +83,12 @@ extends BaseDatabean<PK,D>{
 	public BaseTraceSpan(){
 	}
 
-	public BaseTraceSpan(Integer parentSequence){
-		this.parentSequence = parentSequence;
-		this.created = System.currentTimeMillis();
-		this.nanoStart = System.nanoTime();
-	}
-
 	public BaseTraceSpan(TraceSpanDto dto){
-		this.parentSequence = dto.parentSequence;
-		this.name = dto.name;
-		this.info = dto.info;
-		this.created = dto.created;
-		this.duration = dto.duration;
-		this.durationNano = dto.durationNano;
+		this.parentSequence = dto.getParentSequence();
+		this.name = dto.getName();
+		this.info = dto.getInfo();
+		this.created = dto.getCreated();
+		this.duration = dto.getDuration();
 	}
 
 	/*------------------------------- methods -------------------------------*/
@@ -104,23 +98,8 @@ extends BaseDatabean<PK,D>{
 		return key + "[" + name + "][" + info + "]";
 	}
 
-	public void markFinish(){
-		this.duration = System.currentTimeMillis() - this.created;
-		this.durationNano = System.nanoTime() - this.nanoStart;
-	}
-
 	public boolean isTopLevel(){
 		return this.parentSequence == null;
-	}
-
-	public static <EK extends BaseTraceEntityKey<EK>,
-			PK extends BaseTraceSpanKey<EK,PK>,
-			D extends BaseTraceSpan<EK,PK,D>>
-	Long totalDurationOfNonChildren(Collection<D> spans){
-		return spans.stream()
-				.filter(BaseTraceSpan::isTopLevel)
-				.mapToLong(BaseTraceSpan::getDuration)
-				.sum();
 	}
 
 	/*------------------------------- get/set -------------------------------*/
@@ -158,7 +137,7 @@ extends BaseDatabean<PK,D>{
 		return key.getThreadId();
 	}
 
-	public Long getTraceId(){
+	public String getTraceId(){
 		return key.getEntityKey().getTraceEntityId();
 	}
 
@@ -168,14 +147,6 @@ extends BaseDatabean<PK,D>{
 
 	public void setDuration(Long duration){
 		this.duration = duration;
-	}
-
-	public Long getDurationNano(){
-		return durationNano;
-	}
-
-	public void setDurationNano(Long durationNano){
-		this.durationNano = durationNano;
 	}
 
 	public Integer getParentSequence(){
@@ -189,5 +160,7 @@ extends BaseDatabean<PK,D>{
 	public void setInfo(String info){
 		this.info = info;
 	}
+
+	public abstract TK getThreadKey();
 
 }

@@ -15,9 +15,15 @@
  */
 package io.datarouter.web.user.session.service;
 
+import java.util.Date;
+
 public interface Session{
 
 	String getSessionToken();
 	String getUserToken();
+	Long getUserId();
+	String getUsername();
+	Date getCreated();
+	Date getUpdated();
 
 }

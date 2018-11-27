@@ -36,13 +36,14 @@ import io.datarouter.util.enums.StringEnum;
 
 public class DatarouterPermissionRequest
 extends BaseDatabean<DatarouterPermissionRequestKey,DatarouterPermissionRequest>{
+
 	private DatarouterPermissionRequestKey key;
 	private String requestText;
 	private DatarouterPermissionRequestResolution resolution;
 	private Date resolutionTime;
 
-	public static final Comparator<DatarouterPermissionRequest> reverseChronologicalComparator = Comparator.comparing(
-			(DatarouterPermissionRequest request) -> request.getKey().getRequestTime()).reversed();
+	public static final Comparator<DatarouterPermissionRequest> REVERSE_CHRONOLOGICAL_COMPARATOR = Comparator
+			.comparing(request -> request.getKey().getRequestTime(), Comparator.reverseOrder());
 
 	public DatarouterPermissionRequest(){
 		this.key = new DatarouterPermissionRequestKey();
@@ -57,8 +58,8 @@ extends BaseDatabean<DatarouterPermissionRequestKey,DatarouterPermissionRequest>
 	}
 
 	public static class FieldKeys{
-		public static final StringFieldKey requestText = new StringFieldKey("requestText").withSize(CommonFieldSizes
-				.MAX_LENGTH_TEXT);
+		public static final StringFieldKey requestText = new StringFieldKey("requestText")
+				.withSize(CommonFieldSizes.MAX_LENGTH_TEXT);
 		public static final StringEnumFieldKey<DatarouterPermissionRequestResolution> resolution =
 				new StringEnumFieldKey<>("resolution", DatarouterPermissionRequestResolution.class);
 		public static final DateFieldKey resolutionTime = new DateFieldKey("resolutionTime");
@@ -143,7 +144,7 @@ extends BaseDatabean<DatarouterPermissionRequestKey,DatarouterPermissionRequest>
 
 		private final String persistentString;
 
-		private DatarouterPermissionRequestResolution(String persistentString){
+		DatarouterPermissionRequestResolution(String persistentString){
 			this.persistentString = persistentString;
 		}
 

@@ -23,9 +23,9 @@ import io.datarouter.model.entity.Entity;
 import io.datarouter.model.key.entity.EntityKey;
 import io.datarouter.model.key.primary.EntityPrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
-import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.Client;
 import io.datarouter.storage.client.ClientTableNodeNames;
+import io.datarouter.storage.client.DatarouterClients;
 import io.datarouter.storage.serialize.fieldcache.EntityFieldInfo;
 
 public abstract class BasePhysicalEntityNode<
@@ -34,28 +34,32 @@ public abstract class BasePhysicalEntityNode<
 extends BaseEntityNode<EK,E>
 implements PhysicalEntityNode<EK,E>{
 
-	protected EntityFieldInfo<EK,E> entityFieldInfo;
-	private ClientTableNodeNames clientTableNodeNames;//currently acting as a cache of superclass fields
-	private Map<String,SubEntitySortedMapStorageReaderNode<EK,?,?,?>> nodeByQualifierPrefix;
+	protected final EntityFieldInfo<EK,E> entityFieldInfo;
+	private final ClientTableNodeNames clientTableNodeNames;//currently acting as a cache of superclass fields
+	private final Map<String,SubEntitySortedMapStorageReaderNode<EK,?,?,?>> nodeByQualifierPrefix;
+	private final DatarouterClients datarouterClients;
 
-	public BasePhysicalEntityNode(Datarouter datarouter, EntityNodeParams<EK,E> entityNodeParams,
+	public BasePhysicalEntityNode(DatarouterClients datarouterClients, EntityNodeParams<EK,E> entityNodeParams,
 			ClientTableNodeNames clientTableNodeNames){
-		super(datarouter, clientTableNodeNames.getNodeName());
+		super(clientTableNodeNames.getNodeName());
+		this.datarouterClients = datarouterClients;
 		this.entityFieldInfo = new EntityFieldInfo<>(entityNodeParams);
 		this.clientTableNodeNames = clientTableNodeNames;
 		this.nodeByQualifierPrefix = new HashMap<>();
 	}
 
 	@Override
-	public <PK extends EntityPrimaryKey<EK,PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>> void register(
-			SubEntitySortedMapStorageReaderNode<EK,PK,D,F> subEntityNode){
+	public <PK extends EntityPrimaryKey<EK,PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>>
+	void register(SubEntitySortedMapStorageReaderNode<EK,PK,D,F> subEntityNode){
 		super.register(subEntityNode);
 		nodeByQualifierPrefix.put(subEntityNode.getEntityNodePrefix(), subEntityNode);
 	}
 
 	@Override
 	public Client getClient(){
-		return getContext().getClientPool().getClient(getClientName());
+		return datarouterClients.getClient(getClientName());
 	}
 
 	@Override

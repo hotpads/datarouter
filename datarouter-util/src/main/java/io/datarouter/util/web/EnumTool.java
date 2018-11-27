@@ -22,13 +22,14 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import io.datarouter.util.enums.DatarouterEnumTool;
 import io.datarouter.util.enums.Displayable;
 import io.datarouter.util.enums.DisplayablePersistentString;
-import io.datarouter.util.enums.PersistentString;
 import io.datarouter.util.enums.StringEnum;
 import io.datarouter.util.string.StringTool;
 
@@ -60,41 +61,20 @@ public class EnumTool{
 		if(display == null){
 			return defaultEnum;
 		}
-		for(T type : values){
-			if(type.getDisplay().equalsIgnoreCase(display)){
-				return type;
-			}
-		}
-		return defaultEnum;
+		return Stream.of(values)
+				.filter(type -> type.getDisplay().equalsIgnoreCase(display))
+				.findFirst()
+				.orElse(defaultEnum);
 	}
 
 	public static <T extends Enum<?>> T getEnumFromName(T[] values, String name, T defaultEnum){
 		if(name == null){
 			return defaultEnum;
 		}
-		for(T type : values){
-			if(type.name().equalsIgnoreCase(name)){
-				return type;
-			}
-		}
-		return defaultEnum;
-	}
-
-	public static <T extends PersistentString> T fromPersistentString(T[] types, String name){
-		return fromPersistentString(types, name, true);
-	}
-
-	public static <T extends PersistentString> T fromPersistentString(T[] types, String name, boolean caseSensitive){
-		if(name == null){
-			return null;
-		}
-		for(T t : types){
-			if(caseSensitive && name.equals(t.getPersistentString()) || !caseSensitive && name.equalsIgnoreCase(t
-					.getPersistentString())){
-				return t;
-			}
-		}
-		return null;
+		return Stream.of(values)
+				.filter(type -> type.name().equalsIgnoreCase(name))
+				.findFirst()
+				.orElse(defaultEnum);
 	}
 
 	public static <T extends StringEnum<T>> Set<T> getStringEnumFromFreeText(T[] values, String freeText){
@@ -126,7 +106,7 @@ public class EnumTool{
 
 
 	public static class EnumToolTests{
-		public enum Fruit implements DisplayablePersistentString, StringEnum<Fruit>{
+		private enum Fruit implements DisplayablePersistentString, StringEnum<Fruit>{
 			UNKNOWN("Unknown", "unknown"),
 			APPLE("Apple", "apple"),
 			BANANA("Banana", "banana"),
@@ -136,12 +116,12 @@ public class EnumTool{
 			FIG("Fig", "fig"),
 			GRAPE("Grape", "grape");
 
-			private String display;
-			private String var;
+			private final String display;
+			private final String persistentString;
 
-			private Fruit(String display, String varName){
+			Fruit(String display, String persistentString){
 				this.display = display;
-				this.var = varName;
+				this.persistentString = persistentString;
 			}
 
 			@Override
@@ -151,21 +131,12 @@ public class EnumTool{
 
 			@Override
 			public String getPersistentString(){
-				return var;
+				return persistentString;
 			}
 
 			@Override
 			public Fruit fromPersistentString(String text){
-				if(text == null || text.isEmpty()){
-					return null;
-				}
-				text = text.trim();
-				for(Fruit testEnum : values()){
-					if(testEnum.getPersistentString().equalsIgnoreCase(text)){
-						return testEnum;
-					}
-				}
-				return null;
+				return DatarouterEnumTool.getEnumFromString(values(), text, null, false);
 			}
 		}
 
@@ -193,20 +164,34 @@ public class EnumTool{
 
 		@Test
 		public void testGetHtmlSelectOptions(){
-			Assert.assertEquals(Fruit.values().length - 1, getHtmlSelectOptions(Fruit.values(),
-					Fruit.UNKNOWN.var).size());
-			Assert.assertEquals(Fruit.values().length - 2, getHtmlSelectOptions(Fruit.values(),
-					Fruit.UNKNOWN.var, Fruit.EFRUIT.var).size());
-			Assert.assertEquals(Fruit.values().length, getHtmlSelectOptions(Fruit.values()).size());
-			Assert.assertEquals(Fruit.values().length, getHtmlSelectOptions(Fruit.values(), (String)null).size());
+			Assert.assertEquals(getHtmlSelectOptions(Fruit.values(), Fruit.UNKNOWN.persistentString).size(), Fruit
+					.values().length - 1);
+			Assert.assertEquals(getHtmlSelectOptions(Fruit.values(), Fruit.UNKNOWN.persistentString,
+					Fruit.EFRUIT.persistentString).size(), Fruit.values().length - 2);
+			Assert.assertEquals(getHtmlSelectOptions(Fruit.values()).size(), Fruit.values().length);
+			Assert.assertEquals(getHtmlSelectOptions(Fruit.values(), (String)null).size(), Fruit.values().length);
 		}
 
 		@Test
 		public void testFromPersistentString(){
-			Assert.assertEquals(Fruit.FIG, fromPersistentString(Fruit.values(), "fig"));
-			Assert.assertNull(fromPersistentString(Fruit.values(), "FIG"));
-			Assert.assertNull(fromPersistentString(Fruit.values(), "fiG", true));
-			Assert.assertEquals(Fruit.FIG, fromPersistentString(Fruit.values(), "fiG", false));
+			Assert.assertEquals(DatarouterEnumTool.getEnumFromString(Fruit.values(), "fig", null), Fruit.FIG);
+			Assert.assertNull(DatarouterEnumTool.getEnumFromString(Fruit.values(), "FIG", null));
+			Assert.assertNull(DatarouterEnumTool.getEnumFromString(Fruit.values(), "fiG", null, true));
+			Assert.assertEquals(DatarouterEnumTool.getEnumFromString(Fruit.values(), "fiG", null, false), Fruit.FIG);
+		}
+
+		@Test
+		public void testGetEnumFromName(){
+			Assert.assertEquals(getEnumFromName(Fruit.values(), "fig", Fruit.UNKNOWN), Fruit.FIG);
+			Assert.assertEquals(getEnumFromName(Fruit.values(), "pineapple", Fruit.UNKNOWN), Fruit.UNKNOWN);
+			Assert.assertEquals(getEnumFromName(Fruit.values(), "fiG", Fruit.UNKNOWN), Fruit.FIG);
+		}
+
+		@Test
+		public void testGetEnumFromDisplay(){
+			Assert.assertEquals(getEnumFromDisplay(Fruit.values(), "fig", Fruit.UNKNOWN), Fruit.FIG);
+			Assert.assertEquals(getEnumFromDisplay(Fruit.values(), "pineapple", Fruit.UNKNOWN), Fruit.UNKNOWN);
+			Assert.assertEquals(getEnumFromDisplay(Fruit.values(), "fiG", Fruit.UNKNOWN), Fruit.FIG);
 		}
 	}
 

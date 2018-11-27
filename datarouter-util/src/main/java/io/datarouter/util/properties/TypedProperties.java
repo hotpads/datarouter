@@ -43,7 +43,7 @@ public class TypedProperties{
 	}
 
 
-	/********************* defaultable ******************************/
+	/*------------------------- defaultable ---------------------------------*/
 
 	public String getString(String key, String def){
 		String val = getString(key);
@@ -58,7 +58,7 @@ public class TypedProperties{
 		return Optional.ofNullable(getString(key));
 	}
 
-	/*************** typed **********************/
+	/*------------------------- typed ---------------------------------------*/
 
 	public Boolean getBoolean(String key, boolean def){
 		Boolean val = getBoolean(key);
@@ -129,7 +129,7 @@ public class TypedProperties{
 		return new InetSocketAddress(hostname, port);
 	}
 
-	/***************** required **********************************/
+	/*------------------------- required ------------------------------------*/
 
 	public String getRequiredString(String key){
 		String str = getString(key);
@@ -139,7 +139,7 @@ public class TypedProperties{
 		return str;
 	}
 
-	/****************** basic ************************************/
+	/*------------------------- basic ---------------------------------------*/
 
 	public List<Properties> getUnmodifiablePropertiesList(){
 		return Collections.unmodifiableList(propertiesList);

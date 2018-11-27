@@ -97,11 +97,6 @@ implements DatabeanFielder<PK,D>{
 	}
 
 	@Override
-	public boolean isVersioned(){
-		return false;
-	}
-
-	@Override
 	public Optional<Long> getTtlMs(){
 		return Optional.empty();
 	}

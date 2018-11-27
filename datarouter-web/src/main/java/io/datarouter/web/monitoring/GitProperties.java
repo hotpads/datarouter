@@ -17,9 +17,10 @@ package io.datarouter.web.monitoring;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
+import java.util.Optional;
 import java.util.Properties;
 
 import javax.inject.Singleton;
@@ -27,9 +28,20 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.util.time.LocalDateTimeTool;
+
 @Singleton
 public class GitProperties{
 	private static final Logger logger = LoggerFactory.getLogger(GitProperties.class);
+
+	public static final String UNKNOWN_STRING = "unknown";
+
+	public static final LocalDateTime UNKNOWN_DATE = LocalDateTimeTool.minParsableDate();
+
+	private static final DateTimeFormatter FORMAT = new DateTimeFormatterBuilder()
+			.append(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+			.appendOffset("+HHmm", "")
+			.toFormatter();
 
 	private static final String
 			GIT_BRANCH = "git.branch",
@@ -40,16 +52,15 @@ public class GitProperties{
 			GIT_BUILD_TIME = "git.build.time",
 			GIT_TAGS = "git.tags";
 
-	private static final SimpleDateFormat dateParser = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
-
 	private Properties properties;
 
 	public GitProperties(){
 		ClassLoader classLoader = getClass().getClassLoader();
 		try(InputStream resourceAsStream = classLoader.getResourceAsStream("git.properties")){
 			if(resourceAsStream == null){
-				logger.error(
-						"file \"git.properties\" not found. Try to run an eclipse maven update or a full mvn package");
+				logger.warn("file \"git.properties\" not found, run an eclipse maven update or a full mvn package. "
+						+ "Using default values");
+				properties = new Properties();
 			}else{
 				load(resourceAsStream);
 			}
@@ -71,39 +82,37 @@ public class GitProperties{
 		}
 	}
 
-	public String getBranch(){
-		return properties.getProperty(GIT_BRANCH);
+	public Optional<String> getBranch(){
+		return Optional.ofNullable(properties.getProperty(GIT_BRANCH));
 	}
 
-	public String getIdAbbrev(){
-		return properties.getProperty(GIT_COMMIT_ID_ABBREV);
+	public Optional<String> getIdAbbrev(){
+		return Optional.ofNullable(properties.getProperty(GIT_COMMIT_ID_ABBREV));
 	}
 
-	public String getDescribeShort(){
-		return properties.getProperty(GIT_COMMIT_ID_DESCRIBE_SHORT);
+	public Optional<String> getDescribeShort(){
+		return Optional.ofNullable(properties.getProperty(GIT_COMMIT_ID_DESCRIBE_SHORT));
 	}
 
-	public Date getCommitTime(){
-		try{
-			return dateParser.parse(properties.getProperty(GIT_COMMIT_TIME));
-		}catch(ParseException e){
-			throw new RuntimeException(e);
-		}
+	public Optional<LocalDateTime> getCommitTime(){
+		return getDateProperty(GIT_COMMIT_TIME);
 	}
 
-	public String getCommitUserName(){
-		return properties.getProperty(GIT_COMMIT_USER_NAME);
+	public Optional<String> getCommitUserName(){
+		return Optional.ofNullable(properties.getProperty(GIT_COMMIT_USER_NAME));
 	}
 
-	public Date getBuildTime(){
-		try{
-			return dateParser.parse(properties.getProperty(GIT_BUILD_TIME));
-		}catch(ParseException e){
-			throw new RuntimeException(e);
-		}
+	public Optional<LocalDateTime> getBuildTime(){
+		return getDateProperty(GIT_BUILD_TIME);
 	}
 
-	public String getTags(){
-		return properties.getProperty(GIT_TAGS);
+	public Optional<String> getTags(){
+		return Optional.ofNullable(properties.getProperty(GIT_TAGS));
 	}
+
+	private Optional<LocalDateTime> getDateProperty(String propertyName){
+		return Optional.ofNullable(properties.getProperty(propertyName))
+				.map(value -> LocalDateTime.parse(value, FORMAT));
+	}
+
 }

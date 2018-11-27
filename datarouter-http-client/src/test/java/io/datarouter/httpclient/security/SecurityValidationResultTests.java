@@ -51,4 +51,5 @@ public class SecurityValidationResultTests{
 		Assert.assertNull(SecurityValidationResult.success(request).getFailureMessage());
 		Assert.assertFalse(SecurityValidationResult.failure(request).isSuccess());
 	}
+
 }

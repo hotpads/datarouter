@@ -29,7 +29,7 @@ public class GuiceTool{
 
 	public static <T> Map<String,T> getInstancesOfType(Injector injector, Class<T> type){
 		Map<String,T> instances = new HashMap<>();
-		for(Entry<Key<?>, Binding<?>> bindingEntry : injector.getAllBindings().entrySet()){
+		for(Entry<Key<?>,Binding<?>> bindingEntry : injector.getAllBindings().entrySet()){
 			Class<?> bindedType = bindingEntry.getKey().getTypeLiteral().getRawType();
 			if(type.isAssignableFrom(bindedType)){
 				T instance = type.cast(bindingEntry.getValue().getProvider().get());

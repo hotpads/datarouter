@@ -52,7 +52,7 @@ implements MultiIndexNode<PK, D, IK, IE>{
 	//TODO need to watch out for offset/limit
 
 
-	/********************* IndexReader ******************************/
+	/*----------------------------- IndexReader -----------------------------*/
 
 	@Override
 	public List<D> lookupMulti(IK indexKey, Config config){
@@ -100,4 +100,5 @@ implements MultiIndexNode<PK, D, IK, IE>{
 	public Iterable<IK> scanKeysMulti(Collection<Range<IK>> range, Config config){
 		return indexNode.scanKeysMulti(range, config);
 	}
+
 }

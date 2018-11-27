@@ -15,8 +15,12 @@
  */
 package io.datarouter.instrumentation.exception;
 
+import io.datarouter.instrumentation.response.PublishingResponseDto;
+
 public interface ExceptionRecordPublisher{
 
-	void publish(ExceptionRecordDto exceptionRecordDto);
+	PublishingResponseDto addExceptionRecord(ExceptionRecordBatchDto exceptionRecordBatchDto);
+
+	PublishingResponseDto addHttpRequest(HttpRequestRecordBatchDto httpRecordRequestBatchDto);
 
 }

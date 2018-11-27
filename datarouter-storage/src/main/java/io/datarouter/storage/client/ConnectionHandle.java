@@ -38,8 +38,6 @@ public class ConnectionHandle{
 		this.numTickets = numTickets;
 	}
 
-	/**************************** methods ************************/
-
 	public int incrementNumTickets(){
 		return ++this.numTickets;
 	}
@@ -51,9 +49,6 @@ public class ConnectionHandle{
 	public boolean isOutermostHandle(){
 		return numTickets == OUTERMOST_TICKET_NUMBER;
 	}
-
-
-	/**************************** from Object ************************/
 
 	@Override
 	public String toString(){
@@ -106,8 +101,6 @@ public class ConnectionHandle{
 		}
 		return true;
 	}
-
-	/**************************** get/set *************************/
 
 	public String getClientName(){
 		return clientName;

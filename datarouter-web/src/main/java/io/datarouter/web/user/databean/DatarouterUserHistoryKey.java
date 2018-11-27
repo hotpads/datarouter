@@ -27,6 +27,7 @@ import io.datarouter.model.field.imp.comparable.LongFieldKey;
 import io.datarouter.model.key.primary.BasePrimaryKey;
 
 public class DatarouterUserHistoryKey extends BasePrimaryKey<DatarouterUserHistoryKey>{
+
 	private Long userId;
 	private Date time;
 
@@ -65,4 +66,5 @@ public class DatarouterUserHistoryKey extends BasePrimaryKey<DatarouterUserHisto
 	public void setTime(Date time){
 		this.time = time;
 	}
+
 }

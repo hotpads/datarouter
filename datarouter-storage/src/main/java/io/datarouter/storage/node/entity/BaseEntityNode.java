@@ -24,8 +24,6 @@ import io.datarouter.model.entity.Entity;
 import io.datarouter.model.key.entity.EntityKey;
 import io.datarouter.model.key.primary.EntityPrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
-import io.datarouter.storage.Datarouter;
-import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.storage.node.Node;
 
 public abstract class BaseEntityNode<
@@ -33,29 +31,21 @@ public abstract class BaseEntityNode<
 		E extends Entity<EK>>
 implements EntityNode<EK,E>{
 
-	protected final DatarouterProperties datarouterProperties;
-	private Datarouter datarouter;
 	private String name;
 	private List<Node<?,?,?>> subEntityNodes;
 
 
-	public BaseEntityNode(Datarouter datarouter, String name){
-		this.datarouterProperties = datarouter.getDatarouterProperties();
-		this.datarouter = datarouter;
+	public BaseEntityNode(String name){
 		this.name = name;
 		this.subEntityNodes = new ArrayList<>();
 	}
 
 	@Override
-	public <PK extends EntityPrimaryKey<EK,PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>> void register(
-			SubEntitySortedMapStorageReaderNode<EK,PK,D,F> subEntityNode){
+	public <PK extends EntityPrimaryKey<EK,PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>>
+	void register(SubEntitySortedMapStorageReaderNode<EK,PK,D,F> subEntityNode){
 		subEntityNodes.add(subEntityNode);
-	}
-
-
-	@Override
-	public Datarouter getContext(){
-		return datarouter;
 	}
 
 	@Override

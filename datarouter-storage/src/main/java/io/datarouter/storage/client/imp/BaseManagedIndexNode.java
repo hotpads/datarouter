@@ -29,14 +29,13 @@ import io.datarouter.util.tuple.Range;
 
 public class BaseManagedIndexNode
 		<PK extends PrimaryKey<PK>,
-		D extends Databean<PK, D>,
+		D extends Databean<PK,D>,
 		IK extends PrimaryKey<IK>,
-		IE extends IndexEntry<IK, IE, PK, D>,
-		IF extends DatabeanFielder<IK, IE>>
-extends BaseManagedNode<PK, D, IK, IE, IF>{
+		IE extends IndexEntry<IK,IE,PK,D>,
+		IF extends DatabeanFielder<IK,IE>>
+extends BaseManagedNode<PK,D,IK,IE,IF>{
 
-
-	public BaseManagedIndexNode(IndexedMapStorage<PK, D> node, NodeParams<IK, IE, IF> params, String name){
+	public BaseManagedIndexNode(IndexedMapStorage<PK,D> node, NodeParams<IK,IE,IF> params, String name){
 		super(node, params, name);
 	}
 

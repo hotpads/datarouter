@@ -29,6 +29,7 @@ import io.datarouter.util.array.ArrayTool;
  */
 public class IntegerByteTool{
 	private static final int NULL = Integer.MIN_VALUE;
+
 	/*
 	 * int32
 	 *
@@ -170,7 +171,7 @@ public class IntegerByteTool{
 		| bytes[startIdx + 3] & 0xff;
 	}
 
-	/************************ tests ***************************************/
+	/*------------------------- tests ---------------------------------------*/
 
 	public static class Tests{
 		//verify that -128 in bytes gets converted to -128 long.  Bitwise cast would be +128

@@ -19,6 +19,7 @@ import java.util.List;
 
 import io.datarouter.model.field.BaseListField;
 import io.datarouter.util.bytes.DoubleByteTool;
+import io.datarouter.util.serialization.GsonTool;
 
 public class DoubleArrayField extends BaseListField<Double,List<Double>>{
 
@@ -26,14 +27,10 @@ public class DoubleArrayField extends BaseListField<Double,List<Double>>{
 		super(key, value);
 	}
 
-	/*********************** StringEncodedField ******************************/
-
 	@Override
 	public List<Double> parseStringEncodedValueButDoNotSet(String value){
-		return gson.fromJson(value, getKey().getValueType());
+		return GsonTool.GSON.fromJson(value, getKey().getValueType());
 	}
-
-	/*********************** ByteEncodedField ********************************/
 
 	@Override
 	public byte[] getBytes(){
@@ -50,7 +47,6 @@ public class DoubleArrayField extends BaseListField<Double,List<Double>>{
 
 	@Override
 	public int numBytesWithSeparator(byte[] bytes, int byteOffset){
-		// TODO Auto-generated method stub
 		return 0;
 	}
 }

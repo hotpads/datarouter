@@ -66,9 +66,12 @@ public abstract class BaseSortedNodeIntegrationTests extends BaseSortedBeanInteg
 		//deleteMulti
 		Assert.assertEquals(IterableTool.count(sortedNode.scan(null, null)).intValue(), remainingElements);
 		List<SortedBeanKey> keys = Arrays.asList(
-			new SortedBeanKey(SortedBeans.STRINGS.last(), SortedBeans.STRINGS.last(), 1, SortedBeans.STRINGS.last()),
-			new SortedBeanKey(SortedBeans.STRINGS.last(), SortedBeans.STRINGS.last(), 2, SortedBeans.STRINGS.last()),
-			new SortedBeanKey(SortedBeans.STRINGS.last(), SortedBeans.STRINGS.last(), 3, SortedBeans.STRINGS.last()));
+				new SortedBeanKey(SortedBeans.STRINGS.last(), SortedBeans.STRINGS.last(), 1,
+						SortedBeans.STRINGS.last()),
+				new SortedBeanKey(SortedBeans.STRINGS.last(), SortedBeans.STRINGS.last(), 2,
+						SortedBeans.STRINGS.last()),
+				new SortedBeanKey(SortedBeans.STRINGS.last(), SortedBeans.STRINGS.last(), 3,
+						SortedBeans.STRINGS.last()));
 		sortedNode.deleteMulti(keys, null);
 		remainingElements -= 3;
 		Assert.assertEquals(IterableTool.count(sortedNode.scan(null, null)).intValue(), remainingElements);
@@ -166,6 +169,9 @@ public abstract class BaseSortedNodeIntegrationTests extends BaseSortedBeanInteg
 		int expectedSizeTotal = expectedSizeA + expectedSizeCh;
 		Assert.assertEquals(CollectionTool.size(result), expectedSizeTotal);
 		Assert.assertTrue(ListTool.isSorted(result));
+
+		long count = sortedNode.streamWithPrefixes(DatabeanTool.getKeys(allBeans), null).count();
+		Assert.assertEquals(count, allBeans.size());
 	}
 
 	@Test
@@ -215,7 +221,6 @@ public abstract class BaseSortedNodeIntegrationTests extends BaseSortedBeanInteg
 
 		int expectedSize1 = SortedBeans.RANGE_LENGTH_alp_emu_inc * SortedBeans.NUM_ELEMENTS * SortedBeans.NUM_ELEMENTS
 				* SortedBeans.NUM_ELEMENTS;
-//		logger.warn("expecting "+expectedSize1);
 		SortedBeanKey alp1 = new SortedBeanKey(SortedBeans.RANGE_alp, null, null, null);
 		SortedBeanKey emu1 = new SortedBeanKey(SortedBeans.RANGE_emu, null, null, null);
 		List<SortedBeanKey> result1 = IterableTool.asList(sortedNode.scanKeys(new Range<>(alp1, true, emu1, true),
@@ -225,21 +230,18 @@ public abstract class BaseSortedNodeIntegrationTests extends BaseSortedBeanInteg
 
 		int expectedSize1b = (SortedBeans.RANGE_LENGTH_alp_emu_inc - 1) * SortedBeans.NUM_ELEMENTS
 				* SortedBeans.NUM_ELEMENTS * SortedBeans.NUM_ELEMENTS;
-//		logger.warn("expecting "+expectedSize1b);
 		List<SortedBeanKey> result1b = IterableTool.asList(sortedNode.scanKeys(new Range<>(alp1, true, emu1, false),
 				smallIterateBatchSize));
 		Assert.assertEquals(CollectionTool.size(result1b), expectedSize1b);
 		Assert.assertTrue(ListTool.isSorted(result1b));
 
 		int expectedSize2 = SortedBeans.RANGE_LENGTH_alp_emu_inc * SortedBeans.NUM_ELEMENTS * SortedBeans.NUM_ELEMENTS;
-//		logger.warn("expecting "+expectedSize2);
 		SortedBeanKey alp2 = new SortedBeanKey(SortedBeans.STRINGS.first(), SortedBeans.RANGE_alp, null, null);
 		SortedBeanKey emu2 = new SortedBeanKey(SortedBeans.STRINGS.first(), SortedBeans.RANGE_emu, null, null);
 		List<SortedBeanKey> result2 = IterableTool.asList(sortedNode.scanKeys(new Range<>(alp2, true, emu2, true),
 				smallIterateBatchSize));
 		Assert.assertEquals(CollectionTool.size(result2), expectedSize2);
 		Assert.assertTrue(ListTool.isSorted(result2));
-//		logger.warn("finished incremental scan");
 	}
 
 	@Test
@@ -402,7 +404,8 @@ public abstract class BaseSortedNodeIntegrationTests extends BaseSortedBeanInteg
 		Range<SortedBeanKey> range2 = new Range<>(startKey2, endKey2);
 		Set<SortedBean> beans = sortedNode.streamMulti(Arrays.asList(range1, range2),
 				new Config().setIterateBatchSize(4)).collect(Collectors.toSet());
-		Set<SortedBean> expected = Stream.of(range1, range2).flatMap(range -> sortedNode.stream(range, null))
+		Set<SortedBean> expected = Stream.of(range1, range2)
+				.flatMap(range -> sortedNode.stream(range, null))
 				.collect(Collectors.toSet());
 		Assert.assertTrue(expected.size() > 0);
 		Assert.assertEquals(beans, expected);

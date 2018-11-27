@@ -17,11 +17,14 @@ package io.datarouter.web.user.databean;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
@@ -36,8 +39,9 @@ import io.datarouter.model.field.imp.comparable.BooleanFieldKey;
 import io.datarouter.model.key.unique.base.BaseStringUniqueKey;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
 import io.datarouter.model.util.CommonFieldSizes;
-import io.datarouter.util.enums.DatarouterEnumTool;
-import io.datarouter.web.user.role.DatarouterUserRole;
+import io.datarouter.util.collection.SetTool;
+import io.datarouter.util.iterable.IterableTool;
+import io.datarouter.web.user.session.service.Role;
 import io.datarouter.web.user.session.service.SessionBasedUser;
 
 public class DatarouterUser extends BaseDatabean<DatarouterUserKey,DatarouterUser> implements SessionBasedUser{
@@ -82,6 +86,7 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey,DatarouterUse
 					new DateField(FieldKeys.created, user.created),
 					new DateField(FieldKeys.lastLoggedIn, user.lastLoggedIn));
 		}
+
 		@Override
 		public Map<String, List<Field<?>>> getUniqueIndexes(DatarouterUser databean){
 			Map<String,List<Field<?>>> indexesByName = new TreeMap<>();
@@ -91,8 +96,6 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey,DatarouterUse
 		}
 
 	}
-
-	/******************  constructors **************************/
 
 	public DatarouterUser(){
 		this.key = new DatarouterUserKey();
@@ -140,13 +143,40 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey,DatarouterUse
 		}
 	}
 
-	public List<DatarouterUserRole> getRoles(){
-		return DatarouterEnumTool.fromPersistentStrings(DatarouterUserRole.user, roles);
+	public Collection<Role> getRoles(){
+		return IterableTool.map(roles, Role::new);
 	}
 
-	public void setRoles(Collection<DatarouterUserRole> roleEnums){
-		roles = DatarouterEnumTool.getPersistentStrings(roleEnums);
-		Collections.sort(roles);
+	public void setRoles(Collection<Role> roles){
+		this.roles = roles.stream()
+				.map(Role::getPersistentString)
+				.sorted()
+				.distinct()
+				.collect(Collectors.toList());
+	}
+
+	public DatarouterUser addRoles(Collection<Role> roles){
+		setRoles(SetTool.union(getRoles(), roles));
+		return this;
+	}
+
+	public DatarouterUser removeRoles(Collection<Role> roles){
+		Set<Role> newRoles = new HashSet<>(getRoles());
+		newRoles.removeAll(roles);
+		setRoles(newRoles);
+		return this;
+	}
+
+	public static boolean equals(DatarouterUser first, DatarouterUser second){
+		return first.equals(second)
+				&& Objects.equals(first.getUsername(), second.getUsername())
+				&& Objects.equals(first.getUserToken(), second.getUserToken())
+				&& Objects.equals(first.getPasswordSalt(), second.getPasswordSalt())
+				&& Objects.equals(first.getPasswordDigest(), second.getPasswordDigest())
+				&& Objects.equals(first.getEnabled(), second.getEnabled())
+				&& Objects.equals(first.getRoles(), second.getRoles())
+				&& Objects.equals(first.getCreated(), second.getCreated())
+				&& Objects.equals(first.getLastLoggedIn(), second.getLastLoggedIn());
 	}
 
 	public Date getCreated(){
@@ -193,6 +223,11 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey,DatarouterUse
 
 	public String getUserToken(){
 		return userToken;
+	}
+
+	@Override
+	public String getToken(){
+		return getUserToken();
 	}
 
 	public void setUserToken(String userToken){

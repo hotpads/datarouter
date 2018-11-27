@@ -22,8 +22,16 @@ public class SimpleDatarouterProperties extends DatarouterProperties{
 	public static final String CONFIG_DIRECTORY = "/etc/datarouter/config";
 	public static final String SERVER_CONFIG_FILE_NAME = "server.properties";
 
+	private final String serviceName;
+
 	public SimpleDatarouterProperties(String serviceName){
 		super(new SimpleServerType(serviceName, false), serviceName, CONFIG_DIRECTORY, SERVER_CONFIG_FILE_NAME);
+		this.serviceName = serviceName;
+	}
+
+	@Override
+	public String getDatarouterPropertiesFileLocation(){
+		return CONFIG_DIRECTORY + "/datarouter-" + serviceName + ".properties";
 	}
 
 }

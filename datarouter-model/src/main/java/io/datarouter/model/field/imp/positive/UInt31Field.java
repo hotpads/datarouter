@@ -29,8 +29,6 @@ public class UInt31Field extends BasePrimitiveField<Integer>{
 		super(prefix, key, value);
 	}
 
-	/*********************** StringEncodedField ***********************/
-
 	@Override
 	public String getStringEncodedValue(){
 		if(value == null){
@@ -46,8 +44,6 @@ public class UInt31Field extends BasePrimitiveField<Integer>{
 		}
 		return Integer.valueOf(str);
 	}
-
-	/*********************** ByteEncodedField ***********************/
 
 	@Override
 	public byte[] getBytes(){

@@ -43,7 +43,7 @@ public abstract class BaseIndexNode<
 extends BaseNode<IK,IE,IF>{
 
 
-	/***************************** Node pass-through stuff **********************************/
+	/*----------------------------- node pass through -----------------------*/
 
 	protected N indexNode;
 
@@ -52,13 +52,11 @@ extends BaseNode<IK,IE,IF>{
 		this.indexNode = backingNode;
 	}
 
-	/***************************** methods ************************************/
+	/*-------------------------------- methods ------------------------------*/
 
 	public IE createIndexEntry(){
 		return getFieldInfo().getDatabeanSupplier().get();
 	}
-
-	/**************************************************************************/
 
 	@Override
 	public List<String> getClientNames(){

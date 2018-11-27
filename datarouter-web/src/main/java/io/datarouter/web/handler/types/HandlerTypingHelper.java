@@ -25,6 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.util.tuple.Pair;
 import io.datarouter.web.handler.BaseHandler.Handler;
+import io.datarouter.web.handler.BaseHandler.NullHandlerDecoder;
 
 @Singleton
 public class HandlerTypingHelper{
@@ -36,11 +37,16 @@ public class HandlerTypingHelper{
 	 * This methods goes through all methods who are named like methodName and tries to find the one that has the
 	 * largest number of parameters. It generates the array of arguments at the same time.
 	 */
-	public Pair<Method,Object[]> findMethodByName(Collection<Method> possibleMethods, HttpServletRequest request){
+	public Pair<Method,Object[]> findMethodByName(Collection<Method> possibleMethods,
+			Class<? extends HandlerDecoder> handlerDecoderClass, HttpServletRequest request){
 		Method method = null;
 		Object[] args = new Object[]{};
 		for(Method possibleMethod : possibleMethods){
-			Class<? extends HandlerDecoder> decoderClass = possibleMethod.getAnnotation(Handler.class).decoder();
+			Class<? extends HandlerDecoder> decoderClass = handlerDecoderClass;
+			Class<? extends HandlerDecoder> methodDecoder = possibleMethod.getAnnotation(Handler.class).decoder();
+			if(!methodDecoder.equals(NullHandlerDecoder.class)){
+				decoderClass = methodDecoder;
+			}
 			HandlerDecoder decoder = injector.getInstance(decoderClass);
 			Object[] newArgs = decoder.decode(request, possibleMethod);
 			if(newArgs == null){

@@ -15,7 +15,6 @@
  */
 package io.datarouter.model.field.encoding;
 
-
 /*
  * For encoding field values as strings, like with JSON.  Awkward name.
  */

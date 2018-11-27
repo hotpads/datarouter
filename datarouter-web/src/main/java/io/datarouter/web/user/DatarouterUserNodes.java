@@ -16,8 +16,6 @@
 package io.datarouter.web.user;
 
 import io.datarouter.storage.node.op.combo.IndexedSortedMapStorage;
-import io.datarouter.web.user.authenticate.api.ApiRequest;
-import io.datarouter.web.user.authenticate.api.ApiRequestKey;
 import io.datarouter.web.user.databean.DatarouterPermissionRequest;
 import io.datarouter.web.user.databean.DatarouterPermissionRequestKey;
 import io.datarouter.web.user.databean.DatarouterUser;
@@ -28,9 +26,10 @@ import io.datarouter.web.user.session.DatarouterSession;
 import io.datarouter.web.user.session.DatarouterSessionKey;
 
 public interface DatarouterUserNodes{
+
 	IndexedSortedMapStorage<DatarouterUserKey,DatarouterUser> getUserNode();
 	IndexedSortedMapStorage<DatarouterUserHistoryKey,DatarouterUserHistory> getUserHistoryNode();
 	IndexedSortedMapStorage<DatarouterPermissionRequestKey,DatarouterPermissionRequest> getPermissionRequestNode();
 	IndexedSortedMapStorage<DatarouterSessionKey,DatarouterSession> getSessionNode();
-	IndexedSortedMapStorage<ApiRequestKey, ApiRequest> getApiRequestNode();
+
 }

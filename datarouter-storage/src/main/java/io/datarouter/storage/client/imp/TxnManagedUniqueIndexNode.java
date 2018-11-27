@@ -31,14 +31,14 @@ import io.datarouter.util.collection.CollectionTool;
 
 public class TxnManagedUniqueIndexNode<
 		PK extends PrimaryKey<PK>,
-		D extends Databean<PK, D>,
+		D extends Databean<PK,D>,
 		IK extends PrimaryKey<IK>,
-		IE extends UniqueIndexEntry<IK, IE, PK, D>,
+		IE extends UniqueIndexEntry<IK,IE,PK,D>,
 		IF extends DatabeanFielder<IK,IE>>
 extends BaseManagedIndexNode<PK,D,IK,IE,IF>
-implements ManagedUniqueIndexNode<PK, D, IK, IE, IF>{
+implements ManagedUniqueIndexNode<PK,D,IK,IE,IF>{
 
-	public TxnManagedUniqueIndexNode(IndexedMapStorage<PK, D> node, NodeParams<IK, IE, IF> params, String name){
+	public TxnManagedUniqueIndexNode(IndexedMapStorage<PK,D> node, NodeParams<IK,IE,IF> params, String name){
 		super(node, params, name);
 	}
 
@@ -49,7 +49,7 @@ implements ManagedUniqueIndexNode<PK, D, IK, IE, IF>{
 
 	@Override
 	public List<D> lookupMultiUnique(Collection<IK> uniqueKeys, Config config){
-		return node.getMultiByIndex(uniqueKeys, config);
+		return node.getMultiByIndex(uniqueKeys, config, fieldInfo);
 	}
 
 	@Override

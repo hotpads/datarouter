@@ -20,10 +20,12 @@ import java.util.function.Function;
 import javax.servlet.http.HttpServletRequest;
 
 public class SecurityValidationResult{
+
 	private final boolean success;
 	// security validation may require reading the request body.
 	// caller should use this wrapped request after validation.
 	private final HttpServletRequest wrappedRequest;
+
 	private String failureMessage;
 
 	public static SecurityValidationResult success(HttpServletRequest request){
@@ -68,4 +70,5 @@ public class SecurityValidationResult{
 		}
 		return this;
 	}
+
 }

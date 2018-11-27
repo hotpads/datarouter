@@ -38,9 +38,8 @@ import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.collection.ListTool;
 import io.datarouter.util.lang.ReflectionTool;
 
-/***************** tests **************************/
-
 public class JsonDatabeanToolTests{
+
 	private final ManyFieldTypeBeanFielder fielder = new ManyFieldTypeBeanFielder();
 	private final SortedBeanFielder sortedBeanFielder = new SortedBeanFielder();
 
@@ -114,4 +113,5 @@ public class JsonDatabeanToolTests{
 		Assert.assertEquals(databeansOut.toArray(), databeansIn.toArray());
 		Assert.assertEquals(DatabeanTool.getKeys(databeansOut).toArray(), keysIn.subList(0,2).toArray());
 	}
+
 }

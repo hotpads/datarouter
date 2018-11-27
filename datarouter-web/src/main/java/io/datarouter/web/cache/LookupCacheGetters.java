@@ -18,6 +18,10 @@ package io.datarouter.web.cache;
 import java.util.Optional;
 
 public interface LookupCacheGetters<K,V>{
+
 	Optional<V> get(K key);
 	V getOrThrow(K key);
+	boolean load(K key);
+	boolean contains(K key);
+
 }

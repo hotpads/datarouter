@@ -27,6 +27,7 @@ import io.datarouter.model.field.imp.comparable.LongFieldKey;
 import io.datarouter.model.key.primary.BasePrimaryKey;
 
 public class DatarouterPermissionRequestKey extends BasePrimaryKey<DatarouterPermissionRequestKey>{
+
 	private Long userId;
 	private Date requestTime;
 
@@ -65,4 +66,5 @@ public class DatarouterPermissionRequestKey extends BasePrimaryKey<DatarouterPer
 	public void setRequestTime(Date requestTime){
 		this.requestTime = requestTime;
 	}
+
 }

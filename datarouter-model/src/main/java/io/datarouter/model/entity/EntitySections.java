@@ -61,6 +61,7 @@ public class EntitySections<EK extends EntityKey<EK>>{
 	}
 
 	private static class EntitySection{
+
 		private final Class<?> databeanClass;
 		private final String qualifierPrefix;
 

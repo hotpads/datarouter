@@ -18,6 +18,7 @@ package io.datarouter.web.dispatcher;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,6 +29,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import io.datarouter.inject.DatarouterInjector;
+import io.datarouter.util.tuple.Pair;
 import io.datarouter.web.handler.mav.nav.NavBar;
 
 @SuppressWarnings("serial")
@@ -40,11 +42,12 @@ public abstract class DispatcherServlet extends HttpServlet{
 	@Inject
 	private Optional<NavBar> navBar;
 
-	private List<BaseRouteSet> dispatchers = new ArrayList<>();
+	private List<BaseRouteSet> routeSets = new ArrayList<>();
 
 	@Override
 	public void init(){
 		registerRouteSets();
+		ensureUniqueDispatchRules();
 		getInitListeners().forEach(listener -> listener.onDispatcherServletInit(this));
 	}
 
@@ -62,7 +65,7 @@ public abstract class DispatcherServlet extends HttpServlet{
 	}
 
 	protected final void register(BaseRouteSet routeSet){
-		dispatchers.add(routeSet);
+		routeSets.add(routeSet);
 	}
 
 	protected final void eagerlyInitRouteSet(BaseRouteSet routeSet){
@@ -78,27 +81,34 @@ public abstract class DispatcherServlet extends HttpServlet{
 	protected void service(HttpServletRequest request, HttpServletResponse response)
 	throws IOException, ServletException{
 
-		response.setContentType("text/plain");
 		response.setHeader("X-Frame-Options", "SAMEORIGIN"); //clickjacking protection
 
-		boolean handled = false;
-		for(BaseRouteSet dispatcherRoutes : dispatchers){
-			handled = dispatcher.handleRequestIfUrlMatch(request, response, dispatcherRoutes);
-			if(handled){
+		RoutingResult routingResult = RoutingResult.NOT_FOUND;
+		for(BaseRouteSet dispatcherRoutes : routeSets){
+			routingResult = dispatcher.handleRequestIfUrlMatch(request, response, dispatcherRoutes);
+			if(routingResult != RoutingResult.NOT_FOUND){
 				break;
 			}
 		}
 
-		if(!handled){
-			response.setStatus(404);
+		switch(routingResult){
+		case NOT_FOUND:
+			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+			response.setContentType("text/plain");
 			try(PrintWriter out = response.getWriter()){
 				out.print(getClass().getCanonicalName() + " could not find Handler for " + request.getRequestURI());
 			}
+			break;
+		case FORBIDDEN:
+			response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+			break;
+		default:
+			break;
 		}
 	}
 
 	public DispatchRule findRuleInContext(String path){
-		return dispatchers.stream()
+		return routeSets.stream()
 				.map(BaseRouteSet::getDispatchRules)
 				.flatMap(List::stream)
 				.filter(rule -> rule.getPattern().matcher(path).matches())
@@ -107,6 +117,24 @@ public abstract class DispatcherServlet extends HttpServlet{
 	}
 
 	public List<BaseRouteSet> getRouteSets(){
-		return dispatchers;
+		return routeSets;
 	}
+
+	private void ensureUniqueDispatchRules(){
+		routeSets.stream()
+				.map(BaseRouteSet::getDispatchRules)
+				.flatMap(List::stream)
+				.map(rule -> new Pair<>(rule.getRegex(), rule.getHandlerClass()))
+				.reduce(new HashSet<>(), (rules, rule) -> {
+					if(rules.contains(rule)){
+						throw new IllegalStateException("Duplicate DispatchRule " + rule);
+					}
+					rules.add(rule);
+					return rules;
+				}, (rulesA, rulesB) -> {
+					rulesA.addAll(rulesB);
+					return rulesA;
+				});
+	}
+
 }

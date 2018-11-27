@@ -31,4 +31,5 @@ public class BooleanCachedSetting extends CachedSetting<Boolean> implements Bool
 	public boolean isValid(String value){
 		return BooleanTool.isBoolean(value);
 	}
+
 }

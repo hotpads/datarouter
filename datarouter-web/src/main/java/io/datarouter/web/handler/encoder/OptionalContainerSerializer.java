@@ -23,7 +23,8 @@ import io.datarouter.util.serialization.OptionalContainerClassTypeAdapterFactory
 import io.datarouter.util.serialization.OptionalTypeAdapterFactory;
 
 public class OptionalContainerSerializer extends GsonJsonSerializer{
-	public static final Gson READ_GSON = new GsonBuilder()
+
+	private static final Gson READ_GSON = new GsonBuilder()
 			.registerTypeAdapterFactory(new OptionalContainerClassTypeAdapterFactory())
 			.registerTypeAdapterFactory(new OptionalTypeAdapterFactory())
 			.serializeNulls()
@@ -32,4 +33,5 @@ public class OptionalContainerSerializer extends GsonJsonSerializer{
 	public OptionalContainerSerializer(){
 		super(READ_GSON);
 	}
+
 }

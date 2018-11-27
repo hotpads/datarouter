@@ -17,7 +17,9 @@ package io.datarouter.httpclient.response.exception;
 
 @SuppressWarnings("serial")
 public abstract class DatarouterHttpException extends Exception{
+
 	protected DatarouterHttpException(String message, Exception exception){
 		super(message, exception);
 	}
+
 }

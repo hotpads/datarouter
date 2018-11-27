@@ -16,6 +16,8 @@
 package io.datarouter.httpclient.client;
 
 public interface DatarouterHttpClientConfig{
-	public String getDtoParameterName();
-	public String getDtoTypeParameterName();
+
+	String getDtoParameterName();
+	String getDtoTypeParameterName();
+
 }

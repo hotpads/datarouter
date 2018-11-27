@@ -31,7 +31,7 @@ import io.datarouter.storage.node.type.index.ManagedNode;
 import io.datarouter.storage.serialize.fieldcache.DatabeanFieldInfo;
 import io.datarouter.util.tuple.Range;
 
-public class NoOpNode<PK extends PrimaryKey<PK>, D extends Databean<PK, D>> implements IndexedSortedMapStorage<PK, D>{
+public class NoOpNode<PK extends PrimaryKey<PK>, D extends Databean<PK,D>> implements IndexedSortedMapStorage<PK,D>{
 
 	@Override
 	public boolean exists(PK key, Config config){
@@ -55,27 +55,22 @@ public class NoOpNode<PK extends PrimaryKey<PK>, D extends Databean<PK, D>> impl
 
 	@Override
 	public void put(D databean, Config config){
-
 	}
 
 	@Override
 	public void putMulti(Collection<D> databeans, Config config){
-
 	}
 
 	@Override
 	public void delete(PK key, Config config){
-
 	}
 
 	@Override
 	public void deleteMulti(Collection<PK> keys, Config config){
-
 	}
 
 	@Override
 	public void deleteAll(Config config){
-
 	}
 
 	@Override
@@ -100,46 +95,45 @@ public class NoOpNode<PK extends PrimaryKey<PK>, D extends Databean<PK, D>> impl
 
 	@Override
 	public void deleteUnique(UniqueKey<PK> uniqueKey, Config config){
-
 	}
 
 	@Override
 	public void deleteMultiUnique(Collection<? extends UniqueKey<PK>> uniqueKeys, Config config){
-
 	}
 
 	@Override
 	public <IK extends PrimaryKey<IK>,
-			IE extends IndexEntry<IK, IE, PK, D>,
-			IF extends DatabeanFielder<IK, IE>>
-	List<IE> getMultiFromIndex(Collection<IK> keys, Config config, DatabeanFieldInfo<IK, IE, IF> indexEntryFieldInfo){
+			IE extends IndexEntry<IK,IE,PK,D>,
+			IF extends DatabeanFielder<IK,IE>>
+	List<IE> getMultiFromIndex(Collection<IK> keys, Config config, DatabeanFieldInfo<IK,IE,IF> indexEntryFieldInfo){
 		return Collections.emptyList();
 	}
 
 	@Override
-	public <IK extends PrimaryKey<IK>, IE extends IndexEntry<IK, IE, PK, D>> List<D> getMultiByIndex(
-			Collection<IK> keys, Config config){
+	public <IK extends PrimaryKey<IK>,
+			IE extends IndexEntry<IK,IE,PK,D>,
+			IF extends DatabeanFielder<IK,IE>>
+	List<D> getMultiByIndex(Collection<IK> keys, Config config, DatabeanFieldInfo<IK,IE,IF> indexEntryFieldInfo){
 		return Collections.emptyList();
 	}
 
 	@Override
 	public <IK extends PrimaryKey<IK>> void deleteByIndex(Collection<IK> keys, Config config){
-
 	}
 
 	@Override
 	public <IK extends PrimaryKey<IK>,
-			IE extends IndexEntry<IK, IE, PK, D>,
-			IF extends DatabeanFielder<IK, IE>>
-	Iterable<IE> scanMultiIndex(DatabeanFieldInfo<IK, IE, IF> indexEntryFieldInfo, Collection<Range<IK>> ranges,
+			IE extends IndexEntry<IK,IE,PK,D>,
+			IF extends DatabeanFielder<IK,IE>>
+	Iterable<IE> scanMultiIndex(DatabeanFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges,
 			Config config){
 		return new EmptySortedScannerIterable<>();
 	}
 
 	@Override
 	public <IK extends PrimaryKey<IK>,
-			IE extends IndexEntry<IK, IE, PK, D>,
-			IF extends DatabeanFielder<IK, IE>>
+			IE extends IndexEntry<IK,IE,PK,D>,
+			IF extends DatabeanFielder<IK,IE>>
 	Iterable<D> scanMultiByIndex(DatabeanFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges,
 			Config config){
 		return new EmptySortedScannerIterable<>();
@@ -147,9 +141,9 @@ public class NoOpNode<PK extends PrimaryKey<PK>, D extends Databean<PK, D>> impl
 
 	@Override
 	public <IK extends PrimaryKey<IK>,
-			IE extends IndexEntry<IK, IE, PK, D>,
-			IF extends DatabeanFielder<IK, IE>>
-	Iterable<IK> scanMultiIndexKeys(DatabeanFieldInfo<IK, IE, IF> indexEntryFieldInfo, Collection<Range<IK>> ranges,
+			IE extends IndexEntry<IK,IE,PK,D>,
+			IF extends DatabeanFielder<IK,IE>>
+	Iterable<IK> scanMultiIndexKeys(DatabeanFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges,
 			Config config){
 		return new EmptySortedScannerIterable<>();
 	}
@@ -167,4 +161,5 @@ public class NoOpNode<PK extends PrimaryKey<PK>, D extends Databean<PK, D>> impl
 	public List<ManagedNode<PK,D,?,?,?>> getManagedNodes(){
 		return new ArrayList<>();
 	}
+
 }

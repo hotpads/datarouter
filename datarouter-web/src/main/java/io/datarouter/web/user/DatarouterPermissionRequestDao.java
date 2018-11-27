@@ -23,7 +23,6 @@ import java.util.stream.Stream;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.storage.node.op.combo.IndexedSortedMapStorage;
 import io.datarouter.web.user.databean.DatarouterPermissionRequest;
 import io.datarouter.web.user.databean.DatarouterPermissionRequestKey;
 import io.datarouter.web.user.databean.DatarouterUserKey;
@@ -31,16 +30,12 @@ import io.datarouter.web.user.databean.DatarouterUserKey;
 @Singleton
 public class DatarouterPermissionRequestDao{
 
-	private final IndexedSortedMapStorage<DatarouterPermissionRequestKey, DatarouterPermissionRequest>
-			permissionRequest;
-
 	@Inject
-	public DatarouterPermissionRequestDao(DatarouterUserNodes nodes){
-		permissionRequest = nodes.getPermissionRequestNode();
-	}
+	private DatarouterUserNodes userNodes;
+
 
 	public Stream<DatarouterPermissionRequest> streamOpenPermissionRequests(){
-		return permissionRequest.stream(null, null)
+		return userNodes.getPermissionRequestNode().stream(null, null)
 				.filter(request -> request.getResolution() == null);
 	}
 
@@ -50,7 +45,8 @@ public class DatarouterPermissionRequestDao{
 	}
 
 	public Stream<DatarouterPermissionRequest> streamPermissionRequestsForUser(Long userId){
-		return permissionRequest.streamWithPrefix(new DatarouterPermissionRequestKey(userId, null), null);
+		return userNodes.getPermissionRequestNode().streamWithPrefix(new DatarouterPermissionRequestKey(userId, null),
+				null);
 	}
 
 	public void createPermissionRequest(DatarouterPermissionRequest request){
@@ -61,7 +57,7 @@ public class DatarouterPermissionRequestDao{
 				.collect(Collectors.toList());
 		requestsToPut.add(request);
 
-		permissionRequest.putMulti(requestsToPut, null);
+		userNodes.getPermissionRequestNode().putMulti(requestsToPut, null);
 	}
 
 	public Set<DatarouterUserKey> getUserKeysWithPermissionRequests(){

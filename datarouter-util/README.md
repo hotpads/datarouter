@@ -9,7 +9,7 @@ datarouter-util is a set of utility classes.
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-util</artifactId>
-	<version>0.0.7</version>
+	<version>0.0.8</version>
 </dependency>
 ```
 

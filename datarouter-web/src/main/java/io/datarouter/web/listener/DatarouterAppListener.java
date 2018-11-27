@@ -15,13 +15,10 @@
  */
 package io.datarouter.web.listener;
 
-
 public interface DatarouterAppListener{
 
-	default void onStartUp(){
-	}
+	default void onStartUp(){}
 
-	default void onShutDown(){
-	}
+	default void onShutDown(){}
 
 }

@@ -20,32 +20,23 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 
 import io.datarouter.storage.client.Client;
-import io.datarouter.storage.config.setting.impl.ClientAvailabilitySettings;
-import io.datarouter.storage.config.setting.impl.ClientAvailabilitySettings.AvailabilitySettingNode;
+import io.datarouter.storage.client.ClientType;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.util.ComparableTool;
 
-public abstract class BaseClient
-implements Client{
+public abstract class BaseClient implements Client{
 
 	private final String name;
-	private final AvailabilitySettingNode availability;
+	private final ClientType<?> clientType;
 
-	public BaseClient(String name, ClientAvailabilitySettings clientAvailabilitySettings){
+	public BaseClient(String name, ClientType<?> clientType){
 		this.name = name;
-		this.availability = clientAvailabilitySettings.getAvailabilityForClientName(getName());
+		this.clientType = clientType;
 	}
-
-	/**************************** standard ******************************/
 
 	@Override
 	public int compareTo(Client client){
 		return ComparableTool.nullFirstCompareTo(getName(), client.getName());
-	}
-
-	@Override
-	public AvailabilitySettingNode getAvailability(){
-		return availability;
 	}
 
 	@Override
@@ -54,8 +45,18 @@ implements Client{
 	}
 
 	@Override
+	public ClientType<?> getType(){
+		return clientType;
+	}
+
+	@Override
 	public Future<Optional<String>> notifyNodeRegistration(PhysicalNode<?,?,?> node){
 		return CompletableFuture.completedFuture(Optional.empty());
+	}
+
+	@Override
+	public boolean monitorLatency(){
+		return true;
 	}
 
 	@Override

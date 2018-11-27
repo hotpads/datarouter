@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Set;
 
 import io.datarouter.model.databean.Databean;
-import io.datarouter.model.field.Field;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.client.ClientId;
@@ -57,23 +56,8 @@ implements Node<PK,D,F>{
 	}
 
 	@Override
-	public Class<PK> getPrimaryKeyType(){
-		return backingNode.getPrimaryKeyType();
-	}
-
-	@Override
 	public DatabeanFieldInfo<PK,D,F> getFieldInfo(){
 		return backingNode.getFieldInfo();
-	}
-
-	@Override
-	public List<Field<?>> getFields(){
-		return backingNode.getFields();
-	}
-
-	@Override
-	public List<Field<?>> getNonKeyFields(D databean){
-		return backingNode.getNonKeyFields(databean);
 	}
 
 	@Override
@@ -122,6 +106,15 @@ implements Node<PK,D,F>{
 	}
 
 	public N getBackingNode(){
+		return backingNode;
+	}
+
+	public N getUnderlyingNode(){
+		if(backingNode instanceof BaseAdapter){
+			@SuppressWarnings("unchecked")
+			BaseAdapter<?,?,?,N> baseAdapter = (BaseAdapter<?,?,?,N>)getBackingNode();
+			return baseAdapter.getUnderlyingNode();
+		}
 		return backingNode;
 	}
 

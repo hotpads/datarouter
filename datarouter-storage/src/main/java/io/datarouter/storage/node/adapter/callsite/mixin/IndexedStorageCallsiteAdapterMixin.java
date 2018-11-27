@@ -115,12 +115,14 @@ extends IndexedStorage<PK,D>, CallsiteAdapter{
 	}
 
 	@Override
-	default <IK extends PrimaryKey<IK>, IE extends IndexEntry<IK, IE, PK, D>> List<D> getMultiByIndex(
-			Collection<IK> keys, Config config){
+	default <IK extends PrimaryKey<IK>,
+			IE extends IndexEntry<IK, IE, PK, D>,
+			IF extends DatabeanFielder<IK,IE>>
+	List<D> getMultiByIndex(Collection<IK> keys, Config config, DatabeanFieldInfo<IK,IE,IF> indexEntryFieldInfo){
 		config = Config.nullSafe(config).setCallsite(getCallsite());
 		long startNs = System.nanoTime();
 		try{
-			return getBackingNode().getMultiByIndex(keys, config);
+			return getBackingNode().getMultiByIndex(keys, config, indexEntryFieldInfo);
 		}finally{
 			recordCollectionCallsite(config, startNs, keys);
 		}
@@ -185,4 +187,5 @@ extends IndexedStorage<PK,D>, CallsiteAdapter{
 	default List<ManagedNode<PK,D,?,?,?>> getManagedNodes(){
 		return getBackingNode().getManagedNodes();
 	}
+
 }

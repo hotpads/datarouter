@@ -22,6 +22,7 @@ public class DocumentedParameter{
 	public String example;
 	public Boolean required;
 	public Boolean requestBody;
+	public String description;
 
 	public String getName(){
 		return name;
@@ -41,6 +42,10 @@ public class DocumentedParameter{
 
 	public Boolean getRequestBody(){
 		return requestBody;
+	}
+
+	public String getDescription(){
+		return description;
 	}
 
 }

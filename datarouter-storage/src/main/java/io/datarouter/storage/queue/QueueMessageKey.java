@@ -26,4 +26,5 @@ public class QueueMessageKey{
 	public byte[] getHandle(){
 		return handle;
 	}
+
 }

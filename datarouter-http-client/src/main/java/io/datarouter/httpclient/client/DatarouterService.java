@@ -15,10 +15,30 @@
  */
 package io.datarouter.httpclient.client;
 
+import java.util.SortedSet;
+
 public interface DatarouterService{
 
 	String getName();
-	String getDomain();//includes protocol and port, like https://localhost:8443
-	String getContextPath();//includes leading slash, like /example
-	boolean isPublic();
+	String getPrivateDomain();//includes host and port, like localhost:8443
+	String getPublicDomain();//includes host and port, like localhost:8443
+	String getContextName();//root path segment
+	SortedSet<String> getAdditionalAdministratorEmails();
+
+	default String getDomainPreferPrivate(){
+		return getPrivateDomain() != null ? getPrivateDomain() : getPublicDomain();
+	}
+
+	default String getDomainPreferPublic(){
+		return getPublicDomain() != null ? getPublicDomain() : getPrivateDomain();
+	}
+
+	default boolean hasPublicDomain(){
+		return getPublicDomain() != null;
+	}
+
+	default String getContextPath(){
+		return getContextName() == null ? "" : "/" + getContextName();
+	}
+
 }
