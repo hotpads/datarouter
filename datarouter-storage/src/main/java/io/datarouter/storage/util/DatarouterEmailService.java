@@ -45,28 +45,22 @@ public class DatarouterEmailService{
 	private DatarouterEmailSettings datarouterEmailSettings;
 
 	public void trySendHtmlEmail(String fromEmail, String toEmail, String subject, String body){
-		trySendEmail(fromEmail, toEmail, subject, body, true, true);
+		trySendEmail(fromEmail, toEmail, subject, body, true);
 	}
 
 	public void trySendEmail(String fromEmail, String toEmail, String subject, String body){
-		trySendEmail(fromEmail, toEmail, subject, body, false, true);
+		trySendEmail(fromEmail, toEmail, subject, body, false);
 	}
 
-	public void trySendEmail(String fromEmail, String toEmail, String subject, String body, boolean setReplyTo){
-		trySendEmail(fromEmail, toEmail, subject, body, false, setReplyTo);
-	}
-
-	private void trySendEmail(String fromEmail, String toEmail, String subject, String body, boolean html,
-			boolean setReplyTo){
+	private void trySendEmail(String fromEmail, String toEmail, String subject, String body, boolean html){
 		try{
-			sendEmail(fromEmail, toEmail, subject, body, html, setReplyTo);
+			sendEmail(fromEmail, toEmail, subject, body, html);
 		}catch(MessagingException e){
 			logger.error("failed to send email from={} to={}", fromEmail, toEmail, e);
 		}
 	}
 
-	public void sendEmail(String fromEmail, String toEmail, String subject, String body, boolean html,
-			boolean setReplyTo)
+	public void sendEmail(String fromEmail, String toEmail, String subject, String body, boolean html)
 	throws MessagingException{
 		Properties props = new Properties();
 		if(StringTool.notNullNorEmpty(datarouterEmailSettings.smtpPassword.get())){
@@ -84,9 +78,7 @@ public class DatarouterEmailService{
 			message.setFrom(new InternetAddress(fromEmail));
 			InternetAddress[] addresses = InternetAddress.parse(toEmail);// one or more addresses
 			message.addRecipients(RecipientType.TO, addresses);
-			if(setReplyTo){
-				message.setReplyTo(addresses);
-			}
+			message.setReplyTo(addresses);
 			message.setSubject(subject);
 			String subType = html ? "html" : "plain";
 			message.setText(body, "UTF-8", subType);

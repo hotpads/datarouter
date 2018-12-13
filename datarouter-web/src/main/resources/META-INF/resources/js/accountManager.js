@@ -57,6 +57,7 @@ class AccountList extends React.Component{
 							<th>Account name</th>
 							<th>API key</th>
 							<th>Secret key</th>
+							<th>Last used</th>
 							<th></th>
 							<th></th>
 						</tr>
@@ -67,6 +68,7 @@ class AccountList extends React.Component{
 								<td>{account.key.accountName}</td>
 								<td>{account.apiKey}</td>
 								<td>{account.secretKey}</td>
+								<td>{account.lastUsed}</td>
 								<td>
 									<Link to={BASE_PATH + "details/" + account.key.accountName}>
 										<span className="glyphicon glyphicon-pencil"></span>
@@ -146,13 +148,11 @@ class AccountDetails extends React.Component{
 		super(props);
 		this.state = {
 			details: null,
-			availableRouteSets: [],
-			selectedRouteSet: null,
-			selectedRule: "all",
+			availableEndpoints: [],
+			selectedEndpoint: null,
 			isServerTypeDev:false
 		};
-		this.handleSelectRouteSet = this.handleSelectRouteSet.bind(this);
-		this.handleSelectRule = this.handleSelectRule.bind(this);
+		this.handleSelectEndpoint = this.handleSelectEndpoint.bind(this);
 		this.handleAddPermission = this.handleAddPermission.bind(this);
 		this.deletePermission = this.deletePermission.bind(this);
 		this.resetApiKeyToDefault = this.resetApiKeyToDefault.bind(this);
@@ -170,12 +170,12 @@ class AccountDetails extends React.Component{
 			this.setState({details});
 		});
 		
-		fetch('getAvailableRouteSets', {
+		fetch('getAvailableEndpoints', {
 			credentials: 'same-origin',
 			method: 'GET',
 		}).then(response => response.json())
-		.then(availableRouteSets => {
-			this.setState({availableRouteSets, selectedRouteSet: availableRouteSets[0]});
+		.then(availableEndpoints => {
+			this.setState({availableEndpoints, selectedEndpoint: availableEndpoints[0]});
 		});
 
 		fetch('isServerTypeDev', {
@@ -215,14 +215,9 @@ class AccountDetails extends React.Component{
 		});
 	}
 	
-	handleSelectRouteSet(event){
-		var selectedRouteSet = this.state.availableRouteSets
-				.find(permission => event.target.value == permission.className);
-		this.setState({selectedRouteSet, selectedRule: "all"});
-	}
-	
-	handleSelectRule(event){
-		this.setState({selectedRule: event.target.value});
+	handleSelectEndpoint(event){
+		console.log(event.target.value);
+		this.setState({selectedEndpoint: event.target.value});
 	}
 	
 	handleAddPermission(event){
@@ -233,8 +228,7 @@ class AccountDetails extends React.Component{
 			headers: postHeaders,
 			body: $.param({
 				accountName: this.state.details.account.key.accountName,
-				routeSet: this.state.selectedRouteSet.className,
-				rule: this.state.selectedRule
+				endpoint: this.state.selectedEndpoint,
 			})
 		}).then(response => response.json())
 		.then(details => {
@@ -242,15 +236,14 @@ class AccountDetails extends React.Component{
 		});
 	}
 	
-	deletePermission(routeSet, rule){
+	deletePermission(endpoint){
 		fetch('deletePermission', {
 			credentials: 'same-origin',
 			method: 'POST',
 			headers: postHeaders,
 			body: $.param({
 				accountName: this.state.details.account.key.accountName,
-				routeSet: routeSet,
-				rule: rule
+				endpoint: endpoint
 			})
 		}).then(response => response.json())
 		.then(details => {
@@ -306,41 +299,29 @@ class AccountDetails extends React.Component{
 							<dd>
 							{this.state.details.account.creator}
 							</dd>
+							<dt>Last used</dt>
+							<dd>
+							{this.state.details.account.lastUsed}
+							</dd>
 						</dl>
-						{this.state.availableRouteSets.length == 0 ||
+						{this.state.availableEndpoints.length == 0 ||
 							<div>
 								<h3>Permissions</h3>
 								<form>
 									<div className="form-group">
-										<label>Route set</label>
+										<label>Endpoint</label>
 										<select 
 												className="form-control" 
-												value={this.state.selectedRouteSet == null ? ""
-														: this.state.selectedRouteSet.className}
-												onChange={this.handleSelectRouteSet}>
-											{this.state.availableRouteSets.map(permission => 
-												<option key={permission.className} value={permission.className}>
-													{permission.name}
+												value={this.state.selectedEndpoint == null ? ""
+														: this.state.selectedEndpoint}
+												onChange={this.handleSelectEndpoint}>
+											{this.state.availableEndpoints.map(endpoint => 
+												<option key={endpoint} value={endpoint}>
+													{endpoint}
 												</option>
 											)}
 										</select>
 									</div>
-									{this.state.selectedRouteSet == null ||
-										<div className="form-group">
-											<label>Rule</label>
-											<select 
-													className="form-control" 
-													value={this.state.selectedRule}
-													onChange={this.handleSelectRule}>
-												<option value="all">All rules</option>
-												{this.state.selectedRouteSet == null 
-													|| this.state.selectedRouteSet.rules.map(rule => 
-														<option key={rule} value={rule}>{rule}</option>
-													)
-												}
-											</select>
-										</div>
-									}
 									<input type="submit" 
 											className="btn btn-default" 
 											onClick={this.handleAddPermission}
@@ -350,24 +331,22 @@ class AccountDetails extends React.Component{
 									<table className="table table-condensed">
 										<thead>
 											<tr>
-												<th>Route set</th>
-												<th>Rule</th>
+												<th>Endpoint</th>
 												<th></th>
 											</tr>
 										</thead>
 										<tbody>
 											{this.state.details.permissions.map(permission => 
-												<tr key={permission.routeSetName + permission.rule}>
-													<td>{permission.routeSetName == "all"  ? "All route sets"
-															: permission.routeSetName}</td>
+												<tr key={permission.endpoint}>
 													<td>
-														{permission.rule == "all" ? "All rules" : permission.rule}
+														{permission.endpoint == "all"  ? "All endpoints" 
+																: permission.endpoint}
 													</td>
 													<td>
 														<span 
 																className="glyphicon glyphicon-remove"
 																onClick={() => this.deletePermission(
-																		permission.routeSetName, permission.rule)}
+																		permission.endpoint)}
 														>
 														</span>
 													</td>

@@ -113,6 +113,10 @@ public class Mav{
 		return (StringTool.notEmpty(globalRedirectUrl) ? globalRedirectUrl : viewName) + queryParams;
 	}
 
+	public Mav setViewName(PathNode pathNode){
+		return setViewName(pathNode.toSlashedString());
+	}
+
 	public Mav setViewName(final String viewName){
 		if(StringTool.nullSafe(viewName).startsWith(REDIRECT)){
 			redirect = true;

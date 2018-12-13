@@ -18,6 +18,7 @@ package io.datarouter.httpclient.path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -53,20 +54,53 @@ public class PathNode{
 		return paths;
 	}
 
-	public String toSlashedString(){
-		List<PathNode> ancestry = new ArrayList<>();
-		PathNode nextParent = this;
-		while(nextParent != null && nextParent.value != null){
-			ancestry.add(nextParent);
-			nextParent = nextParent.parent;
-		}
-		Collections.reverse(ancestry);
-		return ancestry.stream()
+	public static String toSlashedString(List<PathNode> nodes){
+		return nodes.stream()
 				.map(pathNode -> pathNode.value)
 				.collect(Collectors.joining("/", "/", ""));
 	}
 
+	public String toSlashedString(){
+		return toSlashedStringAfter(null);
+	}
+
+	public static List<PathNode> nodesAfter(PathNode after, PathNode through){
+		List<PathNode> nodes = new ArrayList<>();
+		PathNode cursor = through;
+		while(cursor != after && cursor != null && cursor.value != null){
+			nodes.add(cursor);
+			cursor = cursor.parent;
+		}
+		Collections.reverse(nodes);
+		return nodes;
+	}
+
+	public String toSlashedStringAfter(PathNode after){
+		return toSlashedString(nodesAfter(after, this));
+	}
+
+	@Override
+	public int hashCode(){
+		return toSlashedString().hashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj){
+		if(this == obj){
+			return true;
+		}
+		if(obj == null){
+			return false;
+		}
+		if(getClass() != obj.getClass()){
+			return false;
+		}
+		PathNode other = (PathNode)obj;
+		return Objects.equals(toSlashedString(), other.toSlashedString());
+	}
+
 	//purposefully not usable to avoid unwanted dependencies
+	//TODO make this usable for things like unit test output
 	@Override
 	public String toString(){
 		throw new RuntimeException("PathNode::toString is unusable to avoid unwanted dependencies. PathNode.value="

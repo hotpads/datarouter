@@ -22,7 +22,7 @@
 	<parent>
 		<groupId>io.datarouter</groupId>
 		<artifactId>datarouter-parent</artifactId>
-		<version>0.0.8</version>
+		<version>0.0.9</version>
 	</parent>
 
 	<artifactId>datarouter-http-client</artifactId>
@@ -60,13 +60,13 @@
 		<dependency>
 			<groupId>io.datarouter</groupId>
 			<artifactId>datarouter-logging</artifactId>
-			<version>0.0.8</version>
+			<version>0.0.9</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>io.datarouter</groupId>
 			<artifactId>datarouter-instrumentation</artifactId>
-			<version>0.0.8</version>
+			<version>0.0.9</version>
 		</dependency>
 		<dependency>
 			<groupId>org.mockito</groupId>

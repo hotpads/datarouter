@@ -16,6 +16,7 @@
 package io.datarouter.web.dispatcher;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -57,6 +58,7 @@ public class DispatchRule{
 	private boolean allowAnonymous;
 	private Class<? extends HandlerEncoder> defaultHandlerEncoder = DefaultEncoder.class;
 	private Class<? extends HandlerDecoder> defaultHandlerDecoder = DefaultDecoder.class;
+	private String persistentString;
 
 	public DispatchRule(BaseRouteSet routeSet, String regex){
 		this.routeSet = routeSet;
@@ -112,6 +114,11 @@ public class DispatchRule{
 		return this;
 	}
 
+	public DispatchRule withPersistentString(String persistentString){
+		this.persistentString = persistentString;
+		return this;
+	}
+
 	/*------------------------------ getters --------------------------------*/
 
 	public BaseRouteSet getRouteSet(){
@@ -164,6 +171,10 @@ public class DispatchRule{
 
 	public Class<? extends HandlerDecoder> getDefaultHandlerDecoder(){
 		return defaultHandlerDecoder;
+	}
+
+	public Optional<String> getPersistentString(){
+		return Optional.ofNullable(persistentString);
 	}
 
 	private SecurityValidationResult checkApiKey(HttpServletRequest request){

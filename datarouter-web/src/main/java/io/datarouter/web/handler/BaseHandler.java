@@ -262,19 +262,20 @@ public abstract class BaseHandler{
 		}catch(InvocationTargetException e){
 			Throwable cause = e.getCause();
 			if(cause instanceof HandledException){
-				Exception handledException = (Exception)cause;//don't allow HandledExceptions to be Throwable
+				HandledException handledException = (HandledException)cause;
+				Exception exception = (Exception)cause;//don't allow HandledExceptions to be Throwable
 				String exceptionLocation = getClass().getName() + "/" + method.getName();
 				exceptionRecorder
 						.ifPresent(recorder -> {
 							try{
-								recorder.recordExceptionAndHttpRequest(handledException, exceptionLocation, null,
+								recorder.recordExceptionAndHttpRequest(exception, exceptionLocation, null,
 										null, request);
 							}catch(Exception recordingException){
 								logger.warn("Error recording exception", recordingException);
 							}
 						});
-				encoder.sendExceptionResponse((HandledException)cause, servletContext, response, request);
-				logger.warn(cause.getMessage());
+				encoder.sendExceptionResponse(handledException, servletContext, response, request);
+				logger.warn("returning {} : {}", handledException.getHttpResponseCode(), cause.getMessage());
 				return;
 			}
 			if(cause instanceof RuntimeException){

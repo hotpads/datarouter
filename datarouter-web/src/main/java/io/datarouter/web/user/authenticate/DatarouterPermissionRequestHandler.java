@@ -138,7 +138,7 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 				.append("\n\nThe email address these emails are sent to can be configured here: ")
 				.append(clusterSettingUrl).append('.');
 
-		datarouterEmailService.trySendEmail(userEmail, recipients, subject, body.toString(), false);
+		datarouterEmailService.trySendEmail(userEmail, recipients, subject, body.toString());
 	}
 
 	private Mav noDatarouterAuthenticationMav(){

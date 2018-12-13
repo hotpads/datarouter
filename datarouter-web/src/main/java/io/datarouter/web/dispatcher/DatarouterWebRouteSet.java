@@ -35,9 +35,10 @@ import io.datarouter.web.user.role.DatarouterUserRole;
 @Singleton
 public class DatarouterWebRouteSet extends BaseRouteSet{
 
-	public static final String
-			CLIENTS = "clients";
+	//TODO PathNodes
+	public static final String CLIENTS = "clients";
 
+	// TODO PathNodes
 	public static final String
 			PATH_datarouter = "/" + DatarouterWebPaths.DATAROUTER,
 			PATH_clients = PATH_datarouter + "/" + CLIENTS;

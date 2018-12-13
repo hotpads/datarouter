@@ -39,7 +39,6 @@ import io.datarouter.util.StreamTool;
 import io.datarouter.util.iterable.scanner.iterable.SingleUseScannerIterable;
 import io.datarouter.util.iterable.scanner.sorted.BaseHoldingScanner;
 
-
 public class IterableTool{
 
 	public static <T> Iterable<T> nullSafe(Iterable<T> in){

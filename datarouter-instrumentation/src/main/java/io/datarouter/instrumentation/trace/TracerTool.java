@@ -63,11 +63,12 @@ public class TracerTool{
 
 	/*---------------------------- TraceSpan --------------------------------*/
 
-	public static void startSpan(Tracer tracer, String name){
+	public static TraceSpanFinisher startSpan(Tracer tracer, String name){
 		if(tracer == null){
-			return;
+			return new TraceSpanFinisher(tracer);
 		}
 		tracer.startSpan(name);
+		return new TraceSpanFinisher(tracer);
 	}
 
 	public static void appendToSpanInfo(Tracer tracer, String text){

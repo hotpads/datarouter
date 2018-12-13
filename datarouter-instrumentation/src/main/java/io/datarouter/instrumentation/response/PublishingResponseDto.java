@@ -17,11 +17,18 @@ package io.datarouter.instrumentation.response;
 
 public class PublishingResponseDto{
 
-	public static final String
-			SUCCESS_MESSAGE = "success",
-			NO_OP_MESSAGE = "noOp",
-			DISABLED_ON_CLIENT_MESSAGE = "disabled on client",
-			DISABLED_ON_SERVER_MESSAGE = "disabled on server";
+	public static final String SUCCESS_MESSAGE = "success";
+	public static final String DISABLED_ON_CLIENT_MESSAGE = "disabled on client";
+	public static final String NO_OP_MESSAGE = "noOp";
+	public static final String DISCARD_MESSAGE = "discard";
+	public static final String REJECT_MESSAGE = "reject";
+
+	public static final PublishingResponseDto REJECT = new PublishingResponseDto(false, REJECT_MESSAGE);
+	public static final PublishingResponseDto DISCARD = new PublishingResponseDto(true, DISCARD_MESSAGE);
+	public static final PublishingResponseDto NO_OP = new PublishingResponseDto(null, NO_OP_MESSAGE);
+	public static final PublishingResponseDto SUCCESS = new PublishingResponseDto(true, SUCCESS_MESSAGE);
+	public static final PublishingResponseDto DISABLED_ON_CLIENT = new PublishingResponseDto(null,
+			DISABLED_ON_CLIENT_MESSAGE);
 
 	public final Boolean success;
 	public final String message;
@@ -37,24 +44,8 @@ public class PublishingResponseDto{
 		}
 	}
 
-	public static PublishingResponseDto success(){
-		return new PublishingResponseDto(true, SUCCESS_MESSAGE);
-	}
-
-	public static PublishingResponseDto error(String errorMessage){
+	public static final PublishingResponseDto error(String errorMessage){
 		return new PublishingResponseDto(false, errorMessage);
-	}
-
-	public static PublishingResponseDto noOp(){
-		return new PublishingResponseDto(null, NO_OP_MESSAGE);
-	}
-
-	public static PublishingResponseDto disabledOnClient(){
-		return new PublishingResponseDto(null, DISABLED_ON_CLIENT_MESSAGE);
-	}
-
-	public static PublishingResponseDto disabledOnServer(){
-		return new PublishingResponseDto(null, DISABLED_ON_SERVER_MESSAGE);
 	}
 
 }

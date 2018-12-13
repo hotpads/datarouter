@@ -22,7 +22,7 @@
 	<parent>
 		<groupId>io.datarouter</groupId>
 		<artifactId>datarouter-parent</artifactId>
-		<version>0.0.8</version>
+		<version>0.0.9</version>
 	</parent>
 
 	<artifactId>datarouter-util</artifactId>
@@ -34,7 +34,7 @@
 		<dependency>
 			<groupId>io.datarouter</groupId>
 			<artifactId>datarouter-logging</artifactId>
-			<version>0.0.8</version>
+			<version>0.0.9</version>
 		</dependency>
 		<dependency><!-- used by UuidTool -->
 			<groupId>com.fasterxml.uuid</groupId>

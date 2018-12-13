@@ -26,6 +26,12 @@ public class ObjectTool{
 		}
 	}
 
+	public static <T> void requireNotEquals(T first, T second){
+		if(Objects.equals(first, second)){
+			throw new IllegalArgumentException(first + " equals " + second);
+		}
+	}
+
 	public static <T> boolean notEquals(T first, T second){
 		return !Objects.equals(first, second);
 	}

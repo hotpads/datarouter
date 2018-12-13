@@ -15,6 +15,7 @@
  */
 package io.datarouter.util;
 
+import java.time.Instant;
 import java.util.Random;
 
 import de.huxhorn.sulky.ulid.ULID;
@@ -68,6 +69,10 @@ public class UlidTool{
 			int index = (int)((value >>> ((count - i - 1) * MASK_BITS)) & MASK);
 			buffer[offset + i] = ENCODING_CHARS[index];
 		}
+	}
+
+	public static Instant getInstant(String ulid){
+		return Instant.ofEpochMilli(ULID.parseULID(ulid).timestamp());
 	}
 
 }

@@ -16,6 +16,7 @@
 package io.datarouter.storage.node.op.raw.write;
 
 import java.util.Collection;
+import java.util.stream.Stream;
 
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
@@ -23,6 +24,7 @@ import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.Node;
 import io.datarouter.storage.node.op.NodeOps;
+import io.datarouter.util.StreamTool;
 
 /**
  * Methods for writing to any storage system.
@@ -37,6 +39,12 @@ extends NodeOps<PK,D>{
 
 	void put(D databean, Config config);
 	void putMulti(Collection<D> databeans, Config config);
+
+	default void putStream(Stream<D> databeans, Config config){
+		int iterateBatchSize = Config.nullSafe(config).getIterateBatchSize();
+		StreamTool.batch(databeans, iterateBatchSize)
+				.forEach(batch -> putMulti(batch, config));
+	}
 
 	public interface StorageWriterNode<
 			PK extends PrimaryKey<PK>,

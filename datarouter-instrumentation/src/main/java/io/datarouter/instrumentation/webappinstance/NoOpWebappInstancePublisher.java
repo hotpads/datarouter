@@ -21,7 +21,7 @@ public class NoOpWebappInstancePublisher implements WebappInstancePublisher{
 
 	@Override
 	public PublishingResponseDto add(WebappInstanceDto webappInstanceDto){
-		return PublishingResponseDto.noOp();
+		return PublishingResponseDto.NO_OP;
 	}
 
 }

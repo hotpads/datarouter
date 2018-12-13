@@ -117,7 +117,7 @@ public class DatarouterTracer implements Tracer{
 			getThreads().add(thread);
 			setCurrentThread(null);
 		}else{
-			logger.debug("cannot add thread, max capacity reached");
+			logger.debug("cannot add thread, max capacity reached traceId={}", traceId);
 		}
 	}
 
@@ -165,7 +165,7 @@ public class DatarouterTracer implements Tracer{
 			getSpans().add(getCurrentSpan());
 			popSpanFromStack();
 		}else{
-			logger.debug("cannot add span, max capacity reached");
+			logger.debug("cannot add span, max capacity traceId={}", traceId);
 		}
 	}
 

@@ -13,14 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.instrumentation.event;
+package io.datarouter.instrumentation.trace;
 
-import io.datarouter.instrumentation.response.PublishingResponseDto;
+public class TraceSpanFinisher implements AutoCloseable{
 
-public interface EventPublisher{
+	private final Tracer tracer;
 
-	PublishingResponseDto add(EventBatchDto eventBatchDto);
+	public TraceSpanFinisher(Tracer tracer){
+		this.tracer = tracer;
+	}
 
-	PublishingResponseDto addToNonDefaultAccount(EventBatchDto eventBatchDto, String account, boolean invalidateCache);
+	@Override
+	public void close(){
+		TracerTool.finishSpan(tracer);
+	}
 
 }

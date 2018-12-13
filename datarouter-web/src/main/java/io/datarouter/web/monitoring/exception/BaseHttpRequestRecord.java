@@ -580,7 +580,7 @@ extends BaseDatabean<PK,D>{
 		int originalLength = binaryBody.length;
 		if(originalLength > size){
 			binaryBody = ArrayTool.trimToSize(binaryBody, size);
-			logger.warn("Trimmmed binary body to {} from {} for sqs, exceptionRecordId={}", size, originalLength,
+			logger.warn("Trimmed binary body to {} from {} for sqs, exceptionRecordId={}", size, originalLength,
 					exceptionRecordId);
 		}
 	}
@@ -593,7 +593,46 @@ extends BaseDatabean<PK,D>{
 		int originalLength = contentType.length();
 		if(originalLength > size){
 			contentType = StringTool.trimToSize(contentType, size);
-			logger.warn("Trimmmed contentType to {} from {} for sqs, exceptionRecordId={}", size, originalLength,
+			logger.warn("Trimmed contentType to {} from {} for sqs, exceptionRecordId={}", size, originalLength,
+					exceptionRecordId);
+		}
+	}
+
+	public void trimAcceptCharset(){
+		if(acceptCharset == null){
+			return;
+		}
+		int size = FieldKeys.acceptCharset.getSize();
+		int originalLength = acceptCharset.length();
+		if(originalLength > size){
+			acceptCharset = StringTool.trimToSize(acceptCharset, size);
+			logger.warn("Trimmed acceptCharset to {} from {}, exceptionRecordId={}", size, originalLength,
+					exceptionRecordId);
+		}
+	}
+
+	public void trimXForwardedFor(){
+		if(xForwardedFor == null){
+			return;
+		}
+		int size = FieldKeys.xForwardedFor.getSize();
+		int originalLength = xForwardedFor.length();
+		if(originalLength > size){
+			xForwardedFor = StringTool.trimToSize(xForwardedFor, size);
+			logger.warn("Trimmed xForwardedFor to {} from {}, exceptionRecordId={}", size, originalLength,
+					exceptionRecordId);
+		}
+	}
+
+	public void trimPath(){
+		if(path == null){
+			return;
+		}
+		int size = FieldKeys.path.getSize();
+		int originalLength = path.length();
+		if(originalLength > size){
+			path = StringTool.trimToSize(path, size);
+			logger.warn("Trimmed path to {} from {}, exceptionRecordId={}", size, originalLength,
 					exceptionRecordId);
 		}
 	}
